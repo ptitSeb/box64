@@ -50,3 +50,12 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# from box86
+build/
+build*/
+.vscode
+.gdb_history
+src/git_head.h
+backup/
+
