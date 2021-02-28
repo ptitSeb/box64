@@ -1,0 +1,8 @@
+main: swapcontext(&uctx_main, &uctx_func2)
+func2: started (1, 2)
+func2: swapcontext(&uctx_func2, &uctx_func1)
+func1: started
+func1: swapcontext(&uctx_func1, &uctx_func2)
+func2: returning
+func1: returning
+main: exiting

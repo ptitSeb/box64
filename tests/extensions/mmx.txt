@@ -1,0 +1,106 @@
+TEST: test_mmx_cpuid
+TEST: test_mmx_paddb
+TEST: finished with: 0 errors
+TEST: test_mmx_paddsb
+TEST: finished with: 0 errors
+TEST: test_mmx_paddusb
+TEST: finished with: 0 errors
+TEST: test_mmx_paddw
+TEST: finished with: 0 errors
+TEST: test_mmx_paddsw
+TEST: finished with: 0 errors
+TEST: test_mmx_paddusw
+TEST: finished with: 0 errors
+TEST: test_mmx_paddd
+TEST: finished with: 0 errors
+TEST: test_mmx_psubb
+TEST: finished with: 0 errors
+TEST: test_mmx_psubsb
+TEST: finished with: 0 errors
+TEST: test_mmx_psubusb
+TEST: finished with: 0 errors
+TEST: test_mmx_psubw
+TEST: finished with: 0 errors
+TEST: test_mmx_psubuw
+TEST: finished with: 0 errors
+TEST: test_mmx_psubusw
+TEST: finished with: 0 errors
+TEST: test_mmx_psubd
+TEST: finished with: 0 errors
+TEST: test_mmx_por
+TEST: finished with: 0 errors
+TEST: test_mmx_pand
+TEST: finished with: 0 errors
+TEST: test_mmx_pandn
+TEST: finished with: 0 errors
+TEST: test_mmx_pxor
+TEST: finished with: 0 errors
+TEST: test_mmx_pmullw
+TEST: finished with: 0 errors
+TEST: test_mmx_pmulhw
+TEST: finished with: 0 errors
+TEST: test_mmx_pmaddwd
+TEST: finished with: 0 errors
+TEST: test_mmx_packssdw
+TEST: finished with: 0 errors
+TEST: test_mmx_packsswb
+TEST: finished with: 0 errors
+TEST: test_mmx_packuswb
+TEST: finished with: 0 errors
+TEST: test_mmx_punpckhbw
+TEST: finished with: 0 errors
+TEST: test_mmx_punpckhdq
+TEST: finished with: 0 errors
+TEST: test_mmx_punpckhwd
+TEST: finished with: 0 errors
+TEST: test_mmx_punpcklbw
+TEST: finished with: 0 errors
+TEST: test_mmx_punpckldq
+TEST: finished with: 0 errors
+TEST: test_mmx_punpcklwd
+TEST: finished with: 0 errors
+TEST: test_mmx_pcmpeqb
+TEST: finished with: 0 errors
+TEST: test_mmx_pcmpeqw
+TEST: finished with: 0 errors
+TEST: test_mmx_pcmpeqd
+TEST: finished with: 0 errors
+TEST: test_mmx_pcmpgtb
+TEST: finished with: 0 errors
+TEST: test_mmx_pcmpgtw
+TEST: finished with: 0 errors
+TEST: test_mmx_pcmpgtd
+TEST: finished with: 0 errors
+TEST: test_mmx_psllw
+TEST: finished with: 0 errors
+TEST: test_mmx_psllwi
+TEST: finished with: 0 errors
+TEST: test_mmx_pslld
+TEST: finished with: 0 errors
+TEST: test_mmx_pslldi
+TEST: finished with: 0 errors
+TEST: test_mmx_psllq
+TEST: finished with: 0 errors
+TEST: test_mmx_psllqi
+TEST: finished with: 0 errors
+TEST: test_mmx_psraw
+TEST: finished with: 0 errors
+TEST: test_mmx_psrawi
+TEST: finished with: 0 errors
+TEST: test_mmx_psrad
+TEST: finished with: 0 errors
+TEST: test_mmx_psradi
+TEST: finished with: 0 errors
+TEST: test_mmx_psrld
+TEST: finished with: 0 errors
+TEST: test_mmx_psrldi
+TEST: finished with: 0 errors
+TEST: test_mmx_psrlq
+TEST: finished with: 0 errors
+TEST: test_mmx_psrlqi
+TEST: finished with: 0 errors
+TEST: test_mmx_psrlw
+TEST: finished with: 0 errors
+TEST: test_mmx_psrlwi
+TEST: finished with: 0 errors
+Errors: 0
