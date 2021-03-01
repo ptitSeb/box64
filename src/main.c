@@ -750,6 +750,17 @@ int main(int argc, const char **argv, const char **env) {
         FreeCollection(&ld_preload);
         return -1;
     }
+    // Load elf into memory
+    if(LoadElfMemory(f, my_context, elf_header)) {
+        printf_log(LOG_NONE, "Error: loading in memory elf %s\n", my_context->argv[0]);
+        fclose(f);
+        free_contextargv();
+        FreeBox64Context(&my_context);
+        FreeCollection(&ld_preload);
+        return -1;
+    }
+    // can close the file now
+    fclose(f);
 
 
     return 0;

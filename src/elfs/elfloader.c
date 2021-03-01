@@ -278,7 +278,6 @@ void FreeElfMemory(elfheader_t* head)
     }
 }
 
-#if 0
 int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
 {
     for (int i=0; i<head->numPHEntries; ++i) {
@@ -350,6 +349,7 @@ int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
     // TLS data are just a copy, no need to re-load it
     return 0;
 }
+#if 0
 int FindR386COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint32_t** p)
 {
     if(!h)
