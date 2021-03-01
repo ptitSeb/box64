@@ -732,5 +732,25 @@ int main(int argc, const char **argv, const char **env) {
         return execvp(argv[1], (char * const*)(argv+1));
     }
     AddElfHeader(my_context, elf_header);
+
+    if(CalcLoadAddr(elf_header)) {
+        printf_log(LOG_NONE, "Error: reading elf header of %s\n", my_context->argv[0]);
+        fclose(f);
+        free_contextargv();
+        FreeBox64Context(&my_context);
+        FreeCollection(&ld_preload);
+        return -1;
+    }
+    // allocate memory
+    if(AllocElfMemory(my_context, elf_header, 1)) {
+        printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", my_context->argv[0]);
+        fclose(f);
+        free_contextargv();
+        FreeBox64Context(&my_context);
+        FreeCollection(&ld_preload);
+        return -1;
+    }
+
+
     return 0;
 }
