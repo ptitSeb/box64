@@ -9,6 +9,7 @@
 #include "box64context.h"
 #include "debug.h"
 #include "elfloader.h"
+#include "custommem.h"
 
 
 EXPORTDYN
@@ -32,7 +33,7 @@ void finiAllHelpers(box64context_t* context)
     //fini_pthread_helper(context);
     //fini_signal_helper();
     //cleanAlternate();
-    //fini_custommem_helper(context);
+    fini_custommem_helper(context);
     finied = 1;
 }
 
@@ -72,7 +73,7 @@ box64context_t *NewBox64Context(int argc)
     context->deferedInit = 1;
     context->sel_serial = 1;
 
-    //init_custommem_helper(context);
+    init_custommem_helper(context);
 
     context->box64lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
     //context->dlprivate = NewDLPrivate();
