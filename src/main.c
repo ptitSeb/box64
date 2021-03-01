@@ -14,6 +14,8 @@
 #include "fileutils.h"
 #include "box64context.h"
 #include "wine_tools.h"
+#include "elfloader.h"
+#include "custommem.h"
 
 box64context_t *my_context = NULL;
 int box64_log = LOG_NONE;
@@ -720,7 +722,7 @@ int main(int argc, const char **argv, const char **env) {
         FreeCollection(&ld_preload);
         return -1;
     }
-    /*elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->argv[0], 1);
+    elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->argv[0], 1);
     if(!elf_header) {
         printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch natively instead\n", my_context->argv[0]);
         fclose(f);
@@ -729,6 +731,6 @@ int main(int argc, const char **argv, const char **env) {
         FreeCollection(&ld_preload);
         return execvp(argv[1], (char * const*)(argv+1));
     }
-    AddElfHeader(my_context, elf_header);*/
+    /*AddElfHeader(my_context, elf_header);*/
     return 0;
 }

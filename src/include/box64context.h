@@ -4,6 +4,8 @@
 #include <pthread.h>
 #include "pathcoll.h"
 
+typedef struct elfheader_s elfheader_t;
+
 typedef void* (*procaddess_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
 
@@ -42,6 +44,10 @@ typedef struct box64context_s {
     uint32_t            stacksz;
     int                 stackalign;
     void*               stack;          // alocated stack
+
+    elfheader_t         **elfs;         // elf headers and memory
+    int                 elfcap;
+    int                 elfsize;        // number of elf loaded
 
     int                 deferedInit;
 
