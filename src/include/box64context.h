@@ -74,7 +74,14 @@ extern box64context_t *my_context; // global context
 box64context_t *NewBox64Context(int argc);
 void FreeBox64Context(box64context_t** context);
 
+// return the index of the added header
+int AddElfHeader(box64context_t* ctx, elfheader_t* head);
+
 // return the tlsbase (negative) for the new TLS partition created (no partition index is stored in the context)
 int AddTLSPartition(box64context_t* context, int tlssize);
+
+// defined in fact in threads.c
+//void thread_set_emu(x64emu_t* emu);
+//x64emu_t* thread_get_emu();
 
 #endif //__BOX64CONTEXT_H_

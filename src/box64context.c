@@ -8,6 +8,7 @@
 
 #include "box64context.h"
 #include "debug.h"
+#include "elfloader.h"
 
 
 EXPORTDYN
@@ -146,7 +147,7 @@ void FreeBox64Context(box64context_t** context)
 
     free(ctx);
 }
-/*
+
 int AddElfHeader(box64context_t* ctx, elfheader_t* head) {
     int idx = ctx->elfsize;
     if(idx==ctx->elfcap) {
@@ -159,7 +160,7 @@ int AddElfHeader(box64context_t* ctx, elfheader_t* head) {
     printf_log(LOG_DEBUG, "Adding \"%s\" as #%d in elf collection\n", ElfName(head), idx);
     return idx;
 }
-*/
+
 int AddTLSPartition(box64context_t* context, int tlssize) {
     int oldsize = context->tlssize;
     context->tlssize += tlssize;

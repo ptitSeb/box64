@@ -731,6 +731,6 @@ int main(int argc, const char **argv, const char **env) {
         FreeCollection(&ld_preload);
         return execvp(argv[1], (char * const*)(argv+1));
     }
-    /*AddElfHeader(my_context, elf_header);*/
+    AddElfHeader(my_context, elf_header);
     return 0;
 }
