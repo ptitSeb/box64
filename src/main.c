@@ -17,6 +17,7 @@
 #include "elfloader.h"
 #include "custommem.h"
 #include "box64stack.h"
+#include "auxval.h"
 
 box64context_t *my_context = NULL;
 int box64_log = LOG_NONE;
@@ -524,7 +525,7 @@ static void free_contextargv()
 const char **environ __attribute__((weak)) = NULL;
 int main(int argc, const char **argv, const char **env) {
 
-    //init_auxval(argc, argv, environ?environ:env);
+    init_auxval(argc, argv, environ?environ:env);
     // trying to open and load 1st arg
     if(argc==1) {
         PrintBox64Version();
