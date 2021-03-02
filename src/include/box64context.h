@@ -5,6 +5,7 @@
 #include "pathcoll.h"
 
 typedef struct elfheader_s elfheader_t;
+typedef struct cleanup_s cleanup_t;
 
 typedef void* (*procaddess_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
@@ -54,6 +55,12 @@ typedef struct box64context_s {
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
     int32_t             tlssize;    // wanted size of tlsdata
+
+    uintptr_t           *auxval_start;
+
+    cleanup_t   *cleanups;          // atexit functions
+    int         clean_sz;
+    int         clean_cap;
 
     //zydis_dec_t         *dec;           // trace
 
