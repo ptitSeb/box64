@@ -19,6 +19,7 @@
 #include "box64stack.h"
 #include "auxval.h"
 #include "x64emu.h"
+#include "threads.h"
 
 box64context_t *my_context = NULL;
 int box64_log = LOG_NONE;

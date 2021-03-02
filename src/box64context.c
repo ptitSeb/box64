@@ -10,6 +10,8 @@
 #include "debug.h"
 #include "elfloader.h"
 #include "custommem.h"
+#include "threads.h"
+#include "x64trace.h"
 
 
 EXPORTDYN
@@ -19,7 +21,7 @@ void initAllHelpers(box64context_t* context)
     if(inited)
         return;
     my_context = context;
-    //init_pthread_helper();
+    init_pthread_helper();
     //init_signal_helper(context);
     inited = 1;
 }
@@ -30,7 +32,7 @@ void finiAllHelpers(box64context_t* context)
     static int finied = 0;
     if(finied)
         return;
-    //fini_pthread_helper(context);
+    fini_pthread_helper(context);
     //fini_signal_helper();
     //cleanAlternate();
     fini_custommem_helper(context);
@@ -81,6 +83,9 @@ box64context_t *NewBox64Context(int argc)
     context->argc = argc;
     context->argv = (char**)calloc(context->argc+1, sizeof(char*));
 
+    pthread_mutex_init(&context->mutex_thread, NULL);
+
+
     for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
     context->canary[getrand(4)] = 0;
     printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)context->canary);
@@ -102,10 +107,10 @@ void FreeBox64Context(box64context_t** context)
     FreeCollection(&ctx->box64_ld_lib);
     FreeCollection(&ctx->box64_emulated_libs);
     // stop trace now
-    /*if(ctx->dec)
-        DeleteX86TraceDecoder(&ctx->dec);
+    if(ctx->dec)
+        DeleteX64TraceDecoder(&ctx->dec);
     if(ctx->zydis)
-        DeleteX86Trace(ctx);*/
+        DeleteX64Trace(ctx);
 
     free(ctx->argv);
     
@@ -120,7 +125,7 @@ void FreeBox64Context(box64context_t** context)
 
     *context = NULL;                // bye bye my_context
 
-    //CleanStackSize(ctx);
+    CleanStackSize(ctx);
 
 #ifndef BUILD_LIB
     if(ctx->box64lib)
@@ -143,6 +148,8 @@ void FreeBox64Context(box64context_t** context)
 
     if(ctx->tlsdata)
         free(ctx->tlsdata);
+
+    pthread_mutex_destroy(&ctx->mutex_thread);
 
     finiAllHelpers(ctx);
 

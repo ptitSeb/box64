@@ -9,6 +9,7 @@ typedef struct cleanup_s cleanup_t;
 typedef struct x64emu_s x64emu_t;
 typedef struct zydis_s zydis_t;
 typedef struct zydis_dec_s zydis_dec_t;
+typedef struct kh_threadstack_s kh_threadstack_t;
 
 typedef void* (*procaddess_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
@@ -56,6 +57,10 @@ typedef struct box64context_s {
     int                 deferedInit;
 
     uintptr_t           ep;             // entry point
+
+    kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
+
+    pthread_mutex_t     mutex_thread;
 
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
