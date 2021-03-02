@@ -21,10 +21,10 @@
 //#include "signals.h"
 #include <sys/mman.h>
 #include "custommem.h"
+#include "khash.h"
 #ifdef DYNAREC
 //#include "dynablock.h"
 //#include "dynarec/arm_lock_helper.h"
-//#include "khash.h"
 
 //#define USE_MMAP
 
@@ -38,10 +38,13 @@
 //static uintptr_t           *box86_jumptable[JMPTABL_SIZE];
 //static uintptr_t           box86_jmptbl_default[1<<JMPTABL_SHIFT];
 #endif
-//#define MEMPROT_SHIFT 12
-//#define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
-//static pthread_mutex_t     mutex_prot;
-//static uint8_t             memprot[MEMPROT_SIZE] = {0};    // protection flags by 4K block
+#define MEMPROT_STAGE_SHIFT 16
+#define MEMPROT_STAGE (1<<STAGE_SHIFT)
+#define MEMPROT_SHIFT 12
+#define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
+static pthread_mutex_t     mutex_prot;
+KHASH_MAP_INIT_INT(memprot, uint8_t*)
+static kh_memprot_t        *memprot;
 static int inited = 0;
 
 //typedef struct blocklist_s {
@@ -632,37 +635,64 @@ static int inited = 0;
 
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
-//    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
-//    const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-//    pthread_mutex_lock(&mutex_prot);
-//    for (uintptr_t i=idx; i<=end; ++i) {
-//        uint32_t dyn=(memprot[i]&PROT_DYNAREC);
-//        if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
-//            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-//        memprot[i] = prot|dyn;
-//    }
-//    pthread_mutex_unlock(&mutex_prot);
+    if((addr+size)>>32 != (addr)>>32) {
+        setProtection((addr&0xffffffff00000000)+0x100000000, size-(addr&0xffffffff), prot);
+        size-=(addr&0xffffffff);
+    }
+    const uint32_t key = (addr>>32)&0xffffffff;
+    const uintptr_t idx = ((addr&0xffffffff)>>MEMPROT_SHIFT);
+    const uintptr_t end = (((addr&0xffffffff)+size-1)>>MEMPROT_SHIFT);
+    pthread_mutex_lock(&mutex_prot);
+    int ret;
+    khint_t k = kh_put(memprot, memprot, key, &ret);
+    if(ret) {
+        uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
+        kh_value(memprot, k) = m;
+    }
+    for (uintptr_t i=idx; i<=end; ++i) {
+        uint32_t dyn=(kh_value(memprot, k)[i]&PROT_DYNAREC);
+        if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+        kh_value(memprot, k)[i] = prot|dyn;
+    }
+    pthread_mutex_unlock(&mutex_prot);
 }
 
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
-//    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
-//    const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-//    pthread_mutex_lock(&mutex_prot);
-//    for (uintptr_t i=idx; i<=end; ++i) {
-//        memprot[i] = prot;
-//    }
-//    pthread_mutex_unlock(&mutex_prot);
+    if((addr+size)>>32 != (addr)>>32) {
+        setProtection((addr&0xffffffff00000000)+0x100000000, size-(addr&0xffffffff), prot);
+        size-=(addr&0xffffffff);
+    }
+    const uint32_t key = (addr>>32)&0xffffffff;
+    const uintptr_t idx = ((addr&0xffffffff)>>MEMPROT_SHIFT);
+    const uintptr_t end = (((addr&0xffffffff)+size-1)>>MEMPROT_SHIFT);
+    pthread_mutex_lock(&mutex_prot);
+    int ret;
+    khint_t k = kh_put(memprot, memprot, key, &ret);
+    if(ret) {
+        uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
+        kh_value(memprot, k) = m;
+    }
+    for (uintptr_t i=idx; i<=end; ++i) {
+        kh_value(memprot, k)[i] = prot;
+    }
+    pthread_mutex_unlock(&mutex_prot);
 }
 
 uint32_t getProtection(uintptr_t addr)
 {
-//    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
-//    pthread_mutex_lock(&mutex_prot);
-//    uint32_t ret = memprot[idx];
-//    pthread_mutex_unlock(&mutex_prot);
-//    return ret;
-    return 0;
+    const uint32_t key = (addr>>32)&0xffffffff;
+    pthread_mutex_lock(&mutex_prot);
+    khint_t k = kh_get(memprot, memprot, key);
+    if(k==kh_end(memprot)) {
+        pthread_mutex_unlock(&mutex_prot);
+        return 0;
+    }
+    const uintptr_t idx = ((addr&0xffffffff)>>MEMPROT_SHIFT);
+    uint32_t ret = kh_val(memprot, k)[idx];
+    pthread_mutex_unlock(&mutex_prot);
+    return ret;
 }
 
 void init_custommem_helper(box64context_t* ctx)
@@ -670,7 +700,8 @@ void init_custommem_helper(box64context_t* ctx)
     if(inited) // already initialized
         return;
     inited = 1;
-//    pthread_mutex_init(&mutex_prot, NULL);
+    memprot = kh_init(memprot);
+    pthread_mutex_init(&mutex_prot, NULL);
 #ifdef DYNAREC
 //    pthread_mutex_init(&mutex_mmap, NULL);
 #ifdef ARM
@@ -743,6 +774,11 @@ void fini_custommem_helper(box64context_t *ctx)
 //        free(p_blocks[i].block);
 //        #endif
 //    free(p_blocks);
-//    pthread_mutex_destroy(&mutex_prot);
+    uint8_t* m;
+    kh_foreach_value(memprot, m,
+        free(m);
+    );
+    kh_destroy(memprot, memprot);
+    pthread_mutex_destroy(&mutex_prot);
 //    pthread_mutex_destroy(&mutex_blocks);
 }
