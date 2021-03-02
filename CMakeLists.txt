@@ -106,6 +106,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/emu/x64emu.c"
     "${BOX64_ROOT}/src/emu/x64int3.c"
     "${BOX64_ROOT}/src/emu/x87emu_private.c"
+    "${BOX64_ROOT}/src/emu/x64trace.c"
     "${BOX64_ROOT}/src/libtools/auxval.c"
     "${BOX64_ROOT}/src/tools/box64stack.c"
     "${BOX64_ROOT}/src/tools/pathcoll.c"

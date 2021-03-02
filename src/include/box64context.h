@@ -7,6 +7,8 @@
 typedef struct elfheader_s elfheader_t;
 typedef struct cleanup_s cleanup_t;
 typedef struct x64emu_s x64emu_t;
+typedef struct zydis_s zydis_t;
+typedef struct zydis_dec_s zydis_dec_t;
 
 typedef void* (*procaddess_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
@@ -31,7 +33,7 @@ typedef struct box64context_s {
 
     uint32_t            sel_serial;     // will be increment each time selectors changes
 
-    //zydis_t             *zydis;         // dlopen the zydis dissasembler
+    zydis_t             *zydis;         // dlopen the zydis dissasembler
     void*               box64lib;       // dlopen on box86 itself
 
     int                 argc;
@@ -65,7 +67,7 @@ typedef struct box64context_s {
     int         clean_sz;
     int         clean_cap;
 
-    //zydis_dec_t         *dec;           // trace
+    zydis_dec_t         *dec;           // trace
 
     uint8_t             canary[4];
 
