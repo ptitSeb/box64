@@ -16,6 +16,7 @@
 #include "wine_tools.h"
 #include "elfloader.h"
 #include "custommem.h"
+#include "box64stack.h"
 
 box64context_t *my_context = NULL;
 int box64_log = LOG_NONE;
@@ -806,6 +807,14 @@ int main(int argc, const char **argv, const char **env) {
         } else {
             printf_log(LOG_INFO, "BOX86: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
         }
+    }
+    // get and alloc stack size and align
+    if(CalcStackSize(my_context)) {
+        printf_log(LOG_NONE, "Error: allocating stack\n");
+        free_contextargv();
+        FreeBox64Context(&my_context);
+        FreeCollection(&ld_preload);
+        return -1;
     }
 
     return 0;
