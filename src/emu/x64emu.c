@@ -336,7 +336,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
     if(trace_emm) {
         // do emm reg is needed
         for(int i=0; i<8; ++i) {
-            sprintf(tmp, "mm%d:%016llx", i, emu->mmx[i].q);
+            sprintf(tmp, "mm%d:%016lx", i, emu->mmx[i].q);
             strcat(buff, tmp);
             if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
         }
@@ -344,7 +344,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
     if(trace_xmm) {
         // do xmm reg is needed
         for(int i=0; i<8; ++i) {
-            sprintf(tmp, "%d:%016llx%016llx", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
+            sprintf(tmp, "%d:%016lx%016lx", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
             strcat(buff, tmp);
             if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
         }
@@ -362,7 +362,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
         strcat(buff, "\n");
     }
     for (int i=_AX; i<=_R15; ++i) {
-        sprintf(tmp, "%s=%016llx ", regname[i], emu->regs[i].q[0]);
+        sprintf(tmp, "%s=%016lx ", regname[i], emu->regs[i].q[0]);
         strcat(buff, tmp);
 
         if (i==3) {
@@ -376,7 +376,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
             }
         }
     }
-    sprintf(tmp, "RIP=%016llx ", ip);
+    sprintf(tmp, "RIP=%016lx ", ip);
     strcat(buff, tmp);
     return buff;
 }

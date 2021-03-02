@@ -70,13 +70,13 @@ void wine_prereserve(const char* reserve)
         void* p = mmap(my_wine_reserve[idx].addr, my_wine_reserve[idx].size, 
                     PROT_NONE, /*MAP_FIXED |*/ MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0);
         if(p==(void*)-1 || p!=my_wine_reserve[idx].addr) {
-            printf_log(LOG_NONE, "Warning, prereserve of %p:0x%x failed (%s)\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size, strerror(errno));
+            printf_log(LOG_NONE, "Warning, prereserve of %p:0x%lx failed (%s)\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size, strerror(errno));
             if(p!=(void*)-1)
                 munmap(p, my_wine_reserve[idx].size);
             my_wine_reserve[idx].addr = NULL;
             my_wine_reserve[idx].size = 0;
         } else {
-            printf_log(LOG_DEBUG, "WINE prereserve of %p:0x%x done\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size);
+            printf_log(LOG_DEBUG, "WINE prereserve of %p:0x%lx done\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size);
             ++idx;
         }
     }

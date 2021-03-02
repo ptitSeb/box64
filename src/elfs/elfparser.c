@@ -17,16 +17,16 @@
 int LoadSH(FILE *f, Elf64_Shdr *s, void** SH, const char* name, uint32_t type)
 {
     if(type && (s->sh_type != type)) {
-        printf_log(LOG_INFO, "Section Header \"%s\" (off=%d, size=%d) has incorect type (%d != %d)\n", name, s->sh_offset, s->sh_size, s->sh_type, type);
+        printf_log(LOG_INFO, "Section Header \"%s\" (off=%ld, size=%ld) has incorect type (%d != %d)\n", name, s->sh_offset, s->sh_size, s->sh_type, type);
         return -1;
     }
     if (type==SHT_SYMTAB && s->sh_size%sizeof(Elf64_Sym)) {
-        printf_log(LOG_INFO, "Section Header \"%s\" (off=%d, size=%d) has size (not multiple of %d)\n", name, s->sh_offset, s->sh_size, sizeof(Elf64_Sym));
+        printf_log(LOG_INFO, "Section Header \"%s\" (off=%ld, size=%ld) has size (not multiple of %ld)\n", name, s->sh_offset, s->sh_size, sizeof(Elf64_Sym));
     }
     *SH = calloc(1, s->sh_size);
     fseeko64(f, s->sh_offset ,SEEK_SET);
     if(fread(*SH, s->sh_size, 1, f)!=1) {
-            printf_log(LOG_INFO, "Cannot read Section Header \"%s\" (off=%d, size=%d)\n", name, s->sh_offset, s->sh_size);
+            printf_log(LOG_INFO, "Cannot read Section Header \"%s\" (off=%ld, size=%ld)\n", name, s->sh_offset, s->sh_size);
             return -1;
     }
 
@@ -106,11 +106,11 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         return NULL;
     }
     if(header.e_phentsize != sizeof(Elf64_Phdr)) {
-        printf_log(LOG_INFO, "Program Header Entry size incorrect (%d != %d)\n", header.e_phentsize, sizeof(Elf64_Phdr));
+        printf_log(LOG_INFO, "Program Header Entry size incorrect (%d != %ld)\n", header.e_phentsize, sizeof(Elf64_Phdr));
         return NULL;
     }
     if(header.e_shentsize != sizeof(Elf64_Shdr) && header.e_shentsize != 0) {
-        printf_log(LOG_INFO, "Section Header Entry size incorrect (%d != %d)\n", header.e_shentsize, sizeof(Elf64_Shdr));
+        printf_log(LOG_INFO, "Section Header Entry size incorrect (%d != %ld)\n", header.e_shentsize, sizeof(Elf64_Shdr));
         return NULL;
     }
 
@@ -216,7 +216,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             }
             if(h->rel) {
                 if(h->relent != sizeof(Elf64_Rel)) {
-                    printf_log(LOG_NONE, "Rel Table Entry size invalid (0x%x should be 0x%x)\n", h->relent, sizeof(Elf64_Rel));
+                    printf_log(LOG_NONE, "Rel Table Entry size invalid (0x%x should be 0x%lx)\n", h->relent, sizeof(Elf64_Rel));
                     FreeElfHeader(&h);
                     return NULL;
                 }
@@ -224,7 +224,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             }
             if(h->rela) {
                 if(h->relaent != sizeof(Elf64_Rela)) {
-                    printf_log(LOG_NONE, "RelA Table Entry size invalid (0x%x should be 0x%x)\n", h->relaent, sizeof(Elf64_Rela));
+                    printf_log(LOG_NONE, "RelA Table Entry size invalid (0x%x should be 0x%lx)\n", h->relaent, sizeof(Elf64_Rela));
                     FreeElfHeader(&h);
                     return NULL;
                 }
@@ -236,16 +236,16 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                 } else if(h->pltrel == DT_RELA) {
                     h->pltent = sizeof(Elf64_Rela);
                 } else {
-                    printf_log(LOG_NONE, "PLT Table type is unknown (size = 0x%x, type=%d)\n", h->pltsz, h->pltrel);
+                    printf_log(LOG_NONE, "PLT Table type is unknown (size = 0x%x, type=%ld)\n", h->pltsz, h->pltrel);
                     FreeElfHeader(&h);
                     return NULL;
                 }
                 if((h->pltsz / h->pltent)*h->pltent != h->pltsz) {
-                    printf_log(LOG_NONE, "PLT Table Entry size invalid (0x%x, ent=0x%x, type=%d)\n", h->pltsz, h->pltent, h->pltrel);
+                    printf_log(LOG_NONE, "PLT Table Entry size invalid (0x%x, ent=0x%x, type=%ld)\n", h->pltsz, h->pltent, h->pltrel);
                     FreeElfHeader(&h);
                     return NULL;
                 }
-                printf_log(LOG_DEBUG, "PLT Table @%p (type=%d 0x%x/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
+                printf_log(LOG_DEBUG, "PLT Table @%p (type=%ld 0x%x/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
             }
             if(h->DynStrTab && h->szDynStrTab) {
                 //DumpDynamicNeeded(h); cannot dump now, it's not loaded yet
