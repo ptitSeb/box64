@@ -827,6 +827,12 @@ int main(int argc, const char **argv, const char **env) {
     SetRAX(emu, my_context->argc);
     SetRBX(emu, (uintptr_t)my_context->argv);
 
+    // child fork to handle traces
+    pthread_atfork(NULL, NULL, my_child_fork);
+
+    thread_set_emu(emu);
+
+    setupTraceInit(my_context);
 
     return 0;
 }

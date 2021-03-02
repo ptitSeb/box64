@@ -98,7 +98,7 @@ int AddElfHeader(box64context_t* ctx, elfheader_t* head);
 int AddTLSPartition(box64context_t* context, int tlssize);
 
 // defined in fact in threads.c
-//void thread_set_emu(x64emu_t* emu);
-//x64emu_t* thread_get_emu();
+void thread_set_emu(x64emu_t* emu);
+x64emu_t* thread_get_emu();
 
 #endif //__BOX64CONTEXT_H_
