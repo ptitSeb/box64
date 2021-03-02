@@ -12,6 +12,7 @@
 #include "custommem.h"
 #include "threads.h"
 #include "x64trace.h"
+#include "bridge.h"
 
 
 EXPORTDYN
@@ -60,6 +61,8 @@ void free_tlsdatasize(void* p)
     free(p);
 }
 
+void x64Syscall(x64emu_t *emu);
+
 EXPORTDYN
 box64context_t *NewBox64Context(int argc)
 {
@@ -77,6 +80,9 @@ box64context_t *NewBox64Context(int argc)
 
     init_custommem_helper(context);
 
+    context->system = NewBridge();
+    // create vsyscall
+//    context->vsyscall = AddBridge(context->system, vFv, x64Syscall, 0);
     context->box64lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
     //context->dlprivate = NewDLPrivate();
 
@@ -127,17 +133,14 @@ void FreeBox64Context(box64context_t** context)
 
     CleanStackSize(ctx);
 
-#ifndef BUILD_LIB
-    if(ctx->box64lib)
-        dlclose(ctx->box64lib);
-#endif
-
     //FreeDLPrivate(&ctx->dlprivate);
 
     free(ctx->stack);
 
     free(ctx->fullpath);
     free(ctx->box64path);
+
+    FreeBridge(&ctx->system);
 
     void* ptr;
     if ((ptr = pthread_getspecific(ctx->tlskey)) != NULL) {

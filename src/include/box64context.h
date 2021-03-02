@@ -9,6 +9,8 @@ typedef struct cleanup_s cleanup_t;
 typedef struct x64emu_s x64emu_t;
 typedef struct zydis_s zydis_t;
 typedef struct zydis_dec_s zydis_dec_t;
+typedef struct lib_s lib_t;
+typedef struct bridge_s bridge_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
 
 typedef void* (*procaddess_t)(const char* name);
@@ -58,7 +60,12 @@ typedef struct box64context_s {
 
     uintptr_t           ep;             // entry point
 
+    lib_t               *maplib;        // lib and symbols handling
+    lib_t               *local_maplib;  // libs and symbols openned has local (only collection of libs, no symbols)
+
     kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
+    bridge_t            *system;        // other bridges
+    uintptr_t           vsyscall;       // vsyscall bridge value
 
     pthread_mutex_t     mutex_thread;
 
