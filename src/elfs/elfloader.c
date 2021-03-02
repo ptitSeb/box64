@@ -132,7 +132,7 @@ int CalcLoadAddr(elfheader_t* head)
         }
     }
     printf_log(LOG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%lx (align=0x%x)\n", (void*)head->vaddr, (void*)head->paddr, head->memsz, head->align);
-    printf_log(LOG_DEBUG, "Elf Stack Memsize=%llu (align=%u)\n", head->stacksz, head->stackalign);
+    printf_log(LOG_DEBUG, "Elf Stack Memsize=%lu (align=%u)\n", head->stacksz, head->stackalign);
     printf_log(LOG_DEBUG, "Elf TLS Memsize=%u (align=%u)\n", head->tlssize, head->tlsalign);
 
     return 0;

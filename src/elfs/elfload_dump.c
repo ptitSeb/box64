@@ -55,7 +55,7 @@ const char* DumpSection(Elf64_Shdr *s, char* SST) {
         #endif
         #undef GO
         default:
-            sprintf(buff, "0x%lX unknown type", s->sh_type);
+            sprintf(buff, "0x%X unknown type", s->sh_type);
     }
     return buff;
 }

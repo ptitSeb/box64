@@ -144,7 +144,7 @@ void LoadLogEnv()
     if(p) {
         char* p2;
         start_cnt = strtoll(p, &p2, 10);
-        printf_log(LOG_INFO, "Will start trace only after %llu instructions\n", start_cnt);
+        printf_log(LOG_INFO, "Will start trace only after %lu instructions\n", start_cnt);
     }
 #endif
     // grab BOX64_TRACE_FILE envvar, and change %pid to actual pid is present in the name
@@ -440,9 +440,9 @@ void setupTraceInit(box64context_t* context)
         if (strcmp(p, "1")==0)
             SetTraceEmu(0, 0);
         else if (strchr(p,'-')) {
-            if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
-                if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
-                    sscanf(p, "%x-%x", &trace_start, &trace_end);
+            if(sscanf(p, "%ld-%ld", &trace_start, &trace_end)!=2) {
+                if(sscanf(p, "0x%lX-0x%lX", &trace_start, &trace_end)!=2)
+                    sscanf(p, "%lx-%lx", &trace_start, &trace_end);
             }
             if(trace_start || trace_end)
                 SetTraceEmu(trace_start, trace_end);
@@ -475,9 +475,9 @@ void setupTrace(box64context_t* context)
         if (strcmp(p, "1")==0)
             SetTraceEmu(0, 0);
         else if (strchr(p,'-')) {
-            if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
-                if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
-                    sscanf(p, "%x-%x", &trace_start, &trace_end);
+            if(sscanf(p, "%ld-%ld", &trace_start, &trace_end)!=2) {
+                if(sscanf(p, "0x%lX-0x%lX", &trace_start, &trace_end)!=2)
+                    sscanf(p, "%lx-%lx", &trace_start, &trace_end);
             }
             if(trace_start || trace_end) {
                 SetTraceEmu(trace_start, trace_end);
