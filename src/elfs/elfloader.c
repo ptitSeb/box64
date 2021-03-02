@@ -874,7 +874,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int
         }
     return 0;
 }
-
+#endif
 int ElfCheckIfUseTCMallocMinimal(elfheader_t* h)
 {
     if(!h)
@@ -889,7 +889,7 @@ int ElfCheckIfUseTCMallocMinimal(elfheader_t* h)
         }
     return 0;
 }
-
+#if 0
 void RunElfInit(elfheader_t* h, x86emu_t *emu)
 {
     if(!h || h->init_done)

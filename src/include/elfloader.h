@@ -53,7 +53,7 @@ int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head);
 //void ResetSpecialCaseMainElf(elfheader_t* h);
 //void CreateMemorymapFile(box64context_t* context, int fd);
 
-//int ElfCheckIfUseTCMallocMinimal(elfheader_t* h);   // return 1 if tcmalloc is used
+int ElfCheckIfUseTCMallocMinimal(elfheader_t* h);   // return 1 if tcmalloc is used
 
 
 #endif //__ELF_LOADER_H_

@@ -328,16 +328,16 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
 
 void PrintHelp() {
     printf("\n\nThis is Box86, the Linux x86 emulator with a twist\n");
-    printf("\nUsage is box86 [options] path/to/software [args]\n");
+    printf("\nUsage is box64 [options] path/to/software [args]\n");
     printf("to launch x86 software\n");
     printf(" options can be :\n");
-    printf("    '-v'|'--version' to print box86 version and quit\n");
-    printf("    '-h'|'--help'    to print box86 help and quit\n");
+    printf("    '-v'|'--version' to print box64 version and quit\n");
+    printf("    '-h'|'--help'    to print box64 help and quit\n");
     printf("You can also set some environment variables:\n");
-    printf(" BOX64_PATH is the box86 version of PATH (default is '.:bin')\n");
-    printf(" BOX64_LD_LIBRARY_PATH is the box86 version LD_LIBRARY_PATH (default is '.:lib')\n");
+    printf(" BOX64_PATH is the box64 version of PATH (default is '.:bin')\n");
+    printf(" BOX64_LD_LIBRARY_PATH is the box64 version LD_LIBRARY_PATH (default is '.:lib')\n");
     printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info\n");
-    printf(" BOX64_NOBANNER with 0/1 to enable/disable the printing of box86 version and build at start\n");
+    printf(" BOX64_NOBANNER with 0/1 to enable/disable the printing of box64 version and build at start\n");
 #ifdef HAVE_TRACE
     printf(" BOX64_TRACE with 1 to enable x86 execution trace\n");
     printf("    or with XXXXXX-YYYYYY to enable x86 execution trace only between address\n");
@@ -761,7 +761,52 @@ int main(int argc, const char **argv, const char **env) {
     }
     // can close the file now
     fclose(f);
-
+    if(ElfCheckIfUseTCMallocMinimal(elf_header)) {
+        if(!box64_tcmalloc_minimal) {
+            // need to reload with tcmalloc_minimal as a LD_PRELOAD!
+            printf_log(LOG_INFO, "BOX86: tcmalloc_minimal.so.4 used, reloading box64 with the lib preladed\n");
+            // need to get a new envv variable. so first count it and check if LD_PRELOAD is there
+            int preload=(getenv("LD_PRELOAD"))?1:0;
+            int nenv = 0;
+            while(env[nenv]) nenv++;
+            // alloc + "LD_PRELOAD" if needd + last NULL ending
+            char** newenv = (char**)calloc(nenv+1+((preload)?0:1), sizeof(char*));
+            // copy strings
+            for (int i=0; i<nenv; ++i)
+                newenv[i] = strdup(env[i]);
+            // add ld_preload
+            if(preload) {
+                // find the line
+                int l = 0;
+                while(l<nenv) {
+                    if(strstr(newenv[l], "LD_PRELOAD=")==newenv[l]) {
+                        // found it!
+                        char *old = newenv[l];
+                        newenv[l] = (char*)calloc(strlen(old)+strlen("libtcmalloc_minimal.so.4:")+1, sizeof(char));
+                        strcpy(newenv[l], "LD_PRELOAD=libtcmalloc_minimal.so.4:");
+                        strcat(newenv[l], old + strlen("LD_PRELOAD="));
+                        free(old);
+                        // done, end loop
+                        l = nenv;
+                    } else ++l;
+                }
+            } else {
+                //move last one
+                newenv[nenv] = strdup(newenv[nenv-1]);
+                free(newenv[nenv-1]);
+                newenv[nenv-1] = strdup("LD_PRELOAD=libtcmalloc_minimal.so.4");
+            }
+            // duplicate argv too
+            char** newargv = calloc(argc+1, sizeof(char*));
+            int narg = 0;
+            while(argv[narg]) {newargv[narg] = strdup(argv[narg]); narg++;}
+            // launch with new env...
+            if(execve(newargv[0], newargv, newenv)<0)
+                printf_log(LOG_NONE, "Failed to relaunch, error is %d/%s\n", errno, strerror(errno));
+        } else {
+            printf_log(LOG_INFO, "BOX86: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
+        }
+    }
 
     return 0;
 }
