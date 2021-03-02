@@ -18,6 +18,7 @@
 #include "custommem.h"
 #include "box64stack.h"
 #include "auxval.h"
+#include "x64emu.h"
 
 box64context_t *my_context = NULL;
 int box64_log = LOG_NONE;
@@ -819,6 +820,11 @@ int main(int argc, const char **argv, const char **env) {
     }
     // init x86_64 emu
     x64emu_t *emu = NewX64Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
+    // stack setup is much more complicated then just that!
+    SetupInitialStack(emu); // starting here, the argv[] don't need free anymore
+    SetupX64Emu(emu);
+    SetRAX(emu, my_context->argc);
+    SetRBX(emu, (uintptr_t)my_context->argv);
 
 
     return 0;

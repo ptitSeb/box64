@@ -101,7 +101,7 @@ x64emu_t *NewX64EmuFromStack(x64emu_t* emu, box64context_t *context, uintptr_t s
 }
 
 EXPORTDYN
-void SetupX86Emu(x64emu_t *emu)
+void SetupX64Emu(x64emu_t *emu)
 {
     printf_log(LOG_DEBUG, "Setup X86_64 Emu\n");
 }
