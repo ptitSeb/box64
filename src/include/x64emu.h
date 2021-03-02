@@ -4,11 +4,11 @@
 typedef struct x64emu_s x64emu_t;
 typedef struct box64context_s box64context_t;
 
-x64emu_t *NewX86Emu(box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack);
-x64emu_t *NewX86EmuFromStack(x64emu_t* emu, box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack);
-void SetupX86Emu(x64emu_t *emu);
-void FreeX86Emu(x64emu_t **x64emu);
-void FreeX86EmuFromStack(x64emu_t **emu);
+x64emu_t *NewX64Emu(box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack);
+x64emu_t *NewX64EmuFromStack(x64emu_t* emu, box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack);
+void SetupX64Emu(x64emu_t *emu);
+void FreeX64Emu(x64emu_t **x64emu);
+void FreeX64EmuFromStack(x64emu_t **emu);
 void CloneEmu(x64emu_t *newemu, const x64emu_t* emu);
 void SetTraceEmu(uintptr_t trace_start, uintptr_t trace_end);
 

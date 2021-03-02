@@ -818,7 +818,7 @@ int main(int argc, const char **argv, const char **env) {
         return -1;
     }
     // init x86_64 emu
-    //x64emu_t *emu = NewX64Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
+    x64emu_t *emu = NewX64Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
 
 
     return 0;

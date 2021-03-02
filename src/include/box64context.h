@@ -6,6 +6,7 @@
 
 typedef struct elfheader_s elfheader_t;
 typedef struct cleanup_s cleanup_t;
+typedef struct x64emu_s x64emu_t;
 
 typedef void* (*procaddess_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
@@ -52,6 +53,8 @@ typedef struct box64context_s {
 
     int                 deferedInit;
 
+    uintptr_t           ep;             // entry point
+
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
     int32_t             tlssize;    // wanted size of tlsdata
@@ -70,7 +73,7 @@ typedef struct box64context_s {
     uintptr_t           restorer[MAX_SIGNAL];
     int                 onstack[MAX_SIGNAL];
     int                 is_sigaction[MAX_SIGNAL];
-
+    x64emu_t            *emu_sig;       // the emu with stack used for signal handling (must be separated from main ones)
     int                 no_sigsegv;
     int                 no_sigill;
 
