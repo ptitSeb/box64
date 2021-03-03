@@ -328,10 +328,10 @@ void ResetFlags(x64emu_t *emu)
 
 const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
 {
-    static char buff[800];
+    static char buff[1000];
     char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", 
-                       "R8",  "R9",  "R10", "R11", "R12", "R13", "R14", "R15"};
-    char tmp[80];
+                       " R8", " R9", "R10", "R11", "R12", "R13", "R14", "R15"};
+    char tmp[160];
     buff[0] = '\0';
     if(trace_emm) {
         // do emm reg is needed
@@ -365,16 +365,20 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
         sprintf(tmp, "%s=%016lx ", regname[i], emu->regs[i].q[0]);
         strcat(buff, tmp);
 
-        if (i==3) {
-            if(emu->df) {
-                strcat(buff, "FLAGS=??????\n");
-            } else {
+        if (i%5==4) {
+            if(i==4) {
+                if(emu->df) {
+                    strcat(buff, "FLAGS=??????\n");
+                } else {
 #define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "-"
-                sprintf(tmp, "FLAGS=%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(C), FLAG_CHAR(P), FLAG_CHAR(A), FLAG_CHAR(Z), FLAG_CHAR(S));
-                strcat(buff, tmp);
+                    sprintf(tmp, "FLAGS=%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(C), FLAG_CHAR(P), FLAG_CHAR(A), FLAG_CHAR(Z), FLAG_CHAR(S));
+                    strcat(buff, tmp);
 #undef FLAG_CHAR
+                }
+            } else {
+                strcat(buff, "\n");
             }
-        }
+        } 
     }
     sprintf(tmp, "RIP=%016lx ", ip);
     strcat(buff, tmp);

@@ -93,10 +93,10 @@ void DeleteX64TraceDecoder(zydis_dec_t **dec)
 
 const char* DecodeX64Trace(zydis_dec_t *dec, uintptr_t p)
 {
-    static char buff[256];
+    static char buff[512];
     if(ZYAN_SUCCESS(dec->ZydisDecoderDecodeBuffer(&dec->decoder, (char*)p, 15,
         &dec->instruction))) {
-        char tmp[255];
+        char tmp[511];
         buff[0]='\0';
         for (int i=0; i<dec->instruction.length; ++i) {
             sprintf(tmp, "%02X ", *((unsigned char*)p+i));

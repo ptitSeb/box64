@@ -22,6 +22,7 @@
 #include "threads.h"
 #include "x64trace.h"
 #include "librarian.h"
+#include "x64run.h"
 
 box64context_t *my_context = NULL;
 int box64_log = LOG_NONE;
@@ -891,5 +892,16 @@ int main(int argc, const char **argv, const char **env) {
 
     atexit(endBox64);
 
-    return 0;
+    // emulate!
+    printf_log(LOG_DEBUG, "Start x64emu on Main\n");
+    SetRDI(emu, my_context->argc);
+    SetRSI(emu, (uint64_t)my_context->argv);
+    SetRIP(emu, my_context->ep);
+    ResetFlags(emu);
+    Run(emu, 0);
+    // Get EAX
+    int ret = GetEAX(emu);
+    printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
+
+    return ret;
 }

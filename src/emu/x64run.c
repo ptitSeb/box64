@@ -46,6 +46,7 @@ int Run(x64emu_t *emu, int step)
     int64_t ll;
     sse_regs_t *opex, eax1;
     mmx_regs_t *opem, eam1;
+    int rexw, rexb, rexr, rexx;
 
     if(emu->quit)
         return 0;
@@ -81,6 +82,16 @@ x64emurun:
 #endif
 
         opcode = F8;
+        if(opcode>=0x40 && opcode<=0x4f) {
+            // REX !
+            rexb = (opcode&0x1);
+            rexx = (opcode>>1)&1;
+            rexr = (opcode>>2)&1;
+            rexw = (opcode>>2)&1;
+            opcode = F8;
+        } else {
+            rexx = rexr = rexw = rexb = 0;
+        }
         switch(opcode) {
 
         default:
