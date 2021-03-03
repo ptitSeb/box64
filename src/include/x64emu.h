@@ -42,8 +42,8 @@ void ResetSegmentsCache(x64emu_t *emu);
 const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip);
 
 void StopEmu(x64emu_t* emu, const char* reason);
-//void PushExit(x64emu_t* emu);
-//void* GetExit();
+void PushExit(x64emu_t* emu);
+void* GetExit();
 void EmuCall(x64emu_t* emu, uintptr_t addr);
 void AddCleanup(x64emu_t *emu, void *p);
 void AddCleanup1Arg(x64emu_t *emu, void *p, void* a);

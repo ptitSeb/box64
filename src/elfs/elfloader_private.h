@@ -1,12 +1,12 @@
 #ifndef __ELFLOADER_PRIVATE_H_
 #define __ELFLOADER_PRIVATE_H_
 
-//#ifdef DYNAREC
-//typedef struct dynablocklist_s dynablocklist_t;
-//#endif
+#ifdef DYNAREC
+typedef struct dynablocklist_s dynablocklist_t;
+#endif
 
-//typedef struct library_s library_t;
-//typedef struct needed_libs_s needed_libs_t;
+typedef struct library_s library_t;
+typedef struct needed_libs_s needed_libs_t;
 
 #include <pthread.h>
 
@@ -82,8 +82,8 @@ struct elfheader_s {
     uint64_t*   multiblock_size;
     int         multiblock_n;
 
-    //library_t   *lib;
-    //needed_libs_t *neededlibs;
+    library_t   *lib;
+    needed_libs_t *neededlibs;
 };
 
 #define R_X86_64_NONE		0	/* No reloc */

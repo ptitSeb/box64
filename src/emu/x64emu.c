@@ -14,8 +14,8 @@
 #include "box64context.h"
 #include "x64run.h"
 #include "x64run_private.h"
-//#include "callback.h"
-//#include "bridge.h"
+#include "callback.h"
+#include "bridge.h"
 #ifdef DYNAREC
 #include "custommem.h"
 #endif
@@ -43,16 +43,16 @@ uint32_t* GetParityTab()
     return x86emu_parity_tab;
 }
 
-//void PushExit(x64emu_t* emu)
-//{
-//    uintptr_t endMarker = AddCheckBridge(my_context->system, NULL, NULL, 0);
-//    Push(emu, endMarker);
-//}
+void PushExit(x64emu_t* emu)
+{
+    uintptr_t endMarker = AddCheckBridge(my_context->system, NULL, NULL, 0);
+    Push(emu, endMarker);
+}
 
-//void* GetExit()
-//{
-//    return (void*)AddCheckBridge(my_context->system, NULL, NULL, 0);
-//}
+void* GetExit()
+{
+    return (void*)AddCheckBridge(my_context->system, NULL, NULL, 0);
+}
 
 static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
@@ -403,31 +403,31 @@ void UnimpOpcode(x64emu_t* emu)
     emu->error |= ERR_UNIMPL;
 }
 
-//void EmuCall(x64emu_t* emu, uintptr_t addr)
-//{
-//    uint64_t old_rsp = R_RSP;
-//    uint64_t old_rbx = R_RBX;
-//    uint64_t old_rdi = R_RDI;
-//    uint64_t old_rsi = R_RSI;
-//    uint64_t old_rbp = R_RBP;
-//    uint64_t old_rip = R_RIP;
-//    PushExit(emu);
-//    R_RIP = addr;
-//    emu->df = d_none;
-//    Run(emu, 0);
-//    emu->quit = 0;  // reset Quit flags...
-//    emu->df = d_none;
-//    if(emu->quitonlongjmp && emu->longjmp) {
-//        emu->longjmp = 0;   // don't change anything because of the longjmp
-//    } else {
-//        R_RBX = old_ebx;
-//        R_RDI = old_edi;
-//        R_RSI = old_esi;
-//        R_RBP = old_ebp;
-//        R_RSP = old_esp;
-//        R_RIP = old_eip;  // and set back instruction pointer
-//    }
-//}
+void EmuCall(x64emu_t* emu, uintptr_t addr)
+{
+    uint64_t old_rsp = R_RSP;
+    uint64_t old_rbx = R_RBX;
+    uint64_t old_rdi = R_RDI;
+    uint64_t old_rsi = R_RSI;
+    uint64_t old_rbp = R_RBP;
+    uint64_t old_rip = R_RIP;
+    PushExit(emu);
+    R_RIP = addr;
+    emu->df = d_none;
+    Run(emu, 0);
+    emu->quit = 0;  // reset Quit flags...
+    emu->df = d_none;
+    if(emu->quitonlongjmp && emu->longjmp) {
+        emu->longjmp = 0;   // don't change anything because of the longjmp
+    } else {
+        R_RBX = old_rbx;
+        R_RDI = old_rdi;
+        R_RSI = old_rsi;
+        R_RBP = old_rbp;
+        R_RSP = old_rsp;
+        R_RIP = old_rip;  // and set back instruction pointer
+    }
+}
 
 uint64_t ReadTSC(x64emu_t* emu)
 {

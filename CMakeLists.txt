@@ -100,45 +100,56 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/box64context.c"
     "${BOX64_ROOT}/src/build_info.c"
     "${BOX64_ROOT}/src/custommem.c"
+    "${BOX64_ROOT}/src/dynarec/dynarec.c"
     "${BOX64_ROOT}/src/elfs/elfloader.c"
     "${BOX64_ROOT}/src/elfs/elfparser.c"
     "${BOX64_ROOT}/src/elfs/elfload_dump.c"
     "${BOX64_ROOT}/src/emu/x64emu.c"
     "${BOX64_ROOT}/src/emu/x64int3.c"
     "${BOX64_ROOT}/src/emu/x87emu_private.c"
+    "${BOX64_ROOT}/src/emu/x64run.c"
+    "${BOX64_ROOT}/src/emu/x64run_private.c"
+    "${BOX64_ROOT}/src/emu/x64syscall.c"
+    "${BOX64_ROOT}/src/emu/x64tls.c"
     "${BOX64_ROOT}/src/emu/x64trace.c"
+    "${BOX64_ROOT}/src/librarian/librarian.c"
+    "${BOX64_ROOT}/src/librarian/library.c"
     "${BOX64_ROOT}/src/libtools/auxval.c"
     "${BOX64_ROOT}/src/libtools/threads.c"
     "${BOX64_ROOT}/src/tools/box64stack.c"
     "${BOX64_ROOT}/src/tools/bridge.c"
+    "${BOX64_ROOT}/src/tools/callback.c"
     "${BOX64_ROOT}/src/tools/pathcoll.c"
     "${BOX64_ROOT}/src/tools/fileutils.c"
     "${BOX64_ROOT}/src/tools/wine_tools.c"
+    "${BOX64_ROOT}/src/wrapped/generated/wrapper.c"
 )
 
-#set(WRAPPEDS
-#    "${BOX64_ROOT}/src/wrapped/wrappedlibc.c"
-#)
+set(WRAPPEDS
+    "${BOX64_ROOT}/src/wrapped/wrappedlibc.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibdl.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
+)
 
 #set(WRAPPEDS_HEAD "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9_gen.h")
-#foreach(A ${WRAPPEDS})
-#    string(REPLACE ".c" "_private.h" B ${A})
-#    set(WRAPPEDS_HEAD ${WRAPPEDS_HEAD} ${B})
-#    set_source_files_properties(${A} PROPERTIES OBJECT_DEPENDS ${B})
-#endforeach()
+foreach(A ${WRAPPEDS})
+    string(REPLACE ".c" "_private.h" B ${A})
+    set(WRAPPEDS_HEAD ${WRAPPEDS_HEAD} ${B})
+    set_source_files_properties(${A} PROPERTIES OBJECT_DEPENDS ${B})
+endforeach()
 
-#set(WRAPPER "${BOX64_ROOT}/src/wrapped/generated/wrapper.c" "${BOX64_ROOT}/src/wrapped/generated/wrapper.h")
+set(WRAPPER "${BOX64_ROOT}/src/wrapped/generated/wrapper.c" "${BOX64_ROOT}/src/wrapped/generated/wrapper.h")
 
-#add_custom_command(
-#    OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
-#    COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py" 
-#    "${BOX64_ROOT}" 
-#    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "POWERPCLE" "--" 
-#    ${WRAPPEDS_HEAD}
-#    MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
-#    DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
-#    BYPRODUCTS ${WRAPPER}
-#)
+add_custom_command(
+    OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
+    COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py" 
+    "${BOX64_ROOT}" 
+    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "--" 
+    ${WRAPPEDS_HEAD}
+    MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
+    DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
+    BYPRODUCTS ${WRAPPER}
+)
 
 #add_custom_command(
 #    OUTPUT "${BOX64_ROOT}/src/dynarec/last_run.txt"
@@ -148,7 +159,7 @@ set(ELFLOADER_SRC
 #    BYPRODUCTS "${BOX64_ROOT}/src/dynarec/arm_printer.c"
 #)
 
-#add_custom_target(WRAPPERS DEPENDS "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt")
+add_custom_target(WRAPPERS DEPENDS "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt")
 #add_custom_target(PRINTER DEPENDS "${BOX64_ROOT}/src/dynarec/last_run.txt")
 
 # creates git_head.h
@@ -166,9 +177,8 @@ set(ELFLOADER_SRC
         VERBATIM)
 #endif()
 
-add_executable(${BOX64} ${ELFLOADER_SRC} "${BOX64_ROOT}/src/git_head.h")
-#add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX64_ROOT}/src/git_head.h")
-#add_dependencies(${BOX64} WRAPPERS)
+add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX64_ROOT}/src/git_head.h")
+add_dependencies(${BOX64} WRAPPERS)
 #add_dependencies(${BOX64} PRINTER)
 target_link_libraries(${BOX64} m dl rt pthread)
 if(ARM_DYNAREC)

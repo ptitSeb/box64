@@ -1,0 +1,15 @@
+#() vFE
+#() vFv
+#() pFE
+#() pFp
+#() vFpp
+#() iFEp
+#() pFEp
+#() iFEpp
+#() pFEpi
+#() pFEpp
+#() iFEpip
+#() pFEppi
+#() pFEppp
+#() iFipppi
+#() pFEv -> pFE

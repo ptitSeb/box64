@@ -11,7 +11,22 @@ typedef struct zydis_s zydis_t;
 typedef struct zydis_dec_s zydis_dec_t;
 typedef struct lib_s lib_t;
 typedef struct bridge_s bridge_t;
+typedef struct dlprivate_s dlprivate_t;
+typedef struct kh_symbolmap_s kh_symbolmap_t;
+typedef struct library_s library_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
+typedef struct atfork_fnc_s {
+    uintptr_t prepare;
+    uintptr_t parent;
+    uintptr_t child;
+    void*     handle;
+} atfork_fnc_t;
+#ifdef DYNAREC
+typedef struct dynablock_s      dynablock_t;
+typedef struct dynablocklist_s  dynablocklist_t;
+typedef struct mmaplist_s       mmaplist_t;
+typedef struct kh_dynablocks_s  kh_dynablocks_t;
+#endif
 
 typedef void* (*procaddess_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
@@ -24,6 +39,22 @@ typedef struct tlsdatasize_s {
 } tlsdatasize_t;
 
 void free_tlsdatasize(void* p);
+
+typedef struct needed_libs_s {
+    int         cap;
+    int         size;
+    library_t   **libs;
+} needed_libs_t;
+
+void add_neededlib(needed_libs_t* needed, library_t* lib);
+void free_neededlib(needed_libs_t* needed);
+
+typedef struct base_segment_s {
+    uintptr_t       base;
+    uint64_t        limit;
+    int             present;
+    pthread_key_t   key;
+} base_segment_t;
 
 typedef struct box64context_s {
     path_collection_t   box64_path;     // PATH env. variable
@@ -56,7 +87,8 @@ typedef struct box64context_s {
     int                 elfcap;
     int                 elfsize;        // number of elf loaded
 
-    int                 deferedInit;
+
+    needed_libs_t       neededlibs;     // needed libs for main elf
 
     uintptr_t           ep;             // entry point
 
@@ -66,12 +98,62 @@ typedef struct box64context_s {
     kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
     bridge_t            *system;        // other bridges
     uintptr_t           vsyscall;       // vsyscall bridge value
+    dlprivate_t         *dlprivate;     // dlopen library map
+    kh_symbolmap_t      *glwrappers;    // the map of wrapper for glProcs (for GLX or SDL1/2)
+    kh_symbolmap_t      *glmymap;       // link to the mysymbolmap of libGL
+    procaddess_t        glxprocaddress;
+    kh_symbolmap_t      *alwrappers;    // the map of wrapper for alGetProcAddress
+    kh_symbolmap_t      *almymap;       // link to the mysymbolmap if libOpenAL
+    kh_symbolmap_t      *vkwrappers;    // the map of wrapper for VulkanProcs (TODO: check SDL2)
+    kh_symbolmap_t      *vkmymap;       // link to the mysymbolmap of libGL
+    vkprocaddess_t      vkprocaddress;
 
+    pthread_mutex_t     mutex_once;
+    pthread_mutex_t     mutex_once2;
+    pthread_mutex_t     mutex_trace;
+    #ifndef DYNAREC
+    pthread_mutex_t     mutex_lock;     // dynarec build will use their own mecanism
+    #else
+    pthread_mutex_t     mutex_dyndump;
+    int                 trace_dynarec;
+    #endif
+    pthread_mutex_t     mutex_tls;
     pthread_mutex_t     mutex_thread;
+
+    library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
+    library_t           *sdl1lib;       // shortcut to SDL1 library (if loaded)
+    void*               sdl1allocrw;
+    void*               sdl1freerw;
+    library_t           *sdl1mixerlib;
+    library_t           *sdl2lib;       // shortcut to SDL2 library (if loaded)
+    void*               sdl2allocrw;
+    void*               sdl2freerw;
+    library_t           *sdl2mixerlib;
+    library_t           *x11lib;
+    library_t           *libxcb;
+    library_t           *libxcbxfixes;
+    library_t           *libxcbshape;
+    library_t           *libxcbshm;
+    library_t           *libxcbrandr;
+    library_t           *libxcbimage;
+    library_t           *libxcbkeysyms;
+    library_t           *libxcbxtest;
+    library_t           *zlib;
+    library_t           *vorbisfile;
+    library_t           *vorbis;
+    library_t           *asound;
+    library_t           *pulse;
+    library_t           *d3dadapter9;
+
+    int                 deferedInit;
+    elfheader_t         **deferedInitList;
+    int                 deferedInitSz;
+    int                 deferedInitCap;
 
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
     int32_t             tlssize;    // wanted size of tlsdata
+    base_segment_t      segtls[3];  // only handling 0/1/2 descriptors
 
     uintptr_t           *auxval_start;
 
@@ -80,6 +162,12 @@ typedef struct box64context_s {
     int         clean_cap;
 
     zydis_dec_t         *dec;           // trace
+
+    int                 forked;         //  how many forks... cleanup only when < 0
+
+    atfork_fnc_t        *atforks;       // fnc for atfork...
+    int                 atfork_sz;
+    int                 atfork_cap;
 
     uint8_t             canary[4];
 

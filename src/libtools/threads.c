@@ -12,7 +12,7 @@
 #include "box64context.h"
 #include "threads.h"
 #include "emu/x64emu_private.h"
-//#include "tools/bridge_private.h"
+#include "tools/bridge_private.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -22,7 +22,7 @@
 #include "emu/x64run_private.h"
 #include "x64trace.h"
 //#include "dynarec.h"
-//#include "bridge.h"
+#include "bridge.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -756,31 +756,31 @@ EXPORT int my_pthread_mutex_unlock(pthread_mutex_t *m)
 
 #endif
 #endif
-//static void emujmpbuf_destroy(void* p)
-//{
-//	emu_jmpbuf_t *ej = (emu_jmpbuf_t*)p;
-//	free(ej->jmpbuf);
-//	free(ej);
-//}
+static void emujmpbuf_destroy(void* p)
+{
+	emu_jmpbuf_t *ej = (emu_jmpbuf_t*)p;
+	free(ej->jmpbuf);
+	free(ej);
+}
 
-//static pthread_key_t jmpbuf_key;
+static pthread_key_t jmpbuf_key;
 
-//emu_jmpbuf_t* GetJmpBuf()
-//{
-//	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
-//	if(!ejb) {
-//		ejb = (emu_jmpbuf_t*)calloc(1, sizeof(emu_jmpbuf_t));
-//		ejb->jmpbuf = calloc(1, sizeof(struct __jmp_buf_tag));
-//		pthread_setspecific(jmpbuf_key, ejb);
-//	}
-//	return ejb;
-//}
+emu_jmpbuf_t* GetJmpBuf()
+{
+	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
+	if(!ejb) {
+		ejb = (emu_jmpbuf_t*)calloc(1, sizeof(emu_jmpbuf_t));
+		ejb->jmpbuf = calloc(1, sizeof(struct __jmp_buf_tag));
+		pthread_setspecific(jmpbuf_key, ejb);
+	}
+	return ejb;
+}
 
 void init_pthread_helper()
 {
 //	InitCancelThread();
 //	mapcond = kh_init(mapcond);
-//	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
+	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 #ifndef NOALIGN
 //	unaligned_mutex = kh_init(mutex);
 #endif

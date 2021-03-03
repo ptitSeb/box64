@@ -13,7 +13,10 @@
 #include "threads.h"
 #include "x64trace.h"
 #include "bridge.h"
-
+#include "librarian.h"
+#include "library.h"
+#include "wrapper.h"
+#include "x64emu.h"
 
 EXPORTDYN
 void initAllHelpers(box64context_t* context)
@@ -35,7 +38,7 @@ void finiAllHelpers(box64context_t* context)
         return;
     fini_pthread_helper(context);
     //fini_signal_helper();
-    //cleanAlternate();
+    cleanAlternate();
     fini_custommem_helper(context);
     finied = 1;
 }
@@ -80,16 +83,28 @@ box64context_t *NewBox64Context(int argc)
 
     init_custommem_helper(context);
 
+    context->maplib = NewLibrarian(context, 1);
+    context->local_maplib = NewLibrarian(context, 1);
     context->system = NewBridge();
     // create vsyscall
-//    context->vsyscall = AddBridge(context->system, vFv, x64Syscall, 0);
+    context->vsyscall = AddBridge(context->system, vFv, x64Syscall, 0);
     context->box64lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
-    //context->dlprivate = NewDLPrivate();
+    context->dlprivate = NewDLPrivate();
 
     context->argc = argc;
     context->argv = (char**)calloc(context->argc+1, sizeof(char*));
 
+    pthread_mutex_init(&context->mutex_once, NULL);
+    pthread_mutex_init(&context->mutex_once2, NULL);
+    pthread_mutex_init(&context->mutex_trace, NULL);
+#ifndef DYNAREC
+    pthread_mutex_init(&context->mutex_lock, NULL);
+#else
+    pthread_mutex_init(&context->mutex_dyndump, NULL);
+#endif
+    pthread_mutex_init(&context->mutex_tls, NULL);
     pthread_mutex_init(&context->mutex_thread, NULL);
+    pthread_key_create(&context->tlskey, free_tlsdatasize);
 
 
     for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
@@ -107,7 +122,20 @@ void FreeBox64Context(box64context_t** context)
     if(!context)
         return;
     
+    if(--(*context)->forked >= 0)
+        return;
+
     box64context_t* ctx = *context;   // local copy to do the cleanning
+
+    for(int i=0; i<ctx->elfsize; ++i) {
+        FreeElfHeader(&ctx->elfs[i]);
+    }
+    free(ctx->elfs);
+
+    if(ctx->maplib)
+        FreeLibrarian(&ctx->maplib);
+    if(ctx->local_maplib)
+        FreeLibrarian(&ctx->local_maplib);
 
     FreeCollection(&ctx->box64_path);
     FreeCollection(&ctx->box64_ld_lib);
@@ -118,11 +146,20 @@ void FreeBox64Context(box64context_t** context)
     if(ctx->zydis)
         DeleteX64Trace(ctx);
 
+    if(ctx->deferedInitList)
+        free(ctx->deferedInitList);
+
     free(ctx->argv);
     
     for (int i=0; i<ctx->envc; ++i)
         free(ctx->envv[i]);
     free(ctx->envv);
+
+    if(ctx->atfork_sz) {
+        free(ctx->atforks);
+        ctx->atforks = NULL;
+        ctx->atfork_sz = ctx->atfork_cap = 0;
+    }
 
     for(int i=0; i<MAX_SIGNAL; ++i)
         if(ctx->signals[i]!=0 && ctx->signals[i]!=1) {
@@ -133,7 +170,7 @@ void FreeBox64Context(box64context_t** context)
 
     CleanStackSize(ctx);
 
-    //FreeDLPrivate(&ctx->dlprivate);
+    FreeDLPrivate(&ctx->dlprivate);
 
     free(ctx->stack);
 
@@ -141,6 +178,10 @@ void FreeBox64Context(box64context_t** context)
     free(ctx->box64path);
 
     FreeBridge(&ctx->system);
+
+//    freeGLProcWrapper(ctx);
+//    freeALProcWrapper(ctx);
+
 
     void* ptr;
     if ((ptr = pthread_getspecific(ctx->tlskey)) != NULL) {
@@ -152,7 +193,21 @@ void FreeBox64Context(box64context_t** context)
     if(ctx->tlsdata)
         free(ctx->tlsdata);
 
+    pthread_mutex_destroy(&ctx->mutex_once);
+    pthread_mutex_destroy(&ctx->mutex_once2);
+    pthread_mutex_destroy(&ctx->mutex_trace);
+#ifndef DYNAREC
+    pthread_mutex_destroy(&ctx->mutex_lock);
+#else
+    pthread_mutex_destroy(&ctx->mutex_dyndump);
+#endif
+    pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);
+
+    free_neededlib(&ctx->neededlibs);
+
+    if(ctx->emu_sig)
+        FreeX64Emu(&ctx->emu_sig);
 
     finiAllHelpers(ctx);
 
@@ -187,7 +242,7 @@ int AddTLSPartition(box64context_t* context, int tlssize) {
 
     return -context->tlssize;   // negative offset
 }
-/*
+
 void add_neededlib(needed_libs_t* needed, library_t* lib)
 {
     if(!needed)
@@ -209,4 +264,3 @@ void free_neededlib(needed_libs_t* needed)
         free(needed->libs);
     needed->libs = NULL;
 }
-*/
