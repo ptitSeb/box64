@@ -51,7 +51,7 @@ typedef struct x64emu_s {
     uint64_t    res;
     uint32_t    *x86emu_parity_tab; // helper
     #ifdef HAVE_TRACE
-    uintptr_t   prev2_ip, prev_ip;
+    uintptr_t   prev2_ip;
     #endif
     // segments
     uint32_t    segs[6];        // only 32bits value?

@@ -31,7 +31,7 @@ int Run(x64emu_t *emu, int step)
 {
     uint8_t opcode;
     uint8_t nextop;
-    reg64_t *oped;
+    reg64_t *oped, *opgd;
     uint8_t tmp8u, tmp8u2;
     int8_t tmp8s;
     uint16_t tmp16u, tmp16u2;
@@ -46,6 +46,7 @@ int Run(x64emu_t *emu, int step)
     sse_regs_t *opex, eax1;
     mmx_regs_t *opem, eam1;
     rex_t rex;
+    int unimp = 0;
 
     if(emu->quit)
         return 0;
@@ -61,10 +62,15 @@ int Run(x64emu_t *emu, int step)
 #define F64S    *(int64_t*)(R_RIP+=8, R_RIP-8)
 #define PK(a)   *(uint8_t*)(R_RIP+a)
 #ifdef DYNAREC
-#define STEP if(step) goto stepout;
+#define STEP if(step) return 0;
 #else
 #define STEP
 #endif
+
+#define GETED oped=GetEd(emu, rex, nextop)
+#define GETGD opgd=GeG(emu, rex, nextop)
+#define ED  oped
+#define GD  opgd
 
 x64emurun:
 
@@ -72,13 +78,13 @@ x64emurun:
     while(1) {
 #ifdef HAVE_TRACE
         __builtin_prefetch((void*)R_RIP, 0, 0); 
-        emu->prev2_ip = emu->prev_ip;
-        emu->prev_ip = R_RIP;
+        emu->prev2_ip = emu->old_ip;
         if(my_context->dec && (
             (trace_end == 0) 
             || ((R_RIP >= trace_start) && (R_RIP < trace_end))) )
                 PrintTrace(emu, R_RIP, 0);
 #endif
+        emu->old_ip = R_RIP;
 
         opcode = F8;
         if(opcode>=0x40 && opcode<=0x4f) {
@@ -109,16 +115,18 @@ x64emurun:
             break;
 
         default:
-            UnimpOpcode(emu);
+            unimp = 1;
             goto fini;
         }
     }
-#ifdef DYNAREC
-stepout:
-    return 0;
-#endif
+
 
 fini:
+    if(unimp) {
+        R_RIP = emu->old_ip;
+        emu->quit = 1;
+        UnimpOpcode(emu);
+    }
     // fork handling
 //    if(emu->fork) {
 //        if(step)
