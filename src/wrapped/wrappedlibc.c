@@ -393,7 +393,7 @@ void EXPORT my___gmon_start__(x64emu_t *emu)
 {
     printf_log(LOG_DEBUG, "__gmon_start__ called (dummy call)\n");
 }
-#if 0
+
 int EXPORT my___cxa_atexit(x64emu_t* emu, void* p, void* a, void* d)
 {
     AddCleanup1Arg(emu, p, a);
@@ -413,7 +413,7 @@ int EXPORT my_atexit(x64emu_t* emu, void *p)
     AddCleanup(emu, p);
     return 0;
 }
-
+#if 0
 int my_getcontext(x64emu_t* emu, void* ucp);
 int my_setcontext(x64emu_t* emu, void* ucp);
 int my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv);
@@ -935,7 +935,7 @@ EXPORT int my_swprintf(x64emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
     return r;
     #endif
 }
-
+#endif
 EXPORT void my__ITM_addUserCommitAction(x64emu_t* emu, void* cb, uint32_t b, void* c)
 {
     // disabled for now... Are all this _ITM_ stuff really mendatory?
@@ -952,7 +952,7 @@ EXPORT void my__ITM_addUserCommitAction(x64emu_t* emu, void* cb, uint32_t b, voi
 EXPORT void my__ITM_registerTMCloneTable(x64emu_t* emu, void* p, uint32_t s) {}
 EXPORT void my__ITM_deregisterTMCloneTable(x64emu_t* emu, void* p) {}
 
-
+#if 0
 struct i386_stat {
 	uint64_t  st_dev;
 	uint32_t  __pad1;

@@ -5,15 +5,18 @@
 #() lFp
 #() pFE
 #() pFp
+#() vFEp
 #() vFpp
 #() iFEp
 #() iFip
 #() iFup
 #() pFEp
+#() vFEpu
 #() iFEpp
 #() iFpiu
 #() pFEpi
 #() pFEpp
+#() vFEpup
 #() iFEupp
 #() iFEpip
 #() iFEppp
@@ -21,4 +24,5 @@
 #() pFEppi
 #() pFEppp
 #() iFipppi
+#() iFEpippppp
 #() pFEv -> pFE

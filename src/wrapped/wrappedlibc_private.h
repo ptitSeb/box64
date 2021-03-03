@@ -178,7 +178,7 @@
 //GO(cuserid, 
 //GO(__cxa_atexit, 
 //GO(__cxa_at_quick_exit, 
-//GO(__cxa_finalize, 
+GOM(__cxa_finalize, vFEp)
 //GO(__cxa_thread_atexit_impl, 
 //GO(__cyg_profile_func_enter, 
 //GO(__cyg_profile_func_exit, 
@@ -1049,7 +1049,7 @@
 //GO(__libc_scratch_buffer_set_array_size, 
 //GOW(__libc_secure_getenv, 
 //GO(__libc_siglongjmp, 
-//GO(__libc_start_main, 
+GOM(__libc_start_main, iFEpippppp)
 //GO(__libc_system, 
 //GO(__libc_thread_freeres, 
 //GO(__libc_valloc, 
@@ -2233,6 +2233,10 @@ GOW(tzset, vFv)
 //GO(xprt_unregister, 
 //GO(__xstat, 
 //GO(__xstat64, 
+
+GOM(_ITM_addUserCommitAction, vFEpup)
+GOM(_ITM_registerTMCloneTable, vFEpu)
+GOM(_ITM_deregisterTMCloneTable, vFEp)
 
 GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)

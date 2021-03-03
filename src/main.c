@@ -864,6 +864,13 @@ int main(int argc, const char **argv, const char **env) {
         FreeBox64Context(&my_context);
         return -1;
     }
+    // reloc...
+    printf_log(LOG_DEBUG, "And now export symbols / relocation for %s...\n", ElfName(elf_header));
+    if(RelocateElf(my_context->maplib, NULL, elf_header)) {
+        printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", my_context->argv[0]);
+        FreeBox64Context(&my_context);
+        return -1;
+    }
 
     return 0;
 }

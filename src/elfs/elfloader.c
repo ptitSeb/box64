@@ -520,14 +520,21 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
 {
     for (int i=0; i<cnt; ++i) {
         Elf64_Sym *sym = &head->DynSym[ELF64_R_SYM(rela[i].r_info)];
+        int bind = ELF64_ST_BIND(sym->st_info);
         const char* symname = SymName(head, sym);
-        uint32_t *p = (uint32_t*)(rela[i].r_offset + head->delta);
+        uint64_t *p = (uint64_t*)(rela[i].r_offset + head->delta);
         uintptr_t offs = 0;
         uintptr_t end = 0;
+        uintptr_t globoffs, globend;
+        uint64_t* globp;
         switch(ELF64_R_TYPE(rela[i].r_info)) {
             case R_X86_64_NONE:
             case R_X86_64_PC32:
                 // can be ignored
+                break;
+            case R_X86_64_RELATIVE:
+                printf_log(LOG_DUMP, "Apply %s R_X86_64_RELATIVE @%p (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, *(void**)p, (void*)((*p)+head->delta));
+                *p += head->delta;
                 break;
             case R_X86_64_COPY:
                 if(local_maplib)
@@ -540,6 +547,29 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     memcpy(p, (void*)(offs+rela[i].r_addend), sym->st_size);
                 } else {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply RELA R_X86_64_COPY @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                }
+                break;
+            case R_X86_64_GLOB_DAT:
+                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname) && FindR64COPYRel(my_context->elfs[0], symname, &globoffs, &globp)) {
+                    // set global offs / size for the symbol
+                    offs = sym->st_value + head->delta;
+                    end = offs + sym->st_size;
+                    printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
+                    *p = globoffs + rela[i].r_addend;
+                    AddWeakSymbol(GetGlobalData(maplib), symname, offs, end-offs+1);
+                } else {
+                    // Look for same symbol already loaded but not in self (so no need for local_maplib here)
+                    if (GetGlobalNoWeakSymbolStartEnd(maplib, symname, &globoffs, &globend)) {
+                        offs = globoffs;
+                        end = globend;
+                    }
+                    if (!offs) {
+                        if(strcmp(symname, "__gmon_start__"))
+                            printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                    } else {
+                        printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname);
+                        *p = offs + rela[i].r_addend;
+                    }
                 }
                 break;
             default:

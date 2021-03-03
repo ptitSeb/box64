@@ -143,32 +143,32 @@ void AddCleanup1Arg(x64emu_t *emu, void *p, void* a)
     my_context->cleanups[my_context->clean_sz++].f = p;
 }
 
-//void CallCleanup(x64emu_t *emu, void* p)
-//{
-//    printf_log(LOG_DEBUG, "Calling atexit registered functions for %p mask\n", p);
-//    for(int i=my_context->clean_sz-1; i>=0; --i) {
-//        if(p==my_context->cleanups[i].f) {
-//            printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
-//            RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
-//            // now remove the cleanup
-//            if(i!=my_context->clean_sz-1)
-//                memmove(my_context->cleanups+i, my_context->cleanups+i+1, (my_context->clean_sz-i-1)*sizeof(cleanup_t));
-//            --my_context->clean_sz;
-//        }
-//    }
-//}
+void CallCleanup(x64emu_t *emu, void* p)
+{
+    printf_log(LOG_DEBUG, "Calling atexit registered functions for %p mask\n", p);
+    for(int i=my_context->clean_sz-1; i>=0; --i) {
+        if(p==my_context->cleanups[i].f) {
+            printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+            RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
+            // now remove the cleanup
+            if(i!=my_context->clean_sz-1)
+                memmove(my_context->cleanups+i, my_context->cleanups+i+1, (my_context->clean_sz-i-1)*sizeof(cleanup_t));
+            --my_context->clean_sz;
+        }
+    }
+}
 
-//void CallAllCleanup(x64emu_t *emu)
-//{
-//    printf_log(LOG_DEBUG, "Calling atexit registered functions\n");
-//    for(int i=my_context->clean_sz-1; i>=0; --i) {
-//        printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
-//        RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
-//    }
-//    my_context->clean_sz = 0;
-//    free(my_context->cleanups);
-//    my_context->cleanups = NULL;
-//}
+void CallAllCleanup(x64emu_t *emu)
+{
+    printf_log(LOG_DEBUG, "Calling atexit registered functions\n");
+    for(int i=my_context->clean_sz-1; i>=0; --i) {
+        printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+        RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
+    }
+    my_context->clean_sz = 0;
+    free(my_context->cleanups);
+    my_context->cleanups = NULL;
+}
 
 static void internalFreeX64(x64emu_t* emu)
 {
