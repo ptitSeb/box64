@@ -505,7 +505,7 @@ void setupTrace(box64context_t* context)
 #endif
 }
 
-void endBox86()
+void endBox64()
 {
     if(!my_context)
         return;
@@ -874,7 +874,22 @@ int main(int argc, const char **argv, const char **env) {
     // and handle PLT
     RelocateElfPlt(my_context->maplib, NULL, elf_header);
     // defered init
-//    RunDeferedElfInit(emu);
+    RunDeferedElfInit(emu);
+    // do some special case check, _IO_2_1_stderr_ and friends, that are setup by libc, but it's already done here, so need to do a copy
+    ResetSpecialCaseMainElf(elf_header);
+    // init...
+    setupTrace(my_context);
+    // get entrypoint
+    my_context->ep = GetEntryPoint(my_context->maplib, elf_header);
+#if defined(RPI) || defined(RK3399)
+    // before launching emulation, let's check if this is a mojosetup from GOG
+    if (((strstr(prog, "bin/linux/x86/mojosetup") && getenv("MOJOSETUP_BASE")) || strstr(prog, ".mojosetup/mojosetup"))
+       && getenv("GTK2_RC_FILES")) {
+        sanitize_mojosetup_gtk_background();
+    }
+#endif
+
+    atexit(endBox64);
 
     return 0;
 }
