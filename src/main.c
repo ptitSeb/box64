@@ -871,6 +871,10 @@ int main(int argc, const char **argv, const char **env) {
         FreeBox64Context(&my_context);
         return -1;
     }
+    // and handle PLT
+    RelocateElfPlt(my_context->maplib, NULL, elf_header);
+    // defered init
+//    RunDeferedElfInit(emu);
 
     return 0;
 }
