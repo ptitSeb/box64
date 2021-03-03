@@ -20,6 +20,8 @@
 #include "auxval.h"
 #include "x64emu.h"
 #include "threads.h"
+#include "x64trace.h"
+#include "librarian.h"
 
 box64context_t *my_context = NULL;
 int box64_log = LOG_NONE;
@@ -411,20 +413,19 @@ void LoadEnvVars(box64context_t *context)
     char* p = getenv("BOX64_TRACE");
     if(p) {
         if (strcmp(p, "0"))
-            context->x86trace = 1;
+            context->x64trace = 1;
     }
     p = getenv("BOX64_TRACE_INIT");
     if(p) {
         if (strcmp(p, "0"))
-            context->x86trace = 1;
+            context->x64trace = 1;
     }
-    if(my_context->x86trace) {
-        /*printf_log(LOG_INFO, "Initializing Zydis lib\n");
-        if(InitX86Trace(my_context)) {
+    if(my_context->x64trace) {
+        printf_log(LOG_INFO, "Initializing Zydis lib\n");
+        if(InitX64Trace(my_context)) {
             printf_log(LOG_INFO, "Zydis init failed, no x86 trace activated\n");
-            context->x86trace = 0;
-        }*/
-            context->x86trace = 0;  // not implemented yet
+            context->x64trace = 0;
+        }
     }
 #endif
 }
@@ -488,10 +489,10 @@ void setupTrace(box64context_t* context)
                 }
             }
         } else {
-            if (0/*GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end)*/) {
+            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
-            } else if(0/*GetLocalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL)*/) {
+            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
@@ -833,6 +834,21 @@ int main(int argc, const char **argv, const char **env) {
     thread_set_emu(emu);
 
     setupTraceInit(my_context);
+    // export symbols
+    AddSymbols(my_context->maplib, GetMapSymbol(my_context->maplib), GetWeakSymbol(my_context->maplib), GetLocalSymbol(my_context->maplib), elf_header);
+    if(wine_preloaded) {
+        uintptr_t wineinfo = FindSymbol(GetMapSymbol(my_context->maplib), "wine_main_preload_info");
+        if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbol(my_context->maplib), "wine_main_preload_info");
+        if(!wineinfo) wineinfo = FindSymbol(GetLocalSymbol(my_context->maplib), "wine_main_preload_info");
+        if(!wineinfo) {printf_log(LOG_NONE, "Warning, Symbol wine_main_preload_info not found\n");}
+        else {
+            *(void**)wineinfo = get_wine_prereserve();
+            printf_log(LOG_DEBUG, "WINE wine_main_preload_info found and updated\n");
+        }
+        #ifdef DYNAREC
+        dynarec_wine_prereserve();
+        #endif
+    }
 
     return 0;
 }

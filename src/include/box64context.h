@@ -62,7 +62,7 @@ typedef struct box64context_s {
 
     path_collection_t   box64_emulated_libs;    // Collection of libs that should not be wrapped
 
-    int                 x86trace;
+    int                 x64trace;
     int                 trace_tid;
 
     uint32_t            sel_serial;     // will be increment each time selectors changes
