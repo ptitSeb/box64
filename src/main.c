@@ -858,6 +858,12 @@ int main(int argc, const char **argv, const char **env) {
         }
     }
     FreeCollection(&ld_preload);
+    // Call librarian to load all dependant elf
+    if(LoadNeededLibs(elf_header, my_context->maplib, &my_context->neededlibs, 0, my_context, emu)) {
+        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->argv[0]);
+        FreeBox64Context(&my_context);
+        return -1;
+    }
 
     return 0;
 }

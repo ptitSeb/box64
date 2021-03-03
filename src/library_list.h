@@ -3,8 +3,8 @@
 #endif
 
 GO("libc.so.6", libc)
-//GO("libpthread.so.0", libpthread)
-//GO("librt.so.1", librt)
+GO("libpthread.so.0", libpthread)
+GO("librt.so.1", librt)
 //GO("libGL.so.1", libgl)
 //GO("libGL.so", libgl)
 //GO("libGLU.so.1", libglu)
