@@ -849,6 +849,15 @@ int main(int argc, const char **argv, const char **env) {
         dynarec_wine_prereserve();
         #endif
     }
+    // pre-load lib if needed
+    if(ld_preload.size) {
+        for (int i=0; i<ld_preload.size; ++i) {
+            if(AddNeededLib(NULL, NULL, 0, ld_preload.paths[i], my_context, emu)) {
+                printf_log(LOG_INFO, "Warning, cannot pre-load lib: \"%s\"\n", ld_preload.paths[i]);
+            }            
+        }
+    }
+    FreeCollection(&ld_preload);
 
     return 0;
 }
