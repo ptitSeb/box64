@@ -40,25 +40,26 @@ int Run(x64emu_t *emu, int step)
     uint64_t tmp64u, tmp64u2, tmp64u3;
     int32_t tmp32s, tmp32s2;
     int64_t tmp64s, tmp64s2;
-    uintptr_t ip;
     double d;
     float f;
     int64_t ll;
     sse_regs_t *opex, eax1;
     mmx_regs_t *opem, eam1;
-    int rexw, rexb, rexr, rexx;
+    rex_t rex;
 
     if(emu->quit)
         return 0;
 
     //ref opcode: http://ref.x64asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p\n", emu, (void*)R_RIP, emu->context->stack);
-#define F8      *(uint8_t*)(ip++)
-#define F8S     *(int8_t*)(ip++)
-#define F16     *(uint16_t*)(ip+=2, ip-2)
-#define F32     *(uint32_t*)(ip+=4, ip-4)
-#define F32S    *(int32_t*)(ip+=4, ip-4)
-#define PK(a)   *(uint8_t*)(ip+a)
+#define F8      *(uint8_t*)(R_RIP++)
+#define F8S     *(int8_t*)(R_RIP++)
+#define F16     *(uint16_t*)(R_RIP+=2, R_RIP-2)
+#define F32     *(uint32_t*)(R_RIP+=4, R_RIP-4)
+#define F32S    *(int32_t*)(R_RIP+=4, R_RIP-4)
+#define F64     *(uint64_t*)(R_RIP+=8, R_RIP-8)
+#define F64S    *(int64_t*)(R_RIP+=8, R_RIP-8)
+#define PK(a)   *(uint8_t*)(R_RIP+a)
 #ifdef DYNAREC
 #define STEP if(step) goto stepout;
 #else
@@ -66,45 +67,54 @@ int Run(x64emu_t *emu, int step)
 #endif
 
 x64emurun:
-    ip = R_RIP;
 
 //#include "modrm.h"
     while(1) {
 #ifdef HAVE_TRACE
-        __builtin_prefetch((void*)ip, 0, 0); 
+        __builtin_prefetch((void*)R_RIP, 0, 0); 
         emu->prev2_ip = emu->prev_ip;
         emu->prev_ip = R_RIP;
-        R_RIP=ip;
         if(my_context->dec && (
             (trace_end == 0) 
-            || ((ip >= trace_start) && (ip < trace_end))) )
-                PrintTrace(emu, ip, 0);
+            || ((R_RIP >= trace_start) && (R_RIP < trace_end))) )
+                PrintTrace(emu, R_RIP, 0);
 #endif
 
         opcode = F8;
         if(opcode>=0x40 && opcode<=0x4f) {
-            // REX !
-            rexb = (opcode&0x1);
-            rexx = (opcode>>1)&1;
-            rexr = (opcode>>2)&1;
-            rexw = (opcode>>2)&1;
+            rex.rex = opcode;
             opcode = F8;
-        } else {
-            rexx = rexr = rexw = rexb = 0;
-        }
+        } else
+            rex.rex = 0;
+
         switch(opcode) {
 
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:      /* Another REX */
+            --R_RIP;
+            break;
+
         default:
-            emu->old_ip = R_RIP;
-            R_RIP = ip;
             UnimpOpcode(emu);
             goto fini;
         }
     }
 #ifdef DYNAREC
 stepout:
-    emu->old_ip = R_RIP;
-    R_RIP = ip;
     return 0;
 #endif
 

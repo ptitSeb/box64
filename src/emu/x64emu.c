@@ -58,9 +58,10 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
 {
     emu->context = context;
     // setup cpu helpers
-    for (int i=0; i<8; ++i)
+    for (int i=0; i<16; ++i)
         emu->sbiidx[i] = &emu->regs[i];
     emu->sbiidx[4] = &emu->zero;
+    emu->sbiidx[12] = &emu->zero;
     emu->x86emu_parity_tab = x86emu_parity_tab;
     emu->eflags.x32 = 0x202; // default flags?
     // own stack?

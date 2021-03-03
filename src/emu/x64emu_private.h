@@ -42,7 +42,7 @@ typedef struct x64emu_s {
     // mmx
     mmx_regs_t  mmx[8];
     // sse
-    sse_regs_t  xmm[8];
+    sse_regs_t  xmm[16];
     uint32_t    mxcsr;
     // defered flags
     defered_flags_t df;
@@ -69,7 +69,7 @@ typedef struct x64emu_s {
     box64context_t *context;
     // cpu helpers
     reg64_t     zero;
-    reg64_t     *sbiidx[8];
+    reg64_t     *sbiidx[16];
     // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
     uint64_t    scratch[200];
     // local stack, do be deleted when emu is freed

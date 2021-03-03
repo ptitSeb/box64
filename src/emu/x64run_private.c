@@ -24,8 +24,8 @@
 #endif
 #include "x64tls.h"
 
-#define PARITY2(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
-#define PARITY(x)   (PARITY2((x)>>32)^PARITY2((x)&0xffffffff))
+#define PARITY32(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
+#define PARITY64(x)   (PARITY64((x)>>32)^PARITY64((x)&0xffffffff))
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
 
 int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
