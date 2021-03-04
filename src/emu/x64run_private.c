@@ -966,7 +966,7 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
             if(a==0) {
                 printf_log(LOG_NONE, "%p: Exit x86emu\n", (void*)ip);
             } else {
-                printf_log(LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+7)));
+                printf_log(LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+11)));
             }
         } else {
             printf_log(LOG_NONE, "%s", DecodeX64Trace(my_context->dec, ip));
