@@ -58,6 +58,10 @@ int Run0F(x64emu_t *emu)
 
     switch(opcode) {
 
+        case 0x05:                      /* SYSCALL */
+            x64Syscall(emu);
+            break;
+            
         case 0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
             GETED;
