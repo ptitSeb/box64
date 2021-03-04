@@ -357,6 +357,35 @@ x64emurun:
                 GD->dword[0] = (uint32_t)(uintptr_t)ED;
             break;
 
+        case 0xC1:                      /* GRP2 Ed,Ib */
+            nextop = F8;
+            GETED;
+            tmp8u = F8/* & 0x1f*/; // masking done in each functions
+            if(rex.w) {
+                switch((nextop>>3)&7) {
+                    case 0: ED->q[0] = rol64(emu, ED->q[0], tmp8u); break;
+                    case 1: ED->q[0] = ror64(emu, ED->q[0], tmp8u); break;
+                    case 2: ED->q[0] = rcl64(emu, ED->q[0], tmp8u); break;
+                    case 3: ED->q[0] = rcr64(emu, ED->q[0], tmp8u); break;
+                    case 4:
+                    case 6: ED->q[0] = shl64(emu, ED->q[0], tmp8u); break;
+                    case 5: ED->q[0] = shr64(emu, ED->q[0], tmp8u); break;
+                    case 7: ED->q[0] = sar64(emu, ED->q[0], tmp8u); break;
+                }
+            } else {
+                switch((nextop>>3)&7) {
+                    case 0: ED->dword[0] = rol32(emu, ED->dword[0], tmp8u); break;
+                    case 1: ED->dword[0] = ror32(emu, ED->dword[0], tmp8u); break;
+                    case 2: ED->dword[0] = rcl32(emu, ED->dword[0], tmp8u); break;
+                    case 3: ED->dword[0] = rcr32(emu, ED->dword[0], tmp8u); break;
+                    case 4:
+                    case 6: ED->dword[0] = shl32(emu, ED->dword[0], tmp8u); break;
+                    case 5: ED->dword[0] = shr32(emu, ED->dword[0], tmp8u); break;
+                    case 7: ED->dword[0] = sar32(emu, ED->dword[0], tmp8u); break;
+                }
+            }
+            break;
+
         case 0xC3:                      /* RET */
             R_RIP = Pop(emu);
             STEP
