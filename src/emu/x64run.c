@@ -250,6 +250,18 @@ x64emurun:
                 GD->dword[0] = (uint32_t)(uintptr_t)ED;
             break;
 
+        case 0xCC:                      /* INT 3 */
+            x64Int3(emu);
+            if(emu->quit) goto fini;
+            break;
+
+        case 0xE8:                      /* CALL Id */
+            tmp32s = F32S; // call is relative
+            Push(emu, R_RIP);
+            R_RIP += tmp32s;
+            STEP
+            break;
+
         case 0xFF:                      /* GRP 5 Ed */
             nextop = F8;
             GETED;
