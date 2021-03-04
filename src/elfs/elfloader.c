@@ -527,6 +527,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
         uintptr_t end = 0;
         uintptr_t globoffs, globend;
         uint64_t* globp;
+        uintptr_t tmp = 0;
         switch(ELF64_R_TYPE(rela[i].r_info)) {
             case R_X86_64_NONE:
             case R_X86_64_PC32:
@@ -572,7 +573,34 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     }
                 }
                 break;
-            default:
+            case R_X86_64_JUMP_SLOT:
+                // apply immediatly for gobject closure marshal or for LOCAL binding. Also, apply immediatly if it doesn't jump in the got
+                tmp = (uintptr_t)(*p);
+                if (bind==STB_LOCAL 
+                  || ((symname && strstr(symname, "g_cclosure_marshal_")==symname)) 
+                  || !tmp
+                  || !((tmp>=head->plt && tmp<head->plt_end) || (tmp>=head->gotplt && tmp<head->gotplt_end))
+                  ) {
+                    if (!offs) {
+                        if(bind==STB_WEAK) {
+                            printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_X86_64_JUMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
+                        } else {
+                            printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_JUMP_SLOT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                        }
+    //                    return -1;
+                    } else {
+                        if(p) {
+                            printf_log(LOG_DUMP, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
+                            *p = offs + rela[i].r_addend;
+                        } else {
+                            printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
+                        }
+                    }
+                } else {
+                    printf_log(LOG_DUMP, "Preparing (if needed) %s R_X86_64_JUMP_SLOT @%p (0x%lx->0x%0lx) with sym=%s to be apply later (addend=%ld)\n", (bind==STB_LOCAL)?"Local":"Global", p, *p, *p+head->delta, symname, rela[i].r_addend);
+                    *p += head->delta;
+                }
+                break;            default:
                 printf_log(LOG_INFO, "Warning, don't know of to handle rela #%d %s on %s\n", i, DumpRelType(ELF64_R_TYPE(rela[i].r_info)), symname);
         }
     }
