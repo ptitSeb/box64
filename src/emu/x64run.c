@@ -167,6 +167,35 @@ x64emurun:
         case 0x4F:      /* Another REX */
             --R_RIP;
             break;
+        case 0x54:                      /* PUSH ESP */
+            if(rex.b)
+                Push(emu, R_R12);
+            else {
+                tmp64u = R_RSP;
+                Push(emu, tmp64u);
+            }
+            break;
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x55:
+        case 0x56:
+        case 0x57:                      /* PUSH Reg */
+            tmp8u = (opcode&7)+(rex.b<<3);
+            Push(emu, emu->regs[tmp8u].q[0]);
+            break;
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:                      /* POP ESP */
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:                      /* POP Reg */
+            tmp8u = (opcode&7)+(rex.b<<3);
+            emu->regs[tmp8u].q[0] = Pop(emu);
+            break;
 
         case 0x89:                    /* MOV Ed,Gd */
             nextop = F8;
