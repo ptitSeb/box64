@@ -894,8 +894,8 @@ int main(int argc, const char **argv, const char **env) {
 
     // emulate!
     printf_log(LOG_DEBUG, "Start x64emu on Main\n");
-    SetRDI(emu, my_context->argc);
-    SetRSI(emu, (uint64_t)my_context->argv);
+    SetRAX(emu, my_context->argc);
+    SetRDX(emu, (uint64_t)my_context->argv);
     SetRIP(emu, my_context->ep);
     ResetFlags(emu);
     Run(emu, 0);
