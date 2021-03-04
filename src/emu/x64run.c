@@ -454,6 +454,11 @@ x64emurun:
             STEP
             break;
 
+        case 0xC6:                      /* MOV Eb,Ib */
+            nextop = F8;
+            GETEB;
+            EB->byte[0] = F8;
+            break;
         case 0xC7:                      /* MOV Ed,Id */
             nextop = F8;
             GETED;
