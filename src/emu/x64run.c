@@ -357,6 +357,11 @@ x64emurun:
                 GD->dword[0] = (uint32_t)(uintptr_t)ED;
             break;
 
+        case 0xC3:                      /* RET */
+            R_RIP = Pop(emu);
+            STEP
+            break;
+
         case 0xCC:                      /* INT 3 */
             x64Int3(emu);
             if(emu->quit) goto fini;
