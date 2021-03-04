@@ -33,9 +33,14 @@ EXPORT void* my____tls_get_addr(x64emu_t* emu)
     return GetDTatOffset(emu->context, t->i, t->o);
 }
 
-
-const char* ldlinuxName = "ld-linux-x86-64.so.2";
+// don't try to load the actual ld-linux (because name is variable), just use box64 itself, as it's linked to ld-linux
+const char* ldlinuxName = "ld-linux.so.2";
 #define LIBNAME ldlinux
+
+#define PRE_INIT\
+    if(1)                                                           \
+        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+    else
 
 // define all standard library functions
 #include "wrappedlib_init.h"
