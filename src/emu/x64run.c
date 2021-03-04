@@ -405,6 +405,20 @@ x64emurun:
                 GD->dword[0] = (uint32_t)(uintptr_t)ED;
             break;
 
+        case 0xB8:                      /* MOV EAX,Id */
+        case 0xB9:                      /* MOV ECX,Id */
+        case 0xBA:                      /* MOV EDX,Id */
+        case 0xBB:                      /* MOV EBX,Id */
+        case 0xBC:                      /*    ...     */
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            if(rex.w)
+                emu->regs[(opcode&7)+(rex.b<<3)].q[0] = F64;
+            else
+                emu->regs[(opcode&7)+(rex.b<<3)].dword[0] = F32;
+            break;
+
         case 0xC1:                      /* GRP2 Ed,Ib */
             nextop = F8;
             GETED;
