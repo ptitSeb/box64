@@ -237,8 +237,8 @@ void UpdateFlags(x64emu_t *emu);
 //void RunLock(x64emu_t *emu);
 //void RunLock66(x64emu_t *emu);
 
-void x86Syscall(x64emu_t *emu);
-void x86Int3(x64emu_t* emu);
+void x64Syscall(x64emu_t *emu);
+void x64Int3(x64emu_t* emu);
 //x64emu_t* x64emu_fork(x64emu_t* e, int forktype);
 
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
