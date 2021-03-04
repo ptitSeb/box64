@@ -230,6 +230,16 @@ x64emurun:
             }
             break;
 
+        case 0x85:                      /* TEST Ed,Gd */
+            nextop = F8;
+            GETED;
+            GETGD;
+            if(rex.w)
+                test64(emu, ED->q[0], GD->q[0]);
+            else
+                test32(emu, ED->dword[0], GD->dword[0]);
+            break;
+
         case 0x89:                    /* MOV Ed,Gd */
             nextop = F8;
             GETED;
