@@ -1397,7 +1397,7 @@ GO(name_to_handle_at, iFipppi)
 //GO(putmsg, 
 //GO(putpmsg, 
 //GO(putpwent, 
-//GOW(puts, 
+GOW(puts, iFp)
 //GO(putsgent, 
 //GO(putspent, 
 //GOW(pututline, 
