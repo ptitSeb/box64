@@ -410,6 +410,13 @@ x64emurun:
                 GD->dword[0] = (uint32_t)(uintptr_t)ED;
             break;
 
+        case 0x98:                      /* CWDE */
+            if(rex.w)
+                emu->regs[_AX].q[0] = emu->regs[_AX].sdword[0];
+            else
+                emu->regs[_AX].sdword[0] = emu->regs[_AX].sword[0];
+            break;
+
         case 0xB8:                      /* MOV EAX,Id */
         case 0xB9:                      /* MOV ECX,Id */
         case 0xBA:                      /* MOV EDX,Id */
