@@ -243,6 +243,16 @@ x64emurun:
                 ED->dword[0] = GD->dword[0];
             break;
 
+        case 0x8D:                      /* LEA Gd,M */
+            nextop = F8;
+            GETED;
+            GETGD;
+            if(rex.w)
+                GD->q[0] = (uint64_t)ED;
+            else
+                GD->dword[0] = (uint32_t)ED;
+            break;
+
         default:
             unimp = 1;
             goto fini;
