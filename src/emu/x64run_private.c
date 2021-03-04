@@ -32,9 +32,6 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
     //TODO: register rtld_fini
     //TODO: register fini
     // let's cheat and set all args...
-    Push(emu, (uint64_t)my_context->envv);
-    Push(emu, (uint64_t)my_context->argv);
-    Push(emu, (uint64_t)my_context->argc);
     if(init) {
         PushExit(emu);
         R_RIP=(uint64_t)*init;
@@ -47,6 +44,9 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
     printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", my_context->argc, my_context->argv, my_context->envv, main);
     // call main and finish
     PushExit(emu);
+    SetRDX(emu, (uint64_t)my_context->envv);
+    SetRSI(emu, (uint64_t)my_context->argv);
+    SetRDI(emu, (uint64_t)my_context->argc);
     R_RIP=(uint64_t)main;
 #ifdef DYNAREC
     DynaRun(emu);

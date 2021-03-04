@@ -368,17 +368,17 @@ static void* findcompare64Fct(void* fct)
 
 #undef SUPER
 
+#endif
 // some my_XXX declare and defines
 int32_t my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), 
     int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), 
-    void (*rtld_fini) (void), void (* stack_end)); // implemented in x86run_private.c
+    void (*rtld_fini) (void), void (* stack_end)); // implemented in x64run_private.c
 EXPORT void my___libc_init_first(x64emu_t* emu, int argc, char* arg0, char** b)
 {
     // do nothing specific for now
     return;
 }
-#endif
-uint64_t my_syscall(x64emu_t *emu); // implemented in x86syscall.c
+uint64_t my_syscall(x64emu_t *emu); // implemented in x64syscall.c
 void EXPORT my___stack_chk_fail(x64emu_t* emu)
 {
     char buff[200];
