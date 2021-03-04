@@ -78,7 +78,7 @@ static inline reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m)
     if (m<=7) {
         if(m==0x4) {
             uint8_t sib = Fetch8(emu);
-            uintptr_t base = ((sib&0x7)==5)?Fetch32(emu):(emu->regs[(sib&0x7)].q[0]+(rex.b<<3)); // base
+            uintptr_t base = ((sib&0x7)==5)?((uint64_t)(int64_t)Fetch32s(emu)):(emu->regs[(sib&0x7)+(rex.b<<3)].q[0]); // base
             base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<3)]->sq[0] << (sib>>6));
             return (reg64_t*)base;
         } else if (m==0x5) { //disp32
@@ -227,7 +227,7 @@ void UpdateFlags(x64emu_t *emu);
 #define RESET_FLAGS(emu) emu->df = d_none
 
 //void Run67(x64emu_t *emu);
-//void Run0F(x64emu_t *emu);
+int Run0F(x64emu_t *emu);
 //void Run660F(x64emu_t *emu);
 //void Run66D9(x64emu_t *emu);    // x87
 //void Run6766(x64emu_t *emu);
