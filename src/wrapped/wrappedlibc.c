@@ -469,12 +469,12 @@ pid_t EXPORT my_vfork(x64emu_t* emu)
     return 0;
     #endif
 }
-
+#endif
 int EXPORT my_uname(struct utsname *buf)
 {
-    // sizeof(struct utsname)==390 on i686, and also on ARM, so this seem safe
+    //TODO: check sizeof(struct utsname)
     int ret = uname(buf);
-    strcpy(buf->machine, /*(box64_steam)?"x86_64":*/"i686");
+    strcpy(buf->machine, "x86_64");
     return ret;
 }
 
@@ -553,7 +553,6 @@ int of_unconvert(int a)
 }
 #undef SUPER
 
-
 EXPORT void* my__ZGTtnaX (size_t a) { printf("warning _ZGTtnaX called\n"); return NULL; }
 EXPORT void my__ZGTtdlPv (void* a) { printf("warning _ZGTtdlPv called\n"); }
 EXPORT uint8_t my__ITM_RU1(const uint8_t * a) { printf("warning _ITM_RU1 called\n"); return 0; }
@@ -561,7 +560,7 @@ EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { printf("warning _ITM_RU4 calle
 EXPORT uint64_t my__ITM_RU8(const uint64_t * a) { printf("warning _ITM_RU8 called\n"); return 0; }
 EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n");  }
 EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n"); }
-
+#if 0
 EXPORT void my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 EXPORT void my__longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
 EXPORT void my_siglongjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
@@ -570,15 +569,7 @@ EXPORT void my___longjmp_chk(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/voi
 EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p);
 EXPORT int32_t my__setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
 EXPORT int32_t my___sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
-#if 0
-EXPORT void my_exit(x64emu_t *emu, int32_t status)
-{
-    R_EAX = (uint32_t)status;
-    emu->quit = 1;
-}
-EXPORT void my__exit(x64emu_t *emu, int32_t status) __attribute__((alias("my_exit")));
-EXPORT void my__Exit(x64emu_t *emu, int32_t status) __attribute__((alias("my_exit")));
-#endif
+
 void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack); // align st into mystack according to fmt (for v(f)printf(...))
 typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppp_t)(void*, void*, void*);
@@ -1300,6 +1291,7 @@ EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** resul
         return f(dirp, entry, result);
     }
 }
+#endif
 
 static int isProcSelf(const char *path, const char* w)
 {
@@ -1326,6 +1318,7 @@ EXPORT int32_t my_readlink(x64emu_t* emu, void* path, void* buf, uint32_t sz)
     }
     return readlink((const char*)path, (char*)buf, sz);
 }
+
 #ifndef NOALIGN
 
 static int nCPU = 0;
@@ -1397,7 +1390,7 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "bogomips\t: %g\n", bogoMips);
         P;
-        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 rdtscp ssse3 fma fxsr cx16 movbe pni\n");
+        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 syscall rdtscp ssse3 fma fxsr cx16 movbe pni\n");
         P;
         sprintf(buff, "\n");
         P;
@@ -1405,35 +1398,6 @@ void CreateCPUInfoFile(int fd)
     (void)dummy;
     #undef P
 }
-static int isCpuTopology(const char* p) {
-    if(strstr(p, "/sys/devices/system/cpu/cpu")!=p)
-        return -1;  //nope
-    if( FileExist(p, -1))
-        return -1;  //no need to fake it
-    char buf[512];
-    const char* p2 = p + strlen("/sys/devices/system/cpu/cpu");
-    int n = 0;
-    while(*p2>='0' && *p2<='9') {
-        n = n*10+ *p2 - '0';
-        ++p2;
-    }
-    if(!nCPU)
-        grabNCpu();
-    if(n>=nCPU) // filter for non existing cpu
-        return -1;
-    snprintf(buf, 512, "/sys/devices/system/cpu/cpu%d/topology/core_id", n);
-    if(!strcmp(p, buf))
-        return n;
-    return -1;
-}
-static void CreateCPUTopologyCoreID(int fd, int cpu)
-{
-    char buf[512];
-    snprintf(buf, 512, "%d\n", cpu);
-    size_t dummy = write(fd, buf, strlen(buf));
-    (void)dummy;
-}
-
 
 #define TMP_CPUINFO "box64_tmpcpuinfo"
 #define TMP_CPUTOPO "box64_tmpcputopo%d"
@@ -1480,23 +1444,12 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         lseek(tmp, 0, SEEK_SET);
         return tmp;
     }
-    if(isCpuTopology((const char*)pathname)!=-1) {
-        int n = isCpuTopology((const char*)pathname);
-        char buf[512];
-        snprintf(buf, 512, TMP_CPUTOPO, n);
-        int tmp = shm_open(buf, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode); // error fallback
-        shm_unlink(buf);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCPUTopologyCoreID(tmp, n);
-        lseek(tmp, 0, SEEK_SET);
-        return tmp;
-    }
     #endif
     int ret = open(pathname, flags, mode);
     return ret;
 }
 EXPORT int32_t my___open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode) __attribute__((alias("my_open")));
-
+#if 0
 #ifdef DYNAREC
 static int hasDBFromAddress(uintptr_t addr)
 {

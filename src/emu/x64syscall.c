@@ -29,16 +29,16 @@
 #include "x64trace.h"
 //#include "myalign.h"
 #include "box64context.h"
-//#include "callback.h"
+#include "callback.h"
 //#include "signals.h"
-//#include "x64tls.h"
+#include "x64tls.h"
 
 typedef struct x64_sigaction_s x64_sigaction_t;
 
 
 //int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
-//int of_convert(int flag);
-//int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
+int of_convert(int flag);
+int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 
 //int my_sigaction(x64emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact);
 //int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
@@ -62,11 +62,11 @@ typedef struct scwrap_s {
 } scwrap_t;
 
 scwrap_t syscallwrap[] = {
-    { 0, __NR_read, 3 },  // wrapped so SA_RESTART can be handled by libc
-    { 1, __NR_write, 3 }, // same
-    { 2, __NR_open, 3 },  // flags need transformation
-    { 3, __NR_close, 1 },   // wrapped so SA_RESTART can be handled by libc
-    { 4, __NR_stat, 2 },
+    //{ 0, __NR_read, 3 },  // wrapped so SA_RESTART can be handled by libc
+    //{ 1, __NR_write, 3 }, // same
+    //{ 2, __NR_open, 3 },  // flags need transformation
+    //{ 3, __NR_close, 1 },   // wrapped so SA_RESTART can be handled by libc
+
     { 5, __NR_fstat, 2},
 };
 
@@ -137,6 +137,20 @@ void EXPORT x64Syscall(x64emu_t *emu)
         }
     }
     switch (s) {
+        case 0:  // sys_read
+            R_EAX = (uint32_t)read((int)R_EDI, (void*)R_RSI, (size_t)R_RDX);
+            break;
+        case 1:  // sys_write
+            R_EAX = (uint32_t)write((int)R_EDI, (void*)R_RSI, (size_t)R_RDX);
+            break;
+        case 2: // sys_open
+            if(s==5) {printf_log(LOG_DEBUG, " => sys_open(\"%s\", %d, %d)", (char*)R_RDI, of_convert(R_ESI), R_EDX);}; 
+            //R_EAX = (uint32_t)open((void*)R_EDI, of_convert(R_ESI), R_EDX);
+            R_EAX = (uint32_t)my_open(emu, (void*)R_RDI, of_convert(R_ESI), R_EDX);
+            break;
+        case 3:  // sys_close
+            R_EAX = (uint32_t)close((int)R_EDI);
+            break;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             emu->quit = 1;
@@ -177,6 +191,14 @@ uint32_t EXPORT my_syscall(x64emu_t *emu)
         }
     }
     switch (s) {
+        case 0:  // sys_read
+            return (uint32_t)read(R_ESI, (void*)R_RDX, R_ECX);
+        case 1:  // sys_write
+            return (uint32_t)write(R_ESI, (void*)R_RDX, R_ECX);
+        case 2: // sys_open
+            return my_open(emu, (char*)R_RSI, of_convert(R_EDX), R_ECX);
+        case 3:  // sys_close
+            return (uint32_t)close(R_ESI);
         default:
             printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
             emu->quit = 1;
