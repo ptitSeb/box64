@@ -240,6 +240,16 @@ x64emurun:
                 ED->dword[0] = GD->dword[0];
             break;
 
+        case 0x8B:                      /* MOV Gd,Ed */
+            nextop = F8;
+            GETED;
+            GETGD;
+            if(rex.w)
+                GD->q[0] = ED->q[0];
+            else
+                GD->dword[0] = ED->dword[0];
+            break;
+
         case 0x8D:                      /* LEA Gd,M */
             nextop = F8;
             GETED;
