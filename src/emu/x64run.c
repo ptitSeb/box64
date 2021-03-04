@@ -168,6 +168,16 @@ x64emurun:
             --R_RIP;
             break;
 
+        case 0x89:                    /* MOV Ed,Gd */
+            nextop = F8;
+            GETED;
+            GETGD;
+            if(rex.w)
+                ED->q[0] = GD->q[0];
+            else
+                ED->dword[0] = GD->dword[0];
+            break;
+
         default:
             unimp = 1;
             goto fini;

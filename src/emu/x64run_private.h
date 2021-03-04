@@ -78,22 +78,22 @@ static inline reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m)
     if (m<=7) {
         if(m==0x4) {
             uint8_t sib = Fetch8(emu);
-            uintptr_t base = ((sib&0x7)==5)?Fetch32(emu):(emu->regs[(sib&0x7)].q[0]+(rex.b<<4)); // base
-            base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<4)]->sq[0] << (sib>>6));
+            uintptr_t base = ((sib&0x7)==5)?Fetch32(emu):(emu->regs[(sib&0x7)].q[0]+(rex.b<<3)); // base
+            base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<3)]->sq[0] << (sib>>6));
             return (reg64_t*)base;
         } else if (m==0x5) { //disp32
             uintptr_t base = Fetch32(emu);
             return (reg64_t*)(base+R_RIP);
         }
-        return (reg64_t*)(emu->regs[m].q[0]+(rex.b<<4));
+        return (reg64_t*)(emu->regs[m].q[0]+(rex.b<<3));
     } else {
         uintptr_t base;
         if((m&7)==4) {
             uint8_t sib = Fetch8(emu);
-            base = emu->regs[(sib&0x7)+(rex.b<<4)].q[0]; // base
-            base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<4)]->sq[0] << (sib>>6));
+            base = emu->regs[(sib&0x7)+(rex.b<<3)].q[0]; // base
+            base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<3)]->sq[0] << (sib>>6));
         } else {
-            base = emu->regs[(m&0x7)+(rex.b<<4)].q[0];
+            base = emu->regs[(m&0x7)+(rex.b<<3)].q[0];
         }
         base+=(m&0x80)?Fetch32s(emu):Fetch8s(emu);
         return (reg64_t*)base;
@@ -109,7 +109,7 @@ static inline reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v)
             int lowhigh = (m&4)>>2;
             return (reg64_t *)(((char*)(&emu->regs[(m&0x03)]))+lowhigh);  //?
         } else {
-            return &emu->regs[(m&0x07)+(rex.x<<4)];
+            return &emu->regs[(m&0x07)+(rex.b<<3)];
         }
     } else return GetECommon(emu, rex, m);
 }
@@ -118,7 +118,7 @@ static inline reg64_t* GetEd(x64emu_t *emu, rex_t rex, uint8_t v)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         return &emu->regs[(m&0x07)+(rex.x<<4)];
+         return &emu->regs[(m&0x07)+(rex.b<<3)];
     } else return GetECommon(emu, rex, m);
 }
 
@@ -190,14 +190,14 @@ static inline sse_regs_t* GetEx(x64emu_t *emu, rex_t rex, uint8_t v)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         return &emu->xmm[(m&0x07)+(rex.x<<4)];
+         return &emu->xmm[(m&0x07)+(rex.b<<4)];
     } else return (sse_regs_t*)GetECommon(emu, rex, m);
 }
 
 
 static inline reg64_t* GetGd(x64emu_t *emu, rex_t rex, uint8_t v)
 {
-    return &emu->regs[((v&0x38)>>3)+(rex.r<<4)];
+    return &emu->regs[((v&0x38)>>3)+(rex.r<<3)];
 }
 
 static inline reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v)
@@ -206,7 +206,7 @@ static inline reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v)
     if(rex.rex) {
         return (reg64_t*)&emu->regs[m&3].byte[m>>2];
     } else
-        return &emu->regs[(m&7)+(rex.r<<4)];
+        return &emu->regs[(m&7)+(rex.r<<3)];
 }
 
 static inline mmx_regs_t* GetGm(x64emu_t *emu, rex_t rex, uint8_t v)
@@ -218,7 +218,7 @@ static inline mmx_regs_t* GetGm(x64emu_t *emu, rex_t rex, uint8_t v)
 static inline sse_regs_t* GetGx(x64emu_t *emu, rex_t rex, uint8_t v)
 {
     uint8_t m = (v&0x38)>>3;
-    return &emu->xmm[(m&7)+(rex.r<<4)];
+    return &emu->xmm[(m&7)+(rex.r<<3)];
 }
 
 void UpdateFlags(x64emu_t *emu);
