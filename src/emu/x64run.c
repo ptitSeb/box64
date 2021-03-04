@@ -132,20 +132,13 @@ x64emurun:
             break;                                          \
         case B+5:                                           \
             if(rex.w)                                       \
-                R_RAX = OP##64(emu, R_RAX, F32);            \
+                R_RAX = OP##64(emu, R_RAX, (uint64_t)(int64_t)F32S);    \
             else                                            \
                 R_EAX = OP##32(emu, R_EAX, F32);            \
             break;
 
         GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
         GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
-        GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
-        GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
-        GO(0x20, and)                   /* AND 0x20 -> 0x25 */
-        GO(0x28, sub)                   /* SUB 0x28 -> 0x2D */
-        GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
-        #undef GO
-
         case 0x0F:                      /* More instructions */
             if(Run0F(emu)) {
                 unimp = 1;
@@ -154,7 +147,52 @@ x64emurun:
             if(emu->quit)
                 goto fini;
             break;
+        GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
+        GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
+        GO(0x20, and)                   /* AND 0x20 -> 0x25 */
+        GO(0x28, sub)                   /* SUB 0x28 -> 0x2D */
+        GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
+        #undef GO
 
+        case 0x38:
+            nextop = F8;
+            GETEB;
+            GETGB;
+            cmp8(emu, EB->byte[0], GB);
+            break;
+        case 0x39:
+            nextop = F8;
+            GETED;
+            GETGD;
+            if(rex.w)
+                cmp64(emu, ED->q[0], GD->q[0]);
+            else
+                cmp32(emu, ED->dword[0], GD->dword[0]);
+            break;
+        case 0x3A:
+            nextop = F8;
+            GETEB;
+            GETGB;
+            cmp8(emu, GB, EB->byte[0]);
+            break;
+        case 0x3B:
+            nextop = F8;
+            GETED;
+            GETGD;
+            if(rex.w)
+                cmp64(emu, GD->q[0], ED->q[0]);
+            else
+                cmp32(emu, GD->dword[0], ED->dword[0]);
+            break;
+        case 0x3C:
+            cmp8(emu, R_AL, F8);
+            break;
+        case 0x3D:
+            if(rex.w)
+                cmp64(emu, R_RAX, (uint64_t)(int64_t)F32S);
+            else
+                cmp32(emu, R_EAX, F32);
+            break;
 
         case 0x40:
         case 0x41:
