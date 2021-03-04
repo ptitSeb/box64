@@ -472,6 +472,11 @@ x64emurun:
                 ED->dword[0] = F32;
             break;
 
+        case 0xC9:                      /* LEAVE */
+            R_RSP = R_RBP;
+            R_RBP = Pop(emu);
+            break;
+
         case 0xCC:                      /* INT 3 */
             x64Int3(emu);
             if(emu->quit) goto fini;
