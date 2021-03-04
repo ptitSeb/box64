@@ -55,6 +55,7 @@ int Run(x64emu_t *emu, int step)
 #define F16     *(uint16_t*)(R_RIP+=2, R_RIP-2)
 #define F32     *(uint32_t*)(R_RIP+=4, R_RIP-4)
 #define F32S    *(int32_t*)(R_RIP+=4, R_RIP-4)
+#define F32S64  (uint64_t)(int64_t)F32S
 #define F64     *(uint64_t*)(R_RIP+=8, R_RIP-8)
 #define F64S    *(int64_t*)(R_RIP+=8, R_RIP-8)
 #define PK(a)   *(uint8_t*)(R_RIP+a)
@@ -132,7 +133,7 @@ x64emurun:
             break;                                          \
         case B+5:                                           \
             if(rex.w)                                       \
-                R_RAX = OP##64(emu, R_RAX, (uint64_t)(int64_t)F32S);    \
+                R_RAX = OP##64(emu, R_RAX, F32S64);         \
             else                                            \
                 R_EAX = OP##32(emu, R_EAX, F32);            \
             break;
@@ -189,7 +190,7 @@ x64emurun:
             break;
         case 0x3D:
             if(rex.w)
-                cmp64(emu, R_RAX, (uint64_t)(int64_t)F32S);
+                cmp64(emu, R_RAX, F32S64);
             else
                 cmp32(emu, R_EAX, F32);
             break;
@@ -451,6 +452,15 @@ x64emurun:
         case 0xC3:                      /* RET */
             R_RIP = Pop(emu);
             STEP
+            break;
+
+        case 0xC7:                      /* MOV Ed,Id */
+            nextop = F8;
+            GETED;
+            if(rex.w)
+                ED->q[0] = F32S64;
+            else
+                ED->dword[0] = F32;
             break;
 
         case 0xCC:                      /* INT 3 */
