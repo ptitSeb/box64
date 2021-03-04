@@ -406,6 +406,36 @@ x64emurun:
             if(emu->quit) goto fini;
             break;
 
+        case 0xD1:                      /* GRP2 Ed,1 */
+        case 0xD3:                      /* GRP2 Ed,CL */
+            nextop = F8;
+            GETED;
+            tmp8u = (opcode==0xD1)?1:R_CL;
+            if(rex.w) {
+                switch((nextop>>3)&7) {
+                    case 0: ED->q[0] = rol64(emu, ED->q[0], tmp8u); break;
+                    case 1: ED->q[0] = ror64(emu, ED->q[0], tmp8u); break;
+                    case 2: ED->q[0] = rcl64(emu, ED->q[0], tmp8u); break;
+                    case 3: ED->q[0] = rcr64(emu, ED->q[0], tmp8u); break;
+                    case 4: 
+                    case 6: ED->q[0] = shl64(emu, ED->q[0], tmp8u); break;
+                    case 5: ED->q[0] = shr64(emu, ED->q[0], tmp8u); break;
+                    case 7: ED->q[0] = sar64(emu, ED->q[0], tmp8u); break;
+                }
+            } else {
+                switch((nextop>>3)&7) {
+                    case 0: ED->dword[0] = rol32(emu, ED->dword[0], tmp8u); break;
+                    case 1: ED->dword[0] = ror32(emu, ED->dword[0], tmp8u); break;
+                    case 2: ED->dword[0] = rcl32(emu, ED->dword[0], tmp8u); break;
+                    case 3: ED->dword[0] = rcr32(emu, ED->dword[0], tmp8u); break;
+                    case 4: 
+                    case 6: ED->dword[0] = shl32(emu, ED->dword[0], tmp8u); break;
+                    case 5: ED->dword[0] = shr32(emu, ED->dword[0], tmp8u); break;
+                    case 7: ED->dword[0] = sar32(emu, ED->dword[0], tmp8u); break;
+                }
+            }
+            break;
+
         case 0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative
             Push(emu, R_RIP);
