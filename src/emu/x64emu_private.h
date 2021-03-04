@@ -49,7 +49,7 @@ typedef struct x64emu_s {
     uint64_t    op1;
     uint64_t    op2;
     uint64_t    res;
-    uint32_t    *x86emu_parity_tab; // helper
+    uint32_t    *x64emu_parity_tab; // helper
     #ifdef HAVE_TRACE
     uintptr_t   prev2_ip;
     #endif
