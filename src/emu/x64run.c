@@ -243,6 +243,10 @@ x64emurun:
             emu->regs[tmp8u].q[0] = Pop(emu);
             break;
 
+        case 0x68:                      /* Push Id */
+            Push(emu, F32S64);
+            break;
+
         #define GOCOND(B, PREFIX, CONDITIONAL)  \
         case B+0x0:                             \
             PREFIX                              \
