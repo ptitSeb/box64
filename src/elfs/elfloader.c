@@ -645,13 +645,13 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
             pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0);
         }
         if(head->pltgot) {
-            *(uintptr_t*)(head->pltgot+head->delta+8) = pltResolver;
-            *(uintptr_t*)(head->pltgot+head->delta+4) = (uintptr_t)head;
-            printf_log(LOG_DEBUG, "PLT Resolver injected in plt.got at %p\n", (void*)(head->pltgot+head->delta+8));
+            *(uintptr_t*)(head->pltgot+head->delta+16) = pltResolver;
+            *(uintptr_t*)(head->pltgot+head->delta+8) = (uintptr_t)head;
+            printf_log(LOG_DEBUG, "PLT Resolver injected in plt.got at %p\n", (void*)(head->pltgot+head->delta+16));
         } else if(head->got) {
-            *(uintptr_t*)(head->got+head->delta+8) = pltResolver;
-            *(uintptr_t*)(head->got+head->delta+4) = (uintptr_t)head;
-            printf_log(LOG_DEBUG, "PLT Resolver injected in got at %p\n", (void*)(head->got+head->delta+8));
+            *(uintptr_t*)(head->got+head->delta+16) = pltResolver;
+            *(uintptr_t*)(head->got+head->delta+8) = (uintptr_t)head;
+            printf_log(LOG_DEBUG, "PLT Resolver injected in got at %p\n", (void*)(head->got+head->delta+16));
         }
     }
    
