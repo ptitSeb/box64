@@ -826,8 +826,9 @@ int main(int argc, const char **argv, const char **env) {
     // stack setup is much more complicated then just that!
     SetupInitialStack(emu); // starting here, the argv[] don't need free anymore
     SetupX64Emu(emu);
-    SetRAX(emu, my_context->argc);
-    SetRBX(emu, (uintptr_t)my_context->argv);
+    SetRSI(emu, my_context->argc);
+    SetRDX(emu, (uint64_t)my_context->argv);
+    SetRCX(emu, (uint64_t)my_context->envv);
 
     // child fork to handle traces
     pthread_atfork(NULL, NULL, my_child_fork);
@@ -894,9 +895,12 @@ int main(int argc, const char **argv, const char **env) {
 
     // emulate!
     printf_log(LOG_DEBUG, "Start x64emu on Main\n");
-    SetRAX(emu, my_context->argc);
+    SetRSI(emu, my_context->argc);
     SetRDX(emu, (uint64_t)my_context->argv);
+    SetRCX(emu, (uint64_t)my_context->envv);
     SetRIP(emu, my_context->ep);
+    PushExit(emu);
+    *(uint64_t*)GetRSP(emu) = my_context->argc;
     ResetFlags(emu);
     Run(emu, 0);
     // Get EAX

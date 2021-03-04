@@ -146,6 +146,16 @@ x64emurun:
         GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
         #undef GO
 
+        case 0x0F:                      /* More instructions */
+            if(Run0F(emu)) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit)
+                goto fini;
+            break;
+
+
         case 0x40:
         case 0x41:
         case 0x42:
