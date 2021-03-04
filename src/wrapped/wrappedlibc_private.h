@@ -1867,7 +1867,7 @@ GOM(__stack_chk_fail, vFE)
 //GO(sync, 
 //GO(sync_file_range, 
 //GO(syncfs, 
-//GO(syscall, 
+GOM(syscall, iFEv)
 //GO(__sysconf, 
 //GOW(sysconf, 
 //GO(__sysctl, 
