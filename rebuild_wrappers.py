@@ -373,36 +373,132 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 		# Next part: function definitions
 		
 		# Helper variables
-		arg = [
+		reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
+		# vreg: value is in a general register
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
+		vreg   = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0]
+		# vxmm: value is in a XMM register
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
+		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		# vother: value is elsewere
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
+		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
+		# vstack: value is on the stack (or out of register)
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
+		vstack = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0]
+		arg_s = [
+			"",											# E
+			"",											# e
+			"",											# v
+			"*(int8_t*)(R_RSP + {p}), ",				# c
+			"*(int16_t*)(R_RSP + {p}), ",	 			# w
+			"*(int32_t*)(R_RSP + {p}), ",				# i
+			"*(int64_t*)(R_RSP + {p}), ",				# I
+			"*(uint8_t*)(R_RSP + {p}), ",				# C
+			"*(uint16_t*)(R_RSP + {p}), ",				# W
+			"*(uint32_t*)(R_RSP + {p}), ",				# u
+			"*(uint64_t*)(R_RSP + {p}), ",				# U
+			"*(float*)(R_RSP + {p}), ",					# f
+			"*(double*)(R_RSP + {p}), ",				# d
+			"*(long double*)(R_RSP + {p}), ",			# D
+			"FromLD((void*)(R_RSP + {p})), ",			# K
+			"*(intptr_t*)(R_RSP + {p}), ",				# l
+			"*(uintptr_t*)(R_RSP + {p}), ",				# L
+			"*(void**)(R_RSP + {p}), ",					# p
+			"(void*)(R_RSP + {p}), ",					# V
+			"of_convert(*(int32_t*)(R_RSP + {p})), ",	# O
+			"io_convert(*(void**)(R_RSP + {p})), ",		# S
+			"(_2uint_struct_t){{*(uintptr_t*)(R_RSP + {p}),*(uintptr_t*)(R_RSP + {p} + 4)}}, ",	# 2
+			"",									# P
+			"",								# G
+			"*(void**)(R_RSP + {p}), ",					# N
+			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 4), ",	# M
+		]
+		arg_r = [
+			"",                                  		# E
+			"",                                 		# e
+			"",                                       # v
+			"(int8_t){p}, ",              # c
+			"(int16_t){p}, ",             # w
+			"(int32_t){p}, ",             # i
+			"(int64_t){p}, ",             # I
+			"(uint8_t){p}, ",             # C
+			"(uint16_t){p}, ",            # W
+			"(uint32_t){p}, ",            # u
+			"(uint64_t){p}, ",            # U
+			"",               # f
+			"",              # d
+			"",         # D
+			"",         # K
+			"(intptr_t){p} ",            # l
+			"(uintptr_t){p}, ",           # L
+			"(void*){p}, ",               # p
+			"",                 # V
+			"of_convert((int32_t){p}), ", # O
+			"io_convert((void*){p}), ",   # S
+			"",	# 2
+			"",                               # P
+			"",                              # G
+			"",				  # N
+			"",	# M
+		]
+		arg_x = [
+			"",                                  # E
+			"",                                 # e
+			"",                                       # v
+			"",              # c
+			"",             # w
+			"",             # i
+			"",             # I
+			"",             # C
+			"",            # W
+			"",            # u
+			"",            # U
+			"emu->xmm[{p}].f[0]), ",               # f
+			"emu->xmm[{p}].d[0]), ",              # d
+			"",         # D
+			"",         # K
+			"",            # l
+			"",           # L
+			"",               # p
+			"",                 # V
+			"", # O
+			"",   # S
+			"",	# 2
+			"",                               # P
+			"",                              # G
+			"",				  # N
+			"",	# M
+		]
+		arg_o = [
 			"emu, ",                                  # E
 			"&emu, ",                                 # e
 			"",                                       # v
-			"*(int8_t*)(R_RSP + {p}), ",              # c
-			"*(int16_t*)(R_RSP + {p}), ",             # w
-			"*(int32_t*)(R_RSP + {p}), ",             # i
-			"*(int64_t*)(R_RSP + {p}), ",             # I
-			"*(uint8_t*)(R_RSP + {p}), ",             # C
-			"*(uint16_t*)(R_RSP + {p}), ",            # W
-			"*(uint32_t*)(R_RSP + {p}), ",            # u
-			"*(uint64_t*)(R_RSP + {p}), ",            # U
-			"*(float*)(R_RSP + {p}), ",               # f
-			"*(double*)(R_RSP + {p}), ",              # d
-			"*(long double*)(R_RSP + {p}), ",         # D
-			"FromLD((void*)(R_RSP + {p})), ",         # K
-			"*(intptr_t*)(R_RSP + {p}), ",            # l
-			"*(uintptr_t*)(R_RSP + {p}), ",           # L
-			"*(void**)(R_RSP + {p}), ",               # p
-			"(void*)(R_RSP + {p}), ",                 # V
-			"of_convert(*(int32_t*)(R_RSP + {p})), ", # O
-			"io_convert(*(void**)(R_RSP + {p})), ",   # S
-			"(_2uint_struct_t){{*(uintptr_t*)(R_RSP + {p}),*(uintptr_t*)(R_RSP + {p} + 4)}}, ",	# 2
+			"",              # c
+			"",             # w
+			"",             # i
+			"",             # I
+			"",             # C
+			"",            # W
+			"",            # u
+			"",            # U
+			"",               # f
+			"",              # d
+			"",         # D
+			"",         # K
+			"",            # l
+			"",           # L
+			"",               # p
+			"",                 # V
+			"", # O
+			"",   # S
+			"",	# 2
 			"arg{p}, ",                               # P
 			"&arg{p}, ",                              # G
-			"*(void**)(R_RSP + {p}), ",				  # N
+			"*(void**)(R_RSP + {p}), ",					# N
 			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 4), ",	# M
 		]
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S  2  P  G  N, M
-		deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 8, 8, 8, 0, 4, 4, 8, 4, 4, 0, 0]
+
 		vals = [
 			"\n#error Invalid return type: emulator\n",                     # E
 			"\n#error Invalid return type: &emulator\n",                    # e
@@ -415,8 +511,8 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"R_RAX=(unsigned short)fn({0});",                               # W
 			"R_RAX=(uint32_t)fn({0});",                                     # u
 			"R_RAX=fn({0});", 												# U
-			"float fl=fn({0}); fpu_do_push(emu); ST0val = fl;",             # f
-			"double db=fn({0}); fpu_do_push(emu); ST0val = db;",            # d
+			"emu->xmm[0].f[0]=fn({0});",             						# f
+			"emu->xmm[0].d[0]=fn({0});",            						# d
 			"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",       # D
 			"double db=fn({0}); fpu_do_push(emu); ST0val = db;",            # K
 			"R_RAX=(intptr_t)fn({0});",                                     # l
@@ -432,26 +528,31 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"\n#error Invalid return type: ... with 2 args\n",              # M
 		]
 		# Asserts
-		if len(values) != len(arg):
-			raise NotImplementedError("len(values) = {lenval} != len(arg) = {lenarg}".format(lenval=len(values), lenarg=len(arg)))
-		if len(values) != len(deltas):
-			raise NotImplementedError("len(values) = {lenval} != len(deltas) = {lendeltas}".format(lenval=len(values), lendeltas=len(deltas)))
+		if len(values) != len(arg_s):
+			raise NotImplementedError("len(values) = {lenval} != len(arg_s) = {lenargs}".format(lenval=len(values), lenargr=len(arg_s)))
+		if len(values) != len(arg_r):
+			raise NotImplementedError("len(values) = {lenval} != len(arg_r) = {lenargr}".format(lenval=len(values), lenargr=len(arg_r)))
 		if len(values) != len(vals):
 			raise NotImplementedError("len(values) = {lenval} != len(vals) = {lenvals}".format(lenval=len(values), lenvals=len(vals)))
 		
 		# Helper functions to write the function definitions
-		def function_args(args, d=4):
+		def function_args(args, d=8, r=0, x=0):
 			if len(args) == 0:
 				return ""
-			if d % 4 != 0:
-				raise ValueError("{d} is not a multiple of 4. Did you try passing a V and something else?".format(d=d))
 			
 			if args[0] == "0":
-				return "(void*)(R_RSP + {p}), ".format(p=d) + function_args(args[1:], d + 4)
+				return "0, " + function_args(args[1:], d, r, x)
 			elif args[0] == "1":
-				return "1, " + function_args(args[1:], d)
+				return "1, " + function_args(args[1:], d, r, x)
 			
-			return arg[values.index(args[0])].format(p=d) + function_args(args[1:], d + deltas[values.index(args[0])])
+			idx = values.index(args[0])
+			if r<5 and vreg[idx]>0:
+    				return arg_r[idx].format(p=reg_arg[r]) + function_args(args[1:], d, r+1, x)
+			if x<7 and vxmm[idx]>0:
+					return arg_x[idx].format(p=x) + function_args(args[1:], d, r, x+1)
+			if vstack[idx]>0:
+    				return arg_s[idx].format(p=d) + function_args(args[1:], d+8*vstack[idx], r, x)
+			return arg_o[idx].format(p=d) + function_args(args[1:], d + vother[idx]*8, r, x)
 		
 		def function_writer(f, N, W, rettype, args):
 			f.write("void {0}(x64emu_t *emu, uintptr_t fcn) {2} {1} fn = ({1})fcn; ".format(N, W, "{"))
