@@ -82,7 +82,7 @@ static inline reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m)
             base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<3)]->sq[0] << (sib>>6));
             return (reg64_t*)base;
         } else if (m==0x5) { //disp32
-            uintptr_t base = Fetch32(emu);
+            int32_t base = Fetch32s(emu);
             return (reg64_t*)(base+R_RIP);
         }
         return (reg64_t*)(emu->regs[m].q[0]+(rex.b<<3));

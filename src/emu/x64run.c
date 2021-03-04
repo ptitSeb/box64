@@ -42,9 +42,6 @@ int Run(x64emu_t *emu, int step)
     int64_t tmp64s, tmp64s2;
     double d;
     float f;
-    int64_t ll;
-    sse_regs_t *opex, eax1;
-    mmx_regs_t *opem, eam1;
     rex_t rex;
     int unimp = 0;
 
@@ -250,9 +247,76 @@ x64emurun:
             if(rex.w)
                 GD->q[0] = (uint64_t)ED;
             else
-                GD->dword[0] = (uint32_t)ED;
+                GD->dword[0] = (uint32_t)(uintptr_t)ED;
             break;
 
+        case 0xFF:                      /* GRP 5 Ed */
+            nextop = F8;
+            GETED;
+            switch((nextop>>3)&7) {
+                case 0:                 /* INC Ed */
+                    if(rex.w)
+                        ED->q[0] = inc64(emu, ED->q[0]);
+                    else
+                        ED->dword[0] = inc32(emu, ED->dword[0]);
+                    break;
+                case 1:                 /* DEC Ed */
+                    if(rex.w)
+                        ED->q[0] = dec64(emu, ED->q[0]);
+                    else
+                        ED->dword[0] = dec32(emu, ED->dword[0]);
+                    break;
+                case 2:                 /* CALL NEAR Ed */
+                    tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
+                    Push(emu, R_RIP);
+                    R_RIP = tmp64u;
+                    STEP
+                    break;
+                case 3:                 /* CALL FAR Ed */
+                    if(nextop>0xC0) {
+                        R_RIP = emu->old_ip;
+                        printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
+                        emu->quit=1;
+                        emu->error |= ERR_ILLEGAL;
+                        goto fini;
+                    } else {
+                        Push16(emu, R_CS);
+                        Push(emu, R_RIP);
+                        R_RIP = ED->dword[0];
+                        R_CS = (ED+1)->word[0];
+                        goto fini;  // exit loop to recompute new CS...
+                    }
+                    break;
+                case 4:                 /* JMP NEAR Ed */
+                    R_RIP = (uintptr_t)getAlternate((void*)ED->q[0]);
+                    STEP
+                    break;
+                case 5:                 /* JMP FAR Ed */
+                    if(nextop>0xc0) {
+                        R_RIP = emu->old_ip;
+                        printf_log(LOG_NONE, "Illegal Opcode %p: 0x%02X 0x%02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
+                        emu->quit=1;
+                        emu->error |= ERR_ILLEGAL;
+                        goto fini;
+                    } else {
+                        R_RIP = ED->q[0];
+                        R_CS = (ED+1)->word[0];
+                        STEP
+                        goto fini;  // exit loop to recompute CS...
+                    }
+                    break;
+                case 6:                 /* Push Ed */
+                    tmp64u = ED->q[0];  // rex.w ignored
+                    Push(emu, tmp64u);  // avoid potential issue with push [esp+...]
+                    break;
+                default:
+                    R_RIP = emu->old_ip;
+                    printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
+                    emu->quit=1;
+                    emu->error |= ERR_ILLEGAL;
+                    goto fini;
+            }
+            break;
         default:
             unimp = 1;
             goto fini;
