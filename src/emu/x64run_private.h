@@ -105,8 +105,12 @@ static inline reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v)
     // rex ignored here
     uint8_t m = v&0xC7;    // filter Eb
     if(m>=0xC0) {
-        int lowhigh = (m&4)>>2;
-         return (reg64_t *)(((char*)(&emu->regs[(m&0x03)]))+lowhigh);  //?
+        if(rex.rex) {
+            int lowhigh = (m&4)>>2;
+            return (reg64_t *)(((char*)(&emu->regs[(m&0x03)]))+lowhigh);  //?
+        } else {
+            return &emu->regs[(m&0x07)+(rex.x<<4)];
+        }
     } else return GetECommon(emu, rex, m);
 }
 
@@ -114,7 +118,7 @@ static inline reg64_t* GetEd(x64emu_t *emu, rex_t rex, uint8_t v)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         return &emu->regs[(m&0x07)+(rex.b<<4)];
+         return &emu->regs[(m&0x07)+(rex.x<<4)];
     } else return GetECommon(emu, rex, m);
 }
 
@@ -186,12 +190,12 @@ static inline sse_regs_t* GetEx(x64emu_t *emu, rex_t rex, uint8_t v)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         return &emu->xmm[(m&0x07)+(rex.b<<4)];
+         return &emu->xmm[(m&0x07)+(rex.x<<4)];
     } else return (sse_regs_t*)GetECommon(emu, rex, m);
 }
 
 
-static inline reg64_t* GetG(x64emu_t *emu, rex_t rex, uint8_t v)
+static inline reg64_t* GetGd(x64emu_t *emu, rex_t rex, uint8_t v)
 {
     return &emu->regs[((v&0x38)>>3)+(rex.r<<4)];
 }
@@ -199,7 +203,10 @@ static inline reg64_t* GetG(x64emu_t *emu, rex_t rex, uint8_t v)
 static inline reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v)
 {
     uint8_t m = (v&0x38)>>3;
-    return (reg64_t*)&emu->regs[m&3].byte[m>>2];
+    if(rex.rex) {
+        return (reg64_t*)&emu->regs[m&3].byte[m>>2];
+    } else
+        return &emu->regs[(m&7)+(rex.r<<4)];
 }
 
 static inline mmx_regs_t* GetGm(x64emu_t *emu, rex_t rex, uint8_t v)
@@ -214,9 +221,9 @@ static inline sse_regs_t* GetGx(x64emu_t *emu, rex_t rex, uint8_t v)
     return &emu->xmm[(m&7)+(rex.r<<4)];
 }
 
-//void UpdateFlags(x64emu_t *emu);
+void UpdateFlags(x64emu_t *emu);
 
-//#define CHECK_FLAGS(emu) if(emu->df) UpdateFlags(emu)
+#define CHECK_FLAGS(emu) if(emu->df) UpdateFlags(emu)
 #define RESET_FLAGS(emu) emu->df = d_none
 
 //void Run67(x64emu_t *emu);
@@ -240,7 +247,7 @@ uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
 #define GetESBaseEmu(emu)    GetSegmentBaseEmu(emu, _ES)
 #define GetDSBaseEmu(emu)    GetSegmentBaseEmu(emu, _DS)
 
-//const char* GetNativeName(void* p);
+const char* GetNativeName(void* p);
 
 #ifdef HAVE_TRACE
 void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec);
