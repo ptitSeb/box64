@@ -412,6 +412,11 @@ x64emurun:
             R_RIP += tmp32s;
             STEP
             break;
+        case 0xE9:                      /* JMP Id */
+            tmp32s = F32S; // jmp is relative
+            R_RIP += tmp32s;
+            STEP
+            break;
 
         case 0xFF:                      /* GRP 5 Ed */
             nextop = F8;
