@@ -197,6 +197,42 @@ x64emurun:
             emu->regs[tmp8u].q[0] = Pop(emu);
             break;
 
+        case 0x81:                      /* GRP Ed,Id */
+        case 0x83:                      /* GRP Ed,Ib */
+            nextop = F8;
+            GETED;
+            if(opcode==0x81) {
+                tmp32s = F32S;
+            } else {
+                tmp32s = F8S;
+            }
+            if(rex.w) {
+                tmp64u = (uint64_t)tmp32s;
+                switch((nextop>>3)&7) {
+                    case 0: ED->dword[0] = add64(emu, ED->dword[0], tmp64u); break;
+                    case 1: ED->dword[0] =  or64(emu, ED->dword[0], tmp64u); break;
+                    case 2: ED->dword[0] = adc64(emu, ED->dword[0], tmp64u); break;
+                    case 3: ED->dword[0] = sbb64(emu, ED->dword[0], tmp64u); break;
+                    case 4: ED->dword[0] = and64(emu, ED->dword[0], tmp64u); break;
+                    case 5: ED->dword[0] = sub64(emu, ED->dword[0], tmp64u); break;
+                    case 6: ED->dword[0] = xor64(emu, ED->dword[0], tmp64u); break;
+                    case 7:                cmp64(emu, ED->dword[0], tmp64u); break;
+                }
+            } else {
+                tmp32u = (uint32_t)tmp32s;
+                switch((nextop>>3)&7) {
+                    case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp32u); break;
+                    case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp32u); break;
+                    case 2: ED->dword[0] = adc32(emu, ED->dword[0], tmp32u); break;
+                    case 3: ED->dword[0] = sbb32(emu, ED->dword[0], tmp32u); break;
+                    case 4: ED->dword[0] = and32(emu, ED->dword[0], tmp32u); break;
+                    case 5: ED->dword[0] = sub32(emu, ED->dword[0], tmp32u); break;
+                    case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp32u); break;
+                    case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
+                }
+            }
+            break;
+
         case 0x89:                    /* MOV Ed,Gd */
             nextop = F8;
             GETED;
