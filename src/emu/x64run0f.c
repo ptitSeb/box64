@@ -75,10 +75,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             nextop = F8;
             GETEB;
             GETGD;
-            if(rex.w)
-                GD->q[0] = EB->byte[0];
-            else
-                GD->dword[0] = EB->byte[0];
+            GD->q[0] = EB->byte[0];
             break;
 
         default:
