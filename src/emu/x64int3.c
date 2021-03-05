@@ -135,7 +135,7 @@ void x64Int3(x64emu_t* emu)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==2 && R_EAX==0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
-                printf_log(LOG_NONE, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
+                printf_log(LOG_NONE, " return 0x%016lX%s%s\n", R_RAX, buff2, buff3);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
             } else
                 w(emu, addr);
