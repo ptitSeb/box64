@@ -16,11 +16,15 @@
 #define GETED oped=GetEd(emu, rex, nextop)
 #define GETGD opgd=GetGd(emu, rex, nextop)
 #define GETEB oped=GetEb(emu, rex, nextop)
-#define GETGB oped=GetGb(emu, rex, nextop)
+#define GETGB opgd=GetGb(emu, rex, nextop)
+#define GETEW oped=GetEw(emu, rex, nextop)
+#define GETGW opgd=GetGw(emu, rex, nextop)
 #define ED  oped
 #define GD  opgd
 #define EB  oped
-#define GB  oped->byte[0]
+#define GB  opgd->byte[0]
+#define EW  oped
+#define GW  opgd
 
 #define GOCOND(BASE, PREFIX, CONDITIONAL)       \
     case BASE+0x0:                              \

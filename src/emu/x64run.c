@@ -231,6 +231,15 @@ x64emurun:
                 GD->sdword[0] = ED->sdword[0];  // meh?
             break;
 
+        case 0x66:                      /* 16bits prefix */
+            if(Run66(emu, rex)) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit)
+                goto fini;
+            break;
+
         case 0x68:                      /* Push Id */
             Push(emu, F32S64);
             break;

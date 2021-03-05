@@ -85,7 +85,7 @@ static inline reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m)
             int32_t base = Fetch32s(emu);
             return (reg64_t*)(base+R_RIP);
         }
-        return (reg64_t*)(emu->regs[m].q[0]+(rex.b<<3));
+        return (reg64_t*)(emu->regs[m+(rex.b<<3)].q[0]);
     } else {
         uintptr_t base;
         if((m&7)==4) {
@@ -204,9 +204,9 @@ static inline reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v)
 {
     uint8_t m = (v&0x38)>>3;
     if(rex.rex) {
-        return (reg64_t*)&emu->regs[m&3].byte[m>>2];
-    } else
         return &emu->regs[(m&7)+(rex.r<<3)];
+    } else
+        return (reg64_t*)&emu->regs[m&3].byte[m>>2];
 }
 
 static inline mmx_regs_t* GetGm(x64emu_t *emu, rex_t rex, uint8_t v)
@@ -228,6 +228,7 @@ void UpdateFlags(x64emu_t *emu);
 
 //void Run67(x64emu_t *emu);
 int Run0F(x64emu_t *emu, rex_t rex);
+int Run66(x64emu_t *emu, rex_t rex);
 //void Run660F(x64emu_t *emu);
 //void Run66D9(x64emu_t *emu);    // x87
 //void Run6766(x64emu_t *emu);
