@@ -55,7 +55,6 @@ int Run0F(x64emu_t *emu, rex_t rex)
             , if(rex.w) {GD->q[0] = ED->q[0]; } else {GD->dword[0] = ED->dword[0];}
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         
-        #undef GOCOND
         case 0xAF:                      /* IMUL Gd,Ed */
             nextop = F8;
             GETED;
@@ -64,6 +63,16 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 GD->q[0] = imul64(emu, GD->q[0], ED->q[0]);
             else
                 GD->dword[0] = imul32(emu, GD->dword[0], ED->dword[0]);
+            break;
+
+        case 0xB6:                      /* MOVZX Gd,Eb */
+            nextop = F8;
+            GETEB;
+            GETGD;
+            if(rex.w)
+                GD->q[0] = EB->byte[0];
+            else
+                GD->dword[0] = EB->byte[0];
             break;
 
         default:
