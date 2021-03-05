@@ -481,6 +481,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     *p += offs;
                 }
                 break;
+            #if 0
             case R_X86_64_JUMP_SLOT:
                 // apply immediatly for gobject closure marshal or for LOCAL binding. Also, apply immediatly if it doesn't jump in the got
                 tmp = (uintptr_t)(*p);
@@ -509,6 +510,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     *p += head->delta;
                 }
                 break;
+            #endif
             default:
                 printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s (%p)\n", i, DumpRelType(ELF64_R_TYPE(rel[i].r_info)), p);
         }
@@ -1237,12 +1239,12 @@ EXPORT void PltResolver(x64emu_t* emu)
     elfheader_t *h = (elfheader_t*)addr;
     printf_log(LOG_DEBUG, "PltResolver: Addr=%p, Slot=%d Return=%p: elf is %s\n", (void*)addr, slot, *(void**)(R_RSP), h->name);
 
-    Elf64_Rel * rel = (Elf64_Rel *)(h->jmprel + h->delta + slot);
+    Elf64_Rela * rel = (Elf64_Rela *)(h->jmprel + h->delta) + slot;
 
     Elf64_Sym *sym = &h->DynSym[ELF64_R_SYM(rel->r_info)];
     int bind = ELF64_ST_BIND(sym->st_info);
     const char* symname = SymName(h, sym);
-    uint32_t *p = (uint32_t*)(rel->r_offset + h->delta);
+    uint64_t *p = (uint64_t*)(rel->r_offset + h->delta);
     uintptr_t offs = 0;
     uintptr_t end = 0;
 
