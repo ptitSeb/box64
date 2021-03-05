@@ -231,6 +231,8 @@ int Run66(x64emu_t *emu, rex_t rex);
 //int Run67(x64emu_t *emu, rex_t rex);
 int RunD9(x64emu_t *emu, rex_t rex);
 int RunDB(x64emu_t *emu, rex_t rex);
+int RunF20F(x64emu_t *emu, rex_t rex);
+int RunF30F(x64emu_t *emu, rex_t rex);
 //void Run660F(x64emu_t *emu);
 //void Run66D9(x64emu_t *emu);    // x87
 //void Run6766(x64emu_t *emu);

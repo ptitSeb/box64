@@ -40,6 +40,7 @@ int Run(x64emu_t *emu, int step)
     uint64_t tmp64u;
     int32_t tmp32s;
     rex_t rex;
+    int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int unimp = 0;
 
     if(emu->quit)
@@ -62,6 +63,12 @@ x64emurun:
         emu->old_ip = R_RIP;
 
         opcode = F8;
+        
+        rep = 0;
+        while((opcode==0xF2) || (opcode==0xF3)) {
+            rep = opcode-0xF1;
+            opcode = F8;
+        }
         if(opcode>=0x40 && opcode<=0x4f) {
             rex.rex = opcode;
             opcode = F8;
@@ -114,9 +121,25 @@ x64emurun:
         GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
         GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
         case 0x0F:                      /* More instructions */
-            if(Run0F(emu, rex)) {
-                unimp = 1;
-                goto fini;
+            switch(rep) {
+                case 1:
+                    if(RunF20F(emu, rex)) {
+                        unimp = 1;
+                        goto fini;
+                    }
+                    break;
+                case 2:
+                    if(RunF30F(emu, rex)) {
+                        unimp = 1;
+                        goto fini;
+                    }
+                    break;
+                default:
+                    if(Run0F(emu, rex)) {
+                        unimp = 1;
+                        goto fini;
+                    }
+                    break;
             }
             if(emu->quit)
                 goto fini;
