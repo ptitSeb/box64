@@ -78,6 +78,29 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GD->q[0] = EB->byte[0];
             break;
 
+        case 0xBE:                      /* MOVSX Gd,Eb */
+            nextop = F8;
+            GETEB;
+            GETGD;
+            if(rex.w)
+                GD->sq[0] = EB->sbyte[0];
+            else {
+                GD->sdword[0] = EB->sbyte[0];
+                GD->dword[1] = 0;
+            }
+            break;
+        case 0xBF:                      /* MOVSX Gd,Ew */
+            nextop = F8;
+            GETEW;
+            GETGD;
+            if(rex.w)
+                GD->sq[0] = EW->sword[0];
+            else {
+                GD->sdword[0] = EW->sword[0];
+                GD->dword[1] = 0;
+            }
+            break;
+
         default:
             return 1;
     }
