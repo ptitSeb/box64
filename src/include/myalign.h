@@ -30,9 +30,9 @@ typedef struct  va_list {
 */
 #define CREATE_SYSV_VALIST(A) \
   va_list sysv_varargs; \
-  sysv_varargs.gr_offs=(8*8); \
-  sysv_varargs.vr_offs=(8*16); \
-  sysv_varargs.stack=A;
+  sysv_varargs.__gr_offs=(8*8); \
+  sysv_varargs.__vr_offs=(8*16); \
+  sysv_varargs.__stack=A;
 #elif defined(__powerpc64__)
 // TODO, is this correct?
 #define CREATE_SYSV_VALIST(A) \
