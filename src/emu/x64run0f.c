@@ -77,6 +77,12 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETGD;
             GD->q[0] = EB->byte[0];
             break;
+        case 0xB7:                      /* MOVZX Gd,Ew */
+            nextop = F8;
+            GETEW;
+            GETGD;
+            GD->q[0] = EW->word[0];
+            break;
 
         case 0xBE:                      /* MOVSX Gd,Eb */
             nextop = F8;
