@@ -55,10 +55,10 @@
 //GO(__assert, 
 //GO(__assert_fail, 
 //GO(__assert_perror_fail, 
-//GO(atof, 
-//GO(atoi, 
-//GO(atol, 
-//GO(atoll, 
+GO(atof, dFp)
+GO(atoi, iFp)
+GO(atol, lFp)
+GO(atoll, IFp)
 //GO(authdes_create, 
 //GO(authdes_getucred, 
 //GO(authdes_pk_create, 
