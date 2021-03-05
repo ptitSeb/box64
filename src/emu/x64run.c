@@ -36,14 +36,9 @@ int Run(x64emu_t *emu, int step)
     reg64_t *oped, *opgd;
     uint8_t tmp8u, tmp8u2;
     int8_t tmp8s;
-    uint16_t tmp16u, tmp16u2;
-    int16_t tmp16s;
-    uint32_t tmp32u, tmp32u2, tmp32u3;
-    uint64_t tmp64u, tmp64u2, tmp64u3;
-    int32_t tmp32s, tmp32s2;
-    int64_t tmp64s, tmp64s2;
-    double d;
-    float f;
+    uint32_t tmp32u;
+    uint64_t tmp64u;
+    int32_t tmp32s;
     rex_t rex;
     int unimp = 0;
 
@@ -242,6 +237,16 @@ x64emurun:
 
         case 0x68:                      /* Push Id */
             Push(emu, F32S64);
+            break;
+        case 0x69:                      /* IMUL Gd,Ed,Id */
+            nextop = F8;
+            GETED;
+            GETGD;
+            tmp64u = F32S64;
+            if(rex.w)
+                GD->q[0] = imul64(emu, ED->q[0], tmp64u);
+            else
+                GD->dword[0] = imul32(emu, ED->dword[0], tmp64u);
             break;
 
         GOCOND(0x70
