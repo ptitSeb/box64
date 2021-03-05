@@ -656,15 +656,15 @@ fini:
         UnimpOpcode(emu);
     }
     // fork handling
-//    if(emu->fork) {
-//        if(step)
-//            return 0;
-//        int forktype = emu->fork;
-//        emu->quit = 0;
-//        emu->fork = 0;
-//        emu = x64emu_fork(emu, forktype);
-//        goto x64emurun;
-//    }
+    if(emu->fork) {
+        if(step)
+            return 0;
+        int forktype = emu->fork;
+        emu->quit = 0;
+        emu->fork = 0;
+        emu = x64emu_fork(emu, forktype);
+        goto x64emurun;
+    }
     // setcontext handling
 //    else if(emu->uc_link) {
 //        emu->quit = 0;

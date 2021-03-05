@@ -370,7 +370,7 @@ GOM(__cxa_finalize, vFEp)
 //GOW(fopen64, 
 //GO(fopencookie, 
 //GO(__fork, 
-//GOW(fork, 
+GOM(fork, iFEv) // Weak
 //GO(__fortify_fail, 
 //GOW(fpathconf, 
 //GO(__fpending, 

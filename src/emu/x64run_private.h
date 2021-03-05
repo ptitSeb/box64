@@ -244,7 +244,7 @@ int RunF30F(x64emu_t *emu, rex_t rex);
 
 void x64Syscall(x64emu_t *emu);
 void x64Int3(x64emu_t* emu);
-//x64emu_t* x64emu_fork(x64emu_t* e, int forktype);
+x64emu_t* x64emu_fork(x64emu_t* e, int forktype);
 
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
 #define GetGSBaseEmu(emu)    GetSegmentBaseEmu(emu, _GS)

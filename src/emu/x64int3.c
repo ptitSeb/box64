@@ -30,39 +30,39 @@
 
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
-//x64emu_t* x64emu_fork(x64emu_t* emu, int forktype)
-//{
-//    // execute atforks prepare functions, in reverse order
-//    for (int i=my_context->atfork_sz-1; i>=0; --i)
-//        if(my_context->atforks[i].prepare)
-//            EmuCall(emu, my_context->atforks[i].prepare);
-//    int type = emu->type;
-//    int v;
-//    if(forktype==2) {
-//        iFpppp_t forkpty = (iFpppp_t)emu->forkpty_info->f;
-//        v = forkpty(emu->forkpty_info->amaster, emu->forkpty_info->name, emu->forkpty_info->termp, emu->forkpty_info->winp);
-//        emu->forkpty_info = NULL;
-//    } else
-//        v = fork();
-//    if(type == EMUTYPE_MAIN)
-//        thread_set_emu(emu);
-//    if(v==EAGAIN || v==ENOMEM) {
-//        // error...
-//    } else if(v!=0) {  
-//        // execute atforks parent functions
-//        for (int i=0; i<my_context->atfork_sz; --i)
-//            if(my_context->atforks[i].parent)
-//                EmuCall(emu, my_context->atforks[i].parent);
-//
-//    } else if(v==0) {
-//        // execute atforks child functions
-//        for (int i=0; i<my_context->atfork_sz; --i)
-//            if(my_context->atforks[i].child)
-//                EmuCall(emu, my_context->atforks[i].child);
-//    }
-//    R_EAX = v;
-//    return emu;
-//}
+x64emu_t* x64emu_fork(x64emu_t* emu, int forktype)
+{
+    // execute atforks prepare functions, in reverse order
+    for (int i=my_context->atfork_sz-1; i>=0; --i)
+        if(my_context->atforks[i].prepare)
+            EmuCall(emu, my_context->atforks[i].prepare);
+    int type = emu->type;
+    int v;
+    if(forktype==2) {
+        iFpppp_t forkpty = (iFpppp_t)emu->forkpty_info->f;
+        v = forkpty(emu->forkpty_info->amaster, emu->forkpty_info->name, emu->forkpty_info->termp, emu->forkpty_info->winp);
+        emu->forkpty_info = NULL;
+    } else
+        v = fork();
+    if(type == EMUTYPE_MAIN)
+        thread_set_emu(emu);
+    if(v==EAGAIN || v==ENOMEM) {
+        // error...
+    } else if(v!=0) {  
+        // execute atforks parent functions
+        for (int i=0; i<my_context->atfork_sz; --i)
+            if(my_context->atforks[i].parent)
+                EmuCall(emu, my_context->atforks[i].parent);
+
+    } else if(v==0) {
+        // execute atforks child functions
+        for (int i=0; i<my_context->atfork_sz; --i)
+            if(my_context->atforks[i].child)
+                EmuCall(emu, my_context->atforks[i].child);
+    }
+    R_EAX = v;
+    return emu;
+}
 
 extern int errno;
 void x64Int3(x64emu_t* emu)

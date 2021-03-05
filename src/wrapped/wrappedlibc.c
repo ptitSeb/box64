@@ -429,7 +429,7 @@ int my_swapcontext(x64emu_t* emu, void* ucp1, void* ucp2);
 // this one is defined in elfloader.c
 int my_dl_iterate_phdr(x64emu_t *emu, void* F, void *data);
 
-
+#endif
 pid_t EXPORT my_fork(x64emu_t* emu)
 {
     // execute atforks prepare functions, in reverse order
@@ -469,7 +469,7 @@ pid_t EXPORT my_vfork(x64emu_t* emu)
     return 0;
     #endif
 }
-#endif
+
 int EXPORT my_uname(struct utsname *buf)
 {
     //TODO: check sizeof(struct utsname)
