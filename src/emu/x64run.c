@@ -340,6 +340,9 @@ x64emurun:
                 GD->dword[0] = (uint32_t)(uintptr_t)ED;
             break;
 
+        case 0x90:                      /* NOP */
+            break;
+
         case 0x98:                      /* CWDE */
             if(rex.w)
                 emu->regs[_AX].sq[0] = emu->regs[_AX].sdword[0];
