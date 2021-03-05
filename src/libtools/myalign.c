@@ -22,6 +22,7 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
     int state = 0;
     #ifndef HAVE_LD80BITS
     double d;
+    long double ld;
     #endif
     int x = 0;
     while(*p)
@@ -89,6 +90,7 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
                 if(xmm) {
                     *mystack = emu->xmm[x++].q[0];
                     --xmm;
+                    mystack++;
                 } else {
                     *mystack = *st;
                     st++; mystack++;
@@ -101,10 +103,11 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
                 memcpy(mystack, st, 16);
                 st+=2; mystack+=2;
                 #else
-                // there is no long double on ARM, so tranform that in a regular double
+                // there is 128bits long double on ARM64
                 LD2D((void*)st, &d);
-                *mystack = *(uint64_t*)&d;
-                st+=2; mystack+=1;
+                ld = d ;
+                memcpy(mystack, &ld, 16);
+                st+=2; mystack+=2;
                 #endif
                 state = 0;
                 ++p;

@@ -15,6 +15,7 @@ typedef struct {
   va_list sysv_varargs; \
   sysv_varargs->gp_offset=(6*8); \
   sysv_varargs->fp_offset=(6*8)+(16*16); \
+  sysv_varargs->reg_save_area=A;  \
   sysv_varargs->overflow_arg_area=A;
 #elif defined(__aarch64__)
 // aarch64: 8 64bits general regs and 8 128bits float regs

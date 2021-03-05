@@ -556,7 +556,7 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 					return arg_x[idx].format(p=x) + function_args(args[1:], d, r, x+1)
 			if vstack[idx]>0:
     				return arg_s[idx].format(p=d) + function_args(args[1:], d+8*vstack[idx], r, x)
-			return arg_o[idx].format(p=d) + function_args(args[1:], d + vother[idx]*8, r, x)
+			return arg_o[idx].format(p=d) + function_args(args[1:], d, r, x)
 		
 		def function_writer(f, N, W, rettype, args):
 			f.write("void {0}(x64emu_t *emu, uintptr_t fcn) {2} {1} fn = ({1})fcn; ".format(N, W, "{"))
