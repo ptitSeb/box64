@@ -1981,7 +1981,7 @@ GOW(tzset, vFv)
 //GO(__uselocale, 
 //GOW(uselocale, 
 //GO(user2netname, 
-//GO(usleep, 
+GO(usleep, iFu)
 //GO(ustat, 
 //GO(utime, 
 //GO(utimensat, 
