@@ -559,7 +559,7 @@ static inline uint64_t imul64(x64emu_t *emu, uint64_t op1, uint64_t op2)
 	return emu->res;
 }
 
-static inline void imul64_eax(x64emu_t *emu, uint64_t s)
+static inline void imul64_rax(x64emu_t *emu, uint64_t s)
 {
 	emu->df = d_imul64;
 	imul64_direct(&R_RAX,&R_RDX,R_RAX,s);
@@ -589,11 +589,21 @@ static inline void mul32_eax(x64emu_t *emu, uint32_t s)
 	emu->op1 = R_EDX = (uint32_t)(res >> 32);
 }
 
+static inline void mul64_rax(x64emu_t *emu, uint64_t s)
+{
+	emu->df = d_mul64;
+	__int128 res = (__int128)R_RAX * s;
+	emu->res = R_RAX = (uint64_t)res;
+	emu->op1 = R_RDX = (uint64_t)(res >> 64);
+}
+
 void         idiv8  (x64emu_t *emu, uint8_t s);
 void         idiv16 (x64emu_t *emu, uint16_t s);
 void         idiv32 (x64emu_t *emu, uint32_t s);
+void         idiv64 (x64emu_t *emu, uint64_t s);
 void         div8  (x64emu_t *emu, uint8_t s);
 void         div16 (x64emu_t *emu, uint16_t s);
 void         div32 (x64emu_t *emu, uint32_t s);
+void         div64 (x64emu_t *emu, uint64_t s);
 
 #endif //__X64PRIMOP_H_

@@ -1371,10 +1371,10 @@ void idiv32(x64emu_t *emu, uint32_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	lldiv_t p = lldiv(dvd, (int32_t)s);
+	ldiv_t p = ldiv(dvd, (int32_t)s);
 	quot = p.quot;
 	mod = p.rem;
-	if (llabs(quot) > 0x7fffffff) {
+	if (labs(quot) > 0x7fffffff) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
@@ -1386,6 +1386,32 @@ void idiv32(x64emu_t *emu, uint32_t s)
 
 	R_EAX = (uint32_t)quot;
 	R_EDX = (uint32_t)mod;
+}
+
+void idiv64(x64emu_t *emu, uint64_t s)
+{
+	__int128 dvd, quot, mod;
+	RESET_FLAGS(emu);
+
+	dvd = (((__int128)R_RDX) << 64) | R_RAX;
+	if (s == 0) {
+		INTR_RAISE_DIV0(emu);
+		return;
+	}
+	quot = dvd/(int64_t)s;
+	mod = dvd%(int64_t)s;
+	if (llabs(quot) > 0x7fffffffffffffffL) {
+		INTR_RAISE_DIV0(emu);
+		return;
+	}
+	CLEAR_FLAG(F_CF);
+	CLEAR_FLAG(F_AF);
+	CLEAR_FLAG(F_SF);
+	SET_FLAG(F_ZF);
+	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
+
+	R_RAX = (uint64_t)quot;
+	R_RDX = (uint64_t)mod;
 }
 
 /****************************************************************************
@@ -1461,4 +1487,30 @@ void div32(x64emu_t *emu, uint32_t s)
 
 	R_EAX = (uint32_t)div;
 	R_EDX = (uint32_t)mod;
+}
+
+void div64(x64emu_t *emu, uint64_t s)
+{
+	__int128 dvd, div, mod;
+	RESET_FLAGS(emu);
+
+	dvd = (((__int128)R_RDX) << 64) | R_RAX;
+	if (s == 0) {
+		INTR_RAISE_DIV0(emu);
+		return;
+	}
+	div = dvd / (unsigned __int128)s;
+	mod = dvd % (unsigned __int128)s;
+	if (div > 0xffffffffffffffffL) {
+		INTR_RAISE_DIV0(emu);
+		return;
+	}
+	CLEAR_FLAG(F_CF);
+	CLEAR_FLAG(F_AF);
+	CLEAR_FLAG(F_SF);
+	SET_FLAG(F_ZF);
+	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
+
+	R_RAX = (uint64_t)div;
+	R_RDX = (uint64_t)mod;
 }
