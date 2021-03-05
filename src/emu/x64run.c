@@ -364,7 +364,7 @@ x64emurun:
             if(rex.w)
                 emu->regs[(opcode&7)+(rex.b<<3)].q[0] = F64;
             else
-                emu->regs[(opcode&7)+(rex.b<<3)].dword[0] = F32;
+                emu->regs[(opcode&7)+(rex.b<<3)].q[0] = F32;
             break;
 
         case 0xC1:                      /* GRP2 Ed,Ib */
