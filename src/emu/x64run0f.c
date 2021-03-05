@@ -31,6 +31,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
+    int32_t tmp32s;
     reg64_t *oped, *opgd;
 
     opcode = F8;
@@ -55,6 +56,11 @@ int Run0F(x64emu_t *emu, rex_t rex)
             , if(rex.w) {GD->q[0] = ED->q[0]; } else {GD->dword[0] = ED->dword[0];}
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         
+        GOCOND(0x80
+            , tmp32s = F32S; CHECK_FLAGS(emu);
+            , R_RIP += tmp32s;
+        )                               /* 0x80 -> 0x8F Jxx */
+
         case 0xAF:                      /* IMUL Gd,Ed */
             nextop = F8;
             GETED;
