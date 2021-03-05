@@ -16,12 +16,12 @@
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
-//#include "callback.h"
+#include "callback.h"
 #include "custommem.h"
 #include "khash.h"
 #include "emu/x64run_private.h"
 #include "x64trace.h"
-//#include "dynarec.h"
+#include "dynarec.h"
 #include "bridge.h"
 #ifdef DYNAREC
 #include "dynablock.h"
@@ -228,12 +228,10 @@ static void* pthread_routine(void* p)
 	et->emu->type = EMUTYPE_MAIN;
 	// setup callstack and run...
 	x64emu_t* emu = et->emu;
-    R_RSP -= 4;
-	uint64_t *sp = (uint64_t*)R_RSP;
-	*sp = (uintptr_t)et->arg;
-//	PushExit(emu);
+	PushExit(emu);
 	R_RIP = et->fnc;
-//	DynaRun(et->emu);
+	R_RDI = (uintptr_t)et->arg;
+	DynaRun(emu);
 	void* ret = (void*)R_RAX;
 	//void* ret = (void*)RunFunctionWithEmu(et->emu, 0, et->fnc, 1, et->arg);
 	return ret;
@@ -265,47 +263,47 @@ EXPORT int my_pthread_attr_setstack(x64emu_t* emu, void* attr, void* stackaddr, 
 	return pthread_attr_setstacksize(attr, stacksize);
 }
 
-//EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
-//{
-//	int stacksize = 2*1024*1024;	//default stack size is 2Mo
-//	void* attr_stack;
-//	size_t attr_stacksize;
-//	int own;
-//	void* stack;
-//
-//	if(attr) {
-//		size_t stsize;
-//		if(pthread_attr_getstacksize(attr, &stsize)==0)
-//			stacksize = stsize;
-//	}
-//	if(GetStackSize(emu, (uintptr_t)attr, &attr_stack, &attr_stacksize))
-//	{
-//		stack = attr_stack;
-//		stacksize = attr_stacksize;
-//		own = 0;
-//	} else {
-//		stack = malloc(stacksize);
-//		own = 1;
-//	}
-//
-//	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
-//    x64emu_t *emuthread = NewX86Emu(my_context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
-//	SetupX86Emu(emuthread);
-//	SetFS(emuthread, GetFS(emu));
-//	et->emu = emuthread;
-//	et->fnc = (uintptr_t)start_routine;
-//	et->arg = arg;
-//	#ifdef DYNAREC
-//	if(box86_dynarec) {
-//		// pre-creation of the JIT code for the entry point of the thread
-//		dynablock_t *current = NULL;
-//		DBGetBlock(emu, (uintptr_t)start_routine, 1, &current);
-//	}
-//	#endif
-//	// create thread
-//	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
-//		pthread_routine, et);
-//}
+EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
+{
+	int stacksize = 2*1024*1024;	//default stack size is 2Mo
+	void* attr_stack;
+	size_t attr_stacksize;
+	int own;
+	void* stack;
+
+	if(attr) {
+		size_t stsize;
+		if(pthread_attr_getstacksize(attr, &stsize)==0)
+			stacksize = stsize;
+	}
+	if(GetStackSize(emu, (uintptr_t)attr, &attr_stack, &attr_stacksize))
+	{
+		stack = attr_stack;
+		stacksize = attr_stacksize;
+		own = 0;
+	} else {
+		stack = malloc(stacksize);
+		own = 1;
+	}
+
+	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
+    x64emu_t *emuthread = NewX64Emu(my_context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
+	SetupX64Emu(emuthread);
+	SetFS(emuthread, GetFS(emu));
+	et->emu = emuthread;
+	et->fnc = (uintptr_t)start_routine;
+	et->arg = arg;
+	#ifdef DYNAREC
+	if(box86_dynarec) {
+		// pre-creation of the JIT code for the entry point of the thread
+		dynablock_t *current = NULL;
+		DBGetBlock(emu, (uintptr_t)start_routine, 1, &current);
+	}
+	#endif
+	// create thread
+	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
+		pthread_routine, et);
+}
 
 void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet)
 {
@@ -383,7 +381,7 @@ void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet
 //	// just in case it does return
 //	emu->quit = 1;
 //}
-#if 0
+
 KHASH_MAP_INIT_INT(once, int)
 
 #define SUPER() \
@@ -592,7 +590,7 @@ EXPORT int my_pthread_cond_wait(x64emu_t* emu, void* cond, void* mutex)
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_wait(c, getAlignedMutex((pthread_mutex_t*)mutex));
 }
-
+#if 0
 EXPORT int my_pthread_mutexattr_setkind_np(x64emu_t* emu, void* t, int kind)
 {
     // does "kind" needs some type of translation?
@@ -689,8 +687,12 @@ EXPORT void my_pthread_exit(x64emu_t* emu, void* retval)
 	emu->quit = 1;	// to be safe
 	pthread_exit(retval);
 }
-
-#ifndef NOALIGN
+#endif
+#ifdef NOALIGN
+pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m) {
+	return m;
+}
+#else
 // mutex alignment
 KHASH_MAP_INIT_INT(mutex, pthread_mutex_t*)
 
@@ -755,7 +757,7 @@ EXPORT int my_pthread_mutex_unlock(pthread_mutex_t *m)
 }
 
 #endif
-#endif
+
 static void emujmpbuf_destroy(void* p)
 {
 	emu_jmpbuf_t *ej = (emu_jmpbuf_t*)p;
@@ -779,10 +781,10 @@ emu_jmpbuf_t* GetJmpBuf()
 void init_pthread_helper()
 {
 //	InitCancelThread();
-//	mapcond = kh_init(mapcond);
+	mapcond = kh_init(mapcond);
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 #ifndef NOALIGN
-//	unaligned_mutex = kh_init(mutex);
+	unaligned_mutex = kh_init(mutex);
 #endif
 }
 
@@ -790,19 +792,19 @@ void fini_pthread_helper(box64context_t* context)
 {
 //	FreeCancelThread(context);
 	CleanStackSize(context);
-//	pthread_cond_t *cond;
-//	kh_foreach_value(mapcond, cond, 
-//		pthread_cond_destroy(cond);
-//		free(cond);
-//	);
-//	kh_destroy(mapcond, mapcond);
-//	mapcond = NULL;
+	pthread_cond_t *cond;
+	kh_foreach_value(mapcond, cond, 
+		pthread_cond_destroy(cond);
+		free(cond);
+	);
+	kh_destroy(mapcond, mapcond);
+	mapcond = NULL;
 #ifndef NOALIGN
-//	pthread_mutex_t *m;
-//	kh_foreach_value(unaligned_mutex, m, 
-//		pthread_mutex_destroy(m);
-//		free(m);
-//	);
-//	kh_destroy(mutex, unaligned_mutex);
+	pthread_mutex_t *m;
+	kh_foreach_value(unaligned_mutex, m, 
+		pthread_mutex_destroy(m);
+		free(m);
+	);
+	kh_destroy(mutex, unaligned_mutex);
 #endif
 }
