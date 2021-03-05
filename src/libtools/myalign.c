@@ -103,7 +103,9 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
                 memcpy(mystack, st, 16);
                 st+=2; mystack+=2;
                 #else
-                // there is 128bits long double on ARM64
+                // there is 128bits long double on ARM64, but they need 128bit alignment
+                if((((uintptr_t)mystack)&0xf)!=0)
+                    mystack++;
                 LD2D((void*)st, &d);
                 ld = d ;
                 memcpy(mystack, &ld, 16);
