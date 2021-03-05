@@ -382,7 +382,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
         uint64_t *p = (uint64_t*)(rel[i].r_offset + head->delta);
         uintptr_t offs = 0;
         uintptr_t end = 0;
-        uintptr_t tmp = 0;
+        //uintptr_t tmp = 0;
         if(bind==STB_LOCAL) {
             offs = sym->st_value + head->delta;
             end = offs + sym->st_size;

@@ -88,7 +88,7 @@
 //GOW(bzero, 
 //GO(c16rtomb, 
 //GOW(c32rtomb, 
-//GOW(calloc, 
+GOW(calloc, pFLL)
 //GO(callrpc, 
 //GO(__call_tls_dtors, 
 //GOW(canonicalize_file_name, 
@@ -392,7 +392,7 @@ GOM(__cxa_finalize, vFEp)
 //GO(__freading, 
 //GOW(fread_unlocked, 
 //GO(__fread_unlocked_chk, 
-//GO(free, 
+GO(free, vFp)
 //GO(freeaddrinfo, 
 //GOW(freeifaddrs, 
 //GO(__freelocale, 
