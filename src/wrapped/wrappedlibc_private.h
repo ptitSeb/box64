@@ -1331,7 +1331,7 @@ GO(name_to_handle_at, iFipppi)
 //GO(preadv2, 
 //GO(preadv64, 
 //GO(preadv64v2, 
-//GO(printf, 
+GOM(printf, iFEpV)
 //GO(__printf_chk, 
 //GO(__printf_fp, 
 //GO(printf_size, 

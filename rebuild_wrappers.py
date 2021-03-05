@@ -376,16 +376,16 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 		reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
 		# vreg: value is in a general register
 		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
-		vreg   = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0]
+		vreg   = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 2]
 		# vxmm: value is in a XMM register
 		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
 		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		# vother: value is elsewere
 		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
-		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
+		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0]
 		# vstack: value is on the stack (or out of register)
 		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
-		vstack = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0]
+		vstack = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 2]
 		arg_s = [
 			"",											# E
 			"",											# e
@@ -405,14 +405,14 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"*(intptr_t*)(R_RSP + {p}), ",				# l
 			"*(uintptr_t*)(R_RSP + {p}), ",				# L
 			"*(void**)(R_RSP + {p}), ",					# p
-			"(void*)(R_RSP + {p}), ",					# V
+			"",					# V
 			"of_convert(*(int32_t*)(R_RSP + {p})), ",	# O
 			"io_convert(*(void**)(R_RSP + {p})), ",		# S
 			"(_2uint_struct_t){{*(uintptr_t*)(R_RSP + {p}),*(uintptr_t*)(R_RSP + {p} + 4)}}, ",	# 2
 			"",									# P
 			"",								# G
 			"*(void**)(R_RSP + {p}), ",					# N
-			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 4), ",	# M
+			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 8), ",	# M
 		]
 		arg_r = [
 			"",                                  		# E
@@ -439,8 +439,8 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"",	# 2
 			"",                               # P
 			"",                              # G
-			"",				  # N
-			"",	# M
+			"(void*){p}, ",				  # N
+			"(void*){p}, ",	# M
 		]
 		arg_x = [
 			"",                                  # E
@@ -489,14 +489,14 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"",            # l
 			"",           # L
 			"",               # p
-			"",                 # V
+			"(void*)(R_RSP + {p}), ",                 # V
 			"", # O
 			"",   # S
 			"",	# 2
 			"arg{p}, ",                               # P
 			"&arg{p}, ",                              # G
-			"*(void**)(R_RSP + {p}), ",					# N
-			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 4), ",	# M
+			"",					# N
+			"",	# M
 		]
 
 		vals = [
@@ -546,9 +546,13 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 				return "1, " + function_args(args[1:], d, r, x)
 			
 			idx = values.index(args[0])
-			if r<5 and vreg[idx]>0:
-    				return arg_r[idx].format(p=reg_arg[r]) + function_args(args[1:], d, r+1, x)
-			if x<7 and vxmm[idx]>0:
+			if r<6 and vreg[idx]>0:
+					if vreg[idx]==2 and r==6:
+						return arg_r[idx-1].format(p=reg_arg[r]) + arg_s[idx-1].format(p=d) + function_args(args[1:], d + vother[idx-1]*8, r+1, x)
+					if vreg[idx]==2 and r<6:
+						return arg_r[idx].format(p=reg_arg[r]) + arg_r[idx].format(p=reg_arg[r+1]) + function_args(args[1:], d, r+2, x)
+					return arg_r[idx].format(p=reg_arg[r]) + function_args(args[1:], d, r+1, x)
+			if x<8 and vxmm[idx]>0:
 					return arg_x[idx].format(p=x) + function_args(args[1:], d, r, x+1)
 			if vstack[idx]>0:
     				return arg_s[idx].format(p=d) + function_args(args[1:], d+8*vstack[idx], r, x)

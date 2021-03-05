@@ -42,12 +42,12 @@
 #include "debug.h"
 #include "wrapper.h"
 #include "bridge.h"
-//#include "callback.h"
+#include "callback.h"
 #include "librarian.h"
 #include "librarian/library_private.h"
 #include "emu/x64emu_private.h"
 #include "box64context.h"
-//#include "myalign.h"
+#include "myalign.h"
 //#include "signals.h"
 #include "fileutils.h"
 #include "auxval.h"
@@ -569,25 +569,15 @@ EXPORT void my___longjmp_chk(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/voi
 EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p);
 EXPORT int32_t my__setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
 EXPORT int32_t my___sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
+#endif
 
-void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack); // align st into mystack according to fmt (for v(f)printf(...))
-typedef int (*iFpp_t)(void*, void*);
-typedef int (*iFppp_t)(void*, void*, void*);
-typedef int (*iFpupp_t)(void*, uint32_t, void*, void*);
-EXPORT int my_printf(x64emu_t *emu, void* fmt, void* b, va_list V) {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, b, emu->scratch);
+EXPORT int my_printf(x64emu_t *emu, void* fmt, void* b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;
-    void* f = vprintf;
-    return ((iFpp_t)f)(fmt, VARARGS);
-    #else
-    // other platform don't need that
-    return vprintf((const char*)fmt, V);
-    #endif
+    return vprintf((const char*)fmt, VARARGS);
 }
-EXPORT int my___printf_chk(x64emu_t *emu, void* fmt, void* b, va_list V) __attribute__((alias("my_printf")));
-
+EXPORT int my___printf_chk(x64emu_t *emu, void* fmt, void* b) __attribute__((alias("my_printf")));
+#if 0
 EXPORT int my_vprintf(x64emu_t *emu, void* fmt, void* b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
