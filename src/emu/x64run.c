@@ -141,7 +141,7 @@ x64emurun:
         GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
         GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
         case 0x0F:                      /* More instructions */
-            if(Run0F(emu)) {
+            if(Run0F(emu, rex)) {
                 unimp = 1;
                 goto fini;
             }

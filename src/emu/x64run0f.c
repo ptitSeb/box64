@@ -43,12 +43,11 @@
 #define EB  oped
 #define GB  oped->byte[0]
 
-int Run0F(x64emu_t *emu)
+int Run0F(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
     reg64_t *oped, *opgd;
-    rex_t rex = {0};
 
     opcode = F8;
     while(opcode>=0x40 && opcode<=0x4f) {
@@ -61,12 +60,22 @@ int Run0F(x64emu_t *emu)
         case 0x05:                      /* SYSCALL */
             x64Syscall(emu);
             break;
-            
+
         case 0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
             GETED;
             break;
         
+        case 0xAF:                      /* IMUL Gd,Ed */
+            nextop = F8;
+            GETED;
+            GETGD;
+            if(rex.w)
+                GD->q[0] = imul64(emu, GD->q[0], ED->q[0]);
+            else
+                GD->dword[0] = imul32(emu, GD->dword[0], ED->dword[0]);
+            break;
+
         default:
             return 1;
     }

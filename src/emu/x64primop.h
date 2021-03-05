@@ -544,6 +544,29 @@ static inline void imul32_eax(x64emu_t *emu, uint32_t s)
 	emu->op1 = R_EDX;
 }
 
+static inline void imul64_direct(uint64_t *res_lo, uint64_t* res_hi,uint64_t d, uint64_t s)
+{
+	__int128 res = (__int128)(int64_t)d * (int64_t)s;
+
+	*res_lo = (uint64_t)res;
+	*res_hi = (uint64_t)(res >> 64);
+}
+
+static inline uint64_t imul64(x64emu_t *emu, uint64_t op1, uint64_t op2)
+{
+	emu->df = d_imul64;
+	imul64_direct(&emu->res,&emu->op1,op1,op2);
+	return emu->res;
+}
+
+static inline void imul64_eax(x64emu_t *emu, uint64_t s)
+{
+	emu->df = d_imul64;
+	imul64_direct(&R_RAX,&R_RDX,R_RAX,s);
+	emu->res = R_RAX;
+	emu->op1 = R_RDX;
+}
+
 static inline void mul8(x64emu_t *emu, uint8_t s)
 {
 	emu->df = d_mul8;

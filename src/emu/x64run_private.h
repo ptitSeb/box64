@@ -227,7 +227,7 @@ void UpdateFlags(x64emu_t *emu);
 #define RESET_FLAGS(emu) emu->df = d_none
 
 //void Run67(x64emu_t *emu);
-int Run0F(x64emu_t *emu);
+int Run0F(x64emu_t *emu, rex_t rex);
 //void Run660F(x64emu_t *emu);
 //void Run66D9(x64emu_t *emu);    // x87
 //void Run6766(x64emu_t *emu);
