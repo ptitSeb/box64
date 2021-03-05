@@ -25,6 +25,8 @@
 #include "../dynarec/arm_lock_helper.h"
 #endif
 
+#include "modrm.h"
+
 int my_setcontext(x64emu_t* emu, void* ucp);
 
 int Run(x64emu_t *emu, int step)
@@ -50,33 +52,9 @@ int Run(x64emu_t *emu, int step)
 
     //ref opcode: http://ref.x64asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p\n", emu, (void*)R_RIP, emu->context->stack);
-#define F8      *(uint8_t*)(R_RIP++)
-#define F8S     *(int8_t*)(R_RIP++)
-#define F16     *(uint16_t*)(R_RIP+=2, R_RIP-2)
-#define F32     *(uint32_t*)(R_RIP+=4, R_RIP-4)
-#define F32S    *(int32_t*)(R_RIP+=4, R_RIP-4)
-#define F32S64  (uint64_t)(int64_t)F32S
-#define F64     *(uint64_t*)(R_RIP+=8, R_RIP-8)
-#define F64S    *(int64_t*)(R_RIP+=8, R_RIP-8)
-#define PK(a)   *(uint8_t*)(R_RIP+a)
-#ifdef DYNAREC
-#define STEP if(step) return 0;
-#else
-#define STEP
-#endif
-
-#define GETED oped=GetEd(emu, rex, nextop)
-#define GETGD opgd=GetGd(emu, rex, nextop)
-#define GETEB oped=GetEb(emu, rex, nextop)
-#define GETGB oped=GetGb(emu, rex, nextop)
-#define ED  oped
-#define GD  opgd
-#define EB  oped
-#define GB  oped->byte[0]
 
 x64emurun:
 
-//#include "modrm.h"
     while(1) {
 #ifdef HAVE_TRACE
         __builtin_prefetch((void*)R_RIP, 0, 0); 
@@ -247,92 +225,10 @@ x64emurun:
             Push(emu, F32S64);
             break;
 
-        #define GOCOND(B, PREFIX, CONDITIONAL)  \
-        case B+0x0:                             \
-            PREFIX                              \
-            if(ACCESS_FLAG(F_OF))               \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0x1:                             \
-            PREFIX                              \
-            if(!ACCESS_FLAG(F_OF))              \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0x2:                             \
-            PREFIX                              \
-            if(ACCESS_FLAG(F_CF))               \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0x3:                             \
-            PREFIX                              \
-            if(!ACCESS_FLAG(F_CF))              \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0x4:                             \
-            PREFIX                              \
-            if(ACCESS_FLAG(F_ZF))               \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0x5:                             \
-            PREFIX                              \
-            if(!ACCESS_FLAG(F_ZF))              \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0x6:                             \
-            PREFIX                              \
-            if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))  \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0x7:                             \
-            PREFIX                              \
-            if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF))) \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0x8:                             \
-            PREFIX                              \
-            if(ACCESS_FLAG(F_SF))               \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0x9:                             \
-            PREFIX                              \
-            if(!ACCESS_FLAG(F_SF))              \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0xA:                             \
-            PREFIX                              \
-            if(ACCESS_FLAG(F_PF))               \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0xB:                             \
-            PREFIX                              \
-            if(!ACCESS_FLAG(F_PF))              \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0xC:                             \
-            PREFIX                              \
-            if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))  \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0xD:                             \
-            PREFIX                              \
-            if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)) \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0xE:                             \
-            PREFIX                              \
-            if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))) \
-                CONDITIONAL                     \
-            break;                              \
-        case B+0xF:                             \
-            PREFIX                              \
-            if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))) \
-                CONDITIONAL                     \
-            break;
         GOCOND(0x70
             ,   tmp8s = F8S; CHECK_FLAGS(emu);
             ,   R_RIP += tmp8s;
             )                           /* Jxx Ib */
-        #undef GOCOND
         
         case 0x81:                      /* GRP Ed,Id */
         case 0x83:                      /* GRP Ed,Ib */

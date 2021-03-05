@@ -25,23 +25,7 @@
 #include "../dynarec/arm_lock_helper.h"
 #endif
 
-#define F8      *(uint8_t*)(R_RIP++)
-#define F8S     *(int8_t*)(R_RIP++)
-#define F16     *(uint16_t*)(R_RIP+=2, R_RIP-2)
-#define F32     *(uint32_t*)(R_RIP+=4, R_RIP-4)
-#define F32S    *(int32_t*)(R_RIP+=4, R_RIP-4)
-#define F64     *(uint64_t*)(R_RIP+=8, R_RIP-8)
-#define F64S    *(int64_t*)(R_RIP+=8, R_RIP-8)
-#define PK(a)   *(uint8_t*)(R_RIP+a)
-
-#define GETED oped=GetEd(emu, rex, nextop)
-#define GETGD opgd=GetGd(emu, rex, nextop)
-#define GETEB oped=GetEb(emu, rex, nextop)
-#define GETGB oped=GetGb(emu, rex, nextop)
-#define ED  oped
-#define GD  opgd
-#define EB  oped
-#define GB  oped->byte[0]
+#include "modrm.h"
 
 int Run0F(x64emu_t *emu, rex_t rex)
 {
@@ -50,10 +34,6 @@ int Run0F(x64emu_t *emu, rex_t rex)
     reg64_t *oped, *opgd;
 
     opcode = F8;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
-    }
 
     switch(opcode) {
 
@@ -66,6 +46,16 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETED;
             break;
         
+
+        GOCOND(0x40
+            , nextop = F8;
+            GETED;
+            GETGD;
+            CHECK_FLAGS(emu);
+            , if(rex.w) {GD->q[0] = ED->q[0]; } else {GD->dword[0] = ED->dword[0];}
+        )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
+        
+        #undef GOCOND
         case 0xAF:                      /* IMUL Gd,Ed */
             nextop = F8;
             GETED;
