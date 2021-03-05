@@ -226,9 +226,11 @@ void UpdateFlags(x64emu_t *emu);
 #define CHECK_FLAGS(emu) if(emu->df) UpdateFlags(emu)
 #define RESET_FLAGS(emu) emu->df = d_none
 
-//void Run67(x64emu_t *emu);
 int Run0F(x64emu_t *emu, rex_t rex);
 int Run66(x64emu_t *emu, rex_t rex);
+//int Run67(x64emu_t *emu, rex_t rex);
+int RunD9(x64emu_t *emu, rex_t rex);
+int RunDB(x64emu_t *emu, rex_t rex);
 //void Run660F(x64emu_t *emu);
 //void Run66D9(x64emu_t *emu);    // x87
 //void Run6766(x64emu_t *emu);
