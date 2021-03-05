@@ -328,9 +328,15 @@ x64emurun:
 
         case 0x98:                      /* CWDE */
             if(rex.w)
-                emu->regs[_AX].q[0] = emu->regs[_AX].sdword[0];
+                emu->regs[_AX].sq[0] = emu->regs[_AX].sdword[0];
             else
                 emu->regs[_AX].sdword[0] = emu->regs[_AX].sword[0];
+            break;
+        case 0x99:                      /* CDQ */
+            if(rex.w)
+                R_RDX=(R_RAX & 0x8000000000000000L)?0xFFFFFFFFFFFFFFFFL:0x0000000000000000L;
+            else
+                R_RDX=(R_EAX & 0x80000000)?0xFFFFFFFFFFFFFFFFL:0x0000000000000000L;
             break;
 
         case 0xB8:                      /* MOV EAX,Id */
