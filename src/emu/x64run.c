@@ -276,6 +276,12 @@ x64emurun:
                 test32(emu, ED->dword[0], GD->dword[0]);
             break;
 
+        case 0x88:                      /* MOV Eb,Gb */
+            nextop = F8;
+            GETEB;
+            GETGB;
+            EB->byte[0] = GB;
+            break;
         case 0x89:                    /* MOV Ed,Gd */
             nextop = F8;
             GETED;
@@ -297,11 +303,7 @@ x64emurun:
             if(rex.w)
                 GD->q[0] = ED->q[0];
             else
-                //if ED is a reg, than the opcode works like movzx
-                if((nextop&0xC0)==0xC0)
-                    GD->q[0] = ED->dword[0];
-                else
-                    GD->dword[0] = ED->dword[0];
+                GD->q[0] = ED->dword[0];
             break;
 
         case 0x8D:                      /* LEA Gd,M */
