@@ -531,6 +531,12 @@ x64emurun:
             STEP
             break;
 
+        case 0xEB:                      /* JMP Ib */
+            tmp32s = F8S; // jump is relative
+            R_RIP += tmp32s;
+            STEP
+            break;
+
         case 0xFF:                      /* GRP 5 Ed */
             nextop = F8;
             GETED;
