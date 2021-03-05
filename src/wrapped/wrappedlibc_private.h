@@ -1389,7 +1389,7 @@ GOM(printf, iFEpV)
 //GOW(ptsname_r, 
 //GO(__ptsname_r_chk, 
 //GOW(putc, 
-//GO(putchar, 
+GO(putchar, iFi)
 //GO(putchar_unlocked, 
 //GOW(putc_unlocked, 
 //GO(putenv, 
