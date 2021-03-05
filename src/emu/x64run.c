@@ -221,6 +221,16 @@ x64emurun:
             emu->regs[tmp8u].q[0] = Pop(emu);
             break;
 
+        case 0x63:                      /* MOVSXD Gd,Ed */
+            nextop = F8;
+            GETED;
+            GETGD;
+            if(rex.w)
+                GD->sq[0] = ED->sdword[0];
+            else
+                GD->sdword[0] = ED->sdword[0];  // meh?
+            break;
+
         case 0x68:                      /* Push Id */
             Push(emu, F32S64);
             break;
