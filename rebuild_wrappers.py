@@ -430,7 +430,7 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"",              # d
 			"",         # D
 			"",         # K
-			"(intptr_t){p} ",            # l
+			"(intptr_t){p}, ",            # l
 			"(uintptr_t){p}, ",           # L
 			"(void*){p}, ",               # p
 			"",                 # V
