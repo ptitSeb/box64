@@ -83,7 +83,7 @@ GO(atoll, IFp)
 //GO(__bsd_getpgrp, 
 //GOW(bsd_signal, 
 //GO(bsearch, 
-//GOW(btowc, 
+GOW(btowc, iFi)
 //GO(__bzero, 
 //GOW(bzero, 
 //GO(c16rtomb, 
@@ -2125,9 +2125,9 @@ GO(usleep, iFu)
 //GO(wcsxfrm, 
 //GO(__wcsxfrm_l, 
 //GOW(wcsxfrm_l, 
-//GO(wctob, 
-//GO(wctomb, 
-//GO(__wctomb_chk, 
+GO(wctob, iFi)
+GO(wctomb, iFpi)
+GO(__wctomb_chk, iFpuL)
 //GOW(wctrans, 
 //GO(__wctrans_l, 
 //GOW(wctrans_l, 
