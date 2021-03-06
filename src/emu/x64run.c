@@ -427,6 +427,28 @@ x64emurun:
                 test32(emu, R_EAX, F32);
             break;
 
+        case 0xAB:                      /* (REP) STOSD */
+            if(rex.w)
+                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+            else
+                tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+            tmp64u = (rep)?R_RCX:1L;
+            if((rex.w))
+                while(tmp64u) {
+                    *(uint32_t*)R_RDI = R_EAX;
+                    R_EDI += tmp8s;
+                    --tmp64u;
+                }
+            else
+                while(tmp64u) {
+                    *(uint64_t*)R_RDI = R_RAX;
+                    R_EDI += tmp8s;
+                    --tmp64u;
+                }
+            if(rep)
+                R_RCX = tmp64u;
+            break;
+
         case 0xB8:                      /* MOV EAX,Id */
         case 0xB9:                      /* MOV ECX,Id */
         case 0xBA:                      /* MOV EDX,Id */
