@@ -176,7 +176,7 @@ GOW(calloc, pFLL)
 //GO(__ctype_toupper_loc, 
 //DATAB(__curbrk, 
 //GO(cuserid, 
-//GO(__cxa_atexit, 
+GOM(__cxa_atexit, iFEppp)
 //GO(__cxa_at_quick_exit, 
 GOM(__cxa_finalize, vFEp)
 //GO(__cxa_thread_atexit_impl, 
