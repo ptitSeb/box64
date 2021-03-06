@@ -31,8 +31,8 @@ int RunF0(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
-    int32_t tmp32s;
     uint32_t tmp32u;
+    uint64_t tmp64u;
     reg64_t *oped, *opgd;
 
     opcode = F8;
@@ -100,7 +100,41 @@ int RunF0(x64emu_t *emu, rex_t rex)
                     pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
                     break;
-                    
+
+                case 0xC1:                      /* XADD Gd,Ed */
+                    nextop = F8;
+                    GETED;
+                    GETGD;
+#ifdef DYNAREC
+                    if(((uintptr_t)ED)&3) {
+                        do {
+                            tmp32u = ED->dword[0] & ~0xff;
+                            tmp32u |= arm_lock_read_b(ED);
+                            tmp32u2 = add32(emu, tmp32u, GD.dword[0]);
+                        } while(arm_lock_write_b(ED, tmp32u2&0xff));
+                        ED->dword[0] = tmp32u2;
+                    } else {
+                        do {
+                            tmp32u = arm_lock_read_d(ED);
+                            tmp32u2 = add32(emu, tmp32u, GD.dword[0]);
+                        } while(arm_lock_write_d(ED, tmp32u2));
+                    }
+                    GD.dword[0] = tmp32u;
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    if(rex.w) {
+                        tmp64u = add64(emu, ED->q[0], GD->q[0]);
+                        GD->q[0] = ED->q[0];
+                        ED->q[0] = tmp64u;
+                    } else {
+                        tmp32u = add32(emu, ED->dword[0], GD->dword[0]);
+                        GD->dword[0] = ED->dword[0];
+                        ED->dword[0] = tmp32u;
+                    }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+
             default:
                 return 1;
             }
