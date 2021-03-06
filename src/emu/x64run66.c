@@ -31,7 +31,8 @@ int Run66(x64emu_t *emu, rex_t rex)
     uint8_t opcode;
     uint8_t nextop;
     uint8_t tmp8u;
-    int32_t tmp32s;
+    int16_t tmp16s;
+    uint16_t tmp16u;
     reg64_t *oped, *opgd;
 
     opcode = F8;
@@ -46,6 +47,29 @@ int Run66(x64emu_t *emu, rex_t rex)
 
     case 0x0F:                              /* more opcdes */
         return Run660F(emu, rex);
+
+    case 0x81:                              /* GRP3 Ew,Iw */
+    case 0x83:                              /* GRP3 Ew,Ib */
+        nextop = F8;
+        GETEW;
+        GETGW;
+        if(opcode==0x81) 
+            tmp16u = F16;
+        else {
+            tmp16s = F8S;
+            tmp16u = (uint16_t)tmp16s;
+        }
+        switch((nextop>>3)&7) {
+            case 0: EW->word[0] = add16(emu, EW->word[0], tmp16u); break;
+            case 1: EW->word[0] =  or16(emu, EW->word[0], tmp16u); break;
+            case 2: EW->word[0] = adc16(emu, EW->word[0], tmp16u); break;
+            case 3: EW->word[0] = sbb16(emu, EW->word[0], tmp16u); break;
+            case 4: EW->word[0] = and16(emu, EW->word[0], tmp16u); break;
+            case 5: EW->word[0] = sub16(emu, EW->word[0], tmp16u); break;
+            case 6: EW->word[0] = xor16(emu, EW->word[0], tmp16u); break;
+            case 7:               cmp16(emu, EW->word[0], tmp16u); break;
+        }
+        break;
 
     case 0x89:                              /* MOV Ew,Gw */
         nextop = F8;
