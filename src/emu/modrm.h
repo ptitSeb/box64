@@ -18,7 +18,7 @@
 #define GETEB oped=GetEb(emu, rex, nextop)
 #define GETGB opgd=GetGb(emu, rex, nextop)
 #define GETEW oped=GetEw(emu, rex, nextop)
-#define GETGW opgd=GetGd(emu, rex, nextop)
+#define GETGW opgd=GetGw(emu, rex, nextop)
 #define GETEX opex=GetEx(emu, rex, nextop)
 #define GETGX opgx=GetGx(emu, rex, nextop)
 #define ED  oped

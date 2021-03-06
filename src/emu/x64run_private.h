@@ -73,153 +73,19 @@ static inline void Push(x64emu_t *emu, uint64_t v)
 
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
 
-static inline reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m)
-{
-    if (m<=7) {
-        if(m==0x4) {
-            uint8_t sib = Fetch8(emu);
-            uintptr_t base = ((sib&0x7)==5)?((uint64_t)(int64_t)Fetch32s(emu)):(emu->regs[(sib&0x7)+(rex.b<<3)].q[0]); // base
-            base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<3)]->sq[0] << (sib>>6));
-            return (reg64_t*)base;
-        } else if (m==0x5) { //disp32
-            int32_t base = Fetch32s(emu);
-            return (reg64_t*)(base+R_RIP);
-        }
-        return (reg64_t*)(emu->regs[m+(rex.b<<3)].q[0]);
-    } else {
-        uintptr_t base;
-        if((m&7)==4) {
-            uint8_t sib = Fetch8(emu);
-            base = emu->regs[(sib&0x7)+(rex.b<<3)].q[0]; // base
-            base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<3)]->sq[0] << (sib>>6));
-        } else {
-            base = emu->regs[(m&0x7)+(rex.b<<3)].q[0];
-        }
-        base+=(m&0x80)?Fetch32s(emu):Fetch8s(emu);
-        return (reg64_t*)base;
-    }
-}
-
-static inline reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v)
-{
-    // rex ignored here
-    uint8_t m = v&0xC7;    // filter Eb
-    if(m>=0xC0) {
-        if(rex.rex) {
-            return &emu->regs[(m&0x07)+(rex.b<<3)];
-        } else {
-            int lowhigh = (m&4)>>2;
-            return (reg64_t *)(((char*)(&emu->regs[(m&0x03)]))+lowhigh);  //?
-        }
-    } else return GetECommon(emu, rex, m);
-}
-
-static inline reg64_t* GetEd(x64emu_t *emu, rex_t rex, uint8_t v)
-{
-    uint8_t m = v&0xC7;    // filter Ed
-    if(m>=0xC0) {
-         return &emu->regs[(m&0x07)+(rex.b<<3)];
-    } else return GetECommon(emu, rex, m);
-}
-
+reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m);
+reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v);
+reg64_t* GetEd(x64emu_t *emu, rex_t rex, uint8_t v);
 #define GetEw GetEd
-
-static inline reg64_t* GetEw16(x64emu_t *emu, rex_t rex, uint8_t v)
-{
-    uint8_t m = v&0xC7;    // filter Ed
-    if(m>=0xC0) {
-         return &emu->regs[(m&0x07)];
-    } else {
-        uintptr_t base = 0;
-        switch(m&7) {
-            case 0: base = R_BX+R_SI; break;
-            case 1: base = R_BX+R_DI; break;
-            case 2: base = R_BP+R_SI; break;
-            case 3: base = R_BP+R_DI; break;
-            case 4: base =      R_SI; break;
-            case 5: base =      R_DI; break;
-            case 6: base =      R_BP; break;
-            case 7: base =      R_BX; break;
-        }
-        switch((m>>6)&3) {
-            case 0: if(m==6) base = Fetch16(emu); break;
-            case 1: base += Fetch8s(emu); break;
-            case 2: base += Fetch16s(emu); break;
-            // case 3 is C0..C7, already dealt with
-        }
-        return (reg64_t*)base;
-    }
-}
-
-static inline reg64_t* GetEw16off(x64emu_t *emu, rex_t rex, uint8_t v, uintptr_t offset)
-{
-    uint32_t m = v&0xC7;    // filter Ed
-    if(m>=0xC0) {
-         return &emu->regs[(m&0x07)];
-    } else {
-        uint32_t base = 0;
-        switch(m&7) {
-            case 0: base = R_BX+R_SI; break;
-            case 1: base = R_BX+R_DI; break;
-            case 2: base = R_BP+R_SI; break;
-            case 3: base = R_BP+R_DI; break;
-            case 4: base =      R_SI; break;
-            case 5: base =      R_DI; break;
-            case 6: base =      R_BP; break;
-            case 7: base =      R_BX; break;
-        }
-        switch((m>>6)&3) {
-            case 0: if(m==6) base = Fetch16(emu); break;
-            case 1: base += Fetch8s(emu); break;
-            case 2: base += Fetch16s(emu); break;
-            // case 3 is C0..C7, already dealt with
-        }
-        return (reg64_t*)(base+offset);
-    }
-}
-
-static inline mmx_regs_t* GetEm(x64emu_t *emu, rex_t rex, uint8_t v)
-{
-    uint8_t m = v&0xC7;    // filter Ed
-    if(m>=0xC0) {
-         return &emu->mmx[m&0x07];
-    } else return (mmx_regs_t*)GetECommon(emu, rex, m);
-}
-
-static inline sse_regs_t* GetEx(x64emu_t *emu, rex_t rex, uint8_t v)
-{
-    uint8_t m = v&0xC7;    // filter Ed
-    if(m>=0xC0) {
-         return &emu->xmm[(m&0x07)+(rex.b<<4)];
-    } else return (sse_regs_t*)GetECommon(emu, rex, m);
-}
-
-
-static inline reg64_t* GetGd(x64emu_t *emu, rex_t rex, uint8_t v)
-{
-    return &emu->regs[((v&0x38)>>3)+(rex.r<<3)];
-}
-
-static inline reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v)
-{
-    uint8_t m = (v&0x38)>>3;
-    if(rex.rex) {
-        return &emu->regs[(m&7)+(rex.r<<3)];
-    } else
-        return (reg64_t*)&emu->regs[m&3].byte[m>>2];
-}
-
-static inline mmx_regs_t* GetGm(x64emu_t *emu, rex_t rex, uint8_t v)
-{
-    uint8_t m = (v&0x38)>>3;
-    return &emu->mmx[m&7];
-}
-
-static inline sse_regs_t* GetGx(x64emu_t *emu, rex_t rex, uint8_t v)
-{
-    uint8_t m = (v&0x38)>>3;
-    return &emu->xmm[(m&7)+(rex.r<<3)];
-}
+reg64_t* GetEw16(x64emu_t *emu, rex_t rex, uint8_t v);
+reg64_t* GetEw16off(x64emu_t *emu, rex_t rex, uint8_t v, uintptr_t offset);
+mmx_regs_t* GetEm(x64emu_t *emu, rex_t rex, uint8_t v);
+sse_regs_t* GetEx(x64emu_t *emu, rex_t rex, uint8_t v);
+reg64_t* GetGd(x64emu_t *emu, rex_t rex, uint8_t v);
+#define GetGw GetGd
+reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v);
+mmx_regs_t* GetGm(x64emu_t *emu, rex_t rex, uint8_t v);
+sse_regs_t* GetGx(x64emu_t *emu, rex_t rex, uint8_t v);
 
 void UpdateFlags(x64emu_t *emu);
 
