@@ -129,8 +129,11 @@ int RunF0(x64emu_t *emu, rex_t rex)
                         ED->q[0] = tmp64u;
                     } else {
                         tmp32u = add32(emu, ED->dword[0], GD->dword[0]);
-                        GD->dword[0] = ED->dword[0];
-                        ED->dword[0] = tmp32u;
+                        GD->q[0] = ED->dword[0];
+                        if((nextop&0xC0)==0xC0)
+                            ED->q[0] = tmp32u;
+                        else
+                            ED->dword[0] = tmp32u;
                     }
                     pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
@@ -175,16 +178,28 @@ int RunF0(x64emu_t *emu, rex_t rex)
                     case 7:            cmp64(emu, ED->q[0], tmp64u); break;
                 }
             } else {
-                switch((nextop>>3)&7) {
-                    case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp64u&0xffffffff); break;
-                    case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp64u&0xffffffff); break;
-                    case 2: ED->dword[0] = adc32(emu, ED->dword[0], tmp64u&0xffffffff); break;
-                    case 3: ED->dword[0] = sbb32(emu, ED->dword[0], tmp64u&0xffffffff); break;
-                    case 4: ED->dword[0] = and32(emu, ED->dword[0], tmp64u&0xffffffff); break;
-                    case 5: ED->dword[0] = sub32(emu, ED->dword[0], tmp64u&0xffffffff); break;
-                    case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp64u&0xffffffff); break;
-                    case 7:                cmp32(emu, ED->dword[0], tmp64u&0xffffffff); break;
-                }
+                if((nextop&0xC0)==0xC0)
+                    switch((nextop>>3)&7) {
+                        case 0: ED->q[0] = add32(emu, ED->dword[0], tmp64u); break;
+                        case 1: ED->q[0] =  or32(emu, ED->dword[0], tmp64u); break;
+                        case 2: ED->q[0] = adc32(emu, ED->dword[0], tmp64u); break;
+                        case 3: ED->q[0] = sbb32(emu, ED->dword[0], tmp64u); break;
+                        case 4: ED->q[0] = and32(emu, ED->dword[0], tmp64u); break;
+                        case 5: ED->q[0] = sub32(emu, ED->dword[0], tmp64u); break;
+                        case 6: ED->q[0] = xor32(emu, ED->dword[0], tmp64u); break;
+                        case 7:            cmp32(emu, ED->dword[0], tmp64u); break;
+                    }
+                else
+                    switch((nextop>>3)&7) {
+                        case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp64u); break;
+                        case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp64u); break;
+                        case 2: ED->dword[0] = adc32(emu, ED->dword[0], tmp64u); break;
+                        case 3: ED->dword[0] = sbb32(emu, ED->dword[0], tmp64u); break;
+                        case 4: ED->dword[0] = and32(emu, ED->dword[0], tmp64u); break;
+                        case 5: ED->dword[0] = sub32(emu, ED->dword[0], tmp64u); break;
+                        case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp64u); break;
+                        case 7:                cmp32(emu, ED->dword[0], tmp64u); break;
+                    }
             }
             pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
