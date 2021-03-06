@@ -523,6 +523,35 @@ x64emurun:
             STEP
             break;
 
+        case 0xF6:                      /* GRP3 Eb(,Ib) */
+            nextop = F8;
+            GETEB;
+            switch((nextop>>3)&7) {
+                case 0: 
+                case 1:                 /* TEST Eb,Ib */
+                    tmp8u = F8;
+                    test8(emu, EB->byte[0], tmp8u);
+                    break;
+                case 2:                 /* NOT Eb */
+                    EB->byte[0] = not8(emu, EB->byte[0]);
+                    break;
+                case 3:                 /* NEG Eb */
+                    EB->byte[0] = neg8(emu, EB->byte[0]);
+                    break;
+                case 4:                 /* MUL AL,Eb */
+                    mul8(emu, EB->byte[0]);
+                    break;
+                case 5:                 /* IMUL AL,Eb */
+                    imul8(emu, EB->byte[0]);
+                    break;
+                case 6:                 /* DIV Eb */
+                    div8(emu, EB->byte[0]);
+                    break;
+                case 7:                 /* IDIV Eb */
+                    idiv8(emu, EB->byte[0]);
+                    break;
+            }
+            break;
         case 0xF7:                      /* GRP3 Ed(,Id) */
             nextop = F8;
             GETED;
