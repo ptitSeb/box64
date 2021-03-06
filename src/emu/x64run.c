@@ -313,6 +313,12 @@ x64emurun:
             }
             break;
 
+        case 0x84:                      /* TEST Eb,Gb */
+            nextop = F8;
+            GETEB;
+            GETGB;
+            test8(emu, EB->byte[0], GB);
+            break;
         case 0x85:                      /* TEST Ed,Gd */
             nextop = F8;
             GETED;
