@@ -109,15 +109,15 @@ void SetupX64Emu(x64emu_t *emu)
 
 void SetTraceEmu(uintptr_t start, uintptr_t end)
 {
-//    if(my_context->zydis) {
-//        if (end == 0) {
-//            printf_log(LOG_INFO, "Setting trace\n");
-//        } else {
-//            if(end!=1) {  // 0-1 is basically no trace, so don't printf it...
-//                printf_log(LOG_INFO, "Setting trace only between %p and %p\n", (void*)start, (void*)end);
-//            }
-//        }
-//    }
+    if(my_context->zydis) {
+        if (end == 0) {
+            printf_log(LOG_INFO, "Setting trace\n");
+        } else {
+            if(end!=1) {  // 0-1 is basically no trace, so don't printf it...
+                printf_log(LOG_INFO, "Setting trace only between %p and %p\n", (void*)start, (void*)end);
+            }
+        }
+    }
     trace_start = start;
     trace_end = end;
 }

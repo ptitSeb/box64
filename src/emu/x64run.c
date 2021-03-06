@@ -69,11 +69,11 @@ x64emurun:
             rep = opcode-0xF1;
             opcode = F8;
         }
-        if(opcode>=0x40 && opcode<=0x4f) {
+        rex.rex = 0;
+        while(opcode>=0x40 && opcode<=0x4f) {
             rex.rex = opcode;
             opcode = F8;
-        } else
-            rex.rex = 0;
+        }
 
         switch(opcode) {
 
@@ -191,24 +191,6 @@ x64emurun:
                 cmp32(emu, R_EAX, F32);
             break;
 
-        case 0x40:
-        case 0x41:
-        case 0x42:
-        case 0x43:
-        case 0x44:
-        case 0x45:
-        case 0x46:
-        case 0x47:
-        case 0x48:
-        case 0x49:
-        case 0x4A:
-        case 0x4B:
-        case 0x4C:
-        case 0x4D:
-        case 0x4E:
-        case 0x4F:      /* Another REX */
-            --R_RIP;
-            break;
         case 0x54:                      /* PUSH ESP */
             if(rex.b)
                 Push(emu, R_R12);

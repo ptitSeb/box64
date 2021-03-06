@@ -106,10 +106,10 @@ static inline reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v)
     uint8_t m = v&0xC7;    // filter Eb
     if(m>=0xC0) {
         if(rex.rex) {
+            return &emu->regs[(m&0x07)+(rex.b<<3)];
+        } else {
             int lowhigh = (m&4)>>2;
             return (reg64_t *)(((char*)(&emu->regs[(m&0x03)]))+lowhigh);  //?
-        } else {
-            return &emu->regs[(m&0x07)+(rex.b<<3)];
         }
     } else return GetECommon(emu, rex, m);
 }
