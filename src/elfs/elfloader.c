@@ -477,7 +477,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
 //                    return -1;
                 } else {
-                    printf_log(LOG_DUMP, "Apply %s R_X86_64_64 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(offs+*(uint32_t*)p));
+                    printf_log(LOG_DUMP, "Apply %s R_X86_64_64 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(offs+*(uint64_t*)p));
                     *p += offs;
                 }
                 break;
@@ -521,12 +521,34 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
 int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cnt, Elf64_Rela *rela)
 {
     for (int i=0; i<cnt; ++i) {
+        int t = ELF64_R_TYPE(rela[i].r_info);
         Elf64_Sym *sym = &head->DynSym[ELF64_R_SYM(rela[i].r_info)];
         int bind = ELF64_ST_BIND(sym->st_info);
+        uint64_t ndx = sym->st_shndx;
         const char* symname = SymName(head, sym);
         uint64_t *p = (uint64_t*)(rela[i].r_offset + head->delta);
         uintptr_t offs = 0;
         uintptr_t end = 0;
+        elfheader_t* h_tls = head;
+        if(bind==STB_LOCAL) {
+            offs = sym->st_value + head->delta;
+            end = offs + sym->st_size;
+        } else {
+            // this is probably very very wrong. A proprer way to get reloc need to be writen, but this hack seems ok for now
+            // at least it work for half-life, unreal, ut99, zsnes, Undertale, ColinMcRae Remake, FTL, ShovelKnight...
+            if(bind==STB_GLOBAL && (ndx==10 || ndx==19) && t!=R_X86_64_GLOB_DAT) {
+                offs = sym->st_value + head->delta;
+                end = offs + sym->st_size;
+            }
+            // so weak symbol are the one left
+            if(!offs && !end) {
+                h_tls = NULL;
+                if(local_maplib)
+                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end);
+                if(!offs && !end)
+                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
+            }
+        }
         uintptr_t globoffs, globend;
         uint64_t* globp;
         uintptr_t tmp = 0;
@@ -602,7 +624,58 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     printf_log(LOG_DUMP, "Preparing (if needed) %s R_X86_64_JUMP_SLOT @%p (0x%lx->0x%0lx) with sym=%s to be apply later (addend=%ld)\n", (bind==STB_LOCAL)?"Local":"Global", p, *p, *p+head->delta, symname, rela[i].r_addend);
                     *p += head->delta;
                 }
-                break;            default:
+                break;
+            case R_X86_64_64:
+                if (!offs) {
+                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+//                    return -1;
+                } else {
+                    printf_log(LOG_DUMP, "Apply %s R_X86_64_64 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(offs+*(uint64_t*)p));
+                    *p += offs;
+                }
+                break;
+            case R_X86_64_DTPMOD64:
+                // ID of module containing symbol
+                if(!symname || symname[0]=='\0' || bind==STB_LOCAL)
+                    offs = getElfIndex(my_context, head);
+                else {
+                    if(!h_tls) {
+                        if(local_maplib)
+                            h_tls = GetGlobalSymbolElf(local_maplib, symname);
+                        if(!h_tls)
+                            h_tls = GetGlobalSymbolElf(maplib, symname);
+                    }
+                    offs = getElfIndex(my_context, h_tls);
+                }
+                if(p) {
+                    printf_log(LOG_DUMP, "Apply %s %s @%p with sym=%s (%p -> %p)\n", "R_X86_64_DTPMOD64", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
+                    *p = offs;
+                } else {
+                    printf_log(LOG_NONE, "Warning, Symbol %s or Elf not found, but R_X86_64_DTPMOD64 Slot Offset is NULL \n", symname);
+                }
+                break;
+            case R_X86_64_DTPOFF64:
+                // Offset in TLS block
+                if (!offs && !end) {
+                    if(bind==STB_WEAK) {
+                        printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_X86_64_DTPOFF64 @%p (%p)\n", symname, p, *(void**)p);
+                    } else {
+                        printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_DTPOFF64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                    }
+//                    return -1;
+                } else {
+                    if(h_tls)
+                        offs = sym->st_value;
+                    if(p) {
+                        int64_t tlsoffset = offs;    // it's not an offset in elf memory
+                        printf_log(LOG_DUMP, "Apply %s R_X86_64_DTPOFF64 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)tlsoffset, (void*)offs);
+                        *p = tlsoffset;
+                    } else {
+                        printf_log(LOG_NONE, "Warning, Symbol %s found, but R_X86_64_DTPOFF64 Slot Offset is NULL \n", symname);
+                    }
+                }
+                break;
+            default:
                 printf_log(LOG_INFO, "Warning, don't know of to handle rela #%d %s on %s\n", i, DumpRelType(ELF64_R_TYPE(rela[i].r_info)), symname);
         }
     }
@@ -909,8 +982,10 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
     // and check init array now
     Elf64_Addr *addr = (Elf64_Addr*)(h->initarray + h->delta);
     for (int i=0; i<h->initarray_sz; ++i) {
-        printf_log(LOG_DEBUG, "Calling Init[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
-        RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, context->argc, context->argv, context->envv);
+        if(addr[i]) {
+            printf_log(LOG_DEBUG, "Calling Init[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
+            RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, context->argc, context->argv, context->envv);
+        }
     }
 
     h->init_done = 1;

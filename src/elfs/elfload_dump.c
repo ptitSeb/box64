@@ -193,7 +193,32 @@ const char* DumpRelType(int t)
         GO(R_X86_64_PC16);
         GO(R_X86_64_8);
         GO(R_X86_64_PC8);
+        GO(R_X86_64_DTPMOD64);
+        GO(R_X86_64_DTPOFF64);
+        GO(R_X86_64_TPOFF64);
+        GO(R_X86_64_TLSGD);
+        GO(R_X86_64_TLSLD);
+        GO(R_X86_64_DTPOFF32);
+        GO(R_X86_64_GOTTPOFF);
+        GO(R_X86_64_TPOFF32);
         GO(R_X86_64_PC64);
+        GO(R_X86_64_GOTOFF64);
+        GO(R_X86_64_GOTPC32);
+        GO(R_X86_64_GOT64);
+        GO(R_X86_64_GOTPCREL64);
+        GO(R_X86_64_GOTPC64);
+        GO(R_X86_64_GOTPLT64);
+        GO(R_X86_64_PLTOFF64);
+        GO(R_X86_64_SIZE32);
+        GO(R_X86_64_SIZE64);
+        GO(R_X86_64_GOTPC32_TLSDESC);
+        GO(R_X86_64_TLSDESC_CALL);
+        GO(R_X86_64_TLSDESC);
+        GO(R_X86_64_IRELATIVE);
+        GO(R_X86_64_RELATIVE64);
+        GO(R_X86_64_GOTPCRELX);
+        GO(R_X86_64_REX_GOTPCRELX);
+        GO(R_X86_64_NUM);
         #undef GO
         default: sprintf(buff, "type: 0x%x (unknown)", t); break;
     }
