@@ -99,6 +99,7 @@ void iFEupp(x64emu_t *emu, uintptr_t fnc);
 void iFEpip(x64emu_t *emu, uintptr_t fnc);
 void iFEppp(x64emu_t *emu, uintptr_t fnc);
 void iFuipp(x64emu_t *emu, uintptr_t fnc);
+void LFpLLp(x64emu_t *emu, uintptr_t fnc);
 void pFEppi(x64emu_t *emu, uintptr_t fnc);
 void pFEppp(x64emu_t *emu, uintptr_t fnc);
 void pFppiL(x64emu_t *emu, uintptr_t fnc);

@@ -446,7 +446,7 @@ GO(free, vFp)
 //GOW(fwprintf, 
 //GO(__fwprintf_chk, 
 //GO(__fwritable, 
-//GOW(fwrite, 
+GOW(fwrite, LFpLLp)
 //GO(fwrite_unlocked, 
 //GO(__fwriting, 
 //GO(fwscanf, 
