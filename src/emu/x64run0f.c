@@ -46,19 +46,19 @@ int Run0F(x64emu_t *emu, rex_t rex)
 
         case 0x11:                      /* MOVUPS Ex,Gx */
             nextop = F8;
-            GETEX;
+            GETEX(0);
             GETGX;
             memcpy(EX, GX, 16); // unaligned, so carreful
             break;
 
         case 0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
-            GETED;
+            GETED(0);
             break;
 
         case 0x29:                      /* MOVAPS Ex,Gx */
             nextop = F8;
-            GETEX;
+            GETEX(0);
             GETGX;
             EX->q[0] = GX->q[0];
             EX->q[1] = GX->q[1];
@@ -67,7 +67,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
 
         GOCOND(0x40
             , nextop = F8;
-            GETED;
+            GETED(0);
             GETGD;
             CHECK_FLAGS(emu);
             , if(rex.w) {GD->q[0] = ED->q[0]; } else {GD->dword[0] = ED->dword[0];}
@@ -81,7 +81,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
         )                               /* 0x80 -> 0x8F Jxx */
         GOCOND(0x90
             , nextop = F8; CHECK_FLAGS(emu);
-            GETEB;
+            GETEB(0);
             , EB->byte[0]=1;
             , EB->byte[0]=0;
         )                               /* 0x90 -> 0x9F SETxx Eb */
@@ -102,7 +102,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             if((nextop&0xF8)==0xF8) {
                 return 0;                   /* SFENCE */
             }
-            GETED;
+            GETED(0);
             switch((nextop>>3)&7) {
                 default:
                     return 1;
@@ -110,7 +110,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             break;
         case 0xAF:                      /* IMUL Gd,Ed */
             nextop = F8;
-            GETED;
+            GETED(0);
             GETGD;
             if(rex.w)
                 GD->q[0] = imul64(emu, GD->q[0], ED->q[0]);
@@ -120,20 +120,20 @@ int Run0F(x64emu_t *emu, rex_t rex)
 
         case 0xB6:                      /* MOVZX Gd,Eb */
             nextop = F8;
-            GETEB;
+            GETEB(0);
             GETGD;
             GD->q[0] = EB->byte[0];
             break;
         case 0xB7:                      /* MOVZX Gd,Ew */
             nextop = F8;
-            GETEW;
+            GETEW(0);
             GETGD;
             GD->q[0] = EW->word[0];
             break;
 
         case 0xBE:                      /* MOVSX Gd,Eb */
             nextop = F8;
-            GETEB;
+            GETEB(0);
             GETGD;
             if(rex.w)
                 GD->sq[0] = EB->sbyte[0];
@@ -144,7 +144,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             break;
         case 0xBF:                      /* MOVSX Gd,Ew */
             nextop = F8;
-            GETEW;
+            GETEW(0);
             GETGD;
             if(rex.w)
                 GD->sq[0] = EW->sword[0];

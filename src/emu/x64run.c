@@ -34,7 +34,7 @@ int Run(x64emu_t *emu, int step)
     uint8_t opcode;
     uint8_t nextop;
     reg64_t *oped, *opgd;
-    uint8_t tmp8u, tmp8u2;
+    uint8_t tmp8u;
     int8_t tmp8s;
     uint32_t tmp32u;
     uint64_t tmp64u;
@@ -80,18 +80,18 @@ x64emurun:
         #define GO(B, OP)                                   \
         case B+0:                                           \
             nextop = F8;                                    \
-            GETEB;                                          \
+            GETEB(0);                                       \
             GETGB;                                          \
             EB->byte[0] = OP##8(emu, EB->byte[0], GB);      \
             break;                                          \
         case B+1:                                           \
             nextop = F8;                                    \
-            GETED;                                          \
+            GETED(0);                                       \
             GETGD;                                          \
             if(rex.w)                                       \
                 ED->q[0] = OP##64(emu, ED->q[0], GD->q[0]); \
             else {                                          \
-                if((nextop&0xC0)==0xC0)                     \
+                if(MODREG)                                  \
                     ED->q[0] = OP##32(emu, ED->dword[0], GD->dword[0]);     \
                 else                                                        \
                     ED->dword[0] = OP##32(emu, ED->dword[0], GD->dword[0]); \
@@ -99,13 +99,13 @@ x64emurun:
             break;                                          \
         case B+2:                                           \
             nextop = F8;                                    \
-            GETEB;                                          \
+            GETEB(0);                                       \
             GETGB;                                          \
             GB = OP##8(emu, GB, EB->byte[0]);               \
             break;                                          \
         case B+3:                                           \
             nextop = F8;                                    \
-            GETED;                                          \
+            GETED(0);                                       \
             GETGD;                                          \
             if(rex.w)                                       \
                 GD->q[0] = OP##64(emu, GD->q[0], ED->q[0]); \
@@ -157,13 +157,13 @@ x64emurun:
 
         case 0x38:
             nextop = F8;
-            GETEB;
+            GETEB(0);
             GETGB;
             cmp8(emu, EB->byte[0], GB);
             break;
         case 0x39:
             nextop = F8;
-            GETED;
+            GETED(0);
             GETGD;
             if(rex.w)
                 cmp64(emu, ED->q[0], GD->q[0]);
@@ -172,13 +172,13 @@ x64emurun:
             break;
         case 0x3A:
             nextop = F8;
-            GETEB;
+            GETEB(0);
             GETGB;
             cmp8(emu, GB, EB->byte[0]);
             break;
         case 0x3B:
             nextop = F8;
-            GETED;
+            GETED(0);
             GETGD;
             if(rex.w)
                 cmp64(emu, GD->q[0], ED->q[0]);
@@ -227,12 +227,15 @@ x64emurun:
 
         case 0x63:                      /* MOVSXD Gd,Ed */
             nextop = F8;
-            GETED;
+            GETED(0);
             GETGD;
             if(rex.w)
                 GD->sq[0] = ED->sdword[0];
             else
-                GD->sdword[0] = ED->sdword[0];  // meh?
+                if(MODREG)
+                    GD->q[0] = ED->sdword[0];
+                else
+                    GD->sdword[0] = ED->sdword[0];  // meh?
             break;
 
         case 0x66:                      /* 16bits prefix */
@@ -249,13 +252,16 @@ x64emurun:
             break;
         case 0x69:                      /* IMUL Gd,Ed,Id */
             nextop = F8;
-            GETED;
+            GETED(4);
             GETGD;
             tmp64u = F32S64;
             if(rex.w)
                 GD->q[0] = imul64(emu, ED->q[0], tmp64u);
             else
-                GD->dword[0] = imul32(emu, ED->dword[0], tmp64u);
+                if((nextop&0xC0)==0xC0)
+                    GD->q[0] = imul32(emu, ED->dword[0], tmp64u);
+                else
+                    GD->dword[0] = imul32(emu, ED->dword[0], tmp64u);
             break;
 
         GOCOND(0x70
@@ -266,7 +272,7 @@ x64emurun:
         
         case 0x80:                      /* GRP Eb,Ib */
             nextop = F8;
-            GETEB;
+            GETEB(1);
             tmp8u = F8;
             switch((nextop>>3)&7) {
                 case 0: EB->byte[0] = add8(emu, EB->byte[0], tmp8u); break;
@@ -282,7 +288,7 @@ x64emurun:
         case 0x81:                      /* GRP Ed,Id */
         case 0x83:                      /* GRP Ed,Ib */
             nextop = F8;
-            GETED;
+            GETED((opcode==0x81)?4:1);
             if(opcode==0x81) {
                 tmp32s = F32S;
             } else {
@@ -302,28 +308,40 @@ x64emurun:
                 }
             } else {
                 tmp32u = (uint32_t)tmp32s;
-                switch((nextop>>3)&7) {
-                    case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp32u); break;
-                    case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp32u); break;
-                    case 2: ED->dword[0] = adc32(emu, ED->dword[0], tmp32u); break;
-                    case 3: ED->dword[0] = sbb32(emu, ED->dword[0], tmp32u); break;
-                    case 4: ED->dword[0] = and32(emu, ED->dword[0], tmp32u); break;
-                    case 5: ED->dword[0] = sub32(emu, ED->dword[0], tmp32u); break;
-                    case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp32u); break;
-                    case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
-                }
+                if(MODREG)
+                    switch((nextop>>3)&7) {
+                        case 0: ED->q[0] = add32(emu, ED->dword[0], tmp32u); break;
+                        case 1: ED->q[0] =  or32(emu, ED->dword[0], tmp32u); break;
+                        case 2: ED->q[0] = adc32(emu, ED->dword[0], tmp32u); break;
+                        case 3: ED->q[0] = sbb32(emu, ED->dword[0], tmp32u); break;
+                        case 4: ED->q[0] = and32(emu, ED->dword[0], tmp32u); break;
+                        case 5: ED->q[0] = sub32(emu, ED->dword[0], tmp32u); break;
+                        case 6: ED->q[0] = xor32(emu, ED->dword[0], tmp32u); break;
+                        case 7:            cmp32(emu, ED->dword[0], tmp32u); break;
+                    }
+                else
+                    switch((nextop>>3)&7) {
+                        case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp32u); break;
+                        case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp32u); break;
+                        case 2: ED->dword[0] = adc32(emu, ED->dword[0], tmp32u); break;
+                        case 3: ED->dword[0] = sbb32(emu, ED->dword[0], tmp32u); break;
+                        case 4: ED->dword[0] = and32(emu, ED->dword[0], tmp32u); break;
+                        case 5: ED->dword[0] = sub32(emu, ED->dword[0], tmp32u); break;
+                        case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp32u); break;
+                        case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
+                    }
             }
             break;
 
         case 0x84:                      /* TEST Eb,Gb */
             nextop = F8;
-            GETEB;
+            GETEB(0);
             GETGB;
             test8(emu, EB->byte[0], GB);
             break;
         case 0x85:                      /* TEST Ed,Gd */
             nextop = F8;
-            GETED;
+            GETED(0);
             GETGD;
             if(rex.w)
                 test64(emu, ED->q[0], GD->q[0]);
@@ -352,7 +370,7 @@ x64emurun:
                 }
             }
 #else
-            GETED;
+            GETED(0);
             GETGD;
             if((nextop&0xC0)!=0xC0)
                 pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
@@ -371,27 +389,28 @@ x64emurun:
             break;
         case 0x88:                      /* MOV Eb,Gb */
             nextop = F8;
-            GETEB;
+            GETEB(0);
             GETGB;
             EB->byte[0] = GB;
             break;
         case 0x89:                    /* MOV Ed,Gd */
             nextop = F8;
-            GETED;
+            GETED(0);
             GETGD;
-            if(rex.w)
+            if(rex.w) {
                 ED->q[0] = GD->q[0];
-            else
+            } else {
                 //if ED is a reg, than the opcode works like movzx
-                if((nextop&0xC0)==0xC0)
+                if(MODREG)
                     ED->q[0] = GD->dword[0];
                 else
                     ED->dword[0] = GD->dword[0];
+            }
             break;
 
         case 0x8B:                      /* MOV Gd,Ed */
             nextop = F8;
-            GETED;
+            GETED(0);
             GETGD;
             if(rex.w)
                 GD->q[0] = ED->q[0];
@@ -401,12 +420,12 @@ x64emurun:
 
         case 0x8D:                      /* LEA Gd,M */
             nextop = F8;
-            GETED;
+            GETED(0);
             GETGD;
             if(rex.w)
                 GD->q[0] = (uint64_t)ED;
             else
-                GD->dword[0] = (uint32_t)(uintptr_t)ED;
+                GD->dword[0] = (uint32_t)(uintptr_t)ED; // RAZ upper part?
             break;
 
         case 0x90:                      /* NOP */
@@ -434,20 +453,20 @@ x64emurun:
 
         case 0xAB:                      /* (REP) STOSD */
             if(rex.w)
-                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
-            else
                 tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+            else
+                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
             tmp64u = (rep)?R_RCX:1L;
             if((rex.w))
                 while(tmp64u) {
-                    *(uint32_t*)R_RDI = R_EAX;
-                    R_EDI += tmp8s;
+                    *(uint64_t*)R_RDI = R_RAX;
+                    R_RDI += tmp8s;
                     --tmp64u;
                 }
             else
                 while(tmp64u) {
-                    *(uint64_t*)R_RDI = R_RAX;
-                    R_EDI += tmp8s;
+                    *(uint32_t*)R_RDI = R_EAX;
+                    R_RDI += tmp8s;
                     --tmp64u;
                 }
             if(rep)
@@ -470,7 +489,7 @@ x64emurun:
 
         case 0xC1:                      /* GRP2 Ed,Ib */
             nextop = F8;
-            GETED;
+            GETED(1);
             tmp8u = F8/* & 0x1f*/; // masking done in each functions
             if(rex.w) {
                 switch((nextop>>3)&7) {
@@ -484,16 +503,28 @@ x64emurun:
                     case 7: ED->q[0] = sar64(emu, ED->q[0], tmp8u); break;
                 }
             } else {
-                switch((nextop>>3)&7) {
-                    case 0: ED->dword[0] = rol32(emu, ED->dword[0], tmp8u); break;
-                    case 1: ED->dword[0] = ror32(emu, ED->dword[0], tmp8u); break;
-                    case 2: ED->dword[0] = rcl32(emu, ED->dword[0], tmp8u); break;
-                    case 3: ED->dword[0] = rcr32(emu, ED->dword[0], tmp8u); break;
-                    case 4:
-                    case 6: ED->dword[0] = shl32(emu, ED->dword[0], tmp8u); break;
-                    case 5: ED->dword[0] = shr32(emu, ED->dword[0], tmp8u); break;
-                    case 7: ED->dword[0] = sar32(emu, ED->dword[0], tmp8u); break;
-                }
+                if(MODREG)
+                    switch((nextop>>3)&7) {
+                        case 0: ED->q[0] = rol32(emu, ED->dword[0], tmp8u); break;
+                        case 1: ED->q[0] = ror32(emu, ED->dword[0], tmp8u); break;
+                        case 2: ED->q[0] = rcl32(emu, ED->dword[0], tmp8u); break;
+                        case 3: ED->q[0] = rcr32(emu, ED->dword[0], tmp8u); break;
+                        case 4:
+                        case 6: ED->q[0] = shl32(emu, ED->dword[0], tmp8u); break;
+                        case 5: ED->q[0] = shr32(emu, ED->dword[0], tmp8u); break;
+                        case 7: ED->q[0] = sar32(emu, ED->dword[0], tmp8u); break;
+                    }
+                else
+                    switch((nextop>>3)&7) {
+                        case 0: ED->dword[0] = rol32(emu, ED->dword[0], tmp8u); break;
+                        case 1: ED->dword[0] = ror32(emu, ED->dword[0], tmp8u); break;
+                        case 2: ED->dword[0] = rcl32(emu, ED->dword[0], tmp8u); break;
+                        case 3: ED->dword[0] = rcr32(emu, ED->dword[0], tmp8u); break;
+                        case 4:
+                        case 6: ED->dword[0] = shl32(emu, ED->dword[0], tmp8u); break;
+                        case 5: ED->dword[0] = shr32(emu, ED->dword[0], tmp8u); break;
+                        case 7: ED->dword[0] = sar32(emu, ED->dword[0], tmp8u); break;
+                    }
             }
             break;
 
@@ -504,16 +535,19 @@ x64emurun:
 
         case 0xC6:                      /* MOV Eb,Ib */
             nextop = F8;
-            GETEB;
+            GETEB(1);
             EB->byte[0] = F8;
             break;
         case 0xC7:                      /* MOV Ed,Id */
             nextop = F8;
-            GETED;
+            GETED(4);
             if(rex.w)
                 ED->q[0] = F32S64;
             else
-                ED->dword[0] = F32;
+                if(MODREG)
+                    ED->q[0] = F32;
+                else
+                    ED->dword[0] = F32;
             break;
 
         case 0xC9:                      /* LEAVE */
@@ -529,7 +563,7 @@ x64emurun:
         case 0xD1:                      /* GRP2 Ed,1 */
         case 0xD3:                      /* GRP2 Ed,CL */
             nextop = F8;
-            GETED;
+            GETED(0);
             tmp8u = (opcode==0xD1)?1:R_CL;
             if(rex.w) {
                 switch((nextop>>3)&7) {
@@ -543,16 +577,28 @@ x64emurun:
                     case 7: ED->q[0] = sar64(emu, ED->q[0], tmp8u); break;
                 }
             } else {
-                switch((nextop>>3)&7) {
-                    case 0: ED->dword[0] = rol32(emu, ED->dword[0], tmp8u); break;
-                    case 1: ED->dword[0] = ror32(emu, ED->dword[0], tmp8u); break;
-                    case 2: ED->dword[0] = rcl32(emu, ED->dword[0], tmp8u); break;
-                    case 3: ED->dword[0] = rcr32(emu, ED->dword[0], tmp8u); break;
-                    case 4: 
-                    case 6: ED->dword[0] = shl32(emu, ED->dword[0], tmp8u); break;
-                    case 5: ED->dword[0] = shr32(emu, ED->dword[0], tmp8u); break;
-                    case 7: ED->dword[0] = sar32(emu, ED->dword[0], tmp8u); break;
-                }
+                if(MODREG)
+                    switch((nextop>>3)&7) {
+                        case 0: ED->q[0] = rol32(emu, ED->dword[0], tmp8u); break;
+                        case 1: ED->q[0] = ror32(emu, ED->dword[0], tmp8u); break;
+                        case 2: ED->q[0] = rcl32(emu, ED->dword[0], tmp8u); break;
+                        case 3: ED->q[0] = rcr32(emu, ED->dword[0], tmp8u); break;
+                        case 4: 
+                        case 6: ED->q[0] = shl32(emu, ED->dword[0], tmp8u); break;
+                        case 5: ED->q[0] = shr32(emu, ED->dword[0], tmp8u); break;
+                        case 7: ED->q[0] = sar32(emu, ED->dword[0], tmp8u); break;
+                    }
+                else
+                    switch((nextop>>3)&7) {
+                        case 0: ED->dword[0] = rol32(emu, ED->dword[0], tmp8u); break;
+                        case 1: ED->dword[0] = ror32(emu, ED->dword[0], tmp8u); break;
+                        case 2: ED->dword[0] = rcl32(emu, ED->dword[0], tmp8u); break;
+                        case 3: ED->dword[0] = rcr32(emu, ED->dword[0], tmp8u); break;
+                        case 4: 
+                        case 6: ED->dword[0] = shl32(emu, ED->dword[0], tmp8u); break;
+                        case 5: ED->dword[0] = shr32(emu, ED->dword[0], tmp8u); break;
+                        case 7: ED->dword[0] = sar32(emu, ED->dword[0], tmp8u); break;
+                    }
             }
             break;
 
@@ -603,8 +649,9 @@ x64emurun:
 
         case 0xF6:                      /* GRP3 Eb(,Ib) */
             nextop = F8;
-            GETEB;
-            switch((nextop>>3)&7) {
+            tmp8u = (nextop>>3)&7;
+            GETEB((tmp8u<2)?1:0);
+            switch(tmp8u) {
                 case 0: 
                 case 1:                 /* TEST Eb,Ib */
                     tmp8u = F8;
@@ -632,9 +679,10 @@ x64emurun:
             break;
         case 0xF7:                      /* GRP3 Ed(,Id) */
             nextop = F8;
-            GETED;
+            tmp8u = (nextop>>3)&7;
+            GETED((tmp8u<2)?4:0);
             if(rex.w) {
-                switch((nextop>>3)&7) {
+                switch(tmp8u) {
                     case 0: 
                     case 1:                 /* TEST Ed,Id */
                         tmp64u = F32S64;
@@ -660,7 +708,7 @@ x64emurun:
                         break;
                 }
             } else {
-                switch((nextop>>3)&7) {
+                switch(tmp8u) {
                     case 0: 
                     case 1:                 /* TEST Ed,Id */
                         tmp32u = F32;
@@ -690,7 +738,7 @@ x64emurun:
 
         case 0xFF:                      /* GRP 5 Ed */
             nextop = F8;
-            GETED;
+            GETED(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
                     if(rex.w)

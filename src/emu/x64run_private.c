@@ -994,7 +994,7 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
 
 #endif
 
-reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m)
+reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m, uint8_t delta)
 {
     if (m<=7) {
         if(m==0x4) {
@@ -1004,7 +1004,7 @@ reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m)
             return (reg64_t*)base;
         } else if (m==0x5) { //disp32
             int32_t base = Fetch32s(emu);
-            return (reg64_t*)(base+R_RIP);
+            return (reg64_t*)(base+R_RIP+delta);
         }
         return (reg64_t*)(emu->regs[m+(rex.b<<3)].q[0]);
     } else {
@@ -1021,7 +1021,7 @@ reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m)
     }
 }
 
-reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v)
+reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta)
 {
     // rex ignored here
     uint8_t m = v&0xC7;    // filter Eb
@@ -1032,15 +1032,15 @@ reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v)
             int lowhigh = (m&4)>>2;
             return (reg64_t *)(((char*)(&emu->regs[(m&0x03)]))+lowhigh);  //?
         }
-    } else return GetECommon(emu, rex, m);
+    } else return GetECommon(emu, rex, m, delta);
 }
 
-reg64_t* GetEd(x64emu_t *emu, rex_t rex, uint8_t v)
+reg64_t* GetEd(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->regs[(m&0x07)+(rex.b<<3)];
-    } else return GetECommon(emu, rex, m);
+    } else return GetECommon(emu, rex, m, delta);
 }
 
 #define GetEw GetEd
@@ -1099,20 +1099,20 @@ reg64_t* GetEw16off(x64emu_t *emu, rex_t rex, uint8_t v, uintptr_t offset)
     }
 }
 
-mmx_regs_t* GetEm(x64emu_t *emu, rex_t rex, uint8_t v)
+mmx_regs_t* GetEm(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->mmx[m&0x07];
-    } else return (mmx_regs_t*)GetECommon(emu, rex, m);
+    } else return (mmx_regs_t*)GetECommon(emu, rex, m, delta);
 }
 
-sse_regs_t* GetEx(x64emu_t *emu, rex_t rex, uint8_t v)
+sse_regs_t* GetEx(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->xmm[(m&0x07)+(rex.b<<4)];
-    } else return (sse_regs_t*)GetECommon(emu, rex, m);
+    } else return (sse_regs_t*)GetECommon(emu, rex, m, delta);
 }
 
 

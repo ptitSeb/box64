@@ -52,7 +52,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
 
                 case 0xB1:                      /* CMPXCHG Ed,Gd */
                     nextop = F8;
-                    GETED;
+                    GETED(0);
                     GETGD;
 #ifdef DYNAREC
                     if(((uintptr_t)ED)&3) {
@@ -104,7 +104,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
 
                 case 0xC1:                      /* XADD Gd,Ed */
                     nextop = F8;
-                    GETED;
+                    GETED(0);
                     GETGD;
 #ifdef DYNAREC
                     if(((uintptr_t)ED)&3) {
@@ -147,7 +147,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
         case 0x81:              /* GRP Ed,Id */
         case 0x83:              /* GRP Ed,Ib */
             nextop = F8;
-            GETED;
+            GETED((opcode==0x81)?4:1);
             if(opcode==0x83) {
                 tmp64s = F8S;
                 tmp64u = (uint64_t)tmp64s;

@@ -228,7 +228,7 @@ int RunD9(x64emu_t *emu, rex_t rex)
         default:
         switch((nextop>>3)&7) {
             case 0:     /* FLD ST0, Ed float */
-                GETED;
+                GETED(0);
                 fpu_do_push(emu);
                 if(!(((uintptr_t)ED)&3))
                     ST0.d = *(float*)ED;
@@ -238,7 +238,7 @@ int RunD9(x64emu_t *emu, rex_t rex)
                 }
                 break;
             case 2:     /* FST Ed, ST0 */
-                GETED;
+                GETED(0);
                 if(!(((uintptr_t)ED)&3))
                     *(float*)ED = ST0.d;
                 else {
@@ -247,7 +247,7 @@ int RunD9(x64emu_t *emu, rex_t rex)
                 }
                 break;
             case 3:     /* FSTP Ed, ST0 */
-                GETED;
+                GETED(0);
                 if(!(((uintptr_t)ED)&3))
                     *(float*)ED = ST0.d;
                 else {
@@ -258,11 +258,11 @@ int RunD9(x64emu_t *emu, rex_t rex)
                 break;
             case 4:     /* FLDENV m */
                 // warning, incomplete
-                GETED;
+                GETED(0);
                 fpu_loadenv(emu, (char*)ED, 0);
                 break;
             case 5:     /* FLDCW Ew */
-                GETEW;
+                GETEW(0);
                 emu->cw = EW->word[0];
                 // do something with cw?
                 emu->round = (fpu_round_t)((emu->cw >> 10) & 3);
@@ -278,7 +278,7 @@ int RunD9(x64emu_t *emu, rex_t rex)
                 break;
             #endif
             case 7: /* FNSTCW Ew */
-                GETEW;
+                GETEW(0);
                 EW->word[0] = emu->cw;
                 break;
             default:

@@ -51,7 +51,7 @@ int Run66(x64emu_t *emu, rex_t rex)
     case 0x81:                              /* GRP3 Ew,Iw */
     case 0x83:                              /* GRP3 Ew,Ib */
         nextop = F8;
-        GETEW;
+        GETEW((opcode==0x81)?2:1);
         GETGW;
         if(opcode==0x81) 
             tmp16u = F16;
@@ -73,7 +73,7 @@ int Run66(x64emu_t *emu, rex_t rex)
 
     case 0x89:                              /* MOV Ew,Gw */
         nextop = F8;
-        GETEW;
+        GETEW(0);
         GETGW;
         EW->word[0] = GW->word[0];
         break;
@@ -83,7 +83,7 @@ int Run66(x64emu_t *emu, rex_t rex)
 
     case 0xC1:                              /* GRP2 Ew,Ib */
         nextop = F8;
-        GETEW;
+        GETEW(1);
         tmp8u = F8 /*& 0x1f*/;
         switch((nextop>>3)&7) {
             case 0: EW->word[0] = rol16(emu, EW->word[0], tmp8u); break;
@@ -99,7 +99,7 @@ int Run66(x64emu_t *emu, rex_t rex)
 
     case 0xC7:                              /* MOV Ew,Iw */
         nextop = F8;
-        GETEW;
+        GETEW(2);
         EW->word[0] = F16;
         break;
 

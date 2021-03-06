@@ -41,7 +41,7 @@ int RunF30F(x64emu_t *emu, rex_t rex)
 
     case 0x10:  /* MOVSS Gx Ex */
         nextop = F8;
-        GETEX;
+        GETEX(0);
         GETGX;
         GX->ud[0] = EX->ud[0];
         if((nextop&0xC0)!=0xC0) {
@@ -51,34 +51,34 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         break;
     case 0x11:  /* MOVSS Ex Gx */
         nextop = F8;
-        GETEX;
+        GETEX(0);
         GETGX;
         EX->ud[0] = GX->ud[0];
         break;
 
     case 0x2A:  /* CVTSI2SS Gx, Ed */
         nextop = F8;
-        GETED;
+        GETED(0);
         GETGX;
         GX->f[0] = ED->sdword[0];
         break;
 
     case 0x59:  /* MULSS Gx, Ex */
         nextop = F8;
-        GETEX;
+        GETEX(0);
         GETGX;
         GX->f[0] *= EX->f[0];
         break;
     case 0x5A:  /* CVTSS2SD Gx, Ex */
         nextop = F8;
-        GETEX;
+        GETEX(0);
         GETGX;
         GX->d[0] = EX->f[0];
         break;
 
     case 0x6F:  /* MOVDQU Gx, Ex */
         nextop = F8;
-        GETEX;
+        GETEX(0);
         GETGX;
         memcpy(GX, EX, 16);    // unaligned...
         break;

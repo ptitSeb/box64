@@ -40,12 +40,12 @@ int Run660F(x64emu_t *emu, rex_t rex)
 
     case 0x1F:                      /* NOP (multi-byte) */
         nextop = F8;
-        GETED;
+        GETED(0);
         break;
 
     case 0x6F:                      /* MOVDQA Gx,Ex */
         nextop = F8;
-        GETEX;
+        GETEX(0);
         GETGX;
         GX->q[0] = EX->q[0];
         GX->q[1] = EX->q[1];
@@ -53,7 +53,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
 
     case 0xEF:                      /* PXOR Gx,Ex */
         nextop = F8;
-        GETEX;
+        GETEX(0);
         GETGX;
         GX->q[0] ^= EX->q[0];
         GX->q[1] ^= EX->q[1];
