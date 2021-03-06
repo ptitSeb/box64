@@ -50,6 +50,7 @@ void dFp(x64emu_t *emu, uintptr_t fnc);
 void lFp(x64emu_t *emu, uintptr_t fnc);
 void LFv(x64emu_t *emu, uintptr_t fnc);
 void pFE(x64emu_t *emu, uintptr_t fnc);
+void pFL(x64emu_t *emu, uintptr_t fnc);
 void pFp(x64emu_t *emu, uintptr_t fnc);
 void vFEp(x64emu_t *emu, uintptr_t fnc);
 void vFpp(x64emu_t *emu, uintptr_t fnc);

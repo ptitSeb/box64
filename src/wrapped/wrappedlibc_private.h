@@ -1088,7 +1088,7 @@ GOM(__libc_start_main, iFEpippppp)
 //GOW(madvise, 
 //GOW(makecontext, 
 //GOW(mallinfo, 
-//GO(malloc, 
+GO(malloc, pFL) // need to wrap to clear allocated memory?
 //GO(malloc_get_state, 
 //GOW(malloc_info, 
 //GO(malloc_set_state, 
