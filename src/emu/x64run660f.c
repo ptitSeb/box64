@@ -26,7 +26,7 @@
 
 #include "modrm.h"
 
-int RunF20F(x64emu_t *emu, rex_t rex)
+int Run660F(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -38,21 +38,12 @@ int RunF20F(x64emu_t *emu, rex_t rex)
 
     switch(opcode) {
 
-    case 0x10:  /* MOVSD Gx, Ex */
+    case 0xEF:  /* PXOR Gx,Ex */
         nextop = F8;
         GETEX;
         GETGX;
-        GX->q[0] = EX->q[0];
-        if((nextop&0xC0)!=0xC0) {
-            // EX is not a register
-            GX->q[1] = 0;
-        }
-        break;
-    case 0x11:  /* MOVSD Ex, Gx */
-        nextop = F8;
-        GETEX;
-        GETGX;
-        EX->q[0] = GX->q[0];
+        GX->q[0] ^= EX->q[0];
+        GX->q[1] ^= EX->q[1];
         break;
 
     default:

@@ -35,8 +35,17 @@ int Run66(x64emu_t *emu, rex_t rex)
     reg64_t *oped, *opgd;
 
     opcode = F8;
+    // REX prefix before the F0 are ignored
+    rex.rex = 0;
+    while(opcode>=0x40 && opcode<=0x4f) {
+        rex.rex = opcode;
+        opcode = F8;
+    }
 
     switch(opcode) {
+
+    case 0x0F:                              /* more opcdes */
+        return Run660F(emu, rex);
 
     case 0xC1:                              /* GRP2 Ew,Ib */
         nextop = F8;
