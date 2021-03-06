@@ -78,6 +78,9 @@ int Run66(x64emu_t *emu, rex_t rex)
         EW->word[0] = GW->word[0];
         break;
 
+    case 0x90:                              /* NOP */
+        break;
+
     case 0xC1:                              /* GRP2 Ew,Ib */
         nextop = F8;
         GETEW;

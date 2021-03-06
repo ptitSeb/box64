@@ -354,10 +354,10 @@ int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t**
 {
     if(!h)
         return 0;
-    Elf64_Rel * rel = (Elf64_Rel *)(h->rel + h->delta);
+    Elf64_Rela * rel = (Elf64_Rela *)(h->rela + h->delta);
     if(!h->rel)
         return 0;
-    int cnt = h->relsz / h->relent;
+    int cnt = h->relasz / h->relaent;
     for (int i=0; i<cnt; ++i) {
         int t = ELF64_R_TYPE(rel[i].r_info);
         Elf64_Sym *sym = &h->DynSym[ELF64_R_SYM(rel[i].r_info)];
@@ -584,7 +584,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     AddWeakSymbol(GetGlobalData(maplib), symname, offs, end-offs+1);
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    if (GetGlobalSymbolStartEnd(maplib, symname, &globoffs, &globend)) {
+                    if (GetGlobalNoWeakSymbolStartEnd(maplib, symname, &globoffs, &globend)) {
                         offs = globoffs;
                         end = globend;
                     }
@@ -614,7 +614,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
     //                    return -1;
                     } else {
                         if(p) {
-                            printf_log(LOG_DUMP, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
+                            printf_log(LOG_DUMP, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(offs+rela[i].r_addend));
                             *p = offs + rela[i].r_addend;
                         } else {
                             printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
@@ -630,8 +630,8 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
 //                    return -1;
                 } else {
-                    printf_log(LOG_DUMP, "Apply %s R_X86_64_64 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(offs+*(uint64_t*)p));
-                    *p += offs;
+                    printf_log(LOG_DUMP, "Apply %s R_X86_64_64 @%p with sym=%s addend=0x%lx (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, rela[i].r_addend, *(void**)p, (void*)(offs+rela[i].r_addend+*(uint64_t*)p));
+                    *p += offs+rela[i].r_addend;
                 }
                 break;
             case R_X86_64_DTPMOD64:
