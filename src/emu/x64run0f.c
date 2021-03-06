@@ -44,6 +44,13 @@ int Run0F(x64emu_t *emu, rex_t rex)
             x64Syscall(emu);
             break;
 
+        case 0x11:                      /* MOVUPS Ex,Gx */
+            nextop = F8;
+            GETEX;
+            GETGX;
+            memcpy(EX, GX, 16); // unaligned, so carreful
+            break;
+
         case 0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
             GETED;
