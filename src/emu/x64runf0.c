@@ -32,6 +32,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
     uint8_t opcode;
     uint8_t nextop;
     uint32_t tmp32u;
+    int64_t tmp64s;
     uint64_t tmp64u;
     reg64_t *oped, *opgd;
 
@@ -140,6 +141,55 @@ int RunF0(x64emu_t *emu, rex_t rex)
             }
             break;
 
+        case 0x81:              /* GRP Ed,Id */
+        case 0x83:              /* GRP Ed,Ib */
+            nextop = F8;
+            GETED;
+            if(opcode==0x83) {
+                tmp64s = F8S;
+                tmp64u = (uint64_t)tmp64s;
+            } else
+                tmp64u = F32S64;
+#ifdef DYNAREC
+            switch((nextop>>3)&7) {
+                case 0: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, add32(emu, tmp32u2, tmp32u))); break;
+                case 1: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED,  or32(emu, tmp32u2, tmp32u))); break;
+                case 2: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, adc32(emu, tmp32u2, tmp32u))); break;
+                case 3: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, sbb32(emu, tmp32u2, tmp32u))); break;
+                case 4: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, and32(emu, tmp32u2, tmp32u))); break;
+                case 5: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, sub32(emu, tmp32u2, tmp32u))); break;
+                case 6: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, xor32(emu, tmp32u2, tmp32u))); break;
+                case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
+            }
+#else
+            pthread_mutex_lock(&emu->context->mutex_lock);
+            if(rex.w) {
+                switch((nextop>>3)&7) {
+                    case 0: ED->q[0] = add64(emu, ED->q[0], tmp64u); break;
+                    case 1: ED->q[0] =  or64(emu, ED->q[0], tmp64u); break;
+                    case 2: ED->q[0] = adc64(emu, ED->q[0], tmp64u); break;
+                    case 3: ED->q[0] = sbb64(emu, ED->q[0], tmp64u); break;
+                    case 4: ED->q[0] = and64(emu, ED->q[0], tmp64u); break;
+                    case 5: ED->q[0] = sub64(emu, ED->q[0], tmp64u); break;
+                    case 6: ED->q[0] = xor64(emu, ED->q[0], tmp64u); break;
+                    case 7:            cmp64(emu, ED->q[0], tmp64u); break;
+                }
+            } else {
+                switch((nextop>>3)&7) {
+                    case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp64u&0xffffffff); break;
+                    case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp64u&0xffffffff); break;
+                    case 2: ED->dword[0] = adc32(emu, ED->dword[0], tmp64u&0xffffffff); break;
+                    case 3: ED->dword[0] = sbb32(emu, ED->dword[0], tmp64u&0xffffffff); break;
+                    case 4: ED->dword[0] = and32(emu, ED->dword[0], tmp64u&0xffffffff); break;
+                    case 5: ED->dword[0] = sub32(emu, ED->dword[0], tmp64u&0xffffffff); break;
+                    case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp64u&0xffffffff); break;
+                    case 7:                cmp32(emu, ED->dword[0], tmp64u&0xffffffff); break;
+                }
+            }
+            pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+            break;
+            
         default:
             return 1;
     }
