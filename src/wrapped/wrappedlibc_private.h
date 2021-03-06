@@ -1192,9 +1192,9 @@ GOW(newlocale, pFipp)
 //GOW(ngettext, 
 //GO(nice, 
 //DATAB(_nl_domain_bindings, 
-//GO(nl_langinfo, 
-//GO(__nl_langinfo_l, 
-//GOW(nl_langinfo_l, 
+GO(nl_langinfo, pFu)
+GO(__nl_langinfo_l, pFup)
+GOW(nl_langinfo_l, pFup)
 //DATAB(_nl_msg_cat_cntr, 
 //GO(nrand48, 
 //GOW(nrand48_r, 
@@ -1978,8 +1978,8 @@ GOW(tzset, vFv)
 //GOW(updwtmp, 
 //GO(updwtmpx, 
 //GO(uselib, 
-//GO(__uselocale, 
-//GOW(uselocale, 
+GO(__uselocale, pFp)
+GOW(uselocale, pFp)
 //GO(user2netname, 
 GO(usleep, iFu)
 //GO(ustat, 
