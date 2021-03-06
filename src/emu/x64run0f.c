@@ -84,6 +84,23 @@ int Run0F(x64emu_t *emu, rex_t rex)
             my_cpuid(emu, tmp32u);
             break;
 
+        case 0xAE:                      /* Grp Ed (SSE) */
+            nextop = F8;
+            if((nextop&0xF8)==0xE8) {
+                return 0;                   /* LFENCE */
+            }
+            if((nextop&0xF8)==0xF0) {
+                return 0;                   /* MFENCE */
+            }
+            if((nextop&0xF8)==0xF8) {
+                return 0;                   /* SFENCE */
+            }
+            GETED;
+            switch((nextop>>3)&7) {
+                default:
+                    return 1;
+            }
+            break;
         case 0xAF:                      /* IMUL Gd,Ed */
             nextop = F8;
             GETED;
