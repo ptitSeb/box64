@@ -18,7 +18,7 @@
 #include "x64trace.h"
 #include "x87emu_private.h"
 #include "box64context.h"
-//#include "my_cpuid.h"
+#include "my_cpuid.h"
 #include "bridge.h"
 //#include "signals.h"
 #ifdef DYNAREC
@@ -32,6 +32,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
     uint8_t opcode;
     uint8_t nextop;
     int32_t tmp32s;
+    uint32_t tmp32u;
     reg64_t *oped, *opgd;
 
     opcode = F8;
@@ -60,6 +61,11 @@ int Run0F(x64emu_t *emu, rex_t rex)
             , tmp32s = F32S; CHECK_FLAGS(emu);
             , R_RIP += tmp32s;
         )                               /* 0x80 -> 0x8F Jxx */
+
+        case 0xA2:                      /* CPUID */
+            tmp32u = R_EAX;
+            my_cpuid(emu, tmp32u);
+            break;
 
         case 0xAF:                      /* IMUL Gd,Ed */
             nextop = F8;
