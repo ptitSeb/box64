@@ -30,7 +30,6 @@ int RunF20F(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
-    int32_t tmp32s;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
 
@@ -53,6 +52,40 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         GETEX(0);
         GETGX;
         EX->q[0] = GX->q[0];
+        break;
+
+    case 0x2A:  /* CVTSI2SD Gx, Ed */
+        nextop = F8;
+        GETED(0);
+        GETGX;
+        if(rex.w)
+            GX->d[0] = ED->sq[0];
+        else
+            GX->d[0] = ED->sdword[0];
+        break;
+
+    case 0x2C:  /* CVTTSD2SI Gd, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGD;
+        if(rex.w)
+            GD->sq[0] = EX->d[0];
+        else
+            GD->sdword[0] = EX->d[0];
+        break;
+
+    case 0x59:  /* MULSD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->d[0] *= EX->d[0];
+        break;
+
+    case 0x5E:  /* DIVSD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->d[0] /= EX->d[0];
         break;
 
     default:

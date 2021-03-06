@@ -60,7 +60,10 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETED(0);
         GETGX;
-        GX->f[0] = ED->sdword[0];
+        if(rex.w)
+            GX->f[0] = ED->sq[0];
+        else
+            GX->f[0] = ED->sdword[0];
         break;
 
     case 0x59:  /* MULSS Gx, Ex */
