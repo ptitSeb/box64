@@ -90,8 +90,12 @@ x64emurun:
             GETGD;                                          \
             if(rex.w)                                       \
                 ED->q[0] = OP##64(emu, ED->q[0], GD->q[0]); \
-            else                                            \
-                ED->dword[0] = OP##32(emu, ED->dword[0], GD->dword[0]); \
+            else {                                          \
+                if((nextop&0xC0)==0xC0)                     \
+                    ED->q[0] = OP##32(emu, ED->dword[0], GD->dword[0]);     \
+                else                                                        \
+                    ED->dword[0] = OP##32(emu, ED->dword[0], GD->dword[0]); \
+            }                                               \
             break;                                          \
         case B+2:                                           \
             nextop = F8;                                    \
@@ -106,7 +110,7 @@ x64emurun:
             if(rex.w)                                       \
                 GD->q[0] = OP##64(emu, GD->q[0], ED->q[0]); \
             else                                            \
-                GD->dword[0] = OP##32(emu, GD->dword[0], ED->dword[0]); \
+                GD->q[0] = OP##32(emu, GD->dword[0], ED->dword[0]); \
             break;                                          \
         case B+4:                                           \
             R_AL = OP##8(emu, R_AL, F8);                    \
@@ -115,7 +119,7 @@ x64emurun:
             if(rex.w)                                       \
                 R_RAX = OP##64(emu, R_RAX, F32S64);         \
             else                                            \
-                R_EAX = OP##32(emu, R_EAX, F32);            \
+                R_RAX = OP##32(emu, R_EAX, F32);            \
             break;
 
         GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
