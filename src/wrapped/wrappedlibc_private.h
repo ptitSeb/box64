@@ -2131,9 +2131,9 @@ GO(__wctomb_chk, iFpuL)
 //GOW(wctrans, 
 //GO(__wctrans_l, 
 //GOW(wctrans_l, 
-//GOW(wctype, 
-//GO(__wctype_l, 
-//GOW(wctype_l, 
+GOW(wctype, uFp)
+GOW(wctype_l, uFpp)
+GO(__wctype_l, uFpp)
 //GO(wcwidth, 
 //GOW(wmemcpy, 
 //GO(__wmemcpy_chk, 
