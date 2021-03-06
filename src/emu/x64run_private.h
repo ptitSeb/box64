@@ -231,6 +231,7 @@ int Run66(x64emu_t *emu, rex_t rex);
 //int Run67(x64emu_t *emu, rex_t rex);
 int RunD9(x64emu_t *emu, rex_t rex);
 int RunDB(x64emu_t *emu, rex_t rex);
+int RunF0(x64emu_t *emu, rex_t rex);
 int RunF20F(x64emu_t *emu, rex_t rex);
 int RunF30F(x64emu_t *emu, rex_t rex);
 //void Run660F(x64emu_t *emu);
@@ -239,7 +240,6 @@ int RunF30F(x64emu_t *emu, rex_t rex);
 //void RunGS(x64emu_t *emu);
 //void RunFS(x64emu_t *emu);
 //void RunFS66(x64emu_t *emu, uintptr_t tlsdata);
-//void RunLock(x64emu_t *emu);
 //void RunLock66(x64emu_t *emu);
 
 void x64Syscall(x64emu_t *emu);

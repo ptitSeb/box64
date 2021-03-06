@@ -326,6 +326,44 @@ x64emurun:
                 test32(emu, ED->dword[0], GD->dword[0]);
             break;
 
+        case 0x87:                      /* XCHG Ed,Gd */
+            nextop = F8;
+#ifdef DYNAREC
+            GET_ED;
+            if((nextop&0xC0)==0xC0) {
+                tmp32u = GD.dword[0];
+                GD.dword[0] = ED->dword[0];
+                ED->dword[0] = tmp32u;
+            } else {
+                if(((uintptr_t)ED)&3)
+                {
+                    // not aligned, dont't try to "LOCK"
+                    tmp32u = ED->dword[0];
+                    ED->dword[0] = GD.dword[0];
+                    GD.dword[0] = tmp32u;
+                } else {
+                    // XCHG is supposed to automaticaly LOCK memory bus
+                    GD.dword[0] = arm_lock_xchg(ED, GD.dword[0]);
+                }
+            }
+#else
+            GETED;
+            GETGD;
+            if((nextop&0xC0)!=0xC0)
+                pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
+            if(rex.w) {
+                tmp64u = GD->q[0];
+                GD->q[0] = ED->q[0];
+                ED->q[0] = tmp64u;
+            } else {
+                tmp32u = GD->dword[0];
+                GD->dword[0] = ED->dword[0];
+                ED->dword[0] = tmp32u;
+            }
+            if((nextop&0xC0)!=0xC0)
+                pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+            break;
         case 0x88:                      /* MOV Eb,Gb */
             nextop = F8;
             GETEB;
