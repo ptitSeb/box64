@@ -520,6 +520,15 @@ x64emurun:
             STEP
             break;
 
+        case 0xF0:                      /* LOCK prefix */
+            if(RunF0(emu, rex)) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit)
+                goto fini;
+            break;
+
         case 0xF6:                      /* GRP3 Eb(,Ib) */
             nextop = F8;
             GETEB;
