@@ -4,7 +4,7 @@ GOM(dladdr, iFEpp)
 // dladdr1
 GOM(dlclose, iFEp)
 GOM(dlerror, pFE)
-DATAB(_dlfcn_hook, 4)
+DATAB(_dlfcn_hook, 8)
 GOM(dlinfo, iFEpip)
 GOM(dlmopen, pFEppi)
 GOM(dlopen, pFEpi)

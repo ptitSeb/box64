@@ -78,9 +78,9 @@ GO(pthread_equal, iFLL)
 //GOM(__pthread_initialize, vFv)  // doesn't exist anymore...
 // __pthread_initialize_minimal
 GO(pthread_join, iFLp)
-//GOM(__pthread_key_create, iFEpp)
-//GOM(pthread_key_create, iFEpp)
-//GO(pthread_key_delete, iFu)
+GOM(__pthread_key_create, iFEpp)
+GOM(pthread_key_create, iFEpp)
+GO(pthread_key_delete, iFu)
 //GO(pthread_kill, iFEpi)
 // pthread_kill_other_threads_np
 //GO(__pthread_mutexattr_destroy, iFp)

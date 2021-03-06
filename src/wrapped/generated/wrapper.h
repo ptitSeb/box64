@@ -34,10 +34,18 @@ void vFE(x64emu_t *emu, uintptr_t fnc);
 void vFv(x64emu_t *emu, uintptr_t fnc);
 void vFp(x64emu_t *emu, uintptr_t fnc);
 void iFE(x64emu_t *emu, uintptr_t fnc);
+void iFv(x64emu_t *emu, uintptr_t fnc);
 void iFi(x64emu_t *emu, uintptr_t fnc);
 void iFu(x64emu_t *emu, uintptr_t fnc);
+void iFf(x64emu_t *emu, uintptr_t fnc);
+void iFd(x64emu_t *emu, uintptr_t fnc);
 void iFp(x64emu_t *emu, uintptr_t fnc);
+void IFf(x64emu_t *emu, uintptr_t fnc);
+void IFd(x64emu_t *emu, uintptr_t fnc);
 void IFp(x64emu_t *emu, uintptr_t fnc);
+void UFV(x64emu_t *emu, uintptr_t fnc);
+void fFf(x64emu_t *emu, uintptr_t fnc);
+void dFd(x64emu_t *emu, uintptr_t fnc);
 void dFp(x64emu_t *emu, uintptr_t fnc);
 void lFp(x64emu_t *emu, uintptr_t fnc);
 void LFv(x64emu_t *emu, uintptr_t fnc);
@@ -50,12 +58,28 @@ void iFip(x64emu_t *emu, uintptr_t fnc);
 void iFup(x64emu_t *emu, uintptr_t fnc);
 void iFLL(x64emu_t *emu, uintptr_t fnc);
 void iFLp(x64emu_t *emu, uintptr_t fnc);
+void iFpi(x64emu_t *emu, uintptr_t fnc);
+void fFif(x64emu_t *emu, uintptr_t fnc);
+void fFfi(x64emu_t *emu, uintptr_t fnc);
+void fFff(x64emu_t *emu, uintptr_t fnc);
+void fFfp(x64emu_t *emu, uintptr_t fnc);
+void dFid(x64emu_t *emu, uintptr_t fnc);
+void dFdi(x64emu_t *emu, uintptr_t fnc);
+void dFdd(x64emu_t *emu, uintptr_t fnc);
+void dFdp(x64emu_t *emu, uintptr_t fnc);
 void pFEp(x64emu_t *emu, uintptr_t fnc);
 void pFLL(x64emu_t *emu, uintptr_t fnc);
+void pFpV(x64emu_t *emu, uintptr_t fnc);
 void vFEpu(x64emu_t *emu, uintptr_t fnc);
+void vFfpp(x64emu_t *emu, uintptr_t fnc);
+void vFdpp(x64emu_t *emu, uintptr_t fnc);
 void iFEpp(x64emu_t *emu, uintptr_t fnc);
 void iFEpV(x64emu_t *emu, uintptr_t fnc);
 void iFpiu(x64emu_t *emu, uintptr_t fnc);
+void fFfff(x64emu_t *emu, uintptr_t fnc);
+void fFffp(x64emu_t *emu, uintptr_t fnc);
+void dFddd(x64emu_t *emu, uintptr_t fnc);
+void dFddp(x64emu_t *emu, uintptr_t fnc);
 void pFEpi(x64emu_t *emu, uintptr_t fnc);
 void pFEpp(x64emu_t *emu, uintptr_t fnc);
 void vFEpup(x64emu_t *emu, uintptr_t fnc);
@@ -68,6 +92,18 @@ void pFEppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpppp(x64emu_t *emu, uintptr_t fnc);
 void iFipppi(x64emu_t *emu, uintptr_t fnc);
 void iFEpippppp(x64emu_t *emu, uintptr_t fnc);
+
+#if defined(HAVE_LD80BITS)
+void DFD(x64emu_t *emu, uintptr_t fnc);
+void DFDD(x64emu_t *emu, uintptr_t fnc);
+void DFDp(x64emu_t *emu, uintptr_t fnc);
+#endif
+
+#if !defined(HAVE_LD80BITS)
+void KFK(x64emu_t *emu, uintptr_t fnc);
+void KFKK(x64emu_t *emu, uintptr_t fnc);
+void KFKp(x64emu_t *emu, uintptr_t fnc);
+#endif
 
 void iFEv(x64emu_t *emu, uintptr_t fnc);
 void pFEv(x64emu_t *emu, uintptr_t fnc);

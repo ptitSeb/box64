@@ -135,6 +135,7 @@ set(ELFLOADER_SRC
 
 set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibc.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibdl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpthread.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibrt.c"

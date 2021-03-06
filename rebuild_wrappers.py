@@ -454,8 +454,8 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"",            # W
 			"",            # u
 			"",            # U
-			"emu->xmm[{p}].f[0]), ",               # f
-			"emu->xmm[{p}].d[0]), ",              # d
+			"emu->xmm[{p}].f[0], ",               # f
+			"emu->xmm[{p}].d[0], ",              # d
 			"",         # D
 			"",         # K
 			"",            # l

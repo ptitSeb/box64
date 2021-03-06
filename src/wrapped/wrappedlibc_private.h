@@ -1713,9 +1713,9 @@ GOM(__stack_chk_fail, vFE)
 //GOW(statvfs, 
 //GOW(statvfs64, 
 //GO(statx, 
-//DATA(stderr, 
-//DATA(stdin, 
-//DATA(stdout, 
+DATA(stderr, 8)
+DATA(stdin, 8)
+DATA(stdout, 8)
 //GOW(step, 
 //GO(stime, 
 //GO(__stpcpy_chk, 
@@ -1957,7 +1957,7 @@ GOM(syscall, iFEv)
 //GO(ttyslot, 
 //GO(__twalk, 
 //GOW(twalk, 
-DATA(__tzname, 4)
+DATA(__tzname, 8)
 GOW(tzset, vFv)
 //GO(ualarm, 
 //GO(__uflow, 

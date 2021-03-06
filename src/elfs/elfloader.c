@@ -562,7 +562,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     AddWeakSymbol(GetGlobalData(maplib), symname, offs, end-offs+1);
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    if (GetGlobalNoWeakSymbolStartEnd(maplib, symname, &globoffs, &globend)) {
+                    if (GetGlobalSymbolStartEnd(maplib, symname, &globoffs, &globend)) {
                         offs = globoffs;
                         end = globend;
                     }
