@@ -30,100 +30,132 @@
 #define EX  opex
 #define GX  opgx
 
-#define GOCOND(BASE, PREFIX, CONDITIONAL)       \
+#define GOCOND(BASE, PREFIX, COND, NOTCOND)     \
     case BASE+0x0:                              \
         PREFIX                                  \
         if(ACCESS_FLAG(F_OF)) {                 \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0x1:                              \
         PREFIX                                  \
         if(!ACCESS_FLAG(F_OF)) {                \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0x2:                              \
         PREFIX                                  \
         if(ACCESS_FLAG(F_CF)) {                 \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0x3:                              \
         PREFIX                                  \
         if(!ACCESS_FLAG(F_CF)) {                \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0x4:                              \
         PREFIX                                  \
         if(ACCESS_FLAG(F_ZF)) {                 \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0x5:                              \
         PREFIX                                  \
         if(!ACCESS_FLAG(F_ZF)) {                \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0x6:                              \
         PREFIX                                  \
         if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF))) {  \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0x7:                              \
         PREFIX                                  \
         if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF))) { \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0x8:                              \
         PREFIX                                  \
         if(ACCESS_FLAG(F_SF)) {                 \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0x9:                              \
         PREFIX                                  \
         if(!ACCESS_FLAG(F_SF)) {                \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0xA:                              \
         PREFIX                                  \
         if(ACCESS_FLAG(F_PF)) {                 \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0xB:                              \
         PREFIX                                  \
         if(!ACCESS_FLAG(F_PF)) {                \
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0xC:                              \
         PREFIX                                  \
         if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF)) {\
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0xD:                              \
         PREFIX                                  \
         if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)) {\
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0xE:                              \
         PREFIX                                  \
         if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))) {\
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;                                  \
     case BASE+0xF:                              \
         PREFIX                                  \
         if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))) {\
-            CONDITIONAL                         \
+            COND                                \
+        } else {                                \
+            NOTCOND                             \
         }                                       \
         break;

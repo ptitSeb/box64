@@ -257,6 +257,7 @@ x64emurun:
         GOCOND(0x70
             ,   tmp8s = F8S; CHECK_FLAGS(emu);
             ,   R_RIP += tmp8s;
+            ,
             )                           /* Jxx Ib */
         
         case 0x80:                      /* GRP Eb,Ib */

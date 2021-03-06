@@ -64,12 +64,20 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETGD;
             CHECK_FLAGS(emu);
             , if(rex.w) {GD->q[0] = ED->q[0]; } else {GD->dword[0] = ED->dword[0];}
+            ,
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
             , R_RIP += tmp32s;
+            ,
         )                               /* 0x80 -> 0x8F Jxx */
+        GOCOND(0x90
+            , nextop = F8; CHECK_FLAGS(emu);
+            GETEB;
+            , EB->byte[0]=1;
+            , EB->byte[0]=0;
+        )                               /* 0x90 -> 0x9F SETxx Eb */
 
         case 0xA2:                      /* CPUID */
             tmp32u = R_EAX;
