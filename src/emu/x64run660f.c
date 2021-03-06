@@ -38,7 +38,12 @@ int Run660F(x64emu_t *emu, rex_t rex)
 
     switch(opcode) {
 
-    case 0xEF:  /* PXOR Gx,Ex */
+    case 0x1F:                      /* NOP (multi-byte) */
+        nextop = F8;
+        GETED;
+        break;
+
+    case 0xEF:                      /* PXOR Gx,Ex */
         nextop = F8;
         GETEX;
         GETGX;
