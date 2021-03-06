@@ -291,14 +291,14 @@ x64emurun:
             if(rex.w) {
                 tmp64u = (uint64_t)tmp32s;
                 switch((nextop>>3)&7) {
-                    case 0: ED->dword[0] = add64(emu, ED->dword[0], tmp64u); break;
-                    case 1: ED->dword[0] =  or64(emu, ED->dword[0], tmp64u); break;
-                    case 2: ED->dword[0] = adc64(emu, ED->dword[0], tmp64u); break;
-                    case 3: ED->dword[0] = sbb64(emu, ED->dword[0], tmp64u); break;
-                    case 4: ED->dword[0] = and64(emu, ED->dword[0], tmp64u); break;
-                    case 5: ED->dword[0] = sub64(emu, ED->dword[0], tmp64u); break;
-                    case 6: ED->dword[0] = xor64(emu, ED->dword[0], tmp64u); break;
-                    case 7:                cmp64(emu, ED->dword[0], tmp64u); break;
+                    case 0: ED->q[0] = add64(emu, ED->q[0], tmp64u); break;
+                    case 1: ED->q[0] =  or64(emu, ED->q[0], tmp64u); break;
+                    case 2: ED->q[0] = adc64(emu, ED->q[0], tmp64u); break;
+                    case 3: ED->q[0] = sbb64(emu, ED->q[0], tmp64u); break;
+                    case 4: ED->q[0] = and64(emu, ED->q[0], tmp64u); break;
+                    case 5: ED->q[0] = sub64(emu, ED->q[0], tmp64u); break;
+                    case 6: ED->q[0] = xor64(emu, ED->q[0], tmp64u); break;
+                    case 7:            cmp64(emu, ED->q[0], tmp64u); break;
                 }
             } else {
                 tmp32u = (uint32_t)tmp32s;
