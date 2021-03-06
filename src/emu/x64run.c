@@ -628,6 +628,15 @@ x64emurun:
                 goto fini;
             break;
 
+        case 0xDF:                      /* x87 opcodes */
+            if(RunDF(emu, rex)) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit)
+                goto fini;
+            break;
+
         case 0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative
             Push(emu, R_RIP);

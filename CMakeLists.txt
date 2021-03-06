@@ -115,6 +115,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/emu/x64run660f.c"
     "${BOX64_ROOT}/src/emu/x64rund9.c"
     "${BOX64_ROOT}/src/emu/x64rundb.c"
+    "${BOX64_ROOT}/src/emu/x64rundf.c"
     "${BOX64_ROOT}/src/emu/x64runf0.c"
     "${BOX64_ROOT}/src/emu/x64runf20f.c"
     "${BOX64_ROOT}/src/emu/x64runf30f.c"
