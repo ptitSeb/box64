@@ -449,7 +449,7 @@ void setupTraceInit(box64context_t* context)
             if(trace_start || trace_end)
                 SetTraceEmu(trace_start, trace_end);
         } else {
-            if (0/*GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &trace_start, &trace_end)*/) {
+            if (GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &trace_start, &trace_end)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
