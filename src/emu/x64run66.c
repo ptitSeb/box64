@@ -47,6 +47,13 @@ int Run66(x64emu_t *emu, rex_t rex)
     case 0x0F:                              /* more opcdes */
         return Run660F(emu, rex);
 
+    case 0x89:                              /* MOV Ew,Gw */
+        nextop = F8;
+        GETEW;
+        GETGW;
+        EW->word[0] = GW->word[0];
+        break;
+
     case 0xC1:                              /* GRP2 Ew,Ib */
         nextop = F8;
         GETEW;
