@@ -83,6 +83,7 @@ void dFddd(x64emu_t *emu, uintptr_t fnc);
 void dFddp(x64emu_t *emu, uintptr_t fnc);
 void pFEpi(x64emu_t *emu, uintptr_t fnc);
 void pFEpp(x64emu_t *emu, uintptr_t fnc);
+void pFipp(x64emu_t *emu, uintptr_t fnc);
 void vFEpup(x64emu_t *emu, uintptr_t fnc);
 void iFEupp(x64emu_t *emu, uintptr_t fnc);
 void iFEpip(x64emu_t *emu, uintptr_t fnc);

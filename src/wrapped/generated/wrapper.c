@@ -122,6 +122,7 @@ typedef double (*dFddd_t)(double, double, double);
 typedef double (*dFddp_t)(double, double, void*);
 typedef void* (*pFEpi_t)(x64emu_t*, void*, int32_t);
 typedef void* (*pFEpp_t)(x64emu_t*, void*, void*);
+typedef void* (*pFipp_t)(int32_t, void*, void*);
 typedef void (*vFEpup_t)(x64emu_t*, void*, uint32_t, void*);
 typedef int32_t (*iFEupp_t)(x64emu_t*, uint32_t, void*, void*);
 typedef int32_t (*iFEpip_t)(x64emu_t*, void*, int32_t, void*);
@@ -198,6 +199,7 @@ void dFddd(x64emu_t *emu, uintptr_t fcn) { dFddd_t fn = (dFddd_t)fcn; emu->xmm[0
 void dFddp(x64emu_t *emu, uintptr_t fcn) { dFddp_t fn = (dFddp_t)fcn; emu->xmm[0].d[0]=fn(emu->xmm[0].d[0], emu->xmm[1].d[0], (void*)R_RDI); }
 void pFEpi(x64emu_t *emu, uintptr_t fcn) { pFEpi_t fn = (pFEpi_t)fcn; R_RAX=(uintptr_t)fn(emu, (void*)R_RDI, (int32_t)R_RSI); }
 void pFEpp(x64emu_t *emu, uintptr_t fcn) { pFEpp_t fn = (pFEpp_t)fcn; R_RAX=(uintptr_t)fn(emu, (void*)R_RDI, (void*)R_RSI); }
+void pFipp(x64emu_t *emu, uintptr_t fcn) { pFipp_t fn = (pFipp_t)fcn; R_RAX=(uintptr_t)fn((int32_t)R_RDI, (void*)R_RSI, (void*)R_RDX); }
 void vFEpup(x64emu_t *emu, uintptr_t fcn) { vFEpup_t fn = (vFEpup_t)fcn; fn(emu, (void*)R_RDI, (uint32_t)R_RSI, (void*)R_RDX); }
 void iFEupp(x64emu_t *emu, uintptr_t fcn) { iFEupp_t fn = (iFEupp_t)fcn; R_RAX=fn(emu, (uint32_t)R_RDI, (void*)R_RSI, (void*)R_RDX); }
 void iFEpip(x64emu_t *emu, uintptr_t fcn) { iFEpip_t fn = (iFEpip_t)fcn; R_RAX=fn(emu, (void*)R_RDI, (int32_t)R_RSI, (void*)R_RDX); }

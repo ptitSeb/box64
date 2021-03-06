@@ -1182,8 +1182,8 @@ GO(name_to_handle_at, iFipppi)
 //GO(__netlink_assert_response, 
 //GO(netname2host, 
 //GO(netname2user, 
-//GO(__newlocale, 
-//GOW(newlocale, 
+GO(__newlocale, pFipp)
+GOW(newlocale, pFipp)
 //GO(nfsservctl, 
 //GO(nftw, 
 //GO(nftw, 
