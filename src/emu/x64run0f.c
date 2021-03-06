@@ -34,6 +34,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
     int32_t tmp32s;
     uint32_t tmp32u;
     reg64_t *oped, *opgd;
+    sse_regs_t *opex, *opgx;
 
     opcode = F8;
 
@@ -47,7 +48,15 @@ int Run0F(x64emu_t *emu, rex_t rex)
             nextop = F8;
             GETED;
             break;
-        
+
+        case 0x29:                      /* MOVAPS Ex,Gx */
+            nextop = F8;
+            GETEX;
+            GETGX;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+            break;
+
 
         GOCOND(0x40
             , nextop = F8;
