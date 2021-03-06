@@ -169,7 +169,7 @@ typedef struct box64context_s {
     int                 atfork_sz;
     int                 atfork_cap;
 
-    uint8_t             canary[4];
+    uint8_t             canary[8];
 
     uintptr_t           signals[MAX_SIGNAL];
     uintptr_t           restorer[MAX_SIGNAL];

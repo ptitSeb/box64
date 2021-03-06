@@ -18,7 +18,7 @@ extern int box64_novulkan;  // disabling the use of wrapped vulkan
 extern uintptr_t   trace_start, trace_end;
 extern char* trace_func;
 extern uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (self modifying code)
-extern uint32_t default_fs;
+extern uint32_t default_gs;
 extern int jit_gdb; // launch gdb when a segfault is trapped
 extern int box64_tcmalloc_minimal;  // when using tcmalloc_minimal
 #define LOG_NONE 0

@@ -73,8 +73,8 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     // fake init of segments...
     emu->segs[_CS] = 0x73;
     emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x7b;
-    emu->segs[_FS] = default_fs;
-    emu->segs[_GS] = 0x33;
+    emu->segs[_FS] = 0x33;
+    emu->segs[_GS] = default_gs;
     // setup fpu regs
     reset_fpu(emu);
 }

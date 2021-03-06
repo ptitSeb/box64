@@ -74,8 +74,11 @@ static inline void Push(x64emu_t *emu, uint64_t v)
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
 
 reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m, uint8_t delta);
+reg64_t* GetECommonO(x64emu_t* emu, rex_t rex, uint8_t m, uint8_t delta, uintptr_t offset);
 reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta);
+reg64_t* GetEbO(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* GetEd(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta);
+reg64_t* GetEdO(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 #define GetEw GetEd
 reg64_t* GetEw16(x64emu_t *emu, rex_t rex, uint8_t v);
 reg64_t* GetEw16off(x64emu_t *emu, rex_t rex, uint8_t v, uintptr_t offset);
@@ -93,6 +96,7 @@ void UpdateFlags(x64emu_t *emu);
 #define RESET_FLAGS(emu) emu->df = d_none
 
 int Run0F(x64emu_t *emu, rex_t rex);
+int Run64(x64emu_t *emu, rex_t rex);
 int Run66(x64emu_t *emu, rex_t rex);
 int Run660F(x64emu_t *emu, rex_t rex);
 //int Run67(x64emu_t *emu, rex_t rex);

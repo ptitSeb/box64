@@ -107,9 +107,9 @@ box64context_t *NewBox64Context(int argc)
     pthread_key_create(&context->tlskey, free_tlsdatasize);
 
 
-    for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
+    for (int i=0; i<8; ++i) context->canary[i] = 1 +  getrand(255);
     context->canary[getrand(4)] = 0;
-    printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)context->canary);
+    printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at FS:0x14, value:%08X\n", *(uint32_t*)context->canary);
 
     initAllHelpers(context);
 

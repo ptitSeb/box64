@@ -53,7 +53,7 @@ uintptr_t   trace_start = 0, trace_end = 0;
 char* trace_func = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
-uint32_t default_fs = 0;
+uint32_t default_gs = 0;
 int jit_gdb = 0;
 int box64_tcmalloc_minimal = 0;
 

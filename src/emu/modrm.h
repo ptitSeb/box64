@@ -13,14 +13,16 @@
 #define STEP
 #endif
 
-#define GETED(D)    oped=GetEd(emu, rex, nextop, D)
-#define GETGD       opgd=GetGd(emu, rex, nextop)
-#define GETEB(D)    oped=GetEb(emu, rex, nextop, D)
-#define GETGB       opgd=GetGb(emu, rex, nextop)
-#define GETEW(D)    oped=GetEw(emu, rex, nextop, D)
-#define GETGW       opgd=GetGw(emu, rex, nextop)
-#define GETEX(D)    opex=GetEx(emu, rex, nextop, D)
-#define GETGX       opgx=GetGx(emu, rex, nextop)
+#define GETED(D)            oped=GetEd(emu, rex, nextop, D)
+#define GETED_OFFS(D, O)    oped=GetEdO(emu, rex, nextop, D, O)
+#define GETGD               opgd=GetGd(emu, rex, nextop)
+#define GETEB(D)            oped=GetEb(emu, rex, nextop, D)
+#define GETEB_OFFS(D, O)    oped=GetEbO(emu, rex, nextop, D, O)
+#define GETGB               opgd=GetGb(emu, rex, nextop)
+#define GETEW(D)            oped=GetEw(emu, rex, nextop, D)
+#define GETGW               opgd=GetGw(emu, rex, nextop)
+#define GETEX(D)            opex=GetEx(emu, rex, nextop, D)
+#define GETGX               opgx=GetGx(emu, rex, nextop)
 #define ED  oped
 #define GD  opgd
 #define EB  oped

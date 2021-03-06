@@ -133,8 +133,8 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
 static tlsdatasize_t* setupTLSData(box64context_t* context)
 {
     // Setup the GS segment:
-    int dtsize = context->elfsize*8;
-    void *ptr = (char*)malloc(context->tlssize+4+POS_TLS+dtsize);
+    int dtsize = context->elfsize*16;
+    void *ptr = (char*)malloc(context->tlssize+8+POS_TLS+dtsize);
     memcpy(ptr, context->tlsdata, context->tlssize);
     tlsdatasize_t *data = (tlsdatasize_t*)calloc(1, sizeof(tlsdatasize_t));
     data->tlsdata = ptr;
@@ -142,20 +142,20 @@ static tlsdatasize_t* setupTLSData(box64context_t* context)
     pthread_setspecific(context->tlskey, data);
     // copy canary...
     memset((void*)((uintptr_t)ptr+context->tlssize), 0, POS_TLS+dtsize);            // set to 0 remining bytes
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, 4);      // put canary in place
+    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, sizeof(void*));      // put canary in place
     uintptr_t tlsptr = (uintptr_t)ptr+context->tlssize;
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x0), &tlsptr, 4);
+    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x0), &tlsptr, sizeof(void*));
     uintptr_t dtp = (uintptr_t)ptr+context->tlssize+POS_TLS;
-    memcpy((void*)(tlsptr+0x4), &dtp, 4);
+    memcpy((void*)(tlsptr+sizeof(void*)), &dtp, sizeof(void*));
     if(dtsize) {
-        for (int i=0; i<context->elfsize; ++i) {
+        for (size_t i=0; i<context->elfsize; ++i) {
             // set pointer
             dtp = (uintptr_t)ptr + (context->tlssize + GetTLSBase(context->elfs[i]));
-            memcpy((void*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*8), &dtp, 4);
-            memcpy((void*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*8+4), &i, 4); // index
+            memcpy((void*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*16), &dtp, sizeof(void*));
+            memcpy((void*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*16+8), &i, sizeof(void*)); // index
         }
     }
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
+    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, sizeof(void*));  // address of vsyscall
     return data;
 }
 
