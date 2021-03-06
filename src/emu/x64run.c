@@ -420,6 +420,13 @@ x64emurun:
                 R_RDX=(R_EAX & 0x80000000)?0xFFFFFFFFFFFFFFFFL:0x0000000000000000L;
             break;
 
+        case 0xA9:                      /* TEST EAX, Id */
+            if(rex.w)
+                test64(emu, R_RAX, F32S64);
+            else
+                test32(emu, R_EAX, F32);
+            break;
+
         case 0xB8:                      /* MOV EAX,Id */
         case 0xB9:                      /* MOV ECX,Id */
         case 0xBA:                      /* MOV EDX,Id */
