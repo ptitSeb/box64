@@ -190,6 +190,16 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GM->q = (EM->q > 63) ? 0L : (GM->q >> EM->q);
             break;
 
+        case 0xEC:                   /* PADDSB Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<8; ++i) {
+                tmp32s = (int32_t)GM->sb[i] + EM->sb[i];
+                GM->sb[i] = (tmp32s>127)?127:((tmp32s<-128)?-128:tmp32s);
+            }
+            break;
+
         case 0xFC:                   /* PADDB Gm, Em */
             nextop = F8;
             GETEM(0);
