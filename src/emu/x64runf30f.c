@@ -66,6 +66,12 @@ int RunF30F(x64emu_t *emu, rex_t rex)
             GX->f[0] = ED->sdword[0];
         break;
 
+    case 0x58:  /* ADDSS Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->f[0] += EX->f[0];
+        break;
     case 0x59:  /* MULSS Gx, Ex */
         nextop = F8;
         GETEX(0);
@@ -77,6 +83,13 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         GETEX(0);
         GETGX;
         GX->d[0] = EX->f[0];
+        break;
+
+    case 0x5E:  /* DIVSS Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->f[0] /= EX->f[0];
         break;
 
     case 0x6F:  /* MOVDQU Gx, Ex */

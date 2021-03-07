@@ -66,6 +66,25 @@ int Run0F(x64emu_t *emu, rex_t rex)
             EX->q[1] = GX->q[1];
             break;
 
+        case 0x2E:                      /* UCOMISS Gx, Ex */
+            // same for now
+        case 0x2F:                      /* COMISS Gx, Ex */
+            RESET_FLAGS(emu);
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            if(isnan(GX->f[0]) || isnan(EX->f[0])) {
+                SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
+            } else if(isgreater(GX->f[0], EX->f[0])) {
+                CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
+            } else if(isless(GX->f[0], EX->f[0])) {
+                CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); SET_FLAG(F_CF);
+            } else {
+                SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
+            }
+            CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
+            break;
+
 
         GOCOND(0x40
             , nextop = F8;
