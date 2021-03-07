@@ -1605,8 +1605,8 @@ GOW(puts, iFp)
 //GO(sethostname, 
 //GO(setipv4sourcefilter, 
 //GOW(setitimer, 
-//GO(_setjmp, 
-//GO(setjmp, 
+GOM(_setjmp, iFEp)
+GOM(setjmp, iFEp)
 //GO(setlinebuf, 
 //GO(setlocale, 
 //GO(setlogin, 
@@ -1686,8 +1686,8 @@ GOW(puts, iFp)
 //GOW(sigqueue, 
 //GO(sigrelse, 
 //GOW(sigreturn, 
-//GO(sigset, 
-//GO(__sigsetjmp, 
+GOM(sigset, pFEip)
+GOM(__sigsetjmp, iFEp)
 //GOW(sigsetmask, 
 //GO(sigstack, 
 //GO(__sigsuspend, 
@@ -1697,7 +1697,7 @@ GOW(puts, iFp)
 //GO(sigvec, 
 //GOW(sigwait, 
 //GOW(sigwaitinfo, 
-//GOW(sleep, 
+GOW(sleep, uFu)
 //GO(__snprintf, 
 //GOW(snprintf, 
 //GO(__snprintf_chk, 

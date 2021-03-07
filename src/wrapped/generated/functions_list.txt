@@ -8,10 +8,12 @@
 #() iFu
 #() iFf
 #() iFd
+#() iFL
 #() iFp
 #() IFf
 #() IFd
 #() IFp
+#() uFu
 #() uFp
 #() UFV
 #() fFf
@@ -49,6 +51,7 @@
 #() vFEpu
 #() vFfpp
 #() vFdpp
+#() iFEpi
 #() iFEpp
 #() iFEpV
 #() iFpiu
@@ -58,6 +61,7 @@
 #() fFffp
 #() dFddd
 #() dFddp
+#() pFEip
 #() pFEpi
 #() pFEpp
 #() pFipp

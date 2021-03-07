@@ -27,10 +27,10 @@
 #include "dynablock.h"
 #endif
 
-//void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
-//void _pthread_cleanup_pop_restore(void* buffer, int exec);
-//void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
-//void _pthread_cleanup_pop(void* buffer, int exec);
+void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
+void _pthread_cleanup_pop_restore(void* buffer, int exec);
+void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
+void _pthread_cleanup_pop(void* buffer, int exec);
 
 typedef struct threadstack_s {
 	void* 	stack;
@@ -38,31 +38,26 @@ typedef struct threadstack_s {
 } threadstack_t;
 
 // longjmp / setjmp
-//typedef struct jump_buff_i386_s {
-// uint32_t save_ebx;
-// uint32_t save_esi;
-// uint32_t save_edi;
-// uint32_t save_ebp;
-// uint32_t save_esp;
-// uint32_t save_eip;
-//} jump_buff_i386_t;
+typedef struct jump_buff_x64_s {
+	uint64_t save_reg[8];
+} jump_buff_x64_t;
 
-//typedef struct __jmp_buf_tag_s {
-//    jump_buff_i386_t __jmpbuf;
-//    int              __mask_was_saved;
-//    __sigset_t       __saved_mask;
-//} __jmp_buf_tag_t;
+typedef struct __jmp_buf_tag_s {
+    jump_buff_x64_t  __jmpbuf;
+    int              __mask_was_saved;
+    __sigset_t       __saved_mask;
+} __jmp_buf_tag_t;
 
-//typedef struct x86_unwind_buff_s {
-//	struct {
-//		jump_buff_i386_t	__cancel_jmp_buf;	
-//		int					__mask_was_saved;
-//	} __cancel_jmp_buf[1];
-//	void *__pad[4];
-//} x86_unwind_buff_t __attribute__((__aligned__));
+typedef struct x64_unwind_buff_s {
+	struct {
+		jump_buff_x64_t		__cancel_jmp_buf;	
+		int					__mask_was_saved;
+	} __cancel_jmp_buf[1];
+	void *__pad[4];
+} x64_unwind_buff_t __attribute__((__aligned__));
 
-KHASH_MAP_INIT_INT(threadstack, threadstack_t*)
-//KHASH_MAP_INIT_INT(cancelthread, __pthread_unwind_buf_t*)
+KHASH_MAP_INIT_INT64(threadstack, threadstack_t*)
+KHASH_MAP_INIT_INT64(cancelthread, __pthread_unwind_buf_t*)
 
 void CleanStackSize(box64context_t* context)
 {
@@ -120,33 +115,33 @@ int GetStackSize(x64emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 	return 0;
 }
 
-//static void InitCancelThread()
-//{
-//}
+static void InitCancelThread()
+{
+}
 
-//static void FreeCancelThread(box64context_t* context)
-//{
-//	if(!context)
-//		return;
-//}
-//static __pthread_unwind_buf_t* AddCancelThread(x86_unwind_buff_t* buff)
-//{
-//	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
-//	buff->__pad[1] = r;
-//	return r;
-//}
+static void FreeCancelThread(box64context_t* context)
+{
+	if(!context)
+		return;
+}
+static __pthread_unwind_buf_t* AddCancelThread(x64_unwind_buff_t* buff)
+{
+	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
+	buff->__pad[1] = r;
+	return r;
+}
 
-//static __pthread_unwind_buf_t* GetCancelThread(x86_unwind_buff_t* buff)
-//{
-//	return (__pthread_unwind_buf_t*)buff->__pad[1];
-//}
+static __pthread_unwind_buf_t* GetCancelThread(x64_unwind_buff_t* buff)
+{
+	return (__pthread_unwind_buf_t*)buff->__pad[1];
+}
 
-//static void DelCancelThread(x86_unwind_buff_t* buff)
-//{
-//	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)buff->__pad[1];
-//	free(r);
-//	buff->__pad[1] = NULL;
-//}
+static void DelCancelThread(x64_unwind_buff_t* buff)
+{
+	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)buff->__pad[1];
+	free(r);
+	buff->__pad[1] = NULL;
+}
 
 typedef struct emuthread_s {
 	uintptr_t 	fnc;
@@ -325,62 +320,58 @@ void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet
 	return pthread_routine;
 }
 
-//void my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
+void my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 
-//#define CANCEL_MAX 8
-//static __thread x64emu_t* cancel_emu[CANCEL_MAX] = {0};
-//static __thread x86_unwind_buff_t* cancel_buff[CANCEL_MAX] = {0};
-//static __thread int cancel_deep = 0;
-//EXPORT void my___pthread_register_cancel(void* E, void* B)
-//{
-//	// get a stack local copy of the args, as may be live in some register depending the architecture (like ARM)
-//	if(cancel_deep<0) {
-//		printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, inconsistant value in __pthread_register_cancel (%d)\n", cancel_deep);
-//		cancel_deep = 0;
-//	}
-//	if(cancel_deep!=CANCEL_MAX-1) 
-//		++cancel_deep;
-//	else
-//		{printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, calling __pthread_register_cancel(...) too many time\n");}
-//		
-//	cancel_emu[cancel_deep] = (x64emu_t*)E;
-//	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
-//	x86_unwind_buff_t* buff = cancel_buff[cancel_deep] = (x86_unwind_buff_t*)((x64emu_t*)E)->regs[_AX].dword[0];
-//	__pthread_unwind_buf_t * pbuff = AddCancelThread(buff);
-//	if(__sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0)) {
-//		//DelCancelThread(cancel_buff);	// no del here, it will be delete by unwind_next...
-//		int i = cancel_deep--;
-//		x64emu_t* emu = cancel_emu[i];
-//		my_longjmp(emu, cancel_buff[i]->__cancel_jmp_buf, 1);
-//		DynaRun(emu);	// resume execution
-//		return;
-//	}
-//
-//	__pthread_register_cancel(pbuff);
-//}
+#define CANCEL_MAX 8
+static __thread x64emu_t* cancel_emu[CANCEL_MAX] = {0};
+static __thread x64_unwind_buff_t* cancel_buff[CANCEL_MAX] = {0};
+static __thread int cancel_deep = 0;
+EXPORT void my___pthread_register_cancel(void* E, void* B)
+{
+	// get a stack local copy of the args, as may be live in some register depending the architecture (like ARM)
+	if(cancel_deep<0) {
+		printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, inconsistant value in __pthread_register_cancel (%d)\n", cancel_deep);
+		cancel_deep = 0;
+	}
+	if(cancel_deep!=CANCEL_MAX-1) 
+		++cancel_deep;
+	else
+		{printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, calling __pthread_register_cancel(...) too many time\n");}
+		
+	cancel_emu[cancel_deep] = (x64emu_t*)E;
 
-//EXPORT void my___pthread_unregister_cancel(x64emu_t* emu, x86_unwind_buff_t* buff)
-//{
-//	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
-//	buff = (x86_unwind_buff_t*)R_EAX;
-//	__pthread_unwind_buf_t * pbuff = GetCancelThread(buff);
-//	__pthread_unregister_cancel(pbuff);
-//
-//	--cancel_deep;
-//	DelCancelThread(buff);
-//}
+	x64_unwind_buff_t* buff = cancel_buff[cancel_deep] = (x64_unwind_buff_t*)B;
+	__pthread_unwind_buf_t * pbuff = AddCancelThread(buff);
+	if(__sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0)) {
+		//DelCancelThread(cancel_buff);	// no del here, it will be delete by unwind_next...
+		int i = cancel_deep--;
+		x64emu_t* emu = cancel_emu[i];
+		my_longjmp(emu, cancel_buff[i]->__cancel_jmp_buf, 1);
+		DynaRun(emu);	// resume execution
+		return;
+	}
 
-//EXPORT void my___pthread_unwind_next(x64emu_t* emu, void* p)
-//{
-//	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
-//	x86_unwind_buff_t* buff = (x86_unwind_buff_t*)R_EAX;
-//	__pthread_unwind_buf_t pbuff = *GetCancelThread(buff);
-//	DelCancelThread(buff);
-//	// function is noreturn, putting stuff on the stack to have it auto-free (is that correct?)
-//	__pthread_unwind_next(&pbuff);
-//	// just in case it does return
-//	emu->quit = 1;
-//}
+	__pthread_register_cancel(pbuff);
+}
+
+EXPORT void my___pthread_unregister_cancel(x64emu_t* emu, x64_unwind_buff_t* buff)
+{
+	__pthread_unwind_buf_t * pbuff = GetCancelThread(buff);
+	__pthread_unregister_cancel(pbuff);
+
+	--cancel_deep;
+	DelCancelThread(buff);
+}
+
+EXPORT void my___pthread_unwind_next(x64emu_t* emu, x64_unwind_buff_t* buff)
+{
+	__pthread_unwind_buf_t pbuff = *GetCancelThread(buff);
+	DelCancelThread(buff);
+	// function is noreturn, putting stuff on the stack to have it auto-free (is that correct?)
+	__pthread_unwind_next(&pbuff);
+	// just in case it does return
+	emu->quit = 1;
+}
 
 KHASH_MAP_INIT_INT(once, int)
 
@@ -590,20 +581,14 @@ EXPORT int my_pthread_cond_wait(x64emu_t* emu, void* cond, void* mutex)
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_wait(c, getAlignedMutex((pthread_mutex_t*)mutex));
 }
-#if 0
-EXPORT int my_pthread_mutexattr_setkind_np(x64emu_t* emu, void* t, int kind)
-{
-    // does "kind" needs some type of translation?
-    return pthread_mutexattr_settype(t, kind);
-}
 
-EXPORT int my_pthread_attr_setscope(x64emu_t* emu, void* attr, int scope)
-{
-    if(scope!=PTHREAD_SCOPE_SYSTEM) printf_log(LOG_INFO, "Warning, scope of call to pthread_attr_setscope(...) changed from %d to PTHREAD_SCOPE_SYSTEM\n", scope);
-	return pthread_attr_setscope(attr, PTHREAD_SCOPE_SYSTEM);
-    //The scope is either PTHREAD_SCOPE_SYSTEM or PTHREAD_SCOPE_PROCESS
-    // but PTHREAD_SCOPE_PROCESS doesn't seem supported on ARM linux, and PTHREAD_SCOPE_SYSTEM is default
-}
+//EXPORT int my_pthread_attr_setscope(x64emu_t* emu, void* attr, int scope)
+//{
+//    if(scope!=PTHREAD_SCOPE_SYSTEM) printf_log(LOG_INFO, "Warning, scope of call to pthread_attr_setscope(...) changed from %d to PTHREAD_SCOPE_SYSTEM\n", scope);
+//	return pthread_attr_setscope(attr, PTHREAD_SCOPE_SYSTEM);
+//    //The scope is either PTHREAD_SCOPE_SYSTEM or PTHREAD_SCOPE_PROCESS
+//    // but PTHREAD_SCOPE_PROCESS doesn't seem supported on ARM linux, and PTHREAD_SCOPE_SYSTEM is default
+//}
 
 EXPORT void my__pthread_cleanup_push_defer(x64emu_t* emu, void* buffer, void* routine, void* arg)
 {
@@ -625,54 +610,36 @@ EXPORT void my__pthread_cleanup_pop(x64emu_t* emu, void* buffer, int exec)
 	_pthread_cleanup_pop(buffer, exec);
 }
 
-// getaffinity_np (pthread or attr) hav an "old" version (glibc-2.3.3) that only have 2 args, cpusetsize is omited
-EXPORT int my_pthread_getaffinity_np(x64emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
-{
-	if(cpusetsize>0x1000) {
-		// probably old version of the function, that didn't have cpusetsize....
-		cpuset = (void*)cpusetsize;
-		cpusetsize = sizeof(cpu_set_t);
-	} 
+//EXPORT int my_pthread_getaffinity_np(x64emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
+//{
+//	int ret = pthread_getaffinity_np(thread, cpusetsize, cpuset);
+//	if(ret<0) {
+//		printf_log(LOG_INFO, "Warning, pthread_getaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
+//	}
+//
+//    return ret;
+//}
 
-	int ret = pthread_getaffinity_np(thread, cpusetsize, cpuset);
-	if(ret<0) {
-		printf_log(LOG_INFO, "Warning, pthread_getaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
-	}
+//EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
+//{
+//	int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset);
+//	if(ret<0) {
+//		printf_log(LOG_INFO, "Warning, pthread_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
+//	}
+//
+//    return ret;
+//}
 
-    return ret;
-}
-
-EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
-{
-	if(cpusetsize>0x1000) {
-		// probably old version of the function, that didn't have cpusetsize....
-		cpuset = (void*)cpusetsize;
-		cpusetsize = sizeof(cpu_set_t);
-	} 
-
-	int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset);
-	if(ret<0) {
-		printf_log(LOG_INFO, "Warning, pthread_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
-	}
-
-    return ret;
-}
-
-EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
-{
-	if(cpusetsize>0x1000) {
-		// probably old version of the function, that didn't have cpusetsize....
-		cpuset = (void*)cpusetsize;
-		cpusetsize = sizeof(cpu_set_t);
-	} 
-
-	int ret = pthread_attr_setaffinity_np(attr, cpusetsize, cpuset);
-	if(ret<0) {
-		printf_log(LOG_INFO, "Warning, pthread_attr_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", attr, cpusetsize, cpuset, errno);
-	}
-
-    return ret;
-}
+//EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
+//{
+//
+//	int ret = pthread_attr_setaffinity_np(attr, cpusetsize, cpuset);
+//	if(ret<0) {
+//		printf_log(LOG_INFO, "Warning, pthread_attr_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", attr, cpusetsize, cpuset, errno);
+//	}
+//
+//    return ret;
+//}
 
 EXPORT int my_pthread_kill(x64emu_t* emu, void* thread, int sig)
 {
@@ -687,7 +654,7 @@ EXPORT void my_pthread_exit(x64emu_t* emu, void* retval)
 	emu->quit = 1;	// to be safe
 	pthread_exit(retval);
 }
-#endif
+
 #ifdef NOALIGN
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m) {
 	return m;
@@ -780,7 +747,7 @@ emu_jmpbuf_t* GetJmpBuf()
 
 void init_pthread_helper()
 {
-//	InitCancelThread();
+	InitCancelThread();
 	mapcond = kh_init(mapcond);
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 #ifndef NOALIGN
@@ -790,7 +757,7 @@ void init_pthread_helper()
 
 void fini_pthread_helper(box64context_t* context)
 {
-//	FreeCancelThread(context);
+	FreeCancelThread(context);
 	CleanStackSize(context);
 	pthread_cond_t *cond;
 	kh_foreach_value(mapcond, cond, 

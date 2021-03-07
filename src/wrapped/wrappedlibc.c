@@ -559,7 +559,7 @@ EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { printf("warning _ITM_RU4 calle
 EXPORT uint64_t my__ITM_RU8(const uint64_t * a) { printf("warning _ITM_RU8 called\n"); return 0; }
 EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n");  }
 EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n"); }
-#if 0
+
 EXPORT void my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 EXPORT void my__longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
 EXPORT void my_siglongjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
@@ -568,7 +568,6 @@ EXPORT void my___longjmp_chk(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/voi
 EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p);
 EXPORT int32_t my__setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
 EXPORT int32_t my___sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
-#endif
 
 EXPORT int my_printf(x64emu_t *emu, void* fmt, void* b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
@@ -2090,35 +2089,39 @@ EXPORT void* my___deregister_frame_info(void* a)
 }
 
 EXPORT void* my____brk_addr = NULL;
-#if 0
+
 // longjmp / setjmp
-typedef struct jump_buff_i386_s {
- uint32_t save_ebx;
- uint32_t save_esi;
- uint32_t save_edi;
- uint32_t save_ebp;
- uint32_t save_esp;
- uint32_t save_eip;
-} jump_buff_i386_t;
+typedef struct jump_buff_x64_s {
+    uint64_t save_rbx;
+    uint64_t save_rbp;
+    uint64_t save_r12;
+    uint64_t save_r13;
+    uint64_t save_r14;
+    uint64_t save_r15;
+    uint64_t save_rsp;
+    uint64_t save_rip;
+} jump_buff_x64_t;
 
 typedef struct __jmp_buf_tag_s {
-    jump_buff_i386_t __jmpbuf;
+    jump_buff_x64_t __jmpbuf;
     int              __mask_was_saved;
     __sigset_t       __saved_mask;
 } __jmp_buf_tag_t;
 
 void EXPORT my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val)
 {
-    jump_buff_i386_t *jpbuff = &((__jmp_buf_tag_t*)p)->__jmpbuf;
+    jump_buff_x64_t *jpbuff = &((__jmp_buf_tag_t*)p)->__jmpbuf;
     //restore  regs
-    R_EBX = jpbuff->save_ebx;
-    R_ESI = jpbuff->save_esi;
-    R_EDI = jpbuff->save_edi;
-    R_EBP = jpbuff->save_ebp;
-    R_ESP = jpbuff->save_esp;
+    R_RBX = jpbuff->save_rbx;
+    R_RBP = jpbuff->save_rbp;
+    R_R12 = jpbuff->save_r12;
+    R_R13 = jpbuff->save_r13;
+    R_R14 = jpbuff->save_r14;
+    R_R15 = jpbuff->save_r15;
+    R_RSP = jpbuff->save_rsp;
     // jmp to saved location, plus restore val to eax
     R_EAX = __val;
-    R_EIP = jpbuff->save_eip;
+    R_RIP = jpbuff->save_rip;
     if(emu->quitonlongjmp) {
         emu->longjmp = 1;
         emu->quit = 1;
@@ -2127,14 +2130,17 @@ void EXPORT my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, 
 
 EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
 {
-    jump_buff_i386_t *jpbuff = &((__jmp_buf_tag_t*)p)->__jmpbuf;
+    jump_buff_x64_t *jpbuff = &((__jmp_buf_tag_t*)p)->__jmpbuf;
     // save the buffer
-    jpbuff->save_ebx = R_EBX;
-    jpbuff->save_esi = R_ESI;
-    jpbuff->save_edi = R_EDI;
-    jpbuff->save_ebp = R_EBP;
-    jpbuff->save_esp = R_ESP+4; // include "return address"
-    jpbuff->save_eip = *(uint32_t*)(R_ESP);
+    jpbuff->save_rbx = R_RBX;
+    jpbuff->save_rbp = R_RBP;
+    jpbuff->save_r12 = R_R12;
+    jpbuff->save_r13 = R_R13;
+    jpbuff->save_r14 = R_R14;
+    jpbuff->save_r15 = R_R15;
+    jpbuff->save_rsp = R_RSP;
+    jpbuff->save_rsp = R_RSP+sizeof(uintptr_t); // include "return address"
+    jpbuff->save_rip = *(uintptr_t*)(R_RSP);
     // and that's it.. Nothing more for now
     return 0;
 }
@@ -2152,7 +2158,7 @@ EXPORT void* my_realpath(x64emu_t* emu, void* path, void* resolved_path)
     }
         return realpath(path, resolved_path);
 }
-
+#if 0
 EXPORT void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset)
 {
     if(prot&PROT_WRITE) 
