@@ -25,9 +25,9 @@
 #include "x64run.h"
 
 box64context_t *my_context = NULL;
-int box64_log = LOG_NONE;
+int box64_log = LOG_INFO; //LOG_NONE;
 int box64_nobanner = 0;
-int box64_dynarec_log = LOG_INFO; //LOG_NONE;
+int box64_dynarec_log = LOG_NONE;
 int box64_pagesize;
 int box64_dynarec = 0;
 int dlsym_error = 0;
