@@ -602,6 +602,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                 tmp = (uintptr_t)(*p);
                 if (bind==STB_LOCAL 
                   || ((symname && strstr(symname, "g_cclosure_marshal_")==symname)) 
+                  || ((symname && strstr(symname, "__pthread_unwind_next")==symname)) 
                   || !tmp
                   || !((tmp>=head->plt && tmp<head->plt_end) || (tmp>=head->gotplt && tmp<head->gotplt_end))
                   ) {
