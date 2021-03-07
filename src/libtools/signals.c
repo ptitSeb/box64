@@ -445,7 +445,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     uintptr_t restorer = my_context->restorer[sig];
     // get that actual ESP first!
     x64emu_t *emu = thread_get_emu();
-    uint64_t *frame = (uint64_t*)R_RSP;
+    uintptr_t *frame = (uintptr_t*)R_RSP;
 #if defined(DYNAREC) && defined(__arm__)
     ucontext_t *p = (ucontext_t *)ucntx;
     void * pc = (void*)p->uc_mcontext.arm_pc;
@@ -460,9 +460,9 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     int used_stack = 0;
     if(new_ss) {
         if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
-            frame = (uint64_t*)sigemu->regs[_SP].q[0];
+            frame = (uintptr_t*)sigemu->regs[_SP].q[0];
         } else {
-            frame = (uint64_t*)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
+            frame = (uintptr_t*)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
             used_stack = 1;
             new_ss->ss_flags = SS_ONSTACK;
         }
@@ -471,7 +471,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
     // setup stack frame
     // try to fill some sigcontext....
-    frame -= sizeof(x64_ucontext_t);
+    frame -= sizeof(x64_ucontext_t)/sizeof(uintptr_t);
     x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
     // get general register
     sigcontext->uc_mcontext.gregs[X64_R8] = R_R8;
@@ -898,7 +898,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
         struct kernel_sigaction newact = {0};
         struct kernel_sigaction old = {0};
         if(act) {
-            printf_log(LOG_DEBUG, " New (kernel) action flags=0x%x mask=0x%x\n", act->sa_flags, *(uint32_t*)&act->sa_mask);
+            printf_log(LOG_DEBUG, " New (kernel) action flags=0x%x mask=0x%lx\n", act->sa_flags, *(uint64_t*)&act->sa_mask);
             memcpy(&newact.sa_mask, &act->sa_mask, (sigsetsize>16)?16:sigsetsize);
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
             if(act->sa_flags&0x04) {
