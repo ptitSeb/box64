@@ -645,7 +645,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void* addr = (void*)info->si_addr;  // address that triggered the issue
     void* rsp = NULL;
 #ifdef __aarch64__
-    void * pc = (void*)p->uc_mcontext.arm_pc;
+    void * pc = (void*)p->uc_mcontext.pc;
 #elif defined __x86_64__
     void * pc = (void*)p->uc_mcontext.gregs[X64_RIP];
 #elif defined __powerpc64__
