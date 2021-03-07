@@ -87,6 +87,7 @@ typedef void*  (*pFppp_t)(void*, void*, void*);
 typedef void  (*vFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
 typedef void  (*vFiupp_t)(int32_t, uint32_t, void*, void*);
+typedef void  (*vFiupV_t)(int32_t, uint32_t, void*, va_list);
 typedef int32_t (*iFpupp_t)(void*, uint32_t, void*, void*);
 typedef uint32_t (*uFu_t)(uint32_t);
 typedef uint32_t (*uFp_t)(void*);
@@ -139,7 +140,7 @@ typedef uint32_t (*uFpU_t)(void*, uint64_t);
     GO(SDL_SetEventFilter, vFpp_t)                  \
     GO(SDL_LogGetOutputFunction, vFpp_t)            \
     GO(SDL_LogSetOutputFunction, vFpp_t)            \
-    GO(SDL_LogMessageV, vFiupp_t)                   \
+    GO(SDL_LogMessageV, vFiupV_t)                   \
     GO(SDL_GL_GetProcAddress, pFp_t)                \
     GO(SDL_TLSSet, iFupp_t)                         \
     GO(SDL_AddEventWatch, vFpp_t)                   \
