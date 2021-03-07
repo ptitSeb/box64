@@ -23,6 +23,8 @@
 #define GETGW               opgd=GetGw(emu, rex, nextop)
 #define GETEX(D)            opex=GetEx(emu, rex, nextop, D)
 #define GETGX               opgx=GetGx(emu, rex, nextop)
+#define GETEM(D)            opem=GetEm(emu, rex, nextop, D)
+#define GETGM               opgm=GetGm(emu, rex, nextop)
 #define ED  oped
 #define GD  opgd
 #define EB  oped
@@ -31,6 +33,8 @@
 #define GW  opgd
 #define EX  opex
 #define GX  opgx
+#define EM  opem
+#define GM  opgm
 
 #define MODREG  ((nextop&0xC0)==0xC0)
 

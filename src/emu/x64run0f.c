@@ -20,7 +20,7 @@
 #include "box64context.h"
 #include "my_cpuid.h"
 #include "bridge.h"
-//#include "signals.h"
+#include "signals.h"
 #ifdef DYNAREC
 #include "../dynarec/arm_lock_helper.h"
 #endif
@@ -35,6 +35,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
     uint32_t tmp32u;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
+    mmx87_regs_t *opem, *opgm;
 
     opcode = F8;
 
@@ -74,6 +75,34 @@ int Run0F(x64emu_t *emu, rex_t rex)
             ,
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         
+        case 0x6F:                      /* MOVQ Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            GM->q = EM->q;
+            break;
+
+        case 0x77:                      /* EMMS */
+            // empty MMX, FPU now usable
+            emu->top = 0;
+            emu->fpu_stack = 0;
+            break;
+
+        case 0x7E:                       /* MOVD Ed, Gm */
+            nextop = F8;
+            GETED(0);
+            GETGM;
+            if(rex.w)
+                ED->q[0] = GM->q;
+            else
+                ED->q[0] = GM->ud[0];
+            break;
+        case 0x7F:                      /* MOVQ Em, Gm */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            EM->q = GM->q;
+            break;
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
             , R_RIP += tmp32s;
@@ -152,6 +181,21 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 GD->sdword[0] = EW->sword[0];
                 GD->dword[1] = 0;
             }
+            break;
+
+        case 0xD3:                   /* PSRLQ Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            GM->q = (EM->q > 63) ? 0L : (GM->q >> EM->q);
+            break;
+
+        case 0xFC:                   /* PADDB Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<8; ++i)
+                GM->sb[i] += EM->sb[i];
             break;
 
         default:
