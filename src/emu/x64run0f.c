@@ -31,7 +31,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
-    int32_t tmp32s;
+    int32_t tmp32s, tmp32s2;
     uint32_t tmp32u;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
@@ -75,6 +75,109 @@ int Run0F(x64emu_t *emu, rex_t rex)
             ,
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         
+        case 0x60:                      /* PUNPCKLBW Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            GM->ub[7] = EM->ub[3];
+            GM->ub[6] = GM->ub[3];
+            GM->ub[5] = EM->ub[2];
+            GM->ub[4] = GM->ub[2];
+            GM->ub[3] = EM->ub[1];
+            GM->ub[2] = GM->ub[1];
+            GM->ub[1] = EM->ub[0];
+            break;
+        case 0x61:                      /* PUNPCKLWD Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            GM->uw[3] = EM->uw[1];
+            GM->uw[2] = GM->uw[1];
+            GM->uw[1] = EM->uw[0];
+            break;
+        case 0x62:                      /* PUNPCKLDQ Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            GM->ud[1] = EM->ud[0];
+            break;
+        case 0x63:                      /* PACKSSWB Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            GM->sb[0] = (GM->sw[0] > 127) ? 127 : ((GM->sw[0] < -128) ? -128 : GM->sw[0]);
+            GM->sb[1] = (GM->sw[1] > 127) ? 127 : ((GM->sw[1] < -128) ? -128 : GM->sw[1]);
+            GM->sb[2] = (GM->sw[2] > 127) ? 127 : ((GM->sw[2] < -128) ? -128 : GM->sw[2]);
+            GM->sb[3] = (GM->sw[3] > 127) ? 127 : ((GM->sw[3] < -128) ? -128 : GM->sw[3]);
+            if(EM==GM)
+                GM->ud[1] = GM->ud[0];
+            else {
+                GM->sb[4] = (EM->sw[0] > 127) ? 127 : ((EM->sw[0] < -128) ? -128 : EM->sw[0]);
+                GM->sb[5] = (EM->sw[1] > 127) ? 127 : ((EM->sw[1] < -128) ? -128 : EM->sw[1]);
+                GM->sb[6] = (EM->sw[2] > 127) ? 127 : ((EM->sw[2] < -128) ? -128 : EM->sw[2]);
+                GM->sb[7] = (EM->sw[3] > 127) ? 127 : ((EM->sw[3] < -128) ? -128 : EM->sw[3]);
+            }
+            break;
+
+        case 0x67:                       /* PACKUSWB Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<4; ++i)
+                GM->ub[i] = (GM->sw[i]<0)?0:((GM->sw[i]>0xff)?0xff:GM->sw[i]);
+            if(EM==GM)
+                GM->ud[1] = GM->ud[0];
+            else
+                for(int i=0; i<4; ++i)
+                    GM->ub[4+i] = (EM->sw[i]<0)?0:((EM->sw[i]>0xff)?0xff:EM->sw[i]);
+            break;
+        case 0x68:                       /* PUNPCKHBW Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<4; ++i)
+                GM->ub[2 * i] = GM->ub[i + 4];
+            if(EM==GM)
+                for(int i=0; i<4; ++i)
+                    GM->ub[2 * i + 1] = GM->ub[2 * i];
+            else
+                for(int i=0; i<4; ++i)
+                    GM->ub[2 * i + 1] = EM->ub[i + 4];
+            break;
+        case 0x69:                       /* PUNPCKHWD Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<2; ++i)
+                GM->uw[2 * i] = GM->uw[i + 2];
+            if(EM==GM)
+                for(int i=0; i<2; ++i)
+                    GM->uw[2 * i + 1] = GM->uw[2 * i];
+            else
+                for(int i=0; i<2; ++i)
+                    GM->uw[2 * i + 1] = EM->uw[i + 2];
+            break;
+        case 0x6A:                       /* PUNPCKHDQ Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            GM->ud[0] = GM->ud[1];
+            if(EM!=GM)
+                GM->ud[1] = EM->ud[1];
+            break;
+        case 0x6B:                       /* PACKSSDW Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<2; ++i)
+                GM->sw[i] = (GM->sd[i]<-32768)?-32768:((GM->sd[i]>32767)?32767:GM->sd[i]);
+            if(EM==GM)
+                GM->ud[1] = GM->ud[0];
+            else
+                for(int i=0; i<2; ++i)
+                    GM->sw[2+i] = (EM->sd[i]<-32768)?-32768:((EM->sd[i]>32767)?32767:EM->sd[i]);
+            break;
+
         case 0x6F:                      /* MOVQ Gm, Em */
             nextop = F8;
             GETEM(0);
@@ -190,6 +293,16 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GM->q = (EM->q > 63) ? 0L : (GM->q >> EM->q);
             break;
 
+        case 0xD5:                   /* PMULLW Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<4; ++i) {
+                tmp32s = (int32_t)GM->sw[i] * EM->sw[i];
+                GM->sw[i] = tmp32s;
+            }
+            break;
+
         case 0xD8:                   /* PSUBUSB Gm,Em */
             nextop = F8;
             GETEM(0);
@@ -238,8 +351,26 @@ int Run0F(x64emu_t *emu, rex_t rex)
             nextop = F8;
             GETEM(0);
             GETGM;
-            GM->q = ~GM->q;
-            GM->q &= EM->q;
+            GM->q = (~GM->q) & EM->q;
+            break;
+
+        case 0xE4:                   /* PMULHUW Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<4; ++i) {
+                tmp32u = (int32_t)GM->uw[i] * EM->uw[i];
+                GM->uw[i] = (tmp32u>>16)&0xffff;
+            }
+            break;
+        case 0xE5:                   /* PMULHW Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<4; ++i) {
+                tmp32s = (int32_t)GM->sw[i] * EM->sw[i];
+                GM->uw[i] = (tmp32s>>16)&0xffff;
+            }
             break;
 
         case 0xE8:                   /* PSUBSB Gm,Em */
@@ -286,11 +417,30 @@ int Run0F(x64emu_t *emu, rex_t rex)
             }
             break;
 
+        case 0xEF:                   /* PXOR Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            GM->q ^= EM->q;
+            break;
+
         case 0xF3:                   /* PSLLQ Gm, Em */
             nextop = F8;
             GETEM(0);
             GETGM;
             GM->q = (EM->q > 63) ? 0L : (GM->q << EM->ub[0]);
+            break;
+
+        case 0xF5:                   /* PMADDWD Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for (int i=0; i<2; ++i) {
+                int offset = i * 2;
+                tmp32s = (int32_t)GM->sw[offset + 0] * EM->sw[offset + 0];
+                tmp32s2 = (int32_t)GM->sw[offset + 1] * EM->sw[offset + 1];
+                GM->sd[i] = tmp32s + tmp32s2;
+            }
             break;
 
         case 0xF8:                   /* PSUBB Gm,Em */
