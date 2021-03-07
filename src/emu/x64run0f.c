@@ -190,6 +190,25 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GM->q = (EM->q > 63) ? 0L : (GM->q >> EM->q);
             break;
 
+        case 0xDC:                   /* PADDUSB Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<8; ++i) {
+                tmp32u = (uint32_t)GM->ub[i] + EM->ub[i];
+                GM->ub[i] = (tmp32u>255) ? 255 : tmp32u;
+            }
+            break;
+        case 0xDD:                   /* PADDUSW Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<4; ++i) {
+                tmp32u = (uint32_t)GM->uw[i] + EM->uw[i];
+                GM->uw[i] = (tmp32u>65535) ? 65535 : tmp32u;
+            }
+            break;
+
         case 0xEC:                   /* PADDSB Gm, Em */
             nextop = F8;
             GETEM(0);
@@ -199,6 +218,15 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 GM->sb[i] = (tmp32s>127)?127:((tmp32s<-128)?-128:tmp32s);
             }
             break;
+        case 0xED:                   /* PADDSW Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<4; ++i) {
+                tmp32s = (int32_t)GM->sw[i] + EM->sw[i];
+                GM->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+            }
+            break;
 
         case 0xFC:                   /* PADDB Gm, Em */
             nextop = F8;
@@ -206,6 +234,20 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETGM;
             for(int i=0; i<8; ++i)
                 GM->sb[i] += EM->sb[i];
+            break;
+        case 0xFD:                   /* PADDW Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<4; ++i)
+                GM->sw[i] += EM->sw[i];
+            break;
+        case 0xFE:                   /* PADDD Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<2; ++i)
+                GM->sd[i] += EM->sd[i];
             break;
 
         default:
