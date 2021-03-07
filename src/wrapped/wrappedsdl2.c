@@ -625,7 +625,7 @@ EXPORT void my2_SDL_LogSetOutputFunction(x64emu_t* emu, void* f, void* arg)
 //{
 //    #ifndef NOALIGN
 //    // need to align on arm
-//    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+//    myStackAlign(emu, (const char*)fmt, *(uint32_t**)b, emu->scratch);
 //    PREPARE_VALIST;
 //    void* f = vsnprintf;
 //    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
@@ -648,7 +648,7 @@ EXPORT void* my2_SDL_CreateThread(x64emu_t* emu, void* f, void* n, void* p)
 //EXPORT int my2_SDL_snprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
 //    #ifndef NOALIGN
 //    // need to align on arm
-//    myStackAlign((const char*)fmt, b, emu->scratch);
+//    myStackAlign(emu, (const char*)fmt, b, emu->scratch);
 //    PREPARE_VALIST;
 //    void* f = vsnprintf;
 //    return ((iFpupp_t)f)(buff, s, fmt, VARARGS);
@@ -668,86 +668,58 @@ char EXPORT *my2_SDL_GetBasePath(x64emu_t* emu) {
 EXPORT void my2_SDL_LogCritical(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_CRITICAL == 6
-    #ifndef NOALIGN
-    myStackAlign((const char*)fmt, b, emu->scratch);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 6, fmt, VARARGS);
-    #else
-    my->SDL_LogMessageV(cat, 6, fmt, b);
-    #endif
 }
 
 EXPORT void my2_SDL_LogError(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_ERROR == 5
-    #ifndef NOALIGN
-    myStackAlign((const char*)fmt, b, emu->scratch);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 5, fmt, VARARGS);
-    #else
-    my->SDL_LogMessageV(cat, 5, fmt, b);
-    #endif
 }
 
 EXPORT void my2_SDL_LogWarn(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_WARN == 4
-    #ifndef NOALIGN
-    myStackAlign((const char*)fmt, b, emu->scratch);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 4, fmt, VARARGS);
-    #else
-    my->SDL_LogMessageV(cat, 4, fmt, b);
-    #endif
 }
 
 EXPORT void my2_SDL_LogInfo(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_INFO == 3
-    #ifndef NOALIGN
-    myStackAlign((const char*)fmt, b, emu->scratch);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 3, fmt, VARARGS);
-    #else
-    my->SDL_LogMessageV(cat, 3, fmt, b);
-    #endif
 }
 
 EXPORT void my2_SDL_LogDebug(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_DEBUG == 2
-    #ifndef NOALIGN
-    myStackAlign((const char*)fmt, b, emu->scratch);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 2, fmt, VARARGS);
-    #else
-    my->SDL_LogMessageV(cat, 2, fmt, b);
-    #endif
 }
 
 EXPORT void my2_SDL_LogVerbose(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_VERBOSE == 1
-    #ifndef NOALIGN
-    myStackAlign((const char*)fmt, b, emu->scratch);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 1, fmt, VARARGS);
-    #else
-    my->SDL_LogMessageV(cat, 1, fmt, b);
-    #endif
 }
 
 EXPORT void my2_SDL_Log(x64emu_t* emu, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_INFO == 3
     // SDL_LOG_CATEGORY_APPLICATION == 0
-    #ifndef NOALIGN
-    myStackAlign((const char*)fmt, b, emu->scratch);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     my->SDL_LogMessageV(0, 3, fmt, VARARGS);
-    #else
-    my->SDL_LogMessageV(0, 3, fmt, b);
-    #endif
 }
 
 void fillGLProcWrapper(box64context_t*);
