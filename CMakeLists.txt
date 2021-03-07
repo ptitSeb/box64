@@ -215,8 +215,8 @@ string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "x86_64"  _x86_64)
 if(NOT _x86 AND NOT _x86_64)
   install(TARGETS ${BOX64}
     RUNTIME DESTINATION bin)
-  #configure_file(system/box64.conf.cmake system/box64.conf)
-  #install(FILES ${CMAKE_BINARY_DIR}/system/box64.conf DESTINATION /etc/binfmt.d/)
+  configure_file(system/box64.conf.cmake system/box64.conf)
+  install(FILES ${CMAKE_BINARY_DIR}/system/box64.conf DESTINATION /etc/binfmt.d/)
   install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libstdc++.so.6 DESTINATION /usr/lib/i386-linux-gnu/)
   install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libstdc++.so.5 DESTINATION /usr/lib/i386-linux-gnu/)
   install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libgcc_s.so.1 DESTINATION /usr/lib/i386-linux-gnu/)
@@ -297,10 +297,10 @@ add_test(test13 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref13.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test14 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test14 -D TEST_OUTPUT=tmpfile.txt 
-    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref14.txt
-    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+#add_test(test14 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
+#    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test14 -D TEST_OUTPUT=tmpfile.txt 
+#    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref14.txt
+#    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
