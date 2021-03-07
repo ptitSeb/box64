@@ -334,9 +334,9 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
 
 
 void PrintHelp() {
-    printf("\n\nThis is Box86, the Linux x86 emulator with a twist\n");
+    printf("\n\nThis is Box64, the Linux x86_64 emulator with a twist\n");
     printf("\nUsage is box64 [options] path/to/software [args]\n");
-    printf("to launch x86 software\n");
+    printf("to launch x86_64 software\n");
     printf(" options can be :\n");
     printf("    '-v'|'--version' to print box64 version and quit\n");
     printf("    '-h'|'--help'    to print box64 help and quit\n");
@@ -346,11 +346,12 @@ void PrintHelp() {
     printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info\n");
     printf(" BOX64_NOBANNER with 0/1 to enable/disable the printing of box64 version and build at start\n");
 #ifdef HAVE_TRACE
-    printf(" BOX64_TRACE with 1 to enable x86 execution trace\n");
-    printf("    or with XXXXXX-YYYYYY to enable x86 execution trace only between address\n");
-    printf("    or with FunctionName to enable x86 execution trace only in one specific function\n");
+    printf(" BOX64_TRACE with 1 to enable x86_64 execution trace\n");
+    printf("    or with XXXXXX-YYYYYY to enable x86_64 execution trace only between address\n");
+    printf("    or with FunctionName to enable x86_64 execution trace only in one specific function\n");
     printf("  use BOX64_TRACE_INIT instead of BOX_TRACE to start trace before init of Libs and main program\n\t (function name will probably not work then)\n");
-    printf(" BOX64_TRACE_XMM with 1 to enable dump of SSE/SSE2 register along with regular registers\n");
+    printf(" BOX64_TRACE_EMM with 1 to enable dump of MMX registers along with regular registers\n");
+    printf(" BOX64_TRACE_XMM with 1 to enable dump of SSE registers along with regular registers\n");
     printf(" BOX64_TRACE_START with N to enable trace after N instructions\n");
 #endif
     printf(" BOX64_TRACE_FILE with FileName to redirect logs in a file");
@@ -377,12 +378,6 @@ void LoadEnvVars(box64context_t *context)
         AddPath("/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
     if(FileExist("/usr/lib/x86_64-linux-gnu", 0))
         AddPath("/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
-    if(FileExist("/lib/i686-pc-linux-gnu", 0))
-        AddPath("/lib/i686-pc-linux-gnu", &context->box64_ld_lib, 1);
-    if(FileExist("/usr/lib/i686-pc-linux-gnu", 0))
-        AddPath("/usr/lib/i686-pc-linux-gnu", &context->box64_ld_lib, 1);
-    if(FileExist("/usr/lib32", 0))
-        AddPath("/usr/lib32", &context->box64_ld_lib, 1);
     if(getenv("LD_LIBRARY_PATH"))
         PrependList(&context->box64_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
     if(getenv("BOX64_EMULATED_LIBS")) {
