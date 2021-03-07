@@ -18,9 +18,8 @@
 #include "x64trace.h"
 #include "x87emu_private.h"
 #include "box64context.h"
-//#include "my_cpuid.h"
 #include "bridge.h"
-//#include "signals.h"
+#include "signals.h"
 #ifdef DYNAREC
 #include "../dynarec/arm_lock_helper.h"
 #endif
@@ -844,10 +843,10 @@ fini:
         goto x64emurun;
     }
     // setcontext handling
-//    else if(emu->uc_link) {
-//        emu->quit = 0;
-//        my_setcontext(emu, emu->uc_link);
-//        goto x64emurun;
-//    }
+    else if(emu->uc_link) {
+        emu->quit = 0;
+        my_setcontext(emu, emu->uc_link);
+        goto x64emurun;
+    }
     return 0;
 }

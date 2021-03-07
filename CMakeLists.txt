@@ -127,6 +127,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/librarian/library.c"
     "${BOX64_ROOT}/src/libtools/auxval.c"
     "${BOX64_ROOT}/src/libtools/myalign.c"
+    "${BOX64_ROOT}/src/libtools/signals.c"
     "${BOX64_ROOT}/src/libtools/threads.c"
     "${BOX64_ROOT}/src/tools/box64stack.c"
     "${BOX64_ROOT}/src/tools/bridge.c"

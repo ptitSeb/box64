@@ -17,6 +17,7 @@
 #include "library.h"
 #include "wrapper.h"
 #include "x64emu.h"
+#include "signals.h"
 
 EXPORTDYN
 void initAllHelpers(box64context_t* context)
@@ -26,7 +27,7 @@ void initAllHelpers(box64context_t* context)
         return;
     my_context = context;
     init_pthread_helper();
-    //init_signal_helper(context);
+    init_signal_helper(context);
     inited = 1;
 }
 
@@ -37,7 +38,7 @@ void finiAllHelpers(box64context_t* context)
     if(finied)
         return;
     fini_pthread_helper(context);
-    //fini_signal_helper();
+    fini_signal_helper();
     cleanAlternate();
     fini_custommem_helper(context);
     finied = 1;

@@ -45,9 +45,9 @@ int RunD9(x64emu_t *emu, rex_t rex)
         case 0xC5:
         case 0xC6:
         case 0xC7:  /* FLD STx */
-            ll = ST(nextop&7).ll;
+            ll = ST(nextop&7).q;
             fpu_do_push(emu);
-            ST0.ll = ll;
+            ST0.q = ll;
             break;
         case 0xC8:
         case 0xC9:
@@ -57,9 +57,9 @@ int RunD9(x64emu_t *emu, rex_t rex)
         case 0xCD:
         case 0xCE:
         case 0xCF:  /* FXCH STx */
-            ll = ST(nextop&7).ll;
-            ST(nextop&7).ll = ST0.ll;
-            ST0.ll = ll;
+            ll = ST(nextop&7).q;
+            ST(nextop&7).q = ST0.q;
+            ST0.q = ll;
             break;
 
         case 0xD0:  /* FNOP */

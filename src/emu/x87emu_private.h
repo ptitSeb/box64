@@ -18,9 +18,9 @@ typedef struct x64emu_s x64emu_t;
 //void Run66DD(x64emu_t *emu);
 //void RunDF(x64emu_t *emu);
 
-#define ST0 emu->fpu[emu->top]
-#define ST1 emu->fpu[(emu->top+1)&7]
-#define ST(a) emu->fpu[(emu->top+(a))&7]
+#define ST0 emu->mmx87[emu->top]
+#define ST1 emu->mmx87[(emu->top+1)&7]
+#define ST(a) emu->mmx87[(emu->top+(a))&7]
 
 #define STld(a)  emu->fpu_ld[(emu->top+(a))&7]
 #define STll(a)  emu->fpu_ll[(emu->top+(a))&7]
@@ -133,7 +133,7 @@ static inline double fpu_round(x64emu_t* emu, double d) {
 }
 
 static inline void fpu_fxam(x64emu_t* emu) {
-    emu->sw.f.F87_C1 = (ST0.l.upper&0x80000000)?1:0;
+    emu->sw.f.F87_C1 = (ST0.ud[1]&0x80000000)?1:0;
     if(!emu->fpu_stack) {
         emu->sw.f.F87_C3 = 1;
         emu->sw.f.F87_C2 = 0;
@@ -187,7 +187,7 @@ static inline void fpu_ftst(x64emu_t* emu) {
     // normal...
     emu->sw.f.F87_C3 = 0;
     emu->sw.f.F87_C2 = 0;
-    emu->sw.f.F87_C0 = (ST0.l.upper&0x80000000)?1:0;
+    emu->sw.f.F87_C0 = (ST0.ud[1]&0x80000000)?1:0;
 }
 
 void fpu_fbst(x64emu_t* emu, uint8_t* d);
@@ -195,7 +195,9 @@ void fpu_fbld(x64emu_t* emu, uint8_t* s);
 
 void fpu_loadenv(x64emu_t* emu, char* p, int b16);
 void fpu_savenv(x64emu_t* emu, char* p, int b16);
-void fpu_fxsave(x64emu_t* emu, void* ed);
-void fpu_fxrstor(x64emu_t* emu, void* ed);
+void fpu_fxsave32(x64emu_t* emu, void* ed);
+void fpu_fxrstor32(x64emu_t* emu, void* ed);
+void fpu_fxsave64(x64emu_t* emu, void* ed);
+void fpu_fxrstor64(x64emu_t* emu, void* ed);
 
 #endif //__X87RUN_PRIVATE_H_

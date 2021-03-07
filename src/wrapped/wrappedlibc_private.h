@@ -283,9 +283,9 @@ GOM(__cxa_finalize, vFEp)
 //GOW(execve, 
 //GO(execvp, 
 //GOW(execvpe, 
-//GO(_exit, 
-//GO(exit, 
-//GOW(_Exit, 
+GO(_exit, vFi)
+GO(exit, vFi)
+GOW(_Exit, vFi)
 //GO(explicit_bzero, 
 //GO(__explicit_bzero_chk, 
 //GO(faccessat, 
@@ -472,7 +472,7 @@ GOW(fwrite, LFpLLp)
 //GOW(getc, 
 //GO(getchar, 
 //GO(getchar_unlocked, 
-//GOW(getcontext, 
+GOM(getcontext, iFEp)   //Weak
 //GOW(getc_unlocked, 
 //GO(get_current_dir_name, 
 //GOW(getcwd, 
@@ -1086,7 +1086,7 @@ GOM(__libc_start_main, iFEpippppp)
 //GO(__lxstat64, 
 //GO(__madvise, 
 //GOW(madvise, 
-//GOW(makecontext, 
+GOM(makecontext, iFEppiV)   //weak
 //GOW(mallinfo, 
 GO(malloc, pFL) // need to wrap to clear allocated memory?
 //GO(malloc_get_state, 
@@ -1869,7 +1869,7 @@ GO(strlen, LFp)
 //GO(svcunixfd_create, 
 //GO(svc_unregister, 
 //GO(swab, 
-//GOW(swapcontext, 
+GOM(swapcontext, iFEpp) //Weak
 //GOW(swapoff, 
 //GOW(swapon, 
 //GO(swprintf, 

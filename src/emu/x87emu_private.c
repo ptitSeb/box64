@@ -11,13 +11,13 @@
 
 void reset_fpu(x64emu_t* emu)
 {
-    memset(emu->fpu, 0, sizeof(emu->fpu));
+    memset(emu->mmx87, 0, sizeof(emu->mmx87));
     memset(emu->fpu_ld, 0, sizeof(emu->fpu_ld));
     emu->cw = 0x37F;
     emu->sw.x16 = 0x0000;
     emu->top = 0;
     emu->fpu_stack = 0;
-    for(int i=0; i<9; ++i)
+    for(int i=0; i<8; ++i)
         emu->p_regs[i].tag = 0b11;  // STx is empty
 }
 
@@ -67,7 +67,7 @@ void fpu_fbld(x64emu_t* emu, uint8_t* s) {
 }
 
 
-#define FPU_t fpu_reg_t
+#define FPU_t mmx87_regs_t
 #define BIAS80 16383
 #define BIAS64 1023
 // long double (80bits) -> double (64bits)
@@ -83,8 +83,8 @@ void LD2D(void* ld, void* d)
     #if 1
     memcpy(&val, ld, 10);
     #else
-	val.f.l.lower = *(uint32_t*)ld;
-    val.f.l.upper = *(uint32_t*)(char*)(ld+4);
+	val.f.ud[0] = *(uint32_t*)ld;
+    val.f.ud[1] = *(uint32_t*)(char*)(ld+4);
 	val.b  = *(int16_t*)((char*)ld+8);
     #endif
 	int32_t exp64 = (((uint32_t)(val.b&0x7fff) - BIAS80) + BIAS64);
@@ -95,31 +95,31 @@ void LD2D(void* ld, void* d)
     if((uint32_t)(val.b&0x7fff)==0x7fff) {
         // infinity and nans
         int t = 0; //nan
-        switch((val.f.l.upper>>30)) {
-            case 0: if((val.f.l.upper&(1<<29))==0) t = 1;
+        switch((val.f.ud[1]>>30)) {
+            case 0: if((val.f.ud[1]&(1<<29))==0) t = 1;
                     break;
-            case 2: if((val.f.l.upper&(1<<29))==0) t = 1;
+            case 2: if((val.f.ud[1]&(1<<29))==0) t = 1;
                     break;
         }
         if(t) {    // infinite
             result.d = HUGE_VAL;
         } else {      // NaN
-            result.l.upper = 0x7ff << 20;
-            result.l.lower = 0;
+            result.ud[1] = 0x7ff << 20;
+            result.ud[0] = 0;
         }
         if(val.b&0x8000)
-            result.l.upper |= 0x80000000;
-        *(uint64_t*)d = result.ll;
+            result.ud[1] |= 0x80000000;
+        *(uint64_t*)d = result.q;
         return;
     }
     if(((uint32_t)(val.b&0x7fff)==0) || (exp64<=0)) {
-        //if(val.f.ll==0)
+        //if(val.f.q==0)
         // zero
-        //if(val.f.ll!=0)
+        //if(val.f.q!=0)
         // denormal, but that's to small value for double 
         uint64_t r = 0;
         if(val.b&0x8000)
-            r |= 0x8000000000000000LL;
+            r |= 0x8000000000000000L;
         *(uint64_t*)d = r;
         return;
     }
@@ -128,17 +128,17 @@ void LD2D(void* ld, void* d)
         // to big value...
         result.d = HUGE_VAL;
         if(val.b&0x8000)
-            result.l.upper |= 0x80000000;
-        *(uint64_t*)d = result.ll;
+            result.ud[1] |= 0x80000000;
+        *(uint64_t*)d = result.q;
         return;
     }
 
-	uint64_t mant64 = (val.f.ll >> 11) & 0xfffffffffffffLL;
+	uint64_t mant64 = (val.f.q >> 11) & 0xfffffffffffffL;
 	uint32_t sign = (val.b&0x8000)?1:0;
-    result.ll = mant64;
-	result.l.upper |= (sign <<31)|((exp64final&0x7ff) << 20);
+    result.q = mant64;
+	result.ud[1] |= (sign <<31)|((exp64final&0x7ff) << 20);
 
-	*(uint64_t*)d = result.ll;
+	*(uint64_t*)d = result.q;
 }
 
 // double (64bits) -> long double (80bits)
@@ -151,12 +151,12 @@ void D2LD(void* d, void* ld)
 	} val;
     #pragma pack(pop)
     FPU_t s;
-    s.ll = *(uint64_t*)d;   // use memcpy to avoid risk of Bus Error?
+    s.q = *(uint64_t*)d;   // use memcpy to avoid risk of Bus Error?
     // do special value first
-    if((s.ll&0x7fffffffffffffffLL)==0) {
+    if((s.q&0x7fffffffffffffffL)==0) {
         // zero...
-        val.f.ll = 0;
-        if(s.l.upper&0x8000)
+        val.f.q = 0;
+        if(s.ud[1]&0x8000)
             val.b = 0x8000;
         else
             val.b = 0;
@@ -164,26 +164,26 @@ void D2LD(void* d, void* ld)
         return;
     }
 
-	int32_t sign80 = (s.l.upper&0x80000000)?1:0;
-	int32_t exp80 =  s.l.upper&0x7ff00000;
+	int32_t sign80 = (s.ud[1]&0x80000000)?1:0;
+	int32_t exp80 =  s.ud[1]&0x7ff00000;
 	int32_t exp80final = (exp80>>20);
-	int64_t mant80 = s.ll&0x000fffffffffffffLL;
+	int64_t mant80 = s.q&0x000fffffffffffffL;
 	int64_t mant80final = (mant80 << 11);
     if(exp80final==0x7ff) {
         // NaN and Infinite
         exp80final = 0x7fff;
         if(mant80==0x0)
-            mant80final = 0x8000000000000000LL; //infinity
+            mant80final = 0x8000000000000000L; //infinity
         else
-            mant80final = 0xc000000000000000LL; //(quiet)NaN
+            mant80final = 0xc000000000000000L; //(quiet)NaN
     } else {
         if(exp80!=0){ 
-            mant80final |= 0x8000000000000000LL;
+            mant80final |= 0x8000000000000000L;
             exp80final += (BIAS80 - BIAS64);
         }
     }
 	val.b = ((int16_t)(sign80)<<15)| (int16_t)(exp80final);
-	val.f.ll = mant80final;
+	val.f.q = mant80final;
     memcpy(ld, &val, 10);
     /*memcpy(ld, &f.ll, 8);
     memcpy((char*)ld + 8, &val.b, 2);*/
@@ -231,7 +231,8 @@ void fpu_savenv(x64emu_t* emu, char* p, int b16)
     // other stuff are not pushed....
 }
 
-typedef struct xsave_s {
+// this is the 64bits version (slightly different than the 32bits!)
+typedef struct xsave32_s {
     uint16_t ControlWord;        /* 000 */
     uint16_t StatusWord;         /* 002 */
     uint8_t  TagWord;            /* 004 */
@@ -248,11 +249,25 @@ typedef struct xsave_s {
     sse_regs_t FloatRegisters[8];/* 020 */  // fpu/mmx are store in 128bits here
     sse_regs_t XmmRegisters[16]; /* 0a0 */
     uint8_t  Reserved4[96];      /* 1a0 */
-} xsave_t;
+} xsave32_t;
+typedef struct xsave64_s {
+    uint16_t ControlWord;        /* 000 */
+    uint16_t StatusWord;         /* 002 */
+    uint8_t  TagWord;            /* 004 */
+    uint8_t  Reserved1;          /* 005 */
+    uint16_t ErrorOpcode;        /* 006 */
+    uint64_t ErrorOffset;        /* 008 */
+    uint64_t DataOffset;         /* 010 */
+    uint32_t MxCsr;              /* 018 */
+    uint32_t MxCsr_Mask;         /* 01c */
+    sse_regs_t FloatRegisters[8];/* 020 */  // fpu/mmx are store in 128bits here
+    sse_regs_t XmmRegisters[16]; /* 0a0 */
+    uint8_t  Reserved4[96];      /* 1a0 */
+} xsave64_t;
 
-void fpu_fxsave(x64emu_t* emu, void* ed)
+void fpu_fxsave32(x64emu_t* emu, void* ed)
 {
-    xsave_t *p = (xsave_t*)ed;
+    xsave32_t *p = (xsave32_t*)ed;
     // should save flags & all
     emu->sw.f.F87_TOP = emu->top&7;
     p->ControlWord = emu->cw;
@@ -268,21 +283,39 @@ void fpu_fxsave(x64emu_t* emu, void* ed)
     p->DataSelector = 0;
     p->MxCsr = 0;
     p->MxCsr_Mask = 0;
-    // copy MMX regs...
+    // copy FPU/MMX regs...
     for(int i=0; i<8; ++i)
-        memcpy(&p->FloatRegisters[i].q[0], &emu->mmx[0], sizeof(emu->mmx[0]));
+        memcpy(&p->FloatRegisters[i].q[0], &emu->mmx87[0], sizeof(emu->mmx87[0]));
     // copy SSE regs
     memcpy(&p->XmmRegisters[0], &emu->xmm[0], sizeof(emu->xmm));
-    // put also FPU regs in a reserved area... on XMM 8-15
-    for(int i=0; i<8; ++i)
-        memcpy(&p->XmmRegisters[8+i].q[0], &emu->fpu[0], sizeof(emu->fpu[0]));
-    // put a magic sign in reserved area, box86 specific
-    ((unsigned int *)p->Reserved4)[11] = 0x50515253;
 }
 
-void fpu_fxrstor(x64emu_t* emu, void* ed)
+void fpu_fxsave64(x64emu_t* emu, void* ed)
 {
-    xsave_t *p = (xsave_t*)ed;
+    xsave64_t *p = (xsave64_t*)ed;
+    // should save flags & all
+    emu->sw.f.F87_TOP = emu->top&7;
+    p->ControlWord = emu->cw;
+    p->StatusWord = emu->sw.x16;
+    uint8_t tags = 0;
+    for (int i=0; i<8; ++i)
+        tags |= ((emu->p_regs[i].tag)<<(i*2)==0b11)?0:1;
+    p->TagWord = tags;
+    p->ErrorOpcode = 0;
+    p->ErrorOffset = 0;
+    p->DataOffset = 0;
+    p->MxCsr = 0;
+    p->MxCsr_Mask = 0;
+    // copy FPU/MMX regs...
+    for(int i=0; i<8; ++i)
+        memcpy(&p->FloatRegisters[i].q[0], &emu->mmx87[0], sizeof(emu->mmx87[0]));
+    // copy SSE regs
+    memcpy(&p->XmmRegisters[0], &emu->xmm[0], sizeof(emu->xmm));
+}
+
+void fpu_fxrstor32(x64emu_t* emu, void* ed)
+{
+    xsave32_t *p = (xsave32_t*)ed;
     emu->cw = p->ControlWord;
     emu->sw.x16 = p->StatusWord;
     emu->top = emu->sw.f.F87_TOP;
@@ -291,17 +324,23 @@ void fpu_fxrstor(x64emu_t* emu, void* ed)
         emu->p_regs[i].tag = (tags>>(i*2))?0:0b11;
     // copy back MMX regs...
     for(int i=0; i<8; ++i)
-        memcpy(&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(emu->mmx[0]));
+        memcpy(&emu->mmx87[i], &p->FloatRegisters[i].q[0], sizeof(emu->mmx87[0]));
     // copy SSE regs
     memcpy(&emu->xmm[0], &p->XmmRegisters[0], sizeof(emu->xmm));
-    // check the box86 magic sign in reserved area
-    if(((unsigned int *)p->Reserved4)[11] == 0x50515253) {
-        // also FPU regs where a reserved area... on XMM 8-15?
-        for(int i=0; i<8; ++i)
-            memcpy(&emu->fpu[0], &p->XmmRegisters[8+i].q[0], sizeof(emu->fpu[0]));
-    } else {
-        // copy the mmx to fpu...
-        for(int i=0; i<8; ++i)
-            memcpy(&emu->fpu[0], &emu->mmx[i], sizeof(emu->mmx[0]));
-    }
+}
+
+void fpu_fxrstor64(x64emu_t* emu, void* ed)
+{
+    xsave64_t *p = (xsave64_t*)ed;
+    emu->cw = p->ControlWord;
+    emu->sw.x16 = p->StatusWord;
+    emu->top = emu->sw.f.F87_TOP;
+    uint8_t tags = p->TagWord;
+    for(int i=0; i<8; ++i)
+        emu->p_regs[i].tag = (tags>>(i*2))?0:0b11;
+    // copy back MMX regs...
+    for(int i=0; i<8; ++i)
+        memcpy(&emu->mmx87[i], &p->FloatRegisters[i].q[0], sizeof(emu->mmx87[0]));
+    // copy SSE regs
+    memcpy(&emu->xmm[0], &p->XmmRegisters[0], sizeof(emu->xmm));
 }

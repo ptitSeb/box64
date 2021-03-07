@@ -45,7 +45,7 @@ int RunDB(x64emu_t *emu, rex_t rex)
     case 0xC7:
         CHECK_FLAGS(emu);
         if(!ACCESS_FLAG(F_CF))
-            ST0.ll = ST(nextop&7).ll;
+            ST0.q = ST(nextop&7).q;
         break;
     case 0xC8:      /* FCMOVNE ST(0), ST(i) */
     case 0xC9:
@@ -57,7 +57,7 @@ int RunDB(x64emu_t *emu, rex_t rex)
     case 0xCF:
         CHECK_FLAGS(emu);
         if(!ACCESS_FLAG(F_ZF))
-            ST0.ll = ST(nextop&7).ll;
+            ST0.q = ST(nextop&7).q;
         break;
     case 0xD0:      /* FCMOVNBE ST(0), ST(i) */
     case 0xD1:
@@ -69,7 +69,7 @@ int RunDB(x64emu_t *emu, rex_t rex)
     case 0xD7:
         CHECK_FLAGS(emu);
         if(!(ACCESS_FLAG(F_CF) || ACCESS_FLAG(F_ZF)))
-            ST0.ll = ST(nextop&7).ll;
+            ST0.q = ST(nextop&7).q;
         break;
     case 0xD8:      /* FCMOVNU ST(0), ST(i) */
     case 0xD9:
@@ -81,7 +81,7 @@ int RunDB(x64emu_t *emu, rex_t rex)
     case 0xDF:
         CHECK_FLAGS(emu);
         if(!ACCESS_FLAG(F_PF))
-            ST0.ll = ST(nextop&7).ll;
+            ST0.q = ST(nextop&7).q;
         break;
 
     case 0xE1:      /* FDISI8087_NOP */
@@ -168,11 +168,11 @@ int RunDB(x64emu_t *emu, rex_t rex)
                 fpu_do_push(emu);
                 memcpy(&STld(0).ld, ED, 10);
                 LD2D(&STld(0), &ST(0).d);
-                STld(0).ref = ST0.ll;
+                STld(0).ref = ST0.q;
                 break;
             case 7: /* FSTP tbyte */
                 GETED(0);
-                if(ST0.ll!=STld(0).ref)
+                if(ST0.q!=STld(0).ref)
                     D2LD(&ST0.d, ED);
                 else
                     memcpy(ED, &STld(0).ld, 10);

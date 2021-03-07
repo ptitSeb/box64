@@ -127,19 +127,6 @@ typedef enum {
 #pragma pack(push, 1)
 
 typedef union {
-    double d;
-    struct {
-        uint32_t lower;
-        uint32_t upper;
-    } l;
-    struct {
-        float lower;
-        float upper;
-    } f;
-    int64_t ll;
-} fpu_reg_t;
-
-typedef union {
 	//long double ld;	// works only if 80bits!
 	struct {
 		uint64_t lower;
@@ -237,13 +224,15 @@ typedef union {
 typedef union {
 	uint64_t	q;
 	int64_t		sq;
+	double		d;
+	float		f[2];
 	uint32_t	ud[2];
 	int32_t 	sd[2];
 	uint16_t 	uw[4];
 	int16_t 	sw[4];
 	uint8_t 	ub[8];
 	int8_t 		sb[8];
-} mmx_regs_t;
+} mmx87_regs_t;
 
 typedef union {
 	uint64_t q[2];

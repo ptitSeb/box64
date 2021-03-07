@@ -413,7 +413,7 @@ int EXPORT my_atexit(x64emu_t* emu, void *p)
     AddCleanup(emu, p);
     return 0;
 }
-#if 0
+
 int my_getcontext(x64emu_t* emu, void* ucp);
 int my_setcontext(x64emu_t* emu, void* ucp);
 int my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv);
@@ -429,7 +429,6 @@ int my_swapcontext(x64emu_t* emu, void* ucp1, void* ucp2);
 // this one is defined in elfloader.c
 int my_dl_iterate_phdr(x64emu_t *emu, void* F, void *data);
 
-#endif
 pid_t EXPORT my_fork(x64emu_t* emu)
 {
     // execute atforks prepare functions, in reverse order

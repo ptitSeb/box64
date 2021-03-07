@@ -4,7 +4,7 @@
 #include "regs.h"
 
 typedef struct box64context_s box64context_t;
-//typedef struct i386_ucontext_s i386_ucontext_t;
+typedef struct x64_ucontext_s x64_ucontext_t;
 
 #define ERR_UNIMPL  1
 #define ERR_DIVBY0  2
@@ -29,18 +29,16 @@ typedef struct x64emu_s {
 	x86flags_t  eflags;
     reg64_t     ip;
     uintptr_t   old_ip;
-    // fpu
-	fpu_reg_t   fpu[9];
+    // fpu / mmx
+	mmx87_regs_t mmx87[8];
 	uint16_t    cw,cw_mask_all;
 	x87flags_t  sw;
 	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
     int         fpu_stack;
 	fpu_round_t round;
-    fpu_ld_t    fpu_ld[9]; // for long double emulation / 80bits fld fst
-    fpu_ll_t    fpu_ll[9]; // for 64bits fild / fist sequence
-	fpu_p_reg_t p_regs[9];
-    // mmx
-    mmx_regs_t  mmx[8];
+    fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
+    fpu_ll_t    fpu_ll[8]; // for 64bits fild / fist sequence
+	fpu_p_reg_t p_regs[8];
     // sse
     sse_regs_t  xmm[16];
     uint32_t    mxcsr;
@@ -77,7 +75,7 @@ typedef struct x64emu_s {
     void*       init_stack; // initial stack (owned or not)
     uint32_t    size_stack; // stack size (owned or not)
 
-    //i386_ucontext_t *uc_link; // to handle setcontext
+    x64_ucontext_t *uc_link; // to handle setcontext
 
     int         type;       // EMUTYPE_xxx define
 

@@ -32,6 +32,7 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 
 void vFE(x64emu_t *emu, uintptr_t fnc);
 void vFv(x64emu_t *emu, uintptr_t fnc);
+void vFi(x64emu_t *emu, uintptr_t fnc);
 void vFp(x64emu_t *emu, uintptr_t fnc);
 void iFE(x64emu_t *emu, uintptr_t fnc);
 void iFv(x64emu_t *emu, uintptr_t fnc);
@@ -104,6 +105,7 @@ void pFEppi(x64emu_t *emu, uintptr_t fnc);
 void pFEppp(x64emu_t *emu, uintptr_t fnc);
 void pFppiL(x64emu_t *emu, uintptr_t fnc);
 void pFppuL(x64emu_t *emu, uintptr_t fnc);
+void iFEppiV(x64emu_t *emu, uintptr_t fnc);
 void iFEpppp(x64emu_t *emu, uintptr_t fnc);
 void iFipppi(x64emu_t *emu, uintptr_t fnc);
 void iFEpippppp(x64emu_t *emu, uintptr_t fnc);
