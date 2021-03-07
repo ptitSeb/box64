@@ -75,7 +75,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
         GETED(0);
         GETGX;
         if(rex.w)
-            ED->q[0] = GX->q;
+            ED->q[0] = GX->q[0];
         else {
             if(MODREG)
                 ED->q[0] = GX->ud[0];
