@@ -1840,7 +1840,7 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
     return posix_spawnp(pid, path, actions, attrp, argv, envp);
 }
-
+#endif
 EXPORT void my__Jv_RegisterClasses() {}
 
 EXPORT int32_t my___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* obj, void* dso)
@@ -1857,7 +1857,7 @@ EXPORT unsigned long int my___fdelt_chk (unsigned long int d)
 
   return d / __NFDBITS;
 }
-
+#if 0
 EXPORT int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
 {
     // not always implemented on old linux version...

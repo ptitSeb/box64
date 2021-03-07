@@ -127,6 +127,8 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/librarian/library.c"
     "${BOX64_ROOT}/src/libtools/auxval.c"
     "${BOX64_ROOT}/src/libtools/myalign.c"
+    "${BOX64_ROOT}/src/libtools/sdl1rwops.c"
+    "${BOX64_ROOT}/src/libtools/sdl2rwops.c"
     "${BOX64_ROOT}/src/libtools/signals.c"
     "${BOX64_ROOT}/src/libtools/threads.c"
     "${BOX64_ROOT}/src/tools/box64stack.c"
@@ -145,6 +147,11 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibdl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpthread.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibrt.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibgl.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibglu.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedsdl1.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedsdl2.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedopenal.c"
     "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
 )
 

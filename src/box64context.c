@@ -180,8 +180,8 @@ void FreeBox64Context(box64context_t** context)
 
     FreeBridge(&ctx->system);
 
-//    freeGLProcWrapper(ctx);
-//    freeALProcWrapper(ctx);
+    freeGLProcWrapper(ctx);
+    freeALProcWrapper(ctx);
 
 
     void* ptr;

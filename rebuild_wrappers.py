@@ -3,7 +3,7 @@
 import os
 import sys
 
-values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P', 'G', 'N', 'M']
+values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H']
 def splitchar(s):
 	try:
 		ret = [len(s), values.index(s[0])]
@@ -224,17 +224,6 @@ def main(root, defines, files, ver):
 #include "regs.h"
 #include "x64emu.h"
 
-typedef union ui64_s {
-    int64_t     i;
-    uint64_t    u;
-    uint32_t    d[2];
-} ui64_t;
-
-typedef struct _2uint_struct_s {
-	uint32_t	a;
-	uint32_t	b;
-} _2uint_struct_t;
-
 extern void* my__IO_2_1_stderr_;
 extern void* my__IO_2_1_stdin_ ;
 extern void* my__IO_2_1_stdout_;
@@ -251,33 +240,6 @@ static void* io_convert(void* v)
 		return stdout;
 	return v;
 }
-
-typedef struct my_GValue_s
-{
-  int         g_type;
-  union {
-    int        v_int;
-    int64_t    v_int64;
-    uint64_t   v_uint64;
-    float      v_float;
-    double     v_double;
-    void*      v_pointer;
-  } data[2];
-} my_GValue_t;
-
-static void alignGValue(my_GValue_t* v, void* value)
-{
-    v->g_type = *(int*)value;
-    memcpy(v->data, value+4, 2*sizeof(double));
-}
-static void unalignGValue(void* value, my_GValue_t* v)
-{
-    *(int*)value = v->g_type;
-    memcpy(value+4, v->data, 2*sizeof(double));
-}
-
-void* VulkanFromx86(void* src, void** save);
-void VulkanTox86(void* src, void* save);
 
 #define ST0val ST0.d
 
@@ -309,11 +271,9 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 // O = libc O_ flags bitfield
 // S = _IO_2_1_stdXXX_ pointer (or FILE*)
 // Q = ...
-// 2 = struct of 2 uint
-// P = Vulkan struture pointer
-// G = a single GValue pointer
 // N = ... automatically sending 1 arg
 // M = ... automatically sending 2 args
+// H = Huge 128bits value/struct
 
 """
 	}
@@ -349,8 +309,8 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl["()"]:
-			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2         		 P        G        N      M
-			types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*", "...", "..."]
+			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S         N      M			    H
+			types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128"]
 			if len(values) != len(types):
 					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 			
@@ -359,8 +319,8 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 		for k in gbl_idxs:
 			file.write("\n#if " + k + "\n")
 			for v in gbl[k]:
-				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2      			 P        G        N      M
-				types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*", "...", "..."]
+				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S         N      M            H
+				types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128"]
 				if len(values) != len(types):
 						raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 				
@@ -375,17 +335,17 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 		# Helper variables
 		reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
 		# vreg: value is in a general register
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
-		vreg   = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 2]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H
+		vreg   = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2]
 		# vxmm: value is in a XMM register
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
-		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H
+		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		# vother: value is elsewere
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
-		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M, H
+		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0]
 		# vstack: value is on the stack (or out of register)
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  2  P  G  N, M
-		vstack = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 2]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M, H
+		vstack = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2]
 		arg_s = [
 			"",											# E
 			"",											# e
@@ -408,11 +368,9 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"",					# V
 			"of_convert(*(int32_t*)(R_RSP + {p})), ",	# O
 			"io_convert(*(void**)(R_RSP + {p})), ",		# S
-			"(_2uint_struct_t){{*(uintptr_t*)(R_RSP + {p}),*(uintptr_t*)(R_RSP + {p} + 4)}}, ",	# 2
-			"",									# P
-			"",								# G
 			"*(void**)(R_RSP + {p}), ",					# N
 			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 8), ",	# M
+			"*(unsigned __int128)(R_RSP + {p}), "		# H
 		]
 		arg_r = [
 			"",                                  		# E
@@ -436,11 +394,9 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"",                 # V
 			"of_convert((int32_t){p}), ", # O
 			"io_convert((void*){p}), ",   # S
-			"",	# 2
-			"",                               # P
-			"",                              # G
 			"(void*){p}, ",				  # N
 			"(void*){p}, ",	# M
+			"#error use pp instead, ", #H
 		]
 		arg_x = [
 			"",                                  # E
@@ -464,11 +420,9 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"",                 # V
 			"", # O
 			"",   # S
-			"",	# 2
-			"",                               # P
-			"",                              # G
 			"",				  # N
 			"",	# M
+			"", # H
 		]
 		arg_o = [
 			"emu, ",                                  # E
@@ -492,11 +446,9 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"(void*)(R_RSP + {p}), ",                 # V
 			"", # O
 			"",   # S
-			"",	# 2
-			"arg{p}, ",                               # P
-			"&arg{p}, ",                              # G
 			"",					# N
 			"",	# M
+			"", # H
 		]
 
 		vals = [
@@ -521,11 +473,9 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"\n#error Invalid return type: va_list\n",                      # V
 			"\n#error Invalid return type: at_flags\n",                     # O
 			"\n#error Invalid return type: _io_file*\n",                    # S
-			"\n#error Invalid return type: _2uint_struct\n",                # 2
-			"\n#error Invalid return type: Vulkan Struct\n",                # P
-			"\n#error Invalid return type: GValue Pointer\n",               # G
 			"\n#error Invalid return type: ... with 1 arg\n",               # N
 			"\n#error Invalid return type: ... with 2 args\n",              # M
+			"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
 		]
 		# Asserts
 		if len(values) != len(arg_s):
