@@ -43,6 +43,25 @@ int Run660F(x64emu_t *emu, rex_t rex)
         GETED(0);
         break;
 
+    case 0x62:  /* PUNPCKLDQ Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->ud[3] = EX->ud[1];
+        GX->ud[2] = GX->ud[1];
+        GX->ud[1] = EX->ud[0];
+        break;
+
+    case 0x6E:                      /* MOVD Gx, Ed */
+        nextop = F8;
+        GETED(0);
+        GETGX;
+        if(rex.w)
+            GX->q[0] = ED->q[0];
+        else
+            GX->q[0] = ED->dword[0];
+        GX->q[1] = 0;
+        break;
     case 0x6F:                      /* MOVDQA Gx,Ex */
         nextop = F8;
         GETEX(0);
