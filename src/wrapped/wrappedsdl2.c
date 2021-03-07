@@ -621,21 +621,21 @@ EXPORT void my2_SDL_LogSetOutputFunction(x64emu_t* emu, void* f, void* arg)
     my->SDL_LogSetOutputFunction(find_LogOutput_Fct(f), arg);
 }
 
-EXPORT int my2_SDL_vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V)
-{
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
-    PREPARE_VALIST;
-    void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
-    return r;
-    #else
-    void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, *(uint32_t**)b);
-    return r;
-    #endif
-}
+//EXPORT int my2_SDL_vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V)
+//{
+//    #ifndef NOALIGN
+//    // need to align on arm
+//    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+//    PREPARE_VALIST;
+//    void* f = vsnprintf;
+//    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
+//    return r;
+//    #else
+//    void* f = vsnprintf;
+//    int r = ((iFpupp_t)f)(buff, s, fmt, *(uint32_t**)b);
+//    return r;
+//    #endif
+//}
 
 EXPORT void* my2_SDL_CreateThread(x64emu_t* emu, void* f, void* n, void* p)
 {
@@ -645,17 +645,17 @@ EXPORT void* my2_SDL_CreateThread(x64emu_t* emu, void* f, void* n, void* p)
     return my->SDL_CreateThread(my_prepare_thread(emu, f, p, 0, &et), n, et);
 }
 
-EXPORT int my2_SDL_snprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, b, emu->scratch);
-    PREPARE_VALIST;
-    void* f = vsnprintf;
-    return ((iFpupp_t)f)(buff, s, fmt, VARARGS);
-    #else
-    return vsnprintf((char*)buff, s, (char*)fmt, V);
-    #endif
-}
+//EXPORT int my2_SDL_snprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
+//    #ifndef NOALIGN
+//    // need to align on arm
+//    myStackAlign((const char*)fmt, b, emu->scratch);
+//    PREPARE_VALIST;
+//    void* f = vsnprintf;
+//    return ((iFpupp_t)f)(buff, s, fmt, VARARGS);
+//    #else
+//    return vsnprintf((char*)buff, s, (char*)fmt, V);
+//    #endif
+//}
 
 char EXPORT *my2_SDL_GetBasePath(x64emu_t* emu) {
     char* p = strdup(emu->context->fullpath);
