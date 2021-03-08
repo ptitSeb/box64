@@ -562,7 +562,15 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                 *p += head->delta;
                 break;
             case R_X86_64_COPY:
-                if(local_maplib)
+                if(!strcmp(symname, "stdin") || !strcmp(symname, "stdout") || !strcmp(symname, "stderr")) {
+                    if(!strcmp(symname, "stdin"))
+                        offs = (uintptr_t)&stdin;
+                    else if(!strcmp(symname, "stdout"))
+                        offs = (uintptr_t)&stdout;
+                    else
+                        offs = (uintptr_t)&stderr;
+                    end = offs + 8;
+                } else if(local_maplib)
                     GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head);
                 if(!offs)
                     GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);
