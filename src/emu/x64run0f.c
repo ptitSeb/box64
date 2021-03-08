@@ -418,6 +418,12 @@ int Run0F(x64emu_t *emu, rex_t rex)
             }
             GETED(0);
             switch((nextop>>3)&7) {
+                case 2:                 /* LDMXCSR Md */
+                    emu->mxcsr = ED->dword[0];
+                    break;
+                case 3:                 /* STMXCSR Md */
+                    ED->dword[0] = emu->mxcsr;
+                    break;
                 default:
                     return 1;
             }
