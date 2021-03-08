@@ -144,19 +144,24 @@ set(ELFLOADER_SRC
 )
 
 set(WRAPPEDS
+    "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibasound.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibc.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedlibm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibdl.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibgl.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibglu.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpthread.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibrt.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibx11.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedlibasound.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedlibgl.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedlibglu.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxau.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxcb.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxdmcp.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxext.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxi.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedopenal.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl1.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl2.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedopenal.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
 )
 
 #set(WRAPPEDS_HEAD "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9_gen.h")
