@@ -159,9 +159,13 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxdmcp.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxext.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxi.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxrandr.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxrender.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxxf86vm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedopenal.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl1.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl2.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedxinerama.c"
 )
 
 #set(WRAPPEDS_HEAD "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9_gen.h")
