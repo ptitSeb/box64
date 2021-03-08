@@ -1662,8 +1662,8 @@ GOM(setjmp, iFEp)
 //GO(shmdt, 
 //GO(shmget, 
 //GOW(shutdown, 
-//GOW(__sigaction, 
-//GOW(sigaction, 
+GOM(__sigaction, iFEipp)  // Weak
+GOM(sigaction, iFEipp)    // Weak
 //GO(__sigaddset, 
 //GO(sigaddset, 
 //GOW(sigaltstack, 

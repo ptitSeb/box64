@@ -90,8 +90,8 @@ GO2(cbrtl, KFK, cbrt)
 //GOM(ccoshf, UFV)   // Weak, return complex
 // ccoshl   // Weak
 // ccosl    // Weak
-//GOW(ceil, dFd)
-//GOW(ceilf, fFf)
+GOW(ceil, dFd)
+GOW(ceilf, fFf)
 // ceill    // Weak
 //GOS(cexp, pFpV)     // Weak, return complex
 //GOM(cexpf, UFV)     // Weak, return complex
