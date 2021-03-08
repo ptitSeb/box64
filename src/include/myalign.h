@@ -56,11 +56,11 @@ typedef struct  va_list {
 
 #define CONVERT_VALIST(A) \
   va_list sysv_varargs; \
-  sysv_varargs.__gr_offs=(2+A->gp_offset)*8;  \
-  sysv_varargs.__vr_offs=A->fp_offset;        \
-  sysv_varargs.stack=A->overflow_arg_area;    \
-  sysv_varargs.gr_top=A->reg_save_area + X64_VA_MAX_REG;  \
-  sysv_varargs.vr_top=A->reg_save_area + X64_VA_MAX_XMM;
+  sysv_varargs.__gr_offs=-(6*8)+A->gp_offset;  \
+  sysv_varargs.__vr_offs=-(8*16)+(A->fp_offset-X64_VA_MAX_REG);        \
+  sysv_varargs.__stack=A->overflow_arg_area;    \
+  sysv_varargs.__gr_top=A->reg_save_area + X64_VA_MAX_REG;  \
+  sysv_varargs.__vr_top=A->reg_save_area + X64_VA_MAX_XMM;
 
 #elif defined(__powerpc64__)
 // TODO, is this correct?
