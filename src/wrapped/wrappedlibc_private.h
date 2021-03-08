@@ -1131,8 +1131,8 @@ GO(__memcpy_chk, pFppuL)
 //GO(memfd_create, 
 //GO(memfrob, 
 //GOW(memmem, 
-//GOI(memmove, 
-//GOI(__memmove_chk, 
+GO(memmove, pFppL)
+GO(__memmove_chk, pFppLL)
 //GOI(__mempcpy, 
 //GOI(mempcpy, 
 //GOI(__mempcpy_chk, 
@@ -1267,8 +1267,8 @@ GOW(nl_langinfo_l, pFup)
 //GO(__openat64_2, 
 //GO(open_by_handle_at, 
 //GO(__open_catalog, 
-//GOW(opendir, 
-//GO(openlog, 
+GOW(opendir, pFp)
+GO(openlog, vFpii)
 //GOW(open_memstream, 
 //GO(__open_nocancel, 
 //GO(open_wmemstream, 
@@ -1615,8 +1615,8 @@ GOW(puts, iFp)
 //GOW(setitimer, 
 GOM(_setjmp, iFEp)
 GOM(setjmp, iFEp)
-//GO(setlinebuf, 
-//GO(setlocale, 
+GO(setlinebuf, vFp)
+GO(setlocale, pFip)
 //GO(setlogin, 
 //GO(setlogmask, 
 //GO(__setmntent, 
