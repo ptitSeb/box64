@@ -321,8 +321,8 @@ GOW(_Exit, vFi)
 //GOW(ferror, 
 //GOW(ferror_unlocked, 
 //GO(fexecve, 
-//GOW(fflush, 
-//GOW(fflush_unlocked, 
+GOW(fflush, iFp)
+GO(fflush_unlocked, iFp)
 //GO(__ffs, 
 //GO(ffs, 
 //GOW(ffsl, 
@@ -367,8 +367,8 @@ GOW(_Exit, vFi)
 //GO(fmemopen, 
 //GO(fmtmsg, 
 //GO(fnmatch, 
-//GO(fopen, 
-//GOW(fopen64, 
+GOM(fopen, pFEpp)
+GOM(fopen64, pFEpp)  // Weak
 //GO(fopencookie, 
 //GO(__fork, 
 GOM(fork, iFEv) // Weak
@@ -1258,7 +1258,7 @@ GOW(nl_langinfo_l, pFup)
 //GOW(open, 
 //GO(__open_2, 
 //GOW(__open64, 
-//GOW(open64, 
+GOM(open64, iFEpOu) //Weak
 //GO(__open64_2, 
 //GO(__open64_nocancel, 
 //GOW(openat, 
@@ -1451,8 +1451,8 @@ GOW(puts, iFp)
 //GO(rcmd, 
 //GO(rcmd_af, 
 //DATAB(__rcmd_errstr, 
-//GO(__read, 
-//GO(read, 
+GOW(__read, lFipL)
+GO(read, lFipL)
 //GOW(readahead, 
 //GO(__read_chk, 
 //GOW(readdir, 

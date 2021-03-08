@@ -1413,7 +1413,7 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
     return ret;
 }
 EXPORT int32_t my___open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode) __attribute__((alias("my_open")));
-#if 0
+
 #ifdef DYNAREC
 static int hasDBFromAddress(uintptr_t addr)
 {
@@ -1422,28 +1422,28 @@ static int hasDBFromAddress(uintptr_t addr)
 }
 #endif
 
-EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
-{
-    int ret = read(fd, buf, count);
-#ifdef DYNAREC
-    if(ret!=count && ret>0) {
-        // continue reading...
-        void* p = buf+ret;
-        if(hasDBFromAddress((uintptr_t)p)) {
-            // allow writing the whole block (this happens with HalfLife, libMiles load code directly from .mix and other file like that)
-            unprotectDB((uintptr_t)p, count-ret);
-            int l;
-            do {
-                l = read(fd, p, count-ret); 
-                if(l>0) {
-                    p+=l; ret+=l;
-                }
-            } while(l>0);
-        }
-    }
-#endif
-    return ret;
-}
+//EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
+//{
+//    int ret = read(fd, buf, count);
+//#ifdef DYNAREC
+//    if(ret!=count && ret>0) {
+//        // continue reading...
+//        void* p = buf+ret;
+//        if(hasDBFromAddress((uintptr_t)p)) {
+//            // allow writing the whole block (this happens with HalfLife, libMiles load code directly from .mix and other file like that)
+//            unprotectDB((uintptr_t)p, count-ret);
+//            int l;
+//            do {
+//                l = read(fd, p, count-ret); 
+//                if(l>0) {
+//                    p+=l; ret+=l;
+//                }
+//            } while(l>0);
+//        }
+//    }
+//#endif
+//    return ret;
+//}
 
 EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
 {
@@ -1579,27 +1579,7 @@ EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
 }
 
 
-EXPORT int my_mkstemps64(x64emu_t* emu, char* template, int suffixlen)
-{
-    library_t* lib = my_lib;
-    if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "mkstemps64");
-    if(f)
-        return ((iFpi_t)f)(template, suffixlen);
-    // implement own version...
-    // TODO: check size of template, and if really XXXXXX is there
-    char* fname = strdup(template);
-    do {
-        strcpy(fname, template);
-        char num[8];
-        sprintf(num, "%06d", rand()%999999);
-        memcpy(fname+strlen(fname)-suffixlen-6, num, 6);
-    } while(!FileExist(fname, -1));
-    int ret = open64(fname, O_EXCL);
-    free(fname);
-    return ret;
-}
-
+#if 0
 EXPORT int32_t my_ftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 {
     static iFppi_t f = NULL;
