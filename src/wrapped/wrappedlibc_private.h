@@ -1679,7 +1679,7 @@ GO(siggetmask, iFv)
 //GO(siginterrupt, 
 //GO(sigisemptyset, 
 //GO(__sigismember, 
-//GO(sigismember, 
+GO(sigismember, iFpi)
 //GOW(siglongjmp, 
 //GOW(signal, 
 //GO(signalfd, 
