@@ -1935,7 +1935,7 @@ GOM(syscall, iFEv)
 //DATA(sys_siglist, 
 //DATA(sys_siglist, 
 //GOW(system, 
-//GO(__sysv_signal, 
+GOM(__sysv_signal, pFip)
 //GOW(sysv_signal, 
 //GOW(tcdrain, 
 //GO(tcflow, 
