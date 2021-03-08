@@ -26,7 +26,7 @@ typedef struct forkpty_s {
 typedef struct x64emu_s {
     // cpu
 	reg64_t     regs[16];
-	x86flags_t  eflags;
+	x64flags_t  eflags;
     reg64_t     ip;
     uintptr_t   old_ip;
     // fpu / mmx

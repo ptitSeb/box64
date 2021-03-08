@@ -173,7 +173,8 @@ typedef union {
         unsigned int _F_ID:1;
     } f;
     uint32_t    x32;
-} x86flags_t;
+	uint64_t 	x64;
+} x64flags_t;
 
 typedef enum {
     F_CF = 0,
