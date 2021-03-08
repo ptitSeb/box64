@@ -33,7 +33,7 @@ int Run(x64emu_t *emu, int step)
     uint8_t opcode;
     uint8_t nextop;
     reg64_t *oped, *opgd;
-    uint8_t tmp8u;
+    uint8_t tmp8u, tmp8u2;
     int8_t tmp8s;
     uint32_t tmp32u;
     uint64_t tmp64u;
@@ -449,6 +449,47 @@ x64emurun:
                 R_RDX=(R_RAX & 0x8000000000000000L)?0xFFFFFFFFFFFFFFFFL:0x0000000000000000L;
             else
                 R_RDX=(R_EAX & 0x80000000)?0xFFFFFFFFFFFFFFFFL:0x0000000000000000L;
+            break;
+
+        case 0xA6:                      /* (REPZ/REPNE) CMPSB */
+            tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+            switch(rep) {
+                case 1:
+                    tmp64u = R_RCX;
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp8u  = *(uint8_t*)R_RDI;
+                        tmp8u2 = *(uint8_t*)R_RSI;
+                        R_RDI += tmp8s;
+                        R_RSI += tmp8s;
+                        if(tmp8u==tmp8u2)
+                            break;
+                    }
+                    if(tmp64u) cmp8(emu, tmp8u2, tmp8u);
+                    R_RCX = tmp64u;
+                    break;
+                case 2:
+                    tmp64u = R_RCX;
+                    while(tmp64u) {
+                        --tmp64u;
+                    tmp8u  = *(uint8_t*)R_RDI;
+                    tmp8u2 = *(uint8_t*)R_RSI;
+                    R_RDI += tmp8s;
+                    R_RSI += tmp8s;
+                    if(tmp8u!=tmp8u2)
+                        break;
+                    }
+                    if(tmp64u) cmp8(emu, tmp8u2, tmp8u);
+                    R_RCX = tmp64u;
+                    break;
+                default:
+                    tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+                    tmp8u  = *(uint8_t*)R_RDI;
+                    tmp8u2 = *(uint8_t*)R_RSI;
+                    R_RDI += tmp8s;
+                    R_RSI += tmp8s;
+                    cmp8(emu, tmp8u2, tmp8u);
+            }
             break;
 
         case 0xA8:                      /* TEST AL, Ib */
