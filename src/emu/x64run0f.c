@@ -52,6 +52,50 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETGX;
             memcpy(EX, GX, 16); // unaligned, so carreful
             break;
+        case 0x12:                      
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            if((nextop&0xC0)==0xC0)    /* MOVHLPS Gx,Ex */
+                GX->q[0] = EX->q[1];
+            else
+                GX->q[0] = EX->q[0];    /* MOVLPS Gx,Ex */
+            break;
+        case 0x13:                      /* MOVLPS Ex,Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            break;
+        case 0x14:                      /* UNPCKLPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GX->ud[3] = EX->ud[1];
+            GX->ud[2] = GX->ud[1];
+            GX->ud[1] = EX->ud[0];
+            break;
+        case 0x15:                      /* UNPCKHPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GX->ud[0] = GX->ud[2];
+            GX->ud[1] = EX->ud[2];
+            GX->ud[2] = GX->ud[3];
+            GX->ud[3] = EX->ud[3];
+            break;
+        case 0x16:                      /* MOVHPS Gx,Ex */
+            nextop = F8;               /* MOVLHPS Gx,Ex (Ex==reg) */
+            GETEX(0);
+            GETGX;
+            GX->q[1] = EX->q[0];
+            break;
+        case 0x17:                      /* MOVHPS Ex,Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[1];
+            break;
 
         case 0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
