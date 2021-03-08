@@ -465,7 +465,7 @@ x64emurun:
                         if(tmp8u==tmp8u2)
                             break;
                     }
-                    if(tmp64u) cmp8(emu, tmp8u2, tmp8u);
+                    if(R_RCX) cmp8(emu, tmp8u2, tmp8u);
                     R_RCX = tmp64u;
                     break;
                 case 2:
@@ -479,7 +479,7 @@ x64emurun:
                     if(tmp8u!=tmp8u2)
                         break;
                     }
-                    if(tmp64u) cmp8(emu, tmp8u2, tmp8u);
+                    if(R_RCX) cmp8(emu, tmp8u2, tmp8u);
                     R_RCX = tmp64u;
                     break;
                 default:
@@ -536,7 +536,7 @@ x64emurun:
                         if(R_AL==tmp8u)
                             break;
                     }
-                    if(tmp64u) cmp8(emu, R_AL, tmp8u);
+                    if(R_RCX) cmp8(emu, R_AL, tmp8u);
                     R_RCX = tmp64u;
                     break;
                 case 2:
@@ -548,7 +548,7 @@ x64emurun:
                         if(R_AL!=tmp8u)
                             break;
                     }
-                    if(tmp64u) cmp8(emu, R_AL, tmp8u);
+                    if(R_RCX) cmp8(emu, R_AL, tmp8u);
                     R_RCX = tmp64u;
                     break;
                 default:
