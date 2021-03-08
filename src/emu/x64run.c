@@ -627,6 +627,14 @@ x64emurun:
             }
             break;
 
+        case 0xD8:                      /* x87 opcodes */
+            if(RunD8(emu, rex)) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit)
+                goto fini;
+            break;
         case 0xD9:                      /* x87 opcodes */
             if(RunD9(emu, rex)) {
                 unimp = 1;
@@ -638,6 +646,15 @@ x64emurun:
 
         case 0xDB:                      /* x87 opcodes */
             if(RunDB(emu, rex)) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit)
+                goto fini;
+            break;
+
+        case 0xDD:                      /* x87 opcodes */
+            if(RunDD(emu, rex)) {
                 unimp = 1;
                 goto fini;
             }

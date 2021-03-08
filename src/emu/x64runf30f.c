@@ -106,6 +106,13 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         GX->q[0] = EX->q[0];
         GX->q[1] = 0;
         break;
+    case 0x7F:  /* MOVDQU Ex, Gx */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        memcpy(EX, GX, 16);    // unaligned...
+        break;
+
 
     default:
         return 1;
