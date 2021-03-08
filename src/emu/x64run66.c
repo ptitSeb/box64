@@ -75,6 +75,13 @@ int Run66(x64emu_t *emu, rex_t rex)
         }
         break;
 
+    case 0x85:                              /* TEST Ew,Gw */
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        test16(emu, EW->word[0], GW->word[0]);
+        break;
+
     case 0x89:                              /* MOV Ew,Gw */
         nextop = F8;
         GETEW(0);
