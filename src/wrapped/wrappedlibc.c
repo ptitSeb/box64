@@ -1485,17 +1485,6 @@ EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
         lseek(tmp, 0, SEEK_SET);
         return tmp;
     }
-    if(isCpuTopology((const char*)pathname)!=-1) {
-        int n = isCpuTopology((const char*)pathname);
-        char buf[512];
-        snprintf(buf, 512, TMP_CPUTOPO, n);
-        int tmp = shm_open(buf, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open64(pathname, flags, mode); // error fallback
-        shm_unlink(buf);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCPUTopologyCoreID(tmp, n);
-        lseek(tmp, 0, SEEK_SET);
-        return tmp;
-    }
     #endif
     return open64(pathname, flags, mode);
 }
@@ -1520,17 +1509,6 @@ EXPORT FILE* my_fopen(x64emu_t* emu, const char* path, const char* mode)
         CreateCPUInfoFile(tmp);
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
-    }
-    if(isCpuTopology(path)!=-1) {
-        int n = isCpuTopology(path);
-        char buf[512];
-        snprintf(buf, 512, TMP_CPUTOPO, n);
-        int tmp = shm_open(buf, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen(path, mode); // error fallback
-        shm_unlink(buf);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCPUTopologyCoreID(tmp, n);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);;
     }
     #endif
     if(isProcSelf(path, "exe")) {
@@ -1559,17 +1537,6 @@ EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
         CreateCPUInfoFile(tmp);
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
-    }
-    if(isCpuTopology(path)!=-1) {
-        int n = isCpuTopology(path);
-        char buf[512];
-        snprintf(buf, 512, TMP_CPUTOPO, n);
-        int tmp = shm_open(buf, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen(path, mode); // error fallback
-        shm_unlink(buf);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCPUTopologyCoreID(tmp, n);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);;
     }
     #endif
     if(isProcSelf(path, "exe")) {
