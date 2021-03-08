@@ -482,6 +482,40 @@ x64emurun:
             if(rep)
                 R_RCX = tmp64u;
             break;
+        
+        case 0xAE:                      /* (REPZ/REPNE) SCASB */
+            tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+            switch(rep) {
+                case 1:
+                    tmp64u = R_RCX;
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp8u = *(uint8_t*)R_RDI;
+                        R_RDI += tmp8s;
+                        if(R_AL==tmp8u)
+                            break;
+                    }
+                    if(tmp64u) cmp8(emu, R_AL, tmp8u);
+                    R_RCX = tmp64u;
+                    break;
+                case 2:
+                    tmp64u = R_RCX;
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp8u = *(uint8_t*)R_RDI;
+                        R_EDI += tmp8s;
+                        if(R_AL!=tmp8u)
+                            break;
+                    }
+                    if(tmp64u) cmp8(emu, R_AL, tmp8u);
+                    R_RCX = tmp64u;
+                    break;
+                default:
+                    cmp8(emu, R_AL, *(uint8_t*)R_RDI);
+                    R_EDI += tmp8s;
+            }
+            break;
+
 
         case 0xB0:                      /* MOV AL,Ib */
         case 0xB1:                      /* MOV CL,Ib */
