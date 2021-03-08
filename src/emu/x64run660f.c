@@ -62,6 +62,98 @@ int Run660F(x64emu_t *emu, rex_t rex)
         CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
         break;
 
+    case 0x54:                      /* ANDPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->q[0] &= EX->q[0];
+        GX->q[1] &= EX->q[1];
+        break;
+    case 0x55:                      /* ANDNPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->q[0] = (~GX->q[0]) & EX->q[0];
+        GX->q[1] = (~GX->q[1]) & EX->q[1];
+        break;
+    case 0x56:                      /* ORPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->q[0] |= EX->q[0];
+        GX->q[1] |= EX->q[1];
+        break;
+    case 0x57:                      /* XORPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->q[0] ^= EX->q[0];
+        GX->q[1] ^= EX->q[1];
+        break;
+    case 0x58:                      /* ADDPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->d[0] += EX->d[0];
+        GX->d[1] += EX->d[1];
+        break;
+    case 0x59:                      /* MULPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->d[0] *= EX->d[0];
+        GX->d[1] *= EX->d[1];
+        break;
+    case 0x5A:                      /* CVTPD2PS Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->f[0] = EX->d[0];
+        GX->f[1] = EX->d[1];
+        GX->q[1] = 0;
+        break;
+    case 0x5B:                      /* CVTPS2DQ Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->sd[0] = EX->f[0];
+        GX->sd[1] = EX->f[1];
+        GX->sd[2] = EX->f[2];
+        GX->sd[3] = EX->f[3];
+        break;
+    case 0x5C:                      /* SUBPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->d[0] -= EX->d[0];
+        GX->d[1] -= EX->d[1];
+        break;
+    case 0x5D:                      /* MINPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        if (isnan(GX->d[0]) || isnan(EX->d[0]) || isless(EX->d[0], GX->d[0]))
+            GX->d[0] = EX->d[0];
+        if (isnan(GX->d[1]) || isnan(EX->d[1]) || isless(EX->d[1], GX->d[1]))
+            GX->d[1] = EX->d[1];
+        break;
+    case 0x5E:                      /* DIVPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->d[0] /= EX->d[0];
+        GX->d[1] /= EX->d[1];
+        break;
+    case 0x5F:                      /* MAXPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        if (isnan(GX->d[0]) || isnan(EX->d[0]) || isgreater(EX->d[0], GX->d[0]))
+            GX->d[0] = EX->d[0];
+        if (isnan(GX->d[1]) || isnan(EX->d[1]) || isgreater(EX->d[1], GX->d[1]))
+            GX->d[1] = EX->d[1];
+        break;
+        
     case 0x62:  /* PUNPCKLDQ Gx,Ex */
         nextop = F8;
         GETEX(0);
