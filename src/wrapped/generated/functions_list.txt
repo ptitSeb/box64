@@ -86,6 +86,7 @@
 #() iFpl
 #() iFpL
 #() iFpp
+#() iFpO
 #() IFEp
 #() IFpu
 #() CFui
@@ -128,6 +129,7 @@
 #() pFpp
 #() pFpV
 #() HFpi
+#() vFEpi
 #() vFEpu
 #() vFEpp
 #() vFEpV
@@ -185,6 +187,7 @@
 #() iFuup
 #() iFuff
 #() iFfff
+#() iFLpp
 #() iFpii
 #() iFpiu
 #() iFpiL
@@ -253,6 +256,7 @@
 #() vFEipV
 #() vFEpip
 #() vFEpup
+#() vFEppp
 #() vFiiii
 #() vFiiip
 #() vFiuip
@@ -307,6 +311,7 @@
 #() iFEupp
 #() iFEpip
 #() iFEppi
+#() iFEppL
 #() iFEppp
 #() iFEppV
 #() iFEpOu

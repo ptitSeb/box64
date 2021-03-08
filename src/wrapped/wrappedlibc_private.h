@@ -8,7 +8,7 @@
 //GO(abs, 
 //GO(accept, 
 //GO(accept4, 
-//GOW(access, 
+GOW(access, iFpi)
 //GO(acct, 
 //GOW(addmntent, 
 //GOW(addseverity, 
@@ -576,9 +576,9 @@ GOW(getpriority, iFii)
 //GO(getrandom, 
 //GO(getresgid, 
 //GO(getresuid, 
-//GO(__getrlimit, 
-//GOW(getrlimit, 
-//GOW(getrlimit64, 
+GO(__getrlimit, iFip)
+GOW(getrlimit, iFip)
+GOW(getrlimit64, iFip)
 //GO(getrpcbyname, 
 //GO(getrpcbyname_r, 
 //GO(getrpcbynumber, 
@@ -1142,11 +1142,11 @@ GO(__memset_chk, pFpiuu)
 //GO(__mempcpy_small, 
 //GO(__merge_grp, 
 //GO(mincore, 
-//GOW(mkdir, 
-//GO(mkdirat, 
-//GO(mkdtemp, 
-//GO(mkfifo, 
-//GO(mkfifoat, 
+GOW(mkdir, iFpu)
+GO(mkdirat, iFipu)
+GO(mkdtemp, pFp)
+GO(mkfifo, iFpu)
+GO(mkfifoat, iFipu)
 //GO(mkostemp, 
 //GOW(mkostemp64, 
 //GO(mkostemps, 
@@ -1254,9 +1254,9 @@ GOW(nl_langinfo_l, pFup)
 //GOW(obstack_vprintf, 
 //GO(__obstack_vprintf_chk, 
 //GOW(on_exit, 
-//GOW(__open, 
-//GOW(open, 
-//GO(__open_2, 
+GOM(__open, iFEpOu) //Weak
+GOM(open, iFEpOu)    //Weak
+GO(__open_2, iFpO)
 //GOW(__open64, 
 GOM(open64, iFEpOu) //Weak
 //GO(__open64_2, 
@@ -1671,9 +1671,9 @@ GOM(sigaction, iFEipp)    // Weak
 //GOW(sigblock, 
 //GO(__sigdelset, 
 //GO(sigdelset, 
-//GO(sigemptyset, 
-//GO(sigfillset, 
-//GO(siggetmask, 
+GO(sigemptyset, iFp)
+GO(sigfillset, iFp)
+GO(siggetmask, iFv)
 //GO(sighold, 
 //GO(sigignore, 
 //GO(siginterrupt, 
