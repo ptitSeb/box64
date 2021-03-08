@@ -336,6 +336,7 @@ void iFEupp(x64emu_t *emu, uintptr_t fnc);
 void iFEpip(x64emu_t *emu, uintptr_t fnc);
 void iFEppi(x64emu_t *emu, uintptr_t fnc);
 void iFEppp(x64emu_t *emu, uintptr_t fnc);
+void iFEppV(x64emu_t *emu, uintptr_t fnc);
 void iFiiii(x64emu_t *emu, uintptr_t fnc);
 void iFiiiu(x64emu_t *emu, uintptr_t fnc);
 void iFippi(x64emu_t *emu, uintptr_t fnc);
@@ -847,5 +848,8 @@ void KFKp(x64emu_t *emu, uintptr_t fnc);
 
 void iFEv(x64emu_t *emu, uintptr_t fnc);
 void pFEv(x64emu_t *emu, uintptr_t fnc);
+void iFEvpp(x64emu_t *emu, uintptr_t fnc);
+void iFEpvpp(x64emu_t *emu, uintptr_t fnc);
+void iFEpvpV(x64emu_t *emu, uintptr_t fnc);
 
 #endif //__WRAPPER_H_

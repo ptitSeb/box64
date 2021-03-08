@@ -336,7 +336,7 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 		reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
 		# vreg: value is in a general register
 		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H
-		vreg   = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2]
+		vreg   = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2]
 		# vxmm: value is in a XMM register
 		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H
 		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -345,7 +345,7 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0]
 		# vstack: value is on the stack (or out of register)
 		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M, H
-		vstack = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2]
+		vstack = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2]
 		arg_s = [
 			"",											# E
 			"",											# e

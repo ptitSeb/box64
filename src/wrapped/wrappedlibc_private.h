@@ -375,8 +375,8 @@ GOM(fork, iFEv) // Weak
 //GO(__fortify_fail, 
 //GOW(fpathconf, 
 //GO(__fpending, 
-//GO(fprintf, 
-//GO(__fprintf_chk, 
+GOM(fprintf, iFEppV)
+GOM(__fprintf_chk, iFEpvpV)
 //DATA(__fpu_control, 
 //GO(__fpurge, 
 //GO(fputc, 
@@ -1732,9 +1732,9 @@ GOM(__stack_chk_fail, vFE)
 //GOW(statvfs, 
 //GOW(statvfs64, 
 //GO(statx, 
-DATA(stderr, 8)
-DATA(stdin, 8)
-DATA(stdout, 8)
+DATA(stderr, sizeof(void*))
+DATA(stdin, sizeof(void*))
+DATA(stdout, sizeof(void*))
 //GOW(step, 
 //GO(stime, 
 //GOI(__stpcpy, 
@@ -2045,8 +2045,8 @@ GO(usleep, iFu)
 //GOW(versionsort64, 
 //GO(__vfork, 
 //GOW(vfork, 
-//GO(vfprintf, 
-//GO(__vfprintf_chk, 
+GOM(vfprintf, iFEppp)
+GOM(__vfprintf_chk, iFEpvpp)
 //GO(__vfscanf, 
 //GOW(vfscanf, 
 //GOW(vfwprintf, 
@@ -2056,7 +2056,7 @@ GO(usleep, iFu)
 //GO(vlimit, 
 //GO(vmsplice, 
 GOM(vprintf, iFEpp)
-//GO(__vprintf_chk, 
+GOM(__vprintf_chk, iFEvpp)
 //GOW(vscanf, 
 //GOW(__vsnprintf, 
 //GOW(vsnprintf, 

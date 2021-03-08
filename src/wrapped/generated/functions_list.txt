@@ -306,6 +306,7 @@
 #() iFEpip
 #() iFEppi
 #() iFEppp
+#() iFEppV
 #() iFiiii
 #() iFiiiu
 #() iFippi
@@ -810,3 +811,6 @@
 #!defined(HAVE_LD80BITS) KFKp
 #() iFEv -> iFE
 #() pFEv -> pFE
+#() iFEvpp -> iFEpp
+#() iFEpvpp -> iFEppp
+#() iFEpvpV -> iFEppV
