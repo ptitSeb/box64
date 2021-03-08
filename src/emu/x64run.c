@@ -432,7 +432,7 @@ x64emurun:
             if(rex.w)
                 GD->q[0] = (uint64_t)ED;
             else
-                GD->dword[0] = (uint32_t)(uintptr_t)ED; // RAZ upper part?
+                GD->q[0] = (uint32_t)(uintptr_t)ED;
             break;
 
         case 0x90:                      /* NOP */
