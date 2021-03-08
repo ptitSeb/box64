@@ -259,7 +259,7 @@ GOM(__cxa_finalize, vFEp)
 //GOW(erand48_r, 
 //GO(err, 
 //DATAB(errno, 
-//GO(__errno_location, 
+GO(__errno_location, pFv)
 //GOW(error, 
 //GOW(error_at_line, 
 //DATAB(error_message_count, 
@@ -557,7 +557,7 @@ GOW(geteuid, pFv)
 //GOW(getpid, 
 //GO(getpmsg, 
 //GOW(getppid, 
-//GOW(getpriority, 
+GOW(getpriority, iFii)
 //GO(getprotobyname, 
 //GO(getprotobyname_r, 
 //GO(getprotobynumber, 
@@ -1627,7 +1627,7 @@ GO(setlocale, pFip)
 //GO(__setpgid, 
 //GOW(setpgid, 
 //GO(setpgrp, 
-//GOW(setpriority, 
+GOW(setpriority, iFiii)
 //GO(setprotoent, 
 //GO(setpwent, 
 //GOW(setregid, 
