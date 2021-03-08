@@ -487,11 +487,11 @@ GOM(getcontext, iFEp)   //Weak
 //GO(getdirentries64, 
 //GO(getdomainname, 
 //GO(__getdomainname_chk, 
-//GOW(getdtablesize, 
-//GOW(getegid, 
+GOW(getdtablesize, iFv)
+GOW(getegid, iFv)
 //GO(getentropy, 
-//GO(getenv, 
-//GOW(geteuid, 
+GO(getenv, pFp)
+GOW(geteuid, pFv)
 //GO(getfsent, 
 //GO(getfsfile, 
 //GO(getfsspec, 
@@ -2184,9 +2184,9 @@ GO(__wctomb_chk, iFpuL)
 //GOW(wctrans, 
 //GO(__wctrans_l, 
 //GOW(wctrans_l, 
-GOW(wctype, uFp)
-GOW(wctype_l, uFpp)
-GO(__wctype_l, uFpp)
+GOW(wctype, LFp)
+GOW(wctype_l, LFpp)
+GO(__wctype_l, LFpp)
 //GO(wcwidth, 
 //GOI(wmemchr, 
 //GOI(wmemcmp, 

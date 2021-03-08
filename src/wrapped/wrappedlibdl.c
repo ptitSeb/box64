@@ -186,7 +186,7 @@ int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_
 void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
 {
     dlprivate_t *dl = emu->context->dlprivate;
-    uintptr_t start, end;
+    uintptr_t start = 0, end = 0;
     char* rsymbol = (char*)symbol;
     CLEARERR
     if(dlsym_error && box64_log<LOG_DEBUG) {

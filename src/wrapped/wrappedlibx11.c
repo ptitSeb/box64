@@ -744,24 +744,6 @@ EXPORT void* my_XESetEventToWire(x64emu_t* emu, void* display, int32_t event_num
     return reverse_event_to_wireFct(lib, ret);
 }
 
-EXPORT int my_XCloseDisplay(x64emu_t* emu, void* display)
-{
-    library_t* lib = emu->context->x11lib;
-    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
-
-    int ret = my->XCloseDisplay(display);
-    return ret;
-}
-
-EXPORT void* my_XOpenDisplay(x64emu_t* emu, void* d)
-{
-    library_t* lib = emu->context->x11lib;
-    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
-
-    void* ret = my->XOpenDisplay(d);
-    return ret;
-}
-
 EXPORT int my_XRegisterIMInstantiateCallback(x64emu_t* emu, void* d, void* db, void* res_name, void* res_class, void* cb, void* data)
 {
     library_t* lib = emu->context->x11lib;

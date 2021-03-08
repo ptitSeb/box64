@@ -4,7 +4,7 @@
 
 GO(XineramaIsActive, iFp)
 GO(XineramaQueryExtension, iFppp)
-GO(XineramaQueryScreens, iFpp)
+GO(XineramaQueryScreens, pFpp)
 GO(XineramaQueryVersion, iFppp)
 GO(XPanoramiXAllocInfo, pFv)
 GO(XPanoramiXGetScreenCount, iFppp)
