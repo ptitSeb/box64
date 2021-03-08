@@ -36,6 +36,10 @@ int Run66(x64emu_t *emu, rex_t rex)
     reg64_t *oped, *opgd;
 
     opcode = F8;
+
+    while(opcode == 0x2E)   // ignoring CS:
+        opcode = F8;
+
     // REX prefix before the F0 are ignored
     rex.rex = 0;
     while(opcode>=0x40 && opcode<=0x4f) {
@@ -79,6 +83,20 @@ int Run66(x64emu_t *emu, rex_t rex)
         break;
 
     case 0x90:                              /* NOP */
+        break;
+
+    case 0xB8:                              /* MOV AX,Iw */
+    case 0xB9:                              /* MOV CX,Iw */
+    case 0xBA:                              /* MOV DX,Iw */
+    case 0xBB:                              /* MOV BX,Iw */
+    case 0xBC:                              /*    ...     */
+    case 0xBD:
+    case 0xBE:
+    case 0xBF:
+        if(rex.w)
+            emu->regs[(opcode&7)+(rex.b<<3)].q[0] = F64;
+        else
+            emu->regs[(opcode&7)+(rex.b<<3)].word[0] = F16;
         break;
 
     case 0xC1:                              /* GRP2 Ew,Ib */

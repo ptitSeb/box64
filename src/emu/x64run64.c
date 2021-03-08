@@ -46,6 +46,16 @@ int Run64(x64emu_t *emu, rex_t rex)
 
     switch(opcode) {
 
+        case 0x33:              /* XOR Gd,Ed */
+            nextop = F8;
+            GETED_OFFS(0, tlsdata);
+            GETGD;
+            if(rex.w)
+                GD->q[0] = xor64(emu, GD->q[0], ED->q[0]);
+            else
+                GD->q[0] = xor32(emu, GD->dword[0], ED->dword[0]);
+            break;
+
         case 0x88:                      /* MOV Eb,Gb */
             nextop = F8;
             GETEB_OFFS(0, tlsdata);

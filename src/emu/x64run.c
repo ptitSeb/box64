@@ -480,6 +480,24 @@ x64emurun:
                 R_RCX = tmp64u;
             break;
 
+        case 0xB0:                      /* MOV AL,Ib */
+        case 0xB1:                      /* MOV CL,Ib */
+        case 0xB2:                      /* MOV DL,Ib */
+        case 0xB3:                      /* MOV BL,Ib */
+            if(rex.rex)
+                emu->regs[(opcode&7)+(rex.b<<3)].byte[0] = F8;
+            else
+                emu->regs[opcode&3].byte[0] = F8;
+            break;
+        case 0xB4:                      /* MOV AH,Ib */
+        case 0xB5:                      /*    ...    */
+        case 0xB6:
+        case 0xB7:
+            if(rex.rex)
+                emu->regs[(opcode&7)+(rex.b<<3)].byte[0] = F8;
+            else
+                emu->regs[opcode&3].byte[1] = F8;
+            break;
         case 0xB8:                      /* MOV EAX,Id */
         case 0xB9:                      /* MOV ECX,Id */
         case 0xBA:                      /* MOV EDX,Id */

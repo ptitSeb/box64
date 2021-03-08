@@ -58,6 +58,13 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETED(0);
             break;
 
+        case 0x28:                      /* MOVAPS Gx,Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GX->q[0] = EX->q[0];
+            GX->q[1] = EX->q[1];
+            break;
         case 0x29:                      /* MOVAPS Ex,Gx */
             nextop = F8;
             GETEX(0);
@@ -95,6 +102,70 @@ int Run0F(x64emu_t *emu, rex_t rex)
             ,
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         
+        case 0x51:                      /* SQRTPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->f[i] = sqrtf(EX->f[i]);
+            break;
+        case 0x52:                      /* RSQRTPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->f[i] = 1.0f/sqrtf(EX->f[i]);
+            break;
+        case 0x53:                      /* RCPPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->f[i] = 1.0f/EX->f[i];
+            break;
+        case 0x54:                      /* ANDPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] &= EX->ud[i];
+            break;
+        case 0x55:                      /* ANDNPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] = (~GX->ud[i]) & EX->ud[i];
+            break;
+        case 0x56:                      /* ORPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] |= EX->ud[i];
+            break;
+        case 0x57:                      /* XORPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] ^= EX->ud[i];
+            break;
+        case 0x58:                      /* ADDPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->f[i] += EX->f[i];
+            break;
+        case 0x59:                      /* MULPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->f[i] *= EX->f[i];
+            break;
+
         case 0x60:                      /* PUNPCKLBW Gm, Em */
             nextop = F8;
             GETEM(0);
