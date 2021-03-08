@@ -1136,9 +1136,9 @@ GO(__memcpy_chk, pFppuL)
 //GOI(__mempcpy, 
 //GOI(mempcpy, 
 //GOI(__mempcpy_chk, 
-//GOI(memrchr, 
-//GOI(memset, 
-//GOI(__memset_chk, 
+GOW(memrchr, pFpiu)
+GO(memset, pFpiL)
+GO(__memset_chk, pFpiuu)
 //GO(__mempcpy_small, 
 //GO(__merge_grp, 
 //GO(mincore, 
