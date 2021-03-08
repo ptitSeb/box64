@@ -102,7 +102,13 @@ const char* DecodeX64Trace(zydis_dec_t *dec, uintptr_t p)
             sprintf(tmp, "%02X ", *((unsigned char*)p+i));
             strcat(buff, tmp);
         }
+        #if 0
+        const /*ZydisFormatterToken*/void* token;
+        dec->ZydisFormatterTokenizeInstruction(&dec->formatter, &dec->instruction, tmp, sizeof(tmp), p, &token);
+        dec->PrintTokenizedInstruction(token);
+        #else
         dec->ZydisFormatterFormatInstruction(&dec->formatter, &dec->instruction, tmp, sizeof(tmp),p);
+        #endif
         strcat(buff, tmp);
     } else {
         sprintf(buff, "Decoder failed @%p", (void*)p);
