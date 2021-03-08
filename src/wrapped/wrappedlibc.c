@@ -575,22 +575,14 @@ EXPORT int my_printf(x64emu_t *emu, void* fmt, void* b) {
     return vprintf((const char*)fmt, VARARGS);
 }
 EXPORT int my___printf_chk(x64emu_t *emu, void* fmt, void* b) __attribute__((alias("my_printf")));
-#if 0
-EXPORT int my_vprintf(x64emu_t *emu, void* fmt, void* b, va_list V) {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
-    PREPARE_VALIST;
-    void* f = vprintf;
-    return ((iFpp_t)f)(fmt, VARARGS);
-    #else
-    // other platform don't need that
-    void* f = vprintf;
-    return ((iFpp_t)f)(fmt, (uint32_t*)b);
-    #endif
-}
-EXPORT int my___vprintf_chk(x64emu_t *emu, void* fmt, void* b, va_list V) __attribute__((alias("my_vprintf")));
 
+EXPORT int my_vprintf(x64emu_t *emu, void* fmt, x64_va_list_t b) {
+    CONVERT_VALIST(b);
+    return vprintf(fmt, VARARGS);
+}
+EXPORT int my___vprintf_chk(x64emu_t *emu, void* fmt, x64_va_list_t b) __attribute__((alias("my_vprintf")));
+
+#if 0
 EXPORT int my_vfprintf(x64emu_t *emu, void* F, void* fmt, void* b) {
     #ifndef NOALIGN
     // need to align on arm

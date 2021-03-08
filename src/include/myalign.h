@@ -1,5 +1,15 @@
 #include <stdint.h>
 
+typedef struct x64_va_list_s {
+   unsigned int gp_offset;
+   unsigned int fp_offset;
+   void *overflow_arg_area;
+   void *reg_save_area;
+} x64_va_list_t[1];
+
+#define X64_VA_MAX_REG  (6*8)
+#define X64_VA_MAX_XMM  ((6*8)+(8*16))
+
 #ifdef __x86_64__
 // x86_64, 6 64bits general regs and 16 or 8? 128bits float regs
 /*
@@ -13,10 +23,19 @@ typedef struct {
 */
 #define CREATE_SYSV_VALIST(A) \
   va_list sysv_varargs; \
-  sysv_varargs->gp_offset=(6*8); \
-  sysv_varargs->fp_offset=(6*8)+(16*16); \
+  sysv_varargs->gp_offset=X64_VA_MAX_REG; \
+  sysv_varargs->fp_offset=X64_VA_MAX_XMM; \
   sysv_varargs->reg_save_area=A;  \
   sysv_varargs->overflow_arg_area=A;
+
+#define CONVERT_VALIST(A) \
+  va_list sysv_varargs; \
+  sysv_varargs->gp_offset=A->gp_offset; \
+  sysv_varargs->fp_offset=A->fp_offset; \
+  sysv_varargs->reg_save_area=A->reg_save_area;  \
+  sysv_varargs->overflow_arg_area=A->overflow_arg_area;
+
+
 #elif defined(__aarch64__)
 // aarch64: 8 64bits general regs and 8 128bits float regs
 /*
@@ -34,6 +53,15 @@ typedef struct  va_list {
   sysv_varargs.__gr_offs=(8*8); \
   sysv_varargs.__vr_offs=(8*16); \
   sysv_varargs.__stack=A;
+
+#define CONVERT_VALIST(A) \
+  va_list sysv_varargs; \
+  sysv_varargs.__gr_offs=(2+A->gp_offset)*8;  \
+  sysv_varargs.__vr_offs=A->fp_offset;        \
+  sysv_varargs.stack=A->overflow_arg_area;    \
+  sysv_varargs.gr_top=A->reg_save_area + X64_VA_MAX_REG;  \
+  sysv_varargs.vr_top=A->reg_save_area + X64_VA_MAX_XMM;
+
 #elif defined(__powerpc64__)
 // TODO, is this correct?
 #define CREATE_SYSV_VALIST(A) \
@@ -41,6 +69,9 @@ typedef struct  va_list {
   sysv_varargs->gpr=8; \
   sysv_varargs->fpr=8; \
   sysv_varargs->overflow_arg_area=A;
+
+#define CONVERT_VALIST(A) \
+  #error TODO!
 #else
 #error Unknown architecture!
 #endif

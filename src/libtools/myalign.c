@@ -136,6 +136,7 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
         }
     }
 }
+
 #if 0
 void myStackAlignGVariantNew(const char* fmt, uint32_t* st, uint32_t* mystack)
 {

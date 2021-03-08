@@ -2055,7 +2055,7 @@ GO(usleep, iFu)
 //GO(vhangup, 
 //GO(vlimit, 
 //GO(vmsplice, 
-//GO(vprintf, 
+GOM(vprintf, iFEpp)
 //GO(__vprintf_chk, 
 //GOW(vscanf, 
 //GOW(__vsnprintf, 
