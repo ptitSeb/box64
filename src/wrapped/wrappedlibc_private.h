@@ -1666,11 +1666,11 @@ GOM(__sigaction, iFEipp)  // Weak
 GOM(sigaction, iFEipp)    // Weak
 //GO(__sigaddset, 
 //GO(sigaddset, 
-//GOW(sigaltstack, 
+GOM(sigaltstack, iFEpp) // Weak
 //GO(sigandset, 
-//GOW(sigblock, 
+GOW(sigblock, iFi)
 //GO(__sigdelset, 
-//GO(sigdelset, 
+GO(sigdelset, iFpi)
 GO(sigemptyset, iFp)
 GO(sigfillset, iFp)
 GO(siggetmask, iFv)
