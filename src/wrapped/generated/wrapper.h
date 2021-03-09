@@ -284,6 +284,7 @@ void pFppi(x64emu_t *emu, uintptr_t fnc);
 void pFppu(x64emu_t *emu, uintptr_t fnc);
 void pFppL(x64emu_t *emu, uintptr_t fnc);
 void pFppp(x64emu_t *emu, uintptr_t fnc);
+void pFpOM(x64emu_t *emu, uintptr_t fnc);
 void vFEipV(x64emu_t *emu, uintptr_t fnc);
 void vFEpip(x64emu_t *emu, uintptr_t fnc);
 void vFEpup(x64emu_t *emu, uintptr_t fnc);
