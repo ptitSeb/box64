@@ -278,6 +278,7 @@ typedef double (*dFppi_t)(void*, void*, int32_t);
 typedef double (*dFppp_t)(void*, void*, void*);
 typedef intptr_t (*lFipi_t)(int32_t, void*, int32_t);
 typedef intptr_t (*lFipL_t)(int32_t, void*, uintptr_t);
+typedef intptr_t (*lFppi_t)(void*, void*, int32_t);
 typedef uintptr_t (*LFLLi_t)(uintptr_t, uintptr_t, int32_t);
 typedef uintptr_t (*LFLLI_t)(uintptr_t, uintptr_t, int64_t);
 typedef uintptr_t (*LFLpu_t)(uintptr_t, void*, uint32_t);
@@ -1150,6 +1151,7 @@ void dFppi(x64emu_t *emu, uintptr_t fcn) { dFppi_t fn = (dFppi_t)fcn; emu->xmm[0
 void dFppp(x64emu_t *emu, uintptr_t fcn) { dFppp_t fn = (dFppp_t)fcn; emu->xmm[0].d[0]=fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX); }
 void lFipi(x64emu_t *emu, uintptr_t fcn) { lFipi_t fn = (lFipi_t)fcn; R_RAX=(intptr_t)fn((int32_t)R_RDI, (void*)R_RSI, (int32_t)R_RDX); }
 void lFipL(x64emu_t *emu, uintptr_t fcn) { lFipL_t fn = (lFipL_t)fcn; R_RAX=(intptr_t)fn((int32_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX); }
+void lFppi(x64emu_t *emu, uintptr_t fcn) { lFppi_t fn = (lFppi_t)fcn; R_RAX=(intptr_t)fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX); }
 void LFLLi(x64emu_t *emu, uintptr_t fcn) { LFLLi_t fn = (LFLLi_t)fcn; R_RAX=(uintptr_t)fn((uintptr_t)R_RDI, (uintptr_t)R_RSI, (int32_t)R_RDX); }
 void LFLLI(x64emu_t *emu, uintptr_t fcn) { LFLLI_t fn = (LFLLI_t)fcn; R_RAX=(uintptr_t)fn((uintptr_t)R_RDI, (uintptr_t)R_RSI, (int64_t)R_RDX); }
 void LFLpu(x64emu_t *emu, uintptr_t fcn) { LFLpu_t fn = (LFLpu_t)fcn; R_RAX=(uintptr_t)fn((uintptr_t)R_RDI, (void*)R_RSI, (uint32_t)R_RDX); }

@@ -1842,7 +1842,7 @@ GO(strtof, fFpp)
 //GO(__strtok_r, 
 //GOW(strtok_r, 
 //GO(__strtok_r_1c, 
-//GOW(strtol, 
+GOW(strtol, lFppi)
 //GO(strtold, 
 //GO(__strtold_internal, 
 //GO(__strtold_l, 
