@@ -474,6 +474,21 @@ int Run0F(x64emu_t *emu, rex_t rex)
             }
             break;
 
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:                  /* BSWAP reg */
+            tmp8u = (opcode&7)+(rex.b<<3);
+            if(rex.w)
+                emu->regs[tmp8u].q[0] = __builtin_bswap64(emu->regs[tmp8u].q[0]);
+            else
+                emu->regs[tmp8u].dword[0] = __builtin_bswap32(emu->regs[tmp8u].dword[0]);
+            break;
+
         case 0xD1:                   /* PSRLW Gm,Em */
             nextop = F8;
             GETEM(0);
