@@ -2006,11 +2006,11 @@ GOW(tzset, vFv)
 //GOW(umask, 
 //GOW(umount, 
 //GOW(umount2, 
-//GOW(uname, 
-//GO(__underflow, 
-//GOW(ungetc, 
-//GO(ungetwc, 
-//GOW(unlink, 
+GOM(uname, iFp) //Weak
+GO(__underflow, iFp)
+GOW(ungetc, iFip)
+GO(ungetwc, iFip)
+GOW(unlink, iFp)
 //GO(unlinkat, 
 //GO(unlockpt, 
 GOW(unsetenv, iFp)
