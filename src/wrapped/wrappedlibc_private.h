@@ -732,7 +732,7 @@ GOW(getrlimit64, iFip)
 //DATA(_IO_2_1_stdout_, 
 //GO(_IO_adjust_column, 
 //GO(_IO_adjust_wcolumn, 
-//GOW(ioctl, 
+GOW(ioctl, iFiLN)
 //GO(_IO_default_doallocate, 
 //GO(_IO_default_finish, 
 //GO(_IO_default_pbackfail, 
@@ -2052,9 +2052,9 @@ GOM(__vfprintf_chk, iFEpvpp)
 GOM(vprintf, iFEpp)
 GOM(__vprintf_chk, iFEvpp)
 //GOW(vscanf, 
-//GOW(__vsnprintf, 
-//GOW(vsnprintf, 
-//GO(__vsnprintf_chk, 
+GOM(__vsnprintf, iFEpLpp)  // Weak
+GOM(vsnprintf, iFEpLpp)    // Weak
+GOM(__vsnprintf_chk, iFEpLvvpp)
 //GOW(vsprintf, 
 //GO(__vsprintf_chk, 
 //GOW(__vsscanf, 
