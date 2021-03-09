@@ -129,7 +129,7 @@ GOW(calloc, pFLL)
 //GO(clntudp_bufcreate, 
 //GO(clntudp_create, 
 //GO(clntunix_create, 
-//GO(clock, 
+GO(clock, LFv)
 //GO(clock_adjtime, 
 //GO(__clock_getcpuclockid, 
 //GOW(clock_getcpuclockid, 
