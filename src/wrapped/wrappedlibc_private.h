@@ -414,7 +414,7 @@ GO(fsetpos, iFpp)
 GO(fsetpos64, iFpp)
 //GO(fsetxattr, 
 //GOW(fstatfs, 
-//GOW(fstatfs64, 
+GOW(fstatfs64, iFip)
 //GOW(fstatvfs, 
 //GOW(fstatvfs64, 
 //GO(fsync, 
@@ -727,20 +727,20 @@ GOW(getrlimit64, iFip)
 //GO(__internal_endnetgrent, 
 //GO(__internal_getnetgrent_r, 
 //GO(__internal_setnetgrent, 
-//DATA(_IO_2_1_stderr_, 
-//DATA(_IO_2_1_stdin_, 
-//DATA(_IO_2_1_stdout_, 
+DATA(_IO_2_1_stderr_, 224)
+DATA(_IO_2_1_stdin_, 224)
+DATA(_IO_2_1_stdout_, 224)
 //GO(_IO_adjust_column, 
 //GO(_IO_adjust_wcolumn, 
 GOW(ioctl, iFiLN)
-//GO(_IO_default_doallocate, 
-//GO(_IO_default_finish, 
-//GO(_IO_default_pbackfail, 
-//GO(_IO_default_uflow, 
-//GO(_IO_default_xsgetn, 
-//GO(_IO_default_xsputn, 
-//GO(_IO_doallocbuf, 
-//GO(_IO_do_write, 
+GO(_IO_default_doallocate, iFS)
+GO(_IO_default_finish, vFSi)
+GO(_IO_default_pbackfail, iFSi)
+GO(_IO_default_uflow, iFS)
+GO(_IO_default_xsgetn, LFSpL)
+GO(_IO_default_xsputn, LFSpL)
+GO(_IO_doallocbuf, vFS)
+GO(_IO_do_write, iFSpL)
 //GO(_IO_enable_locks, 
 //GO(_IO_fclose, 
 //GO(_IO_fdopen, 
@@ -750,54 +750,54 @@ GOW(ioctl, iFiLN)
 //GO(_IO_fgetpos, 
 //GO(_IO_fgetpos64, 
 //GO(_IO_fgets, 
-//GO(_IO_file_attach, 
-//GO(_IO_file_close, 
-//GO(_IO_file_close_it, 
-//GO(_IO_file_doallocate, 
+GO(_IO_file_attach, pFSi)
+GO(_IO_file_close, iFS)
+GO(_IO_file_close_it, iFS)
+GO(_IO_file_doallocate, iFS)
 //GO(_IO_file_finish, 
-//GO(_IO_file_fopen, 
-//GO(_IO_file_init, 
-//DATA(_IO_file_jumps, 
-//GO(_IO_file_open, 
-//GO(_IO_file_overflow, 
-//GO(_IO_file_read, 
-//GO(_IO_file_seek, 
-//GO(_IO_file_seekoff, 
-//GO(_IO_file_setbuf, 
-//GO(_IO_file_stat, 
-//GO(_IO_file_sync, 
-//GO(_IO_file_underflow, 
-//GO(_IO_file_write, 
-//GO(_IO_file_xsputn, 
-//GO(_IO_flockfile, 
-//GO(_IO_flush_all, 
-//GO(_IO_flush_all_linebuffered, 
+GO(_IO_file_fopen, pFSppi)
+GO(_IO_file_init, vFS)
+DATA(_IO_file_jumps, sizeof(void*))
+GO(_IO_file_open, pFSpiiii)
+GO(_IO_file_overflow, iFSi)
+GO(_IO_file_read, lFSpl)
+GO(_IO_file_seek, IFSIi)
+GO(_IO_file_seekoff, IFSIii)
+GO(_IO_file_setbuf, pFSpl)
+GOM(_IO_file_stat, iFESp)
+GO(_IO_file_sync, iFS)
+GO(_IO_file_underflow, iFS)
+GO(_IO_file_write, lFSpl)
+GO(_IO_file_xsputn, LFSpL)
+GO(_IO_flockfile, vFS)
+GO(_IO_flush_all, iFv)
+GO(_IO_flush_all_linebuffered, vFv)
 //GO(_IO_fopen, 
 //GOW(_IO_fprintf, 
 //GO(_IO_fputs, 
 //GO(_IO_fread, 
-//GO(_IO_free_backup_area, 
+GO(_IO_free_backup_area, vFS)
 //GO(_IO_free_wbackup_area, 
 //GO(_IO_fsetpos, 
 //GO(_IO_fsetpos64, 
 //GO(_IO_ftell, 
 //GO(_IO_ftrylockfile, 
-//GO(_IO_funlockfile, 
+GO(_IO_funlockfile, vFS)
 //GO(_IO_fwrite, 
-//GO(_IO_getc, 
+GO(_IO_getc, iFS)
 //GO(_IO_getline, 
-//GO(_IO_getline_info, 
+GO(_IO_getline_info, LFSpLiip)
 //GO(_IO_gets, 
-//GO(_IO_init, 
-//GO(_IO_init_marker, 
+GO(_IO_init, vFSi)
+GO(_IO_init_marker, vFpS)
 //GO(_IO_init_wmarker, 
 //GO(_IO_iter_begin, 
 //GO(_IO_iter_end, 
 //GO(_IO_iter_file, 
 //GO(_IO_iter_next, 
 //GO(_IO_least_wmarker, 
-//GO(_IO_link_in, 
-//DATA(_IO_list_all, 
+GO(_IO_link_in, vFp)
+DATA(_IO_list_all, sizeof(void*))
 //GO(_IO_list_lock, 
 //GO(_IO_list_resetlock, 
 //GO(_IO_list_unlock, 
@@ -1728,7 +1728,7 @@ GOW(srand, vFu)
 GOM(__stack_chk_fail, vFE)
 //GO(__statfs, 
 //GOW(statfs, 
-//GOW(statfs64, 
+GOW(statfs64, iFpp)
 //GOW(statvfs, 
 //GOW(statvfs64, 
 //GO(statx, 
