@@ -821,24 +821,15 @@ EXPORT int my___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void* f
     return vasprintf((char**)result_ptr, (char*)fmt, V);
     #endif
 }
-
-EXPORT int my_vswprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
-    PREPARE_VALIST;
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
+#endif
+EXPORT int my_vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) {
+    CONVERT_VALIST(b);
+    int r = vswprintf(buff, s, fmt, VARARGS);
     return r;
-    #else
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
-    return r;
-    #endif
 }
-EXPORT int my___vswprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vswprintf")));
-EXPORT int my___vswprintf_chk(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vswprintf")));
-
+EXPORT int my___vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) __attribute__((alias("my_vswprintf")));
+EXPORT int my___vswprintf_chk(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) __attribute__((alias("my_vswprintf")));
+#if 0
 EXPORT void my_verr(x64emu_t* emu, int eval, void* fmt, void* b) {
     #ifndef NOALIGN
     myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);

@@ -985,8 +985,8 @@ GO(jrand48, iFp)
 //GO(key_secretkey_is_set, 
 //GO(key_setnet, 
 //GO(key_setsecret, 
-//GOW(kill, 
-//GO(killpg, 
+GOW(kill, iFli)
+GO(killpg, iFii)
 //GO(klogctl, 
 //GO(l64a, 
 //GO(labs, 
@@ -2059,8 +2059,8 @@ GOM(__vsnprintf_chk, iFEpLvvpp)
 //GO(__vsprintf_chk, 
 //GOW(__vsscanf, 
 //GOW(vsscanf, 
-//GOW(vswprintf, 
-//GO(__vswprintf_chk, 
+GOM(vswprintf, iFEpuppp)    // Weak
+GOM(__vswprintf_chk, iFEpuvvppp)    // Weak
 //GO(vswscanf, 
 //GO(vsyslog, 
 //GO(__vsyslog_chk, 

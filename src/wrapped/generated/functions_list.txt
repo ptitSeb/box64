@@ -79,6 +79,7 @@
 #() iFuu
 #() iFup
 #() iFUU
+#() iFli
 #() iFLL
 #() iFLp
 #() iFpw
@@ -608,6 +609,7 @@
 #() vFppupii
 #() vFpppppp
 #() iFEpippi
+#() iFEpuppp
 #() iFEppppp
 #() iFiiiiii
 #() iFiiiiip
@@ -874,3 +876,4 @@
 #() iFEpvpp -> iFEppp
 #() iFEpvpV -> iFEppV
 #() iFEpLvvpp -> iFEpLpp
+#() iFEpuvvppp -> iFEpuppp
