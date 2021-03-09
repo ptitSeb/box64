@@ -1455,16 +1455,16 @@ GOW(__read, lFipL)
 GO(read, lFipL)
 //GOW(readahead, 
 //GO(__read_chk, 
-//GOW(readdir, 
-//GOW(readdir64, 
-//GOW(readdir64_r, 
-//GOW(readdir_r, 
-//GOW(readlink, 
-//GO(readlinkat, 
+GOW(readdir, pFp) // struct direct is 280 byts on x86_64 and ARM64
+GOW(readdir64, pFp)
+GOW(readdir64_r, iFppp)
+GOW(readdir_r, iFppp)
+GOW(readlink, pFEppL)
+GO(readlinkat, pFippL)
 //GO(__readlinkat_chk, 
 //GO(__readlink_chk, 
 //GO(__read_nocancel, 
-//GOW(readv, 
+GOW(readv, lFipi)
 GO(realloc, pFpL)
 //GOW(reallocarray, 
 GOM(realpath, pFEpp)

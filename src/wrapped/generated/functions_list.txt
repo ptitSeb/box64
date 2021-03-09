@@ -234,6 +234,7 @@
 #() dFddp
 #() dFppi
 #() dFppp
+#() lFipi
 #() lFipL
 #() LFpii
 #() pFEip
@@ -375,9 +376,11 @@
 #() pFEupp
 #() pFEpip
 #() pFEppi
+#() pFEppL
 #() pFEppp
 #() pFiiiu
 #() pFiiup
+#() pFippL
 #() pFuiii
 #() pFpiii
 #() pFpiip
