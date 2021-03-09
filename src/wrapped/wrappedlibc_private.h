@@ -2282,8 +2282,8 @@ GOW(writev, lFipi)
 //GO(__xpg_strerror_r, 
 //GO(xprt_register, 
 //GO(xprt_unregister, 
-GO(__xstat, iFipp)
-GO(__xstat64, iFipp)
+GOM(__xstat, iFEipp)
+GOM(__xstat64, iFEipp)
 
 GOM(_Jv_RegisterClasses, vFv)   // dummy
 

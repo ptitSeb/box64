@@ -5,6 +5,7 @@
 #include <wchar.h>
 #include <sys/epoll.h>
 #include <fts.h>
+#include <sys/stat.h>
 
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
@@ -431,3 +432,47 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
     }
 }
 #endif
+
+#undef st_atime
+#undef st_mtime
+#undef st_ctime
+
+struct x64_stat64 {                   /* x86_64       arm64 */
+    uint64_t st_dev;                    /* 0   */   /* 0   */
+    uint64_t st_ino;                    /* 8   */   /* 8   */
+    uint64_t st_nlink;                  /* 16  */   /* 20  */
+    uint32_t st_mode;                   /* 24  */   /* 16  */
+    uint32_t st_uid;                    /* 28  */   /* 24  */
+    uint32_t st_gid;                    /* 32  */   /* 28  */
+    int __pad0;                         /* 36  */   /* --- */
+    uint64_t st_rdev;                   /* 40  */   /* 32  */
+    int64_t st_size;                    /* 48  */   /* 48  */
+    int64_t st_blksize;                 /* 56  */   /* 56  */
+    uint64_t st_blocks;                 /* 64  */   /* 64  */
+    struct timespec st_atim;            /* 72  */   /* 72  */
+    struct timespec st_mtim;            /* 88  */   /* 88  */
+    struct timespec st_ctim;            /* 104 */   /* 104 */
+    uint64_t __glibc_reserved[3];       /* 120 */   /* 120 */
+} __attribute__((packed));              /* 144 */   /* 128 */
+
+void UnalignStat64(const void* source, void* dest)
+{
+    struct x64_stat64 *x64st = (struct x64_stat64*)dest;
+    struct stat *st = (struct stat*) source;
+    
+    x64st->__pad0 = 0;
+	memset(x64st->__glibc_reserved, 0, sizeof(x64st->__glibc_reserved));
+    x64st->st_dev      = st->st_dev;
+    x64st->st_ino      = st->st_ino;
+    x64st->st_mode     = st->st_mode;
+    x64st->st_nlink    = st->st_nlink;
+    x64st->st_uid      = st->st_uid;
+    x64st->st_gid      = st->st_gid;
+    x64st->st_rdev     = st->st_rdev;
+    x64st->st_size     = st->st_size;
+    x64st->st_blksize  = st->st_blksize;
+    x64st->st_blocks   = st->st_blocks;
+    x64st->st_atim     = st->st_atim;
+    x64st->st_mtim     = st->st_mtim;
+    x64st->st_ctim     = st->st_ctim;
+}

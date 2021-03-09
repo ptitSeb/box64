@@ -89,6 +89,8 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
 void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm, int pos);
 void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm, int pos);
 
+void UnalignStat64(const void* source, void* dest);
+
 // defined in wrapperlibc.c
 int of_convert(int);    // x86->arm
 int of_unconvert(int);  // arm->x86

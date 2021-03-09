@@ -1010,28 +1010,12 @@ EXPORT int my___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
     UnalignStat64(&st, buf);
     return r;
 }
-
+#endif
 EXPORT int my___xstat(x64emu_t* emu, int v, void* path, void* buf)
 {
-    if (v == 1)
-    {
-        static iFipp_t f = NULL;
-        if(!f) {
-            library_t* lib = my_lib;
-            if(!lib)
-            {
-                errno = EINVAL;
-                return -1;
-            }
-            f = (iFipp_t)dlsym(lib->priv.w.lib, "__xstat");
-        }
-
-        return f(v, path, buf);
-    }
     struct stat64 st;
     int r = stat64((const char*)path, &st);
-    if (r) return r;
-    r = FillStatFromStat64(v, &st, buf);
+    UnalignStat64(&st, buf);
     return r;
 }
 
@@ -1042,7 +1026,7 @@ EXPORT int my___xstat64(x64emu_t* emu, int v, void* path, void* buf)
     UnalignStat64(&st, buf);
     return r;
 }
-
+#if 0
 EXPORT int my___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 {
     if (v == 1)
