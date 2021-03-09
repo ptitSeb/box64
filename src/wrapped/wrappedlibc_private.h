@@ -394,13 +394,13 @@ GOW(fread, LFpLLp)
 GOW(fread_unlocked, LFpLLp)
 GO(__fread_unlocked_chk, LFpLLLp)
 GO(free, vFp)
-//GO(freeaddrinfo, 
-//GOW(freeifaddrs, 
-//GO(__freelocale, 
-//GOW(freelocale, 
-//GO(fremovexattr, 
-//GO(freopen, 
-//GO(freopen64, 
+GO(freeaddrinfo, vFp)
+GOW(freeifaddrs, vFp)
+GO(__freelocale, vFp)
+GOW(freelocale, vFp)
+GO(fremovexattr, iFip)
+GO(freopen, pFppp)
+GO(freopen64, pFppp)
 //GOW(frexp, 
 //GOW(frexpf, 
 //GOW(frexpl, 
@@ -1344,7 +1344,7 @@ GOW(pread64, lFipLI)
 //GO(__pread_chk, 
 //GO(preadv, 
 //GO(preadv2, 
-//GO(preadv64, 
+GO(preadv64, lFipiI)
 //GO(preadv64v2, 
 GOM(printf, iFEpV)
 GOM(__printf_chk, iFEvpV)
