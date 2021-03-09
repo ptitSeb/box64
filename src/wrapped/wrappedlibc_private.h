@@ -1738,37 +1738,37 @@ DATA(stdout, sizeof(void*))
 //GOW(step, 
 //GO(stime, 
 //GOI(__stpcpy, 
-//GOI(stpcpy, 
-//GO(__stpcpy_chk, 
+GO(stpcpy, pFpp)
+GO(__stpcpy_chk, pFppL)
 //GO(__stpcpy_small, 
-//GOI(__stpncpy, 
-//GOI(stpncpy, 
-//GO(__stpncpy_chk, 
-//GOI(__strcasecmp, 
-//GOI(strcasecmp, 
+GO(__stpncpy, pFppL)
+GOW(stpncpy, pFppL)
+GO(__stpncpy_chk, pFppLL)
+GO(__strcasecmp, iFpp)
+GO(strcasecmp, iFpp)
 //GOI(__strcasecmp_l, 
 //GOI(strcasecmp_l, 
-//GO(__strcasestr, 
-//GOW(strcasestr, 
-//GOI(strcat, 
-//GO(__strcat_chk, 
-//GOI(strchr, 
-//GOI(strchrnul, 
+GO(__strcasestr, pFpp)
+GOW(strcasestr, pFpp)
+GO(strcat, pFpp)
+GO(__strcat_chk, pFppL)
+GO(strchr, pFpi)
+GO(strchrnul, pFpi)
 GO(strcmp, iFpp)
-//GO(strcoll, 
-//GO(__strcoll_l, 
-//GOW(strcoll_l, 
-//GOI(strcpy, 
-//GO(__strcpy_chk, 
+GO(strcoll, iFpp)
+GO(__strcoll_l, iFppp)
+GOW(strcoll_l, iFppp)
+GO(strcpy, pFpp)
+GO(__strcpy_chk, pFppL)
 //GO(__strcpy_small, 
-//GOI(strcspn, 
+GO(strcspn, LFpp)
 //GO(__strcspn_c1, 
 //GO(__strcspn_c2, 
 //GO(__strcspn_c3, 
-//GO(__strdup, 
-//GOW(strdup, 
-//GO(strerror, 
-//GO(strerror_l, 
+GO(__strdup, pFp)
+GOW(strdup, pFp)
+GO(strerror, pFi)
+GO(strerror_l, pFip)
 //GO(__strerror_r, 
 //GOW(strerror_r, 
 //GO(strfmon, 
@@ -1913,18 +1913,12 @@ GOM(swapcontext, iFEpp) //Weak
 //GO(sync_file_range, 
 //GO(syncfs, 
 GOM(syscall, iFEv)
-//GO(__sysconf, 
-//GOW(sysconf, 
+GO(__sysconf, lFi)
+GOW(sysconf, lFi)
 //GO(__sysctl, 
 //GOW(sysctl, 
-//DATA(_sys_errlist, 
-//DATA(_sys_errlist, 
-//DATA(_sys_errlist, 
-//DATA(_sys_errlist, 
-//DATA(sys_errlist, 
-//DATA(sys_errlist, 
-//DATA(sys_errlist, 
-//DATA(sys_errlist, 
+DATA(_sys_errlist, sizeof(void*))
+DATA(sys_errlist, sizeof(void*))
 //GOW(sysinfo, 
 //GO(syslog, 
 //GO(__syslog_chk, 
@@ -1959,20 +1953,20 @@ GOM(__sysv_signal, pFip)
 //GO(thrd_equal, 
 //GO(thrd_sleep, 
 //GO(thrd_yield, 
-//GOI(time, 
-//GO(timegm, 
+GO(time, LFp)
+GO(timegm, LFp)
 //GOW(timelocal, 
 //GO(timerfd_create, 
 //GO(timerfd_gettime, 
 //GO(timerfd_settime, 
 //GOW(times, 
 //GO(timespec_get, 
-//DATAB(__timezone, 
-//GO(tmpfile, 
-//GOW(tmpfile64, 
-//GO(tmpnam, 
-//GO(tmpnam_r, 
-//GO(toascii, 
+DATAB(__timezone, sizeof(void*))
+GO(tmpfile, pFv)
+GOW(tmpfile64, pFv)
+GO(tmpnam, pFp)
+GO(tmpnam_r, pFp)
+GO(toascii, iFi)
 //GOW(__toascii_l, 
 //GO(_tolower, 
 //GO(tolower, 
