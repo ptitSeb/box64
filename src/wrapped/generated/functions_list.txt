@@ -34,6 +34,7 @@
 #() dFi
 #() dFd
 #() dFp
+#() lFE
 #() lFi
 #() lFp
 #() LFv
@@ -199,6 +200,7 @@
 #() iFpiu
 #() iFpiL
 #() iFpip
+#() iFpIi
 #() iFpui
 #() iFpuu
 #() iFpuU
@@ -206,6 +208,7 @@
 #() iFpup
 #() iFpfu
 #() iFpff
+#() iFpli
 #() iFplp
 #() iFpLp
 #() iFppi
@@ -266,6 +269,7 @@
 #() pFpuL
 #() pFpup
 #() pFpUp
+#() pFpLL
 #() pFppi
 #() pFppu
 #() pFppL
@@ -326,6 +330,7 @@
 #() vFpppu
 #() vFpppp
 #() cFpiii
+#() iFEiiN
 #() iFEipp
 #() iFEupp
 #() iFEpip
@@ -859,6 +864,7 @@
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
 #() iFEv -> iFE
+#() lFEv -> lFE
 #() pFEv -> pFE
 #() pFppv -> pFpp
 #() iFEvpp -> iFEpp

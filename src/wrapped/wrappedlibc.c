@@ -108,6 +108,15 @@ void freeLIBCMy(void* lib)
 {
     // empty for now
 }
+
+static int regs_abi[] = {_DI, _SI, _DX, _CX, _R8, _R9};
+void* getVargN(x64emu_t *emu, int n)
+{
+    if(n<6)
+        return (void*)emu->regs[regs_abi[n]].q[0];
+    return ((void**)R_RSP)[1+n-6];
+}
+
 #if 0
 // utility functions
 #define SUPER() \
@@ -1647,14 +1656,14 @@ EXPORT int32_t my_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd
 {
     return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
-
+#endif
 EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
 {
     int self = isProcSelf(path, "exe");
-    int x86 = FileIsX86ELF(path);
+    int x86 = FileIsX64ELF(path);
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
     #if 1
-    if ((x86 || self) && argv) {
+    if (x86 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first++;
@@ -1671,18 +1680,16 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         return ret;
     }
     #endif
-    if(self && !argv)
-        return execv(emu->context->box64path, argv);
     return execv(path, argv);
 }
 
 EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[])
 {
     int self = isProcSelf(path, "exe");
-    int x86 = FileIsX86ELF(path);
+    int x86 = FileIsX64ELF(path);
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
     #if 1
-    if ((x86 || self) && argv) {
+    if (x86 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first++;
@@ -1699,8 +1706,6 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         return ret;
     }
     #endif
-    if(self && !argv)
-        return execve(emu->context->box64path, argv, envp);
     return execve(path, argv, envp);
 }
 
@@ -1709,12 +1714,14 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
 {
     // need to use BOX86_PATH / PATH here...
     char* fullpath = ResolveFile(path, &my_context->box64_path);
+    if(!fullpath)
+        fullpath = strdup(path);
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
-    int x86 = FileIsX86ELF(fullpath);
+    int x86 = FileIsX64ELF(fullpath);
     printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, x86, fullpath);
     free(fullpath);
-    if ((x86 || self) && argv) {
+    if (x86 || self) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
@@ -1728,12 +1735,37 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
         free(newargv);
         return ret;
     }
-    if(self && !argv)
-        return execvp(emu->context->box64path, argv);
     // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
     return execvp(path, argv);
 }
 
+EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
+{
+    // need to use BOX86_PATH / PATH here...
+    char* fullpath = ResolveFile(path, &my_context->box64_path);
+    if(!fullpath)
+        fullpath = strdup(path);
+    // use fullpath...
+    int self = isProcSelf(fullpath, "exe");
+    int x86 = FileIsX64ELF(fullpath);
+    printf_log(LOG_DEBUG, "execvp(\"%s\", ...), IsX86=%d / fullpath=\"%s\"\n", path, x86, fullpath);
+    free(fullpath);
+    // count argv...
+    int i=0;
+    while(getVargN(emu, i+1)) ++i;
+    char** newargv = (char**)calloc(i+((x86 || self)?2:1), sizeof(char*));
+    int j=0;
+    if ((x86 || self))
+        newargv[j++] = emu->context->box64path;
+    for (int k=0; k<i; ++k)
+        newargv[j++] = getVargN(emu, k+1);
+    if(self) newargv[1] = emu->context->fullpath;
+    printf_log(LOG_DEBUG, " => execlp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
+    int ret = execvp(newargv[0], newargv);
+    free(newargv);
+    return ret;
+}
+#if 0
 // execvp should use PATH to search for the program first
 EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path, 
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
@@ -1742,7 +1774,7 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     char* fullpath = ResolveFile(path, &my_context->box64_path);
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
-    int x86 = FileIsX86ELF(fullpath);
+    int x86 = FileIsX64ELF(fullpath);
     printf_log(LOG_DEBUG, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x86, fullpath);
     free(fullpath);
     if ((x86 || self)) {
@@ -1851,7 +1883,7 @@ EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
 {
     return poll(a, b, c);   // no check...
 }
-
+#endif
 EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
 {
     // Implemented starting glibc 2.14+
@@ -1860,6 +1892,7 @@ EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
     iFiiV_t f = dlsym(lib->priv.w.lib, "fcntl64");
     if(b==F_SETFL)
         d1 = of_convert(d1);
+    #if 0
     if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
     {
         my_flock64_t fl;
@@ -1868,6 +1901,7 @@ EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
         UnalignFlock64((void*)d1, &fl);
         return ret;
     }
+    #endif
     //TODO: check if better to use the syscall or regular fcntl?
     //return syscall(__NR_fcntl64, a, b, d1);   // should be enough
     int ret = f?f(a, b, d1):fcntl(a, b, d1);
@@ -1891,6 +1925,7 @@ EXPORT int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32
     }
     if(b==F_SETFL)
         d1 = of_convert(d1);
+    #if 0
     if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
     {
         my_flock64_t fl;
@@ -1899,6 +1934,7 @@ EXPORT int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32
         UnalignFlock64((void*)d1, &fl);
         return ret;
     }
+    #endif
     int ret = fcntl(a, b, d1);
     if(b==F_GETFL && ret!=-1)
         ret = of_unconvert(ret);
@@ -1906,7 +1942,7 @@ EXPORT int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32
     return ret;    
 }
 EXPORT int32_t my___fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6) __attribute__((alias("my_fcntl")));
-
+#if 0
 EXPORT int32_t my_preadv64(x64emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
 {
     library_t* lib = my_lib;

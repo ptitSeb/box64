@@ -279,10 +279,10 @@ GO(__errno_location, pFv)
 //GO(eventfd_write, 
 //GO(execl, 
 //GO(execle, 
-//GO(execlp, 
+GOM(execlp, iFEpV)
 //GO(execv, 
 //GOW(execve, 
-//GO(execvp, 
+GOM(execvp, iFEp)
 //GOW(execvpe, 
 GO(_exit, vFi)
 GO(exit, vFi)
@@ -302,11 +302,11 @@ GOW(_Exit, vFi)
 //GO(fchmodat, 
 //GOW(fchown, 
 //GO(fchownat, 
-//GO(fclose, 
-//GOW(fcloseall, 
-//GOW(__fcntl, 
-//GOW(fcntl, 
-//GOW(fcntl64, 
+GO(fclose, iFp)
+GOW(fcloseall, iFv)
+GOM(__fcntl, iFEiiN)    //Weak
+GOM(fcntl, iFEiiN)      //Weak
+GOM(fcntl64, iFEiiN)    //Weak
 //GO(fcvt, 
 //GOW(fcvt_r, 
 //GO(fdatasync, 
@@ -350,12 +350,12 @@ GO(fflush_unlocked, iFp)
 //GO(fgetws_unlocked, 
 //GO(__fgetws_unlocked_chk, 
 //GO(fgetxattr, 
-//GOW(fileno, 
-//GOW(fileno_unlocked, 
-//GO(__finite, 
-//GOW(finite, 
-//GO(__finitef, 
-//GOW(finitef, 
+GOW(fileno, iFp)
+GOW(fileno_unlocked, iFp)
+GO(__finite, iFd)
+GOW(finite, iFd)
+GO(__finitef, iFf)
+GOW(finitef, iFf)
 //GO(__finitel, 
 //GOW(finitel, 
 //GO(__flbf, 
@@ -371,7 +371,7 @@ GOM(fopen, pFEpp)
 GOM(fopen64, pFEpp)  // Weak
 //GO(fopencookie, 
 //GO(__fork, 
-GOM(fork, iFEv) // Weak
+GOM(fork, lFEv) // Weak
 //GO(__fortify_fail, 
 //GOW(fpathconf, 
 //GO(__fpending, 
@@ -405,23 +405,23 @@ GO(free, vFp)
 //GOW(frexpf, 
 //GOW(frexpl, 
 //GO(fscanf, 
-//GO(fseek, 
-//GOW(fseeko, 
-//GO(__fseeko64, 
-//GOW(fseeko64, 
-//GO(__fsetlocking, 
-//GO(fsetpos, 
-//GO(fsetpos64, 
+GO(fseek, iFpli)
+GOW(fseeko, iFpli)
+GO(__fseeko64, iFpIi)
+GOW(fseeko64, iFpIi)
+GO(__fsetlocking, iFpi)
+GO(fsetpos, iFpp)
+GO(fsetpos64, iFpp)
 //GO(fsetxattr, 
 //GOW(fstatfs, 
 //GOW(fstatfs64, 
 //GOW(fstatvfs, 
 //GOW(fstatvfs64, 
 //GO(fsync, 
-//GOW(ftell, 
-//GOW(ftello, 
-//GO(__ftello64, 
-//GOW(ftello64, 
+GOW(ftell, lFp)
+GOW(ftello, lFp)
+GO(__ftello64, IFp)
+GOW(ftello64, IFp)
 //GO(ftime, 
 //GO(ftok, 
 //GOW(ftruncate, 
@@ -470,15 +470,15 @@ GO(__fxstatat64, iFiippi)
 //GO(__getauxval, 
 //GOW(getauxval, 
 //GOW(get_avphys_pages, 
-//GOW(getc, 
-//GO(getchar, 
-//GO(getchar_unlocked, 
+GOW(getc, iFp)
+GO(getchar, iFv)
+GO(getchar_unlocked, iFv)
 GOM(getcontext, iFEp)   //Weak
-//GOW(getc_unlocked, 
-//GO(get_current_dir_name, 
-//GOW(getcwd, 
-//GO(__getcwd_chk, 
-//GO(getdate, 
+GOW(getc_unlocked, iFp)
+GO(get_current_dir_name, pFv)
+GOW(getcwd, pFpL)
+GO(__getcwd_chk, pFpLL)
+GO(getdate, pFp)
 //DATAB(getdate_err, 
 //GOW(getdate_r, 
 //GOW(__getdelim, 
@@ -545,8 +545,8 @@ GOW(geteuid, pFv)
 //GO(getopt, 
 //GO(getopt_long, 
 //GO(getopt_long_only, 
-//GO(__getpagesize, 
-//GOW(getpagesize, 
+GO(__getpagesize, iFv)
+GOW(getpagesize, iFv)
 //GO(getpass, 
 //GOW(getpeername, 
 //GO(__getpgid, 
@@ -863,44 +863,44 @@ GOW(getrlimit64, iFip)
 //GO(_IO_wsetb, 
 //GO(iruserok, 
 //GO(iruserok_af, 
-//GO(isalnum, 
+GO(isalnum, iFi)
 //GO(__isalnum_l, 
 //GOW(isalnum_l, 
-//GO(isalpha, 
+GO(isalpha, iFi)
 //GO(__isalpha_l, 
-//GOW(isalpha_l, 
-//GO(isascii, 
+GOW(isalpha_l, iFip)
+GO(isascii, iFi)
 //GOW(__isascii_l, 
 //GO(isastream, 
-//GOW(isatty, 
-//GO(isblank, 
+GOW(isatty, iFi)
+GO(isblank, iFi)
 //GO(__isblank_l, 
 //GOW(isblank_l, 
-//GO(iscntrl, 
+GO(iscntrl, iFi)
 //GO(__iscntrl_l, 
 //GOW(iscntrl_l, 
 //GO(__isctype, 
 //GOW(isctype, 
-//GO(isdigit, 
+GO(isdigit, iFi)
 //GO(__isdigit_l, 
 //GOW(isdigit_l, 
 //GO(isfdtype, 
-//GO(isgraph, 
+GO(isgraph, iFi)
 //GO(__isgraph_l, 
 //GOW(isgraph_l, 
-//GO(__isinf, 
-//GOW(isinf, 
-//GO(__isinff, 
-//GOW(isinff, 
+GO(__isinf, iFd)
+GOW(isinf, iFd)
+GO(__isinff, iFf)
+GOW(isinff, iFf)
 //GO(__isinfl, 
 //GOW(isinfl, 
-//GO(islower, 
+GO(islower, iFi)
 //GO(__islower_l, 
 //GOW(islower_l, 
-//GO(__isnan, 
-//GOW(isnan, 
-//GO(__isnanf, 
-//GOW(isnanf, 
+GO(__isnan, iFd)
+GOW(isnan, iFd)
+GO(__isnanf, iFf)
+GOW(isnanf, iFf)
 //GO(__isnanl, 
 //GOW(isnanl, 
 //GO(__isoc99_fscanf, 
@@ -915,63 +915,63 @@ GOW(getrlimit64, iFip)
 //GO(__isoc99_vswscanf, 
 //GO(__isoc99_vwscanf, 
 //GO(__isoc99_wscanf, 
-//GO(isprint, 
+GO(isprint, iFi)
 //GO(__isprint_l, 
 //GOW(isprint_l, 
-//GO(ispunct, 
+GO(ispunct, iFi)
 //GO(__ispunct_l, 
 //GOW(ispunct_l, 
-//GO(isspace, 
+GO(isspace, iFi)
 //GO(__isspace_l, 
 //GOW(isspace_l, 
-//GO(isupper, 
+GO(isupper, iFi)
 //GO(__isupper_l, 
 //GOW(isupper_l, 
-//GOW(iswalnum, 
+GOW(iswalnum, iFi)
 //GO(__iswalnum_l, 
-//GOW(iswalnum_l, 
-//GOW(iswalpha, 
+GOW(iswalnum_l, iFip)
+GOW(iswalpha, iFi)
 //GO(__iswalpha_l, 
-//GOW(iswalpha_l, 
-//GOW(iswblank, 
+GOW(iswalpha_l, iFip)
+GOW(iswblank, iFi)
 //GO(__iswblank_l, 
-//GOW(iswblank_l, 
-//GOW(iswcntrl, 
+GOW(iswblank_l, iFip)
+GOW(iswcntrl, iFi)
 //GO(__iswcntrl_l, 
-//GOW(iswcntrl_l, 
+GOW(iswcntrl_l, iFip)
 //GO(__iswctype, 
 //GOW(iswctype, 
 //GO(__iswctype_l, 
 //GOW(iswctype_l, 
-//GOW(iswdigit, 
+GOW(iswdigit, iFi)
 //GO(__iswdigit_l, 
-//GOW(iswdigit_l, 
-//GOW(iswgraph, 
+GOW(iswdigit_l, iFip)
+GOW(iswgraph, iFi)
 //GO(__iswgraph_l, 
-//GOW(iswgraph_l, 
-//GOW(iswlower, 
+GOW(iswgraph_l, iFip)
+GOW(iswlower, iFi)
 //GO(__iswlower_l, 
-//GOW(iswlower_l, 
-//GOW(iswprint, 
+GOW(iswlower_l, iFip)
+GOW(iswprint, iFi)
 //GO(__iswprint_l, 
-//GOW(iswprint_l, 
-//GOW(iswpunct, 
+GOW(iswprint_l, iFip)
+GOW(iswpunct, iFi)
 //GO(__iswpunct_l, 
-//GOW(iswpunct_l, 
-//GOW(iswspace, 
+GOW(iswpunct_l, iFip)
+GOW(iswspace, iFi)
 //GO(__iswspace_l, 
-//GOW(iswspace_l, 
-//GOW(iswupper, 
+GOW(iswspace_l, iFip)
+GOW(iswupper, iFi)
 //GO(__iswupper_l, 
-//GOW(iswupper_l, 
-//GOW(iswxdigit, 
+GOW(iswupper_l, iFip)
+GOW(iswxdigit, iFi)
 //GO(__iswxdigit_l, 
-//GOW(iswxdigit_l, 
-//GO(isxdigit, 
+GOW(iswxdigit_l, iFip)
+GO(isxdigit, iFi)
 //GO(__isxdigit_l, 
-//GOW(isxdigit_l, 
+GOW(isxdigit_l, iFip)
 //GO(__ivaliduser, 
-//GO(jrand48, 
+GO(jrand48, iFp)
 //GOW(jrand48_r, 
 //GO(key_decryptsession, 
 //GO(key_decryptsession_pk, 
@@ -1442,10 +1442,10 @@ GO(pwritev64, lFipiI)
 //GO(quick_exit, 
 //GO(quotactl, 
 //GO(raise, 
-//GO(rand, 
+GO(rand, iFv)
 //GOW(random, 
 //GOW(random_r, 
-//GO(rand_r, 
+GO(rand_r, iFp)
 //GOI(__rawmemchr, 
 //GOI(rawmemchr, 
 //GO(rcmd, 
@@ -1599,7 +1599,7 @@ GO2(__realpath_chk, pFppv, my_realpath)
 //GOW(setcontext, 
 //GO(setdomainname, 
 //GO(setegid, 
-//GOW(setenv, 
+GOW(setenv, iFppi)
 //GO(_seterr_reply, 
 //GO(seteuid, 
 //GO(setfsent, 
@@ -1717,7 +1717,7 @@ GOW(sleep, uFu)
 //GO(sprintf, 
 //GO(__sprintf_chk, 
 //GOW(sprofil, 
-//GOW(srand, 
+GOW(srand, vFu)
 //GO(srand48, 
 //GOW(srand48_r, 
 //GOW(srandom, 
@@ -1968,14 +1968,14 @@ GO(tmpnam, pFp)
 GO(tmpnam_r, pFp)
 GO(toascii, iFi)
 //GOW(__toascii_l, 
-//GO(_tolower, 
-//GO(tolower, 
+GO(_tolower, iFi)
+GO(tolower, iFi)
 //GO(__tolower_l, 
-//GOW(tolower_l, 
+GOW(tolower_l, iFip)
 //GO(_toupper, 
-//GO(toupper, 
+GO(toupper, iFi)
 //GO(__toupper_l, 
-//GOW(toupper_l, 
+GOW(toupper_l, iFip)
 //GO(__towctrans, 
 //GOW(towctrans, 
 //GO(__towctrans_l, 
@@ -2013,7 +2013,7 @@ GOW(tzset, vFv)
 //GOW(unlink, 
 //GO(unlinkat, 
 //GO(unlockpt, 
-//GOW(unsetenv, 
+GOW(unsetenv, iFp)
 //GO(unshare, 
 //GOW(updwtmp, 
 //GO(updwtmpx, 
@@ -2197,10 +2197,10 @@ GO(__wctype_l, LFpp)
 //GO(__woverflow, 
 //GO(wprintf, 
 //GO(__wprintf_chk, 
-//GOW(__write, 
-//GOW(write, 
+GOW(__write, lFipL)
+GOW(write, lFipL)
 //GO(__write_nocancel, 
-//GOW(writev, 
+GOW(writev, lFipi)
 //GO(wscanf, 
 //GO(__wuflow, 
 //GO(__wunderflow, 
@@ -2282,8 +2282,8 @@ GO(__wctype_l, LFpp)
 //GO(__xpg_strerror_r, 
 //GO(xprt_register, 
 //GO(xprt_unregister, 
-//GO(__xstat, 
-//GO(__xstat64, 
+GO(__xstat, iFipp)
+GO(__xstat64, iFipp)
 
 GOM(_Jv_RegisterClasses, vFv)   // dummy
 
