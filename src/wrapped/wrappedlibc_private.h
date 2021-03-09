@@ -168,15 +168,15 @@ GO(closelog, vFv)
 //DATA(__ctype32_tolower, 
 //DATA(__ctype32_toupper, 
 //DATA(__ctype_b, 
-//GO(__ctype_b_loc, 
+GO(__ctype_b_loc, pFv)
 //GOW(__ctype_get_mb_cur_max, 
 //GO(__ctype_init, 
-//DATA(__ctype_tolower, 
-//GO(__ctype_tolower_loc, 
-//DATA(__ctype_toupper, 
-//GO(__ctype_toupper_loc, 
+DATAM(__ctype_tolower, sizeof(void*))
+GO(__ctype_tolower_loc, pFv)
+DATAM(__ctype_toupper, sizeof(void*))
+GO(__ctype_toupper_loc, pFv)
 //DATAB(__curbrk, 
-//GO(cuserid, 
+GO(cuserid, pFp)
 GOM(__cxa_atexit, iFEppp)
 //GO(__cxa_at_quick_exit, 
 GOM(__cxa_finalize, vFEp)
