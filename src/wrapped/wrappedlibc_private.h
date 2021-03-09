@@ -144,9 +144,9 @@ GOW(calloc, pFLL)
 //GO(__clone, 
 //GOW(clone, 
 //GO(__close, 
-//GOW(close, 
-//GOW(closedir, 
-//GO(closelog, 
+GOW(close, iFi)
+GOW(closedir, iFp)
+GO(closelog, vFv)
 //GO(__close_nocancel, 
 //GO(__cmsg_nxthdr, 
 //GO(confstr, 
@@ -553,8 +553,8 @@ GOW(geteuid, pFv)
 //GOW(getpgid, 
 //GO(getpgrp, 
 //GOW(get_phys_pages, 
-//GO(__getpid, 
-//GOW(getpid, 
+GO(__getpid, uFv)
+GO(getpid, uFv)
 //GO(getpmsg, 
 //GOW(getppid, 
 GOW(getpriority, iFii)
@@ -1856,8 +1856,8 @@ GO(strtof, fFpp)
 //GOW(__strtoll_l, 
 //GOW(strtoll_l, 
 //GOW(strtoq, 
-//GOW(strtoul, 
-//GO(__strtoul_internal, 
+GOW(strtoul, LFppi)
+GO(__strtoul_internal, LFppii)
 //GO(__strtoul_l, 
 //GOW(strtoul_l, 
 //GOW(strtoull, 
@@ -1867,7 +1867,7 @@ GO(strtof, fFpp)
 //GO(strtoumax, 
 //GOW(strtouq, 
 //GO(__strverscmp, 
-//GOW(strverscmp, 
+GOW(strverscmp, iFpp)
 //GO(strxfrm, 
 //GO(__strxfrm_l, 
 //GOW(strxfrm_l, 

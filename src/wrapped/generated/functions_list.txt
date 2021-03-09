@@ -237,6 +237,7 @@
 #() lFipi
 #() lFipL
 #() LFpii
+#() LFppi
 #() pFEip
 #() pFEpi
 #() pFEpp
@@ -366,13 +367,13 @@
 #() uFpuip
 #() uFpuuu
 #() uFpppi
-#() uFpppp
 #() UFpipp
 #() lFipiI
 #() lFipLI
 #() lFipLl
 #() LFpuuu
 #() LFpLLp
+#() LFppii
 #() pFEupp
 #() pFEpip
 #() pFEppi
