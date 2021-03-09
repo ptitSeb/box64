@@ -313,13 +313,13 @@ GOM(fcntl64, iFEiiN)    //Weak
 //GO(__fdelt_chk, 
 //GO(__fdelt_warn, 
 //GO(fdetach, 
-//GO(fdopen, 
-//GOW(fdopendir, 
+GO(fdopen, pFip)
+GOW(fdopendir, pFi)
 //GO(__fentry__, 
-//GOW(feof, 
-//GOW(feof_unlocked, 
-//GOW(ferror, 
-//GOW(ferror_unlocked, 
+GOW(feof, iFp)
+GOW(feof_unlocked, iFp)
+GOW(ferror, iFp)
+GOW(ferror_unlocked, iFp)
 //GO(fexecve, 
 GOW(fflush, iFp)
 GO(fflush_unlocked, iFp)
