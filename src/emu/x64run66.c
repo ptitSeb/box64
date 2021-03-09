@@ -100,6 +100,31 @@ int Run66(x64emu_t *emu, rex_t rex)
     case 0x0F:                              /* more opcdes */
         return Run660F(emu, rex);
 
+    case 0x39:
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        if(rex.w)
+            cmp64(emu, EW->q[0], GW->q[0]);
+        else
+            cmp16(emu, EW->word[0], GW->word[0]);
+        break;
+    case 0x3B:
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        if(rex.w)
+            cmp64(emu, GW->q[0], EW->dword[0]);
+        else
+            cmp16(emu, GW->word[0], EW->word[0]);
+        break;
+    case 0x3D:
+        if(rex.w)
+            cmp64(emu, R_RAX, F32S64);
+        else
+            cmp16(emu, R_AX, F16);
+        break;
+
     case 0x64:                              /* FS: */
         return Run6664(emu, rex);
 
