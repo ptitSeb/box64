@@ -438,7 +438,8 @@ void EXPORT *my_SDL_CreateThread(x64emu_t* emu, void* cb, void* p)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     void* et = NULL;
-    return my->SDL_CreateThread(my_prepare_thread(emu, cb, p, 0, &et), et);
+    void* fnc = my_prepare_thread(emu, cb, p, 0, &et);
+    return my->SDL_CreateThread(fnc, et);
 }
 
 void EXPORT my_SDL_KillThread(x64emu_t* emu, void* p)

@@ -643,7 +643,8 @@ EXPORT void* my2_SDL_CreateThread(x64emu_t* emu, void* f, void* n, void* p)
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
     void* et = NULL;
-    return my->SDL_CreateThread(my_prepare_thread(emu, f, p, 0, &et), n, et);
+    void* fnc = my_prepare_thread(emu, f, p, 0, &et);
+    return my->SDL_CreateThread(fnc, n, et);
 }
 
 //EXPORT int my2_SDL_snprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
