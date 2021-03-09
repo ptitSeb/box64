@@ -107,6 +107,7 @@
 #() fFfi
 #() fFff
 #() fFfp
+#() fFpp
 #() dFid
 #() dFdi
 #() dFdd
@@ -231,6 +232,8 @@
 #() fFffp
 #() dFddd
 #() dFddp
+#() dFppi
+#() dFppp
 #() lFipL
 #() LFpii
 #() pFEip
@@ -815,7 +818,7 @@
 #() vFuddiiddiiddiip
 #() vFuuiiiiuuiiiiiii
 #() vFfffffffffffffff
-#() uFpppppppppppppppp
+#() pFpppppppppppppppp
 #() vFppuiiiiipuiiiiiiii
 #() pFipppppppppppppppppppppp
 #defined(HAVE_LD80BITS) DFD

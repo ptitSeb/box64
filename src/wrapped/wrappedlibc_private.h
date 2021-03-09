@@ -1814,13 +1814,13 @@ GO(strpbrk, pFpp)
 //GO(__strspn_c1, 
 //GO(__strspn_c2, 
 //GO(__strspn_c3, 
-//GOI(strstr, 
-//GO(strtod, 
-//GO(__strtod_internal, 
-//GO(__strtod_l, 
-//GOW(strtod_l, 
+GO(strstr, pFpp)
+GO(strtod, dFpp)
+GO(__strtod_internal, dFppi)
+GO(__strtod_l, dFppp)
+GOW(strtod_l, dFppp)
 //GO(__strtod_nan, 
-//GO(strtof, 
+GO(strtof, fFpp)
 //GO(strtof128, 
 //GO(__strtof128_internal, 
 //GOW(strtof128_l, 

@@ -667,8 +667,6 @@ static kh_mutex_t* unaligned_mutex = NULL;
 
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 {
-	if(!(((uintptr_t)m)&3))
-		return m;
 	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
 	if(k!=kh_end(unaligned_mutex))
 		return kh_value(unaligned_mutex, k);
@@ -680,8 +678,6 @@ pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 }
 EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
 {
-	if(!(((uintptr_t)m)&3))
-		return pthread_mutex_destroy(m);
 	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
 	if(k!=kh_end(unaligned_mutex)) {
 		pthread_mutex_t *n = kh_value(unaligned_mutex, k);
