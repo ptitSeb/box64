@@ -162,8 +162,13 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxrandr.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxrender.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxxf86vm.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibz.c"
     "${BOX64_ROOT}/src/wrapped/wrappedopenal.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl1.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedsdl1image.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedsdl1mixer.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedsdl1ttf.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedsmpeg.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxinerama.c"
 )
