@@ -200,7 +200,7 @@ GOM(__cxa_finalize, vFEp)
 //GO(_dl_addr, 
 //GO(_dl_catch_error, 
 //GO(_dl_catch_exception, 
-//GOW(dl_iterate_phdr, 
+GOM(dl_iterate_phdr, iFEpp) //Weak
 //GO(_dl_mcount_wrapper, 
 //GO(_dl_mcount_wrapper_check, 
 //DATAB(_dl_open_hook, 
@@ -2075,8 +2075,8 @@ GOM(__vswprintf_chk, iFEpuvvppp)    // Weak
 //GOW(wait3, 
 //GOW(wait4, 
 //GOW(waitid, 
-//GO(__waitpid, 
-//GOW(waitpid, 
+GO(__waitpid, lFlpi)
+GOW(waitpid, lFlpi)
 //GO(warn, 
 //GO(warnx, 
 //GOW(wcpcpy, 
