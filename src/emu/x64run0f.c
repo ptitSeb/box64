@@ -498,6 +498,103 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GD->q[0] = EW->word[0];
             break;
 
+        case 0xBA:                      
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 4:                 /* BT Ed,Ib */
+                    CHECK_FLAGS(emu);
+                    GETED(1);
+                    tmp8u = F8;
+                    if(!MODREG)
+                        ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
+                    if(rex.w) {
+                        tmp8u&=63;
+                        if(ED->q[0] & (1L<<tmp8u))
+                            SET_FLAG(F_CF);
+                        else
+                            CLEAR_FLAG(F_CF);
+                    } else {
+                        tmp8u&=31;
+                        if(ED->dword[0] & (1<<tmp8u))
+                            SET_FLAG(F_CF);
+                        else
+                            CLEAR_FLAG(F_CF);
+                    }
+                    break;
+                case 5:             /* BTS Ed, Ib */
+                    CHECK_FLAGS(emu);
+                    GETED(1);
+                    tmp8u = F8;
+                    if(!MODREG)
+                        ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
+                    if(rex.w) {
+                        tmp8u&=63;
+                        if(ED->q[0] & (1L<<tmp8u)) {
+                            SET_FLAG(F_CF);
+                        } else {
+                            ED->q[0] ^= (1L<<tmp8u);
+                            CLEAR_FLAG(F_CF);
+                        }
+                    } else {
+                        tmp8u&=31;
+                        if(ED->dword[0] & (1<<tmp8u)) {
+                            SET_FLAG(F_CF);
+                        } else {
+                            ED->dword[0] ^= (1<<tmp8u);
+                            CLEAR_FLAG(F_CF);
+                        }
+                    }
+                    break;
+                case 6:             /* BTR Ed, Ib */
+                    CHECK_FLAGS(emu);
+                    GETED(1);
+                    tmp8u = F8;
+                    if(!MODREG)
+                        ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
+                    if(rex.w) {
+                        tmp8u&=63;
+                        if(ED->q[0] & (1L<<tmp8u)) {
+                            SET_FLAG(F_CF);
+                            ED->q[0] ^= (1L<<tmp8u);
+                        } else
+                            CLEAR_FLAG(F_CF);
+                    } else {
+                        tmp8u&=31;
+                        if(ED->dword[0] & (1<<tmp8u)) {
+                            SET_FLAG(F_CF);
+                            ED->dword[0] ^= (1<<tmp8u);
+                        } else
+                            CLEAR_FLAG(F_CF);
+                    }
+                    break;
+                case 7:             /* BTC Ed, Ib */
+                    CHECK_FLAGS(emu);
+                    GETED(1);
+                    tmp8u = F8;
+                    if(!MODREG)
+                        ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
+                    if(rex.w) {
+                        tmp8u&=63;
+                        if(ED->q[0] & (1L<<tmp8u))
+                            SET_FLAG(F_CF);
+                        else
+                            CLEAR_FLAG(F_CF);
+                        ED->q[0] ^= (1L<<tmp8u);
+                    } else {
+                        tmp8u&=31;
+                        if(ED->dword[0] & (1<<tmp8u))
+                            SET_FLAG(F_CF);
+                        else
+                            CLEAR_FLAG(F_CF);
+                        ED->dword[0] ^= (1<<tmp8u);
+                    }
+                    break;
+
+                default:
+                    return 1;
+            }
+            break;
+
         case 0xBE:                      /* MOVSX Gd,Eb */
             nextop = F8;
             GETEB(0);
