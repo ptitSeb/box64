@@ -33,14 +33,51 @@ int Run660F(x64emu_t *emu, rex_t rex)
     int32_t tmp32s;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
+    mmx87_regs_t *opem;
 
     opcode = F8;
 
     switch(opcode) {
 
+    case 0x14:                      /* UNPCKLPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->q[1] = EX->q[0];
+        break;
+    case 0x15:                      /* UNPCKHPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->q[0] = GX->q[1];
+        GX->q[1] = EX->q[1];
+        break;
+
     case 0x1F:                      /* NOP (multi-byte) */
         nextop = F8;
         GETED(0);
+        break;
+
+    case 0x28:                      /* MOVAPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->q[0] = EX->q[0];
+        GX->q[1] = EX->q[1];
+        break;
+    case 0x29:                      /* MOVAPD Ex, Gx */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        EX->q[0] = GX->q[0];
+        EX->q[1] = GX->q[1];
+        break;
+    case 0x2A:                      /* CVTPI2PD Gx, Em */
+        nextop = F8;
+        GETEM(0);
+        GETGX;
+        GX->d[0] = EM->sd[0];
+        GX->d[1] = EM->sd[1];
         break;
 
     case 0x2E:                      /* UCOMISD Gx, Ex */

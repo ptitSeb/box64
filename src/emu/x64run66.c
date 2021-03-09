@@ -48,6 +48,54 @@ int Run66(x64emu_t *emu, rex_t rex)
     }
 
     switch(opcode) {
+    #define GO(B, OP)                                               \
+    case B+0:                                                       \
+        nextop = F8;                                                \
+        GETEB(0);                                                   \
+        GETGB;                                                      \
+        EB->byte[0] = OP##8(emu, EB->byte[0], GB);                  \
+        break;                                                      \
+    case B+1:                                                       \
+        nextop = F8;                                                \
+        GETEW(0);                                                   \
+        GETGW;                                                      \
+        if(rex.w)                                                   \
+            EW->q[0] = OP##64(emu, EW->q[0], GW->q[0]);             \
+        else                                                        \
+            EW->word[0] = OP##16(emu, EW->word[0], GW->word[0]);    \
+        break;                                                      \
+    case B+2:                                                       \
+        nextop = F8;                                                \
+        GETEB(0);                                                   \
+        GETGB;                                                      \
+        GB = OP##8(emu, GB, EB->byte[0]);                           \
+        break;                                                      \
+    case B+3:                                                       \
+        nextop = F8;                                                \
+        GETEW(0);                                                   \
+        GETGW;                                                      \
+        if(rex.w)                                                   \
+            GW->q[0] = OP##64(emu, GW->q[0], EW->q[0]);             \
+        else                                                        \
+        GW->word[0] = OP##16(emu, GW->word[0], EW->word[0]);        \
+        break;                                                      \
+    case B+4:                                                       \
+        R_AL = OP##8(emu, R_AL, F8);                                \
+        break;                                                      \
+    case B+5:                                                       \
+        if(rex.w)                                                   \
+            R_RAX = OP##64(emu, R_RAX, F32S64);                     \
+        else                                                        \
+            R_AX = OP##16(emu, R_AX, F16);                          \
+        break;
+
+    GO(0x00, add)                   /* ADD 0x01 ~> 0x05 */
+    GO(0x08, or)                    /*  OR 0x09 ~> 0x0D */
+    GO(0x10, adc)                   /* ADC 0x11 ~> 0x15 */
+    GO(0x18, sbb)                   /* SBB 0x19 ~> 0x1D */
+    GO(0x20, and)                   /* AND 0x21 ~> 0x25 */
+    GO(0x28, sub)                   /* SUB 0x29 ~> 0x2D */
+    GO(0x30, xor)                   /* XOR 0x31 ~> 0x35 */
 
     case 0x0F:                              /* more opcdes */
         return Run660F(emu, rex);

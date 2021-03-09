@@ -451,6 +451,29 @@ x64emurun:
                 R_RDX=(R_EAX & 0x80000000)?0xFFFFFFFFFFFFFFFFL:0x0000000000000000L;
             break;
 
+        case 0xA5:              /* (REP) MOVSD */
+            tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+            tmp64u = (rep)?R_RCX:1L;
+            if(rex.w) {
+                tmp8s *= 8;
+                while(tmp64u) {
+                    --tmp64u;
+                    *(uint64_t*)R_RDI = *(uint64_t*)R_RSI;
+                    R_RDI += tmp8s;
+                    R_RSI += tmp8s;
+                }
+            } else {
+                tmp8s *= 4;
+                while(tmp64u) {
+                    --tmp64u;
+                    *(uint32_t*)R_RDI = *(uint32_t*)R_RSI;
+                    R_RDI += tmp8s;
+                    R_RSI += tmp8s;
+                }
+            }
+            if(rep)
+                R_RCX = tmp64u;
+            break;
         case 0xA6:                      /* (REPZ/REPNE) CMPSB */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             switch(rep) {
@@ -590,6 +613,21 @@ x64emurun:
                 emu->regs[(opcode&7)+(rex.b<<3)].q[0] = F32;
             break;
 
+        case 0xC0:                      /* GRP2 Eb,Ib */
+            nextop = F8;
+            GETEB(1);
+            tmp8u = F8/* & 0x1f*/; // masking done in each functions
+            switch((nextop>>3)&7) {
+                case 0: EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
+                case 1: EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
+                case 2: EB->byte[0] = rcl8(emu, EB->byte[0], tmp8u); break;
+                case 3: EB->byte[0] = rcr8(emu, EB->byte[0], tmp8u); break;
+                case 4:
+                case 6: EB->byte[0] = shl8(emu, EB->byte[0], tmp8u); break;
+                case 5: EB->byte[0] = shr8(emu, EB->byte[0], tmp8u); break;
+                case 7: EB->byte[0] = sar8(emu, EB->byte[0], tmp8u); break;
+            }
+            break;
         case 0xC1:                      /* GRP2 Ed,Ib */
             nextop = F8;
             GETED(1);
@@ -663,6 +701,22 @@ x64emurun:
             if(emu->quit) goto fini;
             break;
 
+        case 0xD0:                      /* GRP2 Eb,1 */
+        case 0xD2:                      /* GRP2 Eb,CL */
+            nextop = F8;
+            GETEB(0);
+            tmp8u = (opcode==0xD0)?1:R_CL;
+            switch((nextop>>3)&7) {
+                case 0: EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
+                case 1: EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
+                case 2: EB->byte[0] = rcl8(emu, EB->byte[0], tmp8u); break;
+                case 3: EB->byte[0] = rcr8(emu, EB->byte[0], tmp8u); break;
+                case 4: 
+                case 6: EB->byte[0] = shl8(emu, EB->byte[0], tmp8u); break;
+                case 5: EB->byte[0] = shr8(emu, EB->byte[0], tmp8u); break;
+                case 7: EB->byte[0] = sar8(emu, EB->byte[0], tmp8u); break;
+            }
+            break;
         case 0xD1:                      /* GRP2 Ed,1 */
         case 0xD3:                      /* GRP2 Ed,CL */
             nextop = F8;

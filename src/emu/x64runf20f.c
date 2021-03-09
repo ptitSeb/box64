@@ -74,6 +74,12 @@ int RunF20F(x64emu_t *emu, rex_t rex)
             GD->sdword[0] = EX->d[0];
         break;
 
+    case 0x58:  /* ADDSD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->d[0] += EX->d[0];
+        break;
     case 0x59:  /* MULSD Gx, Ex */
         nextop = F8;
         GETEX(0);
