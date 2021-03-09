@@ -379,20 +379,20 @@ GOM(fprintf, iFEppV)
 GOM(__fprintf_chk, iFEpvpV)
 //DATA(__fpu_control, 
 //GO(__fpurge, 
-//GO(fputc, 
-//GO(fputc_unlocked, 
-//GOW(fputs, 
-//GOW(fputs_unlocked, 
-//GO(fputwc, 
-//GO(fputwc_unlocked, 
-//GO(fputws, 
-//GO(fputws_unlocked, 
-//GOW(fread, 
+GO(fputc, iFip)
+GO(fputc_unlocked, iFip)
+GOW(fputs, iFpp)
+GOW(fputs_unlocked, iFpp)
+GO(fputwc, iFip)
+GO(fputwc_unlocked, iFip)
+GO(fputws, iFpp)
+GO(fputws_unlocked, iFpp)
+GOW(fread, LFpLLp)
 //GO(__freadable, 
 //GO(__fread_chk, 
 //GO(__freading, 
-//GOW(fread_unlocked, 
-//GO(__fread_unlocked_chk, 
+GOW(fread_unlocked, LFpLLp)
+GO(__fread_unlocked_chk, LFpLLLp)
 GO(free, vFp)
 //GO(freeaddrinfo, 
 //GOW(freeifaddrs, 

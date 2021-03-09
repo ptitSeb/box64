@@ -556,6 +556,7 @@ void uFpCCCC(x64emu_t *emu, uintptr_t fnc);
 void uFpuuuu(x64emu_t *emu, uintptr_t fnc);
 void uFppiip(x64emu_t *emu, uintptr_t fnc);
 void uFppppp(x64emu_t *emu, uintptr_t fnc);
+void LFpLLLp(x64emu_t *emu, uintptr_t fnc);
 void LFppppp(x64emu_t *emu, uintptr_t fnc);
 void pFEpiii(x64emu_t *emu, uintptr_t fnc);
 void pFEpipL(x64emu_t *emu, uintptr_t fnc);
