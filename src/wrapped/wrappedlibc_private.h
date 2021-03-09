@@ -1347,7 +1347,7 @@ GOW(pread64, lFipLI)
 //GO(preadv64, 
 //GO(preadv64v2, 
 GOM(printf, iFEpV)
-//GO(__printf_chk, 
+GOM(__printf_chk, iFEvpV)
 //GO(__printf_fp, 
 //GO(printf_size, 
 //GO(printf_size_info, 
