@@ -451,10 +451,10 @@ GOW(fwrite, LFpLLp)
 //GO(fwrite_unlocked, 
 //GO(__fwriting, 
 //GO(fwscanf, 
-//GO(__fxstat, 
-//GO(__fxstat64, 
-//GO(__fxstatat, 
-//GO(__fxstatat64, 
+GO(__fxstat, iFiip)
+GO(__fxstat64, iFiip)
+GO(__fxstatat, iFiippi)
+GO(__fxstatat64, iFiippi)
 //GO(__gai_sigqueue, 
 //GO(gai_strerror, 
 //GO(__gconv_get_alias_db, 
@@ -1081,13 +1081,13 @@ GOM(__libc_start_main, iFEpippppp)
 //GO(lrand48_r, 
 //GO(lremovexattr, 
 //GO(lsearch, 
-//GO(__lseek, 
-//GOW(lseek, 
-//GOW(lseek64, 
+GO(__lseek, IFiIi)
+GOW(lseek, IFiIi)
+GOW(lseek64, IFiIi)
 //GO(lsetxattr, 
 //GO(lutimes, 
-//GO(__lxstat, 
-//GO(__lxstat64, 
+//GO(__lxstat, iFipp)
+//GO(__lxstat64, iFipp)
 //GO(__madvise, 
 //GOW(madvise, 
 GOM(makecontext, iFEppiV)   //weak
@@ -1337,9 +1337,9 @@ GO(openlog, vFpii)
 //GO(ppoll, 
 //GO(__ppoll_chk, 
 //GOW(prctl, 
-//GOW(pread, 
-//GOW(__pread64, 
-//GOW(pread64, 
+GOW(pread, lFipLl)
+GOW(__pread64, lFipLI)
+GOW(pread64, lFipLI)
 //GO(__pread64_chk, 
 //GO(__pread_chk, 
 //GO(preadv, 
@@ -1403,11 +1403,11 @@ GOM(printf, iFEpV)
 //GO(ptsname, 
 //GOW(ptsname_r, 
 //GO(__ptsname_r_chk, 
-//GOW(putc, 
+GOW(putc, iFip)
 GO(putchar, iFi)
-//GO(putchar_unlocked, 
-//GOW(putc_unlocked, 
-//GO(putenv, 
+GO(putchar_unlocked, iFi)
+GO(putc_unlocked, iFip)
+GO(putenv, iFp)
 //GO(putgrent, 
 //GO(putmsg, 
 //GO(putpmsg, 
@@ -1415,20 +1415,20 @@ GO(putchar, iFi)
 GOW(puts, iFp)
 //GO(putsgent, 
 //GO(putspent, 
-//GOW(pututline, 
+GOW(pututline, pFp)
 //GO(pututxline, 
 //GO(putw, 
-//GO(putwc, 
+GO(putwc, iFip)
 //GO(putwchar, 
-//GO(putwchar_unlocked, 
-//GO(putwc_unlocked, 
+GO(putwchar_unlocked, iFi)
+GO(putwc_unlocked, iFip)
 //GOW(pvalloc, 
 //GOW(pwrite, 
 //GOW(__pwrite64, 
-//GOW(pwrite64, 
+GOW(pwrite64, lFipLI)
 //GO(pwritev, 
 //GO(pwritev2, 
-//GO(pwritev64, 
+GO(pwritev64, lFipiI)
 //GO(pwritev64v2, 
 //GO(qecvt, 
 //GOW(qecvt_r, 
