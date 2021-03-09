@@ -106,7 +106,7 @@ void x64Int3(x64emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI), (int)(R_EDX));
                     perr = 1;
                 } else {
-                    snprintf(buff, 255, "%04d|%p: Calling %s (%016lX, %016lX, %016lX, ...)", tid, *(void**)(R_RSP), s, R_RDI, R_RSI, R_RDX);
+                    snprintf(buff, 255, "%04d|%p: Calling %s (0x%lX, 0x%lX, 0x%lX, ...)", tid, *(void**)(R_RSP), s, R_RDI, R_RSI, R_RDX);
                 }
                 printf_log(LOG_NONE, "%s =>", buff);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
@@ -135,7 +135,7 @@ void x64Int3(x64emu_t* emu)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==2 && R_EAX==0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
-                printf_log(LOG_NONE, " return 0x%016lX%s%s\n", R_RAX, buff2, buff3);
+                printf_log(LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
             } else
                 w(emu, addr);
