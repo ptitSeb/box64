@@ -3,7 +3,7 @@
 #endif
 
 //GO(a64l, 
-//GO(abort, 
+GO(abort, vFv)
 //DATAB(__abort_msg, 
 //GO(abs, 
 //GO(accept, 
@@ -451,10 +451,10 @@ GOW(fwrite, LFpLLp)
 //GO(fwrite_unlocked, 
 //GO(__fwriting, 
 //GO(fwscanf, 
-GO(__fxstat, iFiip)
-GO(__fxstat64, iFiip)
-GO(__fxstatat, iFiippi)
-GO(__fxstatat64, iFiippi)
+GOM(__fxstat, iFEiip)
+GOM(__fxstat64, iFEiip)
+GOM(__fxstatat, iFEiippi)
+GOM(__fxstatat64, iFEiippi)
 //GO(__gai_sigqueue, 
 //GO(gai_strerror, 
 //GO(__gconv_get_alias_db, 
