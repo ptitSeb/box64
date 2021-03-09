@@ -31,7 +31,8 @@ int RunF30F(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
-    int32_t tmp32s;
+    int8_t tmp8s;
+    uint8_t tmp8u;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
 
@@ -153,6 +154,24 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         memcpy(EX, GX, 16);    // unaligned...
         break;
 
+    case 0xC2:  /* CMPSS Gx, Ex, Ib */
+        nextop = F8;
+        GETEX(1);
+        GETGX;
+        tmp8u = F8;
+        tmp8s = 0;
+        switch(tmp8u&7) {
+            case 0: tmp8s=(GX->f[0] == EX->f[0]); break;
+            case 1: tmp8s=isless(GX->f[0], EX->f[0]); break;
+            case 2: tmp8s=islessequal(GX->f[0], EX->f[0]); break;
+            case 3: tmp8s=isnan(GX->f[0]) || isnan(EX->f[0]); break;
+            case 4: tmp8s=(GX->f[0] != EX->f[0]); break;
+            case 5: tmp8s=isnan(GX->f[0]) || isnan(EX->f[0]) || isgreaterequal(GX->f[0], EX->f[0]); break;
+            case 6: tmp8s=isnan(GX->f[0]) || isnan(EX->f[0]) || isgreater(GX->f[0], EX->f[0]); break;
+            case 7: tmp8s=!isnan(GX->f[0]) && !isnan(EX->f[0]); break;
+        }
+        GX->ud[0]=(tmp8s)?0xffffffff:0;
+        break;
 
     default:
         return 1;
