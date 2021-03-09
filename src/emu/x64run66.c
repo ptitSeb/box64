@@ -100,6 +100,9 @@ int Run66(x64emu_t *emu, rex_t rex)
     case 0x0F:                              /* more opcdes */
         return Run660F(emu, rex);
 
+    case 0x64:                              /* FS: */
+        return Run6664(emu, rex);
+
     case 0x81:                              /* GRP3 Ew,Iw */
     case 0x83:                              /* GRP3 Ew,Ib */
         nextop = F8;
