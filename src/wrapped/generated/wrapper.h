@@ -863,6 +863,7 @@ void KFKp(x64emu_t *emu, uintptr_t fnc);
 
 void iFEv(x64emu_t *emu, uintptr_t fnc);
 void pFEv(x64emu_t *emu, uintptr_t fnc);
+void pFppv(x64emu_t *emu, uintptr_t fnc);
 void iFEvpp(x64emu_t *emu, uintptr_t fnc);
 void iFEpvpp(x64emu_t *emu, uintptr_t fnc);
 void iFEpvpV(x64emu_t *emu, uintptr_t fnc);

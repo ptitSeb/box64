@@ -1465,11 +1465,11 @@ GO(read, lFipL)
 //GO(__readlink_chk, 
 //GO(__read_nocancel, 
 //GOW(readv, 
-//GO(realloc, 
+GO(realloc, pFpL)
 //GOW(reallocarray, 
+GOM(realpath, pFEpp)
 //GO(realpath, 
-//GO(realpath, 
-//GO(__realpath_chk, 
+GO2(__realpath_chk, pFppv, my_realpath)
 //GO(reboot, 
 //GOW(re_comp, 
 //GOW(re_compile_fastmap, 

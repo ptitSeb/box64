@@ -826,6 +826,7 @@
 #!defined(HAVE_LD80BITS) KFKp
 #() iFEv -> iFE
 #() pFEv -> pFE
+#() pFppv -> pFpp
 #() iFEvpp -> iFEpp
 #() iFEpvpp -> iFEppp
 #() iFEpvpV -> iFEppV
