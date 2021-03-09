@@ -72,7 +72,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     }
     if(header.e_ident[EI_CLASS]!=ELFCLASS64) {
         if(header.e_ident[EI_CLASS]==ELFCLASS32) {
-            printf_log(LOG_INFO, "This is a 64bits ELF! box64 can only run 64bits ELF!\n");
+            printf_log(LOG_INFO, "This is a 32bits ELF! box64 can only run 64bits ELF!\n");
         } else {
             printf_log(LOG_INFO, "Not a 64bits ELF (%d)\n", header.e_ident[EI_CLASS]);
         }
