@@ -209,7 +209,54 @@ int Run0F(x64emu_t *emu, rex_t rex)
             for(int i=0; i<4; ++i)
                 GX->f[i] *= EX->f[i];
             break;
-
+        case 0x5A:                      /* CVTPS2PD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GX->d[1] = EX->f[1];
+            GX->d[0] = EX->f[0];
+            break;
+        case 0x5B:                      /* CVTDQ2PS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GX->f[0] = EX->sd[0];
+            GX->f[1] = EX->sd[1];
+            GX->f[2] = EX->sd[2];
+            GX->f[3] = EX->sd[3];
+            break;
+        case 0x5C:                      /* SUBPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->f[i] -= EX->f[i];
+            break;
+        case 0x5D:                      /* MINPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i) {
+                if (isnan(GX->f[i]) || isnan(EX->f[i]) || isless(EX->f[i], GX->f[i]))
+                    GX->f[i] = EX->f[i];
+            }
+            break;
+        case 0x5E:                      /* DIVPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i)
+                GX->f[i] /= EX->f[i];
+            break;
+        case 0x5F:                      /* MAXPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            for(int i=0; i<4; ++i) {
+                if (isnan(GX->f[i]) || isnan(EX->f[i]) || isgreater(EX->f[i], GX->f[i]))
+                    GX->f[i] = EX->f[i];
+            }
+            break;
         case 0x60:                      /* PUNPCKLBW Gm, Em */
             nextop = F8;
             GETEM(0);
