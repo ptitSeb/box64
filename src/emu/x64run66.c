@@ -37,7 +37,7 @@ int Run66(x64emu_t *emu, rex_t rex)
 
     opcode = F8;
 
-    while(opcode == 0x2E)   // ignoring CS:
+    while((opcode==0x2E) || (opcode==0x66))   // ignoring CS: or multiple 0x66
         opcode = F8;
 
     // REX prefix before the F0 are ignored
