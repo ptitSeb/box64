@@ -66,6 +66,18 @@ int RunF30F(x64emu_t *emu, rex_t rex)
             GX->f[0] = ED->sdword[0];
         break;
 
+    case 0x2C:  /* CVTTSS2SI Gd, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGD;
+        if (rex.w)
+            GD->sq[0] = EX->f[0];
+        else {
+            GD->sdword[0] = EX->f[0];
+            GD->dword[1] = 0;
+        }
+        break;
+
     case 0x58:  /* ADDSS Gx, Ex */
         nextop = F8;
         GETEX(0);
@@ -84,12 +96,40 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         GETGX;
         GX->d[0] = EX->f[0];
         break;
-
+    case 0x5B:  /* CVTTPS2DQ Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->sd[0] = EX->f[0];
+        GX->sd[1] = EX->f[1];
+        GX->sd[2] = EX->f[2];
+        GX->sd[3] = EX->f[3];
+        break;
+    case 0x5C:  /* SUBSS Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->f[0] -= EX->f[0];
+        break;
+    case 0x5D:  /* MINSS Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        if(isnan(GX->f[0]) || isnan(EX->f[0]) || isless(EX->f[0], GX->f[0]))
+            GX->f[0] = EX->f[0];
+        break;
     case 0x5E:  /* DIVSS Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
         GX->f[0] /= EX->f[0];
+        break;
+    case 0x5F:  /* MAXSS Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        if (isnan(GX->f[0]) || isnan(EX->f[0]) || isgreater(EX->f[0], GX->f[0]))
+            GX->f[0] = EX->f[0];
         break;
 
     case 0x6F:  /* MOVDQU Gx, Ex */

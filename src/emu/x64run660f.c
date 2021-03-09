@@ -39,6 +39,30 @@ int Run660F(x64emu_t *emu, rex_t rex)
 
     switch(opcode) {
 
+    case 0x10:                      /* MOVUPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        memcpy(GX, EX, 16); // unaligned...
+        break;
+    case 0x11:                      /* MOVUPD Ex, Gx */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        memcpy(EX, GX, 16); // unaligned...
+        break;
+    case 0x12:                      /* MOVLPD Gx, Eq */
+        nextop = F8;
+        GETED(0);
+        GETGX;
+        GX->q[0] = ED->q[0];
+        break;
+    case 0x13:                      /* MOVLPD Eq, Gx */
+        nextop = F8;
+        GETED(0);
+        GETGX;
+        ED->q[0] = GX->q[0];
+        break;
     case 0x14:                      /* UNPCKLPD Gx, Ex */
         nextop = F8;
         GETEX(0);
