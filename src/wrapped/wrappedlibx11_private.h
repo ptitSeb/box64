@@ -807,7 +807,7 @@ GO(XNoOp, iFp)
 GO(XOffsetRegion, iFpii)
 //GO(XOMOfOC
 GO(XOpenDisplay, pFp)
-GO(XOpenIM, uFpppp)
+GO(XOpenIM, pFpppp)
 // _XOpenLC
 //GO(XOpenOM
 // _XParseBaseFontNameList
