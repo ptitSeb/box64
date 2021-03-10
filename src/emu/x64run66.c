@@ -33,6 +33,7 @@ int Run66(x64emu_t *emu, rex_t rex)
     uint8_t tmp8u;
     int16_t tmp16s;
     uint16_t tmp16u;
+    uint64_t tmp64u;
     reg64_t *oped, *opgd;
 
     opcode = F8;
@@ -230,6 +231,71 @@ int Run66(x64emu_t *emu, rex_t rex)
                 case 6: EW->word[0] = shl16(emu, EW->word[0], tmp8u); break;
                 case 5: EW->word[0] = shr16(emu, EW->word[0], tmp8u); break;
                 case 7: EW->word[0] = sar16(emu, EW->word[0], tmp8u); break;
+            }
+        }
+        break;
+
+    case 0xF7:                      /* GRP3 Ew(,Iw) */
+        nextop = F8;
+        tmp8u = (nextop>>3)&7;
+        if(rex.w) {
+            GETED((tmp8u<2)?4:0);
+            switch(tmp8u) {
+                case 0: 
+                case 1:                 /* TEST Ed,Id */
+                    tmp64u = F32S64;
+                    test64(emu, ED->q[0], tmp64u);
+                    break;
+                case 2:                 /* NOT Ed */
+                    ED->q[0] = not64(emu, ED->q[0]);
+                    break;
+                case 3:                 /* NEG Ed */
+                    ED->q[0] = neg64(emu, ED->q[0]);
+                    break;
+                case 4:                 /* MUL RAX,Ed */
+                    mul64_rax(emu, ED->q[0]);
+                    break;
+                case 5:                 /* IMUL RAX,Ed */
+                    imul64_rax(emu, ED->q[0]);
+                    break;
+                case 6:                 /* DIV Ed */
+                    div64(emu, ED->q[0]);
+                    break;
+                case 7:                 /* IDIV Ed */
+                    idiv64(emu, ED->q[0]);
+                    break;
+            }
+        } else {
+            switch(tmp8u) {
+                case 0: 
+                case 1:                 /* TEST Ew,Iw */
+                    GETEW(2);
+                    test16(emu, EW->word[0], F16);
+                    break;
+                case 2:                 /* NOT Ew */
+                    GETEW(0);
+                    EW->word[0] = not16(emu, EW->word[0]);
+                    break;
+                case 3:                 /* NEG Ew */
+                    GETEW(0);
+                    EW->word[0] = neg16(emu, EW->word[0]);
+                    break;
+                case 4:                 /* MUL AX,Ew */
+                    GETEW(0);
+                    mul16(emu, EW->word[0]);
+                    break;
+                case 5:                 /* IMUL AX,Ew */
+                    GETEW(0);
+                    imul16_eax(emu, EW->word[0]);
+                    break;
+                case 6:                 /* DIV Ew */
+                    GETEW(0);
+                    div16(emu, EW->word[0]);
+                    break;
+                case 7:                 /* IDIV Ew */
+                    GETEW(0);
+                    idiv16(emu, EW->word[0]);
+                    break;
             }
         }
         break;
