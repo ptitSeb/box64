@@ -106,16 +106,16 @@ GOW(calloc, pFLL)
 //GO(cfsetispeed, 
 //GO(cfsetospeed, 
 //GO(cfsetspeed, 
-//GOW(chdir, 
-//DATA(__check_rhosts_file, 
+GOW(chdir, iFp)
+DATA(__check_rhosts_file, sizeof(void*))
 //GO(chflags, 
 //GO(__chk_fail, 
-//GOW(chmod, 
-//GOW(chown, 
-//GO(chroot, 
-//GOW(clearenv, 
-//GO(clearerr, 
-//GO(clearerr_unlocked, 
+GOW(chmod, iFpu)
+GOW(chown, iFpuu)
+GO(chroot, iFp)
+GOW(clearenv, iFv)
+GO(clearerr, vFp)
+GO(clearerr_unlocked, vFp)
 //GO(clnt_broadcast, 
 //GO(clnt_create, 
 //GO(clnt_pcreateerror, 
