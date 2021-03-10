@@ -687,20 +687,14 @@ EXPORT int my_snprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void *
 }
 EXPORT int my___snprintf_chk(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
 EXPORT int my___snprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
-
-EXPORT int my_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b, va_list V) {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, b, emu->scratch);
+#endif
+EXPORT int my_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;
-    void* f = vsprintf;
-    return ((iFppp_t)f)(buff, fmt, VARARGS);
-    #else
-    return vsprintf((char*)buff, (char*)fmt, V);
-    #endif
+    return vsprintf(buff, (const char*)fmt, VARARGS);
 }
-EXPORT int my___sprintf_chk(x64emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_sprintf")));
-
+EXPORT int my___sprintf_chk(x64emu_t* emu, void* buff, void * fmt, void * b) __attribute__((alias("my_sprintf")));
+#if 0
 EXPORT int my_asprintf(x64emu_t* emu, void** buff, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm

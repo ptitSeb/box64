@@ -1714,8 +1714,8 @@ GOW(sleep, uFu)
 //GOW(socket, 
 //GOW(socketpair, 
 //GO(splice, 
-//GO(sprintf, 
-//GO(__sprintf_chk, 
+GOM(sprintf, iFEppV)
+GOM(__sprintf_chk, iFEpvvpV)
 //GOW(sprofil, 
 GOW(srand, vFu)
 //GO(srand48, 
