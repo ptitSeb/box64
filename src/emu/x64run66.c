@@ -204,6 +204,36 @@ int Run66(x64emu_t *emu, rex_t rex)
         EW->word[0] = F16;
         break;
 
+    case 0xD1:                              /* GRP2 Ew,1  */
+    case 0xD3:                              /* GRP2 Ew,CL */
+        nextop = F8;
+        GETEW(0);
+        tmp8u=(opcode==0xD3)?R_CL:1;
+        if(rex.w) {
+            switch((nextop>>3)&7) {
+                case 0: EW->q[0] = rol64(emu, EW->q[0], tmp8u); break;
+                case 1: EW->q[0] = ror64(emu, EW->q[0], tmp8u); break;
+                case 2: EW->q[0] = rcl64(emu, EW->q[0], tmp8u); break;
+                case 3: EW->q[0] = rcr64(emu, EW->q[0], tmp8u); break;
+                case 4: 
+                case 6: EW->q[0] = shl64(emu, EW->q[0], tmp8u); break;
+                case 5: EW->q[0] = shr64(emu, EW->q[0], tmp8u); break;
+                case 7: EW->q[0] = sar64(emu, EW->q[0], tmp8u); break;
+            }
+        } else {
+            switch((nextop>>3)&7) {
+                case 0: EW->word[0] = rol16(emu, EW->word[0], tmp8u); break;
+                case 1: EW->word[0] = ror16(emu, EW->word[0], tmp8u); break;
+                case 2: EW->word[0] = rcl16(emu, EW->word[0], tmp8u); break;
+                case 3: EW->word[0] = rcr16(emu, EW->word[0], tmp8u); break;
+                case 4: 
+                case 6: EW->word[0] = shl16(emu, EW->word[0], tmp8u); break;
+                case 5: EW->word[0] = shr16(emu, EW->word[0], tmp8u); break;
+                case 7: EW->word[0] = sar16(emu, EW->word[0], tmp8u); break;
+            }
+        }
+        break;
+
         default:
             return 1;
     }
