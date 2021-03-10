@@ -34,6 +34,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
     uint8_t tmp8u;
     int32_t tmp32s, tmp32s2;
     uint32_t tmp32u;
+    uint64_t tmp64u;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
     mmx87_regs_t *opem, *opgm;
@@ -595,6 +596,33 @@ int Run0F(x64emu_t *emu, rex_t rex)
             }
             break;
 
+        case 0xBD:                      /* BSR Ed,Gd */
+            CHECK_FLAGS(emu);
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if(rex.w) {
+                tmp64u = ED->q[0];
+                if(tmp64u) {
+                    CLEAR_FLAG(F_ZF);
+                    tmp8u = 63;
+                    while(!(tmp64u&(1L<<tmp8u))) --tmp8u;
+                    GD->q[0] = tmp8u;
+                } else {
+                    SET_FLAG(F_ZF);
+                }
+            } else {
+                tmp32u = ED->dword[0];
+                if(tmp32u) {
+                    CLEAR_FLAG(F_ZF);
+                    tmp8u = 31;
+                    while(!(tmp32u&(1<<tmp8u))) --tmp8u;
+                    GD->q[0] = tmp8u;
+                } else {
+                    SET_FLAG(F_ZF);
+                }
+            }
+            break;
         case 0xBE:                      /* MOVSX Gd,Eb */
             nextop = F8;
             GETEB(0);

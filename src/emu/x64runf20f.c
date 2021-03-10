@@ -30,6 +30,9 @@ int RunF20F(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
+    int8_t tmp8s;
+    uint8_t tmp8u;
+    int32_t tmp32s;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
 
@@ -118,6 +121,31 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         GETGX;
         if (isnan(GX->d[0]) || isnan(EX->d[0]) || isgreater(EX->d[0], GX->d[0]))
             GX->d[0] = EX->d[0];
+        break;
+
+    GOCOND(0x80
+        , tmp32s = F32S; CHECK_FLAGS(emu);
+        , R_RIP += tmp32s;
+        ,
+    )                               /* 0x80 -> 0x8F Jxx */
+        
+    case 0xC2:  /* CMPSD Gx, Ex, Ib */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        tmp8u = F8;
+        tmp8s = 0;
+        switch(tmp8u&7) {
+            case 0: tmp8s=(GX->d[0] == EX->d[0]); break;
+            case 1: tmp8s=isless(GX->d[0], EX->d[0]); break;
+            case 2: tmp8s=islessequal(GX->d[0], EX->d[0]); break;
+            case 3: tmp8s=isnan(GX->d[0]) || isnan(EX->d[0]); break;
+            case 4: tmp8s=(GX->d[0] != EX->d[0]); break;
+            case 5: tmp8s=isnan(GX->d[0]) || isnan(EX->d[0]) || isgreaterequal(GX->d[0], EX->d[0]); break;
+            case 6: tmp8s=isnan(GX->d[0]) || isnan(EX->d[0]) || isgreater(GX->d[0], EX->d[0]); break;
+            case 7: tmp8s=!isnan(GX->d[0]) && !isnan(EX->d[0]); break;
+        }
+        GX->q[0]=(tmp8s)?0xffffffffffffffffLL:0LL;
         break;
 
     default:

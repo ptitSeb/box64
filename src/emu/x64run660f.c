@@ -123,6 +123,15 @@ int Run660F(x64emu_t *emu, rex_t rex)
         CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
         break;
 
+    GOCOND(0x40
+        , nextop = F8;
+        CHECK_FLAGS(emu);
+        GETEW(0);
+        GETGW;
+        , if(rex.w) GW->q[0] = EW->q[0]; else GW->word[0] = EW->word[0];
+        ,
+    )                               /* 0x40 -> 0x4F CMOVxx Gw,Ew */ // conditional move, no sign
+
     case 0x54:                      /* ANDPD Gx, Ex */
         nextop = F8;
         GETEX(0);
@@ -375,6 +384,16 @@ int Run660F(x64emu_t *emu, rex_t rex)
         GETGX;
         EX->q[0] = GX->q[0];
         EX->q[1] = GX->q[1];
+        break;
+
+    case 0xBE:                      /* MOVSX Gw,Eb */
+        nextop = F8;
+        GETEB(0);
+        GETGW;
+        if(rex.w)
+            GW->sq[0] = EB->sbyte[0];
+        else
+            GW->sword[0] = EB->sbyte[0];
         break;
 
     case 0xD6:                      /* MOVQ Ex,Gx */
