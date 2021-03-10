@@ -310,7 +310,7 @@ uint64_t adc64(x64emu_t *emu, uint64_t d, uint64_t s)
 
 	CONDITIONAL_SET_FLAG(hi & 0x100000000L, F_CF);
 	CONDITIONAL_SET_FLAG(!res, F_ZF);
-	CONDITIONAL_SET_FLAG(res & 0x8000000000000000L, F_SF);
+	CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 
 	/* calculate the carry chain  SEE NOTE AT TOP. */
@@ -393,13 +393,13 @@ uint64_t cmp64(x64emu_t *emu, uint64_t d, uint64_t s)
 	RESET_FLAGS(emu);
 
 	res = d - s;
-	CONDITIONAL_SET_FLAG(res & 0x8000000000000000L, F_SF);
+	CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
 	CONDITIONAL_SET_FLAG(!res, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 
 	/* calculate the borrow chain.  See note at top */
 	bc = (res & (~d | s)) | (~d & s);
-	CONDITIONAL_SET_FLAG(bc & 0x8000000000000000L, F_CF);
+	CONDITIONAL_SET_FLAG(bc & 0x8000000000000000LL, F_CF);
 	CONDITIONAL_SET_FLAG(XOR2(bc >> 62), F_OF);
 	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
 	return d;
@@ -573,7 +573,7 @@ uint32_t rcl32(x64emu_t *emu, uint32_t d, uint8_t s)
 	return res;
 }
 
-uint32_t rcl64(x64emu_t *emu, uint64_t d, uint8_t s)
+uint64_t rcl64(x64emu_t *emu, uint64_t d, uint8_t s)
 {
 	uint64_t res, cnt, mask, cf;
 	CHECK_FLAGS(emu);
@@ -583,10 +583,10 @@ uint32_t rcl64(x64emu_t *emu, uint64_t d, uint8_t s)
 	if ((cnt = s % 65) != 0) {
 		cf = (d >> (64 - cnt)) & 0x1;
 		res = (d << cnt);
-		mask = (1 << (cnt - 1)) - 1;
+		mask = (1LL << (cnt - 1)) - 1;
 		res |= (d >> (65 - cnt)) & mask;
 		if (ACCESS_FLAG(F_CF)) {     /* carry flag is set */
-			res |= 1 << (cnt - 1);
+			res |= 1LL << (cnt - 1);
 		}
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 		CONDITIONAL_SET_FLAG(cnt == 1 && XOR2(cf + ((res >> 62) & 0x2)),
@@ -756,12 +756,12 @@ uint64_t rcr64(x64emu_t *emu, uint64_t d, uint8_t s)
 			ocf = ACCESS_FLAG(F_CF) != 0;
 		} else
 			cf = (d >> (cnt - 1)) & 0x1;
-		mask = (1 << (64 - cnt)) - 1;
+		mask = (1LL << (64 - cnt)) - 1;
 		res = (d >> cnt) & mask;
 		if (cnt != 1)
 			res |= (d << (65 - cnt));
 		if (ACCESS_FLAG(F_CF)) {     /* carry flag is set */
-			res |= 1 << (64 - cnt);
+			res |= 1LL << (64 - cnt);
 		}
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 		if (cnt == 1) {
@@ -1033,17 +1033,17 @@ uint32_t shld32 (x64emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 
 uint64_t shld64 (x64emu_t *emu, uint64_t d, uint64_t fill, uint8_t s)
 {
-	unsigned int cnt, res, cf;
+	uint64_t cnt, res, cf;
 	RESET_FLAGS(emu);
 
 	s = s&0x3f;
 	cnt = s % 64;
 	if (cnt > 0) {
 		res = (d << cnt) | (fill >> (64-cnt));
-		cf = d & (1 << (64 - cnt));
+		cf = d & (1LL << (64 - cnt));
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 		CONDITIONAL_SET_FLAG(!res, F_ZF);
-		CONDITIONAL_SET_FLAG(res & 0x8000000000000000L, F_SF);
+		CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
 		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 	} else {
 		res = d;
@@ -1139,11 +1139,11 @@ uint64_t shrd64 (x64emu_t *emu, uint64_t d, uint64_t fill, uint8_t s)
 	s = s&0x3f;
 	cnt = s % 64;
 	if (cnt > 0) {
-		cf = d & (1 << (cnt - 1));
+		cf = d & (1LL << (cnt - 1));
 		res = (d >> cnt) | (fill << (64 - cnt));
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 		CONDITIONAL_SET_FLAG(!res, F_ZF);
-		CONDITIONAL_SET_FLAG(res & 0x8000000000000000L, F_SF);
+		CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
 		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 	} else {
 		res = d;
@@ -1235,13 +1235,13 @@ uint64_t sbb64(x64emu_t *emu, uint64_t d, uint64_t s)
         res = d - s - 1;
     else
         res = d - s;
-	CONDITIONAL_SET_FLAG(res & 0x8000000000000000L, F_SF);
+	CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
 	CONDITIONAL_SET_FLAG(!res, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 
 	/* calculate the borrow chain.  See note at top */
 	bc = (res & (~d | s)) | (~d & s);
-	CONDITIONAL_SET_FLAG(bc & 0x8000000000000000L, F_CF);
+	CONDITIONAL_SET_FLAG(bc & 0x8000000000000000LL, F_CF);
 	CONDITIONAL_SET_FLAG(XOR2(bc >> 62), F_OF);
 	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
 	return res;
@@ -1304,7 +1304,7 @@ void test64(x64emu_t *emu, uint64_t d, uint64_t s)
 	res = d & s;
 
 	CLEAR_FLAG(F_OF);
-	CONDITIONAL_SET_FLAG(res & 0x8000000000000000L, F_SF);
+	CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
 	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 	/* AF == dont care */

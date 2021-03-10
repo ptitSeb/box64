@@ -34,7 +34,7 @@ static inline uint16_t add16(x64emu_t *emu, uint16_t d, uint16_t s)
 
 static inline uint32_t add32(x64emu_t *emu, uint32_t d, uint32_t s)
 {
-	emu->res = d + s;
+	emu->res = (uint64_t)d + s;
 	emu->op1 = d;
 	emu->op2 = s;
 	emu->df = d_add32;

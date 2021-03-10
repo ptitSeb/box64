@@ -33,6 +33,7 @@ int Run66(x64emu_t *emu, rex_t rex)
     uint8_t tmp8u;
     int16_t tmp16s;
     uint16_t tmp16u;
+    int64_t tmp64s;
     uint64_t tmp64u;
     reg64_t *oped, *opgd;
 
@@ -128,6 +129,32 @@ int Run66(x64emu_t *emu, rex_t rex)
 
     case 0x64:                              /* FS: */
         return Run6664(emu, rex);
+
+    case 0x69:                      /* IMUL Gw,Ew,Iw */
+        nextop = F8;
+        GETEW(rex.w?4:2);
+        GETGW;
+        if(rex.w) {
+            tmp64u = F32S64;
+            GW->q[0] = imul64(emu, EW->q[0], tmp64u);
+        } else {
+            tmp16u = F16;
+            GW->word[0] = imul16(emu, EW->word[0], tmp16u);
+        }
+        break;
+
+    case 0x6B:                      /* IMUL Gw,Ew,Ib */
+        nextop = F8;
+        GETEW(1);
+        GETGW;
+        if(rex.w) {
+            tmp64s = F8S;
+            GW->q[0] = imul64(emu, EW->q[0], (uint64_t)tmp64s);
+        } else {
+            tmp16s = F8S;
+            GW->word[0] = imul16(emu, EW->word[0], (uint16_t)tmp16s);
+        }
+        break;
 
     case 0x81:                              /* GRP3 Ew,Iw */
     case 0x83:                              /* GRP3 Ew,Ib */
@@ -300,8 +327,31 @@ int Run66(x64emu_t *emu, rex_t rex)
         }
         break;
 
-        default:
-            return 1;
+    case 0xFF:                      /* GRP 5 Ew */
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        switch((nextop>>3)&7) {
+            case 0:                 /* INC Ed */
+                EW->word[0] = inc16(emu, EW->word[0]);
+                break;
+            case 1:                 /* DEC Ed */
+                EW->word[0] = dec16(emu, EW->word[0]);
+                break;
+            /*case 6:
+                Push16(emu, EW->word[0]);
+                break;*/
+            default:
+                    R_RIP = emu->old_ip;
+                    printf_log(LOG_NONE, "Illegal Opcode %p: 66 %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
+                    emu->quit=1;
+                    emu->error |= ERR_ILLEGAL;
+                    return 0;
+        }
+        break;
+
+    default:
+        return 1;
     }
     return 0;
 }

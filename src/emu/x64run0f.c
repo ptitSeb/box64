@@ -143,8 +143,8 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETED(0);
             GETGD;
             CHECK_FLAGS(emu);
-            , if(rex.w) {GD->q[0] = ED->q[0]; } else {GD->dword[0] = ED->dword[0];}
-            ,
+            , if(rex.w) {GD->q[0] = ED->q[0]; } else {GD->q[0] = ED->dword[0];}
+            , if(!rex.w) GD->dword[1] = 0;
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         
         case 0x51:                      /* SQRTPS Gx, Ex */
@@ -452,7 +452,86 @@ int Run0F(x64emu_t *emu, rex_t rex)
             tmp32u = R_EAX;
             my_cpuid(emu, tmp32u);
             break;
+        case 0xA3:                      /* BT Ed,Gd */
+            CHECK_FLAGS(emu);
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            tmp8u = GD->byte[0];
+            if(!MODREG)
+            {
+                ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+            }
+            if(rex.w) {
+                tmp8u&=63;
+                if(ED->q[0] & (1LL<<tmp8u))
+                    SET_FLAG(F_CF);
+                else
+                    CLEAR_FLAG(F_CF);
+            } else {
+                tmp8u&=31;
+                if(ED->dword[0] & (1<<tmp8u))
+                    SET_FLAG(F_CF);
+                else
+                    CLEAR_FLAG(F_CF);
+            }
+            break;
+        case 0xA4:                      /* SHLD Ed,Gd,Ib */
+        case 0xA5:                      /* SHLD Ed,Gd,CL */
+            nextop = F8;
+            GETED((nextop==0xA4)?1:0);
+            GETGD;
+            if(opcode==0xA4)
+                tmp8u = F8;
+            else
+                tmp8u = R_CL;
+            if(rex.w)
+                ED->q[0] = shld64(emu, ED->q[0], GD->q[0], tmp8u);
+            else
+                ED->q[0] = shld32(emu, ED->dword[0], GD->dword[0], tmp8u);
+            break;
 
+        case 0xAB:                      /* BTS Ed,Gd */
+            CHECK_FLAGS(emu);
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            tmp8u = GD->byte[0];
+            if(!MODREG)
+            {
+                ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+            }
+            if(rex.w) {
+                tmp8u&=63;
+                if(ED->q[0] & (1LL<<tmp8u))
+                    SET_FLAG(F_CF);
+                else {
+                    ED->q[0] |= (1LL<<tmp8u);
+                    CLEAR_FLAG(F_CF);
+                }
+            } else {
+                tmp8u&=31;
+                if(ED->dword[0] & (1<<tmp8u))
+                    SET_FLAG(F_CF);
+                else {
+                    ED->dword[0] |= (1<<tmp8u);
+                    CLEAR_FLAG(F_CF);
+                }
+                if(MODREG)
+                    ED->dword[1] = 0;
+            }
+            break;
+        case 0xAC:                      /* SHRD Ed,Gd,Ib */
+        case 0xAD:                      /* SHRD Ed,Gd,CL */
+            nextop = F8;
+            GETED((nextop==0xAC)?1:0);
+            GETGD;
+            tmp8u = (opcode==0xAC)?(F8):R_CL;
+            if(rex.w)
+                ED->q[0] = shrd64(emu, ED->q[0], GD->q[0], tmp8u);
+            else
+                ED->q[0] = shrd32(emu, ED->dword[0], GD->dword[0], tmp8u);
+            break;
         case 0xAE:                      /* Grp Ed (SSE) */
             nextop = F8;
             if((nextop&0xF8)==0xE8) {
@@ -486,6 +565,35 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 GD->dword[0] = imul32(emu, GD->dword[0], ED->dword[0]);
             break;
 
+        case 0xB3:                      /* BTR Ed,Gd */
+            CHECK_FLAGS(emu);
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            tmp8u = GD->byte[0];
+            if(!MODREG)
+            {
+                ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+            }
+            if(rex.w) {
+                tmp8u&=63;
+                if(ED->q[0] & (1LL<<tmp8u)) {
+                    SET_FLAG(F_CF);
+                    ED->q[0] ^= (1LL<<tmp8u);
+                } else
+                    CLEAR_FLAG(F_CF);
+            } else {
+                tmp8u&=31;
+                if(ED->dword[0] & (1<<tmp8u)) {
+                    SET_FLAG(F_CF);
+                    ED->dword[0] ^= (1<<tmp8u);
+                } else
+                    CLEAR_FLAG(F_CF);
+                if(MODREG)
+                    ED->dword[1] = 0;
+            }
+            break;
+
         case 0xB6:                      /* MOVZX Gd,Eb */
             nextop = F8;
             GETEB(0);
@@ -510,7 +618,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                         ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
                     if(rex.w) {
                         tmp8u&=63;
-                        if(ED->q[0] & (1L<<tmp8u))
+                        if(ED->q[0] & (1LL<<tmp8u))
                             SET_FLAG(F_CF);
                         else
                             CLEAR_FLAG(F_CF);
@@ -530,10 +638,10 @@ int Run0F(x64emu_t *emu, rex_t rex)
                         ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
                     if(rex.w) {
                         tmp8u&=63;
-                        if(ED->q[0] & (1L<<tmp8u)) {
+                        if(ED->q[0] & (1LL<<tmp8u)) {
                             SET_FLAG(F_CF);
                         } else {
-                            ED->q[0] ^= (1L<<tmp8u);
+                            ED->q[0] ^= (1LL<<tmp8u);
                             CLEAR_FLAG(F_CF);
                         }
                     } else {
@@ -554,9 +662,9 @@ int Run0F(x64emu_t *emu, rex_t rex)
                         ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
                     if(rex.w) {
                         tmp8u&=63;
-                        if(ED->q[0] & (1L<<tmp8u)) {
+                        if(ED->q[0] & (1LL<<tmp8u)) {
                             SET_FLAG(F_CF);
-                            ED->q[0] ^= (1L<<tmp8u);
+                            ED->q[0] ^= (1LL<<tmp8u);
                         } else
                             CLEAR_FLAG(F_CF);
                     } else {
@@ -576,11 +684,11 @@ int Run0F(x64emu_t *emu, rex_t rex)
                         ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
                     if(rex.w) {
                         tmp8u&=63;
-                        if(ED->q[0] & (1L<<tmp8u))
+                        if(ED->q[0] & (1LL<<tmp8u))
                             SET_FLAG(F_CF);
                         else
                             CLEAR_FLAG(F_CF);
-                        ED->q[0] ^= (1L<<tmp8u);
+                        ED->q[0] ^= (1LL<<tmp8u);
                     } else {
                         tmp8u&=31;
                         if(ED->dword[0] & (1<<tmp8u))
@@ -595,7 +703,64 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     return 1;
             }
             break;
-
+        case 0xBB:                      /* BTC Ed,Gd */
+            CHECK_FLAGS(emu);
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            tmp8u = GD->byte[0];
+            if(!MODREG)
+            {
+                if(rex.w)
+                    ED=(reg64_t*)(((uint64_t*)(ED))+(tmp8u>>6));
+                else
+                    ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+            }
+            if(rex.w) {
+                tmp8u&=63;
+                if(ED->q[0] & (1LL<<tmp8u))
+                    SET_FLAG(F_CF);
+                else
+                    CLEAR_FLAG(F_CF);
+                ED->q[0] ^= (1LL<<tmp8u);
+            } else {
+                tmp8u&=31;
+                if(ED->dword[0] & (1<<tmp8u))
+                    SET_FLAG(F_CF);
+                else
+                    CLEAR_FLAG(F_CF);
+                ED->dword[0] ^= (1<<tmp8u);
+                if(MODREG)
+                    ED->dword[1] = 0;
+            }
+            break;
+        case 0xBC:                      /* BSF Ed,Gd */
+            CHECK_FLAGS(emu);
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if(rex.w) {
+                tmp64u = ED->q[0];
+                if(tmp64u) {
+                    CLEAR_FLAG(F_ZF);
+                    tmp8u = 0;
+                    while(!(tmp64u&(1LL<<tmp8u))) ++tmp8u;
+                    GD->q[0] = tmp8u;
+                } else {
+                    SET_FLAG(F_ZF);
+                }
+            } else {
+                tmp32u = ED->dword[0];
+                if(tmp32u) {
+                    CLEAR_FLAG(F_ZF);
+                    tmp8u = 0;
+                    while(!(tmp32u&(1<<tmp8u))) ++tmp8u;
+                    GD->q[0] = tmp8u;
+                } else {
+                    SET_FLAG(F_ZF);
+                }
+            }
+            break;
         case 0xBD:                      /* BSR Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
@@ -606,7 +771,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 if(tmp64u) {
                     CLEAR_FLAG(F_ZF);
                     tmp8u = 63;
-                    while(!(tmp64u&(1L<<tmp8u))) --tmp8u;
+                    while(!(tmp64u&(1LL<<tmp8u))) --tmp8u;
                     GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);

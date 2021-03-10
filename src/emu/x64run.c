@@ -466,6 +466,15 @@ x64emurun:
                 R_RDX=(R_EAX & 0x80000000)?0xFFFFFFFFFFFFFFFFL:0x0000000000000000L;
             break;
 
+        case 0x9C:                      /* PUSHF */
+            CHECK_FLAGS(emu);
+            Push(emu, emu->eflags.x64);
+            break;
+        case 0x9D:                      /* POPF */
+            emu->eflags.x64 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+            RESET_FLAGS(emu);
+            break;
+
         case 0xA5:              /* (REP) MOVSD */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             tmp64u = (rep)?R_RCX:1L;
@@ -913,27 +922,48 @@ x64emurun:
                         test32(emu, ED->dword[0], tmp32u);
                         break;
                     case 2:                 /* NOT Ed */
-                        ED->dword[0] = not32(emu, ED->dword[0]);
+                        ED->q[0] = not32(emu, ED->dword[0]);
                         break;
                     case 3:                 /* NEG Ed */
-                        ED->dword[0] = neg32(emu, ED->dword[0]);
+                        ED->q[0] = neg32(emu, ED->dword[0]);
                         break;
                     case 4:                 /* MUL EAX,Ed */
                         mul32_eax(emu, ED->dword[0]);
+                        emu->regs[_AX].dword[1] = 0;
                         break;
                     case 5:                 /* IMUL EAX,Ed */
                         imul32_eax(emu, ED->dword[0]);
+                        emu->regs[_AX].dword[1] = 0;
                         break;
                     case 6:                 /* DIV Ed */
                         div32(emu, ED->dword[0]);
+                        emu->regs[_AX].dword[1] = 0;
+                        emu->regs[_DX].dword[1] = 0;
                         break;
                     case 7:                 /* IDIV Ed */
                         idiv32(emu, ED->dword[0]);
+                        emu->regs[_AX].dword[1] = 0;
+                        emu->regs[_DX].dword[1] = 0;
                         break;
                 }
             }
             break;
 
+        case 0xFE:                      /* GRP 5 Eb */
+            nextop = F8;
+            GETEB(0);
+            switch((nextop>>3)&7) {
+                case 0:                 /* INC Eb */
+                    ED->byte[0] = inc8(emu, ED->byte[0]);
+                    break;
+                case 1:                 /* DEC Ed */
+                    ED->byte[0] = dec8(emu, ED->byte[0]);
+                    break;
+                default:
+                    unimp = 1;
+                    goto fini;
+            }
+            break;
         case 0xFF:                      /* GRP 5 Ed */
             nextop = F8;
             GETED(0);
@@ -942,13 +972,13 @@ x64emurun:
                     if(rex.w)
                         ED->q[0] = inc64(emu, ED->q[0]);
                     else
-                        ED->dword[0] = inc32(emu, ED->dword[0]);
+                        ED->q[0] = inc32(emu, ED->dword[0]);
                     break;
                 case 1:                 /* DEC Ed */
                     if(rex.w)
                         ED->q[0] = dec64(emu, ED->q[0]);
                     else
-                        ED->dword[0] = dec32(emu, ED->dword[0]);
+                        ED->q[0] = dec32(emu, ED->dword[0]);
                     break;
                 case 2:                 /* CALL NEAR Ed */
                     tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
