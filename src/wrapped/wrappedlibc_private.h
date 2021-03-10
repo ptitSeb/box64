@@ -1347,7 +1347,7 @@ GOW(pread64, lFipLI)
 GO(preadv64, lFipiI)
 //GO(preadv64v2, 
 GOM(printf, iFEpV)
-GOM(__printf_chk, iFEvpV)
+GOM(__printf_chk, iFEipV)
 //GO(__printf_fp, 
 //GO(printf_size, 
 //GO(printf_size_info, 
@@ -1715,7 +1715,7 @@ GOW(sleep, uFu)
 //GOW(socketpair, 
 //GO(splice, 
 GOM(sprintf, iFEppV)
-GOM(__sprintf_chk, iFEpvvpV)
+GOM(__sprintf_chk, iFEpilpV)
 //GOW(sprofil, 
 GOW(srand, vFu)
 //GO(srand48, 

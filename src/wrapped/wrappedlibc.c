@@ -583,7 +583,12 @@ EXPORT int my_printf(x64emu_t *emu, void* fmt, void* b) {
     PREPARE_VALIST;
     return vprintf((const char*)fmt, VARARGS);
 }
-EXPORT int my___printf_chk(x64emu_t *emu, void* fmt, void* b) __attribute__((alias("my_printf")));
+EXPORT int my___printf_chk(x64emu_t *emu, int chk, void* fmt, void* b)
+{
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return vprintf((const char*)fmt, VARARGS);
+}
 
 EXPORT int my_vprintf(x64emu_t *emu, void* fmt, x64_va_list_t b) {
     CONVERT_VALIST(b);
@@ -689,11 +694,15 @@ EXPORT int my___snprintf_chk(x64emu_t* emu, void* buff, uint32_t s, void * fmt, 
 EXPORT int my___snprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
 #endif
 EXPORT int my_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b) {
-    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     return vsprintf(buff, (const char*)fmt, VARARGS);
 }
-EXPORT int my___sprintf_chk(x64emu_t* emu, void* buff, void * fmt, void * b) __attribute__((alias("my_sprintf")));
+EXPORT int my___sprintf_chk(x64emu_t* emu, void* buff, int flag, size_t l, void * fmt, void * b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 4);
+    PREPARE_VALIST;
+    return vsprintf(buff, (const char*)fmt, VARARGS);
+}
 #if 0
 EXPORT int my_asprintf(x64emu_t* emu, void** buff, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
