@@ -23,6 +23,7 @@
 #include "x64trace.h"
 #endif
 #include "x64tls.h"
+#include "bridge.h"
 
 #define PARITY(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
@@ -57,6 +58,13 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
 const char* GetNativeName(void* p)
 {
     static char buff[500] = {0};
+    #ifdef HAVE_TRACE
+    {
+        const char* n = getBridgeName(p);
+        if(n)
+            return n;
+    }
+    #endif
     Dl_info info;
     if(dladdr(p, &info)==0) {
         const char *ret = GetNameOffset(my_context->maplib, p);

@@ -171,8 +171,9 @@ EXPORT void* my_alGetProcAddress(x64emu_t* emu, void* name)
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
+    const char* constname = kh_key(emu->context->alwrappers, k);
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0);
+    return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0, constname);
 }
 
 EXPORT void* my_alcGetProcAddress(x64emu_t* emu, void* device, void* name)
@@ -206,8 +207,9 @@ EXPORT void* my_alcGetProcAddress(x64emu_t* emu, void* device, void* name)
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
+    const char* constname = kh_key(emu->context->alwrappers, k);
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0);
+    return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0, constname);
 }
 
 EXPORT void my_alRequestFoldbackStart(x64emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb)

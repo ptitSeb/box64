@@ -75,8 +75,9 @@ EXPORT void* my_glXGetProcAddress(x64emu_t* emu, void* name)
         if(dlsym_error && box64_log<LOG_INFO) printf_log(LOG_NONE, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
+    const char* constname = kh_key(emu->context->glwrappers, k);
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    ret = AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
+    ret = AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0, constname);
     if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
     return (void*)ret;
 

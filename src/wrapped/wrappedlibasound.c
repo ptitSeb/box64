@@ -52,7 +52,7 @@ void* getAsoundMy(library_t* lib)
     SUPER()
     #undef GO
     // setup custom error handler
-    my_snd_lib_error = AddCheckBridge(my_context->system, vFpipipV, default_error_handler, 0);
+    my_snd_lib_error = AddCheckBridge(my_context->system, vFpipipV, default_error_handler, 0, "ASoundCustomErrorHandler");
     //all done
     return my;
 }

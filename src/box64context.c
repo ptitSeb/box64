@@ -27,6 +27,7 @@ void initAllHelpers(box64context_t* context)
         return;
     my_context = context;
     init_pthread_helper();
+    init_bridge_helper();
     init_signal_helper(context);
     inited = 1;
 }
@@ -39,7 +40,7 @@ void finiAllHelpers(box64context_t* context)
         return;
     fini_pthread_helper(context);
     fini_signal_helper();
-    cleanAlternate();
+    fini_bridge_helper();
     fini_custommem_helper(context);
     finied = 1;
 }
@@ -88,7 +89,7 @@ box64context_t *NewBox64Context(int argc)
     context->local_maplib = NewLibrarian(context, 1);
     context->system = NewBridge();
     // create vsyscall
-    context->vsyscall = AddBridge(context->system, vFv, x64Syscall, 0);
+    context->vsyscall = AddBridge(context->system, vFv, x64Syscall, 0, NULL);
     context->box64lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
     context->dlprivate = NewDLPrivate();
 

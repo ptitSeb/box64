@@ -70,7 +70,11 @@ void FreeBridge(bridge_t** bridge)
     *bridge = NULL;
 }
 
-uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
+#ifdef HAVE_TRACE
+void addBridgeName(void* addr, const char* name);
+#endif
+
+uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
 {
     pthread_mutex_lock(&bridge->mutex);
     brick_t *b = bridge->last;
@@ -103,6 +107,10 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
     khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[b->sz].CC;
     pthread_mutex_unlock(&bridge->mutex);
+    #ifdef HAVE_TRACE
+    if(name)
+        addBridgeName(fnc, name);
+    #endif
 
     return (uintptr_t)&b->b[b->sz++].CC;
 }
@@ -116,13 +124,13 @@ uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
     return kh_value(bridge->bridgemap, k);
 }
 
-uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
+uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
 {
     if(!fnc && w)
         return 0;
     uintptr_t ret = CheckBridged(bridge, fnc);
     if(!ret)
-        ret = AddBridge(bridge, w, fnc, N);
+        ret = AddBridge(bridge, w, fnc, N, name);
     return ret;
 }
 
@@ -132,7 +140,7 @@ uintptr_t AddAutomaticBridge(x64emu_t* emu, bridge_t* bridge, wrapper_t w, void*
         return 0;
     uintptr_t ret = CheckBridged(bridge, fnc);
     if(!ret)
-        ret = AddBridge(bridge, w, fnc, N);
+        ret = AddBridge(bridge, w, fnc, N, NULL);
     if(!hasAlternate(fnc)) {
         printf_log(LOG_DEBUG, "Adding AutomaticBridge for %p to %p\n", fnc, (void*)ret);
         addAlternate(fnc, (void*)ret);
@@ -180,6 +188,36 @@ void* GetNativeFncOrFnc(uintptr_t fnc)
     return (void*)b->f;
 }
 
+#ifdef HAVE_TRACE
+KHASH_MAP_INIT_INT64(bridgename, const char*)
+static kh_bridgename_t *bridgename;
+void initBridgeName()
+{
+    bridgename = kh_init(bridgename);
+}
+void finiBridgeName()
+{
+    kh_destroy(bridgename, bridgename);
+    bridgename = NULL;
+}
+void addBridgeName(void* addr, const char* name)
+{
+    int ret;
+    khint_t k = kh_put(bridgename, bridgename, (uintptr_t)addr, &ret);
+    if(!ret) // already there
+        return;
+    kh_value(bridgename, k) = name;
+}
+const char* getBridgeName(void* addr)
+{
+    khint_t k = kh_get(bridgename, bridgename, (uintptr_t)addr);
+    if(k!=kh_end(bridgename))
+        return kh_value(bridgename, k);
+    return NULL;
+}
+#endif
+
+
 // Alternate address handling
 KHASH_MAP_INIT_INT64(alternate, void*)
 static kh_alternate_t *my_alternates = NULL;
@@ -217,4 +255,19 @@ void cleanAlternate() {
         kh_destroy(alternate, my_alternates);
         my_alternates = NULL;
     }
+}
+
+void init_bridge_helper()
+{
+    #ifdef HAVE_TRACE
+    initBridgeName();
+    #endif
+}
+
+void fini_bridge_helper()
+{
+    cleanAlternate();
+    #ifdef HAVE_TRACE
+    finiBridgeName();
+    #endif
 }

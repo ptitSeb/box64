@@ -204,7 +204,7 @@ static void* reverse_wire_to_eventFct(library_t* lib, void* fct)
     #define GO(A) if(my_wire_to_event_##A == fct) return (void*)my_wire_to_event_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0);
+    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0, NULL);
 }
 
 // event_to_wire
@@ -237,7 +237,7 @@ static void* reverse_event_to_wireFct(library_t* lib, void* fct)
     #define GO(A) if(my_event_to_wire_##A == fct) return (void*)my_event_to_wire_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0);
+    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0, NULL);
 }
 
 // error_handler
@@ -270,7 +270,7 @@ static void* reverse_error_handlerFct(library_t* lib, void* fct)
     #define GO(A) if(my_error_handler_##A == fct) return (void*)my_error_handler_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, iFpp, fct, 0);
+    return (void*)AddBridge(lib->priv.w.bridge, iFpp, fct, 0, NULL);
 }
 
 // ioerror_handler
@@ -303,7 +303,7 @@ static void* reverse_ioerror_handlerFct(library_t* lib, void* fct)
     #define GO(A) if(my_ioerror_handler_##A == fct) return (void*)my_ioerror_handler_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, iFp, fct, 0);
+    return (void*)AddBridge(lib->priv.w.bridge, iFp, fct, 0, NULL);
 }
 
 // exterror_handler
@@ -336,7 +336,7 @@ static void* reverse_exterror_handlerFct(library_t* lib, void* fct)
     #define GO(A) if(my_exterror_handler_##A == fct) return (void*)my_exterror_handler_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, iFpppp, fct, 0);
+    return (void*)AddBridge(lib->priv.w.bridge, iFpppp, fct, 0, NULL);
 }
 
 // close_display
@@ -369,7 +369,7 @@ static void* reverse_close_displayFct(library_t* lib, void* fct)
     #define GO(A) if(my_close_display_##A == fct) return (void*)my_close_display_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, iFpp, fct, 0);
+    return (void*)AddBridge(lib->priv.w.bridge, iFpp, fct, 0, NULL);
 }
 
 // register_im
@@ -402,7 +402,7 @@ static void* reverse_register_imFct(library_t* lib, void* fct)
     #define GO(A) if(my_register_im_##A == fct) return (void*)my_register_im_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0);
+    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0, NULL);
 }
 
 // XConnectionWatchProc

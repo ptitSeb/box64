@@ -111,7 +111,7 @@ static void* reverse_exterrorhandleFct(void* fct)
     #define GO(A) if(my_exterrorhandle_##A == fct) return (void*)my_exterrorhandle_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, iFppp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFppp, fct, 0, NULL);
 }
 
 #undef SUPER

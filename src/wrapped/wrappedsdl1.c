@@ -213,7 +213,7 @@ static void* reverse_EvtFilterFct(void* fct)
     #define GO(A) if(my_EvtFilter_##A == fct) return (void*)my_EvtFilter_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, iFp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFp, fct, 0, NULL);
 }
 #undef SUPER
 
@@ -497,7 +497,8 @@ EXPORT void* my_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
+    const char* constname = kh_key(emu->context->glwrappers, k);
+    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0, constname);
 }
 
 // DL functions from wrappedlibdl.c
@@ -546,9 +547,9 @@ EXPORT int32_t my_SDL_GetWMInfo(x64emu_t* emu, void* p)
     int ret = my->SDL_GetWMInfo(p);
     my_SDL_SysWMinfo *info = (my_SDL_SysWMinfo*)p;
     if(info->info.x11.lock_func)
-        info->info.x11.lock_func = (void*)AddBridge(emu->context->system, vFv, info->info.x11.lock_func, 0);
+        info->info.x11.lock_func = (void*)AddBridge(emu->context->system, vFv, info->info.x11.lock_func, 0, NULL);
     if(info->info.x11.unlock_func)
-        info->info.x11.unlock_func = (void*)AddBridge(emu->context->system, vFv, info->info.x11.unlock_func, 0);
+        info->info.x11.unlock_func = (void*)AddBridge(emu->context->system, vFv, info->info.x11.unlock_func, 0, NULL);
     return ret;
 }
 

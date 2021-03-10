@@ -113,7 +113,7 @@ SDL2_RWops_t* AddNativeRW2(x64emu_t* emu, SDL2_RWops_t* ops)
 
     // get or create wrapper, add it to map and change to the emulated one if rw
     #define GO(A, W) \
-    fnc = AddCheckBridge(system, W, my2_native_##A, 0); \
+    fnc = AddCheckBridge(system, W, my2_native_##A, 0, NULL); \
     newrw->A = (sdl2_##A)fnc;
 
     GO(size, IFp)

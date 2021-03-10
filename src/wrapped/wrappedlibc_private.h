@@ -376,7 +376,7 @@ GOM(fork, lFEv) // Weak
 //GOW(fpathconf, 
 //GO(__fpending, 
 GOM(fprintf, iFEppV)
-GOM(__fprintf_chk, iFEpvpV)
+GOM(__fprintf_chk, iFEpipV)
 //DATA(__fpu_control, 
 //GO(__fpurge, 
 GO(fputc, iFip)

@@ -93,18 +93,16 @@ void x64Int3(x64emu_t* emu)
                 int perr = 0;
                 uint32_t *pu32 = NULL;
                 const char *s = NULL;
-                {
-                    Dl_info info;
-                    if(dladdr((void*)addr, &info))
-                        s = info.dli_sname;
-                }
-                if(!s) s = GetNativeName((void*)addr);
+                s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", " ... ");
-                } else  if(strstr(s, "__open")==s || strcmp(s, "open")==0) {
+                } else  if(strstr(s, "__open")==s || strcmp(s, "open ")==0) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI), (int)(R_EDX));
                     perr = 1;
+                } else  if(strstr(s, "my___printf_chk")) {
+                    tmp = (char*)(R_RSI);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, R_EDI, (tmp)?tmp:"(nil)", (void*)(R_RDX));
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (0x%lX, 0x%lX, 0x%lX, ...)", tid, *(void**)(R_RSP), s, R_RDI, R_RSI, R_RDX);
                 }
