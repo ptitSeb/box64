@@ -1928,9 +1928,9 @@ DATA(sys_errlist, sizeof(void*))
 //DATA(_sys_siglist, 
 //DATA(sys_siglist, 
 //DATA(sys_siglist, 
-//GOW(system, 
-GOM(__sysv_signal, pFip)
-//GOW(sysv_signal, 
+GOW(system, iFp)
+GOM(__sysv_signal, pFEip)
+GOM(sysv_signal, pFEip)  // Weak
 //GOW(tcdrain, 
 //GO(tcflow, 
 //GO(tcflush, 
