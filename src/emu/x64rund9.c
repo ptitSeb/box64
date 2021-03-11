@@ -267,16 +267,14 @@ int RunD9(x64emu_t *emu, rex_t rex)
                 // do something with cw?
                 emu->round = (fpu_round_t)((emu->cw >> 10) & 3);
                 break;
-            #if 0
             case 6:     /* FNSTENV m */
                 // warning, incomplete
-                GETED;
+                GETED(0);
                 fpu_savenv(emu, (char*)ED, 0);
                 // intruction pointer: 48bits
                 // data (operand) pointer: 48bits
                 // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
                 break;
-            #endif
             case 7: /* FNSTCW Ew */
                 GETEW(0);
                 EW->word[0] = emu->cw;

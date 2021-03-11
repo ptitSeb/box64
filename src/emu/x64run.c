@@ -473,6 +473,8 @@ x64emurun:
                 R_RDX=(R_EAX & 0x80000000)?0xFFFFFFFFFFFFFFFFL:0x0000000000000000L;
             break;
 
+        case 0x9B:                      /* FWAIT */
+            break;
         case 0x9C:                      /* PUSHF */
             CHECK_FLAGS(emu);
             Push(emu, emu->eflags.x64);
