@@ -31,6 +31,7 @@ int RunDF(x64emu_t *emu, rex_t rex)
 {
     uint8_t nextop;
     int16_t tmp16s;
+    int64_t tmp64s;
     reg64_t *oped;
 
     nextop = F8;
@@ -146,7 +147,6 @@ int RunDF(x64emu_t *emu, rex_t rex)
                 EW->sword[0] = fpu_round(emu, ST0.d);
             fpu_do_pop(emu);
             break;
-        #if 0
         case 4: /* FBLD ST0, tbytes */
             GETED(0);
             fpu_do_push(emu);
@@ -154,11 +154,11 @@ int RunDF(x64emu_t *emu, rex_t rex)
             break;
         case 5: /* FILD ST0, Gq */
             GETED(0);
-            tmp64s = *(int64_t*)ED;
+            tmp64s = ED->sq[0];
             fpu_do_push(emu);
             ST0.d = tmp64s;
             STll(0).ll = tmp64s;
-            STll(0).ref = ST0.ll;
+            STll(0).ref = ST0.q;
             break;
         case 6: /* FBSTP tbytes, ST0 */
             GETED(0);
@@ -167,31 +167,16 @@ int RunDF(x64emu_t *emu, rex_t rex)
             break;
         case 7: /* FISTP i64 */
             GETED(0);
-            if((uintptr_t)ED & 0x7) {
-                // un-aligned!
-                if(STll(0).ref==ST(0).ll)
-                    memcpy(ED, &STll(0).ll, sizeof(int64_t));
-                else {
-                    int64_t i64;
-                    if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL) || !isfinite(ST0.d))
-                        i64 = 0x8000000000000000LL;
-                    else
-                        i64 = fpu_round(emu, ST0.d);
-                    memcpy(ED, &i64, sizeof(int64_t));
-                }
-            } else {
-                if(STll(0).ref==ST(0).ll)
-                    *(int64_t*)ED = STll(0).ll;
-                else {
-                    if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL) || !isfinite(ST0.d))
-                        *(int64_t*)ED = 0x8000000000000000LL;
-                    else
-                        *(int64_t*)ED = fpu_round(emu, ST0.d);
-                }
+            if(STll(0).ref==ST(0).q)
+                ED->sq[0] = STll(0).ll;
+            else {
+                if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL) || !isfinite(ST0.d))
+                    ED->sq[0] = 0x8000000000000000LL;
+                else
+                    ED->sq[0] = fpu_round(emu, ST0.d);
             }
             fpu_do_pop(emu);
             break;
-        #endif
         default:
             return 1;
         }

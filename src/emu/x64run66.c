@@ -262,6 +262,12 @@ int Run66(x64emu_t *emu, rex_t rex)
         }
         break;
 
+    case 0xD9:                              /* x87 opcdes */
+        return Run66D9(emu, rex);
+
+    case 0xDD:                              /* x87 opcdes */
+        return Run66DD(emu, rex);
+
     case 0xF7:                      /* GRP3 Ew(,Iw) */
         nextop = F8;
         tmp8u = (nextop>>3)&7;

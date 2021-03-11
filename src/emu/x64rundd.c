@@ -150,7 +150,6 @@ int RunDD(x64emu_t *emu, rex_t rex)
                 }
                 fpu_do_pop(emu);
                 break;
-            #if 0
             case 4: /* FRSTOR m108byte */
                 GETED(0);
                 fpu_loadenv(emu, (char*)ED, 0);
@@ -180,7 +179,6 @@ int RunDD(x64emu_t *emu, rex_t rex)
                 }
                 reset_fpu(emu);
                 break;
-            #endif
             case 7: /* FNSTSW m2byte */
                 GETED(0);
                 emu->sw.f.F87_TOP = emu->top&7;

@@ -808,7 +808,14 @@ x64emurun:
             if(emu->quit)
                 goto fini;
             break;
-
+        case 0xDA:                      /* x87 opcodes */
+            if(RunDA(emu, rex)) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit)
+                goto fini;
+            break;
         case 0xDB:                      /* x87 opcodes */
             if(RunDB(emu, rex)) {
                 unimp = 1;
