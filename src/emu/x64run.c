@@ -254,7 +254,14 @@ x64emurun:
             if(emu->quit)
                 goto fini;
             break;
-
+        case 0x67:                      /* reduce EASize prefix */
+            if(Run67(emu, rex)) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit)
+                goto fini;
+            break;
         case 0x68:                      /* Push Id */
             Push(emu, F32S64);
             break;
