@@ -1053,6 +1053,32 @@ reg64_t* GetECommonO(x64emu_t* emu, rex_t rex, uint8_t m, uint8_t delta, uintptr
     }
 }
 
+reg64_t* GetECommon32O(x64emu_t* emu, rex_t rex, uint8_t m, uint8_t delta, uintptr_t base)
+{
+    if (m<=7) {
+        if(m==0x4) {
+            uint8_t sib = Fetch8(emu);
+            base += ((sib&0x7)==5)?((uint64_t)(int64_t)Fetch32s(emu)):(emu->regs[(sib&0x7)+(rex.b<<3)].dword[0]); // base
+            base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<3)]->sdword[0] << (sib>>6));
+            return (reg64_t*)base;
+        } else if (m==0x5) { //disp32
+            base += Fetch32s(emu);
+            return (reg64_t*)(base+R_RIP+delta);
+        }
+        return (reg64_t*)(uintptr_t)(emu->regs[m+(rex.b<<3)].dword[0]);
+    } else {
+        if((m&7)==4) {
+            uint8_t sib = Fetch8(emu);
+            base += emu->regs[(sib&0x7)+(rex.b<<3)].dword[0]; // base
+            base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<3)]->sdword[0] << (sib>>6));
+        } else {
+            base += emu->regs[(m&0x7)+(rex.b<<3)].dword[0];
+        }
+        base+=(m&0x80)?Fetch32s(emu):Fetch8s(emu);
+        return (reg64_t*)base;
+    }
+}
+
 reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta)
 {
     // rex ignored here
@@ -1095,6 +1121,14 @@ reg64_t* GetEdO(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t of
     if(m>=0xC0) {
          return &emu->regs[(m&0x07)+(rex.b<<3)];
     } else return GetECommonO(emu, rex, m, delta, offset);
+}
+
+reg64_t* GetEd32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &emu->regs[(m&0x07)+(rex.b<<3)];
+    } else return GetECommon32O(emu, rex, m, delta, offset);
 }
 
 #define GetEw GetEd

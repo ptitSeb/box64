@@ -14,6 +14,7 @@
 #endif
 
 #define GETED(D)            oped=GetEd(emu, rex, nextop, D)
+#define GETED32(D)          oped=GetEd32O(emu, rex, nextop, D, 0)
 #define GETED_OFFS(D, O)    oped=GetEdO(emu, rex, nextop, D, O)
 #define GETGD               opgd=GetGd(emu, rex, nextop)
 #define GETEB(D)            oped=GetEb(emu, rex, nextop, D)

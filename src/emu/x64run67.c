@@ -31,6 +31,7 @@ int Run67(x64emu_t *emu, rex_t rex)
     uint8_t opcode;
     uint8_t nextop;
     int8_t tmp8s;
+    reg64_t *oped, *opgd;
 
     opcode = F8;
 
@@ -42,6 +43,16 @@ int Run67(x64emu_t *emu, rex_t rex)
     }
 
     switch(opcode) {
+
+    case 0x8D:                      /* LEA Gd,M */
+        nextop = F8;
+        GETED32(0);
+        GETGD;
+        if(rex.w)
+            GD->q[0] = (uint64_t)ED;
+        else
+            GD->q[0] = (uint32_t)(uintptr_t)ED;
+        break;
 
     case 0xE0:                      /* LOOPNZ */
         CHECK_FLAGS(emu);

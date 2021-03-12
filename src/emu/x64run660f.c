@@ -466,6 +466,27 @@ int Run660F(x64emu_t *emu, rex_t rex)
             GW->word[0] = imul16(emu, GW->word[0], EW->word[0]);
         break;
 
+    case 0xB1:                      /* CMPXCHG Ew,Gw */
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        if(rex.w) {
+            cmp64(emu, R_RAX, EW->q[0]);
+            if(ACCESS_FLAG(F_ZF)) {
+                EW->q[0] = GW->q[0];
+            } else {
+                R_RAX = EW->q[0];
+            }
+        } else {
+            cmp16(emu, R_AX, EW->word[0]);
+            if(ACCESS_FLAG(F_ZF)) {
+                EW->word[0] = GW->word[0];
+            } else {
+                R_AX = EW->word[0];
+            }
+        }
+        break;
+
     case 0xB3:                      /* BTR Ew,Gw */
         CHECK_FLAGS(emu);
         nextop = F8;
@@ -559,6 +580,21 @@ int Run660F(x64emu_t *emu, rex_t rex)
             GW->sq[0] = EB->sbyte[0];
         else
             GW->sword[0] = EB->sbyte[0];
+        break;
+
+    case 0xC1:                      /* XADD Gw,Ew */ // Xchange and Add
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        if(rex.w) {
+            tmp64u = add64(emu, EW->q[0], GW->q[0]);
+            GW->q[0] = EW->q[0];
+            EW->q[0] = tmp64u;
+        } else {
+            tmp16u = add16(emu, EW->word[0], GW->word[0]);
+            GW->word[0] = EW->word[0];
+            EW->word[0] = tmp16u;
+        }
         break;
 
     case 0xD6:                      /* MOVQ Ex,Gx */

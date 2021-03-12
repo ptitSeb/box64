@@ -33,8 +33,8 @@ int Run0F(x64emu_t *emu, rex_t rex)
     uint8_t nextop;
     uint8_t tmp8u;
     int32_t tmp32s, tmp32s2;
-    uint32_t tmp32u;
-    uint64_t tmp64u;
+    uint32_t tmp32u, tmp32u2;
+    uint64_t tmp64u, tmp64u2;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
     mmx87_regs_t *opem, *opgm;
@@ -564,7 +564,40 @@ int Run0F(x64emu_t *emu, rex_t rex)
             else
                 GD->dword[0] = imul32(emu, GD->dword[0], ED->dword[0]);
             break;
-
+        case 0xB0:                      /* CMPXCHG Eb,Gb */
+            nextop = F8;
+            GETEB(0);
+            GETGB;
+            cmp8(emu, R_AL, EB->byte[0]);
+            if(ACCESS_FLAG(F_ZF)) {
+                EB->byte[0] = GB;
+            } else {
+                R_AL = EB->byte[0];
+            }
+            break;
+        case 0xB1:                      /* CMPXCHG Ed,Gd */
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if(rex.w) {
+                cmp64(emu, R_RAX, ED->q[0]);
+                if(ACCESS_FLAG(F_ZF)) {
+                    ED->q[0] = GD->q[0];
+                } else {
+                    R_RAX = ED->q[0];
+                }
+            } else {
+                cmp32(emu, R_EAX, ED->dword[0]);
+                if(ACCESS_FLAG(F_ZF)) {
+                    if(MODREG)
+                        ED->q[0] = GD->dword[0];
+                    else
+                        ED->dword[0] = GD->dword[0];
+                } else {
+                    R_RAX = ED->dword[0];
+                }
+            }
+            break;
         case 0xB3:                      /* BTR Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
@@ -810,7 +843,62 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 GD->dword[1] = 0;
             }
             break;
+        case 0xC0:                      /* XADD Gb,Eb */
+            nextop = F8;
+            GETEB(0);
+            GETGB;
+            tmp8u = add8(emu, EB->byte[0], GB);
+            GB = EB->byte[0];
+            EB->byte[0] = tmp8u;
+            break;
+        case 0xC1:                      /* XADD Gd,Ed */
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if(rex.w) {
+                tmp64u = add64(emu, ED->q[0], GD->q[0]);
+                GD->q[0] = ED->q[0];
+                ED->q[0] = tmp64u;
+            } else {
+                tmp32u = add32(emu, ED->dword[0], GD->dword[0]);
+                GD->q[0] = ED->dword[0];
+                if(MODREG)
+                    ED->q[0] = tmp32u;
+                else
+                    ED->dword[0] = tmp32u;
+            }
+            break;
 
+        case 0xC7:                      /* CMPXCHG8B Eq */
+            CHECK_FLAGS(emu);
+            nextop = F8;
+            GETED(0);
+            if(rex.w) {
+                tmp64u = ED->q[0];
+                tmp64u2= ED->q[1];
+                if(R_RAX == tmp64u && R_RDX == tmp64u2) {
+                    SET_FLAG(F_ZF);
+                    ED->q[0] = R_EBX;
+                    ED->q[1] = R_ECX;
+                } else {
+                    CLEAR_FLAG(F_ZF);
+                    R_RAX = tmp64u;
+                    R_RDX = tmp64u2;
+                }
+            } else {
+                tmp32u = ED->dword[0];
+                tmp32u2= ED->dword[1];
+                if(R_EAX == tmp32u && R_EDX == tmp32u2) {
+                    SET_FLAG(F_ZF);
+                    ED->dword[0] = R_EBX;
+                    ED->dword[1] = R_ECX;
+                } else {
+                    CLEAR_FLAG(F_ZF);
+                    R_RAX = tmp32u;
+                    R_RDX = tmp32u2;
+                }
+            }
+            break;
         case 0xC8:
         case 0xC9:
         case 0xCA:
@@ -823,7 +911,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             if(rex.w)
                 emu->regs[tmp8u].q[0] = __builtin_bswap64(emu->regs[tmp8u].q[0]);
             else
-                emu->regs[tmp8u].dword[0] = __builtin_bswap32(emu->regs[tmp8u].dword[0]);
+                emu->regs[tmp8u].q[0] = __builtin_bswap32(emu->regs[tmp8u].dword[0]);
             break;
 
         case 0xD1:                   /* PSRLW Gm,Em */

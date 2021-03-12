@@ -26,15 +26,16 @@
 
 #include "modrm.h"
 
-int Run66(x64emu_t *emu, rex_t rex)
+int Run66(x64emu_t *emu, rex_t rex, int rep)
 {
     uint8_t opcode;
     uint8_t nextop;
-    uint8_t tmp8u;
+    int8_t tmp8s;
+    uint8_t tmp8u, tmp8u2;
     int16_t tmp16s;
-    uint16_t tmp16u;
+    uint16_t tmp16u, tmp16u2;
     int64_t tmp64s;
-    uint64_t tmp64u;
+    uint64_t tmp64u, tmp64u2, tmp64u3;
     reg64_t *oped, *opgd;
 
     opcode = F8;
@@ -42,6 +43,10 @@ int Run66(x64emu_t *emu, rex_t rex)
     while((opcode==0x2E) || (opcode==0x66))   // ignoring CS: or multiple 0x66
         opcode = F8;
 
+    while((opcode==0xF2) || (opcode==0xF3)) {
+        rep = opcode-0xF1;
+        opcode = F8;
+    }
     // REX prefix before the F0 are ignored
     rex.rex = 0;
     while(opcode>=0x40 && opcode<=0x4f) {
@@ -186,6 +191,21 @@ int Run66(x64emu_t *emu, rex_t rex)
         test16(emu, EW->word[0], GW->word[0]);
         break;
 
+    case 0x87:                              /* XCHG Ew,Gw */
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        if(rex.w) {
+            tmp64u = GW->q[0];
+            GW->q[0] = EW->q[0];
+            EW->q[0] = tmp64u;
+        } else {
+            tmp16u = GW->word[0];
+            GW->word[0] = EW->word[0];
+            EW->word[0] = tmp16u;
+        }
+        break;
+
     case 0x89:                              /* MOV Ew,Gw */
         nextop = F8;
         GETEW(0);
@@ -194,6 +214,220 @@ int Run66(x64emu_t *emu, rex_t rex)
         break;
 
     case 0x90:                              /* NOP */
+        break;
+
+    case 0x98:                               /* CBW */
+        emu->regs[_AX].sword[0] = emu->regs[_AX].sbyte[0];
+        break;
+    case 0x99:                              /* CWD */
+        R_DX=((R_AX & 0x8000)?0xFFFF:0x0000);
+        break;
+
+    case 0xA5:              /* (REP) MOVSW */
+        tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+        tmp64u = (rep)?R_RCX:1L;
+        if(rex.w) {
+            tmp8s *= 8;
+            while(tmp64u) {
+                --tmp64u;
+                *(uint64_t*)R_RDI = *(uint64_t*)R_RSI;
+                R_RDI += tmp8s;
+                R_RSI += tmp8s;
+            }
+        } else {
+            tmp8s *= 2;
+            while(tmp64u) {
+                --tmp64u;
+                *(uint16_t*)R_RDI = *(uint16_t*)R_RSI;
+                R_RDI += tmp8s;
+                R_RSI += tmp8s;
+            }
+        }
+        if(rep)
+            R_RCX = tmp64u;
+        break;
+
+    case 0xA7:                      /* (REPZ/REPNE) CMPSW */
+        if(rex.w)
+            tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+        else
+            tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+        switch(rep) {
+            case 1:
+                tmp64u = R_RCX;
+                if(rex.w) {
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp64u3 = *(uint64_t*)R_RDI;
+                        tmp64u2 = *(uint64_t*)R_RSI;
+                        R_RDI += tmp8s;
+                        R_RSI += tmp8s;
+                        if(tmp64u3==tmp64u2)
+                            break;
+                    }
+                    if(R_RCX) cmp64(emu, tmp64u2, tmp64u3);
+                } else {
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp16u  = *(uint16_t*)R_RDI;
+                        tmp16u2 = *(uint16_t*)R_RSI;
+                        R_RDI += tmp8s;
+                        R_RSI += tmp8s;
+                        if(tmp16u==tmp16u2)
+                            break;
+                    }
+                    if(R_RCX) cmp16(emu, tmp16u2, tmp16u);
+                }
+                R_RCX = tmp64u;
+                break;
+            case 2:
+                tmp64u = R_RCX;
+                if(rex.w) {
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp64u3 = *(uint64_t*)R_RDI;
+                        tmp64u2 = *(uint64_t*)R_RSI;
+                        R_RDI += tmp8s;
+                        R_RSI += tmp8s;
+                        if(tmp64u3!=tmp64u2)
+                            break;
+                    }
+                    if(R_RCX) cmp64(emu, tmp64u2, tmp64u3);
+                } else {
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp16u  = *(uint16_t*)R_RDI;
+                        tmp16u2 = *(uint16_t*)R_RSI;
+                        R_RDI += tmp8s;
+                        R_RSI += tmp8s;
+                        if(tmp16u!=tmp16u2)
+                            break;
+                    }
+                    if(R_RCX) cmp16(emu, tmp16u2, tmp16u);
+                }
+                R_RCX = tmp64u;
+                break;
+            default:
+                if(rex.w) {
+                    tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+                    tmp64u  = *(uint64_t*)R_RDI;
+                    tmp64u2 = *(uint64_t*)R_RSI;
+                    R_RDI += tmp8s;
+                    R_RSI += tmp8s;
+                    cmp64(emu, tmp64u2, tmp64u);
+                } else {
+                    tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+                    tmp16u  = *(uint16_t*)R_RDI;
+                    tmp16u2 = *(uint16_t*)R_RSI;
+                    R_RDI += tmp8s;
+                    R_RSI += tmp8s;
+                    cmp16(emu, tmp16u2, tmp16u);
+                }
+        }
+        break;
+    
+    case 0xAB:                      /* (REP) STOSW */
+        if(rex.w)
+            tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+        else
+            tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+        tmp64u = (rep)?R_RCX:1L;
+        if((rex.w))
+            while(tmp64u) {
+                *(uint64_t*)R_RDI = R_RAX;
+                R_RDI += tmp8s;
+                --tmp64u;
+            }
+        else
+            while(tmp64u) {
+                *(uint16_t*)R_RDI = R_AX;
+                R_RDI += tmp8s;
+                --tmp64u;
+            }
+        if(rep)
+            R_RCX = tmp64u;
+        break;
+    case 0xAD:                      /* (REP) LODSW */
+        if(rex.w)
+            tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+        else
+            tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+        tmp64u = (rep)?R_RCX:1L;
+        if((rex.w))
+            while(tmp64u) {
+                R_RAX = *(uint64_t*)R_RSI;
+                R_RSI += tmp8s;
+                --tmp64u;
+            }
+        else
+            while(tmp64u) {
+                R_AX = *(uint16_t*)R_RSI;
+                R_RSI += tmp8s;
+                --tmp64u;
+            }
+        if(rep)
+            R_RCX = tmp64u;
+        break;
+
+    case 0xAF:                      /* (REPZ/REPNE) SCASD */
+        if(rex.w)
+            tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+        else
+            tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+        switch(rep) {
+            case 1:
+                tmp64u = R_RCX;
+                if(rex.w) {
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp64u = *(uint64_t*)R_RDI;
+                        R_RDI += tmp8s;
+                        if(R_RAX==tmp64u)
+                            break;
+                    }
+                    if(R_RCX) cmp64(emu, R_RAX, tmp64u);
+                } else {
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp16u = *(uint16_t*)R_RDI;
+                        R_RDI += tmp8s;
+                        if(R_AX==tmp16u)
+                            break;
+                    }
+                    if(R_RCX) cmp16(emu, R_AX, tmp16u);
+                }
+                R_RCX = tmp64u;
+                break;
+            case 2:
+                tmp64u = R_RCX;
+                if(rex.w) {
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp64u = *(uint64_t*)R_RDI;
+                        R_RDI += tmp8s;
+                        if(R_RAX!=tmp64u)
+                            break;
+                    }
+                    if(R_RCX) cmp64(emu, R_RAX, tmp64u);
+                } else {
+                    while(tmp64u) {
+                        --tmp64u;
+                        tmp16u = *(uint16_t*)R_RDI;
+                        R_RDI += tmp8s;
+                        if(R_AX!=tmp16u)
+                            break;
+                    }
+                    if(R_RCX) cmp16(emu, R_AX, tmp16u);
+                }
+                R_RCX = tmp64u;
+                break;
+            default:
+                if(rex.w)
+                    cmp64(emu, R_RAX, *(uint64_t*)R_RDI);
+                else
+                    cmp16(emu, R_AX, *(uint16_t*)R_RDI);
+                R_RDI += tmp8s;
+        }
         break;
 
     case 0xB8:                              /* MOV AX,Iw */
@@ -230,6 +464,25 @@ int Run66(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEW(2);
         EW->word[0] = F16;
+        break;
+    case 0xC8:                      /* ENTER Iw,Ib */
+        tmp16u = F16;
+        tmp8u = (F8) & 0x1f;
+        tmp64u = R_RBP;
+        Push16(emu, R_BP);
+        R_RBP = R_RSP;
+        if (tmp8u) {
+            for (tmp8u2 = 1; tmp8u2 < tmp8u; tmp8u2++) {
+                tmp64u -= 2;
+                Push16(emu, *((uint16_t*)tmp64u));
+            }
+            Push16(emu, R_BP);
+        }
+        R_RSP -= tmp16u;
+        break;
+    case 0xC9:                      /* LEAVE */
+        R_RSP = R_RBP;
+        R_BP = Pop16(emu);
         break;
 
     case 0xD1:                              /* GRP2 Ew,1  */

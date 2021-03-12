@@ -75,10 +75,12 @@ static inline void Push(x64emu_t *emu, uint64_t v)
 
 reg64_t* GetECommon(x64emu_t* emu, rex_t rex, uint8_t m, uint8_t delta);
 reg64_t* GetECommonO(x64emu_t* emu, rex_t rex, uint8_t m, uint8_t delta, uintptr_t offset);
+reg64_t* GetECommon32O(x64emu_t* emu, rex_t rex, uint8_t m, uint8_t delta, uintptr_t offset);
 reg64_t* GetEb(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta);
 reg64_t* GetEbO(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* GetEd(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta);
 reg64_t* GetEdO(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
+reg64_t* GetEd32(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta);
 #define GetEw GetEd
 reg64_t* GetEw16(x64emu_t *emu, rex_t rex, uint8_t v);
 reg64_t* GetEw16off(x64emu_t *emu, rex_t rex, uint8_t v, uintptr_t offset);
@@ -97,7 +99,7 @@ void UpdateFlags(x64emu_t *emu);
 
 int Run0F(x64emu_t *emu, rex_t rex);
 int Run64(x64emu_t *emu, rex_t rex);
-int Run66(x64emu_t *emu, rex_t rex);
+int Run66(x64emu_t *emu, rex_t rex, int rep);
 int Run660F(x64emu_t *emu, rex_t rex);
 int Run6664(x64emu_t *emu, rex_t rex);
 int Run66D9(x64emu_t *emu, rex_t rex);

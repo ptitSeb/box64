@@ -35,10 +35,11 @@ int Run(x64emu_t *emu, int step)
     reg64_t *oped, *opgd;
     uint8_t tmp8u, tmp8u2;
     int8_t tmp8s;
+    uint16_t tmp16u;
     int32_t tmp32s;
-    uint32_t tmp32u;
+    uint32_t tmp32u, tmp32u2;
     int64_t tmp64s;
-    uint64_t tmp64u;
+    uint64_t tmp64u, tmp64u2, tmp64u3;
     rex_t rex;
     int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int unimp = 0;
@@ -247,7 +248,7 @@ x64emurun:
             break;
 
         case 0x66:                      /* 16bits prefix */
-            if(Run66(emu, rex)) {
+            if(Run66(emu, rex, rep)) {
                 unimp = 1;
                 goto fini;
             }
@@ -377,7 +378,33 @@ x64emurun:
             else
                 test32(emu, ED->dword[0], GD->dword[0]);
             break;
-
+        case 0x86:                      /* XCHG Eb,Gb */
+            nextop = F8;
+#ifdef DYNAREC
+            GET_EB;
+            if((nextop&0xC0)==0xC0) { // reg / reg: no lock
+                tmp8u = GB;
+                GB = EB->byte[0];
+                EB->byte[0] = tmp8u;
+            } else {
+                do {
+                    tmp8u = arm_lock_read_b(EB);
+                } while(arm_lock_write_b(EB, GB));
+                GB = tmp8u;
+            }
+            // dynarec use need it's own mecanism
+#else
+            GETEB(0);
+            GETGB;
+            if((nextop&0xC0)!=0xC0)
+                pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
+            tmp8u = GB;
+            GB = EB->byte[0];
+            EB->byte[0] = tmp8u;
+            if((nextop&0xC0)!=0xC0)
+                pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif                
+            break;
         case 0x87:                      /* XCHG Ed,Gd */
             nextop = F8;
 #ifdef DYNAREC
@@ -401,7 +428,7 @@ x64emurun:
 #else
             GETED(0);
             GETGD;
-            if((nextop&0xC0)!=0xC0)
+            if(!MODREG)
                 pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
             if(rex.w) {
                 tmp64u = GD->q[0];
@@ -409,10 +436,13 @@ x64emurun:
                 ED->q[0] = tmp64u;
             } else {
                 tmp32u = GD->dword[0];
-                GD->dword[0] = ED->dword[0];
-                ED->dword[0] = tmp32u;
+                GD->q[0] = ED->dword[0];
+                if(MODREG)
+                    ED->q[0] = tmp32u;
+                else
+                    ED->dword[0] = tmp32u;
             }
-            if((nextop&0xC0)!=0xC0)
+            if(!MODREG)
                 pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
             break;
@@ -457,20 +487,34 @@ x64emurun:
                 GD->q[0] = (uint32_t)(uintptr_t)ED;
             break;
 
+        case 0x8F:                      /* POP Ed */
+            nextop = F8;
+            if(MODREG) {
+                emu->regs[(nextop&7)+(rex.b<<3)].q[0] = Pop(emu);
+            } else {
+                tmp64u = Pop(emu);  // this order allows handling POP [ESP] and variant
+                GETED(0);
+                R_ESP -= sizeof(void*); // to prevent issue with SEGFAULT
+                ED->q[0] = tmp64u;
+                R_ESP += sizeof(void*);
+            }
+            break;
         case 0x90:                      /* NOP */
             break;
 
         case 0x98:                      /* CWDE */
             if(rex.w)
                 emu->regs[_AX].sq[0] = emu->regs[_AX].sdword[0];
-            else
+            else {
                 emu->regs[_AX].sdword[0] = emu->regs[_AX].sword[0];
+                emu->regs[_AX].dword[1] = 0;
+            }
             break;
         case 0x99:                      /* CDQ */
             if(rex.w)
-                R_RDX=(R_RAX & 0x8000000000000000L)?0xFFFFFFFFFFFFFFFFL:0x0000000000000000L;
+                R_RDX=(R_RAX & 0x8000000000000000LL)?0xFFFFFFFFFFFFFFFFLL:0x0000000000000000LL;
             else
-                R_RDX=(R_EAX & 0x80000000)?0xFFFFFFFFFFFFFFFFL:0x0000000000000000L;
+                R_RDX=(R_EAX & 0x80000000)?0x00000000FFFFFFFFLL:0x0000000000000000LL;
             break;
 
         case 0x9B:                      /* FWAIT */
@@ -484,6 +528,18 @@ x64emurun:
             RESET_FLAGS(emu);
             break;
 
+        case 0xA4:                      /* MOVSB */
+            tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+            tmp64u = (rep)?R_RCX:1L;
+            while(tmp64u) {
+                *(uint8_t*)R_RDI = *(uint8_t*)R_RSI;
+                R_RDI += tmp8s;
+                R_RSI += tmp8s;
+                --tmp64u;
+            }
+            if(rep)
+                R_RCX = tmp64u;
+            break;
         case 0xA5:              /* (REP) MOVSD */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             tmp64u = (rep)?R_RCX:1L;
@@ -547,7 +603,84 @@ x64emurun:
                     cmp8(emu, tmp8u2, tmp8u);
             }
             break;
-
+        case 0xA7:                      /* (REPZ/REPNE) CMPSD */
+            if(rex.w)
+                tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+            else
+                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+            switch(rep) {
+                case 1:
+                    tmp64u = R_RCX;
+                    if(rex.w) {
+                        while(tmp64u) {
+                            --tmp64u;
+                            tmp64u3 = *(uint64_t*)R_RDI;
+                            tmp64u2 = *(uint64_t*)R_RSI;
+                            R_RDI += tmp8s;
+                            R_RSI += tmp8s;
+                            if(tmp64u3==tmp64u2)
+                                break;
+                        }
+                        if(R_RCX) cmp64(emu, tmp64u2, tmp64u3);
+                    } else {
+                        while(tmp64u) {
+                            --tmp64u;
+                            tmp32u  = *(uint32_t*)R_RDI;
+                            tmp32u2 = *(uint32_t*)R_RSI;
+                            R_RDI += tmp8s;
+                            R_RSI += tmp8s;
+                            if(tmp32u==tmp32u2)
+                                break;
+                        }
+                        if(R_RCX) cmp32(emu, tmp32u2, tmp32u);
+                    }
+                    R_RCX = tmp64u;
+                    break;
+                case 2:
+                    tmp64u = R_RCX;
+                    if(rex.w) {
+                        while(tmp64u) {
+                            --tmp64u;
+                            tmp64u3 = *(uint64_t*)R_RDI;
+                            tmp64u2 = *(uint64_t*)R_RSI;
+                            R_RDI += tmp8s;
+                            R_RSI += tmp8s;
+                            if(tmp64u3!=tmp64u2)
+                                break;
+                        }
+                        if(R_RCX) cmp64(emu, tmp64u2, tmp64u3);
+                    } else {
+                        while(tmp64u) {
+                            --tmp64u;
+                            tmp32u  = *(uint32_t*)R_RDI;
+                            tmp32u2 = *(uint32_t*)R_RSI;
+                            R_RDI += tmp8s;
+                            R_RSI += tmp8s;
+                            if(tmp32u!=tmp32u2)
+                                break;
+                        }
+                        if(R_RCX) cmp32(emu, tmp32u2, tmp32u);
+                    }
+                    R_RCX = tmp64u;
+                    break;
+                default:
+                    if(rex.w) {
+                        tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+                        tmp64u  = *(uint64_t*)R_RDI;
+                        tmp64u2 = *(uint64_t*)R_RSI;
+                        R_RDI += tmp8s;
+                        R_RSI += tmp8s;
+                        cmp64(emu, tmp64u2, tmp64u);
+                    } else {
+                        tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+                        tmp32u  = *(uint32_t*)R_RDI;
+                        tmp32u2 = *(uint32_t*)R_RSI;
+                        R_RDI += tmp8s;
+                        R_RSI += tmp8s;
+                        cmp32(emu, tmp32u2, tmp32u);
+                    }
+            }
+            break;
         case 0xA8:                      /* TEST AL, Ib */
             test8(emu, R_AL, F8);
             break;
@@ -558,6 +691,17 @@ x64emurun:
                 test32(emu, R_EAX, F32);
             break;
 
+        case 0xAA:                      /* (REP) STOSB */
+            tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+            tmp64u = (rep)?R_RCX:1L;
+            while(tmp64u) {
+                *(uint8_t*)R_RDI = R_AL;
+                R_RDI += tmp8s;
+                --tmp64u;
+            }
+            if(rep)
+                R_RCX = tmp64u;
+            break;
         case 0xAB:                      /* (REP) STOSD */
             if(rex.w)
                 tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
@@ -579,7 +723,38 @@ x64emurun:
             if(rep)
                 R_RCX = tmp64u;
             break;
-        
+        case 0xAC:                      /* LODSB */
+            tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+            tmp64u = (rep)?R_RCX:1L;
+            while(tmp64u) {
+                R_AL = *(uint8_t*)R_RSI;
+                R_RSI += tmp8s;
+                --tmp64u;
+            }
+            if(rep)
+                R_RCX = tmp64u;
+            break;
+        case 0xAD:                      /* (REP) LODSD */
+            if(rex.w)
+                tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+            else
+                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+            tmp64u = (rep)?R_RCX:1L;
+            if((rex.w))
+                while(tmp64u) {
+                    R_RAX = *(uint64_t*)R_RSI;
+                    R_RSI += tmp8s;
+                    --tmp64u;
+                }
+            else
+                while(tmp64u) {
+                    R_RAX = *(uint32_t*)R_RSI;
+                    R_RSI += tmp8s;
+                    --tmp64u;
+                }
+            if(rep)
+                R_RCX = tmp64u;
+            break;
         case 0xAE:                      /* (REPZ/REPNE) SCASB */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             switch(rep) {
@@ -609,11 +784,69 @@ x64emurun:
                     break;
                 default:
                     cmp8(emu, R_AL, *(uint8_t*)R_RDI);
-                    R_EDI += tmp8s;
+                    R_RDI += tmp8s;
             }
             break;
-
-
+        case 0xAF:                      /* (REPZ/REPNE) SCASD */
+            if(rex.w)
+                tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
+            else
+                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+            switch(rep) {
+                case 1:
+                    tmp64u = R_RCX;
+                    if(rex.w) {
+                        while(tmp64u) {
+                            --tmp64u;
+                            tmp64u2 = *(uint64_t*)R_RDI;
+                            R_RDI += tmp8s;
+                            if(R_RAX==tmp64u2)
+                                break;
+                        }
+                        if(R_RCX) cmp64(emu, R_RAX, tmp64u2);
+                    } else {
+                        while(tmp64u) {
+                            --tmp64u;
+                            tmp32u = *(uint32_t*)R_RDI;
+                            R_RDI += tmp8s;
+                            if(R_EAX==tmp32u)
+                                break;
+                        }
+                        if(R_RCX) cmp32(emu, R_EAX, tmp32u);
+                    }
+                    R_RCX = tmp64u;
+                    break;
+                case 2:
+                    tmp64u = R_RCX;
+                    if(rex.w) {
+                        while(tmp64u) {
+                            --tmp64u;
+                            tmp64u2 = *(uint64_t*)R_RDI;
+                            R_RDI += tmp8s;
+                            if(R_RAX!=tmp64u2)
+                                break;
+                        }
+                        if(R_RCX) cmp64(emu, R_RAX, tmp64u2);
+                    } else {
+                        while(tmp64u) {
+                            --tmp64u;
+                            tmp32u = *(uint32_t*)R_RDI;
+                            R_RDI += tmp8s;
+                            if(R_EAX!=tmp32u)
+                                break;
+                        }
+                        if(R_RCX) cmp32(emu, R_EAX, tmp32u);
+                    }
+                    R_RCX = tmp64u;
+                    break;
+                default:
+                    if(rex.w)
+                        cmp64(emu, R_RAX, *(uint64_t*)R_RDI);
+                    else
+                        cmp32(emu, R_EAX, *(uint32_t*)R_RDI);
+                    R_RDI += tmp8s;
+            }
+            break;
         case 0xB0:                      /* MOV AL,Ib */
         case 0xB1:                      /* MOV CL,Ib */
         case 0xB2:                      /* MOV DL,Ib */
@@ -723,7 +956,21 @@ x64emurun:
                 else
                     ED->dword[0] = F32;
             break;
-
+        case 0xC8:                      /* ENTER Iw,Ib */
+            tmp16u = F16;
+            tmp8u = (F8) & 0x1f;
+            tmp64u = R_RBP;
+            Push(emu, R_RBP);
+            R_RBP = R_RSP;
+            if (tmp8u) {
+                for (tmp8u2 = 1; tmp8u2 < tmp8u; tmp8u2++) {
+                    tmp64u -= sizeof(void*);
+                    Push(emu, *((uintptr_t*)tmp64u));
+                }
+                Push(emu, R_RBP);
+            }
+            R_RSP -= tmp16u;
+            break;
         case 0xC9:                      /* LEAVE */
             R_RSP = R_RBP;
             R_RBP = Pop(emu);
@@ -792,6 +1039,9 @@ x64emurun:
             }
             break;
 
+        case 0xD7:                      /* XLAT */
+            R_AL = *(uint8_t*)(R_RBX + R_AL);
+            break;
         case 0xD8:                      /* x87 opcodes */
             if(RunD8(emu, rex)) {
                 unimp = 1;
@@ -965,6 +1215,26 @@ x64emurun:
             }
             break;
 
+        case 0xF8:                      /* CLC */
+            CHECK_FLAGS(emu);
+            CLEAR_FLAG(F_CF);
+            break;
+        case 0xF9:                      /* STC */
+            CHECK_FLAGS(emu);
+            SET_FLAG(F_CF);
+            break;
+        case 0xFA:                      /* CLI */
+            CLEAR_FLAG(F_IF);   //not really handled...
+            break;
+        case 0xFB:                      /* STI */
+            SET_FLAG(F_IF);
+            break;
+        case 0xFC:                      /* CLD */
+            CLEAR_FLAG(F_DF);
+            break;
+        case 0xFD:                      /* STD */
+            SET_FLAG(F_DF);
+            break;
         case 0xFE:                      /* GRP 5 Eb */
             nextop = F8;
             GETEB(0);
