@@ -1191,8 +1191,8 @@ GO(mkfifoat, iFipu)
 //GOW(munmap, 
 //GO(muntrace, 
 GO(name_to_handle_at, iFipppi)
-//GO(__nanosleep, 
-//GOW(nanosleep, 
+GO(__nanosleep, iFpp)
+GOW(nanosleep, iFpp)
 //GO(__nanosleep_nocancel, 
 //GO(__netlink_assert_response, 
 //GO(netname2host, 
