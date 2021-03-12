@@ -77,6 +77,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     emu->segs[_GS] = default_gs;
     // setup fpu regs
     reset_fpu(emu);
+    emu->mxcsr = 0x1f80;
 }
 
 EXPORTDYN

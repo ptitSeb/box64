@@ -32,11 +32,12 @@ int Run0F(x64emu_t *emu, rex_t rex)
     uint8_t opcode;
     uint8_t nextop;
     uint8_t tmp8u;
+    int8_t tmp8s;
     int32_t tmp32s, tmp32s2;
     uint32_t tmp32u, tmp32u2;
     uint64_t tmp64u, tmp64u2;
     reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx;
+    sse_regs_t *opex, *opgx, eax1;
     mmx87_regs_t *opem, *opgm;
 
     opcode = F8;
@@ -117,7 +118,51 @@ int Run0F(x64emu_t *emu, rex_t rex)
             EX->q[0] = GX->q[0];
             EX->q[1] = GX->q[1];
             break;
-
+        case 0x2A:                      /* CVTPI2PS Gx, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGX;
+            GX->f[0] = EM->sd[0];
+            GX->f[1] = EM->sd[1];
+            break;
+        case 0x2B:                      /* MOVNTPS Ex,Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+            break;
+        case 0x2C:                      /* CVTTPS2PI Gm, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGM;
+            GM->sd[1] = EX->f[1];
+            GM->sd[0] = EX->f[0];
+            break;
+        case 0x2D:                      /* CVTPS2PI Gm, Ex */
+            // rounding should be done; and indefinite integer should also be assigned if overflow or NaN/Inf
+            nextop = F8;
+            GETEX(0);
+            GETGM;
+            switch((emu->mxcsr>>13)&3) {
+                case ROUND_Nearest:
+                    GM->sd[1] = floorf(EX->f[1]+0.5f);
+                    GM->sd[0] = floorf(EX->f[0]+0.5f);
+                    break;
+                case ROUND_Down:
+                    GM->sd[1] = floorf(EX->f[1]);
+                    GM->sd[0] = floorf(EX->f[0]);
+                    break;
+                case ROUND_Up:
+                    GM->sd[1] = ceilf(EX->f[1]);
+                    GM->sd[0] = ceilf(EX->f[0]);
+                    break;
+                case ROUND_Chop:
+                    GM->sd[1] = EX->f[1];
+                    GM->sd[0] = EX->f[0];
+                    break;
+            }
+            break;
         case 0x2E:                      /* UCOMISS Gx, Ex */
             // same for now
         case 0x2F:                      /* COMISS Gx, Ex */
@@ -147,6 +192,14 @@ int Run0F(x64emu_t *emu, rex_t rex)
             , if(!rex.w) GD->dword[1] = 0;
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         
+        case 0x50:                      /* MOVMSKPS Gd, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGD;
+            GD->dword[0] = 0;
+            for(int i=0; i<4; ++i)
+                GD->dword[0] |= ((EX->ud[i]>>31)&1)<<i;
+            break;
         case 0x51:                      /* SQRTPS Gx, Ex */
             nextop = F8;
             GETEX(0);
@@ -545,6 +598,18 @@ int Run0F(x64emu_t *emu, rex_t rex)
             }
             GETED(0);
             switch((nextop>>3)&7) {
+                case 0:                 /* FXSAVE Ed */
+                    if(rex.w)
+                        fpu_fxsave64(emu, ED);
+                    else
+                        fpu_fxsave32(emu, ED);
+                    break;
+                case 1:                 /* FXRSTOR Ed */
+                    if(rex.w)
+                        fpu_fxrstor64(emu, ED);
+                    else
+                        fpu_fxrstor32(emu, ED);
+                    break;
                 case 2:                 /* LDMXCSR Md */
                     emu->mxcsr = ED->dword[0];
                     break;
@@ -868,7 +933,41 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     ED->dword[0] = tmp32u;
             }
             break;
+        case 0xC2:                      /* CMPPS Gx, Ex, Ib */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            tmp8u = F8;
+            for(int i=0; i<4; ++i) {
+                tmp8s = 0;
+                switch(tmp8u&7) {
+                    case 0: tmp8s=(GX->f[i] == EX->f[i]); break;
+                    case 1: tmp8s=isless(GX->f[i], EX->f[i]); break;
+                    case 2: tmp8s=islessequal(GX->f[i], EX->f[i]); break;
+                    case 3: tmp8s=isnan(GX->f[i]) || isnan(EX->f[i]); break;
+                    case 4: tmp8s=(GX->f[i] != EX->f[i]); break;
+                    case 5: tmp8s=isnan(GX->f[i]) || isnan(EX->f[i]) || isgreaterequal(GX->f[i], EX->f[i]); break;
+                    case 6: tmp8s=isnan(GX->f[i]) || isnan(EX->f[i]) || isgreater(GX->f[i], EX->f[i]); break;
+                    case 7: tmp8s=!isnan(GX->f[i]) && !isnan(EX->f[i]); break;
+                }
+                GX->ud[i]=(tmp8s)?0xffffffff:0;
+            }
+            break;
 
+        case 0xC6:                      /* SHUFPS Gx, Ex, Ib */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            tmp8u = F8;
+            for(int i=0; i<2; ++i) {
+                eax1.ud[i] = GX->ud[(tmp8u>>(i*2))&3];
+            }
+            for(int i=2; i<4; ++i) {
+                eax1.ud[i] = EX->ud[(tmp8u>>(i*2))&3];
+            }
+            GX->q[0] = eax1.q[0];
+            GX->q[1] = eax1.q[1];
+            break;
         case 0xC7:                      /* CMPXCHG8B Eq */
             CHECK_FLAGS(emu);
             nextop = F8;

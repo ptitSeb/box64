@@ -34,7 +34,8 @@ int RunF30F(x64emu_t *emu, rex_t rex)
     int8_t tmp8s;
     uint8_t tmp8u;
     reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx;
+    sse_regs_t *opex, *opgx, eax1;
+    mmx87_regs_t *opem;
 
     opcode = F8;
 
@@ -75,6 +76,43 @@ int RunF30F(x64emu_t *emu, rex_t rex)
             GD->sq[0] = EX->f[0];
         else {
             GD->sdword[0] = EX->f[0];
+            GD->dword[1] = 0;
+        }
+        break;
+    case 0x2D:  /* CVTSS2SI Gd, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGD;
+        if(rex.w) {
+            switch((emu->mxcsr>>13)&3) {
+                case ROUND_Nearest:
+                    GD->sq[0] = floorf(EX->f[0]+0.5f);
+                    break;
+                case ROUND_Down:
+                    GD->sq[0] = floorf(EX->f[0]);
+                    break;
+                case ROUND_Up:
+                    GD->sq[0] = ceilf(EX->f[0]);
+                    break;
+                case ROUND_Chop:
+                    GD->sq[0] = EX->f[0];
+                    break;
+            }
+        } else {
+            switch((emu->mxcsr>>13)&3) {
+                case ROUND_Nearest:
+                    GD->sdword[0] = floorf(EX->f[0]+0.5f);
+                    break;
+                case ROUND_Down:
+                    GD->sdword[0] = floorf(EX->f[0]);
+                    break;
+                case ROUND_Up:
+                    GD->sdword[0] = ceilf(EX->f[0]);
+                    break;
+                case ROUND_Chop:
+                    GD->sdword[0] = EX->f[0];
+                    break;
+            }
             GD->dword[1] = 0;
         }
         break;
@@ -158,6 +196,21 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         GETGX;
         memcpy(GX, EX, 16);    // unaligned...
         break;
+    case 0x70:  /* PSHUFHW Gx, Ex, Ib */
+        nextop = F8;
+        GETEX(1);
+        GETGX;
+        tmp8u = F8;
+        if(GX==EX) {
+            for (int i=0; i<4; ++i)
+                eax1.uw[4+i] = EX->uw[4+((tmp8u>>(i*2))&3)];
+            GX->q[1] = eax1.q[1];
+        } else {
+            for (int i=0; i<4; ++i)
+                GX->uw[4+i] = EX->uw[4+((tmp8u>>(i*2))&3)];
+            GX->q[0] = EX->q[0];
+        }
+        break;
 
     case 0x7E:  /* MOVQ Gx, Ex */
         nextop = F8;
@@ -190,6 +243,22 @@ int RunF30F(x64emu_t *emu, rex_t rex)
             case 7: tmp8s=!isnan(GX->f[0]) && !isnan(EX->f[0]); break;
         }
         GX->ud[0]=(tmp8s)?0xffffffff:0;
+        break;
+
+    case 0xD6:  /* MOVQ2DQ Gx, Em */
+        nextop = F8;
+        GETEM(0);
+        GETGX;
+        GX->q[0] = EM->q;
+        GX->q[1] = 0;
+        break;
+
+    case 0xE6:  /* CVTDQ2PD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->d[1] = EX->sd[1];
+        GX->d[0] = EX->sd[0];
         break;
 
     default:

@@ -34,7 +34,8 @@ int RunF20F(x64emu_t *emu, rex_t rex)
     uint8_t tmp8u;
     int32_t tmp32s;
     reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx;
+    sse_regs_t *opex, *opgx, eax1;
+    mmx87_regs_t *opgm;
 
     opcode = F8;
 
@@ -61,10 +62,11 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETED(0);
         GETGX;
-        if(rex.w)
+        if(rex.w) {
             GX->d[0] = ED->sq[0];
-        else
+        } else {
             GX->d[0] = ED->sdword[0];
+        }
         break;
 
     case 0x2C:  /* CVTTSD2SI Gd, Ex */
@@ -73,10 +75,48 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         GETGD;
         if(rex.w)
             GD->sq[0] = EX->d[0];
-        else
+        else {
             GD->sdword[0] = EX->d[0];
+            GD->dword[1] = 0;
+        }
         break;
-
+    case 0x2D:  /* CVTSD2SI Gd, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGD;
+        if(rex.w) {
+            switch((emu->mxcsr>>13)&3) {
+                case ROUND_Nearest:
+                    GD->q[0] = floor(EX->d[0]+0.5);
+                    break;
+                case ROUND_Down:
+                    GD->q[0] = floor(EX->d[0]);
+                    break;
+                case ROUND_Up:
+                    GD->q[0] = ceil(EX->d[0]);
+                    break;
+                case ROUND_Chop:
+                    GD->q[0] = EX->d[0];
+                    break;
+            }
+        } else {
+            switch((emu->mxcsr>>13)&3) {
+                case ROUND_Nearest:
+                    GD->sdword[0] = floor(EX->d[0]+0.5);
+                    break;
+                case ROUND_Down:
+                    GD->sdword[0] = floor(EX->d[0]);
+                    break;
+                case ROUND_Up:
+                    GD->sdword[0] = ceil(EX->d[0]);
+                    break;
+                case ROUND_Chop:
+                    GD->sdword[0] = EX->d[0];
+                    break;
+            }
+        }
+        break;
+        
     case 0x51:  /* SQRTSD Gx, Ex */
         nextop = F8;
         GETEX(0);
@@ -130,6 +170,22 @@ int RunF20F(x64emu_t *emu, rex_t rex)
             GX->d[0] = EX->d[0];
         break;
 
+    case 0x70:  /* PSHUFLW Gx, Ex, Ib */
+        nextop = F8;
+        GETEX(1);
+        GETGX;
+        tmp8u = F8;
+        if(GX==EX) {
+            for (int i=0; i<4; ++i)
+                eax1.uw[i] = EX->uw[(tmp8u>>(i*2))&3];
+            GX->q[0] = eax1.q[0];
+        } else {
+            for (int i=0; i<4; ++i)
+                GX->uw[i] = EX->uw[(tmp8u>>(i*2))&3];
+            GX->q[1] = EX->q[1];
+        }
+        break;
+
     GOCOND(0x80
         , tmp32s = F32S; CHECK_FLAGS(emu);
         , R_RIP += tmp32s;
@@ -153,6 +209,38 @@ int RunF20F(x64emu_t *emu, rex_t rex)
             case 7: tmp8s=!isnan(GX->d[0]) && !isnan(EX->d[0]); break;
         }
         GX->q[0]=(tmp8s)?0xffffffffffffffffLL:0LL;
+        break;
+
+    case 0xD6:  /* MOVDQ2Q Gm, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGM;
+        GM->q = EX->q[0];
+        break;
+
+    case 0xE6:  /* CVTPD2DQ Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        switch((emu->mxcsr>>13)&3) {
+            case ROUND_Nearest:
+                GX->sd[0] = floor(EX->d[0]+0.5);
+                GX->sd[1] = floor(EX->d[1]+0.5);
+                break;
+            case ROUND_Down:
+                GX->sd[0] = floor(EX->d[0]);
+                GX->sd[1] = floor(EX->d[1]);
+                break;
+            case ROUND_Up:
+                GX->sd[0] = ceil(EX->d[0]);
+                GX->sd[1] = ceil(EX->d[1]);
+                break;
+            case ROUND_Chop:
+                GX->sd[0] = EX->d[0];
+                GX->sd[1] = EX->d[1];
+                break;
+        }
+        GX->q[1] = 0;
         break;
 
     default:
