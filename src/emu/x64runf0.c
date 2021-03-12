@@ -45,7 +45,109 @@ int RunF0(x64emu_t *emu, rex_t rex)
     }
 
     switch(opcode) {
-
+#ifdef DYNAREC
+        #define GO(B, OP)                      \
+        case B+0: \
+            nextop = F8;               \
+            GETEB(0);             \
+            GETGB;                                                  \
+            do {                \
+            tmp8u = arm_lock_read_b(EB);     \
+            tmp8u = OP##8(emu, tmp8u, GB);  \
+            } while (arm_lock_write_b(EB, tmp8u));   \
+            break;                              \
+        case B+1: \
+            nextop = F8;               \
+            GETED(0);             \
+            GETGD;                                                  \
+            do {                \
+            tmp32u = arm_lock_read_d(ED);     \
+            tmp32u = OP##32(emu, tmp32u, GD.dword[0]);  \
+            } while (arm_lock_write_d(ED, tmp32u));   \
+            break;                              \
+        case B+2: \
+            nextop = F8;               \
+            GETEB(0);                   \
+            GETGB;                                                  \
+            GB = OP##8(emu, GB, EB->byte[0]); \
+            break;                              \
+        case B+3: \
+            nextop = F8;               \
+            GETED(0);         \
+            GETGD;                                                  \
+            GD.dword[0] = OP##32(emu, GD.dword[0], ED->dword[0]); \
+            break;                              \
+        case B+4: \
+            R_AL = OP##8(emu, R_AL, F8); \
+            break;                              \
+        case B+5: \
+            R_EAX = OP##32(emu, R_EAX, F32); \
+            break;
+#else
+        #define GO(B, OP)                                           \
+        case B+0:                                                   \
+            nextop = F8;                                            \
+            GETEB(0);                                               \
+            GETGB;                                                  \
+            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            EB->byte[0] = OP##8(emu, EB->byte[0], GB);              \
+            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            break;                                                  \
+        case B+1:                                                   \
+            nextop = F8;                                            \
+            GETED(0);                                               \
+            GETGD;                                                  \
+            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            if(rex.w)                                               \
+                ED->q[0] = OP##64(emu, ED->q[0], GD->q[0]);         \
+            else                                                    \
+                if(MODREG)                                          \
+                    ED->q[0] = OP##32(emu, ED->dword[0], GD->dword[0]);     \
+                else                                                        \
+                    ED->dword[0] = OP##32(emu, ED->dword[0], GD->dword[0]); \
+            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            break;                                                  \
+        case B+2:                                                   \
+            nextop = F8;                                            \
+            GETEB(0);                                               \
+            GETGB;                                                  \
+            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            GB = OP##8(emu, GB, EB->byte[0]);                       \
+            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            break;                                                  \
+        case B+3:                                                   \
+            nextop = F8;                                            \
+            GETED(0);                                               \
+            GETGD;                                                  \
+            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            if(rex.w)                                               \
+                GD->q[0] = OP##64(emu, GD->q[0], ED->q[0]);         \
+            else                                                    \
+                GD->q[0] = OP##32(emu, GD->dword[0], ED->dword[0]); \
+            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            break;                                                  \
+        case B+4:                                                   \
+            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            R_AL = OP##8(emu, R_AL, F8);                            \
+            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            break;                                                  \
+        case B+5:                                                   \
+            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            if(rex.w)                                               \
+                R_RAX = OP##64(emu, R_RAX, F32S64);                 \
+            else                                                    \
+                R_RAX = OP##32(emu, R_EAX, F32);                    \
+            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            break;
+#endif
+        GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
+        GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
+        GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
+        GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
+        GO(0x20, and)                   /* AND 0x20 -> 0x25 */
+        GO(0x28, sub)                   /* SUB 0x28 -> 0x2D */
+        GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
+        #undef GO
         case 0x0f:
             opcode = F8;
             switch (opcode) { 
