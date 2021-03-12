@@ -258,6 +258,14 @@ EXPORT int my_pthread_attr_setstack(x64emu_t* emu, void* attr, void* stackaddr, 
 	return pthread_attr_setstacksize(attr, stacksize);
 }
 
+EXPORT int my_pthread_attr_setstacksize(x64emu_t* emu, void* attr, size_t stacksize)
+{
+	//aarch64 have an PTHREAD_STACK_MIN of 131072 instead of 16384 on x86_64!
+	if(stacksize<PTHREAD_STACK_MIN)
+		stacksize = PTHREAD_STACK_MIN;
+	return pthread_attr_setstacksize(attr, stacksize);
+}
+
 EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
 {
 	int stacksize = 2*1024*1024;	//default stack size is 2Mo
