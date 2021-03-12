@@ -1199,7 +1199,7 @@ sse_regs_t* GetEx(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         return &emu->xmm[(m&0x07)+(rex.b<<4)];
+         return &emu->xmm[(m&0x07)+(rex.b<<3)];
     } else return (sse_regs_t*)GetECommon(emu, rex, m, delta);
 }
 
