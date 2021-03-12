@@ -1435,8 +1435,8 @@ GO(pwritev64, lFipiI)
 //GO(qfcvt, 
 //GOW(qfcvt_r, 
 //GO(qgcvt, 
-//GO(qsort, 
-//GOW(qsort_r, 
+GOM(qsort, vFEpLLp)
+GOM(qsort_r, vFEpLLpp)  //Weak
 //GO(query_module, 
 //GO(quick_exit, 
 //GO(quick_exit, 

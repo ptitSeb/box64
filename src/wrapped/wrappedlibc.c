@@ -997,7 +997,7 @@ EXPORT int my_statfs64(const char* path, void* buf)
     return r;
 }
 #endif
-#if 0
+
 typedef struct compare_r_s {
     x64emu_t* emu;
     uintptr_t f;
@@ -1021,7 +1021,7 @@ EXPORT void my_qsort_r(x64emu_t* emu, void* base, size_t nmemb, size_t size, voi
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 1; args.data = data;
     qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, &args);
 }
-
+#if 0
 EXPORT void* my_bsearch(x64emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
     return bsearch(key, base, nmemb, size, findcompareFct(fnc));
