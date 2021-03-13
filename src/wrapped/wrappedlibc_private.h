@@ -1801,16 +1801,16 @@ GO(strnlen, LFpL)
 GO(strpbrk, pFpp)
 //GO(__strpbrk_c2, 
 //GO(__strpbrk_c3, 
-//GO(strptime, 
+GO(strptime, pFppp)
 //GOW(strptime_l, 
-//GOI(strrchr, 
-//GOW(strsep, 
+GO(strrchr, pFpi)
+GOW(strsep, pFpp)
 //GO(__strsep_1c, 
 //GO(__strsep_2c, 
 //GO(__strsep_3c, 
 //GO(__strsep_g, 
-//GO(strsignal, 
-//GOI(strspn, 
+GO(strsignal, pFi)
+GO(strspn, LFpp)
 //GO(__strspn_c1, 
 //GO(__strspn_c2, 
 //GO(__strspn_c3, 
