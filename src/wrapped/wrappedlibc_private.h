@@ -666,12 +666,12 @@ GOW(getrlimit64, iFip)
 //GO(host2netname, 
 //GO(hsearch, 
 //GOW(hsearch_r, 
-//GO(hstrerror, 
-//GO(htonl, 
-//GO(htons, 
-//GO(iconv, 
-//GO(iconv_close, 
-//GO(iconv_open, 
+GO(hstrerror, pFi)
+GO(htonl, uFu)
+GO(htons, uFu)
+GO(iconv, LFLpppp)
+GO(iconv_close, iFL)
+GO(iconv_open, LFpp)
 //GO(__idna_from_dns_encoding, 
 //GO(__idna_to_dns_encoding, 
 //GOW(if_freenameindex, 
@@ -1068,9 +1068,9 @@ GOM(__libc_start_main, iFEpippppp)
 //GO(llseek, 
 //DATAB(loc1, 
 //DATAB(loc2, 
-//GO(localeconv, 
-//GO(localtime, 
-//GOW(localtime_r, 
+GO(localeconv, pFv)
+GO(localtime, pFp)
+GOW(localtime_r, pFpp)
 //GO(lockf, 
 //GOW(lockf64, 
 //DATAB(locs, 
@@ -1157,7 +1157,7 @@ GOW(mkstemp64, iFp)
 //GOW(mkstemps64, 
 GO(__mktemp, pFp)
 GOW(mktemp, pFp)
-GO(mktime, uFp)
+GO(mktime, LFp)
 GO(mlock, iFpL)
 //GO(mlock2, 
 GO(mlockall, iFi)
@@ -1285,9 +1285,9 @@ GO(openlog, vFpii)
 //GO(pclose, 
 //GO(perror, 
 //GOW(personality, 
-//GO(__pipe, 
-//GOW(pipe, 
-//GOW(pipe2, 
+GO(__pipe, iFp)
+GOW(pipe, iFp)
+GOW(pipe2, iFpO)
 //GO(pivot_root, 
 //GO(pkey_alloc, 
 //GO(pkey_free, 
@@ -1664,8 +1664,8 @@ GOW(setpriority, iFiii)
 //GOW(shutdown, 
 GOM(__sigaction, iFEipp)  // Weak
 GOM(sigaction, iFEipp)    // Weak
-//GO(__sigaddset, 
-//GO(sigaddset, 
+GO(__sigaddset, iFpi)
+GO(sigaddset, iFpi)
 GOM(sigaltstack, iFEpp) // Weak
 //GO(sigandset, 
 GOW(sigblock, iFi)
@@ -1681,7 +1681,7 @@ GO(siggetmask, iFv)
 //GO(__sigismember, 
 GO(sigismember, iFpi)
 //GOW(siglongjmp, 
-//GOW(signal, 
+GOM(signal, pFEip)  //Weak
 //GO(signalfd, 
 //GO(__signbit, 
 //GO(__signbitf, 
@@ -1706,9 +1706,9 @@ GOM(__sigsetjmp, iFEp)
 //GOW(sigwait, 
 //GOW(sigwaitinfo, 
 GOW(sleep, uFu)
-//GO(__snprintf, 
-//GOW(snprintf, 
-//GO(__snprintf_chk, 
+GOM(__snprintf, iFEpLpV)
+GOM(snprintf, iFEpLpV)  //Weak
+GOM(__snprintf_chk, iFEpLiLpV)  //Weak
 //GO(sockatmark, 
 //GO(__socket, 
 //GOW(socket, 
@@ -1722,7 +1722,7 @@ GOW(srand, vFu)
 //GOW(srand48_r, 
 //GOW(srandom, 
 //GOW(srandom_r, 
-//GO(sscanf, 
+GOM(sscanf, iFEppV)
 //GOW(ssignal, 
 //GO(sstk, 
 GOM(__stack_chk_fail, vFE)
@@ -1783,9 +1783,9 @@ GO(strerror_l, pFip)
 //GOW(strfromf64x, 
 //GO(strfroml, 
 //GO(strfry, 
-//GO(strftime, 
-//GO(__strftime_l, 
-//GOW(strftime_l, 
+GO(strftime, LFpLpp)
+GO(__strftime_l, LFpLppL)
+GOW(strftime_l, LFpLppL)
 GO(strlen, LFp)
 GO(strncasecmp, iFppL)
 //GOI(__strncasecmp_l, 
@@ -1851,7 +1851,7 @@ GOW(strtol, lFppi)
 //GO(__strtol_internal, 
 //GO(__strtol_l, 
 //GOW(strtol_l, 
-//GOW(strtoll, 
+GOW(strtoll, lFppi)
 //GO(__strtoll_internal, 
 //GOW(__strtoll_l, 
 //GOW(strtoll_l, 
@@ -1860,7 +1860,7 @@ GOW(strtoul, LFppi)
 GO(__strtoul_internal, LFppii)
 //GO(__strtoul_l, 
 //GOW(strtoul_l, 
-//GOW(strtoull, 
+GOW(strtoull, LFppi)
 //GO(__strtoull_internal, 
 //GOW(__strtoull_l, 
 //GOW(strtoull_l, 
@@ -2055,10 +2055,10 @@ GOM(__vprintf_chk, iFEvpp)
 GOM(__vsnprintf, iFEpLpp)  // Weak
 GOM(vsnprintf, iFEpLpp)    // Weak
 GOM(__vsnprintf_chk, iFEpLvvpp)
-//GOW(vsprintf, 
-//GO(__vsprintf_chk, 
-//GOW(__vsscanf, 
-//GOW(vsscanf, 
+GOM(vsprintf, iFEpppp) //Weak
+GOM(__vsprintf_chk, iFEpvvppp)
+GOM(__vsscanf, iFEppp)  //Weak
+GOM(vsscanf, iFEppp)    //Weak
 GOM(vswprintf, iFEpuppp)    // Weak
 GOM(__vswprintf_chk, iFEpuvvppp)    // Weak
 //GO(vswscanf, 

@@ -103,8 +103,11 @@ void x64Int3(x64emu_t* emu)
                 } else  if(strstr(s, "my___printf_chk")) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, R_EDI, (tmp)?tmp:"(nil)", (void*)(R_RDX));
+                } else  if(!strcmp(s, "sscanf")) {
+                    tmp = (char*)(R_RSI);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, (tmp)?tmp:"(nil)", (void*)(R_RDX));
                 } else {
-                    snprintf(buff, 255, "%04d|%p: Calling %s (0x%lX, 0x%lX, 0x%lX, ...)", tid, *(void**)(R_RSP), s, R_RDI, R_RSI, R_RDX);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(0x%lX, 0x%lX, 0x%lX, ...)", tid, *(void**)(R_RSP), s, R_RDI, R_RSI, R_RDX);
                 }
                 printf_log(LOG_NONE, "%s =>", buff);
                 pthread_mutex_unlock(&emu->context->mutex_trace);

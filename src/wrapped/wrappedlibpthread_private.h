@@ -73,10 +73,9 @@ GO(pthread_equal, iFLL)
 //GO(pthread_getconcurrency, iFv)
 //GO(pthread_getcpuclockid, iFup)
 GO(pthread_getschedparam, iFLpp)
-//GO(__pthread_getspecific, pFu)
-//GO(pthread_getspecific, pFu)
+GO(__pthread_getspecific, pFL)
+GO(pthread_getspecific, pFL)
 //GOM(pthread_getname_np, iFEppu)  //not present on Pandora
-//GOM(__pthread_initialize, vFv)  // doesn't exist anymore...
 // __pthread_initialize_minimal
 GO(pthread_join, iFLp)
 GOM(__pthread_key_create, iFEpp)
@@ -158,10 +157,10 @@ GO(pthread_rwlock_rdlock, iFp)
 //GO2(pthread_rwlock_wrlock, iFp, __pthread_rwlock_wrlock)    // not always defined
 GO(pthread_self, LFv)
 //GOM(pthread_setaffinity_np, iFELup)
-//GO(pthread_setcancelstate, iFip)
-//GO(pthread_setcanceltype, iFip)
-//GO(pthread_setconcurrency, iFi)
-//GOM(pthread_setname_np, iFEpp)   // not present on the Pandora
+GO(pthread_setcancelstate, iFip)
+GO(pthread_setcanceltype, iFip)
+GO(pthread_setconcurrency, iFi)
+GO(pthread_setname_np, iFpp)
 GO(pthread_setschedparam, iFLip)
 GO(pthread_setschedprio, iFpi)
 GO(__pthread_setspecific, iFLp)

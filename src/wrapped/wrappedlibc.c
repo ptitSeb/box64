@@ -48,7 +48,7 @@
 #include "emu/x64emu_private.h"
 #include "box64context.h"
 #include "myalign.h"
-//#include "signals.h"
+#include "signals.h"
 #include "fileutils.h"
 #include "auxval.h"
 #include "elfloader.h"
@@ -681,22 +681,22 @@ EXPORT void *my_div(void *result, int numerator, int denominator) {
     *(div_t *)result = div(numerator, denominator);
     return result;
 }
-
-EXPORT int my_snprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, b, emu->scratch);
-    PREPARE_VALIST;
-    void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
-    return r;
-    #else
-    return vsnprintf((char*)buff, s, (char*)fmt, V);
-    #endif
-}
-EXPORT int my___snprintf_chk(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
-EXPORT int my___snprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
 #endif
+EXPORT int my_snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint64_t * b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    int r = vsnprintf(buff, s, fmt, VARARGS);
+    return r;
+}
+EXPORT int my___snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint64_t * b) __attribute__((alias("my_snprintf")));
+EXPORT int my___snprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, size_t maxlen, void * fmt, uint64_t * b)
+{
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 5);
+    PREPARE_VALIST;
+    int r = vsnprintf(buff, s, fmt, VARARGS);
+    return r;
+}
+
 EXPORT int my_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
@@ -720,48 +720,40 @@ EXPORT int my_asprintf(x64emu_t* emu, void** buff, void * fmt, void * b, va_list
     #endif
 }
 EXPORT int my___asprintf(x64emu_t* emu, void** buff, void * fmt, void * b, va_list V) __attribute__((alias("my_asprintf")));
+#endif
 
+EXPORT int my_vsprintf(x64emu_t* emu, void* buff,  void * fmt, x64_va_list_t b) {
+    CONVERT_VALIST(b);
 
-EXPORT int my_vsprintf(x64emu_t* emu, void* buff,  void * fmt, void * b, va_list V) {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
-    PREPARE_VALIST;
-    void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, VARARGS);
-    return r;
-    #else
-    void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, (uint32_t*)b);
-    return r;
-    #endif
+    return vsprintf(buff, fmt, VARARGS);
 }
-EXPORT int my___vsprintf_chk(x64emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_vsprintf")));
+EXPORT int my___vsprintf_chk(x64emu_t* emu, void* buff, void * fmt, x64_va_list_t b) __attribute__((alias("my_vsprintf")));
 
-#ifdef POWERPCLE
-EXPORT int my_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) // probably uneeded to do a GOM, a simple wrap should enough
+EXPORT int my_vfscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
 {
-    //myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
-    PREPARE_VALIST_(b);
-    void* f = vfscanf;
+    CONVERT_VALIST(b);
 
-    return ((iFppp_t)f)(stream, fmt, VARARGS_(b));
+    return vfscanf(stream, fmt, VARARGS);
 }
 
 
 
-EXPORT int my_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b)
+EXPORT int my_vsscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
 {
-    //myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
-    PREPARE_VALIST_(b);
-    void* f = vsscanf;
+    CONVERT_VALIST(b);
 
-    return ((iFppp_t)f)(stream, fmt, VARARGS_(b));
+    return vsscanf(stream, fmt, VARARGS);
 }
 
 EXPORT int my__vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
-EXPORT int my_sscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
+EXPORT int my_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
+{
+    myStackAlignScanf(emu, (const char*)fmt, b, emu->scratch, 2);
+    PREPARE_VALIST;
 
+    return vsscanf(stream, fmt, VARARGS);
+}
+#if 0
 EXPORT int my__IO_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 EXPORT int my___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
 
@@ -776,7 +768,7 @@ EXPORT int my___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, void* b)
   return ((iFppp_t)f)(stream, fmt, VARARGS);
 }
 #endif
-#endif
+
 EXPORT int my_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) {
     // need to align on arm
     CONVERT_VALIST(b);
@@ -1281,7 +1273,6 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         return tmp;
     }
     #endif
-if(!strcmp(pathname, "data.zip")) trace_end=0;
     int ret = open(pathname, flags, mode);
     return ret;
 }

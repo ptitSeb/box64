@@ -20,34 +20,6 @@
 const char* libxxf86vmName = "libXxf86vm.so.1";
 #define LIBNAME libxxf86vm
 
-#ifdef PANDORA
-typedef struct my_XF86VidModeGamma_s {
-    float red;
-    float green;
-    float blue;
-} my_XF86VidModeGamma_t;
-
-static my_XF86VidModeGamma_t current_gamma = {0};
-
-EXPORT int my_XF86VidModeGetGamma(void* display, int screen, my_XF86VidModeGamma_t* gamma)
-{
-    memcpy(gamma, &current_gamma, sizeof(current_gamma));
-    return 1;
-}
-
-EXPORT int my_XF86VidModeSetGamma(void* display, int screen, my_XF86VidModeGamma_t* gamma)
-{
-    memcpy(&current_gamma, gamma, sizeof(current_gamma));
-    float mean = (current_gamma.red+current_gamma.green+current_gamma.blue)/3;
-    char buf[50];
-    if(mean==0.0f)
-        sprintf(buf, "sudo /usr/pandora/scripts/op_gamma.sh 0");
-    else
-        sprintf(buf, "sudo /usr/pandora/scripts/op_gamma.sh %.2f", mean);
-    system(buf);
-    return 1;
-}
-#endif
 
 #define CUSTOM_INIT \
     lib->priv.w.needed = 2; \

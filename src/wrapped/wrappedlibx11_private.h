@@ -919,7 +919,7 @@ GO(_XSend, vFppi)
 GO(XSendEvent, uFppiip)
 GO(XServerVendor, pFp)
 GO(XSetAccessControl, iFpi)
-//GO(XSetAfterFunction
+GOM(XSetAfterFunction, pFEpp)
 GO(XSetArcMode, iFppi)
 //GO(XSetAuthorization
 GO(XSetBackground, iFppL)
@@ -1001,7 +1001,7 @@ GO(dummy_XSubImage, pFpiiuu)    // for the wrapper
 GO(XSubtractRegion, iFppp)
 GO(XSupportsLocale, iFv)
 GO(XSync, iFpu)
-//GOM(XSynchronize, pFEpi)  // Needs wrapping, return a function
+GOM(XSynchronize, pFEpi)
 GO(XTextExtents, iFppipppp)
 GO(XTextExtents16, iFppipppp)
 // _XTextHeight
@@ -1088,6 +1088,9 @@ GO(XWithdrawWindow, iFppi)
 //GO(XWMGeometry
 //GO(XWriteBitmapFile
 GO(XXorRegion, iFppp)
+
+GO(_XData32, iFppu)
+GO(_XRead32, iFppL)
 
 GO(dummy_putpixel, iFpiiL)
 GO(dummy_addpixel, iFpl)

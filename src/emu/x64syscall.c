@@ -68,6 +68,7 @@ scwrap_t syscallwrap[] = {
     //{ 3, __NR_close, 1 },   // wrapped so SA_RESTART can be handled by libc
 
     { 5, __NR_fstat, 2},
+    { 186, __NR_gettid, 0 },
 };
 
 struct mmap_arg_struct {

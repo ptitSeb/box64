@@ -84,6 +84,7 @@ typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
+typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
@@ -133,6 +134,8 @@ typedef int (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
     GO(XQueryExtension, iFppppp_t)          \
     GO(XAddConnectionWatch, iFppp_t)        \
     GO(XRemoveConnectionWatch, iFppp_t)     \
+    GO(XSetAfterFunction, pFpp_t)           \
+    GO(XSynchronize, pFpi_t)                \
 
 typedef struct x11_my_s {
     // functions
@@ -471,6 +474,40 @@ static void* findXInternalAsyncHandlerFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 XInternalAsyncHandler callback\n");
     return NULL;
 }
+
+// XSynchronizeProc
+#define GO(A)   \
+static uintptr_t my_XSynchronizeProc_fct_##A = 0;                       \
+static int my_XSynchronizeProc_##A()                                    \
+{                                                                       \
+    return (int)RunFunction(my_context, my_XSynchronizeProc_fct_##A, 0);\
+}
+SUPER()
+#undef GO
+static void* findXSynchronizeProcFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_XSynchronizeProc_fct_##A == (uintptr_t)fct) return my_XSynchronizeProc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XSynchronizeProc_fct_##A == 0) {my_XSynchronizeProc_fct_##A = (uintptr_t)fct; return my_XSynchronizeProc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XSynchronizeProc callback\n");
+    return NULL;
+}
+static void* reverse_XSynchronizeProcFct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    #define GO(A) if(my_XSynchronizeProc_##A == fct) return (void*)my_XSynchronizeProc_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0, NULL);
+}
+
 #undef SUPER
 
 void* my_XCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
@@ -788,6 +825,22 @@ EXPORT int my_XRemoveConnectionWatch(x64emu_t* emu, void* display, char* f, void
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     return my->XRemoveConnectionWatch(display, findXConnectionWatchProcFct(f), data);
+}
+
+EXPORT void* my_XSetAfterFunction(x64emu_t* emu, void* display, void* f)
+{
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+
+    return reverse_XSynchronizeProcFct(lib, my->XSetAfterFunction(display, findXSynchronizeProcFct(f)));
+}
+
+EXPORT void* my_XSynchronize(x64emu_t* emu, void* display, int onoff)
+{
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+
+    return reverse_XSynchronizeProcFct(lib, my->XSynchronize(display, onoff));
 }
 
 #define CUSTOM_INIT                 \
