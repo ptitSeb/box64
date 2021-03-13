@@ -1133,7 +1133,7 @@ void init_signal_helper(box64context_t* context)
     for(int i=0; i<MAX_SIGNAL; ++i) {
         context->signals[i] = 1;    // SIG_DFL
     }
-	struct sigaction action;
+	struct sigaction action = {0};
 	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
 	action.sa_sigaction = my_box86signalhandler;
     sigaction(SIGSEGV, &action, NULL);
