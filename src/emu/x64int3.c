@@ -96,7 +96,7 @@ void x64Int3(x64emu_t* emu)
                 s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", " ... ");
-                } else  if(strstr(s, "__open")==s || strcmp(s, "open ")==0) {
+                } else  if(strstr(s, "__open")==s || !strcmp(s, "open") || !strcmp(s, "open ")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI), (int)(R_EDX));
                     perr = 1;

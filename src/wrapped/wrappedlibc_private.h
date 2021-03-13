@@ -1086,8 +1086,8 @@ GOW(lseek, IFiIi)
 GOW(lseek64, IFiIi)
 //GO(lsetxattr, 
 //GO(lutimes, 
-//GO(__lxstat, iFipp)
-//GO(__lxstat64, iFipp)
+GOM(__lxstat, iFEipp)
+GOM(__lxstat64, iFEipp)
 //GO(__madvise, 
 //GOW(madvise, 
 GOM(makecontext, iFEppiV)   //weak
@@ -1136,31 +1136,31 @@ GO(__memmove_chk, pFppLL)
 //GOI(__mempcpy, 
 //GOI(mempcpy, 
 //GOI(__mempcpy_chk, 
-GOW(memrchr, pFpiu)
+GOW(memrchr, pFpiL)
 GO(memset, pFpiL)
-GO(__memset_chk, pFpiuu)
+GO(__memset_chk, pFpiLL)
 //GO(__mempcpy_small, 
 //GO(__merge_grp, 
-//GO(mincore, 
+GO(mincore, iFpLp)
 GOW(mkdir, iFpu)
 GO(mkdirat, iFipu)
 GO(mkdtemp, pFp)
 GO(mkfifo, iFpu)
 GO(mkfifoat, iFipu)
-//GO(mkostemp, 
-//GOW(mkostemp64, 
+GO(mkostemp, iFpi)
+GOW(mkostemp64, iFpi)
 //GO(mkostemps, 
 //GOW(mkostemps64, 
-//GO(mkstemp, 
-//GOW(mkstemp64, 
+GO(mkstemp, iFp)
+GOW(mkstemp64, iFp)
 //GO(mkstemps, 
 //GOW(mkstemps64, 
-//GO(__mktemp, 
-//GOW(mktemp, 
-//GO(mktime, 
-//GO(mlock, 
+GO(__mktemp, pFp)
+GOW(mktemp, pFp)
+GO(mktime, uFp)
+GO(mlock, iFpL)
 //GO(mlock2, 
-//GO(mlockall, 
+GO(mlockall, iFi)
 //GO(__mmap, 
 //GOW(mmap, 
 //GOW(mmap64, 

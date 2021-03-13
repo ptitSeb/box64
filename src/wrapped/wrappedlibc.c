@@ -1281,6 +1281,7 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         return tmp;
     }
     #endif
+if(!strcmp(pathname, "data.zip")) trace_end=0;
     int ret = open(pathname, flags, mode);
     return ret;
 }
