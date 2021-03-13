@@ -1,3 +1,6 @@
+Current version
+======
+
 v0.0.4
 ======
 * Added a lot of opcodes
