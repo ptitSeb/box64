@@ -960,6 +960,60 @@ int Run660F(x64emu_t *emu, rex_t rex)
             {tmp8u=EX->q[0]; for (int i=0; i<2; ++i) GX->q[i] <<= tmp8u;}
         break;
 
+    case 0xF8:  /* PSUBB Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<16; ++i)
+            GX->sb[i] -= EX->sb[i];
+        break;
+    case 0xF9:  /* PSUBW Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<8; ++i)
+            GX->sw[i] -= EX->sw[i];
+        break;
+    case 0xFA:  /* PSUBD Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->sd[0] -= EX->sd[0];
+        GX->sd[1] -= EX->sd[1];
+        GX->sd[2] -= EX->sd[2];
+        GX->sd[3] -= EX->sd[3];
+        break;
+    case 0xFB:  /* PSUBQ Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->sq[0] -= EX->sq[0];
+        GX->sq[1] -= EX->sq[1];
+        break;
+    case 0xFC:  /* PADDB Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<16; ++i)
+            GX->sb[i] += EX->sb[i];
+        break;
+    case 0xFD:  /* PADDW Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<8; ++i)
+            GX->sw[i] += EX->sw[i];
+        break;
+    case 0xFE:  /* PADDD Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->sd[0] += EX->sd[0];
+        GX->sd[1] += EX->sd[1];
+        GX->sd[2] += EX->sd[2];
+        GX->sd[3] += EX->sd[3];
+        break;
+    
     default:
         return 1;
     }
