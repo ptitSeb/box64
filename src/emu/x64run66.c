@@ -326,6 +326,13 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
         }
         break;
     
+    case 0xA9:                             /* TEST AX,Iw */
+        if(rex.w)
+            test64(emu, R_RAX, F32S64);
+        else
+            test16(emu, R_AX, F16);
+        break;
+
     case 0xAB:                      /* (REP) STOSW */
         if(rex.w)
             tmp8s = ACCESS_FLAG(F_DF)?-8:+8;

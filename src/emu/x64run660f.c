@@ -33,6 +33,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
     uint8_t tmp8u;
     int8_t tmp8s;
     uint16_t tmp16u;
+    int32_t tmp32s;
     uint64_t tmp64u;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1;
@@ -861,7 +862,22 @@ int Run660F(x64emu_t *emu, rex_t rex)
         else 
             {tmp8u=EX->ub[0]; for (int i=0; i<2; ++i) GX->q[i] >>= tmp8u;}
         break;
-
+    case 0xD4:  /* PADDQ Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->sq[0] += EX->sq[0];
+        GX->sq[1] += EX->sq[1];
+        break;
+    case 0xD5:  /* PMULLW Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<8; ++i) {
+            tmp32s = (int32_t)GX->sw[i] * EX->sw[i];
+            GX->sw[i] = tmp32s&0xffff;
+        }
+        break;
     case 0xD6:                      /* MOVQ Ex,Gx */
         nextop = F8;
         GETEX(0);

@@ -57,6 +57,21 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         GETGX;
         EX->ud[0] = GX->ud[0];
         break;
+    case 0x12:  /* MOVSLDUP Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->ud[1] = GX->ud[0] = EX->ud[0];
+        GX->ud[3] = GX->ud[2] = EX->ud[2];
+        break;
+    
+    case 0x16:  /* MOVSHDUP Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->ud[1] = GX->ud[0] = EX->ud[1];
+        GX->ud[3] = GX->ud[2] = EX->ud[3];
+        break;
 
     case 0x2A:  /* CVTSI2SS Gx, Ed */
         nextop = F8;
