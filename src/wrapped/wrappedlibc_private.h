@@ -906,7 +906,7 @@ GOW(isnanf, iFf)
 //GO(__isoc99_fscanf, 
 //GO(__isoc99_fwscanf, 
 //GO(__isoc99_scanf, 
-//GO(__isoc99_sscanf, 
+GOM(__isoc99_sscanf, iFppV)
 //GO(__isoc99_swscanf, 
 //GO(__isoc99_vfscanf, 
 //GO(__isoc99_vfwscanf, 
@@ -1578,9 +1578,9 @@ GO2(__realpath_chk, pFppv, my_realpath)
 //GOW(secure_getenv, 
 //GO(seed48, 
 //GOW(seed48_r, 
-//GO(seekdir, 
-//GO(__select, 
-//GOW(select, 
+GO(seekdir, vFpi)
+GO(__select, iFipppp)
+GOW(select, iFipppp)
 //GO(semctl, 
 //GO(semget, 
 //GO(semop, 

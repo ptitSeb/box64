@@ -759,15 +759,14 @@ EXPORT int my___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) 
 
 EXPORT int my___isoc99_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 EXPORT int my___isoc99_fscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
-
-EXPORT int my___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, void* b)
+#endif
+EXPORT int my___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
 {
-  void* f = sscanf;
+  myStackAlignScanf(emu, (const char*)fmt, b, emu->scratch, 2);
   PREPARE_VALIST;
 
-  return ((iFppp_t)f)(stream, fmt, VARARGS);
+  return vsscanf(stream, fmt, VARARGS);
 }
-#endif
 
 EXPORT int my_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) {
     // need to align on arm
