@@ -1188,10 +1188,16 @@ x64emurun:
                         test32(emu, ED->dword[0], tmp32u);
                         break;
                     case 2:                 /* NOT Ed */
-                        ED->q[0] = not32(emu, ED->dword[0]);
+                        if(MODREG)
+                            ED->q[0] = not32(emu, ED->dword[0]);
+                        else
+                            ED->dword[0] = not32(emu, ED->dword[0]);
                         break;
                     case 3:                 /* NEG Ed */
-                        ED->q[0] = neg32(emu, ED->dword[0]);
+                        if(MODREG)
+                            ED->q[0] = neg32(emu, ED->dword[0]);
+                        else
+                            ED->dword[0] = neg32(emu, ED->dword[0]);
                         break;
                     case 4:                 /* MUL EAX,Ed */
                         mul32_eax(emu, ED->dword[0]);
