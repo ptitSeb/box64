@@ -8,38 +8,35 @@
 #include "box64context.h"
 #include "elfloader.h"
 #include "debug.h"
-//#include "x86trace.h"
-//#include "x86emu.h"
-//#include "librarian.h"
-//#include "bridge.h"
-//#include "library.h"
-//#include "callback.h"
-//#include "wrapper.h"
-//#include "myfts.h"
-//#include "threads.h"
-//#include "x86trace.h"
-//#include "signals.h"
+#include "x64trace.h"
+#include "x64emu.h"
+#include "librarian.h"
+#include "bridge.h"
+#include "library.h"
+#include "callback.h"
+#include "wrapper.h"
+#include "threads.h"
+#include "x64trace.h"
+#include "signals.h"
 #include <sys/mman.h>
 #include "custommem.h"
 #include "khash.h"
 #ifdef DYNAREC
-//#include "dynablock.h"
-//#include "dynarec/arm_lock_helper.h"
+#include "dynablock.h"
+#include "dynarec/arm_lock_helper.h"
 
-//#define USE_MMAP
+#define USE_MMAP
 
 // init inside dynablocks.c
-//KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
-//static dynablocklist_t*    dynmap[DYNAMAP_SIZE];     // 4G of memory mapped by 4K block
-//static pthread_mutex_t     mutex_mmap;
-//static mmaplist_t          *mmaplist;
-//static int                 mmapsize;
-//static kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
-//static uintptr_t           *box86_jumptable[JMPTABL_SIZE];
-//static uintptr_t           box86_jmptbl_default[1<<JMPTABL_SHIFT];
+KHASH_MAP_INIT_INT64(dynablocks, dynablock_t*)
+static dynablocklist_t*    dynmap[DYNAMAP_SIZE];     // 4G of memory mapped by 4K block
+static pthread_mutex_t     mutex_mmap;
+static mmaplist_t          *mmaplist;
+static int                 mmapsize;
+static kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
+static uintptr_t           *box64_jumptable[JMPTABL_SIZE];
+static uintptr_t           box64_jmptbl_default[1<<JMPTABL_SHIFT];
 #endif
-#define MEMPROT_STAGE_SHIFT 16
-#define MEMPROT_STAGE (1<<STAGE_SHIFT)
 #define MEMPROT_SHIFT 12
 #define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
 static pthread_mutex_t     mutex_prot;
@@ -47,244 +44,244 @@ KHASH_MAP_INIT_INT(memprot, uint8_t*)
 static kh_memprot_t        *memprot;
 static int inited = 0;
 
-//typedef struct blocklist_s {
-//    void*               block;
-//    int                 maxfree;
-//    size_t              size;
-//} blocklist_t;
+typedef struct blocklist_s {
+    void*               block;
+    int                 maxfree;
+    size_t              size;
+} blocklist_t;
 
-//#define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
+#define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
 
-//static pthread_mutex_t     mutex_blocks = PTHREAD_MUTEX_INITIALIZER;
-//static int                 n_blocks = 0;       // number of blocks for custom malloc
-//static blocklist_t*        p_blocks = NULL;    // actual blocks for custom malloc
+static pthread_mutex_t     mutex_blocks = PTHREAD_MUTEX_INITIALIZER;
+static int                 n_blocks = 0;       // number of blocks for custom malloc
+static blocklist_t*        p_blocks = NULL;    // actual blocks for custom malloc
 
-//typedef union mark_s {
-//    struct {
-//        unsigned int    fill:1;
-//        unsigned int    size:31;
-//    };
-//    uint32_t            x32;
-//} mark_t;
-//typedef struct blockmark_s {
-//    mark_t  prev;
-//    mark_t  next;
-//} blockmark_t;
+typedef union mark_s {
+    struct {
+        unsigned int    fill:1;
+        unsigned int    size:31;
+    };
+    uint32_t            x32;
+} mark_t;
+typedef struct blockmark_s {
+    mark_t  prev;
+    mark_t  next;
+} blockmark_t;
 
 
 // get first subblock free in block, stating at start (from block). return NULL if no block, else first subblock free (mark included), filling size
-//static void* getFirstBlock(void* block, int maxsize, int* size)
-//{
-//    // get start of block
-//    blockmark_t *m = (blockmark_t*)block;
-//    while(m->next.x32) {    // while there is a subblock
-//        if(!m->next.fill && m->next.size>=maxsize+sizeof(blockmark_t)) {
-//            *size = m->next.size;
-//            return m;
-//        }
-//        m = (blockmark_t*)((uintptr_t)m + m->next.size);
-//    }
-//
-//    return NULL;
-//}
+static void* getFirstBlock(void* block, int maxsize, int* size)
+{
+    // get start of block
+    blockmark_t *m = (blockmark_t*)block;
+    while(m->next.x32) {    // while there is a subblock
+        if(!m->next.fill && m->next.size>=maxsize+sizeof(blockmark_t)) {
+            *size = m->next.size;
+            return m;
+        }
+        m = (blockmark_t*)((uintptr_t)m + m->next.size);
+    }
 
-//static int getMaxFreeBlock(void* block, size_t block_size)
-//{
-//    // get start of block
-//    blockmark_t *m = (blockmark_t*)((uintptr_t)block+block_size-sizeof(blockmark_t)); // styart with the end
-//    int maxsize = 0;
-//    while(m->prev.x32) {    // while there is a subblock
-//        if(!m->prev.fill && m->prev.size>maxsize) {
-//            maxsize = m->prev.size;
-//            if((uintptr_t)block+maxsize>(uintptr_t)m)
-//                return maxsize; // no block large enough left...
-//        }
-//        m = (blockmark_t*)((uintptr_t)m - m->prev.size);
-//    }
-//    return maxsize;
-//}
+    return NULL;
+}
 
-//static void* allocBlock(void* block, void *sub, int size)
-//{
-//    blockmark_t *s = (blockmark_t*)sub;
-//    blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
-//
-//    s->next.fill = 1;
-//    s->next.size = size+sizeof(blockmark_t);
-//    blockmark_t *m = (blockmark_t*)((uintptr_t)s + s->next.size);   // this is new n
-//    m->prev.fill = 1;
-//    m->prev.size = s->next.size;
-//    if(n!=m) {
-//        // new mark
-//        m->prev.fill = 1;
-//        m->prev.size = s->next.size;
-//        m->next.fill = 0;
-//        m->next.size = (uintptr_t)n - (uintptr_t)m;
-//        n->prev.fill = 0;
-//        n->prev.size = m->next.size;
-//    }
-//
-//    return (void*)((uintptr_t)sub + sizeof(blockmark_t));
-//}
-//static void freeBlock(void *block, void* sub)
-//{
-//    blockmark_t *m = (blockmark_t*)block;
-//    blockmark_t *s = (blockmark_t*)sub;
-//    blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
-//    if(block!=sub)
-//        m = (blockmark_t*)((uintptr_t)s - s->prev.size);
-//    s->next.fill = 0;
-//    n->prev.fill = 0;
-//    // check if merge with previous
-//    if (s->prev.x32 && !s->prev.fill) {
-//        // remove s...
-//        m->next.size += s->next.size;
-//        n->prev.size = m->next.size;
-//        s = m;
-//    }
-//    // check if merge with next
-//    if(n->next.x32 && !n->next.fill) {
-//        blockmark_t *n2 = (blockmark_t*)((uintptr_t)n + n->next.size);
-//        //remove n
-//        s->next.size += n->next.size;
-//        n2->prev.size = s->next.size;
-//    }
-//}
+static int getMaxFreeBlock(void* block, size_t block_size)
+{
+    // get start of block
+    blockmark_t *m = (blockmark_t*)((uintptr_t)block+block_size-sizeof(blockmark_t)); // styart with the end
+    int maxsize = 0;
+    while(m->prev.x32) {    // while there is a subblock
+        if(!m->prev.fill && m->prev.size>maxsize) {
+            maxsize = m->prev.size;
+            if((uintptr_t)block+maxsize>(uintptr_t)m)
+                return maxsize; // no block large enough left...
+        }
+        m = (blockmark_t*)((uintptr_t)m - m->prev.size);
+    }
+    return maxsize;
+}
+
+static void* allocBlock(void* block, void *sub, int size)
+{
+    blockmark_t *s = (blockmark_t*)sub;
+    blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
+
+    s->next.fill = 1;
+    s->next.size = size+sizeof(blockmark_t);
+    blockmark_t *m = (blockmark_t*)((uintptr_t)s + s->next.size);   // this is new n
+    m->prev.fill = 1;
+    m->prev.size = s->next.size;
+    if(n!=m) {
+        // new mark
+        m->prev.fill = 1;
+        m->prev.size = s->next.size;
+        m->next.fill = 0;
+        m->next.size = (uintptr_t)n - (uintptr_t)m;
+        n->prev.fill = 0;
+        n->prev.size = m->next.size;
+    }
+
+    return (void*)((uintptr_t)sub + sizeof(blockmark_t));
+}
+static void freeBlock(void *block, void* sub)
+{
+    blockmark_t *m = (blockmark_t*)block;
+    blockmark_t *s = (blockmark_t*)sub;
+    blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
+    if(block!=sub)
+        m = (blockmark_t*)((uintptr_t)s - s->prev.size);
+    s->next.fill = 0;
+    n->prev.fill = 0;
+    // check if merge with previous
+    if (s->prev.x32 && !s->prev.fill) {
+        // remove s...
+        m->next.size += s->next.size;
+        n->prev.size = m->next.size;
+        s = m;
+    }
+    // check if merge with next
+    if(n->next.x32 && !n->next.fill) {
+        blockmark_t *n2 = (blockmark_t*)((uintptr_t)n + n->next.size);
+        //remove n
+        s->next.size += n->next.size;
+        n2->prev.size = s->next.size;
+    }
+}
 // return 1 if block has been expanded to new size, 0 if not
-//static int expandBlock(void* block, void* sub, int newsize)
-//{
-//    newsize = (newsize+3)&~3;
-//    blockmark_t *s = (blockmark_t*)sub;
-//    blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
-//    if(s->next.fill)
-//        return 0;   // next block is filled
-//    if(s->next.size + n->next.size < newsize)
-//        return 0;   // free space too short
-//    // ok, doing the alloc!
-//    s->next.size = newsize+sizeof(blockmark_t);
-//    blockmark_t *m = (blockmark_t*)((uintptr_t)s + s->next.size);   // this is new n
-//    m->prev.fill = 1;
-//    m->prev.size = s->next.size;
-//    if(n!=m) {
-//        // new mark
-//        m->prev.fill = 1;
-//        m->prev.size = s->next.size;
-//        m->next.fill = 0;
-//        m->next.size = (uintptr_t)n - (uintptr_t)m;
-//        n->prev.fill = 0;
-//        n->prev.size = m->next.size;
-//    }
-//    return 1;
-//}
+static int expandBlock(void* block, void* sub, int newsize)
+{
+    newsize = (newsize+3)&~3;
+    blockmark_t *s = (blockmark_t*)sub;
+    blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
+    if(s->next.fill)
+        return 0;   // next block is filled
+    if(s->next.size + n->next.size < newsize)
+        return 0;   // free space too short
+    // ok, doing the alloc!
+    s->next.size = newsize+sizeof(blockmark_t);
+    blockmark_t *m = (blockmark_t*)((uintptr_t)s + s->next.size);   // this is new n
+    m->prev.fill = 1;
+    m->prev.size = s->next.size;
+    if(n!=m) {
+        // new mark
+        m->prev.fill = 1;
+        m->prev.size = s->next.size;
+        m->next.fill = 0;
+        m->next.size = (uintptr_t)n - (uintptr_t)m;
+        n->prev.fill = 0;
+        n->prev.size = m->next.size;
+    }
+    return 1;
+}
 // return size of block
-//static int sizeBlock(void* sub)
-//{
-//    blockmark_t *s = (blockmark_t*)sub;
-//    return s->next.size;
-//}
+static int sizeBlock(void* sub)
+{
+    blockmark_t *s = (blockmark_t*)sub;
+    return s->next.size;
+}
 
-//void* customMalloc(size_t size)
-//{
-//    // look for free space
-//    void* sub = NULL;
-//    pthread_mutex_lock(&mutex_blocks);
-//    for(int i=0; i<n_blocks; ++i) {
-//        if(p_blocks[i].maxfree>=size) {
-//            int rsize = 0;
-//            sub = getFirstBlock(p_blocks[i].block, size, &rsize);
-//            if(sub) {
-//                void* ret = allocBlock(p_blocks[i].block, sub, size);
-//                if(rsize==p_blocks[i].maxfree)
-//                    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
-//                pthread_mutex_unlock(&mutex_blocks);
-//                return ret;
-//            }
-//        }
-//    }
-//    // add a new block
-//    int i = n_blocks++;
-//    p_blocks = (blocklist_t*)realloc(p_blocks, n_blocks*sizeof(blocklist_t));
-//    size_t allocsize = MMAPSIZE;
-//    if(size+2*sizeof(blockmark_t)>allocsize)
-//        allocsize = size+2*sizeof(blockmark_t);
-//    #ifdef USE_MMAP
-//    void* p = mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
-//    memset(p, 0, allocsize);
-//    #else
-//    void* p = calloc(1, allocsize);
-//    #endif
-//    p_blocks[i].block = p;
-//    p_blocks[i].size = allocsize;
-//    // setup marks
-//    blockmark_t* m = (blockmark_t*)p;
-//    m->prev.x32 = 0;
-//    m->next.fill = 0;
-//    m->next.size = allocsize-sizeof(blockmark_t);
-//    m = (blockmark_t*)(p+allocsize-sizeof(blockmark_t));
-//    m->next.x32 = 0;
-//    m->prev.fill = 0;
-//    m->prev.size = allocsize-sizeof(blockmark_t);
-//    // alloc 1st block
-//    void* ret  = allocBlock(p_blocks[i].block, p, size);
-//    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
-//    pthread_mutex_unlock(&mutex_blocks);
-//    return ret;
-//}
-//void* customCalloc(size_t n, size_t size)
-//{
-//    size_t newsize = n*size;
-//    void* ret = customMalloc(newsize);
-//    memset(ret, 0, newsize);
-//    return ret;
-//}
-//void* customRealloc(void* p, size_t size)
-//{
-//    if(!p)
-//        return customMalloc(size);
-//    uintptr_t addr = (uintptr_t)p;
-//    pthread_mutex_lock(&mutex_blocks);
-//    for(int i=0; i<n_blocks; ++i) {
-//        if ((addr>(uintptr_t)p_blocks[i].block) 
-//         && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
-//            void* sub = (void*)(addr-sizeof(blockmark_t));
-//            if(expandBlock(p_blocks[i].block, sub, size)) {
-//                p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
-//                pthread_mutex_unlock(&mutex_blocks);
-//                return p;
-//            }
-//                pthread_mutex_unlock(&mutex_blocks);
-//                void* newp = customMalloc(size);
-//                memcpy(newp, p, sizeBlock(sub));
-//                customFree(p);
-//                return newp;
-//            
-//        }
-//    }
-//    pthread_mutex_unlock(&mutex_blocks);
-//    if(n_blocks)
-//        dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Realloc, Malloc'ng again without free\n", (void*)addr);
-//    return customMalloc(size);
-//}
-//void customFree(void* p)
-//{
-//    if(!p)
-//        return;
-//    uintptr_t addr = (uintptr_t)p;
-//    pthread_mutex_lock(&mutex_blocks);
-//    for(int i=0; i<n_blocks; ++i) {
-//        if ((addr>(uintptr_t)p_blocks[i].block) 
-//         && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
-//            void* sub = (void*)(addr-sizeof(blockmark_t));
-//            freeBlock(p_blocks[i].block, sub);
-//            p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
-//            pthread_mutex_unlock(&mutex_blocks);
-//            return;
-//        }
-//    }
-//    pthread_mutex_unlock(&mutex_blocks);
-//    if(n_blocks)
-//        dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Free\n", (void*)addr);
-//}
+void* customMalloc(size_t size)
+{
+    // look for free space
+    void* sub = NULL;
+    pthread_mutex_lock(&mutex_blocks);
+    for(int i=0; i<n_blocks; ++i) {
+        if(p_blocks[i].maxfree>=size) {
+            int rsize = 0;
+            sub = getFirstBlock(p_blocks[i].block, size, &rsize);
+            if(sub) {
+                void* ret = allocBlock(p_blocks[i].block, sub, size);
+                if(rsize==p_blocks[i].maxfree)
+                    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
+                pthread_mutex_unlock(&mutex_blocks);
+                return ret;
+            }
+        }
+    }
+    // add a new block
+    int i = n_blocks++;
+    p_blocks = (blocklist_t*)realloc(p_blocks, n_blocks*sizeof(blocklist_t));
+    size_t allocsize = MMAPSIZE;
+    if(size+2*sizeof(blockmark_t)>allocsize)
+        allocsize = size+2*sizeof(blockmark_t);
+    #ifdef USE_MMAP
+    void* p = mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+    memset(p, 0, allocsize);
+    #else
+    void* p = calloc(1, allocsize);
+    #endif
+    p_blocks[i].block = p;
+    p_blocks[i].size = allocsize;
+    // setup marks
+    blockmark_t* m = (blockmark_t*)p;
+    m->prev.x32 = 0;
+    m->next.fill = 0;
+    m->next.size = allocsize-sizeof(blockmark_t);
+    m = (blockmark_t*)(p+allocsize-sizeof(blockmark_t));
+    m->next.x32 = 0;
+    m->prev.fill = 0;
+    m->prev.size = allocsize-sizeof(blockmark_t);
+    // alloc 1st block
+    void* ret  = allocBlock(p_blocks[i].block, p, size);
+    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
+    pthread_mutex_unlock(&mutex_blocks);
+    return ret;
+}
+void* customCalloc(size_t n, size_t size)
+{
+    size_t newsize = n*size;
+    void* ret = customMalloc(newsize);
+    memset(ret, 0, newsize);
+    return ret;
+}
+void* customRealloc(void* p, size_t size)
+{
+    if(!p)
+        return customMalloc(size);
+    uintptr_t addr = (uintptr_t)p;
+    pthread_mutex_lock(&mutex_blocks);
+    for(int i=0; i<n_blocks; ++i) {
+        if ((addr>(uintptr_t)p_blocks[i].block) 
+         && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
+            void* sub = (void*)(addr-sizeof(blockmark_t));
+            if(expandBlock(p_blocks[i].block, sub, size)) {
+                p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
+                pthread_mutex_unlock(&mutex_blocks);
+                return p;
+            }
+                pthread_mutex_unlock(&mutex_blocks);
+                void* newp = customMalloc(size);
+                memcpy(newp, p, sizeBlock(sub));
+                customFree(p);
+                return newp;
+            
+        }
+    }
+    pthread_mutex_unlock(&mutex_blocks);
+    if(n_blocks)
+        dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Realloc, Malloc'ng again without free\n", (void*)addr);
+    return customMalloc(size);
+}
+void customFree(void* p)
+{
+    if(!p)
+        return;
+    uintptr_t addr = (uintptr_t)p;
+    pthread_mutex_lock(&mutex_blocks);
+    for(int i=0; i<n_blocks; ++i) {
+        if ((addr>(uintptr_t)p_blocks[i].block) 
+         && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
+            void* sub = (void*)(addr-sizeof(blockmark_t));
+            freeBlock(p_blocks[i].block, sub);
+            p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
+            pthread_mutex_unlock(&mutex_blocks);
+            return;
+        }
+    }
+    pthread_mutex_unlock(&mutex_blocks);
+    if(n_blocks)
+        dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Free\n", (void*)addr);
+}
 
 #ifdef DYNAREC
 //typedef struct mmaplist_s {
@@ -332,7 +329,7 @@ static int inited = 0;
 //    mmaplist = (mmaplist_t*)realloc(mmaplist, mmapsize*sizeof(mmaplist_t));
 //    #ifndef USE_MMAP
 //    void *p = NULL;
-//    if(posix_memalign(&p, box86_pagesize, MMAPSIZE)) {
+//    if(posix_memalign(&p, box64_pagesize, MMAPSIZE)) {
 //        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
 //        --mmapsize;
 //        return 0;
@@ -428,7 +425,7 @@ static int inited = 0;
 //    if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
 //        #ifndef USE_MMAP
 //        void *p = NULL;
-//        if(posix_memalign(&p, box86_pagesize, size)) {
+//        if(posix_memalign(&p, box64_pagesize, size)) {
 //            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
 //            return 0;
 //        }
@@ -531,41 +528,41 @@ static int inited = 0;
 //void addJumpTableIfDefault(void* addr, void* jmp)
 //{
 //    const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
-//    if(box86_jumptable[idx] == box86_jmptbl_default) {
+//    if(box64_jumptable[idx] == box64_jmptbl_default) {
 //        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
 //        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
 //            tbl[i] = (uintptr_t)arm_next;
-//        box86_jumptable[idx] = tbl;
+//        box64_jumptable[idx] = tbl;
 //    }
 //    const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
-//    if(box86_jumptable[idx][off]==(uintptr_t)arm_next)
-//        box86_jumptable[idx][off] = (uintptr_t)jmp;
+//    if(box64_jumptable[idx][off]==(uintptr_t)arm_next)
+//        box64_jumptable[idx][off] = (uintptr_t)jmp;
 //}
 //void setJumpTableDefault(void* addr)
 //{
 //    const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
-//    if(box86_jumptable[idx] == box86_jmptbl_default) {
+//    if(box64_jumptable[idx] == box64_jmptbl_default) {
 //        return;
 //    }
 //    const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
-//    box86_jumptable[idx][off] = (uintptr_t)arm_next;
+//    box64_jumptable[idx][off] = (uintptr_t)arm_next;
 //}
 //uintptr_t getJumpTable()
 //{
-//    return (uintptr_t)box86_jumptable;
+//    return (uintptr_t)box64_jumptable;
 //}
 
 //uintptr_t getJumpTableAddress(uintptr_t addr)
 //{
 //    const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
-//    if(box86_jumptable[idx] == box86_jmptbl_default) {
+//    if(box64_jumptable[idx] == box64_jmptbl_default) {
 //        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
 //        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
 //            tbl[i] = (uintptr_t)arm_next;
-//        box86_jumptable[idx] = tbl;
+//        box64_jumptable[idx] = tbl;
 //    }
 //    const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
-//    return (uintptr_t)&box86_jumptable[idx][off];
+//    return (uintptr_t)&box64_jumptable[idx][off];
 //}
 
 // Remove the Write flag from an adress range, so DB can be executed
@@ -703,12 +700,12 @@ void init_custommem_helper(box64context_t* ctx)
     memprot = kh_init(memprot);
     pthread_mutex_init(&mutex_prot, NULL);
 #ifdef DYNAREC
-//    pthread_mutex_init(&mutex_mmap, NULL);
+    pthread_mutex_init(&mutex_mmap, NULL);
 #ifdef ARM
 //    for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-//        box86_jmptbl_default[i] = (uintptr_t)arm_next;
+//        box64_jmptbl_default[i] = (uintptr_t)arm_next;
 //    for(int i=0; i<JMPTABL_SIZE; ++i)
-//        box86_jumptable[i] = box86_jmptbl_default;
+//        box64_jumptable[i] = box64_jmptbl_default;
 #else
 #error Unsupported architecture!
 #endif
@@ -764,21 +761,22 @@ void fini_custommem_helper(box64context_t *ctx)
 //    pthread_mutex_destroy(&mutex_mmap);
 //    free(mmaplist);
 //    for (int i=0; i<DYNAMAP_SIZE; ++i)
-//        if(box86_jumptable[i]!=box86_jmptbl_default)
-//            free(box86_jumptable[i]);
+//        if(box64_jumptable[i]!=box64_jmptbl_default)
+//            free(box64_jumptable[i]);
 #endif
-//    for(int i=0; i<n_blocks; ++i)
-//        #ifdef USE_MMAP
-//        munmap(p_blocks[i].block, p_blocks[i].size);
-//        #else
-//        free(p_blocks[i].block);
-//        #endif
-//    free(p_blocks);
     uint8_t* m;
     kh_foreach_value(memprot, m,
         free(m);
     );
     kh_destroy(memprot, memprot);
+
+    for(int i=0; i<n_blocks; ++i)
+        #ifdef USE_MMAP
+        munmap(p_blocks[i].block, p_blocks[i].size);
+        #else
+        free(p_blocks[i].block);
+        #endif
+    free(p_blocks);
     pthread_mutex_destroy(&mutex_prot);
-//    pthread_mutex_destroy(&mutex_blocks);
+    //pthread_mutex_destroy(&mutex_blocks);
 }
