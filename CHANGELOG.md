@@ -1,6 +1,17 @@
-Current version
+v0.0.4
 ======
-* Using box86 as a base, implemented most planned box64 part except dyanrec
+* Added a lot of opcodes
+* Added SDL1 and SDL2 wrapping
+* OpenGL/GLU wrapping done
+* libasound / libpulse wrapping done
+* libopenal / libalure / libalut wrapping done
+* Many X11 libs wrapped
+* Added "install" with binfmt integration
+* A few games are actualy starting now (old WorldOfGoo, Into The Breach, VVVVVV and Thimbeweed Park)
+
+v0.0.2
+======
+* Using box86 as a base, implemented most planned box64 part except dynarec
 * Wrapped a few libs
 * ELF loader a bit crude, but seems working
 * Signal handling implemented
