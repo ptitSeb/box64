@@ -149,6 +149,8 @@ set(ELFLOADER_SRC
 )
 
 set(WRAPPEDS
+    "${BOX64_ROOT}/src/wrapped/wrappedalure.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedalut.c"
     "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibasound.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibc.c"
