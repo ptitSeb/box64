@@ -32,11 +32,13 @@ int Run660F(x64emu_t *emu, rex_t rex)
     uint8_t nextop;
     uint8_t tmp8u;
     int8_t tmp8s;
+    int16_t tmp16s;
     uint16_t tmp16u;
     int32_t tmp32s;
+    uint32_t tmp32u;
     uint64_t tmp64u;
     reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx, eax1;
+    sse_regs_t *opex, *opgx, eax1, *opex2;
     mmx87_regs_t *opem, *opgm;
 
     opcode = F8;
@@ -296,6 +298,32 @@ int Run660F(x64emu_t *emu, rex_t rex)
             GX->d[1] = EX->d[1];
         break;
         
+    case 0x60:  /* PUNPCKLBW Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=7; i>0; --i)  // 0 is untouched
+            GX->ub[2 * i] = GX->ub[i];
+        if(GX==EX)
+            for(int i=0; i<8; ++i)
+                GX->ub[2 * i + 1] = GX->ub[2 * i];
+        else 
+            for(int i=0; i<8; ++i)
+                GX->ub[2 * i + 1] = EX->ub[i];
+        break;
+    case 0x61:  /* PUNPCKLWD Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=3; i>0; --i)
+            GX->uw[2 * i] = GX->uw[i];
+        if(GX==EX)
+            for(int i=0; i<4; ++i)
+                GX->uw[2 * i + 1] = GX->uw[2 * i];
+        else
+            for(int i=0; i<4; ++i)
+                GX->uw[2 * i + 1] = EX->uw[i];
+        break;
     case 0x62:  /* PUNPCKLDQ Gx,Ex */
         nextop = F8;
         GETEX(0);
@@ -886,7 +914,89 @@ int Run660F(x64emu_t *emu, rex_t rex)
         if(MODREG)
             EX->q[1] = 0;
         break;
-
+    case 0xD7:  /* PMOVMSKB Gd,Ex */
+        nextop = F8;
+        if(MODREG) {
+            GETEX(0);
+            GETGD;
+            GD->q[0] = 0;
+            for (int i=0; i<16; ++i)
+                if(EX->ub[i]&0x80)
+                    GD->dword[0] |= (1<<i);
+        } else
+            return 1;
+        break;
+    case 0xD8:  /* PSUBUSB Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<16; ++i) {
+            tmp16s = (int16_t)GX->ub[i] - EX->ub[i];
+            GX->ub[i] = (tmp16s<0)?0:tmp16s;
+        }
+        break;
+    case 0xD9:  /* PSUBUSW Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<8; ++i) {
+            tmp32s = (int32_t)GX->uw[i] - EX->uw[i];
+            GX->uw[i] = (tmp32s<0)?0:tmp32s;
+        }
+        break;
+    case 0xDA:  /* PMINUB Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for (int i=0; i<16; ++i)
+            if(EX->ub[i]<GX->ub[i]) GX->ub[i] = EX->ub[i];
+        break;
+    case 0xDB:  /* PAND Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->q[0] &= EX->q[0];
+        GX->q[1] &= EX->q[1];
+        break;
+    case 0xDC:  /* PADDUSB Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<16; ++i) {
+            tmp16s = (int16_t)GX->ub[i] + EX->ub[i];
+            GX->ub[i] = (tmp16s>255)?255:tmp16s;
+        }
+        break;
+    case 0xDD:  /* PADDUSW Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<8; ++i) {
+            tmp32s = (int32_t)GX->uw[i] + EX->uw[i];
+            GX->uw[i] = (tmp32s>65535)?65535:tmp32s;
+        }
+        break;
+    case 0xDE:  /* PMAXUB Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for (int i=0; i<16; ++i)
+            if(EX->ub[i]>GX->ub[i]) GX->ub[i] = EX->ub[i];
+        break;
+    case 0xDF:  /* PANDN Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->q[0] = (~(GX->q[0])) & EX->q[0];
+        GX->q[1] = (~(GX->q[1])) & EX->q[1];
+        break;
+    case 0xE0:  /* PAVGB Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for (int i=0; i<16; ++i)
+            GX->ub[i] = ((uint16_t)GX->ub[i] + EX->ub[i] + 1)>>1;
+        break;
     case 0xE1:  /* PSRAW Gx, Ex */
         nextop = F8;
         GETEX(0);
@@ -923,7 +1033,72 @@ int Run660F(x64emu_t *emu, rex_t rex)
         GX->sd[1] = EX->d[1];
         GX->q[1] = 0;
         break;
-
+    case 0xE7:   /* MOVNTDQ Ex, Gx */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        EX->q[0] = GX->q[0];
+        EX->q[1] = GX->q[1];
+        break;
+    case 0xE8:  /* PSUBSB Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<16; ++i) {
+            tmp16s = (int16_t)GX->sb[i] - EX->sb[i];
+            GX->sb[i] = (tmp16s<-128)?-128:((tmp16s>127)?127:tmp16s);
+        }
+        break;
+    case 0xE9:  /* PSUBSW Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<8; ++i) {
+            tmp32s = (int32_t)GX->sw[i] - EX->sw[i];
+            GX->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+        }
+        break;
+    case 0xEA:  /* PMINSW Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for (int i=0; i<8; ++i)
+            GX->sw[i] = (GX->sw[i]<EX->sw[i])?GX->sw[i]:EX->sw[i];
+        break;
+    case 0xEB:  /* POR Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->ud[0] |= EX->ud[0];
+        GX->ud[1] |= EX->ud[1];
+        GX->ud[2] |= EX->ud[2];
+        GX->ud[3] |= EX->ud[3];
+        break;
+    case 0xEC:  /* PADDSB Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<16; ++i) {
+            tmp16s = (int16_t)GX->sb[i] + EX->sb[i];
+            GX->sb[i] = (tmp16s>127)?127:((tmp16s<-128)?-128:tmp16s);
+        }
+        break;
+    case 0xED:  /* PADDSW Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<8; ++i) {
+            tmp32s = (int32_t)GX->sw[i] + EX->sw[i];
+            GX->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+        }
+        break;
+    case 0xEE:  /* PMAXSW Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<8; ++i)
+            GX->sw[i] = (GX->sw[i]>EX->sw[i])?GX->sw[i]:EX->sw[i];
+        break;
     case 0xEF:                      /* PXOR Gx,Ex */
         nextop = F8;
         GETEX(0);
@@ -959,7 +1134,43 @@ int Run660F(x64emu_t *emu, rex_t rex)
         else 
             {tmp8u=EX->q[0]; for (int i=0; i<2; ++i) GX->q[i] <<= tmp8u;}
         break;
-
+    case 0xF4:  /* PMULUDQ Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->q[1] = (uint64_t)EX->ud[2]*GX->ud[2];
+        GX->q[0] = (uint64_t)EX->ud[0]*GX->ud[0];
+        break;
+    case 0xF5:  /* PMADDWD Gx,Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for (int i=0; i<4; ++i)
+            GX->sd[i] = (int32_t)(GX->sw[i*2+0])*EX->sw[i*2+0] + (int32_t)(GX->sw[i*2+1])*EX->sw[i*2+1];
+        break;
+    case 0xF6:  /* PSADBW Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        tmp32u = 0;
+        for (int i=0; i<8; ++i)
+            tmp32u += (GX->ub[i]>EX->ub[i])?(GX->ub[i] - EX->ub[i]):(EX->ub[i] - GX->ub[i]);
+        GX->q[0] = tmp32u;
+        tmp32u = 0;
+        for (int i=8; i<16; ++i)
+            tmp32u += (GX->ub[i]>EX->ub[i])?(GX->ub[i] - EX->ub[i]):(EX->ub[i] - GX->ub[i]);
+        GX->q[1] = tmp32u;
+        break;
+    case 0xF7:  /* MASKMOVDQU Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        opex2 = (sse_regs_t *)(R_RDI);
+        for (int i=0; i<16; ++i) {
+            if(EX->ub[i]&0x80)
+                opex2->ub[i] = GX->ub[i];
+        }
+        break;
     case 0xF8:  /* PSUBB Gx,Ex */
         nextop = F8;
         GETEX(0);
