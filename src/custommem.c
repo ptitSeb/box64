@@ -23,19 +23,21 @@
 #include "khash.h"
 #ifdef DYNAREC
 #include "dynablock.h"
-#include "dynarec/arm_lock_helper.h"
+#include "dynarec/arm64_lock_helper.h"
 
-#define USE_MMAP
+//#define USE_MMAP
 
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT64(dynablocks, dynablock_t*)
-static dynablocklist_t*    dynmap[DYNAMAP_SIZE];     // 4G of memory mapped by 4K block
+static dynablocklist_t***  dynmap123[1<<DYNAMAP_SHIFT]; // 64bits.. in 4x16bits array
 static pthread_mutex_t     mutex_mmap;
 static mmaplist_t          *mmaplist;
 static int                 mmapsize;
 static kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
-static uintptr_t           *box64_jumptable[JMPTABL_SIZE];
-static uintptr_t           box64_jmptbl_default[1<<JMPTABL_SHIFT];
+static uintptr_t***        box64_jmptbl3[1<<JMPTABL_SHIFT];
+static uintptr_t**         box64_jmptbldefault2[1<<JMPTABL_SHIFT];
+static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT];
+static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT];
 #endif
 #define MEMPROT_SHIFT 12
 #define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
@@ -284,349 +286,433 @@ void customFree(void* p)
 }
 
 #ifdef DYNAREC
-//typedef struct mmaplist_s {
-//    void*               block;
-//    int                 maxfree;
-//    size_t              size;
-//    kh_dynablocks_t*    dblist;
-//    uint8_t*            helper;
-//} mmaplist_t;
+typedef struct mmaplist_s {
+    void*               block;
+    int                 maxfree;
+    size_t              size;
+    kh_dynablocks_t*    dblist;
+    uint8_t*            helper;
+} mmaplist_t;
 
-//uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
-//{
-//    // look for free space
-//    void* sub = NULL;
-//    for(int i=0; i<mmapsize; ++i) {
-//        if(mmaplist[i].maxfree>=size) {
-//            int rsize = 0;
-//            sub = getFirstBlock(mmaplist[i].block, size, &rsize);
-//            if(sub) {
-//                uintptr_t ret = (uintptr_t)allocBlock(mmaplist[i].block, sub, size);
-//                if(rsize==mmaplist[i].maxfree)
-//                    mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size);
-//                kh_dynablocks_t *blocks = mmaplist[i].dblist;
-//                if(!blocks) {
-//                    blocks = mmaplist[i].dblist = kh_init(dynablocks);
-//                    kh_resize(dynablocks, blocks, 64);
-//                }
-//                khint_t k;
-//                int r;
-//                k = kh_put(dynablocks, blocks, (uintptr_t)ret, &r);
-//                kh_value(blocks, k) = db;
-//                for(int j=0; j<size; ++j)
-//                    mmaplist[i].helper[(uintptr_t)ret-(uintptr_t)mmaplist[i].block+j] = (j<256)?j:255;
-//                return ret;
-//            }
-//        }
-//    }
-//    return 0;
-//}
+uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
+{
+    // look for free space
+    void* sub = NULL;
+    for(int i=0; i<mmapsize; ++i) {
+        if(mmaplist[i].maxfree>=size) {
+            int rsize = 0;
+            sub = getFirstBlock(mmaplist[i].block, size, &rsize);
+            if(sub) {
+                uintptr_t ret = (uintptr_t)allocBlock(mmaplist[i].block, sub, size);
+                if(rsize==mmaplist[i].maxfree)
+                    mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size);
+                kh_dynablocks_t *blocks = mmaplist[i].dblist;
+                if(!blocks) {
+                    blocks = mmaplist[i].dblist = kh_init(dynablocks);
+                    kh_resize(dynablocks, blocks, 64);
+                }
+                khint_t k;
+                int r;
+                k = kh_put(dynablocks, blocks, (uintptr_t)ret, &r);
+                kh_value(blocks, k) = db;
+                for(int j=0; j<size; ++j)
+                    mmaplist[i].helper[(uintptr_t)ret-(uintptr_t)mmaplist[i].block+j] = (j<256)?j:255;
+                return ret;
+            }
+        }
+    }
+    return 0;
+}
 
-//uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
-//{
-//    int i = mmapsize++;    // yeah, useful post incrementation
-//    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", mmapsize);
-//    mmaplist = (mmaplist_t*)realloc(mmaplist, mmapsize*sizeof(mmaplist_t));
-//    #ifndef USE_MMAP
-//    void *p = NULL;
-//    if(posix_memalign(&p, box64_pagesize, MMAPSIZE)) {
-//        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
-//        --mmapsize;
-//        return 0;
-//    }
-//    mprotect(p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
-//    #else
-//    void* p = mmap(NULL, MMAPSIZE, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-//    if(p==(void*)-1) {
-//        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
-//        --mmapsize;
-//        return 0;
-//    }
-//    #endif
-//    setProtection((uintptr_t)p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
-//
-//    mmaplist[i].block = p;
-//    mmaplist[i].size = MMAPSIZE;
-//    mmaplist[i].helper = (uint8_t*)calloc(1, MMAPSIZE);
-//    // setup marks
-//    blockmark_t* m = (blockmark_t*)p;
-//    m->prev.x32 = 0;
-//    m->next.fill = 0;
-//    m->next.size = MMAPSIZE-sizeof(blockmark_t);
-//    m = (blockmark_t*)(p+MMAPSIZE-sizeof(blockmark_t));
-//    m->next.x32 = 0;
-//    m->prev.fill = 0;
-//    m->prev.size = MMAPSIZE-sizeof(blockmark_t);
-//    // alloc 1st block
-//    uintptr_t sub  = (uintptr_t)allocBlock(mmaplist[i].block, p, size);
-//    mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size);
-//    kh_dynablocks_t *blocks = mmaplist[i].dblist = kh_init(dynablocks);
-//    kh_resize(dynablocks, blocks, 64);
-//    khint_t k;
-//    int ret;
-//    k = kh_put(dynablocks, blocks, (uintptr_t)sub, &ret);
-//    kh_value(blocks, k) = db;
-//    for(int j=0; j<size; ++j)
-//        mmaplist[i].helper[(uintptr_t)sub-(uintptr_t)mmaplist[i].block + j] = (j<256)?j:255;
-//    return sub;
-//}
+uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
+{
+    int i = mmapsize++;
+    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", mmapsize);
+    mmaplist = (mmaplist_t*)realloc(mmaplist, mmapsize*sizeof(mmaplist_t));
+    #ifndef USE_MMAP
+    void *p = NULL;
+    if(posix_memalign(&p, box64_pagesize, MMAPSIZE)) {
+        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
+        --mmapsize;
+        return 0;
+    }
+    mprotect(p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
+    #else
+    void* p = mmap(NULL, MMAPSIZE, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    if(p==(void*)-1) {
+        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
+        --mmapsize;
+        return 0;
+    }
+    #endif
+    setProtection((uintptr_t)p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
 
-//void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int size)
-//{
-//    if(!addr || !size)
-//        return;
-//    for(int i=0; i<mmapsize; ++i) {
-//        if ((addr>(uintptr_t)mmaplist[i].block) 
-//         && (addr<((uintptr_t)mmaplist[i].block+mmaplist[i].size))) {
-//            void* sub = (void*)(addr-sizeof(blockmark_t));
-//            freeBlock(mmaplist[i].block, sub);
-//            mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size);
-//            kh_dynablocks_t *blocks = mmaplist[i].dblist;
-//            if(blocks) {
-//                khint_t k = kh_get(dynablocks, blocks, (uintptr_t)sub);
-//                if(k!=kh_end(blocks))
-//                    kh_del(dynablocks, blocks, k);
-//                for(int j=0; j<size; ++j)
-//                    mmaplist[i].helper[(uintptr_t)sub-(uintptr_t)mmaplist[i].block+j] = 0;
-//            }
-//            return;
-//        }
-//    }
-//    if(mmapsize)
-//        dynarec_log(LOG_NONE, "Warning, block %p (size %d) not found in mmaplist for Free\n", (void*)addr, size);
-//}
+    mmaplist[i].block = p;
+    mmaplist[i].size = MMAPSIZE;
+    mmaplist[i].helper = (uint8_t*)calloc(1, MMAPSIZE);
+    // setup marks
+    blockmark_t* m = (blockmark_t*)p;
+    m->prev.x32 = 0;
+    m->next.fill = 0;
+    m->next.size = MMAPSIZE-sizeof(blockmark_t);
+    m = (blockmark_t*)(p+MMAPSIZE-sizeof(blockmark_t));
+    m->next.x32 = 0;
+    m->prev.fill = 0;
+    m->prev.size = MMAPSIZE-sizeof(blockmark_t);
+    // alloc 1st block
+    uintptr_t sub  = (uintptr_t)allocBlock(mmaplist[i].block, p, size);
+    mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size);
+    kh_dynablocks_t *blocks = mmaplist[i].dblist = kh_init(dynablocks);
+    kh_resize(dynablocks, blocks, 64);
+    khint_t k;
+    int ret;
+    k = kh_put(dynablocks, blocks, (uintptr_t)sub, &ret);
+    kh_value(blocks, k) = db;
+    for(int j=0; j<size; ++j)
+        mmaplist[i].helper[(uintptr_t)sub-(uintptr_t)mmaplist[i].block + j] = (j<256)?j:255;
+    return sub;
+}
 
-//dynablock_t* FindDynablockFromNativeAddress(void* addr)
-//{
-//    // look in actual list
-//    for(int i=0; i<mmapsize; ++i) {
-//        if ((uintptr_t)addr>=(uintptr_t)mmaplist[i].block 
-//        && ((uintptr_t)addr<(uintptr_t)mmaplist[i].block+mmaplist[i].size)) {
-//            if(!mmaplist[i].helper)
-//                return FindDynablockDynablocklist(addr, mmaplist[i].dblist);
-//            else {
-//                uintptr_t p = (uintptr_t)addr - (uintptr_t)mmaplist[i].block;
-//                while(mmaplist[i].helper[p]) p -= mmaplist[i].helper[p];
-//                khint_t k = kh_get(dynablocks, mmaplist[i].dblist, (uintptr_t)mmaplist[i].block + p);
-//                if(k!=kh_end(mmaplist[i].dblist))
-//                    return kh_value(mmaplist[i].dblist, k);
-//                return NULL;
-//            }
-//        }
-//    }
-//    // look in oversized
-//    return FindDynablockDynablocklist(addr, dblist_oversized);
-//}
+void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int size)
+{
+    if(!addr || !size)
+        return;
+    for(int i=0; i<mmapsize; ++i) {
+        if ((addr>(uintptr_t)mmaplist[i].block) 
+         && (addr<((uintptr_t)mmaplist[i].block+mmaplist[i].size))) {
+            void* sub = (void*)(addr-sizeof(blockmark_t));
+            freeBlock(mmaplist[i].block, sub);
+            mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size);
+            kh_dynablocks_t *blocks = mmaplist[i].dblist;
+            if(blocks) {
+                khint_t k = kh_get(dynablocks, blocks, (uintptr_t)sub);
+                if(k!=kh_end(blocks))
+                    kh_del(dynablocks, blocks, k);
+                for(int j=0; j<size; ++j)
+                    mmaplist[i].helper[(uintptr_t)sub-(uintptr_t)mmaplist[i].block+j] = 0;
+            }
+            return;
+        }
+    }
+    if(mmapsize)
+        dynarec_log(LOG_NONE, "Warning, block %p (size %d) not found in mmaplist for Free\n", (void*)addr, size);
+}
 
-//uintptr_t AllocDynarecMap(dynablock_t* db, int size)
-//{
-//    if(!size)
-//        return 0;
-//    if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
-//        #ifndef USE_MMAP
-//        void *p = NULL;
-//        if(posix_memalign(&p, box64_pagesize, size)) {
-//            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
-//            return 0;
-//        }
-//        mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
-//        #else
-//        void* p = mmap(NULL, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
-//        if(p==(void*)-1) {
-//            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
-//            return 0;
-//        }
-//        #endif
-//        setProtection((uintptr_t)p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
-//        kh_dynablocks_t *blocks = dblist_oversized;
-//        if(!blocks) {
-//            blocks = dblist_oversized = kh_init(dynablocks);
-//            kh_resize(dynablocks, blocks, 64);
-//        }
-//        khint_t k;
-//        int ret;
-//        k = kh_put(dynablocks, blocks, (uintptr_t)p, &ret);
-//        kh_value(blocks, k) = db;
-//        return (uintptr_t)p;
-//    }
-//    
-//    if(pthread_mutex_trylock(&mutex_mmap)) {
-//        sched_yield();  // give it a chance
-//        if(pthread_mutex_trylock(&mutex_mmap))
-//            return 0;   // cannot lock, baillout
-//    }
-//
-//    uintptr_t ret = FindFreeDynarecMap(db, size);
-//    if(!ret)
-//        ret = AddNewDynarecMap(db, size);
-//
-//    pthread_mutex_unlock(&mutex_mmap);
-//
-//    return ret;
-//}
+dynablock_t* FindDynablockFromNativeAddress(void* addr)
+{
+    // look in actual list
+    for(int i=0; i<mmapsize; ++i) {
+        if ((uintptr_t)addr>=(uintptr_t)mmaplist[i].block 
+        && ((uintptr_t)addr<(uintptr_t)mmaplist[i].block+mmaplist[i].size)) {
+            if(!mmaplist[i].helper)
+                return FindDynablockDynablocklist(addr, mmaplist[i].dblist);
+            else {
+                uintptr_t p = (uintptr_t)addr - (uintptr_t)mmaplist[i].block;
+                while(mmaplist[i].helper[p]) p -= mmaplist[i].helper[p];
+                khint_t k = kh_get(dynablocks, mmaplist[i].dblist, (uintptr_t)mmaplist[i].block + p);
+                if(k!=kh_end(mmaplist[i].dblist))
+                    return kh_value(mmaplist[i].dblist, k);
+                return NULL;
+            }
+        }
+    }
+    // look in oversized
+    return FindDynablockDynablocklist(addr, dblist_oversized);
+}
 
-//void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
-//{
-//    if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
-//        #ifndef USE_MMAP
-//        free((void*)addr);
-//        #else
-//        munmap((void*)addr, size);
-//        #endif
-//        kh_dynablocks_t *blocks = dblist_oversized;
-//        if(blocks) {
-//            khint_t k = kh_get(dynablocks, blocks, addr);
-//            if(k!=kh_end(blocks))
-//                kh_del(dynablocks, blocks, k);
-//        }
-//        return;
-//    }
-//    pthread_mutex_lock(&mutex_mmap);
-//    ActuallyFreeDynarecMap(db, addr, size);
-//    pthread_mutex_unlock(&mutex_mmap);
-//}
+uintptr_t AllocDynarecMap(dynablock_t* db, int size)
+{
+    if(!size)
+        return 0;
+    if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
+        #ifndef USE_MMAP
+        void *p = NULL;
+        if(posix_memalign(&p, box64_pagesize, size)) {
+            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
+            return 0;
+        }
+        mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+        #else
+        void* p = mmap(NULL, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+        if(p==(void*)-1) {
+            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
+            return 0;
+        }
+        #endif
+        setProtection((uintptr_t)p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+        kh_dynablocks_t *blocks = dblist_oversized;
+        if(!blocks) {
+            blocks = dblist_oversized = kh_init(dynablocks);
+            kh_resize(dynablocks, blocks, 64);
+        }
+        khint_t k;
+        int ret;
+        k = kh_put(dynablocks, blocks, (uintptr_t)p, &ret);
+        kh_value(blocks, k) = db;
+        return (uintptr_t)p;
+    }
+    
+    if(pthread_mutex_trylock(&mutex_mmap)) {
+        sched_yield();  // give it a chance
+        if(pthread_mutex_trylock(&mutex_mmap))
+            return 0;   // cannot lock, baillout
+    }
 
-//dynablocklist_t* getDB(uintptr_t idx)
-//{
-//    return dynmap[idx];
-//}
+    uintptr_t ret = FindFreeDynarecMap(db, size);
+    if(!ret)
+        ret = AddNewDynarecMap(db, size);
+
+    pthread_mutex_unlock(&mutex_mmap);
+
+    return ret;
+}
+
+void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
+{
+    if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
+        #ifndef USE_MMAP
+        free((void*)addr);
+        #else
+        munmap((void*)addr, size);
+        #endif
+        kh_dynablocks_t *blocks = dblist_oversized;
+        if(blocks) {
+            khint_t k = kh_get(dynablocks, blocks, addr);
+            if(k!=kh_end(blocks))
+                kh_del(dynablocks, blocks, k);
+        }
+        return;
+    }
+    pthread_mutex_lock(&mutex_mmap);
+    ActuallyFreeDynarecMap(db, addr, size);
+    pthread_mutex_unlock(&mutex_mmap);
+}
+
+dynablocklist_t* getDB(uintptr_t idx)
+{
+    // already 16bits shifted
+    uintptr_t idx3 = (idx>>32)&((1<<DYNAMAP_SHIFT)-1);
+    uintptr_t idx2 = (idx>>16)&((1<<DYNAMAP_SHIFT)-1);
+    uintptr_t idx1 = (idx    )&((1<<DYNAMAP_SHIFT)-1);
+
+    if(!dynmap123[idx3])
+        return NULL;
+    if(!dynmap123[idx3][idx2])
+        return NULL;
+    return dynmap123[idx3][idx2][idx1];
+}
 
 // each dynmap is 64k of size
 
-//void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
-//{
-//    dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-//    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
-//    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
-//    for (uintptr_t i=idx; i<=end; ++i) {
-//        if(!dynmap[i]) {
-//            dynmap[i] = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
-//        }
-//    }
-//}
+void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
+{
+    dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        int idx3 = (i>>32)&((1<<DYNAMAP_SHIFT)-1);
+        int idx2 = (i>>16)&((1<<DYNAMAP_SHIFT)-1);
+        int idx1 = (i    )&((1<<DYNAMAP_SHIFT)-1);
+        if(!dynmap123[idx3])
+            dynmap123[idx3] = (dynablocklist_t***)calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t**));
+        if(!dynmap123[idx3][idx2])
+            dynmap123[idx3][idx2] = (dynablocklist_t**)calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t*));
+        if(!dynmap123[idx3][idx2][idx1])
+            dynmap123[idx3][idx2][idx1] = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
+    }
+}
 
-//void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
-//{
-//    dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
-//    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
-//    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
-//    for (uintptr_t i=idx; i<=end; ++i) {
-//        dynablocklist_t* dblist = dynmap[i];
-//        if(dblist) {
-//            if(destroy)
-//                FreeRangeDynablock(dblist, addr, size);
-//            else
-//                MarkRangeDynablock(dblist, addr, size);
-//        }
-//    }
-//}
+void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
+{
+    dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
+    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        int idx3 = (i>>32)&((1<<DYNAMAP_SHIFT)-1);
+        int idx2 = (i>>16)&((1<<DYNAMAP_SHIFT)-1);
+        int idx1 = (i    )&((1<<DYNAMAP_SHIFT)-1);
+        if(dynmap123[idx3] && dynmap123[idx3][idx2]) {
+            dynablocklist_t* dblist = dynmap123[idx3][idx2][idx1];
+            if(dblist) {
+                if(destroy)
+                    FreeRangeDynablock(dblist, addr, size);
+                else
+                    MarkRangeDynablock(dblist, addr, size);
+            }
+        }
+    }
+}
 
-#ifdef ARM
-//void arm_next(void);
+#ifdef ARM64
+void arm64_next(void);
 #endif
 
-//void addJumpTableIfDefault(void* addr, void* jmp)
-//{
-//    const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
-//    if(box64_jumptable[idx] == box64_jmptbl_default) {
-//        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
-//        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-//            tbl[i] = (uintptr_t)arm_next;
-//        box64_jumptable[idx] = tbl;
-//    }
-//    const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
-//    if(box64_jumptable[idx][off]==(uintptr_t)arm_next)
-//        box64_jumptable[idx][off] = (uintptr_t)jmp;
-//}
-//void setJumpTableDefault(void* addr)
-//{
-//    const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
-//    if(box64_jumptable[idx] == box64_jmptbl_default) {
-//        return;
-//    }
-//    const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
-//    box64_jumptable[idx][off] = (uintptr_t)arm_next;
-//}
-//uintptr_t getJumpTable()
-//{
-//    return (uintptr_t)box64_jumptable;
-//}
+void addJumpTableIfDefault64(void* addr, void* jmp)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+    idx0 = (((uintptr_t)addr)    )&0xffff;
+    if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
+        uintptr_t*** tbl = (uintptr_t***)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = box64_jmptbldefault1;
+        box64_jmptbl3[idx3] = tbl;
+    }
+    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
+        uintptr_t** tbl = (uintptr_t**)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = box64_jmptbldefault0;
+        box64_jmptbl3[idx3][idx2] = tbl;
+    }
+    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
+        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = (uintptr_t)arm64_next;
+        box64_jmptbl3[idx3][idx2][idx1] = tbl;
+    }
 
-//uintptr_t getJumpTableAddress(uintptr_t addr)
-//{
-//    const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
-//    if(box64_jumptable[idx] == box64_jmptbl_default) {
-//        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
-//        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-//            tbl[i] = (uintptr_t)arm_next;
-//        box64_jumptable[idx] = tbl;
-//    }
-//    const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
-//    return (uintptr_t)&box64_jumptable[idx][off];
-//}
+    if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)arm64_next)
+        box64_jmptbl3[idx3][idx2][idx1][idx0] = (uintptr_t)jmp;
+}
+void setJumpTableDefault64(void* addr)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+    idx0 = (((uintptr_t)addr)    )&0xffff;
+    if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
+        return;
+    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
+        return;
+    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
+        return;
+    if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)arm64_next)
+        return;
+    box64_jmptbl3[idx3][idx2][idx1][idx0] = (uintptr_t)arm64_next;
+}
+uintptr_t getJumpTable64()
+{
+    return (uintptr_t)box64_jmptbl3;
+}
+
+uintptr_t getJumpTableAddress64(uintptr_t addr)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+    idx0 = (((uintptr_t)addr)    )&0xffff;
+    if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
+        uintptr_t*** tbl = (uintptr_t***)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = box64_jmptbldefault1;
+        box64_jmptbl3[idx3] = tbl;
+    }
+    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
+        uintptr_t** tbl = (uintptr_t**)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = box64_jmptbldefault0;
+        box64_jmptbl3[idx3][idx2] = tbl;
+    }
+    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
+        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = (uintptr_t)arm64_next;
+        box64_jmptbl3[idx3][idx2][idx1] = tbl;
+    }
+
+    return (uintptr_t)&box64_jmptbl3[idx3][idx2][idx1][idx0];
+}
 
 // Remove the Write flag from an adress range, so DB can be executed
 // no log, as it can be executed inside a signal handler
-//void protectDB(uintptr_t addr, uintptr_t size)
-//{
-//    dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-//    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-//    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-//    pthread_mutex_lock(&mutex_prot);
-//    for (uintptr_t i=idx; i<=end; ++i) {
-//        uint32_t prot = memprot[i];
-//        if(!prot)
-//            prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
-//        memprot[i] = prot|PROT_DYNAREC;
-//        if(!(prot&PROT_DYNAREC))
-//            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-//    }
-//    pthread_mutex_unlock(&mutex_prot);
-//}
+void protectDB(uintptr_t addr, uintptr_t size)
+{
+    dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    int ret;
+    pthread_mutex_lock(&mutex_prot);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        const uint32_t key = (i>>16)&0xffffffff;
+        khint_t k = kh_put(memprot, memprot, key, &ret);
+        if(ret) {
+            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
+            kh_value(memprot, k) = m;
+        }
+        const uintptr_t ii = i&(MEMPROT_SIZE-1);
+        uint8_t prot = kh_value(memprot, k)[ii];
+        if(!prot)
+            prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
+        kh_value(memprot, k)[ii] = prot|PROT_DYNAREC;
+        if(!(prot&PROT_DYNAREC))
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+    }
+    pthread_mutex_unlock(&mutex_prot);
+}
 
-//void protectDBnolock(uintptr_t addr, uintptr_t size)
-//{
-//    dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-//    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-//    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-//    for (uintptr_t i=idx; i<=end; ++i) {
-//        uint32_t prot = memprot[i];
-//        if(!prot)
-//            prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
-//        memprot[i] = prot|PROT_DYNAREC;
-//        if(!(prot&PROT_DYNAREC))
-//            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-//    }
-//}
+void protectDBnolock(uintptr_t addr, uintptr_t size)
+{
+    dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    int ret;
+    for (uintptr_t i=idx; i<=end; ++i) {
+        const uint32_t key = (i>>16)&0xffffffff;
+        khint_t k = kh_put(memprot, memprot, key, &ret);
+        if(ret) {
+            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
+            kh_value(memprot, k) = m;
+        }
+        const uintptr_t ii = i&(MEMPROT_SIZE-1);
+        uint8_t prot = kh_value(memprot, k)[ii];
+        if(!prot)
+            prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
+        kh_value(memprot, k)[ii] = prot|PROT_DYNAREC;
+        if(!(prot&PROT_DYNAREC))
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+    }
+}
 
-//void lockDB()
-//{
-//    pthread_mutex_lock(&mutex_prot);
-//}
+void lockDB()
+{
+    pthread_mutex_lock(&mutex_prot);
+}
 
-//void unlockDB()
-//{
-//    pthread_mutex_unlock(&mutex_prot);
-//}
+void unlockDB()
+{
+    pthread_mutex_unlock(&mutex_prot);
+}
 
 // Add the Write flag from an adress range, and mark all block as dirty
 // no log, as it can be executed inside a signal handler
-//void unprotectDB(uintptr_t addr, uintptr_t size)
-//{
-//    dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-//    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-//    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-//    pthread_mutex_lock(&mutex_prot);
-//    for (uintptr_t i=idx; i<=end; ++i) {
-//        uint32_t prot = memprot[i];
-//        memprot[i] = prot&~PROT_DYNAREC;
-//        if(prot&PROT_DYNAREC) {
-//            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
-//            cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
-//        }
-//    }
-//    pthread_mutex_unlock(&mutex_prot);
-//}
+void unprotectDB(uintptr_t addr, uintptr_t size)
+{
+    dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    int ret;
+    pthread_mutex_lock(&mutex_prot);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        const uint32_t key = (i>>16)&0xffffffff;
+        khint_t k = kh_put(memprot, memprot, key, &ret);
+        if(ret) {
+            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
+            kh_value(memprot, k) = m;
+        }
+        const uintptr_t ii = i&(MEMPROT_SIZE-1);
+        uint8_t prot = kh_value(memprot, k)[ii];
+        kh_value(memprot, k)[ii] = prot&~PROT_DYNAREC;
+        if(prot&PROT_DYNAREC) {
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
+            cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
+        }
+    }
+    pthread_mutex_unlock(&mutex_prot);
+}
 
 #endif
 
@@ -701,11 +787,14 @@ void init_custommem_helper(box64context_t* ctx)
     pthread_mutex_init(&mutex_prot, NULL);
 #ifdef DYNAREC
     pthread_mutex_init(&mutex_mmap, NULL);
-#ifdef ARM
-//    for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-//        box64_jmptbl_default[i] = (uintptr_t)arm_next;
-//    for(int i=0; i<JMPTABL_SIZE; ++i)
-//        box64_jumptable[i] = box64_jmptbl_default;
+#ifdef ARM64
+    if(box64_dynarec)
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i) {
+            box64_jmptbldefault0[i] = (uintptr_t)arm64_next;
+            box64_jmptbldefault1[i] = box64_jmptbldefault0;
+            box64_jmptbldefault2[i] = box64_jmptbldefault1;
+            box64_jmptbl3[i] = box64_jmptbldefault2;
+        }
 #else
 #error Unsupported architecture!
 #endif
@@ -718,51 +807,57 @@ void fini_custommem_helper(box64context_t *ctx)
         return;
     inited = 0;
 #ifdef DYNAREC
-//    dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
-//    for (int i=0; i<mmapsize; ++i) {
-//        if(mmaplist[i].block)
-//            #ifdef USE_MMAP
-//            munmap(mmaplist[i].block, mmaplist[i].size);
-//            #else
-//            free(mmaplist[i].block);
-//            #endif
-//        if(mmaplist[i].dblist) {
-//            kh_destroy(dynablocks, mmaplist[i].dblist);
-//            mmaplist[i].dblist = NULL;
-//        }
-//        if(mmaplist[i].helper) {
-//            free(mmaplist[i].helper);
-//            mmaplist[i].helper = NULL;
-//        }
-//    }
-//    if(dblist_oversized) {
-//        kh_destroy(dynablocks, dblist_oversized);
-//        dblist_oversized = NULL;
-//    }
-//    mmapsize = 0;
-//    dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
-//    uintptr_t idx = 0;
-//    uintptr_t end = ((0xFFFFFFFF)>>DYNAMAP_SHIFT);
-//    for (uintptr_t i=idx; i<=end; ++i) {
-//        dynablocklist_t* dblist = dynmap[i];
-//        if(dblist) {
-//            uintptr_t startdb = StartDynablockList(dblist);
-//            uintptr_t enddb = EndDynablockList(dblist);
-//            uintptr_t startaddr = 0;
-//            if(startaddr<startdb) startaddr = startdb;
-//            uintptr_t endaddr = 0xFFFFFFFF;
-//            if(endaddr>enddb) endaddr = enddb;
-//            FreeRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
-//        }
-//    }
-//    for (uintptr_t i=idx; i<=end; ++i)
-//        if(dynmap[i])
-//            FreeDynablockList(&dynmap[i]);
-//    pthread_mutex_destroy(&mutex_mmap);
-//    free(mmaplist);
-//    for (int i=0; i<DYNAMAP_SIZE; ++i)
-//        if(box64_jumptable[i]!=box64_jmptbl_default)
-//            free(box64_jumptable[i]);
+    if(box64_dynarec) {
+        dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
+        for (int i=0; i<mmapsize; ++i) {
+            if(mmaplist[i].block)
+                #ifdef USE_MMAP
+                munmap(mmaplist[i].block, mmaplist[i].size);
+                #else
+                free(mmaplist[i].block);
+                #endif
+            if(mmaplist[i].dblist) {
+                kh_destroy(dynablocks, mmaplist[i].dblist);
+                mmaplist[i].dblist = NULL;
+            }
+            if(mmaplist[i].helper) {
+                free(mmaplist[i].helper);
+                mmaplist[i].helper = NULL;
+            }
+        }
+        if(dblist_oversized) {
+            kh_destroy(dynablocks, dblist_oversized);
+            dblist_oversized = NULL;
+        }
+        mmapsize = 0;
+        dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
+        for (uintptr_t idx3=0; idx3<=0xffff; ++idx3)
+            if(dynmap123[idx3]) {
+                for (uintptr_t idx2=0; idx2<=0xffff; ++idx2)
+                    if(dynmap123[idx3][idx2]) {
+                        for (uintptr_t idx1=0; idx1<=0xffff; ++idx1)
+                            if(dynmap123[idx3][idx2][idx1])
+                                FreeDynablockList(&dynmap123[idx3][idx2][idx1]);
+                        free(dynmap123[idx3][idx2]);
+                    }
+                free(dynmap123[idx3]);
+            }
+
+        free(mmaplist);
+        pthread_mutex_destroy(&mutex_mmap);
+        for (int i3=0; i3<(1<<DYNAMAP_SHIFT); ++i3)
+            if(box64_jmptbl3[i3]!=box64_jmptbldefault2) {
+                for (int i2=0; i2<(1<<DYNAMAP_SHIFT); ++i2)
+                    if(box64_jmptbl3[i3][i2]!=box64_jmptbldefault1) {
+                        for (int i1=0; i1<(1<<DYNAMAP_SHIFT); ++i1)
+                            if(box64_jmptbl3[i3][i2][i1]!=box64_jmptbldefault0) {
+                                free(box64_jmptbl3[i3][i2][i1]);
+                            }
+                        free(box64_jmptbl3[i3][i2]);
+                    }
+                free(box64_jmptbl3[i3]);
+            }
+    }
 #endif
     uint8_t* m;
     kh_foreach_value(memprot, m,

@@ -25,7 +25,6 @@
 #include "x64emu.h"
 #include "box64stack.h"
 #include "callback.h"
-//#include "dynarec.h"
 #include "box64stack.h"
 #include "custommem.h"
 #include "wine_tools.h"
@@ -293,7 +292,7 @@ int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
                 }
             }
 #ifdef DYNAREC
-            if(e->p_flags & PF_X) {
+            if(box64_dynarec && (e->p_flags & PF_X)) {
                 dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", dest, (void*)e->p_memsz);
                 addDBFromAddressRange((uintptr_t)dest, e->p_memsz);
             }
@@ -334,7 +333,8 @@ int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
             if(e->p_filesz) {
                 ssize_t r = -1;
                 #ifdef DYNAREC
-                unprotectDB((uintptr_t)dest, e->p_memsz);
+                if(box64_dynarec)
+                    unprotectDB((uintptr_t)dest, e->p_memsz);
                 #endif
                 if((r=fread(dest, e->p_filesz, 1, f))!=1) {
                     printf_log(LOG_NONE, "Fail to (re)read PT_LOAD part #%d (dest=%p, size=%ld, return=%ld, feof=%d/ferror=%d/%s)\n", i, dest, e->p_filesz, r, feof(f), ferror(f), strerror(ferror(f)));
@@ -577,7 +577,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                 if(offs) {
                     // add r_addend to p?
                     printf_log(LOG_DUMP, "Apply R_X86_64_COPY @%p with sym=%s, @%p size=%ld\n", p, symname, (void*)offs, sym->st_size);
-                    memcpy(p, (void*)(offs+rela[i].r_addend), sym->st_size);
+                    memmove(p, (void*)(offs+rela[i].r_addend), sym->st_size);
                 } else {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply RELA R_X86_64_COPY @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                 }

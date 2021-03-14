@@ -22,10 +22,10 @@
 #endif
 
 #ifdef DYNAREC
-#ifdef ARM
-void arm_prolog(x64emu_t* emu, void* addr) EXPORTDYN;
-void arm_epilog() EXPORTDYN;
-void arm_epilog_fast() EXPORTDYN;
+#ifdef ARM64
+void arm64_prolog(x64emu_t* emu, void* addr) EXPORTDYN;
+void arm64_epilog() EXPORTDYN;
+void arm64_epilog_fast() EXPORTDYN;
 #endif
 #endif
 
@@ -39,7 +39,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2)
     if(!addr) {
         x2-=8;  // actual PC is 2 instructions ahead
         dynablock_t* db = FindDynablockFromNativeAddress(x2);
-        printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x86addr=%p)\n", x2, db, db?(void*)getX86Address(db, (uintptr_t)x2):NULL);
+        printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x64addr=%p)\n", x2, db, db?(void*)getX64Address(db, (uintptr_t)x2):NULL);
     }
     #endif
     dynablock_t* current = NULL;
@@ -47,17 +47,17 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2)
     dynablock_t* block = DBGetBlock(emu, addr, 1, &current);
     if(!block) {
         // no block, let link table as is...
-        //tableupdate(arm_epilog, addr, table);
-        return arm_epilog;
+        //tableupdate(arm64_epilog, addr, table);
+        return arm64_epilog;
     }
     if(!block->done) {
         // not finished yet... leave linker
         //tableupdate(arm_linker, addr, table);
-        return arm_epilog;
+        return arm64_epilog;
     }
     if(!(jblock=block->block)) {
         // null block, but done: go to epilog, no linker here
-        return arm_epilog;
+        return arm64_epilog;
     }
     //dynablock_t *father = block->father?block->father:block;
     return jblock;
@@ -82,7 +82,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
         }
     }
 #ifdef DYNAREC
-    if(!box86_dynarec)
+    if(!box64_dynarec)
 #endif
         EmuCall(emu, addr);
 #ifdef DYNAREC
@@ -107,18 +107,18 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
                 dynarec_log(LOG_DEBUG, "%04d|Calling Interpretor @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x86 instructions (father=%p) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,block->father, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x64 instructions (father=%p) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,block->father, emu);
                 CHECK_FLAGS(emu);
                 // block is here, let's run it!
-                #ifdef ARM
-                arm_prolog(emu, block->block);
+                #ifdef ARM64
+                arm64_prolog(emu, block->block);
                 #endif
             }
             if(emu->fork) {
                 int forktype = emu->fork;
                 emu->quit = 0;
                 emu->fork = 0;
-                emu = x86emu_fork(emu, forktype);
+                emu = x64emu_fork(emu, forktype);
                 if(emu->type == EMUTYPE_MAIN) {
                     ejb = GetJmpBuf();
                     ejb->emu = emu;
@@ -170,7 +170,7 @@ int DynaRun(x64emu_t* emu)
         }
     }
 #ifdef DYNAREC
-    if(!box86_dynarec)
+    if(!box64_dynarec)
 #endif
         return Run(emu, 0);
 #ifdef DYNAREC
@@ -186,17 +186,17 @@ int DynaRun(x64emu_t* emu)
                 dynarec_log(LOG_DEBUG, "%04d|Running Interpretor @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x86 insts (father=%p) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->father, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (father=%p) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->father, emu);
                 // block is here, let's run it!
-                #ifdef ARM
-                arm_prolog(emu, block->block);
+                #ifdef ARM64
+                arm64_prolog(emu, block->block);
                 #endif
             }
             if(emu->fork) {
                 int forktype = emu->fork;
                 emu->quit = 0;
                 emu->fork = 0;
-                emu = x86emu_fork(emu, forktype);
+                emu = x64emu_fork(emu, forktype);
                 if(emu->type == EMUTYPE_MAIN) {
                     ejb = GetJmpBuf();
                     ejb->emu = emu;

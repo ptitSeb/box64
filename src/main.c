@@ -29,7 +29,16 @@ int box64_log = LOG_INFO; //LOG_NONE;
 int box64_nobanner = 0;
 int box64_dynarec_log = LOG_NONE;
 int box64_pagesize;
+#ifdef DYNAREC
+int box64_dynarec = 1;
+int box64_dynarec_dump = 0;
+int box64_dynarec_forced = 0;
+int box64_dynarec_largest = 0;
+uintptr_t box64_nodynarec_start = 0;
+uintptr_t box64_nodynarec_end = 0;
+#else   //DYNAREC
 int box64_dynarec = 0;
+#endif
 int dlsym_error = 0;
 int trace_xmm = 0;
 int trace_emm = 0;
@@ -128,6 +137,61 @@ void LoadLogEnv()
         if(!box64_nobanner)
             printf_log(LOG_INFO, "Debug level is %d\n", box64_log);
     }
+#ifdef DYNAREC
+    p = getenv("BOX64_DYNAREC_DUMP");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box64_dynarec_dump = p[0]-'0';
+        }
+        if (box64_dynarec_dump) printf_log(LOG_INFO, "Dynarec blocks are dumped%s\n", (box64_dynarec_dump>1)?" in color":"");
+    }
+    p = getenv("BOX64_DYNAREC_LOG");
+    if(p) {
+        if(strlen(p)==1) {
+            if((p[0]>='0'+LOG_NONE) && (p[0]<='0'+LOG_DUMP))
+                box64_dynarec_log = p[0]-'0';
+        } else {
+            if(!strcasecmp(p, "NONE"))
+                box64_dynarec_log = LOG_NONE;
+            else if(!strcasecmp(p, "INFO"))
+                box64_dynarec_log = LOG_INFO;
+            else if(!strcasecmp(p, "DEBUG"))
+                box64_dynarec_log = LOG_DEBUG;
+            else if(!strcasecmp(p, "VERBOSE"))
+                box64_dynarec_log = LOG_DUMP;
+        }
+        printf_log(LOG_INFO, "Dynarec log level is %d\n", box64_dynarec_log);
+    }
+    p = getenv("BOX64_DYNAREC");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box64_dynarec = p[0]-'0';
+        }
+        printf_log(LOG_INFO, "Dynarec is %s\n", box64_dynarec?"On":"Off");
+    }
+    p = getenv("BOX64_DYNAREC_FORCED");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box64_dynarec_forced = p[0]-'0';
+        }
+        if(box64_dynarec_forced)
+        printf_log(LOG_INFO, "Dynarec is Forced on all addresses\n");
+    }
+    p = getenv("BOX64_NODYNAREC");
+    if(p) {
+        if (strchr(p,'-')) {
+            if(sscanf(p, "%ld-%ld", &box64_nodynarec_start, &box64_nodynarec_end)!=2) {
+                if(sscanf(p, "0x%lX-0x%lX", &box64_nodynarec_start, &box64_nodynarec_end)!=2)
+                    sscanf(p, "%lx-%lx", &box64_nodynarec_start, &box64_nodynarec_end);
+            }
+            printf_log(LOG_INFO, "No Dynablock creation that start in %p - %p range\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+        }
+    }
+
+#endif
 #ifdef HAVE_TRACE
     p = getenv("BOX64_TRACE_XMM");
     if(p) {
@@ -149,6 +213,17 @@ void LoadLogEnv()
         start_cnt = strtoll(p, &p2, 10);
         printf_log(LOG_INFO, "Will start trace only after %lu instructions\n", start_cnt);
     }
+#ifdef DYNAREC
+    p = getenv("BOX64_DYNAREC_TRACE");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                box64_dynarec_trace = p[0]-'0';
+            if(box64_dynarec_trace)
+                printf_log(LOG_INFO, "Dynarec generated code will also print a trace\n");
+        }
+    }
+#endif
 #endif
     // grab BOX64_TRACE_FILE envvar, and change %pid to actual pid is present in the name
     openFTrace();
@@ -345,6 +420,11 @@ void PrintHelp() {
     printf(" BOX64_LD_LIBRARY_PATH is the box64 version LD_LIBRARY_PATH (default is '.:lib')\n");
     printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info\n");
     printf(" BOX64_NOBANNER with 0/1 to enable/disable the printing of box64 version and build at start\n");
+#ifdef DYNAREC
+    printf(" BOX64_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
+    printf(" BOX64_DYNAREC with 0/1 to disable or enable Dynarec (On by default)\n");
+    printf(" BOX64_NODYNAREC with address interval (0x1234-0x4567) to forbid dynablock creation in the interval specified\n");
+#endif
 #ifdef HAVE_TRACE
     printf(" BOX64_TRACE with 1 to enable x86_64 execution trace\n");
     printf("    or with XXXXXX-YYYYYY to enable x86_64 execution trace only between address\n");
@@ -353,6 +433,9 @@ void PrintHelp() {
     printf(" BOX64_TRACE_EMM with 1 to enable dump of MMX registers along with regular registers\n");
     printf(" BOX64_TRACE_XMM with 1 to enable dump of SSE registers along with regular registers\n");
     printf(" BOX64_TRACE_START with N to enable trace after N instructions\n");
+#ifdef DYNAREC
+    printf(" BOX64_DYNAREC_TRACE with 0/1 to disable or enable Trace on generated code too\n");
+#endif
 #endif
     printf(" BOX64_TRACE_FILE with FileName to redirect logs in a file");
     printf(" BOX64_DLSYM_ERROR with 1 to log dlsym errors\n");
@@ -765,7 +848,7 @@ int main(int argc, const char **argv, const char **env) {
     if(ElfCheckIfUseTCMallocMinimal(elf_header)) {
         if(!box64_tcmalloc_minimal) {
             // need to reload with tcmalloc_minimal as a LD_PRELOAD!
-            printf_log(LOG_INFO, "BOX86: tcmalloc_minimal.so.4 used, reloading box64 with the lib preladed\n");
+            printf_log(LOG_INFO, "BOX64: tcmalloc_minimal.so.4 used, reloading box64 with the lib preladed\n");
             // need to get a new envv variable. so first count it and check if LD_PRELOAD is there
             int preload=(getenv("LD_PRELOAD"))?1:0;
             int nenv = 0;
@@ -805,7 +888,7 @@ int main(int argc, const char **argv, const char **env) {
             if(execve(newargv[0], newargv, newenv)<0)
                 printf_log(LOG_NONE, "Failed to relaunch, error is %d/%s\n", errno, strerror(errno));
         } else {
-            printf_log(LOG_INFO, "BOX86: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
+            printf_log(LOG_INFO, "BOX64: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
         }
     }
     // get and alloc stack size and align

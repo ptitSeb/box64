@@ -19,9 +19,6 @@
 #include "x87emu_private.h"
 #include "box64context.h"
 #include "bridge.h"
-#ifdef DYNAREC
-#include "../dynarec/arm_lock_helper.h"
-#endif
 
 #include "modrm.h"
 

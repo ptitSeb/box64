@@ -21,7 +21,7 @@
 #include "bridge.h"
 #include "signals.h"
 #ifdef DYNAREC
-#include "../dynarec/arm_lock_helper.h"
+#include "../dynarec/arm64_lock_helper.h"
 #endif
 
 #include "modrm.h"
@@ -381,15 +381,16 @@ x64emurun:
         case 0x86:                      /* XCHG Eb,Gb */
             nextop = F8;
 #ifdef DYNAREC
-            GET_EB;
+            GETEB(0);
+            GETGB;
             if((nextop&0xC0)==0xC0) { // reg / reg: no lock
                 tmp8u = GB;
                 GB = EB->byte[0];
                 EB->byte[0] = tmp8u;
             } else {
                 do {
-                    tmp8u = arm_lock_read_b(EB);
-                } while(arm_lock_write_b(EB, GB));
+                    tmp8u = arm64_lock_read_b(EB);
+                } while(arm64_lock_write_b(EB, GB));
                 GB = tmp8u;
             }
             // dynarec use need it's own mecanism
@@ -408,21 +409,26 @@ x64emurun:
         case 0x87:                      /* XCHG Ed,Gd */
             nextop = F8;
 #ifdef DYNAREC
-            GET_ED;
+            GETED(0);
+            GETGD;
             if((nextop&0xC0)==0xC0) {
-                tmp32u = GD.dword[0];
-                GD.dword[0] = ED->dword[0];
-                ED->dword[0] = tmp32u;
-            } else {
-                if(((uintptr_t)ED)&3)
-                {
-                    // not aligned, dont't try to "LOCK"
-                    tmp32u = ED->dword[0];
-                    ED->dword[0] = GD.dword[0];
-                    GD.dword[0] = tmp32u;
+                if(rex.w) {
+                    tmp64u = GD->q[0];
+                    GD->q[0] = ED->q[0];
+                    ED->q[0] = tmp64u;
                 } else {
-                    // XCHG is supposed to automaticaly LOCK memory bus
-                    GD.dword[0] = arm_lock_xchg(ED, GD.dword[0]);
+                    tmp32u = GD->dword[0];
+                    GD->q[0] = ED->dword[0];
+                    ED->q[0] = tmp32u;
+                }
+            } else {
+                if(rex.w) {
+                    GD->q[0] = arm64_lock_xchg(ED, GD->q[0]);
+                } else {
+                    do {
+                        tmp32u = arm64_lock_read_d(ED);
+                    } while(arm64_lock_write_d(ED, GD->dword[0]));
+                    GD->q[0] = tmp32u;
                 }
             }
 #else

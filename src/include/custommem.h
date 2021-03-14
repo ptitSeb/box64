@@ -27,10 +27,10 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size);
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy);
 
 dynablocklist_t* getDB(uintptr_t idx);
-void addJumpTableIfDefault(void* addr, void* jmp);
-void setJumpTableDefault(void* addr);
-uintptr_t getJumpTable();
-uintptr_t getJumpTableAddress(uintptr_t addr);
+void addJumpTableIfDefault64(void* addr, void* jmp);
+void setJumpTableDefault64(void* addr);
+uintptr_t getJumpTable64();
+uintptr_t getJumpTableAddress64(uintptr_t addr);
 #endif
 
 #define PROT_DYNAREC 0x80

@@ -10,11 +10,6 @@ typedef struct x64_ucontext_s x64_ucontext_t;
 #define ERR_DIVBY0  2
 #define ERR_ILLEGAL 4
 
-#ifdef DYNAREC
-#define CSTACK      32
-#define CSTACKMASK  31
-#endif
-
 typedef struct forkpty_s {
     void*    amaster;
     void*   name;

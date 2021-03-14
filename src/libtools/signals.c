@@ -446,12 +446,12 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     // get that actual ESP first!
     x64emu_t *emu = thread_get_emu();
     uintptr_t *frame = (uintptr_t*)R_RSP;
-#if defined(DYNAREC) && defined(__arm__)
+#if defined(DYNAREC) && defined(__aarch64__)
     ucontext_t *p = (ucontext_t *)ucntx;
-    void * pc = (void*)p->uc_mcontext.arm_pc;
+    void * pc = (void*)p->uc_mcontext.pc;
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
     if(db) {
-        frame = (uint32_t*)p->uc_mcontext.arm_r8;
+        frame = (uintptr_t*)p->uc_mcontext.regs[10+_SP];
     }
 #endif
     // stack tracking
@@ -495,17 +495,25 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x32;
     // get segments
     sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
-#if defined(DYNAREC) && defined(__arm__)
+#if defined(DYNAREC) && defined(__aarch64__)
     if(db) {
-        sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.arm_r4;
-        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.arm_r5;
-        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.arm_r6;
-        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.arm_r7;
-        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.arm_r8;
-        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.arm_r9;
-        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.arm_r10;
-        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.arm_fp;
-        sigcontext->uc_mcontext.gregs[X64_RIP] = getX86Address(db, (uintptr_t)pc);
+        sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.regs[10];
+        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.regs[11];
+        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.regs[12];
+        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.regs[13];
+        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.regs[14];
+        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.regs[15];
+        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.regs[16];
+        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.regs[17];
+        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.regs[18];
+        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.regs[19];
+        sigcontext->uc_mcontext.gregs[X64_R10] = p->uc_mcontext.regs[20];
+        sigcontext->uc_mcontext.gregs[X64_R11] = p->uc_mcontext.regs[21];
+        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.regs[22];
+        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.regs[23];
+        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.regs[24];
+        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.regs[25];
+        sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
     }
 #endif
     // get FloatPoint status
@@ -637,7 +645,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
         new_ss->ss_flags = 0;
 }
 
-void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
+void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
     int log_minimum = (my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_INFO:LOG_NONE;
@@ -659,32 +667,47 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
-        if(box86_dynarec_smc) {
-            dynablock_t* db_pc = NULL;
-            db_pc = FindDynablockFromNativeAddress(pc);
-            if(db_pc) {
-                db = FindDynablockFromNativeAddress(addr);
-                db_searched = 1;
-            }
-            if(db_pc && db) {
-                if (db_pc == db) {
-                    dynarec_log(LOG_NONE, "Warning: Access to protected %p from %p, inside same dynablock\n", addr, pc);            
-                }
-            }
-            if(db && db->x86_addr>= addr && (db->x86_addr+db->x86_size)<addr) {
-                dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
-            }
-        }
-        dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory (prot=%x)\n", addr, pc, prot);
         // access error, unprotect the block (and mark them dirty)
         if(prot&PROT_DYNAREC)   // on heavy multi-thread program, the protection can already be gone...
             unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        // check if SMC inside block
+        if(!db_searched) {
+            db = FindDynablockFromNativeAddress(pc);
+            db_searched = 1;
+        }
+        if(db && (addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size))) {
+            // dynablock got auto-dirty! need to get out of it!!!
+            emu_jmpbuf_t* ejb = GetJmpBuf();
+            if(ejb->jmpbuf_ok) {
+                ejb->emu->regs[_AX].q[0] = p->uc_mcontext.regs[10];
+                ejb->emu->regs[_CX].q[0] = p->uc_mcontext.regs[11];
+                ejb->emu->regs[_DX].q[0] = p->uc_mcontext.regs[12];
+                ejb->emu->regs[_BX].q[0] = p->uc_mcontext.regs[13];
+                ejb->emu->regs[_SP].q[0] = p->uc_mcontext.regs[14];
+                ejb->emu->regs[_BP].q[0] = p->uc_mcontext.regs[15];
+                ejb->emu->regs[_SI].q[0] = p->uc_mcontext.regs[16];
+                ejb->emu->regs[_DI].q[0] = p->uc_mcontext.regs[17];
+                ejb->emu->regs[_R8].q[0] = p->uc_mcontext.regs[18];
+                ejb->emu->regs[_R9].q[0] = p->uc_mcontext.regs[19];
+                ejb->emu->regs[_R10].q[0] = p->uc_mcontext.regs[20];
+                ejb->emu->regs[_R11].q[0] = p->uc_mcontext.regs[21];
+                ejb->emu->regs[_R12].q[0] = p->uc_mcontext.regs[22];
+                ejb->emu->regs[_R13].q[0] = p->uc_mcontext.regs[23];
+                ejb->emu->regs[_R14].q[0] = p->uc_mcontext.regs[24];
+                ejb->emu->regs[_R15].q[0] = p->uc_mcontext.regs[25];
+                ejb->emu->ip.q[0] = getX64Address(db, (uintptr_t)pc);
+                ejb->emu->eflags.x64 = p->uc_mcontext.regs[26];
+                dynarec_log(LOG_DEBUG, "Auto-SMC detected, getting out of current Dynablock!\n");
+                longjmp(ejb->jmpbuf, 2);
+            }
+            dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);
+        }
         // done
         if(prot&PROT_WRITE) return; // if there is no write permission, don't return and continue to program signal handling
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE))) {
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
-        if(db && db->x86_addr>= addr && (db->x86_addr+db->x86_size)<addr) {
+        if(db && db->x64_addr>= addr && (db->x64_addr+db->x64_size)<addr) {
             dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
         }
         if(addr && pc && db) {
@@ -718,13 +741,13 @@ exit(-1);
         x64emu_t* emu = thread_get_emu();
         x64pc = R_RIP;
         rsp = (void*)R_RSP;
-#if defined(__arm__) && defined(DYNAREC)
-        if(db && p->uc_mcontext.arm_r0>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.arm_r0;
+#if defined(__aarch64__) && defined(DYNAREC)
+        if(db && p->uc_mcontext.regs[0]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.regs[0];
         }
         if(db) {
             x64pc = getX64Address(db, (uintptr_t)pc);
-            rsp = (void*)p->uc_mcontext.arm_r8;
+            rsp = (void*)p->uc_mcontext.regs[10+_SP];
         }
 #endif
         x64name = getAddrFunctionName(x64pc);
@@ -755,12 +778,12 @@ exit(-1);
 #ifdef DYNAREC
         uint32_t hash = 0;
         if(db)
-            hash = X31_hash_code(db->x86_addr, db->x86_size);
+            hash = X31_hash_code(db->x64_addr, db->x64_size);
         printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
             GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code, 
             prot, db, db?db->block:0, db?(db->block+db->size):0, 
-            db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
-            getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)), (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash);
+            db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0, 
+            getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)), (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash);
 #else
         printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code);
 #endif
@@ -788,7 +811,7 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     #ifdef DYNAREC
     ucontext_t *p = (ucontext_t *)ucntx;
-    void * pc = (void*)p->uc_mcontext.arm_pc;
+    void * pc = (void*)p->uc_mcontext.pc;
     dynablock_t* db = FindDynablockFromNativeAddress(pc);
     #else
     void* db = NULL;
@@ -1135,13 +1158,13 @@ void init_signal_helper(box64context_t* context)
     }
 	struct sigaction action = {0};
 	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
-	action.sa_sigaction = my_box86signalhandler;
+	action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGSEGV, &action, NULL);
 	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
-	action.sa_sigaction = my_box86signalhandler;
+	action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGBUS, &action, NULL);
 	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
-	action.sa_sigaction = my_box86signalhandler;
+	action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGILL, &action, NULL);
 
 	pthread_once(&sigstack_key_once, sigstack_key_alloc);

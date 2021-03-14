@@ -5,8 +5,14 @@ option(RK3399 "Set to ON if targeting an Rockchip RK3399 based device" ${RK3399}
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
 option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
+if(RK3399 OR RPI4ARM64)
+    set(LD80BITS OFF CACHE BOOL "")
+    set(NOALIGN OFF CACHE BOOL "")
+    set(ARM_DYNAREC ON CACHE BOOL "")
+endif()
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
+option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation" ${ARM_DYNAREC})
 
 if(${CMAKE_VERSION} VERSION_LESS "3.12.2")
     find_package(PythonInterp 3)
@@ -57,7 +63,7 @@ else()
     set(BOX64 box64)
 endif()
 
-set(BOX64_ELF_ADDRESS "0x50062800000")  #random load address...
+set(BOX64_ELF_ADDRESS "0x500062800000")  #random load address...
 
 if(LD80BITS)
     add_definitions(-DHAVE_LD80BITS)
@@ -69,6 +75,12 @@ endif()
 
 if(HAVE_TRACE)
     add_definitions(-DHAVE_TRACE)
+endif()
+
+if(ARM_DYNAREC)
+    add_definitions(-DDYNAREC)
+    add_definitions(-DARM64)
+    enable_language(ASM)
 endif()
 
 set(BOX64_ROOT ${CMAKE_SOURCE_DIR})
@@ -210,27 +222,95 @@ add_custom_command(
 #    OUTPUT "${BOX64_ROOT}/src/dynarec/last_run.txt"
 #    COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_printer.py" "${BOX64_ROOT}"
 #    MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_printer.py"
-#    DEPENDS "${BOX64_ROOT}/src/dynarec/arm_instructions.txt"
-#    BYPRODUCTS "${BOX64_ROOT}/src/dynarec/arm_printer.c"
+#    DEPENDS "${BOX64_ROOT}/src/dynarec/arm64_instructions.txt"
+#    BYPRODUCTS "${BOX64_ROOT}/src/dynarec/arm64_printer.c"
 #)
 
 add_custom_target(WRAPPERS DEPENDS "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt")
 #add_custom_target(PRINTER DEPENDS "${BOX64_ROOT}/src/dynarec/last_run.txt")
 
+if(ARM_DYNAREC)
+    set(DYNAREC_SRC
+        "${BOX64_ROOT}/src/dynarec/dynablock.c"
+
+        "${BOX64_ROOT}/src/dynarec/dynarec_arm64.c"
+        "${BOX64_ROOT}/src/dynarec/dynarec_arm64_functions.c"
+        "${BOX64_ROOT}/src/dynarec/arm64_printer.c"
+
+        "${BOX64_ROOT}/src/dynarec/arm64_prolog.S"
+        "${BOX64_ROOT}/src/dynarec/arm64_epilog.S"
+        "${BOX64_ROOT}/src/dynarec/arm64_next.S"
+        "${BOX64_ROOT}/src/dynarec/arm64_lock_helper.S"
+    )
+
+    #set(DYNAREC_PASS
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_helper.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_emit_tests.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_emit_math.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_emit_logic.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_emit_shift.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_pass.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_00.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_0f.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_64.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_65.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_66.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_67.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_d8.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_d9.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_da.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_db.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_dc.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_dd.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_de.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_df.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_f0.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_660f.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_f20f.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_f30f.c"
+    #)
+
+    #set(DYNAREC_PASS "${BOX64_ROOT}/src/wrapped/generated/wrapper.h" ${DYNAREC_PASS})
+
+    add_library(dynarec_arm OBJECT ${DYNAREC_SRC})
+
+    #add_library(arm64_pass0 OBJECT ${DYNAREC_PASS})
+    #set_target_properties(arm64_pass0 PROPERTIES COMPILE_FLAGS "-DSTEP=0")
+    #add_library(arm64_pass1 OBJECT ${DYNAREC_PASS})
+    #set_target_properties(arm64_pass1 PROPERTIES COMPILE_FLAGS "-DSTEP=1")
+    #add_library(arm64_pass2 OBJECT ${DYNAREC_PASS})
+    #set_target_properties(arm64_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
+    #add_library(arm64_pass3 OBJECT ${DYNAREC_PASS})
+    #set_target_properties(arm64_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
+    #add_dependencies(arm64_pass0 WRAPPERS)
+    #add_dependencies(arm64_pass1 WRAPPERS)
+    #add_dependencies(arm64_pass2 WRAPPERS)
+    #add_dependencies(arm64_pass3 WRAPPERS)
+
+    add_library(dynarec STATIC 
+        $<TARGET_OBJECTS:dynarec_arm> 
+        #$<TARGET_OBJECTS:arm64_pass0> 
+        #$<TARGET_OBJECTS:arm64_pass1>
+        #$<TARGET_OBJECTS:arm64_pass2>
+        #$<TARGET_OBJECTS:arm64_pass3>
+    )
+
+endif()
+
 # creates git_head.h
-#if(ARM_DYNAREC)
-#    add_custom_command(
-#        OUTPUT "${BOX64_ROOT}/src/git_head.h"
-#        COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
-#        DEPENDS dynarec ${ELFLOADER_SRC} ${WRAPPEDS}
-#        VERBATIM)
-#else()
+if(ARM_DYNAREC)
+    add_custom_command(
+        OUTPUT "${BOX64_ROOT}/src/git_head.h"
+        COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
+        DEPENDS dynarec ${ELFLOADER_SRC} ${WRAPPEDS}
+        VERBATIM)
+else()
     add_custom_command(
         OUTPUT "${BOX64_ROOT}/src/git_head.h"
         COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
         DEPENDS ${ELFLOADER_SRC} ${WRAPPEDS}
         VERBATIM)
-#endif()
+endif()
 
 add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX64_ROOT}/src/git_head.h")
 add_dependencies(${BOX64} WRAPPERS)

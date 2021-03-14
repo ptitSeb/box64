@@ -5,7 +5,7 @@
 #include <dlfcn.h>
 #include <pthread.h>
 
-//#include "custommem.h"
+#include "custommem.h"
 #include "bridge.h"
 #include "bridge_private.h"
 #include "khash.h"
@@ -146,7 +146,8 @@ uintptr_t AddAutomaticBridge(x64emu_t* emu, bridge_t* bridge, wrapper_t w, void*
         addAlternate(fnc, (void*)ret);
         #ifdef DYNAREC
         // now, check if dynablock at native address exist
-        DBAlternateBlock(emu, (uintptr_t)fnc, ret);
+        if(box64_dynarec)
+            DBAlternateBlock(emu, (uintptr_t)fnc, ret);
         #endif
     }
     return ret;
