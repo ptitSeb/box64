@@ -31,19 +31,27 @@
 // GETGD    get x64 register in gd
 #define GETGD   gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3)
 //GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETED(D)  if(MODREG) {                          \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff, 0, rex, 0, D); \
+                    LDRxw_U12(x1, wback, fixedaddress); \
+                    ed = x1;                            \
+                }
 #define GETEDx(D)  if(MODREG) {                         \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff, 0, 0, D); \
-                    LDRxw_U12(rex.w, x1, wback, fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff, 0, rex, 0, D); \
+                    LDRx_U12(x1, wback, fixedaddress);  \
                     ed = x1;                            \
                 }
 #define GETEDw(D)  if((nextop&0xC0)==0xC0) {            \
                     ed = xEAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff, 0, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff, 0, rex, 0, D); \
                     LDRw_U12(x1, wback, fixedaddress);  \
                     ed = x1;                            \
                 }
@@ -67,7 +75,11 @@
                     LDR_IMM9(ed, wback, fixedaddress); \
                 }
 // Write back ed in wback (if wback not 0)
-#define WBACK       if(wback) {STR_IMM9(ed, wback, fixedaddress);}
+#define WBACK       if(wback) {STRxw_U12(ed, wback, fixedaddress);}
+// Write back ed in wback (if wback not 0)
+#define WBACKx      if(wback) {STRx_U12(ed, wback, fixedaddress);}
+// Write back ed in wback (if wback not 0)
+#define WBACKw      if(wback) {STRw_U12(ed, wback, fixedaddress);}
 // Send back wb to either ed or wback
 #define SBACK(wb)   if(wback) {STR_IMM9(wb, wback, fixedaddress);} else {MOV_REG(ed, wb);}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
@@ -220,35 +232,35 @@
 
 // Branch to MARK if cond (use j32)
 #define B_MARK(cond)    \
-    j32 = GETMARK-(dyn->arm_size+8);    \
+    j32 = GETMARK-(dyn->arm_size);    \
     Bcond(cond, j32)
 // Branch to MARK2 if cond (use j32)
 #define B_MARK2(cond)    \
-    j32 = GETMARK2-(dyn->arm_size+8);   \
+    j32 = GETMARK2-(dyn->arm_size);   \
     Bcond(cond, j32)
 // Branch to MARK3 if cond (use j32)
 #define B_MARK3(cond)    \
-    j32 = GETMARK3-(dyn->arm_size+8);   \
+    j32 = GETMARK3-(dyn->arm_size);   \
     Bcond(cond, j32)
 // Branch to next instruction if cond (use j32)
 #define B_NEXT(cond)     \
-    j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size+8)):0; \
+    j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
     Bcond(cond, j32)
 // Branch to MARKSEG if cond (use j32)
 #define B_MARKSEG(cond)    \
-    j32 = GETMARKSEG-(dyn->arm_size+8);   \
+    j32 = GETMARKSEG-(dyn->arm_size);   \
     Bcond(cond, j32)
 // Branch to MARKSEG if reg is 0 (use j32)
 #define CBZx_MARKSEG(reg)    \
-    j32 = GETMARKSEG-(dyn->arm_size+8);   \
+    j32 = GETMARKSEG-(dyn->arm_size);   \
     CBZx(reg, j32)
 // Branch to MARKSEG if reg is 0 (use j32)
 #define CBZw_MARKSEG(reg)    \
-    j32 = GETMARKSEG-(dyn->arm_size+8);   \
+    j32 = GETMARKSEG-(dyn->arm_size);   \
     CBZw(reg, j32)
 // Branch to MARKLOCK if cond (use j32)
 #define B_MARKLOCK(cond)    \
-    j32 = GETMARKLOCK-(dyn->arm_size+8);   \
+    j32 = GETMARKLOCK-(dyn->arm_size);   \
     Bcond(cond, j32)
 
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(A)))
@@ -319,12 +331,11 @@
 #define READFLAGS(A) \
     if(((A)!=X_PEND) && dyn->state_flags!=SF_SET) {     \
         if(dyn->state_flags!=SF_PENDING) {              \
-            LDR_IMM9(x3, xEmu, offsetof(x64emu_t, df)); \
-            TSTS_REG_LSL_IMM5(x3, x3, 0);               \
-            j32 = (GETMARKF)-(dyn->arm_size+8);         \
-            Bcond(cEQ, j32);                            \
+            LDRw_U12(x3, xEmu, offsetof(x64emu_t, df)); \
+            j32 = (GETMARKF)-(dyn->arm_size);           \
+            CBZw(x3, j32);                              \
         }                                               \
-        CALL_(UpdateFlags, -1, 0);                      \
+        CALL_(UpdateFlags, -1);                         \
         MARKF;                                          \
         dyn->state_flags = SF_SET;                      \
         SET_DFOK();                                     \
@@ -534,7 +545,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
 //void emit_add32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
 //void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_sub32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_sub32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 //void emit_sub32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
 //void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
