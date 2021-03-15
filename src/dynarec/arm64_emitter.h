@@ -144,6 +144,7 @@
 #define SUBw_U12(Rd, Rn, imm12)     EMIT(ADDSUB_IMM_gen(0, 1, 0, 0, (imm12)&0xfff, Rn, Rd))
 #define SUBSw_U12(Rd, Rn, imm12)    EMIT(ADDSUB_IMM_gen(0, 1, 0, 0, (imm12)&0xfff, Rn, Rd))
 #define SUBxw_U12(Rd, Rn, imm12)    EMIT(ADDSUB_IMM_gen(rex.w, 1, 0, 0, (imm12)&0xfff, Rn, Rd))
+#define SUBSxw_U12(Rd, Rn, imm12)   EMIT(ADDSUB_IMM_gen(rex.w, 1, 0, 0, (imm12)&0xfff, Rn, Rd))
 
 // LDR
 #define LDR_gen(size, op1, imm9, op2, Rn, Rt)    ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b01<<22 | (imm9)<<12 | (op2)<<10 | 0b01<<10 | (Rn)<<5 | (Rt))
@@ -217,10 +218,12 @@
 #define LOGIC_gen(sf, opc, N, immr, imms, Rn, Rd)  ((sf)<<31 | (opc)<<29 | 0b100100<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn) | Rd)
 #define ANDx_U13(Rd, Rn, imm13)         EMIT(LOGIC_gen(1, 0b00, ((imm13)>>12)&1, (imm13)&0b111111, ((imm13)>>6)&0b111111, Rn, Rd))
 #define ANDw_U12(Rd, Rn, imm12)         EMIT(LOGIC_gen(0, 0b00, 0, (imm12)&0b111111, ((imm12)>>6)&0b111111, Rn, Rd))
+#define ANDxw_U12(Rd, Rn, imm12)        EMIT(LOGIC_gen(rex.w, 0b00, 0, (imm12)&0b111111, ((imm12)>>6)&0b111111, Rn, Rd))
 #define ANDSx_U13(Rd, Rn, imm13)        EMIT(LOGIC_gen(1, 0b11, ((imm13)>>12)&1, (imm13)&0b111111, ((imm13)>>6)&0b111111, Rn, Rd))
 #define ANDSw_U12(Rd, Rn, imm12)        EMIT(LOGIC_gen(0, 0b11, 0, (imm12)&0b111111, ((imm12)>>6)&0b111111, Rn, Rd))
 #define ORRx_U13(Rd, Rn, imm13)         EMIT(LOGIC_gen(1, 0b01, ((imm13)>>12)&1, (imm13)&0b111111, ((imm13)>>6)&0b111111, Rn, Rd))
 #define ORRw_U12(Rd, Rn, imm12)         EMIT(LOGIC_gen(0, 0b01, 0, (imm12)&0b111111, ((imm12)>>6)&0b111111, Rn, Rd))
+#define ORRxw_U12(Rd, Rn, imm12)        EMIT(LOGIC_gen(rex.w, 0b01, 0, (imm12)&0b111111, ((imm12)>>6)&0b111111, Rn, Rd))
 
 #define LOGIC_REG_gen(sf, opc, shift, N, Rm, imm6, Rn, Rd)    ((sf)<<31 | (opc)<<29 | 0b01010<<24 | (shift)<<22 | (N)<<21 | (Rm)<<16 | (imm6)<<10 | (Rn)<<5 | (Rd))
 #define ANDx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b00, 0b00, 0, Rm, 0, Rn, Rd))

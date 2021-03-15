@@ -67,6 +67,22 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             WBACK;
             break;
 
+        case 0x2B:
+            INST_NAME("SUB Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_sub32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
+
+        case 0x2D:
+            INST_NAME("SUB EAX, Id");
+            SETFLAGS(X_ALL, SF_SET);
+            i32 = F32S;
+            emit_sub32c(dyn, ninst, rex, xRAX, i32, x3, x4, x5);
+            break;
+
         case 0x50:
         case 0x51:
         case 0x52:
@@ -90,6 +106,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POP reg");
             gd = xRAX+(opcode&0x07)+(rex.r<<3);
             POP1(gd);
+            break;
+
+        case 0x81:
+        case 0x83:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+
+                case 5: //SUB
+                    if(opcode==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED((opcode==0x81)?4:1);
+                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                    emit_sub32c(dyn, ninst, rex, ed, i32, x3, x4, x5);
+                    WBACK;
+                    break;
+
+                default:
+                    DEFAULT;
+            }
             break;
 
         case 0x89:
