@@ -243,56 +243,56 @@ if(ARM_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/arm64_lock_helper.S"
     )
 
-    #set(DYNAREC_PASS
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_helper.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_emit_tests.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_emit_math.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_emit_logic.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_emit_shift.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_pass.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_00.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_0f.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_64.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_65.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_66.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_67.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_d8.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_d9.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_da.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_db.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_dc.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_dd.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_de.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_df.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_f0.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_660f.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_f20f.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm_f30f.c"
-    #)
+    set(DYNAREC_PASS
+    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_helper.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_emit_tests.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_emit_math.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_emit_logic.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_emit_shift.c"
+    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_pass.c"
+    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_00.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_0f.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_64.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_65.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_66.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_67.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_d8.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_d9.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_da.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_db.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_dc.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_dd.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_de.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_df.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_f0.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_660f.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_f20f.c"
+    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_f30f.c"
+    )
 
-    #set(DYNAREC_PASS "${BOX64_ROOT}/src/wrapped/generated/wrapper.h" ${DYNAREC_PASS})
+    set(DYNAREC_PASS "${BOX64_ROOT}/src/wrapped/generated/wrapper.h" ${DYNAREC_PASS})
 
     add_library(dynarec_arm OBJECT ${DYNAREC_SRC})
 
-    #add_library(arm64_pass0 OBJECT ${DYNAREC_PASS})
-    #set_target_properties(arm64_pass0 PROPERTIES COMPILE_FLAGS "-DSTEP=0")
-    #add_library(arm64_pass1 OBJECT ${DYNAREC_PASS})
-    #set_target_properties(arm64_pass1 PROPERTIES COMPILE_FLAGS "-DSTEP=1")
-    #add_library(arm64_pass2 OBJECT ${DYNAREC_PASS})
-    #set_target_properties(arm64_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
-    #add_library(arm64_pass3 OBJECT ${DYNAREC_PASS})
-    #set_target_properties(arm64_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
-    #add_dependencies(arm64_pass0 WRAPPERS)
-    #add_dependencies(arm64_pass1 WRAPPERS)
-    #add_dependencies(arm64_pass2 WRAPPERS)
-    #add_dependencies(arm64_pass3 WRAPPERS)
+    add_library(arm64_pass0 OBJECT ${DYNAREC_PASS})
+    set_target_properties(arm64_pass0 PROPERTIES COMPILE_FLAGS "-DSTEP=0")
+    add_library(arm64_pass1 OBJECT ${DYNAREC_PASS})
+    set_target_properties(arm64_pass1 PROPERTIES COMPILE_FLAGS "-DSTEP=1")
+    add_library(arm64_pass2 OBJECT ${DYNAREC_PASS})
+    set_target_properties(arm64_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
+    add_library(arm64_pass3 OBJECT ${DYNAREC_PASS})
+    set_target_properties(arm64_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
+    add_dependencies(arm64_pass0 WRAPPERS)
+    add_dependencies(arm64_pass1 WRAPPERS)
+    add_dependencies(arm64_pass2 WRAPPERS)
+    add_dependencies(arm64_pass3 WRAPPERS)
 
     add_library(dynarec STATIC 
         $<TARGET_OBJECTS:dynarec_arm> 
-        #$<TARGET_OBJECTS:arm64_pass0> 
-        #$<TARGET_OBJECTS:arm64_pass1>
-        #$<TARGET_OBJECTS:arm64_pass2>
-        #$<TARGET_OBJECTS:arm64_pass3>
+        $<TARGET_OBJECTS:arm64_pass0> 
+        $<TARGET_OBJECTS:arm64_pass1>
+        $<TARGET_OBJECTS:arm64_pass2>
+        $<TARGET_OBJECTS:arm64_pass3>
     )
 
 endif()

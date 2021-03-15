@@ -2,11 +2,19 @@
 #define __REGS_H_
 
 enum {
-	_AX, _CX, _DX, _BX,
-	_SP, _BP, _SI, _DI,
+	_RAX, _RCX, _RDX, _RBX,
+	_RSP, _RBP, _RSI, _RDI,
 	_R8, _R9,_R10,_R11,
    _R12,_R13,_R14,_R15
 };
+#define _AX _RAX
+#define _CX _RCX
+#define _DX _RDX
+#define _BX _RBX
+#define _SP _RSP
+#define _BP _RBP
+#define _SI _RSI
+#define _DI _RDI
 
 enum {
     _CS, _DS, _SS, _ES, _FS, _GS

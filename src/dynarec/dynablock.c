@@ -58,7 +58,7 @@ dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int direct)
 void FreeDynablock(dynablock_t* db)
 {
     if(db) {
-        dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x64=%p:%p father=%p, with %d son(s) already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size, db->father, db->sons_size, db->gone);
+        dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x64=%p:%p parent=%p, father=%p, with %d son(s) already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size, db->parent, db->father, db->sons_size, db->gone);
         if(db->gone)
             return; // already in the process of deletion!
         db->done = 0;
@@ -327,7 +327,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         pthread_mutex_lock(&my_context->mutex_dyndump);
     // fill the block
     block->x64_addr = (void*)addr;
-    if(0/*!FillBlock64(block, filladdr)*/) {
+    if(FillBlock64(block, filladdr)) {
         void* old = (void*)arm64_lock_xchg(&dynablocks->direct[addr-dynablocks->text], 0);
         if(old!=block && old) {// put it back in place, strange things are happening here!
             dynarec_log(LOG_INFO, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);

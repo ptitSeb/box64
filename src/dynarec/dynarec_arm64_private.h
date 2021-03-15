@@ -34,7 +34,7 @@ typedef struct dynarec_arm_s {
     int                 x87reg[8];  // reg used for x87cache entry
     int                 mmxcache[8];// cache status for the 8 MMX registers
     int                 ssecache[8];// cache status for the 8 SSE(2) registers
-    int                 fpuused[24];// all 8..31 double reg from fpu, used by x87, sse and mmx
+    int                 fpuused[24];// all 8..31 Q reg from fpu, used by x87, sse and mmx
     int                 x87stack;   // cache stack counter
     int                 fpu_scratch;// scratch counter
     int                 fpu_extra_qscratch; // some opcode need an extra quad scratch register

@@ -310,7 +310,7 @@ void arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 
-void* FillBlock(dynablock_t* block, uintptr_t addr) {
+void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end)
         return NULL;
     // init the helper
@@ -320,7 +320,6 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
         block->done = 1;
-        free(helper.next);
         return (void*)block;
     }
     helper.cap = helper.size+3; // needs epilog handling

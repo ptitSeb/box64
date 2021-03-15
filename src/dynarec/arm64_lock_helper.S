@@ -66,11 +66,11 @@ arm64_lock_write_dd:
 
 arm64_lock_xchg:
     // address is x0, value is x1, return old value in x0
-    ldaxr   w2, [x0]
-    stlxr   w3, w1, [x0]
+    ldaxr   x2, [x0]
+    stlxr   w3, x1, [x0]
     cmp     w3, #1
     beq     arm64_lock_xchg
-    mov     w0, w2
+    mov     x0, x2
     ret
 
 arm64_lock_storeifnull:

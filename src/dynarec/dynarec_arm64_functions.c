@@ -193,23 +193,12 @@ int fpu_get_scratch_single(dynarec_arm_t* dyn)
 // Get a FPU double scratch reg
 int fpu_get_scratch_double(dynarec_arm_t* dyn)
 {
-    int i = (dyn->fpu_scratch+1)&(~1);
-    dyn->fpu_scratch = i+2;
-    return i/2; // return a Dx
+    return dyn->fpu_scratch++;  // return an Dx (same as Sx)
 }
 // Get a FPU quad scratch reg
 int fpu_get_scratch_quad(dynarec_arm_t* dyn)
 {
-    if(dyn->fpu_scratch>4) {
-        if(dyn->fpu_extra_qscratch) {
-            dynarec_log(LOG_NONE, "Warning, Extra QScratch slot taken and need another one!\n");
-        } else
-            dyn->fpu_extra_qscratch = fpu_get_reg_quad(dyn);
-        return dyn->fpu_extra_qscratch;
-    }
-    int i = (dyn->fpu_scratch+3)&(~3);
-    dyn->fpu_scratch = i+4;
-    return i/2; // Return a Dx, not a Qx
+    return dyn->fpu_scratch++;  // return an Qx (same as Dx or Sx)
 }
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_arm_t* dyn)
@@ -241,15 +230,15 @@ void fpu_free_reg_double(dynarec_arm_t* dyn, int reg)
 int fpu_get_reg_quad(dynarec_arm_t* dyn)
 {
     int i=0;
-    while (dyn->fpuused[i] || dyn->fpuused[i+1]) i+=2;
-    dyn->fpuused[i] = dyn->fpuused[i+1] = 1;
-    return i+FPUFIRST; // Return a Dx, not a Qx
+    while (dyn->fpuused[i]) ++i;
+    dyn->fpuused[i] = 1;
+    return i+FPUFIRST; // return a Qx, it's the same as Dx on aarch64
 }
 // Free a FPU quad reg
 void fpu_free_reg_quad(dynarec_arm_t* dyn, int reg)
 {
     int i=reg-FPUFIRST;
-    dyn->fpuused[i] = dyn->fpuused[i+1] = 0;
+    dyn->fpuused[i] = 0;
 }
 // Reset fpu regs counter
 void fpu_reset_reg(dynarec_arm_t* dyn)
