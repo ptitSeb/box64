@@ -29,14 +29,14 @@
 #define PKip(a)   *(uint8_t*)(ip+a)
 
 // GETGD    get x64 register in gd
-#define GETGD   gd = xEAX+((nextop&0x38)>>3)+(rex.r<<3)
+#define GETGD   gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3)
 //GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETEDx(D)  if((nextop&0xC0)==0xC0) {            \
-                    ed = xEAX+(nextop&7)+(rex.b<<3);    \
+#define GETEDx(D)  if(MODREG) {                         \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff, 0, 0, D); \
-                    LDRx_U12(x1, wback, fixedaddress);  \
+                    LDRxw_U12(rex.w, x1, wback, fixedaddress); \
                     ed = x1;                            \
                 }
 #define GETEDw(D)  if((nextop&0xC0)==0xC0) {            \
@@ -365,6 +365,8 @@
 #else
 #define PASS2IF(A, B) if(dyn->insts[ninst].pass2choice == B)
 #endif
+
+#define MODREG  ((nextop&0xC0)==0xC0)
 
 void arm64_epilog();
 void* arm64_next(x64emu_t* emu, uintptr_t addr);

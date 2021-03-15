@@ -83,6 +83,33 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             POP1(gd);
             break;
 
+        case 0x89:
+            INST_NAME("MOV Ed, Gd");
+            nextop=F8;
+            GETGD;
+            if(MODREG) {   // reg <= reg
+                MOVxw(xRAX+(nextop&7), gd);
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0, rex, 0, 0);
+                STRxw_U12(gd, ed, fixedaddress);
+            }
+            break;
+
+        case 0x8D:
+            INST_NAME("LEA Gd, Ed");
+            nextop=F8;
+            GETGD;
+            if(MODREG) {   // reg <= reg? that's an invalid operation
+                DEFAULT;
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0, rex, 0, 0);
+                if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
+                    MOVxw(gd, ed);
+                }
+            }
+            break;
+
+
         default:
             DEFAULT;
     }
