@@ -35,6 +35,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint32_t u32;
     uint8_t wback, wb1, wb2;
     int fixedaddress;
+    rex_t rex;
+    int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
 
     opcode = F8;
     MAYUSE(eb1);
@@ -42,8 +44,44 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(tmp);
     MAYUSE(j32);
 
+    rep = 0;
+    while((opcode==0xF2) || (opcode==0xF3)) {
+        rep = opcode-0xF1;
+        opcode = F8;
+    }
+    rex.rex = 0;
+    while(opcode>=0x40 && opcode<=0x4f) {
+        rex.rex = opcode;
+        opcode = F8;
+    }
+
     switch(opcode) {
 
+
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+            INST_NAME("PUSH reg");
+            gd = xRAX+(opcode&0x07)+(rex.r<<3);
+            PUSH1(gd);
+            break;
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            INST_NAME("POP reg");
+            gd = xRAX+(opcode&0x07)+(rex.r<<3);
+            POP1(gd);
+            break;
 
         default:
             DEFAULT;
