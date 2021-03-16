@@ -63,7 +63,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         } else if((nextop&7)==5) {
             uint64_t tmp = F32S64;
             MOV64x(ret, tmp);
-            TABLE64(xRIP, addr+delta);
+            GETIP(addr+delta);
             ADDx_REG(ret, ret, xRIP);
         } else {
             ret = xRAX+(nextop&7)+(rex.b<<3);
@@ -225,7 +225,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             MOVx(xRIP, reg);
         }
     } else {
-        TABLE64(xRIP, ip);
+        GETIP(ip);
     }
     TABLE64(x2, (uintptr_t)arm64_epilog);
     BR(x2);
@@ -251,7 +251,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     } else {
         uintptr_t p = getJumpTableAddress64(ip); 
         TABLE64(x2, p);
-        TABLE64(xRIP, ip);
+        GETIP(ip);
         LDRx_U12(x3, x2, 0);
     }
     MOVx(x1, xRIP);

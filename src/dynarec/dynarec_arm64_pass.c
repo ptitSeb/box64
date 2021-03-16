@@ -35,6 +35,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     // Clean up (because there are multiple passes)
     dyn->state_flags = 0;
     dyn->dfnone = 0;
+    dyn->last_ip = ip;  // RIP is always set at start of block!
     fpu_reset(dyn, ninst);
     // ok, go now
     INIT;
@@ -42,6 +43,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         if(dyn->insts && (ninst>dyn->size)) {dynarec_log(LOG_NONE, "Warning, too many inst treated (%d / %d)\n",ninst, dyn->size);}
         ip = addr;
         if(dyn->insts && (dyn->insts[ninst].x64.barrier==1)) {
+            dyn->last_ip = 0;
             NEW_BARRIER_INST;
         }
         NEW_INST;

@@ -426,6 +426,20 @@
 #endif
 
 #if STEP < 2
+#define GETIP(A)
+#else
+#define GETIP(A)                                    \
+    if(dyn->last_ip && (A-dyn->last_ip)<0x1000) {   \
+        uint64_t delta = A-dyn->last_ip;            \
+        dyn->last_ip += delta;                      \
+        ADDx_U12(xRIP, xRIP, delta);                \
+    } else {                                        \
+        dyn->last_ip = A;                           \
+        TABLE64(xRIP, dyn->last_ip);                \
+    }
+#endif
+
+#if STEP < 2
 #define PASS2IF(A, B) if(A)
 #elif STEP == 2
 #define PASS2IF(A, B) if(A) dyn->insts[ninst].pass2choice = B; if(dyn->insts[ninst].pass2choice == B)
