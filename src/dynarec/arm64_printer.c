@@ -258,6 +258,31 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     // ---- LOGIC
+    if(isMask(opcode, "f11100100Nrrrrrrssssssnnnnnddddd", &a)) {
+        int i = (a.N<<12)|(imms<<6)|immr;
+        if(sf==0 && a.N==1)
+            snprintf(buff, sizeof(buff), "invalid ANDS %s, %s, 0x%x", Wt[Rd], Wt[Rn], i);
+        else if(Rd==31)
+            snprintf(buff, sizeof(buff), "TST %s, 0x%x", sf?Xt[Rn]:Wt[Rn], i);
+        else
+            snprintf(buff, sizeof(buff), "ANDS %s, %s, 0x%x", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], i);
+        return buff;
+    }
+    if(isMask(opcode, "f1101010hh0mmmmmiiiiiinnnnnddddd", &a)) {
+        const char* shifts[] = { "LSL", "LSR", "ASR", "ROR" };
+        if(shift==0 && imm==0) {
+            if(Rd==31)
+                snprintf(buff, sizeof(buff), "TST %s, %s", sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+            else
+                snprintf(buff, sizeof(buff), "ANDS %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        } else {
+            if(Rd==31)
+                snprintf(buff, sizeof(buff), "TST %s, %s, %s %d", sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
+            else
+                snprintf(buff, sizeof(buff), "ANDS %s, %s, %s, %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
+        }
+        return buff;
+    }
 
     // ---- SHIFT
     if(isMask(opcode, "f10100110Nrrrrrrssssssnnnnnddddd", &a)) {
