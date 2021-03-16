@@ -35,7 +35,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff, 0, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
                     LDRxw_U12(x1, wback, fixedaddress); \
                     ed = x1;                            \
                 }
@@ -43,7 +43,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff, 0, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<3, 3, rex, 0, D); \
                     LDRx_U12(x1, wback, fixedaddress);  \
                     ed = x1;                            \
                 }
@@ -51,7 +51,7 @@
                     ed = xEAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff, 0, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 2, rex, 0, D); \
                     LDRw_U12(x1, wback, fixedaddress);  \
                     ed = x1;                            \
                 }
@@ -84,7 +84,7 @@
 #define SBACK(wb)   if(wback) {STR_IMM9(wb, wback, fixedaddress);} else {MOV_REG(ed, wb);}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O)   if((nextop&0xC0)==0xC0) {   \
-                    ed = xEAX+(nextop&7);   \
+                    ed = xEAX+(nextop&7)+(rex.b<<3);   \
                     wback = 0;              \
                 } else {                    \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0); \
@@ -246,6 +246,10 @@
 #define B_NEXT(cond)     \
     j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
     Bcond(cond, j32)
+// Branch to next instruction if reg is 0 (use j32)
+#define CBZw_NEXT(reg)    \
+    j32 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    CBZw(reg, j32)
 // Branch to MARKSEG if cond (use j32)
 #define B_MARKSEG(cond)    \
     j32 = GETMARKSEG-(dyn->arm_size);   \
@@ -322,6 +326,27 @@
     STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
     if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
 
+#define LOAD_REG(A)    LDRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
+#define LOAD_XEMU_REGS(A)  \
+    LOAD_REG(RAX);         \
+    LOAD_REG(RCX);         \
+    LOAD_REG(RDX);         \
+    LOAD_REG(RBX);         \
+    LOAD_REG(RSP);         \
+    LOAD_REG(RBP);         \
+    LOAD_REG(RSI);         \
+    LOAD_REG(RDI);         \
+    LOAD_REG(R8);          \
+    LOAD_REG(R9);          \
+    LOAD_REG(R10);         \
+    LOAD_REG(R11);         \
+    LOAD_REG(R12);         \
+    LOAD_REG(R13);         \
+    LOAD_REG(R14);         \
+    LOAD_REG(R15);         \
+    LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
+    if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
+
 #define SET_DFNONE(S)    if(!dyn->dfnone) {MOVZw(S, d_none); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=1;}
 #define SET_DF(S, N)     if(N) {MOVZw(S, N); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=0;} else SET_DFNONE(S)
 #define SET_NODF()          dyn->dfnone = 0
@@ -367,6 +392,9 @@
 #endif
 #ifndef NEW_BARRIER_INST
 #define NEW_BARRIER_INST
+#endif
+#ifndef TABLE64
+#define TABLE64(A, V)
 #endif
 
 #if STEP < 2

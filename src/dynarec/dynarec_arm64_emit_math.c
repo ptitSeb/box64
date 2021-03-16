@@ -159,8 +159,8 @@
 void emit_sub32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
     IFX(X_PEND) {
-        STRw_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        STRw_U12(s2, xEmu, offsetof(x64emu_t, op2));
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, d_sub32);
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
@@ -176,7 +176,7 @@ void emit_sub32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         SUBxw_REG(s1, s1, s2);
     }
     IFX(X_PEND) {
-        STRx_U12(s1, xEmu, offsetof(x64emu_t, res));
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF) {
         ANDxw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
@@ -216,7 +216,12 @@ void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     if(s1==xRSP && (!dyn->insts || dyn->insts[ninst].x64.need_flags==X_PEND))
     {
         // special case when doing math on RSP and only PEND is needed: ignoring it!
-        SUBxw_U12(s1, s1, c);
+        if(c>=0 && c<0x1000) {
+            SUBxw_U12(s1, s1, c);
+        } else {
+            MOV64x(s5, c);
+            SUBxw_REG(s1, s1, s5);
+        }
         return;
     }
     IFX(X_PEND) {

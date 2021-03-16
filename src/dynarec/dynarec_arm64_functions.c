@@ -319,12 +319,12 @@ uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop)
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
 {
 #define PK(a)       *(uint8_t*)(addr+a)
-#define PK64(a)     *(uint64_t*)(addr+a)
+#define PK32(a)     *(int32_t*)(addr+a)
 
     if(!addr)
         return 0;
-    if(PK(0)==0xff && PK(1)==0x25) {  // absolute jump, maybe the GOT
-        uintptr_t a1 = (PK64(2));   // need to add a check to see if the address is from the GOT !
+    if(PK(0)==0xff && PK(1)==0x25) {            // "absolute" jump, maybe the GOT (well, RIP relative in fact)
+        uintptr_t a1 = addr + 6 + (PK32(2));    // need to add a check to see if the address is from the GOT !
         addr = *(uintptr_t*)a1; 
     }
     if(addr<0x10000)    // too low, that is suspicious

@@ -7,3 +7,4 @@
 #define INST_EPILOG dyn->insts[ninst].epilog = dyn->arm_size; 
 #define INST_NAME(name) 
 #define NEW_BARRIER_INST    if(ninst) ++dyn->sons_size
+#define TABLE64(A, V)   {Table64(dyn, (V)); EMIT(0);}

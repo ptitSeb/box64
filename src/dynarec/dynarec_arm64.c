@@ -305,6 +305,26 @@ instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x64_size, 
     return insts;
 }
 
+// add a value to etable64 (if needed) and gives back the imm19 to use in LDR_literal
+int Table64(dynarec_arm_t *dyn, uint64_t val)
+{
+    // find the value if already present
+    int idx = -1;
+    for(int i=0; i<dyn->table64size && (idx==-1); ++i)
+        if(dyn->table64[i] == val)
+            idx = i;
+    // not found, add it
+    if(idx==-1) {
+        idx = dyn->table64size++;
+        dyn->table64 = (uint64_t*)realloc(dyn->table64, dyn->table64size * sizeof(uint64_t));
+        dyn->table64[idx] = val;
+    }
+    // calculate offset
+    int delta = dyn->tablestart + idx*sizeof(uint64_t) - (uintptr_t)dyn->block;
+    return delta;
+}
+
+
 void arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
@@ -356,16 +376,18 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // pass 2, instruction size
     arm_pass2(&helper, addr);
     // ok, now allocate mapped memory, with executable flag on
-    int sz = helper.arm_size;
+    int sz = helper.arm_size + helper.table64size*sizeof(uint64_t);
     void* p = (void*)AllocDynarecMap(block, sz);
     if(p==NULL) {
         dynarec_log(LOG_DEBUG, "AllocDynarecMap(%p, %d) failed, cancelling block\n", block, sz);
         free(helper.insts);
         free(helper.next);
+        free(helper.table64);
         return NULL;
     }
     helper.block = p;
     helper.arm_start = (uintptr_t)p;
+    helper.tablestart = helper.arm_start + helper.arm_size;
     if(helper.sons_size) {
         helper.sons_x64 = (uintptr_t*)calloc(helper.sons_size, sizeof(uintptr_t));
         helper.sons_arm = (void**)calloc(helper.sons_size, sizeof(void*));
@@ -378,8 +400,8 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     }
     helper.arm_size = 0;
     arm_pass3(&helper, addr);
-    if(sz!=helper.arm_size) {
-        printf_log(LOG_NONE, "BOX64: Warning, size difference in block between pass2 (%d) & pass3 (%d)!\n", sz, helper.arm_size);
+    if(sz!=(helper.arm_size + helper.table64size*8)) {
+        printf_log(LOG_NONE, "BOX64: Warning, size difference in block between pass2 (%d) & pass3 (%d)!\n", sz, helper.arm_size+helper.table64size*8);
         uint8_t *dump = (uint8_t*)helper.start;
         printf_log(LOG_NONE, "Dump of %d x64 opcodes:\n", helper.size);
         for(int i=0; i<helper.size; ++i) {
@@ -389,6 +411,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
             printf_log(LOG_NONE, "\t%d -> %d\n", helper.insts[i].size2, helper.insts[i].size);
         }
         printf_log(LOG_NONE, " ------------\n");
+    }
+    // add table64 if needed
+    if(helper.table64size) {
+        memcpy(p+helper.arm_size, helper.table64, helper.table64size*8);
     }
     // all done...
     __clear_cache(p, p+sz);   // need to clear the cache before execution...
@@ -406,6 +432,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // ok, free the helper now
     free(helper.insts);
     free(helper.next);
+    free(helper.table64);
     block->size = sz;
     block->isize = helper.size;
     block->block = p;

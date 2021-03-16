@@ -30,14 +30,15 @@ typedef struct x64emu_s {
 	x87flags_t  sw;
 	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
     int         fpu_stack;
+    uint32_t    mxcsr;
 	fpu_round_t round;
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
     fpu_ll_t    fpu_ll[8]; // for 64bits fild / fist sequence
 	fpu_p_reg_t p_regs[8];
     // sse
     sse_regs_t  xmm[16];
-    uint32_t    mxcsr;
     // defered flags
+    int         dummy1;     // to align on 64bits with df
     defered_flags_t df;
     uint64_t    op1;
     uint64_t    op2;
@@ -50,6 +51,13 @@ typedef struct x64emu_s {
     uint32_t    segs[6];        // only 32bits value?
     uintptr_t   segs_offs[6];   // computed offset associate with segment
     uint64_t    segs_serial[6];  // are seg offset clean (not 0) or does they need to be re-computed (0)? For GS, serial need to be the same as context->sel_serial
+    // parent context
+    box64context_t *context;
+    // cpu helpers
+    reg64_t     zero;
+    reg64_t     *sbiidx[16];
+    // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
+    uint64_t    scratch[200];
     // emu control
     int         quit;
     int         error;
@@ -58,13 +66,6 @@ typedef struct x64emu_s {
     int         exit;
     int         quitonlongjmp;  // quit if longjmp is called
     int         longjmp;        // if quit because of longjmp
-    // parent context
-    box64context_t *context;
-    // cpu helpers
-    reg64_t     zero;
-    reg64_t     *sbiidx[16];
-    // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
-    uint64_t    scratch[200];
     // local stack, do be deleted when emu is freed
     void*       stack2free; // this is the stack to free (can be NULL)
     void*       init_stack; // initial stack (owned or not)

@@ -9,8 +9,8 @@
 .global arm64_epilog
 arm64_epilog:
     //update register -> emu
-    str     x10,  [x0, (8 *  0)]
-    str     x11,  [x0, (8 *  1)]
+    str     x10, [x0, (8 *  0)]
+    str     x11, [x0, (8 *  1)]
     str     x12, [x0, (8 *  2)]
     str     x13, [x0, (8 *  3)]
     str     x14, [x0, (8 *  4)]
@@ -26,7 +26,7 @@ arm64_epilog:
     str     x24, [x0, (8 * 14)]
     str     x25, [x0, (8 * 15)]
     str     x26, [x0, (8 * 16)]
-    str     x27, [x0, (8 * 17)] // put back reg value in emu, including EIP (so x25 must be EIP now)
+    str     x27, [x0, (8 * 17)] // put back reg value in emu, including EIP (so x27 must be EIP now)
     //restore all used register
     //vpop     {d8-d15}
     ldr     x10, [sp, (8 *  0)]
@@ -48,7 +48,7 @@ arm64_epilog:
     ldr     x26, [sp, (8 * 16)]
     ldr     x27, [sp, (8 * 17)]
     add     sp,  sp, (8 * 18)
-    ldp     lr, fp, [sp, 16]!  // saved lr
+    ldp     lr, fp, [sp], 16  // saved lr
     //end, return...
     ret
 
@@ -57,24 +57,24 @@ arm64_epilog:
 arm64_epilog_fast:
     //restore all used register
     //vpop     {d8-d15}
-    ldr     x8,  [sp, (8 *  0)]
-    ldr     x9,  [sp, (8 *  1)]
-    ldr     x10, [sp, (8 *  2)]
-    ldr     x11, [sp, (8 *  3)]
-    ldr     x12, [sp, (8 *  4)]
-    ldr     x13, [sp, (8 *  5)]
-    ldr     x14, [sp, (8 *  6)]
-    ldr     x15, [sp, (8 *  7)]
-    ldr     x16, [sp, (8 *  8)]
-    ldr     x17, [sp, (8 *  9)]
-    ldr     x18, [sp, (8 * 10)]
-    ldr     x19, [sp, (8 * 11)]
-    ldr     x20, [sp, (8 * 12)]
-    ldr     x21, [sp, (8 * 13)]
-    ldr     x22, [sp, (8 * 14)]
-    ldr     x23, [sp, (8 * 15)]
-    ldr     x24, [sp, (8 * 16)]
-    ldr     x25, [sp, (8 * 17)]
+    ldr     x10, [sp, (8 *  0)]
+    ldr     x11, [sp, (8 *  1)]
+    ldr     x12, [sp, (8 *  2)]
+    ldr     x13, [sp, (8 *  3)]
+    ldr     x14, [sp, (8 *  4)]
+    ldr     x15, [sp, (8 *  5)]
+    ldr     x16, [sp, (8 *  6)]
+    ldr     x17, [sp, (8 *  7)]
+    ldr     x18, [sp, (8 *  8)]
+    ldr     x19, [sp, (8 *  9)]
+    ldr     x20, [sp, (8 * 10)]
+    ldr     x21, [sp, (8 * 11)]
+    ldr     x22, [sp, (8 * 12)]
+    ldr     x23, [sp, (8 * 13)]
+    ldr     x24, [sp, (8 * 14)]
+    ldr     x25, [sp, (8 * 15)]
+    ldr     x26, [sp, (8 * 16)]
+    ldr     x27, [sp, (8 * 17)]
     add     sp,  sp, (8 * 18)
     ldp     lr, fp, [sp, 16]!  // saved lr
     //end, return...

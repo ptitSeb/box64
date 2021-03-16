@@ -92,7 +92,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
-            gd = xRAX+(opcode&0x07)+(rex.r<<3);
+            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            if(gd==xRSP) {
+                MOVx(x1, gd);
+                gd = x1;
+            }
             PUSH1(gd);
             break;
         case 0x58:
@@ -104,8 +108,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
-            gd = xRAX+(opcode&0x07)+(rex.r<<3);
-            POP1(gd);
+            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            if(gd == xRSP) {
+                POP1(x1);
+                MOVx(gd, x1);
+            } else {
+                POP1(gd);
+            }
             break;
 
         case 0x81:
@@ -132,9 +141,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop=F8;
             GETGD;
             if(MODREG) {   // reg <= reg
-                MOVxw(xRAX+(nextop&7), gd);
+                MOVxw(xRAX+(nextop&7)+(rex.b<<3), gd);
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0, rex, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
                 STRxw_U12(gd, ed, fixedaddress);
             }
             break;
@@ -153,6 +162,81 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xE8:
+            INST_NAME("CALL Id");
+            i32 = F32S;
+            if(addr+i32==0) {
+                #if STEP == 3
+                printf_log(LOG_INFO, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr-1));
+                #endif
+            }
+            #if STEP == 0
+            if(isNativeCall(dyn, addr+i32, NULL, NULL))
+                tmp = 3;
+            else 
+                tmp = 0;
+            #elif STEP < 2
+            if(isNativeCall(dyn, addr+i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+                tmp = dyn->insts[ninst].pass2choice = 3;
+            else 
+                tmp = dyn->insts[ninst].pass2choice = 0;
+            #else
+                tmp = dyn->insts[ninst].pass2choice;
+            #endif
+            switch(tmp) {
+                case 3:
+                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    BARRIER(1);
+                    BARRIER_NEXT(1);
+                    TABLE64(x2, addr);
+                    PUSH1(x2);
+                    MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
+                    // calling a native function
+                    x87_forget(dyn, ninst, x3, x4, 0);
+                    TABLE64(xRIP, dyn->insts[ninst].natcall); // read the 0xCC already
+                    STORE_XEMU_REGS(xRIP);
+                    CALL_S(x64Int3, -1);
+                    LOAD_XEMU_REGS(xRIP);
+                    TABLE64(x3, dyn->insts[ninst].natcall);
+                    ADDx_U12(x3, x3, 2+8+8);
+                    CMPSx_REG(xRIP, x3);
+                    B_MARK(cNE);    // Not the expected address, exit dynarec block
+                    POP1(xRIP);   // pop the return address
+                    if(dyn->insts[ninst].retn) {
+                        ADDx_U12(xRSP, xRSP, dyn->insts[ninst].retn);
+                    }
+                    TABLE64(x3, addr);
+                    CMPSx_REG(xRIP, x3);
+                    B_MARK(cNE);    // Not the expected address again
+                    LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
+                    CBZw_NEXT(w1);  // not quitting, so lets continue
+                    MARK;
+                    jump_to_epilog(dyn, 0, xRIP, ninst);
+                    break;
+                default:
+                    if(ninst && dyn->insts && dyn->insts[ninst-1].x64.set_flags) {
+                        READFLAGS(X_PEND);  // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    }
+                    // regular call
+                    BARRIER(1);
+                    BARRIER_NEXT(1);
+                    if(!dyn->insts || ninst==dyn->size-1) {
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
+                    TABLE64(x2, addr);
+                    PUSH1(x2);
+                    if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
+                        TABLE64(x4, addr-4);
+                        LDRx_U12(x4, x4, 0);
+                        jump_to_next(dyn, 0, x4, ninst);
+                    } else
+                        jump_to_next(dyn, addr+i32, 0, ninst);
+                    break;
+            }
+            break;
 
         default:
             DEFAULT;

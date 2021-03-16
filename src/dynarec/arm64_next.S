@@ -11,9 +11,8 @@
 .global arm64_next
 arm64_next:
     // emu is r0
-    // don't put put back reg value in emu, faster but more tricky to debug
     // IP address is r1
-    sub     sp,  sp, (8 * 11)
+    sub     sp,  sp, (8 * 12)
     str     x0,  [sp, (8 *  0)]
     str     x1,  [sp, (8 *  1)]
     str     x10, [sp, (8 *  2)]
@@ -41,7 +40,7 @@ arm64_next:
     ldr     x16, [sp, (8 *  8)]
     ldr     x17, [sp, (8 *  9)]
     ldr     x18, [sp, (8 * 10)]
-    add     sp,  sp, (8 * 11)
+    add     sp,  sp, (8 * 12)
     // return offset is jump address
     br      x3
 

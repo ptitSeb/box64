@@ -1,7 +1,7 @@
 #define INIT    
 #define FINI
 #define EMIT(A)     \
-    if(box64_dynarec_dump) {dynarec_log(LOG_NONE, "\t%08x\t%s\n", (uint32_t)(A), arm64_print(A));} \
+    if(box64_dynarec_dump) {dynarec_log(LOG_NONE, "\t%08x\t%s\n", (uint32_t)(A), arm64_print(A, (uintptr_t)dyn->block));} \
     *(uint32_t*)(dyn->block) = (uint32_t)(A);       \
     dyn->block += 4; dyn->arm_size += 4;\
     dyn->insts[ninst].size2 += 4
@@ -32,3 +32,4 @@
     ++dyn->sons_size;                               \
     }
 
+#define TABLE64(A, V)   {int val64offset = Table64(dyn, (V)); MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); LDRx_literal(A, val64offset);}

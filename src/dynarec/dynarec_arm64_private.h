@@ -40,6 +40,9 @@ typedef struct dynarec_arm_s {
     int                 fpu_extra_qscratch; // some opcode need an extra quad scratch register
     int                 fpu_reg;    // x87/sse/mmx reg counter
     int                 dfnone;     // if defered flags is already set to df_none
+    uint64_t            *table64;   // table of 64bits value
+    int                 table64size;// size of table (will be appended at end of executable code)
+    uintptr_t           tablestart;
     uintptr_t*          next;       // variable array of "next" jump address
     int                 next_sz;
     int                 next_cap;
@@ -52,5 +55,7 @@ void add_next(dynarec_arm_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr);
 int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n);
+
+int Table64(dynarec_arm_t *dyn, uint64_t val);  // add a value to etable64 (if needed) and gives back the imm19 to use in LDR_literal
 
 #endif //__DYNAREC_ARM_PRIVATE_H_

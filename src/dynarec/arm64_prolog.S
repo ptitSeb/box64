@@ -9,7 +9,7 @@
 .global arm64_prolog
 arm64_prolog:
     //save all 18 used register
-    stp     lr, fp, [sp, 16]!  // save lr
+    stp     lr, fp, [sp, -16]!  // save lr
     sub     sp,  sp, (8 * 18)
     str     x10, [sp, (8 *  0)]
     str     x11, [sp, (8 *  1)]

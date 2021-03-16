@@ -63,7 +63,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         } else if((nextop&7)==5) {
             uint64_t tmp = F32S64;
             MOV64x(ret, tmp);
-            MOV64x(xRIP, addr+delta);
+            TABLE64(xRIP, addr+delta);
             ADDx_REG(ret, ret, xRIP);
         } else {
             ret = xRAX+(nextop&7)+(rex.b<<3);
@@ -86,22 +86,22 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 if (sib_reg!=4) {
                     ADDx_REG_LSL(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg+(rex.x<<3), (sib>>6));
                 } else {
-                    ret = xRAX+(sib&0x07)+rex.b<<3;
+                    ret = xRAX+(sib&0x07)+(rex.b<<3);
                 }
             } else
-                ret = xRAX+(nextop&0x07)+rex.b<<3;
+                ret = xRAX+(nextop&0x07)+(rex.b<<3);
         } else {
             int64_t sub = (i64<0)?1:0;
             if(sub) i64 = -i64;
             if(i64<0x1000) {
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        ADDx_REG_LSL(scratch, xRAX+(sib&0x07), xRAX+sib_reg, (sib>>6));
+                        ADDx_REG_LSL(scratch, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg+(rex.x<<3), (sib>>6));
                     } else {
-                        scratch = xRAX+(sib&0x07);
+                        scratch = xRAX+(sib&0x07)+(rex.b<<3);
                     }
                 } else
-                    scratch = xRAX+(nextop&0x07);
+                    scratch = xRAX+(nextop&0x07)+(rex.b<<3);
                 if(sub) {
                     SUBx_U12(ret, scratch, i64);
                 } else {
@@ -225,9 +225,9 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             MOVx(xRIP, reg);
         }
     } else {
-        MOV64x(xRIP, ip);
+        TABLE64(xRIP, ip);
     }
-    MOV64x(x2, (uintptr_t)arm64_epilog);
+    TABLE64(x2, (uintptr_t)arm64_epilog);
     BR(x2);
 }
 
@@ -240,7 +240,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             MOVx(xRIP, reg);
         }
         uintptr_t tbl = getJumpTable64();
-        MOV64x(x2, tbl);
+        TABLE64(x2, tbl);
         UBFXx(x3, xRIP, 48, JMPTABL_SHIFT);
         LDRx_REG_LSL3(x2, x2, x3);
         UBFXx(x3, xRIP, 32, JMPTABL_SHIFT);
@@ -250,8 +250,8 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         LDRx_REG_UXTW(x3, x2, xRIP);
     } else {
         uintptr_t p = getJumpTableAddress64(ip); 
-        MOV64x(x2, p);
-        MOV64x(xRIP, ip);
+        TABLE64(x2, p);
+        TABLE64(xRIP, ip);
         LDRx_U12(x3, x2, 0);
     }
     MOVx(x1, xRIP);
@@ -323,7 +323,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags)
 {
     if(ret!=-2) {
-        STRx_S9_preindex(xSP, xEmu, -16);   // ARM64 stack needs to be 16byte aligned
+        STRx_S9_preindex(xEmu, xSP, -16);   // ARM64 stack needs to be 16byte aligned
     }
     fpu_pushcache(dyn, ninst, reg);
     if(saveflags) {
@@ -336,7 +336,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
         MOVx(ret, xEmu);
     }
     if(ret!=-2) {
-        LDRx_S9_postindex(xSP, xEmu, 16);
+        LDRx_S9_postindex(xEmu, xSP, 16);
     }
     if(saveflags) {
         LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
