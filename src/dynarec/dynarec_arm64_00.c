@@ -193,10 +193,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
                     x87_forget(dyn, ninst, x3, x4, 0);
+                    sse_purge07cache(dyn, ninst, x3);
                     TABLE64(xRIP, dyn->insts[ninst].natcall); // read the 0xCC already
-                    STORE_XEMU_REGS(xRIP);
+                    STORE_XEMU_MINIMUM(xRIP);
                     CALL_S(x64Int3, -1);
-                    LOAD_XEMU_REGS(xRIP);
+                    LOAD_XEMU_MINIMUM(xRIP);
                     TABLE64(x3, dyn->insts[ninst].natcall);
                     ADDx_U12(x3, x3, 2+8+8);
                     CMPSx_REG(xRIP, x3);

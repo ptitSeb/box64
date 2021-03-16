@@ -347,6 +347,34 @@
     LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
     if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
 
+#define STORE_XEMU_MINIMUM(A)  \
+    STORE_REG(RAX);         \
+    STORE_REG(RCX);         \
+    STORE_REG(RDX);         \
+    STORE_REG(RBX);         \
+    STORE_REG(RSP);         \
+    STORE_REG(RBP);         \
+    STORE_REG(RSI);         \
+    STORE_REG(RDI);         \
+    STORE_REG(R8);          \
+    STORE_REG(R9);          \
+    STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
+    if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
+
+#define LOAD_XEMU_MINIMUM(A)  \
+    LOAD_REG(RAX);         \
+    LOAD_REG(RCX);         \
+    LOAD_REG(RDX);         \
+    LOAD_REG(RBX);         \
+    LOAD_REG(RSP);         \
+    LOAD_REG(RBP);         \
+    LOAD_REG(RSI);         \
+    LOAD_REG(RDI);         \
+    LOAD_REG(R8);          \
+    LOAD_REG(R9);          \
+    LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
+    if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
+
 #define SET_DFNONE(S)    if(!dyn->dfnone) {MOVZw(S, d_none); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=1;}
 #define SET_DF(S, N)     if(N) {MOVZw(S, N); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=0;} else SET_DFNONE(S)
 #define SET_NODF()          dyn->dfnone = 0
@@ -535,6 +563,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
 #define sse_get_reg     STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
+#define sse_purge07cache STEPNAME(sse_purge07cache)
 
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
 #define fpu_popcache    STEPNAME(fpu_popcache)
@@ -669,6 +698,8 @@ int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a);
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
+// purge the XMM0..XMM7 cache (before function call)
+void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1);
 
 // common coproc helpers
 // reset the cache

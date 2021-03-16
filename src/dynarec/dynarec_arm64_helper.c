@@ -812,7 +812,7 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 static void sse_reset(dynarec_arm_t* dyn, int ninst)
 {
 #if STEP > 1
-    for (int i=0; i<8; ++i)
+    for (int i=0; i<16; ++i)
         dyn->ssecache[i] = -1;
 #endif
 }
@@ -841,12 +841,33 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
     return 0;
 #endif
 }
-// purge the SSE cache only(needs 3 scratch registers)
-static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
+// purge the SSE cache for XMM0..XMM7 (to use before function native call)
+void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 1
     int old = -1;
     for (int i=0; i<8; ++i)
+        if(dyn->ssecache[i]!=-1) {
+            if (old==-1) {
+                MESSAGE(LOG_DUMP, "\tPurge XMM0..7 Cache ------\n");
+                ++old;
+            }
+            VSTR128_U12(dyn->ssecache[i], xEmu, offsetof(x64emu_t, xmm[i]));
+            fpu_free_reg_quad(dyn, dyn->ssecache[i]);
+            dyn->ssecache[i] = -1;
+        }
+    if(old!=-1) {
+        MESSAGE(LOG_DUMP, "\t------ Purge XMM0..7 Cache\n");
+    }
+#endif
+}
+
+// purge the SSE cache only
+static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
+{
+#if STEP > 1
+    int old = -1;
+    for (int i=0; i<16; ++i)
         if(dyn->ssecache[i]!=-1) {
             if (old==-1) {
                 MESSAGE(LOG_DUMP, "\tPurge SSE Cache ------\n");
@@ -865,7 +886,7 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 1
-    for (int i=0; i<8; ++i)
+    for (int i=0; i<16; ++i)
         if(dyn->ssecache[i]!=-1) {
             VSTR128_U12(dyn->ssecache[i], xEmu, offsetof(x64emu_t, xmm[i]));
         }

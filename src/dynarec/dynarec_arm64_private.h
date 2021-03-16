@@ -30,11 +30,11 @@ typedef struct dynarec_arm_s {
     uintptr_t           arm_start;  // start of the arm code
     int                 arm_size;   // size of emitted arm code
     int                 state_flags;// actual state for on-demand flags
-    int                 x87cache[8];// cache status for the 8 x87 register behind the fpu stack
-    int                 x87reg[8];  // reg used for x87cache entry
-    int                 mmxcache[8];// cache status for the 8 MMX registers
-    int                 ssecache[8];// cache status for the 8 SSE(2) registers
-    int                 fpuused[24];// all 8..31 Q reg from fpu, used by x87, sse and mmx
+    int8_t              x87cache[8];// cache status for the 8 x87 register behind the fpu stack
+    int8_t              x87reg[8];  // reg used for x87cache entry
+    int8_t              mmxcache[8];// cache status for the 8 MMX registers
+    int8_t              ssecache[16];// cache status for the 16 SSE(2) registers
+    int8_t              fpuused[24];// all 8..31 Q reg from fpu, used by x87, sse and mmx
     int                 x87stack;   // cache stack counter
     int                 fpu_scratch;// scratch counter
     int                 fpu_extra_qscratch; // some opcode need an extra quad scratch register
