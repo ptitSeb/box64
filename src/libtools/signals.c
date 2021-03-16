@@ -492,7 +492,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     sigcontext->uc_mcontext.gregs[X64_RSP] = R_RSP;
     sigcontext->uc_mcontext.gregs[X64_RBX] = R_RBX;
     // flags
-    sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x32;
+    sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
     // get segments
     sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
 #if defined(DYNAREC) && defined(__aarch64__)
@@ -616,7 +616,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
             if(sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP]) ejb->emu->ip.dword[0]=sigcontext->uc_mcontext.gregs[X64_RIP];
             sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;
             // flags
-            if(sigcontext->uc_mcontext.gregs[X64_EFL]!=sigcontext_copy.uc_mcontext.gregs[X64_EFL]) ejb->emu->eflags.x32=sigcontext->uc_mcontext.gregs[X64_EFL];
+            if(sigcontext->uc_mcontext.gregs[X64_EFL]!=sigcontext_copy.uc_mcontext.gregs[X64_EFL]) ejb->emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
             // get segments
             uint16_t seg;
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 0)&0xffff;

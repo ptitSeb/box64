@@ -313,7 +313,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
     POP1(xFlags);
     MOV32w(x1, 0x3F7FD7);
     ANDx_REG(xFlags, xFlags, x1);
-    ORRx_U13(xFlags, xFlags, 2);
+    ORRx_mask(xFlags, xFlags, 1, 0b111111, 0);
     SET_DFNONE(x1);
     // Ret....
     MOV64x(x2, (uintptr_t)arm64_epilog);  // epilog on purpose, CS might have changed!
@@ -329,7 +329,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     if(saveflags) {
         STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
-    MOV64x(reg, (uintptr_t)fnc);
+    TABLE64(reg, (uintptr_t)fnc);
     BLR(reg);
     fpu_popcache(dyn, ninst, reg);
     if(ret>=0) {
@@ -498,7 +498,7 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
             ADDx_U12(s1, xEmu, offsetof(x64emu_t, p_regs));
             for (int i=0; i<a; ++i) {
                 SUBw_U12(s2, s2, 1);
-                ANDw_U12(s2, s2, 7);    // (emu->top + st)&7
+                ANDw_mask(s2, s2, 0b011111, 1);    // (emu->top + st)&7
                 STRw_REG_LSL2(s3, s1, s2);
             }
         } else {
@@ -508,7 +508,7 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
             for (int i=0; i<-a; ++i) {
                 STRw_REG_LSL2(s3, s1, s2);
                 ADDw_U12(s2, s2, 1);
-                ANDw_U12(s2, s2, 7);    // (emu->top + st)&7
+                ANDw_mask(s2, s2, 0b011111, 1);    // (emu->top + st)&7
             }
         }
         STRw_U12(s2, xEmu, offsetof(x64emu_t, top));
@@ -524,7 +524,7 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
         for (int i=0; i<8; ++i)
             if(dyn->x87cache[i]!=-1) {
                 ADDw_U12(s3, s2, dyn->x87cache[i]);
-                ANDw_U12(s3, s3, 7);    // (emu->top + st)&7
+                ANDw_mask(s3, s3, 0b011111, 1);    // (emu->top + st)&7
                 VSTR64_REG_LSL3(dyn->x87reg[i], s1, s3);
                 fpu_free_reg_double(dyn, dyn->x87reg[i]);
                 dyn->x87reg[i] = -1;
@@ -553,7 +553,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]!=-1) {
             ADDw_U12(s3, s2, dyn->x87cache[i]);
-            ANDw_U12(s3, s3, 7);    // (emu->top + i)&7
+            ANDw_mask(s3, s3, 0b011111, 1);    // (emu->top + i)&7
             VLDR64_REG_LSL3(dyn->x87reg[i], s1, s3);
         }
 #endif
@@ -585,7 +585,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         } else {
             ADDw_U12(s2, s2, a);
         }
-        ANDw_U12(s2, s2, 7);
+        ANDw_mask(s2, s2, 0b011111, 1);
     }
     VLDR64_REG_LSL3(dyn->x87reg[ret], s1, s2);
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
@@ -624,7 +624,7 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // Update
     if(st) {
         ADDw_U12(s2, s2, st);
-        ANDw_U12(s2, s2, 7);    // (emu->top + i)&7
+        ANDw_mask(s2, s2, 0b011111, 1);    // (emu->top + i)&7
     }
     VLDR64_REG_LSL3(dyn->x87reg[ret], s1, s2);
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
@@ -649,7 +649,7 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // Update
     if(st) {
         ADDw_U12(s2, s2, st);
-        ANDw_U12(s2, s2, 7);    // (emu->top + i)&7
+        ANDw_mask(s2, s2, 0b011111, 1);    // (emu->top + i)&7
     }
     VLDR64_REG_LSL3(dyn->x87reg[ret], s1, s2);
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
@@ -676,7 +676,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
             } else {
                 ADDw_U12(s2, s2, a);
             }
-            ANDw_U12(s2, s2, 7);    // (emu->top + i)&7
+            ANDw_mask(s2, s2, 0b011111, 1);    // (emu->top + i)&7
             VLDR64_REG_LSL3(dyn->x87reg[i], s1, s2);
             MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
             // ok
@@ -700,7 +700,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     } else {
         ADDw_U12(s2, s2, a);
     }
-    ANDw_U12(s2, s2, 7);    // (emu->top + i)&7
+    ANDw_mask(s2, s2, 0b011111, 1);    // (emu->top + i)&7
     VLDR64_REG_LSL3(dyn->x87reg[ret], s1, s2);
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
 #endif
@@ -968,11 +968,11 @@ void fpu_reset(dynarec_arm_t* dyn, int ninst)
 void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
     // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-    ANDw_U12(s3, s1, 0xE0); // lsr 5 masking pre-applied
+    ANDw_mask(s3, s1, 0b011011, 000010); // lsr 5 masking pre-applied
     LSRw(s3, s3, 5);
     MOV64x(s4, (uintptr_t)GetParityTab());
     LDRw_REG_LSL2(s4, s4, s3);
-    ANDw_U12(s3, s1, 31);
+    ANDw_mask(s3, s1, 0, 0b000100); //0x1f
     LSRw_REG(s4, s4, s3);
     MVNx(s4, s4);
     BFIx(xFlags, s4, F_PF, 1);

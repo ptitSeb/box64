@@ -54,10 +54,12 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             || ((ip >= trace_start) && (ip < trace_end)))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);
-                MOV64x(x1, ip);
-                STORE_XEMU_REGS(x1);
-                MOVw(x2, 1);
+                GETIP(ip);
+                MOVx(x1, xRIP);
+                STORE_XEMU_REGS(xRIP);
+                MOV32w(x2, 1);
                 CALL(PrintTrace, -1);
+                LOAD_XEMU_REGS(xRIP);
                 MESSAGE(LOG_DUMP, "----------\n");
             }
         }

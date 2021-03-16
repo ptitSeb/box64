@@ -21,6 +21,27 @@ typedef struct arm64_print_s {
     int x, w;
 } arm64_print_t;
 
+uint64_t DecodeBitMasks(int N, int imms, int immr)
+{
+    int len = 31-__builtin_clz(N<<6 | ((~imms)&0b111111));
+    if(len<1) return 0;
+    int levels = (1<<len) - 1;
+    int s = imms & levels;
+    int r = immr & levels;  // this the ROR factor
+    int e = 1<<len; // actual number of bits
+    if(s==levels) return 0;
+    uint64_t mask = (1LL<<(s+1))-1;
+    if(r) { // rotate
+         mask=(mask>>r)|(mask<<(e-r));
+         mask&=((1LL<<e)-1);
+    }
+    while (e<64) {  // replicate
+        mask|=(mask<<e);
+        e<<=1;
+    }
+    return mask;
+}
+
 int isMask(uint32_t opcode, const char* mask, arm64_print_t *a)
 {
     if(strlen(mask)!=32) {
@@ -259,13 +280,14 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     // ---- LOGIC
     if(isMask(opcode, "f11100100Nrrrrrrssssssnnnnnddddd", &a)) {
-        int i = (a.N<<12)|(imms<<6)|immr;
+        uint64_t i = DecodeBitMasks(a.N, imms, immr);
+        if(!sf) i&=0xffffffff;
         if(sf==0 && a.N==1)
-            snprintf(buff, sizeof(buff), "invalid ANDS %s, %s, 0x%x", Wt[Rd], Wt[Rn], i);
+            snprintf(buff, sizeof(buff), "invalid ANDS %s, %s, 0x%lx", Wt[Rd], Wt[Rn], i);
         else if(Rd==31)
-            snprintf(buff, sizeof(buff), "TST %s, 0x%x", sf?Xt[Rn]:Wt[Rn], i);
+            snprintf(buff, sizeof(buff), "TST %s, 0x%lx", sf?Xt[Rn]:Wt[Rn], i);
         else
-            snprintf(buff, sizeof(buff), "ANDS %s, %s, 0x%x", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], i);
+            snprintf(buff, sizeof(buff), "ANDS %s, %s, 0x%lx", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], i);
         return buff;
     }
     if(isMask(opcode, "f1101010hh0mmmmmiiiiiinnnnnddddd", &a)) {
@@ -281,6 +303,23 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             else
                 snprintf(buff, sizeof(buff), "ANDS %s, %s, %s, %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
         }
+        return buff;
+    }
+    if(isMask(opcode, "f0001010hh1mmmmmiiiiiinnnnnddddd", &a)) {
+        const char* shifts[] = { "LSL", "LSR", "ASR", "ROR" };
+        if(shift==0 && imm==0)
+            snprintf(buff, sizeof(buff), "BIC %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        else
+            snprintf(buff, sizeof(buff), "BIC %s, %s, %s, %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
+        return buff;
+    }
+    if(isMask(opcode, "f01100100Nrrrrrrssssssnnnnnddddd", &a)) {
+        uint64_t i = DecodeBitMasks(a.N, imms, immr);
+        if(!sf) i&=0xffffffff;
+        if(sf==0 && a.N==1)
+            snprintf(buff, sizeof(buff), "invalid ORR %s, %s, 0x%lx", Wt[Rd], Wt[Rn], i);
+        else
+            snprintf(buff, sizeof(buff), "ORR %s, %s, 0x%lx", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], i);
         return buff;
     }
 
@@ -304,6 +343,18 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    if(isMask(opcode, "f01100110Nrrrrrrssssssnnnnnddddd", &a)) {
+        if(imms<immr) {
+            int width = imms + 1;
+            int lsb = ((-immr)%(sf?64:32))&(sf?0x3f:0x1f);
+            if(Rn==31)
+                snprintf(buff, sizeof(buff), "BFC %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], lsb, width);
+            else
+                snprintf(buff, sizeof(buff), "BFI %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], lsb, width);
+        } else
+            snprintf(buff, sizeof(buff), "BFM %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], immr, imms);
+        return buff;
+    }
     // ---- BRANCH / TEST
     if(isMask(opcode, "1101011000011111000000nnnnn00000", &a)) {
         snprintf(buff, sizeof(buff), "BR %s", Xt[Rn]);

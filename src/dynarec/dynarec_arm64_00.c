@@ -117,6 +117,115 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        #define GO(GETFLAGS, NO, YES, F)    \
+            READFLAGS(F);                   \
+            i8 = F8S;   \
+            BARRIER(2); \
+            JUMP(addr+i8);\
+            GETFLAGS;   \
+            if(dyn->insts) {    \
+                if(dyn->insts[ninst].x64.jmp_insts==-1) {   \
+                    /* out of the block */                  \
+                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size); \
+                    Bcond(NO, i32);     \
+                    jump_to_next(dyn, addr+i8, 0, ninst); \
+                } else {    \
+                    /* inside the block */  \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
+                    Bcond(YES, i32);    \
+                }   \
+            }
+
+        case 0x70:
+            INST_NAME("JO ib");
+            GO( TSTw_mask(xFlags, 0b010101, 0)
+                , cEQ, cNE, X_OF)
+            break;
+        case 0x71:
+            INST_NAME("JNO ib");
+            GO( TSTw_mask(xFlags, 0b010101, 0)
+                , cNE, cEQ, X_OF)
+            break;
+        case 0x72:
+            INST_NAME("JC ib");
+            GO( TSTw_mask(xFlags, 0, 0)
+                , cEQ, cNE, X_CF)
+            break;
+        case 0x73:
+            INST_NAME("JNC ib");
+            GO( TSTw_mask(xFlags, 0, 0)
+                , cNE, cEQ, X_CF)
+            break;
+        case 0x74:
+            INST_NAME("JZ ib");
+            GO( TSTw_mask(xFlags, 0b011010, 0)
+                , cEQ, cNE, X_ZF)
+            break;
+        case 0x75:
+            INST_NAME("JNZ ib");
+            GO( TSTw_mask(xFlags, 0b011010, 0)
+                , cNE, cEQ, X_ZF)
+            break;
+        case 0x76:
+            INST_NAME("JBE ib");
+            GO( MOV32w(x1, (1<<F_CF)|(1<<F_ZF));
+                TSTw_REG(xFlags, x1)
+                , cEQ, cNE, X_CF|X_ZF)
+            break;
+        case 0x77:
+            INST_NAME("JNBE ib");
+            GO( MOV32w(x1, (1<<F_CF)|(1<<F_ZF));
+                TSTw_REG(xFlags, x1)
+                , cNE, cEQ, X_CF|X_ZF)
+            break;
+        case 0x78:
+            INST_NAME("JS ib");
+            GO( TSTw_mask(xFlags, 0b011001, 0)  // 0X80
+                , cEQ, cNE, X_SF)
+            break;
+        case 0x79:
+            INST_NAME("JNS ib");
+            GO( TSTw_mask(xFlags, 0b011001, 0)
+                , cNE, cEQ, X_SF)
+            break;
+        case 0x7A:
+            INST_NAME("JP ib");
+            GO( TSTw_mask(xFlags, 0b011110, 0)
+                , cEQ, cNE, X_PF)
+            break;
+        case 0x7B:
+            INST_NAME("JNP ib");
+            GO( TSTw_mask(xFlags, 0b011110, 0)
+                , cNE, cEQ, X_PF)
+            break;
+        case 0x7C:
+            INST_NAME("JL ib");
+            GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);
+                TSTw_mask(x1, 0b010101, 0)
+                , cEQ, cNE, X_SF|X_OF)
+            break;
+        case 0x7D:
+            INST_NAME("JGE ib");
+            GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);
+                TSTw_mask(x1, 0b010101, 0)
+                , cNE, cEQ, X_SF|X_OF)
+            break;
+        case 0x7E:
+            INST_NAME("JLE ib");
+            GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);
+                ORRw_REG_LSL(x1, x1, xFlags, F_OF-F_ZF);
+                TSTw_mask(x1, 0b010101, 0)
+                , cEQ, cNE, X_SF|X_OF|X_ZF)
+            break;
+        case 0x7F:
+            INST_NAME("JG ib");
+            GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);
+                ORRw_REG_LSL(x1, x1, xFlags, F_OF-F_ZF);
+                TSTw_mask(x1, 0b010101, 0)
+                , cNE, cEQ, X_SF|X_OF|X_ZF)
+            break;
+        #undef GO
+        
         case 0x81:
         case 0x83:
             nextop = F8;

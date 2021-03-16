@@ -62,7 +62,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
         emu->sbiidx[i] = &emu->regs[i];
     emu->sbiidx[4] = &emu->zero;
     emu->x64emu_parity_tab = x86emu_parity_tab;
-    emu->eflags.x32 = 0x202; // default flags?
+    emu->eflags.x64 = 0x202; // default flags?
     // own stack?
     emu->stack2free = (ownstack)?(void*)stack:NULL;
     emu->init_stack = (void*)stack;
@@ -368,7 +368,10 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
         if (i%5==4) {
             if(i==4) {
                 if(emu->df) {
-                    strcat(buff, "FLAGS=??????\n");
+#define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "?"
+                    sprintf(tmp, "flags=%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(C), FLAG_CHAR(P), FLAG_CHAR(A), FLAG_CHAR(Z), FLAG_CHAR(S));
+                    strcat(buff, tmp);
+#undef FLAG_CHAR
                 } else {
 #define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "-"
                     sprintf(tmp, "FLAGS=%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(C), FLAG_CHAR(P), FLAG_CHAR(A), FLAG_CHAR(Z), FLAG_CHAR(S));

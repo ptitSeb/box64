@@ -179,8 +179,9 @@ typedef union {
         unsigned int _F_VIF:1; 
         unsigned int _F_VIP:1;
         unsigned int _F_ID:1;
+		unsigned int _F_fill1:10;
+		uint32_t	_F_fill2;
     } f;
-    uint32_t    x32;
 	uint64_t 	x64;
 } x64flags_t;
 

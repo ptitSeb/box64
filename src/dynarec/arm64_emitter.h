@@ -224,15 +224,16 @@
 #define Bcond(cond, imm19)              EMIT(Bcond_gen(((imm19)>>2)&0x7FFFF, cond))
 
 // AND / ORR
-#define LOGIC_gen(sf, opc, N, immr, imms, Rn, Rd)  ((sf)<<31 | (opc)<<29 | 0b100100<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn) | Rd)
-#define ANDx_U13(Rd, Rn, imm13)         EMIT(LOGIC_gen(1, 0b00, ((imm13)>>12)&1, (imm13)&0b111111, ((imm13)>>6)&0b111111, Rn, Rd))
-#define ANDw_U12(Rd, Rn, imm12)         EMIT(LOGIC_gen(0, 0b00, 0, (imm12)&0b111111, ((imm12)>>6)&0b111111, Rn, Rd))
-#define ANDxw_U12(Rd, Rn, imm12)        EMIT(LOGIC_gen(rex.w, 0b00, 0, (imm12)&0b111111, ((imm12)>>6)&0b111111, Rn, Rd))
-#define ANDSx_U13(Rd, Rn, imm13)        EMIT(LOGIC_gen(1, 0b11, ((imm13)>>12)&1, (imm13)&0b111111, ((imm13)>>6)&0b111111, Rn, Rd))
-#define ANDSw_U12(Rd, Rn, imm12)        EMIT(LOGIC_gen(0, 0b11, 0, (imm12)&0b111111, ((imm12)>>6)&0b111111, Rn, Rd))
-#define ORRx_U13(Rd, Rn, imm13)         EMIT(LOGIC_gen(1, 0b01, ((imm13)>>12)&1, (imm13)&0b111111, ((imm13)>>6)&0b111111, Rn, Rd))
-#define ORRw_U12(Rd, Rn, imm12)         EMIT(LOGIC_gen(0, 0b01, 0, (imm12)&0b111111, ((imm12)>>6)&0b111111, Rn, Rd))
-#define ORRxw_U12(Rd, Rn, imm12)        EMIT(LOGIC_gen(rex.w, 0b01, 0, (imm12)&0b111111, ((imm12)>>6)&0b111111, Rn, Rd))
+#define LOGIC_gen(sf, opc, N, immr, imms, Rn, Rd)  ((sf)<<31 | (opc)<<29 | 0b100100<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | Rd)
+// logic to get the mask is ... convoluted... list of possible value there: https://gist.github.com/dinfuehr/51a01ac58c0b23e4de9aac313ed6a06a
+#define ANDx_mask(Rd, Rn, N, immr, imms)    EMIT(LOGIC_gen(1, 0b00, N, immr, imms, Rn, Rd))
+#define ANDw_mask(Rd, Rn, immr, imms)       EMIT(LOGIC_gen(0, 0b00, 0, immr, imms, Rn, Rd))
+#define ANDSx_mask(Rd, Rn, N, immr, imms)   EMIT(LOGIC_gen(1, 0b11, N, immr, imms, Rn, Rd))
+#define ANDSw_mask(Rd, Rn, immr, imms)      EMIT(LOGIC_gen(0, 0b11, 0, immr, imms, Rn, Rd))
+#define ORRx_mask(Rd, Rn, N, immr, imms)    EMIT(LOGIC_gen(1, 0b01, N, immr, imms, Rn, Rd))
+#define ORRw_mask(Rd, Rn, immr, imms)       EMIT(LOGIC_gen(0, 0b01, 0, immr, imms, Rn, Rd))
+#define TSTx_mask(Rn, immr, imms)           ANDSx_mask(xZR, Rn, immr, imms)
+#define TSTw_mask(Rn, immr, imms)           ANDSw_mask(wZR, Rn, immr, imms)
 
 #define LOGIC_REG_gen(sf, opc, shift, N, Rm, imm6, Rn, Rd)    ((sf)<<31 | (opc)<<29 | 0b01010<<24 | (shift)<<22 | (N)<<21 | (Rm)<<16 | (imm6)<<10 | (Rn)<<5 | (Rd))
 #define ANDx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b00, 0b00, 0, Rm, 0, Rn, Rd))
@@ -243,11 +244,18 @@
 #define ANDSxw_REG(Rd, Rn, Rm)          EMIT(LOGIC_REG_gen(rex.w, 0b11, 0b00, 0, Rm, 0, Rn, Rd))
 #define ORRx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b01, 0b00, 0, Rm, 0, Rn, Rd))
 #define ORRx_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(1, 0b01, lsl, 0, Rm, 0, Rn, Rd))
+#define ORRw_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(0, 0b01, lsl, 0, Rm, 0, Rn, Rd))
 #define ORRxw_REG(Rd, Rn, Rm)           EMIT(LOGIC_REG_gen(rex.w, 0b01, 0b00, 0, Rm, 0, Rn, Rd))
 #define ORRw_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(0, 0b01, 0b00, 0, Rm, 0, Rn, Rd))
 #define ORNx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b01, 0b00, 1, Rm, 0, Rn, Rd))
 #define ORNw_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(0, 0b01, 0b00, 1, Rm, 0, Rn, Rd))
 #define ORNxw_REG(Rd, Rn, Rm)           EMIT(LOGIC_REG_gen(rex.w, 0b01, 0b00, 1, Rm, 0, Rn, Rd))
+#define EORx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b10, 0b00, 0, Rm, 0, Rn, Rd))
+#define EORw_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(0, 0b10, 0b00, 0, Rm, 0, Rn, Rd))
+#define EORxw_REG(Rd, Rn, Rm)           EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b00, 0, Rm, 0, Rn, Rd))
+#define EORx_REG_LSL(Rd, Rn, Rm, imm6)  EMIT(LOGIC_REG_gen(1, 0b10, 0b00, 0, Rm, imm6, Rn, Rd))
+#define EORw_REG_LSL(Rd, Rn, Rm, imm6)  EMIT(LOGIC_REG_gen(0, 0b10, 0b00, 0, Rm, imm6, Rn, Rd))
+#define EORxw_REG_LSL(Rd, Rn, Rm, imm6) EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b00, 0, Rm, imm6, Rn, Rd))
 #define MOVx(Rd, Rm)                    ORRx_REG(Rd, xZR, Rm)
 #define MOVw(Rd, Rm)                    ORRw_REG(Rd, xZR, Rm)
 #define MOVxw(Rd, Rm)                   ORRxw_REG(Rd, xZR, Rm)
@@ -266,6 +274,8 @@
 #define BICx_REG    BICx
 #define BICw_REG    BICw
 #define BICxw_REG   BICxw
+#define TSTx_REG(Rn, Rm)                ANDSx_REG(xZR, Rn, Rm)
+#define TSTw_REG(Rn, Rm)                ANDSw_REG(wZR, Rn, Rm)
 
 
 // BFI
@@ -273,12 +283,10 @@
 #define BFMx(Rd, Rn, immr, imms)        EMIT(BFM_gen(1, 0b01, 1, immr, imms, Rn, Rd))
 #define BFMw(Rd, Rn, immr, imms)        EMIT(BFM_gen(0, 0b01, 0, immr, imms, Rn, Rd))
 #define BFMxw(Rd, Rn, immr, imms)       EMIT(BFM_gen(rex.w, 0b01, rex.w, immr, imms, Rn, Rd))
-#define BFIx(Rd, Rn, lsb, width)        BFMx(Rd, Rn, (-lsb)%64, (width)-1)
-#define BFIw(Rd, Rn, lsb, width)        BFMw(Rd, Rn, (-lsb)%32, (width)-1)
-#define BFIxw(Rd, Rn, lsb, width)       BFMxw(Rd, Rn, (-lsb)%(rex.w?64:32), (width)-1)
-#define BFCx(Rd, Rn, lsb, width)        BFMx(Rd, xZR, (-lsb)%64, (width)-1)
-#define BFCw(Rd, Rn, lsb, width)        BFMw(Rd, xZR, (-lsb)%32, (width)-1)
-#define BFCxw(Rd, Rn, lsb, width)       BFMxw(Rd, xZR, (-lsb)%(rex.w?64:32), (width)-1)
+#define BFIx(Rd, Rn, lsb, width)        BFMx(Rd, Rn, ((-lsb)%64)&0x3f, (width)-1)
+#define BFIw(Rd, Rn, lsb, width)        BFMw(Rd, Rn, ((-lsb)%32)&0x1f, (width)-1)
+#define BFCx(Rd, Rn, lsb, width)        BFMx(Rd, xZR, ((-lsb)%64)&0x3f, (width)-1)
+#define BFCw(Rd, Rn, lsb, width)        BFMw(Rd, xZR, ((-lsb)%32)&0x1f, (width)-1)
 
 // UBFX
 #define UBFM_gen(sf, N, immr, imms, Rn, Rd)    ((sf)<<31 | 0b10<<29 | 0b100110<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | (Rd))

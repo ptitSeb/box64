@@ -189,17 +189,17 @@ void emit_sub32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         BICx(xFlags, xFlags, s5);
     }
     IFX(X_ZF) {
-        Bcond(cNE, +4);
-        ORRw_U12(xFlags, xFlags, 1<<F_ZF);
+        Bcond(cNE, +8);
+        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
     }
     IFX(X_CF) {
         // inverted carry
-        Bcond(cCS, +4);
-        ORRw_U12(xFlags, xFlags, 1<<F_CF);
+        Bcond(cCS, +8);
+        ORRw_mask(xFlags, xFlags, 0, 0);    // mask=0x01
     }
     IFX(X_OF) {
-        Bcond(cVC, +4);
-        ORRw_U12(xFlags, xFlags, 1<<F_OF);
+        Bcond(cVC, +8);
+        ORRw_mask(xFlags, xFlags, 0b010101, 0);  // mask=0x800
     }
     IFX(X_SF) {
         LSRxw(s3, s1, (rex.w)?63:31);
@@ -233,16 +233,10 @@ void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
         SET_DFNONE(s4);
     }
     IFX(X_AF) {
-        if(c>=0 && c<0x1000) {
-            MVNxw(s3, s1);
-            ANDxw_U12(s4, s3, c);                // s4 = ~op1 & op2
-            ORRxw_U12(s3, s3, c);             // s3 = ~op1 | op2
-        } else {
-            MOV64x(s5, c);
-            MVNxw(s4, s1);
-            ORRxw_REG(s3, s4, s5);
-            BICxw_REG(s4, s5, s1);
-        }
+        MOV64x(s5, c);
+        MVNxw(s4, s1);
+        ORRxw_REG(s3, s4, s5);      // s3 = ~op1 | op2
+        BICxw_REG(s4, s5, s1);      // s4 = ~op1 & op2
     }
     if(c>=0 && c<0x1000) {
         IFX(X_ALL) {
@@ -272,17 +266,17 @@ void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
         BICx(xFlags, xFlags, s5);
     }
     IFX(X_ZF) {
-        Bcond(cNE, +4);
-        ORRw_U12(xFlags, xFlags, 1<<F_ZF);
+        Bcond(cNE, +8);
+        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
     }
     IFX(X_CF) {
         // inverted carry
-        Bcond(cCS, +4);
-        ORRw_U12(xFlags, xFlags, 1<<F_CF);
+        Bcond(cCS, +8);
+        ORRw_mask(xFlags, xFlags, 0, 0);    // mask=0x01
     }
     IFX(X_OF) {
-        Bcond(cVC, +4);
-        ORRw_U12(xFlags, xFlags, 1<<F_OF);
+        Bcond(cVC, +8);
+        ORRw_mask(xFlags, xFlags, 0b010101, 0);  // mask=0x800
     }
     IFX(X_SF) {
         LSRxw(s3, s1, (rex.w)?63:31);
