@@ -148,6 +148,18 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x8B:
+            INST_NAME("MOV Gd, Ed");
+            nextop=F8;
+            GETGD;
+            if(MODREG) {   // reg <= reg
+                MOVxw(gd, xRAX+(nextop&7)+(rex.b<<3));
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+                LDRxw_U12(gd, ed, fixedaddress);
+            }
+            break;
+
         case 0x8D:
             INST_NAME("LEA Gd, Ed");
             nextop=F8;

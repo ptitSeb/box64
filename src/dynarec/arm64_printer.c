@@ -81,6 +81,8 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     #define shift a.h
     #define hw a.w
     #define cond a.c
+    #define immr a.r
+    #define imms a.s
     // --- LDR / STR
     if(isMask(opcode, "1x111000010iiiiiiiii01nnnnnttttt", &a)) {
         int size = (opcode>>30)&3;
@@ -256,6 +258,26 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     // ---- LOGIC
+
+    // ---- SHIFT
+    if(isMask(opcode, "f10100110Nrrrrrrssssssnnnnnddddd", &a)) {
+        if(sf && imms!=0b111111 && imms+1==immr)
+            snprintf(buff, sizeof(buff), "LSL %s, %s, %d", Xt[Rd], Xt[Rn], 63-imms);
+        else if(!sf && imms!=0b011111 && imms+1==immr)
+            snprintf(buff, sizeof(buff), "LSL %s, %s, %d", Wt[Rd], Wt[Rn], 31-imms);
+        else if(sf && imms==0b111111)
+            snprintf(buff, sizeof(buff), "LSR %s, %s, %d", Xt[Rd], Xt[Rn], immr);
+        else if(!sf && imms==0b011111)
+            snprintf(buff, sizeof(buff), "LSR %s, %s, %d", Wt[Rd], Wt[Rn], immr);
+        else if(immr==0 && imms==0b000111)
+            snprintf(buff, sizeof(buff), "UXTB %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn]);
+        else if(immr==0 && imms==0b001111)
+            snprintf(buff, sizeof(buff), "UXTH %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn]);
+        else
+            snprintf(buff, sizeof(buff), "UBFM %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], immr, imms);
+
+        return buff;
+    }
 
     // ---- BRANCH / TEST
     if(isMask(opcode, "1101011000011111000000nnnnn00000", &a)) {

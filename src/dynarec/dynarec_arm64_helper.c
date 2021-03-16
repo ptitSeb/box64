@@ -47,7 +47,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                         MOV64x(scratch, tmp);
                         ADDx_REG_LSL(ret, scratch, xRAX+sib_reg+(rex.x<<3), (sib>>6));
                     } else {
-                        MOVx_LSL(ret, xRAX+sib_reg+(rex.x<<3), (sib>>6));
+                        LSLx(ret, xRAX+sib_reg+(rex.x<<3), (sib>>6));
                         *fixaddress = tmp;
                     }
                 } else {
