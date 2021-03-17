@@ -111,7 +111,7 @@
 #define MOV64x(Rd, imm64) \
     if(~((uint64_t)(imm64))<0xffff) {                                                                       \
         MOVZx(Rd, (~(uint64_t)(imm64))&0xffff);                                                             \
-        MVNx(Rd, Rd);                                                                                       \
+        MVNx_REG(Rd, Rd);                                                                                       \
     } else {                                                                                                \
         MOVZx(Rd, ((uint64_t)(imm64))&0xffff);                                                              \
         if(((uint64_t)(imm64))&0xffff0000) {MOVKx_LSL(Rd, (((uint64_t)(imm64))>>16)&0xffff, 16);}           \
@@ -130,6 +130,7 @@
 #define ADDw_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(0, 0, 0, 0b00, Rm, 0, Rn, Rd))
 #define ADDSw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(0, 0, 1, 0b00, Rm, 0, Rn, Rd))
 #define ADDxw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(rex.w, 0, 0, 0b00, Rm, 0, Rn, Rd))
+#define ADDSxw_REG(Rd, Rn, Rm)              EMIT(ADDSUB_REG_gen(rex.w, 0, 1, 0b00, Rm, 0, Rn, Rd))
 
 #define ADDSUB_IMM_gen(sf, op, S, shift, imm12, Rn, Rd)    ((sf)<<31 | (op)<<30 | (S)<<29 | 0b10001<<24 | (shift)<<22 | (imm12)<<10 | (Rn)<<5 | (Rd))
 #define ADDx_U12(Rd, Rn, imm12)     EMIT(ADDSUB_IMM_gen(1, 0, 0, 0b00, (imm12)&0xfff, Rn, Rd))
@@ -251,8 +252,8 @@
 #define ANDSw_REG(Rd, Rn, Rm)           EMIT(LOGIC_REG_gen(0, 0b11, 0b00, 0, Rm, 0, Rn, Rd))
 #define ANDSxw_REG(Rd, Rn, Rm)          EMIT(LOGIC_REG_gen(rex.w, 0b11, 0b00, 0, Rm, 0, Rn, Rd))
 #define ORRx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b01, 0b00, 0, Rm, 0, Rn, Rd))
-#define ORRx_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(1, 0b01, lsl, 0, Rm, 0, Rn, Rd))
-#define ORRw_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(0, 0b01, lsl, 0, Rm, 0, Rn, Rd))
+#define ORRx_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(1, 0b01, 0b00, 0, Rm, lsl, Rn, Rd))
+#define ORRw_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(0, 0b01, 0b00, 0, Rm, lsl, Rn, Rd))
 #define ORRxw_REG(Rd, Rn, Rm)           EMIT(LOGIC_REG_gen(rex.w, 0b01, 0b00, 0, Rm, 0, Rn, Rd))
 #define ORRw_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(0, 0b01, 0b00, 0, Rm, 0, Rn, Rd))
 #define ORNx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b01, 0b00, 1, Rm, 0, Rn, Rd))
@@ -261,16 +262,16 @@
 #define EORx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b10, 0b00, 0, Rm, 0, Rn, Rd))
 #define EORw_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(0, 0b10, 0b00, 0, Rm, 0, Rn, Rd))
 #define EORxw_REG(Rd, Rn, Rm)           EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b00, 0, Rm, 0, Rn, Rd))
-#define EORx_REG_LSL(Rd, Rn, Rm, imm6)  EMIT(LOGIC_REG_gen(1, 0b10, 0b00, 0, Rm, imm6, Rn, Rd))
-#define EORw_REG_LSL(Rd, Rn, Rm, imm6)  EMIT(LOGIC_REG_gen(0, 0b10, 0b00, 0, Rm, imm6, Rn, Rd))
-#define EORxw_REG_LSL(Rd, Rn, Rm, imm6) EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b00, 0, Rm, imm6, Rn, Rd))
-#define MOVx(Rd, Rm)                    ORRx_REG(Rd, xZR, Rm)
-#define MOVw(Rd, Rm)                    ORRw_REG(Rd, xZR, Rm)
-#define MOVxw(Rd, Rm)                   ORRxw_REG(Rd, xZR, Rm)
-#define MVNx(Rd, Rm)                    ORNx_REG(Rd, xZR, Rm)
-#define MVNx_LSL(Rd, Rm, lsl)           ORNx_REG_LSL(Rd, xZR, Rm, lsl)
-#define MVNw(Rd, Rm)                    ORNw_REG(Rd, xZR, Rm)
-#define MVNxw(Rd, Rm)                   ORNxw_REG(Rd, xZR, Rm)
+#define EORx_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(1, 0b10, 0b00, 0, Rm, lsl, Rn, Rd))
+#define EORw_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(0, 0b10, 0b00, 0, Rm, lsl, Rn, Rd))
+#define EORxw_REG_LSL(Rd, Rn, Rm, lsl)  EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b00, 0, Rm, lsl, Rn, Rd))
+#define MOVx_REG(Rd, Rm)                ORRx_REG(Rd, xZR, Rm)
+#define MOVw_REG(Rd, Rm)                ORRw_REG(Rd, xZR, Rm)
+#define MOVxw_REG(Rd, Rm)               ORRxw_REG(Rd, xZR, Rm)
+#define MVNx_REG(Rd, Rm)                ORNx_REG(Rd, xZR, Rm)
+#define MVNx_REG_LSL(Rd, Rm, lsl)       ORNx_REG_LSL(Rd, xZR, Rm, lsl)
+#define MVNw_REG(Rd, Rm)                ORNw_REG(Rd, xZR, Rm)
+#define MVNxw_REG(Rd, Rm)               ORNxw_REG(Rd, xZR, Rm)
 #define MOV_frmSP(Rd)                   ADDx_U12(Rd, xSP, 0)
 #define MOV_toSP(Rm)                    ADDx_U12(xSP, Rm, 0)
 #define BICx(Rd, Rn, Rm)                EMIT(LOGIC_REG_gen(1, 0b00, 0b00, 1, Rm, 0, Rn, Rd))

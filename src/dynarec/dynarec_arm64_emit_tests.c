@@ -297,7 +297,7 @@
 //}
 
 // emit TEST32 instruction, from test s1 , s2, using s3 and s4 as scratch
-void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
     IFX(X_PEND) {
         SET_DF(s3, rex.w?d_tst64:d_tst32);
@@ -305,8 +305,8 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE(s4);
     }
     IFX(X_ZF|X_CF|X_OF) {
-        MOV32w(s5, (1<<F_ZF)|(1<<F_CF)|(1<<F_OF));
-        BICw(xFlags, xFlags, s5);
+        MOV32w(s3, (1<<F_ZF)|(1<<F_CF)|(1<<F_OF));
+        BICw(xFlags, xFlags, s3);
     }
     ANDSxw_REG(s3, s1, s2);   // res = s1 & s2
     IFX(X_PEND) {
@@ -328,7 +328,7 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         LDRw_REG_LSL2(s4, s4, s3);
         ANDw_mask(s3, s1, 0, 0b000100);   // 0x1f
         LSRw_REG(s4, s4, s3);
-        MVNx(s4, s4);
+        MVNx_REG(s4, s4);
         BFIw(xFlags, s4, F_PF, 1);
     }
 }

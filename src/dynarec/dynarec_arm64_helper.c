@@ -222,7 +222,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     MESSAGE(LOG_DUMP, "Jump to epilog\n");
     if(reg) {
         if(reg!=xRIP) {
-            MOVx(xRIP, reg);
+            MOVx_REG(xRIP, reg);
         }
     } else {
         GETIP_(ip);
@@ -237,7 +237,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 
     if(reg) {
         if(reg!=xRIP) {
-            MOVx(xRIP, reg);
+            MOVx_REG(xRIP, reg);
         }
         uintptr_t tbl = getJumpTable64();
         TABLE64(x2, tbl);
@@ -256,7 +256,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         LDRx_U12(x3, x2, 0);
     }
     if(reg!=x1) {
-        MOVx(x1, xRIP);
+        MOVx_REG(x1, xRIP);
     }
     #ifdef HAVE_TRACE
     //MOVx(x2, 15);    no access to PC reg 
@@ -338,7 +338,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     BLR(reg);
     fpu_popcache(dyn, ninst, reg);
     if(ret>=0) {
-        MOVx(ret, xEmu);
+        MOVx_REG(ret, xEmu);
     }
     if(ret!=-2) {
         LDRx_S9_postindex(xEmu, xSP, 16);
@@ -721,7 +721,7 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     MOV64x(s1, (uintptr_t)round_map);
     LDRw_REG_LSL2(s2, s1, s2);
     VMRS(s1);               // get fpscr
-    MOVx(s3, s1);
+    MOVx_REG(s3, s1);
     BFIx(s1, s2, 22, 2);     // inject new round
     VMSR(s1);               // put new fpscr
     return s3;
@@ -735,7 +735,7 @@ int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     MOV64x(s1, (uintptr_t)round_map);
     LDRw_REG_LSL2(s2, s1, s2);
     VMRS(s1);               // get fpscr
-    MOVx(s3, s1);
+    MOVx_REG(s3, s1);
     BFIx(s1, s2, 22, 2);     // inject new round
     VMSR(s1);               // put new fpscr
     return s3;
@@ -979,6 +979,6 @@ void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     LDRw_REG_LSL2(s4, s4, s3);
     ANDw_mask(s3, s1, 0, 0b000100); //0x1f
     LSRw_REG(s4, s4, s3);
-    MVNx(s4, s4);
-    BFIx(xFlags, s4, F_PF, 1);
+    MVNw_REG(s4, s4);
+    BFIw(xFlags, s4, F_PF, 1);
 }

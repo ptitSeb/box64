@@ -55,7 +55,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);
                 GETIP(ip);
-                MOVx(x1, xRIP);
+                MOVx_REG(x1, xRIP);
                 STORE_XEMU_REGS(xRIP);
                 MOV32w(x2, 1);
                 CALL(PrintTrace, -1);
