@@ -219,26 +219,21 @@ void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
         if(c>=0 && c<0x1000) {
             SUBxw_U12(s1, s1, c);
         } else {
-            MOV64x(s5, c);
+            MOV64xw(s5, c);
             SUBxw_REG(s1, s1, s5);
         }
         return;
     }
     IFX(X_PEND) {
-        if(rex.w) {
-            STRx_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        } else {
-            MOVw(s3, s1);
-            STRx_U12(s3, xEmu, offsetof(x64emu_t, op1));
-        }
-        MOV64x(s3, c);
-        STRx_U12(s3, xEmu, offsetof(x64emu_t, op2));
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        MOV64xw(s3, c);
+        STRxw_U12(s3, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_sub64:d_sub32);
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
     IFX(X_AF) {
-        MOV64x(s5, c);
+        MOV64xw(s5, c);
         MVNxw(s4, s1);
         ORRxw_REG(s3, s4, s5);      // s3 = ~op1 | op2
         BICxw_REG(s4, s5, s1);      // s4 = ~op1 & op2
@@ -258,7 +253,7 @@ void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
         }
     }
     IFX(X_PEND) {
-        STRx_U12(s1, xEmu, offsetof(x64emu_t, res));
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF) {
         ANDxw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res

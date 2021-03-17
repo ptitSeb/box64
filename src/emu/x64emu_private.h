@@ -18,6 +18,13 @@ typedef struct forkpty_s {
     void*   f;  // forkpty function
 } forkpty_t;
 
+typedef union multiuint_s {
+    uint8_t     u8;
+    uint16_t    u16;
+    uint32_t    u32;
+    uint64_t    u64;
+} multiuint_t;
+
 typedef struct x64emu_s {
     // cpu
 	reg64_t     regs[16];
@@ -40,9 +47,9 @@ typedef struct x64emu_s {
     // defered flags
     int         dummy1;     // to align on 64bits with df
     defered_flags_t df;
-    uint64_t    op1;
-    uint64_t    op2;
-    uint64_t    res;
+    multiuint_t op1;
+    multiuint_t op2;
+    multiuint_t res;
     uint32_t    *x64emu_parity_tab; // helper
     #ifdef HAVE_TRACE
     uintptr_t   prev2_ip;

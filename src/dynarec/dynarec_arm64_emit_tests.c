@@ -310,7 +310,7 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     ANDSxw_REG(s3, s1, s2);   // res = s1 & s2
     IFX(X_PEND) {
-        STRx_U12(s3, xEmu, offsetof(x64emu_t, res));
+        STRxw_U12(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
         Bcond(cNE, +8);
