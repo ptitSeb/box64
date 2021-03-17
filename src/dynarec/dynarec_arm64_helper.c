@@ -278,6 +278,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
     LDRx_REG_LSL3(x2, x2, x3);
+    MOVx_REG(x1, xRIP);
     BR(x2);
 }
 
@@ -301,6 +302,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
     LDRx_REG_LSL3(x2, x2, x3);
+    MOVx_REG(x1, xRIP);
     BR(x2);
 }
 

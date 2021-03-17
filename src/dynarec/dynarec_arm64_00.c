@@ -326,6 +326,27 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xC2:
+            INST_NAME("RETN");
+            //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            READFLAGS(X_PEND);  // lets play safe here too
+            BARRIER(2);
+            i32 = F16;
+            retn_to_epilog(dyn, ninst, i32);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+        case 0xC3:
+            INST_NAME("RET");
+            // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            // ^^^ that hack break PlantsVsZombies and GOG Setup under wine....
+            READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
+            BARRIER(2);
+            ret_to_epilog(dyn, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
