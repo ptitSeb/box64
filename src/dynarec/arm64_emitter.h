@@ -108,12 +108,17 @@
 #define MOVKw_LSL(Rd, imm16, shift)         EMIT(MOVK_gen(0, (shift)/16, (imm16)&0xffff, Rd))
 
 #define MOV32w(Rd, imm32) {MOVZw(Rd, (imm32)&0xffff); if((imm32)&0xffff0000) {MOVKw_LSL(Rd, ((imm32)>>16)&0xffff, 16);}}
-#define MOV64x(Rd, imm64) { \
-    MOVZx(Rd, ((uint64_t)(imm64))&0xffff); \
-    if(((uint64_t)(imm64))&0xffff0000) {MOVKx_LSL(Rd, (((uint64_t)(imm64))>>16)&0xffff, 16);} \
-    if(((uint64_t)(imm64))&0xffff00000000L) {MOVKx_LSL(Rd, (((uint64_t)(imm64))>>32)&0xffff, 32);} \
-    if(((uint64_t)(imm64))&0xffff000000000000L) {MOVKx_LSL(Rd, (((uint64_t)(imm64))>>48)&0xffff, 48);}\
-}
+#define MOV64x(Rd, imm64) \
+    if(~((uint64_t)(imm64))<0xffff) {                                                                       \
+        MOVZx(Rd, (~(uint64_t)(imm64))&0xffff);                                                             \
+        MVNx(Rd, Rd);                                                                                       \
+    } else {                                                                                                \
+        MOVZx(Rd, ((uint64_t)(imm64))&0xffff);                                                              \
+        if(((uint64_t)(imm64))&0xffff0000) {MOVKx_LSL(Rd, (((uint64_t)(imm64))>>16)&0xffff, 16);}           \
+        if(((uint64_t)(imm64))&0xffff00000000L) {MOVKx_LSL(Rd, (((uint64_t)(imm64))>>32)&0xffff, 32);}      \
+        if(((uint64_t)(imm64))&0xffff000000000000L) {MOVKx_LSL(Rd, (((uint64_t)(imm64))>>48)&0xffff, 48);}  \
+    }
+
 
 // ADD / SUB
 #define ADDSUB_REG_gen(sf, op, S, shift, Rm, imm6, Rn, Rd) ((sf)<<31 | (op)<<30 | (S)<<29 | 0b01011<<24 | (shift)<<22 | (Rm)<<16 | (imm6)<<10 | (Rn)<<5 | (Rd))
