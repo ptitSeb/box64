@@ -56,13 +56,13 @@
                     ed = x1;                            \
                 }
 //GETEDH can use hint for ed, and r1 or r2 for wback (depending on hint). wback is 0 if ed is xEAX..xEDI
-#define GETEDH(hint)   if((nextop&0xC0)==0xC0) {   \
-                    ed = xEAX+(nextop&7);   \
-                    wback = 0;              \
-                } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 4095, 0); \
-                    LDR_IMM9(hint, wback, fixedaddress); \
-                    ed = hint;              \
+#define GETEDH(hint, D) if(MODREG) {                    \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    LDRxw_U12(hint, wback, fixedaddress); \
+                    ed = hint;                            \
                 }
 //GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
 #define GETEDW(hint, ret)   if((nextop&0xC0)==0xC0) {   \
@@ -652,10 +652,10 @@ void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
 //void emit_xor16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_and16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_and16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_inc32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_inc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 //void emit_inc16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
-//void emit_dec32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_dec32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 //void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_adc32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);

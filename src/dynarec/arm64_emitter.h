@@ -137,6 +137,7 @@
 #define ADDw_U12(Rd, Rn, imm12)     EMIT(ADDSUB_IMM_gen(0, 0, 0, 0b00, (imm12)&0xfff, Rn, Rd))
 #define ADDSw_U12(Rd, Rn, imm12)    EMIT(ADDSUB_IMM_gen(0, 0, 1, 0b00, (imm12)&0xfff, Rn, Rd))
 #define ADDxw_U12(Rd, Rn, imm12)    EMIT(ADDSUB_IMM_gen(rex.w, 0, 0, 0b00, (imm12)&0xfff, Rn, Rd))
+#define ADDSxw_U12(Rd, Rn, imm12)   EMIT(ADDSUB_IMM_gen(rex.w, 0, 1, 0b00, (imm12)&0xfff, Rn, Rd))
 
 #define SUBx_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(1, 1, 0, 0b00, Rm, 0, Rn, Rd))
 #define SUBSx_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(1, 1, 1, 0b00, Rm, 0, Rn, Rd))
@@ -176,7 +177,7 @@
 #define LDR_REG_gen(size, Rm, option, S, Rn, Rt)    ((size)<<30 | 0b111<<27 | 0b01<<22 | 1<<21 | (Rm)<<16 | (option)<<13 | (S)<<12 | (0b10)<<10 | (Rn)<<5 | (Rt))
 #define LDRx_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b11, Rm, 0b011, 0, Rn, Rt))
 #define LDRx_REG_LSL3(Rt, Rn, Rm)       EMIT(LDR_REG_gen(0b11, Rm, 0b011, 1, Rn, Rt))
-#define LDRx_REG_UXTW(Rt, Rn, Rm)       EMIT(LDR_REG_gen(0b11, Rm, 0b010, 0, Rn, Rt))
+#define LDRx_REG_UXTW3(Rt, Rn, Rm)      EMIT(LDR_REG_gen(0b11, Rm, 0b010, 1, Rn, Rt))
 #define LDRw_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b10, Rm, 0b011, 0, Rn, Rt))
 #define LDRw_REG_LSL2(Rt, Rn, Rm)       EMIT(LDR_REG_gen(0b10, Rm, 0b011, 1, Rn, Rt))
 #define LDRB_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b00, Rm, 0b011, 0, Rn, Rt))
@@ -292,8 +293,10 @@
 #define BFMxw(Rd, Rn, immr, imms)       EMIT(BFM_gen(rex.w, 0b01, rex.w, immr, imms, Rn, Rd))
 #define BFIx(Rd, Rn, lsb, width)        BFMx(Rd, Rn, ((-lsb)%64)&0x3f, (width)-1)
 #define BFIw(Rd, Rn, lsb, width)        BFMw(Rd, Rn, ((-lsb)%32)&0x1f, (width)-1)
+#define BFIxw(Rd, Rn, lsb, width)       if(rex.w) {BFIx(Rd, Rn, lsb, width);} else {BFIw(Rd, Rn, lsb, width);}
 #define BFCx(Rd, Rn, lsb, width)        BFMx(Rd, xZR, ((-lsb)%64)&0x3f, (width)-1)
 #define BFCw(Rd, Rn, lsb, width)        BFMw(Rd, xZR, ((-lsb)%32)&0x1f, (width)-1)
+#define BFCxw(Rd, Rn, lsb, width)       if(rex.w) {BFCx(Rd, Rn, lsb, width);} else {BFCw(Rd, Rn, lsb, width);}
 
 // UBFX
 #define UBFM_gen(sf, N, immr, imms, Rn, Rd)    ((sf)<<31 | 0b10<<29 | 0b100110<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | (Rd))

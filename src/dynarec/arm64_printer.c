@@ -140,9 +140,6 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         int amount = size*a.S;
         if(option==3 && !amount)
             snprintf(buff, sizeof(buff), "LDR %s, [%s, %s]", (size==2)?Wt[Rt]:Xt[Rt], XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm]);
-        else if(!amount)
-        if(option==3 && !amount)
-            snprintf(buff, sizeof(buff), "LDR %s, [%s, %s, %s]", (size==2)?Wt[Rt]:Xt[Rt], XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm], extend[option]);
         else
             snprintf(buff, sizeof(buff), "LDR %s, [%s, %s, %s %d]", (size==2)?Wt[Rt]:Xt[Rt], XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm], extend[option], amount);
         return buff;
@@ -174,9 +171,6 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         int amount = size*a.S;
         if(option==3 && !amount)
             snprintf(buff, sizeof(buff), "STR %s, [%s, %s]", (size==2)?Wt[Rt]:Xt[Rt], XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm]);
-        else if(!amount)
-        if(option==3 && !amount)
-            snprintf(buff, sizeof(buff), "STR %s, [%s, %s, %s]", (size==2)?Wt[Rt]:Xt[Rt], XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm], extend[option]);
         else
             snprintf(buff, sizeof(buff), "STR %s, [%s, %s, %s %d]", (size==2)?Wt[Rt]:Xt[Rt], XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm], extend[option], amount);
         return buff;

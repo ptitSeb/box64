@@ -247,14 +247,17 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         LDRx_REG_LSL3(x2, x2, x3);
         UBFXx(x3, xRIP, 16, JMPTABL_SHIFT);
         LDRx_REG_LSL3(x2, x2, x3);
-        LDRx_REG_UXTW(x3, x2, xRIP);
+        UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
+        LDRx_REG_LSL3(x3, x2, x3);
     } else {
         uintptr_t p = getJumpTableAddress64(ip); 
         TABLE64(x2, p);
         GETIP_(ip);
         LDRx_U12(x3, x2, 0);
     }
-    MOVx(x1, xRIP);
+    if(reg!=x1) {
+        MOVx(x1, xRIP);
+    }
     #ifdef HAVE_TRACE
     //MOVx(x2, 15);    no access to PC reg 
     #endif
@@ -273,7 +276,8 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, 16, JMPTABL_SHIFT);
     LDRx_REG_LSL3(x2, x2, x3);
-    LDRx_REG_UXTW(x2, x2, xRIP);
+    UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
+    LDRx_REG_LSL3(x2, x2, x3);
     BR(x2);
 }
 
@@ -295,7 +299,8 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, 16, JMPTABL_SHIFT);
     LDRx_REG_LSL3(x2, x2, x3);
-    LDRx_REG_UXTW(x2, x2, xRIP);
+    UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
+    LDRx_REG_LSL3(x2, x2, x3);
     BR(x2);
 }
 
