@@ -39,15 +39,15 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
     if(!(nextop&0xC0)) {
         if((nextop&7)==4) {
             uint8_t sib = F8;
-            int sib_reg = (sib>>3)&7;
+            int sib_reg = ((sib>>3)&7)+(rex.x<<3);
             if((sib&0x7)==5) {
                 uint64_t tmp = F32S64;
                 if (sib_reg!=4) {
                     if(tmp && ((tmp<absmin) || (tmp>absmax) || (tmp&mask))) {
                         MOV64x(scratch, tmp);
-                        ADDx_REG_LSL(ret, scratch, xRAX+sib_reg+(rex.x<<3), (sib>>6));
+                        ADDx_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
                     } else {
-                        LSLx(ret, xRAX+sib_reg+(rex.x<<3), (sib>>6));
+                        LSLx(ret, xRAX+sib_reg, (sib>>6));
                         *fixaddress = tmp;
                     }
                 } else {
@@ -55,7 +55,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 }
             } else {
                 if (sib_reg!=4) {
-                    ADDx_REG_LSL(ret, xRAX+(sib&0x7)+(rex.b<<3), xRAX+sib_reg+(rex.x<<3), (sib>>6));
+                    ADDx_REG_LSL(ret, xRAX+(sib&0x7)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
                 } else {
                     ret = xRAX+(sib&0x7)+(rex.b<<3);
                 }
@@ -74,7 +74,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         int sib_reg = 0;
         if((nextop&7)==4) {
             sib = F8;
-            sib_reg = (sib>>3)&7;
+            sib_reg = ((sib>>3)&7)+(rex.x<<3);
         }
         if(nextop&0x80)
             i64 = F32S;
@@ -84,7 +84,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             *fixaddress = i64;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
-                    ADDx_REG_LSL(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg+(rex.x<<3), (sib>>6));
+                    ADDx_REG_LSL(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
                 } else {
                     ret = xRAX+(sib&0x07)+(rex.b<<3);
                 }
@@ -96,7 +96,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             if(i64<0x1000) {
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        ADDx_REG_LSL(scratch, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg+(rex.x<<3), (sib>>6));
+                        ADDx_REG_LSL(scratch, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
                     } else {
                         scratch = xRAX+(sib&0x07)+(rex.b<<3);
                     }
@@ -116,7 +116,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                         } else {
                             ADDx_REG(scratch, scratch, xRAX+(sib&0x07)+(rex.b<<3));
                         }
-                        ADDx_REG_LSL(ret, scratch, xRAX+sib_reg+(rex.x<<3), (sib>>6));
+                        ADDx_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
                     } else {
                         PASS3(int tmp = xRAX+(sib&0x07)+(rex.b<<3));
                         if(sub) {
@@ -225,7 +225,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             MOVx(xRIP, reg);
         }
     } else {
-        GETIP(ip);
+        GETIP_(ip);
     }
     TABLE64(x2, (uintptr_t)arm64_epilog);
     BR(x2);
@@ -251,7 +251,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     } else {
         uintptr_t p = getJumpTableAddress64(ip); 
         TABLE64(x2, p);
-        GETIP(ip);
+        GETIP_(ip);
         LDRx_U12(x3, x2, 0);
     }
     MOVx(x1, xRIP);

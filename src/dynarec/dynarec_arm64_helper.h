@@ -427,15 +427,25 @@
 
 #if STEP < 2
 #define GETIP(A)
+#define GETIP_(A)
 #else
 #define GETIP(A)                                    \
     if(dyn->last_ip && (A-dyn->last_ip)<0x1000) {   \
         uint64_t delta = A-dyn->last_ip;            \
         dyn->last_ip += delta;                      \
-        ADDx_U12(xRIP, xRIP, delta);                \
+        if(delta) {                                 \
+            ADDx_U12(xRIP, xRIP, delta);            \
+        }                                           \
     } else {                                        \
         dyn->last_ip = A;                           \
         TABLE64(xRIP, dyn->last_ip);                \
+    }
+#define GETIP_(A)                                   \
+    if(dyn->last_ip && (A-dyn->last_ip)<0x1000) {   \
+        uint64_t delta = A-dyn->last_ip;            \
+        ADDx_U12(xRIP, xRIP, delta);                \
+    } else {                                        \
+        TABLE64(xRIP, A);                           \
     }
 #endif
 

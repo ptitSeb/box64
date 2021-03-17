@@ -300,7 +300,7 @@
 void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
     IFX(X_PEND) {
-        SET_DF(s3, d_tst32);
+        SET_DF(s3, rex.w?d_tst64:d_tst32);
     } else {
         SET_DFNONE(s4);
     }

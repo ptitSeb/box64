@@ -13,6 +13,8 @@ static const char* WtSp[] = {"w0", "w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8
 
 static const char* conds[] = {"cEQ", "cNE", "cCS", "cCC", "cMI", "cPL", "cVS", "cVC", "cHI", "cLS", "cGE", "cLT", "cGT", "cLE", "c__", "inv"};
 
+#define abs(A) (((A)<0)?(-(A)):(A))
+
 typedef struct arm64_print_s {
     int N, S;
     int t, n, m, d;
@@ -108,20 +110,20 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     if(isMask(opcode, "1x111000010iiiiiiiii01nnnnnttttt", &a)) {
         int size = (opcode>>30)&3;
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "LDR %s, [%s], %d", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], offset);
+        snprintf(buff, sizeof(buff), "LDR %s, [%s], %s0x%x", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "1x111000010iiiiiiiii11nnnnnttttt", &a)) {
         int size = (opcode>>30)&3;
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "LDR %s, [%s, %d]!", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], offset);
+        snprintf(buff, sizeof(buff), "LDR %s, [%s, %s0x%x]!", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "1x11100101iiiiiiiiiiiinnnnnttttt", &a)) {
         int size = (opcode>>30)&3;
         int offset = (imm)<<size;
         if(offset)
-            snprintf(buff, sizeof(buff), "LDR %s, [%s, %d]", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], offset);
+            snprintf(buff, sizeof(buff), "LDR %s, [%s, 0x%x]", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], offset);
         else
             snprintf(buff, sizeof(buff), "LDR %s, [%s]", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn]);
         return buff;
@@ -148,20 +150,20 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     if(isMask(opcode, "1x111000000iiiiiiiii01nnnnnttttt", &a)) {
         int size = (opcode>>30)&3;
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "STR %s, [%s], %d", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], offset);
+        snprintf(buff, sizeof(buff), "STR %s, [%s], %s0x%x", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "1x111000000iiiiiiiii11nnnnnttttt", &a)) {
         int size = (opcode>>30)&3;
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "STR %s, [%s, %d]!", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], offset);
+        snprintf(buff, sizeof(buff), "STR %s, [%s, %s0x%x]!", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "1x11100100iiiiiiiiiiiinnnnnttttt", &a)) {
         int size = (opcode>>30)&3;
         int offset = (imm)<<size;
         if(offset)
-            snprintf(buff, sizeof(buff), "STR %s, [%s, %d]", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], offset);
+            snprintf(buff, sizeof(buff), "STR %s, [%s, 0x%x]", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], offset);
         else
             snprintf(buff, sizeof(buff), "STR %s, [%s]", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn]);
         return buff;

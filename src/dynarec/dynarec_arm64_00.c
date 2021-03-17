@@ -324,7 +324,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     // calling a native function
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
-                    GETIP(dyn->insts[ninst].natcall); // read the 0xCC already
+                    GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
                     STORE_XEMU_MINIMUM(xRIP);
                     CALL_S(x64Int3, -1);
                     LOAD_XEMU_MINIMUM(xRIP);
