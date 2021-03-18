@@ -34,6 +34,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t u8;
     uint8_t gb1, gb2, eb1, eb2;
     uint32_t u32;
+    uint64_t u64;
     uint8_t wback, wb1, wb2;
     int fixedaddress;
     rex_t rex;
@@ -474,6 +475,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                     MOVxw_REG(gd, ed);
                 }
+            }
+            break;
+
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg, Id");
+            gd = xRAX+(opcode&7)+(rex.b<<3);
+            if(rex.w) {
+                u64 = F64;
+                MOV64x(gd, u64);
+            } else {
+                u32 = F32;
+                MOV32w(gd, u32);
             }
             break;
 

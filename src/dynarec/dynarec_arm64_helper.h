@@ -22,6 +22,7 @@
 #define F32     *(uint32_t*)(addr+=4, addr-4)
 #define F32S    *(int32_t*)(addr+=4, addr-4)
 #define F32S64  (uint64_t)(int64_t)F32S
+#define F64     *(uint64_t*)(addr+=8, addr-8)
 #define PK(a)   *(uint8_t*)(addr+a)
 #define PK16(a)   *(uint16_t*)(addr+a)
 #define PK32(a)   *(uint32_t*)(addr+a)
