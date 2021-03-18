@@ -478,6 +478,24 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x9B:
+            INST_NAME("FWAIT");
+            break;
+        case 0x9C:
+            INST_NAME("PUSHF");
+            READFLAGS(X_ALL);
+            PUSH1(xFlags);
+            break;
+        case 0x9D:
+            INST_NAME("POPF");
+            SETFLAGS(X_ALL, SF_SET);
+            POP1(xFlags);
+            MOV32w(x1, 0x3F7FD7);
+            ANDw_REG(xFlags, xFlags, x1);
+            ORRw_mask(xFlags, xFlags, 0b011111, 0);   //mask=0x00000002
+            SET_DFNONE(x1);
+            break;
+
         case 0xB8:
         case 0xB9:
         case 0xBA:
