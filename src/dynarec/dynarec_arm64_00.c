@@ -109,6 +109,32 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_sub32c(dyn, ninst, rex, xRAX, i32, x3, x4, x5);
             break;
 
+        case 0x31:
+            INST_NAME("XOR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
+            WBACK;
+            break;
+
+        case 0x33:
+            INST_NAME("XOR Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+
+        case 0x35:
+            INST_NAME("XOR EAX, Id");
+            SETFLAGS(X_ALL, SF_SET);
+            i32 = F32S;
+            emit_xor32c(dyn, ninst, rex, xRAX, i32, x3, x4);
+            break;
+
         case 0x50:
         case 0x51:
         case 0x52:

@@ -320,6 +320,7 @@
 #define BICxw_REG   BICxw
 #define TSTx_REG(Rn, Rm)                ANDSx_REG(xZR, Rn, Rm)
 #define TSTw_REG(Rn, Rm)                ANDSw_REG(wZR, Rn, Rm)
+#define TSTxw_REG(Rn, Rm)               ANDSxw_REG(xZR, Rn, Rm)
 
 
 // BFI

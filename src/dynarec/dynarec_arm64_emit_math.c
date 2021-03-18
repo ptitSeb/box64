@@ -878,7 +878,7 @@ void emit_dec32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
 {
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        SET_DF(s4, d_dec32);
+        SET_DF(s4, rex.w?d_dec64:d_dec32);
     } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
         SET_DFNONE(s4);
     }
