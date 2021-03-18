@@ -24,97 +24,92 @@
 #include "dynarec_arm64_helper.h"
 
 // emit CMP32 instruction, from cmp s1 , s2, using s3 and s4 as scratch
-//void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
-//{
-//    IFX(X_PEND) {
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, op1));
-//        STR_IMM9(s2, xEmu, offsetof(x64emu_t, op2));
-//        SET_DF(s4, d_cmp32);
-//    } else {
-//        SET_DFNONE(s4);
-//    }
-//    SUBS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 - s2
-//    IFX(X_PEND) {
-//        STR_IMM9(s3, xEmu, offsetof(x64emu_t, res));
-//    }
-//    IFX(X_ZF|X_CF) {
-//        BIC_IMM8(xFlags, xFlags, (1<<F_ZF)|(1<<F_CF), 0);
-//    }
-//    IFX(X_ZF) {
-//        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
-//    }
-//    IFX(X_OF) {
-//        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
-//        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
-//    }
-//    IFX(X_CF) {
-//        // reversed carry
-//        ORR_IMM8_COND(cCC, xFlags, xFlags, 1<<F_CF, 0);
-//    }
-//    IFX(X_SF) {
-//        MOV_REG_LSR_IMM5(s4, s3, 31);
-//        BFI(xFlags, s4, F_SF, 1);
-//    }
-//    // and now the tricky ones (and mostly unused), PF and AF
-//    IFX(X_AF) {
-//        // bc = (res & (~d | s)) | (~d & s)
-//        MVN_REG_LSL_IMM5(s4, s1, 0);        // s4 = ~d
-//        ORR_REG_LSL_IMM5(s4, s4, s2, 0);    // s4 = ~d | s
-//        AND_REG_LSL_IMM5(s4, s4, s3, 0);    // s4 = res & (~d | s)
-//        BIC_REG_LSL_IMM5(s3, s2, s1, 0);    // loosing res... s3 = s & ~d
-//        ORR_REG_LSL_IMM5(s3, s4, s3, 0);    // s3 = (res & (~d | s)) | (s & ~d)
-//        IFX(X_AF) {
-//            MOV_REG_LSR_IMM5(s4, s3, 3);
-//            BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
-//        }
-//    }
-//    IFX(X_PF) {
-//        // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-//        IFX(X_CF|X_AF) {
-//            SUB_REG_LSL_IMM5(s3, s1, s2, 0);
-//        }
-//        AND_IMM8(s3, s3, 0xE0); // lsr 5 masking pre-applied
-//        MOV32(s4, GetParityTab());
-//        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-//        SUB_REG_LSL_IMM5(s3, s1, s2, 0);
-//        AND_IMM8(s3, s3, 31);
-//        MVN_REG_LSR_REG(s4, s4, s3);
-//        BFI(xFlags, s4, F_PF, 1);
-//    }
-//}
+void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX(X_PEND) {
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, rex.w?d_cmp64:d_cmp32);
+    } else {
+        SET_DFNONE(s4);
+    }
+    IFX(X_AF) {
+        MVNxw_REG(s3, s1);
+        ORRxw_REG(s3, s3, s2);  // s3 = ~op1 | op2
+        BICxw(s4, s2, s1);      // s4 = ~op1 & op2
+    }
+    SUBSxw_REG(s5, s1, s2);   // res = s1 - s2
+    IFX(X_PEND) {
+        STRxw_U12(s5, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_AF) {
+        ANDxw_REG(s3, s3, s5);   // s3 = (~op1 | op2) & res
+        ORRxw_REG(s3, s3, s4);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
+        LSRxw(s4, s3, 3);
+        BFIx(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
+    }
+    IFX(X_ZF|X_CF|X_OF) {
+        MOV32w(s4, (1<<F_ZF)|(1<<F_CF)|(1<<F_OF));
+        BICx(xFlags, xFlags, s4);
+    }
+    IFX(X_ZF) {
+        Bcond(cNE, +8);
+        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
+    }
+    IFX(X_CF) {
+        // inverted carry
+        Bcond(cCS, +8);
+        ORRw_mask(xFlags, xFlags, 0, 0);    // mask=0x01
+    }
+    IFX(X_OF) {
+        Bcond(cVC, +8);
+        ORRw_mask(xFlags, xFlags, 0b010101, 0);  // mask=0x800
+    }
+    IFX(X_SF) {
+        LSRxw(s3, s5, (rex.w)?63:31);
+        BFIw(xFlags, s3, F_SF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s5, s3, s4);
+    }
+}
 
 // emit CMP32 instruction, from cmp s1 , 0, using s3 and s4 as scratch
-//void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
-//{
-//    IFX(X_PEND) {
-//        MOVW(s4, 0);
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, op1));
-//        STR_IMM9(s4, xEmu, offsetof(x64emu_t, op2));
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, res));
-//        SET_DF(s4, d_cmp32);
-//    } else {
-//        SET_DFNONE(s4);
-//    }
-//    SUBS_IMM8(s3, s1, 0);   // res = s1 - 0
-//    // and now the tricky ones (and mostly unused), PF and AF
-//    // bc = (res & (~d | s)) | (~d & s) => is 0 here...
-//    IFX(X_CF | X_AF | X_ZF) {
-//        BIC_IMM8(xFlags, xFlags, (1<<F_CF)|(1<<F_AF)|(1<<F_ZF), 0);
-//    }
-//    IFX(X_OF) {
-//        BFC(xFlags, F_OF, 1);
-//    }
-//    IFX(X_ZF) {
-//        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
-//    }
-//    IFX(X_SF) {
-//        MOV_REG_LSR_IMM5(s4, s3, 31);
-//        BFI(xFlags, s4, F_SF, 1);
-//    }
-//    IFX(X_PF) {
-//        emit_pf(dyn, ninst, s1, s3, s4);
-//    }
-//}
+void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
+{
+    IFX(X_PEND) {
+        MOV64xw(s4, 0);
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRxw_U12(s4, xEmu, offsetof(x64emu_t, op2));
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
+        SET_DF(s4, rex.w?d_cmp64:d_cmp32);
+    } else {
+        SET_DFNONE(s4);
+    }
+    SUBSxw_U12(s3, s1, 0);   // res = s1 - 0
+    // and now the tricky ones (and mostly unused), PF and AF
+    // bc = (res & (~d | s)) | (~d & s) => is 0 here...
+    IFX(X_ZF|X_CF|X_OF|X_AF) {
+        MOV32w(s4, (1<<F_ZF)|(1<<F_CF)|(1<<F_OF)|(1<<F_AF));
+        BICw(xFlags, xFlags, s4);
+    }
+    IFX(X_ZF) {
+        Bcond(cNE, +8);
+        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
+    }
+    IFX(X_CF) {
+        // inverted carry
+        Bcond(cCS, +8);
+        ORRw_mask(xFlags, xFlags, 0, 0);    // mask=0x01
+    }
+    IFX(X_SF) {
+        LSRxw(s3, s1, (rex.w)?63:31);
+        BFIw(xFlags, s3, F_SF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
 
 // emit CMP16 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 //void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)

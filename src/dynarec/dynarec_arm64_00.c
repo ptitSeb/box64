@@ -191,6 +191,35 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_xor32c(dyn, ninst, rex, xRAX, i32, x3, x4);
             break;
 
+        case 0x39:
+            INST_NAME("CMP Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_cmp32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            break;
+
+        case 0x3B:
+            INST_NAME("CMP Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_cmp32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
+
+        case 0x3D:
+            INST_NAME("CMP EAX, Id");
+            SETFLAGS(X_ALL, SF_SET);
+            i32 = F32S;
+            if(i32) {
+                MOV64xw(x2, i32);
+                emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
+            } else
+                emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
+            break;
+
         case 0x50:
         case 0x51:
         case 0x52:
