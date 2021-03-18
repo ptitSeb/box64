@@ -89,6 +89,36 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             FAKEED;
             break;
 
+        case 0xBB:
+            INST_NAME("BTC Ed, Gd");
+            SETFLAGS(X_CF, SF_SET);
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                wback = 0;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+                UBFXw(x1, gd, 5+rex.w, 3-rex.w); // r1 = (gd>>5);
+                ADDx_REG_LSL(x3, wback, x1, 2); //(&ed)+=r1*4;
+                LDRxw_U12(x1, x3, fixedaddress);
+                ed = x1;
+                wback = x3;
+            }
+            if(rex.w) {
+                ANDx_mask(x2, gd, 1, 0, 0b00101);  //mask=0x000000000000003f
+            } else {
+                ANDw_mask(x2, gd, 0, 0b00100);  //mask=0x00000001f
+            }
+            LSRxw_REG(x4, ed, x2);
+            BFIw(xFlags, x4, F_CF, 1);
+            MOV32w(x4, 1);
+            LSLxw_REG(x4, x4, x2);
+            EORxw_REG(ed, ed, x4);
+            if(wback) {
+                STRxw_U12(ed, wback, fixedaddress);
+            }
+            break;
 
         default:
             DEFAULT;
