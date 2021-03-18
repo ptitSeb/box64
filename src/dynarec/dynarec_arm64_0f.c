@@ -25,7 +25,7 @@
 #include "dynarec_arm64_helper.h"
 
 #define GETGX(a)    \
-    gd = (nextop&0x38)>>3+(rex.r<<3);  \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3);  \
     a = sse_get_reg(dyn, ninst, x1, gd)
 #define GETEX(a)    \
     if(MODREG) { \

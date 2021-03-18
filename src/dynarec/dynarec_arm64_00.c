@@ -225,6 +225,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x66:
+            addr = dynarec64_66(dyn, addr, ip, ninst, rex, ok, need_epilog);
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)    \
             READFLAGS(F);                   \
             i8 = F8S;   \
