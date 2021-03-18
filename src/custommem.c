@@ -40,6 +40,7 @@ static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT];
 static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT];
 #endif
 #define MEMPROT_SHIFT 12
+#define MEMPROT_SHIFT2 (32-MEMPROT_SHIFT)
 #define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
 static pthread_mutex_t     mutex_prot;
 KHASH_MAP_INIT_INT(memprot, uint8_t*)
@@ -633,11 +634,11 @@ void protectDB(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     int ret;
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
-        const uint32_t key = (i>>16)&0xffffffff;
+        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
         khint_t k = kh_put(memprot, memprot, key, &ret);
         if(ret) {
             uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
@@ -661,7 +662,7 @@ void protectDBnolock(uintptr_t addr, uintptr_t size)
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     int ret;
     for (uintptr_t i=idx; i<=end; ++i) {
-        const uint32_t key = (i>>16)&0xffffffff;
+        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
         khint_t k = kh_put(memprot, memprot, key, &ret);
         if(ret) {
             uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
@@ -693,11 +694,11 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     int ret;
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
-        const uint32_t key = (i>>16)&0xffffffff;
+        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
         khint_t k = kh_put(memprot, memprot, key, &ret);
         if(ret) {
             uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
@@ -718,47 +719,43 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
 
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
-    if((addr+size)>>32 != (addr)>>32) {
-        setProtection((addr&0xffffffff00000000)+0x100000000, size-(addr&0xffffffff), prot);
-        size-=(addr&0xffffffff);
-    }
-    const uint32_t key = (addr>>32)&0xffffffff;
-    const uintptr_t idx = ((addr&0xffffffff)>>MEMPROT_SHIFT);
-    const uintptr_t end = (((addr&0xffffffff)+size-1)>>MEMPROT_SHIFT);
-    pthread_mutex_lock(&mutex_prot);
+    dynarec_log(LOG_DEBUG, "updateProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     int ret;
-    khint_t k = kh_put(memprot, memprot, key, &ret);
-    if(ret) {
-        uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
-        kh_value(memprot, k) = m;
-    }
+    pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t dyn=(kh_value(memprot, k)[i]&PROT_DYNAREC);
+        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
+        khint_t k = kh_put(memprot, memprot, key, &ret);
+        if(ret) {
+            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
+            kh_value(memprot, k) = m;
+        }
+        const uintptr_t ii = i&(MEMPROT_SIZE-1);
+        uint32_t dyn = kh_value(memprot, k)[ii]&PROT_DYNAREC;
         if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-        kh_value(memprot, k)[i] = prot|dyn;
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
+        kh_value(memprot, k)[ii] = prot|dyn;
     }
     pthread_mutex_unlock(&mutex_prot);
 }
 
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
-    if((addr+size)>>32 != (addr)>>32) {
-        setProtection((addr&0xffffffff00000000)+0x100000000, size-(addr&0xffffffff), prot);
-        size-=(addr&0xffffffff);
-    }
-    const uint32_t key = (addr>>32)&0xffffffff;
-    const uintptr_t idx = ((addr&0xffffffff)>>MEMPROT_SHIFT);
-    const uintptr_t end = (((addr&0xffffffff)+size-1)>>MEMPROT_SHIFT);
-    pthread_mutex_lock(&mutex_prot);
+    dynarec_log(LOG_DEBUG, "setProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     int ret;
-    khint_t k = kh_put(memprot, memprot, key, &ret);
-    if(ret) {
-        uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
-        kh_value(memprot, k) = m;
-    }
+    pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
-        kh_value(memprot, k)[i] = prot;
+        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
+        khint_t k = kh_put(memprot, memprot, key, &ret);
+        if(ret) {
+            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
+            kh_value(memprot, k) = m;
+        }
+        const uintptr_t ii = i&(MEMPROT_SIZE-1);
+        kh_value(memprot, k)[ii] = prot;
     }
     pthread_mutex_unlock(&mutex_prot);
 }
