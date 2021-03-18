@@ -472,7 +472,12 @@ x64emurun:
                     ED->dword[0] = GD->dword[0];
             }
             break;
-
+        case 0x8A:                      /* MOV Gb,Eb */
+            nextop = F8;
+            GETEB(0);
+            GETGB;
+            GB = EB->byte[0];
+            break;
         case 0x8B:                      /* MOV Gd,Ed */
             nextop = F8;
             GETED(0);
