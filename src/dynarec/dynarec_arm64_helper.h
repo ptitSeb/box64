@@ -65,14 +65,14 @@
                     ed = hint;                            \
                 }
 //GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
-#define GETEDW(hint, ret)   if((nextop&0xC0)==0xC0) {   \
-                    ed = xEAX+(nextop&7);   \
-                    MOV_REG(ret, ed);       \
-                    wback = 0;              \
-                } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 4095, 0); \
-                    ed = ret;               \
-                    LDR_IMM9(ed, wback, fixedaddress); \
+#define GETEDW(hint, ret, D)   if((nextop&0xC0)==0xC0) {\
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    MOVxw_REG(ret, ed);                 \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    ed = ret;                           \
+                    LDRxw_U12(ed, wback, fixedaddress); \
                 }
 // Write back ed in wback (if wback not 0)
 #define WBACK       if(wback) {STRxw_U12(ed, wback, fixedaddress);}
@@ -81,7 +81,7 @@
 // Write back ed in wback (if wback not 0)
 #define WBACKw      if(wback) {STRw_U12(ed, wback, fixedaddress);}
 // Send back wb to either ed or wback
-#define SBACK(wb)   if(wback) {STR_IMM9(wb, wback, fixedaddress);} else {MOV_REG(ed, wb);}
+#define SBACK(wb)   if(wback) {STRxw(wb, wback, fixedaddress);} else {MOVxw_REG(ed, wb);}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O)   if((nextop&0xC0)==0xC0) {   \
                     ed = xEAX+(nextop&7)+(rex.b<<3);   \
@@ -209,13 +209,13 @@
 
 // CALL will use x7 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL(F, ret) call_c(dyn, ninst, F, x7, ret, 1)
+#define CALL(F, ret) call_c(dyn, ninst, F, x7, ret, 1, 0)
 // CALL_ will use x3 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL_(F, ret) call_c(dyn, ninst, F, x3, ret, 1)
+#define CALL_(F, ret, reg) call_c(dyn, ninst, F, x3, ret, 1, reg)
 // CALL_S will use x3 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
-#define CALL_S(F, ret) call_c(dyn, ninst, F, x3, ret, 0)
+#define CALL_S(F, ret) call_c(dyn, ninst, F, x3, ret, 0, 0)
 
 #define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
 #define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
@@ -388,7 +388,7 @@
             j32 = (GETMARKF)-(dyn->arm_size);           \
             CBZw(x3, j32);                              \
         }                                               \
-        CALL_(UpdateFlags, -1);                         \
+        CALL_(UpdateFlags, -1, 0);                      \
         MARKF;                                          \
         dyn->state_flags = SF_SET;                      \
         SET_DFOK();                                     \
@@ -610,7 +610,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst);
-void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags);
+void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 //void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 //void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 //void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
@@ -673,13 +673,13 @@ void emit_dec32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
 //void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
-//void emit_shl32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_shl32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_shr32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_shr32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_sar32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_rol32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_ror32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);
+void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);
+void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);
+void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);
+void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);
 //void emit_shrd32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int s3, int s4);
 //void emit_shld32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int s3, int s4);
 

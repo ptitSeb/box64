@@ -327,10 +327,12 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
     BR(x2);
 }
 
-void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags)
+void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
 {
+    if(savereg==0)
+        savereg = 7;
     if(ret!=-2) {
-        STRx_S9_preindex(xEmu, xSP, -16);   // ARM64 stack needs to be 16byte aligned
+        STPx_S7_preindex(xEmu, savereg, xSP, -16);   // ARM64 stack needs to be 16byte aligned
     }
     fpu_pushcache(dyn, ninst, reg);
     if(saveflags) {
@@ -343,7 +345,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
         MOVx_REG(ret, xEmu);
     }
     if(ret!=-2) {
-        LDRx_S9_postindex(xEmu, xSP, 16);
+        LDPx_S7_postindex(xEmu, savereg, xSP, 16);
     }
     if(saveflags) {
         LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
@@ -366,7 +368,7 @@ void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
     SUBx_REG(t1, t1, t2);
     CBZx_MARKSEG(t1);
     MOVZw(x1, _GS);
-    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 1);
+    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 1, 0);
     MARKSEG;
     MESSAGE(LOG_DUMP, "----TLSData\n");
 }
@@ -383,7 +385,7 @@ void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
     LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[_FS]));
     CBZx_MARKSEG(t2);
     MOVZw(x1, _FS);
-    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 1);
+    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 1, 0);
     MARKSEG;
     MESSAGE(LOG_DUMP, "----FS: Offset\n");
 }

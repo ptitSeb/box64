@@ -326,6 +326,76 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xC1:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ed, Ib");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETED(1);
+                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if(u8) { WBACK; }
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, Ib");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETED(1);
+                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if(u8) { WBACK; }
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, Ib");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEDW(x4, x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
+                    WBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, Ib");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEDW(x4, x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
+                    WBACK;
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, Ib");
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
+                    GETED(1);
+                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    WBACK;
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
+                    GETED(1);
+                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if(u8) {
+                        WBACK;
+                    }
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
+                    GETED(1);
+                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if(u8) {
+                        WBACK;
+                    }
+                    break;
+            }
+            break;
         case 0xC2:
             INST_NAME("RETN");
             //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
@@ -422,6 +492,34 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         jump_to_next(dyn, addr+i32, 0, ninst);
                     break;
             }
+            break;
+        case 0xE9:
+        case 0xEB:
+            BARRIER(1);
+            if(opcode==0xE9) {
+                INST_NAME("JMP Id");
+                i32 = F32S;
+            } else {
+                INST_NAME("JMP Ib");
+                i32 = F8S;
+            }
+            JUMP(addr+i32);
+            if(dyn->insts) {
+                PASS2IF(dyn->insts[ninst].x64.jmp_insts==-1, 1) {
+                    // out of the block
+                    jump_to_next(dyn, addr+i32, 0, ninst);
+                } else {
+                    // inside the block
+                    tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);
+                    if(tmp==4) {
+                        NOP;
+                    } else {
+                        B(tmp);
+                    }
+                }
+            }
+            *need_epilog = 0;
+            *ok = 0;
             break;
 
         case 0xFF:

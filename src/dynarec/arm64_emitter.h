@@ -131,6 +131,7 @@
 #define ADDSw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(0, 0, 1, 0b00, Rm, 0, Rn, Rd))
 #define ADDxw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(rex.w, 0, 0, 0b00, Rm, 0, Rn, Rd))
 #define ADDSxw_REG(Rd, Rn, Rm)              EMIT(ADDSUB_REG_gen(rex.w, 0, 1, 0b00, Rm, 0, Rn, Rd))
+#define ADDxw_REG_LSR(Rd, Rn, Rm, lsr)      EMIT(ADDSUB_REG_gen(rex.w, 0, 0, 0b01, Rm, lsr, Rn, Rd))
 
 #define ADDSUB_IMM_gen(sf, op, S, shift, imm12, Rn, Rd)    ((sf)<<31 | (op)<<30 | (S)<<29 | 0b10001<<24 | (shift)<<22 | (imm12)<<10 | (Rn)<<5 | (Rd))
 #define ADDx_U12(Rd, Rn, imm12)     EMIT(ADDSUB_IMM_gen(1, 0, 0, 0b00, (imm12)&0xfff, Rn, Rd))
@@ -214,6 +215,29 @@
 #define STRB_REG(Rt, Rn, Rm)            EMIT(STR_REG_gen(0b00, Rm, 0b011, 0, Rn, Rt))
 #define STRH_REG(Rt, Rn, Rm)            EMIT(STR_REG_gen(0b01, Rm, 0b011, 0, Rn, Rt))
 
+// LOAD/STORE PAIR
+#define MEMPAIR_gen(size, L, op2, imm7, Rt2, Rn, Rt)    ((size)<<31 | 0b101<<27 | (op2)<<23 | (L)<<22 | (imm7)<<15 | (Rt2)<<10 | (Rn)<<5 | (Rt))
+
+#define LDPx_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(1, 1, 0b01, (imm>>3)&0x7f, Rt2, Rn, Rt))
+#define LDPw_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(0, 1, 0b01, (imm>>2)&0x7f, Rt2, Rn, Rt))
+#define LDPxw_S7_postindex(Rt, Rt2, Rn, imm)            EMIT(MEMPAIR_gen(rex.w, 1, 0b01, (imm>>(2+rex.w)), Rt2, Rn, Rt))
+#define LDPx_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(1, 1, 0b11, (imm>>3)&0x7f, Rt2, Rn, Rt))
+#define LDPw_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(0, 1, 0b11, (imm>>2)&0x7f, Rt2, Rn, Rt))
+#define LDPxw_S7_preindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(rex.w, 1, 0b11, (imm>>(2+rex.w)), Rt2, Rn, Rt))
+#define LDPx_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(1, 1, 0b10, (imm>>3)&0x7f, Rt2, Rn, Rt))
+#define LDPw_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(0, 1, 0b10, (imm>>2)&0x7f, Rt2, Rn, Rt))
+#define LDPxw_S7_offset(Rt, Rt2, Rn, imm)               EMIT(MEMPAIR_gen(rex.w, 1, 0b10, (imm>>(2+rex.w)), Rt2, Rn, Rt))
+
+#define STPx_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(1, 0, 0b01, (imm>>3)&0x7f, Rt2, Rn, Rt))
+#define STPw_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(0, 0, 0b01, (imm>>2)&0x7f, Rt2, Rn, Rt))
+#define STPxw_S7_postindex(Rt, Rt2, Rn, imm)            EMIT(MEMPAIR_gen(rex.w, 0, 0b01, (imm>>(2+rex.w)), Rt2, Rn, Rt))
+#define STPx_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(1, 0, 0b11, (imm>>3)&0x7f, Rt2, Rn, Rt))
+#define STPw_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(0, 0, 0b11, (imm>>2)&0x7f, Rt2, Rn, Rt))
+#define STPxw_S7_preindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(rex.w, 0, 0b11, (imm>>(2+rex.w)), Rt2, Rn, Rt))
+#define STPx_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(1, 0, 0b10, (imm>>3)&0x7f, Rt2, Rn, Rt))
+#define STPw_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(0, 0, 0b10, (imm>>2)&0x7f, Rt2, Rn, Rt))
+#define STPxw_S7_offset(Rt, Rt2, Rn, imm)               EMIT(MEMPAIR_gen(rex.w, 0, 0b10, (imm>>(2+rex.w)), Rt2, Rn, Rt))
+
 // PUSH / POP helper
 #define POP1(reg)       LDRx_S9_postindex(reg, xRSP, 8)
 #define PUSH1(reg)      STRx_S9_preindex(reg, xRSP, -8)
@@ -232,6 +256,11 @@
 #define Bcond_gen(imm19, cond)          (0b0101010<<25 | (imm19)<<5 | (cond))
 #define Bcond(cond, imm19)              EMIT(Bcond_gen(((imm19)>>2)&0x7FFFF, cond))
 
+#define B_gen(imm26)                    (0b000101<<26 | (imm26))
+#define B(imm26)                        EMIT(B_gen(((imm26)>>2)&0x3ffffff))
+
+#define NOP                             EMIT(0b11010101000000110010000000011111)
+
 // AND / ORR
 #define LOGIC_gen(sf, opc, N, immr, imms, Rn, Rd)  ((sf)<<31 | (opc)<<29 | 0b100100<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | Rd)
 // logic to get the mask is ... convoluted... list of possible value there: https://gist.github.com/dinfuehr/51a01ac58c0b23e4de9aac313ed6a06a
@@ -241,8 +270,11 @@
 #define ANDSw_mask(Rd, Rn, immr, imms)      EMIT(LOGIC_gen(0, 0b11, 0, immr, imms, Rn, Rd))
 #define ORRx_mask(Rd, Rn, N, immr, imms)    EMIT(LOGIC_gen(1, 0b01, N, immr, imms, Rn, Rd))
 #define ORRw_mask(Rd, Rn, immr, imms)       EMIT(LOGIC_gen(0, 0b01, 0, immr, imms, Rn, Rd))
+#define EORx_mask(Rd, Rn, N, immr, imms)    EMIT(LOGIC_gen(1, 0b10, N, immr, imms, Rn, Rd))
+#define EORw_mask(Rd, Rn, immr, imms)       EMIT(LOGIC_gen(0, 0b10, 0, immr, imms, Rn, Rd))
 #define TSTx_mask(Rn, immr, imms)           ANDSx_mask(xZR, Rn, immr, imms)
 #define TSTw_mask(Rn, immr, imms)           ANDSw_mask(wZR, Rn, immr, imms)
+#define TSTxw_mask(Rn, immr, imms)          ANDSxw_mask(xZR, Rn, immr, imms)
 
 #define LOGIC_REG_gen(sf, opc, shift, N, Rm, imm6, Rn, Rd)    ((sf)<<31 | (opc)<<29 | 0b01010<<24 | (shift)<<22 | (N)<<21 | (Rm)<<16 | (imm6)<<10 | (Rn)<<5 | (Rd))
 #define ANDx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b00, 0b00, 0, Rm, 0, Rn, Rd))
@@ -265,6 +297,9 @@
 #define EORx_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(1, 0b10, 0b00, 0, Rm, lsl, Rn, Rd))
 #define EORw_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(0, 0b10, 0b00, 0, Rm, lsl, Rn, Rd))
 #define EORxw_REG_LSL(Rd, Rn, Rm, lsl)  EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b00, 0, Rm, lsl, Rn, Rd))
+#define EORx_REG_LSR(Rd, Rn, Rm, lsr)   EMIT(LOGIC_REG_gen(1, 0b10, 0b01, 0, Rm, lsr, Rn, Rd))
+#define EORw_REG_LSR(Rd, Rn, Rm, lsr)   EMIT(LOGIC_REG_gen(0, 0b10, 0b01, 0, Rm, lsr, Rn, Rd))
+#define EORxw_REG_LSR(Rd, Rn, Rm, lsr)  EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b01, 0, Rm, lsr, Rn, Rd))
 #define MOVx_REG(Rd, Rm)                ORRx_REG(Rd, xZR, Rm)
 #define MOVw_REG(Rd, Rm)                ORRw_REG(Rd, xZR, Rm)
 #define MOVxw_REG(Rd, Rm)               ORRxw_REG(Rd, xZR, Rm)
@@ -295,9 +330,9 @@
 #define BFIx(Rd, Rn, lsb, width)        BFMx(Rd, Rn, ((-lsb)%64)&0x3f, (width)-1)
 #define BFIw(Rd, Rn, lsb, width)        BFMw(Rd, Rn, ((-lsb)%32)&0x1f, (width)-1)
 #define BFIxw(Rd, Rn, lsb, width)       if(rex.w) {BFIx(Rd, Rn, lsb, width);} else {BFIw(Rd, Rn, lsb, width);}
-#define BFCx(Rd, Rn, lsb, width)        BFMx(Rd, xZR, ((-lsb)%64)&0x3f, (width)-1)
-#define BFCw(Rd, Rn, lsb, width)        BFMw(Rd, xZR, ((-lsb)%32)&0x1f, (width)-1)
-#define BFCxw(Rd, Rn, lsb, width)       if(rex.w) {BFCx(Rd, Rn, lsb, width);} else {BFCw(Rd, Rn, lsb, width);}
+#define BFCx(Rd, lsb, width)            BFMx(Rd, xZR, ((-lsb)%64)&0x3f, (width)-1)
+#define BFCw(Rd, lsb, width)            BFMw(Rd, xZR, ((-lsb)%32)&0x1f, (width)-1)
+#define BFCxw(Rd, lsb, width)           BFMxw(Rd, xZR, rex.w?(((-lsb)%64)&0x3f):(((-lsb)%32)&0x1f), (width)-1)
 
 // UBFX
 #define UBFM_gen(sf, N, immr, imms, Rn, Rd)    ((sf)<<31 | 0b10<<29 | 0b100110<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | (Rd))
@@ -315,12 +350,45 @@
 #define LSRxw(Rd, Rn, shift)            EMIT(UBFM_gen(rex.w, rex.w, shift, (rex.w)?63:31, Rn, Rd))
 #define LSLx(Rd, Rn, lsl)               UBFMx(Rd, Rn, ((-(lsl))%64)&63, 63-(lsl))
 #define LSLw(Rd, Rn, lsl)               UBFMw(Rd, Rn, ((-(lsl))%32)&31, 31-(lsl))
+#define LSLxw(Rd, Rn, lsl)              UBFMxw(Rd, Rn, rex.w?(((-(lsl))%64)&63):(((-(lsl))%32)&31), (rex.w?63:31)-(lsl))
 
-// LSRV
-#define LSRV_gen(sf, Rm, op2, Rn, Rd)   ((sf)<<31 | 0b11010110<<21 | (Rm)<<16 | 0b0010<<12 | (op2)<<10 | (Rn)<<5 | (Rd))
-#define LSRx_REG(Rd, Rn, Rm)            EMIT(LSRV_gen(1, Rm, 0b01, Rn, Rd))
-#define LSRw_REG(Rd, Rn, Rm)            EMIT(LSRV_gen(0, Rm, 0b01, Rn, Rd))
-#define LSRxw_REG(Rd, Rn, Rm)           EMIT(LSRV_gen(rex.w, Rm, 0b01, Rn, Rd))
+// SBFM
+#define SBFM_gen(sf, N, immr, imms, Rn, Rd)    ((sf)<<31 | 0b00<<29 | 0b100110<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | (Rd))
+#define SBFMx(Rd, Rn, immr, imms)       EMIT(SBFM_gen(1, 1, immr, imms, Rn, Rd))
+#define SBFMw(Rd, Rn, immr, imms)       EMIT(SBFM_gen(0, 0, immr, imms, Rn, Rd))
+#define SBFMxw(Rd, Rn, immr, imms)      EMIT(SBFM_gen(rex.w, rex.w, immr, imms, Rn, Rd))
+#define SBFXx(Rd, Rn, lsb, width)       SBFMx(Rd, Rn, lsb, lsb+width-1)
+#define SBFXw(Rd, Rn, lsb, width)       SBFMw(Rd, Rn, lsb, lsb+width-1)
+#define SBFXxw(Rd, Rn, lsb, width)      SBFMxw(Rd, Rn, lsb, lsb+width-1)
+#define SXTBx(Rd, Rn)                   SBFMx(Rd, Rn, 0, 7)
+#define SXTBw(Rd, Rn)                   SBFMw(Rd, Rn, 0, 7)
+#define SXTHx(Rd, Rn)                   SBFMx(Rd, Rn, 0, 15)
+#define SXTHw(Rd, Rn)                   SBFMw(Rd, Rn, 0, 15)
+#define SXTWx(Rd, Rn)                   SBFMx(Rd, Rn, 0, 31)
+#define ASRx(Rd, Rn, shift)             SBFMx(Rd, Rn, shift, 63)
+#define ASRw(Rd, Rn, shift)             SBFMw(Rd, Rn, shift, 31)
+#define ASRxw(Rd, Rn, shift)            SBFMxw(Rd, Rn, shift, rex.w?63:31)
+
+// EXTR
+#define EXTR_gen(sf, N, Rm, imms, Rn, Rd)   ((sf)<<31 | 0b00<<29 | 0b100111<<23 | (N)<<22 | (Rm)<<16 | (imms)<<10 | (Rn)<<5 | (Rd))
+#define EXTRx(Rd, Rn, Rm, lsb)          EMIT(EXTR_gen(1, 1, Rm, lsb, Rn, Rd))
+#define EXTRw(Rd, Rn, Rm, lsb)          EMIT(EXTR_gen(0, 0, Rm, lsb, Rn, Rd))
+#define EXTRxw(Rd, Rn, Rm, lsb)         EMIT(EXTR_gen(rex.w, rex.w, Rm, lsb, Rn, Rd))
+#define RORx(Rd, Rn, lsb)               EMIT(EXTR_gen(1, 1, Rn, lsb, Rn, Rd))
+#define RORw(Rd, Rn, lsb)               EMIT(EXTR_gen(0, 0, Rn, lsb, Rn, Rd))
+#define RORxw(Rd, Rn, lsb)              EMIT(EXTR_gen(rex.w, rex.w, Rn, lsb, Rn, Rd))
+
+// LSRV / LSLV
+#define LS_V_gen(sf, Rm, op2, Rn, Rd)   ((sf)<<31 | 0b11010110<<21 | (Rm)<<16 | 0b0010<<12 | (op2)<<10 | (Rn)<<5 | (Rd))
+#define LSRx_REG(Rd, Rn, Rm)            EMIT(LS_V_gen(1, Rm, 0b01, Rn, Rd))
+#define LSRw_REG(Rd, Rn, Rm)            EMIT(LS_V_gen(0, Rm, 0b01, Rn, Rd))
+#define LSRxw_REG(Rd, Rn, Rm)           EMIT(LS_V_gen(rex.w, Rm, 0b01, Rn, Rd))
+
+#define LSLx_REG(Rd, Rn, Rm)            EMIT(LS_V_gen(1, Rm, 0b00, Rn, Rd))
+#define LSLw_REG(Rd, Rn, Rm)            EMIT(LS_V_gen(0, Rm, 0b00, Rn, Rd))
+#define LSLxw_REG(Rd, Rn, Rm)           EMIT(LS_V_gen(rex.w, Rm, 0b00, Rn, Rd))
+
+
 
 // MRS
 #define MRS_gen(L, o0, op1, CRn, CRm, op2, Rt)  (0b1101010100<<22 | (L)<<21 | 1<<20 | (o0)<<19 | (op1)<<16 | (CRn)<<12 | (CRm)<<8 | (op2)<<5 | (Rt))
