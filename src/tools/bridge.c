@@ -37,7 +37,9 @@ typedef struct bridge_s {
 brick_t* NewBrick()
 {
     brick_t* ret = (brick_t*)calloc(1, sizeof(brick_t));
-    posix_memalign((void**)&ret->b, box64_pagesize, NBRICK*sizeof(onebridge_t));
+    if(posix_memalign((void**)&ret->b, box64_pagesize, NBRICK*sizeof(onebridge_t))) {
+        printf_log(LOG_NONE, "Warning, cannot allocate 0x%lx aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
+    }
     return ret;
 }
 
@@ -76,43 +78,53 @@ void addBridgeName(void* addr, const char* name);
 
 uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
 {
-    pthread_mutex_lock(&bridge->mutex);
-    brick_t *b = bridge->last;
-    if(b->sz == NBRICK) {
-        b->next = NewBrick();
-        b = b->next;
-        bridge->last = b;
-    }
+    brick_t *b = NULL;
+    int sz = -1;
     #ifdef DYNAREC
     int prot = 0;
-    if(box64_dynarec) {
-        prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
-        if(prot)
-            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
-        addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
-    }
+    do {
+        #endif
+        pthread_mutex_lock(&bridge->mutex);
+        b = bridge->last;
+        if(b->sz == NBRICK) {
+            b->next = NewBrick();
+            b = b->next;
+            bridge->last = b;
+        }
+        #ifdef DYNAREC
+        sz = b->sz;
+        pthread_mutex_unlock(&bridge->mutex);
+        if(box64_dynarec) {
+            prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
+            if(prot)
+                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
+            addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
+        }
+    } while(sz!=b->sz); // this while loop if someone took the slot when the bridge mutex was unlocked doing memory protection managment
+    pthread_mutex_lock(&bridge->mutex);
     #endif
-    b->b[b->sz].CC = 0xCC;
-    b->b[b->sz].S = 'S'; b->b[b->sz].C='C';
-    b->b[b->sz].w = w;
-    b->b[b->sz].f = (uintptr_t)fnc;
-    b->b[b->sz].C3 = N?0xC2:0xC3;
-    b->b[b->sz].N = N;
+    b->sz++;
+    b->b[sz].CC = 0xCC;
+    b->b[sz].S = 'S'; b->b[sz].C='C';
+    b->b[sz].w = w;
+    b->b[sz].f = (uintptr_t)fnc;
+    b->b[sz].C3 = N?0xC2:0xC3;
+    b->b[sz].N = N;
+    // add bridge to map, for fast recovery
+    int ret;
+    khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
+    kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
+    pthread_mutex_unlock(&bridge->mutex);
     #ifdef DYNAREC
     if(box64_dynarec && prot)
         protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
     #endif
-    // add bridge to map, for fast recovery
-    int ret;
-    khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
-    kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[b->sz].CC;
-    pthread_mutex_unlock(&bridge->mutex);
     #ifdef HAVE_TRACE
     if(name)
         addBridgeName(fnc, name);
     #endif
 
-    return (uintptr_t)&b->b[b->sz++].CC;
+    return (uintptr_t)&b->b[sz].CC;
 }
 
 uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
