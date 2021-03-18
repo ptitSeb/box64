@@ -483,6 +483,16 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    if(isMask(opcode, "f0011010110mmmmm001001nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "LSR %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        return buff;
+    }
+
+    if(isMask(opcode, "f0011010110mmmmm001000nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "LSL %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        return buff;
+    }
+
     if(isMask(opcode, "f01100110Nrrrrrrssssssnnnnnddddd", &a)) {
         if(imms<immr) {
             int width = imms + 1;
