@@ -30,6 +30,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t gd, ed;
     int8_t i8;
     int32_t i32, j32, tmp;
+    int64_t i64;
     uint8_t u8;
     uint8_t gb1, gb2, eb1, eb2;
     uint32_t u32;
@@ -79,8 +80,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x05:
             INST_NAME("ADD EAX, Id");
             SETFLAGS(X_ALL, SF_SET);
-            i32 = F32S;
-            emit_add32c(dyn, ninst, rex, xRAX, i32, x3, x4, x5);
+            i64 = F32S;
+            emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5);
             break;
 
         case 0x09:
@@ -105,8 +106,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x0D:
             INST_NAME("OR EAX, Id");
             SETFLAGS(X_ALL, SF_SET);
-            i32 = F32S;
-            emit_or32c(dyn, ninst, rex, xRAX, i32, x3, x4);
+            i64 = F32S;
+            emit_or32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
 
         case 0x0F:
@@ -135,8 +136,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x25:
             INST_NAME("AND EAX, Id");
             SETFLAGS(X_ALL, SF_SET);
-            i32 = F32S;
-            emit_and32c(dyn, ninst, rex, xRAX, i32, x3, x4);
+            i64 = F32S;
+            emit_and32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
 
         case 0x29:
@@ -161,8 +162,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x2D:
             INST_NAME("SUB EAX, Id");
             SETFLAGS(X_ALL, SF_SET);
-            i32 = F32S;
-            emit_sub32c(dyn, ninst, rex, xRAX, i32, x3, x4, x5);
+            i64 = F32S;
+            emit_sub32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5);
             break;
 
         case 0x31:
@@ -187,8 +188,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x35:
             INST_NAME("XOR EAX, Id");
             SETFLAGS(X_ALL, SF_SET);
-            i32 = F32S;
-            emit_xor32c(dyn, ninst, rex, xRAX, i32, x3, x4);
+            i64 = F32S;
+            emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
 
         case 0x39:
@@ -212,9 +213,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x3D:
             INST_NAME("CMP EAX, Id");
             SETFLAGS(X_ALL, SF_SET);
-            i32 = F32S;
-            if(i32) {
-                MOV64xw(x2, i32);
+            i64 = F32S;
+            if(i64) {
+                MOV64xw(x2, i64);
                 emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             } else
                 emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
@@ -375,18 +376,53 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(opcode==0x81) {INST_NAME("ADD Ed, Id");} else {INST_NAME("ADD Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
                     GETED((opcode==0x81)?4:1);
-                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                    emit_add32c(dyn, ninst, rex, ed, i32, x3, x4, x5);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
+                    WBACK;
+                    break;
+                case 1: //OR
+                    if(opcode==0x81) {INST_NAME("OR Ed, Id");} else {INST_NAME("OR Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED((opcode==0x81)?4:1);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    emit_or32c(dyn, ninst, rex, ed, i64, x3, x4);
                     WBACK;
                     break;
 
+                case 4: //AND
+                    if(opcode==0x81) {INST_NAME("AND Ed, Id");} else {INST_NAME("AND Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED((opcode==0x81)?4:1);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    emit_and32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    WBACK;
+                    break;
                 case 5: //SUB
                     if(opcode==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
                     GETED((opcode==0x81)?4:1);
-                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                    emit_sub32c(dyn, ninst, rex, ed, i32, x3, x4, x5);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
                     WBACK;
+                    break;
+                case 6: //XOR
+                    if(opcode==0x81) {INST_NAME("XOR Ed, Id");} else {INST_NAME("XOR Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED((opcode==0x81)?4:1);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    emit_xor32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    WBACK;
+                    break;
+                case 7: //CMP
+                    if(opcode==0x81) {INST_NAME("CMP Ed, Id");} else {INST_NAME("CMP Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED((opcode==0x81)?4:1);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    if(i64) {
+                        MOV64xw(x2, i64);
+                        emit_cmp32(dyn, ninst, rex, ed, x2, x3, x4, x5);
+                    } else
+                        emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
                     break;
 
                 default:
