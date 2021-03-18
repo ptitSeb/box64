@@ -904,7 +904,7 @@ void emit_dec32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
         ANDxw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
         ORRxw_REG(s3, s3, s4);   // s4 = (~op1 & op2) | ((~op1 | op2) & ~ res)
         LSRxw(s4, s3, 3);
-        BFIxw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
+        BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF|X_OF) {
         MOV32w(s3, (1<<F_ZF)|(1<<F_OF));
