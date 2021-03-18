@@ -83,6 +83,58 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_add32c(dyn, ninst, rex, xRAX, i32, x3, x4, x5);
             break;
 
+        case 0x09:
+            INST_NAME("OR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
+            WBACK;
+            break;
+
+        case 0x0B:
+            INST_NAME("OR Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_or32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+
+        case 0x0D:
+            INST_NAME("OR EAX, Id");
+            SETFLAGS(X_ALL, SF_SET);
+            i32 = F32S;
+            emit_or32c(dyn, ninst, rex, xRAX, i32, x3, x4);
+            break;
+
+        case 0x21:
+            INST_NAME("AND Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_and32(dyn, ninst, rex, ed, gd, x3, x4);
+            WBACK;
+            break;
+
+        case 0x23:
+            INST_NAME("AND Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_and32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+
+        case 0x25:
+            INST_NAME("AND EAX, Id");
+            SETFLAGS(X_ALL, SF_SET);
+            i32 = F32S;
+            emit_and32c(dyn, ninst, rex, xRAX, i32, x3, x4);
+            break;
+
         case 0x29:
             INST_NAME("SUB Ed, Gd");
             SETFLAGS(X_ALL, SF_SET);
