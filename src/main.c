@@ -933,7 +933,8 @@ int main(int argc, const char **argv, const char **env) {
     if(ld_preload.size) {
         for (int i=0; i<ld_preload.size; ++i) {
             if(AddNeededLib(NULL, NULL, 0, ld_preload.paths[i], my_context, emu)) {
-                printf_log(LOG_INFO, "Warning, cannot pre-load lib: \"%s\"\n", ld_preload.paths[i]);
+                if(!strstr(ld_preload.paths[i], "vgpreload_"))
+                    printf_log(LOG_INFO, "Warning, cannot pre-load lib: \"%s\"\n", ld_preload.paths[i]);
             }            
         }
     }

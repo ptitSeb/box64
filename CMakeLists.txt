@@ -251,7 +251,7 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/dynarec_arm64_emit_shift.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_arm64_pass.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_arm64_00.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_0f.c"
+    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_0f.c"
     #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_64.c"
     #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_65.c"
     #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_66.c"

@@ -93,11 +93,11 @@
                 }
 #define WBACKO(O)   if(wback) {STR_REG_LSL_IMM5(ed, wback, O, 0);}
 //FAKEELike GETED, but doesn't get anything
-#define FAKEED  if((nextop&0xC0)!=0xC0) {   \
+#define FAKEED  if(!MODREG) {   \
                     addr = fakeed(dyn, addr, ninst, nextop); \
                 }
 // GETGW extract x64 register in gd, that is i
-#define GETGW(i) gd = xEAX+((nextop&0x38)>>3); UXTH(i, gd, 0); gd = i;
+#define GETGW(i) gd = xEAX+((nextop&0x38)>>3)+(rex.r<<3); UXTH(i, gd, 0); gd = i;
 //GETEWW will use i for ed, and can use w for wback.
 #define GETEWW(w, i) if((nextop&0xC0)==0xC0) {  \
                     wback = xEAX+(nextop&7);\
@@ -139,7 +139,7 @@
 // Write w back to original register / memory
 #define EWBACKW(w)   if(wb1) {STRH_IMM8(w, wback, fixedaddress);} else {BFI(wback, w, 0, 16);}
 // Write back gd in correct register
-#define GWBACK       BFI((xEAX+((nextop&0x38)>>3)), gd, 0, 16);
+#define GWBACK       BFI((xEAX+((nextop&0x38)>>3)+(rex.r<<3)), gd, 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
 #define GETEB(i) if((nextop&0xC0)==0xC0) {  \
                     wback = (nextop&7);     \
@@ -190,12 +190,14 @@
                     gb2 = ((gd&4)>>2);      \
                     gb1 = xEAX+(gd&3);      \
                     gd = i;                 \
+                    nopenope!               \
                     UXTB(gd, gb1, gb2);
 //GETSGB signe extend GB, will use i for gd
 #define GETSGB(i)    gd = (nextop&0x38)>>3; \
                     gb2 = ((gd&4)>>2);      \
                     gb1 = xEAX+(gd&3);      \
                     gd = i;                 \
+                    nopenope!               \
                     SXTB(gd, gb1, gb2);
 // Write gb (gd) back to original register / memory
 #define GBBACK   BFI(gb1, gd, gb2*8, 8);
@@ -373,7 +375,7 @@
     LOAD_REG(R8);          \
     LOAD_REG(R9);          \
     LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
-    if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
+    if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip)); if(A==xRIP) dyn->last_ip = 0;}
 
 #define SET_DFNONE(S)    if(!dyn->dfnone) {MOVZw(S, d_none); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=1;}
 #define SET_DF(S, N)     if(N) {MOVZw(S, N); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=0;} else SET_DFNONE(S)
@@ -443,7 +445,7 @@
 #define GETIP_(A)                                   \
     if(dyn->last_ip && (A-dyn->last_ip)<0x1000) {   \
         uint64_t delta = A-dyn->last_ip;            \
-        ADDx_U12(xRIP, xRIP, delta);                \
+        if(delta) {ADDx_U12(xRIP, xRIP, delta);}    \
     } else {                                        \
         TABLE64(xRIP, A);                           \
     }
@@ -737,7 +739,7 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1);
 void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1);
 
 uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
-//uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 //uintptr_t dynarec64_FS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 //uintptr_t dynarec64_GS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 //uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);

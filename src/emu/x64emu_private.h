@@ -63,8 +63,6 @@ typedef struct x64emu_s {
     // cpu helpers
     reg64_t     zero;
     reg64_t     *sbiidx[16];
-    // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
-    uint64_t    scratch[200];
     // emu control
     int         quit;
     int         error;
@@ -73,6 +71,8 @@ typedef struct x64emu_s {
     int         exit;
     int         quitonlongjmp;  // quit if longjmp is called
     int         longjmp;        // if quit because of longjmp
+    // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
+    uint64_t    scratch[200];
     // local stack, do be deleted when emu is freed
     void*       stack2free; // this is the stack to free (can be NULL)
     void*       init_stack; // initial stack (owned or not)

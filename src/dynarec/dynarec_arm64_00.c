@@ -109,6 +109,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_or32c(dyn, ninst, rex, xRAX, i32, x3, x4);
             break;
 
+        case 0x0F:
+            addr = dynarec64_0F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+            break;
+
         case 0x21:
             INST_NAME("AND Ed, Gd");
             SETFLAGS(X_ALL, SF_SET);
@@ -487,12 +491,63 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC3:
             INST_NAME("RET");
             // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
-            // ^^^ that hack break PlantsVsZombies and GOG Setup under wine....
             READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
             BARRIER(2);
             ret_to_epilog(dyn, ninst);
             *need_epilog = 0;
             *ok = 0;
+            break;
+
+        case 0xCC:
+            SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            if(PK(0)=='S' && PK(1)=='C') {
+                addr+=2;
+                BARRIER(2);
+                INST_NAME("Special Box64 instruction");
+                if((PK64(0)==0))
+                {
+                    addr+=8;
+                    MESSAGE(LOG_DEBUG, "Exit x64 Emu\n");
+                    //GETIP(ip+1+2);    // no use
+                    //STORE_XEMU_REGS(xRIP);    // no need, done in epilog
+                    MOV32w(x1, 1);
+                    STRw_U12(x1, xEmu, offsetof(x64emu_t, quit));
+                    *ok = 0;
+                    *need_epilog = 1;
+                } else {
+                    MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
+                    x87_forget(dyn, ninst, x3, x4, 0);
+                    sse_purge07cache(dyn, ninst, x3);
+                    GETIP(ip+1); // read the 0xCC
+                    STORE_XEMU_MINIMUM(xRIP);
+                    CALL_S(x64Int3, -1);
+                    LOAD_XEMU_MINIMUM(xRIP);
+                    addr+=8+8;
+                    TABLE64(x3, addr); // expected return address
+                    CMPSx_REG(xRIP, x3);
+                    B_MARK(cNE);
+                    LDRw_U12(x1, xEmu, offsetof(x64emu_t, quit));
+                    CMPSw_U12(x1, 1);
+                    B_NEXT(cNE);
+                    MARK;
+                    jump_to_epilog(dyn, 0, xRIP, ninst);
+                }
+            } else {
+                #if 0
+                INST_NAME("INT 3");
+                // check if TRAP signal is handled
+                LDRx_U12(x1, xEmu, offsetof(x64emu_t, context));
+                MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
+                LDRx_REG_LSL3(x3, x1, x2);
+                CMPSx_U12(x3, 0);
+                B_NEXT(cNE);
+                MOV32w(x1, SIGTRAP);
+                CALL_(raise, -1, 0);
+                break;
+                #else
+                DEFAULT;
+                #endif
+            }
             break;
 
         case 0xE8:
