@@ -550,6 +550,66 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xD1:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ed, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETED(0);
+                    emit_rol32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETED(0);
+                    emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, 1");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    MOV32w(x2, 1);
+                    GETEDW(x4, x1, 0);
+                    CALL_(rcl32, ed, x4);
+                    WBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, 1");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    MOV32w(x2, 1);
+                    GETEDW(x4, x1, 0);
+                    CALL_(rcr32, ed, x4);
+                    WBACK;
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
+                    GETED(0);
+                    emit_shl32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
+                    GETED(0);
+                    emit_shr32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
+                    GETED(0);
+                    emit_sar32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+            }
+            break;
+        
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
