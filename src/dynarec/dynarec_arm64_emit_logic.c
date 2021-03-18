@@ -168,7 +168,7 @@ void emit_and32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     IFX(X_ALL) {
         ANDSxw_REG(s1, s1, s2);
     } else {
-        ANDxw_REG(s1, s2, s2);
+        ANDxw_REG(s1, s1, s2);
     }
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));

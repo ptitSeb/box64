@@ -400,12 +400,38 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "ORR %s, %s, %s, %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
         return buff;
     }
+    if(isMask(opcode, "f10100100Nrrrrrrssssssnnnnnddddd", &a)) {
+        uint64_t i = DecodeBitMasks(a.N, imms, immr);
+        if(!sf) i&=0xffffffff;
+        if(sf==0 && a.N==1)
+            snprintf(buff, sizeof(buff), "invalid EOR %s, %s, 0x%lx", Wt[Rd], Wt[Rn], i);
+        else
+            snprintf(buff, sizeof(buff), "EOR %s, %s, 0x%lx", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], i);
+        return buff;
+    }
     if(isMask(opcode, "f1001010hh0mmmmmiiiiiinnnnnddddd", &a)) {
         const char* shifts[] = { "LSL", "LSR", "ASR", "ROR" };
         if(shift==0 && imm==0)
             snprintf(buff, sizeof(buff), "EOR %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
         else
             snprintf(buff, sizeof(buff), "EOR %s, %s, %s, %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
+        return buff;
+    }
+    if(isMask(opcode, "f00100100Nrrrrrrssssssnnnnnddddd", &a)) {
+        uint64_t i = DecodeBitMasks(a.N, imms, immr);
+        if(!sf) i&=0xffffffff;
+        if(sf==0 && a.N==1)
+            snprintf(buff, sizeof(buff), "invalid AND %s, %s, 0x%lx", Wt[Rd], Wt[Rn], i);
+        else
+            snprintf(buff, sizeof(buff), "AND %s, %s, 0x%lx", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], i);
+        return buff;
+    }
+    if(isMask(opcode, "f0001010hh0mmmmmiiiiiinnnnnddddd", &a)) {
+        const char* shifts[] = { "LSL", "LSR", "ASR", "ROR" };
+        if(shift==0 && imm==0)
+            snprintf(buff, sizeof(buff), "AND %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        else
+            snprintf(buff, sizeof(buff), "AND %s, %s, %s, %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
         return buff;
     }
 
