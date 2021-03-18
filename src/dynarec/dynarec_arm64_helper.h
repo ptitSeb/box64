@@ -432,23 +432,23 @@
 #define GETIP(A)
 #define GETIP_(A)
 #else
-#define GETIP(A)                                    \
-    if(dyn->last_ip && (A-dyn->last_ip)<0x1000) {   \
-        uint64_t delta = A-dyn->last_ip;            \
-        dyn->last_ip += delta;                      \
-        if(delta) {                                 \
-            ADDx_U12(xRIP, xRIP, delta);            \
-        }                                           \
-    } else {                                        \
-        dyn->last_ip = A;                           \
-        TABLE64(xRIP, dyn->last_ip);                \
+#define GETIP(A)                                        \
+    if(dyn->last_ip && ((A)-dyn->last_ip)<0x1000) {     \
+        uint64_t _delta_ip = (A)-dyn->last_ip;          \
+        dyn->last_ip += _delta_ip;                      \
+        if(_delta_ip) {                                 \
+            ADDx_U12(xRIP, xRIP, _delta_ip);            \
+        }                                               \
+    } else {                                            \
+        dyn->last_ip = (A);                             \
+        TABLE64(xRIP, dyn->last_ip);                    \
     }
-#define GETIP_(A)                                   \
-    if(dyn->last_ip && (A-dyn->last_ip)<0x1000) {   \
-        uint64_t delta = A-dyn->last_ip;            \
-        if(delta) {ADDx_U12(xRIP, xRIP, delta);}    \
-    } else {                                        \
-        TABLE64(xRIP, A);                           \
+#define GETIP_(A)                                       \
+    if(dyn->last_ip && ((A)-dyn->last_ip)<0x1000) {     \
+        uint64_t _delta_ip = (A)-dyn->last_ip;          \
+        if(_delta_ip) {ADDx_U12(xRIP, xRIP, _delta_ip);}\
+    } else {                                            \
+        TABLE64(xRIP, (A));                             \
     }
 #endif
 
