@@ -177,6 +177,18 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BFIw(xFlags, x4, F_CF, 1);
             break;
 
+        case 0xA5:
+            nextop = F8;
+            INST_NAME("SHLD Ed, Gd, CL");
+            UXTBw(x3, xRCX);
+            SETFLAGS(X_ALL, SF_SET);
+            GETEDW(x4, x1, 0);
+            GETGD;
+            MOVxw_REG(x2, gd);
+            CALL_(rex.w?((void*)shld64):((void*)shld32), ed, x4);
+            WBACK;
+            break;
+
         case 0xAB:
             INST_NAME("BTS Ed, Gd");
             SETFLAGS(X_CF, SF_SET);
