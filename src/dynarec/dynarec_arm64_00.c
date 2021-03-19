@@ -193,6 +193,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
 
+        case 0x38:
+            INST_NAME("CMP Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
         case 0x39:
             INST_NAME("CMP Ed, Gd");
             SETFLAGS(X_ALL, SF_SET);
@@ -201,7 +209,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETED(0);
             emit_cmp32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             break;
-
+        case 0x3A:
+            INST_NAME("CMP Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETEB(x2, 0);
+            GETGB(x1);
+            emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
         case 0x3B:
             INST_NAME("CMP Gd, Ed");
             SETFLAGS(X_ALL, SF_SET);
@@ -210,7 +225,18 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETED(0);
             emit_cmp32(dyn, ninst, rex, gd, ed, x3, x4, x5);
             break;
-
+        case 0x3C:
+            INST_NAME("CMP AL, Ib");
+            SETFLAGS(X_ALL, SF_SET);
+            u8 = F8;
+            UXTBw(x1, xRAX);
+            if(u8) {
+                MOV32w(x2, u8);
+                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+            } else {
+                emit_cmp8_0(dyn, ninst, x1, x3, x4);
+            }
+            break;
         case 0x3D:
             INST_NAME("CMP EAX, Id");
             SETFLAGS(X_ALL, SF_SET);

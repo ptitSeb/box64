@@ -176,37 +176,50 @@
                     ed = i;                 \
                 }
 //GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
-#define GETSEB(i) if((nextop&0xC0)==0xC0) { \
-                    wback = (nextop&7);     \
-                    wb2 = (wback>>2);       \
-                    wback = xEAX+(wback&3); \
-                    SXTB(i, wback, wb2);    \
-                    wb1 = 0;                \
-                    ed = i;                 \
-                } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0); \
-                    LDRSB_IMM8(i, wback, fixedaddress);\
-                    wb1 = 1;                \
-                    ed = i;                 \
+#define GETSEB(i) if(MODREG) {                \
+                    if(rex.rex) {               \
+                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
+                        wb2 = 0;                \
+                    } else {                    \
+                        wback = (nextop&7);     \
+                        wb2 = (wback>>2)*8;     \
+                        wback = xRAX+(wback&3); \
+                    }                           \
+                    SBFXx(i, wback, wb2, 8);    \
+                    wb1 = 0;                    \
+                    ed = i;                     \
+                } else {                        \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, 0, D); \
+                    LDRSB_U12(i, wback, fixedaddress); \
+                    wb1 = 1;                    \
+                    ed = i;                     \
                 }
 // Write eb (ed) back to original register / memory
 #define EBBACK   if(wb1) {STRB_U12(ed, wback, fixedaddress);} else {BFIx(wback, ed, wb2, 8);}
 //GETGB will use i for gd
-#define GETGB(i)    gd = (nextop&0x38)>>3;  \
-                    gb2 = ((gd&4)>>2);      \
-                    gb1 = xRAX+(gd&3);      \
-                    gd = i;                 \
-                    nopenope!               \
-                    UXTB(gd, gb1, gb2);
+#define GETGB(i)    if(rex.rex) {               \
+                        gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);     \
+                        gb2 = 0;                \
+                    } else {                    \
+                        gd = (nextop&0x38)>>3;  \
+                        gb2 = ((gd&4)>>2);      \
+                        gb1 = xRAX+(gd&3);      \
+                    }                           \
+                    gd = i;                     \
+                    UBFXx(gd, gb1, gb2, 8);
 //GETSGB signe extend GB, will use i for gd
-#define GETSGB(i)    gd = (nextop&0x38)>>3; \
-                    gb2 = ((gd&4)>>2);      \
-                    gb1 = xEAX+(gd&3);      \
-                    gd = i;                 \
-                    nopenope!               \
-                    SXTB(gd, gb1, gb2);
+#define GETSGB(i)   if(rex.rex) {               \
+                        gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);     \
+                        gb2 = 0;                \
+                    } else {                    \
+                        gd = (nextop&0x38)>>3;  \
+                        gb2 = ((gd&4)>>2);      \
+                        gb1 = xRAX+(gd&3);      \
+                    }                           \
+                    gd = i;                     \
+                    SBFXx(gd, gb1, gb2, 8);
 // Write gb (gd) back to original register / memory
-#define GBBACK   BFI(gb1, gd, gb2*8, 8);
+#define GBBACK   BFIx(gb1, gd, gb2, 8);
 
 // Get Direction with size Z and based of F_DF flag, on register r ready for LDR/STR fetching
 // F_DF is 1<<10, so 1 ROR 11*2 (so F_OF)
