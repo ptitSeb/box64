@@ -128,6 +128,29 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         GOCOND(0x80, "J", "Id");
         #undef GO
+
+        #define GO(GETFLAGS, NO, YES, F)                \
+            READFLAGS(F);                               \
+            GETFLAGS;                                   \
+            nextop=F8;                                  \
+            CSETw(x3, YES);                             \
+            if(MODREG) {                                \
+                if(rex.rex) {                           \
+                    eb1= xRAX+(nextop&7)+(rex.b<<3);    \
+                    eb2 = 0;                            \
+                } else {                                \
+                    ed = (nextop&7);                    \
+                    eb2 = (ed>>2)*8;                    \
+                    eb1 = xRAX+(ed&3);                  \
+                }                                       \
+                BFIx(eb1, x3, eb2, 8);                  \
+            } else {                                    \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff, 0, rex, 0, 0); \
+                STRB_U12(x3, ed, fixedaddress);         \
+            }
+
+        GOCOND(0x90, "SET", "Eb");
+        #undef GO
             
         case 0xBB:
             INST_NAME("BTC Ed, Gd");

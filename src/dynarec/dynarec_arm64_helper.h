@@ -144,14 +144,14 @@
 //GETEB will use i for ed, and can use r3 for wback.
 #define GETEB(i, D) if(MODREG) {                \
                     if(rex.rex) {               \
-                        wback = xRAX+(nextop&7)+(rex.r<<3);     \
+                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
                         wb2 = 0;                \
                     } else {                    \
                         wback = (nextop&7);     \
                         wb2 = (wback>>2)*8;     \
                         wback = xRAX+(wback&3); \
                     }                           \
-                    UBFMw(i, wback, wb2, 7);    \
+                    UBFXx(i, wback, wb2, 8);    \
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
@@ -165,7 +165,7 @@
                     wback = (nextop&7);     \
                     wb2 = (wback>>2);       \
                     wback = xEAX+(wback&3); \
-                    UXTB(i, wback, wb2);    \
+                    UBFXx(i, wback, wb2, 8);\
                     wb1 = 0;                \
                     ed = i;                 \
                 } else {                    \
