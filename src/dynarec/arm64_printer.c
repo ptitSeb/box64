@@ -529,6 +529,10 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "CBZ %s, #%+d\t; %p", Xt[Rt], offset, (void*)(addr + offset));
         return buff;
     }
+    if(isMask(opcode, "f0011010100mmmmmcccc00nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "CSEL %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond]);
+        return buff;
+    }
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;

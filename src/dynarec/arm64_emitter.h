@@ -280,6 +280,11 @@
 #define CSETw(Rd, cond)                     CSINCw(Rd, xZR, xZR, invCond(cond))
 #define CSETxw(Rd, cond)                    CSINCxw(Rd, xZR, xZR, invCond(cond))
 
+#define CSEL_gen(sf, Rm, cond, Rn, Rd)      ((sf<<31) | 0b11010100<<21 | (Rm)<<16 | (cond)<<12 | (Rn)<<5 | Rd)
+#define CSELx(Rd, Rn, Rm, cond)             EMIT(CSEL_gen(1, Rm, cond, Rn, Rd))
+#define CSELw(Rd, Rn, Rm, cond)             EMIT(CSEL_gen(0, Rm, cond, Rn, Rd))
+#define CSELxw(Rd, Rn, Rm, cond)            EMIT(CSEL_gen(rex.w, Rm, cond, Rn, Rd))
+
 // AND / ORR
 #define LOGIC_gen(sf, opc, N, immr, imms, Rn, Rd)  ((sf)<<31 | (opc)<<29 | 0b100100<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | Rd)
 // logic to get the mask is ... convoluted... list of possible value there: https://gist.github.com/dinfuehr/51a01ac58c0b23e4de9aac313ed6a06a
