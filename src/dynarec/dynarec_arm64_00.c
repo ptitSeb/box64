@@ -390,6 +390,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEB(x1, 1);
                     u8 = F8;
                     if(u8) {
+                        MOV32w(x2, u8);
                         emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
                     } else {
                         emit_cmp8_0(dyn, ninst, x1, x3, x4);
