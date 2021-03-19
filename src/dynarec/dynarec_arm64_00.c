@@ -568,6 +568,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x90:
+            INST_NAME("NOP");
+            break;
+
         case 0x9B:
             INST_NAME("FWAIT");
             break;
