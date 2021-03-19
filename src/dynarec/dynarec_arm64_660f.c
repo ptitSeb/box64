@@ -68,6 +68,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FAKEED;
             break;
         
+        case 0xBB:
+            INST_NAME("BTC Ew, Gw");
+            SETFLAGS(X_CF, SF_SET);
+            nextop = F8;
+            gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);    // GETGD
+            GETEW(x4, 0);
+            ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
+            LSRw_REG(x1, ed, x2);
+            BFIw(xFlags, x1, F_CF, 1);
+            MOV32w(x1, 1);
+            LSLxw_REG(x1, x1, x2);
+            EORxw_REG(ed, ed, x1);
+            EWBACK;
+            break;
 
         default:
             DEFAULT;

@@ -85,7 +85,7 @@
 #define SBACK(wb)   if(wback) {STRxw(wb, wback, fixedaddress);} else {MOVxw_REG(ed, wb);}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O)   if((nextop&0xC0)==0xC0) {   \
-                    ed = xEAX+(nextop&7)+(rex.b<<3);   \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);   \
                     wback = 0;              \
                 } else {                    \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0); \
@@ -98,49 +98,49 @@
                     addr = fakeed(dyn, addr, ninst, nextop); \
                 }
 // GETGW extract x64 register in gd, that is i
-#define GETGW(i) gd = xEAX+((nextop&0x38)>>3)+(rex.r<<3); UXTH(i, gd, 0); gd = i;
+#define GETGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); UXTH(i, gd, 0); gd = i;
 //GETEWW will use i for ed, and can use w for wback.
-#define GETEWW(w, i) if((nextop&0xC0)==0xC0) {  \
-                    wback = xEAX+(nextop&7);\
-                    UXTH(i, wback, 0);      \
+#define GETEWW(w, i, D) if(MODREG) {        \
+                    wback = xRAX+(nextop&7)+(rex.b<<3);\
+                    UXTHw(i, wback);        \
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, 255, 0); \
-                    LDRH_IMM8(i, wback, fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, 0, D); \
+                    LDRH_U12(i, wback, fixedaddress); \
                     ed = i;                 \
                     wb1 = 1;                \
                 }
 //GETEW will use i for ed, and can use r3 for wback.
-#define GETEW(i) if((nextop&0xC0)==0xC0) {  \
-                    wback = xEAX+(nextop&7);\
-                    UXTH(i, wback, 0);      \
+#define GETEW(i, D) if(MODREG) {            \
+                    wback = xRAX+(nextop&7)+(rex.b<<3);\
+                    UXTHw(i, wback);        \
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0); \
-                    LDRH_IMM8(i, wback, fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, 0, D); \
+                    LDRH_U12(i, wback, fixedaddress); \
                     ed = i;                 \
                     wb1 = 1;                \
                 }
 //GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
-#define GETSEW(i) if((nextop&0xC0)==0xC0) {  \
-                    wback = xEAX+(nextop&7);\
-                    SXTH(i, wback, 0);      \
+#define GETSEW(i, D) if(MODREG) {           \
+                    wback = xRAX+(nextop&7)+(rex.b<<3);\
+                    SXTHw(i, wback);        \
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0); \
-                    LDRSH_IMM8(i, wback, fixedaddress);\
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, 0, D); \
+                    LDRSHx_U12(i, wback, fixedaddress);\
                     ed = i;                 \
                     wb1 = 1;                \
                 }
 // Write ed back to original register / memory
-#define EWBACK   if(wb1) {STRH_IMM8(ed, wback, fixedaddress);} else {BFI(wback, ed, 0, 16);}
+#define EWBACK   if(wb1) {STRH_U12(ed, wback, fixedaddress);} else {BFIx(wback, ed, 0, 16);}
 // Write w back to original register / memory
-#define EWBACKW(w)   if(wb1) {STRH_IMM8(w, wback, fixedaddress);} else {BFI(wback, w, 0, 16);}
+#define EWBACKW(w)   if(wb1) {STRH_U12(w, wback, fixedaddress);} else {BFIx(wback, w, 0, 16);}
 // Write back gd in correct register
-#define GWBACK       BFI((xEAX+((nextop&0x38)>>3)+(rex.r<<3)), gd, 0, 16);
+#define GWBACK       BFIx((xRAX+((nextop&0x38)>>3)+(rex.r<<3)), gd, 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
 #define GETEB(i, D) if(MODREG) {                \
                     if(rex.rex) {               \
