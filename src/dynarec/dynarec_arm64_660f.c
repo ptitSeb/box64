@@ -68,6 +68,23 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FAKEED;
             break;
         
+        case 0xAB:
+            INST_NAME("BTS Ew, Gw");
+            SETFLAGS(X_CF, SF_SET);
+            nextop = F8;
+            gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);    // GETGD
+            GETEW(x4, 0);
+            ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
+            LSRw_REG(x1, ed, x2);
+            BFIw(xFlags, x1, F_CF, 1);
+            ANDSw_mask(x1, x1, 0, 0);  //mask=1
+            B_NEXT(cNE);
+            MOV32w(x1, 1);
+            LSLxw_REG(x1, x1, x2);
+            EORxw_REG(ed, ed, x1);
+            EWBACK;
+            break;
+
         case 0xB3:
             INST_NAME("BTR Ew, Gw");
             SETFLAGS(X_CF, SF_SET);

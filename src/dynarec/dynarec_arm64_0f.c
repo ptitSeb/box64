@@ -152,6 +152,43 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         GOCOND(0x90, "SET", "Eb");
         #undef GO
             
+        case 0xAB:
+            INST_NAME("BTS Ed, Gd");
+            SETFLAGS(X_CF, SF_SET);
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                wback = 0;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+                UBFXw(x1, gd, 5+rex.w, 3-rex.w); // r1 = (gd>>5);
+                ADDx_REG_LSL(x3, wback, x1, 2); //(&ed)+=r1*4;
+                LDRxw_U12(x1, x3, fixedaddress);
+                ed = x1;
+                wback = x3;
+            }
+            if(rex.w) {
+                ANDx_mask(x2, gd, 1, 0, 0b00101);  //mask=0x000000000000003f
+            } else {
+                ANDw_mask(x2, gd, 0, 0b00100);  //mask=0x00000001f
+            }
+            LSRxw_REG(x4, ed, x2);
+            if(rex.w) {
+                ANDSx_mask(x4, x4, 1, 0, 0);  //mask=1
+            } else {
+                ANDSw_mask(x4, x4, 0, 0);  //mask=1
+            }
+            BFIw(xFlags, x4, F_CF, 1);
+            MOV32w(x4, 1);
+            LSLxw_REG(x4, x4, x2);
+            EORxw_REG(x4, ed, x4);
+            CSELxw(ed, ed, x4, cNE);
+            if(wback) {
+                STRxw_U12(ed, wback, fixedaddress);
+            }
+            break;
+
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
             SETFLAGS(X_CF, SF_SET);
@@ -180,7 +217,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ANDSw_mask(x4, x4, 0, 0);  //mask=1
             }
             BFIw(xFlags, x4, F_CF, 1);
-            //B_MARK3(cEQ); // bit already clear, jump to end of instruction
             MOV32w(x4, 1);
             LSLxw_REG(x4, x4, x2);
             EORxw_REG(x4, ed, x4);
@@ -188,7 +224,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(wback) {
                 STRxw_U12(ed, wback, fixedaddress);
             }
-            //MARK3;
             break;
 
         case 0xBB:
