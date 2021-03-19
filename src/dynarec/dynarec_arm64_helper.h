@@ -142,18 +142,23 @@
 // Write back gd in correct register
 #define GWBACK       BFI((xEAX+((nextop&0x38)>>3)+(rex.r<<3)), gd, 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
-#define GETEB(i) if((nextop&0xC0)==0xC0) {  \
-                    wback = (nextop&7);     \
-                    wb2 = (wback>>2);       \
-                    wback = xEAX+(wback&3); \
-                    UXTB(i, wback, wb2);    \
-                    wb1 = 0;                \
-                    ed = i;                 \
-                } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095, 0); \
-                    LDRB_IMM9(i, wback, fixedaddress); \
-                    wb1 = 1;                \
-                    ed = i;                 \
+#define GETEB(i, D) if(MODREG) {                \
+                    if(rex.rex) {               \
+                        wback = xRAX+(nextop&7)+(rex.r<<3);     \
+                        wb2 = 0;                \
+                    } else {                    \
+                        wback = (nextop&7);     \
+                        wb2 = (wback>>2)*8;     \
+                        wback = xRAX+(wback&3); \
+                    }                           \
+                    UBFMw(i, wback, wb2, 7);    \
+                    wb1 = 0;                    \
+                    ed = i;                     \
+                } else {                        \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, 0, D); \
+                    LDRB_U12(i, wback, fixedaddress); \
+                    wb1 = 1;                    \
+                    ed = i;                     \
                 }
 //GETEBO will use i for ed, i is also Offset, and can use r3 for wback.
 #define GETEBO(i) if((nextop&0xC0)==0xC0) {  \
@@ -185,11 +190,11 @@
                     ed = i;                 \
                 }
 // Write eb (ed) back to original register / memory
-#define EBBACK   if(wb1) {STRB_IMM9(ed, wback, fixedaddress);} else {BFI(wback, ed, wb2*8, 8);}
+#define EBBACK   if(wb1) {STRB_U12(ed, wback, fixedaddress);} else {BFIx(wback, ed, wb2, 8);}
 //GETGB will use i for gd
 #define GETGB(i)    gd = (nextop&0x38)>>3;  \
                     gb2 = ((gd&4)>>2);      \
-                    gb1 = xEAX+(gd&3);      \
+                    gb1 = xRAX+(gd&3);      \
                     gd = i;                 \
                     nopenope!               \
                     UXTB(gd, gb1, gb2);
@@ -616,10 +621,10 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 //void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 //void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
-//void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 //void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
-//void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 //void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
@@ -628,11 +633,11 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_add32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_add32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 //void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
-//void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5);
 void emit_sub32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 //void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
-//void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5);
 void emit_or32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_or32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_xor32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
@@ -640,11 +645,11 @@ void emit_xor32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
 void emit_and32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_and32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 //void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_xor8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_xor8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_xor8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_and8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_and8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_and8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_add16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
 //void emit_add16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_sub16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
@@ -664,13 +669,13 @@ void emit_dec32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
 //void emit_adc32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_adc32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
-//void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5);
 //void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
 //void emit_adc16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_sbb32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_sbb32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_sbb8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
-//void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5);
 //void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
 //void emit_sbb16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);

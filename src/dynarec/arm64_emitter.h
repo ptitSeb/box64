@@ -85,6 +85,7 @@
 #define cLE 0b1101
 #define c__ 0b1110
 
+#define invCond(cond)   ((cond)^0b0001)
 
 // MOVZ
 #define MOVZ_gen(sf, hw, imm16, Rd)         ((sf)<<31 | 0b10<<29 | 0b100101<<23 | (hw)<<21 | (imm16)<<5 | (Rd))
@@ -162,12 +163,22 @@
 #define CMPSw_U12(Rn, imm12)        SUBSw_U12(wZR, Rn, imm12)
 #define CMPSxw_U12(Rn, imm12)       SUBSxw_U12(xZR, Rn, imm12)
 
+#define ADDSUBC_gen(sf, op, S, Rm, Rn, Rd)  ((sf)<<31 | (op)<<30 | (S)<<29 | 0b11010000<<21 | (Rm)<<16 | (Rn)<<5 | (Rd))
+#define ADCx_REG(Rd, Rn, Rm)        EMIT(ADDSUBC_gen(1, 0, 0, Rm, Rn, Rd))
+#define ADCw_REG(Rd, Rn, Rm)        EMIT(ADDSUBC_gen(0, 0, 0, Rm, Rn, Rd))
+#define ADCxw_REG(Rd, Rn, Rm)       EMIT(ADDSUBC_gen(rex.w, 0, 0, Rm, Rn, Rd))
+#define SBCx_REG(Rd, Rn, Rm)        EMIT(ADDSUBC_gen(1, 1, 0, Rm, Rn, Rd))
+#define SBCw_REG(Rd, Rn, Rm)        EMIT(ADDSUBC_gen(0, 1, 0, Rm, Rn, Rd))
+#define SBCxw_REG(Rd, Rn, Rm)       EMIT(ADDSUBC_gen(rex.w, 1, 0, Rm, Rn, Rd))
+
 // LDR
 #define LDR_gen(size, op1, imm9, op2, Rn, Rt)    ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b01<<22 | (imm9)<<12 | (op2)<<10 | (Rn)<<5 | (Rt))
 #define LDRx_S9_postindex(Rt, Rn, imm9)   EMIT(LDR_gen(0b11, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
 #define LDRx_S9_preindex(Rt, Rn, imm9)    EMIT(LDR_gen(0b11, 0b00, (imm9)&0x1ff, 0b11, Rn, Rt))
 #define LDRw_S9_postindex(Rt, Rn, imm9)   EMIT(LDR_gen(0b10, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
 #define LDRw_S9_preindex(Rt, Rn, imm9)    EMIT(LDR_gen(0b10, 0b00, (imm9)&0x1ff, 0b11, Rn, Rt))
+#define LDRB_S9_postindex(Rt, Rn, imm9)   EMIT(LDR_gen(0b00, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
+#define LDRB_S9_preindex(Rt, Rn, imm9)    EMIT(LDR_gen(0b00, 0b00, (imm9)&0x1ff, 0b11, Rn, Rt))
 
 #define LD_gen(size, op1, imm12, Rn, Rt)        ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b01<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
 #define LDRx_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b11, 0b01, ((uint32_t)(imm12>>3))&0xfff, Rn, Rt))
@@ -260,6 +271,14 @@
 #define B(imm26)                        EMIT(B_gen(((imm26)>>2)&0x3ffffff))
 
 #define NOP                             EMIT(0b11010101000000110010000000011111)
+
+#define CSINC_gen(sf, Rm, cond, Rn, Rd)     ((sf)<<31 | 0b11010100<<21 | (Rm)<<16 | (cond)<<12 | 1<<10 | (Rn)<<5 | (Rd))
+#define CSINCx(Rd, Rn, Rm, cond)            EMIT(CSINC_gen(1, Rm, cond, Rn, Rd))
+#define CSINCw(Rd, Rn, Rm, cond)            EMIT(CSINC_gen(0, Rm, cond, Rn, Rd))
+#define CSINCxw(Rd, Rn, Rm, cond)           EMIT(CSINC_gen(rex.w, Rm, cond, Rn, Rd))
+#define CSETx(Rd, cond)                     CSINCx(Rd, xZR, xZR, invCond(cond))
+#define CSETw(Rd, cond)                     CSINCw(Rd, xZR, xZR, invCond(cond))
+#define CSETxw(Rd, cond)                    CSINCxw(Rd, xZR, xZR, invCond(cond))
 
 // AND / ORR
 #define LOGIC_gen(sf, opc, N, immr, imms, Rn, Rd)  ((sf)<<31 | (opc)<<29 | 0b100100<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | Rd)
@@ -395,8 +414,10 @@
 // MRS
 #define MRS_gen(L, o0, op1, CRn, CRm, op2, Rt)  (0b1101010100<<22 | (L)<<21 | 1<<20 | (o0)<<19 | (op1)<<16 | (CRn)<<12 | (CRm)<<8 | (op2)<<5 | (Rt))
 // mrs    x0, nzcv : 1101010100 1 1 1 011 0100 0010 000 00000    o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0010(2) op2=0
-#define VMRS_nzvc(Rt)                   EMIT(MRS_gen(1, 1, 3, 4, 2, 0, Rt))
-#define VMSR_nzvc(Rt)                   EMIT(MRS_gen(0, 1, 3, 4, 2, 0, Rt))
+// MRS : from System register
+#define MRS_nzvc(Rt)                    EMIT(MRS_gen(1, 1, 3, 4, 2, 0, Rt))
+// MSR : to System register
+#define MSR_nzvc(Rt)                    EMIT(MRS_gen(0, 1, 3, 4, 2, 0, Rt))
 // mrs    x0, fpcr : 1101010100 1 1 1 011 0100 0100 000 00000    o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0100(4) op2=2
 #define VMRS(Rt)                        EMIT(MRS_gen(1, 1, 3, 4, 4, 0, Rt))
 #define VMSR(Rt)                        EMIT(MRS_gen(0, 1, 3, 4, 4, 0, Rt))
