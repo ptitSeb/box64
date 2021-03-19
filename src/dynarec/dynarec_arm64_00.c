@@ -640,6 +640,21 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             *ok = 0;
             break;
 
+        case 0xC7:
+            INST_NAME("MOV Ed, Id");
+            nextop=F8;
+            if(MODREG) {   // reg <= i32
+                i64 = F32S;
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                MOV64xw(ed, i64);
+            } else {                    // mem <= i32
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 4);
+                i64 = F32S;
+                MOV64xw(x3, i64);
+                STRxw_U12(x3, ed, fixedaddress);
+            }
+            break;
+
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             if(PK(0)=='S' && PK(1)=='C') {
