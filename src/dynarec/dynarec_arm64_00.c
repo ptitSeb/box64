@@ -260,6 +260,20 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
 
+        case 0x68:
+            INST_NAME("PUSH Id");
+            i64 = F32S;
+            if(PK(0)==0xC3) {
+                MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
+                TABLE64(x3, ip+1);
+                LDRSW_U12(x1, x3, 0);
+                PUSH1(x1);
+            } else {
+                MOV64x(x3, i64);
+                PUSH1(x3);
+            }
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)    \
             READFLAGS(F);                   \
             i8 = F8S;   \
@@ -436,12 +450,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEB(x1, 1);
                     u8 = F8;
                     if(u8) {
-                        MOV32w(x2, u8);
                         emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
                     } else {
                         emit_cmp8_0(dyn, ninst, x1, x3, x4);
                     }
                     break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0x81:

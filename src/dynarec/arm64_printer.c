@@ -172,7 +172,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     if(isMask(opcode, "0x011000iiiiiiiiiiiiiiiiiiittttt", &a)) {
         int size = ((opcode>>30)&1)?3:2;
-        int offset = signExtend(imm, 9)<<2;
+        int offset = signExtend(imm, 9)<<size;
         snprintf(buff, sizeof(buff), "LDR %s, [#%+d]\t;%p", (size==2)?Wt[Rt]:Xt[Rt], offset, (void*)(addr+offset));
         return buff;
     }
@@ -217,7 +217,48 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "STR %s, [%s, %s, %s %d]", (size==2)?Wt[Rt]:Xt[Rt], XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm], extend[option], amount);
         return buff;
     }
-    // --- MOV (REGS: see Logic MOV==ORR, MVN==ORN)
+    if(isMask(opcode, "0x111000010iiiiiiiii01nnnnnttttt", &a)) {
+        int size = a.x;
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "LDR%c %s, [%s], %s0x%x", size?'H':'B', Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "0x111000010iiiiiiiii11nnnnnttttt", &a)) {
+        int size = a.x;
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "LDR%c %s, [%s, %s0x%x]!", size?'H':'B', Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "0x11100101iiiiiiiiiiiinnnnnttttt", &a)) {
+        int size = a.x;
+        int offset = (imm)<<size;
+        if(offset)
+            snprintf(buff, sizeof(buff), "LDR%c %s, [%s, 0x%x]", size?'H':'B', Xt[Rt], XtSp[Rn], offset);
+        else
+            snprintf(buff, sizeof(buff), "LDR%c %s, [%s]", size?'H':'B', Xt[Rt], XtSp[Rn]);
+        return buff;
+    }
+    if(isMask(opcode, "0x111000000iiiiiiiii01nnnnnttttt", &a)) {
+        int size = a.x;
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "STR%c %s, [%s], %s0x%x", size?'H':'B', Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "0x111000000iiiiiiiii11nnnnnttttt", &a)) {
+        int size = a.x;
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "STR%c %s, [%s, %s0x%x]!", size?'H':'B', Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "0x11100100iiiiiiiiiiiinnnnnttttt", &a)) {
+        int size = a.x;
+        int offset = (imm)<<size;
+        if(offset)
+            snprintf(buff, sizeof(buff), "STR%c %s, [%s, 0x%x]", size?'H':'B', Xt[Rt], XtSp[Rn], offset);
+        else
+            snprintf(buff, sizeof(buff), "STR%c %s, [%s]", size?'H':'B', Xt[Rt], XtSp[Rn]);
+        return buff;
+    }    // --- MOV (REGS: see Logic MOV==ORR, MVN==ORN)
     if(isMask(opcode, "f10100101wwiiiiiiiiiiiiiiiiddddd", &a)) {
         if(!hw)
             snprintf(buff, sizeof(buff), "MOVZ %s, 0x%x", sf?Xt[Rd]:Wt[Rd], imm);
@@ -502,7 +543,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             else
                 snprintf(buff, sizeof(buff), "BFI %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], lsb, width);
         } else
-            snprintf(buff, sizeof(buff), "BFM %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], immr, imms);
+            snprintf(buff, sizeof(buff), "BFXIL %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], immr, imms-immr+1);
         return buff;
     }
     // ---- BRANCH / TEST
@@ -531,6 +572,16 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     if(isMask(opcode, "f0011010100mmmmmcccc00nnnnnddddd", &a)) {
         snprintf(buff, sizeof(buff), "CSEL %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond]);
+        return buff;
+    }
+
+    if(isMask(opcode, "f0011010100mmmmmcccc01nnnnnddddd", &a)) {
+        if(Rm!=31 && (cond&0b1110)!=0b1110 && Rn!=31 && Rn==Rm)
+            snprintf(buff, sizeof(buff), "CINC %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond^1]);    
+        else if(Rm==31 && (cond&0b1110)!=0b1110 && Rn==31)
+            snprintf(buff, sizeof(buff), "CSET %s,%s", sf?Xt[Rd]:Wt[Rd], conds[cond^1]);    
+        else
+            snprintf(buff, sizeof(buff), "CSINC %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond]);
         return buff;
     }
 

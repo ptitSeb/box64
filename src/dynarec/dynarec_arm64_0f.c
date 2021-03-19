@@ -94,7 +94,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETFLAGS;                               \
             nextop=F8;                              \
             GETGD;                                  \
-            if((nextop&0xC0)==0xC0) {               \
+            if(MODREG) {                            \
                 ed = xRAX+(nextop&7)+(rex.b<<3);    \
                 CSELxw(gd, ed, gd, YES);            \
             } else { \
