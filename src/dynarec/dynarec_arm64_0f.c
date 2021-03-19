@@ -104,96 +104,31 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(!rex.w) {MOVw_REG(gd, gd);}      \
             }
 
-        case 0x40:
-            INST_NAME("CMOVO Gd, Ed");
-            GO( TSTw_mask(xFlags, 0b010101, 0)
-                , cEQ, cNE, X_OF)
-            break;
-        case 0x41:
-            INST_NAME("CMOVNO Gd, Ed");
-            GO( TSTw_mask(xFlags, 0b010101, 0)
-                , cNE, cEQ, X_OF)
-            break;
-        case 0x42:
-            INST_NAME("CMOVC Gd, Ed");
-            GO( TSTw_mask(xFlags, 0, 0)
-                , cEQ, cNE, X_CF)
-            break;
-        case 0x43:
-            INST_NAME("CMOVNC Gd, Ed");
-            GO( TSTw_mask(xFlags, 0, 0)
-                , cNE, cEQ, X_CF)
-            break;
-        case 0x44:
-            INST_NAME("CMOVZ Gd, Ed");
-            GO( TSTw_mask(xFlags, 0b011010, 0)
-                , cEQ, cNE, X_ZF)
-            break;
-        case 0x45:
-            INST_NAME("CMOVNZ Gd, Ed");
-            GO( TSTw_mask(xFlags, 0b011010, 0)
-                , cNE, cEQ, X_ZF)
-            break;
-        case 0x46:
-            INST_NAME("CMOVBE Gd, Ed");
-            GO( MOV32w(x1, (1<<F_CF)|(1<<F_ZF));
-                TSTw_REG(xFlags, x1)
-                , cEQ, cNE, X_CF|X_ZF)
-            break;
-        case 0x47:
-            INST_NAME("CMOVNBE Gd, Ed");
-            GO( MOV32w(x1, (1<<F_CF)|(1<<F_ZF));
-                TSTw_REG(xFlags, x1)
-                , cNE, cEQ, X_CF|X_ZF)
-            break;
-        case 0x48:
-            INST_NAME("CMOVS Gd, Ed");
-            GO( TSTw_mask(xFlags, 0b011001, 0)  // 0X80
-                , cEQ, cNE, X_SF)
-            break;
-        case 0x49:
-            INST_NAME("CMOVNS Gd, Ed");
-            GO( TSTw_mask(xFlags, 0b011001, 0)
-                , cNE, cEQ, X_SF)
-            break;
-        case 0x4A:
-            INST_NAME("CMOVP Gd, Ed");
-            GO( TSTw_mask(xFlags, 0b011110, 0)
-                , cEQ, cNE, X_PF)
-            break;
-        case 0x4B:
-            INST_NAME("CMOVNP Gd, Ed");
-            GO( TSTw_mask(xFlags, 0b011110, 0)
-                , cNE, cEQ, X_PF)
-            break;
-        case 0x4C:
-            INST_NAME("CMOVL Gd, Ed");
-            GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);
-                TSTw_mask(x1, 0b010101, 0)
-                , cEQ, cNE, X_SF|X_OF)
-            break;
-        case 0x4D:
-            INST_NAME("CMOVGE Gd, Ed");
-            GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);
-                TSTw_mask(x1, 0b010101, 0)
-                , cNE, cEQ, X_SF|X_OF)
-            break;
-        case 0x4E:
-            INST_NAME("CMOVLE Gd, Ed");
-            GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);
-                ORRw_REG_LSL(x1, x1, xFlags, F_OF-F_ZF);
-                TSTw_mask(x1, 0b010101, 0)
-                , cEQ, cNE, X_SF|X_OF|X_ZF)
-            break;
-        case 0x4F:
-            INST_NAME("CMOVG Gd, Ed");
-            GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);
-                ORRw_REG_LSL(x1, x1, xFlags, F_OF-F_ZF);
-                TSTw_mask(x1, 0b010101, 0)
-                , cNE, cEQ, X_SF|X_OF|X_ZF)
-            break;
+        GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
         
+        #define GO(GETFLAGS, NO, YES, F)   \
+            READFLAGS(F);   \
+            i32_ = F32S;    \
+            BARRIER(2);     \
+            JUMP(addr+i32_);\
+            GETFLAGS;   \
+            if(dyn->insts) {    \
+                if(dyn->insts[ninst].x64.jmp_insts==-1) {   \
+                    /* out of the block */                  \
+                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size); \
+                    Bcond(NO, i32);     \
+                    jump_to_next(dyn, addr+i32_, 0, ninst); \
+                } else {    \
+                    /* inside the block */  \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
+                    Bcond(YES, i32);    \
+                }   \
+            }
+
+        GOCOND(0x80, "J", "Id");
+        #undef GO
+            
         case 0xBB:
             INST_NAME("BTC Ed, Gd");
             SETFLAGS(X_CF, SF_SET);
