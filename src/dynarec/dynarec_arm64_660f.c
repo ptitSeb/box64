@@ -95,6 +95,25 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             EORxw_REG(ed, ed, x1);
             EWBACK;
             break;
+        case 0xAC:
+        case 0xAD:
+            nextop = F8;
+            if(opcode==0xAC) {
+                INST_NAME("SHRD Ew, Gw, Ib");
+            } else {
+                INST_NAME("SHRD Ew, Gw, CL");
+                UXTBw(x3, xRCX);
+            }
+            SETFLAGS(X_ALL, SF_SET);
+            GETEWW(x4, x1, (opcode==0xAC)?1:0);
+            GETGW(x2);
+            if(opcode==0xAC) {
+                u8 = F8;
+                MOV32w(x3, u8);
+            }
+            CALL_(shrd16, x1, wback);
+            EWBACKW(x1);
+            break;
 
         case 0xB3:
             INST_NAME("BTR Ew, Gw");

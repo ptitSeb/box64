@@ -98,7 +98,7 @@
                     addr = fakeed(dyn, addr, ninst, nextop); \
                 }
 // GETGW extract x64 register in gd, that is i
-#define GETGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); UXTH(i, gd, 0); gd = i;
+#define GETGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); UXTHw(i, gd); gd = i;
 //GETEWW will use i for ed, and can use w for wback.
 #define GETEWW(w, i, D) if(MODREG) {        \
                     wback = xRAX+(nextop&7)+(rex.b<<3);\
@@ -231,12 +231,12 @@
 // CALL will use x7 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret) call_c(dyn, ninst, F, x7, ret, 1, 0)
-// CALL_ will use x3 for the call address. Return value can be put in ret (unless ret is -1)
+// CALL_ will use x7 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL_(F, ret, reg) call_c(dyn, ninst, F, x3, ret, 1, reg)
-// CALL_S will use x3 for the call address. Return value can be put in ret (unless ret is -1)
+#define CALL_(F, ret, reg) call_c(dyn, ninst, F, x7, ret, 1, reg)
+// CALL_S will use x7 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
-#define CALL_S(F, ret) call_c(dyn, ninst, F, x3, ret, 0, 0)
+#define CALL_S(F, ret) call_c(dyn, ninst, F, x7, ret, 0, 0)
 
 #define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
 #define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))

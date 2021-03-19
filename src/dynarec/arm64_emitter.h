@@ -378,6 +378,7 @@
 #define UBFXxw(Rd, Rn, lsb, width)      EMIT(UBFM_gen(rex.w, rex.w, (lsb), (lsb)+(width)-1, Rn, Rd))
 #define UXTBx(Rd, Rn)                   EMIT(UBFM_gen(1, 1, 0, 7, Rn, Rd))
 #define UXTBw(Rd, Rn)                   EMIT(UBFM_gen(0, 0, 0, 7, Rn, Rd))
+#define UXTBxw(Rd, Rn)                  EMIT(UBFM_gen(rex.w, rex.w, 0, 7, Rn, Rd))
 #define UXTHx(Rd, Rn)                   EMIT(UBFM_gen(1, 1, 0, 15, Rn, Rd))
 #define UXTHw(Rd, Rn)                   EMIT(UBFM_gen(0, 0, 0, 15, Rn, Rd))
 #define LSRx(Rd, Rn, shift)             EMIT(UBFM_gen(1, 1, shift, 63, Rn, Rd))

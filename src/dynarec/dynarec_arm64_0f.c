@@ -214,6 +214,18 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xAD:
+            nextop = F8;
+            INST_NAME("SHRD Ed, Gd, CL");
+            SETFLAGS(X_ALL, SF_SET);
+            UXTBw(x3, xRCX);
+            GETEDW(x4, x1, 0);
+            GETGD;
+            MOVxw_REG(x2, gd);
+            CALL_(rex.w?((void*)shrd64):((void*)shrd32), ed, x4);
+            WBACK;
+            break;
+
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
             SETFLAGS(X_CF, SF_SET);
