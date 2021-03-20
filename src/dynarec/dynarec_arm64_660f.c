@@ -68,6 +68,24 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FAKEED;
             break;
         
+        #define GO(GETFLAGS, NO, YES, F)            \
+            READFLAGS(F);                           \
+            GETFLAGS;                               \
+            nextop=F8;                              \
+            GETGD;                                  \
+            if(MODREG) {                            \
+                ed = xRAX+(nextop&7)+(rex.b<<3);    \
+            } else {                                \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0); \
+                LDRH_U12(x1, ed, fixedaddress);     \
+                ed = x1;                            \
+            }                                       \
+            Bcond(NO, +8);                          \
+            BFIx(gd, ed, 0, 16);
+
+        GOCOND(0x40, "CMOV", "Gw, Ew");
+        #undef GO
+
         case 0xA3:
             INST_NAME("BT Ew, Gw");
             SETFLAGS(X_CF, SF_SET);
