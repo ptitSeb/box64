@@ -296,8 +296,8 @@ void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 void emit_xor8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     IFX(X_PEND) {
-        STRB_REG(s1, xEmu, offsetof(x64emu_t, op1));
-        STRB_REG(s2, xEmu, offsetof(x64emu_t, op2));
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, d_xor8);
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
