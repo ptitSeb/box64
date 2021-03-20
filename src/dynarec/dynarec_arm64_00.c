@@ -706,7 +706,105 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 #endif
             }
             break;
-
+        case 0xD0:
+        case 0xD2:  // TODO: Jump if CL is 0
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    if(opcode==0xD0) {
+                        INST_NAME("ROL Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROL Eb, CL");
+                        ANDSw_mask(x2, xRCX, 0, 0b00100);
+                    }
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETEB(x1, 0);
+                    CALL_(rol8, x1, x3);
+                    EBBACK;
+                    break;
+                case 1:
+                    if(opcode==0xD0) {
+                        INST_NAME("ROR Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROR Eb, CL");
+                        ANDSw_mask(x2, xRCX, 0, 0b00100);
+                    }
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETEB(x1, 0);
+                    CALL_(ror8, x1, x3);
+                    EBBACK;
+                    break;
+                case 2:
+                    if(opcode==0xD0) {INST_NAME("RCL Eb, 1");} else {INST_NAME("RCL Eb, CL");}
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(opcode==0xD0) {MOV32w(x2, 1);} else {ANDSw_mask(x2, xRCX, 0, 0b00100);}
+                    GETEB(x1, 0);
+                    CALL_(rcl8, x1, x3);
+                    EBBACK;
+                    break;
+                case 3:
+                    if(opcode==0xD0) {INST_NAME("RCR Eb, 1");} else {INST_NAME("RCR Eb, CL");}
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(opcode==0xD0) {MOV32w(x2, 1);} else {ANDSw_mask(x2, xRCX, 0, 0b00100);}
+                    GETEB(x1, 0);
+                    CALL_(rcr8, x1, x3);
+                    EBBACK;
+                    break;
+                case 4:
+                case 6:
+                    if(opcode==0xD0) {
+                        INST_NAME("SHL Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SHL Eb, CL");
+                        ANDSw_mask(x2, xRCX, 0, 0b00100);
+                    }
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEB(x1, 0);
+                    UFLAG_OP12(ed, x2)
+                    LSLw_REG(ed, ed, x2);
+                    EBBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shl8);
+                    break;
+                case 5:
+                    if(opcode==0xD0) {
+                        INST_NAME("SHR Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SHR Eb, CL");
+                        ANDSw_mask(x2, xRCX, 0, 0b00100);
+                    }
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEB(x1, 0);
+                    UFLAG_OP12(ed, x2);
+                    LSRw_REG(ed, ed, x2);
+                    EBBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shr8);
+                    break;
+                case 7:
+                    if(opcode==0xD0) {
+                        INST_NAME("SAR Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SAR Eb, CL");
+                        ANDSw_mask(x2, xRCX, 0, 0b00100);
+                    }
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETSEB(x1, 0);
+                    UFLAG_OP12(ed, x2)
+                    ASRw_REG(ed, ed, x2);
+                    EBBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar8);
+                    break;
+            }
+            break;
         case 0xD1:
             nextop = F8;
             switch((nextop>>3)&7) {

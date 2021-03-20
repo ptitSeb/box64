@@ -176,7 +176,7 @@
                     ed = i;                 \
                 }
 //GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
-#define GETSEB(i) if(MODREG) {                \
+#define GETSEB(i, D) if(MODREG) {                \
                     if(rex.rex) {               \
                         wback = xRAX+(nextop&7)+(rex.b<<3);     \
                         wb2 = 0;                \
@@ -190,7 +190,7 @@
                     ed = i;                     \
                 } else {                        \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, 0, D); \
-                    LDRSB_U12(i, wback, fixedaddress); \
+                    LDRSBx_U12(i, wback, fixedaddress); \
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
