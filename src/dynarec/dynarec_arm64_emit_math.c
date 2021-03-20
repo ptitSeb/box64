@@ -1245,58 +1245,57 @@ void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
 }
 
 // emit ADC16 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
-//void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4)
-//{
-//    IFX(X_PEND) {
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, op1));
-//        STR_IMM9(s2, xEmu, offsetof(x64emu_t, op2));
-//        SET_DF(s3, d_adc16);
-//    } else IFX(X_ALL) {
-//        SET_DFNONE(s3);
-//    }
-//    IFX(X_AF|X_OF|X_PF){if(save_s4) {PUSH(xSP, 1<<s4);}}
-//    IFX(X_AF | X_OF) {
-//        MOV_REG(s4, s1);
-//    }
-//    MOVS_REG_LSR_IMM5(s3, xFlags, 1);    // load CC into ARM CF
-//    ADC_REG_LSL_IMM5(s1, s1, s2, 0);
-//    IFX(X_PEND) {
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, res));
-//    }
-//    IFX(X_AF|X_OF) {
-//        ORR_REG_LSL_IMM5(s3, s4, s2, 0);    // s3 = op1 | op2
-//        AND_REG_LSL_IMM5(s4, s4, s2, 0);    // s4 = op1 & op2
-//        BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
-//        ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
-//        IFX(X_AF) {
-//            MOV_REG_LSR_IMM5(s4, s3, 3);
-//            BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
-//        }
-//        IFX(X_OF) {
-//            MOV_REG_LSR_IMM5(s4, s3, 14);
-//            XOR_REG_LSR_IMM8(s4, s4, s4, 1);
-//            BFI(xFlags, s4, F_OF, 1);    // OF: ((bc >> 14) ^ ((bc>>14)>>1)) & 1
-//        }
-//    }
-//    IFX(X_CF) {
-//        MOV_REG_LSR_IMM5(s3, s1, 16);
-//        BFI(xFlags, s3, F_CF, 1);
-//    }
-//    IFX(X_ZF) {
-//        UXTH(s1, s1, 0);
-//        TSTS_REG_LSL_IMM5(s1, s1, 0);
-//        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
-//        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
-//    }
-//    IFX(X_SF) {
-//        MOV_REG_LSR_IMM5(s3, s1, 15);
-//        BFI(xFlags, s3, F_SF, 1);
-//    }
-//    IFX(X_PF) {
-//        emit_pf(dyn, ninst, s1, s3, s4);
-//    }
-//    IFX(X_AF|X_OF|X_PF){if(save_s4) {POP(xSP, 1<<s4);}}
-//}
+void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRH_U12(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s3, d_adc16);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s3);
+    }
+    IFX(X_AF | X_OF) {
+        MOVw_REG(s4, s1);
+    }
+    MRS_nzvc(s3);
+    BFIx(s3, xFlags, 29, 1); // set C
+    MSR_nzvc(s3);      // load CC into ARM CF
+    ADCw_REG(s1, s1, s2);
+    IFX(X_PEND) {
+        STRH_REG(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_AF|X_OF) {
+        ORRw_REG(s3, s4, s2);    // s3 = op1 | op2
+        ANDw_REG(s4, s4, s2);    // s4 = op1 & op2
+        BICw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
+        ORRw_REG(s3, s3, s4);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
+        IFX(X_AF) {
+            LSRw(s4, s3, 3);
+            BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
+        }
+        IFX(X_OF) {
+            LSRw(s4, s3, 14);
+            EORw_REG_LSR(s4, s4, s4, 1);
+            BFIw(xFlags, s4, F_OF, 1);    // OF: ((bc >> 14) ^ ((bc>>14)>>1)) & 1
+        }
+    }
+    IFX(X_CF) {
+        LSRw(s3, s1, 16);
+        BFIw(xFlags, s3, F_CF, 1);
+    }
+    IFX(X_ZF) {
+        ANDSw_mask(s1, s1, 0, 15);   //mask=0xffff
+        CSETw(s3, cEQ);
+        BFIw(xFlags, s3, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRw(s3, s1, 15);
+        BFIw(xFlags, s3, F_SF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
 
 // emit ADC16 instruction, from s1 , const c, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
 //void emit_adc16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)

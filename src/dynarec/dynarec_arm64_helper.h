@@ -680,7 +680,7 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 //void emit_adc32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5);
-//void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_adc16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_sbb32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_sbb32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);

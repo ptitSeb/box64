@@ -112,6 +112,36 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x0F:
             addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
+        case 0x11:
+            INST_NAME("ADC Ew, Gw");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_adc16(dyn, ninst, x1, x2, x4, x5);
+            EWBACK;
+            break;
+        case 0x13:
+            INST_NAME("ADC Gw, Ew");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_adc16(dyn, ninst, x1, x2, x4, x3);
+            GWBACK;
+            break;
+        case 0x15:
+            INST_NAME("ADC AX, Iw");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET);
+            i32 = F16;
+            UXTHw(x1, xRAX);
+            MOV32w(x2, i32);
+            emit_adc16(dyn, ninst, x1, x2, x3, x4);
+            BFIx(xRAX, x1, 0, 16);
+            break;
 
         case 0xD1:
         case 0xD3:
