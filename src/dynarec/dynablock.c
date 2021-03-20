@@ -20,7 +20,7 @@
 #include "elfloader.h"
 #ifdef ARM64
 #include "dynarec_arm64.h"
-#include "arm64_lock_helper.h"
+#include "arm64_lock.h"
 #else
 #error Unsupported architecture!
 #endif

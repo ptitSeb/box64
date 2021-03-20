@@ -240,7 +240,7 @@ if(ARM_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/arm64_prolog.S"
         "${BOX64_ROOT}/src/dynarec/arm64_epilog.S"
         "${BOX64_ROOT}/src/dynarec/arm64_next.S"
-        "${BOX64_ROOT}/src/dynarec/arm64_lock_helper.S"
+        "${BOX64_ROOT}/src/dynarec/arm64_lock.S"
     )
 
     set(DYNAREC_PASS

@@ -23,7 +23,7 @@
 #include "khash.h"
 #ifdef DYNAREC
 #include "dynablock.h"
-#include "dynarec/arm64_lock_helper.h"
+#include "dynarec/arm64_lock.h"
 
 //#define USE_MMAP
 

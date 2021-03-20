@@ -1,5 +1,5 @@
-#ifndef __ARM64_LOCK_HELPER__H__
-#define __ARM64_LOCK_HELPER__H__
+#ifndef __ARM64_LOCK__H__
+#define __ARM64_LOCK__H__
 #include <stdint.h>
 
 // LDAXRB of ADDR
@@ -28,4 +28,4 @@ extern uintptr_t arm64_lock_xchg(void* p, uintptr_t val);
 // Atomicaly store value to [p] only if [p] is NULL. Return new [p] value (so val or old)
 extern void* arm64_lock_storeifnull(void*p, void* val);
 
-#endif  //__ARM64_LOCK_HELPER__H__
+#endif  //__ARM64_LOCK__H__
