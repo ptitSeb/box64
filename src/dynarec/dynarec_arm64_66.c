@@ -287,6 +287,34 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x69:
+            INST_NAME("IMUL Gw,Ew,Iw");
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            UFLAG_DF(x1, d_imul16);
+            GETSEW(x1, 2);
+            i32 = F16S;
+            MOV32w(x2, i32);
+            MULw(x2, x2, x1);
+            UFLAG_RES(x2);
+            gd=x2;
+            GWBACK;
+            break;
+
+        case 0x6B:
+            INST_NAME("IMUL Gw,Ew,Ib");
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            UFLAG_DF(x1, d_imul16);
+            GETSEW(x1, 1);
+            i32 = F8S;
+            MOV32w(x2, i32);
+            MULw(x2, x2, x1);
+            UFLAG_RES(x2);
+            gd=x2;
+            GWBACK;
+            break;
+
         case 0xD1:
         case 0xD3:
             nextop = F8;
