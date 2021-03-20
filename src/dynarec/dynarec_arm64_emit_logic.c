@@ -178,6 +178,8 @@ void emit_and32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         BICw(xFlags, xFlags, s3);
     }
     IFX(X_ZF) {
+        CSETw(s3, cEQ);
+        BFIw(xFlags, s3, F_ZF, 1);
     }
     IFX(X_SF) {
         LSRxw(s3, s1, (rex.w)?63:31);

@@ -278,8 +278,8 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     } else {
         SET_DFNONE(s4);
     }
-    IFX(X_ZF|X_CF|X_OF) {
-        MOV32w(s3, (1<<F_ZF)|(1<<F_CF)|(1<<F_OF));
+    IFX(X_CF | X_AF | X_OF) {
+        MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
     ANDSxw_REG(s3, s1, s2);   // res = s1 & s2
@@ -287,8 +287,8 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         STRxw_U12(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
-        Bcond(cNE, +8);
-        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
+        CSETw(s3, cEQ);
+        BFIw(xFlags, s3, F_ZF, 1);
     }
     IFX(X_SF) {
         LSRxw(s4, s3, rex.w?63:31);
