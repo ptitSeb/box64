@@ -183,6 +183,12 @@
 #define SBCx_REG(Rd, Rn, Rm)        EMIT(ADDSUBC_gen(1, 1, 0, Rm, Rn, Rd))
 #define SBCw_REG(Rd, Rn, Rm)        EMIT(ADDSUBC_gen(0, 1, 0, Rm, Rn, Rd))
 #define SBCxw_REG(Rd, Rn, Rm)       EMIT(ADDSUBC_gen(rex.w, 1, 0, Rm, Rn, Rd))
+#define ADCSx_REG(Rd, Rn, Rm)       EMIT(ADDSUBC_gen(1, 0, 1, Rm, Rn, Rd))
+#define ADCSw_REG(Rd, Rn, Rm)       EMIT(ADDSUBC_gen(0, 0, 1, Rm, Rn, Rd))
+#define ADCSxw_REG(Rd, Rn, Rm)      EMIT(ADDSUBC_gen(rex.w, 0, 1, Rm, Rn, Rd))
+#define SBCSx_REG(Rd, Rn, Rm)       EMIT(ADDSUBC_gen(1, 1, 1, Rm, Rn, Rd))
+#define SBCSw_REG(Rd, Rn, Rm)       EMIT(ADDSUBC_gen(0, 1, 1, Rm, Rn, Rd))
+#define SBCSxw_REG(Rd, Rn, Rm)      EMIT(ADDSUBC_gen(rex.w, 1, 1, Rm, Rn, Rd))
 
 // LDR
 #define LDR_gen(size, op1, imm9, op2, Rn, Rt)    ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b01<<22 | (imm9)<<12 | (op2)<<10 | (Rn)<<5 | (Rt))
