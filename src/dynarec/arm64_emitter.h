@@ -488,6 +488,20 @@
 #define MULw(Rd, Rn, Rm)                MADDw(Rd, Rn, Rm, xZR)
 #define MULxw(Rd, Rn, Rm)               MADDxw(Rd, Rn, Rm, xZR)
 
+// CLZ
+#define CL_gen(sf, op, Rn, Rd)          ((sf)<<31 | 1<<30 | 0b11010110<<21 | 0b00010<<11 | (op)<<10 | (Rn)<<5 | (Rd))
+#define CLZx(Rd, Rn)                    EMIT(CL_gen(1, 0, Rn, Rd))
+#define CLZw(Rd, Rn)                    EMIT(CL_gen(0, 0, Rn, Rd))
+#define CLZxw(Rd, Rn)                   EMIT(CL_gen(rex.w, 0, Rn, Rd))
+#define CLSx(Rd, Rn)                    EMIT(CL_gen(1, 1, Rn, Rd))
+#define CLSw(Rd, Rn)                    EMIT(CL_gen(0, 1, Rn, Rd))
+#define CLSxw(Rd, Rn)                   EMIT(CL_gen(rex.w, 1, Rn, Rd))
+
+// RBIT
+#define RBIT_gen(sf, Rn, Rd)            ((sf)<<31 | 1<<30 | 0b11010110<<21 | (Rn)<<5 | (Rd))
+#define RBITx(Rd, Rn)                   EMIT(RBIT_gen(1, Rn, Rd))
+#define RBITw(Rd, Rn)                   EMIT(RBIT_gen(0, Rn, Rd))
+#define RBITxw(Rd, Rn)                  EMIT(RBIT_gen(rex.w, Rn, Rd))
 
 // MRS
 #define MRS_gen(L, o0, op1, CRn, CRm, op2, Rt)  (0b1101010100<<22 | (L)<<21 | 1<<20 | (o0)<<19 | (op1)<<16 | (CRn)<<12 | (CRm)<<8 | (op2)<<5 | (Rt))

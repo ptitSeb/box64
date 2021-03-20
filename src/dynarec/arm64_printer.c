@@ -641,6 +641,17 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    // MISC Bits
+    if(isMask(opcode, "f10110101100000000010onnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "CL%c %s, %s", option?'S':'Z', sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn]);
+        return buff;
+    }
+    if(isMask(opcode, "f101101011000000000000nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "RBIT %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn]);
+        return buff;
+    }
+
+
     // MULL ADD
     if(isMask(opcode, "10011011U01mmmmm0aaaaannnnnddddd", &a)) {
         if(Ra==31)

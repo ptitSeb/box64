@@ -166,7 +166,40 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             EORxw_REG(ed, ed, x1);
             EWBACK;
             break;
-
+        case 0xBC:
+            INST_NAME("BSF Ew,Gw");
+            SETFLAGS(X_ZF, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETEW(x1, 0);  // Get EW
+            TSTw_REG(x1, x1);
+            B_MARK(cEQ);
+            RBITw(x1, x1);   // reverse
+            CLZw(x2, x1);    // x2 gets leading 0 == BSF
+            BFIw(gd, x2, 0, 16);
+            MARK;
+            CSETw(x1, cEQ);    //ZF not set
+            BFIw(xFlags, x1, F_ZF, 1);
+            SET_DFNONE(x1);
+            break;
+        case 0xBD:
+            INST_NAME("BSR Ew,Gw");
+            SETFLAGS(X_ZF, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETEW(x1, 0);  // Get EW
+            TSTw_REG(x1, x1);
+            B_MARK(cEQ);
+            LSLw(x1, x1, 16);   // put bits on top
+            CLZw(x2, x1);       // x2 gets leading 0
+            SUBw_U12(x2, x2, 15);
+            NEGw_REG(x2, x2);   // complement
+            BFIx(gd, x2, 0, 16);
+            MARK;
+            CSETw(x1, cEQ);    //ZF not set
+            BFIw(xFlags, x1, F_ZF, 1);
+            SET_DFNONE(x1);
+            break;
         default:
             DEFAULT;
     }

@@ -310,6 +310,37 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRxw_U12(ed, wback, fixedaddress);
             }
             break;
+        case 0xBC:
+            INST_NAME("BSF Gd, Ed");
+            SETFLAGS(X_ZF, SF_SET);
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            TSTxw_REG(ed, ed);
+            B_MARK(cEQ);
+            RBITxw(x1, ed);   // reverse
+            CLZxw(gd, x1);    // x2 gets leading 0 == BSF
+            MARK;
+            CSETw(x1, cEQ);    //ZF not set
+            BFIw(xFlags, x1, F_ZF, 1);
+            SET_DFNONE(x1);
+            break;
+        case 0xBD:
+            INST_NAME("BSR Gd, Ed");
+            SETFLAGS(X_ZF, SF_SET);
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            TSTxw_REG(ed, ed);
+            B_MARK(cEQ);
+            CLZxw(gd, ed);    // x2 gets leading 0
+            SUBxw_U12(gd, gd, rex.w?63:31);
+            NEGxw_REG(gd, gd);   // complement
+            MARK;
+            CSETw(x1, cEQ);    //ZF not set
+            BFIw(xFlags, x1, F_ZF, 1);
+            SET_DFNONE(x1);
+            break;
 
         default:
             DEFAULT;
