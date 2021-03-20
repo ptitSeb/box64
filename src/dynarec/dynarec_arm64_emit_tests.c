@@ -320,41 +320,36 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 }
 
 // emit TEST16 instruction, from test s1 , s2, using s3 and s4 as scratch
-//void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
-//{
-//    IFX(X_PEND) {
-//        SET_DF(s3, d_tst16);
-//    } else {
-//        SET_DFNONE(s4);
-//    }
-//    IFX(X_OF) {
-//        BFC(xFlags, F_OF, 1);
-//    }
-//    IFX(X_ZF|X_CF) {
-//        BIC_IMM8(xFlags, xFlags, (1<<F_ZF)|(1<<F_CF), 0);
-//    }
-//    ANDS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 & s2
-//    IFX(X_PEND) {
-//        STR_IMM9(s3, xEmu, offsetof(x64emu_t, res));
-//    }
-//    IFX(X_ZF) {
-//        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
-//    }
-//    IFX(X_SF) {
-//        MOV_REG_LSR_IMM5(s4, s3, 15);
-//        BFI(xFlags, s4, F_SF, 1);
-//    }
-//    // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-//    IFX(X_PF) {
-//        AND_IMM8(s3, s3, 0xE0); // lsr 5 masking pre-applied
-//        MOV32(s4, GetParityTab());
-//        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-//        AND_REG_LSL_IMM5(s3, s1, s2, 0);
-//        AND_IMM8(s3, s3, 31);
-//        MVN_REG_LSR_REG(s4, s4, s3);
-//        BFI(xFlags, s4, F_PF, 1);
-//    }
-//}
+void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX(X_PEND) {
+        SET_DF(s3, d_tst16);
+    } else {
+        SET_DFNONE(s4);
+    }
+    IFX(X_OF) {
+        BFCw(xFlags, F_OF, 1);
+    }
+    IFX(X_CF) {
+        BFCw(xFlags, F_CF, 1);
+    }
+    ANDSw_REG(s5, s1, s2);   // res = s1 & s2
+    IFX(X_PEND) {
+        STRH_U12(s5, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRw(s4, s5, 15);
+        BFIw(xFlags, s4, F_SF, 1);
+    }
+    // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s5, s3, s4);
+    }
+}
 
 // emit TEST8 instruction, from test s1 , s2, using s3 and s4 as scratch
 //void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)

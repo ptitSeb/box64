@@ -446,6 +446,7 @@
 #define GETIP(A)
 #define GETIP_(A)
 #else
+// put value in the Table64 even if not using it for now to avoid difference between Step2 and Step3. Needs to be optimized later...
 #define GETIP(A)                                        \
     if(dyn->last_ip && ((A)-dyn->last_ip)<0x1000) {     \
         uint64_t _delta_ip = (A)-dyn->last_ip;          \
@@ -637,7 +638,7 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 //void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_add32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_add32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
@@ -688,7 +689,7 @@ void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
 //void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
 //void emit_sbb16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_neg32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
-//void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);

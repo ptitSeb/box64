@@ -399,6 +399,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");
     }
     helper.arm_size = 0;
+    int oldtable64size = helper.table64size;
     arm_pass3(&helper, addr);
     if(sz!=(helper.arm_size + helper.table64size*8)) {
         printf_log(LOG_NONE, "BOX64: Warning, size difference in block between pass2 (%d) & pass3 (%d)!\n", sz, helper.arm_size+helper.table64size*8);
@@ -410,6 +411,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
                 printf_log(LOG_NONE, " %02X", *dump);
             printf_log(LOG_NONE, "\t%d -> %d\n", helper.insts[i].size2, helper.insts[i].size);
         }
+        printf_log(LOG_NONE, "Table64 \t%d -> %d\n", oldtable64size*8, helper.table64size*8);
         printf_log(LOG_NONE, " ------------\n");
     }
     // add table64 if needed

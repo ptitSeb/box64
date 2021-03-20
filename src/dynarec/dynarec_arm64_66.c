@@ -160,6 +160,68 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0xF7:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                case 1:
+                    INST_NAME("TEST Ew, Iw");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEW(x1, 2);
+                    u16 = F16;
+                    MOV32w(x2, u16);
+                    emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
+                case 2:
+                    INST_NAME("NOT Ew");
+                    GETEW(x1, 0);
+                    MVNw_REG(ed, ed);
+                    EWBACK;
+                    break;
+                case 3:
+                    INST_NAME("NEG Ew");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEW(x1, 0);
+                    emit_neg16(dyn, ninst, ed, x2, x4);
+                    EWBACK;
+                    break;
+                case 4:
+                    INST_NAME("MUL AX, Ew");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x1, d_mul16);
+                    GETEW(x1, 0);
+                    UXTHw(x2, xRAX);
+                    MULw(x1, x2, x1);
+                    UFLAG_RES(x1);
+                    BFIx(xRAX, x1, 0, 16);
+                    BFXILx(xRDX, x1, 16, 16);
+                    break;
+                case 5:
+                    INST_NAME("IMUL AX, Ew");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x1, d_imul16);
+                    GETSEW(x1, 0);
+                    SXTHw(x2, xRAX);
+                    MULw(x1, x2, x1);
+                    UFLAG_RES(x1);
+                    BFIx(xRAX, x1, 0, 16);
+                    BFXILx(xRDX, x1, 16, 16);
+                    break;
+                case 6:
+                    INST_NAME("DIV Ew");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEW(x1, 0);
+                    CALL(div16, -1);
+                    break;
+                case 7:
+                    INST_NAME("IDIV Ew");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEW(x1, 0);
+                    CALL(idiv16, -1);
+                    break;
+            }
+            break;
+            
         default:
             DEFAULT;
     }

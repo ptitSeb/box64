@@ -32,4 +32,4 @@
     ++dyn->sons_size;                               \
     }
 
-#define TABLE64(A, V)   if((V)>0xffffffffL) {int val64offset = Table64(dyn, (V)); MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); LDRx_literal(A, val64offset);} else {MOV64x(A, V);}
+#define TABLE64(A, V)   if((V)>0xffffffffLL) {int val64offset = Table64(dyn, (V)); MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); LDRx_literal(A, val64offset);} else {MOV64x(A, V);}

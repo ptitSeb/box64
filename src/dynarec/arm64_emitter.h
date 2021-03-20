@@ -388,11 +388,11 @@
 #define BFCw(Rd, lsb, width)            BFMw(Rd, xZR, ((-lsb)%32)&0x1f, (width)-1)
 #define BFCxw(Rd, lsb, width)           BFMxw(Rd, xZR, rex.w?(((-lsb)%64)&0x3f):(((-lsb)%32)&0x1f), (width)-1)
 // Insert lsb:width part of Rn into low part of Rd (leaving rest of Rd untouched)
-#define BFXILx(Rd, Rn, lsb, width)      BFM_gen(1, 0b01, 1, (lsb), (lsb)+(width)-1, Rn, Rd)
+#define BFXILx(Rd, Rn, lsb, width)      EMIT(BFM_gen(1, 0b01, 1, (lsb), (lsb)+(width)-1, Rn, Rd))
 // Insert lsb:width part of Rn into low part of Rd (leaving rest of Rd untouched)
-#define BFXILw(Rd, Rn, lsb, width)      BFM_gen(0, 0b01, 0, (lsb), (lsb)+(width)-1, Rn, Rd)
+#define BFXILw(Rd, Rn, lsb, width)      EMIT(BFM_gen(0, 0b01, 0, (lsb), (lsb)+(width)-1, Rn, Rd))
 // Insert lsb:width part of Rn into low part of Rd (leaving rest of Rd untouched)
-#define BFXILxw(Rd, Rn, lsb, width)     BFM_gen(rex.w, 0b01, rex.w, (lsb), (lsb)+(width)-1, Rn, Rd)
+#define BFXILxw(Rd, Rn, lsb, width)     EMIT(BFM_gen(rex.w, 0b01, rex.w, (lsb), (lsb)+(width)-1, Rn, Rd))
 
 // UBFX
 #define UBFM_gen(sf, N, immr, imms, Rn, Rd)    ((sf)<<31 | 0b10<<29 | 0b100110<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | (Rd))
