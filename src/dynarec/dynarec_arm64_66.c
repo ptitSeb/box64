@@ -174,6 +174,34 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BFIx(xRAX, x1, 0, 16);
             break;
 
+        case 0x21:
+            INST_NAME("AND Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_and16(dyn, ninst, x1, x2, x4, x5);
+            EWBACK;
+            break;
+        case 0x23:
+            INST_NAME("AND Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_and16(dyn, ninst, x1, x2, x3, x4);
+            GWBACK;
+            break;
+        case 0x25:
+            INST_NAME("AND AX, Iw");
+            SETFLAGS(X_ALL, SF_SET);
+            i32 = F16;
+            UXTHw(x1, xRAX);
+            MOV32w(x2, i32);
+            emit_and16(dyn, ninst, x1, x2, x3, x4);
+            BFIx(xRAX, x1, 0, 16);
+            break;
+
         case 0xD1:
         case 0xD3:
             nextop = F8;
