@@ -210,9 +210,10 @@
 #define LDRB_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b00, Rm, 0b011, 0, Rn, Rt))
 #define LDRH_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b01, Rm, 0b011, 0, Rn, Rt))
 
-#define LDRSH_gen(size, op1, opc, imm9, op2, Rn, Rt)    ((size)<<30 | 0b111<<27 | (op1)<<24 | (opc)<<22 | (imm9)<<12 | (op2)<<10 | (Rn)<<5 | (Rt))
-#define LDRSHx_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b01, 0b00, 0b10, ((uint32_t)(imm12>>1))&0xfff, Rn, Rt))
-#define LDRSHw_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b01, 0b00, 0b11, ((uint32_t)(imm12>>1))&0xfff, Rn, Rt))
+#define LDRSH_gen(size, op1, opc, imm12, Rn, Rt)    ((size)<<30 | 0b111<<27 | (op1)<<24 | (opc)<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
+#define LDRSHx_U12(Rt, Rn, imm12)           EMIT(LDRSH_gen(0b01, 0b01, 0b10, ((uint32_t)(imm12>>1))&0xfff, Rn, Rt))
+#define LDRSHw_U12(Rt, Rn, imm12)           EMIT(LDRSH_gen(0b01, 0b01, 0b11, ((uint32_t)(imm12>>1))&0xfff, Rn, Rt))
+#define LDRSHxw_U12(Rt, Rn, imm12)          EMIT(LDRSH_gen(0b01, 0b01, rex.w?0b10:0b11, ((uint32_t)(imm12>>1))&0xfff, Rn, Rt))
 
 #define LDR_PC_gen(opc, imm19, Rt)      ((opc)<<30 | 0b011<<27 | (imm19)<<5 | (Rt))
 #define LDRx_literal(Rt, imm19)         EMIT(LDR_PC_gen(0b01, ((imm19)>>2)&0x7FFFF, Rt))
