@@ -1102,6 +1102,65 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             *ok = 0;
             break;
 
+        case 0xF6:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                case 1:
+                    INST_NAME("TEST Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
+                case 2:
+                    INST_NAME("NOT Eb");
+                    GETEB(x1, 0);
+                    MVNw_REG(x1, x1);
+                    EBBACK;
+                    break;
+                case 3:
+                    INST_NAME("NEG Eb");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEB(x1, 0);
+                    emit_neg8(dyn, ninst, x1, x2, x4);
+                    EBBACK;
+                    break;
+                case 4:
+                    INST_NAME("MUL AL, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x1, d_mul8);
+                    GETEB(x1, 0);
+                    UXTBw(x2, xRAX);
+                    MULw(x1, x2, x1);
+                    UFLAG_RES(x1);
+                    BFIx(xRAX, x1, 0, 16);
+                    break;
+                case 5:
+                    INST_NAME("IMUL AL, Eb");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x1, d_imul8);
+                    GETSEB(x1, 0);
+                    SXTBw(x2, xRAX);
+                    MULw(x1, x2, x1);
+                    UFLAG_RES(x1);
+                    BFIx(xRAX, x1, 0, 16);
+                    break;
+                case 6:
+                    INST_NAME("DIV Eb");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEB(x1, 0);
+                    CALL(div8, -1);
+                    break;
+                case 7:
+                    INST_NAME("IDIV Eb");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEB(x1, 0);
+                    CALL(idiv8, -1);
+                    break;
+            }
+            break;
         case 0xF7:
             nextop = F8;
             switch((nextop>>3)&7) {
