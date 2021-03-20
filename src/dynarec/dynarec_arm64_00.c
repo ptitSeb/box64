@@ -1239,6 +1239,27 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         
+        case 0xFE:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("INC Eb");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    GETEB(x1, 0);
+                    emit_inc8(dyn, ninst, x1, x2, x4);
+                    EBBACK;
+                    break;
+                case 1:
+                    INST_NAME("DEC Eb");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    GETEB(x1, 0);
+                    emit_dec8(dyn, ninst, x1, x2, x4);
+                    EBBACK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xFF:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -1289,7 +1310,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
 
                 default:
-                    INST_NAME("Grp5 Ed");
                     DEFAULT;
             }
             break;

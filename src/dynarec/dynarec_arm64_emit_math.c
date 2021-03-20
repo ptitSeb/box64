@@ -788,49 +788,49 @@ void emit_inc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
 }
 
 // emit INC8 instruction, from s1, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
-//void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
-//{
-//    IFX(X_PEND) {
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, op1));
-//        SET_DF(s3, d_inc8);
-//    } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
-//        SET_DFNONE(s3);
-//    }
-//    IFX(X_AF | X_OF) {
-//        ORR_IMM8(s3, s1, 1, 0);     // s3 = op1 | op2
-//        AND_IMM8(s4, s1, 1);        // s4 = op1 & op2
-//    }
-//    ADD_IMM8(s1, s1, 1);
-//    IFX(X_PEND) {
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, res));
-//    }
-//    IFX(X_AF|X_OF) {
-//        BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
-//        ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
-//        IFX(X_AF) {
-//            MOV_REG_LSR_IMM5(s4, s3, 3);
-//            BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
-//        }
-//        IFX(X_OF) {
-//            MOV_REG_LSR_IMM5(s4, s3, 6);
-//            XOR_REG_LSR_IMM8(s4, s4, s4, 1);
-//            BFI(xFlags, s4, F_OF, 1);    // OF: ((bc >> 6) ^ ((bc>>6)>>1)) & 1
-//        }
-//    }
-//
-//    IFX(X_ZF) {
-//        ANDS_IMM8(s1, s1, 0xff);
-//        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
-//        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
-//    }
-//    IFX(X_SF) {
-//        MOV_REG_LSR_IMM5(s3, s1, 7);
-//        BFI(xFlags, s3, F_SF, 1);
-//    }
-//    IFX(X_PF) {
-//        emit_pf(dyn, ninst, s1, s3, s4);
-//    }
-//}
+void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s3, d_inc8);
+    } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
+        SET_DFNONE(s3);
+    }
+    IFX(X_AF | X_OF) {
+        ORRw_mask(s3, s1, 0, 0);     // s3 = op1 | op2
+        ANDw_mask(s4, s1, 0, 0);        // s4 = op1 & op2
+    }
+    ADDw_U12(s1, s1, 1);
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_AF|X_OF) {
+        BICw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
+        ORRw_REG(s3, s3, s4);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
+        IFX(X_AF) {
+            LSRw(s4, s3, 3);
+            BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
+        }
+        IFX(X_OF) {
+            LSRw(s4, s3, 6);
+            EORw_REG_LSR(s4, s4, s4, 1);
+            BFIw(xFlags, s4, F_OF, 1);    // OF: ((bc >> 6) ^ ((bc>>6)>>1)) & 1
+        }
+    }
+
+    IFX(X_ZF) {
+        ANDSw_mask(s1, s1, 0, 7);   //mask=0xff
+        CSETw(s3, cEQ);
+        BFIw(xFlags, s3, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRw(s3, s1, 7);
+        BFIw(xFlags, s3, F_SF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
 
 // emit INC16 instruction, from s1 , store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
 void emit_inc16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
@@ -932,49 +932,48 @@ void emit_dec32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
 }
 
 // emit DEC8 instruction, from s1, store result in s1 using s3 and s4 as scratch
-//void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
-//{
-//    IFX(X_PEND) {
-//        STR_IMM9(s3, xEmu, offsetof(x64emu_t, op2));
-//        SET_DF(s3, d_dec8);
-//    } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
-//        SET_DFNONE(s3);
-//    }
-//    IFX(X_AF|X_OF) {
-//        MVN_REG_LSL_IMM5(s3, s1, 0);
-//        AND_IMM8(s4, s3, 1);        // s4 = ~op1 & op2
-//        ORR_IMM8(s3, s3, 1, 0);     // s3 = ~op1 | op2
-//    }
-//    SUB_IMM8(s1, s1, 1);
-//    IFX(X_PEND) {
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, res));
-//    }
-//    IFX(X_AF|X_OF) {
-//        AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
-//        ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
-//        IFX(X_AF) {
-//            MOV_REG_LSR_IMM5(s4, s3, 3);
-//            BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
-//        }
-//        IFX(X_OF) {
-//            MOV_REG_LSR_IMM5(s4, s3, 6);
-//            XOR_REG_LSR_IMM8(s4, s4, s4, 1);
-//            BFI(xFlags, s4, F_OF, 1);    // OF: ((bc >> 6) ^ ((bc>>6)>>1)) & 1
-//        }
-//    }
-//    IFX(X_ZF) {
-//        ANDS_IMM8(s1, s1, 0xff);
-//        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
-//        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
-//    }
-//    IFX(X_SF) {
-//        MOV_REG_LSR_IMM5(s3, s1, 7);
-//        BFI(xFlags, s3, F_SF, 1);
-//    }
-//    IFX(X_PF) {
-//        emit_pf(dyn, ninst, s1, s3, s4);
-//    }
-//}
+void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STRB_U12(s3, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s3, d_dec8);
+    } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
+        SET_DFNONE(s3);
+    }
+    IFX(X_AF|X_OF) {
+        MVNw_REG(s3, s1);
+        ANDw_mask(s4, s3, 0, 0);        // s4 = ~op1 & op2
+        ORRw_mask(s3, s3, 0, 0);     // s3 = ~op1 | op2
+    }
+    SUBSw_U12(s1, s1, 1);
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_AF|X_OF) {
+        ANDw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
+        ORRw_REG(s3, s3, s4);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
+        IFX(X_AF) {
+            LSRw(s4, s3, 3);
+            BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
+        }
+        IFX(X_OF) {
+            LSRw(s4, s3, 6);
+            EORw_REG_LSR(s4, s4, s4, 1);
+            BFIw(xFlags, s4, F_OF, 1);    // OF: ((bc >> 6) ^ ((bc>>6)>>1)) & 1
+        }
+    }
+    IFX(X_ZF) {
+        CSETw(s3, cEQ);
+        BFIw(xFlags, s3, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRw(s3, s1, 7);
+        BFIw(xFlags, s3, F_SF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
 
 // emit DEC16 instruction, from s1, store result in s1 using s3 and s4 as scratch
 void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
