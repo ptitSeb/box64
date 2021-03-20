@@ -16,9 +16,9 @@ static const char* conds[] = {"cEQ", "cNE", "cCS", "cCC", "cMI", "cPL", "cVS", "
 #define abs(A) (((A)<0)?(-(A)):(A))
 
 typedef struct arm64_print_s {
-    int N, S, U;
+    int N, S, U, L;
     int t, n, m, d, t2, a;
-    int f, c, o, h;
+    int f, c, o, h, p;
     int i, r, s;
     int x, w;
 } arm64_print_t;
@@ -60,9 +60,11 @@ int isMask(uint32_t opcode, const char* mask, arm64_print_t *a)
             case 'N': a->N = (a->N<<1) | v; break;
             case 'S': a->S = (a->S<<1) | v; break;
             case 'U': a->U = (a->U<<1) | v; break;
+            case 'L': a->L = (a->L<<1) | v; break;
             case 't': a->t = (a->t<<1) | v; break;
             case '2': a->t2 = (a->t2<<1) | v; break;
             case 'n': a->n = (a->n<<1) | v; break;
+            case 'p': a->p = (a->p<<1) | v; break;
             case 'm': a->m = (a->m<<1) | v; break;
             case 'a': a->a = (a->a<<1) | v; break;
             case 'd': a->d = (a->d<<1) | v; break;
@@ -374,6 +376,36 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "SUBS %s, %s, %s %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
         return buff;
     }
+    if(isMask(opcode, "f0011010000mmmmm000000nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "ADC %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        return buff;
+    }
+    if(isMask(opcode, "f0111010000mmmmm000000nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "ADCS %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        return buff;
+    }
+    if(isMask(opcode, "f1011010000mmmmm000000nnnnnddddd", &a)) {
+        if(Rn==31)
+            snprintf(buff, sizeof(buff), "NGC %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rm]:Wt[Rm]);
+        else
+            snprintf(buff, sizeof(buff), "SBC %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        return buff;
+    }
+    if(isMask(opcode, "f1111010000mmmmm000000nnnnnddddd", &a)) {
+        if(Rn==31)
+            snprintf(buff, sizeof(buff), "NGCS %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rm]:Wt[Rm]);
+        else
+            snprintf(buff, sizeof(buff), "SBCS %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        return buff;
+    }
+    if(isMask(opcode, "f1101011hh0mmmmmiiiiiinnnnnddddd", &a)) {
+        const char* shifts[] = { "LSL", "LSR", "ASR", "???"};
+        if(shift==0 && imm==0)
+            snprintf(buff, sizeof(buff), "SUBS %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        else 
+            snprintf(buff, sizeof(buff), "SUBS %s, %s, %s %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
+        return buff;
+    }
     // ---- LOGIC
     if(isMask(opcode, "f11100100Nrrrrrrssssssnnnnnddddd", &a)) {
         uint64_t i = DecodeBitMasks(a.N, imms, immr);
@@ -612,6 +644,39 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "MADD %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], sf?Xt[Ra]:Wt[Ra]);
         return buff;
     }
+
+    // MRS / MSR
+    if(isMask(opcode, "110101010001opppnnnnmmmm222ttttt", &a)) {
+        const char* reg=NULL;
+        //o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0010(2) op2=0 => nzcv
+        //o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0100(4) op2=2 => fpcr
+        if(a.o==1 && a.p==3 && a.n==4 && a.m==2 && a.t2==0)
+            reg="nzcv";
+        else if(a.o==1 && a.p==3 && a.n==4 && a.m==4 && a.t2==2)
+            reg="fpcr";
+
+        if(!reg)
+            snprintf(buff, sizeof(buff), "MSR S%d_%d_%d_%d_%d, %s", 2+a.o, a.p, a.n, a.m, a.t2, Xt[Rt]);
+        else
+            snprintf(buff, sizeof(buff), "MSR %s, %s", reg, Xt[Rt]);
+        return buff;
+    }
+    if(isMask(opcode, "110101010011opppnnnnmmmm222ttttt", &a)) {
+        const char* reg=NULL;
+        //o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0010(2) op2=0 => nzcv
+        //o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0100(4) op2=2 => fpcr
+        if(a.o==1 && a.p==3 && a.n==4 && a.m==2 && a.t2==0)
+            reg="nzcv";
+        else if(a.o==1 && a.p==3 && a.n==4 && a.m==4 && a.t2==2)
+            reg="fpcr";
+
+        if(!reg)
+            snprintf(buff, sizeof(buff), "MRS %s, S%d_%d_%d_%d_%d", Xt[Rt], 2+a.o, a.p, a.n, a.m, a.t2);
+        else
+            snprintf(buff, sizeof(buff), "MRS %s, %s", Xt[Rt], reg);
+        return buff;
+    }
+
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;

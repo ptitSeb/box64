@@ -218,6 +218,63 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_adc32(dyn, ninst, rex, xRAX, x1, x3, x4);
             break;
 
+        case 0x18:
+            INST_NAME("SBB Eb, Gb");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_sbb8(dyn, ninst, x1, x2, x4, x5);
+            EBBACK;
+            break;
+        case 0x19:
+            INST_NAME("SBB Ed, Gd");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_sbb32(dyn, ninst, rex, ed, gd, x3, x4);
+            WBACK;
+            break;
+        case 0x1A:
+            INST_NAME("SBB Gb, Eb");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETEB(x2, 0);
+            GETGB(x1);
+            emit_sbb8(dyn, ninst, x1, x2, x3, x4);
+            GBBACK;
+            break;
+        case 0x1B:
+            INST_NAME("SBB Gd, Ed");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_sbb32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+        case 0x1C:
+            INST_NAME("SBB AL, Ib");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET);
+            u8 = F8;
+            UXTBw(x1, xRAX);
+            emit_sbb8c(dyn, ninst, x1, u8, x3, x4, x5);
+            BFIx(xRAX, x1, 0, 8);
+            break;
+        case 0x1D:
+            INST_NAME("SBB EAX, Id");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET);
+            i64 = F32S;
+            MOV64xw(x2, i64);
+            emit_sbb32(dyn, ninst, rex, xRAX, x2, x3, x4);
+            break;
+
         case 0x21:
             INST_NAME("AND Ed, Gd");
             SETFLAGS(X_ALL, SF_SET);
