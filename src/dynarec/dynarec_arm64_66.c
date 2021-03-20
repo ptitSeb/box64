@@ -222,6 +222,27 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0xFF:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("INC Ew");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    GETEW(x1, 0);
+                    emit_inc16(dyn, ninst, x1, x2, x4);
+                    EWBACK;
+                    break;
+                case 1:
+                    INST_NAME("DEC Ew");
+                    SETFLAGS(X_ALL&~X_CF, SF_SET);
+                    GETEW(x1, 0);
+                    emit_dec16(dyn, ninst, x1, x2, x4);
+                    EWBACK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         default:
             DEFAULT;
     }
