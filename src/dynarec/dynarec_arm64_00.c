@@ -538,29 +538,29 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGD;
             GETED(4);
             i64 = F32S;
-            MOV64xw(x1, i64);
+            MOV64xw(x4, i64);
             if(rex.w) {
                 // 64bits imul
                 UFLAG_IF {
-                    SMULH(x3, ed, x1);
-                    MULx(gd, ed, x1);
+                    SMULH(x3, ed, x4);
+                    MULx(gd, ed, x4);
                     UFLAG_OP1(x3);
                     UFLAG_RES(gd);
                     UFLAG_DF(x3, d_imul64);
                 } else {
-                    MULxw(gd, ed, x1);
+                    MULxw(gd, ed, x4);
                 }
             } else {
                 // 32bits imul
                 UFLAG_IF {
-                    SMULL(gd, ed, x1);
+                    SMULL(gd, ed, x4);
                     UFLAG_RES(gd);
                     LSRx(x3, gd, 32);
                     UFLAG_OP1(x3);
                     UFLAG_DF(x3, d_imul32);
                     MOVw_REG(gd, gd);
                 } else {
-                    MULxw(gd, ed, x1);
+                    MULxw(gd, ed, x4);
                 }
             }
             break;
@@ -577,29 +577,29 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGD;
             GETED(1);
             i64 = F8S;
-            MOV64xw(x1, i64);
+            MOV64xw(x4, i64);
             if(rex.w) {
                 // 64bits imul
                 UFLAG_IF {
-                    SMULH(x3, ed, x1);
-                    MULx(gd, ed, x1);
+                    SMULH(x3, ed, x4);
+                    MULx(gd, ed, x4);
                     UFLAG_OP1(x3);
                     UFLAG_RES(gd);
                     UFLAG_DF(x3, d_imul64);
                 } else {
-                    MULxw(gd, ed, x1);
+                    MULxw(gd, ed, x4);
                 }
             } else {
                 // 32bits imul
                 UFLAG_IF {
-                    SMULL(gd, ed, x1);
+                    SMULL(gd, ed, x4);
                     UFLAG_RES(gd);
                     LSRx(x3, gd, 32);
                     UFLAG_OP1(x3);
                     UFLAG_DF(x3, d_imul32);
                     MOVw_REG(gd, gd);
                 } else {
-                    MULxw(gd, ed, x1);
+                    MULxw(gd, ed, x4);
                 }
             }
             break;
