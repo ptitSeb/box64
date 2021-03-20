@@ -159,6 +159,12 @@
 #define CMPSx_REG(Rn, Rm)                   SUBSx_REG(xZR, Rn, Rm)
 #define CMPSw_REG(Rn, Rm)                   SUBSw_REG(wZR, Rn, Rm)
 #define CMPSxw_REG(Rn, Rm)                  SUBSxw_REG(xZR, Rn, Rm)
+#define NEGx_REG(Rd, Rm)                    SUBx_REG(Rd, xZR, Rm);
+#define NEGw_REG(Rd, Rm)                    SUBw_REG(Rd, wZR, Rm);
+#define NEGxw_REG(Rd, Rm)                   SUBxw_REG(Rd, xZR, Rm);
+#define NEGSx_REG(Rd, Rm)                   SUBSx_REG(Rd, xZR, Rm);
+#define NEGSw_REG(Rd, Rm)                   SUBSw_REG(Rd, wZR, Rm);
+#define NEGSxw_REG(Rd, Rm)                  SUBSxw_REG(Rd, xZR, Rm);
 
 #define SUBx_U12(Rd, Rn, imm12)     EMIT(ADDSUB_IMM_gen(1, 1, 0, 0b00, (imm12)&0xfff, Rn, Rd))
 #define SUBSx_U12(Rd, Rn, imm12)    EMIT(ADDSUB_IMM_gen(1, 1, 1, 0b00, (imm12)&0xfff, Rn, Rd))
@@ -247,25 +253,25 @@
 // LOAD/STORE PAIR
 #define MEMPAIR_gen(size, L, op2, imm7, Rt2, Rn, Rt)    ((size)<<31 | 0b101<<27 | (op2)<<23 | (L)<<22 | (imm7)<<15 | (Rt2)<<10 | (Rn)<<5 | (Rt))
 
-#define LDPx_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(1, 1, 0b01, (imm>>3)&0x7f, Rt2, Rn, Rt))
-#define LDPw_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(0, 1, 0b01, (imm>>2)&0x7f, Rt2, Rn, Rt))
-#define LDPxw_S7_postindex(Rt, Rt2, Rn, imm)            EMIT(MEMPAIR_gen(rex.w, 1, 0b01, (imm>>(2+rex.w)), Rt2, Rn, Rt))
-#define LDPx_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(1, 1, 0b11, (imm>>3)&0x7f, Rt2, Rn, Rt))
-#define LDPw_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(0, 1, 0b11, (imm>>2)&0x7f, Rt2, Rn, Rt))
-#define LDPxw_S7_preindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(rex.w, 1, 0b11, (imm>>(2+rex.w)), Rt2, Rn, Rt))
-#define LDPx_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(1, 1, 0b10, (imm>>3)&0x7f, Rt2, Rn, Rt))
-#define LDPw_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(0, 1, 0b10, (imm>>2)&0x7f, Rt2, Rn, Rt))
-#define LDPxw_S7_offset(Rt, Rt2, Rn, imm)               EMIT(MEMPAIR_gen(rex.w, 1, 0b10, (imm>>(2+rex.w)), Rt2, Rn, Rt))
+#define LDPx_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(1, 1, 0b01, (((uint32_t)(imm))>>3)&0x7f, Rt2, Rn, Rt))
+#define LDPw_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(0, 1, 0b01, (((uint32_t)(imm))>>2)&0x7f, Rt2, Rn, Rt))
+#define LDPxw_S7_postindex(Rt, Rt2, Rn, imm)            EMIT(MEMPAIR_gen(rex.w, 1, 0b01, (((uint32_t)(imm))>>(2+rex.w)), Rt2, Rn, Rt))
+#define LDPx_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(1, 1, 0b11, (((uint32_t)(imm))>>3)&0x7f, Rt2, Rn, Rt))
+#define LDPw_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(0, 1, 0b11, (((uint32_t)(imm))>>2)&0x7f, Rt2, Rn, Rt))
+#define LDPxw_S7_preindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(rex.w, 1, 0b11, (((uint32_t)(imm))>>(2+rex.w)), Rt2, Rn, Rt))
+#define LDPx_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(1, 1, 0b10, (((uint32_t)(imm))>>3)&0x7f, Rt2, Rn, Rt))
+#define LDPw_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(0, 1, 0b10, (((uint32_t)(imm))>>2)&0x7f, Rt2, Rn, Rt))
+#define LDPxw_S7_offset(Rt, Rt2, Rn, imm)               EMIT(MEMPAIR_gen(rex.w, 1, 0b10, (((uint32_t)(imm))>>(2+rex.w)), Rt2, Rn, Rt))
 
-#define STPx_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(1, 0, 0b01, (imm>>3)&0x7f, Rt2, Rn, Rt))
-#define STPw_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(0, 0, 0b01, (imm>>2)&0x7f, Rt2, Rn, Rt))
-#define STPxw_S7_postindex(Rt, Rt2, Rn, imm)            EMIT(MEMPAIR_gen(rex.w, 0, 0b01, (imm>>(2+rex.w)), Rt2, Rn, Rt))
-#define STPx_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(1, 0, 0b11, (imm>>3)&0x7f, Rt2, Rn, Rt))
-#define STPw_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(0, 0, 0b11, (imm>>2)&0x7f, Rt2, Rn, Rt))
-#define STPxw_S7_preindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(rex.w, 0, 0b11, (imm>>(2+rex.w)), Rt2, Rn, Rt))
-#define STPx_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(1, 0, 0b10, (imm>>3)&0x7f, Rt2, Rn, Rt))
-#define STPw_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(0, 0, 0b10, (imm>>2)&0x7f, Rt2, Rn, Rt))
-#define STPxw_S7_offset(Rt, Rt2, Rn, imm)               EMIT(MEMPAIR_gen(rex.w, 0, 0b10, (imm>>(2+rex.w)), Rt2, Rn, Rt))
+#define STPx_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(1, 0, 0b01, (((uint32_t)(imm))>>3)&0x7f, Rt2, Rn, Rt))
+#define STPw_S7_postindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(0, 0, 0b01, (((uint32_t)(imm))>>2)&0x7f, Rt2, Rn, Rt))
+#define STPxw_S7_postindex(Rt, Rt2, Rn, imm)            EMIT(MEMPAIR_gen(rex.w, 0, 0b01, (((uint32_t)(imm))>>(2+rex.w)), Rt2, Rn, Rt))
+#define STPx_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(1, 0, 0b11, (((uint32_t)(imm))>>3)&0x7f, Rt2, Rn, Rt))
+#define STPw_S7_preindex(Rt, Rt2, Rn, imm)              EMIT(MEMPAIR_gen(0, 0, 0b11, (((uint32_t)(imm))>>2)&0x7f, Rt2, Rn, Rt))
+#define STPxw_S7_preindex(Rt, Rt2, Rn, imm)             EMIT(MEMPAIR_gen(rex.w, 0, 0b11, (((uint32_t)(imm))>>(2+rex.w)), Rt2, Rn, Rt))
+#define STPx_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(1, 0, 0b10, (((uint32_t)(imm))>>3)&0x7f, Rt2, Rn, Rt))
+#define STPw_S7_offset(Rt, Rt2, Rn, imm)                EMIT(MEMPAIR_gen(0, 0, 0b10, (((uint32_t)(imm))>>2)&0x7f, Rt2, Rn, Rt))
+#define STPxw_S7_offset(Rt, Rt2, Rn, imm)               EMIT(MEMPAIR_gen(rex.w, 0, 0b10, (((uint32_t)(imm))>>(2+rex.w)), Rt2, Rn, Rt))
 
 // PUSH / POP helper
 #define POP1(reg)       LDRx_S9_postindex(reg, xRSP, 8)
@@ -457,6 +463,24 @@
 #define LSLw_REG(Rd, Rn, Rm)            EMIT(LS_V_gen(0, Rm, 0b00, Rn, Rd))
 #define LSLxw_REG(Rd, Rn, Rm)           EMIT(LS_V_gen(rex.w, Rm, 0b00, Rn, Rd))
 
+// UMULL / SMULL
+#define MADDL_gen(U, Rm, o0, Ra, Rn, Rd)    (1<<31 | 0b11011<<24 | (U)<<23 | 0b01<<21 | (Rm)<<16 | (o0)<<15 | (Ra)<<10 | (Rn)<<5 | (Rd))
+#define UMADDL(Xd, Wn, Wm, Xa)          EMIT(MADDL_gen(1, Wm, 0, Xa, Wn, Xd))
+#define UMULL(Xd, Wn, Wm)               UMADDL(Xd, Wn, Wm, xZR)
+#define SMADDL(Xd, Wn, Wm, Xa)          EMIT(MADDL_gen(0, Wm, 0, Xa, Wn, Xd))
+#define SMULL(Xd, Wn, Wm)               SMADDL(Xd, Wn, Wm, xZR)
+
+#define MULH_gen(U, Rm, Rn, Rd)         (1<<31 | 0b11011<<24 | (U)<<23 | 0b10<<21 | (Rm)<<16 | 0b11111<<10 | (Rn)<<5 | (Rd))
+#define UMULH(Xd, Xn, Xm)               EMIT(MULH_gen(1, Xm, Xn, Xd))
+#define SMULH(Xd, Xn, Xm)               EMIT(MULH_gen(0, Xm, Xn, Xd))
+
+#define MADD_gen(sf, Rm, Ra, Rn, Rd)    ((sf)<<31 | 0b11011<<24 | (Rm)<<16 | (Ra)<<10 | (Rn)<<5 | (Rd))
+#define MADDx(Rd, Rn, Rm, Ra)           EMIT(MADD_gen(1, Rm, Ra, Rn, Rd))
+#define MADDw(Rd, Rn, Rm, Ra)           EMIT(MADD_gen(0, Rm, Ra, Rn, Rd))
+#define MADDxw(Rd, Rn, Rm, Ra)          EMIT(MADD_gen(rex.w, Rm, Ra, Rn, Rd))
+#define MULx(Rd, Rn, Rm)                MADDx(Rd, Rn, Rm, xZR)
+#define MULw(Rd, Rn, Rm)                MADDw(Rd, Rn, Rm, xZR)
+#define MULxw(Rd, Rn, Rm)               MADDxw(Rd, Rn, Rm, xZR)
 
 
 // MRS

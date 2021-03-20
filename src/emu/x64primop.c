@@ -1384,8 +1384,8 @@ void idiv32(x64emu_t *emu, uint32_t s)
 	SET_FLAG(F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
-	R_EAX = (uint32_t)quot;
-	R_EDX = (uint32_t)mod;
+	R_RAX = (uint32_t)quot;
+	R_RDX = (uint32_t)mod;
 }
 
 void idiv64(x64emu_t *emu, uint64_t s)
@@ -1485,8 +1485,8 @@ void div32(x64emu_t *emu, uint32_t s)
 	SET_FLAG(F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
-	R_EAX = (uint32_t)div;
-	R_EDX = (uint32_t)mod;
+	R_RAX = (uint32_t)div;
+	R_RDX = (uint32_t)mod;
 }
 
 void div64(x64emu_t *emu, uint64_t s)

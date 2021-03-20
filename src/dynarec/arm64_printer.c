@@ -16,8 +16,8 @@ static const char* conds[] = {"cEQ", "cNE", "cCS", "cCC", "cMI", "cPL", "cVS", "
 #define abs(A) (((A)<0)?(-(A)):(A))
 
 typedef struct arm64_print_s {
-    int N, S;
-    int t, n, m, d, t2;
+    int N, S, U;
+    int t, n, m, d, t2, a;
     int f, c, o, h;
     int i, r, s;
     int x, w;
@@ -59,10 +59,12 @@ int isMask(uint32_t opcode, const char* mask, arm64_print_t *a)
             case '1': if(v!=1) return 0; break;
             case 'N': a->N = (a->N<<1) | v; break;
             case 'S': a->S = (a->S<<1) | v; break;
+            case 'U': a->U = (a->U<<1) | v; break;
             case 't': a->t = (a->t<<1) | v; break;
             case '2': a->t2 = (a->t2<<1) | v; break;
             case 'n': a->n = (a->n<<1) | v; break;
             case 'm': a->m = (a->m<<1) | v; break;
+            case 'a': a->a = (a->a<<1) | v; break;
             case 'd': a->d = (a->d<<1) | v; break;
             case 'f': a->f = (a->f<<1) | v; break;
             case 'c': a->c = (a->c<<1) | v; break;
@@ -100,6 +102,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     #define Rt2 a.t2
     #define Rm a.m
     #define Rd a.d
+    #define Ra a.a
     #define sf a.f
     #define imm a.i
     #define option a.o
@@ -587,6 +590,26 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "CSET %s,%s", sf?Xt[Rd]:Wt[Rd], conds[cond^1]);    
         else
             snprintf(buff, sizeof(buff), "CSINC %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond]);
+        return buff;
+    }
+
+    // MULL ADD
+    if(isMask(opcode, "10011011U01mmmmm0aaaaannnnnddddd", &a)) {
+        if(Ra==31)
+            snprintf(buff, sizeof(buff), "%cMULL %s, %s, %s", a.U?'U':'S', Xt[Rd], Wt[Rn], Wt[Rm]);
+        else
+            snprintf(buff, sizeof(buff), "%cMADDL %s, %s, %s, %s", a.U?'U':'S', Xt[Rd], Wt[Rn], Wt[Rm], Xt[Ra]);
+        return buff;
+    }
+    if(isMask(opcode, "10011011U10mmmmm011111nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%cMULH %s, %s, %s", a.U?'U':'S', Xt[Rd], Wt[Rn], Wt[Rm]);
+        return buff;
+    }
+    if(isMask(opcode, "f0011011000mmmmm0aaaaannnnnddddd", &a)) {
+        if(Ra==31)
+            snprintf(buff, sizeof(buff), "MUL %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        else
+            snprintf(buff, sizeof(buff), "MADD %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], sf?Xt[Ra]:Wt[Ra]);
         return buff;
     }
 

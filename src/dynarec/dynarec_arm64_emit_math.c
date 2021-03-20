@@ -1733,52 +1733,51 @@ void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
 //}
 
 // emit NEG32 instruction, from s1, store result in s1 using s3 and s4 as scratch
-//void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
-//{
-//    IFX(X_PEND) {
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, op1));
-//        SET_DF(s3, d_neg32);
-//    } else IFX(X_ALL) {
-//        SET_DFNONE(s3);
-//    }
-//    IFX(X_ZF|X_CF) {
-//        BIC_IMM8(xFlags, xFlags, (1<<F_ZF)|(1<<F_CF), 0);
-//    }
-//    IFX(X_CF) {
-//        TSTS_REG_LSL_IMM5(s1, s1, 0);
-//        ORR_IMM8_COND(cNE, xFlags, xFlags, 1<<F_CF, 0);
-//    }
-//    IFX(X_AF) {
-//        MOV_REG_LSL_IMM5(s3, s1, 0);
-//    }
-//    IFX(X_ZF|X_OF) {
-//        RSBS_IMM8(s1, s1, 0);
-//    } else {
-//        RSB_IMM8(s1, s1, 0);
-//    }
-//    IFX(X_PEND) {
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, res));
-//    }
-//    IFX(X_ZF) {
-//        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
-//    }
-//    IFX(X_OF) {
-//        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
-//        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
-//    }
-//    IFX(X_AF) {
-//        ORR_REG_LSL_IMM5(s3, s3, s1, 0);                        // bc = op1 | res
-//        MOV_REG_LSR_IMM5(s4, s3, 3);
-//        BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
-//    }
-//    IFX(X_SF) {
-//        MOV_REG_LSR_IMM5(s3, s1, 31);
-//        BFI(xFlags, s3, F_SF, 1);
-//    }
-//    IFX(X_PF) {
-//        emit_pf(dyn, ninst, s1, s3, s4);
-//    }
-//}
+void emit_neg32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s3, rex.w?d_neg64:d_neg32);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s3);
+    }
+    IFX(X_CF) {
+        TSTxw_REG(s1, s1);
+        CSETw(s4, cNE);
+        BFIw(xFlags, s4, F_CF, 1);
+    }
+    IFX(X_AF) {
+        MOVxw_REG(s3, s1);
+    }
+    IFX(X_ZF|X_OF) {
+        NEGSxw_REG(s1, s1);
+    } else {
+        NEGxw_REG(s1, s1);
+    }
+    IFX(X_PEND) {
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
+    }
+    IFX(X_OF) {
+        CSETw(s4, cVS);
+        BFIw(xFlags, s4, F_OF, 1);
+    }
+    IFX(X_AF) {
+        ORRxw_REG(s3, s3, s1);                        // bc = op1 | res
+        LSRxw(s4, s3, 3);
+        BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
+    }
+    IFX(X_SF) {
+        LSRxw(s3, s1, rex.w?63:31);
+        BFIw(xFlags, s3, F_SF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
 
 // emit NEG16 instruction, from s1, store result in s1 using s3 and s4 as scratch
 //void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)

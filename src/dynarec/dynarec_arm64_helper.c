@@ -333,6 +333,11 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
         savereg = 7;
     if(ret!=-2) {
         STPx_S7_preindex(xEmu, savereg, xSP, -16);   // ARM64 stack needs to be 16byte aligned
+        STPx_S7_offset(xRAX, xRCX, xEmu, offsetof(x64emu_t, regs[_AX]));    // x9..x15, x16,x17,x18 those needs to be saved by caller
+        STPx_S7_offset(xRDX, xRBX, xEmu, offsetof(x64emu_t, regs[_DX]));    // but x18 is R8 wich is lost, so it's fine to not save it?
+        STPx_S7_offset(xRSP, xRBP, xEmu, offsetof(x64emu_t, regs[_SP]));
+        STPx_S7_offset(xRSI, xRDI, xEmu, offsetof(x64emu_t, regs[_SI]));
+        STRx_U12(xR8, xEmu, offsetof(x64emu_t, regs[_R8]));
     }
     fpu_pushcache(dyn, ninst, reg);
     if(saveflags) {
@@ -346,6 +351,21 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     }
     if(ret!=-2) {
         LDPx_S7_postindex(xEmu, savereg, xSP, 16);
+        #define GO(A, B) if(ret==x##A) {                                        \
+            LDRx_U12(x##B, xEmu, offsetof(x64emu_t, regs[_##B]));               \
+        } else if(ret==x##B) {                                                  \
+            LDRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]));               \
+        } else {                                                                \
+            LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]));   \
+        }
+        GO(RAX, RCX);
+        GO(RDX, RBX);
+        GO(RSP, RBP);
+        GO(RSI, RDI);
+        #undef GO
+        if(ret!=xR8) {
+            LDRx_U12(xR8, xEmu, offsetof(x64emu_t, regs[_R8]));
+        }
     }
     if(saveflags) {
         LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));

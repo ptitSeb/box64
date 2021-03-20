@@ -676,9 +676,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
                     GETIP(ip+1); // read the 0xCC
-                    STORE_XEMU_MINIMUM(xRIP);
+                    STORE_XEMU_CALL(xRIP);
                     CALL_S(x64Int3, -1);
-                    LOAD_XEMU_MINIMUM(xRIP);
+                    LOAD_XEMU_CALL(xRIP);
                     addr+=8+8;
                     TABLE64(x3, addr); // expected return address
                     CMPSx_REG(xRIP, x3);
@@ -1030,9 +1030,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
                     GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
-                    STORE_XEMU_MINIMUM(xRIP);
+                    STORE_XEMU_CALL(xRIP);
                     CALL_S(x64Int3, -1);
-                    LOAD_XEMU_MINIMUM(xRIP);
+                    LOAD_XEMU_CALL(xRIP);
                     TABLE64(x3, dyn->insts[ninst].natcall);
                     ADDx_U12(x3, x3, 2+8+8);
                     CMPSx_REG(xRIP, x3);
@@ -1102,6 +1102,84 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             *ok = 0;
             break;
 
+        case 0xF7:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                case 1:
+                    INST_NAME("TEST Ed, Id");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEDH(x1, 4);
+                    i64 = F32S;
+                    MOV64xw(x2, i64);
+                    emit_test32(dyn, ninst, rex, ed, x2, x3, x4);
+                    break;
+                case 2:
+                    INST_NAME("NOT Ed");
+                    GETED(4);
+                    MVNxw_REG(ed, ed);
+                    WBACK;
+                    break;
+                case 3:
+                    INST_NAME("NEG Ed");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED(0);
+                    emit_neg32(dyn, ninst, rex, ed, x3, x4);
+                    WBACK;
+                    break;
+                case 4:
+                    INST_NAME("MUL EAX, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x2, rex.w?d_mul64:d_mul32);
+                    GETED(0);
+                    if(rex.w) {
+                        if(ed==xRDX) gd=x3; else gd=xRDX;
+                        UMULH(gd, xRAX, ed);
+                        MULx(xRAX, xRAX, ed);
+                        if(gd!=xRDX) {MOVx_REG(xRDX, gd);}
+                    } else {
+                        UMULL(xRDX, xRAX, ed);  //64 <- 32x32
+                        MOVw_REG(xRAX, xRDX);
+                        LSRx(xRDX, xRDX, 32);
+                    }
+                    UFLAG_RES(xRAX);
+                    UFLAG_OP1(xRDX);
+                    break;
+                case 5:
+                    INST_NAME("IMUL EAX, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x2, rex.w?d_imul64:d_imul32);
+                    GETED(0);
+                    if(rex.w) {
+                        if(ed==xRDX) gd=x3; else gd=xRDX;
+                        SMULH(gd, xRAX, ed);
+                        MULx(xRAX, xRAX, ed);
+                        if(gd!=xRDX) {MOVx_REG(xRDX, gd);}
+                    } else {
+                        SMULL(xRDX, xRAX, ed);  //64 <- 32x32
+                        MOVw_REG(xRAX, xRDX);
+                        LSRx(xRDX, xRDX, 32);
+                    }
+                    UFLAG_RES(xRAX);
+                    UFLAG_OP1(xRDX);
+                    break;
+                case 6:
+                    INST_NAME("DIV Ed");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEDH(x1, 0);
+                    if(ed!=x1) {MOVxw_REG(x1, ed);}
+                    CALL(rex.w?((void*)div64):((void*)div32), -1);
+                    break;
+                case 7:
+                    INST_NAME("IDIV Ed");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEDH(x1, 0);
+                    if(ed!=x1) {MOVxw_REG(x1, ed);}
+                    CALL(rex.w?((void*)idiv64):((void*)idiv32), -1);
+                    break;
+            }
+            break;
+        
         case 0xFF:
             nextop = F8;
             switch((nextop>>3)&7) {

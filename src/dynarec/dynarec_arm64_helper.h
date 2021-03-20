@@ -382,16 +382,12 @@
     STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
     if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
 
-#define LOAD_XEMU_MINIMUM(A)  \
-    LOAD_REG(RAX);         \
-    LOAD_REG(RCX);         \
-    LOAD_REG(RDX);         \
-    LOAD_REG(RBX);         \
-    LOAD_REG(RSP);         \
-    LOAD_REG(RBP);         \
-    LOAD_REG(RSI);         \
-    LOAD_REG(RDI);         \
-    LOAD_REG(R8);          \
+#define STORE_XEMU_CALL(A)  \
+    STORE_REG(R9);          \
+    STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
+    if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
+
+#define LOAD_XEMU_CALL(A)  \
     LOAD_REG(R9);          \
     LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
     if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip)); if(A==xRIP) dyn->last_ip = 0;}
@@ -691,7 +687,7 @@ void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
 void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5);
 //void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
 //void emit_sbb16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_neg32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 //void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);

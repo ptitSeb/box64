@@ -56,10 +56,10 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);
                 GETIP(ip);
                 MOVx_REG(x1, xRIP);
-                STORE_XEMU_REGS(xRIP);
+                STORE_XEMU_CALL(xRIP);
                 MOV32w(x2, 1);
                 CALL(PrintTrace, -1);
-                LOAD_XEMU_REGS(xRIP);
+                LOAD_XEMU_CALL(xRIP);
                 MESSAGE(LOG_DUMP, "----------\n");
             }
         }
