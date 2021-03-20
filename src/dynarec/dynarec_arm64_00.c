@@ -325,6 +325,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_and32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
 
+        case 0x28:
+            INST_NAME("SUB Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_sub8(dyn, ninst, x1, x2, x4, x5);
+            EBBACK;
+            break;
         case 0x29:
             INST_NAME("SUB Ed, Gd");
             SETFLAGS(X_ALL, SF_SET);
@@ -334,7 +343,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_sub32(dyn, ninst, rex, ed, gd, x3, x4);
             WBACK;
             break;
-
+        case 0x2A:
+            INST_NAME("SUB Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETEB(x2, 0);
+            GETGB(x1);
+            emit_sub8(dyn, ninst, x1, x2, x3, x4);
+            GBBACK;
+            break;
         case 0x2B:
             INST_NAME("SUB Gd, Ed");
             SETFLAGS(X_ALL, SF_SET);
@@ -343,7 +360,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETED(0);
             emit_sub32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
-
+        case 0x2C:
+            INST_NAME("SUB AL, Ib");
+            SETFLAGS(X_ALL, SF_SET);
+            u8 = F8;
+            UXTBw(x1, xRAX);
+            emit_sub8c(dyn, ninst, x1, u8, x3, x4, x5);
+            BFIx(xRAX, x1, 0, 8);
+            break;
         case 0x2D:
             INST_NAME("SUB EAX, Id");
             SETFLAGS(X_ALL, SF_SET);
