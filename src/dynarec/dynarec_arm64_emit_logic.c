@@ -228,40 +228,36 @@ void emit_and32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
 }
 
 // emit OR8 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
-//void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
-//{
-//    IFX(X_PEND) {
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, op1));
-//        STR_IMM9(s2, xEmu, offsetof(x64emu_t, op2));
-//        SET_DF(s3, d_or8);
-//    } else IFX(X_ALL) {
-//        SET_DFNONE(s3);
-//    }
-//    IFX(X_ALL) {
-//        ORRS_REG_LSL_IMM5(s1, s1, s2, 0);
-//    } else {
-//        ORR_REG_LSL_IMM5(s1, s1, s2, 0);
-//    }
-//    IFX(X_PEND) {
-//        STR_IMM9(s1, xEmu, offsetof(x64emu_t, res));
-//    }
-//    IFX(X_CF | X_AF | X_ZF) {
-//        BIC_IMM8(xFlags, xFlags, (1<<F_CF)|(1<<F_AF)|(1<<F_ZF), 0);
-//    }
-//    IFX(X_OF) {
-//        BIC_IMM8(xFlags, xFlags, 0b10, 0x0b);
-//    }
-//    IFX(X_ZF) {
-//        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
-//    }
-//    IFX(X_SF) {
-//        MOV_REG_LSR_IMM5(s3, s1, 7);
-//        BFI(xFlags, s3, F_SF, 1);
-//    }
-//    IFX(X_PF) {
-//        emit_pf(dyn, ninst, s1, s3, s4);
-//    }
-//}
+void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s3, d_or8);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s3);
+    }
+    ORRw_REG(s1, s1, s2);
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_CF | X_AF | X_OF) {
+        MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
+        BICw(xFlags, xFlags, s3);
+    }
+    IFX(X_ZF) {
+        TSTw_REG(s1, s1);
+        CSETw(s3, cEQ);
+        BFIw(xFlags, s3, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRw(s3, s1, 7);
+        BFIw(xFlags, s3, F_SF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
 
 // emit OR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
