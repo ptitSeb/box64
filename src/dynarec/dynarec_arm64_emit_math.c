@@ -1567,7 +1567,7 @@ void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
     }
     EORw_mask(s4, xFlags, 0, 0);            // invert CC because it's reverted for SUB on ARM
     MRS_nzvc(s3);
-    BFIx(s3, s4, 0, 1); // set C
+    BFIx(s3, s4, 29, 1); // set C, bit 29
     MSR_nzvc(s3);      // load CC into ARM CF
     IFX(X_AF|X_OF|X_CF) {
         MVNw_REG(s4, s1);

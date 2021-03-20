@@ -159,18 +159,18 @@ typedef struct {
 
 typedef union {
     struct __attribute__ ((__packed__)) {
-        unsigned int _F_CF:1;
+        unsigned int _F_CF:1;		//0x0001
 		unsigned int _F_res1:1;
-        unsigned int _F_PF:1;
+        unsigned int _F_PF:1;		//0x0004
 		unsigned int _F_res2:1;
-        unsigned int _F_AF:1;
+        unsigned int _F_AF:1;		//0x0010
 		unsigned int _F_res3:1;
-        unsigned int _F_ZF:1;
-        unsigned int _F_SF:1;
-        unsigned int _F_TF:1;
-        unsigned int _F_IF:1;
-        unsigned int _F_DF:1;
-        unsigned int _F_OF:1;
+        unsigned int _F_ZF:1;		//0x0040
+        unsigned int _F_SF:1;		//0x0080
+        unsigned int _F_TF:1;		//0x0100
+        unsigned int _F_IF:1;		//0x0200
+        unsigned int _F_DF:1;		//0x0400
+        unsigned int _F_OF:1;		//0x0800
         unsigned int _F_IOPL:2;
         unsigned int _F_NT:1;
         unsigned int _F_dummy:1;
