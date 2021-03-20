@@ -106,7 +106,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UXTHw(x1, xRAX);
             MOV32w(x2, i32);
             emit_or16(dyn, ninst, x1, x2, x3, x4);
-            BFIw(xRAX, x1, 0, 16);
+            BFIx(xRAX, x1, 0, 16);
             break;
 
         case 0x0F:
@@ -227,7 +227,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UXTHw(x1, xRAX);
             MOV32w(x2, i32);
             emit_sub16(dyn, ninst, x1, x2, x3, x4);
-            BFIw(xRAX, x1, 0, 16);
+            BFIx(xRAX, x1, 0, 16);
             break;
 
         case 0x31:

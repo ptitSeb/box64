@@ -771,7 +771,7 @@ void UpdateFlags(x64emu_t *emu)
         	CLEAR_FLAG(F_CF);
             break;
         case d_adc8:
-            CONDITIONAL_SET_FLAG(emu->res.u8 & 0x100, F_CF);
+            CONDITIONAL_SET_FLAG(emu->res.u16 & 0x100, F_CF);
             CONDITIONAL_SET_FLAG((emu->res.u8 & 0xff) == 0, F_ZF);
             CONDITIONAL_SET_FLAG(emu->res.u8 & 0x80, F_SF);
             CONDITIONAL_SET_FLAG(PARITY(emu->res.u8 & 0xff), F_PF);
@@ -780,7 +780,7 @@ void UpdateFlags(x64emu_t *emu)
             CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
             break;
         case d_adc16:
-            CONDITIONAL_SET_FLAG(emu->res.u16 & 0x10000, F_CF);
+            CONDITIONAL_SET_FLAG(emu->res.u32 & 0x10000, F_CF);
             CONDITIONAL_SET_FLAG((emu->res.u16 & 0xffff) == 0, F_ZF);
             CONDITIONAL_SET_FLAG(emu->res.u16 & 0x8000, F_SF);
             CONDITIONAL_SET_FLAG(PARITY(emu->res.u16 & 0xff), F_PF);
@@ -789,11 +789,26 @@ void UpdateFlags(x64emu_t *emu)
             CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
             break;
         case d_adc32:
-            CONDITIONAL_SET_FLAG(emu->res.u32 & 0x100000000L, F_CF);
+            CONDITIONAL_SET_FLAG(emu->res.u64 & 0x100000000L, F_CF);
             CONDITIONAL_SET_FLAG((emu->res.u32 & 0xffffffff) == 0, F_ZF);
             CONDITIONAL_SET_FLAG(emu->res.u32 & 0x80000000, F_SF);
             CONDITIONAL_SET_FLAG(PARITY(emu->res.u32 & 0xff), F_PF);
             cc = (emu->op1.u32 & emu->op2.u32) | ((~emu->res.u32) & (emu->op1.u32 | emu->op2.u32));
+            CONDITIONAL_SET_FLAG(XOR2(cc >> 30), F_OF);
+            CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
+            break;
+        case d_adc32b:
+            if(emu->res.u32 == (emu->op1.u32+emu->op2.u32)) {
+                lo = (emu->op1.u32 & 0xFFFF) + (emu->op2.u32 & 0xFFFF);
+            } else {
+                lo = 1 + (emu->op1.u32 & 0xFFFF) + (emu->op2.u32 & 0xFFFF);
+            }
+            hi = (lo >> 16) + (emu->op1.u32 >> 16) + (emu->op2.u32 >> 16);
+            CONDITIONAL_SET_FLAG(hi & 0x10000, F_CF);
+            CONDITIONAL_SET_FLAG(!emu->res.u32, F_ZF);
+            CONDITIONAL_SET_FLAG(emu->res.u32 & 0x80000000, F_SF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res.u64 & 0xff), F_PF);
+            cc = (emu->op2.u32 & emu->op1.u32) | ((~emu->res.u32) & (emu->op2.u32 | emu->op1.u32));
             CONDITIONAL_SET_FLAG(XOR2(cc >> 30), F_OF);
             CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
             break;

@@ -109,6 +109,7 @@ typedef enum {
 	d_adc8,
 	d_adc16,
 	d_adc32,
+	d_adc32b,
 	d_adc64,
 	d_sbb8,
 	d_sbb16, 

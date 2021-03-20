@@ -315,7 +315,7 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFIw(xFlags, s3, F_CF, 1);
     }
     IFX(X_PEND) {
-        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
         ANDSw_mask(s1, s1, 0, 7);   //mask=0xff
@@ -332,20 +332,20 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 }
 
 // emit ADD8 instruction, from s1 , const c, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
-void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, int s5)
+void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
 {
     IFX(X_PEND) {
-        MOV32w(s5, c&0xff);
+        MOV32w(s4, c&0xff);
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        STRB_U12(s3, xEmu, offsetof(x64emu_t, op2));
+        STRB_U12(s4, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, d_add8);
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
     IFX(X_AF | X_OF) {
-        if(X_PEND) {} else {MOV32w(s5, c&0xff);}
-        ORRw_REG(s3, s1, s5);       // s3 = op1 | op2
-        ANDw_REG(s4, s1, s5);       // s4 = op1 & op2
+        if(X_PEND) {} else {MOV32w(s4, c&0xff);}
+        ORRw_REG(s3, s1, s4);       // s3 = op1 | op2
+        ANDw_REG(s4, s1, s4);       // s4 = op1 & op2
     }
     ADDw_U12(s1, s1, c);
 
@@ -367,7 +367,7 @@ void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
         BFIw(xFlags, s3, F_CF, 1);
     }
     IFX(X_PEND) {
-        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
         ANDSw_mask(s1, s1, 0, 0b000111);    //mask=000000ff
@@ -525,7 +525,7 @@ void emit_add16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFIw(xFlags, s3, F_CF, 1);
     }
     IFX(X_PEND) {
-        STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
+        STRw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
         ANDSw_mask(s1, s1, 0, 15);  //mask=0xffff
@@ -1015,7 +1015,7 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
-        SET_DF(s3, rex.w?d_adc64:d_adc32);
+        SET_DF(s3, rex.w?d_adc64:d_adc32b);
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
@@ -1150,7 +1150,7 @@ void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     MSR_nzvc(s3);      // load CC into ARM CF
     ADCw_REG(s1, s1, s2);
     IFX(X_PEND) {
-        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF|X_OF) {
         ORRw_REG(s3, s4, s2);    // s3 = op1 | op2
@@ -1204,7 +1204,7 @@ void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
     MSR_nzvc(s3);      // load CC into ARM CF
     ADCw_REG(s1, s1, s5);
     IFX(X_PEND) {
-        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF|X_OF) {
         ORRw_REG(s3, s4, s5);        // s3 = op1 | op2
@@ -1257,7 +1257,7 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     MSR_nzvc(s3);      // load CC into ARM CF
     ADCw_REG(s1, s1, s2);
     IFX(X_PEND) {
-        STRH_REG(s1, xEmu, offsetof(x64emu_t, res));
+        STRw_REG(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF|X_OF) {
         ORRw_REG(s3, s4, s2);    // s3 = op1 | op2

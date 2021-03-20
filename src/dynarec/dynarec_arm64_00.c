@@ -98,8 +98,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET);
             u8 = F8;
             UXTBw(x1, xRAX);
-            emit_add8c(dyn, ninst, x1, u8, x3, x4, x5);
-            BFIw(xRAX, x1, 0, 8);
+            emit_add8c(dyn, ninst, x1, u8, x3, x4);
+            BFIx(xRAX, x1, 0, 8);
             break;
         case 0x05:
             INST_NAME("ADD EAX, Id");
@@ -149,7 +149,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             u8 = F8;
             UXTBw(x1, xRAX);
             emit_or8c(dyn, ninst, x1, u8, x3, x4);
-            BFIw(xRAX, x1, 0, 8);
+            BFIx(xRAX, x1, 0, 8);
             break;
         case 0x0D:
             INST_NAME("OR EAX, Id");
@@ -416,7 +416,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             u8 = F8;
             UXTBw(x1, xRAX);
             emit_xor8c(dyn, ninst, x1, u8, x3, x4);
-            BFIw(xRAX, x1, 0, 8);
+            BFIx(xRAX, x1, 0, 8);
             break;
         case 0x35:
             INST_NAME("XOR EAX, Id");
@@ -563,7 +563,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1, 1);
                     u8 = F8;
-                    emit_add8c(dyn, ninst, x1, u8, x2, x4, x5);
+                    emit_add8c(dyn, ninst, x1, u8, x2, x4);
                     EBBACK;
                     break;
                 case 1: //OR
