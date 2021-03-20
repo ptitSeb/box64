@@ -238,6 +238,38 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             WBACK;
             break;
 
+        case 0xAF:
+            INST_NAME("IMUL Gd, Ed");
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            if(rex.w) {
+                // 64bits imul
+                UFLAG_IF {
+                    SMULH(x3, gd, ed);
+                    MULx(gd, gd, ed);
+                    UFLAG_OP1(x3);
+                    UFLAG_RES(gd);
+                    UFLAG_DF(x3, d_imul64);
+                } else {
+                    MULxw(gd, gd, ed);
+                }
+            } else {
+                // 32bits imul
+                UFLAG_IF {
+                    SMULL(gd, gd, ed);
+                    UFLAG_RES(gd);
+                    LSRx(x3, gd, 32);
+                    UFLAG_OP1(x3);
+                    UFLAG_DF(x3, d_imul32);
+                    MOVw_REG(gd, gd);
+                } else {
+                    MULxw(gd, gd, ed);
+                }
+            }
+            break;
+
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
             SETFLAGS(X_CF, SF_SET);

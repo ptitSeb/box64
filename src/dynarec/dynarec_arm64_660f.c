@@ -134,6 +134,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             EWBACKW(x1);
             break;
 
+        case 0xAF:
+            INST_NAME("IMUL Gw,Ew");
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            UFLAG_DF(x1, d_imul16);
+            GETSEW(x1, 0);
+            GETSGW(x2);
+            MULw(x2, x2, x1);
+            UFLAG_RES(x2);
+            GWBACK;
+            break;
+
         case 0xB3:
             INST_NAME("BTR Ew, Gw");
             SETFLAGS(X_CF, SF_SET);

@@ -99,6 +99,8 @@
                 }
 // GETGW extract x64 register in gd, that is i
 #define GETGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); UXTHw(i, gd); gd = i;
+// GETGW extract x64 register in gd, that is i, Signed extented
+#define GETSGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); SXTHw(i, gd); gd = i;
 //GETEWW will use i for ed, and can use w for wback.
 #define GETEWW(w, i, D) if(MODREG) {        \
                     wback = xRAX+(nextop&7)+(rex.b<<3);\

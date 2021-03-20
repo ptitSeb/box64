@@ -276,7 +276,7 @@ void UpdateFlags(x64emu_t *emu)
                 SET_FLAG(F_CF);
                 SET_FLAG(F_OF);
             }
-            CONDITIONAL_SET_FLAG(PARITY(emu->res.u64 & 0xff), F_PF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res.u32 & 0xff), F_PF);
             break;
         case d_imul64:
             if (((emu->res.u64 & 0x8000000000000000LL) == 0 && emu->op1.u64 == 0x00) ||
