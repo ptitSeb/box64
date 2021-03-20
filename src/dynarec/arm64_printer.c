@@ -498,6 +498,11 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    if(isMask(opcode, "f0011010110mmmmm001010nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "ASR %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        return buff;
+    }
+
     if(isMask(opcode, "f00100110Nrrrrrrssssssnnnnnddddd", &a)) {
         if(sf && imms==0b111111)
             snprintf(buff, sizeof(buff), "ASR %s, %s, %d", Xt[Rd], Xt[Rn], immr);
