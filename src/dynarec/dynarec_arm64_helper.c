@@ -461,7 +461,7 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst)
             ++dyn->x87cache[i];
         else if(ret==-1) {
             dyn->x87cache[i] = 0;
-            ret=dyn->x87reg[i]=fpu_get_reg_double(dyn);
+            ret=dyn->x87reg[i]=fpu_get_reg_x87(dyn);
         }
     return ret;
 #else
@@ -489,7 +489,7 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst)
         if(dyn->x87cache[i]!=-1) {
             --dyn->x87cache[i];
             if(dyn->x87cache[i]==-1) {
-                fpu_free_reg_double(dyn, dyn->x87reg[i]);
+                fpu_free_reg(dyn, dyn->x87reg[i]);
                 dyn->x87reg[i] = -1;
             }
         }
@@ -555,7 +555,7 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
                 ADDw_U12(s3, s2, dyn->x87cache[i]);
                 ANDw_mask(s3, s3, 0b011111, 1);    // (emu->top + st)&7
                 VSTR64_REG_LSL3(dyn->x87reg[i], s1, s3);
-                fpu_free_reg_double(dyn, dyn->x87reg[i]);
+                fpu_free_reg(dyn, dyn->x87reg[i]);
                 dyn->x87reg[i] = -1;
                 dyn->x87cache[i] = -1;
             }
@@ -604,7 +604,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
             ret = i;
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
-    dyn->x87reg[ret] = fpu_get_reg_double(dyn);
+    dyn->x87reg[ret] = fpu_get_reg_x87(dyn);
     ADDx_U12(s1, xEmu, offsetof(x64emu_t, mmx87));
     LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
     int a = st - dyn->x87stack;
@@ -683,7 +683,7 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     VLDR64_REG_LSL3(dyn->x87reg[ret], s1, s2);
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
     // and forget that cache
-    fpu_free_reg_double(dyn, dyn->x87reg[ret]);
+    fpu_free_reg(dyn, dyn->x87reg[ret]);
     dyn->x87cache[ret] = -1;
     dyn->x87reg[ret] = -1;
 #endif
@@ -720,7 +720,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
             ret = i;
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
-    dyn->x87reg[ret] = fpu_get_reg_double(dyn);
+    dyn->x87reg[ret] = fpu_get_reg_x87(dyn);
     ADDx_U12(s1, xEmu, offsetof(x64emu_t, mmx87));
     LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
     int a = st - dyn->x87stack;
@@ -785,7 +785,7 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
 #if STEP > 1
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
-    int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
+    int ret = dyn->mmxcache[a] = fpu_get_reg_emm(dyn, a);
     VLDR64_U12(ret, xEmu, offsetof(x64emu_t, mmx87[a]));
     return ret;
 #else
@@ -798,7 +798,7 @@ int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 #if STEP > 1
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
-    int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
+    int ret = dyn->mmxcache[a] = fpu_get_reg_emm(dyn, a);
     return ret;
 #else
     return 0;
@@ -816,7 +816,7 @@ static void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
                 ++old;
             }
             VSTR64_U12(dyn->mmxcache[i], xEmu, offsetof(x64emu_t, mmx87[i]));
-            fpu_free_reg_double(dyn, dyn->mmxcache[i]);
+            fpu_free_reg(dyn, dyn->mmxcache[i]);
             dyn->mmxcache[i] = -1;
         }
     if(old!=-1) {
@@ -851,7 +851,7 @@ int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
 #if STEP > 1
     if(dyn->ssecache[a]!=-1)
         return dyn->ssecache[a];
-    int ret = dyn->ssecache[a] = fpu_get_reg_quad(dyn);
+    int ret = dyn->ssecache[a] = fpu_get_reg_xmm(dyn, a);
     VLDR128_U12(ret, xEmu, offsetof(x64emu_t, xmm[a]));
     return ret;
 #else
@@ -864,7 +864,7 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 #if STEP > 1
     if(dyn->ssecache[a]!=-1)
         return dyn->ssecache[a];
-    int ret = dyn->ssecache[a] = fpu_get_reg_quad(dyn);
+    int ret = dyn->ssecache[a] = fpu_get_reg_xmm(dyn, a);
     return ret;
 #else
     return 0;
@@ -882,7 +882,7 @@ void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1)
                 ++old;
             }
             VSTR128_U12(dyn->ssecache[i], xEmu, offsetof(x64emu_t, xmm[i]));
-            fpu_free_reg_quad(dyn, dyn->ssecache[i]);
+            fpu_free_reg(dyn, dyn->ssecache[i]);
             dyn->ssecache[i] = -1;
         }
     if(old!=-1) {
@@ -903,7 +903,7 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
                 ++old;
             }
             VSTR128_U12(dyn->ssecache[i], xEmu, offsetof(x64emu_t, xmm[i]));
-            fpu_free_reg_quad(dyn, dyn->ssecache[i]);
+            fpu_free_reg(dyn, dyn->ssecache[i]);
             dyn->ssecache[i] = -1;
         }
     if(old!=-1) {
@@ -926,44 +926,38 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 1
-    // only need to push 16-31...
+    // only SSE regs needs to be push back to xEmu
     int n=0;
-    for (int i=8; i<32; i++)
-        if(dyn->fpuused[i-8])
+    for (int i=0; i<16; i++)
+        if(dyn->ssecache[i]!=-1)
             ++n;
     if(!n)
         return;
-    MESSAGE(LOG_DUMP, "\tPush FPU Cache (%d)------\n", n);
-    SUBx_U12(xSP, xSP, n*16);
-    MOV_frmSP(s1);
-    for (int i=8; i<32; ++i) {
-        if(dyn->fpuused[i-8]) {
-            VSTR128_S9_postindex(i, s1, 16);
+    MESSAGE(LOG_DUMP, "\tPush XMM Cache (%d)------\n", n);
+    for (int i=0; i<16; ++i)
+        if(dyn->ssecache[i]!=-1) {
+            VSTR128_U12(dyn->ssecache[i], xEmu, offsetof(x64emu_t, xmm[i]));
         }
-    }
-    MESSAGE(LOG_DUMP, "\t------- Push FPU Cache (%d)\n", n);
+    MESSAGE(LOG_DUMP, "\t------- Push XMM Cache (%d)\n", n);
 #endif
 }
 
 void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 1
-    // we need to push 8-31 (because on 8..15 only low part is preserved)
+    // only SSE regs needs to be pop back from xEmu
     int n=0;
-    for (int i=8; i<32; i++)
-        if(dyn->fpuused[i-8])
+    for (int i=16; i<32; i++)
+        if(dyn->ssecache[i]!=-1)
             ++n;
     if(!n)
         return;
-    MESSAGE(LOG_DUMP, "\tPop FPU Cache (%d)------\n", n);
-    MOV_frmSP(s1);
-    for (int i=8; i<32; ++i) {
-        if(dyn->fpuused[i-8]) {
-            VLDR128_S9_postindex(i, s1, 16);
+    MESSAGE(LOG_DUMP, "\tPop XMM Cache (%d)------\n", n);
+    for (int i=0; i<16; ++i)
+        if(dyn->ssecache[i]!=-1) {
+            VLDR128_U12(dyn->ssecache[i], xEmu, offsetof(x64emu_t, xmm[i]));
         }
-    }
-    ADDx_U12(xSP, xSP, n*16);
-    MESSAGE(LOG_DUMP, "\t------- Pop FPU Cache (%d)\n", n);
+    MESSAGE(LOG_DUMP, "\t------- Pop XMM Cache (%d)\n", n);
 #endif
 }
 

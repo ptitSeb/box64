@@ -25,7 +25,11 @@ arm64_epilog:
     ldp     x23, x24, [sp, (8 * 4)]
     ldp     x25, x26, [sp, (8 * 6)]
     ldr     x27, [sp, (8 * 8)]
-    add     sp,  sp, (8 * 10)
+    ldp     d8, d9,   [sp, (8 *10)]
+    ldp     d10, d11, [sp, (8 *12)]
+    ldp     d12, d13, [sp, (8 *14)]
+    ldp     d14, d15, [sp, (8 *16)]
+    add     sp,  sp, (8 * 18)
     ldp     lr, fp, [sp], 16  // saved lr
     //end, return...
     ret
@@ -40,7 +44,11 @@ arm64_epilog_fast:
     ldp     x23, x24, [sp, (8 * 4)]
     ldp     x25, x26, [sp, (8 * 6)]
     ldr     x27, [sp, (8 * 8)]
-    add     sp,  sp, (8 * 10)
+    ldp     d8, d9,   [sp, (8 *10)]
+    ldp     d10, d11, [sp, (8 *12)]
+    ldp     d12, d13, [sp, (8 *14)]
+    ldp     d14, d15, [sp, (8 *16)]
+    add     sp,  sp, (8 * 18)
     ldp     lr, fp, [sp], 16  // saved lr
     //end, return...
     ret

@@ -31,22 +31,18 @@ void arm_fprem1(x64emu_t* emu);
 
 void arm_ud(x64emu_t* emu);
 
-// Get an FPU single scratch reg
-int fpu_get_scratch_single(dynarec_arm_t* dyn);
-// Get an FPU double scratch reg
-int fpu_get_scratch_double(dynarec_arm_t* dyn);
-// Get an FPU quad scratch reg
-int fpu_get_scratch_quad(dynarec_arm_t* dyn);
+// Get an FPU scratch reg
+int fpu_get_scratch(dynarec_arm_t* dyn);
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_arm_t* dyn);
-// Get an FPU double reg
-int fpu_get_reg_double(dynarec_arm_t* dyn);
-// Free a FPU double reg
-void fpu_free_reg_double(dynarec_arm_t* dyn, int reg);
-// Get an FPU quad reg
-int fpu_get_reg_quad(dynarec_arm_t* dyn);
-// Free a FPU quad reg
-void fpu_free_reg_quad(dynarec_arm_t* dyn, int reg);
+// Get an x87 double reg
+int fpu_get_reg_x87(dynarec_arm_t* dyn);
+// Get an MMX double reg
+int fpu_get_reg_emm(dynarec_arm_t* dyn, int emm);
+// Get an XMM quad reg
+int fpu_get_reg_xmm(dynarec_arm_t* dyn, int xmm);
+// Free a FPU/MMX/XMM reg
+void fpu_free_reg(dynarec_arm_t* dyn, int reg);
 // Reset fpu regs counter
 void fpu_reset_reg(dynarec_arm_t* dyn);
 

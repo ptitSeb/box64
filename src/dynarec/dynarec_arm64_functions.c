@@ -183,68 +183,68 @@ void arm_fprem1(x64emu_t* emu)
     emu->sw.f.F87_C3 = ((tmp32s>>1)&1);
     emu->sw.f.F87_C1 = ((tmp32s>>2)&1);
 }
-
+#define XMM0    0
+#define XMM8    16
+#define X870    8
+#define EMM0    8
+#define SCRATCH0    24
 
 // Get a FPU single scratch reg
 int fpu_get_scratch_single(dynarec_arm_t* dyn)
 {
-    return dyn->fpu_scratch++;  // return an Sx
+    return SCRATCH0 + dyn->fpu_scratch++;  // return an Sx
 }
 // Get a FPU double scratch reg
 int fpu_get_scratch_double(dynarec_arm_t* dyn)
 {
-    return dyn->fpu_scratch++;  // return an Dx (same as Sx)
+    return SCRATCH0 + dyn->fpu_scratch++;  // return an Dx (same as Sx)
 }
 // Get a FPU quad scratch reg
 int fpu_get_scratch_quad(dynarec_arm_t* dyn)
 {
-    return dyn->fpu_scratch++;  // return an Qx (same as Dx or Sx)
+    return SCRATCH0 + dyn->fpu_scratch++;  // return an Qx (same as Dx or Sx)
 }
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_arm_t* dyn)
 {
     dyn->fpu_scratch = 0;
-    if(dyn->fpu_extra_qscratch) {
-        fpu_free_reg_quad(dyn, dyn->fpu_extra_qscratch);
-        dyn->fpu_extra_qscratch = 0;
-    }
 }
-#define FPUFIRST    8
-// Get a FPU double reg
-int fpu_get_reg_double(dynarec_arm_t* dyn)
+// Get a x87 double reg
+int fpu_get_reg_x87(dynarec_arm_t* dyn)
 {
-    // TODO: check upper limit?
-    int i=0;
+    int i=X870;
     while (dyn->fpuused[i]) ++i;
     dyn->fpuused[i] = 1;
-    return i+FPUFIRST; // return a Dx
+    return i; // return a Dx
 }
 // Free a FPU double reg
-void fpu_free_reg_double(dynarec_arm_t* dyn, int reg)
+void fpu_free_reg(dynarec_arm_t* dyn, int reg)
 {
     // TODO: check upper limit?
-    int i=reg-FPUFIRST;
-    dyn->fpuused[i] = 0;
+    dyn->fpuused[reg] = 0;
 }
-// Get a FPU quad reg
-int fpu_get_reg_quad(dynarec_arm_t* dyn)
+// Get an MMX double reg
+int fpu_get_reg_emm(dynarec_arm_t* dyn, int emm)
 {
-    int i=0;
-    while (dyn->fpuused[i]) ++i;
-    dyn->fpuused[i] = 1;
-    return i+FPUFIRST; // return a Qx, it's the same as Dx on aarch64
+    dyn->fpuused[EMM0 + emm] = 1;
+    return EMM0 + emm;
 }
-// Free a FPU quad reg
-void fpu_free_reg_quad(dynarec_arm_t* dyn, int reg)
+// Get an XMM quad reg
+int fpu_get_reg_xmm(dynarec_arm_t* dyn, int xmm)
 {
-    int i=reg-FPUFIRST;
-    dyn->fpuused[i] = 0;
+    if(xmm>7) {
+        dyn->fpuused[XMM8 + xmm - 8] = 1;
+        return XMM8 + xmm - 8;
+    } else {
+        dyn->fpuused[XMM0 + xmm] = 1;
+        return XMM0 + xmm;
+    }
 }
 // Reset fpu regs counter
 void fpu_reset_reg(dynarec_arm_t* dyn)
 {
     dyn->fpu_reg = 0;
-    for (int i=0; i<24; ++i)
+    for (int i=0; i<32; ++i)
         dyn->fpuused[i]=0;
 }
 

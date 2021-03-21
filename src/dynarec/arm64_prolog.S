@@ -10,12 +10,16 @@
 arm64_prolog:
     //save all 18 used register
     stp     lr, fp, [sp, -16]!  // save lr
-    sub     sp,  sp, (8 * 10)
+    sub     sp,  sp, (8 * 18)
     stp     x19, x20, [sp, (8 * 0)]
     stp     x21, x22, [sp, (8 * 2)]
     stp     x23, x24, [sp, (8 * 4)]
     stp     x25, x26, [sp, (8 * 6)]
     str     x27, [sp, (8 * 8)]
+    stp     d8, d9,   [sp, (8 *10)]
+    stp     d10, d11, [sp, (8 *12)]
+    stp     d12, d13, [sp, (8 *14)]
+    stp     d14, d15, [sp, (8 *16)]
     //vpush     {d8-d15}    // save NEON regs?
     //setup emu -> register
     ldp     x10, x11, [x0, (8 *  0)]
