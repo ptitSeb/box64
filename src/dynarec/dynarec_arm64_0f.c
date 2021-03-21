@@ -83,6 +83,42 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
 
 
+        case 0x10:
+            INST_NAME("MOVUPS Gx,Ex");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3) + (rex.r<<3);
+            if(MODREG) {
+                ed = (nextop&7)+(rex.b<<3);
+                v1 = sse_get_reg(dyn, ninst, x1, ed);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVQ(v0, v1);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xff0<<3, 7, rex, 0, 0);
+                LDRx_U12(x2, ed, fixedaddress);
+                VMOVQDfrom(v0, 0, x2);
+                LDRx_U12(x2, ed, fixedaddress+8);
+                VMOVQDfrom(v0, 1, x2);
+            }
+            break;
+        case 0x11:
+            INST_NAME("MOVUPS Ex,Gx");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3) + (rex.r<<3);
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if(MODREG) {
+                ed = (nextop&7)+(rex.b<<3);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xff0<<3, 7, rex, 0, 0);
+                VMOVQDto(x2, v0, 0);
+                STRx_U12(x2, ed, fixedaddress);
+                VMOVQDto(x2, v0, 1);
+                LDRx_U12(x2, ed, fixedaddress+8);
+            }
+            break;
+
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;

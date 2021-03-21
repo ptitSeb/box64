@@ -106,7 +106,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             gd = ((nextop&0x38)>>3)+(rex.r<<3);
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             if(rex.w) {
-                if((nextop&0xC0)==0xC0) {
+                if(MODREG) {
                     ed = xRAX + (nextop&7) + (rex.b<<3);
                     VMOVQDto(ed, v0, 0);
                 } else {
@@ -115,7 +115,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     STRx_U12(x2, ed, fixedaddress);
                 }
             } else {
-                if((nextop&0xC0)==0xC0) {
+                if(MODREG) {
                     ed = xRAX + (nextop&7) + (rex.b<<3);
                     VMOVSto(ed, v0, 0);
                 } else {

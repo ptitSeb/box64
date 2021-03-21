@@ -159,7 +159,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0x0F:
-            addr = dynarec64_0F(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            switch(rep) {
+            case 1:
+                addr = dynarec64_F20F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                break;
+            case 2:
+                addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                break;
+            default:
+                addr = dynarec64_0F(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            }
             break;
         case 0x10:
             INST_NAME("ADC Eb, Gb");

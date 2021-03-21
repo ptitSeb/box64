@@ -717,7 +717,22 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "VORR %c%d, %c%d, %c%d", q, Rd, q, Rn, q, Rm);
         return buff;
     }
-
+    // UMOV
+    if(isMask(opcode, "0Q001110000rrrrr001111nnnnnddddd", &a)) {
+        char q = a.Q?'Q':'D';
+        char s = '?';
+        int sz=0;
+        if(a.Q==0 && immr&1) {s='B'; sz=0; }
+        else if(a.Q==0 && (immr&3)==2) {s='H'; sz=1; }
+        else if(a.Q==0 && (immr&7)==4) {s='S'; sz=2; }
+        else if(a.Q==1 && (immr&15)==8) {s='D'; sz=3; }
+        int index = (immr)>>(sz+1);
+        if(sz>2)
+            snprintf(buff, sizeof(buff), "MOV %s, %c%d.%c[%d]", a.Q?Xt[Rd]:Wt[Rd], q, Rn, s, index);
+        else
+            snprintf(buff, sizeof(buff), "UMOV %s, %c%d.%c[%d]", a.Q?Xt[Rd]:Wt[Rd], q, Rn, s, index);
+        return buff;
+    }
     // VEOR
     if(isMask(opcode, "0Q101110001mmmmm000111nnnnnddddd", &a)) {
         char q = a.Q?'Q':'D';
