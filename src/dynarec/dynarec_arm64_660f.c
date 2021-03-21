@@ -35,7 +35,7 @@
     gd = ((nextop&0x38)>>3)+(rex.r<<3);  \
     a = sse_get_reg(dyn, ninst, x1, gd)
 
-uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
+uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
     uint8_t nextop, u8;
