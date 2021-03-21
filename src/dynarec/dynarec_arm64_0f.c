@@ -165,12 +165,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGX(v0);
             if(MODREG) {
-                s0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                s0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
             } else {
-                parity = getedparity(dyn, ninst, addr, nextop, 2, 0);
+                parity = getedparity(dyn, ninst, addr, nextop, 3, 0);
                 s0 = fpu_get_scratch(dyn);
                 if(parity) {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 3, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                     VLDR32_U12(s0, ed, fixedaddress);
                 } else {
                     GETED(0);

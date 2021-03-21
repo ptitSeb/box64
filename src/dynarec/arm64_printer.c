@@ -265,7 +265,17 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         else
             snprintf(buff, sizeof(buff), "STR%c %s, [%s]", size?'H':'B', Xt[Rt], XtSp[Rn]);
         return buff;
-    }    // --- MOV (REGS: see Logic MOV==ORR, MVN==ORN)
+    }    
+    if(isMask(opcode, "1011100110iiiiiiiiiiiinnnnnttttt", &a)) {
+        int offset = imm<<2;
+        if(!offset)
+            snprintf(buff, sizeof(buff), "LDRSW %s, [%s]", Xt[Rt], XtSp[Rn]);
+        else
+            snprintf(buff, sizeof(buff), "LDRSW %s, [%s, #%d]", Xt[Rt], XtSp[Rn], offset);
+        return buff;
+    }
+
+    // --- MOV (REGS: see Logic MOV==ORR, MVN==ORN)
     if(isMask(opcode, "f10100101wwiiiiiiiiiiiiiiiiddddd", &a)) {
         if(!hw)
             snprintf(buff, sizeof(buff), "MOVZ %s, 0x%x", sf?Xt[Rd]:Wt[Rd], imm);
@@ -582,6 +592,11 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    if(isMask(opcode, "f0011010110mmmmm001011nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "ROR %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        return buff;
+    }
+
     if(isMask(opcode, "f0011010110mmmmm001001nnnnnddddd", &a)) {
         snprintf(buff, sizeof(buff), "LSR %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
         return buff;
@@ -892,6 +907,28 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "SCVTF %c%d, %s", s, Rd, sf?Xt[Rn]:Wt[Rn]);
         return buff;
     }
+
+    // FMOV
+    if(isMask(opcode, "00011110pp100000010000nnnnnddddd", &a)) {
+        int type = a.p;
+        char s = (type==0)?'S':((type==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FMOV %c%d, %c%d", s, Rd, s, Rn);
+        return buff;
+    }
+    if(isMask(opcode, "f0011110pp10x11c000000nnnnnddddd", &a)) {
+        int type = a.p;
+        int rmode = a.x;
+        int opcd = 6+a.c;
+             if(sf==0 && type==0 && rmode==0 && opcd==7) {snprintf(buff, sizeof(buff), "FMOV S%d, %s", Rd, Wt[Rn]);}
+        else if(sf==0 && type==0 && rmode==0 && opcd==6) {snprintf(buff, sizeof(buff), "FMOV %s, S%d", Wt[Rn], Rd);}
+        else if(sf==1 && type==1 && rmode==0 && opcd==7) {snprintf(buff, sizeof(buff), "FMOV D%d, %s", Rd, Xt[Rn]);}
+        else if(sf==1 && type==2 && rmode==1 && opcd==7) {snprintf(buff, sizeof(buff), "FMOV V%d.D[1], %s", Rd, Xt[Rn]);}
+        else if(sf==1 && type==1 && rmode==0 && opcd==6) {snprintf(buff, sizeof(buff), "FMOV %s, S%d", Xt[Rn], Rd);}
+        else if(sf==1 && type==2 && rmode==1 && opcd==6) {snprintf(buff, sizeof(buff), "FMOV %s, V%d.D[1]", Xt[Rn], Rd);}
+        else snprintf(buff, sizeof(buff), "FMOV ????");
+        return buff;
+    }
+
 
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));

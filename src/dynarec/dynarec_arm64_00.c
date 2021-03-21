@@ -531,14 +531,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(MODREG) {   // reg <= reg
                     SXTWx(gd, xRAX+(nextop&7)+(rex.b<<3));
                 } else {                    // mem <= reg
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                     LDRSW_U12(gd, ed, fixedaddress);
                 }
             } else {
                 if(MODREG) {   // reg <= reg
                     MOVw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
                 } else {                    // mem <= reg
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                     LDRw_U12(gd, ed, fixedaddress);
                 }
             }
@@ -756,7 +756,26 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     emit_or32c(dyn, ninst, rex, ed, i64, x3, x4);
                     WBACK;
                     break;
-
+                case 2: //ADC
+                    if(opcode==0x81) {INST_NAME("ADC Ed, Id");} else {INST_NAME("ADC Ed, Ib");}
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED((opcode==0x81)?4:1);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    MOV64xw(x5, i64);
+                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4);
+                    WBACK;
+                    break;
+                case 3: //SBB
+                    if(opcode==0x81) {INST_NAME("SBB Ed, Id");} else {INST_NAME("SBB Ed, Ib");}
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED((opcode==0x81)?4:1);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    MOV64xw(x5, i64);
+                    emit_sbb32(dyn, ninst, rex, ed, x5, x3, x4);
+                    WBACK;
+                    break;
                 case 4: //AND
                     if(opcode==0x81) {INST_NAME("AND Ed, Id");} else {INST_NAME("AND Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
@@ -792,9 +811,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else
                         emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
                     break;
-
-                default:
-                    DEFAULT;
             }
             break;
         case 0x84:
@@ -880,6 +896,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0, rex, 0, 0);
                 if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                     MOVxw_REG(gd, ed);
+                } else if(ed>=xRAX && !rex.w) {
+                    MOVw(gd, gd);   //truncate the higher 32bits as asked
                 }
             }
             break;

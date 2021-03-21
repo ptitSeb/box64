@@ -122,7 +122,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(MODREG) {                            \
                 ed = xRAX+(nextop&7)+(rex.b<<3);    \
             } else {                                \
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0); \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0); \
                 LDRH_U12(x1, ed, fixedaddress);     \
                 ed = x1;                            \
             }                                       \
