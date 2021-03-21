@@ -624,4 +624,14 @@
 #define FMULS(Sd, Sn, Sm)           EMIT(FMUL_scalar(0b00, Sm, Sn, Sd))
 #define FMULD(Dd, Dn, Dm)           EMIT(FMUL_scalar(0b01, Dm, Dn, Dd))
 
+// DIV
+#define FDIV_vector(Q, sz, Rm, Rn, Rd)  ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11111<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VFDIVS(Sd, Sn, Sm)          EMIT(FDIV_vector(0, 0, Sm, Sn, Sd))
+#define VFDIVQS(Sd, Sn, Sm)         EMIT(FDIV_vector(1, 0, Sm, Sn, Sd))
+#define VFDIVQD(Sd, Sn, Sm)         EMIT(FDIV_vector(1, 1, Sm, Sn, Sd))
+
+#define FDIV_scalar(type, Rm, Rn, Rd)   (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b0001<<12 | 0b10<<10 | (Rn)<<5 | Rd)
+#define FDIVS(Sd, Sn, Sm)           EMIT(FDIV_scalar(0b00, Sm, Sn, Sd))
+#define FDIVD(Dd, Dn, Dm)           EMIT(FDIV_scalar(0b01, Dm, Dn, Dd))
+
 #endif  //__ARM64_EMITTER_H__
