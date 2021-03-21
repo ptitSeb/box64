@@ -27,7 +27,7 @@
 #define GETGX(a)    \
     gd = ((nextop&0x38)>>3)+(rex.r<<3);  \
     a = sse_get_reg(dyn, ninst, x1, gd)
-#define GETEX(a)    \
+#define GETEX(a, D)    \
     if(MODREG) { \
         a = sse_get_reg(dyn, ninst, x1, nextop&7+(rex.b<<3)); \
     } else {    \
@@ -153,6 +153,30 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
                 VSTR128_U12(v0, ed, fixedaddress);
             }
+            break;
+
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGX(v0);
+            if(MODREG) {
+                s0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                parity = getedparity(dyn, ninst, addr, nextop, 2, 0);
+                s0 = fpu_get_scratch(dyn);
+                if(parity) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 3, rex, 0, 0);
+                    VLDR32_U12(s0, ed, fixedaddress);
+                } else {
+                    GETED(0);
+                    VMOVQSfrom(s0, 0, ed);
+                }
+            }
+            FCMPS(v0, s0);
+            FCOMI(x1, x2);
             break;
 
         #define GO(GETFLAGS, NO, YES, F)            \
