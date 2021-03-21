@@ -402,6 +402,38 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xB6:
+            INST_NAME("MOVZX Gd, Eb");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                if(rex.rex) {
+                    eb1 = xRAX+(nextop&7)+(rex.b<<3);
+                    eb2 = 0;                \
+                } else {
+                    ed = (nextop&7);
+                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                }
+                UBFXxw(gd, eb1, eb2*8, 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff, 0, rex, 0, 0);
+                LDRB_U12(gd, ed, fixedaddress);
+            }
+            break;
+        case 0xB7:
+            INST_NAME("MOVZX Gd, Ew");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                UBFXxw(gd, ed, 0, 16);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                LDRH_U12(gd, ed, fixedaddress);
+            }
+            break;
+
         case 0xBB:
             INST_NAME("BTC Ed, Gd");
             SETFLAGS(X_CF, SF_SET);
