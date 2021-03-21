@@ -517,10 +517,14 @@
  
 // VLDR
 #define VMEM_gen(size, opc, imm12, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | 0b01<<24 | (opc)<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
+// imm14 must be 3-aligned
+#define VLDR32_U12(Dt, Rn, imm14)           EMIT(VMEM_gen(0b10, 0b01, ((uint32_t)((imm14)>>2))&0xfff, Rn, Dt))
 // imm15 must be 3-aligned
 #define VLDR64_U12(Dt, Rn, imm15)           EMIT(VMEM_gen(0b11, 0b01, ((uint32_t)((imm15)>>3))&0xfff, Rn, Dt))
 // imm16 must be 4-aligned
 #define VLDR128_U12(Qt, Rn, imm16)          EMIT(VMEM_gen(0b00, 0b11, ((uint32_t)((imm16)>>4))&0xfff, Rn, Qt))
+// (imm14) must be 3-aligned
+#define VSTR32_U12(Dt, Rn, imm14)           EMIT(VMEM_gen(0b10, 0b00, ((uint32_t)(imm14>>2))&0xfff, Rn, Dt))
 // (imm15) must be 3-aligned
 #define VSTR64_U12(Dt, Rn, imm15)           EMIT(VMEM_gen(0b11, 0b00, ((uint32_t)(imm15>>3))&0xfff, Rn, Dt))
 // imm16 must be 4-aligned
@@ -538,11 +542,15 @@
 
 #define VMEM_REG_gen(size, opc, Rm, option, S, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | 1<<21 | (Rm)<<16 | (option)<<13 | (S)<<12 | 0b10<<10 | (Rn)<<5 | (Rt))
 
+#define VLDR32_REG(Dt, Rn, Rm)              EMIT(VMEM_REG_gen(0b10, 0b01, Rm, 0b011, 0, Rn, Dt))
+#define VLDR32_REG_LSL3(Dt, Rn, Rm)         EMIT(VMEM_REG_gen(0b10, 0b01, Rm, 0b011, 1, Rn, Dt))
 #define VLDR64_REG(Dt, Rn, Rm)              EMIT(VMEM_REG_gen(0b11, 0b01, Rm, 0b011, 0, Rn, Dt))
 #define VLDR64_REG_LSL3(Dt, Rn, Rm)         EMIT(VMEM_REG_gen(0b11, 0b01, Rm, 0b011, 1, Rn, Dt))
 #define VLDR128_REG(Qt, Rn, Rm)             EMIT(VMEM_REG_gen(0b00, 0b11, Rm, 0b011, 0, Rn, Dt))
 #define VLDR128_REG_LSL4(Qt, Rn, Rm)        EMIT(VMEM_REG_gen(0b00, 0b11, Rm, 0b011, 1, Rn, Dt))
 
+#define VSTR32_REG(Dt, Rn, Rm)              EMIT(VMEM_REG_gen(0b10, 0b00, Rm, 0b011, 0, Rn, Dt))
+#define VSTR32_REG_LSL3(Dt, Rn, Rm)         EMIT(VMEM_REG_gen(0b10, 0b00, Rm, 0b011, 1, Rn, Dt))
 #define VSTR64_REG(Dt, Rn, Rm)              EMIT(VMEM_REG_gen(0b11, 0b00, Rm, 0b011, 0, Rn, Dt))
 #define VSTR64_REG_LSL3(Dt, Rn, Rm)         EMIT(VMEM_REG_gen(0b11, 0b00, Rm, 0b011, 1, Rn, Dt))
 #define VSTR128_REG(Qt, Rn, Rm)             EMIT(VMEM_REG_gen(0b00, 0b10, Rm, 0b011, 0, Rn, Dt))

@@ -39,7 +39,10 @@
         }                                                                                           \
     }
 
-#define GETGX   gd = ((nextop&0x38)>>3)+(rex.r<<3)
+#define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
+
+#define GETGX(a)    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+                    a = sse_get_reg(dyn, ninst, x1, gd)
 
 uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
@@ -67,7 +70,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x10:
             INST_NAME("MOVSD Gx, Ex");
             nextop = F8;
-            GETGX;
+            GETG;
             if(MODREG) {
                 ed = (nextop&7)+ (rex.b<<3);
                 v0 = sse_get_reg(dyn, ninst, x1, gd);
@@ -84,7 +87,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x11:
             INST_NAME("MOVSD Ex, Gx");
             nextop = F8;
-            GETGX;
+            GETG;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             if(MODREG) {
                 ed = (nextop&7)+ (rex.b<<3);
@@ -100,8 +103,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x51:
             INST_NAME("SQRTSD Gx, Ex");
             nextop = F8;
-            GETGX;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETGX(v0);
             d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
             FSQRTD(d1, d0);
@@ -111,8 +113,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
-            GETGX;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETGX(v0);
             d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
             FADDD(d1, v0, d0);  // the high part of the vector is erased...
@@ -121,8 +122,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
-            GETGX;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETGX(v0);
             d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
             FMULD(d1, v0, d0);
@@ -132,8 +132,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
-            GETGX;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETGX(v0);
             d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
             FSUBD(d1, v0, d0);
@@ -143,8 +142,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
             nextop = F8;
-            GETGX;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETGX(v0);
             d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
             FDIVD(d1, v0, d0);

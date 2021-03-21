@@ -22,23 +22,27 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
-// Get Ex as a double, not a quad (warning, x2 and x3 may get used)
-#define GETEX(a) \
-    if((nextop&0xC0)==0xC0) { \
-        a = sse_get_reg(dyn, ninst, x1, nextop&7); \
-    } else {    \
-        parity = getedparity(dyn, ninst, addr, nextop, 3);  \
-        a = fpu_get_scratch_double(dyn);            \
-        if(parity) {                                \
-            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3); \
-            VLDR_64(a, ed, fixedaddress);           \
-        } else {                                    \
-            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);\
-            LDR_IMM9(x2, ed, fixedaddress+0);       \
-            LDR_IMM9(x3, ed, fixedaddress+4);       \
-            VMOVtoV_D(a, x2, x3);                   \
-        }                                           \
+// Get Ex as a single, not a quad (warning, x2 get used)
+#define GETEX(a, D)                                                                                 \
+    if(MODREG) {                                                                                    \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));                                     \
+    } else {                                                                                        \
+        parity = getedparity(dyn, ninst, addr, nextop, 3, D);                                       \
+        a = fpu_get_scratch(dyn);                                                                   \
+        if(parity) {                                                                                \
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, D); \
+            VLDR32_U12(a, ed, fixedaddress);                                                        \
+        } else {                                                                                    \
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, D); \
+            LDRw_U12(x2, ed, fixedaddress);                                                         \
+            VMOVQSfrom(a, 0, x2);                                                                   \
+        }                                                                                           \
     }
+
+#define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
+
+#define GETGX(a)    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+                    a = sse_get_reg(dyn, ninst, x1, gd)
 
 uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
@@ -50,7 +54,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t eb1, eb2;
     int v0, v1;
     int q0, q1;
-    int d0;
+    int d0, d1;
     int s0;
     int fixedaddress;
     int parity;
@@ -64,6 +68,55 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     switch(opcode) {
 
 
+        case 0x51:
+            INST_NAME("SQRTSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            d1 = fpu_get_scratch(dyn);
+            GETEX(d0, 0);
+            FSQRTS(d1, d0);
+            VMOVeS(v0, 0, d1, 0);
+            break;
+
+        case 0x58:
+            INST_NAME("ADDSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            d1 = fpu_get_scratch(dyn);
+            GETEX(d0, 0);
+            FADDS(d1, v0, d0);  // the high part of the vector is erased...
+            VMOVeS(v0, 0, d1, 0);
+            break;
+        case 0x59:
+            INST_NAME("MULSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            d1 = fpu_get_scratch(dyn);
+            GETEX(d0, 0);
+            FMULS(d1, v0, d0);
+            VMOVeS(v0, 0, d1, 0);
+            break;
+
+        case 0x5C:
+            INST_NAME("SUBSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            d1 = fpu_get_scratch(dyn);
+            GETEX(d0, 0);
+            FSUBS(d1, v0, d0);
+            VMOVeS(v0, 0, d1, 0);
+            break;
+
+        case 0x5E:
+            INST_NAME("DIVSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            d1 = fpu_get_scratch(dyn);
+            GETEX(d0, 0);
+            FDIVS(d1, v0, d0);
+            VMOVeS(v0, 0, d1, 0);
+            break;
+            
         default:
             DEFAULT;
     }
