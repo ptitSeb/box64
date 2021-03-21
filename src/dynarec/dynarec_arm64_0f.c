@@ -188,6 +188,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         GOCOND(0x90, "SET", "Eb");
         #undef GO
             
+        case 0xA2:
+            INST_NAME("CPUID");
+            MOVx_REG(x1, xRAX);
+            CALL_(my_cpuid, -1, 0);
+            break;
         case 0xA3:
             INST_NAME("BT Ed, Gd");
             SETFLAGS(X_CF, SF_SET);
