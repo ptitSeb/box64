@@ -630,8 +630,19 @@
 #define VFDIVQS(Sd, Sn, Sm)         EMIT(FDIV_vector(1, 0, Sm, Sn, Sd))
 #define VFDIVQD(Sd, Sn, Sm)         EMIT(FDIV_vector(1, 1, Sm, Sn, Sd))
 
-#define FDIV_scalar(type, Rm, Rn, Rd)   (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b0001<<12 | 0b10<<10 | (Rn)<<5 | Rd)
+#define FDIV_scalar(type, Rm, Rn, Rd)   (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b0001<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define FDIVS(Sd, Sn, Sm)           EMIT(FDIV_scalar(0b00, Sm, Sn, Sd))
 #define FDIVD(Dd, Dn, Dm)           EMIT(FDIV_scalar(0b01, Dm, Dn, Dd))
+
+// SQRT
+#define FSQRT_vector(Q, sz, Rn, Rd)     ((Q)<<30 | 1<<29 | 0b01110<<24 | 1<<23 | (sz)<<22 | 0b10000<<17 | 0b11111<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define VFSQRTS(Sd, Sn)             EMIT(FSQRT_vector(0, 0, Sn, Sd))
+#define VFSQRTQS(Sd, Sn)            EMIT(FSQRT_vector(1, 0, Sn, Sd))
+#define VFSQRTQD(Sd, Sn)            EMIT(FSQRT_vector(1, 1, Sn, Sd))
+
+#define FSQRT_scalar(type, Rn, Rd)      (0b11110<<24 | (type)<<22 | 1<<21 | 0b11<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
+#define FSQRTS(Sd, Sn)              EMIT(FSQRT_scalar(0b00, Sn, Sd))
+#define FSQRTD(Dd, Dn)              EMIT(FSQRT_scalar(0b01, Dn, Dd))
+
 
 #endif  //__ARM64_EMITTER_H__
