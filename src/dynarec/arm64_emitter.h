@@ -597,23 +597,31 @@
 #define VMOVQ(Vd, Vn)               EMIT(ORR_vector(1, Vn, Vn, Vd))
 #define VMOV(Dd, Dn)                EMIT(ORR_vector(0, Dn, Dn, Dd))
 
-// ADD
-#define FADD_vector(Q, U, sz, Rm, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11010<<11 | 1<<10 | (Rn)<<5 | (Rd))
-#define VFADDQS(Vd, Vn, Vm)         EMIT(FADD_vector(1, 0, 0, Vm, Vn, Vd))
-#define VFADDQD(Vd, Vn, Vm)         EMIT(FADD_vector(1, 0, 1, Vm, Vn, Vd))
-#define VFADDS(Dd, Dn, Dm)          EMIT(FADD_vector(0, 0, 0, Dm, Dn, Dd))
+// ADD / SUB
+#define FADDSUB_vector(Q, U, op, sz, Rm, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | (op)<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11010<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VFADDQS(Vd, Vn, Vm)         EMIT(FADDSUB_vector(1, 0, 0, 0, Vm, Vn, Vd))
+#define VFADDQD(Vd, Vn, Vm)         EMIT(FADDSUB_vector(1, 0, 0, 1, Vm, Vn, Vd))
+#define VFADDS(Dd, Dn, Dm)          EMIT(FADDSUB_vector(0, 0, 0, 0, Dm, Dn, Dd))
+
+#define VFSUBQS(Vd, Vn, Vm)         EMIT(FADDSUB_vector(1, 0, 1, 0, Vm, Vn, Vd))
+#define VFSUBQD(Vd, Vn, Vm)         EMIT(FADDSUB_vector(1, 0, 1, 1, Vm, Vn, Vd))
+#define VFSUBS(Dd, Dn, Dm)          EMIT(FADDSUB_vector(0, 0, 1, 0, Dm, Dn, Dd))
 
 #define FADDSUB_scalar(type, Rm, op, Rn, Rd)    (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b001<<13 | (op)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define FADDS(Sd, Sn, Sm)           EMIT(FADDSUB_scalar(0b00, Sm, 0, Sn, Sd))
 #define FADDD(Dd, Dn, Dm)           EMIT(FADDSUB_scalar(0b01, Dm, 0, Dn, Dd))
 
-// SUB
-#define FSUB_vector(Q, U, sz, Rm, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | 1<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11010<<11 | 1<<10 | (Rn)<<5 | (Rd))
-#define VFSUBQS(Vd, Vn, Vm)         EMIT(FSUB_vector(1, 0, 0, Vm, Vn, Vd))
-#define VFSUBQD(Vd, Vn, Vm)         EMIT(FSUB_vector(1, 0, 1, Vm, Vn, Vd))
-#define VFSUBS(Dd, Dn, Dm)          EMIT(FSUB_vector(0, 0, 0, Dm, Dn, Dd))
-
 #define FSUBS(Sd, Sn, Sm)           EMIT(FADDSUB_scalar(0b00, Sm, 1, Sn, Sd))
 #define FSUBD(Dd, Dn, Dm)           EMIT(FADDSUB_scalar(0b01, Dm, 1, Dn, Dd))
+
+// MUL
+#define FMUL_vector(Q, sz, Rm, Rn, Rd)  ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b011<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VFMULS(Sd, Sn, Sm)          EMIT(FMUL_vector(0, 0, Sm, Sn, Sd))
+#define VFMULQS(Sd, Sn, Sm)         EMIT(FMUL_vector(1, 0, Sm, Sn, Sd))
+#define VFMULQD(Sd, Sn, Sm)         EMIT(FMUL_vector(1, 1, Sm, Sn, Sd))
+
+#define FMUL_scalar(type, Rm, Rn, Rd)   (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b10<<10 | (Rn)<<5 | Rd)
+#define FMULS(Sd, Sn, Sm)           EMIT(FMUL_scalar(0b00, Sm, Sn, Sd))
+#define FMULD(Dd, Dn, Dm)           EMIT(FMUL_scalar(0b01, Dm, Dn, Dd))
 
 #endif  //__ARM64_EMITTER_H__
