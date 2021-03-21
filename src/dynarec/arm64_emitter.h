@@ -365,6 +365,7 @@
 #define MOV_toSP(Rm)                    ADDx_U12(xSP, Rm, 0)
 #define BICx(Rd, Rn, Rm)                EMIT(LOGIC_REG_gen(1, 0b00, 0b00, 1, Rm, 0, Rn, Rd))
 #define BICw(Rd, Rn, Rm)                EMIT(LOGIC_REG_gen(0, 0b00, 0b00, 1, Rm, 0, Rn, Rd))
+#define BICw_LSL(Rd, Rn, Rm, lsl)       EMIT(LOGIC_REG_gen(0, 0b00, 0b00, 1, Rm, lsl, Rn, Rd))
 #define BICSx(Rd, Rn, Rm)               EMIT(LOGIC_REG_gen(1, 0b00, 0b00, 1, Rm, 0, Rn, Rd))
 #define BICSw(Rd, Rn, Rm)               EMIT(LOGIC_REG_gen(0, 0b00, 0b00, 1, Rm, 0, Rn, Rd))
 #define BICxw(Rd, Rn, Rm)               EMIT(LOGIC_REG_gen(rex.w, 0b00, 0b00, 1, Rm, 0, Rn, Rd))
@@ -643,6 +644,13 @@
 #define FSQRT_scalar(type, Rn, Rd)      (0b11110<<24 | (type)<<22 | 1<<21 | 0b11<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
 #define FSQRTS(Sd, Sn)              EMIT(FSQRT_scalar(0b00, Sn, Sd))
 #define FSQRTD(Dd, Dn)              EMIT(FSQRT_scalar(0b01, Dn, Dd))
+
+// CMP
+#define FCMP_scalar(type, Rn, Rm, opc)  (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b1000<<10 | (Rn)<<5 | (opc)<<3)
+#define FCMPS(Sn, Sm)               EMIT(FCMP_scalar(0b00, Sn, Sm, 0b00))
+#define FCMPD(Dn, Dm)               EMIT(FCMP_scalar(0b01, Dn, Dm, 0b00))
+#define FCMPS_0(Sn)                 EMIT(FCMP_scalar(0b00, 0, Sn, 0b01))
+#define FCMPD_0(Dn)                 EMIT(FCMP_scalar(0b01, 0, Dn, 0b01))
 
 
 #endif  //__ARM64_EMITTER_H__

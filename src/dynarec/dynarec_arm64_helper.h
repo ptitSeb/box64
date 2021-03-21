@@ -296,35 +296,41 @@
 #define IFXN(A, B)  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(A) && !(dyn->insts[ninst].x64.need_flags&(B))))
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
-#define FCOM(s1, s2)    \
-    VMRS_APSR();    /* 0b0100011100000000 */                                    \
-    LDRH_IMM8(s1, xEmu, offsetof(x64emu_t, sw));   /*offset is 8bits right?*/   \
-    BIC_IMM8(s1, s1, 0b01000111, 12);                                           \
-    ORR_IMM8_COND(cVS, s1, s1, 0b01000101, 12); /* unordered */                 \
-    ORR_IMM8_COND(cEQ, s1, s1, 0b01000000, 12); /* equal */                     \
-    ORR_IMM8_COND(cMI, s1, s1, 0b00000001, 12); /* less than */                 \
-    /* greater than leave 0 */                                                  \
-    STRH_IMM8(s1, xEmu, offsetof(x64emu_t, sw))
+#define FCOM(s1, s2, s3)                                                    \
+    LDRH_U12(s3, xEmu, offsetof(x64emu_t, sw));   /*offset is 8bits right?*/\
+    MOV32w(s1, 0b01000111);                                                 \
+    BICw_REG_LSL(s3, s3, s1, 8);                                            \
+    CSETw(s1, cMI); /* 1 if less than, 0 else */                            \
+    MOV32w(s2, 0b01000101); /* unordered */                                 \
+    CSELw(s1, s2, s1, cVS);                                                 \
+    MOV32w(s2, 0b01000000); /* zero */                                      \
+    CSELw(s1, s2, s1, cEQ);                                                 \
+    /* greater than leave 0 */                                              \
+    ORRw_REG_LSL(s3, s3, s1, 8);                                            \
+    STRH_U12(s3, xEmu, offsetof(x64emu_t, sw))
 
 // Generate FCOMI with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOMI(s1, s2)    \
     IFX(X_CF|X_PF|X_ZF|X_PEND) {                                            \
-        VMRS_APSR();    /* 0b111 */                                         \
-        BIC_IMM8(xFlags, xFlags, 0b1000101, 0);                             \
-        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b01000101, 0); /* unordered */  \
-        ORR_IMM8_COND(cEQ, xFlags, xFlags, 0b01000000, 0); /* zero */       \
-        ORR_IMM8_COND(cMI, xFlags, xFlags, 0b00000001, 0); /* less than */  \
+        MOV32w(s1, 0b01000101);                                             \
+        BICw_REG(xFlags, xFlags, s1);                                       \
+        CSETw(s1, cMI); /* 1 if less than, 0 else */                        \
+        MOV32w(s2, 0b01000101); /* unordered */                             \
+        CSELw(s1, s2, s1, cVS);                                             \
+        MOV32w(s2, 0b01000000); /* zero */                                  \
+        CSELw(s1, s2, s1, cEQ);                                             \
         /* greater than leave 0 */                                          \
+        ORRw_REG(xFlags, xFlags, s1);                                       \
     }                                                                       \
     SET_DFNONE(s1);                                                         \
     IFX(X_OF|X_PEND) {                                                      \
-        BFC(xFlags, F_OF, 1);                                               \
+        BFCw(xFlags, F_OF, 1);                                              \
     }                                                                       \
     IFX(X_AF|X_PEND) {                                                      \
-        BFC(xFlags, F_AF, 1);                                               \
+        BFCw(xFlags, F_AF, 1);                                              \
     }                                                                       \
     IFX(X_SF|X_PEND) {                                                      \
-        BFC(xFlags, F_SF, 1);                                               \
+        BFCw(xFlags, F_SF, 1);                                              \
     }                                                                       \
 
 

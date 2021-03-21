@@ -856,6 +856,17 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    //CMP
+    if(isMask(opcode, "00011110ff1mmmmm001000nnnnn0c000", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        if(opc==1)
+            snprintf(buff, sizeof(buff), "FCMP %c%d, #0.0", s, Rn);
+        else
+            snprintf(buff, sizeof(buff), "FCMP %c%d, %c%d", s, Rn, s, Rm);
+        return buff;
+    }
+
+
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
 }
