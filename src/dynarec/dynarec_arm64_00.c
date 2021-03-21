@@ -897,7 +897,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                     MOVxw_REG(gd, ed);
                 } else if(ed>=xRAX && !rex.w) {
-                    MOVw(gd, gd);   //truncate the higher 32bits as asked
+                    MOVw_REG(gd, gd);   //truncate the higher 32bits as asked
                 }
             }
             break;
@@ -924,6 +924,34 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SET_DFNONE(x1);
             break;
 
+        case 0xB0:
+        case 0xB1:
+        case 0xB2:
+        case 0xB3:
+            INST_NAME("MOV xL, Ib");
+            u8 = F8;
+            MOV32w(x1, u8);
+            if(rex.rex)
+                gb1 = xRAX+(opcode&7)+(rex.b<<3);
+            else
+                gb1 = xRAX+(opcode&3);
+            BFIx(gb1, x1, 0, 8);
+            break;
+        case 0xB4:
+        case 0xB5:
+        case 0xB6:
+        case 0xB7:
+            INST_NAME("MOV xH, Ib");
+            u8 = F8;
+            MOV32w(x1, u8);
+            if(rex.rex) {
+                gb1 = xRAX+(opcode&7)+(rex.b<<3);
+                BFIx(gb1, x1, 0, 8);
+            } else {
+                gb1 = xRAX+(opcode&3);
+                BFIx(gb1, x1, 8, 8);
+            }
+            break;
         case 0xB8:
         case 0xB9:
         case 0xBA:
