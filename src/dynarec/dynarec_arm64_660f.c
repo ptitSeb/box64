@@ -31,6 +31,9 @@
         a = fpu_get_scratch(dyn);                                                                       \
         VLDR128_U12(a, ed, fixedaddress);                                                               \
     }
+
+#define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
+
 #define GETGX(a)                        \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     a = sse_get_reg(dyn, ninst, x1, gd)
@@ -312,6 +315,26 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             CSETw(x1, cEQ);    //ZF not set
             BFIw(xFlags, x1, F_ZF, 1);
             SET_DFNONE(x1);
+            break;
+
+        case 0xD6:
+            INST_NAME("MOVQ Ex, Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            parity = getedparity(dyn, ninst, addr, nextop, 7, 0);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                FMOVD(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                if(parity) {
+                    VSTR64_U12(v0, ed, fixedaddress);
+                } else {
+                    VMOVQDto(x2, v0, 0);
+                    STRx_U12(x2, ed, fixedaddress);
+                }
+            }
             break;
 
         case 0xEF:
