@@ -67,6 +67,36 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
     switch(opcode) {
 
+        case 0x10:
+            INST_NAME("MOVSS Gx, Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v0 = sse_get_reg(dyn, ninst, x1, gd);
+                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                VMOVeS(v0, 0, q0, 0);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 3, rex, 0, 0);
+                LDRw_U12(x2, ed, fixedaddress);   // to avoid bus errors
+                VEORQ(v0, v0, v0);
+                VMOVQSfrom(v0, 0, x2);
+            }
+            break;
+        case 0x11:
+            INST_NAME("MOVSS Ex, Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if(MODREG) {
+                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                VMOVeS(q0, 0, v0, 0);
+            } else {
+                VMOVSto(x2, v0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 3, rex, 0, 0);
+                STRw_U12(x2, ed, fixedaddress);
+            }
+            break;
 
         case 0x2A:
             INST_NAME("CVTSI2SS Gx, Ed");
