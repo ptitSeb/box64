@@ -161,6 +161,38 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeS(v0, 0, d1, 0);
             break;
             
+        case 0x7E:
+            INST_NAME("MOVQ Gx, Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                FMOVD(v0, v1);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                VLDR64_U12(v0, ed, fixedaddress);
+            }
+            break;
+        case 0x7F:
+            INST_NAME("MOVDQU Ex,Gx");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v0 = sse_get_reg(dyn, ninst, x1, gd);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                VMOVQ(v1, v0);
+            } else {
+                v0 = sse_get_reg(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xff0<<3, 7, rex, 0, 0);
+                VMOVQDto(x2, v0, 0);
+                STRx_U12(x2, ed, fixedaddress+0);
+                VMOVQDto(x2, v0, 1);
+                STRx_U12(x2, ed, fixedaddress+8);
+            }
+            break;
+
         default:
             DEFAULT;
     }

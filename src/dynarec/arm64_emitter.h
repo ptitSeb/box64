@@ -577,8 +577,8 @@
 #define FMOVxD1(Xd, Vn)                     EMIT(FMOV_general(1, 0b10, 0b01, ob110, Vn, Xd))
 
 #define FMOV_register(type, Rn, Rd)         (0b11110<<24 | (type)<<22 | 1<<21 | (Rn)<<5 | (Rd))
-#define FMOVS(Sd, Sn)                       EMIT(FMOV_register, 0b00, Sn, Sd)
-#define FMOVD(Dd, Dn)                       EMIT(FMOV_register, 0b01, Dn, Dd)
+#define FMOVS(Sd, Sn)                       EMIT(FMOV_register(0b00, Sn, Sd))
+#define FMOVD(Dd, Dn)                       EMIT(FMOV_register(0b01, Dn, Dd))
 
 // VMOV
 #define VMOV_element(imm5, imm4, Rn, Rd)    (1<<30 | 1<<29 | 0b01110000<<21 | (imm5)<<16 | (imm4)<<11 | 1<<10 | (Rn)<<5 | (Rd))
