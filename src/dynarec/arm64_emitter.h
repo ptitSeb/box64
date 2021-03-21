@@ -660,5 +660,151 @@
 #define FCMPS_0(Sn)                 EMIT(FCMP_scalar(0b00, 0, Sn, 0b01))
 #define FCMPD_0(Dn)                 EMIT(FCMP_scalar(0b01, 0, Dn, 0b01))
 
+// CVT
+#define FCVT_scalar(sf, type, rmode, opcode, Rn, Rd)    ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (rmode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
+// Floating-point Convert to Signed integer, rounding to nearest with ties to Away
+#define FCVTASwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b00, 0b100, Sn, Wd))
+#define FCVTASxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b00, 0b100, Sn, Xd))
+#define FCVTASwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b00, 0b100, Dn, Wd))
+#define FCVTASxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b00, 0b100, Dn, Xd))
+// Floating-point Convert to Unsigned integer, rounding to nearest with ties to Away
+#define FCVTAUwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b00, 0b101, Sn, Wd))
+#define FCVTAUxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b00, 0b101, Sn, Xd))
+#define FCVTAUwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b00, 0b101, Dn, Wd))
+#define FCVTAUxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b00, 0b101, Dn, Xd))
+// Floating-point Convert to Signed integer, rounding toward Minus infinity
+#define FCVTMSwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b10, 0b100, Sn, Wd))
+#define FCVTMSxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b10, 0b100, Sn, Xd))
+#define FCVTMSwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b10, 0b100, Dn, Wd))
+#define FCVTMSxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b10, 0b100, Dn, Xd))
+// Floating-point Convert to Unsigned integer, rounding toward Minus infinity
+#define FCVTMUwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b10, 0b101, Sn, Wd))
+#define FCVTMUxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b10, 0b101, Sn, Xd))
+#define FCVTMUwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b10, 0b101, Dn, Wd))
+#define FCVTMUxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b10, 0b101, Dn, Xd))
+// Floating-point Convert to Signed integer, rounding to nearest with ties to even
+#define FCVTNSwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b00, 0b000, Sn, Wd))
+#define FCVTNSxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b00, 0b000, Sn, Xd))
+#define FCVTNSwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b00, 0b000, Dn, Wd))
+#define FCVTNSxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b00, 0b000, Dn, Xd))
+// Floating-point Convert to Unsigned integer, rounding to nearest with ties to even
+#define FCVTNUwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b00, 0b001, Sn, Wd))
+#define FCVTNUxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b00, 0b001, Sn, Xd))
+#define FCVTNUwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b00, 0b001, Dn, Wd))
+#define FCVTNUxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b00, 0b001, Dn, Xd))
+// Floating-point Convert to Signed integer, rounding toward Plus infinity
+#define FCVTPSwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b01, 0b000, Sn, Wd))
+#define FCVTPSxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b01, 0b000, Sn, Xd))
+#define FCVTPSwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b01, 0b000, Dn, Wd))
+#define FCVTPSxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b01, 0b000, Dn, Xd))
+// Floating-point Convert to Unsigned integer, rounding toward Plus infinity
+#define FCVTPUwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b01, 0b001, Sn, Wd))
+#define FCVTPUxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b01, 0b001, Sn, Xd))
+#define FCVTPUwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b01, 0b001, Dn, Wd))
+#define FCVTPUxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b01, 0b001, Dn, Xd))
+// Floating-point Convert to Signed integer, rounding toward Zero
+#define FCVTZSwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b11, 0b000, Sn, Wd))
+#define FCVTZSxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b11, 0b000, Sn, Xd))
+#define FCVTZSwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b11, 0b000, Dn, Wd))
+#define FCVTZSxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b11, 0b000, Dn, Xd))
+// Floating-point Convert to Unsigned integer, rounding toward Zero
+#define FCVTZUwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b11, 0b001, Sn, Wd))
+#define FCVTZUxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b11, 0b001, Sn, Xd))
+#define FCVTZUwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b11, 0b001, Dn, Wd))
+#define FCVTZUxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b11, 0b001, Dn, Xd))
+
+#define FCVT_vector_scalar(U, o2, sz, o1, Rn, Rd)   (0b01<<30 | (U)<<29 | 0b11110<<24 | (o2)<<23 | (sz)<<22 | 0b10000<<17 | 0b1110<<13 | (o1)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Floating-point Convert to (Un)signed integer, rounding to nearest with ties to Away
+#define VFCVTASs(Vd, Vn)            EMIT(FCVT_vector_scalar(0, 0, 0, 0, Vn, Vd))
+#define VFCVTASd(Vd, Vn)            EMIT(FCVT_vector_scalar(0, 0, 1, 0, Vn, Vd))
+#define VFCVTAUs(Vd, Vn)            EMIT(FCVT_vector_scalar(1, 0, 0, 0, Vn, Vd))
+#define VFCVTAUd(Vd, Vn)            EMIT(FCVT_vector_scalar(1, 0, 1, 0, Vn, Vd))
+// Floating-point Convert to (Un)signed integer, rounding toward Minus infinity
+#define VFCVTMSs(Vd, Vn)            EMIT(FCVT_vector_scalar(0, 0, 0, 1, Vn, Vd))
+#define VFCVTMSd(Vd, Vn)            EMIT(FCVT_vector_scalar(0, 0, 1, 1, Vn, Vd))
+#define VFCVTMUs(Vd, Vn)            EMIT(FCVT_vector_scalar(1, 0, 0, 1, Vn, Vd))
+#define VFCVTMUd(Vd, Vn)            EMIT(FCVT_vector_scalar(1, 0, 1, 1, Vn, Vd))
+
+#define FCVT2_vector_scalar(U, o2, sz, o1, Rn, Rd)   (0b01<<30 | (U)<<29 | 0b11110<<24 | (o2)<<23 | (sz)<<22 | 0b10000<<17 | 0b1101<<13 | (o1)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Floating-point Convert to (Un)signed integer, rounding to nearest with ties to even
+#define VFCVTNSs(Vd, Vn)            EMIT(FCVT2_vector_scalar(0, 0, 0, 0, Vn, Vd))
+#define VFCVTNSd(Vd, Vn)            EMIT(FCVT2_vector_scalar(0, 0, 1, 0, Vn, Vd))
+#define VFCVTNUs(Vd, Vn)            EMIT(FCVT2_vector_scalar(1, 0, 0, 0, Vn, Vd))
+#define VFCVTNUd(Vd, Vn)            EMIT(FCVT2_vector_scalar(1, 0, 1, 0, Vn, Vd))
+// Floating-point Convert to (Un)signed integer, rounding toward Plus infinity
+#define VFCVTPSs(Vd, Vn)            EMIT(FCVT2_vector_scalar(0, 1, 0, 0, Vn, Vd))
+#define VFCVTPSd(Vd, Vn)            EMIT(FCVT2_vector_scalar(0, 1, 1, 0, Vn, Vd))
+#define VFCVTPUs(Vd, Vn)            EMIT(FCVT2_vector_scalar(1, 1, 0, 0, Vn, Vd))
+#define VFCVTPUd(Vd, Vn)            EMIT(FCVT2_vector_scalar(1, 1, 1, 0, Vn, Vd))
+// Floating-point Convert to (Un)signed integer, rounding toward Zero
+#define VFCVTZSs(Vd, Vn)            EMIT(FCVT2_vector_scalar(0, 1, 0, 1, Vn, Vd))
+#define VFCVTZSd(Vd, Vn)            EMIT(FCVT2_vector_scalar(0, 1, 1, 1, Vn, Vd))
+#define VFCVTZUs(Vd, Vn)            EMIT(FCVT2_vector_scalar(1, 1, 0, 1, Vn, Vd))
+#define VFCVTZUd(Vd, Vn)            EMIT(FCVT2_vector_scalar(1, 1, 1, 1, Vn, Vd))
+
+#define FCVT_vector(Q, U, o2, sz, o1, Rn, Rd)       ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o2)<<23 | (sz)<<22) | 0b10000<<17 | 0b1110<<13 | (o1)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Floating-point Convert to (Un)signed integer, rounding to nearest with ties to Away
+#define VFCVTASS(Vd, Vn)            EMIT(FCVT_vector(0, 0, 0, 0, 0, Vn, Vd))
+#define VFCVTASD(Vd, Vn)            EMIT(FCVT_vector(0, 0, 0, 1, 0, Vn, Vd))
+#define VFCVTASQS(Vd, Vn)           EMIT(FCVT_vector(1, 0, 0, 0, 0, Vn, Vd))
+#define VFCVTASQD(Vd, Vn)           EMIT(FCVT_vector(1, 0, 0, 1, 0, Vn, Vd))
+#define VFCVTAUS(Vd, Vn)            EMIT(FCVT_vector(0, 1, 0, 0, 0, Vn, Vd))
+#define VFCVTAUD(Vd, Vn)            EMIT(FCVT_vector(0, 1, 0, 1, 0, Vn, Vd))
+#define VFCVTAUQS(Vd, Vn)           EMIT(FCVT_vector(1, 1, 0, 0, 0, Vn, Vd))
+#define VFCVTAUQD(Vd, Vn)           EMIT(FCVT_vector(1, 1, 0, 1, 0, Vn, Vd))
+// Floating-point Convert to (Un)signed integer, rounding toward Minus infinity
+#define VFCVTMSS(Vd, Vn)            EMIT(FCVT_vector(0, 0, 0, 0, 1, Vn, Vd))
+#define VFCVTMSD(Vd, Vn)            EMIT(FCVT_vector(0, 0, 0, 1, 1, Vn, Vd))
+#define VFCVTMSQS(Vd, Vn)           EMIT(FCVT_vector(1, 0, 0, 0, 1, Vn, Vd))
+#define VFCVTMSQD(Vd, Vn)           EMIT(FCVT_vector(1, 0, 0, 1, 1, Vn, Vd))
+#define VFCVTMUS(Vd, Vn)            EMIT(FCVT_vector(0, 1, 0, 0, 1, Vn, Vd))
+#define VFCVTMUD(Vd, Vn)            EMIT(FCVT_vector(0, 1, 0, 1, 1, Vn, Vd))
+#define VFCVTMUQS(Vd, Vn)           EMIT(FCVT_vector(1, 1, 0, 0, 1, Vn, Vd))
+#define VFCVTMUQD(Vd, Vn)           EMIT(FCVT_vector(1, 1, 0, 1, 1, Vn, Vd))
+
+#define FCVT2_vector(Q, U, o2, sz, o1, Rn, Rd)       ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o2)<<23 | (sz)<<22) | 0b10000<<17 | 0b1101<<13 | (o1)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Floating-point Convert to (Un)signed integer, rounding to nearest with ties to even
+#define VFCVTNSS(Vd, Vn)            EMIT(FCVT2_vector(0, 0, 0, 0, 0, Vn, Vd))
+#define VFCVTNSD(Vd, Vn)            EMIT(FCVT2_vector(0, 0, 0, 1, 0, Vn, Vd))
+#define VFCVTNSQS(Vd, Vn)           EMIT(FCVT2_vector(1, 0, 0, 0, 0, Vn, Vd))
+#define VFCVTNSQD(Vd, Vn)           EMIT(FCVT2_vector(1, 0, 0, 1, 0, Vn, Vd))
+#define VFCVTNUS(Vd, Vn)            EMIT(FCVT2_vector(0, 1, 0, 0, 0, Vn, Vd))
+#define VFCVTNUD(Vd, Vn)            EMIT(FCVT2_vector(0, 1, 0, 1, 0, Vn, Vd))
+#define VFCVTNUQS(Vd, Vn)           EMIT(FCVT2_vector(1, 1, 0, 0, 0, Vn, Vd))
+#define VFCVTNUQD(Vd, Vn)           EMIT(FCVT2_vector(1, 1, 0, 1, 0, Vn, Vd))
+// Floating-point Convert to (Un)signed integer, rounding toward Plus infinity
+#define VFCVTPSS(Vd, Vn)            EMIT(FCVT2_vector(0, 0, 1, 0, 0, Vn, Vd))
+#define VFCVTPSD(Vd, Vn)            EMIT(FCVT2_vector(0, 0, 1, 1, 0, Vn, Vd))
+#define VFCVTPSQS(Vd, Vn)           EMIT(FCVT2_vector(1, 0, 1, 0, 0, Vn, Vd))
+#define VFCVTPSQD(Vd, Vn)           EMIT(FCVT2_vector(1, 0, 1, 1, 0, Vn, Vd))
+#define VFCVTPUS(Vd, Vn)            EMIT(FCVT2_vector(0, 1, 1, 0, 0, Vn, Vd))
+#define VFCVTPUD(Vd, Vn)            EMIT(FCVT2_vector(0, 1, 1, 1, 0, Vn, Vd))
+#define VFCVTPUQS(Vd, Vn)           EMIT(FCVT2_vector(1, 1, 1, 0, 0, Vn, Vd))
+#define VFCVTPUQD(Vd, Vn)           EMIT(FCVT2_vector(1, 1, 1, 1, 0, Vn, Vd))
+// Floating-point Convert to (Un)signed integer, rounding toward Zero
+#define VFCVTZSS(Vd, Vn)            EMIT(FCVT2_vector(0, 0, 1, 0, 1, Vn, Vd))
+#define VFCVTZSD(Vd, Vn)            EMIT(FCVT2_vector(0, 0, 1, 1, 1, Vn, Vd))
+#define VFCVTZSQS(Vd, Vn)           EMIT(FCVT2_vector(1, 0, 1, 0, 1, Vn, Vd))
+#define VFCVTZSQD(Vd, Vn)           EMIT(FCVT2_vector(1, 0, 1, 1, 1, Vn, Vd))
+#define VFCVTZUS(Vd, Vn)            EMIT(FCVT2_vector(0, 1, 1, 0, 1, Vn, Vd))
+#define VFCVTZUD(Vd, Vn)            EMIT(FCVT2_vector(0, 1, 1, 1, 1, Vn, Vd))
+#define VFCVTZUQS(Vd, Vn)           EMIT(FCVT2_vector(1, 1, 1, 0, 1, Vn, Vd))
+#define VFCVTZUQD(Vd, Vn)           EMIT(FCVT2_vector(1, 1, 1, 1, 1, Vn, Vd))
+
+#define SCVTF_scalar(sf, type, rmode, opcode, Rn, Rd)   ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (rmode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
+#define SCVTSw(Sd, Wn)              EMIT(SCVTF_scalar(0, 0b00, 0b00, 0b010, Wn, Sd))
+#define SCVTDw(Dd, Wn)              EMIT(SCVTF_scalar(0, 0b00, 0b01, 0b010, Wn, Dd))
+#define SCVTSx(Sd, Xn)              EMIT(SCVTF_scalar(1, 0b00, 0b00, 0b010, Xn, Sd))
+#define SCVTDx(Dd, Xn)              EMIT(SCVTF_scalar(1, 0b00, 0b01, 0b010, Xn, Dd))
+
+#define SCVTF_vector_scalar(U, sz, Rn, Rd)    (1<<30 | (U)<<29 | 0b11110<<24 | (sz)<<22 | 0b10000<<17 | 0b11101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define SCVTFSS(Vd, Vn)             EMIT(SCVT_vector_scalar(0, 0, Vn, Vd))
+#define SCVTFDD(Vd, Vn)             EMIT(SCVT_vector_scalar(0, 1, Vn, Vd))
+
+#define SCVTF_vector(Q, U, sz, Rn, Rd)      ((Q)<<30 | (U)<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b11101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define SCVTFS(Vd, Vn)              EMIT(SCVTF_vector(0, 0, 0, Vn, VD))
+#define SCVTFD(Vd, Vn)              EMIT(SCVTF_vector(0, 0, 1, Vn, VD))
+#define SCVTQFS(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 0, Vn, VD))
+#define SCVTQFD(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 1, Vn, VD))
 
 #endif  //__ARM64_EMITTER_H__

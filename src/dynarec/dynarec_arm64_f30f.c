@@ -68,6 +68,20 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     switch(opcode) {
 
 
+        case 0x2A:
+            INST_NAME("CVTSI2SS Gx, Ed");
+            nextop = F8;
+            GETGX(v0);
+            GETED(0);
+            d1 = fpu_get_scratch(dyn);
+            if(rex.w) {
+                SCVTSx(d1, ed);
+            } else {
+                SCVTSw(d1, ed);
+            }
+            VMOVeS(v0, 0, d1, 0);
+            break;
+
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;

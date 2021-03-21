@@ -866,6 +866,33 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    // FCVT
+    if(isMask(opcode, "f0011110pp10010U000000nnnnnddddd", &a)) {
+        int type = a.p;
+        char s = (type==0)?'S':((type==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FCVTA%c %s, %c%d", a.U?'U':'S', sf?Xt[Rd]:Wt[Rd], s, Rn);
+        return buff;
+    }
+    if(isMask(opcode, "01U111100f100001110010nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FCVTA%c %c%d, %c%d", a.U?'U':'S', s, Rd, s, Rn);
+        return buff;
+    }
+    if(isMask(opcode, "0QU011100f100001110010nnnnnddddd", &a)) {
+        char s = a.Q?'V':'D';
+        char d = sf?'D':'S';
+        int n = (a.Q && !sf)?4:2;
+        snprintf(buff, sizeof(buff), "VFCVTA%c %c%d.%d%c, %c%d.%d%c", a.U?'U':'S', s, Rd, n, d, s, Rn, n, d);
+        return buff;
+    }
+
+    if(isMask(opcode, "f0011110pp100010000000nnnnnddddd", &a)) {
+        int type = a.p;
+        char s = (type==0)?'S':((type==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "SCVTF %c%d, %s", s, Rd, sf?Xt[Rn]:Wt[Rn]);
+        return buff;
+    }
+
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
