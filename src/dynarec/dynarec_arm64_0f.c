@@ -27,21 +27,23 @@
 #define GETGX(a)    \
     gd = ((nextop&0x38)>>3)+(rex.r<<3);  \
     a = sse_get_reg(dyn, ninst, x1, gd)
-#define GETEX(a, D)    \
-    if(MODREG) { \
-        a = sse_get_reg(dyn, ninst, x1, nextop&7+(rex.b<<3)); \
-    } else {    \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0); \
-        a = fpu_get_scratch_quad(dyn); \
-        VLD1Q_64(a, ed);    \
+
+#define GETEX(a, D)                                             \
+    if(MODREG) {                                                \
+        a = sse_get_reg(dyn, ninst, x1, nextop&7+(rex.b<<3));   \
+    } else {                                                    \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0); \
+        a = fpu_get_scratch(dyn);                               \
+        VLDR128_U12(a, ed, fixedaddress);                       \
     }
-#define GETGM(a)    \
+
+#define GETGM(a)            \
     gd = (nextop&0x38)>>3;  \
     a = mmx_get_reg(dyn, ninst, x1, gd)
-#define GETEM(a)    \
-    if(MODREG) { \
+#define GETEM(a, D)    \
+    if(MODREG) {        \
         a = mmx_get_reg(dyn, ninst, x1, nextop&7); \
-    } else {    \
+    } else {                                        \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0); \
         a = fpu_get_scratch_double(dyn); \
         VLD1_64(a, ed);    \
@@ -242,6 +244,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         GOCOND(0x90, "SET", "Eb");
         #undef GO
             
+        case 0x57:
+            INST_NAME("XORPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VEORQ(v0, v0, q0);
+            break;
+
         case 0xA2:
             INST_NAME("CPUID");
             MOVx_REG(x1, xRAX);
