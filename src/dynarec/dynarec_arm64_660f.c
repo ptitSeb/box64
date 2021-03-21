@@ -135,10 +135,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             gd = ((nextop&0x38)>>3)+(rex.r<<3);
             GETED(0);
             v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-            VEORQ(v0, v0, v0); // RAZ vector
             if(rex.w) {
-                VMOVQDfrom(v0, 0, ed);
+                FMOVDx(v0, ed);
             } else {
+                VEORQ(v0, v0, v0); // RAZ vector
                 VMOVQSfrom(v0, 0, ed);
             }
             break;

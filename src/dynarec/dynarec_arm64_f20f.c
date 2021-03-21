@@ -80,8 +80,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                 LDRx_U12(x2, ed, fixedaddress);
-                VEORQ(v0, v0, v0);
-                VMOVQDfrom(v0, 0, x2);
+                FMOVDx(v0, x2); // upper part reseted
             }
             break;
         case 0x11:
