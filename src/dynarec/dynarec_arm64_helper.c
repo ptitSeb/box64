@@ -947,7 +947,7 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
 #if STEP > 1
     // only SSE regs needs to be pop back from xEmu
     int n=0;
-    for (int i=16; i<32; i++)
+    for (int i=0; i<16; i++)
         if(dyn->ssecache[i]!=-1)
             ++n;
     if(!n)
