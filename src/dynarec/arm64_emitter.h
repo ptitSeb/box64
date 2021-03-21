@@ -517,13 +517,13 @@
 // VLDR
 #define VMEM_gen(size, opc, imm12, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | 0b01<<24 | (opc)<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
 // imm15 must be 3-aligned
-#define VLDR64_U12(Dt, Rn, imm15)           EMIT(VMEM_gen(0b11, 0b01, ((imm15)>>3)&0xfff, Rn, Dt))
+#define VLDR64_U12(Dt, Rn, imm15)           EMIT(VMEM_gen(0b11, 0b01, ((uint32_t)((imm15)>>3))&0xfff, Rn, Dt))
 // imm16 must be 4-aligned
-#define VLDR128_U12(Qt, Rn, imm16)          EMIT(VMEM_gen(0b11, 0b11, ((imm16)>>4)&0xfff, Rn, Qt))
-// imm15 must be 3-aligned
-#define VSTR64_U12(Dt, Rn, imm15)           EMIT(VMEM_gen(0b11, 0b00, ((imm15)>>3)&0xfff, Rn, Dt))
+#define VLDR128_U12(Qt, Rn, imm16)          EMIT(VMEM_gen(0b00, 0b11, ((uint32_t)((imm16)>>4))&0xfff, Rn, Qt))
+// (imm15) must be 3-aligned
+#define VSTR64_U12(Dt, Rn, imm15)           EMIT(VMEM_gen(0b11, 0b00, ((uint32_t)(imm15>>3))&0xfff, Rn, Dt))
 // imm16 must be 4-aligned
-#define VSTR128_U12(Qt, Rn, imm16)          EMIT(VMEM_gen(0b11, 0b10, ((imm16)>>4)&0xfff, Rn, Qt))
+#define VSTR128_U12(Qt, Rn, imm16)          EMIT(VMEM_gen(0b00, 0b10, ((uint32_t)((imm16)>>4))&0xfff, Rn, Qt))
 
 #define VMEMW_gen(size, opc, imm9, op2, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (op2)<<10 | 0b01<<10 | (Rn)<<5 | (Rt))
 #define VLDR64_S9_postindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b11, 0b01, (imm9)&0x1ff, 0b01, Rn, Rt))
@@ -547,5 +547,54 @@
 #define VSTR128_REG(Qt, Rn, Rm)             EMIT(VMEM_REG_gen(0b00, 0b10, Rm, 0b011, 0, Rn, Dt))
 #define VSTR128_REG_LSL4(Qt, Rn, Rm)        EMIT(VMEM_REG_gen(0b00, 0b10, Rm, 0b011, 1, Rn, Dt))
 
+// LOGIC
+#define VLOGIC_gen(Q, opc2, Rm, Rn, Rd)     ((Q)<<30 | 1<<29 | 0b01110<<24 | (opc2)<<22 | 1<<21 | (Rm)<<16 | 0b00011<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VEORQ(Vd, Vn, Vm)                   EMIT(VLOGIC_gen(1, 0b00, Vm, Vn, Vd))
+#define VEOR(Vd, Vn, Vm)                    EMIT(VLOGIC_gen(0, 0b00, Vm, Vn, Vd))
+
+// FMOV
+#define FMOV_general(sf, type, mode, opcode, Rn, Rd)    ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (mode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
+// 32-bit to single-precision
+#define FMOVSw(Sd, Wn)                      EMIT(FMOV_general(0, 0b00, 0b00, 0b111, Wn, Sd))
+// Single-precision to 32-bit
+#define FMOVwS(Wd, Sn)                      EMIT(FMOV_general(0, 0b00, 0b00, 0b110, Sn, Wd))
+// 64-bit to double-precision
+#define FMOVDx(Dd, Xn)                      EMIT(FMOV_general(1, 0b01, 0b00, 0b111, Xn, Dd))
+// 64-bit to top half of 128-bit
+#define FMOVD1x(Vd, Xn)                     EMIT(FMOV_general(1, 0b10, 0b01, 0b111, Xn, Vd))
+// Double-precision to 64-bit
+#define FMOVxD(Xd, Dn)                      EMIT(FMOV_general(1, 0b01, 0b00, 0b110, Dn, Xd))
+// Top half of 128-bit to 64-bit
+#define FMOVxD1(Xd, Vn)                     EMIT(FMOV_general(1, 0b10, 0b01, ob110, Vn, Xd))
+
+#define FMOV_register(type, Rn, Rd)         (0b11110<<24 | (type)<<22 | 1<<21 | (Rn)<<5 | (Rd))
+#define FMOVS(Sd, Sn)                       EMIT(FMOV_register, 0b00, Sn, Sd)
+#define FMOVD(Dd, Dn)                       EMIT(FMOV_register, 0b01, Dn, Dd)
+
+// VMOV
+#define VMOV_element(imm5, imm4, Rn, Rd)    (1<<30 | 1<<29 | 0b01110000<<21 | (imm5)<<16 | (imm4)<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VMOVeB(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<1) | 1, i2, Vn, Vd))
+#define VMOVeH(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<2) | 2, i2<<1, Vn, Vd))
+#define VMOVeS(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<3) | 4, i2<<2, Vn, Vd))
+#define VMOVeD(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<4) | 8, i2<<3, Vn, Vd))
+
+#define VMOV_from(imm5, Rn, Rd)     (1<<30 | 0<<29 | 0b01110000<<21 | (imm5)<<16 | 0b0011<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VMOVQBfrom(Vd, index, Wn)    EMIT(VMOV_from(((index)<<1) | 1, Wn, Vd))
+#define VMOVQHfrom(Vd, index, Wn)    EMIT(VMOV_from(((index)<<2) | 2, Wn, Vd))
+#define VMOVQSfrom(Vd, index, Wn)    EMIT(VMOV_from(((index)<<3) | 4, Wn, Vd))
+#define VMOVQDfrom(Vd, index, Xn)    EMIT(VMOV_from(((index)<<4) | 8, Xn, Vd))
+
+#define UMOV_gen(Q, imm5, Rn, Rd)   ((Q)<<30 | 0b01110000<<21 | (imm5)<<16 | 0b01<<13 | 1<<12 | 1<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VMOVQDto(Xd, Vn, index)     EMIT(UMOV_gen(1, ((index)<<4) | 8, Vn, Xd))
+#define VMOVBto(Wd, Vn, index)      EMIT(UMOV_gen(0, ((index)<<1) | 1, Vn, Wd))
+#define VMOVHto(Wd, Vn, index)      EMIT(UMOV_gen(0, ((index)<<2) | 2, Vn, Wd))
+#define VMOVSto(Wd, Vn, index)      EMIT(UMOV_gen(0, ((index)<<3) | 4, Vn, Wd))
+
+// VORR
+#define ORR_vector(Q, Rm, Rn, Rd)   ((Q)<<30 | 0b01110<<24 | 0b10<<22 | 1<<21 | (Rm)<<16 | 0b00011<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VORRQ(Vd, Vn, Vm)           EMIT(ORR_vector(1, Vm, Vn, Vd))
+#define VORR(Dd, Dn, Dm)            EMIT(ORR_vector(0, Dm, Dn, Dd))
+#define VMOVQ(Vd, Vn)               EMIT(ORR_vector(1, Vn, Vn, Vd))
+#define VMOV(Dd, Dn)                EMIT(ORR_vector(0, Dn, Dn, Dd))
 
 #endif  //__ARM64_EMITTER_H__

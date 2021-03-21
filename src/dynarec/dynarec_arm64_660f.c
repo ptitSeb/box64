@@ -23,16 +23,16 @@
 #include "dynarec_arm64_helper.h"
 
 // Get EX as a quad
-#define GETEX(a)                \
-    if(MODREG) {   \
-        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));  \
-    } else {                    \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0); \
-        a = fpu_get_scratch_quad(dyn); \
-        VLD1Q_8(a, ed);       \
+#define GETEX(a, D)                                                                                     \
+    if(MODREG) {                                                                                        \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));                                         \
+    } else {                                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, (1<<4)-1, rex, 0, D);  \
+        a = fpu_get_scratch_quad(dyn);                                                                  \
+        VLDR128_U12(a, ed);                                                                             \
     }
-#define GETGX(a)    \
-    gd = ((nextop&0x38)>>3)+(rex.r<<3);  \
+#define GETGX(a)                        \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     a = sse_get_reg(dyn, ninst, x1, gd)
 
 uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
@@ -85,6 +85,46 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         GOCOND(0x40, "CMOV", "Gw, Ew");
         #undef GO
+
+        case 0x6E:
+            INST_NAME("MOVD Gx, Ed");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            GETED(0);
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            VEORQ(v0, v0, v0); // RAZ vector
+            if(rex.w) {
+                VMOVQDfrom(v0, 0, ed);
+            } else {
+                VMOVQSfrom(v0, 0, ed);
+            }
+            break;
+
+        case 0x7E:
+            INST_NAME("MOVD Ed,Gx");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if(rex.w) {
+                if((nextop&0xC0)==0xC0) {
+                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    VMOVQDto(ed, v0, 0);
+                } else {
+                    VMOVQDto(x2, v0, 0); // to avoid Bus Error, using regular store
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                    STRx_U12(x2, ed, fixedaddress);
+                }
+            } else {
+                if((nextop&0xC0)==0xC0) {
+                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    VMOVSto(ed, v0, 0);
+                } else {
+                    VMOVSto(x2, v0, 0); // to avoid Bus Error, using regular store
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                    STRw_U12(x2, ed, fixedaddress);
+                }
+            }
+            break;
 
         case 0xA3:
             INST_NAME("BT Ew, Gw");

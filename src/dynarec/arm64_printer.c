@@ -16,7 +16,7 @@ static const char* conds[] = {"cEQ", "cNE", "cCS", "cCC", "cMI", "cPL", "cVS", "
 #define abs(A) (((A)<0)?(-(A)):(A))
 
 typedef struct arm64_print_s {
-    int N, S, U, L;
+    int N, S, U, L, Q;
     int t, n, m, d, t2, a;
     int f, c, o, h, p;
     int i, r, s;
@@ -61,6 +61,7 @@ int isMask(uint32_t opcode, const char* mask, arm64_print_t *a)
             case 'S': a->S = (a->S<<1) | v; break;
             case 'U': a->U = (a->U<<1) | v; break;
             case 'L': a->L = (a->L<<1) | v; break;
+            case 'Q': a->Q = (a->Q<<1) | v; break;
             case 't': a->t = (a->t<<1) | v; break;
             case '2': a->t2 = (a->t2<<1) | v; break;
             case 'n': a->n = (a->n<<1) | v; break;
@@ -113,6 +114,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     #define cond a.c
     #define immr a.r
     #define imms a.s
+    #define opc a.c
     if(isMask(opcode, "11010101000000110010000000011111", &a)) {
         snprintf(buff, sizeof(buff), "NOP");
         return buff;
@@ -704,6 +706,70 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    //  ----------- NEON / FPU
+
+    // VORR
+    if(isMask(opcode, "0Q001110101mmmmm000111nnnnnddddd", &a)) {
+        char q = a.Q?'Q':'D';
+        if(Rn==Rm)
+            snprintf(buff, sizeof(buff), "VMOV %c%d, %c%d", q, Rd, q, Rn);
+        else
+            snprintf(buff, sizeof(buff), "VORR %c%d, %c%d, %c%d", q, Rd, q, Rn, q, Rm);
+        return buff;
+    }
+
+    // VEOR
+    if(isMask(opcode, "0Q101110001mmmmm000111nnnnnddddd", &a)) {
+        char q = a.Q?'Q':'D';
+        snprintf(buff, sizeof(buff), "VEOR %c%d, %c%d, %c%d", q, Rd, q, Rn, q, Rm);
+        return buff;
+    }
+
+    // INS
+    if(isMask(opcode, "01101110000rrrrr0ssss1nnnnnddddd", &a)) {
+        char s = '?';
+        int idx1=0, idx2=0;
+        if(immr&1) {s='B'; idx1=(immr)>>1; idx2 = imms; }
+        else if((immr&3)==2) {s='H'; idx1=(immr)>>2; idx2=(imms)>>1;}
+        else if((immr&7)==4) {s='S'; idx1=(immr)>>3; idx2=(imms)>>2;}
+        else if((immr&15)==8) {s='D'; idx1=(immr)>>4; idx2=(imms)>>3;}
+        snprintf(buff, sizeof(buff), "INS V%d.%c[%d], V%d.%c[%d]", Rd, s, idx1, Rn, s, idx2);
+        return buff;
+    }
+    if(isMask(opcode, "01001110000rrrrr000111nnnnnddddd", &a)) {
+        char s = '?', R = 0;
+        int idx1=0;
+        if(immr&1) {s='B'; idx1=(immr)>>1; }
+        else if((immr&3)==2) {s='H'; idx1=(immr)>>2;}
+        else if((immr&7)==4) {s='S'; idx1=(immr)>>3;}
+        else if((immr&15)==8) {s='D'; idx1=(immr)>>4; R=1;}
+        snprintf(buff, sizeof(buff), "INS V%d.%c[%d], %s", Rd, s, idx1, R?Xt[Rn]:Wt[Rn]);
+        return buff;
+    }
+
+    // LDR / STR
+    if(isMask(opcode, "ss111101cciiiiiiiiiiiinnnnnttttt", &a)) {
+        char s = '?';
+        int size=imms;
+        int op=0;
+        if(size==0 && opc==1) {s='B';}
+        else if(size==1 && opc==1) {s='H';}
+        else if(size==2 && opc==1) {s='S';}
+        else if(size==3 && opc==1) {s='D';}
+        else if(size==0 && opc==3) {s='Q'; size = 4;}
+        else if(size==0 && opc==0) {s='B'; op=1;}
+        else if(size==1 && opc==0) {s='H'; op=1;}
+        else if(size==2 && opc==0) {s='S'; op=1;}
+        else if(size==3 && opc==0) {s='D'; op=1;}
+        else if(size==0 && opc==2) {s='Q'; op=1; size = 4;}
+
+        int offset = imm<<size;
+        if(!offset)
+            snprintf(buff, sizeof(buff), "%s %c%d, [%s]", op?"STR":"LDR", s, Rt, XtSp[Rn]);
+        else
+            snprintf(buff, sizeof(buff), "%s %c%d, [%s, %d]", op?"STR":"LDR", s, Rt, XtSp[Rn], offset);
+        return buff;
+    }
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
