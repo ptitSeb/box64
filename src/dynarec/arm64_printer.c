@@ -121,17 +121,17 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     // --- LDR / STR
     if(isMask(opcode, "f010100011iiiiiii22222nnnnnttttt", &a)) {
-        int offset = signExtend(imm, 9)<<(2+sf);
+        int offset = signExtend(imm, 7)<<(2+sf);
         snprintf(buff, sizeof(buff), "LDP %s, %s, [%s], %s0x%x", sf?Xt[Rt]:Wt[Rt], sf?Xt[Rt2]:Wt[Rt2], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "f010100111iiiiiii22222nnnnnttttt", &a)) {
-        int offset = signExtend(imm, 9)<<(2+sf);
+        int offset = signExtend(imm, 7)<<(2+sf);
         snprintf(buff, sizeof(buff), "LDP %s, %s, [%s, %s0x%x]!", sf?Xt[Rt]:Wt[Rt], sf?Xt[Rt2]:Wt[Rt2], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "f010100101iiiiiii22222nnnnnttttt", &a)) {
-        int offset = signExtend(imm, 9)<<(2+sf);
+        int offset = signExtend(imm, 7)<<(2+sf);
         if(!offset)
             snprintf(buff, sizeof(buff), "LDP %s, %s, [%s]", sf?Xt[Rt]:Wt[Rt], sf?Xt[Rt2]:Wt[Rt2], XtSp[Rn]);
         else
@@ -139,17 +139,17 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     if(isMask(opcode, "f010100010iiiiiii22222nnnnnttttt", &a)) {
-        int offset = signExtend(imm, 9)<<(2+sf);
+        int offset = signExtend(imm, 7)<<(2+sf);
         snprintf(buff, sizeof(buff), "STP %s, %s, [%s], %s0x%x", sf?Xt[Rt]:Wt[Rt], sf?Xt[Rt2]:Wt[Rt2], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "f010100110iiiiiii22222nnnnnttttt", &a)) {
-        int offset = signExtend(imm, 9)<<(2+sf);
+        int offset = signExtend(imm, 7)<<(2+sf);
         snprintf(buff, sizeof(buff), "STP %s, %s, [%s, %s0x%x]!", sf?Xt[Rt]:Wt[Rt], sf?Xt[Rt2]:Wt[Rt2], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "f010100100iiiiiii22222nnnnnttttt", &a)) {
-        int offset = signExtend(imm, 9)<<(2+sf);
+        int offset = signExtend(imm, 7)<<(2+sf);
         if(!offset)
             snprintf(buff, sizeof(buff), "STP %s, %s, [%s]", sf?Xt[Rt]:Wt[Rt], sf?Xt[Rt2]:Wt[Rt2], XtSp[Rn]);
         else
