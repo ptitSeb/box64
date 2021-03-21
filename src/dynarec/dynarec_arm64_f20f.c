@@ -22,22 +22,21 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
-// Get Ex as a double, not a quad (warning, x2 and x3 may get used)
-#define GETEX(a) \
-    if((nextop&0xC0)==0xC0) { \
-        a = sse_get_reg(dyn, ninst, x1, nextop&7); \
-    } else {    \
-        parity = getedparity(dyn, ninst, addr, nextop, 3);  \
-        a = fpu_get_scratch_double(dyn);            \
-        if(parity) {                                \
-            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3); \
-            VLDR_64(a, ed, fixedaddress);           \
-        } else {                                    \
-            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);\
-            LDR_IMM9(x2, ed, fixedaddress+0);       \
-            LDR_IMM9(x3, ed, fixedaddress+4);       \
-            VMOVtoV_D(a, x2, x3);                   \
-        }                                           \
+// Get Ex as a double, not a quad (warning, x2 get used)
+#define GETEX(a, D)                                                                                 \
+    if(MODREG) {                                                                                    \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));                                     \
+    } else {                                                                                        \
+        parity = getedparity(dyn, ninst, addr, nextop, 3);                                          \
+        a = fpu_get_scratch(dyn);                                                                   \
+        if(parity) {                                                                                \
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 3, rex, 0, D); \
+            VLDR64_U12(a, ed, fixedaddress);                                                        \
+        } else {                                                                                    \
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 0, rex, 0, D); \
+            LDRx_U12(x2, ed, fixedaddress+0);                                                       \
+            VMOVQDfrom(a, 0, x2);                                                                   \
+        }                                                                                           \
     }
 
 uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
@@ -63,6 +62,14 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
     switch(opcode) {
 
+        case 0x58:
+            INST_NAME("ADDSD Gx, Ex");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(d0, 0);
+            FADDD(v0, v0, d0);
+            break;
 
         default:
             DEFAULT;

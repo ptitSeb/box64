@@ -189,20 +189,10 @@ void arm_fprem1(x64emu_t* emu)
 #define EMM0    8
 #define SCRATCH0    24
 
-// Get a FPU single scratch reg
-int fpu_get_scratch_single(dynarec_arm_t* dyn)
+// Get a FPU scratch reg
+int fpu_get_scratch(dynarec_arm_t* dyn)
 {
     return SCRATCH0 + dyn->fpu_scratch++;  // return an Sx
-}
-// Get a FPU double scratch reg
-int fpu_get_scratch_double(dynarec_arm_t* dyn)
-{
-    return SCRATCH0 + dyn->fpu_scratch++;  // return an Dx (same as Sx)
-}
-// Get a FPU quad scratch reg
-int fpu_get_scratch_quad(dynarec_arm_t* dyn)
-{
-    return SCRATCH0 + dyn->fpu_scratch++;  // return an Qx (same as Dx or Sx)
 }
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_arm_t* dyn)
