@@ -331,6 +331,10 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
 {
     if(savereg==0)
         savereg = 7;
+    if(saveflags) {
+        STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
+    }
+    fpu_pushcache(dyn, ninst, reg);
     if(ret!=-2) {
         STPx_S7_preindex(xEmu, savereg, xSP, -16);   // ARM64 stack needs to be 16byte aligned
         STPx_S7_offset(xRAX, xRCX, xEmu, offsetof(x64emu_t, regs[_AX]));    // x9..x15, x16,x17,x18 those needs to be saved by caller
@@ -339,13 +343,8 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
         STPx_S7_offset(xRSI, xRDI, xEmu, offsetof(x64emu_t, regs[_SI]));
         STRx_U12(xR8, xEmu, offsetof(x64emu_t, regs[_R8]));
     }
-    fpu_pushcache(dyn, ninst, reg);
-    if(saveflags) {
-        STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
-    }
     TABLE64(reg, (uintptr_t)fnc);
     BLR(reg);
-    fpu_popcache(dyn, ninst, reg);
     if(ret>=0) {
         MOVx_REG(ret, xEmu);
     }
@@ -367,6 +366,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
             LDRx_U12(xR8, xEmu, offsetof(x64emu_t, regs[_R8]));
         }
     }
+    fpu_popcache(dyn, ninst, reg);
     if(saveflags) {
         LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
