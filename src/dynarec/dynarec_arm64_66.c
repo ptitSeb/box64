@@ -315,6 +315,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GWBACK;
             break;
 
+        case 0x90:
+            INST_NAME("NOP");
+            break;
+
         case 0xD1:
         case 0xD3:
             nextop = F8;
