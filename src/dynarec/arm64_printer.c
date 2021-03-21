@@ -800,6 +800,19 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    // FSUB
+    if(isMask(opcode, "0Q0011101f1mmmmm110101nnnnnddddd", &a)) {
+        char s = a.Q?'V':'D';
+        char d = sf?'D':'S';
+        int n = (a.Q && !sf)?4:2;
+        snprintf(buff, sizeof(buff), "VFSUB %c%d.%d%c, %c%d.%d%c, %c%d.%c%d", s, Rd, n, d, s, Rn, n, d, s, Rm, s, d);
+        return buff;
+    }
+    if(isMask(opcode, "00011110ff1mmmmm001110nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FSUB %c%d, %c%d, %c%d", s, Rd, s, Rn, s, Rm);
+        return buff;
+    }
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
