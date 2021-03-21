@@ -240,8 +240,9 @@ void fpu_reset_reg(dynarec_arm_t* dyn)
 
 #define F8      *(uint8_t*)(addr++)
 #define F32     *(uint32_t*)(addr+=4, addr-4)
+#define F32S64  (uint64_t)(int64_t)*(int32_t*)(addr+=4, addr-4)
 // Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD
-int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity)
+int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity, int delta)
 {
 
     uint32_t tested = (1<<parity)-1;
@@ -252,7 +253,7 @@ int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, i
             uint8_t sib = F8;
             int sib_reg = (sib>>3)&7;
             if((sib&0x7)==5) {
-                uint32_t tmp = F32;
+                uint64_t tmp = F32S64;
                 if (sib_reg!=4) {
                     // if XXXXXX+reg<<N then check parity of XXXXX and N should be enough
                     return ((tmp&tested)==0 && (sib>>6)>=parity)?1:0;
@@ -267,7 +268,7 @@ int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, i
                 return ((sib&0x7)==4 && (sib>>6)>=parity)?1:0;
             }
         } else if((nextop&7)==5) {
-            uint32_t tmp = F32;
+            uint64_t tmp = F32S64+addr+delta;
             return (tmp&tested)?0:1;
         } else {
             return 0;

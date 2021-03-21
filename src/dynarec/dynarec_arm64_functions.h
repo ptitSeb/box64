@@ -47,7 +47,7 @@ void fpu_free_reg(dynarec_arm_t* dyn, int reg);
 void fpu_reset_reg(dynarec_arm_t* dyn);
 
 // Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD
-int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity);
+int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity, int delta);
 // Do the GETED, but don't emit anything...
 uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
 
