@@ -341,7 +341,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
         STPx_S7_offset(xRDX, xRBX, xEmu, offsetof(x64emu_t, regs[_DX]));    // but x18 is R8 wich is lost, so it's fine to not save it?
         STPx_S7_offset(xRSP, xRBP, xEmu, offsetof(x64emu_t, regs[_SP]));
         STPx_S7_offset(xRSI, xRDI, xEmu, offsetof(x64emu_t, regs[_SI]));
-        STRx_U12(xR8, xEmu, offsetof(x64emu_t, regs[_R8]));
+        STPx_S7_offset(xR8,  xR9,  xEmu, offsetof(x64emu_t, regs[_R8]));
     }
     TABLE64(reg, (uintptr_t)fnc);
     BLR(reg);
@@ -361,10 +361,8 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
         GO(RDX, RBX);
         GO(RSP, RBP);
         GO(RSI, RDI);
+        GO(R8, R9);
         #undef GO
-        if(ret!=xR8) {
-            LDRx_U12(xR8, xEmu, offsetof(x64emu_t, regs[_R8]));
-        }
     }
     fpu_popcache(dyn, ninst, reg);
     if(saveflags) {

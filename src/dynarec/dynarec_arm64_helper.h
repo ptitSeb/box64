@@ -391,14 +391,13 @@
     if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
 
 #define STORE_XEMU_CALL(A)  \
-    STORE_REG(R9);          \
-    STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
-    if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
+    if(A) {STPx_S7_offset(xFlags, A, xEmu, offsetof(x64emu_t, eflags));}    \
+    else {STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));}
 
 #define LOAD_XEMU_CALL(A)  \
-    LOAD_REG(R9);          \
-    LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
-    if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip)); if(A==xRIP) dyn->last_ip = 0;}
+    if(A) {LDPx_S7_offset(xFlags, A, xEmu, offsetof(x64emu_t, eflags));}    \
+    else {LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));};             \
+    if(A==xRIP) dyn->last_ip = 0
 
 #define SET_DFNONE(S)    if(!dyn->dfnone) {MOVZw(S, d_none); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=1;}
 #define SET_DF(S, N)     if(N) {MOVZw(S, N); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=0;} else SET_DFNONE(S)
