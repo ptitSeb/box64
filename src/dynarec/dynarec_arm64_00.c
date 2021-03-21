@@ -523,6 +523,27 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x63:
+            INST_NAME("MOVSXD Gd, Ed");
+            nextop = F8;
+            GETGD;
+            if(rex.w) {
+                if(MODREG) {   // reg <= reg
+                    SXTWx(gd, xRAX+(nextop&7)+(rex.b<<3));
+                } else {                    // mem <= reg
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+                    LDRSW_U12(gd, ed, fixedaddress);
+                }
+            } else {
+                if(MODREG) {   // reg <= reg
+                    MOVw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
+                } else {                    // mem <= reg
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+                    LDRw_U12(gd, ed, fixedaddress);
+                }
+            }
+            break;
+
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
