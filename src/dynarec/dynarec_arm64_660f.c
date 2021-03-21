@@ -28,8 +28,8 @@
         a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));                                         \
     } else {                                                                                            \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, (1<<4)-1, rex, 0, D);  \
-        a = fpu_get_scratch_quad(dyn);                                                                  \
-        VLDR128_U12(a, ed);                                                                             \
+        a = fpu_get_scratch(dyn);                                                                       \
+        VLDR128_U12(a, ed, fixedaddress);                                                               \
     }
 #define GETGX(a)                        \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
@@ -300,6 +300,22 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             BFIw(xFlags, x1, F_ZF, 1);
             SET_DFNONE(x1);
             break;
+
+        case 0xEF:
+            INST_NAME("PXOR Gx,Ex");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            if(nextop+(rex.b<<3)==0xC0+gd) {
+                // special case for PXOR Gx, Gx
+                q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VEORQ(q0, q0, q0);
+            } else {
+                q0 = sse_get_reg(dyn, ninst, x1, gd);
+                GETEX(q1, 0);
+                VEORQ(q0, q0, q1);
+            }
+            break;
+
         default:
             DEFAULT;
     }
