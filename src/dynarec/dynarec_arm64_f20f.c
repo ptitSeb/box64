@@ -51,7 +51,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t eb1, eb2;
     int v0, v1;
     int q0, q1;
-    int d0;
+    int d0, d1;
     int s0;
     int fixedaddress;
     int parity;
@@ -102,8 +102,10 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
+            d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
-            FSQRTD(v0, d0);
+            FSQRTD(d1, d0);
+            VMOVeD(v0, 0, d1, 0);
             break;
 
         case 0x58:
@@ -111,16 +113,20 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
+            d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
-            FADDD(v0, v0, d0);
+            FADDD(d1, v0, d0);  // the high part of the vector is erased...
+            VMOVeD(v0, 0, d1, 0);
             break;
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
             GETGX;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
+            d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
-            FMULD(v0, v0, d0);
+            FMULD(d1, v0, d0);
+            VMOVeD(v0, 0, d1, 0);
             break;
 
         case 0x5C:
@@ -128,8 +134,10 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
+            d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
-            FSUBD(v0, v0, d0);
+            FSUBD(d1, v0, d0);
+            VMOVeD(v0, 0, d1, 0);
             break;
 
         case 0x5E:
@@ -137,8 +145,10 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
+            d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
-            FDIVD(v0, v0, d0);
+            FDIVD(d1, v0, d0);
+            VMOVeD(v0, 0, d1, 0);
             break;
 
         default:
