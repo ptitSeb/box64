@@ -983,6 +983,28 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             *ok = 0;
             break;
 
+        case 0xC6:
+            INST_NAME("MOV Eb, Ib");
+            nextop=F8;
+            if(MODREG) {   // reg <= u8
+                u8 = F8;
+                if(!rex.rex) {
+                    ed = (nextop&7);
+                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                } else {
+                    eb1 = xRAX+(nextop&7)+(rex.b<<3);
+                    eb2 = 0;            
+                }
+                MOV32w(x3, u8);
+                BFIx(eb1, x3, eb2*8, 8);
+            } else {                    // mem <= u8
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff, 0, rex, 0, 1);
+                u8 = F8;
+                MOV32w(x3, u8);
+                STRB_U12(x3, ed, fixedaddress);
+            }
+            break;
         case 0xC7:
             INST_NAME("MOV Ed, Id");
             nextop=F8;
