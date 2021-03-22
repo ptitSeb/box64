@@ -117,7 +117,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VMOVQDto(x2, v0, 0);
                 STRx_U12(x2, ed, fixedaddress);
                 VMOVQDto(x2, v0, 1);
-                LDRx_U12(x2, ed, fixedaddress+8);
+                STRx_U12(x2, ed, fixedaddress+8);
             }
             break;
 
