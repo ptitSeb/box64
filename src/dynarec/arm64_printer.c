@@ -971,6 +971,14 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "FCVT S%d, D%d", Rd, Rn);
         return buff;
     }
+    if(isMask(opcode, "0Q00111001100001011110nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "FCVTL%s V%d.2D, V%d.%dS", a.Q?"2":"", Rd, Rn, a.Q?4:0);
+        return buff;
+    }
+    if(isMask(opcode, "0Q10111000100001011010nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "FCVTXN%s V%d.%sS, V%d.2D", a.Q?"2":"", Rd, a.Q?4:2, Rn);
+        return buff;
+    }
 
     // FMOV
     if(isMask(opcode, "00011110pp100000010000nnnnnddddd", &a)) {

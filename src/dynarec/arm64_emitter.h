@@ -859,6 +859,18 @@
 #define FCVT_D_S(Dd, Sn)            EMIT(FCVT_precision(0b00, 0b01, Sn, Dd))
 #define FCVT_S_D(Sd, Dn)            EMIT(FCVT_precision(0b01, 0b00, Dn, Sd))
 
+#define FCVTXN_gen(Q, sz, Rn, Rd)   ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b10110<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Convert Vn from 2*Double to lower Vd as 2*float
+#define FCVTXN(Vd, Vn)              EMIT(FCVTXN_gen(0, 1, Vn, Vd))
+// Convert Vn from 2*Double to higher Vd as 2*float
+#define FCVTXN2(Vd, Vn)             EMIT(FCVTXN_gen(1, 1, Vn, Vd))
+
+#define FCVTL_gen(Q, sz, Rn, Rd)    ((Q)<<30 | 0<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b10111<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Convert lower Vn from 2*float to Vd as 2*double
+#define FCVTL(Vd, Vn)               EMIT(FCVTL_gen(0, 1, Vn, Vd))
+// Convert lower Vn from 2*float to Vd as 2*double
+#define FCVTL2(Vd, Vn)              EMIT(FCVTL_gen(1, 1, Vn, Vd))
+
 #define SCVTF_scalar(sf, type, rmode, opcode, Rn, Rd)   ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (rmode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
 #define SCVTSw(Sd, Wn)              EMIT(SCVTF_scalar(0, 0b00, 0b00, 0b010, Wn, Sd))
 #define SCVTDw(Dd, Wn)              EMIT(SCVTF_scalar(0, 0b00, 0b01, 0b010, Wn, Dd))

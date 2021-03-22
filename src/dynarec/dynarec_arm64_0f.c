@@ -243,6 +243,15 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             VEORQ(v0, v0, q0);
             break;
 
+        case 0x5A:
+            INST_NAME("CVTPS2PD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(q1);
+            d0 = fpu_get_scratch(dyn);
+            FCVTL(q1, q0);
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)   \
             READFLAGS(F);   \
             i32_ = F32S;    \
