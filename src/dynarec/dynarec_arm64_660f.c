@@ -142,6 +142,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FCOMI(x1, x2);
             break;
 
+        case 0x5A:
+            INST_NAME("CVTPD2PS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            FCVTXN(v0, v1);
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)            \
             READFLAGS(F);                           \
             GETFLAGS;                               \
