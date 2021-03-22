@@ -939,6 +939,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("NOP");
             break;
 
+        case 0x98:
+            INST_NAME("CWDE");
+            if(rex.w) {
+                SXTWx(xRAX, xRAX);
+            } else {
+                SXTHw(xRAX, xRAX);
+            }
+            break;
+        case 0x99:
+            INST_NAME("CDQ");
+            SBFXxw(xRDX, xRAX, rex.w?63:31, 1);
+            break;
+
         case 0x9B:
             INST_NAME("FWAIT");
             break;

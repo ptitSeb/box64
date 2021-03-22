@@ -467,10 +467,14 @@
 #define SXTBw(Rd, Rn)                   SBFMw(Rd, Rn, 0, 7)
 #define SXTHx(Rd, Rn)                   SBFMx(Rd, Rn, 0, 15)
 #define SXTHw(Rd, Rn)                   SBFMw(Rd, Rn, 0, 15)
+#define SXTHxw(Rd, Rn)                  SBFMxw(Rd, Rn, 0, 15)
 #define SXTWx(Rd, Rn)                   SBFMx(Rd, Rn, 0, 31)
 #define ASRx(Rd, Rn, shift)             SBFMx(Rd, Rn, shift, 63)
 #define ASRw(Rd, Rn, shift)             SBFMw(Rd, Rn, shift, 31)
 #define ASRxw(Rd, Rn, shift)            SBFMxw(Rd, Rn, shift, rex.w?63:31)
+#define SBFIZx(Rd, Rn, lsb, width)      SFBFMx(Rd, Rn, ((-(lsb))%64), (width)-1)
+#define SBFIZw(Rd, Rn, lsb, width)      SFBFMw(Rd, Rn, ((-(lsb))%32), (width)-1)
+#define SBFIZxw(Rd, Rn, lsb, width)     SFBFMxw(Rd, Rn, ((-(lsb))%(rex.w?64:32)), (width)-1)
 
 // EXTR
 #define EXTR_gen(sf, N, Rm, imms, Rn, Rd)   ((sf)<<31 | 0b00<<29 | 0b100111<<23 | (N)<<22 | (Rm)<<16 | (imms)<<10 | (Rn)<<5 | (Rd))
