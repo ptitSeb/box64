@@ -37,7 +37,7 @@ extern FILE* ftrace;
 
 #define printf_log(L, ...) do {if(L<=box64_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 
-#define dynarec_log(L, ...) do {if(L<=box64_dynarec_log) {fprintf(ftrace, __VA_ARGS__); /*fflush(ftrace);*/}} while(0)
+#define dynarec_log(L, ...) do {if(L<=box64_dynarec_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 
 #define EXPORT __attribute__((visibility("default")))
 #ifdef BUILD_DYNAMIC

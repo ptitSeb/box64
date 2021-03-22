@@ -278,9 +278,9 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     if(isMask(opcode, "001110011xiiiiiiiiiiiinnnnnttttt", &a)) {
         int offset = imm<<1;
         if(!offset)
-            snprintf(buff, sizeof(buff), "LDRSB %s, [%s]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn]);
+            snprintf(buff, sizeof(buff), "LDRSB %s, [%s]", a.x?Wt[Rt]:Xt[Rt], XtSp[Rn]);
         else
-            snprintf(buff, sizeof(buff), "LDRSB %s, [%s, #%d]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn], offset);
+            snprintf(buff, sizeof(buff), "LDRSB %s, [%s, #%d]", a.x?Wt[Rt]:Xt[Rt], XtSp[Rn], offset);
         return buff;
     }
 

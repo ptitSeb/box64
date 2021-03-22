@@ -543,6 +543,37 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BFIw(xFlags, x1, F_ZF, 1);
             SET_DFNONE(x1);
             break;
+        case 0xBE:
+            INST_NAME("MOVSX Gd, Eb");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                if(rex.rex) {
+                    wback = xRAX+(nextop&7)+(rex.b<<3);
+                    wb2 = 0;
+                } else {
+                    wback = (nextop&7);
+                    wb2 = (wback>>2)*8;
+                    wback = xRAX+(wback&3);
+                }
+                SBFXxw(gd, wback, wb2, 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 0xfff, 0, rex, 0, 0);
+                LDRSBxw_U12(gd, ed, fixedaddress);
+            }
+            break;
+        case 0xBF:
+            INST_NAME("MOVSX Gd, Ew");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                SXTHxw(gd, ed);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                LDRSHxw_U12(gd, ed, fixedaddress);
+            }
+            break;
 
         default:
             DEFAULT;
