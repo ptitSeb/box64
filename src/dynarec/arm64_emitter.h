@@ -843,6 +843,10 @@
 #define VFCVTZUQS(Vd, Vn)           EMIT(FCVT2_vector(1, 1, 1, 0, 1, Vn, Vd))
 #define VFCVTZUQD(Vd, Vn)           EMIT(FCVT2_vector(1, 1, 1, 1, 1, Vn, Vd))
 
+#define FCVT_precision(type, opc, Rn, Rd)   (0b11110<<24 | (type)<<22 | 1<<21 | 0b0001<<17 | (opc)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
+#define FCVT_D_S(Dd, Sn)            EMIT(FCVT_precision(0b00, 0b01, Sn, Dd))
+#define FCVT_S_D(Sd, Dn)            EMIT(FCVT_precision(0b01, 0b00, Dn, Sd))
+
 #define SCVTF_scalar(sf, type, rmode, opcode, Rn, Rd)   ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (rmode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
 #define SCVTSw(Sd, Wn)              EMIT(SCVTF_scalar(0, 0b00, 0b00, 0b010, Wn, Sd))
 #define SCVTDw(Dd, Wn)              EMIT(SCVTF_scalar(0, 0b00, 0b01, 0b010, Wn, Dd))

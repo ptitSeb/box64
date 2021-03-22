@@ -945,6 +945,15 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    if(isMask(opcode, "0001111000100010110000nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "FCVT D%d, S%d", Rd, Rn);
+        return buff;
+    }
+    if(isMask(opcode, "0001111001100010010000nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "FCVT S%d, D%d", Rd, Rn);
+        return buff;
+    }
+
     // FMOV
     if(isMask(opcode, "00011110pp100000010000nnnnnddddd", &a)) {
         int type = a.p;
