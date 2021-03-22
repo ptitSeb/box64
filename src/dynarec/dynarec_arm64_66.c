@@ -315,6 +315,36 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GWBACK;
             break;
 
+        case 0x89:
+            INST_NAME("MOV Ew, Gw");
+            nextop = F8;
+            GETGD;  // don't need GETGW here
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                if(ed!=gd) {
+                    BFIx(ed, gd, 0, 16);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                STRH_U12(gd, ed, fixedaddress);
+            }
+            break;
+        case 0x8B:
+            INST_NAME("MOV Gw, Ew");
+            nextop = F8;
+            GETGD;  // don't need GETGW neither
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                if(ed!=gd) {
+                    BFIx(gd, ed, 0, 16);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                LDRH_U12(x1, ed, fixedaddress);
+                BFIx(gd, x1, 0, 16);
+            }
+            break;
+
         case 0x90:
             INST_NAME("NOP");
             break;
