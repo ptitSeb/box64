@@ -77,7 +77,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VMOVeS(v0, 0, q0, 0);
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                 LDRw_U12(x2, ed, fixedaddress);   // to avoid bus errors
                 VEORQ(v0, v0, v0);
                 VMOVQSfrom(v0, 0, x2);
@@ -93,7 +93,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VMOVeS(q0, 0, v0, 0);
             } else {
                 VMOVSto(x2, v0, 0);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                 STRw_U12(x2, ed, fixedaddress);
             }
             break;

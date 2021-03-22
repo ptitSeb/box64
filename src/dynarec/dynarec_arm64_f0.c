@@ -63,11 +63,14 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         wback = 0;
-                        CMPSxw_REG(xRAX, ed);
-                        B_MARK(cNE);
                         UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
+                        MOVxw_REG(x1, ed);  // save value
+                        CMPSxw_REG(xRAX, x1);
+                        B_MARK2(cNE);
                         MOVxw_REG(ed, gd);
-                        B_MARK_nocond;
+                        MARK2;
+                        MOVxw_REG(xRAX, x1);
+                        B_NEXT_nocond;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, 0);
                         TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
@@ -81,7 +84,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         // EAX == Ed
                         STXRxw(x4, gd, wback);
                         CBNZx_MARKLOCK(x4);
-                        UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
                         // done
                         B_MARK_nocond;
                         // Unaligned version
@@ -95,13 +97,12 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STXRB(x4, gd, wback);
                         CBNZx_MARK3(x4);
                         STRxw_U12(gd, wback, 0);
-                        UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
                         B_MARK_nocond;
+                        MARK;
+                        // Common part (and fallback for EAX != Ed)
+                        UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
+                        MOVxw_REG(xRAX, ed);
                     }
-                    MARK;
-                    // EAX != Ed
-                    UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
-                    MOVxw_REG(xRAX, ed);
                     break;
 
                 default:
