@@ -875,4 +875,21 @@
 #define SCVTQFS(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 0, Vn, VD))
 #define SCVTQFD(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 1, Vn, VD))
 
+// ZIP
+#define ZIP_gen(Q, size, Rm, op, Rn, Rd)    ((Q)<<30 | 0b001110<<24 | (size)<<22 | (Rm)<<16 | (op)<<14 | 0b11<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define VZIP1Q_8(Rt, Rn, Rm)        EMIT(ZIP_gen(1, 0b00, Rm, 0, Rn, Rt))
+#define VZIP2Q_8(Rt, Rn, Rm)        EMIT(ZIP_gen(1, 0b00, Rm, 1, Rn, Rt))
+#define VZIP1_8(Rt, Rn, Rm)         EMIT(ZIP_gen(0, 0b00, Rm, 0, Rn, Rt))
+#define VZIP2_8(Rt, Rn, Rm)         EMIT(ZIP_gen(0, 0b00, Rm, 1, Rn, Rt))
+#define VZIP1Q_16(Rt, Rn, Rm)       EMIT(ZIP_gen(1, 0b01, Rm, 0, Rn, Rt))
+#define VZIP2Q_16(Rt, Rn, Rm)       EMIT(ZIP_gen(1, 0b01, Rm, 1, Rn, Rt))
+#define VZIP1_16(Rt, Rn, Rm)        EMIT(ZIP_gen(0, 0b01, Rm, 0, Rn, Rt))
+#define VZIP2_16(Rt, Rn, Rm)        EMIT(ZIP_gen(0, 0b01, Rm, 1, Rn, Rt))
+#define VZIP1Q_32(Rt, Rn, Rm)       EMIT(ZIP_gen(1, 0b10, Rm, 0, Rn, Rt))
+#define VZIP2Q_32(Rt, Rn, Rm)       EMIT(ZIP_gen(1, 0b10, Rm, 1, Rn, Rt))
+#define VZIP1_32(Rt, Rn, Rm)        EMIT(ZIP_gen(0, 0b10, Rm, 0, Rn, Rt))
+#define VZIP2_32(Rt, Rn, Rm)        EMIT(ZIP_gen(0, 0b10, Rm, 1, Rn, Rt))
+#define VZIP1Q_64(Rt, Rn, Rm)       EMIT(ZIP_gen(1, 0b11, Rm, 0, Rn, Rt))
+#define VZIP2Q_64(Rt, Rn, Rm)       EMIT(ZIP_gen(1, 0b11, Rm, 1, Rn, Rt))
+
 #endif  //__ARM64_EMITTER_H__
