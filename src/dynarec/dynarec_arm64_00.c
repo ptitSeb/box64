@@ -992,7 +992,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xA6:
             switch(rep) {
             case 1:
-                INST_NAME("REPZ CMPSB");
+                INST_NAME("REPNZ CMPSB");
                 SETFLAGS(X_ALL, SF_SET);
                 GETDIR(x3, 1);
                 CBZx_NEXT(xRCX);
@@ -1008,7 +1008,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
                 break;
             case 2:
-                INST_NAME("REPNZ CMPSB");
+                INST_NAME("REPZ CMPSB");
                 SETFLAGS(X_ALL, SF_SET);
                 GETDIR(x3, 1);
                 CBZx_NEXT(xRCX);
@@ -1051,6 +1051,51 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MOV64xw(x2, i64);
             emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4);
             break;
+
+        case 0xAE:
+            switch(rep) {
+            case 1:
+                INST_NAME("REPNZ SCASB");
+                SETFLAGS(X_ALL, SF_SET);
+                GETDIR(x3, 1);
+                CBZx_NEXT(xRCX);
+                BFIw(x1, xRAX, 0, 8);
+                MARK;
+                LDRB_U12(x2, xRDI, 0);
+                ADDx_REG(xRDI, xRDI, x3);
+                SUBx_U12(xRCX, xRCX, 1);
+                CMPSw_REG(x1, x2);
+                Bcond(cEQ, 4+4);
+                CBNZx_MARK(xRCX);
+                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+                break;
+            case 2:
+                INST_NAME("REPZ SCASB");
+                SETFLAGS(X_ALL, SF_SET);
+                GETDIR(x3, 1);
+                CBZx_NEXT(xRCX);
+                BFIw(x1, xRAX, 0, 8);
+                MARK;
+                LDRB_U12(x2, xRDI, 0);
+                ADDx_REG(xRDI, xRDI, x3);
+                SUBx_U12(xRCX, xRCX, 1);
+                CMPSw_REG(x1, x2);
+                Bcond(cNE, 4+4);
+                CBNZx_MARK(xRCX);
+                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+                break;
+            default:
+                INST_NAME("SCASB");
+                SETFLAGS(X_ALL, SF_SET);
+                GETDIR(x3, 1);
+                BFIw(x1, xRAX, 0, 8);
+                LDRB_U12(x2, xRDI, 0);
+                ADDx_REG(xRDI, xRDI, x3);
+                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+                break;
+            }
+            break;
+        
 
         case 0xB0:
         case 0xB1:
