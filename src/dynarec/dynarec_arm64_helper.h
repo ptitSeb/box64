@@ -297,6 +297,10 @@
 #define CBZw_NEXT(reg)    \
     j32 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
     CBZw(reg, j32)
+// Branch to next instruction if reg is 0 (use j32)
+#define CBZx_NEXT(reg)    \
+    j32 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    CBZx(reg, j32)
 // Branch to MARKSEG if cond (use j32)
 #define B_MARKSEG(cond)    \
     j32 = GETMARKSEG-(dyn->arm_size);   \

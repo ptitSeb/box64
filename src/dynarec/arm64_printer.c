@@ -665,8 +665,19 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "CBNZ %s, #%+di\t; %p", Xt[Rt], offset>>2, (void*)(addr + offset));
         return buff;
     }
-    if(isMask(opcode, "f0011010100mmmmmcccc00nnnnnddddd", &a)) {
-        snprintf(buff, sizeof(buff), "CSEL %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond]);
+    if(isMask(opcode, "f0110100iiiiiiiiiiiiiiiiiiittttt", &a)) {
+        int offset = signExtend(imm, 19)<<2;
+        snprintf(buff, sizeof(buff), "CBZ %s, #%+di\t; %p", Xt[Rt], offset>>2, (void*)(addr + offset));
+        return buff;
+    }
+    if(isMask(opcode, "s0110110sssssiiiiiiiiiiiiiittttt", &a)) {
+        int offset = signExtend(imm, 14)<<2;
+        snprintf(buff, sizeof(buff), "TBZ %s, 0x%x, #%+di\t; %p", (imms<31)?Xt[Rt]:Wt[Rt], imms, offset>>2, (void*)(addr + offset));
+        return buff;
+    }
+    if(isMask(opcode, "s0110111sssssiiiiiiiiiiiiiittttt", &a)) {
+        int offset = signExtend(imm, 14)<<2;
+        snprintf(buff, sizeof(buff), "TBNZ %s, 0x%x, #%+di\t; %p", (imms<31)?Xt[Rt]:Wt[Rt], imms, offset>>2, (void*)(addr + offset));
         return buff;
     }
 

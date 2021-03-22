@@ -323,6 +323,10 @@
 #define CBZw(Rt, imm19)                 EMIT(CB_gen(0, 0, ((imm19)>>2)&0x7FFFF, Rt))
 #define CBZxw(Rt, imm19)                EMIT(CB_gen(rex.w, 0, ((imm19)>>2)&0x7FFFF, Rt))
 
+#define TB_gen(b5, op, b40, imm14, Rt)  ((b5)<<31 | 0b011011<<25 | (op)<<24  | (b40)<<19 | (imm14)<<5 | (Rt))
+#define TBZ(Rt, bit, imm16)             EMIT(TB_gen(((bit)>>5)&1, 0, (bit)&0x1f, ((imm19)>>2)&0x3FFF, Rt))
+#define TBNZ(Rt, bit, imm16)            EMIT(TB_gen(((bit)>>5)&1, 1, (bit)&0x1f, ((imm19)>>2)&0x3FFF, Rt))
+
 #define Bcond_gen(imm19, cond)          (0b0101010<<25 | (imm19)<<5 | (cond))
 #define Bcond(cond, imm19)              EMIT(Bcond_gen(((imm19)>>2)&0x7FFFF, cond))
 
