@@ -267,12 +267,20 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "STR%c %s, [%s]", size?'H':'B', Xt[Rt], XtSp[Rn]);
         return buff;
     }    
-    if(isMask(opcode, "1011100110iiiiiiiiiiiinnnnnttttt", &a)) {
+    if(isMask(opcode, "101110011xiiiiiiiiiiiinnnnnttttt", &a)) {
         int offset = imm<<2;
         if(!offset)
-            snprintf(buff, sizeof(buff), "LDRSW %s, [%s]", Xt[Rt], XtSp[Rn]);
+            snprintf(buff, sizeof(buff), "LDRSW %s, [%s]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn]);
         else
-            snprintf(buff, sizeof(buff), "LDRSW %s, [%s, #%d]", Xt[Rt], XtSp[Rn], offset);
+            snprintf(buff, sizeof(buff), "LDRSW %s, [%s, #%d]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn], offset);
+        return buff;
+    }
+    if(isMask(opcode, "001110011xiiiiiiiiiiiinnnnnttttt", &a)) {
+        int offset = imm<<1;
+        if(!offset)
+            snprintf(buff, sizeof(buff), "LDRSB %s, [%s]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn]);
+        else
+            snprintf(buff, sizeof(buff), "LDRSB %s, [%s, #%d]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn], offset);
         return buff;
     }
 
@@ -698,6 +706,10 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "CSNEG %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond]);
         return buff;
     }
+    if(isMask(opcode, "f0011010100mmmmmcccc00nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "CSEL %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond]);    
+        return buff;
+    }
     // MISC Bits
     if(isMask(opcode, "f10110101100000000010onnnnnddddd", &a)) {
         snprintf(buff, sizeof(buff), "CL%c %s, %s", option?'S':'Z', sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn]);
@@ -976,7 +988,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     if(isMask(opcode, "0Q10111000100001011010nnnnnddddd", &a)) {
-        snprintf(buff, sizeof(buff), "FCVTXN%s V%d.%sS, V%d.2D", a.Q?"2":"", Rd, a.Q?4:2, Rn);
+        snprintf(buff, sizeof(buff), "FCVTXN%s V%d.%dS, V%d.2D", a.Q?"2":"", Rd, a.Q?4:2, Rn);
         return buff;
     }
 
