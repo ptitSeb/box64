@@ -261,6 +261,10 @@
 #define B_MARK2(cond)    \
     j32 = GETMARK2-(dyn->arm_size);   \
     Bcond(cond, j32)
+// Branch to MARK2 unconditionnal (use j32)
+#define B_MARK2_nocond    \
+    j32 = GETMARK2-(dyn->arm_size);   \
+    B(j32)
 // Branch to MARK3 if cond (use j32)
 #define B_MARK3(cond)    \
     j32 = GETMARK3-(dyn->arm_size);   \
@@ -289,6 +293,10 @@
 #define B_MARKLOCK(cond)    \
     j32 = GETMARKLOCK-(dyn->arm_size);   \
     Bcond(cond, j32)
+// Branch to MARKLOCK if reg is not 0 (use j32)
+#define CBZx_MARKLOCK(reg)    \
+    j32 = GETMARKLOCK-(dyn->arm_size);   \
+    CBNZx(reg, j32)
 
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(A)))
 #define IFXX(A) if(dyn->insts && (dyn->insts[ninst].x64.need_flags==(A)))

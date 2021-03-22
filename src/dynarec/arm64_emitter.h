@@ -283,7 +283,20 @@
 #define POP1(reg)       LDRx_S9_postindex(reg, xRSP, 8)
 #define PUSH1(reg)      STRx_S9_preindex(reg, xRSP, -8)
 
-// BR and branchs
+// LOAD/STORE Exclusive
+#define MEMX_gen(size, L, Rs, Rn, Rt)       ((size)<<30 | 0b001000<<24 | (L)<<22 | (Rs)<<16 | 1<<15 | 0b11111<<10 | (Rn)<<5 | (Rt))
+#define LDAXRB(Rt, Rn)                  EMIT(MEMX_gen(0b00, 1, 31, Rn, Rt))
+#define STLXRB(Rs, Rt, Rn)              EMIT(MEMX_gen(0b00, 0, Rs, Rn, Rt))
+#define LDAXRH(Rt, Rn)                  EMIT(MEMX_gen(0b01, 1, 31, Rn, Rt))
+#define STLXRH(Rs, Rt, Rn)              EMIT(MEMX_gen(0b01, 0, Rs, Rn, Rt))
+#define LDAXRw(Rt, Rn)                  EMIT(MEMX_gen(0b10, 1, 31, Rn, Rt))
+#define STLXRw(Rs, Rt, Rn)              EMIT(MEMX_gen(0b10, 0, Rs, Rn, Rt))
+#define LDAXRx(Rt, Rn)                  EMIT(MEMX_gen(0b11, 1, 31, Rn, Rt))
+#define STLXRx(Rs, Rt, Rn)              EMIT(MEMX_gen(0b11, 0, Rs, Rn, Rt))
+#define LDAXRxw(Rt, Rn)                 EMIT(MEMX_gen(2+rex.w, 1, 31, Rn, Rt))
+#define STLXRxw(Rs, Rt, Rn)             EMIT(MEMX_gen(2+rex.w, 0, Rs, Rn, Rt))
+
+// BR and Branches
 #define BR_gen(Z, op, A, M, Rn, Rm)       (0b1101011<<25 | (Z)<<24 | (op)<<21 | 0b11111<<16 | (A)<<11 | (M)<<10 | (Rn)<<5 | (Rm))
 #define BR(Rn)                            EMIT(BR_gen(0, 0b00, 0, 0, Rn, 0))
 #define BLR(Rn)                           EMIT(BR_gen(0, 0b01, 0, 0, Rn, 0))
@@ -326,9 +339,8 @@
 #define ORRw_mask(Rd, Rn, immr, imms)       EMIT(LOGIC_gen(0, 0b01, 0, immr, imms, Rn, Rd))
 #define EORx_mask(Rd, Rn, N, immr, imms)    EMIT(LOGIC_gen(1, 0b10, N, immr, imms, Rn, Rd))
 #define EORw_mask(Rd, Rn, immr, imms)       EMIT(LOGIC_gen(0, 0b10, 0, immr, imms, Rn, Rd))
-#define TSTx_mask(Rn, immr, imms)           ANDSx_mask(xZR, Rn, immr, imms)
+#define TSTx_mask(Rn, N, immr, imms)        ANDSx_mask(xZR, Rn, N, immr, imms)
 #define TSTw_mask(Rn, immr, imms)           ANDSw_mask(wZR, Rn, immr, imms)
-#define TSTxw_mask(Rn, immr, imms)          ANDSxw_mask(xZR, Rn, immr, imms)
 
 #define LOGIC_REG_gen(sf, opc, shift, N, Rm, imm6, Rn, Rd)    ((sf)<<31 | (opc)<<29 | 0b01010<<24 | (shift)<<22 | (N)<<21 | (Rm)<<16 | (imm6)<<10 | (Rn)<<5 | (Rd))
 #define ANDx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b00, 0b00, 0, Rm, 0, Rn, Rd))

@@ -106,6 +106,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     #define Rm a.m
     #define Rd a.d
     #define Ra a.a
+    #define Rs a.s
     #define sf a.f
     #define imm a.i
     #define option a.o
@@ -272,6 +273,14 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "LDRSW %s, [%s]", Xt[Rt], XtSp[Rn]);
         else
             snprintf(buff, sizeof(buff), "LDRSW %s, [%s, #%d]", Xt[Rt], XtSp[Rn], offset);
+        return buff;
+    }
+
+    if(isMask(opcode, "ff0010000L0sssss111111nnnnnttttt", &a)) {
+        if(a.L)
+            snprintf(buff, sizeof(buff), "LDAXR%s %s, [%s]", (sf==0)?"B":((sf==1)?"H":""), (sf==2)?Wt[Rt]:Xt[Rt], XtSp[Rn]);
+        else
+            snprintf(buff, sizeof(buff), "STLXR%s %s, %s, [%s]", (sf==0)?"B":((sf==1)?"H":""), (sf==2)?Wt[Rs]:Xt[Rs], (sf==2)?Wt[Rt]:Xt[Rt], XtSp[Rn]);
         return buff;
     }
 
