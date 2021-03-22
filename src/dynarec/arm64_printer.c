@@ -745,13 +745,28 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
 
     //  ----------- NEON / FPU
 
-    // VORR
+    // VORR/VAND/VBIC/VORN
     if(isMask(opcode, "0Q001110101mmmmm000111nnnnnddddd", &a)) {
         char q = a.Q?'Q':'D';
         if(Rn==Rm)
             snprintf(buff, sizeof(buff), "VMOV %c%d, %c%d", q, Rd, q, Rn);
         else
             snprintf(buff, sizeof(buff), "VORR %c%d, %c%d, %c%d", q, Rd, q, Rn, q, Rm);
+        return buff;
+    }
+    if(isMask(opcode, "0Q001110111mmmmm000111nnnnnddddd", &a)) {
+        char q = a.Q?'Q':'D';
+        snprintf(buff, sizeof(buff), "VORN %c%d, %c%d, %c%d", q, Rd, q, Rn, q, Rm);
+        return buff;
+    }
+    if(isMask(opcode, "0Q001110001mmmmm000111nnnnnddddd", &a)) {
+        char q = a.Q?'Q':'D';
+        snprintf(buff, sizeof(buff), "VAND %c%d, %c%d, %c%d", q, Rd, q, Rn, q, Rm);
+        return buff;
+    }
+    if(isMask(opcode, "0Q001110011mmmmm000111nnnnnddddd", &a)) {
+        char q = a.Q?'Q':'D';
+        snprintf(buff, sizeof(buff), "VBIC %c%d, %c%d, %c%d", q, Rd, q, Rn, q, Rm);
         return buff;
     }
     // UMOV

@@ -593,6 +593,9 @@
 #define VEORQ(Vd, Vn, Vm)                   EMIT(VLOGIC_gen(1, 0b00, Vm, Vn, Vd))
 #define VEOR(Vd, Vn, Vm)                    EMIT(VLOGIC_gen(0, 0b00, Vm, Vn, Vd))
 
+#define VLOGIC_immediate(Q, op, abc, cmade, defgh, Rd)  ((Q)<<30 | (op)<<29 | 0b0111100000<<19 | (abc)<<16 | (cmode)<<12 | 1<<10 | (defgh)<<5 | (Rd))
+//#define V
+
 // FMOV
 #define FMOV_general(sf, type, mode, opcode, Rn, Rd)    ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (mode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
 // 32-bit to single-precision
@@ -637,6 +640,21 @@
 #define VORR(Dd, Dn, Dm)            EMIT(ORR_vector(0, Dm, Dn, Dd))
 #define VMOVQ(Vd, Vn)               EMIT(ORR_vector(1, Vn, Vn, Vd))
 #define VMOV(Dd, Dn)                EMIT(ORR_vector(0, Dn, Dn, Dd))
+
+// VAND
+#define AND_vector(Q, Rm, Rn, Rd)   ((Q)<<30 | 0b01110<<24 | 0b00<<22 | 1<<21 | (Rm)<<16 | 0b00011<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VANDQ(Vd, Vn, Vm)           EMIT(AND_vector(1, Vm, Vn, Vd))
+#define VAND(Dd, Dn, Dm)            EMIT(AND_vector(0, Dm, Dn, Dd))
+
+// VBIC
+#define BIC_vector(Q, Rm, Rn, Rd)   ((Q)<<30 | 0b01110<<24 | 0b01<<22 | 1<<21 | (Rm)<<16 | 0b00011<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VBICQ(Vd, Vn, Vm)           EMIT(BIC_vector(1, Vm, Vn, Vd))
+#define VBIC(Dd, Dn, Dm)            EMIT(BIC_vector(0, Dm, Dn, Dd))
+
+// VORN
+#define ORN_vector(Q, Rm, Rn, Rd)   ((Q)<<30 | 0b01110<<24 | 0b11<<22 | 1<<21 | (Rm)<<16 | 0b00011<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VORNQ(Vd, Vn, Vm)           EMIT(ORN_vector(1, Vm, Vn, Vd))
+#define VORN(Dd, Dn, Dm)            EMIT(ORN_vector(0, Dm, Dn, Dd))
 
 // ADD / SUB
 #define FADDSUB_vector(Q, U, op, sz, Rm, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | (op)<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11010<<11 | 1<<10 | (Rn)<<5 | (Rd))

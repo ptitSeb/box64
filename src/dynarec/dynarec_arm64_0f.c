@@ -199,6 +199,21 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
         
+        case 0x56:
+            INST_NAME("ORPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VORRQ(v0, v0, q0);
+            break;
+        case 0x57:
+            INST_NAME("XORPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VEORQ(v0, v0, q0);
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)   \
             READFLAGS(F);   \
             i32_ = F32S;    \
@@ -244,14 +259,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         GOCOND(0x90, "SET", "Eb");
         #undef GO
             
-        case 0x57:
-            INST_NAME("XORPS Gx, Ex");
-            nextop = F8;
-            GETEX(q0, 0);
-            GETGX(v0);
-            VEORQ(v0, v0, q0);
-            break;
-
         case 0xA2:
             INST_NAME("CPUID");
             MOVx_REG(x1, xRAX);
