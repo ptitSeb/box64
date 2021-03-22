@@ -284,6 +284,14 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    if(isMask(opcode, "ff0010000L0sssss011111nnnnnttttt", &a)) {
+        if(a.L)
+            snprintf(buff, sizeof(buff), "LDXR%s %s, [%s]", (sf==0)?"B":((sf==1)?"H":""), (sf==2)?Wt[Rt]:Xt[Rt], XtSp[Rn]);
+        else
+            snprintf(buff, sizeof(buff), "STXR%s %s, %s, [%s]", (sf==0)?"B":((sf==1)?"H":""), (sf==2)?Wt[Rs]:Xt[Rs], (sf==2)?Wt[Rt]:Xt[Rt], XtSp[Rn]);
+        return buff;
+    }
+
     // --- MOV (REGS: see Logic MOV==ORR, MVN==ORN)
     if(isMask(opcode, "f10100101wwiiiiiiiiiiiiiiiiddddd", &a)) {
         if(!hw)
@@ -650,6 +658,11 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     if(isMask(opcode, "f0110100iiiiiiiiiiiiiiiiiiittttt", &a)) {
         int offset = signExtend(imm, 19)<<2;
         snprintf(buff, sizeof(buff), "CBZ %s, #%+d\t; %p", Xt[Rt], offset, (void*)(addr + offset));
+        return buff;
+    }
+    if(isMask(opcode, "f0110101iiiiiiiiiiiiiiiiiiittttt", &a)) {
+        int offset = signExtend(imm, 19)<<2;
+        snprintf(buff, sizeof(buff), "CBNZ %s, #%+d\t; %p", Xt[Rt], offset, (void*)(addr + offset));
         return buff;
     }
     if(isMask(opcode, "f0011010100mmmmmcccc00nnnnnddddd", &a)) {

@@ -851,7 +851,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MARKLOCK;
                 LDAXRxw(x1, ed);
                 STLXRxw(x3, gd, ed);
-                CBZx_MARKLOCK(x3);
+                CBNZx_MARKLOCK(x3);
                 B_MARK2_nocond;
                 MARK;
                 LDRxw_U12(x1, ed, 0);
@@ -1572,6 +1572,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             *need_epilog = 0;
             *ok = 0;
+            break;
+
+        case 0xF0:
+            addr = dynarec64_F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
 
         case 0xF6:

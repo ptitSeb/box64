@@ -254,25 +254,41 @@
 #define GETMARKLOCK ((dyn->insts)?dyn->insts[ninst].marklock:(dyn->arm_size+4))
 
 // Branch to MARK if cond (use j32)
-#define B_MARK(cond)    \
-    j32 = GETMARK-(dyn->arm_size);    \
+#define B_MARK(cond)                \
+    j32 = GETMARK-(dyn->arm_size);  \
     Bcond(cond, j32)
+// Branch to MARK unconditionnal (use j32)
+#define B_MARK_nocond               \
+    j32 = GETMARK-(dyn->arm_size);  \
+    B(j32)
 // Branch to MARK2 if cond (use j32)
-#define B_MARK2(cond)    \
-    j32 = GETMARK2-(dyn->arm_size);   \
+#define B_MARK2(cond)               \
+    j32 = GETMARK2-(dyn->arm_size); \
     Bcond(cond, j32)
 // Branch to MARK2 unconditionnal (use j32)
-#define B_MARK2_nocond    \
-    j32 = GETMARK2-(dyn->arm_size);   \
+#define B_MARK2_nocond              \
+    j32 = GETMARK2-(dyn->arm_size); \
     B(j32)
 // Branch to MARK3 if cond (use j32)
-#define B_MARK3(cond)    \
-    j32 = GETMARK3-(dyn->arm_size);   \
+#define B_MARK3(cond)               \
+    j32 = GETMARK3-(dyn->arm_size); \
     Bcond(cond, j32)
+// Branch to MARK3 unconditionnal (use j32)
+#define B_MARK3_nocond              \
+    j32 = GETMARK3-(dyn->arm_size); \
+    B(j32)
+// Branch to MARK3 if reg is not 0 (use j32)
+#define CBNZx_MARK3(reg)            \
+    j32 = GETMARK3-(dyn->arm_size); \
+    CBNZx(reg, j32)
 // Branch to next instruction if cond (use j32)
 #define B_NEXT(cond)     \
     j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
     Bcond(cond, j32)
+// Branch to next instruction unconditionnal (use j32)
+#define B_NEXT_nocond                                               \
+    j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0;\
+    B(j32)
 // Branch to next instruction if reg is 0 (use j32)
 #define CBZw_NEXT(reg)    \
     j32 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
@@ -294,8 +310,8 @@
     j32 = GETMARKLOCK-(dyn->arm_size);   \
     Bcond(cond, j32)
 // Branch to MARKLOCK if reg is not 0 (use j32)
-#define CBZx_MARKLOCK(reg)    \
-    j32 = GETMARKLOCK-(dyn->arm_size);   \
+#define CBNZx_MARKLOCK(reg)             \
+    j32 = GETMARKLOCK-(dyn->arm_size);  \
     CBNZx(reg, j32)
 
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(A)))
@@ -775,15 +791,15 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 //uintptr_t dynarec64_GS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep,int* ok, int* need_epilog);
 uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-//uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep int* ok, int* need_epilog);
-//uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep int* ok, int* need_epilog);
-//uintptr_t dynarec64_DA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep int* ok, int* need_epilog);
-//uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep int* ok, int* need_epilog);
-//uintptr_t dynarec64_DC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep int* ok, int* need_epilog);
-//uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep int* ok, int* need_epilog);
-//uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep int* ok, int* need_epilog);
-//uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep int* ok, int* need_epilog);
-//uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep int* ok, int* need_epilog);
+//uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+//uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+//uintptr_t dynarec64_DA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+//uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+//uintptr_t dynarec64_DC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+//uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+//uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+//uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
