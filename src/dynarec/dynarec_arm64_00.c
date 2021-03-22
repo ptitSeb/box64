@@ -992,26 +992,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xA6:
             switch(rep) {
             case 1:
-                INST_NAME("REPNZ CMPSB");
-                SETFLAGS(X_ALL, SF_SET);
-                GETDIR(x3, 1);
-                CBZx_NEXT(xRCX);
-                MARK;
-                LDRB_U12(x1, xRSI, 0);
-                LDRB_U12(x2, xRDI, 0);
-                ADDx_REG(xRSI, xRSI, x3);
-                ADDx_REG(xRDI, xRDI, x3);
-                SUBx_U12(xRCX, xRCX, 1);
-                CMPSw_REG(x1, x2);
-                Bcond(cEQ, 4+4);
-                CBNZx_MARK(xRCX);
-                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
-                break;
             case 2:
-                INST_NAME("REPZ CMPSB");
+                if(rep==1) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
                 SETFLAGS(X_ALL, SF_SET);
-                GETDIR(x3, 1);
                 CBZx_NEXT(xRCX);
+                GETDIR(x3, 1);
                 MARK;
                 LDRB_U12(x1, xRSI, 0);
                 LDRB_U12(x2, xRDI, 0);
@@ -1019,7 +1004,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ADDx_REG(xRDI, xRDI, x3);
                 SUBx_U12(xRCX, xRCX, 1);
                 CMPSw_REG(x1, x2);
-                Bcond(cNE, 4+4);
+                Bcond((rep==1)?cEQ:cNE, 4+4);
                 CBNZx_MARK(xRCX);
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
                 break;
@@ -1055,32 +1040,18 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xAE:
             switch(rep) {
             case 1:
-                INST_NAME("REPNZ SCASB");
-                SETFLAGS(X_ALL, SF_SET);
-                GETDIR(x3, 1);
-                CBZx_NEXT(xRCX);
-                BFIw(x1, xRAX, 0, 8);
-                MARK;
-                LDRB_U12(x2, xRDI, 0);
-                ADDx_REG(xRDI, xRDI, x3);
-                SUBx_U12(xRCX, xRCX, 1);
-                CMPSw_REG(x1, x2);
-                Bcond(cEQ, 4+4);
-                CBNZx_MARK(xRCX);
-                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
-                break;
             case 2:
-                INST_NAME("REPZ SCASB");
+                if(rep==1) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
                 SETFLAGS(X_ALL, SF_SET);
-                GETDIR(x3, 1);
                 CBZx_NEXT(xRCX);
-                BFIw(x1, xRAX, 0, 8);
+                GETDIR(x3, 1);
+                UBFXw(x1, xRAX, 0, 8);
                 MARK;
                 LDRB_U12(x2, xRDI, 0);
                 ADDx_REG(xRDI, xRDI, x3);
                 SUBx_U12(xRCX, xRCX, 1);
                 CMPSw_REG(x1, x2);
-                Bcond(cNE, 4+4);
+                Bcond((rep==1)?cEQ:cNE, 4+4);
                 CBNZx_MARK(xRCX);
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
                 break;
@@ -1088,7 +1059,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("SCASB");
                 SETFLAGS(X_ALL, SF_SET);
                 GETDIR(x3, 1);
-                BFIw(x1, xRAX, 0, 8);
+                UBFXw(x1, xRAX, 0, 8);
                 LDRB_U12(x2, xRDI, 0);
                 ADDx_REG(xRDI, xRDI, x3);
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
