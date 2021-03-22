@@ -298,13 +298,13 @@
     j32 = GETMARKSEG-(dyn->arm_size);   \
     Bcond(cond, j32)
 // Branch to MARKSEG if reg is 0 (use j32)
-#define CBZx_MARKSEG(reg)    \
-    j32 = GETMARKSEG-(dyn->arm_size);   \
-    CBZx(reg, j32)
-// Branch to MARKSEG if reg is 0 (use j32)
 #define CBZw_MARKSEG(reg)    \
     j32 = GETMARKSEG-(dyn->arm_size);   \
     CBZw(reg, j32)
+// Branch to MARKSEG if reg is not 0 (use j32)
+#define CBNZw_MARKSEG(reg)              \
+    j32 = GETMARKSEG-(dyn->arm_size);   \
+    CBNZw(reg, j32)
 // Branch to MARKLOCK if cond (use j32)
 #define B_MARKLOCK(cond)    \
     j32 = GETMARKLOCK-(dyn->arm_size);   \

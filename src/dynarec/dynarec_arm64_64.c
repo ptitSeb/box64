@@ -61,6 +61,19 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
                     
+        case 0x8B:
+            INST_NAME("MOV Gd, FS:Ed");
+            grab_segdata(dyn, addr, ninst, x4, _FS);
+            nextop=F8;
+            GETGD;
+            if(MODREG) {   // reg <= reg
+                MOVxw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                LDRxw_REG(gd, ed, x4);
+            }
+            break;
+
         default:
             DEFAULT;
     }
