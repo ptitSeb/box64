@@ -957,6 +957,22 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SET_DFNONE(x1);
             break;
 
+        case 0xA8:
+            INST_NAME("TEST AL, Ib");
+            SETFLAGS(X_ALL, SF_SET);
+            UXTBx(x1, xRAX);
+            u8 = F8;
+            MOV32w(x2, u8);
+            emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
+        case 0xA9:
+            INST_NAME("TEST EAX, Id");
+            SETFLAGS(X_ALL, SF_SET);
+            i64 = F32S;
+            MOV64xw(x2, i64);
+            emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4);
+            break;
+
         case 0xB0:
         case 0xB1:
         case 0xB2:
