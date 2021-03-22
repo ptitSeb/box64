@@ -344,6 +344,14 @@
 #define CSELw(Rd, Rn, Rm, cond)             EMIT(CSEL_gen(0, Rm, cond, Rn, Rd))
 #define CSELxw(Rd, Rn, Rm, cond)            EMIT(CSEL_gen(rex.w, Rm, cond, Rn, Rd))
 
+#define CSNEG_gen(sf, Rm, cond, Rn, Rd)     ((sf)<<31 | 1<<30 | 0b11010100<<21 | (Rm)<<16 | (cond)<<12 | 1<<10 | (Rn)<<5 | (Rd))
+#define CSNEGx(Rd, Rn, Rm, cond)            EMIT(CSNEG_gen(1, Rm, cond, Rn, Rd))
+#define CSNEGw(Rd, Rn, Rm, cond)            EMIT(CSNEG_gen(0, Rm, cond, Rn, Rd))
+#define CSNEGxw(Rd, Rn, Rm, cond)           EMIT(CSNEG_gen(rex.w, Rm, cond, Rn, Rd))
+#define CNEGx(Rd, Rn, cond)                 CSNEGx(Rn, Rn, Rn, invCond(cond))
+#define CNEGw(Rd, Rn, cond)                 CSNEGw(Rn, Rn, Rn, invCond(cond))
+#define CNEGxw(Rd, Rn, cond)                CSNEGxw(Rn, Rn, Rn, invCond(cond))
+
 // AND / ORR
 #define LOGIC_gen(sf, opc, N, immr, imms, Rn, Rd)  ((sf)<<31 | (opc)<<29 | 0b100100<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | Rd)
 // logic to get the mask is ... convoluted... list of possible value there: https://gist.github.com/dinfuehr/51a01ac58c0b23e4de9aac313ed6a06a

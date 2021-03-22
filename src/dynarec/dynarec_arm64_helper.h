@@ -225,10 +225,10 @@
 
 // Get Direction with size Z and based of F_DF flag, on register r ready for LDR/STR fetching
 // F_DF is 1<<10, so 1 ROR 11*2 (so F_OF)
-#define GETDIR(r, A)    \
-    TSTS_IMM8_ROR(xFlags, 1, 0x0b);         \
-    MOVW(r, A);                             \
-    RSB_COND_IMM8(cNE, r, r, 0)
+#define GETDIR(r, A)                \
+    MOV32w(r, A); /* mask=1<<10 */  \
+    TSTw_mask(xFlags, 0b010110, 0); \
+    CNEGx(r, r, cNE)
 
 // CALL will use x7 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2

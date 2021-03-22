@@ -680,6 +680,13 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    if(isMask(opcode, "f1011010100mmmmmcccc01nnnnnddddd", &a)) {
+        if((cond&0b1110)!=0b1110 && Rn==Rm)
+            snprintf(buff, sizeof(buff), "CNEG %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], conds[cond^1]);    
+        else
+            snprintf(buff, sizeof(buff), "CSNEG %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond]);
+        return buff;
+    }
     // MISC Bits
     if(isMask(opcode, "f10110101100000000010onnnnnddddd", &a)) {
         snprintf(buff, sizeof(buff), "CL%c %s, %s", option?'S':'Z', sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn]);

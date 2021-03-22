@@ -970,6 +970,31 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SET_DFNONE(x1);
             break;
 
+        case 0xA5:
+            if(rep) {
+                INST_NAME("REP MOVSD");
+                TSTw_REG(xRCX, xRCX);
+                B_NEXT(cEQ);    // end of loop
+                GETDIR(x3, rex.w?8:4);
+                MARK;
+                LDRxw_U12(x1, xRSI, 0);
+                STRxw_U12(x1, xRDI, 0);
+                ADDx_REG(xRSI, xRSI, x3);
+                ADDx_REG(xRDI, xRDI, x3);
+                SUBSx_U12(xRCX, xRCX, 1);
+                B_MARK(cNE);
+                // done
+            } else {
+                INST_NAME("MOVSD");
+                GETDIR(x3, rex.w?8:4);
+                LDRxw_U12(x1, xRSI, 0);
+                STRxw_U12(x1, xRDI, 0);
+                ADDx_REG(xRSI, xRSI, x3);
+                ADDx_REG(xRDI, xRDI, x3);
+                SUBSx_U12(xRCX, xRCX, 1);
+            }
+            break;
+
         case 0xA8:
             INST_NAME("TEST AL, Ib");
             SETFLAGS(X_ALL, SF_SET);
