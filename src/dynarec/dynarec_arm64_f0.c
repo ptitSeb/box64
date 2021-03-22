@@ -77,24 +77,24 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         B_MARK3(cNE);
                         // Aligned version
                         MARKLOCK;
-                        LDXRxw(x1, wback);
+                        LDAXRxw(x1, wback);
                         ed = x1;
                         CMPSxw_REG(xRAX, ed);
                         B_MARK(cNE);
                         // EAX == Ed
-                        STXRxw(x4, gd, wback);
+                        STLXRxw(x4, gd, wback);
                         CBNZx_MARKLOCK(x4);
                         // done
                         B_MARK_nocond;
                         // Unaligned version
                         MARK3;
                         LDRxw_U12(x1, wback, 0);
-                        LDXRB(x3, wback); // dummy read, to arm the write...
+                        LDAXRB(x3, wback); // dummy read, to arm the write...
                         ed = x1;
                         CMPSxw_REG(xRAX, ed);
                         B_MARK(cNE);
                         // EAX == Ed
-                        STXRB(x4, gd, wback);
+                        STLXRB(x4, gd, wback);
                         CBNZx_MARK3(x4);
                         STRxw_U12(gd, wback, 0);
                         B_MARK_nocond;
