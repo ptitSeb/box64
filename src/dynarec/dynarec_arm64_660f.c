@@ -142,6 +142,35 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FCOMI(x1, x2);
             break;
 
+        case 0x54:
+            INST_NAME("ANDPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VANDQ(v0, v0, q0);
+            break;
+        case 0x55:
+            INST_NAME("ANDNPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VBICQ(v0, q0, v0);
+            break;
+        case 0x56:
+            INST_NAME("ORPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VORRQ(v0, v0, q0);
+            break;
+        case 0x57:
+            INST_NAME("XORPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VEORQ(v0, v0, q0);
+            break;
+
         case 0x5A:
             INST_NAME("CVTPD2PS Gx, Ex");
             nextop = F8;
