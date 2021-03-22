@@ -844,16 +844,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOVxw_REG(ed, x1);
             } else {
                 GETGD;
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
-                if(rex.w) {
-                    TSTx_mask(ed, 1, 0, 2);    // mask=7
-                } else {
-                    TSTw_mask(ed, 0, 1);    // mask=3
-                }
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
                 B_MARK(cNE);
                 MARKLOCK;
-                LDAXRxw(x1, ed);
-                STLXRxw(x3, gd, ed);
+                LDXRxw(x1, ed);
+                STXRxw(x3, gd, ed);
                 CBNZx_MARKLOCK(x3);
                 B_MARK2_nocond;
                 MARK;
@@ -991,7 +987,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRxw_U12(x1, xRDI, 0);
                 ADDx_REG(xRSI, xRSI, x3);
                 ADDx_REG(xRDI, xRDI, x3);
-                SUBSx_U12(xRCX, xRCX, 1);
             }
             break;
 

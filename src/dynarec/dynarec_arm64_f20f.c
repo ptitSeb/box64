@@ -133,7 +133,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0);
             GETEX(d0, 0);
             d1 = fpu_get_scratch(dyn);
-            FCVT_D_S(d1, d0);
+            FCVT_S_D(d1, d0);
             VMOVeS(v0, 0, d1, 0);
             break;
 
