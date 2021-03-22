@@ -105,6 +105,44 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
+                case 0xC1:
+                    INST_NAME("LOCK XADD Gd, Ed");
+                    SETFLAGS(X_ALL, SF_SET);
+                    nextop = F8;
+                    GETGD;
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        MOVxw_REG(x1, ed);
+                        MOVxw_REG(ed, gd);
+                        MOVxw_REG(gd, x1);
+                        emit_add32(dyn, ninst, rex, ed, gd, x3, x4);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                        TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
+                        B_MARK(cNE);    // unaligned
+                        MARKLOCK;
+                        LDAXRxw(x1, wback);
+                        ADDxw_REG(x4, x1, gd);
+                        STLXRxw(x3, x4, wback);
+                        CBNZx_MARKLOCK(x3);
+                        B_MARK2_nocond;
+                        MARK;
+                        LDRxw_U12(x1, wback, 0);
+                        LDAXRB(x4, wback);
+                        BFIxw(x1, x4, 0, 8);
+                        ADDxw_REG(x4, x1, gd);
+                        STLXRB(x3, x4, wback);
+                        CBNZx_MARK(x3);
+                        STRxw_U12(x4, wback, 0);
+                        MARK2;
+                        IFX(X_ALL|X_PEND) {
+                            MOVxw_REG(x2, x1);
+                            emit_add32(dyn, ninst, rex, x2, gd, x3, x4);
+                        }
+                        MOVxw_REG(gd, x1);
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }
