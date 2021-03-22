@@ -848,8 +848,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
                 B_MARK(cNE);
                 MARKLOCK;
-                LDXRxw(x1, ed);
-                STXRxw(x3, gd, ed);
+                LDAXRxw(x1, ed);
+                STLXRxw(x3, gd, ed);
                 CBNZx_MARKLOCK(x3);
                 B_MARK2_nocond;
                 MARK;
@@ -977,8 +977,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRxw_U12(x1, xRDI, 0);
                 ADDx_REG(xRSI, xRSI, x3);
                 ADDx_REG(xRDI, xRDI, x3);
-                SUBSx_U12(xRCX, xRCX, 1);
-                B_MARK(cNE);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK(xRCX);
                 // done
             } else {
                 INST_NAME("MOVSD");
