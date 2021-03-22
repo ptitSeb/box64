@@ -135,7 +135,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
-            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            GETG;
             GETED(0);
             v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             if(rex.w) {
@@ -143,6 +143,19 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 VEORQ(v0, v0, v0); // RAZ vector
                 VMOVQSfrom(v0, 0, ed);
+            }
+            break;
+        case 0x6F:
+            INST_NAME("MOVDQA Gx,Ex");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVQ(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                VLDR128_U12(v0, ed, fixedaddress);
             }
             break;
 
