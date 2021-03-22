@@ -371,41 +371,21 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     SET_NODF();
 }
 
-void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
-{
-    MESSAGE(LOG_DUMP, "Get TLSData\n");
-    int32_t j32;
-    MAYUSE(j32);
-    int t1 = x1, t2 = x4;
-    if(reg==t1) ++t1;
-    if(reg==t2) ++t2;
-    LDRx_U12(t1, xEmu, offsetof(x64emu_t, context));
-    LDRx_U12(t2, xEmu, offsetof(x64emu_t, segs_serial[_GS]));  // complete check here
-    LDRx_U12(t1, t1, offsetof(box64context_t, sel_serial));
-    LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[_GS]));    // no condition LDR
-    SUBx_REG(t1, t1, t2);
-    CBZx_MARKSEG(t1);
-    MOVZw(x1, _GS);
-    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 1, 0);
-    MARKSEG;
-    MESSAGE(LOG_DUMP, "----TLSData\n");
-}
-
-void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
+void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment)
 {
     int32_t j32;
     MAYUSE(j32);
-    MESSAGE(LOG_DUMP, "Get FS: Offset\n");
+    MESSAGE(LOG_DUMP, "Get %s Offset\n", (segment==_FS)?"FS":"GS");
     int t1 = x1, t2 = x4;
     if(reg==t1) ++t1;
     if(reg==t2) ++t2;
-    LDRx_U12(t2, xEmu, offsetof(x64emu_t, segs_serial[_FS]));// fast check here
-    LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[_FS]));
+    LDRx_U12(t2, xEmu, offsetof(x64emu_t, segs_serial[segment]));// fast check here
+    LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
     CBZx_MARKSEG(t2);
-    MOVZw(x1, _FS);
+    MOVZw(x1, segment);
     call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 1, 0);
     MARKSEG;
-    MESSAGE(LOG_DUMP, "----FS: Offset\n");
+    MESSAGE(LOG_DUMP, "----%s Offset\n", (segment==_FS)?"FS":"GS");
 }
 
 // x87 stuffs

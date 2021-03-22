@@ -38,9 +38,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(u8);
     MAYUSE(j32);
 
-    while((opcode==0x2E) || (opcode==0x66))   // ignoring CS: or multiple 0x66
-        opcode = F8;
-
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
         opcode = F8;

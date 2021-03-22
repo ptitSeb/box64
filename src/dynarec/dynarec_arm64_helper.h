@@ -66,7 +66,7 @@
                     ed = hint;                            \
                 }
 //GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
-#define GETEDW(hint, ret, D)   if((nextop&0xC0)==0xC0) {\
+#define GETEDW(hint, ret, D)   if(MODREG) {              \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     MOVxw_REG(ret, ed);                 \
                     wback = 0;                          \
@@ -84,13 +84,13 @@
 // Send back wb to either ed or wback
 #define SBACK(wb)   if(wback) {STRxw(wb, wback, fixedaddress);} else {MOVxw_REG(ed, wb);}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETEDO(O)   if((nextop&0xC0)==0xC0) {   \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);   \
-                    wback = 0;              \
-                } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0); \
-                    LDR_REG_LSL_IMM5(x1, wback, O, 0);  \
-                    ed = x1;                 \
+#define GETEDO(O, D)   if(MODREG) {                     \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, D); \
+                    LDRxw_REG(x1, wback, O);            \
+                    ed = x1;                            \
                 }
 #define WBACKO(O)   if(wback) {STR_REG_LSL_IMM5(ed, wback, O, 0);}
 //FAKEELike GETED, but doesn't get anything
@@ -521,8 +521,8 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 
 #define dynarec64_00       STEPNAME(dynarec64_00)
 #define dynarec64_0F       STEPNAME(dynarec64_0F)
-#define dynarec64_FS       STEPNAME(dynarec64_FS)
-#define dynarec64_GS       STEPNAME(dynarec64_GS)
+#define dynarec64_64       STEPNAME(dynarec64_64)
+#define dynarec64_65       STEPNAME(dynarec64_65)
 #define dynarec64_66       STEPNAME(dynarec64_66)
 #define dynarec64_67       STEPNAME(dynarec64_67)
 #define dynarec64_D8       STEPNAME(dynarec64_D8)
@@ -546,8 +546,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define retn_to_epilog  STEPNAME(retn_to_epilog_)
 #define iret_to_epilog  STEPNAME(iret_to_epilog_)
 #define call_c          STEPNAME(call_c_)
-#define grab_fsdata     STEPNAME(grab_fsdata_)
-#define grab_tlsdata    STEPNAME(grab_tlsdata_)
+#define grab_segdata    STEPNAME(grab_segdata_)
 #define emit_cmp8       STEPNAME(emit_cmp8)
 #define emit_cmp16      STEPNAME(emit_cmp16)
 #define emit_cmp32      STEPNAME(emit_cmp32)
@@ -660,8 +659,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
-//void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
-//void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
+void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
@@ -787,8 +785,8 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1);
 
 uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-//uintptr_t dynarec64_FS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep,int* ok, int* need_epilog);
-//uintptr_t dynarec64_GS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep,int* ok, int* need_epilog);
+uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep,int* ok, int* need_epilog);
+//uintptr_t dynarec64_65(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep,int* ok, int* need_epilog);
 uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
