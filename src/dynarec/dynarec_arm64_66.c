@@ -280,10 +280,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i32 = F16;
             UXTHw(x1, xRAX);
             if(i32) {
-                emit_cmp16_0(dyn, ninst, x1, x3, x4);
-            } else {
                 MOV32w(x2, i32);
                 emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5);
+            } else {
+                emit_cmp16_0(dyn, ninst, x1, x3, x4);
             }
             break;
 
