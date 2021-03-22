@@ -65,6 +65,34 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     switch(opcode) {
 
 
+        case 0x14:
+            INST_NAME("UNPCKLPD Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                v1 = fpu_get_scratch(dyn);
+                VLDR64_U12(v1, ed, fixedaddress);
+            }
+            VMOVeD(v0, 1, v1, 0);
+            break;
+        case 0x15:
+            INST_NAME("UNPCKHPD Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            VMOVeD(v0, 0, v0, 1);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                v1 = fpu_get_scratch(dyn);
+                VLDR64_U12(v1, ed, fixedaddress);
+            }
+            VMOVeD(v0, 1, v1, 1);
+            break;
+
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
