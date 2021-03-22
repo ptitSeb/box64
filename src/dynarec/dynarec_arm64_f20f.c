@@ -27,16 +27,9 @@
     if(MODREG) {                                                                                    \
         a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));                                     \
     } else {                                                                                        \
-        parity = getedparity(dyn, ninst, addr, nextop, 7, D);                                       \
         a = fpu_get_scratch(dyn);                                                                   \
-        if(parity) {                                                                                \
-            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, D); \
-            VLDR64_U12(a, ed, fixedaddress);                                                        \
-        } else {                                                                                    \
-            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, D); \
-            LDRx_U12(x2, ed, fixedaddress+0);                                                       \
-            VMOVQDfrom(a, 0, x2);                                                                   \
-        }                                                                                           \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, D);     \
+        VLDR64_U12(a, ed, fixedaddress);                                                            \
     }
 
 #define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
@@ -79,8 +72,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
-                LDRx_U12(x2, ed, fixedaddress);
-                FMOVDx(v0, x2); // upper part reseted
+                VLDR64_U12(v0, ed, fixedaddress); // upper part reseted
             }
             break;
         case 0x11:
@@ -93,9 +85,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 d0 = sse_get_reg(dyn, ninst, x1, ed);
                 VMOV(d0, v0);
             } else {
-                VMOVQDto(x2, v0, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
-                STRx_U12(x2, ed, fixedaddress);
+                VSTR64_U12(v0, ed, fixedaddress);
             }
             break;
 

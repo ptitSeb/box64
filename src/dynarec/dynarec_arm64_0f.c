@@ -96,11 +96,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VMOVQ(v0, v1);
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xff0<<3, 7, rex, 0, 0);
-                LDRx_U12(x2, ed, fixedaddress);
-                VMOVQDfrom(v0, 0, x2);
-                LDRx_U12(x2, ed, fixedaddress+8);
-                VMOVQDfrom(v0, 1, x2);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                VLDR64_U12(v0, ed, fixedaddress);   // no alignment issue with ARMv8 NEON :)
             }
             break;
         case 0x11:
@@ -113,11 +110,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
                 VMOVQ(v1, v0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xff0<<3, 7, rex, 0, 0);
-                VMOVQDto(x2, v0, 0);
-                STRx_U12(x2, ed, fixedaddress);
-                VMOVQDto(x2, v0, 1);
-                STRx_U12(x2, ed, fixedaddress+8);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
             }
             break;
 
@@ -182,15 +176,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {
                 s0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
             } else {
-                parity = getedparity(dyn, ninst, addr, nextop, 3, 0);
                 s0 = fpu_get_scratch(dyn);
-                if(parity) {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
-                    VLDR32_U12(s0, ed, fixedaddress);
-                } else {
-                    GETED(0);
-                    VMOVQSfrom(s0, 0, ed);
-                }
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                VLDR32_U12(s0, ed, fixedaddress);
             }
             FCMPS(v0, s0);
             FCOMI(x1, x2);

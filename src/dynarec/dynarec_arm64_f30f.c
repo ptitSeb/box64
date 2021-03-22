@@ -27,15 +27,9 @@
     if(MODREG) {                                                                                    \
         a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));                                     \
     } else {                                                                                        \
-        parity = getedparity(dyn, ninst, addr, nextop, 3, D);                                       \
         a = fpu_get_scratch(dyn);                                                                   \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, D);     \
-        if(parity) {                                                                                \
-            VLDR32_U12(a, ed, fixedaddress);                                                        \
-        } else {                                                                                    \
-            LDRw_U12(x2, ed, fixedaddress);                                                         \
-            VMOVQSfrom(a, 0, x2);                                                                   \
-        }                                                                                           \
+        VLDR32_U12(a, ed, fixedaddress);                                                            \
     }
 
 #define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
@@ -76,15 +70,8 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VMOVeS(v0, 0, q0, 0);
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-                parity = getedparity(dyn, ninst, addr, nextop, 3, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
-                if(parity) {
-                    VLDR32_U12(v0, ed, fixedaddress);
-                } else {
-                    LDRw_U12(x2, ed, fixedaddress);   // to avoid bus errors
-                    VEORQ(v0, v0, v0);
-                    VMOVQSfrom(v0, 0, x2);
-                }
+                VLDR32_U12(v0, ed, fixedaddress);
             }
             break;
         case 0x11:
@@ -96,14 +83,8 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
                 VMOVeS(q0, 0, v0, 0);
             } else {
-                parity = getedparity(dyn, ninst, addr, nextop, 3, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
-                if(parity) {
-                    VSTR32_U12(v0, ed, fixedaddress);
-                } else {
-                    VMOVSto(x2, v0, 0);
-                    STRw_U12(x2, ed, fixedaddress);
-                }
+                VSTR32_U12(v0, ed, fixedaddress);
             }
             break;
 
@@ -202,11 +183,8 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VMOVQ(v1, v0);
             } else {
                 v0 = sse_get_reg(dyn, ninst, x1, gd);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xff0<<3, 7, rex, 0, 0);
-                VMOVQDto(x2, v0, 0);
-                STRx_U12(x2, ed, fixedaddress+0);
-                VMOVQDto(x2, v0, 1);
-                STRx_U12(x2, ed, fixedaddress+8);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
             }
             break;
 

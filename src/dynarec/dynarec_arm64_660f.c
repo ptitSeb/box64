@@ -23,13 +23,13 @@
 #include "dynarec_arm64_helper.h"
 
 // Get EX as a quad
-#define GETEX(a, D)                                                                                     \
-    if(MODREG) {                                                                                        \
-        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));                                         \
-    } else {                                                                                            \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, (1<<4)-1, rex, 0, D);  \
-        a = fpu_get_scratch(dyn);                                                                       \
-        VLDR128_U12(a, ed, fixedaddress);                                                               \
+#define GETEX(a, D)                                                                                 \
+    if(MODREG) {                                                                                    \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));                                     \
+    } else {                                                                                        \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, D);    \
+        a = fpu_get_scratch(dyn);                                                                   \
+        VLDR128_U12(a, ed, fixedaddress);                                                           \
     }
 
 #define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
@@ -169,18 +169,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     ed = xRAX + (nextop&7) + (rex.b<<3);
                     VMOVQDto(ed, v0, 0);
                 } else {
-                    VMOVQDto(x2, v0, 0); // to avoid Bus Error, using regular store
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
-                    STRx_U12(x2, ed, fixedaddress);
+                    VSTR64_U12(x2, ed, fixedaddress);
                 }
             } else {
                 if(MODREG) {
                     ed = xRAX + (nextop&7) + (rex.b<<3);
                     VMOVSto(ed, v0, 0);
                 } else {
-                    VMOVSto(x2, v0, 0); // to avoid Bus Error, using regular store
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
-                    STRw_U12(x2, ed, fixedaddress);
+                    VSTR32_U12(x2, ed, fixedaddress);
                 }
             }
             break;
@@ -335,18 +333,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETG;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
-            parity = getedparity(dyn, ninst, addr, nextop, 7, 0);
             if(MODREG) {
                 v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
                 FMOVD(v1, v0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
-                if(parity) {
-                    VSTR64_U12(v0, ed, fixedaddress);
-                } else {
-                    VMOVQDto(x2, v0, 0);
-                    STRx_U12(x2, ed, fixedaddress);
-                }
+                VSTR64_U12(v0, ed, fixedaddress);
             }
             break;
 
