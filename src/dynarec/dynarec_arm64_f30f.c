@@ -112,6 +112,14 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeS(v0, 0, d1, 0);
             break;
 
+        case 0x2C:
+            INST_NAME("CVTTSS2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEX(d0, 0);
+            FCVTZSxwS(gd, d0);
+            break;
+
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;

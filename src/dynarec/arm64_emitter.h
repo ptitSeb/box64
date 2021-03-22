@@ -737,8 +737,10 @@
 // Floating-point Convert to Signed integer, rounding toward Zero
 #define FCVTZSwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b11, 0b000, Sn, Wd))
 #define FCVTZSxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b11, 0b000, Sn, Xd))
+#define FCVTZSxwS(Xd, Sn)           EMIT(FCVT_scalar(rex.w, 0b00, 0b11, 0b000, Sn, Xd))
 #define FCVTZSwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b11, 0b000, Dn, Wd))
 #define FCVTZSxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b11, 0b000, Dn, Xd))
+#define FCVTZSxwD(Xd, Dn)           EMIT(FCVT_scalar(rex.w, 0b01, 0b11, 0b000, Dn, Xd))
 // Floating-point Convert to Unsigned integer, rounding toward Zero
 #define FCVTZUwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b11, 0b001, Sn, Wd))
 #define FCVTZUxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b11, 0b001, Sn, Xd))
