@@ -456,8 +456,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBNZx_MARK(xRCX);
                 B_NEXT_nocond;
                 MARK2;  // Part with DF==1
-                LDRH_S9_postindex(x1, xRSI, -1);
-                STRH_S9_postindex(x1, xRDI, -1);
+                LDRH_S9_postindex(x1, xRSI, -2);
+                STRH_S9_postindex(x1, xRDI, -2);
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK2(xRCX);
                 // done
