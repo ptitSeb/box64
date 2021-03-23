@@ -280,6 +280,78 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0x73:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLQ Ex, Ib");
+                    GETEX(q0, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if (u8>63) {
+                            VEORQ(q0, q0, q0);
+                        } else if(u8) {
+                            VSHRQ_64(q0, q0, u8);
+                        }
+                        if(!MODREG) {
+                            VSTR128_U12(q0, ed, fixedaddress);
+                        }
+                    }
+                    break;
+                case 3:
+                    INST_NAME("PSRLDQ Ex, Ib");
+                    GETEX(q0, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if(u8>15) {
+                            VEORQ(q0, q0, q0);
+                        } else {
+                            q1 = fpu_get_scratch(dyn);
+                            VEORQ(q1, q1, q1);
+                            VEXTQ_8(q0, q0, q1, u8);
+                        }
+                        if(!MODREG) {
+                            VSTR128_U12(q0, ed, fixedaddress);
+                        }
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLQ Ex, Ib");
+                    GETEX(q0, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if (u8>63) {
+                            VEORQ(q0, q0, q0);
+                        } else {
+                            VSHLQ_64(q0, q0, u8);
+                        }
+                        if(!MODREG) {
+                            VSTR128_U12(q0, ed, fixedaddress);
+                        }
+                    }
+                    break;
+                case 7:
+                    INST_NAME("PSLLDQ Ex, Ib");
+                    GETEX(q0, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if(u8>15) {
+                            VEORQ(q0, q0, q0);
+                        } else if(u8>0) {
+                            q1 = fpu_get_scratch(dyn);
+                            VEORQ(q1, q1, q1);
+                            VEXTQ_8(q0, q1, q0, 16-u8);
+                        }
+                        if(!MODREG) {
+                            VSTR128_U12(q0, ed, fixedaddress);
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
             nextop = F8;
