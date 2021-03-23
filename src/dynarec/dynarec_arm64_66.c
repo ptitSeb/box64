@@ -460,6 +460,87 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BFIx(gd, x1, 0, 16);
             break;
 
+        case 0xC1:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ew, Ib");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rol16, x1, x3);
+                    EWBACK;
+                    break;
+                case 1:
+                    INST_NAME("ROR Ew, Ib");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(ror16, x1, x3);
+                    EWBACK;
+                    break;
+                case 2:
+                    INST_NAME("RCL Ew, Ib");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rcl16, x1, x3);
+                    EWBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Ew, Ib");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rcr16, x1, x3);
+                    EWBACK;
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ew, Ib");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, (u8&0x1f));
+                    UFLAG_OP12(ed, x2)
+                    LSLw_REG(ed, ed, x2);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shl16);
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, (u8&0x1f));
+                    UFLAG_OP12(ed, x2)
+                    LSRw_REG(ed, ed, x2);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shr16);
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETSEW(x1, 0);
+                    u8 = F8;
+                    MOV32w(x2, (u8&0x1f));
+                    UFLAG_OP12(ed, x2)
+                    ASRw_REG(ed, ed, x2);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar16);
+                    break;
+            }
+            break;
+
         case 0xC7:
             INST_NAME("MOV Ew, Iw");
             nextop = F8;
