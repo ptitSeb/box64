@@ -104,6 +104,15 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeD(v0, 0, d1, 0);
             break;
 
+        case 0x2C:
+            INST_NAME("CVTTSD2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEX(q0, 0);
+            FCVTZSxwD(gd, q0);
+            break;
+
+
         case 0x51:
             INST_NAME("SQRTSD Gx, Ex");
             nextop = F8;
