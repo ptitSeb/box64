@@ -444,6 +444,33 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("NOP");
             break;
 
+        case 0xA5:
+            if(rep) {
+                INST_NAME("REP MOVSW");
+                CBZx_NEXT(xRCX);
+                TBNZ_MARK2(xFlags, F_DF);
+                MARK;   // Part with DF==0
+                LDRH_S9_postindex(x1, xRSI, 2);
+                STRH_S9_postindex(x1, xRDI, 2);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                LDRH_S9_postindex(x1, xRSI, -1);
+                STRH_S9_postindex(x1, xRDI, -1);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("MOVSW");
+                GETDIR(x3, 2);
+                LDRH_U12(x1, xRSI, 0);
+                STRH_U12(x1, xRDI, 0);
+                ADDx_REG(xRSI, xRSI, x3);
+                ADDx_REG(xRDI, xRDI, x3);
+            }
+            break;
+
         case 0xB8:
         case 0xB9:
         case 0xBA:
