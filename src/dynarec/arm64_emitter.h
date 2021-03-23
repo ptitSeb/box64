@@ -726,7 +726,7 @@
 // Top half of 128-bit to 64-bit
 #define FMOVxD1(Xd, Vn)                     EMIT(FMOV_general(1, 0b10, 0b01, ob110, Vn, Xd))
 
-#define FMOV_register(type, Rn, Rd)         (0b11110<<24 | (type)<<22 | 1<<21 | (Rn)<<5 | (Rd))
+#define FMOV_register(type, Rn, Rd)         (0b11110<<24 | (type)<<22 | 1<<21 | 0b10000<<10 | (Rn)<<5 | (Rd))
 #define FMOVS(Sd, Sn)                       EMIT(FMOV_register(0b00, Sn, Sd))
 #define FMOVD(Dd, Dn)                       EMIT(FMOV_register(0b01, Dn, Dd))
 
