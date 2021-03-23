@@ -1046,6 +1046,50 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MOV64xw(x2, i64);
             emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4);
             break;
+        case 0xAA:
+            if(rep) {
+                INST_NAME("REP STOSB");
+                CBZx_NEXT(xRCX);
+                TBNZ_MARK2(xFlags, F_DF);
+                MARK;   // Part with DF==0
+                STRB_S9_postindex(xRAX, xRDI, 1);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                STRB_S9_postindex(xRAX, xRDI, -1);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("STOSB");
+                GETDIR(x3, 1);
+                STRB_U12(xRAX, xRDI, 0);
+                ADDx_REG(xRDI, xRDI, x3);
+            }
+            break;
+        case 0xAB:
+            if(rep) {
+                INST_NAME("REP STOSD");
+                CBZx_NEXT(xRCX);
+                TBNZ_MARK2(xFlags, F_DF);
+                MARK;   // Part with DF==0
+                STRxw_S9_postindex(xRAX, xRDI, rex.w?8:4);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                STRxw_S9_postindex(xRAX, xRDI, rex.w?-8:-4);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("STOSD");
+                GETDIR(x3, rex.w?8:4);
+                STRxw_U12(xRAX, xRDI, 0);
+                ADDx_REG(xRDI, xRDI, x3);
+            }
+            break;
 
         case 0xAE:
             switch(rep) {
