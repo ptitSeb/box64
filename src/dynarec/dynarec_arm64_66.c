@@ -471,6 +471,15 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xA9:
+            INST_NAME("TEST AX,Iw");
+            SETFLAGS(X_ALL, SF_SET);
+            u16 = F16;
+            MOV32w(x2, u16);
+            UBFXx(x1, xRAX, 0, 16);
+            emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
+
         case 0xB8:
         case 0xB9:
         case 0xBA:
