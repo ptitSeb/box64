@@ -24,9 +24,13 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
-#define GETGX(a)    \
-    gd = ((nextop&0x38)>>3)+(rex.r<<3);  \
+#define GETGX(a)                        \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     a = sse_get_reg(dyn, ninst, x1, gd)
+
+#define GETGX_empty(a)                          \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3);         \
+    a = sse_get_reg_empty(dyn, ninst, x1, gd)
 
 #define GETEX(a, D)                                             \
     if(MODREG) {                                                \
@@ -264,6 +268,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGX(q1);
             d0 = fpu_get_scratch(dyn);
             FCVTL(q1, q0);
+            break;
+        case 0x5B:
+            INST_NAME("CVTDQ2PS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX_empty(q1);
+            SCVTQFS(q1, q0);
             break;
 
         #define GO(GETFLAGS, NO, YES, F)   \

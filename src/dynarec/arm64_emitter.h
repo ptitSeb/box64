@@ -982,10 +982,10 @@
 #define SCVTFDD(Vd, Vn)             EMIT(SCVT_vector_scalar(0, 1, Vn, Vd))
 
 #define SCVTF_vector(Q, U, sz, Rn, Rd)      ((Q)<<30 | (U)<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b11101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
-#define SCVTFS(Vd, Vn)              EMIT(SCVTF_vector(0, 0, 0, Vn, VD))
-#define SCVTFD(Vd, Vn)              EMIT(SCVTF_vector(0, 0, 1, Vn, VD))
-#define SCVTQFS(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 0, Vn, VD))
-#define SCVTQFD(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 1, Vn, VD))
+#define SCVTFS(Vd, Vn)              EMIT(SCVTF_vector(0, 0, 0, Vn, Vd))
+#define SCVTFD(Vd, Vn)              EMIT(SCVTF_vector(0, 0, 1, Vn, Vd))
+#define SCVTQFS(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 0, Vn, Vd))
+#define SCVTQFD(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 1, Vn, Vd))
 
 // FMAX / FMIN
 #define FMINMAX_vector(Q, U, o1, sz, Rm, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o1)<<23 | (sz)<<22 | 0b1<<21 | (Rm)<<16 | 0b11110<<11 | 1<<10 | (Rn)<<5 | (Rd))
