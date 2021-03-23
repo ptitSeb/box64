@@ -996,16 +996,23 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(rep==1) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
                 SETFLAGS(X_ALL, SF_SET);
                 CBZx_NEXT(xRCX);
-                GETDIR(x3, 1);
-                MARK;
-                LDRB_U12(x1, xRSI, 0);
-                LDRB_U12(x2, xRDI, 0);
-                ADDx_REG(xRSI, xRSI, x3);
-                ADDx_REG(xRDI, xRDI, x3);
+                TBNZ_MARK2(xFlags, F_DF);
+                MARK;   // Part with DF==0
+                LDRB_S9_postindex(x1, xRSI, 1);
+                LDRB_S9_postindex(x2, xRDI, 1);
                 SUBx_U12(xRCX, xRCX, 1);
                 CMPSw_REG(x1, x2);
-                Bcond((rep==1)?cEQ:cNE, 4+4);
+                B_MARK3((rep==1)?cEQ:cNE);
                 CBNZx_MARK(xRCX);
+                B_MARK3_nocond;
+                MARK2;  // Part with DF==1
+                LDRB_S9_postindex(x1, xRSI, -1);
+                LDRB_S9_postindex(x2, xRDI, -1);
+                SUBx_U12(xRCX, xRCX, 1);
+                CMPSw_REG(x1, x2);
+                B_MARK3((rep==1)?cEQ:cNE);
+                CBNZx_MARK2(xRCX);
+                MARK3;  // end
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
                 break;
             default:
@@ -1044,15 +1051,22 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(rep==1) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
                 SETFLAGS(X_ALL, SF_SET);
                 CBZx_NEXT(xRCX);
-                GETDIR(x3, 1);
                 UBFXw(x1, xRAX, 0, 8);
-                MARK;
-                LDRB_U12(x2, xRDI, 0);
-                ADDx_REG(xRDI, xRDI, x3);
+                TBNZ_MARK2(xFlags, F_DF);
+                MARK;   // Part with DF==0
+                LDRB_S9_postindex(x2, xRDI, 1);
                 SUBx_U12(xRCX, xRCX, 1);
                 CMPSw_REG(x1, x2);
-                Bcond((rep==1)?cEQ:cNE, 4+4);
+                B_MARK3((rep==1)?cEQ:cNE);
                 CBNZx_MARK(xRCX);
+                B_MARK3_nocond;
+                MARK2;  // Part with DF==1
+                LDRB_S9_postindex(x2, xRDI, -1);
+                SUBx_U12(xRCX, xRCX, 1);
+                CMPSw_REG(x1, x2);
+                B_MARK3((rep==1)?cEQ:cNE);
+                CBNZx_MARK2(xRCX);
+                MARK3;  // end
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
                 break;
             default:

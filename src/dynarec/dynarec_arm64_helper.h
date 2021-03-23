@@ -262,8 +262,8 @@
     j32 = GETMARK-(dyn->arm_size);  \
     B(j32)
 // Branch to MARK if reg is not 0 (use j32)
-#define CBNZx_MARK(reg)            \
-    j32 = GETMARK-(dyn->arm_size); \
+#define CBNZx_MARK(reg)             \
+    j32 = GETMARK-(dyn->arm_size);  \
     CBNZx(reg, j32)
 // Branch to MARK2 if cond (use j32)
 #define B_MARK2(cond)               \
@@ -273,6 +273,14 @@
 #define B_MARK2_nocond              \
     j32 = GETMARK2-(dyn->arm_size); \
     B(j32)
+// Branch to MARK2 if reg is not 0 (use j32)
+#define CBNZx_MARK2(reg)            \
+    j32 = GETMARK2-(dyn->arm_size); \
+    CBNZx(reg, j32)
+// Test bit N of A and branch to MARK2 if set
+#define TBNZ_MARK2(A, N)            \
+    j32 = GETMARK2-(dyn->arm_size); \
+    TBNZ(A, N, j32)
 // Branch to MARK3 if cond (use j32)
 #define B_MARK3(cond)               \
     j32 = GETMARK3-(dyn->arm_size); \
