@@ -188,6 +188,31 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0xC2:
+            INST_NAME("CMPSS Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 1);
+            u8 = F8;
+            if((u8&7)==6){
+                FCMPS(v1, v0);
+            } else {
+                FCMPS(v0, v1);
+            }
+            MOV32w(x2, 0);
+            switch(u8&7) {
+                case 0: CSETMw(x2, cEQ); break;   // Equal
+                case 1: CSETMw(x2, cMI); break;   // Less than
+                case 2: CSETMw(x2, cLE); break;   // Less or equal
+                case 3: CSETMw(x2, cVS); break;   // NaN
+                case 4: CSETMw(x2, cNE); break;   // Not Equal (or unordered on ARM, not on X86...)
+                case 5: CSETMw(x2, cCS); break;   // Greater or equal or unordered
+                case 6: CSETMw(x2, cLT); break;   // Greater or unordered, test inverted, N!=V so unordereded or less than (inverted)
+                case 7: CSETMw(x2, cVC); break;   // not NaN
+            }
+            VMOVQSfrom(v0, 0, x2);
+            break;
+
         default:
             DEFAULT;
     }

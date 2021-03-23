@@ -699,6 +699,16 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    if(isMask(opcode, "f1011010100mmmmmdddd00nnnnnddddd", &a)) {
+        if(Rm!=31 && (cond&0b1110)!=0b1110 && Rn!=31 && Rn==Rm)
+            snprintf(buff, sizeof(buff), "CINV %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond^1]);    
+        else if(Rm==31 && (cond&0b1110)!=0b1110 && Rn==31)
+            snprintf(buff, sizeof(buff), "CSETM %s,%s", sf?Xt[Rd]:Wt[Rd], conds[cond^1]);    
+        else
+            snprintf(buff, sizeof(buff), "CSINV %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond]);
+        return buff;
+    }
+
     if(isMask(opcode, "f1011010100mmmmmcccc01nnnnnddddd", &a)) {
         if((cond&0b1110)!=0b1110 && Rn==Rm)
             snprintf(buff, sizeof(buff), "CNEG %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], conds[cond^1]);    

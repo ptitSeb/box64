@@ -346,6 +346,17 @@
 #define CSETw(Rd, cond)                     CSINCw(Rd, xZR, xZR, invCond(cond))
 #define CSETxw(Rd, cond)                    CSINCxw(Rd, xZR, xZR, invCond(cond))
 
+#define CSINV_gen(sf, Rm, cond, Rn, Rd)     ((sf)<<31 | 1<<30 | 0b11010100<<21 | (Rm)<<16 | (cond)<<12 | (Rn)<<5 | (Rd))
+#define CSINVx(Rd, Rn, Rm, cond)            EMIT(CSINV_gen(1, Rm, cond, Rn, Rd))
+#define CSINVw(Rd, Rn, Rm, cond)            EMIT(CSINV_gen(0, Rm, cond, Rn, Rd))
+#define CSINVxw(Rd, Rn, Rm, cond)           EMIT(CSINV_gen(rex.w?, Rm, cond, Rn, Rd))
+#define CINVx(Rd, Rn, cond)                 CSINVx(Rd, Rn, Rn, invertCond(cond))
+#define CINVw(Rd, Rn, cond)                 CSINVw(Rd, Rn, Rn, invertCond(cond))
+#define CINVxw(Rd, Rn, cond)                CSINVxw(Rd, Rn, Rn, invertCond(cond))
+#define CSETMx(Rd, cond)                    CSINVx(Rd, xZR, xZR, invCond(cond))
+#define CSETMw(Rd, cond)                    CSINVw(Rd, xZR, xZR, invCond(cond))
+#define CSETMxw(Rd, cond)                   CSINVxw(Rd, xZR, xZR, invCond(cond))
+
 #define CSEL_gen(sf, Rm, cond, Rn, Rd)      ((sf<<31) | 0b11010100<<21 | (Rm)<<16 | (cond)<<12 | (Rn)<<5 | Rd)
 #define CSELx(Rd, Rn, Rm, cond)             EMIT(CSEL_gen(1, Rm, cond, Rn, Rd))
 #define CSELw(Rd, Rn, Rm, cond)             EMIT(CSEL_gen(0, Rm, cond, Rn, Rd))
