@@ -37,6 +37,9 @@
 #define GETGX(a)    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
                     a = sse_get_reg(dyn, ninst, x1, gd)
 
+#define GETGX_empty(a)  gd = ((nextop&0x38)>>3)+(rex.r<<3);         \
+                        a = sse_get_reg_empty(dyn, ninst, x1, gd)
+
 uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
@@ -44,13 +47,14 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t gd, ed;
     uint8_t wback;
     int v0, v1;
-    int q0;
+    int q0, q1;
     int d0, d1;
     int fixedaddress;
 
     MAYUSE(d0);
     MAYUSE(d1);
     MAYUSE(q0);
+    MAYUSE(q1);
     MAYUSE(v0);
     MAYUSE(v1);
 
@@ -82,6 +86,33 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                 VSTR32_U12(v0, ed, fixedaddress);
             }
+            break;
+        case 0x12:
+            INST_NAME("MOVSLDUP Gx, Ex");
+            nextop = F8;
+            if(MODREG) {
+                q1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                q1 = fpu_get_scratch(dyn);
+                VLDR128_U12(q1, ed, fixedaddress);
+            }
+            GETGX_empty(q0);
+            VTRNQ1_32(q0, q1, q1);
+            break;
+
+        case 0x16:
+            INST_NAME("MOVSHDUP Gx, Ex");
+            nextop = F8;
+            if(MODREG) {
+                q1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                q1 = fpu_get_scratch(dyn);
+                VLDR128_U12(q1, ed, fixedaddress);
+            }
+            GETGX_empty(q0);
+            VTRNQ2_32(q0, q1, q1);
             break;
 
         case 0x2A:
