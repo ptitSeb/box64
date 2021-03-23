@@ -1980,15 +1980,15 @@ GOW(toupper_l, iFip)
 //GOW(towctrans, 
 //GO(__towctrans_l, 
 //GOW(towctrans_l, 
-//GOW(towlower, 
-//GO(__towlower_l, 
-//GOW(towlower_l, 
-//GOW(towupper, 
-//GO(__towupper_l, 
-//GOW(towupper_l, 
+GOW(towlower, iFi)
+GO(__towlower_l, iFip)
+GOW(towlower_l, iFip)
+GOW(towupper, iFi)
+GO(__towupper_l, iFip)
+GOW(towupper_l, iFip)
 //GO(tr_break, 
-//GOW(truncate, 
-//GOW(truncate64, 
+GOW(truncate, iFpl)
+GOW(truncate64, iFpI)
 //GO(__tsearch, 
 //GOW(tsearch, 
 //GO(ttyname, 
@@ -2092,14 +2092,14 @@ GOW(waitpid, lFlpi)
 //GO(__wcscat_chk, 
 //GOI(wcschr, 
 //GOW(wcschrnul, 
-//GOI(wcscmp, 
-//GOW(wcscoll, 
-//GO(__wcscoll_l, 
-//GOW(wcscoll_l, 
-//GOI(wcscpy, 
-//GO(__wcscpy_chk, 
+GO(wcscmp, iFpp)
+GOW(wcscoll, iFpp)
+GO(__wcscoll_l, iFppp)
+GOW(wcscoll_l, iFppp)
+GO(wcscpy, pFpp)
+GO(__wcscpy_chk, pFppL)
 //GO(wcscspn, 
-//GO(wcsdup, 
+GO(wcsdup, pFp)
 //GO(wcsftime, 
 //GO(__wcsftime_l, 
 //GOW(wcsftime_l, 
