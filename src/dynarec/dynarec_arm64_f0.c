@@ -51,6 +51,49 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     }
 
     switch(opcode) {
+        case 0x00:
+            INST_NAME("LOCK ADD Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGB(x2);
+            if((nextop&0xC0)==0xC0) {
+                if(rex.rex) {
+                    wback = xRAX + (nextop&7) + (rex.b<<3);
+                    wb2 = 0;
+                } else {
+                    wback = (nextop&7);    
+                    wb2 = (wback>>2);      
+                    wback = xRAX+(wback&3);
+                }
+                UBFXw(x1, wback, wb2*8, 8);   
+                emit_add8(dyn, ninst, x1, x2, x4, x3);
+                BFIx(wback, ed, wb2*8, 8);
+            } else {                   
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 0);
+                MARKLOCK;
+                LDAXRB(x1, wback);
+                emit_add8(dyn, ninst, x1, x2, x4, x3);
+                STLXRB(x4, x1, wback);
+                CBNZx_MARKLOCK(x4);
+            }
+            break;
+        case 0x01:
+            INST_NAME("LOCK ADD Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                emit_add32(dyn, ninst, rex, ed, gd, x3, x4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                MARKLOCK;
+                LDAXRxw(x1, wback);
+                emit_add32(dyn, ninst, rex, x1, gd, x3, x4);
+                STLXRxw(x3, x1, wback);
+                CBNZx_MARKLOCK(x3);
+            }
+            break;
 
         case 0x0F:
             nextop = F8;
