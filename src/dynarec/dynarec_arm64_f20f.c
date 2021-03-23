@@ -43,7 +43,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t nextop;
     uint8_t gd, ed;
     uint8_t wback;
-    int v0;
+    int v0, v1;
     int q0;
     int d0, d1;
     int fixedaddress;
@@ -52,6 +52,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(d1);
     MAYUSE(q0);
     MAYUSE(v0);
+    MAYUSE(v1);
 
     switch(opcode) {
 
@@ -166,6 +167,20 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeD(v0, 0, d1, 0);
             break;
 
+        case 0x7C:
+            INST_NAME("HADDPS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                v1 = fpu_get_scratch(dyn);
+                VLDR128_U12(v1, ed, fixedaddress);
+            }
+            VFADDPQS(v0, v0, v1);
+            break;
+            
         default:
             DEFAULT;
     }

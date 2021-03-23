@@ -788,6 +788,20 @@
 #define FSUBS(Sd, Sn, Sm)           EMIT(FADDSUB_scalar(0b00, Sm, 1, Sn, Sd))
 #define FSUBD(Dd, Dn, Dm)           EMIT(FADDSUB_scalar(0b01, Dm, 1, Dn, Dd))
 
+// ADD Pair
+#define ADDP_vector(Q, size, Rm, Rn, Rd)    ((Q)<<30 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b10111<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VADDPQ_8(Vd, Vn, Vm)        EMIT(ADDP(1, 0b00, Vm, Vn, Vd))
+#define VADDPQ_16(Vd, Vn, Vm)       EMIT(ADDP(1, 0b01, Vm, Vn, Vd))
+#define VADDPQ_32(Vd, Vn, Vm)       EMIT(ADDP(1, 0b10, Vm, Vn, Vd))
+#define VADDPQ_64(Vd, Vn, Vm)       EMIT(ADDP(1, 0b11, Vm, Vn, Vd))
+#define VADDP_8(Vd, Vn, Vm)         EMIT(ADDP(0, 0b00, Vm, Vn, Vd))
+#define VADDP_16(Vd, Vn, Vm)        EMIT(ADDP(0, 0b01, Vm, Vn, Vd))
+#define VADDP_32(Vd, Vn, Vm)        EMIT(ADDP(0, 0b10, Vm, Vn, Vd))
+
+#define FADDP_vector(Q, sz, Rm, Rn, Rd) ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11010<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VFADDPQS(Vd, Vn, Vm)        EMIT(FADDP_vector(1, 0, Vm, Vn, Vd))
+#define VFADDPQD(Vd, Vn, Vm)        EMIT(FADDP_vector(1, 1, Vm, Vn, Vd))
+
 // MUL
 #define FMUL_vector(Q, sz, Rm, Rn, Rd)  ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11011<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VFMULS(Sd, Sn, Sm)          EMIT(FMUL_vector(0, 0, Sm, Sn, Sd))
