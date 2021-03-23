@@ -146,6 +146,24 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FCOMI(x1, x2);
             break;
 
+        #define GO(GETFLAGS, NO, YES, F)            \
+            READFLAGS(F);                           \
+            GETFLAGS;                               \
+            nextop=F8;                              \
+            GETGD;                                  \
+            if(MODREG) {                            \
+                ed = xRAX+(nextop&7)+(rex.b<<3);    \
+            } else {                                \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0); \
+                LDRH_U12(x1, ed, fixedaddress);     \
+                ed = x1;                            \
+            }                                       \
+            Bcond(NO, +8);                          \
+            BFIx(gd, ed, 0, 16);
+
+        GOCOND(0x40, "CMOV", "Gw, Ew");
+        #undef GO
+
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;
@@ -183,23 +201,27 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FCVTXN(v0, v1);
             break;
 
-        #define GO(GETFLAGS, NO, YES, F)            \
-            READFLAGS(F);                           \
-            GETFLAGS;                               \
-            nextop=F8;                              \
-            GETGD;                                  \
-            if(MODREG) {                            \
-                ed = xRAX+(nextop&7)+(rex.b<<3);    \
-            } else {                                \
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0); \
-                LDRH_U12(x1, ed, fixedaddress);     \
-                ed = x1;                            \
-            }                                       \
-            Bcond(NO, +8);                          \
-            BFIx(gd, ed, 0, 16);
-
-        GOCOND(0x40, "CMOV", "Gw, Ew");
-        #undef GO
+        case 0x60:
+            INST_NAME("PUNPCKLBW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VZIP1Q_8(v0, v0, q0);
+            break;
+        case 0x61:
+            INST_NAME("PUNPCKLWD Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VZIP1Q_16(v0, v0, q0);
+            break;
+        case 0x62:
+            INST_NAME("PUNPCKLDQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VZIP1Q_32(v0, v0, q0);
+            break;
 
         case 0x68:
             INST_NAME("PUNPCKHBW Gx,Ex");
