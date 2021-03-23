@@ -1979,6 +1979,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         
+        case 0xFC:
+            INST_NAME("CLD");
+            BFCw(xFlags, F_DF, 1);
+            break;
+        case 0xFD:
+            INST_NAME("STD");
+            MOV32w(x1, 1);
+            BFIw(xFlags, x1, F_DF, 1);
+            break;
         case 0xFE:
             nextop = F8;
             switch((nextop>>3)&7) {
