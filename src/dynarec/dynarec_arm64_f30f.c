@@ -178,6 +178,20 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeS(v0, 0, d0, 0);   // to not erase uper part
             break;
             
+        case 0x6F:
+            INST_NAME("MOVDQU Gx,Ex");// no alignment constraint on NEON here, so same as MOVDQA
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVQ(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                VLDR128_U12(v0, ed, fixedaddress);
+            }
+            break;
+
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");
             nextop = F8;
