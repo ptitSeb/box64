@@ -148,7 +148,16 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FSUBS(d1, v0, d0);
             VMOVeS(v0, 0, d1, 0);
             break;
-
+        case 0x5D:
+            INST_NAME("MINSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            // MINSS: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
+            d0 = fpu_get_scratch(dyn);
+            FMINNMS(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
+            VMOVeS(v0, 0, d0, 0);   // to not erase uper part
+            break;
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
             nextop = F8;
