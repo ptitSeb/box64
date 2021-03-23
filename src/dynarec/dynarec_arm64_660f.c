@@ -197,6 +197,28 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         GOCOND(0x40, "CMOV", "Gw, Ew");
         #undef GO
 
+        case 0x68:
+            INST_NAME("PUNPCKHBW Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 1);
+            VZIP2Q_8(q0, q0, q1);
+            break;
+        case 0x69:
+            INST_NAME("PUNPCKHWD Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 1);
+            VZIP2Q_16(q0, q0, q1);
+            break;
+        case 0x6A:
+            INST_NAME("PUNPCKHDQ Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 1);
+            VZIP2Q_32(q0, q0, q1);
+            break;
+
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
