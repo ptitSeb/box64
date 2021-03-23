@@ -223,6 +223,62 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VLDR128_U12(v0, ed, fixedaddress);
             }
             break;
+        case 0x70:
+            INST_NAME("PSHUFD Gx,Ex,Ib");
+            nextop = F8;
+            GETG;
+            i32 = -1;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if(MODREG) {
+                u8 = F8;
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                if(u8==0x4E) {
+                    if(v0==v1) {
+                        VSWP(v0, v0+1);
+                    } else {
+                        VMOVeD(v0, 0, v1, 1);
+                        VMOVeD(v0, 1, v1, 0);
+                    }
+                } else {
+                    uint32_t swp[4] = {
+                        (0)|(1<<8)|(2<<16)|(3<<24),
+                        (4)|(5<<8)|(6<<16)|(7<<24),
+                        (8)|(9<<8)|(10<<16)|(11<<24),
+                        (12)|(13<<8)|(14<<16)|(15<<24)
+                    };
+                    d0 = fpu_get_scratch(dyn);
+                    if(v0==v1) {
+                        q1 = fpu_get_scratch(dyn);
+                        VMOVQ(q1, v1);
+                    } else
+                        q1 = v1;
+                    MOV32w(x2, swp[(u8>>(0*2))&3]);
+                    MOV32w(x3, swp[(u8>>(1*2))&3]);
+                    VMOVQSfrom(d0, 0, x2);
+                    VMOVQSfrom(d0, 1, x3);
+                    MOV32w(x2, swp[(u8>>(2*2))&3]);
+                    MOV32w(x3, swp[(u8>>(3*2))&3]);
+                    VMOVQSfrom(d0, 2, x2);
+                    VMOVQSfrom(d0, 3, x3);
+                    VTBLQ1_8(v0, v1, d0);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 1);
+                u8 = F8;
+                if (u8) {
+                    for (int i=0; i<4; ++i) {
+                        int32_t idx = (u8>>(i*2))&3;
+                        if(idx!=i32) {
+                            ADDx_U12(x2, ed, idx*4);
+                            i32 = idx;
+                        }
+                        VLD1_32(v0, i, x2);
+                    }
+                } else {
+                    VLD1R_32(v0, ed);
+                }
+            }
+            break;
 
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
