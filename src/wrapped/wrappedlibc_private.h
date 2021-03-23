@@ -214,12 +214,12 @@ GOM(dl_iterate_phdr, iFEpp) //Weak
 //GO(__dprintf_chk, 
 //GO(drand48, 
 //GO(drand48_r, 
-//GOW(dup, 
-//GO(__dup2, 
-//GOW(dup2, 
-//GOW(dup3, 
-//GO(__duplocale, 
-//GOW(duplocale, 
+GOW(dup, iFi)
+GO(__dup2, iFii)
+GOW(dup2, iFii)
+GOW(dup3, iFiiO)
+GO(__duplocale, pFp)
+GOW(duplocale, pFp)
 //GO(dysize, 
 //GOW(eaccess, 
 //GO(ecb_crypt, 
@@ -1111,7 +1111,7 @@ GO(malloc, pFL) // need to wrap to clear allocated memory?
 //GOW(mbsinit, 
 //GOW(mbsnrtowcs, 
 //GO(__mbsnrtowcs_chk, 
-//GOW(mbsrtowcs, 
+GOW(mbsrtowcs, LFppL)
 //GO(__mbsrtowcs_chk, 
 //GO(mbstowcs, 
 //GO(__mbstowcs_chk, 
@@ -1500,7 +1500,7 @@ GO2(__realpath_chk, pFppv, my_realpath)
 //GO(remove, 
 //GO(removexattr, 
 //GO(remque, 
-//GO(rename, 
+GO(rename, iFpp)
 //GOW(renameat, 
 //GOW(renameat2, 
 //DATAB(_res, 
@@ -2103,7 +2103,7 @@ GOW(waitpid, lFlpi)
 //GO(wcsftime, 
 //GO(__wcsftime_l, 
 //GOW(wcsftime_l, 
-//GOI(wcslen, 
+GO(wcslen, LFp)
 //GOW(wcsncasecmp, 
 //GO(__wcsncasecmp_l, 
 //GOW(wcsncasecmp_l, 
