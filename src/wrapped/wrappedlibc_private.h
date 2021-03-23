@@ -1497,7 +1497,7 @@ GO2(__realpath_chk, pFppv, my_realpath)
 //GOW(re_match, 
 //GOW(re_match_2, 
 //DATA(re_max_failures, 
-//GO(remove, 
+GO(remove, iFp)
 //GO(removexattr, 
 //GO(remque, 
 GO(rename, iFpp)
