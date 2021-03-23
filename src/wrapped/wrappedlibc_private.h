@@ -1111,7 +1111,7 @@ GO(malloc, pFL) // need to wrap to clear allocated memory?
 //GOW(mbsinit, 
 //GOW(mbsnrtowcs, 
 //GO(__mbsnrtowcs_chk, 
-GOW(mbsrtowcs, LFppL)
+GOW(mbsrtowcs, LFppLp)
 //GO(__mbsrtowcs_chk, 
 //GO(mbstowcs, 
 //GO(__mbstowcs_chk, 
