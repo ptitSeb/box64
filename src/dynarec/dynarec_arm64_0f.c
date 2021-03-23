@@ -376,6 +376,61 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             WBACK;
             break;
 
+        case 0xAE:
+            nextop = F8;
+            if((nextop&0xF8)==0xE8) {
+                INST_NAME("LFENCE");
+            } else
+            if((nextop&0xF8)==0xF0) {
+                INST_NAME("MFENCE");
+            } else
+            if((nextop&0xF8)==0xF8) {
+                INST_NAME("SFENCE");
+            } else {
+                switch((nextop>>3)&7) {
+                    case 0:
+                        INST_NAME("FXSAVE Ed");
+                        fpu_purgecache(dyn, ninst, x1, x2, x3);
+                        if((nextop&0xC0)==0xC0) {
+                            DEFAULT;
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                            if(ed!=x1) {MOVx_REG(x1, ed);}
+                            CALL(rex.w?((void*)fpu_fxsave64):((void*)fpu_fxsave32), -1);
+                        }
+                        break;
+                    case 1:
+                        INST_NAME("FXRSTOR Ed");
+                        fpu_purgecache(dyn, ninst, x1, x2, x3);
+                        if((nextop&0xC0)==0xC0) {
+                            DEFAULT;
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                            if(ed!=x1) {MOVx_REG(x1, ed);}
+                            CALL(rex.w?((void*)fpu_fxrstor64):((void*)fpu_fxrstor32), -1);
+                        }
+                        break;
+                    case 2:                 
+                        INST_NAME("LDMXCSR Md");
+                        GETED(0);
+                        STRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        break;
+                    case 3:
+                        INST_NAME("STMXCSR Md");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = xRAX+(nextop&7)+(rex.b<<3);
+                            LDRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                            LDRw_U12(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                            STRw_U12(x4, ed, fixedaddress);
+                        }
+                        break;
+                    default:
+                        DEFAULT;
+                }
+            }
+            break;
         case 0xAF:
             INST_NAME("IMUL Gd, Ed");
             SETFLAGS(X_ALL, SF_PENDING);
