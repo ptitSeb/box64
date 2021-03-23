@@ -27,7 +27,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 {
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    uint32_t u32;
     int32_t i32, j32;
     int16_t i16;
     uint16_t u16;

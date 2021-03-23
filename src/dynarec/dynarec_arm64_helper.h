@@ -265,6 +265,10 @@
 #define CBNZx_MARK(reg)             \
     j32 = GETMARK-(dyn->arm_size);  \
     CBNZx(reg, j32)
+// Branch to MARK if reg is not 0 (use j32)
+#define CBNZw_MARK(reg)             \
+    j32 = GETMARK-(dyn->arm_size);  \
+    CBNZw(reg, j32)
 // Branch to MARK2 if cond (use j32)
 #define B_MARK2(cond)               \
     j32 = GETMARK2-(dyn->arm_size); \
@@ -440,7 +444,7 @@
     if(A==xRIP) dyn->last_ip = 0
 
 #define SET_DFNONE(S)    if(!dyn->dfnone) {MOVZw(S, d_none); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=1;}
-#define SET_DF(S, N)     if(N) {MOVZw(S, N); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=0;} else SET_DFNONE(S)
+#define SET_DF(S, N)     if((N)!=d_none) {MOVZw(S, (N)); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=0;} else SET_DFNONE(S)
 #define SET_NODF()          dyn->dfnone = 0
 #define SET_DFOK()          dyn->dfnone = 1
 

@@ -323,7 +323,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     if(!created)
         return block;   // existing block...
 
-    #if 0
+    #if 1
     if(box64_dynarec_dump)
         pthread_mutex_lock(&my_context->mutex_dyndump);
     #endif
@@ -338,7 +338,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         free(block);
         block = NULL;
     }
-    #if 0
+    #if 1
     if(box64_dynarec_dump)
         pthread_mutex_unlock(&my_context->mutex_dyndump);
     #endif

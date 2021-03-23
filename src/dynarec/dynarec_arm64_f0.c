@@ -26,17 +26,15 @@
 uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
-    uint8_t nextop, u8;
-    uint32_t u32;
-    int32_t i32, j32;
-    int16_t i16;
-    uint16_t u16;
+    uint8_t nextop;
+    int32_t j32;
     uint8_t gd, ed;
-    uint8_t wback, wb1, wb2, gb1, gb2;
+    uint8_t wback, wb2, gb1, gb2;
     int64_t i64;
     int fixedaddress;
-    MAYUSE(u16);
-    MAYUSE(u8);
+    MAYUSE(gb1);
+    MAYUSE(gb2);
+    MAYUSE(wb2);
     MAYUSE(j32);
 
     while((opcode==0xF2) || (opcode==0xF3)) {
@@ -67,7 +65,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 UBFXw(x1, wback, wb2*8, 8);   
                 emit_add8(dyn, ninst, x1, x2, x4, x3);
-                BFIx(wback, ed, wb2*8, 8);
+                BFIx(wback, x1, wb2*8, 8);
             } else {                   
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 0);
                 MARKLOCK;
@@ -363,7 +361,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETED(0);
                     // No need to LOCK, this is readonly
                     if(opcode==0x81) i64 = F32S; else i64 = F8S;
-                    if(i32) {
+                    if(i64) {
                         MOV64xw(x5, i64);
                         emit_cmp32(dyn, ninst, rex, ed, x5, x3, x4, x6);
                     } else {

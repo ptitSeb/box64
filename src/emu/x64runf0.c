@@ -301,7 +301,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
                         case 4: do { tmp32u2 = arm64_lock_read_d(ED); tmp32u2 = and32(emu, tmp32u2, tmp64u);} while(arm64_lock_write_d(ED, tmp32u2)); break;
                         case 5: do { tmp32u2 = arm64_lock_read_d(ED); tmp32u2 = sub32(emu, tmp32u2, tmp64u);} while(arm64_lock_write_d(ED, tmp32u2)); break;
                         case 6: do { tmp32u2 = arm64_lock_read_d(ED); tmp32u2 = xor32(emu, tmp32u2, tmp64u);} while(arm64_lock_write_d(ED, tmp32u2)); break;
-                        case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
+                        case 7:                                                 cmp32(emu, ED->dword[0], tmp64u); break;
                     }
             }
 #else

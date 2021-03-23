@@ -41,22 +41,18 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 {
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    int32_t i32, j32;
     uint8_t gd, ed;
-    uint8_t wback, wb1;
-    uint8_t eb1, eb2;
+    uint8_t wback;
     int v0, v1;
-    int q0, q1;
+    int q0;
     int d0, d1;
-    int s0;
     int fixedaddress;
-    int parity;
 
     MAYUSE(d0);
-    MAYUSE(q1);
-    MAYUSE(eb1);
-    MAYUSE(eb2);
-    MAYUSE(j32);
+    MAYUSE(d1);
+    MAYUSE(q0);
+    MAYUSE(v0);
+    MAYUSE(v1);
 
     switch(opcode) {
 

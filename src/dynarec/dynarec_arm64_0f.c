@@ -34,7 +34,7 @@
 
 #define GETEX(a, D)                                             \
     if(MODREG) {                                                \
-        a = sse_get_reg(dyn, ninst, x1, nextop&7+(rex.b<<3));   \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));   \
     } else {                                                    \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0); \
         a = fpu_get_scratch(dyn);                               \
@@ -42,11 +42,11 @@
     }
 
 #define GETGM(a)            \
-    gd = (nextop&0x38)>>3;  \
+    gd = ((nextop&0x38)>>3);  \
     a = mmx_get_reg(dyn, ninst, x1, gd)
 #define GETEM(a, D)    \
     if(MODREG) {        \
-        a = mmx_get_reg(dyn, ninst, x1, nextop&7); \
+        a = mmx_get_reg(dyn, ninst, x1, (nextop&7)); \
     } else {                                        \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0); \
         a = fpu_get_scratch_double(dyn); \
@@ -63,24 +63,25 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t nextop, u8;
     int32_t i32, i32_, j32;
     uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
+    uint8_t wback, wb2;
     uint8_t eb1, eb2;
-    uint8_t gb1, gb2;
-    int v0, v1, v2;
+    int v0, v1;
     int q0, q1;
-    int d0, d1;
+    int d0;
     int s0;
     int fixedaddress;
-    int parity;
     MAYUSE(s0);
+    MAYUSE(q0);
     MAYUSE(q1);
-    MAYUSE(v2);
-    MAYUSE(gb2);
-    MAYUSE(gb1);
+    MAYUSE(v0);
+    MAYUSE(v1);
+    MAYUSE(d0);
     MAYUSE(eb2);
     MAYUSE(eb1);
     MAYUSE(wb2);
     MAYUSE(j32);
+    MAYUSE(i32);
+    MAYUSE(u8);
     #if STEP == 3
     //static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
     #endif
@@ -135,7 +136,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x16:
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 INST_NAME("MOVLHPS Gx,Ex");
                 GETGX(v0);
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
@@ -260,7 +261,20 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGX(v0);
             VEORQ(v0, v0, q0);
             break;
-
+        case 0x58:
+            INST_NAME("ADDPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VFADDQS(v0, v0, q0);
+            break;
+        case 0x59:
+            INST_NAME("MULPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VFMULQS(v0, v0, q0);
+            break;
         case 0x5A:
             INST_NAME("CVTPS2PD Gx, Ex");
             nextop = F8;

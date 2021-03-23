@@ -268,7 +268,8 @@ int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, i
                 return ((sib&0x7)==4 && (sib>>6)>=parity)?1:0;
             }
         } else if((nextop&7)==5) {
-            uint64_t tmp = F32S64+addr+delta;
+            uint64_t tmp = F32S64;
+            tmp+=addr+delta;
             return (tmp&tested)?0:1;
         } else {
             return 0;

@@ -91,9 +91,9 @@ int isMask(uint32_t opcode, const char* mask, arm64_print_t *a)
 int64_t signExtend(uint32_t val, int sz)
 {
     int64_t ret = val;
-    if((val>>(sz-1))&1 == 1)
-        val |= (0xffffffffffffffffll<<sz);
-    return val;
+    if((val>>(sz-1))&1)
+        ret |= (0xffffffffffffffffll<<sz);
+    return ret;
 }
 
 const char* arm64_print(uint32_t opcode, uintptr_t addr)
@@ -911,7 +911,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         char s = a.Q?'V':'D';
         char d = sf?'D':'S';
         int n = (a.Q && !sf)?4:2;
-        snprintf(buff, sizeof(buff), "VFMUL %c%d.%d%c, %c%d.%d%c, %c%d.%c%d", s, Rd, n, d, s, Rn, n, d, s, Rm, s, d);
+        snprintf(buff, sizeof(buff), "VFMUL %c%d.%d%c, %c%d.%d%c, %c%d.%d%c", s, Rd, n, d, s, Rn, n, d, s, Rm, n, d);
         return buff;
     }
     if(isMask(opcode, "00011110ff1mmmmm000010nnnnnddddd", &a)) {

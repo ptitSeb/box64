@@ -43,6 +43,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     opcode = F8;
     MAYUSE(eb1);
     MAYUSE(eb2);
+    MAYUSE(wb2);
     MAYUSE(tmp);
     MAYUSE(j32);
 

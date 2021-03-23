@@ -240,6 +240,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             MOVx_REG(xRIP, reg);
         }
         uintptr_t tbl = getJumpTable64();
+        MAYUSE(tbl);
         TABLE64(x2, tbl);
         UBFXx(x3, xRIP, 48, JMPTABL_SHIFT);
         LDRx_REG_LSL3(x2, x2, x3);
@@ -250,7 +251,8 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
         LDRx_REG_LSL3(x3, x2, x3);
     } else {
-        uintptr_t p = getJumpTableAddress64(ip); 
+        uintptr_t p = getJumpTableAddress64(ip);
+        MAYUSE(p);
         TABLE64(x2, p);
         GETIP_(ip);
         LDRx_U12(x3, x2, 0);

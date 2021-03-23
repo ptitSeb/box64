@@ -26,18 +26,10 @@
 uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
-    uint8_t nextop, u8;
     int8_t  i8;
-    uint32_t u32;
     int32_t i32, j32;
-    int16_t i16;
-    uint16_t u16;
-    uint8_t gd, ed;
-    uint8_t wback, wb1;
-    int fixedaddress;
-    MAYUSE(u16);
-    MAYUSE(u8);
     MAYUSE(j32);
+    MAYUSE(i32);
 
     // REX prefix before the 67 are ignored
     rex.rex = 0;
