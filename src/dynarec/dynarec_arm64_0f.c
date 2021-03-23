@@ -129,6 +129,32 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGX(v0);
             VZIP2Q_32(v0, v0, q0);
             break;
+        case 0x16:
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                INST_NAME("MOVLHPS Gx,Ex");
+                GETGX(v0);
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVeD(v0, 1, v1, 0);
+            } else {
+                INST_NAME("MOVHPS Gx,Ex");
+                GETGX(v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                VLD1_64(v0, 1, ed);
+            }
+            break;
+        case 0x17:
+            nextop = F8;
+            INST_NAME("MOVHPS Ex,Gx");
+            GETGX(v0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVeD(v1, 0, v0, 1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                VST1_64(v0, 1, ed);
+            }
+            break;
 
         case 0x1F:
             INST_NAME("NOP (multibyte)");
