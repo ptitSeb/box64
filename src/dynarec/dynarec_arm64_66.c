@@ -460,6 +460,22 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BFIx(gd, x1, 0, 16);
             break;
 
+        case 0xC7:
+            INST_NAME("MOV Ew, Iw");
+            nextop = F8;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                u16 = F16;
+                MOV32w(x1, u16);
+                BFIx(ed, x1, 0, 16);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 2);
+                u16 = F16;
+                MOV32w(x1, u16);
+                STRH_U12(x1, ed, fixedaddress);
+            }
+            break;
+
         case 0xD1:
         case 0xD3:
             nextop = F8;
