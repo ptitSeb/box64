@@ -436,6 +436,21 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("NOP");
             break;
 
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg16, Iw");
+            u16 = F16;
+            MOV32w(x1, u16);
+            gd = xRAX+(opcode&7)+(rex.b<<3);
+            BFIx(gd, x1, 0, 16);
+            break;
+
         case 0xD1:
         case 0xD3:
             nextop = F8;
