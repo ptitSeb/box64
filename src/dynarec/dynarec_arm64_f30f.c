@@ -158,6 +158,16 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FDIVS(d1, v0, d0);
             VMOVeS(v0, 0, d1, 0);
             break;
+        case 0x5F:
+            INST_NAME("MAXSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            // MAXSS: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
+            d0 = fpu_get_scratch(dyn);
+            FMAXNMS(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
+            VMOVeS(v0, 0, d0, 0);   // to not erase uper part
+            break;
             
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");

@@ -901,6 +901,29 @@
 #define SCVTQFS(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 0, Vn, VD))
 #define SCVTQFD(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 1, Vn, VD))
 
+// FMAX / FMIN
+#define FMINMAX_vector(Q, U, o1, sz, Rm, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o1)<<23 | (sz)<<22 | 0b1<<21 | (Rm)<<16 | 0b11110<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VFMINS(Vd, Vn, Vm)          EMIT(FMINMAX_vector(0, 0, 1, 0, Vm, Vn, Vd))
+#define VFMAXS(Vd, Vn, Vm)          EMIT(FMINMAX_vector(0, 0, 0, 0, Vm, Vn, Vd))
+#define VFMINQS(Vd, Vn, Vm)         EMIT(FMINMAX_vector(1, 0, 1, 0, Vm, Vn, Vd))
+#define VFMAXQS(Vd, Vn, Vm)         EMIT(FMINMAX_vector(1, 0, 0, 0, Vm, Vn, Vd))
+#define VFMINQD(Vd, Vn, Vm)         EMIT(FMINMAX_vector(1, 0, 1, 1, Vm, Vn, Vd))
+#define VFMAXQD(Vd, Vn, Vm)         EMIT(FMINMAX_vector(1, 0, 0, 1, Vm, Vn, Vd))
+
+#define FMINMAX_scalar(type, Rm, op, Rn, Rd)        (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b01<<14 | (op)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define FMINS(Sd, Sn, Sm)           EMIT(FMINMAX_scalar(0b00, Sm, 0b01, Sn, Sd))
+#define FMIND(Dd, Dn, Dm)           EMIT(FMINMAX_scalar(0b01, Dm, 0b01, Dn, Dd))
+#define FMAXS(Sd, Sn, Sm)           EMIT(FMINMAX_scalar(0b00, Sm, 0b00, Sn, Sd))
+#define FMAXD(Dd, Dn, Dm)           EMIT(FMINMAX_scalar(0b01, Dm, 0b00, Dn, Dd))
+// FMINNM NaN vs Number: number is picked
+#define FMINNMS(Sd, Sn, Sm)         EMIT(FMINMAX_scalar(0b00, Sm, 0b11, Sn, Sd))
+// FMINNM NaN vs Number: number is picked
+#define FMINNMD(Dd, Dn, Dm)         EMIT(FMINMAX_scalar(0b01, Dm, 0b11, Dn, Dd))
+// FMAXNM NaN vs Number: number is picked
+#define FMAXNMS(Sd, Sn, Sm)         EMIT(FMINMAX_scalar(0b00, Sm, 0b10, Sn, Sd))
+// FMAXNM NaN vs Number: number is picked
+#define FMAXNMD(Dd, Dn, Dm)         EMIT(FMINMAX_scalar(0b01, Dm, 0b10, Dn, Dd))
+
 // ZIP
 #define ZIP_gen(Q, size, Rm, op, Rn, Rd)    ((Q)<<30 | 0b001110<<24 | (size)<<22 | (Rm)<<16 | (op)<<14 | 0b11<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define VZIP1Q_8(Rt, Rn, Rm)        EMIT(ZIP_gen(1, 0b00, Rm, 0, Rn, Rt))
