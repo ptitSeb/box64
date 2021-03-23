@@ -581,6 +581,15 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             BFIx(gd, x1, 0, 16);
             break;
 
+
+        case 0xD4:
+            INST_NAME("PADDQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VADDQ_64(v0, v0, q0);
+            break;
+
         case 0xD6:
             INST_NAME("MOVQ Ex, Gx");
             nextop = F8;

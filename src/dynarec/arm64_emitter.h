@@ -691,6 +691,23 @@
 #define VSRI_16(Vd, Vn, shift)              EMIT(VSRI_vector(0, 0b0010 | ((shift)>>3)&1, (shift)&7, Vn, Vd))
 #define VSRI_32(Vd, Vn, shift)              EMIT(VSRI_vector(0, 0b0100 | ((shift)>>3)&3, (shift)&7, Vn, Vd))
 
+// Integer MATH
+#define ADDSUB_vector(Q, U, size, Rm, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b10000<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VADDQ_8(Vd, Vn, Vm)                 EMIT(ADDSUB_vector(1, 0, 0b00, Vm, Vn, Vd))
+#define VADDQ_16(Vd, Vn, Vm)                EMIT(ADDSUB_vector(1, 0, 0b01, Vm, Vn, Vd))
+#define VADDQ_32(Vd, Vn, Vm)                EMIT(ADDSUB_vector(1, 0, 0b10, Vm, Vn, Vd))
+#define VADDQ_64(Vd, Vn, Vm)                EMIT(ADDSUB_vector(1, 0, 0b11, Vm, Vn, Vd))
+#define VADD_8(Vd, Vn, Vm)                  EMIT(ADDSUB_vector(0, 0, 0b00, Vm, Vn, Vd))
+#define VADD_16(Vd, Vn, Vm)                 EMIT(ADDSUB_vector(0, 0, 0b01, Vm, Vn, Vd))
+#define VADD_32(Vd, Vn, Vm)                 EMIT(ADDSUB_vector(0, 0, 0b10, Vm, Vn, Vd))
+#define VSUBQ_8(Vd, Vn, Vm)                 EMIT(ADDSUB_vector(1, 1, 0b00, Vm, Vn, Vd))
+#define VSUBQ_16(Vd, Vn, Vm)                EMIT(ADDSUB_vector(1, 1, 0b01, Vm, Vn, Vd))
+#define VSUBQ_32(Vd, Vn, Vm)                EMIT(ADDSUB_vector(1, 1, 0b10, Vm, Vn, Vd))
+#define VSUBQ_64(Vd, Vn, Vm)                EMIT(ADDSUB_vector(1, 1, 0b11, Vm, Vn, Vd))
+#define VSUB_8(Vd, Vn, Vm)                  EMIT(ADDSUB_vector(0, 1, 0b00, Vm, Vn, Vd))
+#define VSUB_16(Vd, Vn, Vm)                 EMIT(ADDSUB_vector(0, 1, 0b01, Vm, Vn, Vd))
+#define VSUB_32(Vd, Vn, Vm)                 EMIT(ADDSUB_vector(0, 1, 0b10, Vm, Vn, Vd))
+
 // FMOV
 #define FMOV_general(sf, type, mode, opcode, Rn, Rd)    ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (mode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
 // 32-bit to single-precision
