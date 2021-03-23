@@ -90,6 +90,20 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0x2A:
+            INST_NAME("CVTSI2SD Gx, Ed");
+            nextop = F8;
+            GETGX(v0);
+            GETED(0);
+            d1 = fpu_get_scratch(dyn);
+            if(rex.w) {
+                SCVTFDx(d1, ed);
+            } else {
+                SCVTFDw(d1, ed);
+            }
+            VMOVeD(v0, 0, d1, 0);
+            break;
+
         case 0x51:
             INST_NAME("SQRTSD Gx, Ex");
             nextop = F8;

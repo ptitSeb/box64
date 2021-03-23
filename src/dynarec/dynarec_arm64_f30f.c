@@ -95,9 +95,9 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETED(0);
             d1 = fpu_get_scratch(dyn);
             if(rex.w) {
-                SCVTSx(d1, ed);
+                SCVTFSx(d1, ed);
             } else {
-                SCVTSw(d1, ed);
+                SCVTFSw(d1, ed);
             }
             VMOVeS(v0, 0, d1, 0);
             break;

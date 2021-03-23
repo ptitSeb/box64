@@ -936,23 +936,23 @@
 #define FCVT_D_S(Dd, Sn)            EMIT(FCVT_precision(0b00, 0b01, Sn, Dd))
 #define FCVT_S_D(Sd, Dn)            EMIT(FCVT_precision(0b01, 0b00, Dn, Sd))
 
-#define FCVTXN_gen(Q, sz, Rn, Rd)   ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b10110<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define FCVTXN_vector(Q, sz, Rn, Rd)   ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b10110<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 // Convert Vn from 2*Double to lower Vd as 2*float and clears the upper half
-#define FCVTXN(Vd, Vn)              EMIT(FCVTXN_gen(0, 1, Vn, Vd))
+#define FCVTXN(Vd, Vn)              EMIT(FCVTXN_vector(0, 1, Vn, Vd))
 // Convert Vn from 2*Double to higher Vd as 2*float
-#define FCVTXN2(Vd, Vn)             EMIT(FCVTXN_gen(1, 1, Vn, Vd))
+#define FCVTXN2(Vd, Vn)             EMIT(FCVTXN_vector(1, 1, Vn, Vd))
 
-#define FCVTL_gen(Q, sz, Rn, Rd)    ((Q)<<30 | 0<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b10111<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define FCVTL_vector(Q, sz, Rn, Rd)     ((Q)<<30 | 0<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b10111<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 // Convert lower Vn from 2*float to Vd as 2*double
-#define FCVTL(Vd, Vn)               EMIT(FCVTL_gen(0, 1, Vn, Vd))
+#define FCVTL(Vd, Vn)               EMIT(FCVTL_vector(0, 1, Vn, Vd))
 // Convert higher Vn from 2*float to Vd as 2*double
-#define FCVTL2(Vd, Vn)              EMIT(FCVTL_gen(1, 1, Vn, Vd))
+#define FCVTL2(Vd, Vn)              EMIT(FCVTL_vector(1, 1, Vn, Vd))
 
 #define SCVTF_scalar(sf, type, rmode, opcode, Rn, Rd)   ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (rmode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
-#define SCVTSw(Sd, Wn)              EMIT(SCVTF_scalar(0, 0b00, 0b00, 0b010, Wn, Sd))
-#define SCVTDw(Dd, Wn)              EMIT(SCVTF_scalar(0, 0b00, 0b01, 0b010, Wn, Dd))
-#define SCVTSx(Sd, Xn)              EMIT(SCVTF_scalar(1, 0b00, 0b00, 0b010, Xn, Sd))
-#define SCVTDx(Dd, Xn)              EMIT(SCVTF_scalar(1, 0b00, 0b01, 0b010, Xn, Dd))
+#define SCVTFSw(Sd, Wn)             EMIT(SCVTF_scalar(0, 0b00, 0b00, 0b010, Wn, Sd))
+#define SCVTFDw(Dd, Wn)             EMIT(SCVTF_scalar(0, 0b01, 0b00, 0b010, Wn, Dd))
+#define SCVTFSx(Sd, Xn)             EMIT(SCVTF_scalar(1, 0b00, 0b00, 0b010, Xn, Sd))
+#define SCVTFDx(Dd, Xn)             EMIT(SCVTF_scalar(1, 0b01, 0b00, 0b010, Xn, Dd))
 
 #define SCVTF_vector_scalar(U, sz, Rn, Rd)    (1<<30 | (U)<<29 | 0b11110<<24 | (sz)<<22 | 0b10000<<17 | 0b11101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define SCVTFSS(Vd, Vn)             EMIT(SCVT_vector_scalar(0, 0, Vn, Vd))

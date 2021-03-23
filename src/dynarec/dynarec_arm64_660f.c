@@ -38,6 +38,10 @@
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     a = sse_get_reg(dyn, ninst, x1, gd)
 
+#define GETGX_empty(a)                  \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+    a = sse_get_reg_empty(dyn, ninst, x1, gd)
+
 uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
@@ -594,8 +598,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xEF:
             INST_NAME("PXOR Gx,Ex");
             nextop = F8;
-            gd = ((nextop&0x38)>>3)+(rex.r<<3);
-            if(nextop+(rex.b<<3)==0xC0+gd) {
+            GETG;
+            if(MODREG && ((nextop&7)+(rex.b<<3)==gd)) {
                 // special case for PXOR Gx, Gx
                 q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VEORQ(q0, q0, q0);
