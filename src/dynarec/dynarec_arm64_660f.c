@@ -392,6 +392,27 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             BFIw(xFlags, x1, F_ZF, 1);
             SET_DFNONE(x1);
             break;
+        case 0xBE:
+            INST_NAME("MOVSX Gw, Eb");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                if(rex.rex) {
+                    ed = xRAX+(nextop&7)+(rex.b<<3);
+                    eb1=ed;
+                    eb2=0;
+                } else {
+                    ed = (nextop&7);
+                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                }
+                SBFXw(x1, eb1, eb2, 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff, 0, rex, 0, 0);
+                LDRSBw_U12(x1, ed, fixedaddress);
+            }
+            BFIx(gd, x1, 0, 16);
+            break;
 
         case 0xD6:
             INST_NAME("MOVQ Ex, Gx");
