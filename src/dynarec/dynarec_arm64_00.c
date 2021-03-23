@@ -969,16 +969,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xA5:
             if(rep) {
                 INST_NAME("REP MOVSD");
-                TSTw_REG(xRCX, xRCX);
-                B_NEXT(cEQ);    // end of loop
-                GETDIR(x3, rex.w?8:4);
-                MARK;
-                LDRxw_U12(x1, xRSI, 0);
-                STRxw_U12(x1, xRDI, 0);
-                ADDx_REG(xRSI, xRSI, x3);
-                ADDx_REG(xRDI, xRDI, x3);
+                CBZx_NEXT(xRCX);
+                TBNZ_MARK2(xFlags, F_DF);
+                MARK;   // Part with DF==0
+                LDRxw_S9_postindex(x1, xRSI, rex.w?8:4);
+                STRxw_S9_postindex(x1, xRDI, rex.w?8:4);
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                LDRxw_S9_postindex(x1, xRSI, rex.w?-8:-4);
+                STRxw_S9_postindex(x1, xRDI, rex.w?-8:-4);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK2(xRCX);
                 // done
             } else {
                 INST_NAME("MOVSD");
