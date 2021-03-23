@@ -219,6 +219,19 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VZIP2Q_32(q0, q0, q1);
             break;
 
+        case 0x6C:
+            INST_NAME("PUNPCKLQDQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVeD(v0, 1, v1, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                VLD1_64(v0, 1, ed);
+            }
+            break;
+
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
