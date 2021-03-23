@@ -1064,15 +1064,15 @@
 #define VTBXQ4_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b11, 0, Rn, Rd))
 
 // TRN
-#define TRN_gen(Q, size, Rm, op, Rn, Rd)    ((Q)<<30 | 0b001110<<24 | (size)<<22 | (Rm)<<16 | (op)<<15 | 0b10<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
-#define VTRNQ1_64(Rd, Rn, Rm)       EMIT(TRN_gen(1, 0b11, Rm, 0, Rn, Rm))
-#define VTRNQ1_32(Rd, Rn, Rm)       EMIT(TRN_gen(1, 0b10, Rm, 0, Rn, Rm))
-#define VTRNQ1_16(Rd, Rn, Rm)       EMIT(TRN_gen(1, 0b01, Rm, 0, Rn, Rm))
-#define VTRNQ1_8(Rd, Rn, Rm)        EMIT(TRN_gen(1, 0b00, Rm, 0, Rn, Rm))
-#define VSWP(Rd, Rn)                VTRNQ1_64(Rd, Rn, Rn)
-#define VTRNQ2_64(Rd, Rn, Rm)       EMIT(TRN_gen(1, 0b11, Rm, 1, Rn, Rm))
-#define VTRNQ2_32(Rd, Rn, Rm)       EMIT(TRN_gen(1, 0b10, Rm, 1, Rn, Rm))
-#define VTRNQ2_16(Rd, Rn, Rm)       EMIT(TRN_gen(1, 0b01, Rm, 1, Rn, Rm))
-#define VTRNQ2_8(Rd, Rn, Rm)        EMIT(TRN_gen(1, 0b00, Rm, 1, Rn, Rm))
+#define TRN_gen(Q, size, Rm, op, Rn, Rd)    ((Q)<<30 | 0b001110<<24 | (size)<<22 | (Rm)<<16 | (op)<<14 | 0b10<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define VTRNQ1_64(Vd, Vn, Vm)       EMIT(TRN_gen(1, 0b11, Vm, 0, Vn, Vd))
+#define VTRNQ1_32(Vd, Vn, Vm)       EMIT(TRN_gen(1, 0b10, Vm, 0, Vn, Vd))
+#define VTRNQ1_16(Vd, Vn, Vm)       EMIT(TRN_gen(1, 0b01, Vm, 0, Vn, Vd))
+#define VTRNQ1_8(Vd, Vn, Vm)        EMIT(TRN_gen(1, 0b00, Vm, 0, Vn, Vd))
+#define VSWP(Vd, Vn)                VTRNQ1_64(Vd, Vn, Vn)
+#define VTRNQ2_64(Vd, Vn, Vm)       EMIT(TRN_gen(1, 0b11, Vm, 1, Vn, Vd))
+#define VTRNQ2_32(Vd, Vn, Vm)       EMIT(TRN_gen(1, 0b10, Vm, 1, Vn, Vd))
+#define VTRNQ2_16(Vd, Vn, Vm)       EMIT(TRN_gen(1, 0b01, Vm, 1, Vn, Vd))
+#define VTRNQ2_8(Vd, Vn, Vm)        EMIT(TRN_gen(1, 0b00, Vm, 1, Vn, Vd))
 
 #endif  //__ARM64_EMITTER_H__
