@@ -209,11 +209,11 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 FCMPS(v0, v1);
             }
-            MOV32w(x2, 0);
             switch(u8&7) {
                 case 0: CSETMw(x2, cEQ); break;   // Equal
                 case 1: CSETMw(x2, cMI); break;   // Less than
-                case 2: CSETMw(x2, cLE); break;   // Less or equal
+                case 2: //CSETMw(x2, cLE); break;   // Less or equal (or unordered on ARM64, not on x86...)
+                        CSETMw(x2, cPL); CSINVw(x2, xZR, x2, cEQ); break;   // so use a 2 step here, but 1st test inverted because 2nd step invert again
                 case 3: CSETMw(x2, cVS); break;   // NaN
                 case 4: CSETMw(x2, cNE); break;   // Not Equal (or unordered on ARM, not on X86...)
                 case 5: CSETMw(x2, cCS); break;   // Greater or equal or unordered
