@@ -290,6 +290,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGX_empty(q1);
             SCVTQFS(q1, q0);
             break;
+        case 0x5C:
+            INST_NAME("SUBPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VFSUBQS(v0, v0, q0);
+            break;
 
         #define GO(GETFLAGS, NO, YES, F)   \
             READFLAGS(F);   \
