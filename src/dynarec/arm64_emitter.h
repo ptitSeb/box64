@@ -60,6 +60,8 @@
 #define w7      x7
 // emu is r0
 #define xEmu    0
+// ARM64 LR
+#define xLR     30
 // ARM64 SP is r31 but is a special register
 #define xSP     31      
 // xZR regs is 31
@@ -339,6 +341,9 @@
 
 #define B_gen(imm26)                    (0b000101<<26 | (imm26))
 #define B(imm26)                        EMIT(B_gen(((imm26)>>2)&0x3ffffff))
+
+#define BL_gen(imm26)                   (0b100101<<26 | (imm26))
+#define BL(imm26)                       EMIT(BL_gen(((imm26)>>2)&0x3ffffff))
 
 #define NOP                             EMIT(0b11010101000000110010000000011111)
 
@@ -930,7 +935,7 @@
 #define VFCVTZUs(Vd, Vn)            EMIT(FCVT2_vector_scalar(1, 1, 0, 1, Vn, Vd))
 #define VFCVTZUd(Vd, Vn)            EMIT(FCVT2_vector_scalar(1, 1, 1, 1, Vn, Vd))
 
-#define FCVT_vector(Q, U, o2, sz, o1, Rn, Rd)       ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o2)<<23 | (sz)<<22) | 0b10000<<17 | 0b1110<<13 | (o1)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define FCVT_vector(Q, U, o2, sz, o1, Rn, Rd)       ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o2)<<23 | (sz)<<22 | 0b10000<<17 | 0b1110<<13 | (o1)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 // Floating-point Convert to (Un)signed integer, rounding to nearest with ties to Away
 #define VFCVTASS(Vd, Vn)            EMIT(FCVT_vector(0, 0, 0, 0, 0, Vn, Vd))
 #define VFCVTASD(Vd, Vn)            EMIT(FCVT_vector(0, 0, 0, 1, 0, Vn, Vd))

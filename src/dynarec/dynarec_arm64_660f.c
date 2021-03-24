@@ -203,8 +203,21 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0);
             GETGX_empty(v0);
-            // need rounding? using "toward 0 for now"
-            VFCVTZSQS(v0, v1);
+            LDRH_U12(x1, xEmu, offsetof(x64emu_t, mxcsr));
+            UBFXx(x1, x1, 13, 2);   // extract round requested
+            LSLx_REG(x1, x1, 3);
+            ADDx_U12(x1, x1, 8);    // add the actual add+jump opcodes
+            // Construct a "switch case", with each case 2 instructions, so 8 bytes
+            BL(+4); // Branch with Link to next, so LR gets next PC address
+            ADDx_REG(xLR, xLR, x1);
+            B(xLR); // could use RET, but it's not really one
+            VFCVTNSQS(v0, v1);  // 0: Nearest (even)
+            B_NEXT_nocond;
+            VFCVTMSQS(v0, v1);  // 1: Toward -inf
+            B_NEXT_nocond;
+            VFCVTPSQS(v0, v1);  // 2: Toward +inf
+            B_NEXT_nocond;
+            VFCVTZSQS(v0, v1);  // 3: Toward 0
             break;
 
         case 0x60:
