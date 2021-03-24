@@ -122,7 +122,32 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VSTR128_U12(v0, ed, fixedaddress);
             }
             break;
-
+        case 0x12:
+            nextop = F8;
+            if(MODREG) {
+                INST_NAME("MOVHLPS Gx,Ex");
+                GETGX(v0);
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVeD(v0, 0, v1, 1);
+            } else {
+                INST_NAME("MOVLPS Gx,Ex");
+                GETGX(v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                VLD1_64(v0, 0, ed);
+            }
+            break;
+        case 0x13:
+            nextop = F8;
+            INST_NAME("MOVLPS Ex,Gx");
+            GETGX(v0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVeD(v1, 0, v0, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                VST1_64(v0, 0, ed);  // better to use VST1 than VSTR_64, to avoid NEON->VFPU transfert I assume
+            }
+            break;
         case 0x14:
             INST_NAME("UNPCKLPS Gx, Ex");
             nextop = F8;
