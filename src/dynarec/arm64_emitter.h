@@ -949,7 +949,7 @@
 #define VFCVTMUQS(Vd, Vn)           EMIT(FCVT_vector(1, 1, 0, 0, 1, Vn, Vd))
 #define VFCVTMUQD(Vd, Vn)           EMIT(FCVT_vector(1, 1, 0, 1, 1, Vn, Vd))
 
-#define FCVT2_vector(Q, U, o2, sz, o1, Rn, Rd)       ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o2)<<23 | (sz)<<22) | 0b10000<<17 | 0b1101<<13 | (o1)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define FCVT2_vector(Q, U, o2, sz, o1, Rn, Rd)       ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o2)<<23 | (sz)<<22 | 0b10000<<17 | 0b1101<<13 | (o1)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 // Floating-point Convert to (Un)signed integer, rounding to nearest with ties to even
 #define VFCVTNSS(Vd, Vn)            EMIT(FCVT2_vector(0, 0, 0, 0, 0, Vn, Vd))
 #define VFCVTNSD(Vd, Vn)            EMIT(FCVT2_vector(0, 0, 0, 1, 0, Vn, Vd))

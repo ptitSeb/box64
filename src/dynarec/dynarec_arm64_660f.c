@@ -194,9 +194,17 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5A:
             INST_NAME("CVTPD2PS Gx, Ex");
             nextop = F8;
-            GETGX_empty(v0);
             GETEX(v1, 0);
+            GETGX_empty(v0);
             FCVTXN(v0, v1);
+            break;
+        case 0x5B:
+            INST_NAME("CVTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(v1, 0);
+            GETGX_empty(v0);
+            // need rounding? using "toward 0 for now"
+            VFCVTZSQS(v0, v1);
             break;
 
         case 0x60:
