@@ -92,7 +92,7 @@
                     LDRxw_REG(x1, wback, O);            \
                     ed = x1;                            \
                 }
-#define WBACKO(O)   if(wback) {STR_REG_LSL_IMM5(ed, wback, O, 0);}
+#define WBACKO(O)   if(wback) {STRxw_REG(ed, wback, O);}
 //FAKEELike GETED, but doesn't get anything
 #define FAKEED  if(!MODREG) {   \
                     addr = fakeed(dyn, addr, ninst, nextop); \
