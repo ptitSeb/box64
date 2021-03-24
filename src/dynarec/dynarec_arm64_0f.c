@@ -24,6 +24,9 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
+#define GETG                            \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3)  \
+
 #define GETGX(a)                        \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     a = sse_get_reg(dyn, ninst, x1, gd)
@@ -93,7 +96,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x10:
             INST_NAME("MOVUPS Gx,Ex");
             nextop = F8;
-            gd = ((nextop&0x38)>>3) + (rex.r<<3);
+            GETG;
             if(MODREG) {
                 ed = (nextop&7)+(rex.b<<3);
                 v1 = sse_get_reg(dyn, ninst, x1, ed);
@@ -102,13 +105,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
-                VLDR64_U12(v0, ed, fixedaddress);   // no alignment issue with ARMv8 NEON :)
+                VLDR128_U12(v0, ed, fixedaddress);   // no alignment issue with ARMv8 NEON :)
             }
             break;
         case 0x11:
             INST_NAME("MOVUPS Ex,Gx");
             nextop = F8;
-            gd = ((nextop&0x38)>>3) + (rex.r<<3);
+            GETG;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             if(MODREG) {
                 ed = (nextop&7)+(rex.b<<3);
@@ -170,7 +173,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x28:
             INST_NAME("MOVAPS Gx,Ex");
             nextop = F8;
-            gd = ((nextop&0x38)>>3) + (rex.r<<3);
+            GETG;
             if(MODREG) {
                 ed = (nextop&7)+(rex.b<<3);
                 v1 = sse_get_reg(dyn, ninst, x1, ed);
@@ -185,7 +188,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x29:
             INST_NAME("MOVAPS Ex,Gx");
             nextop = F8;
-            gd = ((nextop&0x38)>>3) + (rex.r<<3);
+            GETG;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             if(MODREG) {
                 ed = (nextop&7)+(rex.b<<3);
@@ -280,7 +283,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETEX(q0, 0);
             GETGX(q1);
-            d0 = fpu_get_scratch(dyn);
             FCVTL(q1, q0);
             break;
         case 0x5B:
