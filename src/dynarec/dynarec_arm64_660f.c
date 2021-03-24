@@ -250,7 +250,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q1, 1);
             VZIP2Q_32(q0, q0, q1);
             break;
-
+        case 0x6B:
+            INST_NAME("PACKSSDW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            SQXTN_16(v0, v0);
+            if(v0==v1) {
+                VMOVeD(v0, 1, v0, 0);
+            } else {
+                SQXTN2_16(v0, v1);
+            }
+            break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
             nextop = F8;
