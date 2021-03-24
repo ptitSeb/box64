@@ -821,6 +821,56 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VUMULL_32(v0, q0, q1);
             break;
 
+        case 0xF8:
+            INST_NAME("PSUBB Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VSUBQ_8(v0, v0, q0);
+            break;
+        case 0xF9:
+            INST_NAME("PSUBW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VSUBQ_16(v0, v0, q0);
+            break;
+        case 0xFA:
+            INST_NAME("PSUBD Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VSUBQ_32(v0, v0, q0);
+            break;
+        case 0xFB:
+            INST_NAME("PSUBQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VSUBQ_64(v0, v0, q0);
+            break;
+        case 0xFC:
+            INST_NAME("PADDB Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VADDQ_8(v0, v0, q0);
+            break;
+        case 0xFD:
+            INST_NAME("PADDW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VADDQ_16(v0, v0, q0);
+            break;
+        case 0xFE:
+            INST_NAME("PADDD Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VADDQ_32(v0, v0, q0);
+            break;
+
         default:
             DEFAULT;
     }
