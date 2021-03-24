@@ -203,6 +203,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0);
             GETGX_empty(v0);
+            #ifdef PRECISE_CVT
             LDRH_U12(x1, xEmu, offsetof(x64emu_t, mxcsr));
             UBFXx(x1, x1, 13, 2);   // extract round requested
             LSLx_REG(x1, x1, 3);
@@ -218,6 +219,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VFCVTPSQS(v0, v1);  // 2: Toward +inf
             B_NEXT_nocond;
             VFCVTZSQS(v0, v1);  // 3: Toward 0
+            #else
+            VFCVTNSQS(v0, v1);
+            #endif
             break;
 
         case 0x60:

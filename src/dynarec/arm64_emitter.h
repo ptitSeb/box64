@@ -866,28 +866,38 @@
 // Floating-point Convert to Signed integer, rounding toward Minus infinity
 #define FCVTMSwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b10, 0b100, Sn, Wd))
 #define FCVTMSxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b10, 0b100, Sn, Xd))
+#define FCVTMSxwS(Xd, Sn)           EMIT(FCVT_scalar(rex.w, 0b00, 0b10, 0b100, Sn, Xd))
 #define FCVTMSwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b10, 0b100, Dn, Wd))
 #define FCVTMSxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b10, 0b100, Dn, Xd))
+#define FCVTMSxwD(Xd, Dn)           EMIT(FCVT_scalar(rex.w, 0b01, 0b10, 0b100, Dn, Xd))
 // Floating-point Convert to Unsigned integer, rounding toward Minus infinity
 #define FCVTMUwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b10, 0b101, Sn, Wd))
 #define FCVTMUxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b10, 0b101, Sn, Xd))
+#define FCVTMUxwS(Xd, Sn)           EMIT(FCVT_scalar(rex.w, 0b00, 0b10, 0b101, Sn, Xd))
 #define FCVTMUwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b10, 0b101, Dn, Wd))
 #define FCVTMUxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b10, 0b101, Dn, Xd))
+#define FCVTMUxwD(Xd, Dn)           EMIT(FCVT_scalar(rfex.w, 0b01, 0b10, 0b101, Dn, Xd))
 // Floating-point Convert to Signed integer, rounding to nearest with ties to even
 #define FCVTNSwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b00, 0b000, Sn, Wd))
 #define FCVTNSxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b00, 0b000, Sn, Xd))
+#define FCVTNSxwS(Xd, Sn)           EMIT(FCVT_scalar(rex.w, 0b00, 0b00, 0b000, Sn, Xd))
 #define FCVTNSwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b00, 0b000, Dn, Wd))
 #define FCVTNSxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b00, 0b000, Dn, Xd))
+#define FCVTNSxwD(Xd, Dn)           EMIT(FCVT_scalar(rex.w, 0b01, 0b00, 0b000, Dn, Xd))
 // Floating-point Convert to Unsigned integer, rounding to nearest with ties to even
 #define FCVTNUwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b00, 0b001, Sn, Wd))
 #define FCVTNUxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b00, 0b001, Sn, Xd))
+#define FCVTNUxwS(Xd, Sn)           EMIT(FCVT_scalar(rex.w, 0b00, 0b00, 0b001, Sn, Xd))
 #define FCVTNUwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b00, 0b001, Dn, Wd))
 #define FCVTNUxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b00, 0b001, Dn, Xd))
+#define FCVTNUxwD(Xd, Dn)           EMIT(FCVT_scalar(rex.w, 0b01, 0b00, 0b001, Dn, Xd))
 // Floating-point Convert to Signed integer, rounding toward Plus infinity
 #define FCVTPSwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b01, 0b000, Sn, Wd))
 #define FCVTPSxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b01, 0b000, Sn, Xd))
+#define FCVTPSxwS(Xd, Sn)           EMIT(FCVT_scalar(rex.w, 0b00, 0b01, 0b000, Sn, Xd))
 #define FCVTPSwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b01, 0b000, Dn, Wd))
 #define FCVTPSxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b01, 0b000, Dn, Xd))
+#define FCVTPSxwD(Xd, Dn)           EMIT(FCVT_scalar(rex.w, 0b01, 0b01, 0b000, Dn, Xd))
 // Floating-point Convert to Unsigned integer, rounding toward Plus infinity
 #define FCVTPUwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b01, 0b001, Sn, Wd))
 #define FCVTPUxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b01, 0b001, Sn, Xd))
@@ -903,8 +913,10 @@
 // Floating-point Convert to Unsigned integer, rounding toward Zero
 #define FCVTZUwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b11, 0b001, Sn, Wd))
 #define FCVTZUxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b11, 0b001, Sn, Xd))
+#define FCVTZUxwS(Xd, Sn)           EMIT(FCVT_scalar(rex.w, 0b00, 0b11, 0b001, Sn, Xd))
 #define FCVTZUwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b11, 0b001, Dn, Wd))
 #define FCVTZUxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b11, 0b001, Dn, Xd))
+#define FCVTZUxwD(Xd, Dn)           EMIT(FCVT_scalar(rex.w, 0b01, 0b11, 0b001, Dn, Xd))
 
 #define FCVT_vector_scalar(U, o2, sz, o1, Rn, Rd)   (0b01<<30 | (U)<<29 | 0b11110<<24 | (o2)<<23 | (sz)<<22 | 0b10000<<17 | 0b1110<<13 | (o1)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 // Floating-point Convert to (Un)signed integer, rounding to nearest with ties to Away

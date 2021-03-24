@@ -1,6 +1,9 @@
 #ifndef __DYNAREC_ARM64_HELPER_H__
 #define __DYNAREC_ARM64_HELPER_H__
 
+// undef to get Close to SSE Float->int conversions
+//#define PRECISE_CVT
+
 #if STEP == 0
 #include "dynarec_arm64_pass0.h"
 #elif STEP == 1
