@@ -550,6 +550,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 }
             }
             break;
+        case 0x7F:
+            INST_NAME("MOVDQA Ex,Gx");
+            nextop = F8;
+            GETGX(v0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
+            }
+            break;
 
         case 0xA3:
             INST_NAME("BT Ew, Gw");
