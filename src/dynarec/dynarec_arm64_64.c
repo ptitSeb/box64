@@ -30,6 +30,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int32_t j32;
     uint8_t gd, ed;
     uint8_t wback;
+    int64_t i64;
     int fixedaddress;
     MAYUSE(j32);
 
@@ -66,6 +67,22 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
                 LDRxw_REG(gd, ed, x4);
+            }
+            break;
+
+        case 0xC7:
+            INST_NAME("MOV FS:Ed, Id");
+            grab_segdata(dyn, addr, ninst, x4, _FS);
+            nextop=F8;
+            if(MODREG) {   // reg <= i32
+                i64 = F32S;
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                MOV64xw(ed, i64);
+            } else {                    // mem <= i32
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 4);
+                i64 = F32S;
+                MOV64xw(x3, i64);
+                STRxw_REG(x3, ed, x4);
             }
             break;
 
