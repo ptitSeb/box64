@@ -1,4 +1,4 @@
-Current version
+v0.0.6
 ======
 * Added Dynarec for ARM64
 * Many general CPU opcode added to the Dynarec
