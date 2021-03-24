@@ -1108,4 +1108,35 @@
 // Signed saturating extract Unsigned Narrow, takes Rn element and reduce 16->8 with Unsigned saturation and fit higher part of Rd
 #define SQXTUN2_8(Rd, Rn)           EMIT(QXTN_vector(1, 1, 0b00, Rn, Rd))
 
+// Integer CMP
+// EQual
+#define CMEQ_vector(Q, U, size, Rm, Rn, Rd)     ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b10001<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VCMEQQ_8(Rd, Rn, Rm)        EMIT(CMEQ_vector(1, 1, 0b00, Rm, Rn, Rd))
+#define VCMEQQ_16(Rd, Rn, Rm)       EMIT(CMEQ_vector(1, 1, 0b01, Rm, Rn, Rd))
+#define VCMEQQ_32(Rd, Rn, Rm)       EMIT(CMEQ_vector(1, 1, 0b10, Rm, Rn, Rd))
+#define VCMEQQ_64(Rd, Rn, Rm)       EMIT(CMEQ_vector(1, 1, 0b11, Rm, Rn, Rd))
+// Greater test
+#define CMG_vector(Q, U, size, eq, Rm, Rn, Rd)     ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b0011<<12 | (eq)<<11 | 1<<10 | (Rn)<<5 | (Rd))
+// Signed Greater or Equal
+#define VCMGEQ_8(Rd, Rn, Rm)        EMIT(CMG_vector(1, 0, 0b00, 1, Rm, Rn, Rd))
+#define VCMGEQ_16(Rd, Rn, Rm)       EMIT(CMG_vector(1, 0, 0b01, 1, Rm, Rn, Rd))
+#define VCMGEQ_32(Rd, Rn, Rm)       EMIT(CMG_vector(1, 0, 0b10, 1, Rm, Rn, Rd))
+#define VCMGEQ_64(Rd, Rn, Rm)       EMIT(CMG_vector(1, 0, 0b11, 1, Rm, Rn, Rd))
+// Unsigned Higher or Same
+#define VCMHSQ_8(Rd, Rn, Rm)        EMIT(CMG_vector(1, 1, 0b00, 1, Rm, Rn, Rd))
+#define VCMHSQ_16(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b01, 1, Rm, Rn, Rd))
+#define VCMHSQ_32(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b10, 1, Rm, Rn, Rd))
+#define VCMHSQ_64(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b11, 1, Rm, Rn, Rd))
+// Signed Greater Than
+#define VCMGTQ_8(Rd, Rn, Rm)        EMIT(CMG_vector(1, 0, 0b00, 0, Rm, Rn, Rd))
+#define VCMGTQ_16(Rd, Rn, Rm)       EMIT(CMG_vector(1, 0, 0b01, 0, Rm, Rn, Rd))
+#define VCMGTQ_32(Rd, Rn, Rm)       EMIT(CMG_vector(1, 0, 0b10, 0, Rm, Rn, Rd))
+#define VCMGTQ_64(Rd, Rn, Rm)       EMIT(CMG_vector(1, 0, 0b11, 0, Rm, Rn, Rd))
+// Unsigned Higher
+#define VCHIQQ_8(Rd, Rn, Rm)        EMIT(CMG_vector(1, 1, 0b00, 0, Rm, Rn, Rd))
+#define VCHIQQ_16(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b01, 0, Rm, Rn, Rd))
+#define VCHIQQ_32(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b10, 0, Rm, Rn, Rd))
+#define VCHIQQ_64(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b11, 0, Rm, Rn, Rd))
+
+
 #endif  //__ARM64_EMITTER_H__

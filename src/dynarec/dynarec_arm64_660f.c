@@ -229,6 +229,28 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VZIP1Q_32(v0, v0, q0);
             break;
 
+        case 0x64:
+            INST_NAME("PCMPGTB Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            VCMGTQ_8(v0, v0, v1);
+            break;
+        case 0x65:
+            INST_NAME("PCMPGTW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            VCMGTQ_16(v0, v0, v1);
+            break;
+        case 0x66:
+            INST_NAME("PCMPGTD Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            VCMGTQ_32(v0, v0, v1);
+            break;
+
         case 0x68:
             INST_NAME("PUNPCKHBW Gx,Ex");
             nextop = F8;
