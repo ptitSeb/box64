@@ -56,6 +56,8 @@ typedef struct x64_unwind_buff_s {
 	void *__pad[4];
 } x64_unwind_buff_t __attribute__((__aligned__));
 
+typedef void(*vFv_t)();
+
 KHASH_MAP_INIT_INT64(threadstack, threadstack_t*)
 KHASH_MAP_INIT_INT64(cancelthread, __pthread_unwind_buf_t*)
 
@@ -417,28 +419,6 @@ GO(27)			\
 GO(28)			\
 GO(29)			
 
-// once_callback
-#define GO(A)   \
-static uintptr_t my_once_callback_fct_##A = 0;  \
-static void my_once_callback_##A()    			\
-{                                       		\
-    RunFunction(my_context, my_once_callback_fct_##A, 0, 0);\
-}
-SUPER()
-#undef GO
-static void* findonce_callbackFct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_once_callback_fct_##A == (uintptr_t)fct) return my_once_callback_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_once_callback_fct_##A == 0) {my_once_callback_fct_##A = (uintptr_t)fct; return my_once_callback_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for pthread once_callback callback\n");
-    return NULL;
-}
 // key_destructor
 #define GO(A)   \
 static uintptr_t my_key_destructor_fct_##A = 0;  \
@@ -486,9 +466,25 @@ static void* findcleanup_routineFct(void* fct)
 
 #undef SUPER
 
+// once_callback
+// Don't use a "GO" scheme, once callback are only called once by definition
+static __thread uintptr_t my_once_callback_fct = 0;
+static void my_once_callback()
+{
+	if(my_once_callback_fct) {
+	    if(GetNativeFnc((uintptr_t)my_once_callback_fct))  {
+			vFv_t f = (vFv_t)GetNativeFnc((uintptr_t)my_once_callback_fct);
+			f();
+			return;
+		}
+    	RunFunction(my_context, my_once_callback_fct, 0, 0);
+	}
+}
+
 int EXPORT my_pthread_once(x64emu_t* emu, void* once, void* cb)
 {
-	return pthread_once(once, findonce_callbackFct(cb));
+	my_once_callback_fct = (uintptr_t)cb;
+	return pthread_once(once, my_once_callback);
 }
 EXPORT int my___pthread_once(x64emu_t* emu, void* once, void* cb) __attribute__((alias("my_pthread_once")));
 
