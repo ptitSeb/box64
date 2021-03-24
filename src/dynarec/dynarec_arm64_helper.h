@@ -300,6 +300,14 @@
 #define CBNZx_MARK3(reg)            \
     j32 = GETMARK3-(dyn->arm_size); \
     CBNZx(reg, j32)
+// Test bit N of A and branch to MARK3 if set
+#define TBNZ_MARK3(A, N)            \
+    j32 = GETMARK3-(dyn->arm_size); \
+    TBNZ(A, N, j32)
+// Test bit N of A and branch to MARK3 if not set
+#define TBZ_MARK3(A, N)             \
+    j32 = GETMARK3-(dyn->arm_size); \
+    TBZ(A, N, j32)
 // Branch to next instruction if cond (use j32)
 #define B_NEXT(cond)     \
     j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \

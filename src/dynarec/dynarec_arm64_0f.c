@@ -476,7 +476,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     case 0:
                         INST_NAME("FXSAVE Ed");
                         fpu_purgecache(dyn, ninst, x1, x2, x3);
-                        if((nextop&0xC0)==0xC0) {
+                        if(MODREG) {
                             DEFAULT;
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
@@ -487,7 +487,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     case 1:
                         INST_NAME("FXRSTOR Ed");
                         fpu_purgecache(dyn, ninst, x1, x2, x3);
-                        if((nextop&0xC0)==0xC0) {
+                        if(MODREG) {
                             DEFAULT;
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
@@ -502,7 +502,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         break;
                     case 3:
                         INST_NAME("STMXCSR Md");
-                        if((nextop&0xC0)==0xC0) {
+                        if(MODREG) {
                             ed = xRAX+(nextop&7)+(rex.b<<3);
                             LDRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
                         } else {
@@ -617,6 +617,105 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xBA:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 4:
+                    INST_NAME("BT Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    gd = x2;
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        u8 = F8;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xff0<<2, 3, rex, 0, 0);
+                        u8 = F8;
+                        fixedaddress+=(u8>>(rex.w?6:5))*(rex.w?8:4);
+                        LDRxw_U12(x1, wback, fixedaddress);
+                        ed = x1;
+                    }
+                    u8&=rex.w?0x3f:0x1f;
+                    if(u8) {
+                        LSRxw(x1, ed, u8);
+                        ed = x1;
+                    }
+                    BFIw(xFlags, ed, F_CF, 1);
+                    break;
+                case 5:
+                    INST_NAME("BTS Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        u8 = F8;
+                        wback = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xff0<<2, 3, rex, 0, 0);
+                        u8 = F8;
+                        fixedaddress+=(u8>>(rex.w?6:5))*(rex.w?8:4);
+                        LDRxw_U12(x1, wback, fixedaddress);
+                        ed = x1;
+                    }
+                    LSRxw(x4, ed, u8&(rex.w?0x3f:0x1f));
+                    BFIw(xFlags, x4, F_CF, 1);
+                    TBNZ_MARK3(x4, 0); // bit already set, jump to next instruction
+                    MOV32w(x4, 1);
+                    EORxw_REG_LSL(ed, ed, x4, u8&(rex.w?0x3f:0x1f));
+                    if(wback) {
+                        STRxw_U12(ed, wback, fixedaddress);
+                    }
+                    MARK3;
+                    break;
+                case 6:
+                    INST_NAME("BTR Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        u8 = F8;
+                        wback = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xff0<<2, 3, rex, 0, 0);
+                        u8 = F8;
+                        fixedaddress+=(u8>>(rex.w?6:5))*(rex.w?8:4);
+                        LDRxw_U12(x1, wback, fixedaddress);
+                        ed = x1;
+                    }
+                    LSRxw(x4, ed, u8&(rex.w?0x3f:0x1f));
+                    BFIw(xFlags, x4, F_CF, 1);
+                    TBZ_MARK3(x4, 0); // bit already clear, jump to next instruction
+                    //MOVW(x14, 1); // already 0x01
+                    EORxw_REG_LSL(ed, ed, x4, u8&(rex.w?0x3f:0x1f));
+                    if(wback) {
+                        STRxw_U12(ed, wback, fixedaddress);
+                    }
+                    MARK3;
+                    break;
+                case 7:
+                    INST_NAME("BTC Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        u8 = F8;
+                        wback = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xff0<<2, 3, rex, 0, 0);
+                        u8 = F8;
+                        fixedaddress+=(u8>>(rex.w?6:5))*(rex.w?8:4);
+                        LDRxw_U12(x1, wback, fixedaddress);
+                        ed = x1;
+                    }
+                    LSRxw(x4, ed, u8&(rex.w?0x3f:0x1f));
+                    BFIw(xFlags, x4, F_CF, 1);
+                    MOV32w(x4, 1);
+                    EORxw_REG_LSL(ed, ed, x4, u8&(rex.w?0x3f:0x1f));
+                    if(wback) {
+                        STRxw_U12(ed, wback, fixedaddress);
+                    }
+                    MARK3;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xBB:
             INST_NAME("BTC Ed, Gd");
             SETFLAGS(X_CF, SF_SET);
