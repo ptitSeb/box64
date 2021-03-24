@@ -797,6 +797,22 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0xF4:
+            INST_NAME("PMULUDQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            VUZP1Q_32(q0, v0, v0);  //A3 A2 A1 A0 -> A3 A1 A2 A0
+            if(MODREG) {
+                q1 = fpu_get_scratch(dyn);
+            } else {
+                q1 = v1;
+            }
+            VUZP1Q_32(q1, v1, v1);
+            VUMULL_32(v0, q0, q1);
+            break;
+
         default:
             DEFAULT;
     }

@@ -1033,7 +1033,7 @@
 // FMAXNM NaN vs Number: number is picked
 #define FMAXNMD(Dd, Dn, Dm)         EMIT(FMINMAX_scalar(0b01, Dm, 0b10, Dn, Dd))
 
-// ZIP
+// ZIP / UZP
 #define ZIP_gen(Q, size, Rm, op, Rn, Rd)    ((Q)<<30 | 0b001110<<24 | (size)<<22 | (Rm)<<16 | (op)<<14 | 0b11<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define VZIP1Q_8(Rt, Rn, Rm)        EMIT(ZIP_gen(1, 0b00, Rm, 0, Rn, Rt))
 #define VZIP2Q_8(Rt, Rn, Rm)        EMIT(ZIP_gen(1, 0b00, Rm, 1, Rn, Rt))
@@ -1049,6 +1049,22 @@
 #define VZIP2_32(Rt, Rn, Rm)        EMIT(ZIP_gen(0, 0b10, Rm, 1, Rn, Rt))
 #define VZIP1Q_64(Rt, Rn, Rm)       EMIT(ZIP_gen(1, 0b11, Rm, 0, Rn, Rt))
 #define VZIP2Q_64(Rt, Rn, Rm)       EMIT(ZIP_gen(1, 0b11, Rm, 1, Rn, Rt))
+
+#define UZP_gen(Q, size, Rm, op, Rn, Rd)    ((Q)<<30 | 0b001110<<24 | (size)<<22 | (Rm)<<16 | (op)<<14 | 0b01<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define VUZP1Q_8(Rt, Rn, Rm)        EMIT(UZP_gen(1, 0b00, Rm, 0, Rn, Rt))
+#define VUZP2Q_8(Rt, Rn, Rm)        EMIT(UZP_gen(1, 0b00, Rm, 1, Rn, Rt))
+#define VUZP1_8(Rt, Rn, Rm)         EMIT(UZP_gen(0, 0b00, Rm, 0, Rn, Rt))
+#define VUZP2_8(Rt, Rn, Rm)         EMIT(UZP_gen(0, 0b00, Rm, 1, Rn, Rt))
+#define VUZP1Q_16(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b01, Rm, 0, Rn, Rt))
+#define VUZP2Q_16(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b01, Rm, 1, Rn, Rt))
+#define VUZP1_16(Rt, Rn, Rm)        EMIT(UZP_gen(0, 0b01, Rm, 0, Rn, Rt))
+#define VUZP2_16(Rt, Rn, Rm)        EMIT(UZP_gen(0, 0b01, Rm, 1, Rn, Rt))
+#define VUZP1Q_32(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b10, Rm, 0, Rn, Rt))
+#define VUZP2Q_32(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b10, Rm, 1, Rn, Rt))
+#define VUZP1_32(Rt, Rn, Rm)        EMIT(UZP_gen(0, 0b10, Rm, 0, Rn, Rt))
+#define VUZP2_32(Rt, Rn, Rm)        EMIT(UZP_gen(0, 0b10, Rm, 1, Rn, Rt))
+#define VUZP1Q_64(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b11, Rm, 0, Rn, Rt))
+#define VUZP2Q_64(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b11, Rm, 1, Rn, Rt))
 
 // TBL
 #define TBL_gen(Q, Rm, len, op, Rn, Rd) ((Q)<<30 | 0b001110<<24 | (Rm)<<16 | (len)<<13 | (op)<<12 | (Rn)<<5 | (Rd))
@@ -1138,5 +1154,13 @@
 #define VCHIQQ_32(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b10, 0, Rm, Rn, Rd))
 #define VCHIQQ_64(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b11, 0, Rm, Rn, Rd))
 
+// UMULL / SMULL
+#define MULL_vector(Q, U, size, Rm, Rn, Rd) ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b1100<<12 |(Rn)<<5 |(Rd))
+#define VUMULL_8(Rd, Rn, Rm)        EMIT(MULL_vector(0, 1, 0b00, Rm, Rn, Rd))
+#define VUMULL_16(Rd, Rn, Rm)       EMIT(MULL_vector(0, 1, 0b01, Rm, Rn, Rd))
+#define VUMULL_32(Rd, Rn, Rm)       EMIT(MULL_vector(0, 1, 0b10, Rm, Rn, Rd))
+#define VUMULL2_8(Rd, Rn, Rm)       EMIT(MULL_vector(1, 1, 0b00, Rm, Rn, Rd))
+#define VUMULL2_16(Rd, Rn, Rm)      EMIT(MULL_vector(1, 1, 0b01, Rm, Rn, Rd))
+#define VUMULL2_32(Rd, Rn, Rm)      EMIT(MULL_vector(1, 1, 0b10, Rm, Rn, Rd))
 
 #endif  //__ARM64_EMITTER_H__
