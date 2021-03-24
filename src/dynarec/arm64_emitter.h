@@ -565,6 +565,12 @@
 #define RBITw(Rd, Rn)                   EMIT(RBIT_gen(0, Rn, Rd))
 #define RBITxw(Rd, Rn)                  EMIT(RBIT_gen(rex.w, Rn, Rd))
 
+// REV
+#define REV_gen(sf, opc, Rn, Rd)        ((sf)<<31 | 1<<30 | 0b11010110<<21 | (opc)<<10 | (Rn)<<5 | (Rd))
+#define REVx(Rd, Rn)                    EMIT(REV_gen(1, 0b11, Rn, Rd))
+#define REVw(Rd, Rn)                    EMIT(REV_gen(0, 0b10, Rn, Rd))
+#define REVxw(Rd, Rn)                   EMIT(REV_gen(rex.w, 0b10|rex.w, Rn, Rd))
+
 // MRS
 #define MRS_gen(L, o0, op1, CRn, CRm, op2, Rt)  (0b1101010100<<22 | (L)<<21 | 1<<20 | (o0)<<19 | (op1)<<16 | (CRn)<<12 | (CRm)<<8 | (op2)<<5 | (Rt))
 // mrs    x0, nzcv : 1101010100 1 1 1 011 0100 0010 000 00000    o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0010(2) op2=0

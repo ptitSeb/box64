@@ -729,7 +729,15 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "RBIT %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn]);
         return buff;
     }
-
+    if(isMask(opcode, "f1011010110000000000oonnnnnddddd", &a)) {
+        if(!sf && option==2)
+            snprintf(buff, sizeof(buff), "REV %s, %s", Wt[Rd], Wt[Rn]);
+        else if (sf && option==3) 
+            snprintf(buff, sizeof(buff), "REV %s, %s", Xt[Rd], Xt[Rn]);
+        else
+            snprintf(buff, sizeof(buff), "REV%d %s, %s", 8<<option, sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn]);
+        return buff;
+    }
 
     // MULL ADD
     if(isMask(opcode, "10011011U01mmmmm0aaaaannnnnddddd", &a)) {
