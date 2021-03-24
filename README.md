@@ -30,6 +30,12 @@ Note: Box64's Dynarec uses a mechanism with Memory Protection and a SegFault sig
 
 ----
 
+Compiling/Installation
+----
+> Compilation instructions can be found [here](COMPILE.md)  
+
+----
+
 Version history
 ----
 

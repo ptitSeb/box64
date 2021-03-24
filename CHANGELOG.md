@@ -1,5 +1,11 @@
 Current version
 ======
+* Added Dynarec for ARM64
+* Many general CPU opcode added to the Dynarec
+* Many SSEx opcodes added to the Dynarec
+* Added a few more symbols in libc
+* A few changes to the "thread once" handling
+* New Logo and Icon from @grayduck
 
 v0.0.4
 ======
