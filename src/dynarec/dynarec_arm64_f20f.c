@@ -156,7 +156,17 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FSUBD(d1, v0, d0);
             VMOVeD(v0, 0, d1, 0);
             break;
-
+        case 0x5D:
+            INST_NAME("MINSD Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(v1, 0);
+            // MINSD: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
+            d0 = fpu_get_scratch(dyn);
+            FMINNMD(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
+            VMOVeD(v0, 0, d0, 0);   // to not erase uper part
+            break;
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
             nextop = F8;
@@ -165,6 +175,17 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(d0, 0);
             FDIVD(d1, v0, d0);
             VMOVeD(v0, 0, d1, 0);
+            break;
+        case 0x5F:
+            INST_NAME("MAXSD Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(v1, 0);
+            // MAXSD: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
+            d0 = fpu_get_scratch(dyn);
+            FMAXNMD(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
+            VMOVeD(v0, 0, d0, 0);   // to not erase uper part
             break;
 
         case 0x7C:
