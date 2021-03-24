@@ -782,6 +782,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VANDQ(v0, v0, q0);
             break;
 
+        case 0xDF:
+            INST_NAME("PANDN Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VBICQ(v0, q0, v0);
+            break;
+
         case 0xEB:
             INST_NAME("POR Gx,Ex");
             nextop = F8;
