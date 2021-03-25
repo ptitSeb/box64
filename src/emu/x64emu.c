@@ -173,7 +173,8 @@ void CallAllCleanup(x64emu_t *emu)
 
 static void internalFreeX64(x64emu_t* emu)
 {
-    free(emu->stack2free);
+    if(emu)
+        free(emu->stack2free);
 }
 
 EXPORTDYN
