@@ -337,7 +337,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VLD1_64(v0, 1, ed);
             }
             break;
-
+        case 0x6D:
+            INST_NAME("PUNPCKHQDQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            VMOVeD(v0, 0, v0, 1);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVeD(v0, 1, v1, 1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                ADDSx_U12(x1, ed, 8);
+                VLD1_64(v0, 1, x1);
+            }
+            break;
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
