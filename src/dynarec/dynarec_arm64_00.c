@@ -923,7 +923,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x8A:
             INST_NAME("MOV Gb, Eb");
             nextop = F8;
-            if(rex.w) {
+            if(rex.rex) {
                 gb1 = gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
                 gb2=0;
             } else {
@@ -932,7 +932,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 gb2 = ((gd&4)>>2);
             }
             if(MODREG) {
-                if(rex.w) {
+                if(rex.rex) {
                     wback = xRAX+(nextop&7)+(rex.b<<3);
                     wb2 = 0;
                 } else {
