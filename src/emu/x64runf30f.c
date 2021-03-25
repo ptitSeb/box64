@@ -28,6 +28,8 @@ int RunF30F(x64emu_t *emu, rex_t rex)
     uint8_t nextop;
     int8_t tmp8s;
     uint8_t tmp8u;
+    uint32_t tmp32u;
+    uint64_t tmp64u;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1;
     mmx87_regs_t *opem;
@@ -234,6 +236,42 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         GETEX(0);
         GETGX;
         memcpy(EX, GX, 16);    // unaligned...
+        break;
+
+    case 0xBC:  /* TZCNT Ed,Gd */
+        CHECK_FLAGS(emu);
+        nextop = F8;
+        GETED(0);
+        GETGD;
+        if(rex.w) {
+            tmp64u = ED->q[0];
+            if(tmp64u) {
+                CLEAR_FLAG(F_ZF);
+                tmp8u = 0;
+                while(!(tmp64u&(1LL<<tmp8u))) ++tmp8u;
+                GD->q[0] = tmp8u;
+                CONDITIONAL_SET_FLAG(tmp8u==0, F_ZF);
+                CLEAR_FLAG(F_CF);
+            } else {
+                CLEAR_FLAG(F_ZF);
+                SET_FLAG(F_CF);
+                GD->q[0] = 64;
+            }
+        } else {
+            tmp32u = ED->dword[0];
+            if(tmp32u) {
+                CLEAR_FLAG(F_ZF);
+                tmp8u = 0;
+                while(!(tmp32u&(1<<tmp8u))) ++tmp8u;
+                GD->dword[0] = tmp8u;
+                CONDITIONAL_SET_FLAG(tmp8u==0, F_ZF);
+                CLEAR_FLAG(F_CF);
+            } else {
+                CLEAR_FLAG(F_ZF);
+                SET_FLAG(F_CF);
+                GD->dword[0] = 32;
+            }
+        }
         break;
 
     case 0xC2:  /* CMPSS Gx, Ex, Ib */

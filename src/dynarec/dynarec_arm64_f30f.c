@@ -50,6 +50,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     int q0, q1;
     int d0, d1;
     int fixedaddress;
+    int j32;
 
     MAYUSE(d0);
     MAYUSE(d1);
@@ -57,6 +58,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(q1);
     MAYUSE(v0);
     MAYUSE(v1);
+    MAYUSE(j32);
 
     switch(opcode) {
 
@@ -255,6 +257,22 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
                 VSTR128_U12(v0, ed, fixedaddress);
             }
+            break;
+
+        case 0xBC:
+            INST_NAME("TZCNT Gd, Ed");
+            SETFLAGS(X_CF|X_ZF, SF_SET);
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            SET_DFNONE(x1);
+            TSTxw_REG(ed, ed);
+            BFIw(xFlags, x1, F_CF, 1);  // CF = is source 0?
+            RBITxw(x1, ed);   // reverse
+            CLZxw(gd, x1);    // x2 gets leading 0 == TZCNT
+            TSTxw_REG(gd, gd);
+            CSETw(x1, cEQ);
+            BFIw(xFlags, x1, F_ZF, 1);  // ZF = is dest 0?
             break;
 
         case 0xC2:

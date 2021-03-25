@@ -264,6 +264,10 @@
 #define B_MARK_nocond               \
     j32 = GETMARK-(dyn->arm_size);  \
     B(j32)
+// Branch to MARK if reg is 0 (use j32)
+#define CBZxw_MARK(reg)             \
+    j32 = GETMARK-(dyn->arm_size);  \
+    CBZxw(reg, j32)
 // Branch to MARK if reg is not 0 (use j32)
 #define CBNZx_MARK(reg)             \
     j32 = GETMARK-(dyn->arm_size);  \
