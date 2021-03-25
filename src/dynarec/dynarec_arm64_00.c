@@ -820,7 +820,37 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETED(0);
             emit_test32(dyn, ninst, rex, ed, gd, x3, x5);
             break;
-
+        case 0x86:
+            INST_NAME("(LOCK)XCHG Eb, Gb");
+            // Do the swap
+            nextop = F8;
+            if(MODREG) {
+                GETGB(x4);
+                if(rex.rex) {
+                    ed = xRAX+(nextop&7)+(rex.b<<3);
+                    eb1 = ed;
+                    eb2 = 0;
+                } else {
+                    ed = (nextop&7);
+                    eb1 = xRAX+(ed&3);
+                    eb2 = ((ed&4)>>2);
+                }
+                UBFXw(x1, eb1, eb2*8, 8);
+                // do the swap 14 -> ed, 1 -> gd
+                BFIx(gb1, x1, gb2*8, 8);
+                BFIx(eb1, x4, eb2*8, 8);
+            } else {
+                GETGB(x4);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                MARKLOCK;
+                // do the swap with exclusive locking
+                LDAXRB(x1, ed);
+                // do the swap 14 -> strb(ed), 1 -> gd
+                STLXRB(x3, x4, ed);
+                CBNZx_MARKLOCK(x3);
+                BFIx(gb1, x1, gb2*8, 8);
+            }
+            break;
         case 0x87:
             INST_NAME("(LOCK)XCHG Ed, Gd");
             nextop = F8;
