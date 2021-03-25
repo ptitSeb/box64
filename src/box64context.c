@@ -129,15 +129,15 @@ void FreeBox64Context(box64context_t** context)
 
     box64context_t* ctx = *context;   // local copy to do the cleanning
 
+    if(ctx->local_maplib)
+        FreeLibrarian(&ctx->local_maplib, NULL);
+    if(ctx->maplib)
+        FreeLibrarian(&ctx->maplib, NULL);
+
     for(int i=0; i<ctx->elfsize; ++i) {
         FreeElfHeader(&ctx->elfs[i]);
     }
     free(ctx->elfs);
-
-    if(ctx->maplib)
-        FreeLibrarian(&ctx->maplib);
-    if(ctx->local_maplib)
-        FreeLibrarian(&ctx->local_maplib);
 
     FreeCollection(&ctx->box64_path);
     FreeCollection(&ctx->box64_ld_lib);

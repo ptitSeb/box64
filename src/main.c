@@ -589,6 +589,52 @@ void endBox64()
     if(!my_context)
         return;
 
+    x64emu_t* emu = thread_get_emu();
+    //atexit first
+    printf_log(LOG_DEBUG, "Calling atexit registered functions\n");
+    CallAllCleanup(emu);
+    // than call all the Fini (some "smart" ordering of the fini may be needed, but for now, callign in this order should be good enough)
+    printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
+    RunElfFini(my_context->elfs[0], emu);
+    FreeLibrarian(&my_context->maplib, emu);    // unload all libs
+    FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
+    // waiting for all thread except this one to finish
+    int this_thread = GetTID();
+    int pid = getpid();
+    int running = 1;
+    int attempt = 0;
+    printf_log(LOG_DEBUG, "Waiting for all threads to finish before unloading box86context\n");
+    while(running) {
+        DIR *proc_dir;
+        char dirname[100];
+        snprintf(dirname, sizeof dirname, "/proc/self/task");
+        proc_dir = opendir(dirname);
+        running = 0;
+        if (proc_dir)
+        {
+            struct dirent *entry;
+            while ((entry = readdir(proc_dir)) != NULL && !running)
+            {
+                if(entry->d_name[0] == '.')
+                    continue;
+
+                int tid = atoi(entry->d_name);
+                // tid != pthread_t, so no pthread functions are available here
+                if(tid!=this_thread) {
+                    if(attempt>4000) {
+                        printf_log(LOG_INFO, "Stop waiting for remaining thread %04d\n", tid);
+                        // enough wait, kill all thread!
+                        syscall(__NR_tgkill, pid, tid, SIGABRT);
+                    } else {
+                        running = 1;
+                        ++attempt;
+                        sched_yield();
+                    }
+                }
+            }
+            closedir(proc_dir);
+        }
+    }
     // all done, free context
     FreeBox64Context(&my_context);
     if(libGL) {

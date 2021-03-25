@@ -1097,7 +1097,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     const char* ret = NULL;
     uintptr_t s = 0;
     uint32_t size = 0;
-    if(!h)
+    if(!h || h->fini_done)
         return ret;
 
     for (int i=0; i<h->numSymTab && distance!=0; ++i) {   

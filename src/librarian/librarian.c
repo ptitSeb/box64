@@ -34,7 +34,7 @@ lib_t *NewLibrarian(box64context_t* context, int ownlibs)
 
     return maplib;
 }
-void FreeLibrarian(lib_t **maplib)
+void FreeLibrarian(lib_t **maplib, x64emu_t *emu)
 {
     // should that be in reverse order?
     if(!maplib || !*maplib)
@@ -42,9 +42,9 @@ void FreeLibrarian(lib_t **maplib)
     
     if((*maplib)->ownlibs) {
         printf_log(LOG_DEBUG, "Closing %d libs from maplib %p\n", (*maplib)->libsz, *maplib);
-        for (int i=0; i<(*maplib)->libsz; ++i) {
+        for (int i=(*maplib)->libsz-1; i>=0; --i) {
             printf_log(LOG_DEBUG, "Unloading %s\n", (*maplib)->libraries[i].lib->name);
-            Free1Library(&(*maplib)->libraries[i].lib);
+            Free1Library(&(*maplib)->libraries[i].lib, emu);
         }
     }
     free((*maplib)->libraries);
