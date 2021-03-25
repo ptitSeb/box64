@@ -1971,38 +1971,12 @@ EXPORT void* my_realpath(x64emu_t* emu, void* path, void* resolved_path)
     }
         return realpath(path, resolved_path);
 }
-#if 0
-EXPORT void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset)
-{
-    if(prot&PROT_WRITE) 
-        prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
-    if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);}
-    void* ret = mmap(addr, length, prot, flags, fd, offset);
-    if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
-    #ifdef DYNAREC
-    if(box64_dynarec && ret!=(void*)-1) {
-        if(flags&0x100000 && addr!=ret)
-        {
-            // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
-            // and responded with a different address, so ignore it
-        } else {
-            if(prot& PROT_EXEC)
-                addDBFromAddressRange((uintptr_t)ret, length);
-            else
-                cleanDBFromAddressRange((uintptr_t)ret, length, prot?0:1);
-        }
-    } 
-    #endif
-    if(ret!=(void*)-1)
-        setProtection((uintptr_t)ret, length, prot);
-    return ret;
-}
 
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
 {
     if(prot&PROT_WRITE) 
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
-    if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %lld) =>", addr, length, prot, flags, fd, offset);}
+    if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %ld) =>", addr, length, prot, flags, fd, offset);}
     void* ret = mmap64(addr, length, prot, flags, fd, offset);
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
@@ -2023,10 +1997,11 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         setProtection((uintptr_t)ret, length, prot);
     return ret;
 }
+EXPORT void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset) __attribute__((alias("my_mmap64")));
 
 EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
 {
-    dynarec_log(/*LOG_DEBUG*/LOG_NONE, "mremap(%p, %u, %u, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
+    dynarec_log(/*LOG_DEBUG*/LOG_NONE, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
     if(ret==(void*)-1)
         return ret; // failed...
@@ -2104,7 +2079,7 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
         updateProtection((uintptr_t)addr, len, prot);
     return ret;
 }
-
+#if 0
 typedef struct my_cookie_s {
     uintptr_t r, w, s, c;
     void* cookie;

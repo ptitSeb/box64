@@ -381,6 +381,7 @@
 #() iFEipV
 #() iFEupp
 #() iFEpip
+#() iFEpLi
 #() iFEppi
 #() iFEppL
 #() iFEppp
@@ -716,6 +717,7 @@
 #() pFEpuipp
 #() pFEpuupp
 #() pFEpuppp
+#() pFEpLLiN
 #() pFEppLLp
 #() pFEpppLp
 #() pFEppppp
@@ -791,6 +793,7 @@
 #() iFppppdpi
 #() iFppppppp
 #() uFuippppp
+#() pFEpLiiiI
 #() pFEppppip
 #() pFifffppp
 #() pFuupupup

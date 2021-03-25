@@ -1162,8 +1162,8 @@ GO(mlock, iFpL)
 //GO(mlock2, 
 GO(mlockall, iFi)
 //GO(__mmap, 
-//GOW(mmap, 
-//GOW(mmap64, 
+GOW(mmap, pFEpLiiiI)
+GOW(mmap64, pFEpLiiiI)
 //GOW(modf, 
 //GOW(modff, 
 //GOW(modfl, 
@@ -1175,10 +1175,10 @@ GO(mlockall, iFi)
 //GOW(mount, 
 //GO(mprobe, 
 //GO(__mprotect, 
-//GOW(mprotect, 
+GOW(mprotect, iFEpLi)
 //GO(mrand48, 
 //GO(mrand48_r, 
-//GOW(mremap, 
+GOW(mremap, pFEpLLiN)
 //GO(msgctl, 
 //GO(msgget, 
 //GOW(msgrcv, 
@@ -1188,7 +1188,7 @@ GO(mlockall, iFi)
 //GO(munlock, 
 //GO(munlockall, 
 //GO(__munmap, 
-//GOW(munmap, 
+GOW(munmap, iFEpL)
 //GO(muntrace, 
 GO(name_to_handle_at, iFipppi)
 GO(__nanosleep, iFpp)
