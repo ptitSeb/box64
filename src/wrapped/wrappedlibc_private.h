@@ -73,8 +73,8 @@ GO(atoll, IFp)
 //GO(__backtrace_symbols_fd, 
 //GOW(backtrace_symbols_fd, 
 //GOW(basename, 
-//GOI(bcmp, 
-//GO(bcopy, 
+GO(bcmp, iFppL)
+GO(bcopy, vFppL)
 //GO(bdflush, 
 //GOW(bind, 
 //GO(bindresvport, 
@@ -367,7 +367,7 @@ GOW(finitef, iFf)
 //GO(fmemopen, 
 //GO(fmemopen, 
 //GO(fmtmsg, 
-//GO(fnmatch, 
+GO(fnmatch, iFppi)
 GOM(fopen, pFEpp)
 GOM(fopen64, pFEpp)  // Weak
 //GO(fopencookie, 
@@ -1101,7 +1101,7 @@ GO(malloc, pFL) // need to wrap to clear allocated memory?
 //GO(malloc_set_state, 
 //GOW(malloc_stats, 
 //GOW(malloc_trim, 
-//GOW(malloc_usable_size, 
+GOW(malloc_usable_size, LFp)
 //GOW(mallopt, 
 //DATAB(mallwatch, 
 GO(mblen, iFpL)
@@ -1339,7 +1339,7 @@ GOW(posix_memalign, iFpLL)
 //GO(posix_spawnp, 
 //GO(ppoll, 
 //GO(__ppoll_chk, 
-//GOW(prctl, 
+GOW(prctl, iFiLLLL)
 GOW(pread, lFipLl)
 GOW(__pread64, lFipLI)
 GOW(pread64, lFipLI)
@@ -1550,7 +1550,7 @@ GOW(rmdir, iFp)
 //GOW(scalbnf, 
 //GOW(scalbnl, 
 //GOW(scandir, 
-//GOW(scandir64, 
+GOM(scandir64, iFEpppp) //weak
 //GOW(scandirat, 
 //GO(scandirat64, 
 //GO(scanf, 
@@ -1691,8 +1691,8 @@ GOM(signal, pFEip)  //Weak
 //GO(sigorset, 
 //GO(__sigpause, 
 //GOW(sigpause, 
-//GO(sigpending, 
-//GOW(sigprocmask, 
+GO(sigpending, iFp)
+GOW(sigprocmask, iFipp)
 //GOW(sigqueue, 
 //GO(sigrelse, 
 //GOW(sigreturn, 

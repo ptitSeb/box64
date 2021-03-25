@@ -327,7 +327,7 @@ static void* findcompare_dirFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare_dir callback\n");
     return NULL;
 }
-
+#endif
 // filter64
 #define GO(A)   \
 static uintptr_t my_filter64_fct_##A = 0;                               \
@@ -374,7 +374,6 @@ static void* findcompare64Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare64 callback\n");
     return NULL;
 }
-#endif
 
 #undef SUPER
 
@@ -1490,12 +1489,12 @@ EXPORT int32_t my_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, 
 {
     return glob64(pat, flags, findgloberrFct(errfnc), pglob);
 }
-
+#endif
 EXPORT int my_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
     return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
-
+#if 0
 EXPORT int my_scandir(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
     static iFpppp_t f = NULL;
