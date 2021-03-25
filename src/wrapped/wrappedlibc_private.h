@@ -701,18 +701,18 @@ GO(iconv_open, LFpp)
 //GO(inet6_rth_segments, 
 //GO(inet6_rth_space, 
 //GO(__inet6_scopeid_pton, 
-//GOW(inet_addr, 
-//GOW(inet_aton, 
+GOW(inet_addr, uFp)
+GOW(inet_aton, iFpp)
 //GO(__inet_aton_exact, 
 //GO(inet_lnaof, 
 //GOW(inet_makeaddr, 
 //GO(inet_netof, 
-//GO(inet_network, 
+GO(inet_network, iFp)
 //GO(inet_nsap_addr, 
-//GO(inet_nsap_ntoa, 
-//GO(inet_ntoa, 
-//GO(inet_ntop, 
-//GOW(inet_pton, 
+GO(inet_nsap_ntoa, pFipp)
+GO(inet_ntoa, pFu)
+GO(inet_ntop, iFippu)
+GOW(inet_pton, iFipp)
 //GO(__inet_pton_length, 
 //GO(initgroups, 
 //GO(init_module, 
