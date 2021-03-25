@@ -1091,7 +1091,7 @@ reg64_t* GetECommon32O(x64emu_t* emu, rex_t rex, uint8_t m, uint8_t delta, uintp
             base += Fetch32s(emu);
             return (reg64_t*)(base+R_RIP+delta);
         }
-        return (reg64_t*)(uintptr_t)(emu->regs[m+(rex.b<<3)].dword[0]);
+        return (reg64_t*)(uintptr_t)(base + emu->regs[m+(rex.b<<3)].dword[0]);
     } else {
         if((m&7)==4) {
             uint8_t sib = Fetch8(emu);
@@ -1238,9 +1238,9 @@ reg64_t* GetGd(x64emu_t *emu, rex_t rex, uint8_t v)
 reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v)
 {
     uint8_t m = (v&0x38)>>3;
-    if(rex.rex) {
+    if(rex.rex)
         return &emu->regs[(m&7)+(rex.r<<3)];
-    } else
+    else
         return (reg64_t*)&emu->regs[m&3].byte[m>>2];
 }
 
