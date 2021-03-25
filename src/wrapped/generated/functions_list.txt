@@ -105,6 +105,7 @@
 #() iFpO
 #() iFSi
 #() IFEp
+#() IFpi
 #() IFpu
 #() CFui
 #() CFpi
@@ -131,6 +132,7 @@
 #() dFdi
 #() dFdd
 #() dFdp
+#() dFpi
 #() dFpp
 #() lFpi
 #() LFpi
@@ -784,6 +786,7 @@
 #() iFpuuiuui
 #() iFpupuuui
 #() iFpuppppp
+#() iFppiiiip
 #() iFppiiuui
 #() iFppiipii
 #() iFppipipi
@@ -870,6 +873,7 @@
 #() vFppiiipiii
 #() vFpppppippp
 #() iFEpiiiiipi
+#() iFEpppipppp
 #() iFiiiiiiiip
 #() iFiiiipiiip
 #() iFdddpppppp
