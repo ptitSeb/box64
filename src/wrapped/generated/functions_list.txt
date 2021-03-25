@@ -74,6 +74,7 @@
 #() vFpi
 #() vFpu
 #() vFpf
+#() vFpl
 #() vFpL
 #() vFpp
 #() vFpS
@@ -131,6 +132,7 @@
 #() dFdd
 #() dFdp
 #() dFpp
+#() lFpi
 #() LFpi
 #() LFpL
 #() LFpp
