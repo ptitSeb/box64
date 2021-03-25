@@ -1017,7 +1017,6 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
     // and check init array now
     Elf64_Addr *addr = (Elf64_Addr*)(h->initarray + h->delta);
     for (int i=0; i<h->initarray_sz; ++i) {
-if(strstr(h->name, "libcef.so") && i==3) trace_end = 0;
         if(addr[i]) {
             printf_log(LOG_DEBUG, "Calling Init[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
             RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, context->argc, context->argv, context->envv);

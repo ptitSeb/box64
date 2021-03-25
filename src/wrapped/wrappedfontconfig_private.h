@@ -159,7 +159,7 @@ GO(FcPatternGetInteger, iFppip)
 GO(FcPatternGetLangSet, iFppip)
 GO(FcPatternGetMatrix, iFppip)
 GO(FcPatternGetString, iFppip)
-//GO(FcPatternHash, 
+GO(FcPatternHash, iFp)
 //GO(FcPatternPrint, 
 //GO(FcPatternReference, 
 //GO(FcPatternRemove, 

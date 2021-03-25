@@ -297,6 +297,7 @@
 #() lFlll
 #() lFlpi
 #() lFppi
+#() lFppL
 #() lFSpl
 #() LFLLi
 #() LFLLI
@@ -637,6 +638,7 @@
 #() iFppupp
 #() iFppllp
 #() iFppLpi
+#() iFppLpL
 #() iFppLpp
 #() iFpppii
 #() iFpppiL
@@ -959,6 +961,7 @@
 #() iFppiuiippL
 #() iFpppiiuuii
 #() iFpppiipiiu
+#() iFppppppppu
 #() iFppppppppp
 #() pFEppiiuuLi
 #() pFEppuippuu
