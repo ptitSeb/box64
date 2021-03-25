@@ -91,8 +91,8 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
             b = b->next;
             bridge->last = b;
         }
+	sz = b->sz;
         #ifdef DYNAREC
-        sz = b->sz;
         pthread_mutex_unlock(&bridge->mutex);
         if(box64_dynarec) {
             prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
