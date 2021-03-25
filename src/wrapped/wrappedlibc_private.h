@@ -243,6 +243,7 @@ GOW(duplocale, pFp)
 //GO(endusershell, 
 //GOW(endutent, 
 //GO(endutxent, 
+DATA(environ, sizeof(void*))
 DATAB(__environ, sizeof(void*))
 //GO(envz_add, 
 //GO(envz_entry, 
@@ -680,6 +681,8 @@ GO(iconv_open, LFpp)
 //GOW(if_nametoindex, 
 //GOW(imaxabs, 
 //GOW(imaxdiv, 
+DATA(in6addr_any, 16)  // type V
+DATA(in6addr_loopback, 16)  //type V
 //GOI(index, 
 //GO(inet6_opt_append, 
 //GO(inet6_opt_find, 
@@ -903,10 +906,10 @@ GO(__isnanf, iFf)
 GOW(isnanf, iFf)
 //GO(__isnanl, 
 //GOW(isnanl, 
-//GO(__isoc99_fscanf, 
+GOM(__isoc99_fscanf, iFEppV)
 //GO(__isoc99_fwscanf, 
 //GO(__isoc99_scanf, 
-GOM(__isoc99_sscanf, iFppV)
+GOM(__isoc99_sscanf, iFEppV)
 //GO(__isoc99_swscanf, 
 //GO(__isoc99_vfscanf, 
 //GO(__isoc99_vfwscanf, 
@@ -1357,8 +1360,8 @@ GOM(__printf_chk, iFEipV)
 //GO(process_vm_writev, 
 //GOW(profil, 
 //GO(__profile_frequency, 
-//DATA(__progname, 
-//DATA(__progname_full, 
+DATA(__progname, sizeof(void*))
+DATA(__progname_full, sizeof(void))
 //GOW(pselect, 
 //GO(psiginfo, 
 //GO(psignal, 
@@ -1961,6 +1964,7 @@ GO(timerfd_settime, iFiipp)
 //GOW(times, 
 //GO(timespec_get, 
 DATAB(__timezone, sizeof(void*))
+DATAV(timezone, sizeof(void*))  //type V
 GO(tmpfile, pFv)
 GOW(tmpfile64, pFv)
 GO(tmpnam, pFp)
@@ -1996,7 +2000,8 @@ GOW(truncate64, iFpI)
 //GO(ttyslot, 
 //GO(__twalk, 
 //GOW(twalk, 
-DATA(__tzname, 8)
+DATA(__tzname, sizeof(void*))
+DATA(tzname, sizeof(void*)) //type V
 GOW(tzset, vFv)
 //GO(ualarm, 
 //GO(__uflow, 

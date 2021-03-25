@@ -552,6 +552,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
         uintptr_t globoffs, globend;
         uint64_t* globp;
         uintptr_t tmp = 0;
+        intptr_t delta;
         switch(ELF64_R_TYPE(rela[i].r_info)) {
             case R_X86_64_NONE:
             case R_X86_64_PC32:
@@ -644,6 +645,26 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     printf_log(LOG_DUMP, "Apply %s R_X86_64_64 @%p with sym=%s addend=0x%lx (%p -> %p)\n", 
                         (bind==STB_LOCAL)?"Local":"Global", p, symname, rela[i].r_addend, *(void**)p, (void*)(offs+rela[i].r_addend/*+*(uint64_t*)p*/));
                     *p /*+*/= offs+rela[i].r_addend;
+                }
+                break;
+            case R_X86_64_TPOFF64:
+                // Negated offset in static TLS block
+                {
+                    if(h_tls)
+                        offs = sym->st_value;
+                    else {
+                        if(local_maplib)
+                            h_tls = GetGlobalSymbolElf(local_maplib, symname);
+                        if(!h_tls)
+                            h_tls = GetGlobalSymbolElf(maplib, symname);
+                    }
+                    if(h_tls) {
+                        delta = *(int*)p;
+                        printf_log(LOG_DUMP, "Applying %s %s on %s @%p (%ld -> %ld)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int64_t)offs + h_tls->tlsbase);
+                        *p = (uintptr_t)((int64_t)offs + h_tls->tlsbase);
+                    } else {
+                        printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%ld), no elf_header found\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, (int64_t)offs);
+                    }
                 }
                 break;
             case R_X86_64_DTPMOD64:

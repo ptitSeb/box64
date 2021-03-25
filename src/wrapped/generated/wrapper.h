@@ -286,7 +286,6 @@ void iFppu(x64emu_t *emu, uintptr_t fnc);
 void iFppd(x64emu_t *emu, uintptr_t fnc);
 void iFppL(x64emu_t *emu, uintptr_t fnc);
 void iFppp(x64emu_t *emu, uintptr_t fnc);
-void iFppV(x64emu_t *emu, uintptr_t fnc);
 void iFSpL(x64emu_t *emu, uintptr_t fnc);
 void IFiIi(x64emu_t *emu, uintptr_t fnc);
 void IFpIi(x64emu_t *emu, uintptr_t fnc);
