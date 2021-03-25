@@ -102,7 +102,7 @@ GO(catopen, pFpi)
 GO(cfgetispeed, uFp)
 GO(cfgetospeed, uFp)
 GO(cfmakeraw, vFp)
-GO(cfree, vFp)
+GO2(cfree, vFp, free)
 GO(cfsetispeed, iFpu)
 GO(cfsetospeed, iFpu)
 GO(cfsetspeed, iFpi)
@@ -243,7 +243,7 @@ GOW(duplocale, pFp)
 //GO(endusershell, 
 //GOW(endutent, 
 //GO(endutxent, 
-//DATAB(__environ, 
+DATAB(__environ, sizeof(void*))
 //GO(envz_add, 
 //GO(envz_entry, 
 //GO(envz_get, 
@@ -425,7 +425,7 @@ GOW(ftello64, IFp)
 //GO(ftime, 
 //GO(ftok, 
 //GOW(ftruncate, 
-//GOW(ftruncate64, 
+GOW(ftruncate64, iFiI)
 //GOW(ftrylockfile, 
 //GOW(fts64_children, 
 //GOW(fts64_close, 
@@ -481,7 +481,7 @@ GO(__getcwd_chk, pFpLL)
 GO(getdate, pFp)
 //DATAB(getdate_err, 
 //GOW(getdate_r, 
-//GOW(__getdelim, 
+GOW(__getdelim, iFppip)
 //GOW(getdelim, 
 //GOW(getdirentries, 
 //GO(getdirentries64, 
@@ -586,7 +586,7 @@ GOW(getrlimit64, iFip)
 //GO(getrpcent, 
 //GO(getrpcent_r, 
 //GO(getrpcport, 
-//GOW(getrusage, 
+GOW(getrusage, iFip)
 //GOW(gets, 
 //GO(__gets_chk, 
 //GO(getsecretkey, 
@@ -642,9 +642,9 @@ GOW(getwc, uFp)
 //GO(globfree, 
 //GOW(globfree64, 
 //GOW(glob_pattern_p, 
-//GO(gmtime, 
-//GO(__gmtime_r, 
-//GOW(gmtime_r, 
+GO(gmtime, pFp)
+GO(__gmtime_r, pFpp)
+GOW(gmtime_r, pFpp)
 //GOW(gnu_dev_major, 
 //GOW(gnu_dev_makedev, 
 //GOW(gnu_dev_minor, 
@@ -1076,7 +1076,7 @@ GOW(localtime_r, pFpp)
 //DATAB(locs, 
 //GOW(_longjmp, vFEpi)
 GOM(longjmp, vFEpi) //weak
-//GO(__longjmp_chk, 
+GOM(__longjmp_chk, vFEpi)
 //GO(lrand48, 
 //GO(lrand48_r, 
 //GO(lremovexattr, 
@@ -1486,7 +1486,7 @@ GOW(recvmsg, lFipi)
 //GOW(regerror, 
 GO(regexec, iFppLpi)
 //GOW(regfree, 
-//GO(__register_atfork, 
+GOM(__register_atfork, iFEpppp)
 //GOW(register_printf_function, 
 //GOW(register_printf_modifier, 
 //GOW(register_printf_specifier, 
@@ -1527,7 +1527,7 @@ GOW(rewinddir, vFp)
 //GO(rexec_af, 
 //DATAB(rexecoptions, 
 //GOI(rindex, 
-//GOW(rmdir, 
+GOW(rmdir, iFp)
 //DATAB(rpc_createerr, 
 //GO(_rpc_dtablesize, 
 //GO(__rpc_thread_createerr, 

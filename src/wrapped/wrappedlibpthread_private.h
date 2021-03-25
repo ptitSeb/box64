@@ -153,8 +153,8 @@ GO(pthread_rwlock_rdlock, iFp)
 //GO(pthread_rwlock_trywrlock, iFp)
 //GO(__pthread_rwlock_unlock, iFp)
 //GO2(pthread_rwlock_unlock, iFp, __pthread_rwlock_unlock)   // not always defined
-//GO(__pthread_rwlock_wrlock, iFp)
-//GO2(pthread_rwlock_wrlock, iFp, __pthread_rwlock_wrlock)    // not always defined
+GO(__pthread_rwlock_wrlock, iFp)
+GO(pthread_rwlock_wrlock, iFp)
 GO(pthread_self, LFv)
 //GOM(pthread_setaffinity_np, iFELup)
 GO(pthread_setcancelstate, iFip)
