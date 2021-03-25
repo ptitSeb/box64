@@ -18,8 +18,8 @@ GOW(access, iFpi)
 //GOW(advance, 
 //GO(alarm, 
 //GOW(aligned_alloc, 
-//GOW(alphasort, 
-//GOW(alphasort64, 
+GOW(alphasort, iFpp)
+GOW(alphasort64, iFpp)
 //GO(__arch_prctl, 
 //GOW(arch_prctl, 
 //DATA(argp_err_exit_status, 
@@ -298,9 +298,9 @@ GOW(_Exit, vFi)
 //GO(__fbufsize, 
 //GOW(fchdir, 
 //GO(fchflags, 
-//GOW(fchmod, 
+GOW(fchmod, iFiu)
 //GO(fchmodat, 
-//GOW(fchown, 
+GOW(fchown, iFiuu)
 //GO(fchownat, 
 GO(fclose, iFp)
 GOW(fcloseall, iFv)

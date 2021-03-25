@@ -712,6 +712,7 @@
 #() vFuppppp
 #() vFffffff
 #() vFdddddd
+#() vFpiiiii
 #() vFpiiuuu
 #() vFpipipV
 #() vFpipppi
@@ -813,6 +814,7 @@
 #() vFuuddiip
 #() vFuffffff
 #() vFudddddd
+#() vFpiiliip
 #() vFpipipii
 #() vFpddiidd
 #() vFppiiipi
@@ -981,6 +983,7 @@
 #() iFiiiiiiiiiip
 #() iFpipllippppp
 #() iFppppiiuuiiL
+#() pFEppiiLpppip
 #() pFEppuiipuuii
 #() vFuuiiiiiiiuip
 #() vFuuiiiiiiiuup

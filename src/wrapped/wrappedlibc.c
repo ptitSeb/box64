@@ -1658,54 +1658,6 @@ EXPORT int32_t my___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* obj,
     return 0;
 }
 
-extern void __chk_fail();
-EXPORT unsigned long int my___fdelt_chk (unsigned long int d)
-{
-  if (d >= FD_SETSIZE)
-    __chk_fail ();
-
-  return d / __NFDBITS;
-}
-#if 0
-EXPORT int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
-{
-    // not always implemented on old linux version...
-    library_t* lib = my_lib;
-    if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "getrandom");
-    if(f)
-        return ((iFpuu_t)f)(buf, buflen, flags);
-    // do what should not be done, but it's better then nothing....
-    FILE * rnd = fopen("/dev/urandom", "rb");
-    uint32_t r = fread(buf, 1, buflen, rnd);
-    fclose(rnd);
-    return r;
-}
-
-EXPORT int32_t my_recvmmsg(x64emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout)
-{
-    // Implemented starting glibc 2.12+
-    library_t* lib = my_lib;
-    if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "recvmmsg");
-    if(f)
-        return ((iFipuup_t)f)(fd, msgvec, vlen, flags, timeout);
-    // Use the syscall
-    return syscall(__NR_recvmmsg, fd, msgvec, vlen, flags, timeout);
-}
-
-EXPORT int32_t my___sendmmsg(x64emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags)
-{
-    // Implemented starting glibc 2.14+
-    library_t* lib = my_lib;
-    if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "__sendmmsg");
-    if(f)
-        return ((iFipuu_t)f)(fd, msgvec, vlen, flags);
-    // Use the syscall
-    return syscall(__NR_sendmmsg, fd, msgvec, vlen, flags);
-}
-
 EXPORT int32_t my___register_atfork(x64emu_t *emu, void* prepare, void* parent, void* child, void* handle)
 {
     // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my_atfork...
@@ -1719,7 +1671,7 @@ EXPORT int32_t my___register_atfork(x64emu_t *emu, void* prepare, void* parent, 
     my_context->atforks[my_context->atfork_sz].handle = handle;
     return 0;
 }
-
+#if 0
 EXPORT uint64_t my___umoddi3(uint64_t a, uint64_t b)
 {
     return a%b;
