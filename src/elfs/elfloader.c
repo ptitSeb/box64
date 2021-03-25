@@ -555,12 +555,14 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
         intptr_t delta;
         switch(ELF64_R_TYPE(rela[i].r_info)) {
             case R_X86_64_NONE:
+                break;
             case R_X86_64_PC32:
+                // should be "S + A - P" with S=symbol offset, A=addend and P=place of the storage unit, write a word32
                 // can be ignored
                 break;
             case R_X86_64_RELATIVE:
-                printf_log(LOG_DUMP, "Apply %s R_X86_64_RELATIVE @%p (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, *(void**)p, (void*)((*p)+head->delta));
-                *p += head->delta;
+                printf_log(LOG_DUMP, "Apply %s R_X86_64_RELATIVE @%p (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, *(void**)p, (void*)(head->delta+ rela[i].r_addend));
+                *p = head->delta+ rela[i].r_addend;
                 break;
             case R_X86_64_COPY:
                 if(!strcmp(symname, "stdin") || !strcmp(symname, "stdout") || !strcmp(symname, "stderr")) {
@@ -589,7 +591,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
                     printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
-                    *p = globoffs + rela[i].r_addend;
+                    *p = globoffs/* + rela[i].r_addend*/;   //no addend?
                     AddWeakSymbol(GetGlobalData(maplib), symname, offs, end-offs+1);
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
@@ -602,7 +604,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                             printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                     } else {
                         printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname);
-                        *p = offs + rela[i].r_addend;
+                        *p = offs/* + rela[i].r_addend*/;   // not addend it seems
                     }
                 }
                 break;
@@ -659,9 +661,9 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                             h_tls = GetGlobalSymbolElf(maplib, symname);
                     }
                     if(h_tls) {
-                        delta = *(int*)p;
-                        printf_log(LOG_DUMP, "Applying %s %s on %s @%p (%ld -> %ld)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int64_t)offs + h_tls->tlsbase);
-                        *p = (uintptr_t)((int64_t)offs + h_tls->tlsbase);
+                        delta = *(int64_t*)p;
+                        printf_log(LOG_DUMP, "Applying %s %s on %s @%p (%ld -> %ld)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int64_t)offs + rela[i].r_addend + h_tls->tlsbase);
+                        *p = (uintptr_t)((int64_t)offs + rela[i].r_addend + h_tls->tlsbase);
                     } else {
                         printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%ld), no elf_header found\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, (int64_t)offs);
                     }

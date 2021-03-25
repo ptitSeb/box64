@@ -387,7 +387,7 @@ EXPORT void my___libc_init_first(x64emu_t* emu, int argc, char* arg0, char** b)
     // do nothing specific for now
     return;
 }
-uint64_t my_syscall(x64emu_t *emu); // implemented in x64syscall.c
+uintptr_t my_syscall(x64emu_t *emu); // implemented in x64syscall.c
 void EXPORT my___stack_chk_fail(x64emu_t* emu)
 {
     char buff[200];

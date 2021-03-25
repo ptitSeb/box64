@@ -351,7 +351,7 @@ void DumpRelATable(elfheader_t *h, int cnt, Elf64_Rela *rela, const char* name)
         const char* elfname = ElfName(h);
         printf_log(LOG_DUMP, "ELF Dump %s Table(%d) @%p\n", name, cnt, rela);
         for (int i = 0; i<cnt; ++i)
-            printf_log(LOG_DUMP, "  %s:RelA[%d] = %p (0x%lX: %s, sym=0x%lX/%s) Addend=%ld\n", elfname,
+            printf_log(LOG_DUMP, "  %s:RelA[%d] = %p (0x%lX: %s, sym=0x%lX/%s) Addend=0x%lx\n", elfname,
                 i, (void*)rela[i].r_offset, rela[i].r_info, DumpRelType(ELF64_R_TYPE(rela[i].r_info)), 
                 ELF64_R_SYM(rela[i].r_info), IdxSymName(h, ELF64_R_SYM(rela[i].r_info)), 
                 rela[i].r_addend);

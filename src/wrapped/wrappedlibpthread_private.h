@@ -148,11 +148,11 @@ GO(pthread_rwlock_rdlock, iFp)
 // pthread_rwlock_timedrdlock
 // pthread_rwlock_timedwrlock
 // __pthread_rwlock_tryrdlock
-//GO(pthread_rwlock_tryrdlock, iFp)
+GO(pthread_rwlock_tryrdlock, iFp)
 // __pthread_rwlock_trywrlock
-//GO(pthread_rwlock_trywrlock, iFp)
-//GO(__pthread_rwlock_unlock, iFp)
-//GO2(pthread_rwlock_unlock, iFp, __pthread_rwlock_unlock)   // not always defined
+GO(pthread_rwlock_trywrlock, iFp)
+GO(__pthread_rwlock_unlock, iFp)
+GO(pthread_rwlock_unlock, iFp)
 GO(__pthread_rwlock_wrlock, iFp)
 GO(pthread_rwlock_wrlock, iFp)
 GO(pthread_self, LFv)

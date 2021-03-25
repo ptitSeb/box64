@@ -1091,8 +1091,8 @@ GOW(lseek64, IFiIi)
 //GO(lutimes, 
 GOM(__lxstat, iFEipp)
 GOM(__lxstat64, iFEipp)
-//GO(__madvise, 
-//GOW(madvise, 
+GO(__madvise, iFpLi)
+GOW(madvise, iFpLi)
 GOM(makecontext, iFEppiV)   //weak
 //GOW(mallinfo, 
 GO(malloc, pFL) // need to wrap to clear allocated memory?
@@ -1165,8 +1165,8 @@ GO(mlock, iFpL)
 //GO(mlock2, 
 GO(mlockall, iFi)
 //GO(__mmap, 
-GOW(mmap, pFEpLiiiI)
-GOW(mmap64, pFEpLiiiI)
+GOM(mmap, pFEpLiiiI)    //weak
+GOM(mmap64, pFEpLiiiI)  //weak
 //GOW(modf, 
 //GOW(modff, 
 //GOW(modfl, 
@@ -1178,10 +1178,10 @@ GOW(mmap64, pFEpLiiiI)
 //GOW(mount, 
 //GO(mprobe, 
 //GO(__mprotect, 
-GOW(mprotect, iFEpLi)
+GOM(mprotect, iFEpLi) //weak
 //GO(mrand48, 
 //GO(mrand48_r, 
-GOW(mremap, pFEpLLiN)
+GOM(mremap, pFEpLLiN) //weal
 //GO(msgctl, 
 //GO(msgget, 
 //GOW(msgrcv, 
@@ -1312,7 +1312,7 @@ GOW(poll, iFpLi)
 //GO(posix_fallocate64, 
 //GO(__posix_getopt, 
 //GO(posix_madvise, 
-//GOW(posix_memalign, 
+GOW(posix_memalign, iFpLL)
 //GOW(posix_openpt, 
 //GO(posix_spawn, 
 //GO(posix_spawn, 
@@ -1914,7 +1914,7 @@ GOM(swapcontext, iFEpp) //Weak
 //GO(sync, 
 //GO(sync_file_range, 
 //GO(syncfs, 
-GOM(syscall, iFEv)
+GOM(syscall, LFEv)
 GO(__sysconf, lFi)
 GOW(sysconf, lFi)
 //GO(__sysctl, 

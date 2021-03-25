@@ -12,7 +12,6 @@
 #() cFf
 #() cFp
 #() wFp
-#() iFE
 #() iFv
 #() iFi
 #() iFu
@@ -45,6 +44,7 @@
 #() lFE
 #() lFi
 #() lFp
+#() LFE
 #() LFv
 #() LFL
 #() LFp
@@ -249,6 +249,7 @@
 #() iFpli
 #() iFplp
 #() iFpLi
+#() iFpLL
 #() iFpLp
 #() iFppi
 #() iFppI
@@ -1021,8 +1022,8 @@
 #!defined(HAVE_LD80BITS) KFK
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
-#() iFEv -> iFE
 #() lFEv -> lFE
+#() LFEv -> LFE
 #() pFEv -> pFE
 #() pFppv -> pFpp
 #() iFEvpp -> iFEpp

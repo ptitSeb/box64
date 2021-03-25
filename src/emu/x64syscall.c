@@ -42,10 +42,9 @@ int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 
 //int my_sigaction(x64emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact);
 //int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
-//void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset);
-//void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
-//int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
-//int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot);
+void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
+int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
+int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot);
 
 // cannot include <fcntl.h>, it conflict with some asm includes...
 #ifndef O_NONBLOCK
@@ -62,13 +61,16 @@ typedef struct scwrap_s {
 } scwrap_t;
 
 scwrap_t syscallwrap[] = {
-    //{ 0, __NR_read, 3 },  // wrapped so SA_RESTART can be handled by libc
-    //{ 1, __NR_write, 3 }, // same
-    //{ 2, __NR_open, 3 },  // flags need transformation
-    //{ 3, __NR_close, 1 },   // wrapped so SA_RESTART can be handled by libc
-
+    //{ 0, __NR_read, 3 },      // wrapped so SA_RESTART can be handled by libc
+    //{ 1, __NR_write, 3 },     // same
+    //{ 2, __NR_open, 3 },      // flags need transformation
+    //{ 3, __NR_close, 1 },     // wrapped so SA_RESTART can be handled by libc
+    //{ 9, __NR_mmap, 6},       // wrapped to track mmap
+    //{ 10, __NR_mprotect, 3},  // same
+    //{ 11, __NR_munmap, 2},    // same
     { 5, __NR_fstat, 2},
     { 186, __NR_gettid, 0 },
+    { 202, __NR_futex, 6},
 };
 
 struct mmap_arg_struct {
@@ -152,6 +154,15 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 3:  // sys_close
             R_EAX = (uint32_t)close((int)R_EDI);
             break;
+        case 9: // sys_mmap
+            R_RAX = (uintptr_t)my_mmap64(emu, (void*)R_RDI, R_RSI, (int)R_EDX, (int)R_R10d, (int)R_R8d, R_R9);
+            break;
+        case 10: // sys_mprotect
+            R_EAX = (uint32_t)my_mprotect(emu, (void*)R_RDI, R_RSI, (int)R_EDX);
+            break;
+        case 11: // sys_munmap
+            R_EAX = (uint32_t)my_munmap(emu, (void*)R_RDI, R_RSI);
+            break;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             emu->quit = 1;
@@ -164,10 +175,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
 #define stack(n) (R_RSP+8+n)
 #define i32(n)  *(int32_t*)stack(n)
 #define u32(n)  *(uint32_t*)stack(n)
+#define i64(n)  *(int64_t*)stack(n)
 #define u64(n)  *(uint64_t*)stack(n)
 #define p(n)    *(void**)stack(n)
 
-uint32_t EXPORT my_syscall(x64emu_t *emu)
+uintptr_t EXPORT my_syscall(x64emu_t *emu)
 {
     uint32_t s = R_EDI;;
     printf_log(LOG_DUMP, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); 
@@ -200,6 +212,12 @@ uint32_t EXPORT my_syscall(x64emu_t *emu)
             return my_open(emu, (char*)R_RSI, of_convert(R_EDX), R_ECX);
         case 3:  // sys_close
             return (uint32_t)close(R_ESI);
+        case 9: // sys_mmap
+            return (uintptr_t)my_mmap64(emu, (void*)R_RSI, R_RDX, (int)R_RCX, (int)R_R8d, (int)R_R9, i64(0));
+        case 10: // sys_mprotect
+            return (uint32_t)my_mprotect(emu, (void*)R_RSI, R_RDX, (int)R_ECX);
+        case 11: // sys_munmap
+            return (uint32_t)my_munmap(emu, (void*)R_RSI, R_RDX);
         default:
             printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
             emu->quit = 1;
