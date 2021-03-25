@@ -174,6 +174,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibpthread.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibresolv.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibrt.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibuuid.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibvorbis.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibx11.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibx11xcb.c"

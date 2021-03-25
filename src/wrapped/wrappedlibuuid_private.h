@@ -1,0 +1,21 @@
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error Meh...
+#endif
+
+GO(uuid_clear, vFp)
+GO(uuid_compare, iFpp)
+GO(uuid_copy, vFpp)
+GO(uuid_generate, vFp)
+GO(uuid__generate_random, vFpp)
+GO(uuid_generate_random, vFp)
+GO(uuid__generate_time, vFpp)
+GO(uuid_generate_time, vFp)
+GO(uuid_generate_time_safe, iFp)
+GO(uuid_is_null, iFp)
+GO(uuid_parse, iFpp)
+GO(uuid_time, uFpp)
+GO(uuid_type, iFp)
+GO(uuid_unparse, vFpp)
+GO(uuid_unparse_lower, vFpp)
+GO(uuid_unparse_upper, vFpp)
+GO(uuid_variant, iFp)
