@@ -331,12 +331,12 @@ GO(fflush_unlocked, iFp)
 //GOW(fgetc_unlocked, 
 //GO(fgetgrent, 
 //GOW(fgetgrent_r, 
-//GO(fgetpos, 
-//GO(fgetpos64, 
+GO(fgetpos, lFpp)
+GO(fgetpos64, lFpp)
 //GO(fgetpwent, 
 //GOW(fgetpwent_r, 
-//GOW(fgets, 
-//GO(__fgets_chk, 
+GOW(fgets, pFpip)
+GO(__fgets_chk, pFpLip)
 //GO(fgetsgent, 
 //GOW(fgetsgent_r, 
 //GO(fgetspent, 
@@ -482,7 +482,7 @@ GO(getdate, pFp)
 //DATAB(getdate_err, 
 //GOW(getdate_r, 
 GOW(__getdelim, iFppip)
-//GOW(getdelim, 
+GOW(getdelim, iFppip)
 //GOW(getdirentries, 
 //GO(getdirentries64, 
 //GO(getdomainname, 
@@ -2002,9 +2002,9 @@ GOW(tzset, vFv)
 //GO(__uflow, 
 //GOW(ulckpwdf, 
 //GOW(ulimit, 
-//GOW(umask, 
-//GOW(umount, 
-//GOW(umount2, 
+GOW(umask, uFu)
+GOW(umount, iFp)
+GOW(umount2, iFpi)
 GOM(uname, iFp) //Weak
 GO(__underflow, iFp)
 GOW(ungetc, iFip)
