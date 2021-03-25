@@ -51,7 +51,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         opcode = F8;
     }
 
-    if(rex.w)
+    if(rex.w && opcode!=0x0f)   // rex.w cancels "66", but not for 66 0f type of prefix
         return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
 
     switch(opcode) {
