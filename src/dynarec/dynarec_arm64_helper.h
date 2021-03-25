@@ -211,7 +211,7 @@
                         gb1 = xRAX+(gd&3);      \
                     }                           \
                     gd = i;                     \
-                    UBFXx(gd, gb1, gb2, 8);
+                    UBFXx(gd, gb1, gb2*8, 8);
 //GETSGB signe extend GB, will use i for gd
 #define GETSGB(i)   if(rex.rex) {               \
                         gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);     \
