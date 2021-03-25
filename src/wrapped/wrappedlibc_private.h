@@ -456,13 +456,13 @@ GOM(__fxstat64, iFEiip)
 GOM(__fxstatat, iFEiippi)
 GOM(__fxstatat64, iFEiippi)
 //GO(__gai_sigqueue, 
-//GO(gai_strerror, 
+GO(gai_strerror, pFi)
 //GO(__gconv_get_alias_db, 
 //GO(__gconv_get_cache, 
 //GO(__gconv_get_modules_db, 
 //GO(__gconv_transliterate, 
 //GO(gcvt, 
-//GO(getaddrinfo, 
+GO(getaddrinfo, iFpppp)
 //GO(getaliasbyname, 
 //GO(getaliasbyname_r, 
 //GO(getaliasent, 
