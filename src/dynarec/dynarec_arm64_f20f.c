@@ -43,6 +43,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t nextop;
     uint8_t gd, ed;
     uint8_t wback;
+    uint8_t u8;
     int v0, v1;
     int q0;
     int d0, d1;
@@ -231,6 +232,31 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VFADDPQS(v0, v0, v1);
             break;
             
+        case 0xC2:
+            INST_NAME("CMPSD Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 1);
+            u8 = F8;
+            if((u8&7)==6){
+                FCMPD(v1, v0);
+            } else {
+                FCMPD(v0, v1);
+            }
+            switch(u8&7) {
+                case 0: CSETMx(x2, cEQ); break;   // Equal
+                case 1: CSETMx(x2, cMI); break;   // Less than
+                case 2: //CSETMx(x2, cLE); break;   // Less or equal (or unordered on ARM64, not on x86...)
+                        CSETMx(x2, cPL); CSINVx(x2, xZR, x2, cEQ); break;   // so use a 2 step here, but 1st test inverted because 2nd step invert again
+                case 3: CSETMx(x2, cVS); break;   // NaN
+                case 4: CSETMx(x2, cNE); break;   // Not Equal (or unordered on ARM, not on X86...)
+                case 5: CSETMx(x2, cCS); break;   // Greater or equal or unordered
+                case 6: CSETMx(x2, cLT); break;   // Greater or unordered, test inverted, N!=V so unordereded or less than (inverted)
+                case 7: CSETMx(x2, cVC); break;   // not NaN
+            }
+            VMOVQDfrom(v0, 0, x2);
+            break;
+
         default:
             DEFAULT;
     }
