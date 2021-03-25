@@ -16,20 +16,13 @@
 #include "box64context.h"
 
 typedef struct my_tls_s {
-    int         i;
-    uint32_t     o;
+    unsigned long int   i;
+    unsigned long int   o;
 } my_tls_t;
 
 EXPORT void* my___tls_get_addr(x64emu_t* emu, void* p)
 {
     my_tls_t *t = (my_tls_t*)p;
-    return GetDTatOffset(emu->context, t->i, t->o);
-}
-
-EXPORT void* my____tls_get_addr(x64emu_t* emu)
-{
-    // the GNU version (with 3 '_') use register for the parameter!
-    my_tls_t *t = (my_tls_t*)R_RAX;
     return GetDTatOffset(emu->context, t->i, t->o);
 }
 

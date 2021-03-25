@@ -11,15 +11,14 @@
 // _dl_mcount
 // _dl_rtld_di_serinfo
 // _dl_tls_setup
-DATA(__libc_enable_secure, 4)
-DATA(__libc_stack_end, 4)
-DATA(__pointer_chk_guard, 4)
+DATA(__libc_enable_secure, sizeof(void*))
+DATA(__libc_stack_end, sizeof(void*))
+DATA(__pointer_chk_guard, sizeof(void*))
 // _r_debug //type B
-DATA(_rtld_global, 4)
-DATA(_rtld_global_ro, 4)
-DATA(__stack_chk_guard, 4)
+DATA(_rtld_global, sizeof(void*))
+DATA(_rtld_global_ro, sizeof(void*))
+DATA(__stack_chk_guard, sizeof(void*))
 // defini dans glibc/sysdeps/i386/dl-tls.h
-GOM(___tls_get_addr, pFEv)       //the parameter tls_index is in a register (EAX?)
-GOM(__tls_get_addr, pFEp)        //same, but the parameter is in the stack
+GOM(__tls_get_addr, pFEp)
 
 #endif

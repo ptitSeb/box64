@@ -45,7 +45,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
 int32_t GetTLSBase(elfheader_t* h);
 uint32_t GetTLSSize(elfheader_t* h);
 void* GetTLSPointer(box64context_t* context, elfheader_t* h);
-void* GetDTatOffset(box64context_t* context, int index, int offset);
+void* GetDTatOffset(box64context_t* context, unsigned long int index, unsigned long int offset);
 #ifdef DYNAREC
 dynablocklist_t* GetDynablocksFromAddress(box64context_t *context, uintptr_t addr);
 dynablocklist_t* GetDynablocksFromElf(elfheader_t* h);
