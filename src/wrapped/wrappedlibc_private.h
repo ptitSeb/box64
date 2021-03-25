@@ -1075,7 +1075,7 @@ GOW(localtime_r, pFpp)
 //GOW(lockf64, 
 //DATAB(locs, 
 //GOW(_longjmp, vFEpi)
-GOW(longjmp, vFEpi)
+GOM(longjmp, vFEpi) //weak
 //GO(__longjmp_chk, 
 //GO(lrand48, 
 //GO(lrand48_r, 
