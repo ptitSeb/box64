@@ -678,8 +678,8 @@ pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 		return kh_value(unaligned_mutex, k);
 	int r;
 	k = kh_put(mutex, unaligned_mutex, (uintptr_t)m, &r);
-	pthread_mutex_t* ret = kh_value(unaligned_mutex, k) = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
-	memcpy(ret, m, sizeof(pthread_mutex_t));
+	pthread_mutex_t* ret = kh_value(unaligned_mutex, k) = (pthread_mutex_t*)calloc(1, sizeof(pthread_mutex_t));
+	memcpy(ret, m, sizeof(pthread_mutex_t));	// probably need some magic here on ARM64 to convert x86_64 mutex structure
 	return ret;
 }
 EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
