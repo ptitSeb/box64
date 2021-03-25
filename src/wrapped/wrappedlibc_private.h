@@ -193,7 +193,7 @@ GOM(__cxa_finalize, vFEp)
 //GO(des_setparity, 
 //GO(__dgettext, 
 //GOW(dgettext, 
-//GO(difftime, 
+GO(difftime, dFLL)
 //GO(dirfd, 
 //GO(dirname, 
 //GO(div, 
@@ -327,7 +327,7 @@ GO(fflush_unlocked, iFp)
 //GO(ffs, 
 //GOW(ffsl, 
 //GO(ffsll, 
-//GOW(fgetc, 
+GOW(fgetc, iFp)
 //GOW(fgetc_unlocked, 
 //GO(fgetgrent, 
 //GOW(fgetgrent_r, 

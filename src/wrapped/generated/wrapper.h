@@ -166,6 +166,7 @@ void dFid(x64emu_t *emu, uintptr_t fnc);
 void dFdi(x64emu_t *emu, uintptr_t fnc);
 void dFdd(x64emu_t *emu, uintptr_t fnc);
 void dFdp(x64emu_t *emu, uintptr_t fnc);
+void dFLL(x64emu_t *emu, uintptr_t fnc);
 void dFpi(x64emu_t *emu, uintptr_t fnc);
 void dFpp(x64emu_t *emu, uintptr_t fnc);
 void lFpi(x64emu_t *emu, uintptr_t fnc);
