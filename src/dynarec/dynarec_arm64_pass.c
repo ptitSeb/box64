@@ -30,6 +30,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     int ok = 1;
     int ninst = 0;
     uintptr_t ip = addr;
+    rex_t rex;
+    int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int need_epilog = 1;
     dyn->sons_size = 0;
     // Clean up (because there are multiple passes)
@@ -65,7 +67,21 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         }
 #endif
 
-        addr = dynarec64_00(dyn, addr, ip, ninst, &ok, &need_epilog);
+        rep = 0;
+        uint8_t pk = PK(0);
+        while((pk==0xF2) || (pk==0xF3)) {
+            rep = pk-0xF1;
+            ++addr;
+            pk = PK(0);
+        }
+        rex.rex = 0;
+        while(pk>=0x40 && pk<=0x4f) {
+            rex.rex = pk;
+            ++addr;
+            pk = PK(0);
+        }
+
+        addr = dynarec64_00(dyn, addr, ip, ninst, rex, rep, &ok, &need_epilog);
 
         INST_EPILOG;
 

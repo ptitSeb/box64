@@ -24,7 +24,7 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
-uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
+uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
     uint8_t gd, ed;
@@ -37,8 +37,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint64_t u64;
     uint8_t wback, wb1, wb2;
     int fixedaddress;
-    rex_t rex;
-    int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
 
     opcode = F8;
     MAYUSE(eb1);
@@ -46,17 +44,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(wb2);
     MAYUSE(tmp);
     MAYUSE(j32);
-
-    rep = 0;
-    while((opcode==0xF2) || (opcode==0xF3)) {
-        rep = opcode-0xF1;
-        opcode = F8;
-    }
-    rex.rex = 0;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
-    }
 
     switch(opcode) {
         case 0x00:

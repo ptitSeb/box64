@@ -51,6 +51,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         opcode = F8;
     }
 
+    if(rex.w)
+        return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
+
     switch(opcode) {
         case 0x01:
             INST_NAME("ADD Ew, Gw");
@@ -284,6 +287,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);
             }
+            break;
+
+        case 0x66:
+            addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
 
         case 0x69:
