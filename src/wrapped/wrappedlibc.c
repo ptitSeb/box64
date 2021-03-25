@@ -1137,7 +1137,7 @@ static int isProcSelf(const char *path, const char* w)
     return 0;
 }
 
-EXPORT int32_t my_readlink(x64emu_t* emu, void* path, void* buf, uint32_t sz)
+EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
 {
     if(isProcSelf((const char*)path, "exe")) {
         // special case for self...

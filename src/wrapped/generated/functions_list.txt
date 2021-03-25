@@ -20,6 +20,7 @@
 #() iFd
 #() iFL
 #() iFp
+#() iFO
 #() iFS
 #() IFf
 #() IFd
@@ -393,9 +394,11 @@
 #() iFEpOu
 #() iFiiii
 #() iFiiiu
+#() iFiiip
 #() iFiipp
 #() iFiuii
 #() iFipii
+#() iFipui
 #() iFippi
 #() iFippu
 #() iFippp
@@ -444,7 +447,10 @@
 #() uFpppi
 #() UFpipp
 #() dFppiL
+#() lFEppL
+#() lFiipL
 #() lFipiI
+#() lFipLi
 #() lFipLI
 #() lFipLl
 #() LFpuuu
@@ -458,7 +464,6 @@
 #() pFEpii
 #() pFEpip
 #() pFEppi
-#() pFEppL
 #() pFEppp
 #() pFiiiu
 #() pFiiup
@@ -565,8 +570,11 @@
 #() iFEppiV
 #() iFEpppp
 #() iFEpppV
+#() iFiiipu
+#() iFiiipp
 #() iFiiupp
 #() iFipiii
+#() iFipuip
 #() iFipppi
 #() iFipppp
 #() iFpiiii
@@ -586,6 +594,7 @@
 #() iFppipi
 #() iFppipp
 #() iFppupi
+#() iFppLpi
 #() iFpppii
 #() iFpppiL
 #() iFpppip
@@ -717,6 +726,8 @@
 #() iFpppppp
 #() uFpippup
 #() UFpippup
+#() lFipLipu
+#() lFipLipp
 #() LFSpLiip
 #() pFEpippp
 #() pFEpuipp

@@ -151,8 +151,8 @@ GO(closelog, vFv)
 //GO(__cmsg_nxthdr, 
 //GO(confstr, 
 //GO(__confstr_chk, 
-//GOW(__connect, 
-//GOW(connect, 
+GOW(__connect, iFipu)
+GOW(connect, iFipu)
 //GO(copy_file_range, 
 //GO(__copy_grp, 
 //GOW(copysign, 
@@ -250,11 +250,11 @@ GOW(duplocale, pFp)
 //GO(envz_merge, 
 //GO(envz_remove, 
 //GO(envz_strip, 
-//GO(epoll_create, 
-//GO(epoll_create1, 
-//GO(epoll_ctl, 
+GO(epoll_create, iFi)
+GO(epoll_create1, iFO)
+GO(epoll_ctl, iFiiip)   // need to check about alignment
 //GO(epoll_pwait, 
-//GO(epoll_wait, 
+GO(epoll_wait, iFipii)
 //GO(erand48, 
 //GOW(erand48_r, 
 //GO(err, 
@@ -602,7 +602,7 @@ GOW(getrlimit64, iFip)
 //GO(getsgnam_r, 
 //GO(getsid, 
 //GOW(getsockname, 
-//GOW(getsockopt, 
+GOW(getsockopt, iFiiipp)
 //GO(getsourcefilter, 
 //GO(getspent, 
 //GO(getspent_r, 
@@ -1459,7 +1459,7 @@ GOW(readdir, pFp) // struct direct is 280 byts on x86_64 and ARM64
 GOW(readdir64, pFp)
 GOW(readdir64_r, iFppp)
 GOW(readdir_r, iFppp)
-GOW(readlink, pFEppL)
+GOM(readlink, lFEppL)   //weak
 GO(readlinkat, pFippL)
 //GO(__readlinkat_chk, 
 //GO(__readlink_chk, 
@@ -1474,18 +1474,17 @@ GO2(__realpath_chk, pFppv, my_realpath)
 //GOW(re_comp, 
 //GOW(re_compile_fastmap, 
 //GOW(re_compile_pattern, 
-//GOW(__recv, 
-//GOW(recv, 
+GOW(__recv, lFipLi)
+GOW(recv, lFipLi)
 //GO(__recv_chk, 
-//GOW(recvfrom, 
+GOW(recvfrom, lFipLipp)
 //GO(__recvfrom_chk, 
-//GO(recvmmsg, 
-//GOW(recvmsg, 
+GO(recvmmsg, iFipuip)
+GOW(recvmsg, lFipi)
 //GOW(re_exec, 
 //GOW(regcomp, 
 //GOW(regerror, 
-//GO(regexec, 
-//GO(regexec, 
+GO(regexec, iFppLpi)
 //GOW(regfree, 
 //GO(__register_atfork, 
 //GOW(register_printf_function, 
@@ -1585,14 +1584,14 @@ GOW(select, iFipppp)
 //GO(semget, 
 //GO(semop, 
 //GO(semtimedop, 
-//GO(__send, 
-//GOW(send, 
-//GO(sendfile, 
-//GOW(sendfile64, 
-//GO(__sendmmsg, 
-//GOW(sendmmsg, 
-//GOW(sendmsg, 
-//GOW(sendto, 
+GO(__send, lFipLi)
+GOW(send, lFipLi)
+GO(sendfile, lFiipL)
+GOW(sendfile64, lFiipL)
+GO(__sendmmsg, iFipui)
+GOW(sendmmsg, iFipui)
+GOW(sendmsg, lFipi)
+GOW(sendto, lFipLipu)
 //GO(setaliasent, 
 GO(setbuf, vFpp)
 GOW(setbuffer, vFppL)
@@ -1640,7 +1639,7 @@ GOW(setpriority, iFiii)
 //GO(setservent, 
 //GO(setsgent, 
 //GOW(setsid, 
-//GOW(setsockopt, 
+GOW(setsockopt, iFiiipu)
 //GO(setsourcefilter, 
 //GO(setspent, 
 //GOW(setstate, 
@@ -1710,8 +1709,8 @@ GOM(__snprintf, iFEpLpV)
 GOM(snprintf, iFEpLpV)  //Weak
 GOM(__snprintf_chk, iFEpLiLpV)  //Weak
 //GO(sockatmark, 
-//GO(__socket, 
-//GOW(socket, 
+GO(__socket, iFiii)
+GOW(socket, iFiii)
 //GOW(socketpair, 
 //GO(splice, 
 GOM(sprintf, iFEppV)
