@@ -1065,7 +1065,7 @@ reg64_t* GetECommonO(x64emu_t* emu, rex_t rex, uint8_t m, uint8_t delta, uintptr
             base += Fetch32s(emu);
             return (reg64_t*)(base+R_RIP+delta);
         }
-        return (reg64_t*)(emu->regs[m+(rex.b<<3)].q[0]);
+        return (reg64_t*)(base + emu->regs[m+(rex.b<<3)].q[0]);
     } else {
         if((m&7)==4) {
             uint8_t sib = Fetch8(emu);
