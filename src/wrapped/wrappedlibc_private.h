@@ -53,8 +53,8 @@ GOW(access, iFpi)
 //GOW(asprintf, 
 //GO(__asprintf_chk, 
 //GO(__assert, 
-//GO(__assert_fail, 
-//GO(__assert_perror_fail, 
+GO(__assert_fail, vFppup)
+GO(__assert_perror_fail, vFipup)
 GO(atof, dFp)
 GO(atoi, iFp)
 GO(atol, lFp)
@@ -78,15 +78,15 @@ GO(atoll, IFp)
 //GO(bdflush, 
 //GOW(bind, 
 //GO(bindresvport, 
-//GOW(bindtextdomain, 
-//GOW(bind_textdomain_codeset, 
-//GOW(brk, 
+GOW(bindtextdomain, pFpp)
+GOW(bind_textdomain_codeset, pFpp)
+GOW(brk, iFp)
 //GO(__bsd_getpgrp, 
 //GOW(bsd_signal, 
-//GO(bsearch, 
+GOM(bsearch, pFEppLLp)
 GOW(btowc, iFi)
-//GO(__bzero, 
-//GOW(bzero, 
+GO(__bzero, vFpL)
+GOW(bzero, vFpL)
 //GO(c16rtomb, 
 //GOW(c32rtomb, 
 GOW(calloc, pFLL)
@@ -95,17 +95,17 @@ GOW(calloc, pFLL)
 //GOW(canonicalize_file_name, 
 //GO(capget, 
 //GO(capset, 
-//GO(catclose, 
-//GO(catgets, 
-//GO(catopen, 
+GO(catclose, iFp)
+GO(catgets, pFpiip)
+GO(catopen, pFpi)
 //GO(cbc_crypt, 
-//GO(cfgetispeed, 
-//GO(cfgetospeed, 
-//GO(cfmakeraw, 
-//GO(cfree, 
-//GO(cfsetispeed, 
-//GO(cfsetospeed, 
-//GO(cfsetspeed, 
+GO(cfgetispeed, uFp)
+GO(cfgetospeed, uFp)
+GO(cfmakeraw, vFp)
+GO(cfree, vFp)
+GO(cfsetispeed, iFpu)
+GO(cfsetospeed, iFpu)
+GO(cfsetspeed, iFpi)
 GOW(chdir, iFp)
 DATA(__check_rhosts_file, sizeof(void*))
 //GO(chflags, 
@@ -169,7 +169,7 @@ GO(closelog, vFv)
 //DATA(__ctype32_toupper, 
 //DATA(__ctype_b, 
 GO(__ctype_b_loc, pFv)
-//GOW(__ctype_get_mb_cur_max, 
+GOW(__ctype_get_mb_cur_max, LFv)
 //GO(__ctype_init, 
 DATAM(__ctype_tolower, sizeof(void*))
 GO(__ctype_tolower_loc, pFv)
@@ -310,7 +310,7 @@ GOM(fcntl64, iFEiiN)    //Weak
 //GO(fcvt, 
 //GOW(fcvt_r, 
 //GO(fdatasync, 
-//GO(__fdelt_chk, 
+GO(__fdelt_chk, LFL)
 //GO(__fdelt_warn, 
 //GO(fdetach, 
 GO(fdopen, pFip)
@@ -343,7 +343,7 @@ GO(fflush_unlocked, iFp)
 //GOW(fgetspent_r, 
 //GOW(fgets_unlocked, 
 //GO(__fgets_unlocked_chk, 
-//GOW(fgetwc, 
+GOW(fgetwc, uFp)
 //GOW(fgetwc_unlocked, 
 //GO(fgetws, 
 //GO(__fgetws_chk, 
@@ -540,9 +540,9 @@ GOW(geteuid, pFv)
 //GO(getnetgrent, 
 //GOW(getnetgrent_r, 
 //GO(getnetname, 
-//GOW(get_nprocs, 
-//GOW(get_nprocs_conf, 
-//GO(getopt, 
+GOW(get_nprocs, iFv)
+GOW(get_nprocs_conf, iFv)
+GO(getopt, iFipp)
 //GO(getopt_long, 
 //GO(getopt_long_only, 
 GO(__getpagesize, iFv)
@@ -609,9 +609,9 @@ GOW(getrlimit64, iFip)
 //GO(getspnam, 
 //GO(getspnam_r, 
 //GO(getsubopt, 
-//GOW(gettext, 
-//GOI(__gettimeofday, 
-//GOI(gettimeofday, 
+GOW(gettext, pFp)
+GO(__gettimeofday, iFpp)
+GO(gettimeofday, iFpp)
 //GOW(getttyent, 
 //GOW(getttynam, 
 //GOW(getuid, 
@@ -628,7 +628,7 @@ GOW(getrlimit64, iFip)
 //GO(getutxid, 
 //GO(getutxline, 
 //GO(getw, 
-//GOW(getwc, 
+GOW(getwc, uFp)
 //GO(getwchar, 
 //GO(getwchar_unlocked, 
 //GOW(getwc_unlocked, 
@@ -941,7 +941,7 @@ GOW(iswcntrl, iFi)
 GOW(iswcntrl_l, iFip)
 //GO(__iswctype, 
 //GOW(iswctype, 
-//GO(__iswctype_l, 
+GO(__iswctype_l, iFuLL)
 //GOW(iswctype_l, 
 GOW(iswdigit, iFi)
 //GO(__iswdigit_l, 
@@ -999,7 +999,7 @@ GO(killpg, iFii)
 //GOW(ldexpf, 
 //GOW(ldexpl, 
 //GO(ldiv, 
-//GO(lfind, 
+GOM(lfind, pFEpppLp)
 //GO(lgetxattr, 
 //GO(__libc_alloca_cutoff, 
 //GO(__libc_allocate_once_slow, 
@@ -1074,13 +1074,13 @@ GOW(localtime_r, pFpp)
 //GO(lockf, 
 //GOW(lockf64, 
 //DATAB(locs, 
-//GOW(_longjmp, 
-//GOW(longjmp, 
+//GOW(_longjmp, vFEpi)
+GOW(longjmp, vFEpi)
 //GO(__longjmp_chk, 
 //GO(lrand48, 
 //GO(lrand48_r, 
 //GO(lremovexattr, 
-//GO(lsearch, 
+GOM(lsearch, pFEpppLp)
 GO(__lseek, IFiIi)
 GOW(lseek, IFiIi)
 GOW(lseek64, IFiIi)
@@ -1101,27 +1101,27 @@ GO(malloc, pFL) // need to wrap to clear allocated memory?
 //GOW(malloc_usable_size, 
 //GOW(mallopt, 
 //DATAB(mallwatch, 
-//GO(mblen, 
-//GO(__mbrlen, 
-//GOW(mbrlen, 
+GO(mblen, iFpL)
+GO(__mbrlen, LFpLp)
+GOW(mbrlen, LFpLp)
 //GO(mbrtoc16, 
 //GOW(mbrtoc32, 
-//GO(__mbrtowc, 
-//GOW(mbrtowc, 
-//GOW(mbsinit, 
-//GOW(mbsnrtowcs, 
+GO(__mbrtowc, LFppLp)
+GOW(mbrtowc, LFppLp)
+GOW(mbsinit, iFp)
+GOW(mbsnrtowcs, LFppLLp)
 //GO(__mbsnrtowcs_chk, 
 GOW(mbsrtowcs, LFppLp)
 //GO(__mbsrtowcs_chk, 
-//GO(mbstowcs, 
+GO(mbstowcs, LFppL)
 //GO(__mbstowcs_chk, 
-//GO(mbtowc, 
+GO(mbtowc, iFppL)
 //GO(mcheck, 
 //GO(mcheck_check_all, 
 //GO(mcheck_pedantic, 
 //GO(_mcleanup, 
-//GO(_mcount, 
-//GOW(mcount, 
+GO(_mcount, vFpp)
+GOW(mcount, vFpp)
 //GOW(memalign, 
 GOW(memccpy, pFppiL)
 GO(memchr, pFpiL)
@@ -1279,11 +1279,11 @@ GO(openlog, vFpii)
 //GO(__overflow, 
 //GO(parse_printf_format, 
 //GO(passwd2des, 
-//GOW(pathconf, 
-//GOW(pause, 
+GOW(pathconf, iFpi)
+GOW(pause, iFv)
 //GO(__pause_nocancel, 
-//GO(pclose, 
-//GO(perror, 
+GO(pclose, iFp)
+GO(perror, vFp)
 //GOW(personality, 
 GO(__pipe, iFp)
 GOW(pipe, iFp)
@@ -1299,8 +1299,8 @@ GOW(pipe2, iFpO)
 //GO(pmap_rmtcall, 
 //GO(pmap_set, 
 //GO(pmap_unset, 
-//GO(__poll, 
-//GOW(poll, 
+GO(__poll, iFpLi)
+GOW(poll, iFpLi)
 //GO(__poll_chk, 
 //GO(popen, 
 //GO(posix_fadvise, 
@@ -1522,8 +1522,8 @@ GO(rename, iFpp)
 //GO(__res_state, 
 //DATAB(re_syntax_options, 
 //GOW(revoke, 
-//GO(rewind, 
-//GOW(rewinddir, 
+GO(rewind, vFp)
+GOW(rewinddir, vFp)
 //GO(rexec, 
 //GO(rexec_af, 
 //DATAB(rexecoptions, 
@@ -1594,8 +1594,8 @@ GOW(select, iFipppp)
 //GOW(sendmsg, 
 //GOW(sendto, 
 //GO(setaliasent, 
-//GO(setbuf, 
-//GOW(setbuffer, 
+GO(setbuf, vFpp)
+GOW(setbuffer, vFppL)
 //GOW(setcontext, 
 //GO(setdomainname, 
 //GO(setegid, 
@@ -1651,7 +1651,7 @@ GOW(setpriority, iFiii)
 //GO(setusershell, 
 //GOW(setutent, 
 //GO(setutxent, 
-//GOW(setvbuf, 
+GOW(setvbuf, iFppiL)
 //GO(setxattr, 
 //GO(sgetsgent, 
 //GOW(sgetsgent_r, 
@@ -1834,23 +1834,23 @@ GO(strtof, fFpp)
 //GOW(strtof64x, 
 //GOW(strtof64x_l, 
 //GO(__strtof_internal, 
-//GO(__strtof_l, 
-//GOW(strtof_l, 
+GO(__strtof_l, fFppL)
+GOW(strtof_l, fFppL)
 //GO(__strtof_nan, 
-//GO(strtoimax, 
-//GO(strtok, 
-//GO(__strtok_r, 
-//GOW(strtok_r, 
+GO(strtoimax, IFppi)
+GO(strtok, pFpp)
+GO(__strtok_r, pFppp)
+GOW(strtok_r, pFppp)
 //GO(__strtok_r_1c, 
 GOW(strtol, lFppi)
 //GO(strtold, 
 //GO(__strtold_internal, 
-//GO(__strtold_l, 
-//GOW(strtold_l, 
+GO(__strtold_l, dFppiL)
+GOW(strtold_l, dFppiL)
 //GO(__strtold_nan, 
 //GO(__strtol_internal, 
-//GO(__strtol_l, 
-//GOW(strtol_l, 
+GO(__strtol_l, lFppi)
+GOW(strtol_l, lFppi)
 GOW(strtoll, lFppi)
 //GO(__strtoll_internal, 
 //GOW(__strtoll_l, 
@@ -1868,9 +1868,9 @@ GOW(strtoull, LFppi)
 //GOW(strtouq, 
 //GO(__strverscmp, 
 GOW(strverscmp, iFpp)
-//GO(strxfrm, 
-//GO(__strxfrm_l, 
-//GOW(strxfrm_l, 
+GO(strxfrm, LFppL)
+GO(__strxfrm_l, LFppLL)
+GOW(strxfrm_l, LFppLL)
 //GO(stty, 
 //DATAB(svcauthdes_stats, 
 //GO(svcerr_auth, 
@@ -1931,22 +1931,22 @@ DATA(sys_errlist, sizeof(void*))
 GOW(system, iFp)
 GOM(__sysv_signal, pFEip)
 GOM(sysv_signal, pFEip)  // Weak
-//GOW(tcdrain, 
-//GO(tcflow, 
-//GO(tcflush, 
-//GOW(tcgetattr, 
-//GO(tcgetpgrp, 
+GOW(tcdrain, iFi)
+GO(tcflow, iFii)
+GO(tcflush, iFii)
+GOW(tcgetattr, iFip)
+GO(tcgetpgrp, iFi)
 //GO(tcgetsid, 
-//GO(tcsendbreak, 
-//GO(tcsetattr, 
-//GO(tcsetpgrp, 
+GO(tcsendbreak, iFii)
+GO(tcsetattr, iFiip)
+GO(tcsetpgrp, iFii)
 //GO(__tdelete, 
 //GOW(tdelete, 
 //GOW(tdestroy, 
 //GO(tee, 
-//GO(telldir, 
-//GO(tempnam, 
-//GOW(textdomain, 
+GO(telldir, iFp)
+GO(tempnam, pFpp)
+GOW(textdomain, pFp)
 //GO(__tfind, 
 //GOW(tfind, 
 //GO(thrd_current, 
@@ -1956,9 +1956,9 @@ GOM(sysv_signal, pFEip)  // Weak
 GO(time, LFp)
 GO(timegm, LFp)
 //GOW(timelocal, 
-//GO(timerfd_create, 
-//GO(timerfd_gettime, 
-//GO(timerfd_settime, 
+GO(timerfd_create, iFii)
+GO(timerfd_gettime, iFip)
+GO(timerfd_settime, iFiipp)
 //GOW(times, 
 //GO(timespec_get, 
 DATAB(__timezone, sizeof(void*))
@@ -2083,7 +2083,7 @@ GOW(waitpid, lFlpi)
 //GO(__wcpcpy_chk, 
 //GOW(wcpncpy, 
 //GO(__wcpncpy_chk, 
-//GOW(wcrtomb, 
+GOW(wcrtomb, LFpup)
 //GO(__wcrtomb_chk, 
 //GOW(wcscasecmp, 
 //GO(__wcscasecmp_l, 
@@ -2100,9 +2100,9 @@ GO(wcscpy, pFpp)
 GO(__wcscpy_chk, pFppL)
 //GO(wcscspn, 
 GO(wcsdup, pFp)
-//GO(wcsftime, 
-//GO(__wcsftime_l, 
-//GOW(wcsftime_l, 
+GO(wcsftime, LFpLpp)
+GO(__wcsftime_l, LFpLppp)
+GOW(wcsftime_l, LFpLppp)
 GO(wcslen, LFp)
 //GOW(wcsncasecmp, 
 //GO(__wcsncasecmp_l, 
@@ -2112,7 +2112,7 @@ GO(wcslen, LFp)
 //GOI(wcsncmp, 
 //GOW(wcsncpy, 
 //GO(__wcsncpy_chk, 
-//GOW(wcsnrtombs, 
+GOW(wcsnrtombs, LFppLLp)
 //GO(__wcsnrtombs_chk, 
 //GOI(wcsnlen, 
 //GO(wcspbrk, 
@@ -2169,9 +2169,9 @@ GO(wcslen, LFp)
 //GOW(wcstouq, 
 //GOW(wcswcs, 
 //GO(wcswidth, 
-//GO(wcsxfrm, 
-//GO(__wcsxfrm_l, 
-//GOW(wcsxfrm_l, 
+GO(wcsxfrm, LFppL)
+GO(__wcsxfrm_l, LFppLL)
+GOW(wcsxfrm_l, LFppLL)
 GO(wctob, iFi)
 GO(wctomb, iFpi)
 GO(__wctomb_chk, iFpuL)
@@ -2181,16 +2181,16 @@ GO(__wctomb_chk, iFpuL)
 GOW(wctype, LFp)
 GOW(wctype_l, LFpp)
 GO(__wctype_l, LFpp)
-//GO(wcwidth, 
-//GOI(wmemchr, 
-//GOI(wmemcmp, 
-//GOW(wmemcpy, 
-//GO(__wmemcpy_chk, 
-//GOW(wmemmove, 
+GO(wcwidth, iFu)
+GO(wmemchr, pFpuL)
+GO(wmemcmp, iFppL)
+GOW(wmemcpy, pFppL)
+GO(__wmemcpy_chk, pFppLL)
+GOW(wmemmove, pFppL)
 //GO(__wmemmove_chk, 
 //GOW(wmempcpy, 
 //GO(__wmempcpy_chk, 
-//GOI(wmemset, 
+GO(wmemset, pFpuL)
 //GOI(__wmemset_chk, 
 //GO(wordexp, 
 //GO(wordfree, 

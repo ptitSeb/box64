@@ -117,7 +117,6 @@ void* getVargN(x64emu_t *emu, int n)
     return ((void**)R_RSP)[1+n-6];
 }
 
-#if 0
 // utility functions
 #define SUPER() \
 GO(0)   \
@@ -160,6 +159,7 @@ static void* findcompareFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare callback\n");
     return NULL;
 }
+#if 0
 
 // ftw
 #define GO(A)   \
@@ -374,10 +374,10 @@ static void* findcompare64Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare64 callback\n");
     return NULL;
 }
+#endif
 
 #undef SUPER
 
-#endif
 // some my_XXX declare and defines
 int32_t my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), 
     int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), 
@@ -1012,7 +1012,6 @@ EXPORT void my_qsort_r(x64emu_t* emu, void* base, size_t nmemb, size_t size, voi
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 1; args.data = data;
     qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, &args);
 }
-#if 0
 EXPORT void* my_bsearch(x64emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
     return bsearch(key, base, nmemb, size, findcompareFct(fnc));
@@ -1026,6 +1025,7 @@ EXPORT void* my_lfind(x64emu_t* emu, void* key, void* base, size_t* nmemb, size_
 {
     return lfind(key, base, nmemb, size, findcompareFct(fnc));
 }
+#if 0
 
 
 struct i386_dirent {
