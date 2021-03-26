@@ -170,6 +170,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibasound.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibc.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibcups.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibdl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibgl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibglu.c"

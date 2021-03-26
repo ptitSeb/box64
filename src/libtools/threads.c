@@ -26,6 +26,7 @@
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
+//#define ALIGN_COND
 
 void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop_restore(void* buffer, int exec);
@@ -494,6 +495,9 @@ EXPORT int my_pthread_key_create(x64emu_t* emu, void* key, void* dtor)
 }
 EXPORT int my___pthread_key_create(x64emu_t* emu, void* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
 
+pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
+
+#ifdef ALIGN_COND
 // phtread_cond_init with null attr seems to only write 1 (NULL) dword on x86, while it's 48 bytes on ARM. 
 // Not sure why as sizeof(pthread_cond_init) is 48 on both platform... But Neverwinter Night init seems to rely on that
 // What about cond that are statically initialized? 
@@ -553,7 +557,6 @@ static void del_cond(void* cond)
 	}
 	pthread_mutex_unlock(&my_context->mutex_thread);
 }
-pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
 EXPORT int my_pthread_cond_broadcast(x64emu_t* emu, void* cond)
 {
@@ -587,6 +590,12 @@ EXPORT int my_pthread_cond_wait(x64emu_t* emu, void* cond, void* mutex)
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_wait(c, getAlignedMutex((pthread_mutex_t*)mutex));
 }
+#else
+EXPORT int my_pthread_cond_wait(x64emu_t* emu, pthread_cond_t* cond, void* mutex)
+{
+	return pthread_cond_wait(cond, getAlignedMutex((pthread_mutex_t*)mutex));
+}
+#endif
 
 //EXPORT int my_pthread_attr_setscope(x64emu_t* emu, void* attr, int scope)
 //{
@@ -754,7 +763,9 @@ emu_jmpbuf_t* GetJmpBuf()
 void init_pthread_helper()
 {
 	InitCancelThread();
+#ifdef ALIGN_COND
 	mapcond = kh_init(mapcond);
+#endif
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 #ifndef NOALIGN
 	unaligned_mutex = kh_init(mutex);
@@ -765,6 +776,7 @@ void fini_pthread_helper(box64context_t* context)
 {
 	FreeCancelThread(context);
 	CleanStackSize(context);
+#ifdef ALIGN_COND
 	pthread_cond_t *cond;
 	kh_foreach_value(mapcond, cond, 
 		pthread_cond_destroy(cond);
@@ -772,6 +784,7 @@ void fini_pthread_helper(box64context_t* context)
 	);
 	kh_destroy(mapcond, mapcond);
 	mapcond = NULL;
+#endif
 #ifndef NOALIGN
 	pthread_mutex_t *m;
 	kh_foreach_value(unaligned_mutex, m, 
