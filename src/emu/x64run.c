@@ -1101,7 +1101,14 @@ x64emurun:
             if(emu->quit)
                 goto fini;
             break;
-
+        case 0xDE:                      /* x87 opcodes */
+            if(RunDE(emu, rex)) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit)
+                goto fini;
+            break;
         case 0xDF:                      /* x87 opcodes */
             if(RunDF(emu, rex)) {
                 unimp = 1;
