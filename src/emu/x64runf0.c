@@ -168,7 +168,33 @@ int RunF0(x64emu_t *emu, rex_t rex)
             opcode = F8;
             switch (opcode) { 
 
-                case 0xB1:                      /* CMPXCHG Ed,Gd */
+                case 0xB0:                      /* CMPXCHG Eb,Gb */
+                    CHECK_FLAGS(emu);
+                    nextop = F8;
+                    GETGB;
+                    GETEB(0);
+#ifdef DYNAREC
+                    do {
+                        tmp8u = arm64_lock_read_b(EB);
+                        cmp8(emu, R_AL, tmp8u);
+                        if(ACCESS_FLAG(F_ZF)) {
+                            tmp32s = arm64_lock_write_b(EB, GB);
+                        } else {
+                            R_AL = tmp8u;
+                            tmp32s = 0;
+                        }
+                    } while(tmp32s);
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    cmp8(emu, R_AL, EB->byte[0]);
+                    if(ACCESS_FLAG(F_ZF)) {
+                        EB->byte[0] = GB;
+                    } else {
+                        R_AL = EB->byte[0];
+                    }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;                case 0xB1:                      /* CMPXCHG Ed,Gd */
                     nextop = F8;
                     GETED(0);
                     GETGD;
