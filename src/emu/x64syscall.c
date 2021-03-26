@@ -80,6 +80,7 @@ scwrap_t syscallwrap[] = {
     { 186, __NR_gettid, 0 },
     { 202, __NR_futex, 6},
     { 217, __NR_getdents64, 3},
+    { 318, __NR_getrandom, 3},
 };
 
 struct mmap_arg_struct {
