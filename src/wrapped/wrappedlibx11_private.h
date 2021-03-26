@@ -1043,7 +1043,7 @@ GO(XUnsetICFocus, vFp)
 GO(Xutf8DrawString, vFppppiipi)
 //GO(Xutf8DrawText
 GO(Xutf8LookupString, iFuppipp)
-GO(Xutf8ResetIC, pFu)
+GO(Xutf8ResetIC, pFL)
 GO(Xutf8SetWMProperties, vFpppppippp)
 //GO(Xutf8TextEscapement
 GO(Xutf8TextExtents, iFppipp)
