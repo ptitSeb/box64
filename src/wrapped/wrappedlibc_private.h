@@ -364,8 +364,8 @@ GOW(finitef, iFf)
 //GOW(finitel, 
 //GO(__flbf, 
 //GO(flistxattr, 
-//GOW(flock, 
-//GOW(flockfile, 
+GOW(flock, iFii)
+GOW(flockfile, vFp)
 //GOW(_flushlbf, 
 //GO(fmemopen, 
 //GO(fmemopen, 
@@ -493,7 +493,7 @@ GOW(getdelim, iFppip)
 //GO(__getdomainname_chk, 
 GOW(getdtablesize, iFv)
 GOW(getegid, iFv)
-//GO(getentropy, 
+GO(getentropy, iFpL)
 GO(getenv, pFp)
 GOW(geteuid, pFv)
 //GO(getfsent, 
@@ -1308,7 +1308,7 @@ GOW(pipe2, iFpO)
 GO(__poll, iFpLi)
 GOW(poll, iFpLi)
 //GO(__poll_chk, 
-//GO(popen, 
+GO(popen, pFpp)
 //GO(posix_fadvise, 
 //GOW(posix_fadvise64, 
 //GO(posix_fallocate, 
@@ -1734,7 +1734,7 @@ GOM(__stack_chk_fail, vFE)
 //GO(__statfs, 
 //GOW(statfs, 
 GOW(statfs64, iFpp)
-//GOW(statvfs, 
+GOW(statvfs, iFpp)
 GOW(statvfs64, iFpp)
 //GO(statx, 
 DATA(stderr, sizeof(void*))
