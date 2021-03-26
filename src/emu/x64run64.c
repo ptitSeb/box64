@@ -33,6 +33,7 @@ int Run64(x64emu_t *emu, rex_t rex)
     uint32_t tmp32u;
     uint64_t tmp64u;
     reg64_t *oped, *opgd;
+    sse_regs_t *opex, *opgx;
     uintptr_t tlsdata = GetFSBaseEmu(emu);
 
     opcode = F8;
@@ -45,6 +46,23 @@ int Run64(x64emu_t *emu, rex_t rex)
 
     switch(opcode) {
 
+        case 0x0F:
+            opcode = F8;
+            switch(opcode) {
+
+                case 0x29:                      /* MOVAPS Ex,Gx */
+                    nextop = F8;
+                    GETEX_OFFS(0, tlsdata);
+                    GETGX;
+                    EX->q[0] = GX->q[0];
+                    EX->q[1] = GX->q[1];
+                    break;
+
+                default:
+                    return 1;
+            }
+            break;
+
         case 0x33:              /* XOR Gd,Ed */
             nextop = F8;
             GETED_OFFS(0, tlsdata);
@@ -54,6 +72,37 @@ int Run64(x64emu_t *emu, rex_t rex)
             else
                 GD->q[0] = xor32(emu, GD->dword[0], ED->dword[0]);
             break;
+        
+        case 0x66:
+            opcode = F8;
+
+            while(opcode>=0x40 && opcode<=0x4F) {
+                rex.rex = opcode;
+                opcode = F8;
+            }
+            switch(opcode) {
+                case 0x0F:
+                    opcode = F8;
+                    switch(opcode) {
+                        case 0xD6:                      /* MOVQ Ex,Gx */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            EX->q[0] = GX->q[0];
+                            if(MODREG)
+                                EX->q[1] = 0;
+                            break;
+
+                        default:
+                            return 1;
+                    }
+                    break;
+
+                default:
+                    return 1;
+            }
+            break;
+
 
         case 0x81:                      /* GRP Ed,Id */
         case 0x83:                      /* GRP Ed,Ib */

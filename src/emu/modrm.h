@@ -24,6 +24,7 @@
 #define GETEW_OFFS(D, O)    oped=GetEdO(emu, rex, nextop, D, O)
 #define GETGW               opgd=GetGw(emu, rex, nextop)
 #define GETEX(D)            opex=GetEx(emu, rex, nextop, D)
+#define GETEX_OFFS(D, O)    opex=GetExO(emu, rex, nextop, D, O)
 #define GETGX               opgx=GetGx(emu, rex, nextop)
 #define GETEM(D)            opem=GetEm(emu, rex, nextop, D)
 #define GETGM               opgm=GetGm(emu, rex, nextop)

@@ -86,6 +86,7 @@ reg64_t* GetEw16(x64emu_t *emu, rex_t rex, uint8_t v);
 reg64_t* GetEw16off(x64emu_t *emu, rex_t rex, uint8_t v, uintptr_t offset);
 mmx87_regs_t* GetEm(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta);
 sse_regs_t* GetEx(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta);
+sse_regs_t* GetExO(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* GetGd(x64emu_t *emu, rex_t rex, uint8_t v);
 #define GetGw GetGd
 reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v);
