@@ -388,7 +388,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
                 if(u8==0x4E) {
                     if(v0==v1) {
-                        VSWP(v0, v1);
+                        VEXTQ_8(v0, v0, v0, 8); // Swap Up/Lower 64bits parts
                     } else {
                         VMOVeD(v0, 0, v1, 1);
                         VMOVeD(v0, 1, v1, 0);
