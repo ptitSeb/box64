@@ -17,7 +17,7 @@ GOW(access, iFpi)
 //GOW(adjtimex, 
 //GOW(advance, 
 //GO(alarm, 
-//GOW(aligned_alloc, 
+GOW(aligned_alloc, pFLL)
 GOW(alphasort, iFpp)
 GOW(alphasort64, iFpp)
 //GO(__arch_prctl, 
@@ -1125,7 +1125,7 @@ GO(mbtowc, iFppL)
 //GO(_mcleanup, 
 GO(_mcount, vFpp)
 GOW(mcount, vFpp)
-//GOW(memalign, 
+GOW(memalign, pFLL)
 GOW(memccpy, pFppiL)
 GO(memchr, pFpiL)
 GO(memcmp, iFppL)
@@ -1425,7 +1425,7 @@ GO(putwc, iFip)
 //GO(putwchar, 
 GO(putwchar_unlocked, iFi)
 GO(putwc_unlocked, iFip)
-//GOW(pvalloc, 
+GOW(pvalloc, pFL)
 //GOW(pwrite, 
 //GOW(__pwrite64, 
 GOW(pwrite64, lFipLI)
@@ -2032,7 +2032,7 @@ GO(usleep, iFu)
 //GOW(utimes, 
 //GOW(utmpname, 
 //GO(utmpxname, 
-//GOW(valloc, 
+GOW(valloc, pFL)
 //GOW(vasprintf, 
 //GO(__vasprintf_chk, 
 //GOW(vdprintf, 
