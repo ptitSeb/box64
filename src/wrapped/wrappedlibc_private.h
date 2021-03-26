@@ -1579,7 +1579,7 @@ GOM(scandir64, iFEpppp) //weak
 //GOW(sched_setscheduler, 
 GO(__sched_yield, iFv)
 GOW(sched_yield, iFv)
-GOW(__secure_getenv, pFp)
+GO2(__secure_getenv, pFp, getenv)   // not always present
 GOW(secure_getenv, pFp)
 //GO(seed48, 
 //GOW(seed48_r, 
