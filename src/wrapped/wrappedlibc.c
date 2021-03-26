@@ -772,6 +772,7 @@ EXPORT int my___isoc99_fscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* 
 
   return vfscanf(stream, fmt, VARARGS);
 }
+EXPORT int my_fscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b) __attribute__((alias("my___isoc99_fscanf")));
 
 EXPORT int my___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
 {

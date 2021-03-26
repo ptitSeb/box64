@@ -409,7 +409,7 @@ GO(freopen64, pFppp)
 //GOW(frexp, 
 //GOW(frexpf, 
 //GOW(frexpl, 
-//GO(fscanf, 
+GOM(fscanf, iFEppV)
 GO(fseek, iFpli)
 GOW(fseeko, iFpli)
 GO(__fseeko64, iFpIi)
@@ -606,7 +606,7 @@ GOW(getrusage, iFip)
 //GO(getsgnam, 
 //GO(getsgnam_r, 
 //GO(getsid, 
-//GOW(getsockname, 
+GOW(getsockname, iFipp)
 GOW(getsockopt, iFiiipp)
 //GO(getsourcefilter, 
 //GO(getspent, 
