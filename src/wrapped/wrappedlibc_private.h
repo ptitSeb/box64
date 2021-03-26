@@ -1103,7 +1103,7 @@ GO(malloc, pFL) // need to wrap to clear allocated memory?
 //GOW(malloc_info, 
 //GO(malloc_set_state, 
 //GOW(malloc_stats, 
-//GOW(malloc_trim, 
+GOW(malloc_trim, iFL)
 GOW(malloc_usable_size, LFp)
 //GOW(mallopt, 
 //DATAB(mallwatch, 
