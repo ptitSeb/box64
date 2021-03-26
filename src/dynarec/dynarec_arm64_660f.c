@@ -61,13 +61,39 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(j32);
-    #if 0//STEP == 3
+    #if 0//STEP > 1
     static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
     #endif
 
     switch(opcode) {
 
-
+        case 0x10:
+            INST_NAME("MOVUPD Gx,Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVQ(v0, v1);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                VLDR128_U12(v0, ed, fixedaddress);
+            }
+            break;
+        case 0x11:
+            INST_NAME("MOVUPD Ex,Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
+            }
+            break;
         case 0x12:
             INST_NAME("MOVLPD Gx, Eq");
             nextop = F8;
@@ -628,6 +654,28 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0x74:
+            INST_NAME("PCMPEQB Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VCMEQQ_8(v0, v0, q0);
+            break;
+        case 0x75:
+            INST_NAME("PCMPEQW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VCMEQQ_16(v0, v0, q0);
+            break;
+        case 0x76:
+            INST_NAME("PCMPEQD Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            VCMEQQ_32(v0, v0, q0);
+            break;
+
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
             nextop = F8;
@@ -827,6 +875,35 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 LDRSBw_U12(x1, ed, fixedaddress);
             }
             BFIx(gd, x1, 0, 16);
+            break;
+
+        case 0xC4:
+            INST_NAME("PINSRW Gx,Ed,Ib");
+            nextop = F8;
+            GETGX(v0);
+            if(MODREG) {
+                u8 = (F8)&7;
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                VMOVHto(ed, v0, u8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 1);
+                u8 = (F8)&7;
+                VLD1_16(wback, v0, u8);
+            }
+            break;
+        case 0xC5:
+            INST_NAME("PEXTRW Gd,Ex,Ib");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                GETEX(v0, 1);
+                u8 = (F8)&7;
+                VMOVQHfrom(v0, u8, gd);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 1);
+                u8 = (F8)&7;
+                LDRH_U12(gd, wback, u8*2);
+            }
             break;
 
 

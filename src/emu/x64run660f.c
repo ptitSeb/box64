@@ -862,14 +862,14 @@ int Run660F(x64emu_t *emu, rex_t rex)
 
     case 0xC4:  /* PINSRW Gx,Ew,Ib */
         nextop = F8;
-        GETED(0);
+        GETED(1);
         GETGX;
         tmp8u = F8;
         GX->uw[tmp8u&7] = ED->word[0];   // only low 16bits
         break;
     case 0xC5:  /* PEXTRW Gw,Ex,Ib */
         nextop = F8;
-        GETEX(0);
+        GETEX(1);
         GETGD;
         tmp8u = F8;
         GD->dword[0] = EX->uw[tmp8u&7];  // 16bits extract, 0 extended
