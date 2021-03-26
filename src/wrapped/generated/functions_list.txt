@@ -284,6 +284,7 @@
 #() uFpLp
 #() uFppi
 #() uFppu
+#() uFppp
 #() UFppi
 #() fFuii
 #() fFfff
@@ -995,6 +996,7 @@
 #() vFuffiiffiip
 #() vFuddiiddiip
 #() vFffffffffff
+#() vFpppppppppp
 #() iFiiiiiiiiip
 #() iFpuupiuiipp
 #() iFppuuiiiiii
@@ -1037,6 +1039,7 @@
 #() pFpCuuWWwwCCup
 #() pFpuuuWWWWWWWW
 #() pFppiiuuuiupLp
+#() pFpppppppppppp
 #() vFuiiiiiiiiiuup
 #() vFuuuuuuuuuuuuu
 #() vFuffffffffffff
