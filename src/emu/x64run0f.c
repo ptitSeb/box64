@@ -104,6 +104,22 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETGX;
             EX->q[0] = GX->q[1];
             break;
+        case 0x18:                       /* PREFETCHh Ed */
+            nextop = F8;
+            GETED(0);
+            if(MODREG) {
+            } else
+            switch((nextop>>3)&7) {
+                case 0: //PREFETCHnta
+                case 1: //PREFETCH1
+                case 2: //PREFETCH2
+                case 3: //PREFETCH3
+                    __builtin_prefetch((void*)ED, 0, 0); // ignoring wich level of cache
+                    break;
+                default:    //NOP
+                    break;
+            }
+            break;
 
         case 0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
