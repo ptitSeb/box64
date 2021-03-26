@@ -34,6 +34,7 @@
 #include "x64tls.h"
 
 typedef struct x64_sigaction_s x64_sigaction_t;
+typedef struct x64_stack_s x64_stack_t;
 
 
 //int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
@@ -41,6 +42,7 @@ int of_convert(int flag);
 int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 
 //int my_sigaction(x64emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact);
+int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss);
 //int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
 int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
@@ -69,6 +71,7 @@ scwrap_t syscallwrap[] = {
     //{ 10, __NR_mprotect, 3},  // same
     //{ 11, __NR_munmap, 2},    // same
     { 5, __NR_fstat, 2},
+    //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
     { 186, __NR_gettid, 0 },
     { 202, __NR_futex, 6},
 };
@@ -162,6 +165,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         case 11: // sys_munmap
             R_EAX = (uint32_t)my_munmap(emu, (void*)R_RDI, R_RSI);
+            break;
+        case 131: // sys_sigaltstack
+            R_EAX = (uint32_t)my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
             break;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
