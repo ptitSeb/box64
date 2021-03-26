@@ -198,7 +198,7 @@ GOM(__cxa_finalize, vFEp)
 //GOW(dgettext, 
 GO(difftime, dFLL)
 //GO(dirfd, 
-//GO(dirname, 
+GO(dirname, pFp)
 //GO(div, 
 //GO(_dl_addr, 
 //GO(_dl_catch_error, 
