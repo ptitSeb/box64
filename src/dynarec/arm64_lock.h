@@ -17,10 +17,15 @@ extern uint32_t arm64_lock_read_d(void* addr);
 // STLXR of ADDR, return 0 if ok, 1 if not
 extern int arm64_lock_write_d(void* addr, uint32_t val);
 
-// LDAXRD of ADDR
+// LDAXR of ADDR
 extern uint64_t arm64_lock_read_dd(void* addr);
 // STLXR of ADDR, return 0 if ok, 1 if not
 extern int arm64_lock_write_dd(void* addr, uint64_t val);
+
+// LDAXRD of ADDR
+extern void arm64_lock_read_dq(uint64_t * a, uint64_t* b, void* addr);
+// STLXRD of ADDR, return 0 if ok, 1 if not
+extern int arm64_lock_write_dq(uint64_t a, uint64_t b, void* addr);
 
 // Atomicaly exchange value at [p] with val, return old p
 extern uintptr_t arm64_lock_xchg(void* p, uintptr_t val);

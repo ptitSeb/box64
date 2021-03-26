@@ -280,6 +280,69 @@ int RunF0(x64emu_t *emu, rex_t rex)
 #endif
                     break;
 
+                case 0xC7:                      /* CMPXCHG8B Gq */
+                    CHECK_FLAGS(emu);
+                    nextop = F8;
+                    GETED(0);
+                    GETGD;
+#ifdef DYNAREC
+                    if(rex.w)
+                        do {
+                            arm64_lock_read_dq(&tmp64u, &tmp64u2, ED);
+                            if(R_RAX == tmp64u && R_RDX == tmp64u2) {
+                                SET_FLAG(F_ZF);
+                                tmp32s = arm64_lock_write_dq(R_RBX, R_RCX, ED);
+                            } else {
+                                CLEAR_FLAG(F_ZF);
+                                R_RAX = tmp64u;
+                                R_RDX = tmp64u2;
+                                tmp32s = 0;
+                            }
+                        } while(tmp32s);
+                    else
+                        do {
+                            tmp64u = arm64_lock_read_dd(ED);
+                            if((R_EAX == (tmp64u&0xffffffff)) && (R_EDX == ((tmp64u>>32)&0xffffffff))) {
+                                SET_FLAG(F_ZF);
+                                tmp32s = arm64_lock_write_dd(ED, R_EBX|(((uint64_t)R_ECX)<<32));
+                            } else {
+                                CLEAR_FLAG(F_ZF);
+                                R_RAX = tmp64u&0xffffffff;
+                                R_RDX = (tmp64u>>32)&0xffffffff;
+                                tmp32s = 0;
+                            }
+                        } while(tmp32s);
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    if(rex.w) {
+                        tmp64u = ED->q[0];
+                        tmp64u2= ED->q[1];
+                        if(R_RAX == tmp64u && R_RDX == tmp64u2) {
+                            SET_FLAG(F_ZF);
+                            ED->q[0] = R_RBX;
+                            ED->q[1] = R_RCX;
+                        } else {
+                            CLEAR_FLAG(F_ZF);
+                            R_RAX = tmp64u;
+                            R_RDX = tmp64u2;
+                        }
+                    } else {
+                        tmp32u = ED->dword[0];
+                        tmp32u2= ED->dword[1];
+                        if(R_EAX == tmp32u && R_EDX == tmp32u2) {
+                            SET_FLAG(F_ZF);
+                            ED->dword[0] = R_EBX;
+                            ED->dword[1] = R_ECX;
+                        } else {
+                            CLEAR_FLAG(F_ZF);
+                            R_EAX = tmp32u;
+                            R_EDX = tmp32u2;
+                        }
+                    }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+
             default:
                 return 1;
             }

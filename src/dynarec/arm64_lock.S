@@ -13,6 +13,8 @@
 .global arm64_lock_write_d
 .global arm64_lock_read_dd
 .global arm64_lock_write_dd
+.global arm64_lock_read_dq
+.global arm64_lock_write_dq
 .global arm64_lock_xchg
 .global arm64_lock_storeifnull
 
@@ -63,6 +65,21 @@ arm64_lock_write_dd:
     mov     x2, x0
     stlxr   w0, x1, [x2]
     ret
+
+arm64_lock_read_dq:
+    // address is r2, return is r0, r1
+    ldaxp   x4, x3, [x2]
+    str     x4, [x0]
+    str     x3, [x1]
+    ret
+
+arm64_lock_write_dq:
+    // address is r2, value is r0, r1, return is r0
+    // r0 needs to be aligned
+    stlxp   w3, x0, x1, [x2]
+    mov     w0, w3
+    ret
+
 
 arm64_lock_xchg:
     // address is x0, value is x1, return old value in x0

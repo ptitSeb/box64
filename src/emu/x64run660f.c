@@ -860,6 +860,20 @@ int Run660F(x64emu_t *emu, rex_t rex)
         }
         break;
 
+    case 0xC4:  /* PINSRW Gx,Ew,Ib */
+        nextop = F8;
+        GETED(0);
+        GETGX;
+        tmp8u = F8;
+        GX->uw[tmp8u&7] = ED->word[0];   // only low 16bits
+        break;
+    case 0xC5:  /* PEXTRW Gw,Ex,Ib */
+        nextop = F8;
+        GETEX(0);
+        GETGD;
+        tmp8u = F8;
+        GD->dword[0] = EX->uw[tmp8u&7];  // 16bits extract, 0 extended
+        break;
     case 0xC6:  /* SHUFPD Gx, Ex, Ib */
         nextop = F8;
         GETEX(1);
@@ -1032,7 +1046,24 @@ int Run660F(x64emu_t *emu, rex_t rex)
         for (int i=0; i<8; ++i)
             GX->uw[i] = ((uint32_t)GX->uw[i] + EX->uw[i] + 1)>>1;
         break;
-
+    case 0xE4:  /* PMULHUW Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<8; ++i) {
+            tmp32u = (uint32_t)GX->uw[i] * EX->uw[i];
+            GX->uw[i] = (tmp32u>>16)&0xffff;
+        }
+        break;
+    case 0xE5:  /* PMULHW Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        for(int i=0; i<8; ++i) {
+            tmp32s = (int32_t)GX->sw[i] * EX->sw[i];
+            GX->uw[i] = (tmp32s>>16)&0xffff;
+        }
+        break;
     case 0xE6:  /* CVTTPD2DQ Gx, Ex */
         nextop = F8;
         GETEX(0);
