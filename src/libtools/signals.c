@@ -119,7 +119,7 @@ struct x64_fpstate
 
 typedef struct x64_fpstate *x64_fpregset_t;
 
-typedef struct
+typedef struct x64_stack_s
 {
     void *ss_sp;
     int ss_flags;

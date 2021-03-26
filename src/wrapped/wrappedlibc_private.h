@@ -275,9 +275,9 @@ GO(__errno_location, pFv)
 //GO(ether_ntoa_r, 
 //GO(ether_ntohost, 
 //GOW(euidaccess, 
-//GO(eventfd, 
-//GO(eventfd_read, 
-//GO(eventfd_write, 
+GO(eventfd, iFui)
+GO(eventfd_read, iFip)
+GO(eventfd_write, iFiU)
 //GO(execl, 
 //GO(execle, 
 GOM(execlp, iFEpV)
@@ -496,8 +496,8 @@ GOW(geteuid, pFv)
 //GO(getfsent, 
 //GO(getfsfile, 
 //GO(getfsspec, 
-//GOW(getgid, 
-//GO(getgrent, 
+GOW(getgid, iFv)
+GO(getgrent, pFv)
 //GO(getgrent_r, 
 //GO(getgrgid, 
 //GO(getgrgid_r, 
@@ -615,7 +615,7 @@ GO(__gettimeofday, iFpp)
 GO(gettimeofday, iFpp)
 //GOW(getttyent, 
 //GOW(getttynam, 
-//GOW(getuid, 
+GOW(getuid, uFv)
 //GO(getusershell, 
 //GOW(getutent, 
 //GOW(getutent_r, 
@@ -1663,7 +1663,7 @@ GOW(setvbuf, iFppiL)
 //GO(shmctl, 
 //GO(shmdt, 
 //GO(shmget, 
-//GOW(shutdown, 
+GOW(shutdown, iFii)
 GOM(__sigaction, iFEipp)  // Weak
 GOM(sigaction, iFEipp)    // Weak
 GO(__sigaddset, iFpi)
@@ -1714,7 +1714,7 @@ GOM(__snprintf_chk, iFEpLiLpV)  //Weak
 //GO(sockatmark, 
 GO(__socket, iFiii)
 GOW(socket, iFiii)
-//GOW(socketpair, 
+GOW(socketpair, iFiiip)
 //GO(splice, 
 GOM(sprintf, iFEppV)
 GOM(__sprintf_chk, iFEpilpV)
@@ -1732,7 +1732,7 @@ GOM(__stack_chk_fail, vFE)
 //GOW(statfs, 
 GOW(statfs64, iFpp)
 //GOW(statvfs, 
-//GOW(statvfs64, 
+GOW(statvfs64, iFpp)
 //GO(statx, 
 DATA(stderr, sizeof(void*))
 DATA(stdin, sizeof(void*))
