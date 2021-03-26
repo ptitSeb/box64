@@ -209,7 +209,20 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
         nextop = F8;
         GETEW(0);
         GETGW;
-        EW->word[0] = GW->word[0];
+        if(rex.w)
+            EW->q[0] = GW->q[0];
+        else
+            EW->word[0] = GW->word[0];
+        break;
+
+    case 0x8B:                              /* MOV Gw,Ew */
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        if(rex.w)
+            GW->q[0] = EW->q[0];
+        else
+            GW->word[0] = EW->word[0];
         break;
 
     case 0x90:                              /* NOP */
