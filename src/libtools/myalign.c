@@ -136,7 +136,7 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
                 ++p;
                 break;
             default:
-                // whattt?
+                // whaaaat?
                 state = 0;
         }
     }
@@ -230,11 +230,138 @@ void myStackAlignScanf(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* m
                 ++p;
                 break;
             default:
-                // whattt?
+                // whaaaat?
                 state = 0;
         }
     }
 }
+
+void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm, int pos)
+{
+    // loop...
+    const wchar_t* p = (const wchar_t*)fmt;
+    int state = 0;
+    #ifndef HAVE_LD80BITS
+    double d;
+    long double ld;
+    #endif
+    int x = 0;
+    while(*p)
+    {
+        switch(state) {
+            case 0:
+                switch(*p) {
+                    case '%': state = 1; ++p; break;
+                    default:
+                        ++p;
+                }
+                break;
+            case 1: // normal
+            case 2: // l
+            case 3: // ll
+            case 4: // L
+                switch(*p) {
+                    case '%': state = 0;  ++p; break; //%% = back to 0
+                    case 'l': ++state; if (state>3) state=3; ++p; break;
+                    case 'L': state = 4; ++p; break;
+                    case 'a':
+                    case 'A':
+                    case 'e':
+                    case 'E':
+                    case 'g':
+                    case 'G':
+                    case 'F':
+                    case 'f': state += 10; break;    //  float
+                    case 'd':
+                    case 'i':
+                    case 'o':
+                    case 'u':
+                    case 'x':
+                    case 'X': state += 20; break;   // int
+                    case 'h': ++p; break;  // ignored...
+                    case '\'':
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                    case '.': 
+                    case '+': 
+                    case '-': ++p; break; // formating, ignored
+                    case 'm': state = 0; ++p; break; // no argument
+                    case 'n':
+                    case 'p':
+                    case 'S':
+                    case 's': state = 30; break; // pointers
+                    case '$': ++p; break; // should issue a warning, it's not handled...
+                    case '*': *(mystack++) = *(st++); ++p; break; // fetch an int in the stack....
+                    case ' ': state=0; ++p; break;
+                    default:
+                        state=20; // other stuff, put an int...
+                }
+                break;
+            case 11:    //double
+            case 12:    //%lg, still double
+            case 13:    //%llg, still double
+                if(xmm) {
+                    *mystack = emu->xmm[x++].q[0];
+                    --xmm;
+                    mystack++;
+                } else {
+                    *mystack = *st;
+                    st++; mystack++;
+                }
+                state = 0;
+                ++p;
+                break;
+            case 14:    //%LG long double
+                if((((uintptr_t)(st+1))&0xf)!=0)
+                    st++;
+                #ifdef HAVE_LD80BITS
+                if((((uintptr_t)mystack)&0xf)!=0)
+                    mystack++;
+                memcpy(mystack, st, 16);
+                st+=2; mystack+=2;
+                #else
+                // there is 128bits long double on ARM64, but they need 128bit alignment
+                if((((uintptr_t)mystack)&0xf)!=0)
+                    mystack++;
+                LD2D((void*)st, &d);
+                ld = d ;
+                memcpy(mystack, &ld, 16);
+                st+=2; mystack+=2;
+                #endif
+                state = 0;
+                ++p;
+                break;
+            case 20:    // fallback
+            case 21:
+            case 22:
+            case 23:    // 64bits int
+            case 24:    // normal int / pointer
+            case 30:
+                if(pos<6)
+                    *mystack = emu->regs[regs_abi[pos++]].q[0];
+                else {
+                    *mystack = *st;
+                    ++st;
+                }
+                ++mystack;
+                state = 0;
+                ++p;
+                break;
+            default:
+                // whaaaattt?
+                state = 0;
+        }
+    }
+}
+
 #if 0
 void myStackAlignGVariantNew(const char* fmt, uint32_t* st, uint32_t* mystack)
 {
@@ -418,116 +545,6 @@ void myStackAlignGVariantNew(const char* fmt, uint32_t* st, uint32_t* mystack)
     } while (*p && (inblocks || state));
 }
 
-void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
-{
-    // loop...
-    const wchar_t* p = (const wchar_t*)fmt;
-    int state = 0;
-    double d;
-    while(*p)
-    {
-        switch(state) {
-            case 0:
-                switch(*p) {
-                    case '%': state = 1; ++p; break;
-                    default:
-                        ++p;
-                }
-                break;
-            case 1: // normal
-            case 2: // l
-            case 3: // ll
-            case 4: // L
-                switch(*p) {
-                    case '%': state = 0;  ++p; break; //%% = back to 0
-                    case 'l': ++state; if (state>3) state=3; ++p; break;
-                    case 'L': state = 4; ++p; break;
-                    case 'a':
-                    case 'A':
-                    case 'e':
-                    case 'E':
-                    case 'g':
-                    case 'G':
-                    case 'F':
-                    case 'f': state += 10; break;    //  float
-                    case 'd':
-                    case 'i':
-                    case 'o':
-                    case 'u':
-                    case 'x':
-                    case 'X': state += 20; break;   // int
-                    case 'h': ++p; break;  // ignored...
-                    case '\'':
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9':
-                    case '.': 
-                    case '+': 
-                    case '-': ++p; break; // formating, ignored
-                    case 'm': state = 0; ++p; break; // no argument
-                    case 'n':
-                    case 'p':
-                    case 'S':
-                    case 's': state = 30; break; // pointers
-                    case '$': ++p; break; // should issue a warning, it's not handled...
-                    case '*': *(mystack++) = *(st++); ++p; break; //fetch an int in the stack
-                    case ' ': state=0; ++p; break;
-                    default:
-                        state=20; // other stuff, put an int...
-                }
-                break;
-            case 11:    //double
-            case 12:    //%lg, still double
-            case 13:    //%llg, still double
-            case 23:    // 64bits int
-                if((((uint32_t)mystack)&0x7)!=0)
-                    mystack++;
-                *(uint64_t*)mystack = *(uint64_t*)st;
-                st+=2; mystack+=2;
-                state = 0;
-                ++p;
-                break;
-            case 14:    //%LG long double
-                #ifdef HAVE_LD80BITS
-                if((((uint32_t)mystack)&0x7)!=0)
-                    mystack++;
-                memcpy(mystack, st, 10);
-                st+=3; mystack+=3;
-                #else
-                // there is no long double on ARM, so tranform that in a regular double
-                LD2D((void*)st, &d);
-                if((((uint32_t)mystack)&0x7)!=0)
-                    mystack++;
-                *(uint64_t*)mystack = *(uint64_t*)&d;
-                st+=3; mystack+=2;
-                #endif
-                state = 0;
-                ++p;
-                break;
-            case 20:    // fallback
-            case 21:
-            case 22:
-            case 24:    // normal int / pointer
-            case 30:
-                *mystack = *st;
-                ++mystack;
-                ++st;
-                state = 0;
-                ++p;
-                break;
-            default:
-                // whattt?
-                state = 0;
-        }
-    }
-}
 #endif
 
 #undef st_atime

@@ -860,7 +860,7 @@ EXPORT void my_vwarn(x64emu_t* emu, void* fmt, void* b) {
 #endif
 EXPORT int my___swprintf_chk(x64emu_t* emu, void* s, size_t n, int32_t flag, size_t slen, void* fmt, uint64_t* b)
 {
-    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 5);
+    myStackAlignW(emu, (const char*)fmt, b, emu->scratch, R_EAX, 5);
     PREPARE_VALIST;
     return vswprintf(s, n, (const wchar_t*)fmt, VARARGS);
 }
