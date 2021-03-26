@@ -163,6 +163,7 @@ set(ELFLOADER_SRC
 set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedalure.c"
     "${BOX64_ROOT}/src/wrapped/wrappedalut.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedcrashhandler.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfontconfig.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfreetype.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgnutls.c"

@@ -143,4 +143,4 @@ GO("libgnutls.so.30", gnutls)
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 
-//GO("crashhandler.so", crashhandler)
+GO("crashhandler.so", crashhandler)
