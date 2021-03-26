@@ -106,7 +106,7 @@ int CalcLoadAddr(elfheader_t* head)
     }
 
     head->stacksz = 1024*1024;          //1M stack size default?
-    head->stackalign = 4;   // default align for stack
+    head->stackalign = 16;   // default align for stack
     for (int i=0; i<head->numPHEntries; ++i) {
         if(head->PHEntries[i].p_type == PT_LOAD) {
             uintptr_t phend = head->PHEntries[i].p_vaddr - head->vaddr + head->PHEntries[i].p_memsz;
