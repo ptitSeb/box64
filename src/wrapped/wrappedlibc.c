@@ -857,21 +857,14 @@ EXPORT void my_vwarn(x64emu_t* emu, void* fmt, void* b) {
     ((vFpp_t)f)(fmt, (uint32_t*)b);
     #endif
 }
-
-EXPORT int my___swprintf_chk(x64emu_t* emu, void* s, uint32_t n, int32_t flag, uint32_t slen, void* fmt, void * b)
+#endif
+EXPORT int my___swprintf_chk(x64emu_t* emu, void* s, size_t n, int32_t flag, size_t slen, void* fmt, uint64_t* b)
 {
-    #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, b, emu->scratch);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 5);
     PREPARE_VALIST;
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, VARARGS);
-    return r;
-    #else
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, b);
-    return r;
-    #endif
+    return vswprintf(s, n, (const wchar_t*)fmt, VARARGS);
 }
+#if 0
 EXPORT int my_swprintf(x64emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
 {
     #ifndef NOALIGN

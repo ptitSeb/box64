@@ -1907,7 +1907,7 @@ GOM(swapcontext, iFEpp) //Weak
 //GOW(swapoff, 
 //GOW(swapon, 
 //GO(swprintf, 
-//GO(__swprintf_chk, 
+GOM(__swprintf_chk, iFEpLiLpV)
 //GO(swscanf, 
 //GOW(symlink, 
 //GO(symlinkat, 
