@@ -443,6 +443,15 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     GM->sw[2+i] = (EM->sd[i]<-32768)?-32768:((EM->sd[i]>32767)?32767:EM->sd[i]);
             break;
 
+        case 0x6E:                      /* MOVD Gm, Ed */
+            nextop = F8;
+            GETED(0);
+            GETGM;
+            if(rex.w)
+                GM->q = ED->q[0];
+            else
+                GM->q = ED->dword[0];    // zero extended
+            break;
         case 0x6F:                      /* MOVQ Gm, Em */
             nextop = F8;
             GETEM(0);
