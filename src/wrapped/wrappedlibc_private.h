@@ -3,6 +3,7 @@
 #endif
 
 //socklen_t is u32
+// typedef unsigned long int nfds_t;
 
 //GO(a64l, 
 GO(abort, vFv)
@@ -285,7 +286,7 @@ GO(eventfd_write, iFiU)
 GOM(execlp, iFEpV)
 //GO(execv, 
 //GOW(execve, 
-GOM(execvp, iFEp)
+GOM(execvp, iFEpp)
 //GOW(execvpe, 
 GO(_exit, vFi)
 GO(exit, vFi)
@@ -1339,7 +1340,7 @@ GOW(posix_memalign, iFpLL)
 //GO(posix_spawn_file_actions_init, 
 //GO(posix_spawnp, 
 //GO(posix_spawnp, 
-//GO(ppoll, 
+GO(ppoll, iFpLpp)
 //GO(__ppoll_chk, 
 GOW(prctl, iFiLLLL)
 GOW(pread, lFipLl)
@@ -1578,8 +1579,8 @@ GOM(scandir64, iFEpppp) //weak
 //GOW(sched_setscheduler, 
 GO(__sched_yield, iFv)
 GOW(sched_yield, iFv)
-//GOW(__secure_getenv, 
-//GOW(secure_getenv, 
+GOW(__secure_getenv, pFp)
+GOW(secure_getenv, pFp)
 //GO(seed48, 
 //GOW(seed48_r, 
 GO(seekdir, vFpi)
