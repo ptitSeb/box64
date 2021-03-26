@@ -4,6 +4,7 @@
 
 //socklen_t is u32
 // typedef unsigned long int nfds_t;
+// key_t is S32
 
 //GO(a64l, 
 GO(abort, vFv)
@@ -427,8 +428,8 @@ GOW(ftello, lFp)
 GO(__ftello64, IFp)
 GOW(ftello64, IFp)
 //GO(ftime, 
-//GO(ftok, 
-//GOW(ftruncate, 
+GO(ftok, iFpi)
+GOW(ftruncate, iFil)
 GOW(ftruncate64, iFiI)
 //GOW(ftrylockfile, 
 //GOW(fts64_children, 
@@ -518,7 +519,7 @@ GO(getgrent, pFv)
 //GO(gethostent, 
 //GO(gethostent_r, 
 //GO(gethostid, 
-//GOW(gethostname, 
+GOW(gethostname, iFpL)
 //GO(__gethostname_chk, 
 //GOW(getifaddrs, 
 //GO(getipv4sourcefilter, 
@@ -1018,9 +1019,9 @@ GOM(lfind, pFEpppLp)
 //GO(__libc_alloc_buffer_create_failure, 
 //GO(__libc_calloc, 
 //GO(__libc_clntudp_bufcreate, 
-//GO(__libc_current_sigrtmax, 
+GO(__libc_current_sigrtmax, iFv)
 //GO(__libc_current_sigrtmax_private, 
-//GO(__libc_current_sigrtmin, 
+GO(__libc_current_sigrtmin, iFv)
 //GO(__libc_current_sigrtmin_private, 
 //GO(__libc_dlclose, 
 //GO(__libc_dlopen_mode, 
@@ -1558,22 +1559,20 @@ GOM(scandir64, iFEpppp) //weak
 //GO(scandirat64, 
 //GO(scanf, 
 //GO(__sched_cpualloc, 
-//GOI(__sched_cpucount, 
+GO(__sched_cpucount, iFLp)
 //GO(__sched_cpufree, 
-//GO(sched_getaffinity, 
-//GO(sched_getaffinity, 
+GO(sched_getaffinity, iFLLp)
 //GO(sched_getcpu, 
-//GO(__sched_getparam, 
-//GOW(sched_getparam, 
-//GO(__sched_get_priority_max, 
-//GOW(sched_get_priority_max, 
-//GO(__sched_get_priority_min, 
-//GOW(sched_get_priority_min, 
+GO(__sched_getparam, iFLp)
+GOW(sched_getparam, iFLp)
+GO(__sched_get_priority_max, iFi)
+GOW(sched_get_priority_max, iFi)
+GO(__sched_get_priority_min, iFi)
+GOW(sched_get_priority_min, iFi)
 //GO(__sched_getscheduler, 
 //GOW(sched_getscheduler, 
 //GOW(sched_rr_get_interval, 
-//GO(sched_setaffinity, 
-//GO(sched_setaffinity, 
+GO(sched_setaffinity, iFLLp)
 //GOW(sched_setparam, 
 //GO(__sched_setscheduler, 
 //GOW(sched_setscheduler, 
@@ -1586,10 +1585,10 @@ GOW(secure_getenv, pFp)
 GO(seekdir, vFpi)
 GO(__select, iFipppp)
 GOW(select, iFipppp)
-//GO(semctl, 
-//GO(semget, 
-//GO(semop, 
-//GO(semtimedop, 
+GO(semctl, iFiiiN)
+GO(semget, iFiii)
+GO(semop, iFipL)
+GO(semtimedop, iFipLp)
 GO(__send, lFipLi)
 GOW(send, lFipLi)
 GO(sendfile, lFiipL)
@@ -1615,7 +1614,7 @@ GOW(setenv, iFppi)
 //GO(setgroups, 
 //GO(sethostent, 
 //GO(sethostid, 
-//GO(sethostname, 
+GO(sethostname, iFpL)
 //GO(setipv4sourcefilter, 
 //GOW(setitimer, 
 GOM(_setjmp, iFEp)
@@ -1688,8 +1687,8 @@ GO(sigismember, iFpi)
 //GOW(siglongjmp, 
 GOM(signal, pFEip)  //Weak
 //GO(signalfd, 
-//GO(__signbit, 
-//GO(__signbitf, 
+GO(__signbit, iFd)
+GO(__signbitf, iFf)
 //GO(__signbitl, 
 //GO(sigorset, 
 //GO(__sigpause, 
@@ -2036,7 +2035,7 @@ GO(usleep, iFu)
 //GOW(utmpname, 
 //GO(utmpxname, 
 GOW(valloc, pFL)
-//GOW(vasprintf, 
+GOM(vasprintf, iFEppp)   //weak
 //GO(__vasprintf_chk, 
 //GOW(vdprintf, 
 //GO(__vdprintf_chk, 

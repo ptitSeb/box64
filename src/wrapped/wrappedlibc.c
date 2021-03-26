@@ -530,6 +530,7 @@ int EXPORT my_uname(struct utsname *buf)
     GO(O_NOFOLLOW)  \
     GO(O_NOATIME)   \
     GO(O_CLOEXEC)   \
+    GO(O_TMPFILE)   \
 
 // x86->arm
 int of_convert(int a)
@@ -720,6 +721,12 @@ EXPORT int my_asprintf(x64emu_t* emu, void** buff, void * fmt, void * b, va_list
 }
 EXPORT int my___asprintf(x64emu_t* emu, void** buff, void * fmt, void * b, va_list V) __attribute__((alias("my_asprintf")));
 #endif
+
+EXPORT int my_vasprintf(x64emu_t* emu, char** buff, void* fmt, x64_va_list_t b) {
+    CONVERT_VALIST(b);
+
+    return vasprintf(buff, fmt, VARARGS);
+}
 
 EXPORT int my_vsprintf(x64emu_t* emu, void* buff,  void * fmt, x64_va_list_t b) {
     CONVERT_VALIST(b);

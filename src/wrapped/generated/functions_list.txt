@@ -89,6 +89,7 @@
 #() iFiI
 #() iFiu
 #() iFiU
+#() iFil
 #() iFip
 #() iFIi
 #() iFui
@@ -231,6 +232,7 @@
 #() iFiuu
 #() iFiLN
 #() iFipu
+#() iFipL
 #() iFipp
 #() iFuuu
 #() iFuup
@@ -238,6 +240,7 @@
 #() iFuLL
 #() iFfff
 #() iFLip
+#() iFLLp
 #() iFLpp
 #() iFpii
 #() iFpiu
@@ -419,10 +422,12 @@
 #() iFiiii
 #() iFiiiu
 #() iFiiip
+#() iFiiiN
 #() iFiipp
 #() iFiuii
 #() iFipii
 #() iFipui
+#() iFipLp
 #() iFippi
 #() iFippu
 #() iFippL
