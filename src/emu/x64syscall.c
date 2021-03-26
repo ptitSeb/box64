@@ -41,7 +41,7 @@ typedef struct x64_stack_s x64_stack_t;
 int of_convert(int flag);
 int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 
-//int my_sigaction(x64emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact);
+int my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_sigaction_t *oldact);
 int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss);
 //int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
@@ -71,9 +71,15 @@ scwrap_t syscallwrap[] = {
     //{ 10, __NR_mprotect, 3},  // same
     //{ 11, __NR_munmap, 2},    // same
     { 5, __NR_fstat, 2},
+    //{ 13, __NR_rt_sigaction, 4}   // wrapped to use my_ version
+    #ifdef __NR_pipe
+    { 22, __NR_pipe, 1},
+    #endif
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
+    { 157, __NR_prctl, 5 },     // needs wrapping?
     { 186, __NR_gettid, 0 },
     { 202, __NR_futex, 6},
+    { 217, __NR_getdents64, 3},
 };
 
 struct mmap_arg_struct {
@@ -166,6 +172,14 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 11: // sys_munmap
             R_EAX = (uint32_t)my_munmap(emu, (void*)R_RDI, R_RSI);
             break;
+        case 13: // sys_rt_sigaction
+            R_EAX = (uint32_t)my_sigaction(emu, (int)R_EDI, (const x64_sigaction_t *)R_RSI, (x64_sigaction_t *)R_RDX/*, (size_t)R_R10*/);
+            break;
+        #ifndef __NR_pipe
+        case 22:
+            R_EAX = (uint32_t)pipe((void*)R_RDI);
+            break;
+        #endif
         case 131: // sys_sigaltstack
             R_EAX = (uint32_t)my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
             break;
@@ -224,6 +238,14 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
             return (uint32_t)my_mprotect(emu, (void*)R_RSI, R_RDX, (int)R_ECX);
         case 11: // sys_munmap
             return (uint32_t)my_munmap(emu, (void*)R_RSI, R_RDX);
+        case 13: // sys_rt_sigaction
+            return (uint32_t)my_sigaction(emu, (int)R_ESI, (const x64_sigaction_t *)R_RDX, (x64_sigaction_t *)R_RCX/*, (size_t)R_R8*/);
+        #ifndef __NR_pipe
+        case 22:
+            return (uint32_t)pipe((void*)R_RSI);
+        #endif
+        case 131: // sys_sigaltstack
+            return (uint32_t)my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
         default:
             printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
             emu->quit = 1;
