@@ -2284,9 +2284,9 @@ GOW(writev, lFipi)
 //GO(xencrypt, 
 //GO(__xmknod, 
 //GO(__xmknodat, 
-//GO(__xpg_basename, 
+GO(__xpg_basename, pFp)
 //GOW(__xpg_sigpause, 
-//GO(__xpg_strerror_r, 
+GO(__xpg_strerror_r, pFipL)
 //GO(xprt_register, 
 //GO(xprt_unregister, 
 GOM(__xstat, iFEipp)
