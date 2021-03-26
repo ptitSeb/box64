@@ -2,6 +2,8 @@
 #error Meh...
 #endif
 
+//socklen_t is u32
+
 //GO(a64l, 
 GO(abort, vFv)
 //DATAB(__abort_msg, 
@@ -76,7 +78,7 @@ GO(atoll, IFp)
 GO(bcmp, iFppL)
 GO(bcopy, vFppL)
 //GO(bdflush, 
-//GOW(bind, 
+GOW(bind, iFipu)
 //GO(bindresvport, 
 GOW(bindtextdomain, pFpp)
 GOW(bind_textdomain_codeset, pFpp)
@@ -722,10 +724,10 @@ GOW(inet_pton, iFipp)
 //GOW(initstate, 
 //GOW(initstate_r, 
 //GO(innetgr, 
-//GO(inotify_add_watch, 
-//GO(inotify_init, 
-//GO(inotify_init1, 
-//GO(inotify_rm_watch, 
+GO(inotify_add_watch, iFipu)
+GO(inotify_init, iFv)
+GO(inotify_init1, iFi)
+GO(inotify_rm_watch, iFii)
 //GO(insque, 
 //GO(__internal_endnetgrent, 
 //GO(__internal_getnetgrent_r, 
@@ -1511,10 +1513,10 @@ GO(rename, iFpp)
 //GOW(re_set_registers, 
 //GOW(re_set_syntax, 
 //DATAB(_res_hconf, 
-//GO(__res_iclose, 
-//GO(__res_init, 
-//GO(__res_nclose, 
-//GO(__res_ninit, 
+GO(__res_iclose, vFpi)
+GO(__res_init, iFv)
+GO(__res_nclose, vFp)
+GO(__res_ninit, iFp)
 //GO(__resolv_context_get, 
 //GO(__resolv_context_get_override, 
 //GO(__resolv_context_get_preinit, 
@@ -1574,8 +1576,8 @@ GOM(scandir64, iFEpppp) //weak
 //GOW(sched_setparam, 
 //GO(__sched_setscheduler, 
 //GOW(sched_setscheduler, 
-//GO(__sched_yield, 
-//GOW(sched_yield, 
+GO(__sched_yield, iFv)
+GOW(sched_yield, iFv)
 //GOW(__secure_getenv, 
 //GOW(secure_getenv, 
 //GO(seed48, 
@@ -1636,8 +1638,8 @@ GOW(setpriority, iFiii)
 //GOW(setresgid, 
 //GOW(setresuid, 
 //GOW(setreuid, 
-//GOW(setrlimit, 
-//GOW(setrlimit64, 
+GOW(setrlimit, iFip)
+GOW(setrlimit64, iFip)
 //GO(setrpcent, 
 //GO(setservent, 
 //GO(setsgent, 
@@ -1855,8 +1857,8 @@ GO(__strtol_l, lFppi)
 GOW(strtol_l, lFppi)
 GOW(strtoll, lFppi)
 //GO(__strtoll_internal, 
-//GOW(__strtoll_l, 
-//GOW(strtoll_l, 
+GOW(__strtoll_l, IFppip)
+GOW(strtoll_l, IFppip)
 //GOW(strtoq, 
 GOW(strtoul, LFppi)
 GO(__strtoul_internal, LFppii)

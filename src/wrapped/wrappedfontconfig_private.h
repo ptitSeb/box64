@@ -57,12 +57,12 @@ GO(FcConfigGetFonts, pFpi)
 //GO(FcConfigGetRescanInverval, 
 //GO(FcConfigHome, 
 //GO(FcConfigParseAndLoad, 
-//GO(FcConfigReference, 
+GO(FcConfigReference, pFp)
 //GO(FcConfigSetCurrent, 
 //GO(FcConfigSetRescanInterval, 
 //GO(FcConfigSetRescanInverval, 
 GO(FcConfigSubstitute, iFppi)
-//GO(FcConfigSubstituteWithPat, 
+GO(FcConfigSubstituteWithPat, iFpppi)
 //GO(FcConfigUptoDate, 
 GO(FcDefaultSubstitute, vFp)
 //GO(FcDirCacheLoad, 
