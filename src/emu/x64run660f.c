@@ -78,6 +78,18 @@ int Run660F(x64emu_t *emu, rex_t rex)
         GX->q[0] = GX->q[1];
         GX->q[1] = EX->q[1];
         break;
+    case 0x16:                      /* MOVHPD Gx, Ed */
+        nextop = F8;
+        GETED(0);
+        GETGX;
+        GX->q[1] = ED->q[0];
+        break;
+    case 0x17:                      /* MOVHPD Ed, Gx */
+        nextop = F8;
+        GETED(0);
+        GETGX;
+        ED->q[0] = GX->q[1];
+        break;
 
     case 0x1F:                      /* NOP (multi-byte) */
         nextop = F8;
