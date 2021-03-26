@@ -33,6 +33,7 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
     uint8_t tmp8u, tmp8u2;
     int16_t tmp16s;
     uint16_t tmp16u, tmp16u2;
+    int32_t tmp32s;
     int64_t tmp64s;
     uint64_t tmp64u, tmp64u2, tmp64u3;
     reg64_t *oped, *opgd;
@@ -223,6 +224,16 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
             GW->q[0] = EW->q[0];
         else
             GW->word[0] = EW->word[0];
+        break;
+
+    case 0x8D:                              /* LEA Gw,M */
+        nextop = F8;
+        GETED(0);
+        GETGD;
+        if(rex.w)
+            GD->q[0] = (uint64_t)ED;
+        else
+            GD->word[0] = (uint16_t)(uintptr_t)ED;
         break;
 
     case 0x90:                              /* NOP */
@@ -539,6 +550,12 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
 
     case 0xDD:                              /* x87 opcdes */
         return Run66DD(emu, rex);
+
+    case 0xE8:                              /* CALL Id */
+        tmp32s = F32S; // call is relative
+        Push(emu, R_RIP);
+        R_RIP += tmp32s;
+        break;
 
     case 0xF7:                      /* GRP3 Ew(,Iw) */
         nextop = F8;
