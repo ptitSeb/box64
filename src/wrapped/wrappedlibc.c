@@ -1849,7 +1849,6 @@ EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p
     jpbuff->save_r13 = R_R13;
     jpbuff->save_r14 = R_R14;
     jpbuff->save_r15 = R_R15;
-    jpbuff->save_rsp = R_RSP;
     jpbuff->save_rsp = R_RSP+sizeof(uintptr_t); // include "return address"
     jpbuff->save_rip = *(uintptr_t*)(R_RSP);
     // and that's it.. Nothing more for now
