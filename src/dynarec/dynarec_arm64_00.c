@@ -2110,7 +2110,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF(ninst && dyn->insts && dyn->insts[ninst-1].x64.set_flags, 1) {
+                    PASS2IF(dyn->insts && 
+                           ((ninst && dyn->insts[ninst-1].x64.set_flags)
+                        || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
+                    {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
