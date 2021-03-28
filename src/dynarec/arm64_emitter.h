@@ -306,6 +306,14 @@
 #define LDAXRxw(Rt, Rn)                 EMIT(MEMAX_gen(2+rex.w, 1, 31, Rn, Rt))
 #define STLXRxw(Rs, Rt, Rn)             EMIT(MEMAX_gen(2+rex.w, 0, Rs, Rn, Rt))
 
+#define MEMAX_pair(size, L, Rs, Rt2, Rn, Rt)    (1<<31 | (size)<<30 | 0b001000<<24 | (L)<<22 | 1<<21 | (Rs)<<16 | 1<<15 | (Rt2)<<10 | (Rn)<<5 | (Rt))
+#define LDAXPx(Rt, Rt2, Rn)             EMIT(MEMAX_pair(1, 1, 31, Rt2, Rn, Rt))
+#define LDAXPw(Rt, Rt2, Rn)             EMIT(MEMAX_pair(0, 1, 31, Rt2, Rn, Rt))
+#define LDAXPxw(Rt, Rt2, Rn)            EMIT(MEMAX_pair(rex.w, 1, 31, Rt2, Rn, Rt))
+#define STLXPx(Rs, Rt, Rt2, Rn)         EMIT(MEMAX_pair(1, 0, Rs, Rt2, Rn, Rt))
+#define STLXPw(Rs, Rt, Rt2, Rn)         EMIT(MEMAX_pair(0, 0, Rs, Rt2, Rn, Rt))
+#define STLXPxw(Rs, Rt, Rt2, Rn)        EMIT(MEMAX_pair(rex.w, 0, Rs, Rt2, Rn, Rt))
+
 // LOAD/STORE Exclusive
 #define MEMX_gen(size, L, Rs, Rn, Rt)       ((size)<<30 | 0b001000<<24 | (L)<<22 | (Rs)<<16 | 0<<15 | 0b11111<<10 | (Rn)<<5 | (Rt))
 #define LDXRB(Rt, Rn)                   EMIT(MEMX_gen(0b00, 1, 31, Rn, Rt))

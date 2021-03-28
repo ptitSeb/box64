@@ -185,6 +185,31 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
+                case 0xC7:
+                    INST_NAME("LOCK CMPXCHG8B Gq, Eq");
+                    SETFLAGS(X_ZF, SF_SET);
+                    nextop = F8;
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                    MARKLOCK;
+                    LDAXPxw(x2, x3, wback);
+                    CMPSxw_REG(xRAX, x2);
+                    B_MARK(cNE);    // EAX != Ed[0]
+                    CMPSxw_REG(xRDX, x3);
+                    B_MARK(cNE);    // EDX != Ed[1]
+                    MOVxw_REG(x2, xRBX);
+                    MOVxw_REG(x3, xRCX);
+                    STLXPxw(x4, x2, x3, wback);
+                    CBNZx_MARKLOCK(x4);
+                    MOV32w(x1, 1);
+                    B_MARK3(c__);
+                    MARK;
+                    MOVxw_REG(xRAX, x2);
+                    MOVxw_REG(xRDX, x3);
+                    MOV32w(x1, 0);
+                    MARK3;
+                    BFIw(xFlags, x1, F_ZF, 1);
+                    break;
+
                 default:
                     DEFAULT;
             }
