@@ -362,7 +362,7 @@ EXPORT void my___pthread_register_cancel(void* E, void* B)
 		int i = cancel_deep--;
 		x64emu_t* emu = cancel_emu[i];
 		my_longjmp(emu, cancel_buff[i]->__cancel_jmp_buf, 1);
-		DynaRun(emu);	// resume execution
+		DynaRun(emu);	// resume execution // TODO: Use ejb instead?
 		return;
 	}
 
@@ -666,11 +666,10 @@ EXPORT int my_pthread_kill(x64emu_t* emu, void* thread, int sig)
     return pthread_kill((pthread_t)thread, sig);
 }
 
-EXPORT void my_pthread_exit(x64emu_t* emu, void* retval)
-{
-	emu->quit = 1;	// to be safe
-	pthread_exit(retval);
-}
+//EXPORT void my_pthread_exit(x64emu_t* emu, void* retval)
+//{
+//	pthread_exit(retval);
+//}
 
 #ifdef NOALIGN
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m) {
