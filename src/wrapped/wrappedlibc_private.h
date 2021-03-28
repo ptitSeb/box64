@@ -51,8 +51,8 @@ GOW(alphasort64, iFpp)
 //GOW(argz_replace, 
 //GO(__argz_stringify, 
 //GOW(argz_stringify, 
-//GO(asctime, 
-//GOW(asctime_r, 
+GO(asctime, pFp)
+GOW(asctime_r, pFpp)
 //GO(__asprintf, 
 //GOW(asprintf, 
 //GO(__asprintf_chk, 
@@ -166,8 +166,8 @@ GOW(connect, iFipu)
 //GOW(creat64, 
 //GO(create_module, 
 //GO(ctermid, 
-//GO(ctime, 
-//GO(ctime_r, 
+GO(ctime, pFp)
+GO(ctime_r, pFpp)
 //DATA(__ctype32_b, 
 //DATA(__ctype32_tolower, 
 //DATA(__ctype32_toupper, 
