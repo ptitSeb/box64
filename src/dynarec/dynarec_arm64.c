@@ -325,10 +325,10 @@ int Table64(dynarec_arm_t *dyn, uint64_t val)
 }
 
 
-void arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
-void arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
-void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
-void arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
+uintptr_t arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
+uintptr_t arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
+uintptr_t arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
+uintptr_t arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 
 void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end)
@@ -336,7 +336,8 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // init the helper
     dynarec_arm_t helper = {0};
     helper.start = addr;
-    arm_pass0(&helper, addr);
+    uintptr_t start = addr;
+    uintptr_t end = arm_pass0(&helper, addr);
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
         block->done = 1;
@@ -344,11 +345,12 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     }
     helper.cap = helper.size+3; // needs epilog handling
     helper.insts = (instruction_arm64_t*)calloc(helper.cap, sizeof(instruction_arm64_t));
+    // already protect the block and compute hash signature
+    protectDB(addr, end-addr+1);
+    uint32_t hash = X31_hash_code((void*)addr, end-addr+1);
     // pass 1, addresses, x64 jump addresses, flags
     arm_pass1(&helper, addr);
     // calculate barriers
-    uintptr_t start = helper.insts[0].x64.addr;
-    uintptr_t end = helper.insts[helper.size].x64.addr+helper.insts[helper.size].x64.size;
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x64.jmp) {
             uintptr_t j = helper.insts[i].x64.jmp;
@@ -440,11 +442,18 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     block->block = p;
     block->need_test = 0;
     //block->x64_addr = (void*)start;
-    block->x64_size = end-start;
+    block->x64_size = end-start+1;
     if(box64_dynarec_largest<block->x64_size)
         box64_dynarec_largest = block->x64_size;
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
-    // fill sons if any
+    // Check if something changed, to abbort if it as
+    if(block->hash != hash) {
+        dynarec_log(LOG_INFO, "Warning, a block changed while beeing processed hash(%p:%d)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
+        free(helper.sons_x64);
+        free(helper.sons_arm);
+        FreeDynarecMap(block, (uintptr_t)p, sz);
+        return NULL;
+    }    // fill sons if any
     dynablock_t** sons = NULL;
     int sons_size = 0;
     if(helper.sons_size) {

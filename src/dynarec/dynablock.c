@@ -330,6 +330,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     // fill the block
     block->x64_addr = (void*)addr;
     if(!FillBlock64(block, filladdr)) {
+        dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
         void* old = (void*)arm64_lock_xchg(&dynablocks->direct[addr-dynablocks->text], 0);
         if(old!=block && old) {// put it back in place, strange things are happening here!
             dynarec_log(LOG_INFO, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);

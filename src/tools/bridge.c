@@ -91,14 +91,15 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
             b = b->next;
             bridge->last = b;
         }
-	sz = b->sz;
+	    sz = b->sz;
         #ifdef DYNAREC
         pthread_mutex_unlock(&bridge->mutex);
         if(box64_dynarec) {
             prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
             if(prot)
                 unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
-            addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
+            else    // only add DB if there is no protection
+                addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
         }
     } while(sz!=b->sz); // this while loop if someone took the slot when the bridge mutex was unlocked doing memory protection managment
     pthread_mutex_lock(&bridge->mutex);
@@ -116,7 +117,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
     pthread_mutex_unlock(&bridge->mutex);
     #ifdef DYNAREC
-    if(box64_dynarec && prot)
+    if(box64_dynarec)
         protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
     #endif
     #ifdef HAVE_TRACE

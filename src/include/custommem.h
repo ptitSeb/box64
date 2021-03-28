@@ -29,6 +29,7 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy);
 dynablocklist_t* getDB(uintptr_t idx);
 void addJumpTableIfDefault64(void* addr, void* jmp);
 void setJumpTableDefault64(void* addr);
+int isJumpTableDefault64(void* addr);
 uintptr_t getJumpTable64();
 uintptr_t getJumpTableAddress64(uintptr_t addr);
 #endif

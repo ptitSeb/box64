@@ -470,6 +470,8 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
 
 void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
 {
+    if(!addr || !size)
+        return;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
         #ifndef USE_MMAP
         free((void*)addr);
@@ -593,6 +595,23 @@ void setJumpTableDefault64(void* addr)
     if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)arm64_next)
         return;
     box64_jmptbl3[idx3][idx2][idx1][idx0] = (uintptr_t)arm64_next;
+}
+int isJumpTableDefault64(void* addr)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+    idx0 = (((uintptr_t)addr)    )&0xffff;
+    if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
+        return 1;
+    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
+        return 1;
+    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
+        return 1;
+    if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)arm64_next)
+        return 1;
+    return (box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)arm64_next)?1:0;
 }
 uintptr_t getJumpTable64()
 {
