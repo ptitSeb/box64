@@ -1502,9 +1502,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     TABLE64(x3, addr); // expected return address
                     CMPSx_REG(xRIP, x3);
                     B_MARK(cNE);
-                    LDRw_U12(x1, xEmu, offsetof(x64emu_t, quit));
-                    CMPSw_U12(x1, 1);
-                    B_NEXT(cNE);
+                    LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
+                    CBZw_NEXT(w1);
                     MARK;
                     jump_to_epilog(dyn, 0, xRIP, ninst);
                 }
