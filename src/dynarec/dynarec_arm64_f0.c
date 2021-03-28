@@ -215,6 +215,24 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
                     
+        case 0x29:
+            INST_NAME("LOCK SUB Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                emit_sub32(dyn, ninst, rex, ed, gd, x3, x4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                MARKLOCK;
+                LDAXRxw(x1, wback);
+                emit_sub32(dyn, ninst, rex, x1, gd, x3, x4);
+                STLXRxw(x3, x1, wback);
+                CBNZx_MARKLOCK(x3);
+            }
+            break;
+
         case 0x81:
         case 0x83:
             nextop = F8;
