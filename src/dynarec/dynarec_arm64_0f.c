@@ -366,6 +366,27 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGX(v0);
             VFSUBQS(v0, v0, q0);
             break;
+        case 0x5D:
+            INST_NAME("MINPS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            VFMINQD(v0, v0, v1);
+            break;
+        case 0x5E:
+            INST_NAME("DIVPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VFDIVQS(v0, v0, q0);
+            break;
+        case 0x5F:
+            INST_NAME("MAXPS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            VFMAXQD(v0, v0, v1);
+            break;
 
         #define GO(GETFLAGS, NO, YES, F)   \
             READFLAGS(F);   \
