@@ -448,7 +448,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
     // Check if something changed, to abbort if it as
     if(block->hash != hash) {
-        dynarec_log(LOG_INFO, "Warning, a block changed while beeing processed hash(%p:%d)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
+        dynarec_log(LOG_INFO, "Warning, a block changed while beeing processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
         free(helper.sons_x64);
         free(helper.sons_arm);
         FreeDynarecMap(block, (uintptr_t)p, sz);
@@ -467,6 +467,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
                 son->x64_size = end-helper.sons_x64[i];
                 if(!son->x64_size) {printf_log(LOG_NONE, "Warning, son with null x64 size! (@%p / ARM=%p)", son->x64_addr, son->block);}
                 son->father = block;
+                son->size = sz + son->block - block->block; // update size count, for debugging
                 son->done = 1;
                 sons[sons_size++] = son;
                 if(!son->parent)
