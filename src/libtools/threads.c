@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <setjmp.h>
+#include <sys/mman.h>
 
 #include "debug.h"
 #include "box64context.h"
@@ -200,7 +201,7 @@ x64emu_t* thread_get_emu()
 				stacksize = stack_size;
 			pthread_attr_destroy(&attr);
 		}
-		void* stack = calloc(1, stacksize);
+		void* stack = mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
 		x64emu_t *emu = NewX64Emu(my_context, 0, (uintptr_t)stack, stacksize, 1);
 		SetupX64Emu(emu);
 		thread_set_emu(emu);
@@ -228,6 +229,7 @@ static void* pthread_routine(void* p)
 	et->emu->type = EMUTYPE_MAIN;
 	// setup callstack and run...
 	x64emu_t* emu = et->emu;
+	R_RSP -= 64;	// Gard zone
 	PushExit(emu);
 	R_RIP = et->fnc;
 	R_RDI = (uintptr_t)et->arg;
@@ -290,7 +292,7 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 		stacksize = attr_stacksize;
 		own = 0;
 	} else {
-		stack = malloc(stacksize);
+		stack = mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
 		own = 1;
 	}
 
@@ -316,7 +318,7 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet)
 {
 	int stacksize = (ssize)?ssize:(2*1024*1024);	//default stack size is 2Mo
-	void* stack = malloc(stacksize);
+	void* stack = mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
 	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
     x64emu_t *emuthread = NewX64Emu(emu->context, (uintptr_t)f, (uintptr_t)stack, stacksize, 1);
 	SetupX64Emu(emuthread);

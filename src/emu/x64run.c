@@ -48,7 +48,7 @@ int Run(x64emu_t *emu, int step)
         return 0;
 
     //ref opcode: http://ref.x64asm.net/geek32.html#xA1
-    printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p\n", emu, (void*)R_RIP, emu->context->stack);
+    printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p\n", emu, (void*)R_RIP, (void*)R_RSP);
 
 x64emurun:
 

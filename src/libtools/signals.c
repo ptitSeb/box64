@@ -282,7 +282,7 @@ static x64emu_t* get_signal_emu()
     x64emu_t *emu = (x64emu_t*)pthread_getspecific(sigemu_key);
     if(!emu) {
         const int stsize = 8*1024;  // small stack for signal handler
-        void* stack = calloc(1, stsize);
+        void* stack = mmap(NULL, stsize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
         emu = NewX64Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
         emu->type = EMUTYPE_SIGNAL;
         pthread_setspecific(sigemu_key, emu);
@@ -301,7 +301,13 @@ uint64_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 //    trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 
     x64emu_t *emu = get_signal_emu();
-    printf_log(LOG_DEBUG, "%04d|signal function handler %p called, ESP=%p\n", GetTID(), (void*)fnc, (void*)R_RSP);
+    x64emu_t *thread_emu = thread_get_emu();
+    x64_stack_t *new_ss = (x64_stack_t*)pthread_getspecific(sigstack_key);
+    if(!new_ss) {
+        // no alternate stack, so signal RSP needs to match thread RSP!
+        R_RSP = thread_emu->regs[_SP].q[0];
+    }
+    printf_log(LOG_DEBUG, "%04d|signal function handler %p  (%s alternate stack) called, RSP=%p\n", GetTID(), (void*)fnc, new_ss?"with":"without", (void*)R_RSP);
     
     /*SetFS(emu, default_fs);*/
     for (int i=0; i<6; ++i)
@@ -779,8 +785,10 @@ exit(-1);
         uint32_t hash = 0;
         if(db)
             hash = X31_hash_code(db->x64_addr, db->x64_size);
-        printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
-            GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code, 
+        printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
+            GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, 
+            emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, 
+            addr, info->si_code, 
             prot, db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0, 
             getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)), (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash);

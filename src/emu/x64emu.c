@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/time.h>
+#include <sys/mman.h>
 
 #include "debug.h"
 #include "box64stack.h"
@@ -173,8 +174,8 @@ void CallAllCleanup(x64emu_t *emu)
 
 static void internalFreeX64(x64emu_t* emu)
 {
-    if(emu)
-        free(emu->stack2free);
+    if(emu && emu->stack2free)
+        munmap(emu->stack2free, emu->size_stack);
 }
 
 EXPORTDYN

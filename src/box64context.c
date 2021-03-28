@@ -174,8 +174,6 @@ void FreeBox64Context(box64context_t** context)
 
     FreeDLPrivate(&ctx->dlprivate);
 
-    free(ctx->stack);
-
     free(ctx->fullpath);
     free(ctx->box64path);
 
