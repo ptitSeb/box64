@@ -200,7 +200,7 @@ GOM(__cxa_finalize, vFEp)
 GO(difftime, dFLL)
 //GO(dirfd, 
 GO(dirname, pFp)
-//GO(div, 
+GO(div, UFii)
 //GO(_dl_addr, 
 //GO(_dl_catch_error, 
 //GO(_dl_catch_exception, 
@@ -237,7 +237,7 @@ GOW(duplocale, pFp)
 //GOW(endmntent, 
 //GO(endnetent, 
 //GO(endnetgrent, 
-//GO(endprotoent, 
+GO(endprotoent, vFv)
 //GO(endpwent, 
 //GO(endrpcent, 
 //GO(endservent, 
@@ -443,7 +443,7 @@ GOW(ftruncate64, iFiI)
 //GO(fts_read, 
 //GO(fts_set, 
 //GO(ftw, 
-//GOW(ftw64, 
+GOM(ftw64, iFEppi)
 //GOW(funlockfile, 
 //GO(futimens, 
 //GOW(futimes, 
@@ -521,7 +521,7 @@ GO(getgrent, pFv)
 //GO(gethostid, 
 GOW(gethostname, iFpL)
 //GO(__gethostname_chk, 
-//GOW(getifaddrs, 
+GOW(getifaddrs, iFp)
 //GO(getipv4sourcefilter, 
 //GOW(getitimer, 
 //GO(get_kernel_syms, 
@@ -563,11 +563,11 @@ GO(getpid, uFv)
 //GO(getpmsg, 
 //GOW(getppid, 
 GOW(getpriority, iFii)
-//GO(getprotobyname, 
+GO(getprotobyname, pFp)
 //GO(getprotobyname_r, 
-//GO(getprotobynumber, 
+GO(getprotobynumber, pFp)
 //GO(getprotobynumber_r, 
-//GO(getprotoent, 
+GO(getprotoent, pFv)
 //GO(getprotoent_r, 
 //GOW(getpt, 
 //GO(getpublickey, 
@@ -1190,7 +1190,7 @@ GOM(mremap, pFEpLLiN) //weal
 //GO(msgget, 
 //GOW(msgrcv, 
 //GOW(msgsnd, 
-//GO(msync, 
+GO(msync, iFpLi)
 //GO(mtrace, 
 //GO(munlock, 
 //GO(munlockall, 
@@ -1209,7 +1209,7 @@ GOW(newlocale, pFipp)
 //GO(nfsservctl, 
 //GO(nftw, 
 //GO(nftw, 
-//GO(nftw64, 
+GOM(nftw64, iFEppii)
 //GO(nftw64, 
 //GOW(ngettext, 
 //GO(nice, 
@@ -1632,7 +1632,7 @@ GO(setlocale, pFip)
 //GOW(setpgid, 
 //GO(setpgrp, 
 GOW(setpriority, iFiii)
-//GO(setprotoent, 
+GO(setprotoent, vFi)
 //GO(setpwent, 
 //GOW(setregid, 
 //GOW(setresgid, 

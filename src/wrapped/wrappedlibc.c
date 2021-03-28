@@ -159,40 +159,15 @@ static void* findcompareFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare callback\n");
     return NULL;
 }
-#if 0
-
-// ftw
-#define GO(A)   \
-static uintptr_t my_ftw_fct_##A = 0;                                      \
-static int my_ftw_##A(void* fpath, void* sb, int flag)                       \
-{                                                                               \
-    return (int)RunFunction(my_context, my_ftw_fct_##A, 3, fpath, sb, flag);   \
-}
-SUPER()
-#undef GO
-static void* findftwFct(void* fct)
-{
-    if(!fct) return NULL;
-    void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_ftw_fct_##A == (uintptr_t)fct) return my_ftw_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_ftw_fct_##A == 0) {my_ftw_fct_##A = (uintptr_t)fct; return my_ftw_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libc ftw callback\n");
-    return NULL;
-}
 
 // ftw64
 #define GO(A)   \
 static uintptr_t my_ftw64_fct_##A = 0;                      \
 static int my_ftw64_##A(void* fpath, void* sb, int flag)    \
 {                                                           \
-    struct i386_stat64 i386st;                              \
-    UnalignStat64(sb, &i386st);                             \
-    return (int)RunFunction(my_context, my_ftw64_fct_##A, 3, fpath, &i386st, flag);  \
+    struct x64_stat64 x64st;                                \
+    UnalignStat64(sb, &x64st);                              \
+    return (int)RunFunction(my_context, my_ftw64_fct_##A, 3, fpath, &x64st, flag);  \
 }
 SUPER()
 #undef GO
@@ -209,38 +184,14 @@ static void* findftw64Fct(void* fct)
     return NULL;
 }
 
-// nftw
-#define GO(A)   \
-static uintptr_t my_nftw_fct_##A = 0;                                   \
-static int my_nftw_##A(void* fpath, void* sb, int flag, void* ftwbuff)  \
-{                                                                       \
-    return (int)RunFunction(my_context, my_nftw_fct_##A, 4, fpath, sb, flag, ftwbuff);   \
-}
-SUPER()
-#undef GO
-static void* findnftwFct(void* fct)
-{
-    if(!fct) return NULL;
-    void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_nftw_fct_##A == (uintptr_t)fct) return my_nftw_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_nftw_fct_##A == 0) {my_nftw_fct_##A = (uintptr_t)fct; return my_nftw_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libc nftw callback\n");
-    return NULL;
-}
-
 // nftw64
 #define GO(A)   \
 static uintptr_t my_nftw64_fct_##A = 0;                                     \
 static int my_nftw64_##A(void* fpath, void* sb, int flag, void* ftwbuff)    \
 {                                                                           \
-    struct i386_stat64 i386st;                                              \
-    UnalignStat64(sb, &i386st);                                             \
-    return (int)RunFunction(my_context, my_nftw64_fct_##A, 4, fpath, &i386st, flag, ftwbuff);   \
+    struct x64_stat64 x64st;                                              \
+    UnalignStat64(sb, &x64st);                                             \
+    return (int)RunFunction(my_context, my_nftw64_fct_##A, 4, fpath, &x64st, flag, ftwbuff);   \
 }
 SUPER()
 #undef GO
@@ -256,7 +207,7 @@ static void* findnftw64Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc nftw64 callback\n");
     return NULL;
 }
-
+#if 0
 // globerr
 #define GO(A)   \
 static uintptr_t my_globerr_fct_##A = 0;                                        \
@@ -1495,18 +1446,6 @@ EXPORT int my_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, voi
 {
     return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
-#if 0
-EXPORT int my_scandir(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
-{
-    static iFpppp_t f = NULL;
-    if(!f) {
-        library_t* lib = my_lib;
-        if(!lib) return 0;
-        f = (iFpppp_t)dlsym(lib->priv.w.lib, "scandir");
-    }
-
-    return f(dir, namelist, findfilter_dirFct(sel), findcompare_dirFct(comp));
-}
 
 EXPORT int my_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
 {
@@ -1517,7 +1456,7 @@ EXPORT int32_t my_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd
 {
     return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
-#endif
+
 EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
 {
     int self = isProcSelf(path, "exe");

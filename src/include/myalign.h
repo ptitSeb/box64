@@ -90,6 +90,24 @@ void myStackAlignScanf(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* m
 void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm, int pos);
 void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm, int pos);
 
+struct x64_stat64 {                   /* x86_64       arm64 */
+    uint64_t st_dev;                    /* 0   */   /* 0   */
+    uint64_t st_ino;                    /* 8   */   /* 8   */
+    uint64_t st_nlink;                  /* 16  */   /* 20  */
+    uint32_t st_mode;                   /* 24  */   /* 16  */
+    uint32_t st_uid;                    /* 28  */   /* 24  */
+    uint32_t st_gid;                    /* 32  */   /* 28  */
+    int __pad0;                         /* 36  */   /* --- */
+    uint64_t st_rdev;                   /* 40  */   /* 32  */
+    int64_t st_size;                    /* 48  */   /* 48  */
+    int64_t st_blksize;                 /* 56  */   /* 56  */
+    uint64_t st_blocks;                 /* 64  */   /* 64  */
+    struct timespec st_atim;            /* 72  */   /* 72  */
+    struct timespec st_mtim;            /* 88  */   /* 88  */
+    struct timespec st_ctim;            /* 104 */   /* 104 */
+    uint64_t __glibc_reserved[3];       /* 120 */   /* 120 */
+} __attribute__((packed));              /* 144 */   /* 128 */
+
 void UnalignStat64(const void* source, void* dest);
 
 // defined in wrapperlibc.c
