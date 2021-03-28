@@ -327,6 +327,24 @@
 #define LDXRxw(Rt, Rn)                  EMIT(MEMX_gen(2+rex.w, 1, 31, Rn, Rt))
 #define STXRxw(Rs, Rt, Rn)              EMIT(MEMX_gen(2+rex.w, 0, Rs, Rn, Rt))
 
+// Prefetch
+#define PRFM_register(Rm, option, S, Rn, Rt)    (0b11<<30 | 0b111<<27 | 0b10<<22 | 1<<21 | (Rm)<<16 | (option)<<13 | (S)<<12 | 0b10<<10 | (Rn)<<5 | (Rt))
+#define PLD_L1_KEEP(Rn, Rm)             EMIT(PRFM_register(Rm, 0b011, 0, Rn, 0b00000))
+#define PLD_L2_KEEP(Rn, Rm)             EMIT(PRFM_register(Rm, 0b011, 0, Rn, 0b00010))
+#define PLD_L3_KEEP(Rn, Rm)             EMIT(PRFM_register(Rm, 0b011, 0, Rn, 0b00100))
+#define PLD_L1_STREAM(Rn, Rm)           EMIT(PRFM_register(Rm, 0b011, 0, Rn, 0b00001))
+#define PLD_L2_STREAM(Rn, Rm)           EMIT(PRFM_register(Rm, 0b011, 0, Rn, 0b00011))
+#define PLD_L3_STREAM(Rn, Rm)           EMIT(PRFM_register(Rm, 0b011, 0, Rn, 0b00101))
+
+#define PRFM_imm(imm12, Rn, Rt)         (0b11<<30 | 0b111<<27 | 0b01<<24 | 0b10<<2 | (imm12)<<10 | (Rn)<<5 | (Rt))
+#define PLD_L1_KEEP_U12(Rn, imm12)      EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00000))
+#define PLD_L2_KEEP_U12(Rn, imm12)      EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00010))
+#define PLD_L3_KEEP_U12(Rn, imm12)      EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00100))
+#define PLD_L1_KEEP_STREAM(Rn, imm12)   EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00001))
+#define PLD_L2_KEEP_STREAM(Rn, imm12)   EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00011))
+#define PLD_L3_KEEP_STREAM(Rn, imm12)   EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00101))
+
+
 // BR and Branches
 #define BR_gen(Z, op, A, M, Rn, Rm)       (0b1101011<<25 | (Z)<<24 | (op)<<21 | 0b11111<<16 | (A)<<11 | (M)<<10 | (Rn)<<5 | (Rm))
 #define BR(Rn)                            EMIT(BR_gen(0, 0b00, 0, 0, Rn, 0))
