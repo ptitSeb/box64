@@ -365,7 +365,7 @@ void EXPORT my___cxa_finalize(x64emu_t* emu, void* p)
         CallAllCleanup(emu);
         return;
     }
-        CallCleanup(emu, p);
+    CallCleanup(emu, p);
 }
 int EXPORT my_atexit(x64emu_t* emu, void *p)
 {
@@ -1236,11 +1236,11 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
 EXPORT int32_t my___open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode) __attribute__((alias("my_open")));
 
 #ifdef DYNAREC
-static int hasDBFromAddress(uintptr_t addr)
-{
-    int idx = (addr>>DYNAMAP_SHIFT);
-    return getDB(idx)?1:0;
-}
+//static int hasDBFromAddress(uintptr_t addr)
+//{
+//    int idx = (addr>>DYNAMAP_SHIFT);
+//    return getDB(idx)?1:0;
+//}
 #endif
 
 //EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
@@ -2182,6 +2182,63 @@ EXPORT int my_semctl(x64emu_t* emu, int semid, int semnum, int cmd, union semun 
   return  ((iFiiiV_t)f)(semid, semnum, cmd, b);
 }
 #endif
+
+// Backtrace stuff
+EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
+{
+    // Get current Framepointer
+    uintptr_t **fp = (uintptr_t**)R_RBP;
+    uintptr_t **stack_end = (uintptr_t**)(emu->init_stack + emu->size_stack);
+    uintptr_t **stack_start = (uintptr_t**)(emu->init_stack);
+    // check if fp is on another stack (in case of beeing call from a signal with altstack)
+    x64emu_t *thread_emu = thread_get_emu();
+    if(emu!=thread_emu && ((fp>(uintptr_t**)(thread_emu->init_stack)) && (fp<(uintptr_t**)(thread_emu->init_stack + thread_emu->size_stack)))) {
+        stack_end = (uintptr_t**)(thread_emu->init_stack + thread_emu->size_stack);
+        stack_start = (uintptr_t**)(thread_emu->init_stack);        
+    }
+    int idx=0;
+    while(idx<size) {
+        if(!fp || (fp>stack_end) || (fp<stack_start))
+            break;
+        buffer[idx] = fp[1];
+        fp = (uintptr_t**)fp[0];
+        ++idx;
+    }
+    return idx;
+}
+
+EXPORT char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size)
+{
+    char** ret = (char**)calloc(1, size*sizeof(char*) + size*100);  // capping each strings to 100 chars
+    char* s = (char*)(ret+size*sizeof(char*));
+    for (int i=0; i<size; ++i) {
+        uintptr_t start = 0;
+        uint32_t sz = 0;
+        const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, buffer[i]), (void*)buffer[i], &start, &sz);
+        if(symbname && buffer[i]>=start && (buffer[i]<(start+sz) || !sz))
+            snprintf(s, 100, "%s+%ld [%p]\n", symbname, buffer[i] - start, (void*)buffer[i]);
+        else 
+            snprintf(s, 100, "??? [%p]\n", (void*)buffer[i]);
+        s+=100;
+    }
+    return ret;
+}
+
+EXPORT void my_backtrace_symbols_fd(x64emu_t* emu, uintptr_t* buffer, int size, int fd)
+{
+    char s[100];
+    for (int i=0; i<size; ++i) {
+        uintptr_t start = 0;
+        uint32_t sz = 0;
+        const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, buffer[i]), (void*)buffer[i], &start, &sz);
+        if(symbname && buffer[i]>=start && (buffer[i]<(start+sz) || !sz))
+            snprintf(s, 100, "%s+%ld [%p]\n", symbname, buffer[i] - start, (void*)buffer[i]);
+        else 
+            snprintf(s, 100, "??? [%p]\n", (void*)buffer[i]);
+        int dummy = write(fd, s, strlen(s));
+        (void)dummy;
+    }
+}
 
 EXPORT char** my_environ = NULL;
 EXPORT char** my__environ = NULL;

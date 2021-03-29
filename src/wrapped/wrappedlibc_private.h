@@ -71,11 +71,11 @@ GO(atoll, IFp)
 //GO(authunix_create, 
 //GO(authunix_create_default, 
 //GO(__backtrace, 
-//GOW(backtrace, 
+GOM(backtrace, iFEpi)   //weak
 //GO(__backtrace_symbols, 
-//GOW(backtrace_symbols, 
+GOM(backtrace_symbols, pFEpi)  //weak
 //GO(__backtrace_symbols_fd, 
-//GOW(backtrace_symbols_fd, 
+GOM(backtrace_symbols_fd, vFEpii)   //weak
 //GOW(basename, 
 GO(bcmp, iFppL)
 GO(bcopy, vFppL)
