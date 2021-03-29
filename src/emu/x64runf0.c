@@ -194,7 +194,8 @@ int RunF0(x64emu_t *emu, rex_t rex)
                     }
                     pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
-                    break;                case 0xB1:                      /* CMPXCHG Ed,Gd */
+                    break;
+                case 0xB1:                      /* CMPXCHG Ed,Gd */
                     nextop = F8;
                     GETED(0);
                     GETGD;
