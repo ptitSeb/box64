@@ -877,6 +877,38 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xC2:
+            INST_NAME("CMPPS Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 1);
+            u8 = F8;
+            switch(u8&7) {
+                // the inversion of the params in the comparison is there to handle NaN the same way SSE does
+                case 0: FCMEQQS(v0, v0, v1); break;   // Equal
+                case 1: FCMGTQS(v0, v1, v0); break;   // Less than
+                case 2: FCMGEQS(v0, v1, v0); break;   // Less or equal
+                case 3: FCMEQQS(v0, v0, v0); 
+                        if(v0!=v1) {
+                            q0 = fpu_get_scratch(dyn); 
+                            FCMEQQS(q0, v1, v1); 
+                            VANDQ(v0, v0, q0);
+                        }
+                        VMVNQ(v0, v0); 
+                        break;   // NaN (NaN is not equal to himself)
+                case 4: FCMEQQS(v0, v0, v1); VMVNQ(v0, v0); break;   // Not Equal (or unordered on ARM, not on X86...)
+                case 5: FCMGTQS(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or equal or unordered
+                case 6: FCMGEQS(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or unordered
+                case 7: FCMEQQS(v0, v0, v0); 
+                        if(v0!=v1) {
+                            q0 = fpu_get_scratch(dyn); 
+                            FCMEQQS(q0, v1, v1); 
+                            VANDQ(v0, v0, q0);
+                        }
+                        break;   // not NaN
+            }
+            break;
+
         case 0xC6:
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;

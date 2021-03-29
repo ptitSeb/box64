@@ -787,6 +787,9 @@
 #define VMOVHto(Wd, Vn, index)      EMIT(UMOV_gen(0, ((index)<<2) | 2, Vn, Wd))
 #define VMOVSto(Wd, Vn, index)      EMIT(UMOV_gen(0, ((index)<<3) | 4, Vn, Wd))
 
+#define MVN_vector(Q, Rn, Rd)       ((Q)<<30 | 1<<29 | 0b01110<<24 | 0b10000<<17 | 0b00101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define VMVNQ(Rd, Rn)               EMIT(MVN_vector(1, Rn, Rd))
+
 // VORR
 #define ORR_vector(Q, Rm, Rn, Rd)   ((Q)<<30 | 0b01110<<24 | 0b10<<22 | 1<<21 | (Rm)<<16 | 0b00011<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VORRQ(Vd, Vn, Vm)           EMIT(ORR_vector(1, Vm, Vn, Vd))
@@ -1197,6 +1200,22 @@
 #define VCHIQQ_16(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b01, 0, Rm, Rn, Rd))
 #define VCHIQQ_32(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b10, 0, Rm, Rn, Rd))
 #define VCHIQQ_64(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b11, 0, Rm, Rn, Rd))
+
+// Vector Float CMP
+// EQual
+#define FCMP_vector(Q, U, E, sz, Rm, ac, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (E)<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b1110<<12 | (ac)<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define FCMEQQD(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 0, 0, 1, Rm, 0, Rn, Rd))
+#define FCMEQQS(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 0, 0, 0, Rm, 0, Rn, Rd))
+// Greater or Equal
+#define FCMGEQD(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 1, 0, 1, Rm, 0, Rn, Rd))
+#define FCMGEQS(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 1, 0, 0, Rm, 0, Rn, Rd))
+#define FCMGEQD_ABS(Rd, Rn, Rm)      EMIT(FCMP_vector(1, 1, 0, 1, Rm, 1, Rn, Rd))
+#define FCMGEQS_ABS(Rd, Rn, Rm)      EMIT(FCMP_vector(1, 1, 0, 0, Rm, 1, Rn, Rd))
+// Greater Than
+#define FCMGTQD(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 1, 1, 1, Rm, 0, Rn, Rd))
+#define FCMGTQS(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 1, 1, 0, Rm, 0, Rn, Rd))
+#define FCMGTQD_ABS(Rd, Rn, Rm)      EMIT(FCMP_vector(1, 1, 1, 1, Rm, 1, Rn, Rd))
+#define FCMGTQS_ABS(Rd, Rn, Rm)      EMIT(FCMP_vector(1, 1, 1, 0, Rm, 1, Rn, Rd))
 
 // UMULL / SMULL
 #define MULL_vector(Q, U, size, Rm, Rn, Rd) ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b1100<<12 |(Rn)<<5 |(Rd))
