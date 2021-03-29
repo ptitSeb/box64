@@ -75,6 +75,9 @@ scwrap_t syscallwrap[] = {
     #ifdef __NR_pipe
     { 22, __NR_pipe, 1},
     #endif
+    #ifdef __NR_fork
+    { 57, __NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
+    #endif
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
     { 157, __NR_prctl, 5 },     // needs wrapping?
     { 186, __NR_gettid, 0 },
@@ -181,6 +184,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
             R_EAX = (uint32_t)pipe((void*)R_RDI);
             break;
         #endif
+        #ifndef __NR_fork
+        case 57: 
+            R_RAX = fork();
+            break;
+        #endif
         case 131: // sys_sigaltstack
             R_EAX = (uint32_t)my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
             break;
@@ -244,6 +252,10 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         #ifndef __NR_pipe
         case 22:
             return (uint32_t)pipe((void*)R_RSI);
+        #endif
+        #ifndef __NR_fork
+        case 57: 
+            return fork();
         #endif
         case 131: // sys_sigaltstack
             return (uint32_t)my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
