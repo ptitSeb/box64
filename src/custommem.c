@@ -427,6 +427,7 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         return 0;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
         #ifndef USE_MMAP
+        pthread_mutex_lock(&mutex_mmap);
         void *p = NULL;
         if(posix_memalign(&p, box64_pagesize, size)) {
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
@@ -450,14 +451,11 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         int ret;
         k = kh_put(dynablocks, blocks, (uintptr_t)p, &ret);
         kh_value(blocks, k) = db;
+        pthread_mutex_unlock(&mutex_mmap);
         return (uintptr_t)p;
     }
     
-    if(pthread_mutex_trylock(&mutex_mmap)) {
-        sched_yield();  // give it a chance
-        if(pthread_mutex_trylock(&mutex_mmap))
-            return 0;   // cannot lock, baillout
-    }
+    pthread_mutex_lock(&mutex_mmap);
 
     uintptr_t ret = FindFreeDynarecMap(db, size);
     if(!ret)
@@ -473,6 +471,7 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
     if(!addr || !size)
         return;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
+        pthread_mutex_lock(&mutex_mmap);
         #ifndef USE_MMAP
         free((void*)addr);
         #else
@@ -484,6 +483,7 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
             if(k!=kh_end(blocks))
                 kh_del(dynablocks, blocks, k);
         }
+        pthread_mutex_unlock(&mutex_mmap);
         return;
     }
     pthread_mutex_lock(&mutex_mmap);
@@ -516,12 +516,21 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
         int idx3 = (i>>32)&((1<<DYNAMAP_SHIFT)-1);
         int idx2 = (i>>16)&((1<<DYNAMAP_SHIFT)-1);
         int idx1 = (i    )&((1<<DYNAMAP_SHIFT)-1);
-        if(!dynmap123[idx3])
-            dynmap123[idx3] = (dynablocklist_t***)calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t**));
-        if(!dynmap123[idx3][idx2])
-            dynmap123[idx3][idx2] = (dynablocklist_t**)calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t*));
-        if(!dynmap123[idx3][idx2][idx1])
-            dynmap123[idx3][idx2][idx1] = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
+        if(!dynmap123[idx3]) {
+            dynablocklist_t*** p = (dynablocklist_t***)calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t**));
+            if(arm64_lock_storeifnull(&dynmap123[idx3], p)!=p)
+                free(p);
+        }
+        if(!dynmap123[idx3][idx2]) {
+            dynablocklist_t** p = (dynablocklist_t**)calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t*));
+            if(arm64_lock_storeifnull(&dynmap123[idx3][idx2], p)!=p)
+                free(p);
+        }
+        if(!dynmap123[idx3][idx2][idx1]) {
+            dynablocklist_t* p = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
+            if(arm64_lock_storeifnull(&dynmap123[idx3][idx2][idx1], p)!=p)
+                FreeDynablockList(&p);
+        }
     }
 }
 
@@ -621,10 +630,10 @@ uintptr_t getJumpTable64()
 uintptr_t getJumpTableAddress64(uintptr_t addr)
 {
     uintptr_t idx3, idx2, idx1, idx0;
-    idx3 = (((uintptr_t)addr)>>48)&0xffff;
-    idx2 = (((uintptr_t)addr)>>32)&0xffff;
-    idx1 = (((uintptr_t)addr)>>16)&0xffff;
-    idx0 = (((uintptr_t)addr)    )&0xffff;
+    idx3 = ((addr)>>48)&0xffff;
+    idx2 = ((addr)>>32)&0xffff;
+    idx1 = ((addr)>>16)&0xffff;
+    idx0 = ((addr)    )&0xffff;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
         uintptr_t*** tbl = (uintptr_t***)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
