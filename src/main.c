@@ -596,8 +596,8 @@ void endBox64()
     // than call all the Fini (some "smart" ordering of the fini may be needed, but for now, callign in this order should be good enough)
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
     RunElfFini(my_context->elfs[0], emu);
-    FreeLibrarian(&my_context->maplib, emu);    // unload all libs
     FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
+    FreeLibrarian(&my_context->maplib, emu);    // unload all libs
     // waiting for all thread except this one to finish
     int this_thread = GetTID();
     int pid = getpid();
@@ -953,6 +953,7 @@ int main(int argc, const char **argv, const char **env) {
     SetRSI(emu, my_context->argc);
     SetRDX(emu, (uint64_t)my_context->argv);
     SetRCX(emu, (uint64_t)my_context->envv);
+    SetRBP(emu, 0); // Frame pointer so to "No more frame pointer"
 
     // child fork to handle traces
     pthread_atfork(NULL, NULL, my_child_fork);
