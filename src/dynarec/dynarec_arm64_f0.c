@@ -120,8 +120,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         // Aligned version
                         MARKLOCK;
                         LDAXRxw(x1, wback);
-                        ed = x1;
-                        CMPSxw_REG(xRAX, ed);
+                        CMPSxw_REG(xRAX, x1);
                         B_MARK(cNE);
                         // EAX == Ed
                         STLXRxw(x4, gd, wback);
@@ -132,18 +131,16 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MARK3;
                         LDRxw_U12(x1, wback, 0);
                         LDAXRB(x3, wback); // dummy read, to arm the write...
-                        ed = x1;
-                        CMPSxw_REG(xRAX, ed);
+                        CMPSxw_REG(xRAX, x1);
                         B_MARK(cNE);
                         // EAX == Ed
                         STLXRB(x4, gd, wback);
                         CBNZx_MARK3(x4);
                         STRxw_U12(gd, wback, 0);
-                        B_MARK_nocond;
                         MARK;
                         // Common part (and fallback for EAX != Ed)
-                        UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
-                        MOVxw_REG(xRAX, ed);
+                        UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5);}
+                        MOVxw_REG(xRAX, x1);    // upper par of RAX will be erase on 32bits, no mater what
                     }
                     break;
 
@@ -196,12 +193,10 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     B_MARK(cNE);    // EAX != Ed[0]
                     CMPSxw_REG(xRDX, x3);
                     B_MARK(cNE);    // EDX != Ed[1]
-                    MOVxw_REG(x2, xRBX);
-                    MOVxw_REG(x3, xRCX);
-                    STLXPxw(x4, x2, x3, wback);
+                    STLXPxw(x4, xRBX, xRCX, wback);
                     CBNZx_MARKLOCK(x4);
                     MOV32w(x1, 1);
-                    B_MARK3(c__);
+                    B_MARK3_nocond;
                     MARK;
                     MOVxw_REG(xRAX, x2);
                     MOVxw_REG(xRDX, x3);
