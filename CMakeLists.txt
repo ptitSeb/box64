@@ -165,6 +165,7 @@ set(ELFLOADER_SRC
 set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedalure.c"
     "${BOX64_ROOT}/src/wrapped/wrappedalut.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedbz2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcrashhandler.c"
     "${BOX64_ROOT}/src/wrapped/wrappeddbus.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfontconfig.c"
@@ -206,6 +207,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxtst.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxxf86vm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibz.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlzma.c"
     "${BOX64_ROOT}/src/wrapped/wrappedopenal.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpulse.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpulsesimple.c"
