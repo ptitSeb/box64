@@ -201,22 +201,22 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("PREFETCHh Ed");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff, 7, rex, 0, 0);
-                    PLD_L1_STREAM(ed, fixedaddress);
+                    PLD_L1_STREAM_U12(ed, fixedaddress);
                     break;
                 case 1:
                     INST_NAME("PREFETCHh Ed");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff, 7, rex, 0, 0);
-                    PLD_L1_KEEP(ed, fixedaddress);
+                    PLD_L1_KEEP_U12(ed, fixedaddress);
                     break;
                 case 2:
                     INST_NAME("PREFETCHh Ed");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff, 7, rex, 0, 0);
-                    PLD_L2_KEEP(ed, fixedaddress);
+                    PLD_L2_KEEP_U12(ed, fixedaddress);
                     break;
                 case 3:
                     INST_NAME("PREFETCHh Ed");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff, 7, rex, 0, 0);
-                    PLD_L3_KEEP(ed, fixedaddress);
+                    PLD_L3_KEEP_U12(ed, fixedaddress);
                     break;
                 default:
                     INST_NAME("NOP (multibyte)");

@@ -337,12 +337,12 @@
 #define PLD_L3_STREAM(Rn, Rm)           EMIT(PRFM_register(Rm, 0b011, 0, Rn, 0b00101))
 
 #define PRFM_imm(imm12, Rn, Rt)         (0b11<<30 | 0b111<<27 | 0b01<<24 | 0b10<<2 | (imm12)<<10 | (Rn)<<5 | (Rt))
-#define PLD_L1_KEEP_U12(Rn, imm12)      EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00000))
-#define PLD_L2_KEEP_U12(Rn, imm12)      EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00010))
-#define PLD_L3_KEEP_U12(Rn, imm12)      EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00100))
-#define PLD_L1_KEEP_STREAM(Rn, imm12)   EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00001))
-#define PLD_L2_KEEP_STREAM(Rn, imm12)   EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00011))
-#define PLD_L3_KEEP_STREAM(Rn, imm12)   EMIT(PRFM_register(((imm12)>>3)&0xfff, Rn, 0b00101))
+#define PLD_L1_KEEP_U12(Rn, imm12)      EMIT(PRFM_imm(((imm12)>>3)&0xfff, Rn, 0b00000))
+#define PLD_L2_KEEP_U12(Rn, imm12)      EMIT(PRFM_imm(((imm12)>>3)&0xfff, Rn, 0b00010))
+#define PLD_L3_KEEP_U12(Rn, imm12)      EMIT(PRFM_imm(((imm12)>>3)&0xfff, Rn, 0b00100))
+#define PLD_L1_STREAM_U12(Rn, imm12)    EMIT(PRFM_imm(((imm12)>>3)&0xfff, Rn, 0b00001))
+#define PLD_L2_STREAM_U12(Rn, imm12)    EMIT(PRFM_imm(((imm12)>>3)&0xfff, Rn, 0b00011))
+#define PLD_L3_STREAM_U12(Rn, imm12)    EMIT(PRFM_imm(((imm12)>>3)&0xfff, Rn, 0b00101))
 
 
 // BR and Branches
