@@ -69,7 +69,7 @@ void FreeDynablock(dynablock_t* db)
         if(db->parent->direct) {
             uintptr_t addr = (uintptr_t)db->x64_addr;
             if(addr>=startdb && addr<enddb)
-                db->parent->direct[addr-startdb] = NULL;
+                arm64_lock_xchg(&db->parent->direct[addr-startdb], 0);   // secured write
         }
         // remove jumptable
         setJumpTableDefault64(db->x64_addr);
@@ -323,23 +323,26 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     if(!created)
         return block;   // existing block...
 
-    #if 1
+    #if 0
     if(box64_dynarec_dump)
         pthread_mutex_lock(&my_context->mutex_dyndump);
     #endif
     // fill the block
     block->x64_addr = (void*)addr;
-    if(!FillBlock64(block, filladdr)) {
+    pthread_mutex_lock(&my_context->mutex_dyndump);
+    void* ret = FillBlock64(block, filladdr);
+    pthread_mutex_unlock(&my_context->mutex_dyndump);
+    if(!ret) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
-        void* old = (void*)arm64_lock_xchg(&dynablocks->direct[addr-dynablocks->text], 0);
+        void* old = (void*)arm64_lock_storeifref(&dynablocks->direct[addr-dynablocks->text], 0, block);
         if(old!=block && old) {// put it back in place, strange things are happening here!
             dynarec_log(LOG_INFO, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);
-            arm64_lock_xchg(&dynablocks->direct[addr-dynablocks->text], (uintptr_t)old);
+            // doing nothing else, the block as not be writen
         }
         free(block);
         block = NULL;
     }
-    #if 1
+    #if 0
     if(box64_dynarec_dump)
         pthread_mutex_unlock(&my_context->mutex_dyndump);
     #endif

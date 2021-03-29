@@ -263,7 +263,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     #ifdef HAVE_TRACE
     //MOVx(x2, 15);    no access to PC reg 
     #endif
-    BR(x3);
+    BLR(x3); // save LR...
 }
 
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
@@ -281,7 +281,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
     LDRx_REG_LSL3(x2, x2, x3);
     MOVx_REG(x1, xRIP);
-    BR(x2);
+    BLR(x2); // save LR
 }
 
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
@@ -305,7 +305,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
     UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
     LDRx_REG_LSL3(x2, x2, x3);
     MOVx_REG(x1, xRIP);
-    BR(x2);
+    BLR(x2); // save LR
 }
 
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst)

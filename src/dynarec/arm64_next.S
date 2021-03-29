@@ -19,6 +19,7 @@ arm64_next:
     stp     x14, x15, [sp, (8 *  6)]
     stp     x16, x17, [sp, (8 *  8)]
     str     x18, [sp, (8 * 10)]
+    mov     x2, lr      // "from" is in lr, so put in x2
     // call the function
     bl      LinkNext
     // preserve return value
