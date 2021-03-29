@@ -1924,8 +1924,8 @@ GOW(sysconf, lFi)
 DATA(_sys_errlist, sizeof(void*))
 DATA(sys_errlist, sizeof(void*))
 //GOW(sysinfo, 
-//GO(syslog, 
-//GO(__syslog_chk, 
+GOM(syslog, vFEipV)
+GOM(__syslog_chk, vFEiipV)
 //DATA(sys_sigabbrev, 
 //DATA(sys_sigabbrev, 
 //DATA(_sys_siglist, 

@@ -34,6 +34,9 @@
 #include <setjmp.h>
 #include <sys/vfs.h>
 #include <spawn.h>
+#include <syslog.h>
+#undef LOG_INFO
+#undef LOG_DEBUG
 
 #include "wrappedlibs.h"
 
@@ -817,6 +820,19 @@ EXPORT void my_vwarn(x64emu_t* emu, void* fmt, void* b) {
     #endif
 }
 #endif
+EXPORT void my_syslog(x64emu_t* emu, int priority, const char* fmt, uint64_t* b)
+{
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return vsyslog(priority, fmt, VARARGS);
+}
+EXPORT void my___syslog_chk(x64emu_t* emu, int priority, int flags, const char* fmt, uint64_t* b)
+{
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    return vsyslog(priority, fmt, VARARGS);
+}
+
 EXPORT int my___swprintf_chk(x64emu_t* emu, void* s, size_t n, int32_t flag, size_t slen, void* fmt, uint64_t* b)
 {
     myStackAlignW(emu, (const char*)fmt, b, emu->scratch, R_EAX, 5);
