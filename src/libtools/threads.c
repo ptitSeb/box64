@@ -299,7 +299,7 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
     x64emu_t *emuthread = NewX64Emu(my_context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
 	SetupX64Emu(emuthread);
-	SetFS(emuthread, GetFS(emu));
+	//SetFS(emuthread, GetFS(emu));
 	et->emu = emuthread;
 	et->fnc = (uintptr_t)start_routine;
 	et->arg = arg;
