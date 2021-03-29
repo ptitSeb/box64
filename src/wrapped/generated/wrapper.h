@@ -382,6 +382,7 @@ void pFppp(x64emu_t *emu, uintptr_t fnc);
 void pFpOM(x64emu_t *emu, uintptr_t fnc);
 void pFSpl(x64emu_t *emu, uintptr_t fnc);
 void vFEipV(x64emu_t *emu, uintptr_t fnc);
+void vFEpii(x64emu_t *emu, uintptr_t fnc);
 void vFEpip(x64emu_t *emu, uintptr_t fnc);
 void vFEpup(x64emu_t *emu, uintptr_t fnc);
 void vFEppp(x64emu_t *emu, uintptr_t fnc);
