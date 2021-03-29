@@ -918,7 +918,7 @@ GOM(__isoc99_sscanf, iFEppV)
 //GO(__isoc99_vfscanf, 
 //GO(__isoc99_vfwscanf, 
 //GO(__isoc99_vscanf, 
-//GO(__isoc99_vsscanf, 
+GO(__isoc99_vsscanf, iFEppp)
 //GO(__isoc99_vswscanf, 
 //GO(__isoc99_vwscanf, 
 //GO(__isoc99_wscanf, 
