@@ -350,6 +350,7 @@
     CBNZx(reg, j32)
 
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(A)))
+#define IFX_PENDOR0  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(X_PEND) || !dyn->insts[ninst].x64.need_flags))
 #define IFXX(A) if(dyn->insts && (dyn->insts[ninst].x64.need_flags==(A)))
 #define IFX2X(A, B) if(dyn->insts && (dyn->insts[ninst].x64.need_flags==(A) || dyn->insts[ninst].x64.need_flags==(B) || dyn->insts[ninst].x64.need_flags==((A)|(B))))
 #define IFXN(A, B)  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(A) && !(dyn->insts[ninst].x64.need_flags&(B))))

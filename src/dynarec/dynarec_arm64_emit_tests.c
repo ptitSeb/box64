@@ -26,7 +26,7 @@
 // emit CMP32 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_cmp64:d_cmp32);
@@ -38,7 +38,7 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         BICxw(s4, s2, s1);      // s4 = ~op1 & op2
     }
     SUBSxw_REG(s5, s1, s2);   // res = s1 - s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STRxw_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF) {
@@ -76,7 +76,7 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 // emit CMP32 instruction, from cmp s1 , 0, using s3 and s4 as scratch
 void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         MOV64xw(s4, 0);
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s4, xEmu, offsetof(x64emu_t, op2));
@@ -113,7 +113,7 @@ void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int 
 // emit CMP16 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRH_U12(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, d_cmp16);
@@ -121,7 +121,7 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SET_DFNONE(s3);
     }
     SUBw_REG(s5, s1, s2);   // res = s1 - s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STRH_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
@@ -162,7 +162,7 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 // emit CMP16 instruction, from cmp s1 , #0, using s3 and s4 as scratch
 void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         MOV32w(s3, 0);
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRH_U12(s3, xEmu, offsetof(x64emu_t, op2));
@@ -192,7 +192,7 @@ void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 // emit CMP8 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, d_cmp8);
@@ -204,7 +204,7 @@ void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
     } else {
         SUBw_REG(s5, s1, s2);   // res = s1 - s2
     }
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STRB_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
@@ -242,7 +242,7 @@ void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
 // emit CMP8 instruction, from cmp s1 , 0, using s3 and s4 as scratch
 void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         MOV32w(s4, 0);
         STRB_U12(s4, xEmu, offsetof(x64emu_t, op2));
@@ -273,7 +273,7 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 // emit TEST32 instruction, from test s1 , s2, using s3 and s4 as scratch
 void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         SET_DF(s3, rex.w?d_tst64:d_tst32);
     } else {
         SET_DFNONE(s4);
@@ -283,7 +283,7 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         BICw(xFlags, xFlags, s3);
     }
     ANDSxw_REG(s3, s1, s2);   // res = s1 & s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STRxw_U12(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
@@ -310,7 +310,7 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit TEST16 instruction, from test s1 , s2, using s3 and s4 as scratch
 void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         SET_DF(s3, d_tst16);
     } else {
         SET_DFNONE(s4);
@@ -322,7 +322,7 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         BFCw(xFlags, F_CF, 1);
     }
     ANDSw_REG(s5, s1, s2);   // res = s1 & s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STRH_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
@@ -342,7 +342,7 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 // emit TEST8 instruction, from test s1 , s2, using s3 and s4 as scratch
 void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         SET_DF(s3, d_tst8);
     } else {
         SET_DFNONE(s4);
@@ -354,7 +354,7 @@ void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         BFCw(xFlags, F_CF, 1);
     }
     ANDSw_REG(s5, s1, s2);   // res = s1 & s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STRB_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
