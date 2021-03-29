@@ -684,13 +684,12 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 }
             } else {
                 cmp32(emu, R_EAX, ED->dword[0]);
+                R_RAX = ED->dword[0];   // to erase upper part of RAX
                 if(ACCESS_FLAG(F_ZF)) {
                     if(MODREG)
                         ED->q[0] = GD->dword[0];
                     else
                         ED->dword[0] = GD->dword[0];
-                } else {
-                    R_RAX = ED->dword[0];
                 }
             }
             break;
