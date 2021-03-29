@@ -257,39 +257,12 @@ static void sigstack_destroy(void* p)
     free(ss);
 }
 
-static void free_signal_emu(void* p)
-{
-    if(p)
-        FreeX64Emu((x64emu_t**)&p);
-}
-
 static pthread_key_t sigstack_key;
 static pthread_once_t sigstack_key_once = PTHREAD_ONCE_INIT;
 
 static void sigstack_key_alloc() {
 	pthread_key_create(&sigstack_key, sigstack_destroy);
 }
-
-static pthread_key_t sigemu_key;
-static pthread_once_t sigemu_key_once = PTHREAD_ONCE_INIT;
-
-static void sigemu_key_alloc() {
-	pthread_key_create(&sigemu_key, free_signal_emu);
-}
-
-static x64emu_t* get_signal_emu()
-{
-    x64emu_t *emu = (x64emu_t*)pthread_getspecific(sigemu_key);
-    if(!emu) {
-        const int stsize = 8*1024;  // small stack for signal handler
-        void* stack = mmap(NULL, stsize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
-        emu = NewX64Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
-        emu->type = EMUTYPE_SIGNAL;
-        pthread_setspecific(sigemu_key, emu);
-    }
-    return emu;
-}
-
 
 uint64_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 {
@@ -298,16 +271,11 @@ uint64_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
         return 0;
     }
     uintptr_t old_start = trace_start, old_end = trace_end;
-//    trace_start = 0; trace_end = 1; // disabling trace, globably for now...
+    //trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 
-    x64emu_t *emu = get_signal_emu();
-    x64emu_t *thread_emu = thread_get_emu();
-    x64_stack_t *new_ss = (x64_stack_t*)pthread_getspecific(sigstack_key);
-    if(!new_ss) {
-        // no alternate stack, so signal RSP needs to match thread RSP!
-        R_RSP = thread_emu->regs[_SP].q[0];
-    }
-    printf_log(LOG_DEBUG, "%04d|signal function handler %p  (%s alternate stack) called, RSP=%p\n", GetTID(), (void*)fnc, new_ss?"with":"without", (void*)R_RSP);
+    x64emu_t *emu = thread_get_emu();
+
+    printf_log(LOG_DEBUG, "%04d|signal function handler %p called, RSP=%p\n", GetTID(), (void*)fnc, (void*)R_RSP);
     
     /*SetFS(emu, default_fs);*/
     for (int i=0; i<6; ++i)
@@ -351,13 +319,12 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
         errno = EFAULT;
         return -1;
     }
-    x64emu_t *sigemu = get_signal_emu();
 	x64_stack_t *new_ss = (x64_stack_t*)pthread_getspecific(sigstack_key);
     if(!ss) {
         if(!new_ss) {
             oss->ss_flags = SS_DISABLE;
-            oss->ss_sp = sigemu->init_stack;
-            oss->ss_size = sigemu->size_stack;
+            oss->ss_sp = emu->init_stack;
+            oss->ss_size = emu->size_stack;
         } else {
             oss->ss_flags = new_ss->ss_flags;
             oss->ss_sp = new_ss->ss_sp;
@@ -376,15 +343,14 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
             free(new_ss);
         pthread_setspecific(sigstack_key, NULL);
 
-        sigemu->regs[_SP].dword[0] = ((uintptr_t)sigemu->init_stack + sigemu->size_stack) & ~7;
-        
         return 0;
     }
+
     if(oss) {
         if(!new_ss) {
             oss->ss_flags = SS_DISABLE;
-            oss->ss_sp = sigemu->init_stack;
-            oss->ss_size = sigemu->size_stack;
+            oss->ss_sp = emu->init_stack;
+            oss->ss_size = emu->size_stack;
         } else {
             oss->ss_flags = new_ss->ss_flags;
             oss->ss_sp = new_ss->ss_sp;
@@ -398,8 +364,6 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
 
 	pthread_setspecific(sigstack_key, new_ss);
 
-    sigemu->regs[_SP].dword[0] = ((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f;
-
     return 0;
 }
 
@@ -408,11 +372,31 @@ void my_sighandler(int32_t sig)
 {
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
     printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, (void*)my_context->signals[sig]);
+    // save values
+    x64emu_t *emu = thread_get_emu();
     uintptr_t restorer = my_context->restorer[sig];
+    uintptr_t old_regs[16] = {0};
+    uintptr_t old_ip = emu->ip.q[0];
+    uint64_t old_flags = emu->eflags.x64;
+    for(int i=0; i<16; ++i)
+        old_regs[i] = emu->regs[i].q[0];
+
+    x64_stack_t *new_ss = (x64_stack_t*)pthread_getspecific(sigstack_key);
+    if(new_ss) {
+        // no alternate stack, so signal RSP needs to match thread RSP!
+        R_RSP = (uintptr_t)(new_ss->ss_sp+new_ss->ss_size-32);
+    }
+
     int exits = 0;
     int ret = RunFunctionHandler(&exits, my_context->signals[sig], 1, sig);
+    // restore regs
+    emu->ip.q[0] = old_ip;
+    emu->eflags.x64 = old_flags;
+    for(int i=0; i<16; ++i)
+        emu->regs[i].q[0] = old_regs[i];
     if(exits)
         exit(ret);
+    // what about the restored regs?
     if(restorer)
         RunFunctionHandler(&exits, restorer, 0);
 }
@@ -461,12 +445,11 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     }
 #endif
     // stack tracking
-    x64emu_t *sigemu = get_signal_emu();
 	x64_stack_t *new_ss = my_context->onstack[sig]?(x64_stack_t*)pthread_getspecific(sigstack_key):NULL;
     int used_stack = 0;
     if(new_ss) {
         if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
-            frame = (uintptr_t*)sigemu->regs[_SP].q[0];
+            frame = (uintptr_t*)emu->regs[_SP].q[0];
         } else {
             frame = (uintptr_t*)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
             used_stack = 1;
@@ -529,11 +512,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     //((unsigned int *)(&sigcontext.xstate.fpstate.padding))[8*4+12] = 0x46505853;  // not yet, when XSAVE / XRSTR will be ready
     // get signal mask
 
-    if(!new_ss) {
-        sigcontext->uc_stack.ss_sp = sigemu->init_stack;
-        sigcontext->uc_stack.ss_size = sigemu->size_stack;
-        sigcontext->uc_stack.ss_flags = SS_DISABLE;
-    } else {
+    if(new_ss) {
         sigcontext->uc_stack.ss_sp = new_ss->ss_sp;
         sigcontext->uc_stack.ss_size = new_ss->ss_size;
         sigcontext->uc_stack.ss_flags = new_ss->ss_flags;
@@ -588,10 +567,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     x64_ucontext_t sigcontext_copy = *sigcontext;
 
     // set stack pointer
-    sigemu->regs[_SP].dword[0] = (uintptr_t)frame;
-
-    // set segments
-    memcpy(sigemu->segs, emu->segs, sizeof(sigemu->segs));
+    emu->regs[_SP].dword[0] = (uintptr_t)frame;
 
     int exits = 0;
     int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, info, sigcontext);
@@ -642,11 +618,44 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
     }
+    // restore regs...
+    #define GO(R)   emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[X64_R##R]
+    GO(AX);
+    GO(CX);
+    GO(DX);
+    GO(DI);
+    GO(SI);
+    GO(BP);
+    GO(SP);
+    GO(BX);
+    #undef GO
+    #define GO(R)   emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[X64_##R]
+    GO(R8);
+    GO(R9);
+    GO(R10);
+    GO(R11);
+    GO(R12);
+    GO(R13);
+    GO(R14);
+    GO(R15);
+    #undef GO
+    emu->ip.dword[0]=sigcontext->uc_mcontext.gregs[X64_RIP];
+    emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
+    uint16_t seg;
+    seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 0)&0xffff;
+    #define GO(S) emu->segs[_##S]=seg; emu->segs_serial[_##S] = 0;
+    GO(CS);
+    seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 16)&0xffff;
+    GO(GS);
+    seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 32)&0xffff;
+    GO(FS);
+    #undef GO
+
     printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
     if(exits)
         exit(ret);
     if(restorer)
-        RunFunctionHandler(&exits, restorer, 0);
+        RunFunctionHandler(&exits, 0, restorer, 0);
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
 }
@@ -1176,7 +1185,6 @@ void init_signal_helper(box64context_t* context)
     sigaction(SIGILL, &action, NULL);
 
 	pthread_once(&sigstack_key_once, sigstack_key_alloc);
-	pthread_once(&sigemu_key_once, sigemu_key_alloc);
 }
 
 void fini_signal_helper()
