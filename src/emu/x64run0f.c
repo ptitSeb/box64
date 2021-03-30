@@ -475,6 +475,80 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GM->q = EM->q;
             break;
 
+        case 0x71:  /* GRP */
+            nextop = F8;
+            GETEM(1);
+            switch((nextop>>3)&7) {
+                case 2:                 /* PSRLW Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>15)
+                        {EM->q = 0;}
+                    else
+                        for (int i=0; i<4; ++i) EM->uw[i] >>= tmp8u;
+                    break;
+                case 4:                 /* PSRAW Em, Ib */
+                    tmp8u = F8;
+                    for (int i=0; i<4; ++i) EM->sw[i] >>= tmp8u;
+                    break;
+                case 6:                 /* PSLLW Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>15)
+                        {EM->q = 0;}
+                    else
+                        for (int i=0; i<4; ++i) EM->uw[i] <<= tmp8u;
+                    break;
+                default:
+                    return 1;
+            }
+            break;
+        case 0x72:  /* GRP */
+            nextop = F8;
+            GETEM(1);
+            switch((nextop>>3)&7) {
+                case 2:                 /* PSRLD Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>31)
+                        {EM->q = 0;}
+                    else
+                        for (int i=0; i<2; ++i) EM->ud[i] >>= tmp8u;
+                    break;
+                case 4:                 /* PSRAD Em, Ib */
+                    tmp8u = F8;
+                    for (int i=0; i<2; ++i) EM->sd[i] >>= tmp8u;
+                    break;
+                case 6:                 /* PSLLD Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>31)
+                        {EM->q = 0;}
+                    else
+                        for (int i=0; i<2; ++i) EM->ud[i] <<= tmp8u;
+                    break;
+                default:
+                    return 1;
+            }
+            break;
+        case 0x73:  /* GRP */
+            nextop = F8;
+            GETEM(1);
+            switch((nextop>>3)&7) {
+                case 2:                 /* PSRLQ Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>63)
+                        {EM->q = 0;}
+                    else
+                        {EM->q >>= tmp8u;}
+                    break;
+                case 6:                 /* PSLLQ Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>63)
+                        {EM->q = 0;}
+                    else
+                        {EM->q <<= tmp8u;}
+                    break;
+                default:
+                    return 1;
+            }
+            break;
         case 0x74:                       /* PCMPEQB Gm,Em */
             nextop = F8;
             GETEM(0);
