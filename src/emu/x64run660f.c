@@ -182,6 +182,71 @@ int Run660F(x64emu_t *emu, rex_t rex)
                         GX->ub[i] = eax1.ub[EX->ub[i]&15];
                 }
                 break;
+            case 0x01:  /* PHADDW Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for (int i=0; i<4; ++i)
+                    GX->sw[i] = GX->sw[i*2+0]+GX->sw[i*2+1];
+                if(GX == EX) {
+                    GX->q[1] = GX->q[0];
+                } else {
+                    for (int i=0; i<4; ++i)
+                        GX->sw[4+i] = EX->sw[i*2+0] + EX->sw[i*2+1];
+                }
+                break;
+            case 0x02:  /* PHADDD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                GX->sd[0] += GX->sd[1];
+                GX->sd[1] = GX->sd[2] + GX->sd[3];
+                if(GX == EX) {
+                    GX->q[1] = GX->q[0];
+                } else {
+                    GX->sd[2] = EX->sd[0] + EX->sd[1];
+                    GX->sd[3] = EX->sd[2] + EX->sd[3];
+                }
+                break;
+            case 0x03:  /* PHADDSW Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for (int i=0; i<4; ++i) {
+                    tmp32s = GX->sw[i*2+0]+GX->sw[i*2+1];
+                    GX->sw[i] = (tmp32s<-32768)?-32768:((tmp32s>32767)?32767:tmp32s);
+                }
+                if(GX == EX) {
+                    GX->q[1] = GX->q[0];
+                } else {
+                    for (int i=0; i<4; ++i) {
+                        tmp32s = EX->sw[i*2+0] + EX->sw[i*2+1];
+                        GX->sw[4+i] = (tmp32s<-32768)?-32768:((tmp32s>32767)?32767:tmp32s);
+                    }
+                }
+                break;
+            case 0x04:  /* PMADDUBSW Gx,Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for (int i=0; i<8; ++i) {
+                    tmp32s = (int32_t)(GX->ub[i*2+0])*EX->sb[i*2+0] + (int32_t)(GX->ub[i*2+1])*EX->sb[i*2+1];
+                    GX->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+                }
+                break;
+            case 0x05:  /* PHSUBW Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for (int i=0; i<4; ++i)
+                    GX->sw[i] = GX->sw[i*2+0] - GX->sw[i*2+1];
+                if(GX == EX) {
+                    GX->q[1] = GX->q[0];
+                } else {
+                    for (int i=0; i<4; ++i)
+                        GX->sw[4+i] = EX->sw[i*2+0] - EX->sw[i*2+1];
+                }
+                break;
 
             default:
                 return 1;
