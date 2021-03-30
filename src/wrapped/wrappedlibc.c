@@ -713,9 +713,9 @@ EXPORT int my_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
 
     return vsscanf(stream, fmt, VARARGS);
 }
-#if 0
 EXPORT int my__IO_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 EXPORT int my___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
+#if 0
 
 EXPORT int my___isoc99_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 #endif
@@ -839,22 +839,13 @@ EXPORT int my___swprintf_chk(x64emu_t* emu, void* s, size_t n, int32_t flag, siz
     PREPARE_VALIST;
     return vswprintf(s, n, (const wchar_t*)fmt, VARARGS);
 }
-#if 0
-EXPORT int my_swprintf(x64emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
+EXPORT int my_swprintf(x64emu_t* emu, void* s, size_t n, void* fmt, uint64_t* b)
 {
-    #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, b, emu->scratch);
+    myStackAlignW(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, VARARGS);
-    return r;
-    #else
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, b);
-    return r;
-    #endif
+    return vswprintf(s, n, (const wchar_t*)fmt, VARARGS);
 }
-#endif
+
 EXPORT void my__ITM_addUserCommitAction(x64emu_t* emu, void* cb, uint32_t b, void* c)
 {
     // disabled for now... Are all this _ITM_ stuff really mendatory?
