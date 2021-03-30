@@ -167,6 +167,27 @@ int Run660F(x64emu_t *emu, rex_t rex)
         CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
         break;
 
+    case 0x38:  // SSSE3 opcodes
+        opcode = F8;
+        switch(opcode) {
+            case 0x00:  /* PSHUFB */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                eax1 = *GX;
+                for (int i=0; i<16; ++i) {
+                    if(EX->ub[i]&128)
+                        GX->ub[i] = 0;
+                    else
+                        GX->ub[i] = eax1.ub[EX->ub[i]&15];
+                }
+                break;
+
+            default:
+                return 1;
+        }
+        break;
+
     GOCOND(0x40
         , nextop = F8;
         CHECK_FLAGS(emu);
