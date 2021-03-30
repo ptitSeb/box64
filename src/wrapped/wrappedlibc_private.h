@@ -438,11 +438,11 @@ GOW(ftruncate64, iFiI)
 //GOW(fts64_open, 
 //GOW(fts64_read, 
 //GOW(fts64_set, 
-//GO(fts_children, 
-//GO(fts_close, 
-//GO(fts_open, 
-//GO(fts_read, 
-//GO(fts_set, 
+GO(fts_children, pFpi)
+GO(fts_close, iFp)
+GO(fts_open, pFEpip)
+GO(fts_read, pFp)
+GO(fts_set, iFppi)
 //GO(ftw, 
 GOM(ftw64, iFEppi)
 //GOW(funlockfile, 

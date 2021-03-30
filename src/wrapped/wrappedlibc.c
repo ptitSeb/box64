@@ -34,6 +34,7 @@
 #include <setjmp.h>
 #include <sys/vfs.h>
 #include <spawn.h>
+#include <fts.h>
 #include <syslog.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
@@ -989,6 +990,11 @@ EXPORT void* my_lsearch(x64emu_t* emu, void* key, void* base, size_t* nmemb, siz
 EXPORT void* my_lfind(x64emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
     return lfind(key, base, nmemb, size, findcompareFct(fnc));
+}
+
+EXPORT void* my_fts_open(x64emu_t* emu, void* path, int options, void* c)
+{
+    return fts_open(path, options, findcompareFct(c));
 }
 #if 0
 
