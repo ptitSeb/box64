@@ -575,10 +575,10 @@ GO(getprotoent, pFv)
 //GOW(getpw, 
 //GO(getpwent, 
 //GO(getpwent_r, 
-//GO(getpwnam, 
-//GO(getpwnam_r, 
-//GO(getpwuid, 
-//GO(getpwuid_r, 
+GO(getpwnam, pFp)
+GO(getpwnam_r, iFpppLp)
+GO(getpwuid, pFu)
+GO(getpwuid_r, iFuppLp)
 //GO(getrandom, 
 //GO(getresgid, 
 //GO(getresuid, 
