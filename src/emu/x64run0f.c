@@ -38,7 +38,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
     uint64_t tmp64u, tmp64u2;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1;
-    mmx87_regs_t *opem, *opgm;
+    mmx87_regs_t *opem, *opgm, eam1;
 
     opcode = F8;
 
@@ -474,7 +474,15 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETGM;
             GM->q = EM->q;
             break;
-
+        case 0x70:                       /* PSHUFW Gm, Em, Ib */
+            nextop = F8;
+            GETEM(1);
+            GETGM;
+            tmp8u = F8;
+            if(EM==GM) {eam1 = *GM; EM = &eam1;}   // copy is needed
+            for(int i=0; i<4; ++i)
+                GM->uw[i] = EM->uw[(tmp8u>>(i*2))&3];
+            break;
         case 0x71:  /* GRP */
             nextop = F8;
             GETEM(1);
@@ -1058,6 +1066,20 @@ int Run0F(x64emu_t *emu, rex_t rex)
             }
             break;
 
+        case 0xC4:                       /* PINSRW Gm,Ew,Ib */
+            nextop = F8;
+            GETED(0);
+            GETGM;
+            tmp8u = F8;
+            GM->uw[tmp8u&3] = ED->word[0];   // only low 16bits
+            break;
+        case 0xC5:                       /* PEXTRW Gw,Em,Ib */
+            nextop = F8;
+            GETEM(0);
+            GETGD;
+            tmp8u = F8;
+            GD->q[0] = EM->uw[tmp8u&3];  // 16bits extract, 0 extended
+            break;
         case 0xC6:                      /* SHUFPS Gx, Ex, Ib */
             nextop = F8;
             GETEX(1);
@@ -1354,6 +1376,15 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 tmp32s2 = (int32_t)GM->sw[offset + 1] * EM->sw[offset + 1];
                 GM->sd[i] = tmp32s + tmp32s2;
             }
+            break;
+        case 0xF6:                   /* PSADBW Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            tmp32u = 0;
+            for (int i=0; i<8; ++i)
+                tmp32u += (GM->ub[i]>EM->ub[i])?(GM->ub[i] - EM->ub[i]):(EM->ub[i] - GM->ub[i]);
+            GM->q = tmp32u;
             break;
 
         case 0xF8:                   /* PSUBB Gm,Em */
