@@ -596,6 +596,10 @@ void endBox64()
     // than call all the Fini (some "smart" ordering of the fini may be needed, but for now, callign in this order should be good enough)
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
     RunElfFini(my_context->elfs[0], emu);
+    #ifdef DYNAREC
+    // disable dynarec now
+    box64_dynarec = 0;
+    #endif
     FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
     FreeLibrarian(&my_context->maplib, emu);    // unload all libs
     // waiting for all thread except this one to finish
