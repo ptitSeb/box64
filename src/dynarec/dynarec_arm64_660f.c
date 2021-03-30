@@ -433,10 +433,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETG;
             i32 = -1;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
             if(MODREG) {
                 u8 = F8;
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 if(u8==0x4E) {
                     if(v0==v1) {
                         VEXTQ_8(v0, v0, v0, 8); // Swap Up/Lower 64bits parts
@@ -473,6 +473,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     VTBLQ1_8(v0, v1, d0);
                 }
             } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 1);
                 u8 = F8;
                 if (u8) {
@@ -890,7 +891,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(MODREG) {
                 u8 = (F8)&7;
                 ed = xRAX+(nextop&7)+(rex.b<<3);
-                VMOVHto(ed, v0, u8);
+                VMOVQHfrom(v0, u8, ed);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 1);
                 u8 = (F8)&7;
@@ -900,11 +901,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xC5:
             INST_NAME("PEXTRW Gd,Ex,Ib");
             nextop = F8;
-            GETG;
+            GETGD;
             if(MODREG) {
                 GETEX(v0, 1);
                 u8 = (F8)&7;
-                VMOVQHfrom(v0, u8, gd);
+                VMOVHto(gd, v0, u8);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 1);
                 u8 = (F8)&7;
