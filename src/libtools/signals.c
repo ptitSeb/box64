@@ -565,17 +565,40 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 6;
     // call the signal handler
     x64_ucontext_t sigcontext_copy = *sigcontext;
-
+    // save old value from emu
+    #define GO(A) uint64_t old_##A = R_##A
+    GO(RAX);
+    GO(RDI);
+    GO(RSI);
+    GO(RDX);
+    GO(RCX);
+    GO(R8);
+    GO(R9);
+    GO(RBP);
+    #undef GO
     // set stack pointer
-    emu->regs[_SP].dword[0] = (uintptr_t)frame;
+    R_RSP = (uintptr_t)frame;
+    // set frame pointer
+    R_RBP = sigcontext->uc_mcontext.gregs[X64_RBP];
 
     int exits = 0;
     int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, info, sigcontext);
+    // restore old value from emu
+    #define GO(A) R_##A = old_##A
+    GO(RAX);
+    GO(RDI);
+    GO(RSI);
+    GO(RDX);
+    GO(RCX);
+    GO(R8);
+    GO(R9);
+    GO(RBP);
+    #undef GO
 
     if(memcmp(sigcontext, &sigcontext_copy, sizeof(x64_ucontext_t))) {
         emu_jmpbuf_t* ejb = GetJmpBuf();
         if(ejb->jmpbuf_ok) {
-            #define GO(R)   if(sigcontext->uc_mcontext.gregs[X64_R##R]!=sigcontext_copy.uc_mcontext.gregs[X64_R##R]) ejb->emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[X64_R##R]
+            #define GO(R)   ejb->emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_R##R]
             GO(AX);
             GO(CX);
             GO(DX);
@@ -585,7 +608,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
             GO(SP);
             GO(BX);
             #undef GO
-            #define GO(R)   if(sigcontext->uc_mcontext.gregs[X64_##R]!=sigcontext_copy.uc_mcontext.gregs[X64_##R]) ejb->emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[X64_##R]
+            #define GO(R)   ejb->emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_##R]
             GO(R8);
             GO(R9);
             GO(R10);
@@ -595,10 +618,10 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
             GO(R14);
             GO(R15);
             #undef GO
-            if(sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP]) ejb->emu->ip.dword[0]=sigcontext->uc_mcontext.gregs[X64_RIP];
+            ejb->emu->ip.q[0]=sigcontext->uc_mcontext.gregs[X64_RIP];
             sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;
             // flags
-            if(sigcontext->uc_mcontext.gregs[X64_EFL]!=sigcontext_copy.uc_mcontext.gregs[X64_EFL]) ejb->emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
+            ejb->emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
             // get segments
             uint16_t seg;
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 0)&0xffff;
@@ -619,7 +642,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
     }
     // restore regs...
-    #define GO(R)   emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[X64_R##R]
+    #define GO(R)   emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_R##R]
     GO(AX);
     GO(CX);
     GO(DX);
@@ -629,7 +652,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     GO(SP);
     GO(BX);
     #undef GO
-    #define GO(R)   emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[X64_##R]
+    #define GO(R)   emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_##R]
     GO(R8);
     GO(R9);
     GO(R10);
@@ -639,7 +662,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     GO(R14);
     GO(R15);
     #undef GO
-    emu->ip.dword[0]=sigcontext->uc_mcontext.gregs[X64_RIP];
+    emu->ip.q[0]=sigcontext->uc_mcontext.gregs[X64_RIP];
     emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
     uint16_t seg;
     seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 0)&0xffff;
@@ -794,9 +817,9 @@ exit(-1);
         uint32_t hash = 0;
         if(db)
             hash = X31_hash_code(db->x64_addr, db->x64_size);
-        printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
+        printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
             GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, 
-            emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, 
+            emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_RBP, 
             addr, info->si_code, 
             prot, db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0, 
