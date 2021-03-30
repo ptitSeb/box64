@@ -5,6 +5,7 @@
 //socklen_t is u32
 // typedef unsigned long int nfds_t;
 // key_t is S32
+// uid_t is u32
 
 //GO(a64l, 
 GO(abort, vFv)
@@ -1651,7 +1652,7 @@ GOW(setsockopt, iFiiipu)
 //GOW(setstate_r, 
 //GOW(settimeofday, 
 //GOW(setttyent, 
-//GOW(setuid, 
+GOW(setuid, iFu)
 //GO(setusershell, 
 //GOW(setutent, 
 //GO(setutxent, 

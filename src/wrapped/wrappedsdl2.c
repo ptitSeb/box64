@@ -622,7 +622,7 @@ EXPORT void my2_SDL_LogSetOutputFunction(x64emu_t* emu, void* f, void* arg)
     my->SDL_LogSetOutputFunction(find_LogOutput_Fct(f), arg);
 }
 
-EXPORT int my2_SDL_vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, x64_va_list_t b)
+EXPORT int my2_SDL_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b)
 {
     CONVERT_VALIST(b)
     int r = vsnprintf(buff, s, fmt, VARARGS);
@@ -638,7 +638,7 @@ EXPORT void* my2_SDL_CreateThread(x64emu_t* emu, void* f, void* n, void* p)
     return my->SDL_CreateThread(fnc, n, et);
 }
 
-EXPORT int my2_SDL_snprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, uint64_t * b) {
+EXPORT int my2_SDL_snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint64_t * b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
     return vsnprintf(buff, s, fmt, VARARGS);
