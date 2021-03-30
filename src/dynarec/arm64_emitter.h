@@ -770,10 +770,10 @@
 
 // VMOV
 #define VMOV_element(imm5, imm4, Rn, Rd)    (1<<30 | 1<<29 | 0b01110000<<21 | (imm5)<<16 | (imm4)<<11 | 1<<10 | (Rn)<<5 | (Rd))
-#define VMOVeB(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<1) | 1, i2, Vn, Vd))
-#define VMOVeH(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<2) | 2, i2<<1, Vn, Vd))
-#define VMOVeS(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<3) | 4, i2<<2, Vn, Vd))
-#define VMOVeD(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<4) | 8, i2<<3, Vn, Vd))
+#define VMOVeB(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<1) | 1, (i2), Vn, Vd))
+#define VMOVeH(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<2) | 2, (i2)<<1, Vn, Vd))
+#define VMOVeS(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<3) | 4, (i2)<<2, Vn, Vd))
+#define VMOVeD(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<4) | 8, (i2)<<3, Vn, Vd))
 
 #define VMOV_from(imm5, Rn, Rd)     (1<<30 | 0<<29 | 0b01110000<<21 | (imm5)<<16 | 0b0011<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VMOVQBfrom(Vd, index, Wn)    EMIT(VMOV_from(((index)<<1) | 1, Wn, Vd))

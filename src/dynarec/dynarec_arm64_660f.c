@@ -50,6 +50,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t gd, ed;
     uint8_t wback, wb1;
     uint8_t eb1, eb2;
+    uint64_t tmp64u;
     int v0, v1;
     int q0, q1;
     int d0;
@@ -443,27 +444,32 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VMOVeD(v0, 0, v1, 1);
                         VMOVeD(v0, 1, v1, 0);
                     }
+                } else if(u8==0x00) {
+                    // dumplicate lower 32bits to all spot
+                    if(v0!=v1) {
+                        VMOVeS(v0, 0, v1, 0);
+                    }
+                    VMOVeS(v0, 1, v1, 0);
+                    VMOVeD(v0, 1, v0, 0);
+                } else if(v0!=v1) {
+                    VMOVeS(v0, 0, v1, (u8>>(0*2))&3);
+                    VMOVeS(v0, 1, v1, (u8>>(1*2))&3);
+                    VMOVeS(v0, 2, v1, (u8>>(2*2))&3);
+                    VMOVeS(v0, 3, v1, (u8>>(3*2))&3);
                 } else {
-                    uint32_t swp[4] = {
+                    uint64_t swp[4] = {
                         (0)|(1<<8)|(2<<16)|(3<<24),
                         (4)|(5<<8)|(6<<16)|(7<<24),
                         (8)|(9<<8)|(10<<16)|(11<<24),
                         (12)|(13<<8)|(14<<16)|(15<<24)
                     };
                     d0 = fpu_get_scratch(dyn);
-                    if(v0==v1) {
-                        q1 = fpu_get_scratch(dyn);
-                        VMOVQ(q1, v1);
-                    } else
-                        q1 = v1;
-                    MOV32w(x2, swp[(u8>>(0*2))&3]);
-                    MOV32w(x3, swp[(u8>>(1*2))&3]);
-                    VMOVQSfrom(d0, 0, x2);
-                    VMOVQSfrom(d0, 1, x3);
-                    MOV32w(x2, swp[(u8>>(2*2))&3]);
-                    MOV32w(x3, swp[(u8>>(3*2))&3]);
-                    VMOVQSfrom(d0, 2, x2);
-                    VMOVQSfrom(d0, 3, x3);
+                    tmp64u = swp[(u8>>(0*2))&3] | (swp[(u8>>(1*2))&3]<<32);
+                    MOV64x(x2, tmp64u);
+                    VMOVQDfrom(d0, 0, x2);
+                    tmp64u = swp[(u8>>(2*2))&3] | (swp[(u8>>(3*2))&3]<<32);
+                    MOV64x(x3, tmp64u);
+                    VMOVQDfrom(d0, 1, x3);
                     VTBLQ1_8(v0, v1, d0);
                 }
             } else {
