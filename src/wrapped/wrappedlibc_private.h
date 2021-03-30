@@ -1852,7 +1852,7 @@ GOW(strtol, lFppi)
 GO(__strtold_l, dFppiL)
 GOW(strtold_l, dFppiL)
 //GO(__strtold_nan, 
-//GO(__strtol_internal, 
+GO(__strtol_internal, lFppii)
 GO(__strtol_l, lFppi)
 GOW(strtol_l, lFppi)
 GOW(strtoll, lFppi)
