@@ -320,7 +320,8 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			file.write("\n#if " + k + "\n")
 			for v in gbl[k]:
 				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S         N      M            H
-				types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128"]
+				types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128"]
+				#																  int322_t normaly							uint32_t normaly
 				if len(values) != len(types):
 						raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 				
@@ -352,11 +353,11 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"",											# v
 			"*(int8_t*)(R_RSP + {p}), ",				# c
 			"*(int16_t*)(R_RSP + {p}), ",	 			# w
-			"*(int32_t*)(R_RSP + {p}), ",				# i
+			"*(int64_t*)(R_RSP + {p}), ",				# i	int32_t normaly
 			"*(int64_t*)(R_RSP + {p}), ",				# I
 			"*(uint8_t*)(R_RSP + {p}), ",				# C
 			"*(uint16_t*)(R_RSP + {p}), ",				# W
-			"*(uint32_t*)(R_RSP + {p}), ",				# u
+			"*(uint64_t*)(R_RSP + {p}), ",				# u uint32_t normaly
 			"*(uint64_t*)(R_RSP + {p}), ",				# U
 			"*(float*)(R_RSP + {p}), ",					# f
 			"*(double*)(R_RSP + {p}), ",				# d
@@ -378,11 +379,11 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"",                                       # v
 			"(int8_t){p}, ",              # c
 			"(int16_t){p}, ",             # w
-			"(int32_t){p}, ",             # i
+			"(int64_t){p}, ",             # i	int32_ normaly
 			"(int64_t){p}, ",             # I
 			"(uint8_t){p}, ",             # C
 			"(uint16_t){p}, ",            # W
-			"(uint32_t){p}, ",            # u
+			"(uint64_t){p}, ",            # u	uint32_ normaly
 			"(uint64_t){p}, ",            # U
 			"",               # f
 			"",              # d
@@ -457,11 +458,11 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			"fn({0});",                                                     # v
 			"R_RAX=fn({0});",                                               # c
 			"R_RAX=fn({0});",                                               # w
-			"R_RAX=fn({0});",                                               # i
-			"R_RAX=(uint64_t)fn({0});",           							# I
+			"R_RAX=(int64_t)fn({0});",                                     	# i int32_t normaly
+			"R_RAX=(int64_t)fn({0});",           							# I
 			"R_RAX=(unsigned char)fn({0});",                                # C
 			"R_RAX=(unsigned short)fn({0});",                               # W
-			"R_RAX=(uint32_t)fn({0});",                                     # u
+			"R_RAX=(uint64_t)fn({0});",                                     # u	uint32_t normaly
 			"R_RAX=fn({0});", 												# U
 			"emu->xmm[0].f[0]=fn({0});",             						# f
 			"emu->xmm[0].d[0]=fn({0});",            						# d
