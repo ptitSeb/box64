@@ -90,6 +90,21 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VSTR64_U12(v0, ed, fixedaddress);
             }
             break;
+        case 0x12:
+            INST_NAME("MOVDDUP Gx, Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                d0 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVeD(v0, 0, d0, 0);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                VLDR64_U12(v0, ed, fixedaddress);
+            }
+            VMOVeD(v0, 1, v0, 0);
+            break;
 
         case 0x2A:
             INST_NAME("CVTSI2SD Gx, Ed");
