@@ -1016,6 +1016,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SET_DFNONE(x1);
             break;
 
+        case 0xA1:
+            INST_NAME("MOV EAX,Od");
+            u64 = F64;
+            MOV64x(x1, u64);
+            LDRxw_U12(xRAX, x1, 0);
+            break;
+
+        case 0xA3:
+            INST_NAME("MOV Od,EAX");
+            u64 = F64;
+            MOV64x(x1, u64);
+            STRxw_U12(xRAX, x1, 0);
+            break;
         case 0xA4:
             if(rep) {
                 INST_NAME("REP MOVSB");

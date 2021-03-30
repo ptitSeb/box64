@@ -539,6 +539,19 @@ x64emurun:
             RESET_FLAGS(emu);
             break;
 
+        case 0xA1:                      /* MOV EAX,Od */
+            if(rex.w)
+                R_RAX = *(uint64_t*)F64;
+            else
+                R_EAX = *(uint32_t*)F64;
+            break;
+
+        case 0xA3:                      /* MOV Od,EAX */
+            if(rex.w)
+                *(uint64_t*)F64 = R_RAX;
+            else
+                *(uint32_t*)F64 = R_EAX;
+            break;
         case 0xA4:                      /* MOVSB */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             tmp64u = (rep)?R_RCX:1L;
