@@ -1171,6 +1171,19 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xF6:
+            INST_NAME("PSADBW Gm, Em");
+            nextop = F8;
+            GETGM(q0);
+            GETEM(q1, 0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            VEOR(d1, d1, d1);   // is it necessary?
+            UABDL_8(d0, q0, q1);
+            UADDLVQ_16(d1, d0);
+            VMOVeD(q0, 0, d1, 0);
+            break;
+
         default:
             DEFAULT;
     }
