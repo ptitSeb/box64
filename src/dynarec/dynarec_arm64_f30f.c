@@ -138,7 +138,31 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(d0, 0);
             FCVTZSxwS(gd, d0);
             break;
-
+        case 0x2D:
+            INST_NAME("CVTSS2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEX(q0, 0);
+            #ifdef PRECISE_CVT
+            LDRH_U12(x1, xEmu, offsetof(x64emu_t, mxcsr));
+            UBFXx(x1, x1, 13, 2);   // extract round requested
+            LSLx_REG(x1, x1, 3);
+            ADDx_U12(x1, x1, 8);    // add the actual add+jump opcodes
+            // Construct a "switch case", with each case 2 instructions, so 8 bytes
+            BL(+4); // Branch with Link to next, so LR gets next PC address
+            ADDx_REG(xLR, xLR, x1);
+            B(xLR); // could use RET, but it's not really one
+            FCVTNSxwS(gd, q0);  // 0: Nearest (even)
+            B_NEXT_nocond;
+            FCVTMSxwS(gd, q0);  // 1: Toward -inf
+            B_NEXT_nocond;
+            FCVTPSxwS(gd, q0);  // 2: Toward +inf
+            B_NEXT_nocond;
+            FCVTZSxwS(gd, q0);  // 3: Toward 0
+            #else
+            FCVTNSxwS(gd, q0);
+            #endif
+            break;
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;
