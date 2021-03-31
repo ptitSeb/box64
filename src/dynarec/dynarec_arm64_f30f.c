@@ -46,6 +46,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t nextop, u8;
     uint8_t gd, ed;
     uint8_t wback;
+    uint64_t u64;
     int v0, v1;
     int q0, q1;
     int d0, d1;
@@ -252,6 +253,25 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
                 VLDR128_U12(v0, ed, fixedaddress);
             }
+            break;
+        case 0x70:
+            INST_NAME("PSHUFHW Gx, Ex, Ib");
+            nextop = F8;
+            GETEX(v1, 1);
+            GETGX(v0);
+
+            u8 = F8;
+            // only high part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits
+            u64 = 0;
+            for (int i=0; i<4; ++i) {
+                u64 |= ((uint64_t)((u8>>(i*2))&3)*2+0)<<(i*16+0);
+                u64 |= ((uint64_t)((u8>>(i*2))&3)*2+1)<<(i*16+8);
+            }
+            MOV64x(x2, u64);
+            d0 = fpu_get_scratch(dyn);
+            VMOVQDfrom(d0, 0, x2);
+            VTBL1_8(d0, v1, d0);
+            VMOVeD(v0, 1, d0, 0);
             break;
 
         case 0x7E:

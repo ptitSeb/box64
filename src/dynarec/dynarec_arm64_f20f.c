@@ -241,7 +241,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("PSHUFLW Gx, Ex, Ib");
             nextop = F8;
             GETEX(v1, 1);
-            GETGX_empty(v0);
+            GETGX(v0);
 
             u8 = F8;
             // only low part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits
@@ -253,14 +253,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             MOV64x(x2, u64);
             d0 = fpu_get_scratch(dyn);
             VMOVQDfrom(d0, 0, x2);
-            if(v0!=v1) {
-                VTBL1_8(v0, v1, d0);
-                VMOVeD(v0, 1, v1, 1);
-            } else {
-                VTBL1_8(d0, v1, d0);
-                VMOVeD(v0, 0, d0, 0);
-
-            }
+            VTBL1_8(d0, v1, d0);
+            VMOVeD(v0, 0, d0, 0);
             break;
 
         case 0x7C:
