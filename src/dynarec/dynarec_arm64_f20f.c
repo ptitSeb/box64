@@ -37,6 +37,9 @@
 #define GETGX(a)    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
                     a = sse_get_reg(dyn, ninst, x1, gd)
 
+#define GETGX_empty(a)  gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+                        a = sse_get_reg_empty(dyn, ninst, x1, gd)
+
 uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
@@ -44,6 +47,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t gd, ed;
     uint8_t wback;
     uint8_t u8;
+    uint64_t u64;
     int v0, v1;
     int q0;
     int d0, d1;
@@ -231,6 +235,28 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             d0 = fpu_get_scratch(dyn);
             FMAXNMD(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
             VMOVeD(v0, 0, d0, 0);   // to not erase uper part
+            break;
+
+        case 0x70:
+            INST_NAME("PSHUFLW Gx, Ex, Ib");
+            nextop = F8;
+            GETEX(v1, 1);
+            GETGX_empty(v0);
+
+            u8 = F8;
+            // only low part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits
+            u64 = 0;
+            for (int i=0; i<4; ++i) {
+                u64 |= ((uint64_t)((u8>>(i*2))&3)*2+0)<<(i*16+0);
+                u64 |= ((uint64_t)((u8>>(i*2))&3)*2+1)<<(i*16+8);
+            }
+            MOV64x(x2, u64);
+            d0 = fpu_get_scratch(dyn);
+            VMOVQDfrom(d0, 0, x2);
+            VTBL1_8(v0, v1, d0);
+            if(v0!=v1) {
+                VMOVeD(v0, 1, v1, 1);
+            }
             break;
 
         case 0x7C:

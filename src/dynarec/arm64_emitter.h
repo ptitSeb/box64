@@ -1117,6 +1117,7 @@
 #define TBL_gen(Q, Rm, len, op, Rn, Rd) ((Q)<<30 | 0b001110<<24 | (Rm)<<16 | (len)<<13 | (op)<<12 | (Rn)<<5 | (Rd))
 //Use Rm[] to pick from Rn element and store in Rd. Out-of-range element gets 0
 #define VTBLQ1_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b00, 0, Rn, Rd))
+#define VTBL1_8(Rd, Rn, Rm)         EMIT(TBL_gen(0, Rm, 0b00, 0, Rn, Rd))
 //Use Rm[] to pick from Rn, Rn+1 element and store in Rd. Out-of-range element gets 0
 #define VTBLQ2_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b01, 0, Rn, Rd))
 //Use Rm[] to pick from Rn, Rn+1, Rn+2 element and store in Rd. Out-of-range element gets 0
