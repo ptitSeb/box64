@@ -70,6 +70,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t gd, ed;
     uint8_t wback, wb2;
     uint8_t eb1, eb2;
+    uint64_t tmp64u;
     int v0, v1;
     int q0, q1;
     int d0, d1;
@@ -479,7 +480,66 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VLD1_64(v0, 0, ed);
             }
             break;
-
+        case 0x70:
+            INST_NAME("PSHUFW Gm,Em,Ib");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            if(MODREG) {
+                u8 = F8;
+                v1 = mmx_get_reg(dyn, ninst, x1, (nextop&7));
+                v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                if(u8==0x4E) {
+                    if(v0==v1) {
+                        VEXT_8(v0, v0, v0, 4); // Swap Up/Lower 32bits parts
+                    } else {
+                        VMOVeS(v0, 0, v1, 1);
+                        VMOVeS(v0, 1, v1, 0);
+                    }
+                } else if(u8==0x00) {
+                    // dumplicate lower 16bits to all spot
+                    if(v0!=v1) {
+                        VMOVeH(v0, 0, v1, 0);
+                    }
+                    VMOVeH(v0, 1, v1, 0);
+                    VMOVeS(v0, 1, v1, 0);
+                } else if(v0!=v1) {
+                    VMOVeH(v0, 0, v1, (u8>>(0*2))&3);
+                    VMOVeH(v0, 1, v1, (u8>>(1*2))&3);
+                    VMOVeH(v0, 2, v1, (u8>>(2*2))&3);
+                    VMOVeH(v0, 3, v1, (u8>>(3*2))&3);
+                } else {
+                    uint64_t swp[4] = {
+                        (0)|(1<<8),
+                        (2)|(3<<8),
+                        (4)|(5<<8),
+                        (6)|(7<<8)
+                    };
+                    d0 = fpu_get_scratch(dyn);
+                    tmp64u = swp[(u8>>(0*2))&3] | (swp[(u8>>(1*2))&3]<<16);
+                    tmp64u = (swp[(u8>>(2*2))&3]<<32) | (swp[(u8>>(3*2))&3]<<48);
+                    MOV64x(x2, tmp64u);
+                    VMOVQDfrom(d0, 0, x2);
+                    VTBL1_8(v0, v1, d0);
+                }
+            } else {
+                v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 1);
+                u8 = F8;
+                if (u8) {
+                    i32 = -1;
+                    for (int i=0; i<4; ++i) {
+                        int32_t idx = (u8>>(i*2))&3;
+                        if(idx!=i32) {
+                            ADDx_U12(x2, ed, idx*2);
+                            i32 = idx;
+                        }
+                        VLD1_16(v0, i, x2);
+                    }
+                } else {
+                    VLD1R_16(v0, ed);
+                }
+            }
+            break;
         case 0x71:
             nextop = F8;
             switch((nextop>>3)&7) {

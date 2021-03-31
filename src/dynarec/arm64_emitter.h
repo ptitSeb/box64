@@ -724,6 +724,7 @@
 #define VSSHR_32(Vd, Vn, shift)             EMIT(SHR_vector(0, 0, 0b0100 | (((32-(shift))>>3)&3), (32-(shift))&7, Vn, Vd))
 
 #define EXT_vector(Q, Rm, imm4, Rn, Rd)     ((Q)<<30 | 0b101110<<24 | (Rm)<<16 | (imm4)<<11 | (Rn)<<5 | (Rd))
+#define VEXT_8(Rd, Rn, Rm, index)           EMIT(EXT_vector(0, Rm, index, Rn, Rd))
 #define VEXTQ_8(Rd, Rn, Rm, index)          EMIT(EXT_vector(1, Rm, index, Rn, Rd))
 
 // Shift Left and Insert (not touching lower part of dest)
