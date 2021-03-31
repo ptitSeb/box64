@@ -343,7 +343,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(v1, 0);
             VCMGTQ_32(v0, v0, v1);
             break;
-
+        case 0x67:
+            INST_NAME("PACKUSWB Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            SQXTUN_16(v0, v0);
+            if(v0==v1) {
+                VMOVeD(v0, 1, v0, 0);
+            } else {
+                SQXTUN2_16(v0, v1);
+            }
+            break;
         case 0x68:
             INST_NAME("PUNPCKHBW Gx,Ex");
             nextop = F8;
