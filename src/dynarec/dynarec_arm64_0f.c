@@ -281,6 +281,30 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             FCOMI(x1, x2);
             break;
 
+        case 0x38:
+            //SSE3
+            nextop=F8;
+            switch(nextop) {
+
+                case 0x04:
+                    INST_NAME("PMADDUBSW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    UXTL_8(v0, q0);   // this is unsigned, so 0 extended
+                    SXTL_8(v1, q1);   // this is signed
+                    VMULQ_16(v0, v0, v1);
+                    SADDLPQ_16(v1, v0);
+                    SQXTN_16(q0, v1);
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)            \
             READFLAGS(F);                           \
             GETFLAGS;                               \
