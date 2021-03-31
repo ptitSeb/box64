@@ -1025,6 +1025,28 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             REVxw(gd, gd);
             break;
 
+        case 0xEB:
+            INST_NAME("POR Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VORR(v0, v0, v1);
+            break;
+        case 0xEC:
+            INST_NAME("PADDSB Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            SQADD_8(d0, d0, d1);
+            break;
+        case 0xED:
+            INST_NAME("PADDSW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            SQADD_16(d0, d0, d1);
+            break;
+        
         default:
             DEFAULT;
     }
