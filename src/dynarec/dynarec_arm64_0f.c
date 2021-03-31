@@ -1230,6 +1230,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             VMUL_16(q0, q0, q1);
             break;
 
+        case 0xE5:
+            INST_NAME("PMULHW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            VSMULL_16(q0, v0, v1);
+            SQSHRN_16(v0, q0, 16);
+            break;
+
         case 0xEB:
             INST_NAME("POR Gm, Em");
             nextop = F8;
