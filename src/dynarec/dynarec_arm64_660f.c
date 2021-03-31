@@ -359,7 +359,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q0, 0);
             VZIP1Q_32(v0, v0, q0);
             break;
-
+        case 0x63:
+            INST_NAME("PACKSSWB Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 0);
+            SQXTN_8(q0, q0);
+            if(q0==q1) {
+                VMOVeD(q0, 1, q0, 0);
+            } else {
+                SQXTN2_8(q0, q1);
+            }
+            break;
         case 0x64:
             INST_NAME("PCMPGTB Gx,Ex");
             nextop = F8;
