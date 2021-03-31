@@ -1316,4 +1316,9 @@
 #define UADDLV_16(Rd, Rn)           EMIT(ADDLV_vector(0, 1, 0b01, Rn, Rd))
 #define UADDLV_32(Rd, Rn)           EMIT(ADDLV_vector(0, 1, 0b10, Rn, Rd))
 
+// MOV Immediate
+#define MOVI_vector(Q, op, abc, cmode, defgh, Rd)   ((Q)<<30 | (op)<<29 | 0b0111100000<<19 | (abc)<<16 | (cmode)<<12 | 1<<10 | (defgh)<<5 | (Rd))
+#define MOVIQ_8(Rd, imm8)           EMIT(MOVI_vector(1, 0, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
+#define MOVI_8(Rd, imm8)            EMIT(MOVI_vector(0, 0, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
+
 #endif  //__ARM64_EMITTER_H__

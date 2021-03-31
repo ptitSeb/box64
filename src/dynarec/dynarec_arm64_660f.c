@@ -220,6 +220,25 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FCOMI(x1, x2);
             break;
 
+        case 0x38:  // SSSE3 opcodes
+            nextop = F8;
+            switch(nextop) {
+                case 0x00:
+                    INST_NAME("PSHUFB Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1, 0);
+                    d0 = fpu_get_scratch(dyn);
+                    MOVIQ_8(d0, 0b10001111);
+                    VANDQ(d0, d0, q1);  // mask the index
+                    VTBLQ1_8(q0, q0, d0);
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)            \
             READFLAGS(F);                           \
             GETFLAGS;                               \
@@ -348,11 +367,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(v0);
             GETEX(v1, 0);
-            SQXTUN_16(v0, v0);
+            SQXTUN_8(v0, v0);
             if(v0==v1) {
                 VMOVeD(v0, 1, v0, 0);
             } else {
-                SQXTUN2_16(v0, v1);
+                SQXTUN2_8(v0, v1);
             }
             break;
         case 0x68:

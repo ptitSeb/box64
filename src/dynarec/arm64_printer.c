@@ -1149,7 +1149,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "???"};
         const char* Vd = Y[(sf<<1) | a.Q];
         const char* Z[] = {"8H", "4S", "2D", "?"};
-        const char* Va = Y[(sf<<1)];
+        const char* Va = Z[(sf<<1)];
         snprintf(buff, sizeof(buff), "%cAB%cL%s V%d.%s, V%d.%s, V%d.%s", a.U?'U':'S', a.c?'A':'D', a.Q?"2":"", Rd, Va, Rn, Vd, Rm, Vd);
         return buff;
     }
@@ -1165,6 +1165,53 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         const char* Vd = Y[(sf<<1) | a.Q];
         const char* Z[] = {"H", "S", "D", "?"};
         snprintf(buff, sizeof(buff), "%cADDLV V%d.%s, V%d.%s", a.U?'U':'S', Rd, Z[sf], Rn, Vd);
+        return buff;
+    }
+    
+    // MOV immediate
+    if(isMask(opcode, "0Q00111100000iii111001iiiiiddddd", &a)) {
+        const char* Y[] = {"8B", "16B"};
+        const char* Vd = Y[a.Q];
+        snprintf(buff, sizeof(buff), "MOVI V%d.%s, #0x%x", Rd, Vd, imm);
+        return buff;
+    }
+
+    // LD1/ST1 single structure
+    if(isMask(opcode, "0Q0011010L000000cc0Sffnnnnnttttt", &a)) {
+        int scale = a.c;
+        int idx = 0;
+        const char* Y[] = {"B", "H", "S", "D"};
+        switch(scale) {
+            case 3: scale = sf; /* rep = 1; */ break;
+            case 0: idx = (a.Q<<3) | (a.S<<2) | sf; break;
+            case 1: idx = (a.Q<<2) | (a.S<<1) | (sf>>1); break;
+            case 2: if(!(sf&1))
+                        idx = (a.Q<<1) | a.S;
+                    else {
+                        scale = 3;
+                        idx = a.Q;
+                    }
+                    break;
+        }
+        snprintf(buff, sizeof(buff), "%s1 {V%d.%s}[%d], %s", a.L?"LD":"ST", Rd, Y[scale], idx, XtSp[Rt]);
+        return buff;
+    }
+
+    // (S/U)QXT(U)N
+    if(isMask(opcode, "0Q101110ff100001001010nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "?", "??"};
+        const char* Vd = Y[(sf<<1) | a.Q];
+        const char* Z[] = {"8H", "4S", "2D", "?"};
+        const char* Va = Z[sf];
+        snprintf(buff, sizeof(buff), "SQXTUN%s V%d.%s, V%d.%s", a.Q?"2":"", Rd, Vd, Rn, Va);
+        return buff;
+    }
+    if(isMask(opcode, "0QU01110ff100001010010nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "?", "??"};
+        const char* Vd = Y[(sf<<1) | a.Q];
+        const char* Z[] = {"8H", "4S", "2D", "?"};
+        const char* Va = Z[sf];
+        snprintf(buff, sizeof(buff), "%cQXTN%s V%d.%s, V%d.%s", a.U?'U':'S', a.Q?"2":"", Rd, Vd, Rn, Va);
         return buff;
     }
 
