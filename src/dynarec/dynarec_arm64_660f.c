@@ -986,6 +986,21 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0xD8:
+            INST_NAME("PSUBUSB Gx, Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 0);
+            UQSUBQ_8(q0, q0, q1);
+            break;
+        case 0xD9:
+            INST_NAME("PSUBUSW Gx, Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 0);
+            UQSUBQ_16(q0, q0, q1);
+            break;
+
         case 0xDB:
             INST_NAME("PAND Gx,Ex");
             nextop = F8;

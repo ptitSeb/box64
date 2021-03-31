@@ -1407,4 +1407,23 @@
 #define SQSHRN_32(Vd, Vn, imm)      EMIT(QSHRN_vector(0, 0, 0b0100|(((32-(imm))>>3)&3), (32-(imm))&0x7, 0, Vn, Vd))
 #define SQSHRN2_32(Vd, Vn, imm)     EMIT(QSHRN_vector(1, 0, 0b0100|(((32-(imm))>>3)&3), (32-(imm))&0x7, 0, Vn, Vd))
 
+// UQSUB
+#define QSUB_vector(Q, U, size, Rm, Rn, Rd)     ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b00101<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define UQSUB_8(Vd, Vn, Vm)         EMIT(QSUB_vector(0, 1, 0b00, Vm, Vn, Vd))
+#define UQSUB_16(Vd, Vn, Vm)        EMIT(QSUB_vector(0, 1, 0b01, Vm, Vn, Vd))
+#define UQSUB_32(Vd, Vn, Vm)        EMIT(QSUB_vector(0, 1, 0b10, Vm, Vn, Vd))
+#define UQSUB_64(Vd, Vn, Vm)        EMIT(QSUB_vector(0, 1, 0b11, Vm, Vn, Vd))
+#define SQSUB_8(Vd, Vn, Vm)         EMIT(QSUB_vector(0, 0, 0b00, Vm, Vn, Vd))
+#define SQSUB_16(Vd, Vn, Vm)        EMIT(QSUB_vector(0, 0, 0b01, Vm, Vn, Vd))
+#define SQSUB_32(Vd, Vn, Vm)        EMIT(QSUB_vector(0, 0, 0b10, Vm, Vn, Vd))
+#define SQSUB_64(Vd, Vn, Vm)        EMIT(QSUB_vector(0, 0, 0b11, Vm, Vn, Vd))
+#define UQSUBQ_8(Vd, Vn, Vm)        EMIT(QSUB_vector(1, 1, 0b00, Vm, Vn, Vd))
+#define UQSUBQ_16(Vd, Vn, Vm)       EMIT(QSUB_vector(1, 1, 0b01, Vm, Vn, Vd))
+#define UQSUBQ_32(Vd, Vn, Vm)       EMIT(QSUB_vector(1, 1, 0b10, Vm, Vn, Vd))
+#define UQSUBQ_64(Vd, Vn, Vm)       EMIT(QSUB_vector(1, 1, 0b11, Vm, Vn, Vd))
+#define SQSUBQ_8(Vd, Vn, Vm)        EMIT(QSUB_vector(1, 0, 0b00, Vm, Vn, Vd))
+#define SQSUBQ_16(Vd, Vn, Vm)       EMIT(QSUB_vector(1, 0, 0b01, Vm, Vn, Vd))
+#define SQSUBQ_32(Vd, Vn, Vm)       EMIT(QSUB_vector(1, 0, 0b10, Vm, Vn, Vd))
+#define SQSUBQ_64(Vd, Vn, Vm)       EMIT(QSUB_vector(1, 0, 0b11, Vm, Vn, Vd))
+
 #endif  //__ARM64_EMITTER_H__
