@@ -44,20 +44,22 @@
         VLDR128_U12(a, ed, fixedaddress);                       \
     }
 
-#define GETGM(a)            \
-    gd = ((nextop&0x38)>>3);  \
+#define GETGM(a)                        \
+    gd = ((nextop&0x38)>>3);            \
     a = mmx_get_reg(dyn, ninst, x1, gd)
-#define GETEM(a, D)    \
-    if(MODREG) {        \
-        a = mmx_get_reg(dyn, ninst, x1, (nextop&7)); \
+
+#define GETEM(a, D)                                 \
+    if(MODREG) {                                    \
+        a = mmx_get_reg(dyn, ninst, x1, (nextop&7));\
     } else {                                        \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0); \
-        a = fpu_get_scratch_double(dyn); \
-        VLD1_64(a, ed);    \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, D); \
+        a = fpu_get_scratch(dyn);                   \
+        VLDR64_U12(a, ed, fixedaddress);            \
     }
-#define PUTEM(a)    \
-    if(!MODREG) { \
-        VST1_64(a, ed);    \
+
+#define PUTEM(a)                            \
+    if(!MODREG) {                           \
+        VSTR64_U12(a, ed, fixedaddress);    \
     }
 
 uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
@@ -70,7 +72,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t eb1, eb2;
     int v0, v1;
     int q0, q1;
-    int d0;
+    int d0, d1;
     int s0;
     int fixedaddress;
     MAYUSE(s0);
@@ -79,6 +81,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(v0);
     MAYUSE(v1);
     MAYUSE(d0);
+    MAYUSE(d1);
     MAYUSE(eb2);
     MAYUSE(eb1);
     MAYUSE(wb2);
@@ -386,6 +389,27 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGX(v0);
             GETEX(v1, 0);
             VFMAXQD(v0, v0, v1);
+            break;
+        case 0x60:
+            INST_NAME("PUNPCKLBW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            VZIP1_8(d0, d0, d1);
+            break;
+        case 0x61:
+            INST_NAME("PUNPCKLWD Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            VZIP1_16(d0, d0, d1);
+            break;
+        case 0x62:
+            INST_NAME("PUNPCKLDQ Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            VZIP1_32(d0, d0, d1);
             break;
 
         case 0x6E:
