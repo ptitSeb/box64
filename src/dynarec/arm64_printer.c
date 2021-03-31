@@ -1202,7 +1202,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
                     }
                     break;
         }
-        snprintf(buff, sizeof(buff), "%s1 {V%d.%s}[%d], %s", a.L?"LD":"ST", Rd, Y[scale], idx, XtSp[Rt]);
+        snprintf(buff, sizeof(buff), "%s1 {V%d.%s}[%d], [%s]", a.L?"LD":"ST", Rt, Y[scale], idx, XtSp[Rn]);
         return buff;
     }
     // LDUR/STUR

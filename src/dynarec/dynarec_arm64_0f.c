@@ -1222,6 +1222,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             REVxw(gd, gd);
             break;
 
+        case 0xD5:
+            INST_NAME("PMULLW Gm, Em");
+            nextop = F8;
+            GETGM(q0);
+            GETEM(q1, 0);
+            VMUL_16(q0, q0, q1);
+            break;
+
         case 0xEB:
             INST_NAME("POR Gm, Em");
             nextop = F8;

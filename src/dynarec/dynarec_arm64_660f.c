@@ -982,7 +982,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q0, 0);
             VADDQ_64(v0, v0, q0);
             break;
-
+        case 0xD5:
+            INST_NAME("PMULLW Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 0);
+            VMULQ_16(q0, q0, q1);
+            break;
         case 0xD6:
             INST_NAME("MOVQ Ex, Gx");
             nextop = F8;

@@ -253,9 +253,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             MOV64x(x2, u64);
             d0 = fpu_get_scratch(dyn);
             VMOVQDfrom(d0, 0, x2);
-            VTBL1_8(v0, v1, d0);
             if(v0!=v1) {
+                VTBL1_8(v0, v1, d0);
                 VMOVeD(v0, 1, v1, 1);
+            } else {
+                VTBL1_8(d0, v1, d0);
+                VMOVeD(v0, 0, d0, 0);
+
             }
             break;
 
