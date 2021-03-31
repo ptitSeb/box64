@@ -895,7 +895,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 1);
                 u8 = (F8)&7;
-                VLD1_16(wback, v0, u8);
+                VLD1_16(v0, u8, wback);
             }
             break;
         case 0xC5:
