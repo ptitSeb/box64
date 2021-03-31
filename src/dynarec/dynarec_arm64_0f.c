@@ -531,6 +531,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0x77:
+            INST_NAME("EMMS");
+            // empty MMX, FPU now usable
+            // mmx_purge_cache?
+            /*emu->top = 0;
+            emu->fpu_stack = 0;*/ //TODO: Check if something is needed here?
+            break;
+
         case 0x7E:
             INST_NAME("MOVD Ed, Gm");
             nextop = F8;
