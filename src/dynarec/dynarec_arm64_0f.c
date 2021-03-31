@@ -1156,6 +1156,21 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SQADD_16(d0, d0, d1);
             break;
         
+        case 0xEF:
+            INST_NAME("PXOR Gm,Em");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3);
+            if(MODREG && ((nextop&7))==gd) {
+                // special case for PXOR Gx, Gx
+                q0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                VEOR(q0, q0, q0);
+            } else {
+                q0 = mmx_get_reg(dyn, ninst, x1, gd);
+                GETEM(q1, 0);
+                VEOR(q0, q0, q1);
+            }
+            break;
+
         default:
             DEFAULT;
     }
