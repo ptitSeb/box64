@@ -53,10 +53,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint64_t tmp64u;
     int v0, v1;
     int q0, q1;
-    int d0;
+    int d0, d1;
     int fixedaddress;
 
     MAYUSE(d0);
+    MAYUSE(d1);
     MAYUSE(q0);
     MAYUSE(q1);
     MAYUSE(eb1);
@@ -989,6 +990,22 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             VUZP1Q_32(q1, v1, v1);
             VUMULL_32(v0, q0, q1);
+            break;
+
+        case 0xF6:
+            INST_NAME("PSADBW Gx, Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            VEOR(d1, d1, d1);   // is it necessary?
+            UABDL_8(d0, q0, q1);
+            UADDLVQ_16(d1, d0);
+            VMOVeD(q0, 0, d1, 0);
+            UABDL2_8(d0, q0, q1);
+            UADDLVQ_16(d1, d0);
+            VMOVeD(q0, 1, d1, 0);
             break;
 
         case 0xF8:

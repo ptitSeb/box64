@@ -1137,6 +1137,36 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    // Absolute Difference
+    // SABA / SABD / UABA / UABD
+    if(isMask(opcode, "0QU01110ff1mmmmm0111c1nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "???"};
+        const char* Vd = Y[(sf<<1) | a.Q];
+        snprintf(buff, sizeof(buff), "%cAB%c V%d.%s, V%d.%s, V%d.%s", a.U?'U':'S', a.c?'A':'D', Rd, Vd, Rn, Vd, Rm, Vd);
+        return buff;
+    }
+    if(isMask(opcode, "0QU01110ff1mmmmm01c100nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "???"};
+        const char* Vd = Y[(sf<<1) | a.Q];
+        const char* Z[] = {"8H", "4S", "2D", "?"};
+        const char* Va = Y[(sf<<1)];
+        snprintf(buff, sizeof(buff), "%cAB%cL%s V%d.%s, V%d.%s, V%d.%s", a.U?'U':'S', a.c?'A':'D', a.Q?"2":"", Rd, Va, Rn, Vd, Rm, Vd);
+        return buff;
+    }
+    // Add pair / accros vector
+    if(isMask(opcode, "0QU01110ff1000000c1010nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "???"};
+        const char* Vd = Y[(sf<<1) | a.Q];
+        snprintf(buff, sizeof(buff), "%cAD%cLP V%d.%s, V%d.%s", a.U?'U':'S', a.c?'A':'D', Rd, Vd, Rn, Vd);
+        return buff;
+    }
+    if(isMask(opcode, "0QU01110ff110000001110nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "???"};
+        const char* Vd = Y[(sf<<1) | a.Q];
+        const char* Z[] = {"H", "S", "D", "?"};
+        snprintf(buff, sizeof(buff), "%cADDLV V%d.%s, V%d.%s", a.U?'U':'S', Rd, Z[sf], Rn, Vd);
+        return buff;
+    }
 
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
