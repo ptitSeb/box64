@@ -531,6 +531,40 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0x7E:
+            INST_NAME("MOVD Ed, Gm");
+            nextop = F8;
+            GETGM(v0);
+            if((nextop&0xC0)==0xC0) {
+                ed = xRAX + (nextop&7) + (rex.b<<3);
+                if(rex.w) {
+                    VMOVQDto(ed, v0, 0);
+                } else {
+                    VMOVSto(ed, v0, 0);
+                    MOVxw_REG(ed, ed);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+                if(rex.w) {
+                    VSTR64_U12(v0, ed, fixedaddress);
+                } else {
+                    VSTR32_U12(v0, ed, fixedaddress);
+                }
+            }
+            break;
+        case 0x7F:
+            INST_NAME("MOVQ Em, Gm");
+            nextop = F8;
+            GETGM(v0);
+            if(MODREG) {
+                v1 = mmx_get_reg_empty(dyn, ninst, x1, nextop&7);
+                VMOV(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                VSTR64_U12(v0, ed, fixedaddress);
+            }
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)   \
             READFLAGS(F);   \
             i32_ = F32S;    \
