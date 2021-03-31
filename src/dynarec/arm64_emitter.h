@@ -629,6 +629,20 @@
 // imm16 must be 4-aligned
 #define VSTR128_U12(Qt, Rn, imm16)          EMIT(VMEM_gen(0b00, 0b10, ((uint32_t)((imm16)>>4))&0xfff, Rn, Qt))
 
+#define VMEMUR_vector(size, opc, imm9, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (Rn)<<5 | (Rt))
+// signed offset, no alignement!
+#define VLDR8_I9(Vt, Rn, imm9)              EMIT(VMEMUR(0b00, 0b01, (imm9)&0b111111111, Rn, Vt))
+#define VLDR16_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b01, 0b01, (imm9)&0b111111111, Rn, Vt))
+#define VLDR32_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b10, 0b01, (imm9)&0b111111111, Rn, Vt))
+#define VLDR64_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b11, 0b01, (imm9)&0b111111111, Rn, Vt))
+#define VLDR128_I9(Vt, Rn, imm9)            EMIT(VMEMUR(0b00, 0b11, (imm9)&0b111111111, Rn, Vt))
+// signed offset, no alignement!
+#define VSTR8_I9(Vt, Rn, imm9)              EMIT(VMEMUR(0b00, 0b00, (imm9)&0b111111111, Rn, Vt))
+#define VSTR16_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b01, 0b00, (imm9)&0b111111111, Rn, Vt))
+#define VSTR32_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b10, 0b00, (imm9)&0b111111111, Rn, Vt))
+#define VSTR64_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b11, 0b00, (imm9)&0b111111111, Rn, Vt))
+#define VSTR128_I9(Vt, Rn, imm9)            EMIT(VMEMUR(0b00, 0b10, (imm9)&0b111111111, Rn, Vt))
+
 #define VMEMW_gen(size, opc, imm9, op2, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (op2)<<10 | 0b01<<10 | (Rn)<<5 | (Rt))
 #define VLDR64_S9_postindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b11, 0b01, (imm9)&0x1ff, 0b01, Rn, Rt))
 #define VLDR64_S9_preindex(Rt, Rn, imm9)    EMIT(VMEMW_gen(0b11, 0b01, (imm9)&0x1ff, 0b11, Rn, Rt))
@@ -1243,6 +1257,15 @@
 #define VUMULL2_16(Rd, Rn, Rm)      EMIT(MULL_vector(1, 1, 0b01, Rm, Rn, Rd))
 #define VUMULL2_32(Rd, Rn, Rm)      EMIT(MULL_vector(1, 1, 0b10, Rm, Rn, Rd))
 
+// MUL
+#define MUL_vector(Q, size, Rm, Rn, Rd)     ((Q)<<30 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b10011<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VMUL_8(Vd, Vn, Vm)          EMIT(MUL_vector(0, 0b00, Vm, Vn, Vd))
+#define VMUL_16(Vd, Vn, Vm)         EMIT(MUL_vector(0, 0b01, Vm, Vn, Vd))
+#define VMUL_32(Vd, Vn, Vm)         EMIT(MUL_vector(0, 0b10, Vm, Vn, Vd))
+#define VMULQ_8(Vd, Vn, Vm)         EMIT(MUL_vector(1, 0b00, Vm, Vn, Vd))
+#define VMULQ_16(Vd, Vn, Vm)        EMIT(MUL_vector(1, 0b01, Vm, Vn, Vd))
+#define VMULQ_32(Vd, Vn, Vm)        EMIT(MUL_vector(1, 0b10, Vm, Vn, Vd))
+
 // Absolute Difference
 #define AD_vector(Q, U, size, Rm, ac, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b0111<<12 | (ac)<<11 | 1<<10 | (Rn)<<5 | (Rd))
 // Signed Absolute Difference and accumulate
@@ -1320,5 +1343,34 @@
 #define MOVI_vector(Q, op, abc, cmode, defgh, Rd)   ((Q)<<30 | (op)<<29 | 0b0111100000<<19 | (abc)<<16 | (cmode)<<12 | 1<<10 | (defgh)<<5 | (Rd))
 #define MOVIQ_8(Rd, imm8)           EMIT(MOVI_vector(1, 0, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
 #define MOVI_8(Rd, imm8)            EMIT(MOVI_vector(0, 0, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
+
+// SHLL and eXtend Long
+#define SHLL_vector(Q, U, immh, immb, Rn, Rd)  ((Q)<<30 | (U)<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b10100<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define USHLL2_8(Vd, Vn, imm)       EMIT(SHLL_vector(1, 1, 0b0001, (imm)&0x7, Vn, Vd))
+#define USHLL_8(Vd, Vn, imm)        EMIT(SHLL_vector(0, 1, 0b0001, (imm)&0x7, Vn, Vd))
+#define SSHLL2_8(Vd, Vn, imm)       EMIT(SHLL_vector(1, 0, 0b0001, (imm)&0x7, Vn, Vd))
+#define SSHLL_8(Vd, Vn, imm)        EMIT(SHLL_vector(0, 0, 0b0001, (imm)&0x7, Vn, Vd))
+#define USHLL2_16(Vd, Vn, imm)      EMIT(SHLL_vector(1, 1, 0b0010|(((imm)>>3)&1), (imm)&0x7, Vn, Vd))
+#define USHLL_16(Vd, Vn, imm)       EMIT(SHLL_vector(0, 1, 0b0010|(((imm)>>3)&1), (imm)&0x7, Vn, Vd))
+#define SSHLL2_16(Vd, Vn, imm)      EMIT(SHLL_vector(1, 0, 0b0010|(((imm)>>3)&1), (imm)&0x7, Vn, Vd))
+#define SSHLL_16(Vd, Vn, imm)       EMIT(SHLL_vector(0, 0, 0b0010|(((imm)>>3)&1), (imm)&0x7, Vn, Vd))
+#define USHLL2_32(Vd, Vn, imm)      EMIT(SHLL_vector(1, 1, 0b0100|(((imm)>>3)&3), (imm)&0x7, Vn, Vd))
+#define USHLL_32(Vd, Vn, imm)       EMIT(SHLL_vector(0, 1, 0b0100|(((imm)>>3)&3), (imm)&0x7, Vn, Vd))
+#define SSHLL2_32(Vd, Vn, imm)      EMIT(SHLL_vector(1, 0, 0b0100|(((imm)>>3)&3), (imm)&0x7, Vn, Vd))
+#define SSHLL_32(Vd, Vn, imm)       EMIT(SHLL_vector(0, 0, 0b0100|(((imm)>>3)&3), (imm)&0x7, Vn, Vd))
+
+#define UXTL_8(Vd, Vn)              USHLL_8(Vd, Vn, 0)
+#define UXTL2_8(Vd, Vn)             USHLL2_8(Vd, Vn, 0)
+#define UXTL_16(Vd, Vn)             USHLL_16(Vd, Vn, 0)
+#define UXTL2_16(Vd, Vn)            USHLL2_16(Vd, Vn, 0)
+#define UXTL_32(Vd, Vn)             USHLL_32(Vd, Vn, 0)
+#define UXTL2_32(Vd, Vn)            USHLL2_32(Vd, Vn, 0)
+
+#define SXTL_8(Vd, Vn)              SSHLL_8(Vd, Vn, 0)
+#define SXTL2_8(Vd, Vn)             SSHLL2_8(Vd, Vn, 0)
+#define SXTL_16(Vd, Vn)             SSHLL_16(Vd, Vn, 0)
+#define SXTL2_16(Vd, Vn)            SSHLL2_16(Vd, Vn, 0)
+#define SXTL_32(Vd, Vn)             SSHLL_32(Vd, Vn, 0)
+#define SXTL2_32(Vd, Vn)            SSHLL2_32(Vd, Vn, 0)
 
 #endif  //__ARM64_EMITTER_H__

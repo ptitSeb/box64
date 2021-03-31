@@ -234,6 +234,25 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     VTBLQ1_8(q0, q0, d0);
                     break;
 
+                case 0x04:
+                    INST_NAME("PMADDUBSW Gx,Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    UXTL_8(v0, q0);   // this is unsigned, so 0 extended
+                    SXTL_8(v1, q1);   // this is signed
+                    VMULQ_16(v0, v0, v1);
+                    SADDLPQ_16(v1, v0);
+                    UXTL2_8(v0, q0);   // this is unsigned
+                    SQXTN_16(q0, v1);   // SQXTN reset the vector so need to grab the high part first
+                    SXTL2_8(v1, q1);   // this is signed
+                    VMULQ_16(v0, v0, v1);
+                    SADDLPQ_16(v0, v0);
+                    SQXTN2_16(q0, v0);
+                    break;
+
                 default:
                     DEFAULT;
             }
