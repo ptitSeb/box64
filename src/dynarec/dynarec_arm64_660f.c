@@ -1009,6 +1009,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q0, 0);
             VORRQ(v0, v0, q0);
             break;
+        case 0xEC:
+            INST_NAME("PADDSB Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            SQADDQ_8(v0, v0, q0);
+            break;
+        case 0xED:
+            INST_NAME("PADDSW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            SQADDQ_16(v0, v0, q0);
+            break;
 
         case 0xEF:
             INST_NAME("PXOR Gx,Ex");

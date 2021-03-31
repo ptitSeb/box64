@@ -1266,6 +1266,25 @@
 #define VMULQ_16(Vd, Vn, Vm)        EMIT(MUL_vector(1, 0b01, Vm, Vn, Vd))
 #define VMULQ_32(Vd, Vn, Vm)        EMIT(MUL_vector(1, 0b10, Vm, Vn, Vd))
 
+// (S/Q)ADD
+#define QADD_vector(Q, U, size, Rm, Rn, Rd) ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b00001<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define SQADDQ_8(Vd, Vn, Vm)        EMIT(QADD_vector(1, 0, 0b00, Vm, Vn, Vd))
+#define SQADDQ_16(Vd, Vn, Vm)       EMIT(QADD_vector(1, 0, 0b01, Vm, Vn, Vd))
+#define SQADDQ_32(Vd, Vn, Vm)       EMIT(QADD_vector(1, 0, 0b10, Vm, Vn, Vd))
+#define SQADDQ_64(Vd, Vn, Vm)       EMIT(QADD_vector(1, 0, 0b11, Vm, Vn, Vd))
+#define UQADDQ_8(Vd, Vn, Vm)        EMIT(QADD_vector(1, 1, 0b00, Vm, Vn, Vd))
+#define UQADDQ_16(Vd, Vn, Vm)       EMIT(QADD_vector(1, 1, 0b01, Vm, Vn, Vd))
+#define UQADDQ_32(Vd, Vn, Vm)       EMIT(QADD_vector(1, 1, 0b10, Vm, Vn, Vd))
+#define UQADDQ_64(Vd, Vn, Vm)       EMIT(QADD_vector(1, 1, 0b11, Vm, Vn, Vd))
+#define SQADD_8(Vd, Vn, Vm)         EMIT(QADD_vector(0, 0, 0b00, Vm, Vn, Vd))
+#define SQADD_16(Vd, Vn, Vm)        EMIT(QADD_vector(0, 0, 0b01, Vm, Vn, Vd))
+#define SQADD_32(Vd, Vn, Vm)        EMIT(QADD_vector(0, 0, 0b10, Vm, Vn, Vd))
+#define SQADD_64(Vd, Vn, Vm)        EMIT(QADD_vector(0, 0, 0b11, Vm, Vn, Vd))
+#define UQADD_8(Vd, Vn, Vm)         EMIT(QADD_vector(0, 1, 0b00, Vm, Vn, Vd))
+#define UQADD_16(Vd, Vn, Vm)        EMIT(QADD_vector(0, 1, 0b01, Vm, Vn, Vd))
+#define UQADD_32(Vd, Vn, Vm)        EMIT(QADD_vector(0, 1, 0b10, Vm, Vn, Vd))
+#define UQADD_64(Vd, Vn, Vm)        EMIT(QADD_vector(0, 1, 0b11, Vm, Vn, Vd))
+
 // Absolute Difference
 #define AD_vector(Q, U, size, Rm, ac, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b0111<<12 | (ac)<<11 | 1<<10 | (Rn)<<5 | (Rd))
 // Signed Absolute Difference and accumulate
