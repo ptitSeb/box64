@@ -452,6 +452,27 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             SQXTUN_8(v0, q0);
             break;
+        case 0x68:
+            INST_NAME("PUNPCKHBW Gm,Em");
+            nextop = F8;
+            GETGM(q0);
+            GETEM(q1, 1);
+            VZIP2_8(q0, q0, q1);
+            break;
+        case 0x69:
+            INST_NAME("PUNPCKHWD Gm,Em");
+            nextop = F8;
+            GETGM(q0);
+            GETEM(q1, 1);
+            VZIP2_16(q0, q0, q1);
+            break;
+        case 0x6A:
+            INST_NAME("PUNPCKHDQ Gm,Em");
+            nextop = F8;
+            GETGM(q0);
+            GETEM(q1, 1);
+            VZIP2_32(q0, q0, q1);
+            break;
 
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
