@@ -1392,4 +1392,19 @@
 #define SXTL_32(Vd, Vn)             SSHLL_32(Vd, Vn, 0)
 #define SXTL2_32(Vd, Vn)            SSHLL2_32(Vd, Vn, 0)
 
+// SHRN
+#define QSHRN_vector(Q, U, immh, immb, op, Rn, Rd)  ((Q)<<30 | (U)<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b1001<<12 | (op)<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define UQSHRN_8(Vd, Vn, imm)       EMIT(QSHRN_vector(0, 1, 0b0001, (8-(imm))&0x7, 0, Vn, Vd))
+#define UQSHRN2_8(Vd, Vn, imm)      EMIT(QSHRN_vector(1, 1, 0b0001, (8-(imm))&0x7, 0, Vn, Vd))
+#define SQSHRN_8(Vd, Vn, imm)       EMIT(QSHRN_vector(0, 0, 0b0001, (8-(imm))&0x7, 0, Vn, Vd))
+#define SQSHRN2_8(Vd, Vn, imm)      EMIT(QSHRN_vector(1, 0, 0b0001, (8-(imm))&0x7, 0, Vn, Vd))
+#define UQSHRN_16(Vd, Vn, imm)      EMIT(QSHRN_vector(0, 1, 0b0010|(((16-(imm))>>3)&1), (16-(imm))&0x7, 0, Vn, Vd))
+#define UQSHRN2_16(Vd, Vn, imm)     EMIT(QSHRN_vector(1, 1, 0b0010|(((16-(imm))>>3)&1), (16-(imm))&0x7, 0, Vn, Vd))
+#define SQSHRN_16(Vd, Vn, imm)      EMIT(QSHRN_vector(0, 0, 0b0010|(((16-(imm))>>3)&1), (16-(imm))&0x7, 0, Vn, Vd))
+#define SQSHRN2_16(Vd, Vn, imm)     EMIT(QSHRN_vector(1, 0, 0b0010|(((16-(imm))>>3)&1), (16-(imm))&0x7, 0, Vn, Vd))
+#define UQSHRN_32(Vd, Vn, imm)      EMIT(QSHRN_vector(0, 1, 0b0100|(((32-(imm))>>3)&3), (32-(imm))&0x7, 0, Vn, Vd))
+#define UQSHRN2_32(Vd, Vn, imm)     EMIT(QSHRN_vector(1, 1, 0b0100|(((32-(imm))>>3)&3), (32-(imm))&0x7, 0, Vn, Vd))
+#define SQSHRN_32(Vd, Vn, imm)      EMIT(QSHRN_vector(0, 0, 0b0100|(((32-(imm))>>3)&3), (32-(imm))&0x7, 0, Vn, Vd))
+#define SQSHRN2_32(Vd, Vn, imm)     EMIT(QSHRN_vector(1, 0, 0b0100|(((32-(imm))>>3)&3), (32-(imm))&0x7, 0, Vn, Vd))
+
 #endif  //__ARM64_EMITTER_H__

@@ -1002,6 +1002,19 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VBICQ(v0, q0, v0);
             break;
 
+        case 0xE4:
+            INST_NAME("PMULHUW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VUMULL_16(q0, v0, v1);
+            VUMULL2_16(q1, v0, v1);
+            UQSHRN_16(v0, q0, 16);
+            UQSHRN2_16(v0, q1, 16);
+            break;
+
         case 0xEB:
             INST_NAME("POR Gx,Ex");
             nextop = F8;
