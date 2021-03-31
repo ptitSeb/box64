@@ -204,6 +204,69 @@ int Run0F(x64emu_t *emu, rex_t rex)
             CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
             break;
 
+        case 0x38:  // these are some SSE3 opcodes
+            opcode = F8;
+            switch(opcode) {
+                case 0x00:  /* PSHUFB */
+                    nextop = F8;
+                    GETEM(0);
+                    GETGM;
+                    eam1 = *GM;
+                    for (int i=0; i<8; ++i) {
+                        if(EM->ub[i]&128)
+                            GM->ub[i] = 0;
+                        else
+                            GM->ub[i] = eax1.ub[EM->ub[i]&7];
+                    }
+                    break;
+                case 0x04:  /* PMADDUBSW Gm,Em */
+                    nextop = F8;
+                    GETEM(0);
+                    GETGM;
+                    for (int i=0; i<4; ++i) {
+                        tmp32s = (int32_t)(GM->ub[i*2+0])*EM->sb[i*2+0] + (int32_t)(GM->ub[i*2+1])*EM->sb[i*2+1];
+                        GM->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+                    }
+                    break;
+                case 0x0B:  /* PMULHRSW Gm, Em */
+                    nextop = F8;
+                    GETEM(0);
+                    GETGM;
+                    for (int i=0; i<4; ++i) {
+                        tmp32s = ((((int32_t)(GM->sw[i])*(int32_t)(EM->sw[i]))>>14) + 1)>>1;
+                        GM->uw[i] = tmp32s&0xffff;
+                    }
+                    break;
+
+                case 0x1C:  /* PABSB Gm, Em */
+                    nextop = F8;
+                    GETEM(0);
+                    GETGM;
+                    for (int i=0; i<8; ++i) {
+                        GM->sb[i] = abs(EM->sb[i]);
+                    }
+                    break;
+                case 0x1D:  /* PABSW Gm, Em */
+                    nextop = F8;
+                    GETEM(0);
+                    GETGM;
+                    for (int i=0; i<4; ++i) {
+                        GM->sw[i] = abs(EM->sw[i]);
+                    }
+                    break;
+                case 0x1E:  /* PABSD Gm, Em */
+                    nextop = F8;
+                    GETEM(0);
+                    GETGM;
+                    for (int i=0; i<2; ++i) {
+                        GM->sd[i] = abs(EM->sd[i]);
+                    }
+                    break;
+
+                default:
+                    return 1;
+            }
+            break;
 
         GOCOND(0x40
             , nextop = F8;
