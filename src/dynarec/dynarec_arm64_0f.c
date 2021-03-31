@@ -388,6 +388,34 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             VFMAXQD(v0, v0, v1);
             break;
 
+        case 0x6E:
+            INST_NAME("MOVD Gm, Ed");
+            nextop = F8;
+            GETED(0);
+            gd = (nextop&0x38)>>3;
+            v0 = mmx_get_reg_empty(dyn, ninst, x3, gd);
+            if(rex.w) {
+                VMOVQDfrom(v0, 0, ed);
+            } else {
+                VEOR(v0, v0, v0);
+                VMOVQSfrom(v0, 0, ed);
+            }
+            break;
+        case 0x6F:
+            INST_NAME("MOVQ Gm, Em");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v1 = mmx_get_reg(dyn, ninst, x1, nextop&7); // no rex.b on MMX
+                v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVeD(v0, 0, v1, 0);
+            } else {
+                v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                VLD1_64(v0, 0, ed);
+            }
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)   \
             READFLAGS(F);   \
             i32_ = F32S;    \
