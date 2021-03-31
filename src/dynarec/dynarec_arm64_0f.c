@@ -436,6 +436,22 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             VZIP1_32(d0, d0, d1);
             break;
 
+        case 0x67:
+            INST_NAME("PACKUSWB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            q0 = fpu_get_scratch(dyn);
+            VMOVeD(q0, 0, v0, 0);
+            if(MODREG) {
+                v1 = mmx_get_reg(dyn, ninst, x1, (nextop&7));
+                VMOVeD(q0, 1, v1, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                VLD1_64(q0, 1, ed);
+            }
+            SQXTUN_8(v0, q0);
+            break;
+
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
             nextop = F8;
@@ -464,6 +480,57 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x71:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLW Em, Ib");
+                    GETEM(q0, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if (u8>15) {
+                            VEOR(q0, q0, q0);
+                        } else if(u8) {
+                            VSHR_16(q0, q0, u8);
+                        }
+                        if(!MODREG) {
+                            VSTR64_U12(q0, ed, fixedaddress);
+                        }
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAW Ex, Ib");
+                    GETEM(q0, 1);
+                    u8 = F8;
+                    if(u8>15) u8=15;
+                    if(u8) {
+                        VSSHR_16(q0, q0, u8);
+                    }
+                    if(!MODREG) {
+                        VSTR64_U12(q0, ed, fixedaddress);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLW Ex, Ib");
+                    GETEM(q0, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if (u8>15) {
+                            VEOR(q0, q0, q0);
+                        } else {
+                            VSHL_16(q0, q0, u8);
+                        }
+                        if(!MODREG) {
+                            VSTR64_U12(q0, ed, fixedaddress);
+                        }
+                    }
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
+            
         #define GO(GETFLAGS, NO, YES, F)   \
             READFLAGS(F);   \
             i32_ = F32S;    \

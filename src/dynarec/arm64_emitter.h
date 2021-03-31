@@ -704,7 +704,7 @@
 #define VSHLQ_32(Vd, Vn, shift)             EMIT(SHL_vector(1, 0b0100 | (((shift)>>3)&3), (shift)&7, Vn, Vd))
 #define VSHLQ_64(Vd, Vn, shift)             EMIT(SHL_vector(1, 0b1000 | (((shift)>>3)&7), (shift)&7, Vn, Vd))
 #define VSHL_8(Vd, Vn, shift)               EMIT(SHL_vector(0, 0b0001, (shift)&7, Vn, Vd))
-#define VSHL_16(Vd, Vn, shift)              EMIT(SHL_vector(0, 0b0010 | ((shift)>>3)&1, (shift)&7, Vn, Vd))
+#define VSHL_16(Vd, Vn, shift)              EMIT(SHL_vector(0, 0b0010 | (((shift)>>3)&1), (shift)&7, Vn, Vd))
 #define VSHL_32(Vd, Vn, shift)              EMIT(SHL_vector(0, 0b0100 | (((shift)>>3)&3), (shift)&7, Vn, Vd))
 
 #define SHR_vector(Q, U, immh, immb, Rn, Rd)  ((Q)<<30 | (U)<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b00000<<11 | 1<<10 | (Rn)<<5 | (Rd))
