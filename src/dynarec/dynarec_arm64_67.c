@@ -26,6 +26,9 @@
 uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
+    uint8_t nextop;
+    uint8_t gd, ed;
+    int fixedaddress;
     int8_t  i8;
     int32_t i32, j32;
     MAYUSE(j32);
@@ -39,6 +42,21 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     }
 
     switch(opcode) {
+
+        case 0x8D:
+            INST_NAME("LEA Gd, Ed");
+            nextop=F8;
+            GETGD;
+            if(MODREG) {   // reg <= reg? that's an invalid operation
+                DEFAULT;
+            } else {                    // mem <= reg
+                // should a geted32 be created, to use 32bits regs instead of 64bits?
+                addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0, rex, 0, 0);
+                if(ed>=xRAX && !rex.w) {
+                    MOVw_REG(gd, gd);   //truncate the higher 32bits as asked
+                }
+            }
+            break;
 
         #define GO(NO, YES)   \
             BARRIER(2); \
