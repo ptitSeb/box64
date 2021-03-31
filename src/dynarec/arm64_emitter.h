@@ -1256,6 +1256,12 @@
 #define VUMULL2_8(Rd, Rn, Rm)       EMIT(MULL_vector(1, 1, 0b00, Rm, Rn, Rd))
 #define VUMULL2_16(Rd, Rn, Rm)      EMIT(MULL_vector(1, 1, 0b01, Rm, Rn, Rd))
 #define VUMULL2_32(Rd, Rn, Rm)      EMIT(MULL_vector(1, 1, 0b10, Rm, Rn, Rd))
+#define VSMULL_8(Rd, Rn, Rm)        EMIT(MULL_vector(0, 0, 0b00, Rm, Rn, Rd))
+#define VSMULL_16(Rd, Rn, Rm)       EMIT(MULL_vector(0, 0, 0b01, Rm, Rn, Rd))
+#define VSMULL_32(Rd, Rn, Rm)       EMIT(MULL_vector(0, 0, 0b10, Rm, Rn, Rd))
+#define VSMULL2_8(Rd, Rn, Rm)       EMIT(MULL_vector(1, 0, 0b00, Rm, Rn, Rd))
+#define VSMULL2_16(Rd, Rn, Rm)      EMIT(MULL_vector(1, 0, 0b01, Rm, Rn, Rd))
+#define VSMULL2_32(Rd, Rn, Rm)      EMIT(MULL_vector(1, 0, 0b10, Rm, Rn, Rd))
 
 // MUL
 #define MUL_vector(Q, size, Rm, Rn, Rd)     ((Q)<<30 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b10011<<11 | 1<<10 | (Rn)<<5 | (Rd))

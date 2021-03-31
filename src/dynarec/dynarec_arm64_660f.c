@@ -1049,6 +1049,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             UQSHRN_16(v0, q0, 16);
             UQSHRN2_16(v0, q1, 16);
             break;
+        case 0xE5:
+            INST_NAME("PMULHW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VSMULL_16(q0, v0, v1);
+            VSMULL2_16(q1, v0, v1);
+            SQSHRN_16(v0, q0, 16);
+            SQSHRN2_16(v0, q1, 16);
+            break;
 
         case 0xE8:
             INST_NAME("PSUBSB Gx,Ex");
