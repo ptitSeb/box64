@@ -1272,6 +1272,28 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             VMOVeD(q0, 0, d1, 0);
             break;
 
+        case 0xFC:
+            INST_NAME("PADDB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VADD_8(v0, v0, v1);
+            break;
+        case 0xFD:
+            INST_NAME("PADDW Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VADD_16(v0, v0, v1);
+            break;
+        case 0xFE:
+            INST_NAME("PADDD Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VADD_32(v0, v0, v1);
+            break;
+
         default:
             DEFAULT;
     }
