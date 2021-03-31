@@ -1094,6 +1094,34 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xC4:
+            INST_NAME("PINSRW Gm,Ed,Ib");
+            nextop = F8;
+            GETGM(v0);
+            if(MODREG) {
+                u8 = (F8)&3;
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                VMOVQHfrom(v0, u8, ed);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 1);
+                u8 = (F8)&3;
+                VLD1_16(v0, u8, wback);
+            }
+            break;
+        case 0xC5:
+            INST_NAME("PEXTRW Gd,Em,Ib");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                GETEM(v0, 1);
+                u8 = (F8)&3;
+                VMOVHto(gd, v0, u8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 1);
+                u8 = (F8)&3;
+                LDRH_U12(gd, wback, u8*2);
+            }
+            break;
         case 0xC6:
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
