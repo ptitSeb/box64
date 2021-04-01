@@ -154,7 +154,7 @@ GOW(closedir, iFp)
 GO(closelog, vFv)
 //GO(__close_nocancel, 
 //GO(__cmsg_nxthdr, 
-//GO(confstr, 
+GO(confstr, LFipL)
 //GO(__confstr_chk, 
 GOW(__connect, iFipu)
 GOW(connect, iFipu)
@@ -199,7 +199,7 @@ GOM(__cxa_finalize, vFEp)
 //GO(__dgettext, 
 //GOW(dgettext, 
 GO(difftime, dFLL)
-//GO(dirfd, 
+GO(dirfd, iFp)
 GO(dirname, pFp)
 GO(div, UFii)
 //GO(_dl_addr, 
@@ -302,7 +302,7 @@ GOW(_Exit, vFi)
 //GO(fanotify_mark, 
 //GO(fattach, 
 //GO(__fbufsize, 
-//GOW(fchdir, 
+GOW(fchdir, iFi)
 //GO(fchflags, 
 GOW(fchmod, iFiu)
 GO(fchmodat, iFipui)

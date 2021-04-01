@@ -338,6 +338,7 @@ void lFlpi(x64emu_t *emu, uintptr_t fnc);
 void lFppi(x64emu_t *emu, uintptr_t fnc);
 void lFppL(x64emu_t *emu, uintptr_t fnc);
 void lFSpl(x64emu_t *emu, uintptr_t fnc);
+void LFipL(x64emu_t *emu, uintptr_t fnc);
 void LFLLi(x64emu_t *emu, uintptr_t fnc);
 void LFLLI(x64emu_t *emu, uintptr_t fnc);
 void LFLpu(x64emu_t *emu, uintptr_t fnc);
