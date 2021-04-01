@@ -43,6 +43,21 @@ int Run67(x64emu_t *emu, rex_t rex)
 
     switch(opcode) {
 
+    case 0x89:                    /* MOV Ed,Gd */
+        nextop = F8;
+        GETED32(0);
+        GETGD;
+        if(rex.w) {
+            ED->q[0] = GD->q[0];
+        } else {
+            //if ED is a reg, than the opcode works like movzx
+            if(MODREG)
+                ED->q[0] = GD->dword[0];
+            else
+                ED->dword[0] = GD->dword[0];
+        }
+        break;
+
     case 0x8D:                      /* LEA Gd,M */
         nextop = F8;
         GETED32(0);
