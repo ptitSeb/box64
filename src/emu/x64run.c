@@ -325,7 +325,7 @@ x64emurun:
                 tmp32s = F8S;
             }
             if(rex.w) {
-                tmp64u = (uint64_t)tmp32s;
+                tmp64u = (uint64_t)(int64_t)tmp32s;
                 switch((nextop>>3)&7) {
                     case 0: ED->q[0] = add64(emu, ED->q[0], tmp64u); break;
                     case 1: ED->q[0] =  or64(emu, ED->q[0], tmp64u); break;
