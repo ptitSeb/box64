@@ -801,6 +801,11 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 case 3:                 /* STMXCSR Md */
                     ED->dword[0] = emu->mxcsr;
                     break;
+                case 7:                 /* CLFLUSH Ed */
+                    #ifdef DYNAREC
+                    cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
+                    #endif
+                    break;
                 default:
                     return 1;
             }
