@@ -55,7 +55,7 @@ int Run67(x64emu_t *emu, rex_t rex)
 
     case 0xC1:                      /* GRP2 Ed,Ib */
         nextop = F8;
-        GETED(1);
+        GETED32(1);
         tmp8u = F8/* & 0x1f*/; // masking done in each functions
         if(rex.w) {
             switch((nextop>>3)&7) {
