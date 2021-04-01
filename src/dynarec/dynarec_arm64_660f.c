@@ -374,6 +374,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VFCVTNSQS(v0, v1);
             #endif
             break;
+        case 0x5C:
+            INST_NAME("SUBPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VFSUBQD(v0, v0, q0);
+            break;
 
         case 0x60:
             INST_NAME("PUNPCKLBW Gx,Ex");
