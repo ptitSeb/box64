@@ -975,7 +975,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0, rex, 0, 0);
                 if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                     MOVxw_REG(gd, ed);
-                } else if(ed>=xRAX && !rex.w) {
+                }
+                else if(!rex.w) {
                     MOVw_REG(gd, gd);   //truncate the higher 32bits as asked
                 }
             }
