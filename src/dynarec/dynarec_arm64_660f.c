@@ -1196,7 +1196,17 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VUZP1Q_32(q1, v1, v1);
             VUMULL_32(v0, q0, q1);
             break;
-
+        case 0xF5:
+            INST_NAME("PMADDWD Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VSMULL_16(q0, v0, v1);
+            VSMULL2_16(q1, v0, v1);
+            VADDPQ_32(v0, q0, q1);
+            break;
         case 0xF6:
             INST_NAME("PSADBW Gx, Ex");
             nextop = F8;
