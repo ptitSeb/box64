@@ -997,6 +997,26 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 LDRH_U12(gd, wback, u8*2);
             }
             break;
+        case 0xC6:
+            INST_NAME("SHUFPD Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 1);
+            u8 = F8;
+            if(v0==v1 && u8==0) {
+                VMOVeD(v0, 1, v0, 0);
+            } else {
+                if(v0==v1)
+                    q0 = fpu_get_scratch(dyn);
+                else
+                    q0 = v0;
+                VMOVeD(q0, 0, v0, (u8&1));
+                VMOVeD(q0, 1, v1, ((u8>>1)&1));
+                if(v0==v1) {
+                    VMOVQ(v0, q0);
+                }
+            }
+            break;
 
 
         case 0xD4:
