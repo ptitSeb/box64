@@ -1910,11 +1910,11 @@ GOM(swapcontext, iFEpp) //Weak
 GOM(swprintf, iFEpLpV)
 GOM(__swprintf_chk, iFEpLiLpV)
 //GO(swscanf, 
-//GOW(symlink, 
-//GO(symlinkat, 
-//GO(sync, 
+GOW(symlink, iFpp)
+GO(symlinkat, iFpip)
+GO(sync, vFv)
 //GO(sync_file_range, 
-//GO(syncfs, 
+GO(syncfs, iFi)
 GOM(syscall, LFEv)
 GO(__sysconf, lFi)
 GOW(sysconf, lFi)
