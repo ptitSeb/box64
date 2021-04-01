@@ -182,6 +182,9 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             ADDw_REG(ret, ret, xRIP);
         } else {
             ret = xRAX+(nextop&7)+(rex.b<<3);
+            if(ret==hint) {
+                MOVw_REG(hint, ret);    //to clear upper part
+            }
         }
     } else {
         int64_t i64;
@@ -203,8 +206,9 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 } else {
                     ret = xRAX+(sib&0x07)+(rex.b<<3);
                 }
-            } else
+            } else {
                 ret = xRAX+(nextop&0x07)+(rex.b<<3);
+            }
         } else {
             int64_t sub = (i64<0)?1:0;
             if(sub) i64 = -i64;
