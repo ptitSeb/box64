@@ -902,7 +902,6 @@ x64emurun:
             else
                 emu->regs[(opcode&7)+(rex.b<<3)].q[0] = F32;
             break;
-
         case 0xC0:                      /* GRP2 Eb,Ib */
             nextop = F8;
             GETEB(1);
@@ -1258,7 +1257,6 @@ x64emurun:
                 }
             }
             break;
-
         case 0xF8:                      /* CLC */
             CHECK_FLAGS(emu);
             CLEAR_FLAG(F_CF);
