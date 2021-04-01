@@ -642,11 +642,9 @@ GOW(getwc, uFp)
 //GO(__getwd_chk, 
 //GO(getxattr, 
 //GO(glob, 
-//GO(glob, 
-//GO(glob64, 
-//GO(glob64, 
+GO(glob64, iFEpipp)
 //GO(globfree, 
-//GOW(globfree64, 
+GOW(globfree64, vFp)
 //GOW(glob_pattern_p, 
 GO(gmtime, pFp)
 GO(__gmtime_r, pFpp)

@@ -211,7 +211,6 @@ static void* findnftw64Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc nftw64 callback\n");
     return NULL;
 }
-#if 0
 // globerr
 #define GO(A)   \
 static uintptr_t my_globerr_fct_##A = 0;                                        \
@@ -235,6 +234,7 @@ static void* findgloberrFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc globerr callback\n");
     return NULL;
 }
+#if 0
 #undef dirent
 // filter_dir
 #define GO(A)   \
@@ -1450,11 +1450,11 @@ EXPORT int32_t my_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
     return f(pat, flags, findgloberrFct(errfnc), pglob);
 }
 
+#endif
 EXPORT int32_t my_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
     return glob64(pat, flags, findgloberrFct(errfnc), pglob);
 }
-#endif
 EXPORT int my_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
     return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
