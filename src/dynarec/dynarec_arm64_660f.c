@@ -1142,6 +1142,31 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             SQSHRN_16(v0, q0, 16);
             SQSHRN2_16(v0, q1, 16);
             break;
+        case 0xE6:
+            INST_NAME("CVTPD2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(v1, 0);
+            GETGX_empty(v0);
+            #ifdef PRECISE_CVT
+            LDRH_U12(x1, xEmu, offsetof(x64emu_t, mxcsr));
+            UBFXx(x1, x1, 13, 2);   // extract round requested
+            LSLx_REG(x1, x1, 3);
+            ADDx_U12(x1, x1, 8);    // add the actual add+jump opcodes
+            // Construct a "switch case", with each case 2 instructions, so 8 bytes
+            BL(+4); // Branch with Link to next, so LR gets next PC address
+            ADDx_REG(xLR, xLR, x1);
+            B(xLR); // could use RET, but it's not really one
+            VFCVTNSQD(v0, v1);  // 0: Nearest (even)
+            B_NEXT_nocond;
+            VFCVTMSQD(v0, v1);  // 1: Toward -inf
+            B_NEXT_nocond;
+            VFCVTPSQD(v0, v1);  // 2: Toward +inf
+            B_NEXT_nocond;
+            VFCVTZSQD(v0, v1);  // 3: Toward 0
+            #else
+            VFCVTNSQD(v0, v1);
+            #endif
+            break;
 
         case 0xE8:
             INST_NAME("PSUBSB Gx,Ex");
