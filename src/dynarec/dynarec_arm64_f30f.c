@@ -264,8 +264,8 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             // only high part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits
             u64 = 0;
             for (int i=0; i<4; ++i) {
-                u64 |= ((uint64_t)((u8>>(i*2))&3)*2+0)<<(i*16+0);
-                u64 |= ((uint64_t)((u8>>(i*2))&3)*2+1)<<(i*16+8);
+                u64 |= ((uint64_t)((u8>>(i*2))&3)*2+8)<<(i*16+0);
+                u64 |= ((uint64_t)((u8>>(i*2))&3)*2+9)<<(i*16+8);
             }
             MOV64x(x2, u64);
             d0 = fpu_get_scratch(dyn);
