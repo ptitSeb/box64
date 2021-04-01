@@ -456,7 +456,7 @@ EXPORTDYN
 void LoadEnvVars(box64context_t *context)
 {
     // check BOX64_LD_LIBRARY_PATH and load it
-    LoadEnvPath(&context->box64_ld_lib, ".:lib:lib64:x86_64:bin64", "BOX64_LD_LIBRARY_PATH");
+    LoadEnvPath(&context->box64_ld_lib, ".:lib:lib64:x86_64:bin64:libs64", "BOX64_LD_LIBRARY_PATH");
     if(FileExist("/lib/x86_64-linux-gnu", 0))
         AddPath("/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
     if(FileExist("/usr/lib/x86_64-linux-gnu", 0))
