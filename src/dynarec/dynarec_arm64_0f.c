@@ -331,6 +331,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
         
+        case 0x51:
+            INST_NAME("SQRTPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX_empty(v0);
+            VFSQRTQS(v0, q0);
+            break;
+
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
             nextop = F8;
