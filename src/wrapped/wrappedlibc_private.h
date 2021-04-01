@@ -305,7 +305,7 @@ GOW(_Exit, vFi)
 //GOW(fchdir, 
 //GO(fchflags, 
 GOW(fchmod, iFiu)
-//GO(fchmodat, 
+GO(fchmodat, iFipui)
 GOW(fchown, iFiuu)
 //GO(fchownat, 
 GO(fclose, iFp)
