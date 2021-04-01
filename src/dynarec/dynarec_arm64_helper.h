@@ -575,6 +575,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F30F     STEPNAME(dynarec64_F30F)
 
 #define geted           STEPNAME(geted_)
+#define geted32         STEPNAME(geted32_)
 #define geted16         STEPNAME(geted16_)
 #define jump_to_epilog  STEPNAME(jump_to_epilog_)
 #define jump_to_next    STEPNAME(jump_to_next_)
@@ -683,6 +684,9 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta);
+
+/* setup r2 to address pointed by */
+uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta);
 
 /* setup r2 to address pointed by */
 uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, int s);

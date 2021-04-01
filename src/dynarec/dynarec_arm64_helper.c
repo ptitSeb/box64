@@ -140,6 +140,121 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
     return addr;
 }
 
+/* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
+uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta)
+{
+    uint8_t ret = x2;
+    uint8_t scratch = x2;
+    *fixaddress = 0;
+    if(hint>0) ret = hint;
+    if(hint>0 && hint<xRAX) scratch = hint;
+    int absmin = 0;
+    if(s) absmin=-absmax;
+    MAYUSE(scratch);
+    if(!(nextop&0xC0)) {
+        if((nextop&7)==4) {
+            uint8_t sib = F8;
+            int sib_reg = ((sib>>3)&7)+(rex.x<<3);
+            if((sib&0x7)==5) {
+                uint32_t tmp = F32;
+                if (sib_reg!=4) {
+                    if(tmp && ((tmp<absmin) || (tmp>absmax) || (tmp&mask))) {
+                        MOV32w(scratch, tmp);
+                        ADDw_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
+                    } else {
+                        LSLw(ret, xRAX+sib_reg, (sib>>6));
+                        *fixaddress = tmp;
+                    }
+                } else {
+                    MOV32w(ret, tmp);
+                }
+            } else {
+                if (sib_reg!=4) {
+                    ADDw_REG_LSL(ret, xRAX+(sib&0x7)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
+                } else {
+                    ret = xRAX+(sib&0x7)+(rex.b<<3);
+                }
+            }
+        } else if((nextop&7)==5) {
+            uint32_t tmp = F32;
+            MOV32w(ret, tmp);
+            GETIP(addr+delta);
+            ADDw_REG(ret, ret, xRIP);
+        } else {
+            ret = xRAX+(nextop&7)+(rex.b<<3);
+        }
+    } else {
+        int64_t i64;
+        uint8_t sib = 0;
+        int sib_reg = 0;
+        if((nextop&7)==4) {
+            sib = F8;
+            sib_reg = ((sib>>3)&7)+(rex.x<<3);
+        }
+        if(nextop&0x80)
+            i64 = F32S;
+        else 
+            i64 = F8S;
+        if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask))) {
+            *fixaddress = i64;
+            if((nextop&7)==4) {
+                if (sib_reg!=4) {
+                    ADDw_REG_LSL(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
+                } else {
+                    ret = xRAX+(sib&0x07)+(rex.b<<3);
+                }
+            } else
+                ret = xRAX+(nextop&0x07)+(rex.b<<3);
+        } else {
+            int64_t sub = (i64<0)?1:0;
+            if(sub) i64 = -i64;
+            if(i64<0x1000) {
+                if((nextop&7)==4) {
+                    if (sib_reg!=4) {
+                        ADDw_REG_LSL(scratch, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
+                    } else {
+                        scratch = xRAX+(sib&0x07)+(rex.b<<3);
+                    }
+                } else
+                    scratch = xRAX+(nextop&0x07)+(rex.b<<3);
+                if(sub) {
+                    SUBw_U12(ret, scratch, i64);
+                } else {
+                    ADDw_U12(ret, scratch, i64);
+                }
+            } else {
+                MOV32w(scratch, i64);
+                if((nextop&7)==4) {
+                    if (sib_reg!=4) {
+                        if(sub) {
+                            SUBw_REG(scratch, xRAX+(sib&0x07)+(rex.b<<3), scratch);
+                        } else {
+                            ADDw_REG(scratch, scratch, xRAX+(sib&0x07)+(rex.b<<3));
+                        }
+                        ADDw_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
+                    } else {
+                        PASS3(int tmp = xRAX+(sib&0x07)+(rex.b<<3));
+                        if(sub) {
+                            SUBw_REG(ret, tmp, scratch);
+                        } else {
+                            ADDw_REG(ret, tmp, scratch);
+                        }
+                    }
+                } else {
+                    PASS3(int tmp = xRAX+(nextop&0x07)+(rex.b<<3));
+                    if(sub) {
+                        SUBw_REG(ret, tmp, scratch);
+                    } else {
+                        ADDw_REG(ret, tmp, scratch);
+                    }
+                }
+            }
+        }
+    }
+    *ed = ret;
+    return addr;
+}
+
 /* setup r2 to address pointed by ED, r3 as scratch also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
 uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, int s)
 {

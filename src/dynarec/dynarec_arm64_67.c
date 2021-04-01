@@ -41,9 +41,6 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         opcode = F8;
     }
 
-    if(rex.w)   // rex.w cancels "67"
-        return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
-
     switch(opcode) {
 
         case 0x8D:
@@ -54,9 +51,9 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 DEFAULT;
             } else {                    // mem <= reg
                 // should a geted32 be created, to use 32bits regs instead of 64bits?
-                addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0, rex, 0, 0);
-                if(ed>=xRAX && !rex.w) {
-                    MOVw_REG(gd, gd);   //truncate the higher 32bits as asked
+                addr = geted32(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0, rex, 0, 0);
+                if(ed!=gd) {
+                    MOVw_REG(gd, ed);
                 }
             }
             break;
