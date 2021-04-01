@@ -328,7 +328,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0);
             VEORQ(v0, v0, q0);
             break;
-
+        case 0x58:
+            INST_NAME("ADDPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VFADDQD(v0, v0, q0);
+            break;
+        case 0x59:
+            INST_NAME("MULPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VFMULQD(v0, v0, q0);
+            break;
         case 0x5A:
             INST_NAME("CVTPD2PS Gx, Ex");
             nextop = F8;
