@@ -1100,7 +1100,7 @@ GO(__madvise, iFpLi)
 GOW(madvise, iFpLi)
 GOM(makecontext, iFEppiV)   //weak
 //GOW(mallinfo, 
-GO(malloc, pFL) // need to wrap to clear allocated memory?
+GOM(malloc, pFL) // need to wrap to clear allocated memory?
 //GO(malloc_get_state, 
 //GOW(malloc_info, 
 //GO(malloc_set_state, 

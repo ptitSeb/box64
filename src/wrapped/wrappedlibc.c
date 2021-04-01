@@ -2092,15 +2092,12 @@ EXPORT int my_nanosleep(const struct timespec *req, struct timespec *rem)
         return 0;   // workaround for some strange calls
     return nanosleep(req, rem);
 }
-
-#ifndef NOALIGN
-// wrapped malloc using calloc, it seems x86 malloc set alloc'd block to zero somehow
+#endif
 EXPORT void* my_malloc(unsigned long size)
 {
     return calloc(1, size);
 }
-#endif
-
+#if 0
 #ifdef PANDORA
 #define RENAME_NOREPLACE	(1 << 0)
 #define RENAME_EXCHANGE		(1 << 1)
