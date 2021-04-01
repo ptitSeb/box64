@@ -282,6 +282,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             FCOMI(x1, x2);
             break;
 
+        case 0x31:
+            INST_NAME("RDTSC");
+            CALL(ReadTSC, xRAX);   // will return the u64 in xEAX
+            LSRx(xRDX, xRAX, 32);
+            MOVw_REG(xRAX, xRAX);   // wipe upper part
+            break;
+
         case 0x38:
             //SSE3
             nextop=F8;

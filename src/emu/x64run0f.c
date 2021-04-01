@@ -204,6 +204,12 @@ int Run0F(x64emu_t *emu, rex_t rex)
             CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
             break;
 
+        case 0x31:                   /* RDTSC */
+            tmp64u = ReadTSC(emu);
+            R_RDX = tmp64u>>32;
+            R_RAX = tmp64u&0xFFFFFFFF;
+            break;
+
         case 0x38:  // these are some SSE3 opcodes
             opcode = F8;
             switch(opcode) {
