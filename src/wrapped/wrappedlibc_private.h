@@ -315,7 +315,7 @@ GOM(fcntl, iFEiiN)      //Weak
 GOM(fcntl64, iFEiiN)    //Weak
 //GO(fcvt, 
 //GOW(fcvt_r, 
-//GO(fdatasync, 
+GO(fdatasync, iFi)
 GO(__fdelt_chk, LFL)
 //GO(__fdelt_warn, 
 //GO(fdetach, 
