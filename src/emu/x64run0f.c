@@ -216,7 +216,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                         if(EM->ub[i]&128)
                             GM->ub[i] = 0;
                         else
-                            GM->ub[i] = eax1.ub[EM->ub[i]&7];
+                            GM->ub[i] = eam1.ub[EM->ub[i]&7];
                     }
                     break;
                 case 0x04:  /* PMADDUBSW Gm,Em */
@@ -549,20 +549,19 @@ int Run0F(x64emu_t *emu, rex_t rex)
         case 0x71:  /* GRP */
             nextop = F8;
             GETEM(1);
+            tmp8u = F8;
             switch((nextop>>3)&7) {
                 case 2:                 /* PSRLW Em, Ib */
-                    tmp8u = F8;
                     if(tmp8u>15)
                         {EM->q = 0;}
                     else
                         for (int i=0; i<4; ++i) EM->uw[i] >>= tmp8u;
                     break;
                 case 4:                 /* PSRAW Em, Ib */
-                    tmp8u = F8;
+                    if(tmp8u>15) tmp8u = 15;
                     for (int i=0; i<4; ++i) EM->sw[i] >>= tmp8u;
                     break;
                 case 6:                 /* PSLLW Em, Ib */
-                    tmp8u = F8;
                     if(tmp8u>15)
                         {EM->q = 0;}
                     else
@@ -656,8 +655,12 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETGM;
             if(rex.w)
                 ED->q[0] = GM->q;
-            else
-                ED->q[0] = GM->ud[0];
+            else {
+                if(MODREG)
+                    ED->q[0] = GM->ud[0];
+                else
+                    ED->dword[0] = GM->ud[0];
+            }
             break;
         case 0x7F:                      /* MOVQ Em, Gm */
             nextop = F8;
@@ -1333,7 +1336,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETEM(0);
             GETGM;
             for(int i=0; i<4; ++i) {
-                tmp32u = (int32_t)GM->uw[i] * EM->uw[i];
+                tmp32u = (uint32_t)GM->uw[i] * (uint32_t)EM->uw[i];
                 GM->uw[i] = (tmp32u>>16)&0xffff;
             }
             break;
@@ -1342,8 +1345,8 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETEM(0);
             GETGM;
             for(int i=0; i<4; ++i) {
-                tmp32s = (int32_t)GM->sw[i] * EM->sw[i];
-                GM->uw[i] = (tmp32s>>16)&0xffff;
+                tmp32s = (int32_t)GM->sw[i] * (int32_t)EM->sw[i];
+                GM->sw[i] = (tmp32s>>16)&0xffff;
             }
             break;
 
@@ -1352,7 +1355,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETEM(0);
             GETGM;
             for(int i=0; i<8; ++i) {
-                tmp32s = (int32_t)GM->sb[i] - EM->sb[i];
+                tmp32s = (int32_t)GM->sb[i] - (int32_t)EM->sb[i];
                 GM->sb[i] = (tmp32s>127)?127:((tmp32s<-128)?-128:tmp32s);
             }
             break;
@@ -1455,21 +1458,21 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETEM(0);
             GETGM;
             for(int i=0; i<8; ++i)
-                GM->sb[i] -= EM->sb[i];
+                GM->ub[i] -= EM->ub[i];
             break;
         case 0xF9:                   /* PSUBW Gm,Em */
             nextop = F8;
             GETEM(0);
             GETGM;
             for(int i=0; i<4; ++i)
-                GM->sw[i] -= EM->sw[i];
+                GM->uw[i] -= EM->uw[i];
             break;
         case 0xFA:                   /* PSUBD Gm,Em */
             nextop = F8;
             GETEM(0);
             GETGM;
             for(int i=0; i<2; ++i)
-                GM->sd[i] -= EM->sd[i];
+                GM->ud[i] -= EM->ud[i];
             break;
 
         case 0xFC:                   /* PADDB Gm, Em */
@@ -1477,21 +1480,21 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETEM(0);
             GETGM;
             for(int i=0; i<8; ++i)
-                GM->sb[i] += EM->sb[i];
+                GM->ub[i] += EM->ub[i];
             break;
         case 0xFD:                   /* PADDW Gm,Em */
             nextop = F8;
             GETEM(0);
             GETGM;
             for(int i=0; i<4; ++i)
-                GM->sw[i] += EM->sw[i];
+                GM->uw[i] += EM->uw[i];
             break;
         case 0xFE:                   /* PADDD Gm,Em */
             nextop = F8;
             GETEM(0);
             GETGM;
             for(int i=0; i<2; ++i)
-                GM->sd[i] += EM->sd[i];
+                GM->ud[i] += EM->ud[i];
             break;
 
         default:
