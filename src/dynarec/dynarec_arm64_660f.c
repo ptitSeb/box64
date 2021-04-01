@@ -258,6 +258,30 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0x3A:  // these are some more SSSE3 opcodes
+            opcode = F8;
+            switch(opcode) {
+                case 0x0F:
+                    INST_NAME("PALIGNR Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1, 1);
+                    u8 = F8;
+                    if(u8>31) {
+                        VEORQ(q0, q0, q0);    
+                    } else if(u8>15) {
+                        d0 = fpu_get_scratch(dyn);
+                        VEORQ(d0, d0, d0);
+                        VEXTQ_8(q0, q0, d0, u8-16);
+                    } else {
+                        VEXTQ_8(q0, q1, q0, u8);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)            \
             READFLAGS(F);                           \
             GETFLAGS;                               \

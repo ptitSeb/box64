@@ -253,6 +253,30 @@ int Run660F(x64emu_t *emu, rex_t rex)
         }
         break;
 
+    case 0x3A:  // these are some SSE3 opcodes
+        opcode = F8;
+        switch(opcode) {
+            case 0x0F:          // PALIGNR GX, EX, u8
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                if(tmp8u>31)
+                    {GX->q[0] = GX->q[1] = 0;}
+                else
+                {
+                    for (int i=0; i<16; ++i, ++tmp8u)
+                        eax1.ub[i] = (tmp8u>15)?((tmp8u>31)?0:GX->ub[tmp8u-16]):EX->ub[tmp8u];
+                    GX->q[0] = eax1.q[0];
+                    GX->q[1] = eax1.q[1];
+                }
+                break;
+
+            default:
+                return 1;
+        }
+        break;
+        
     GOCOND(0x40
         , nextop = F8;
         CHECK_FLAGS(emu);
