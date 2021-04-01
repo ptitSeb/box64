@@ -477,14 +477,23 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
             nextop = F8;
-            GETED(0);
             gd = (nextop&0x38)>>3;
             v0 = mmx_get_reg_empty(dyn, ninst, x3, gd);
-            if(rex.w) {
-                VMOVQDfrom(v0, 0, ed);
+            if(MODREG) {
+                ed = xRAX + (nextop&7) + (rex.b<<3);
+                if(rex.w) {
+                    FMOVDx(v0, ed);
+                } else {
+                    FMOVSw(v0, ed);
+                }
             } else {
-                VEOR(v0, v0, v0);
-                VMOVQSfrom(v0, 0, ed);
+                v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                if(rex.w) {
+                    VLD1_64(v0, 0, ed);
+                } else {
+                    VLD1_32(v0, 0, ed);
+                }
             }
             break;
         case 0x6F:
