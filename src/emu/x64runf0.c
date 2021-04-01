@@ -435,6 +435,67 @@ int RunF0(x64emu_t *emu, rex_t rex)
 #endif
             break;
             
+        case 0xFF:              /* GRP 5 Ed */
+            nextop = F8;
+            GETED(0);
+            switch((nextop>>3)&7) {
+                case 0:                 /* INC Ed */
+#ifdef DYNAREC
+                    if(rex.w)
+                        do {
+                            tmp64u = arm64_lock_read_dd(ED);
+                        } while(arm64_lock_write_dd(ED, inc64(emu, tmp64u)));
+                    else {
+                        do {
+                            tmp32u = arm64_lock_read_d(ED);
+                        } while(arm64_lock_write_d(ED, inc32(emu, tmp32u)));
+                        if(MODREG) ED->dword[1] = 0;
+                    }
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    if(rex.w) {
+                        ED->q[0] = inc64(emu, ED->q[0]);
+                    } else {
+                        if(MODREG)
+                            ED->q[0] = inc32(emu, ED->dword[0]);
+                        else
+                            ED->dword[0] = inc32(emu, ED->dword[0]);
+                    }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                case 1:                 /* DEC Ed */
+#ifdef DYNAREC
+                    if(rex.w)
+                        do {
+                            tmp64u = arm64_lock_read_dd(ED);
+                        } while(arm64_lock_write_dd(ED, dec64(emu, tmp64u)));
+                    else {
+                        do {
+                            tmp32u = arm64_lock_read_d(ED);
+                        } while(arm64_lock_write_d(ED, dec32(emu, tmp32u)));
+                        if(MODREG) ED->dword[1] = 0;
+                    }
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    if(rex.w) {
+                        ED->q[0] = dec64(emu, ED->q[0]);
+                    } else {
+                        if(MODREG)
+                            ED->q[0] = dec32(emu, ED->dword[0]);
+                        else
+                            ED->dword[0] = dec32(emu, ED->dword[0]);
+                    }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                default:
+                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0xFF 0x%02X 0x%02X\n", nextop, PK(0));
+                    emu->quit=1;
+                    emu->error |= ERR_ILLEGAL;
+                    break;
+            }
+            break;
         default:
             return 1;
     }
