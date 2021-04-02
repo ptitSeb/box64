@@ -432,7 +432,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGX(v0);
             GETEX(v1, 0);
-            VFMINQD(v0, v0, v1);
+            VFMINQS(v0, v0, v1);
             break;
         case 0x5E:
             INST_NAME("DIVPS Gx, Ex");
@@ -446,7 +446,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGX(v0);
             GETEX(v1, 0);
-            VFMAXQD(v0, v0, v1);
+            VFMAXQS(v0, v0, v1);
             break;
         case 0x60:
             INST_NAME("PUNPCKLBW Gm,Em");
@@ -521,11 +521,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             } else {
                 v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
                 if(rex.w) {
-                    VLD1_64(v0, 0, ed);
+                    VLDR64_U12(v0, ed, fixedaddress);
                 } else {
-                    VLD1_32(v0, 0, ed);
+                    VLDR32_U12(v0, ed, fixedaddress);
                 }
             }
             break;
@@ -539,8 +539,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VMOVeD(v0, 0, v1, 0);
             } else {
                 v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
-                VLD1_64(v0, 0, ed);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                VLDR64_U12(v0, ed, fixedaddress);
             }
             break;
         case 0x70:
@@ -579,7 +579,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     };
                     d0 = fpu_get_scratch(dyn);
                     tmp64u = swp[(u8>>(0*2))&3] | (swp[(u8>>(1*2))&3]<<16);
-                    tmp64u = (swp[(u8>>(2*2))&3]<<32) | (swp[(u8>>(3*2))&3]<<48);
+                    tmp64u |= (swp[(u8>>(2*2))&3]<<32) | (swp[(u8>>(3*2))&3]<<48);
                     MOV64x(x2, tmp64u);
                     VMOVQDfrom(d0, 0, x2);
                     VTBL1_8(v0, v1, d0);
@@ -687,7 +687,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     DEFAULT;
             }
             break;
-            
+
         case 0x77:
             INST_NAME("EMMS");
             // empty MMX, FPU now usable
