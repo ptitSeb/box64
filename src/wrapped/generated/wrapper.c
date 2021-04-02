@@ -86,6 +86,7 @@ typedef void* (*pFE_t)(x64emu_t*);
 typedef void* (*pFv_t)(void);
 typedef void* (*pFi_t)(int32_t);
 typedef void* (*pFu_t)(uint32_t);
+typedef void* (*pFl_t)(intptr_t);
 typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
 typedef unsigned __int128 (*HFi_t)(int32_t);
@@ -1182,6 +1183,7 @@ void pFE(x64emu_t *emu, uintptr_t fcn) { pFE_t fn = (pFE_t)fcn; R_RAX=(uintptr_t
 void pFv(x64emu_t *emu, uintptr_t fcn) { pFv_t fn = (pFv_t)fcn; R_RAX=(uintptr_t)fn(); }
 void pFi(x64emu_t *emu, uintptr_t fcn) { pFi_t fn = (pFi_t)fcn; R_RAX=(uintptr_t)fn((int64_t)R_RDI); }
 void pFu(x64emu_t *emu, uintptr_t fcn) { pFu_t fn = (pFu_t)fcn; R_RAX=(uintptr_t)fn((uint64_t)R_RDI); }
+void pFl(x64emu_t *emu, uintptr_t fcn) { pFl_t fn = (pFl_t)fcn; R_RAX=(uintptr_t)fn((intptr_t)R_RDI); }
 void pFL(x64emu_t *emu, uintptr_t fcn) { pFL_t fn = (pFL_t)fcn; R_RAX=(uintptr_t)fn((uintptr_t)R_RDI); }
 void pFp(x64emu_t *emu, uintptr_t fcn) { pFp_t fn = (pFp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI); }
 void HFi(x64emu_t *emu, uintptr_t fcn) { HFi_t fn = (HFi_t)fcn; unsigned __int128 u128 = fn((int64_t)R_RDI); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL; }

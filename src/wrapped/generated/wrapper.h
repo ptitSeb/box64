@@ -83,6 +83,7 @@ void pFE(x64emu_t *emu, uintptr_t fnc);
 void pFv(x64emu_t *emu, uintptr_t fnc);
 void pFi(x64emu_t *emu, uintptr_t fnc);
 void pFu(x64emu_t *emu, uintptr_t fnc);
+void pFl(x64emu_t *emu, uintptr_t fnc);
 void pFL(x64emu_t *emu, uintptr_t fnc);
 void pFp(x64emu_t *emu, uintptr_t fnc);
 void HFi(x64emu_t *emu, uintptr_t fnc);

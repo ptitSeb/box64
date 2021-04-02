@@ -1194,7 +1194,7 @@ GO(msync, iFpLi)
 //GO(munlock, 
 //GO(munlockall, 
 //GO(__munmap, 
-GOW(munmap, iFEpL)
+GOM(munmap, iFEpL)  //weak
 //GO(muntrace, 
 GO(name_to_handle_at, iFipppi)
 GO(__nanosleep, iFpp)
@@ -1547,8 +1547,8 @@ GOW(rmdir, iFp)
 //GO(ruserok, 
 //GO(ruserok_af, 
 //GO(ruserpass, 
-//GO(__sbrk, 
-//GOW(sbrk, 
+GO(__sbrk, pFl)
+GOW(sbrk, pFl)
 //GOW(scalbn, 
 //GOW(scalbnf, 
 //GOW(scalbnl, 
@@ -1772,8 +1772,8 @@ GO(__strdup, pFp)
 GOW(strdup, pFp)
 GO(strerror, pFi)
 GO(strerror_l, pFip)
-//GO(__strerror_r, 
-//GOW(strerror_r, 
+GO(__strerror_r, pFipL)
+GOW(strerror_r, pFipL)
 //GO(strfmon, 
 //GO(__strfmon_l, 
 //GOW(strfmon_l, 
