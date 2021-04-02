@@ -293,6 +293,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             //SSE3
             nextop=F8;
             switch(nextop) {
+                case 0x00:
+                    INST_NAME("PSHUFB Gm, Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    d0 = fpu_get_scratch(dyn);
+                    MOVI_8(d0, 0b10001111);
+                    VAND(d0, d0, q1);  // mask the index
+                    VTBL1_8(q0, q0, d0);
+                    break;
 
                 case 0x04:
                     INST_NAME("PMADDUBSW Gm,Em");
