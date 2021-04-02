@@ -1327,12 +1327,41 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             VMUL_16(q0, q0, q1);
             break;
 
+        case 0xD8:
+            INST_NAME("PSUBUSB Gm, Em");
+            nextop = F8;
+            GETGM(q0);
+            GETEM(q1, 0);
+            UQSUB_8(q0, q0, q1);
+            break;
+        case 0xD9:
+            INST_NAME("PSUBUSW Gm, Em");
+            nextop = F8;
+            GETGM(q0);
+            GETEM(q1, 0);
+            UQSUB_16(q0, q0, q1);
+            break;
+
         case 0xDB:
             INST_NAME("PAND Gm, Em");
             nextop = F8;
             GETGM(v0);
             GETEM(v1, 0);
             VAND(v0, v0, v1);
+            break;
+        case 0xDC:
+            INST_NAME("PADDUSB Gm,Em");
+            nextop = F8;
+            GETGM(q0);
+            GETEM(q1, 0);
+            UQADD_8(q0, q0, q1);
+            break;
+        case 0xDD:
+            INST_NAME("PADDUSW Gm,Em");
+            nextop = F8;
+            GETGM(q0);
+            GETEM(q1, 0);
+            UQADD_16(q0, q0, q1);
             break;
 
          case 0xE0:
