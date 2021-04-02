@@ -654,6 +654,40 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0x73:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLQ Em, Ib");
+                    GETEM(q0, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if (u8>63) {
+                            VEOR(q0, q0, q0);
+                        } else if(u8) {
+                            USHR_64(q0, q0, u8);
+                        }
+                        PUTEM(q0);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLQ Em, Ib");
+                    GETEM(q0, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if (u8>63) {
+                            VEOR(q0, q0, q0);
+                        } else {
+                            SHL_64(q0, q0, u8);
+                        }
+                        PUTEM(q0);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+            
         case 0x77:
             INST_NAME("EMMS");
             // empty MMX, FPU now usable

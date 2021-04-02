@@ -708,6 +708,12 @@
 #define VSHL_16(Vd, Vn, shift)              EMIT(SHL_vector(0, 0b0010 | (((shift)>>3)&1), (shift)&7, Vn, Vd))
 #define VSHL_32(Vd, Vn, shift)              EMIT(SHL_vector(0, 0b0100 | (((shift)>>3)&3), (shift)&7, Vn, Vd))
 
+#define SHL_scalar(U, size, Rm, R, S, Rn, Rd)   (0b01<<30 | (U)<<29 | 0b11110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b010<<13 | (R)<<12 | (S)<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define SSHL_R_64(Vd, Vn, Vm)               EMIT(SHL_scalar(0, 0b11, Vm, 0, 0, Vn, Vd))
+
+#define SHL_scalar_imm(U, immh, immb, Rn, Rd)   (0b01<<30 | 0b111110<<23 | (immh)<<19 | (immb)<<16 | 0b01010<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define SHL_64(Vd, Vn, shift)               EMIT(SHL_scalar_imm(0, 0b1000 | (((shift)>>3)&7), (shift)&7, Vn, Vd))
+
 #define SHR_vector(Q, U, immh, immb, Rn, Rd)  ((Q)<<30 | (U)<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b00000<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VSHRQ_8(Vd, Vn, shift)              EMIT(SHR_vector(1, 1, 0b0001, (8-(shift))&7, Vn, Vd))
 #define VSHRQ_16(Vd, Vn, shift)             EMIT(SHR_vector(1, 1, 0b0010 | (((16-(shift))>>3)&1), (16-(shift))&7, Vn, Vd))
@@ -723,6 +729,10 @@
 #define VSSHR_8(Vd, Vn, shift)              EMIT(SHR_vector(0, 0, 0b0001, (8-(shift))&7, Vn, Vd))
 #define VSSHR_16(Vd, Vn, shift)             EMIT(SHR_vector(0, 0, 0b0010 | (((16-(shift))>>3)&1), (16-(shift))&7, Vn, Vd))
 #define VSSHR_32(Vd, Vn, shift)             EMIT(SHR_vector(0, 0, 0b0100 | (((32-(shift))>>3)&3), (32-(shift))&7, Vn, Vd))
+
+#define SHR_scalar_imm(U, immh, immb, o1, o0, Rn, Rd)   (0b01<<30 | (U)<<29 | 0b111110<<23 | (immh)<<19 | (immb)<<16 | (o1)<<13 | (o0)<<12 | 1<<10 | (Rn)<<5 | (Rd))
+#define SSHR_64(Vd, Vn, shift)              EMIT(SHR_scalar_imm(0, 0b1000 | (((64-(shift))>>3)&7), (64-(shift))&7, 0, 0, Vn, Vd))
+#define USHR_64(Vd, Vn, shift)              EMIT(SHR_scalar_imm(1, 0b1000 | (((64-(shift))>>3)&7), (64-(shift))&7, 0, 0, Vn, Vd))
 
 #define EXT_vector(Q, Rm, imm4, Rn, Rd)     ((Q)<<30 | 0b101110<<24 | (Rm)<<16 | (imm4)<<11 | (Rn)<<5 | (Rd))
 #define VEXT_8(Rd, Rn, Rm, index)           EMIT(EXT_vector(0, Rm, index, Rn, Rd))
