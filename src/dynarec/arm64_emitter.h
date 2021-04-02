@@ -1175,22 +1175,18 @@
 #define SQXTN_8(Rd, Rn)             EMIT(QXTN_vector(0, 0, 0b00, Rn, Rd))
 // Signed saturating extract Narrow, takes Rn element and reduce 16->8 with Signed saturation and fit higher part of Rd
 #define SQXTN2_8(Rd, Rn)            EMIT(QXTN_vector(1, 0, 0b00, Rn, Rd))
-// Signed saturating extract Unsigned Narrow, takes Rn element and reduce 16->8 with Unsigned saturation and fit higher part of Rd
-#define SQXTUN2_8(Rd, Rn)           EMIT(QXTN_vector(1, 1, 0b00, Rn, Rd))
 // Unsigned saturating Extract Narrow, takes Rn element and reduce 64->32 with Unsigned saturation and fit lower part of Rd
 #define UQXTN_32(Rd, Rn)            EMIT(QXTN_vector(0, 1, 0b10, Rn, Rd))
 // Unsigned saturating Extract Narrow, takes Rn element and reduce 64->32 with Unsigned saturation and fit higher part of Rd
 #define UQXTN2_32(Rd, Rn)           EMIT(QXTN_vector(1, 1, 0b10, Rn, Rd))
-// Unsiigned saturating extract Narrow, takes Rn element and reduce 32->16 with Unsigned saturation and fit lower part of Rd
+// Unsigned saturating extract Narrow, takes Rn element and reduce 32->16 with Unsigned saturation and fit lower part of Rd
 #define UQXTN_16(Rd, Rn)            EMIT(QXTN_vector(0, 1, 0b01, Rn, Rd))
-// Unsiigned saturating extract Narrow, takes Rn element and reduce 32->16 with Unsigned saturation and fit higher part of Rd
+// Unsigned saturating extract Narrow, takes Rn element and reduce 32->16 with Unsigned saturation and fit higher part of Rd
 #define UQXTN2_16(Rd, Rn)           EMIT(QXTN_vector(1, 1, 0b01, Rn, Rd))
-// Unsiigned saturating extract Narrow, takes Rn element and reduce 16->8 with Unsigned saturation and fit lower part of Rd
+// Unsigned saturating extract Narrow, takes Rn element and reduce 16->8 with Unsigned saturation and fit lower part of Rd
 #define UQXTN_8(Rd, Rn)             EMIT(QXTN_vector(0, 1, 0b00, Rn, Rd))
-// Unsiigned saturating extract Narrow, takes Rn element and reduce 16->8 with Unsigned saturation and fit higher part of Rd
+// Unsigned saturating extract Narrow, takes Rn element and reduce 16->8 with Unsigned saturation and fit higher part of Rd
 #define UQXTN2_8(Rd, Rn)            EMIT(QXTN_vector(1, 1, 0b00, Rn, Rd))
-// Unsiigned saturating extract Unsigned Narrow, takes Rn element and reduce 16->8 Unsith Unsigned saturation and fit higher part of Rd
-#define UQXTUN2_8(Rd, Rn)           EMIT(QXTN_vector(1, 1, 0b00, Rn, Rd))
 
 #define QXTUN_vector(Q, U, size, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | 0b10010<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 // Signed saturating extract Unsigned Narrow, takes Rn element and reduce 64->32 with Unsigned saturation and fit lower part of Rd
@@ -1203,6 +1199,8 @@
 #define SQXTUN2_16(Rd, Rn)          EMIT(QXTUN_vector(1, 1, 0b01, Rn, Rd))
 // Signed saturating extract Unsigned Narrow, takes Rn element and reduce 16->8 with Unsigned saturation and fit lower part of Rd
 #define SQXTUN_8(Rd, Rn)            EMIT(QXTUN_vector(0, 1, 0b00, Rn, Rd))
+// Signed saturating extract Unsigned Narrow, takes Rn element and reduce 16->8 with Unsigned saturation and fit higher part of Rd
+#define SQXTUN2_8(Rd, Rn)           EMIT(QXTUN_vector(1, 1, 0b00, Rn, Rd))
 
 // Integer CMP
 // EQual
