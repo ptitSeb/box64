@@ -308,6 +308,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SQXTN_16(q0, v1);
                     break;
 
+                case 0x0B:
+                    INST_NAME("PMULHRSW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    SQRDMULH_16(q0, q0, q1);
+                    break;
+
                 default:
                     DEFAULT;
             }
