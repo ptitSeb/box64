@@ -1918,8 +1918,9 @@ EXPORT void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, 
 
 EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
 {
-    dynarec_log(/*LOG_DEBUG*/LOG_NONE, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
+    dynarec_log(LOG_DEBUG, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
+    dynarec_log(LOG_DEBUG, "%p\n", ret);
     if(ret==(void*)-1)
         return ret; // failed...
     uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_DYNAREC;
