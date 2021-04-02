@@ -487,6 +487,29 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
             break;
 
+        case 0xAB:
+            if(rep) {
+                INST_NAME("REP STOSW");
+                CBZx_NEXT(xRCX);
+                TBNZ_MARK2(xFlags, F_DF);
+                MARK;   // Part with DF==0
+                STRH_S9_postindex(xRAX, xRDI, 2);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                STRH_S9_postindex(xRAX, xRDI, -2);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("STOSW");
+                GETDIR(x3, 2);
+                STRH_U12(xRAX, xRDI, 0);
+                ADDx_REG(xRDI, xRDI, x3);
+            }
+            break;
+
         case 0xB8:
         case 0xB9:
         case 0xBA:
