@@ -796,6 +796,14 @@ EXPORT int my_vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_
 }
 EXPORT int my___vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) __attribute__((alias("my_vswprintf")));
 EXPORT int my___vswprintf_chk(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) __attribute__((alias("my_vswprintf")));
+
+EXPORT int my_swscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
+{
+    myStackAlignScanfW(emu, (const char*)fmt, b, emu->scratch, 2);
+    PREPARE_VALIST;
+
+    return vswscanf(stream, fmt, VARARGS);
+}
 #if 0
 EXPORT void my_verr(x64emu_t* emu, int eval, void* fmt, void* b) {
     #ifndef NOALIGN

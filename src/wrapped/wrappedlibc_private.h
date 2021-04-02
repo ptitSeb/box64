@@ -1909,7 +1909,7 @@ GOM(swapcontext, iFEpp) //Weak
 //GOW(swapon, 
 GOM(swprintf, iFEpLpV)
 GOM(__swprintf_chk, iFEpLiLpV)
-//GO(swscanf, 
+GOM(swscanf, iFEppV)
 GOW(symlink, iFpp)
 GO(symlinkat, iFpip)
 GO(sync, vFv)
