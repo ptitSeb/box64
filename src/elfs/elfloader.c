@@ -580,7 +580,8 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                 if(offs) {
                     // add r_addend to p?
                     printf_log(LOG_DUMP, "Apply R_X86_64_COPY @%p with sym=%s, @%p size=%ld\n", p, symname, (void*)offs, sym->st_size);
-                    memmove(p, (void*)(offs+rela[i].r_addend), sym->st_size);
+                    if(p!=(void*)(offs+rela[i].r_addend))
+                        memmove(p, (void*)(offs+rela[i].r_addend), sym->st_size);
                 } else {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply RELA R_X86_64_COPY @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                 }
