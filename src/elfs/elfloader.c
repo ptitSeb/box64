@@ -355,7 +355,7 @@ int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t**
     if(!h)
         return 0;
     Elf64_Rela * rel = (Elf64_Rela *)(h->rela + h->delta);
-    if(!h->rel)
+    if(!h->rela)
         return 0;
     int cnt = h->relasz / h->relaent;
     for (int i=0; i<cnt; ++i) {
@@ -364,7 +364,7 @@ int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t**
         const char* symname = SymName(h, sym);
         if(!strcmp(symname, name) && t==R_X86_64_COPY) {
             *offs = sym->st_value + h->delta;
-            *p = (uint64_t*)(rel[i].r_offset + h->delta);
+            *p = (uint64_t*)(rel[i].r_offset + h->delta + rel[i].r_addend);
             return 1;
         }
     }
@@ -590,7 +590,10 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
-                    printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
+                    printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", 
+                        (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), 
+                        (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
+                    memmove((void*)globoffs, (void*)offs, sym->st_size);   // preapply to copy part from lib to main elf
                     *p = globoffs/* + rela[i].r_addend*/;   //no addend?
                     AddWeakSymbol(GetGlobalData(maplib), symname, offs, end-offs+1);
                 } else {
