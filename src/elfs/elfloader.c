@@ -1262,7 +1262,7 @@ static void* find_dl_iterate_phdr_Fct(void* fct)
 #undef SUPER
 
 EXPORT int my_dl_iterate_phdr(x64emu_t *emu, void* F, void *data) {
-    printf_log(LOG_INFO, "Warning: call to partially implemented dl_iterate_phdr(%p, %p)\n", F, data);
+    printf_log(LOG_DEBUG, "Call to partially implemented dl_iterate_phdr(%p, %p)\n", F, data);
     box64context_t *context = GetEmuContext(emu);
     const char* empty = "";
     int ret = 0;
