@@ -707,7 +707,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
-    if(isMask(opcode, "f1011010100mmmmmdddd00nnnnnddddd", &a)) {
+    if(isMask(opcode, "f1011010100mmmmmcccc00nnnnnddddd", &a)) {
         if(Rm!=31 && (cond&0b1110)!=0b1110 && Rn!=31 && Rn==Rm)
             snprintf(buff, sizeof(buff), "CINV %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond^1]);    
         else if(Rm==31 && (cond&0b1110)!=0b1110 && Rn==31)
