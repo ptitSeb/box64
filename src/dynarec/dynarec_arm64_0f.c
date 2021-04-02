@@ -1372,6 +1372,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             URHADD_8(v0, v0, v1);
             break;
 
+        case 0xE5:
+            INST_NAME("PMULHW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            VSMULL_16(q0, v0, v1);
+            SQSHRN_16(v0, q0, 16);
+            break;
+
         case 0xE7:
             INST_NAME("MOVNTQ Em, Gm"); // Non Temporal par not handled for now
             nextop = F8;
@@ -1381,18 +1391,22 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 v0 = mmx_get_reg(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
-                VST1_64(v0, ed, fixedaddress);
+                VSTR64_U12(v0, ed, fixedaddress);
             }
             break;
-
-        case 0xE5:
-            INST_NAME("PMULHW Gm,Em");
+        case 0xE8:
+            INST_NAME("PSUBSB Gm,Em");
             nextop = F8;
             GETGM(v0);
-            GETEM(v1, 0);
-            q0 = fpu_get_scratch(dyn);
-            VSMULL_16(q0, v0, v1);
-            SQSHRN_16(v0, q0, 16);
+            GETEM(q0, 0);
+            SQSUB_8(v0, v0, q0);
+            break;
+        case 0xE9:
+            INST_NAME("PSUBSW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(q0, 0);
+            SQSUB_16(v0, v0, q0);
             break;
 
         case 0xEB:
