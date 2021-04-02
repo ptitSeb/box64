@@ -45,6 +45,9 @@ void unprotectDB(uintptr_t addr, uintptr_t size);
 void lockDB();
 void unlockDB();
 #endif
+#ifndef NOALIGN
+void* find32bitBlock(size_t size);
+#endif
 
 
 void init_custommem_helper(box64context_t* ctx);

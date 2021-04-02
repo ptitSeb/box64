@@ -803,6 +803,41 @@ uint32_t getProtection(uintptr_t addr)
     return ret;
 }
 
+#ifndef NOALIGN
+#define LOWEST (void*)0x20000
+int availableBlock(uint8_t* p, size_t n)
+{
+    for (int i=0; i<n; ++i, ++p)
+        if(*p)
+            return 0;
+    return 1;
+}
+void* find32bitBlock(size_t size)
+{
+    // slow iterative search... Would need something better one day
+    const uint32_t key = 0; // upper value is 0 by request
+    pthread_mutex_lock(&mutex_prot);
+    khint_t k = kh_get(memprot, memprot, key);
+    if(k==kh_end(memprot)) {
+        pthread_mutex_unlock(&mutex_prot);
+        return LOWEST;
+    }
+    uint8_t *prot = kh_val(memprot, k);
+    pthread_mutex_unlock(&mutex_prot);
+    void* p = (void*)LOWEST;
+    int pages = (size+MEMPROT_SIZE-1)>>MEMPROT_SHIFT;
+    do {
+        const uintptr_t idx = ((((uintptr_t)p)&0xffffffff)>>MEMPROT_SHIFT);
+        if(availableBlock(prot+idx, pages))
+            return p;
+        p += 0x10000;
+    } while(p!=(void*)0xffff0000);
+    return NULL;
+}
+#undef LOWEST
+#endif
+
+
 void init_custommem_helper(box64context_t* ctx)
 {
     if(inited) // already initialized

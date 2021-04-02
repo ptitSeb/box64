@@ -1887,6 +1887,13 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     if(prot&PROT_WRITE) 
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %ld) =>", addr, length, prot, flags, fd, offset);}
+    #ifndef NOALIGN
+    if(!addr && (flags&0x40)) {
+        // 0x40 is MAP_32BIT, wich only exist on x86_64!
+        //flags &= ~0x40;   // let the flags in?
+        addr = find32bitBlock(length);
+    }
+    #endif
     void* ret = mmap64(addr, length, prot, flags, fd, offset);
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
