@@ -1189,6 +1189,13 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%cRHADD V%d.%s, V%d.%s, V%d.%s", a.U?'U':'S', Rd, Vd, Rn, Vd, Rm, Vd);
         return buff;
     }
+    //SQ(R)DMULH
+    if(isMask(opcode, "0QU01110ff1mmmmm101101nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "???"};
+        const char* Vd = Y[(sf<<1) | a.Q];
+        snprintf(buff, sizeof(buff), "SQ%sDMULH V%d.%s, V%d.%s, V%d.%s", a.U?"R":"", Rd, Vd, Rn, Vd, Rm, Vd);
+        return buff;
+    }
     
     // MOV immediate
     if(isMask(opcode, "0Q00111100000iii111001iiiiiddddd", &a)) {

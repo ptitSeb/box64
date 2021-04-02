@@ -1496,4 +1496,19 @@
 #define URHADDQ_16(Vd, Vn, Vm)      EMIT(RHADD_vector(1, 1, 0b01, Vm, Vn, Vd))
 #define URHADDQ_32(Vd, Vn, Vm)      EMIT(RHADD_vector(1, 1, 0b10, Vm, Vn, Vd))
 
+// QRDMULH Signed saturating (Rounding) Doubling Multiply returning High half
+#define QDMULH_vector(Q, U, size, Rm, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b10110<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define SQRDMULH_8(Vd, Vn, Vm)      EMIT(QDMULH_vector(0, 1, 0b00, Vm, Vn, Vd))
+#define SQRDMULH_16(Vd, Vn, Vm)     EMIT(QDMULH_vector(0, 1, 0b01, Vm, Vn, Vd))
+#define SQRDMULH_32(Vd, Vn, Vm)     EMIT(QDMULH_vector(0, 1, 0b10, Vm, Vn, Vd))
+#define SQRDMULHQ_8(Vd, Vn, Vm)     EMIT(QDMULH_vector(1, 1, 0b00, Vm, Vn, Vd))
+#define SQRDMULHQ_16(Vd, Vn, Vm)    EMIT(QDMULH_vector(1, 1, 0b01, Vm, Vn, Vd))
+#define SQRDMULHQ_32(Vd, Vn, Vm)    EMIT(QDMULH_vector(1, 1, 0b10, Vm, Vn, Vd))
+#define SQDMULH_8(Vd, Vn, Vm)       EMIT(QDMULH_vector(0, 0, 0b00, Vm, Vn, Vd))
+#define SQDMULH_16(Vd, Vn, Vm)      EMIT(QDMULH_vector(0, 0, 0b01, Vm, Vn, Vd))
+#define SQDMULH_32(Vd, Vn, Vm)      EMIT(QDMULH_vector(0, 0, 0b10, Vm, Vn, Vd))
+#define SQDMULHQ_8(Vd, Vn, Vm)      EMIT(QDMULH_vector(1, 0, 0b00, Vm, Vn, Vd))
+#define SQDMULHQ_16(Vd, Vn, Vm)     EMIT(QDMULH_vector(1, 0, 0b01, Vm, Vn, Vd))
+#define SQDMULHQ_32(Vd, Vn, Vm)     EMIT(QDMULH_vector(1, 0, 0b10, Vm, Vn, Vd))
+
 #endif  //__ARM64_EMITTER_H__

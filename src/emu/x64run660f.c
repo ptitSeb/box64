@@ -248,6 +248,16 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
 
+            case 0x0B:  /* PMULHRSW Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for (int i=0; i<8; ++i) {
+                    tmp32s = ((((int32_t)(GX->sw[i])*(int32_t)(EX->sw[i]))>>14) + 1)>>1;
+                    GX->uw[i] = tmp32s&0xffff;
+                }
+            break;
+
             default:
                 return 1;
         }
