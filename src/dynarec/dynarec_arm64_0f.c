@@ -1275,6 +1275,19 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             VMUL_16(q0, q0, q1);
             break;
 
+        case 0xE7:
+            INST_NAME("MOVNTQ Em, Gm"); // Non Temporal par not handled for now
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            if((nextop&0xC0)==0xC0) {
+                DEFAULT;
+            } else {
+                v0 = mmx_get_reg(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                VST1_64(v0, ed, fixedaddress);
+            }
+            break;
+
         case 0xE5:
             INST_NAME("PMULHW Gm,Em");
             nextop = F8;

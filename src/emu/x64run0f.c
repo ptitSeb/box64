@@ -22,6 +22,7 @@
 #include "bridge.h"
 #include "signals.h"
 #ifdef DYNAREC
+#include "custommem.h"
 #include "../dynarec/arm64_lock.h"
 #endif
 
@@ -1360,7 +1361,14 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 GM->sw[i] = (tmp32s>>16)&0xffff;
             }
             break;
-
+        case 0xE7:                   /* MOVNTQ Em,Gm */
+            nextop = F8;
+            if((nextop&0xC0)==0xC0)
+                return 1;
+            GETEM(0);
+            GETGM;
+            EM->q = GM->q;
+            break;
         case 0xE8:                   /* PSUBSB Gm,Em */
             nextop = F8;
             GETEM(0);
