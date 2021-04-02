@@ -45,7 +45,59 @@ int Run64(x64emu_t *emu, rex_t rex)
     }
 
     switch(opcode) {
+        #define GO(B, OP)                                   \
+        case B+0:                                           \
+            nextop = F8;                                    \
+            GETEB_OFFS(0, tlsdata);                         \
+            GETGB;                                          \
+            EB->byte[0] = OP##8(emu, EB->byte[0], GB);      \
+            break;                                          \
+        case B+1:                                           \
+            nextop = F8;                                    \
+            GETED_OFFS(0, tlsdata);                         \
+            GETGD;                                          \
+            if(rex.w)                                       \
+                ED->q[0] = OP##64(emu, ED->q[0], GD->q[0]); \
+            else {                                          \
+                if(MODREG)                                  \
+                    ED->q[0] = OP##32(emu, ED->dword[0], GD->dword[0]);     \
+                else                                                        \
+                    ED->dword[0] = OP##32(emu, ED->dword[0], GD->dword[0]); \
+            }                                               \
+            break;                                          \
+        case B+2:                                           \
+            nextop = F8;                                    \
+            GETEB_OFFS(0, tlsdata);                         \
+            GETGB;                                          \
+            GB = OP##8(emu, GB, EB->byte[0]);               \
+            break;                                          \
+        case B+3:                                           \
+            nextop = F8;                                    \
+            GETED_OFFS(0, tlsdata);                         \
+            GETGD;                                          \
+            if(rex.w)                                       \
+                GD->q[0] = OP##64(emu, GD->q[0], ED->q[0]); \
+            else                                            \
+                GD->q[0] = OP##32(emu, GD->dword[0], ED->dword[0]); \
+            break;                                          \
+        case B+4:                                           \
+            R_AL = OP##8(emu, R_AL, F8);                    \
+            break;                                          \
+        case B+5:                                           \
+            if(rex.w)                                       \
+                R_RAX = OP##64(emu, R_RAX, F32S64);         \
+            else                                            \
+                R_RAX = OP##32(emu, R_EAX, F32);            \
+            break;
 
+        GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
+        GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
+        GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
+        GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
+        GO(0x20, and)                   /* AND 0x20 -> 0x25 */
+        GO(0x28, sub)                   /* SUB 0x28 -> 0x2D */
+        GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
+        #undef GO
         case 0x0F:
             opcode = F8;
             switch(opcode) {
@@ -63,16 +115,6 @@ int Run64(x64emu_t *emu, rex_t rex)
             }
             break;
 
-        case 0x33:              /* XOR Gd,Ed */
-            nextop = F8;
-            GETED_OFFS(0, tlsdata);
-            GETGD;
-            if(rex.w)
-                GD->q[0] = xor64(emu, GD->q[0], ED->q[0]);
-            else
-                GD->q[0] = xor32(emu, GD->dword[0], ED->dword[0]);
-            break;
-        
         case 0x66:
             opcode = F8;
 
@@ -183,6 +225,11 @@ int Run64(x64emu_t *emu, rex_t rex)
                 GD->q[0] = ED->dword[0];
             break;
 
+        case 0xC6:                      /* MOV Eb,Ib */
+            nextop = F8;
+            GETEB_OFFS(1, tlsdata);
+            EB->byte[0] = F8;
+            break;
         case 0xC7:                      /* MOV Ed,Id */
             nextop = F8;
             GETED_OFFS(4, tlsdata);
