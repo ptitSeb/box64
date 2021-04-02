@@ -1467,4 +1467,33 @@
 #define UMINQ_32(Vd, Vn, Vm)        EMIT(MINMAX_vector(1, 1, 0b10, Vm, 1, Vn, Vd))
 #define UMINQ_64(Vd, Vn, Vm)        EMIT(MINMAX_vector(1, 1, 0b11, Vm, 1, Vn, Vd))
 
+// HADD vector
+#define HADD_vector(Q, U, size, Rm, Rn, Rd)     ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 1<<10 | (Rn)<<5 | (Rd))
+#define SHADD_8(Vd, Vn, Vm)         EMIT(HADD_vector(0, 0, 0b00, Vm, Vn, Vd))
+#define SHADD_16(Vd, Vn, Vm)        EMIT(HADD_vector(0, 0, 0b01, Vm, Vn, Vd))
+#define SHADD_32(Vd, Vn, Vm)        EMIT(HADD_vector(0, 0, 0b10, Vm, Vn, Vd))
+#define SHADDQ_8(Vd, Vn, Vm)        EMIT(HADD_vector(1, 0, 0b00, Vm, Vn, Vd))
+#define SHADDQ_16(Vd, Vn, Vm)       EMIT(HADD_vector(1, 0, 0b01, Vm, Vn, Vd))
+#define SHADDQ_32(Vd, Vn, Vm)       EMIT(HADD_vector(1, 0, 0b10, Vm, Vn, Vd))
+#define UHADD_8(Vd, Vn, Vm)         EMIT(HADD_vector(0, 1, 0b00, Vm, Vn, Vd))
+#define UHADD_16(Vd, Vn, Vm)        EMIT(HADD_vector(0, 1, 0b01, Vm, Vn, Vd))
+#define UHADD_32(Vd, Vn, Vm)        EMIT(HADD_vector(0, 1, 0b10, Vm, Vn, Vd))
+#define UHADDQ_8(Vd, Vn, Vm)        EMIT(HADD_vector(1, 1, 0b00, Vm, Vn, Vd))
+#define UHADDQ_16(Vd, Vn, Vm)       EMIT(HADD_vector(1, 1, 0b01, Vm, Vn, Vd))
+#define UHADDQ_32(Vd, Vn, Vm)       EMIT(HADD_vector(1, 1, 0b10, Vm, Vn, Vd))
+
+#define RHADD_vector(Q, U, size, Rm, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b00010<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define SRHADD_8(Vd, Vn, Vm)        EMIT(RHADD_vector(0, 0, 0b00, Vm, Vn, Vd))
+#define SRHADD_16(Vd, Vn, Vm)       EMIT(RHADD_vector(0, 0, 0b01, Vm, Vn, Vd))
+#define SRHADD_32(Vd, Vn, Vm)       EMIT(RHADD_vector(0, 0, 0b10, Vm, Vn, Vd))
+#define SRHADDQ_8(Vd, Vn, Vm)       EMIT(RHADD_vector(1, 0, 0b00, Vm, Vn, Vd))
+#define SRHADDQ_16(Vd, Vn, Vm)      EMIT(RHADD_vector(1, 0, 0b01, Vm, Vn, Vd))
+#define SRHADDQ_32(Vd, Vn, Vm)      EMIT(RHADD_vector(1, 0, 0b10, Vm, Vn, Vd))
+#define URHADD_8(Vd, Vn, Vm)        EMIT(RHADD_vector(0, 1, 0b00, Vm, Vn, Vd))
+#define URHADD_16(Vd, Vn, Vm)       EMIT(RHADD_vector(0, 1, 0b01, Vm, Vn, Vd))
+#define URHADD_32(Vd, Vn, Vm)       EMIT(RHADD_vector(0, 1, 0b10, Vm, Vn, Vd))
+#define URHADDQ_8(Vd, Vn, Vm)       EMIT(RHADD_vector(1, 1, 0b00, Vm, Vn, Vd))
+#define URHADDQ_16(Vd, Vn, Vm)      EMIT(RHADD_vector(1, 1, 0b01, Vm, Vn, Vd))
+#define URHADDQ_32(Vd, Vn, Vm)      EMIT(RHADD_vector(1, 1, 0b10, Vm, Vn, Vd))
+
 #endif  //__ARM64_EMITTER_H__

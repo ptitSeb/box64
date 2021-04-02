@@ -1308,7 +1308,13 @@ int Run0F(x64emu_t *emu, rex_t rex)
             GETGM;
             GM->q = (~GM->q) & EM->q;
             break;
-
+        case 0xE0:                   /* PAVGB Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for(int i=0; i<8; ++i)
+                    GM->ub[i] = ((uint32_t)GM->ub[i]+EM->ub[i]+1)>>1;
+            break;
         case 0xE1:                   /* PSRAW Gm, Em */
             nextop = F8;
             GETEM(0);

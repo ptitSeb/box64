@@ -1275,6 +1275,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             VMUL_16(q0, q0, q1);
             break;
 
+         case 0xE0:
+            INST_NAME("PAVGB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            URHADD_8(v0, v0, v1);
+            break;
+
         case 0xE7:
             INST_NAME("MOVNTQ Em, Gm"); // Non Temporal par not handled for now
             nextop = F8;
