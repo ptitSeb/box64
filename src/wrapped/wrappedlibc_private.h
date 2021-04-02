@@ -1452,8 +1452,8 @@ GO(rand, iFv)
 //GOW(random, 
 //GOW(random_r, 
 GO(rand_r, iFp)
-//GOI(__rawmemchr, 
-//GOI(rawmemchr, 
+GO(__rawmemchr, pFpi)
+GO(rawmemchr, pFpi)
 //GO(rcmd, 
 //GO(rcmd_af, 
 //DATAB(__rcmd_errstr, 
