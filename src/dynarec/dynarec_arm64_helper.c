@@ -534,22 +534,22 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     MESSAGE(LOG_DUMP, "\tSynch x87 Stackcount (%d)\n", dyn->x87stack);
     int a = dyn->x87stack;
     // Add x87stack to emu fpu_stack
-    LDRx_U12(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
+    LDRw_U12(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
     if(a>0) {
-        ADDx_U12(scratch, scratch, a);
+        ADDw_U12(scratch, scratch, a);
     } else {
-        SUBx_U12(scratch, scratch, -a);
+        SUBw_U12(scratch, scratch, -a);
     }
-    STRx_U12(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
+    STRw_U12(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
     // Sub x87stack to top, with and 7
-    LDRx_U12(scratch, xEmu, offsetof(x64emu_t, top));
+    LDRw_U12(scratch, xEmu, offsetof(x64emu_t, top));
     if(a>0) {
-        SUBx_U12(scratch, scratch, a);
+        SUBw_U12(scratch, scratch, a);
     } else {
-        ADDx_U12(scratch, scratch, -a);
+        ADDw_U12(scratch, scratch, -a);
     }
-    ADDx_U12(scratch, scratch, 7);
-    STRx_U12(scratch, xEmu, offsetof(x64emu_t, top));
+    ANDw_mask(scratch, scratch, 0, 2);  //mask=7
+    STRw_U12(scratch, xEmu, offsetof(x64emu_t, top));
     // reset x87stack
     dyn->x87stack = 0;
     MESSAGE(LOG_DUMP, "\t------x87 Stackcount\n");
@@ -689,7 +689,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
         if(dyn->x87cache[i]!=-1) {
             ADDw_U12(s3, s2, dyn->x87cache[i]);
             ANDw_mask(s3, s3, 0, 2); // mask=7   // (emu->top + i)&7
-            VLDR64_REG_LSL3(dyn->x87reg[i], s1, s3);
+            VSTR64_REG_LSL3(dyn->x87reg[i], s1, s3);
         }
 #endif
 }
@@ -786,7 +786,7 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         ADDw_U12(s2, s2, st);
         ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
     }
-    VLDR64_REG_LSL3(dyn->x87reg[ret], s1, s2);
+    VSTR64_REG_LSL3(dyn->x87reg[ret], s1, s2);
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
     // and forget that cache
     fpu_free_reg(dyn, dyn->x87reg[ret]);
