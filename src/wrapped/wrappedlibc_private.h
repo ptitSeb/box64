@@ -1429,7 +1429,7 @@ GO(putwc, iFip)
 GO(putwchar_unlocked, iFi)
 GO(putwc_unlocked, iFip)
 GOW(pvalloc, pFL)
-//GOW(pwrite, 
+GOW(pwrite, lFipLl)
 //GOW(__pwrite64, 
 GOW(pwrite64, lFipLI)
 //GO(pwritev, 
