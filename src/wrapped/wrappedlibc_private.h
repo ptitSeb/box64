@@ -1309,7 +1309,7 @@ GO(__poll, iFpLi)
 GOW(poll, iFpLi)
 //GO(__poll_chk, 
 GO(popen, pFpp)
-//GO(posix_fadvise, 
+GO(posix_fadvise, iFilli)
 //GOW(posix_fadvise64, 
 //GO(posix_fallocate, 
 //GO(posix_fallocate64, 
