@@ -37,6 +37,7 @@ void SetRIP(x64emu_t *emu, uint64_t v);
 void SetFS(x64emu_t *emu, uint16_t v);
 uint16_t GetFS(x64emu_t *emu);
 uint64_t GetRSP(x64emu_t *emu);
+uint64_t GetRBP(x64emu_t *emu);
 void ResetFlags(x64emu_t *emu);
 void ResetSegmentsCache(x64emu_t *emu);
 const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip);

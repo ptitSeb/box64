@@ -44,6 +44,9 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
     }
     printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", my_context->argc, my_context->argv, my_context->envv, main);
     // call main and finish
+    Push64(emu, GetRBP(emu));   // set frame pointer
+    SetRBP(emu, GetRSP(emu));   // save RSP
+    SetRSP(emu, GetRSP(emu)&~0xFLL);    // Align RSP
     PushExit(emu);
     SetRDX(emu, (uint64_t)my_context->envv);
     SetRSI(emu, (uint64_t)my_context->argv);
@@ -52,6 +55,8 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
 #ifdef DYNAREC
     DynaRun(emu);
 #endif
+    SetRSP(emu, GetRBP(emu));   // restore RSP
+    SetRBP(emu, Pop64(emu));         // restore RBP
     return 0;
 }
 

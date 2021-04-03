@@ -231,7 +231,7 @@ static void* pthread_routine(void* p)
 	x64emu_t* emu = et->emu;
 	Push64(emu, 0);		// PUSH BP
 	R_RBP = R_RSP;	// MOV BP, SP
-	R_RSP -= 64;	// Gard zone
+	R_RSP -= 56;	// Gard zone
 	PushExit(emu);
 	R_RIP = et->fnc;
 	R_RDI = (uintptr_t)et->arg;

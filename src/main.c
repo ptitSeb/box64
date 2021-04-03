@@ -1030,7 +1030,8 @@ int main(int argc, const char **argv, const char **env) {
     SetRCX(emu, (uint64_t)my_context->envv);
     SetRIP(emu, my_context->ep);
     PushExit(emu);
-    *(uint64_t*)GetRSP(emu) = my_context->argc;
+    //*(uint64_t*)GetRSP(emu) = my_context->argc;
+    Push64(emu, my_context->argc);
     ResetFlags(emu);
     Run(emu, 0);
     // Get EAX

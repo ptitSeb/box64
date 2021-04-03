@@ -313,6 +313,10 @@ uint64_t GetRSP(x64emu_t *emu)
 {
     return R_RSP;
 }
+uint64_t GetRBP(x64emu_t *emu)
+{
+    return R_RBP;
+}
 void SetFS(x64emu_t *emu, uint16_t v)
 {
     emu->segs[_FS] = v;
