@@ -100,7 +100,7 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
                 ++p;
                 break;
             case 14:    //%LG long double
-                if((((uintptr_t)(st+1))&0xf)!=0)
+                if((((uintptr_t)st)&0xf)!=0)
                     st++;
                 #ifdef HAVE_LD80BITS
                 if((((uintptr_t)mystack)&0xf)!=0)
@@ -320,7 +320,7 @@ void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mysta
                 ++p;
                 break;
             case 14:    //%LG long double
-                if((((uintptr_t)(st+1))&0xf)!=0)
+                if((((uintptr_t)st)&0xf)!=0)
                     st++;
                 #ifdef HAVE_LD80BITS
                 if((((uintptr_t)mystack)&0xf)!=0)
