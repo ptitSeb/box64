@@ -180,8 +180,20 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     if(isMask(opcode, "0x011000iiiiiiiiiiiiiiiiiiittttt", &a)) {
         int size = ((opcode>>30)&1)?3:2;
-        int offset = signExtend(imm, 9)<<size;
+        int offset = signExtend(imm, 19)<<2;
         snprintf(buff, sizeof(buff), "LDR %s, [#%+d]\t;%p", (size==2)?Wt[Rt]:Xt[Rt], offset, (void*)(addr+offset));
+        return buff;
+    }
+    if(isMask(opcode, "10011000iiiiiiiiiiiiiiiiiiittttt", &a)) {
+        int offset = signExtend(imm, 19)<<2;
+        snprintf(buff, sizeof(buff), "LDRSW %s, [#%+d]\t;%p", Xt[Rt], offset, (void*)(addr+offset));
+        return buff;
+    }
+    if(isMask(opcode, "ff011100iiiiiiiiiiiiiiiiiiittttt", &a)) {
+        int size = ((opcode>>30)&1)?3:2;
+        int offset = signExtend(imm, 19)<<2;
+        const char* Y[] = {"S", "D", "Q", "?"};
+        snprintf(buff, sizeof(buff), "LDR %s%d, [#%+d]\t;%p", Y[sf], Rt, offset, (void*)(addr+offset));
         return buff;
     }
     if(isMask(opcode, "1x111000011mmmmmoooS10nnnnnttttt", &a)) {
