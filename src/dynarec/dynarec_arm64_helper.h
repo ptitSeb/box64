@@ -358,8 +358,8 @@
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOM(s1, s2, s3)                                                    \
     LDRH_U12(s3, xEmu, offsetof(x64emu_t, sw));   /*offset is 8bits right?*/\
-    MOV32w(s1, 0b01000111);                                                 \
-    BICw_REG_LSL(s3, s3, s1, 8);                                            \
+    MOV32w(s1, 0b0100011100000000);                                         \
+    BICw_REG(s3, s3, s1);                                                   \
     CSETw(s1, cMI); /* 1 if less than, 0 else */                            \
     MOV32w(s2, 0b01000101); /* unordered */                                 \
     CSELw(s1, s2, s1, cVS);                                                 \
@@ -507,6 +507,9 @@
 #endif
 #ifndef TABLE64
 #define TABLE64(A, V)
+#endif
+#ifndef FTABLE64
+#define FTABLE64(A, V)
 #endif
 
 #if STEP < 2
@@ -833,7 +836,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-//uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_DA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_DC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);

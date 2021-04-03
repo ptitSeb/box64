@@ -670,6 +670,12 @@
 #define VSTR128_REG(Qt, Rn, Rm)             EMIT(VMEM_REG_gen(0b00, 0b10, Rm, 0b011, 0, Rn, Dt))
 #define VSTR128_REG_LSL4(Qt, Rn, Rm)        EMIT(VMEM_REG_gen(0b00, 0b10, Rm, 0b011, 1, Rn, Dt))
 
+#define VLDR_PC_gen(opc, imm19, Rt)         ((opc)<<30 | 0b011<<27 | 1<<26 | (imm19)<<5 | (Rt))
+#define VLDR32_literal(Vt, imm19)           EMIT(VLDR_PC_gen(0b00, ((imm19)>>2)&0x7FFFF, Vt))
+#define VLDR64_literal(Vt, imm19)           EMIT(VLDR_PC_gen(0b01, ((imm19)>>2)&0x7FFFF, Vt))
+#define VLDR128_literal(Vt, imm19)          EMIT(VLDR_PC_gen(0b10, ((imm19)>>2)&0x7FFFF, Vt))
+
+
 #define LD1R_gen(Q, size, Rn, Rt)           ((Q)<<30 | 0b0011010<<23 | 1<<22 | 0<<21 | 0b110<<13 | (size)<<10 | (Rn)<<5 | (Rt))
 #define VLDQ1R_8(Vt, Rn)                    EMIT(LD1R_gen(1, 0b00, Rn, Vt))
 #define VLDQ1R_16(Vt, Rn)                   EMIT(LD1R_gen(1, 0b01, Rn, Vt))
@@ -877,6 +883,15 @@
 #define FADDP_vector(Q, sz, Rm, Rn, Rd) ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11010<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VFADDPQS(Vd, Vn, Vm)        EMIT(FADDP_vector(1, 0, Vm, Vn, Vd))
 #define VFADDPQD(Vd, Vn, Vm)        EMIT(FADDP_vector(1, 1, Vm, Vn, Vd))
+
+// NEG / ABS
+#define FNEGABS_scalar(type, opc, Rn, Rd)  (0b11110<<24 | (type)<<22 | 1<<21 | (opc)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
+#define FNEGS(Sd, Sn)               EMIT(FNEGABS_scalar(0b00, 0b10, Sn, Sd))
+#define FNEGD(Dd, Dn)               EMIT(FNEGABS_scalar(0b01, 0b10, Dn, Dd))
+
+#define FABSS(Sd, Sn)               EMIT(FNEGABS_scalar(0b00, 0b01, Sn, Sd))
+#define FABSD(Dd, Dn)               EMIT(FNEGABS_scalar(0b01, 0b01, Dn, Dd))
+
 
 // MUL
 #define FMUL_vector(Q, sz, Rm, Rn, Rd)  ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11011<<11 | 1<<10 | (Rn)<<5 | (Rd))

@@ -1828,7 +1828,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
-        
+
+        case 0xD9:
+            addr = dynarec64_D9(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
