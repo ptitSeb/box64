@@ -1217,7 +1217,7 @@ typedef struct my_dl_phdr_info_s {
     void*           dlpi_addr;
     const char*     dlpi_name;
     Elf64_Phdr*     dlpi_phdr;
-    int             dlpi_phnum;
+    Elf64_Half      dlpi_phnum;
 } my_dl_phdr_info_t;
 
 static int dl_iterate_phdr_callback(x64emu_t *emu, void* F, my_dl_phdr_info_t *info, size_t size, void* data)
