@@ -31,12 +31,10 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int fixedaddress;
     int v1, v2;
     int s0;
-    int j32;
 
     MAYUSE(s0);
     MAYUSE(v2);
     MAYUSE(v1);
-    MAYUSE(j32);
 
     switch(nextop) {
         case 0xC0:
