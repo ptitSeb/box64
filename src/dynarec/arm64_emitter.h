@@ -794,6 +794,15 @@
 #define FMOVS(Sd, Sn)                       EMIT(FMOV_register(0b00, Sn, Sd))
 #define FMOVD(Dd, Dn)                       EMIT(FMOV_register(0b01, Dn, Dd))
 
+#define FMOV_vector_imm(Q, op, abc, defgh, Rd)  ((Q)<<30 | (op)<<29 | 0b0111100000<<19 | (abc)<<16 | 0b1111<<12 | 1<<10 | (defgh)<<5 | (Rd))
+#define VFMOVS_8(Vd, u8)                    EMIT(FMOV_vector_imm(0, 0, ((u8)>>5)&0b111, (u8)&0b11111, Vd))
+#define VFMOVSQ_8(Vd, u8)                   EMIT(FMOV_vector_imm(1, 0, ((u8)>>5)&0b111, (u8)&0b11111, Vd))
+#define VFMOVDQ_8(Vd, u8)                   EMIT(FMOV_vector_imm(1, 1, ((u8)>>5)&0b111, (u8)&0b11111, Vd))
+
+#define FMOV_scalar_imm(type, imm8, Rd)     (0b11110<<24 | (type)<<22 | 1<<21 | (imm8)<<13 | 0b100<<10 | (Rd))
+#define FMOVS_8(Sd, u8)                     EMIT(FMOV_scalar_imm(0b00, u8, Sd))
+#define FMOVD_8(Dd, u8)                     EMIT(FMOV_scalar_imm(0b01, u8, Dd))
+
 // VMOV
 #define VMOV_element(imm5, imm4, Rn, Rd)    (1<<30 | 1<<29 | 0b01110000<<21 | (imm5)<<16 | (imm4)<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VMOVeB(Vd, i1, Vn, i2)              EMIT(VMOV_element(((i1)<<1) | 1, (i2), Vn, Vd))
@@ -1082,6 +1091,12 @@
 #define SCVTFD(Vd, Vn)              EMIT(SCVTF_vector(0, 0, 1, Vn, Vd))
 #define SCVTQFS(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 0, Vn, Vd))
 #define SCVTQFD(Vd, Vn)             EMIT(SCVTF_vector(1, 0, 1, Vn, Vd))
+
+// FRINTI Floating-point Round to Integral, using current rounding mode from FPCR (vector).
+#define FRINT_vector(Q, U, o2, sz, o1, Rn, Rd) ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o2)<<23 | (sz)<<22 | 0b10000<<17 | 0b1100<<13 | (o1)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define VFRINTIS(Vd,Vn)             EMIT(FRINT_vector(0, 1, 1, 0, 1, Vn, Vd))
+#define VFRINTISQ(Vd,Vn)            EMIT(FRINT_vector(1, 1, 1, 0, 1, Vn, Vd))
+#define VFRINTIDQ(Vd,Vn)            EMIT(FRINT_vector(1, 1, 1, 1, 1, Vn, Vd))
 
 // FMAX / FMIN
 #define FMINMAX_vector(Q, U, o1, sz, Rm, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o1)<<23 | (sz)<<22 | 0b1<<21 | (Rm)<<16 | 0b11110<<11 | 1<<10 | (Rn)<<5 | (Rd))
