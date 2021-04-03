@@ -179,9 +179,23 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = x1;
                     }
                     s0 = fpu_get_scratch(dyn);
+                    #if 0
                     FRINT32ZD(s0, v1);
                     FCVTZSwD(ed, s0);
                     WBACK;
+                    #else
+                    MSR_fpsr(x5);
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MRS_fpsr(x5);
+                    FRINTZD(s0, v1);
+                    VFCVTZSd(s0, s0);
+                    SQXTN_S_D(s0, s0);
+                    VSTR32_U12(s0, wback, fixedaddress);
+                    MSR_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ_NEXT(x5, FPSR_IOC);
+                    MOV32w(x5, 0x80000000);
+                    STRw_U12(x5, wback, fixedaddress);
+                    #endif
                     x87_do_pop(dyn, ninst);
                     break;
                 case 2:
@@ -196,9 +210,23 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = x1;
                     }
                     s0 = fpu_get_scratch(dyn);
+                    #if 0
                     FRINT32XD(s0, v1);
                     FCVTZSwD(ed, s0);
                     WBACK;
+                    #else
+                    MSR_fpsr(x5);
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MRS_fpsr(x5);
+                    FRINTXD(s0, v1);
+                    VFCVTZSd(s0, s0);
+                    SQXTN_S_D(s0, s0);
+                    VSTR32_U12(s0, wback, fixedaddress);
+                    MSR_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ_NEXT(x5, FPSR_IOC);
+                    MOV32w(x5, 0x80000000);
+                    STRw_U12(x5, wback, fixedaddress);
+                    #endif
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 3:
@@ -213,9 +241,23 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = x1;
                     }
                     s0 = fpu_get_scratch(dyn);
+                    #if 0
                     FRINT32XD(s0, v1);
                     FCVTZSwD(ed, s0);
                     WBACK;
+                    #else
+                    MSR_fpsr(x5);
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MRS_fpsr(x5);
+                    FRINTXD(s0, v1);
+                    VFCVTZSd(s0, s0);
+                    SQXTN_S_D(s0, s0);
+                    VSTR32_U12(s0, wback, fixedaddress);
+                    MSR_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ_NEXT(x5, FPSR_IOC);
+                    MOV32w(x5, 0x80000000);
+                    STRw_U12(x5, wback, fixedaddress);
+                    #endif
                     x87_restoreround(dyn, ninst, u8);
                     x87_do_pop(dyn, ninst);
                     break;
