@@ -595,6 +595,10 @@ EXPORT int my_pthread_cond_wait(x64emu_t* emu, void* cond, void* mutex)
 	return pthread_cond_wait(c, getAlignedMutex((pthread_mutex_t*)mutex));
 }
 #else
+EXPORT int my_pthread_cond_timedwait(x64emu_t* emu, pthread_cond_t* cond, void* mutex, void* abstime)
+{
+	return pthread_cond_timedwait(cond, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
+}
 EXPORT int my_pthread_cond_wait(x64emu_t* emu, pthread_cond_t* cond, void* mutex)
 {
 	return pthread_cond_wait(cond, getAlignedMutex((pthread_mutex_t*)mutex));
@@ -678,26 +682,54 @@ pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m) {
 	return m;
 }
 #else
+//#define TRACK_MUTEX
 // mutex alignment
+#ifdef TRACK_MUTEX
 KHASH_MAP_INIT_INT(mutex, pthread_mutex_t*)
 
 static kh_mutex_t* unaligned_mutex = NULL;
+#endif
 
-pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
+typedef struct aligned_mutex_s {
+	uint64_t sign;
+	pthread_mutex_t *m;
+} aligned_mutex_t;
+#define SIGN *(uint64_t*)"BOX64MTX"
+
+pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 {
+	aligned_mutex_t* am = (aligned_mutex_t*)m;
+	if(init && am->sign==SIGN)
+		return am->m;
+	#ifdef TRACK_MUTEX
 	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
 	if(k!=kh_end(unaligned_mutex))
 		return kh_value(unaligned_mutex, k);
 	int r;
 	k = kh_put(mutex, unaligned_mutex, (uintptr_t)m, &r);
 	pthread_mutex_t* ret = kh_value(unaligned_mutex, k) = (pthread_mutex_t*)calloc(1, sizeof(pthread_mutex_t));
-	size_t sz = sizeof(pthread_mutex_t);
-	if(sz>40) sz = 40;	// 40 is sizeof(pthread_mutex_t) on x86_64
-	memcpy(ret, m, sz);	// probably need some magic here on ARM64 to convert x86_64 mutex structure
+	#else
+	pthread_mutex_t* ret = (pthread_mutex_t*)calloc(1, sizeof(pthread_mutex_t));
+	#endif
+	am->sign = SIGN;
+	am->m = ret;
+	if(init)
+		pthread_mutex_init(ret, NULL);	// default init, same as with static constructor
 	return ret;
 }
+pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
+{
+	return getAlignedMutexWithInit(m, 1);
+}
+
 EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
 {
+	aligned_mutex_t* am = (aligned_mutex_t*)m;
+	#ifdef TRACK_MUTEX
+	if(am->sign==SIGN) {
+		am->sign = 0;
+		am->m = NULL;
+	}
 	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
 	if(k!=kh_end(unaligned_mutex)) {
 		pthread_mutex_t *n = kh_value(unaligned_mutex, k);
@@ -707,12 +739,20 @@ EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
 		return ret;
 	}
 	return pthread_mutex_destroy(m);
+	#else
+	if(am->sign!=SIGN) {
+		return 1;	//???
+	}
+	int ret = pthread_mutex_destroy(am->m);
+	free(am->m);
+	return ret;
+	#endif
 }
 int my___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_destroy")));
 
 EXPORT int my_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)
 {
-	return pthread_mutex_init(getAlignedMutex(m), att);
+	return pthread_mutex_init(getAlignedMutexWithInit(m, 0), att);
 }
 EXPORT int my___pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att) __attribute__((alias("my_pthread_mutex_init")));
 
@@ -771,7 +811,9 @@ void init_pthread_helper()
 #endif
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 #ifndef NOALIGN
+	#ifdef TRACK_MUTEX
 	unaligned_mutex = kh_init(mutex);
+	#endif
 #endif
 }
 
@@ -789,12 +831,14 @@ void fini_pthread_helper(box64context_t* context)
 	mapcond = NULL;
 #endif
 #ifndef NOALIGN
+	#ifdef TRACK_MUTEX
 	pthread_mutex_t *m;
 	kh_foreach_value(unaligned_mutex, m, 
 		pthread_mutex_destroy(m);
 		free(m);
 	);
 	kh_destroy(mutex, unaligned_mutex);
+	#endif
 #endif
 	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
 	if(ejb) {
