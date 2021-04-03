@@ -344,6 +344,16 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVQSfrom(v0, 0, x2);
             break;
 
+        case 0xE6:
+            INST_NAME("CVTDQ2PD Gx, Ex");
+            nextop = F8;
+            GETEX(v1, 0);
+            GETGX_empty(v0);
+            d0 = fpu_get_scratch(dyn);
+            SXTL_32(v0, v1);
+            SCVTQFD(v0, v0);    // there is only I64 -> Double vector conversion, not from i32
+            break;
+
         default:
             DEFAULT;
     }
