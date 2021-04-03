@@ -722,7 +722,7 @@ GOW(inet_pton, iFipp)
 //GO(__inet_pton_length, 
 //GO(initgroups, 
 //GO(init_module, 
-//GOW(initstate, 
+GOW(initstate, pFupL)
 //GOW(initstate_r, 
 //GO(innetgr, 
 GO(inotify_add_watch, iFipu)
@@ -1080,7 +1080,7 @@ GOW(localtime_r, pFpp)
 //GO(lockf, 
 //GOW(lockf64, 
 //DATAB(locs, 
-//GOW(_longjmp, vFEpi)
+GOM(_longjmp, vFEpi)    //Weak
 GOM(longjmp, vFEpi) //weak
 GOM(__longjmp_chk, vFEpi)
 //GO(lrand48, 
@@ -1449,7 +1449,7 @@ GOM(qsort_r, vFEpLLpp)  //Weak
 //GO(quotactl, 
 //GO(raise, 
 GO(rand, iFv)
-//GOW(random, 
+GOW(random, lFv)
 //GOW(random_r, 
 GO(rand_r, iFp)
 GO(__rawmemchr, pFpi)
@@ -1646,7 +1646,7 @@ GOW(setrlimit64, iFip)
 GOW(setsockopt, iFiiipu)
 //GO(setsourcefilter, 
 //GO(setspent, 
-//GOW(setstate, 
+GOW(setstate, pFp)
 //GOW(setstate_r, 
 //GOW(settimeofday, 
 //GOW(setttyent, 
@@ -1723,7 +1723,7 @@ GOM(__sprintf_chk, iFEpilpV)
 GOW(srand, vFu)
 //GO(srand48, 
 //GOW(srand48_r, 
-//GOW(srandom, 
+GOW(srandom, vFu)
 //GOW(srandom_r, 
 GOM(sscanf, iFEppV)
 //GOW(ssignal, 
