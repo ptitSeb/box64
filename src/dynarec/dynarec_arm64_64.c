@@ -27,12 +27,15 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 {
     uint8_t opcode = F8;
     uint8_t nextop;
+    uint8_t u8;
     int32_t j32;
-    uint8_t gd, ed;
+    uint8_t gd, ed, eb1, eb2;
     uint8_t wback;
     int64_t i64;
     int fixedaddress;
     MAYUSE(j32);
+    MAYUSE(eb1);
+    MAYUSE(eb2);
 
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
@@ -46,6 +49,16 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     }
 
     switch(opcode) {
+
+        case 0x03:
+            INST_NAME("ADD Gd, FS:Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            grab_segdata(dyn, addr, ninst, x4, _FS);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_add32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
 
         case 0x33:
             INST_NAME("XOR Gd, FS:Ed");
@@ -162,6 +175,29 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xC6:
+            INST_NAME("MOV FS:Eb, Ib");
+            grab_segdata(dyn, addr, ninst, x4, _FS);
+            nextop=F8;
+            if(MODREG) {   // reg <= u8
+                u8 = F8;
+                if(!rex.rex) {
+                    ed = (nextop&7);
+                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                } else {
+                    eb1 = xRAX+(nextop&7)+(rex.b<<3);
+                    eb2 = 0;            
+                }
+                MOV32w(x3, u8);
+                BFIx(eb1, x3, eb2*8, 8);
+            } else {                    // mem <= u8
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 1);
+                u8 = F8;
+                MOV32w(x3, u8);
+                STRB_REG(x3, ed, x4);
+            }
+            break;
         case 0xC7:
             INST_NAME("MOV FS:Ed, Id");
             grab_segdata(dyn, addr, ninst, x4, _FS);
