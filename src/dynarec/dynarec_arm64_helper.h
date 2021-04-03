@@ -678,6 +678,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_popcache    STEPNAME(fpu_popcache)
 #define fpu_reset       STEPNAME(fpu_reset)
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
+#define mmx_purgecache  STEPNAME(mmx_purgecache)
 #ifdef HAVE_TRACE
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #endif
@@ -817,6 +818,8 @@ void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1);
 void fpu_reset(dynarec_arm_t* dyn, int ninst);
 // purge the FPU cache (needs 3 scratch registers)
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+// purge MMX cache
+void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1);
 #ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #endif

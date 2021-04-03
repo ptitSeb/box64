@@ -911,7 +911,7 @@ int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 #endif
 }
 // purge the MMX cache only(needs 3 scratch registers)
-static void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
+void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 1
     int old = -1;

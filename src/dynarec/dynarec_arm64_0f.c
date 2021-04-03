@@ -691,7 +691,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x77:
             INST_NAME("EMMS");
             // empty MMX, FPU now usable
-            // mmx_purge_cache?
+            mmx_purgecache(dyn, ninst, x1);
             /*emu->top = 0;
             emu->fpu_stack = 0;*/ //TODO: Check if something is needed here?
             break;
