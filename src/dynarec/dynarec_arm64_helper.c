@@ -602,7 +602,7 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst)
 #endif
 }
 
-static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
 #if STEP > 1
     int ret = 0;
@@ -850,10 +850,10 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     UBFXx(s2, s1, 10, 2);    // extract round...
     MOV64x(s1, (uintptr_t)round_map);
     LDRw_REG_LSL2(s2, s1, s2);
-    VMRS(s1);               // get fpscr
+    MRS_fpcr(s1);               // get fpscr
     MOVx_REG(s3, s1);
     BFIx(s1, s2, 22, 2);     // inject new round
-    VMSR(s1);               // put new fpscr
+    MSR_fpcr(s1);               // put new fpscr
     return s3;
 }
 
@@ -864,17 +864,17 @@ int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     UBFXx(s2, s1, 13, 2);    // extract round...
     MOV64x(s1, (uintptr_t)round_map);
     LDRw_REG_LSL2(s2, s1, s2);
-    VMRS(s1);               // get fpscr
+    MRS_fpcr(s1);               // get fpscr
     MOVx_REG(s3, s1);
     BFIx(s1, s2, 22, 2);     // inject new round
-    VMSR(s1);               // put new fpscr
+    MSR_fpcr(s1);               // put new fpscr
     return s3;
 }
 
 // Restore round flag
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 {
-    VMSR(s1);               // put back fpscr
+    MSR_fpcr(s1);               // put back fpscr
 }
 
 // MMX helpers

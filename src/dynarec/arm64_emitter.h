@@ -612,8 +612,13 @@
 // MSR : to System register
 #define MSR_nzvc(Rt)                    EMIT(MRS_gen(0, 1, 3, 4, 2, 0, Rt))
 // mrs    x0, fpcr : 1101010100 1 1 1 011 0100 0100 000 00000    o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0100(4) op2=2
-#define VMRS(Rt)                        EMIT(MRS_gen(1, 1, 3, 4, 4, 0, Rt))
-#define VMSR(Rt)                        EMIT(MRS_gen(0, 1, 3, 4, 4, 0, Rt))
+#define MRS_fpcr(Rt)                    EMIT(MRS_gen(1, 1, 3, 4, 4, 0, Rt))
+#define MSR_fpcr(Rt)                    EMIT(MRS_gen(0, 1, 3, 4, 4, 0, Rt))
+
+// FCSEL
+#define FCSEL_scalar(type, Rm, cond, Rn, Rd)    (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | (cond)<<12 | 0b11<<10 | (Rn)<<5 | (Rd))
+#define FCSELS(Sd, Sn, Sm, cond)        EMIT(FCSEL_scalar(0b00, Sm, cond, Sn, Sd))
+#define FCSELD(Dd, Dn, Dm, cond)        EMIT(FCSEL_scalar(0b01, Dm, cond, Dn, Dd))
  
 // VLDR
 #define VMEM_gen(size, opc, imm12, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | 0b01<<24 | (opc)<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
@@ -1098,8 +1103,8 @@
 #define SCVTFDx(Dd, Xn)             EMIT(SCVTF_scalar(1, 0b01, 0b00, 0b010, Xn, Dd))
 
 #define SCVTF_vector_scalar(U, sz, Rn, Rd)    (1<<30 | (U)<<29 | 0b11110<<24 | (sz)<<22 | 0b10000<<17 | 0b11101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
-#define SCVTFSS(Vd, Vn)             EMIT(SCVT_vector_scalar(0, 0, Vn, Vd))
-#define SCVTFDD(Vd, Vn)             EMIT(SCVT_vector_scalar(0, 1, Vn, Vd))
+#define SCVTFSS(Vd, Vn)             EMIT(SCVTF_vector_scalar(0, 0, Vn, Vd))
+#define SCVTFDD(Vd, Vn)             EMIT(SCVTF_vector_scalar(0, 1, Vn, Vd))
 
 #define SCVTF_vector(Q, U, sz, Rn, Rd)      ((Q)<<30 | (U)<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b11101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define SCVTFS(Vd, Vn)              EMIT(SCVTF_vector(0, 0, 0, Vn, Vd))
@@ -1112,6 +1117,16 @@
 #define VFRINTIS(Vd,Vn)             EMIT(FRINT_vector(0, 1, 1, 0, 1, Vn, Vd))
 #define VFRINTISQ(Vd,Vn)            EMIT(FRINT_vector(1, 1, 1, 0, 1, Vn, Vd))
 #define VFRINTIDQ(Vd,Vn)            EMIT(FRINT_vector(1, 1, 1, 1, 1, Vn, Vd))
+
+#define FRINT_scalar(type, op, Rn, Rd)  (0b11110<<24 | (type)<<22 | 1<<21 | 0b0100<<17 | (op)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
+#define FRINT32ZS(Sd, Sn)           EMIT(FRINT_scalar(0b00, 0b00, Sn, Sd))
+#define FRINT32ZD(Dd, Dn)           EMIT(FRINT_scalar(0b01, 0b00, Dn, Dd))
+#define FRINT32XS(Sd, Sn)           EMIT(FRINT_scalar(0b00, 0b01, Sn, Sd))
+#define FRINT32XD(Dd, Dn)           EMIT(FRINT_scalar(0b01, 0b01, Dn, Dd))
+#define FRINT64ZS(Sd, Sn)           EMIT(FRINT_scalar(0b00, 0b10, Sn, Sd))
+#define FRINT64ZD(Dd, Dn)           EMIT(FRINT_scalar(0b01, 0b10, Dn, Dd))
+#define FRINT64XS(Sd, Sn)           EMIT(FRINT_scalar(0b00, 0b11, Sn, Sd))
+#define FRINT64XD(Dd, Dn)           EMIT(FRINT_scalar(0b01, 0b11, Dn, Dd))
 
 // FMAX / FMIN
 #define FMINMAX_vector(Q, U, o1, sz, Rm, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o1)<<23 | (sz)<<22 | 0b1<<21 | (Rm)<<16 | 0b11110<<11 | 1<<10 | (Rn)<<5 | (Rd))

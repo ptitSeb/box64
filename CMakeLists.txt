@@ -289,7 +289,7 @@ if(ARM_DYNAREC)
     #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_d8.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_arm64_d9.c"
     #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_da.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_db.c"
+    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_db.c"
     #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_dc.c"
     #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_dd.c"
     #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_de.c"
