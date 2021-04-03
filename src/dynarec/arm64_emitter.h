@@ -611,10 +611,27 @@
 #define MRS_nzvc(Rt)                    EMIT(MRS_gen(1, 1, 3, 4, 2, 0, Rt))
 // MSR : to System register
 #define MSR_nzvc(Rt)                    EMIT(MRS_gen(0, 1, 3, 4, 2, 0, Rt))
-// mrs    x0, fpcr : 1101010100 1 1 1 011 0100 0100 000 00000    o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0100(4) op2=2
+// mrs    x0, fpcr : 1101010100 1 1 1 011 0100 0100 000 00000    o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0100(4) op2=0
 #define MRS_fpcr(Rt)                    EMIT(MRS_gen(1, 1, 3, 4, 4, 0, Rt))
 #define MSR_fpcr(Rt)                    EMIT(MRS_gen(0, 1, 3, 4, 4, 0, Rt))
-
+// mrs    x0, fpsr : 1101010100 1 1 1 011 0100 0100 001 00000    o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0100(4) op2=1
+#define MRS_fpsr(Rt)                    EMIT(MRS_gen(1, 1, 3, 4, 4, 1, Rt))
+#define MSR_fpsr(Rt)                    EMIT(MRS_gen(0, 1, 3, 4, 4, 1, Rt))
+// NEON Saturation Bit
+#define FPSR_QC 27
+// NEON Input Denormal Cumulative
+#define FPSR_IDC    7
+// NEON IneXact Cumulative
+#define FPSR_IXC    4
+// NEON Underflow Cumulative
+#define FPSR_UFC    3
+// NEON Overflow Cumulative
+#define FPSR_OFC    2
+// NEON Divide by 0 Cumulative
+#define FPSR_DZC    1
+// NEON Invalid Operation Cumulative
+#define FPSR_IOC    0
+                     
 // FCSEL
 #define FCSEL_scalar(type, Rm, cond, Rn, Rd)    (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | (cond)<<12 | 0b11<<10 | (Rn)<<5 | (Rd))
 #define FCSELS(Sd, Sn, Sm, cond)        EMIT(FCSEL_scalar(0b00, Sm, cond, Sn, Sd))
@@ -634,6 +651,8 @@
 #define VSTR64_U12(Dt, Rn, imm15)           EMIT(VMEM_gen(0b11, 0b00, ((uint32_t)(imm15>>3))&0xfff, Rn, Dt))
 // imm16 must be 4-aligned
 #define VSTR128_U12(Qt, Rn, imm16)          EMIT(VMEM_gen(0b00, 0b10, ((uint32_t)((imm16)>>4))&0xfff, Rn, Qt))
+// (imm14) must be 1-aligned
+#define VSTR16_U12(Ht, Rn, imm14)           EMIT(VMEM_gen(0b01, 0b00, ((uint32_t)(imm14>>1))&0xfff, Rn, Ht))
 
 #define VMEMUR_vector(size, opc, imm9, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (Rn)<<5 | (Rt))
 // signed offset, no alignement!
@@ -1118,15 +1137,21 @@
 #define VFRINTISQ(Vd,Vn)            EMIT(FRINT_vector(1, 1, 1, 0, 1, Vn, Vd))
 #define VFRINTIDQ(Vd,Vn)            EMIT(FRINT_vector(1, 1, 1, 1, 1, Vn, Vd))
 
-#define FRINT_scalar(type, op, Rn, Rd)  (0b11110<<24 | (type)<<22 | 1<<21 | 0b0100<<17 | (op)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
-#define FRINT32ZS(Sd, Sn)           EMIT(FRINT_scalar(0b00, 0b00, Sn, Sd))
-#define FRINT32ZD(Dd, Dn)           EMIT(FRINT_scalar(0b01, 0b00, Dn, Dd))
-#define FRINT32XS(Sd, Sn)           EMIT(FRINT_scalar(0b00, 0b01, Sn, Sd))
-#define FRINT32XD(Dd, Dn)           EMIT(FRINT_scalar(0b01, 0b01, Dn, Dd))
-#define FRINT64ZS(Sd, Sn)           EMIT(FRINT_scalar(0b00, 0b10, Sn, Sd))
-#define FRINT64ZD(Dd, Dn)           EMIT(FRINT_scalar(0b01, 0b10, Dn, Dd))
-#define FRINT64XS(Sd, Sn)           EMIT(FRINT_scalar(0b00, 0b11, Sn, Sd))
-#define FRINT64XD(Dd, Dn)           EMIT(FRINT_scalar(0b01, 0b11, Dn, Dd))
+#define FRINTxx_scalar(type, op, Rn, Rd)  (0b11110<<24 | (type)<<22 | 1<<21 | 0b0100<<17 | (op)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
+#define FRINT32ZS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b00, Sn, Sd))
+#define FRINT32ZD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b00, Dn, Dd))
+#define FRINT32XS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b01, Sn, Sd))
+#define FRINT32XD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b01, Dn, Dd))
+#define FRINT64ZS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b10, Sn, Sd))
+#define FRINT64ZD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b10, Dn, Dd))
+#define FRINT64XS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b11, Sn, Sd))
+#define FRINT64XD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b11, Dn, Dd))
+
+#define FRINT_scalar(type, rmode, Rn, Rd)   (0b11110<<24 | (type)<<22 | 1<<21 | 0b001<<18 | (rmode)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
+#define FRINTZS(Sd, Sn)             EMIT(FRINT_scalar(0b00, 0b011, Sn, Sd))
+#define FRINTZD(Sd, Sn)             EMIT(FRINT_scalar(0b01, 0b011, Sn, Sd))
+#define FRINTXS(Sd, Sn)             EMIT(FRINT_scalar(0b00, 0b110, Sn, Sd))
+#define FRINTXD(Sd, Sn)             EMIT(FRINT_scalar(0b01, 0b110, Sn, Sd))
 
 // FMAX / FMIN
 #define FMINMAX_vector(Q, U, o1, sz, Rm, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o1)<<23 | (sz)<<22 | 0b1<<21 | (Rm)<<16 | 0b11110<<11 | 1<<10 | (Rn)<<5 | (Rd))
@@ -1217,6 +1242,14 @@
 #define VTRNQ2_8(Vd, Vn, Vm)        EMIT(TRN_gen(1, 0b00, Vm, 1, Vn, Vd))
 
 // QXTN / QXTN2
+#define QXTN_scalar(U, size, Rn, Rd)        (0b01<<30 | (U)<<29 | 0b11110<<24 | (size)<<22 | 0b10000<<17 | 0b10100<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Signed saturating extract Narrow, from D to S
+#define SQXTN_S_D(Sd, Dn)           EMIT(QXTN_scalar(0, 0b10, Dn, Sd))
+// Signed saturating extract Narrow, from S to H
+#define SQXTN_H_S(Hd, Sn)           EMIT(QXTN_scalar(0, 0b01, Sn, Hd))
+// Signed saturating extract Narrow, from H to B
+#define SQXTN_B_H(Bd, Hn)           EMIT(QXTN_scalar(0, 0b00, Hn, Bd))
+
 #define QXTN_vector(Q, U, size, Rn, Rd)     ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | 0b10100<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 // Signed saturating extract Narrow, takes Rn element and reduce 64->32 with Signed saturation and fit lower part of Rd
 #define SQXTN_32(Rd, Rn)            EMIT(QXTN_vector(0, 0, 0b10, Rn, Rd))
