@@ -1162,6 +1162,19 @@ reg64_t* GetEd32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t 
     } else return GetECommon32O(emu, rex, m, delta, offset);
 }
 
+reg64_t* GetEb32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
+{
+    uint8_t m = v&0xC7;    // filter Eb
+    if(m>=0xC0) {
+        if(rex.rex) {
+            return &emu->regs[(m&0x07)+(rex.b<<3)];
+        } else {
+            int lowhigh = (m&4)>>2;
+            return (reg64_t *)(((char*)(&emu->regs[(m&0x03)]))+lowhigh);  //?
+        }
+    } else return GetECommon32O(emu, rex, m, delta, offset);
+}
+
 #define GetEw GetEd
 
 reg64_t* GetEw16(x64emu_t *emu, rex_t rex, uint8_t v)

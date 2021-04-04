@@ -81,6 +81,7 @@ reg64_t* GetEbO(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t of
 reg64_t* GetEd(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta);
 reg64_t* GetEdO(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* GetEd32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
+reg64_t* GetEb32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 #define GetEw GetEd
 reg64_t* GetEw16(x64emu_t *emu, rex_t rex, uint8_t v);
 reg64_t* GetEw16off(x64emu_t *emu, rex_t rex, uint8_t v, uintptr_t offset);

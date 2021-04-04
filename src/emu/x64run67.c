@@ -42,7 +42,66 @@ int Run67(x64emu_t *emu, rex_t rex)
     }
 
     switch(opcode) {
+    #define GO(B, OP)                                   \
+    case B+0:                                           \
+        nextop = F8;                                    \
+        GETEB32(0);                                       \
+        GETGB;                                          \
+        EB->byte[0] = OP##8(emu, EB->byte[0], GB);      \
+        break;                                          \
+    case B+1:                                           \
+        nextop = F8;                                    \
+        GETED32(0);                                       \
+        GETGD;                                          \
+        if(rex.w)                                       \
+            ED->q[0] = OP##64(emu, ED->q[0], GD->q[0]); \
+        else {                                          \
+            if(MODREG)                                  \
+                ED->q[0] = OP##32(emu, ED->dword[0], GD->dword[0]);     \
+            else                                                        \
+                ED->dword[0] = OP##32(emu, ED->dword[0], GD->dword[0]); \
+        }                                               \
+        break;                                          \
+    case B+2:                                           \
+        nextop = F8;                                    \
+        GETEB32(0);                                       \
+        GETGB;                                          \
+        GB = OP##8(emu, GB, EB->byte[0]);               \
+        break;                                          \
+    case B+3:                                           \
+        nextop = F8;                                    \
+        GETED32(0);                                       \
+        GETGD;                                          \
+        if(rex.w)                                       \
+            GD->q[0] = OP##64(emu, GD->q[0], ED->q[0]); \
+        else                                            \
+            GD->q[0] = OP##32(emu, GD->dword[0], ED->dword[0]); \
+        break;                                          \
+    case B+4:                                           \
+        R_AL = OP##8(emu, R_AL, F8);                    \
+        break;                                          \
+    case B+5:                                           \
+        if(rex.w)                                       \
+            R_RAX = OP##64(emu, R_RAX, F32S64);         \
+        else                                            \
+            R_RAX = OP##32(emu, R_EAX, F32);            \
+        break;
 
+    GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
+    GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
+    GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
+    GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
+    GO(0x20, and)                   /* AND 0x20 -> 0x25 */
+    GO(0x28, sub)                   /* SUB 0x28 -> 0x2D */
+    GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
+    #undef GO
+
+    case 0x88:                      /* MOV Eb,Gb */
+        nextop = F8;
+        GETEB32(0);
+        GETGB;
+        EB->byte[0] = GB;
+        break;
     case 0x89:                    /* MOV Ed,Gd */
         nextop = F8;
         GETED32(0);
@@ -56,6 +115,12 @@ int Run67(x64emu_t *emu, rex_t rex)
             else
                 ED->dword[0] = GD->dword[0];
         }
+        break;
+    case 0x8A:                      /* MOV Gb,Eb */
+        nextop = F8;
+        GETEB32(0);
+        GETGB;
+        GB = EB->byte[0];
         break;
 
     case 0x8D:                      /* LEA Gd,M */
@@ -138,7 +203,7 @@ int Run67(x64emu_t *emu, rex_t rex)
     case 0xF7:                      /* GRP3 Ed(,Id) */
         nextop = F8;
         tmp8u = (nextop>>3)&7;
-        GETED((tmp8u<2)?4:0);
+        GETED32((tmp8u<2)?4:0);
         if(rex.w) {
             switch(tmp8u) {
                 case 0: 

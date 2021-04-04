@@ -18,6 +18,7 @@
 #define GETED_OFFS(D, O)    oped=GetEdO(emu, rex, nextop, D, O)
 #define GETGD               opgd=GetGd(emu, rex, nextop)
 #define GETEB(D)            oped=GetEb(emu, rex, nextop, D)
+#define GETEB32(D)          oped=GetEb32O(emu, rex, nextop, D, 0)
 #define GETEB_OFFS(D, O)    oped=GetEbO(emu, rex, nextop, D, O)
 #define GETGB               opgd=GetGb(emu, rex, nextop)
 #define GETEW(D)            oped=GetEw(emu, rex, nextop, D)
