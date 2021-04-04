@@ -1701,13 +1701,13 @@ GOM(sigset, pFEip)
 GOM(__sigsetjmp, iFEp)
 //GOW(sigsetmask, 
 //GO(sigstack, 
-//GO(__sigsuspend, 
-//GOW(sigsuspend, 
-//GO(__sigtimedwait, 
-//GOW(sigtimedwait, 
+GO(__sigsuspend, iFp)
+GOW(sigsuspend, iFp)
+GO(__sigtimedwait, iFppp)
+GOW(sigtimedwait, iFppp)
 //GO(sigvec, 
-//GOW(sigwait, 
-//GOW(sigwaitinfo, 
+GOW(sigwait, iFpp)
+GOW(sigwaitinfo, iFpp)
 GOW(sleep, uFu)
 GOM(__snprintf, iFEpLpV)
 GOM(snprintf, iFEpLpV)  //Weak
