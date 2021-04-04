@@ -296,6 +296,7 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/dynarec_arm64_df.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_arm64_f0.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_arm64_660f.c"
+    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_6664.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_arm64_f20f.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_arm64_f30f.c"
     )
