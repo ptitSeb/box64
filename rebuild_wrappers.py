@@ -203,10 +203,51 @@ def main(root, defines, files, ver):
 			# Mark as OK for CMake
 			with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'w') as file:
 				file.write(functions_list)
-			#return 0
+			return 0
 	except IOError:
 		# The file does not exist yet, first run
 		pass
+	
+	# Detect simple wrappings
+	simple_wraps = {}
+	
+	# H could be allowed maybe?
+	allowed_simply = "v"
+	allowed_regs = "cCwWiuIUlLp"
+	allowed_fpr = "fd"
+	
+	# Sanity checks
+	forbidden_simple = "EeDKVOSNMH"
+	assert(len(allowed_simply) + len(allowed_regs) + len(allowed_fpr) + len(forbidden_simple) == len(values))
+	assert(all(c not in allowed_regs for c in allowed_simply))
+	assert(all(c not in allowed_simply + allowed_regs for c in allowed_fpr))
+	assert(all(c not in allowed_simply + allowed_regs + allowed_fpr for c in forbidden_simple))
+	assert(all(c in allowed_simply + allowed_regs + allowed_fpr + forbidden_simple for c in values))
+	
+	# Only search on real wrappers
+	for k in ["()"] + gbl_idxs:
+		for v in gbl[k]:
+			regs_count = 0
+			fpr_count  = 0
+			
+			if v[0] in forbidden_simple:
+				continue
+			for c in v[2:]:
+				if c in allowed_regs:
+					regs_count = regs_count + 1
+				elif c in allowed_fpr:
+					fpr_count = fpr_count + 1
+				elif c in allowed_simply:
+					continue
+				else:
+					break
+			else:
+				# No character in forbidden_simply
+				if (regs_count <= 6) and (fpr_count <= 4):
+					# All checks passed!
+					simple_wraps.setdefault(k, []).append(v)
+	simple_idxs = list(simple_wraps.keys())
+	simple_idxs.sort(key=lambda v: [-1] if v == "()" else splitdef(v, defines))
 	
 	# Now the files rebuilding part
 	# File headers and guards
@@ -279,6 +320,8 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 	}
 	files_guards = {"wrapper.c": """""",
 		"wrapper.h": """
+int isSimpleWrapper(wrapper_t fun);
+
 #endif //__WRAPPER_H_
 """
 	}
@@ -308,25 +351,22 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 		file.write(files_headers["wrapper.c"] % ver)
 		
 		# First part: typedefs
-		for v in gbl["()"]:
-			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S         N      M			    H
-			types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128"]
-			if len(values) != len(types):
-					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
+		def generate_typedefs(key):
+			# i and u should only be 32 bits
+			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H
+			types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128"]
 			
-			file.write("typedef " + types[values.index(v[0])] + " (*" + v + "_t)"
-				+ "(" + ', '.join(types[values.index(t)] for t in v[2:]) + ");\n")
-		for k in gbl_idxs:
-			file.write("\n#if " + k + "\n")
-			for v in gbl[k]:
-				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S         N      M            H
-				types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128"]
-				#																  int322_t normaly							uint32_t normaly
+			for v in gbl[key]:
 				if len(values) != len(types):
-						raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
+					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 				
 				file.write("typedef " + types[values.index(v[0])] + " (*" + v + "_t)"
 					+ "(" + ', '.join(types[values.index(t)] for t in v[2:]) + ");\n")
+		
+		generate_typedefs("()")
+		for k in gbl_idxs:
+			file.write("\n#if " + k + "\n")
+			generate_typedefs(k)
 			file.write("#endif\n")
 		
 		file.write("\n")
@@ -348,134 +388,134 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M, H
 		vstack = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2]
 		arg_s = [
-			"",											# E
-			"",											# e
-			"",											# v
-			"*(int8_t*)(R_RSP + {p}), ",				# c
-			"*(int16_t*)(R_RSP + {p}), ",	 			# w
-			"*(int64_t*)(R_RSP + {p}), ",				# i	int32_t normaly
-			"*(int64_t*)(R_RSP + {p}), ",				# I
-			"*(uint8_t*)(R_RSP + {p}), ",				# C
-			"*(uint16_t*)(R_RSP + {p}), ",				# W
-			"*(uint64_t*)(R_RSP + {p}), ",				# u uint32_t normaly
-			"*(uint64_t*)(R_RSP + {p}), ",				# U
-			"*(float*)(R_RSP + {p}), ",					# f
-			"*(double*)(R_RSP + {p}), ",				# d
-			"*(long double*)(R_RSP + {p}), ",			# D
-			"FromLD((void*)(R_RSP + {p})), ",			# K
-			"*(intptr_t*)(R_RSP + {p}), ",				# l
-			"*(uintptr_t*)(R_RSP + {p}), ",				# L
-			"*(void**)(R_RSP + {p}), ",					# p
-			"",					# V
-			"of_convert(*(int32_t*)(R_RSP + {p})), ",	# O
-			"io_convert(*(void**)(R_RSP + {p})), ",		# S
-			"*(void**)(R_RSP + {p}), ",					# N
-			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 8), ",	# M
-			"*(unsigned __int128)(R_RSP + {p}), "		# H
+			"",                                         # E
+			"",                                         # e
+			"",                                         # v
+			"*(int8_t*)(R_RSP + {p}), ",                # c
+			"*(int16_t*)(R_RSP + {p}), ",               # w
+			"*(int64_t*)(R_RSP + {p}), ",               # i  should be int32_t
+			"*(int64_t*)(R_RSP + {p}), ",               # I
+			"*(uint8_t*)(R_RSP + {p}), ",               # C
+			"*(uint16_t*)(R_RSP + {p}), ",              # W
+			"*(uint64_t*)(R_RSP + {p}), ",              # u  should be uint32_t
+			"*(uint64_t*)(R_RSP + {p}), ",              # U
+			"*(float*)(R_RSP + {p}), ",                 # f
+			"*(double*)(R_RSP + {p}), ",                # d
+			"*(long double*)(R_RSP + {p}), ",           # D
+			"FromLD((void*)(R_RSP + {p})), ",           # K
+			"*(intptr_t*)(R_RSP + {p}), ",              # l
+			"*(uintptr_t*)(R_RSP + {p}), ",             # L
+			"*(void**)(R_RSP + {p}), ",                 # p
+			"",                                         # V
+			"of_convert(*(int32_t*)(R_RSP + {p})), ",   # O
+			"io_convert(*(void**)(R_RSP + {p})), ",     # S
+			"*(void**)(R_RSP + {p}), ",                 # N
+			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 8), ", # M
+			"*(unsigned __int128)(R_RSP + {p}), "       # H
 		]
 		arg_r = [
-			"",                                  		# E
-			"",                                 		# e
-			"",                                       # v
-			"(int8_t){p}, ",              # c
-			"(int16_t){p}, ",             # w
-			"(int64_t){p}, ",             # i	int32_ normaly
-			"(int64_t){p}, ",             # I
-			"(uint8_t){p}, ",             # C
-			"(uint16_t){p}, ",            # W
-			"(uint64_t){p}, ",            # u	uint32_ normaly
-			"(uint64_t){p}, ",            # U
-			"",               # f
-			"",              # d
-			"",         # D
-			"",         # K
-			"(intptr_t){p}, ",            # l
-			"(uintptr_t){p}, ",           # L
-			"(void*){p}, ",               # p
-			"",                 # V
-			"of_convert((int32_t){p}), ", # O
-			"io_convert((void*){p}), ",   # S
-			"(void*){p}, ",				  # N
-			"(void*){p}, ",	# M
-			"#error use pp instead, ", #H
+			"",                            # E
+			"",                            # e
+			"",                            # v
+			"(int8_t){p}, ",               # c
+			"(int16_t){p}, ",              # w
+			"(int64_t){p}, ",              # i  should int32_t
+			"(int64_t){p}, ",              # I
+			"(uint8_t){p}, ",              # C
+			"(uint16_t){p}, ",             # W
+			"(uint64_t){p}, ",             # u  should uint32_t
+			"(uint64_t){p}, ",             # U
+			"",                            # f
+			"",                            # d
+			"",                            # D
+			"",                            # K
+			"(intptr_t){p}, ",             # l
+			"(uintptr_t){p}, ",            # L
+			"(void*){p}, ",                # p
+			"",                            # V
+			"of_convert((int32_t){p}), ",  # O
+			"io_convert((void*){p}), ",    # S
+			"(void*){p}, ",                # N
+			"(void*){p}, ",                # M
+			"\n#error Use pp instead\n",   # H
 		]
 		arg_x = [
-			"",                                  # E
-			"",                                 # e
-			"",                                       # v
-			"",              # c
-			"",             # w
-			"",             # i
-			"",             # I
-			"",             # C
-			"",            # W
-			"",            # u
-			"",            # U
-			"emu->xmm[{p}].f[0], ",               # f
-			"emu->xmm[{p}].d[0], ",              # d
-			"",         # D
-			"",         # K
-			"",            # l
-			"",           # L
-			"",               # p
-			"",                 # V
-			"", # O
-			"",   # S
-			"",				  # N
-			"",	# M
-			"", # H
+			"",                      # E
+			"",                      # e
+			"",                      # v
+			"",                      # c
+			"",                      # w
+			"",                      # i
+			"",                      # I
+			"",                      # C
+			"",                      # W
+			"",                      # u
+			"",                      # U
+			"emu->xmm[{p}].f[0], ",  # f
+			"emu->xmm[{p}].d[0], ",  # d
+			"",                      # D
+			"",                      # K
+			"",                      # l
+			"",                      # L
+			"",                      # p
+			"",                      # V
+			"",                      # O
+			"",                      # S
+			"",                      # N
+			"",                      # M
+			"",                      # H
 		]
 		arg_o = [
-			"emu, ",                                  # E
-			"&emu, ",                                 # e
-			"",                                       # v
-			"",              # c
-			"",             # w
-			"",             # i
-			"",             # I
-			"",             # C
-			"",            # W
-			"",            # u
-			"",            # U
-			"",               # f
-			"",              # d
-			"",         # D
-			"",         # K
-			"",            # l
-			"",           # L
-			"",               # p
-			"(void*)(R_RSP + {p}), ",                 # V
-			"", # O
-			"",   # S
-			"",					# N
-			"",	# M
-			"", # H
+			"emu, ",                   # E
+			"&emu, ",                  # e
+			"",                        # v
+			"",                        # c
+			"",                        # w
+			"",                        # i
+			"",                        # I
+			"",                        # C
+			"",                        # W
+			"",                        # u
+			"",                        # U
+			"",                        # f
+			"",                        # d
+			"",                        # D
+			"",                        # K
+			"",                        # l
+			"",                        # L
+			"",                        # p
+			"(void*)(R_RSP + {p}), ",  # V
+			"",                        # O
+			"",                        # S
+			"",                        # N
+			"",                        # M
+			"",                        # H
 		]
 
 		vals = [
-			"\n#error Invalid return type: emulator\n",                     # E
-			"\n#error Invalid return type: &emulator\n",                    # e
-			"fn({0});",                                                     # v
-			"R_RAX=fn({0});",                                               # c
-			"R_RAX=fn({0});",                                               # w
-			"R_RAX=(int64_t)fn({0});",                                     	# i int32_t normaly
-			"R_RAX=(int64_t)fn({0});",           							# I
-			"R_RAX=(unsigned char)fn({0});",                                # C
-			"R_RAX=(unsigned short)fn({0});",                               # W
-			"R_RAX=(uint64_t)fn({0});",                                     # u	uint32_t normaly
-			"R_RAX=fn({0});", 												# U
-			"emu->xmm[0].f[0]=fn({0});",             						# f
-			"emu->xmm[0].d[0]=fn({0});",            						# d
-			"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",       # D
-			"double db=fn({0}); fpu_do_push(emu); ST0val = db;",            # K
-			"R_RAX=(intptr_t)fn({0});",                                     # l
-			"R_RAX=(uintptr_t)fn({0});",                                    # L
-			"R_RAX=(uintptr_t)fn({0});",                                    # p
-			"\n#error Invalid return type: va_list\n",                      # V
-			"\n#error Invalid return type: at_flags\n",                     # O
-			"\n#error Invalid return type: _io_file*\n",                    # S
-			"\n#error Invalid return type: ... with 1 arg\n",               # N
-			"\n#error Invalid return type: ... with 2 args\n",              # M
+			"\n#error Invalid return type: emulator\n",                # E
+			"\n#error Invalid return type: &emulator\n",               # e
+			"fn({0});",                                                # v
+			"R_RAX=fn({0});",                                          # c
+			"R_RAX=fn({0});",                                          # w
+			"R_RAX=(int64_t)fn({0});",                                 # i  int32_t normaly
+			"R_RAX=(int64_t)fn({0});",                                 # I
+			"R_RAX=(unsigned char)fn({0});",                           # C
+			"R_RAX=(unsigned short)fn({0});",                          # W
+			"R_RAX=(uint64_t)fn({0});",                                # u  uint32_t normaly
+			"R_RAX=fn({0});",                                          # U
+			"emu->xmm[0].f[0]=fn({0});",                               # f
+			"emu->xmm[0].d[0]=fn({0});",                               # d
+			"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",  # D
+			"double db=fn({0}); fpu_do_push(emu); ST0val = db;",       # K
+			"R_RAX=(intptr_t)fn({0});",                                # l
+			"R_RAX=(uintptr_t)fn({0});",                               # L
+			"R_RAX=(uintptr_t)fn({0});",                               # p
+			"\n#error Invalid return type: va_list\n",                 # V
+			"\n#error Invalid return type: at_flags\n",                # O
+			"\n#error Invalid return type: _io_file*\n",               # S
+			"\n#error Invalid return type: ... with 1 arg\n",          # N
+			"\n#error Invalid return type: ... with 2 args\n",         # M
 			"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
 		]
 		# Asserts
@@ -548,6 +588,17 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 			for v in redirects[k]:
 				function_writer(file, v[0], v[1] + "_t", v[0][0], v[0][2:])
 			file.write("#endif\n")
+		
+		# Write the isSimpleWrapper function
+		file.write("\nint isSimpleWrapper(wrapper_t fun) {\n")
+		for k in simple_idxs:
+			if k != "()":
+				file.write("#if " + k + "\n")
+			for v in simple_wraps[k]:
+				file.write("\tif (fun == &" + v + ") return 1;\n")
+			if k != "()":
+				file.write("#endif\n")
+		file.write("\treturn 0;\n}\n")
 		
 		file.write(files_guards["wrapper.c"])
 	
