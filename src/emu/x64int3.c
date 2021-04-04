@@ -167,7 +167,7 @@ void x64Int3(x64emu_t* emu)
         }
         return;
     }
-    if(my_context->signals[SIGTRAP])
+    if(0 && my_context->signals[SIGTRAP])
         raise(SIGTRAP);
     else
         printf_log(LOG_INFO, "%04d|Warning, ignoring unsupported Int 3 call @%p\n", GetTID(), (void*)R_RIP);
