@@ -1896,10 +1896,13 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %ld) =>", addr, length, prot, flags, fd, offset);}
     #ifndef NOALIGN
-    if(!addr && (flags&0x40)) {
+    if(flags&0x40) {
         // 0x40 is MAP_32BIT, wich only exist on x86_64!
         //flags &= ~0x40;   // let the flags in?
-        addr = find32bitBlock(length);
+        if(!addr)
+            addr = find32bitBlock(length);
+        else
+            addr = findBlockNearHint(addr, length);
     }
     #endif
     void* ret = mmap64(addr, length, prot, flags, fd, offset);
@@ -1931,7 +1934,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
     dynarec_log(LOG_DEBUG, "%p\n", ret);
     if(ret==(void*)-1)
         return ret; // failed...
-    uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_DYNAREC;
+    uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
     if(ret==old_addr) {
         if(old_size && old_size<new_size) {
             setProtection((uintptr_t)ret+old_size, new_size-old_size, prot);
@@ -1940,7 +1943,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
                 addDBFromAddressRange((uintptr_t)ret+old_size, new_size-old_size);
             #endif
         } else if(old_size && new_size<old_size) {
-            setProtection((uintptr_t)ret+new_size, old_size-new_size, 0);
+            freeProtection((uintptr_t)ret+new_size, old_size-new_size);
             #ifdef DYNAREC
             if(box64_dynarec)
                 cleanDBFromAddressRange((uintptr_t)ret+new_size, new_size-old_size, 1);
@@ -1958,7 +1961,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
         && flags&MREMAP_DONTUNMAP==0
         #endif
         ) {
-            setProtection((uintptr_t)old_addr, old_size, 0);
+            freeProtection((uintptr_t)old_addr, old_size);
             #ifdef DYNAREC
             if(box64_dynarec)
                 cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
@@ -1983,7 +1986,7 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
     #endif
     int ret = munmap(addr, length);
     if(!ret)
-        setProtection((uintptr_t)addr, length, 0);
+        freeProtection((uintptr_t)addr, length);
     return ret;
 }
 

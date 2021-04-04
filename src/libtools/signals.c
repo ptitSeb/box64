@@ -700,8 +700,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture
 #endif
-#ifdef DYNAREC
     uint32_t prot = getProtection((uintptr_t)addr);
+#ifdef DYNAREC
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
@@ -834,6 +834,8 @@ exit(-1);
         else
             printf_log(log_minimum, "\n");
     }
+    if(sig==SIGSEGV && info->si_code==2 && ((prot&~PROT_CUSTOM)==5 || (prot&~PROT_CUSTOM)==7))
+        return; // that's probably just a multi-task glitch, like seen in terraria
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
         if(my_context->is_sigaction[sig])
             my_sigactionhandler_oldcode(sig, info, ucntx, &old_code, db);

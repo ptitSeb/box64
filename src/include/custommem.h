@@ -34,9 +34,13 @@ uintptr_t getJumpTable64();
 uintptr_t getJumpTableAddress64(uintptr_t addr);
 #endif
 
-#define PROT_DYNAREC 0x80
+#define PROT_DYNAREC    0x80
+#define PROT_ALLOC      0x40
+#define PROT_CUSTOM     (PROT_DYNAREC|PROT_ALLOC)
+
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
+void freeProtection(uintptr_t addr, uintptr_t size);
 uint32_t getProtection(uintptr_t addr);
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, uintptr_t size);
@@ -45,9 +49,8 @@ void unprotectDB(uintptr_t addr, uintptr_t size);
 void lockDB();
 void unlockDB();
 #endif
-#ifndef NOALIGN
 void* find32bitBlock(size_t size);
-#endif
+void* findBlockNearHint(void* hint, size_t size);
 
 
 void init_custommem_helper(box64context_t* ctx);

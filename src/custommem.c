@@ -763,7 +763,7 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
         uint32_t dyn = kh_value(memprot, k)[ii]&PROT_DYNAREC;
         if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
-        kh_value(memprot, k)[ii] = prot|dyn;
+        kh_value(memprot, k)[ii] = prot|dyn|PROT_ALLOC;
     }
     pthread_mutex_unlock(&mutex_prot);
 }
@@ -783,7 +783,27 @@ void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
             kh_value(memprot, k) = m;
         }
         const uintptr_t ii = i&(MEMPROT_SIZE-1);
-        kh_value(memprot, k)[ii] = prot;
+        kh_value(memprot, k)[ii] = prot|PROT_ALLOC;
+    }
+    pthread_mutex_unlock(&mutex_prot);
+}
+
+void freeProtection(uintptr_t addr, uintptr_t size)
+{
+    dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
+    int ret;
+    pthread_mutex_lock(&mutex_prot);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
+        khint_t k = kh_put(memprot, memprot, key, &ret);
+        if(ret) {
+            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
+            kh_value(memprot, k) = m;
+        }
+        const uintptr_t ii = i&(MEMPROT_SIZE-1);
+        kh_value(memprot, k)[ii] = 0;
     }
     pthread_mutex_unlock(&mutex_prot);
 }
@@ -803,7 +823,6 @@ uint32_t getProtection(uintptr_t addr)
     return ret;
 }
 
-#ifndef NOALIGN
 #define LOWEST (void*)0x20000
 int availableBlock(uint8_t* p, size_t n)
 {
@@ -827,15 +846,41 @@ void* find32bitBlock(size_t size)
     void* p = (void*)LOWEST;
     int pages = (size+MEMPROT_SIZE-1)>>MEMPROT_SHIFT;
     do {
-        const uintptr_t idx = ((((uintptr_t)p)&0xffffffff)>>MEMPROT_SHIFT);
+        const uintptr_t idx = ((uintptr_t)p)>>MEMPROT_SHIFT;
         if(availableBlock(prot+idx, pages))
             return p;
         p += 0x10000;
     } while(p!=(void*)0xffff0000);
+    printf_log(LOG_NONE, "Warning: cannot find a 0x%lx block in 32bits address space\n", size);
+    return NULL;
+}
+void* findBlockNearHint(void* hint, size_t size)
+{
+    // slow iterative search... Would need something better one day
+    if(!hint) hint=LOWEST;
+    const uint32_t key = (((uintptr_t)hint)>>32)&0xffffffff;
+    pthread_mutex_lock(&mutex_prot);
+    khint_t k = kh_get(memprot, memprot, key);
+    if(k==kh_end(memprot)) {
+        pthread_mutex_unlock(&mutex_prot);
+        return hint;
+    }
+    uint8_t *prot = kh_val(memprot, k);
+    pthread_mutex_unlock(&mutex_prot);
+    void* p = hint;
+    void* end = (void*)((uintptr_t)hint+0x100000000LL);
+    uintptr_t step = (size+0xfff)&~0xfff;
+    int pages = (size+MEMPROT_SIZE-1)>>MEMPROT_SHIFT;
+    do {
+        const uintptr_t idx = (((uintptr_t)p)&0xffffffff)>>MEMPROT_SHIFT;
+        if(availableBlock(prot+idx, pages))
+            return p;
+        p += step;
+    } while(p!=end);
+    printf_log(LOG_NONE, "Warning: cannot find a 0x%lx block in 32bits address space\n", size);
     return NULL;
 }
 #undef LOWEST
-#endif
 
 
 void init_custommem_helper(box64context_t* ctx)
