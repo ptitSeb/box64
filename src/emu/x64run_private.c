@@ -52,9 +52,9 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
     SetRSI(emu, (uint64_t)my_context->argv);
     SetRDI(emu, (uint64_t)my_context->argc);
     R_RIP=(uint64_t)main;
-#ifdef DYNAREC
+
     DynaRun(emu);
-#endif
+
     SetRSP(emu, GetRBP(emu));   // restore RSP
     SetRBP(emu, Pop64(emu));         // restore RBP
     emu->quit = 1;  // finished!
