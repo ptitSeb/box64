@@ -1025,14 +1025,11 @@ int main(int argc, const char **argv, const char **env) {
 
     // emulate!
     printf_log(LOG_DEBUG, "Start x64emu on Main\n");
-    SetRSI(emu, my_context->argc);
-    SetRDX(emu, (uint64_t)my_context->argv);
-    SetRCX(emu, (uint64_t)my_context->envv);
+    // Stack is ready, with stacked: NULL env NULL argv argc
     SetRIP(emu, my_context->ep);
-    PushExit(emu);
-    //*(uint64_t*)GetRSP(emu) = my_context->argc;
-    Push64(emu, my_context->argc);
     ResetFlags(emu);
+    PushExit(emu);  // push to pop it just after
+    SetRDX(emu, Pop64(emu));    // RDX is exit function
     Run(emu, 0);
     // Get EAX
     int ret = GetEAX(emu);
