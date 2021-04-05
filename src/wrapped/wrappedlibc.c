@@ -738,7 +738,6 @@ EXPORT int my___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* 
 }
 
 EXPORT int my_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) {
-    // need to align on arm
     CONVERT_VALIST(b);
     int r = vsnprintf(buff, s, fmt, VARARGS);
     return r;
@@ -761,22 +760,14 @@ EXPORT int my_vasprintf(x64emu_t* emu, void* strp, void* fmt, void* b, va_list V
     return r;
     #endif
 }
-EXPORT int my___vasprintf_chk(x64emu_t* emu, void* strp, int flags, void* fmt, void* b, va_list V)
+#endif
+EXPORT int my___vasprintf_chk(x64emu_t* emu, void* buff, int flags, void* fmt, x64_va_list_t b)
 {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
-    PREPARE_VALIST;
-    void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, VARARGS);
+    CONVERT_VALIST(b);
+    int r = vasprintf(buff, fmt, VARARGS);
     return r;
-    #else
-    void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, (uint32_t*)b);
-    return r;
-    #endif
 }
-
+#if 0
 EXPORT int my___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void* fmt, void* b, va_list V)
 {
     #ifndef NOALIGN
@@ -1472,6 +1463,7 @@ EXPORT int my_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
 {
     return ftw64(filename, findftw64Fct(func), descriptors);
 }
+EXPORT int my_ftw(x64emu_t* emu, void* filename, void* func, int descriptors) __attribute__((alias("my_ftw64")));
 
 EXPORT int32_t my_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {

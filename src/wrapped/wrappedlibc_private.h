@@ -443,7 +443,7 @@ GO(fts_close, iFp)
 GO(fts_open, pFEpip)
 GO(fts_read, pFp)
 GO(fts_set, iFppi)
-//GO(ftw, 
+GOM(ftw, iFEppi)
 GOM(ftw64, iFEppi)
 //GOW(funlockfile, 
 //GO(futimens, 
@@ -2035,7 +2035,7 @@ GO(usleep, iFu)
 //GO(utmpxname, 
 GOW(valloc, pFL)
 GOM(vasprintf, iFEppp)   //weak
-//GO(__vasprintf_chk, 
+GOM(__vasprintf_chk, iFEpipp)
 //GOW(vdprintf, 
 //GO(__vdprintf_chk, 
 //GO(verr, 
