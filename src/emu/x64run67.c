@@ -96,6 +96,22 @@ int Run67(x64emu_t *emu, rex_t rex)
     GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
     #undef GO
 
+    case 0x80:                      /* GRP Eb,Ib */
+        nextop = F8;
+        GETEB32(1);
+        tmp8u = F8;
+        switch((nextop>>3)&7) {
+            case 0: EB->byte[0] = add8(emu, EB->byte[0], tmp8u); break;
+            case 1: EB->byte[0] =  or8(emu, EB->byte[0], tmp8u); break;
+            case 2: EB->byte[0] = adc8(emu, EB->byte[0], tmp8u); break;
+            case 3: EB->byte[0] = sbb8(emu, EB->byte[0], tmp8u); break;
+            case 4: EB->byte[0] = and8(emu, EB->byte[0], tmp8u); break;
+            case 5: EB->byte[0] = sub8(emu, EB->byte[0], tmp8u); break;
+            case 6: EB->byte[0] = xor8(emu, EB->byte[0], tmp8u); break;
+            case 7:               cmp8(emu, EB->byte[0], tmp8u); break;
+        }
+        break;
+
     case 0x88:                      /* MOV Eb,Gb */
         nextop = F8;
         GETEB32(0);
@@ -121,6 +137,15 @@ int Run67(x64emu_t *emu, rex_t rex)
         GETEB32(0);
         GETGB;
         GB = EB->byte[0];
+        break;
+    case 0x8B:                      /* MOV Gd,Ed */
+        nextop = F8;
+        GETED32(0);
+        GETGD;
+        if(rex.w)
+            GD->q[0] = ED->q[0];
+        else
+            GD->q[0] = ED->dword[0];
         break;
 
     case 0x8D:                      /* LEA Gd,M */
