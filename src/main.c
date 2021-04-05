@@ -1035,5 +1035,10 @@ int main(int argc, const char **argv, const char **env) {
     int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
 
+    if(trace_func)  {
+        free(trace_func);
+        trace_func = NULL;
+    }
+
     return ret;
 }
