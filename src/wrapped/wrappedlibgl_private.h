@@ -2839,6 +2839,10 @@ GO(glClearTexImage, vFuiiip)
 GO(glClearTexSubImage, vFuiiiiiiiiip)
 //VERSION_4_5
 GO(glBindTextureUnit, vFuu)
+GO(glClearNamedFramebufferiv, vFuiip)
+GO(glClearNamedFramebufferuiv, vFuiip)
+GO(glClearNamedFramebufferfv, vFuiip)
+GO(glClearNamedFramebufferfi, vFuiifi)
 GO(glCreateFramebuffers, vFip)
 GO(glCreateProgramPipelines, vFip)
 GO(glCreateRenderbuffers, vFip)
@@ -2847,6 +2851,8 @@ GO(glClipControl, vFii)
 GO(glInvalidateNamedFramebufferData, vFuip)
 GO(glNamedBufferStorage, vFuiupu)
 GO(glTextureBarrier, vFv)
+GO(glTextureParameteriiv, vFuip)
+GO(glTextureParameteriuiv, vFuip)
 GO(glVertexArrayVertexBuffers, vFuuippp)
 
 //GL_EXT_memory_object
@@ -2869,6 +2875,13 @@ GO(glNewBufferRegion,uFi)
 GO(glDeleteBufferRegion,vFi)
 GO(glReadBufferRegion,vFuiiii)
 GO(glDrawBufferRegion,vFuiiiiii)
+
+//GL_ARB_sparse_buffer
+GO(glBufferPageCommitmentARB, vFippi)
+GO(glNamedBufferPageCommitmentARB, vFuppi)
+
+//GL_ARB_sparse_texture
+GO(TexPageCommitmentARB, vFiiiiiiiii)
 
 //glx
 GO(glXBindHyperpipeSGIX,iFpi)

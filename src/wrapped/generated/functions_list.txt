@@ -370,6 +370,7 @@
 #() vFiddd
 #() vFipii
 #() vFipup
+#() vFippi
 #() vFippp
 #() vFuiii
 #() vFuiip
@@ -570,6 +571,7 @@
 #() vFuiiiu
 #() vFuiiip
 #() vFuiiup
+#() vFuiifi
 #() vFuiIII
 #() vFuiuii
 #() vFuiuiu
@@ -970,6 +972,7 @@
 #() pFpCuuuCup
 #() pFpppuuLLu
 #() pFpppppupp
+#() vFiiiiiiiii
 #() vFuiiiiiiii
 #() vFuiiiiiuip
 #() vFuiiiiiuup
