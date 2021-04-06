@@ -40,6 +40,7 @@ typedef struct {
   uint8_t channels;
   uint8_t silence;
   uint16_t samples;
+  uint16_t padding;
   uint32_t size;
   void (*callback)(void *userdata, uint8_t *stream, int32_t len);
   void *userdata;
