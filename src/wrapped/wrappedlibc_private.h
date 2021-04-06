@@ -1475,7 +1475,7 @@ GO(realloc, pFpL)
 //GOW(reallocarray, 
 GOM(realpath, pFEpp)
 //GO(realpath, 
-GO2(__realpath_chk, pFppv, my_realpath)
+GO2(__realpath_chk, pFEppv, my_realpath)
 //GO(reboot, 
 //GOW(re_comp, 
 //GOW(re_compile_fastmap, 
