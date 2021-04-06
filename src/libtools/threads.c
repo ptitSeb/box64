@@ -803,6 +803,21 @@ emu_jmpbuf_t* GetJmpBuf()
 	return ejb;
 }
 
+static void atfork_child(void)
+{
+	//unlock all potential mutex, this is a new fork!
+	pthread_mutex_unlock(&my_context->mutex_once);
+	pthread_mutex_unlock(&my_context->mutex_once2);
+	pthread_mutex_unlock(&my_context->mutex_trace);
+	#ifndef DYNAREC
+	pthread_mutex_unlock(&my_context->mutex_lock);
+	#else
+	pthread_mutex_unlock(&my_context->mutex_dyndump);
+	#endif
+	pthread_mutex_unlock(&my_context->mutex_tls);
+	pthread_mutex_unlock(&my_context->mutex_thread);
+}
+
 void init_pthread_helper()
 {
 	InitCancelThread();
@@ -815,6 +830,7 @@ void init_pthread_helper()
 	unaligned_mutex = kh_init(mutex);
 	#endif
 #endif
+	pthread_atfork(NULL, NULL, atfork_child);
 }
 
 void fini_pthread_helper(box64context_t* context)

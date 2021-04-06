@@ -882,6 +882,15 @@ void* findBlockNearHint(void* hint, size_t size)
 }
 #undef LOWEST
 
+static void atfork_child_custommem(void)
+{
+    // unlock mutex if it was lock before the fork
+    pthread_mutex_unlock(&mutex_blocks);
+    pthread_mutex_unlock(&mutex_prot);
+#ifdef DYNAREC
+    pthread_mutex_unlock(&mutex_mmap);
+#endif
+}
 
 void init_custommem_helper(box64context_t* ctx)
 {
@@ -904,6 +913,7 @@ void init_custommem_helper(box64context_t* ctx)
 #error Unsupported architecture!
 #endif
 #endif
+    pthread_atfork(NULL, NULL, atfork_child_custommem);
 }
 
 void fini_custommem_helper(box64context_t *ctx)
