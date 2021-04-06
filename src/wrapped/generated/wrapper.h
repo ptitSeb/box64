@@ -201,6 +201,7 @@ void pFpL(x64emu_t *emu, uintptr_t fnc);
 void pFpp(x64emu_t *emu, uintptr_t fnc);
 void pFpV(x64emu_t *emu, uintptr_t fnc);
 void pFSi(x64emu_t *emu, uintptr_t fnc);
+void HFll(x64emu_t *emu, uintptr_t fnc);
 void HFpi(x64emu_t *emu, uintptr_t fnc);
 void vFEpi(x64emu_t *emu, uintptr_t fnc);
 void vFEpu(x64emu_t *emu, uintptr_t fnc);

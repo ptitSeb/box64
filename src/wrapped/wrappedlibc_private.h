@@ -1004,7 +1004,7 @@ GO(killpg, iFii)
 //GOW(ldexp, 
 //GOW(ldexpf, 
 //GOW(ldexpl, 
-//GO(ldiv, 
+GO(ldiv, HFll)
 GOM(lfind, pFEpppLp)
 //GO(lgetxattr, 
 //GO(__libc_alloca_cutoff, 
