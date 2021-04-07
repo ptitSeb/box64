@@ -77,7 +77,7 @@ int FileIsX64ELF(const char* filename)
     return 0;
 }
 
-#if defined(RPI) || defined(RK3399)
+#if defined(RPI) || defined(RK3399) || defined(RK3326)
 void sanitize_mojosetup_gtk_background()
 {
     // get GTK2_RC_FILES folder
