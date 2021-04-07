@@ -14,16 +14,19 @@ extern int box64_dynarec_forced;
 extern int box64_dynarec_largest;
 extern uintptr_t box64_nodynarec_start, box64_nodynarec_end;
 #endif
-extern int dlsym_error;  // log dlsym error
-extern int trace_xmm;    // include XMM reg in trace?
-extern int trace_emm;    // include EMM reg in trace?
+extern int dlsym_error;    // log dlsym error
+#ifdef HAVE_TRACE
+extern int trace_xmm;      // include XMM reg in trace?
+extern int trace_emm;      // include EMM reg in trace?
+extern int trace_regsdiff; // colorize standard registers on changes
+extern uintptr_t trace_start, trace_end;
+extern char* trace_func;
+#endif
 extern int allow_missing_libs;
 extern int box64_steam;
 extern int box64_nopulse;   // disabling the use of wrapped pulseaudio
 extern int box64_nogtk; // disabling the use of wrapped gtk
 extern int box64_novulkan;  // disabling the use of wrapped vulkan
-extern uintptr_t   trace_start, trace_end;
-extern char* trace_func;
 extern uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (self modifying code)
 extern uint32_t default_gs;
 extern int jit_gdb; // launch gdb when a segfault is trapped

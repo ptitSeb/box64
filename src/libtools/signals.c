@@ -270,8 +270,12 @@ uint64_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
         printf_log(LOG_NONE, "BOX86: Warning, calling Signal function handler %s\n", fnc?"SIG_DFL":"SIG_IGN");
         return 0;
     }
+#ifdef HAVE_TRACE
     uintptr_t old_start = trace_start, old_end = trace_end;
-    //trace_start = 0; trace_end = 1; // disabling trace, globably for now...
+#if 0
+    trace_start = 0; trace_end = 1; // disabling trace, globably for now...
+#endif
+#endif
 
     x64emu_t *emu = thread_get_emu();
 
@@ -308,7 +312,9 @@ uint64_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 
     uint64_t ret = R_RAX;
 
+#ifdef HAVE_TRACE
     trace_start = old_start; trace_end = old_end;
+#endif
 
     return ret;
 }

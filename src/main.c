@@ -40,10 +40,13 @@ uintptr_t box64_nodynarec_end = 0;
 int box64_dynarec = 0;
 #endif
 int dlsym_error = 0;
+#ifdef HAVE_TRACE
 int trace_xmm = 0;
 int trace_emm = 0;
-#ifdef HAVE_TRACE
+int trace_regsdiff = 0;
 uint64_t start_cnt = 0;
+uintptr_t trace_start = 0, trace_end = 0;
+char* trace_func = NULL;
 #ifdef DYNAREC
 int box64_dynarec_trace = 0;
 #endif
@@ -58,8 +61,6 @@ int box64_nopulse = 0;
 int box64_nogtk = 0;
 int box64_novulkan = 0;
 char* libGL = NULL;
-uintptr_t   trace_start = 0, trace_end = 0;
-char* trace_func = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
 uint32_t default_gs = 0;
@@ -205,6 +206,13 @@ void LoadLogEnv()
         if(strlen(p)==1) {
             if(p[0]>='0' && p[1]<='0'+1)
                 trace_emm = p[0]-'0';
+        }
+    }
+    p = getenv("BOX64_TRACE_COLOR");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                trace_regsdiff = p[0]-'0';
         }
     }
     p = getenv("BOX64_TRACE_START");
@@ -432,6 +440,7 @@ void PrintHelp() {
     printf("  use BOX64_TRACE_INIT instead of BOX_TRACE to start trace before init of Libs and main program\n\t (function name will probably not work then)\n");
     printf(" BOX64_TRACE_EMM with 1 to enable dump of MMX registers along with regular registers\n");
     printf(" BOX64_TRACE_XMM with 1 to enable dump of SSE registers along with regular registers\n");
+    printf(" BOX64_TRACE_COLOR with 1 to enable detection of changed general register values\n");
     printf(" BOX64_TRACE_START with N to enable trace after N instructions\n");
 #ifdef DYNAREC
     printf(" BOX64_DYNAREC_TRACE with 0/1 to disable or enable Trace on generated code too\n");
@@ -1035,10 +1044,12 @@ int main(int argc, const char **argv, const char **env) {
     int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
 
+#ifdef HAVE_TRACE
     if(trace_func)  {
         free(trace_func);
         trace_func = NULL;
     }
+#endif
 
     return ret;
 }
