@@ -176,6 +176,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedbz2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcrashhandler.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcrypto.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedcurl.c"
     "${BOX64_ROOT}/src/wrapped/wrappeddbus.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfontconfig.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfreetype.c"
