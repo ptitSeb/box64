@@ -108,6 +108,7 @@ void SetupX64Emu(x64emu_t *emu)
     printf_log(LOG_DEBUG, "Setup X86_64 Emu\n");
 }
 
+#ifdef HAVE_TRACE
 void SetTraceEmu(uintptr_t start, uintptr_t end)
 {
     if(my_context->zydis) {
@@ -122,6 +123,7 @@ void SetTraceEmu(uintptr_t start, uintptr_t end)
     trace_start = start;
     trace_end = end;
 }
+#endif
 
 void AddCleanup(x64emu_t *emu, void *p)
 {
@@ -335,12 +337,13 @@ void ResetFlags(x64emu_t *emu)
 const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
 {
     static char buff[1000];
-    char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", 
+    char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
                        " R8", " R9", "R10", "R11", "R12", "R13", "R14", "R15"};
     char tmp[160];
     buff[0] = '\0';
+#ifdef HAVE_TRACE
     if(trace_emm) {
-        // do emm reg is needed
+        // do emm reg if needed
         for(int i=0; i<8; ++i) {
             sprintf(tmp, "mm%d:%016lx", i, emu->mmx87[i].q);
             strcat(buff, tmp);
@@ -348,13 +351,14 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
         }
     }
     if(trace_xmm) {
-        // do xmm reg is needed
+        // do xmm reg if needed
         for(int i=0; i<8; ++i) {
             sprintf(tmp, "%d:%016lx%016lx", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
             strcat(buff, tmp);
             if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
         }
     }
+#endif
     // start with FPU regs...
     if(emu->fpu_stack) {
         for (int i=0; i<emu->fpu_stack; i++) {
@@ -368,7 +372,16 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
         strcat(buff, "\n");
     }
     for (int i=_AX; i<=_R15; ++i) {
+#ifdef HAVE_TRACE
+        if (trace_regsdiff && (emu->regs[i].q[0] != emu->oldregs[i].q[0])) {
+            sprintf(tmp, "\e[1;35m%s=%016lx\e[m ", regname[i], emu->regs[i].q[0]);
+            emu->oldregs[i].q[0] = emu->regs[i].q[0];
+        } else {
+            sprintf(tmp, "%s=%016lx ", regname[i], emu->regs[i].q[0]);
+        }
+#else
         sprintf(tmp, "%s=%016lx ", regname[i], emu->regs[i].q[0]);
+#endif
         strcat(buff, tmp);
 
         if (i%5==4) {

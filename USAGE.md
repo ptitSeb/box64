@@ -53,6 +53,16 @@ Only on builds with trace enabled.
  * 0 : The XMM (i.e. SSE/SSE2) register will not be logged with the general and x86 registers. (Default.)
  * 1 : Dump the XMM registers.
 
+#### BOX64_TRACE_EMM
+Only on builds with trace enabled.
+ * 0 : The EMM (i.e. XMM/x87) register will not be logged with the general and x86 registers. (Default.)
+ * 1 : Dump the EMM registers.
+
+#### BOX64_TRACE_COLOR
+Only on builds with trace enabled.
+ * 0 : The general registers will always be the default white color. (Default.)
+ * 1 : The general registers will change color in the dumps when they changed value.
+
 #### BOX64_LOAD_ADDR
 Try to load at 0xXXXXXX main binary (if binary is a PIE)
  * 0xXXXXXXXX : The load address . (Only active on PIE programs.)

@@ -303,6 +303,7 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x64emu_t* emu)
             return 1;
         }
         RelocateElfPlt(my_context->maplib, local_maplib, elf_header);
+#ifdef HAVE_TRACE
         if(trace_func) {
             if (GetGlobalSymbolStartEnd(my_context->maplib, trace_func, &trace_start, &trace_end)) {
                 SetTraceEmu(trace_start, trace_end);
@@ -316,6 +317,7 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x64emu_t* emu)
                 trace_func = NULL;
             }
         }
+#endif
         RunElfInit(elf_header, emu);
     }
     if(box64_dynarec && strcmp(lib->name, "libfmod.so")==0) {

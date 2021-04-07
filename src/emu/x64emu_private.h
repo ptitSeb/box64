@@ -52,6 +52,7 @@ typedef struct x64emu_s {
     multiuint_t res;
     uint32_t    *x64emu_parity_tab; // helper
     #ifdef HAVE_TRACE
+    reg64_t     oldregs[16];
     uintptr_t   prev2_ip;
     #endif
     // segments
