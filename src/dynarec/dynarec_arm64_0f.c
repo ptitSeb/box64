@@ -1341,7 +1341,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(q1, 0);
             UQSUB_16(q0, q0, q1);
             break;
-
+        case 0xDA:
+            INST_NAME("PMINUB Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            UMIN_8(d0, d0, d1);
+            break;
         case 0xDB:
             INST_NAME("PAND Gm, Em");
             nextop = F8;

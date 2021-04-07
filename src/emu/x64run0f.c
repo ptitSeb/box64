@@ -1276,7 +1276,13 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 GM->uw[i] = (tmp32s < 0) ? 0 : tmp32s;
             }
             break;
-
+        case 0xDA:                   /* PMINUB Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for (int i=0; i<8; ++i)
+                GM->ub[i] = (GM->ub[i]<EM->ub[i])?GM->ub[i]:EM->ub[i];
+            break;
         case 0xDB:                   /* PAND Gm,Em */
             nextop = F8;
             GETEM(0);
