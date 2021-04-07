@@ -399,6 +399,7 @@
 
 
 #define STORE_REG(A)    STRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
+#define STP_REGS(A, B)  STPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define STORE_XEMU_REGS(A)  \
     STORE_REG(RAX);         \
     STORE_REG(RCX);         \
@@ -454,7 +455,13 @@
     STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
     if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
 
+// Need to also store current value of some register, as they may be used by functions like setjump
+// so RBX, RSP, RBP, R12..R15 (other are scratch or parameters), R10-R11 not usefull, but why not
+// RBX, RSP and RBP are already saved in call function
 #define STORE_XEMU_CALL(A)  \
+    STP_REGS(R10, R11);     \
+    STP_REGS(R12, R13);     \
+    STP_REGS(R14, R15);     \
     if(A) {STPx_S7_offset(xFlags, A, xEmu, offsetof(x64emu_t, eflags));}    \
     else {STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));}
 
