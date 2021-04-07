@@ -157,6 +157,7 @@
 #() LFpp
 #() pFEp
 #() pFii
+#() pFiu
 #() pFip
 #() pFui
 #() pFuu
@@ -200,6 +201,7 @@
 #() vFuup
 #() vFuff
 #() vFudd
+#() vFull
 #() vFupi
 #() vFupu
 #() vFfff
@@ -293,7 +295,6 @@
 #() uFuup
 #() uFupu
 #() uFupp
-#() uFpiu
 #() uFpip
 #() uFpLp
 #() uFppi
@@ -538,6 +539,7 @@
 #() pFiiup
 #() pFippL
 #() pFuiii
+#() pFulli
 #() pFpiii
 #() pFpiip
 #() pFpiLL
