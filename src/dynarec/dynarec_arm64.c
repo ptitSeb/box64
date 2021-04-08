@@ -331,8 +331,10 @@ uintptr_t arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
 uintptr_t arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 
 void* FillBlock64(dynablock_t* block, uintptr_t addr) {
-    if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end)
-        return NULL;
+    if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
+        block->done = 1;
+        return (void*)block;
+    }
     // init the helper
     dynarec_arm_t helper = {0};
     helper.start = addr;
