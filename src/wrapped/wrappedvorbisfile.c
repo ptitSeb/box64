@@ -28,18 +28,20 @@ typedef struct {
   long   (*tell_func)  (void *datasource);
 } ov_callbacks;
 
-typedef int32_t (*iFpppiC_t)(void*, void*, void*, int32_t, ov_callbacks);
+typedef int32_t (*iFppplC_t)(void*, void*, void*, long, ov_callbacks);
 
 typedef struct vorbisfile_my_s {
     // functions
-    iFpppiC_t       ov_open_callbacks;
+    iFppplC_t       ov_open_callbacks;
+    iFppplC_t       ov_test_callbacks;
 } vorbisfile_my_t;
 
 void* getVorbisfileMy(library_t* lib)
 {
     vorbisfile_my_t* my = (vorbisfile_my_t*)calloc(1, sizeof(vorbisfile_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(ov_open_callbacks, iFpppiC_t)
+    GO(ov_open_callbacks, iFppplC_t)
+    GO(ov_test_callbacks, iFppplC_t)
     #undef GO
     return my;
 }
@@ -48,8 +50,6 @@ void freeVorbisfileMy(void* lib)
 {
     //vorbisfile_my_t *my = (vorbisfile_my_t *)lib;
 }
-
-int32_t my_ov_open_callbacks(x64emu_t* emu, void* datasource, void* vf, void* initial, int32_t ibytes, void* read, void* seek, void* close, void* tell);
 
 #define CUSTOM_INIT \
     box64->vorbisfile = lib;\
@@ -163,7 +163,7 @@ static void* findtellFct(void* fct)
 
 #undef SUPER
 
-EXPORT int32_t my_ov_open_callbacks(x64emu_t* emu, void* datasource, void* vf, void* initial, int32_t ibytes, void* read_fnc, void* seek_fnc, void* close_fnc, void* tell_fnc)
+EXPORT int32_t my_ov_open_callbacks(x64emu_t* emu, void* datasource, void* vf, void* initial, long ibytes, void* read_fnc, void* seek_fnc, void* close_fnc, void* tell_fnc)
 {
     vorbisfile_my_t* my = (vorbisfile_my_t*)emu->context->vorbisfile->priv.w.p2;
     ov_callbacks cbs = {0};
@@ -172,5 +172,17 @@ EXPORT int32_t my_ov_open_callbacks(x64emu_t* emu, void* datasource, void* vf, v
     cbs.close_func = findcloseFct(close_fnc);
     cbs.tell_func = findtellFct(tell_fnc);
     int32_t ret =  my->ov_open_callbacks(datasource, vf, initial, ibytes, cbs);
+    return ret;
+}
+
+EXPORT int32_t my_ov_test_callbacks(x64emu_t* emu, void* datasource, void* vf, void* initial, long ibytes, void* read_fnc, void* seek_fnc, void* close_fnc, void* tell_fnc)
+{
+    vorbisfile_my_t* my = (vorbisfile_my_t*)emu->context->vorbisfile->priv.w.p2;
+    ov_callbacks cbs = {0};
+    cbs.read_func = findreadFct(read_fnc);
+    cbs.seek_func = findseekFct(seek_fnc);
+    cbs.close_func = findcloseFct(close_fnc);
+    cbs.tell_func = findtellFct(tell_fnc);
+    int32_t ret =  my->ov_test_callbacks(datasource, vf, initial, ibytes, cbs);
     return ret;
 }

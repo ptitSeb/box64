@@ -3,7 +3,8 @@
 import os
 import sys
 
-values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H']
+values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P']
+assert(all(c not in values[:i] for i, c in enumerate(values)))
 def splitchar(s):
 	try:
 		ret = [len(s), values.index(s[0])]
@@ -217,7 +218,7 @@ def main(root, defines, files, ver):
 	allowed_fpr = "fd"
 	
 	# Sanity checks
-	forbidden_simple = "EeDKVOSNMH"
+	forbidden_simple = "EeDKVOSNMHP"
 	assert(len(allowed_simply) + len(allowed_regs) + len(allowed_fpr) + len(forbidden_simple) == len(values))
 	assert(all(c not in allowed_regs for c in allowed_simply))
 	assert(all(c not in allowed_simply + allowed_regs for c in allowed_fpr))
@@ -302,7 +303,7 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 // list of defined wrapper
 // v = void, i = int32, u = uint32, U/I= (u)int64
 // l = signed long, L = unsigned long (long is an int with the size of a pointer)
-// p = pointer, P = callback
+// p = pointer, P = void* on the stack
 // f = float, d = double, D = long double, K = fake long double
 // V = vaargs, E = current x86emu struct, e = ref to current x86emu struct
 // 0 = constant 0, 1 = constant 1
@@ -353,8 +354,8 @@ int isSimpleWrapper(wrapper_t fun);
 		# First part: typedefs
 		def generate_typedefs(key):
 			# i and u should only be 32 bits
-			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H
-			types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128"]
+			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P
+			types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*"]
 			
 			for v in gbl[key]:
 				if len(values) != len(types):
@@ -376,17 +377,17 @@ int isSimpleWrapper(wrapper_t fun);
 		# Helper variables
 		reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
 		# vreg: value is in a general register
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H
-		vreg   = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P
+		vreg   = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0]
 		# vxmm: value is in a XMM register
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H
-		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P
+		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		# vother: value is elsewere
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M, H
-		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M, H  P
+		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0]
 		# vstack: value is on the stack (or out of register)
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M, H
-		vstack = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M, H  P
+		vstack = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1]
 		arg_s = [
 			"",                                         # E
 			"",                                         # e
@@ -411,7 +412,8 @@ int isSimpleWrapper(wrapper_t fun);
 			"io_convert(*(void**)(R_RSP + {p})), ",     # S
 			"*(void**)(R_RSP + {p}), ",                 # N
 			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 8), ", # M
-			"*(unsigned __int128)(R_RSP + {p}), "       # H
+			"*(unsigned __int128)(R_RSP + {p}), ",      # H
+			"*(void**)(R_RSP + {p}), ",                 # P
 		]
 		arg_r = [
 			"",                            # E
@@ -438,6 +440,7 @@ int isSimpleWrapper(wrapper_t fun);
 			"(void*){p}, ",                # N
 			"(void*){p}, ",                # M
 			"\n#error Use pp instead\n",   # H
+			"",                            # P
 		]
 		arg_x = [
 			"",                      # E
@@ -464,6 +467,7 @@ int isSimpleWrapper(wrapper_t fun);
 			"",                      # N
 			"",                      # M
 			"",                      # H
+			"",                      # P
 		]
 		arg_o = [
 			"emu, ",                   # E
@@ -490,6 +494,7 @@ int isSimpleWrapper(wrapper_t fun);
 			"",                        # N
 			"",                        # M
 			"",                        # H
+			"",                        # P
 		]
 
 		vals = [
@@ -517,12 +522,17 @@ int isSimpleWrapper(wrapper_t fun);
 			"\n#error Invalid return type: ... with 1 arg\n",          # N
 			"\n#error Invalid return type: ... with 2 args\n",         # M
 			"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
+			"\n#error Invalid return type: pointer in the stack\n",    # P
 		]
 		# Asserts
 		if len(values) != len(arg_s):
-			raise NotImplementedError("len(values) = {lenval} != len(arg_s) = {lenargs}".format(lenval=len(values), lenargr=len(arg_s)))
+			raise NotImplementedError("len(values) = {lenval} != len(arg_s) = {lenargs}".format(lenval=len(values), lenargs=len(arg_s)))
 		if len(values) != len(arg_r):
 			raise NotImplementedError("len(values) = {lenval} != len(arg_r) = {lenargr}".format(lenval=len(values), lenargr=len(arg_r)))
+		if len(values) != len(arg_x):
+			raise NotImplementedError("len(values) = {lenval} != len(arg_x) = {lenargx}".format(lenval=len(values), lenargx=len(arg_x)))
+		if len(values) != len(arg_o):
+			raise NotImplementedError("len(values) = {lenval} != len(arg_o) = {lenargo}".format(lenval=len(values), lenargo=len(arg_o)))
 		if len(values) != len(vals):
 			raise NotImplementedError("len(values) = {lenval} != len(vals) = {lenvals}".format(lenval=len(values), lenvals=len(vals)))
 		
@@ -551,27 +561,8 @@ int isSimpleWrapper(wrapper_t fun);
 		
 		def function_writer(f, N, W, rettype, args):
 			f.write("void {0}(x64emu_t *emu, uintptr_t fcn) {2} {1} fn = ({1})fcn; ".format(N, W, "{"))
-			if any(cc in 'PG' for cc in args):
-				# Vulkan struct or GValue pointer, need to unwrap functions at the end
-				delta = 4
-				for c in args:
-					if c == 'P':
-						f.write("void* save{d}=NULL; void *arg{d} = VulkanFromx86(*(void**)(R_RSP + {d}), &save{d}); ".format(d=delta))
-					if c == 'G':
-    						f.write("my_GValue_t arg{d}; alignGValue(&arg{d}, *(void**)(R_RSP + {d})); ".format(d=delta))
-					delta = delta + deltas[values.index(c)]
-				f.write(vals[values.index(rettype)].format(function_args(args)[:-2]) + " ")
-				delta = 4
-				for c in args:
-					if c == 'P':
-						f.write("VulkanTox86(arg{d}, save{d}); ".format(d=delta))
-					if c == 'G':
-						f.write("unalignGValue(*(void**)(R_RSP + {d}), &arg{d}); ".format(d=delta))
-					delta = delta + deltas[values.index(c)]
-				f.write("}\n")
-			else:
-				# Generic function
-				f.write(vals[values.index(rettype)].format(function_args(args)[:-2]) + " }\n")
+			# Generic function
+			f.write(vals[values.index(rettype)].format(function_args(args)[:-2]) + " }\n")
 		
 		for v in gbl["()"]:
 			function_writer(file, v, v + "_t", v[0], v[2:])

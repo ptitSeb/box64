@@ -14,7 +14,7 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 // list of defined wrapper
 // v = void, i = int32, u = uint32, U/I= (u)int64
 // l = signed long, L = unsigned long (long is an int with the size of a pointer)
-// p = pointer, P = callback
+// p = pointer, P = void* on the stack
 // f = float, d = double, D = long double, K = fake long double
 // V = vaargs, E = current x86emu struct, e = ref to current x86emu struct
 // 0 = constant 0, 1 = constant 1
@@ -1110,7 +1110,7 @@ void vFppiiipiii(x64emu_t *emu, uintptr_t fnc);
 void vFpplpppppi(x64emu_t *emu, uintptr_t fnc);
 void vFpppppippp(x64emu_t *emu, uintptr_t fnc);
 void iFEpiiiiipi(x64emu_t *emu, uintptr_t fnc);
-void iFEpppipppp(x64emu_t *emu, uintptr_t fnc);
+void iFEppplPPPP(x64emu_t *emu, uintptr_t fnc);
 void iFiiiiiiiip(x64emu_t *emu, uintptr_t fnc);
 void iFiiiipiiip(x64emu_t *emu, uintptr_t fnc);
 void iFipiipippi(x64emu_t *emu, uintptr_t fnc);
