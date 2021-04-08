@@ -1922,7 +1922,7 @@ GOW(sysconf, lFi)
 //GOW(sysctl, 
 DATA(_sys_errlist, sizeof(void*))
 DATA(sys_errlist, sizeof(void*))
-//GOW(sysinfo, 
+GOW(sysinfo, iFp)
 GOM(syslog, vFEipV)
 GOM(__syslog_chk, vFEiipV)
 //DATA(sys_sigabbrev, 
@@ -2093,9 +2093,9 @@ GOW(wcrtomb, LFpup)
 //GOW(wcscasecmp, 
 //GO(__wcscasecmp_l, 
 //GOW(wcscasecmp_l, 
-//GOW(wcscat, 
+GOW(wcscat, pFpp)
 //GO(__wcscat_chk, 
-//GOI(wcschr, 
+GO(wcschr, pFpi)
 //GOW(wcschrnul, 
 GO(wcscmp, iFpp)
 GOW(wcscoll, iFpp)
@@ -2112,10 +2112,10 @@ GO(wcslen, LFp)
 //GOW(wcsncasecmp, 
 //GO(__wcsncasecmp_l, 
 //GOW(wcsncasecmp_l, 
-//GO(wcsncat, 
+GO(wcsncat, pFppL)
 //GO(__wcsncat_chk, 
-//GOI(wcsncmp, 
-//GOW(wcsncpy, 
+GO(wcsncmp, iFppL)
+GOW(wcsncpy, pFppL)
 //GO(__wcsncpy_chk, 
 GOW(wcsnrtombs, LFppLLp)
 //GO(__wcsnrtombs_chk, 
@@ -2125,7 +2125,7 @@ GOW(wcsnrtombs, LFppLLp)
 //GOW(wcsrtombs, 
 //GO(__wcsrtombs_chk, 
 //GO(wcsspn, 
-//GO(wcsstr, 
+GO(wcsstr, pFpp)
 //GO(wcstod, 
 //GO(__wcstod_internal, 
 //GO(__wcstod_l, 
@@ -2147,7 +2147,7 @@ GOW(wcsnrtombs, LFppLLp)
 //GOW(wcstof_l, 
 //GO(wcstoimax, 
 //GO(wcstok, 
-//GOW(wcstol, 
+GOW(wcstol, lFppi)
 //GO(wcstold, 
 //GO(__wcstold_internal, 
 //GO(__wcstold_l, 
@@ -2155,7 +2155,7 @@ GOW(wcsnrtombs, LFppLLp)
 //GO(__wcstol_internal, 
 //GO(__wcstol_l, 
 //GOW(wcstol_l, 
-//GOW(wcstoll, 
+GOW(wcstoll, IFppi)
 //GO(__wcstoll_internal, 
 //GOW(__wcstoll_l, 
 //GOW(wcstoll_l, 
