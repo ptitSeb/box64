@@ -1649,27 +1649,26 @@ EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
     return poll(a, b, c);   // no check...
 }
 #endif
-EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
+EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, void* c)
 {
     // Implemented starting glibc 2.14+
     library_t* lib = my_lib;
     if(!lib) return 0;
-    iFiiV_t f = dlsym(lib->priv.w.lib, "fcntl64");
     if(b==F_SETFL)
-        d1 = of_convert(d1);
+        c = (void*)(uintptr_t)of_convert((intptr_t)c);
     #if 0
     if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
     {
         my_flock64_t fl;
-        AlignFlock64(&fl, (void*)d1);
-        int ret = f?f(a, b, &fl):fcntl(a, b, &fl);
-        UnalignFlock64((void*)d1, &fl);
+        AlignFlock64(&fl, c);
+        int ret = fcntl(a, b, &fl);
+        UnalignFlock64(c, &fl);
         return ret;
     }
     #endif
     //TODO: check if better to use the syscall or regular fcntl?
     //return syscall(__NR_fcntl64, a, b, d1);   // should be enough
-    int ret = f?f(a, b, d1):fcntl(a, b, d1);
+    int ret = fcntl(a, b, c);
 
     if(b==F_GETFL && ret!=-1)
         ret = of_unconvert(ret);
@@ -1677,9 +1676,9 @@ EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
     return ret;
 }
 
-EXPORT int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
+EXPORT int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c)
 {
-    if(b==F_SETFL && d1==0xFFFFF7FF) {
+    if(b==F_SETFL && (intptr_t)c==0xFFFFF7FF) {
         // special case for ~O_NONBLOCK...
         int flags = fcntl(a, F_GETFL);
         if(flags&O_NONBLOCK) {
@@ -1689,24 +1688,24 @@ EXPORT int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32
         return 0;
     }
     if(b==F_SETFL)
-        d1 = of_convert(d1);
+        c = (void*)(uintptr_t)of_convert((intptr_t)c);
     #if 0
     if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
     {
         my_flock64_t fl;
-        AlignFlock64(&fl, (void*)d1);
+        AlignFlock64(&fl, c);
         int ret = fcntl(a, b, &fl);
-        UnalignFlock64((void*)d1, &fl);
+        UnalignFlock64(c, &fl);
         return ret;
     }
     #endif
-    int ret = fcntl(a, b, d1);
+    int ret = fcntl(a, b, c);
     if(b==F_GETFL && ret!=-1)
         ret = of_unconvert(ret);
     
     return ret;    
 }
-EXPORT int32_t my___fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6) __attribute__((alias("my_fcntl")));
+EXPORT int32_t my___fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c) __attribute__((alias("my_fcntl")));
 #if 0
 EXPORT int32_t my_preadv64(x64emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
 {
