@@ -1865,8 +1865,8 @@ GO(__strtoul_internal, LFppii)
 //GOW(strtoul_l, 
 GOW(strtoull, LFppi)
 //GO(__strtoull_internal, 
-//GOW(__strtoull_l, 
-//GOW(strtoull_l, 
+GOW(__strtoull_l, LFppip)
+GOW(strtoull_l, LFppip)
 //GO(strtoumax, 
 //GOW(strtouq, 
 //GO(__strverscmp, 

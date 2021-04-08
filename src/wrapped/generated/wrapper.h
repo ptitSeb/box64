@@ -557,6 +557,7 @@ void LFpuuu(x64emu_t *emu, uintptr_t fnc);
 void LFpLLp(x64emu_t *emu, uintptr_t fnc);
 void LFpLpp(x64emu_t *emu, uintptr_t fnc);
 void LFppii(x64emu_t *emu, uintptr_t fnc);
+void LFppip(x64emu_t *emu, uintptr_t fnc);
 void LFppLL(x64emu_t *emu, uintptr_t fnc);
 void LFppLp(x64emu_t *emu, uintptr_t fnc);
 void LFpppp(x64emu_t *emu, uintptr_t fnc);
