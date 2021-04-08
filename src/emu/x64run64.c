@@ -34,6 +34,7 @@ int Run64(x64emu_t *emu, rex_t rex)
     uint64_t tmp64u;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
+    int rep;
     uintptr_t tlsdata = GetFSBaseEmu(emu);
 
     opcode = F8;
@@ -41,6 +42,11 @@ int Run64(x64emu_t *emu, rex_t rex)
     rex.rex = 0;
     while(opcode>=0x40 && opcode<=0x4f) {
         rex.rex = opcode;
+        opcode = F8;
+    }
+    rep = 0;
+    while((opcode==0xF2) || (opcode==0xF3)) {
+        rep = opcode-0xF1;
         opcode = F8;
     }
 
@@ -102,17 +108,52 @@ int Run64(x64emu_t *emu, rex_t rex)
             opcode = F8;
             switch(opcode) {
 
+                case 0x11:  /* MOVSD Ex, Gx */
+                    switch(rep) {
+                        case 1:
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            EX->q[0] = GX->q[0];
+                            break;
+                        default:
+                            return 1;
+                    }
+                    break;
+
                 case 0x29:                      /* MOVAPS Ex,Gx */
-                    nextop = F8;
-                    GETEX_OFFS(0, tlsdata);
-                    GETGX;
-                    EX->q[0] = GX->q[0];
-                    EX->q[1] = GX->q[1];
+                    switch(rep) {
+                        case 0:
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            EX->q[0] = GX->q[0];
+                            EX->q[1] = GX->q[1];
+                            break;
+                        default:
+                            return 1;
+                    }
                     break;
 
                 default:
                     return 1;
             }
+            break;
+
+        case 0x38:
+            nextop = F8;
+            GETEB_OFFS(0, tlsdata);
+            GETGB;
+            cmp8(emu, EB->byte[0], GB);
+            break;
+        case 0x39:
+            nextop = F8;
+            GETED_OFFS(0, tlsdata);
+            GETGD;
+            if(rex.w)
+                cmp64(emu, ED->q[0], GD->q[0]);
+            else
+                cmp32(emu, ED->dword[0], GD->dword[0]);
             break;
 
         case 0x66:
