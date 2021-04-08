@@ -168,6 +168,86 @@ int RunF0(x64emu_t *emu, rex_t rex)
             opcode = F8;
             switch (opcode) { 
 
+            case 0xAB:                      /* BTS Ed,Gd */
+                CHECK_FLAGS(emu);
+                nextop = F8;
+                GETED(0);
+                GETGD;
+                tmp8u = GD->byte[0];
+                if(!MODREG)
+                {
+                    ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                }
+#ifdef DYNAREC
+                if(rex.w) {
+                    tmp8u&=63;
+                    if(MODREG) {
+                        if(ED->q[0] & (1LL<<tmp8u))
+                            SET_FLAG(F_CF);
+                        else {
+                            ED->q[0] |= (1LL<<tmp8u);
+                            CLEAR_FLAG(F_CF);
+                        }
+                    } else
+                        do {
+                            tmp64u = arm64_lock_read_dd(ED);
+                            if(tmp64u & (1LL<<tmp8u)) {
+                                SET_FLAG(F_CF);
+                                tmp32s = 0;
+                            } else {
+                                tmp64u |= (1LL<<tmp8u);
+                                CLEAR_FLAG(F_CF);
+                                tmp32s = arm64_lock_write_d(ED, tmp64u);
+                            }
+                        } while(tmp32s);
+                } else {
+                    tmp8u&=31;
+                    if(MODREG) {
+                        if(ED->dword[0] & (1<<tmp8u))
+                            SET_FLAG(F_CF);
+                        else {
+                            ED->dword[0] |= (1<<tmp8u);
+                            CLEAR_FLAG(F_CF);
+                        }
+                        ED->dword[1] = 0;
+                    } else
+                        do {
+                            tmp32u = arm64_lock_read_d(ED);
+                            if(tmp32u & (1<<tmp8u)) {
+                                SET_FLAG(F_CF);
+                                tmp32s = 0;
+                            } else {
+                                tmp32u |= (1<<tmp8u);
+                                CLEAR_FLAG(F_CF);
+                                tmp32s = arm64_lock_write_d(ED, tmp32u);
+                            }
+                        } while(tmp32s);
+                }
+#else
+                pthread_mutex_lock(&emu->context->mutex_lock);
+                if(rex.w) {
+                    tmp8u&=63;
+                    if(ED->q[0] & (1LL<<tmp8u))
+                        SET_FLAG(F_CF);
+                    else {
+                        ED->q[0] |= (1LL<<tmp8u);
+                        CLEAR_FLAG(F_CF);
+                    }
+                } else {
+                    tmp8u&=31;
+                    if(ED->dword[0] & (1<<tmp8u))
+                        SET_FLAG(F_CF);
+                    else {
+                        ED->dword[0] |= (1<<tmp8u);
+                        CLEAR_FLAG(F_CF);
+                    }
+                    if(MODREG)
+                        ED->dword[1] = 0;
+                }
+                pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                break;
+
                 case 0xB0:                      /* CMPXCHG Eb,Gb */
                     CHECK_FLAGS(emu);
                     nextop = F8;
@@ -238,6 +318,63 @@ int RunF0(x64emu_t *emu, rex_t rex)
                         } else {
                             R_EAX = ED->dword[0];
                         }
+                    }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+
+                case 0xB3:                      /* BTR Ed,Gd */
+                    CHECK_FLAGS(emu);
+                    nextop = F8;
+                    GETED(0);
+                    GETGD;
+                    tmp8u = GD->byte[0];
+                    if(!MODREG)
+                    {
+                        ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                    }
+                    tmp8u&=rex.w?63:31;
+#ifdef DYNAREC
+                    if(rex.w)
+                        do {
+                            tmp64u = arm64_lock_read_dd(ED);
+                            if(tmp64u & (1LL<<tmp8u)) {
+                                SET_FLAG(F_CF);
+                                tmp64u ^= (1LL<<tmp8u);
+                                tmp32s = arm64_lock_write_dd(ED, tmp64u);
+                            } else {
+                                CLEAR_FLAG(F_CF);
+                                tmp32s = 0;
+                            }
+                        } while(tmp32s);
+                    else
+                        do {
+                            tmp32u = arm64_lock_read_d(ED);
+                            if(tmp32u & (1<<tmp8u)) {
+                                SET_FLAG(F_CF);
+                                tmp32u ^= (1<<tmp8u);
+                                tmp32s = arm64_lock_write_d(ED, tmp32u);
+                            } else {
+                                CLEAR_FLAG(F_CF);
+                                tmp32s = 0;
+                            }
+                        } while(tmp32s);
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    if(rex.w) {
+                        if(ED->q[0] & (1<<tmp8u)) {
+                            SET_FLAG(F_CF);
+                            ED->q[0] ^= (1<<tmp8u);
+                        } else
+                            CLEAR_FLAG(F_CF);
+                    } else {
+                        if(ED->dword[0] & (1<<tmp8u)) {
+                            SET_FLAG(F_CF);
+                            ED->dword[0] ^= (1<<tmp8u);
+                        } else
+                            CLEAR_FLAG(F_CF);
+                        if(MODREG)
+                            ED->dword[1] = 0;
                     }
                     pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
