@@ -163,8 +163,8 @@ GOW(connect, iFipu)
 //GOW(copysign, 
 //GOW(copysignf, 
 //GOW(copysignl, 
-//GOW(creat, 
-//GOW(creat64, 
+GOW(creat, iFpu)
+GOW(creat64, iFpu)
 //GO(create_module, 
 //GO(ctermid, 
 GO(ctime, pFp)
@@ -190,14 +190,14 @@ GOM(__cxa_finalize, vFEp)
 //GO(__cyg_profile_func_exit, 
 //GO(daemon, 
 //DATAB(__daylight, 
-//GO(__dcgettext, 
-//GOW(dcgettext, 
+GO(__dcgettext, pFppi)
+GOW(dcgettext, pFppi)
 //GOW(dcngettext, 
 //GO(__default_morecore, 
 //GO(delete_module, 
 //GO(des_setparity, 
-//GO(__dgettext, 
-//GOW(dgettext, 
+GO(__dgettext, pFpp)
+GOW(dgettext, pFpp)
 GO(difftime, dFLL)
 GO(dirfd, iFp)
 GO(dirname, pFp)
@@ -580,8 +580,8 @@ GO(getpwnam_r, iFpppLp)
 GO(getpwuid, pFu)
 GO(getpwuid_r, iFuppLp)
 //GO(getrandom, 
-//GO(getresgid, 
-//GO(getresuid, 
+GO(getresgid, iFppp)
+GO(getresuid, iFppp)
 GO(__getrlimit, iFip)
 GOW(getrlimit, iFip)
 GOW(getrlimit64, iFip)
@@ -1016,7 +1016,7 @@ GOM(lfind, pFEpppLp)
 //GO(__libc_alloc_buffer_copy_bytes, 
 //GO(__libc_alloc_buffer_copy_string, 
 //GO(__libc_alloc_buffer_create_failure, 
-//GO(__libc_calloc, 
+GO(__libc_calloc, pFLL)
 //GO(__libc_clntudp_bufcreate, 
 GO(__libc_current_sigrtmax, iFv)
 //GO(__libc_current_sigrtmax_private, 
@@ -1034,15 +1034,15 @@ GO(__libc_current_sigrtmin, iFv)
 //GO(__libc_fatal, 
 //GO(__libc_fcntl64, 
 //GO(__libc_fork, 
-//GO(__libc_free, 
+GO(__libc_free, vFp)
 //GO(__libc_freeres, 
 //GO(__libc_ifunc_impl_list, 
 //GO(__libc_init_first, 
 //GO(__libc_longjmp, 
 //GO(__libc_mallinfo, 
-//GO(__libc_malloc, 
+GO(__libc_malloc, pFL)
 //GO(__libc_mallopt, 
-//GO(__libc_memalign, 
+GO(__libc_memalign, pFLL)
 //GO(__libc_msgrcv, 
 //GO(__libc_msgsnd, 
 //GO(__libc_pread, 
@@ -1050,7 +1050,7 @@ GO(__libc_current_sigrtmin, iFv)
 //GO(__libc_pvalloc, 
 //GO(__libc_pwrite, 
 //GO(__libc_readline_unlocked, 
-//GO(__libc_realloc, 
+GO(__libc_realloc, pFpL)
 //GO(__libc_reallocarray, 
 //GO(__libc_rpc_getport, 
 //GO(__libc_sa_len, 
