@@ -336,7 +336,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         INST_NAME("ADD Ew, Ib");
                     }
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEW(x1, (opcode==81)?2:1);
+                    GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV32w(x5, i16);
                     emit_add16(dyn, ninst, ed, x5, x2, x4);
@@ -345,7 +345,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 1: //OR
                     if(opcode==0x81) {INST_NAME("OR Ew, Iw");} else {INST_NAME("OR Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEW(x1, (opcode==81)?2:1);
+                    GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV32w(x5, i16);
                     emit_or16(dyn, ninst, x1, x5, x2, x4);
@@ -355,7 +355,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(opcode==0x81) {INST_NAME("ADC Ew, Iw");} else {INST_NAME("ADC Ew, Ib");}
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEW(x1, (opcode==81)?2:1);
+                    GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV32w(x5, i16);
                     emit_adc16(dyn, ninst, x1, x5, x2, x4);
@@ -365,7 +365,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(opcode==0x81) {INST_NAME("SBB Ew, Iw");} else {INST_NAME("SBB Ew, Ib");}
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEW(x1, (opcode==81)?2:1);
+                    GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV32w(x5, i16);
                     emit_sbb16(dyn, ninst, x1, x5, x2, x4);
@@ -374,7 +374,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4: //AND
                     if(opcode==0x81) {INST_NAME("AND Ew, Iw");} else {INST_NAME("AND Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEW(x1, (opcode==81)?2:1);
+                    GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV32w(x5, i16);
                     emit_and16(dyn, ninst, x1, x5, x2, x4);
@@ -383,7 +383,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5: //SUB
                     if(opcode==0x81) {INST_NAME("SUB Ew, Iw");} else {INST_NAME("SUB Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEW(x1, (opcode==81)?2:1);
+                    GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV32w(x5, i16);
                     emit_sub16(dyn, ninst, x1, x5, x2, x4);
@@ -392,7 +392,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6: //XOR
                     if(opcode==0x81) {INST_NAME("XOR Ew, Iw");} else {INST_NAME("XOR Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEW(x1, (opcode==81)?2:1);
+                    GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV32w(x5, i16);
                     emit_xor16(dyn, ninst, x1, x5, x2, x4);
@@ -401,7 +401,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 7: //CMP
                     if(opcode==0x81) {INST_NAME("CMP Ew, Iw");} else {INST_NAME("CMP Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEW(x1, (opcode==81)?2:1);
+                    GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     if(i16) {
                         MOV32w(x2, i16);
