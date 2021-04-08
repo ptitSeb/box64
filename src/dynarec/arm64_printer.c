@@ -190,7 +190,6 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     if(isMask(opcode, "ff011100iiiiiiiiiiiiiiiiiiittttt", &a)) {
-        int size = ((opcode>>30)&1)?3:2;
         int offset = signExtend(imm, 19)<<2;
         const char* Y[] = {"S", "D", "Q", "?"};
         snprintf(buff, sizeof(buff), "LDR %s%d, [#%+d]\t;%p", Y[sf], Rt, offset, (void*)(addr+offset));
