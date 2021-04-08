@@ -780,7 +780,7 @@ void pFpiipi(x64emu_t *emu, uintptr_t fnc);
 void pFpiipp(x64emu_t *emu, uintptr_t fnc);
 void pFpiuuu(x64emu_t *emu, uintptr_t fnc);
 void pFpippp(x64emu_t *emu, uintptr_t fnc);
-void pFpCuup(x64emu_t *emu, uintptr_t fnc);
+void pFpCpup(x64emu_t *emu, uintptr_t fnc);
 void pFpCppp(x64emu_t *emu, uintptr_t fnc);
 void pFpuiii(x64emu_t *emu, uintptr_t fnc);
 void pFpuiip(x64emu_t *emu, uintptr_t fnc);

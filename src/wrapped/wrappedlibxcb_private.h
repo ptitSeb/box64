@@ -531,8 +531,8 @@ GO(xcb_screen_next, vFp)
 //GO(xcb_screen_sizeof, 
 //GO(xcb_segment_end, 
 //GO(xcb_segment_next, 
-GO(xcb_send_event, pFpCuup)
-//GO(xcb_send_event_checked, 
+GO(xcb_send_event, pFpCpup)
+GO(xcb_send_event_checked, pFpCpup)
 //GO(xcb_send_fd, 
 GO(xcb_send_request, uFpipp)
 GO(xcb_send_request64, UFpipp)
