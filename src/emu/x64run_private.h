@@ -83,11 +83,13 @@ reg64_t* GetEdO(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t of
 reg64_t* GetEd32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* GetEb32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 #define GetEw GetEd
+#define GetEw32O GetEd32O
 reg64_t* GetEw16(x64emu_t *emu, rex_t rex, uint8_t v);
 reg64_t* GetEw16off(x64emu_t *emu, rex_t rex, uint8_t v, uintptr_t offset);
 mmx87_regs_t* GetEm(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta);
 sse_regs_t* GetEx(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta);
 sse_regs_t* GetExO(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
+sse_regs_t* GetEx32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* GetGd(x64emu_t *emu, rex_t rex, uint8_t v);
 #define GetGw GetGd
 reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v);
@@ -106,7 +108,9 @@ int Run660F(x64emu_t *emu, rex_t rex);
 int Run6664(x64emu_t *emu, rex_t rex);
 int Run66D9(x64emu_t *emu, rex_t rex);
 int Run66DD(x64emu_t *emu, rex_t rex);
-int Run67(x64emu_t *emu, rex_t rex);
+int Run67(x64emu_t *emu, rex_t rex, int rep);
+int Run6766(x64emu_t *emu, rex_t rex, int rep);
+int Run67660F(x64emu_t *emu, rex_t rex);
 int RunD8(x64emu_t *emu, rex_t rex);
 int RunD9(x64emu_t *emu, rex_t rex);
 int RunDA(x64emu_t *emu, rex_t rex);

@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int Run67(x64emu_t *emu, rex_t rex)
+int Run67(x64emu_t *emu, rex_t rex, int rep)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -34,10 +34,17 @@ int Run67(x64emu_t *emu, rex_t rex)
 
     opcode = F8;
 
+    while(opcode==0x67)
+        opcode = F8;
+
     // REX prefix before the 67 are ignored
     rex.rex = 0;
     while(opcode>=0x40 && opcode<=0x4f) {
         rex.rex = opcode;
+        opcode = F8;
+    }
+    while((opcode==0xF2) || (opcode==0xF3)) {
+        rep = opcode-0xF1;
         opcode = F8;
     }
 
@@ -95,6 +102,9 @@ int Run67(x64emu_t *emu, rex_t rex)
     GO(0x28, sub)                   /* SUB 0x28 -> 0x2D */
     GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
     #undef GO
+
+    case 0x66:
+        return Run6766(emu, rex, rep);
 
     case 0x80:                      /* GRP Eb,Ib */
         nextop = F8;

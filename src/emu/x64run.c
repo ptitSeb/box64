@@ -256,7 +256,7 @@ x64emurun:
                 goto fini;
             break;
         case 0x67:                      /* reduce EASize prefix */
-            if(Run67(emu, rex)) {
+            if(Run67(emu, rex, rep)) {
                 unimp = 1;
                 goto fini;
             }
