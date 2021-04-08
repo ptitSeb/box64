@@ -2126,7 +2126,7 @@ GOW(wcsnrtombs, LFppLLp)
 //GO(__wcsrtombs_chk, 
 //GO(wcsspn, 
 GO(wcsstr, pFpp)
-//GO(wcstod, 
+GO(wcstod, dFpp)
 //GO(__wcstod_internal, 
 //GO(__wcstod_l, 
 //GOW(wcstod_l, 
