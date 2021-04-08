@@ -1009,10 +1009,10 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
         } else {
             printf_log(LOG_NONE, "%s", DecodeX64Trace(my_context->dec, ip));
             uint8_t peek = PK(0);
-            if(peek==0xC3 || peek==0xC2) {
+            if(peek==0xC3 || peek==0xC2 || (peek==0xF3 && PK(1)==0xC3)) {
                 printf_log(LOG_NONE, " => %p", *(void**)(R_RSP));
                 printFunctionAddr(*(uintptr_t*)(R_RSP), "=> ");
-            } else if(peek==0x55) {
+            } else if(peek==0x55 || peek==0x53) {
                 printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_RSP));
                 printFunctionAddr(ip, "here: ");
             } else if(peek==0xE8) { // Call
