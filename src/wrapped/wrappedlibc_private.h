@@ -423,7 +423,7 @@ GO(fsetpos64, iFpp)
 GOW(fstatfs64, iFip)
 //GOW(fstatvfs, 
 //GOW(fstatvfs64, 
-//GO(fsync, 
+GO(fsync, iFi)
 GOW(ftell, lFp)
 GOW(ftello, lFp)
 GO(__ftello64, IFp)
