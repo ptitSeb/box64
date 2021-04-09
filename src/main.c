@@ -616,7 +616,7 @@ void endBox64()
     int pid = getpid();
     int running = 1;
     int attempt = 0;
-    printf_log(LOG_DEBUG, "Waiting for all threads to finish before unloading box86context\n");
+    printf_log(LOG_DEBUG, "Waiting for all threads to finish before unloading box64context\n");
     while(running) {
         DIR *proc_dir;
         char dirname[100];

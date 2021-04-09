@@ -70,7 +70,7 @@ typedef struct box64context_s {
     uint32_t            sel_serial;     // will be increment each time selectors changes
 
     zydis_t             *zydis;         // dlopen the zydis dissasembler
-    void*               box64lib;       // dlopen on box86 itself
+    void*               box64lib;       // dlopen on box64 itself
 
     int                 argc;
     char**              argv;
@@ -79,7 +79,7 @@ typedef struct box64context_s {
     char**              envv;
 
     char*               fullpath;
-    char*               box64path;      // path of current box86 executable
+    char*               box64path;      // path of current box64 executable
 
     uint32_t            stacksz;
     int                 stackalign;

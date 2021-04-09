@@ -404,7 +404,7 @@ pid_t EXPORT my_fork(x64emu_t* emu)
     if(type == EMUTYPE_MAIN)
         thread_set_emu(emu);
     if(v<0) {
-        printf_log(LOG_NONE, "BOX86: Warning, fork errored... (%d)\n", v);
+        printf_log(LOG_NONE, "BOX64: Warning, fork errored... (%d)\n", v);
         // error...
     } else if(v>0) {  
         // execute atforks parent functions
@@ -1525,7 +1525,7 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
 // execvp should use PATH to search for the program first
 EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
 {
-    // need to use BOX86_PATH / PATH here...
+    // need to use BOX64_PATH / PATH here...
     char* fullpath = ResolveFile(path, &my_context->box64_path);
     if(!fullpath)
         fullpath = strdup(path);
@@ -1548,13 +1548,13 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
         free(newargv);
         return ret;
     }
-    // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
+    // fullpath is gone, so the search will only be on PATH, not on BOX64_PATH (is that an issue?)
     return execvp(path, argv);
 }
 
 EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
 {
-    // need to use BOX86_PATH / PATH here...
+    // need to use BOX64_PATH / PATH here...
     char* fullpath = ResolveFile(path, &my_context->box64_path);
     if(!fullpath)
         fullpath = strdup(path);
@@ -1583,7 +1583,7 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
 EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path, 
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
 {
-    // need to use BOX86_PATH / PATH here...
+    // need to use BOX64_PATH / PATH here...
     char* fullpath = ResolveFile(path, &my_context->box64_path);
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
@@ -1605,7 +1605,7 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
         //free(newargv);
         return ret;
     }
-    // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
+    // fullpath is gone, so the search will only be on PATH, not on BOX64_PATH (is that an issue?)
     return posix_spawnp(pid, path, actions, attrp, argv, envp);
 }
 #endif
