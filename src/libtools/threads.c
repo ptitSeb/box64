@@ -257,7 +257,7 @@ typedef struct aligned_attr_s {
 pthread_attr_t* getAlignedAttrWithInit(pthread_attr_t* attr, int init)
 {
 	if(!attr)
-		return;
+		return attr;
 	aligned_attr_t* at = (aligned_attr_t*)attr;
 	if(init && at->sign==SIGN_ATTR)
 		return at->at;
