@@ -571,7 +571,50 @@ int RunF0(x64emu_t *emu, rex_t rex)
             pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
             break;
-            
+        case 0x87:                      /* XCHG Ed,Gd */
+            nextop = F8;
+#ifdef DYNAREC
+            GETED(0);
+            GETGD;
+            if(MODREG) {
+                if(rex.w) {
+                    tmp64u = GD->q[0];
+                    GD->q[0] = ED->q[0];
+                    ED->q[0] = tmp64u;
+                } else {
+                    tmp32u = GD->dword[0];
+                    GD->q[0] = ED->dword[0];
+                    ED->q[0] = tmp32u;
+                }
+            } else {
+                if(rex.w) {
+                    GD->q[0] = arm64_lock_xchg(ED, GD->q[0]);
+                } else {
+                    do {
+                        tmp32u = arm64_lock_read_d(ED);
+                    } while(arm64_lock_write_d(ED, GD->dword[0]));
+                    GD->q[0] = tmp32u;
+                }
+            }
+#else
+            GETED(0);
+            GETGD;
+            pthread_mutex_lock(&emu->context->mutex_lock);
+            if(rex.w) {
+                tmp64u = GD->q[0];
+                GD->q[0] = ED->q[0];
+                ED->q[0] = tmp64u;
+            } else {
+                tmp32u = GD->dword[0];
+                GD->q[0] = ED->dword[0];
+                if(MODREG)
+                    ED->q[0] = tmp32u;
+                else
+                    ED->dword[0] = tmp32u;
+            }
+            pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+            break;            
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GETED(0);

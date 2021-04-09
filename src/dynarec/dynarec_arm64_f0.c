@@ -409,6 +409,33 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0x87:
+            INST_NAME("LOCK XCHG Ed, Gd");
+            nextop = F8;
+            if(MODREG) {
+                GETGD;
+                GETED(0);
+                MOVxw_REG(x1, gd);
+                MOVxw_REG(gd, ed);
+                MOVxw_REG(ed, x1);
+            } else {
+                GETGD;
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
+                B_MARK(cNE);
+                MARKLOCK;
+                LDAXRxw(x1, ed);
+                STLXRxw(x3, gd, ed);
+                CBNZx_MARKLOCK(x3);
+                B_MARK2_nocond;
+                MARK;
+                LDRxw_U12(x1, ed, 0);
+                STRxw_U12(gd, ed, 0);
+                MARK2;
+                MOVxw_REG(gd, x1);
+            }
+            break;
+            
         default:
             DEFAULT;
     }
