@@ -97,7 +97,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         }
         dlopened = (GetLibInternal(rfilename)==NULL);
         // Then open the lib
-        if(AddNeededLib(NULL, NULL, is_local, rfilename, emu->context, emu)) {
+        if(AddNeededLib(NULL, NULL, NULL, is_local, rfilename, emu->context, emu)) {
             printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
                 dl->last_error = malloc(129);

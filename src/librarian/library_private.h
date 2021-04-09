@@ -75,6 +75,7 @@ typedef struct library_s {
     kh_datamap_t        *mydatamap;
     char                *altmy;     // to avoid duplicate symbol, like with SDL1/SDL2
     needed_libs_t       needed;
+    needed_libs_t       depended;   // used to free library
     lib_t               *maplib;    // local maplib, for dlopen'd library with LOCAL binding (most of the dlopen)
 } library_t;
 

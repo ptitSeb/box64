@@ -50,6 +50,8 @@ typedef struct needed_libs_s {
 
 void add_neededlib(needed_libs_t* needed, library_t* lib);
 void free_neededlib(needed_libs_t* needed);
+void add_dependedlib(needed_libs_t* depended, library_t* lib);
+void free_dependedlib(needed_libs_t* depended);
 
 typedef struct base_segment_s {
     uintptr_t       base;

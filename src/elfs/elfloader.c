@@ -920,7 +920,7 @@ $PLATFORM – Expands to the processor type of the current machine (see the
 uname(1) man page description of the -i option). For more details of this token
 expansion, see “System Specific Shared Objects”
 */
-int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int local, box64context_t *box64, x64emu_t* emu)
+int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, library_t *deplib, int local, box64context_t *box64, x64emu_t* emu)
 {
     DumpDynamicRPath(h);
     // update RPATH first
@@ -973,8 +973,8 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int
     for (int i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
-            // TODO: Add LD_LIBRARY_PATH and RPATH Handling
-            if(AddNeededLib(maplib, neededlibs, local, needed, box64, emu)) {
+            // TODO: Add LD_LIBRARY_PATH and RPATH handling
+            if(AddNeededLib(maplib, neededlibs, deplib, local, needed, box64, emu)) {
                 printf_log(LOG_INFO, "Error loading needed lib: \"%s\"\n", needed);
                 if(!allow_missing_libs)
                     return 1;   //error...
@@ -1056,7 +1056,7 @@ void RunElfFini(elfheader_t* h, x64emu_t *emu)
     h->fini_done = 1;
     // first check fini array
     Elf64_Addr *addr = (Elf64_Addr*)(h->finiarray + h->delta);
-    for (int i=0; i<h->finiarray_sz; ++i) {
+    for (int i=h->finiarray_sz-1; i>=0; --i) {
         printf_log(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
         RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 0);
     }
