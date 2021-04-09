@@ -245,6 +245,8 @@ static void* pthread_routine(void* p)
 pthread_attr_t* getAlignedAttr(pthread_attr_t* m) {
 	return m;
 }
+void freeAlignedAttr(void* attr) {
+}
 #else
 typedef struct aligned_attr_s {
 	uint64_t sign;
