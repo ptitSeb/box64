@@ -2130,7 +2130,7 @@ GO(wcstod, dFpp)
 //GO(__wcstod_internal, 
 //GO(__wcstod_l, 
 //GOW(wcstod_l, 
-//GO(wcstof, 
+GO(wcstof, fFpp)
 //GO(wcstof128, 
 //GO(__wcstof128_internal, 
 //GOW(wcstof128_l, 
