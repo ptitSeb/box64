@@ -50,6 +50,8 @@ typedef struct needed_libs_s {
 
 void add_neededlib(needed_libs_t* needed, library_t* lib);
 void free_neededlib(needed_libs_t* needed);
+void add_dependedlib(needed_libs_t* depended, library_t* lib);
+void free_dependedlib(needed_libs_t* depended);
 
 typedef struct base_segment_s {
     uintptr_t       base;
@@ -70,7 +72,7 @@ typedef struct box64context_s {
     uint32_t            sel_serial;     // will be increment each time selectors changes
 
     zydis_t             *zydis;         // dlopen the zydis dissasembler
-    void*               box64lib;       // dlopen on box86 itself
+    void*               box64lib;       // dlopen on box64 itself
 
     int                 argc;
     char**              argv;
@@ -79,7 +81,7 @@ typedef struct box64context_s {
     char**              envv;
 
     char*               fullpath;
-    char*               box64path;      // path of current box86 executable
+    char*               box64path;      // path of current box64 executable
 
     uint32_t            stacksz;
     int                 stackalign;

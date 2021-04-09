@@ -96,7 +96,7 @@
 *
 ****************************************************************************/
 
-// This has been heavily modified to fit box86 purpose...
+// This has been heavily modified to fit box64 purpose...
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>

@@ -35,7 +35,7 @@ typedef struct wlib_s {
     void*           lib;        // dlopen result
     void*           priv;       // actual private
     void*           p2;         // second private
-    void*           box64lib;   // ref to the dlopen on box86 itself from context
+    void*           box64lib;   // ref to the dlopen on box64 itself from context
     char*           altprefix;  // if function names are mangled..
     int             needed;
     char**          neededlibs;
@@ -73,8 +73,9 @@ typedef struct library_s {
     kh_datamap_t        *datamap;
     kh_datamap_t        *wdatamap;
     kh_datamap_t        *mydatamap;
-    char                *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
+    char                *altmy;     // to avoid duplicate symbol, like with SDL1/SDL2
     needed_libs_t       needed;
+    needed_libs_t       depended;   // used to free library
     lib_t               *maplib;    // local maplib, for dlopen'd library with LOCAL binding (most of the dlopen)
 } library_t;
 

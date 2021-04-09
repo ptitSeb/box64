@@ -1,7 +1,7 @@
 #ifndef __PATHCOLL_H_
 #define __PATHCOLL_H_
 
-// utility to handle path collection (like BOX86_PATH or BOX86_LD_LIBRARY_PATH)
+// utility to handle path collection (like BOX64_PATH or BOX64_LD_LIBRARY_PATH)
 
 // paths can be resized with realloc, so don't take address as invariant
 typedef struct path_collection_s

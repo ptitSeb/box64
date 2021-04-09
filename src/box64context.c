@@ -264,3 +264,25 @@ void free_neededlib(needed_libs_t* needed)
         free(needed->libs);
     needed->libs = NULL;
 }
+
+void add_dependedlib(needed_libs_t* depended, library_t* lib)
+{
+    if(!depended)
+        return;
+    if(depended->size == depended->cap) {
+        depended->cap += 8;
+        depended->libs = (library_t**)realloc(depended->libs, depended->cap*sizeof(library_t*));
+    }
+    depended->libs[depended->size++] = lib;
+}
+
+void free_dependedlib(needed_libs_t* depended)
+{
+    if(!depended)
+        return;
+    depended->cap = 0;
+    depended->size = 0;
+    if(depended->libs)
+        free(depended->libs);
+    depended->libs = NULL;
+}

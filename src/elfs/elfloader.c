@@ -147,7 +147,7 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;
     if(mainbin && head->vaddr==0) {
-        char* load_addr = getenv("BOX86_LOAD_ADDR");
+        char* load_addr = getenv("BOX64_LOAD_ADDR");
         if(load_addr)
             if(sscanf(load_addr, "0x%lx", &offs)!=1)
                 offs = 0;
@@ -920,7 +920,7 @@ $PLATFORM – Expands to the processor type of the current machine (see the
 uname(1) man page description of the -i option). For more details of this token
 expansion, see “System Specific Shared Objects”
 */
-int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int local, box64context_t *box64, x64emu_t* emu)
+int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, library_t *deplib, int local, box64context_t *box64, x64emu_t* emu)
 {
     DumpDynamicRPath(h);
     // update RPATH first
@@ -957,9 +957,9 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int
                 free(origin);
             }
             if(strchr(rpath, '$')) {
-                printf_log(LOG_INFO, "BOX86: Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
+                printf_log(LOG_INFO, "BOX64: Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
             } else {
-                printf_log(LOG_DEBUG, "Prepending path \"%s\" to BOX86_LD_LIBRARY_PATH\n", rpath);
+                printf_log(LOG_DEBUG, "Prepending path \"%s\" to BOX64_LD_LIBRARY_PATH\n", rpath);
                 PrependList(&box64->box64_ld_lib, rpath, 1);
             }
             if(rpath!=rpathref)
@@ -973,8 +973,8 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int
     for (int i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
-            // TODO: Add LD_LIBRARY_PATH and RPATH Handling
-            if(AddNeededLib(maplib, neededlibs, local, needed, box64, emu)) {
+            // TODO: Add LD_LIBRARY_PATH and RPATH handling
+            if(AddNeededLib(maplib, neededlibs, deplib, local, needed, box64, emu)) {
                 printf_log(LOG_INFO, "Error loading needed lib: \"%s\"\n", needed);
                 if(!allow_missing_libs)
                     return 1;   //error...
@@ -1056,7 +1056,7 @@ void RunElfFini(elfheader_t* h, x64emu_t *emu)
     h->fini_done = 1;
     // first check fini array
     Elf64_Addr *addr = (Elf64_Addr*)(h->finiarray + h->delta);
-    for (int i=0; i<h->finiarray_sz; ++i) {
+    for (int i=h->finiarray_sz-1; i>=0; --i) {
         printf_log(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
         RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 0);
     }
@@ -1291,17 +1291,17 @@ void ResetSpecialCaseMainElf(elfheader_t* h)
             if(strcmp(symname, "_IO_2_1_stderr_")==0 && ((void*)sym->st_value+h->delta)) {
                 memcpy((void*)sym->st_value+h->delta, stderr, sym->st_size);
                 my__IO_2_1_stderr_ = (void*)sym->st_value+h->delta;
-                printf_log(LOG_DEBUG, "BOX86: Set @_IO_2_1_stderr_ to %p\n", my__IO_2_1_stderr_);
+                printf_log(LOG_DEBUG, "BOX64: Set @_IO_2_1_stderr_ to %p\n", my__IO_2_1_stderr_);
             } else
             if(strcmp(symname, "_IO_2_1_stdin_")==0 && ((void*)sym->st_value+h->delta)) {
                 memcpy((void*)sym->st_value+h->delta, stdin, sym->st_size);
                 my__IO_2_1_stdin_ = (void*)sym->st_value+h->delta;
-                printf_log(LOG_DEBUG, "BOX86: Set @_IO_2_1_stdin_ to %p\n", my__IO_2_1_stdin_);
+                printf_log(LOG_DEBUG, "BOX64: Set @_IO_2_1_stdin_ to %p\n", my__IO_2_1_stdin_);
             } else
             if(strcmp(symname, "_IO_2_1_stdout_")==0 && ((void*)sym->st_value+h->delta)) {
                 memcpy((void*)sym->st_value+h->delta, stdout, sym->st_size);
                 my__IO_2_1_stdout_ = (void*)sym->st_value+h->delta;
-                printf_log(LOG_DEBUG, "BOX86: Set @_IO_2_1_stdout_ to %p\n", my__IO_2_1_stdout_);
+                printf_log(LOG_DEBUG, "BOX64: Set @_IO_2_1_stdout_ to %p\n", my__IO_2_1_stdout_);
             }
         }
     }
