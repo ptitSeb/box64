@@ -513,7 +513,7 @@ GO(getgrent, pFv)
 //GO(__getgroups_chk, 
 //GO(gethostbyaddr, 
 //GO(gethostbyaddr_r, 
-//GO(gethostbyname, 
+GO(gethostbyname, pFp)
 //GO(gethostbyname2, 
 //GO(gethostbyname2_r, 
 //GO(gethostbyname_r, 
