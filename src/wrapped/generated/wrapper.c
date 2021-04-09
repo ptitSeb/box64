@@ -1210,6 +1210,10 @@ typedef void (*vFppuiiiiipuiiiiiiii_t)(void*, void*, uint64_t, int64_t, int64_t,
 typedef void* (*pFiiiippppppppppppppp_t)(int64_t, int64_t, int64_t, int64_t, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);
 typedef void* (*pFipppppppppppppppppppppp_t)(int64_t, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);
 
+#if !defined(NOALIGN)
+typedef int64_t (*iFEpLp_t)(x64emu_t*, void*, uintptr_t, void*);
+#endif
+
 #if defined(HAVE_LD80BITS)
 typedef long double (*DFD_t)(long double);
 typedef long double (*DFDD_t)(long double, long double);
@@ -2400,6 +2404,10 @@ void pFpppppppppppppppp(x64emu_t *emu, uintptr_t fcn) { pFpppppppppppppppp_t fn 
 void vFppuiiiiipuiiiiiiii(x64emu_t *emu, uintptr_t fcn) { vFppuiiiiipuiiiiiiii_t fn = (vFppuiiiiipuiiiiiiii_t)fcn; fn((void*)R_RDI, (void*)R_RSI, (uint64_t)R_RDX, (int64_t)R_RCX, (int64_t)R_R8, (int64_t)R_R9, *(int64_t*)(R_RSP + 8), *(int64_t*)(R_RSP + 16), *(void**)(R_RSP + 24), *(uint64_t*)(R_RSP + 32), *(int64_t*)(R_RSP + 40), *(int64_t*)(R_RSP + 48), *(int64_t*)(R_RSP + 56), *(int64_t*)(R_RSP + 64), *(int64_t*)(R_RSP + 72), *(int64_t*)(R_RSP + 80), *(int64_t*)(R_RSP + 88), *(int64_t*)(R_RSP + 96)); }
 void pFiiiippppppppppppppp(x64emu_t *emu, uintptr_t fcn) { pFiiiippppppppppppppp_t fn = (pFiiiippppppppppppppp_t)fcn; R_RAX=(uintptr_t)fn((int64_t)R_RDI, (int64_t)R_RSI, (int64_t)R_RDX, (int64_t)R_RCX, (void*)R_R8, (void*)R_R9, *(void**)(R_RSP + 8), *(void**)(R_RSP + 16), *(void**)(R_RSP + 24), *(void**)(R_RSP + 32), *(void**)(R_RSP + 40), *(void**)(R_RSP + 48), *(void**)(R_RSP + 56), *(void**)(R_RSP + 64), *(void**)(R_RSP + 72), *(void**)(R_RSP + 80), *(void**)(R_RSP + 88), *(void**)(R_RSP + 96), *(void**)(R_RSP + 104)); }
 void pFipppppppppppppppppppppp(x64emu_t *emu, uintptr_t fcn) { pFipppppppppppppppppppppp_t fn = (pFipppppppppppppppppppppp_t)fcn; R_RAX=(uintptr_t)fn((int64_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9, *(void**)(R_RSP + 8), *(void**)(R_RSP + 16), *(void**)(R_RSP + 24), *(void**)(R_RSP + 32), *(void**)(R_RSP + 40), *(void**)(R_RSP + 48), *(void**)(R_RSP + 56), *(void**)(R_RSP + 64), *(void**)(R_RSP + 72), *(void**)(R_RSP + 80), *(void**)(R_RSP + 88), *(void**)(R_RSP + 96), *(void**)(R_RSP + 104), *(void**)(R_RSP + 112), *(void**)(R_RSP + 120), *(void**)(R_RSP + 128), *(void**)(R_RSP + 136)); }
+
+#if !defined(NOALIGN)
+void iFEpLp(x64emu_t *emu, uintptr_t fcn) { iFEpLp_t fn = (iFEpLp_t)fcn; R_RAX=(int64_t)fn(emu, (void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX); }
+#endif
 
 #if defined(HAVE_LD80BITS)
 void DFD(x64emu_t *emu, uintptr_t fcn) { DFD_t fn = (DFD_t)fcn; long double ld=fn(*(long double*)(R_RSP + 8)); fpu_do_push(emu); ST0val = ld; }

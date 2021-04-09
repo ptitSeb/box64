@@ -241,16 +241,59 @@ static void* pthread_routine(void* p)
 	return ret;
 }
 
+#ifdef NOALIGN
+pthread_attr_t* getAlignedAttr(pthread_attr_t* m) {
+	return m;
+}
+#else
+typedef struct aligned_attr_s {
+	uint64_t sign;
+	pthread_attr_t *at;
+} aligned_attr_t;
+#define SIGN_ATTR *(uint64_t*)"BOX64ATT"
+
+pthread_attr_t* getAlignedAttrWithInit(pthread_attr_t* attr, int init)
+{
+	if(!attr)
+		return;
+	aligned_attr_t* at = (aligned_attr_t*)attr;
+	if(init && at->sign==SIGN_ATTR)
+		return at->at;
+	pthread_attr_t* ret = (pthread_attr_t*)calloc(1, sizeof(pthread_attr_t));
+	at->sign = SIGN_ATTR;
+	at->at = ret;
+	if(init)
+		pthread_attr_init(ret);	// init?
+	return ret;
+}
+pthread_attr_t* getAlignedAttr(pthread_attr_t* attr)
+{
+	return getAlignedAttrWithInit(attr, 1);
+}
+void freeAlignedAttr(void* attr)
+{
+	if(!attr)
+		return;
+	aligned_attr_t* at = (aligned_attr_t*)attr;
+	if(at->sign==SIGN_ATTR) {
+		free(at->at);
+		at->sign = 0LL;
+	}
+}
+#endif
+
 EXPORT int my_pthread_attr_destroy(x64emu_t* emu, void* attr)
 {
 	if(emu->context->stacksizes)
 		FreeStackSize(emu->context->stacksizes, (uintptr_t)attr);
-	return pthread_attr_destroy(attr);
+	int ret = pthread_attr_destroy(getAlignedAttr(attr));
+	freeAlignedAttr(attr);
+	return ret;
 }
 
 EXPORT int my_pthread_attr_getstack(x64emu_t* emu, void* attr, void** stackaddr, size_t* stacksize)
 {
-	int ret = pthread_attr_getstack(attr, stackaddr, stacksize);
+	int ret = pthread_attr_getstack(getAlignedAttr(attr), stackaddr, stacksize);
 	if (ret==0)
 		GetStackSize(emu, (uintptr_t)attr, stackaddr, stacksize);
 	return ret;
@@ -264,7 +307,7 @@ EXPORT int my_pthread_attr_setstack(x64emu_t* emu, void* attr, void* stackaddr, 
 	AddStackSize(emu->context->stacksizes, (uintptr_t)attr, stackaddr, stacksize);
 	//Don't call actual setstack...
 	//return pthread_attr_setstack(attr, stackaddr, stacksize);
-	return pthread_attr_setstacksize(attr, stacksize);
+	return pthread_attr_setstacksize(getAlignedAttr(attr), stacksize);
 }
 
 EXPORT int my_pthread_attr_setstacksize(x64emu_t* emu, void* attr, size_t stacksize)
@@ -272,8 +315,86 @@ EXPORT int my_pthread_attr_setstacksize(x64emu_t* emu, void* attr, size_t stacks
 	//aarch64 have an PTHREAD_STACK_MIN of 131072 instead of 16384 on x86_64!
 	if(stacksize<PTHREAD_STACK_MIN)
 		stacksize = PTHREAD_STACK_MIN;
-	return pthread_attr_setstacksize(attr, stacksize);
+	return pthread_attr_setstacksize(getAlignedAttr(attr), stacksize);
 }
+
+#ifndef NOALIGN
+EXPORT int my_pthread_attr_getdetachstate(x64emu_t* emu, pthread_attr_t* attr, int *state)
+{
+	return pthread_attr_getdetachstate(getAlignedAttr(attr), state);
+}
+EXPORT int my_pthread_attr_getguardsize(x64emu_t* emu, pthread_attr_t* attr, size_t* size)
+{
+	return pthread_attr_getguardsize(getAlignedAttr(attr), size);
+}
+EXPORT int my_pthread_attr_getinheritsched(x64emu_t* emu, pthread_attr_t* attr, int* sched)
+{
+	return pthread_attr_getinheritsched(getAlignedAttr(attr), sched);
+}
+EXPORT int my_pthread_attr_getschedparam(x64emu_t* emu, pthread_attr_t* attr, void* param)
+{
+	return pthread_attr_getschedparam(getAlignedAttr(attr), param);
+}
+EXPORT int my_pthread_attr_getschedpolicy(x64emu_t* emu, pthread_attr_t* attr, int* policy)
+{
+	return pthread_attr_getschedpolicy(getAlignedAttr(attr), policy);
+}
+EXPORT int my_pthread_attr_getscope(x64emu_t* emu, pthread_attr_t* attr, int* scope)
+{
+	return pthread_attr_getscope(getAlignedAttr(attr), scope);
+}
+EXPORT int my_pthread_attr_getstackaddr(x64emu_t* emu, pthread_attr_t* attr, void* addr)
+{
+	size_t size;
+	return pthread_attr_getstack(getAlignedAttr(attr), addr, &size);
+	//return pthread_attr_getstackaddr(getAlignedAttr(attr), addr);
+}
+EXPORT int my_pthread_attr_getstacksize(x64emu_t* emu, pthread_attr_t* attr, size_t* size)
+{
+	void* addr;
+	return pthread_attr_getstack(getAlignedAttr(attr), &addr, size);
+	//return pthread_attr_getstacksize(getAlignedAttr(attr), size);
+}
+EXPORT int my_pthread_attr_init(x64emu_t* emu, pthread_attr_t* attr)
+{
+	return pthread_attr_init(getAlignedAttrWithInit(attr, 0));
+}
+EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
+{
+	return pthread_attr_setaffinity_np(getAlignedAttr(attr), cpusize, cpuset);
+}
+EXPORT int my_pthread_attr_setdetachstate(x64emu_t* emu, pthread_attr_t* attr, int state)
+{
+	return pthread_attr_setdetachstate(getAlignedAttr(attr), state);
+}
+EXPORT int my_pthread_attr_setguardsize(x64emu_t* emu, pthread_attr_t* attr, size_t size)
+{
+	return pthread_attr_setguardsize(getAlignedAttr(attr), size);
+}
+EXPORT int my_pthread_attr_setinheritsched(x64emu_t* emu, pthread_attr_t* attr, int sched)
+{
+	return pthread_attr_setinheritsched(getAlignedAttr(attr), sched);
+}
+EXPORT int my_pthread_attr_setschedparam(x64emu_t* emu, pthread_attr_t* attr, void* param)
+{
+	return pthread_attr_setschedparam(getAlignedAttr(attr), param);
+}
+EXPORT int my_pthread_attr_setschedpolicy(x64emu_t* emu, pthread_attr_t* attr, int policy)
+{
+	return pthread_attr_setschedpolicy(getAlignedAttr(attr), policy);
+}
+EXPORT int my_pthread_attr_setscope(x64emu_t* emu, pthread_attr_t* attr, int scope)
+{
+	return pthread_attr_setscope(getAlignedAttr(attr), scope);
+}
+EXPORT int my_pthread_attr_setstackaddr(x64emu_t* emu, pthread_attr_t* attr, void* addr)
+{
+	size_t size = 2*1024*1024;
+	my_pthread_attr_getstacksize(emu, attr, &size);
+	return pthread_attr_setstack(getAlignedAttr(attr), addr, size);
+	//return pthread_attr_setstackaddr(getAlignedAttr(attr), addr);
+}
+#endif
 
 EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
 {
@@ -285,7 +406,7 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 
 	if(attr) {
 		size_t stsize;
-		if(pthread_attr_getstacksize(attr, &stsize)==0)
+		if(pthread_attr_getstacksize(getAlignedAttr(attr), &stsize)==0)
 			stacksize = stsize;
 	}
 	if(GetStackSize(emu, (uintptr_t)attr, &attr_stack, &attr_stacksize))
@@ -313,7 +434,7 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 	}
 	#endif
 	// create thread
-	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
+	return pthread_create((pthread_t*)t, getAlignedAttr(attr), 
 		pthread_routine, et);
 }
 
@@ -347,13 +468,13 @@ EXPORT void my___pthread_register_cancel(void* E, void* B)
 {
 	// get a stack local copy of the args, as may be live in some register depending the architecture (like ARM)
 	if(cancel_deep<0) {
-		printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, inconsistant value in __pthread_register_cancel (%d)\n", cancel_deep);
+		printf_log(LOG_NONE/*LOG_INFO*/, "BOX64: Warning, inconsistant value in __pthread_register_cancel (%d)\n", cancel_deep);
 		cancel_deep = 0;
 	}
 	if(cancel_deep!=CANCEL_MAX-1) 
 		++cancel_deep;
 	else
-		{printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, calling __pthread_register_cancel(...) too many time\n");}
+		{printf_log(LOG_NONE/*LOG_INFO*/, "BOX64: Warning, calling __pthread_register_cancel(...) too many time\n");}
 		
 	cancel_emu[cancel_deep] = (x64emu_t*)E;
 
@@ -502,10 +623,6 @@ EXPORT int my___pthread_key_create(x64emu_t* emu, void* key, void* dtor) __attri
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
 #ifdef ALIGN_COND
-// phtread_cond_init with null attr seems to only write 1 (NULL) dword on x86, while it's 48 bytes on ARM. 
-// Not sure why as sizeof(pthread_cond_init) is 48 on both platform... But Neverwinter Night init seems to rely on that
-// What about cond that are statically initialized? 
-// Note, this is is a versionned function (the pthread_cond_*), and this seems to correspond to an old behaviour
 
 KHASH_MAP_INIT_INT(mapcond, pthread_cond_t*);
 
@@ -536,7 +653,7 @@ static pthread_cond_t* get_cond(void* cond)
 	if(k==kh_end(mapcond)) {
 		khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
 		if(k==kh_end(mapcond)) {
-			printf_log(LOG_DEBUG, "BOX86: Note: phtread_cond not found, create a new empty one\n");
+			printf_log(LOG_DEBUG, "BOX64: Note: phtread_cond not found, create a new empty one\n");
 			ret = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
 			k = kh_put(mapcond, mapcond, (uintptr_t)cond, &r);
 			kh_value(mapcond, k) = ret;
