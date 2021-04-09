@@ -80,7 +80,7 @@ scwrap_t syscallwrap[] = {
     #endif
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
     { 157, __NR_prctl, 5 },     // needs wrapping?
-    { 186, __NR_gettid, 0 },
+    { 186, __NR_gettid, 0 },    //0xBA
     { 202, __NR_futex, 6},
     { 217, __NR_getdents64, 3},
     { 318, __NR_getrandom, 3},
