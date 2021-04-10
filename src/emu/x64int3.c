@@ -120,6 +120,21 @@ void x64Int3(x64emu_t* emu)
                 } else  if(!strcmp(s, "glXGetProcAddress") || !strcmp(s, "SDL_GL_GetProcAddress")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
+                } else  if(!strcmp(s, "glGetStringi")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI);
+                    post = 2;
+                } else  if(!strcmp(s, "glFramebufferTexture2D")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, 0x%x, 0x%x, %u, %d)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, R_ECX, R_R8d);
+                } else  if(!strcmp(s, "glTexSubImage2D")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d, %d, %d, %d, %d, 0x%x, 0x%x, %p)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, R_ECX, R_R8d, R_R9d, *(uint32_t*)(R_RSP+8), *(uint32_t*)(R_RSP+16), *(void**)(R_RSP+24));
+                } else  if(!strcmp(s, "glCompressedTexSubImage2D")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d, %d, %d, %d, %d, 0x%x, %d, %p)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, R_ECX, R_R8d, R_R9d, *(uint32_t*)(R_RSP+8), *(uint32_t*)(R_RSP+16), *(void**)(R_RSP+24));
+                } else  if(!strcmp(s, "glVertexAttribPointer")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%u, %d, 0x%x, %d, %d, %p)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, R_ECX, R_R8d, (void*)R_R9);
+                } else  if(!strcmp(s, "glDrawElements")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d, 0x%x, %p)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, (void*)R_RCX);
+                } else  if(!strcmp(s, "glUniform4fv")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %d, %p[%g/%g/%g/%g...])", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, (void*)R_RDX, ((float*)(R_RDX))[0], ((float*)(R_RDX))[1], ((float*)(R_RDX))[2], ((float*)(R_RDX))[3]);
                 } else  if(!strcmp(s, "mmap64") || !strcmp(s, "mmap")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %lu, 0x%x, 0x%x, %d, %ld)", tid, *(void**)(R_RSP), s, 
                         (void*)R_RDI, R_RSI, (int)(R_RDX), (int)R_RCX, (int)R_R8, R_R9);
