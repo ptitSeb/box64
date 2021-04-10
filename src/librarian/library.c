@@ -151,7 +151,7 @@ static void initNativeLib(library_t *lib, box64context_t* context) {
             lib->type = 0;
             // Call librarian to load all dependant elf
             for(int i=0; i<lib->priv.w.needed; ++i) {
-                if(AddNeededLib(context->maplib, &lib->needed, lib, 0, lib->priv.w.neededlibs[i], context, NULL)) {  // probably all native, not emulated, so that's fine
+                if(AddNeededLib(context->maplib, &lib->needed, lib, 0, lib->priv.w.neededlibs[i], context, thread_get_emu())) {
                     printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->priv.w.neededlibs[i]);
                     return;
                 }
