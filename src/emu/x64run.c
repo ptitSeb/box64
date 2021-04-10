@@ -1299,14 +1299,22 @@ x64emurun:
                 case 0:                 /* INC Ed */
                     if(rex.w)
                         ED->q[0] = inc64(emu, ED->q[0]);
-                    else
-                        ED->q[0] = inc32(emu, ED->dword[0]);
+                    else {
+                        if(MODREG)
+                            ED->q[0] = inc32(emu, ED->dword[0]);
+                        else
+                            ED->dword[0] = inc32(emu, ED->dword[0]);
+                    }
                     break;
                 case 1:                 /* DEC Ed */
                     if(rex.w)
                         ED->q[0] = dec64(emu, ED->q[0]);
-                    else
-                        ED->q[0] = dec32(emu, ED->dword[0]);
+                    else {
+                        if(MODREG)
+                            ED->q[0] = dec32(emu, ED->dword[0]);
+                        else
+                            ED->dword[0] = dec32(emu, ED->dword[0]);
+                    }
                     break;
                 case 2:                 /* CALL NEAR Ed */
                     tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
