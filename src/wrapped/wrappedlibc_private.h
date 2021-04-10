@@ -419,7 +419,7 @@ GO(__fsetlocking, iFpi)
 GO(fsetpos, iFpp)
 GO(fsetpos64, iFpp)
 //GO(fsetxattr, 
-//GOW(fstatfs, 
+GOW(fstatfs, iFip)
 GOW(fstatfs64, iFip)
 //GOW(fstatvfs, 
 //GOW(fstatvfs64, 
@@ -1730,7 +1730,7 @@ GOM(sscanf, iFEppV)
 //GO(sstk, 
 GOM(__stack_chk_fail, vFE)
 //GO(__statfs, 
-//GOW(statfs, 
+GOW(statfs, iFpp)
 GOW(statfs64, iFpp)
 GOW(statvfs, iFpp)
 GOW(statvfs64, iFpp)
@@ -2040,8 +2040,8 @@ GOM(__vasprintf_chk, iFEpipp)
 //GO(__vdprintf_chk, 
 //GO(verr, 
 //GO(verrx, 
-//GOW(versionsort, 
-//GOW(versionsort64, 
+GOW(versionsort, iFpp)
+GOW(versionsort64, iFpp)
 //GO(__vfork, 
 //GOW(vfork, 
 GOM(vfprintf, iFEppp)
@@ -2298,3 +2298,6 @@ GOM(_ITM_deregisterTMCloneTable, vFEp)
 
 GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)
+
+DATAM(program_invocation_name, sizeof(void*))
+DATAM(program_invocation_short_name, sizeof(void*))
