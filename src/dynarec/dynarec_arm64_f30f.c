@@ -360,6 +360,20 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVQSfrom(v0, 0, x2);
             break;
 
+        case 0xD6:
+            INST_NAME("MOVQ2DQ Gx, Em");
+            nextop = F8;
+            GETGX_empty(v0);
+            if(MODREG) {
+                v1 = mmx_get_reg(dyn, ninst, x1, (nextop&7));
+                VEORQ(v0, v0, v0);  // usefull?
+                VMOV(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                VLDR64_U12(v0, ed, fixedaddress);
+            }
+            break;
+
         case 0xE6:
             INST_NAME("CVTDQ2PD Gx, Ex");
             nextop = F8;
