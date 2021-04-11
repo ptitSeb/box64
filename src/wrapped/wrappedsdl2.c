@@ -518,7 +518,7 @@ EXPORT void *my2_SDL_AddTimer(x64emu_t* emu, uint64_t a, void* f, void* p)
 EXPORT int my2_SDL_RemoveTimer(x64emu_t* emu, void* t)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
-    my->SDL_RemoveTimer(t);
+    return my->SDL_RemoveTimer(t);
 }
 
 EXPORT void my2_SDL_SetEventFilter(x64emu_t* emu, void* p, void* userdata)
