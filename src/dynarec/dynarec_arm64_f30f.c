@@ -217,6 +217,13 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FCVT_D_S(d0, v1);
             VMOVeD(v0, 0, d0, 0);
             break;
+        case 0x5B:
+            INST_NAME("CVTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(d0, 0);
+            GETGX_empty(v0);
+            VFCVTZSQS(v0, d0);
+            break;
 
         case 0x5C:
             INST_NAME("SUBSS Gx, Ex");
