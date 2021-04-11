@@ -30,8 +30,6 @@
 
 int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
 {
-    //TODO: register rtld_fini
-    //TODO: register fini
     // let's cheat and set all args...
     if(init) {
         PushExit(emu);

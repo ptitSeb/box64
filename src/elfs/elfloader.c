@@ -785,7 +785,7 @@ Elf64_Sym* GetFunction(elfheader_t* h, const char* name)
     // TODO: create a hash on named to avoid this loop
     for (int i=0; i<h->numSymTab; ++i) {
         int type = ELF64_ST_TYPE(h->SymTab[i].st_info);
-        if(/*h->SymTab[i].st_info == 18*/type==STT_FUNC) {    // TODO: this "18" is probably defined somewhere
+        if(type==STT_FUNC) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
             if(strcmp(symname, name)==0) {
                 return h->SymTab+i;

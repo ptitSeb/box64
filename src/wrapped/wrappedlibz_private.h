@@ -5,7 +5,7 @@
 GO(zlibVersion, pFv)
 GO(deflateInit, iFpi)
 GO(deflate, iFpi)
-GO(deflateEnd, iFp)
+GOM(deflateEnd, iFEp)
 GOM(inflateInit, iFEp)
 GO(inflate, iFpi)
 GOM(inflateEnd, iFEp)
@@ -102,4 +102,4 @@ GO(inflateCodesUsed, uFp)
 GO(inflateResetKeep, iFp)
 GO(deflateResetKeep, iFp)
 GO(gzopen_w, pFpp)  // Win32 only?
-//GOM(gzvprintf iFEppVV);
+//GOM(gzvprintf iFEppVV)

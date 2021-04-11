@@ -3,7 +3,7 @@
 GOM(dladdr, iFEpp)
 // dladdr1
 GOM(dlclose, iFEp)
-GOM(dlerror, pFE)
+GOM(dlerror, pFEv)
 DATAB(_dlfcn_hook, 8)
 GOM(dlinfo, iFEpip)
 GOM(dlmopen, pFEppi)

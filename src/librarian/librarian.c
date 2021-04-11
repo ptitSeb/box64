@@ -608,7 +608,12 @@ const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, c
             *base = GetBaseAddress(h);
         return ret;
     }
-    // TODO: then search in the other libs...
+    // TODO: find if cyclic references exists (should also fix MapLibAddMapLib)
+    /* for (int i = 0; i < maplib->libsz; ++i) {
+        // if (maplib == maplib->libraries[i]->maplib) continue;
+        const char *nameInLib = FindSymbolName(maplib->libraries[i]->maplib, p, start, sz, libname, base);
+        if (nameInLib) return nameInLib;
+    } */
     return NULL;
 }
 
