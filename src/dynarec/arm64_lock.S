@@ -106,9 +106,10 @@ arm64_lock_storeifref:
     ldaxr   x3, [x0]
     cmp     x2, x3
     bne     arm64_lock_storeifref_exit
-    mov     x2, x1
-    stlxr   w4, x2, [x0]
+    stlxr   w4, x1, [x0]
     cbnz    w4, arm64_lock_storeifref
+    mov     x0, x1
+    ret
 arm64_lock_storeifref_exit:
     mov     x0, x2
     ret
