@@ -1134,6 +1134,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             URHADDQ_8(v0, v0, v1);
             break;
 
+        case 0xE2:
+            INST_NAME("PSRAD Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 0);
+            v0 = fpu_get_scratch(dyn);
+            VMOVeD(v0, 0, q1, 0);
+            VMOVeD(v0, 1, q1, 0);
+            SQXTN_32(v0, v0);   // 2*q1 in 32bits now
+            NEG_32(v0, v0);   // because we want SHR and not SHL
+            VMOVeD(v0, 1, v0, 0);
+            SSHLQ_32(q0, q0, v0);
+            break;
+
         case 0xE4:
             INST_NAME("PMULHUW Gx,Ex");
             nextop = F8;

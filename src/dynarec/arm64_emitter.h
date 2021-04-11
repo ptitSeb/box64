@@ -744,6 +744,15 @@
 #define SHL_scalar_imm(U, immh, immb, Rn, Rd)   (0b01<<30 | 0b111110<<23 | (immh)<<19 | (immb)<<16 | 0b01010<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define SHL_64(Vd, Vn, shift)               EMIT(SHL_scalar_imm(0, 0b1000 | (((shift)>>3)&7), (shift)&7, Vn, Vd))
 
+#define SHL_vector_vector(Q, U, size, Rm, R, S, Rn, Rd) ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b010<<13 | (R)<<12 | (S)<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define SSHL_8(Vd, Vn, Vm)                  EMIT(SHL_vector_vector(0, 0, 0b00, Vm, 0, 0, Vn, Vd))
+#define SSHL_16(Vd, Vn, Vm)                 EMIT(SHL_vector_vector(0, 0, 0b01, Vm, 0, 0, Vn, Vd))
+#define SSHL_32(Vd, Vn, Vm)                 EMIT(SHL_vector_vector(0, 0, 0b10, Vm, 0, 0, Vn, Vd))
+#define SSHLQ_8(Vd, Vn, Vm)                 EMIT(SHL_vector_vector(1, 0, 0b00, Vm, 0, 0, Vn, Vd))
+#define SSHLQ_16(Vd, Vn, Vm)                EMIT(SHL_vector_vector(1, 0, 0b01, Vm, 0, 0, Vn, Vd))
+#define SSHLQ_32(Vd, Vn, Vm)                EMIT(SHL_vector_vector(1, 0, 0b10, Vm, 0, 0, Vn, Vd))
+#define SSHLQ_64(Vd, Vn, Vm)                EMIT(SHL_vector_vector(1, 0, 0b11, Vm, 0, 0, Vn, Vd))
+
 #define SHR_vector(Q, U, immh, immb, Rn, Rd)  ((Q)<<30 | (U)<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b00000<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VSHRQ_8(Vd, Vn, shift)              EMIT(SHR_vector(1, 1, 0b0001, (8-(shift))&7, Vn, Vd))
 #define VSHRQ_16(Vd, Vn, shift)             EMIT(SHR_vector(1, 1, 0b0010 | (((16-(shift))>>3)&1), (16-(shift))&7, Vn, Vd))
@@ -804,6 +813,22 @@
 #define VSUB_8(Vd, Vn, Vm)                  EMIT(ADDSUB_vector(0, 1, 0b00, Vm, Vn, Vd))
 #define VSUB_16(Vd, Vn, Vm)                 EMIT(ADDSUB_vector(0, 1, 0b01, Vm, Vn, Vd))
 #define VSUB_32(Vd, Vn, Vm)                 EMIT(ADDSUB_vector(0, 1, 0b10, Vm, Vn, Vd))
+
+#define NEGABS_vector(Q, U, size, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | 0b01011<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define NEG_8(Vd, Vn)                       EMIT(NEGABS_vector(0, 1, 0b00, Vn, Vd))
+#define NEG_16(Vd, Vn)                      EMIT(NEGABS_vector(0, 1, 0b01, Vn, Vd))
+#define NEG_32(Vd, Vn)                      EMIT(NEGABS_vector(0, 1, 0b10, Vn, Vd))
+#define NEGQ_8(Vd, Vn)                      EMIT(NEGABS_vector(1, 1, 0b00, Vn, Vd))
+#define NEGQ_16(Vd, Vn)                     EMIT(NEGABS_vector(1, 1, 0b01, Vn, Vd))
+#define NEGQ_32(Vd, Vn)                     EMIT(NEGABS_vector(1, 1, 0b10, Vn, Vd))
+#define NEGQ_64(Vd, Vn)                     EMIT(NEGABS_vector(1, 1, 0b11, Vn, Vd))
+#define ABS_8(Vd, Vn)                       EMIT(NEGABS_vector(0, 0, 0b00, Vn, Vd))
+#define ABS_16(Vd, Vn)                      EMIT(NEGABS_vector(0, 0, 0b01, Vn, Vd))
+#define ABS_32(Vd, Vn)                      EMIT(NEGABS_vector(0, 0, 0b10, Vn, Vd))
+#define ABSQ_8(Vd, Vn)                      EMIT(NEGABS_vector(1, 0, 0b00, Vn, Vd))
+#define ABSQ_16(Vd, Vn)                     EMIT(NEGABS_vector(1, 0, 0b01, Vn, Vd))
+#define ABSQ_32(Vd, Vn)                     EMIT(NEGABS_vector(1, 0, 0b10, Vn, Vd))
+#define ABSQ_64(Vd, Vn)                     EMIT(NEGABS_vector(1, 0, 0b11, Vn, Vd))
 
 // FMOV
 #define FMOV_general(sf, type, mode, opcode, Rn, Rd)    ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (mode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
