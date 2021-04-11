@@ -469,6 +469,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(d1, 0);
             VZIP1_32(d0, d0, d1);
             break;
+        case 0x63:
+            INST_NAME("PACKSSWB Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            q0 = fpu_get_scratch(dyn);
+            VMOVeD(q0, 0, d0, 0);
+            VMOVeD(q0, 1, d1, 0);
+            SQXTN_8(d0, q0);
+            break;
 
         case 0x67:
             INST_NAME("PACKUSWB Gm, Em");
