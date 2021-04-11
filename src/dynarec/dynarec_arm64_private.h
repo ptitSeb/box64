@@ -42,6 +42,7 @@ typedef struct dynarec_arm_s {
     int                 dfnone;     // if defered flags is already set to df_none
     uint64_t            *table64;   // table of 64bits value
     int                 table64size;// size of table (will be appended at end of executable code)
+    int                 table64cap;
     uintptr_t           tablestart;
     uintptr_t*          next;       // variable array of "next" jump address
     int                 next_sz;

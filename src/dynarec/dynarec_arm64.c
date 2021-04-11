@@ -315,8 +315,11 @@ int Table64(dynarec_arm_t *dyn, uint64_t val)
             idx = i;
     // not found, add it
     if(idx==-1) {
+        if(dyn->table64size == dyn->table64cap) {
+            dyn->table64cap+=4;
+            dyn->table64 = (uint64_t*)realloc(dyn->table64, dyn->table64cap * sizeof(uint64_t));
+        }
         idx = dyn->table64size++;
-        dyn->table64 = (uint64_t*)realloc(dyn->table64, dyn->table64size * sizeof(uint64_t));
         dyn->table64[idx] = val;
     }
     // calculate offset
@@ -402,10 +405,12 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         printFunctionAddr(helper.start, " => ");
         dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");
     }
-    helper.arm_size = 0;
     int oldtable64size = helper.table64size;
+    int oldarmsize = helper.arm_size;
+    helper.arm_size = 0;
+    helper.table64size = 0; // reset table64 (but not the cap)
     arm_pass3(&helper, addr);
-    if(sz!=(helper.arm_size + helper.table64size*8)) {
+    if((oldarmsize!=helper.arm_size) || (oldtable64size<helper.table64size)) {
         printf_log(LOG_NONE, "BOX64: Warning, size difference in block between pass2 (%d) & pass3 (%d)!\n", sz, helper.arm_size+helper.table64size*8);
         uint8_t *dump = (uint8_t*)helper.start;
         printf_log(LOG_NONE, "Dump of %d x64 opcodes:\n", helper.size);
@@ -417,10 +422,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         }
         printf_log(LOG_NONE, "Table64 \t%d -> %d\n", oldtable64size*8, helper.table64size*8);
         printf_log(LOG_NONE, " ------------\n");
+        //TODO: Cancel block and return empty one
     }
     // add table64 if needed
     if(helper.table64size) {
-        memcpy(p+helper.arm_size, helper.table64, helper.table64size*8);
+        memcpy((void*)helper.tablestart, helper.table64, helper.table64size*8);
     }
     // all done...
     __clear_cache(p, p+sz);   // need to clear the cache before execution...
@@ -471,9 +477,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
                 son->father = block;
                 son->size = sz + son->block - block->block; // update size count, for debugging
                 son->done = 1;
-                sons[sons_size++] = son;
                 if(!son->parent)
                     son->parent = block->parent;
+                sons[sons_size] = son;
+                ++sons_size;
             }
         }
         if(sons_size) {

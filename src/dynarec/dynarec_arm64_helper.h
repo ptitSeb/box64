@@ -537,14 +537,20 @@
         }                                               \
     } else {                                            \
         dyn->last_ip = (A);                             \
-        TABLE64(xRIP, dyn->last_ip);                    \
+        if(dyn->last_ip<0xffffffff) {                   \
+            MOV64x(xRIP, dyn->last_ip);                 \
+        } else                                          \
+            TABLE64(xRIP, dyn->last_ip);                \
     }
 #define GETIP_(A)                                       \
     if(dyn->last_ip && ((A)-dyn->last_ip)<0x1000) {     \
         uint64_t _delta_ip = (A)-dyn->last_ip;          \
         if(_delta_ip) {ADDx_U12(xRIP, xRIP, _delta_ip);}\
     } else {                                            \
-        TABLE64(xRIP, (A));                             \
+        if((A)<0xffffffff) {                            \
+            MOV64x(xRIP, (A));                          \
+        } else                                          \
+            TABLE64(xRIP, (A));                         \
     }
 #endif
 
