@@ -54,6 +54,7 @@ void* getBz2My(library_t* lib)
 
 void freeBz2My(void* lib)
 {
+    (void)lib;
     //bz2_my_t *my = (bz2_my_t *)lib;
 }
 
@@ -159,6 +160,7 @@ typedef struct {
 
 EXPORT int my_BZ2_bzCompressInit(x64emu_t* emu, my_bz_stream_t* strm, int blocksize, int verbosity, int work)
 {
+    (void)emu;
     library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
@@ -169,6 +171,7 @@ EXPORT int my_BZ2_bzCompressInit(x64emu_t* emu, my_bz_stream_t* strm, int blocks
 
 EXPORT int my_BZ2_bzCompress(x64emu_t* emu, my_bz_stream_t* strm, int action)
 {
+    (void)emu;
     library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
@@ -179,6 +182,7 @@ EXPORT int my_BZ2_bzCompress(x64emu_t* emu, my_bz_stream_t* strm, int action)
 
 EXPORT int my_BZ2_bzCompressEnd(x64emu_t* emu, my_bz_stream_t* strm)
 {
+    (void)emu;
     library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
@@ -189,6 +193,7 @@ EXPORT int my_BZ2_bzCompressEnd(x64emu_t* emu, my_bz_stream_t* strm)
 
 EXPORT int my_BZ2_bzDecompressInit(x64emu_t* emu, my_bz_stream_t* strm, int verbosity, int small)
 {
+    (void)emu;
     library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
@@ -199,6 +204,7 @@ EXPORT int my_BZ2_bzDecompressInit(x64emu_t* emu, my_bz_stream_t* strm, int verb
 
 EXPORT int my_BZ2_bzDecompress(x64emu_t* emu, my_bz_stream_t* strm)
 {
+    (void)emu;
     library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
@@ -209,6 +215,7 @@ EXPORT int my_BZ2_bzDecompress(x64emu_t* emu, my_bz_stream_t* strm)
 
 EXPORT int my_BZ2_bzDecompressEnd(x64emu_t* emu, my_bz_stream_t* strm)
 {
+    (void)emu;
     library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
@@ -227,4 +234,3 @@ EXPORT int my_BZ2_bzDecompressEnd(x64emu_t* emu, my_bz_stream_t* strm)
     my_lib = NULL;
 
 #include "wrappedlib_init.h"
-

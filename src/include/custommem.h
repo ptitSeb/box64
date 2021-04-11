@@ -20,7 +20,7 @@ void customFree(void* p);
 typedef struct dynablock_s dynablock_t;
 typedef struct dynablocklist_s dynablocklist_t;
 // custom protection flag to mark Page that are Write protected for Dynarec purpose
-uintptr_t AllocDynarecMap(dynablock_t* db, int size);
+uintptr_t AllocDynarecMap(dynablock_t* db, size_t size);
 void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size);
 
 void addDBFromAddressRange(uintptr_t addr, uintptr_t size);

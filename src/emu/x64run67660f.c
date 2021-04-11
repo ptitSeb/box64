@@ -26,22 +26,22 @@ int Run67660F(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
-    uint8_t tmp8u;
-    int8_t tmp8s;
-    int16_t tmp16s;
-    uint16_t tmp16u;
-    int32_t tmp32s;
-    uint32_t tmp32u;
-    uint64_t tmp64u;
-    reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx, eax1, *opex2;
-    mmx87_regs_t *opem, *opgm;
+    int8_t tmp8s;               (void)tmp8s;
+    uint8_t tmp8u;              (void)tmp8u;
+    int16_t tmp16s;             (void)tmp16s;
+    uint16_t tmp16u;            (void)tmp16u;
+    int32_t tmp32s;             (void)tmp32s;
+    uint32_t tmp32u;            (void)tmp32u;
+    int64_t tmp64s;             (void)tmp64s;
+    uint64_t tmp64u;            (void)tmp64u;
+    reg64_t *oped, *opgd;       (void)oped;   (void)opgd;
+    sse_regs_t *opex, *opgx;
 
     opcode = F8;
 
     switch(opcode) {
 
-   case 0x6F:                      /* MOVDQA Gx,Ex */
+    case 0x6F:                      /* MOVDQA Gx,Ex */
         nextop = F8;
         GETEX32(0);
         GETGX;
@@ -49,7 +49,7 @@ int Run67660F(x64emu_t *emu, rex_t rex)
         GX->q[1] = EX->q[1];
         break;
    
-    case 0x76:  /* PCMPEQD Gx,Ex */
+    case 0x76:                      /* PCMPEQD Gx,Ex */
         nextop = F8;
         GETEX32(0);
         GETGX;

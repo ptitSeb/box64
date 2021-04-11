@@ -161,7 +161,7 @@ void x64Int3(x64emu_t* emu)
                 pthread_mutex_lock(&emu->context->mutex_trace);
                 if(post)
                     switch(post) {
-                    case 1: snprintf(buff2, 63, " [%d sec %d nsec]", pu32?pu32[0]:-1, pu32?pu32[1]:-1);
+                    case 1: snprintf(buff2, 63, " [%d sec %d nsec]", pu32?pu32[0]:~0u, pu32?pu32[1]:~0u);
                             break;
                     case 2: snprintf(buff2, 63, "(%s)", R_RAX?((char*)R_RAX):"nil");
                             break;
@@ -175,8 +175,8 @@ void x64Int3(x64emu_t* emu)
                                 snprintf(buff2, 63, " size=%dx%d, pitch=%d, pixels=%p", p[2], p[3], p[4], p+5);
                             else
                                 snprintf(buff2, 63, "NULL Surface");
-                            }
-                            break;
+                        }
+                        break;
                 }
                 if(perr==1 && ((int)R_EAX)<0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));

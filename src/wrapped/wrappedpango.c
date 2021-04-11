@@ -45,6 +45,7 @@ void* getPangoMy(library_t* lib)
 
 void freePangoMy(void* lib)
 {
+    (void)lib;
     //pango_my_t *my = (pango_my_t *)lib;
 }
 
@@ -112,8 +113,8 @@ static void* find_PangoAttrClass_Fct(my_PangoAttrClass_t* klass)
 
 EXPORT void my_pango_attribute_init(x64emu_t* emu, void* attr, my_PangoAttrClass_t* klass)
 {
+    (void)emu;
     pango_my_t* my = (pango_my_t*)my_lib->priv.w.p2;
-
     my->pango_attribute_init(attr, find_PangoAttrClass_Fct(klass));
 }
 

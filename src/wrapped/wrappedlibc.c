@@ -110,6 +110,7 @@ void* getLIBCMy(library_t* lib)
 
 void freeLIBCMy(void* lib)
 {
+    (void)lib;
     // empty for now
 }
 
@@ -339,6 +340,7 @@ int32_t my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *
 EXPORT void my___libc_init_first(x64emu_t* emu, int argc, char* arg0, char** b)
 {
     // do nothing specific for now
+    (void)emu; (void)argc; (void)arg0; (void)b;
     return;
 }
 uintptr_t my_syscall(x64emu_t *emu); // implemented in x64syscall.c
@@ -354,11 +356,13 @@ void EXPORT my___stack_chk_fail(x64emu_t* emu)
 }
 void EXPORT my___gmon_start__(x64emu_t *emu)
 {
+    (void)emu;
     printf_log(LOG_DEBUG, "__gmon_start__ called (dummy call)\n");
 }
 
-int EXPORT my___cxa_atexit(x64emu_t* emu, void* p, void* a, void* d)
+int EXPORT my___cxa_atexit(x64emu_t* emu, void* p, void* a, void* dso_handle)
 {
+    (void)dso_handle;
     AddCleanup1Arg(emu, p, a);
     return 0;
 }
@@ -516,13 +520,13 @@ int of_unconvert(int a)
 }
 #undef SUPER
 
-EXPORT void* my__ZGTtnaX (size_t a) { printf("warning _ZGTtnaX called\n"); return NULL; }
-EXPORT void my__ZGTtdlPv (void* a) { printf("warning _ZGTtdlPv called\n"); }
-EXPORT uint8_t my__ITM_RU1(const uint8_t * a) { printf("warning _ITM_RU1 called\n"); return 0; }
-EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { printf("warning _ITM_RU4 called\n"); return 0; }
-EXPORT uint64_t my__ITM_RU8(const uint64_t * a) { printf("warning _ITM_RU8 called\n"); return 0; }
-EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n");  }
-EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n"); }
+EXPORT void* my__ZGTtnaX (size_t a) { (void)a; printf("warning _ZGTtnaX called\n"); return NULL; }
+EXPORT void my__ZGTtdlPv (void* a) { (void)a; printf("warning _ZGTtdlPv called\n"); }
+EXPORT uint8_t my__ITM_RU1(const uint8_t * a) { (void)a; printf("warning _ITM_RU1 called\n"); return 0; }
+EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { (void)a; printf("warning _ITM_RU4 called\n"); return 0; }
+EXPORT uint64_t my__ITM_RU8(const uint64_t * a) { (void)a; printf("warning _ITM_RU8 called\n"); return 0; }
+EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) { (void)a; (void)b; (void)c; printf("warning _ITM_memcpyRtWn called\n"); }
+EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) { (void)a; (void)b; (void)c; printf("warning _ITM_memcpyRnWt called\n"); }
 
 EXPORT void my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 EXPORT void my__longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
@@ -540,18 +544,21 @@ EXPORT int my_printf(x64emu_t *emu, void* fmt, void* b) {
 }
 EXPORT int my___printf_chk(x64emu_t *emu, int chk, void* fmt, void* b)
 {
+    (void)chk;
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     return vprintf((const char*)fmt, VARARGS);
 }
 
 EXPORT int my_vprintf(x64emu_t *emu, void* fmt, x64_va_list_t b) {
+    (void)emu;
     CONVERT_VALIST(b);
     return vprintf(fmt, VARARGS);
 }
 EXPORT int my___vprintf_chk(x64emu_t *emu, void* fmt, x64_va_list_t b) __attribute__((alias("my_vprintf")));
 
 EXPORT int my_vfprintf(x64emu_t *emu, void* F, void* fmt, x64_va_list_t b) {
+    (void)emu;
     CONVERT_VALIST(b);
     return vfprintf(F, fmt, VARARGS);
 }
@@ -564,6 +571,7 @@ EXPORT int my_fprintf(x64emu_t *emu, void* F, void* fmt, void* b)  {
     return vfprintf(F, fmt, VARARGS);
 }
 EXPORT int my___fprintf_chk(x64emu_t *emu, void* F, int flag, void* fmt, void* b)  {
+    (void)flag;
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
     return vfprintf(F, fmt, VARARGS);
@@ -646,6 +654,7 @@ EXPORT int my_snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint64_t
 EXPORT int my___snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint64_t * b) __attribute__((alias("my_snprintf")));
 EXPORT int my___snprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, size_t maxlen, void * fmt, uint64_t * b)
 {
+    (void)flags; (void)maxlen;
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 5);
     PREPARE_VALIST;
     int r = vsnprintf(buff, s, fmt, VARARGS);
@@ -658,6 +667,7 @@ EXPORT int my_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b) {
     return vsprintf(buff, (const char*)fmt, VARARGS);
 }
 EXPORT int my___sprintf_chk(x64emu_t* emu, void* buff, int flag, size_t l, void * fmt, void * b) {
+    (void)flag; (void)l;
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 4);
     PREPARE_VALIST;
     return vsprintf(buff, (const char*)fmt, VARARGS);
@@ -678,31 +688,29 @@ EXPORT int my___asprintf(x64emu_t* emu, void** buff, void * fmt, void * b, va_li
 #endif
 
 EXPORT int my_vasprintf(x64emu_t* emu, char** buff, void* fmt, x64_va_list_t b) {
+    (void)emu;
     CONVERT_VALIST(b);
-
     return vasprintf(buff, fmt, VARARGS);
 }
 
 EXPORT int my_vsprintf(x64emu_t* emu, void* buff,  void * fmt, x64_va_list_t b) {
+    (void)emu;
     CONVERT_VALIST(b);
-
     return vsprintf(buff, fmt, VARARGS);
 }
 EXPORT int my___vsprintf_chk(x64emu_t* emu, void* buff, void * fmt, x64_va_list_t b) __attribute__((alias("my_vsprintf")));
 
 EXPORT int my_vfscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
 {
+    (void)emu;
     CONVERT_VALIST(b);
-
     return vfscanf(stream, fmt, VARARGS);
 }
 
-
-
 EXPORT int my_vsscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
 {
+    (void)emu;
     CONVERT_VALIST(b);
-
     return vsscanf(stream, fmt, VARARGS);
 }
 
@@ -738,6 +746,7 @@ EXPORT int my___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* 
 }
 
 EXPORT int my_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) {
+    (void)emu;
     CONVERT_VALIST(b);
     int r = vsnprintf(buff, s, fmt, VARARGS);
     return r;
@@ -763,6 +772,7 @@ EXPORT int my_vasprintf(x64emu_t* emu, void* strp, void* fmt, void* b, va_list V
 #endif
 EXPORT int my___vasprintf_chk(x64emu_t* emu, void* buff, int flags, void* fmt, x64_va_list_t b)
 {
+    (void)emu; (void)flags;
     CONVERT_VALIST(b);
     int r = vasprintf(buff, fmt, VARARGS);
     return r;
@@ -781,6 +791,7 @@ EXPORT int my___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void* f
 }
 #endif
 EXPORT int my_vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) {
+    (void)emu;
     CONVERT_VALIST(b);
     int r = vswprintf(buff, s, fmt, VARARGS);
     return r;
@@ -828,6 +839,7 @@ EXPORT void my_syslog(x64emu_t* emu, int priority, const char* fmt, uint64_t* b)
 }
 EXPORT void my___syslog_chk(x64emu_t* emu, int priority, int flags, const char* fmt, uint64_t* b)
 {
+    (void)flags;
     myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
     return vsyslog(priority, fmt, VARARGS);
@@ -835,6 +847,8 @@ EXPORT void my___syslog_chk(x64emu_t* emu, int priority, int flags, const char* 
 
 EXPORT int my___swprintf_chk(x64emu_t* emu, void* s, size_t n, int32_t flag, size_t slen, void* fmt, uint64_t* b)
 {
+    (void)flag;
+    (void)slen;
     myStackAlignW(emu, (const char*)fmt, b, emu->scratch, R_EAX, 5);
     PREPARE_VALIST;
     return vswprintf(s, n, (const wchar_t*)fmt, VARARGS);
@@ -856,15 +870,17 @@ EXPORT void my__ITM_addUserCommitAction(x64emu_t* emu, void* cb, uint32_t b, voi
     my->_ITM_addUserCommitAction(libc1ArgCallback, b, cbemu);
     // should keep track of cbemu to remove at some point...
     #else
+    (void)emu; (void)cb; (void)b; (void)c;
     printf("warning _ITM_addUserCommitAction called\n");
     #endif
 }
-EXPORT void my__ITM_registerTMCloneTable(x64emu_t* emu, void* p, uint32_t s) {}
-EXPORT void my__ITM_deregisterTMCloneTable(x64emu_t* emu, void* p) {}
+EXPORT void my__ITM_registerTMCloneTable(x64emu_t* emu, void* p, uint32_t s) { (void)emu; (void)p; (void)s; }
+EXPORT void my__ITM_deregisterTMCloneTable(x64emu_t* emu, void* p) { (void)emu; (void)p; }
 
 
 EXPORT int my___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
 {
+    (void)emu; (void)vers;
     struct stat64 st;
     int r = fstat64(fd, &st);
     UnalignStat64(&st, buf);
@@ -873,6 +889,7 @@ EXPORT int my___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
 
 EXPORT int my___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
 {
+    (void)emu; (void)vers;
     struct stat64 st;
     int r = fstat64(fd, &st);
     //int r = syscall(__NR_stat64, fd, &st);
@@ -882,6 +899,7 @@ EXPORT int my___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
 
 EXPORT int my___xstat(x64emu_t* emu, int v, void* path, void* buf)
 {
+    (void)emu; (void)v;
     struct stat64 st;
     int r = stat64((const char*)path, &st);
     UnalignStat64(&st, buf);
@@ -890,6 +908,7 @@ EXPORT int my___xstat(x64emu_t* emu, int v, void* path, void* buf)
 
 EXPORT int my___xstat64(x64emu_t* emu, int v, void* path, void* buf)
 {
+    (void)emu; (void)v;
     struct stat64 st;
     int r = stat64((const char*)path, &st);
     UnalignStat64(&st, buf);
@@ -898,6 +917,7 @@ EXPORT int my___xstat64(x64emu_t* emu, int v, void* path, void* buf)
 
 EXPORT int my___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 {
+    (void)emu; (void)v;
     struct stat64 st;
     int r = lstat64((const char*)name, &st);
     UnalignStat64(&st, buf);
@@ -906,6 +926,7 @@ EXPORT int my___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 
 EXPORT int my___lxstat64(x64emu_t* emu, int v, void* name, void* buf)
 {
+    (void)emu; (void)v;
     struct stat64 st;
     int r = lstat64((const char*)name, &st);
     UnalignStat64(&st, buf);
@@ -914,6 +935,7 @@ EXPORT int my___lxstat64(x64emu_t* emu, int v, void* name, void* buf)
 
 EXPORT int my___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
+    (void)emu; (void)v;
     struct  stat64 st;
     int r = fstatat64(d, path, &st, flags);
     UnalignStat64(&st, buf);
@@ -922,6 +944,7 @@ EXPORT int my___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, int
 
 EXPORT int my___fxstatat64(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
+    (void)emu; (void)v;
     struct  stat64 st;
     int r = fstatat64(d, path, &st, flags);
     UnalignStat64(&st, buf);
@@ -979,20 +1002,24 @@ EXPORT void my_qsort_r(x64emu_t* emu, void* base, size_t nmemb, size_t size, voi
 }
 EXPORT void* my_bsearch(x64emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
+    (void)emu;
     return bsearch(key, base, nmemb, size, findcompareFct(fnc));
 }
 
 EXPORT void* my_lsearch(x64emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
+    (void)emu;
     return lsearch(key, base, nmemb, size, findcompareFct(fnc));
 }
 EXPORT void* my_lfind(x64emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
+    (void)emu;
     return lfind(key, base, nmemb, size, findcompareFct(fnc));
 }
 
 EXPORT void* my_fts_open(x64emu_t* emu, void* path, int options, void* c)
 {
+    (void)emu;
     return fts_open(path, options, findcompareFct(c));
 }
 #if 0
@@ -1247,13 +1274,13 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
 }
 EXPORT int32_t my___open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode) __attribute__((alias("my_open")));
 
-#ifdef DYNAREC
+//#ifdef DYNAREC
 //static int hasDBFromAddress(uintptr_t addr)
 //{
 //    int idx = (addr>>DYNAMAP_SHIFT);
 //    return getDB(idx)?1:0;
 //}
-#endif
+//#endif
 
 //EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
 //{
@@ -1440,24 +1467,28 @@ EXPORT int32_t my_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_t 
 #endif
 EXPORT int32_t my_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
+    (void)emu;
     return glob64(pat, flags, findgloberrFct(errfnc), pglob);
 }
 EXPORT int32_t my_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob) __attribute__((alias("my_glob64")));
 
 EXPORT int my_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
+    (void)emu;
     return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
 EXPORT int my_scandir(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp) __attribute__((alias("my_scandir64")));
 
 EXPORT int my_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
 {
+    (void)emu;
     return ftw64(filename, findftw64Fct(func), descriptors);
 }
 EXPORT int my_ftw(x64emu_t* emu, void* filename, void* func, int descriptors) __attribute__((alias("my_ftw64")));
 
 EXPORT int32_t my_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
+    (void)emu;
     return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 
@@ -1604,12 +1635,14 @@ EXPORT void my__Jv_RegisterClasses() {}
 
 EXPORT int32_t my___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* obj, void* dso)
 {
+    (void)emu;
     printf_log(LOG_INFO, "Warning, call to __cxa_thread_atexit_impl(%p, %p, %p) ignored\n", dtor, obj, dso);
     return 0;
 }
 
 EXPORT int32_t my___register_atfork(x64emu_t *emu, void* prepare, void* parent, void* child, void* handle)
 {
+    (void)emu;
     // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my_atfork...
     if(my_context->atfork_sz==my_context->atfork_cap) {
         my_context->atfork_cap += 4;
@@ -1642,6 +1675,7 @@ EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
 #endif
 EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, void* c)
 {
+    (void)emu;
     if(b==F_SETFL)
         c = (void*)(uintptr_t)of_convert((intptr_t)c);
     #if 0
@@ -1663,6 +1697,7 @@ EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, void* c)
 
 EXPORT int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c)
 {
+    (void)emu;
     if(b==F_SETFL && (intptr_t)c==0xFFFFF7FF) {
         // special case for ~O_NONBLOCK...
         int flags = fcntl(a, F_GETFL);
@@ -1790,9 +1825,11 @@ void stSetup(box64context_t* context)
 EXPORT void my___register_frame_info(void* a, void* b)
 {
     // nothing
+    (void)a; (void)b;
 }
 EXPORT void* my___deregister_frame_info(void* a)
 {
+    (void)a;
     return NULL;
 }
 
@@ -1854,6 +1891,7 @@ EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p
 
 EXPORT void my___explicit_bzero_chk(x64emu_t* emu, void* dst, uint32_t len, uint32_t dstlen)
 {
+    (void)emu; (void)dstlen;
     memset(dst, 0, len);
 }
 
@@ -1868,6 +1906,7 @@ EXPORT void* my_realpath(x64emu_t* emu, void* path, void* resolved_path)
 
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
 {
+    (void)emu;
     if(prot&PROT_WRITE) 
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %ld) =>", addr, length, prot, flags, fd, offset);}
@@ -1905,6 +1944,7 @@ EXPORT void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, 
 
 EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
 {
+    (void)emu;
     dynarec_log(LOG_DEBUG, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
     dynarec_log(LOG_DEBUG, "%p\n", ret);
@@ -1954,6 +1994,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
 
 EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
 {
+    (void)emu;
     dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
     #ifdef DYNAREC
     if(box64_dynarec) {
@@ -1968,9 +2009,10 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
 
 EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
 {
+    (void)emu;
     dynarec_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
     if(prot&PROT_WRITE) 
-        prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
+        prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
     if(box64_dynarec) {
@@ -2214,11 +2256,12 @@ EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
 
 EXPORT char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size)
 {
+    (void)emu;
     char** ret = (char**)calloc(1, size*sizeof(char*) + size*100);  // capping each strings to 100 chars
     char* s = (char*)(ret+size*sizeof(char*));
     for (int i=0; i<size; ++i) {
         uintptr_t start = 0;
-        uint32_t sz = 0;
+        uint64_t sz = 0;
         const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, buffer[i]), (void*)buffer[i], &start, &sz);
         if(symbname && buffer[i]>=start && (buffer[i]<(start+sz) || !sz))
             snprintf(s, 100, "%s+%ld [%p]\n", symbname, buffer[i] - start, (void*)buffer[i]);
@@ -2231,10 +2274,11 @@ EXPORT char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size)
 
 EXPORT void my_backtrace_symbols_fd(x64emu_t* emu, uintptr_t* buffer, int size, int fd)
 {
+    (void)emu;
     char s[100];
     for (int i=0; i<size; ++i) {
         uintptr_t start = 0;
-        uint32_t sz = 0;
+        uint64_t sz = 0;
         const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, buffer[i]), (void*)buffer[i], &start, &sz);
         if(symbname && buffer[i]>=start && (buffer[i]<(start+sz) || !sz))
             snprintf(s, 100, "%s+%ld [%p]\n", symbname, buffer[i] - start, (void*)buffer[i]);

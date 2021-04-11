@@ -44,6 +44,7 @@ void* getXtMy(library_t* lib)
 
 void freeXtMy(void* lib)
 {
+    (void)lib;
     //libxt_my_t *my = (libxt_my_t *)lib;
 }
 
@@ -82,6 +83,7 @@ static void* findEventFct(void* fct)
 
 EXPORT void my_XtAddEventHandler(x64emu_t* emu, void* w, uint32_t mask, int32_t maskable, void* cb, void* data)
 {
+    (void)emu;
     void* fct = findEventFct(cb);
     library_t* lib = GetLibInternal(libxtName);
     libxt_my_t* my = (libxt_my_t*)lib->priv.w.p2;
@@ -101,4 +103,3 @@ EXPORT void my_XtAddEventHandler(x64emu_t* emu, void* w, uint32_t mask, int32_t 
     free(lib->priv.w.p2);
 
 #include "wrappedlib_init.h"
-

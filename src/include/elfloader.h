@@ -26,7 +26,7 @@ int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head);
 int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head);
 int RelocateElf(lib_t *maplib, lib_t* local_maplib, elfheader_t* head);
 int RelocateElfPlt(lib_t *maplib, lib_t* local_maplib, elfheader_t* head);
-void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
+void CalcStack(elfheader_t* h, uint64_t* stacksz, size_t* stackalign);
 uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h);
 uintptr_t GetLastByte(elfheader_t* h);
 void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h);
@@ -41,7 +41,7 @@ void* GetElfDelta(elfheader_t* h);
 uint32_t GetBaseSize(elfheader_t* h);
 int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr);
 elfheader_t* FindElfAddress(box64context_t *context, uintptr_t addr);
-const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uint32_t* sz);
+const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uint64_t* sz);
 int32_t GetTLSBase(elfheader_t* h);
 uint32_t GetTLSSize(elfheader_t* h);
 void* GetTLSPointer(box64context_t* context, elfheader_t* h);
@@ -54,6 +54,5 @@ void ResetSpecialCaseMainElf(elfheader_t* h);
 void CreateMemorymapFile(box64context_t* context, int fd);
 
 int ElfCheckIfUseTCMallocMinimal(elfheader_t* h);   // return 1 if tcmalloc is used
-
 
 #endif //__ELF_LOADER_H_

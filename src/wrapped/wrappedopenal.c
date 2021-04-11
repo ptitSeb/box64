@@ -46,6 +46,7 @@ void* getOpenALMy(library_t* lib)
 
 void freeOpenALMy(void* lib)
 {
+    (void)lib;
     //openal_my_t *my = (openal_my_t *)lib;
 }
 #define SUPER() \
@@ -214,13 +215,14 @@ EXPORT void* my_alcGetProcAddress(x64emu_t* emu, void* device, void* name)
 
 EXPORT void my_alRequestFoldbackStart(x64emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb)
 {
+    (void)emu;
     openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     my->alRequestFoldbackStart(mode, count, length, mem, find_Request_Fct(cb));
 }
 
 EXPORT void my_alRequestFoldbackStop(x64emu_t* emu)
 {
+    (void)emu;
     openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     my->alRequestFoldbackStop();
 }
-

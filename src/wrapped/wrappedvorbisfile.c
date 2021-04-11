@@ -48,6 +48,7 @@ void* getVorbisfileMy(library_t* lib)
 
 void freeVorbisfileMy(void* lib)
 {
+    (void)lib;
     //vorbisfile_my_t *my = (vorbisfile_my_t *)lib;
 }
 

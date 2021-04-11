@@ -155,6 +155,7 @@ void* getX11My(library_t* lib)
 
 void freeX11My(void* lib)
 {
+    (void)lib;
     // x11_my_t *my = (x11_my_t *)lib;
 }
 #undef SUPER
@@ -617,6 +618,7 @@ void BridgeImageFunc(x64emu_t *emu, XImage *img)
 
 void UnbridgeImageFunc(x64emu_t *emu, XImage *img)
 {
+    (void)emu;
     #define GO(A, W) \
     fnc = GetNativeFnc((uintptr_t)img->f.A); \
     if(fnc) \

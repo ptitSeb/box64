@@ -159,8 +159,8 @@ void* getPulseMy(library_t* lib)
 
 void freePulseMy(void* lib)
 {
+    (void)lib;
     //pulse_my_t *my = (pulse_my_t *)lib;
-
 }
 
 // TODO: change that static for a map ptr2ptr?
@@ -1508,4 +1508,3 @@ EXPORT void my_pa_log_level_meta(x64emu_t* emu, int level, void* file, int line,
     free(lib->priv.w.p2);
 
 #include "wrappedlib_init.h"
-

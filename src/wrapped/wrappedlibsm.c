@@ -49,6 +49,7 @@ void* getSMMy(library_t* lib)
 
 void freeSMMy(void* lib)
 {
+    (void)lib;
     //libsm_my_t *my = (libsm_my_t *)lib;
 }
 
@@ -105,6 +106,7 @@ static void my_save_complete(void* smcConn, void* clientData)
 
 EXPORT void* my_SmcOpenConnection(x64emu_t* emu, void* networkIdsList, void* context, int major, int minor, unsigned long mask, my_SmcCallbacks_t* cb, void* previousId, void* clientIdRet, int errorLength, void* errorRet)
 {
+    (void)emu;
     libsm_my_t* my = (libsm_my_t*)GetLibInternal(libsmName)->priv.w.p2;
     my_SmcCallbacks_t nat = {0};
     #define GO(A, B) if(mask&A) {my_##B##_fct = (uintptr_t)cb->B.callback; nat.B.callback = my_##B; nat.B.client_data=cb->B.client_data;}
@@ -152,15 +154,15 @@ static void* findRequestFct(void* fct)
 
 EXPORT int my_SmcInteractRequest(x64emu_t* emu, void* smcConn, int f, void* cb, void* data)
 {
+    (void)emu;
     libsm_my_t* my = (libsm_my_t*)GetLibInternal(libsmName)->priv.w.p2;
-
     return my->SmcInteractRequest(smcConn, f, findRequestFct(cb), data);
 }
 
 EXPORT int my_SmcRequestSaveYourselfPhase2(x64emu_t* emu, void* smcConn, void* cb, void* data)
 {
+    (void)emu;
     libsm_my_t* my = (libsm_my_t*)GetLibInternal(libsmName)->priv.w.p2;
-
     return my->SmcRequestSaveYourselfPhase2(smcConn, findRequestFct(cb), data);
 }
 
@@ -172,4 +174,3 @@ EXPORT int my_SmcRequestSaveYourselfPhase2(x64emu_t* emu, void* smcConn, void* c
     free(lib->priv.w.p2);
 
 #include "wrappedlib_init.h"
-

@@ -83,6 +83,7 @@ void* getFreeTypeMy(library_t* lib)
 
 void freeFreeTypeMy(void* lib)
 {
+    (void)lib;
     //freetype_my_t *my = (freetype_my_t *)lib;
 }
 
@@ -133,6 +134,7 @@ static void my_FT_Stream_CloseFunc(FT_StreamRec_t* stream)
 
 EXPORT int my_FT_Open_Face(x64emu_t* emu, void* library, FT_Open_Args_t* args, long face_index, void* aface)
 {
+    (void)emu;
     library_t* lib = GetLibInternal(freetypeName);
     freetype_my_t* my = (freetype_my_t*)lib->priv.w.p2;
 
@@ -155,6 +157,7 @@ EXPORT int my_FT_Open_Face(x64emu_t* emu, void* library, FT_Open_Args_t* args, l
 
 EXPORT int my_FTC_Manager_New(x64emu_t* emu, void* l, uint32_t max_faces, uint32_t max_sizes, uintptr_t max_bytes, void* req, void* data, void* aman)
 {
+    (void)emu;
     library_t* lib = GetLibInternal(freetypeName);
     freetype_my_t* my = (freetype_my_t*)lib->priv.w.p2;
 

@@ -57,7 +57,7 @@ int fcntl(int fd, int cmd, ... /* arg */ );
 
 // Syscall table for x86_64 can be found 
 typedef struct scwrap_s {
-    int x64s;
+    uint32_t x64s; // 32 bits?
     int nats;
     int nbpars;
 } scwrap_t;
@@ -135,7 +135,7 @@ struct mmap_arg_struct {
 void EXPORT x64Syscall(x64emu_t *emu)
 {
     RESET_FLAGS(emu);
-    uint32_t s = R_EAX;
+    uint32_t s = R_EAX; // EAX? (syscalls only go up to 547 anyways)
     printf_log(LOG_DEBUG, "%p: Calling syscall 0x%02X (%d) %p %p %p %p %p %p", (void*)R_RIP, s, s, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8, (void*)R_R9); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);

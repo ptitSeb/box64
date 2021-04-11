@@ -30,6 +30,7 @@ typedef int     (*iFpppp_t)     (void*, void*, void*, void*);
 EXPORT uintptr_t my_snd_lib_error = 0;
 static void default_error_handler(const char *file, int line, const char *function, int err, const char *fmt, va_list ap)
 {
+    (void)file; (void)line; (void)function; (void)err;
     vprintf(fmt, ap);
 }
 
@@ -53,13 +54,14 @@ void* getAsoundMy(library_t* lib)
     #undef GO
     // setup custom error handler
     my_snd_lib_error = AddCheckBridge(my_context->system, vFpipipV, default_error_handler, 0, "ASoundCustomErrorHandler");
-    //all done
+    // all done
     return my;
 }
 #undef SUPER
 
 void freeAsoundMy(void* lib)
 {
+    (void)lib;
     // asound_my_t *my = (asound_my_t *)lib;
     my_snd_lib_error = 0;   // no removing of bridge
 }
@@ -111,6 +113,7 @@ EXPORT int my_snd_async_add_pcm_handler(x64emu_t *emu, void *handler, void* pcm,
 static void* current_error_handler = NULL;
 static void dummy_error_handler(const char *file, int line, const char *function, int err, const char *fmt, ...)
 {
+    (void)function; (void)err;
     va_list ap;
 
     fprintf(ftrace, "Warning: this is a dummy snd_lib error handler\n");
@@ -123,6 +126,7 @@ static void dummy_error_handler(const char *file, int line, const char *function
 
 static void empty_error_handler(const char *file, int line, const char *function, int err, const char *fmt, ...)
 {
+    (void)file; (void)line; (void)function; (void)err; (void)fmt;
     // do nothing
 }
 
@@ -133,7 +137,7 @@ EXPORT int my_snd_lib_error_set_handler(x64emu_t* emu, void* handler)
     void *error_handler;
     uint8_t *code = (uint8_t *)handler;
     if (code) {
-        if (code && ((code[0] == 0xC3) || ((code[0] == 0xF3) && (code[1] == 0xC3)))) {
+        if ((code[0] == 0xC3) || ((code[0] == 0xF3) && (code[1] == 0xC3))) {
             error_handler = &empty_error_handler;
         } else {
             error_handler = &dummy_error_handler;
@@ -175,4 +179,3 @@ EXPORT void* my_snd_dlsym(x64emu_t* emu, void* handle, void* name, void* version
     free(lib->priv.w.p2);
 
 #include "wrappedlib_init.h"
-

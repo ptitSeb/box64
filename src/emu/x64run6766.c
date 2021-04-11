@@ -27,16 +27,18 @@
 
 int Run6766(x64emu_t *emu, rex_t rex, int rep)
 {
+    // Hmmmm....
+    (void)rep;
     uint8_t opcode;
-    uint8_t nextop;
-    int8_t tmp8s;
-    uint8_t tmp8u, tmp8u2;
-    int16_t tmp16s;
-    uint16_t tmp16u, tmp16u2;
-    int32_t tmp32s;
-    int64_t tmp64s;
-    uint64_t tmp64u, tmp64u2, tmp64u3;
-    reg64_t *oped, *opgd;
+    uint8_t nextop;                     (void)nextop;
+    int8_t tmp8s;                       (void)tmp8s;
+    uint8_t tmp8u, tmp8u2;              (void)tmp8u;  (void)tmp8u2;
+    int16_t tmp16s;                     (void)tmp16s;
+    uint16_t tmp16u, tmp16u2;           (void)tmp16u; (void)tmp16u2;
+    int32_t tmp32s;                     (void)tmp32s;
+    int64_t tmp64s;                     (void)tmp64s;
+    uint64_t tmp64u, tmp64u2, tmp64u3;  (void)tmp64u; (void)tmp64u2; (void)tmp64u3;
+    reg64_t *oped, *opgd;               (void)oped;   (void)opgd;
 
     opcode = F8;
 
@@ -47,7 +49,7 @@ int Run6766(x64emu_t *emu, rex_t rex, int rep)
         rep = opcode-0xF1;
         opcode = F8;
     }
-    // REX prefix before the F0 are ignored
+    // REX prefix before the 66 are ignored
     rex.rex = 0;
     while(opcode>=0x40 && opcode<=0x4f) {
         rex.rex = opcode;
@@ -56,7 +58,7 @@ int Run6766(x64emu_t *emu, rex_t rex, int rep)
 
     switch(opcode) {
 
-    case 0x0F:                              /* more opcdes */
+    case 0x0F:                              /* more opcodes */
         return Run67660F(emu, rex);
 
     default:

@@ -33,7 +33,7 @@ KHASH_MAP_INIT_INT64(dynablocks, dynablock_t*)
 static dynablocklist_t***  dynmap123[1<<DYNAMAP_SHIFT]; // 64bits.. in 4x16bits array
 static pthread_mutex_t     mutex_mmap;
 static mmaplist_t          *mmaplist;
-static int                 mmapsize;
+static size_t              mmapsize;
 static kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
 static uintptr_t***        box64_jmptbl3[1<<JMPTABL_SHIFT];
 static uintptr_t**         box64_jmptbldefault2[1<<JMPTABL_SHIFT];
@@ -50,7 +50,7 @@ static int inited = 0;
 
 typedef struct blocklist_s {
     void*               block;
-    int                 maxfree;
+    size_t              maxfree;
     size_t              size;
 } blocklist_t;
 
@@ -74,7 +74,7 @@ typedef struct blockmark_s {
 
 
 // get first subblock free in block, stating at start (from block). return NULL if no block, else first subblock free (mark included), filling size
-static void* getFirstBlock(void* block, int maxsize, int* size)
+static void* getFirstBlock(void* block, size_t maxsize, size_t* size)
 {
     // get start of block
     blockmark_t *m = (blockmark_t*)block;
@@ -89,7 +89,7 @@ static void* getFirstBlock(void* block, int maxsize, int* size)
     return NULL;
 }
 
-static int getMaxFreeBlock(void* block, size_t block_size)
+static size_t getMaxFreeBlock(void* block, size_t block_size)
 {
     // get start of block
     blockmark_t *m = (blockmark_t*)((uintptr_t)block+block_size-sizeof(blockmark_t)); // styart with the end
@@ -105,8 +105,10 @@ static int getMaxFreeBlock(void* block, size_t block_size)
     return maxsize;
 }
 
-static void* allocBlock(void* block, void *sub, int size)
+static void* allocBlock(void* block, void *sub, size_t size)
 {
+    (void)block;
+
     blockmark_t *s = (blockmark_t*)sub;
     blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
 
@@ -152,14 +154,17 @@ static void freeBlock(void *block, void* sub)
     }
 }
 // return 1 if block has been expanded to new size, 0 if not
-static int expandBlock(void* block, void* sub, int newsize)
+static int expandBlock(void* block, void* sub, size_t newsize)
 {
+    (void)block;
+
     newsize = (newsize+3)&~3;
     blockmark_t *s = (blockmark_t*)sub;
     blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
     if(s->next.fill)
         return 0;   // next block is filled
-    if(s->next.size + n->next.size < newsize)
+    // unsigned bitfield of this length gets "promoted" to *signed* int...
+    if((size_t)(s->next.size + n->next.size) < newsize)
         return 0;   // free space too short
     // ok, doing the alloc!
     s->next.size = newsize+sizeof(blockmark_t);
@@ -178,7 +183,7 @@ static int expandBlock(void* block, void* sub, int newsize)
     return 1;
 }
 // return size of block
-static int sizeBlock(void* sub)
+static size_t sizeBlock(void* sub)
 {
     blockmark_t *s = (blockmark_t*)sub;
     return s->next.size;
@@ -191,7 +196,7 @@ void* customMalloc(size_t size)
     pthread_mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
         if(p_blocks[i].maxfree>=size) {
-            int rsize = 0;
+            size_t rsize = 0;
             sub = getFirstBlock(p_blocks[i].block, size, &rsize);
             if(sub) {
                 void* ret = allocBlock(p_blocks[i].block, sub, size);
@@ -253,17 +258,16 @@ void* customRealloc(void* p, size_t size)
                 pthread_mutex_unlock(&mutex_blocks);
                 return p;
             }
-                pthread_mutex_unlock(&mutex_blocks);
-                void* newp = customMalloc(size);
-                memcpy(newp, p, sizeBlock(sub));
-                customFree(p);
-                return newp;
-            
+            pthread_mutex_unlock(&mutex_blocks);
+            void* newp = customMalloc(size);
+            memcpy(newp, p, sizeBlock(sub));
+            customFree(p);
+            return newp;
         }
     }
     pthread_mutex_unlock(&mutex_blocks);
     if(n_blocks)
-        dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Realloc, Malloc'ng again without free\n", (void*)addr);
+        dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for realloc, malloc'ing again without free\n", (void*)addr);
     return customMalloc(size);
 }
 void customFree(void* p)
@@ -296,7 +300,7 @@ typedef struct mmaplist_s {
     uint8_t*            helper;
 } mmaplist_t;
 
-uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
+uintptr_t FindFreeDynarecMap(dynablock_t* db, size_t size)
 {
     // look for free space
     void* sub = NULL;
@@ -326,7 +330,7 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
     return 0;
 }
 
-uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
+uintptr_t AddNewDynarecMap(dynablock_t* db, size_t size)
 {
     int i = mmapsize++;
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", mmapsize);
@@ -832,7 +836,7 @@ uint32_t getProtection(uintptr_t addr)
 #define LOWEST (void*)0x20000
 int availableBlock(uint8_t* p, size_t n)
 {
-    for (int i=0; i<n; ++i, ++p)
+    for (size_t i=0; i<n; ++i, ++p)
         if(*p)
             return 0;
     return 1;
@@ -943,6 +947,7 @@ static void atfork_child_custommem(void)
 
 void init_custommem_helper(box64context_t* ctx)
 {
+    (void)ctx;
     if(inited) // already initialized
         return;
     inited = 1;
@@ -966,6 +971,7 @@ void init_custommem_helper(box64context_t* ctx)
 
 void fini_custommem_helper(box64context_t *ctx)
 {
+    (void)ctx;
     if(!inited)
         return;
     inited = 0;

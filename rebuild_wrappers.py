@@ -590,7 +590,11 @@ int isSimpleWrapper(wrapper_t fun);
 			f.write(vals[values.index(rettype)].format(function_args(args)[:-2]) + " }\n")
 		
 		for v in gbl["()"]:
-			function_writer(file, v, v + "_t", v[0], v[2:])
+			if v == "vFv":
+				# Suppress all warnings...
+				file.write("void vFv(x64emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; fn(); (void)emu; }\n")
+			else:
+				function_writer(file, v, v + "_t", v[0], v[2:])
 		for k in gbl_idxs:
 			file.write("\n#if " + k + "\n")
 			for v in gbl[k]:
@@ -661,6 +665,6 @@ if __name__ == '__main__':
 	for i, v in enumerate(sys.argv):
 		if v == "--":
 			limit.append(i)
-	if main(sys.argv[1], sys.argv[2:limit[0]], sys.argv[limit[0]+1:], "1.3.0.10") != 0:
+	if main(sys.argv[1], sys.argv[2:limit[0]], sys.argv[limit[0]+1:], "1.3.0.11") != 0:
 		exit(2)
 	exit(0)

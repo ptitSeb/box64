@@ -185,6 +185,7 @@ int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_
 }
 void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
 {
+    (void)emu;
     dlprivate_t *dl = emu->context->dlprivate;
     uintptr_t start = 0, end = 0;
     char* rsymbol = (char*)symbol;
@@ -228,7 +229,8 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     }
     size_t nlib = (size_t)handle;
     --nlib;
-    if(nlib<0 || nlib>=dl->lib_sz) {
+    // size_t is unsigned
+    if(nlib>=dl->lib_sz) {
         if(!dl->last_error)
             dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
@@ -295,6 +297,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
 }
 int my_dlclose(x64emu_t* emu, void *handle)
 {
+    (void)emu;
     if(dlsym_error || box64_log>=LOG_DEBUG) {
             printf_log(LOG_NONE, "Call to dlclose(%p)\n", handle);
     }
@@ -302,7 +305,8 @@ int my_dlclose(x64emu_t* emu, void *handle)
     CLEARERR
     size_t nlib = (size_t)handle;
     --nlib;
-    if(nlib<0 || nlib>=dl->lib_sz) {
+    // size_t is unsigned
+    if(nlib>=dl->lib_sz) {
         if(!dl->last_error)
             dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
@@ -368,6 +372,7 @@ typedef struct link_map_s {
 
 int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
 {
+    (void)emu;
     if(dlsym_error || box64_log>=LOG_DEBUG) {
             printf_log(LOG_NONE, "Call to dlinfo(%p, %d, %p)\n", handle, request, info);
     }
@@ -375,7 +380,8 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
     CLEARERR
     size_t nlib = (size_t)handle;
     --nlib;
-    if(nlib<0 || nlib>=dl->lib_sz) {
+    // size_t is unsigned
+    if(nlib>=dl->lib_sz) {
         if(!dl->last_error)
             dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);

@@ -46,7 +46,7 @@ char* ResolveFile(const char* filename, path_collection_t* paths)
     for (int i=0; i<paths->size; ++i) {
         if(paths->paths[i][0]!='/') {
             // not an absolute path...
-            getcwd(p, sizeof(p));
+            if(!getcwd(p, sizeof(p))) return NULL;
             if(p[strlen(p)-1]!='/')
                 strcat(p, "/");
             strcat(p, paths->paths[i]);

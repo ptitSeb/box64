@@ -123,7 +123,7 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
     pthread_setspecific(my_context->segtls[idx].key, (void*)my_context->segtls[idx].base);
     */
     
-    ResetSegmentsCache(thread_get_emu());
+    ResetSegmentsCache(emu);
 
     return 0;
 }
@@ -148,11 +148,11 @@ static tlsdatasize_t* setupTLSData(box64context_t* context)
     uintptr_t dtp = (uintptr_t)ptr+context->tlssize+POS_TLS;
     memcpy((void*)(tlsptr+sizeof(void*)), &dtp, sizeof(void*));
     if(dtsize) {
-        for (size_t i=0; i<context->elfsize; ++i) {
+        for (int i=0; i<context->elfsize; ++i) {
             // set pointer
             dtp = (uintptr_t)ptr + (context->tlssize + GetTLSBase(context->elfs[i]));
-            memcpy((void*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*16), &dtp, sizeof(void*));
-            memcpy((void*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*16+8), &i, sizeof(void*)); // index
+            *(uint64_t*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*16) = dtp;
+            *(uint64_t*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*16+8) = i; // index
         }
     }
     memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, sizeof(void*));  // address of vsyscall

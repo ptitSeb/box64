@@ -16,6 +16,8 @@
 EXPORTDYN
 uint64_t RunFunction(box64context_t *context, uintptr_t fnc, int nargs, ...)
 {
+    (void)context;
+
     x64emu_t *emu = thread_get_emu();
 
     if(nargs>6)

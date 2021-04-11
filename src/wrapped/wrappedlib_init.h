@@ -84,7 +84,9 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 
 int FUNC(_init)(library_t* lib, box64context_t* box64)
 {
-// Init first
+    (void)box64;
+    
+    // Init first
     free(lib->path); lib->path=NULL;
 #ifdef PRE_INIT
     PRE_INIT

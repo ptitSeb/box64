@@ -65,6 +65,11 @@ printf_log(LOG_NONE, "Warning, jumping to a no-block address %p from %p (db=%p, 
 }
 #endif
 
+#ifdef __GNUC__
+// Disable "clobbered" warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclobbered"
+#endif
 void DynaCall(x64emu_t* emu, uintptr_t addr)
 {
     // prepare setjump for signal handling
@@ -215,3 +220,6 @@ int DynaRun(x64emu_t* emu)
     return 0;
 #endif
 }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif

@@ -449,6 +449,8 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     if(db) {
         frame = (uintptr_t*)p->uc_mcontext.regs[10+_SP];
     }
+#else
+    (void)ucntx; (void)cur_db;
 #endif
     // stack tracking
 	x64_stack_t *new_ss = my_context->onstack[sig]?(x64_stack_t*)pthread_getspecific(sigstack_key):NULL;

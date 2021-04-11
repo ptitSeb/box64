@@ -29,12 +29,14 @@ void* getVorbisMy(library_t* lib)
 {
     vorbis_my_t* my = (vorbis_my_t*)calloc(1, sizeof(vorbis_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
+    (void)lib; // So many wrapped functions here too
     #undef GO
     return my;
 }
 
 void freeVorbisMy(void* lib)
 {
+    (void)lib;
     //vorbis_my_t *my = (vorbis_my_t *)lib;
 }
 
@@ -48,4 +50,3 @@ void freeVorbisMy(void* lib)
     lib->context->vorbis = NULL;
 
 #include "wrappedlib_init.h"
-

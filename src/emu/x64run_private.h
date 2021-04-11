@@ -123,12 +123,6 @@ int RunDF(x64emu_t *emu, rex_t rex);
 int RunF0(x64emu_t *emu, rex_t rex);
 int RunF20F(x64emu_t *emu, rex_t rex);
 int RunF30F(x64emu_t *emu, rex_t rex);
-//void Run66D9(x64emu_t *emu);    // x87
-//void Run6766(x64emu_t *emu);
-//void RunGS(x64emu_t *emu);
-//void RunFS(x64emu_t *emu);
-//void RunFS66(x64emu_t *emu, uintptr_t tlsdata);
-//void RunLock66(x64emu_t *emu);
 
 void x64Syscall(x64emu_t *emu);
 void x64Int3(x64emu_t* emu);

@@ -162,7 +162,7 @@ int RunDF(x64emu_t *emu, rex_t rex)
             break;
         case 7: /* FISTP i64 */
             GETED(0);
-            if(STll(0).ref==ST(0).q)
+            if(STll(0).ref==ST(0).sq)
                 ED->sq[0] = STll(0).ll;
             else {
                 if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL) || !isfinite(ST0.d))

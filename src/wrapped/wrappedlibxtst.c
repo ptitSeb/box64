@@ -45,6 +45,7 @@ void* getXtstMy(library_t* lib)
 
 void freeXtstMy(void* lib)
 {
+    (void)lib;
     //libxtst_my_t *my = (libxtst_my_t *)lib;
 }
 
@@ -80,6 +81,7 @@ static void* find_XRecordInterceptProc_Fct(void* fct)
 
 EXPORT int my_XRecordEnableContextAsync(x64emu_t* emu, void* display, void* context, void* cb, void* closure)
 {
+    (void)emu;
     library_t* lib = GetLibInternal(libxtstName);
     libxtst_my_t* my = (libxtst_my_t*)lib->priv.w.p2;
     return my->XRecordEnableContextAsync(display, context, find_XRecordInterceptProc_Fct(cb), closure);
@@ -87,6 +89,7 @@ EXPORT int my_XRecordEnableContextAsync(x64emu_t* emu, void* display, void* cont
 
 EXPORT int my_XRecordEnableContext(x64emu_t* emu, void* display, void* context, void* cb, void* closure)
 {
+    (void)emu;
     library_t* lib = GetLibInternal(libxtstName);
     libxtst_my_t* my = (libxtst_my_t*)lib->priv.w.p2;
     return my->XRecordEnableContext(display, context, find_XRecordInterceptProc_Fct(cb), closure);
@@ -104,4 +107,3 @@ EXPORT int my_XRecordEnableContext(x64emu_t* emu, void* display, void* context, 
     free(lib->priv.w.p2);
 
 #include "wrappedlib_init.h"
-

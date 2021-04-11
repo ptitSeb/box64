@@ -26,9 +26,9 @@ int Run64(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
-    uint8_t tmp8u;
-    int16_t tmp16s;
-    uint16_t tmp16u;
+    uint8_t tmp8u;   (void)tmp8u;
+    int16_t tmp16s;  (void)tmp16s;
+    uint16_t tmp16u; (void)tmp16u;
     int32_t tmp32s;
     uint32_t tmp32u;
     uint64_t tmp64u;

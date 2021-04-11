@@ -539,7 +539,7 @@ int GetNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
 }
 
 
-void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint32_t sz)
+void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint64_t sz)
 {
     int ret;
     khint_t k = kh_put(mapsymbols, mapsymbols, name, &ret);
@@ -553,7 +553,7 @@ uintptr_t FindSymbol(kh_mapsymbols_t *mapsymbols, const char* name)
         return 0;
     return kh_val(mapsymbols, k).offs;
 }
-void AddWeakSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint32_t sz)
+void AddWeakSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint64_t sz)
 {
     int ret;
     khint_t k = kh_put(mapsymbols, mapsymbols, name, &ret);
@@ -573,7 +573,7 @@ int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* 
     return 1;
 }
 
-const char* GetSymbolName(kh_mapsymbols_t* mapsymbols, void* p, uintptr_t* start, uint32_t* sz)
+const char* GetSymbolName(kh_mapsymbols_t* mapsymbols, void* p, uintptr_t* start, uint64_t* sz)
 {
     uintptr_t addr = (uintptr_t)p;
     onesymbol_t *one;
@@ -587,12 +587,12 @@ const char* GetSymbolName(kh_mapsymbols_t* mapsymbols, void* p, uintptr_t* start
     return NULL;
 }
 
-const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, const char** libname, void** base)
+const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint64_t* sz, const char** libname, void** base)
 {
     // first, search in self...
     const char* ret = NULL;
     uintptr_t offs = 0;
-    uint32_t size = 0;
+    uint64_t size = 0;
     elfheader_t* h = FindElfAddress(my_context, (uintptr_t)p);
     if(h) {
         ret = FindNearestSymbolName(h, p, &offs, &size);
@@ -609,6 +609,7 @@ const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, c
         return ret;
     }
     // TODO: find if cyclic references exists (should also fix MapLibAddMapLib)
+    (void)maplib;
     /* for (int i = 0; i < maplib->libsz; ++i) {
         // if (maplib == maplib->libraries[i]->maplib) continue;
         const char *nameInLib = FindSymbolName(maplib->libraries[i]->maplib, p, start, sz, libname, base);

@@ -82,8 +82,8 @@ typedef struct box64context_s {
     char*               fullpath;
     char*               box64path;      // path of current box64 executable
 
-    uint32_t            stacksz;
-    int                 stackalign;
+    uint64_t            stacksz;
+    size_t              stackalign;
     void*               stack;          // alocated stack
 
     elfheader_t         **elfs;         // elf headers and memory
@@ -152,7 +152,7 @@ typedef struct box64context_s {
 
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
-    int32_t             tlssize;    // wanted size of tlsdata
+    int64_t             tlssize;    // wanted size of tlsdata
     base_segment_t      segtls[3];  // only handling 0/1/2 descriptors
 
     uintptr_t           *auxval_start;

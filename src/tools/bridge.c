@@ -149,6 +149,8 @@ uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const 
 
 uintptr_t AddAutomaticBridge(x64emu_t* emu, bridge_t* bridge, wrapper_t w, void* fnc, int N)
 {
+    (void)emu;
+
     if(!fnc)
         return 0;
     uintptr_t ret = CheckBridged(bridge, fnc);

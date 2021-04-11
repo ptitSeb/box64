@@ -109,6 +109,7 @@ EXPORTDYN
 void SetupX64Emu(x64emu_t *emu)
 {
     printf_log(LOG_DEBUG, "Setup X86_64 Emu\n");
+    (void)emu;  // Not doing much here...
 }
 
 #ifdef HAVE_TRACE
@@ -130,6 +131,8 @@ void SetTraceEmu(uintptr_t start, uintptr_t end)
 
 void AddCleanup(x64emu_t *emu, void *p)
 {
+    (void)emu;
+    
     if(my_context->clean_sz == my_context->clean_cap) {
         my_context->clean_cap += 4;
         my_context->cleanups = (cleanup_t*)realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
@@ -141,6 +144,8 @@ void AddCleanup(x64emu_t *emu, void *p)
 
 void AddCleanup1Arg(x64emu_t *emu, void *p, void* a)
 {
+    (void)emu;
+    
     if(my_context->clean_sz == my_context->clean_cap) {
         my_context->clean_cap += 4;
         my_context->cleanups = (cleanup_t*)realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
@@ -473,7 +478,9 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
 
 uint64_t ReadTSC(x64emu_t* emu)
 {
-    //TODO: implement hardware counter read?
+    (void)emu;
+    
+    //TODO: implement hardware counter read? (only available in kernel space?)
     // Read the TimeStamp Counter as 64bits.
     // this is supposed to be the number of instructions executed since last reset
     // fall back to gettime...

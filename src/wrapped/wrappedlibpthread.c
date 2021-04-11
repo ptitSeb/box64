@@ -61,6 +61,7 @@ const char* libpthreadName = "libpthread.so.0";
 
 EXPORT int32_t my_pthread_atfork(x64emu_t *emu, void* prepare, void* parent, void* child)
 {
+    (void)emu;
     // this is partly incorrect, because the emulated functions should be executed by actual fork and not by my_atfork...
     if(my_context->atfork_sz==my_context->atfork_cap) {
         my_context->atfork_cap += 4;
@@ -82,4 +83,3 @@ EXPORT void my___pthread_initialize()
 }
 
 #include "wrappedlib_init.h"
-

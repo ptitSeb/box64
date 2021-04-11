@@ -182,6 +182,7 @@ static void* find_MusicFinished_Fct(void* fct)
 
 static void freeSDL1MixerMy(library_t* lib)
 {
+    (void)lib;
     //sdl1mixer_my_t *my = lib->priv.w.p2;
 }
 
@@ -261,4 +262,3 @@ const char* sdl1mixerName = "libSDL_mixer-1.2.so.0";
     ((box64context_t*)(lib->context))->sdl1mixerlib = NULL;
 
 #include "wrappedlib_init.h"
-

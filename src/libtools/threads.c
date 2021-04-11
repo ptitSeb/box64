@@ -245,6 +245,7 @@ pthread_attr_t* getAlignedAttr(pthread_attr_t* m) {
 	return m;
 }
 void freeAlignedAttr(void* attr) {
+	(void)attr;
 }
 #else
 typedef struct aligned_attr_s {
@@ -313,6 +314,7 @@ EXPORT int my_pthread_attr_setstack(x64emu_t* emu, void* attr, void* stackaddr, 
 
 EXPORT int my_pthread_attr_setstacksize(x64emu_t* emu, void* attr, size_t stacksize)
 {
+	(void)emu;
 	//aarch64 have an PTHREAD_STACK_MIN of 131072 instead of 16384 on x86_64!
 	if(stacksize<PTHREAD_STACK_MIN)
 		stacksize = PTHREAD_STACK_MIN;
@@ -322,70 +324,86 @@ EXPORT int my_pthread_attr_setstacksize(x64emu_t* emu, void* attr, size_t stacks
 #ifndef NOALIGN
 EXPORT int my_pthread_attr_getdetachstate(x64emu_t* emu, pthread_attr_t* attr, int *state)
 {
+	(void)emu;
 	return pthread_attr_getdetachstate(getAlignedAttr(attr), state);
 }
 EXPORT int my_pthread_attr_getguardsize(x64emu_t* emu, pthread_attr_t* attr, size_t* size)
 {
+	(void)emu;
 	return pthread_attr_getguardsize(getAlignedAttr(attr), size);
 }
 EXPORT int my_pthread_attr_getinheritsched(x64emu_t* emu, pthread_attr_t* attr, int* sched)
 {
+	(void)emu;
 	return pthread_attr_getinheritsched(getAlignedAttr(attr), sched);
 }
 EXPORT int my_pthread_attr_getschedparam(x64emu_t* emu, pthread_attr_t* attr, void* param)
 {
+	(void)emu;
 	return pthread_attr_getschedparam(getAlignedAttr(attr), param);
 }
 EXPORT int my_pthread_attr_getschedpolicy(x64emu_t* emu, pthread_attr_t* attr, int* policy)
 {
+	(void)emu;
 	return pthread_attr_getschedpolicy(getAlignedAttr(attr), policy);
 }
 EXPORT int my_pthread_attr_getscope(x64emu_t* emu, pthread_attr_t* attr, int* scope)
 {
+	(void)emu;
 	return pthread_attr_getscope(getAlignedAttr(attr), scope);
 }
 EXPORT int my_pthread_attr_getstackaddr(x64emu_t* emu, pthread_attr_t* attr, void* addr)
 {
+	(void)emu;
 	size_t size;
 	return pthread_attr_getstack(getAlignedAttr(attr), addr, &size);
 	//return pthread_attr_getstackaddr(getAlignedAttr(attr), addr);
 }
 EXPORT int my_pthread_attr_getstacksize(x64emu_t* emu, pthread_attr_t* attr, size_t* size)
 {
+	(void)emu;
 	void* addr;
 	return pthread_attr_getstack(getAlignedAttr(attr), &addr, size);
 	//return pthread_attr_getstacksize(getAlignedAttr(attr), size);
 }
 EXPORT int my_pthread_attr_init(x64emu_t* emu, pthread_attr_t* attr)
 {
+	(void)emu;
 	return pthread_attr_init(getAlignedAttrWithInit(attr, 0));
 }
 EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
 {
+	(void)emu;
 	return pthread_attr_setaffinity_np(getAlignedAttr(attr), cpusize, cpuset);
 }
 EXPORT int my_pthread_attr_setdetachstate(x64emu_t* emu, pthread_attr_t* attr, int state)
 {
+	(void)emu;
 	return pthread_attr_setdetachstate(getAlignedAttr(attr), state);
 }
 EXPORT int my_pthread_attr_setguardsize(x64emu_t* emu, pthread_attr_t* attr, size_t size)
 {
+	(void)emu;
 	return pthread_attr_setguardsize(getAlignedAttr(attr), size);
 }
 EXPORT int my_pthread_attr_setinheritsched(x64emu_t* emu, pthread_attr_t* attr, int sched)
 {
+	(void)emu;
 	return pthread_attr_setinheritsched(getAlignedAttr(attr), sched);
 }
 EXPORT int my_pthread_attr_setschedparam(x64emu_t* emu, pthread_attr_t* attr, void* param)
 {
+	(void)emu;
 	return pthread_attr_setschedparam(getAlignedAttr(attr), param);
 }
 EXPORT int my_pthread_attr_setschedpolicy(x64emu_t* emu, pthread_attr_t* attr, int policy)
 {
+	(void)emu;
 	return pthread_attr_setschedpolicy(getAlignedAttr(attr), policy);
 }
 EXPORT int my_pthread_attr_setscope(x64emu_t* emu, pthread_attr_t* attr, int scope)
 {
+	(void)emu;
 	return pthread_attr_setscope(getAlignedAttr(attr), scope);
 }
 EXPORT int my_pthread_attr_setstackaddr(x64emu_t* emu, pthread_attr_t* attr, void* addr)
@@ -495,6 +513,7 @@ EXPORT void my___pthread_register_cancel(void* E, void* B)
 
 EXPORT void my___pthread_unregister_cancel(x64emu_t* emu, x64_unwind_buff_t* buff)
 {
+	(void)emu;
 	__pthread_unwind_buf_t * pbuff = GetCancelThread(buff);
 	__pthread_unregister_cancel(pbuff);
 
@@ -504,6 +523,7 @@ EXPORT void my___pthread_unregister_cancel(x64emu_t* emu, x64_unwind_buff_t* buf
 
 EXPORT void my___pthread_unwind_next(x64emu_t* emu, x64_unwind_buff_t* buff)
 {
+	(void)emu;
 	__pthread_unwind_buf_t pbuff = *GetCancelThread(buff);
 	DelCancelThread(buff);
 	// function is noreturn, putting stuff on the stack to have it auto-free (is that correct?)
@@ -610,6 +630,7 @@ static void my_once_callback()
 
 int EXPORT my_pthread_once(x64emu_t* emu, void* once, void* cb)
 {
+	(void)emu;
 	my_once_callback_fct = (uintptr_t)cb;
 	return pthread_once(once, my_once_callback);
 }
@@ -617,6 +638,7 @@ EXPORT int my___pthread_once(x64emu_t* emu, void* once, void* cb) __attribute__(
 
 EXPORT int my_pthread_key_create(x64emu_t* emu, void* key, void* dtor)
 {
+	(void)emu;
 	return pthread_key_create(key, findkey_destructorFct(dtor));
 }
 EXPORT int my___pthread_key_create(x64emu_t* emu, void* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
@@ -626,43 +648,42 @@ pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
 EXPORT int my_pthread_cond_timedwait(x64emu_t* emu, pthread_cond_t* cond, void* mutex, void* abstime)
 {
+	(void)emu;
 	return pthread_cond_timedwait(cond, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
 }
 EXPORT int my_pthread_cond_wait(x64emu_t* emu, pthread_cond_t* cond, void* mutex)
 {
+	(void)emu;
 	return pthread_cond_wait(cond, getAlignedMutex((pthread_mutex_t*)mutex));
 }
 
-//EXPORT int my_pthread_attr_setscope(x64emu_t* emu, void* at*tr, int scope)
-//{
-//    if(scope!=PTHREAD_SCOPE_SYSTEM) printf_log(LOG_INFO, "Warning, scope of call to pthread_attr_setscope(...) changed from %d to PTHREAD_SCOPE_SYSTEM\n", scope);
-//	return pthread_attr_setscope(attr, PTHREAD_SCOPE_SYSTEM);
-//    //The scope is either PTHREAD_SCOPE_SYSTEM or PTHREAD_SCOPE_PROCESS
-//    // but PTHREAD_SCOPE_PROCESS doesn't seem supported on ARM linux, and PTHREAD_SCOPE_SYSTEM is default
-//}
-
 EXPORT void my__pthread_cleanup_push_defer(x64emu_t* emu, void* buffer, void* routine, void* arg)
 {
+    (void)emu;
 	_pthread_cleanup_push_defer(buffer, findcleanup_routineFct(routine), arg);
 }
 
 EXPORT void my__pthread_cleanup_push(x64emu_t* emu, void* buffer, void* routine, void* arg)
 {
+    (void)emu;
 	_pthread_cleanup_push(buffer, findcleanup_routineFct(routine), arg);
 }
 
 EXPORT void my__pthread_cleanup_pop_restore(x64emu_t* emu, void* buffer, int exec)
 {
+    (void)emu;
 	_pthread_cleanup_pop_restore(buffer, exec);
 }
 
 EXPORT void my__pthread_cleanup_pop(x64emu_t* emu, void* buffer, int exec)
 {
+    (void)emu;
 	_pthread_cleanup_pop(buffer, exec);
 }
 
 //EXPORT int my_pthread_getaffinity_np(x64emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
 //{
+//	(void)emu;
 //	int ret = pthread_getaffinity_np(thread, cpusetsize, cpuset);
 //	if(ret<0) {
 //		printf_log(LOG_INFO, "Warning, pthread_getaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
@@ -673,6 +694,7 @@ EXPORT void my__pthread_cleanup_pop(x64emu_t* emu, void* buffer, int exec)
 
 //EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
 //{
+//	(void)emu;
 //	int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset);
 //	if(ret<0) {
 //		printf_log(LOG_INFO, "Warning, pthread_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
@@ -683,7 +705,7 @@ EXPORT void my__pthread_cleanup_pop(x64emu_t* emu, void* buffer, int exec)
 
 //EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
 //{
-//
+//	(void)emu;
 //	int ret = pthread_attr_setaffinity_np(attr, cpusetsize, cpuset);
 //	if(ret<0) {
 //		printf_log(LOG_INFO, "Warning, pthread_attr_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", attr, cpusetsize, cpuset, errno);
@@ -694,14 +716,16 @@ EXPORT void my__pthread_cleanup_pop(x64emu_t* emu, void* buffer, int exec)
 
 EXPORT int my_pthread_kill(x64emu_t* emu, void* thread, int sig)
 {
-    // check for old "is everything ok?"
-    if(thread==NULL && sig==0)
-        return pthread_kill(pthread_self(), 0);
-    return pthread_kill((pthread_t)thread, sig);
+	(void)emu;
+	// check for old "is everything ok?"
+	if(thread==NULL && sig==0)
+		return pthread_kill(pthread_self(), 0);
+	return pthread_kill((pthread_t)thread, sig);
 }
 
 //EXPORT void my_pthread_exit(x64emu_t* emu, void* retval)
 //{
+//	(void)emu;
 //	pthread_exit(retval);
 //}
 

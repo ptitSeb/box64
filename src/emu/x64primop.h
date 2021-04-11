@@ -235,21 +235,25 @@ static inline uint64_t neg64(x64emu_t *emu, uint64_t s)
 
 static inline uint8_t not8(x64emu_t *emu, uint8_t s)
 {
+	(void)emu; // No flags affected
 	return ~s;
 }
 
 static inline uint16_t not16(x64emu_t *emu, uint16_t s)
 {
+	(void)emu; // No flags affected
 	return ~s;
 }
 
 static inline uint32_t not32(x64emu_t *emu, uint32_t s)
 {
+	(void)emu; // No flags affected
 	return ~s;
 }
 
 static inline uint64_t not64(x64emu_t *emu, uint64_t s)
 {
+	(void)emu; // No flags affected
 	return ~s;
 }
 
