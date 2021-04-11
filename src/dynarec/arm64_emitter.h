@@ -1318,6 +1318,9 @@
 // Integer CMP
 // EQual
 #define CMEQ_vector(Q, U, size, Rm, Rn, Rd)     ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b10001<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VCMEQ_8(Rd, Rn, Rm)         EMIT(CMEQ_vector(0, 1, 0b00, Rm, Rn, Rd))
+#define VCMEQ_16(Rd, Rn, Rm)        EMIT(CMEQ_vector(0, 1, 0b01, Rm, Rn, Rd))
+#define VCMEQ_32(Rd, Rn, Rm)        EMIT(CMEQ_vector(0, 1, 0b10, Rm, Rn, Rd))
 #define VCMEQQ_8(Rd, Rn, Rm)        EMIT(CMEQ_vector(1, 1, 0b00, Rm, Rn, Rd))
 #define VCMEQQ_16(Rd, Rn, Rm)       EMIT(CMEQ_vector(1, 1, 0b01, Rm, Rn, Rd))
 #define VCMEQQ_32(Rd, Rn, Rm)       EMIT(CMEQ_vector(1, 1, 0b10, Rm, Rn, Rd))
