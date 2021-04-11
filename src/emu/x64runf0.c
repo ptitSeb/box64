@@ -392,10 +392,19 @@ int RunF0(x64emu_t *emu, rex_t rex)
                         } while(arm64_lock_write_dd(ED, tmp64u2));
                         GD->q[0] = tmp64u;
                     } else {
-                        do {
-                            tmp32u = arm64_lock_read_d(ED);
-                            tmp32u2 = add32(emu, tmp32u, GD->dword[0]);
-                        } while(arm64_lock_write_d(ED, tmp32u2));
+                        if(((uintptr_t)ED)&3) {
+                            do {
+                                tmp32u = ED->dword[0] & ~0xff;
+                                tmp32u |= arm64_lock_read_b(ED);
+                                tmp32u2 = add32(emu, tmp32u, GD->dword[0]);
+                            } while(arm64_lock_write_b(ED, tmp32u2&0xff));
+                            ED->dword[0] = tmp32u2;
+                        } else {
+                            do {
+                                tmp32u = arm64_lock_read_d(ED);
+                                tmp32u2 = add32(emu, tmp32u, GD->dword[0]);
+                            } while(arm64_lock_write_d(ED, tmp32u2));
+                        }
                         GD->q[0] = tmp32u;
                         if(MODREG)
                             ED->dword[1] = 0;

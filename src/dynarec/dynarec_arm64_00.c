@@ -1017,13 +1017,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SET_DFNONE(x1);
             break;
 
+        case 0xA0:
+            INST_NAME("MOV AL,Ob");
+            u64 = F64;
+            MOV64x(x1, u64);
+            LDRB_U12(x2, x1, 0);
+            BFIx(xRAX, x2, 0, 8);
+            break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
             u64 = F64;
             MOV64x(x1, u64);
             LDRxw_U12(xRAX, x1, 0);
             break;
-
+        case 0xA2:
+            INST_NAME("MOV Ob,AL");
+            u64 = F64;
+            MOV64x(x1, u64);
+            STRB_U12(xRAX, x1, 0);
+            break;
         case 0xA3:
             INST_NAME("MOV Od,EAX");
             u64 = F64;

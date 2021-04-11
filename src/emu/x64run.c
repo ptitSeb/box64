@@ -539,13 +539,18 @@ x64emurun:
             RESET_FLAGS(emu);
             break;
 
+        case 0xA0:                      /* MOV AL,Ob */
+            R_AL = *(uint8_t*)F64;
+            break;
         case 0xA1:                      /* MOV EAX,Od */
             if(rex.w)
                 R_RAX = *(uint64_t*)F64;
             else
                 R_EAX = *(uint32_t*)F64;
             break;
-
+        case 0xA2:                      /* MOV Ob,AL */
+            *(uint8_t*)F64 = R_AL;
+            break;
         case 0xA3:                      /* MOV Od,EAX */
             if(rex.w)
                 *(uint64_t*)F64 = R_RAX;
