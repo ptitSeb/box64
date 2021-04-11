@@ -260,7 +260,14 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         GX->q[1] = 0;
         break;
 
-    default:
+    case 0xF0:  /* LDDQU Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        memcpy(GX, EX, 16);
+        break;
+
+   default:
         return 1;
     }
     return 0;

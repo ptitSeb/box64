@@ -296,6 +296,21 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVQDfrom(v0, 0, x2);
             break;
 
+        case 0xF0:
+            INST_NAME("LDDQU Gx,Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVQ(v0, v1);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 7, rex, 0, 0);
+                VLDR128_U12(v0, ed, fixedaddress);
+            }
+            break;
+
         default:
             DEFAULT;
     }
