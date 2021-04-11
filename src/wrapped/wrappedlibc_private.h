@@ -536,7 +536,7 @@ GOW(getifaddrs, iFp)
 //GOW(getmntent_r, 
 //GO(getmsg, 
 //GO(get_myaddress, 
-//GO(getnameinfo, 
+GO(getnameinfo, iFpupLpLi)
 //GO(getnetbyaddr, 
 //GO(getnetbyaddr_r, 
 //GO(getnetbyname, 

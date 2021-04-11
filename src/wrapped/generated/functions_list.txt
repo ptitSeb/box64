@@ -54,6 +54,7 @@
 #() pFE
 #() pFv
 #() pFi
+#() pFW
 #() pFu
 #() pFd
 #() pFl
@@ -280,6 +281,7 @@
 #() iFppi
 #() iFppI
 #() iFppC
+#() iFppW
 #() iFppu
 #() iFppd
 #() iFppl
@@ -972,6 +974,7 @@
 #() iFpuuiuui
 #() iFpuupppp
 #() iFpupuuui
+#() iFpupLpLi
 #() iFpuppppp
 #() iFpLipipi
 #() iFppiiiip
