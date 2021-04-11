@@ -52,6 +52,10 @@ void unlockDB();
 void* find32bitBlock(size_t size);
 void* findBlockNearHint(void* hint, size_t size);
 
+// unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex
+int unlockCustommemMutex();
+// relock the muxtex that were unlocked
+void relockCustommemMutex(int locks);
 
 void init_custommem_helper(box64context_t* ctx);
 void fini_custommem_helper(box64context_t* ctx);

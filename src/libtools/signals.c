@@ -434,8 +434,8 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr)
 
 void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
-    // need to create some x64_ucontext????
-    pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
+    int Locks = unlockMutex();
+
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]));
 
     uintptr_t restorer = my_context->restorer[sig];
@@ -643,6 +643,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
             if(used_stack)  // release stack
                 new_ss->ss_flags = 0;
+            relockMutex(Locks);
             longjmp(ejb->jmpbuf, 1);
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
@@ -681,12 +682,15 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     #undef GO
 
     printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
-    if(exits)
+    if(exits) {
+        relockMutex(Locks);
         exit(ret);
+    }
     if(restorer)
         RunFunctionHandler(&exits, 0, restorer, 0);
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
+    relockMutex(Locks);
 }
 
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
@@ -706,6 +710,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture
 #endif
+    int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
 #ifdef DYNAREC
     dynablock_t* db = NULL;
@@ -742,12 +747,17 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 ejb->emu->ip.q[0] = getX64Address(db, (uintptr_t)pc);
                 ejb->emu->eflags.x64 = p->uc_mcontext.regs[26];
                 dynarec_log(LOG_DEBUG, "Auto-SMC detected, getting out of current Dynablock!\n");
+                relockMutex(Locks);
                 longjmp(ejb->jmpbuf, 2);
             }
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);
         }
         // done
-        if(prot&PROT_WRITE) return; // if there is no write permission, don't return and continue to program signal handling
+        if(prot&PROT_WRITE) {
+            // if there is no write permission, don't return and continue to program signal handling
+            relockMutex(Locks);
+            return;
+        }
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE))) {
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
@@ -757,6 +767,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         if(addr && pc && db) {
             // probably a glitch due to intensive multitask...
             dynarec_log(/*LOG_DEBUG*/LOG_INFO, "SIGSEGV with Access error on %p for %p , db=%p, retrying\n", pc, addr, db);
+            relockMutex(Locks);
             return; // try again
         }
     }
@@ -771,6 +782,10 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p)!\n", GetTID(), signame, old_code, old_pc, old_addr);
 exit(-1);
     } else {
+        if(sig==SIGSEGV && info->si_code==2 && ((prot&~PROT_CUSTOM)==5 || (prot&~PROT_CUSTOM)==7)) {
+            relockMutex(Locks);
+            return; // that's probably just a multi-task glitch, like seen in terraria
+        }
 #ifdef DYNAREC
         if(!db_searched)
             db = FindDynablockFromNativeAddress(pc);
@@ -840,8 +855,7 @@ exit(-1);
         else
             printf_log(log_minimum, "\n");
     }
-    if(sig==SIGSEGV && info->si_code==2 && ((prot&~PROT_CUSTOM)==5 || (prot&~PROT_CUSTOM)==7))
-        return; // that's probably just a multi-task glitch, like seen in terraria
+    relockMutex(Locks);
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
         if(my_context->is_sigaction[sig])
             my_sigactionhandler_oldcode(sig, info, ucntx, &old_code, db);

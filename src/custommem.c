@@ -21,6 +21,7 @@
 #include <sys/mman.h>
 #include "custommem.h"
 #include "khash.h"
+#include "threads.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/arm64_lock.h"
@@ -55,7 +56,7 @@ typedef struct blocklist_s {
 
 #define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
 
-static pthread_mutex_t     mutex_blocks = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t     mutex_blocks;
 static int                 n_blocks = 0;       // number of blocks for custom malloc
 static blocklist_t*        p_blocks = NULL;    // actual blocks for custom malloc
 
@@ -570,23 +571,25 @@ void addJumpTableIfDefault64(void* addr, void* jmp)
         uintptr_t*** tbl = (uintptr_t***)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault1;
-        box64_jmptbl3[idx3] = tbl;
+        if(arm64_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
+            free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
         uintptr_t** tbl = (uintptr_t**)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault0;
-        box64_jmptbl3[idx3][idx2] = tbl;
+        if(arm64_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
+            free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
         uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = (uintptr_t)arm64_next;
-        box64_jmptbl3[idx3][idx2][idx1] = tbl;
+        if(arm64_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
+            free(tbl);
     }
 
-    if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)arm64_next)
-        box64_jmptbl3[idx3][idx2][idx1][idx0] = (uintptr_t)jmp;
+    arm64_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], jmp, arm64_next);
 }
 void setJumpTableDefault64(void* addr)
 {
@@ -638,19 +641,22 @@ uintptr_t getJumpTableAddress64(uintptr_t addr)
         uintptr_t*** tbl = (uintptr_t***)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault1;
-        box64_jmptbl3[idx3] = tbl;
+        if(arm64_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
+            free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
         uintptr_t** tbl = (uintptr_t**)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault0;
-        box64_jmptbl3[idx3][idx2] = tbl;
+        if(arm64_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
+            free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
         uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = (uintptr_t)arm64_next;
-        box64_jmptbl3[idx3][idx2][idx1] = tbl;
+        if(arm64_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
+            free(tbl);
     }
 
     return (uintptr_t)&box64_jmptbl3[idx3][idx2][idx1][idx0];
@@ -882,14 +888,57 @@ void* findBlockNearHint(void* hint, size_t size)
 }
 #undef LOWEST
 
+int unlockCustommemMutex()
+{
+    int ret = 0;
+    int i = 0;
+    #define GO(A, B)                    \
+        i = checkMutex(&A);             \
+        if(i) {                         \
+            pthread_mutex_unlock(&A);   \
+            ret|=(1<<B);                \
+        }
+    GO(mutex_blocks, 0)
+    GO(mutex_prot, 1)
+    #ifdef DYNAREC
+    GO(mutex_mmap, 2)
+    #endif
+    #undef GO
+    return ret;
+}
+
+void relockCustommemMutex(int locks)
+{
+    #define GO(A, B)                    \
+        if(locks&(1<<B))                \
+            pthread_mutex_lock(&A);     \
+
+    GO(mutex_blocks, 0)
+    GO(mutex_prot, 1)
+    #ifdef DYNAREC
+    GO(mutex_mmap, 2)
+    #endif
+    #undef GO
+}
+
+static void init_mutexes(void)
+{
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutex_init(&mutex_blocks, &attr);
+    pthread_mutex_init(&mutex_prot, &attr);
+#ifdef DYNAREC
+    pthread_mutex_init(&mutex_mmap, &attr);
+#endif
+
+    pthread_mutexattr_destroy(&attr);
+}
+
 static void atfork_child_custommem(void)
 {
-    // unlock mutex if it was lock before the fork
-    pthread_mutex_unlock(&mutex_blocks);
-    pthread_mutex_unlock(&mutex_prot);
-#ifdef DYNAREC
-    pthread_mutex_unlock(&mutex_mmap);
-#endif
+    // (re)init mutex if it was lock before the fork
+    init_mutexes();
 }
 
 void init_custommem_helper(box64context_t* ctx)
@@ -898,9 +947,8 @@ void init_custommem_helper(box64context_t* ctx)
         return;
     inited = 1;
     memprot = kh_init(memprot);
-    pthread_mutex_init(&mutex_prot, NULL);
+    init_mutexes();
 #ifdef DYNAREC
-    pthread_mutex_init(&mutex_mmap, NULL);
 #ifdef ARM64
     if(box64_dynarec)
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i) {
@@ -988,5 +1036,5 @@ void fini_custommem_helper(box64context_t *ctx)
         #endif
     free(p_blocks);
     pthread_mutex_destroy(&mutex_prot);
-    //pthread_mutex_destroy(&mutex_blocks);
+    pthread_mutex_destroy(&mutex_blocks);
 }
