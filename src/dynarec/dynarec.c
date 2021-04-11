@@ -47,7 +47,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2)
     if(!block) {
         // no block, let link table as is...
 dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-printf_log(LOG_NONE, "Warning, jumping to a no-block address from %p (db=%p, x64addr=%p)\n", x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL);
+printf_log(LOG_NONE, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL);
         //tableupdate(arm64_epilog, addr, table);
         return arm64_epilog;
     }
