@@ -1594,7 +1594,7 @@ GO(ENGINE_remove, iFp)
 //GO(ENGINE_set_ctrl_function, 
 GO(ENGINE_set_default, iFpu)
 GO(ENGINE_set_default_ciphers, iFp)
-GO(ENGINE_set_default_DH, iF)
+GO(ENGINE_set_default_DH, iFp)
 GO(ENGINE_set_default_digests, iFp)
 GO(ENGINE_set_default_DSA, iFp)
 GO(ENGINE_set_default_ECDH, iFp)

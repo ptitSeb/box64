@@ -18,34 +18,7 @@
 const char* libzName = "libz.so.1";
 #define LIBNAME libz
 
-// TODO: put the wrapper type in a dedicate include
-typedef void* (*pFpi_t)(void*, int32_t);
-typedef void* (*pFp_t)(void*);
-typedef void* (*pFpp_t)(void*, void*);
-typedef int32_t (*iFp_t)(void*);
-typedef int32_t (*iFppi_t)(void*, void*, int32_t);
-typedef int32_t (*iFpipi_t)(void*, int, void*, int);
-typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
-typedef void  (*vFp_t)(void*);
-typedef void* (*pFpp_t)(void*, void*);
-typedef uint32_t (*uFp_t)(void*);
-typedef uint64_t (*UFp_t)(void*);
-typedef uint32_t (*uFu_t)(uint32_t);
-typedef int32_t (*iFpp_t)(void*, void*);
-typedef uint32_t (*uFpW_t)(void*, uint16_t);
-typedef uint32_t (*uFpu_t)(void*, uint32_t);
-typedef uint32_t (*uFpU_t)(void*, uint64_t);
-typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
-typedef int     (*iFpiiiiipi_t)(void*, int, int, int, int, int, void*, int);
-
-#define SUPER() \
-    GO(inflateInit_, iFppi_t)           \
-    GO(inflateInit, iFp_t)              \
-    GO(inflateEnd, iFp_t)               \
-    GO(deflateEnd, iFp_t)               \
-    GO(inflateInit2_, iFpipi_t)         \
-    GO(deflateInit_, iFpipi_t)          \
-    GO(deflateInit2_, iFpiiiiipi_t)
+#include "generated/wrappedlibztypes.h"
 
 typedef struct libz_my_s {
     // functions
@@ -207,4 +180,3 @@ EXPORT int32_t my_deflateEnd(x64emu_t* emu, void* str)
     ((box64context_t*)(lib->context))->zlib = NULL;
 
 #include "wrappedlib_init.h"
-

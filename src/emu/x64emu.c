@@ -17,6 +17,9 @@
 #include "x64run_private.h"
 #include "callback.h"
 #include "bridge.h"
+#ifdef HAVE_TRACE
+#include "x64trace.h"
+#endif
 #ifdef DYNAREC
 #include "custommem.h"
 #endif
@@ -412,8 +415,19 @@ void StopEmu(x64emu_t* emu, const char* reason)
     emu->quit = 1;
     printf_log(LOG_NONE, "%s", reason);
     // dump stuff...
-    printf_log(LOG_NONE, "CPU Regs=%s\n", DumpCPURegs(emu, R_RIP));
-    // TODO: stack, memory/instruction around EIP, etc..
+    printf_log(LOG_NONE, "==== CPU Registers ====\n%s\n", DumpCPURegs(emu, R_RIP));
+    printf_log(LOG_NONE, "======== Stack ========\nStack is from %lX to %lX\n", R_RBP, R_RSP);
+    if (R_RBP == R_RSP) {
+        printf_log(LOG_NONE, "RBP = RSP: leaf function detected; next 128 bytes should be either data or random.\n");
+    } else {
+        // TODO: display stack if operation should be allowed (to avoid crashes)
+        /* for (uint64_t *sp = R_RBP; sp >= R_RSP; --sp) {
+        } */
+    }
+    printf_log(LOG_NONE, "Old IP: %tX\n", emu->old_ip);
+#ifdef HAVE_TRACE
+    printf_log(LOG_NONE, "%s\n", DecodeX64Trace(my_context->dec, emu->old_ip));
+#endif
 }
 
 void UnimpOpcode(x64emu_t* emu)
@@ -461,16 +475,16 @@ uint64_t ReadTSC(x64emu_t* emu)
 {
     //TODO: implement hardware counter read?
     // Read the TimeStamp Counter as 64bits.
-    // this is supposed to be the number of instrunctions executed since last reset
-// fall back to gettime...
+    // this is supposed to be the number of instructions executed since last reset
+    // fall back to gettime...
 #ifndef NOGETCLOCK
-  struct timespec ts;
-  clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
-  return (uint64_t)(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
+    return (uint64_t)(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
 #else
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  return (uint64_t)(tv.tv_sec) * 1000000 + tv.tv_usec;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (uint64_t)(tv.tv_sec) * 1000000 + tv.tv_usec;
 #endif
 }
 

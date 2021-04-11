@@ -434,7 +434,7 @@ pid_t EXPORT my_vfork(x64emu_t* emu)
 
 int EXPORT my_uname(struct utsname *buf)
 {
-    //TODO: check sizeof(struct utsname)
+    //TODO: check sizeof(struct utsname) == 390
     int ret = uname(buf);
     strcpy(buf->machine, "x86_64");
     return ret;
@@ -1651,9 +1651,6 @@ EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
 #endif
 EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, void* c)
 {
-    // Implemented starting glibc 2.14+
-    library_t* lib = my_lib;
-    if(!lib) return 0;
     if(b==F_SETFL)
         c = (void*)(uintptr_t)of_convert((intptr_t)c);
     #if 0
@@ -1666,10 +1663,7 @@ EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, void* c)
         return ret;
     }
     #endif
-    //TODO: check if better to use the syscall or regular fcntl?
-    //return syscall(__NR_fcntl64, a, b, d1);   // should be enough
     int ret = fcntl(a, b, c);
-
     if(b==F_GETFL && ret!=-1)
         ret = of_unconvert(ret);
 

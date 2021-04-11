@@ -36,8 +36,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_ECX = 0x6C65746E;
             break;
         case 0x1:
-            R_EAX = 0x00000601; // familly and all
-            R_EBX = 0;          // Brand indexe, CLFlush, Max APIC ID, Local APIC ID
+            R_EAX = 0x00000601; // family and all
+            R_EBX = 0;          // Brand index, CLFlush, Max APIC ID, Local APIC ID
             R_EDX =   1         // fpu 
                     | 1<<4      // rdtsc
                     | 1<<8      // cmpxchg8
@@ -108,10 +108,10 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EDX = 0;
             break;
         case 0x7:   // extended bits...
-            /*if(R_ECX==0)    R_EAX = 0;
-            else*/ R_EAX = R_ECX = R_EBX = R_EDX = 0;
+            if(R_ECX==1)    R_EAX = 0; // Bit 5 is avx512_bf16
+            else R_EAX = R_ECX = R_EBX = R_EDX = 0; // TODO
             break;
-        case 0xB:   // Extended Topology Enumaretion Leaf
+        case 0xB:   // Extended Topology Enumeration Leaf
             //TODO!
             R_EAX = 0;
             break;
@@ -138,7 +138,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EAX = 0;  // reserved
             R_EBX = 0;  // reserved
             R_ECX = (1<<5) | (1<<8); // LZCNT | PREFETCHW
-            R_EDX = 0;
+            R_EDX = 1; // x87 FPU
             break;
         case 0x80000002:    // Brand part 1 (P4 signature)
             R_EAX = 0x20202020;

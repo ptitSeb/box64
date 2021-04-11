@@ -1728,7 +1728,7 @@ GOW(srandom, vFu)
 GOM(sscanf, iFEppV)
 //GOW(ssignal, 
 //GO(sstk, 
-GOM(__stack_chk_fail, vFE)
+GOM(__stack_chk_fail, vFEv)
 //GO(__statfs, 
 GOW(statfs, iFpp)
 GOW(statfs64, iFpp)

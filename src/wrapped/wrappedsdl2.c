@@ -19,20 +19,23 @@
 #include "myalign.h"
 #include "threads.h"
 
+const char* sdl2Name = "libSDL2-2.0.so.0";
+#define LIBNAME sdl2
+
 static int sdl_Yes() { return 1;}
 static int sdl_No() { return 0;}
-int EXPORT my2_SDL_Has3DNow() __attribute__((alias("sdl_No")));
-int EXPORT my2_SDL_Has3DNowExt() __attribute__((alias("sdl_No")));
-int EXPORT my2_SDL_HasAltiVec() __attribute__((alias("sdl_No")));
-int EXPORT my2_SDL_HasMMX() __attribute__((alias("sdl_Yes")));
-int EXPORT my2_SDL_HasMMXExt() __attribute__((alias("sdl_Yes")));
-int EXPORT my2_SDL_HasNEON() __attribute__((alias("sdl_No")));   // No neon in x86 ;)
-int EXPORT my2_SDL_HasRDTSC() __attribute__((alias("sdl_Yes")));
-int EXPORT my2_SDL_HasSSE() __attribute__((alias("sdl_Yes")));
-int EXPORT my2_SDL_HasSSE2() __attribute__((alias("sdl_Yes")));
-int EXPORT my2_SDL_HasSSE3() __attribute__((alias("sdl_Yes")));
-int EXPORT my2_SDL_HasSSE41() __attribute__((alias("sdl_No")));
-int EXPORT my2_SDL_HasSSE42() __attribute__((alias("sdl_No")));
+int EXPORT my2_SDL_Has3DNow(void) __attribute__((alias("sdl_No")));
+int EXPORT my2_SDL_Has3DNowExt(void) __attribute__((alias("sdl_No")));
+int EXPORT my2_SDL_HasAltiVec(void) __attribute__((alias("sdl_No")));
+int EXPORT my2_SDL_HasMMX(void) __attribute__((alias("sdl_Yes")));
+int EXPORT my2_SDL_HasMMXExt(void) __attribute__((alias("sdl_Yes")));
+int EXPORT my2_SDL_HasNEON(void) __attribute__((alias("sdl_No")));   // No neon in x86_64 ;)
+int EXPORT my2_SDL_HasRDTSC(void) __attribute__((alias("sdl_Yes")));
+int EXPORT my2_SDL_HasSSE(void) __attribute__((alias("sdl_Yes")));
+int EXPORT my2_SDL_HasSSE2(void) __attribute__((alias("sdl_Yes")));
+int EXPORT my2_SDL_HasSSE3(void) __attribute__((alias("sdl_Yes")));
+int EXPORT my2_SDL_HasSSE41(void) __attribute__((alias("sdl_No")));
+int EXPORT my2_SDL_HasSSE42(void) __attribute__((alias("sdl_No")));
 
 typedef struct {
   int32_t freq;
@@ -70,92 +73,14 @@ typedef struct
 } SDL_GameControllerButtonBind;
 
 
-// TODO: put the wrapper type in a dedicate include
 typedef void  (*vFv_t)();
-typedef void* (*pFv_t)();
-typedef int32_t (*iFp_t)(void*);
-typedef int32_t (*iFip_t)(int32_t, void*);
-typedef int32_t (*iFWW_t)(uint16_t, uint16_t);
-typedef void* (*pFpi_t)(void*, int32_t);
-typedef void* (*pFp_t)(void*);
-typedef void* (*pFpp_t)(void*, void*);
-typedef int32_t (*iFppi_t)(void*, void*, int32_t);
-typedef int32_t (*iFpippi_t)(void*, int32_t, void*, void*, int32_t);
-typedef int32_t (*iFppp_t)(void*, void*, void*);
-typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
-typedef void*  (*pFpp_t)(void*, void*);
-typedef void*  (*pFppp_t)(void*, void*, void*);
-typedef void  (*vFp_t)(void*);
-typedef void  (*vFpp_t)(void*, void*);
-typedef void  (*vFiupp_t)(int32_t, uint32_t, void*, void*);
-typedef void  (*vFiupV_t)(int32_t, uint32_t, void*, va_list);
-typedef int32_t (*iFpupp_t)(void*, uint32_t, void*, void*);
-typedef uint32_t (*uFu_t)(uint32_t);
-typedef uint32_t (*uFp_t)(void*);
-typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
-typedef int64_t (*IFp_t)(void*);
-typedef uint64_t (*UFp_t)(void*);
-typedef int32_t (*iFpi_t)(void*, int32_t);
-typedef int32_t (*iFpp_t)(void*, void*);
-typedef int32_t (*iFUU_t)(uint64_t, uint64_t);
-typedef int32_t (*iFupp_t)(uint32_t, void*, void*);
-typedef uint32_t (*uFpC_t)(void*, uint8_t);
-typedef uint32_t (*uFpW_t)(void*, uint16_t);
-typedef uint32_t (*uFpu_t)(void*, uint32_t);
-typedef uint32_t (*uFpU_t)(void*, uint64_t);
-
-#define SUPER() \
-    GO(SDL_Quit, vFv_t)                             \
-    GO(SDL_OpenAudio, iFpp_t)                       \
-    GO(SDL_OpenAudioDevice, iFpippi_t)              \
-    GO(SDL_LoadFile_RW, pFpi_t)                     \
-    GO(SDL_LoadBMP_RW, pFpi_t)                      \
-    GO(SDL_RWFromConstMem, pFpi_t)                  \
-    GO(SDL_RWFromFP, pFpi_t)                        \
-    GO(SDL_RWFromFile, pFpp_t)                      \
-    GO(SDL_RWFromMem, pFpi_t)                       \
-    GO(SDL_SaveBMP_RW, iFppi_t)                     \
-    GO(SDL_LoadWAV_RW, pFpippp_t)                   \
-    GO(SDL_GameControllerAddMappingsFromRW, iFpi_t) \
-    GO(SDL_AllocRW, sdl2_allocrw)                   \
-    GO(SDL_FreeRW, sdl2_freerw)                     \
-    GO(SDL_ReadU8, uFp_t)                           \
-    GO(SDL_ReadBE16, uFp_t)                         \
-    GO(SDL_ReadBE32, uFp_t)                         \
-    GO(SDL_ReadBE64, UFp_t)                         \
-    GO(SDL_ReadLE16, uFp_t)                         \
-    GO(SDL_ReadLE32, uFp_t)                         \
-    GO(SDL_ReadLE64, UFp_t)                         \
-    GO(SDL_WriteU8, uFpC_t)                         \
-    GO(SDL_WriteBE16, uFpW_t)                       \
-    GO(SDL_WriteBE32, uFpu_t)                       \
-    GO(SDL_WriteBE64, uFpU_t)                       \
-    GO(SDL_WriteLE16, uFpW_t)                       \
-    GO(SDL_WriteLE32, uFpu_t)                       \
-    GO(SDL_WriteLE64, uFpU_t)                       \
-    GO(SDL_AddTimer, uFupp_t)                       \
-    GO(SDL_RemoveTimer, uFu_t)                      \
-    GO(SDL_CreateThread, pFppp_t)                   \
-    GO(SDL_KillThread, vFp_t)                       \
-    GO(SDL_GetEventFilter, iFpp_t)                  \
-    GO(SDL_SetEventFilter, vFpp_t)                  \
-    GO(SDL_LogGetOutputFunction, vFpp_t)            \
-    GO(SDL_LogSetOutputFunction, vFpp_t)            \
-    GO(SDL_LogMessageV, vFiupV_t)                   \
-    GO(SDL_GL_GetProcAddress, pFp_t)                \
-    GO(SDL_TLSSet, iFupp_t)                         \
-    GO(SDL_AddEventWatch, vFpp_t)                   \
-    GO(SDL_DelEventWatch, vFpp_t)                   \
-    GO(SDL_SaveAllDollarTemplates, iFp_t)           \
-    GO(SDL_SaveDollarTemplate, iFip_t)              \
-    GO(SDL_IsJoystickPS4, iFWW_t)                   \
-    GO(SDL_IsJoystickNintendoSwitchPro, iFWW_t)     \
-    GO(SDL_IsJoystickSteamController, iFWW_t)       \
-    GO(SDL_IsJoystickXbox360, iFWW_t)               \
-    GO(SDL_IsJoystickXboxOne, iFWW_t)               \
-    GO(SDL_IsJoystickXInput, iFUU_t)                \
-    GO(SDL_IsJoystickHIDAPI, iFUU_t)                \
-    GO(SDL_Vulkan_GetVkGetInstanceProcAddr, pFv_t)  \
+typedef void  (*vFiupV_t)(int64_t, uint64_t, void*, va_list);
+#define ADDED_FUNCTIONS() \
+    GO(SDL_Quit, vFv_t)           \
+    GO(SDL_AllocRW, sdl2_allocrw) \
+    GO(SDL_FreeRW, sdl2_freerw)   \
+    GO(SDL_LogMessageV, vFiupV_t)
+#include "generated/wrappedsdl2types.h"
 
 typedef struct sdl2_my_s {
     #define GO(A, B)    B   A;
@@ -188,9 +113,9 @@ GO(4)
 // Timer
 #define GO(A)   \
 static uintptr_t my_Timer_fct_##A = 0;                                      \
-static uint32_t my_Timer_##A(uint32_t a, void* b)                           \
+static uint64_t my_Timer_##A(uint64_t a, void* b)                           \
 {                                                                           \
-    return (uint32_t)RunFunction(my_context, my_Timer_fct_##A, 2, a, b);    \
+    return (uint64_t)RunFunction(my_context, my_Timer_fct_##A, 2, a, b);    \
 }
 SUPER()
 #undef GO
@@ -304,7 +229,7 @@ static void* reverse_LogOutput_Fct(void* fct)
 #undef SUPER
 
 // TODO: track the memory for those callback
-EXPORT int32_t my2_SDL_OpenAudio(x64emu_t* emu, void* d, void* o)
+EXPORT int64_t my2_SDL_OpenAudio(x64emu_t* emu, void* d, void* o)
 {
     SDL2_AudioSpec *desired = (SDL2_AudioSpec*)d;
 
@@ -324,7 +249,7 @@ EXPORT int32_t my2_SDL_OpenAudio(x64emu_t* emu, void* d, void* o)
     return ret;
 }
 
-EXPORT int32_t my2_SDL_OpenAudioDevice(x64emu_t* emu, void* device, int32_t iscapture, void* d, void* o, int32_t allowed)
+EXPORT int64_t my2_SDL_OpenAudioDevice(x64emu_t* emu, void* device, int64_t iscapture, void* d, void* o, int64_t allowed)
 {
     SDL2_AudioSpec *desired = (SDL2_AudioSpec*)d;
 
@@ -344,12 +269,12 @@ EXPORT int32_t my2_SDL_OpenAudioDevice(x64emu_t* emu, void* device, int32_t isca
     return ret;
 }
 
-EXPORT void *my2_SDL_LoadFile_RW(x64emu_t* emu, void* a, int b)
+EXPORT void *my2_SDL_LoadFile_RW(x64emu_t* emu, void* a, void* b, int c)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    void* r = my->SDL_LoadFile_RW(rw, b);
-    if(b==0)
+    void* r = my->SDL_LoadFile_RW(rw, b, c);
+    if(c==0)
         RWNativeEnd2(rw);
     return r;
 }
@@ -362,11 +287,11 @@ EXPORT void *my2_SDL_LoadBMP_RW(x64emu_t* emu, void* a, int b)
         RWNativeEnd2(rw);
     return r;
 }
-EXPORT int32_t my2_SDL_SaveBMP_RW(x64emu_t* emu, void* a, void* b, int c)
+EXPORT int64_t my2_SDL_SaveBMP_RW(x64emu_t* emu, void* a, void* b, int c)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    int32_t r = my->SDL_SaveBMP_RW(rw, b, c);
+    int64_t r = my->SDL_SaveBMP_RW(rw, b, c);
     if(c==0)
         RWNativeEnd2(rw);
     return r;
@@ -380,36 +305,36 @@ EXPORT void *my2_SDL_LoadWAV_RW(x64emu_t* emu, void* a, int b, void* c, void* d,
         RWNativeEnd2(rw);
     return r;
 }
-EXPORT int32_t my2_SDL_GameControllerAddMappingsFromRW(x64emu_t* emu, void* a, int b)
+EXPORT int64_t my2_SDL_GameControllerAddMappingsFromRW(x64emu_t* emu, void* a, int b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    int32_t r = my->SDL_GameControllerAddMappingsFromRW(rw, b);
+    int64_t r = my->SDL_GameControllerAddMappingsFromRW(rw, b);
     if(b==0)
         RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_ReadU8(x64emu_t* emu, void* a)
+EXPORT uint64_t my2_SDL_ReadU8(x64emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_ReadU8(rw);
+    uint64_t r = my->SDL_ReadU8(rw);
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_ReadBE16(x64emu_t* emu, void* a)
+EXPORT uint64_t my2_SDL_ReadBE16(x64emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_ReadBE16(rw);
+    uint64_t r = my->SDL_ReadBE16(rw);
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_ReadBE32(x64emu_t* emu, void* a)
+EXPORT uint64_t my2_SDL_ReadBE32(x64emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_ReadBE32(rw);
+    uint64_t r = my->SDL_ReadBE32(rw);
     RWNativeEnd2(rw);
     return r;
 }
@@ -421,19 +346,19 @@ EXPORT uint64_t my2_SDL_ReadBE64(x64emu_t* emu, void* a)
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_ReadLE16(x64emu_t* emu, void* a)
+EXPORT uint64_t my2_SDL_ReadLE16(x64emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_ReadLE16(rw);
+    uint64_t r = my->SDL_ReadLE16(rw);
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_ReadLE32(x64emu_t* emu, void* a)
+EXPORT uint64_t my2_SDL_ReadLE32(x64emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_ReadLE32(rw);
+    uint64_t r = my->SDL_ReadLE32(rw);
     RWNativeEnd2(rw);
     return r;
 }
@@ -445,59 +370,59 @@ EXPORT uint64_t my2_SDL_ReadLE64(x64emu_t* emu, void* a)
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_WriteU8(x64emu_t* emu, void* a, uint8_t v)
+EXPORT uint64_t my2_SDL_WriteU8(x64emu_t* emu, void* a, uint8_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_WriteU8(rw, v);
+    uint64_t r = my->SDL_WriteU8(rw, v);
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_WriteBE16(x64emu_t* emu, void* a, uint16_t v)
+EXPORT uint64_t my2_SDL_WriteBE16(x64emu_t* emu, void* a, uint16_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_WriteBE16(rw, v);
+    uint64_t r = my->SDL_WriteBE16(rw, v);
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_WriteBE32(x64emu_t* emu, void* a, uint32_t v)
+EXPORT uint64_t my2_SDL_WriteBE32(x64emu_t* emu, void* a, uint64_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_WriteBE32(rw, v);
+    uint64_t r = my->SDL_WriteBE32(rw, v);
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_WriteBE64(x64emu_t* emu, void* a, uint64_t v)
+EXPORT uint64_t my2_SDL_WriteBE64(x64emu_t* emu, void* a, uint64_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_WriteBE64(rw, v);
+    uint64_t r = my->SDL_WriteBE64(rw, v);
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_WriteLE16(x64emu_t* emu, void* a, uint16_t v)
+EXPORT uint64_t my2_SDL_WriteLE16(x64emu_t* emu, void* a, uint16_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_WriteLE16(rw, v);
+    uint64_t r = my->SDL_WriteLE16(rw, v);
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_WriteLE32(x64emu_t* emu, void* a, uint32_t v)
+EXPORT uint64_t my2_SDL_WriteLE32(x64emu_t* emu, void* a, uint64_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_WriteLE32(rw, v);
+    uint64_t r = my->SDL_WriteLE32(rw, v);
     RWNativeEnd2(rw);
     return r;
 }
-EXPORT uint32_t my2_SDL_WriteLE64(x64emu_t* emu, void* a, uint64_t v)
+EXPORT uint64_t my2_SDL_WriteLE64(x64emu_t* emu, void* a, uint64_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t r = my->SDL_WriteLE64(rw, v);
+    uint64_t r = my->SDL_WriteLE64(rw, v);
     RWNativeEnd2(rw);
     return r;
 }
@@ -527,7 +452,7 @@ EXPORT void *my2_SDL_RWFromMem(x64emu_t* emu, void* a, int b)
     return AddNativeRW2(emu, (SDL2_RWops_t*)r);
 }
 
-EXPORT int64_t my2_SDL_RWseek(x64emu_t* emu, void* a, int64_t offset, int32_t whence)
+EXPORT int64_t my2_SDL_RWseek(x64emu_t* emu, void* a, int64_t offset, int64_t whence)
 {
     //sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
@@ -543,19 +468,19 @@ EXPORT int64_t my2_SDL_RWtell(x64emu_t* emu, void* a)
     RWNativeEnd2(rw);
     return ret;
 }
-EXPORT uint32_t my2_SDL_RWread(x64emu_t* emu, void* a, void* ptr, uint32_t size, uint32_t maxnum)
+EXPORT uint64_t my2_SDL_RWread(x64emu_t* emu, void* a, void* ptr, uint64_t size, uint64_t maxnum)
 {
     //sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t ret = RWNativeRead2(rw, ptr, size, maxnum);
+    uint64_t ret = RWNativeRead2(rw, ptr, size, maxnum);
     RWNativeEnd2(rw);
     return ret;
 }
-EXPORT uint32_t my2_SDL_RWwrite(x64emu_t* emu, void* a, const void* ptr, uint32_t size, uint32_t maxnum)
+EXPORT uint64_t my2_SDL_RWwrite(x64emu_t* emu, void* a, const void* ptr, uint64_t size, uint64_t maxnum)
 {
     //sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t ret = RWNativeWrite2(rw, ptr, size, maxnum);
+    uint64_t ret = RWNativeWrite2(rw, ptr, size, maxnum);
     RWNativeEnd2(rw);
     return ret;
 }
@@ -570,7 +495,7 @@ EXPORT int my2_SDL_SaveAllDollarTemplates(x64emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t ret = my->SDL_SaveAllDollarTemplates(rw);
+    int ret = my->SDL_SaveAllDollarTemplates(rw);
     RWNativeEnd2(rw);
     return ret;
 }
@@ -579,18 +504,18 @@ EXPORT int my2_SDL_SaveDollarTemplate(x64emu_t* emu, int gesture, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint32_t ret = my->SDL_SaveDollarTemplate(gesture, rw);
+    int ret = my->SDL_SaveDollarTemplate(gesture, rw);
     RWNativeEnd2(rw);
     return ret;
 }
 
-EXPORT uint32_t my2_SDL_AddTimer(x64emu_t* emu, uint32_t a, void* f, void* p)
+EXPORT void *my2_SDL_AddTimer(x64emu_t* emu, uint64_t a, void* f, void* p)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     return my->SDL_AddTimer(a, find_Timer_Fct(f), p);
 }
 
-EXPORT void my2_SDL_RemoveTimer(x64emu_t* emu, uint32_t t)
+EXPORT int my2_SDL_RemoveTimer(x64emu_t* emu, void* t)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     my->SDL_RemoveTimer(t);
@@ -653,7 +578,7 @@ char EXPORT *my2_SDL_GetBasePath(x64emu_t* emu) {
     return p;
 }
 
-EXPORT void my2_SDL_LogCritical(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
+EXPORT void my2_SDL_LogCritical(x64emu_t* emu, int64_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_CRITICAL == 6
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
@@ -661,7 +586,7 @@ EXPORT void my2_SDL_LogCritical(x64emu_t* emu, int32_t cat, void* fmt, void *b) 
     my->SDL_LogMessageV(cat, 6, fmt, VARARGS);
 }
 
-EXPORT void my2_SDL_LogError(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
+EXPORT void my2_SDL_LogError(x64emu_t* emu, int64_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_ERROR == 5
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
@@ -669,7 +594,7 @@ EXPORT void my2_SDL_LogError(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
     my->SDL_LogMessageV(cat, 5, fmt, VARARGS);
 }
 
-EXPORT void my2_SDL_LogWarn(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
+EXPORT void my2_SDL_LogWarn(x64emu_t* emu, int64_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_WARN == 4
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
@@ -677,7 +602,7 @@ EXPORT void my2_SDL_LogWarn(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
     my->SDL_LogMessageV(cat, 4, fmt, VARARGS);
 }
 
-EXPORT void my2_SDL_LogInfo(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
+EXPORT void my2_SDL_LogInfo(x64emu_t* emu, int64_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_INFO == 3
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
@@ -685,7 +610,7 @@ EXPORT void my2_SDL_LogInfo(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
     my->SDL_LogMessageV(cat, 3, fmt, VARARGS);
 }
 
-EXPORT void my2_SDL_LogDebug(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
+EXPORT void my2_SDL_LogDebug(x64emu_t* emu, int64_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_DEBUG == 2
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
@@ -693,7 +618,7 @@ EXPORT void my2_SDL_LogDebug(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
     my->SDL_LogMessageV(cat, 2, fmt, VARARGS);
 }
 
-EXPORT void my2_SDL_LogVerbose(x64emu_t* emu, int32_t cat, void* fmt, void *b) {
+EXPORT void my2_SDL_LogVerbose(x64emu_t* emu, int64_t cat, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_VERBOSE == 1
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
@@ -801,7 +726,7 @@ static const sdl2_tls_dtor dtor_cb[nb_once] = {
 	,tls_dtor_callback_8, tls_dtor_callback_9, tls_dtor_callback_10,tls_dtor_callback_11
 	,tls_dtor_callback_12,tls_dtor_callback_13,tls_dtor_callback_14,tls_dtor_callback_15
 };
-EXPORT int32_t my2_SDL_TLSSet(x64emu_t* emu, uint32_t id, void* value, void* dtor)
+EXPORT int64_t my2_SDL_TLSSet(x64emu_t* emu, uint64_t id, void* value, void* dtor)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
@@ -848,7 +773,7 @@ EXPORT void* my2_SDL_LoadFunction(x64emu_t* emu, void* handle, void* name)
     return my_dlsym(emu, handle, name);
 }
 
-EXPORT int32_t my2_SDL_IsJoystickPS4(x64emu_t* emu, uint16_t vendor, uint16_t product_id)
+EXPORT int64_t my2_SDL_IsJoystickPS4(x64emu_t* emu, uint16_t vendor, uint16_t product_id)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
@@ -857,7 +782,7 @@ EXPORT int32_t my2_SDL_IsJoystickPS4(x64emu_t* emu, uint16_t vendor, uint16_t pr
     // fallback
     return 0;
 }
-EXPORT int32_t my2_SDL_IsJoystickNintendoSwitchPro(x64emu_t* emu, uint16_t vendor, uint16_t product_id)
+EXPORT int64_t my2_SDL_IsJoystickNintendoSwitchPro(x64emu_t* emu, uint16_t vendor, uint16_t product_id)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
@@ -866,7 +791,7 @@ EXPORT int32_t my2_SDL_IsJoystickNintendoSwitchPro(x64emu_t* emu, uint16_t vendo
     // fallback
     return 0;
 }
-EXPORT int32_t my2_SDL_IsJoystickSteamController(x64emu_t* emu, uint16_t vendor, uint16_t product_id)
+EXPORT int64_t my2_SDL_IsJoystickSteamController(x64emu_t* emu, uint16_t vendor, uint16_t product_id)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
@@ -875,7 +800,7 @@ EXPORT int32_t my2_SDL_IsJoystickSteamController(x64emu_t* emu, uint16_t vendor,
     // fallback
     return 0;
 }
-EXPORT int32_t my2_SDL_IsJoystickXbox360(x64emu_t* emu, uint16_t vendor, uint16_t product_id)
+EXPORT int64_t my2_SDL_IsJoystickXbox360(x64emu_t* emu, uint16_t vendor, uint16_t product_id)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
@@ -884,7 +809,7 @@ EXPORT int32_t my2_SDL_IsJoystickXbox360(x64emu_t* emu, uint16_t vendor, uint16_
     // fallback
     return 0;
 }
-EXPORT int32_t my2_SDL_IsJoystickXboxOne(x64emu_t* emu, uint16_t vendor, uint16_t product_id)
+EXPORT int64_t my2_SDL_IsJoystickXboxOne(x64emu_t* emu, uint16_t vendor, uint16_t product_id)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
@@ -893,7 +818,7 @@ EXPORT int32_t my2_SDL_IsJoystickXboxOne(x64emu_t* emu, uint16_t vendor, uint16_
     // fallback
     return 0;
 }
-EXPORT int32_t my2_SDL_IsJoystickXInput(x64emu_t* emu, uint64_t a, uint64_t b)
+EXPORT int64_t my2_SDL_IsJoystickXInput(x64emu_t* emu, uint64_t a, uint64_t b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
@@ -902,7 +827,7 @@ EXPORT int32_t my2_SDL_IsJoystickXInput(x64emu_t* emu, uint64_t a, uint64_t b)
     // fallback
     return 0;
 }
-EXPORT int32_t my2_SDL_IsJoystickHIDAPI(x64emu_t* emu, uint64_t a, uint64_t b)
+EXPORT int64_t my2_SDL_IsJoystickHIDAPI(x64emu_t* emu, uint64_t a, uint64_t b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
@@ -924,9 +849,6 @@ EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x64emu_t* emu)
 //        return (void*)AddCheckBridge(my_context->sdl2lib->priv.w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0);
     return NULL;
 }
-
-const char* sdl2Name = "libSDL2-2.0.so.0";
-#define LIBNAME sdl2
 
 #define CUSTOM_INIT \
     box64->sdl2lib = lib;                                           \
@@ -951,5 +873,3 @@ const char* sdl2Name = "libSDL2-2.0.so.0";
 
 
 #include "wrappedlib_init.h"
-
-

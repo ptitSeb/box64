@@ -353,8 +353,6 @@ static inline uint16_t shr16(x64emu_t *emu, uint16_t d, uint8_t s)
 
 static inline uint32_t shr32(x64emu_t *emu, uint32_t d, uint8_t s)
 {
-	RESET_FLAGS(emu);	// TODO: Defered this one?
-
 	emu->df = d_shr32;
 	emu->op1.u32 = d;
 
@@ -367,8 +365,6 @@ static inline uint32_t shr32(x64emu_t *emu, uint32_t d, uint8_t s)
 
 static inline uint64_t shr64(x64emu_t *emu, uint64_t d, uint8_t s)
 {
-	RESET_FLAGS(emu);	// TODO: Defered this one?
-
 	emu->df = d_shr64;
 	emu->op1.u64 = d;
 
