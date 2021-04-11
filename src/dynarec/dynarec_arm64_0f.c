@@ -1369,7 +1369,20 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(q1, 0);
             UQADD_16(q0, q0, q1);
             break;
-
+        case 0xDE:
+            INST_NAME("PMAXUB Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            UMAX_8(d0, d0, d1);
+            break;
+         case 0xDF:
+            INST_NAME("PANDN Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VBIC(v0, v1, v0);
+            break;
          case 0xE0:
             INST_NAME("PAVGB Gm, Em");
             nextop = F8;
