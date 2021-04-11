@@ -1307,7 +1307,13 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 GM->uw[i] = (tmp32u>65535) ? 65535 : tmp32u;
             }
             break;
-
+        case 0xDE:                   /* PMAXUB Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for (int i=0; i<8; ++i)
+                GM->ub[i] = (GM->ub[i]>EM->ub[i])?GM->ub[i]:EM->ub[i];
+            break;
         case 0xDF:                   /* PANDN Gm,Em */
             nextop = F8;
             GETEM(0);
