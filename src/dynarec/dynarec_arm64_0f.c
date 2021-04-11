@@ -1391,6 +1391,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             URHADD_8(v0, v0, v1);
             break;
 
+        case 0xE3:
+            INST_NAME("PAVGW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            URHADD_16(d0, d0, d1);
+            break;
+
         case 0xE5:
             INST_NAME("PMULHW Gm,Em");
             nextop = F8;
