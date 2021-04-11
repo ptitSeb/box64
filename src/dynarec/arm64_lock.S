@@ -111,5 +111,5 @@ arm64_lock_storeifref:
     mov     x0, x1
     ret
 arm64_lock_storeifref_exit:
-    mov     x0, x2
+    mov     x0, x3
     ret
