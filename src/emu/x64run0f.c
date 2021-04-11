@@ -1351,15 +1351,12 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     GM->sd[i] >>= tmp8u;
             }
             break;
-        case 0xE3:                   /* PSRAQ Gm, Em */
+        case 0xE3:                   /* PAVGW Gm, Em */
             nextop = F8;
             GETEM(0);
             GETGM;
-            if(EM->q>63)
-                tmp8u = 64;
-            else
-                tmp8u = EM->ub[0];
-            GM->sq >>= tmp8u;
+            for(int i=0; i<4; ++i)
+                GM->uw[i] = ((uint32_t)GM->uw[i]+EM->uw[i]+1)>>1;
             break;
         case 0xE4:                   /* PMULHUW Gm, Em */
             nextop = F8;
