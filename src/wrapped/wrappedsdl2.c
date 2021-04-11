@@ -19,6 +19,7 @@
 #include "myalign.h"
 #include "threads.h"
 
+const char* sdl2Name = "libSDL2-2.0.so.0";
 #define LIBNAME sdl2
 
 static int sdl_Yes() { return 1;}
@@ -848,8 +849,6 @@ EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x64emu_t* emu)
 //        return (void*)AddCheckBridge(my_context->sdl2lib->priv.w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0);
     return NULL;
 }
-
-const char* sdl2Name = "libSDL2-2.0.so.0";
 
 #define CUSTOM_INIT \
     box64->sdl2lib = lib;                                           \

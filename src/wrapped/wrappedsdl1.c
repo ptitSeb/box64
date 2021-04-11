@@ -45,60 +45,12 @@ typedef struct {
   void *userdata;
 } SDL_AudioSpec;
 
-// TODO: put the wrapper type in a dedicate include
 typedef void  (*vFv_t)();
-typedef void* (*pFv_t)();
-typedef void* (*pFpi_t)(void*, int32_t);
-typedef void* (*pFp_t)(void*);
-typedef void* (*pFpp_t)(void*, void*);
-typedef int (*iFup_t)(uint32_t, void*);
-typedef int32_t (*iFp_t)(void*);
-typedef int32_t (*iFppi_t)(void*, void*, int32_t);
-typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
-typedef void  (*vFp_t)(void*);
-typedef void* (*pFpp_t)(void*, void*);
-typedef uint32_t (*uFp_t)(void*);
-typedef uint64_t (*UFp_t)(void*);
-typedef uint32_t (*uFu_t)(uint32_t);
-typedef int32_t (*iFpp_t)(void*, void*);
-typedef uint32_t (*uFpW_t)(void*, uint16_t);
-typedef uint32_t (*uFpu_t)(void*, uint32_t);
-typedef uint32_t (*uFpU_t)(void*, uint64_t);
-typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
-
-#define SUPER()                                     \
-    GO(SDL_Quit, vFv_t)                             \
-    GO(SDL_AllocRW, sdl1_allocrw)                   \
-    GO(SDL_FreeRW, sdl1_freerw)                     \
-    GO(SDL_OpenAudio, iFpp_t)                       \
-    GO(SDL_LoadBMP_RW, pFpi_t)                      \
-    GO(SDL_RWFromConstMem, pFpi_t)                  \
-    GO(SDL_RWFromFP, pFpi_t)                        \
-    GO(SDL_RWFromFile, pFpp_t)                      \
-    GO(SDL_RWFromMem, pFpi_t)                       \
-    GO(SDL_SaveBMP_RW, iFppi_t)                     \
-    GO(SDL_LoadWAV_RW, pFpippp_t)                   \
-    GO(SDL_ReadBE16, uFp_t)                         \
-    GO(SDL_ReadBE32, uFp_t)                         \
-    GO(SDL_ReadBE64, UFp_t)                         \
-    GO(SDL_ReadLE16, uFp_t)                         \
-    GO(SDL_ReadLE32, uFp_t)                         \
-    GO(SDL_ReadLE64, UFp_t)                         \
-    GO(SDL_WriteBE16, uFpW_t)                       \
-    GO(SDL_WriteBE32, uFpu_t)                       \
-    GO(SDL_WriteBE64, uFpU_t)                       \
-    GO(SDL_WriteLE16, uFpW_t)                       \
-    GO(SDL_WriteLE32, uFpu_t)                       \
-    GO(SDL_WriteLE64, uFpU_t)                       \
-    GO(SDL_AddTimer, uFupp_t)                       \
-    GO(SDL_RemoveTimer, uFu_t)                      \
-    GO(SDL_CreateThread, pFpp_t)                    \
-    GO(SDL_KillThread, vFp_t)                       \
-    GO(SDL_SetEventFilter, vFp_t)                   \
-    GO(SDL_GL_GetProcAddress, pFp_t)                \
-    GO(SDL_GetWMInfo, iFp_t)                        \
-    GO(SDL_SetTimer, iFup_t)                        \
-    GO(SDL_GetEventFilter, pFv_t)                   \
+#define ADDED_FUNCTIONS() \
+    GO(SDL_Quit, vFv_t)           \
+    GO(SDL_AllocRW, sdl1_allocrw) \
+    GO(SDL_FreeRW, sdl1_freerw)
+#include "generated/wrappedsdl1types.h"
 
 typedef struct sdl1_my_s {
     // functions
@@ -218,7 +170,7 @@ static void* reverse_EvtFilterFct(void* fct)
 #undef SUPER
 
 // TODO: track the memory for those callback
-int EXPORT my_SDL_OpenAudio(x64emu_t* emu, void* d, void* o)
+EXPORT int my_SDL_OpenAudio(x64emu_t* emu, void* d, void* o)
 {
     SDL_AudioSpec *desired = (SDL_AudioSpec*)d;
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
@@ -237,7 +189,7 @@ int EXPORT my_SDL_OpenAudio(x64emu_t* emu, void* d, void* o)
     return ret;
 }
 
-void EXPORT *my_SDL_LoadBMP_RW(x64emu_t* emu, void* a, int b)
+EXPORT void *my_SDL_LoadBMP_RW(x64emu_t* emu, void* a, int b)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -246,7 +198,7 @@ void EXPORT *my_SDL_LoadBMP_RW(x64emu_t* emu, void* a, int b)
         RWNativeEnd(rw);
     return r;
 }
-int32_t EXPORT my_SDL_SaveBMP_RW(x64emu_t* emu, void* a, void* b, int c)
+EXPORT int32_t my_SDL_SaveBMP_RW(x64emu_t* emu, void* a, void* b, int c)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -255,7 +207,7 @@ int32_t EXPORT my_SDL_SaveBMP_RW(x64emu_t* emu, void* a, void* b, int c)
         RWNativeEnd(rw);
     return r;
 }
-void EXPORT *my_SDL_LoadWAV_RW(x64emu_t* emu, void* a, int b, void* c, void* d, void* e)
+EXPORT void *my_SDL_LoadWAV_RW(x64emu_t* emu, void* a, int b, void* c, void* d, void* e)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -264,7 +216,7 @@ void EXPORT *my_SDL_LoadWAV_RW(x64emu_t* emu, void* a, int b, void* c, void* d, 
         RWNativeEnd(rw);
     return r;
 }
-uint32_t EXPORT my_SDL_ReadBE16(x64emu_t* emu, void* a)
+EXPORT uint32_t my_SDL_ReadBE16(x64emu_t* emu, void* a)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -272,7 +224,7 @@ uint32_t EXPORT my_SDL_ReadBE16(x64emu_t* emu, void* a)
     RWNativeEnd(rw);
     return r;
 }
-uint32_t EXPORT my_SDL_ReadBE32(x64emu_t* emu, void* a)
+EXPORT uint32_t my_SDL_ReadBE32(x64emu_t* emu, void* a)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -280,7 +232,7 @@ uint32_t EXPORT my_SDL_ReadBE32(x64emu_t* emu, void* a)
     RWNativeEnd(rw);
     return r;
 }
-uint64_t EXPORT my_SDL_ReadBE64(x64emu_t* emu, void* a)
+EXPORT uint64_t my_SDL_ReadBE64(x64emu_t* emu, void* a)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -288,7 +240,7 @@ uint64_t EXPORT my_SDL_ReadBE64(x64emu_t* emu, void* a)
     RWNativeEnd(rw);
     return r;
 }
-uint32_t EXPORT my_SDL_ReadLE16(x64emu_t* emu, void* a)
+EXPORT uint32_t my_SDL_ReadLE16(x64emu_t* emu, void* a)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -296,7 +248,7 @@ uint32_t EXPORT my_SDL_ReadLE16(x64emu_t* emu, void* a)
     RWNativeEnd(rw);
     return r;
 }
-uint32_t EXPORT my_SDL_ReadLE32(x64emu_t* emu, void* a)
+EXPORT uint32_t my_SDL_ReadLE32(x64emu_t* emu, void* a)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -304,7 +256,7 @@ uint32_t EXPORT my_SDL_ReadLE32(x64emu_t* emu, void* a)
     RWNativeEnd(rw);
     return r;
 }
-uint64_t EXPORT my_SDL_ReadLE64(x64emu_t* emu, void* a)
+EXPORT uint64_t my_SDL_ReadLE64(x64emu_t* emu, void* a)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -312,7 +264,7 @@ uint64_t EXPORT my_SDL_ReadLE64(x64emu_t* emu, void* a)
     RWNativeEnd(rw);
     return r;
 }
-uint32_t EXPORT my_SDL_WriteBE16(x64emu_t* emu, void* a, uint16_t v)
+EXPORT uint32_t my_SDL_WriteBE16(x64emu_t* emu, void* a, uint16_t v)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -320,7 +272,7 @@ uint32_t EXPORT my_SDL_WriteBE16(x64emu_t* emu, void* a, uint16_t v)
     RWNativeEnd(rw);
     return r;
 }
-uint32_t EXPORT my_SDL_WriteBE32(x64emu_t* emu, void* a, uint32_t v)
+EXPORT uint32_t my_SDL_WriteBE32(x64emu_t* emu, void* a, uint32_t v)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -328,7 +280,7 @@ uint32_t EXPORT my_SDL_WriteBE32(x64emu_t* emu, void* a, uint32_t v)
     RWNativeEnd(rw);
     return r;
 }
-uint32_t EXPORT my_SDL_WriteBE64(x64emu_t* emu, void* a, uint64_t v)
+EXPORT uint32_t my_SDL_WriteBE64(x64emu_t* emu, void* a, uint64_t v)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -336,7 +288,7 @@ uint32_t EXPORT my_SDL_WriteBE64(x64emu_t* emu, void* a, uint64_t v)
     RWNativeEnd(rw);
     return r;
 }
-uint32_t EXPORT my_SDL_WriteLE16(x64emu_t* emu, void* a, uint16_t v)
+EXPORT uint32_t my_SDL_WriteLE16(x64emu_t* emu, void* a, uint16_t v)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -344,7 +296,7 @@ uint32_t EXPORT my_SDL_WriteLE16(x64emu_t* emu, void* a, uint16_t v)
     RWNativeEnd(rw);
     return r;
 }
-uint32_t EXPORT my_SDL_WriteLE32(x64emu_t* emu, void* a, uint32_t v)
+EXPORT uint32_t my_SDL_WriteLE32(x64emu_t* emu, void* a, uint32_t v)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -352,7 +304,7 @@ uint32_t EXPORT my_SDL_WriteLE32(x64emu_t* emu, void* a, uint32_t v)
     RWNativeEnd(rw);
     return r;
 }
-uint32_t EXPORT my_SDL_WriteLE64(x64emu_t* emu, void* a, uint64_t v)
+EXPORT uint32_t my_SDL_WriteLE64(x64emu_t* emu, void* a, uint64_t v)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -362,28 +314,28 @@ uint32_t EXPORT my_SDL_WriteLE64(x64emu_t* emu, void* a, uint64_t v)
 }
 
 // SDL1 doesn't really used rw_ops->type, but box64 does, so set sensible value (from SDL2)....
-void EXPORT *my_SDL_RWFromConstMem(x64emu_t* emu, void* a, int b)
+EXPORT void *my_SDL_RWFromConstMem(x64emu_t* emu, void* a, int b)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromConstMem(a, b);
     RWSetType(r, 5);
     return AddNativeRW(emu, r);
 }
-void EXPORT *my_SDL_RWFromFP(x64emu_t* emu, void* a, int b)
+EXPORT void *my_SDL_RWFromFP(x64emu_t* emu, void* a, int b)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromFP(a, b);
     RWSetType(r, 2);
     return AddNativeRW(emu, r);
 }
-void EXPORT *my_SDL_RWFromFile(x64emu_t* emu, void* a, void* b)
+EXPORT void *my_SDL_RWFromFile(x64emu_t* emu, void* a, void* b)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromFile(a, b);
     RWSetType(r, 2);
     return AddNativeRW(emu, r);
 }
-void EXPORT *my_SDL_RWFromMem(x64emu_t* emu, void* a, int b)
+EXPORT void *my_SDL_RWFromMem(x64emu_t* emu, void* a, int b)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromMem(a, b);
@@ -391,50 +343,50 @@ void EXPORT *my_SDL_RWFromMem(x64emu_t* emu, void* a, int b)
     return AddNativeRW(emu, r);
 }
 
-uint32_t EXPORT my_SDL_AddTimer(x64emu_t* emu, uint32_t a, void* cb, void* p)
+EXPORT void *my_SDL_AddTimer(x64emu_t* emu, uint32_t a, void* cb, void* p)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     return my->SDL_AddTimer(a, find_TimerCallback_Fct(cb), p);
 }
 
-void EXPORT my_SDL_RemoveTimer(x64emu_t* emu, uint32_t t)
+EXPORT int my_SDL_RemoveTimer(x64emu_t* emu, void *t)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    my->SDL_RemoveTimer(t);
+    return my->SDL_RemoveTimer(t);
 }
 
-int32_t EXPORT my_SDL_SetTimer(x64emu_t* emu, uint32_t t, void* p)
+EXPORT int32_t my_SDL_SetTimer(x64emu_t* emu, uint32_t t, void* p)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     return my->SDL_SetTimer(t, find_TimerCallback_Fct(p));
 }
 #if 0
-int32_t EXPORT my_SDL_BuildAudioCVT(x64emu_t* emu, void* a, uint32_t b, uint32_t c, int32_t d, uint32_t e, uint32_t f, int32_t g)
+EXPORT int32_t my_SDL_BuildAudioCVT(x64emu_t* emu, void* a, uint32_t b, uint32_t c, int32_t d, uint32_t e, uint32_t f, int32_t g)
 {
     printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_BuildAudioCVT\n");
     emu->quit = 1;
     return 0;
 }
 
-int32_t EXPORT my_SDL_ConvertAudio(x64emu_t* emu, void* a)
+EXPORT int32_t my_SDL_ConvertAudio(x64emu_t* emu, void* a)
 {
     printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_ConvertAudio\n");
     emu->quit = 1;
     return 0;
 }
 #endif
-void EXPORT my_SDL_SetEventFilter(x64emu_t* emu, void* a)
+EXPORT void my_SDL_SetEventFilter(x64emu_t* emu, void* a)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     my->SDL_SetEventFilter(find_EvtFilter_Fct(a));
 }
-void EXPORT *my_SDL_GetEventFilter(x64emu_t* emu)
+EXPORT void *my_SDL_GetEventFilter(x64emu_t* emu)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     return reverse_EvtFilterFct(my->SDL_GetEventFilter());
 }
 
-void EXPORT *my_SDL_CreateThread(x64emu_t* emu, void* cb, void* p)
+EXPORT void *my_SDL_CreateThread(x64emu_t* emu, void* cb, void* p)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     void* et = NULL;
@@ -442,7 +394,7 @@ void EXPORT *my_SDL_CreateThread(x64emu_t* emu, void* cb, void* p)
     return my->SDL_CreateThread(fnc, et);
 }
 
-void EXPORT my_SDL_KillThread(x64emu_t* emu, void* p)
+EXPORT void my_SDL_KillThread(x64emu_t* emu, void* p)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     my->SDL_KillThread(p);
@@ -573,4 +525,3 @@ EXPORT int32_t my_SDL_GetWMInfo(x64emu_t* emu, void* p)
     ((box64context_t*)(lib->context))->sdl1freerw = NULL;
 
 #include "wrappedlib_init.h"
-

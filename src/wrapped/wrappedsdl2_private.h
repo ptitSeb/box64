@@ -144,7 +144,7 @@ GO(SDL_GameControllerGetType, iFp)
 GO(SDL_GameControllerGetVendor, WFp)
 GO(SDL_GameControllerMapping, pFp)
 GO(SDL_GameControllerMappingForDeviceIndex, pFi)
-//GOM(SDL_GameControllerMappingForGUID, pFEpp)   // SDL_GameControllerMappingForGUID structure
+GO(SDL_GameControllerMappingForGUID, pFpp)
 GO(SDL_GameControllerMappingForIndex, pFi)
 GO(SDL_GameControllerName, pFp)
 GO(SDL_GameControllerNameForIndex, pFi)
