@@ -1490,6 +1490,18 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xF2:
+            INST_NAME("PSLLD Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            v0 = fpu_get_scratch(dyn);
+            VMOVeD(v0, 0, d1, 0);
+            VMOVeD(v0, 1, d1, 0);
+            SQXTN_32(v0, v0); // 2*q1 in 32bits now
+            SSHL_32(d0, d0, v0);
+            break;
+
         case 0xF6:
             INST_NAME("PSADBW Gm, Em");
             nextop = F8;
