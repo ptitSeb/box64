@@ -247,10 +247,6 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
         return NULL;
     }
     if((addr<dynablocks->text) || (addr>=(dynablocks->text+dynablocks->textsz))) {
-        // this should be useless
-        //dynarec_log(LOG_INFO, "Warning: Refused to create a Direct Block that is out-of-bound: dynablocks=%p (%p:%p), addr=%p\n", dynablocks, (void*)(dynablocks->text), (void*)(dynablocks->text+dynablocks->textsz), (void*)addr);
-        //*created = 0;
-        //return NULL;
         return AddNewDynablock(getDBFromAddress(addr), addr, created);
     }
     dynablock_t* block = NULL;
