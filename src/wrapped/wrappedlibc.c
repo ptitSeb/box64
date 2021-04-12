@@ -1437,23 +1437,13 @@ EXPORT int32_t my_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_t 
 }
 #endif
 
-EXPORT int32_t my_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
-{
-    static iFpipp_t f = NULL;
-    if(!f) {
-        library_t* lib = my_lib;
-        if(!lib) return 0;
-        f = (iFpipp_t)dlsym(lib->priv.w.lib, "glob");
-    }
-
-    return f(pat, flags, findgloberrFct(errfnc), pglob);
-}
-
 #endif
 EXPORT int32_t my_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
     return glob64(pat, flags, findgloberrFct(errfnc), pglob);
 }
+EXPORT int32_t my_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob) __attribute__((alias("my_glob64")));
+
 EXPORT int my_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
     return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));

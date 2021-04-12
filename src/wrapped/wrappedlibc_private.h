@@ -596,9 +596,9 @@ GOW(getrusage, iFip)
 //GOW(gets, 
 //GO(__gets_chk, 
 //GO(getsecretkey, 
-//GO(getservbyname, 
+GO(getservbyname, pFpp)
 //GO(getservbyname_r, 
-//GO(getservbyport, 
+GO(getservbyport, pFip)
 //GO(getservbyport_r, 
 //GO(getservent, 
 //GO(getservent_r, 
@@ -641,9 +641,9 @@ GOW(getwc, uFp)
 //GO(getwd, 
 //GO(__getwd_chk, 
 //GO(getxattr, 
-//GO(glob, 
-GO(glob64, iFEpipp)
-//GO(globfree, 
+GOM(glob, iFEpipp)
+GOM(glob64, iFEpipp)
+GO(globfree, vFp)
 GOW(globfree64, vFp)
 //GOW(glob_pattern_p, 
 GO(gmtime, pFp)
