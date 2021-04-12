@@ -1257,7 +1257,7 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     MSR_nzvc(s3);      // load CC into ARM CF
     ADCw_REG(s1, s1, s2);
     IFX(X_PEND) {
-        STRw_REG(s1, xEmu, offsetof(x64emu_t, res));
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF|X_OF) {
         ORRw_REG(s3, s4, s2);    // s3 = op1 | op2
