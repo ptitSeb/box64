@@ -295,7 +295,7 @@ GO(exit, vFi)
 GOW(_Exit, vFi)
 //GO(explicit_bzero, 
 //GO(__explicit_bzero_chk, 
-//GO(faccessat, 
+GO(faccessat, iFipii)
 //GOW(fallocate, 
 //GO(fallocate64, 
 //GO(fanotify_init, 
