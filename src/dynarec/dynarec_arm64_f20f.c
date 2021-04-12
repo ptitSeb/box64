@@ -208,7 +208,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5D:
             INST_NAME("MINSD Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
+            GETG;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             GETEX(v1, 0);
             // MINSD: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
@@ -228,7 +228,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5F:
             INST_NAME("MAXSD Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
+            GETG;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             GETEX(v1, 0);
             // MAXSD: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
