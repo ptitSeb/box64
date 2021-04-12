@@ -727,6 +727,8 @@ typedef struct aligned_mutex_s {
 
 pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 {
+	if(!m)
+		return NULL;
 	aligned_mutex_t* am = (aligned_mutex_t*)m;
 	if(init && (am->sign==SIGNMTX))
 		return am->m;
@@ -860,8 +862,9 @@ int my___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias("my_pthr
 EXPORT int my_pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att)
 {
 	my_mutexattr_t mattr = {0};
-	mattr.x86 = att->x86;
-	return pthread_mutex_init(getAlignedMutexWithInit(m, 0), &mattr.nat);
+	if(att)
+		mattr.x86 = att->x86;
+	return pthread_mutex_init(getAlignedMutexWithInit(m, 0), att?(&mattr.nat):NULL);
 }
 EXPORT int my___pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att) __attribute__((alias("my_pthread_mutex_init")));
 
@@ -944,9 +947,11 @@ EXPORT int my_pthread_condattr_setpshared(x64emu_t* emu, my_condattr_t* c, int p
 EXPORT int my_pthread_cond_init(x64emu_t* emu, pthread_cond_t *pc, my_condattr_t* c)
 {
 	my_condattr_t cond = {0};
-	cond.x86 = c->x86;
-	int ret = pthread_cond_init(pc, &cond.nat);
-	c->x86 = cond.x86;
+	if(c)
+		cond.x86 = c->x86;
+	int ret = pthread_cond_init(pc, c?(&cond.nat):NULL);
+	if(c)
+		c->x86 = cond.x86;
 	return ret;
 }
 
@@ -990,9 +995,11 @@ EXPORT int my_pthread_barrierattr_setpshared(x64emu_t* emu, my_barrierattr_t* b,
 EXPORT int my_pthread_barrier_init(x64emu_t* emu, pthread_barrier_t* bar, my_barrierattr_t* b, uint32_t count)
 {
 	my_barrierattr_t battr = {0};
-	battr.x86 = b->x86;
-	int ret = pthread_barrier_init(bar, &battr.nat, count);
-	b->x86 = battr.x86;
+	if(b)
+		battr.x86 = b->x86;
+	int ret = pthread_barrier_init(bar, b?(&battr.nat):NULL, count);
+	if(b)
+		b->x86 = battr.x86;
 	return ret;
 }
 
