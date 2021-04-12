@@ -2028,7 +2028,7 @@ GOW(uselocale, pFp)
 //GO(user2netname, 
 GO(usleep, iFu)
 //GO(ustat, 
-//GO(utime, 
+GO(utime, iFpp)
 //GO(utimensat, 
 //GOW(utimes, 
 //GOW(utmpname, 
