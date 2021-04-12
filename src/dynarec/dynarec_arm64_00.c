@@ -1016,7 +1016,21 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             ORRw_mask(xFlags, xFlags, 0b011111, 0);   //mask=0x00000002
             SET_DFNONE(x1);
             break;
-
+        case 0x9E:
+            INST_NAME("SAHF");
+            SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF, SF_SUBSET);
+            MOV32w(x2, 0b11010101);
+            BICw_REG(xFlags, xFlags, x2);
+            UBFXx(x1, xRAX, 8, 8);
+            ANDw_REG(x1, x1, x2);
+            ORRw_REG(xFlags, xFlags, x1);
+            SET_DFNONE(x1);	
+            break;
+        case 0x9F:
+            INST_NAME("LAHF");
+            READFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF);
+            BFIx(xRAX, xFlags, 8, 8);
+            break;
         case 0xA0:
             INST_NAME("MOV AL,Ob");
             u64 = F64;

@@ -538,7 +538,19 @@ x64emurun:
             emu->eflags.x64 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
             break;
-
+        case 0x9E:                      /* SAHF */
+            tmp8u = emu->regs[_AX].byte[1];
+            CONDITIONAL_SET_FLAG(tmp8u&0x01, F_CF);
+            CONDITIONAL_SET_FLAG(tmp8u&0x04, F_PF);
+            CONDITIONAL_SET_FLAG(tmp8u&0x10, F_AF);
+            CONDITIONAL_SET_FLAG(tmp8u&0x40, F_ZF);
+            CONDITIONAL_SET_FLAG(tmp8u&0x80, F_SF);
+            RESET_FLAGS(emu);
+            break;
+        case 0x9F:                      /* LAHF */
+            CHECK_FLAGS(emu);
+            R_AH = (uint8_t)emu->eflags.x64;
+            break;
         case 0xA0:                      /* MOV AL,Ob */
             R_AL = *(uint8_t*)F64;
             break;
