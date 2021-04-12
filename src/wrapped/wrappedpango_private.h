@@ -406,5 +406,5 @@ GO(pango_units_to_double, dFi)
 //GO(pango_version, 
 //GO(pango_version_check, 
 //GO(pango_version_string, 
-//GO(pango_weight_get_type, 
-//GO(pango_wrap_mode_get_type, 
+GO(pango_weight_get_type, iFv)
+GO(pango_wrap_mode_get_type, iFv)
