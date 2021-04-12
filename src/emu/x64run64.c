@@ -108,13 +108,19 @@ int Run64(x64emu_t *emu, rex_t rex)
             opcode = F8;
             switch(opcode) {
 
-                case 0x11:  /* MOVSD Ex, Gx */
+                case 0x11:
                     switch(rep) {
-                        case 1:
+                        case 1: /* MOVSD Ex, Gx */
                             nextop = F8;
                             GETEX_OFFS(0, tlsdata);
                             GETGX;
                             EX->q[0] = GX->q[0];
+                            break;
+                        case 2: /* MOVSS FS:Ex, Gx */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            EX->ud[0] = GX->ud[0];
                             break;
                         default:
                             return 1;
@@ -130,6 +136,20 @@ int Run64(x64emu_t *emu, rex_t rex)
                             EX->q[0] = GX->q[0];
                             EX->q[1] = GX->q[1];
                             break;
+                        default:
+                            return 1;
+                    }
+                    break;
+                
+                case 0x59:
+                    switch(rep) {
+                        case 2: /* MULSS Gx, Ex */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            GX->f[0] *= EX->f[0];
+                            break;
+
                         default:
                             return 1;
                     }
