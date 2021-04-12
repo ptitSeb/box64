@@ -633,7 +633,7 @@ EXPORT int my_pthread_cond_wait(x64emu_t* emu, pthread_cond_t* cond, void* mutex
 	return pthread_cond_wait(cond, getAlignedMutex((pthread_mutex_t*)mutex));
 }
 
-//EXPORT int my_pthread_attr_setscope(x64emu_t* emu, void* attr, int scope)
+//EXPORT int my_pthread_attr_setscope(x64emu_t* emu, void* at*tr, int scope)
 //{
 //    if(scope!=PTHREAD_SCOPE_SYSTEM) printf_log(LOG_INFO, "Warning, scope of call to pthread_attr_setscope(...) changed from %d to PTHREAD_SCOPE_SYSTEM\n", scope);
 //	return pthread_attr_setscope(attr, PTHREAD_SCOPE_SYSTEM);
@@ -719,15 +719,16 @@ static kh_mutex_t* unaligned_mutex = NULL;
 #endif
 
 typedef struct aligned_mutex_s {
-	uint64_t sign;
+	uint64_t	dummy;
 	pthread_mutex_t *m;
+	uint64_t sign;
 } aligned_mutex_t;
-#define SIGN *(uint64_t*)"BOX64MTX"
+#define SIGNMTX *(uint64_t*)"BOX64MTX"
 
 pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 {
 	aligned_mutex_t* am = (aligned_mutex_t*)m;
-	if(init && am->sign==SIGN)
+	if(init && (am->sign==SIGNMTX))
 		return am->m;
 	#ifdef TRACK_MUTEX
 	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
@@ -739,10 +740,12 @@ pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 	#else
 	pthread_mutex_t* ret = (pthread_mutex_t*)calloc(1, sizeof(pthread_mutex_t));
 	#endif
-	am->sign = SIGN;
+	if(init) {
+		int kind = ((int*)m)[4];	// extract kind from original mutex
+		((int*)ret)[3+__PTHREAD_MUTEX_HAVE_PREV] = kind;		// inject in new one (i.e. "init" it)
+	}
+	am->sign = SIGNMTX;
 	am->m = ret;
-	if(init)
-		pthread_mutex_init(ret, NULL);	// default init, same as with static constructor
 	return ret;
 }
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
@@ -754,7 +757,7 @@ EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
 {
 	aligned_mutex_t* am = (aligned_mutex_t*)m;
 	#ifdef TRACK_MUTEX
-	if(am->sign==SIGN) {
+	if(am->sign==SIGNMTX) {
 		am->sign = 0;
 		am->m = NULL;
 	}
@@ -768,7 +771,7 @@ EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
 	}
 	return pthread_mutex_destroy(m);
 	#else
-	if(am->sign!=SIGN) {
+	if(am->sign!=SIGNMTX) {
 		return 1;	//???
 	}
 	int ret = pthread_mutex_destroy(am->m);

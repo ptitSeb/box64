@@ -1179,6 +1179,7 @@
 #() pFiiiippppppppppppppp
 #() pFipppppppppppppppppppppp
 #!defined(NOALIGN) iFEpLp
+#!defined(NOALIGN) iFEppu
 #defined(HAVE_LD80BITS) DFD
 #defined(HAVE_LD80BITS) DFDD
 #defined(HAVE_LD80BITS) DFDp

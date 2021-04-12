@@ -1215,6 +1215,7 @@ typedef void* (*pFipppppppppppppppppppppp_t)(int64_t, void*, void*, void*, void*
 
 #if !defined(NOALIGN)
 typedef int64_t (*iFEpLp_t)(x64emu_t*, void*, uintptr_t, void*);
+typedef int64_t (*iFEppu_t)(x64emu_t*, void*, void*, uint64_t);
 #endif
 
 #if defined(HAVE_LD80BITS)
@@ -2412,6 +2413,7 @@ void pFipppppppppppppppppppppp(x64emu_t *emu, uintptr_t fcn) { pFipppppppppppppp
 
 #if !defined(NOALIGN)
 void iFEpLp(x64emu_t *emu, uintptr_t fcn) { iFEpLp_t fn = (iFEpLp_t)fcn; R_RAX=(int64_t)fn(emu, (void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX); }
+void iFEppu(x64emu_t *emu, uintptr_t fcn) { iFEppu_t fn = (iFEppu_t)fcn; R_RAX=(int64_t)fn(emu, (void*)R_RDI, (void*)R_RSI, (uint64_t)R_RDX); }
 #endif
 
 #if defined(HAVE_LD80BITS)

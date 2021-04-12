@@ -1211,6 +1211,7 @@ void pFipppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 
 #if !defined(NOALIGN)
 void iFEpLp(x64emu_t *emu, uintptr_t fnc);
+void iFEppu(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if defined(HAVE_LD80BITS)

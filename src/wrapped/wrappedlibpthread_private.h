@@ -62,12 +62,23 @@ GOM(pthread_attr_setstackaddr, iFEpp)
 #endif
 GOM(pthread_attr_setstack, iFEppL)
 GOM(pthread_attr_setstacksize, iFEpL)
+#ifdef NOALIGN
 GO(pthread_barrierattr_destroy, iFp)
 GO(pthread_barrierattr_getpshared, iFpp)
 GO(pthread_barrierattr_init, iFp)
 GO(pthread_barrierattr_setpshared, iFpi)
+#else
+GOM(pthread_barrierattr_destroy, iFEp)
+GOM(pthread_barrierattr_getpshared, iFEpp)
+GOM(pthread_barrierattr_init, iFEp)
+GOM(pthread_barrierattr_setpshared, iFEpi)
+#endif
 GO(pthread_barrier_destroy, iFp)
+#ifdef NOALIGN
 GO(pthread_barrier_init, iFppu)
+#else
+GOM(pthread_barrier_init, iFEppu)
+#endif
 GO(pthread_barrier_wait, iFp)
 GO(pthread_cancel, iFL)
 GOM(_pthread_cleanup_pop, vFEpi)

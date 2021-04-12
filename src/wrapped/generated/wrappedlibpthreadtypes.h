@@ -19,6 +19,7 @@ typedef int64_t (*iFpL_t)(void*, uintptr_t);
 typedef int64_t (*iFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef int64_t (*iFpLp_t)(void*, uintptr_t, void*);
+typedef int64_t (*iFppu_t)(void*, void*, uint64_t);
 typedef int64_t (*iFppL_t)(void*, void*, uintptr_t);
 typedef int64_t (*iFppp_t)(void*, void*, void*);
 typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
@@ -27,15 +28,31 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(__pthread_register_cancel, vFp_t) \
 	GO(__pthread_unregister_cancel, vFp_t) \
 	GO(__pthread_unwind_next, vFp_t) \
+	GO(__pthread_mutexattr_destroy, iFp_t) \
+	GO(__pthread_mutexattr_init, iFp_t) \
 	GO(pthread_attr_destroy, iFp_t) \
 	GO(pthread_attr_init, iFp_t) \
+	GO(pthread_barrierattr_destroy, iFp_t) \
+	GO(pthread_barrierattr_init, iFp_t) \
+	GO(pthread_condattr_destroy, iFp_t) \
+	GO(pthread_condattr_init, iFp_t) \
+	GO(pthread_mutexattr_destroy, iFp_t) \
+	GO(pthread_mutexattr_init, iFp_t) \
 	GO(_pthread_cleanup_pop, vFpi_t) \
 	GO(_pthread_cleanup_pop_restore, vFpi_t) \
+	GO(__pthread_mutexattr_settype, iFpi_t) \
 	GO(pthread_attr_setdetachstate, iFpi_t) \
 	GO(pthread_attr_setinheritsched, iFpi_t) \
 	GO(pthread_attr_setschedpolicy, iFpi_t) \
 	GO(pthread_attr_setscope, iFpi_t) \
+	GO(pthread_barrierattr_setpshared, iFpi_t) \
+	GO(pthread_condattr_setclock, iFpi_t) \
+	GO(pthread_condattr_setpshared, iFpi_t) \
 	GO(pthread_kill, iFpi_t) \
+	GO(pthread_mutexattr_setkind_np, iFpi_t) \
+	GO(pthread_mutexattr_setprotocol, iFpi_t) \
+	GO(pthread_mutexattr_setpshared, iFpi_t) \
+	GO(pthread_mutexattr_settype, iFpi_t) \
 	GO(pthread_attr_setguardsize, iFpL_t) \
 	GO(pthread_attr_setstacksize, iFpL_t) \
 	GO(__pthread_key_create, iFpp_t) \
@@ -50,12 +67,19 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_attr_getstacksize, iFpp_t) \
 	GO(pthread_attr_setschedparam, iFpp_t) \
 	GO(pthread_attr_setstackaddr, iFpp_t) \
+	GO(pthread_barrierattr_getpshared, iFpp_t) \
+	GO(pthread_cond_init, iFpp_t) \
 	GO(pthread_cond_wait, iFpp_t) \
+	GO(pthread_condattr_getclock, iFpp_t) \
+	GO(pthread_condattr_getpshared, iFpp_t) \
 	GO(pthread_key_create, iFpp_t) \
+	GO(pthread_mutexattr_getkind_np, iFpp_t) \
+	GO(pthread_mutexattr_gettype, iFpp_t) \
 	GO(pthread_once, iFpp_t) \
 	GO(_pthread_cleanup_push, vFppp_t) \
 	GO(_pthread_cleanup_push_defer, vFppp_t) \
 	GO(pthread_attr_setaffinity_np, iFpLp_t) \
+	GO(pthread_barrier_init, iFppu_t) \
 	GO(pthread_attr_setstack, iFppL_t) \
 	GO(__pthread_atfork, iFppp_t) \
 	GO(pthread_atfork, iFppp_t) \
