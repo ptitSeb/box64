@@ -526,7 +526,7 @@ GOW(getifaddrs, iFp)
 //GO(getipv4sourcefilter, 
 //GOW(getitimer, 
 //GO(get_kernel_syms, 
-//GOW(getline, 
+GOW(getline, iFppp)
 //GO(getloadavg, 
 //GO(getlogin, 
 //GOW(getlogin_r, 
@@ -1552,7 +1552,7 @@ GOW(sbrk, pFl)
 //GOW(scalbn, 
 //GOW(scalbnf, 
 //GOW(scalbnl, 
-//GOW(scandir, 
+GOM(scandir, iFEpppp)   //weak
 GOM(scandir64, iFEpppp) //weak
 //GOW(scandirat, 
 //GO(scandirat64, 

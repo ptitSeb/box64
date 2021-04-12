@@ -1458,6 +1458,7 @@ EXPORT int my_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, voi
 {
     return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
+EXPORT int my_scandir(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp) __attribute__((alias("my_scandir64")));
 
 EXPORT int my_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
 {
