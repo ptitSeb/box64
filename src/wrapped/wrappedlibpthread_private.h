@@ -75,20 +75,28 @@ GOM(_pthread_cleanup_pop_restore, vFEpi)
 GOM(_pthread_cleanup_push, vFEppp)
 GOM(_pthread_cleanup_push_defer, vFEppp)
 // __pthread_cleanup_routine
+#ifdef NOALIGN
 GO(pthread_condattr_destroy, iFp)
 GO(pthread_condattr_getclock, iFpp)
 GO(pthread_condattr_getpshared, iFpp)
 GO(pthread_condattr_init, iFp)
-GO(pthread_condattr_setclock, iFpp)
+GO(pthread_condattr_setclock, iFpi)
 GO(pthread_condattr_setpshared, iFpi)
-//GOM(pthread_cond_broadcast, iFEp)
-//GOM(pthread_cond_destroy, iFEp)
-//GOM(pthread_cond_init, iFEpp)
-//GOM(pthread_cond_signal, iFEp)
-//GOM(pthread_cond_timedwait, iFEppp)
+#else
+GOM(pthread_condattr_destroy, iFEp)
+GOM(pthread_condattr_getclock, iFEpp)
+GOM(pthread_condattr_getpshared, iFEpp)
+GOM(pthread_condattr_init, iFEp)
+GOM(pthread_condattr_setclock, iFEpi)
+GOM(pthread_condattr_setpshared, iFEpi)
+#endif
 GO(pthread_cond_broadcast, iFp)
 GO(pthread_cond_destroy, iFp)
+#ifdef NOALIGN
 GO(pthread_cond_init, iFpp)
+#else
+GOM(pthread_cond_init, iFEpp)
+#endif
 GO(pthread_cond_signal, iFp)
 GOM(pthread_cond_timedwait, iFEppp)
 GOM(pthread_cond_wait, iFEpp)
@@ -112,6 +120,7 @@ GOM(pthread_key_create, iFEpp)
 GO(pthread_key_delete, iFL)
 GOM(pthread_kill, iFEpi)
 // pthread_kill_other_threads_np
+#ifdef NOALIGN
 GO(__pthread_mutexattr_destroy, iFp)
 GO(pthread_mutexattr_destroy, iFp)
 GO(pthread_mutexattr_getkind_np, iFpp)
@@ -124,11 +133,30 @@ GO(__pthread_mutexattr_init, iFp)
 GO(pthread_mutexattr_init, iFp)
 GO(pthread_mutexattr_setkind_np, iFpi)
 // pthread_mutexattr_setprioceiling
-GO(pthread_mutexattr_setprotocol, iFpp)
+GO(pthread_mutexattr_setprotocol, iFpi)
 GO(pthread_mutexattr_setpshared, iFpi)
 // pthread_mutexattr_setrobust_np
 GO(__pthread_mutexattr_settype, iFpi)
 GO(pthread_mutexattr_settype, iFpi)
+#else
+GOM(__pthread_mutexattr_destroy, iFEp)
+GOM(pthread_mutexattr_destroy, iFEp)
+GOM(pthread_mutexattr_getkind_np, iFEpp)
+// pthread_mutexattr_getprioceiling
+// pthread_mutexattr_getprotocol
+// pthread_mutexattr_getpshared
+// pthread_mutexattr_getrobust_np
+GOM(pthread_mutexattr_gettype, iFEpp)
+GOM(__pthread_mutexattr_init, iFEp)
+GOM(pthread_mutexattr_init, iFEp)
+GOM(pthread_mutexattr_setkind_np, iFEpi)
+// pthread_mutexattr_setprioceiling
+GOM(pthread_mutexattr_setprotocol, iFEpi)
+GOM(pthread_mutexattr_setpshared, iFEpi)
+// pthread_mutexattr_setrobust_np
+GOM(__pthread_mutexattr_settype, iFEpi)
+GOM(pthread_mutexattr_settype, iFEpi)
+#endif
 // pthread_mutex_consistent_np
 #ifdef NOALIGN
 GO(__pthread_mutex_destroy, iFp)

@@ -27,7 +27,6 @@
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
-//#define ALIGN_COND
 
 void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop_restore(void* buffer, int exec);
@@ -624,96 +623,7 @@ EXPORT int my___pthread_key_create(x64emu_t* emu, void* key, void* dtor) __attri
 
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
-#ifdef ALIGN_COND
 
-KHASH_MAP_INIT_INT(mapcond, pthread_cond_t*);
-
-// should all access to that map be behind a mutex?
-kh_mapcond_t *mapcond = NULL;
-
-static pthread_cond_t* add_cond(void* cond)
-{
-	pthread_mutex_lock(&my_context->mutex_thread);
-	khint_t k;
-	int ret;
-	pthread_cond_t *c;
-	k = kh_put(mapcond, mapcond, (uintptr_t)cond, &ret);
-	if(!ret)
-		c = kh_value(mapcond, k);	// already there... reinit an existing one?
-	else 
-		c = kh_value(mapcond, k) = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
-	*(void**)cond = cond;
-	pthread_mutex_unlock(&my_context->mutex_thread);
-	return c;
-}
-static pthread_cond_t* get_cond(void* cond)
-{
-	pthread_cond_t* ret;
-	int r;
-	pthread_mutex_lock(&my_context->mutex_thread);
-	khint_t k = kh_get(mapcond, mapcond, *(uintptr_t*)cond);
-	if(k==kh_end(mapcond)) {
-		khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
-		if(k==kh_end(mapcond)) {
-			printf_log(LOG_DEBUG, "BOX64: Note: phtread_cond not found, create a new empty one\n");
-			ret = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
-			k = kh_put(mapcond, mapcond, (uintptr_t)cond, &r);
-			kh_value(mapcond, k) = ret;
-			*(void**)cond = cond;
-			pthread_cond_init(ret, NULL);
-		} else
-			ret = kh_value(mapcond, k);
-	} else
-		ret = kh_value(mapcond, k);
-	pthread_mutex_unlock(&my_context->mutex_thread);
-	return ret;
-}
-static void del_cond(void* cond)
-{
-	if(!mapcond)
-		return;
-	pthread_mutex_lock(&my_context->mutex_thread);
-	khint_t k = kh_get(mapcond, mapcond, *(uintptr_t*)cond);
-	if(k!=kh_end(mapcond)) {
-		free(kh_value(mapcond, k));
-		kh_del(mapcond, mapcond, k);
-	}
-	pthread_mutex_unlock(&my_context->mutex_thread);
-}
-
-EXPORT int my_pthread_cond_broadcast(x64emu_t* emu, void* cond)
-{
-	pthread_cond_t * c = get_cond(cond);
-	return pthread_cond_broadcast(c);
-}
-EXPORT int my_pthread_cond_destroy(x64emu_t* emu, void* cond)
-{
-	pthread_cond_t * c = get_cond(cond);
-	int ret = pthread_cond_destroy(c);
-	if(c!=cond) del_cond(cond);
-	return ret;
-}
-EXPORT int my_pthread_cond_init(x64emu_t* emu, void* cond, void* attr)
-{
-	pthread_cond_t *c = add_cond(cond);
-	return pthread_cond_init(c, (const pthread_condattr_t*)attr);
-}
-EXPORT int my_pthread_cond_signal(x64emu_t* emu, void* cond)
-{
-	pthread_cond_t * c = get_cond(cond);
-	return pthread_cond_signal(c);
-}
-EXPORT int my_pthread_cond_timedwait(x64emu_t* emu, void* cond, void* mutex, void* abstime)
-{
-	pthread_cond_t * c = get_cond(cond);
-	return pthread_cond_timedwait(c, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
-}
-EXPORT int my_pthread_cond_wait(x64emu_t* emu, void* cond, void* mutex)
-{
-	pthread_cond_t * c = get_cond(cond);
-	return pthread_cond_wait(c, getAlignedMutex((pthread_mutex_t*)mutex));
-}
-#else
 EXPORT int my_pthread_cond_timedwait(x64emu_t* emu, pthread_cond_t* cond, void* mutex, void* abstime)
 {
 	return pthread_cond_timedwait(cond, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
@@ -722,7 +632,6 @@ EXPORT int my_pthread_cond_wait(x64emu_t* emu, pthread_cond_t* cond, void* mutex
 {
 	return pthread_cond_wait(cond, getAlignedMutex((pthread_mutex_t*)mutex));
 }
-#endif
 
 //EXPORT int my_pthread_attr_setscope(x64emu_t* emu, void* attr, int scope)
 //{
@@ -867,13 +776,91 @@ EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
 	return ret;
 	#endif
 }
+typedef union my_mutexattr_s {
+	int					x86;
+	pthread_mutexattr_t nat;
+} my_mutexattr_t;
+// mutexattr
+EXPORT int my_pthread_mutexattr_destroy(x64emu_t* emu, my_mutexattr_t *attr)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	int ret = pthread_mutexattr_destroy(&mattr.nat);
+	attr->x86 = mattr.x86;
+	return ret;
+}
+EXPORT int my___pthread_mutexattr_destroy(x64emu_t* emu, my_mutexattr_t *attr) __attribute__((alias("my_pthread_mutexattr_destroy")));
+EXPORT int my_pthread_mutexattr_getkind_np(x64emu_t* emu, my_mutexattr_t *attr, void* p)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	//int ret = pthread_mutexattr_getkind_np(&mattr.nat, p);
+	int ret = pthread_mutexattr_gettype(&mattr.nat, p);
+	attr->x86 = mattr.x86;
+	return ret;
+}
+EXPORT int my_pthread_mutexattr_gettype(x64emu_t* emu, my_mutexattr_t *attr, void* p)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	int ret = pthread_mutexattr_gettype(&mattr.nat, p);
+	attr->x86 = mattr.x86;
+	return ret;
+}
+EXPORT int my_pthread_mutexattr_init(x64emu_t* emu, my_mutexattr_t *attr)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	int ret = pthread_mutexattr_init(&mattr.nat);
+	attr->x86 = mattr.x86;
+	return ret;
+}
+EXPORT int my___pthread_mutexattr_init(x64emu_t* emu, my_mutexattr_t *attr) __attribute__((alias("my_pthread_mutexattr_init")));
+EXPORT int my_pthread_mutexattr_setkind_np(x64emu_t* emu, my_mutexattr_t *attr, int k)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	//int ret = pthread_mutexattr_setkind_np(&mattr.nat, k);
+	int ret = pthread_mutexattr_settype(&mattr.nat, k);
+	attr->x86 = mattr.x86;
+	return ret;
+}
+EXPORT int my_pthread_mutexattr_setprotocol(x64emu_t* emu, my_mutexattr_t *attr, int p)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	int ret = pthread_mutexattr_setprotocol(&mattr.nat, p);
+	attr->x86 = mattr.x86;
+	return ret;
+}
+EXPORT int my_pthread_mutexattr_setpshared(x64emu_t* emu, my_mutexattr_t *attr, int p)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	int ret = pthread_mutexattr_setpshared(&mattr.nat, p);
+	attr->x86 = mattr.x86;
+	return ret;
+}
+EXPORT int my_pthread_mutexattr_settype(x64emu_t* emu, my_mutexattr_t *attr, int t)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	int ret = pthread_mutexattr_settype(&mattr.nat, t);
+	attr->x86 = mattr.x86;
+	return ret;
+}
+EXPORT int my___pthread_mutexattr_settype(x64emu_t* emu, my_mutexattr_t *attr, int t) __attribute__((alias("my_pthread_mutexattr_settype")));
+
+// mutex
 int my___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_destroy")));
 
-EXPORT int my_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)
+EXPORT int my_pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att)
 {
-	return pthread_mutex_init(getAlignedMutexWithInit(m, 0), att);
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = att->x86;
+	return pthread_mutex_init(getAlignedMutexWithInit(m, 0), &mattr.nat);
 }
-EXPORT int my___pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att) __attribute__((alias("my_pthread_mutex_init")));
+EXPORT int my___pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att) __attribute__((alias("my_pthread_mutex_init")));
 
 EXPORT int my_pthread_mutex_lock(pthread_mutex_t *m)
 {
@@ -896,6 +883,114 @@ EXPORT int my___pthread_mutex_unlock(pthread_mutex_t *m) __attribute__((alias("m
 EXPORT int my_pthread_mutex_unlock(pthread_mutex_t *m)
 {
 	return pthread_mutex_unlock(getAlignedMutex(m));
+}
+
+typedef union my_condattr_s {
+	int					x86;
+	pthread_condattr_t 	nat;
+} my_condattr_t;
+// condattr
+EXPORT int my_pthread_condattr_destroy(x64emu_t* emu, my_condattr_t* c)
+{
+	my_condattr_t cond = {0};
+	cond.x86 = c->x86;
+	int ret = pthread_condattr_destroy(&cond.nat);
+	c->x86 = cond.x86;
+	return ret;
+}
+EXPORT int my_pthread_condattr_getclock(x64emu_t* emu, my_condattr_t* c, void* cl)
+{
+	my_condattr_t cond = {0};
+	cond.x86 = c->x86;
+	int ret = pthread_condattr_getclock(&cond.nat, cl);
+	c->x86 = cond.x86;
+	return ret;
+}
+EXPORT int my_pthread_condattr_getpshared(x64emu_t* emu, my_condattr_t* c, void* p)
+{
+	my_condattr_t cond = {0};
+	cond.x86 = c->x86;
+	int ret = pthread_condattr_getpshared(&cond.nat, p);
+	c->x86 = cond.x86;
+	return ret;
+}
+EXPORT int my_pthread_condattr_init(x64emu_t* emu, my_condattr_t* c)
+{
+	my_condattr_t cond = {0};
+	cond.x86 = c->x86;
+	int ret = pthread_condattr_init(&cond.nat);
+	c->x86 = cond.x86;
+	return ret;
+}
+EXPORT int my_pthread_condattr_setclock(x64emu_t* emu, my_condattr_t* c, int cl)
+{
+	my_condattr_t cond = {0};
+	cond.x86 = c->x86;
+	int ret = pthread_condattr_setclock(&cond.nat, cl);
+	c->x86 = cond.x86;
+	return ret;
+}
+EXPORT int my_pthread_condattr_setpshared(x64emu_t* emu, my_condattr_t* c, int p)
+{
+	my_condattr_t cond = {0};
+	cond.x86 = c->x86;
+	int ret = pthread_condattr_setpshared(&cond.nat, p);
+	c->x86 = cond.x86;
+	return ret;
+}
+EXPORT int my_pthread_cond_init(x64emu_t* emu, pthread_cond_t *pc, my_condattr_t* c)
+{
+	my_condattr_t cond = {0};
+	cond.x86 = c->x86;
+	int ret = pthread_cond_init(pc, &cond.nat);
+	c->x86 = cond.x86;
+	return ret;
+}
+
+typedef union my_barrierattr_s {
+	int						x86;
+	pthread_barrierattr_t 	nat;
+} my_barrierattr_t;
+// barrierattr
+EXPORT int my_pthread_barrierattr_destroy(x64emu_t* emu, my_barrierattr_t* b)
+{
+	my_barrierattr_t battr = {0};
+	battr.x86 = b->x86;
+	int ret = pthread_barrierattr_destroy(&battr.nat);
+	b->x86 = battr.x86;
+	return ret;
+}
+EXPORT int my_pthread_barrierattr_getpshared(x64emu_t* emu, my_barrierattr_t* b, void* p)
+{
+	my_barrierattr_t battr = {0};
+	battr.x86 = b->x86;
+	int ret = pthread_barrierattr_getpshared(&battr.nat, p);
+	b->x86 = battr.x86;
+	return ret;
+}
+EXPORT int my_pthread_barrierattr_init(x64emu_t* emu, my_barrierattr_t* b)
+{
+	my_barrierattr_t battr = {0};
+	battr.x86 = b->x86;
+	int ret = pthread_barrierattr_init(&battr.nat);
+	b->x86 = battr.x86;
+	return ret;
+}
+EXPORT int my_pthread_barrierattr_setpshared(x64emu_t* emu, my_barrierattr_t* b, int p)
+{
+	my_barrierattr_t battr = {0};
+	battr.x86 = b->x86;
+	int ret = pthread_barrierattr_setpshared(&battr.nat, p);
+	b->x86 = battr.x86;
+	return ret;
+}
+EXPORT int my_pthread_barrier_init(x64emu_t* emu, pthread_barrier_t* bar, my_barrierattr_t* b, uint32_t count)
+{
+	my_barrierattr_t battr = {0};
+	battr.x86 = b->x86;
+	int ret = pthread_barrier_init(bar, &battr.nat, count);
+	b->x86 = battr.x86;
+	return ret;
 }
 
 #endif
@@ -925,9 +1020,6 @@ emu_jmpbuf_t* GetJmpBuf()
 void init_pthread_helper()
 {
 	InitCancelThread();
-#ifdef ALIGN_COND
-	mapcond = kh_init(mapcond);
-#endif
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 #ifndef NOALIGN
 	#ifdef TRACK_MUTEX
@@ -940,15 +1032,6 @@ void fini_pthread_helper(box64context_t* context)
 {
 	FreeCancelThread(context);
 	CleanStackSize(context);
-#ifdef ALIGN_COND
-	pthread_cond_t *cond;
-	kh_foreach_value(mapcond, cond, 
-		pthread_cond_destroy(cond);
-		free(cond);
-	);
-	kh_destroy(mapcond, mapcond);
-	mapcond = NULL;
-#endif
 #ifndef NOALIGN
 	#ifdef TRACK_MUTEX
 	pthread_mutex_t *m;
