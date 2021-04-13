@@ -176,6 +176,17 @@ int Run64(x64emu_t *emu, rex_t rex)
                 cmp32(emu, ED->dword[0], GD->dword[0]);
             break;
 
+        case 0x3B:
+            nextop = F8;
+            GETED_OFFS(0, tlsdata);
+            GETGD;
+            if(rex.w)
+                cmp64(emu, GD->q[0], ED->q[0]);
+            else
+                cmp32(emu, GD->dword[0], ED->dword[0]);
+            break;
+
+
         case 0x66:
             opcode = F8;
 
