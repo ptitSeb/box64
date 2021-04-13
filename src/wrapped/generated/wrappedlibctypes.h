@@ -134,6 +134,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(__syslog_chk, vFiipV_t) \
 	GO(qsort, vFpLLp_t) \
 	GO(__vasprintf_chk, iFpipp_t) \
+	GO(glob, iFpipp_t) \
 	GO(glob64, iFpipp_t) \
 	GO(__fprintf_chk, iFpipV_t) \
 	GO(__vsnprintf, iFpLpp_t) \
@@ -146,6 +147,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(makecontext, iFppiV_t) \
 	GO(__register_atfork, iFpppp_t) \
 	GO(__vsprintf_chk, iFpppp_t) \
+	GO(scandir, iFpppp_t) \
 	GO(scandir64, iFpppp_t) \
 	GO(vsprintf, iFpppp_t) \
 	GO(qsort_r, vFpLLpp_t) \

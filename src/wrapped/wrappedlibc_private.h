@@ -1660,10 +1660,10 @@ GOW(setvbuf, iFppiL)
 //GOW(sgetsgent_r, 
 //GO(sgetspent, 
 //GOW(sgetspent_r, 
-//GO(shmat, 
-//GO(shmctl, 
-//GO(shmdt, 
-//GO(shmget, 
+GO(shmat, pFipi)
+GO(shmctl, iFiip)
+GO(shmdt, iFp)
+GO(shmget, iFiLi)
 GOW(shutdown, iFii)
 GOM(__sigaction, iFEipp)  // Weak
 GOM(sigaction, iFEipp)    // Weak
@@ -2122,7 +2122,7 @@ GOW(wcsnrtombs, LFppLLp)
 //GOI(wcsnlen, 
 //GO(wcspbrk, 
 GO(wcsrchr, pFpi)
-//GOW(wcsrtombs, 
+GOW(wcsrtombs, LFppLp)
 //GO(__wcsrtombs_chk, 
 //GO(wcsspn, 
 GO(wcsstr, pFpp)
