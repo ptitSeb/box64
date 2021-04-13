@@ -89,6 +89,7 @@ scwrap_t syscallwrap[] = {
     { 254, __NR_inotify_add_watch, 3},
     { 255, __NR_inotify_rm_watch, 2},
     { 294, __NR_inotify_init1, 1},
+    { 298, __NR_perf_event_open, 5},
     { 318, __NR_getrandom, 3},
 };
 
