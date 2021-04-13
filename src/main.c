@@ -815,13 +815,6 @@ int main(int argc, const char **argv, const char **env) {
         free(my_context->argv[0]);
         my_context->argv[0] = strdup("./UnrealLinux.bin");
     }
-    #ifdef RPI
-    // special case for TokiTori 2+, that check if texture max size is > = 8192
-    if(strstr(prgname, "TokiTori2.bin.x86")==prgname) {
-        printf_log(LOG_INFO, "TokiTori 2+ detected, runtime patch to fix GPU non-power-of-two faillure\n");
-        box64_tokitori2 = 1;
-    }
-    #endif
     // special case for zoom
     if(strstr(prgname, "zoom")==prgname) {
         printf_log(LOG_INFO, "Zoom detected, trying to use system libturbojpeg if possible\n");
