@@ -96,6 +96,8 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
 
     GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
     GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
+    case 0x0F:
+        return Run670F(emu, rex, rep);
     GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
     GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
     GO(0x20, and)                   /* AND 0x20 -> 0x25 */
