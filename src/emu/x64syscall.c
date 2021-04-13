@@ -83,6 +83,12 @@ scwrap_t syscallwrap[] = {
     { 186, __NR_gettid, 0 },    //0xBA
     { 202, __NR_futex, 6},
     { 217, __NR_getdents64, 3},
+    #ifdef __NR_inotify_init
+    { 253, __NR_inotify_init, 0},   //0xFD
+    #endif
+    { 254, __NR_inotify_add_watch, 3},
+    { 255, __NR_inotify_rm_watch, 2},
+    { 294, __NR_inotify_init1, 1},
     { 318, __NR_getrandom, 3},
 };
 
@@ -192,6 +198,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 131: // sys_sigaltstack
             R_EAX = (uint32_t)my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
             break;
+        #ifndef __NR_inotify_init
+        case 253:
+            R_EAX = (int)syscall(__NR_inotify_init1, 0);
+            break;
+        #endif
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             emu->quit = 1;
@@ -259,6 +270,10 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 131: // sys_sigaltstack
             return (uint32_t)my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
+        #ifndef __NR_inotify_init
+        case 253:
+            return (int)syscall(__NR_inotify_init1, 0);
+        #endif
         default:
             printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
             emu->quit = 1;
