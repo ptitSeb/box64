@@ -51,8 +51,8 @@ endif()
 
 if(RK3326)
     add_definitions(-DRK3326)
-    add_definitions(-marm -mcpu=cortex-a35 -mfpu=neon-vfpv3 -march=armv8-a+crc+simd+crypto -mfloat-abi=hard)
-    set(CMAKE_ASM_FLAGS  "-marm -mcpu=cortex-a35 -mfpu=neon-vfpv3 -march=armv8-a+crc+simd+crypto -mfloat-abi=hard")
+    add_definitions(-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a35+crypto)
+    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a35+crypto")
 endif()
 
 if(RK3399)
