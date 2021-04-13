@@ -309,6 +309,11 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         GX->d[0] = EX->sd[0];
         break;
 
+    case 0x1E:  /* NOP (multi-byte), endbr64 */
+		nextop = F8;
+		GETED(0);
+        break;            
+            
     default:
         return 1;
     }
