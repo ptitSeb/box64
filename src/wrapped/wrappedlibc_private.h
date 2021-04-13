@@ -217,7 +217,7 @@ GOM(dl_iterate_phdr, iFEpp) //Weak
 //GOW(dngettext, 
 //GO(dprintf, 
 //GO(__dprintf_chk, 
-//GO(drand48, 
+GO(drand48, dFv)
 //GO(drand48_r, 
 GOW(dup, iFi)
 GO(__dup2, iFii)
@@ -261,7 +261,7 @@ GO(epoll_create1, iFO)
 GO(epoll_ctl, iFiiip)   // need to check about alignment
 //GO(epoll_pwait, 
 GO(epoll_wait, iFipii)
-//GO(erand48, 
+GO(erand48, dFp)
 //GOW(erand48_r, 
 //GO(err, 
 //DATAB(errno, 
@@ -565,11 +565,11 @@ GO(getpid, uFv)
 //GOW(getppid, 
 GOW(getpriority, iFii)
 GO(getprotobyname, pFp)
-//GO(getprotobyname_r, 
+GO(getprotobyname_r, iFpppLp)
 GO(getprotobynumber, pFp)
-//GO(getprotobynumber_r, 
+GO(getprotobynumber_r, iFippLp)
 GO(getprotoent, pFv)
-//GO(getprotoent_r, 
+GO(getprotoent_r, iFppLp)
 //GOW(getpt, 
 //GO(getpublickey, 
 //GOW(getpw, 
@@ -999,7 +999,7 @@ GO(killpg, iFii)
 //GO(lchmod, 
 //GOW(lchown, 
 //GOW(lckpwdf, 
-//GO(lcong48, 
+GO(lcong48, vFp)
 //GOW(lcong48_r, 
 //GOW(ldexp, 
 //GOW(ldexpf, 
@@ -1083,7 +1083,7 @@ GOW(localtime_r, pFpp)
 GOM(_longjmp, vFEpi)    //Weak
 GOM(longjmp, vFEpi) //weak
 GOM(__longjmp_chk, vFEpi)
-//GO(lrand48, 
+GO(lrand48, lFv)
 //GO(lrand48_r, 
 //GO(lremovexattr, 
 GOM(lsearch, pFEpppLp)
@@ -1182,7 +1182,7 @@ GOM(mmap64, pFEpLiiiI)  //weak
 //GO(mprobe, 
 //GO(__mprotect, 
 GOM(mprotect, iFEpLi) //weak
-//GO(mrand48, 
+GO(mrand48, lFv)
 //GO(mrand48_r, 
 GOM(mremap, pFEpLLiN) //weal
 //GO(msgctl, 
@@ -1217,7 +1217,7 @@ GO(nl_langinfo, pFu)
 GO(__nl_langinfo_l, pFup)
 GOW(nl_langinfo_l, pFup)
 //DATAB(_nl_msg_cat_cntr, 
-//GO(nrand48, 
+GO(nrand48, lFp)
 //GOW(nrand48_r, 
 //GO(__nss_configure_lookup, 
 //GO(__nss_database_lookup, 
@@ -1579,7 +1579,7 @@ GO(__sched_yield, iFv)
 GOW(sched_yield, iFv)
 GO2(__secure_getenv, pFp, getenv)   // not always present
 GOW(secure_getenv, pFp)
-//GO(seed48, 
+GO(seed48, pFp)
 //GOW(seed48_r, 
 GO(seekdir, vFpi)
 GO(__select, iFipppp)
@@ -1721,7 +1721,7 @@ GOM(sprintf, iFEppV)
 GOM(__sprintf_chk, iFEpilpV)
 //GOW(sprofil, 
 GOW(srand, vFu)
-//GO(srand48, 
+GO(srand48, vFl)
 //GOW(srand48_r, 
 GOW(srandom, vFu)
 //GOW(srandom_r, 

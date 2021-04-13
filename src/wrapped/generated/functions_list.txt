@@ -4,6 +4,7 @@
 #() vFu
 #() vFf
 #() vFd
+#() vFl
 #() vFp
 #() vFS
 #() cFv
@@ -37,6 +38,7 @@
 #() fFi
 #() fFf
 #() fFp
+#() dFv
 #() dFi
 #() dFu
 #() dFd
@@ -679,6 +681,7 @@
 #() iFiLLLL
 #() iFipiii
 #() iFipuip
+#() iFippLp
 #() iFipppi
 #() iFipppp
 #() iFuppLp
