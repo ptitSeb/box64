@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <signal.h>
+#include <poll.h>
 
 #include "debug.h"
 #include "box64stack.h"
@@ -114,6 +115,9 @@ void x64Int3(x64emu_t* emu)
                 } else  if(strstr(s, "strcmp")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (char*)R_RSI);
+                } else  if(!strcmp(s, "poll")) {
+                    struct pollfd* pfd = (struct pollfd*)(R_RDI);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p[%d/%d/%d, ...], %d, %d)", tid, *(void**)(R_RSP), s, pfd, pfd->fd, pfd->events, pfd->revents, R_ESI, R_EDX);
                 } else  if(strstr(s, "my___printf_chk")) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, R_EDI, (tmp)?tmp:"(nil)", (void*)(R_RDX));

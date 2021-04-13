@@ -760,6 +760,7 @@ void uFppiip(x64emu_t *emu, uintptr_t fnc);
 void uFppipp(x64emu_t *emu, uintptr_t fnc);
 void uFpplip(x64emu_t *emu, uintptr_t fnc);
 void uFppppp(x64emu_t *emu, uintptr_t fnc);
+void lFipLLi(x64emu_t *emu, uintptr_t fnc);
 void LFLpppp(x64emu_t *emu, uintptr_t fnc);
 void LFpLLLp(x64emu_t *emu, uintptr_t fnc);
 void LFpLppL(x64emu_t *emu, uintptr_t fnc);

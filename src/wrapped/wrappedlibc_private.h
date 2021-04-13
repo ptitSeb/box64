@@ -1482,7 +1482,7 @@ GO2(__realpath_chk, pFEppv, my_realpath)
 //GOW(re_compile_pattern, 
 GOW(__recv, lFipLi)
 GOW(recv, lFipLi)
-//GO(__recv_chk, 
+GO(__recv_chk, lFipLLi)
 GOW(recvfrom, lFipLipp)
 //GO(__recvfrom_chk, 
 GO(recvmmsg, iFipuip)

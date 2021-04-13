@@ -764,6 +764,7 @@ typedef uint64_t (*uFppiip_t)(void*, void*, int64_t, int64_t, void*);
 typedef uint64_t (*uFppipp_t)(void*, void*, int64_t, void*, void*);
 typedef uint64_t (*uFpplip_t)(void*, void*, intptr_t, int64_t, void*);
 typedef uint64_t (*uFppppp_t)(void*, void*, void*, void*, void*);
+typedef intptr_t (*lFipLLi_t)(int64_t, void*, uintptr_t, uintptr_t, int64_t);
 typedef uintptr_t (*LFLpppp_t)(uintptr_t, void*, void*, void*, void*);
 typedef uintptr_t (*LFpLLLp_t)(void*, uintptr_t, uintptr_t, uintptr_t, void*);
 typedef uintptr_t (*LFpLppL_t)(void*, uintptr_t, void*, void*, uintptr_t);
@@ -1963,6 +1964,7 @@ void uFppiip(x64emu_t *emu, uintptr_t fcn) { uFppiip_t fn = (uFppiip_t)fcn; R_RA
 void uFppipp(x64emu_t *emu, uintptr_t fcn) { uFppipp_t fn = (uFppipp_t)fcn; R_RAX=(uint64_t)fn((void*)R_RDI, (void*)R_RSI, (int64_t)R_RDX, (void*)R_RCX, (void*)R_R8); }
 void uFpplip(x64emu_t *emu, uintptr_t fcn) { uFpplip_t fn = (uFpplip_t)fcn; R_RAX=(uint64_t)fn((void*)R_RDI, (void*)R_RSI, (intptr_t)R_RDX, (int64_t)R_RCX, (void*)R_R8); }
 void uFppppp(x64emu_t *emu, uintptr_t fcn) { uFppppp_t fn = (uFppppp_t)fcn; R_RAX=(uint64_t)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8); }
+void lFipLLi(x64emu_t *emu, uintptr_t fcn) { lFipLLi_t fn = (lFipLLi_t)fcn; R_RAX=(intptr_t)fn((int64_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (uintptr_t)R_RCX, (int64_t)R_R8); }
 void LFLpppp(x64emu_t *emu, uintptr_t fcn) { LFLpppp_t fn = (LFLpppp_t)fcn; R_RAX=(uintptr_t)fn((uintptr_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8); }
 void LFpLLLp(x64emu_t *emu, uintptr_t fcn) { LFpLLLp_t fn = (LFpLLLp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (uintptr_t)R_RDX, (uintptr_t)R_RCX, (void*)R_R8); }
 void LFpLppL(x64emu_t *emu, uintptr_t fcn) { LFpLppL_t fn = (LFpLppL_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (uintptr_t)R_R8); }
@@ -3069,6 +3071,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &uFppipp) return 1;
 	if (fun == &uFpplip) return 1;
 	if (fun == &uFppppp) return 1;
+	if (fun == &lFipLLi) return 1;
 	if (fun == &LFLpppp) return 1;
 	if (fun == &LFpLLLp) return 1;
 	if (fun == &LFpLppL) return 1;
