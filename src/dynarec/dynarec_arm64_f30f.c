@@ -42,6 +42,8 @@
 
 uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
+    (void)ip; (void)need_epilog;
+
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint8_t gd, ed;
@@ -50,8 +52,8 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     int v0, v1;
     int q0, q1;
     int d0, d1;
-    int fixedaddress;
-    int j32;
+    int64_t fixedaddress;
+    int64_t j64;
 
     MAYUSE(d0);
     MAYUSE(d1);
@@ -59,7 +61,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(q1);
     MAYUSE(v0);
     MAYUSE(v1);
-    MAYUSE(j32);
+    MAYUSE(j64);
 
     switch(opcode) {
 
@@ -396,4 +398,3 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     }
     return addr;
 }
-

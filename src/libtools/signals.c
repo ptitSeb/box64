@@ -556,7 +556,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
         } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
             sigcontext->uc_mcontext.gregs[X64_ERR] = 0x0002;    // write flag issue
-            if(abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[X64_RSP])<16)
+            if(labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[X64_RSP])<16)
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 12; // stack overflow probably
             else
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 14; // PAGE_FAULT

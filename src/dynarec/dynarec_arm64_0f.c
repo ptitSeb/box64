@@ -64,33 +64,32 @@
 
 uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
+    (void)ip; (void)rep; (void)need_epilog;
+
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    int32_t i32, i32_, j32;
     uint8_t gd, ed;
     uint8_t wback, wb2;
     uint8_t eb1, eb2;
-    uint64_t tmp64u;
+    int32_t i32, i32_;
     int v0, v1;
     int q0, q1;
     int d0, d1;
     int s0;
-    int fixedaddress;
-    MAYUSE(s0);
+    uint64_t tmp64u;
+    int64_t j64;
+    int64_t fixedaddress;
+    MAYUSE(wb2);
+    MAYUSE(eb1);
+    MAYUSE(eb2);
     MAYUSE(q0);
     MAYUSE(q1);
-    MAYUSE(v0);
-    MAYUSE(v1);
     MAYUSE(d0);
     MAYUSE(d1);
-    MAYUSE(eb2);
-    MAYUSE(eb1);
-    MAYUSE(wb2);
-    MAYUSE(j32);
-    MAYUSE(i32);
-    MAYUSE(u8);
-    #if STEP == 3
-    //static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
+    MAYUSE(s0);
+    MAYUSE(j64);
+    #if 0//STEP == 3
+    static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
     #endif
 
     switch(opcode) {
@@ -1564,4 +1563,3 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     }
     return addr;
 }
-

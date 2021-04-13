@@ -26,9 +26,11 @@
 
 uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
+    (void)ip; (void)rep; (void)need_epilog;
+
     uint8_t nextop = F8;
     uint8_t ed;
-    int fixedaddress;
+    int64_t fixedaddress;
     int v1, v2;
     int s0;
 
@@ -228,4 +230,3 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     }
     return addr;
 }
-

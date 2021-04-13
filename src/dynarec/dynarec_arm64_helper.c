@@ -26,8 +26,10 @@
 #include "dynarec_arm64_helper.h"
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta)
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta)
 {
+    MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
+
     uint8_t ret = x2;
     uint8_t scratch = x2;
     *fixaddress = 0;
@@ -41,7 +43,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             uint8_t sib = F8;
             int sib_reg = ((sib>>3)&7)+(rex.x<<3);
             if((sib&0x7)==5) {
-                uint64_t tmp = F32S64;
+                int64_t tmp = F32S;
                 if (sib_reg!=4) {
                     if(tmp && ((tmp<absmin) || (tmp>absmax) || (tmp&mask))) {
                         MOV64x(scratch, tmp);
@@ -141,8 +143,10 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
 }
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
-uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta)
+uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta)
 {
+    MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
+
     uint8_t ret = x2;
     uint8_t scratch = x2;
     *fixaddress = 0;
@@ -156,17 +160,17 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             uint8_t sib = F8;
             int sib_reg = ((sib>>3)&7)+(rex.x<<3);
             if((sib&0x7)==5) {
-                uint32_t tmp = F32;
+                int64_t tmp = F32S;
                 if (sib_reg!=4) {
                     if(tmp && ((tmp<absmin) || (tmp>absmax) || (tmp&mask))) {
-                        MOV32w(scratch, tmp);
+                        MOV64x(scratch, tmp);
                         ADDw_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
                     } else {
                         LSLw(ret, xRAX+sib_reg, (sib>>6));
                         *fixaddress = tmp;
                     }
                 } else {
-                    MOV32w(ret, tmp);
+                    MOV64x(ret, tmp);
                 }
             } else {
                 if (sib_reg!=4) {
@@ -260,8 +264,10 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
 }
 
 /* setup r2 to address pointed by ED, r3 as scratch also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
-uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, int s)
+uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, int s)
 {
+    MAYUSE(dyn); MAYUSE(ninst);
+
     uint8_t ret = x2;
     uint8_t scratch = x3;
     *fixaddress = 0;
@@ -270,7 +276,7 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
     MAYUSE(scratch);
     uint32_t m = nextop&0xC7;
     uint32_t n = (m>>6)&3;
-    int32_t offset = 0;
+    int64_t offset = 0;
     int absmin = 0;
     if(s) absmin = -absmax;
     if(!n && m==6) {
@@ -338,7 +344,9 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
 
 void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
+    MAYUSE(dyn); MAYUSE(ip); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Jump to epilog\n");
+
     if(reg) {
         if(reg!=xRIP) {
             MOVx_REG(xRIP, reg);
@@ -352,6 +360,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 
 void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
+    MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Jump to next\n");
 
     if(reg) {
@@ -387,7 +396,8 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 {
-    MESSAGE(LOG_DUMP, "Ret next\n");
+    MAYUSE(dyn); MAYUSE(ninst);
+    MESSAGE(LOG_DUMP, "Ret to epilog\n");
     POP1(xRIP);
     uintptr_t tbl = getJumpTable64();
     MOV64x(x2, tbl);
@@ -405,7 +415,8 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 {
-    MESSAGE(LOG_DUMP, "Retn epilog\n");
+    MAYUSE(dyn); MAYUSE(ninst);
+    MESSAGE(LOG_DUMP, "Retn to epilog\n");
     POP1(xRIP);
     if(n>0xfff) {
         MOV32w(w1, n);
@@ -429,7 +440,8 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
 {
-    MESSAGE(LOG_DUMP, "IRet epilog\n");
+    MAYUSE(ninst);
+    MESSAGE(LOG_DUMP, "IRet to epilog\n");
     // POP IP
     POP1(xRIP);
     // POP CS
@@ -450,6 +462,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
 
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
 {
+    MAYUSE(fnc);
     if(savereg==0)
         savereg = 7;
     if(saveflags) {
@@ -494,8 +507,9 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
 
 void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment)
 {
-    int32_t j32;
-    MAYUSE(j32);
+    (void)addr;
+    int64_t j64;
+    MAYUSE(j64);
     MESSAGE(LOG_DUMP, "Get %s Offset\n", (segment==_FS)?"FS":"GS");
     int t1 = x1, t2 = x4;
     if(reg==t1) ++t1;
@@ -519,16 +533,20 @@ void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int se
 // x87 stuffs
 static void x87_reset(dynarec_arm_t* dyn, int ninst)
 {
+    (void)ninst;
 #if STEP > 1
     for (int i=0; i<8; ++i)
         dyn->x87cache[i] = -1;
     dyn->x87stack = 0;
+#else
+    (void)dyn;
 #endif
 }
 
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 {
 #if STEP > 1
+    MAYUSE(scratch);
     if(!dyn->x87stack)
         return;
     MESSAGE(LOG_DUMP, "\tSynch x87 Stackcount (%d)\n", dyn->x87stack);
@@ -553,11 +571,14 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     // reset x87stack
     dyn->x87stack = 0;
     MESSAGE(LOG_DUMP, "\t------x87 Stackcount\n");
+#else
+    (void)dyn; (void)ninst; (void)scratch;
 #endif
 }
 
 int x87_do_push(dynarec_arm_t* dyn, int ninst)
 {
+    (void)ninst;
 #if STEP > 1
     dyn->x87stack+=1;
     // move all regs in cache, and find a free one
@@ -571,6 +592,7 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst)
         }
     return ret;
 #else
+    (void)dyn;
     return 0;
 #endif
 }
@@ -584,10 +606,13 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
             ++dyn->x87cache[i];
     if(s1)
         x87_stackcount(dyn, ninst, s1);
+#else
+    (void)dyn; (void)ninst; (void)s1;
 #endif
 }
 void x87_do_pop(dynarec_arm_t* dyn, int ninst)
 {
+    (void)ninst;
 #if STEP > 1
     dyn->x87stack-=1;
     // move all regs in cache, poping ST0
@@ -599,12 +624,16 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst)
                 dyn->x87reg[i] = -1;
             }
         }
+#else
+    (void)dyn;
 #endif
 }
 
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
+    (void)ninst;
 #if STEP > 1
+    MAYUSE(s1); MAYUSE(s2); MAYUSE(s3);
     int ret = 0;
     for (int i=0; i<8 && !ret; ++i)
         if(dyn->x87cache[i] != -1)
@@ -666,6 +695,8 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
                 dyn->x87cache[i] = -1;
             }
     }
+#else
+    (void)dyn; (void)s1; (void)s2; (void)s3;
 #endif
 }
 
@@ -673,6 +704,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
 #if STEP > 1
+    MAYUSE(s2); MAYUSE(s3);
     x87_stackcount(dyn, ninst, s1);
     int ret = 0;
     for (int i=0; (i<8) && (!ret); ++i)
@@ -691,13 +723,17 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
             ANDw_mask(s3, s3, 0, 2); // mask=7   // (emu->top + i)&7
             VSTR64_REG_LSL3(dyn->x87reg[i], s1, s3);
         }
+#else
+    (void)dyn; (void)ninst; (void)s1; (void)s2; (void)s3;
 #endif
 }
 #endif
 
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
-#if STEP > 1
+    (void)ninst;
+#if STEP > 1    
+    MAYUSE(s1); MAYUSE(s2);
     // search in cache first
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st)
@@ -727,6 +763,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 
     return ret;
 #else
+    (void)dyn; (void)s1; (void)s2; (void)st;
     return 0;
 #endif
 }
@@ -736,6 +773,7 @@ int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
 #if STEP > 1
     return dyn->x87reg[x87_get_cache(dyn, ninst, s1, s2, a)];
 #else
+    (void)dyn; (void)ninst; (void)s1; (void)s2; (void)a;
     return 0;
 #endif
 }
@@ -744,6 +782,7 @@ int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
 void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
 #if STEP > 1
+    MAYUSE(s2);
     x87_stackcount(dyn, ninst, s1);
     int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
@@ -763,12 +802,15 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     }
     VLDR64_REG_LSL3(dyn->x87reg[ret], s1, s2);
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
+#else
+    (void)dyn; (void)ninst; (void)s1; (void)s2; (void)st;
 #endif
 }
 
 void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
 #if STEP > 1
+    MAYUSE(s2);
     x87_stackcount(dyn, ninst, s1);
     int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
@@ -792,12 +834,16 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     fpu_free_reg(dyn, dyn->x87reg[ret]);
     dyn->x87cache[ret] = -1;
     dyn->x87reg[ret] = -1;
+#else
+    (void)dyn; (void)ninst; (void)s1; (void)s2; (void)st;
 #endif
 }
 
 void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
+    (void)ninst;
 #if STEP > 1
+    MAYUSE(s1); MAYUSE(s2);
     // search in cache first
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st) {
@@ -838,6 +884,8 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
     VLDR64_REG_LSL3(dyn->x87reg[ret], s1, s2);
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
+#else
+    (void)dyn; (void)s1; (void)s2; (void)st;
 #endif
 }
 
@@ -846,6 +894,8 @@ static int round_map[] = {0, 2, 1, 3};  // map x64 -> arm round flag
 // Set rounding according to cw flags, return reg to restore flags
 int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
+    MAYUSE(dyn); MAYUSE(ninst);
+    MAYUSE(s1); MAYUSE(s2);
     LDRH_U12(s1, xEmu, offsetof(x64emu_t, cw));
     UBFXx(s2, s1, 10, 2);    // extract round...
     MOV64x(s1, (uintptr_t)round_map);
@@ -860,6 +910,8 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
+    MAYUSE(dyn); MAYUSE(ninst);
+    MAYUSE(s1); MAYUSE(s2);
     LDRH_U12(s1, xEmu, offsetof(x64emu_t, mxcsr));
     UBFXx(s2, s1, 13, 2);    // extract round...
     MOV64x(s1, (uintptr_t)round_map);
@@ -874,20 +926,27 @@ int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 // Restore round flag
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    MAYUSE(dyn); MAYUSE(ninst);
+    MAYUSE(s1);
     MSR_fpcr(s1);               // put back fpscr
 }
 
 // MMX helpers
 static void mmx_reset(dynarec_arm_t* dyn, int ninst)
 {
+    (void)ninst;
 #if STEP > 1
+    MAYUSE(dyn);
     for (int i=0; i<8; ++i)
         dyn->mmxcache[i] = -1;
+#else
+    (void)dyn;
 #endif
 }
 // get neon register for a MMX reg, create the entry if needed
 int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
+    (void)ninst; (void)s1;
 #if STEP > 1
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
@@ -895,24 +954,28 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
     VLDR64_U12(ret, xEmu, offsetof(x64emu_t, mmx87[a]));
     return ret;
 #else
+    (void)dyn; (void)a;
     return 0;
 #endif
 }
 // get neon register for a MMX reg, but don't try to synch it if it needed to be created
 int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
+    (void)ninst; (void)s1;
 #if STEP > 1
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
     int ret = dyn->mmxcache[a] = fpu_get_reg_emm(dyn, a);
     return ret;
 #else
+    (void)dyn; (void)a;
     return 0;
 #endif
 }
 // purge the MMX cache only(needs 3 scratch registers)
 void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    (void)ninst; (void)s1;
 #if STEP > 1
     int old = -1;
     for (int i=0; i<8; ++i)
@@ -928,16 +991,21 @@ void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "\t------ Purge MMX Cache\n");
     }
+#else
+    (void)dyn;
 #endif
 }
 #ifdef HAVE_TRACE
 static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    (void) ninst; (void)s1;
 #if STEP > 1
     for (int i=0; i<8; ++i)
         if(dyn->mmxcache[i]!=-1) {
             VLDR64_U12(dyn->mmxcache[i], xEmu, offsetof(x64emu_t, mmx87[i]));
         }
+#else
+    (void)dyn;
 #endif
 }
 #endif
@@ -946,14 +1014,18 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 // SSE / SSE2 helpers
 static void sse_reset(dynarec_arm_t* dyn, int ninst)
 {
+    (void)ninst;
 #if STEP > 1
     for (int i=0; i<16; ++i)
         dyn->ssecache[i] = -1;
+#else
+    (void)dyn;
 #endif
 }
 // get neon register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
+    (void) ninst; (void)s1;
 #if STEP > 1
     if(dyn->ssecache[a]!=-1)
         return dyn->ssecache[a];
@@ -961,24 +1033,28 @@ int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
     VLDR128_U12(ret, xEmu, offsetof(x64emu_t, xmm[a]));
     return ret;
 #else
+    (void)dyn; (void)a;
     return 0;
 #endif
 }
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
+    (void) ninst; (void)s1;
 #if STEP > 1
     if(dyn->ssecache[a]!=-1)
         return dyn->ssecache[a];
     int ret = dyn->ssecache[a] = fpu_get_reg_xmm(dyn, a);
     return ret;
 #else
+    (void)dyn; (void)a;
     return 0;
 #endif
 }
 // purge the SSE cache for XMM0..XMM7 (to use before function native call)
 void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    (void) ninst; (void)s1;
 #if STEP > 1
     int old = -1;
     for (int i=0; i<8; ++i)
@@ -994,12 +1070,15 @@ void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1)
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "\t------ Purge XMM0..7 Cache\n");
     }
+#else
+    (void)dyn;
 #endif
 }
 
 // purge the SSE cache only
 static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    (void) ninst; (void)s1;
 #if STEP > 1
     int old = -1;
     for (int i=0; i<16; ++i)
@@ -1015,22 +1094,28 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
     }
+#else
+    (void)dyn;
 #endif
 }
 #ifdef HAVE_TRACE
 static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    (void) ninst; (void)s1;
 #if STEP > 1
     for (int i=0; i<16; ++i)
         if(dyn->ssecache[i]!=-1) {
             VSTR128_U12(dyn->ssecache[i], xEmu, offsetof(x64emu_t, xmm[i]));
         }
+#else
+    (void)dyn;
 #endif
 }
 #endif
 
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    (void) ninst; (void)s1;
 #if STEP > 1
     // only SSE regs needs to be push back to xEmu
     int n=0;
@@ -1045,11 +1130,14 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
             VSTR128_U12(dyn->ssecache[i], xEmu, offsetof(x64emu_t, xmm[i]));
         }
     MESSAGE(LOG_DUMP, "\t------- Push XMM Cache (%d)\n", n);
+#else
+    (void)dyn;
 #endif
 }
 
 void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    (void) ninst; (void)s1;
 #if STEP > 1
     // only SSE regs needs to be pop back from xEmu
     int n=0;
@@ -1064,6 +1152,8 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
             VLDR128_U12(dyn->ssecache[i], xEmu, offsetof(x64emu_t, xmm[i]));
         }
     MESSAGE(LOG_DUMP, "\t------- Pop XMM Cache (%d)\n", n);
+#else
+    (void)dyn;
 #endif
 }
 
@@ -1096,6 +1186,8 @@ void fpu_reset(dynarec_arm_t* dyn, int ninst)
 
 void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
+    MAYUSE(dyn); MAYUSE(ninst);
+    MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
     // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
     ANDw_mask(s3, s1, 0b011011, 0b000010); // mask=0xE0
     LSRw(s3, s3, 5);

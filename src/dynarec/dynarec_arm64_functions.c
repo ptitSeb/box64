@@ -36,7 +36,8 @@ void arm_fstp(x64emu_t* emu, void* p)
 
 void arm_print_armreg(x64emu_t* emu, uintptr_t reg, uintptr_t n)
 {
-    dynarec_log(LOG_DEBUG, "R%ld=0x%lx (%ld)\n", n, reg, reg);
+    (void)emu;
+    dynarec_log(LOG_DEBUG, "R%lu=0x%lx (%lu)\n", n, reg, reg);
 }
 
 void arm_f2xm1(x64emu_t* emu)
@@ -118,7 +119,7 @@ void arm_fbstp(x64emu_t* emu, uint8_t* ed)
 void arm_fistp64(x64emu_t* emu, int64_t* ed)
 {
     // used of memcpy to avoid aligments issues
-    if(STll(0).ref==ST(0).q) {
+    if((uint64_t)STll(0).ref==ST(0).q) {
         memcpy(ed, &STll(0).ll, sizeof(int64_t));
     } else {
         int64_t tmp;
@@ -244,6 +245,7 @@ void fpu_reset_reg(dynarec_arm_t* dyn)
 // Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD
 int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity, int delta)
 {
+    (void)dyn; (void)ninst;
 
     uint32_t tested = (1<<parity)-1;
     if((nextop&0xC0)==0xC0)
@@ -282,6 +284,8 @@ int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, i
 // Do the GETED, but don't emit anything...
 uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop) 
 {
+    (void)dyn; (void)addr; (void)ninst;
+
     if((nextop&0xC0)==0xC0)
         return addr;
     if(!(nextop&0xC0)) {
@@ -310,6 +314,8 @@ uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop)
 
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
 {
+    (void)dyn;
+
 #define PK(a)       *(uint8_t*)(addr+a)
 #define PK32(a)     *(int32_t*)(addr+a)
 
@@ -332,4 +338,3 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
 #undef PK32
 #undef PK
 }
-

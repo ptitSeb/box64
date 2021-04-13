@@ -1178,6 +1178,7 @@ void* GetTLSPointer(box64context_t* context, elfheader_t* h)
 #ifdef DYNAREC
 dynablocklist_t* GetDynablocksFromAddress(box64context_t *context, uintptr_t addr)
 {
+    (void)context;
     // if we are here, the there is not block in standard "space"
     /*dynablocklist_t* ret = getDBFromAddress(addr);
     if(ret) {

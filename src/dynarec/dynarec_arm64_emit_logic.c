@@ -23,9 +23,10 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
-// emit OR32 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch
+// emit OR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_or32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -89,9 +90,10 @@ void emit_or32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int
     }
 }
 
-// emit XOR32 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch
+// emit XOR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_xor32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -155,9 +157,10 @@ void emit_xor32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     }
 }
 
-// emit AND32 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch
+// emit AND32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_and32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -227,9 +230,10 @@ void emit_and32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     }
 }
 
-// emit OR8 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+// emit OR8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -292,9 +296,10 @@ void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
     }
 }
 
-// emit XOR8 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+// emit XOR8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_xor8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -357,9 +362,10 @@ void emit_xor8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
     }
 }
 
-// emit AND8 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+// emit AND8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_and8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -429,9 +435,10 @@ void emit_and8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
 }
 
 
-// emit OR16 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+// emit OR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_or16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRH_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -507,9 +514,10 @@ void emit_or16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 //    }
 //}
 
-// emit XOR16 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+// emit XOR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_xor16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRH_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -585,9 +593,10 @@ void emit_xor16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 //    }
 //}
 
-// emit AND16 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+// emit AND16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_and16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRH_U12(s2, xEmu, offsetof(x64emu_t, op2));

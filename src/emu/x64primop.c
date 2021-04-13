@@ -1400,7 +1400,7 @@ void idiv64(x64emu_t *emu, uint64_t s)
 	}
 	quot = dvd/(int64_t)s;
 	mod = dvd%(int64_t)s;
-	if (llabs(quot) > 0x7fffffffffffffffL) {
+	if ((quot > 0x7fffffffffffffffLL) || (quot < -0x7fffffffffffffffLL)) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}

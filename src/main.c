@@ -33,7 +33,6 @@ int box64_pagesize;
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
 int box64_dynarec_forced = 0;
-int box64_dynarec_largest = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #else   //DYNAREC

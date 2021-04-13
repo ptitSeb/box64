@@ -27,15 +27,16 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 {
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    int32_t i32, j32;
     int16_t i16;
     uint16_t u16;
+    int32_t i32;
+    int64_t j64;
     uint8_t gd, ed;
     uint8_t wback, wb1;
-    int fixedaddress;
-    MAYUSE(u16);
+    int64_t fixedaddress;
     MAYUSE(u8);
-    MAYUSE(j32);
+    MAYUSE(u16);
+    MAYUSE(j64);
 
     while((opcode==0x2E) || (opcode==0x66))   // ignoring CS: or multiple 0x66
         opcode = F8;
@@ -814,4 +815,3 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     }
     return addr;
 }
-

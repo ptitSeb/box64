@@ -29,21 +29,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t nextop, opcode;
     uint8_t gd, ed;
     int8_t i8;
-    int32_t i32, j32, tmp;
-    int64_t i64;
+    int32_t i32, tmp;
+    int64_t i64, j64;
     uint8_t u8;
     uint8_t gb1, gb2, eb1, eb2;
     uint32_t u32;
     uint64_t u64;
     uint8_t wback, wb1, wb2;
-    int fixedaddress;
+    int64_t fixedaddress;
 
     opcode = F8;
     MAYUSE(eb1);
     MAYUSE(eb2);
-    MAYUSE(wb2);
-    MAYUSE(tmp);
-    MAYUSE(j32);
+    MAYUSE(j64);
 
     switch(opcode) {
         case 0x00:
@@ -2212,4 +2210,3 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
  
      return addr;
 }
-
