@@ -99,7 +99,8 @@ void* getSDL2My(library_t* lib)
 
 void freeSDL2My(void* lib)
 {
-    /*sdl2_my_t *my = (sdl2_my_t *)lib;*/
+    (void)lib;
+    //sdl2_my_t *my = (sdl2_my_t *)lib;
 }
 #undef SUPER
 
@@ -550,6 +551,7 @@ EXPORT void my2_SDL_LogSetOutputFunction(x64emu_t* emu, void* f, void* arg)
 
 EXPORT int my2_SDL_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b)
 {
+    (void)emu;
     CONVERT_VALIST(b)
     int r = vsnprintf(buff, s, fmt, VARARGS);
     return r;
@@ -840,13 +842,14 @@ EXPORT int64_t my2_SDL_IsJoystickHIDAPI(x64emu_t* emu, uint64_t a, uint64_t b)
 void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* device, void* name);
 EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x64emu_t* emu)
 {
-//    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    (void)emu;
+    //sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     
-//    if(!emu->context->vkprocaddress)
-//        emu->context->vkprocaddress = (vkprocaddess_t)my->SDL_Vulkan_GetVkGetInstanceProcAddr();
+    //if(!emu->context->vkprocaddress)
+    //    emu->context->vkprocaddress = (vkprocaddess_t)my->SDL_Vulkan_GetVkGetInstanceProcAddr();
 
-//    if(emu->context->vkprocaddress)
-//        return (void*)AddCheckBridge(my_context->sdl2lib->priv.w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0);
+    //if(emu->context->vkprocaddress)
+    //    return (void*)AddCheckBridge(my_context->sdl2lib->priv.w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0);
     return NULL;
 }
 

@@ -80,6 +80,7 @@ void* getSDL1My(library_t* lib)
 
 void freeSDL1My(void* lib)
 {
+    (void)lib;
     //sdl1_my_t *my = (sdl1_my_t *)lib;
 }
 

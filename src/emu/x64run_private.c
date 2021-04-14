@@ -30,6 +30,8 @@
 
 int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
 {
+    (void)argc; (void)ubp_av; (void)fini; (void)rtld_fini; (void)stack_end;
+
     // let's cheat and set all args...
     if(init) {
         PushExit(emu);
@@ -944,7 +946,7 @@ uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg)
 const char* getAddrFunctionName(uintptr_t addr)
 {
     static char ret[1000];
-    uint32_t sz = 0;
+    uint64_t sz = 0;
     uintptr_t start = 0;
     const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, addr), (void*)addr, &start, &sz);
     if(symbname && addr>=start && (addr<(start+sz) || !sz)) {
@@ -959,7 +961,7 @@ const char* getAddrFunctionName(uintptr_t addr)
 
 void printFunctionAddr(uintptr_t nextaddr, const char* text)
 {
-    uint32_t sz = 0;
+    uint64_t sz = 0;
     uintptr_t start = 0;
     const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, nextaddr), (void*)nextaddr, &start, &sz);
     if(symbname && nextaddr>=start && (nextaddr<(start+sz) || !sz)) {
@@ -991,6 +993,7 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
             my_context->trace_dynarec = dynarec;
         }
 #else
+        (void)dynarec;
         if(my_context->trace_tid != tid) {
             printf_log(LOG_NONE, "Thread %04d|\n", tid);
             my_context->trace_tid = tid;
@@ -1178,6 +1181,8 @@ reg64_t* GetEb32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t 
 
 reg64_t* GetEw16(x64emu_t *emu, rex_t rex, uint8_t v)
 {
+    (void)rex;
+
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->regs[(m&0x07)];
@@ -1205,6 +1210,8 @@ reg64_t* GetEw16(x64emu_t *emu, rex_t rex, uint8_t v)
 
 reg64_t* GetEw16off(x64emu_t *emu, rex_t rex, uint8_t v, uintptr_t offset)
 {
+    (void)rex;
+
     uint32_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->regs[(m&0x07)];
@@ -1279,6 +1286,8 @@ reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v)
 
 mmx87_regs_t* GetGm(x64emu_t *emu, rex_t rex, uint8_t v)
 {
+    (void)rex;
+
     uint8_t m = (v&0x38)>>3;
     return &emu->mmx87[m&7];
 }

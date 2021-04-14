@@ -34,6 +34,7 @@ void* getFontconfigMy(library_t* lib)
 {
     fontconfig_my_t* my = (fontconfig_my_t*)calloc(1, sizeof(fontconfig_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
+    (void)lib; // So many wrapping here
     SUPER()
     #undef GO
     return my;
@@ -42,6 +43,7 @@ void* getFontconfigMy(library_t* lib)
 
 void freeFontconfigMy(void* lib)
 {
+    (void)lib;
     //fontconfig_my_t *my = (fontconfig_my_t *)lib;
 }
 
@@ -53,4 +55,3 @@ void freeFontconfigMy(void* lib)
     free(lib->priv.w.p2);
 
 #include "wrappedlib_init.h"
-

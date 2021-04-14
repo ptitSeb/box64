@@ -23,6 +23,7 @@ static void* getSDL2NetMy(library_t* lib)
 {
     sdl2net_my_t* my = (sdl2net_my_t*)calloc(1, sizeof(sdl2net_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
+    (void)lib; // So many wrapped functions here
     #undef GO
     return my;
 }
@@ -43,4 +44,3 @@ const char* sdl2netName = "libSDL2_net-2.0.so.0";
     my_lib = NULL;
 
 #include "wrappedlib_init.h"
-

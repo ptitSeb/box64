@@ -46,9 +46,9 @@ typedef struct bridged_s {
 
 KHASH_MAP_INIT_STR(bridgemap, bridged_t)
 
-KHASH_MAP_IMPL_STR(datamap, uint32_t)
 KHASH_MAP_IMPL_STR(symbolmap, wrapper_t)
 KHASH_MAP_IMPL_STR(symbol2map, symbol2_t)
+KHASH_MAP_IMPL_STR(datamap, uint64_t)
 
 char* Path2Name(const char* path)
 {
@@ -129,6 +129,7 @@ int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t
 
 int NativeLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
 {
+    (void)lib; (void)name; (void)offs; (void)sz;
     return 0;
 }
 
@@ -150,9 +151,9 @@ static void initNativeLib(library_t *lib, box64context_t* context) {
             lib->getlocal = NativeLib_GetLocal;
             lib->type = 0;
             // Call librarian to load all dependant elf
-            for(int i=0; i<lib->priv.w.needed; ++i) {
-                if(AddNeededLib(context->maplib, &lib->needed, lib, 0, lib->priv.w.neededlibs[i], context, thread_get_emu())) {
-                    printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->priv.w.neededlibs[i]);
+            for(int j=0; j<lib->priv.w.needed; ++j) {
+                if(AddNeededLib(context->maplib, &lib->needed, lib, 0, lib->priv.w.neededlibs[j], context, thread_get_emu())) {
+                    printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->priv.w.neededlibs[j]);
                     return;
                 }
             }
@@ -280,6 +281,8 @@ library_t *NewLibrary(const char* path, box64context_t* context)
 }
 int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x64emu_t* emu)
 {
+    (void)emu;
+
     lib->active = 1;
     if(lib->type==1) {
         elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
@@ -533,7 +536,7 @@ int GetElfIndex(library_t* lib)
     return lib->priv.n.elf_index;
 }
 
-int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uint32_t *size)
+int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size)
 {
     if(!lib->active)
         return 0;

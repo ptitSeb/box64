@@ -50,6 +50,7 @@ void* getGnutlsMy(library_t* lib)
 
 void freeGnutlsMy(void* lib)
 {
+    (void)lib;
     //gnutls_my_t *my = (gnutls_my_t *)lib;
 }
 
@@ -114,21 +115,21 @@ static void* find_pullpush_Fct(void* fct)
 
 EXPORT void my_gnutls_global_set_log_function(x64emu_t* emu, void* f)
 {
+    (void)emu;
     gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
-
     my->gnutls_global_set_log_function(find_gnutls_log_Fct(f));
 }
 
 EXPORT void my_gnutls_transport_set_pull_function(x64emu_t* emu, void* session, void* f)
 {
+    (void)emu;
     gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
-
     my->gnutls_transport_set_pull_function(session, find_pullpush_Fct(f));
 }
 EXPORT void my_gnutls_transport_set_push_function(x64emu_t* emu, void* session, void* f)
 {
+    (void)emu;
     gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
-
     my->gnutls_transport_set_push_function(session, find_pullpush_Fct(f));
 }
 
@@ -142,4 +143,3 @@ EXPORT void my_gnutls_transport_set_push_function(x64emu_t* emu, void* session, 
     free(lib->priv.w.p2);
 
 #include "wrappedlib_init.h"
-

@@ -25,14 +25,17 @@
 
 uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
+    (void)ip; (void)rep; (void)need_epilog;
+
     uint8_t opcode = F8;
     uint8_t nextop;
     uint8_t gd, ed;
-    int fixedaddress;
+    int64_t fixedaddress;
     int8_t  i8;
-    int32_t i32, j32;
-    MAYUSE(j32);
+    int32_t i32;
+    int64_t j64;
     MAYUSE(i32);
+    MAYUSE(j64);
 
     // REX prefix before the 67 are ignored
     rex.rex = 0;
@@ -117,4 +120,3 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     }
     return addr;
 }
-

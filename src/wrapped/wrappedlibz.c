@@ -40,6 +40,7 @@ void* getZMy(library_t* lib)
 
 void freeZMy(void* lib)
 {
+    (void)lib;
     //libz_my_t *my = (libz_my_t *)lib;
 }
 
@@ -115,6 +116,7 @@ typedef struct z_stream_s {
 
 static void wrapper_stream_z(x64emu_t* emu, void* str)
 {
+    (void)emu;
     z_stream *stream = (z_stream*)str;
     stream->zalloc = find_alloc_Fct(stream->zalloc);
     stream->zfree = find_free_Fct(stream->zfree);

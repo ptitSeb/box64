@@ -14,10 +14,6 @@ typedef struct x64emu_s x64emu_t;
 #define LN2		0.69314718055994531
 #define LG2		0.3010299956639812
 
-//void Run66D9(x64emu_t *emu);
-//void Run66DD(x64emu_t *emu);
-//void RunDF(x64emu_t *emu);
-
 #define ST0 emu->mmx87[emu->top]
 #define ST1 emu->mmx87[(emu->top+1)&7]
 #define ST(a) emu->mmx87[(emu->top+(a))&7]
@@ -58,8 +54,8 @@ static inline void fpu_do_free(x64emu_t* emu, int i)
 {
     emu->p_regs[(emu->top+i)&7].tag = 0b11;    // empty
     // check if all empty
-    for(int i=0; i<8; ++i)
-        if(emu->p_regs[i].tag != 0b11)
+    for(int j=0; j<8; ++j)
+        if(emu->p_regs[j].tag != 0b11)
             return;
     emu->fpu_stack = 0;
 }

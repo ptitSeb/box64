@@ -31,7 +31,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
     uint8_t opcode;
     uint8_t nextop;
     uint8_t tmp8u;
-    int32_t tmp32s;
+    int32_t tmp32s;             (void)tmp32s;
     uint32_t tmp32u, tmp32u2;
     int64_t tmp64s;
     uint64_t tmp64u, tmp64u2;

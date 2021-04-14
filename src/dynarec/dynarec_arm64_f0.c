@@ -25,17 +25,18 @@
 
 uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
+    (void)ip; (void)rep; (void)need_epilog;
+
     uint8_t opcode = F8;
     uint8_t nextop;
-    int32_t j32;
     uint8_t gd, ed;
     uint8_t wback, wb2, gb1, gb2;
-    int64_t i64;
-    int fixedaddress;
+    int64_t i64, j64;
+    int64_t fixedaddress;
     MAYUSE(gb1);
     MAYUSE(gb2);
     MAYUSE(wb2);
-    MAYUSE(j32);
+    MAYUSE(j64);
 
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
@@ -441,4 +442,3 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     }
     return addr;
 }
-

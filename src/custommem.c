@@ -33,7 +33,7 @@ KHASH_MAP_INIT_INT64(dynablocks, dynablock_t*)
 static dynablocklist_t***  dynmap123[1<<DYNAMAP_SHIFT]; // 64bits.. in 4x16bits array
 static pthread_mutex_t     mutex_mmap;
 static mmaplist_t          *mmaplist;
-static int                 mmapsize;
+static size_t              mmapsize;
 static kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
 static uintptr_t***        box64_jmptbl3[1<<JMPTABL_SHIFT];
 static uintptr_t**         box64_jmptbldefault2[1<<JMPTABL_SHIFT];
@@ -50,7 +50,7 @@ static int inited = 0;
 
 typedef struct blocklist_s {
     void*               block;
-    int                 maxfree;
+    size_t              maxfree;
     size_t              size;
 } blocklist_t;
 
@@ -74,7 +74,7 @@ typedef struct blockmark_s {
 
 
 // get first subblock free in block, stating at start (from block). return NULL if no block, else first subblock free (mark included), filling size
-static void* getFirstBlock(void* block, int maxsize, int* size)
+static void* getFirstBlock(void* block, size_t maxsize, size_t* size)
 {
     // get start of block
     blockmark_t *m = (blockmark_t*)block;
@@ -89,7 +89,7 @@ static void* getFirstBlock(void* block, int maxsize, int* size)
     return NULL;
 }
 
-static int getMaxFreeBlock(void* block, size_t block_size)
+static size_t getMaxFreeBlock(void* block, size_t block_size)
 {
     // get start of block
     blockmark_t *m = (blockmark_t*)((uintptr_t)block+block_size-sizeof(blockmark_t)); // styart with the end
@@ -105,8 +105,10 @@ static int getMaxFreeBlock(void* block, size_t block_size)
     return maxsize;
 }
 
-static void* allocBlock(void* block, void *sub, int size)
+static void* allocBlock(void* block, void *sub, size_t size)
 {
+    (void)block;
+
     blockmark_t *s = (blockmark_t*)sub;
     blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
 
@@ -152,14 +154,17 @@ static void freeBlock(void *block, void* sub)
     }
 }
 // return 1 if block has been expanded to new size, 0 if not
-static int expandBlock(void* block, void* sub, int newsize)
+static int expandBlock(void* block, void* sub, size_t newsize)
 {
+    (void)block;
+
     newsize = (newsize+3)&~3;
     blockmark_t *s = (blockmark_t*)sub;
     blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
     if(s->next.fill)
         return 0;   // next block is filled
-    if(s->next.size + n->next.size < newsize)
+    // unsigned bitfield of this length gets "promoted" to *signed* int...
+    if((size_t)(s->next.size + n->next.size) < newsize)
         return 0;   // free space too short
     // ok, doing the alloc!
     s->next.size = newsize+sizeof(blockmark_t);
@@ -178,7 +183,7 @@ static int expandBlock(void* block, void* sub, int newsize)
     return 1;
 }
 // return size of block
-static int sizeBlock(void* sub)
+static size_t sizeBlock(void* sub)
 {
     blockmark_t *s = (blockmark_t*)sub;
     return s->next.size;
@@ -191,7 +196,7 @@ void* customMalloc(size_t size)
     pthread_mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
         if(p_blocks[i].maxfree>=size) {
-            int rsize = 0;
+            size_t rsize = 0;
             sub = getFirstBlock(p_blocks[i].block, size, &rsize);
             if(sub) {
                 void* ret = allocBlock(p_blocks[i].block, sub, size);
@@ -253,17 +258,16 @@ void* customRealloc(void* p, size_t size)
                 pthread_mutex_unlock(&mutex_blocks);
                 return p;
             }
-                pthread_mutex_unlock(&mutex_blocks);
-                void* newp = customMalloc(size);
-                memcpy(newp, p, sizeBlock(sub));
-                customFree(p);
-                return newp;
-            
+            pthread_mutex_unlock(&mutex_blocks);
+            void* newp = customMalloc(size);
+            memcpy(newp, p, sizeBlock(sub));
+            customFree(p);
+            return newp;
         }
     }
     pthread_mutex_unlock(&mutex_blocks);
     if(n_blocks)
-        dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Realloc, Malloc'ng again without free\n", (void*)addr);
+        dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for realloc, malloc'ing again without free\n", (void*)addr);
     return customMalloc(size);
 }
 void customFree(void* p)
@@ -290,19 +294,19 @@ void customFree(void* p)
 #ifdef DYNAREC
 typedef struct mmaplist_s {
     void*               block;
-    int                 maxfree;
+    size_t              maxfree;
     size_t              size;
     kh_dynablocks_t*    dblist;
     uint8_t*            helper;
 } mmaplist_t;
 
-uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
+uintptr_t FindFreeDynarecMap(dynablock_t* db, size_t size)
 {
     // look for free space
     void* sub = NULL;
-    for(int i=0; i<mmapsize; ++i) {
+    for(size_t i=0; i<mmapsize; ++i) {
         if(mmaplist[i].maxfree>=size) {
-            int rsize = 0;
+            size_t rsize = 0;
             sub = getFirstBlock(mmaplist[i].block, size, &rsize);
             if(sub) {
                 uintptr_t ret = (uintptr_t)allocBlock(mmaplist[i].block, sub, size);
@@ -317,7 +321,7 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
                 int r;
                 k = kh_put(dynablocks, blocks, (uintptr_t)ret, &r);
                 kh_value(blocks, k) = db;
-                for(int j=0; j<size; ++j)
+                for(size_t j=0; j<size; ++j)
                     mmaplist[i].helper[(uintptr_t)ret-(uintptr_t)mmaplist[i].block+j] = (j<256)?j:255;
                 return ret;
             }
@@ -326,15 +330,15 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
     return 0;
 }
 
-uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
+uintptr_t AddNewDynarecMap(dynablock_t* db, size_t size)
 {
-    int i = mmapsize++;
-    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", mmapsize);
+    size_t i = mmapsize++;
+    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%zu\n", mmapsize);
     mmaplist = (mmaplist_t*)realloc(mmaplist, mmapsize*sizeof(mmaplist_t));
     #ifndef USE_MMAP
     void *p = NULL;
     if(posix_memalign(&p, box64_pagesize, MMAPSIZE)) {
-        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
+        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%zu\n", MMAPSIZE, i);
         --mmapsize;
         return 0;
     }
@@ -342,7 +346,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
     #else
     void* p = mmap(NULL, MMAPSIZE, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     if(p==(void*)-1) {
-        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
+        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%zu\n", MMAPSIZE, i);
         --mmapsize;
         return 0;
     }
@@ -370,16 +374,17 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
     int ret;
     k = kh_put(dynablocks, blocks, (uintptr_t)sub, &ret);
     kh_value(blocks, k) = db;
-    for(int j=0; j<size; ++j)
+    for(size_t j=0; j<size; ++j)
         mmaplist[i].helper[(uintptr_t)sub-(uintptr_t)mmaplist[i].block + j] = (j<256)?j:255;
     return sub;
 }
 
-void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int size)
+void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
 {
+    (void)db;
     if(!addr || !size)
         return;
-    for(int i=0; i<mmapsize; ++i) {
+    for(size_t i=0; i<mmapsize; ++i) {
         if ((addr>(uintptr_t)mmaplist[i].block) 
          && (addr<((uintptr_t)mmaplist[i].block+mmaplist[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
@@ -390,20 +395,20 @@ void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int size)
                 khint_t k = kh_get(dynablocks, blocks, (uintptr_t)sub);
                 if(k!=kh_end(blocks))
                     kh_del(dynablocks, blocks, k);
-                for(int j=0; j<size; ++j)
+                for(size_t j=0; j<size; ++j)
                     mmaplist[i].helper[(uintptr_t)sub-(uintptr_t)mmaplist[i].block+j] = 0;
             }
             return;
         }
     }
     if(mmapsize)
-        dynarec_log(LOG_NONE, "Warning, block %p (size %d) not found in mmaplist for Free\n", (void*)addr, size);
+        dynarec_log(LOG_NONE, "Warning, block %p (size %zu) not found in mmaplist for Free\n", (void*)addr, size);
 }
 
 dynablock_t* FindDynablockFromNativeAddress(void* addr)
 {
     // look in actual list
-    for(int i=0; i<mmapsize; ++i) {
+    for(size_t i=0; i<mmapsize; ++i) {
         if ((uintptr_t)addr>=(uintptr_t)mmaplist[i].block 
         && ((uintptr_t)addr<(uintptr_t)mmaplist[i].block+mmaplist[i].size)) {
             if(!mmaplist[i].helper)
@@ -422,7 +427,7 @@ dynablock_t* FindDynablockFromNativeAddress(void* addr)
     return FindDynablockDynablocklist(addr, dblist_oversized);
 }
 
-uintptr_t AllocDynarecMap(dynablock_t* db, int size)
+uintptr_t AllocDynarecMap(dynablock_t* db, size_t size)
 {
     if(!size)
         return 0;
@@ -431,14 +436,14 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         pthread_mutex_lock(&mutex_mmap);
         void *p = NULL;
         if(posix_memalign(&p, box64_pagesize, size)) {
-            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
+            dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", size);
             return 0;
         }
         mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
         #else
         void* p = mmap(NULL, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
         if(p==(void*)-1) {
-            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
+            dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", size);
             return 0;
         }
         #endif
@@ -467,7 +472,7 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
     return ret;
 }
 
-void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
+void FreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
 {
     if(!addr || !size)
         return;
@@ -508,7 +513,7 @@ dynablocklist_t* getDB(uintptr_t idx)
 
 // each dynmap is 64k of size
 
-void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
+void addDBFromAddressRange(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>DYNAMAP_SHIFT);
@@ -535,7 +540,7 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
     }
 }
 
-void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
+void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
 {
     dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
     uintptr_t idx = (addr>>DYNAMAP_SHIFT);
@@ -664,7 +669,7 @@ uintptr_t getJumpTableAddress64(uintptr_t addr)
 
 // Remove the Write flag from an adress range, so DB can be executed
 // no log, as it can be executed inside a signal handler
-void protectDB(uintptr_t addr, uintptr_t size)
+void protectDB(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
@@ -693,7 +698,7 @@ void protectDBnolock(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     int ret;
     for (uintptr_t i=idx; i<=end; ++i) {
         const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
@@ -724,7 +729,7 @@ void unlockDB()
 
 // Add the Write flag from an adress range, and mark all block as dirty
 // no log, as it can be executed inside a signal handler
-void unprotectDB(uintptr_t addr, uintptr_t size)
+void unprotectDB(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
@@ -751,7 +756,7 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
 
 #endif
 
-void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
+void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "updateProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
@@ -774,7 +779,7 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
     pthread_mutex_unlock(&mutex_prot);
 }
 
-void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
+void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "setProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
@@ -794,7 +799,7 @@ void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
     pthread_mutex_unlock(&mutex_prot);
 }
 
-void freeProtection(uintptr_t addr, uintptr_t size)
+void freeProtection(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
@@ -832,7 +837,7 @@ uint32_t getProtection(uintptr_t addr)
 #define LOWEST (void*)0x20000
 int availableBlock(uint8_t* p, size_t n)
 {
-    for (int i=0; i<n; ++i, ++p)
+    for (size_t i=0; i<n; ++i, ++p)
         if(*p)
             return 0;
     return 1;
@@ -857,7 +862,7 @@ void* find32bitBlock(size_t size)
             return p;
         p += 0x10000;
     } while(p!=(void*)0xffff0000);
-    printf_log(LOG_NONE, "Warning: cannot find a 0x%lx block in 32bits address space\n", size);
+    printf_log(LOG_NONE, "Warning: cannot find a 0x%zx block in 32bits address space\n", size);
     return NULL;
 }
 void* findBlockNearHint(void* hint, size_t size)
@@ -883,7 +888,7 @@ void* findBlockNearHint(void* hint, size_t size)
             return p;
         p += step;
     } while(p!=end);
-    printf_log(LOG_NONE, "Warning: cannot find a 0x%lx block in 32bits address space\n", size);
+    printf_log(LOG_NONE, "Warning: cannot find a 0x%zx block in 32bits address space\n", size);
     return NULL;
 }
 #undef LOWEST
@@ -943,6 +948,7 @@ static void atfork_child_custommem(void)
 
 void init_custommem_helper(box64context_t* ctx)
 {
+    (void)ctx;
     if(inited) // already initialized
         return;
     inited = 1;
@@ -966,13 +972,14 @@ void init_custommem_helper(box64context_t* ctx)
 
 void fini_custommem_helper(box64context_t *ctx)
 {
+    (void)ctx;
     if(!inited)
         return;
     inited = 0;
 #ifdef DYNAREC
     if(box64_dynarec) {
         dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
-        for (int i=0; i<mmapsize; ++i) {
+        for (size_t i=0; i<mmapsize; ++i) {
             if(mmaplist[i].block)
                 #ifdef USE_MMAP
                 munmap(mmaplist[i].block, mmaplist[i].size);

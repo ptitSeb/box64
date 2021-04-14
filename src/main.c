@@ -33,7 +33,6 @@ int box64_pagesize;
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
 int box64_dynarec_forced = 0;
-int box64_dynarec_largest = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #else   //DYNAREC
@@ -519,28 +518,28 @@ void LoadEnvVars(box64context_t *context)
 }
 
 EXPORTDYN
-void setupTraceInit(box64context_t* context)
+void setupTraceInit()
 {
 #ifdef HAVE_TRACE
     char* p = getenv("BOX64_TRACE_INIT");
     if(p) {
         setbuf(stdout, NULL);
-        uintptr_t trace_start=0, trace_end=0;
+        uintptr_t s_trace_start=0, s_trace_end=0;
         if (strcmp(p, "1")==0)
             SetTraceEmu(0, 0);
         else if (strchr(p,'-')) {
-            if(sscanf(p, "%ld-%ld", &trace_start, &trace_end)!=2) {
-                if(sscanf(p, "0x%lX-0x%lX", &trace_start, &trace_end)!=2)
-                    sscanf(p, "%lx-%lx", &trace_start, &trace_end);
+            if(sscanf(p, "%ld-%ld", &s_trace_start, &s_trace_end)!=2) {
+                if(sscanf(p, "0x%lX-0x%lX", &s_trace_start, &s_trace_end)!=2)
+                    sscanf(p, "%lx-%lx", &s_trace_start, &s_trace_end);
             }
-            if(trace_start || trace_end)
-                SetTraceEmu(trace_start, trace_end);
+            if(s_trace_start || s_trace_end)
+                SetTraceEmu(s_trace_start, s_trace_end);
         } else {
-            if (GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &trace_start, &trace_end)) {
-                SetTraceEmu(trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+            if (GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &s_trace_start, &s_trace_end)) {
+                SetTraceEmu(s_trace_start, s_trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
-                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
+                printf_log(LOG_NONE, "Warning, symbol to trace (\"%s\") not found, disabling trace\n", p);
                 SetTraceEmu(0, 100);  // disabling trace, mostly
             }
         }
@@ -554,37 +553,37 @@ void setupTraceInit(box64context_t* context)
 }
 
 EXPORTDYN
-void setupTrace(box64context_t* context)
+void setupTrace()
 {
 #ifdef HAVE_TRACE
     char* p = getenv("BOX64_TRACE");
     if(p) {
         setbuf(stdout, NULL);
-        uintptr_t trace_start=0, trace_end=0;
+        uintptr_t s_trace_start=0, s_trace_end=0;
         if (strcmp(p, "1")==0)
             SetTraceEmu(0, 0);
         else if (strchr(p,'-')) {
-            if(sscanf(p, "%ld-%ld", &trace_start, &trace_end)!=2) {
-                if(sscanf(p, "0x%lX-0x%lX", &trace_start, &trace_end)!=2)
-                    sscanf(p, "%lx-%lx", &trace_start, &trace_end);
+            if(sscanf(p, "%ld-%ld", &s_trace_start, &s_trace_end)!=2) {
+                if(sscanf(p, "0x%lX-0x%lX", &s_trace_start, &s_trace_end)!=2)
+                    sscanf(p, "%lx-%lx", &s_trace_start, &s_trace_end);
             }
-            if(trace_start || trace_end) {
-                SetTraceEmu(trace_start, trace_end);
-                if(!trace_start && trace_end==1) {
+            if(s_trace_start || s_trace_end) {
+                SetTraceEmu(s_trace_start, s_trace_end);
+                if(!s_trace_start && s_trace_end==1) {
                     printf_log(LOG_INFO, "TRACE enabled but inactive\n");
                 } else {
-                    printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+                    printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
                 }
             }
         } else {
-            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end)) {
-                SetTraceEmu(trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
-            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL)) {
-                SetTraceEmu(trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end)) {
+                SetTraceEmu(s_trace_start, s_trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
+            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL)) {
+                SetTraceEmu(s_trace_start, s_trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
-                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, trying to set trace later\n", p);
+                printf_log(LOG_NONE, "Warning, symbol to trace (\"%s\") not found, trying to set trace later\n", p);
                 SetTraceEmu(0, 1);  // disabling trace, mostly
                 trace_func = strdup(p);
             }
@@ -966,7 +965,7 @@ int main(int argc, const char **argv, const char **env) {
 
     thread_set_emu(emu);
 
-    setupTraceInit(my_context);
+    setupTraceInit();
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbol(my_context->maplib), GetWeakSymbol(my_context->maplib), GetLocalSymbol(my_context->maplib), elf_header);
     if(wine_preloaded) {
@@ -1012,7 +1011,7 @@ int main(int argc, const char **argv, const char **env) {
     // do some special case check, _IO_2_1_stderr_ and friends, that are setup by libc, but it's already done here, so need to do a copy
     ResetSpecialCaseMainElf(elf_header);
     // init...
-    setupTrace(my_context);
+    setupTrace();
     // get entrypoint
     my_context->ep = GetEntryPoint(my_context->maplib, elf_header);
 #if defined(RPI) || defined(RK3399) || defined(RK3326)

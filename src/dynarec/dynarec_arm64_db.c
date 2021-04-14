@@ -26,19 +26,21 @@
 
 uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
+    (void)ip; (void)rep; (void)need_epilog;
+
     uint8_t nextop = F8;
     uint8_t ed;
     uint8_t wback;
     uint8_t u8;
-    int fixedaddress;
+    int64_t fixedaddress;
     int v1, v2;
     int s0;
-    int j32;
+    int64_t j64;
 
     MAYUSE(s0);
     MAYUSE(v2);
     MAYUSE(v1);
-    MAYUSE(j32);
+    MAYUSE(j64);
 
     switch(nextop) {
         case 0xC0:
@@ -286,4 +288,3 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     }
     return addr;
 }
-

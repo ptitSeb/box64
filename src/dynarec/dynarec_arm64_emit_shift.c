@@ -26,8 +26,9 @@
 // emit SHL32 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch. s3 can be same as s2
 void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
-    int32_t j32;
-    MAYUSE(j32);
+    MAYUSE(s2);
+    int64_t j64;
+    MAYUSE(j64);
 
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -138,8 +139,9 @@ void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
 // emit SHR32 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, s2 can be same as s3
 void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
-    int32_t j32;
-    MAYUSE(j32);
+    MAYUSE(s2);
+    int64_t j64;
+    MAYUSE(j64);
 
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -281,6 +283,7 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
 // emit ROL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4)
 {
+    MAYUSE(rex); MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRxw_U12(s3, xEmu, offsetof(x64emu_t, op2));
@@ -312,6 +315,7 @@ void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
 // emit ROR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4)
 {
+    MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRxw_U12(s3, xEmu, offsetof(x64emu_t, op2));

@@ -45,6 +45,7 @@ void* getGLUMy(library_t* lib)
 
 void freeGLUMy(void* lib)
 {
+    (void)lib;
     //libglu_my_t *my = (libglu_my_t *)lib;
 }
 #undef SUPER
@@ -136,11 +137,13 @@ static void* findglu_callback5Fct(void* fct)
 #define GLU_TESS_COMBINE_DATA              100111
 void EXPORT my_gluQuadricCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
 {
+    (void)emu;
     libglu_my_t *my = (libglu_my_t*)my_lib->priv.w.p2;
     my->gluQuadricCallback(a, b, findglu_callbackFct(cb));
 }
 void EXPORT my_gluTessCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
 {
+    (void)emu;
     libglu_my_t *my = (libglu_my_t*)my_lib->priv.w.p2;
     if(b==GLU_TESS_COMBINE)
         my->gluTessCallback(a, b, findglu_callback4Fct(cb));
@@ -151,6 +154,7 @@ void EXPORT my_gluTessCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
 }
 void EXPORT my_gluNurbsCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
 {
+    (void)emu;
     libglu_my_t *my = (libglu_my_t*)my_lib->priv.w.p2;
     my->gluNurbsCallback(a, b, findglu_callbackFct(cb));
 }

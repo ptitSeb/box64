@@ -36,6 +36,7 @@ void* getLzmaMy(library_t* lib)
 {
     lzma_my_t* my = (lzma_my_t*)calloc(1, sizeof(lzma_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
+    (void)lib; // So many wrapped functions here
     SUPER()
     #undef GO
     return my;
@@ -44,6 +45,7 @@ void* getLzmaMy(library_t* lib)
 
 void freeLzmaMy(void* lib)
 {
+    (void)lib;
     //lzma_my_t *my = (lzma_my_t *)lib;
 }
 
@@ -57,4 +59,3 @@ void freeLzmaMy(void* lib)
     my_lib = NULL;
 
 #include "wrappedlib_init.h"
-

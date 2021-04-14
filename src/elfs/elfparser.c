@@ -43,7 +43,7 @@ int FindSection(Elf64_Shdr *s, int n, char* SHStrTab, const char* name)
     return 0;
 }
 
-void LoadNamedSection(FILE *f, Elf64_Shdr *s, int size, char* SHStrTab, const char* name, const char* clearname, uint32_t type, void** what, int* num)
+void LoadNamedSection(FILE *f, Elf64_Shdr *s, int size, char* SHStrTab, const char* name, const char* clearname, uint32_t type, void** what, size_t* num)
 {
     int n = FindSection(s, size, SHStrTab, name);
     printf_log(LOG_DEBUG, "Loading %s (idx = %d)\n", clearname, n);
@@ -141,7 +141,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             h->numSHEntries = section.sh_size;
         }
         // now read all section headers
-        printf_log(LOG_DEBUG, "Read %d Section header\n", h->numSHEntries);
+        printf_log(LOG_DEBUG, "Read %zu Section header\n", h->numSHEntries);
         h->SHEntries = (Elf64_Shdr*)calloc(h->numSHEntries, sizeof(Elf64_Shdr));
         fseeko64(f, header.e_shoff ,SEEK_SET);
         if(fread(h->SHEntries, sizeof(Elf64_Shdr), h->numSHEntries, f)!=h->numSHEntries) {
@@ -157,7 +157,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         }
     }
 
-    printf_log(LOG_DEBUG, "Read %d Program header\n", h->numPHEntries);
+    printf_log(LOG_DEBUG, "Read %zu Program header\n", h->numPHEntries);
     h->PHEntries = (Elf64_Phdr*)calloc(h->numPHEntries, sizeof(Elf64_Phdr));
     fseeko64(f, header.e_phoff ,SEEK_SET);
     if(fread(h->PHEntries, sizeof(Elf64_Phdr), h->numPHEntries, f)!=h->numPHEntries) {
@@ -172,12 +172,12 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             h->SHIdx = h->SHEntries[0].sh_link;
         }
         if(h->SHIdx > h->numSHEntries) {
-            printf_log(LOG_INFO, "Incoherent Section String Table Index : %d / %d\n", h->SHIdx, h->numSHEntries);
+            printf_log(LOG_INFO, "Incoherent Section String Table Index : %zu / %zu\n", h->SHIdx, h->numSHEntries);
             FreeElfHeader(&h);
             return NULL;
         }
         // load Section table
-        printf_log(LOG_DEBUG, "Loading Sections Table String (idx = %d)\n", h->SHIdx);
+        printf_log(LOG_DEBUG, "Loading Sections Table String (idx = %zu)\n", h->SHIdx);
         if(LoadSH(f, h->SHEntries+h->SHIdx, (void*)&h->SHStrTab, ".shstrtab", SHT_STRTAB)) {
             FreeElfHeader(&h);
             return NULL;
@@ -193,7 +193,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         // grab DT_REL & DT_RELA stuffs
         // also grab the DT_STRTAB string table
         {
-            for (int i=0; i<h->numDynamic; ++i) {
+            for (size_t i=0; i<h->numDynamic; ++i) {
                 if(h->Dynamic[i].d_tag == DT_REL)
                     h->rel = h->Dynamic[i].d_un.d_ptr;
                 else if(h->Dynamic[i].d_tag == DT_RELSZ)
@@ -221,19 +221,19 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             }
             if(h->rel) {
                 if(h->relent != sizeof(Elf64_Rel)) {
-                    printf_log(LOG_NONE, "Rel Table Entry size invalid (0x%x should be 0x%lx)\n", h->relent, sizeof(Elf64_Rel));
+                    printf_log(LOG_NONE, "Rel Table Entry size invalid (0x%x should be 0x%zx)\n", h->relent, sizeof(Elf64_Rel));
                     FreeElfHeader(&h);
                     return NULL;
                 }
-                printf_log(LOG_DEBUG, "Rel Table @%p (0x%x/0x%x)\n", (void*)h->rel, h->relsz, h->relent);
+                printf_log(LOG_DEBUG, "Rel Table @%p (0x%zx/0x%x)\n", (void*)h->rel, h->relsz, h->relent);
             }
             if(h->rela) {
                 if(h->relaent != sizeof(Elf64_Rela)) {
-                    printf_log(LOG_NONE, "RelA Table Entry size invalid (0x%x should be 0x%lx)\n", h->relaent, sizeof(Elf64_Rela));
+                    printf_log(LOG_NONE, "RelA Table Entry size invalid (0x%x should be 0x%zx)\n", h->relaent, sizeof(Elf64_Rela));
                     FreeElfHeader(&h);
                     return NULL;
                 }
-                printf_log(LOG_DEBUG, "RelA Table @%p (0x%x/0x%x)\n", (void*)h->rela, h->relasz, h->relaent);
+                printf_log(LOG_DEBUG, "RelA Table @%p (0x%zx/0x%x)\n", (void*)h->rela, h->relasz, h->relaent);
             }
             if(h->jmprel) {
                 if(h->pltrel == DT_REL) {
@@ -241,16 +241,16 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                 } else if(h->pltrel == DT_RELA) {
                     h->pltent = sizeof(Elf64_Rela);
                 } else {
-                    printf_log(LOG_NONE, "PLT Table type is unknown (size = 0x%x, type=%ld)\n", h->pltsz, h->pltrel);
+                    printf_log(LOG_NONE, "PLT Table type is unknown (size = 0x%zx, type=%ld)\n", h->pltsz, h->pltrel);
                     FreeElfHeader(&h);
                     return NULL;
                 }
                 if((h->pltsz / h->pltent)*h->pltent != h->pltsz) {
-                    printf_log(LOG_NONE, "PLT Table Entry size invalid (0x%x, ent=0x%x, type=%ld)\n", h->pltsz, h->pltent, h->pltrel);
+                    printf_log(LOG_NONE, "PLT Table Entry size invalid (0x%zx, ent=0x%x, type=%ld)\n", h->pltsz, h->pltent, h->pltrel);
                     FreeElfHeader(&h);
                     return NULL;
                 }
-                printf_log(LOG_DEBUG, "PLT Table @%p (type=%ld 0x%x/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
+                printf_log(LOG_DEBUG, "PLT Table @%p (type=%ld 0x%zx/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
             }
             if(h->DynStrTab && h->szDynStrTab) {
                 //DumpDynamicNeeded(h); cannot dump now, it's not loaded yet
@@ -286,7 +286,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         if(ii) {
             h->initarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf64_Addr);
             h->initarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
-            printf_log(LOG_DEBUG, "The .init_array is at address %p, and have %d elements\n", (void*)h->initarray, h->initarray_sz);
+            printf_log(LOG_DEBUG, "The .init_array is at address %p, and have %zu elements\n", (void*)h->initarray, h->initarray_sz);
         }
         // look for .fini entry point
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini");
@@ -299,14 +299,14 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         if(ii) {
             h->finiarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf64_Addr);
             h->finiarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
-            printf_log(LOG_DEBUG, "The .fini_array is at address %p, and have %d elements\n", (void*)h->finiarray, h->finiarray_sz);
+            printf_log(LOG_DEBUG, "The .fini_array is at address %p, and have %zu elements\n", (void*)h->finiarray, h->finiarray_sz);
         }
         // grab .text for main code
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");
         if(ii) {
             h->text = (uintptr_t)(h->SHEntries[ii].sh_addr);
             h->textsz = h->SHEntries[ii].sh_size;
-            printf_log(LOG_DEBUG, "The .text is at address %p, and is %d big\n", (void*)h->text, h->textsz);
+            printf_log(LOG_DEBUG, "The .text is at address %p, and is %zu big\n", (void*)h->text, h->textsz);
         }
 
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);

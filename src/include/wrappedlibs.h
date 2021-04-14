@@ -15,7 +15,6 @@ typedef struct wrappedlib_s {
     wrappedlib_fini_t   fini;
     wrappedlib_get_t    get;
     wrappedlib_get_t    getnoweak;
-    wrappedlib_get_t    getlocal;
 } wrappedlib_t;
 
 #endif //__WRAPPEDLIBS_H__

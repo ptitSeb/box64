@@ -71,6 +71,7 @@ void* getXextMy(library_t* lib)
 
 void freeXextMy(void* lib)
 {
+    (void)lib;
     //xext_my_t *my = (xext_my_t *)lib;
 }
 
@@ -155,6 +156,7 @@ EXPORT int32_t my_XShmGetImage(x64emu_t* emu, void* disp, void* drawable, void* 
 
 EXPORT void* my_XSetExtensionErrorHandler(x64emu_t* emu, void* handler)
 {
+    (void)emu;
     xext_my_t *my = (xext_my_t*)my_lib->priv.w.p2;
     return reverse_exterrorhandleFct(my->XSetExtensionErrorHandler(find_exterrorhandle_Fct(handler)));
 }
@@ -268,4 +270,3 @@ EXPORT int32_t my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* 
     my_lib = NULL;
 
 #include "wrappedlib_init.h"
-

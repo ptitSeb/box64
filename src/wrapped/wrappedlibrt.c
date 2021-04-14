@@ -62,6 +62,7 @@ static void* findsigev_notifyFct(void* fct)
 
 EXPORT int my_timer_create(x64emu_t* emu, uint32_t clockid, void* sevp, timer_t* timerid)
 {
+    (void)emu;
     struct sigevent sevent;
     memcpy(&sevent, sevp, sizeof(sevent));
 

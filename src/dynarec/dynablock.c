@@ -214,7 +214,7 @@ void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
         uintptr_t new_size = size + dynablocks->maxsz;
         MarkDirectDynablock(dynablocks, new_addr, new_size);
         // the blocks check before
-        for(int idx=(new_addr)>>DYNAMAP_SHIFT; idx<(addr>>DYNAMAP_SHIFT); ++idx)
+        for(unsigned idx=(new_addr)>>DYNAMAP_SHIFT; idx<(addr>>DYNAMAP_SHIFT); ++idx)
             MarkDirectDynablock(getDB(idx), new_addr, new_size);
     }
 }
@@ -347,7 +347,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         int blocksz = block->x64_size;
         if(dynablocks->maxsz<blocksz) {
             dynablocks->maxsz = blocksz;
-            for(int idx=(addr>>DYNAMAP_SHIFT)+1; idx<=((addr+blocksz)>>DYNAMAP_SHIFT); ++idx) {
+            for(unsigned idx=(addr>>DYNAMAP_SHIFT)+1; idx<=((addr+blocksz)>>DYNAMAP_SHIFT); ++idx) {
                 dynablocklist_t* dblist;
                 if((dblist = getDB(idx)))
                     if(dblist->maxsz<blocksz)

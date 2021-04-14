@@ -48,8 +48,8 @@ void* getCurlMy(library_t* lib)
 
 void freeCurlMy(void* lib)
 {
+    (void)lib;
 //    curl_my_t *my = (curl_my_t *)lib;
-
 }
 #undef SUPER
 
@@ -489,6 +489,7 @@ static void* find_progress_Fct(void* fct)
 
 EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option, void* param)
 {
+    (void)emu;
     curl_my_t *my = (curl_my_t*)my_lib->priv.w.p2;
 
     switch(option) {
@@ -559,4 +560,3 @@ EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option
     my_lib = NULL;
 
 #include "wrappedlib_init.h"
-

@@ -23,9 +23,10 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
-// emit CMP32 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+// emit CMP32 instruction, from cmp s1, s2, using s3 and s4 as scratch
 void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
+    MAYUSE(s1); MAYUSE(s2);
     IFX_PENDOR0 {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -110,9 +111,10 @@ void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int 
     }
 }
 
-// emit CMP16 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+// emit CMP16 instruction, from cmp s1, s2, using s3 and s4 as scratch
 void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
+    MAYUSE(s1); MAYUSE(s2);
     IFX_PENDOR0 {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRH_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -189,9 +191,10 @@ void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
-// emit CMP8 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+// emit CMP8 instruction, from cmp s1, s2, using s3 and s4 as scratch
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
+    MAYUSE(s1); MAYUSE(s2);
     IFX_PENDOR0 {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -270,9 +273,10 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
 }
 
-// emit TEST32 instruction, from test s1 , s2, using s3 and s4 as scratch
+// emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
 void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s1); MAYUSE(s2); MAYUSE(s3); MAYUSE(s4);
     IFX_PENDOR0 {
         SET_DF(s3, rex.w?d_tst64:d_tst32);
     } else {
@@ -307,9 +311,10 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 }
 
-// emit TEST16 instruction, from test s1 , s2, using s3 and s4 as scratch
+// emit TEST16 instruction, from test s1, s2, using s3 and s4 as scratch
 void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
+    MAYUSE(s1); MAYUSE(s2);
     IFX_PENDOR0 {
         SET_DF(s3, d_tst16);
     } else {
@@ -339,9 +344,10 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 }
 
-// emit TEST8 instruction, from test s1 , s2, using s3 and s4 as scratch
+// emit TEST8 instruction, from test s1, s2, using s3 and s4 as scratch
 void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
+    MAYUSE(s1); MAYUSE(s2);
     IFX_PENDOR0 {
         SET_DF(s3, d_tst8);
     } else {

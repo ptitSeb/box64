@@ -44,17 +44,20 @@
 
 uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
+    (void)ip; (void)rep; (void)need_epilog;
+
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    int32_t i32, j32;
+    int32_t i32;
     uint8_t gd, ed;
     uint8_t wback, wb1;
     uint8_t eb1, eb2;
+    int64_t j64;
     uint64_t tmp64u;
     int v0, v1;
     int q0, q1;
     int d0, d1;
-    int fixedaddress;
+    int64_t fixedaddress;
 
     MAYUSE(d0);
     MAYUSE(d1);
@@ -62,7 +65,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(q1);
     MAYUSE(eb1);
     MAYUSE(eb2);
-    MAYUSE(j32);
+    MAYUSE(j64);
     #if 0//STEP > 1
     static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
     #endif
@@ -1401,4 +1404,3 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     }
     return addr;
 }
-

@@ -13,23 +13,23 @@ typedef struct needed_libs_s needed_libs_t;
 struct elfheader_s {
     char*       name;
     char*       path;   // Resolved path to file
-    int         numPHEntries;
+    size_t      numPHEntries;
     Elf64_Phdr  *PHEntries;
-    int         numSHEntries;
+    size_t      numSHEntries;
     Elf64_Shdr  *SHEntries;
-    int         SHIdx;
-    int         numSST;
+    size_t      SHIdx;
+    size_t      numSST;
     char*       SHStrTab;
     char*       StrTab;
     Elf64_Sym*  SymTab;
-    int         numSymTab;
+    size_t      numSymTab;
     char*       DynStr;
     Elf64_Sym*  DynSym;
-    int         numDynSym;
+    size_t      numDynSym;
     Elf64_Dyn*  Dynamic;
-    int         numDynamic;
+    size_t      numDynamic;
     char*       DynStrTab;
-    int         szDynStrTab;
+    size_t      szDynStrTab;
     int         e_type;
 
     intptr_t    delta;  // should be 0
@@ -37,19 +37,19 @@ struct elfheader_s {
     uintptr_t   entrypoint;
     uintptr_t   initentry;
     uintptr_t   initarray;
-    int         initarray_sz;
+    size_t      initarray_sz;
     uintptr_t   finientry;
     uintptr_t   finiarray;
-    int         finiarray_sz;
+    size_t      finiarray_sz;
 
     uintptr_t   rel;
-    int         relsz;
+    size_t      relsz;
     int         relent;
     uintptr_t   rela;
-    int         relasz;
+    size_t      relasz;
     int         relaent;
     uintptr_t   jmprel;
-    int         pltsz;
+    size_t      pltsz;
     int         pltent;
     uint64_t    pltrel;
     uintptr_t   gotplt;
@@ -60,18 +60,18 @@ struct elfheader_s {
     uintptr_t   plt;
     uintptr_t   plt_end;
     uintptr_t   text;
-    int         textsz;
+    size_t      textsz;
 
     uintptr_t   paddr;
     uintptr_t   vaddr;
-    int         align;
+    size_t      align;
     uint64_t    memsz;
     uint64_t    stacksz;
-    int         stackalign;
-    uint32_t    tlssize;
-    int         tlsalign;
+    size_t      stackalign;
+    uint64_t    tlssize;
+    size_t      tlsalign;
 
-    int32_t     tlsbase;    // the base of the tlsdata in the global tlsdata (always negative)
+    int64_t     tlsbase;    // the base of the tlsdata in the global tlsdata (always negative)
 
     int         init_done;
     int         fini_done;

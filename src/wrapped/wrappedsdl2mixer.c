@@ -57,7 +57,8 @@ static void* getSDL2MixerMy(library_t* lib)
 
 static void freeSDL2MixerMy(library_t* lib)
 {
-//    sdl2mixer_my_t *my = lib->priv.w.p2;
+    (void)lib;
+    //sdl2mixer_my_t *my = lib->priv.w.p2;
 }
 
 #undef SUPER
@@ -281,4 +282,3 @@ const char* sdl2mixerName = "libSDL2_mixer-2.0.so.0";
     ((box64context_t*)(lib->context))->sdl2mixerlib = NULL;
 
 #include "wrappedlib_init.h"
-

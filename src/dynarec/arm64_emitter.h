@@ -110,8 +110,9 @@
 #define MOVKw(Rd, imm16)                    EMIT(MOVK_gen(0, 0, ((uint16_t)imm16)&0xffff, Rd))
 #define MOVKw_LSL(Rd, imm16, shift)         EMIT(MOVK_gen(0, (shift)/16, ((uint16_t)imm16)&0xffff, Rd))
 
+// This macro will give a -Wsign-compare warning, probably bug #38341
 #define MOV32w(Rd, imm32) \
-    if(~((uint32_t)(imm32))<0xffff) {                                       \
+    if(~((uint32_t)(imm32))<0xffffu) {                                      \
         MOVNw(Rd, (~(uint32_t)(imm32))&0xffff);                             \
     } else {                                                                \
         MOVZw(Rd, (imm32)&0xffff);                                          \

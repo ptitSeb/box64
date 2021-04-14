@@ -383,10 +383,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // pass 2, instruction size
     arm_pass2(&helper, addr);
     // ok, now allocate mapped memory, with executable flag on
-    int sz = helper.arm_size + helper.table64size*sizeof(uint64_t);
+    size_t sz = helper.arm_size + helper.table64size*sizeof(uint64_t);
     void* p = (void*)AllocDynarecMap(block, sz);
     if(p==NULL) {
-        dynarec_log(LOG_DEBUG, "AllocDynarecMap(%p, %d) failed, cancelling block\n", block, sz);
+        dynarec_log(LOG_DEBUG, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
         free(helper.insts);
         free(helper.next);
         free(helper.table64);
@@ -401,17 +401,17 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     }
     // pass 3, emit (log emit arm opcode)
     if(box64_dynarec_dump) {
-        dynarec_log(LOG_NONE, "%s%04d|Emitting %d bytes for %d x64 bytes", (box64_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.arm_size, helper.isize); 
+        dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u x64 bytes", (box64_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.arm_size, helper.isize); 
         printFunctionAddr(helper.start, " => ");
         dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");
     }
     int oldtable64size = helper.table64size;
-    int oldarmsize = helper.arm_size;
+    size_t oldarmsize = helper.arm_size;
     helper.arm_size = 0;
     helper.table64size = 0; // reset table64 (but not the cap)
     arm_pass3(&helper, addr);
     if((oldarmsize!=helper.arm_size) || (oldtable64size<helper.table64size)) {
-        printf_log(LOG_NONE, "BOX64: Warning, size difference in block between pass2 (%d) & pass3 (%d)!\n", sz, helper.arm_size+helper.table64size*8);
+        printf_log(LOG_NONE, "BOX64: Warning, size difference in block between pass2 (%zu) & pass3 (%zu)!\n", sz, helper.arm_size+helper.table64size*8);
         uint8_t *dump = (uint8_t*)helper.start;
         printf_log(LOG_NONE, "Dump of %d x64 opcodes:\n", helper.size);
         for(int i=0; i<helper.size; ++i) {
@@ -451,8 +451,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     block->need_test = 0;
     //block->x64_addr = (void*)start;
     block->x64_size = end-start+1;
-    if(box64_dynarec_largest<block->x64_size)
-        box64_dynarec_largest = block->x64_size;
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
     // Check if something changed, to abbort if it as
     if(block->hash != hash) {

@@ -84,7 +84,9 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 
 int FUNC(_init)(library_t* lib, box64context_t* box64)
 {
-// Init first
+    (void)box64;
+
+    // Init first
     free(lib->path); lib->path=NULL;
 #ifdef PRE_INIT
     PRE_INIT
@@ -169,7 +171,7 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
 #ifdef CUSTOM_INIT
     CUSTOM_INIT
 #endif
-    
+
     return 0;
 }
 
@@ -192,10 +194,10 @@ int FUNC(_fini)(library_t* lib)
     return 1;
 }
 
-int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
+int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
 {
     uintptr_t addr = 0;
-    uint32_t size = 0;
+    uintptr_t size = 0;
 #ifdef CUSTOM_FAIL
     void* symbol = NULL;
 #endif
@@ -215,10 +217,10 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
     return 1;
 }
 
-int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
+int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
 {
     uintptr_t addr = 0;
-    uint32_t size = 0;
+    uintptr_t size = 0;
 #ifdef CUSTOM_FAIL
     void* symbol = NULL;
 #endif

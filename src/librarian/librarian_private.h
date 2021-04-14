@@ -9,7 +9,7 @@ typedef struct box64context_s box64context_t;
 
 typedef struct onesymbol_s {
     uintptr_t   offs;
-    uint32_t    sz;
+    uint64_t    sz;
     // need to track type of symbol?
     // need to track origin?
 } onesymbol_t;

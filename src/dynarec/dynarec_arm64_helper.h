@@ -243,115 +243,115 @@
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
 #define CALL_S(F, ret) call_c(dyn, ninst, F, x7, ret, 0, 0)
 
-#define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
+#define MARK    if(dyn->insts) {dyn->insts[ninst].mark = dyn->arm_size;}
 #define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
-#define MARK2   if(dyn->insts) {dyn->insts[ninst].mark2 = (uintptr_t)dyn->arm_size;}
+#define MARK2   if(dyn->insts) {dyn->insts[ninst].mark2 = dyn->arm_size;}
 #define GETMARK2 ((dyn->insts)?dyn->insts[ninst].mark2:(dyn->arm_size+4))
-#define MARK3   if(dyn->insts) {dyn->insts[ninst].mark3 = (uintptr_t)dyn->arm_size;}
+#define MARK3   if(dyn->insts) {dyn->insts[ninst].mark3 = dyn->arm_size;}
 #define GETMARK3 ((dyn->insts)?dyn->insts[ninst].mark3:(dyn->arm_size+4))
-#define MARKF   if(dyn->insts) {dyn->insts[ninst].markf = (uintptr_t)dyn->arm_size;}
+#define MARKF   if(dyn->insts) {dyn->insts[ninst].markf = dyn->arm_size;}
 #define GETMARKF ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
-#define MARKSEG if(dyn->insts) {dyn->insts[ninst].markseg = (uintptr_t)dyn->arm_size;}
+#define MARKSEG if(dyn->insts) {dyn->insts[ninst].markseg = dyn->arm_size;}
 #define GETMARKSEG ((dyn->insts)?dyn->insts[ninst].markseg:(dyn->arm_size+4))
-#define MARKLOCK if(dyn->insts) {dyn->insts[ninst].marklock = (uintptr_t)dyn->arm_size;}
+#define MARKLOCK if(dyn->insts) {dyn->insts[ninst].marklock = dyn->arm_size;}
 #define GETMARKLOCK ((dyn->insts)?dyn->insts[ninst].marklock:(dyn->arm_size+4))
 
-// Branch to MARK if cond (use j32)
+// Branch to MARK if cond (use j64)
 #define B_MARK(cond)                \
-    j32 = GETMARK-(dyn->arm_size);  \
-    Bcond(cond, j32)
-// Branch to MARK unconditionnal (use j32)
+    j64 = GETMARK-(dyn->arm_size);  \
+    Bcond(cond, j64)
+// Branch to MARK unconditionnal (use j64)
 #define B_MARK_nocond               \
-    j32 = GETMARK-(dyn->arm_size);  \
-    B(j32)
-// Branch to MARK if reg is 0 (use j32)
+    j64 = GETMARK-(dyn->arm_size);  \
+    B(j64)
+// Branch to MARK if reg is 0 (use j64)
 #define CBZxw_MARK(reg)             \
-    j32 = GETMARK-(dyn->arm_size);  \
-    CBZxw(reg, j32)
-// Branch to MARK if reg is not 0 (use j32)
+    j64 = GETMARK-(dyn->arm_size);  \
+    CBZxw(reg, j64)
+// Branch to MARK if reg is not 0 (use j64)
 #define CBNZx_MARK(reg)             \
-    j32 = GETMARK-(dyn->arm_size);  \
-    CBNZx(reg, j32)
-// Branch to MARK if reg is not 0 (use j32)
+    j64 = GETMARK-(dyn->arm_size);  \
+    CBNZx(reg, j64)
+// Branch to MARK if reg is not 0 (use j64)
 #define CBNZw_MARK(reg)             \
-    j32 = GETMARK-(dyn->arm_size);  \
-    CBNZw(reg, j32)
-// Branch to MARK2 if cond (use j32)
+    j64 = GETMARK-(dyn->arm_size);  \
+    CBNZw(reg, j64)
+// Branch to MARK2 if cond (use j64)
 #define B_MARK2(cond)               \
-    j32 = GETMARK2-(dyn->arm_size); \
-    Bcond(cond, j32)
-// Branch to MARK2 unconditionnal (use j32)
+    j64 = GETMARK2-(dyn->arm_size); \
+    Bcond(cond, j64)
+// Branch to MARK2 unconditionnal (use j64)
 #define B_MARK2_nocond              \
-    j32 = GETMARK2-(dyn->arm_size); \
-    B(j32)
-// Branch to MARK2 if reg is not 0 (use j32)
+    j64 = GETMARK2-(dyn->arm_size); \
+    B(j64)
+// Branch to MARK2 if reg is not 0 (use j64)
 #define CBNZx_MARK2(reg)            \
-    j32 = GETMARK2-(dyn->arm_size); \
-    CBNZx(reg, j32)
+    j64 = GETMARK2-(dyn->arm_size); \
+    CBNZx(reg, j64)
 // Test bit N of A and branch to MARK2 if set
 #define TBNZ_MARK2(A, N)            \
-    j32 = GETMARK2-(dyn->arm_size); \
-    TBNZ(A, N, j32)
-// Branch to MARK3 if cond (use j32)
+    j64 = GETMARK2-(dyn->arm_size); \
+    TBNZ(A, N, j64)
+// Branch to MARK3 if cond (use j64)
 #define B_MARK3(cond)               \
-    j32 = GETMARK3-(dyn->arm_size); \
-    Bcond(cond, j32)
-// Branch to MARK3 unconditionnal (use j32)
+    j64 = GETMARK3-(dyn->arm_size); \
+    Bcond(cond, j64)
+// Branch to MARK3 unconditionnal (use j64)
 #define B_MARK3_nocond              \
-    j32 = GETMARK3-(dyn->arm_size); \
-    B(j32)
-// Branch to MARK3 if reg is not 0 (use j32)
+    j64 = GETMARK3-(dyn->arm_size); \
+    B(j64)
+// Branch to MARK3 if reg is not 0 (use j64)
 #define CBNZx_MARK3(reg)            \
-    j32 = GETMARK3-(dyn->arm_size); \
-    CBNZx(reg, j32)
+    j64 = GETMARK3-(dyn->arm_size); \
+    CBNZx(reg, j64)
 // Test bit N of A and branch to MARK3 if set
 #define TBNZ_MARK3(A, N)            \
-    j32 = GETMARK3-(dyn->arm_size); \
-    TBNZ(A, N, j32)
+    j64 = GETMARK3-(dyn->arm_size); \
+    TBNZ(A, N, j64)
 // Test bit N of A and branch to MARK3 if not set
 #define TBZ_MARK3(A, N)             \
-    j32 = GETMARK3-(dyn->arm_size); \
-    TBZ(A, N, j32)
-// Branch to next instruction if cond (use j32)
+    j64 = GETMARK3-(dyn->arm_size); \
+    TBZ(A, N, j64)
+// Branch to next instruction if cond (use j64)
 #define B_NEXT(cond)     \
-    j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
-    Bcond(cond, j32)
-// Branch to next instruction unconditionnal (use j32)
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    Bcond(cond, j64)
+// Branch to next instruction unconditionnal (use j64)
 #define B_NEXT_nocond                                               \
-    j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0;\
-    B(j32)
-// Branch to next instruction if reg is 0 (use j32)
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0;\
+    B(j64)
+// Branch to next instruction if reg is 0 (use j64)
 #define CBZw_NEXT(reg)    \
-    j32 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
-    CBZw(reg, j32)
-// Branch to next instruction if reg is 0 (use j32)
+    j64 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    CBZw(reg, j64)
+// Branch to next instruction if reg is 0 (use j64)
 #define CBZx_NEXT(reg)    \
-    j32 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
-    CBZx(reg, j32)
+    j64 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    CBZx(reg, j64)
 // Test bit N of A and branch to next instruction if not set
 #define TBZ_NEXT(A, N)              \
-    j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
-    TBZ(A, N, j32)
-// Branch to MARKSEG if cond (use j32)
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    TBZ(A, N, j64)
+// Branch to MARKSEG if cond (use j64)
 #define B_MARKSEG(cond)    \
-    j32 = GETMARKSEG-(dyn->arm_size);   \
-    Bcond(cond, j32)
-// Branch to MARKSEG if reg is 0 (use j32)
+    j64 = GETMARKSEG-(dyn->arm_size);   \
+    Bcond(cond, j64)
+// Branch to MARKSEG if reg is 0 (use j64)
 #define CBZw_MARKSEG(reg)    \
-    j32 = GETMARKSEG-(dyn->arm_size);   \
-    CBZw(reg, j32)
-// Branch to MARKSEG if reg is not 0 (use j32)
+    j64 = GETMARKSEG-(dyn->arm_size);   \
+    CBZw(reg, j64)
+// Branch to MARKSEG if reg is not 0 (use j64)
 #define CBNZw_MARKSEG(reg)              \
-    j32 = GETMARKSEG-(dyn->arm_size);   \
-    CBNZw(reg, j32)
-// Branch to MARKLOCK if cond (use j32)
+    j64 = GETMARKSEG-(dyn->arm_size);   \
+    CBNZw(reg, j64)
+// Branch to MARKLOCK if cond (use j64)
 #define B_MARKLOCK(cond)    \
-    j32 = GETMARKLOCK-(dyn->arm_size);   \
-    Bcond(cond, j32)
-// Branch to MARKLOCK if reg is not 0 (use j32)
+    j64 = GETMARKLOCK-(dyn->arm_size);   \
+    Bcond(cond, j64)
+// Branch to MARKLOCK if reg is not 0 (use j64)
 #define CBNZx_MARKLOCK(reg)             \
-    j32 = GETMARKLOCK-(dyn->arm_size);  \
-    CBNZx(reg, j32)
+    j64 = GETMARKLOCK-(dyn->arm_size);  \
+    CBNZx(reg, j64)
 
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(A)))
 #define IFX_PENDOR0  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(X_PEND) || !dyn->insts[ninst].x64.need_flags))
@@ -480,8 +480,8 @@
     if(((A)!=X_PEND) && dyn->state_flags!=SF_SET) {     \
         if(dyn->state_flags!=SF_PENDING) {              \
             LDRw_U12(x3, xEmu, offsetof(x64emu_t, df)); \
-            j32 = (GETMARKF)-(dyn->arm_size);           \
-            CBZw(x3, j32);                              \
+            j64 = (GETMARKF)-(dyn->arm_size);           \
+            CBZw(x3, j64);                              \
         }                                               \
         CALL_(UpdateFlags, -1, 0);                      \
         MARKF;                                          \
@@ -595,16 +595,16 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F20F     STEPNAME(dynarec64_F20F)
 #define dynarec64_F30F     STEPNAME(dynarec64_F30F)
 
-#define geted           STEPNAME(geted_)
-#define geted32         STEPNAME(geted32_)
-#define geted16         STEPNAME(geted16_)
-#define jump_to_epilog  STEPNAME(jump_to_epilog_)
-#define jump_to_next    STEPNAME(jump_to_next_)
-#define ret_to_epilog   STEPNAME(ret_to_epilog_)
-#define retn_to_epilog  STEPNAME(retn_to_epilog_)
-#define iret_to_epilog  STEPNAME(iret_to_epilog_)
-#define call_c          STEPNAME(call_c_)
-#define grab_segdata    STEPNAME(grab_segdata_)
+#define geted           STEPNAME(geted)
+#define geted32         STEPNAME(geted32)
+#define geted16         STEPNAME(geted16)
+#define jump_to_epilog  STEPNAME(jump_to_epilog)
+#define jump_to_next    STEPNAME(jump_to_next)
+#define ret_to_epilog   STEPNAME(ret_to_epilog)
+#define retn_to_epilog  STEPNAME(retn_to_epilog)
+#define iret_to_epilog  STEPNAME(iret_to_epilog)
+#define call_c          STEPNAME(call_c)
+#define grab_segdata    STEPNAME(grab_segdata)
 #define emit_cmp8       STEPNAME(emit_cmp8)
 #define emit_cmp16      STEPNAME(emit_cmp16)
 #define emit_cmp32      STEPNAME(emit_cmp32)
@@ -706,13 +706,13 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #endif
 
 /* setup r2 to address pointed by */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta);
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta);
 
 /* setup r2 to address pointed by */
-uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta);
+uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta);
 
 /* setup r2 to address pointed by */
-uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, int absmax, uint32_t mask, int s);
+uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, int s);
 
 
 // generic x64 helper

@@ -44,6 +44,7 @@ static void* getSMPEGMy(library_t* lib)
 
 static void freeSMPEGMy(void* lib)
 {
+    (void)lib;
     //smpeg_my_t *my = (smpeg_my_t *)lib;
 }
 
@@ -80,6 +81,7 @@ static void* find_dispcallback_Fct(void* fct)
 
 EXPORT void my_SMPEG_setdisplay(x64emu_t* emu, void* mpeg, void* surf, void* lock, void* cb)
 {
+    (void)emu;
     library_t* lib = GetLibInternal(smpegName);
     smpeg_my_t* my = (smpeg_my_t*)lib->priv.w.p2;
     my->SMPEG_setdisplay(mpeg, surf, lock, find_dispcallback_Fct(cb));
@@ -103,4 +105,3 @@ EXPORT void* my_SMPEG_new_rwops(x64emu_t* emu, void* src, void* info, int32_t sd
     free(lib->priv.w.p2); \
 
 #include "wrappedlib_init.h"
-

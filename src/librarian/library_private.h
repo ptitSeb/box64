@@ -23,7 +23,7 @@ typedef struct symbol2_s {
 
 KHASH_MAP_DECLARE_STR(symbolmap, wrapper_t)
 KHASH_MAP_DECLARE_STR(symbol2map, symbol2_t)
-KHASH_MAP_DECLARE_STR(datamap, uint32_t)
+KHASH_MAP_DECLARE_STR(datamap, uint64_t)
 
 
 #ifndef MAX_PATH
@@ -62,7 +62,7 @@ typedef struct library_s {
     union {
         wlib_t  w;     
         nlib_t  n;
-    }                   priv;  // private lib data
+    }                   priv;       // private lib data
     box64context_t      *context;   // parent context
     kh_bridgemap_t      *bridgemap;
     kh_symbolmap_t      *symbolmap;
@@ -93,10 +93,10 @@ typedef struct map_onesymbol2_s {
 } map_onesymbol2_t;
 typedef struct map_onedata_s {
     const char* name;
-    uint32_t    sz;
+    uint32_t    sz;                 // TODO: convert to size_t
     int         weak;
 } map_onedata_t;
 
-int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uint32_t *size);  // Add bridges to functions
+int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size);  // Add bridges to functions
 
 #endif //__LIBRARY_PRIVATE_H_

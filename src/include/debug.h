@@ -11,7 +11,6 @@ extern int box64_pagesize;
 extern int box64_dynarec_dump;
 extern int box64_dynarec_trace;
 extern int box64_dynarec_forced;
-extern int box64_dynarec_largest;
 extern uintptr_t box64_nodynarec_start, box64_nodynarec_end;
 #endif
 extern int dlsym_error;    // log dlsym error

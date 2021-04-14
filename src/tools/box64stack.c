@@ -20,14 +20,14 @@ int CalcStackSize(box64context_t *context)
     for (int i=0; i<context->elfsize; ++i)
         CalcStack(context->elfs[i], &context->stacksz, &context->stackalign);
 
-//    if (posix_memalign((void**)&context->stack, context->stackalign, context->stacksz)) {
+    //if (posix_memalign((void**)&context->stack, context->stackalign, context->stacksz)) {
     context->stack = mmap(NULL, context->stacksz, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
     if (context->stack==(void*)-1) {
-        printf_log(LOG_NONE, "Cannot allocate aligned memory (0x%x/0x%x) for stack\n", context->stacksz, context->stackalign);
+        printf_log(LOG_NONE, "Cannot allocate aligned memory (0x%lx/0x%zx) for stack\n", context->stacksz, context->stackalign);
         return 1;
     }
     //memset(context->stack, 0, context->stacksz);
-    printf_log(LOG_DEBUG, "Stack is @%p size=0x%x align=0x%x\n", context->stack, context->stacksz, context->stackalign);
+    printf_log(LOG_DEBUG, "Stack is @%p size=0x%lx align=0x%zx\n", context->stack, context->stacksz, context->stackalign);
 
     return 0;
 }

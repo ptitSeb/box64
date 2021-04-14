@@ -23,9 +23,10 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
-// emit ADD32 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch
+// emit ADD32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_add32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -76,9 +77,10 @@ void emit_add32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
 }
 
-// emit ADD32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+// emit ADD32 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 void emit_add32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5)
 {
+    MAYUSE(s5);
     if(s1==xRSP && (!dyn->insts || dyn->insts[ninst].x64.need_flags==X_PEND))
     {
         // special case when doing math on ESP and only PEND is needed: ignoring it!
@@ -151,9 +153,10 @@ void emit_add32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     }
 }
 
-// emit SUB32 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch
+// emit SUB32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_sub32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -206,9 +209,10 @@ void emit_sub32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
 }
 
-// emit SUB32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+// emit SUB32 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5)
 {
+    MAYUSE(s5);
     if(s1==xRSP && (!dyn->insts || dyn->insts[ninst].x64.need_flags==X_PEND))
     {
         // special case when doing math on RSP and only PEND is needed: ignoring it!
@@ -282,9 +286,10 @@ void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     }
 }
 
-// emit ADD8 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit ADD8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -331,7 +336,7 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit ADD8 instruction, from s1 , const c, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit ADD8 instruction, from s1, const c, store result in s1 using s3 and s4 as scratch
 void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
 {
     IFX(X_PEND) {
@@ -383,9 +388,10 @@ void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
     }
 }
 
-// emit SUB8 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit SUB8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -434,9 +440,10 @@ void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit SUB8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+// emit SUB8 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, int s5)
 {
+    MAYUSE(s5);
     IFX(X_ALL|X_PEND) {
         MOV32w(s5, c&0xff);
     }
@@ -491,9 +498,10 @@ void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
     }
 }
 
-// emit ADD16 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit ADD16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_add16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRH_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -541,7 +549,7 @@ void emit_add16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit ADD16 instruction, from s1 , const c, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit ADD16 instruction, from s1, const c, store result in s1 using s3 and s4 as scratch
 //void emit_add16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
 //{
 //    IFX(X_PEND) {
@@ -608,9 +616,10 @@ void emit_add16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 //    }
 //}
 
-// emit SUB16 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit SUB16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_sub16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRH_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -659,7 +668,7 @@ void emit_sub16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit SUB16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+// emit SUB16 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 //void emit_sub16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
 //{
 //    IFX(X_PEND) {
@@ -777,7 +786,7 @@ void emit_inc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
     }
 }
 
-// emit INC8 instruction, from s1, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit INC8 instruction, from s1, store result in s1 using s3 and s4 as scratch
 void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
     IFX(X_PEND) {
@@ -822,7 +831,7 @@ void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
 }
 
-// emit INC16 instruction, from s1 , store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit INC16 instruction, from s1, store result in s1 using s3 and s4 as scratch
 void emit_inc16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
     IFX(X_PEND) {
@@ -1009,9 +1018,10 @@ void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
 }
 
-// emit ADC32 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch
+// emit ADC32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -1062,7 +1072,7 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
 }
 
-// emit ADC32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+// emit ADC32 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 //void emit_adc32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 //{
 //    IFX(X_PEND) {
@@ -1132,9 +1142,10 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 //    }
 //}
 
-// emit ADC8 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit ADC8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -1185,9 +1196,10 @@ void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit ADC8 instruction, from s1 , const c, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit ADC8 instruction, from s1, const c, store result in s1 using s3 and s4 as scratch
 void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, int s5)
 {
+    MAYUSE(s5);
     MOV32w(s5, c&0xff);
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -1239,9 +1251,10 @@ void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
     }
 }
 
-// emit ADC16 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit ADC16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRH_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -1292,7 +1305,7 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit ADC16 instruction, from s1 , const c, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit ADC16 instruction, from s1, const c, store result in s1 using s3 and s4 as scratch
 //void emit_adc16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
 //{
 //    IFX(X_PEND) {
@@ -1359,9 +1372,10 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 //    }
 //}
 
-// emit SBB32 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch
+// emit SBB32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_sbb32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -1414,7 +1428,7 @@ void emit_sbb32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
 }
 
-// emit SBB32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+// emit SBB32 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 //void emit_sbb32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 //{
 //    IFX(X_PEND) {
@@ -1486,9 +1500,10 @@ void emit_sbb32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 //    }
 //}
 
-// emit SBB8 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit SBB8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_sbb8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -1540,9 +1555,10 @@ void emit_sbb8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit SBB8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+// emit SBB8 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, int s5)
 {
+    MAYUSE(s5);
     MOV32w(s5, c&0xff);
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -1595,9 +1611,10 @@ void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
     }
 }
 
-// emit SBB16 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, with save_s4 is s4 need to be saved
+// emit SBB16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    MAYUSE(s2);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRH_U12(s2, xEmu, offsetof(x64emu_t, op2));
@@ -1649,7 +1666,7 @@ void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit SBB16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+// emit SBB16 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 //void emit_sbb16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
 //{
 //    IFX(X_PEND) {
