@@ -23,7 +23,7 @@ typedef struct symbol2_s {
 
 KHASH_MAP_DECLARE_STR(symbolmap, wrapper_t)
 KHASH_MAP_DECLARE_STR(symbol2map, symbol2_t)
-KHASH_MAP_DECLARE_STR(datamap, uintptr_t)
+KHASH_MAP_DECLARE_STR(datamap, uint64_t)
 
 
 #ifndef MAX_PATH

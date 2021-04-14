@@ -460,10 +460,12 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     }
                     printf_log(LOG_DUMP, "Apply %s R_X86_64_COPY @%p with sym=%s, @%p size=%ld (", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)offs, sym->st_size);
                     memmove(p, (void*)offs, sym->st_size);
-                    uint32_t *k = (uint32_t*)p;
-                    for (unsigned j=0; j<((sym->st_size>128u)?128u:sym->st_size); j+=4, ++k)
-                        printf_log(LOG_DUMP, "%s0x%08X", j?" ":"", *k);
-                    printf_log(LOG_DUMP, "%s)\n", (sym->st_size>128u)?" ...":"");
+                    if(box64_log >= LOG_DUMP) {
+                        uint64_t *k = (uint64_t*)p;
+                        for (unsigned j=0; j<((sym->st_size>128u)?128u:sym->st_size); j+=8, ++k)
+                            printf_log(LOG_DUMP, "%s0x%016lX", j?" ":"", *k);
+                        printf_log(LOG_DUMP, "%s)\n", (sym->st_size>128u)?" ...":"");
+                    }
                 } else {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_COPY @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                 }
@@ -1112,7 +1114,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     if(!h || h->fini_done)
         return ret;
 
-    for (size_t i=0; i<h->numSymTab && distance!=0; ++i) {   
+    for (size_t i=0; i<h->numSymTab && distance!=0; ++i) {
         const char * symname = h->StrTab+h->SymTab[i].st_name;
         uintptr_t offs = h->SymTab[i].st_value + h->delta;
 
@@ -1125,7 +1127,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
             }
         }
     }
-    for (size_t i=0; i<h->numDynSym && distance!=0; ++i) {   
+    for (size_t i=0; i<h->numDynSym && distance!=0; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         uintptr_t offs = h->DynSym[i].st_value + h->delta;
 

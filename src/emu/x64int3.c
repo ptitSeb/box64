@@ -92,7 +92,7 @@ void x64Int3(x64emu_t* emu)
                 char *tmp;
                 int post = 0;
                 int perr = 0;
-                uint32_t *pu32 = NULL;
+                uint64_t *pu64 = NULL;
                 const char *s = NULL;
                 s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
@@ -160,19 +160,19 @@ void x64Int3(x64emu_t* emu)
                 w(emu, addr);   // some function never come back, so unlock the mutex first!
                 pthread_mutex_lock(&emu->context->mutex_trace);
                 if(post)
-                    switch(post) {
-                    case 1: snprintf(buff2, 63, " [%d sec %d nsec]", pu32?pu32[0]:~0u, pu32?pu32[1]:~0u);
+                    switch(post) { // Only ever 2 for now...
+                    case 1: snprintf(buff2, 63, " [%llu sec %llu nsec]", pu64?pu64[0]:~0ull, pu64?pu64[1]:~0ull);
                             break;
                     case 2: snprintf(buff2, 63, "(%s)", R_RAX?((char*)R_RAX):"nil");
                             break;
-                    case 3: snprintf(buff2, 63, "(%s)", pu32?((char*)pu32):"nil");
+                    case 3: snprintf(buff2, 63, "(%s)", pu64?((char*)pu64):"nil");
                             break;
                     case 4: snprintf(buff2, 63, " (%f)", ST0.d);
                             break;
                     case 5: {
-                            uint32_t* p = (uint32_t*)R_RAX;
+                            uint32_t* p = (uint32_t*)R_RAX; // uint64_t? (case never used)
                             if(p)
-                                snprintf(buff2, 63, " size=%dx%d, pitch=%d, pixels=%p", p[2], p[3], p[4], p+5);
+                                snprintf(buff2, 63, " size=%ux%u, pitch=%u, pixels=%p", p[2], p[3], p[4], p+5);
                             else
                                 snprintf(buff2, 63, "NULL Surface");
                         }

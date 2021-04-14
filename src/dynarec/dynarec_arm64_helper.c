@@ -732,7 +732,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
     (void)ninst;
-#if STEP > 1    
+#if STEP > 1
     MAYUSE(s1); MAYUSE(s2);
     // search in cache first
     for (int i=0; i<8; ++i)

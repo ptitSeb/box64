@@ -27,16 +27,17 @@
 
 int Run670F(x64emu_t *emu, rex_t rex, int rep)
 {
+    (void)rep;
     uint8_t opcode;
     uint8_t nextop;
-    uint8_t tmp8u;
-    int8_t tmp8s;
-    int32_t tmp32s, tmp32s2;
-    uint32_t tmp32u, tmp32u2;
-    uint64_t tmp64u, tmp64u2;
-    reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx, eax1;
-    mmx87_regs_t *opem, *opgm, eam1;
+    uint8_t tmp8u;                      (void)tmp8u;
+    int8_t tmp8s;                       (void)tmp8s;
+    int32_t tmp32s, tmp32s2;            (void)tmp32s; (void)tmp32s2;
+    uint32_t tmp32u, tmp32u2;           (void)tmp32u; (void)tmp32u2;
+    uint64_t tmp64u, tmp64u2;           (void)tmp64u; (void)tmp64u2;
+    reg64_t *oped, *opgd;               (void)oped;   (void)opgd;
+    sse_regs_t *opex, *opgx, eax1;      (void)eax1;
+    mmx87_regs_t *opem, *opgm, eam1;    (void)opem;   (void)opgm;    (void)eam1;
 
     opcode = F8;
 
