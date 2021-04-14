@@ -520,7 +520,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
     return 0;
 }
 
-int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cnt, Elf64_Rela *rela)
+int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cnt, Elf64_Rela *rela, int* need_resolv)
 {
     for (int i=0; i<cnt; ++i) {
         int t = ELF64_R_TYPE(rela[i].r_info);
@@ -567,18 +567,15 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                 *p = head->delta+ rela[i].r_addend;
                 break;
             case R_X86_64_COPY:
-                if(!strcmp(symname, "stdin") || !strcmp(symname, "stdout") || !strcmp(symname, "stderr")) {
-                    if(!strcmp(symname, "stdin"))
-                        offs = (uintptr_t)&stdin;
-                    else if(!strcmp(symname, "stdout"))
-                        offs = (uintptr_t)&stdout;
-                    else
-                        offs = (uintptr_t)&stderr;
-                    end = offs + 8;
-                } else if(local_maplib)
+                globoffs = offs;
+                globend = end;
+                offs = end = 0;
+                GetSymbolStartEnd(GetGlobalData(maplib), symname, &offs, &end); // try globaldata symbols first
+                if(!offs && local_maplib)
                     GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head);
                 if(!offs)
                     GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);
+                if(!offs) {offs = globoffs; end = globend;}
                 if(offs) {
                     // add r_addend to p?
                     printf_log(LOG_DUMP, "Apply R_X86_64_COPY @%p with sym=%s, @%p size=%ld\n", p, symname, (void*)offs, sym->st_size);
@@ -622,6 +619,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                   || ((symname && strstr(symname, "__pthread_unwind_next")==symname)) 
                   || !tmp
                   || !((tmp>=head->plt && tmp<head->plt_end) || (tmp>=head->gotplt && tmp<head->gotplt_end))
+                  || !need_resolv
                   ) {
                     if (!offs) {
                         if(bind==STB_WEAK) {
@@ -643,6 +641,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     printf_log(LOG_DUMP, "Preparing (if needed) %s R_X86_64_JUMP_SLOT @%p (0x%lx->0x%0lx) with sym=%s to be apply later (addend=%ld)\n", 
                         (bind==STB_LOCAL)?"Local":"Global", p, *p, *p+head->delta, symname, rela[i].r_addend);
                     *p += head->delta;
+                    *need_resolv = 1;
                 }
                 break;
             case R_X86_64_64:
@@ -735,7 +734,7 @@ int RelocateElf(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
         int cnt = head->relasz / head->relaent;
         DumpRelATable(head, cnt, (Elf64_Rela *)(head->rela + head->delta), "RelA");
         printf_log(LOG_DEBUG, "Applying %d Relocation(s) with Addend for %s\n", cnt, head->name);
-        if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf64_Rela *)(head->rela + head->delta)))
+        if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf64_Rela *)(head->rela + head->delta), NULL))
             return -1;
     }
    
@@ -744,6 +743,7 @@ int RelocateElf(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
 
 int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
 {
+    int need_resolver = 0;
     if(head->pltrel) {
         int cnt = head->pltsz / head->pltent;
         if(head->pltrel==DT_REL) {
@@ -754,20 +754,22 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
         } else if(head->pltrel==DT_RELA) {
             DumpRelATable(head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), "PLT");
             printf_log(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend for %s\n", cnt, head->name);
-            if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf64_Rela *)(head->jmprel + head->delta)))
+            if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), &need_resolver))
                 return -1;
         }
-        if(pltResolver==~0ul) {
-            pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0, "PltResolver");
-        }
-        if(head->pltgot) {
-            *(uintptr_t*)(head->pltgot+head->delta+16) = pltResolver;
-            *(uintptr_t*)(head->pltgot+head->delta+8) = (uintptr_t)head;
-            printf_log(LOG_DEBUG, "PLT Resolver injected in plt.got at %p\n", (void*)(head->pltgot+head->delta+16));
-        } else if(head->got) {
-            *(uintptr_t*)(head->got+head->delta+16) = pltResolver;
-            *(uintptr_t*)(head->got+head->delta+8) = (uintptr_t)head;
-            printf_log(LOG_DEBUG, "PLT Resolver injected in got at %p\n", (void*)(head->got+head->delta+16));
+        if(need_resolver) {
+            if(pltResolver==~0ul) {
+                pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0, "PltResolver");
+            }
+            if(head->pltgot) {
+                *(uintptr_t*)(head->pltgot+head->delta+16) = pltResolver;
+                *(uintptr_t*)(head->pltgot+head->delta+8) = (uintptr_t)head;
+                printf_log(LOG_DEBUG, "PLT Resolver injected in plt.got at %p\n", (void*)(head->pltgot+head->delta+16));
+            } else if(head->got) {
+                *(uintptr_t*)(head->got+head->delta+16) = pltResolver;
+                *(uintptr_t*)(head->got+head->delta+8) = (uintptr_t)head;
+                printf_log(LOG_DEBUG, "PLT Resolver injected in got at %p\n", (void*)(head->got+head->delta+16));
+            }
         }
     }
    
