@@ -757,7 +757,7 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
             if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf64_Rela *)(head->jmprel + head->delta)))
                 return -1;
         }
-        if(pltResolver==~0u) {
+        if(pltResolver==~0ul) {
             pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0, "PltResolver");
         }
         if(head->pltgot) {
