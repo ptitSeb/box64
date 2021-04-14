@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.4)
+
+cmake_policy(SET CMP0065 NEW)
 
 option(RPI4ARM64 "Set to ON if targeting an RaspberryPI4 device with multiarch arm64 and armhf" ${RPI4ARM64})
 option(RK3326 "Set to ON if targeting an Rockchip RK3326 based device" ${RK3326})
@@ -36,7 +38,7 @@ project(box64 C ASM)
 
 enable_testing()
 
-set(default_build_type "RelwithDebInfo")
+set(default_build_type "RelWithDebInfo")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE STRING "Choose the type of build." FORCE)
@@ -101,6 +103,8 @@ if(USE_CCACHE)
     if(CCACHE_FOUND)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+    else()
+        message(SEND_ERROR "ccache not found!")
     endif()
 endif()
 
@@ -259,9 +263,9 @@ set(WRAPPER "${BOX64_ROOT}/src/wrapped/generated/wrapper.c" "${BOX64_ROOT}/src/w
 
 add_custom_command(
     OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
-    COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py" 
-    "${BOX64_ROOT}" 
-    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "--" 
+    COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py"
+    "${BOX64_ROOT}"
+    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "--"
     ${WRAPPEDS_HEAD}
     MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
     DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
@@ -338,9 +342,9 @@ if(ARM_DYNAREC)
     add_dependencies(arm64_pass2 WRAPPERS)
     add_dependencies(arm64_pass3 WRAPPERS)
 
-    add_library(dynarec STATIC 
-        $<TARGET_OBJECTS:dynarec_arm> 
-        $<TARGET_OBJECTS:arm64_pass0> 
+    add_library(dynarec STATIC
+        $<TARGET_OBJECTS:dynarec_arm>
+        $<TARGET_OBJECTS:arm64_pass0>
         $<TARGET_OBJECTS:arm64_pass1>
         $<TARGET_OBJECTS:arm64_pass2>
         $<TARGET_OBJECTS:arm64_pass3>
@@ -364,6 +368,7 @@ else()
 endif()
 
 add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX64_ROOT}/src/git_head.h")
+set_target_properties(${BOX64} PROPERTIES ENABLE_EXPORTS ON)
 add_dependencies(${BOX64} WRAPPERS)
 #add_dependencies(${BOX64} PRINTER)
 target_link_libraries(${BOX64} m dl rt pthread)
@@ -373,14 +378,12 @@ endif()
 
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
     if(NOT NOLOADADDR)
-        set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-rdynamic -Wl,-Ttext-segment,${BOX64_ELF_ADDRESS}")
-    else()
-        set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-rdynamic")
+        set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-Wl,-Ttext-segment,${BOX64_ELF_ADDRESS}")
     endif()
 else()
-    target_link_options(${BOX64} PUBLIC -rdynamic)
+    # If symbols are missing, try this: target_link_options(${BOX64} PUBLIC -rdynamic)
     if(NOT NOLOADADDR)
-        target_link_options(${BOX64} PUBLIC -Wl,-Ttext-segment,${BOX64_ELF_ADDRESS})
+        target_link_options(${BOX64} PUBLIC LINKER:-Ttext-segment,${BOX64_ELF_ADDRESS})
     endif()
 endif()
 

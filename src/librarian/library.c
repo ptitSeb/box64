@@ -46,9 +46,9 @@ typedef struct bridged_s {
 
 KHASH_MAP_INIT_STR(bridgemap, bridged_t)
 
-KHASH_MAP_IMPL_STR(datamap, uint32_t)
 KHASH_MAP_IMPL_STR(symbolmap, wrapper_t)
 KHASH_MAP_IMPL_STR(symbol2map, symbol2_t)
+KHASH_MAP_IMPL_STR(datamap, uint64_t)
 
 char* Path2Name(const char* path)
 {
@@ -129,7 +129,6 @@ int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t
 
 int NativeLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
 {
-    // TODO
     (void)lib; (void)name; (void)offs; (void)sz;
     return 0;
 }
@@ -537,7 +536,7 @@ int GetElfIndex(library_t* lib)
     return lib->priv.n.elf_index;
 }
 
-int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uint32_t *size)
+int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size)
 {
     if(!lib->active)
         return 0;
