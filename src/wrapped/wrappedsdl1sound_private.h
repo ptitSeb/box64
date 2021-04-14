@@ -1,0 +1,20 @@
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error meh!
+#endif
+
+GO(Sound_AvailableDecoders, pFv)
+GO(Sound_BuildAudioCVT, iFpWCuWCuu)
+GO(Sound_ClearError, vFv)
+GO(Sound_ConvertAudio, iFp)
+GO(Sound_Decode, uFp)
+GO(Sound_DecodeAll, uFp)
+GO(Sound_FreeSample, vFp)
+GO(Sound_GetError, pFv)
+GO(Sound_GetLinkedVersion, vFp)
+GO(Sound_Init, iFv)
+GOM(Sound_NewSample, pFEpppu)
+GO(Sound_NewSampleFromFile, pFppu)
+GO(Sound_Quit, iFv)
+GO(Sound_Rewind, iFp)
+GO(Sound_Seek, iFpu)
+GO(Sound_SetBufferSize, iFpu)
