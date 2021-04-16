@@ -328,10 +328,18 @@
 #define CBZx_NEXT(reg)    \
     j64 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
     CBZx(reg, j64)
+// Branch to next instruction if reg is not 0 (use j64)
+#define CBNZx_NEXT(reg)   \
+    j64 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    CBNZx(reg, j64)
 // Test bit N of A and branch to next instruction if not set
 #define TBZ_NEXT(A, N)              \
     j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
     TBZ(A, N, j64)
+// Test bit N of A and branch to next instruction if set
+#define TBNZ_NEXT(A, N)             \
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    TBNZ(A, N, j64)
 // Branch to MARKSEG if cond (use j64)
 #define B_MARKSEG(cond)    \
     j64 = GETMARKSEG-(dyn->arm_size);   \

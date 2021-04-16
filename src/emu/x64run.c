@@ -1146,6 +1146,35 @@ x64emurun:
             if(emu->quit)
                 goto fini;
             break;
+        case 0xE0:                      /* LOOPNZ */
+            CHECK_FLAGS(emu);
+            tmp8s = F8S;
+            --R_RCX; // don't update flags
+            if(R_RCX && !ACCESS_FLAG(F_ZF))
+                R_RIP += tmp8s;
+            STEP
+            break;
+        case 0xE1:                      /* LOOPZ */
+            CHECK_FLAGS(emu);
+            tmp8s = F8S;
+            --R_RCX; // don't update flags
+            if(R_RCX && ACCESS_FLAG(F_ZF))
+                R_RIP += tmp8s;
+            STEP
+            break;
+        case 0xE2:                      /* LOOP */
+            tmp8s = F8S;
+            --R_RCX; // don't update flags
+            if(R_RCX)
+                R_RIP += tmp8s;
+            STEP
+            break;
+        case 0xE3:                      /* JECXZ */
+            tmp8s = F8S;
+            if(!R_RCX)
+                R_RIP += tmp8s;
+            STEP
+            break;
 
         case 0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative

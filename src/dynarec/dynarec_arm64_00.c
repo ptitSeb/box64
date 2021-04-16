@@ -1871,6 +1871,49 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xDF:
             addr = dynarec64_DF(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
+        #define GO(Z)                                                   \
+            BARRIER(2);                                                 \
+            JUMP(addr+i8);                                              \
+            if(dyn->insts) {                                            \
+                if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
+                    /* out of the block */                              \
+                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size);  \
+                    if(Z) {CBNZx(xRCX, i32);} else {CBZx(xRCX, i32);};  \
+                    jump_to_next(dyn, addr+i8, 0, ninst);               \
+                } else {                                                \
+                    /* inside the block */                              \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
+                    if(Z) {CBZx(xRCX, i32);} else {CBNZx(xRCX, i32);};  \
+                }   \
+            }
+        case 0xE0:
+            INST_NAME("LOOPNZ");
+            READFLAGS(X_ZF);
+            i8 = F8S;
+            SUBx_U12(xRCX, xRCX, 1);
+            TBNZ_NEXT(xFlags, 1<<F_ZF);
+            GO(0);
+            break;
+        case 0xE1:
+            INST_NAME("LOOPZ");
+            READFLAGS(X_ZF);
+            i8 = F8S;
+            SUBx_U12(xRCX, xRCX, 1);
+            TBZ_NEXT(xFlags, 1<<F_ZF);
+            GO(0);
+            break;
+        case 0xE2:
+            INST_NAME("LOOP");
+            i8 = F8S;
+            SUBx_U12(xRCX, xRCX, 1);
+            GO(0);
+            break;
+        case 0xE3:
+            INST_NAME("JECXZ");
+            i8 = F8S;
+            GO(1);
+            break;
+        #undef GO
 
         case 0xE8:
             INST_NAME("CALL Id");
