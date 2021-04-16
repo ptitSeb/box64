@@ -554,7 +554,7 @@ GO(getopt, iFipp)
 GO(__getpagesize, iFv)
 GOW(getpagesize, iFv)
 //GO(getpass, 
-//GOW(getpeername, 
+GOW(getpeername, iFipp)
 //GO(__getpgid, 
 //GOW(getpgid, 
 //GO(getpgrp, 
@@ -1307,7 +1307,7 @@ GOW(pipe2, iFpO)
 //GO(pmap_unset, 
 GO(__poll, iFpLi)
 GOW(poll, iFpLi)
-//GO(__poll_chk, 
+GO(__poll_chk, iFpuiL)
 GO(popen, pFpp)
 GO(posix_fadvise, iFilli)
 //GOW(posix_fadvise64, 
@@ -2280,7 +2280,7 @@ GOW(writev, lFipi)
 //GO(xdr_void, 
 //GO(xdr_wrapstring, 
 //GO(xencrypt, 
-//GO(__xmknod, 
+GO(__xmknod, iFipup)
 //GO(__xmknodat, 
 GO(__xpg_basename, pFp)
 //GOW(__xpg_sigpause, 
