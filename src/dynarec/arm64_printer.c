@@ -278,12 +278,12 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "STR%c %s, [%s]", size?'H':'B', Xt[Rt], XtSp[Rn]);
         return buff;
     }    
-    if(isMask(opcode, "101110011xiiiiiiiiiiiinnnnnttttt", &a)) {
+    if(isMask(opcode, "1011100110iiiiiiiiiiiinnnnnttttt", &a)) {
         int offset = imm<<2;
         if(!offset)
-            snprintf(buff, sizeof(buff), "LDRSW %s, [%s]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn]);
+            snprintf(buff, sizeof(buff), "LDRSW %s, [%s]", Xt[Rt], XtSp[Rn]);
         else
-            snprintf(buff, sizeof(buff), "LDRSW %s, [%s, #%d]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn], offset);
+            snprintf(buff, sizeof(buff), "LDRSW %s, [%s, #%d]", Xt[Rt], XtSp[Rn], offset);
         return buff;
     }
     if(isMask(opcode, "011110011xiiiiiiiiiiiinnnnnttttt", &a)) {
