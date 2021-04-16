@@ -470,7 +470,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
             if(created) {    // avoid breaking a working block!
                 son->block = helper.sons_arm[i];
                 son->x64_addr = (void*)helper.sons_x64[i];
-                son->x64_size = end-helper.sons_x64[i];
+                son->x64_size = end-helper.sons_x64[i]+1;
                 if(!son->x64_size) {printf_log(LOG_NONE, "Warning, son with null x64 size! (@%p / ARM=%p)", son->x64_addr, son->block);}
                 son->father = block;
                 son->size = sz + son->block - block->block; // update size count, for debugging
