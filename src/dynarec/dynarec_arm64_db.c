@@ -265,12 +265,25 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 5:
                     INST_NAME("FLD tbyte");
-                    x87_do_push_empty(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
-                    if(ed!=x1) {
-                        MOVx_REG(x1, ed);
+                    if(PK(0)==0xDB && ((PK(1)>>3)&7)==7) {
+                        // the FLD is immediatly followed by an FSTP
+                        LDRx_U12(x5, ed, 0);
+                        LDRH_U12(x6, ed, 8);
+                        // no persistant scratch register, so unrool both instruction here...
+                        MESSAGE(LOG_DUMP, "\tHack: FSTP tbyte\n");
+                        nextop = F8;    //0xDB
+                        nextop = F8;    //modrm
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                        STRx_U12(x5, ed, 0);
+                        STRH_U12(x6, ed, 8);
+                    } else {
+                        if(ed!=x1) {
+                            MOVx_REG(x1, ed);
+                        }
+                        x87_do_push_empty(dyn, ninst, x3);
+                        CALL(arm_fld, -1);
                     }
-                    CALL(arm_fld, -1);
                     break;
                 case 7:
                     INST_NAME("FSTP tbyte");
