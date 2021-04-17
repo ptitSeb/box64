@@ -218,6 +218,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxdmcp.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxext.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxfixes.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxft.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxi.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxmu.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxpm.c"

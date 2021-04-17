@@ -663,6 +663,7 @@
 #() vFppipp
 #() vFppWui
 #() vFpppii
+#() vFpppip
 #() vFppppi
 #() vFppppp
 #() iFEippp
@@ -968,6 +969,7 @@
 #() vFppLpppi
 #() vFppLpppp
 #() vFpppiiii
+#() vFpppiipi
 #() vFpppuuuu
 #() vFppppipi
 #() iFEpLiLpV
@@ -1189,6 +1191,7 @@
 #() pFpppppppppppppppp
 #() vFppuiiiiipuiiiiiiii
 #() pFiiiippppppppppppppp
+#() pFpippppppppppppppppp
 #() pFipppppppppppppppppppppp
 #!defined(NOALIGN) iFEpLp
 #!defined(NOALIGN) iFEppu
