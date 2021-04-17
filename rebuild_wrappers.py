@@ -427,7 +427,7 @@ int isSimpleWrapper(wrapper_t fun);
 			"*(uint64_t*)(R_RSP + {p}), ",              # U
 			"*(float*)(R_RSP + {p}), ",                 # f
 			"*(double*)(R_RSP + {p}), ",                # d
-			"*(long double*)(R_RSP + {p}), ",           # D
+			"LD2localLD((void*)(R_RSP + {p})), ",       # D
 			"FromLD((void*)(R_RSP + {p})), ",           # K
 			"*(intptr_t*)(R_RSP + {p}), ",              # l
 			"*(uintptr_t*)(R_RSP + {p}), ",             # L

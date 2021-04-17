@@ -196,6 +196,21 @@ double FromLD(void* ld)
     return ret;
 }
 
+#ifndef HAVE_LD80BITS
+long double LD2localLD(void* ld)
+{
+    // local implementation may not be try Quad precision, but double-double precision, so simple way to keep the 80bits precision in the conversion
+    double ret;
+    LD2D(ld, &ret);
+    return ret;
+}
+#else
+long double LD2localLD(void* ld)
+{
+    return *(long double*)ld;
+}
+#endif
+
 void fpu_loadenv(x64emu_t* emu, char* p, int b16)
 {
     emu->cw = *(uint16_t*)p;

@@ -143,11 +143,13 @@
 #() fFif
 #() fFfi
 #() fFff
+#() fFfD
 #() fFfp
 #() fFpp
 #() dFid
 #() dFdi
 #() dFdd
+#() dFdD
 #() dFdp
 #() dFLL
 #() dFpi
