@@ -79,7 +79,16 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
                     case 'S':
                     case 's': state = 30; break; // pointers
                     case '$': ++p; break; // should issue a warning, it's not handled...
-                    case '*': *(mystack++) = *(st++); ++p; break; // fetch an int in the stack....
+                    case '*': 
+                        if(pos<6)
+                            *mystack = emu->regs[regs_abi[pos++]].q[0];
+                        else {
+                            *mystack = *st;
+                            ++st;
+                        }
+                        ++mystack;
+                        ++p; 
+                        break; // fetch an int in the stack....
                     case ' ': state=0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
@@ -150,10 +159,12 @@ void myStackAlignScanf(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* m
     // loop...
     const char* p = fmt;
     int state = 0;
+    int ign = 0;
     while(*p)
     {
         switch(state) {
             case 0:
+                ign = 0;
                 switch(*p) {
                     case '%': state = 1; ++p; break;
                     default:
@@ -203,7 +214,7 @@ void myStackAlignScanf(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* m
                     case 'S':
                     case 's': state = 30; break; // pointers
                     case '$': ++p; break; // should issue a warning, it's not handled...
-                    case '*': *(mystack++) = *(st++); ++p; break; // fetch an int in the stack....
+                    case '*': ign=1; ++p; break; // ignore arg
                     case ' ': state=0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
@@ -219,13 +230,15 @@ void myStackAlignScanf(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* m
             case 23:    // 64bits int
             case 24:    // normal int / pointer
             case 30:
-                if(pos<6)
-                    *mystack = emu->regs[regs_abi[pos++]].q[0];
-                else {
-                    *mystack = *st;
-                    ++st;
+                if(!ign) {
+                    if(pos<6)
+                        *mystack = emu->regs[regs_abi[pos++]].q[0];
+                    else {
+                        *mystack = *st;
+                        ++st;
+                    }
+                    ++mystack;
                 }
-                ++mystack;
                 state = 0;
                 ++p;
                 break;
@@ -299,7 +312,16 @@ void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mysta
                     case 'S':
                     case 's': state = 30; break; // pointers
                     case '$': ++p; break; // should issue a warning, it's not handled...
-                    case '*': *(mystack++) = *(st++); ++p; break; // fetch an int in the stack....
+                    case '*': 
+                        if(pos<6)
+                            *mystack = emu->regs[regs_abi[pos++]].q[0];
+                        else {
+                            *mystack = *st;
+                            ++st;
+                        }
+                        ++mystack;
+                        ++p; 
+                        break; // fetch an int in the stack....
                     case ' ': state=0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
@@ -370,10 +392,12 @@ void myStackAlignScanfW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* 
     // loop...
     const wchar_t* p = (const wchar_t*)fmt;
     int state = 0;
+    int ign = 0;
     while(*p)
     {
         switch(state) {
             case 0:
+                ign = 0;
                 switch(*p) {
                     case '%': state = 1; ++p; break;
                     default:
@@ -423,7 +447,7 @@ void myStackAlignScanfW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* 
                     case 'S':
                     case 's': state = 30; break; // pointers
                     case '$': ++p; break; // should issue a warning, it's not handled...
-                    case '*': *(mystack++) = *(st++); ++p; break; // fetch an int in the stack....
+                    case '*': ign = 1; ++p; break; // ignore arg
                     case ' ': state=0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
@@ -439,13 +463,15 @@ void myStackAlignScanfW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* 
             case 23:    // 64bits int
             case 24:    // normal int / pointer
             case 30:
-                if(pos<6)
-                    *mystack = emu->regs[regs_abi[pos++]].q[0];
-                else {
-                    *mystack = *st;
-                    ++st;
+                if(!ign) {
+                    if(pos<6)
+                        *mystack = emu->regs[regs_abi[pos++]].q[0];
+                    else {
+                        *mystack = *st;
+                        ++st;
+                    }
+                    ++mystack;
                 }
-                ++mystack;
                 state = 0;
                 ++p;
                 break;
