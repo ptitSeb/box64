@@ -741,6 +741,7 @@
 
 #define SHL_scalar(U, size, Rm, R, S, Rn, Rd)   (0b01<<30 | (U)<<29 | 0b11110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b010<<13 | (R)<<12 | (S)<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define SSHL_R_64(Vd, Vn, Vm)               EMIT(SHL_scalar(0, 0b11, Vm, 0, 0, Vn, Vd))
+#define USHL_R_64(Vd, Vn, Vm)               EMIT(SHL_scalar(1, 0b11, Vm, 0, 0, Vn, Vd))
 
 #define SHL_scalar_imm(U, immh, immb, Rn, Rd)   (0b01<<30 | 0b111110<<23 | (immh)<<19 | (immb)<<16 | 0b01010<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define SHL_64(Vd, Vn, shift)               EMIT(SHL_scalar_imm(0, 0b1000 | (((shift)>>3)&7), (shift)&7, Vn, Vd))
@@ -830,6 +831,10 @@
 #define ABSQ_16(Vd, Vn)                     EMIT(NEGABS_vector(1, 0, 0b01, Vn, Vd))
 #define ABSQ_32(Vd, Vn)                     EMIT(NEGABS_vector(1, 0, 0b10, Vn, Vd))
 #define ABSQ_64(Vd, Vn)                     EMIT(NEGABS_vector(1, 0, 0b11, Vn, Vd))
+
+#define NEGABS_vector_scalar(U, size, Rn, Rd)   (0b01<<30 | (U)<<29 | 0b11110<<24 | (size)<<22 | 0b10000<<17 | 0b01011<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define NEG_64(Vd, Vn)                     EMIT(NEGABS_vector_scalar(1, 0b11, Vn, Vd))
+#define ABS_64(Vd, Vn)                     EMIT(NEGABS_vector_scalar(0, 0b11, Vn, Vd))
 
 // FMOV
 #define FMOV_general(sf, type, mode, opcode, Rn, Rd)    ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (mode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
@@ -1343,6 +1348,9 @@
 #define VCMGTQ_16(Rd, Rn, Rm)       EMIT(CMG_vector(1, 0, 0b01, 0, Rm, Rn, Rd))
 #define VCMGTQ_32(Rd, Rn, Rm)       EMIT(CMG_vector(1, 0, 0b10, 0, Rm, Rn, Rd))
 #define VCMGTQ_64(Rd, Rn, Rm)       EMIT(CMG_vector(1, 0, 0b11, 0, Rm, Rn, Rd))
+#define VCMGT_8(Rd, Rn, Rm)         EMIT(CMG_vector(0, 0, 0b00, 0, Rm, Rn, Rd))
+#define VCMGT_16(Rd, Rn, Rm)        EMIT(CMG_vector(0, 0, 0b01, 0, Rm, Rn, Rd))
+#define VCMGT_32(Rd, Rn, Rm)        EMIT(CMG_vector(0, 0, 0b10, 0, Rm, Rn, Rd))
 // Unsigned Higher
 #define VCHIQQ_8(Rd, Rn, Rm)        EMIT(CMG_vector(1, 1, 0b00, 0, Rm, Rn, Rd))
 #define VCHIQQ_16(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b01, 0, Rm, Rn, Rd))
