@@ -432,7 +432,7 @@ GOW(ftello64, IFp)
 GO(ftok, iFpi)
 GOW(ftruncate, iFil)
 GOW(ftruncate64, iFiI)
-//GOW(ftrylockfile, 
+GOW(ftrylockfile, iFp)
 //GOW(fts64_children, 
 //GOW(fts64_close, 
 //GOW(fts64_open, 
@@ -445,7 +445,7 @@ GO(fts_read, pFp)
 GO(fts_set, iFppi)
 GOM(ftw, iFEppi)
 GOM(ftw64, iFEppi)
-//GOW(funlockfile, 
+GOW(funlockfile, vFp)
 //GO(futimens, 
 //GOW(futimes, 
 //GO(futimesat, 
@@ -2005,7 +2005,7 @@ DATA(__tzname, sizeof(void*))
 DATA(tzname, sizeof(void*)) //type V
 GOW(tzset, vFv)
 //GO(ualarm, 
-//GO(__uflow, 
+GO(__uflow, iFp)
 //GOW(ulckpwdf, 
 //GOW(ulimit, 
 GOW(umask, uFu)
