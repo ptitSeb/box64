@@ -70,6 +70,8 @@ x64emurun:
             rep = opcode-0xF1;
             opcode = F8;
         }
+        while((opcode==0x3E))   //Branch Taken Hint ignored
+            opcode = F8;
         rex.rex = 0;
         while(opcode>=0x40 && opcode<=0x4f) {
             rex.rex = opcode;

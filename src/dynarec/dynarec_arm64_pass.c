@@ -75,6 +75,10 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             ++addr;
             pk = PK(0);
         }
+        while(pk==0x3E) {   //Branch Taken Hint ignored
+            ++addr;
+            pk = PK(0);
+        }
         rex.rex = 0;
         while(pk>=0x40 && pk<=0x4f) {
             rex.rex = pk;
