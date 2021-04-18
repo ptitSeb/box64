@@ -178,8 +178,8 @@ void* GetNativeFnc(uintptr_t fnc)
     // check if it's an indirect jump
     #define PK(a)       *(uint8_t*)(fnc+a)
     #define PK32(a)     *(uint32_t*)(fnc+a)
-    if(PK(0)==0xff && PK(1)==0x25) {  // absolute jump, maybe the GOT
-        uintptr_t a1 = (PK32(2));   // need to add a check to see if the address is from the GOT !
+    if(PK(0)==0xff && PK(1)==0x25) {    // "absolute" jump, maybe the GOT (it's a RIP+relative in fact)
+        uintptr_t a1 = fnc+6+(PK32(2)); // need to add a check to see if the address is from the GOT !
         a1 = *(uintptr_t*)a1;
         if(a1 && a1>0x10000) {
             a1 = (uintptr_t)GetNativeFnc(a1);
