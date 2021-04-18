@@ -234,6 +234,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedpango.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpangocairo.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpangoft2.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedpng16.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpulse.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpulsesimple.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl1.c"
