@@ -2030,7 +2030,7 @@ GO(usleep, iFu)
 //GO(ustat, 
 GO(utime, iFpp)
 //GO(utimensat, 
-//GOW(utimes, 
+GOW(utimes, iFpp)
 //GOW(utmpname, 
 //GO(utmpxname, 
 GOW(valloc, pFL)
@@ -2090,7 +2090,7 @@ GOW(waitpid, lFlpi)
 //GO(__wcpncpy_chk, 
 GOW(wcrtomb, LFpup)
 //GO(__wcrtomb_chk, 
-//GOW(wcscasecmp, 
+GOW(wcscasecmp, iFpp)
 //GO(__wcscasecmp_l, 
 //GOW(wcscasecmp_l, 
 GOW(wcscat, pFpp)
