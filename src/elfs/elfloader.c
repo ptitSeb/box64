@@ -332,12 +332,13 @@ int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
             printf_log(LOG_DEBUG, "Re-loading block #%zu @%p (0x%lx/0x%lx)\n", i, dest, e->p_filesz, e->p_memsz);
             int ret = fseeko64(f, e->p_offset, SEEK_SET);
             if(ret==-1) {printf_log(LOG_NONE, "Fail to (re)seek PT_LOAD part #%zu (offset=%ld, errno=%d/%s)\n", i, e->p_offset, errno, strerror(errno)); return 1;}
+            #ifdef DYNAREC
+            cleanDBFromAddressRange((uintptr_t)dest, e->p_memsz, 0);
+            #endif
+            mprotect(dest, e->p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
+            setProtection((uintptr_t)dest, e->p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
             if(e->p_filesz) {
                 ssize_t r = -1;
-                #ifdef DYNAREC
-                if(box64_dynarec)
-                    unprotectDB((uintptr_t)dest, e->p_memsz);
-                #endif
                 if((r=fread(dest, e->p_filesz, 1, f))!=1) {
                     printf_log(LOG_NONE, "Fail to (re)read PT_LOAD part #%zu (dest=%p, size=%ld, return=%ld, feof=%d/ferror=%d/%s)\n", i, dest, e->p_filesz, r, feof(f), ferror(f), strerror(ferror(f)));
                     return 1;
@@ -578,7 +579,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                 if(!offs) {offs = globoffs; end = globend;}
                 if(offs) {
                     // add r_addend to p?
-                    printf_log(LOG_DUMP, "Apply R_X86_64_COPY @%p with sym=%s, @%p size=%ld\n", p, symname, (void*)offs, sym->st_size);
+                    printf_log(LOG_DUMP, "Apply R_X86_64_COPY @%p with sym=%s, @%p+0x%lx size=%ld\n", p, symname, (void*)offs, rela[i].r_addend, sym->st_size);
                     if(p!=(void*)(offs+rela[i].r_addend))
                         memmove(p, (void*)(offs+rela[i].r_addend), sym->st_size);
                 } else {
@@ -590,12 +591,19 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
-                    printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", 
-                        (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), 
-                        (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
-                    memmove((void*)globoffs, (void*)offs, sym->st_size);   // preapply to copy part from lib to main elf
-                    *p = globoffs/* + rela[i].r_addend*/;   //no addend?
-                    AddWeakSymbol(GetGlobalData(maplib), symname, offs, end-offs+1);
+                    if(sym->st_size) {
+                        printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", 
+                            (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), 
+                            (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
+                        memmove((void*)globoffs, (void*)offs, sym->st_size);   // preapply to copy part from lib to main elf
+                        *p = globoffs/* + rela[i].r_addend*/;   //no addend?
+                        AddWeakSymbol(GetGlobalData(maplib), symname, offs, end-offs+1);
+                    } else {
+                        printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) null sized on sym=%s \n", 
+                            (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), 
+                            (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, symname);
+                        *p = globoffs;
+                    }
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
                     if (GetGlobalNoWeakSymbolStartEnd(maplib, symname, &globoffs, &globend)) {
