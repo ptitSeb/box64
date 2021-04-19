@@ -120,6 +120,12 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VTRNQ2_32(q0, q1, q1);
             break;
 
+        case 0x1E:
+            INST_NAME("NOP / ENDBR32 / ENDBR64");
+            nextop = F8;
+            FAKEED;
+            break;
+
         case 0x2A:
             INST_NAME("CVTSI2SS Gx, Ed");
             nextop = F8;
