@@ -96,7 +96,9 @@ static size_t getMaxFreeBlock(void* block, size_t block_size)
     int maxsize = 0;
     while(m->prev.x32) {    // while there is a subblock
         if(!m->prev.fill && m->prev.size>maxsize) {
-            maxsize = m->prev.size-sizeof(blockmark_t);
+            maxsize = m->prev.size;
+            if(maxsize>sizeof(blockmark_t))
+                maxsize -= sizeof(blockmark_t);
             if((uintptr_t)block+maxsize>(uintptr_t)m)
                 return maxsize; // no block large enough left...
         }
