@@ -97,14 +97,12 @@ static size_t getMaxFreeBlock(void* block, size_t block_size)
     while(m->prev.x32) {    // while there is a subblock
         if(!m->prev.fill && m->prev.size>maxsize) {
             maxsize = m->prev.size;
-            if(maxsize>sizeof(blockmark_t))
-                maxsize -= sizeof(blockmark_t);
             if((uintptr_t)block+maxsize>(uintptr_t)m)
-                return maxsize; // no block large enough left...
+                return (maxsize>=sizeof(blockmark_t))?(maxsize-sizeof(blockmark_t)):0; // no block large enough left...
         }
         m = (blockmark_t*)((uintptr_t)m - m->prev.size);
     }
-    return maxsize;
+    return (maxsize>=sizeof(blockmark_t))?(maxsize-sizeof(blockmark_t)):0;
 }
 
 static void* allocBlock(void* block, void *sub, size_t size)
