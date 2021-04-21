@@ -551,7 +551,7 @@ GO(SDL_SetHintWithPriority, iFppi)
 GO(SDL_SetMainReady, vFv)
 // SDL_SetMemoryFunctions
 GO(SDL_SetModState, vFi)
-// SDL_SetPaletteColors
+GO(SDL_SetPaletteColors, iFppii)
 // SDL_SetPixelFormatPalette
 GO(SDL_SetRelativeMouseMode, iFi)
 GO(SDL_SetRenderDrawBlendMode, iFpu)
