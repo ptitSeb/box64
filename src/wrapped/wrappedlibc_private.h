@@ -11,7 +11,7 @@
 GO(abort, vFv)
 //DATAB(__abort_msg, 
 //GO(abs, 
-//GO(accept, 
+GO(accept, iFipp)
 //GO(accept4, 
 GOW(access, iFpi)
 //GO(acct, 
@@ -509,7 +509,7 @@ GO(getgrent, pFv)
 //GO(getgrnam, 
 //GO(getgrnam_r, 
 //GO(getgrouplist, 
-//GOW(getgroups, 
+GOW(getgroups, iFip)
 //GO(__getgroups_chk, 
 //GO(gethostbyaddr, 
 //GO(gethostbyaddr_r, 
@@ -1066,7 +1066,7 @@ GOM(__libc_start_main, iFEpippppp)
 //GO(__libc_vfork, 
 //GOW(link, 
 //GO(linkat, 
-//GOW(listen, 
+GOW(listen, iFii)
 //GO(listxattr, 
 //GO(llabs, 
 //GO(lldiv, 
