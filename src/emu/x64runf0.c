@@ -631,9 +631,19 @@ int RunF0(x64emu_t *emu, rex_t rex)
                 case 0:                 /* INC Ed */
 #ifdef DYNAREC
                     if(rex.w)
-                        do {
-                            tmp64u = arm64_lock_read_dd(ED);
-                        } while(arm64_lock_write_dd(ED, inc64(emu, tmp64u)));
+                        if(((uintptr_t)ED)&7) {
+                            // unaligned
+                            do {
+                                tmp64u = ED->q[0] & 0xffffffffffffff00LL;
+                                tmp64u |= arm64_lock_read_b(ED);
+                                tmp64u = inc64(emu, tmp64u);
+                            } while(arm64_lock_write_b(ED, tmp64u&0xff));
+                            ED->q[0] = tmp64u;
+                        }
+                        else
+                            do {
+                                tmp64u = arm64_lock_read_dd(ED);
+                            } while(arm64_lock_write_dd(ED, inc64(emu, tmp64u)));
                     else {
                         if((uintptr_t)ED&3) { 
                             //meh.
