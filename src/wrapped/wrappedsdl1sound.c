@@ -32,6 +32,7 @@ static void* getSDL1SoundMy(library_t* lib)
 {
     sdl1sound_my_t* my = (sdl1sound_my_t*)calloc(1, sizeof(sdl1sound_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
+    SUPER()
     #undef GO
     return my;
 }
@@ -41,7 +42,7 @@ EXPORT void* my_Sound_NewSample(x64emu_t* emu, void* a, void* ext, void* desired
     sdl1sound_my_t *my = (sdl1sound_my_t *)my_lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
     void* r = my->Sound_NewSample(rw, ext, desired, buffersize);
-    RWNativeEnd(rw);
+    //RWNativeEnd(rw);  // will be closed automatically
     return r;
 }
 
