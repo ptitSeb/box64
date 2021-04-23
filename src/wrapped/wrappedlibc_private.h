@@ -549,8 +549,8 @@ GO(getnameinfo, iFpupLpLi)
 GOW(get_nprocs, iFv)
 GOW(get_nprocs_conf, iFv)
 GO(getopt, iFipp)
-//GO(getopt_long, 
-//GO(getopt_long_only, 
+GO(getopt_long, iFipppp)
+GO(getopt_long_only, iFipppp)
 GO(__getpagesize, iFv)
 GOW(getpagesize, iFv)
 //GO(getpass, 
