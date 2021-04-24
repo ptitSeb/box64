@@ -75,6 +75,9 @@ scwrap_t syscallwrap[] = {
     #ifdef __NR_pipe
     { 22, __NR_pipe, 1},
     #endif
+    { 46, __NR_sendmsg, 3},
+    { 47, __NR_recvmsg, 3},
+    { 53, __NR_socketpair, 4},
     #ifdef __NR_fork
     { 57, __NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
     #endif
@@ -88,6 +91,7 @@ scwrap_t syscallwrap[] = {
     #endif
     { 254, __NR_inotify_add_watch, 3},
     { 255, __NR_inotify_rm_watch, 2},
+    { 274, __NR_get_robust_list, 3},
     { 294, __NR_inotify_init1, 1},
     { 298, __NR_perf_event_open, 5},
     { 318, __NR_getrandom, 3},
