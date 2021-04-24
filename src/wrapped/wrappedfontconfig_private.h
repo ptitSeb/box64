@@ -55,6 +55,7 @@ GO(FcConfigGetFontDirs, pFp)
 GO(FcConfigGetFonts, pFpi)
 //GO(FcConfigGetRescanInterval, 
 //GO(FcConfigGetRescanInverval, 
+GO(FcConfigGetSysRoot, pFp)
 //GO(FcConfigHome, 
 //GO(FcConfigParseAndLoad, 
 GO(FcConfigReference, pFp)
@@ -94,7 +95,7 @@ GO(FcFontSort, pFppipp)
 GO(FcFreeTypeQuery, pFpipp)
 GO(FcFreeTypeQueryFace, pFppip)
 //GO(FcGetLangs, 
-//GO(FcGetVersion, 
+GO(FcGetVersion, iFv)
 GO(FcInit, iFv)
 //GO(FcInitBringUptoDate, 
 //GO(FcInitLoadConfig, 
