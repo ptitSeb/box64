@@ -132,7 +132,7 @@ typedef struct nat_linux_dirent64_s {
 ssize_t DirentFromDirent64(void* dest, void* source, ssize_t count)
 {
     nat_linux_dirent64_t *src = (nat_linux_dirent64_t*)source;
-    x86_linux_dirent_t *dst = (x86_linux_dirent_t*)dst;
+    x86_linux_dirent_t *dst = (x86_linux_dirent_t*)dest;
     ssize_t ret = count;
     while(count>0) {
         dst->d_ino = src->d_ino;
