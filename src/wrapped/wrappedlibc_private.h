@@ -296,8 +296,8 @@ GOW(_Exit, vFi)
 //GO(explicit_bzero, 
 //GO(__explicit_bzero_chk, 
 GO(faccessat, iFipii)
-//GOW(fallocate, 
-//GO(fallocate64, 
+GOW(fallocate, iFiill)
+GO(fallocate64, iFiill)
 //GO(fanotify_init, 
 //GO(fanotify_mark, 
 //GO(fattach, 
@@ -1267,9 +1267,9 @@ GO(__open_2, iFpO)
 GOM(open64, iFEpOu) //Weak
 //GO(__open64_2, 
 //GO(__open64_nocancel, 
-//GOW(openat, 
+GOW(openat, iFipiO)
 //GO(__openat_2, 
-//GOW(openat64, 
+GOW(openat64, iFipiO)
 //GO(__openat64_2, 
 //GO(open_by_handle_at, 
 //GO(__open_catalog, 
@@ -1310,7 +1310,7 @@ GOW(poll, iFpLi)
 GO(__poll_chk, iFpuiL)
 GO(popen, pFpp)
 GO(posix_fadvise, iFilli)
-//GOW(posix_fadvise64, 
+GOW(posix_fadvise64, iFilli)
 //GO(posix_fallocate, 
 //GO(posix_fallocate64, 
 //GO(__posix_getopt, 
