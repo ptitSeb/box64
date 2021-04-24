@@ -463,6 +463,7 @@ int EXPORT my_uname(struct utsname *buf)
 #define X86_O_NOFOLLOW     0400000
 #define X86_O_NOATIME      01000000
 #define X86_O_CLOEXEC      02000000
+#define X86_O_PATH         010000000
 #define X86_O_TMPFILE      020200000
 
 #ifndef O_TMPFILE
@@ -489,7 +490,7 @@ int EXPORT my_uname(struct utsname *buf)
     GO(O_NOFOLLOW)  \
     GO(O_NOATIME)   \
     GO(O_CLOEXEC)   \
-    GO(O_TMPFILE)   \
+    GO(O_PATH)      \
 
 // x86->arm
 int of_convert(int a)
