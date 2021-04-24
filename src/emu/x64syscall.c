@@ -47,6 +47,7 @@ int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss);
 void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
 int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
 int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot);
+void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr);
 
 // cannot include <fcntl.h>, it conflict with some asm includes...
 #ifndef O_NONBLOCK
@@ -75,12 +76,17 @@ scwrap_t syscallwrap[] = {
     #ifdef __NR_pipe
     { 22, __NR_pipe, 1},
     #endif
+    //{ 25, __NR_mremap, 5},    // wrapped to track protection
     { 46, __NR_sendmsg, 3},
     { 47, __NR_recvmsg, 3},
     { 53, __NR_socketpair, 4},
     #ifdef __NR_fork
     { 57, __NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
     #endif
+    #ifdef __NR_getdents
+    { 78, __NR_getdents, 3},
+    #endif
+    { 126, __NR_capset, 2},
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
     { 157, __NR_prctl, 5 },     // needs wrapping?
     { 186, __NR_gettid, 0 },    //0xBA
@@ -105,6 +111,45 @@ struct mmap_arg_struct {
     unsigned long fd;
     unsigned long offset;
 };
+
+#ifndef __NR_getdents
+typedef struct x86_linux_dirent_s {
+    unsigned long  d_ino;
+    unsigned long  d_off;
+    unsigned short d_reclen;
+    char           d_name[];
+} x86_linux_dirent_t;
+
+typedef struct nat_linux_dirent64_s {
+    ino64_t        d_ino;
+    off64_t        d_off;
+    unsigned short d_reclen;
+    unsigned char  d_type;
+    char           d_name[];
+} nat_linux_dirent64_t;
+
+ssize_t DirentFromDirent64(void* dest, void* source, ssize_t count)
+{
+    nat_linux_dirent64_t *src = (nat_linux_dirent64_t*)source;
+    x86_linux_dirent_t *dst = (x86_linux_dirent_t*)dst;
+    ssize_t ret = count;
+    while(count>0) {
+        dst->d_ino = src->d_ino;
+        dst->d_reclen = src->d_reclen+1;
+        strcpy(dst->d_name, src->d_name);
+        dst->d_off = src->d_off?(src->d_off+1):0;
+        *(uint8_t*)((uintptr_t)dst + dst->d_reclen -2) = 0;
+        *(uint8_t*)((uintptr_t)dst + dst->d_reclen -1) = src->d_type;
+
+        count -= src->d_reclen;
+        ret += 1;
+        src = (nat_linux_dirent64_t*)((uintptr_t)src + src->d_off);
+        dst = (x86_linux_dirent_t*)((uintptr_t)dst + dst->d_off);
+    }
+    return ret;
+}
+
+#endif
 
 //struct x86_pt_regs {
 //	long ebx;
@@ -195,9 +240,23 @@ void EXPORT x64Syscall(x64emu_t *emu)
             R_EAX = (uint32_t)pipe((void*)R_RDI);
             break;
         #endif
+        case 25: // sys_mremap
+            R_RAX = (uintptr_t)my_mremap(emu, (void*)R_RDI, R_RSI, R_RDX, R_R10d, (void*)R_R8);
+            break;
         #ifndef __NR_fork
         case 57: 
             R_RAX = fork();
+            break;
+        #endif
+        #ifndef __NR_getdents
+        case 78:
+            {
+                size_t count = R_RDX;
+                nat_linux_dirent64_t *d64 = (nat_linux_dirent64_t*)alloca(count);
+                ssize_t ret = syscall(__NR_getdents64, R_EDI, d64, count);
+                ret = DirentFromDirent64((void*)R_RSI, d64, ret);
+                R_RAX = (uint64_t)ret;
+            }
             break;
         #endif
         case 131: // sys_sigaltstack
@@ -269,9 +328,21 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         case 22:
             return (uint32_t)pipe((void*)R_RSI);
         #endif
+        case 25: // sys_mremap
+            return (uintptr_t)my_mremap(emu, (void*)R_RSI, R_RDX, R_RCX, R_R8d, (void*)R_R9);
         #ifndef __NR_fork
         case 57: 
             return fork();
+        #endif
+        #ifndef __NR_getdents
+        case 78:
+            {
+                size_t count = R_RCX;
+                nat_linux_dirent64_t *d64 = (nat_linux_dirent64_t*)alloca(count);
+                ssize_t ret = syscall(__NR_getdents64, R_ESI, d64, count);
+                ret = DirentFromDirent64((void*)R_RDX, d64, ret);
+                return (uint64_t)ret;
+            }
         #endif
         case 131: // sys_sigaltstack
             return (uint32_t)my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
