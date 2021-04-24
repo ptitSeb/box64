@@ -557,6 +557,9 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
         R_RIP += tmp32s;
         break;
 
+    case 0xF0:                              /* LOCK: */
+        return Run66F0(emu, rex);
+
     case 0xF7:                      /* GRP3 Ew(,Iw) */
         nextop = F8;
         tmp8u = (nextop>>3)&7;
