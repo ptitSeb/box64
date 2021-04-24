@@ -92,6 +92,7 @@ scwrap_t syscallwrap[] = {
     { 186, __NR_gettid, 0 },    //0xBA
     { 202, __NR_futex, 6},
     { 217, __NR_getdents64, 3},
+    { 234, __NR_tgkill, 3},
     #ifdef __NR_inotify_init
     { 253, __NR_inotify_init, 0},   //0xFD
     #endif
@@ -143,8 +144,8 @@ ssize_t DirentFromDirent64(void* dest, void* source, ssize_t count)
 
         count -= src->d_reclen;
         ret += 1;
-        src = (nat_linux_dirent64_t*)((uintptr_t)src + src->d_off);
-        dst = (x86_linux_dirent_t*)((uintptr_t)dst + dst->d_off);
+        src = (nat_linux_dirent64_t*)(((uintptr_t)src) + src->d_reclen);
+        dst = (x86_linux_dirent_t*)(((uintptr_t)dst) + dst->d_reclen);
     }
     return ret;
 }
