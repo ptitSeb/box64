@@ -497,7 +497,7 @@ int of_convert(int a)
 {
     if(!a || a==-1) return a;
     int b=0;
-    #define GO(A) if((a&X86_##A)==X86_##A) {a&=~X86_##A; b|=A;}
+    #define GO(A) if((a&(X86_##A))==(X86_##A)) {a&=~(X86_##A); b|=(A);}
     SUPER();
     #undef GO
     if(a) {
@@ -511,7 +511,7 @@ int of_unconvert(int a)
 {
     if(!a || a==-1) return a;
     int b=0;
-    #define GO(A) if((a&A)==A) {a&=~A; b|=X86_##A;}
+    #define GO(A) if((a&(A))==(A)) {a&=~(A); b|=(X86_##A);}
     SUPER();
     #undef GO
     if(a) {
