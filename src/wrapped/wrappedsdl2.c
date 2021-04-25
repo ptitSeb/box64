@@ -645,6 +645,8 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
     printf_log(LOG_DEBUG, "Calling SDL_GL_GetProcAddress(%s)\n", rname);
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // check if glxprocaddress is filled, and search for lib and fill it if needed
+    if(!emu->context->glxprocaddress)
+        emu->context->glxprocaddress = (procaddess_t)my->SDL_GL_GetProcAddress;
     if(!emu->context->glwrappers)
         fillGLProcWrapper(emu->context);
     // get proc adress using actual glXGetProcAddress
