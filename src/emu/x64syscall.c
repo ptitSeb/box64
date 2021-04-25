@@ -83,9 +83,11 @@ scwrap_t syscallwrap[] = {
     #ifdef __NR_fork
     { 57, __NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
     #endif
+    { 61, __NR_wait4, 4},
     #ifdef __NR_getdents
     { 78, __NR_getdents, 3},
     #endif
+    { 101, __NR_ptrace, 4},
     { 126, __NR_capset, 2},
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
     { 157, __NR_prctl, 5 },     // needs wrapping?
