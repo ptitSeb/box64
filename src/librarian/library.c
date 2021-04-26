@@ -41,7 +41,7 @@ wrappedlib_t wrappedlibs[] = {
 typedef struct bridged_s {
     char*       name;
     uintptr_t   start;
-    uint32_t    end;
+    uintptr_t   end;
 } bridged_t;
 
 KHASH_MAP_INIT_STR(bridgemap, bridged_t)
