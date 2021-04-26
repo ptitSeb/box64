@@ -692,3 +692,42 @@ void UnalignStat64(const void* source, void* dest)
     x64st->st_mtim     = st->st_mtim;
     x64st->st_ctim     = st->st_ctim;
 }
+
+typedef union __attribute__((packed)) x64_epoll_data {
+    void    *ptr;
+    int      fd;
+    uint32_t u32;
+    uint64_t u64;
+} x64_epoll_data_t;
+
+struct __attribute__((packed)) x64_epoll_event {
+    uint32_t            events;
+    x64_epoll_data_t    data;
+};
+// Arm -> x64
+void UnalignEpollEvent(void* dest, void* source, int nbr)
+{
+    struct x64_epoll_event *x64_struct = (struct x64_epoll_event*)dest;
+    struct epoll_event *arm_struct = (struct epoll_event*)source;
+    while(nbr) {
+        x64_struct->events = arm_struct->events;
+        x64_struct->data.u64 = arm_struct->data.u64;
+        ++x64_struct;
+        ++arm_struct;
+        --nbr;
+    }
+}
+
+// x64 -> Arm
+void AlignEpollEvent(void* dest, void* source, int nbr)
+{
+    struct x64_epoll_event *x64_struct = (struct x64_epoll_event*)source;
+    struct epoll_event *arm_struct = (struct epoll_event*)dest;
+    while(nbr) {
+        arm_struct->events = x64_struct->events;
+        arm_struct->data.u64 = x64_struct->data.u64;
+        ++x64_struct;
+        ++arm_struct;
+        --nbr;
+    }
+}

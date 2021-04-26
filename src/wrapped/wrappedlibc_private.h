@@ -258,7 +258,11 @@ DATAB(__environ, sizeof(void*))
 //GO(envz_strip, 
 GO(epoll_create, iFi)
 GO(epoll_create1, iFO)
-GO(epoll_ctl, iFiiip)   // need to check about alignment
+#ifdef NOALIGN
+GO(epoll_ctl, iFiiip)
+#else
+GOM(epoll_ctl, iFEiiip)   // struct epoll_event is 12byte on x86_64 and 16bytes (8bytes aligned) on arm64
+#endif
 //GO(epoll_pwait, 
 GO(epoll_wait, iFipii)
 GO(erand48, dFp)

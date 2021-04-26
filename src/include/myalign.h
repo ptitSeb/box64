@@ -114,3 +114,6 @@ void UnalignStat64(const void* source, void* dest);
 // defined in wrapperlibc.c
 int of_convert(int);    // x86->arm
 int of_unconvert(int);  // arm->x86
+
+void UnalignEpollEvent(void* dest, void* source, int nbr); // Arm -> x86
+void AlignEpollEvent(void* dest, void* source, int nbr); // x86 -> Arm

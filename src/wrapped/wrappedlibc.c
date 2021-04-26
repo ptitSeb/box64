@@ -1437,16 +1437,8 @@ EXPORT void* my_ldiv(x64emu_t* emu, void* p, int32_t num, int32_t den)
     *((ldiv_t*)p) = ldiv(num, den);
     return p;
 }
-
+#endif
 #ifndef NOALIGN
-EXPORT int my_epoll_create(x64emu_t* emu, int size)
-{
-    return epoll_create(size);
-}
-EXPORT int my_epoll_create1(x64emu_t* emu, int flags)
-{
-    return epoll_create1(flags);
-}
 EXPORT int32_t my_epoll_ctl(x64emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event)
 {
     struct epoll_event _event[1] = {0};
@@ -1465,7 +1457,6 @@ EXPORT int32_t my_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_t 
 }
 #endif
 
-#endif
 EXPORT int32_t my_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
     (void)emu;
