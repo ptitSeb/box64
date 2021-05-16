@@ -943,6 +943,27 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             EWBACK;
             break;
 
+        case 0xB6:
+            INST_NAME("MOVZX Gw, Eb");
+            nextop = F8;
+            if(MODREG) {
+                if(rex.rex) {
+                    eb1 = xRAX+(nextop&7)+(rex.b<<3);
+                    eb2 = 0;                \
+                } else {
+                    ed = (nextop&7);
+                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                }
+                UBFXxw(x1, eb1, eb2*8, 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff, 0, rex, 0, 0);
+                LDRB_U12(x1, ed, fixedaddress);
+            }
+            gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);    // GETGW
+            BFIx(gd, x1, 0, 16);        // insert in Gw
+            break;
+
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
             SETFLAGS(X_CF, SF_SET);

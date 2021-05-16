@@ -870,6 +870,13 @@ int Run660F(x64emu_t *emu, rex_t rex)
         }
         break;
 
+    case 0xB6:                      /* MOVZX Gw,Eb */
+        nextop = F8;
+        GETEB(0);
+        GETGW;
+        GW->word[0] = EB->byte[0];
+        break;
+
     case 0xBB:                      /* BTC Ew,Gw */
         CHECK_FLAGS(emu);
         nextop = F8;
