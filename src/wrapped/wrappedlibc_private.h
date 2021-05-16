@@ -532,8 +532,8 @@ GOW(getifaddrs, iFp)
 //GO(get_kernel_syms, 
 GOW(getline, iFppp)
 //GO(getloadavg, 
-//GO(getlogin, 
-//GOW(getlogin_r, 
+GO(getlogin, pFv)
+GOW(getlogin_r, iFpL)
 //GO(__getlogin_r_chk, 
 //GO(getmntent, 
 //GO(__getmntent_r, 
