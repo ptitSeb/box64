@@ -292,7 +292,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             nextop = F8;
             GETEX(0);
             GETGD;
-            GD->dword[0] = 0;
+            GD->q[0] = 0;
             for(int i=0; i<4; ++i)
                 GD->dword[0] |= ((EX->ud[i]>>31)&1)<<i;
             break;
