@@ -437,6 +437,67 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0xFF:
+            nextop = F8;
+            switch((nextop>>3)&7)
+            {
+                case 0: // INC Ed
+                    INST_NAME("LOCK INC Ed");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        emit_inc32(dyn, ninst, rex, ed, x3, x4);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                        TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
+                        B_MARK(cNE);    // unaligned
+                        MARKLOCK;
+                        LDAXRxw(x1, wback);
+                        emit_inc32(dyn, ninst, rex, x1, x3, x4);
+                        STLXRxw(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                        B_NEXT_nocond;
+                        MARK;
+                        LDRxw_U12(x1, wback, 0);
+                        LDAXRB(x4, wback);
+                        BFIxw(x1, x4, 0, 8); // re-inject
+                        emit_inc32(dyn, ninst, rex, x1, x3, x4);
+                        STLXRB(x3, x1, wback);
+                        CBNZw_MARK(x3);
+                        STRxw_U12(x1, wback, 0);
+                    }
+                    break;
+                case 1: //DEC Ed
+                    INST_NAME("LOCK DEC Ed");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        emit_dec32(dyn, ninst, rex, ed, x3, x4);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                        TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
+                        B_MARK(cNE);    // unaligned
+                        MARKLOCK;
+                        LDAXRxw(x1, wback);
+                        emit_dec32(dyn, ninst, rex, x1, x3, x4);
+                        STLXRxw(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                        B_NEXT_nocond;
+                        MARK;
+                        LDRxw_U12(x1, wback, 0);
+                        LDAXRB(x4, wback);
+                        BFIxw(x1, x4, 0, 8); // re-inject
+                        emit_dec32(dyn, ninst, rex, x1, x3, x4);
+                        STLXRB(x3, x1, wback);
+                        CBNZw_MARK(x3);
+                        STRxw_U12(x1, wback, 0);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+            
         default:
             DEFAULT;
     }
