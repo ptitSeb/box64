@@ -75,7 +75,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 ed = (nextop&7)+ (rex.b<<3);
                 v0 = sse_get_reg(dyn, ninst, x1, gd);
                 d0 = sse_get_reg(dyn, ninst, x1, ed);
-                VMOV(v0, d0);
+                VMOVeD(v0, 0, d0, 0);
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
@@ -90,7 +90,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(MODREG) {
                 ed = (nextop&7)+ (rex.b<<3);
                 d0 = sse_get_reg(dyn, ninst, x1, ed);
-                VMOV(d0, v0);
+                VMOVeD(d0, 0, v0, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                 VSTR64_U12(v0, ed, fixedaddress);
