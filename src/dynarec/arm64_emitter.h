@@ -211,14 +211,14 @@
 #define LDRSW_S9_preindex(Rt, Rn, imm9)   EMIT(LDRS_gen(0b10, 0b00, (imm9)&0x1ff, 0b11, Rn, Rt))
 
 #define LD_gen(size, op1, imm12, Rn, Rt)        ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b01<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
-#define LDRx_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b11, 0b01, ((uint32_t)(imm12>>3))&0xfff, Rn, Rt))
-#define LDRw_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b10, 0b01, ((uint32_t)(imm12>>2))&0xfff, Rn, Rt))
-#define LDRB_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b00, 0b01, ((uint32_t)(imm12))&0xfff, Rn, Rt))
-#define LDRH_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b01, 0b01, ((uint32_t)(imm12>>1))&0xfff, Rn, Rt))
-#define LDRxw_U12(Rt, Rn, imm12)          EMIT(LD_gen((rex.w)?0b11:0b10, 0b01, ((uint32_t)(imm12>>(2+rex.w)))&0xfff, Rn, Rt))
+#define LDRx_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b11, 0b01, ((uint32_t)((imm12)>>3))&0xfff, Rn, Rt))
+#define LDRw_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b10, 0b01, ((uint32_t)((imm12)>>2))&0xfff, Rn, Rt))
+#define LDRB_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b00, 0b01, ((uint32_t)((imm12)))&0xfff, Rn, Rt))
+#define LDRH_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b01, 0b01, ((uint32_t)((imm12)>>1))&0xfff, Rn, Rt))
+#define LDRxw_U12(Rt, Rn, imm12)          EMIT(LD_gen((rex.w)?0b11:0b10, 0b01, ((uint32_t)((imm12)>>(2+rex.w)))&0xfff, Rn, Rt))
 
 #define LDS_gen(size, op1, imm12, Rn, Rt)       ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b10<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
-#define LDRSW_U12(Rt, Rn, imm12)          EMIT(LDS_gen(0b10, 0b01, ((uint32_t)(imm12>>2))&0xfff, Rn, Rt))
+#define LDRSW_U12(Rt, Rn, imm12)          EMIT(LDS_gen(0b10, 0b01, ((uint32_t)((imm12)>>2))&0xfff, Rn, Rt))
 
 #define LDR_REG_gen(size, Rm, option, S, Rn, Rt)    ((size)<<30 | 0b111<<27 | 0b01<<22 | 1<<21 | (Rm)<<16 | (option)<<13 | (S)<<12 | (0b10)<<10 | (Rn)<<5 | (Rt))
 #define LDRx_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b11, Rm, 0b011, 0, Rn, Rt))
@@ -252,10 +252,10 @@
 #define STRH_S9_postindex(Rt, Rn, imm9)   EMIT(STR_gen(0b01, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
 
 #define ST_gen(size, op1, imm12, Rn, Rt)        ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b00<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
-#define STRx_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b11, 0b01, ((uint32_t)(imm12>>3))&0xfff, Rn, Rt))
-#define STRw_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b10, 0b01, ((uint32_t)(imm12>>2))&0xfff, Rn, Rt))
-#define STRB_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b00, 0b01, ((uint32_t)(imm12))&0xfff, Rn, Rt))
-#define STRH_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b01, 0b01, ((uint32_t)(imm12>>1))&0xfff, Rn, Rt))
+#define STRx_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b11, 0b01, ((uint32_t)((imm12)>>3))&0xfff, Rn, Rt))
+#define STRw_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b10, 0b01, ((uint32_t)((imm12)>>2))&0xfff, Rn, Rt))
+#define STRB_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b00, 0b01, ((uint32_t)((imm12)))&0xfff, Rn, Rt))
+#define STRH_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b01, 0b01, ((uint32_t)((imm12)>>1))&0xfff, Rn, Rt))
 #define STRxw_U12(Rt, Rn, imm12)          EMIT(ST_gen((rex.w)?0b11:0b10, 0b01, ((uint32_t)((imm12)>>(2+rex.w)))&0xfff, Rn, Rt))
 
 #define STR_REG_gen(size, Rm, option, S, Rn, Rt)    ((size)<<30 | 0b111<<27 | 0b00<<22 | 1<<21 | (Rm)<<16 | (option)<<13 | (S)<<12 | (0b10)<<10 | (Rn)<<5 | (Rt))
@@ -754,6 +754,13 @@
 #define SSHLQ_16(Vd, Vn, Vm)                EMIT(SHL_vector_vector(1, 0, 0b01, Vm, 0, 0, Vn, Vd))
 #define SSHLQ_32(Vd, Vn, Vm)                EMIT(SHL_vector_vector(1, 0, 0b10, Vm, 0, 0, Vn, Vd))
 #define SSHLQ_64(Vd, Vn, Vm)                EMIT(SHL_vector_vector(1, 0, 0b11, Vm, 0, 0, Vn, Vd))
+#define USHL_8(Vd, Vn, Vm)                  EMIT(SHL_vector_vector(0, 1, 0b00, Vm, 0, 0, Vn, Vd))
+#define USHL_16(Vd, Vn, Vm)                 EMIT(SHL_vector_vector(0, 1, 0b01, Vm, 0, 0, Vn, Vd))
+#define USHL_32(Vd, Vn, Vm)                 EMIT(SHL_vector_vector(0, 1, 0b10, Vm, 0, 0, Vn, Vd))
+#define USHLQ_8(Vd, Vn, Vm)                 EMIT(SHL_vector_vector(1, 1, 0b00, Vm, 0, 0, Vn, Vd))
+#define USHLQ_16(Vd, Vn, Vm)                EMIT(SHL_vector_vector(1, 1, 0b01, Vm, 0, 0, Vn, Vd))
+#define USHLQ_32(Vd, Vn, Vm)                EMIT(SHL_vector_vector(1, 1, 0b10, Vm, 0, 0, Vn, Vd))
+#define USHLQ_64(Vd, Vn, Vm)                EMIT(SHL_vector_vector(1, 1, 0b11, Vm, 0, 0, Vn, Vd))
 
 #define SHR_vector(Q, U, immh, immb, Rn, Rd)  ((Q)<<30 | (U)<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b00000<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VSHRQ_8(Vd, Vn, shift)              EMIT(SHR_vector(1, 1, 0b0001, (8-(shift))&7, Vn, Vd))
@@ -968,6 +975,16 @@
 #define FDIVS(Sd, Sn, Sm)           EMIT(FDIV_scalar(0b00, Sm, Sn, Sd))
 #define FDIVD(Dd, Dn, Dm)           EMIT(FDIV_scalar(0b01, Dm, Dn, Dd))
 
+#define FRECPE_vector(Q, sz, Rn, Rd)   ((Q)<<30 | 0<<29 | 0b01110<<24 | 1<<23 | (sz)<<22 | 0b10000<<17 | 0b11101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define VFRECPES(Vd, Vn)           EMIT(FRECPE_vector(0, 0, Vn, Vd))
+#define VFRECPEQS(Vd, Vn)          EMIT(FRECPE_vector(1, 0, Vn, Vd))
+#define VFRECPEQD(Vd, Vn)          EMIT(FRECPE_vector(1, 0, Vn, Vd))
+
+#define FRECPS_vector(Q, sz, Rm, Rn, Rd)   ((Q)<<30 | 0<<29 | 0b01110<<24 | 0<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11111<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VFRECPSS(Vd, Vn, Vm)       EMIT(FRECPS_vector(0, 0, Vm, Vn, Vd))
+#define VFRECPSQS(Vd, Vn, Vm)      EMIT(FRECPS_vector(1, 0, Vm, Vn, Vd))
+#define VFRECPSQD(Vd, Vn, Vm)      EMIT(FRECPS_vector(1, 0, Vm, Vn, Vd))
+
 // SQRT
 #define FSQRT_vector(Q, sz, Rn, Rd)     ((Q)<<30 | 1<<29 | 0b01110<<24 | 1<<23 | (sz)<<22 | 0b10000<<17 | 0b11111<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define VFSQRTS(Sd, Sn)             EMIT(FSQRT_vector(0, 0, Sn, Sd))
@@ -977,6 +994,16 @@
 #define FSQRT_scalar(type, Rn, Rd)      (0b11110<<24 | (type)<<22 | 1<<21 | 0b11<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
 #define FSQRTS(Sd, Sn)              EMIT(FSQRT_scalar(0b00, Sn, Sd))
 #define FSQRTD(Dd, Dn)              EMIT(FSQRT_scalar(0b01, Dn, Dd))
+
+#define FRSQRTE_vector(Q, sz, Rn, Rd)   ((Q)<<30 | 1<<29 | 0b01110<<24 | 1<<23 | (sz)<<22 | 0b10000<<17 | 0b11101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define VFRSQRTES(Vd, Vn)           EMIT(FRSQRTE_vector(0, 0, Vn, Vd))
+#define VFRSQRTEQS(Vd, Vn)          EMIT(FRSQRTE_vector(1, 0, Vn, Vd))
+#define VFRSQRTEQD(Vd, Vn)          EMIT(FRSQRTE_vector(1, 0, Vn, Vd))
+
+#define FRSQRTS_vector(Q, sz, Rm, Rn, Rd)   ((Q)<<30 | 0<<29 | 0b01110<<24 | 1<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11111<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VFRSQRTSS(Vd, Vn, Vm)       EMIT(FRSQRTS_vector(0, 0, Vm, Vn, Vd))
+#define VFRSQRTSQS(Vd, Vn, Vm)      EMIT(FRSQRTS_vector(1, 0, Vm, Vn, Vd))
+#define VFRSQRTSQD(Vd, Vn, Vm)      EMIT(FRSQRTS_vector(1, 0, Vm, Vn, Vd))
 
 // CMP
 #define FCMP_scalar(type, Rn, Rm, opc)  (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b1000<<10 | (Rn)<<5 | (opc)<<3)
