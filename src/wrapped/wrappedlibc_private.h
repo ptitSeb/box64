@@ -456,7 +456,7 @@ GOW(funlockfile, vFp)
 //GOW(futimes, 
 //GO(futimesat, 
 //GO(fwide, 
-//GOW(fwprintf, 
+GOM(fwprintf, iFEppV)   //Weak
 //GO(__fwprintf_chk, 
 //GO(__fwritable, 
 GOW(fwrite, LFpLLp)
