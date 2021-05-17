@@ -2854,6 +2854,8 @@ GO(glTextureBarrier, vFv)
 GO(glTextureParameteriiv, vFuip)
 GO(glTextureParameteriuiv, vFuip)
 GO(glVertexArrayVertexBuffers, vFuuippp)
+//VERSION_4_6
+GO(glSpecializeShader, vFippp)
 
 //GL_EXT_memory_object
 GO(glGetUnsignedBytei_vEXT, vFiup)
@@ -3016,3 +3018,6 @@ GO(glXGetSwapIntervalMESA, iFv)
 
 //GLX_SGI_swap_control
 GO(glXSwapIntervalSGI,iFi)
+
+//GLX_ARB_????
+GO(glSpecializeShaderARB, vFippp)
