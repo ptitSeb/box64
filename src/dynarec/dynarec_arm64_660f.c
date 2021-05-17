@@ -1085,6 +1085,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
 
 
+        case 0xD3:
+            INST_NAME("PSRLQ Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 0);
+            v0 = fpu_get_scratch(dyn);
+            NEG_64(v0, q1);
+            VMOVeD(v0, 1, v0, 0);
+            USHLQ_64(q0, q0, v0);
+            break;
         case 0xD4:
             INST_NAME("PADDQ Gx,Ex");
             nextop = F8;
@@ -1327,7 +1337,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeD(v0, 1, v0, 0);
             SSHLQ_32(q0, q0, v0);
             break;
-
+        case 0xF3:
+            INST_NAME("PSLLQ Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 0);
+            v0 = fpu_get_scratch(dyn);
+            VMOVQ(v0, q1);
+            VMOVeD(v0, 1, v0, 0);
+            USHLQ_64(q0, q0, v0);
+            break;
         case 0xF4:
             INST_NAME("PMULUDQ Gx,Ex");
             nextop = F8;
