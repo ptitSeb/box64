@@ -347,7 +347,39 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
-        
+        case 0x50:
+            INST_NAME("MOVMSPKPS Gd, Ex");
+            nextop = F8;
+            GETGD;
+            MOV32w(gd, 0);
+            if((nextop&0xC0)==0xC0) {
+                // EX is an xmm reg
+                GETEX(q0, 0);
+                VMOVQDto(x1, q0, 0);
+                LSRx(x1, x1, 31);
+                BFIx(gd, x1, 0, 1);
+                LSRx(x1, x1, 32);
+                BFIx(gd, x1, 1, 1);
+                VMOVQDto(x1, q0, 1);
+                LSRx(x1, x1, 31);
+                BFIx(gd, x1, 2, 1);
+                LSRx(x1, x1, 32);
+                BFIx(gd, x1, 3, 1);
+            } else {
+                // EX is memory
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, (0xfff<<3)-8, 7, rex, 0, 0);
+                LDRx_U12(x1, ed, fixedaddress+0);
+                LSRx(x1, x1, 31);
+                BFIx(gd, x1, 0, 1);
+                LSRx(x1, x1, 32);
+                BFIx(gd, x1, 1, 1);
+                LDRx_U12(x1, ed, fixedaddress+8);
+                LSRx(x1, x1, 31);
+                BFIx(gd, x1, 2, 1);
+                LSRx(x1, x1, 32);
+                BFIx(gd, x1, 3, 1);
+            }
+            break;
         case 0x51:
             INST_NAME("SQRTPS Gx, Ex");
             nextop = F8;
@@ -355,7 +387,36 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGX_empty(v0);
             VFSQRTQS(v0, q0);
             break;
-
+        case 0x52:
+            INST_NAME("RSQRTPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX_empty(q1);
+            v0 = fpu_get_scratch(dyn);
+            // more precise
+            if(q1==q0)
+                v1 = fpu_get_scratch(dyn);
+            else 
+                v1 = q1;
+            VFRSQRTEQS(v0, q0);
+            VFMULQS(v1, v0, q0);
+            VFRSQRTSQS(v1, v1, v0);
+            VFMULQS(q1, v1, v0);
+            break;
+        case 0x53:
+            INST_NAME("RCPPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX_empty(q1);
+            if(q0 == q1)
+                v1 = fpu_get_scratch(dyn);
+            else
+                v1 = q1;
+            v0 = fpu_get_scratch(dyn);
+            VFRECPEQS(v0, q0);
+            VFRECPSQS(v1, v0, q0);
+            VFMULQS(q1, v0, v1);
+            break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
             nextop = F8;
