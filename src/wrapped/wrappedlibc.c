@@ -2221,21 +2221,21 @@ EXPORT int my_semctl(x64emu_t* emu, int semid, int semnum, int cmd, union semun 
 EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
 {
     // Get current Framepointer
-    uintptr_t **fp = (uintptr_t**)R_RBP;
-    uintptr_t **stack_end = (uintptr_t**)(emu->init_stack + emu->size_stack);
-    uintptr_t **stack_start = (uintptr_t**)(emu->init_stack);
+    uintptr_t *fp = (uintptr_t*)R_RBP;
+    uintptr_t *stack_end = (uintptr_t*)(emu->init_stack + emu->size_stack);
+    uintptr_t *stack_start = (uintptr_t*)(emu->init_stack);
     // check if fp is on another stack (in case of beeing call from a signal with altstack)
     x64emu_t *thread_emu = thread_get_emu();
-    if(emu!=thread_emu && ((fp>(uintptr_t**)(thread_emu->init_stack)) && (fp<(uintptr_t**)(thread_emu->init_stack + thread_emu->size_stack)))) {
-        stack_end = (uintptr_t**)(thread_emu->init_stack + thread_emu->size_stack);
-        stack_start = (uintptr_t**)(thread_emu->init_stack);        
+    if(emu!=thread_emu && ((fp>(uintptr_t*)(thread_emu->init_stack)) && (fp<(uintptr_t*)(thread_emu->init_stack + thread_emu->size_stack)))) {
+        stack_end = (uintptr_t*)(thread_emu->init_stack + thread_emu->size_stack);
+        stack_start = (uintptr_t*)(thread_emu->init_stack);        
     }
     int idx=0;
     while(idx<size) {
-        if(!fp || (fp>stack_end) || (fp<stack_start))
-            break;
-        buffer[idx] = fp[1];
-        fp = (uintptr_t**)fp[0];
+        if(!fp || (fp>=stack_end) || (fp<=stack_start))
+            return idx;
+        buffer[idx] = (void*)fp[1];
+        fp = (uintptr_t*)fp[0];
         ++idx;
     }
     return idx;
