@@ -123,7 +123,7 @@ GO(pthread_getattr_np, iFLp)
 GO(pthread_getschedparam, iFLpp)
 GO(__pthread_getspecific, pFL)
 GO(pthread_getspecific, pFL)
-//GOM(pthread_getname_np, iFEppu)  //not present on Pandora
+GO(pthread_getname_np, iFppL)
 // __pthread_initialize_minimal
 GO(pthread_join, iFLp)
 GOM(__pthread_key_create, iFEpp)
