@@ -643,13 +643,13 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 32)&0xffff;
             GO(FS);
             #undef GO
-            printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing longjmp to resume emu\n");
+            printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu\n");
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
             if(used_stack)  // release stack
                 new_ss->ss_flags = 0;
             relockMutex(Locks);
-            longjmp(ejb->jmpbuf, 1);
+            siglongjmp(ejb->jmpbuf, 1);
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
     }
@@ -753,7 +753,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 ejb->emu->eflags.x64 = p->uc_mcontext.regs[26];
                 dynarec_log(LOG_DEBUG, "Auto-SMC detected, getting out of current Dynablock!\n");
                 relockMutex(Locks);
-                longjmp(ejb->jmpbuf, 2);
+                siglongjmp(ejb->jmpbuf, 2);
             }
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);
         }

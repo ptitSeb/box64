@@ -81,7 +81,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
             ejb->emu = emu;
             ejb->jmpbuf_ok = 1;
             jmpbuf_reset = 1;
-            if(setjmp((struct __jmp_buf_tag*)ejb->jmpbuf)) {
+            if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)) {
                 printf_log(LOG_DEBUG, "Setjmp DynaCall, fs=0x%x\n", ejb->emu->segs[_FS]);
                 addr = R_RIP;   // not sure if it should still be inside DynaCall!
             }
@@ -130,7 +130,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
                     ejb->emu = emu;
                     ejb->jmpbuf_ok = 1;
                     jmpbuf_reset = 1;
-                    if(setjmp((struct __jmp_buf_tag*)ejb->jmpbuf)) {
+                    if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)) {
                         printf_log(LOG_DEBUG, "Setjmp inner DynaCall, fs=0x%x\n", ejb->emu->segs[_FS]);
                         addr = R_RIP;
                     }
@@ -171,7 +171,7 @@ int DynaRun(x64emu_t* emu)
 #ifdef DYNAREC
             jmpbuf_reset = 1;
 #endif
-            if(setjmp((struct __jmp_buf_tag*)ejb->jmpbuf))
+            if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
         }
     }
@@ -208,7 +208,7 @@ int DynaRun(x64emu_t* emu)
                     ejb->emu = emu;
                     ejb->jmpbuf_ok = 1;
                     jmpbuf_reset = 1;
-                    if(setjmp((struct __jmp_buf_tag*)ejb->jmpbuf))
+                    if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))
                         printf_log(LOG_DEBUG, "Setjmp inner DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
                 }
             }

@@ -1689,7 +1689,7 @@ GO(siggetmask, iFv)
 //GO(sigisemptyset, 
 //GO(__sigismember, 
 GO(sigismember, iFpi)
-//GOW(siglongjmp, 
+GOM(siglongjmp, iFEpi)
 GOM(signal, pFEip)  //Weak
 //GO(signalfd, 
 GO(__signbit, iFd)
@@ -1704,7 +1704,7 @@ GOW(sigprocmask, iFipp)
 //GO(sigrelse, 
 //GOW(sigreturn, 
 GOM(sigset, pFEip)
-GOM(__sigsetjmp, iFEp)
+GOM(__sigsetjmp, iFEpi)
 //GOW(sigsetmask, 
 //GO(sigstack, 
 GO(__sigsuspend, iFp)

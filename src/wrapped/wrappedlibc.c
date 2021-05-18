@@ -534,9 +534,9 @@ EXPORT void my__longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p,
 EXPORT void my_siglongjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
 EXPORT void my___longjmp_chk(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
 
-EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p);
-EXPORT int32_t my__setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
-EXPORT int32_t my___sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
+//EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p);
+//EXPORT int32_t my__setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
+//EXPORT int32_t my___sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
 
 EXPORT int my_printf(x64emu_t *emu, void* fmt, void* b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
@@ -1851,16 +1851,19 @@ void EXPORT my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, 
     R_R14 = jpbuff->save_r14;
     R_R15 = jpbuff->save_r15;
     R_RSP = jpbuff->save_rsp;
-    // jmp to saved location, plus restore val to eax
-    R_EAX = __val;
+    // jmp to saved location, plus restore val to rax
+    R_RAX = __val;
     R_RIP = jpbuff->save_rip;
+    if(((__jmp_buf_tag_t*)p)->__mask_was_saved) {
+        sigprocmask(SIG_SETMASK, &((__jmp_buf_tag_t*)p)->__saved_mask, NULL);
+    }
     if(emu->quitonlongjmp) {
         emu->longjmp = 1;
         emu->quit = 1;
     }
 }
 
-EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
+EXPORT int32_t my___sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int savesigs)
 {
     jump_buff_x64_t *jpbuff = &((__jmp_buf_tag_t*)p)->__jmpbuf;
     // save the buffer
@@ -1872,8 +1875,23 @@ EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p
     jpbuff->save_r15 = R_R15;
     jpbuff->save_rsp = R_RSP+sizeof(uintptr_t); // include "return address"
     jpbuff->save_rip = *(uintptr_t*)(R_RSP);
-    // and that's it.. Nothing more for now
+    if(savesigs) {
+        if(sigprocmask(SIG_SETMASK, NULL, &((__jmp_buf_tag_t*)p)->__saved_mask))
+            ((__jmp_buf_tag_t*)p)->__mask_was_saved = 0;
+        else
+            ((__jmp_buf_tag_t*)p)->__mask_was_saved = 1;
+    } else
+        ((__jmp_buf_tag_t*)p)->__mask_was_saved = 0;
     return 0;
+}
+
+EXPORT int32_t my__setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
+{
+    return  my___sigsetjmp(emu, p, 0);
+}
+EXPORT int32_t my_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
+{
+    return  my___sigsetjmp(emu, p, 1);
 }
 
 EXPORT void my___explicit_bzero_chk(x64emu_t* emu, void* dst, uint32_t len, uint32_t dstlen)
