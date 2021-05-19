@@ -30,9 +30,8 @@ void arm64_epilog_fast() EXPORTDYN;
 #endif
 
 #ifdef DYNAREC
-#ifdef HAVE_TRACE
 uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr);
-#endif
+
 void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2)
 {
     #ifdef HAVE_TRACE
