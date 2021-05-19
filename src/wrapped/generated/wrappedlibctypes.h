@@ -26,6 +26,7 @@ typedef int64_t (*iFSp_t)(void*, void*);
 typedef void* (*pFip_t)(int64_t, void*);
 typedef void* (*pFpi_t)(void*, int64_t);
 typedef void* (*pFpp_t)(void*, void*);
+typedef void (*vFipp_t)(int64_t, void*, void*);
 typedef void (*vFipV_t)(int64_t, void*, void*);
 typedef void (*vFpii_t)(void*, int64_t, int64_t);
 typedef void (*vFpup_t)(void*, uint64_t, void*);
@@ -97,6 +98,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(fopen, pFpp_t) \
 	GO(fopen64, pFpp_t) \
 	GO(realpath, pFpp_t) \
+	GO(vsyslog, vFipp_t) \
 	GO(syslog, vFipV_t) \
 	GO(backtrace_symbols_fd, vFpii_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \

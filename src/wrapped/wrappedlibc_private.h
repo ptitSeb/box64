@@ -1627,7 +1627,7 @@ GOM(setjmp, iFEp)
 GO(setlinebuf, vFp)
 GO(setlocale, pFip)
 //GO(setlogin, 
-//GO(setlogmask, 
+GO(setlogmask, iFi)
 //GO(__setmntent, 
 //GOW(setmntent, 
 //GO(setnetent, 
@@ -1648,7 +1648,7 @@ GOW(setrlimit64, iFip)
 //GO(setrpcent, 
 //GO(setservent, 
 //GO(setsgent, 
-//GOW(setsid, 
+GOW(setsid, pFv)
 GOW(setsockopt, iFiiipu)
 //GO(setsourcefilter, 
 //GO(setspent, 
@@ -2073,7 +2073,7 @@ GOM(vsscanf, iFEppp)    //Weak
 GOM(vswprintf, iFEpuppp)    // Weak
 GOM(__vswprintf_chk, iFEpuvvppp)    // Weak
 //GO(vswscanf, 
-//GO(vsyslog, 
+GOM(vsyslog, vFEipp)
 //GO(__vsyslog_chk, 
 //GO(vtimes, 
 //GO(vwarn, 

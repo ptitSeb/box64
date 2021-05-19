@@ -840,6 +840,12 @@ EXPORT void my___syslog_chk(x64emu_t* emu, int priority, int flags, const char* 
     PREPARE_VALIST;
     return vsyslog(priority, fmt, VARARGS);
 }
+EXPORT void my_vsyslog(x64emu_t* emu, int priority, const char* fmt, x64_va_list_t b)
+{
+    (void)emu;
+    CONVERT_VALIST(b);
+    return vsyslog(priority, fmt, VARARGS);
+}
 
 EXPORT int my___swprintf_chk(x64emu_t* emu, void* s, size_t n, int32_t flag, size_t slen, void* fmt, uint64_t* b)
 {
