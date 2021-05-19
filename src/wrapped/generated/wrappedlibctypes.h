@@ -66,7 +66,6 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(__stack_chk_fail, vFv_t) \
 	GO(_ITM_deregisterTMCloneTable, vFp_t) \
 	GO(__cxa_finalize, vFp_t) \
-	GO(__sigsetjmp, iFp_t) \
 	GO(_setjmp, iFp_t) \
 	GO(getcontext, iFp_t) \
 	GO(setjmp, iFp_t) \
@@ -76,7 +75,9 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(_longjmp, vFpi_t) \
 	GO(longjmp, vFpi_t) \
 	GO(_ITM_registerTMCloneTable, vFpu_t) \
+	GO(__sigsetjmp, iFpi_t) \
 	GO(backtrace, iFpi_t) \
+	GO(siglongjmp, iFpi_t) \
 	GO(munmap, iFpL_t) \
 	GO(__vprintf_chk, iFpp_t) \
 	GO(dl_iterate_phdr, iFpp_t) \
@@ -125,6 +126,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(__isoc99_sscanf, iFppV_t) \
 	GO(fprintf, iFppV_t) \
 	GO(fscanf, iFppV_t) \
+	GO(fwprintf, iFppV_t) \
 	GO(sprintf, iFppV_t) \
 	GO(sscanf, iFppV_t) \
 	GO(swscanf, iFppV_t) \

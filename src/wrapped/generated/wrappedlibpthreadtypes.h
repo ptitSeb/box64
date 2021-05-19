@@ -79,6 +79,8 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(_pthread_cleanup_push, vFppp_t) \
 	GO(_pthread_cleanup_push_defer, vFppp_t) \
 	GO(pthread_attr_setaffinity_np, iFpLp_t) \
+	GO(pthread_getaffinity_np, iFpLp_t) \
+	GO(pthread_setaffinity_np, iFpLp_t) \
 	GO(pthread_barrier_init, iFppu_t) \
 	GO(pthread_attr_setstack, iFppL_t) \
 	GO(__pthread_atfork, iFppp_t) \

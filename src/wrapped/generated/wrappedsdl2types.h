@@ -33,6 +33,7 @@ typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFipV_t)(int64_t, void*, void*);
 typedef int64_t (*iFupp_t)(uint64_t, void*, void*);
 typedef int64_t (*iFppi_t)(void*, void*, int64_t);
+typedef int64_t (*iFppV_t)(void*, void*, void*);
 typedef int64_t (*IFpIi_t)(void*, int64_t, int64_t);
 typedef void* (*pFupp_t)(uint64_t, void*, void*);
 typedef void* (*pFppi_t)(void*, void*, int64_t);
@@ -99,6 +100,7 @@ typedef void* (*pFpippp_t)(void*, int64_t, void*, void*, void*);
 	GO(SDL_LogWarn, vFipV_t) \
 	GO(SDL_TLSSet, iFupp_t) \
 	GO(SDL_SaveBMP_RW, iFppi_t) \
+	GO(SDL_sscanf, iFppV_t) \
 	GO(SDL_RWseek, IFpIi_t) \
 	GO(SDL_AddTimer, pFupp_t) \
 	GO(SDL_LoadFile_RW, pFppi_t) \

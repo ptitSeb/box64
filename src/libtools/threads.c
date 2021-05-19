@@ -681,27 +681,27 @@ EXPORT void my__pthread_cleanup_pop(x64emu_t* emu, void* buffer, int exec)
 	_pthread_cleanup_pop(buffer, exec);
 }
 
-//EXPORT int my_pthread_getaffinity_np(x64emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
-//{
-//	(void)emu;
-//	int ret = pthread_getaffinity_np(thread, cpusetsize, cpuset);
-//	if(ret<0) {
-//		printf_log(LOG_INFO, "Warning, pthread_getaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
-//	}
-//
-//    return ret;
-//}
+EXPORT int my_pthread_getaffinity_np(x64emu_t* emu, pthread_t thread, size_t cpusetsize, void* cpuset)
+{
+	(void)emu;
+	int ret = pthread_getaffinity_np(thread, cpusetsize, cpuset);
+	if(ret<0) {
+		printf_log(LOG_INFO, "Warning, pthread_getaffinity_np(%p, %zd, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
+	}
 
-//EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
-//{
-//	(void)emu;
-//	int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset);
-//	if(ret<0) {
-//		printf_log(LOG_INFO, "Warning, pthread_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
-//	}
-//
-//    return ret;
-//}
+    return ret;
+}
+
+EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, size_t cpusetsize, void* cpuset)
+{
+	(void)emu;
+	int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset);
+	if(ret<0) {
+		printf_log(LOG_INFO, "Warning, pthread_setaffinity_np(%p, %zd, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
+	}
+
+    return ret;
+}
 
 //EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
 //{

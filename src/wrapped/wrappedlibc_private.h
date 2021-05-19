@@ -1924,8 +1924,8 @@ GO(syncfs, iFi)
 GOM(syscall, LFEv)
 GO(__sysconf, lFi)
 GOW(sysconf, lFi)
-//GO(__sysctl, 
-//GOW(sysctl, 
+GO(__sysctl, iFpipppL)
+GOW(sysctl, iFpipppL)
 DATA(_sys_errlist, sizeof(void*))
 DATA(sys_errlist, sizeof(void*))
 GOW(sysinfo, iFp)
