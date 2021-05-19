@@ -40,10 +40,12 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
             case 2: // l
             case 3: // ll
             case 4: // L
+            case 5: // z
                 switch(*p) {
                     case '%': state = 0;  ++p; break; //%% = back to 0
                     case 'l': ++state; if (state>3) state=3; ++p; break;
                     case 'L': state = 4; ++p; break;
+                    case 'z': state = 5; ++p; break;
                     case 'a':
                     case 'A':
                     case 'e':
@@ -97,6 +99,7 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
             case 11:    //double
             case 12:    //%lg, still double
             case 13:    //%llg, still double
+            case 15:    //%zg, meh.. double?
                 if(xmm) {
                     *mystack = emu->xmm[x++].q[0];
                     --xmm;
@@ -133,6 +136,7 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
             case 22:
             case 23:    // 64bits int
             case 24:    // normal int / pointer
+            case 25:    // size_t int
             case 30:
                 if(pos<6)
                     *mystack = emu->regs[regs_abi[pos++]].q[0];
@@ -175,10 +179,12 @@ void myStackAlignScanf(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* m
             case 2: // l
             case 3: // ll
             case 4: // L
+            case 5: // z
                 switch(*p) {
                     case '%': state = 0;  ++p; break; //%% = back to 0
                     case 'l': ++state; if (state>3) state=3; ++p; break;
                     case 'L': state = 4; ++p; break;
+                    case 'z': state = 5; ++p; break;
                     case 'a':
                     case 'A':
                     case 'e':
@@ -223,12 +229,14 @@ void myStackAlignScanf(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* m
             case 11:    //double
             case 12:    //%lg, still double
             case 13:    //%llg, still double
-            case 14:    //%LG long double
+            case 14:    //%Lg long double
+            case 15:    //%zg
             case 20:    // fallback
             case 21:
             case 22:
             case 23:    // 64bits int
             case 24:    // normal int / pointer
+            case 25:    // size_t int
             case 30:
                 if(!ign) {
                     if(pos<6)
@@ -273,10 +281,12 @@ void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mysta
             case 2: // l
             case 3: // ll
             case 4: // L
+            case 5: // z
                 switch(*p) {
                     case '%': state = 0;  ++p; break; //%% = back to 0
                     case 'l': ++state; if (state>3) state=3; ++p; break;
                     case 'L': state = 4; ++p; break;
+                    case 'z': state = 5; ++p; break;
                     case 'a':
                     case 'A':
                     case 'e':
@@ -330,6 +340,7 @@ void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mysta
             case 11:    //double
             case 12:    //%lg, still double
             case 13:    //%llg, still double
+            case 15:    //%zg, meh .. double
                 if(xmm) {
                     *mystack = emu->xmm[x++].q[0];
                     --xmm;
@@ -366,6 +377,7 @@ void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mysta
             case 22:
             case 23:    // 64bits int
             case 24:    // normal int / pointer
+            case 25:    // size_t int
             case 30:
                 if(pos<6)
                     *mystack = emu->regs[regs_abi[pos++]].q[0];
@@ -408,10 +420,12 @@ void myStackAlignScanfW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* 
             case 2: // l
             case 3: // ll
             case 4: // L
+            case 5: // z
                 switch(*p) {
                     case '%': state = 0;  ++p; break; //%% = back to 0
                     case 'l': ++state; if (state>3) state=3; ++p; break;
                     case 'L': state = 4; ++p; break;
+                    case 'z': state = 5; ++p; break;
                     case 'a':
                     case 'A':
                     case 'e':
@@ -456,12 +470,14 @@ void myStackAlignScanfW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* 
             case 11:    //double
             case 12:    //%lg, still double
             case 13:    //%llg, still double
-            case 14:    //%LG long double
+            case 14:    //%Lg long double
+            case 15:    //%zg
             case 20:    // fallback
             case 21:
             case 22:
             case 23:    // 64bits int
             case 24:    // normal int / pointer
+            case 25:    // size_t int
             case 30:
                 if(!ign) {
                     if(pos<6)
