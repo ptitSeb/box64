@@ -27,11 +27,10 @@ int Run66F0(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
-    uint16_t tmp16u, tmp16u2;
+    uint16_t tmp16u2;
     int64_t tmp64s;
     uint64_t tmp64u, tmp64u2;
-    reg64_t *oped, *opgd;
-    uintptr_t tlsdata = GetFSBaseEmu(emu);
+    reg64_t *oped;
 
     opcode = F8;
     // REX prefix before the F0 are ignored
