@@ -2203,8 +2203,8 @@ GOW(wmemmove, pFppL)
 //GO(__wmempcpy_chk, 
 GO(wmemset, pFpuL)
 //GOI(__wmemset_chk, 
-//GO(wordexp, 
-//GO(wordfree, 
+GO(wordexp, iFppi)
+GO(wordfree, vFp)
 //GO(__woverflow, 
 //GO(wprintf, 
 //GO(__wprintf_chk, 
