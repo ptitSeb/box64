@@ -56,6 +56,7 @@ void IFf(x64emu_t *emu, uintptr_t fnc);
 void IFd(x64emu_t *emu, uintptr_t fnc);
 void IFp(x64emu_t *emu, uintptr_t fnc);
 void WFi(x64emu_t *emu, uintptr_t fnc);
+void WFW(x64emu_t *emu, uintptr_t fnc);
 void WFp(x64emu_t *emu, uintptr_t fnc);
 void uFv(x64emu_t *emu, uintptr_t fnc);
 void uFi(x64emu_t *emu, uintptr_t fnc);

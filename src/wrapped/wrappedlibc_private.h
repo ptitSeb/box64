@@ -1245,8 +1245,8 @@ GO(nrand48, lFp)
 //GO(__nss_passwd_lookup, 
 //GO(__nss_passwd_lookup2, 
 //GO(__nss_services_lookup2, 
-//GOW(ntohl, 
-//GOW(ntohs, 
+GOW(ntohl, uFu)
+GOW(ntohs, WFW)
 //GOW(ntp_adjtime, 
 //GO(ntp_gettime, 
 //GO(ntp_gettimex, 
