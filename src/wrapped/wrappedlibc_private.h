@@ -434,7 +434,7 @@ GOW(ftell, lFp)
 GOW(ftello, lFp)
 GO(__ftello64, IFp)
 GOW(ftello64, IFp)
-//GO(ftime, 
+GO(ftime, iFp)
 GO(ftok, iFpi)
 GOW(ftruncate, iFil)
 GOW(ftruncate64, iFiI)
@@ -1494,10 +1494,10 @@ GOW(recvfrom, lFipLipp)
 GO(recvmmsg, iFipuip)
 GOW(recvmsg, lFipi)
 //GOW(re_exec, 
-//GOW(regcomp, 
-//GOW(regerror, 
+GOW(regcomp, iFppi)
+GOW(regerror, LFippL)
 GO(regexec, iFppLpi)
-//GOW(regfree, 
+GOW(regfree, vFp)
 GOM(__register_atfork, iFEpppp)
 //GOW(register_printf_function, 
 //GOW(register_printf_modifier, 

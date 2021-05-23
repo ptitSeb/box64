@@ -2603,7 +2603,7 @@ GO(OpenSSL_add_all_ciphers, vFv)
 //GO(OPENSSL_asc2uni, 
 //GO(OPENSSL_atomic_add, 
 //GO(OPENSSL_cleanse, 
-//GO(OPENSSL_config, 
+GO(OPENSSL_config, vFp)
 //GO(OPENSSL_cpuid_setup, 
 //GO(OpenSSLDie, 
 //GO(OPENSSL_DIR_end, 
@@ -2619,7 +2619,7 @@ GO(OpenSSL_add_all_ciphers, vFv)
 //GO(OPENSSL_issetugid, 
 //GO(OPENSSL_load_builtin_modules, 
 //GO(OPENSSL_memcmp, 
-//GO(OPENSSL_no_config, 
+GO(OPENSSL_no_config, vFv)
 //GO(OPENSSL_rdtsc, 
 //GO(OPENSSL_showfatal, 
 //GO(OPENSSL_stderr, 
