@@ -108,6 +108,32 @@ int Run64(x64emu_t *emu, rex_t rex)
             opcode = F8;
             switch(opcode) {
 
+                case 0x10:
+                    switch(rep) {
+                        case 1: /* MOVSD Gx, FS:Ex */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            GX->q[0] = EX->q[0];
+                            if((nextop&0xC0)!=0xC0) {
+                                // EX is not a register
+                                GX->q[1] = 0;
+                            }
+                            break;
+                        case 2: /* MOVSS Gx, FS:Ex */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            GX->ud[0] = EX->ud[0];
+                            if((nextop&0xC0)!=0xC0) {
+                                // EX is not a register (reg to reg only move 31:0)
+                                GX->ud[1] = GX->ud[2] = GX->ud[3] = 0;
+                            }
+                            break;
+                        default:
+                            return 1;
+                    }
+                    break;
                 case 0x11:
                     switch(rep) {
                         case 1: /* MOVSD Ex, Gx */

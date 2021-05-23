@@ -22,6 +22,7 @@
 #include "dynarec_arm64_helper.h"
 #include "dynarec_arm64_functions.h"
 
+#define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
 
 uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
@@ -33,12 +34,18 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t gd, ed, eb1, eb2;
     uint8_t wback, wb1, wb2;
     int64_t i64, j64;
+    int v0;
+    int q0;
+    int d0;
     int64_t fixedaddress;
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(wb1);
     MAYUSE(wb2);
     MAYUSE(j64);
+    MAYUSE(d0);
+    MAYUSE(q0);
+    MAYUSE(v0);
 
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
@@ -61,6 +68,53 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGD;
             GETEDO(x4, 0);
             emit_add32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+
+        case 0x0F:
+            opcode = F8;
+            switch(opcode) {
+                case 0x10:
+                    switch(rep) {
+                        case 1:
+                            INST_NAME("MOVSD Gx, Ex");
+                            nextop = F8;
+                            GETG;
+                            if(MODREG) {
+                                ed = (nextop&7)+ (rex.b<<3);
+                                v0 = sse_get_reg(dyn, ninst, x1, gd);
+                                d0 = sse_get_reg(dyn, ninst, x1, ed);
+                                VMOVeD(v0, 0, d0, 0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, _FS);
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                                ADDx_REG(x4, x4, ed);
+                                VLDR64_U12(v0, x4, fixedaddress); // upper part reseted
+                            }
+                            break;
+                        case 2:
+                            INST_NAME("MOVSS Gx, Ex");
+                            nextop = F8;
+                            GETG;
+                            if(MODREG) {
+                                v0 = sse_get_reg(dyn, ninst, x1, gd);
+                                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                                VMOVeS(v0, 0, q0, 0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, _FS);
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                                ADDx_REG(x4, x4, ed);
+                                VLDR32_U12(v0, x4, fixedaddress);
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
             break;
 
         case 0x33:
