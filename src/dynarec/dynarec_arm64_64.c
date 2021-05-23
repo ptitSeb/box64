@@ -73,6 +73,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x0F:
             opcode = F8;
             switch(opcode) {
+
                 case 0x10:
                     switch(rep) {
                         case 1:
@@ -112,6 +113,44 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             DEFAULT;
                     }
                     break;
+                case 0x11:
+                    switch(rep) {
+                        case 1:
+                            INST_NAME("MOVSD Ex, Gx");
+                            nextop = F8;
+                            GETG;
+                            v0 = sse_get_reg(dyn, ninst, x1, gd);
+                            if(MODREG) {
+                                ed = (nextop&7)+ (rex.b<<3);
+                                d0 = sse_get_reg(dyn, ninst, x1, ed);
+                                VMOVeD(d0, 0, v0, 0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, _FS);
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                                ADDx_REG(x4, x4, ed);
+                                VSTR64_U12(v0, x4, fixedaddress);
+                            }
+                            break;
+                        case 2:
+                            INST_NAME("MOVSS Ex, Gx");
+                            nextop = F8;
+                            GETG;
+                            v0 = sse_get_reg(dyn, ninst, x1, gd);
+                            if(MODREG) {
+                                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                                VMOVeS(q0, 0, v0, 0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, _FS);
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                                ADDx_REG(x4, x4, ed);
+                                VSTR32_U12(v0, x4, fixedaddress);
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }
