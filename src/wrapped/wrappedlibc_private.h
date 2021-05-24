@@ -2168,11 +2168,11 @@ GOW(wcstoll, IFppi)
 GO(wcstombs, LFppL)
 //GO(__wcstombs_chk, 
 //GOW(wcstoq, 
-//GOW(wcstoul, 
+GOW(wcstoul, LFppi)
 //GO(__wcstoul_internal, 
 //GO(__wcstoul_l, 
 //GOW(wcstoul_l, 
-//GOW(wcstoull, 
+GOW(wcstoull, UFppi)
 //GO(__wcstoull_internal, 
 //GOW(__wcstoull_l, 
 //GOW(wcstoull_l, 
