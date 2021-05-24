@@ -1790,18 +1790,18 @@ GO(ERR_remove_thread_state, vFp)
 //GO(EVP_cast5_ecb, 
 //GO(EVP_cast5_ofb, 
 //GO(EVP_Cipher, 
-//GO(EVP_CIPHER_asn1_to_param, 
+GO(EVP_CIPHER_asn1_to_param, iFpp)
 //GO(EVP_CIPHER_block_size, 
 //GO(EVP_CIPHER_CTX_block_size, 
 //GO(EVP_CIPHER_CTX_cipher, 
-//GO(EVP_CIPHER_CTX_cleanup, 
+GO(EVP_CIPHER_CTX_cleanup, iFp)
 //GO(EVP_CIPHER_CTX_clear_flags, 
 //GO(EVP_CIPHER_CTX_copy, 
-//GO(EVP_CIPHER_CTX_ctrl, 
+GO(EVP_CIPHER_CTX_ctrl, iFpiip)
 //GO(EVP_CIPHER_CTX_flags, 
 //GO(EVP_CIPHER_CTX_free, 
 //GO(EVP_CIPHER_CTX_get_app_data, 
-//GO(EVP_CIPHER_CTX_init, 
+GO(EVP_CIPHER_CTX_init, vFp)
 //GO(EVP_CIPHER_CTX_iv_length, 
 //GO(EVP_CIPHER_CTX_key_length, 
 //GO(EVP_CIPHER_CTX_new, 
@@ -1809,34 +1809,34 @@ GO(ERR_remove_thread_state, vFp)
 //GO(EVP_CIPHER_CTX_rand_key, 
 //GO(EVP_CIPHER_CTX_set_app_data, 
 //GO(EVP_CIPHER_CTX_set_flags, 
-//GO(EVP_CIPHER_CTX_set_key_length, 
-//GO(EVP_CIPHER_CTX_set_padding, 
+GO(EVP_CIPHER_CTX_set_key_length, iFpi)
+GO(EVP_CIPHER_CTX_set_padding, iFpi)
 //GO(EVP_CIPHER_CTX_test_flags, 
 //GO(EVP_CIPHER_do_all, 
 //GO(EVP_CIPHER_do_all_sorted, 
-//GO(EVP_CipherFinal, 
-//GO(EVP_CipherFinal_ex, 
+GO(EVP_CipherFinal, iFppp)
+GO(EVP_CipherFinal_ex, iFppp)
 //GO(EVP_CIPHER_flags, 
 //GO(EVP_CIPHER_get_asn1_iv, 
-//GO(EVP_CipherInit, 
-//GO(EVP_CipherInit_ex, 
+GO(EVP_CipherInit, iFppppi)
+GO(EVP_CipherInit_ex, iFpppppi)
 //GO(EVP_CIPHER_iv_length, 
 //GO(EVP_CIPHER_key_length, 
 //GO(EVP_CIPHER_nid, 
-//GO(EVP_CIPHER_param_to_asn1, 
+GO(EVP_CIPHER_param_to_asn1, iFpp)
 //GO(EVP_CIPHER_set_asn1_iv, 
-//GO(EVP_CIPHER_type, 
-//GO(EVP_CipherUpdate, 
+GO(EVP_CIPHER_type, iFp)
+GO(EVP_CipherUpdate, iFppppi)
 GO(EVP_cleanup, vFv)
 //GO(EVP_DecodeBlock, 
 //GO(EVP_DecodeFinal, 
 //GO(EVP_DecodeInit, 
 //GO(EVP_DecodeUpdate, 
-//GO(EVP_DecryptFinal, 
-//GO(EVP_DecryptFinal_ex, 
-//GO(EVP_DecryptInit, 
-//GO(EVP_DecryptInit_ex, 
-//GO(EVP_DecryptUpdate, 
+GO(EVP_DecryptFinal, iFppp)
+GO(EVP_DecryptFinal_ex, iFppp)
+GO(EVP_DecryptInit, iFpppp)
+GO(EVP_DecryptInit_ex, iFppppp)
+GO(EVP_DecryptUpdate, iFppppi)
 GO(EVP_des_cbc, pFv)
 //GO(EVP_des_cfb, 
 //GO(EVP_des_cfb1, 
@@ -1878,12 +1878,12 @@ GO(EVP_DigestUpdate, iFppL)
 //GO(EVP_EncodeFinal, 
 //GO(EVP_EncodeInit, 
 //GO(EVP_EncodeUpdate, 
-//GO(EVP_EncryptFinal, 
-//GO(EVP_EncryptFinal_ex, 
-//GO(EVP_EncryptInit, 
-//GO(EVP_EncryptInit_ex, 
-//GO(EVP_EncryptUpdate, 
-//GO(EVP_get_cipherbyname, 
+GO(EVP_EncryptFinal, iFppp)
+GO(EVP_EncryptFinal_ex, iFppp)
+GO(EVP_EncryptInit, iFpppp)
+GO(EVP_EncryptInit_ex, iFppppp)
+GO(EVP_EncryptUpdate, iFppppi)
+GO(EVP_get_cipherbyname, pFp)
 GO(EVP_get_digestbyname, pFp)
 //GO(EVP_get_pw_prompt, 
 //GO(EVP_idea_cbc, 
