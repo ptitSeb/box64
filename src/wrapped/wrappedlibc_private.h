@@ -340,7 +340,7 @@ GO(fflush_unlocked, iFp)
 //GOW(ffsl, 
 //GO(ffsll, 
 GOW(fgetc, iFp)
-//GOW(fgetc_unlocked, 
+GOW(fgetc_unlocked, iFp)
 //GO(fgetgrent, 
 //GOW(fgetgrent_r, 
 GO(fgetpos, lFpp)
@@ -353,13 +353,13 @@ GO(__fgets_chk, pFpLip)
 //GOW(fgetsgent_r, 
 //GO(fgetspent, 
 //GOW(fgetspent_r, 
-//GOW(fgets_unlocked, 
+GOW(fgets_unlocked, pFpip)
 //GO(__fgets_unlocked_chk, 
 GOW(fgetwc, uFp)
-//GOW(fgetwc_unlocked, 
+GOW(fgetwc_unlocked, uFp)
 //GO(fgetws, 
 //GO(__fgetws_chk, 
-//GO(fgetws_unlocked, 
+GO(fgetws_unlocked, pFpip)
 //GO(__fgetws_unlocked_chk, 
 //GO(fgetxattr, 
 GOW(fileno, iFp)
@@ -460,7 +460,7 @@ GOM(fwprintf, iFEppV)   //Weak
 //GO(__fwprintf_chk, 
 //GO(__fwritable, 
 GOW(fwrite, LFpLLp)
-//GO(fwrite_unlocked, 
+GO(fwrite_unlocked, LFpLLp)
 //GO(__fwriting, 
 //GO(fwscanf, 
 GOM(__fxstat, iFEiip)
@@ -642,8 +642,8 @@ GOW(getuid, uFv)
 //GO(getw, 
 GOW(getwc, uFp)
 //GO(getwchar, 
-//GO(getwchar_unlocked, 
-//GOW(getwc_unlocked, 
+GO(getwchar_unlocked, uFp)
+GOW(getwc_unlocked, uFp)
 //GO(getwd, 
 //GO(__getwd_chk, 
 //GO(getxattr, 
