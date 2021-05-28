@@ -346,6 +346,8 @@
 #define PLD_L2_STREAM_U12(Rn, imm12)    EMIT(PRFM_imm(((imm12)>>3)&0xfff, Rn, 0b00011))
 #define PLD_L3_STREAM_U12(Rn, imm12)    EMIT(PRFM_imm(((imm12)>>3)&0xfff, Rn, 0b00101))
 
+#define PST_L1_STREAM_U12(Rn, imm12)    EMIT(PRFM_imm(((imm12)>>3)&0xfff, Rn, 0b01001))
+
 
 // BR and Branches
 #define BR_gen(Z, op, A, M, Rn, Rm)       (0b1101011<<25 | (Z)<<24 | (op)<<21 | 0b11111<<16 | (A)<<11 | (M)<<10 | (Rn)<<5 | (Rm))

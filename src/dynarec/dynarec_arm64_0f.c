@@ -100,6 +100,19 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             CALL(arm_ud, -1);
             break;
 
+        case 0x0D:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 1:
+                    INST_NAME("PREFETCHW");
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff, 7, rex, 0, 0);
+                    PST_L1_STREAM_U12(ed, fixedaddress);
+                    break;
+                default:    //???
+                    DEFAULT;
+            }
+            break;
+
         case 0x10:
             INST_NAME("MOVUPS Gx,Ex");
             nextop = F8;

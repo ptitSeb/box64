@@ -53,6 +53,18 @@ int Run0F(x64emu_t *emu, rex_t rex)
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             break;
 
+        case 0x0D:
+            nextop = F8;
+            GETED(0);
+            switch((nextop>>3)&7) {
+                case 1: //PREFETCHW
+                    __builtin_prefetch((void*)ED, 1, 0);
+                    break;
+                default:    //???
+                    return 1;
+            }
+            break;
+
         case 0x10:                      /* MOVUPS Gx,Ex */
             nextop = F8;
             GETEX(0);
