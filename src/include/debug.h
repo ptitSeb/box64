@@ -4,6 +4,7 @@
 
 typedef struct box64context_s box64context_t;
 extern int box64_log;    // log level
+extern int box64_dump;   // dump elf or not
 extern int box64_dynarec_log;
 extern int box64_dynarec;
 extern int box64_pagesize;
@@ -33,11 +34,14 @@ extern int box64_tcmalloc_minimal;  // when using tcmalloc_minimal
 #define LOG_NONE 0
 #define LOG_INFO 1
 #define LOG_DEBUG 2
-#define LOG_DUMP 3
+#define LOG_NEVER 3
+#define LOG_VERBOSE 3
 
 extern FILE* ftrace;
 
 #define printf_log(L, ...) do {if(L<=box64_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
+
+#define printf_dump(L, ...) do {if(box64_dump || (L<=box64_log)) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 
 #define dynarec_log(L, ...) do {if(L<=box64_dynarec_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 

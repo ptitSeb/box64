@@ -409,7 +409,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
         switch(t) {
             case R_X86_64_NONE:
                 // can be ignored
-                printf_log(LOG_DUMP, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, (void*)(p?(*p):0));
+                printf_dump(LOG_NEVER, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, (void*)(p?(*p):0));
                 break;
             case R_X86_64_PC32:
                     if (!offs) {
@@ -417,7 +417,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     }
                     offs = (offs - (uintptr_t)p);
                     if(!offs)
-                        printf_log(LOG_DUMP, "Apply %s R_X86_64_PC32 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(*(uintptr_t*)p+offs));
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_PC32 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(*(uintptr_t*)p+offs));
                     *p += offs;
                 break;
             case R_X86_64_GLOB_DAT:
@@ -426,11 +426,11 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
                     if(sym->st_size) {
-                        printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
                         //memmove((void*)globoffs, (void*)offs, sym->st_size);   // preapply to copy part from lib to main elf
                         AddWeakSymbol(GetGlobalData(maplib), symname, offs, sym->st_size);
                     } else {
-                        printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) null sized on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, symname);
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) null sized on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, symname);
                     }
                     *p = globoffs;
                 } else {
@@ -443,7 +443,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                         if(strcmp(symname, "__gmon_start__"))
                             printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                     } else {
-                        printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname);
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname);
                         *p = offs;
                     }
                 }
@@ -464,20 +464,20 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                         offs = old_offs;
                         end = old_end;
                     }
-                    printf_log(LOG_DUMP, "Apply %s R_X86_64_COPY @%p with sym=%s, @%p size=%ld (", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)offs, sym->st_size);
+                    printf_dump(LOG_NEVER, "Apply %s R_X86_64_COPY @%p with sym=%s, @%p size=%ld (", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)offs, sym->st_size);
                     memmove(p, (void*)offs, sym->st_size);
-                    if(box64_log >= LOG_DUMP) {
+                    if(box64_dump) {
                         uint64_t *k = (uint64_t*)p;
                         for (unsigned j=0; j<((sym->st_size>128u)?128u:sym->st_size); j+=8, ++k)
-                            printf_log(LOG_DUMP, "%s0x%016lX", j?" ":"", *k);
-                        printf_log(LOG_DUMP, "%s)\n", (sym->st_size>128u)?" ...":"");
+                            printf_dump(LOG_NEVER, "%s0x%016lX", j?" ":"", *k);
+                        printf_dump(LOG_NEVER, "%s)\n", (sym->st_size>128u)?" ...":"");
                     }
                 } else {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_COPY @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                 }
                 break;
             case R_X86_64_RELATIVE:
-                printf_log(LOG_DUMP, "Apply %s R_X86_64_RELATIVE @%p (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, *(void**)p, (void*)((*p)+head->delta));
+                printf_dump(LOG_NEVER, "Apply %s R_X86_64_RELATIVE @%p (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, *(void**)p, (void*)((*p)+head->delta));
                 *p += head->delta;
                 break;
             case R_X86_64_64:
@@ -485,7 +485,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                     // return -1;
                 } else {
-                    printf_log(LOG_DUMP, "Apply %s R_X86_64_64 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(offs+*(uint64_t*)p));
+                    printf_dump(LOG_NEVER, "Apply %s R_X86_64_64 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(offs+*(uint64_t*)p));
                     *p += offs;
                 }
                 break;
@@ -507,14 +507,14 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                         // return -1;
                     } else {
                         if(p) {
-                            printf_log(LOG_DUMP, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
+                            printf_dump(LOG_NEVER, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
                             *p = offs;
                         } else {
                             printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
                         }
                     }
                 } else {
-                    printf_log(LOG_DUMP, "Preparing (if needed) %s R_X86_64_JUMP_SLOT @%p (0x%lx->0x%0lx) with sym=%s to be apply later\n", (bind==STB_LOCAL)?"Local":"Global", p, *p, *p+head->delta, symname);
+                    printf_dump(LOG_NEVER, "Preparing (if needed) %s R_X86_64_JUMP_SLOT @%p (0x%lx->0x%0lx) with sym=%s to be apply later\n", (bind==STB_LOCAL)?"Local":"Global", p, *p, *p+head->delta, symname);
                     *p += head->delta;
                 }
                 break;
@@ -569,7 +569,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                 // can be ignored
                 break;
             case R_X86_64_RELATIVE:
-                printf_log(LOG_DUMP, "Apply %s R_X86_64_RELATIVE @%p (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, *(void**)p, (void*)(head->delta+ rela[i].r_addend));
+                printf_dump(LOG_NEVER, "Apply %s R_X86_64_RELATIVE @%p (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, *(void**)p, (void*)(head->delta+ rela[i].r_addend));
                 *p = head->delta+ rela[i].r_addend;
                 break;
             case R_X86_64_COPY:
@@ -584,7 +584,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                 if(!offs) {offs = globoffs; end = globend;}
                 if(offs) {
                     // add r_addend to p?
-                    printf_log(LOG_DUMP, "Apply R_X86_64_COPY @%p with sym=%s, @%p+0x%lx size=%ld\n", p, symname, (void*)offs, rela[i].r_addend, sym->st_size);
+                    printf_dump(LOG_NEVER, "Apply R_X86_64_COPY @%p with sym=%s, @%p+0x%lx size=%ld\n", p, symname, (void*)offs, rela[i].r_addend, sym->st_size);
                     if(p!=(void*)(offs+rela[i].r_addend))
                         memmove(p, (void*)(offs+rela[i].r_addend), sym->st_size);
                 } else {
@@ -597,13 +597,13 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
                     if(sym->st_size) {
-                        printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", 
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", 
                             (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), 
                             (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
                         //memmove((void*)globoffs, (void*)offs, sym->st_size);   // preapply to copy part from lib to main elf
                         AddWeakSymbol(GetGlobalData(maplib), symname, offs, sym->st_size);
                     } else {
-                        printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) null sized on sym=%s \n", 
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) null sized on sym=%s \n", 
                             (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), 
                             (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, symname);
                     }
@@ -618,7 +618,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                         if(strcmp(symname, "__gmon_start__"))
                             printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                     } else {
-                        printf_log(LOG_DUMP, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname);
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname);
                         *p = offs/* + rela[i].r_addend*/;   // not addend it seems
                     }
                 }
@@ -642,7 +642,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                         // return -1;
                     } else {
                         if(p) {
-                            printf_log(LOG_DUMP, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p)\n", 
+                            printf_dump(LOG_NEVER, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p)\n", 
                                 (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(offs+rela[i].r_addend));
                             *p = offs + rela[i].r_addend;
                         } else {
@@ -650,7 +650,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                         }
                     }
                 } else {
-                    printf_log(LOG_DUMP, "Preparing (if needed) %s R_X86_64_JUMP_SLOT @%p (0x%lx->0x%0lx) with sym=%s to be apply later (addend=%ld)\n", 
+                    printf_dump(LOG_NEVER, "Preparing (if needed) %s R_X86_64_JUMP_SLOT @%p (0x%lx->0x%0lx) with sym=%s to be apply later (addend=%ld)\n", 
                         (bind==STB_LOCAL)?"Local":"Global", p, *p, *p+head->delta, symname, rela[i].r_addend);
                     *p += head->delta;
                     *need_resolv = 1;
@@ -661,7 +661,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                     // return -1;
                 } else {
-                    printf_log(LOG_DUMP, "Apply %s R_X86_64_64 @%p with sym=%s addend=0x%lx (%p -> %p)\n", 
+                    printf_dump(LOG_NEVER, "Apply %s R_X86_64_64 @%p with sym=%s addend=0x%lx (%p -> %p)\n", 
                         (bind==STB_LOCAL)?"Local":"Global", p, symname, rela[i].r_addend, *(void**)p, (void*)(offs+rela[i].r_addend/*+*(uint64_t*)p*/));
                     *p /*+*/= offs+rela[i].r_addend;
                 }
@@ -679,7 +679,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     }
                     if(h_tls) {
                         delta = *(int64_t*)p;
-                        printf_log(LOG_DUMP, "Applying %s %s on %s @%p (%ld -> %ld)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int64_t)offs + rela[i].r_addend + h_tls->tlsbase);
+                        printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%ld -> %ld)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int64_t)offs + rela[i].r_addend + h_tls->tlsbase);
                         *p = (uintptr_t)((int64_t)offs + rela[i].r_addend + h_tls->tlsbase);
                     } else {
                         printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%ld), no elf_header found\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, (int64_t)offs);
@@ -700,7 +700,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     offs = getElfIndex(my_context, h_tls);
                 }
                 if(p) {
-                    printf_log(LOG_DUMP, "Apply %s %s @%p with sym=%s (%p -> %p)\n", "R_X86_64_DTPMOD64", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
+                    printf_dump(LOG_NEVER, "Apply %s %s @%p with sym=%s (%p -> %p)\n", "R_X86_64_DTPMOD64", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
                     *p = offs;
                 } else {
                     printf_log(LOG_NONE, "Warning, Symbol %s or Elf not found, but R_X86_64_DTPMOD64 Slot Offset is NULL \n", symname);
@@ -720,7 +720,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                         offs = sym->st_value;
                     if(p) {
                         int64_t tlsoffset = offs;    // it's not an offset in elf memory
-                        printf_log(LOG_DUMP, "Apply %s R_X86_64_DTPOFF64 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)tlsoffset, (void*)offs);
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_DTPOFF64 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)tlsoffset, (void*)offs);
                         *p = tlsoffset;
                     } else {
                         printf_log(LOG_NONE, "Warning, Symbol %s found, but R_X86_64_DTPOFF64 Slot Offset is NULL \n", symname);
@@ -838,8 +838,8 @@ uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h)
     (void)maplib;
     uintptr_t ep = h->entrypoint + h->delta;
     printf_log(LOG_DEBUG, "Entry Point is %p\n", (void*)ep);
-    if(box64_log>=LOG_DUMP) {
-        printf_log(LOG_DUMP, "(short) Dump of Entry point\n");
+    if(box64_dump) {
+        printf_dump(LOG_NEVER, "(short) Dump of Entry point\n");
         int sz = 64;
         uintptr_t lastbyte = GetLastByte(h);
         if (ep + sz >  lastbyte)
@@ -856,7 +856,7 @@ uintptr_t GetLastByte(elfheader_t* h)
 
 void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h)
 {
-    printf_log(LOG_DUMP, "Will look for Symbol to add in SymTable(%zu)\n", h->numSymTab);
+    printf_dump(LOG_NEVER, "Will look for Symbol to add in SymTable(%zu)\n", h->numSymTab);
     for (size_t i=0; i<h->numSymTab; ++i) {
         const char * symname = h->StrTab+h->SymTab[i].st_name;
         int bind = ELF64_ST_BIND(h->SymTab[i].st_info);
@@ -868,7 +868,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 continue;
             uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
             uint64_t sz = h->SymTab[i].st_size;
-            printf_log(LOG_DUMP, "Adding Symbol(bind=%s) \"%s\" with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, (void*)offs, sz);
+            printf_dump(LOG_NEVER, "Adding Symbol(bind=%s) \"%s\" with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, (void*)offs, sz);
             if(bind==STB_LOCAL)
                 AddSymbol(localsymbols, symname, offs, sz);
             else    // add in local and global map 
@@ -880,7 +880,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         }
     }
     
-    printf_log(LOG_DUMP, "Will look for Symbol to add in DynSym (%zu)\n", h->numDynSym);
+    printf_dump(LOG_NEVER, "Will look for Symbol to add in DynSym (%zu)\n", h->numDynSym);
     for (size_t i=0; i<h->numDynSym; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
@@ -893,7 +893,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 continue;
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
             uint64_t sz = h->DynSym[i].st_size;
-            printf_log(LOG_DUMP, "Adding Symbol(bind=%s) \"%s\" with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, (void*)offs, sz);
+            printf_dump(LOG_NEVER, "Adding Symbol(bind=%s) \"%s\" with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, (void*)offs, sz);
             if(bind==STB_LOCAL)
                 AddSymbol(localsymbols, symname, offs, sz);
             else // add in local and global map 
@@ -1353,7 +1353,7 @@ EXPORT void PltResolver(x64emu_t* emu)
     uintptr_t addr = Pop64(emu);
     int slot = (int)Pop64(emu);
     elfheader_t *h = (elfheader_t*)addr;
-    printf_log(LOG_DEBUG, "PltResolver: Addr=%p, Slot=%d Return=%p: elf is %s\n", (void*)addr, slot, *(void**)(R_RSP), h->name);
+    printf_dump(LOG_DEBUG, "PltResolver: Addr=%p, Slot=%d Return=%p: elf is %s\n", (void*)addr, slot, *(void**)(R_RSP), h->name);
 
     Elf64_Rela * rel = (Elf64_Rela *)(h->jmprel + h->delta) + slot;
 
@@ -1377,7 +1377,7 @@ EXPORT void PltResolver(x64emu_t* emu)
         return;
     } else {
         if(p) {
-            printf_log(LOG_DEBUG, "PltReolver: Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p / %s)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs, ElfName(FindElfAddress(my_context, offs)));
+            printf_dump(LOG_DEBUG, "PltReolver: Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p / %s)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs, ElfName(FindElfAddress(my_context, offs)));
             *p = offs;
         } else {
             printf_log(LOG_NONE, "PltReolver: Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);

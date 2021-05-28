@@ -254,7 +254,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
     if(dynablocks->direct) {
         block = dynablocks->direct[addr-dynablocks->text];
         if(block) {
-            dynarec_log(LOG_DUMP, "Block already exist in Direct Map\n");
+            dynarec_log(LOG_VERBOSE, "Block already exist in Direct Map\n");
             *created = 0;
             return block;
         }
@@ -270,7 +270,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
     }
 
     // create and add new block
-    dynarec_log(LOG_DUMP, "Ask for DynaRec Block creation @%p\n", (void*)addr);
+    dynarec_log(LOG_VERBOSE, "Ask for DynaRec Block creation @%p\n", (void*)addr);
 
     block = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     block->parent = dynablocks; 

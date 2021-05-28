@@ -197,7 +197,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             switch(syscallwrap[i].nbpars) {
                 case 0: *(int64_t*)&R_RAX = syscall(sc); break;
                 case 1: *(int64_t*)&R_RAX = syscall(sc, R_RDI); break;
-                case 2: if(s==33) {printf_log(LOG_DUMP, " => sys_access(\"%s\", %ld)\n", (char*)R_RDI, R_RSI);}; *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI); break;
+                case 2: if(s==33) {printf_dump(LOG_DEBUG, " => sys_access(\"%s\", %ld)\n", (char*)R_RDI, R_RSI);}; *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI); break;
                 case 3: *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); break;
                 case 4: *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
                 case 5: *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); break;
@@ -289,7 +289,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
 uintptr_t EXPORT my_syscall(x64emu_t *emu)
 {
     uint32_t s = R_EDI;;
-    printf_log(LOG_DUMP, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); 
+    printf_dump(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     for (int i=0; i<cnt; i++) {

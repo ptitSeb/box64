@@ -26,6 +26,7 @@
 
 box64context_t *my_context = NULL;
 int box64_log = LOG_INFO; //LOG_NONE;
+int box64_dump = 0;
 int box64_nobanner = 0;
 int box64_dynarec_log = LOG_NONE;
 int box64_pagesize;
@@ -115,15 +116,20 @@ void LoadLogEnv()
     const char *p = getenv("BOX64_NOBANNER");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
+            if(p[0]>='0' && p[0]<='1')
                 box64_nobanner = p[0]-'0';
         }
     }
     p = getenv("BOX64_LOG");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0'+LOG_NONE && p[1]<='0'+LOG_DEBUG)
+            if(p[0]>='0'+LOG_NONE && p[0]<='0'+LOG_NEVER) {
                 box64_log = p[0]-'0';
+                if(box64_log == LOG_NEVER) {
+                    --box64_log;
+                    box64_dump = 1;
+                }
+            }
         } else {
             if(!strcasecmp(p, "NONE"))
                 box64_log = LOG_NONE;
@@ -131,17 +137,28 @@ void LoadLogEnv()
                 box64_log = LOG_INFO;
             else if(!strcasecmp(p, "DEBUG"))
                 box64_log = LOG_DEBUG;
-            else if(!strcasecmp(p, "DUMP"))
-                box64_log = LOG_DUMP;
+            else if(!strcasecmp(p, "DUMP")) {
+                box64_log = LOG_DEBUG;
+                box64_dump = 1;
+            }
         }
         if(!box64_nobanner)
             printf_log(LOG_INFO, "Debug level is %d\n", box64_log);
     }
+    p = getenv("BOX64_DUMP");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dump = p[0]-'0';
+        }
+    }
+    if(!box64_nobanner && box64_dump)
+        printf_log(LOG_INFO, "Elf Dump if ON\n");
 #ifdef DYNAREC
     p = getenv("BOX64_DYNAREC_DUMP");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
+            if(p[0]>='0' && p[0]<='1')
                 box64_dynarec_dump = p[0]-'0';
         }
         if (box64_dynarec_dump) printf_log(LOG_INFO, "Dynarec blocks are dumped%s\n", (box64_dynarec_dump>1)?" in color":"");
@@ -149,7 +166,7 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_LOG");
     if(p) {
         if(strlen(p)==1) {
-            if((p[0]>='0'+LOG_NONE) && (p[0]<='0'+LOG_DUMP))
+            if((p[0]>='0'+LOG_NONE) && (p[0]<='0'+LOG_NEVER))
                 box64_dynarec_log = p[0]-'0';
         } else {
             if(!strcasecmp(p, "NONE"))
@@ -159,14 +176,14 @@ void LoadLogEnv()
             else if(!strcasecmp(p, "DEBUG"))
                 box64_dynarec_log = LOG_DEBUG;
             else if(!strcasecmp(p, "VERBOSE"))
-                box64_dynarec_log = LOG_DUMP;
+                box64_dynarec_log = LOG_VERBOSE;
         }
         printf_log(LOG_INFO, "Dynarec log level is %d\n", box64_dynarec_log);
     }
     p = getenv("BOX64_DYNAREC");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
+            if(p[0]>='0' && p[0]<='1')
                 box64_dynarec = p[0]-'0';
         }
         printf_log(LOG_INFO, "Dynarec is %s\n", box64_dynarec?"On":"Off");
@@ -174,7 +191,7 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_FORCED");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
+            if(p[0]>='0' && p[0]<='1')
                 box64_dynarec_forced = p[0]-'0';
         }
         if(box64_dynarec_forced)
@@ -196,21 +213,21 @@ void LoadLogEnv()
     p = getenv("BOX64_TRACE_XMM");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 trace_xmm = p[0]-'0';
         }
     }
     p = getenv("BOX64_TRACE_EMM");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 trace_emm = p[0]-'0';
         }
     }
     p = getenv("BOX64_TRACE_COLOR");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 trace_regsdiff = p[0]-'0';
         }
     }
@@ -224,7 +241,7 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_TRACE");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 box64_dynarec_trace = p[0]-'0';
             if(box64_dynarec_trace)
                 printf_log(LOG_INFO, "Dynarec generated code will also print a trace\n");
@@ -238,14 +255,14 @@ void LoadLogEnv()
     p = getenv("BOX64_DLSYM_ERROR");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 dlsym_error = p[0]-'0';
         }
     }
     p = getenv("BOX64_X11THREADS");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 x11threads = p[0]-'0';
         }
         if(x11threads)
@@ -254,7 +271,7 @@ void LoadLogEnv()
     p = getenv("BOX64_X11GLX");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 x11glx = p[0]-'0';
         }
         if(x11glx)
@@ -276,7 +293,7 @@ void LoadLogEnv()
     p = getenv("BOX64_ALLOWMISSINGLIBS");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 allow_missing_libs = p[0]-'0';
         }
         if(allow_missing_libs)
@@ -285,7 +302,7 @@ void LoadLogEnv()
     p = getenv("BOX64_NOPULSE");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 box64_nopulse = p[0]-'0';
         }
         if(box64_nopulse)
@@ -294,7 +311,7 @@ void LoadLogEnv()
     p = getenv("BOX64_NOGTK");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 box64_nogtk = p[0]-'0';
         }
         if(box64_nogtk)
@@ -303,7 +320,7 @@ void LoadLogEnv()
     p = getenv("BOX64_NOVULKAN");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 box64_novulkan = p[0]-'0';
         }
         if(box64_novulkan)
@@ -312,7 +329,7 @@ void LoadLogEnv()
     p = getenv("BOX64_FIX_64BIT_INODES");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 fix_64bit_inodes = p[0]-'0';
         }
         if(fix_64bit_inodes)
@@ -321,7 +338,7 @@ void LoadLogEnv()
     p = getenv("BOX64_JITGDB");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 jit_gdb = p[0]-'0';
         }
         if(jit_gdb)
@@ -425,7 +442,8 @@ void PrintHelp() {
     printf("You can also set some environment variables:\n");
     printf(" BOX64_PATH is the box64 version of PATH (default is '.:bin')\n");
     printf(" BOX64_LD_LIBRARY_PATH is the box64 version LD_LIBRARY_PATH (default is '.:lib')\n");
-    printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info\n");
+    printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info (level 3 is level 2 + BOX64_DUMP)\n");
+    printf(" BOX64_DUMP with 0/1 to dump elf infos\n");
     printf(" BOX64_NOBANNER with 0/1 to enable/disable the printing of box64 version and build at start\n");
 #ifdef DYNAREC
     printf(" BOX64_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
@@ -743,9 +761,9 @@ int main(int argc, const char **argv, const char **env) {
     // allocate extra space for new environment variables such as BOX64_PATH
     my_context->envv = (char**)calloc(my_context->envc+4, sizeof(char*));
     GatherEnv(&my_context->envv, environ?environ:env, my_context->box64path);
-    if(box64_log>=LOG_DUMP) {
+    if(box64_dump) {
         for (int i=0; i<my_context->envc; ++i)
-            printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, my_context->envv[i]);
+            printf_dump(LOG_NEVER, " Env[%02d]: %s\n", i, my_context->envv[i]);
     }
 
     path_collection_t ld_preload = {0};
