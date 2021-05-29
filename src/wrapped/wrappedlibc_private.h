@@ -21,7 +21,7 @@ GOW(access, iFpi)
 //GO(__adjtimex, 
 //GOW(adjtimex, 
 //GOW(advance, 
-//GO(alarm, 
+GO(alarm, uFu)
 GOW(aligned_alloc, pFLL)
 GOW(alphasort, iFpp)
 GOW(alphasort64, iFpp)
@@ -1614,7 +1614,7 @@ GOW(setenv, iFppi)
 //GO(setfsent, 
 //GO(setfsgid, 
 //GO(setfsuid, 
-//GOW(setgid, 
+GOW(setgid, iFp)
 //GO(setgrent, 
 //GO(setgroups, 
 //GO(sethostent, 
