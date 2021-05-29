@@ -130,21 +130,29 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->symbolmap, MAPNAME(symbolmap)[i].name, &ret);
         kh_value(lib->symbolmap, k) = MAPNAME(symbolmap)[i].w;
+        if(strchr(MAPNAME(symbolmap)[i].name, '@'))
+            AddDictionnary(box64->versym, MAPNAME(symbolmap)[i].name);
     }
     cnt = sizeof(MAPNAME(wsymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->wsymbolmap, MAPNAME(wsymbolmap)[i].name, &ret);
         kh_value(lib->wsymbolmap, k) = MAPNAME(wsymbolmap)[i].w;
+        if(strchr(MAPNAME(wsymbolmap)[i].name, '@'))
+            AddDictionnary(box64->versym, MAPNAME(wsymbolmap)[i].name);
     }
     cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->mysymbolmap, MAPNAME(mysymbolmap)[i].name, &ret);
         kh_value(lib->mysymbolmap, k) = MAPNAME(mysymbolmap)[i].w;
+        if(strchr(MAPNAME(mysymbolmap)[i].name, '@'))
+            AddDictionnary(box64->versym, MAPNAME(mysymbolmap)[i].name);
     }
     cnt = sizeof(MAPNAME(stsymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->stsymbolmap, MAPNAME(stsymbolmap)[i].name, &ret);
         kh_value(lib->stsymbolmap, k) = MAPNAME(stsymbolmap)[i].w;
+        if(strchr(MAPNAME(stsymbolmap)[i].name, '@'))
+            AddDictionnary(box64->versym, MAPNAME(stsymbolmap)[i].name);
     }
     cnt = sizeof(MAPNAME(symbol2map))/sizeof(map_onesymbol2_t);
     for (int i=0; i<cnt; ++i) {
@@ -152,6 +160,8 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
         kh_value(lib->symbol2map, k).name = MAPNAME(symbol2map)[i].name2;
         kh_value(lib->symbol2map, k).w = MAPNAME(symbol2map)[i].w;
         kh_value(lib->symbol2map, k).weak = MAPNAME(symbol2map)[i].weak;
+        if(strchr(MAPNAME(symbol2map)[i].name, '@'))
+            AddDictionnary(box64->versym, MAPNAME(symbol2map)[i].name);
     }
     cnt = sizeof(MAPNAME(datamap))/sizeof(map_onedata_t);
     for (int i=0; i<cnt; ++i) {
@@ -194,7 +204,7 @@ int FUNC(_fini)(library_t* lib)
     return 1;
 }
 
-int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
+int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local)
 {
     uintptr_t addr = 0;
     uintptr_t size = 0;
@@ -202,7 +212,7 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
     void* symbol = NULL;
 #endif
 //PRE
-    if (!getSymbolInMaps(lib, name, 0, &addr, &size)) {
+    if (!getSymbolInMaps(lib, name, 0, &addr, &size, version, vername, local)) {
 #ifdef CUSTOM_FAIL
     CUSTOM_FAIL
 #else
@@ -217,7 +227,7 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
     return 1;
 }
 
-int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
+int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local)
 {
     uintptr_t addr = 0;
     uintptr_t size = 0;
@@ -225,7 +235,7 @@ int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uintptr_
     void* symbol = NULL;
 #endif
 //PRE
-    if (!getSymbolInMaps(lib, name, 1, &addr, &size)) {
+    if (!getSymbolInMaps(lib, name, 1, &addr, &size, version, vername, local)) {
 #ifdef CUSTOM_FAIL
     CUSTOM_FAIL
 #else

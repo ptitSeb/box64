@@ -163,6 +163,8 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/emu/x64trace.c"
     "${BOX64_ROOT}/src/librarian/librarian.c"
     "${BOX64_ROOT}/src/librarian/library.c"
+    "${BOX64_ROOT}/src/librarian/dictionnary.c"
+    "${BOX64_ROOT}/src/librarian/symbols.c"
     "${BOX64_ROOT}/src/libtools/auxval.c"
     "${BOX64_ROOT}/src/libtools/myalign.c"
     "${BOX64_ROOT}/src/libtools/sdl1rwops.c"

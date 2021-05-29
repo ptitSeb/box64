@@ -1,6 +1,7 @@
 #ifndef __LIBRARY_H_
 #define __LIBRARY_H_
 #include <stdint.h>
+#include "symbols.h"
 
 typedef struct library_s       library_t;
 typedef struct lib_s           lib_t;
@@ -18,9 +19,9 @@ void Free1Library(library_t **lib, x64emu_t* emu);
 
 char* GetNameLib(library_t *lib);
 int IsSameLib(library_t* lib, const char* path);    // check if lib is same (path -> name)
-int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end);
-int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end);
-int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end);
+int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local);
+int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local);
+int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local);
 void fillGLProcWrapper(box64context_t* context);
 void freeGLProcWrapper(box64context_t* context);
 void fillALProcWrapper(box64context_t* context);

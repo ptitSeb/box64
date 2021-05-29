@@ -23,6 +23,7 @@
 #include "x64trace.h"
 #include "librarian.h"
 #include "x64run.h"
+#include "symbols.h"
 
 box64context_t *my_context = NULL;
 int box64_log = LOG_INFO; //LOG_NONE;
@@ -553,7 +554,7 @@ void setupTraceInit()
             if(s_trace_start || s_trace_end)
                 SetTraceEmu(s_trace_start, s_trace_end);
         } else {
-            if (GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &s_trace_start, &s_trace_end)) {
+            if (GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &s_trace_start, &s_trace_end, -1, NULL, -1)) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
@@ -594,10 +595,10 @@ void setupTrace()
                 }
             }
         } else {
-            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end)) {
+            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL)) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
-            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL)) {
+            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL)) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
@@ -987,9 +988,9 @@ int main(int argc, const char **argv, const char **env) {
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbol(my_context->maplib), GetWeakSymbol(my_context->maplib), GetLocalSymbol(my_context->maplib), elf_header);
     if(wine_preloaded) {
-        uintptr_t wineinfo = FindSymbol(GetMapSymbol(my_context->maplib), "wine_main_preload_info");
-        if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbol(my_context->maplib), "wine_main_preload_info");
-        if(!wineinfo) wineinfo = FindSymbol(GetLocalSymbol(my_context->maplib), "wine_main_preload_info");
+        uintptr_t wineinfo = FindSymbol(GetMapSymbol(my_context->maplib), "wine_main_preload_info", -1, NULL, 1);
+        if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbol(my_context->maplib), "wine_main_preload_info", -1, NULL, 1);
+        if(!wineinfo) wineinfo = FindSymbol(GetLocalSymbol(my_context->maplib), "wine_main_preload_info", -1, NULL, 1);
         if(!wineinfo) {printf_log(LOG_NONE, "Warning, Symbol wine_main_preload_info not found\n");}
         else {
             *(void**)wineinfo = get_wine_prereserve();
@@ -1001,11 +1002,8 @@ int main(int argc, const char **argv, const char **env) {
     }
     // pre-load lib if needed
     if(ld_preload.size) {
-        for (int i=0; i<ld_preload.size; ++i) {
-            if(AddNeededLib(NULL, NULL, NULL, 0, ld_preload.paths[i], my_context, emu)) {
-                if(!strstr(ld_preload.paths[i], "vgpreload_"))
-                    printf_log(LOG_INFO, "Warning, cannot pre-load lib: \"%s\"\n", ld_preload.paths[i]);
-            }            
+        if(AddNeededLib(NULL, NULL, NULL, 0, (const char**)ld_preload.paths, ld_preload.size, my_context, emu)) {
+            printf_log(LOG_INFO, "Warning, cannot pre-load a lib\n");
         }
     }
     FreeCollection(&ld_preload);

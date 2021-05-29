@@ -27,8 +27,8 @@
 // create the native lib list
 #define GO(P, N) int wrapped##N##_init(library_t* lib, box64context_t *box64); \
                  void wrapped##N##_fini(library_t* lib);\
-                 int wrapped##N##_get(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz); \
-                 int wrapped##N##_getnoweak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz);
+                 int wrapped##N##_get(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local); \
+                 int wrapped##N##_getnoweak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local);
 #include "library_list.h"
 #undef GO
 
@@ -85,51 +85,51 @@ void EmuLib_Fini(library_t* lib)
     kh_destroy(mapsymbols, lib->priv.n.localsymbols);
 }
 
-int EmuLib_Get(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
+int EmuLib_Get(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local)
 {
-    khint_t k;
     // symbols...
-    k = kh_get(mapsymbols, lib->priv.n.mapsymbols, name);
-    if(k!=kh_end(lib->priv.n.mapsymbols)) {
-        *offs = kh_value(lib->priv.n.mapsymbols, k).offs;
-        *sz = kh_value(lib->priv.n.mapsymbols, k).sz;
+    uintptr_t start, end;
+    if(GetSymbolStartEnd(lib->priv.n.mapsymbols, name, &start, &end, version, vername, local))
+    {
+        *offs = start;
+        *sz = end-start;
         return 1;
     }
     // weak symbols...
-    k = kh_get(mapsymbols, lib->priv.n.weaksymbols, name);
-    if(k!=kh_end(lib->priv.n.weaksymbols)) {
-        *offs = kh_value(lib->priv.n.weaksymbols, k).offs;
-        *sz = kh_value(lib->priv.n.weaksymbols, k).sz;
+    if(GetSymbolStartEnd(lib->priv.n.weaksymbols, name, &start, &end, version, vername, local))
+    {
+        *offs = start;
+        *sz = end-start;
         return 1;
     }
     return 0;
 }
-int EmuLib_GetNoWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
+int EmuLib_GetNoWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local)
 {
-    khint_t k;
-    k = kh_get(mapsymbols, lib->priv.n.mapsymbols, name);
-    if(k!=kh_end(lib->priv.n.mapsymbols)) {
-        *offs = kh_value(lib->priv.n.mapsymbols, k).offs;
-        *sz = kh_value(lib->priv.n.mapsymbols, k).sz;
+    uintptr_t start, end;
+    if(GetSymbolStartEnd(lib->priv.n.mapsymbols, name, &start, &end, version, vername, local))
+    {
+        *offs = start;
+        *sz = end-start;
         return 1;
     }
     return 0;
 }
-int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
+int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local)
 {
-    khint_t k;
-    k = kh_get(mapsymbols, lib->priv.n.localsymbols, name);
-    if(k!=kh_end(lib->priv.n.localsymbols)) {
-        *offs = kh_value(lib->priv.n.localsymbols, k).offs;
-        *sz = kh_value(lib->priv.n.localsymbols, k).sz;
+    uintptr_t start, end;
+    if(GetSymbolStartEnd(lib->priv.n.localsymbols, name, &start, &end, version, vername, local))
+    {
+        *offs = start;
+        *sz = end-start;
         return 1;
     }
     return 0;
 }
 
-int NativeLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz)
+int NativeLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local)
 {
-    (void)lib; (void)name; (void)offs; (void)sz;
+    (void)lib; (void)name; (void)offs; (void)sz; (void)version; (void)vername; (void)local;
     return 0;
 }
 
@@ -151,11 +151,9 @@ static void initNativeLib(library_t *lib, box64context_t* context) {
             lib->getlocal = NativeLib_GetLocal;
             lib->type = 0;
             // Call librarian to load all dependant elf
-            for(int j=0; j<lib->priv.w.needed; ++j) {
-                if(AddNeededLib(context->maplib, &lib->needed, lib, 0, lib->priv.w.neededlibs[j], context, thread_get_emu())) {
-                    printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->priv.w.neededlibs[j]);
-                    return;
-                }
+            if(AddNeededLib(context->maplib, &lib->needed, lib, 0, (const char**)lib->priv.w.neededlibs, lib->priv.w.needed, context, NULL)) {  // probably all native, not emulated, so that's fine
+                printf_log(LOG_NONE, "Error: loading a needed libs in elf %s\n", lib->name);
+                return;
             }
             break;
         }
@@ -308,12 +306,12 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x64emu_t* emu)
         RelocateElfPlt(my_context->maplib, local_maplib, elf_header);
 #ifdef HAVE_TRACE
         if(trace_func) {
-            if (GetGlobalSymbolStartEnd(my_context->maplib, trace_func, &trace_start, &trace_end)) {
+            if (GetGlobalSymbolStartEnd(my_context->maplib, trace_func, &trace_start, &trace_end, elf_header, -1, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
                 free(trace_func);
                 trace_func = NULL;
-            } else if(GetLibLocalSymbolStartEnd(lib, trace_func, &trace_start, &trace_end)) {
+            } else if(GetLibLocalSymbolStartEnd(lib, trace_func, &trace_start, &trace_end, -1, NULL, 0)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
                 free(trace_func);
@@ -322,11 +320,6 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x64emu_t* emu)
         }
 #endif
         RunElfInit(elf_header, emu);
-    }
-    if(box64_dynarec && strcmp(lib->name, "libfmod.so")==0) {
-        if (GetGlobalSymbolStartEnd(lib->maplib?lib->maplib:my_context->maplib, "FSOUND_Mixer_FPU_Ramp", &fmod_smc_start, &fmod_smc_end)) {
-            printf_log(LOG_INFO, "Detected libfmod with potential SMC part, applying workaround in Dynarec\n");
-        }
     }
     return 0;
 }
@@ -451,22 +444,22 @@ int IsSameLib(library_t* lib, const char* path)
     free(name);
     return ret;
 }
-int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end)
+int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local)
 {
     if(!name[0] || !lib->active)
         return 0;
     khint_t k;
     // check first if already in the map
-    k = kh_get(bridgemap, lib->bridgemap, name);
+    k = kh_get(bridgemap, lib->bridgemap, VersionnedName(name, version, vername));
     if(k!=kh_end(lib->bridgemap)) {
         *start = kh_value(lib->bridgemap, k).start;
         *end = kh_value(lib->bridgemap, k).end;
         return 1;
     }
     // get a new symbol
-    if(lib->get(lib, name, start, end)) {
+    if(lib->get(lib, name, start, end, version, vername, local)) {
         *end += *start;     // lib->get(...) gives size, not end
-        char* symbol = strdup(name);
+        char* symbol = strdup(VersionnedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, lib->bridgemap, symbol, &ret);
         kh_value(lib->bridgemap, k).name = symbol;
@@ -477,22 +470,22 @@ int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uin
     // nope
     return 0;
 }
-int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end)
+int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local)
 {
     if(!name[0] || !lib->active)
         return 0;
     khint_t k;
     // get a new symbol
-    if(lib->getnoweak(lib, name, start, end)) {
+    if(lib->getnoweak(lib, name, start, end, version, vername, local)) {
         *end += *start;     // lib->get(...) gives size, not end
         // check if already in the map
-        k = kh_get(bridgemap, lib->bridgemap, name);
+        k = kh_get(bridgemap, lib->bridgemap, VersionnedName(name, version, vername));
         if(k!=kh_end(lib->bridgemap)) {
             *start = kh_value(lib->bridgemap, k).start;
             *end = kh_value(lib->bridgemap, k).end;
             return 1;
         }
-        char* symbol = strdup(name);
+        char* symbol = strdup(VersionnedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, lib->bridgemap, symbol, &ret);
         kh_value(lib->bridgemap, k).name = symbol;
@@ -503,22 +496,22 @@ int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* star
     // nope
     return 0;
 }
-int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end)
+int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local)
 {
     if(!name[0] || !lib->active)
         return 0;
     khint_t k;
     // check first if already in the map
-    k = kh_get(bridgemap, lib->bridgemap, name);
+    k = kh_get(bridgemap, lib->bridgemap, VersionnedName(name, version, vername));
     if(k!=kh_end(lib->bridgemap)) {
         *start = kh_value(lib->bridgemap, k).start;
         *end = kh_value(lib->bridgemap, k).end;
         return 1;
     }
     // get a new symbol
-    if(lib->getlocal(lib, name, start, end)) {
+    if(lib->getlocal(lib, name, start, end, version, vername, local)) {
         *end += *start;     // lib->get(...) gives size, not end
-        char* symbol = strdup(name);
+        char* symbol = strdup(VersionnedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, lib->bridgemap, symbol, &ret);
         kh_value(lib->bridgemap, k).name = symbol;
@@ -536,14 +529,10 @@ int GetElfIndex(library_t* lib)
     return lib->priv.n.elf_index;
 }
 
-int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size)
+static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size)
 {
-    if(!lib->active)
-        return 0;
-    khint_t k;
     void* symbol;
-    // check in datamap
-    k = kh_get(datamap, lib->datamap, name);
+    khint_t k = kh_get(datamap, lib->datamap, name);
     if (k!=kh_end(lib->datamap)) {
         symbol = dlsym(lib->priv.w.lib, kh_key(lib->datamap, k));
         if(symbol) {
@@ -584,8 +573,13 @@ int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *add
             return 1;
         }
     }
+    return 0;
+}
+static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size)
+{
+    void* symbol;
     // check in mysymbolmap
-    k = kh_get(symbolmap, lib->mysymbolmap, name);
+    khint_t k = kh_get(symbolmap, lib->mysymbolmap, name);
     if (k!=kh_end(lib->mysymbolmap)) {
         char buff[200];
         if(lib->altmy)
@@ -676,6 +670,23 @@ int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *add
             *size = sizeof(void*);
             return 1;
         }
+
+    return 0;
+}
+
+int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int version, const char* vername, int local)
+{
+    if(!lib->active)
+        return 0;
+    // check in datamaps (but no version, it's not handled there)
+    if(getSymbolInDataMaps(lib, name, noweak, addr, size))
+        return 1;
+
+    if(getSymbolInSymbolMaps(lib, VersionnedName(name, version, vername), noweak, addr, size))
+        return 1;
+
+    if(getSymbolInSymbolMaps(lib, name, noweak, addr, size))
+        return 1;
 
     return 0;
 }

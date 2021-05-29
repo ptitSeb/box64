@@ -24,24 +24,18 @@ kh_mapsymbols_t* GetMapSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetWeakSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetLocalSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetGlobalData(lib_t* maplib);
-int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t *deplib, int local, const char* path, box64context_t* box64, x64emu_t* emu); // 0=success, 1=error
+int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t *deplib, int local, const char** paths, int npath, box64context_t* box64, x64emu_t* emu); // 0=success, 1=error
 library_t* GetLibMapLib(lib_t* maplib, const char* name);
 library_t* GetLibInternal(const char* name);
-uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name);
-int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self);
-int GetSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self);
-int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end);
-int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end);
-int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self);
-int GetNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self);
-elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name);
-int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name);
-
-void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint64_t sz); // replace if already there
-uintptr_t FindSymbol(kh_mapsymbols_t *mapsymbols, const char* name);
-void AddWeakSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint64_t sz); // don't add if already there
-int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* start, uintptr_t* end);
-const char* GetSymbolName(kh_mapsymbols_t* mapsymbols, void* p, uintptr_t* offs, uint64_t* sz);
+uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name, int version, const char* vername);
+int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername);
+int GetSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername);
+int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername);
+int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername);
+int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername);
+int GetNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername);
+elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name, int version, const char* vername);
+int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, const char* vername);
 
 const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint64_t* sz, const char** libname, void** base);
 

@@ -225,13 +225,14 @@ const char* DumpRelType(int t)
     return buff;
 }
 
-const char* DumpSym(elfheader_t *h, Elf64_Sym* sym)
+const char* DumpSym(elfheader_t *h, Elf64_Sym* sym, int version)
 {
     static char buff[4096];
+    const char* vername = (version==-1)?"(none)":((version==0)?"*local*":((version==1)?"*global*":GetSymbolVersion(h, version)));
     memset(buff, 0, sizeof(buff));
-    sprintf(buff, "\"%s\", value=%p, size=%ld, info/other=%d/%d index=%d", 
+    sprintf(buff, "\"%s\", value=%p, size=%ld, info/other=%d/%d index=%d (ver=%d/%s)", 
         h->DynStr+sym->st_name, (void*)sym->st_value, sym->st_size,
-        sym->st_info, sym->st_other, sym->st_shndx);
+        sym->st_info, sym->st_other, sym->st_shndx, version, vername);
     return buff;
 }
 
@@ -298,8 +299,10 @@ void DumpDynSym(elfheader_t *h)
     if(box64_dump && h->DynSym) {
         const char* name = ElfName(h);
         printf_dump(LOG_NEVER, "ELF Dump DynSym(%zu)=\n", h->numDynSym);
-        for (size_t i=0; i<h->numDynSym; ++i)
-            printf_dump(LOG_NEVER, "  %s:DynSym[%zu] = %s\n", name, i, DumpSym(h, h->DynSym+i));
+        for (size_t i=0; i<h->numDynSym; ++i) {
+            int version = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
+            printf_dump(LOG_NEVER, "  %s:DynSym[%zu] = %s\n", name, i, DumpSym(h, h->DynSym+i, version));
+        }
         printf_dump(LOG_NEVER, "ELF Dump DynSym=====\n");
     }
 }
@@ -351,11 +354,11 @@ void DumpRelATable(elfheader_t *h, int cnt, Elf64_Rela *rela, const char* name)
         const char* elfname = ElfName(h);
         printf_dump(LOG_NEVER, "ELF Dump %s Table(%d) @%p\n", name, cnt, rela);
         for (int i = 0; i<cnt; ++i)
-            printf_dump(LOG_NEVER, "  %s:RelA[%d] = %p (0x%lX: %s, sym=0x%lX/%s) Addend=0x%lx\n", elfname,
+            printf_dump(LOG_NEVER, "  %s:%s[%d] = %p (0x%lX: %s, sym=0x%lX/%s) Addend=0x%lx\n", elfname, name,
                 i, (void*)rela[i].r_offset, rela[i].r_info, DumpRelType(ELF64_R_TYPE(rela[i].r_info)), 
                 ELF64_R_SYM(rela[i].r_info), IdxSymName(h, ELF64_R_SYM(rela[i].r_info)), 
                 rela[i].r_addend);
-        printf_dump(LOG_NEVER, "ELF Dump RelA Table=====\n");
+        printf_dump(LOG_NEVER, "ELF Dump %s Table=====\n", name);
     }
 }
 

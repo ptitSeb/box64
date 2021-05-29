@@ -97,6 +97,6 @@ typedef struct map_onedata_s {
     int         weak;
 } map_onedata_t;
 
-int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size);  // Add bridges to functions
+int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int version, const char* vername, int local);  // Add bridges to functions
 
 #endif //__LIBRARY_PRIVATE_H_

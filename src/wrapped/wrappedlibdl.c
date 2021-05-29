@@ -42,7 +42,7 @@ char* my_dlerror(x64emu_t* emu) EXPORT;
 void* my_dlsym(x64emu_t* emu, void *handle, void *symbol) EXPORT;
 int my_dlclose(x64emu_t* emu, void *handle) EXPORT;
 int my_dladdr(x64emu_t* emu, void *addr, void *info) EXPORT;
-void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, void *version) EXPORT;
+void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername) EXPORT;
 int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info) EXPORT;
 
 #define LIBNAME libdl
@@ -97,7 +97,8 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         }
         dlopened = (GetLibInternal(rfilename)==NULL);
         // Then open the lib
-        if(AddNeededLib(NULL, NULL, NULL, is_local, rfilename, emu->context, emu)) {
+        const char* libs[] = {rfilename};
+        if(AddNeededLib(NULL, NULL, NULL, is_local, libs, 1, emu->context, emu)) {
             printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
                 dl->last_error = malloc(129);
@@ -152,7 +153,7 @@ char* my_dlerror(x64emu_t* emu)
 
 KHASH_SET_INIT_INT(libs);
 
-int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end)
+int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end, int version, const char* vername)
 {
     if(!lib)
         return 0;
@@ -162,23 +163,23 @@ int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymb
     int ret;
     kh_put(libs, collection, (uintptr_t)lib, &ret);
     // look in the library itself
-    if(lib->get(lib, rsymbol, start, end))
+    if(lib->get(lib, rsymbol, start, end, version, vername, 1))
         return 1;
     // look in other libs
     int n = GetNeededLibN(lib);
     for (int i=0; i<n; ++i) {
         library_t *l = GetNeededLib(lib, i);
-        if(recursive_dlsym_lib(collection, l, rsymbol, start, end))
+        if(recursive_dlsym_lib(collection, l, rsymbol, start, end, version, vername))
             return 1;
     }
         
     return 0;
 }
 
-int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end)
+int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end, int version, const char* vername)
 {
     kh_libs_t *collection = kh_init(libs);
-    int ret = recursive_dlsym_lib(collection, lib, rsymbol, start, end);
+    int ret = recursive_dlsym_lib(collection, lib, rsymbol, start, end, version, vername);
     kh_destroy(libs, collection);
 
     return ret;
@@ -196,7 +197,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     printf_log(LOG_DEBUG, "Call to dlsym(%p, \"%s\")\n", handle, rsymbol);
     if(handle==NULL) {
         // special case, look globably
-        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end)) {
+        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, NULL, -1, NULL)) {
             if(dlsym_error && box64_log<LOG_DEBUG) {
                 printf_log(LOG_NONE, "%p\n", (void*)start);
             }
@@ -212,8 +213,8 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     }
     if(handle==(void*)0xFFFFFFFF) {
         // special case, look globably but no self (RTLD_NEXT)
-        elfheader_t *elf = FindElfAddress(emu->context, *(uint32_t*)R_RSP); // use return address to guess "self"
-        if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf)) {
+        elfheader_t *elf = FindElfAddress(emu->context, *(uintptr_t*)R_RSP); // use return address to guess "self"
+        if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf, -1, NULL)) {
             if(dlsym_error && box64_log<LOG_DEBUG) {
                 printf_log(LOG_NONE, "%p\n", (void*)start);
             }
@@ -249,7 +250,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         return NULL;
     }
     if(dl->libs[nlib]) {
-        if(my_dlsym_lib(dl->libs[nlib], rsymbol, &start, &end)==0) {
+        if(my_dlsym_lib(dl->libs[nlib], rsymbol, &start, &end, -1, NULL)==0) {
             // not found
             if(dlsym_error && box64_log<LOG_DEBUG) {
                 printf_log(LOG_NONE, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, GetNameLib(dl->libs[nlib]), rsymbol);
@@ -262,19 +263,19 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         }
     } else {
         // still usefull?
-        if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end)) {
+        if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end, -1, NULL, 0)) {
             if(dlsym_error && box64_log<LOG_DEBUG) {
                 printf_log(LOG_NONE, "%p\n", (void*)start);
             }
             return (void*)start;
         }
-        if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end)) {
+        if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end, -1, NULL, 0)) {
             if(dlsym_error && box64_log<LOG_DEBUG) {
                 printf_log(LOG_NONE, "%p\n", (void*)start);
             }
             return (void*)start;
         }
-        if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end)) {
+        if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end, -1, NULL, 0)) {
             if(dlsym_error && box64_log<LOG_DEBUG) {
                 printf_log(LOG_NONE, "%p\n", (void*)start);
             }
@@ -352,16 +353,117 @@ int my_dladdr(x64emu_t* emu, void *addr, void *i)
     printf_log(LOG_DEBUG, "     dladdr return saddr=%p, fname=\"%s\", sname=\"%s\"\n", info->dli_saddr, info->dli_sname?info->dli_sname:"", info->dli_fname?info->dli_fname:"");
     return (info->dli_sname)?1:0;   // success is non-null here...
 }
-void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, void *version)
+void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
 {
     dlprivate_t *dl = emu->context->dlprivate;
-    CLEARERR
-    //void *dlvsym(void *handle, char *symbol, char *version);
+    int version = (vername)?2:-1;
+    uintptr_t start, end;
     char* rsymbol = (char*)symbol;
-    char* rversion = (char*)version;
-    printf_log(LOG_INFO, "Warning: unimplement call to dlvsym(%p, %s, %s), fallback to dlsym\n", handle, rsymbol, rversion);
-
-    return my_dlsym(emu, handle, symbol);
+    CLEARERR
+    if(dlsym_error && box64_log<LOG_DEBUG) {
+        printf_log(LOG_NONE, "Call to dlvsym(%p, %s, %s) :", handle, rsymbol, vername?vername:"(nil)");
+    }
+    printf_log(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)\n", handle, rsymbol, vername?vername:"(nil)");
+    if(handle==NULL) {
+        // special case, look globably
+        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, NULL, version, vername)) {
+            if(dlsym_error && box64_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
+            }
+            return (void*)start;
+        }
+        if(!dl->last_error)
+            dl->last_error = malloc(129);
+        snprintf(dl->last_error, 129, "Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
+        if(dlsym_error && box64_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "%p\n", NULL);
+        }
+        return NULL;
+    }
+    if(handle==(void*)0xFFFFFFFF) {
+        // special case, look globably but no self (RTLD_NEXT)
+        elfheader_t *elf = FindElfAddress(emu->context, *(uintptr_t*)R_RSP); // use return address to guess "self"
+        if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf, version, vername)) {
+            if(dlsym_error && box64_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
+            }
+            return (void*)start;
+        }
+        if(!dl->last_error)
+            dl->last_error = malloc(129);
+        snprintf(dl->last_error, 129, "Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
+        if(dlsym_error && box64_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "%p\n", NULL);
+        }
+        return NULL;
+    }
+    size_t nlib = (size_t)handle;
+    --nlib;
+    // size_t is unsigned
+    if(nlib>=dl->lib_sz) {
+        if(!dl->last_error)
+            dl->last_error = malloc(129);
+        snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
+        if(dlsym_error && box64_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "%p\n", NULL);
+        }
+        return NULL;
+    }
+    if(dl->count[nlib]==0) {
+        if(!dl->last_error)
+            dl->last_error = malloc(129);
+        snprintf(dl->last_error, 129, "Bad handle %p (already closed))\n", handle);
+        if(dlsym_error && box64_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "%p\n", (void*)NULL);
+        }
+        return NULL;
+    }
+    if(dl->libs[nlib]) {
+        if(my_dlsym_lib(dl->libs[nlib], rsymbol, &start, &end, version, vername)==0) {
+            // not found
+            if(dlsym_error && box64_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, GetNameLib(dl->libs[nlib]), rsymbol, vername?vername:"(nil)");
+            }
+            printf_log(LOG_DEBUG, " Symbol not found\n");
+            if(!dl->last_error)
+                dl->last_error = malloc(129);
+            snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p(%s)", rsymbol, handle, GetNameLib(dl->libs[nlib]));
+            return NULL;
+        }
+    } else {
+        // still usefull?
+        if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, 1)) {
+            if(dlsym_error && box64_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
+            }
+            return (void*)start;
+        }
+        if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, 1)) {
+            if(dlsym_error && box64_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
+            }
+            return (void*)start;
+        }
+        if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, 1)) {
+            if(dlsym_error && box64_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
+            }
+            return (void*)start;
+        }
+        // not found
+        if(dlsym_error && box64_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, "Self", rsymbol, vername?vername:"(nil)");
+        }
+        printf_log(LOG_DEBUG, " Symbol not found\n");
+        if(!dl->last_error)
+            dl->last_error = malloc(129);
+        snprintf(dl->last_error, 129, "Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
+        return NULL;
+    }
+    if(dlsym_error && box64_log<LOG_DEBUG) {
+        printf_log(LOG_NONE, "%p\n", (void*)start);
+    }
+    return (void*)start;
 }
 
 typedef struct link_map_s {

@@ -194,30 +194,87 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         // also grab the DT_STRTAB string table
         {
             for (size_t i=0; i<h->numDynamic; ++i) {
-                if(h->Dynamic[i].d_tag == DT_REL)
-                    h->rel = h->Dynamic[i].d_un.d_ptr;
-                else if(h->Dynamic[i].d_tag == DT_RELSZ)
-                    h->relsz = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_RELENT)
-                    h->relent = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_RELA)
-                    h->rela = h->Dynamic[i].d_un.d_ptr;
-                else if(h->Dynamic[i].d_tag == DT_RELASZ)
-                    h->relasz = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_RELAENT)
-                    h->relaent = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_PLTGOT)
-                    h->pltgot = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_PLTREL)
-                    h->pltrel = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_PLTRELSZ)
-                    h->pltsz = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_JMPREL)
-                    h->jmprel = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_STRTAB)
-                    h->DynStrTab = (char*)(h->Dynamic[i].d_un.d_ptr);
-                else if(h->Dynamic[i].d_tag == DT_STRSZ)
-                    h->szDynStrTab = h->Dynamic[i].d_un.d_val;
+                Elf64_Dyn d = h->Dynamic[i];
+                Elf64_Word val = d.d_un.d_val;
+                Elf64_Addr ptr = d.d_un.d_ptr;
+                switch (d.d_tag) {
+                case DT_REL:
+                    h->rel = ptr;
+                    break;
+                case DT_RELSZ:
+                    h->relsz = val;
+                    break;
+                case DT_RELENT:
+                    h->relent = val;
+                    break;
+                case DT_RELA:
+                    h->rela = ptr;
+                    break;
+                case DT_RELASZ:
+                    h->relasz = val;
+                    break;
+                case DT_RELAENT:
+                    h->relaent = val;
+                    break;
+                case DT_PLTGOT:
+                    h->pltgot = ptr;
+                    break;
+                case DT_PLTREL:
+                    h->pltrel = val;
+                    break;
+                case DT_PLTRELSZ:
+                    h->pltsz = val;
+                    break;
+                case DT_JMPREL:
+                    h->jmprel = ptr;
+                    break;
+                case DT_STRTAB:
+                    h->DynStrTab = (char*)(ptr);
+                    break;
+                case DT_STRSZ:
+                    h->szDynStrTab = val;
+                    break;
+                case DT_INIT: // Entry point
+                    h->initentry = ptr;
+                    printf_log(LOG_DEBUG, "The DT_INIT is at address %p\n", (void*)h->initentry);
+                    break;
+                case DT_INIT_ARRAY:
+                    h->initarray = ptr;
+                    printf_log(LOG_DEBUG, "The DT_INIT_ARRAY is at address %p\n", (void*)h->initarray);
+                    break;
+                case DT_INIT_ARRAYSZ:
+                    h->initarray_sz = val / sizeof(Elf64_Addr);
+                    printf_log(LOG_DEBUG, "The DT_INIT_ARRAYSZ is %zu\n", h->initarray_sz);
+                    break;
+                case DT_FINI: // Exit hook
+                    h->finientry = ptr;
+                    printf_log(LOG_DEBUG, "The DT_FINI is at address %p\n", (void*)h->finientry);
+                    break;
+                case DT_FINI_ARRAY:
+                    h->finiarray = ptr;
+                    printf_log(LOG_DEBUG, "The DT_FINI_ARRAY is at address %p\n", (void*)h->finiarray);
+                    break;
+                case DT_FINI_ARRAYSZ:
+                    h->finiarray_sz = val / sizeof(Elf64_Addr);
+                    printf_log(LOG_DEBUG, "The DT_FINI_ARRAYSZ is %zu\n", h->finiarray_sz);
+                    break;
+                case DT_VERNEEDNUM:
+                    h->szVerNeed = val;
+                    printf_log(LOG_DEBUG, "The DT_VERNEEDNUM is %d\n", h->szVerNeed);
+                    break;
+                case DT_VERNEED:
+                    h->VerNeed = (Elf64_Verneed*)ptr;
+                    printf_log(LOG_DEBUG, "The DT_VERNEED is at address %p\n", h->VerNeed);
+                    break;
+                case DT_VERDEFNUM:
+                    h->szVerDef = val;
+                    printf_log(LOG_DEBUG, "The DT_VERDEFNUM is %d\n", h->szVerDef);
+                    break;
+                case DT_VERDEF:
+                    h->VerDef = (Elf64_Verdef*)ptr;
+                    printf_log(LOG_DEBUG, "The DT_VERDEF is at address %p\n", h->VerDef);
+                    break;
+                }
             }
             if(h->rel) {
                 if(h->relent != sizeof(Elf64_Rel)) {
@@ -275,31 +332,11 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             h->plt_end = h->plt + h->SHEntries[ii].sh_size;
             printf_log(LOG_DEBUG, "The PLT Table is at address %p..%p\n", (void*)h->plt, (void*)h->plt_end);
         }
-        // look for .init entry point
-        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".init");
+        // grab version of symbols
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".gnu.version");
         if(ii) {
-            h->initentry = h->SHEntries[ii].sh_addr;
-            printf_log(LOG_DEBUG, "The .init is at address %p\n", (void*)h->initentry);
-        }
-        // and .init_array
-        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".init_array");
-        if(ii) {
-            h->initarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf64_Addr);
-            h->initarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
-            printf_log(LOG_DEBUG, "The .init_array is at address %p, and have %zu elements\n", (void*)h->initarray, h->initarray_sz);
-        }
-        // look for .fini entry point
-        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini");
-        if(ii) {
-            h->finientry = h->SHEntries[ii].sh_addr;
-            printf_log(LOG_DEBUG, "The .fini is at address %p\n", (void*)h->finientry);
-        }
-        // and .fini_array
-        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini_array");
-        if(ii) {
-            h->finiarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf64_Addr);
-            h->finiarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
-            printf_log(LOG_DEBUG, "The .fini_array is at address %p, and have %zu elements\n", (void*)h->finiarray, h->finiarray_sz);
+            h->VerSym = (Elf64_Half*)(h->SHEntries[ii].sh_addr);
+            printf_log(LOG_DEBUG, "The .gnu.version is at address %p\n", h->VerSym);
         }
         // grab .text for main code
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");
@@ -311,8 +348,45 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
 
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);
-        if(box64_dump && h->DynSym) DumpDynSym(h);
     }
     
     return h;
+}
+
+const char* GetSymbolVersion(elfheader_t* h, int version)
+{
+    if(!h->VerNeed || (version<2))
+        return NULL;
+    /*if(version==1)
+        return "*";*/
+    Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
+    while(ver) {
+        Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
+        for(int j=0; j<ver->vn_cnt; ++j) {
+            if(aux->vna_other==version)
+                return h->DynStr+aux->vna_name;
+            aux = (Elf64_Vernaux*)((uintptr_t)aux + aux->vna_next);
+        }
+        ver = ver->vn_next?((Elf64_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
+    }
+    return GetParentSymbolVersion(h, version);  // if symbol is "internal", use Def table instead
+}
+
+const char* GetParentSymbolVersion(elfheader_t* h, int index)
+{
+    if(!h->VerDef || (index<1))
+        return NULL;
+    Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef + h->delta);
+    while(def) {
+        if(def->vd_ndx==index) {
+            if(def->vd_cnt<1)
+                return NULL;
+            /*if(def->vd_flags&VER_FLG_BASE)
+                return NULL;*/
+            Elf64_Verdaux *aux = (Elf64_Verdaux*)((uintptr_t)def + def->vd_aux);
+            return h->DynStr+aux->vda_name; // return Parent, so 1st aux
+        }
+        def = def->vd_next?((Elf64_Verdef*)((uintptr_t)def + def->vd_next)):NULL;
+    }
+    return NULL;
 }

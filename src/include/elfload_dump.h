@@ -6,7 +6,7 @@ typedef struct elfheader_s elfheader_t;
 const char* DumpSection(Elf64_Shdr *s, char* SST);
 const char* DumpDynamic(Elf64_Dyn *s);
 const char* DumpPHEntry(Elf64_Phdr *e);
-const char* DumpSym(elfheader_t *h, Elf64_Sym* sym);
+const char* DumpSym(elfheader_t *h, Elf64_Sym* sym, int version);
 const char* DumpRelType(int t);
 const char* SymName(elfheader_t *h, Elf64_Sym* sym);
 const char* IdxSymName(elfheader_t *h, int sym);
