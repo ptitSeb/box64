@@ -533,6 +533,21 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
     return 0;
 }
 
+struct tlsdesc
+{
+  uintptr_t entry;
+  uintptr_t arg;
+};
+uintptr_t tlsdescUndefweak = 0;
+uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
+EXPORT uintptr_t _dl_tlsdesc_undefweak(x64emu_t* emu)
+{
+    printf_log(LOG_DEBUG, "_dl_tlsdesc_undefweak, rax=%p\n", (void*)R_RAX);
+    struct tlsdesc *td = (struct tlsdesc *)R_RAX;
+    return td->arg;
+}
+
+
 int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cnt, Elf64_Rela *rela, int* need_resolv)
 {
     for (int i=0; i<cnt; ++i) {
@@ -736,6 +751,18 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     }
                 }
                 break;
+            case R_X86_64_TLSDESC:
+                if(!symname || !symname[0]) {
+                    printf_dump(LOG_NEVER, "Apply %s R_X86_64_TLSDESC @%p with addend=%zu\n", (bind==STB_LOCAL)?"Local":"Global", p, rela[i].r_addend);
+                    struct tlsdesc volatile *td = (struct tlsdesc volatile *)p;
+                    if(!tlsdescUndefweak)
+                        tlsdescUndefweak = AddBridge(my_context->system, pFE, _dl_tlsdesc_undefweak, 0, "_dl_tlsdesc_undefweak");
+                    td->entry = tlsdescUndefweak;
+                    td->arg = (uintptr_t)(head->tlsbase + rela[i].r_addend);
+                } else {
+                    printf_log(LOG_NONE, "Warning, R_X86_64_TLSDESC used with Symbol %s(%p) not supported for now \n", symname, sym);
+                }
+                break;
             default:
                 printf_log(LOG_INFO, "Warning, don't know of to handle rela #%d %s on %s\n", i, DumpRelType(ELF64_R_TYPE(rela[i].r_info)), symname);
         }
@@ -779,7 +806,7 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
                 return -1;
         }
         if(need_resolver) {
-            if(pltResolver==~0ul) {
+            if(pltResolver==~0LL) {
                 pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0, "PltResolver");
             }
             if(head->pltgot) {
@@ -1425,7 +1452,7 @@ void ElfAttachLib(elfheader_t* head, library_t* lib)
     head->lib = lib;
 }
 
-uintptr_t pltResolver = ~0;
+uintptr_t pltResolver = ~0LL;
 EXPORT void PltResolver(x64emu_t* emu)
 {
     uintptr_t addr = Pop64(emu);
