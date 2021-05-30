@@ -495,6 +495,9 @@ int RunF0(x64emu_t *emu, rex_t rex)
             }
             break;
 
+        case 0x66:
+            return Run66F0(emu, rex);   // more opcode F0 66 and 66 F0 is the same
+
         case 0x81:              /* GRP Ed,Id */
         case 0x83:              /* GRP Ed,Ib */
             nextop = F8;
