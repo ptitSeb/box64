@@ -21,6 +21,8 @@
 const char* freetypeName = "libfreetype.so.6";
 #define LIBNAME freetype
 
+typedef void  (*vFp_t)(void*);
+
 typedef union  FT_StreamDesc_s
 {
     long   value;
@@ -56,6 +58,56 @@ int32_t         num_params;
 void*   params;
 
 } FT_Open_Args_t;
+typedef struct  FT_BBox_s
+{
+    signed long     xMin, yMin;
+    signed long     xMax, yMax;
+} FT_BBox_t;
+typedef struct  FT_Generic_s
+{
+    void*           data;
+    vFp_t           finalizer;
+} FT_Generic_t;
+typedef struct  FT_ListRec_s
+{
+  void*             head;
+  void*             tail;
+} FT_ListRec_t;
+typedef struct  FT_FaceRec_s
+{
+    signed long     num_faces;
+    signed long     face_index;
+    signed long     face_flags;
+    signed long     style_flags;
+    signed long     num_glyphs;
+    char*           family_name;
+    char*           style_name;
+    int             num_fixed_sizes;
+    void*           available_sizes;
+    int             num_charmaps;
+    void*           charmaps;
+    FT_Generic_t    generic;
+    FT_BBox_t       bbox;
+    uint16_t        units_per_EM;
+    int16_t         ascender;
+    int16_t         descender;
+    int16_t         height;
+    int16_t         max_advance_width;
+    int16_t         max_advance_height;
+    int16_t         underline_position;
+    int16_t         underline_thickness;
+    void*           glyph;
+    void*           size;
+    void*           charmap;
+    /*@private begin */
+    void*           driver;
+    void*           memory;
+    FT_StreamDesc_t* stream;
+    FT_ListRec_t    sizes_list;
+    FT_Generic_t    autohint;   /* face-specific auto-hinter data */
+    void*           extensions; /* unused                         */
+    void*           internal;
+} FT_FaceRec_t;
 
 typedef int (*iFpplp_t)     (void*, void*, long, void*);
 typedef int (*iFpuuLppp_t)  (void*, uint32_t, uint32_t, uintptr_t, void*, void*, void*);
@@ -95,12 +147,40 @@ GO(2)   \
 GO(3)   \
 GO(4)
 
+// FT_Generic_Finalizer
+#define GO(A)   \
+static uintptr_t my_FT_Generic_Finalizer_fct_##A = 0;                       \
+static void my_FT_Generic_Finalizer_##A(void* object)                       \
+{                                                                           \
+    RunFunction(my_context, my_FT_Generic_Finalizer_fct_##A, 1, object);    \
+}
+SUPER()
+#undef GO
+static void* find_FT_Generic_Finalizer_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Generic_Finalizer_fct_##A == (uintptr_t)fct) return my_FT_Generic_Finalizer_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Generic_Finalizer_fct_##A == 0) {my_FT_Generic_Finalizer_fct_##A = (uintptr_t)fct; return my_FT_Generic_Finalizer_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Generic_Finalizer callback\n");
+    return NULL;
+}
 // FTC_Face_Requester
 #define GO(A)   \
 static uintptr_t my_FTC_Face_Requester_fct_##A = 0;                                                     \
 static int my_FTC_Face_Requester_##A(void* face_id, void* lib, void* req, void* aface)                  \
 {                                                                                                       \
-    return (int)RunFunction(my_context, my_FTC_Face_Requester_fct_##A, 4, face_id, lib, req, aface);    \
+    int ret = (int)RunFunction(my_context, my_FTC_Face_Requester_fct_##A, 4, face_id, lib, req, aface); \
+    if(aface && *(void**)aface) {                                                                       \
+        FT_FaceRec_t *f = *(FT_FaceRec_t**)aface;                                                       \
+        f->generic.finalizer = find_FT_Generic_Finalizer_Fct(f->generic.finalizer);                     \
+    }                                                                                                   \
+    return ret;                                                                                         \
 }
 SUPER()
 #undef GO
