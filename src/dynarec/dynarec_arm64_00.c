@@ -1561,12 +1561,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     jump_to_epilog(dyn, 0, xRIP, ninst);
                 }
             } else {
-                #if 0
+                #if 1
                 INST_NAME("INT 3");
                 // check if TRAP signal is handled
                 LDRx_U12(x1, xEmu, offsetof(x64emu_t, context));
                 MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
-                LDRx_REG_LSL3(x3, x1, x2);
+                LDRx_REG(x3, x1, x2);
                 CMPSx_U12(x3, 0);
                 B_NEXT(cNE);
                 MOV32w(x1, SIGTRAP);
