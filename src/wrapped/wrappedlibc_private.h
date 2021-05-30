@@ -2115,7 +2115,7 @@ GO(wcsftime, LFpLpp)
 GO(__wcsftime_l, LFpLppp)
 GOW(wcsftime_l, LFpLppp)
 GO(wcslen, LFp)
-//GOW(wcsncasecmp, 
+GOW(wcsncasecmp, iFppL)
 //GO(__wcsncasecmp_l, 
 //GOW(wcsncasecmp_l, 
 GO(wcsncat, pFppL)
