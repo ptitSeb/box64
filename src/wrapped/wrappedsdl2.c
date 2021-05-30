@@ -642,7 +642,7 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
-    printf_log(LOG_DEBUG, "Calling SDL_GL_GetProcAddress(%s)\n", rname);
+    if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling SDL_GL_GetProcAddress(%s) => ", rname);
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // check if glxprocaddress is filled, and search for lib and fill it if needed
     if(!emu->context->glxprocaddress)
@@ -661,12 +661,16 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
         symbol = dlsym(emu->context->box64lib, tmp);
     } else 
         symbol = my->SDL_GL_GetProcAddress(name);
-    if(!symbol)
+    if(!symbol) {
+        if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
         return NULL;    // easy
+    }
     // check if alread bridged
     uintptr_t ret = CheckBridged(emu->context->system, symbol);
-    if(ret)
+    if(ret) {
+        if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
         return (void*)ret; // already bridged
+    }
     // get wrapper    
     k = kh_get(symbolmap, emu->context->glwrappers, rname);
     if(k==kh_end(emu->context->glwrappers) && strstr(rname, "ARB")==NULL) {
@@ -684,12 +688,15 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
         k = kh_get(symbolmap, emu->context->glwrappers, tmp);
     }
     if(k==kh_end(emu->context->glwrappers)) {
+        if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
     const char* constname = kh_key(emu->context->glwrappers, k);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0, constname);
+    ret = AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0, constname);
+    if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
+    return (void*)ret;
 }
 
 #define nb_once	16
