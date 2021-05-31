@@ -1453,7 +1453,7 @@ GOM(qsort_r, vFEpLLpp)  //Weak
 //GO(quick_exit, 
 //GO(quick_exit, 
 //GO(quotactl, 
-//GO(raise, 
+GO(raise, iFi)
 GO(rand, iFv)
 GOW(random, lFv)
 //GOW(random_r, 

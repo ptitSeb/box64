@@ -170,14 +170,13 @@ void MapLibAddMapLib(lib_t* dest, lib_t* src)
         return;
     for(int i=0; i<src->libsz; ++i) {
         library_t* lib = src->libraries[i];
-        if(!lib) continue;
+        if(!lib || libraryInMapLib(dest, lib)) continue;
+        MapLibAddLib(dest, lib);
         if(lib->maplib && src!=lib->maplib) {   //TODO: find why is src!=lib->maplib needed
             MapLibAddMapLib(dest, lib->maplib);
             free(lib->maplib);
             lib->maplib = NULL;
         }
-        if(!libraryInMapLib(dest, lib))
-            MapLibAddLib(dest, lib);
     }
 }
 
@@ -314,13 +313,18 @@ int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, in
     int idx = neededlibs->size;
     // Add libs and symbol
     for(int i=0; i<npath; ++i) {
-        if(AddNeededLib_add(maplib, neededlibs, deplib, local, paths[i], box64, emu))
+        if(AddNeededLib_add(maplib, neededlibs, deplib, local, paths[i], box64, emu)) {
+            printf_log(LOG_INFO, "Error loading needed lib %s\n", paths[i]);
             return 1;
+        }
     }
+    int idx_end = neededlibs->size;
     // add dependant libs and init them
-    for (int i=idx; i<neededlibs->size; ++i)
-        if(AddNeededLib_init(maplib, neededlibs, deplib, local, neededlibs->libs[i], box64, emu))
+    for (int i=idx; i<idx_end; ++i)
+        if(AddNeededLib_init(maplib, neededlibs, deplib, local, neededlibs->libs[i], box64, emu)) {
+            printf_log(LOG_INFO, "Error initializing needed lib %s\n", neededlibs->libs[i]->name);
             if(!allow_missing_libs) return 1;
+        }
     return 0;
 }
 

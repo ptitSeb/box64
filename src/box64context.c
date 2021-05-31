@@ -313,6 +313,9 @@ void add_neededlib(needed_libs_t* needed, library_t* lib)
 {
     if(!needed)
         return;
+    for(int i=0; i<needed->size; ++i)
+        if(needed->libs[i] == lib)
+            return;
     if(needed->size == needed->cap) {
         needed->cap += 8;
         needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
@@ -335,6 +338,9 @@ void add_dependedlib(needed_libs_t* depended, library_t* lib)
 {
     if(!depended)
         return;
+    for(int i=0; i<depended->size; ++i)
+        if(depended->libs[i] == lib)
+            return;
     if(depended->size == depended->cap) {
         depended->cap += 8;
         depended->libs = (library_t**)realloc(depended->libs, depended->cap*sizeof(library_t*));
