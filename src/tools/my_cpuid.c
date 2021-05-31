@@ -37,7 +37,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             break;
         case 0x1:
             R_EAX = 0x00000601; // family and all
-            R_EBX = 0;          // Brand index, CLFlush, Max APIC ID, Local APIC ID
+            R_EBX = 0 | (8<<0x8);          // Brand index, CLFlush (8), Max APIC ID, Local APIC ID
             R_EDX =   1         // fpu 
                     | 1<<4      // rdtsc
                     | 1<<8      // cmpxchg8
