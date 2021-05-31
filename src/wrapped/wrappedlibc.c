@@ -2008,7 +2008,7 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
     (void)emu;
     dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
     #ifdef DYNAREC
-    if(box64_dynarec) {
+    if(box64_dynarec && length) {
         cleanDBFromAddressRange((uintptr_t)addr, length, 1);
     }
     #endif
