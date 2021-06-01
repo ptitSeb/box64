@@ -116,6 +116,7 @@ int RunF20F(x64emu_t *emu, rex_t rex)
                     GD->sdword[0] = EX->d[0];
                     break;
             }
+            GD->dword[1] = 0;
         }
         break;
         

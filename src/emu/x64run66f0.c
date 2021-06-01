@@ -97,28 +97,16 @@ int Run66F0(x64emu_t *emu, rex_t rex)
                     case 7:            cmp64(emu, ED->q[0], tmp64u); break;
                 }
             } else {
-                if((nextop&0xC0)==0xC0)
-                    switch((nextop>>3)&7) {
-                        case 0: ED->word[0] = add16(emu, ED->word[0], tmp64u); break;
-                        case 1: ED->word[0] =  or16(emu, ED->word[0], tmp64u); break;
-                        case 2: ED->word[0] = adc16(emu, ED->word[0], tmp64u); break;
-                        case 3: ED->word[0] = sbb16(emu, ED->word[0], tmp64u); break;
-                        case 4: ED->word[0] = and16(emu, ED->word[0], tmp64u); break;
-                        case 5: ED->word[0] = sub16(emu, ED->word[0], tmp64u); break;
-                        case 6: ED->word[0] = xor16(emu, ED->word[0], tmp64u); break;
-                        case 7:               cmp16(emu, ED->word[0], tmp64u); break;
-                    }
-                else
-                    switch((nextop>>3)&7) {
-                        case 0: ED->word[0] = add16(emu, ED->word[0], tmp64u); break;
-                        case 1: ED->word[0] =  or16(emu, ED->word[0], tmp64u); break;
-                        case 2: ED->word[0] = adc16(emu, ED->word[0], tmp64u); break;
-                        case 3: ED->word[0] = sbb16(emu, ED->word[0], tmp64u); break;
-                        case 4: ED->word[0] = and16(emu, ED->word[0], tmp64u); break;
-                        case 5: ED->word[0] = sub16(emu, ED->word[0], tmp64u); break;
-                        case 6: ED->word[0] = xor16(emu, ED->word[0], tmp64u); break;
-                        case 7:               cmp16(emu, ED->word[0], tmp64u); break;
-                    }
+                switch((nextop>>3)&7) {
+                    case 0: ED->word[0] = add16(emu, ED->word[0], tmp64u); break;
+                    case 1: ED->word[0] =  or16(emu, ED->word[0], tmp64u); break;
+                    case 2: ED->word[0] = adc16(emu, ED->word[0], tmp64u); break;
+                    case 3: ED->word[0] = sbb16(emu, ED->word[0], tmp64u); break;
+                    case 4: ED->word[0] = and16(emu, ED->word[0], tmp64u); break;
+                    case 5: ED->word[0] = sub16(emu, ED->word[0], tmp64u); break;
+                    case 6: ED->word[0] = xor16(emu, ED->word[0], tmp64u); break;
+                    case 7:               cmp16(emu, ED->word[0], tmp64u); break;
+                }
             }
             pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif

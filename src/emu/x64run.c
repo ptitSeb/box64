@@ -497,7 +497,7 @@ x64emurun:
             if(rex.w)
                 GD->q[0] = (uint64_t)ED;
             else
-                GD->q[0] = (uint32_t)(uintptr_t)ED;
+                GD->q[0] = ((uintptr_t)ED)&0xffffffff;
             break;
 
         case 0x8F:                      /* POP Ed */
@@ -579,7 +579,7 @@ x64emurun:
             if(rex.w)
                 R_RAX = *(uint64_t*)F64;
             else
-                R_EAX = *(uint32_t*)F64;
+                R_RAX = *(uint32_t*)F64;
             break;
         case 0xA2:                      /* MOV Ob,AL */
             *(uint8_t*)F64 = R_AL;

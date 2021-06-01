@@ -197,7 +197,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
                             } else {
                                 tmp64u |= (1LL<<tmp8u);
                                 CLEAR_FLAG(F_CF);
-                                tmp32s = arm64_lock_write_d(ED, tmp64u);
+                                tmp32s = arm64_lock_write_dd(ED, tmp64u);
                             }
                         } while(tmp32s);
                 } else {
@@ -281,17 +281,32 @@ int RunF0(x64emu_t *emu, rex_t rex)
                     GETGD;
 #ifdef DYNAREC
                     if(rex.w)
-                        do {
-                            tmp64u = arm64_lock_read_dd(ED);
-                            cmp64(emu, R_RAX, tmp64u);
-                            if(ACCESS_FLAG(F_ZF)) {
-                                tmp32s = arm64_lock_write_dd(ED, GD->q[0]);
-                            } else {
-                                R_RAX = tmp64u;
-                                tmp32s = 0;
-                            }
-                        } while(tmp32s);
-                    else
+                        if(((uintptr_t)ED)&7) {
+                            do {
+                                tmp64u = ED->q[0] & ~0xffLL;
+                                tmp64u |= arm64_lock_read_b(ED);
+                                cmp64(emu, R_RAX, tmp64u);
+                                if(ACCESS_FLAG(F_ZF)) {
+                                    tmp32s = arm64_lock_write_b(ED, GD->q[0]&0xff);
+                                    if(!tmp32s)
+                                        ED->q[0] = GD->q[0];
+                                } else {
+                                    R_RAX = tmp64u;
+                                    tmp32s = 0;
+                                }
+                            } while(tmp32s);
+                        } else
+                            do {
+                                tmp64u = arm64_lock_read_dd(ED);
+                                cmp64(emu, R_RAX, tmp64u);
+                                if(ACCESS_FLAG(F_ZF)) {
+                                    tmp32s = arm64_lock_write_dd(ED, GD->q[0]);
+                                } else {
+                                    R_RAX = tmp64u;
+                                    tmp32s = 0;
+                                }
+                            } while(tmp32s);
+                    else {
                         do {
                             tmp32u = arm64_lock_read_d(ED);
                             cmp32(emu, R_EAX, tmp32u);
@@ -302,6 +317,8 @@ int RunF0(x64emu_t *emu, rex_t rex)
                                 tmp32s = 0;
                             }
                         } while(tmp32s);
+                        emu->regs[_AX].dword[1] = 0;
+                    }
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     if(rex.w) {
@@ -318,6 +335,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
                         } else {
                             R_EAX = ED->dword[0];
                         }
+                        emu->regs[_AX].dword[1] = 0;
                     }
                     pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
@@ -482,8 +500,8 @@ int RunF0(x64emu_t *emu, rex_t rex)
                             ED->dword[1] = R_ECX;
                         } else {
                             CLEAR_FLAG(F_ZF);
-                            R_EAX = tmp32u;
-                            R_EDX = tmp32u2;
+                            R_RAX = tmp32u;
+                            R_RDX = tmp32u2;
                         }
                     }
                     pthread_mutex_unlock(&emu->context->mutex_lock);

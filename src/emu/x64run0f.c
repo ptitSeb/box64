@@ -742,8 +742,12 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 tmp8u = R_CL;
             if(rex.w)
                 ED->q[0] = shld64(emu, ED->q[0], GD->q[0], tmp8u);
-            else
-                ED->q[0] = shld32(emu, ED->dword[0], GD->dword[0], tmp8u);
+            else {
+                if(MODREG)
+                    ED->q[0] = shld32(emu, ED->dword[0], GD->dword[0], tmp8u);
+                else
+                    ED->dword[0] = shld32(emu, ED->dword[0], GD->dword[0], tmp8u);
+            }
             break;
 
         case 0xAB:                      /* BTS Ed,Gd */
@@ -784,8 +788,12 @@ int Run0F(x64emu_t *emu, rex_t rex)
             tmp8u = (opcode==0xAC)?(F8):R_CL;
             if(rex.w)
                 ED->q[0] = shrd64(emu, ED->q[0], GD->q[0], tmp8u);
-            else
-                ED->q[0] = shrd32(emu, ED->dword[0], GD->dword[0], tmp8u);
+            else {
+                if(MODREG)
+                    ED->q[0] = shrd32(emu, ED->dword[0], GD->dword[0], tmp8u);
+                else
+                    ED->dword[0] = shrd32(emu, ED->dword[0], GD->dword[0], tmp8u);
+            }
             break;
         case 0xAE:                      /* Grp Ed (SSE) */
             nextop = F8;
@@ -834,7 +842,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             if(rex.w)
                 GD->q[0] = imul64(emu, GD->q[0], ED->q[0]);
             else
-                GD->dword[0] = imul32(emu, GD->dword[0], ED->dword[0]);
+                GD->q[0] = imul32(emu, GD->dword[0], ED->dword[0]);
             break;
         case 0xB0:                      /* CMPXCHG Eb,Gb */
             nextop = F8;

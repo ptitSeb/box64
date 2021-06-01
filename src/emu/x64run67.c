@@ -52,13 +52,13 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
     #define GO(B, OP)                                   \
     case B+0:                                           \
         nextop = F8;                                    \
-        GETEB32(0);                                       \
+        GETEB32(0);                                     \
         GETGB;                                          \
         EB->byte[0] = OP##8(emu, EB->byte[0], GB);      \
         break;                                          \
     case B+1:                                           \
         nextop = F8;                                    \
-        GETED32(0);                                       \
+        GETED32(0);                                     \
         GETGD;                                          \
         if(rex.w)                                       \
             ED->q[0] = OP##64(emu, ED->q[0], GD->q[0]); \
@@ -71,13 +71,13 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
         break;                                          \
     case B+2:                                           \
         nextop = F8;                                    \
-        GETEB32(0);                                       \
+        GETEB32(0);                                     \
         GETGB;                                          \
         GB = OP##8(emu, GB, EB->byte[0]);               \
         break;                                          \
     case B+3:                                           \
         nextop = F8;                                    \
-        GETED32(0);                                       \
+        GETED32(0);                                     \
         GETGD;                                          \
         if(rex.w)                                       \
             GD->q[0] = OP##64(emu, GD->q[0], ED->q[0]); \
@@ -167,7 +167,7 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
         if(rex.w)
             GD->q[0] = (uint64_t)ED;
         else
-            GD->q[0] = (uint32_t)(uintptr_t)ED;
+            GD->q[0] = ((uintptr_t)ED)&0xffffffff;
         break;
 
     case 0xC1:                      /* GRP2 Ed,Ib */
