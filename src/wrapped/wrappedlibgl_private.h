@@ -3021,3 +3021,15 @@ GO(glXSwapIntervalSGI,iFi)
 
 //GLX_ARB_????
 GO(glSpecializeShaderARB, vFippp)
+
+//GL_EXT_debug_label
+GO(glGetObjectLabelEXT, vFiulpp)
+GO(glLabelObjectEXT, vFiulp)
+GO(glPushGroupMarkerEXT, vFlp)
+GO(glPopGroupMarkerEXT, vFv)
+
+//GL_KHR_blend_equation_advanced
+GO(glBlendBarrierKHR, vFv)
+
+//Some Apple extension
+GO(glResolveMultisampleFramebufferAPPLE, vFv)
