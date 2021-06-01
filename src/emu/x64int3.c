@@ -150,6 +150,9 @@ void x64Int3(x64emu_t* emu)
                 } else  if(!strcmp(s, "glXGetProcAddress") || !strcmp(s, "SDL_GL_GetProcAddress") || !strcmp(s, "glXGetProcAddressARB")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
+                } else  if(!strcmp(s, "glLabelObjectEXT")) {
+                    tmp = (char*)(R_RCX);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d, %d, \"%s\")", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_ECX, (tmp)?tmp:"(nil)");
                 } else  if(!strcmp(s, "glGetStringi")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI);
                     post = 2;

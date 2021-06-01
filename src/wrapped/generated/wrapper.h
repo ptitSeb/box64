@@ -607,6 +607,7 @@ void pFippL(x64emu_t *emu, uintptr_t fnc);
 void pFuiii(x64emu_t *emu, uintptr_t fnc);
 void pFulli(x64emu_t *emu, uintptr_t fnc);
 void pFdddd(x64emu_t *emu, uintptr_t fnc);
+void pFlfff(x64emu_t *emu, uintptr_t fnc);
 void pFpiii(x64emu_t *emu, uintptr_t fnc);
 void pFpiip(x64emu_t *emu, uintptr_t fnc);
 void pFpiuu(x64emu_t *emu, uintptr_t fnc);
