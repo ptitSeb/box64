@@ -147,7 +147,7 @@ void x64Int3(x64emu_t* emu)
                     pu64 = (uint64_t*)R_RDI;
                     post = 3;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI, (tmp)?tmp:"(nil)", (void*)(R_RCX));
-                } else  if(!strcmp(s, "glXGetProcAddress") || !strcmp(s, "SDL_GL_GetProcAddress")) {
+                } else  if(!strcmp(s, "glXGetProcAddress") || !strcmp(s, "SDL_GL_GetProcAddress") || !strcmp(s, "glXGetProcAddressARB")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
                 } else  if(!strcmp(s, "glGetStringi")) {
