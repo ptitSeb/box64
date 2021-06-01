@@ -263,6 +263,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedutil.c"
     "${BOX64_ROOT}/src/wrapped/wrappedvorbisfile.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxinerama.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedxml2.c"
 )
 
 #set(WRAPPEDS_HEAD "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9_gen.h")
