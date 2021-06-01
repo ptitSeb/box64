@@ -233,12 +233,16 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
         loadEmulatedLib(libname, lib, context);
 }
 
+extern char* libGL;
 library_t *NewLibrary(const char* path, box64context_t* context)
 {
     printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     library_t *lib = (library_t*)calloc(1, sizeof(library_t));
     lib->path = strdup(path);
-    lib->name = Path2Name(path);
+    if(libGL && !strcmp(path, libGL))
+        lib->name = strdup("libGL.so.1");
+    else
+        lib->name = Path2Name(path);
     lib->nbdot = NbDot(lib->name);
     lib->context = context;
     lib->type = -1;
