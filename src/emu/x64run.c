@@ -1224,6 +1224,10 @@ x64emurun:
                 goto fini;
             break;
 
+        case 0xF5:                      /* CMC */
+            CHECK_FLAGS(emu);
+            CONDITIONAL_SET_FLAG(!ACCESS_FLAG(F_CF), F_CF);
+            break;
         case 0xF6:                      /* GRP3 Eb(,Ib) */
             nextop = F8;
             tmp8u = (nextop>>3)&7;

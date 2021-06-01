@@ -2038,6 +2038,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             addr = dynarec64_F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
 
+        case 0xF5:
+            INST_NAME("CMC");
+            READFLAGS(X_CF);
+            SETFLAGS(X_CF, SF_SET);
+            EORw_mask(xFlags, xFlags, 0, 0); //mask=0x00000001
+            break;
         case 0xF6:
             nextop = F8;
             switch((nextop>>3)&7) {
