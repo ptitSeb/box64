@@ -1478,6 +1478,8 @@ EXPORT void PltResolver(x64emu_t* emu)
     if(!offs && !end && local_maplib) {
         GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, h, version, vername);
     }
+    if(!offs && !end && !version)
+        GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end, h, -1, NULL);
 
     if (!offs) {
         printf_log(LOG_NONE, "Error: PltReolver: Symbol %s(ver %d: %s%s%s) not found, cannot apply R_X86_64_JUMP_SLOT %p (%p) in %s\n", symname, version, symname, vername?"@":"", vername?vername:"", p, *(void**)p, h->name);
