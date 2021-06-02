@@ -1,11 +1,37 @@
 #!/usr/bin/env python
 
+try:
+	# Python 3.5.2+
+	from typing import Union, List, Sequence, Dict, Tuple, NewType, final
+except ImportError:
+	print("Your Python version does not have the typing module, fallback to empty 'types'")
+	# Stubs
+	class GTStub:
+		def __getitem__(self, t):
+			return None
+	Union = GTStub() # type: ignore
+	List = GTStub() # type: ignore
+	Sequence = GTStub() # type: ignore
+	Dict = GTStub() # type: ignore
+	Tuple = GTStub() # type: ignore
+	def NewType(T, *largs): return largs[0] if len(largs) > 0 else None # type: ignore
+	final = lambda x: x # type: ignore
+
+#FunctionType = NewType('FunctionType', str)
+FunctionType = str
+RedirectType = NewType('RedirectType', FunctionType)
+#DefineType = NewType('DefineType', str)
+DefineType = str
+
+Filename = str
+ClausesStr = str
+
 import os
 import sys
 
-values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P']
+values: List[str] = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P']
 assert(all(c not in values[:i] for i, c in enumerate(values)))
-def splitchar(s):
+def splitchar(s: str) -> List[int]:
 	"""
 	splitchar -- Sorting key function for function signatures
 	
@@ -21,62 +47,142 @@ def splitchar(s):
 	except ValueError as e:
 		raise ValueError("Value is " + s) from e
 
-def value(define):
-	"""
-	value -- Get the tested name of a defined( . )/!defined( . )
-	"""
-	return define[9:-1] if define.startswith("!") else define[8:-1]
+@final
+class Define:
+	name: DefineType
+	inverted_: bool
+	
+	defines: List[DefineType] = []
+	
+	def __init__(self, name: DefineType, inverted_: bool):
+		# All values of "name" are included in defines (throw otherwise)
+		if name not in self.defines:
+			raise KeyError(name)
+		self.name = name
+		self.inverted_ = inverted_
+	def copy(self) -> "Define":
+		return Define(self.name, self.inverted_)
+	
+	def value(self) -> int:
+		return self.defines.index(self.name)*2 + (1 if self.inverted_ else 0)
+	
+	def invert(self) -> None:
+		"""
+		invert -- Transform a `defined()` into a `!defined()` and vice-versa, in place.
+		"""
+		self.inverted_ = not self.inverted_
+	def inverted(self) -> "Define":
+		"""
+		invert -- Transform a `defined()` into a `!defined()` and vice-versa, out-of-place.
+		"""
+		return Define(self.name, not self.inverted_)
+	
+	def __str__(self) -> str:
+		if self.inverted_:
+			return "!defined(" + self.name + ")"
+		else:
+			return "defined(" + self.name + ")"
 
-def splitdef(dnf, defines):
-	"""
-	splitdef -- Sorting key function for #ifdefs
+@final
+class Defines:
+	defines: List[Define]
 	
-	All #if defined(...) are sorted first by the number of clauses, then by the
-	number of '||' in each clause and then by the length of the tested names
-	(left to right, inverted placed after non-inverted).
-	"""
-	cunjs = dnf.split(" || ")
-	clauses = [c.split(" && ") for c in cunjs]
+	def __init__(self, defines: Union[List[Define], str] = []):
+		if isinstance(defines, str):
+			if defines == "":
+				self.defines = []
+			else:
+				self.defines = list(
+					map(
+						lambda x:
+							Define(x[9:-1] if x[0] == '!' else x[8:-1], x[0] == '!')
+						, defines.split(" && ")
+					)
+				)
+		else:
+			self.defines = [d.copy() for d in defines]
+	def copy(self) -> "Defines":
+		return Defines(self.defines)
 	
-	ret = [len(cunjs)]
+	def append(self, define: Define) -> None:
+		self.defines.append(define)
+	def invert_last(self) -> None:
+		self.defines[-1].invert()
+	def pop_last(self) -> None:
+		if len(self.defines) > 0: self.defines.pop()
 	
-	for cunj in clauses:
-		ret.append(len(cunj))
-	for cunj in clauses:
-		for c in cunj:
-			# All values of "c" are included in defines (throw otherwise)
-			ret.append(defines.index(value(c)) * 2 + (1 if c.startswith("!") else 0))
-	ret.append(0)
-	return ret
+	def __str__(self) -> str:
+		return " && ".join(map(str, self.defines))
 
-def invert(define):
+@final
+class Clauses:
 	"""
-	invert -- Transform a `defined()` into a `!defined()` and vice-versa.
+	Represent a list of clauses, aka a list of or-ed together and-ed "defined"
+	conditions
 	"""
-	return define[1:] if define.startswith("!") else ("!" + define)
+	definess: List[Defines]
+	
+	def __init__(self, definess: Union[List[Defines], str] = []):
+		if isinstance(definess, str):
+			if definess == "()":
+				self.definess = []
+			elif ") || (" in definess:
+				self.definess = list(map(Defines, definess[1:-1].split(") || (")))
+			else:
+				self.definess = [Defines(definess)]
+		else:
+			self.definess = definess[:]
+	def copy(self) -> "Clauses":
+		return Clauses(self.definess[:])
+	
+	def add(self, defines: Defines) -> None:
+		self.definess.append(defines)
+	
+	def splitdef(self) -> List[int]:
+		"""
+		splitdef -- Sorting key function for #ifdefs
+		
+		All #if defined(...) are sorted first by the number of clauses, then by the
+		number of '&&' in each clause and then by the "key" of the tested names
+		(left to right, inverted placed after non-inverted).
+		"""
+		
+		ret = [len(self.definess)]
+		for cunj in self.definess:
+			ret.append(len(cunj.defines))
+		for cunj in self.definess:
+			for d in cunj.defines:
+				ret.append(d.value())
+		ret.append(0)
+		return ret
+	
+	def __str__(self) -> ClausesStr:
+		if len(self.definess) == 1:
+			return str(self.definess[0])
+		else:
+			return "(" + ") || (".join(map(str, self.definess)) + ")"
 
-def main(root, defines, files, ver):
+def readFiles(files: Sequence[Filename]) -> \
+		Tuple[Dict[str, List[FunctionType]],
+		      Dict[str,      Dict[RedirectType, FunctionType]],
+		      Dict[Filename, Dict[RedirectType, List[str]]]]:
 	"""
-	main -- The main function
+	readFiles
 	
-	root: the root path (where the CMakeLists.txt is located)
-	defines: which `defined( . )` are allowed
-	files: a list of files to parse (wrapped*.h)
-	ver: version number
+	This function is the one that parses the files.
+	It returns the jumbled (gbl, redirects, mytypedefs) tuple.
 	"""
-	
-	global values
 	
 	# Initialize variables: gbl for all values, redirects for redirections
 	# mytypedefs is a list of all "*FE*" types per filename
-	gbl        = {}
-	redirects  = {}
-	mytypedefs = {}
+	gbl       : Dict[ClausesStr, List[FunctionType]]               = {}
+	redirects : Dict[ClausesStr, Dict[RedirectType, FunctionType]] = {}
+	mytypedefs: Dict[Filename,   Dict[RedirectType, List[str]]]    = {}
 	
 	# First read the files inside the headers
 	for filepath in files:
-		filename = filepath.split("/")[-1]
-		dependants = []
+		filename: str = filepath.split("/")[-1]
+		dependants: Defines = Defines()
 		with open(filepath, 'r') as file:
 			for line in file:
 				ln = line.strip()
@@ -91,18 +197,13 @@ def main(root, defines, files, ver):
 						elif preproc_cmd.startswith("error"):
 							continue #error meh!
 						elif preproc_cmd.startswith("endif"):
-							if dependants != []: # If the previous 2 lines were ignored, skip
-								dependants.pop()
+							dependants.pop_last()
 						elif preproc_cmd.startswith("ifdef"):
-							if preproc_cmd[5:].strip() not in defines:
-								raise KeyError(preproc_cmd[5:].strip())
-							dependants.append("defined(" + preproc_cmd[5:].strip() + ")")
+							dependants.append(Define(preproc_cmd[5:].strip(), False))
 						elif preproc_cmd.startswith("ifndef"):
-							if preproc_cmd[6:].strip() not in defines:
-								raise KeyError(preproc_cmd[6:].strip())
-							dependants.append("!defined(" + preproc_cmd[6:].strip() + ")")
+							dependants.append(Define(preproc_cmd[6:].strip(), True))
 						elif preproc_cmd.startswith("else"):
-							dependants[-1] = invert(dependants[-1])
+							dependants.invert_last()
 						else:
 							raise NotImplementedError("Unknown preprocessor directive: {0} ({1}:{2})".format(
 								preproc_cmd.split(" ")[0], filename, line[:-1]
@@ -110,7 +211,7 @@ def main(root, defines, files, ver):
 					except KeyError as k:
 						raise NotImplementedError("Unknown key: {0} ({1}:{2})".format(
 							k.args[0], filename, line[:-1]
-						), k)
+						)) from k
 				# If the line is a `GO...' line (GO/GOM/GO2/...)...
 				elif ln.startswith("GO"):
 					# ... then look at the second parameter of the line
@@ -135,7 +236,7 @@ def main(root, defines, files, ver):
 						raise NotImplementedError("Bad middle letter {0} ({1}:{2})".format(ln[1], filename, line[:-1]))
 					
 					if any(c not in values for c in ln[2:]) or (('v' in ln[2:]) and (len(ln) > 3)):
-						old = ln
+						old = RedirectType(ln)
 						# This needs more work
 						acceptables = ['v', '0', '1'] + values
 						if any(c not in acceptables for c in ln[2:]):
@@ -146,140 +247,199 @@ def main(root, defines, files, ver):
 							.replace("0", "p")  # 0      -> pointer
 							.replace("1", "i")) # 1      -> integer
 						assert(len(ln) >= 3)
-						redirects.setdefault(" && ".join(dependants), {})
-						redirects[" && ".join(dependants)][old] = ln
+						redirects.setdefault(str(dependants), {})
+						redirects[str(dependants)][old] = ln
 					# Simply append the function type if it's not yet existing
-					gbl.setdefault(" && ".join(dependants), [])
-					if ln not in gbl[" && ".join(dependants)]:
-						gbl[" && ".join(dependants)].append(ln)
+					gbl.setdefault(str(dependants), [])
+					if ln not in gbl[str(dependants)]:
+						gbl[str(dependants)].append(ln)
 					
 					if ln[2] == "E":
 						# filename isn't stored with the '_private.h' part
 						if len(ln) > 3:
-							ln = ln[:2] + ln[3:]
+							funtype = RedirectType(ln[:2] + ln[3:])
 						else:
-							ln = ln[:2] + "v"
+							funtype = RedirectType(ln[:2] + "v")
 						mytypedefs.setdefault(filename[:-10], {})
-						mytypedefs[filename[:-10]].setdefault(ln, [])
-						mytypedefs[filename[:-10]][ln].append(funname)
+						mytypedefs[filename[:-10]].setdefault(funtype, [])
+						mytypedefs[filename[:-10]][funtype].append(funname)
 	
 	if ("" not in gbl) or ("" not in redirects):
 		print("\033[1;31mThere is suspiciously not many types...\033[m")
 		print("Check the CMakeLists.txt file. If you are SURE there is nothing wrong"
-		      " (as a random example, `set()` resets the variable...), then comment out the following return.")
+		      " (as a random example, `set()` resets the variable...), then comment out the following exit.")
 		print("(Also, the program WILL crash later if you proceed.)")
-		return 2 # Check what you did, not proceeding
+		sys.exit(2) # Check what you did, not proceeding
 	
+	return gbl, redirects, mytypedefs
+
+def sortArrays(
+	gbl_tmp   : Dict[str,      List[FunctionType]],
+	red_tmp   : Dict[str,      Dict[RedirectType, FunctionType]],
+	mytypedefs: Dict[Filename, Dict[RedirectType, List[str]]]) -> \
+		Tuple[
+			Tuple[Dict[ClausesStr, List[FunctionType]],
+				List[ClausesStr]],
+			Tuple[Dict[ClausesStr, List[Tuple[RedirectType, FunctionType]]],
+				List[ClausesStr]],
+			Tuple[Dict[Filename, Dict[RedirectType, List[str]]],
+				Dict[Filename, List[RedirectType]]]
+		]:
 	# Now, take all function types, and make a new table gbl_vals
 	# This table contains all #if conditions for when a function type needs to
 	# be generated. There is also a filter to avoid duplicate/opposite clauses.
-	gbl_vals = {}
-	for k in gbl:
-		ks = k.split(" && ")
-		for v in gbl[k]:
-			if k == "":
-				gbl_vals[v] = []
-				continue
-			if v in gbl_vals:
-				if gbl_vals[v] == []:
+	gbl_vals: Dict[FunctionType, Clauses] = {}
+	for k1 in gbl_tmp:
+		ks = Defines(k1)
+		for v in gbl_tmp[k1]:
+			if k1 == "":
+				# Unconditionally define v
+				gbl_vals[v] = Clauses()
+				
+			elif v in gbl_vals:
+				if gbl_vals[v].definess == []:
+					# v already unconditionally defined
 					continue
-				for other_key in gbl_vals[v]:
-					other_key_vals = other_key.split(" && ")
-					for other_key_val in other_key_vals:
-						if other_key_val not in ks:
+				
+				for other_key in gbl_vals[v].definess:
+					for other_key_val in other_key.defines:
+						if other_key_val not in ks.defines:
 							# Not a duplicate or more specific case
 							# (could be a less specific one though)
 							break
 					else:
 						break
 				else:
-					gbl_vals[v].append(k)
+					gbl_vals[v].add(ks)
+				
 			else:
-				gbl_vals[v] = [k]
+				gbl_vals[v] = Clauses([Defines(k1)])
+	
 	for v in gbl_vals:
-		for k in gbl_vals[v]:
-			vs = k.split(" && ")
-			for i in range(len(vs)):
-				if " && ".join(vs[:i] + [invert(vs[i])] + vs[i+1:]) in gbl_vals[v]:
+		strdefines = list(map(str, gbl_vals[v].definess))
+		for k2 in gbl_vals[v].definess:
+			for i in range(len(k2.defines)):
+				if " && ".join(map(str, k2.defines[:i] + [k2.defines[i].inverted()] + k2.defines[i+1:])) in strdefines:
 					# Opposite clauses detected
-					gbl_vals[v] = []
+					gbl_vals[v] = Clauses()
 					break
+			else:
+				continue
+			break
+	
 	# Now create a new gbl and gbl_idxs
 	# gbl will contain the final version of gbl (without duplicates, based on
 	# gbl_vals)
 	# gbl_idxs will contain all #if clauses
-	gbl = {}
-	gbl_idxs = []
-	for k in gbl_vals:
-		if len(gbl_vals[k]) == 1:
-			key = gbl_vals[k][0]
-		else:
-			key = "(" + (") || (".join(gbl_vals[k])) + ")"
-		gbl[key] = gbl.get(key, []) + [k]
-		if (key not in gbl_idxs) and (key != "()"):
+	gbl: Dict[ClausesStr, List[FunctionType]] = {}
+	gbl_idxs: List[ClausesStr] = []
+	for k1 in gbl_vals:
+		clauses = gbl_vals[k1]
+		key = str(clauses)
+		gbl.setdefault(key, [])
+		gbl[key].append(k1)
+		if (key not in gbl_idxs) and (clauses.definess != []):
 			gbl_idxs.append(key)
 	# Sort the #if clauses as defined in `splitdef`
-	gbl_idxs.sort(key=lambda v: splitdef(v, defines))
+	gbl_idxs.sort(key=lambda c: Clauses(c).splitdef())
 	
 	# This map will contain all additional function types that are "redirected"
 	# to an already defined type (with some remapping).
-	redirects_vals = {}
-	for k in redirects:
-		ks = k.split(" && ")
-		for v in redirects[k]:
-			if k == "":
-				redirects_vals[(v, redirects[k][v])] = []
-				continue
-			if (v, redirects[k][v]) in redirects_vals:
-				if redirects_vals[(v, redirects[k][v])] == []:
+	redirects_vals: Dict[Tuple[RedirectType, FunctionType], Clauses] = {}
+	for k1 in red_tmp:
+		ks = Defines(k1)
+		for v in red_tmp[k1]:
+			if k1 == "":
+				# Unconditionally define v
+				redirects_vals[(v, red_tmp[k1][v])] = Clauses()
+			
+			elif (v, red_tmp[k1][v]) in redirects_vals:
+				if redirects_vals[(v, red_tmp[k1][v])].definess == []:
+					# v already unconditionally defined
 					continue
-				for other_key in redirects_vals[(v, redirects[k][v])]:
-					if other_key == "()":
-						break
-					other_key_vals = other_key.split(" && ")
-					for other_key_val in other_key_vals:
-						if other_key_val not in ks:
+				
+				for other_key in redirects_vals[(v, red_tmp[k1][v])].definess:
+					for other_key_val in other_key.defines:
+						if other_key_val not in ks.defines:
+							# Not a duplicate or more specific case
+							# (could be a less specific one though)
 							break
 					else:
 						break
 				else:
-					redirects_vals[(v, redirects[k][v])].append(k)
+					redirects_vals[(v, red_tmp[k1][v])].add(ks)
+			
 			else:
-				redirects_vals[(v, redirects[k][v])] = [k]
+				redirects_vals[(v, red_tmp[k1][v])] = Clauses([Defines(k1)])
 	# Also does the same trick as before (also helps keep the order
 	# in the file deterministic)
-	redirects = {}
-	redirects_idxs = []
-	for k, v in redirects_vals:
-		key = "(" + (") || (".join(redirects_vals[(k, v)])) + ")"
-		if key in redirects:
-			redirects[key].append([k, v])
-		else:
-			redirects[key] = [[k, v]]
-		if (key not in redirects_idxs) and (key != "()"):
+	redirects: Dict[ClausesStr, List[Tuple[RedirectType, FunctionType]]] = {}
+	redirects_idxs: List[ClausesStr] = []
+	for k1, v in redirects_vals:
+		clauses = redirects_vals[(k1, v)]
+		key = str(clauses)
+		redirects.setdefault(key, [])
+		redirects[key].append((k1, v))
+		if (key not in redirects_idxs) and (clauses.definess != []):
 			redirects_idxs.append(key)
-	redirects_idxs.sort(key=lambda v: splitdef(v, defines))
+	redirects_idxs.sort(key=lambda c: Clauses(c).splitdef())
 	
 	# Sort the function types as defined in `splitchar`
-	for k in gbl:
-		gbl[k].sort(key=lambda v: splitchar(v))
+	for k3 in gbl:
+		gbl[k3].sort(key=lambda v: splitchar(v))
+	
+	global values
 	values = values + ['0', '1']
-	for k in redirects:
-		redirects[k].sort(key=lambda v: splitchar(v[0]) + [-1] + splitchar(v[1]))
+	for k3 in redirects:
+		redirects[k3].sort(key=lambda v: splitchar(v[0]) + splitchar(v[1]))
 	values = values[:-2]
-	mytypedefs_vals = dict((fn, sorted(mytypedefs[fn].keys(), key=lambda v: splitchar(v))) for fn in mytypedefs)
+	
+	mytypedefs_vals: Dict[Filename, List[RedirectType]] = dict((fn, sorted(mytypedefs[fn].keys(), key=lambda v: splitchar(v))) for fn in mytypedefs)
 	for fn in mytypedefs:
 		for v in mytypedefs_vals[fn]:
 			mytypedefs[fn][v].sort()
 	
+	return (gbl, gbl_idxs), (redirects, redirects_idxs), (mytypedefs, mytypedefs_vals)
+	
+def main(root: str, files: Sequence[Filename], ver: str):
+	"""
+	main -- The main function
+	
+	root: the root path (where the CMakeLists.txt is located)
+	files: a list of files to parse (wrapped*.h)
+	ver: version number
+	"""
+	
+	# gbl_tmp:
+	#  "defined() && ..." -> [vFv, ...]
+	# red_tmp:
+	#  "defined() && ..." -> [vFEv -> vFv, ...]
+	# tdf_tmp:
+	#  "filename" -> [vFEv -> fopen, ...]
+	gbl_tmp: Dict[str,      List[FunctionType]]
+	red_tmp: Dict[str,      Dict[RedirectType, FunctionType]]
+	tdf_tmp: Dict[Filename, Dict[RedirectType, List[str]]]
+	
+	gbl_tmp, red_tmp, tdf_tmp = readFiles(files)
+	
+	gbl            : Dict[ClausesStr, List[FunctionType]]
+	redirects      : Dict[ClausesStr, List[Tuple[RedirectType, FunctionType]]]
+	mytypedefs     : Dict[Filename, Dict[RedirectType, List[str]]]
+	gbl_idxs       : List[ClausesStr]
+	redirects_idxs : List[ClausesStr]
+	mytypedefs_vals: Dict[Filename, List[RedirectType]]
+	
+	(gbl, gbl_idxs), (redirects, redirects_idxs), (mytypedefs, mytypedefs_vals) = \
+		sortArrays(gbl_tmp, red_tmp, tdf_tmp)
+	
 	# Check if there was any new functions compared to last run
-	functions_list = ""
-	for k in ["()"] + gbl_idxs:
+	functions_list: str = ""
+	for k in [str(Clauses())] + gbl_idxs:
 		for v in gbl[k]:
 			functions_list = functions_list + "#" + k + " " + v + "\n"
-	for k in ["()"] + redirects_idxs:
-		for v in redirects[k]:
-			functions_list = functions_list + "#" + k + " " + v[0] + " -> " + v[1] + "\n"
+	for k in [str(Clauses())] + redirects_idxs:
+		for vr, vf in redirects[k]:
+			functions_list = functions_list + "#" + k + " " + vr + " -> " + vf + "\n"
 	
 	# functions_list is a unique string, compare it with the last run
 	try:
@@ -297,15 +457,15 @@ def main(root, defines, files, ver):
 		pass
 	
 	# Detect simple wrappings
-	simple_wraps = {}
+	simple_wraps: Dict[ClausesStr, List[FunctionType]] = {}
 	
 	# H could be allowed maybe?
-	allowed_simply = "v"
-	allowed_regs = "cCwWiuIUlLp"
-	allowed_fpr = "fd"
+	allowed_simply: str = "v"
+	allowed_regs  : str = "cCwWiuIUlLp"
+	allowed_fpr   : str = "fd"
 	
 	# Sanity checks
-	forbidden_simple = "EeDKVOSNMHP"
+	forbidden_simple: str = "EeDKVOSNMHP"
 	assert(len(allowed_simply) + len(allowed_regs) + len(allowed_fpr) + len(forbidden_simple) == len(values))
 	assert(all(c not in allowed_regs for c in allowed_simply))
 	assert(all(c not in allowed_simply + allowed_regs for c in allowed_fpr))
@@ -313,10 +473,10 @@ def main(root, defines, files, ver):
 	assert(all(c in allowed_simply + allowed_regs + allowed_fpr + forbidden_simple for c in values))
 	
 	# Only search on real wrappers
-	for k in ["()"] + gbl_idxs:
+	for k in [str(Clauses())] + gbl_idxs:
 		for v in gbl[k]:
-			regs_count = 0
-			fpr_count  = 0
+			regs_count: int = 0
+			fpr_count : int = 0
 			
 			if v[0] in forbidden_simple:
 				continue
@@ -335,7 +495,7 @@ def main(root, defines, files, ver):
 					# All checks passed!
 					simple_wraps.setdefault(k, []).append(v)
 	simple_idxs = list(simple_wraps.keys())
-	simple_idxs.sort(key=lambda v: [-1] if v == "()" else splitdef(v, defines))
+	simple_idxs.sort(key=lambda x: Clauses(x).splitdef())
 	
 	# Now the files rebuilding part
 	# File headers and guards
@@ -400,7 +560,6 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 // W = unsigned short w = short
 // O = libc O_ flags bitfield
 // S = _IO_2_1_stdXXX_ pointer (or FILE*)
-// Q = ...
 // N = ... automatically sending 1 arg
 // M = ... automatically sending 2 args
 // H = Huge 128bits value/struct
@@ -433,7 +592,7 @@ int isSimpleWrapper(wrapper_t fun);
 	}
 	
 	# Rewrite the wrapper.c file:
-	def generate_typedefs(arr, file):
+	def generate_typedefs(arr: Sequence[FunctionType], file) -> None:
 		# i and u should only be 32 bits
 		#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P
 		types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*"]
@@ -448,7 +607,7 @@ int isSimpleWrapper(wrapper_t fun);
 		file.write(files_header["wrapper.c"].format(lbr="{", rbr="}", version=ver))
 		
 		# First part: typedefs
-		generate_typedefs(gbl["()"], file)
+		generate_typedefs(gbl[str(Clauses())], file)
 		for k in gbl_idxs:
 			file.write("\n#if " + k + "\n")
 			generate_typedefs(gbl[k], file)
@@ -459,6 +618,35 @@ int isSimpleWrapper(wrapper_t fun);
 		# Next part: function definitions
 		
 		# Helper variables
+		# Return type template
+		vals = [
+			"\n#error Invalid return type: emulator\n",                # E
+			"\n#error Invalid return type: &emulator\n",               # e
+			"fn({0});",                                                # v
+			"R_RAX=fn({0});",                                          # c
+			"R_RAX=fn({0});",                                          # w
+			"R_RAX=(int64_t)fn({0});",                                 # i  should be int32_t
+			"R_RAX=(int64_t)fn({0});",                                 # I
+			"R_RAX=(unsigned char)fn({0});",                           # C
+			"R_RAX=(unsigned short)fn({0});",                          # W
+			"R_RAX=(uint64_t)fn({0});",                                # u  should be uint32_t
+			"R_RAX=fn({0});",                                          # U
+			"emu->xmm[0].f[0]=fn({0});",                               # f
+			"emu->xmm[0].d[0]=fn({0});",                               # d
+			"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",  # D
+			"double db=fn({0}); fpu_do_push(emu); ST0val = db;",       # K
+			"R_RAX=(intptr_t)fn({0});",                                # l
+			"R_RAX=(uintptr_t)fn({0});",                               # L
+			"R_RAX=(uintptr_t)fn({0});",                               # p
+			"\n#error Invalid return type: va_list\n",                 # V
+			"\n#error Invalid return type: at_flags\n",                # O
+			"\n#error Invalid return type: _io_file*\n",               # S
+			"\n#error Invalid return type: ... with 1 arg\n",          # N
+			"\n#error Invalid return type: ... with 2 args\n",         # M
+			"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
+			"\n#error Invalid return type: pointer in the stack\n",    # P
+		]
+		
 		# Name of the registers
 		reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
 		# vreg: value is in a general register
@@ -473,33 +661,6 @@ int isSimpleWrapper(wrapper_t fun);
 		# vstack: value is on the stack (or out of register)
 		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P
 		vstack = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1]
-		arg_s = [
-			"",                                         # E
-			"",                                         # e
-			"",                                         # v
-			"*(int8_t*)(R_RSP + {p}), ",                # c
-			"*(int16_t*)(R_RSP + {p}), ",               # w
-			"*(int64_t*)(R_RSP + {p}), ",               # i  should be int32_t
-			"*(int64_t*)(R_RSP + {p}), ",               # I
-			"*(uint8_t*)(R_RSP + {p}), ",               # C
-			"*(uint16_t*)(R_RSP + {p}), ",              # W
-			"*(uint64_t*)(R_RSP + {p}), ",              # u  should be uint32_t
-			"*(uint64_t*)(R_RSP + {p}), ",              # U
-			"*(float*)(R_RSP + {p}), ",                 # f
-			"*(double*)(R_RSP + {p}), ",                # d
-			"LD2localLD((void*)(R_RSP + {p})), ",       # D
-			"FromLD((void*)(R_RSP + {p})), ",           # K
-			"*(intptr_t*)(R_RSP + {p}), ",              # l
-			"*(uintptr_t*)(R_RSP + {p}), ",             # L
-			"*(void**)(R_RSP + {p}), ",                 # p
-			"",                                         # V
-			"of_convert(*(int32_t*)(R_RSP + {p})), ",   # O
-			"io_convert(*(void**)(R_RSP + {p})), ",     # S
-			"*(void**)(R_RSP + {p}), ",                 # N
-			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 8), ", # M
-			"*(unsigned __int128)(R_RSP + {p}), ",      # H
-			"*(void**)(R_RSP + {p}), ",                 # P
-		]
 		arg_r = [
 			"",                            # E
 			"",                            # e
@@ -581,41 +742,41 @@ int isSimpleWrapper(wrapper_t fun);
 			"",                        # H
 			"",                        # P
 		]
-
-		vals = [
-			"\n#error Invalid return type: emulator\n",                # E
-			"\n#error Invalid return type: &emulator\n",               # e
-			"fn({0});",                                                # v
-			"R_RAX=fn({0});",                                          # c
-			"R_RAX=fn({0});",                                          # w
-			"R_RAX=(int64_t)fn({0});",                                 # i  should be int32_t
-			"R_RAX=(int64_t)fn({0});",                                 # I
-			"R_RAX=(unsigned char)fn({0});",                           # C
-			"R_RAX=(unsigned short)fn({0});",                          # W
-			"R_RAX=(uint64_t)fn({0});",                                # u  should be uint32_t
-			"R_RAX=fn({0});",                                          # U
-			"emu->xmm[0].f[0]=fn({0});",                               # f
-			"emu->xmm[0].d[0]=fn({0});",                               # d
-			"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",  # D
-			"double db=fn({0}); fpu_do_push(emu); ST0val = db;",       # K
-			"R_RAX=(intptr_t)fn({0});",                                # l
-			"R_RAX=(uintptr_t)fn({0});",                               # L
-			"R_RAX=(uintptr_t)fn({0});",                               # p
-			"\n#error Invalid return type: va_list\n",                 # V
-			"\n#error Invalid return type: at_flags\n",                # O
-			"\n#error Invalid return type: _io_file*\n",               # S
-			"\n#error Invalid return type: ... with 1 arg\n",          # N
-			"\n#error Invalid return type: ... with 2 args\n",         # M
-			"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
-			"\n#error Invalid return type: pointer in the stack\n",    # P
+		arg_s = [
+			"",                                         # E
+			"",                                         # e
+			"",                                         # v
+			"*(int8_t*)(R_RSP + {p}), ",                # c
+			"*(int16_t*)(R_RSP + {p}), ",               # w
+			"*(int64_t*)(R_RSP + {p}), ",               # i  should be int32_t
+			"*(int64_t*)(R_RSP + {p}), ",               # I
+			"*(uint8_t*)(R_RSP + {p}), ",               # C
+			"*(uint16_t*)(R_RSP + {p}), ",              # W
+			"*(uint64_t*)(R_RSP + {p}), ",              # u  should be uint32_t
+			"*(uint64_t*)(R_RSP + {p}), ",              # U
+			"*(float*)(R_RSP + {p}), ",                 # f
+			"*(double*)(R_RSP + {p}), ",                # d
+			"LD2localLD((void*)(R_RSP + {p})), ",       # D
+			"FromLD((void*)(R_RSP + {p})), ",           # K
+			"*(intptr_t*)(R_RSP + {p}), ",              # l
+			"*(uintptr_t*)(R_RSP + {p}), ",             # L
+			"*(void**)(R_RSP + {p}), ",                 # p
+			"",                                         # V
+			"of_convert(*(int32_t*)(R_RSP + {p})), ",   # O
+			"io_convert(*(void**)(R_RSP + {p})), ",     # S
+			"*(void**)(R_RSP + {p}), ",                 # N
+			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 8), ", # M
+			"*(unsigned __int128)(R_RSP + {p}), ",      # H
+			"*(void**)(R_RSP + {p}), ",                 # P
 		]
+
 		# Asserts
 		if len(values) != len(vstack):
 			raise NotImplementedError("len(values) = {lenval} != len(vstack) = {lenvstack}".format(lenval=len(values), lenvstack=len(vstack)))
 		if len(values) != len(vreg):
 			raise NotImplementedError("len(values) = {lenval} != len(vreg) = {lenvreg}".format(lenval=len(values), lenvreg=len(vreg)))
 		if len(values) != len(vxmm):
-			raise NotImplementedError("len(values) = {lenval} != len(vxmm) = {lenvxmm}".format(lenval=len(values), lenvvxmm=len(vxmm)))
+			raise NotImplementedError("len(values) = {lenval} != len(vxmm) = {lenvxmm}".format(lenval=len(values), lenvxmm=len(vxmm)))
 		if len(values) != len(vother):
 			raise NotImplementedError("len(values) = {lenval} != len(vother) = {lenvother}".format(lenval=len(values), lenvother=len(vother)))
 		if len(values) != len(arg_s):
@@ -630,7 +791,7 @@ int isSimpleWrapper(wrapper_t fun);
 			raise NotImplementedError("len(values) = {lenval} != len(vals) = {lenvals}".format(lenval=len(values), lenvals=len(vals)))
 		
 		# Helper functions to write the function definitions
-		def function_args(args, d=8, r=0, x=0):
+		def function_args(args: FunctionType, d: int = 8, r: int = 0, x: int = 0) -> str:
 			# args: string of argument types
 			# d: delta (in the stack)
 			# r: general register no
@@ -663,7 +824,7 @@ int isSimpleWrapper(wrapper_t fun);
 				# Value is somewhere else
 				return arg_o[idx].format(p=d) + function_args(args[1:], d, r, x)
 		
-		def function_writer(f, N, W):
+		def function_writer(f, N: FunctionType, W: FunctionType) -> None:
 			# Write to f the function type N (real type W)
 			# rettype is a single character, args is the string of argument types
 			# (those could actually be deduced from N)
@@ -672,7 +833,7 @@ int isSimpleWrapper(wrapper_t fun);
 			# Generic function
 			f.write(vals[values.index(N[0])].format(function_args(N[2:])[:-2]) + " }\n")
 		
-		for v in gbl["()"]:
+		for v in gbl[str(Clauses())]:
 			if v == "vFv":
 				# Suppress all warnings...
 				file.write("void vFv(x64emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; fn(); (void)emu; }\n")
@@ -684,12 +845,12 @@ int isSimpleWrapper(wrapper_t fun);
 				function_writer(file, v, v + "_t")
 			file.write("#endif\n")
 		file.write("\n")
-		for v in redirects["()"]:
-			function_writer(file, v[0], v[1] + "_t")
+		for vr, vf in redirects[str(Clauses())]:
+			function_writer(file, vr, vf + "_t")
 		for k in redirects_idxs:
 			file.write("\n#if " + k + "\n")
-			for v in redirects[k]:
-				function_writer(file, v[0], v[1] + "_t")
+			for vr, vf in redirects[k]:
+				function_writer(file, vr, vf + "_t")
 			file.write("#endif\n")
 		
 		# Write the isSimpleWrapper function
@@ -709,7 +870,7 @@ int isSimpleWrapper(wrapper_t fun);
 	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.h"), 'w') as file:
 		file.write(files_header["wrapper.h"].format(lbr="{", rbr="}", version=ver))
 		# Normal function types
-		for v in gbl["()"]:
+		for v in gbl[str(Clauses())]:
 			file.write("void " + v + "(x64emu_t *emu, uintptr_t fnc);\n")
 		for k in gbl_idxs:
 			file.write("\n#if " + k + "\n")
@@ -718,12 +879,12 @@ int isSimpleWrapper(wrapper_t fun);
 			file.write("#endif\n")
 		file.write("\n")
 		# Redirects
-		for v in redirects["()"]:
-			file.write("void " + v[0] + "(x64emu_t *emu, uintptr_t fnc);\n")
+		for vr, _ in redirects[str(Clauses())]:
+			file.write("void " + vr + "(x64emu_t *emu, uintptr_t fnc);\n")
 		for k in redirects_idxs:
 			file.write("\n#if " + k + "\n")
-			for v in redirects[k]:
-				file.write("void " + v[0] + "(x64emu_t *emu, uintptr_t fnc);\n")
+			for vr, _ in redirects[k]:
+				file.write("void " + vr + "(x64emu_t *emu, uintptr_t fnc);\n")
 			file.write("#endif\n")
 		file.write(files_guard["wrapper.h"].format(lbr="{", rbr="}", version=ver))
 	
@@ -750,6 +911,7 @@ if __name__ == '__main__':
 	for i, v in enumerate(sys.argv):
 		if v == "--":
 			limit.append(i)
-	if main(sys.argv[1], sys.argv[2:limit[0]], sys.argv[limit[0]+1:], "1.3.0.12") != 0:
+	Define.defines = sys.argv[2:limit[0]]
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.0.0.13") != 0:
 		exit(2)
 	exit(0)
