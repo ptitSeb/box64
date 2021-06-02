@@ -953,6 +953,15 @@ EXPORT int my___fxstatat64(x64emu_t* emu, int v, int d, void* path, void* buf, i
     return r;
 }
 
+EXPORT int my_stat(x64emu_t *emu, void* filename, void* buf)
+{
+    (void)emu;
+    struct stat64 st;
+    int r = stat(filename, &st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
 EXPORT int my__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 {
     struct stat64 st;

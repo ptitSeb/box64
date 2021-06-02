@@ -36,10 +36,13 @@
 typedef struct x64_sigaction_s x64_sigaction_t;
 typedef struct x64_stack_s x64_stack_t;
 
+int mkdir(const char *path, mode_t mode);
 
 //int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
 int of_convert(int flag);
 int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
+ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz);
+int my_stat(x64emu_t *emu, void* filename, void* buf);
 
 int my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_sigaction_t *oldact);
 int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss);
@@ -68,13 +71,21 @@ scwrap_t syscallwrap[] = {
     //{ 1, __NR_write, 3 },     // same
     //{ 2, __NR_open, 3 },      // flags need transformation
     //{ 3, __NR_close, 1 },     // wrapped so SA_RESTART can be handled by libc
+    //{ 4, __NR_stat, 2 },     // Need to align struct stat
     //{ 9, __NR_mmap, 6},       // wrapped to track mmap
     //{ 10, __NR_mprotect, 3},  // same
     //{ 11, __NR_munmap, 2},    // same
     { 5, __NR_fstat, 2},
     //{ 13, __NR_rt_sigaction, 4}   // wrapped to use my_ version
+    { 16, __NR_ioctl, 3},
+    #ifdef __NR_access
+    { 21, __NR_access, 2},
+    #endif
     #ifdef __NR_pipe
     { 22, __NR_pipe, 1},
+    #endif
+    #ifdef __NR_select
+    { 23, __NR_select, 5},
     #endif
     //{ 25, __NR_mremap, 5},    // wrapped to track protection
     { 46, __NR_sendmsg, 3},
@@ -87,11 +98,19 @@ scwrap_t syscallwrap[] = {
     #ifdef __NR_getdents
     { 78, __NR_getdents, 3},
     #endif
+    #ifdef __NR_mkdir
+    { 83, __NR_mkdir, 2},
+    #endif
+    //{ 89, __NR_readlink, 3},  // not always existing, better use the wrapped version anyway
+    { 97, __NR_getrlimit, 2},
     { 101, __NR_ptrace, 4},
     { 126, __NR_capset, 2},
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
     { 157, __NR_prctl, 5 },     // needs wrapping?
     { 186, __NR_gettid, 0 },    //0xBA
+    #ifdef __NR_time
+    { 201, __NR_time, 1},
+    #endif
     { 202, __NR_futex, 6},
     { 217, __NR_getdents64, 3},
     { 234, __NR_tgkill, 3},
@@ -226,6 +245,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 3:  // sys_close
             R_EAX = (uint32_t)close((int)R_EDI);
             break;
+        case 4: // sys_stat
+            R_EAX = (uint32_t)my_stat(emu, (void*)R_RDI, (void*)R_RSI);
+            break;
         case 9: // sys_mmap
             R_RAX = (uintptr_t)my_mmap64(emu, (void*)R_RDI, R_RSI, (int)R_EDX, (int)R_R10d, (int)R_R8d, R_R9);
             break;
@@ -238,9 +260,19 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 13: // sys_rt_sigaction
             R_EAX = (uint32_t)my_sigaction(emu, (int)R_EDI, (const x64_sigaction_t *)R_RSI, (x64_sigaction_t *)R_RDX/*, (size_t)R_R10*/);
             break;
+        #ifndef __NR_access
+        case 21: // sys_access
+            R_EAX = (uint32_t)access((void*)R_RDI, R_ESI);
+            break;
+        #endif
         #ifndef __NR_pipe
         case 22:
             R_EAX = (uint32_t)pipe((void*)R_RDI);
+            break;
+        #endif
+        #ifndef __NR_select
+        case 23: // sys_select
+            R_EAX = (uint32_t)select(R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8);
             break;
         #endif
         case 25: // sys_mremap
@@ -262,9 +294,22 @@ void EXPORT x64Syscall(x64emu_t *emu)
             }
             break;
         #endif
+        #ifndef __NR_mkdir
+        case 83: // sys_mkdir
+            R_EAX = (uint32_t)mkdir((void*)R_RDI, R_ESI);
+            break;
+        #endif
+        case 89: // sys_readlink
+            R_RAX = (ssize_t)my_readlink(emu,(void*)R_RDI, (void*)R_RSI, (size_t)R_RDX);
+            break;
         case 131: // sys_sigaltstack
             R_EAX = (uint32_t)my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
             break;
+        #ifndef __NR_time
+        case 201: // sys_time
+            R_RAX = (uintptr_t)time((void*)R_RDI);
+            break;
+        #endif
         #ifndef __NR_inotify_init
         case 253:
             R_EAX = (int)syscall(__NR_inotify_init1, 0);
@@ -319,6 +364,8 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
             return my_open(emu, (char*)R_RSI, of_convert(R_EDX), R_ECX);
         case 3:  // sys_close
             return (uint32_t)close(R_ESI);
+        case 4: // sys_stat
+            return (uint32_t)my_stat(emu, (void*)R_RSI, (void*)R_RDX);
         case 9: // sys_mmap
             return (uintptr_t)my_mmap64(emu, (void*)R_RSI, R_RDX, (int)R_RCX, (int)R_R8d, (int)R_R9, i64(0));
         case 10: // sys_mprotect
@@ -327,9 +374,17 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
             return (uint32_t)my_munmap(emu, (void*)R_RSI, R_RDX);
         case 13: // sys_rt_sigaction
             return (uint32_t)my_sigaction(emu, (int)R_ESI, (const x64_sigaction_t *)R_RDX, (x64_sigaction_t *)R_RCX/*, (size_t)R_R8*/);
+        #ifndef __NR_access
+        case 21: // sys_access
+            return (uint32_t)access((void*)R_RSI, R_EDX);
+        #endif
         #ifndef __NR_pipe
         case 22:
             return (uint32_t)pipe((void*)R_RSI);
+        #endif
+        #ifndef __NR_select
+        case 23: // sys_select
+            return (uint32_t)select(R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9);
         #endif
         case 25: // sys_mremap
             return (uintptr_t)my_mremap(emu, (void*)R_RSI, R_RDX, R_RCX, R_R8d, (void*)R_R9);
@@ -347,8 +402,18 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
                 return (uint64_t)ret;
             }
         #endif
+        #ifndef __NR_mkdir
+        case 83: // sys_mkdir
+            return (uint32_t)mkdir((void*)R_RSI, R_EDX);
+        #endif
+        case 89: // sys_readlink
+            return (uintptr_t)my_readlink(emu,(void*)R_RSI, (void*)R_RDX, (size_t)R_RCX);
         case 131: // sys_sigaltstack
             return (uint32_t)my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
+        #ifndef __NR_time
+        case 201: // sys_time
+            return (uintptr_t)time((void*)R_RSI);
+        #endif
         #ifndef __NR_inotify_init
         case 253:
             return (int)syscall(__NR_inotify_init1, 0);
