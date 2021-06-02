@@ -101,6 +101,9 @@ scwrap_t syscallwrap[] = {
     #ifdef __NR_mkdir
     { 83, __NR_mkdir, 2},
     #endif
+    #ifdef __NR_unlink
+    { 87, __NR_unlink, 1},
+    #endif
     //{ 89, __NR_readlink, 3},  // not always existing, better use the wrapped version anyway
     { 97, __NR_getrlimit, 2},
     { 101, __NR_ptrace, 4},
@@ -299,6 +302,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
             R_EAX = (uint32_t)mkdir((void*)R_RDI, R_ESI);
             break;
         #endif
+        #ifndef __NR_unlink
+        case 87: //sys_unlink
+            R_EAX = (uint32_t)unlink((void*)R_RDI);
+            break;
+        #endif
         case 89: // sys_readlink
             R_RAX = (ssize_t)my_readlink(emu,(void*)R_RDI, (void*)R_RSI, (size_t)R_RDX);
             break;
@@ -405,6 +413,10 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         #ifndef __NR_mkdir
         case 83: // sys_mkdir
             return (uint32_t)mkdir((void*)R_RSI, R_EDX);
+        #endif
+        #ifndef __NR_unlink
+        case 87: //sys_unlink
+            return (uint32_t)unlink((void*)R_RSI);
         #endif
         case 89: // sys_readlink
             return (uintptr_t)my_readlink(emu,(void*)R_RSI, (void*)R_RDX, (size_t)R_RCX);
