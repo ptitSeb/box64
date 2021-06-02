@@ -1271,15 +1271,15 @@
 #() pFiiiippppppppppppppp
 #() pFpippppppppppppppppp
 #() pFipppppppppppppppppppppp
-#!defined(NOALIGN) iFEppu
-#!defined(NOALIGN) iFEiiip
-#!defined(NOALIGN) iFEipii
 #defined(HAVE_LD80BITS) DFD
 #defined(HAVE_LD80BITS) DFDD
 #defined(HAVE_LD80BITS) DFDp
 #!defined(HAVE_LD80BITS) KFK
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
+#!defined(NOALIGN) iFEppu
+#!defined(NOALIGN) iFEiiip
+#!defined(NOALIGN) iFEipii
 #() vFEv -> vFE
 #() lFEv -> lFE
 #() LFEv -> LFE
