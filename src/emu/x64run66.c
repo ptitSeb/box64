@@ -246,6 +246,20 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
         R_DX=((R_AX & 0x8000)?0xFFFF:0x0000);
         break;
 
+    case 0xA1:                      /* MOV EAX,Od */
+        if(rex.w)
+            R_RAX = *(uint64_t*)F64;
+        else
+            R_AX = *(uint16_t*)F64;
+        break;
+
+    case 0xA3:                      /* MOV Od,EAX */
+        if(rex.w)
+            *(uint64_t*)F64 = R_RAX;
+        else
+            *(uint16_t*)F64 = R_AX;
+        break;
+
     case 0xA5:              /* (REP) MOVSW */
         tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
         tmp64u = (rep)?R_RCX:1L;

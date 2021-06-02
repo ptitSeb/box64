@@ -29,6 +29,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t nextop, u8;
     int16_t i16;
     uint16_t u16;
+    uint64_t u64;
     int32_t i32;
     int64_t j64;
     uint8_t gd, ed;
@@ -36,6 +37,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int64_t fixedaddress;
     MAYUSE(u8);
     MAYUSE(u16);
+    MAYUSE(u64);
     MAYUSE(j64);
 
     while((opcode==0x2E) || (opcode==0x66))   // ignoring CS: or multiple 0x66
@@ -454,6 +456,21 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x90:
             INST_NAME("NOP");
+            break;
+
+        case 0xA1:
+            INST_NAME("MOV EAX,Od");
+            u64 = F64;
+            MOV64x(x1, u64);
+            LDRH_U12(x2, x1, 0);
+            BFIx(xRAX, x2, 0, 16);
+            break;
+
+        case 0xA3:
+            INST_NAME("MOV Od,EAX");
+            u64 = F64;
+            MOV64x(x1, u64);
+            STRH_U12(xRAX, x1, 0);
             break;
 
         case 0xA5:
