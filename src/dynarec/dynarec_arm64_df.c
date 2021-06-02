@@ -160,14 +160,14 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
                     #else
-                    MSR_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MRS_fpsr(x5);
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MSR_fpsr(x5);
                     VFCVTZSd(s0, v1);
                     SQXTN_S_D(s0, s0);
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
-                    MSR_fpsr(x5);   // get back FPSR to check the IOC bit
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                     TBZ_NEXT(x5, FPSR_IOC);
                     MOV32w(x5, 0x8000);
                     STRH_U12(x5, wback, fixedaddress);
@@ -189,15 +189,15 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
                     #else
-                    MSR_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MRS_fpsr(x5);
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MSR_fpsr(x5);
                     FRINTXD(s0, v1);
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
-                    MSR_fpsr(x5);   // get back FPSR to check the IOC bit
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                     TBZ_NEXT(x5, FPSR_IOC);
                     MOV32w(x5, 0x8000);
                     STRH_U12(x5, wback, fixedaddress);
@@ -219,15 +219,15 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
                     #else
-                    MSR_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MRS_fpsr(x5);
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MSR_fpsr(x5);
                     FRINTXD(s0, v1);
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
-                    MSR_fpsr(x5);   // get back FPSR to check the IOC bit
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                     TBZ_NEXT(x5, FPSR_IOC);
                     MOV32w(x5, 0x8000);
                     STRH_U12(x5, wback, fixedaddress);
@@ -269,17 +269,18 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VFCVTZSd(s0, s0);
                     VSTR64_U12(s0, wback, fixedaddress);
                     #else
-                    MSR_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MRS_fpsr(x5);
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MSR_fpsr(x5);
                     FRINTXD(s0, v1);
                     VFCVTZSd(s0, s0);
                     VSTR64_U12(s0, wback, fixedaddress);
-                    MSR_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_NEXT(x5, FPSR_IOC);
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ_MARK3(x5, FPSR_IOC);
                     MOV64x(x5, 0x8000000000000000LL);
                     STRx_U12(x5, wback, fixedaddress);
                     #endif
+                    MARK3;
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 default:
