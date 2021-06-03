@@ -734,6 +734,7 @@ void vFpppii(x64emu_t *emu, uintptr_t fnc);
 void vFpppip(x64emu_t *emu, uintptr_t fnc);
 void vFppppi(x64emu_t *emu, uintptr_t fnc);
 void vFppppp(x64emu_t *emu, uintptr_t fnc);
+void iFEiipV(x64emu_t *emu, uintptr_t fnc);
 void iFEippp(x64emu_t *emu, uintptr_t fnc);
 void iFEpiii(x64emu_t *emu, uintptr_t fnc);
 void iFEpipi(x64emu_t *emu, uintptr_t fnc);
