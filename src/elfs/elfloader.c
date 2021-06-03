@@ -369,6 +369,7 @@ int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t**
         const char* symname = SymName(h, sym);
         int version2 = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[ELF64_R_SYM(rel[i].r_info)]:-1;
         if(version2!=-1) version2 &= 0x7fff;
+        if(version && !version2) version2=-1;   // match a version symbol against a global "local" symbol
         const char* vername2 = GetSymbolVersion(h, version2);
         if(SameVersionnedSymbol(name, version, vername, symname, version2, vername2) && t==R_X86_64_COPY) {
             *offs = sym->st_value + h->delta;
@@ -451,7 +452,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                         if(strcmp(symname, "__gmon_start__"))
                             printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                     } else {
-                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname);
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s (ver=%d/%s)\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname, version, vername?vername:"(none)");
                         *p = offs;
                     }
                 }
@@ -608,7 +609,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                 if(!offs) {offs = globoffs; end = globend;}
                 if(offs) {
                     // add r_addend to p?
-                    printf_dump(LOG_NEVER, "Apply R_X86_64_COPY @%p with sym=%s, @%p+0x%lx size=%ld\n", p, symname, (void*)offs, rela[i].r_addend, sym->st_size);
+                    printf_dump(LOG_NEVER, "Apply R_X86_64_COPY @%p with sym=%s (ver=%d/%s), @%p+0x%lx size=%ld\n", p, symname, version, vername?vername:"(none)", (void*)offs, rela[i].r_addend, sym->st_size);
                     if(p!=(void*)(offs+rela[i].r_addend))
                         memmove(p, (void*)(offs+rela[i].r_addend), sym->st_size);
                 } else {
@@ -621,9 +622,9 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
                     if(sym->st_size) {
-                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", 
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s (ver=%d/%s) \n", 
                             (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), 
-                            (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
+                            (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname, version, vername?vername:"(none)");
                         //memmove((void*)globoffs, (void*)offs, sym->st_size);   // preapply to copy part from lib to main elf
                         AddWeakSymbol(GetGlobalData(maplib), symname, offs, sym->st_size, version, vername);
                     } else {
@@ -642,7 +643,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                         if(strcmp(symname, "__gmon_start__"))
                             printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                     } else {
-                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname);
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s (ver=%d/%s)\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname, version, vername?vername:"(none)");
                         *p = offs/* + rela[i].r_addend*/;   // not addend it seems
                     }
                 }
