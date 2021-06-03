@@ -191,7 +191,8 @@ int RunD9(x64emu_t *emu, rex_t rex)
             break;
         case 0xFD:  /* FSCALE */
             // this could probably be done by just altering the exponant part of the float...
-            ST0.d *= exp2(trunc(ST1.d));
+            if(ST0.d!=0.0)
+                ST0.d *= exp2(trunc(ST1.d));
             break;
         case 0xFE:  /* FSIN */
             ST0.d = sin(ST0.d);
