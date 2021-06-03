@@ -59,9 +59,9 @@ void** my_GetGTKDisplay()
 
 #endif
 // **************** NCurses ****************
-EXPORT void* COLS;
-EXPORT void* LINES;
-EXPORT void* TABSIZE;
+EXPORT int COLS;
+EXPORT int LINES;
+EXPORT int TABSIZE;
 EXPORT void* curscr;
 EXPORT void* newscr;
 EXPORT void* stdscr;

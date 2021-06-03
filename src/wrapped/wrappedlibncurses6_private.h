@@ -412,13 +412,6 @@ GO(tigetstr, pFp)
 GO(tparm, pFplllllllll) // va_arg or 9 long, depending on how old the .h is
 
 DATA(COLOR_PAIRS, sizeof(void*))
-DATA(COLS, sizeof(void*))
 DATA(COLORS, sizeof(void*))
 DATA(ESCDELAY, sizeof(void*))
-DATA(LINES, sizeof(void*))
-DATA(TABSIZE, sizeof(void*))
-DATA(curscr, sizeof(void*))
-DATA(newscr, sizeof(void*))
-DATA(stdscr, sizeof(void*))
-DATA(ttytype, sizeof(void*))
 DATA(_nc_wacs, sizeof(void*))
