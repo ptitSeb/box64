@@ -17,16 +17,19 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 #include "myalign.h"
+#include "globalsymbols.h"
 
 const char* libncurseswName = "libncursesw.so.5";
 #define LIBNAME libncursesw
 
 static library_t* my_lib = NULL;
 
+typedef void*       (*pFv_t)();
 typedef int         (*iFppV_t)(void*, void*, va_list);
 typedef int         (*iFpiip_t)(void*, int32_t, int32_t, void*);
 
 #define SUPER()             \
+    GO(initscr, pFv_t)      \
     GO(mvwprintw, iFpiip_t) \
     GO(vwprintw, iFppV_t)   \
     GO(stdscr, void*)
@@ -83,6 +86,14 @@ EXPORT int myw_vwprintw(x64emu_t* emu, void* p, void* fmt, x64_va_list_t b)
 
     CONVERT_VALIST(b);
     return my->vwprintw(p, fmt, VARARGS);
+}
+
+EXPORT void* myw_initscr()
+{
+    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
+    void* ret = my->initscr();
+    my_checkGlobalTInfo();
+    return ret;
 }
 
 #define CUSTOM_INIT \
