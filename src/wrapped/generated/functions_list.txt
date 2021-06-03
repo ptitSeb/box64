@@ -1291,3 +1291,904 @@
 #() iFEpvvppp -> iFEpppp
 #() iFEpLvvpp -> iFEpLpp
 #() iFEpuvvppp -> iFEpuppp
+wrappedbz2:
+- iFp:
+  - BZ2_bzCompressEnd
+  - BZ2_bzDecompress
+  - BZ2_bzDecompressEnd
+- iFpi:
+  - BZ2_bzCompress
+- iFpii:
+  - BZ2_bzDecompressInit
+- iFpiii:
+  - BZ2_bzCompressInit
+wrappedcrypto:
+- vFp:
+  - CRYPTO_set_id_callback
+  - CRYPTO_set_locking_callback
+- pFp:
+  - sk_new
+- vFpp:
+  - sk_pop_free
+- pFpppp:
+  - PEM_read_bio_DSAPrivateKey
+  - PEM_read_bio_DSA_PUBKEY
+  - PEM_read_bio_ECPrivateKey
+  - PEM_read_bio_EC_PUBKEY
+  - PEM_read_bio_RSAPrivateKey
+  - PEM_read_bio_RSA_PUBKEY
+- iFpiipp:
+  - ENGINE_ctrl
+- iFppppipp:
+  - PEM_write_bio_DSAPrivateKey
+  - PEM_write_bio_ECPrivateKey
+  - PEM_write_bio_RSAPrivateKey
+wrappedcurl:
+- uFpup:
+  - curl_easy_setopt
+wrappeddbus:
+- vFppp:
+  - dbus_connection_remove_filter
+  - dbus_timeout_set_data
+  - dbus_watch_set_data
+- vFpppp:
+  - dbus_connection_set_dispatch_status_function
+  - dbus_connection_set_wakeup_main_function
+- iFpipp:
+  - dbus_connection_set_data
+  - dbus_message_set_data
+  - dbus_pending_call_set_data
+- iFppip:
+  - dbus_message_get_args_valist
+- iFpppp:
+  - dbus_connection_add_filter
+  - dbus_pending_call_set_notify
+- iFppppp:
+  - dbus_connection_try_register_fallback
+  - dbus_connection_try_register_object_path
+- iFpppppp:
+  - dbus_connection_set_timeout_functions
+  - dbus_connection_set_watch_functions
+wrappedexpat:
+- vFpp:
+  - XML_SetCharacterDataHandler
+- vFppp:
+  - XML_SetElementHandler
+wrappedflac:
+- iFppPPPPPP:
+  - FLAC__metadata_chain_read_with_callbacks
+- iFppppppppp:
+  - FLAC__stream_decoder_init_stream
+wrappedfontconfig:
+- iFppiLi:
+  - FcPatternAddWeak
+wrappedfreetype:
+- iFpplp:
+  - FT_Open_Face
+- iFpuuLppp:
+  - FTC_Manager_New
+wrappedgnutls:
+- vFp:
+  - gnutls_global_set_log_function
+- vFpp:
+  - gnutls_transport_set_pull_function
+  - gnutls_transport_set_push_function
+wrappedldlinux:
+- pFp:
+  - __tls_get_addr
+wrappedlibasound:
+- iFp:
+  - snd_dlclose
+  - snd_lib_error_set_handler
+- pFppp:
+  - snd_dlsym
+- iFpipp:
+  - snd_async_add_handler
+- iFpppp:
+  - snd_async_add_pcm_handler
+- pFpipL:
+  - snd_dlopen
+wrappedlibc:
+- vFv:
+  - __stack_chk_fail
+- vFp:
+  - _ITM_deregisterTMCloneTable
+  - __cxa_finalize
+- iFp:
+  - _setjmp
+  - getcontext
+  - setjmp
+- lFv:
+  - fork
+- LFv:
+  - syscall
+- vFpi:
+  - __longjmp_chk
+  - _longjmp
+  - longjmp
+- vFpu:
+  - _ITM_registerTMCloneTable
+- iFpi:
+  - __sigsetjmp
+  - backtrace
+  - siglongjmp
+- iFpL:
+  - munmap
+- iFpp:
+  - __vprintf_chk
+  - dl_iterate_phdr
+  - execvp
+  - sigaltstack
+  - swapcontext
+  - vprintf
+- iFpV:
+  - execlp
+  - printf
+- iFSp:
+  - _IO_file_stat
+- pFip:
+  - __sysv_signal
+  - signal
+  - sigset
+  - sysv_signal
+- pFpi:
+  - backtrace_symbols
+- pFpp:
+  - __realpath_chk
+  - fopen
+  - fopen64
+  - realpath
+- vFipp:
+  - vsyslog
+- vFipV:
+  - syslog
+- vFpii:
+  - backtrace_symbols_fd
+- vFpup:
+  - _ITM_addUserCommitAction
+- iFiip:
+  - __fxstat
+  - __fxstat64
+- iFiiN:
+  - __fcntl
+  - fcntl
+  - fcntl64
+- iFipp:
+  - __lxstat
+  - __lxstat64
+  - __sigaction
+  - __xstat
+  - __xstat64
+  - sigaction
+- iFipV:
+  - __printf_chk
+- iFpLi:
+  - mprotect
+- iFppi:
+  - ftw
+  - ftw64
+- iFppp:
+  - __cxa_atexit
+  - __isoc99_vsscanf
+  - __vfprintf_chk
+  - __vsscanf
+  - vasprintf
+  - vfprintf
+  - vsscanf
+- iFppV:
+  - __isoc99_fscanf
+  - __isoc99_sscanf
+  - fprintf
+  - fscanf
+  - fwprintf
+  - sprintf
+  - sscanf
+  - swscanf
+- iFpOu:
+  - __open
+  - open
+  - open64
+- lFppL:
+  - readlink
+- pFpip:
+  - fts_open
+- vFiipV:
+  - __syslog_chk
+- vFpLLp:
+  - qsort
+- iFiiip:
+  - epoll_ctl
+- iFipii:
+  - epoll_wait
+- iFpipp:
+  - __vasprintf_chk
+  - glob
+  - glob64
+- iFpipV:
+  - __fprintf_chk
+- iFpLpp:
+  - __vsnprintf
+  - __vsnprintf_chk
+  - vsnprintf
+- iFpLpV:
+  - __snprintf
+  - snprintf
+  - swprintf
+- iFppii:
+  - nftw64
+- iFppiV:
+  - makecontext
+- iFpppp:
+  - __register_atfork
+  - __vsprintf_chk
+  - scandir
+  - scandir64
+  - vsprintf
+- vFpLLpp:
+  - qsort_r
+- iFiippi:
+  - __fxstatat
+  - __fxstatat64
+- iFpilpV:
+  - __sprintf_chk
+- iFpuppp:
+  - __vswprintf_chk
+  - vswprintf
+- pFpLLiN:
+  - mremap
+- pFppLLp:
+  - bsearch
+- pFpppLp:
+  - lfind
+  - lsearch
+- iFpLiLpV:
+  - __snprintf_chk
+  - __swprintf_chk
+- pFpLiiiI:
+  - mmap
+  - mmap64
+- iFpippppp:
+  - __libc_start_main
+wrappedlibdl:
+- iFp:
+  - dlclose
+- pFv:
+  - dlerror
+- iFpp:
+  - dladdr
+- pFpi:
+  - dlopen
+- pFpp:
+  - dlsym
+- iFpip:
+  - dlinfo
+- pFppi:
+  - dlmopen
+- pFppp:
+  - dlvsym
+wrappedlibgl:
+- pFp:
+  - glXGetProcAddress
+  - glXGetProcAddressARB
+- vFpp:
+  - glDebugMessageCallback
+  - glDebugMessageCallbackARB
+wrappedlibglu:
+- vFpip:
+  - gluNurbsCallback
+  - gluQuadricCallback
+  - gluTessCallback
+wrappedlibncurses:
+- iFpV:
+  - printw
+- iFppp:
+  - vwprintw
+- iFiipV:
+  - mvprintw
+- iFpiipV:
+  - mvwprintw
+wrappedlibncurses6:
+- iFpV:
+  - printw
+- iFppp:
+  - vwprintw
+- iFpiipV:
+  - mvwprintw
+wrappedlibncursesw:
+- iFpV:
+  - printw
+- iFppp:
+  - vwprintw
+- iFpiipV:
+  - mvwprintw
+wrappedlibpthread:
+- vFp:
+  - __pthread_register_cancel
+  - __pthread_unregister_cancel
+  - __pthread_unwind_next
+- iFp:
+  - __pthread_mutexattr_destroy
+  - __pthread_mutexattr_init
+  - pthread_attr_destroy
+  - pthread_attr_init
+  - pthread_barrierattr_destroy
+  - pthread_barrierattr_init
+  - pthread_condattr_destroy
+  - pthread_condattr_init
+  - pthread_mutexattr_destroy
+  - pthread_mutexattr_init
+- vFpi:
+  - _pthread_cleanup_pop
+  - _pthread_cleanup_pop_restore
+- iFpi:
+  - __pthread_mutexattr_settype
+  - pthread_attr_setdetachstate
+  - pthread_attr_setinheritsched
+  - pthread_attr_setschedpolicy
+  - pthread_attr_setscope
+  - pthread_barrierattr_setpshared
+  - pthread_condattr_setclock
+  - pthread_condattr_setpshared
+  - pthread_kill
+  - pthread_mutexattr_setkind_np
+  - pthread_mutexattr_setprotocol
+  - pthread_mutexattr_setpshared
+  - pthread_mutexattr_settype
+- iFpL:
+  - pthread_attr_setguardsize
+  - pthread_attr_setstacksize
+- iFpp:
+  - __pthread_key_create
+  - __pthread_once
+  - pthread_attr_getdetachstate
+  - pthread_attr_getguardsize
+  - pthread_attr_getinheritsched
+  - pthread_attr_getschedparam
+  - pthread_attr_getschedpolicy
+  - pthread_attr_getscope
+  - pthread_attr_getstackaddr
+  - pthread_attr_getstacksize
+  - pthread_attr_setschedparam
+  - pthread_attr_setstackaddr
+  - pthread_barrierattr_getpshared
+  - pthread_cond_init
+  - pthread_cond_wait
+  - pthread_condattr_getclock
+  - pthread_condattr_getpshared
+  - pthread_key_create
+  - pthread_mutexattr_getkind_np
+  - pthread_mutexattr_gettype
+  - pthread_once
+- vFppp:
+  - _pthread_cleanup_push
+  - _pthread_cleanup_push_defer
+- iFpLp:
+  - pthread_attr_setaffinity_np
+  - pthread_getaffinity_np
+  - pthread_setaffinity_np
+- iFppu:
+  - pthread_barrier_init
+- iFppL:
+  - pthread_attr_setstack
+- iFppp:
+  - __pthread_atfork
+  - pthread_atfork
+  - pthread_attr_getstack
+  - pthread_cond_timedwait
+- iFpppp:
+  - pthread_create
+wrappedlibrt:
+- iFupp:
+  - timer_create
+wrappedlibsm:
+- iFppp:
+  - SmcRequestSaveYourselfPhase2
+- iFpipp:
+  - SmcInteractRequest
+- pFppiiLpppip:
+  - SmcOpenConnection
+wrappedlibssl:
+- vFpp:
+  - SSL_CTX_set_default_passwd_cb
+  - SSL_set_psk_client_callback
+- vFpip:
+  - SSL_CTX_set_verify
+  - SSL_set_verify
+- vFppp:
+  - SSL_CTX_set_next_proto_select_cb
+- lFpip:
+  - SSL_CTX_callback_ctrl
+  - SSL_callback_ctrl
+- iFlpppp:
+  - SSL_get_ex_new_index
+wrappedlibtinfo:
+- iFpip:
+  - tputs
+wrappedlibtinfo6:
+- iFpip:
+  - tputs
+wrappedlibx11:
+- iFp:
+  - XDestroyImage
+  - XInitImage
+- pFp:
+  - XSetErrorHandler
+  - XSetIOErrorHandler
+- vFpp:
+  - _XDeqAsyncHandler
+- pFpi:
+  - XSynchronize
+- pFpp:
+  - XSetAfterFunction
+- iFppp:
+  - XAddConnectionWatch
+  - XRemoveConnectionWatch
+- pFpip:
+  - XESetCloseDisplay
+  - XESetError
+  - XESetEventToWire
+  - XESetWireToEvent
+- iFpppp:
+  - XCheckIfEvent
+  - XIfEvent
+  - XPeekIfEvent
+- iFppppp:
+  - XQueryExtension
+- iFpppppp:
+  - XRegisterIMInstantiateCallback
+  - XUnregisterIMInstantiateCallback
+- pFppiiuuLi:
+  - XGetImage
+- iFppppiiiiuu:
+  - XPutImage
+- pFppuiipuuii:
+  - XCreateImage
+- pFppiiuuuipii:
+  - XGetSubImage
+wrappedlibxext:
+- pFp:
+  - XSetExtensionErrorHandler
+- iFpppiiu:
+  - XShmGetImage
+- pFppppip:
+  - XextAddDisplay
+- pFppuippuu:
+  - XShmCreateImage
+- iFppppiiiiuui:
+  - XShmPutImage
+wrappedlibxt:
+- vFpuipp:
+  - XtAddEventHandler
+wrappedlibxtst:
+- iFpppp:
+  - XRecordEnableContext
+  - XRecordEnableContextAsync
+wrappedlibz:
+- iFp:
+  - deflateEnd
+  - inflateEnd
+  - inflateInit
+- iFppi:
+  - inflateInit_
+- iFpipi:
+  - deflateInit_
+  - inflateInit2_
+- iFpiiiiipi:
+  - deflateInit2_
+wrappedopenal:
+- vFv:
+  - alRequestFoldbackStop
+- pFp:
+  - alGetProcAddress
+- pFpp:
+  - alcGetProcAddress
+- vFiiipp:
+  - alRequestFoldbackStart
+wrappedpango:
+- vFpp:
+  - pango_attribute_init
+wrappedpng16:
+- vFpp:
+  - png_set_read_user_transform_fn
+- vFppp:
+  - png_set_read_fn
+- vFpppp:
+  - png_set_error_fn
+  - png_set_write_fn
+- pFpppp:
+  - png_create_read_struct
+- vFppppp:
+  - png_set_progressive_read_fn
+- pFppppppp:
+  - png_create_read_struct_2
+  - png_create_write_struct_2
+wrappedpulse:
+- vFp:
+  - pa_mainloop_free
+  - pa_threaded_mainloop_free
+- iFp:
+  - pa_signal_init
+- pFp:
+  - pa_mainloop_get_api
+  - pa_threaded_mainloop_get_api
+- vFpp:
+  - pa_signal_set_destroy
+- pFpp:
+  - pa_context_new
+- vFppp:
+  - pa_context_set_event_callback
+  - pa_context_set_state_callback
+  - pa_context_set_subscribe_callback
+  - pa_mainloop_set_poll_func
+  - pa_stream_set_buffer_attr_callback
+  - pa_stream_set_event_callback
+  - pa_stream_set_latency_update_callback
+  - pa_stream_set_moved_callback
+  - pa_stream_set_overflow_callback
+  - pa_stream_set_read_callback
+  - pa_stream_set_started_callback
+  - pa_stream_set_state_callback
+  - pa_stream_set_suspended_callback
+  - pa_stream_set_underflow_callback
+  - pa_stream_set_write_callback
+- pFipp:
+  - pa_signal_new
+- pFppp:
+  - pa_context_drain
+  - pa_context_exit_daemon
+  - pa_context_get_client_info_list
+  - pa_context_get_module_info_list
+  - pa_context_get_server_info
+  - pa_context_get_sink_info_list
+  - pa_context_get_sink_input_info_list
+  - pa_context_get_source_info_list
+  - pa_context_new_with_proplist
+  - pa_stream_drain
+  - pa_stream_flush
+  - pa_stream_prebuf
+  - pa_stream_trigger
+  - pa_stream_update_timing_info
+- iFppip:
+  - pa_context_connect
+- iFpppV:
+  - pa_proplist_setf
+- pFpipp:
+  - pa_stream_cork
+- pFpupp:
+  - pa_context_get_sink_info_by_index
+  - pa_context_get_sink_input_info
+  - pa_context_get_source_info_by_index
+  - pa_context_subscribe
+  - pa_context_unload_module
+  - pa_stream_update_sample_rate
+- pFpppp:
+  - pa_context_get_sink_info_by_name
+  - pa_context_get_source_info_by_name
+  - pa_context_proplist_remove
+  - pa_context_set_default_sink
+  - pa_context_set_default_source
+  - pa_context_set_name
+  - pa_stream_proplist_remove
+  - pa_stream_set_buffer_attr
+  - pa_stream_set_name
+- pFpippp:
+  - pa_context_proplist_update
+  - pa_stream_proplist_update
+- pFpuipp:
+  - pa_context_set_sink_input_mute
+  - pa_context_set_source_mute_by_index
+- pFpuupp:
+  - pa_context_move_sink_input_by_index
+- pFpuppp:
+  - pa_context_set_sink_input_volume
+  - pa_context_set_sink_volume_by_index
+  - pa_context_set_source_volume_by_index
+- pFppppp:
+  - pa_context_load_module
+  - pa_context_set_source_volume_by_name
+- iFppLpIi:
+  - pa_stream_write
+wrappedsdl1:
+- vFp:
+  - SDL_KillThread
+  - SDL_SetEventFilter
+  - SDL_UnloadObject
+- iFp:
+  - SDL_GetWMInfo
+  - SDL_RemoveTimer
+- uFp:
+  - SDL_ReadBE16
+  - SDL_ReadBE32
+  - SDL_ReadLE16
+  - SDL_ReadLE32
+- UFp:
+  - SDL_ReadBE64
+  - SDL_ReadLE64
+- pFv:
+  - SDL_GetEventFilter
+- pFp:
+  - SDL_GL_GetProcAddress
+  - SDL_LoadObject
+- iFup:
+  - SDL_SetTimer
+- iFpp:
+  - SDL_OpenAudio
+- uFpW:
+  - SDL_WriteBE16
+  - SDL_WriteLE16
+- uFpu:
+  - SDL_WriteBE32
+  - SDL_WriteLE32
+- uFpU:
+  - SDL_WriteBE64
+  - SDL_WriteLE64
+- pFpi:
+  - SDL_LoadBMP_RW
+  - SDL_RWFromConstMem
+  - SDL_RWFromFP
+  - SDL_RWFromMem
+- pFpp:
+  - SDL_CreateThread
+  - SDL_LoadFunction
+  - SDL_RWFromFile
+- iFppi:
+  - SDL_SaveBMP_RW
+- pFupp:
+  - SDL_AddTimer
+- pFpippp:
+  - SDL_LoadWAV_RW
+wrappedsdl1image:
+- pFp:
+  - IMG_LoadBMP_RW
+  - IMG_LoadCUR_RW
+  - IMG_LoadGIF_RW
+  - IMG_LoadICO_RW
+  - IMG_LoadJPG_RW
+  - IMG_LoadLBM_RW
+  - IMG_LoadPCX_RW
+  - IMG_LoadPNG_RW
+  - IMG_LoadPNM_RW
+  - IMG_LoadTGA_RW
+  - IMG_LoadTIF_RW
+  - IMG_LoadWEBP_RW
+  - IMG_LoadXCF_RW
+  - IMG_LoadXPM_RW
+  - IMG_LoadXV_RW
+- pFpi:
+  - IMG_Load_RW
+- pFpip:
+  - IMG_LoadTyped_RW
+wrappedsdl1mixer:
+- vFp:
+  - Mix_ChannelFinished
+  - Mix_HookMusicFinished
+- pFp:
+  - Mix_LoadMUS_RW
+- vFpp:
+  - Mix_HookMusic
+  - Mix_SetPostMix
+- iFip:
+  - Mix_UnregisterEffect
+- pFpi:
+  - Mix_LoadWAV_RW
+- pFpii:
+  - Mix_LoadMUSType_RW
+- iFippp:
+  - Mix_RegisterEffect
+wrappedsdl1sound:
+- pFpppu:
+  - Sound_NewSample
+wrappedsdl1ttf:
+- pFpii:
+  - TTF_OpenFontRW
+- pFpiii:
+  - TTF_OpenFontIndexRW
+wrappedsdl2:
+- vFp:
+  - SDL_UnloadObject
+- iFp:
+  - SDL_RWclose
+  - SDL_RemoveTimer
+  - SDL_SaveAllDollarTemplates
+- IFp:
+  - SDL_RWtell
+- uFp:
+  - SDL_ReadBE16
+  - SDL_ReadBE32
+  - SDL_ReadLE16
+  - SDL_ReadLE32
+  - SDL_ReadU8
+- UFp:
+  - SDL_ReadBE64
+  - SDL_ReadLE64
+- pFv:
+  - SDL_GetBasePath
+  - SDL_Vulkan_GetVkGetInstanceProcAddr
+- pFp:
+  - SDL_GL_GetProcAddress
+  - SDL_LoadObject
+- vFpp:
+  - SDL_AddEventWatch
+  - SDL_DelEventWatch
+  - SDL_LogGetOutputFunction
+  - SDL_LogSetOutputFunction
+  - SDL_SetEventFilter
+- vFpV:
+  - SDL_Log
+- iFip:
+  - SDL_SaveDollarTemplate
+- iFWW:
+  - SDL_IsJoystickNintendoSwitchPro
+  - SDL_IsJoystickPS4
+  - SDL_IsJoystickSteamController
+  - SDL_IsJoystickXbox360
+  - SDL_IsJoystickXboxOne
+- iFUU:
+  - SDL_IsJoystickHIDAPI
+  - SDL_IsJoystickXInput
+- iFpi:
+  - SDL_GameControllerAddMappingsFromRW
+- iFpp:
+  - SDL_GetEventFilter
+  - SDL_OpenAudio
+- uFpW:
+  - SDL_WriteBE16
+  - SDL_WriteLE16
+- uFpu:
+  - SDL_WriteBE32
+  - SDL_WriteLE32
+  - SDL_WriteU8
+- uFpU:
+  - SDL_WriteBE64
+  - SDL_WriteLE64
+- pFpi:
+  - SDL_LoadBMP_RW
+  - SDL_RWFromConstMem
+  - SDL_RWFromFP
+  - SDL_RWFromMem
+- pFpp:
+  - SDL_LoadFunction
+  - SDL_RWFromFile
+- vFipV:
+  - SDL_LogCritical
+  - SDL_LogDebug
+  - SDL_LogError
+  - SDL_LogInfo
+  - SDL_LogVerbose
+  - SDL_LogWarn
+- iFupp:
+  - SDL_TLSSet
+- iFppi:
+  - SDL_SaveBMP_RW
+- iFppV:
+  - SDL_sscanf
+- IFpIi:
+  - SDL_RWseek
+- pFupp:
+  - SDL_AddTimer
+- pFppi:
+  - SDL_LoadFile_RW
+- pFppp:
+  - SDL_CreateThread
+- vFpuup:
+  - SDL_qsort
+- iFpLpp:
+  - SDL_vsnprintf
+- iFpLpV:
+  - SDL_snprintf
+- uFppuu:
+  - SDL_RWread
+  - SDL_RWwrite
+- iFpippi:
+  - SDL_OpenAudioDevice
+- pFpippp:
+  - SDL_LoadWAV_RW
+wrappedsdl2image:
+- pFp:
+  - IMG_LoadBMP_RW
+  - IMG_LoadCUR_RW
+  - IMG_LoadGIF_RW
+  - IMG_LoadICO_RW
+  - IMG_LoadJPG_RW
+  - IMG_LoadLBM_RW
+  - IMG_LoadPCX_RW
+  - IMG_LoadPNG_RW
+  - IMG_LoadPNM_RW
+  - IMG_LoadTGA_RW
+  - IMG_LoadTIF_RW
+  - IMG_LoadWEBP_RW
+  - IMG_LoadXCF_RW
+  - IMG_LoadXPM_RW
+  - IMG_LoadXV_RW
+- pFpi:
+  - IMG_Load_RW
+- iFppi:
+  - IMG_SavePNG_RW
+- pFpip:
+  - IMG_LoadTyped_RW
+- pFppi:
+  - IMG_LoadTexture_RW
+- pFppip:
+  - IMG_LoadTextureTyped_RW
+wrappedsdl2mixer:
+- vFp:
+  - Mix_ChannelFinished
+  - Mix_HookMusicFinished
+- vFpp:
+  - Mix_HookMusic
+  - Mix_SetPostMix
+- iFiw:
+  - MinorityMix_SetPosition
+- iFip:
+  - Mix_UnregisterEffect
+- pFpi:
+  - Mix_LoadMUS_RW
+  - Mix_LoadWAV_RW
+- pFpii:
+  - Mix_LoadMUSType_RW
+- iFippp:
+  - Mix_RegisterEffect
+wrappedsdl2ttf:
+- pFpii:
+  - TTF_OpenFontRW
+- pFpiii:
+  - TTF_OpenFontIndexRW
+wrappedsmpeg:
+- pFppi:
+  - SMPEG_new_rwops
+- vFpppp:
+  - SMPEG_setdisplay
+wrappedsmpeg2:
+- vFpppp:
+  - SMPEG_setdisplay
+- pFppii:
+  - SMPEG_new_rwops
+wrappedutil:
+- iFpppp:
+  - forkpty
+wrappedvorbisfile:
+- iFppplPPPP:
+  - ov_open_callbacks
+  - ov_test_callbacks
+wrappedxml2:
+- vFp:
+  - xmlSetExternalEntityLoader
+- iFp:
+  - xmlParseDocument
+- pFv:
+  - xmlGetExternalEntityLoader
+- vFpp:
+  - xmlHashFree
+- pFpp:
+  - xmlHashCopy
+- vFppp:
+  - xmlHashScan
+  - xmlHashScanFull
+  - xmlSchemaSetParserStructuredErrors
+  - xmlSchemaSetValidStructuredErrors
+- iFppp:
+  - xmlHashRemoveEntry
+  - xmlXPathRegisterFunc
+- pFppp:
+  - xmlNewCharEncodingHandler
+- vFpppp:
+  - xmlSchemaSetParserErrors
+  - xmlSchemaSetValidErrors
+- iFpppp:
+  - xmlHashRemoveEntry2
+  - xmlHashUpdateEntry
+  - xmlRegisterInputCallbacks
+- pFpppi:
+  - xmlParserInputBufferCreateIO
+- pFpppp:
+  - xmlOutputBufferCreateIO
+- iFppppp:
+  - xmlHashRemoveEntry3
+  - xmlHashUpdateEntry2
+- pFppppi:
+  - xmlSaveToIO
+- vFpppppp:
+  - xmlHashScan3
+  - xmlHashScanFull3
+- iFpppppp:
+  - xmlHashUpdateEntry3
