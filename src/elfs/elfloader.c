@@ -369,7 +369,7 @@ int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t**
         const char* symname = SymName(h, sym);
         int version2 = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[ELF64_R_SYM(rel[i].r_info)]:-1;
         if(version2!=-1) version2 &= 0x7fff;
-        if(version && !version2) version2=-1;   // match a version symbol against a global "local" symbol
+        if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
         const char* vername2 = GetSymbolVersion(h, version2);
         if(SameVersionnedSymbol(name, version, vername, symname, version2, vername2) && t==R_X86_64_COPY) {
             *offs = sym->st_value + h->delta;
