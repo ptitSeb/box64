@@ -89,13 +89,17 @@ void openFTrace()
         ftrace_has_pid = 1;
     }
     if(p) {
-        ftrace = fopen(p, "w");
-        if(!ftrace) {
-            ftrace = stdout;
-            printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
-        } else {
-            if(!box64_nobanner)
-                printf("BOX64 Trace redirected to \"%s\"\n", p);
+        if(!strcmp(p, "stderr"))
+            ftrace = stderr;
+        else {
+            ftrace = fopen(p, "w");
+            if(!ftrace) {
+                ftrace = stdout;
+                printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
+            } else {
+                if(!box64_nobanner)
+                    printf("BOX64 Trace redirected to \"%s\"\n", p);
+            }
         }
     }
 }
@@ -464,7 +468,7 @@ void PrintHelp() {
     printf(" BOX64_DYNAREC_TRACE with 0/1 to disable or enable Trace on generated code too\n");
 #endif
 #endif
-    printf(" BOX64_TRACE_FILE with FileName to redirect logs in a file");
+    printf(" BOX64_TRACE_FILE with FileName to redirect logs in a file (or stderr to use stderr instead of stdout)");
     printf(" BOX64_DLSYM_ERROR with 1 to log dlsym errors\n");
     printf(" BOX64_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binary (if binary is a PIE)\n");
     printf(" BOX64_NOSIGSEGV=1 to disable handling of SigSEGV\n");

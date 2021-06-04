@@ -31,6 +31,7 @@ Enables/Disables the logging of `dlsym` errors.
 #### BOX64_TRACE_FILE
 Send all log and trace to a file instead of `stdout`
 Also, if name contains `%pid` then this is replaced by the actual PID of box64 instance
+Use `stderr` to use this instead of default `stdout` 
 
 #### BOX64_TRACE
 Only on build with trace enabled. Trace allow the logging of all instruction executed, along with register dump
