@@ -9,6 +9,16 @@
 #include "x87emu_private.h"
 //#include "x64run_private.h"
 
+void fpu_do_free(x64emu_t* emu, int i)
+{
+    emu->p_regs[(emu->top+i)&7].tag = 0b11;    // empty
+    // check if all empty
+    for(int j=0; j<8; ++j)
+        if(emu->p_regs[j].tag != 0b11)
+            return;
+    emu->fpu_stack = 0;
+}
+
 void reset_fpu(x64emu_t* emu)
 {
     memset(emu->mmx87, 0, sizeof(emu->mmx87));
