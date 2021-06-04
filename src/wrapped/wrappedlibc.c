@@ -235,6 +235,7 @@ static void* findgloberrFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc globerr callback\n");
     return NULL;
 }
+
 #if 0
 #undef dirent
 // filter_dir
@@ -284,6 +285,7 @@ static void* findcompare_dirFct(void* fct)
     return NULL;
 }
 #endif
+
 // filter64
 #define GO(A)   \
 static uintptr_t my_filter64_fct_##A = 0;                               \
@@ -604,11 +606,13 @@ EXPORT int my___wprintf_chk(x64emu_t *emu, int flag, void* fmt, void* b, va_list
     #endif
 }
 #endif
+
 EXPORT int my_fwprintf(x64emu_t *emu, void* F, void* fmt, void* b)  {
     myStackAlignW(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     return vfwprintf(F, fmt, VARARGS);
 }
+
 #if 0
 EXPORT int my___fwprintf_chk(x64emu_t *emu, void* F, void* fmt, void* b, va_list V) __attribute__((alias("my_fwprintf")));
 
@@ -641,6 +645,7 @@ EXPORT void *my_div(void *result, int numerator, int denominator) {
     return result;
 }
 #endif
+
 EXPORT int my_snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint64_t * b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
@@ -668,6 +673,7 @@ EXPORT int my___sprintf_chk(x64emu_t* emu, void* buff, int flag, size_t l, void 
     PREPARE_VALIST;
     return vsprintf(buff, (const char*)fmt, VARARGS);
 }
+
 #if 0
 EXPORT int my_asprintf(x64emu_t* emu, void** buff, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
@@ -720,8 +726,8 @@ EXPORT int my_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
 }
 EXPORT int my__IO_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 EXPORT int my___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
-#if 0
 
+#if 0
 EXPORT int my___isoc99_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 #endif
 EXPORT int my___isoc99_fscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
@@ -802,6 +808,7 @@ EXPORT int my_swscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
 
     return vswscanf(stream, fmt, VARARGS);
 }
+
 #if 0
 EXPORT void my_verr(x64emu_t* emu, int eval, void* fmt, void* b) {
     #ifndef NOALIGN
@@ -827,6 +834,7 @@ EXPORT void my_vwarn(x64emu_t* emu, void* fmt, void* b) {
     #endif
 }
 #endif
+
 EXPORT void my_syslog(x64emu_t* emu, int priority, const char* fmt, uint64_t* b)
 {
     myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
@@ -970,6 +978,7 @@ EXPORT int my__IO_file_stat(x64emu_t* emu, void* f, void* buf)
     UnalignStat64(&st, buf);
     return r;
 }
+
 #if 0
 EXPORT int my_fstatfs64(int fd, void* buf)
 {
@@ -1033,9 +1042,8 @@ EXPORT void* my_fts_open(x64emu_t* emu, void* path, int options, void* c)
     (void)emu;
     return fts_open(path, options, findcompareFct(c));
 }
+
 #if 0
-
-
 struct i386_dirent {
     uint32_t d_ino;
     int32_t  d_off;
@@ -1416,7 +1424,6 @@ EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
     return fopen64(path, mode);
 }
 
-
 #if 0
 EXPORT int32_t my_ftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 {
@@ -1448,6 +1455,7 @@ EXPORT void* my_ldiv(x64emu_t* emu, void* p, int32_t num, int32_t den)
     return p;
 }
 #endif
+
 #ifndef NOALIGN
 EXPORT int32_t my_epoll_ctl(x64emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event)
 {
@@ -1602,6 +1610,7 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
     free(newargv);
     return ret;
 }
+
 #if 0
 // execvp should use PATH to search for the program first
 EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path, 
@@ -1633,6 +1642,7 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     return posix_spawnp(pid, path, actions, attrp, argv, envp);
 }
 #endif
+
 EXPORT void my__Jv_RegisterClasses() {}
 
 EXPORT int32_t my___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* obj, void* dso)
@@ -1656,6 +1666,7 @@ EXPORT int32_t my___register_atfork(x64emu_t *emu, void* prepare, void* parent, 
     my_context->atforks[my_context->atfork_sz].handle = handle;
     return 0;
 }
+
 #if 0
 EXPORT uint64_t my___umoddi3(uint64_t a, uint64_t b)
 {
@@ -1675,6 +1686,7 @@ EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
     return poll(a, b, c);   // no check...
 }
 #endif
+
 EXPORT int32_t my_fcntl64(x64emu_t* emu, int32_t a, int32_t b, void* c)
 {
     (void)emu;
@@ -1728,6 +1740,7 @@ EXPORT int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c)
     return ret;    
 }
 EXPORT int32_t my___fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c) __attribute__((alias("my_fcntl")));
+
 #if 0
 EXPORT int32_t my_preadv64(x64emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
 {
@@ -1807,6 +1820,7 @@ void InitCpuModel()
                                      | (1<<FEATURE_ADX);
 }
 #endif
+
 EXPORT const unsigned short int *my___ctype_b;
 EXPORT const int32_t *my___ctype_tolower;
 EXPORT const int32_t *my___ctype_toupper;
@@ -2046,6 +2060,7 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
         updateProtection((uintptr_t)addr, len, prot);
     return ret;
 }
+
 #if 0
 typedef struct my_cookie_s {
     uintptr_t r, w, s, c;
@@ -2150,10 +2165,12 @@ EXPORT int my_nanosleep(const struct timespec *req, struct timespec *rem)
     return nanosleep(req, rem);
 }
 #endif
+
 EXPORT void* my_malloc(unsigned long size)
 {
     return calloc(1, size);
 }
+
 #if 0
 #ifdef PANDORA
 #define RENAME_NOREPLACE	(1 << 0)

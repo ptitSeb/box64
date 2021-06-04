@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# TODO: same as for box86, flac can't be auto-generated yet
+
 try:
 	# Python 3.5.2+ (NewType)
 	from typing import Union, List, Sequence, Dict, Tuple, NewType, TypeVar
@@ -79,8 +81,7 @@ class FunctionType(str):
 assert(all(c not in FunctionType.values[:i] for i, c in enumerate(FunctionType.values)))
 
 RedirectType = NewType('RedirectType', FunctionType)
-#DefineType = NewType('DefineType', str)
-DefineType = str
+DefineType = NewType('DefineType', str)
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -95,11 +96,11 @@ class Define:
 	
 	defines: List[DefineType] = []
 	
-	def __init__(self, name: DefineType, inverted_: bool):
+	def __init__(self, name: str, inverted_: bool):
 		# All values of "name" are included in defines (throw otherwise)
-		if name not in self.defines:
+		if DefineType(name) not in self.defines:
 			raise KeyError(name)
-		self.name = name
+		self.name = DefineType(name)
 		self.inverted_ = inverted_
 	def copy(self) -> "Define":
 		return Define(self.name, self.inverted_)
@@ -124,7 +125,7 @@ class Define:
 		else:
 			return "defined(" + self.name + ")"
 @final
-class Defines:
+class Clause:
 	defines: List[Define]
 	
 	def __init__(self, defines: Union[List[Define], str] = []):
@@ -141,8 +142,8 @@ class Defines:
 				)
 		else:
 			self.defines = [d.copy() for d in defines]
-	def copy(self) -> "Defines":
-		return Defines(self.defines)
+	def copy(self) -> "Clause":
+		return Clause(self.defines)
 	
 	def append(self, define: Define) -> None:
 		self.defines.append(define)
@@ -159,22 +160,22 @@ class Clauses:
 	Represent a list of clauses, aka a list of or-ed together and-ed "defined"
 	conditions
 	"""
-	definess: List[Defines]
+	definess: List[Clause]
 	
-	def __init__(self, definess: Union[List[Defines], str] = []):
+	def __init__(self, definess: Union[List[Clause], str] = []):
 		if isinstance(definess, str):
 			if definess == "()":
 				self.definess = []
 			elif ") || (" in definess:
-				self.definess = list(map(Defines, definess[1:-1].split(") || (")))
+				self.definess = list(map(Clause, definess[1:-1].split(") || (")))
 			else:
-				self.definess = [Defines(definess)]
+				self.definess = [Clause(definess)]
 		else:
 			self.definess = definess[:]
 	def copy(self) -> "Clauses":
 		return Clauses(self.definess[:])
 	
-	def add(self, defines: Defines) -> None:
+	def add(self, defines: Clause) -> None:
 		self.definess.append(defines)
 	
 	def splitdef(self) -> List[int]:
@@ -218,10 +219,12 @@ def readFiles(files: Sequence[Filename]) -> \
 	redirects : Dict[ClausesStr, Dict[RedirectType, FunctionType]] = {}
 	mytypedefs: Dict[Filename,   Dict[RedirectType, List[str]]]    = {}
 	
+	halt_required = False # Is there a GO(*, .FE*)?
+	
 	# First read the files inside the headers
 	for filepath in files:
-		filename: str = filepath.split("/")[-1]
-		dependants: Defines = Defines()
+		filename: Filename = filepath.split("/")[-1]
+		dependants: Clause = Clause()
 		with open(filepath, 'r') as file:
 			for line in file:
 				ln = line.strip()
@@ -255,6 +258,7 @@ def readFiles(files: Sequence[Filename]) -> \
 				elif ln.startswith("GO"):
 					# ... then look at the second parameter of the line
 					try:
+						gotype = ln.split("(")[0].strip()
 						funname = ln.split(",")[0].split("(")[1].strip()
 						ln = ln.split(",")[1].split(")")[0].strip()
 					except IndexError as e:
@@ -282,6 +286,10 @@ def readFiles(files: Sequence[Filename]) -> \
 						gbl[str(dependants)].append(FunctionType(ln))
 					
 					if ln[2] == "E":
+						if (gotype != "GOM"):
+							if (gotype != "GO2") or not (line.split(',')[2].split(')')[0].strip().startswith('my_')):
+								print("\033[91mThis is probably not what you meant!\033[m ({0}:{1})".format(filename, line[:-1]))
+								halt_required = True
 						# filename isn't stored with the '_private.h' part
 						if len(ln) > 3:
 							funtype = RedirectType(FunctionType(ln[:2] + ln[3:]))
@@ -290,6 +298,13 @@ def readFiles(files: Sequence[Filename]) -> \
 						mytypedefs.setdefault(filename[:-10], {})
 						mytypedefs[filename[:-10]].setdefault(funtype, [])
 						mytypedefs[filename[:-10]][funtype].append(funname)
+					# OK on box64
+					# elif gotype == "GOM":
+					# 	print("\033[94mAre you sure of this?\033[m ({0}:{1})".format(filename, line[:-1]))
+					# 	halt_required = True
+	
+	if halt_required:
+		raise ValueError("Fix all previous errors before proceeding")
 	
 	if ("" not in gbl) or ("" not in redirects):
 		print("\033[1;31mThere is suspiciously not many types...\033[m")
@@ -315,7 +330,7 @@ def sortArrays(
 	# be generated. There is also a filter to avoid duplicate/opposite clauses.
 	gbl_vals: Dict[FunctionType, Clauses] = {}
 	for k1 in gbl_tmp:
-		ks = Defines(k1)
+		ks = Clause(k1)
 		for v in gbl_tmp[k1]:
 			if k1 == "":
 				# Unconditionally define v
@@ -338,7 +353,7 @@ def sortArrays(
 					gbl_vals[v].add(ks)
 				
 			else:
-				gbl_vals[v] = Clauses([Defines(k1)])
+				gbl_vals[v] = Clauses([Clause(k1)])
 	
 	for v in gbl_vals:
 		strdefines = list(map(str, gbl_vals[v].definess))
@@ -372,7 +387,7 @@ def sortArrays(
 	# to an already defined type (with some remapping).
 	redirects_vals: Dict[Tuple[RedirectType, FunctionType], Clauses] = {}
 	for k1 in red_tmp:
-		ks = Defines(k1)
+		ks = Clause(k1)
 		for v in red_tmp[k1]:
 			if k1 == "":
 				# Unconditionally define v
@@ -395,7 +410,7 @@ def sortArrays(
 					redirects_vals[(v, red_tmp[k1][v])].add(ks)
 			
 			else:
-				redirects_vals[(v, red_tmp[k1][v])] = Clauses([Defines(k1)])
+				redirects_vals[(v, red_tmp[k1][v])] = Clauses([Clause(k1)])
 	# Also does the same trick as before (also helps keep the order
 	# in the file deterministic)
 	redirects: Dict[ClausesStr, List[Tuple[RedirectType, FunctionType]]] = {}
@@ -942,7 +957,7 @@ if __name__ == '__main__':
 	for i, v in enumerate(sys.argv):
 		if v == "--":
 			limit.append(i)
-	Define.defines = sys.argv[2:limit[0]]
+	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
 	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.0.1.14") != 0:
 		exit(2)
 	exit(0)

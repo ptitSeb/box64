@@ -23,10 +23,7 @@ const char* libtinfo6Name = "libtinfo.so.6";
 
 static library_t* my_lib = NULL;
 
-typedef int    (*iFpip_t)       (void*, int, void*);
-
-#define SUPER() \
-    GO(tputs, iFpip_t)       \
+#include "generated/wrappedlibtinfo6types.h"
 
 typedef struct libtinfo6_my_s {
     // functions

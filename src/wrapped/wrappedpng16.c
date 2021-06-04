@@ -26,23 +26,7 @@ const char* png16Name =
 	;
 #define LIBNAME png16
 
-typedef void  (*vFpp_t)(void*, void*);
-typedef void  (*vFppp_t)(void*, void*, void*);
-typedef void  (*vFpppp_t)(void*, void*, void*, void*);
-typedef void* (*pFpppp_t)(void*, void*, void*, void*);
-typedef void  (*vFppppp_t)(void*, void*, void*, void*, void*);
-typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
-
-#define SUPER() \
-    GO(png_set_read_fn, vFppp_t)                \
-    GO(png_set_error_fn, vFpppp_t)              \
-    GO(png_set_read_user_transform_fn, vFpp_t)  \
-    GO(png_set_write_fn, vFpppp_t)              \
-    GO(png_create_read_struct_2, pFppppppp_t)   \
-    GO(png_create_write_struct_2, pFppppppp_t)  \
-    GO(png_set_progressive_read_fn, vFppppp_t)  \
-    GO(png_create_read_struct, pFpppp_t)        \
-
+#include "generated/wrappedpng16types.h"
 
 typedef struct png16_my_s {
     #define GO(A, B)    B   A;

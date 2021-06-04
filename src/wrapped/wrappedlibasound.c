@@ -22,22 +22,7 @@
 #define LIBNAME libasound
 const char* libasoundName = "libasound.so.2";
 
-typedef int     (*iFp_t)        (void*);
-typedef void*   (*pFp_t)        (void*);
-typedef int     (*iFpipp_t)     (void*, int, void*, void*);
-typedef int     (*iFpppp_t)     (void*, void*, void*, void*);
-
-EXPORT uintptr_t my_snd_lib_error = 0;
-static void default_error_handler(const char *file, int line, const char *function, int err, const char *fmt, va_list ap)
-{
-    (void)file; (void)line; (void)function; (void)err;
-    vprintf(fmt, ap);
-}
-
-#define SUPER() \
-    GO(snd_async_add_handler, iFpipp_t)                 \
-    GO(snd_async_add_pcm_handler, iFpppp_t)             \
-    GO(snd_lib_error_set_handler, iFp_t)
+#include "generated/wrappedlibasoundtypes.h"
 
 typedef struct asound_my_s {
     // functions
@@ -45,6 +30,13 @@ typedef struct asound_my_s {
     SUPER()
     #undef GO
 } asound_my_t;
+
+EXPORT uintptr_t my_snd_lib_error = 0;
+static void default_error_handler(const char *file, int line, const char *function, int err, const char *fmt, va_list ap)
+{
+    (void)file; (void)line; (void)function; (void)err;
+    vprintf(fmt, ap);
+}
 
 void* getAsoundMy(library_t* lib)
 {

@@ -146,6 +146,7 @@ typedef struct box64context_s {
     library_t           *asound;
     library_t           *pulse;
     library_t           *d3dadapter9;
+    library_t           *libglu;
 
     int                 deferedInit;
     elfheader_t         **deferedInitList;

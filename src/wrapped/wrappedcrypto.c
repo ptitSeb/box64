@@ -25,30 +25,10 @@ const char* cryptoName = "libcrypto.so.1.0.0";
 
 static library_t* my_lib = NULL;
 
-typedef void        (*vFp_t)        (void*);
-typedef void*       (*pFp_t)        (void*);
-typedef void        (*vFpp_t)       (void*, void*);
-typedef void*       (*pFpppp_t)     (void*, void*, void*, void*);
-typedef int32_t     (*iFpiipp_t)    (void*, int32_t, int32_t, void*, void*);
-typedef int32_t     (*iFpplppi_t)   (void*, void*, long, void*, void*, int32_t);
-typedef int32_t     (*iFppppipp_t)  (void*, void*, void*, void*, int, void*, void*);
-
-#define SUPER() \
-    GO(ENGINE_ctrl, iFpiipp_t)                      \
-    GO(ENGINE_ctrl_cmd, iFpplppi_t)                 \
-    GO(CRYPTO_set_id_callback, vFp_t)               \
-    GO(CRYPTO_set_locking_callback, vFp_t)          \
-    GO(PEM_read_bio_DSAPrivateKey, pFpppp_t)        \
-    GO(PEM_read_bio_DSA_PUBKEY, pFpppp_t)           \
-    GO(PEM_read_bio_RSAPrivateKey, pFpppp_t)        \
-    GO(PEM_read_bio_RSA_PUBKEY, pFpppp_t)           \
-    GO(PEM_read_bio_ECPrivateKey, pFpppp_t)         \
-    GO(PEM_read_bio_EC_PUBKEY, pFpppp_t)            \
-    GO(PEM_write_bio_DSAPrivateKey, iFppppipp_t)    \
-    GO(PEM_write_bio_RSAPrivateKey, iFppppipp_t)    \
-    GO(PEM_write_bio_ECPrivateKey, iFppppipp_t)     \
-    GO(sk_new, pFp_t)                               \
-    GO(sk_pop_free, vFpp_t)
+typedef int64_t (*iFpplppi_t) (void*, void*, long, void*, void*, int64_t);
+#define ADDED_FUNCTIONS() \
+    GO(ENGINE_ctrl_cmd, iFpplppi_t)
+#include "generated/wrappedcryptotypes.h"
 
 typedef struct crypto_my_s {
     // functions

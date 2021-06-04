@@ -21,10 +21,7 @@ const char* pangoName = "libpango-1.0.so.0";
 #define LIBNAME pango
 static library_t *my_lib = NULL;
 
-typedef void    (*vFpp_t)       (void*, void*);
-
-#define SUPER() \
-    GO(pango_attribute_init, vFpp_t)        \
+#include "generated/wrappedpangotypes.h"
 
 typedef struct pango_my_s {
     // functions

@@ -23,31 +23,7 @@ const char* dbusName = "libdbus-1.so.3";
 #define LIBNAME dbus
 static library_t* my_lib = NULL;
 
-typedef void (*vFppp_t)(void*, void*, void*);
-typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
-typedef int32_t (*iFppiA_t)(void*, void*, int32_t, va_list);
-typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
-typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
-typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
-
-#define SUPER()                                                 \
-    GO(dbus_timeout_set_data, vFppp_t)                          \
-    GO(dbus_connection_set_timeout_functions, iFpppppp_t)       \
-    GO(dbus_connection_add_filter, iFpppp_t)                    \
-    GO(dbus_connection_remove_filter, vFppp_t)                  \
-    GO(dbus_message_get_args_valist, iFppiA_t)                  \
-    GO(dbus_message_set_data, iFpipp_t)                         \
-    GO(dbus_pending_call_set_notify, iFpppp_t)                  \
-    GO(dbus_pending_call_set_data, iFpipp_t)                    \
-    GO(dbus_watch_set_data, vFppp_t)                            \
-    GO(dbus_connection_set_dispatch_status_function, vFpppp_t)  \
-    GO(dbus_connection_set_watch_functions, iFpppppp_t)         \
-    GO(dbus_connection_try_register_object_path, iFppppp_t)     \
-    GO(dbus_connection_set_data, iFpipp_t)                      \
-    GO(dbus_connection_set_wakeup_main_function, vFpppp_t)      \
-    GO(dbus_connection_try_register_fallback, iFppppp_t)        \
-
+#include "generated/wrappeddbustypes.h"
 
 typedef struct dbus_my_s {
     // functions

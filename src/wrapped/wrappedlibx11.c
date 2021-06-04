@@ -45,15 +45,15 @@ typedef struct ximage_s {
     void*(*create_image)(
             void*           /* display */,
             void*           /* visual */,
-            uint32_t        /* depth */,
-            int32_t         /* format */,
-            int32_t         /* offset */,
+            uint64_t        /* depth */,            // Should be uint32_t instead
+            int64_t         /* format */,           // Should be int32_t instead
+            int64_t         /* offset */,           // Should be int32_t instead
             void*           /* data */,
-            uint32_t        /* width */,
-            uint32_t        /* height */,
-            int32_t         /* bitmap_pad */,
-            int32_t         /* bytes_per_line */);
-    int32_t (*destroy_image)        (void*);
+            uint64_t        /* width */,            // Should be uint32_t instead
+            uint64_t        /* height */,           // Should be uint32_t instead
+            int64_t         /* bitmap_pad */,       // Should be int32_t instead
+            int64_t         /* bytes_per_line */);  // Should be int32_t instead
+    int64_t (*destroy_image)        (void*);        // Should be int32_t instead
     uintptr_t (*get_pixel)           (void*, int32_t, int32_t);
     int32_t (*put_pixel)            (void*, int32_t, int32_t, uintptr_t);
     void*(*sub_image)    (void*, int32_t, int32_t, uint32_t, uint32_t); //sub_image return a new XImage that need bridging => custom wrapper
@@ -80,62 +80,15 @@ typedef struct _XImage {
 } XImage;
 
 typedef uint32_t (*uFv_t)(void);
-typedef void (*vFp_t)(void*);
-typedef void* (*pFp_t)(void*);
-typedef void (*vFpp_t)(void*, void*);
-typedef void* (*pFpp_t)(void*, void*);
-typedef void* (*pFpi_t)(void*, int32_t);
-typedef void* (*pFpip_t)(void*, int32_t, void*);
-typedef int32_t (*iFp_t)(void*);
-typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpl_t)(void*, intptr_t);
-typedef int32_t (*iFppp_t)(void*, void*, void*);
-typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
-typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
-typedef uint32_t (*uFpii_t)(void*, int32_t, int32_t);
 typedef uintptr_t (*LFpii_t)(void*, int32_t, int32_t);
-typedef int32_t (*iFpiiu_t)(void*, int32_t, int32_t, uint32_t);
 typedef int32_t (*iFpiiL_t)(void*, int32_t, int32_t, uintptr_t);
-typedef void* (*pFppup_t)(void*, void*, uint32_t, void*);
 typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
-typedef void* (*pFppiiuuui_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t);
-typedef void* (*pFppuiipuuii_t)(void*, void*, uint32_t, int32_t, int32_t, void*, uint32_t, uint32_t, int32_t, int32_t);
-typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, void*, int32_t, int32_t);
-typedef int32_t (*iFppppiiiiuu_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
-typedef int (*iFppppp_t)(void*, void*, void*, void*, void*);
-typedef int (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 
-#define SUPER() \
-    GO(XSetErrorHandler, pFp_t)             \
-    GO(XSetIOErrorHandler, pFp_t)           \
-    GO(XESetError, pFpip_t)                 \
-    GO(XESetCloseDisplay, pFpip_t)          \
-    GO(XIfEvent, iFpppp_t)                  \
-    GO(XCheckIfEvent, iFpppp_t)             \
-    GO(XPeekIfEvent, iFpppp_t)              \
-    GO(XCreateImage, pFppuiipuuii_t)        \
-    GO(XInitImage, iFp_t)                   \
-    GO(XGetImage, pFppiiuuui_t)             \
-    GO(XPutImage, iFppppiiiiuu_t)           \
-    GO(XGetSubImage, pFppiiuuuipii_t)       \
-    GO(XDestroyImage, vFp_t)                \
-    GO(_XDeqAsyncHandler, vFpp_t)           \
-    GO(XLoadQueryFont, pFpp_t)              \
-    GO(XCreateGC, pFppup_t)                 \
-    GO(XSetBackground, iFppu_t)             \
-    GO(XSetForeground, iFppu_t)             \
-    GO(XESetWireToEvent, pFpip_t)           \
-    GO(XESetEventToWire, pFpip_t)           \
-    GO(XCloseDisplay, iFp_t)                \
-    GO(XOpenDisplay, pFp_t)                 \
-    GO(XInitThreads, uFv_t)                 \
-    GO(XRegisterIMInstantiateCallback, iFpppppp_t)      \
-    GO(XUnregisterIMInstantiateCallback, iFpppppp_t)    \
-    GO(XQueryExtension, iFppppp_t)          \
-    GO(XAddConnectionWatch, iFppp_t)        \
-    GO(XRemoveConnectionWatch, iFppp_t)     \
-    GO(XSetAfterFunction, pFpp_t)           \
-    GO(XSynchronize, pFpi_t)                \
+#define ADDED_FUNCTIONS() \
+    GO(XInitThreads, uFv_t)
+
+#include "generated/wrappedlibx11types.h"
 
 typedef struct x11_my_s {
     // functions

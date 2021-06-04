@@ -20,6 +20,8 @@
 const char* pulseName = "libpulse.so.0";
 #define LIBNAME pulse
 
+// TODO: check my_pa_proplist_setf (not using generated/...)
+
 typedef struct my_pa_mainloop_api_s {
     void*   data;
     void*   io_new;

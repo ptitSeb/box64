@@ -20,16 +20,13 @@
 const char* libxtName = "libXt.so.6";
 #define LIBNAME libxt
 
-typedef void  (*vFpuipp_t)(void*, uint32_t, int32_t, void*, void*);
-
-#define SUPER() \
-    GO(XtAddEventHandler, vFpuipp_t)
+#include "generated/wrappedlibxttypes.h"
 
 typedef struct libxt_my_s {
+    // functions
     #define GO(A, B)    B   A;
     SUPER()
     #undef GO
-    // functions
 } libxt_my_t;
 
 void* getXtMy(library_t* lib)
