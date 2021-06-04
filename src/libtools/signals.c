@@ -722,14 +722,12 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
         // access error, unprotect the block (and mark them dirty)
-        if(prot&PROT_DYNAREC)   // on heavy multi-thread program, the protection can already be gone...
-            unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         // check if SMC inside block
-        if(!db_searched) {
-            db = FindDynablockFromNativeAddress(pc);
-            db_searched = 1;
-        }
-        if(db && (addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size))) {
+        db = FindDynablockFromNativeAddress(pc);
+        db_searched = 1;
+        dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p)\n", pc, addr, db, db?((void*)db->x64_addr):NULL);
+        if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db->need_test)) {
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();
             if(ejb->jmpbuf_ok) {
@@ -751,7 +749,11 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 ejb->emu->regs[_R15].q[0] = p->uc_mcontext.regs[25];
                 ejb->emu->ip.q[0] = getX64Address(db, (uintptr_t)pc);
                 ejb->emu->eflags.x64 = p->uc_mcontext.regs[26];
-                dynarec_log(LOG_DEBUG, "Auto-SMC detected, getting out of current Dynablock!\n");
+                if(addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) {
+                    dynarec_log(LOG_INFO, "Auto-SMC detected, getting out of current Dynablock!\n");
+                } else {
+                    dynarec_log(LOG_INFO, "Dynablock unprotected, getting out!\n");
+                }
                 relockMutex(Locks);
                 siglongjmp(ejb->jmpbuf, 2);
             }
