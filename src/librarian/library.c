@@ -249,13 +249,17 @@ library_t *NewLibrary(const char* path, box64context_t* context)
     printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
     if(box64_nopulse) {
         if(strstr(lib->name, "libpulse.so")==lib->name || strstr(lib->name, "libpulse-simple.so")==lib->name) {
-            Free1Library(&lib, NULL);
+            free(lib->name);
+            free(lib->path);
+            free(lib);
             return NULL;
         }
     }
     if(box64_novulkan) {
         if(strstr(lib->name, "libvulkan.so")==lib->name) {
-            Free1Library(&lib, NULL);
+            free(lib->name);
+            free(lib->path);
+            free(lib);
             return NULL;
         }
     }
@@ -273,7 +277,9 @@ library_t *NewLibrary(const char* path, box64context_t* context)
     // nothing loaded, so error...
     if(lib->type==-1)
     {
-        Free1Library(&lib, NULL);
+        free(lib->name);
+        free(lib->path);
+        free(lib);
         return NULL;
     }
 

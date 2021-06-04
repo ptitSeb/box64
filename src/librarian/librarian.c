@@ -33,11 +33,12 @@ lib_t *NewLibrarian(box64context_t* context, int ownlibs)
 
     return maplib;
 }
-static void freeLibraryRecurse(lib_t *maplib, x64emu_t *emu, int idx, char *freed) {
+static void freeLibraryRecurse(lib_t *maplib, x64emu_t *emu, int idx, char *freed, library_t* owner) {
     if (freed[idx]) return; // Already freed
     
     freed[idx] = 1; // Avoid infinite loops
     library_t *lib = maplib->libraries[idx];
+    if(lib==owner) return; // don't free owner of maplib
     printf_log(LOG_DEBUG, "Free %s\n", lib->name);
     for (int i = lib->depended.size - 1; i >= 0; --i) {
         int j;
@@ -52,15 +53,15 @@ static void freeLibraryRecurse(lib_t *maplib, x64emu_t *emu, int idx, char *free
             printf_log(LOG_DEBUG, "Cyclic dependancy detected (cycle is between %s and %s)\n", lib->name, lib->depended.libs[i]->name);
             continue;
         }
-        freeLibraryRecurse(maplib, emu, j, freed);
+        freeLibraryRecurse(maplib, emu, j, freed, owner);
         if (freed[idx] != 1) {
             printf_log(LOG_DEBUG, "Library cleared (cyclic dependancy break)\n");
             return;
         }
     }
-    library_t *oldptr = maplib->libraries[idx];
-    Free1Library(&maplib->libraries[idx], emu);
-    maplib->libraries[idx] = oldptr; // Temporarily save the old address
+    library_t *ptr = maplib->libraries[idx];
+    if(maplib->ownlibs)
+        Free1Library(&ptr, emu);
     freed[idx] = 2;
 }
 void FreeLibrarian(lib_t **maplib, x64emu_t *emu)
@@ -68,18 +69,21 @@ void FreeLibrarian(lib_t **maplib, x64emu_t *emu)
     if(!maplib || !*maplib)
         return;
     
+    library_t* owner = (*maplib)->owner;
+    (*maplib)->owner = NULL;    // to avoid recursive free
     if((*maplib)->ownlibs && (*maplib)->libsz) {
         printf_log(LOG_DEBUG, "Closing %d libs from maplib %p\n", (*maplib)->libsz, *maplib);
         char *freed = (char*)calloc((*maplib)->libsz, sizeof(char));
         if (!freed) {
             printf_log(LOG_INFO, "Failed to malloc freed table, using old algorithm (a crash is likely)\n");
-            for (int i=(*maplib)->libsz-1; i>=0; --i) {
-                printf_log(LOG_DEBUG, "Unloading %s\n", (*maplib)->libraries[i]->name);
-                Free1Library(&(*maplib)->libraries[i], emu);
-            }
+            for (int i=(*maplib)->libsz-1; i>=0; --i) 
+                if((*maplib)->libraries[i]!=owner) {
+                    printf_log(LOG_DEBUG, "Unloading %s\n", (*maplib)->libraries[i]->name);
+                    Free1Library(&(*maplib)->libraries[i], emu);
+                }
         } else {
             for (int i=(*maplib)->libsz-1; i>=0; --i) {
-                freeLibraryRecurse(*maplib, emu, i, freed);
+                freeLibraryRecurse(*maplib, emu, i, freed, owner);
             }
             memset((*maplib)->libraries, 0, (*maplib)->libsz*sizeof(library_t*)); // NULL = 0 anyway
             (*maplib)->libsz = 0;
@@ -193,6 +197,23 @@ void MapLibRemoveLib(lib_t* maplib, library_t* lib)
         memmove(&maplib->libraries[idx], &maplib->libraries[idx+1], sizeof(library_t*)*(maplib->libsz-idx));
 }
 
+static void MapLibRemoveMapLib(lib_t* dest, lib_t* src)
+{
+    if(!src)
+        return;
+    //library_t *owner = src->owner;
+    for(int i=0; i<src->libsz; ++i) {
+        library_t* lib = src->libraries[i];
+        if(!lib || !libraryInMapLib(dest, lib)) continue;
+        MapLibRemoveLib(dest, lib);
+        if(lib->maplib && src!=lib->maplib && dest!=lib->maplib) {
+            MapLibRemoveMapLib(dest, lib->maplib);
+            if(lib->maplib && src==my_context->local_maplib)
+                lib->maplib = NULL;
+        }
+    }
+}
+
 int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, const char* path, box64context_t* box64, x64emu_t* emu)
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib%s\n", path, local?" (local)":"");
@@ -216,6 +237,8 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
                 }
                 if(!libraryInMapLib(maplib, lib))
                     MapLibAddLib(maplib, lib);
+                if(maplib->ownlibs)
+                    MapLibRemoveMapLib(my_context->local_maplib, maplib);
             }
         } else {
             // promote lib from local to global...
@@ -227,7 +250,7 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
             }
             if(!libraryInMapLib(my_context->maplib, lib))
                 MapLibAddLib(my_context->maplib, lib);
-            MapLibRemoveLib(my_context->local_maplib, lib);
+            MapLibRemoveMapLib(my_context->local_maplib, my_context->maplib);
         }
         add_neededlib(neededlibs, lib);
         if (lib && deplib) add_dependedlib(&lib->depended, deplib);

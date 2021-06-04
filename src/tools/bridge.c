@@ -55,6 +55,8 @@ bridge_t *NewBridge()
 }
 void FreeBridge(bridge_t** bridge)
 {
+    if(!bridge || !*bridge)
+        return;
     brick_t *b = (*bridge)->head;
     while(b) {
         brick_t *n = b->next;
