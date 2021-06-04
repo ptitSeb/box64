@@ -369,7 +369,7 @@ GO(SDL_JoystickGetDeviceType, iFi)
 GO(SDL_JoystickGetDeviceVendor, WFi)
 GO(SDL_JoystickGetGUID, HFp)
 GO(SDL_JoystickGetGUIDFromString, HFp)
-GO(SDL_JoystickGetGUIDString, vFupi)
+GO(SDL_JoystickGetGUIDString, vFUUpi)   //uint8_t data[16] passed as 1st argument...
 GO(SDL_JoystickGetHat, CFpi)
 GO(SDL_JoystickGetPlayerIndex, iFp)
 GO(SDL_JoystickGetProduct, WFp)
