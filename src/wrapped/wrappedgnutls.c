@@ -23,13 +23,7 @@ const char* gnutlsName = "libgnutls.so.30";
 
 static library_t *my_lib = NULL;
 
-typedef void        (*vFp_t)        (void*);
-typedef void        (*vFpp_t)       (void*, void*);
-
-#define SUPER() \
-    GO(gnutls_global_set_log_function, vFp_t)       \
-    GO(gnutls_transport_set_pull_function, vFpp_t)  \
-    GO(gnutls_transport_set_push_function, vFpp_t)  \
+#include "generated/wrappedgnutlstypes.h"
 
 typedef struct gnutls_my_s {
     // functions

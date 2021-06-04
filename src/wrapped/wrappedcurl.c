@@ -22,12 +22,7 @@ const char* curlName = "libcurl.so.4";
 
 static library_t* my_lib = NULL;
 
-typedef uint32_t (*uFpup_t)(void*, uint32_t, void*);
-typedef void (*vFp_t)(void*);
-typedef void* (*pFp_t)(void*);
-
-#define SUPER() \
-    GO(curl_easy_setopt, uFpup_t)
+#include "generated/wrappedcurltypes.h"
 
 typedef struct curl_my_s {
     // functions

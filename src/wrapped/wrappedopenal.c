@@ -17,29 +17,25 @@
 #include "librarian.h"
 #include "myalign.h"
 
+const char* openalName = "libopenal.so.1";
+#define LIBNAME openal
+
 static char* libname = NULL;
 
-typedef void* (*pFp_t)(void*);
-typedef void* (*pFpp_t)(void*, void*);
-typedef void (*vFv_t)();
-typedef void (*vFiiipp_t)(int32_t, int32_t, int32_t, void*, void*);
+#include "generated/wrappedopenaltypes.h"
 
 typedef struct openal_my_s {
     // functions
-    pFp_t  alGetProcAddress;
-    pFpp_t  alcGetProcAddress;
-    vFiiipp_t alRequestFoldbackStart;
-    vFv_t alRequestFoldbackStop;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
 } openal_my_t;
 
 void* getOpenALMy(library_t* lib)
 {
     openal_my_t* my = (openal_my_t*)calloc(1, sizeof(openal_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(alGetProcAddress, pFp_t)
-    GO(alcGetProcAddress, pFpp_t)
-    GO(alRequestFoldbackStart, vFiiipp_t)
-    GO(alRequestFoldbackStop, vFv_t)
+    SUPER()
     #undef GO
     return my;
 }
@@ -49,6 +45,8 @@ void freeOpenALMy(void* lib)
     (void)lib;
     //openal_my_t *my = (openal_my_t *)lib;
 }
+#undef SUPER
+
 #define SUPER() \
 GO(0)   \
 GO(1)   \
@@ -85,9 +83,6 @@ void* my_alGetProcAddress(x64emu_t* emu, void* name);
 void* my_alcGetProcAddress(x64emu_t* emu, void* device, void* name);
 void my_alRequestFoldbackStart(x64emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb);
 void my_alRequestFoldbackStop(x64emu_t* emu);
-
-const char* openalName = "libopenal.so.1";
-#define LIBNAME openal
 
 #define CUSTOM_INIT \
     libname = lib->name;                \

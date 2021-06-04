@@ -21,37 +21,4 @@
 const char* fontconfigName = "libfontconfig.so.1";
 #define LIBNAME fontconfig
 
-#define SUPER() \
-
-typedef struct fontconfig_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} fontconfig_my_t;
-
-void* getFontconfigMy(library_t* lib)
-{
-    fontconfig_my_t* my = (fontconfig_my_t*)calloc(1, sizeof(fontconfig_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    (void)lib; // So many wrapping here
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeFontconfigMy(void* lib)
-{
-    (void)lib;
-    //fontconfig_my_t *my = (fontconfig_my_t *)lib;
-}
-
-#define CUSTOM_INIT \
-    lib->priv.w.p2 = getFontconfigMy(lib);
-
-#define CUSTOM_FINI \
-    freeFontconfigMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
-
 #include "wrappedlib_init.h"

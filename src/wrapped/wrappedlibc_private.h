@@ -446,7 +446,7 @@ GOW(ftrylockfile, iFp)
 //GOW(fts64_set, 
 GO(fts_children, pFpi)
 GO(fts_close, iFp)
-GO(fts_open, pFEpip)
+GOM(fts_open, pFEpip)
 GO(fts_read, pFp)
 GO(fts_set, iFppi)
 GOM(ftw, iFEppi)
@@ -923,7 +923,7 @@ GOM(__isoc99_sscanf, iFEppV)
 //GO(__isoc99_vfscanf, 
 //GO(__isoc99_vfwscanf, 
 //GO(__isoc99_vscanf, 
-GO(__isoc99_vsscanf, iFEppp)
+GOM(__isoc99_vsscanf, iFEppp)
 //GO(__isoc99_vswscanf, 
 //GO(__isoc99_vwscanf, 
 //GO(__isoc99_wscanf, 

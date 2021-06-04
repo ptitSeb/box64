@@ -20,11 +20,7 @@
 const char* libxtstName = "libXtst.so.6";
 #define LIBNAME libxtst
 
-typedef int (*iFpppp_t)(void*, void*, void*, void*);
-
-#define SUPER() \
-    GO(XRecordEnableContextAsync, iFpppp_t) \
-    GO(XRecordEnableContext, iFpppp_t)      \
+#include "generated/wrappedlibxtsttypes.h"
 
 typedef struct libxtst_my_s {
     #define GO(A, B)    B   A;

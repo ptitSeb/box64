@@ -21,14 +21,7 @@
 const char* libsmName = "libSM.so.6";
 #define LIBNAME libsm
 
-typedef int     (*iFppp_t)          (void*, void*, void*);
-typedef int     (*iFpipp_t)         (void*, int, void*, void*);
-typedef void*   (*pFppiiLpppip_t)   (void*, void*, int, int, unsigned long, void*, void*, void*, int, void*);
-
-#define SUPER() \
-    GO(SmcOpenConnection, pFppiiLpppip_t)   \
-    GO(SmcInteractRequest, iFpipp_t)        \
-    GO(SmcRequestSaveYourselfPhase2, iFppp_t)
+#include "generated/wrappedlibsmtypes.h"
 
 typedef struct libsm_my_s {
     // functions

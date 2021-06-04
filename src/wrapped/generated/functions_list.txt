@@ -906,7 +906,6 @@
 #() iFEpilpV
 #() iFEpippi
 #() iFEpuppp
-#() iFEppiLi
 #() iFEppppp
 #() iFiiiiii
 #() iFiiiiip
@@ -1359,9 +1358,6 @@ wrappedflac:
   - FLAC__metadata_chain_read_with_callbacks
 - iFppppppppp:
   - FLAC__stream_decoder_init_stream
-wrappedfontconfig:
-- iFppiLi:
-  - FcPatternAddWeak
 wrappedfreetype:
 - iFpplp:
   - FT_Open_Face

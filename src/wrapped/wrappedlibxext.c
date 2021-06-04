@@ -41,30 +41,20 @@ typedef struct my_XExtensionHooks {
 } my_XExtensionHooks;
 
 
-typedef void* (*pFp_t)(void*);
-typedef int32_t (*iFpppiiu_t)(void*, void*, void*, int32_t, int32_t, uint32_t);
-typedef int32_t (*pFppppip_t)(void*, void*, void*, void*, int32_t, void*);
-typedef void* (*pFppuippuu_t)(void*, void*, uint32_t, int32_t, void*, void*, uint32_t, uint32_t);
-typedef int32_t (*iFppppiiiiuui_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t);
+#include "generated/wrappedlibxexttypes.h"
 
 typedef struct xext_my_s {
     // functions
-    pFppuippuu_t        XShmCreateImage;
-    iFpppiiu_t          XShmGetImage;
-    iFppppiiiiuui_t     XShmPutImage;
-    pFp_t               XSetExtensionErrorHandler;
-    pFppppip_t          XextAddDisplay;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
 } xext_my_t;
 
 void* getXextMy(library_t* lib)
 {
     xext_my_t* my = (xext_my_t*)calloc(1, sizeof(xext_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(XShmCreateImage, pFppuippuu_t)
-    GO(XShmGetImage, iFpppiiu_t)
-    GO(XShmPutImage, iFppppiiiiuui_t)
-    GO(XSetExtensionErrorHandler, pFp_t)
-    GO(XextAddDisplay, pFppppip_t)
+    SUPER()
     #undef GO
     return my;
 }
@@ -74,6 +64,7 @@ void freeXextMy(void* lib)
     (void)lib;
     //xext_my_t *my = (xext_my_t *)lib;
 }
+#undef SUPER
 
 #define SUPER() \
 GO(0)   \
@@ -229,7 +220,7 @@ static char* my_hook_error_string(void* a, int b, void* c, void* d, int e) {
     return 0;
 }
 
-EXPORT int32_t my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* extname, my_XExtensionHooks* hooks, int nevents, void* data)
+EXPORT void* my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* extname, my_XExtensionHooks* hooks, int nevents, void* data)
 {
     xext_my_t *my = (xext_my_t*)my_lib->priv.w.p2;
 
@@ -250,7 +241,7 @@ EXPORT int32_t my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* 
     GO(error)
     GO(error_string)
     #undef GO
-    int32_t ret = my->XextAddDisplay(extinfo, dpy, extname, &natives, nevents, data);
+    void *ret = my->XextAddDisplay(extinfo, dpy, extname, &natives, nevents, data);
     return ret;
 }
 

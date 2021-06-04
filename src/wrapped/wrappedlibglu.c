@@ -18,14 +18,10 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 
-typedef void        (*vFpip_t)(void*, int32_t, void*);
+const char* libgluName = "libGLU.so.1";
+#define LIBNAME libglu
 
-static library_t* my_lib = NULL;
-
-#define SUPER() \
-    GO(gluQuadricCallback, vFpip_t) \
-    GO(gluTessCallback, vFpip_t)   \
-    GO(gluNurbsCallback, vFpip_t)
+#include "generated/wrappedlibglutypes.h"
 
 typedef struct libglu_my_s {
     // functions
@@ -138,13 +134,13 @@ static void* findglu_callback5Fct(void* fct)
 void EXPORT my_gluQuadricCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
 {
     (void)emu;
-    libglu_my_t *my = (libglu_my_t*)my_lib->priv.w.p2;
+    libglu_my_t *my = (libglu_my_t*)emu->context->libglu->priv.w.p2;
     my->gluQuadricCallback(a, b, findglu_callbackFct(cb));
 }
 void EXPORT my_gluTessCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
 {
     (void)emu;
-    libglu_my_t *my = (libglu_my_t*)my_lib->priv.w.p2;
+    libglu_my_t *my = (libglu_my_t*)emu->context->libglu->priv.w.p2;
     if(b==GLU_TESS_COMBINE)
         my->gluTessCallback(a, b, findglu_callback4Fct(cb));
     else if(b==GLU_TESS_COMBINE_DATA)
@@ -155,15 +151,12 @@ void EXPORT my_gluTessCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
 void EXPORT my_gluNurbsCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
 {
     (void)emu;
-    libglu_my_t *my = (libglu_my_t*)my_lib->priv.w.p2;
+    libglu_my_t *my = (libglu_my_t*)emu->context->libglu->priv.w.p2;
     my->gluNurbsCallback(a, b, findglu_callbackFct(cb));
 }
 
-const char* libgluName = "libGLU.so.1";
-#define LIBNAME libglu
-
 #define CUSTOM_INIT                     \
-    my_lib = lib;                       \
+    box64->libglu = lib;                \
     lib->priv.w.p2 = getGLUMy(lib);     \
     lib->priv.w.needed = 1;             \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
@@ -171,8 +164,7 @@ const char* libgluName = "libGLU.so.1";
 
 #define CUSTOM_FINI             \
     freeGLUMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    free(lib->priv.w.p2);
 
 
 #include "wrappedlib_init.h"

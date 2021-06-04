@@ -21,6 +21,8 @@ extern char* libGL;
 const char* libglName = "libGL.so.1";
 #define LIBNAME libgl
 
+// FIXME: old wrapped* type of file, cannot use generated/wrappedlibgltypes.h
+
 void fillGLProcWrapper(box64context_t*);
 void freeProcWrapper(kh_symbolmap_t** symbolmap);
 

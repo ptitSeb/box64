@@ -22,18 +22,7 @@ const char* bz2Name = "libbz2.so.1";
 #define LIBNAME bz2
 static library_t* my_lib = NULL;
 
-typedef int  (*iFp_t)(void*);
-typedef int  (*iFpi_t)(void*, int);
-typedef int  (*iFpii_t)(void*, int, int);
-typedef int  (*iFpiii_t)(void*, int, int, int);
-
-#define SUPER() \
-    GO(BZ2_bzCompressInit, iFpiii_t)    \
-    GO(BZ2_bzCompress, iFpi_t)          \
-    GO(BZ2_bzCompressEnd, iFp_t)        \
-    GO(BZ2_bzDecompressInit, iFpii_t)   \
-    GO(BZ2_bzDecompress, iFp_t)         \
-    GO(BZ2_bzDecompressEnd, iFp_t)
+#include "generated/wrappedbz2types.h"
 
 typedef struct bz2_my_s {
     // functions
