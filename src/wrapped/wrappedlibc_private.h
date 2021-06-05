@@ -1633,8 +1633,8 @@ GO(setlogmask, iFi)
 //GO(setnetent, 
 //GO(setnetgrent, 
 //GO(setns, 
-//GO(__setpgid, 
-//GOW(setpgid, 
+GO(__setpgid, iFpp)
+GOW(setpgid, iFpp)
 //GO(setpgrp, 
 GOW(setpriority, iFiii)
 GO(setprotoent, vFi)
