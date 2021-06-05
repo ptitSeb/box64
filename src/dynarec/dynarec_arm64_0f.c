@@ -1307,7 +1307,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xBB:
             INST_NAME("BTC Ed, Gd");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
             SET_DFNONE(x1);
             nextop = F8;
             GETGD;
@@ -1343,7 +1343,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xBC:
             INST_NAME("BSF Gd, Ed");
-            SETFLAGS(X_ZF, SF_SET);
+            SETFLAGS(X_ZF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETED(0);
             GETGD;
@@ -1354,11 +1355,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MARK;
             CSETw(x1, cEQ);    //ZF not set
             BFIw(xFlags, x1, F_ZF, 1);
-            SET_DFNONE(x1);
             break;
         case 0xBD:
             INST_NAME("BSR Gd, Ed");
-            SETFLAGS(X_ZF, SF_SET);
+            SETFLAGS(X_ZF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETED(0);
             GETGD;
@@ -1370,7 +1371,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MARK;
             CSETw(x1, cEQ);    //ZF not set
             BFIw(xFlags, x1, F_ZF, 1);
-            SET_DFNONE(x1);
             break;
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");

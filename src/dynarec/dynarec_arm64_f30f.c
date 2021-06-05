@@ -336,11 +336,11 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
-            SETFLAGS(X_CF|X_ZF, SF_SET);
+            SETFLAGS(X_CF|X_ZF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETED(0);
             GETGD;
-            SET_DFNONE(x1);
             TSTxw_REG(ed, ed);
             BFIw(xFlags, x1, F_CF, 1);  // CF = is source 0?
             RBITxw(x1, ed);   // reverse

@@ -307,7 +307,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x24:
             INST_NAME("AND AL, Ib");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             u8 = F8;
             UXTBw(x1, xRAX);
             emit_and8c(dyn, ninst, x1, u8, x3, x4);
@@ -1126,7 +1126,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
-                SETFLAGS(X_ALL, SF_SET);
+                SETFLAGS(X_ALL, SF_MAYSET);
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
                 MARK;   // Part with DF==0
@@ -1225,7 +1225,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
-                SETFLAGS(X_ALL, SF_SET);
+                SETFLAGS(X_ALL, SF_MAYSET);
                 CBZx_NEXT(xRCX);
                 UBFXw(x1, xRAX, 0, 8);
                 TBNZ_MARK2(xFlags, F_DF);
@@ -1589,7 +1589,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         INST_NAME("ROL Eb, CL");
                         ANDSw_mask(x2, xRCX, 0, 0b00100);
                     }
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1, 0);
                     CALL_(rol8, x1, x3);
                     EBBACK;
@@ -1602,7 +1602,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         INST_NAME("ROR Eb, CL");
                         ANDSw_mask(x2, xRCX, 0, 0b00100);
                     }
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1, 0);
                     CALL_(ror8, x1, x3);
                     EBBACK;
@@ -1792,7 +1792,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 2:
                     INST_NAME("RCL Ed, CL");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     if(rex.w) {
                         ANDSx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
@@ -1807,7 +1807,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 3:
                     INST_NAME("RCR Ed, CL");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     if(rex.w) {
                         ANDSx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
@@ -2041,7 +2041,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xF5:
             INST_NAME("CMC");
             READFLAGS(X_CF);
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
             EORw_mask(xFlags, xFlags, 0, 0); //mask=0x00000001
             break;
         case 0xF6:
