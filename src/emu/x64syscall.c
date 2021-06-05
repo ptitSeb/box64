@@ -116,6 +116,7 @@ scwrap_t syscallwrap[] = {
     #endif
     { 202, __NR_futex, 6},
     { 217, __NR_getdents64, 3},
+    { 228, __NR_clock_gettime, 2},
     { 234, __NR_tgkill, 3},
     #ifdef __NR_inotify_init
     { 253, __NR_inotify_init, 0},   //0xFD
