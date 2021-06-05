@@ -41,7 +41,7 @@ import os
 import sys
 
 class FunctionType(str):
-	values: List[str] = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P']
+	values: List[str] = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A']
 	
 	@staticmethod
 	def validate(s: str, post: str) -> bool:
@@ -511,7 +511,7 @@ def main(root: str, files: Sequence[Filename], ver: str):
 	allowed_fpr   : str = "fd"
 	
 	# Sanity checks
-	forbidden_simple: str = "EeDKVOSNMHP"
+	forbidden_simple: str = "EeDKVOSNMHPA"
 	assert(len(allowed_simply) + len(allowed_regs) + len(allowed_fpr) + len(forbidden_simple) == len(FunctionType.values))
 	assert(all(c not in allowed_regs for c in allowed_simply))
 	assert(all(c not in allowed_simply + allowed_regs for c in allowed_fpr))
@@ -609,6 +609,7 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 // N = ... automatically sending 1 arg
 // M = ... automatically sending 2 args
 // H = Huge 128bits value/struct
+// A = va_list
 
 """,
 		"fntypes.h": """/*******************************************************************
@@ -638,16 +639,16 @@ int isSimpleWrapper(wrapper_t fun);
 	}
 	
 	# Rewrite the wrapper.c file:
+	# i and u should only be 32 bits
+	#            E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A
+	td_types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*"]
+	if len(FunctionType.values) != len(td_types):
+		raise NotImplementedError("len(values) = {lenval} != len(td_types) = {lentypes}".format(lenval=len(FunctionType.values), lentypes=len(td_types)))
+	
 	def generate_typedefs(arr: Sequence[FunctionType], file) -> None:
-		# i and u should only be 32 bits
-		#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P
-		types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*"]
-		if len(FunctionType.values) != len(types):
-			raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(FunctionType.values), lentypes=len(types)))
-		
 		for v in arr:
-			file.write("typedef " + types[FunctionType.values.index(v[0])] + " (*" + v + "_t)"
-				+ "(" + ', '.join(types[FunctionType.values.index(t)] for t in v[2:]) + ");\n")
+			file.write("typedef " + td_types[FunctionType.values.index(v[0])] + " (*" + v + "_t)"
+				+ "(" + ', '.join(td_types[FunctionType.values.index(t)] for t in v[2:]) + ");\n")
 	
 	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.c"), 'w') as file:
 		file.write(files_header["wrapper.c"].format(lbr="{", rbr="}", version=ver))
@@ -691,22 +692,23 @@ int isSimpleWrapper(wrapper_t fun);
 			"\n#error Invalid return type: ... with 2 args\n",         # M
 			"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
 			"\n#error Invalid return type: pointer in the stack\n",    # P
+			"\n#error Invalid return type: va_list\n",                 # A
 		]
 		
 		# Name of the registers
 		reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
 		# vreg: value is in a general register
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P
-		vreg   = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
+		vreg   = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1]
 		# vxmm: value is in a XMM register
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P
-		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
+		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		# vother: value is elsewere
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P
-		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
+		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0]
 		# vstack: value is on the stack (or out of register)
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P
-		vstack = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
+		vstack = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1]
 		arg_r = [
 			"",                            # E
 			"",                            # e
@@ -733,6 +735,7 @@ int isSimpleWrapper(wrapper_t fun);
 			"(void*){p}, ",                # M
 			"\n#error Use pp instead\n",   # H
 			"",                            # P
+			"(void*){p}, ",                # A
 		]
 		arg_x = [
 			"",                      # E
@@ -760,6 +763,7 @@ int isSimpleWrapper(wrapper_t fun);
 			"",                      # M
 			"",                      # H
 			"",                      # P
+			"",                      # A
 		]
 		arg_o = [
 			"emu, ",                   # E
@@ -787,6 +791,7 @@ int isSimpleWrapper(wrapper_t fun);
 			"",                        # M
 			"",                        # H
 			"",                        # P
+			"",                      # A
 		]
 		arg_s = [
 			"",                                         # E
@@ -814,6 +819,7 @@ int isSimpleWrapper(wrapper_t fun);
 			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 8), ", # M
 			"*(unsigned __int128)(R_RSP + {p}), ",      # H
 			"*(void**)(R_RSP + {p}), ",                 # P
+			"*(void**)(R_RSP + {p}), ",                 # A
 		]
 
 		# Asserts
@@ -935,6 +941,7 @@ int isSimpleWrapper(wrapper_t fun);
 		file.write(files_guard["wrapper.h"].format(lbr="{", rbr="}", version=ver))
 	
 	# Rewrite the *types.h files:
+	td_types[FunctionType.values.index('A')] = "va_list"
 	for fn in mytypedefs:
 		with open(os.path.join(root, "src", "wrapped", "generated", fn + "types.h"), 'w') as file:
 			file.write(files_header["fntypes.h"].format(lbr="{", rbr="}", version=ver, filename=fn))

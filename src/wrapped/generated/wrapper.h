@@ -26,6 +26,7 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 // N = ... automatically sending 1 arg
 // M = ... automatically sending 2 args
 // H = Huge 128bits value/struct
+// A = va_list
 
 void vFE(x64emu_t *emu, uintptr_t fnc);
 void vFv(x64emu_t *emu, uintptr_t fnc);
@@ -745,6 +746,7 @@ void iFEpLpV(x64emu_t *emu, uintptr_t fnc);
 void iFEppii(x64emu_t *emu, uintptr_t fnc);
 void iFEppip(x64emu_t *emu, uintptr_t fnc);
 void iFEppiV(x64emu_t *emu, uintptr_t fnc);
+void iFEppiA(x64emu_t *emu, uintptr_t fnc);
 void iFEpplp(x64emu_t *emu, uintptr_t fnc);
 void iFEpppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpppV(x64emu_t *emu, uintptr_t fnc);
