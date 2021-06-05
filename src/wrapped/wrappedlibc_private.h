@@ -568,7 +568,7 @@ GOW(getpeername, iFipp)
 GO(__getpid, uFv)
 GO(getpid, uFv)
 //GO(getpmsg, 
-//GOW(getppid, 
+GOW(getppid, pFv)
 GOW(getpriority, iFii)
 GO(getprotobyname, pFp)
 GO(getprotobyname_r, iFpppLp)
@@ -2081,8 +2081,8 @@ GOM(vsyslog, vFEipp)
 //GO(vwprintf, 
 //GO(__vwprintf_chk, 
 //GO(vwscanf, 
-//GOW(__wait, 
-//GOW(wait, 
+GOW(__wait, lFp)
+GOW(wait, lFp)
 //GOW(wait3, 
 //GOW(wait4, 
 //GOW(waitid, 
