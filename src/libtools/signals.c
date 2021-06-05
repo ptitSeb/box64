@@ -771,11 +771,22 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         if(db && db->x64_addr>= addr && (db->x64_addr+db->x64_size)<addr) {
             dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
         }
+        static void* glitch_pc = NULL;
+        static void* glitch_addr = NULL;
+        static int glitch_prot = 0;
         if(addr && pc && db) {
-            // probably a glitch due to intensive multitask...
-            dynarec_log(/*LOG_DEBUG*/LOG_INFO, "SIGSEGV with Access error on %p for %p , db=%p, retrying\n", pc, addr, db);
-            relockMutex(Locks);
-            return; // try again
+            if((glitch_pc!=pc || glitch_addr!=addr || glitch_prot!=prot)) {
+                // probably a glitch due to intensive multitask...
+                dynarec_log(/*LOG_DEBUG*/LOG_INFO, "SIGSEGV with Access error on %p for %p , db=%p, retrying\n", pc, addr, db);
+                relockMutex(Locks);
+                glitch_pc = pc;
+                glitch_addr = addr;
+                glitch_prot = prot;
+                return; // try again
+            }
+            glitch_pc = NULL;
+            glitch_addr = NULL;
+            glitch_prot = 0;
         }
     }
 #else

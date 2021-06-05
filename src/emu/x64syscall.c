@@ -88,6 +88,7 @@ scwrap_t syscallwrap[] = {
     { 23, __NR_select, 5},
     #endif
     //{ 25, __NR_mremap, 5},    // wrapped to track protection
+    { 39, __NR_getpid, 0},
     { 46, __NR_sendmsg, 3},
     { 47, __NR_recvmsg, 3},
     { 53, __NR_socketpair, 4},
@@ -95,6 +96,7 @@ scwrap_t syscallwrap[] = {
     { 57, __NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
     #endif
     { 61, __NR_wait4, 4},
+    { 66, __NR_semctl, 4},
     #ifdef __NR_getdents
     { 78, __NR_getdents, 3},
     #endif
@@ -105,18 +107,22 @@ scwrap_t syscallwrap[] = {
     { 87, __NR_unlink, 1},
     #endif
     //{ 89, __NR_readlink, 3},  // not always existing, better use the wrapped version anyway
+    { 96, __NR_gettimeofday, 2},
     { 97, __NR_getrlimit, 2},
     { 101, __NR_ptrace, 4},
     { 126, __NR_capset, 2},
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
     { 157, __NR_prctl, 5 },     // needs wrapping?
     { 186, __NR_gettid, 0 },    //0xBA
+    { 200, __NR_tkill, 2 },
     #ifdef __NR_time
     { 201, __NR_time, 1},
     #endif
     { 202, __NR_futex, 6},
     { 217, __NR_getdents64, 3},
     { 228, __NR_clock_gettime, 2},
+    { 229, __NR_clock_getres, 2},
+    { 230, __NR_clock_nanosleep, 4},
     { 234, __NR_tgkill, 3},
     #ifdef __NR_inotify_init
     { 253, __NR_inotify_init, 0},   //0xFD
