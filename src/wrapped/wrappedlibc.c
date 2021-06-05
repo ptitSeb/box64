@@ -36,6 +36,7 @@
 #include <spawn.h>
 #include <fts.h>
 #include <syslog.h>
+#include <getopt.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
 
@@ -57,7 +58,7 @@
 #include "auxval.h"
 #include "elfloader.h"
 #include "bridge.h"
-
+#include "globalsymbols.h"
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
@@ -674,20 +675,12 @@ EXPORT int my___sprintf_chk(x64emu_t* emu, void* buff, int flag, size_t l, void 
     return vsprintf(buff, (const char*)fmt, VARARGS);
 }
 
-#if 0
-EXPORT int my_asprintf(x64emu_t* emu, void** buff, void * fmt, void * b, va_list V) {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, b, emu->scratch);
+EXPORT int my_asprintf(x64emu_t* emu, void** buff, void * fmt, uint64_t * b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
-    void* f = vasprintf;
-    return ((iFppp_t)f)(buff, fmt, VARARGS);
-    #else
-    return vasprintf((char**)buff, (char*)fmt, V);
-    #endif
+    return vasprintf((char**)buff, (char*)fmt, VARARGS);
 }
-EXPORT int my___asprintf(x64emu_t* emu, void** buff, void * fmt, void * b, va_list V) __attribute__((alias("my_asprintf")));
-#endif
+EXPORT int my___asprintf(x64emu_t* emu, void** buff, void * fmt, uint64_t * b) __attribute__((alias("my_asprintf")));
 
 EXPORT int my_vasprintf(x64emu_t* emu, char** buff, void* fmt, x64_va_list_t b) {
     (void)emu;
@@ -2058,6 +2051,27 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     #endif
     if(!ret)
         updateProtection((uintptr_t)addr, len, prot);
+    return ret;
+}
+
+EXPORT int my_getopt(int argc, char* const argv[], const char *optstring)
+{
+    int ret = getopt(argc, argv, optstring);
+    my_checkGlobalOpt();
+    return ret;
+}
+
+EXPORT int my_getopt_long(int argc, char* const argv[], const char* optstring, const struct option *longopts, int *longindex)
+{
+    int ret = getopt_long(argc, argv, optstring, longopts, longindex);
+    my_checkGlobalOpt();
+    return ret;
+}
+
+EXPORT int my_getopt_long_only(int argc, char* const argv[], const char* optstring, const struct option *longopts, int *longindex)
+{
+    int ret = getopt_long_only(argc, argv, optstring, longopts, longindex);
+    my_checkGlobalOpt();
     return ret;
 }
 

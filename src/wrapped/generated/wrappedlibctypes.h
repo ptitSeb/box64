@@ -124,8 +124,10 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(vasprintf, iFppp_t) \
 	GO(vfprintf, iFppp_t) \
 	GO(vsscanf, iFppp_t) \
+	GO(__asprintf, iFppV_t) \
 	GO(__isoc99_fscanf, iFppV_t) \
 	GO(__isoc99_sscanf, iFppV_t) \
+	GO(asprintf, iFppV_t) \
 	GO(fprintf, iFppV_t) \
 	GO(fscanf, iFppV_t) \
 	GO(fwprintf, iFppV_t) \

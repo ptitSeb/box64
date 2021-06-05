@@ -88,3 +88,16 @@ void my_checkGlobalTInfo()
     GLOB(ospeed)
     GLOB(ttytype)
 }
+
+// **************** getopts ****************
+EXPORT char *optarg;
+EXPORT int optind, opterr, optopt;
+
+void my_checkGlobalOpt()
+{
+    uintptr_t globoffs, globend;
+    GLOB(optarg);
+    GLOB(optind);
+    GLOB(opterr);
+    GLOB(optopt);
+}

@@ -54,8 +54,8 @@ GOW(alphasort64, iFpp)
 //GOW(argz_stringify, 
 GO(asctime, pFp)
 GOW(asctime_r, pFpp)
-//GO(__asprintf, 
-//GOW(asprintf, 
+GOM(__asprintf, iFEppV)
+GOM(asprintf, iFEppV)   //Weak
 //GO(__asprintf_chk, 
 //GO(__assert, 
 GO(__assert_fail, vFppup)
@@ -554,9 +554,9 @@ GO(getnameinfo, iFpupLpLi)
 //GO(getnetname, 
 GOW(get_nprocs, iFv)
 GOW(get_nprocs_conf, iFv)
-GO(getopt, iFipp)
-GO(getopt_long, iFipppp)
-GO(getopt_long_only, iFipppp)
+GOM(getopt, iFipp)
+GOM(getopt_long, iFipppp)
+GOM(getopt_long_only, iFipppp)
 GO(__getpagesize, iFv)
 GOW(getpagesize, iFv)
 //GO(getpass, 
@@ -1284,10 +1284,10 @@ GO(openlog, vFpii)
 //GOW(open_memstream, 
 //GO(__open_nocancel, 
 //GO(open_wmemstream, 
-//DATAB(optarg, 
-//DATA(opterr, 
-//DATA(optind, 
-//DATA(optopt, 
+DATA(optarg, sizeof(void*))
+DATA(opterr, sizeof(int))
+DATA(optind, sizeof(int))
+DATA(optopt, sizeof(int))
 //GO(__overflow, 
 //GO(parse_printf_format, 
 //GO(passwd2des, 
@@ -1575,12 +1575,12 @@ GOW(sched_get_priority_max, iFi)
 GO(__sched_get_priority_min, iFi)
 GOW(sched_get_priority_min, iFi)
 //GO(__sched_getscheduler, 
-//GOW(sched_getscheduler, 
+GOW(sched_getscheduler, iFp)
 //GOW(sched_rr_get_interval, 
 GO(sched_setaffinity, iFLLp)
 //GOW(sched_setparam, 
 //GO(__sched_setscheduler, 
-//GOW(sched_setscheduler, 
+GOW(sched_setscheduler, iFpip)
 GO(__sched_yield, iFv)
 GOW(sched_yield, iFv)
 GO2(__secure_getenv, pFp, getenv)   // not always present

@@ -1473,8 +1473,10 @@ wrappedlibc:
   - vfprintf
   - vsscanf
 - iFppV:
+  - __asprintf
   - __isoc99_fscanf
   - __isoc99_sscanf
+  - asprintf
   - fprintf
   - fscanf
   - fwprintf
