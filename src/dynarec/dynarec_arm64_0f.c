@@ -969,19 +969,18 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xA3:
             INST_NAME("BT Ed, Gd");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETGD;
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
-                wback = 0;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
-                UBFXw(x1, gd, 5+rex.w, 3-rex.w); // r1 = (gd>>5);
-                ADDx_REG_LSL(x3, wback, x1, 2); //(&ed)+=r1*4;
+                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDRxw_U12(x1, x3, fixedaddress);
                 ed = x1;
-                wback = x3;
             }
             if(rex.w) {
                 ANDx_mask(x2, gd, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -1006,7 +1005,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xAB:
             INST_NAME("BTS Ed, Gd");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETGD;
             if(MODREG) {
@@ -1014,8 +1014,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 wback = 0;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
-                UBFXw(x1, gd, 5+rex.w, 3-rex.w); // r1 = (gd>>5);
-                ADDx_REG_LSL(x3, wback, x1, 2); //(&ed)+=r1*4;
+                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDRxw_U12(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
@@ -1142,7 +1142,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETGD;
             if(MODREG) {
@@ -1150,8 +1151,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 wback = 0;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
-                UBFXw(x1, gd, 5+rex.w, 3-rex.w); // r1 = (gd>>5);
-                ADDx_REG_LSL(x3, wback, x1, 2); //(&ed)+=r1*4;
+                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDRxw_U12(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
@@ -1215,17 +1216,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                     INST_NAME("BT Ed, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
                     gd = x2;
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
-                        u8 = F8;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xff0<<2, 3, rex, 0, 1);
-                        u8 = F8;
-                        fixedaddress+=(u8>>(rex.w?6:5))*(rex.w?8:4);
                         LDRxw_U12(x1, wback, fixedaddress);
                         ed = x1;
                     }
+                    u8 = F8;
                     u8&=rex.w?0x3f:0x1f;
                     if(u8) {
                         LSRxw(x1, ed, u8);
@@ -1236,17 +1236,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5:
                     INST_NAME("BTS Ed, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
-                        u8 = F8;
                         wback = 0;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xff0<<2, 3, rex, 0, 1);
-                        u8 = F8;
-                        fixedaddress+=(u8>>(rex.w?6:5))*(rex.w?8:4);
                         LDRxw_U12(x1, wback, fixedaddress);
                         ed = x1;
                     }
+                    u8 = F8;
                     LSRxw(x4, ed, u8&(rex.w?0x3f:0x1f));
                     BFIw(xFlags, x4, F_CF, 1);
                     TBNZ_MARK3(x4, 0); // bit already set, jump to next instruction
@@ -1260,17 +1259,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("BTR Ed, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
-                        u8 = F8;
                         wback = 0;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xff0<<2, 3, rex, 0, 1);
-                        u8 = F8;
-                        fixedaddress+=(u8>>(rex.w?6:5))*(rex.w?8:4);
                         LDRxw_U12(x1, wback, fixedaddress);
                         ed = x1;
                     }
+                    u8 = F8;
                     LSRxw(x4, ed, u8&(rex.w?0x3f:0x1f));
                     BFIw(xFlags, x4, F_CF, 1);
                     TBZ_MARK3(x4, 0); // bit already clear, jump to next instruction
@@ -1284,17 +1282,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 7:
                     INST_NAME("BTC Ed, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
-                        u8 = F8;
                         wback = 0;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xff0<<2, 3, rex, 0, 1);
-                        u8 = F8;
-                        fixedaddress+=(u8>>(rex.w?6:5))*(rex.w?8:4);
                         LDRxw_U12(x1, wback, fixedaddress);
                         ed = x1;
                     }
+                    u8 = F8;
                     LSRxw(x4, ed, u8&(rex.w?0x3f:0x1f));
                     BFIw(xFlags, x4, F_CF, 1);
                     MOV32w(x4, 1);
@@ -1311,6 +1308,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xBB:
             INST_NAME("BTC Ed, Gd");
             SETFLAGS(X_CF, SF_SET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETGD;
             if(MODREG) {
@@ -1318,8 +1316,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 wback = 0;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
-                UBFXw(x1, gd, 5+rex.w, 3-rex.w); // r1 = (gd>>5);
-                ADDx_REG_LSL(x3, wback, x1, 2); //(&ed)+=r1*4;
+                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDRxw_U12(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;

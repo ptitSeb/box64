@@ -850,10 +850,19 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xA3:
             INST_NAME("BT Ew, Gw");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);    // GETGD
-            GETEW(x4, 0);
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<2, (1<<2)-1, rex, 0, 0);
+                SBFXw(x1, gd, 4, 12);   // r1 = (gw>>4)
+                ADDx_REG_LSL(x3, wback, x1, 1); //(&ed)+=r1*2;
+                LDRH_U12(x1, x3, fixedaddress);
+                ed = x1;
+            }
             ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
             LSRw_REG(x1, ed, x2);
             BFIw(xFlags, x1, F_CF, 1);
@@ -880,10 +889,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xAB:
             INST_NAME("BTS Ew, Gw");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);    // GETGD
-            GETEW(x4, 0);
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                wback = 0;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<2, (1<<2)-1, rex, 0, 0);
+                SBFXw(x4, gd, 4, 12);   // r1 = (gw>>4)
+                ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
+                LDRH_U12(x4, x3, fixedaddress);
+                ed = x4;
+            }
             ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
             LSRw_REG(x1, ed, x2);
             BFIw(xFlags, x1, F_CF, 1);
@@ -892,7 +911,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             MOV32w(x1, 1);
             LSLxw_REG(x1, x1, x2);
             EORxw_REG(ed, ed, x1);
-            EWBACK;
+            if(wback) {
+                STRH_U12(ed, wback, fixedaddress);
+            }
             break;
         case 0xAC:
         case 0xAD:
@@ -928,10 +949,21 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xB3:
             INST_NAME("BTR Ew, Gw");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);    // GETGD
-            GETEW(x4, 0);
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                wback = 0;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<2, (1<<2)-1, rex, 0, 0);
+                SBFXw(x4, gd, 4, 12);   // r1 = (gw>>4)
+                ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
+                LDRH_U12(x4, x3, fixedaddress);
+                wback = x3;
+                ed = x4;
+            }
             ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
             LSRw_REG(x1, ed, x2);
             BFIw(xFlags, x1, F_CF, 1);
@@ -940,7 +972,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             MOV32w(x1, 1);
             LSLxw_REG(x1, x1, x2);
             EORxw_REG(ed, ed, x1);
-            EWBACK;
+            if(wback) {
+                STRH_U12(ed, wback, fixedaddress);
+            }
             break;
 
         case 0xB6:
@@ -966,10 +1000,21 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);    // GETGD
-            GETEW(x4, 0);
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                wback = 0;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<2, (1<<2)-1, rex, 0, 0);
+                SBFXw(x4, gd, 4, 12);   // r1 = (gw>>4)
+                ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
+                LDRH_U12(x4, x3, fixedaddress);
+                wback = x3;
+                ed = x4;
+            }
             ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
             LSRw_REG(x1, ed, x2);
             BFIw(xFlags, x1, F_CF, 1);
@@ -977,7 +1022,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             MOV32w(x1, 1);
             LSLxw_REG(x1, x1, x2);
             EORxw_REG(ed, ed, x1);
-            EWBACK;
+            if(wback) {
+                STRH_U12(ed, wback, fixedaddress);
+            }
             break;
         case 0xBC:
             INST_NAME("BSF Ew,Gw");

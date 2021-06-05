@@ -756,13 +756,20 @@ int Run660F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEW(0);
         GETGW;
+        tmp32s = rex.w?GW->sdword[0]:GW->sword[0];
+        tmp8u=tmp32s&(rex.w?63:15);
+        tmp32s >>= (rex.w?6:4);
+        if(!MODREG)
+        {
+            EW=(reg64_t*)(((uintptr_t)(EW))+(tmp32s<<(rex.w?3:1)));
+        }
         if(rex.w) {
-            if(EW->q[0] & (1LL<<(GW->q[0]&63)))
+            if(EW->q[0] & (1LL<<tmp8u))
                 SET_FLAG(F_CF);
             else
                 CLEAR_FLAG(F_CF);
         } else {
-            if(EW->word[0] & (1<<(GW->word[0]&15)))
+            if(EW->word[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
                 CLEAR_FLAG(F_CF);
@@ -788,18 +795,25 @@ int Run660F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEW(0);
         GETGW;
+        tmp32s = rex.w?GW->sdword[0]:GW->sword[0];
+        tmp8u=tmp32s&(rex.w?63:15);
+        tmp32s >>= (rex.w?6:4);
+        if(!MODREG)
+        {
+            EW=(reg64_t*)(((uintptr_t)(EW))+(tmp32s<<(rex.w?3:1)));
+        }
         if(rex.w) {
-            if(EW->q[0] & (1LL<<(GW->q[0]&63)))
+            if(EW->q[0] & (1LL<<tmp8u))
                 SET_FLAG(F_CF);
             else {
-                EW->q[0] |= (1LL<<(GW->q[0]&63));
+                EW->q[0] |= (1LL<<tmp8u);
                 CLEAR_FLAG(F_CF);
             }
         } else {
-            if(EW->word[0] & (1<<(GW->word[0]&15)))
+            if(EW->word[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else {
-                EW->word[0] |= (1<<(GW->word[0]&15));
+                EW->word[0] |= (1<<tmp8u);
                 CLEAR_FLAG(F_CF);
             }
         }
@@ -855,16 +869,23 @@ int Run660F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEW(0);
         GETGW;
+        tmp32s = rex.w?GW->sdword[0]:GW->sword[0];
+        tmp8u=tmp32s&(rex.w?63:15);
+        tmp32s >>= (rex.w?6:4);
+        if(!MODREG)
+        {
+            EW=(reg64_t*)(((uintptr_t)(EW))+(tmp32s<<(rex.w?3:1)));
+        }
         if(rex.w) {
-            if(EW->q[0] & (1LL<<(GW->q[0]&63))) {
+            if(EW->q[0] & (1LL<<tmp8u)) {
                 SET_FLAG(F_CF);
-                EW->q[0] ^= (1LL<<(GW->q[0]&63));
+                EW->q[0] ^= (1LL<<tmp8u);
             } else
                 CLEAR_FLAG(F_CF);
         } else {
-            if(EW->word[0] & (1<<(GW->word[0]&15))) {
+            if(EW->word[0] & (1<<tmp8u)) {
                 SET_FLAG(F_CF);
-                EW->word[0] ^= (1<<(GW->word[0]&15));
+                EW->word[0] ^= (1<<tmp8u);
             } else
                 CLEAR_FLAG(F_CF);
         }
@@ -882,11 +903,26 @@ int Run660F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEW(0);
         GETGW;
-        if(EW->word[0] & (1<<(GW->word[0]&15)))
-            SET_FLAG(F_CF);
-        else
-            CLEAR_FLAG(F_CF);
-        EW->word[0] ^= (1<<(GW->word[0]&15));
+        tmp32s = rex.w?GW->sdword[0]:GW->sword[0];
+        tmp8u=tmp32s&(rex.w?63:15);
+        tmp32s >>= (rex.w?6:4);
+        if(!MODREG)
+        {
+            EW=(reg64_t*)(((uintptr_t)(EW))+(tmp32s<<(rex.w?3:1)));
+        }
+        if(rex.w) {
+            if(EW->q[0] & (1LL<<tmp8u))
+                SET_FLAG(F_CF);
+            else
+                CLEAR_FLAG(F_CF);
+            EW->q[0] ^= (1LL<<tmp8u);
+        } else {
+            if(EW->word[0] & (1<<tmp8u))
+                SET_FLAG(F_CF);
+            else
+                CLEAR_FLAG(F_CF);
+            EW->word[0] ^= (1<<tmp8u);
+        }
         break;
     case 0xBC:                      /* BSF Ew,Gw */
         CHECK_FLAGS(emu);

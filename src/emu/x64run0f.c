@@ -712,19 +712,19 @@ int Run0F(x64emu_t *emu, rex_t rex)
             nextop = F8;
             GETED(0);
             GETGD;
-            tmp8u = GD->byte[0];
+            tmp32s = GD->sdword[0];
+            tmp8u=tmp32s&(rex.w?63:31);
+            tmp32s >>= (rex.w?6:5);
             if(!MODREG)
             {
-                ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
             }
             if(rex.w) {
-                tmp8u&=63;
                 if(ED->q[0] & (1LL<<tmp8u))
                     SET_FLAG(F_CF);
                 else
                     CLEAR_FLAG(F_CF);
             } else {
-                tmp8u&=31;
                 if(ED->dword[0] & (1<<tmp8u))
                     SET_FLAG(F_CF);
                 else
@@ -755,13 +755,14 @@ int Run0F(x64emu_t *emu, rex_t rex)
             nextop = F8;
             GETED(0);
             GETGD;
-            tmp8u = GD->byte[0];
+            tmp32s = GD->sdword[0];
+            tmp8u=tmp32s&(rex.w?63:31);
+            tmp32s >>= (rex.w?6:5);
             if(!MODREG)
             {
-                ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
             }
             if(rex.w) {
-                tmp8u&=63;
                 if(ED->q[0] & (1LL<<tmp8u))
                     SET_FLAG(F_CF);
                 else {
@@ -769,7 +770,6 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     CLEAR_FLAG(F_CF);
                 }
             } else {
-                tmp8u&=31;
                 if(ED->dword[0] & (1<<tmp8u))
                     SET_FLAG(F_CF);
                 else {
@@ -882,20 +882,20 @@ int Run0F(x64emu_t *emu, rex_t rex)
             nextop = F8;
             GETED(0);
             GETGD;
-            tmp8u = GD->byte[0];
+            tmp32s = GD->sdword[0];
+            tmp8u=tmp32s&(rex.w?63:31);
+            tmp32s >>= (rex.w?6:5);
             if(!MODREG)
             {
-                ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
             }
             if(rex.w) {
-                tmp8u&=63;
                 if(ED->q[0] & (1LL<<tmp8u)) {
                     SET_FLAG(F_CF);
                     ED->q[0] ^= (1LL<<tmp8u);
                 } else
                     CLEAR_FLAG(F_CF);
             } else {
-                tmp8u&=31;
                 if(ED->dword[0] & (1<<tmp8u)) {
                     SET_FLAG(F_CF);
                     ED->dword[0] ^= (1<<tmp8u);
@@ -926,8 +926,6 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     CHECK_FLAGS(emu);
                     GETED(1);
                     tmp8u = F8;
-                    if(!MODREG)
-                        ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
                     if(rex.w) {
                         tmp8u&=63;
                         if(ED->q[0] & (1LL<<tmp8u))
@@ -946,8 +944,6 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     CHECK_FLAGS(emu);
                     GETED(1);
                     tmp8u = F8;
-                    if(!MODREG)
-                        ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
                     if(rex.w) {
                         tmp8u&=63;
                         if(ED->q[0] & (1LL<<tmp8u)) {
@@ -970,8 +966,6 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     CHECK_FLAGS(emu);
                     GETED(1);
                     tmp8u = F8;
-                    if(!MODREG)
-                        ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
                     if(rex.w) {
                         tmp8u&=63;
                         if(ED->q[0] & (1LL<<tmp8u)) {
@@ -992,8 +986,6 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     CHECK_FLAGS(emu);
                     GETED(1);
                     tmp8u = F8;
-                    if(!MODREG)
-                        ED=(reg64_t*)(((uintptr_t*)(ED))+(tmp8u>>5));
                     if(rex.w) {
                         tmp8u&=63;
                         if(ED->q[0] & (1LL<<tmp8u))
@@ -1020,23 +1012,20 @@ int Run0F(x64emu_t *emu, rex_t rex)
             nextop = F8;
             GETED(0);
             GETGD;
-            tmp8u = GD->byte[0];
+            tmp32s = GD->sdword[0];
+            tmp8u=tmp32s&(rex.w?63:31);
+            tmp32s >>= (rex.w?6:5);
             if(!MODREG)
             {
-                if(rex.w)
-                    ED=(reg64_t*)(((uint64_t*)(ED))+(tmp8u>>6));
-                else
-                    ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
             }
             if(rex.w) {
-                tmp8u&=63;
                 if(ED->q[0] & (1LL<<tmp8u))
                     SET_FLAG(F_CF);
                 else
                     CLEAR_FLAG(F_CF);
                 ED->q[0] ^= (1LL<<tmp8u);
             } else {
-                tmp8u&=31;
                 if(ED->dword[0] & (1<<tmp8u))
                     SET_FLAG(F_CF);
                 else
