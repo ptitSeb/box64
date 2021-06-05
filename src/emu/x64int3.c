@@ -97,84 +97,91 @@ void x64Int3(x64emu_t* emu)
                 s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", " ... ");
-                } else  if(strstr(s, "__open")==s || !strcmp(s, "open") || !strcmp(s, "open ")) {
+                } else if (strstr(s, "__open")==s || !strcmp(s, "open") || !strcmp(s, "open ")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI), (int)(R_EDX));
                     perr = 1;
-                } else  if(strstr(s, "mkdir")==s) {
+                } else if (strstr(s, "mkdir")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI));
                     perr = 1;
-                } else  if(strstr(s, "opendir")==s) {
+                } else if (strstr(s, "opendir")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
                     perr = 2;
-                } else  if(!strcmp(s, "read")) {
+                } else if (!strcmp(s, "read")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_RDX);
                     perr = 1;
-                } else  if(!strcmp(s, "write")) {
+                } else if (!strcmp(s, "write")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_RDX);
                     perr = 1;
-                } else  if(strstr(s, "access")==s) {
+                } else if (strstr(s, "access")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", 0x%x)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", R_ESI);
                     perr = 1;
-                } else  if(strstr(s, "puts")==s) {
+                } else if (strstr(s, "puts")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
-                } else  if(strstr(s, "strlen")==s) {
+                } else if (strstr(s, "strlen")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
-                } else  if(strstr(s, "strcmp")==s) {
+                } else if (strstr(s, "strcmp")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (char*)R_RSI);
-                } else  if(strstr(s, "getenv")==s) {
+                } else if (strstr(s, "getenv")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
-                } else  if(!strcmp(s, "poll")) {
+                } else if (!strcmp(s, "poll")) {
                     struct pollfd* pfd = (struct pollfd*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p[%d/%d/%d, ...], %d, %d)", tid, *(void**)(R_RSP), s, pfd, pfd->fd, pfd->events, pfd->revents, R_ESI, R_EDX);
-                } else  if(strstr(s, "my___printf_chk") || !strcmp(s, "__printf_chk")) {
+                } else if (strstr(s, "my___printf_chk") || !strcmp(s, "__printf_chk")) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, R_EDI, (tmp)?tmp:"(nil)", (void*)(R_RDX));
-                } else  if(strstr(s, "my___snprintf_chk") || !strcmp(s, "__snprintf_chk")) {
+                } else if (strstr(s, "my___snprintf_chk") || !strcmp(s, "__snprintf_chk")) {
                     tmp = (char*)(R_R8);
                     pu64 = (uint64_t*)R_RDI;
                     post = 3;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, %d, %zu, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI, R_EDX, R_RCX, (tmp)?tmp:"(nil)", (void*)(R_R9));
-                } else  if(strstr(s, "my_snprintf") || !strcmp(s, "snprintf")) {
+                } else if (strstr(s, "my_snprintf") || !strcmp(s, "snprintf")) {
                     tmp = (char*)(R_RDX);
                     pu64 = (uint64_t*)R_RDI;
                     post = 3;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI, (tmp)?tmp:"(nil)", (void*)(R_RCX));
-                } else  if(!strcmp(s, "glXGetProcAddress") || !strcmp(s, "SDL_GL_GetProcAddress") || !strcmp(s, "glXGetProcAddressARB")) {
+                } else if (!strcmp(s, "getcwd")) {
+                    post = 2;
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu)", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI);
+                } else if (!strcmp(s, "ftok")) {
+                    tmp = (char*)(R_RDI);
+                    perr = 1;
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_RSP), s, tmp?tmp:"nil", R_ESI);
+                } else if (!strcmp(s, "glXGetProcAddress") || !strcmp(s, "SDL_GL_GetProcAddress") || !strcmp(s, "glXGetProcAddressARB")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
-                } else  if(!strcmp(s, "glLabelObjectEXT")) {
+                } else if (!strcmp(s, "glLabelObjectEXT")) {
                     tmp = (char*)(R_RCX);
                     snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d, %d, \"%s\")", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_ECX, (tmp)?tmp:"(nil)");
-                } else  if(!strcmp(s, "glGetStringi")) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI);
+                } else if (!strcmp(s, "glGetStringi")) {
                     post = 2;
-                } else  if(!strcmp(s, "glFramebufferTexture2D")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI);
+                } else if (!strcmp(s, "glFramebufferTexture2D")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, 0x%x, 0x%x, %u, %d)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, R_ECX, R_R8d);
-                } else  if(!strcmp(s, "glTexSubImage2D")) {
+                } else if (!strcmp(s, "glTexSubImage2D")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d, %d, %d, %d, %d, 0x%x, 0x%x, %p)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, R_ECX, R_R8d, R_R9d, *(uint32_t*)(R_RSP+8), *(uint32_t*)(R_RSP+16), *(void**)(R_RSP+24));
-                } else  if(!strcmp(s, "glCompressedTexSubImage2D")) {
+                } else if (!strcmp(s, "glCompressedTexSubImage2D")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d, %d, %d, %d, %d, 0x%x, %d, %p)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, R_ECX, R_R8d, R_R9d, *(uint32_t*)(R_RSP+8), *(uint32_t*)(R_RSP+16), *(void**)(R_RSP+24));
-                } else  if(!strcmp(s, "glVertexAttribPointer")) {
+                } else if (!strcmp(s, "glVertexAttribPointer")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%u, %d, 0x%x, %d, %d, %p)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, R_ECX, R_R8d, (void*)R_R9);
-                } else  if(!strcmp(s, "glDrawElements")) {
+                } else if (!strcmp(s, "glDrawElements")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d, 0x%x, %p)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, (void*)R_RCX);
-                } else  if(!strcmp(s, "glUniform4fv")) {
+                } else if (!strcmp(s, "glUniform4fv")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %d, %p[%g/%g/%g/%g...])", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, (void*)R_RDX, ((float*)(R_RDX))[0], ((float*)(R_RDX))[1], ((float*)(R_RDX))[2], ((float*)(R_RDX))[3]);
-                } else  if(!strcmp(s, "mmap64") || !strcmp(s, "mmap")) {
+                } else if (!strcmp(s, "mmap64") || !strcmp(s, "mmap")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %lu, 0x%x, 0x%x, %d, %ld)", tid, *(void**)(R_RSP), s, 
                         (void*)R_RDI, R_RSI, (int)(R_RDX), (int)R_RCX, (int)R_R8, R_R9);
-                } else  if(!strcmp(s, "sscanf")) {
+                } else if (!strcmp(s, "sscanf")) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, (tmp)?tmp:"(nil)", (void*)(R_RDX));
-                } else  if(!strcmp(s, "XCreateWindow")) {
+                } else if (!strcmp(s, "XCreateWindow")) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %d, %d, %u, %u, %u, %d, %u, %p, 0x%lx, %p)", tid, *(void**)(R_RSP), s, 
                         (void*)R_RDI, (void*)R_RSI, (int)R_EDX, (int)R_ECX, R_R8d, R_R9d, 
