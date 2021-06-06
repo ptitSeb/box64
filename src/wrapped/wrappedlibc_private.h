@@ -1968,7 +1968,7 @@ GO(timegm, LFp)
 GO(timerfd_create, iFii)
 GO(timerfd_gettime, iFip)
 GO(timerfd_settime, iFiipp)
-//GOW(times, 
+GOW(times, LFp)
 //GO(timespec_get, 
 DATAB(__timezone, sizeof(void*))
 DATAV(timezone, sizeof(void*))  //type V
