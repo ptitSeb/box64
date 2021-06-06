@@ -43,7 +43,7 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         GETEX(0);
         GETGX;
         GX->ud[0] = EX->ud[0];
-        if((nextop&0xC0)!=0xC0) {
+        if(!MODREG) {
             // EX is not a register (reg to reg only move 31:0)
             GX->ud[1] = GX->ud[2] = GX->ud[3] = 0;
         }
