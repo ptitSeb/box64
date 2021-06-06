@@ -236,7 +236,7 @@ x64emurun:
                 GD->sq[0] = ED->sdword[0];
             else
                 if(MODREG)
-                    GD->q[0] = ED->sdword[0];
+                    GD->q[0] = ED->dword[0];    // not really a sign extension
                 else
                     GD->sdword[0] = ED->sdword[0];  // meh?
             break;
@@ -276,10 +276,7 @@ x64emurun:
             if(rex.w)
                 GD->q[0] = imul64(emu, ED->q[0], tmp64u);
             else
-                if((nextop&0xC0)==0xC0)
-                    GD->q[0] = imul32(emu, ED->dword[0], tmp64u);
-                else
-                    GD->dword[0] = imul32(emu, ED->dword[0], tmp64u);
+                GD->q[0] = imul32(emu, ED->dword[0], tmp64u);
             break;
         case 0x6A:                      /* Push Ib */
             tmp64s = F8S;
@@ -385,7 +382,7 @@ x64emurun:
 #ifdef DYNAREC
             GETEB(0);
             GETGB;
-            if((nextop&0xC0)==0xC0) { // reg / reg: no lock
+            if(MODREG) { // reg / reg: no lock
                 tmp8u = GB;
                 GB = EB->byte[0];
                 EB->byte[0] = tmp8u;
@@ -399,12 +396,12 @@ x64emurun:
 #else
             GETEB(0);
             GETGB;
-            if((nextop&0xC0)!=0xC0)
+            if(!MODREG)
                 pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
             tmp8u = GB;
             GB = EB->byte[0];
             EB->byte[0] = tmp8u;
-            if((nextop&0xC0)!=0xC0)
+            if(!MODREG)
                 pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif                
             break;
@@ -413,7 +410,7 @@ x64emurun:
 #ifdef DYNAREC
             GETED(0);
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 if(rex.w) {
                     tmp64u = GD->q[0];
                     GD->q[0] = ED->q[0];
@@ -560,6 +557,7 @@ x64emurun:
             RESET_FLAGS(emu);
             break;
         case 0x9E:                      /* SAHF */
+            CHECK_FLAGS(emu);
             tmp8u = emu->regs[_AX].byte[1];
             CONDITIONAL_SET_FLAG(tmp8u&0x01, F_CF);
             CONDITIONAL_SET_FLAG(tmp8u&0x04, F_PF);
@@ -1317,13 +1315,13 @@ x64emurun:
                         break;
                     case 6:                 /* DIV Ed */
                         div32(emu, ED->dword[0]);
-                        emu->regs[_AX].dword[1] = 0;
-                        emu->regs[_DX].dword[1] = 0;
+                        //emu->regs[_AX].dword[1] = 0;  // already put high regs to 0
+                        //emu->regs[_DX].dword[1] = 0;
                         break;
                     case 7:                 /* IDIV Ed */
                         idiv32(emu, ED->dword[0]);
-                        emu->regs[_AX].dword[1] = 0;
-                        emu->regs[_DX].dword[1] = 0;
+                        //emu->regs[_AX].dword[1] = 0;
+                        //emu->regs[_DX].dword[1] = 0;
                         break;
                 }
             }
@@ -1422,7 +1420,6 @@ x64emurun:
                     } else {
                         R_RIP = ED->q[0];
                         R_CS = (ED+1)->word[0];
-                        STEP
                         goto fini;  // exit loop to recompute CS...
                     }
                     break;

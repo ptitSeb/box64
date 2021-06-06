@@ -45,15 +45,12 @@ arm64_lock_write_h:
 arm64_lock_read_d:
     // address is x0, return is x0
     ldaxr    w0, [x0]
-    #ldx     w0,[x0]
     ret
 
 arm64_lock_write_d:
     // address is x0, value is w1, return is x0
     mov     x2, x0
     stlxr   w0, w1, [x2]
-    #str     w1, [x2]
-    mov     w0, 0
     ret
 
 arm64_lock_read_dd:

@@ -313,11 +313,13 @@ int RunF0(x64emu_t *emu, rex_t rex)
                             if(ACCESS_FLAG(F_ZF)) {
                                 tmp32s = arm64_lock_write_d(ED, GD->dword[0]);
                             } else {
-                                R_RAX = tmp32u;
+                                R_EAX = tmp32u;
                                 tmp32s = 0;
                             }
                         } while(tmp32s);
                         emu->regs[_AX].dword[1] = 0;
+                        if(MODREG)
+                            ED->dword[1] = 0;
                     }
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);
@@ -336,6 +338,8 @@ int RunF0(x64emu_t *emu, rex_t rex)
                             R_EAX = ED->dword[0];
                         }
                         emu->regs[_AX].dword[1] = 0;
+                        if(MODREG)
+                            ED->dword[1] = 0;
                     }
                     pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
@@ -365,7 +369,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
                                 tmp32s = 0;
                             }
                         } while(tmp32s);
-                    else
+                    else {
                         do {
                             tmp32u = arm64_lock_read_d(ED);
                             if(tmp32u & (1<<tmp8u)) {
@@ -377,6 +381,9 @@ int RunF0(x64emu_t *emu, rex_t rex)
                                 tmp32s = 0;
                             }
                         } while(tmp32s);
+                        if(MODREG)
+                            ED->dword[1] = 0;
+                    }
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     if(rex.w) {

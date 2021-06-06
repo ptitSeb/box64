@@ -592,7 +592,7 @@ static inline void mul32_eax(x64emu_t *emu, uint32_t s)
 static inline void mul64_rax(x64emu_t *emu, uint64_t s)
 {
 	emu->df = d_mul64;
-	__int128 res = (__int128)R_RAX * s;
+	unsigned __int128 res = (unsigned __int128)R_RAX * s;
 	emu->res.u64 = R_RAX = (uint64_t)res;
 	emu->op1.u64 = R_RDX = (uint64_t)(res >> 64);
 }
