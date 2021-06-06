@@ -1,0 +1,11 @@
+ucomiss 1.000000, 2.000000 => 0x202
+ucomiss 2.000000, 1.000000 => 0x203
+ucomiss 1.000000, inf => 0x202
+ucomiss inf, 1.000000 => 0x203
+ucomiss 1.000000, -inf => 0x203
+ucomiss -inf, 1.000000 => 0x202
+ucomiss 1.000000, nan => 0x247
+ucomiss nan, 1.000000 => 0x247
+ucomiss 1.000000, 1.000000 => 0x242
+ucomiss inf, inf => 0x242
+ucomiss nan, nan => 0x247
