@@ -76,7 +76,8 @@ scwrap_t syscallwrap[] = {
     //{ 10, __NR_mprotect, 3},  // same
     //{ 11, __NR_munmap, 2},    // same
     { 5, __NR_fstat, 2},
-    //{ 13, __NR_rt_sigaction, 4}   // wrapped to use my_ version
+    //{ 13, __NR_rt_sigaction, 4},   // wrapped to use my_ version
+    { 14, __NR_rt_sigprocmask, 4},
     { 16, __NR_ioctl, 3},
     #ifdef __NR_access
     { 21, __NR_access, 2},
@@ -110,7 +111,9 @@ scwrap_t syscallwrap[] = {
     { 96, __NR_gettimeofday, 2},
     { 97, __NR_getrlimit, 2},
     { 101, __NR_ptrace, 4},
+    { 125, __NR_capget, 2},
     { 126, __NR_capset, 2},
+    { 127, __NR_rt_sigpending, 2},
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
     { 157, __NR_prctl, 5 },     // needs wrapping?
     { 186, __NR_gettid, 0 },    //0xBA
@@ -120,6 +123,7 @@ scwrap_t syscallwrap[] = {
     #endif
     { 202, __NR_futex, 6},
     { 217, __NR_getdents64, 3},
+    { 220, __NR_semtimedop, 4},
     { 228, __NR_clock_gettime, 2},
     { 229, __NR_clock_getres, 2},
     { 230, __NR_clock_nanosleep, 4},
