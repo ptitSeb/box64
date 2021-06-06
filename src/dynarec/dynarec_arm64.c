@@ -351,8 +351,8 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.cap = helper.size+3; // needs epilog handling
     helper.insts = (instruction_arm64_t*)calloc(helper.cap, sizeof(instruction_arm64_t));
     // already protect the block and compute hash signature
-    protectDB(addr, end-addr+1);
-    uint32_t hash = X31_hash_code((void*)addr, end-addr+1);
+    protectDB(addr, end-addr);  //end is 1byte after actual end
+    uint32_t hash = X31_hash_code((void*)addr, end-addr);
     // pass 1, addresses, x64 jump addresses, flags
     arm_pass1(&helper, addr);
     // calculate barriers
@@ -450,7 +450,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     block->block = p;
     block->need_test = 0;
     //block->x64_addr = (void*)start;
-    block->x64_size = end-start+1;
+    block->x64_size = end-start;
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
     // Check if something changed, to abbort if it as
     if(block->hash != hash) {
@@ -470,7 +470,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
             if(created) {    // avoid breaking a working block!
                 son->block = helper.sons_arm[i];
                 son->x64_addr = (void*)helper.sons_x64[i];
-                son->x64_size = end-helper.sons_x64[i]+1;
+                son->x64_size = end-helper.sons_x64[i];
                 if(!son->x64_size) {printf_log(LOG_NONE, "Warning, son with null x64 size! (@%p / ARM=%p)", son->x64_addr, son->block);}
                 son->father = block;
                 son->size = sz + son->block - block->block; // update size count, for debugging
