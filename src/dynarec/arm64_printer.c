@@ -620,7 +620,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         else if(immr==0 && imms==0b001111)
             snprintf(buff, sizeof(buff), "SXTH %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn]);
         else if(sf && immr==0 && imms==0b011111)
-            snprintf(buff, sizeof(buff), "SXTW %s, %s", Xt[Rd], Xt[Rn]);
+            snprintf(buff, sizeof(buff), "SXTW %s, %s", Xt[Rd], Wt[Rn]);
         else if(imms>=immr)
             snprintf(buff, sizeof(buff), "SBFX %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], immr, imms-immr+1);
         else
