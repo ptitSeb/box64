@@ -776,6 +776,7 @@ pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 			((int*)ret)[3+__PTHREAD_MUTEX_HAVE_PREV] = kind;		// inject in new one (i.e. "init" it)
 		}
 	}
+	am->self = am;
 	am->sign = SIGNMTX;
 	am->m = ret;
 	return ret;
