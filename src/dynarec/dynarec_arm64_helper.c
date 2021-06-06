@@ -64,9 +64,21 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             }
         } else if((nextop&7)==5) {
             uint64_t tmp = F32S64;
-            MOV64x(ret, tmp);
-            GETIP(addr+delta);
-            ADDx_REG(ret, ret, xRIP);
+            if((tmp>=absmin) && (tmp<=absmax) && !(tmp&mask)) {
+                GETIP(addr+delta);
+                ret = xRIP;
+                *fixaddress = tmp;
+            } else if(tmp<0x1000) {
+                GETIP(addr+delta);
+                ADDx_U12(ret, xRIP, tmp);
+            } else if(tmp+addr+delta<0x1000000000000LL) {  // 3 opcodes to load immediate is cheap enough
+                tmp += addr+delta;
+                MOV64x(ret, tmp);
+            } else {
+                MOV64x(ret, tmp);
+                GETIP(addr+delta);
+                ADDx_REG(ret, ret, xRIP);
+            }
         } else {
             ret = xRAX+(nextop&7)+(rex.b<<3);
         }
