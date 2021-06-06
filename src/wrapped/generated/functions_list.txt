@@ -1403,12 +1403,12 @@ wrappedlibc:
   - __longjmp_chk
   - _longjmp
   - longjmp
+  - siglongjmp
 - vFpu:
   - _ITM_registerTMCloneTable
 - iFpi:
   - __sigsetjmp
   - backtrace
-  - siglongjmp
 - iFpL:
   - munmap
 - iFpp:
@@ -1466,6 +1466,7 @@ wrappedlibc:
   - ftw64
 - iFppp:
   - __cxa_atexit
+  - __isoc99_vfscanf
   - __isoc99_vsscanf
   - __vfprintf_chk
   - __vsscanf
@@ -1656,6 +1657,7 @@ wrappedlibpthread:
   - pthread_condattr_getpshared
   - pthread_key_create
   - pthread_mutexattr_getkind_np
+  - pthread_mutexattr_getprotocol
   - pthread_mutexattr_gettype
   - pthread_once
 - vFppp:

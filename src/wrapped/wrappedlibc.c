@@ -719,10 +719,8 @@ EXPORT int my_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
 }
 EXPORT int my__IO_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 EXPORT int my___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
-
-#if 0
 EXPORT int my___isoc99_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
-#endif
+
 EXPORT int my___isoc99_fscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
 {
   myStackAlignScanf(emu, (const char*)fmt, b, emu->scratch, 2);
@@ -2265,6 +2263,7 @@ EXPORT void my_mcount(void* frompc, void* selfpc)
     // stub doing nothing...
     return;
 }
+#endif
 
 union semun {
   int              val;    /* Value for SETVAL */
@@ -2273,13 +2272,30 @@ union semun {
   struct seminfo  *__buf;  /* Buffer for IPC_INFO
                               (Linux-specific) */
 };
-
-EXPORT int my_semctl(x64emu_t* emu, int semid, int semnum, int cmd, union semun b)
-{
-  iFiiiV_t f = semctl;
-  return  ((iFiiiV_t)f)(semid, semnum, cmd, b);
-}
+#ifndef SEM_STAT_ANY
+#define SEM_STAT_ANY 20
 #endif
+
+EXPORT int my_semctl(int semid, int semnum, int cmd, union semun b)
+{
+    struct semid_ds semidds;
+    void *backup = NULL;
+    if ((cmd == IPC_STAT) || (cmd == IPC_SET) || (cmd == SEM_STAT) || (cmd == SEM_STAT_ANY)) {
+        backup = b.buf;
+        b.buf = &semidds;
+        if (cmd == IPC_SET) {
+            AlignSemidDs(&semidds, backup);
+        }
+    }
+    int ret = semctl(semid, semnum, cmd, b);
+    if ((cmd == IPC_STAT) || (cmd == IPC_SET) || (cmd == SEM_STAT) || (cmd == SEM_STAT_ANY)) {
+        b.buf = backup;
+        if (cmd == IPC_STAT) {
+            UnalignSemidDs(backup, &semidds);
+        }
+    }
+    return ret;
+}
 
 // Backtrace stuff
 EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)

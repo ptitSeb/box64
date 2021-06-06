@@ -75,10 +75,10 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(__longjmp_chk, vFpi_t) \
 	GO(_longjmp, vFpi_t) \
 	GO(longjmp, vFpi_t) \
+	GO(siglongjmp, vFpi_t) \
 	GO(_ITM_registerTMCloneTable, vFpu_t) \
 	GO(__sigsetjmp, iFpi_t) \
 	GO(backtrace, iFpi_t) \
-	GO(siglongjmp, iFpi_t) \
 	GO(munmap, iFpL_t) \
 	GO(__vprintf_chk, iFpp_t) \
 	GO(dl_iterate_phdr, iFpp_t) \
@@ -118,6 +118,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(ftw, iFppi_t) \
 	GO(ftw64, iFppi_t) \
 	GO(__cxa_atexit, iFppp_t) \
+	GO(__isoc99_vfscanf, iFppp_t) \
 	GO(__isoc99_vsscanf, iFppp_t) \
 	GO(__vfprintf_chk, iFppp_t) \
 	GO(__vsscanf, iFppp_t) \

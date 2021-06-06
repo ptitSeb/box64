@@ -6,6 +6,7 @@
 #include <sys/epoll.h>
 #include <fts.h>
 #include <sys/stat.h>
+#include <sys/sem.h>
 
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
@@ -746,4 +747,37 @@ void AlignEpollEvent(void* dest, void* source, int nbr)
         ++arm_struct;
         --nbr;
     }
+}
+
+struct __attribute__((packed)) x64_semid_ds {
+    struct ipc_perm sem_perm;
+    time_t sem_otime;
+    unsigned long _reserved1;
+    time_t sem_ctime;
+    unsigned long _reserved2;
+    unsigned long sem_nsems;
+    unsigned long _reserved3;
+    unsigned long _reserved4;
+};
+
+void UnalignSemidDs(void *dest, const void* source)
+{
+    struct x64_semid_ds *x64_struct = (struct x64_semid_ds*)dest;
+    const struct semid_ds *arm_struct = (const struct semid_ds*)source;
+
+    x64_struct->sem_perm = arm_struct->sem_perm;
+    x64_struct->sem_otime = arm_struct->sem_otime;
+    x64_struct->sem_ctime = arm_struct->sem_ctime;
+    x64_struct->sem_nsems = arm_struct->sem_nsems;
+}
+
+void AlignSemidDs(void *dest, const void* source)
+{
+    const struct x64_semid_ds *x64_struct = (const struct x64_semid_ds*)source;
+    struct semid_ds *arm_struct = (struct semid_ds*)dest;
+
+    arm_struct->sem_perm = x64_struct->sem_perm;
+    arm_struct->sem_otime = x64_struct->sem_otime;
+    arm_struct->sem_ctime = x64_struct->sem_ctime;
+    arm_struct->sem_nsems = x64_struct->sem_nsems;
 }

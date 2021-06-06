@@ -74,6 +74,7 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_condattr_getpshared, iFpp_t) \
 	GO(pthread_key_create, iFpp_t) \
 	GO(pthread_mutexattr_getkind_np, iFpp_t) \
+	GO(pthread_mutexattr_getprotocol, iFpp_t) \
 	GO(pthread_mutexattr_gettype, iFpp_t) \
 	GO(pthread_once, iFpp_t) \
 	GO(_pthread_cleanup_push, vFppp_t) \

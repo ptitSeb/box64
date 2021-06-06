@@ -561,8 +561,8 @@ GO(__getpagesize, iFv)
 GOW(getpagesize, iFv)
 //GO(getpass, 
 GOW(getpeername, iFipp)
-//GO(__getpgid, 
-//GOW(getpgid, 
+GO(__getpgid, lFl)
+GOW(getpgid, lFl)
 //GO(getpgrp, 
 //GOW(get_phys_pages, 
 GO(__getpid, uFv)
@@ -612,7 +612,7 @@ GO(getservbyport, pFip)
 //GO(getsgent_r, 
 //GO(getsgnam, 
 //GO(getsgnam_r, 
-//GO(getsid, 
+GO(getsid, lFl)
 GOW(getsockname, iFipp)
 GOW(getsockopt, iFiiipp)
 //GO(getsourcefilter, 
@@ -920,7 +920,7 @@ GOM(__isoc99_fscanf, iFEppV)
 //GO(__isoc99_scanf, 
 GOM(__isoc99_sscanf, iFEppV)
 //GO(__isoc99_swscanf, 
-//GO(__isoc99_vfscanf, 
+GOM(__isoc99_vfscanf, iFEppp)
 //GO(__isoc99_vfwscanf, 
 //GO(__isoc99_vscanf, 
 GOM(__isoc99_vsscanf, iFEppp)
@@ -1590,7 +1590,7 @@ GO(seed48, pFp)
 GO(seekdir, vFpi)
 GO(__select, iFipppp)
 GOW(select, iFipppp)
-GO(semctl, iFiiiN)
+GOM(semctl, iFiiiN)
 GO(semget, iFiii)
 GO(semop, iFipL)
 GO(semtimedop, iFipLp)
@@ -1610,7 +1610,7 @@ GOW(setbuffer, vFppL)
 //GO(setegid, 
 GOW(setenv, iFppi)
 //GO(_seterr_reply, 
-//GO(seteuid, 
+GO(seteuid, iFu)
 //GO(setfsent, 
 //GO(setfsgid, 
 //GO(setfsuid, 
@@ -1635,14 +1635,14 @@ GO(setlogmask, iFi)
 //GO(setns, 
 GO(__setpgid, iFpp)
 GOW(setpgid, iFpp)
-//GO(setpgrp, 
+GO(setpgrp, lFv)
 GOW(setpriority, iFiii)
 GO(setprotoent, vFi)
 //GO(setpwent, 
 //GOW(setregid, 
 //GOW(setresgid, 
 //GOW(setresuid, 
-//GOW(setreuid, 
+GOW(setreuid, iFuu)
 GOW(setrlimit, iFip)
 GOW(setrlimit64, iFip)
 //GO(setrpcent, 
@@ -1683,13 +1683,13 @@ GO(sigdelset, iFpi)
 GO(sigemptyset, iFp)
 GO(sigfillset, iFp)
 GO(siggetmask, iFv)
-//GO(sighold, 
-//GO(sigignore, 
+GO(sighold, iFi)
+GO(sigignore, iFi)
 //GO(siginterrupt, 
 //GO(sigisemptyset, 
 //GO(__sigismember, 
 GO(sigismember, iFpi)
-GOM(siglongjmp, iFEpi)
+GOM(siglongjmp, vFEpi)
 GOM(signal, pFEip)  //Weak
 //GO(signalfd, 
 GO(__signbit, iFd)
@@ -1701,7 +1701,7 @@ GO(__signbitf, iFf)
 GO(sigpending, iFp)
 GOW(sigprocmask, iFipp)
 //GOW(sigqueue, 
-//GO(sigrelse, 
+GO(sigrelse, iFi)
 //GOW(sigreturn, 
 GOM(sigset, pFEip)
 GOM(__sigsetjmp, iFEpi)
@@ -2289,7 +2289,7 @@ GOW(writev, lFipi)
 GO(__xmknod, iFipup)
 //GO(__xmknodat, 
 GO(__xpg_basename, pFp)
-//GOW(__xpg_sigpause, 
+GOW(__xpg_sigpause, iFi)
 GO(__xpg_strerror_r, pFipL)
 //GO(xprt_register, 
 //GO(xprt_unregister, 

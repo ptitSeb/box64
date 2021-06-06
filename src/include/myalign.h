@@ -117,3 +117,6 @@ int of_unconvert(int);  // arm->x86
 
 void UnalignEpollEvent(void* dest, void* source, int nbr); // Arm -> x86
 void AlignEpollEvent(void* dest, void* source, int nbr); // x86 -> Arm
+
+void UnalignSemidDs(void *dest, const void* source);
+void AlignSemidDs(void *dest, const void* source);
