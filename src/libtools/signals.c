@@ -856,13 +856,15 @@ exit(-1);
         uint32_t hash = 0;
         if(db)
             hash = X31_hash_code(db->x64_addr, db->x64_size);
-        printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
+        printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x) handler=%p", 
             GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, 
             emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_RBP, 
             addr, info->si_code, 
             prot, db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0, 
-            getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)), (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash);
+            getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)), 
+            (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash, 
+            (void*)my_context->signals[sig]);
 #else
         printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code);
 #endif
@@ -883,8 +885,9 @@ exit(-1);
     }
     // no handler (or double identical segfault)
     // set default and that's it, instruction will restart and default segfault handler will be called...
-    if(my_context->signals[sig]!=1)
-        signal(sig, SIG_DFL);
+    if(my_context->signals[sig]!=1 || sig==SIGSEGV || sig==SIGILL || sig==SIGFPE) {
+        signal(sig, (void*)my_context->signals[sig]);
+    }
 }
 
 void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
@@ -972,7 +975,7 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
     }
     int ret = 0;
     if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL)
-        sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+        ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
     if(oldact) {
         oldact->sa_flags = old.sa_flags;
         oldact->sa_mask = old.sa_mask;
