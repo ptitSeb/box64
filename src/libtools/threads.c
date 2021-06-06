@@ -741,10 +741,11 @@ KHASH_MAP_INIT_INT(mutex, pthread_mutex_t*)
 
 static kh_mutex_t* unaligned_mutex = NULL;
 #endif
-
+// x86_64 pthread_mutex_t is 40 bytes (ARM64 one is 48)
 typedef struct aligned_mutex_s {
 	uint64_t	dummy;
 	pthread_mutex_t *m;
+	struct aligned_mutex_s *self;
 	uint64_t sign;
 } aligned_mutex_t;
 #define SIGNMTX *(uint64_t*)"BOX64MTX"
@@ -754,7 +755,7 @@ pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 	if(!m)
 		return NULL;
 	aligned_mutex_t* am = (aligned_mutex_t*)m;
-	if(init && (am->sign==SIGNMTX))
+	if(init && (am->sign==SIGNMTX && am->self==am))
 		return am->m;
 	#ifdef TRACK_MUTEX
 	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
@@ -767,8 +768,13 @@ pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 	pthread_mutex_t* ret = (pthread_mutex_t*)calloc(1, sizeof(pthread_mutex_t));
 	#endif
 	if(init) {
-		int kind = ((int*)m)[4];	// extract kind from original mutex
-		((int*)ret)[3+__PTHREAD_MUTEX_HAVE_PREV] = kind;		// inject in new one (i.e. "init" it)
+		if(am->sign == SIGNMTX) {
+			int kind = ((int*)am->m)[3+__PTHREAD_MUTEX_HAVE_PREV];	// extract kind from original mutex
+			((int*)ret)[3+__PTHREAD_MUTEX_HAVE_PREV] = kind;		// inject in new one (i.e. "init" it)
+		} else {
+			int kind = ((int*)m)[4];	// extract kind from original mutex
+			((int*)ret)[3+__PTHREAD_MUTEX_HAVE_PREV] = kind;		// inject in new one (i.e. "init" it)
+		}
 	}
 	am->sign = SIGNMTX;
 	am->m = ret;
@@ -825,6 +831,14 @@ EXPORT int my_pthread_mutexattr_getkind_np(x64emu_t* emu, my_mutexattr_t *attr, 
 	mattr.x86 = attr->x86;
 	//int ret = pthread_mutexattr_getkind_np(&mattr.nat, p);
 	int ret = pthread_mutexattr_gettype(&mattr.nat, p);
+	attr->x86 = mattr.x86;
+	return ret;
+}
+EXPORT int my_pthread_mutexattr_getprotocol(x64emu_t* emu, my_mutexattr_t *attr, void* p)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	int ret = pthread_mutexattr_getprotocol(&mattr.nat, p);
 	attr->x86 = mattr.x86;
 	return ret;
 }

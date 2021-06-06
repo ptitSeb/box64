@@ -136,7 +136,7 @@ GO(__pthread_mutexattr_destroy, iFp)
 GO(pthread_mutexattr_destroy, iFp)
 GO(pthread_mutexattr_getkind_np, iFpp)
 // pthread_mutexattr_getprioceiling
-// pthread_mutexattr_getprotocol
+GO(pthread_mutexattr_getprotocol, iFpp)
 // pthread_mutexattr_getpshared
 // pthread_mutexattr_getrobust_np
 GO(pthread_mutexattr_gettype, iFpp)
@@ -154,7 +154,7 @@ GOM(__pthread_mutexattr_destroy, iFEp)
 GOM(pthread_mutexattr_destroy, iFEp)
 GOM(pthread_mutexattr_getkind_np, iFEpp)
 // pthread_mutexattr_getprioceiling
-// pthread_mutexattr_getprotocol
+GOM(pthread_mutexattr_getprotocol, iFEpp)
 // pthread_mutexattr_getpshared
 // pthread_mutexattr_getrobust_np
 GOM(pthread_mutexattr_gettype, iFEpp)
