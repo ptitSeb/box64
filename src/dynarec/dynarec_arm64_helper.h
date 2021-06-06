@@ -413,6 +413,7 @@
 
 #define STORE_REG(A)    STRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define STP_REGS(A, B)  STPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
+#define LDP_REGS(A, B)  LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define STORE_XEMU_REGS(A)  \
     STORE_REG(RAX);         \
     STORE_REG(RCX);         \
@@ -478,10 +479,15 @@
     if(A) {STPx_S7_offset(xFlags, A, xEmu, offsetof(x64emu_t, eflags));}    \
     else {STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));}
 
-#define LOAD_XEMU_CALL(A)  \
+#define LOAD_XEMU_CALL(A)   \
     if(A) {LDPx_S7_offset(xFlags, A, xEmu, offsetof(x64emu_t, eflags));}    \
     else {LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));};             \
     if(A==xRIP) dyn->last_ip = 0
+
+#define LOAD_XEMU_REM()     \
+    LDP_REGS(R10, R11);     \
+    LDP_REGS(R12, R13);     \
+    LDP_REGS(R14, R15)
 
 #define SET_DFNONE(S)    if(!dyn->dfnone) {MOVZw(S, d_none); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=1;}
 #define SET_DF(S, N)     if((N)!=d_none) {MOVZw(S, (N)); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=0;} else SET_DFNONE(S)

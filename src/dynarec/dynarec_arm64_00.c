@@ -1558,6 +1558,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
                     CBZw_NEXT(w1);
                     MARK;
+                    LOAD_XEMU_REM();
                     jump_to_epilog(dyn, 0, xRIP, ninst);
                 }
             } else {
@@ -1979,6 +1980,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
                     CBZw_NEXT(w1);  // not quitting, so lets continue
                     MARK;
+                    LOAD_XEMU_REM();    // load remaining register, has they have changed
                     jump_to_epilog(dyn, 0, xRIP, ninst);
                     break;
                 default:
