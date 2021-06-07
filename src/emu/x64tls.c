@@ -128,7 +128,25 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
     return 0;
 }
 
-#define POS_TLS     0x50
+#define POS_TLS     0x200
+/*
+ tls record should looks like:
+ void*      tcb             0x00
+ void*      dtv             0x08
+ void*      self            0x10
+ int        multiple        0x18
+ int        gscope          0x1c
+ void*      sysinfo         0x20
+ uintptr_t  stack_guard     0x28
+ uitnptr_t  pointer_guard   0x30
+ uint64_t   vgetcpu[2]      0x38
+ uint32_t   features        0x48
+ int        unused          0x4c
+ void*      private[4]      0x50
+ void*      private_ss      0x70
+ uintptr_t  ssp_base        0x78
+ .... padding ....          0x200?
+*/
 
 static tlsdatasize_t* setupTLSData(box64context_t* context)
 {
@@ -142,9 +160,10 @@ static tlsdatasize_t* setupTLSData(box64context_t* context)
     pthread_setspecific(context->tlskey, data);
     // copy canary...
     memset((void*)((uintptr_t)ptr+context->tlssize), 0, POS_TLS+dtsize);            // set to 0 remining bytes
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, sizeof(void*));      // put canary in place
+    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x28), context->canary, sizeof(void*));      // put canary in place
     uintptr_t tlsptr = (uintptr_t)ptr+context->tlssize;
     memcpy((void*)((uintptr_t)ptr+context->tlssize+0x0), &tlsptr, sizeof(void*));
+    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &tlsptr, sizeof(void*));  // set tcb and self same address
     uintptr_t dtp = (uintptr_t)ptr+context->tlssize+POS_TLS;
     memcpy((void*)(tlsptr+sizeof(void*)), &dtp, sizeof(void*));
     if(dtsize) {
@@ -155,7 +174,7 @@ static tlsdatasize_t* setupTLSData(box64context_t* context)
             *(uint64_t*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*16+8) = i; // index
         }
     }
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, sizeof(void*));  // address of vsyscall
+    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x20), &context->vsyscall, sizeof(void*));  // address of vsyscall
     return data;
 }
 
