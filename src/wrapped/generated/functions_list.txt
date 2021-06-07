@@ -1414,6 +1414,7 @@ wrappedlibc:
 - iFpp:
   - __vprintf_chk
   - dl_iterate_phdr
+  - execv
   - execvp
   - sigaltstack
   - swapcontext
@@ -1470,6 +1471,7 @@ wrappedlibc:
   - __isoc99_vsscanf
   - __vfprintf_chk
   - __vsscanf
+  - execve
   - vasprintf
   - vfprintf
   - vsscanf

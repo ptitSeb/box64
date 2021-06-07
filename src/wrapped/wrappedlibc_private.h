@@ -292,8 +292,8 @@ GO(eventfd_write, iFiU)
 //GO(execl, 
 //GO(execle, 
 GOM(execlp, iFEpV)
-//GO(execv, 
-//GOW(execve, 
+GOM(execv, iFEpp)
+GOM(execve, iFEppp) //Weak
 GOM(execvp, iFEpp)
 //GOW(execvpe, 
 GO(_exit, vFi)

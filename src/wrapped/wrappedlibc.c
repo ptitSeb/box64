@@ -1501,7 +1501,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
     #if 1
     if (x86 || self) {
         int skip_first = 0;
-        if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
+        if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
             skip_first++;
         // count argv...
         int n=skip_first;
@@ -1527,7 +1527,7 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
     #if 1
     if (x86 || self) {
         int skip_first = 0;
-        if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
+        if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
             skip_first++;
         // count argv...
         int n=skip_first;

@@ -82,6 +82,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(munmap, iFpL_t) \
 	GO(__vprintf_chk, iFpp_t) \
 	GO(dl_iterate_phdr, iFpp_t) \
+	GO(execv, iFpp_t) \
 	GO(execvp, iFpp_t) \
 	GO(sigaltstack, iFpp_t) \
 	GO(swapcontext, iFpp_t) \
@@ -122,6 +123,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(__isoc99_vsscanf, iFppp_t) \
 	GO(__vfprintf_chk, iFppp_t) \
 	GO(__vsscanf, iFppp_t) \
+	GO(execve, iFppp_t) \
 	GO(vasprintf, iFppp_t) \
 	GO(vfprintf, iFppp_t) \
 	GO(vsscanf, iFppp_t) \
