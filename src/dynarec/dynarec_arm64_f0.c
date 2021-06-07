@@ -417,6 +417,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             if(opcode==0x81) {INST_NAME("(LOCK) CMP Ew, Iw");} else {INST_NAME("(LOCK) CMP Ew, Ib");}
                             SETFLAGS(X_ALL, SF_SET);
                             GETEW(x6, (opcode==0x81)?2:1);
+                            (void)wb1;
                             // No need to LOCK, this is readonly
                             if(opcode==0x81) i32 = F16S; else i32 = F8S;
                             if(i32) {
