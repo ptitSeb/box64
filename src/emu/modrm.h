@@ -1,6 +1,7 @@
 #define F8      *(uint8_t*)(R_RIP++)
 #define F8S     *(int8_t*)(R_RIP++)
 #define F16     *(uint16_t*)(R_RIP+=2, R_RIP-2)
+#define F16S    *(int16_t*)(R_RIP+=2, R_RIP-2)
 #define F32     *(uint32_t*)(R_RIP+=4, R_RIP-4)
 #define F32S    *(int32_t*)(R_RIP+=4, R_RIP-4)
 #define F32S64  (uint64_t)(int64_t)F32S

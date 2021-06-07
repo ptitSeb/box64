@@ -42,10 +42,11 @@ int Run66F0(x64emu_t *emu, rex_t rex)
 
     switch(opcode) {
 
-        case 0x83:              /* GRP Ed,Ib */
+        case 0x81:              /* GRP Ew,Iw */
+        case 0x83:              /* GRP Ew,Ib */
             nextop = F8;
-            GETED(1);
-            tmp64s = F8S;
+            GETED((opcode==0x83)?1:2);
+            tmp64s = (opcode==0x83)?(F8S):(F16S);
             tmp64u = (uint64_t)tmp64s;
 #ifdef DYNAREC
             if(rex.w) {
