@@ -30,11 +30,13 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t opcode = F8;
     uint8_t nextop;
     uint8_t gd, ed;
-    uint8_t wback, wb2, gb1, gb2;
+    uint8_t wback, wb1, wb2, gb1, gb2;
+    int32_t i32;
     int64_t i64, j64;
     int64_t fixedaddress;
     MAYUSE(gb1);
     MAYUSE(gb2);
+    MAYUSE(wb1);
     MAYUSE(wb2);
     MAYUSE(j64);
 
@@ -229,6 +231,210 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x66:
+            opcode = F8;
+            switch(opcode) {
+                case 0x81:
+                case 0x83:
+                    nextop = F8;
+                    switch((nextop>>3)&7) {
+                        case 0: //ADD
+                            if(opcode==0x81) {
+                                INST_NAME("LOCK ADD Ew, Iw");
+                            } else {
+                                INST_NAME("LOCK ADD Ew, Iw");
+                            }
+                            SETFLAGS(X_ALL, SF_SET);
+                            if(MODREG) {
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                MOV32w(x5, i32);
+                                UXTHw(x6, ed);
+                                emit_add16(dyn, ninst, x6, x5, x3, x4);
+                                BFIx(ed, x6, 0, 16);
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?2:1);
+                                if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                                MOV32w(x5, i32);
+                                TSTx_mask(wback, 1, 0, 0);    // mask=1
+                                B_MARK(cNE);
+                                MARKLOCK;
+                                LDAXRH(x1, wback);
+                                emit_add16(dyn, ninst, x1, x5, x3, x4);
+                                STLXRH(x3, x1, wback);
+                                CBNZx_MARKLOCK(x3);
+                                B_NEXT_nocond;
+                                MARK;   // unaligned! also, not enough 
+                                LDRH_U12(x1, wback, 0);
+                                LDAXRB(x4, wback);
+                                BFIw(x1, x4, 0, 8); // re-inject
+                                emit_add16(dyn, ninst, x1, x5, x3, x4);
+                                STLXRB(x3, x1, wback);
+                                CBNZx_MARK(x3);
+                                STRH_U12(x1, wback, 0);    // put the whole value
+                            }
+                            break;
+                        case 1: //OR
+                            if(opcode==0x81) {INST_NAME("LOCK OR Ew, Iw");} else {INST_NAME("LOCK OR Ew, Iw");}
+                            SETFLAGS(X_ALL, SF_SET);
+                            if(MODREG) {
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                MOV32w(x5, i32);
+                                UXTHw(x6, ed);
+                                emit_or16(dyn, ninst, x6, x5, x3, x4);
+                                BFIx(ed, x6, 0, 16);
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?2:1);
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                MOV32w(x5, i32);
+                                MARKLOCK;
+                                LDAXRH(x1, wback);
+                                emit_or16(dyn, ninst, x1, x5, x3, x4);
+                                STLXRH(x3, x1, wback);
+                                CBNZx_MARKLOCK(x3);
+                            }
+                            break;
+                        case 2: //ADC
+                            if(opcode==0x81) {INST_NAME("LOCK ADC Ew, Iw");} else {INST_NAME("LOCK ADC Ew, Ib");}
+                            READFLAGS(X_CF);
+                            SETFLAGS(X_ALL, SF_SET);
+                            if(MODREG) {
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                MOV32w(x5, i32);
+                                UXTHw(x6, ed);
+                                emit_adc16(dyn, ninst, x6, x5, x3, x4);
+                                BFIx(ed, x6, 0, 16);
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?2:1);
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                MOV32w(x5, i32);
+                                MARKLOCK;
+                                LDAXRH(x1, wback);
+                                emit_adc16(dyn, ninst, x1, x5, x3, x4);
+                                STLXRH(x3, x1, wback);
+                                CBNZx_MARKLOCK(x3);
+                            }
+                            break;
+                        case 3: //SBB
+                            if(opcode==0x81) {INST_NAME("LOCK SBB Ew, Iw");} else {INST_NAME("LOCK SBB Ew, Ib");}
+                            READFLAGS(X_CF);
+                            SETFLAGS(X_ALL, SF_SET);
+                            if(MODREG) {
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                MOV32w(x5, i32);
+                                UXTHw(x6, ed);
+                                emit_sbb16(dyn, ninst, x6, x5, x3, x4);
+                                BFIx(ed, x6, 0, 16);
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?2:1);
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                MOV32w(x5, i32);
+                                MARKLOCK;
+                                LDAXRH(x1, wback);
+                                emit_sbb16(dyn, ninst, x1, x5, x3, x4);
+                                STLXRH(x3, x1, wback);
+                                CBNZx_MARKLOCK(x3);
+                            }
+                            break;
+                        case 4: //AND
+                            if(opcode==0x81) {INST_NAME("LOCK AND Ew, Iw");} else {INST_NAME("LOCK AND Ew, Ib");}
+                            SETFLAGS(X_ALL, SF_SET);
+                            if(MODREG) {
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                MOV32w(x5, i32);
+                                UXTHw(x6, ed);
+                                emit_and16(dyn, ninst, x6, x5, x3, x4);
+                                BFIx(ed, x6, 0, 16);
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?2:1);
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                MOV32w(x5, i32);
+                                MARKLOCK;
+                                LDAXRH(x1, wback);
+                                emit_and16(dyn, ninst, x1, x5, x3, x4);
+                                STLXRH(x3, x1, wback);
+                                CBNZx_MARKLOCK(x3);
+                            }
+                            break;
+                        case 5: //SUB
+                            if(opcode==0x81) {INST_NAME("LOCK SUB Ew, Iw");} else {INST_NAME("LOCK SUB Ew, Ib");}
+                            SETFLAGS(X_ALL, SF_SET);
+                            if(MODREG) {
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                MOV32w(x5, i32);
+                                UXTHw(x6, ed);
+                                emit_sub16(dyn, ninst, x6, x5, x3, x4);
+                                BFIx(ed, x6, 0, 16);
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?2:1);
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                MOV32w(x5, i32);
+                                TSTx_mask(wback, 1, 0, 0);    // mask=1
+                                B_MARK(cNE);
+                                MARKLOCK;
+                                LDAXRH(x1, wback);
+                                emit_sub16(dyn, ninst, x1, x5, x3, x4);
+                                STLXRH(x3, x1, wback);
+                                CBNZx_MARKLOCK(x3);
+                                B_NEXT_nocond;
+                                MARK;   // unaligned! also, not enough 
+                                LDRH_U12(x1, wback, 0);
+                                LDAXRB(x4, wback);
+                                BFIw(x1, x4, 0, 8); // re-inject
+                                emit_sub16(dyn, ninst, x1, x5, x3, x4);
+                                STLXRB(x3, x1, wback);
+                                CBNZx_MARK(x3);
+                                STRH_U12(x1, wback, 0);    // put the whole value
+                            }
+                            break;
+                        case 6: //XOR
+                            if(opcode==0x81) {INST_NAME("LOCK XOR Ew, Iw");} else {INST_NAME("LOCK XOR Ew, Ib");}
+                            SETFLAGS(X_ALL, SF_SET);
+                            if(MODREG) {
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                MOV32w(x5, i32);
+                                UXTHw(x6, ed);
+                                emit_xor16(dyn, ninst, x6, x5, x3, x4);
+                                BFIx(ed, x6, 0, 16);
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?2:1);
+                                if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                                MOV32w(x5, i32);
+                                MARKLOCK;
+                                LDAXRH(x1, wback);
+                                emit_xor16(dyn, ninst, x1, x5, x3, x4);
+                                STLXRH(x3, x1, wback);
+                                CBNZx_MARKLOCK(x3);
+                            }
+                            break;
+                        case 7: //CMP
+                            if(opcode==0x81) {INST_NAME("(LOCK) CMP Ew, Iw");} else {INST_NAME("(LOCK) CMP Ew, Ib");}
+                            SETFLAGS(X_ALL, SF_SET);
+                            GETEW(x6, (opcode==0x81)?2:1);
+                            // No need to LOCK, this is readonly
+                            if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                            if(i32) {
+                                MOV32w(x5, i32);
+                                UXTHw(x6, ed);
+                                emit_cmp16(dyn, ninst, x6, x5, x3, x4, x6);
+                                BFIx(ed, x6, 0, 16);
+                            } else {
+                                emit_cmp16_0(dyn, ninst, ed, x3, x4);
+                            }
+                            break;
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 0x81:
         case 0x83:
             nextop = F8;
@@ -249,7 +455,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         MOV64xw(x5, i64);
-                        TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
+                        TSTx_mask(wback, 1, 0, 0);    // mask=1
                         B_MARK(cNE);
                         MARKLOCK;
                         LDAXRxw(x1, wback);
@@ -357,7 +563,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         MOV64xw(x5, i64);
-                        TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
+                        TSTx_mask(wback, 1, 0, 0);    // mask=1
                         B_MARK(cNE);
                         MARKLOCK;
                         LDAXRxw(x1, wback);
@@ -397,7 +603,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 7: //CMP
                     if(opcode==0x81) {INST_NAME("(LOCK) CMP Ed, Id");} else {INST_NAME("(LOCK) CMP Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
-                    GETED(0);
+                    GETED((opcode==0x81)?4:1);
                     // No need to LOCK, this is readonly
                     if(opcode==0x81) i64 = F32S; else i64 = F8S;
                     if(i64) {
