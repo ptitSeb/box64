@@ -102,7 +102,7 @@ void UpdateFlags(x64emu_t *emu);
 #define RESET_FLAGS(emu) emu->df = d_none
 
 int Run0F(x64emu_t *emu, rex_t rex);
-int Run64(x64emu_t *emu, rex_t rex);
+int Run64(x64emu_t *emu, rex_t rex, int seg);
 int Run66(x64emu_t *emu, rex_t rex, int rep);
 int Run660F(x64emu_t *emu, rex_t rex);
 int Run6664(x64emu_t *emu, rex_t rex);

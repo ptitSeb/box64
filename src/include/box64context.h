@@ -156,7 +156,7 @@ typedef struct box64context_s {
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
     int64_t             tlssize;    // wanted size of tlsdata
-    base_segment_t      segtls[3];  // only handling 0/1/2 descriptors
+    base_segment_t      segtls[4];  // only handling 0/1/2 descriptors (3 is internal use)
 
     uintptr_t           *auxval_start;
 

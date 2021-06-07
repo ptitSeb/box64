@@ -10,4 +10,6 @@ void* fillTLSData(box64context_t *context);
 void* resizeTLSData(box64context_t *context, void* oldptr);
 void* GetSegmentBase(uint32_t desc);
 
+int my_arch_prctl(x64emu_t *emu, int code, void* addr);
+
 #endif //__X64_TLS_H__

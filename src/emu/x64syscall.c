@@ -116,6 +116,7 @@ scwrap_t syscallwrap[] = {
     { 127, __NR_rt_sigpending, 2},
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
     { 157, __NR_prctl, 5 },     // needs wrapping?
+    //{ 158, __NR_arch_prctl, 2},   //need wrapping
     { 186, __NR_gettid, 0 },    //0xBA
     { 200, __NR_tkill, 2 },
     #ifdef __NR_time
@@ -324,6 +325,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 131: // sys_sigaltstack
             R_EAX = (uint32_t)my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
             break;
+        case 158: // sys_arch_prctl
+            R_EAX = (uint32_t)my_arch_prctl(emu, (int)R_EDI, (void*)R_RSI);
+            break;
         #ifndef __NR_time
         case 201: // sys_time
             R_RAX = (uintptr_t)time((void*)R_RDI);
@@ -433,6 +437,8 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
             return (uintptr_t)my_readlink(emu,(void*)R_RSI, (void*)R_RDX, (size_t)R_RCX);
         case 131: // sys_sigaltstack
             return (uint32_t)my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
+        case 158: // sys_arch_prctl
+            return (uint32_t)my_arch_prctl(emu, (int)R_ESI, (void*)R_RDX);
         #ifndef __NR_time
         case 201: // sys_time
             return (uintptr_t)time((void*)R_RSI);

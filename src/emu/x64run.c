@@ -241,14 +241,21 @@ x64emurun:
                     GD->sdword[0] = ED->sdword[0];  // meh?
             break;
         case 0x64:                      /* FS: prefix */
-            if(Run64(emu, rex)) {
+            if(Run64(emu, rex, _FS)) {
                 unimp = 1;
                 goto fini;
             }
             if(emu->quit)
                 goto fini;
             break;
-
+        case 0x65:                      /* GS: prefix */
+            if(Run64(emu, rex, _GS)) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit)
+                goto fini;
+            break;
         case 0x66:                      /* 16bits prefix */
             if(Run66(emu, rex, rep)) {
                 unimp = 1;

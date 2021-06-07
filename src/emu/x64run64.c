@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int Run64(x64emu_t *emu, rex_t rex)
+int Run64(x64emu_t *emu, rex_t rex, int seg)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -35,7 +35,7 @@ int Run64(x64emu_t *emu, rex_t rex)
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
     int rep;
-    uintptr_t tlsdata = GetFSBaseEmu(emu);
+    uintptr_t tlsdata = GetSegmentBaseEmu(emu, seg);
 
     opcode = F8;
     // REX prefix before the F0 are ignored

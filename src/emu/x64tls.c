@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "box64context.h"
 #include "x64emu.h"
+#include "x64emu_private.h"
 #include "x64tls.h"
 #include "elfloader.h"
 
@@ -27,6 +28,7 @@ typedef struct thread_area_s
 static pthread_once_t thread_key_once0 = PTHREAD_ONCE_INIT;
 static pthread_once_t thread_key_once1 = PTHREAD_ONCE_INIT;
 static pthread_once_t thread_key_once2 = PTHREAD_ONCE_INIT;
+static pthread_once_t thread_key_once3 = PTHREAD_ONCE_INIT;
 
 static void thread_key_alloc0() {
 	pthread_key_create(&my_context->segtls[0].key, NULL);
@@ -36,6 +38,9 @@ static void thread_key_alloc1() {
 }
 static void thread_key_alloc2() {
 	pthread_key_create(&my_context->segtls[2].key, NULL);
+}
+static void thread_key_alloc3() {
+	pthread_key_create(&my_context->segtls[3].key, NULL);
 }
 
 uint32_t my_set_thread_area(thread_area_t* td)
@@ -127,6 +132,33 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
 
     return 0;
 }
+
+int my_arch_prctl(x64emu_t *emu, int code, void* addr)
+{
+    #define ARCH_SET_GS          0x1001
+    #define ARCH_GET_GS          0x1004
+    switch(code) {
+        case ARCH_GET_GS:
+            *(void**)addr = GetSegmentBase(emu->segs[_GS]);
+            return 0;
+        case ARCH_SET_GS:
+            if(emu->segs[_GS]!=(0xa<<3)) {
+                pthread_once(&thread_key_once3, thread_key_alloc3);
+                emu->segs[_GS] = 0xa<<3;
+                if(!default_gs)
+                    default_gs = 0xa<<3;
+            }
+            my_context->segtls[3].base = (uintptr_t)addr;
+            my_context->segtls[3].limit = 0;
+            my_context->segtls[3].present = 1;
+            pthread_setspecific(my_context->segtls[3].key, (void*)my_context->segtls[3].base);
+            return 0;
+    }
+    // other are unsupported
+    printf_log(LOG_INFO, "warning, call to unsupported arch_prctl(0x%x, %p)\n", code, addr);
+    return -1;
+}
+
 
 #define POS_TLS     0x200
 /*
@@ -222,7 +254,7 @@ void* GetSegmentBase(uint32_t desc)
     if(base==0x6)
         return GetSeg33Base();
 
-    if(base>6 && base<10 && my_context->segtls[base-7].present) {
+    if(base>6 && base<11 && my_context->segtls[base-7].present) {
         void* ptr = pthread_getspecific(my_context->segtls[base-7].key);
         return ptr;
     }

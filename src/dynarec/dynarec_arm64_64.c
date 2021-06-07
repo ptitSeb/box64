@@ -24,7 +24,7 @@
 
 #define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
 
-uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog)
 {
     (void)ip; (void)rep; (void)need_epilog;
 
@@ -61,9 +61,9 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     switch(opcode) {
 
         case 0x03:
-            INST_NAME("ADD Gd, FS:Ed");
+            INST_NAME("ADD Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET);
-            grab_segdata(dyn, addr, ninst, x4, _FS);
+            grab_segdata(dyn, addr, ninst, x4, seg);
             nextop = F8;
             GETGD;
             GETEDO(x4, 0);
@@ -86,7 +86,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 d0 = sse_get_reg(dyn, ninst, x1, ed);
                                 VMOVeD(v0, 0, d0, 0);
                             } else {
-                                grab_segdata(dyn, addr, ninst, x4, _FS);
+                                grab_segdata(dyn, addr, ninst, x4, seg);
                                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                                 ADDx_REG(x4, x4, ed);
@@ -102,7 +102,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
                                 VMOVeS(v0, 0, q0, 0);
                             } else {
-                                grab_segdata(dyn, addr, ninst, x4, _FS);
+                                grab_segdata(dyn, addr, ninst, x4, seg);
                                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                                 ADDx_REG(x4, x4, ed);
@@ -125,7 +125,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 d0 = sse_get_reg(dyn, ninst, x1, ed);
                                 VMOVeD(d0, 0, v0, 0);
                             } else {
-                                grab_segdata(dyn, addr, ninst, x4, _FS);
+                                grab_segdata(dyn, addr, ninst, x4, seg);
                                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                                 ADDx_REG(x4, x4, ed);
                                 VSTR64_U12(v0, x4, fixedaddress);
@@ -140,7 +140,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
                                 VMOVeS(q0, 0, v0, 0);
                             } else {
-                                grab_segdata(dyn, addr, ninst, x4, _FS);
+                                grab_segdata(dyn, addr, ninst, x4, seg);
                                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                                 ADDx_REG(x4, x4, ed);
                                 VSTR32_U12(v0, x4, fixedaddress);
@@ -157,9 +157,9 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0x33:
-            INST_NAME("XOR Gd, FS:Ed");
+            INST_NAME("XOR Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET);
-            grab_segdata(dyn, addr, ninst, x4, _FS);
+            grab_segdata(dyn, addr, ninst, x4, seg);
             nextop = F8;
             GETGD;
             GETEDO(x4, 0);
@@ -168,7 +168,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     
         case 0x80:
             nextop = F8;
-            grab_segdata(dyn, addr, ninst, x1, _FS);
+            grab_segdata(dyn, addr, ninst, x1, seg);
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     INST_NAME("ADD Eb, Ib");
@@ -247,7 +247,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x81:
         case 0x83:
             nextop = F8;
-            grab_segdata(dyn, addr, ninst, x6, _FS);
+            grab_segdata(dyn, addr, ninst, x6, seg);
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     if(opcode==0x81) {INST_NAME("ADD Ed, Id");} else {INST_NAME("ADD Ed, Ib");}
@@ -324,8 +324,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
             
         case 0x89:
-            INST_NAME("MOV FS:Ed, Gd");
-            grab_segdata(dyn, addr, ninst, x4, _FS);
+            INST_NAME("MOV Seg:Ed, Gd");
+            grab_segdata(dyn, addr, ninst, x4, seg);
             nextop=F8;
             GETGD;
             if(MODREG) {   // reg <= reg
@@ -337,8 +337,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0x8B:
-            INST_NAME("MOV Gd, FS:Ed");
-            grab_segdata(dyn, addr, ninst, x4, _FS);
+            INST_NAME("MOV Gd, Seg:Ed");
+            grab_segdata(dyn, addr, ninst, x4, seg);
             nextop=F8;
             GETGD;
             if(MODREG) {   // reg <= reg
@@ -350,8 +350,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xC6:
-            INST_NAME("MOV FS:Eb, Ib");
-            grab_segdata(dyn, addr, ninst, x4, _FS);
+            INST_NAME("MOV Seg:Eb, Ib");
+            grab_segdata(dyn, addr, ninst, x4, seg);
             nextop=F8;
             if(MODREG) {   // reg <= u8
                 u8 = F8;
@@ -373,8 +373,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0xC7:
-            INST_NAME("MOV FS:Ed, Id");
-            grab_segdata(dyn, addr, ninst, x4, _FS);
+            INST_NAME("MOV Seg:Ed, Id");
+            grab_segdata(dyn, addr, ninst, x4, seg);
             nextop=F8;
             if(MODREG) {   // reg <= i32
                 i64 = F32S;
