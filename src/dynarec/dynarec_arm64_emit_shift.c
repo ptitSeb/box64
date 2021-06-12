@@ -257,6 +257,10 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
         }
         return;
     }
+    IFX(X_CF) {
+        ASRxw(s3, s1, c-1);
+        BFIw(xFlags, s3, 0, 1);
+    }
     ASRxw(s1, s1, c);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
@@ -266,10 +270,6 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
         BFCx(xFlags, F_ZF, 1);
         Bcond(cNE, +8);
         ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
-    }
-    IFX(X_CF) {
-        ASRxw(s3, s1, c-1);
-        BFIw(xFlags, s3, 0, 1);
     }
     IFX(X_SF) {
         LSRxw(s4, s1, (rex.w)?63:31);
