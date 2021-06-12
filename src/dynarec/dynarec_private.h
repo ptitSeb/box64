@@ -15,8 +15,9 @@
 #define SF_UNKNOWN  0
 #define SF_SET      1
 #define SF_PENDING  2
-#define SF_MAYSET   3
-#define SF_SUBSET   4
+#define SF_SET_PENDING      3
+#define SF_MAYSET   4
+#define SF_SUBSET   5
 
 typedef struct instruction_x64_s {
     uintptr_t   addr;   //address of the instruction

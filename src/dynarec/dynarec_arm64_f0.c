@@ -54,7 +54,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     switch(opcode) {
         case 0x00:
             INST_NAME("LOCK ADD Eb, Gb");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGB(x2);
             if((nextop&0xC0)==0xC0) {
@@ -80,7 +80,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x01:
             INST_NAME("LOCK ADD Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
             if((nextop&0xC0)==0xC0) {
@@ -102,7 +102,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
                 case 0xB1:
                     INST_NAME("LOCK CMPXCHG Ed, Gd");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
                     GETGD;
                     if(MODREG) {
@@ -149,7 +149,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
                 case 0xC1:
                     INST_NAME("LOCK XADD Gd, Ed");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
                     GETGD;
                     if(MODREG) {
@@ -187,7 +187,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
                 case 0xC7:
                     INST_NAME("LOCK CMPXCHG8B Gq, Eq");
-                    SETFLAGS(X_ZF, SF_SET);
+                    SETFLAGS(X_ZF, SF_SUBSET);
                     nextop = F8;
                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0, rex, 0, 0);
                     MARKLOCK;
@@ -215,7 +215,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     
         case 0x29:
             INST_NAME("LOCK SUB Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
             if(MODREG) {
@@ -244,7 +244,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             } else {
                                 INST_NAME("LOCK ADD Ew, Iw");
                             }
-                            SETFLAGS(X_ALL, SF_SET);
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
                             if(MODREG) {
                                 if(opcode==0x81) i32 = F16S; else i32 = F8S;
                                 ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -276,7 +276,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             break;
                         case 1: //OR
                             if(opcode==0x81) {INST_NAME("LOCK OR Ew, Iw");} else {INST_NAME("LOCK OR Ew, Iw");}
-                            SETFLAGS(X_ALL, SF_SET);
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
                             if(MODREG) {
                                 if(opcode==0x81) i32 = F16S; else i32 = F8S;
                                 ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -298,7 +298,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         case 2: //ADC
                             if(opcode==0x81) {INST_NAME("LOCK ADC Ew, Iw");} else {INST_NAME("LOCK ADC Ew, Ib");}
                             READFLAGS(X_CF);
-                            SETFLAGS(X_ALL, SF_SET);
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
                             if(MODREG) {
                                 if(opcode==0x81) i32 = F16S; else i32 = F8S;
                                 ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -320,7 +320,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         case 3: //SBB
                             if(opcode==0x81) {INST_NAME("LOCK SBB Ew, Iw");} else {INST_NAME("LOCK SBB Ew, Ib");}
                             READFLAGS(X_CF);
-                            SETFLAGS(X_ALL, SF_SET);
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
                             if(MODREG) {
                                 if(opcode==0x81) i32 = F16S; else i32 = F8S;
                                 ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -341,7 +341,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             break;
                         case 4: //AND
                             if(opcode==0x81) {INST_NAME("LOCK AND Ew, Iw");} else {INST_NAME("LOCK AND Ew, Ib");}
-                            SETFLAGS(X_ALL, SF_SET);
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
                             if(MODREG) {
                                 if(opcode==0x81) i32 = F16S; else i32 = F8S;
                                 ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -362,7 +362,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             break;
                         case 5: //SUB
                             if(opcode==0x81) {INST_NAME("LOCK SUB Ew, Iw");} else {INST_NAME("LOCK SUB Ew, Ib");}
-                            SETFLAGS(X_ALL, SF_SET);
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
                             if(MODREG) {
                                 if(opcode==0x81) i32 = F16S; else i32 = F8S;
                                 ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -394,7 +394,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             break;
                         case 6: //XOR
                             if(opcode==0x81) {INST_NAME("LOCK XOR Ew, Iw");} else {INST_NAME("LOCK XOR Ew, Ib");}
-                            SETFLAGS(X_ALL, SF_SET);
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
                             if(MODREG) {
                                 if(opcode==0x81) i32 = F16S; else i32 = F8S;
                                 ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -415,7 +415,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             break;
                         case 7: //CMP
                             if(opcode==0x81) {INST_NAME("(LOCK) CMP Ew, Iw");} else {INST_NAME("(LOCK) CMP Ew, Ib");}
-                            SETFLAGS(X_ALL, SF_SET);
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
                             GETEW(x6, (opcode==0x81)?2:1);
                             (void)wb1;
                             // No need to LOCK, this is readonly
@@ -446,7 +446,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         INST_NAME("LOCK ADD Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -476,7 +476,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1: //OR
                     if(opcode==0x81) {INST_NAME("LOCK OR Ed, Id");} else {INST_NAME("LOCK OR Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -496,7 +496,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 2: //ADC
                     if(opcode==0x81) {INST_NAME("LOCK ADC Ed, Id");} else {INST_NAME("LOCK ADC Ed, Ib");}
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -516,7 +516,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 3: //SBB
                     if(opcode==0x81) {INST_NAME("LOCK SBB Ed, Id");} else {INST_NAME("LOCK SBB Ed, Ib");}
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -535,7 +535,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 4: //AND
                     if(opcode==0x81) {INST_NAME("LOCK AND Ed, Id");} else {INST_NAME("LOCK AND Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -554,7 +554,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 5: //SUB
                     if(opcode==0x81) {INST_NAME("LOCK SUB Ed, Id");} else {INST_NAME("LOCK SUB Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -584,7 +584,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6: //XOR
                     if(opcode==0x81) {INST_NAME("LOCK XOR Ed, Id");} else {INST_NAME("LOCK XOR Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -603,7 +603,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7: //CMP
                     if(opcode==0x81) {INST_NAME("(LOCK) CMP Ed, Id");} else {INST_NAME("(LOCK) CMP Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED((opcode==0x81)?4:1);
                     // No need to LOCK, this is readonly
                     if(opcode==0x81) i64 = F32S; else i64 = F8S;
