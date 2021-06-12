@@ -257,6 +257,9 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVQDfrom(d0, 0, x2);
             VTBL1_8(d0, v1, d0);
             VMOVeD(v0, 0, d0, 0);
+            if(v0!=v1) {
+                VMOVeD(v0, 1, v1, 1);
+            }
             break;
 
         case 0x7C:
