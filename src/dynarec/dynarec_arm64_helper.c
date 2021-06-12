@@ -909,12 +909,11 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     MAYUSE(dyn); MAYUSE(ninst);
     MAYUSE(s1); MAYUSE(s2);
     LDRH_U12(s1, xEmu, offsetof(x64emu_t, cw));
-    UBFXx(s2, s1, 10, 2);    // extract round...
-    MOV64x(s1, (uintptr_t)round_map);
-    LDRw_REG_LSL2(s2, s1, s2);
+    RBITw(s2, s1);              // round is on bits 10-11 on x86,
+    LSRw(s2, s2, 20);           // but we want the reverse of that
     MRS_fpcr(s1);               // get fpscr
     MOVx_REG(s3, s1);
-    BFIx(s1, s2, 22, 2);     // inject new round
+    BFIx(s1, s2, 22, 2);        // inject new round
     MSR_fpcr(s1);               // put new fpscr
     return s3;
 }

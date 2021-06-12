@@ -168,9 +168,10 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_NEXT(x5, FPSR_IOC);
+                    TBZ_MARK3(x5, FPSR_IOC);
                     MOV32w(x5, 0x8000);
                     STRH_U12(x5, wback, fixedaddress);
+                    MARK3;
                     #endif
                     x87_do_pop(dyn, ninst);
                     break;
@@ -198,9 +199,10 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_NEXT(x5, FPSR_IOC);
+                    TBZ_MARK3(x5, FPSR_IOC);
                     MOV32w(x5, 0x8000);
                     STRH_U12(x5, wback, fixedaddress);
+                    MARK3;
                     #endif
                     x87_restoreround(dyn, ninst, u8);
                     break;
@@ -228,9 +230,10 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_NEXT(x5, FPSR_IOC);
+                    TBZ_MARK3(x5, FPSR_IOC);
                     MOV32w(x5, 0x8000);
                     STRH_U12(x5, wback, fixedaddress);
+                    MARK3;
                     #endif
                     x87_do_pop(dyn, ninst);
                     x87_restoreround(dyn, ninst, u8);
@@ -279,8 +282,8 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     TBZ_MARK3(x5, FPSR_IOC);
                     MOV64x(x5, 0x8000000000000000LL);
                     STRx_U12(x5, wback, fixedaddress);
-                    #endif
                     MARK3;
+                    #endif
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 default:
