@@ -413,7 +413,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
                     if(rex.w) {
                         do {
                             tmp64u = arm64_lock_read_dd(ED);
-                            tmp64u2 = add64(emu, tmp64u, GD->dword[0]);
+                            tmp64u2 = add64(emu, tmp64u, GD->q[0]);
                         } while(arm64_lock_write_dd(ED, tmp64u2));
                         GD->q[0] = tmp64u;
                     } else {
