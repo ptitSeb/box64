@@ -684,6 +684,27 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     VMOVeH(v0, 1, v1, 0);
                     VMOVeS(v0, 1, v1, 0);
+                } else if(u8==0x55) {
+                    // dumplicate 16bits slot 1 to all spot
+                    if(v0!=v1) {
+                        VMOVeH(v0, 1, v1, 1);
+                    }
+                    VMOVeH(v0, 0, v1, 1);
+                    VMOVeS(v0, 1, v1, 0);
+                } else if(u8==0xAA) {
+                    // dumplicate 16bits slot 2 to all spot
+                    if(v0!=v1) {
+                        VMOVeH(v0, 2, v1, 2);
+                    }
+                    VMOVeH(v0, 3, v1, 2);
+                    VMOVeS(v0, 0, v1, 1);
+                } else if(u8==0xFF) {
+                    // dumplicate 16bits slot 3 to all spot
+                    if(v0!=v1) {
+                        VMOVeH(v0, 3, v1, 3);
+                    }
+                    VMOVeH(v0, 2, v1, 3);
+                    VMOVeS(v0, 0, v1, 1);
                 } else if(v0!=v1) {
                     VMOVeH(v0, 0, v1, (u8>>(0*2))&3);
                     VMOVeH(v0, 1, v1, (u8>>(1*2))&3);
