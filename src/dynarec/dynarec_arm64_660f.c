@@ -641,7 +641,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VLD1_32(v0, i, x2);
                     }
                 } else {
-                    VLD1R_32(v0, ed);
+                    VLDQ1R_32(v0, ed);
                 }
             }
             break;
