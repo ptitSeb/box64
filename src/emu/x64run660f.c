@@ -256,7 +256,50 @@ int Run660F(x64emu_t *emu, rex_t rex)
                     tmp32s = ((((int32_t)(GX->sw[i])*(int32_t)(EX->sw[i]))>>14) + 1)>>1;
                     GX->uw[i] = tmp32s&0xffff;
                 }
-            break;
+                break;
+
+            case 0x20:  /* PMOVSXBW Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=7; i>=0; --i)
+                    GX->sw[i] = EX->sb[i];
+                break;
+            case 0x21:  /* PMOVSXBD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=3; i>=0; --i)
+                    GX->sd[i] = EX->sb[i];
+                break;
+            case 0x22:  /* PMOVSXBQ Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=1; i>=0; --i)
+                    GX->sq[i] = EX->sb[i];
+                break;
+            case 0x23:  /* PMOVSXWD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=3; i>=0; --i)
+                    GX->sd[i] = EX->sw[i];
+                break;
+            case 0x24:  /* PMOVSXWQ Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=1; i>=0; --i)
+                    GX->sq[i] = EX->sw[i];
+                break;
+            case 0x25:  /* PMOVSXDQ Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=1; i>=0; --i)
+                    GX->sq[i] = EX->sd[i];
+                break;
 
             default:
                 return 1;

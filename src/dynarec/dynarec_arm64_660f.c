@@ -264,6 +264,53 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SQRDMULHQ_16(q0, q0, q1);
                     break;
 
+                case 0x20:
+                    INST_NAME("PMOVSXBW Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    SXTL_8(q0, q1);     // 8bits->16bits
+                    break;
+                case 0x21:
+                    INST_NAME("PMOVSXBD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    SXTL_8(q0, q1);     // 8bits->16bits
+                    SXTL_16(q0, q0);    //16bits->32bits
+                    break;
+                case 0x22:
+                    INST_NAME("PMOVSXBQ Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    SXTL_8(q0, q1);     // 8bits->16bits
+                    SXTL_16(q0, q0);    //16bits->32bits
+                    SXTL_32(q0, q0);    //32bits->64bits
+                    break;
+                case 0x23:
+                    INST_NAME("PMOVSXWD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    SXTL_16(q0, q1);     // 16bits->32bits
+                    break;
+                case 0x24:
+                    INST_NAME("PMOVSXWQ Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    SXTL_16(q0, q1);     // 16bits->32bits
+                    SXTL_32(q0, q1);     // 32bits->64bits
+                    break;
+                case 0x25:
+                    INST_NAME("PMOVSXDQ Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    SXTL_32(q0, q1);     // 32bits->64bits
+                    break;
+
                 default:
                     DEFAULT;
             }
