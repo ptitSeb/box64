@@ -898,9 +898,8 @@ int unlockCustommemMutex()
     int ret = 0;
     int i = 0;
     #define GO(A, B)                    \
-        i = checkMutex(&A);             \
+        i = checkUnlockMutex(&A);       \
         if(i) {                         \
-            pthread_mutex_unlock(&A);   \
             ret|=(1<<B);                \
         }
     GO(mutex_blocks, 0)

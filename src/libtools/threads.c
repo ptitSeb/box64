@@ -1103,15 +1103,12 @@ void fini_pthread_helper(box64context_t* context)
 	}
 }
 
-int checkMutex(void* m)
+int checkUnlockMutex(void* m)
 {
 	pthread_mutex_t* mutex = (pthread_mutex_t*)m;
-	int ret = pthread_mutex_trylock(mutex);
+	int ret = pthread_mutex_unlock(mutex);
 	if(ret==0) {
-		pthread_mutex_unlock(mutex);
-		return 0;
-	}
-	if(ret==EDEADLK)
 		return 1;
+	}
 	return 0;
 }

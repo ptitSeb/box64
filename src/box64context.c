@@ -73,9 +73,8 @@ int unlockMutex()
     int ret = unlockCustommemMutex();
     int i;
     #define GO(A, B)                    \
-        i = checkMutex(&A);             \
+        i = checkUnlockMutex(&A);       \
         if(i) {                         \
-            pthread_mutex_unlock(&A);   \
             ret|=(1<<B);                \
         }
 
