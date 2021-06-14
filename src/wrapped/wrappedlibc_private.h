@@ -289,7 +289,7 @@ GO(__errno_location, pFv)
 GO(eventfd, iFui)
 GO(eventfd_read, iFip)
 GO(eventfd_write, iFiU)
-//GO(execl, 
+GOM(execl, iFEpV)
 //GO(execle, 
 GOM(execlp, iFEpV)
 GOM(execv, iFEpp)

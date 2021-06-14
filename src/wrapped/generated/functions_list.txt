@@ -1420,6 +1420,7 @@ wrappedlibc:
   - swapcontext
   - vprintf
 - iFpV:
+  - execl
   - execlp
   - printf
 - iFSp:

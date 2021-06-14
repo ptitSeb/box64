@@ -1575,6 +1575,27 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
     return execvp(path, argv);
 }
 
+EXPORT int32_t my_execl(x64emu_t* emu, const char* path)
+{
+    int self = isProcSelf(path, "exe");
+    int x86 = FileIsX64ELF(path);
+    printf_log(LOG_DEBUG, "execl(\"%s\", ...), IsX86=%d, self=%d\n", path, x86, self);
+    // count argv...
+    int i=0;
+    while(getVargN(emu, i+1)) ++i;
+    char** newargv = (char**)calloc(i+((x86 || self)?2:1), sizeof(char*));
+    int j=0;
+    if ((x86 || self))
+        newargv[j++] = emu->context->box64path;
+    for (int k=0; k<i; ++k)
+        newargv[j++] = getVargN(emu, k+1);
+    if(self) newargv[1] = emu->context->fullpath;
+    printf_log(LOG_DEBUG, " => execl(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
+    int ret = execv(newargv[0], newargv);
+    free(newargv);
+    return ret;
+}
+
 EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
 {
     // need to use BOX64_PATH / PATH here...
@@ -1584,7 +1605,7 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX64ELF(fullpath);
-    printf_log(LOG_DEBUG, "execvp(\"%s\", ...), IsX86=%d / fullpath=\"%s\"\n", path, x86, fullpath);
+    printf_log(LOG_DEBUG, "execlp(\"%s\", ...), IsX86=%d / fullpath=\"%s\"\n", path, x86, fullpath);
     free(fullpath);
     // count argv...
     int i=0;

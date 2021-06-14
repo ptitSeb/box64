@@ -87,6 +87,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(sigaltstack, iFpp_t) \
 	GO(swapcontext, iFpp_t) \
 	GO(vprintf, iFpp_t) \
+	GO(execl, iFpV_t) \
 	GO(execlp, iFpV_t) \
 	GO(printf, iFpV_t) \
 	GO(_IO_file_stat, iFSp_t) \
