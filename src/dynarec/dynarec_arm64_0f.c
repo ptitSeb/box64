@@ -1026,7 +1026,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             LSRxw_REG(x4, ed, x2);
             BFIw(xFlags, x4, F_CF, 1);
             break;
-
+        case 0xA4:
+            nextop = F8;
+            INST_NAME("SHLD Ed, Gd, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            GETED(1);
+            GETGD;
+            u8 = F8;
+            emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
+            WBACK;
+            break;
         case 0xA5:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
