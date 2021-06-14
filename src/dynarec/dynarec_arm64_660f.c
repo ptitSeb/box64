@@ -1520,7 +1520,23 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             UADDLVQ_16(d1, d0);
             VMOVeD(q0, 1, d1, 0);
             break;
-
+        case 0xF7:
+            INST_NAME("MASKMOVDQU Gx, Ex")
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 0);
+            v0 = fpu_get_scratch(dyn);
+            VLDR128_U12(v0, xRDI, 0);
+            if(MODREG)
+                v1 = fpu_get_scratch(dyn); // need to preserve the register
+            else
+                v1 = q1;
+            VSSHRQ_8(v1, q1, 7);  // get the mask
+            VBICQ(v0, v0, v1);  // mask destination
+            VANDQ(v1, q0, v1);  // mask source
+            VORRQ(v1, v1, v0);  // combine
+            VSTR128_U12(v1, xRDI, 0);  // put back
+            break;
         case 0xF8:
             INST_NAME("PSUBB Gx,Ex");
             nextop = F8;
