@@ -901,8 +901,6 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 #endif
 }
 
-static int round_map[] = {0, 2, 1, 3};  // map x64 -> arm round flag
-
 // Set rounding according to cw flags, return reg to restore flags
 int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
@@ -924,9 +922,8 @@ int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     MAYUSE(dyn); MAYUSE(ninst);
     MAYUSE(s1); MAYUSE(s2);
     LDRH_U12(s1, xEmu, offsetof(x64emu_t, mxcsr));
-    UBFXx(s2, s1, 13, 2);    // extract round...
-    MOV64x(s1, (uintptr_t)round_map);
-    LDRw_REG_LSL2(s2, s1, s2);
+    RBITw(s2, s1);              // round is on bits 13-14 on x86,
+    LSRw(s2, s2, 17);           // but we want the reverse of that
     MRS_fpcr(s1);               // get fpscr
     MOVx_REG(s3, s1);
     BFIx(s1, s2, 22, 2);     // inject new round

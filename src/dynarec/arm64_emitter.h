@@ -1208,10 +1208,18 @@
 #define FRINT64XD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b11, Dn, Dd))
 
 #define FRINT_scalar(type, rmode, Rn, Rd)   (0b11110<<24 | (type)<<22 | 1<<21 | 0b001<<18 | (rmode)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
+// round toward 0 (truncate)
 #define FRINTZS(Sd, Sn)             EMIT(FRINT_scalar(0b00, 0b011, Sn, Sd))
+// round toward 0 (truncate)
 #define FRINTZD(Sd, Sn)             EMIT(FRINT_scalar(0b01, 0b011, Sn, Sd))
+// round with current FPCR mode
 #define FRINTXS(Sd, Sn)             EMIT(FRINT_scalar(0b00, 0b110, Sn, Sd))
+// round with current FPCR mode
 #define FRINTXD(Sd, Sn)             EMIT(FRINT_scalar(0b01, 0b110, Sn, Sd))
+// round with mode, mode is 0 = TieEven, 1=+inf, 2=-inf, 3=zero
+#define FRINTRRS(Sd, Sn, mode)      EMIT(FRINT_scalar(0b00, ((mode)&3), Sn, Sd))
+// round with mode, mode is 0 = TieEven, 1=+inf, 2=-inf, 3=zero
+#define FRINTRRD(Dd, Dn, mode)      EMIT(FRINT_scalar(0b01, ((mode)&3), Dn, Dd))
 
 // FMAX / FMIN
 #define FMINMAX_vector(Q, U, o1, sz, Rm, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (o1)<<23 | (sz)<<22 | 0b1<<21 | (Rm)<<16 | 0b11110<<11 | 1<<10 | (Rn)<<5 | (Rd))

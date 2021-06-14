@@ -309,6 +309,31 @@ int Run660F(x64emu_t *emu, rex_t rex)
     case 0x3A:  // these are some SSE3 opcodes
         opcode = F8;
         switch(opcode) {
+            case 0x0B:          // ROUNDSD Gx, Ex, u8
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8; // ignoring bit 3 interupt thingy
+                if(tmp8u&4)
+                    tmp8u = (emu->mxcsr>>13)&3;
+                else
+                    tmp8u &= 3;
+                switch(tmp8u) {
+                    case ROUND_Nearest:
+                        GX->d[0] = floor(EX->d[0]+0.5);
+                        break;
+                    case ROUND_Down:
+                        GX->d[0] = floor(EX->d[0]);
+                        break;
+                    case ROUND_Up:
+                        GX->d[0] = ceil(EX->d[0]);
+                        break;
+                    case ROUND_Chop:
+                        GX->d[0] = EX->d[0];
+                        break;
+                }
+                break;
+
             case 0x0F:          // PALIGNR GX, EX, u8
                 nextop = F8;
                 GETEX(1);
