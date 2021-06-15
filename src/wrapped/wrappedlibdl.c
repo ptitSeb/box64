@@ -48,9 +48,6 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info) EXPORT;
 #define LIBNAME libdl
 const char* libdlName = "libdl.so.2";
 
-// define all standard library functions
-#include "wrappedlib_init.h"
-
 #define CLEARERR    if(dl->last_error) free(dl->last_error); dl->last_error = NULL;
 
 extern int box64_zoom;
@@ -61,7 +58,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
     // TODO, handling special values for filename, like RTLD_SELF?
     // TODO, handling flags?
     library_t *lib = NULL;
-    dlprivate_t *dl = emu->context->dlprivate;
+    dlprivate_t *dl = my_context->dlprivate;
     size_t dlopened = 0;
     int is_local = (flag&0x100)?0:1;  // if not global, then local, and that means symbols are not put in the global "pot" for pther libs
     CLEARERR
@@ -129,13 +126,14 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         // memset count...
         memset(dl->count+dl->lib_sz, 0, (dl->lib_cap-dl->lib_sz)*sizeof(size_t));
     }
-    dl->libs[dl->lib_sz] = lib;
-    dl->count[dl->lib_sz] = dl->count[dl->lib_sz]+1;
-    dl->dlopened[dl->lib_sz] = dlopened;
+    intptr_t idx = dl->lib_sz++; 
+    dl->libs[idx] = lib;
+    dl->count[idx] = dl->count[idx]+1;
+    dl->dlopened[idx] = dlopened;
     if(dlsym_error || box64_log>=LOG_DEBUG) {
-        printf_log(LOG_NONE, "dlopen: New handle %p (%s), dlopened=%ld\n", (void*)(dl->lib_sz+1), (char*)filename, dlopened);
+        printf_log(LOG_NONE, "dlopen: New handle %p (%s), dlopened=%ld\n", (void*)(idx+1), (char*)filename, dlopened);
     }
-    return (void*)(++dl->lib_sz);
+    return (void*)(idx+1);
 }
 void* my_dlmopen(x64emu_t* emu, void* lmid, void *filename, int flag)
 {
@@ -211,7 +209,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         }
         return NULL;
     }
-    if(handle==(void*)0xFFFFFFFF) {
+    if(handle==(void*)~0LL) {
         // special case, look globably but no self (RTLD_NEXT)
         elfheader_t *elf = FindElfAddress(emu->context, *(uintptr_t*)R_RSP); // use return address to guess "self"
         if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf, -1, NULL)) {
@@ -263,32 +261,19 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         }
     } else {
         // still usefull?
-        if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end, -1, NULL, 0)) {
+        //  => look globably
+        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, NULL, -1, NULL)) {
             if(dlsym_error && box64_log<LOG_DEBUG) {
                 printf_log(LOG_NONE, "%p\n", (void*)start);
             }
             return (void*)start;
         }
-        if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end, -1, NULL, 0)) {
-            if(dlsym_error && box64_log<LOG_DEBUG) {
-                printf_log(LOG_NONE, "%p\n", (void*)start);
-            }
-            return (void*)start;
-        }
-        if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end, -1, NULL, 0)) {
-            if(dlsym_error && box64_log<LOG_DEBUG) {
-                printf_log(LOG_NONE, "%p\n", (void*)start);
-            }
-            return (void*)start;
-        }
-        // not found
-        if(dlsym_error && box64_log<LOG_DEBUG) {
-            printf_log(LOG_NONE, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, "Self", rsymbol);
-        }
-        printf_log(LOG_DEBUG, " Symbol not found\n");
         if(!dl->last_error)
             dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
+        if(dlsym_error && box64_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "%p\n", NULL);
+        }
         return NULL;
     }
     if(dlsym_error && box64_log<LOG_DEBUG) {
@@ -380,7 +365,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
         }
         return NULL;
     }
-    if(handle==(void*)0xFFFFFFFF) {
+    if(handle==(void*)~0LL) {
         // special case, look globably but no self (RTLD_NEXT)
         elfheader_t *elf = FindElfAddress(emu->context, *(uintptr_t*)R_RSP); // use return address to guess "self"
         if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf, version, vername)) {
@@ -521,3 +506,6 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
     }
     return -1;
 }
+
+// define all standard library functions
+#include "wrappedlib_init.h"
