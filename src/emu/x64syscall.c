@@ -79,6 +79,7 @@ scwrap_t syscallwrap[] = {
     //{ 13, __NR_rt_sigaction, 4},   // wrapped to use my_ version
     { 14, __NR_rt_sigprocmask, 4},
     { 16, __NR_ioctl, 3},
+    { 20, __NR_writev, 3},
     #ifdef __NR_access
     { 21, __NR_access, 2},
     #endif
