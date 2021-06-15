@@ -824,16 +824,16 @@ int main(int argc, const char **argv, const char **env) {
         AddPath("libSDL2-2.0.so.0", &my_context->box64_emulated_libs, 0);
     }
     // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
-    if(strstr(prgname, "steam")==prgname) {
+    if(!strcmp(prgname, "steam")) {
         printf_log(LOG_INFO, "steam detected, forcing emulated libudev\n");
         AddPath("libudev.so.0", &my_context->box64_emulated_libs, 0);
         box64_steam = 1;
     }
-    /*// special case for steam-runtime-check-requirements to fake 64bits suport
+    // special case for steam-runtime-check-requirements to fake 64bits suport
     if(strstr(prgname, "steam-runtime-check-requirements")==prgname) {
         printf_log(LOG_INFO, "steam-runtime-check-requirements detected, faking All is good!\n");
         exit(0);    // exiting, not testing anything
-    }*/
+    }
     // special case for UnrealLinux.bin, it doesn't like "full path resolution"
     if(!strcmp(prog, "UnrealLinux.bin") && my_context->argv[0]) {
         free(my_context->argv[0]);
