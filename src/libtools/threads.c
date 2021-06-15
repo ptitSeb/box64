@@ -619,18 +619,17 @@ static __thread uintptr_t my_once_callback_fct = 0;
 static void my_once_callback()
 {
 	if(my_once_callback_fct) {
-	    if(GetNativeFnc((uintptr_t)my_once_callback_fct))  {
-			vFv_t f = (vFv_t)GetNativeFnc((uintptr_t)my_once_callback_fct);
-			f();
-			return;
-		}
-    	RunFunction(my_context, my_once_callback_fct, 0, 0);
+	    EmuCall(thread_get_emu(), my_once_callback_fct);  // avoid DynaCall for now
+    	//RunFunction(my_context, my_once_callback_fct, 0, 0);
 	}
 }
 
-int EXPORT my_pthread_once(x64emu_t* emu, void* once, void* cb)
+int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 {
 	(void)emu;
+	void * n = GetNativeFnc((uintptr_t)cb);
+	if(n)
+		return pthread_once(once, n);
 	my_once_callback_fct = (uintptr_t)cb;
 	return pthread_once(once, my_once_callback);
 }
