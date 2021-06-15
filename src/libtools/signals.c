@@ -912,7 +912,16 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
     info.si_errno = 0;
     info.si_code = code;
     info.si_addr = addr;
-    printf_log(LOG_INFO, "Emit Signal %d at IP=%p / addr=%p, code=%d\n", sig, (void*)R_RIP, addr, code);
+    char* x64name = NULL;
+    char* elfname = NULL;
+    if(box64_log>LOG_NONE) {
+        x64name = getAddrFunctionName(R_RIP);
+        elfheader_t* elf = FindElfAddress(my_context, R_RIP);
+        if(elf)
+            elfname = ElfName(elf);
+    }
+
+    printf_log(LOG_INFO, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=%d\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
     my_sigactionhandler_oldcode(sig, &info, &ctx, NULL, db);
 }
 
