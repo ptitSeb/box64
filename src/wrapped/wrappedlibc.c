@@ -517,7 +517,8 @@ int of_unconvert(int a)
     #define GO(A) if((a&(A))==(A)) {a&=~(A); b|=(X86_##A);}
     SUPER();
     #undef GO
-    if(a) {
+    // flags 0x20000 unknown?!
+    if(a && (a&~0x20000)) {
         printf_log(LOG_NONE, "Warning, of_unconvert(...) left over 0x%x, converted 0x%x\n", a, b);
     }
     return a|b;
@@ -1224,7 +1225,9 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "bogomips\t: %g\n", bogoMips);
         P;
-        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 syscall rdtscp ssse3 fma fxsr cx16 movbe pni\n");
+        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fma fxsr cpuid cx16 movbe pni\n");
+        P;
+        sprintf(buff, "address sizes\t: 46 bits physical, 48 bits virtual\n");
         P;
         sprintf(buff, "\n");
         P;
