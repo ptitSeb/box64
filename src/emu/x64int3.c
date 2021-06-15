@@ -97,9 +97,17 @@ void x64Int3(x64emu_t* emu)
                 s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", " ... ");
-                } else if (strstr(s, "__open")==s || !strcmp(s, "open") || !strcmp(s, "open ")) {
+                } else if (!strcmp(s, "__open") || !strcmp(s, "open") || !strcmp(s, "open ")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI), (int)(R_EDX));
+                    perr = 1;
+                } else if (!strcmp(s, "fopen") || !strcmp(s, "fopen64")) {
+                    tmp = (char*)(R_RDI);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI));
+                    perr = 2;
+                } else if (!strcmp(s, "__openat64") || !strcmp(s, "openat64") || !strcmp(s, "__openat64_2")) {
+                    tmp = (char*)(R_RSI);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, \"%s\", %d (,%d))", tid, *(void**)(R_RSP), s, (int)R_EDI, (tmp)?tmp:"(nil)", (int)(R_EDX), (int)(R_ECX));
                     perr = 1;
                 } else if (strstr(s, "mkdir")==s) {
                     tmp = (char*)(R_RDI);
