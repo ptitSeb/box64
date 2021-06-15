@@ -1053,7 +1053,7 @@ GO(__libc_memalign, pFLL)
 //GO(__libc_msgsnd, 
 //GO(__libc_pread, 
 //GO(__libc_pthread_init, 
-//GO(__libc_pvalloc, 
+GO(__libc_pvalloc, pFL)
 //GO(__libc_pwrite, 
 //GO(__libc_readline_unlocked, 
 GO(__libc_realloc, pFpL)
@@ -1068,7 +1068,7 @@ GO(__libc_realloc, pFpL)
 GOM(__libc_start_main, iFEpippppp)
 //GO(__libc_system, 
 //GO(__libc_thread_freeres, 
-//GO(__libc_valloc, 
+GO(__libc_valloc, pFL)
 //GO(__libc_vfork, 
 //GOW(link, 
 //GO(linkat, 
@@ -1111,7 +1111,7 @@ GOM(malloc, pFL) // need to wrap to clear allocated memory?
 //GOW(malloc_stats, 
 GOW(malloc_trim, iFL)
 GOW(malloc_usable_size, LFp)
-//GOW(mallopt, 
+GOW(mallopt, iFii)
 //DATAB(mallwatch, 
 GO(mblen, iFpL)
 GO(__mbrlen, LFpLp)
@@ -1273,10 +1273,10 @@ GO(__open_2, iFpO)
 GOM(open64, iFEpOu) //Weak
 //GO(__open64_2, 
 //GO(__open64_nocancel, 
-GOW(openat, iFipiO)
+GOW(openat, iFipON)
 //GO(__openat_2, 
-GOW(openat64, iFipiO)
-//GO(__openat64_2, 
+GOW(openat64, iFipON)
+GO(__openat64_2, iFipO)
 //GO(open_by_handle_at, 
 //GO(__open_catalog, 
 GOW(opendir, pFp)

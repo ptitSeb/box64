@@ -166,6 +166,7 @@
 #() lFpi
 #() lFpp
 #() LFii
+#() LFLi
 #() LFLp
 #() LFpi
 #() LFpL
@@ -268,6 +269,7 @@
 #() iFipu
 #() iFipL
 #() iFipp
+#() iFipO
 #() iFuuu
 #() iFuup
 #() iFuff
@@ -494,7 +496,6 @@
 #() iFilli
 #() iFiLwp
 #() iFipii
-#() iFipiO
 #() iFipui
 #() iFipup
 #() iFipLp
@@ -502,6 +503,7 @@
 #() iFippu
 #() iFippL
 #() iFippp
+#() iFipON
 #() iFuipp
 #() iFuuff
 #() iFuppi
@@ -813,6 +815,7 @@
 #() pFpuiii
 #() pFpuiip
 #() pFpuWWW
+#() pFpuuip
 #() pFpuuWW
 #() pFpuuup
 #() pFpdddd
@@ -1074,6 +1077,7 @@
 #() iFpppppip
 #() iFppppppp
 #() uFuippppp
+#() pFEpLiiii
 #() pFEpLiiiI
 #() pFEppppip
 #() pFifffppp
@@ -2147,6 +2151,19 @@ wrappedsmpeg2:
   - SMPEG_setdisplay
 - pFppii:
   - SMPEG_new_rwops
+wrappedtcmallocminimal:
+- iFpL:
+  - munmap
+- pFpLiiii:
+  - mmap
+- pFpLiiiI:
+  - mmap64
+wrappedudev0:
+- vFpp:
+  - udev_set_log_fn
+wrappedudev1:
+- vFpp:
+  - udev_set_log_fn
 wrappedutil:
 - iFpppp:
   - forkpty
