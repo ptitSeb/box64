@@ -93,7 +93,9 @@ EXPORT int32_t my2_emulated_write(SDL2_RWops_t *context, const void *ptr, int32_
 }
 EXPORT int32_t my2_emulated_close(SDL2_RWops_t *context)
 {
-    return (int32_t)RunFunction(my_context, (uintptr_t)context->hidden.my.orig->close, 1, context->hidden.my.orig);
+    int ret = (int32_t)RunFunction(my_context, (uintptr_t)context->hidden.my.orig->close, 1, context->hidden.my.orig);
+    context->hidden.my.custom_free(context);
+    return ret;
 }
 
 SDL2_RWops_t* AddNativeRW2(x64emu_t* emu, SDL2_RWops_t* ops)
