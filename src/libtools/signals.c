@@ -912,8 +912,8 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
     info.si_errno = 0;
     info.si_code = code;
     info.si_addr = addr;
-    char* x64name = NULL;
-    char* elfname = NULL;
+    const char* x64name = NULL;
+    const char* elfname = NULL;
     if(box64_log>LOG_NONE) {
         x64name = getAddrFunctionName(R_RIP);
         elfheader_t* elf = FindElfAddress(my_context, R_RIP);
