@@ -127,6 +127,12 @@ void x64Int3(x64emu_t* emu)
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", 0x%x)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", R_ESI);
                     perr = 1;
+                } else if (!strcmp(s, "lseek64") || !strcmp(s, "my_lseek64")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %ld, %d)", tid, *(void**)(R_RSP), s, (int)R_EDI, (int64_t)R_RSI, (int)R_EDX);
+                    perr = 1;
+                } else if (!strcmp(s, "lseek") || !strcmp(s, "my_lseek")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %ld, %d)", tid, *(void**)(R_RSP), s, (int)R_EDI, (int64_t)R_RSI, (int)R_EDX);
+                    perr = 1;
                 } else if (strstr(s, "puts")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
