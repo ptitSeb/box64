@@ -153,8 +153,11 @@ const char* sdl2imageName = "libSDL2_image-2.0.so.0";
 
 #define CUSTOM_INIT \
     my_lib = lib; \
-    lib->priv.w.p2 = getSDL2ImageMy(lib); \
-    lib->altmy = strdup("my2_");
+    lib->priv.w.p2 = getSDL2ImageMy(lib);   \
+    lib->altmy = strdup("my2_");            \
+    lib->priv.w.needed = 1; \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("libSDL2-2.0.so.0");
 
 #define CUSTOM_FINI \
     free(lib->priv.w.p2); \

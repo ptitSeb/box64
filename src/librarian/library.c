@@ -264,6 +264,9 @@ library_t *NewLibrary(const char* path, box64context_t* context)
         }
     }
     int notwrapped = FindInCollection(lib->name, &context->box64_emulated_libs);
+    // check if name is libSDL_sound-1.0.so.1 but with SDL2 loaded, then try emulated first...
+    if(!notwrapped && !strcmp(lib->name, "libSDL_sound-1.0.so.1") && my_context->sdl2lib)
+        notwrapped = 1;
     // And now, actually loading a library
     // look for native(wrapped) libs first
     if(!notwrapped)
