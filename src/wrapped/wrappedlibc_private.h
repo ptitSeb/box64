@@ -77,7 +77,7 @@ GOM(backtrace, iFEpi)   //weak
 GOM(backtrace_symbols, pFEpi)  //weak
 //GO(__backtrace_symbols_fd, 
 GOM(backtrace_symbols_fd, vFEpii)   //weak
-//GOW(basename, 
+GOW(basename, pFp)
 GO(bcmp, iFppL)
 GO(bcopy, vFppL)
 //GO(bdflush, 
@@ -685,9 +685,9 @@ GO(iconv_open, LFpp)
 //GO(__idna_from_dns_encoding, 
 //GO(__idna_to_dns_encoding, 
 //GOW(if_freenameindex, 
-//GOW(if_indextoname, 
+GOW(if_indextoname, pFup)
 //GOW(if_nameindex, 
-//GOW(if_nametoindex, 
+GOW(if_nametoindex, uFp)
 //GOW(imaxabs, 
 //GOW(imaxdiv, 
 DATA(in6addr_any, 16)  // type V
