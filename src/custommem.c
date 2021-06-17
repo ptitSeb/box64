@@ -762,6 +762,8 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     int ret;
+    uintptr_t last = idx<<MEMPROT_SHIFT;
+    uint8_t oldprot = 0xff;
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
@@ -770,12 +772,29 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
             uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
             kh_value(memprot, k) = m;
         }
-        const uintptr_t ii = i&(MEMPROT_SIZE-1);
-        uint32_t dyn = kh_value(memprot, k)[ii]&PROT_DYNAREC;
-        if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_CUSTOM);
-        kh_value(memprot, k)[ii] = prot|dyn|PROT_ALLOC;
+        const uintptr_t start = i&(MEMPROT_SIZE-1);
+        const uintptr_t finish = (((i|(MEMPROT_SIZE-1))<end)?(MEMPROT_SIZE-1):end)&(MEMPROT_SIZE-1);
+        uint8_t* block = kh_value(memprot, k);
+        for(uintptr_t ii = start; ii<=finish; ++ii) {
+            uint32_t dyn = block[ii]&PROT_DYNAREC;
+            if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
+                if(oldprot!=prot) {
+                    if(oldprot!=0xff)
+                        mprotect((void*)last, (i<<MEMPROT_SHIFT)-last, oldprot&~PROT_CUSTOM); // need to optimize
+                    last = i<<MEMPROT_SHIFT;
+                    oldprot = prot;
+                }
+            } else if(prot!=0xff) {
+                mprotect((void*)last, (i<<MEMPROT_SHIFT)-last, oldprot&~PROT_CUSTOM); // need to optimize
+                last = i << MEMPROT_SHIFT;
+                oldprot = 0xff;
+            }
+            block[ii] = prot|dyn|PROT_ALLOC;
+        }
+        i+=finish-start;    // +1 from the "for" loop
     }
+    if(oldprot!=0xff)
+        mprotect((void*)last, (end<<MEMPROT_SHIFT)-last, oldprot&~PROT_CUSTOM); // need to optimize
     pthread_mutex_unlock(&mutex_prot);
 }
 
@@ -793,10 +812,20 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
             uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
             kh_value(memprot, k) = m;
         }
-        const uintptr_t ii = i&(MEMPROT_SIZE-1);
-        kh_value(memprot, k)[ii] = prot|PROT_ALLOC;
+        const uintptr_t start = i&(MEMPROT_SIZE-1);
+        const uintptr_t finish = (((i|(MEMPROT_SIZE-1))<end)?(MEMPROT_SIZE-1):end)&(MEMPROT_SIZE-1);
+        memset(kh_value(memprot, k)+start, prot|PROT_ALLOC, finish-start+1);
+        i+=finish-start;    // +1 from the "for" loop
     }
     pthread_mutex_unlock(&mutex_prot);
+}
+
+static int blockempty(uint8_t* mem)
+{
+    for (int i=0; i<(MEMPROT_SIZE); ++i)
+        if(mem[i])
+            return 0;
+    return 1;
 }
 
 void freeProtection(uintptr_t addr, size_t size)
@@ -804,17 +833,21 @@ void freeProtection(uintptr_t addr, size_t size)
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    int ret;
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
-        khint_t k = kh_put(memprot, memprot, key, &ret);
-        if(ret) {
-            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
-            kh_value(memprot, k) = m;
+        khint_t k = kh_get(memprot, memprot, key);
+        if(k!=kh_end(memprot)) {
+            const uintptr_t start = i&(MEMPROT_SIZE-1);
+            const uintptr_t finish = (((i|(MEMPROT_SIZE-1))<end)?(MEMPROT_SIZE-1):end)&(MEMPROT_SIZE-1);
+            uint8_t *block = kh_value(memprot, k);
+            memset(block+start, 0, finish-start+1);
+            if(blockempty(block)) {
+                free(block);
+                kh_del(memprot, memprot, k);
+            }
+            i+=finish-start;    // +1 from the "for" loop
         }
-        const uintptr_t ii = i&(MEMPROT_SIZE-1);
-        kh_value(memprot, k)[ii] = 0;
     }
     pthread_mutex_unlock(&mutex_prot);
 }
