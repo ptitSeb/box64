@@ -2336,7 +2336,7 @@ EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
     }
     int idx=0;
     while(idx<size) {
-        if(!fp || (fp>=stack_end) || (fp<=stack_start))
+        if(!fp || (fp+sizeof(void*)>=stack_end) || (fp<=stack_start))
             return idx;
         buffer[idx] = (void*)fp[1];
         fp = (uintptr_t*)fp[0];
