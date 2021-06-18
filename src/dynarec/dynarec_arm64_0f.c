@@ -313,6 +313,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x31:
             INST_NAME("RDTSC");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             CALL(ReadTSC, xRAX);   // will return the u64 in xEAX
             LSRx(xRDX, xRAX, 32);
             MOVw_REG(xRAX, xRAX);   // wipe upper part
@@ -1125,6 +1126,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 switch((nextop>>3)&7) {
                     case 0:
                         INST_NAME("FXSAVE Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
                         fpu_purgecache(dyn, ninst, x1, x2, x3);
                         if(MODREG) {
                             DEFAULT;
@@ -1136,6 +1138,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         break;
                     case 1:
                         INST_NAME("FXRSTOR Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
                         fpu_purgecache(dyn, ninst, x1, x2, x3);
                         if(MODREG) {
                             DEFAULT;

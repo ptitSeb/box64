@@ -48,6 +48,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC6:
         case 0xC7:
             INST_NAME("FFREE STx");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_purgecache(dyn, ninst, x1, x2, x3);
             MOV32w(x1, nextop-0xC0);
             CALL(fpu_do_free, -1);
@@ -173,6 +174,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 4: 
                     INST_NAME("FRSTOR m108byte");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
@@ -180,6 +182,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6: 
                     INST_NAME("FSAVE m108byte");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}

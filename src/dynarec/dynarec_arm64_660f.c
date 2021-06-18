@@ -967,6 +967,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 INST_NAME("SHLD Ew, Gw, CL");
                 UXTBw(x3, xRCX);
             }
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             SETFLAGS(X_ALL, SF_SET);
             GETEWW(x4, x1, (opcode==0xA4)?1:0);
             GETGW(x2);
@@ -1015,6 +1016,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 INST_NAME("SHRD Ew, Gw, CL");
                 UXTBw(x3, xRCX);
             }
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             SETFLAGS(X_ALL, SF_SET);
             GETEWW(x4, x1, (opcode==0xAC)?1:0);
             GETGW(x2);
