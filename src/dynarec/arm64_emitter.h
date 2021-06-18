@@ -580,13 +580,27 @@
 #define UMULH(Xd, Xn, Xm)               EMIT(MULH_gen(1, Xm, Xn, Xd))
 #define SMULH(Xd, Xn, Xm)               EMIT(MULH_gen(0, Xm, Xn, Xd))
 
-#define MADD_gen(sf, Rm, Ra, Rn, Rd)    ((sf)<<31 | 0b11011<<24 | (Rm)<<16 | (Ra)<<10 | (Rn)<<5 | (Rd))
-#define MADDx(Rd, Rn, Rm, Ra)           EMIT(MADD_gen(1, Rm, Ra, Rn, Rd))
-#define MADDw(Rd, Rn, Rm, Ra)           EMIT(MADD_gen(0, Rm, Ra, Rn, Rd))
-#define MADDxw(Rd, Rn, Rm, Ra)          EMIT(MADD_gen(rex.w, Rm, Ra, Rn, Rd))
+#define MADD_gen(sf, Rm, o0, Ra, Rn, Rd)    ((sf)<<31 | 0b11011<<24 | (Rm)<<16 | (o0)<<15 | (Ra)<<10 | (Rn)<<5 | (Rd))
+#define MADDx(Rd, Rn, Rm, Ra)           EMIT(MADD_gen(1, Rm, 0, Ra, Rn, Rd))
+#define MADDw(Rd, Rn, Rm, Ra)           EMIT(MADD_gen(0, Rm, 0, Ra, Rn, Rd))
+#define MADDxw(Rd, Rn, Rm, Ra)          EMIT(MADD_gen(rex.w, Rm, 0, Ra, Rn, Rd))
 #define MULx(Rd, Rn, Rm)                MADDx(Rd, Rn, Rm, xZR)
 #define MULw(Rd, Rn, Rm)                MADDw(Rd, Rn, Rm, xZR)
 #define MULxw(Rd, Rn, Rm)               MADDxw(Rd, Rn, Rm, xZR)
+#define MSUBx(Rd, Rn, Rm, Ra)           EMIT(MADD_gen(1, Rm, 1, Ra, Rn, Rd))
+#define MSUBw(Rd, Rn, Rm, Ra)           EMIT(MADD_gen(0, Rm, 1, Ra, Rn, Rd))
+#define MSUBxw(Rd, Rn, Rm, Ra)          EMIT(MADD_gen(rex.w, Rm, 1, Ra, Rn, Rd))
+#define MNEGx(Rd, Rn, Rm)               EMIT(MADD_gen(1, Rm, 1, xZR, Rn, Rd))
+#define MNEGw(Rd, Rn, Rm)               EMIT(MADD_gen(0, Rm, 1, xZR, Rn, Rd))
+#define MNEGxw(Rd, Rn, Rm)              EMIT(MADD_gen(rex.w, Rm, 1, xZR, Rn, Rd))
+
+
+// DIV
+#define DIV_gen(sf, Rm, o1, Rn, Rd)     ((sf)<<31 | 0b11010110<<21 | (Rm)<<16 | 0b00001<<11 | (o1)<<10 | (Rn)<<5 | (Rd))
+#define UDIVw(Wd, Wn, Wm)               EMIT(DIV_gen(0, Wm, 0, Wn, Wd))
+#define UDIVx(Xd, Xn, Xm)               EMIT(DIV_gen(1, Xm, 0, Xn, Xd))
+#define SDIVw(Wd, Wn, Wm)               EMIT(DIV_gen(0, Wm, 1, Wn, Wd))
+#define SDIVx(Xd, Xn, Xm)               EMIT(DIV_gen(1, Xm, 1, Xn, Xd))
 
 // CLZ
 #define CL_gen(sf, op, Rn, Rd)          ((sf)<<31 | 1<<30 | 0b11010110<<21 | 0b00010<<11 | (op)<<10 | (Rn)<<5 | (Rd))

@@ -777,6 +777,19 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "MADD %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], sf?Xt[Ra]:Wt[Ra]);
         return buff;
     }
+    if(isMask(opcode, "f0011011000mmmmm1aaaaannnnnddddd", &a)) {
+        if(Ra==31)
+            snprintf(buff, sizeof(buff), "MNEG %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        else
+            snprintf(buff, sizeof(buff), "MSUB %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], sf?Xt[Ra]:Wt[Ra]);
+        return buff;
+    }
+
+    // DIV
+    if(isMask(opcode, "f0011010110mmmmm00001onnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%cDIV %s, %s, %s", option?'S':'U', sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        return buff;
+    }
 
     // MRS / MSR
     if(isMask(opcode, "110101010001opppnnnnmmmm222ttttt", &a)) {

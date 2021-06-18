@@ -35,13 +35,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t gb1, gb2, eb1, eb2;
     uint32_t u32;
     uint64_t u64;
-    uint8_t wback, wb1, wb2;
+    uint8_t wback, wb1, wb2, wb;
     int64_t fixedaddress;
 
     opcode = F8;
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(j64);
+    MAYUSE(wb);
 
     switch(opcode) {
         case 0x00:
@@ -2171,16 +2172,79 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEDH(x1, 0);
-                    if(ed!=x1) {MOVxw_REG(x1, ed);}
-                    CALL(rex.w?((void*)div64):((void*)div32), -1);
+                    if(!rex.w) {
+                        SET_DFNONE(x2);
+                        GETED(0);
+                        MOVw_REG(x3, xRAX);
+                        ORRx_REG_LSL(x3, x3, xRDX, 32);
+                        if(MODREG) {
+                            MOVw_REG(x4, ed);
+                            ed = x4;
+                        }
+                        UDIVx(x2, x3, ed);
+                        MSUBx(x4, x2, ed, xRAX);
+                        MOVw_REG(xRAX, x2);
+                        MOVw_REG(xRDX, x4);
+                    } else {
+                        if(ninst && dyn->insts 
+                           && dyn->insts[ninst-1].x64.addr 
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31 
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
+                            SET_DFNONE(x2);
+                            GETED(0);
+                            UDIVx(x2, xRAX, ed);
+                            MSUBx(xRDX, x2, ed, xRAX);
+                            MOVx_REG(xRAX, x2);
+                        } else {
+                            GETEDH(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
+                            CBZxw_MARK(xRDX);
+                            if(ed!=x1) {MOVxw_REG(x1, ed);}
+                            CALL(div64, -1);
+                            B_NEXT_nocond;
+                            MARK;
+                            UDIVx(x2, xRAX, ed);
+                            MSUBx(xRDX, x2, ed, xRAX);
+                            MOVx_REG(xRAX, x2);
+                            SET_DFNONE(x2);
+                        }
+                    }
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEDH(x1, 0);
-                    if(ed!=x1) {MOVxw_REG(x1, ed);}
-                    CALL(rex.w?((void*)idiv64):((void*)idiv32), -1);
+                    if(!rex.w) {
+                        SET_DFNONE(x2)
+                        GETSEDw(0);
+                        MOVw_REG(x3, xRAX);
+                        ORRx_REG_LSL(x3, x3, xRDX, 32);
+                        SDIVx(x2, x3, wb);
+                        MSUBx(x4, x2, wb, x3);
+                        MOVw_REG(xRAX, x2);
+                        MOVw_REG(xRDX, x4);
+                    } else {
+                        if(ninst && dyn->insts
+                           &&  dyn->insts[ninst-1].x64.addr 
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x99) {
+                            SET_DFNONE(x2)
+                            GETED(0);
+                            SDIVx(x2, xRAX, ed);
+                            MSUBx(xRDX, x2, ed, xRAX);
+                            MOVw_REG(xRAX, x2);
+                        } else {
+                            GETEDH(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
+                            CBZxw_MARK(xRDX);
+                            MVNx_REG(x2, xRDX);
+                            CBZxw_MARK(x2);
+                            if(ed!=x1) {MOVxw_REG(x1, ed);}
+                            CALL((void*)idiv64, -1);
+                            B_NEXT_nocond;
+                            MARK;
+                            SDIVx(x2, xRAX, ed);
+                            MSUBx(xRDX, x2, ed, xRAX);
+                            MOVw_REG(xRAX, x2);
+                            SET_DFNONE(x2)
+                        }
+                    }
                     break;
             }
             break;

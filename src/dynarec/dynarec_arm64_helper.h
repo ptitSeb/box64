@@ -59,6 +59,16 @@
                     LDRw_U12(x1, wback, fixedaddress);  \
                     ed = x1;                            \
                 }
+#define GETSEDw(D)  if((nextop&0xC0)==0xC0) {           \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    SXTWx(x1, ed);                      \
+                    wb = x1;                            \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, D); \
+                    LDRw_U12(x1, wback, fixedaddress);  \
+                    wb = ed = x1;                       \
+                }
 //GETEDH can use hint for ed, and r1 or r2 for wback (depending on hint). wback is 0 if ed is xEAX..xEDI
 #define GETEDH(hint, D) if(MODREG) {                    \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
