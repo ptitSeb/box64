@@ -61,9 +61,8 @@ void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
     IFX(X_ZF) {
         TSTxw_REG(s1, s1);
-        BFCx(xFlags, F_ZF, 1);
-        Bcond(cNE, +8);
-        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
     }
     IFX(X_SF) {
         LSRxw(s4, s1, (rex.w)?63:31);
@@ -112,9 +111,8 @@ void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
     }
     IFX(X_ZF) {
         TSTxw_REG(s1, s1);
-        BFCx(xFlags, F_ZF, 1);
-        Bcond(cNE, +8);
-        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
     }
     IFX(X_SF) {
         LSRxw(s4, s1, (rex.w)?63:31);
@@ -167,9 +165,8 @@ void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
     IFX(X_ZF) {
         TSTxw_REG(s1, s1);
-        BFCx(xFlags, F_ZF, 1);
-        Bcond(cNE, +8);
-        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
     }
     IFX(X_SF) {
         LSRxw(s4, s1, (rex.w)?63:31);
@@ -218,9 +215,8 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
     }
     IFX(X_ZF) {
         TSTxw_REG(s1, s1);
-        BFCx(xFlags, F_ZF, 1);
-        Bcond(cNE, +8);
-        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
     }
     IFX(X_SF) {
         LSRxw(s4, s1, (rex.w)?63:31);
@@ -265,9 +261,8 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
     }
     IFX(X_ZF) {
         TSTw_REG(s1, s1);
-        BFCx(xFlags, F_ZF, 1);
-        Bcond(cNE, +8);
-        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
     }
     IFX(X_SF) {
         LSRxw(s4, s1, (rex.w)?63:31);
@@ -374,9 +369,8 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int3
     }
     IFX(X_ZF) {
         TSTxw_REG(s1, s1);
-        BFCx(xFlags, F_ZF, 1);
-        Bcond(cNE, +8);
-        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
     }
     IFX(X_SF) {
         LSRxw(s4, s1, (rex.w)?63:31);
@@ -427,9 +421,8 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int3
     }
     IFX(X_ZF) {
         TSTxw_REG(s1, s1);
-        BFCx(xFlags, F_ZF, 1);
-        Bcond(cNE, +8);
-        ORRw_mask(xFlags, xFlags, 0b011010, 0); // mask=0x40
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
     }
     IFX(X_SF) {
         LSRxw(s4, s1, (rex.w)?63:31);
