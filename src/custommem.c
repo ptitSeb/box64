@@ -540,6 +540,14 @@ void addDBFromAddressRange(uintptr_t addr, size_t size)
     }
 }
 
+static int dynmapempty(void** mem)
+{
+    for (int i=0; i<(1<<DYNAMAP_SHIFT); ++i)
+        if(mem[i])
+            return 0;
+    return 1;
+}
+
 void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
 {
     dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
@@ -552,9 +560,24 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
         if(dynmap123[idx3] && dynmap123[idx3][idx2]) {
             dynablocklist_t* dblist = dynmap123[idx3][idx2][idx1];
             if(dblist) {
-                if(destroy)
-                    FreeRangeDynablock(dblist, addr, size);
-                else
+                if(destroy) {
+                    if(FreeRangeDynablock(dblist, addr, size)) {    // dblist is empty, check if we can delete more...
+                        if(!arm64_lock_storeifref(&dynmap123[idx3][idx2][idx1], NULL, dblist)) {
+                            free(dblist);
+                            dynablocklist_t** p = dynmap123[idx3][idx2];
+                            if(dynmapempty((void**)p)) {
+                                if(!arm64_lock_storeifref(&dynmap123[idx3][idx2], NULL, p)) {
+                                    free(p);
+                                    dynablocklist_t*** p2 = dynmap123[idx3];
+                                    if(dynmapempty((void**)p2)) {
+                                        if(!arm64_lock_storeifref(&dynmap123[idx3], NULL, p2))
+                                            free(p2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else
                     MarkRangeDynablock(dblist, addr, size);
             }
         }

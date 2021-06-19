@@ -165,10 +165,10 @@ void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
                     MarkDynablock(db);
 }
 
-void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
+int FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
 {
     if(!dynablocks)
-        return;
+        return 1;
 
     if(dynablocks->direct) {
         dynablock_t* db;
@@ -176,34 +176,38 @@ void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
         khint_t k;
         kh_dynablocks_t *blocks = kh_init(dynablocks);
         // copy in a temporary list
-        if(dynablocks->direct) {
-            uintptr_t startdb = dynablocks->text;
-            uintptr_t enddb = startdb + dynablocks->textsz;
-            uintptr_t start = addr;
-            uintptr_t end = addr+size;
-            if(start<startdb)
-                start = startdb;
-            if(end>enddb)
-                end = enddb;
-            if(end>startdb && start<enddb)
-                for(uintptr_t i = start; i<end; ++i) {
-                    db = (dynablock_t*)arm64_lock_xchg(&dynablocks->direct[i-startdb], 0);
-                    if(db) {
-                        if(db->father)
-                            db = db->father;
-                        if(db->parent==dynablocks) {
-                            k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
-                            kh_value(blocks, k) = db;
-                        }
+        uintptr_t startdb = dynablocks->text;
+        uintptr_t enddb = startdb + dynablocks->textsz;
+        uintptr_t start = addr;
+        uintptr_t end = addr+size;
+        if(start<startdb)
+            start = startdb;
+        if(end>enddb)
+            end = enddb;
+        if(end>startdb && start<enddb)
+            for(uintptr_t i = start; i<end; ++i) {
+                db = (dynablock_t*)arm64_lock_xchg(&dynablocks->direct[i-startdb], 0);
+                if(db) {
+                    if(db->father)
+                        db = db->father;
+                    if(db->parent==dynablocks) {
+                        k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
+                        kh_value(blocks, k) = db;
                     }
                 }
-        }
+            }
         // purge the list
         kh_foreach_value(blocks, db,
             FreeDynablock(db);
         );
         kh_destroy(dynablocks, blocks);
+        // check emptyness
+        for(uintptr_t i=0; i<dynablocks->textsz; ++i)
+            if(dynablocks->direct[i])
+                return 0;
+        return 1;
     }
+    return 1;
 }
 void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
 {
