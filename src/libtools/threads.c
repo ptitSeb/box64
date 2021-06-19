@@ -733,18 +733,89 @@ pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m) {
 	return m;
 }
 #else
-//#define TRACK_MUTEX
-// mutex alignment
-#ifdef TRACK_MUTEX
-KHASH_MAP_INIT_INT(mutex, pthread_mutex_t*)
+#define MUTEXES_SIZE	64
+typedef struct mutexes_block_s {
+	pthread_mutex_t mutexes[MUTEXES_SIZE];
+	uint8_t	taken[MUTEXES_SIZE];
+	struct mutexes_block_s* next;
+	int n_free, pad;
+} mutexes_block_t;
 
-static kh_mutex_t* unaligned_mutex = NULL;
-#endif
+static mutexes_block_t *mutexes = NULL;
+static pthread_mutex_t mutex_mutexes = PTHREAD_MUTEX_INITIALIZER;
+
+static mutexes_block_t* NewMutexesBlock()
+{
+	mutexes_block_t* ret = (mutexes_block_t*)calloc(1, sizeof(mutexes_block_t));
+	ret->n_free = MUTEXES_SIZE;
+	return ret;
+}
+
+static int NewMutex() {
+	pthread_mutex_lock(&mutex_mutexes);
+	if(!mutexes) {
+		mutexes = NewMutexesBlock();
+	}
+	int j = 0;
+	mutexes_block_t* m = mutexes;
+	while(!m->n_free) {
+		if(!m->next) {
+			m->next = NewMutexesBlock();
+		}
+		++j;
+		m = m->next;
+	}
+	--m->n_free;
+	for (int i=0; i<MUTEXES_SIZE; ++i)
+		if(!m->taken[i]) {
+			m->taken[i] = 1;
+			pthread_mutex_unlock(&mutex_mutexes);
+			return j*MUTEXES_SIZE + i;
+		}
+	pthread_mutex_unlock(&mutex_mutexes);
+	printf_log(LOG_NONE, "Error: NewMutex unreachable part reached\n");
+	return (int)-1;	// error!!!!
+}
+
+void FreeMutex(int k)
+{
+	if(!mutexes)
+		return;	//???
+	pthread_mutex_lock(&mutex_mutexes);
+	mutexes_block_t* m = mutexes;
+	for(int i=0; i<k/MUTEXES_SIZE; ++i)
+		m = m->next;
+	m->taken[k%MUTEXES_SIZE] = 0;
+	++m->n_free;
+	pthread_mutex_unlock(&mutex_mutexes);
+}
+
+void FreeAllMutexes(mutexes_block_t* m)
+{
+	if(!m)
+		return;
+	FreeAllMutexes(m->next);
+	// should destroy all mutexes also?
+	free(m);
+}
+
+pthread_mutex_t* GetMutex(int k)
+{
+	if(!mutexes)
+		return NULL;	//???
+	mutexes_block_t* m = mutexes;
+	for(int i=0; i<k/MUTEXES_SIZE; ++i)
+		m = m->next;
+	return &m->mutexes[k%MUTEXES_SIZE];
+}
+
 // x86_64 pthread_mutex_t is 40 bytes (ARM64 one is 48)
 typedef struct aligned_mutex_s {
-	uint64_t	dummy;
-	pthread_mutex_t *m;
 	struct aligned_mutex_s *self;
+	uint64_t	dummy;
+	int kind;	// kind position on x86_64
+	int k;
+	pthread_mutex_t* m;
 	uint64_t sign;
 } aligned_mutex_t;
 #define SIGNMTX *(uint64_t*)"BOX64MTX"
@@ -756,27 +827,26 @@ pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 	aligned_mutex_t* am = (aligned_mutex_t*)m;
 	if(init && (am->sign==SIGNMTX && am->self==am))
 		return am->m;
-	#ifdef TRACK_MUTEX
-	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
-	if(k!=kh_end(unaligned_mutex))
-		return kh_value(unaligned_mutex, k);
-	int r;
-	k = kh_put(mutex, unaligned_mutex, (uintptr_t)m, &r);
-	pthread_mutex_t* ret = kh_value(unaligned_mutex, k) = (pthread_mutex_t*)calloc(1, sizeof(pthread_mutex_t));
-	#else
-	pthread_mutex_t* ret = (pthread_mutex_t*)calloc(1, sizeof(pthread_mutex_t));
-	#endif
+	int k = NewMutex();
+	// check again, it might be created now becayse NewMutex is under mutex
+	if(init && (am->sign==SIGNMTX && am->self==am)) {
+		FreeMutex(k);
+		return am->m;
+	}
+	pthread_mutex_t* ret = GetMutex(k);
+
 	if(init) {
 		if(am->sign == SIGNMTX) {
 			int kind = ((int*)am->m)[3+__PTHREAD_MUTEX_HAVE_PREV];	// extract kind from original mutex
 			((int*)ret)[3+__PTHREAD_MUTEX_HAVE_PREV] = kind;		// inject in new one (i.e. "init" it)
 		} else {
-			int kind = ((int*)m)[4];	// extract kind from original mutex
+			int kind = am->kind;	// extract kind from original mutex
 			((int*)ret)[3+__PTHREAD_MUTEX_HAVE_PREV] = kind;		// inject in new one (i.e. "init" it)
 		}
 	}
 	am->self = am;
 	am->sign = SIGNMTX;
+	am->k = k;
 	am->m = ret;
 	return ret;
 }
@@ -788,28 +858,13 @@ pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
 {
 	aligned_mutex_t* am = (aligned_mutex_t*)m;
-	#ifdef TRACK_MUTEX
-	if(am->sign==SIGNMTX) {
-		am->sign = 0;
-		am->m = NULL;
-	}
-	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
-	if(k!=kh_end(unaligned_mutex)) {
-		pthread_mutex_t *n = kh_value(unaligned_mutex, k);
-		kh_del(mutex, unaligned_mutex, k);
-		int ret = pthread_mutex_destroy(n);
-		free(n);
-		return ret;
-	}
-	return pthread_mutex_destroy(m);
-	#else
 	if(am->sign!=SIGNMTX) {
 		return 1;	//???
 	}
 	int ret = pthread_mutex_destroy(am->m);
-	free(am->m);
+	FreeMutex(am->k);
+	am->sign = 0;
 	return ret;
-	#endif
 }
 typedef union my_mutexattr_s {
 	int					x86;
@@ -1069,11 +1124,6 @@ void init_pthread_helper()
 {
 	InitCancelThread();
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
-#ifndef NOALIGN
-	#ifdef TRACK_MUTEX
-	unaligned_mutex = kh_init(mutex);
-	#endif
-#endif
 }
 
 void fini_pthread_helper(box64context_t* context)
@@ -1081,14 +1131,8 @@ void fini_pthread_helper(box64context_t* context)
 	FreeCancelThread(context);
 	CleanStackSize(context);
 #ifndef NOALIGN
-	#ifdef TRACK_MUTEX
-	pthread_mutex_t *m;
-	kh_foreach_value(unaligned_mutex, m, 
-		pthread_mutex_destroy(m);
-		free(m);
-	);
-	kh_destroy(mutex, unaligned_mutex);
-	#endif
+	FreeAllMutexes(mutexes);
+	mutexes = NULL;
 #endif
 	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
 	if(ejb) {
