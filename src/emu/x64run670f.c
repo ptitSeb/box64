@@ -46,6 +46,9 @@ int Run670F(x64emu_t *emu, rex_t rex, int rep)
         case 0x2E:                      /* UCOMISS Gx, Ex */
             // same for now
         case 0x2F:                      /* COMISS Gx, Ex */
+            if(rep) {
+                return 1;
+            }
             RESET_FLAGS(emu);
             nextop = F8;
             GETEX32(0);
