@@ -22,10 +22,13 @@
 #include "dynarec_arm64_helper.h"
 #include "dynarec_arm64_functions.h"
 
+#define GETGX(a)                        \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+    a = sse_get_reg(dyn, ninst, x1, gd)
 
 uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
-    (void)ip; (void)rep; (void)need_epilog;
+    (void)ip; (void)need_epilog;
 
     uint8_t opcode = F8;
     uint8_t nextop;
@@ -34,8 +37,11 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int8_t  i8;
     int32_t i32;
     int64_t j64;
+    int v0, s0;
     MAYUSE(i32);
     MAYUSE(j64);
+    MAYUSE(v0);
+    MAYUSE(s0);
 
     // REX prefix before the 67 are ignored
     rex.rex = 0;
@@ -43,8 +49,44 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         rex.rex = opcode;
         opcode = F8;
     }
+    rep = 0;
+    while((opcode==0xF2) || (opcode==0xF3)) {
+        rep = opcode-0xF1;
+        opcode = F8;
+    }
 
     switch(opcode) {
+
+        case 0x0F:
+            opcode=F8;
+            switch(opcode) {
+
+                case 0x2E:
+                    // no special check...
+                case 0x2F:
+                    if(rep) {
+                        DEFAULT;
+                    } else {
+                        if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
+                        SETFLAGS(X_ALL, SF_SET);
+                        nextop = F8;
+                        GETGX(v0);
+                        if(MODREG) {
+                            s0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                        } else {
+                            s0 = fpu_get_scratch(dyn);
+                            addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                            VLDR32_U12(s0, ed, fixedaddress);
+                        }
+                        FCMPS(v0, s0);
+                        FCOMI(x1, x2);
+                    }
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+            break;
 
         case 0x8D:
             INST_NAME("LEA Gd, Ed");
