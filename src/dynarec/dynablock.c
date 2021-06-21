@@ -337,7 +337,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         void* old = (void*)arm64_lock_storeifref(&dynablocks->direct[addr-dynablocks->text], 0, block);
         if(old!=block && old) {// put it back in place, strange things are happening here!
             dynarec_log(LOG_INFO, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);
-            // doing nothing else, the block as not be writen
+            // doing nothing else, the block has not be writen
         }
         free(block);
         block = NULL;
@@ -362,8 +362,11 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         protectDBnolock((uintptr_t)block->x64_addr, block->x64_size);
         // fill-in jumptable
         addJumpTableIfDefault64(block->x64_addr, block->block);
-        for(int i=0; i<block->sons_size; ++i)
+        for(int i=0; i<block->sons_size; ++i) {
             addJumpTableIfDefault64(block->sons[i]->x64_addr, block->sons[i]->block);
+            block->sons[i]->done = 1;
+        }
+        block->done = 1;
         unlockDB();
     }
 

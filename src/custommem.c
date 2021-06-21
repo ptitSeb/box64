@@ -561,20 +561,22 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
             dynablocklist_t* dblist = dynmap123[idx3][idx2][idx1];
             if(dblist) {
                 if(destroy) {
-                    if(FreeRangeDynablock(dblist, addr, size)) {    // dblist is empty, check if we can delete more...
+                    if(FreeRangeDynablock(dblist, addr, size) && 0) {    // dblist is empty, check if we can delete more...
+                        // disabling this for now. It seems to cause random crash in Terraria
                         if(!arm64_lock_storeifref(&dynmap123[idx3][idx2][idx1], NULL, dblist)) {
-                            free(dblist);
                             dynablocklist_t** p = dynmap123[idx3][idx2];
                             if(dynmapempty((void**)p)) {
                                 if(!arm64_lock_storeifref(&dynmap123[idx3][idx2], NULL, p)) {
-                                    free(p);
                                     dynablocklist_t*** p2 = dynmap123[idx3];
                                     if(dynmapempty((void**)p2)) {
-                                        if(!arm64_lock_storeifref(&dynmap123[idx3], NULL, p2))
+                                        if(!arm64_lock_storeifref(&dynmap123[idx3], NULL, p2)) {
                                             free(p2);
+                                        }
                                     }
+                                    free(p);
                                 }
                             }
+                            FreeDynablockList(&dblist);
                         }
                     }
                 } else
@@ -690,33 +692,7 @@ uintptr_t getJumpTableAddress64(uintptr_t addr)
     return (uintptr_t)&box64_jmptbl3[idx3][idx2][idx1][idx0];
 }
 
-// Remove the Write flag from an adress range, so DB can be executed
-// no log, as it can be executed inside a signal handler
-void protectDB(uintptr_t addr, size_t size)
-{
-    dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    int ret;
-    pthread_mutex_lock(&mutex_prot);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
-        khint_t k = kh_put(memprot, memprot, key, &ret);
-        if(ret) {
-            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
-            kh_value(memprot, k) = m;
-        }
-        const uintptr_t ii = i&(MEMPROT_SIZE-1);
-        uint8_t prot = kh_value(memprot, k)[ii];
-        if(!prot)
-            prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
-        kh_value(memprot, k)[ii] = prot|PROT_DYNAREC;
-        if(!(prot&PROT_DYNAREC))
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~(PROT_WRITE|PROT_CUSTOM));
-    }
-    pthread_mutex_unlock(&mutex_prot);
-}
-
+// Remove the Write flag from an adress range, so DB can be executed safely
 void protectDBnolock(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
@@ -738,6 +714,13 @@ void protectDBnolock(uintptr_t addr, uintptr_t size)
         if(!(prot&PROT_DYNAREC))
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~(PROT_WRITE|PROT_CUSTOM));
     }
+}
+
+void protectDB(uintptr_t addr, size_t size)
+{
+    pthread_mutex_lock(&mutex_prot);
+    protectDBnolock(addr, size);
+    pthread_mutex_unlock(&mutex_prot);
 }
 
 void lockDB()
