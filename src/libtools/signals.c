@@ -726,7 +726,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
-        dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p)\n", pc, addr, db, db?((void*)db->x64_addr):NULL);
+        dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p), prot=0x%x\n", pc, addr, db, db?((void*)db->x64_addr):NULL, prot);
         if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db->need_test)) {
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();
@@ -777,13 +777,14 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         if(addr && pc && db) {
             if((glitch_pc!=pc || glitch_addr!=addr || glitch_prot!=prot)) {
                 // probably a glitch due to intensive multitask...
-                dynarec_log(/*LOG_DEBUG*/LOG_INFO, "SIGSEGV with Access error on %p for %p , db=%p, retrying\n", pc, addr, db);
-                relockMutex(Locks);
+                dynarec_log(/*LOG_DEBUG*/LOG_INFO, "SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x, retrying\n", pc, addr, db, prot);
                 glitch_pc = pc;
                 glitch_addr = addr;
                 glitch_prot = prot;
+                relockMutex(Locks);
                 return; // try again
             }
+dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x\n", pc, addr, db, prot);
             glitch_pc = NULL;
             glitch_addr = NULL;
             glitch_prot = 0;
