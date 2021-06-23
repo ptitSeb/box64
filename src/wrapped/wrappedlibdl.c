@@ -95,6 +95,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         dlopened = (GetLibInternal(rfilename)==NULL);
         // Then open the lib
         const char* libs[] = {rfilename};
+        my_context->deferedInit = 1;
         if(AddNeededLib(NULL, NULL, NULL, is_local, libs, 1, emu->context, emu)) {
             printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
@@ -103,6 +104,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
             return NULL;
         }
         lib = GetLibInternal(rfilename);
+        RunDeferedElfInit(emu);
     } else {
         // check if already dlopenned...
         for (size_t i=0; i<dl->lib_sz; ++i) {

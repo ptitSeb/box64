@@ -407,10 +407,10 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
             }*/
             // so weak symbol are the one left
             if(!offs && !end) {
-                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
-                if(!offs && !end && local_maplib) {
+                if(!offs && !end && local_maplib)
                     GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
-                }
+                if(!offs && !end && local_maplib)
+                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
             }
         }
         uintptr_t globoffs, globend;
@@ -444,7 +444,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     *p = globoffs;
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    if (GetGlobalNoWeakSymbolStartEnd(maplib, symname, &globoffs, &globend, version, vername)) {
+                    if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername)) {
                         offs = globoffs;
                         end = globend;
                     }
@@ -635,7 +635,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     *p = globoffs;
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    if (GetGlobalNoWeakSymbolStartEnd(maplib, symname, &globoffs, &globend, version, vername)) {
+                    if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername)) {
                         offs = globoffs;
                         end = globend;
                     }
@@ -1144,11 +1144,13 @@ void RunDeferedElfInit(x64emu_t *emu)
     context->deferedInit = 0;
     if(!context->deferedInitList)
         return;
-    for (int i=0; i<context->deferedInitSz; ++i)
-        RunElfInit(context->deferedInitList[i], emu);
-    free(context->deferedInitList);
+    int Sz = context->deferedInitSz;
+    elfheader_t** List = context->deferedInitList;
     context->deferedInitList = NULL;
     context->deferedInitCap = context->deferedInitSz = 0;
+    for (int i=0; i<Sz; ++i)
+        RunElfInit(List[i], emu);
+    free(List);
 }
 
 void RunElfFini(elfheader_t* h, x64emu_t *emu)
@@ -1442,6 +1444,21 @@ void ResetSpecialCaseMainElf(elfheader_t* h)
                 memcpy((void*)sym->st_value+h->delta, stdout, sym->st_size);
                 my__IO_2_1_stdout_ = (void*)sym->st_value+h->delta;
                 printf_log(LOG_DEBUG, "BOX64: Set @_IO_2_1_stdout_ to %p\n", my__IO_2_1_stdout_);
+            } else
+            if(strcmp(symname, "_IO_stderr_")==0 && ((void*)sym->st_value+h->delta)) {
+                memcpy((void*)sym->st_value+h->delta, stderr, sym->st_size);
+                my__IO_2_1_stderr_ = (void*)sym->st_value+h->delta;
+                printf_log(LOG_DEBUG, "BOX64: Set @_IO_stderr_ to %p\n", my__IO_2_1_stderr_);
+            } else
+            if(strcmp(symname, "_IO_stdin_")==0 && ((void*)sym->st_value+h->delta)) {
+                memcpy((void*)sym->st_value+h->delta, stdin, sym->st_size);
+                my__IO_2_1_stdin_ = (void*)sym->st_value+h->delta;
+                printf_log(LOG_DEBUG, "BOX64: Set @_IO_stdin_ to %p\n", my__IO_2_1_stdin_);
+            } else
+            if(strcmp(symname, "_IO_stdout_")==0 && ((void*)sym->st_value+h->delta)) {
+                memcpy((void*)sym->st_value+h->delta, stdout, sym->st_size);
+                my__IO_2_1_stdout_ = (void*)sym->st_value+h->delta;
+                printf_log(LOG_DEBUG, "BOX64: Set @_IO_stdout_ to %p\n", my__IO_2_1_stdout_);
             }
         }
     }

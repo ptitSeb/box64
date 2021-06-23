@@ -333,8 +333,8 @@ GOW(feof_unlocked, iFp)
 GOW(ferror, iFp)
 GOW(ferror_unlocked, iFp)
 //GO(fexecve, 
-GOW(fflush, iFp)
-GO(fflush_unlocked, iFp)
+GOW(fflush, iFS)
+GO(fflush_unlocked, iFS)
 //GO(__ffs, 
 //GO(ffs, 
 //GOW(ffsl, 
