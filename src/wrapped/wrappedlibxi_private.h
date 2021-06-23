@@ -43,7 +43,7 @@ GO(XIDeleteProperty, vFpip)
 GO(XIFreeDeviceInfo, vFp)
 GO(XIGetClientPointer, iFppp)
 //GO(XIGetFocus, 
-GO(XIGetProperty, iFpipllippppp)
+GO(XIGetProperty, iFpipllipppppp)
 GO(XIGetSelectedEvents, iFpppi)
 //GO(XIGrabButton, 
 GO(XIGrabDevice, iFpipLpiiip)
