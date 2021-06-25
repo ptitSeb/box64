@@ -493,7 +493,11 @@ x64emurun:
             else
                 GD->q[0] = ED->dword[0];
             break;
-
+        case 0x8C:                      /* MOV Ed, Seg */
+            nextop = F8;
+            GETED(0);
+            ED->dword[0] = emu->segs[((nextop&0x38)>>3)];
+            break;
         case 0x8D:                      /* LEA Gd,M */
             nextop = F8;
             GETED(0);
