@@ -165,6 +165,7 @@
 #() lFll
 #() lFpi
 #() lFpp
+#() LFEL
 #() LFii
 #() LFLi
 #() LFLp
@@ -1403,6 +1404,8 @@ wrappedlibc:
   - fork
 - LFv:
   - syscall
+- LFL:
+  - getauxval
 - vFpi:
   - __longjmp_chk
   - _longjmp

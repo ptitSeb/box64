@@ -15,8 +15,8 @@
 
 #include "box64context.h"
 #include "debug.h"
-//#include "x64emu.h"
-//#include "emu/x64emu_private.h"
+#include "x64emu.h"
+#include "emu/x64emu_private.h"
 #include "box64stack.h"
 #include "auxval.h"
 
@@ -49,13 +49,13 @@ unsigned long real_getauxval(unsigned long type)
     return 0;
 }
 
-//EXPORT unsigned long my_getauxval(x64emu_t* emu, unsigned long type)
-//{
-//    uintptr_t* p = emu->context->auxval_start;
-//    while(*p) {
-//        if(*p == type)
-//            return p[1];
-//        p+=2;
-//    }
-//    return 0;
-//}
+EXPORT unsigned long my_getauxval(x64emu_t* emu, unsigned long type)
+{
+    uintptr_t* p = emu->context->auxval_start;
+    while(*p) {
+        if(*p == type)
+            return p[1];
+        p+=2;
+    }
+    return 0;
+}

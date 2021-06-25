@@ -480,7 +480,7 @@ GO(getaddrinfo, iFpppp)
 //GO(getaliasent, 
 //GO(getaliasent_r, 
 //GO(__getauxval, 
-//GOW(getauxval, 
+GOM(getauxval, LFEL)    //Weak
 //GOW(get_avphys_pages, 
 GOW(getc, iFp)
 GO(getchar, iFv)

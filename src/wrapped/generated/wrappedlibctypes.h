@@ -16,6 +16,7 @@ typedef void (*vFp_t)(void*);
 typedef int64_t (*iFp_t)(void*);
 typedef intptr_t (*lFv_t)(void);
 typedef uintptr_t (*LFv_t)(void);
+typedef uintptr_t (*LFL_t)(uintptr_t);
 typedef void (*vFpi_t)(void*, int64_t);
 typedef void (*vFpu_t)(void*, uint64_t);
 typedef int64_t (*iFpi_t)(void*, int64_t);
@@ -72,6 +73,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(setjmp, iFp_t) \
 	GO(fork, lFv_t) \
 	GO(syscall, LFv_t) \
+	GO(getauxval, LFL_t) \
 	GO(__longjmp_chk, vFpi_t) \
 	GO(_longjmp, vFpi_t) \
 	GO(longjmp, vFpi_t) \
