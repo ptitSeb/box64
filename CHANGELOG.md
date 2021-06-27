@@ -1,3 +1,19 @@
+v0.1.0
+======
+* Improvement to ElfLoader
+* More opcode added to the Dynarec
+* More lib wrapping
+* Some fixes to a few function signature
+* Improvement to Signal handling, and internal mutex handling
+* A few fixes to some dynarec opcodes
+* A few fixes to some interpretor opcodes
+
+v0.0.8
+======
+* Improvement to SSE/x87 handling
+* More opcode added to the Dynarec
+* More lib wrapping
+
 v0.0.6
 ======
 * Added Dynarec for ARM64
