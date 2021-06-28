@@ -24,6 +24,8 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
+int isSimpleWrapper(wrapper_t fun);
+
 uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
@@ -1556,19 +1558,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
-                    GETIP(ip+1); // read the 0xCC
-                    STORE_XEMU_CALL(xRIP);
-                    CALL_S(x64Int3, -1);
-                    LOAD_XEMU_CALL(xRIP);
-                    addr+=8+8;
-                    TABLE64(x3, addr); // expected return address
-                    CMPSx_REG(xRIP, x3);
-                    B_MARK(cNE);
-                    LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
-                    CBZw_NEXT(w1);
-                    MARK;
-                    LOAD_XEMU_REM();
-                    jump_to_epilog(dyn, 0, xRIP, ninst);
+                    if(box64_log<2 && isSimpleWrapper(*(wrapper_t*)(addr))) {
+                        //GETIP(ip+3+8+8); // read the 0xCC
+                        call_n(dyn, ninst, *(void**)(addr+8));
+                        addr+=8+8;
+                    } else {
+                        GETIP(ip+1); // read the 0xCC
+                        STORE_XEMU_CALL(xRIP);
+                        CALL_S(x64Int3, -1);
+                        LOAD_XEMU_CALL(xRIP);
+                        addr+=8+8;
+                        TABLE64(x3, addr); // expected return address
+                        CMPSx_REG(xRIP, x3);
+                        B_MARK(cNE);
+                        LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
+                        CBZw_NEXT(w1);
+                        MARK;
+                        LOAD_XEMU_REM();
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                    }
                 }
             } else {
                 #if 1
@@ -1586,6 +1594,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 DEFAULT;
                 #endif
             }
+            break;
+
+        case 0xCF:
+            INST_NAME("IRET");
+            SETFLAGS(X_ALL, SF_SET);    // Not a hack, EFLAGS are restored
+            BARRIER(2);
+            iret_to_epilog(dyn, ninst, rex.w);
+            *need_epilog = 0;
+            *ok = 0;
             break;
         case 0xD0:
         case 0xD2:  // TODO: Jump if CL is 0
@@ -1979,26 +1996,32 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
-                    GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
-                    STORE_XEMU_CALL(xRIP);
-                    CALL_S(x64Int3, -1);
-                    LOAD_XEMU_CALL(xRIP);
-                    TABLE64(x3, dyn->insts[ninst].natcall);
-                    ADDx_U12(x3, x3, 2+8+8);
-                    CMPSx_REG(xRIP, x3);
-                    B_MARK(cNE);    // Not the expected address, exit dynarec block
-                    POP1(xRIP);   // pop the return address
-                    if(dyn->insts[ninst].retn) {
-                        ADDx_U12(xRSP, xRSP, dyn->insts[ninst].retn);
+                    if(box64_log<2 && dyn->insts && isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2))) {
+                        //GETIP(ip+3+8+8); // read the 0xCC
+                        call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8));
+                        POP1(xRIP);   // pop the return address
+                    } else {
+                        GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
+                        STORE_XEMU_CALL(xRIP);
+                        CALL_S(x64Int3, -1);
+                        LOAD_XEMU_CALL(xRIP);
+                        TABLE64(x3, dyn->insts[ninst].natcall);
+                        ADDx_U12(x3, x3, 2+8+8);
+                        CMPSx_REG(xRIP, x3);
+                        B_MARK(cNE);    // Not the expected address, exit dynarec block
+                        POP1(xRIP);   // pop the return address
+                        if(dyn->insts[ninst].retn) {
+                            ADDx_U12(xRSP, xRSP, dyn->insts[ninst].retn);
+                        }
+                        TABLE64(x3, addr);
+                        CMPSx_REG(xRIP, x3);
+                        B_MARK(cNE);    // Not the expected address again
+                        LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
+                        CBZw_NEXT(w1);  // not quitting, so lets continue
+                        MARK;
+                        LOAD_XEMU_REM();    // load remaining register, has they have changed
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
                     }
-                    TABLE64(x3, addr);
-                    CMPSx_REG(xRIP, x3);
-                    B_MARK(cNE);    // Not the expected address again
-                    LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
-                    CBZw_NEXT(w1);  // not quitting, so lets continue
-                    MARK;
-                    LOAD_XEMU_REM();    // load remaining register, has they have changed
-                    jump_to_epilog(dyn, 0, xRIP, ninst);
                     break;
                 default:
                     if(ninst && dyn->insts && dyn->insts[ninst-1].x64.set_flags) {

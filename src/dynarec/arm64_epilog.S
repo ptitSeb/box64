@@ -18,6 +18,9 @@ arm64_epilog:
     stp     x22, x23, [x0, (8 * 12)]
     stp     x24, x25, [x0, (8 * 14)]
     stp     x26, x27, [x0, (8 * 16)] // put back reg value in emu, including EIP (so x27 must be EIP now)
+    // and the 4 first SSE regs too
+    stp     q0, q1, [x0, (8 * 18)]
+    stp     q2, q3, [x0, (8 * 22)]
     //restore all used register
     //vpop     {d8-d15}
     ldp     x19, x20, [sp, (8 * 0)]

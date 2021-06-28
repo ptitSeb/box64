@@ -635,6 +635,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define retn_to_epilog  STEPNAME(retn_to_epilog)
 #define iret_to_epilog  STEPNAME(iret_to_epilog)
 #define call_c          STEPNAME(call_c)
+#define call_n          STEPNAME(call_n)
 #define grab_segdata    STEPNAME(grab_segdata)
 #define emit_cmp8       STEPNAME(emit_cmp8)
 #define emit_cmp16      STEPNAME(emit_cmp16)
@@ -751,8 +752,9 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
-void iret_to_epilog(dynarec_arm_t* dyn, int ninst);
+void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
+void call_n(dynarec_arm_t* dyn, int ninst, void* fnc);
 void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
@@ -878,8 +880,8 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #endif
-void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1);
-void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1);
+void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not03);
+void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not03);
 
 uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);

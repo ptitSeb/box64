@@ -31,5 +31,8 @@ arm64_prolog:
     ldp     x22, x23, [x0, (8 * 12)]
     ldp     x24, x25, [x0, (8 * 14)]
     ldp     x26, x27, [x0, (8 * 16)]
+    // grab 4 first SSE regs too
+    ldp     q0, q1, [x0, (8 * 18)]
+    ldp     q2, q3, [x0, (8 * 22)]
     //jump to function
     br       x1

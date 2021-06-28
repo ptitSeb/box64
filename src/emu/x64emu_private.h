@@ -30,7 +30,8 @@ typedef struct x64emu_s {
 	reg64_t     regs[16];
 	x64flags_t  eflags;
     reg64_t     ip;
-    uintptr_t   old_ip;
+    // sse
+    sse_regs_t  xmm[16];
     // fpu / mmx
 	mmx87_regs_t mmx87[8];
 	uint16_t    cw,cw_mask_all;
@@ -42,8 +43,8 @@ typedef struct x64emu_s {
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
     fpu_ll_t    fpu_ll[8]; // for 64bits fild / fist sequence
 	fpu_p_reg_t p_regs[8];
-    // sse
-    sse_regs_t  xmm[16];
+    // old ip
+    uintptr_t   old_ip;
     // defered flags
     int         dummy1;     // to align on 64bits with df
     defered_flags_t df;
