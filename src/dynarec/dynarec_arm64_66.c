@@ -458,6 +458,12 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("NOP");
             break;
 
+        case 0x98:
+            INST_NAME("CBW");
+            SXTBw(x1, xRAX);
+            BFIw(xRAX, x1, 0, 16);
+            break;
+
         case 0xA1:
             INST_NAME("MOV EAX,Od");
             u64 = F64;
