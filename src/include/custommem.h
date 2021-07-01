@@ -42,6 +42,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot);
 void setProtection(uintptr_t addr, size_t size, uint32_t prot);
 void freeProtection(uintptr_t addr, size_t size);
 uint32_t getProtection(uintptr_t addr);
+void loadProtectionFromMap();
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, size_t size);
 void protectDBnolock(uintptr_t addr, size_t size);
@@ -51,6 +52,8 @@ void unlockDB();
 #endif
 void* find32bitBlock(size_t size);
 void* findBlockNearHint(void* hint, size_t size);
+void* find47bitBlock(size_t size);
+void* find47bitBlockNearHint(void* hint, size_t size);
 
 // unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex
 int unlockCustommemMutex();

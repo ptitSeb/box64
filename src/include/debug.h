@@ -24,6 +24,7 @@ extern char* trace_func;
 #endif
 extern int allow_missing_libs;
 extern int box64_steam;
+extern int box64_wine;
 extern int box64_nopulse;   // disabling the use of wrapped pulseaudio
 extern int box64_nogtk; // disabling the use of wrapped gtk
 extern int box64_novulkan;  // disabling the use of wrapped vulkan

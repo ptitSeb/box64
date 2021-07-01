@@ -1051,6 +1051,14 @@ x64emurun:
             if(emu->quit) goto fini;
             break;
 
+        case 0xCF:                      /* IRET */
+            R_RIP = Pop(emu);
+            emu->segs[_CS] = Pop(emu);
+            emu->segs_serial[_CS] = 0;
+            emu->eflags.x64 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+            RESET_FLAGS(emu);
+            goto fini;      // exit, to recompute CS if needed
+            break;
         case 0xD0:                      /* GRP2 Eb,1 */
         case 0xD2:                      /* GRP2 Eb,CL */
             nextop = F8;

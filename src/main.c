@@ -8,6 +8,7 @@
 #include <dirent.h>
 #include <signal.h>
 #include <sys/syscall.h>
+#include <sys/mman.h>
 
 #include "build_info.h"
 #include "debug.h"
@@ -52,12 +53,13 @@ char* trace_func = NULL;
 int box64_dynarec_trace = 0;
 #endif
 #endif
-int box64_zoom = 0;
 int x11threads = 0;
 int x11glx = 1;
 int allow_missing_libs = 0;
 int fix_64bit_inodes = 0;
+int box64_zoom = 0;
 int box64_steam = 0;
+int box64_wine = 0;
 int box64_nopulse = 0;
 int box64_nogtk = 0;
 int box64_novulkan = 0;
@@ -731,7 +733,8 @@ int main(int argc, const char **argv, const char **env) {
     if(!box64_nobanner)
         PrintBox64Version();
     // precheck, for win-preload
-    if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader"))) {
+    if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader")) 
+     || strstr(prog, "wine64-preloader")==(prog+strlen(prog)-strlen("wine64-preloader"))) {
         // wine-preloader detecter, skipping it if next arg exist and is an x86 binary
         int x64 = (nextarg<argc)?FileIsX64ELF(argv[nextarg]):0;
         if(x64) {
@@ -741,9 +744,9 @@ int main(int argc, const char **argv, const char **env) {
         }
     }
     // check if this is wine
-    if(!strcmp(prog, "wine") || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine"), "/wine"))) {
+    if(!strcmp(prog, "wine64") || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine64"), "/wine64"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
-        printf_log(LOG_INFO, "BOX64: Wine detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
+        printf_log(LOG_INFO, "BOX64: Wine64 detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
         if(wine_preloaded)
             wine_prereserve(prereserve);
         // special case for winedbg, doesn't work anyway
@@ -751,6 +754,11 @@ int main(int argc, const char **argv, const char **env) {
             printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
             exit(0);    // exiting, it doesn't work anyway
         }
+        box64_wine = 1;
+    }
+    // check if this is wineserver
+    if(!strcmp(prog, "wineserver") || !strcmp(prog, "wineserver64") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
+        box64_wine = 1;
     }
     // Create a new context
     my_context = NewBox64Context(argc - nextarg);
@@ -1045,6 +1053,7 @@ int main(int argc, const char **argv, const char **env) {
 #endif
 
     atexit(endBox64);
+    loadProtectionFromMap();
 
     // emulate!
     printf_log(LOG_DEBUG, "Start x64emu on Main\n");
