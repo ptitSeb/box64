@@ -181,6 +181,16 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                     }
                     break;
 
+                case 0xAF:                      /* IMUL Gd,Ed */
+                    nextop = F8;
+                    GETED_OFFS(0, tlsdata);
+                    GETGD;
+                    if(rex.w)
+                        GD->q[0] = imul64(emu, GD->q[0], ED->q[0]);
+                    else
+                        GD->q[0] = imul32(emu, GD->dword[0], ED->dword[0]);
+                    break;
+
                 default:
                     return 1;
             }

@@ -151,6 +151,39 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
+                case 0xAF:
+                    INST_NAME("IMUL Gd, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    nextop = F8;
+                    grab_segdata(dyn, addr, ninst, x4, seg);
+                    GETGD;
+                    GETEDO(x4, 0);
+                    if(rex.w) {
+                        // 64bits imul
+                        UFLAG_IF {
+                            SMULH(x3, gd, ed);
+                            MULx(gd, gd, ed);
+                            UFLAG_OP1(x3);
+                            UFLAG_RES(gd);
+                            UFLAG_DF(x3, d_imul64);
+                        } else {
+                            MULxw(gd, gd, ed);
+                        }
+                    } else {
+                        // 32bits imul
+                        UFLAG_IF {
+                            SMULL(gd, gd, ed);
+                            UFLAG_RES(gd);
+                            LSRx(x3, gd, 32);
+                            UFLAG_OP1(x3);
+                            UFLAG_DF(x3, d_imul32);
+                            MOVw_REG(gd, gd);
+                        } else {
+                            MULxw(gd, gd, ed);
+                        }
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }
