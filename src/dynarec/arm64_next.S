@@ -12,15 +12,13 @@
 arm64_next:
     // emu is r0
     // IP address is r1
-    sub     sp,  sp,  (8 * 12 + 16 * 4)
+    sub     sp,  sp,  (8 * 12)
     stp     x0,  x1,  [sp, (8 *  0)]
     stp     x10, x11, [sp, (8 *  2)]
     stp     x12, x13, [sp, (8 *  4)]
     stp     x14, x15, [sp, (8 *  6)]
     stp     x16, x17, [sp, (8 *  8)]
     str     x18, [sp, (8 * 10)]
-    stp     q0, q1, [sp, (8 * 12)]
-    stp     q2, q3, [sp, (8 * 16)]
 
     mov     x2, lr      // "from" is in lr, so put in x2
     // call the function
@@ -34,9 +32,7 @@ arm64_next:
     ldp     x14, x15, [sp, (8 *  6)]
     ldp     x16, x17, [sp, (8 *  8)]
     ldr     x18, [sp, (8 * 10)]
-    ldp     q0, q1, [sp, (8 * 12)]
-    ldp     q2, q3, [sp, (8 * 16)]
-    add     sp,  sp, (8 * 12 + 16 * 4)
+    add     sp,  sp, (8 * 12)
     // return offset is jump address
     br      x3
 

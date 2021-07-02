@@ -707,6 +707,17 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void* rsp = NULL;
 #ifdef __aarch64__
     void * pc = (void*)p->uc_mcontext.pc;
+    struct fpsimd_context *fpsimd = NULL;
+    // find fpsimd struct
+    {
+        struct _aarch64_ctx * ff = (struct _aarch64_ctx*)p->uc_mcontext.__reserved;
+        while (ff->magic && !fpsimd) {
+            if(ff->magic==FPSIMD_MAGIC)
+                fpsimd = (struct fpsimd_context*)ff;
+            else
+                ff = (struct _aarch64_ctx*)((uintptr_t)ff + ff->size);
+        }
+    }
 #elif defined __x86_64__
     void * pc = (void*)p->uc_mcontext.gregs[X64_RIP];
 #elif defined __powerpc64__
@@ -747,6 +758,12 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 ejb->emu->regs[_R13].q[0] = p->uc_mcontext.regs[23];
                 ejb->emu->regs[_R14].q[0] = p->uc_mcontext.regs[24];
                 ejb->emu->regs[_R15].q[0] = p->uc_mcontext.regs[25];
+                if(fpsimd) {
+                    ejb->emu->xmm[0].u128 = fpsimd->vregs[0];
+                    ejb->emu->xmm[1].u128 = fpsimd->vregs[1];
+                    ejb->emu->xmm[2].u128 = fpsimd->vregs[2];
+                    ejb->emu->xmm[3].u128 = fpsimd->vregs[3];
+                }
                 ejb->emu->ip.q[0] = getX64Address(db, (uintptr_t)pc);
                 ejb->emu->eflags.x64 = p->uc_mcontext.regs[26];
                 if(addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) {

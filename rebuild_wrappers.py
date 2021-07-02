@@ -503,7 +503,7 @@ def main(root: str, files: Sequence[Filename], ver: str):
 		pass
 	
 	# Detect simple wrappings
-	simple_wraps: Dict[ClausesStr, List[FunctionType]] = {}
+	simple_wraps: Dict[ClausesStr, List[Tuple[FunctionType, int]]] = {}
 	
 	# H could be allowed maybe?
 	allowed_simply: str = "v"
@@ -537,9 +537,12 @@ def main(root: str, files: Sequence[Filename], ver: str):
 					break
 			else:
 				# No character in forbidden_simply
-				if (regs_count <= 6) and (fpr_count <= 4):
+				if (regs_count <= 6) and (fpr_count <= 8):
 					# All checks passed!
-					simple_wraps.setdefault(k, []).append(v)
+					ret_val = 1 + fpr_count
+					if v[0] in allowed_fpr:
+						ret_val = -ret_val
+					simple_wraps.setdefault(k, []).append((v, ret_val))
 	simple_idxs = list(simple_wraps.keys())
 	simple_idxs.sort(key=lambda x: Clauses(x).splitdef())
 	
@@ -911,7 +914,7 @@ int isSimpleWrapper(wrapper_t fun);
 			if k != "()":
 				file.write("#if " + k + "\n")
 			for v in simple_wraps[k]:
-				file.write("\tif (fun == &" + v + ") return 1;\n")
+				file.write("\tif (fun == &" + v[0] + ") return " + str(v[1]) + ";\n")
 			if k != "()":
 				file.write("#endif\n")
 		file.write("\treturn 0;\n}\n")

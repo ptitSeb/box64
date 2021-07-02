@@ -518,7 +518,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     SET_NODF();
 }
 
-void call_n(dynarec_arm_t* dyn, int ninst, void* fnc)
+void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
     STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
@@ -527,7 +527,17 @@ void call_n(dynarec_arm_t* dyn, int ninst, void* fnc)
     // RDI, RSI, RDX, RCX, R8, R9 are used for function call
     STPx_S7_preindex(xEmu, xRBX, xSP, -16);   // ARM64 stack needs to be 16byte aligned
     STPx_S7_offset(xRSP, xRBP, xEmu, offsetof(x64emu_t, regs[_SP]));
-    STPx_S7_offset(xRSI, xRDI, xEmu, offsetof(x64emu_t, regs[_SI]));
+    // float and double args
+    if(abs(w)>1) {
+        MESSAGE(LOG_DUMP, "Getting %d XMM args\n", abs(w)-1);
+        for(int i=0; i<abs(w)-1; ++i) {
+            sse_get_reg(dyn, ninst, x7, i);
+        }
+    }
+    if(w<0) {
+        MESSAGE(LOG_DUMP, "Return in XMM0\n");
+        sse_get_reg_empty(dyn, ninst, x7, 0);
+    }
     // prepare regs for native call
     MOVx_REG(0, xRDI);
     MOVx_REG(x1, xRSI);
@@ -539,13 +549,14 @@ void call_n(dynarec_arm_t* dyn, int ninst, void* fnc)
     TABLE64(16, (uintptr_t)fnc);    // using x16 as scratch regs for call address
     BLR(16);
     // put return value in x86 regs
-    MOVx_REG(xRAX, 0);
-    MOVx_REG(xRDX, x1);
+    if(w>0) {
+        MOVx_REG(xRAX, 0);
+        MOVx_REG(xRDX, x1);
+    }
     // all done, restore all regs
     LDPx_S7_postindex(xEmu, xRBX, xSP, 16);
     #define GO(A, B) LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
     GO(RSP, RBP);
-    GO(RSI, RDI);
     #undef GO
 
     fpu_popcache(dyn, ninst, x3, 1);
@@ -1061,7 +1072,7 @@ static void sse_reset(dynarec_arm_t* dyn, int ninst)
     (void)ninst;
 #if STEP > 1
     for (int i=0; i<16; ++i)
-        dyn->ssecache[i] = (i<4)?i:-1;
+        dyn->ssecache[i] = -1;
 #else
     (void)dyn;
 #endif
@@ -1101,7 +1112,7 @@ void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1)
     (void) ninst; (void)s1;
 #if STEP > 1
     int old = -1;
-    for (int i=4; i<8; ++i)
+    for (int i=0; i<8; ++i)
         if(dyn->ssecache[i]!=-1) {
             if (old==-1) {
                 MESSAGE(LOG_DUMP, "\tPurge XMM0..7 Cache ------\n");
@@ -1125,7 +1136,7 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
     (void) ninst; (void)s1;
 #if STEP > 1
     int old = -1;
-    for (int i=4; i<16; ++i)
+    for (int i=0; i<16; ++i)
         if(dyn->ssecache[i]!=-1) {
             if (old==-1) {
                 MESSAGE(LOG_DUMP, "\tPurge SSE Cache ------\n");
@@ -1157,11 +1168,11 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 }
 #endif
 
-void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not03)
+void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
 {
     (void) ninst; (void)s1;
 #if STEP > 1
-    int start = not03?4:0;
+    int start = not07?8:0;
     // only SSE regs needs to be push back to xEmu
     int n=0;
     for (int i=start; i<16; i++)
@@ -1180,11 +1191,11 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not03)
 #endif
 }
 
-void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not03)
+void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
 {
     (void) ninst; (void)s1;
 #if STEP > 1
-    int start = not03?4:0;
+    int start = not07?8:0;
     // only SSE regs needs to be pop back from xEmu
     int n=0;
     for (int i=start; i<16; i++)

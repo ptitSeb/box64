@@ -247,6 +247,7 @@ typedef union {
 } mmx87_regs_t;
 
 typedef union {
+	__uint128_t u128;
 	uint64_t q[2];
 	int64_t sq[2];
 	double d[2];
