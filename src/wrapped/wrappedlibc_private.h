@@ -684,9 +684,9 @@ GO(iconv_close, iFL)
 GO(iconv_open, LFpp)
 //GO(__idna_from_dns_encoding, 
 //GO(__idna_to_dns_encoding, 
-//GOW(if_freenameindex, 
+GOW(if_freenameindex, vFp)
 GOW(if_indextoname, pFup)
-//GOW(if_nameindex, 
+GOW(if_nameindex, pFv)
 GOW(if_nametoindex, uFp)
 //GOW(imaxabs, 
 //GOW(imaxdiv, 
