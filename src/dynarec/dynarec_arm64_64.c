@@ -421,6 +421,210 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xD1:
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x6, seg);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ed, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETEDO(x6, 0);
+                    emit_rol32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACKO(x6);
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETEDO(x6, 0);
+                    emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACKO(x6);
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, 1");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    MOV32w(x2, 1);
+                    GETEDO(x6, 0);
+                    if(wback) {ADDx_REG(x6, x6, wback); wback=x6;}
+                    if(ed!=x1) {MOVxw_REG(x1, ed);}
+                    CALL_(rcl32, ed, x6);
+                    WBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, 1");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    MOV32w(x2, 1);
+                    GETEDO(x6, 0);
+                    if(wback) {ADDx_REG(x6, x6, wback); wback=x6;}
+                    if(ed!=x1) {MOVxw_REG(x1, ed);}
+                    CALL_(rcr32, ed, x6);
+                    WBACK;
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    GETEDO(x6, 0);
+                    emit_shl32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACKO(x6);
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    GETEDO(x6, 0);
+                    emit_shr32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACKO(x6);
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    GETEDO(x6, 0);
+                    emit_sar32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACKO(x6);
+                    break;
+            }
+            break;
+        case 0xD3:
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x6, seg);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ed, CL");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(rex.w) {
+                        ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                    } else {
+                        ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
+                    MOV64xw(x4, (rex.w?64:32));
+                    SUBx_REG(x3, x4, x3);
+                    GETEDO(x6, 0);
+                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    B_NEXT(cEQ);
+                    RORxw_REG(ed, ed, x3);
+                    WBACKO(x6);
+                    UFLAG_IF {  // calculate flags directly
+                        CMPSw_U12(x3, rex.w?63:31);
+                        B_MARK(cNE);
+                            LSRxw(x4, ed, rex.w?63:31);
+                            ADDxw_REG(x4, x4, ed);
+                            BFIw(xFlags, x4, F_OF, 1);
+                        MARK;
+                        BFIw(xFlags, ed, F_CF, 1);
+                        UFLAG_DF(x2, d_none);
+                    }
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, CL");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(rex.w) {
+                        ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                    } else {
+                        ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
+                    GETEDO(x6, 0);
+                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    B_NEXT(cEQ);
+                    RORxw_REG(ed, ed, x3);
+                    WBACKO(x6);
+                    UFLAG_IF {  // calculate flags directly
+                        CMPSw_U12(x3, 1);
+                        B_MARK(cNE);
+                            LSRxw(x2, ed, rex.w?62:30); // x2 = d>>30
+                            EORw_REG_LSR(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
+                            BFIw(xFlags, x2, F_OF, 1);
+                        MARK;
+                        LSRxw(x2, ed, rex.w?63:31);
+                        BFIw(xFlags, x2, F_CF, 1);
+                        UFLAG_DF(x2, d_none);
+                    }
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(rex.w) {
+                        ANDSx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                    } else {
+                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
+                    GETEDO(x6, 0);
+                    if(wback) {ADDx_REG(x6, x6, wback); wback=x6;}
+                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    B_NEXT(cEQ);
+                    CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x6);
+                    WBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(rex.w) {
+                        ANDSx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                    } else {
+                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
+                    GETEDO(x6, 0);
+                    if(wback) {ADDx_REG(x6, x6, wback); wback=x6;}
+                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    B_NEXT(cEQ);
+                    CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x6);
+                    WBACK;
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, CL");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(rex.w) {
+                        ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                    } else {
+                        ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
+                    GETEDO(x6, 0);
+                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    B_NEXT(cEQ);
+                    emit_shl32(dyn, ninst, rex, ed, x3, x5, x4);
+                    WBACKO(x6);
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, CL");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(rex.w) {
+                        ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                    } else {
+                        ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
+                    GETEDO(x6, 0);
+                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    B_NEXT(cEQ);
+                    emit_shr32(dyn, ninst, rex, ed, x3, x5, x4);
+                    WBACKO(x6);
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, CL");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    if(rex.w) {
+                        ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                    } else {
+                        ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
+                    GETEDO(x6, 0);
+                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    B_NEXT(cEQ);
+                    UFLAG_OP12(ed, x3);
+                    ASRxw_REG(ed, ed, x3);
+                    WBACKO(x6);
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, rex.w?d_sar64:d_sar32);
+                    break;
+            }
+            break;
+            
         default:
             DEFAULT;
     }
