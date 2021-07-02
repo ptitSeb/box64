@@ -15,7 +15,7 @@ GO(accept, iFipp)
 //GO(accept4, 
 GOW(access, iFpi)
 //GO(acct, 
-//GOW(addmntent, 
+GOW(addmntent, iFpp)
 //GOW(addseverity, 
 //GOW(adjtime, 
 //GO(__adjtimex, 
@@ -234,8 +234,8 @@ GOW(duplocale, pFp)
 //GO(endfsent, 
 //GO(endgrent, 
 GO(endhostent, vFv)
-//GO(__endmntent, 
-//GOW(endmntent, 
+GO(__endmntent, iFp)
+GOW(endmntent, iFp)
 //GO(endnetent, 
 //GO(endnetgrent, 
 GO(endprotoent, vFv)
@@ -452,7 +452,7 @@ GO(fts_set, iFppi)
 GOM(ftw, iFEppi)
 GOM(ftw64, iFEppi)
 GOW(funlockfile, vFp)
-//GO(futimens, 
+GO(futimens, iFip)
 //GOW(futimes, 
 //GO(futimesat, 
 //GO(fwide, 
@@ -537,9 +537,9 @@ GOW(getline, iFppp)
 GO(getlogin, pFv)
 GOW(getlogin_r, iFpL)
 //GO(__getlogin_r_chk, 
-//GO(getmntent, 
-//GO(__getmntent_r, 
-//GOW(getmntent_r, 
+GO(getmntent, pFp)
+GO(__getmntent_r, pFpppi)
+GOW(getmntent_r, pFpppi)
 //GO(getmsg, 
 //GO(get_myaddress, 
 GO(getnameinfo, iFpupLpLi)
@@ -664,7 +664,7 @@ GOW(gmtime_r, pFpp)
 //GOW(group_member, 
 //GOW(gsignal, 
 //GO(gtty, 
-//GOW(hasmntopt, 
+GOW(hasmntopt, pFpp)
 //GO(hcreate, 
 //GOW(hcreate_r, 
 //GOW(hdestroy, 
@@ -1628,8 +1628,8 @@ GO(setlinebuf, vFp)
 GO(setlocale, pFip)
 //GO(setlogin, 
 GO(setlogmask, iFi)
-//GO(__setmntent, 
-//GOW(setmntent, 
+GO(__setmntent, pFpp)
+GOW(setmntent, pFpp)
 //GO(setnetent, 
 //GO(setnetgrent, 
 //GO(setns, 
@@ -2035,7 +2035,7 @@ GOW(uselocale, pFp)
 GO(usleep, iFu)
 //GO(ustat, 
 GO(utime, iFpp)
-//GO(utimensat, 
+GO(utimensat, iFippi)
 GOW(utimes, iFpp)
 //GOW(utmpname, 
 //GO(utmpxname, 
