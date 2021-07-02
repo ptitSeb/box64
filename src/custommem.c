@@ -937,7 +937,7 @@ static uintptr_t nextFree(uintptr_t addr)
         uint8_t *block = kh_value(memprot, k);
         for (uintptr_t i=(addr&0xffffffffLL)>>MEMPROT_SHIFT; i<MEMPROT_SIZE; ++i)
             if(!block[i]) {
-                return addr+(i<<MEMPROT_SHIFT);
+                return (addr&~0xffffffffLL)+(i<<MEMPROT_SHIFT);
             }
         addr += 0x100000000LL;
         addr &= ~0xffffffffLL;
