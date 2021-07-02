@@ -2237,7 +2237,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         } else {
                             GETEDH(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
                             CBZxw_MARK(xRDX);
-                            if(ed!=x1) {MOVxw_REG(x1, ed);}
+                            if(ed!=x1) {MOVx_REG(x1, ed);}
                             CALL(div64, -1);
                             B_NEXT_nocond;
                             MARK;
@@ -2263,24 +2263,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         if(ninst && dyn->insts
                            &&  dyn->insts[ninst-1].x64.addr 
-                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x99) {
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x48
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0x99) {
                             SET_DFNONE(x2)
                             GETED(0);
                             SDIVx(x2, xRAX, ed);
                             MSUBx(xRDX, x2, ed, xRAX);
-                            MOVw_REG(xRAX, x2);
+                            MOVx_REG(xRAX, x2);
                         } else {
                             GETEDH(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
                             CBZxw_MARK(xRDX);
                             MVNx_REG(x2, xRDX);
                             CBZxw_MARK(x2);
-                            if(ed!=x1) {MOVxw_REG(x1, ed);}
+                            if(ed!=x1) {MOVx_REG(x1, ed);}
                             CALL((void*)idiv64, -1);
                             B_NEXT_nocond;
                             MARK;
                             SDIVx(x2, xRAX, ed);
                             MSUBx(xRDX, x2, ed, xRAX);
-                            MOVw_REG(xRAX, x2);
+                            MOVx_REG(xRAX, x2);
                             SET_DFNONE(x2)
                         }
                     }
