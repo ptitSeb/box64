@@ -233,7 +233,7 @@ GOW(duplocale, pFp)
 //GO(endaliasent, 
 //GO(endfsent, 
 //GO(endgrent, 
-//GO(endhostent, 
+GO(endhostent, vFv)
 //GO(__endmntent, 
 //GOW(endmntent, 
 //GO(endnetent, 
@@ -517,14 +517,14 @@ GO(getgrent, pFv)
 //GO(getgrouplist, 
 GOW(getgroups, iFip)
 //GO(__getgroups_chk, 
-//GO(gethostbyaddr, 
-//GO(gethostbyaddr_r, 
+GO(gethostbyaddr, pFpui)
+GO(gethostbyaddr_r, iFpuippLpp)
 GO(gethostbyname, pFp)
-//GO(gethostbyname2, 
-//GO(gethostbyname2_r, 
-//GO(gethostbyname_r, 
-//GO(gethostent, 
-//GO(gethostent_r, 
+GO(gethostbyname2, pFpi)
+GO(gethostbyname2_r, iFpippLpp)
+GO(gethostbyname_r, iFpppLpp)
+GO(gethostent, pFv)
+GO(gethostent_r, iFppLpp)
 //GO(gethostid, 
 GOW(gethostname, iFpL)
 //GO(__gethostname_chk, 
@@ -672,7 +672,7 @@ GOW(gmtime_r, pFpp)
 //DATA(h_errlist, 
 //DATAB(__h_errno, 
 //GO(__h_errno_location, 
-//GO(herror, 
+GO(herror, vFp)
 //GO(host2netname, 
 //GO(hsearch, 
 //GOW(hsearch_r, 
@@ -1617,7 +1617,7 @@ GO(seteuid, iFu)
 GOW(setgid, iFp)
 //GO(setgrent, 
 //GO(setgroups, 
-//GO(sethostent, 
+GO(sethostent, vFi)
 //GO(sethostid, 
 GO(sethostname, iFpL)
 //GO(setipv4sourcefilter, 
