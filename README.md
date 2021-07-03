@@ -7,9 +7,9 @@ Linux Userspace x86_64 Emulator with a twist
 
 Box64 lets you run x86_64 Linux programs (such as games) on non-x86_64 Linux systems, like ARM (host system needs to be 64bit little-endian).
 
-Because Box64 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at thoses bench analysis for an example: https://box86.org/index.php/2021/06/27/game-performances/
+Because Box64 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at thoses bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/).
 
-Box64 integrates a DynaRec (dynamic recompiler) for the ARM64 platform, providing a speed boost between 5 to 10 times faster than only using the interpreter.
+Box64 integrates a DynaRec (dynamic recompiler) for the ARM64 platform, providing a speed boost between 5 to 10 times faster than only using the interpreter. Some high level information on how the Dynarec work can be found [here](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/).
 
 Some x86 internal opcodes use parts of "Realmode X86 Emulator Library", see [x86primop.c](src/emu/x86primop.c) for copyright details
 
