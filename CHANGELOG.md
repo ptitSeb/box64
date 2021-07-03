@@ -1,9 +1,11 @@
-Current Version
+v0.1.2
 ======
+* OpenSource!
 * A few more opcode added to the Interpretor and the Dynarec
 * Improved Native Function calling
 * Added some function to limit allocated memory to 47bits space (for Wine)
 * Improved and Fixed the functions to limit allocated memory to 32bits space
+* Wine is starting now, but not everything and every version works
 
 v0.1.0
 ======
