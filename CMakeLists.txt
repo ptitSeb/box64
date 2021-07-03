@@ -7,7 +7,7 @@ option(RK3326 "Set to ON if targeting an Rockchip RK3326 based device" ${RK3326}
 option(RK3399 "Set to ON if targeting an Rockchip RK3399 based device" ${RK3399})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
-option(NOLOADADDR "Set to ON to avoid fixing the load address of Box64" ON)
+option(NOLOADADDR "Set to ON to avoid fixing the load address of Box64" OFF)
 option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
 if(RK3399 OR RPI4ARM64 OR RK3326)
     set(LD80BITS OFF CACHE BOOL "")
