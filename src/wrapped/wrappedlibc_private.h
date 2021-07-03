@@ -655,11 +655,11 @@ GOW(globfree64, vFp)
 GO(gmtime, pFp)
 GO(__gmtime_r, pFpp)
 GOW(gmtime_r, pFpp)
-//GOW(gnu_dev_major, 
-//GOW(gnu_dev_makedev, 
-//GOW(gnu_dev_minor, 
-//GOW(gnu_get_libc_release, 
-//GOW(gnu_get_libc_version, 
+GOW(gnu_dev_major, uFU)
+GOW(gnu_dev_makedev, UFii)
+GOW(gnu_dev_minor, uFU)
+GOW(gnu_get_libc_release, pFv)
+GOW(gnu_get_libc_version, pFv)
 //GO(grantpt, 
 //GOW(group_member, 
 //GOW(gsignal, 

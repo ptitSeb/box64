@@ -68,6 +68,7 @@ typedef uint16_t (*WFp_t)(void*);
 typedef uint64_t (*uFv_t)(void);
 typedef uint64_t (*uFi_t)(int64_t);
 typedef uint64_t (*uFu_t)(uint64_t);
+typedef uint64_t (*uFU_t)(uint64_t);
 typedef uint64_t (*uFd_t)(double);
 typedef uint64_t (*uFp_t)(void*);
 typedef uint64_t (*UFv_t)(void);
@@ -1369,6 +1370,7 @@ void WFp(x64emu_t *emu, uintptr_t fcn) { WFp_t fn = (WFp_t)fcn; R_RAX=(unsigned 
 void uFv(x64emu_t *emu, uintptr_t fcn) { uFv_t fn = (uFv_t)fcn; R_RAX=(uint64_t)fn(); }
 void uFi(x64emu_t *emu, uintptr_t fcn) { uFi_t fn = (uFi_t)fcn; R_RAX=(uint64_t)fn((int64_t)R_RDI); }
 void uFu(x64emu_t *emu, uintptr_t fcn) { uFu_t fn = (uFu_t)fcn; R_RAX=(uint64_t)fn((uint64_t)R_RDI); }
+void uFU(x64emu_t *emu, uintptr_t fcn) { uFU_t fn = (uFU_t)fcn; R_RAX=(uint64_t)fn((uint64_t)R_RDI); }
 void uFd(x64emu_t *emu, uintptr_t fcn) { uFd_t fn = (uFd_t)fcn; R_RAX=(uint64_t)fn(emu->xmm[0].d[0]); }
 void uFp(x64emu_t *emu, uintptr_t fcn) { uFp_t fn = (uFp_t)fcn; R_RAX=(uint64_t)fn((void*)R_RDI); }
 void UFv(x64emu_t *emu, uintptr_t fcn) { UFv_t fn = (UFv_t)fcn; R_RAX=fn(); }
@@ -2678,6 +2680,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &uFv) return 1;
 	if (fun == &uFi) return 1;
 	if (fun == &uFu) return 1;
+	if (fun == &uFU) return 1;
 	if (fun == &uFd) return 2;
 	if (fun == &uFp) return 1;
 	if (fun == &UFv) return 1;
