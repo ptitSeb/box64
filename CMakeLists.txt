@@ -67,8 +67,8 @@ endif()
 
 if(TEGRAX1)
     add_definitions(-DTEGRAX1)
-    add_definitions(-pipe -march=armv8-a+simd+crypto -mcpu=cortex-a57+crypto)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+simd+crypto -mcpu=cortex-a57+crypto")
+    add_definitions(-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a57+crypto)
+    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a57+crypto")
 endif()
 
 if(NOGIT)
