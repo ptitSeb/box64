@@ -153,7 +153,7 @@ GOW(close, iFi)
 GOW(closedir, iFp)
 GO(closelog, vFv)
 //GO(__close_nocancel, 
-//GO(__cmsg_nxthdr, 
+GO(__cmsg_nxthdr, pFpp)
 GO(confstr, LFipL)
 //GO(__confstr_chk, 
 GOW(__connect, iFipu)
