@@ -1133,7 +1133,7 @@ GO(mbtowc, iFppL)
 //GO(mcheck_pedantic, 
 //GO(_mcleanup, 
 GO(_mcount, vFpp)
-GOW(mcount, vFpp)
+GO2(mcount, vFpp, _mcount)
 GOW(memalign, pFLL)
 GOW(memccpy, pFppiL)
 GO(memchr, pFpiL)
