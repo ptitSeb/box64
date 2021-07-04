@@ -239,6 +239,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxau.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcb.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbxfixes.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxcbrandr.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbshape.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbshm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcomposite.c"
