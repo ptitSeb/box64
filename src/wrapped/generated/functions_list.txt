@@ -616,6 +616,7 @@
 #() pFpCuu
 #() pFpuii
 #() pFpuWp
+#() pFpuuC
 #() pFpuuu
 #() pFpuup
 #() pFpupi
@@ -1154,6 +1155,7 @@
 #() pFuupupipp
 #() pFpCuwwWWu
 #() pFpCuuuCup
+#() pFpuuWWCuu
 #() pFpppuuLLu
 #() pFpppppupp
 #() vFiiiiiiiii
@@ -1231,6 +1233,7 @@
 #() iFppppiiuuii
 #() uFpppppppppp
 #() pFpCuWCCuuCW
+#() pFpuwwWWuCuu
 #() pFpuuuwwwwWW
 #() pFplllllllll
 #() pFppuiipuuii
@@ -1283,6 +1286,7 @@
 #() vFfffffffffffffff
 #() pFppppppppppppppp
 #() iFpppppppppppppppp
+#() pFpuuWWWWWWwwCCCuu
 #() pFpppppppppppppppp
 #() vFppuiiiiipuiiiiiiii
 #() pFiiiippppppppppppppp
