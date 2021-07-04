@@ -1123,6 +1123,7 @@ void pFpCuwwWW(x64emu_t *emu, uintptr_t fnc);
 void pFpCuWCCC(x64emu_t *emu, uintptr_t fnc);
 void pFpCuuwwp(x64emu_t *emu, uintptr_t fnc);
 void pFpCuuuuu(x64emu_t *emu, uintptr_t fnc);
+void pFpuuuwwu(x64emu_t *emu, uintptr_t fnc);
 void pFppiiCCC(x64emu_t *emu, uintptr_t fnc);
 void pFppuuppp(x64emu_t *emu, uintptr_t fnc);
 void pFpppuupp(x64emu_t *emu, uintptr_t fnc);
