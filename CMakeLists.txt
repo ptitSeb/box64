@@ -244,6 +244,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbshape.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbshm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbxfixes.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxcbxtest.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcomposite.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcursor.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxdamage.c"
