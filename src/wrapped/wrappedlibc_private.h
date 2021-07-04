@@ -307,7 +307,7 @@ GO(fallocate64, iFiill)
 //GO(fanotify_init, 
 //GO(fanotify_mark, 
 //GO(fattach, 
-//GO(__fbufsize, 
+GO(__fbufsize, LFp)
 GOW(fchdir, iFi)
 //GO(fchflags, 
 GOW(fchmod, iFiu)
@@ -370,11 +370,11 @@ GO(__finitef, iFf)
 GOW(finitef, iFf)
 //GO(__finitel, 
 //GOW(finitel, 
-//GO(__flbf, 
+GO(__flbf, iFp)
 //GO(flistxattr, 
 GOW(flock, iFii)
 GOW(flockfile, vFp)
-//GOW(_flushlbf, 
+GOW(_flushlbf, vFv)
 //GO(fmemopen, 
 //GO(fmemopen, 
 //GO(fmtmsg, 
@@ -386,11 +386,11 @@ GOM(fopen64, pFEpp)  // Weak
 GOM(fork, lFEv) // Weak
 //GO(__fortify_fail, 
 //GOW(fpathconf, 
-//GO(__fpending, 
+GO(__fpending, LFp)
 GOM(fprintf, iFEppV)
 GOM(__fprintf_chk, iFEpipV)
 //DATA(__fpu_control, 
-//GO(__fpurge, 
+GO(__fpurge, vFp)
 GO(fputc, iFip)
 GO(fputc_unlocked, iFip)
 GOW(fputs, iFpp)
@@ -400,9 +400,9 @@ GO(fputwc_unlocked, iFip)
 GO(fputws, iFpp)
 GO(fputws_unlocked, iFpp)
 GOW(fread, LFpLLp)
-//GO(__freadable, 
+GO(__freadable, iFp)
 //GO(__fread_chk, 
-//GO(__freading, 
+GO(__freading, iFp)
 GOW(fread_unlocked, LFpLLp)
 GO(__fread_unlocked_chk, LFpLLLp)
 GO(free, vFp)
@@ -458,10 +458,10 @@ GO(futimens, iFip)
 //GO(fwide, 
 GOM(fwprintf, iFEppV)   //Weak
 //GO(__fwprintf_chk, 
-//GO(__fwritable, 
+GO(__fwritable, iFp)
 GOW(fwrite, LFpLLp)
 GO(fwrite_unlocked, LFpLLp)
-//GO(__fwriting, 
+GO(__fwriting, iFp)
 //GO(fwscanf, 
 GOM(__fxstat, iFEiip)
 GOM(__fxstat64, iFEiip)
