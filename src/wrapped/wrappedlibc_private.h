@@ -1271,7 +1271,7 @@ GOM(open, iFEpOu)    //Weak
 GO(__open_2, iFpO)
 //GOW(__open64, 
 GOM(open64, iFEpOu) //Weak
-//GO(__open64_2, 
+GO(__open64_2, iFpO)
 //GO(__open64_nocancel, 
 GOW(openat, iFipON)
 //GO(__openat_2, 
@@ -2083,9 +2083,9 @@ GOM(vsyslog, vFEipp)
 //GO(vwscanf, 
 GOW(__wait, lFp)
 GOW(wait, lFp)
-//GOW(wait3, 
-//GOW(wait4, 
-//GOW(waitid, 
+GOW(wait3, lFpip)
+GOW(wait4, lFlpip)
+GOW(waitid, iFiupi)
 GO(__waitpid, lFlpi)
 GOW(waitpid, lFlpi)
 //GO(warn, 

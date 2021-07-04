@@ -347,6 +347,7 @@
 #() lFipL
 #() lFlll
 #() lFlpi
+#() lFpip
 #() lFppi
 #() lFppL
 #() lFSpl
@@ -497,6 +498,7 @@
 #() iFiipi
 #() iFiipp
 #() iFiuii
+#() iFiupi
 #() iFilli
 #() iFiLwp
 #() iFipii
@@ -580,6 +582,7 @@
 #() lFipLi
 #() lFipLI
 #() lFipLl
+#() lFlpip
 #() lFpili
 #() lFpilp
 #() lFppii
