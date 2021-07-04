@@ -140,6 +140,7 @@ scwrap_t syscallwrap[] = {
     { 294, __NR_inotify_init1, 1},
     { 298, __NR_perf_event_open, 5},
     { 318, __NR_getrandom, 3},
+    { 319, __NR_memfd_create, 2},
 };
 
 struct mmap_arg_struct {
