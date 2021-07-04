@@ -11,7 +11,7 @@ GO(pcre_copy_named_substring, iFpppippi)
 GO(pcre_copy_substring, iFppiipi)
 GO(pcre_dfa_exec, iFpppiiipipi)
 GO(pcre_exec, iFpppiiipi)
-//DATAM(pcre_free, //void  (*pcre_free)(void *);
+DATAM(pcre_free, sizeof(void*))
 GO(pcre_free_study, vFp)
 GO(pcre_free_substring, vFp)
 GO(pcre_free_substring_list, vFp)
