@@ -358,6 +358,7 @@ void uFuup(x64emu_t *emu, uintptr_t fnc);
 void uFupu(x64emu_t *emu, uintptr_t fnc);
 void uFupp(x64emu_t *emu, uintptr_t fnc);
 void uFpip(x64emu_t *emu, uintptr_t fnc);
+void uFpCi(x64emu_t *emu, uintptr_t fnc);
 void uFpuu(x64emu_t *emu, uintptr_t fnc);
 void uFpLp(x64emu_t *emu, uintptr_t fnc);
 void uFppi(x64emu_t *emu, uintptr_t fnc);
