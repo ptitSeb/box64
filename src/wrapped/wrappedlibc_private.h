@@ -1071,7 +1071,7 @@ GOM(__libc_start_main, iFEpippppp)
 GO(__libc_valloc, pFL)
 //GO(__libc_vfork, 
 //GOW(link, 
-//GO(linkat, 
+GO(linkat, iFipipi)
 GOW(listen, iFii)
 //GO(listxattr, 
 //GO(llabs, 
