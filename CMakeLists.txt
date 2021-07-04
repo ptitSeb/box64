@@ -224,6 +224,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibncursesw.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibogg.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpanel.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibpcre.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpthread.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibresolv.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibrt.c"

@@ -976,6 +976,7 @@
 #() pFpiiiiu
 #() pFpiiCCC
 #() pFpippip
+#() pFpipppp
 #() pFpCuuCC
 #() pFpCuuWW
 #() pFpCuuup
@@ -1138,6 +1139,7 @@
 #() iFpuuiiiii
 #() iFpupppppp
 #() iFppIIIppp
+#() iFpppiiipi
 #() iFpppiippp
 #() iFpppipipi
 #() iFpppipppp
@@ -1186,6 +1188,7 @@
 #() iFpLLLLLLLL
 #() iFppiiiiiii
 #() iFppiuiippL
+#() iFpppiiipip
 #() iFpppiiuuii
 #() iFpppiipiiu
 #() iFppppppppu
@@ -1222,6 +1225,7 @@
 #() iFpuupiuiipp
 #() iFppuuiiiiii
 #() iFppuuiiuupi
+#() iFpppiiipipi
 #() iFppppiiuuii
 #() uFpppppppppp
 #() pFpCuWCCuuCW
