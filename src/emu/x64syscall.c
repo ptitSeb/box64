@@ -102,6 +102,7 @@ scwrap_t syscallwrap[] = {
     #ifdef __NR_getdents
     { 78, __NR_getdents, 3},
     #endif
+    { 79, __NR_getcwd, 2},
     #ifdef __NR_mkdir
     { 83, __NR_mkdir, 2},
     #endif
