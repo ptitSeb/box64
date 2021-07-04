@@ -1197,8 +1197,8 @@ GOM(mremap, pFEpLLiN) //weal
 //GOW(msgsnd, 
 GO(msync, iFpLi)
 //GO(mtrace, 
-//GO(munlock, 
-//GO(munlockall, 
+GO(munlock, iFpL)
+GO(munlockall, iFv)
 //GO(__munmap, 
 GOM(munmap, iFEpL)  //weak
 //GO(muntrace, 
