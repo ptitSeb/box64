@@ -20,5 +20,4 @@ DATA(__pointer_chk_guard, sizeof(void*))
 DATA(_rtld_global, sizeof(void*))
 DATA(_rtld_global_ro, sizeof(void*))
 DATA(__stack_chk_guard, sizeof(void*))
-// defined in glibc/sysdeps/i386/dl-tls.h
 GOM(__tls_get_addr, pFEp)

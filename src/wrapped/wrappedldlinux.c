@@ -23,7 +23,8 @@ typedef struct my_tls_s {
 EXPORT void* my___tls_get_addr(x64emu_t* emu, void* p)
 {
     my_tls_t *t = (my_tls_t*)p;
-    return GetDTatOffset(emu->context, t->i, t->o);
+    void* ret = GetDTatOffset(emu->context, t->i, t->o);
+    return ret;
 }
 
 // don't try to load the actual ld-linux (because name is variable), just use box64 itself, as it's linked to ld-linux

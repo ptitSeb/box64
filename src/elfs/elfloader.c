@@ -124,7 +124,9 @@ int CalcLoadAddr(elfheader_t* head)
                 head->stackalign = head->PHEntries[i].p_align;
         }
         if(head->PHEntries[i].p_type == PT_TLS) {
+            head->tlsaddr = head->PHEntries[i].p_vaddr;
             head->tlssize = head->PHEntries[i].p_memsz;
+            head->tlsfilesize = head->PHEntries[i].p_filesz;
             head->tlsalign = head->PHEntries[i].p_align;
             // force alignement...
             if(head->tlsalign>1)
@@ -696,9 +698,11 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
             case R_X86_64_TPOFF64:
                 // Negated offset in static TLS block
                 {
-                    if(h_tls)
-                        offs = sym->st_value;
-                    else {
+                    //if(h_tls) {
+                    //    offs = sym->st_value;
+                    //} else 
+                    {
+                        h_tls = NULL;
                         if(local_maplib)
                             h_tls = GetGlobalSymbolElf(local_maplib, symname, version, vername);
                         if(!h_tls)
@@ -706,7 +710,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                     }
                     if(h_tls) {
                         delta = *(int64_t*)p;
-                        printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%ld -> %ld)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int64_t)offs + rela[i].r_addend + h_tls->tlsbase);
+                        printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%ld -> %ld+%ld+%ld, size=%ld)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, h_tls->tlsbase, (int64_t)offs, rela[i].r_addend, end-offs);
                         *p = (uintptr_t)((int64_t)offs + rela[i].r_addend + h_tls->tlsbase);
                     } else {
                         printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%ld), no elf_header found\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, (int64_t)offs);
@@ -777,14 +781,14 @@ int RelocateElf(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
     if(head->rel) {
         int cnt = head->relsz / head->relent;
         DumpRelTable(head, cnt, (Elf64_Rel *)(head->rel + head->delta), "Rel");
-        printf_log(LOG_DEBUG, "Applying %d Relocation(s) for %s\n", cnt, head->name);
+        printf_dump(LOG_DEBUG, "Applying %d Relocation(s) for %s\n", cnt, head->name);
         if(RelocateElfREL(maplib, local_maplib, head, cnt, (Elf64_Rel *)(head->rel + head->delta)))
             return -1;
     }
     if(head->rela) {
         int cnt = head->relasz / head->relaent;
         DumpRelATable(head, cnt, (Elf64_Rela *)(head->rela + head->delta), "RelA");
-        printf_log(LOG_DEBUG, "Applying %d Relocation(s) with Addend for %s\n", cnt, head->name);
+        printf_dump(LOG_DEBUG, "Applying %d Relocation(s) with Addend for %s\n", cnt, head->name);
         if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf64_Rela *)(head->rela + head->delta), NULL))
             return -1;
     }
@@ -799,12 +803,12 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
         int cnt = head->pltsz / head->pltent;
         if(head->pltrel==DT_REL) {
             DumpRelTable(head, cnt, (Elf64_Rel *)(head->jmprel + head->delta), "PLT");
-            printf_log(LOG_DEBUG, "Applying %d PLT Relocation(s) for %s\n", cnt, head->name);
+            printf_dump(LOG_DEBUG, "Applying %d PLT Relocation(s) for %s\n", cnt, head->name);
             if(RelocateElfREL(maplib, local_maplib, head, cnt, (Elf64_Rel *)(head->jmprel + head->delta)))
                 return -1;
         } else if(head->pltrel==DT_RELA) {
             DumpRelATable(head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), "PLT");
-            printf_log(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend for %s\n", cnt, head->name);
+            printf_dump(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend for %s\n", cnt, head->name);
             if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), &need_resolver))
                 return -1;
         }
@@ -815,11 +819,11 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
             if(head->pltgot) {
                 *(uintptr_t*)(head->pltgot+head->delta+16) = pltResolver;
                 *(uintptr_t*)(head->pltgot+head->delta+8) = (uintptr_t)head;
-                printf_log(LOG_DEBUG, "PLT Resolver injected in plt.got at %p\n", (void*)(head->pltgot+head->delta+16));
+                printf_dump(LOG_DEBUG, "PLT Resolver injected in plt.got at %p\n", (void*)(head->pltgot+head->delta+16));
             } else if(head->got) {
                 *(uintptr_t*)(head->got+head->delta+16) = pltResolver;
                 *(uintptr_t*)(head->got+head->delta+8) = (uintptr_t)head;
-                printf_log(LOG_DEBUG, "PLT Resolver injected in got at %p\n", (void*)(head->got+head->delta+16));
+                printf_dump(LOG_DEBUG, "PLT Resolver injected in got at %p\n", (void*)(head->got+head->delta+16));
             }
         }
     }
@@ -1117,6 +1121,20 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
         }
         context->deferedInitList[context->deferedInitSz++] = h;
         return;
+    }
+    // Refresh no-file part of TLS in case default value changed
+    if(h->tlsfilesize) {
+        char* dest = (char*)(my_context->tlsdata+my_context->tlssize+h->tlsbase);
+        printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
+        memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
+        tlsdatasize_t* ptr;
+        if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) != NULL)
+            if(ptr->tlssize==my_context->tlssize) {
+                // refresh in tlsdata too
+                dest = (char*)(ptr->tlsdata+ptr->tlssize+h->tlsbase);
+                printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
+                memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
+            }
     }
     printf_log(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     if(h->initentry)
