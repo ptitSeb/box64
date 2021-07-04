@@ -90,4 +90,4 @@ GO(xkb_keymap_num_mods, uFp)
 //GO(xkb_state_serialize_mods, 
 //GO(xkb_state_unref, 
 //GO(xkb_state_update_key, 
-//GO(xkb_state_update_mask, 
+GO(xkb_state_update_mask, iFpiiiiii)

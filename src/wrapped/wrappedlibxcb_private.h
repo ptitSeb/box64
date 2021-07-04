@@ -540,8 +540,8 @@ GO(xcb_send_request_with_fds, uFpippup)
 GO(xcb_send_request_with_fds64, UFpippup)
 //GO(xcb_set_access_control, 
 //GO(xcb_set_access_control_checked, 
-//GO(xcb_set_clip_rectangles, 
-//GO(xcb_set_clip_rectangles_checked, 
+GO(xcb_set_clip_rectangles, pFpCpWWup)
+GO(xcb_set_clip_rectangles_checked, pFpCpWWup)
 //GO(xcb_set_clip_rectangles_rectangles, 
 //GO(xcb_set_clip_rectangles_rectangles_iterator, 
 //GO(xcb_set_clip_rectangles_rectangles_length, 
