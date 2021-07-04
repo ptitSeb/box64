@@ -61,7 +61,7 @@ GO(FT_Get_Charmap_Index, iFp)
 //GO(FT_Get_CMap_Format, 
 //GO(FT_Get_CMap_Language_ID, 
 GO(FT_Get_First_Char, LFpp)
-//GO(FT_Get_Font_Format, 
+GO(FT_Get_Font_Format, pFp)
 GO(FT_Get_FSType_Flags, WFp)
 //GO(FT_Get_Gasp, 
 GO(FT_Get_Glyph, iFpp)
