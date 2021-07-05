@@ -69,13 +69,13 @@ int Run0F(x64emu_t *emu, rex_t rex)
             nextop = F8;
             GETEX(0);
             GETGX;
-            memcpy(GX, EX, 16); // unaligned, so carreful
+            GX->u128 = EX->u128;
             break;
         case 0x11:                      /* MOVUPS Ex,Gx */
             nextop = F8;
             GETEX(0);
             GETGX;
-            memcpy(EX, GX, 16); // unaligned, so carreful
+            EX->u128 = GX->u128;
             break;
         case 0x12:                      
             nextop = F8;
