@@ -93,6 +93,7 @@ scwrap_t syscallwrap[] = {
     { 39, __NR_getpid, 0},
     { 41, __NR_socket, 3},
     { 44, __NR_sendto, 6},
+    { 45, __NR_recvfrom, 6},
     { 46, __NR_sendmsg, 3},
     { 47, __NR_recvmsg, 3},
     { 53, __NR_socketpair, 4},
