@@ -56,8 +56,8 @@ GO(xkb_keymap_num_layouts_for_key, uFpu)
 GO(xkb_keymap_num_leds, uFp)
 GO(xkb_keymap_num_levels_for_key, uFpuu)
 GO(xkb_keymap_num_mods, uFp)
-//GO(xkb_keymap_ref, 
-//GO(xkb_keymap_unref, 
+GO(xkb_keymap_ref, pFp)
+GO(xkb_keymap_unref, vFp)
 //GO(xkb_keysym_from_name, 
 //GO(xkb_keysym_get_name, 
 //GO(xkb_keysym_to_lower, 
@@ -84,10 +84,10 @@ GO(xkb_keymap_num_mods, uFp)
 //GO(xkb_state_mod_mask_remove_consumed, 
 //GO(xkb_state_mod_name_is_active, 
 //GO(xkb_state_mod_names_are_active, 
-//GO(xkb_state_new, 
-//GO(xkb_state_ref, 
+GO(xkb_state_new, pFp)
+GO(xkb_state_ref, pFp)
 //GO(xkb_state_serialize_layout, 
 //GO(xkb_state_serialize_mods, 
-//GO(xkb_state_unref, 
+GO(xkb_state_unref, vFp)
 //GO(xkb_state_update_key, 
 GO(xkb_state_update_mask, iFpiiiiii)
