@@ -264,6 +264,31 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SQRDMULHQ_16(q0, q0, q1);
                     break;
 
+                case 0x1C:
+                    INST_NAME("PABSB Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETG;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    ABSQ_8(q0, q1);
+                    break;
+                case 0x1D:
+                    INST_NAME("PABSW Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETG;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    ABSQ_16(q0, q1);
+                    break;
+                case 0x1E:
+                    INST_NAME("PABSD Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETG;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    ABSQ_32(q0, q1);
+                    break;
+
                 case 0x20:
                     INST_NAME("PMOVSXBW Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
