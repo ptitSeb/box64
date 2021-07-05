@@ -66,7 +66,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(j64);
-    #if 0//STEP > 1
+    #if STEP > 1
     static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
     #endif
 
@@ -1262,7 +1262,33 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VSTR64_U12(v0, ed, fixedaddress);
             }
             break;
-
+        case 0xD7:
+            nextop = F8;
+            if(MODREG) {
+                INST_NAME("PMOVMSKB Gd, Ex");
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
+                GETEX(q0, 0);
+                GETGD;
+                TABLE64(x1, (uintptr_t)&mask_shift8);
+                VLDR64_U12(v0, x1, 0);     // load shift
+                MOVI_8(v1, 0x80);   // load mask
+                VAND(q1, v1, q0);
+                USHL_8(q1, q1, v0); // shift
+                UADDLV_8(q1, q1);   // accumalte
+                VMOVBto(gd, q1, 0);
+                // and now the high part
+                VMOVeD(q1, 0, q0, 1);
+                VAND(q1, v1, q1);  // keep highest bit
+                USHL_8(q1, q1, v0); // shift
+                UADDLV_8(q1, q1);   // accumalte
+                VMOVBto(x1, q1, 0);
+                BFIx(gd, x1, 8, 8);
+            } else {
+                DEFAULT;
+            }
+            break;        
         case 0xD8:
             INST_NAME("PSUBUSB Gx, Ex");
             nextop = F8;
