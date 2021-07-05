@@ -94,6 +94,22 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
     switch(opcode) {
 
+        case 0x05:
+            INST_NAME("SYSCALL");
+            GETIP(addr);
+            STORE_XEMU_CALL(xRIP);
+            CALL_S(x64Syscall, -1);
+            LOAD_XEMU_CALL(xRIP);
+            TABLE64(x3, addr); // expected return address
+            CMPSx_REG(xRIP, x3);
+            B_MARK(cNE);
+            LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
+            CBZw_NEXT(w1);
+            MARK;
+            LOAD_XEMU_REM();
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            break;
+
         case 0x0B:
             INST_NAME("UD2");
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
