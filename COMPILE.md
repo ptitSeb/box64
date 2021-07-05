@@ -73,11 +73,11 @@ The `-DCMAKE_BUILD_TYPE=RelWithDebInfo` argument makes a build that is both opti
 
 *To have a Trace Enabled build* 
 
-To have a trace enabled build ( ***it will be slower***), add `-DHAVE_TRACE=1` but you will need, at runtime, to have the [Zydis library](https://github.com/zyantific/zydis) library in your `LD_LIBRARY_PATH` or in the system library folders.
+To have a trace enabled build ( ***the interpretor will be slightly slower***), add `-DHAVE_TRACE=1` but you will need, at runtime, to have the [Zydis library](https://github.com/zyantific/zydis) library in your `LD_LIBRARY_PATH` or in the system library folders.
 
 *To have ARM Dynarec*
 
-The Dynarec is only available on the ARM architecture(Right now, anyways.). Notes also that VFPv3 and NEON are required for the Dynarec. Activate it by using `-DARM_DYNAREC=1`. Also, be sure to use `-marm` in compilation flags (because many compileur use Thumb as default, and the dynarec will not work in this mode).
+The Dynarec is only available on the ARM architecture(Right now, anyways.). Notes also that VFPv3 and NEON are required for the Dynarec. Activate it by using `-DARM_DYNAREC=1`.
 
 *Not building from a git clone*
 
