@@ -92,6 +92,8 @@ scwrap_t syscallwrap[] = {
     //{ 25, __NR_mremap, 5},    // wrapped to track protection
     { 39, __NR_getpid, 0},
     { 41, __NR_socket, 3},
+    { 42, __NR_connect, 3},
+    { 43, __NR_accept, 3},
     { 44, __NR_sendto, 6},
     { 45, __NR_recvfrom, 6},
     { 46, __NR_sendmsg, 3},
