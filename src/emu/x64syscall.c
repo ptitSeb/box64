@@ -104,6 +104,7 @@ scwrap_t syscallwrap[] = {
     #endif
     { 61, __NR_wait4, 4},
     { 66, __NR_semctl, 4},
+    { 73, __NR_flock, 2},
     #ifdef __NR_getdents
     { 78, __NR_getdents, 3},
     #endif
