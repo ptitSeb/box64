@@ -80,11 +80,13 @@ typedef struct
 
 typedef void  (*vFv_t)();
 typedef void  (*vFiupV_t)(int64_t, uint64_t, void*, va_list);
+typedef void  (*vFGppp_t)(SDL_JoystickGUID, void*, void*, void*);
 #define ADDED_FUNCTIONS() \
     GO(SDL_Quit, vFv_t)           \
     GO(SDL_AllocRW, sdl2_allocrw) \
     GO(SDL_FreeRW, sdl2_freerw)   \
-    GO(SDL_LogMessageV, vFiupV_t)
+    GO(SDL_LogMessageV, vFiupV_t) \
+    GO(SDL_GetJoystickGUIDInfo, vFGppp_t)
 #include "generated/wrappedsdl2types.h"
 
 typedef struct sdl2_my_s {
@@ -868,6 +870,28 @@ EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x64emu_t* emu)
     //if(emu->context->vkprocaddress)
     //    return (void*)AddCheckBridge(my_context->sdl2lib->priv.w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0);
     return NULL;
+}
+
+EXPORT void my2_SDL_GetJoystickGUIDInfo(SDL_JoystickGUID guid, uint16_t *vend, uint16_t *prod, uint16_t *ver)
+{
+    sdl2_my_t *my = (sdl2_my_t *)my_context->sdl2lib->priv.w.p2;
+
+    if(my->SDL_GetJoystickGUIDInfo)
+        my->SDL_GetJoystickGUIDInfo(guid, vend, prod, ver);
+    // fallback
+    else {
+	uint16_t *guid16 = (uint16_t *)guid.data;
+	if (guid16[1]==0x0000 && guid16[3]==0x0000 && guid16[5]==0x0000)
+    	{
+	    if(vend) *vend = guid16[2];
+	    if(prod) *prod = guid16[4];
+	    if(ver)  *ver  = guid16[6];
+	} else {
+            if(vend) *vend = 0;
+            if(prod) *prod = 0;
+            if(ver)  *ver  = 0;
+	}
+    }
 }
 
 #define CUSTOM_INIT \
