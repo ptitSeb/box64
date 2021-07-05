@@ -94,6 +94,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
     switch(opcode) {
 
+        case 0x01:
+            INST_NAME("FAKE xgetbv");
+            nextop = F8;
+            addr = fakeed(dyn, addr, ninst, nextop);
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL(arm_ud, -1);
+            break;
+
         case 0x05:
             INST_NAME("SYSCALL");
             GETIP(addr);
