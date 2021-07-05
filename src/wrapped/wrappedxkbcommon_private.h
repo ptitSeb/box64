@@ -64,30 +64,30 @@ GO(xkb_keymap_unref, vFp)
 //GO(xkb_keysym_to_upper, 
 //GO(xkb_keysym_to_utf32, 
 //GO(xkb_keysym_to_utf8, 
-//GO(xkb_state_get_keymap, 
-//GO(xkb_state_key_get_consumed_mods, 
-//GO(xkb_state_key_get_consumed_mods2, 
-//GO(xkb_state_key_get_layout, 
-//GO(xkb_state_key_get_level, 
-//GO(xkb_state_key_get_one_sym, 
-//GO(xkb_state_key_get_syms, 
-//GO(xkb_state_key_get_utf32, 
-//GO(xkb_state_key_get_utf8, 
-//GO(xkb_state_layout_index_is_active, 
-//GO(xkb_state_layout_name_is_active, 
-//GO(xkb_state_led_index_is_active, 
-//GO(xkb_state_led_name_is_active, 
-//GO(xkb_state_mod_index_is_active, 
-//GO(xkb_state_mod_index_is_consumed, 
-//GO(xkb_state_mod_index_is_consumed2, 
-//GO(xkb_state_mod_indices_are_active, 
-//GO(xkb_state_mod_mask_remove_consumed, 
-//GO(xkb_state_mod_name_is_active, 
-//GO(xkb_state_mod_names_are_active, 
+GO(xkb_state_get_keymap, pFp)
+GO(xkb_state_key_get_consumed_mods, uFpu)
+GO(xkb_state_key_get_consumed_mods2, uFpui)
+GO(xkb_state_key_get_layout, iFpu)
+GO(xkb_state_key_get_level, iFpui)
+GO(xkb_state_key_get_one_sym, uFpu)
+GO(xkb_state_key_get_syms, iFpip)
+GO(xkb_state_key_get_utf32, uFpu)
+GO(xkb_state_key_get_utf8, iFpupL)
+GO(xkb_state_layout_index_is_active, iFpii)
+GO(xkb_state_layout_name_is_active, iFppi)
+GO(xkb_state_led_index_is_active, iFpi)
+GO(xkb_state_led_name_is_active, iFpp)
+GO(xkb_state_mod_index_is_active, iFpii)
+GO(xkb_state_mod_index_is_consumed, iFpuu)
+GO(xkb_state_mod_index_is_consumed2, iFpuui)
+//GO(xkb_state_mod_indices_are_active, iFpiiV)
+GO(xkb_state_mod_mask_remove_consumed, uFpuu)
+GO(xkb_state_mod_name_is_active, iFppi)
+//GO(xkb_state_mod_names_are_active, iFpiiV)
 GO(xkb_state_new, pFp)
 GO(xkb_state_ref, pFp)
-//GO(xkb_state_serialize_layout, 
-//GO(xkb_state_serialize_mods, 
+GO(xkb_state_serialize_layout, uFpi)
+GO(xkb_state_serialize_mods, uFpi)
 GO(xkb_state_unref, vFp)
-//GO(xkb_state_update_key, 
+GO(xkb_state_update_key, iFpui)
 GO(xkb_state_update_mask, iFpiiiiii)

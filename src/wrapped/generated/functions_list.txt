@@ -329,6 +329,7 @@
 #() uFupp
 #() uFpip
 #() uFpCi
+#() uFpui
 #() uFpuu
 #() uFpLp
 #() uFppi
@@ -535,6 +536,7 @@
 #() iFpuLL
 #() iFpuLp
 #() iFpupu
+#() iFpupL
 #() iFpupV
 #() iFplip
 #() iFpLwp
