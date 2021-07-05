@@ -121,6 +121,7 @@ typedef struct box64context_s {
     #endif
     pthread_mutex_t     mutex_tls;
     pthread_mutex_t     mutex_thread;
+    pthread_mutex_t     mutex_bridge;
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
     library_t           *sdl1lib;       // shortcut to SDL1 library (if loaded)

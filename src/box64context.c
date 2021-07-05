@@ -88,6 +88,7 @@ int unlockMutex()
     #endif
     GO(my_context->mutex_tls, 9)
     GO(my_context->mutex_thread, 10)
+    GO(my_context->mutex_bridge, 11)
     #undef GO
 
     return ret;
@@ -110,6 +111,7 @@ void relockMutex(int locks)
     #endif
     GO(my_context->mutex_tls, 9)
     GO(my_context->mutex_thread, 10)
+    GO(my_context->mutex_bridge, 11)
     #undef GO
 }
 
@@ -128,6 +130,7 @@ static void init_mutexes(box64context_t* context)
 #endif
     pthread_mutex_init(&context->mutex_tls, &attr);
     pthread_mutex_init(&context->mutex_thread, &attr);
+    pthread_mutex_init(&context->mutex_bridge, &attr);
 
     pthread_mutexattr_destroy(&attr);
 }
@@ -268,6 +271,7 @@ void FreeBox64Context(box64context_t** context)
 #endif
     pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);
+    pthread_mutex_destroy(&ctx->mutex_bridge);
 
     free_neededlib(&ctx->neededlibs);
 
