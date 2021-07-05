@@ -992,6 +992,11 @@
 #define FMULS(Sd, Sn, Sm)           EMIT(FMUL_scalar(0b00, Sm, Sn, Sd))
 #define FMULD(Dd, Dn, Dm)           EMIT(FMUL_scalar(0b01, Dm, Dn, Dd))
 
+#define FMLA_vector(Q, op, sz, Rm, Rn, Rd)	((Q)<<30 | 0b01110<<24 | (op)<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11001<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VFMLAS(Sd, Sn, Sm)	        EMIT(FMLA_vector(0, 0, 0, Sm, Sn, Sd))
+#define VFMLAQS(Sd, Sn, Sm)	        EMIT(FMLA_vector(1, 0, 0, Sm, Sn, Sd))
+#define CFMLAQD(Dd, Dn, Dm)	        EMIT(FMLA_vector(1, 0, 1, Dm, Dn, Dd))
+
 // DIV
 #define FDIV_vector(Q, sz, Rm, Rn, Rd)  ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11111<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VFDIVS(Sd, Sn, Sm)          EMIT(FDIV_vector(0, 0, Sm, Sn, Sd))
