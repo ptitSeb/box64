@@ -30,7 +30,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
 {
     uint8_t opcode;
     uint8_t nextop;
-    uint8_t tmp8u;
+    uint8_t tmp8u, tmp8u2;      (void)tmp8u2;
     int32_t tmp32s;             (void)tmp32s;
     uint32_t tmp32u, tmp32u2;
     int64_t tmp64s;
@@ -523,6 +523,36 @@ int RunF0(x64emu_t *emu, rex_t rex)
         case 0x66:
             return Run66F0(emu, rex);   // more opcode F0 66 and 66 F0 is the same
 
+        case 0x80:                      /* GRP Eb,Ib */
+            nextop = F8;
+            GETEB(1);
+            tmp8u = F8;
+#ifdef DYNAREC
+            switch((nextop>>3)&7) {
+                case 0: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = add8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
+                case 1: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 =  or8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
+                case 2: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = adc8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
+                case 3: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = sbb8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
+                case 4: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = and8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
+                case 5: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = sub8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
+                case 6: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = xor8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
+                case 7:               cmp8(emu, EB->byte[0], tmp8u); break;
+            }
+#else
+            pthread_mutex_lock(&emu->context->mutex_lock);
+            switch((nextop>>3)&7) {
+                case 0: EB->byte[0] = add8(emu, EB->byte[0], tmp8u); break;
+                case 1: EB->byte[0] =  or8(emu, EB->byte[0], tmp8u); break;
+                case 2: EB->byte[0] = adc8(emu, EB->byte[0], tmp8u); break;
+                case 3: EB->byte[0] = sbb8(emu, EB->byte[0], tmp8u); break;
+                case 4: EB->byte[0] = and8(emu, EB->byte[0], tmp8u); break;
+                case 5: EB->byte[0] = sub8(emu, EB->byte[0], tmp8u); break;
+                case 6: EB->byte[0] = xor8(emu, EB->byte[0], tmp8u); break;
+                case 7:               cmp8(emu, EB->byte[0], tmp8u); break;
+            }
+            pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+            break;
         case 0x81:              /* GRP Ed,Id */
         case 0x83:              /* GRP Ed,Ib */
             nextop = F8;

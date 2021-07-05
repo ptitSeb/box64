@@ -29,7 +29,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
     uint8_t opcode = F8;
     uint8_t nextop;
-    uint8_t gd, ed;
+    uint8_t gd, ed, u8;
     uint8_t wback, wb1, wb2, gb1, gb2;
     int32_t i32;
     int64_t i64, j64;
@@ -436,6 +436,167 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x80:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0: //ADD
+                    INST_NAME("ADD Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if(MODREG) {
+                        GETEB(x1, 1);
+                        u8 = F8;
+                        emit_add8c(dyn, ninst, x1, u8, x2, x4);
+                        wb1 = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, 0, 1);
+                        u8 = F8;
+                        wb1 = 1;
+                        MARKLOCK;
+                        LDAXRB(x1, wback);
+                        emit_add8c(dyn, ninst, x1, u8, x2, x4);
+                        STLXRB(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                    }
+                    EBBACK;
+                    break;
+                case 1: //OR
+                    INST_NAME("OR Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if(MODREG) {
+                        GETEB(x1, 1);
+                        u8 = F8;
+                        emit_or8c(dyn, ninst, x1, u8, x2, x4);
+                        wb1 = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, 0, 1);
+                        u8 = F8;
+                        wb1 = 1;
+                        MARKLOCK;
+                        LDAXRB(x1, wback);
+                        emit_or8c(dyn, ninst, x1, u8, x2, x4);
+                        STLXRB(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                    }
+                    EBBACK;
+                    break;
+                case 2: //ADC
+                    INST_NAME("ADC Eb, Ib");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if(MODREG) {
+                        GETEB(x1, 1);
+                        u8 = F8;
+                        emit_adc8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        wb1 = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, 0, 1);
+                        u8 = F8;
+                        wb1 = 1;
+                        MARKLOCK;
+                        LDAXRB(x1, wback);
+                        emit_adc8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        STLXRB(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                    }
+                    EBBACK;
+                    break;
+                case 3: //SBB
+                    INST_NAME("SBB Eb, Ib");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if(MODREG) {
+                        GETEB(x1, 1);
+                        u8 = F8;
+                        emit_sbb8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        wb1 = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, 0, 1);
+                        u8 = F8;
+                        wb1 = 1;
+                        MARKLOCK;
+                        LDAXRB(x1, wback);
+                        emit_sbb8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        STLXRB(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                    }
+                    EBBACK;
+                    break;
+                case 4: //AND
+                    INST_NAME("AND Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if(MODREG) {
+                        GETEB(x1, 1);
+                        u8 = F8;
+                        emit_and8c(dyn, ninst, x1, u8, x2, x4);
+                        wb1 = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, 0, 1);
+                        u8 = F8;
+                        wb1 = 1;
+                        MARKLOCK;
+                        LDAXRB(x1, wback);
+                        emit_and8c(dyn, ninst, x1, u8, x2, x4);
+                        STLXRB(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                    }
+                    EBBACK;
+                    break;
+                case 5: //SUB
+                    INST_NAME("SUB Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if(MODREG) {
+                        GETEB(x1, 1);
+                        u8 = F8;
+                        emit_sub8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        wb1 = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, 0, 1);
+                        u8 = F8;
+                        wb1 = 1;
+                        MARKLOCK;
+                        LDAXRB(x1, wback);
+                        emit_sub8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        STLXRB(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                    }
+                    EBBACK;
+                    break;
+                case 6: //XOR
+                    INST_NAME("XOR Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if(MODREG) {
+                        GETEB(x1, 1);
+                        u8 = F8;
+                        emit_xor8c(dyn, ninst, x1, u8, x2, x4);
+                        wb1 = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, 0, 1);
+                        u8 = F8;
+                        wb1 = 1;
+                        MARKLOCK;
+                        LDAXRB(x1, wback);
+                        emit_xor8c(dyn, ninst, x1, u8, x2, x4);
+                        STLXRB(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                    }
+                    EBBACK;
+                    break;
+                case 7: //CMP
+                    INST_NAME("CMP Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    if(u8) {
+                        MOV32w(x2, u8);
+                        emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+                    } else {
+                        emit_cmp8_0(dyn, ninst, x1, x3, x4);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;
