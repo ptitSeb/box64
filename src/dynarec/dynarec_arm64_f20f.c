@@ -301,6 +301,19 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVQDfrom(v0, 0, x2);
             break;
 
+        case 0xD0:
+            INST_NAME("ADDSUBPS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            static float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
+            MAYUSE(addsubps);
+            TABLE64(x2, (uintptr_t)&addsubps);
+            VLDR128_U12(q0, x2, 0);
+            VFMLAQS(v0, v1, q0);
+            break;
+
         case 0xF0:
             INST_NAME("LDDQU Gx,Ex");
             nextop = F8;

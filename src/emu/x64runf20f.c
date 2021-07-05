@@ -229,6 +229,16 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         GX->q[0]=(tmp8s)?0xffffffffffffffffLL:0LL;
         break;
 
+    case 0xD0:  /* ADDSUBPS Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->f[0] -= EX->f[0];
+        GX->f[1] += EX->f[1];
+        GX->f[2] -= EX->f[2];
+        GX->f[3] += EX->f[3];
+        break;
+
     case 0xD6:  /* MOVDQ2Q Gm, Ex */
         nextop = F8;
         GETEX(0);
