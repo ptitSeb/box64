@@ -490,7 +490,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0);
             VFMINQD(v0, v0, q0);
             break;
-
+        case 0x5E:
+            INST_NAME("DIVPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0);
+            GETGX(v0);
+            VFDIVQD(v0, v0, q0);
+            break;
         case 0x5F:
             INST_NAME("MAXPD Gx, Ex");
             nextop = F8;
