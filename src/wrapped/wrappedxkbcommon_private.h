@@ -58,12 +58,12 @@ GO(xkb_keymap_num_levels_for_key, uFpuu)
 GO(xkb_keymap_num_mods, uFp)
 GO(xkb_keymap_ref, pFp)
 GO(xkb_keymap_unref, vFp)
-//GO(xkb_keysym_from_name, 
-//GO(xkb_keysym_get_name, 
-//GO(xkb_keysym_to_lower, 
-//GO(xkb_keysym_to_upper, 
-//GO(xkb_keysym_to_utf32, 
-//GO(xkb_keysym_to_utf8, 
+GO(xkb_keysym_from_name, uFpi)
+GO(xkb_keysym_get_name, iFupL)
+GO(xkb_keysym_to_lower, uFu)
+GO(xkb_keysym_to_upper, uFu)
+GO(xkb_keysym_to_utf32, uFu)
+GO(xkb_keysym_to_utf8, iFupL)
 GO(xkb_state_get_keymap, pFp)
 GO(xkb_state_key_get_consumed_mods, uFpu)
 GO(xkb_state_key_get_consumed_mods2, uFpui)
