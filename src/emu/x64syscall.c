@@ -76,6 +76,7 @@ scwrap_t syscallwrap[] = {
     //{ 10, __NR_mprotect, 3},  // same
     //{ 11, __NR_munmap, 2},    // same
     { 5, __NR_fstat, 2},
+    { 8, __NR_lseek, 3},
     //{ 13, __NR_rt_sigaction, 4},   // wrapped to use my_ version
     { 14, __NR_rt_sigprocmask, 4},
     { 16, __NR_ioctl, 3},
