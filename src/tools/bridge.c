@@ -11,9 +11,9 @@
 #include "khash.h"
 #include "debug.h"
 #include "x64emu.h"
+#include "box64context.h"
 #ifdef DYNAREC
 #include "dynablock.h"
-#include "box64context.h"
 #endif
 
 KHASH_MAP_INIT_INT64(bridgemap, uintptr_t)
