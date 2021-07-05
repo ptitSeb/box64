@@ -127,6 +127,8 @@ scwrap_t syscallwrap[] = {
     { 201, __NR_time, 1},
     #endif
     { 202, __NR_futex, 6},
+    { 203, __NR_sched_setaffinity, 3},
+    { 204, __NR_sched_getaffinity, 3},
     { 217, __NR_getdents64, 3},
     { 220, __NR_semtimedop, 4},
     { 228, __NR_clock_gettime, 2},
