@@ -1156,8 +1156,20 @@ int Run0F(x64emu_t *emu, rex_t rex)
                 GX->ud[i]=(tmp8s)?0xffffffff:0;
             }
             break;
-
-        case 0xC4:                       /* PINSRW Gm,Ew,Ib */
+        case 0xC3:                      /* MOVNTI Ed, Gd */
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if(rex.w)
+                ED->q[0] = GD->q[0];
+            else {
+                if(MODREG)
+                    ED->q[0] = GD->dword[0];
+                else
+                    ED->dword[0] = GD->dword[0];
+            }
+            break;
+        case 0xC4:                      /* PINSRW Gm,Ew,Ib */
             nextop = F8;
             GETED(0);
             GETGM;

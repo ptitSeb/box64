@@ -1496,7 +1496,17 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         break;   // not NaN
             }
             break;
-
+        case 0xC3:
+            INST_NAME("MOVNTI Ed, Gd");
+            nextop=F8;
+            GETGD;
+            if(MODREG) {   // reg <= reg
+                MOVxw_REG(xRAX+(nextop&7)+(rex.b<<3), gd);
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+                STRxw_U12(gd, ed, fixedaddress);
+            }
+            break;
         case 0xC4:
             INST_NAME("PINSRW Gm,Ed,Ib");
             nextop = F8;
