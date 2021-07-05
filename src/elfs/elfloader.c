@@ -700,10 +700,10 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
             case R_X86_64_TPOFF64:
                 // Negated offset in static TLS block
                 {
-                    //if(h_tls) {
-                    //    offs = sym->st_value;
-                    //} else 
-                    {
+                    if(!symname || !symname[0]) {
+                        h_tls = head;
+                        offs = sym->st_value;
+                    } else {
                         h_tls = NULL;
                         if(local_maplib)
                             h_tls = GetGlobalSymbolElf(local_maplib, symname, version, vername);
