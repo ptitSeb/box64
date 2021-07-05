@@ -1424,6 +1424,25 @@
 #define VCHIQQ_32(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b10, 0, Rm, Rn, Rd))
 #define VCHIQQ_64(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b11, 0, Rm, Rn, Rd))
 
+// Less Than 0
+#define CMLT_0_vector(Q, size, Rn, Rd)		((Q)<<30 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | 0b01010<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define CMLT_0_8(Rd, Rn)		    EMIT(CMLT_0_vector(0, 0b00, Rn, Rd))
+#define CMLT_0_16(Rd, Rn)           EMIT(CMLT_0_vector(0, 0b01, Rn, Rd))
+#define CMLT_0_32(Rd, Rn)           EMIT(CMLT_0_vector(0, 0b10, Rn, Rd))
+#define CMLTQ_0_8(Rd, Rn)           EMIT(CMLT_0_vector(1, 0b00, Rn, Rd))
+#define CMLTQ_0_16(Rd, Rn)          EMIT(CMLT_0_vector(1, 0b01, Rn, Rd))
+#define CMLTQ_0_32(Rd, Rn)          EMIT(CMLT_0_vector(1, 0b10, Rn, Rd))
+#define CMLTQ_0_64(Rd, Rn)          EMIT(CMLT_0_vector(1, 0b11, Rn, Rd))
+// Equal 0
+#define CMEQ_0_vector(Q, size, Rn, Rd)          ((Q)<<30 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | 0b0100<<13 | 1<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define CMEQ_0_8(Rd, Rn)            EMIT(CMEQ_0_vector(0, 0b00, Rn, Rd))
+#define CMEQ_0_16(Rd, Rn)           EMIT(CMEQ_0_vector(0, 0b01, Rn, Rd))
+#define CMEQ_0_32(Rd, Rn)           EMIT(CMEQ_0_vector(0, 0b10, Rn, Rd))
+#define CMEQQ_0_8(Rd, Rn)           EMIT(CMEQ_0_vector(1, 0b00, Rn, Rd))
+#define CMEQQ_0_16(Rd, Rn)          EMIT(CMEQ_0_vector(1, 0b01, Rn, Rd))
+#define CMEQQ_0_32(Rd, Rn)          EMIT(CMEQ_0_vector(1, 0b10, Rn, Rd))
+#define CMEQQ_0_64(Rd, Rn)          EMIT(CMEQ_0_vector(1, 0b11, Rn, Rd))
+
 // Vector Float CMP
 // EQual
 #define FCMP_vector(Q, U, E, sz, Rm, ac, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (E)<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b1110<<12 | (ac)<<11 | 1<<10 | (Rn)<<5 | (Rd))

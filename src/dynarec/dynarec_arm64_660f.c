@@ -256,6 +256,51 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SQXTN2_16(q0, v0);
                     break;
 
+                case 0x08:
+                    INST_NAME("PSIGNB Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1, 0);
+                    v1 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch(dyn);
+                    NEGQ_8(v0, q0);     // get NEG
+                    CMLTQ_0_8(v1, q1);  // calculate mask
+                    VBICQ(q0, q0, v1);  // apply not mask on dest
+                    VANDQ(v0, v0, v1);  // apply mask on src
+                    VORRQ(q0, q0, v0);  // merge
+                    CMEQQ_0_8(v1, q1);  // handle case where Ex is 0
+                    VBICQ(q0, q0, v1);
+                    break;
+                case 0x09:
+                    INST_NAME("PSIGNW Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1, 0);
+                    v1 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch(dyn);
+                    NEGQ_16(v0, q0);    // get NEG
+                    CMLTQ_0_16(v1, q1); // calculate mask
+                    VBICQ(q0, q0, v1);  // apply not mask on dest
+                    VANDQ(v0, v0, v1);  // apply mask on src
+                    VORRQ(q0, q0, v0);  // merge
+                    CMEQQ_0_16(v1, q1); // handle case where Ex is 0
+                    VBICQ(q0, q0, v1);
+                    break;
+                case 0x0A:
+                    INST_NAME("PSIGND Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1, 0);
+                    v1 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch(dyn);
+                    NEGQ_32(v0, q0);    // get NEG
+                    CMLTQ_0_32(v1, q1); // calculate mask
+                    VBICQ(q0, q0, v1);  // apply not mask on dest
+                    VANDQ(v0, v0, v1);  // apply mask on src
+                    VORRQ(q0, q0, v0);  // merge
+                    CMEQQ_0_32(v1, q1); // handle case where Ex is 0
+                    VBICQ(q0, q0, v1);
+                    break;
                 case 0x0B:
                     INST_NAME("PMULHRSW Gx,Ex");
                     nextop = F8;
