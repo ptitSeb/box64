@@ -172,7 +172,7 @@ GO(ctime_r, pFpp)
 //DATA(__ctype32_b, 
 //DATA(__ctype32_tolower, 
 //DATA(__ctype32_toupper, 
-//DATA(__ctype_b, 
+DATA(__ctype_b, sizeof(void*))
 GO(__ctype_b_loc, pFv)
 GOW(__ctype_get_mb_cur_max, LFv)
 //GO(__ctype_init, 
@@ -1411,7 +1411,7 @@ DATA(__progname_full, sizeof(void))
 //GO(pthread_setcancelstate, 
 //GO(pthread_setcanceltype, 
 //GO(pthread_setschedparam, 
-//GO(ptrace, 
+GO(ptrace, lFilpp)
 //GO(ptsname, 
 //GOW(ptsname_r, 
 //GO(__ptsname_r_chk, 
