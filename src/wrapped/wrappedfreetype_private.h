@@ -147,7 +147,7 @@ GO(FT_Outline_Render, iFppp)
 GO(FT_Outline_Reverse, vFp)
 GO(FT_Outline_Transform, vFpp)
 GO(FT_Outline_Translate, vFpll)
-//GO(FT_Property_Get, 
+GO(FT_Property_Get, iFpppp)
 GO(FT_Property_Set, iFpppp)
 GO(FT_Reference_Face, iFp)
 //GO(FT_Reference_Library, 
