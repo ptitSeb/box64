@@ -254,21 +254,21 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 GETGX;
                 for (int i=0; i<16; ++i)
                     GX->sb[i] *= (EX->sb[i]<0)?-1:((EX->sb[i]>0)?1:0);
-            break;
+                break;
             case 0x09:  /* PSIGNW Gx, Ex */
                 nextop = F8;
                 GETEX(0);
                 GETGX;
                 for (int i=0; i<8; ++i)
                     GX->sw[i] *= (EX->sw[i]<0)?-1:((EX->sw[i]>0)?1:0);
-            break;
+                break;
             case 0x0A:  /* PSIGND Gx, Ex */
                 nextop = F8;
                 GETEX(0);
                 GETGX;
                 for (int i=0; i<4; ++i)
                     GX->sd[i] *= (EX->sd[i]<0)?-1:((EX->sd[i]>0)?1:0);
-            break;
+                break;
             case 0x0B:  /* PMULHRSW Gx, Ex */
                 nextop = F8;
                 GETEX(0);

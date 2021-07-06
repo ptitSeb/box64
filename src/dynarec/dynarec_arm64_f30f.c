@@ -184,17 +184,28 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x52:
             INST_NAME("RSQRTSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
             GETEX(v1, 0);
+            GETGX_empty(v0);
             d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
             // so here: F32: Imm8 = abcd efgh that gives => aBbbbbbc defgh000 00000000 00000000
             // and want 1.0f = 0x3f800000
             // so 00111111 10000000 00000000 00000000
             // a = 0, b = 1, c = 1, d = 1, efgh=0
             // 0b01110000
             FMOVS_8(d0, 0b01110000);
-            FSQRTS(v0, v1);
-            FDIVS(d0, d0, v0);
+            FSQRTS(d1, v1);
+            FDIVS(d0, d0, d1);
+            VMOVeS(v0, 0, d0, 0);
+            break;
+        case 0x53:
+            INST_NAME("RCPSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1, 0);
+            d0 = fpu_get_scratch(dyn);
+            FMOVS_8(d0, 0b01110000);    //1.0f
+            FDIVS(d0, d0, v1);
             VMOVeS(v0, 0, d0, 0);
             break;
 
