@@ -953,9 +953,9 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MAYUSE(s1); MAYUSE(s2);
-    LDRH_U12(s1, xEmu, offsetof(x64emu_t, cw));
-    RBITw(s2, s1);              // round is on bits 10-11 on x86,
-    LSRw(s2, s2, 20);           // but we want the reverse of that
+    LDRw_U12(s1, xEmu, offsetof(x64emu_t, round));
+    UBFXw(s2, s1, 1, 1);        // bit 1 of round in bit 0 (zero extented) of s2
+    BFIw(s2, s1, 1, 1);         // bit 0 of round in bit 1 of s2
     MRS_fpcr(s1);               // get fpscr
     MOVx_REG(s3, s1);
     BFIx(s1, s2, 22, 2);        // inject new round

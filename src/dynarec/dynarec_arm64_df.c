@@ -285,6 +285,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MARK3;
                     #endif
                     x87_restoreround(dyn, ninst, u8);
+                    x87_do_pop(dyn, ninst);
                     break;
                 default:
                     DEFAULT;
