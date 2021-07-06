@@ -376,14 +376,13 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 FCMPS(v0, v1);
             }
             switch(u8&7) {
-                case 0: CSETMw(x2, cEQ); break;   // Equal
-                case 1: CSETMw(x2, cMI); break;   // Less than
-                case 2: //CSETMw(x2, cLE); break;   // Less or equal (or unordered on ARM64, not on x86...)
-                        CSETMw(x2, cPL); CSINVw(x2, xZR, x2, cEQ); break;   // so use a 2 step here, but 1st test inverted because 2nd step invert again
+                case 0: CSETMw(x2, cEQ); CSELw(x2, xZR, x2, cVS); break;   // Equal
+                case 1: CSETMw(x2, cMI); CSELw(x2, xZR, x2, cVS); break;   // Less than
+                case 2: CSETMw(x2, cLE); CSELw(x2, xZR, x2, cVS); break;   // Less or equal
                 case 3: CSETMw(x2, cVS); break;   // NaN
-                case 4: CSETMw(x2, cNE); break;   // Not Equal (or unordered on ARM, not on X86...)
+                case 4: CSETMw(x2, cNE); break;   // Not Equal
                 case 5: CSETMw(x2, cCS); break;   // Greater or equal or unordered
-                case 6: CSETMw(x2, cLT); break;   // Greater or unordered, test inverted, N!=V so unordereded or less than (inverted)
+                case 6: CSETMw(x2, cLT); break;   // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
                 case 7: CSETMw(x2, cVC); break;   // not NaN
             }
             VMOVQSfrom(v0, 0, x2);

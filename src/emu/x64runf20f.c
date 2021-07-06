@@ -212,7 +212,7 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         
     case 0xC2:  /* CMPSD Gx, Ex, Ib */
         nextop = F8;
-        GETEX(0);
+        GETEX(1);
         GETGX;
         tmp8u = F8;
         tmp8s = 0;
