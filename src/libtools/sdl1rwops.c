@@ -132,6 +132,7 @@ SDL1_RWops_t* RWNativeStart(x64emu_t* emu, SDL1_RWops_t* ops)
     SDL1_RWops_t* newrw = Alloc();
     newrw->type = BOX64RW;
     newrw->hidden.my.orig = ops;
+    newrw->hidden.my.custom_free = (sdl1_freerw)emu->context->sdl1freerw;
     // create wrapper
     #define GO(A, W) \
     newrw->A = my_emulated_##A;
