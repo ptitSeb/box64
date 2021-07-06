@@ -835,6 +835,10 @@ pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 	}
 	pthread_mutex_t* ret = GetMutex(k);
 
+	#ifndef __PTHREAD_MUTEX_HAVE_PREV
+	#define __PTHREAD_MUTEX_HAVE_PREV 1
+	#endif
+
 	if(init) {
 		if(am->sign == SIGNMTX) {
 			int kind = ((int*)am->m)[3+__PTHREAD_MUTEX_HAVE_PREV];	// extract kind from original mutex
