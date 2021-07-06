@@ -447,6 +447,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         GOCOND(0x40, "CMOV", "Gw, Ew");
         #undef GO
 
+        case 0x50:
+            nextop = F8;
+            INST_NAME("PMOVMSKD Gd, Ex");
+            GETEX(q0, 0);
+            GETGD;
+            VMOVQDto(x1, q0, 1);
+            VMOVQDto(gd, q0, 0);
+            LSRx(x1, x1, 63);
+            LSRx(gd, gd, 63);
+            BFIx(gd, x1, 1, 1);
+            break;    
+            
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;
@@ -1372,30 +1384,26 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
         case 0xD7:
             nextop = F8;
-            if(MODREG) {
-                INST_NAME("PMOVMSKB Gd, Ex");
-                v0 = fpu_get_scratch(dyn);
-                v1 = fpu_get_scratch(dyn);
-                q1 = fpu_get_scratch(dyn);
-                GETEX(q0, 0);
-                GETGD;
-                TABLE64(x1, (uintptr_t)&mask_shift8);
-                VLDR64_U12(v0, x1, 0);     // load shift
-                MOVI_8(v1, 0x80);   // load mask
-                VAND(q1, v1, q0);
-                USHL_8(q1, q1, v0); // shift
-                UADDLV_8(q1, q1);   // accumalte
-                VMOVBto(gd, q1, 0);
-                // and now the high part
-                VMOVeD(q1, 0, q0, 1);
-                VAND(q1, v1, q1);  // keep highest bit
-                USHL_8(q1, q1, v0); // shift
-                UADDLV_8(q1, q1);   // accumalte
-                VMOVBto(x1, q1, 0);
-                BFIx(gd, x1, 8, 8);
-            } else {
-                DEFAULT;
-            }
+            INST_NAME("PMOVMSKB Gd, Ex");
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            GETEX(q0, 0);
+            GETGD;
+            TABLE64(x1, (uintptr_t)&mask_shift8);
+            VLDR64_U12(v0, x1, 0);     // load shift
+            MOVI_8(v1, 0x80);   // load mask
+            VAND(q1, v1, q0);
+            USHL_8(q1, q1, v0); // shift
+            UADDLV_8(q1, q1);   // accumalte
+            VMOVBto(gd, q1, 0);
+            // and now the high part
+            VMOVeD(q1, 0, q0, 1);
+            VAND(q1, v1, q1);  // keep highest bit
+            USHL_8(q1, q1, v0); // shift
+            UADDLV_8(q1, q1);   // accumalte
+            VMOVBto(x1, q1, 0);
+            BFIx(gd, x1, 8, 8);
             break;        
         case 0xD8:
             INST_NAME("PSUBUSB Gx, Ex");
