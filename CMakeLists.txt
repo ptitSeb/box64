@@ -432,6 +432,11 @@ endif()
 
 string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "i686"  _x86)
 string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "x86_64"  _x86_64)
+string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "aarch64"  _aarch64)
+
+if(_x86_64 OR _aarch64)
+  add_definitions(-DCONFIG_64BIT)
+endif()
 
 if(NOT _x86 AND NOT _x86_64)
   install(TARGETS ${BOX64}
