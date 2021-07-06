@@ -1283,6 +1283,15 @@ int Run0F(x64emu_t *emu, rex_t rex)
             }
             break;
 
+        case 0xD7:                   /* PMOVMSKB Gd,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGD;
+            GD->dword[0] = 0;
+            for (int i=0; i<8; ++i)
+                if(EM->ub[i]&0x80)
+                    GD->dword[0] |= (1<<i);
+            break;
         case 0xD8:                   /* PSUBUSB Gm,Em */
             nextop = F8;
             GETEM(0);
