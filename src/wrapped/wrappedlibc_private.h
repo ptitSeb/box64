@@ -1530,7 +1530,7 @@ GO(__res_ninit, iFp)
 //GO(__resolv_context_put, 
 //DATA(__resp, 
 //GO(__res_randomid, 
-//GO(__res_state, 
+GO(__res_state, pFv)
 //DATAB(re_syntax_options, 
 //GOW(revoke, 
 GO(rewind, vFp)

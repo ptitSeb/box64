@@ -259,42 +259,42 @@ void EXPORT x64Syscall(x64emu_t *emu)
     }
     switch (s) {
         case 0:  // sys_read
-            R_EAX = (uint32_t)read((int)R_EDI, (void*)R_RSI, (size_t)R_RDX);
+            *(int64_t*)&R_RAX = read((int)R_EDI, (void*)R_RSI, (size_t)R_RDX);
             break;
         case 1:  // sys_write
-            R_EAX = (uint32_t)write((int)R_EDI, (void*)R_RSI, (size_t)R_RDX);
+            *(int64_t*)&R_RAX = write((int)R_EDI, (void*)R_RSI, (size_t)R_RDX);
             break;
         case 2: // sys_open
             if(s==5) {printf_log(LOG_DEBUG, " => sys_open(\"%s\", %d, %d)", (char*)R_RDI, of_convert(R_ESI), R_EDX);}; 
-            //R_EAX = (uint32_t)open((void*)R_EDI, of_convert(R_ESI), R_EDX);
-            R_EAX = (uint32_t)my_open(emu, (void*)R_RDI, of_convert(R_ESI), R_EDX);
+            //*(int64_t*)&R_RAX = open((void*)R_EDI, of_convert(R_ESI), R_EDX);
+            *(int64_t*)&R_RAX = my_open(emu, (void*)R_RDI, of_convert(R_ESI), R_EDX);
             break;
         case 3:  // sys_close
-            R_EAX = (uint32_t)close((int)R_EDI);
+            *(int64_t*)&R_RAX = close((int)R_EDI);
             break;
         case 4: // sys_stat
-            R_EAX = (uint32_t)my_stat(emu, (void*)R_RDI, (void*)R_RSI);
+            *(int64_t*)&R_RAX = my_stat(emu, (void*)R_RDI, (void*)R_RSI);
             break;
         case 9: // sys_mmap
             R_RAX = (uintptr_t)my_mmap64(emu, (void*)R_RDI, R_RSI, (int)R_EDX, (int)R_R10d, (int)R_R8d, R_R9);
             break;
         case 10: // sys_mprotect
-            R_EAX = (uint32_t)my_mprotect(emu, (void*)R_RDI, R_RSI, (int)R_EDX);
+            *(int64_t*)&R_RAX = my_mprotect(emu, (void*)R_RDI, R_RSI, (int)R_EDX);
             break;
         case 11: // sys_munmap
-            R_EAX = (uint32_t)my_munmap(emu, (void*)R_RDI, R_RSI);
+            *(int64_t*)&R_RAX = my_munmap(emu, (void*)R_RDI, R_RSI);
             break;
         case 13: // sys_rt_sigaction
-            R_EAX = (uint32_t)my_sigaction(emu, (int)R_EDI, (const x64_sigaction_t *)R_RSI, (x64_sigaction_t *)R_RDX/*, (size_t)R_R10*/);
+            *(int64_t*)&R_RAX = my_sigaction(emu, (int)R_EDI, (const x64_sigaction_t *)R_RSI, (x64_sigaction_t *)R_RDX/*, (size_t)R_R10*/);
             break;
         #ifndef __NR_access
         case 21: // sys_access
-            R_EAX = (uint32_t)access((void*)R_RDI, R_ESI);
+            *(int64_t*)&R_RAX = access((void*)R_RDI, R_ESI);
             break;
         #endif
         #ifndef __NR_pipe
         case 22:
-            R_EAX = (uint32_t)pipe((void*)R_RDI);
+            *(int64_t*)&R_RAX = pipe((void*)R_RDI);
             break;
         #endif
         #ifndef __NR_select
@@ -323,22 +323,22 @@ void EXPORT x64Syscall(x64emu_t *emu)
         #endif
         #ifndef __NR_mkdir
         case 83: // sys_mkdir
-            R_EAX = (uint32_t)mkdir((void*)R_RDI, R_ESI);
+            *(int64_t*)&R_RAX = mkdir((void*)R_RDI, R_ESI);
             break;
         #endif
         #ifndef __NR_unlink
         case 87: //sys_unlink
-            R_EAX = (uint32_t)unlink((void*)R_RDI);
+            *(int64_t*)&R_RAX = unlink((void*)R_RDI);
             break;
         #endif
         case 89: // sys_readlink
             R_RAX = (ssize_t)my_readlink(emu,(void*)R_RDI, (void*)R_RSI, (size_t)R_RDX);
             break;
         case 131: // sys_sigaltstack
-            R_EAX = (uint32_t)my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
+            *(int64_t*)&R_RAX = my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
             break;
         case 158: // sys_arch_prctl
-            R_EAX = (uint32_t)my_arch_prctl(emu, (int)R_EDI, (void*)R_RSI);
+            *(int64_t*)&R_RAX = my_arch_prctl(emu, (int)R_EDI, (void*)R_RSI);
             break;
         #ifndef __NR_time
         case 201: // sys_time
@@ -368,7 +368,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
 
 uintptr_t EXPORT my_syscall(x64emu_t *emu)
 {
-    uint32_t s = R_EDI;;
+    uint32_t s = R_EDI;
     printf_dump(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
@@ -392,34 +392,34 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
     }
     switch (s) {
         case 0:  // sys_read
-            return (uint32_t)read(R_ESI, (void*)R_RDX, R_ECX);
+            return (uint64_t)read(R_ESI, (void*)R_RDX, R_ECX);
         case 1:  // sys_write
-            return (uint32_t)write(R_ESI, (void*)R_RDX, R_ECX);
+            return (uint64_t)write(R_ESI, (void*)R_RDX, R_ECX);
         case 2: // sys_open
             return my_open(emu, (char*)R_RSI, of_convert(R_EDX), R_ECX);
         case 3:  // sys_close
-            return (uint32_t)close(R_ESI);
+            return (uint64_t)(int64_t)close(R_ESI);
         case 4: // sys_stat
-            return (uint32_t)my_stat(emu, (void*)R_RSI, (void*)R_RDX);
+            return (uint64_t)(int64_t)my_stat(emu, (void*)R_RSI, (void*)R_RDX);
         case 9: // sys_mmap
             return (uintptr_t)my_mmap64(emu, (void*)R_RSI, R_RDX, (int)R_RCX, (int)R_R8d, (int)R_R9, i64(0));
         case 10: // sys_mprotect
-            return (uint32_t)my_mprotect(emu, (void*)R_RSI, R_RDX, (int)R_ECX);
+            return (uint64_t)(int64_t)my_mprotect(emu, (void*)R_RSI, R_RDX, (int)R_ECX);
         case 11: // sys_munmap
-            return (uint32_t)my_munmap(emu, (void*)R_RSI, R_RDX);
+            return (uint64_t)(int64_t)my_munmap(emu, (void*)R_RSI, R_RDX);
         case 13: // sys_rt_sigaction
-            return (uint32_t)my_sigaction(emu, (int)R_ESI, (const x64_sigaction_t *)R_RDX, (x64_sigaction_t *)R_RCX/*, (size_t)R_R8*/);
+            return (uint64_t)(int64_t)my_sigaction(emu, (int)R_ESI, (const x64_sigaction_t *)R_RDX, (x64_sigaction_t *)R_RCX/*, (size_t)R_R8*/);
         #ifndef __NR_access
         case 21: // sys_access
-            return (uint32_t)access((void*)R_RSI, R_EDX);
+            return (uint64_t)(int64_t)access((void*)R_RSI, R_EDX);
         #endif
         #ifndef __NR_pipe
         case 22:
-            return (uint32_t)pipe((void*)R_RSI);
+            return (uint64_t)(int64_t)pipe((void*)R_RSI);
         #endif
         #ifndef __NR_select
         case 23: // sys_select
-            return (uint32_t)select(R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9);
+            return (uint64_t)(int64_t)select(R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9);
         #endif
         case 25: // sys_mremap
             return (uintptr_t)my_mremap(emu, (void*)R_RSI, R_RDX, R_RCX, R_R8d, (void*)R_R9);
@@ -439,18 +439,18 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         #endif
         #ifndef __NR_mkdir
         case 83: // sys_mkdir
-            return (uint32_t)mkdir((void*)R_RSI, R_EDX);
+            return (uint64_t)(int64_t)mkdir((void*)R_RSI, R_EDX);
         #endif
         #ifndef __NR_unlink
         case 87: //sys_unlink
-            return (uint32_t)unlink((void*)R_RSI);
+            return (uint64_t)(int64_t)unlink((void*)R_RSI);
         #endif
         case 89: // sys_readlink
             return (uintptr_t)my_readlink(emu,(void*)R_RSI, (void*)R_RDX, (size_t)R_RCX);
         case 131: // sys_sigaltstack
-            return (uint32_t)my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
+            return (uint64_t)(int64_t)my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
         case 158: // sys_arch_prctl
-            return (uint32_t)my_arch_prctl(emu, (int)R_ESI, (void*)R_RDX);
+            return (uint64_t)(int64_t)my_arch_prctl(emu, (int)R_ESI, (void*)R_RDX);
         #ifndef __NR_time
         case 201: // sys_time
             return (uintptr_t)time((void*)R_RSI);
