@@ -43,6 +43,8 @@ int of_convert(int flag);
 int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz);
 int my_stat(x64emu_t *emu, void* filename, void* buf);
+int my_lstat(x64emu_t *emu, void* filename, void* buf);
+int my_fstat(x64emu_t *emu, int fd, void* buf);
 
 int my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_sigaction_t *oldact);
 int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss);
@@ -72,10 +74,11 @@ scwrap_t syscallwrap[] = {
     //{ 2, __NR_open, 3 },      // flags need transformation
     //{ 3, __NR_close, 1 },     // wrapped so SA_RESTART can be handled by libc
     //{ 4, __NR_stat, 2 },     // Need to align struct stat
+    //{ 5, __NR_fstat, 2},
+    //{ 6, __NR_lstat, 2},
     //{ 9, __NR_mmap, 6},       // wrapped to track mmap
     //{ 10, __NR_mprotect, 3},  // same
     //{ 11, __NR_munmap, 2},    // same
-    { 5, __NR_fstat, 2},
     { 8, __NR_lseek, 3},
     //{ 13, __NR_rt_sigaction, 4},   // wrapped to use my_ version
     { 14, __NR_rt_sigprocmask, 4},
@@ -276,6 +279,12 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 4: // sys_stat
             *(int64_t*)&R_RAX = my_stat(emu, (void*)R_RDI, (void*)R_RSI);
             break;
+        case 5: // sys_fstat
+            *(int64_t*)&R_RAX = my_fstat(emu, (int)R_EDI, (void*)R_RSI);
+            break;
+        case 6: // sys_lstat
+            *(int64_t*)&R_RAX = my_lstat(emu, (void*)R_RDI, (void*)R_RSI);
+            break;
         case 9: // sys_mmap
             R_RAX = (uintptr_t)my_mmap64(emu, (void*)R_RDI, R_RSI, (int)R_EDX, (int)R_R10d, (int)R_R8d, R_R9);
             break;
@@ -402,6 +411,10 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
             return (uint64_t)(int64_t)close(R_ESI);
         case 4: // sys_stat
             return (uint64_t)(int64_t)my_stat(emu, (void*)R_RSI, (void*)R_RDX);
+        case 5: // sys_fstat
+            return (uint64_t)(int64_t)my_fstat(emu, (int)R_ESI, (void*)R_RDX);
+        case 6: // sys_lstat
+            return (uint64_t)(int64_t)my_lstat(emu, (void*)R_RSI, (void*)R_RDX);
         case 9: // sys_mmap
             return (uintptr_t)my_mmap64(emu, (void*)R_RSI, R_RDX, (int)R_RCX, (int)R_R8d, (int)R_R9, i64(0));
         case 10: // sys_mprotect

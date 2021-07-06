@@ -962,6 +962,24 @@ EXPORT int my_stat(x64emu_t *emu, void* filename, void* buf)
     return r;
 }
 
+EXPORT int my_lstat(x64emu_t *emu, void* filename, void* buf)
+{
+    (void)emu;
+    struct stat64 st;
+    int r = lstat(filename, (struct stat*)&st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
+EXPORT int my_fstat(x64emu_t *emu, int fd, void* buf)
+{
+    (void)emu;
+    struct stat64 st;
+    int r = fstat(fd, (struct stat*)&st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
 EXPORT int my__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 {
     struct stat64 st;
