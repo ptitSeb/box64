@@ -1192,7 +1192,7 @@ GO(mrand48, lFv)
 //GO(mrand48_r, 
 GOM(mremap, pFEpLLiN) //weal
 //GO(msgctl, 
-//GO(msgget, 
+GO(msgget, iFii)
 //GOW(msgrcv, 
 //GOW(msgsnd, 
 GO(msync, iFpLi)
