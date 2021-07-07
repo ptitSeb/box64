@@ -1466,7 +1466,7 @@ GO(rawmemchr, pFpi)
 GOW(__read, lFipL)
 GO(read, lFipL)
 //GOW(readahead, 
-//GO(__read_chk, 
+GO(__read_chk, lFipLL)
 GOW(readdir, pFp) // struct direct is 280 byts on x86_64 and ARM64
 GOW(readdir64, pFp)
 GOW(readdir64_r, iFppp)

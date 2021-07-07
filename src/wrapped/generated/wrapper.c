@@ -620,6 +620,7 @@ typedef intptr_t (*lFipiI_t)(int64_t, void*, int64_t, int64_t);
 typedef intptr_t (*lFipLi_t)(int64_t, void*, uintptr_t, int64_t);
 typedef intptr_t (*lFipLI_t)(int64_t, void*, uintptr_t, int64_t);
 typedef intptr_t (*lFipLl_t)(int64_t, void*, uintptr_t, intptr_t);
+typedef intptr_t (*lFipLL_t)(int64_t, void*, uintptr_t, uintptr_t);
 typedef intptr_t (*lFlpip_t)(intptr_t, void*, int64_t, void*);
 typedef intptr_t (*lFpili_t)(void*, int64_t, intptr_t, int64_t);
 typedef intptr_t (*lFpilp_t)(void*, int64_t, intptr_t, void*);
@@ -1955,6 +1956,7 @@ void lFipiI(x64emu_t *emu, uintptr_t fcn) { lFipiI_t fn = (lFipiI_t)fcn; R_RAX=(
 void lFipLi(x64emu_t *emu, uintptr_t fcn) { lFipLi_t fn = (lFipLi_t)fcn; R_RAX=(intptr_t)fn((int64_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (int64_t)R_RCX); }
 void lFipLI(x64emu_t *emu, uintptr_t fcn) { lFipLI_t fn = (lFipLI_t)fcn; R_RAX=(intptr_t)fn((int64_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (int64_t)R_RCX); }
 void lFipLl(x64emu_t *emu, uintptr_t fcn) { lFipLl_t fn = (lFipLl_t)fcn; R_RAX=(intptr_t)fn((int64_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (intptr_t)R_RCX); }
+void lFipLL(x64emu_t *emu, uintptr_t fcn) { lFipLL_t fn = (lFipLL_t)fcn; R_RAX=(intptr_t)fn((int64_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (uintptr_t)R_RCX); }
 void lFlpip(x64emu_t *emu, uintptr_t fcn) { lFlpip_t fn = (lFlpip_t)fcn; R_RAX=(intptr_t)fn((intptr_t)R_RDI, (void*)R_RSI, (int64_t)R_RDX, (void*)R_RCX); }
 void lFpili(x64emu_t *emu, uintptr_t fcn) { lFpili_t fn = (lFpili_t)fcn; R_RAX=(intptr_t)fn((void*)R_RDI, (int64_t)R_RSI, (intptr_t)R_RDX, (int64_t)R_RCX); }
 void lFpilp(x64emu_t *emu, uintptr_t fcn) { lFpilp_t fn = (lFpilp_t)fcn; R_RAX=(intptr_t)fn((void*)R_RDI, (int64_t)R_RSI, (intptr_t)R_RDX, (void*)R_RCX); }
@@ -3215,6 +3217,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &lFipLi) return 1;
 	if (fun == &lFipLI) return 1;
 	if (fun == &lFipLl) return 1;
+	if (fun == &lFipLL) return 1;
 	if (fun == &lFlpip) return 1;
 	if (fun == &lFpili) return 1;
 	if (fun == &lFpilp) return 1;

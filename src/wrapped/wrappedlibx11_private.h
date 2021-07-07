@@ -817,7 +817,7 @@ GO(XPeekEvent, iFpp)
 GOM(XPeekIfEvent, iFEpppp)
 GO(XPending, iFp)
 //GO(Xpermalloc
-//GO(XPlanesOfScreen
+GO(XPlanesOfScreen, iFp)
 GO(XPointInRegion, iFpp)
 // _XPollfdCacheAdd
 // _XPollfdCacheDel
@@ -826,8 +826,8 @@ GO(XPolygonRegion, pFpii)
 GO(XProcessInternalConnection, vFpi)
 // _XProcessInternalConnection
 // _XProcessWindowAttributes
-//GO(XProtocolRevision
-//GO(XProtocolVersion
+GO(XProtocolRevision, iFp)
+GO(XProtocolVersion, iFp)
 GO(XPutBackEvent, iFpp)
 // _XPutBackEvent
 GOM(XPutImage, iFEppppiiiiuu)

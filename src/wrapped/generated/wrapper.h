@@ -616,6 +616,7 @@ void lFipiI(x64emu_t *emu, uintptr_t fnc);
 void lFipLi(x64emu_t *emu, uintptr_t fnc);
 void lFipLI(x64emu_t *emu, uintptr_t fnc);
 void lFipLl(x64emu_t *emu, uintptr_t fnc);
+void lFipLL(x64emu_t *emu, uintptr_t fnc);
 void lFlpip(x64emu_t *emu, uintptr_t fnc);
 void lFpili(x64emu_t *emu, uintptr_t fnc);
 void lFpilp(x64emu_t *emu, uintptr_t fnc);
