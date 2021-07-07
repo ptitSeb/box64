@@ -1368,49 +1368,61 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                 case 6:
                     INST_NAME("SHL Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
                     GETEB(x1, 1);
                     u8 = (F8)&0x1f;
-                    UFLAG_IF{
-                        MOV32w(x4, u8); UFLAG_OP2(x4);
-                    };
-                    UFLAG_OP1(ed);
-                    LSLw(ed, ed, u8);
-                    EBBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl8);
+                    if(u8) {
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF{
+                            MOV32w(x4, u8); UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        LSLw(ed, ed, u8);
+                        EBBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_shl8);
+                    } else {
+                        NOP;
+                    }
                     break;
                 case 5:
                     INST_NAME("SHR Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
                     GETEB(x1, 1);
                     u8 = (F8)&0x1f;
-                    UFLAG_IF{
-                        MOV32w(x4, u8); UFLAG_OP2(x4);
-                    };
-                    UFLAG_OP1(ed);
                     if(u8) {
-                        LSRw(ed, ed, u8);
-                        EBBACK;
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF{
+                            MOV32w(x4, u8); UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        if(u8) {
+                            LSRw(ed, ed, u8);
+                            EBBACK;
+                        }
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_shr8);
+                    } else {
+                        NOP;
                     }
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shr8);
                     break;
                 case 7:
                     INST_NAME("SAR Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
                     GETSEB(x1, 1);
                     u8 = (F8)&0x1f;
-                    UFLAG_IF{
-                        MOV32w(x4, u8); UFLAG_OP2(x4);
-                    };
-                    UFLAG_OP1(ed);
                     if(u8) {
-                        ASRw(ed, ed, u8);
-                        EBBACK;
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF{
+                            MOV32w(x4, u8); UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        if(u8) {
+                            ASRw(ed, ed, u8);
+                            EBBACK;
+                        }
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_sar8);
+                    } else {
+                        NOP;
                     }
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar8);
                     break;
             }
             break;
