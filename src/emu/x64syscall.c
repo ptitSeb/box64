@@ -36,7 +36,8 @@
 typedef struct x64_sigaction_s x64_sigaction_t;
 typedef struct x64_stack_s x64_stack_t;
 
-int mkdir(const char *path, mode_t mode);
+extern int mkdir(const char *path, mode_t mode);
+extern int fchmodat (int __fd, const char *__file, mode_t __mode, int __flag);
 
 //int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
 int of_convert(int flag);
@@ -154,6 +155,9 @@ scwrap_t syscallwrap[] = {
     { 298, __NR_perf_event_open, 5},
     { 318, __NR_getrandom, 3},
     { 319, __NR_memfd_create, 2},
+    #ifdef __NR_fchmodat4
+    { 434, __NR_fchmodat4, 4},
+    #endif
 };
 
 struct mmap_arg_struct {
@@ -360,6 +364,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
             R_EAX = (int)syscall(__NR_inotify_init1, 0);
             break;
         #endif
+	#ifndef __NR_fchmodat4
+	case 434:
+	    *(int64_t*)R_RAX = fchmodat((int)R_EDI, (void*)R_RSI, (mode_t)R_RDX, (int)R_R10d);
+	    break;
+	#endif
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             emu->quit = 1;
@@ -472,6 +481,10 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         #ifndef __NR_inotify_init
         case 253:
             return (int)syscall(__NR_inotify_init1, 0);
+        #endif
+        #ifndef __NR_fchmodat4
+        case 434:
+            return (int)fchmodat((int)R_ESI, (void*)R_RDX, (mode_t)R_RCX, (int)R_R8d);
         #endif
         default:
             printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
