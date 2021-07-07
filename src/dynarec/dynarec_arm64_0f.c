@@ -120,6 +120,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             jump_to_epilog(dyn, 0, xRIP, ninst);
             break;
 
+        case 0x09:
+            INST_NAME("WBINVD");
+            break;
+
         case 0x0B:
             INST_NAME("UD2");
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state

@@ -49,6 +49,9 @@ int Run0F(x64emu_t *emu, rex_t rex)
             x64Syscall(emu);
             break;
 
+        case 0x09:                      /* WBINVD */
+            break;
+
         case 0x0B:                      /* UD2 */
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             break;
