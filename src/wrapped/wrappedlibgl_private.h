@@ -3029,11 +3029,15 @@ GO(glSpecializeShaderARB, vFippp)
 //GL_EXT_debug_label
 GO(glGetObjectLabelEXT, vFiulpp)
 GO(glLabelObjectEXT, vFiulp)
+
+//GL_EXT_debug_marker
+GO(glInsertEventMarkerEXT, vFlp)
 GO(glPushGroupMarkerEXT, vFlp)
 GO(glPopGroupMarkerEXT, vFv)
 
 //GL_KHR_blend_equation_advanced
 GO(glBlendBarrierKHR, vFv)
 
-//Some Apple extension
+//Some various other extension
 GO(glResolveMultisampleFramebufferAPPLE, vFv)
+GO(glTexPageCommitmentARB, vFiiiiillli)
