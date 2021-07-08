@@ -191,6 +191,13 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                         GD->q[0] = imul32(emu, GD->dword[0], ED->dword[0]);
                     break;
 
+                case 0xB6:                      /* MOVZX Gd,Eb */
+                    nextop = F8;
+                    GETEB_OFFS(0, tlsdata);
+                    GETGD;
+                    GD->q[0] = EB->byte[0];
+                    break;
+
                 default:
                     return 1;
             }
