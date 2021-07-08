@@ -480,6 +480,28 @@ static void* find_progress_Fct(void* fct)
     return NULL;
 }
 
+// progress_int
+#define GO(A)   \
+static uintptr_t my_progress_int_fct_##A = 0;   \
+static int my_progress_int_##A(void *clientp, uint64_t dltotal, uint64_t dlnow, uint64_t ultotal, uint64_t ulnow)     \
+{                                       \
+    return (int)RunFunction(my_context, my_progress_int_fct_##A, 5, clientp, dltotal, dlnow, ultotal, ulnow);\
+}
+SUPER()
+#undef GO
+static void* find_progress_int_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_progress_int_fct_##A == (uintptr_t)fct) return my_progress_int_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_progress_int_fct_##A == 0) {my_progress_int_fct_##A = (uintptr_t)fct; return my_progress_int_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl progress_int callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option, void* param)
@@ -512,13 +534,14 @@ EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option
             return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_PROGRESSFUNCTION:
             return my->curl_easy_setopt(handle, option, find_progress_Fct(param));
+        case CURLOPT_XFERINFOFUNCTION:
+            return my->curl_easy_setopt(handle, option, find_progress_int_Fct(param));
         case CURLOPT_SOCKOPTFUNCTION:
         case CURLOPT_SOCKOPTDATA:
         case CURLOPT_OPENSOCKETFUNCTION:
         case CURLOPT_OPENSOCKETDATA:
         case CURLOPT_CLOSESOCKETFUNCTION:
         case CURLOPT_CLOSESOCKETDATA:
-        case CURLOPT_XFERINFOFUNCTION:
         //case CURLOPT_XFERINFODATA:
         case CURLOPT_DEBUGFUNCTION:
         case CURLOPT_DEBUGDATA:
