@@ -57,7 +57,7 @@ GO(curl_multi_remove_handle, uFpp)
 //GO(curl_multi_socket_all, 
 GO(curl_multi_strerror, pFi)
 //GO(curl_multi_timeout, 
-//GO(curl_multi_wait, 
+GO(curl_multi_wait, iFppuip)
 //GO(curl_mvaprintf, 
 //GO(curl_mvfprintf, 
 //GO(curl_mvprintf, 

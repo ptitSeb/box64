@@ -803,6 +803,7 @@ void iFppiup(x64emu_t *emu, uintptr_t fnc);
 void iFppiLi(x64emu_t *emu, uintptr_t fnc);
 void iFppipi(x64emu_t *emu, uintptr_t fnc);
 void iFppipp(x64emu_t *emu, uintptr_t fnc);
+void iFppuip(x64emu_t *emu, uintptr_t fnc);
 void iFppupi(x64emu_t *emu, uintptr_t fnc);
 void iFppupp(x64emu_t *emu, uintptr_t fnc);
 void iFppllp(x64emu_t *emu, uintptr_t fnc);
