@@ -585,7 +585,7 @@ GO(getpwnam, pFp)
 GO(getpwnam_r, iFpppLp)
 GO(getpwuid, pFu)
 GO(getpwuid_r, iFuppLp)
-//GO(getrandom, 
+GO(getrandom, lFpLu)
 GO(getresgid, iFppp)
 GO(getresuid, iFppp)
 GO(__getrlimit, iFip)
