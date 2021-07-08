@@ -345,7 +345,7 @@ void LoadLogEnv()
     p = getenv("BOX64_JITGDB");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+2)
                 jit_gdb = p[0]-'0';
         }
         if(jit_gdb)
