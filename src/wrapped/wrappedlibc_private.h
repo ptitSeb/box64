@@ -185,7 +185,7 @@ GO(cuserid, pFp)
 GOM(__cxa_atexit, iFEppp)
 //GO(__cxa_at_quick_exit, 
 GOM(__cxa_finalize, vFEp)
-//GO(__cxa_thread_atexit_impl, 
+GOM(__cxa_thread_atexit_impl, iFEppp)
 //GO(__cyg_profile_func_enter, 
 //GO(__cyg_profile_func_exit, 
 //GO(daemon, 

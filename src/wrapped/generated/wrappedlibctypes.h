@@ -122,6 +122,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(ftw, iFppi_t) \
 	GO(ftw64, iFppi_t) \
 	GO(__cxa_atexit, iFppp_t) \
+	GO(__cxa_thread_atexit_impl, iFppp_t) \
 	GO(__isoc99_vfscanf, iFppp_t) \
 	GO(__isoc99_vsscanf, iFppp_t) \
 	GO(__vfprintf_chk, iFppp_t) \

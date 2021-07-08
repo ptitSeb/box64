@@ -1514,6 +1514,7 @@ wrappedlibc:
   - ftw64
 - iFppp:
   - __cxa_atexit
+  - __cxa_thread_atexit_impl
   - __isoc99_vfscanf
   - __isoc99_vsscanf
   - __vfprintf_chk
