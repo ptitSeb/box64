@@ -625,6 +625,64 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0xFF:
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x6, seg);
+            switch((nextop>>3)&7) {
+                case 0: // INC Ed
+                    INST_NAME("INC Ed");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    GETEDO(x6, 0);
+                    emit_inc32(dyn, ninst, rex, ed, x3, x4);
+                    WBACKO(x6);
+                    break;
+                case 1: //DEC Ed
+                    INST_NAME("DEC Ed");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    GETEDO(x6, 0);
+                    emit_dec32(dyn, ninst, rex, ed, x3, x4);
+                    WBACKO(x6);
+                    break;
+                case 2: // CALL Ed
+                    INST_NAME("CALL Ed");
+                    PASS2IF(dyn->insts && 
+                           ((ninst && dyn->insts[ninst-1].x64.set_flags)
+                        || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
+                    {
+                        READFLAGS(X_PEND);          // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                    }
+                    GETEDOx(x6, 0);
+                    BARRIER(1);
+                    BARRIER_NEXT(1);
+                    if(!dyn->insts || ninst==dyn->size-1) {
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
+                    GETIP(addr);
+                    PUSH1(xRIP);
+                    jump_to_next(dyn, 0, ed, ninst);
+                    break;
+                case 4: // JMP Ed
+                    INST_NAME("JMP Ed");
+                    BARRIER(1);
+                    GETEDOx(x6, 0);
+                    jump_to_next(dyn, 0, ed, ninst);
+                    *need_epilog = 0;
+                    *ok = 0;
+                    break;
+                case 6: // Push Ed
+                    INST_NAME("PUSH Ed");
+                    GETEDOx(x6, 0);
+                    PUSH1(ed);
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+            break;
+
         default:
             DEFAULT;
     }

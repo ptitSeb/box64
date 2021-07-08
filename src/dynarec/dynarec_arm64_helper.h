@@ -106,6 +106,15 @@
                     ed = x1;                            \
                 }
 #define WBACKO(O)   if(wback) {STRxw_REG(ed, wback, O);}
+//GETEDOx can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETEDOx(O, D)  if(MODREG) {                     \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, D); \
+                    LDRx_REG(x1, wback, O);             \
+                    ed = x1;                            \
+                }
 //FAKEELike GETED, but doesn't get anything
 #define FAKEED  if(!MODREG) {   \
                     addr = fakeed(dyn, addr, ninst, nextop); \
