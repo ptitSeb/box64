@@ -226,7 +226,7 @@ GOW(dup3, iFiiO)
 GO(__duplocale, pFp)
 GOW(duplocale, pFp)
 //GO(dysize, 
-//GOW(eaccess, 
+GOW(eaccess, iFpi)
 //GO(ecb_crypt, 
 //GO(ecvt, 
 //GOW(ecvt_r, 
@@ -285,7 +285,7 @@ GO(__errno_location, pFv)
 //GO(ether_ntoa, 
 //GO(ether_ntoa_r, 
 //GO(ether_ntohost, 
-//GOW(euidaccess, 
+GOW(euidaccess, iFpi)
 GO(eventfd, iFui)
 GO(eventfd_read, iFip)
 GO(eventfd_write, iFiU)
