@@ -17,37 +17,37 @@ GO(cairo_create, pFp)
 GO(cairo_curve_to, vFpdddddd)
 //GO(cairo_debug_reset_static_data, 
 GO(cairo_destroy, vFp)
-//GO(cairo_device_acquire, 
-//GO(cairo_device_destroy, 
-//GO(cairo_device_finish, 
-//GO(cairo_device_flush, 
-//GO(cairo_device_get_reference_count, 
-//GO(cairo_device_get_type, 
-//GO(cairo_device_get_user_data, 
-//GO(cairo_device_observer_elapsed, 
-//GO(cairo_device_observer_fill_elapsed, 
-//GO(cairo_device_observer_glyphs_elapsed, 
-//GO(cairo_device_observer_mask_elapsed, 
-//GO(cairo_device_observer_paint_elapsed, 
-//GO(cairo_device_observer_print, 
-//GO(cairo_device_observer_stroke_elapsed, 
-//GO(cairo_device_reference, 
-//GO(cairo_device_release, 
-//GO(cairo_device_set_user_data, 
-//GO(cairo_device_status, 
+GO(cairo_device_acquire, iFp)
+GO(cairo_device_destroy, vFp)
+GO(cairo_device_finish, vFp)
+GO(cairo_device_flush, vFp)
+GO(cairo_device_get_reference_count, uFp)
+GO(cairo_device_get_type, iFp)
+GO(cairo_device_get_user_data, pFpp)
+GO(cairo_device_observer_elapsed, dFp)
+GO(cairo_device_observer_fill_elapsed, dFp)
+GO(cairo_device_observer_glyphs_elapsed, dFp)
+GO(cairo_device_observer_mask_elapsed, dFp)
+GO(cairo_device_observer_paint_elapsed, dFp)
+//GOM(cairo_device_observer_print, iFEppp)
+GO(cairo_device_observer_stroke_elapsed, dFp)
+GO(cairo_device_reference, pFp)
+GO(cairo_device_release, vFp)
+//GOM(cairo_device_set_user_data, iFEpppp)
+GO(cairo_device_status, iFp)
 GO(cairo_device_to_user, vFppp)
 GO(cairo_device_to_user_distance, vFppp)
 GO(cairo_fill, vFp)
 GO(cairo_fill_extents, vFppppp)
 GO(cairo_fill_preserve, vFp)
 GO(cairo_font_extents, vFpp)
-//GO(cairo_font_face_destroy, 
-//GO(cairo_font_face_get_reference_count, 
-//GO(cairo_font_face_get_type, 
-//GO(cairo_font_face_get_user_data, 
-//GO(cairo_font_face_reference, 
-//GO(cairo_font_face_set_user_data, 
-//GO(cairo_font_face_status, 
+GO(cairo_font_face_destroy, vFp)
+GO(cairo_font_face_get_reference_count, uFp)
+GO(cairo_font_face_get_type, iFp)
+GO(cairo_font_face_get_user_data, pFpp)
+GO(cairo_font_face_reference, pFp)
+//GOM(cairo_font_face_set_user_data, iFpppp)
+GO(cairo_font_face_status, iFp)
 GO(cairo_font_options_copy, pFp)
 GO(cairo_font_options_create, pFv)
 GO(cairo_font_options_destroy, vFp)
@@ -210,29 +210,29 @@ GO(cairo_push_group_with_content, vFpi)
 GO(cairo_rectangle, vFpdddd)
 GO(cairo_rectangle_list_destroy, vFp)
 GO(cairo_reference, pFp)
-//GO(cairo_region_contains_point, 
-//GO(cairo_region_contains_rectangle, 
-//GO(cairo_region_copy, 
-//GO(cairo_region_create, 
-//GO(cairo_region_create_rectangle, 
-//GO(cairo_region_create_rectangles, 
-//GO(cairo_region_destroy, 
-//GO(cairo_region_equal, 
-//GO(cairo_region_get_extents, 
-//GO(cairo_region_get_rectangle, 
-//GO(cairo_region_intersect, 
-//GO(cairo_region_intersect_rectangle, 
-//GO(cairo_region_is_empty, 
-//GO(cairo_region_num_rectangles, 
-//GO(cairo_region_reference, 
-//GO(cairo_region_status, 
-//GO(cairo_region_subtract, 
-//GO(cairo_region_subtract_rectangle, 
-//GO(cairo_region_translate, 
-//GO(cairo_region_union, 
-//GO(cairo_region_union_rectangle, 
-//GO(cairo_region_xor, 
-//GO(cairo_region_xor_rectangle, 
+GO(cairo_region_contains_point, iFpii)
+GO(cairo_region_contains_rectangle, iFpp)
+GO(cairo_region_copy, pFp)
+GO(cairo_region_create, pFv)
+GO(cairo_region_create_rectangle, pFp)
+GO(cairo_region_create_rectangles, pFpi)
+GO(cairo_region_destroy, vFp)
+GO(cairo_region_equal, iFpp)
+GO(cairo_region_get_extents, vFpp)
+GO(cairo_region_get_rectangle, vFpip)
+GO(cairo_region_intersect, iFpp)
+GO(cairo_region_intersect_rectangle, iFpp)
+GO(cairo_region_is_empty, iFp)
+GO(cairo_region_num_rectangles, iFp)
+GO(cairo_region_reference, pFp)
+GO(cairo_region_status, iFp)
+GO(cairo_region_subtract, iFpp)
+GO(cairo_region_subtract_rectangle, iFpp)
+GO(cairo_region_translate, vFpii)
+GO(cairo_region_union, iFpp)
+GO(cairo_region_union_rectangle, iFpp)
+GO(cairo_region_xor, iFpp)
+GO(cairo_region_xor_rectangle, iFpp)
 GO(cairo_rel_curve_to, vFpdddddd)
 GO(cairo_rel_line_to, vFpdd)
 GO(cairo_rel_move_to, vFpdd)
@@ -241,23 +241,23 @@ GO(cairo_restore, vFp)
 GO(cairo_rotate, vFpd)
 GO(cairo_save, vFp)
 GO(cairo_scale, vFpdd)
-//GO(cairo_scaled_font_create, 
-//GO(cairo_scaled_font_destroy, 
-//GO(cairo_scaled_font_extents, 
-//GO(cairo_scaled_font_get_ctm, 
-//GO(cairo_scaled_font_get_font_face, 
-//GO(cairo_scaled_font_get_font_matrix, 
-//GO(cairo_scaled_font_get_font_options, 
-//GO(cairo_scaled_font_get_reference_count, 
-//GO(cairo_scaled_font_get_scale_matrix, 
-//GO(cairo_scaled_font_get_type, 
-//GO(cairo_scaled_font_get_user_data, 
-//GO(cairo_scaled_font_glyph_extents, 
-//GO(cairo_scaled_font_reference, 
-//GO(cairo_scaled_font_set_user_data, 
-//GO(cairo_scaled_font_status, 
-//GO(cairo_scaled_font_text_extents, 
-//GO(cairo_scaled_font_text_to_glyphs, 
+GO(cairo_scaled_font_create, pFpppp)
+GO(cairo_scaled_font_destroy, vFp)
+GO(cairo_scaled_font_extents, vFpp)
+GO(cairo_scaled_font_get_ctm, vFpp)
+GO(cairo_scaled_font_get_font_face, pFp)
+GO(cairo_scaled_font_get_font_matrix, vFpp)
+GO(cairo_scaled_font_get_font_options, vFpp)
+GO(cairo_scaled_font_get_reference_count, uFp)
+GO(cairo_scaled_font_get_scale_matrix, vFpp)
+GO(cairo_scaled_font_get_type, iFp)
+GO(cairo_scaled_font_get_user_data, pFpp)
+GO(cairo_scaled_font_glyph_extents, vFppip)
+GO(cairo_scaled_font_reference, pFp)
+//GOM(cairo_scaled_font_set_user_data, iFEpppp)
+GO(cairo_scaled_font_status, iFp)
+GO(cairo_scaled_font_text_extents, vFppp)
+GO(cairo_scaled_font_text_to_glyphs, iFpddpippppp)
 //GO(cairo_script_create, 
 //GO(cairo_script_create_for_stream, 
 //GO(cairo_script_from_recording_surface, 
