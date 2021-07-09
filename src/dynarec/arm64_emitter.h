@@ -628,9 +628,11 @@
 
 // REV
 #define REV_gen(sf, opc, Rn, Rd)        ((sf)<<31 | 1<<30 | 0b11010110<<21 | (opc)<<10 | (Rn)<<5 | (Rd))
-#define REVx(Rd, Rn)                    EMIT(REV_gen(1, 0b11, Rn, Rd))
-#define REVw(Rd, Rn)                    EMIT(REV_gen(0, 0b10, Rn, Rd))
+#define REV64x(Rd, Rn)                  EMIT(REV_gen(1, 0b11, Rn, Rd))
+#define REV32w(Rd, Rn)                  EMIT(REV_gen(0, 0b10, Rn, Rd))
 #define REVxw(Rd, Rn)                   EMIT(REV_gen(rex.w, 0b10|rex.w, Rn, Rd))
+#define REV16w(Rd, Rn)                  EMIT(REV_gen(0, 0b01, Rn, Rd))
+#define REV16x(Rd, Rn)                  EMIT(REV_gen(1, 0b01, Rn, Rd))
 
 // MRS
 #define MRS_gen(L, o0, op1, CRn, CRm, op2, Rt)  (0b1101010100<<22 | (L)<<21 | 1<<20 | (o0)<<19 | (op1)<<16 | (CRn)<<12 | (CRm)<<8 | (op2)<<5 | (Rt))

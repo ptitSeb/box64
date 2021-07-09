@@ -1344,6 +1344,24 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:                  /* BSWAP reg */
+            INST_NAME("BSWAP Reg");
+            gd = xRAX+(opcode&7)+(rex.b<<3);
+            if(rex.w) {
+                REV64x(gd, gd);
+            } else {
+                REV16w(x1, gd);
+                BFIx(gd, x1, 0, 16);
+            }
+            break;
+
 
         case 0xD2:
             INST_NAME("PSRLD Gx,Ex");
