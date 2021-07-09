@@ -396,6 +396,15 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
 
+            case 0x17:      // EXTRACTPS ED, GX, u8
+                nextop = F8;
+                GETED(1);
+                GETGX;
+                tmp8u = F8;
+                ED->dword[0] = GX->ud[tmp8u&3];
+                if(MODREG && rex.w) ED->dword[1] = 0;
+                break;
+
             case 0x21:      // INSERTPS GX, EX, u8
                 nextop = F8;
                 GETEX(1);
