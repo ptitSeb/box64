@@ -69,14 +69,19 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
             if(sys)
                 return sys;
         }
-        if(dlsym_error && box64_log<LOG_DEBUG) {
+        if(dlsym_error || box64_log>=LOG_DEBUG) {
             printf_log(LOG_NONE, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
         }
-        printf_log(LOG_DEBUG, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
         // check if alread dlopenned...
         for (size_t i=0; i<dl->lib_sz; ++i) {
             if(IsSameLib(dl->libs[i], rfilename)) {
                 if(dl->count[i]==0 && dl->dlopened[i]) {   // need to lauch init again!
+                    if(flag&0x4) {
+                        if(dlsym_error || box64_log>=LOG_DEBUG) {
+                            printf_log(LOG_NONE, " => not present anymore\n");
+                        }
+                        return NULL;    // don't re-open in RTLD_NOLOAD mode
+                    }
                     int idx = GetElfIndex(dl->libs[i]);
                     if(idx!=-1) {
                         if(dlsym_error || box64_log>=LOG_DEBUG) {
@@ -85,12 +90,19 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
                         ReloadLibrary(dl->libs[i], emu);    // reset memory image, redo reloc, run inits
                     }
                 }
-                dl->count[i] = dl->count[i]+1;
+                if(!(flag&0x4))
+                    dl->count[i] = dl->count[i]+1;
                 if(dlsym_error || box64_log>=LOG_DEBUG) {
                         printf_log(LOG_NONE, "dlopen: Recycling %s/%p count=%ld (dlopened=%ld, elf_index=%d)\n", rfilename, (void*)(i+1), dl->count[i], dl->dlopened[i], GetElfIndex(dl->libs[i]));
                 }
                 return (void*)(i+1);
             }
+        }
+        if(flag&0x4) {   //RTLD_NOLOAD is just a "check" if lib is already loaded
+            if(dlsym_error || box64_log>=LOG_DEBUG) {
+                printf_log(LOG_NONE, " => not present\n");
+            }
+            return NULL;
         }
         dlopened = (GetLibInternal(rfilename)==NULL);
         // Then open the lib
