@@ -1007,7 +1007,12 @@ x64emurun:
                     }
             }
             break;
-
+        case 0xC2:                      /* RETN Iw */
+            tmp16u = F16;
+            R_RIP = Pop(emu);
+            R_RSP += tmp16u;
+            STEP
+            break;
         case 0xC3:                      /* RET */
             R_RIP = Pop(emu);
             STEP
