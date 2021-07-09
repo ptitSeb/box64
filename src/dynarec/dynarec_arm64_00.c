@@ -422,6 +422,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i64 = F32S;
             emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
+        case 0x36:
+            INST_NAME("SS:");
+            break;
 
         case 0x38:
             INST_NAME("CMP Eb, Gb");
