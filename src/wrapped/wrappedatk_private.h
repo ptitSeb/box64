@@ -91,10 +91,11 @@ GO(atk_implementor_ref_accessible, pFp)
 //GO(atk_marshal_VOID__INT_INT_INT_STRING, 
 //GO(atk_marshal_VOID__INT_INT_STRING, 
 //GO(atk_marshal_VOID__STRING_BOOLEAN, 
-//GO(atk_misc_get_instance, 
-//GO(atk_misc_get_type, 
-//GO(atk_misc_threads_enter, 
-//GO(atk_misc_threads_leave, 
+GO(atk_misc_get_instance, pFv)
+GO(atk_misc_get_type, iFv)
+GO(atk_misc_threads_enter, vFp)
+GO(atk_misc_threads_leave, vFp)
+DATA(atk_misc_instance, sizeof(void*))
 //GO(atk_no_op_object_factory_get_type, 
 //GO(atk_no_op_object_factory_new, 
 //GO(atk_no_op_object_get_type, 
