@@ -236,7 +236,27 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
             GD->word[0] = (uint16_t)(uintptr_t)ED;
         break;
 
-    case 0x90:                              /* NOP */
+        case 0x90:                      /* NOP or XCHG R8d, AX*/
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:                      /* XCHG reg,AX */
+            tmp8u = _AX+(opcode&7)+(rex.b<<3);
+            if(tmp8u!=_AX) {
+                if(rex.w) {
+                    tmp64u = R_RAX;
+                    R_RAX = emu->regs[tmp8u].q[0];
+                    emu->regs[tmp8u].q[0] = tmp64u;
+                } else {
+                    tmp16u = R_AX;
+                    R_AX = emu->regs[tmp8u].word[0];
+                    emu->regs[tmp8u].word[0] = tmp16u;
+                }
+            }
+            break;
         break;
 
     case 0x98:                               /* CBW */
