@@ -396,6 +396,18 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
 
+            case 0x21:      // INSERTPS GX, EX, u8
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                if(MODREG) tmp8s = (tmp8u>>6)&3; else tmp8s = 0;
+                GX->ud[(tmp8u>>4)&3] = EX->ud[tmp8s];
+                for(int i=0; i<4; ++i)
+                    if(tmp8u&(1<<i))
+                        GX->ud[i] = 0;
+                break;
+
             default:
                 return 1;
         }
