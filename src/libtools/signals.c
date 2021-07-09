@@ -887,7 +887,7 @@ exit(-1);
         printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code);
 #endif
         if(sig==SIGILL)
-            printf_log(log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7]);
+            printf_log(log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X (%02X %02X %02X %02X %02X)\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7], ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
         else if(sig==SIGBUS)
             printf_log(log_minimum, " x86opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4], ((uint8_t*)x64pc)[5], ((uint8_t*)x64pc)[6], ((uint8_t*)x64pc)[7]);
         else
