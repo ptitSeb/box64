@@ -1012,6 +1012,97 @@ int Run660F(x64emu_t *emu, rex_t rex)
         GW->word[0] = EB->byte[0];
         break;
 
+    case 0xBA:                      
+        nextop = F8;
+        switch((nextop>>3)&7) {
+            case 4:                 /* BT Ew,Ib */
+                CHECK_FLAGS(emu);
+                GETEW(0);
+                GETGW;
+                tmp8u = F8;
+                if(rex.w) {
+                    tmp8u&=63;
+                    if(ED->q[0] & (1LL<<tmp8u))
+                        SET_FLAG(F_CF);
+                    else
+                        CLEAR_FLAG(F_CF);
+                } else {
+                    tmp8u&=15;
+                    if(EW->word[0] & (1<<tmp8u))
+                        SET_FLAG(F_CF);
+                    else
+                        CLEAR_FLAG(F_CF);
+                }
+                break;
+            case 5:             /* BTS Ew, Ib */
+                CHECK_FLAGS(emu);
+                GETEW(0);
+                GETGW;
+                tmp8u = F8;
+                if(rex.w) {
+                    tmp8u&=63;
+                    if(ED->q[0] & (1LL<<tmp8u)) {
+                        SET_FLAG(F_CF);
+                    } else {
+                        ED->q[0] ^= (1LL<<tmp8u);
+                        CLEAR_FLAG(F_CF);
+                    }
+                } else {
+                    tmp8u&=15;
+                    if(EW->word[0] & (1<<tmp8u)) {
+                        SET_FLAG(F_CF);
+                    } else {
+                        EW->word[0] ^= (1<<tmp8u);
+                        CLEAR_FLAG(F_CF);
+                    }
+                }
+                break;
+            case 6:             /* BTR Ew, Ib */
+                CHECK_FLAGS(emu);
+                GETEW(0);
+                GETGW;
+                tmp8u = F8;
+                if(rex.w) {
+                    tmp8u&=63;
+                    if(ED->q[0] & (1LL<<tmp8u)) {
+                        SET_FLAG(F_CF);
+                        ED->q[0] ^= (1LL<<tmp8u);
+                    } else
+                        CLEAR_FLAG(F_CF);
+                } else {
+                    tmp8u&=15;
+                    if(EW->word[0] & (1<<tmp8u)) {
+                        SET_FLAG(F_CF);
+                        EW->word[0] ^= (1<<tmp8u);
+                    } else
+                        CLEAR_FLAG(F_CF);
+                }
+                break;
+            case 7:             /* BTC Ew, Ib */
+                CHECK_FLAGS(emu);
+                GETEW(0);
+                GETGW;
+                tmp8u = F8;
+                if(rex.w) {
+                    tmp8u&=63;
+                    if(ED->q[0] & (1LL<<tmp8u))
+                        SET_FLAG(F_CF);
+                    else
+                        CLEAR_FLAG(F_CF);
+                    ED->q[0] ^= (1LL<<tmp8u);
+                } else {
+                    tmp8u&=15;
+                    if(EW->word[0] & (1<<tmp8u))
+                        SET_FLAG(F_CF);
+                    else
+                        CLEAR_FLAG(F_CF);
+                    EW->word[0] ^= (1<<tmp8u);
+                }
+                break;
+            default:
+                return 1;
+        }
+        break;
     case 0xBB:                      /* BTC Ew,Gw */
         CHECK_FLAGS(emu);
         nextop = F8;
