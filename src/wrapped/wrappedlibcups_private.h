@@ -289,7 +289,7 @@ GO(cupsSetDefaultDest, vFppip)
 //GO(httpClose, 
 //GO(httpCompareCredentials, 
 //GO(httpConnect, 
-//GO(httpConnect2, 
+GO(httpConnect2, pFpipiiiip)
 //GO(httpConnectEncrypt, 
 //GO(httpCopyCredentials, 
 //GO(_httpCreateCredentials, 

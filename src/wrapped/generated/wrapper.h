@@ -1253,6 +1253,7 @@ void uFuipppppp(x64emu_t *emu, uintptr_t fnc);
 void pFEppppppp(x64emu_t *emu, uintptr_t fnc);
 void pFuiiiuuuu(x64emu_t *emu, uintptr_t fnc);
 void pFuupupipp(x64emu_t *emu, uintptr_t fnc);
+void pFpipiiiip(x64emu_t *emu, uintptr_t fnc);
 void pFpCCuuwwC(x64emu_t *emu, uintptr_t fnc);
 void pFpCuwwWWu(x64emu_t *emu, uintptr_t fnc);
 void pFpCuuuCup(x64emu_t *emu, uintptr_t fnc);
