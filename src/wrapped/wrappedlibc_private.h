@@ -1191,7 +1191,7 @@ GOM(mprotect, iFEpLi) //weak
 GO(mrand48, lFv)
 //GO(mrand48_r, 
 GOM(mremap, pFEpLLiN) //weal
-//GO(msgctl, 
+GO(msgctl, iFiip)
 GO(msgget, iFii)
 GOW(msgrcv, lFipLli)
 GOW(msgsnd, iFipLi)
