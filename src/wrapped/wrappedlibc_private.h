@@ -1193,8 +1193,8 @@ GO(mrand48, lFv)
 GOM(mremap, pFEpLLiN) //weal
 //GO(msgctl, 
 GO(msgget, iFii)
-//GOW(msgrcv, 
-//GOW(msgsnd, 
+GOW(msgrcv, lFipLli)
+GOW(msgsnd, iFipLi)
 GO(msync, iFpLi)
 //GO(mtrace, 
 GO(munlock, iFpL)
