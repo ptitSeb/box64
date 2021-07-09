@@ -238,6 +238,24 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         memcpy(EX, GX, 16);    // unaligned...
         break;
 
+    case 0xB8:  /* POPCNT Gd,Ed */
+        nextop = F8;
+        GETED(0);
+        GETGD;
+        if(rex.w)
+            GD->q[0] = __builtin_popcountl(ED->q[0]);
+        else
+            GD->q[0] = __builtin_popcount(ED->dword[0]);
+        RESET_FLAGS(emu);
+        CLEAR_FLAG(F_OF);
+        CLEAR_FLAG(F_SF);
+        CLEAR_FLAG(F_ZF);
+        CLEAR_FLAG(F_AF);
+        CLEAR_FLAG(F_CF);
+        CLEAR_FLAG(F_PF);
+        CONDITIONAL_SET_FLAG(GD->q[0]==0, F_ZF);
+        break;
+
     case 0xBC:  /* TZCNT Ed,Gd */
         CHECK_FLAGS(emu);
         nextop = F8;
