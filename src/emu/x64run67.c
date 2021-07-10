@@ -29,6 +29,7 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
     int8_t tmp8s;
     uint8_t tmp8u;
     uint32_t tmp32u;
+    int32_t tmp32s;
     uint64_t tmp64u;
     reg64_t *oped, *opgd;
 
@@ -235,6 +236,12 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
         tmp8s = F8S;
         if(!R_ECX)
             R_RIP += tmp8s;
+        break;
+
+    case 0xE8:                      /* CALL Id */
+        tmp32s = F32S; // call is relative
+        Push(emu, R_RIP);
+        R_RIP += tmp32s;
         break;
 
     case 0xF7:                      /* GRP3 Ed(,Id) */
