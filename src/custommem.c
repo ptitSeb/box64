@@ -708,11 +708,12 @@ void protectDBnolock(uintptr_t addr, uintptr_t size)
         }
         const uintptr_t ii = i&(MEMPROT_SIZE-1);
         uint8_t prot = kh_value(memprot, k)[ii];
-        if(!prot)
-            prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
-        kh_value(memprot, k)[ii] = prot|PROT_DYNAREC;
-        if(!(prot&PROT_DYNAREC))
+        if(!(prot&PROT_DYNAREC)) {
+            if(!prot)
+                prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
+            kh_value(memprot, k)[ii] = prot|PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~(PROT_WRITE|PROT_CUSTOM));
+        }
     }
 }
 
@@ -751,8 +752,8 @@ void unprotectDB(uintptr_t addr, size_t size)
         }
         const uintptr_t ii = i&(MEMPROT_SIZE-1);
         uint8_t prot = kh_value(memprot, k)[ii];
-        kh_value(memprot, k)[ii] = prot&~PROT_DYNAREC;
         if(prot&PROT_DYNAREC) {
+            kh_value(memprot, k)[ii] = prot&~PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_CUSTOM);
             cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
         }
