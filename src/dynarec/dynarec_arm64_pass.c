@@ -100,7 +100,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         if(!ok && !need_epilog && dyn->insts && (addr < (dyn->start+dyn->isize))) {
             ok = 1;
         }
-        if(!ok && !need_epilog && !dyn->insts && getProtection(addr+3))
+        if(!ok && !need_epilog && !dyn->insts && getProtection(addr+3)&~PROT_CUSTOM)
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
