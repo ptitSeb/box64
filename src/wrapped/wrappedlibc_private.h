@@ -1142,7 +1142,7 @@ GO(memcpy, pFppL)
 GO(__memcpy_chk, pFppuL)
 //GO(memfd_create, 
 //GO(memfrob, 
-//GOW(memmem, 
+GOW(memmem, pFpLpL)
 GO(memmove, pFppL)
 GO(__memmove_chk, pFppLL)
 //GOI(__mempcpy, 
