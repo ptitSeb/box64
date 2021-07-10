@@ -1,0 +1,2 @@
+#!/bin/sh
+systemctl restart systemd-binfmt
