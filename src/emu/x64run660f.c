@@ -279,6 +279,14 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
 
+            case 0x17:      // PTEST GX, EX
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                CONDITIONAL_SET_FLAG(!(GX->u128&EX->u128), F_ZF);
+                CONDITIONAL_SET_FLAG(!((~GX->u128)&EX->u128), F_CF);
+                break;
+
             case 0x1C:  /* PABSB Gx, Ex */
                 nextop = F8;
                 GETEX(0);
