@@ -14,9 +14,9 @@ typedef struct x64emu_s x64emu_t;
 #define LN2		0.69314718055994531
 #define LG2		0.3010299956639812
 
-#define ST0 emu->mmx87[emu->top]
-#define ST1 emu->mmx87[(emu->top+1)&7]
-#define ST(a) emu->mmx87[(emu->top+(a))&7]
+#define ST0 emu->x87[emu->top]
+#define ST1 emu->x87[(emu->top+1)&7]
+#define ST(a) emu->x87[(emu->top+(a))&7]
 
 #define STld(a)  emu->fpu_ld[(emu->top+(a))&7]
 #define STll(a)  emu->fpu_ll[(emu->top+(a))&7]

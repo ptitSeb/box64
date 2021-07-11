@@ -741,7 +741,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     if(ret!=0) {
         // --- set values
         // prepare offset to fpu => s1
-        ADDx_U12(s1, xEmu, offsetof(x64emu_t, mmx87));
+        ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
         // Get top
         // loop all cache entries
         for (int i=0; i<8; ++i)
@@ -772,7 +772,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
     if(!ret)    // nothing to do
         return;
     // prepare offset to fpu => s1
-    ADDx_U12(s1, xEmu, offsetof(x64emu_t, mmx87));
+    ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
     // Get top
     LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
     // loop all cache entries
@@ -806,7 +806,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_x87(dyn);
-    ADDx_U12(s1, xEmu, offsetof(x64emu_t, mmx87));
+    ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
     LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
     int a = st - dyn->x87stack;
     if(a) {
@@ -851,7 +851,7 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
-    ADDx_U12(s1, xEmu, offsetof(x64emu_t, mmx87));
+    ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
     // Get top
     LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
     // Update
@@ -879,7 +879,7 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
-    ADDx_U12(s1, xEmu, offsetof(x64emu_t, mmx87));
+    ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
     // Get top
     LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
     // Update
@@ -908,7 +908,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         if(dyn->x87cache[i]==st) {
             // refresh the value
             MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
-            ADDx_U12(s1, xEmu, offsetof(x64emu_t, mmx87));
+            ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
             LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
             int a = st - dyn->x87stack;
             if(a<0) {
@@ -932,7 +932,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_x87(dyn);
-    ADDx_U12(s1, xEmu, offsetof(x64emu_t, mmx87));
+    ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
     LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
     int a = st - dyn->x87stack;
     if(a<0) {
@@ -1006,7 +1006,7 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
     int ret = dyn->mmxcache[a] = fpu_get_reg_emm(dyn, a);
-    VLDR64_U12(ret, xEmu, offsetof(x64emu_t, mmx87[a]));
+    VLDR64_U12(ret, xEmu, offsetof(x64emu_t, mmx[a]));
     return ret;
 #else
     (void)dyn; (void)a;
@@ -1039,7 +1039,7 @@ void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
                 MESSAGE(LOG_DUMP, "\tPurge MMX Cache ------\n");
                 ++old;
             }
-            VSTR64_U12(dyn->mmxcache[i], xEmu, offsetof(x64emu_t, mmx87[i]));
+            VSTR64_U12(dyn->mmxcache[i], xEmu, offsetof(x64emu_t, mmx[i]));
             fpu_free_reg(dyn, dyn->mmxcache[i]);
             dyn->mmxcache[i] = -1;
         }
@@ -1057,7 +1057,7 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 #if STEP > 1
     for (int i=0; i<8; ++i)
         if(dyn->mmxcache[i]!=-1) {
-            VLDR64_U12(dyn->mmxcache[i], xEmu, offsetof(x64emu_t, mmx87[i]));
+            VLDR64_U12(dyn->mmxcache[i], xEmu, offsetof(x64emu_t, mmx[i]));
         }
 #else
     (void)dyn;

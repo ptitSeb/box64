@@ -218,12 +218,12 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
     memset(newemu->segs_serial, 0, sizeof(newemu->segs_serial));
-	memcpy(newemu->mmx87, emu->mmx87, sizeof(emu->mmx87));
+	memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
+	memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
     memcpy(newemu->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
     memcpy(newemu->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
 	memcpy(newemu->p_regs, emu->p_regs, sizeof(emu->p_regs));
 	newemu->cw = emu->cw;
-    newemu->cw_mask_all = emu->cw_mask_all;
 	memcpy(&newemu->sw, &emu->sw, sizeof(emu->sw));
 	newemu->top = emu->top;
     newemu->fpu_stack = emu->fpu_stack;
@@ -353,7 +353,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
     if(trace_emm) {
         // do emm reg if needed
         for(int i=0; i<8; ++i) {
-            sprintf(tmp, "mm%d:%016lx", i, emu->mmx87[i].q);
+            sprintf(tmp, "mm%d:%016lx", i, emu->mmx[i].q);
             strcat(buff, tmp);
             if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
         }
@@ -370,7 +370,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
     // start with FPU regs...
     if(emu->fpu_stack) {
         for (int i=0; i<emu->fpu_stack; i++) {
-            sprintf(tmp, "ST%d=%f", i, emu->mmx87[(emu->top+i)&7].d);
+            sprintf(tmp, "ST%d=%f", i, ST(i).d);
             strcat(buff, tmp);
             int c = 10-strlen(tmp);
             if(c<1) c=1;

@@ -163,11 +163,11 @@ int RunDB(x64emu_t *emu, rex_t rex)
                 fpu_do_push(emu);
                 memcpy(&STld(0).ld, ED, 10);
                 LD2D(&STld(0), &ST(0).d);
-                STld(0).ref = ST0.q;
+                STld(0).uref = ST0.q;
                 break;
             case 7: /* FSTP tbyte */
                 GETED(0);
-                if(ST0.q!=STld(0).ref)
+                if(ST0.q!=STld(0).uref)
                     D2LD(&ST0.d, ED);
                 else
                     memcpy(ED, &STld(0).ld, 10);

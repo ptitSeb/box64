@@ -33,8 +33,9 @@ typedef struct x64emu_s {
     // sse
     sse_regs_t  xmm[16];
     // fpu / mmx
-	mmx87_regs_t mmx87[8];
-	uint16_t    cw,cw_mask_all;
+	mmx87_regs_t x87[8];
+	mmx87_regs_t mmx[8];
+	uint16_t    cw;
 	x87flags_t  sw;
 	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
     int         fpu_stack;

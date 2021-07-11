@@ -1241,7 +1241,7 @@ mmx87_regs_t* GetEm(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         return &emu->mmx87[m&0x07];
+         return &emu->mmx[m&0x07];
     } else return (mmx87_regs_t*)GetECommon(emu, rex, m, delta);
 }
 
@@ -1289,7 +1289,7 @@ mmx87_regs_t* GetGm(x64emu_t *emu, rex_t rex, uint8_t v)
     (void)rex;
 
     uint8_t m = (v&0x38)>>3;
-    return &emu->mmx87[m&7];
+    return &emu->mmx[m&7];
 }
 
 sse_regs_t* GetGx(x64emu_t *emu, rex_t rex, uint8_t v)

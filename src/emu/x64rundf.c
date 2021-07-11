@@ -152,8 +152,8 @@ int RunDF(x64emu_t *emu, rex_t rex)
             tmp64s = ED->sq[0];
             fpu_do_push(emu);
             ST0.d = tmp64s;
-            STll(0).ll = tmp64s;
-            STll(0).ref = ST0.q;
+            STll(0).sq = tmp64s;
+            STll(0).sref = ST0.sq;
             break;
         case 6: /* FBSTP tbytes, ST0 */
             GETED(0);
@@ -162,8 +162,8 @@ int RunDF(x64emu_t *emu, rex_t rex)
             break;
         case 7: /* FISTP i64 */
             GETED(0);
-            if(STll(0).ref==ST(0).sq)
-                ED->sq[0] = STll(0).ll;
+            if(STll(0).sref==ST(0).sq)
+                ED->sq[0] = STll(0).sq;
             else {
                 if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL) || !isfinite(ST0.d))
                     ED->sq[0] = 0x8000000000000000LL;

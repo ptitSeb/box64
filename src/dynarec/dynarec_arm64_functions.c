@@ -28,7 +28,7 @@
 
 void arm_fstp(x64emu_t* emu, void* p)
 {
-    if(ST0.q!=STld(0).ref)
+    if(ST0.q!=STld(0).uref)
         D2LD(&ST0.d, p);
     else
         memcpy(p, &STld(0).ld, 10);
@@ -108,8 +108,8 @@ void arm_fild64(x64emu_t* emu, int64_t* ed)
     int64_t tmp;
     memcpy(&tmp, ed, sizeof(tmp));
     ST0.d = tmp;
-    STll(0).ll = tmp;
-    STll(0).ref = ST0.q;
+    STll(0).sq = tmp;
+    STll(0).sref = ST0.sq;
 }
 
 void arm_fbstp(x64emu_t* emu, uint8_t* ed)
@@ -120,8 +120,8 @@ void arm_fbstp(x64emu_t* emu, uint8_t* ed)
 void arm_fistp64(x64emu_t* emu, int64_t* ed)
 {
     // used of memcpy to avoid aligments issues
-    if((uint64_t)STll(0).ref==ST(0).q) {
-        memcpy(ed, &STll(0).ll, sizeof(int64_t));
+    if(STll(0).sref==ST(0).sq) {
+        memcpy(ed, &STll(0).sq, sizeof(int64_t));
     } else {
         int64_t tmp;
         if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL) || !isfinite(ST0.d))
@@ -143,7 +143,7 @@ void arm_fld(x64emu_t* emu, uint8_t* ed)
 {
     memcpy(&STld(0).ld, ed, 10);
     LD2D(&STld(0), &ST(0).d);
-    STld(0).ref = ST0.q;
+    STld(0).uref = ST0.q;
 }
 
 void arm_ud(x64emu_t* emu)
