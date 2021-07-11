@@ -279,6 +279,16 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
 
+            case 0x14:  /* BLENDVPS Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for (int i=0; i<4; ++i) {
+                    if(emu->xmm[0].ud[i]&0x80000000)
+                        GX->ud[i] = EX->ud[i];
+                }
+                break;
+
             case 0x17:      // PTEST GX, EX
                 nextop = F8;
                 GETEX(0);
