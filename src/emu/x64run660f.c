@@ -279,17 +279,6 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
 
-            case 0x0E:  /* PBLENDW Gx, Ex, Ib */
-                nextop = F8;
-                GETEX(1);
-                GETGX;
-                tmp8u = F8;
-                for (int i=0; i<8; ++i) {
-                    if(tmp8u&(1<<i))
-                        GX->uw[i] = EX->uw[i];
-                }
-                break;
-
             case 0x17:      // PTEST GX, EX
                 nextop = F8;
                 GETEX(0);
@@ -371,7 +360,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
         }
         break;
 
-    case 0x3A:  // these are some SSE3 opcodes
+    case 0x3A:  // these are some SSE3 & SSE4.x opcodes
         opcode = F8;
         switch(opcode) {
             case 0x0B:          // ROUNDSD Gx, Ex, u8
@@ -399,6 +388,16 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
 
+            case 0x0E:  /* PBLENDW Gx, Ex, Ib */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                for (int i=0; i<8; ++i) {
+                    if(tmp8u&(1<<i))
+                        GX->uw[i] = EX->uw[i];
+                }
+                break;
             case 0x0F:          // PALIGNR GX, EX, u8
                 nextop = F8;
                 GETEX(1);
