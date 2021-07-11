@@ -279,6 +279,17 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
 
+            case 0x0E:  /* PBLENDW Gx, Ex, Ib */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                for (int i=0; i<8; ++i) {
+                    if(tmp8u&(1<<i))
+                        GX->uw[i] = EX->uw[i];
+                }
+                break;
+
             case 0x17:      // PTEST GX, EX
                 nextop = F8;
                 GETEX(0);
