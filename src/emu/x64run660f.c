@@ -433,6 +433,13 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 if(MODREG && rex.w) ED->dword[1] = 0;
                 break;
 
+            case 0x20:      // PINSRB GX, ED, u8
+                nextop = F8;
+                GETED(1);
+                GETGX;
+                tmp8u = F8;
+                GX->ub[tmp8u&0xf] = ED->byte[0];
+                break;
             case 0x21:      // INSERTPS GX, EX, u8
                 nextop = F8;
                 GETEX(1);
