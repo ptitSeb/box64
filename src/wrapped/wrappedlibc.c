@@ -1547,7 +1547,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
     int self = isProcSelf(path, "exe");
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
-    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d\n", path, argv, x64);
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d x86=%d\n", path, argv, x64, x86);
     #if 1
     if (x64 || x86 || self) {
         int skip_first = 0;
@@ -1560,7 +1560,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath;
-        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         int ret = execv(newargv[0], (char* const*)newargv);
         free(newargv);
         return ret;
@@ -1574,7 +1574,7 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
     int self = isProcSelf(path, "exe");
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
-    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d\n", path, argv, x64);
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d x86=%d\n", path, argv, x64, x86);
     #if 1
     if (x64 || x86 || self) {
         int skip_first = 0;
@@ -1587,7 +1587,7 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath;
-        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         int ret = execve(newargv[0], (char* const*)newargv, envp);
         free(newargv);
         return ret;
