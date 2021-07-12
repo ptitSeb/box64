@@ -12,7 +12,7 @@ typedef struct needed_libs_s   needed_libs_t;
 
 library_t *NewLibrary(const char* path, box64context_t* box64);
 int AddSymbolsLibrary(lib_t* maplib, library_t* lib, x64emu_t* emu);
-int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x64emu_t* emu);
+int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x64emu_t* emu);
 int ReloadLibrary(library_t* lib, x64emu_t* emu);
 void InactiveLibrary(library_t* lib);
 void Free1Library(library_t **lib, x64emu_t* emu);

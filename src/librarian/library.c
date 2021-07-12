@@ -151,7 +151,7 @@ static void initNativeLib(library_t *lib, box64context_t* context) {
             lib->getlocal = NativeLib_GetLocal;
             lib->type = 0;
             // Call librarian to load all dependant elf
-            if(AddNeededLib(context->maplib, &lib->needed, lib, 0, (const char**)lib->priv.w.neededlibs, lib->priv.w.needed, context, thread_get_emu())) {
+            if(AddNeededLib(context->maplib, &lib->needed, lib, 0, 0, (const char**)lib->priv.w.neededlibs, lib->priv.w.needed, context, thread_get_emu())) {
                 printf_log(LOG_NONE, "Error: loading a needed libs in elf %s\n", lib->name);
                 return;
             }
@@ -303,7 +303,7 @@ int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x64emu_t* emu)
     }
     return 0;
 }
-int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x64emu_t* emu)
+int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x64emu_t* emu)
 {
     if(!lib)
         return 0;
@@ -313,11 +313,14 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x64emu_t* emu)
         lib->priv.n.finalized = 1;
         elfheader_t *elf_header = my_context->elfs[lib->priv.n.elf_index];
         // finalize relocations
-        if(RelocateElf(my_context->maplib, local_maplib, elf_header)) {
+        if(RelocateElf(my_context->maplib, local_maplib, bindnow, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
         }
-        RelocateElfPlt(my_context->maplib, local_maplib, elf_header);
+        if(RelocateElfPlt(my_context->maplib, local_maplib, bindnow, elf_header)) {
+            printf_log(LOG_NONE, "Error: relocating Plt symbols in elf %s\n", lib->name);
+            return 1;
+        }
 #ifdef HAVE_TRACE
         if(trace_func) {
             if (GetGlobalSymbolStartEnd(my_context->maplib, trace_func, &trace_start, &trace_end, elf_header, -1, NULL)) {
@@ -371,11 +374,12 @@ int ReloadLibrary(library_t* lib, x64emu_t* emu)
         }
         // can close the file now
         fclose(f);
-        if(RelocateElf(lib->context->maplib, lib->maplib, elf_header)) {
+        // should bindnow be store in a per/library basis?
+        if(RelocateElf(lib->context->maplib, lib->maplib, 0, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
         }
-        RelocateElfPlt(lib->context->maplib, lib->maplib, elf_header);
+        RelocateElfPlt(lib->context->maplib, lib->maplib, 0, elf_header);
         // init (will use PltRelocator... because some other libs are not yet resolved)
         RunElfInit(elf_header, emu);
     }

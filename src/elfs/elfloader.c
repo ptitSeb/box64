@@ -386,8 +386,9 @@ int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t**
     return 0;
 }
 
-int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cnt, Elf64_Rel *rel)
+int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* head, int cnt, Elf64_Rel *rel)
 {
+    int ret_ok = 0;
     for (int i=0; i<cnt; ++i) {
         int t = ELF64_R_TYPE(rel[i].r_info);
         Elf64_Sym *sym = &head->DynSym[ELF64_R_SYM(rel[i].r_info)];
@@ -429,6 +430,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
             case R_X86_64_PC32:
                     if (!offs) {
                         printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_X86_64_PC32 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                        ret_ok = 1;
                     }
                     offs = (offs - (uintptr_t)p);
                     if(!offs)
@@ -497,6 +499,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
             case R_X86_64_64:
                 if (!offs) {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                    ret_ok = 1;
                     // return -1;
                 } else {
                     printf_dump(LOG_NEVER, "Apply %s R_X86_64_64 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(offs+*(uint64_t*)p));
@@ -537,7 +540,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 printf_log(LOG_INFO, "Warning, don't know how to handle rel #%d %s (%p)\n", i, DumpRelType(ELF64_R_TYPE(rel[i].r_info)), p);
         }
     }
-    return 0;
+    return bindnow?ret_ok:0;
 }
 
 struct tlsdesc
@@ -555,8 +558,9 @@ EXPORT uintptr_t _dl_tlsdesc_undefweak(x64emu_t* emu)
 }
 
 
-int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cnt, Elf64_Rela *rela, int* need_resolv)
+int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* head, int cnt, Elf64_Rela *rela, int* need_resolv)
 {
+    int ret_ok = 0;
     for (int i=0; i<cnt; ++i) {
         int t = ELF64_R_TYPE(rela[i].r_info);
         Elf64_Sym *sym = &head->DynSym[ELF64_R_SYM(rela[i].r_info)];
@@ -663,12 +667,14 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                   || !tmp
                   || !((tmp>=head->plt && tmp<head->plt_end) || (tmp>=head->gotplt && tmp<head->gotplt_end))
                   || !need_resolv
+                  || bindnow
                   ) {
                     if (!offs) {
                         if(bind==STB_WEAK) {
                             printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_X86_64_JUMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
                         } else {
                             printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_JUMP_SLOT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                            ret_ok = 1;
                         }
                         // return -1;
                     } else {
@@ -690,6 +696,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
             case R_X86_64_64:
                 if (!offs) {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                    ret_ok = 1;
                     // return -1;
                 } else {
                     printf_dump(LOG_NEVER, "Apply %s R_X86_64_64 @%p with sym=%s (ver=%d/%s) addend=0x%lx (%p -> %p)\n", 
@@ -776,29 +783,29 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int c
                 printf_log(LOG_INFO, "Warning, don't know of to handle rela #%d %s on %s\n", i, DumpRelType(ELF64_R_TYPE(rela[i].r_info)), symname);
         }
     }
-    return 0;
+    return bindnow?ret_ok:0;
 }
-int RelocateElf(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
+int RelocateElf(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* head)
 {
     if(head->rel) {
         int cnt = head->relsz / head->relent;
         DumpRelTable(head, cnt, (Elf64_Rel *)(head->rel + head->delta), "Rel");
         printf_dump(LOG_DEBUG, "Applying %d Relocation(s) for %s\n", cnt, head->name);
-        if(RelocateElfREL(maplib, local_maplib, head, cnt, (Elf64_Rel *)(head->rel + head->delta)))
+        if(RelocateElfREL(maplib, local_maplib, bindnow, head, cnt, (Elf64_Rel *)(head->rel + head->delta)))
             return -1;
     }
     if(head->rela) {
         int cnt = head->relasz / head->relaent;
         DumpRelATable(head, cnt, (Elf64_Rela *)(head->rela + head->delta), "RelA");
         printf_dump(LOG_DEBUG, "Applying %d Relocation(s) with Addend for %s\n", cnt, head->name);
-        if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf64_Rela *)(head->rela + head->delta), NULL))
+        if(RelocateElfRELA(maplib, local_maplib, bindnow, head, cnt, (Elf64_Rela *)(head->rela + head->delta), NULL))
             return -1;
     }
    
     return 0;
 }
 
-int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
+int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* head)
 {
     int need_resolver = 0;
     if(head->pltrel) {
@@ -806,12 +813,12 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
         if(head->pltrel==DT_REL) {
             DumpRelTable(head, cnt, (Elf64_Rel *)(head->jmprel + head->delta), "PLT");
             printf_dump(LOG_DEBUG, "Applying %d PLT Relocation(s) for %s\n", cnt, head->name);
-            if(RelocateElfREL(maplib, local_maplib, head, cnt, (Elf64_Rel *)(head->jmprel + head->delta)))
+            if(RelocateElfREL(maplib, local_maplib, bindnow, head, cnt, (Elf64_Rel *)(head->jmprel + head->delta)))
                 return -1;
         } else if(head->pltrel==DT_RELA) {
             DumpRelATable(head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), "PLT");
             printf_dump(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend for %s\n", cnt, head->name);
-            if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), &need_resolver))
+            if(RelocateElfRELA(maplib, local_maplib, bindnow, head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), &need_resolver))
                 return -1;
         }
         if(need_resolver) {
@@ -1024,7 +1031,7 @@ $PLATFORM – Expands to the processor type of the current machine (see the
 uname(1) man page description of the -i option). For more details of this token
 expansion, see “System Specific Shared Objects”
 */
-int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, library_t *deplib, int local, box64context_t *box64, x64emu_t* emu)
+int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, library_t *deplib, int local, int bindnow, box64context_t *box64, x64emu_t* emu)
 {
     DumpDynamicRPath(h);
     // update RPATH first
@@ -1085,7 +1092,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, lib
             nlibs[j++] = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
 
     // TODO: Add LD_LIBRARY_PATH and RPATH handling
-    if(AddNeededLib(maplib, neededlibs, deplib, local, nlibs, cnt, box64, emu)) {
+    if(AddNeededLib(maplib, neededlibs, deplib, local, bindnow, nlibs, cnt, box64, emu)) {
         printf_log(LOG_INFO, "Error loading one of needed lib\n");
         if(!allow_missing_libs)
             return 1;   //error...
