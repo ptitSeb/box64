@@ -291,6 +291,7 @@
 #() iFuLL
 #() iFupL
 #() iFfff
+#() iFlll
 #() iFLwp
 #() iFLip
 #() iFLLp
@@ -785,6 +786,7 @@
 #() iFipppi
 #() iFipppp
 #() iFuppLp
+#() iFlppLp
 #() iFpiiii
 #() iFpiiiu
 #() iFpiiiL
@@ -1387,9 +1389,11 @@
 #!defined(HAVE_LD80BITS) KFK
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
+#defined(NOALIGN) iFipiip
 #!defined(NOALIGN) iFEppu
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
+#!defined(NOALIGN) iFEipiip
 #() vFEv -> vFE
 #() lFEv -> lFE
 #() LFEv -> LFE
@@ -1644,6 +1648,8 @@ wrappedlibc:
 - iFiippi:
   - __fxstatat
   - __fxstatat64
+- iFipiip:
+  - epoll_pwait
 - iFpilpV:
   - __sprintf_chk
 - iFpuppp:

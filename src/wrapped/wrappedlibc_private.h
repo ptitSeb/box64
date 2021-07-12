@@ -6,13 +6,14 @@
 // typedef unsigned long int nfds_t;
 // key_t is S32
 // uid_t is u32
+// gid_t is u32
 
 //GO(a64l, 
 GO(abort, vFv)
 //DATAB(__abort_msg, 
 //GO(abs, 
 GO(accept, iFipp)
-//GO(accept4, 
+GO(accept4, iFippi)
 GOW(access, iFpi)
 //GO(acct, 
 GOW(addmntent, iFpp)
@@ -260,11 +261,11 @@ GO(epoll_create, iFi)
 GO(epoll_create1, iFO)
 #ifdef NOALIGN
 GO(epoll_ctl, iFiiip)
-//GO(epoll_pwait, 
+GO(epoll_pwait, iFipiip)
 GO(epoll_wait, iFipii)
 #else
 GOM(epoll_ctl, iFEiiip)   // struct epoll_event is 12byte on x86_64 and 16bytes (8bytes aligned) on arm64
-//GO(epoll_pwait, 
+GOM(epoll_pwait, iFEipiip)
 GOM(epoll_wait, iFEipii)
 #endif
 GO(erand48, dFp)
@@ -401,7 +402,7 @@ GO(fputws, iFpp)
 GO(fputws_unlocked, iFpp)
 GOW(fread, LFpLLp)
 GO(__freadable, iFp)
-//GO(__fread_chk, 
+GO(__fread_chk, LFpLLLp)
 GO(__freading, iFp)
 GOW(fread_unlocked, LFpLLp)
 GO(__fread_unlocked_chk, LFpLLLp)
@@ -510,10 +511,10 @@ GOW(geteuid, pFv)
 GOW(getgid, iFv)
 GO(getgrent, pFv)
 //GO(getgrent_r, 
-//GO(getgrgid, 
-//GO(getgrgid_r, 
-//GO(getgrnam, 
-//GO(getgrnam_r, 
+GO(getgrgid, pFl)
+GO(getgrgid_r, iFlppLp)
+GO(getgrnam, pFp)
+GO(getgrnam_r, iFpppLp)
 //GO(getgrouplist, 
 GOW(getgroups, iFip)
 //GO(__getgroups_chk, 
@@ -1003,7 +1004,7 @@ GO(killpg, iFii)
 //GO(l64a, 
 //GO(labs, 
 //GO(lchmod, 
-//GOW(lchown, 
+GOW(lchown, iFpuu)
 //GOW(lckpwdf, 
 GO(lcong48, vFp)
 //GOW(lcong48_r, 
@@ -1070,7 +1071,7 @@ GOM(__libc_start_main, iFEpippppp)
 //GO(__libc_thread_freeres, 
 GO(__libc_valloc, pFL)
 //GO(__libc_vfork, 
-//GOW(link, 
+GOW(link, iFpp)
 GO(linkat, iFipipi)
 GOW(listen, iFii)
 //GO(listxattr, 
@@ -1616,7 +1617,7 @@ GO(seteuid, iFu)
 //GO(setfsuid, 
 GOW(setgid, iFp)
 //GO(setgrent, 
-//GO(setgroups, 
+GO(setgroups, iFip)
 GO(sethostent, vFi)
 //GO(sethostid, 
 GO(sethostname, iFpL)
@@ -1640,8 +1641,8 @@ GOW(setpriority, iFiii)
 GO(setprotoent, vFi)
 //GO(setpwent, 
 //GOW(setregid, 
-//GOW(setresgid, 
-//GOW(setresuid, 
+GOW(setresgid, iFlll)
+GOW(setresuid, iFuuu)
 GOW(setreuid, iFuu)
 GOW(setrlimit, iFip)
 GOW(setrlimit64, iFip)
@@ -2001,8 +2002,8 @@ GOW(truncate, iFpl)
 GOW(truncate64, iFpI)
 //GO(__tsearch, 
 //GOW(tsearch, 
-//GO(ttyname, 
-//GOW(ttyname_r, 
+GO(ttyname, pFi)
+GOW(ttyname_r, iFipL)
 //GO(__ttyname_r_chk, 
 //GO(ttyslot, 
 //GO(__twalk, 
