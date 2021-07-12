@@ -15,6 +15,7 @@
 #include "debug.h"
 #include "fileutils.h"
 
+static const char* x86sign = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
 static const char* x64sign = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
 
 int FileExist(const char* filename, int flags)
@@ -73,6 +74,23 @@ int FileIsX64ELF(const char* filename)
     }
     fclose(f);
     if(memcmp(head, x64sign, sizeof(*x64sign))==0)
+        return 1;
+    return 0;
+}
+
+int FileIsX86ELF(const char* filename)
+{
+    FILE *f = fopen(filename, "rb");
+    if(!f)
+        return 0;
+    char head[sizeof(*x86sign)] = {0};
+    int sz = fread(head, sizeof(*x86sign), 1, f);
+    if(sz!=1) {
+        fclose(f);
+        return 0;
+    }
+    fclose(f);
+    if(memcmp(head, x86sign, sizeof(*x86sign))==0)
         return 1;
     return 0;
 }

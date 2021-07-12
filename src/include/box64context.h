@@ -82,6 +82,7 @@ typedef struct box64context_s {
 
     char*               fullpath;
     char*               box64path;      // path of current box64 executable
+    char*               box86path;      // path of box86 executable (if present)
 
     uint64_t            stacksz;
     size_t              stackalign;

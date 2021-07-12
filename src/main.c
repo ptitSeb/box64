@@ -817,7 +817,16 @@ int main(int argc, const char **argv, const char **env) {
         my_context->argv[0] = strdup(prog);
     else
         my_context->argv[0] = ResolveFile(prog, &my_context->box64_path);
-
+    // check if box86 is present
+    {
+        my_context->box86path = strdup(my_context->box64path);
+        char* p = strrchr(my_context->box86path, '6');  // get the 8 of box86
+        p[0] = '8'; p[1] = '6'; // change 64 to 86
+        if(!FileExist(my_context->box86path, IS_FILE)) {
+            free(my_context->box86path);
+            my_context->box86path = NULL;
+        }
+    }
     const char* prgname = strrchr(prog, '/');
     if(!prgname)
         prgname = prog;
@@ -894,12 +903,22 @@ int main(int argc, const char **argv, const char **env) {
     }
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->argv[0], 1);
     if(!elf_header) {
-        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch natively instead\n", my_context->argv[0]);
+        int x86 = my_context->box86path?FileIsX86ELF(my_context->argv[0]):0;
+        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->argv[0], x86?"using box86":"natively");
         fclose(f);
         free_contextargv();
         FreeBox64Context(&my_context);
         FreeCollection(&ld_preload);
-        return execvp(argv[1], (char * const*)(argv+1));
+        if(x86) {
+            // duplicate the array to change 1st arg as box86
+            const char** newargv = (const char**)calloc(argc+1, sizeof(char*));
+            newargv[0] = my_context->box86path;
+            for(int i=1; i<argc; ++i)
+                newargv[i] = argv[i];
+            return execvp(newargv[0], (char * const*)newargv);
+        } else
+            return execvp(argv[1], (char * const*)(argv+1));
+        printf_log(LOG_NONE, "Failed to execvp: error is %s\n", strerror(errno));
     }
     AddElfHeader(my_context, elf_header);
 

@@ -1539,10 +1539,11 @@ EXPORT int32_t my_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd
 EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
 {
     int self = isProcSelf(path, "exe");
-    int x86 = FileIsX64ELF(path);
-    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
+    int x64 = FileIsX64ELF(path);
+    int x86 = my_context->box86path?FileIsX86ELF(path):0;
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d\n", path, argv, x64);
     #if 1
-    if (x86 || self) {
+    if (x64 || x86 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
             skip_first++;
@@ -1550,7 +1551,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         int n=skip_first;
         while(argv[n]) ++n;
         const char** newargv = (const char**)calloc(n+2, sizeof(char*));
-        newargv[0] = emu->context->box64path;
+        newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
@@ -1565,10 +1566,11 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
 EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[])
 {
     int self = isProcSelf(path, "exe");
-    int x86 = FileIsX64ELF(path);
-    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
+    int x64 = FileIsX64ELF(path);
+    int x86 = my_context->box86path?FileIsX86ELF(path):0;
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d\n", path, argv, x64);
     #if 1
-    if (x86 || self) {
+    if (x64 || x86 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
             skip_first++;
@@ -1576,7 +1578,7 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         int n=skip_first;
         while(argv[n]) ++n;
         const char** newargv = (const char**)calloc(n+2, sizeof(char*));
-        newargv[0] = emu->context->box64path;
+        newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
@@ -1597,15 +1599,16 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
         fullpath = strdup(path);
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
-    int x86 = FileIsX64ELF(fullpath);
-    printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, x86, fullpath);
+    int x64 = FileIsX64ELF(fullpath);
+    int x86 = my_context->box86path?FileIsX86ELF(path):0;
+    printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, x64, fullpath);
     free(fullpath);
-    if (x86 || self) {
+    if (x64 || x86 || self) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
         char** newargv = (char**)calloc(i+2, sizeof(char*));
-        newargv[0] = emu->context->box64path;
+        newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
@@ -1621,15 +1624,16 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
 EXPORT int32_t my_execl(x64emu_t* emu, const char* path)
 {
     int self = isProcSelf(path, "exe");
-    int x86 = FileIsX64ELF(path);
-    printf_log(LOG_DEBUG, "execl(\"%s\", ...), IsX86=%d, self=%d\n", path, x86, self);
+    int x64 = FileIsX64ELF(path);
+    int x86 = my_context->box86path?FileIsX86ELF(path):0;
+    printf_log(LOG_DEBUG, "execl(\"%s\", ...), IsX86=%d, self=%d\n", path, x64, self);
     // count argv...
     int i=0;
     while(getVargN(emu, i+1)) ++i;
-    char** newargv = (char**)calloc(i+((x86 || self)?2:1), sizeof(char*));
+    char** newargv = (char**)calloc(i+((x64 || self)?2:1), sizeof(char*));
     int j=0;
-    if ((x86 || self))
-        newargv[j++] = emu->context->box64path;
+    if ((x64 || x86 || self))
+        newargv[j++] = x86?emu->context->box86path:emu->context->box64path;
     for (int k=0; k<i; ++k)
         newargv[j++] = getVargN(emu, k+1);
     if(self) newargv[1] = emu->context->fullpath;
@@ -1647,16 +1651,17 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
         fullpath = strdup(path);
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
-    int x86 = FileIsX64ELF(fullpath);
-    printf_log(LOG_DEBUG, "execlp(\"%s\", ...), IsX86=%d / fullpath=\"%s\"\n", path, x86, fullpath);
+    int x64 = FileIsX64ELF(fullpath);
+    int x86 = my_context->box86path?FileIsX86ELF(path):0;
+    printf_log(LOG_DEBUG, "execlp(\"%s\", ...), IsX86=%d / fullpath=\"%s\"\n", path, x64, fullpath);
     free(fullpath);
     // count argv...
     int i=0;
     while(getVargN(emu, i+1)) ++i;
-    char** newargv = (char**)calloc(i+((x86 || self)?2:1), sizeof(char*));
+    char** newargv = (char**)calloc(i+((x64 || self)?2:1), sizeof(char*));
     int j=0;
-    if ((x86 || self))
-        newargv[j++] = emu->context->box64path;
+    if ((x64 || x86 || self))
+        newargv[j++] = x86?emu->context->box86path:emu->context->box64path;
     for (int k=0; k<i; ++k)
         newargv[j++] = getVargN(emu, k+1);
     if(self) newargv[1] = emu->context->fullpath;
@@ -1675,15 +1680,16 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     char* fullpath = ResolveFile(path, &my_context->box64_path);
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
-    int x86 = FileIsX64ELF(fullpath);
-    printf_log(LOG_DEBUG, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x86, fullpath);
+    int x64 = FileIsX64ELF(fullpath);
+    int x86 = my_context->box86path?FileIsX86ELF(path):0;
+    printf_log(LOG_DEBUG, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x64, fullpath);
     free(fullpath);
-    if ((x86 || self)) {
+    if (x64 || x86 || self) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
         char** newargv = (char**)calloc(i+2, sizeof(char*));
-        newargv[0] = emu->context->box64path;
+        newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
