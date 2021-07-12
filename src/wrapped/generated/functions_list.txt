@@ -974,6 +974,7 @@
 #() vFpppppp
 #() cFppLppi
 #() iFEiippi
+#() iFEipppp
 #() iFElpppp
 #() iFEpiipp
 #() iFEpiipV
@@ -1661,6 +1662,8 @@ wrappedlibc:
   - __fxstatat64
 - iFipiip:
   - epoll_pwait
+- iFipppp:
+  - scandirat
 - iFpilpV:
   - __sprintf_chk
 - iFpuppp:

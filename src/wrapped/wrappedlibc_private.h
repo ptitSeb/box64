@@ -1561,7 +1561,7 @@ GOW(sbrk, pFl)
 //GOW(scalbnl, 
 GOM(scandir, iFEpppp)   //weak
 GOM(scandir64, iFEpppp) //weak
-//GOW(scandirat, 
+GOM(scandirat, iFEipppp)    //weak
 //GO(scandirat64, 
 //GO(scanf, 
 GO(__sched_cpualloc, pFL)
@@ -1633,7 +1633,7 @@ GO(__setmntent, pFpp)
 GOW(setmntent, pFpp)
 //GO(setnetent, 
 //GO(setnetgrent, 
-//GO(setns, 
+GO(setns, iFii)
 GO(__setpgid, iFpp)
 GOW(setpgid, iFpp)
 GO(setpgrp, lFv)

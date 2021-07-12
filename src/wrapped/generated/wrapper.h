@@ -1004,6 +1004,7 @@ void vFpppppi(x64emu_t *emu, uintptr_t fnc);
 void vFpppppp(x64emu_t *emu, uintptr_t fnc);
 void cFppLppi(x64emu_t *emu, uintptr_t fnc);
 void iFEiippi(x64emu_t *emu, uintptr_t fnc);
+void iFEipppp(x64emu_t *emu, uintptr_t fnc);
 void iFElpppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpiipp(x64emu_t *emu, uintptr_t fnc);
 void iFEpiipV(x64emu_t *emu, uintptr_t fnc);
