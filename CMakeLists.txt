@@ -76,7 +76,7 @@ if(NOGIT)
 endif()
 
 if(HAVE_TRACE)
-    set(BOX64 box64t)
+    set(BOX64 box64)
 else()
     set(BOX64 box64)
 endif()
