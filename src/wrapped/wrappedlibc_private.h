@@ -57,7 +57,7 @@ GO(asctime, pFp)
 GOW(asctime_r, pFpp)
 GOM(__asprintf, iFEppV)
 GOM(asprintf, iFEppV)   //Weak
-//GO(__asprintf_chk, 
+GOM(__asprintf_chk, iFEpipV)
 //GO(__assert, 
 GO(__assert_fail, vFppup)
 GO(__assert_perror_fail, vFipup)
@@ -270,7 +270,7 @@ GOM(epoll_wait, iFEipii)
 #endif
 GO(erand48, dFp)
 //GOW(erand48_r, 
-//GO(err, 
+GOM(err, vFEipV)
 //DATAB(errno, 
 GO(__errno_location, pFv)
 //GOW(error, 
@@ -278,7 +278,7 @@ GO(__errno_location, pFv)
 //DATAB(error_message_count, 
 //DATAB(error_one_per_line, 
 //DATAB(error_print_progname, 
-//GO(errx, 
+GOM(errx, iFEipV)
 //GO(ether_aton, 
 //GO(ether_aton_r, 
 //GO(ether_hostton, 
@@ -1147,7 +1147,7 @@ GOW(memmem, pFpLpL)
 GO(memmove, pFppL)
 GO(__memmove_chk, pFppLL)
 //GOI(__mempcpy, 
-//GOI(mempcpy, 
+GO(mempcpy, pFppL)
 //GOI(__mempcpy_chk, 
 GOW(memrchr, pFpiL)
 GO(memset, pFpiL)
@@ -1275,7 +1275,7 @@ GOM(open64, iFEpOu) //Weak
 GO(__open64_2, iFpO)
 //GO(__open64_nocancel, 
 GOW(openat, iFipON)
-//GO(__openat_2, 
+GO(__openat_2, iFipO)
 GOW(openat64, iFipON)
 GO(__openat64_2, iFipO)
 //GO(open_by_handle_at, 
@@ -1564,9 +1564,9 @@ GOM(scandir64, iFEpppp) //weak
 //GOW(scandirat, 
 //GO(scandirat64, 
 //GO(scanf, 
-//GO(__sched_cpualloc, 
+GO(__sched_cpualloc, pFL)
 GO(__sched_cpucount, iFLp)
-//GO(__sched_cpufree, 
+GO(__sched_cpufree, vFp)
 GO(sched_getaffinity, iFLLp)
 //GO(sched_getcpu, 
 GO(__sched_getparam, iFLp)
@@ -1608,7 +1608,7 @@ GO(setbuf, vFpp)
 GOW(setbuffer, vFppL)
 //GOW(setcontext, 
 //GO(setdomainname, 
-//GO(setegid, 
+GO(setegid, iFu)
 GOW(setenv, iFppi)
 //GO(_seterr_reply, 
 GO(seteuid, iFu)
@@ -2054,7 +2054,7 @@ GOW(versionsort64, iFpp)
 GOM(vfprintf, iFEppp)
 GOM(__vfprintf_chk, iFEpvpp)
 //GO(__vfscanf, 
-//GOW(vfscanf, 
+GOM(vfscanf, iFEppp)    //Weak
 //GOW(vfwprintf, 
 //GO(__vfwprintf_chk, 
 //GOW(vfwscanf, 
@@ -2089,8 +2089,8 @@ GOW(wait4, lFlpip)
 GOW(waitid, iFiupi)
 GO(__waitpid, lFlpi)
 GOW(waitpid, lFlpi)
-//GO(warn, 
-//GO(warnx, 
+GOM(warn, vFEpV)
+GOM(warnx, vFEpV)
 //GOW(wcpcpy, 
 //GO(__wcpcpy_chk, 
 //GOW(wcpncpy, 
@@ -2180,7 +2180,7 @@ GOW(wcstoull, UFppi)
 //GO(wcstoumax, 
 //GOW(wcstouq, 
 //GOW(wcswcs, 
-//GO(wcswidth, 
+GO(wcswidth, iFpL)
 GO(wcsxfrm, LFppL)
 GO(__wcsxfrm_l, LFppLL)
 GOW(wcsxfrm_l, LFppLL)
@@ -2200,7 +2200,7 @@ GOW(wmemcpy, pFppL)
 GO(__wmemcpy_chk, pFppLL)
 GOW(wmemmove, pFppL)
 //GO(__wmemmove_chk, 
-//GOW(wmempcpy, 
+GOW(wmempcpy, pFppL)
 //GO(__wmempcpy_chk, 
 GO(wmemset, pFpuL)
 //GOI(__wmemset_chk, 

@@ -19,6 +19,7 @@ typedef uintptr_t (*LFv_t)(void);
 typedef uintptr_t (*LFL_t)(uintptr_t);
 typedef void (*vFpi_t)(void*, int64_t);
 typedef void (*vFpu_t)(void*, uint64_t);
+typedef void (*vFpV_t)(void*, void*);
 typedef int64_t (*iFpi_t)(void*, int64_t);
 typedef int64_t (*iFpL_t)(void*, uintptr_t);
 typedef int64_t (*iFpp_t)(void*, void*);
@@ -80,6 +81,8 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(longjmp, vFpi_t) \
 	GO(siglongjmp, vFpi_t) \
 	GO(_ITM_registerTMCloneTable, vFpu_t) \
+	GO(warn, vFpV_t) \
+	GO(warnx, vFpV_t) \
 	GO(__sigsetjmp, iFpi_t) \
 	GO(backtrace, iFpi_t) \
 	GO(munmap, iFpL_t) \
@@ -104,6 +107,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(fopen64, pFpp_t) \
 	GO(realpath, pFpp_t) \
 	GO(vsyslog, vFipp_t) \
+	GO(err, vFipV_t) \
 	GO(syslog, vFipV_t) \
 	GO(backtrace_symbols_fd, vFpii_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \
@@ -119,6 +123,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(__xstat64, iFipp_t) \
 	GO(sigaction, iFipp_t) \
 	GO(__printf_chk, iFipV_t) \
+	GO(errx, iFipV_t) \
 	GO(mprotect, iFpLi_t) \
 	GO(ftw, iFppi_t) \
 	GO(ftw64, iFppi_t) \
@@ -131,6 +136,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(execve, iFppp_t) \
 	GO(vasprintf, iFppp_t) \
 	GO(vfprintf, iFppp_t) \
+	GO(vfscanf, iFppp_t) \
 	GO(vsscanf, iFppp_t) \
 	GO(__asprintf, iFppV_t) \
 	GO(__isoc99_fscanf, iFppV_t) \
@@ -154,6 +160,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(__vasprintf_chk, iFpipp_t) \
 	GO(glob, iFpipp_t) \
 	GO(glob64, iFpipp_t) \
+	GO(__asprintf_chk, iFpipV_t) \
 	GO(__fprintf_chk, iFpipV_t) \
 	GO(__vsnprintf, iFpLpp_t) \
 	GO(__vsnprintf_chk, iFpLpp_t) \

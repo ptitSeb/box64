@@ -1521,6 +1521,9 @@ wrappedlibc:
   - siglongjmp
 - vFpu:
   - _ITM_registerTMCloneTable
+- vFpV:
+  - warn
+  - warnx
 - iFpi:
   - __sigsetjmp
   - backtrace
@@ -1555,6 +1558,7 @@ wrappedlibc:
 - vFipp:
   - vsyslog
 - vFipV:
+  - err
   - syslog
 - vFpii:
   - backtrace_symbols_fd
@@ -1576,6 +1580,7 @@ wrappedlibc:
   - sigaction
 - iFipV:
   - __printf_chk
+  - errx
 - iFpLi:
   - mprotect
 - iFppi:
@@ -1591,6 +1596,7 @@ wrappedlibc:
   - execve
   - vasprintf
   - vfprintf
+  - vfscanf
   - vsscanf
 - iFppV:
   - __asprintf
@@ -1624,6 +1630,7 @@ wrappedlibc:
   - glob
   - glob64
 - iFpipV:
+  - __asprintf_chk
   - __fprintf_chk
 - iFpLpp:
   - __vsnprintf

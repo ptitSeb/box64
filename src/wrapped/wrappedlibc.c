@@ -771,19 +771,12 @@ EXPORT int my___vasprintf_chk(x64emu_t* emu, void* buff, int flags, void* fmt, x
     int r = vasprintf(buff, fmt, VARARGS);
     return r;
 }
-#if 0
-EXPORT int my___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void* fmt, void* b, va_list V)
+EXPORT int my___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void* fmt, void* b)
 {
-    #ifndef NOALIGN
-    myStackAlign((const char*)fmt, b, emu->scratch);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
-    void* f = vasprintf;
-    return ((iFppp_t)f)(result_ptr, fmt, VARARGS);
-    #else
-    return vasprintf((char**)result_ptr, (char*)fmt, V);
-    #endif
+    return vasprintf((char**)result_ptr, (char*)fmt, VARARGS);
 }
-#endif
 EXPORT int my_vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) {
     (void)emu;
     CONVERT_VALIST(b);
@@ -826,6 +819,26 @@ EXPORT void my_vwarn(x64emu_t* emu, void* fmt, void* b) {
     #endif
 }
 #endif
+EXPORT void my_err(x64emu_t *emu, int eval, void* fmt, void* b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    verr(eval, (const char*)fmt, VARARGS);
+}
+EXPORT void my_errx(x64emu_t *emu, int eval, void* fmt, void* b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    verrx(eval, (const char*)fmt, VARARGS);
+}
+EXPORT void my_warn(x64emu_t *emu, void* fmt, void* b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
+    PREPARE_VALIST;
+    vwarn((const char*)fmt, VARARGS);
+}
+EXPORT void my_warnx(x64emu_t *emu, void* fmt, void* b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
+    PREPARE_VALIST;
+    vwarnx((const char*)fmt, VARARGS);
+}
 
 EXPORT void my_syslog(x64emu_t* emu, int priority, const char* fmt, uint64_t* b)
 {
