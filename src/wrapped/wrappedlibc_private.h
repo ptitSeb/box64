@@ -362,7 +362,7 @@ GOW(fgetwc_unlocked, uFp)
 //GO(__fgetws_chk, 
 GO(fgetws_unlocked, pFpip)
 //GO(__fgetws_unlocked_chk, 
-//GO(fgetxattr, 
+GO(fgetxattr, lFippL)
 GOW(fileno, iFp)
 GOW(fileno_unlocked, iFp)
 GO(__finite, iFd)
@@ -425,7 +425,7 @@ GOW(fseeko64, iFpIi)
 GO(__fsetlocking, iFpi)
 GO(fsetpos, iFpp)
 GO(fsetpos64, iFpp)
-//GO(fsetxattr, 
+GO(fsetxattr, iFippLi)
 GOW(fstatfs, iFip)
 GOW(fstatfs64, iFip)
 //GOW(fstatvfs, 
@@ -515,7 +515,7 @@ GO(getgrgid, pFl)
 GO(getgrgid_r, iFlppLp)
 GO(getgrnam, pFp)
 GO(getgrnam_r, iFpppLp)
-//GO(getgrouplist, 
+GO(getgrouplist, iFpupp)
 GOW(getgroups, iFip)
 //GO(__getgroups_chk, 
 GO(gethostbyaddr, pFpui)
@@ -647,7 +647,7 @@ GO(getwchar_unlocked, uFp)
 GOW(getwc_unlocked, uFp)
 //GO(getwd, 
 //GO(__getwd_chk, 
-//GO(getxattr, 
+GO(getxattr, lFpppL)
 GOM(glob, iFEpipp)
 GOM(glob64, iFEpipp)
 GO(globfree, vFp)
@@ -1013,7 +1013,7 @@ GO(lcong48, vFp)
 //GOW(ldexpl, 
 GO(ldiv, HFll)
 GOM(lfind, pFEpppLp)
-//GO(lgetxattr, 
+GO(lgetxattr, lFpppL)
 //GO(__libc_alloca_cutoff, 
 //GO(__libc_allocate_once_slow, 
 //GO(__libc_allocate_rtsig, 
@@ -1092,12 +1092,12 @@ GOM(longjmp, vFEpi) //weak
 GOM(__longjmp_chk, vFEpi)
 GO(lrand48, lFv)
 //GO(lrand48_r, 
-//GO(lremovexattr, 
+GO(lremovexattr, iFpp)
 GOM(lsearch, pFEpppLp)
 GO(__lseek, IFiIi)
 GOW(lseek, IFiIi)
 GOW(lseek64, IFiIi)
-//GO(lsetxattr, 
+GO(lsetxattr, iFpppLi)
 //GO(lutimes, 
 GOM(__lxstat, iFEipp)
 GOM(__lxstat64, iFEipp)
@@ -1185,7 +1185,7 @@ GOM(mmap64, pFEpLiiiI)  //weak
 //GO(__monstartup, 
 //GOW(monstartup, 
 //DATA(__morecore, 
-//GOW(mount, 
+GOW(mount, iFpppLp)
 //GO(mprobe, 
 //GO(__mprotect, 
 GOM(mprotect, iFEpLi) //weak
@@ -1510,7 +1510,7 @@ GOM(__register_atfork, iFEpppp)
 //GOW(re_match_2, 
 //DATA(re_max_failures, 
 GO(remove, iFp)
-//GO(removexattr, 
+GO(removexattr, iFpp)
 //GO(remque, 
 GO(rename, iFpp)
 //GOW(renameat, 
@@ -1662,7 +1662,7 @@ GOW(setuid, iFu)
 //GOW(setutent, 
 //GO(setutxent, 
 GOW(setvbuf, iFppiL)
-//GO(setxattr, 
+GO(setxattr, iFpppLi)
 //GO(sgetsgent, 
 //GOW(sgetsgent_r, 
 //GO(sgetspent, 
