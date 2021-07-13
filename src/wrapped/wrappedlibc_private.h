@@ -1853,10 +1853,10 @@ GO(__strtok_r, pFppp)
 GOW(strtok_r, pFppp)
 //GO(__strtok_r_1c, 
 GOW(strtol, lFppi)
-//GO(strtold, 
+GO(strtold, DFpp)
 //GO(__strtold_internal, 
-GO(__strtold_l, dFppiL)
-GOW(strtold_l, dFppiL)
+GO(__strtold_l, DFppiL)
+GOW(strtold_l, DFppiL)
 //GO(__strtold_nan, 
 GO(__strtol_internal, lFppii)
 GO(__strtol_l, lFppi)

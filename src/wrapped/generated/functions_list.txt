@@ -171,6 +171,7 @@
 #() dFLL
 #() dFpi
 #() dFpp
+#() DFpp
 #() lFll
 #() lFpi
 #() lFpp
@@ -607,7 +608,7 @@
 #() uFpppi
 #() uFpppp
 #() UFpipp
-#() dFppiL
+#() DFppiL
 #() lFEpip
 #() lFEppL
 #() lFiipL
