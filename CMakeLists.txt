@@ -264,6 +264,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxxf86vm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibz.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlzma.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedmpg123.c"
     "${BOX64_ROOT}/src/wrapped/wrappedopenal.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpango.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpangocairo.c"

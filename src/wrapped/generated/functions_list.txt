@@ -137,6 +137,7 @@
 #() IFEp
 #() IFpi
 #() IFpu
+#() IFpd
 #() CFui
 #() CFpi
 #() CFpu
@@ -553,6 +554,7 @@
 #() iFpiip
 #() iFpiuL
 #() iFpiup
+#() iFpild
 #() iFpipi
 #() iFpipC
 #() iFpipp
@@ -570,6 +572,7 @@
 #() iFpupL
 #() iFpupp
 #() iFpupV
+#() iFplii
 #() iFplip
 #() iFpLwp
 #() iFpLpi
@@ -579,6 +582,7 @@
 #() iFppiu
 #() iFppiL
 #() iFppip
+#() iFppIL
 #() iFppCC
 #() iFppuw
 #() iFppui
@@ -594,6 +598,7 @@
 #() iFpppL
 #() iFpppp
 #() IFEpIi
+#() IFpIip
 #() IFppip
 #() IFSIii
 #() uFEpup
@@ -1014,6 +1019,7 @@
 #() iFppupip
 #() iFpplppi
 #() iFppLupp
+#() iFppLpLp
 #() iFpppiuu
 #() iFpppipi
 #() iFpppipp
@@ -1133,6 +1139,7 @@
 #() iFpiupiii
 #() iFpippLpp
 #() iFpippppp
+#() iFpIIpppp
 #() iFpuuiuui
 #() iFpuupppp
 #() iFpupuuui
@@ -1915,6 +1922,11 @@ wrappedlibz:
   - inflateInit2_
 - iFpiiiiipi:
   - deflateInit2_
+wrappedmpg123:
+- iFpppp:
+  - mpg123_replace_reader_handle
+  - mpg123_replace_reader_handle_32
+  - mpg123_replace_reader_handle_64
 wrappedopenal:
 - vFv:
   - alRequestFoldbackStop
