@@ -454,7 +454,7 @@ GOM(ftw, iFEppi)
 GOM(ftw64, iFEppi)
 GOW(funlockfile, vFp)
 GO(futimens, iFip)
-//GOW(futimes, 
+GOW(futimes, iFip)
 //GO(futimesat, 
 //GO(fwide, 
 GOM(fwprintf, iFEppV)   //Weak
@@ -1098,7 +1098,7 @@ GO(__lseek, IFiIi)
 GOW(lseek, IFiIi)
 GOW(lseek64, IFiIi)
 GO(lsetxattr, iFpppLi)
-//GO(lutimes, 
+GO(lutimes, iFpp)
 GOM(__lxstat, iFEipp)
 GOM(__lxstat64, iFEipp)
 GO(__madvise, iFpLi)
