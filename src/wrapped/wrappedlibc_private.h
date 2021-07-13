@@ -1324,29 +1324,27 @@ GOW(posix_fadvise64, iFilli)
 //GO(posix_madvise, 
 GOW(posix_memalign, iFpLL)
 //GOW(posix_openpt, 
-//GO(posix_spawn, 
-//GO(posix_spawn, 
-//GO(posix_spawnattr_destroy, 
-//GO(posix_spawnattr_getflags, 
+GO(posix_spawn, iFpppppp)   //Need wrapping?
+GO(posix_spawnattr_destroy, iFp)
+GO(posix_spawnattr_getflags, iFpp)
 //GO(posix_spawnattr_getpgroup, 
 //GO(posix_spawnattr_getschedparam, 
 //GO(posix_spawnattr_getschedpolicy, 
-//GO(posix_spawnattr_getsigdefault, 
-//GO(posix_spawnattr_getsigmask, 
-//GO(posix_spawnattr_init, 
-//GO(posix_spawnattr_setflags, 
+GO(posix_spawnattr_getsigdefault, iFpp)
+GO(posix_spawnattr_getsigmask, iFpp)
+GO(posix_spawnattr_init, iFp)
+GO(posix_spawnattr_setflags, iFpw)
 //GO(posix_spawnattr_setpgroup, 
 //GO(posix_spawnattr_setschedparam, 
 //GO(posix_spawnattr_setschedpolicy, 
-//GO(posix_spawnattr_setsigdefault, 
-//GO(posix_spawnattr_setsigmask, 
+GO(posix_spawnattr_setsigdefault, iFpp)
+GO(posix_spawnattr_setsigmask, iFpp)
 //GO(posix_spawn_file_actions_addclose, 
-//GO(posix_spawn_file_actions_adddup2, 
+GO(posix_spawn_file_actions_adddup2, iFpii)
 //GO(posix_spawn_file_actions_addopen, 
-//GO(posix_spawn_file_actions_destroy, 
-//GO(posix_spawn_file_actions_init, 
-//GO(posix_spawnp, 
-//GO(posix_spawnp, 
+GO(posix_spawn_file_actions_destroy, iFp)
+GO(posix_spawn_file_actions_init, iFp)
+GO(posix_spawnp, iFpppppp)
 GO(ppoll, iFpLpp)
 //GO(__ppoll_chk, 
 GOW(prctl, iFiLLLL)
