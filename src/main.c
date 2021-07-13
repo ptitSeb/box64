@@ -66,7 +66,7 @@ int box64_novulkan = 0;
 char* libGL = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
-uint32_t default_gs = 0;
+uint32_t default_gs = 0xa<<3;
 int jit_gdb = 0;
 int box64_tcmalloc_minimal = 0;
 

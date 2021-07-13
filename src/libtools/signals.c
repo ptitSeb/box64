@@ -444,13 +444,13 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     uintptr_t restorer = my_context->restorer[sig];
     // get that actual ESP first!
     x64emu_t *emu = thread_get_emu();
-    uintptr_t *frame = (uintptr_t*)R_RSP;
+    uintptr_t frame = R_RSP;
 #if defined(DYNAREC) && defined(__aarch64__)
     ucontext_t *p = (ucontext_t *)ucntx;
     void * pc = (void*)p->uc_mcontext.pc;
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
     if(db) {
-        frame = (uintptr_t*)p->uc_mcontext.regs[10+_SP];
+        frame = (uintptr_t)p->uc_mcontext.regs[10+_SP];
     }
 #else
     (void)ucntx; (void)cur_db;
@@ -460,9 +460,9 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     int used_stack = 0;
     if(new_ss) {
         if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
-            frame = (uintptr_t*)emu->regs[_SP].q[0];
+            frame = (uintptr_t)emu->regs[_SP].q[0];
         } else {
-            frame = (uintptr_t*)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
+            frame = (uintptr_t)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
             used_stack = 1;
             new_ss->ss_flags = SS_ONSTACK;
         }
@@ -471,7 +471,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
     // setup stack frame
     // try to fill some sigcontext....
-    frame -= sizeof(x64_ucontext_t)/sizeof(uintptr_t);
+    frame -= sizeof(x64_ucontext_t);
     x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
     // get general register
     sigcontext->uc_mcontext.gregs[X64_R8] = R_R8;
@@ -488,9 +488,9 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     sigcontext->uc_mcontext.gregs[X64_RDI] = R_RDI;
     sigcontext->uc_mcontext.gregs[X64_RSI] = R_RSI;
     sigcontext->uc_mcontext.gregs[X64_RBP] = R_RBP;
-    sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;
     sigcontext->uc_mcontext.gregs[X64_RSP] = R_RSP;
     sigcontext->uc_mcontext.gregs[X64_RBX] = R_RBX;
+    sigcontext->uc_mcontext.gregs[X64_RIP] = emu->old_ip;//R_RIP;   // old_ip is more accurate as the "current" IP
     // flags
     sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
     // get segments
@@ -588,7 +588,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     GO(RBP);
     #undef GO
     // set stack pointer
-    R_RSP = (uintptr_t)frame;
+    R_RSP = frame;
     // set frame pointer
     R_RBP = sigcontext->uc_mcontext.gregs[X64_RBP];
 

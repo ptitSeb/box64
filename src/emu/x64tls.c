@@ -142,12 +142,10 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
             *(void**)addr = GetSegmentBase(emu->segs[_GS]);
             return 0;
         case ARCH_SET_GS:
-            if(emu->segs[_GS]!=(0xa<<3)) {
-                pthread_once(&thread_key_once3, thread_key_alloc3);
-                emu->segs[_GS] = 0xa<<3;
-                if(!default_gs)
-                    default_gs = 0xa<<3;
-            }
+            pthread_once(&thread_key_once3, thread_key_alloc3);
+            if(emu->segs[_GS]!=(0xa<<3))
+                emu->segs[_GS] = 0xa<<3;    // should not move!
+            emu->segs_serial[_GS] = 0;
             my_context->segtls[3].base = (uintptr_t)addr;
             my_context->segtls[3].limit = 0;
             my_context->segtls[3].present = 1;

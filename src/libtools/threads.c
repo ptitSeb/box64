@@ -464,7 +464,7 @@ void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet
 	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
     x64emu_t *emuthread = NewX64Emu(emu->context, (uintptr_t)f, (uintptr_t)stack, stacksize, 1);
 	SetupX64Emu(emuthread);
-	SetFS(emuthread, GetFS(emu));
+	//SetFS(emuthread, GetFS(emu));
 	et->emu = emuthread;
 	et->fnc = (uintptr_t)f;
 	et->arg = arg;

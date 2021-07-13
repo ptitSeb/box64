@@ -499,7 +499,10 @@ x64emurun:
         case 0x8C:                      /* MOV Ed, Seg */
             nextop = F8;
             GETED(0);
-            ED->dword[0] = emu->segs[((nextop&0x38)>>3)];
+            if(MODREG)
+                ED->q[0] = emu->segs[((nextop&0x38)>>3)];
+            else
+                ED->word[0] = emu->segs[((nextop&0x38)>>3)];
             break;
         case 0x8D:                      /* LEA Gd,M */
             nextop = F8;
@@ -1061,7 +1064,7 @@ x64emurun:
 
         case 0xCF:                      /* IRET */
             R_RIP = Pop(emu);
-            emu->segs[_CS] = Pop(emu);
+            emu->segs[_CS] = Pop(emu)&0xffff;
             emu->segs_serial[_CS] = 0;
             emu->eflags.x64 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
@@ -1431,7 +1434,7 @@ x64emurun:
                         emu->error |= ERR_ILLEGAL;
                         goto fini;
                     } else {
-                        Push16(emu, R_CS);
+                        Push(emu, R_CS);
                         Push(emu, R_RIP);
                         R_RIP = ED->dword[0];
                         R_CS = (ED+1)->word[0];

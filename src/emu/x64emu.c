@@ -327,14 +327,15 @@ uint64_t GetRBP(x64emu_t *emu)
 {
     return R_RBP;
 }
-void SetFS(x64emu_t *emu, uint16_t v)
+/*void SetFS(x64emu_t *emu, uint16_t v)
 {
     emu->segs[_FS] = v;
+    emu->segs_serial[_FS] = 0;
 }
 uint16_t GetFS(x64emu_t *emu)
 {
     return emu->segs[_FS];
-}
+}*/
 
 
 void ResetFlags(x64emu_t *emu)
