@@ -1172,6 +1172,7 @@
 #() pFEpLiiii
 #() pFEpLiiiI
 #() pFEppppip
+#() pFEpppppi
 #() pFifffppp
 #() pFuupupup
 #() pFpCuwwWW
@@ -2357,3 +2358,5 @@ wrappedxml2:
   - xmlHashScanFull3
 - iFpppppp:
   - xmlHashUpdateEntry3
+- pFpppppi:
+  - xmlCreateIOParserCtxt

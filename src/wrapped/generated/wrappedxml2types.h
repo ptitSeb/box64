@@ -27,6 +27,7 @@ typedef int64_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFppppi_t)(void*, void*, void*, void*, int64_t);
 typedef void (*vFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef int64_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef void* (*pFpppppi_t)(void*, void*, void*, void*, void*, int64_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(xmlSetExternalEntityLoader, vFp_t) \
@@ -53,6 +54,7 @@ typedef int64_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 	GO(xmlSaveToIO, pFppppi_t) \
 	GO(xmlHashScan3, vFpppppp_t) \
 	GO(xmlHashScanFull3, vFpppppp_t) \
-	GO(xmlHashUpdateEntry3, iFpppppp_t)
+	GO(xmlHashUpdateEntry3, iFpppppp_t) \
+	GO(xmlCreateIOParserCtxt, pFpppppi_t)
 
 #endif // __wrappedxml2TYPES_H_

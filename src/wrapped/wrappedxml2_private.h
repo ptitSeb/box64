@@ -163,7 +163,7 @@ GO(xmlBufferWriteChar, vFpp)
 GO(xmlBufferWriteCHAR, vFpp)
 GO(xmlBufferWriteQuotedString, vFpp)
 GO(xmlBuildQName, pFpppi)
-//GO(xmlBuildRelativeURI, 
+GO(xmlBuildRelativeURI, pFpp)
 //GO(xmlBuildURI, 
 GO(xmlByteConsumed, lFp)
 //GO(xmlC14NDocDumpMemory, 
@@ -198,7 +198,7 @@ GO(xmlCharEncInFunc, iFppp)
 GO(xmlCharEncOutFunc, iFppp)
 //GO(xmlCharInRange, 
 //GO(xmlCharStrdup, 
-//GO(xmlCharStrndup, 
+GO(xmlCharStrndup, pFpi)
 GO(xmlCheckFilename, iFp)
 GO(xmlCheckHTTPInput, pFpp)
 GO(xmlCheckLanguageID, iFp)
@@ -241,12 +241,12 @@ GO(xmlCreateEntityParserCtxt, pFppp)
 GO(xmlCreateEnumeration, pFp)
 GO(xmlCreateFileParserCtxt, pFp)
 GO(xmlCreateIntSubset, pFpppp)
-//GOM(xmlCreateIOParserCtxt, pFEppBBpi)
+GOM(xmlCreateIOParserCtxt, pFEpppppi)
 GO(xmlCreateMemoryParserCtxt, pFpi)
 GO(xmlCreatePushParserCtxt, pFpppip)
 //GO(xmlCreateURI, 
 GO(xmlCreateURLParserCtxt, pFpi)
-//GO(xmlCtxtGetLastError, 
+GO(xmlCtxtGetLastError, pFp)
 GO(xmlCtxtReadDoc, pFppppi)
 GO(xmlCtxtReadFd, pFpippi)
 GO(xmlCtxtReadFile, pFpppi)
