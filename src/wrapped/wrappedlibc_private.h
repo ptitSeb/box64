@@ -531,7 +531,7 @@ GOW(gethostname, iFpL)
 //GO(__gethostname_chk, 
 GOW(getifaddrs, iFp)
 //GO(getipv4sourcefilter, 
-//GOW(getitimer, 
+GOW(getitimer, iFip)
 //GO(get_kernel_syms, 
 GOW(getline, iFppp)
 GO(getloadavg, iFpi)
@@ -672,7 +672,7 @@ GOW(hasmntopt, pFpp)
 //GOW(hdestroy_r, 
 //DATA(h_errlist, 
 //DATAB(__h_errno, 
-//GO(__h_errno_location, 
+GO(__h_errno_location, pFv)
 GO(herror, vFp)
 //GO(host2netname, 
 //GO(hsearch, 
@@ -1622,7 +1622,7 @@ GO(sethostent, vFi)
 //GO(sethostid, 
 GO(sethostname, iFpL)
 //GO(setipv4sourcefilter, 
-//GOW(setitimer, 
+GOW(setitimer, iFipp)
 GOM(_setjmp, iFEp)
 GOM(setjmp, iFEp)
 GO(setlinebuf, vFp)
@@ -1706,7 +1706,7 @@ GO(sigrelse, iFi)
 //GOW(sigreturn, 
 GOM(sigset, pFEip)
 GOM(__sigsetjmp, iFEpi)
-//GOW(sigsetmask, 
+GOW(sigsetmask, iFi)
 //GO(sigstack, 
 GO(__sigsuspend, iFp)
 GOW(sigsuspend, iFp)
