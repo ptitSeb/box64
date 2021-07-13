@@ -891,6 +891,7 @@
 #() pFpppip
 #() pFpppuu
 #() pFpppup
+#() pFpppLi
 #() pFppppi
 #() pFppppp
 #() vFEiiipp
@@ -986,6 +987,7 @@
 #() iFiiiiip
 #() iFiiiLwp
 #() iFiuiipi
+#() iFipiipi
 #() iFipupup
 #() iFipuppp
 #() iFuppppp
@@ -1026,6 +1028,7 @@
 #() uFpippup
 #() uFpppppp
 #() UFpippup
+#() lFipipLu
 #() lFipLipu
 #() lFipLipp
 #() LFpipipi

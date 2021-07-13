@@ -85,7 +85,7 @@ GO(__res_mkquery, iFipiipippi)
 GOW(res_mkquery, iFipiipippi)
 GO(__res_nameinquery, iFpiipp)
 //GO(__res_nmkquery
-//GO(__res_nquery
+GO(__res_nquery, iFipiipi)
 //GO(__res_nquerydomain
 GO(__res_nsearch, iFppiipi)
 //GO(__res_nsend

@@ -193,7 +193,7 @@ GOM(__cxa_thread_atexit_impl, iFEppp)
 //DATAB(__daylight, 
 GO(__dcgettext, pFppi)
 GOW(dcgettext, pFppi)
-//GOW(dcngettext, 
+GOW(dcngettext, pFpppLi)
 //GO(__default_morecore, 
 //GO(delete_module, 
 //GO(des_setparity, 
@@ -215,7 +215,7 @@ GOM(dl_iterate_phdr, iFEpp) //Weak
 //GO(_dl_signal_exception, 
 //GO(_dl_sym, 
 //GO(_dl_vsym, 
-//GOW(dngettext, 
+GOW(dngettext, pFpppL)
 //GO(dprintf, 
 //GO(__dprintf_chk, 
 GO(drand48, dFv)
@@ -242,7 +242,7 @@ GOW(endmntent, iFp)
 GO(endprotoent, vFv)
 //GO(endpwent, 
 //GO(endrpcent, 
-//GO(endservent, 
+GO(endservent, vFv)
 //GO(endsgent, 
 //GO(endspent, 
 //GOW(endttyent, 
@@ -372,7 +372,7 @@ GOW(finitef, iFf)
 //GO(__finitel, 
 //GOW(finitel, 
 GO(__flbf, iFp)
-//GO(flistxattr, 
+GO(flistxattr, lFipL)
 GOW(flock, iFii)
 GOW(flockfile, vFp)
 GOW(_flushlbf, vFv)
@@ -607,7 +607,7 @@ GO(getservbyname, pFpp)
 //GO(getservbyname_r, 
 GO(getservbyport, pFip)
 //GO(getservbyport_r, 
-//GO(getservent, 
+GO(getservent, pFv)
 //GO(getservent_r, 
 //GO(getsgent, 
 //GO(getsgent_r, 
@@ -1074,10 +1074,10 @@ GO(__libc_valloc, pFL)
 GOW(link, iFpp)
 GO(linkat, iFipipi)
 GOW(listen, iFii)
-//GO(listxattr, 
+GO(listxattr, lFppL)
 //GO(llabs, 
 //GO(lldiv, 
-//GO(llistxattr, 
+GO(llistxattr, lFppL)
 //GO(llseek, 
 //DATAB(loc1, 
 //DATAB(loc2, 
@@ -1217,7 +1217,7 @@ GOW(newlocale, pFipp)
 //GO(nftw, 
 GOM(nftw64, iFEppii)
 //GO(nftw64, 
-//GOW(ngettext, 
+GOW(ngettext, pFppL)
 //GO(nice, 
 //DATAB(_nl_domain_bindings, 
 GO(nl_langinfo, pFu)
@@ -1647,7 +1647,7 @@ GOW(setreuid, iFuu)
 GOW(setrlimit, iFip)
 GOW(setrlimit64, iFip)
 //GO(setrpcent, 
-//GO(setservent, 
+GO(setservent, vFi)
 //GO(setsgent, 
 GOW(setsid, pFv)
 GOW(setsockopt, iFiiipu)
@@ -1723,7 +1723,7 @@ GOM(__snprintf_chk, iFEpLiLpV)  //Weak
 GO(__socket, iFiii)
 GOW(socket, iFiii)
 GOW(socketpair, iFiiip)
-//GO(splice, 
+GO(splice, lFipipLu)
 GOM(sprintf, iFEppV)
 GOM(__sprintf_chk, iFEpilpV)
 //GOW(sprofil, 
