@@ -1655,7 +1655,7 @@ GOW(setsockopt, iFiiipu)
 //GO(setspent, 
 GOW(setstate, pFp)
 //GOW(setstate_r, 
-//GOW(settimeofday, 
+GOW(settimeofday, iFpp)
 //GOW(setttyent, 
 GOW(setuid, iFu)
 //GO(setusershell, 
