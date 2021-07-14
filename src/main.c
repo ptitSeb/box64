@@ -56,6 +56,7 @@ int box64_dynarec_trace = 0;
 int x11threads = 0;
 int x11glx = 1;
 int allow_missing_libs = 0;
+int box64_prefer_wrapped = 0;
 int fix_64bit_inodes = 0;
 int box64_zoom = 0;
 int box64_steam = 0;
@@ -423,7 +424,7 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
         (*dest)[idx++] = strdup("BOX64_PATH=.:bin");
     }
     if(!ld_path) {
-        (*dest)[idx++] = strdup("BOX64_LD_LIBRARY_PATH=.:lib");
+        (*dest)[idx++] = strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64");
     }
     // add "_=prog" at the end...
     if(prog) {
@@ -448,7 +449,8 @@ void PrintHelp() {
     printf("    '-h'|'--help'    to print box64 help and quit\n");
     printf("You can also set some environment variables:\n");
     printf(" BOX64_PATH is the box64 version of PATH (default is '.:bin')\n");
-    printf(" BOX64_LD_LIBRARY_PATH is the box64 version LD_LIBRARY_PATH (default is '.:lib')\n");
+    printf(" BOX64_LD_LIBRARY_PATH is the box64 version LD_LIBRARY_PATH (default is '.:lib:lib64')\n");
+    printf(" BOX64_PREFER_WRAPPED if box64 will use wrapped libs even if the lib is specified with absolute path\n");
     printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info (level 3 is level 2 + BOX64_DUMP)\n");
     printf(" BOX64_DUMP with 0/1 to dump elf infos\n");
     printf(" BOX64_NOBANNER with 0/1 to enable/disable the printing of box64 version and build at start\n");
@@ -505,6 +507,11 @@ void LoadEnvVars(box64context_t *context)
                 printf_log(LOG_INFO, "%s ", context->box64_emulated_libs.paths[i]);
             printf_log(LOG_INFO, "\n");
         }
+    }
+    if(getenv("BOX64_PREFER_WRAPPED")) {
+        if (strcmp(getenv("BOX64_PREFER_WRAPPED"), "1")==0)
+            box64_prefer_wrapped = 1;
+            printf_log(LOG_INFO, "BOX64: Prefer Wrapped libs\n");
     }
 
     if(getenv("BOX64_NOSIGSEGV")) {
