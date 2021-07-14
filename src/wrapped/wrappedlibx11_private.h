@@ -694,7 +694,7 @@ GO(XKeysymToKeycode, uFpp)
 GO(XKeysymToString, pFp)
 // _XkeyTable   // type r
 //GO(XKillClient
-//GO(XLastKnownRequestProcessed
+GO(XLastKnownRequestProcessed, LFp)
 // _XlcAddCharSet
 // _XlcAddCT
 // _XlcAddGB18030LocaleConverters
