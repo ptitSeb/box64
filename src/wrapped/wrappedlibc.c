@@ -2025,6 +2025,15 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     }
     #endif
     void* ret = mmap64(addr, length, prot, flags, fd, offset);
+    if((ret!=(void*)-1) && (flags&0x40) && ((uintptr_t)ret>0xffffffff)) {
+        printf_log(LOG_INFO, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
+        // the 32bit mmap didn't worded, lets try again
+        munmap(ret, length);
+        loadProtectionFromMap();    // reload map, because something went wrong previously
+        addr = findBlockNearHint(addr, length); // is this the best way?
+        ret = mmap64(addr, length, prot, flags, fd, offset);
+        printf_log(LOG_INFO, " tried again with %p, got %p\n", addr, ret);
+    }
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
     if(box64_dynarec && ret!=(void*)-1) {
