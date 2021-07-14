@@ -296,7 +296,7 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
     IFX(X_PF) {
-        ANDw_mask(s3, s3, 0b011011, 000010); // 0xE0
+        ANDw_mask(s3, s3, 0b011011, 0b000010); // 0xE0
         LSRw(s3, s3, 5);
         MOV64x(s4, (uintptr_t)GetParityTab());
         LDRw_REG_LSL2(s4, s4, s3);
