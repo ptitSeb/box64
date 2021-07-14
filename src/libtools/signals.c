@@ -490,7 +490,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     sigcontext->uc_mcontext.gregs[X64_RBP] = R_RBP;
     sigcontext->uc_mcontext.gregs[X64_RSP] = R_RSP;
     sigcontext->uc_mcontext.gregs[X64_RBX] = R_RBX;
-    sigcontext->uc_mcontext.gregs[X64_RIP] = emu->old_ip;//R_RIP;   // old_ip is more accurate as the "current" IP
+    sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;//emu->old_ip;   // old_ip should be more accurate as the "current" IP, but it's not always up-to-date
     // flags
     sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
     // get segments
