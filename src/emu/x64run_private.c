@@ -1000,6 +1000,11 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
         }
 #endif
         printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));
+        if(R_RIP==0) {
+            printf_log(LOG_NONE, "Running at NULL address\n");
+            pthread_mutex_unlock(&my_context->mutex_trace);
+            return;
+        }
         if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
             uint64_t a = *(uint64_t*)(ip+3);
             if(a==0) {

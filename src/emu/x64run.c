@@ -1253,8 +1253,9 @@ x64emurun:
             break;
 
         case 0xF4:                      /* HLT */
-            // this is a privilege opcode... should an error be called instead?
-            sched_yield();
+            // this is a privilege opcode...
+            --R_RIP;
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
         case 0xF5:                      /* CMC */
@@ -1370,10 +1371,16 @@ x64emurun:
             SET_FLAG(F_CF);
             break;
         case 0xFA:                      /* CLI */
-            CLEAR_FLAG(F_IF);   //not really handled...
+            // this is a privilege opcode...
+            --R_RIP;
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            STEP;
             break;
         case 0xFB:                      /* STI */
-            SET_FLAG(F_IF);
+            // this is a privilege opcode...
+            --R_RIP;
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            STEP;
             break;
         case 0xFC:                      /* CLD */
             CLEAR_FLAG(F_DF);

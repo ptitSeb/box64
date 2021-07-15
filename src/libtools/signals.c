@@ -303,7 +303,8 @@ uint64_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
     }
     va_end (va);
 
-    EmuCall(emu, fnc);  // avoid DynaCall for now
+    //EmuCall(emu, fnc);  // avoid DynaCall for now
+    DynaCall(emu, fnc);
     if(nargs>6)
         R_RSP+=((nargs-6)*4);
 
@@ -555,8 +556,8 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
         if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[X64_RIP]) {
-            sigcontext->uc_mcontext.gregs[X64_ERR] = 0x0010;    // execution flag issue (probably)
-            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
+            sigcontext->uc_mcontext.gregs[X64_ERR] = (info->si_errno==0x1234)?0:0x0010;    // execution flag issue (probably), unless it's a #GP(0)
+            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = (info->si_code == SEGV_ACCERR || (info->si_errno==0x1234) || (uintptr_t)info->si_addr==0)?13:14;
         } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
             sigcontext->uc_mcontext.gregs[X64_ERR] = 0x0002;    // write flag issue
             if(labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[X64_RSP])<16)
@@ -643,7 +644,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 32)&0xffff;
             GO(FS);
             #undef GO
-            printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu\n");
+            printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p\n", (void*)R_RIP);
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
             if(used_stack)  // release stack
@@ -834,6 +835,9 @@ exit(-1);
         const char* x64name = NULL;
         const char* elfname = NULL;
         x64emu_t* emu = thread_get_emu();
+        // Adjust RIP for special case of NULL function run
+        if(sig==SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
+            R_RIP = 0x0;
         x64pc = R_RIP;
         rsp = (void*)R_RSP;
 #if defined(__aarch64__) && defined(DYNAREC)
@@ -927,7 +931,7 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
     void* db = NULL;
     siginfo_t info = {0};
     info.si_signo = sig;
-    info.si_errno = 0;
+    info.si_errno = (sig==SIGSEGV)?0x1234:0;    // MAark as a sign this is a #GP(0) (like privileged instruction)
     info.si_code = code;
     info.si_addr = addr;
     const char* x64name = NULL;
