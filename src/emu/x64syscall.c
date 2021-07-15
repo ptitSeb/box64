@@ -77,10 +77,11 @@ scwrap_t syscallwrap[] = {
     //{ 4, __NR_stat, 2 },     // Need to align struct stat
     //{ 5, __NR_fstat, 2},
     //{ 6, __NR_lstat, 2},
+    { 8, __NR_lseek, 3},
     //{ 9, __NR_mmap, 6},       // wrapped to track mmap
     //{ 10, __NR_mprotect, 3},  // same
     //{ 11, __NR_munmap, 2},    // same
-    { 8, __NR_lseek, 3},
+    { 12, __NR_brk, 1},
     //{ 13, __NR_rt_sigaction, 4},   // wrapped to use my_ version
     { 14, __NR_rt_sigprocmask, 4},
     { 16, __NR_ioctl, 3},
