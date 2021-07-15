@@ -791,7 +791,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         static void* glitch_pc = NULL;
         static void* glitch_addr = NULL;
         static int glitch_prot = 0;
-        if(addr && pc && db) {
+        if(addr && pc /*&& db*/) {
             if((glitch_pc!=pc || glitch_addr!=addr || glitch_prot!=prot)) {
                 // probably a glitch due to intensive multitask...
                 dynarec_log(/*LOG_DEBUG*/LOG_INFO, "SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x, retrying\n", pc, addr, db, prot);
