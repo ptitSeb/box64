@@ -225,7 +225,14 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
         else
             GW->word[0] = EW->word[0];
         break;
-
+    case 0x8C:                      /* MOV Ed, Seg */
+        nextop = F8;
+        GETEW(0);
+        if(rex.w)
+            EW->q[0] = emu->segs[((nextop&0x38)>>3)];
+        else
+            EW->word[0] = emu->segs[((nextop&0x38)>>3)];
+        break;
     case 0x8D:                              /* LEA Gw,M */
         nextop = F8;
         GETED(0);
