@@ -462,12 +462,20 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
     MOVZw(x1, 0);
     STRx_U12(x1, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
+    STRx_U12(x1, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
     // POP EFLAGS
     POP1(xFlags);
     MOV32w(x1, 0x3F7FD7);
     ANDx_REG(xFlags, xFlags, x1);
     ORRx_mask(xFlags, xFlags, 1, 0b111111, 0);
     SET_DFNONE(x1);
+    // POP RSP
+    POP1(x3);
+    // POP SS
+    POP1(x2);
+    STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_SS]));
+    // set new RSP
+    MOVx_REG(xRSP, x3);
     // Ret....
     MOV64x(x2, (uintptr_t)arm64_epilog);  // epilog on purpose, CS might have changed!
     BR(x2);

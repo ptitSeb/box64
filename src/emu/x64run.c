@@ -46,6 +46,11 @@ int Run(x64emu_t *emu, int step)
 
     if(emu->quit)
         return 0;
+    if(R_RIP==0) {
+        emu->quit = 1;
+        printf_log(LOG_INFO, "Ask to run at NULL, quit silently\n");
+        return 0;
+    }
 
     //ref opcode: http://ref.x64asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p\n", emu, (void*)R_RIP, (void*)R_RSP);
@@ -1067,6 +1072,10 @@ x64emurun:
             emu->segs[_CS] = Pop(emu)&0xffff;
             emu->segs_serial[_CS] = 0;
             emu->eflags.x64 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+            tmp64u = Pop(emu);  //RSP
+            emu->segs[_SS] = Pop(emu)&0xffff;
+            emu->segs_serial[_SS] = 0;
+            R_RSP= tmp64u;
             RESET_FLAGS(emu);
             goto fini;      // exit, to recompute CS if needed
             break;
