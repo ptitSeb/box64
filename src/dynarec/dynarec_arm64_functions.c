@@ -25,6 +25,7 @@
 #include "dynarec_arm64.h"
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
+#include "custommem.h"
 
 void arm_fstp(x64emu_t* emu, void* p)
 {
@@ -320,7 +321,7 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
 #define PK(a)       *(uint8_t*)(addr+a)
 #define PK32(a)     *(int32_t*)(addr+a)
 
-    if(!addr)
+    if(!addr || !getProtection(addr))
         return 0;
     if(PK(0)==0xff && PK(1)==0x25) {            // "absolute" jump, maybe the GOT (well, RIP relative in fact)
         uintptr_t a1 = addr + 6 + (PK32(2));    // need to add a check to see if the address is from the GOT !
