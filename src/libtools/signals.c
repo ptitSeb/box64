@@ -943,7 +943,7 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
             elfname = ElfName(elf);
     }
 
-    printf_log(LOG_INFO, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=%d\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
+    printf_log(/*LOG_INFO*/LOG_DEBUG, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=%d\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
     my_sigactionhandler_oldcode(sig, &info, &ctx, NULL, db);
 }
 
