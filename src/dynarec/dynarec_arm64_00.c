@@ -973,12 +973,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x8C:
             INST_NAME("MOV Ed, Seg");
             nextop=F8;
-            MOV32w(x3, offsetof(x64emu_t, segs[(nextop&0x38)>>3])); // probably not usefull, U12 should work
             if((nextop&0xC0)==0xC0) {   // reg <= seg
-                LDRH_REG(xRAX+(nextop&7)+(rex.b<<3), xEmu, x3);
+                LDRH_U12(xRAX+(nextop&7)+(rex.b<<3), xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
             } else {                    // mem <= seg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
-                LDRH_REG(x3, xEmu, x3);
+                LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
                 STRH_U12(x3, ed, fixedaddress);
             }
             break;
@@ -999,6 +998,24 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x8F:
+            INST_NAME("POP Ed");
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                POP1(xRAX+(nextop&7)+(rex.b<<3));
+            } else {
+                POP1(x2); // so this can handle POP [ESP] and maybe some variant too
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                if(ed==xRSP) {
+                    STRx_U12(x2, ed, fixedaddress);
+                } else {
+                    // complicated to just allow a segfault that can be recovered correctly
+                    SUBx_U12(xRSP, xRSP, 8);
+                    STRx_U12(x2, ed, fixedaddress);
+                    ADDx_U12(xRSP, xRSP, 8);
+                }
+            }
+            break;
         case 0x90:
         case 0x91:
         case 0x92:
