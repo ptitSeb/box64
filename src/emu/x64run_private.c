@@ -55,9 +55,11 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
 
     DynaRun(emu);
 
-    SetRSP(emu, GetRBP(emu));   // restore RSP
-    SetRBP(emu, Pop64(emu));         // restore RBP
-    emu->quit = 1;  // finished!
+    if(!emu->quit) {
+        SetRSP(emu, GetRBP(emu));   // restore RSP
+        SetRBP(emu, Pop64(emu));         // restore RBP
+        emu->quit = 1;  // finished!
+    }
     return 0;
 }
 
