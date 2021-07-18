@@ -39,14 +39,14 @@ GO(lzma_end, vFp)
 //GO(lzma_get_progress, 
 //GO(lzma_index_append, 
 //GO(lzma_index_block_count, 
-//GO(lzma_index_buffer_decode, 
+GOM(lzma_index_buffer_decode, iFEpppppL)
 //GO(lzma_index_buffer_encode, 
 //GO(lzma_index_cat, 
 //GO(lzma_index_checks, 
 //GO(lzma_index_decoder, 
 //GO(lzma_index_dup, 
 //GO(lzma_index_encoder, 
-//GO(lzma_index_end, 
+GOM(lzma_index_end, vFEpp)
 //GO(lzma_index_file_size, 
 //GO(lzma_index_hash_append, 
 //GO(lzma_index_hash_decode, 
@@ -60,13 +60,13 @@ GO(lzma_end, vFp)
 //GO(lzma_index_iter_rewind, 
 //GO(lzma_index_memusage, 
 //GO(lzma_index_memused, 
-//GO(lzma_index_size, 
+GO(lzma_index_size, UFp)
 //GO(lzma_index_stream_count, 
 //GO(lzma_index_stream_flags, 
 //GO(lzma_index_stream_padding, 
 //GO(lzma_index_stream_size, 
 //GO(lzma_index_total_size, 
-//GO(lzma_index_uncompressed_size, 
+GO(lzma_index_uncompressed_size, UFp)
 //GO(lzma_lzma_preset, 
 //GO(lzma_memlimit_get, 
 //GO(lzma_memlimit_set, 
@@ -84,14 +84,14 @@ GO(lzma_end, vFp)
 //GO(lzma_raw_encoder, 
 //GO(lzma_raw_encoder_memusage, 
 //GO(lzma_stream_buffer_bound, 
-//GO(lzma_stream_buffer_decode, 
+GOM(lzma_stream_buffer_decode, iFEpupppLppL)
 //GO(lzma_stream_buffer_encode, 
 GO(lzma_stream_decoder, iFpUi)
 //GO(lzma_stream_encoder, 
 //GO(lzma_stream_encoder_mt, 
 //GO(lzma_stream_encoder_mt_memusage, 
 //GO(lzma_stream_flags_compare, 
-//GO(lzma_stream_footer_decode, 
+GO(lzma_stream_footer_decode, iFpp)
 //GO(lzma_stream_footer_encode, 
 //GO(lzma_stream_header_decode, 
 //GO(lzma_stream_header_encode, 

@@ -1129,6 +1129,7 @@
 #() iFEpLiLpV
 #() iFEppLpIi
 #() iFEpppiiu
+#() iFEpppppL
 #() iFEpppppp
 #() iFiiiiiip
 #() iFpiiiiii
@@ -1325,6 +1326,7 @@
 #() vFffffffffff
 #() vFppdddddddd
 #() vFpppppppppp
+#() iFEpupppLppL
 #() iFEppppppppp
 #() iFiiiiiiiiip
 #() iFpuupiuiipp
@@ -1923,6 +1925,13 @@ wrappedlibz:
   - inflateInit2_
 - iFpiiiiipi:
   - deflateInit2_
+wrappedlzma:
+- vFpp:
+  - lzma_index_end
+- iFpppppL:
+  - lzma_index_buffer_decode
+- iFpupppLppL:
+  - lzma_stream_buffer_decode
 wrappedmpg123:
 - iFpppp:
   - mpg123_replace_reader_handle
