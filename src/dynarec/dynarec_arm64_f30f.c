@@ -363,6 +363,20 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             CSETw(x1, cEQ);
             BFIw(xFlags, x1, F_ZF, 1);  // ZF = is dest 0?
             break;
+        case 0xBD:
+            INST_NAME("LZCNT Gd, Ed");
+            SETFLAGS(X_CF|X_ZF, SF_SUBSET);
+            SET_DFNONE(x1);
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            TSTxw_REG(ed, ed);
+            BFIw(xFlags, x1, F_CF, 1);  // CF = is source 0?
+            CLZxw(gd, x1);    // x2 gets leading 0 == LZCNT
+            TSTxw_REG(gd, gd);
+            CSETw(x1, cEQ);
+            BFIw(xFlags, x1, F_ZF, 1);  // ZF = is dest 0?
+            break;
 
         case 0xC2:
             INST_NAME("CMPSS Gx, Ex, Ib");

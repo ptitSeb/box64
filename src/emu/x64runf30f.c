@@ -291,6 +291,24 @@ int RunF30F(x64emu_t *emu, rex_t rex)
             }
         }
         break;
+    case 0xBD:  /* LZCNT Ed,Gd */
+        CHECK_FLAGS(emu);
+        nextop = F8;
+        GETED(0);
+        GETGD;
+        if(rex.w) {
+            tmp64u = ED->q[0];
+            tmp8u = (tmp64u)?__builtin_clzl(tmp64u):64;
+            CONDITIONAL_SET_FLAG(tmp8u==0, F_ZF);
+            CONDITIONAL_SET_FLAG(tmp8u==64, F_CF);
+        } else {
+            tmp32u = ED->dword[0];
+            tmp8u = (tmp32u)?__builtin_clz(tmp32u):32;
+            CONDITIONAL_SET_FLAG(tmp8u==0, F_ZF);
+            CONDITIONAL_SET_FLAG(tmp8u==32, F_CF);
+        }
+        GD->q[0] = tmp8u;
+        break;
 
     case 0xC2:  /* CMPSS Gx, Ex, Ib */
         nextop = F8;
