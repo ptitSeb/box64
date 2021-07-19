@@ -1289,7 +1289,7 @@ DATA(optarg, sizeof(void*))
 DATA(opterr, sizeof(int))
 DATA(optind, sizeof(int))
 DATA(optopt, sizeof(int))
-//GO(__overflow, 
+GO(__overflow, iFpi)
 //GO(parse_printf_format, 
 //GO(passwd2des, 
 GOW(pathconf, iFpi)
@@ -1511,8 +1511,8 @@ GO(remove, iFp)
 GO(removexattr, iFpp)
 //GO(remque, 
 GO(rename, iFpp)
-//GOW(renameat, 
-//GOW(renameat2, 
+GOW(renameat, iFipip)
+GOW(renameat2, iFipipu)
 //DATAB(_res, 
 //GOW(re_search, 
 //GOW(re_search_2, 
