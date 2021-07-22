@@ -1,0 +1,44 @@
+# Maintainer: Jai-JAP <parjailu@gmail.com>
+# Author: Sebastien Chevalier <ptitseb@box86.org>
+pkgname=box64-rpi-git
+pkgver=1116.9243ea4
+pkgrel=1
+pkgdesc="Linux Userspace x86_64 Emulator with a twist, targeted at ARM64 Linux devices."
+arch=('aarch64')
+url="https://github.com/ptitSeb/box64"
+license=('MIT')
+optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
+makedepends=('git' 'cmake' 'make')
+provides=("${pkgname%-git}" "${pkgname%-rpi-git}-git" "${pkgname%-rpi-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-rpi-git}-git" "${pkgname%-rpi-git}")
+source=('git+https://github.com/ptitSeb/box64')
+md5sums=('SKIP')
+
+pkgver() {
+	cd "$srcdir/${pkgname%-rpi-git}"
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+	cd "${srcdir}/${pkgname%-rpi-git}"
+	if [[ ! -d ./build ]]; then
+		mkdir build && cd build
+		cmake .. -DRPI4ARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+	fi
+}
+
+build() {
+	cd "$srcdir/${pkgname%-rpi-git}/build"
+	make -j$(nproc)
+}
+
+package() {
+	cd "$srcdir/${pkgname%-rpi-git}/build"
+	make DESTDIR="${pkgdir}/" install
+	# /usr/local/bin isn't in PATH by the default,
+	# we should move it to /usr/bin
+	cd ${pkgdir}
+	mv usr/local/bin/ usr/bin/
+	# cleanup when dir is empty
+	rmdir usr/local || exit 0
+}
