@@ -1,5 +1,5 @@
 # Maintainer: Jai-JAP <parjailu@gmail.com>
-# Contributor: Sebastien Chevalier <sebastien.chev@gmail.com>
+# Contributor: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box64-x64-git
 pkgver=r1116.9243ea4
 pkgrel=1
@@ -7,7 +7,6 @@ pkgdesc="Linux Userspace x86_64 Emulator with a twist, targeted at ARM64 Linux d
 arch=('aarch64')
 url="https://github.com/ptitSeb/box64"
 license=('MIT')
-optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
 makedepends=('git' 'cmake' 'make')
 provides=("${pkgname%-git}" "${pkgname%-x64-git}-git" "${pkgname%-x64-git}")
 conflicts=("${pkgname%-git}" "${pkgname%-x64-git}-git" "${pkgname%-x64-git}")
