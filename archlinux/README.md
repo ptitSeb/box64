@@ -19,3 +19,6 @@ This might give you some advantages like those:
 - automatic updates (with some AUR frontends like [`pamac-aur`](https://aur.archlinux.org/packages/pamac-aur/) or [`yay`](https://aur.archlinux.org/packages/yay));
 - easily uninstall with `pacman -R` when no needed (no need other scripts nor Makefile to do this);
 - your `box64` installation is recognized as a package (where it wasn't when installing with `make install`).
+
+
+### Note: You can use [makedeb](https://github.com/makedeb/makedeb) (or) [pkgbuild2spec](https://github.com/prozum/pkgbuild2spec) to compile box64 to .deb or .rpm installer files.

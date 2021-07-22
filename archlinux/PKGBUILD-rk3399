@@ -1,7 +1,7 @@
 # Maintainer: Jai-JAP <parjailu@gmail.com>
-# Contributor: Sebastien Chevalier <ptitseb@box86.org>
+# Author: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box86-rk3399-git
-pkgver=r1116.9243ea4
+pkgver=1116.9243ea4
 pkgrel=1
 pkgdesc="Linux Userspace x86_64 Emulator with a twist, targeted at ARM64 Linux devices."
 arch=('aarch64')
