@@ -46,7 +46,7 @@ static void freeLibraryRecurse(lib_t *maplib, x64emu_t *emu, int idx, char *free
             if (lib->depended.libs[i] == maplib->libraries[j]) break;
         }
         if (j == maplib->libsz) {
-            printf_log(LOG_INFO, "Library %s (%p) needs %p, but it was not found. Ignoring.\n", lib->name, lib, lib->depended.libs[i]);
+            printf_log(LOG_DEBUG, "Library %s (%p) needs %p, but it was not found. Ignoring.\n", lib->name, lib, lib->depended.libs[i]);
             continue;
         }
         if (freed[j] == 1) {
