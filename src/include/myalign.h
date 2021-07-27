@@ -35,6 +35,20 @@ typedef struct {
   sysv_varargs->reg_save_area=A->reg_save_area;  \
   sysv_varargs->overflow_arg_area=A->overflow_arg_area;
 
+#define CREATE_VALIST_FROM_VAARG(STACK, SCRATCH, N) \
+  va_list sysv_varargs;                     \
+  sysv_varargs->gp_offset=(6-((N<6)?N:6))*8;\
+  sysv_varargs->fp_offset=(6*8);            \
+  sysv_varargs->reg_save_area=SCRATCH;      \
+  sysv_varargs->overflow_arg_area=STACK;    \
+  {                                         \
+    uint64_t *p = (uint64_t*)SCRATCH;       \
+    p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;     \
+    p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;       \
+    memcpy(&p[6], emu->xmm, 8*16);          \
+  }
+
+
 
 #elif defined(__aarch64__)
 // aarch64: 8 64bits general regs and 8 128bits float regs
@@ -54,13 +68,27 @@ typedef struct  va_list {
   sysv_varargs.__vr_offs=(8*16); \
   sysv_varargs.__stack=A;
 
-#define CONVERT_VALIST(A) \
-  va_list sysv_varargs; \
-  sysv_varargs.__gr_offs=-(6*8)+A->gp_offset;  \
-  sysv_varargs.__vr_offs=-(8*16)+(A->fp_offset-X64_VA_MAX_REG);        \
-  sysv_varargs.__stack=A->overflow_arg_area;    \
-  sysv_varargs.__gr_top=A->reg_save_area + X64_VA_MAX_REG;  \
+#define CONVERT_VALIST(A)                                       \
+  va_list sysv_varargs;                                         \
+  sysv_varargs.__gr_offs=-(6*8)+A->gp_offset;                   \
+  sysv_varargs.__vr_offs=-(8*16)+(A->fp_offset-X64_VA_MAX_REG); \
+  sysv_varargs.__stack=A->overflow_arg_area;                    \
+  sysv_varargs.__gr_top=A->reg_save_area + X64_VA_MAX_REG;      \
   sysv_varargs.__vr_top=A->reg_save_area + X64_VA_MAX_XMM;
+
+#define CREATE_VALIST_FROM_VAARG(STACK, SCRATCH, N)   \
+  va_list sysv_varargs;                               \
+  sysv_varargs.__gr_offs=(8*(2+((N<6)?N:6)));         \
+  sysv_varargs.__vr_offs=0;                           \
+  sysv_varargs.__stack=STACK;                         \
+  sysv_varargs.__gr_top=SCRATCH + X64_VA_MAX_REG;     \
+  sysv_varargs.__vr_top=SCRATCH + X64_VA_MAX_XMM;     \
+  {                                                   \
+    uint64_t *p = (uint64_t*)SCRATCH;                 \
+    p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;               \
+    p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;                 \
+    memcpy(&p[6], emu->xmm, 8*16);                    \
+  }
 
 #elif defined(__powerpc64__)
 // TODO, is this correct?

@@ -415,13 +415,14 @@ EXPORT int my_dbus_message_get_args_valist(x64emu_t* emu, void* message, void* e
     return my->dbus_message_get_args_valist(message, e, arg, VARARGS);
 }
 
-/*EXPORT int my_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int arg, uint64_t* V)
+EXPORT int my_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int arg, uint64_t* V)
 {
     (void)emu;
     dbus_my_t *my = (dbus_my_t*)my_lib->priv.w.p2;
 
-    return my->dbus_message_get_args_valist(message, e, arg, V);
-}*/
+    CREATE_VALIST_FROM_VAARG(V, emu->scratch, 3);
+    return my->dbus_message_get_args_valist(message, e, arg, VARARGS);
+}
 
 EXPORT int my_dbus_message_set_data(x64emu_t* emu, void* message, int32_t slot, void* data, void* free_func)
 {
