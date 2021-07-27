@@ -1443,7 +1443,7 @@ x64emurun:
                     STEP
                     break;
                 case 3:                 /* CALL FAR Ed */
-                    if(nextop>0xC0) {
+                    if(MODREG) {
                         R_RIP = emu->old_ip;
                         printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
@@ -1452,7 +1452,7 @@ x64emurun:
                     } else {
                         Push(emu, R_CS);
                         Push(emu, R_RIP);
-                        R_RIP = ED->dword[0];
+                        R_RIP = (uintptr_t)getAlternate((void*)ED->q[0]);   // check CS?
                         R_CS = (ED+1)->word[0];
                         goto fini;  // exit loop to recompute new CS...
                     }
@@ -1462,14 +1462,14 @@ x64emurun:
                     STEP
                     break;
                 case 5:                 /* JMP FAR Ed */
-                    if(nextop>0xc0) {
+                    if(MODREG) {
                         R_RIP = emu->old_ip;
                         printf_log(LOG_NONE, "Illegal Opcode %p: 0x%02X 0x%02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
                         goto fini;
                     } else {
-                        R_RIP = ED->q[0];
+                        R_RIP = (uintptr_t)getAlternate((void*)ED->q[0]);   //check CS?
                         R_CS = (ED+1)->word[0];
                         goto fini;  // exit loop to recompute CS...
                     }
