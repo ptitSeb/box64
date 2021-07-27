@@ -849,7 +849,9 @@
 #() uFpuuuu
 #() uFppiip
 #() uFppipp
+#() uFppupp
 #() uFpplip
+#() uFppppu
 #() uFppppp
 #() UFuiiii
 #() lFipLli
@@ -1035,6 +1037,8 @@
 #() iFpppppL
 #() iFpppppp
 #() uFpippup
+#() uFpuippp
+#() uFpppppi
 #() uFpppppp
 #() UFpippup
 #() lFipipLu
@@ -1153,6 +1157,7 @@
 #() iFppiiuui
 #() iFppiipii
 #() iFppiipiL
+#() iFppiuppi
 #() iFppipiip
 #() iFppipipi
 #() iFppippip
@@ -1172,6 +1177,7 @@
 #() iFpppppip
 #() iFppppppp
 #() uFuippppp
+#() uFppiuppp
 #() pFEpLiiii
 #() pFEpLiiiI
 #() pFEppppip
@@ -1243,6 +1249,7 @@
 #() iFppppppii
 #() iFpppppppp
 #() uFuipppppp
+#() uFppuppppp
 #() pFEppppppp
 #() pFuiiiuuuu
 #() pFuupupipp
@@ -1329,6 +1336,7 @@
 #() vFppdddddddd
 #() vFpppppppppp
 #() iFEpupppLppL
+#() iFEppppppipp
 #() iFEppppppppp
 #() iFiiiiiiiiip
 #() iFpuupiuiipp
@@ -1361,6 +1369,7 @@
 #() iFEppppiiiiuu
 #() iFiiiiiiiiiip
 #() iFppppiiuuiiL
+#() uFppppppppppp
 #() pFEppiiLpppip
 #() pFEppuiipuuii
 #() vFuiiiillliilp
@@ -1389,6 +1398,7 @@
 #() iFddddpppddpppp
 #() iFpippuuuiipppp
 #() iFpupiiiipppppp
+#() uFppppuuupppppp
 #() pFpCuuwwWWWWuup
 #() pFpuupppwwwwWWC
 #() pFppppppppppppp
@@ -1504,6 +1514,9 @@ wrappedgnutls:
 - vFpp:
   - gnutls_transport_set_pull_function
   - gnutls_transport_set_push_function
+wrappedkrb5:
+- iFppppppipp:
+  - krb5_get_init_creds_password
 wrappedldlinux:
 - pFp:
   - __tls_get_addr
