@@ -413,6 +413,77 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
             }
             break;
 
+        case 0xF7:                      /* GRP3 Ed(,Id) */
+            nextop = F8;
+            tmp8u = (nextop>>3)&7;
+            GETED_OFFS((tmp8u<2)?4:0, tlsdata);
+            if(rex.w) {
+                switch(tmp8u) {
+                    case 0: 
+                    case 1:                 /* TEST Ed,Id */
+                        tmp64u = F32S64;
+                        test64(emu, ED->q[0], tmp64u);
+                        break;
+                    case 2:                 /* NOT Ed */
+                        ED->q[0] = not64(emu, ED->q[0]);
+                        break;
+                    case 3:                 /* NEG Ed */
+                        ED->q[0] = neg64(emu, ED->q[0]);
+                        break;
+                    case 4:                 /* MUL RAX,Ed */
+                        mul64_rax(emu, ED->q[0]);
+                        break;
+                    case 5:                 /* IMUL RAX,Ed */
+                        imul64_rax(emu, ED->q[0]);
+                        break;
+                    case 6:                 /* DIV Ed */
+                        div64(emu, ED->q[0]);
+                        break;
+                    case 7:                 /* IDIV Ed */
+                        idiv64(emu, ED->q[0]);
+                        break;
+                }
+            } else {
+                switch(tmp8u) {
+                    case 0: 
+                    case 1:                 /* TEST Ed,Id */
+                        tmp32u = F32;
+                        test32(emu, ED->dword[0], tmp32u);
+                        break;
+                    case 2:                 /* NOT Ed */
+                        if(MODREG)
+                            ED->q[0] = not32(emu, ED->dword[0]);
+                        else
+                            ED->dword[0] = not32(emu, ED->dword[0]);
+                        break;
+                    case 3:                 /* NEG Ed */
+                        if(MODREG)
+                            ED->q[0] = neg32(emu, ED->dword[0]);
+                        else
+                            ED->dword[0] = neg32(emu, ED->dword[0]);
+                        break;
+                    case 4:                 /* MUL EAX,Ed */
+                        mul32_eax(emu, ED->dword[0]);
+                        emu->regs[_AX].dword[1] = 0;
+                        break;
+                    case 5:                 /* IMUL EAX,Ed */
+                        imul32_eax(emu, ED->dword[0]);
+                        emu->regs[_AX].dword[1] = 0;
+                        break;
+                    case 6:                 /* DIV Ed */
+                        div32(emu, ED->dword[0]);
+                        //emu->regs[_AX].dword[1] = 0;  // already put high regs to 0
+                        //emu->regs[_DX].dword[1] = 0;
+                        break;
+                    case 7:                 /* IDIV Ed */
+                        idiv32(emu, ED->dword[0]);
+                        //emu->regs[_AX].dword[1] = 0;
+                        //emu->regs[_DX].dword[1] = 0;
+                        break;
+                }
+            }
+            break;
+            
         case 0xFF:                      /* GRP 5 Ed */
             nextop = F8;
             GETED_OFFS(0, tlsdata);

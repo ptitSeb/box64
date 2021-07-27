@@ -32,7 +32,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t nextop;
     uint8_t u8;
     uint8_t gd, ed, eb1, eb2;
-    uint8_t wback, wb1, wb2;
+    uint8_t wback, wb1, wb2, wb;
     int64_t i64, j64;
     int v0;
     int q0;
@@ -621,6 +621,148 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     WBACKO(x6);
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, rex.w?d_sar64:d_sar32);
+                    break;
+            }
+            break;
+            
+        case 0xF7:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                case 1:
+                    INST_NAME("TEST Ed, Id");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEDO(x6, 4);
+                    i64 = F32S;
+                    MOV64xw(x2, i64);
+                    emit_test32(dyn, ninst, rex, ed, x2, x3, x4);
+                    break;
+                case 2:
+                    INST_NAME("NOT Ed");
+                    GETEDO(x6, 4);
+                    MVNxw_REG(ed, ed);
+                    WBACKO(x6);
+                    break;
+                case 3:
+                    INST_NAME("NEG Ed");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEDO(x6, 0);
+                    emit_neg32(dyn, ninst, rex, ed, x3, x4);
+                    WBACKO(x6);
+                    break;
+                case 4:
+                    INST_NAME("MUL EAX, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x2, rex.w?d_mul64:d_mul32);
+                    GETEDO(x6, 0);
+                    if(rex.w) {
+                        if(ed==xRDX) gd=x3; else gd=xRDX;
+                        UMULH(gd, xRAX, ed);
+                        MULx(xRAX, xRAX, ed);
+                        if(gd!=xRDX) {MOVx_REG(xRDX, gd);}
+                    } else {
+                        UMULL(xRDX, xRAX, ed);  //64 <- 32x32
+                        MOVw_REG(xRAX, xRDX);
+                        LSRx(xRDX, xRDX, 32);
+                    }
+                    UFLAG_RES(xRAX);
+                    UFLAG_OP1(xRDX);
+                    break;
+                case 5:
+                    INST_NAME("IMUL EAX, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x2, rex.w?d_imul64:d_imul32);
+                    GETEDO(x6, 0);
+                    if(rex.w) {
+                        if(ed==xRDX) gd=x3; else gd=xRDX;
+                        SMULH(gd, xRAX, ed);
+                        MULx(xRAX, xRAX, ed);
+                        if(gd!=xRDX) {MOVx_REG(xRDX, gd);}
+                    } else {
+                        SMULL(xRDX, xRAX, ed);  //64 <- 32x32
+                        MOVw_REG(xRAX, xRDX);
+                        LSRx(xRDX, xRDX, 32);
+                    }
+                    UFLAG_RES(xRAX);
+                    UFLAG_OP1(xRDX);
+                    break;
+                case 6:
+                    INST_NAME("DIV Ed");
+                    SETFLAGS(X_ALL, SF_SET);
+                    if(!rex.w) {
+                        SET_DFNONE(x2);
+                        GETEDO(x6, 0);
+                        MOVw_REG(x3, xRAX);
+                        ORRx_REG_LSL(x3, x3, xRDX, 32);
+                        if(MODREG) {
+                            MOVw_REG(x4, ed);
+                            ed = x4;
+                        }
+                        UDIVx(x2, x3, ed);
+                        MSUBx(x4, x2, ed, xRAX);
+                        MOVw_REG(xRAX, x2);
+                        MOVw_REG(xRDX, x4);
+                    } else {
+                        if(ninst && dyn->insts 
+                           && dyn->insts[ninst-1].x64.addr 
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31 
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
+                            SET_DFNONE(x2);
+                            GETEDO(x6, 0);
+                            UDIVx(x2, xRAX, ed);
+                            MSUBx(xRDX, x2, ed, xRAX);
+                            MOVx_REG(xRAX, x2);
+                        } else {
+                            GETEDO(x6, 0);
+                            CBZxw_MARK(xRDX);
+                            if(ed!=x1) {MOVx_REG(x1, ed);}
+                            CALL(div64, -1);
+                            B_NEXT_nocond;
+                            MARK;
+                            UDIVx(x2, xRAX, ed);
+                            MSUBx(xRDX, x2, ed, xRAX);
+                            MOVx_REG(xRAX, x2);
+                            SET_DFNONE(x2);
+                        }
+                    }
+                    break;
+                case 7:
+                    INST_NAME("IDIV Ed");
+                    SETFLAGS(X_ALL, SF_SET);
+                    if(!rex.w) {
+                        SET_DFNONE(x2)
+                        GETSEDOw(x6, 0);
+                        MOVw_REG(x3, xRAX);
+                        ORRx_REG_LSL(x3, x3, xRDX, 32);
+                        SDIVx(x2, x3, wb);
+                        MSUBx(x4, x2, wb, x3);
+                        MOVw_REG(xRAX, x2);
+                        MOVw_REG(xRDX, x4);
+                    } else {
+                        if(ninst && dyn->insts
+                           &&  dyn->insts[ninst-1].x64.addr 
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x48
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0x99) {
+                            SET_DFNONE(x2)
+                            GETEDO(x6, 0);
+                            SDIVx(x2, xRAX, ed);
+                            MSUBx(xRDX, x2, ed, xRAX);
+                            MOVx_REG(xRAX, x2);
+                        } else {
+                            GETEDO(x6, 0);
+                            CBZxw_MARK(xRDX);
+                            MVNx_REG(x2, xRDX);
+                            CBZxw_MARK(x2);
+                            if(ed!=x1) {MOVx_REG(x1, ed);}
+                            CALL((void*)idiv64, -1);
+                            B_NEXT_nocond;
+                            MARK;
+                            SDIVx(x2, xRAX, ed);
+                            MSUBx(xRDX, x2, ed, xRAX);
+                            MOVx_REG(xRAX, x2);
+                            SET_DFNONE(x2)
+                        }
+                    }
                     break;
             }
             break;

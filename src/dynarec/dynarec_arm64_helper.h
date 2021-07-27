@@ -66,7 +66,7 @@
                     wback = 0;                          \
                 } else {                                \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, D); \
-                    LDRw_U12(x1, wback, fixedaddress);  \
+                    LDRSW_U12(x1, wback, fixedaddress); \
                     wb = ed = x1;                       \
                 }
 //GETEDH can use hint for ed, and r1 or r2 for wback (depending on hint). wback is 0 if ed is xEAX..xEDI
@@ -114,6 +114,16 @@
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, D); \
                     LDRx_REG(x1, wback, O);             \
                     ed = x1;                            \
+                }
+#define GETSEDOw(O, D)  if((nextop&0xC0)==0xC0) {       \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    SXTWx(x1, ed);                      \
+                    wb = x1;                            \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, D); \
+                    LDRSW_REG(x1, wback, O);            \
+                    wb = ed = x1;                       \
                 }
 //FAKEELike GETED, but doesn't get anything
 #define FAKEED  if(!MODREG) {   \
