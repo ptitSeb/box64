@@ -5,7 +5,7 @@
 //3DFX_tbuffer
 GO(glTbufferMask3DFX,vFu)
 //AMD_debug_output
-// GOM(glDebugMessageCallbackAMD,vFE?p)
+GOM(glDebugMessageCallbackAMD,vFEpp)
 GO(glDebugMessageEnableAMD,vFuuipi)
 GO(glDebugMessageInsertAMD,vFuuuip)
 GO(glGetDebugMessageLogAMD,uFuippppp)
@@ -2847,6 +2847,7 @@ GO(glGetTransformFeedbacki_v, vFuiup)
 GO(glGetTransformFeedbacki64_v, vFuiup)
 GO(glCreateBuffers, vFlp)
 GO(glNamedBufferStorage, vFulpu)
+GO(glNamedBufferStorageEXT, vFulpu)
 GO(glNamedBufferData, vFulpi)
 GO(glNamedBufferSubData, vFullp)
 GO(glCopyNamedBufferSubData, vFuulll)
@@ -2942,9 +2943,11 @@ GO(glGetQueryBufferObjectuiv, vFuuil)
 GO(glMemoryBarrierByRegion, vFu)
 GO(glGetTextureSubImage, vFuiiiillliilp)
 GO(glGetCompressedTextureSubImage, vFuiiiillllp)
-
 //VERSION_4_6
 GO(glSpecializeShader, vFippp)
+
+GO(glTexturePageCommitmentEXT, vFuiiiillli)
+GO(glVertexArrayVertexAttribDivisorEXT, vFuuu)
 
 //GL_EXT_memory_object
 GO(glGetUnsignedBytei_vEXT, vFiup)
@@ -2970,6 +2973,7 @@ GO(glDrawBufferRegion,vFuiiiiii)
 //GL_ARB_sparse_buffer
 GO(glBufferPageCommitmentARB, vFippi)
 GO(glNamedBufferPageCommitmentARB, vFuppi)
+GO(glNamedBufferPageCommitmentEXT, vFuppi)
 
 //GL_ARB_sparse_texture
 GO(TexPageCommitmentARB, vFiiiiiiiii)
@@ -3209,3 +3213,149 @@ GO(glGetVertexAttribLui64vARB, vFuip)
 GO(glEGLImageTargetTexture2DOES, vFip)
 GO(glEGLImageTargetRenderbufferStorageOES, vFip)
 
+//GL_MESA_program_debug
+GOM(glProgramCallbackMESA, vFEipp)
+GO(glGetProgramRegisterfvMESA, vFilpp)
+
+//GL_????_ATI
+GO(glBlendEquationSeparateATI, vFii)
+
+//GL_AMD_interleaved_elements
+GO(glVertexAttribParameteriAMD, vFuii)
+
+//GL_AMD_occlusion_query_event
+GO(glQueryObjectParameteruiAMD, vFiuiu)
+
+//GL_EXT_raster_multisample
+GO(glRasterSamplesEXT, vFui)
+
+//GL_INTEL_performance_query
+GO(glBeginPerfQueryINTEL, vFu)
+GO(glCreatePerfQueryINTEL, vFup)
+GO(glDeletePerfQueryINTEL, vFu)
+GO(glEndPerfQueryINTEL, vFu)
+GO(glGetFirstPerfQueryIdINTEL, vFp)
+GO(glGetNextPerfQueryIdINTEL, vFup)
+GO(glGetPerfCounterInfoINTEL, vFuuupupppppp)
+GO(glGetPerfQueryDataINTEL, vFuulpp)
+GO(glGetPerfQueryIdByNameINTEL, vFpp)
+GO(glGetPerfQueryInfoINTEL, vFuuppppp)
+
+//GL_NV_bindless_multi_draw_indirect
+GO(glMultiDrawArraysIndirectBindlessNV, vFipllli)
+GO(glMultiDrawElementsIndirectBindlessCountNV, vFiipllli)
+
+//GL_NV_bindless_multi_draw_indirect_count
+GO(glMultiDrawArraysIndirectBindlessCountNV, vFipllli)
+GO(glMultiDrawElementsIndirectBindlessCountNV, vFiipllli)
+
+//GL_NV_blend_equation_advanced
+GO(glBlendParameteriNV, vFii)
+GO(glBlendBarrierNV, vFv)
+
+//GL_NV_command_list
+GO(glCreateStatesNV, vFlp)
+GO(glDeleteStatesNV, vFlp)
+GO(glIsStateNV, iFu)
+GO(glStateCaptureNV, vFui)
+GO(glGetCommandHeaderNV, uFiu)
+GO(glGetStageIndexNV, WFi)
+GO(glDrawCommandsNV, vFiuppu)
+GO(glDrawCommandsAddressNV, vFippu)
+GO(glDrawCommandsStatesNV, vFuppppu)
+GO(glDrawCommandsStatesAddressNV, vFppppu)
+GO(glCreateCommandListsNV, vFlp)
+GO(glDeleteCommandListsNV, vFlp)
+GO(glIsCommandListNV, iFu)
+GO(glListDrawCommandsStatesClientNV, vFuuppppu)
+GO(glCommandListSegmentsNV, vFuu)
+GO(glCompileCommandListNV, vFu)
+GO(glCallCommandListNV, vFu)
+
+//GL_NV_conservative_raster
+GO(glSubpixelPrecisionBiasNV, vFuu)
+
+//GL_NV_fragment_coverage_to_color
+GO(glFragmentCoverageColorNV, vFu)
+
+//GL_NV_framebuffer_mixed_samples
+GO(glCoverageModulationTableNV, vFlp)
+GO(glGetCoverageModulationTableNV, vFlp)
+GO(glCoverageModulationNV, vFi)
+
+//GL_NV_internalformat_sample_query
+GO(glGetInternalformatSampleivNV, vFiililp)
+
+//GL_NV_path_rendering
+GO(glGenPathsNV, uFl)
+GO(glDeletePathsNV, vFul)
+GO(glIsPathNV, iFu)
+GO(glPathCommandsNV, vFulplup)
+GO(glPathCoordsNV, vFulip)
+GO(glPathSubCommandsNV, vFulllplip)
+GO(glPathSubCoordsNV, vFullip)
+GO(glPathStringNV, vFuilp)
+GO(glPathGlyphsNV, vFuipulipiuf)
+GO(glPathGlyphRangeNV, vFuipuliuf)
+GO(glWeightPathsNV, vFulpp)
+GO(glCopyPathNV, vFuu)
+GO(glInterpolatePathsNV, vFuuuf)
+GO(glTransformPathNV, vFuuip)
+GO(glPathParameterivNV, vFuip)
+GO(glPathParameteriNV, vFuii)
+GO(glPathParameterfvNV, vFuip)
+GO(glPathParameterfNV, vFuif)
+GO(glPathDashArrayNV, vFulp)
+GO(glPathStencilFuncNV, vFiiu)
+GO(glPathStencilDepthOffsetNV, vFff)
+GO(glStencilFillPathNV, vFuiu)
+GO(glStencilStrokePathNV, vFuiu)
+GO(glStencilFillPathInstancedNV, vFlipuiuip)
+GO(glStencilStrokePathInstancedNV, vFlipuiuip)
+GO(glPathCoverDepthFuncNV, vFi)
+GO(glCoverFillPathNV, vFui)
+GO(glCoverStrokePathNV, vFui)
+GO(glCoverFillPathInstancedNV, vFlipuiip)
+GO(glCoverStrokePathInstancedNV, vFlipuiip)
+GO(glGetPathParameterivNV, vFuip)
+GO(glGetPathParameterfvNV, vFuip)
+GO(glGetPathCommandsNV, vFup)
+GO(glGetPathCoordsNV, vFup)
+GO(glGetPathDashArrayNV, vFup)
+GO(glGetPathMetricsNV, vFulipulp)
+GO(glGetPathMetricRangeNV, vFuullp)
+GO(glGetPathSpacingNV, vFilipufip)
+GO(glIsPointInFillPathNV, iFuuff)
+GO(glIsPointInStrokePathNV, iFuff)
+GO(glGetPathLengthNV, fFull)
+GO(glPointAlongPathNV, iFullfpppp)
+GO(glMatrixLoad3x2fNV, vFip)
+GO(glMatrixLoad3x3fNV, vFip)
+GO(glMatrixLoadTranspose3x3fNV, vFip)
+GO(glMatrixMult3x2fNV, vFip)
+GO(glMatrixMult3x3fNV, vFip)
+GO(glMatrixMultTranspose3x3fNV, vFip)
+GO(glStencilThenCoverFillPathNV, vFuiui)
+GO(glStencilThenCoverStrokePathNV, vFuiui)
+GO(glStencilThenCoverFillPathInstancedNV, vFlipuiuiip)
+GO(glStencilThenCoverStrokePathInstancedNV, vFlipuiuiip)
+GO(glPathGlyphIndexRangeNV, iFipuufp)
+GO(glPathGlyphIndexArrayNV, iFuipuuluf)
+GO(glPathMemoryGlyphIndexArrayNV, iFuilpluluf)
+GO(glProgramPathFragmentInputGenNV, vFuiiip)
+GO(glGetProgramResourcefvNV, vFuiulplpp)
+GO(glPathColorGenNV, vFiiip)
+GO(glPathTexGenNV, vFiiip)
+GO(glPathFogGenNV, vFi)
+GO(glGetPathColorGenivNV, vFiip)
+GO(glGetPathColorGenfvNV, vFiip)
+GO(glGetPathTexGenivNV, vFiip)
+GO(glGetPathTexGenfvNV, vFiip)
+
+//GL_NV_sample_locations
+GO(glFramebufferSampleLocationsfvNV, vFiulp)
+GO(glNamedFramebufferSampleLocationsfvNV, vFuulp)
+GO(glResolveDepthValuesNV, vFv)
+
+//GL_OVR_multiview
+GO(glFramebufferTextureMultiviewOVR, vFiiuiil)

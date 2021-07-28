@@ -119,6 +119,28 @@ static void* find_debug_callback_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libGL debug_callback callback\n");
     return NULL;
 }
+// program_callback ...
+#define GO(A)                                                       \
+static uintptr_t my_program_callback_fct_##A = 0;                   \
+static void my_program_callback_##A(int32_t a, void* b)             \
+{                                                                   \
+    RunFunction(my_context, my_program_callback_fct_##A, 2, a, b);  \
+}
+SUPER()
+#undef GO
+static void* find_program_callback_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_program_callback_fct_##A == (uintptr_t)fct) return my_program_callback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_program_callback_fct_##A == 0) {my_program_callback_fct_##A = (uintptr_t)fct; return my_program_callback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL program_callback callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT void my_glDebugMessageCallback(x64emu_t* emu, void* prod, void* param)
@@ -134,6 +156,7 @@ EXPORT void my_glDebugMessageCallback(x64emu_t* emu, void* prod, void* param)
     DebugMessageCallback(find_debug_callback_Fct(prod), param);
 }
 EXPORT void my_glDebugMessageCallbackARB(x64emu_t* emu, void* prod, void* param) __attribute__((alias("my_glDebugMessageCallback")));
+EXPORT void my_glDebugMessageCallbackAMD(x64emu_t* emu, void* prod, void* param) __attribute__((alias("my_glDebugMessageCallback")));
 
 EXPORT int my_glXSwapIntervalMESA(int interval)
 {
@@ -146,6 +169,19 @@ EXPORT int my_glXSwapIntervalMESA(int interval)
     if(!SwapIntervalMESA)
         return 0;
     return SwapIntervalMESA(interval);
+}
+
+EXPORT void my_glProgramCallbackMESA(x64emu_t* emu, void* f, void* data)
+{
+    static vFpp_t ProgramCallbackMESA = NULL;
+    static int init = 1;
+    if(init) {
+        ProgramCallbackMESA = my_context->glxprocaddress("glProgramCallbackMESA");
+        init = 0;
+    }
+    if(!ProgramCallbackMESA)
+        return;
+    ProgramCallbackMESA(find_program_callback_Fct(f), data);
 }
 
 #define PRE_INIT if(libGL) {lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else

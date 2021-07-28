@@ -13,11 +13,14 @@
 
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFipp_t)(int64_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(glXGetProcAddress, pFp_t) \
 	GO(glXGetProcAddressARB, pFp_t) \
 	GO(glDebugMessageCallback, vFpp_t) \
-	GO(glDebugMessageCallbackARB, vFpp_t)
+	GO(glDebugMessageCallbackAMD, vFpp_t) \
+	GO(glDebugMessageCallbackARB, vFpp_t) \
+	GO(glProgramCallbackMESA, vFipp_t)
 
 #endif // __wrappedlibglTYPES_H_
