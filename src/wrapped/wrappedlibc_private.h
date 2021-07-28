@@ -98,7 +98,7 @@ GOW(bzero, vFpL)
 GOW(calloc, pFLL)
 //GO(callrpc, 
 //GO(__call_tls_dtors, 
-//GOW(canonicalize_file_name, 
+GOW(canonicalize_file_name, pFp)
 //GO(capget, 
 //GO(capset, 
 GO(catclose, iFp)
