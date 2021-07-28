@@ -2012,6 +2012,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %ld) => ", addr, length, prot, flags, fd, offset);}
     #ifndef NOALIGN
+    void* old_addr = addr;
     if(flags&0x40) {
         // 0x40 is MAP_32BIT, wich only exist on x86_64!
         //flags &= ~0x40;   // let the flags in?
@@ -2019,7 +2020,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
             addr = find32bitBlock(length);
         else
             addr = findBlockNearHint(addr, length);
-    } else if (box64_wine) {
+    } else /*if (box64_wine)*/ {
         if(!addr)
             addr = find47bitBlock(length);
     }
@@ -2027,10 +2028,16 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     void* ret = mmap64(addr, length, prot, flags, fd, offset);
     if((ret!=(void*)-1) && (flags&0x40) && ((uintptr_t)ret>0xffffffff)) {
         printf_log(LOG_INFO, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
-        // the 32bit mmap didn't worded, lets try again
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = findBlockNearHint(addr, length); // is this the best way?
+        ret = mmap64(addr, length, prot, flags, fd, offset);
+        printf_log(LOG_INFO, " tried again with %p, got %p\n", addr, ret);
+    } else if((ret!=(void*)-1) && (old_addr==NULL) && ((uintptr_t)ret>0x7fffffffffffLL)) {
+        printf_log(LOG_INFO, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
+        munmap(ret, length);
+        loadProtectionFromMap();    // reload map, because something went wrong previously
+        addr = find47bitBlock(length); // is this the best way?
         ret = mmap64(addr, length, prot, flags, fd, offset);
         printf_log(LOG_INFO, " tried again with %p, got %p\n", addr, ret);
     }
