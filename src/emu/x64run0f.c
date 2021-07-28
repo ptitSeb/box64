@@ -48,8 +48,17 @@ int Run0F(x64emu_t *emu, rex_t rex)
         case 0x05:                      /* SYSCALL */
             x64Syscall(emu);
             break;
+        case 0x06:                      /* CLTS */
+            // this is a privilege opcode...
+            R_RIP-=2;
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            break;
 
+        case 0x08:                      /* INVD */
         case 0x09:                      /* WBINVD */
+            // this is a privilege opcode...
+            R_RIP-=2;
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             break;
 
         case 0x0B:                      /* UD2 */
@@ -144,6 +153,14 @@ int Run0F(x64emu_t *emu, rex_t rex)
         case 0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
             GETED(0);
+            break;
+        case 0x20:                      /* MOV REG, crX */
+        case 0x21:                      /* MOV REG, drX */
+        case 0x22:                      /* MOV cxR, REG */
+        case 0x23:                      /* MOV drX, REG */
+            // this is a privilege opcode...
+            R_RIP-=2;
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             break;
 
         case 0x28:                      /* MOVAPS Gx,Ex */

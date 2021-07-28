@@ -307,6 +307,15 @@ x64emurun:
             else
                 GD->q[0] = imul32(emu, ED->dword[0], (uint32_t)tmp64s);
             break;
+        case 0x6C:                      /* INSB DX */
+        case 0x6D:                      /* INSL DX */
+        case 0x6E:                      /* OUTSB DX */
+        case 0x6F:                      /* OUTSL DX */
+            // this is a privilege opcode...
+            --R_RIP;
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            STEP;
+            break;
 
         GOCOND(0x70
             ,   tmp8s = F8S; CHECK_FLAGS(emu);
@@ -1066,6 +1075,13 @@ x64emurun:
             x64Int3(emu);
             if(emu->quit) goto fini;
             break;
+        case 0xCD:                      /* INT n */
+            // this is a privilege opcode...
+            --R_RIP;
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            STEP;
+            break;
+
 
         case 0xCF:                      /* IRET */
             R_RIP = Pop(emu);
@@ -1233,7 +1249,15 @@ x64emurun:
                 R_RIP += tmp8s;
             STEP
             break;
-
+        case 0xE4:                      /* IN AL, XX */
+        case 0xE5:                      /* IN EAX, XX */
+        case 0xE6:                      /* OUT XX, AL */
+        case 0xE7:                      /* OUT XX, EAX */
+            // this is a privilege opcode...
+            --R_RIP;
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            STEP;
+            break;
         case 0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative
             Push(emu, R_RIP);
@@ -1251,7 +1275,15 @@ x64emurun:
             R_RIP += tmp32s;
             STEP
             break;
-
+        case 0xEC:                      /* IN AL, DX */
+        case 0xED:                      /* IN EAX, DX */
+        case 0xEE:                      /* OUT DX, AL */
+        case 0xEF:                      /* OUT DX, EAX */
+            // this is a privilege opcode...
+            --R_RIP;
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            STEP;
+            break;
         case 0xF0:                      /* LOCK prefix */
             if(RunF0(emu, rex)) {
                 unimp = 1;
