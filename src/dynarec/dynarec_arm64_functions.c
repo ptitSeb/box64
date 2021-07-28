@@ -331,7 +331,7 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
         uintptr_t a1 = addr + 6 + (PK32(2));    // need to add a check to see if the address is from the GOT !
         addr = *(uintptr_t*)a1; 
     }
-    if(addr<0x20000)    // too low, that is suspicious
+    if(!addr || !getProtection(addr))
         return 0;
     onebridge_t *b = (onebridge_t*)(addr);
     if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0 && b->f!=(uintptr_t)PltResolver) {
