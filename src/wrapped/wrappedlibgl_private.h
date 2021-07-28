@@ -3242,8 +3242,8 @@ GO(glGetPerfQueryIdByNameINTEL, vFpp)
 GO(glGetPerfQueryInfoINTEL, vFuuppppp)
 
 //GL_NV_bindless_multi_draw_indirect
-GO(glMultiDrawArraysIndirectBindlessNV, vFipllli)
-GO(glMultiDrawElementsIndirectBindlessCountNV, vFiipllli)
+GO(glMultiDrawArraysIndirectBindlessNV, vFiplli)
+GO(glMultiDrawElementsIndirectBindlessNV, vFiiplli)
 
 //GL_NV_bindless_multi_draw_indirect_count
 GO(glMultiDrawArraysIndirectBindlessCountNV, vFipllli)
