@@ -199,6 +199,10 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
                     
+        case 0x66:
+            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+
         case 0x80:
             nextop = F8;
             grab_segdata(dyn, addr, ninst, x1, seg);

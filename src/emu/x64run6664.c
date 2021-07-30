@@ -27,6 +27,7 @@ int Run6664(x64emu_t *emu, rex_t rex)
     uint8_t opcode;
     uint8_t nextop;
     reg64_t *oped, *opgd;
+    sse_regs_t *opex, *opgx;
     uintptr_t tlsdata = GetFSBaseEmu(emu);
 
     opcode = F8;
@@ -38,6 +39,33 @@ int Run6664(x64emu_t *emu, rex_t rex)
     }
 
     switch(opcode) {
+
+        case 0x0F:
+            opcode = F8;
+            switch(opcode) {
+                case 0xD6:                      /* MOVQ Ex,Gx */
+                    nextop = F8;
+                    GETEX_OFFS(0, tlsdata);
+                    GETGX;
+                    EX->q[0] = GX->q[0];
+                    if(MODREG)
+                        EX->q[1] = 0;
+                    break;
+
+                default:
+                    return 1;
+            }
+            break;
+
+        case 0x89:                              /* MOV Ew,Gw */
+            nextop = F8;
+            GETEW_OFFS(0, tlsdata);
+            GETGW;
+            if(rex.w)
+                EW->q[0] = GW->q[0];
+            else
+                EW->word[0] = GW->word[0];
+            break;
 
         case 0x8B:                      /* MOV Gd,Ed */
             nextop = F8;

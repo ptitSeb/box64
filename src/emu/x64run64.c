@@ -231,34 +231,7 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
 
 
         case 0x66:
-            opcode = F8;
-
-            while(opcode>=0x40 && opcode<=0x4F) {
-                rex.rex = opcode;
-                opcode = F8;
-            }
-            switch(opcode) {
-                case 0x0F:
-                    opcode = F8;
-                    switch(opcode) {
-                        case 0xD6:                      /* MOVQ Ex,Gx */
-                            nextop = F8;
-                            GETEX_OFFS(0, tlsdata);
-                            GETGX;
-                            EX->q[0] = GX->q[0];
-                            if(MODREG)
-                                EX->q[1] = 0;
-                            break;
-
-                        default:
-                            return 1;
-                    }
-                    break;
-
-                default:
-                    return 1;
-            }
-            break;
+            return Run6664(emu, rex);
 
         case 0x80:                      /* GRP Eb,Ib */
             nextop = F8;
