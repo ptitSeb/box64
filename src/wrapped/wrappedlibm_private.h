@@ -16,7 +16,7 @@ GOW(acoshl, DFD)
 GO2(acoshl, KFK, acosh)
 #endif
 #ifdef HAVE_LD80BITS
-GOW(acpsl, DFD)
+GOW(acosl, DFD)
 #else
 GO2(acosl, KFK, acos)
 #endif

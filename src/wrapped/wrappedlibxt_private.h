@@ -240,7 +240,7 @@ GO(XtGrabPointer, iFpiuiipp)
 //GO(_XtHeapFree, 
 //GO(_XtHeapInit, 
 //GO(XtHooksOfDisplay, 
-//GO(_XtInherit, 
+GO(_XtInherit, vFv)
 //GO(XtInitialize, 
 //GO(_XtInitializeActionData, 
 //GO(XtInitializeWidgetClass, 
@@ -438,7 +438,5 @@ GO(XtWindow, pFp)
 //GO(_XtWindowedAncestor, 
 //GO(XtWindowOfObject, 
 GO(XtWindowToWidget, pFpp)
-
-GO(_XtInherit, vFv)
 
 DATA(overrideShellClassRec, 96)    // real size? this is full of Callback function, so maybe wrap at some point?

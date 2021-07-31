@@ -295,7 +295,7 @@ GO(SSL_CTX_new, pFp)
 //GO(SSL_CTX_set_alpn_protos, 
 //GO(SSL_CTX_set_alpn_select_cb, 
 //GO(SSL_CTX_set_cert_cb, 
-//GO(SSL_CTX_set_cert_store, 
+GO(SSL_CTX_set_cert_store, vFpp)
 //GO(SSL_CTX_set_cert_verify_callback, 
 GO(SSL_CTX_set_cipher_list, iFpp)
 GO(SSL_CTX_set_client_CA_list, vFpp)
@@ -471,7 +471,6 @@ GO(SSL_set_accept_state, vFp)
 GO(SSL_set_bio, vFppp)
 //GO(SSL_set_cert_cb, 
 //GO(ssl_set_cert_masks, 
-GO(SSL_CTX_set_cert_store, vFpp)
 GO(SSL_set_cipher_list, iFpp)
 GO(SSL_set_client_CA_list, vFpp)
 //GO(ssl_set_client_disabled, 
