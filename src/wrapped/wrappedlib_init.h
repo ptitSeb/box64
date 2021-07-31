@@ -12,38 +12,50 @@
 #define MAPNAME2(N,M) MAPNAME3(N,M)
 #define MAPNAME(N) MAPNAME2(LIBNAME,N)
 // prepare the maps
+// regular symbol mapped to itself
 #define GO(N, W)
+// regular symbol mapped to itself, but weak
 #define GOW(N, W)
+// symbol mapped to my_symbol
 #define GOM(N, W)
+// symbol mapped to my_symbol, but weak
+#define GOWM(N, W)
+// regular symbol mapped to itself, that returns a structure
 #define GOS(N, W)
+// symbol mapped to another one
 #define GO2(N, W, O)
+// data
 #define DATA(N, S)
+// data, Weak (type V)
 #define DATAV(N, S)
+// data, Uninitialized (type B)
 #define DATAB(N, S)
+// data, "my_" type
 #define DATAM(N, S)
 
 // #define the 4 maps first
 #undef GO
 #define GO(N, W) {#N, W, 0},
+#undef GOW
+#define GOW(N, W) {#N, W, 1},
 static const map_onesymbol_t MAPNAME(symbolmap)[] = {
     #include PRIVATE(LIBNAME)
 };
 #undef GO
 #define GO(N, W)
 #undef GOW
-#define GOW(N, W) {#N, W, 1},
-static const map_onesymbol_t MAPNAME(wsymbolmap)[] = {
-    #include PRIVATE(LIBNAME)
-};
-#undef GOW
 #define GOW(N, W)
 #undef GOM
 #define GOM(N, W) {#N, W, 0},
+#undef GOWM
+#define GOWM(N, W) {#N, W, 1},
 static const map_onesymbol_t MAPNAME(mysymbolmap)[] = {
     #include PRIVATE(LIBNAME)
 };
 #undef GOM
 #define GOM(N, W)
+#undef GOWM
+#define GOWM(N, W)
 #undef GOS
 #define GOS(N, W) {#N, W, 0},
 static const map_onesymbol_t MAPNAME(stsymbolmap)[] = {
@@ -78,10 +90,20 @@ static const map_onedata_t MAPNAME(datamap)[] = {
 static const map_onedata_t MAPNAME(mydatamap)[] = {
     #include PRIVATE(LIBNAME)
 };
-#include "wrappedlib_undefs.h"
+
+#undef GO
+#undef GOW
+#undef GOM
+#undef GOWM
+#undef GO2
+#undef GOS
+#undef DATA
+#undef DATAV
+#undef DATAB
+#undef DATAM
 
 
-
+void NativeLib_CommonInit(library_t *lib);
 int FUNC(_init)(library_t* lib, box64context_t* box64)
 {
     (void)box64;
@@ -110,43 +132,29 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
 #endif
         } else lib->path = strdup(MAPNAME(Name));
     }
-    lib->priv.w.bridge = NewBridge();
-// Create maps
-    lib->symbolmap = kh_init(symbolmap);
-    lib->wsymbolmap = kh_init(symbolmap);
-    lib->mysymbolmap = kh_init(symbolmap);
-    lib->stsymbolmap = kh_init(symbolmap);
-    lib->symbol2map = kh_init(symbol2map);
-    lib->datamap = kh_init(datamap);
-    lib->wdatamap = kh_init(datamap);
-    lib->mydatamap = kh_init(datamap);
+    NativeLib_CommonInit(lib);
 
     khint_t k;
     int ret;
     int cnt;
 
     // populates maps...
-    cnt = sizeof(MAPNAME(symbolmap))/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, lib->symbolmap, MAPNAME(symbolmap)[i].name, &ret);
-        kh_value(lib->symbolmap, k) = MAPNAME(symbolmap)[i].w;
-        if(strchr(MAPNAME(symbolmap)[i].name, '@'))
-            AddDictionnary(box64->versym, MAPNAME(symbolmap)[i].name);
-    }
-    cnt = sizeof(MAPNAME(wsymbolmap))/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, lib->wsymbolmap, MAPNAME(wsymbolmap)[i].name, &ret);
-        kh_value(lib->wsymbolmap, k) = MAPNAME(wsymbolmap)[i].w;
-        if(strchr(MAPNAME(wsymbolmap)[i].name, '@'))
-            AddDictionnary(box64->versym, MAPNAME(wsymbolmap)[i].name);
-    }
-    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, lib->mysymbolmap, MAPNAME(mysymbolmap)[i].name, &ret);
-        kh_value(lib->mysymbolmap, k) = MAPNAME(mysymbolmap)[i].w;
-        if(strchr(MAPNAME(mysymbolmap)[i].name, '@'))
-            AddDictionnary(box64->versym, MAPNAME(mysymbolmap)[i].name);
-    }
+#define DOIT(mapname) \
+	cnt = sizeof(MAPNAME(mapname))/sizeof(map_onesymbol_t);                         \
+	for (int i = 0; i < cnt; ++i) {                                                 \
+        if (MAPNAME(mapname)[i].weak) {                                             \
+            k = kh_put(symbolmap, lib->w##mapname, MAPNAME(mapname)[i].name, &ret); \
+            kh_value(lib->w##mapname, k) = MAPNAME(mapname)[i].w;                   \
+        } else {                                                                    \
+            k = kh_put(symbolmap, lib->mapname, MAPNAME(mapname)[i].name, &ret);    \
+            kh_value(lib->mapname, k) = MAPNAME(mapname)[i].w;                      \
+        }                                                                           \
+        if (strchr(MAPNAME(mapname)[i].name, '@'))                                  \
+            AddDictionnary(box64->versym, MAPNAME(mapname)[i].name);                \
+	}
+	DOIT(symbolmap)
+	DOIT(mysymbolmap)
+#undef DOIT
     cnt = sizeof(MAPNAME(stsymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->stsymbolmap, MAPNAME(stsymbolmap)[i].name, &ret);
@@ -185,67 +193,51 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
     return 0;
 }
 
-int FUNC(_fini)(library_t* lib)
+void NativeLib_FinishFini(library_t* lib);
+void FUNC(_fini)(library_t* lib)
 {
 #ifdef CUSTOM_FINI
     CUSTOM_FINI
 #endif
-    if(lib->priv.w.lib)
-        dlclose(lib->priv.w.lib);
-    lib->priv.w.lib = NULL;
-    if(lib->priv.w.altprefix)
-        free(lib->priv.w.altprefix);
-    if(lib->priv.w.neededlibs) {
-        for(int i=0; i<lib->priv.w.needed; ++i)
-            free(lib->priv.w.neededlibs[i]);
-        free(lib->priv.w.neededlibs);
-    }
-    FreeBridge(&lib->priv.w.bridge);
-    return 1;
+    NativeLib_FinishFini(lib);
 }
 
+int WrappedLib_defget(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local);
 int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local)
 {
+#ifdef CUSTOM_FAIL
     uintptr_t addr = 0;
     uintptr_t size = 0;
-#ifdef CUSTOM_FAIL
     void* symbol = NULL;
-#endif
-//PRE
     if (!getSymbolInMaps(lib, name, 0, &addr, &size, version, vername, local)) {
-#ifdef CUSTOM_FAIL
-    CUSTOM_FAIL
-#else
-        return 0;
-#endif
+        CUSTOM_FAIL
     }
-//POST
     if(!addr && !size)
         return 0;
     *offs = addr;
     *sz = size;
     return 1;
+#else
+    return WrappedLib_defget(lib, name, offs, sz, version, vername, local);
+#endif
 }
 
+int WrappedLib_defgetnoweak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local);
 int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local)
 {
+#ifdef CUSTOM_FAIL
     uintptr_t addr = 0;
     uintptr_t size = 0;
-#ifdef CUSTOM_FAIL
     void* symbol = NULL;
-#endif
-//PRE
     if (!getSymbolInMaps(lib, name, 1, &addr, &size, version, vername, local)) {
-#ifdef CUSTOM_FAIL
-    CUSTOM_FAIL
-#else
-        return 0;
-#endif
+        CUSTOM_FAIL
     }
-//POST
     if(!addr && !size)
         return 0;
     *offs = addr;
     *sz = size;
     return 1;
+#else
+    return WrappedLib_defgetnoweak(lib, name, offs, sz, version, vername, local);
+#endif
 }
