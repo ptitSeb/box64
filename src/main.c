@@ -509,20 +509,23 @@ void LoadEnvVars(box64context_t *context)
         }
     }
     if(getenv("BOX64_PREFER_WRAPPED")) {
-        if (strcmp(getenv("BOX64_PREFER_WRAPPED"), "1")==0)
+        if (strcmp(getenv("BOX64_PREFER_WRAPPED"), "1")==0) {
             box64_prefer_wrapped = 1;
             printf_log(LOG_INFO, "BOX64: Prefer Wrapped libs\n");
+    	}
     }
 
     if(getenv("BOX64_NOSIGSEGV")) {
-        if (strcmp(getenv("BOX64_NOSIGSEGV"), "1")==0)
+        if (strcmp(getenv("BOX64_NOSIGSEGV"), "1")==0) {
             context->no_sigsegv = 1;
             printf_log(LOG_INFO, "BOX64: Disabling handling of SigSEGV\n");
+        }
     }
     if(getenv("BOX64_NOSIGILL")) {
-        if (strcmp(getenv("BOX64_NOSIGILL"), "1")==0)
+        if (strcmp(getenv("BOX64_NOSIGILL"), "1")==0) {
             context->no_sigill = 1;
             printf_log(LOG_INFO, "BOX64: Disabling handling of SigILL\n");
+        }
     }
     // check BOX64_PATH and load it
     LoadEnvPath(&context->box64_path, ".:bin", "BOX64_PATH");

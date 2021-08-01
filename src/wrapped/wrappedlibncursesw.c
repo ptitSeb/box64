@@ -24,15 +24,8 @@ const char* libncurseswName = "libncursesw.so.5";
 
 static library_t* my_lib = NULL;
 
-typedef void*       (*pFv_t)();
-typedef int         (*iFppV_t)(void*, void*, va_list);
-typedef int         (*iFpiip_t)(void*, int32_t, int32_t, void*);
-
-#define SUPER()             \
-    GO(initscr, pFv_t)      \
-    GO(mvwprintw, iFpiip_t) \
-    GO(vwprintw, iFppV_t)   \
-    GO(stdscr, void*)
+#define ADDED_FUNCTIONS() GO(stdscr, void*)
+#include "generated/wrappedlibncurseswtypes.h"
 
 typedef struct libncursesw_my_s {
     // functions
@@ -86,6 +79,21 @@ EXPORT int myw_vwprintw(x64emu_t* emu, void* p, void* fmt, x64_va_list_t b)
 
     CONVERT_VALIST(b);
     return my->vwprintw(p, fmt, VARARGS);
+}
+
+EXPORT int myw_mvprintw(x64emu_t* emu, int x, int y, void* fmt, void* b)
+{
+    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
+
+    char* buf = NULL;
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    int ret = vasprintf(&buf, (const char*)fmt, VARARGS);
+    (void)ret;
+    // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
+    ret = my->mvprintw(x, y, buf);
+    free(buf);
+    return ret;
 }
 
 EXPORT void* myw_initscr()

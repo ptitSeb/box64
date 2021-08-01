@@ -1,63 +1,172 @@
 #!/usr/bin/env python3
 
-# TODO: same as for box86, flac can't be auto-generated yet
-
-try:
-	# Python 3.5.2+ (NewType)
-	from typing import Union, List, Sequence, Dict, Tuple, NewType, TypeVar
-except ImportError:
-	#print("Your Python version does not have the typing module, fallback to empty 'types'")
-	# Dummies
-	class GTDummy:
-		def __getitem__(self, t):
-			return self
-	Union = GTDummy() # type: ignore
-	List = GTDummy() # type: ignore
-	Sequence = GTDummy() # type: ignore
-	Dict = GTDummy() # type: ignore
-	Tuple = GTDummy() # type: ignore
-	def NewType(T, b): return b # type: ignore
-	def TypeVar(T): return object # type: ignore
-try:
-	# Python 3.8+
-	from typing import final
-	import typing
-except ImportError:
-	#print("Your Python version does not have all typing utilities, fallback to dummy ones")
-	def _overload_dummy(*args, **kwds):
-		raise NotImplementedError(
-				"You should not call an overloaded function. "
-				"A series of @overload-decorated functions "
-				"outside a stub module should always be followed "
-				"by an implementation that is not @overload-ed.")
-	def overload(fun): return _overload_dummy # type: ignore
-	class Typing:
-		pass
-	typing = Typing() # type: ignore
-	typing.overload = overload # type: ignore
-	final = lambda fun: fun # type: ignore
-
 import os
 import sys
 
+try:
+	assert(sys.version_info.major == 3)
+	if sys.version_info.minor >= 9:
+		# Python 3.9+
+		from typing import Generic, NewType, Optional, TypeVar, Union, final
+		from collections.abc import Iterable
+		Dict = dict
+		List = list
+		Tuple = tuple
+	elif sys.version_info.minor >= 8:
+		# Python [3.8, 3.9)
+		from typing import Dict, List, Tuple, Generic, Iterable, NewType, Optional, TypeVar, Union, final
+	elif (sys.version_info.minor >= 5) and (sys.version_info.micro >= 2):
+		# Python [3.5.2, 3.8)
+		from typing import Dict, List, Tuple, Generic, Iterable, NewType, Optional, TypeVar, Union
+		final = lambda fun: fun # type: ignore
+	elif sys.version_info.minor >= 5:
+		# Python [3.5, 3.5.2)
+		from typing import Dict, List, Tuple, Generic, Iterable, Optional, TypeVar, Union
+		class GTDummy:
+			def __getitem__(self, _): return self
+		final = lambda fun: fun # type: ignore
+		def NewType(_, b): return b # type: ignore
+	else:
+		# Python < 3.5
+		#print("Your Python version does not have the typing module, fallback to empty 'types'")
+		# Dummies
+		class GTDummy:
+			def __getitem__(self, _):
+				return self
+		Dict = GTDummy() # type: ignore
+		List = GTDummy() # type: ignore
+		Generic = GTDummy() # type: ignore
+		Iterable = GTDummy() # type: ignore
+		Optional = GTDummy() # type: ignore
+		def NewType(_, b): return b # type: ignore
+		Tuple = GTDummy() # type: ignore
+		def TypeVar(T): return object # type: ignore
+		Union = GTDummy() # type: ignore
+except ImportError:
+	print("It seems your Python version is quite broken...")
+	assert(False)
+
+"""
+Generates all files in src/wrapped/generated
+===
+
+TL;DR: Automagically creates type definitions (/.F.+/ functions/typedefs...).
+       All '//%' in the headers are used by the script.
+
+Reads each lines of each "_private.h" headers.
+For each of them:
+- If if starts with a #ifdef, #else, #ifndef, #endif, it memorizes which definition is required
+- If it starts with a "GO", it will do multiple things:
+  - It memorizes the type used by the function (second macro argument)
+  - It memorizes the type it is mapped to, if needed (eg, iFEvp is mapped to iFEp: the first "real" argument is dropped)
+  - It checks if the type given (both original and mapped to) are valid
+  - If the signature contains a 'E' but it is not a "GOM" command, it will throw an error
+- If the line starts with a '//%S', it will memorize a structure declaration.
+  The structure of it is: "//%S <letter> <structure name> <signature equivalent>"
+  NOTE: Those structure letters are "fake types" that are accepted in the macros.
+
+After sorting the data, it generates:
+
+wrapper.c
+---------
+(Private) type definitions (/.F.+_t/)
+Function definitions (/.F.+/ functions, that actually execute the function given as argument)
+isSimpleWrapper definition
+
+wrapper.h
+---------
+Generic "wrapper_t" type definition
+Function declarations (/.F.+/ functions)
+
+*types.h
+--------
+Local types definition, for the original signatures
+The SUPER() macro definition, used to generate and initialize the `*_my_t` library structure
+(TODO: also automate this declaration/definition? It would require more metadata,
+ and may break sometime in the future due to the system changing...)
+
+*defs.h
+-------
+Local `#define`s, for signature mapping
+
+*undefs.h
+---------
+Local `#undefine`s, for signature mapping
+
+
+Example:
+========
+In wrappedtest_private.h:
+   ----------------------
+//%S X TestLibStructure ppu
+
+GO(superfunction, pFX)
+GOM(superFunction2, pFpX)
+
+Generated files:
+wrapper.c: [snippet]
+----------
+typedef void *(*pFppu_t)(void*, void*, uint32_t);
+typedef void *(*pFpppu_t)(void*, void*, void*, uint32_t);
+
+void pFppu(x64emu_t *emu, uintptr_t fcn) { pFppu_t *fn = (pFppu_t)fn; R_RAX=...; }
+void pFpppu(x64emu_t *emu, uintptr_t fcn) { pFpppu_t *fn = (pFpppu_t)fn; R_RAX=...; }
+
+int isSimpleWrapper(wrapper_t fun) {
+	if (fcn == pFppu) return 1;
+	if (fcn == pFpppu) return 1;
+	return 0;
+}
+
+wrapper.h: [snippet]
+----------
+void pFppu(x64emu_t *emu, uintptr_t fcn);
+void pFpppu(x64emu_t *emu, uintptr_t fcn);
+
+int isSimpleWrapper(wrapper_t fun);
+
+wrappedtesttypes.h:
+-------------------
+typedef void *(*pFpX_t)(void*, TestLibStructure);
+
+#define SUPER() \\
+	GO(superFunction2, pFpX)
+
+wrappedtestdefs.h:
+------------------
+#define pFX pFppu
+#define pFpX pFpppu
+
+wrappedtestundefs.h:
+--------------------
+#undef pFX
+#undef pFpX
+"""
+
+# TODO: Add /.F.*A/ automatic generation (and suppression)
+
+# Free letters:  B   FG  J      QR T   XYZab  e gh jk mno qrst   xyz
 class FunctionType(str):
-	values: List[str] = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A']
+	values: List[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A']
 	
 	@staticmethod
 	def validate(s: str, post: str) -> bool:
 		if len(s) < 3:
 			raise NotImplementedError("Type {0} too short{1}".format(s, post))
+		chk_type = s[0] + s[2:]
 		if "E" in s:
 			if ("E" in s[:2]) or ("E" in s[3:]):
 				raise NotImplementedError(
 					"emu64_t* not as the first parameter{0}".format(post))
 			if len(s) < 4:
 				raise NotImplementedError("Type {0} too short{1}".format(s, post))
+			# TODO: change *FEv into true functions (right now they are redirected to *FE)
+			#chk_type = s[0] + s[3:]
 		
 		if s[1] not in ["F"]:
 			raise NotImplementedError("Bad middle letter {0}{1}".format(s[1], post))
 		
-		return all(c in FunctionType.values for c in s[2:]) and (('v' not in s[2:]) or (len(s) == 3))
+		return all(c in FunctionType.values for c in chk_type) and (('v' not in chk_type[1:]) or (len(chk_type) == 2))
 	
 	def splitchar(self) -> List[int]:
 		"""
@@ -83,8 +192,22 @@ assert(all(c not in FunctionType.values[:i] for i, c in enumerate(FunctionType.v
 RedirectType = NewType('RedirectType', FunctionType)
 DefineType = NewType('DefineType', str)
 
+StructType = NewType('StructType', str)
+
 T = TypeVar('T')
 U = TypeVar('U')
+
+# TODO: simplify construction of this (add an 'insert' method?...)
+class CustOrderedDict(Generic[T, U], Iterable[T]):
+	def __init__(self, dict: Dict[T, U], keys: List[T]):
+		self.__indict__ = dict
+		self.__inkeys__ = keys
+	
+	def __iter__(self):
+		return iter(self.__inkeys__)
+	
+	def __getitem__(self, k: T) -> U:
+		return self.__indict__[k]
 
 Filename = str
 ClausesStr = str
@@ -193,7 +316,6 @@ class Clauses:
 		for cunj in self.definess:
 			for d in cunj.defines:
 				ret.append(d.value())
-		ret.append(0)
 		return ret
 	
 	def __str__(self) -> ClausesStr:
@@ -202,30 +324,105 @@ class Clauses:
 		else:
 			return "(" + ") || (".join(map(str, self.definess)) + ")"
 
-def readFiles(files: Sequence[Filename]) -> \
-		Tuple[Dict[ClausesStr, List[FunctionType]],
-		      Dict[ClausesStr, Dict[RedirectType, FunctionType]],
-		      Dict[Filename,   Dict[RedirectType, List[str]]]]:
+JumbledGlobals       = Dict[ClausesStr, List[FunctionType]]
+JumbledRedirects     = Dict[ClausesStr, Dict[RedirectType, FunctionType]]
+JumbledTypedefs      = Dict[RedirectType, List[str]]
+JumbledStructures    = Dict[str, Tuple[StructType, str]]
+JumbledStructUses    = Dict[RedirectType, FunctionType]
+JumbledFilesSpecific = Dict[Filename, Tuple[JumbledTypedefs, JumbledStructures, JumbledStructUses]]
+SortedGlobals       = CustOrderedDict[ClausesStr, List[FunctionType]]
+SortedRedirects     = CustOrderedDict[ClausesStr, List[Tuple[RedirectType, FunctionType]]]
+SortedTypedefs      = CustOrderedDict[RedirectType, List[str]]
+SortedStructUses    = CustOrderedDict[RedirectType, FunctionType]
+SortedFilesSpecific = Dict[Filename, Tuple[SortedTypedefs, SortedStructUses]]
+
+def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirects, JumbledFilesSpecific]:
 	"""
 	readFiles
 	
 	This function is the one that parses the files.
-	It returns the jumbled (gbl, redirects, mytypedefs) tuple.
+	It returns the jumbled (gbl, redirects, {file: (typedefs, mystructs)}) tuple.
 	"""
 	
 	# Initialize variables: gbl for all values, redirects for redirections
-	# mytypedefs is a list of all "*FE*" types per filename
-	gbl       : Dict[ClausesStr, List[FunctionType]]               = {}
-	redirects : Dict[ClausesStr, Dict[RedirectType, FunctionType]] = {}
-	mytypedefs: Dict[Filename,   Dict[RedirectType, List[str]]]    = {}
+	gbl      : JumbledGlobals       = {}
+	redirects: JumbledRedirects     = {}
+	filespec : JumbledFilesSpecific = {}
 	
-	halt_required = False # Is there a GO(*, .FE*)?
-	
+	functions: Dict[str, Filename] = {}
+	halt_required = False # Is there a GO(*, .FE*) or similar in-batch error(s)?
 	# First read the files inside the headers
 	for filepath in files:
 		filename: Filename = filepath.split("/")[-1]
 		dependants: Clause = Clause()
+		
+		# typedefs is a list of all "*FE*" types for the current file
+		# mystructs  is a map  of all char -> (structure C name, replacement) for structures
+		typedefs  : JumbledTypedefs   = {}
+		mystructs   : JumbledStructures = {}
+		mystructuses: JumbledStructUses = {}
+		filespec[filename[:-10]] = (typedefs, mystructs, mystructuses)
+		
+		def add_symbol_name(funname: Union[str, None], funsname: Dict[ClausesStr, List[str]] = {"": []}):
+			# Optional arguments are evaluated only once!
+			nonlocal halt_required
+			if funname is None:
+				for k in funsname:
+					if (k != "") and (len(funsname[k]) != 0):
+						# Note: if this condition ever raises, check the wrapper pointed by it.
+						# If you find no problem, comment the error below, add a "pass" line (so python is happy)
+						# and open a ticket so I can fix this.
+						raise NotImplementedError("Some functions are only implemented under one condition (probably) ({0}:{1})"
+							.format(k, filename) + " [extra note in the script]")
+					for f in funsname[k]:
+						if f in ['_fini', '_init', '__bss_start', '__data_start', '_edata', '_end']:
+							continue # Always allow those symbols [TODO: check if OK]
+						if f in functions:
+							# Check for resemblances between functions[f] and filename
+							if filename.startswith(functions[f][:-12]) or functions[f].startswith(filename[:-12]):
+								# Probably OK
+								continue
+							# Manual compatible libs detection
+							match = lambda l, r: (filename[7:-10], functions[f][7:-10]) in [(l, r), (r, l)]
+							if match("sdl1image", "sdl2image") \
+							 or match("sdl1mixer", "sdl2mixer") \
+							 or match("sdl1net", "sdl2net") \
+							 or match("sdl1ttf", "sdl2ttf") \
+							 or match("libc", "tcmallocminimal"):
+								continue
+							
+							# Note: this test is very (too) simple. If it ever raises, comment
+							# `halt_required = True` and open an issue.
+							print("The function or data {0} is declared in multiple files ({1}/{2})"
+								.format(f, functions[f], filename) + " [extra note in the script]")
+							halt_required = True
+						functions[f] = filename
+			else:
+				if funname == "":
+					raise NotImplementedError("This function name (\"\") is suspicious... ({0})".format(filename))
+				l = len(dependants.defines)
+				already_pst = funname in funsname[""]
+				if l > 1:
+					return
+				elif l == 1:
+					funsname.setdefault(str(dependants), [])
+					already_pst = already_pst or (funname in funsname[str(dependants)])
+				if already_pst:
+					print("Function or data {0} is duplicated! ({1})".format(funname, filename))
+					halt_required = True
+					return
+				if l == 1:
+					s = str(dependants.defines[0].inverted())
+					if (s in funsname) and (funname in funsname[s]):
+						funsname[s].remove(funname)
+						funsname[""].append(funname)
+					else:
+						funsname[str(dependants)].append(funname)
+				else:
+					funsname[""].append(funname)
+		
 		with open(filepath, 'r') as file:
+			line: str # Because VSCode really struggles with files
 			for line in file:
 				ln = line.strip()
 				# If the line is a `#' line (#ifdef LD80BITS/#ifndef LD80BITS/header)
@@ -254,6 +451,7 @@ def readFiles(files: Sequence[Filename]) -> \
 						raise NotImplementedError("Unknown key: {0} ({1}:{2})".format(
 							k.args[0], filename, line[:-1]
 						)) from k
+				
 				# If the line is a `GO...' line (GO/GOM/GO2/...)...
 				elif ln.startswith("GO"):
 					# ... then look at the second parameter of the line
@@ -261,47 +459,104 @@ def readFiles(files: Sequence[Filename]) -> \
 						gotype = ln.split("(")[0].strip()
 						funname = ln.split(",")[0].split("(")[1].strip()
 						ln = ln.split(",")[1].split(")")[0].strip()
-					except IndexError as e:
+						add_symbol_name(funname)
+					except IndexError:
 						raise NotImplementedError("Invalid GO command: {0}:{1}".format(
 							filename, line[:-1]
 						))
 					
+					hasFlatStructure = False
+					origLine = ln
 					if not FunctionType.validate(ln, " ({0}:{1})".format(filename, line[:-1])):
-						old = RedirectType(FunctionType(ln))
-						# This needs more work
-						acceptables = ['v', '0', '1'] + FunctionType.values
-						if any(c not in acceptables for c in ln[2:]):
-							raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[:-1]))
-						# Ok, this is acceptable: there is 0, 1 and/or void
-						ln = ln[:2] + (ln[2:]
-							.replace("v", "")   # void   -> nothing
-							.replace("0", "p")  # 0      -> pointer
-							.replace("1", "i")) # 1      -> integer
-						assert(len(ln) >= 3)
-						redirects.setdefault(str(dependants), {})
-						redirects[str(dependants)][old] = FunctionType(ln)
+						if (ln[0] in FunctionType.values) \
+						 and ('v' not in ln[2:]) \
+						 and all((c in FunctionType.values) or (c in mystructs) for c in ln[2:]):
+							hasFlatStructure = True
+							
+							for sn in mystructs:
+								ln = ln.replace(sn, mystructs[sn][1])
+							mystructuses[RedirectType(FunctionType(origLine))] = FunctionType(ln)
+						else:
+							# This needs more work
+							old = RedirectType(FunctionType(ln))
+							acceptables = ['0', '1'] + FunctionType.values
+							if any(c not in acceptables for c in ln[2:]):
+								raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[:-1]))
+							# Ok, this is acceptable: there is 0, 1 and/or void
+							ln = ln[:2] + (ln[2:]
+								.replace("v", "")   # void   -> nothing
+								.replace("0", "i")  # 0      -> integer
+								.replace("1", "i")) # 1      -> integer
+							assert(len(ln) >= 3)
+							redirects.setdefault(str(dependants), {})
+							redirects[str(dependants)][old] = FunctionType(ln)
+							
+							origLine = ln
+					
 					# Simply append the function type if it's not yet existing
 					gbl.setdefault(str(dependants), [])
 					if ln not in gbl[str(dependants)]:
 						gbl[str(dependants)].append(FunctionType(ln))
 					
-					if ln[2] == "E":
-						if (gotype != "GOM"):
+					if origLine[2] == "E":
+						if (gotype != "GOM") and (gotype != "GOWM"):
 							if (gotype != "GO2") or not (line.split(',')[2].split(')')[0].strip().startswith('my_')):
 								print("\033[91mThis is probably not what you meant!\033[m ({0}:{1})".format(filename, line[:-1]))
 								halt_required = True
-						# filename isn't stored with the '_private.h' part
-						if len(ln) > 3:
-							funtype = RedirectType(FunctionType(ln[:2] + ln[3:]))
+						if len(origLine) > 3:
+							funtype = RedirectType(FunctionType(origLine[:2] + origLine[3:]))
 						else:
-							funtype = RedirectType(FunctionType(ln[:2] + "v"))
-						mytypedefs.setdefault(filename[:-10], {})
-						mytypedefs[filename[:-10]].setdefault(funtype, [])
-						mytypedefs[filename[:-10]][funtype].append(funname)
-					# OK on box64
-					# elif gotype == "GOM":
-					# 	print("\033[94mAre you sure of this?\033[m ({0}:{1})".format(filename, line[:-1]))
-					# 	halt_required = True
+							funtype = RedirectType(FunctionType(origLine[:2] + "v"))
+						# filename isn't stored with the '_private.h' part
+						typedefs.setdefault(funtype, [])
+						typedefs[funtype].append(funname)
+					elif (gotype == "GOM") or (gotype == "GOWM"):
+						# OK on box64 for a GOM to not have emu...
+						funtype = RedirectType(FunctionType(origLine))
+						typedefs.setdefault(funtype, [])
+						typedefs[funtype].append(funname)
+						# print("\033[94mAre you sure of this?\033[m ({0}:{1})".format(filename, line[:-1]))
+						# halt_required = True
+					elif hasFlatStructure:
+						# Still put the type in typedefs, but don't add the function name
+						typedefs.setdefault(RedirectType(FunctionType(origLine)), [])
+				
+				# If the line is a structure metadata information...
+				elif ln.startswith("//%S"):
+					metadata = [e for e in ln.split() if e]
+					if len(metadata) != 4:
+						raise NotImplementedError("Invalid structure metadata supply (too many fields) ({0}:{1})".format(filename, line[:-1]))
+					if metadata[0] != "//%S":
+						raise NotImplementedError("Invalid structure metadata supply (invalid signature) ({0}:{1})".format(filename, line[:-1]))
+					if len(metadata[1]) != 1:
+						# If you REALLY need it, consider opening a ticket
+						# Before you do, consider that everything that is a valid in a C token is valid here too
+						raise NotImplementedError("Structure names cannot be of length greater than 1 ({0}:{1})".format(filename, line[:-1]))
+					if metadata[3] == "":
+						# If you need this, please open an issue (this is never actually called, empty strings are removed)
+						raise NotImplementedError("Invalid structure metadata supply (empty replacement) ({0}:{1})".format(filename, line[:-1]))
+					if any(c not in FunctionType.values for c in metadata[3]):
+						# Note that replacement cannot be another structure type
+						raise NotImplementedError("Invalid structure metadata supply (invalid replacement) ({0}:{1})".format(filename, line[:-1]))
+					if metadata[1] in mystructs:
+						raise NotImplementedError("Invalid structure nickname {0} (duplicate) ({1}/{2})".format(metadata[1], filename, line[:-1]))
+					if (metadata[1] in FunctionType.values) or (metadata[1] in ['0', '1']):
+						raise NotImplementedError("Invalid structure nickname {0} (reserved) ({1}/{2})".format(metadata[1], filename, line[:-1]))
+					
+					# OK, add into the database
+					mystructs[metadata[1]] = (StructType(metadata[2]), metadata[3])
+				
+				# If the line contains any symbol name...
+				elif ("GO" in ln) or ("DATA" in ln):
+					# Probably "//GO(..., " or "DATA(...," at least
+					try:
+						funname = ln.split('(')[1].split(',')[0].strip()
+						add_symbol_name(funname)
+					except IndexError:
+						# Oops, it wasn't...
+						pass
+		
+		add_symbol_name(None)
 	
 	if halt_required:
 		raise ValueError("Fix all previous errors before proceeding")
@@ -313,18 +568,10 @@ def readFiles(files: Sequence[Filename]) -> \
 		print("(Also, the program WILL crash later if you proceed.)")
 		sys.exit(2) # Check what you did, not proceeding
 	
-	return gbl, redirects, mytypedefs
+	return gbl, redirects, filespec
 
-COrderedDict = Tuple[Dict[T, U], List[T]]
-def sortArrays(
-	gbl_tmp   : Dict[str,      List[FunctionType]],
-	red_tmp   : Dict[str,      Dict[RedirectType, FunctionType]],
-	mytypedefs: Dict[Filename, Dict[RedirectType, List[str]]]) -> \
-		Tuple[
-			COrderedDict[ClausesStr, List[FunctionType]],
-			COrderedDict[ClausesStr, List[Tuple[RedirectType, FunctionType]]],
-			Dict[Filename, COrderedDict[RedirectType, List[str]]]
-		]:
+def sortArrays(gbl_tmp : JumbledGlobals, red_tmp : JumbledRedirects, filespec: JumbledFilesSpecific) \
+ -> Tuple[SortedGlobals, SortedRedirects, SortedFilesSpecific]:
 	# Now, take all function types, and make a new table gbl_vals
 	# This table contains all #if conditions for when a function type needs to
 	# be generated. There is also a filter to avoid duplicate/opposite clauses.
@@ -378,7 +625,7 @@ def sortArrays(
 		key = str(clauses)
 		gbl.setdefault(key, [])
 		gbl[key].append(k1)
-		if (key not in gbl_idxs) and (clauses.definess != []):
+		if key not in gbl_idxs:
 			gbl_idxs.append(key)
 	# Sort the #if clauses as defined in `splitdef`
 	gbl_idxs.sort(key=lambda c: Clauses(c).splitdef())
@@ -411,7 +658,7 @@ def sortArrays(
 			
 			else:
 				redirects_vals[(v, red_tmp[k1][v])] = Clauses([Clause(k1)])
-	# Also does the same trick as before (also helps keep the order
+	# Also do the same trick as before (it also helps keep the order
 	# in the file deterministic)
 	redirects: Dict[ClausesStr, List[Tuple[RedirectType, FunctionType]]] = {}
 	redirects_idxs: List[ClausesStr] = []
@@ -420,7 +667,7 @@ def sortArrays(
 		key = str(clauses)
 		redirects.setdefault(key, [])
 		redirects[key].append((k1, v))
-		if (key not in redirects_idxs) and (clauses.definess != []):
+		if key not in redirects_idxs:
 			redirects_idxs.append(key)
 	redirects_idxs.sort(key=lambda c: Clauses(c).splitdef())
 	
@@ -433,15 +680,63 @@ def sortArrays(
 		redirects[k3].sort(key=lambda v: v[0].splitchar() + v[1].splitchar())
 	FunctionType.values = FunctionType.values[:-2]
 	
-	mytypedefs_vals: Dict[Filename, List[RedirectType]] = dict((fn, sorted(mytypedefs[fn].keys(), key=FunctionType.splitchar)) for fn in mytypedefs)
-	for fn in mytypedefs:
-		for v in mytypedefs_vals[fn]:
-			mytypedefs[fn][v].sort()
+	sortedfilespec: SortedFilesSpecific = {}
+	for fn in filespec:
+		# Maybe do better?
+		mystructs_vals: List[str] = sorted(filespec[fn][1].keys())
+		if mystructs_vals != []:
+			FunctionType.values = FunctionType.values + list(mystructs_vals)
+		
+		mytypedefs_vals: List[RedirectType] = sorted(filespec[fn][0].keys(), key=FunctionType.splitchar)
+		sortedfilespec[fn] = (
+			CustOrderedDict(dict((v, sorted(filespec[fn][0][v])) for v in mytypedefs_vals), mytypedefs_vals),
+			CustOrderedDict(filespec[fn][2], sorted(filespec[fn][2], key=FunctionType.splitchar))
+		)
+		
+		if mystructs_vals != []:
+			FunctionType.values = FunctionType.values[:-len(mystructs_vals)]
 	
-	return (gbl, gbl_idxs), (redirects, redirects_idxs), \
-		dict((fn, (mytypedefs[fn], mytypedefs_vals[fn])) for fn in mytypedefs)
+	return CustOrderedDict(gbl, gbl_idxs), CustOrderedDict(redirects, redirects_idxs), sortedfilespec
+
+def checkRun(root: str, jumbled: JumbledFilesSpecific, \
+  gbls: SortedGlobals, redirects: SortedRedirects, filesspec: SortedFilesSpecific) -> Optional[str]:
+	# Check if there was any new functions compared to last run
+	functions_list: str = ""
+	for k in gbls:
+		for v in gbls[k]:
+			functions_list = functions_list + "#" + k + " " + v + "\n"
+	for k in redirects:
+		for vr, vf in redirects[k]:
+			functions_list = functions_list + "#" + k + " " + vr + " -> " + vf + "\n"
+	for filename in sorted(filesspec.keys()):
+		functions_list = functions_list + filename + ":\n"
+		for st in sorted(jumbled[filename][1].keys()):
+			functions_list = functions_list + \
+				"% " + st + " " + jumbled[filename][1][st][0] + " " + jumbled[filename][1][st][1] + "\n"
+		for vr in filesspec[filename][0]:
+			functions_list = functions_list + "- " + vr + ":\n"
+			for fn in filesspec[filename][0][vr]:
+				functions_list = functions_list + "  - " + fn + "\n"
+		for defined in filesspec[filename][1]:
+			functions_list = functions_list + "% " + defined + "\n"
 	
-def main(root: str, files: Sequence[Filename], ver: str):
+	# functions_list is a unique string, compare it with the last run
+	try:
+		last_run = ""
+		with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'r') as file:
+			last_run = file.read()
+		if last_run == functions_list:
+			# Mark as OK for CMake
+			with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'w') as file:
+				file.write(functions_list)
+			return None
+	except IOError:
+		# The file does not exist yet, first run
+		pass
+	
+	return functions_list
+
+def main(root: str, files: Iterable[Filename], ver: str):
 	"""
 	main -- The main function
 	
@@ -454,53 +749,35 @@ def main(root: str, files: Sequence[Filename], ver: str):
 	#  "defined() && ..." -> [vFv, ...]
 	# red_tmp:
 	#  "defined() && ..." -> [vFEv -> vFv, ...]
-	# tdf_tmp:
-	#  "filename" -> [vFEv -> fopen, ...]
-	gbl_tmp: Dict[ClausesStr, List[FunctionType]]
-	red_tmp: Dict[ClausesStr, Dict[RedirectType, FunctionType]]
-	tdf_tmp: Dict[Filename,   Dict[RedirectType, List[str]]]
+	# fsp_tmp:
+	#  "filename" -> (
+	#   [vFEv -> fopen, ...],
+	#   [G -> ("SDL_J...", UU), ...],
+	#   [vFGppp -> vFUUppp, ...]
+	#  )
+	gbl_tmp: JumbledGlobals
+	red_tmp: JumbledRedirects
+	fsp_tmp: JumbledFilesSpecific
 	
-	gbl_tmp, red_tmp, tdf_tmp = readFiles(files)
+	gbl_tmp, red_tmp, fsp_tmp = readFiles(files)
 	
-	gbls      : COrderedDict[ClausesStr, List[FunctionType]]
-	redirects_: COrderedDict[ClausesStr, List[Tuple[RedirectType, FunctionType]]]
-	mytypedefs: Dict[Filename, COrderedDict[RedirectType, List[str]]]
+	# gbls: sorted gbl_tmp
+	# redirects: sorted red_tmp
+	# filesspec:
+	#  "filename" -> (
+	#   sorted [vFEv -> fopen, ...],
+	#   sorted [vFGppp -> vFUUppp, ...]
+	#  )
+	gbls     : SortedGlobals
+	redirects: SortedRedirects
+	filesspec: SortedFilesSpecific
 	
-	gbls, redirects_, mytypedefs = \
-		sortArrays(gbl_tmp, red_tmp, tdf_tmp)
+	gbls, redirects, filesspec = sortArrays(gbl_tmp, red_tmp, fsp_tmp)
 	
-	gbl, gbl_idxs = gbls
-	redirects, redirects_idxs = redirects_
-	
-	# Check if there was any new functions compared to last run
-	functions_list: str = ""
-	for k in [str(Clauses())] + gbl_idxs:
-		for v in gbl[k]:
-			functions_list = functions_list + "#" + k + " " + v + "\n"
-	for k in [str(Clauses())] + redirects_idxs:
-		for vr, vf in redirects[k]:
-			functions_list = functions_list + "#" + k + " " + vr + " -> " + vf + "\n"
-	for filename in sorted(mytypedefs.keys()):
-		functions_list = functions_list + filename + ":\n"
-		for vr in mytypedefs[filename][1]:
-			functions_list = functions_list + "- " + vr + ":\n"
-			for fn in mytypedefs[filename][0][vr]:
-				functions_list = functions_list + "  - " + fn + "\n"
-	
-	# functions_list is a unique string, compare it with the last run
-	try:
-		last_run = ""
-		with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'r') as file:
-			last_run = file.read()
-		if last_run == functions_list:
-			# Mark as OK for CMake
-			with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'w') as file:
-				file.write(functions_list)
-			print("Detected same build as last run, skipping")
-			return 0
-	except IOError:
-		# The file does not exist yet, first run
-		pass
+	functions_list = checkRun(root, fsp_tmp, gbls, redirects, filesspec)
+	if functions_list is None:
+		print("Detected same build as last run, skipping")
+		return 0
 	
 	# Detect simple wrappings
 	simple_wraps: Dict[ClausesStr, List[Tuple[FunctionType, int]]] = {}
@@ -511,144 +788,178 @@ def main(root: str, files: Sequence[Filename], ver: str):
 	allowed_fpr   : str = "fd"
 	
 	# Sanity checks
-	forbidden_simple: str = "EeDKVOSNMHPA"
+	forbidden_simple: str = "EDKVOSNMHPA"
 	assert(len(allowed_simply) + len(allowed_regs) + len(allowed_fpr) + len(forbidden_simple) == len(FunctionType.values))
 	assert(all(c not in allowed_regs for c in allowed_simply))
 	assert(all(c not in allowed_simply + allowed_regs for c in allowed_fpr))
 	assert(all(c not in allowed_simply + allowed_regs + allowed_fpr for c in forbidden_simple))
 	assert(all(c in allowed_simply + allowed_regs + allowed_fpr + forbidden_simple for c in FunctionType.values))
 	
-	# Only search on real wrappers
-	for k in [str(Clauses())] + gbl_idxs:
-		for v in gbl[k]:
-			regs_count: int = 0
-			fpr_count : int = 0
-			
-			if v[0] in forbidden_simple:
+	def check_simple(v: FunctionType):
+		regs_count: int = 0
+		fpr_count : int = 0
+		
+		if v[0] in forbidden_simple:
+			return None
+		for c in v[2:]:
+			if c in allowed_regs:
+				regs_count = regs_count + 1
+			elif c in allowed_fpr:
+				fpr_count = fpr_count + 1
+			elif c in allowed_simply:
 				continue
-			for c in v[2:]:
-				if c in allowed_regs:
-					regs_count = regs_count + 1
-				elif c in allowed_fpr:
-					fpr_count = fpr_count + 1
-				elif c in allowed_simply:
-					continue
-				else:
-					break
 			else:
-				# No character in forbidden_simply
-				if (regs_count <= 6) and (fpr_count <= 8):
-					# All checks passed!
-					ret_val = 1 + fpr_count
-					if v[0] in allowed_fpr:
-						ret_val = -ret_val
-					simple_wraps.setdefault(k, []).append((v, ret_val))
-	simple_idxs = list(simple_wraps.keys())
-	simple_idxs.sort(key=lambda x: Clauses(x).splitdef())
+				return None
+		# No character in forbidden_simply
+		if (regs_count <= 6) and (fpr_count <= 8):
+			# All checks passed!
+			ret_val = 1 + fpr_count
+			if v[0] in allowed_fpr:
+				ret_val = -ret_val
+			return ret_val
+		else:
+			# Too many arguments...
+			return None
+	
+	# Only search in real wrappers (mapped ones are nearly always not simple)
+	for k in gbls:
+		tmp = [ (v, ret_val) for v, ret_val in map(lambda v: (v, check_simple(v)), gbls[k]) if ret_val is not None ]
+		if tmp:
+			simple_wraps[k] = tmp
+	simple_idxs = sorted(simple_wraps.keys(), key=lambda x: Clauses(x).splitdef())
 	
 	# Now the files rebuilding part
 	# File headers and guards
 	files_header = {
-		"wrapper.c": """/*******************************************************************
- * File automatically generated by rebuild_wrappers.py (v{version}) *
- *******************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
-#include "wrapper.h"
-#include "emu/x64emu_private.h"
-#include "emu/x87emu_private.h"
-#include "regs.h"
-#include "x64emu.h"
-
-extern void* my__IO_2_1_stdin_ ;
-extern void* my__IO_2_1_stdout_;
-extern void* my__IO_2_1_stderr_;
-
-static void* io_convert(void* v)
-{lbr}
-	if(!v)
-		return v;
-	if(v == my__IO_2_1_stdin_)
-		return stdin;
-	if(v == my__IO_2_1_stdout_)
-		return stdout;
-	if(v == my__IO_2_1_stderr_)
-		return stderr;
-	return v;
-{rbr}
-
-#define ST0val ST0.d
-
-int of_convert(int);
-
-""",
-		"wrapper.h": """/*******************************************************************
- * File automatically generated by rebuild_wrappers.py (v{version}) *
- *******************************************************************/
-#ifndef __WRAPPER_H_
-#define __WRAPPER_H_
-#include <stdint.h>
-#include <string.h>
-
-typedef struct x64emu_s x64emu_t;
-
-// the generic wrapper pointer functions
-typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
-
-// list of defined wrapper
-// v = void, i = int32, u = uint32, U/I= (u)int64
-// l = signed long, L = unsigned long (long is an int with the size of a pointer)
-// p = pointer, P = void* on the stack
-// f = float, d = double, D = long double, K = fake long double
-// V = vaargs, E = current x86emu struct, e = ref to current x86emu struct
-// 0 = constant 0, 1 = constant 1
-// o = stdout
-// C = unsigned byte c = char
-// W = unsigned short w = short
-// O = libc O_ flags bitfield
-// S = _IO_2_1_stdXXX_ pointer (or FILE*)
-// N = ... automatically sending 1 arg
-// M = ... automatically sending 2 args
-// H = Huge 128bits value/struct
-// A = va_list
-
-""",
-		"fntypes.h": """/*******************************************************************
- * File automatically generated by rebuild_wrappers.py (v{version}) *
- *******************************************************************/
-#ifndef __{filename}TYPES_H_
-#define __{filename}TYPES_H_
-
-#ifndef LIBNAME
-#error You should only #include this file inside a wrapped*.c file
-#endif
-#ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
-#endif
-
-"""
-	}
-	files_guard = {"wrapper.c": """""",
+		"wrapper.c": """
+		#include <stdio.h>
+		#include <stdlib.h>
+		#include <stdint.h>
+		
+		#include "wrapper.h"
+		#include "emu/x64emu_private.h"
+		#include "emu/x87emu_private.h"
+		#include "regs.h"
+		#include "x64emu.h"
+		
+		extern void* my__IO_2_1_stdin_ ;
+		extern void* my__IO_2_1_stdout_;
+		extern void* my__IO_2_1_stderr_;
+		
+		static void* io_convert(void* v)
+		{lbr}
+			if(!v)
+				return v;
+			if(v == my__IO_2_1_stdin_)
+				return stdin;
+			if(v == my__IO_2_1_stdout_)
+				return stdout;
+			if(v == my__IO_2_1_stderr_)
+				return stderr;
+			return v;
+		{rbr}
+		
+		#define ST0val ST0.d
+		
+		int of_convert(int);
+		
+		""",
 		"wrapper.h": """
-int isSimpleWrapper(wrapper_t fun);
-
-#endif // __WRAPPER_H_
-""",
+		#ifndef __WRAPPER_H_
+		#define __WRAPPER_H_
+		#include <stdint.h>
+		#include <string.h>
+		
+		typedef struct x64emu_s x64emu_t;
+		
+		// the generic wrapper pointer functions
+		typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
+		
+		// list of defined wrapper
+		// E = current x86emu struct
+		// v = void
+		// C = unsigned byte c = char
+		// W = unsigned short w = short
+		// u = uint32, i = int32
+		// U = uint64, I = int64
+		// L = unsigned long, l = signed long (long is an int with the size of a pointer)
+		// H = Huge 128bits value/struct
+		// p = pointer, P = void* on the stack
+		// f = float, d = double, D = long double, K = fake long double
+		// V = vaargs
+		// O = libc O_ flags bitfield
+		// o = stdout
+		// S = _IO_2_1_stdXXX_ pointer (or FILE*)
+		// N = ... automatically sending 1 arg
+		// M = ... automatically sending 2 args
+		// A = va_list
+		// 0 = constant 0, 1 = constant 1
+		
+		""",
 		"fntypes.h": """
-#endif // __{filename}TYPES_H_
-"""
+		#ifndef __{filename}TYPES_H_
+		#define __{filename}TYPES_H_
+		
+		#ifndef LIBNAME
+		#error You should only #include this file inside a wrapped*.c file
+		#endif
+		#ifndef ADDED_FUNCTIONS
+		#define ADDED_FUNCTIONS() 
+		#endif
+		
+		""",
+		"fndefs.h": """
+		#ifndef __{filename}DEFS_H_
+		#define __{filename}DEFS_H_
+		
+		""",
+		"fnundefs.h": """
+		#ifndef __{filename}UNDEFS_H_
+		#define __{filename}UNDEFS_H_
+		
+		"""
 	}
+	files_guard = {
+		"wrapper.c": """
+		""",
+		"wrapper.h": """
+		
+		int isSimpleWrapper(wrapper_t fun);
+		
+		#endif // __WRAPPER_H_
+		""",
+		"fntypes.h": """
+		
+		#endif // __{filename}TYPES_H_
+		""",
+		"fndefs.h": """
+		
+		#endif // __{filename}DEFS_H_
+		""",
+		"fnundefs.h": """
+		
+		#endif // __{filename}UNDEFS_H_
+		"""
+	}
+	
+	banner = "/********************************************************" + ('*'*len(ver)) + "***\n" \
+	         " * File automatically generated by rebuild_wrappers.py (v" + ver + ") *\n" \
+	         " ********************************************************" + ('*'*len(ver)) + "***/\n"
+	trim = lambda string: '\n'.join(line[2:] for line in string.splitlines())[1:]
+	# Yes, the for loops are inversed. This is because both dicts should have the same keys.
+	for fhdr in files_guard:
+		files_header[fhdr] = banner + trim(files_header[fhdr])
+	for fhdr in files_header:
+		files_guard[fhdr] = trim(files_guard[fhdr])
 	
 	# Rewrite the wrapper.c file:
 	# i and u should only be 32 bits
-	#            E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A
-	td_types = ["x64emu_t*", "x64emu_t**", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*"]
+	#            E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A
+	td_types = ["x64emu_t*", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*"]
 	if len(FunctionType.values) != len(td_types):
 		raise NotImplementedError("len(values) = {lenval} != len(td_types) = {lentypes}".format(lenval=len(FunctionType.values), lentypes=len(td_types)))
 	
-	def generate_typedefs(arr: Sequence[FunctionType], file) -> None:
+	def generate_typedefs(arr: Iterable[FunctionType], file) -> None:
 		for v in arr:
 			file.write("typedef " + td_types[FunctionType.values.index(v[0])] + " (*" + v + "_t)"
 				+ "(" + ', '.join(td_types[FunctionType.values.index(t)] for t in v[2:]) + ");\n")
@@ -657,11 +968,12 @@ int isSimpleWrapper(wrapper_t fun);
 		file.write(files_header["wrapper.c"].format(lbr="{", rbr="}", version=ver))
 		
 		# First part: typedefs
-		generate_typedefs(gbl[str(Clauses())], file)
-		for k in gbl_idxs:
-			file.write("\n#if " + k + "\n")
-			generate_typedefs(gbl[k], file)
-			file.write("#endif\n")
+		for k in gbls:
+			if k != str(Clauses()):
+				file.write("\n#if " + k + "\n")
+			generate_typedefs(gbls[k], file)
+			if k != str(Clauses()):
+				file.write("#endif\n")
 		
 		file.write("\n")
 		
@@ -671,7 +983,6 @@ int isSimpleWrapper(wrapper_t fun);
 		# Return type template
 		vals = [
 			"\n#error Invalid return type: emulator\n",                # E
-			"\n#error Invalid return type: &emulator\n",               # e
 			"fn({0});",                                                # v
 			"R_RAX=fn({0});",                                          # c
 			"R_RAX=fn({0});",                                          # w
@@ -700,21 +1011,21 @@ int isSimpleWrapper(wrapper_t fun);
 		
 		# Name of the registers
 		reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
+		assert(len(reg_arg) == 6)
 		# vreg: value is in a general register
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
-		vreg   = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
+		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1]
 		# vxmm: value is in a XMM register
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
-		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
+		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		# vother: value is elsewere
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
-		vother = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
+		vother = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
 		# vstack: value is on the stack (or out of register)
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
-		vstack = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
+		vstack = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1]
 		arg_r = [
 			"",                            # E
-			"",                            # e
 			"",                            # v
 			"(int8_t){p}, ",               # c
 			"(int16_t){p}, ",              # w
@@ -742,7 +1053,6 @@ int isSimpleWrapper(wrapper_t fun);
 		]
 		arg_x = [
 			"",                      # E
-			"",                      # e
 			"",                      # v
 			"",                      # c
 			"",                      # w
@@ -770,7 +1080,6 @@ int isSimpleWrapper(wrapper_t fun);
 		]
 		arg_o = [
 			"emu, ",                   # E
-			"&emu, ",                  # e
 			"",                        # v
 			"",                        # c
 			"",                        # w
@@ -794,11 +1103,10 @@ int isSimpleWrapper(wrapper_t fun);
 			"",                        # M
 			"",                        # H
 			"",                        # P
-			"",                      # A
+			"",                        # A
 		]
 		arg_s = [
 			"",                                         # E
-			"",                                         # e
 			"",                                         # v
 			"*(int8_t*)(R_RSP + {p}), ",                # c
 			"*(int16_t*)(R_RSP + {p}), ",               # w
@@ -844,6 +1152,24 @@ int isSimpleWrapper(wrapper_t fun);
 			raise NotImplementedError("len(values) = {lenval} != len(arg_o) = {lenargo}".format(lenval=len(FunctionType.values), lenargo=len(arg_o)))
 		if len(FunctionType.values) != len(vals):
 			raise NotImplementedError("len(values) = {lenval} != len(vals) = {lenvals}".format(lenval=len(FunctionType.values), lenvals=len(vals)))
+		# When arg_* is not empty, v* should not be 0
+		if any(map(lambda v, a: (a != "") and (v == 0), vstack, arg_s)):
+			raise NotImplementedError("Something in the stack has a null offset and a non-empty arg string")
+		if any(map(lambda v, a: (a != "") and (v == 0), vreg, arg_r)):
+			raise NotImplementedError("Something in the stack has a null offset and a non-empty arg string")
+		if any(map(lambda v, a: (a != "") and (v == 0), vxmm, arg_x)):
+			raise NotImplementedError("Something in the stack has a null offset and a non-empty arg string")
+		if any(map(lambda v, a: (a != "") and (v == 0), vother, arg_o)):
+			raise NotImplementedError("Something in the stack has a null offset and a non-empty arg string")
+		# Everything is either in the stack or somewhere else, it cannot be in a GPr and in an XMMr, etc
+		if any(map(lambda o, s: (o == 0) == (s == 0), vother, vstack)):
+			raise NotImplementedError("Something cannot be in exactly one of the stack and somewhere else")
+		if any(map(lambda r, x: (r > 0) and (x > 0), vreg, vxmm)):
+			raise NotImplementedError("Something can be in both a general purpose register and in an XMM register")
+		if any(map(lambda r, s: (r > 0) and (s == 0), vreg, vstack)):
+			raise NotImplementedError("Something can be in a general purpose register but not in the stack")
+		if any(map(lambda x, s: (x > 0) and (s == 0), vxmm, vstack)):
+			raise NotImplementedError("Something can be in an XMM register but not in the stack")
 		
 		# Helper functions to write the function definitions
 		def function_args(args: FunctionType, d: int = 8, r: int = 0, x: int = 0) -> str:
@@ -862,15 +1188,20 @@ int isSimpleWrapper(wrapper_t fun);
 			
 			idx = FunctionType.values.index(args[0])
 			if (r < 6) and (vreg[idx] > 0):
-				# Value is in a general register (and there is still one available)
-				if (vreg[idx] == 2) and (r == 6):
-					return arg_r[idx-1].format(p=reg_arg[r]) + arg_s[idx-1].format(p=d) + function_args(args[1:], d + vother[idx-1]*8, r+1, x)
-				elif (vreg[idx] == 2) and (r < 6):
-					return arg_r[idx].format(p=reg_arg[r]) + arg_r[idx].format(p=reg_arg[r+1]) + function_args(args[1:], d, r+2, x)
-				else:
-					return arg_r[idx].format(p=reg_arg[r]) + function_args(args[1:], d, r+1, x)
+				ret = ""
+				for _ in range(vreg[idx]):
+					# There may be values in multiple registers
+					if r < 6:
+						# Value is in a general register
+						ret = ret + arg_r[idx].format(p=reg_arg[r])
+						r = r + 1
+					else:
+						# Remaining is in the stack
+						ret = ret + arg_s[idx].format(p=d)
+						d = d + 8
+				return ret + function_args(args[1:], d, r, x)
 			elif (x < 8) and (vxmm[idx] > 0):
-				# Value is in an XMM register (and there is still one available)
+				# Value is in an XMM register
 				return arg_x[idx].format(p=x) + function_args(args[1:], d, r, x+1)
 			elif vstack[idx] > 0:
 				# Value is in the stack
@@ -881,41 +1212,39 @@ int isSimpleWrapper(wrapper_t fun);
 		
 		def function_writer(f, N: FunctionType, W: str) -> None:
 			# Write to f the function type N (real type W)
-			# rettype is a single character, args is the string of argument types
-			# (those could actually be deduced from N)
 			
 			f.write("void {0}(x64emu_t *emu, uintptr_t fcn) {2} {1} fn = ({1})fcn; ".format(N, W, "{"))
 			# Generic function
 			f.write(vals[FunctionType.values.index(N[0])].format(function_args(N[2:])[:-2]) + " }\n")
 		
-		for v in gbl[str(Clauses())]:
-			if v == FunctionType("vFv"):
-				# Suppress all warnings...
-				file.write("void vFv(x64emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; fn(); (void)emu; }\n")
-			else:
-				function_writer(file, v, v + "_t")
-		for k in gbl_idxs:
-			file.write("\n#if " + k + "\n")
-			for v in gbl[k]:
-				function_writer(file, v, v + "_t")
-			file.write("#endif\n")
+		for k in gbls:
+			if k != str(Clauses()):
+				file.write("\n#if " + k + "\n")
+			for v in gbls[k]:
+				if v == FunctionType("vFv"):
+					# Suppress all warnings...
+					file.write("void vFv(x64emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; fn(); (void)emu; }\n")
+				else:
+					function_writer(file, v, v + "_t")
+			if k != str(Clauses()):
+				file.write("#endif\n")
 		file.write("\n")
-		for vr, vf in redirects[str(Clauses())]:
-			function_writer(file, vr, vf + "_t")
-		for k in redirects_idxs:
-			file.write("\n#if " + k + "\n")
+		for k in redirects:
+			if k != str(Clauses()):
+				file.write("\n#if " + k + "\n")
 			for vr, vf in redirects[k]:
 				function_writer(file, vr, vf + "_t")
-			file.write("#endif\n")
+			if k != str(Clauses()):
+				file.write("#endif\n")
 		
 		# Write the isSimpleWrapper function
 		file.write("\nint isSimpleWrapper(wrapper_t fun) {\n")
 		for k in simple_idxs:
-			if k != "()":
+			if k != str(Clauses()):
 				file.write("#if " + k + "\n")
-			for v in simple_wraps[k]:
-				file.write("\tif (fun == &" + v[0] + ") return " + str(v[1]) + ";\n")
-			if k != "()":
+			for vf, val in simple_wraps[k]:
+				file.write("\tif (fun == &" + vf + ") return " + str(val) + ";\n")
+			if k != str(Clauses()):
 				file.write("#endif\n")
 		file.write("\treturn 0;\n}\n")
 		
@@ -925,36 +1254,57 @@ int isSimpleWrapper(wrapper_t fun);
 	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.h"), 'w') as file:
 		file.write(files_header["wrapper.h"].format(lbr="{", rbr="}", version=ver))
 		# Normal function types
-		for v in gbl[str(Clauses())]:
-			file.write("void " + v + "(x64emu_t *emu, uintptr_t fnc);\n")
-		for k in gbl_idxs:
-			file.write("\n#if " + k + "\n")
-			for v in gbl[k]:
+		for k in gbls:
+			if k != str(Clauses()):
+				file.write("\n#if " + k + "\n")
+			for v in gbls[k]:
 				file.write("void " + v + "(x64emu_t *emu, uintptr_t fnc);\n")
-			file.write("#endif\n")
+			if k != str(Clauses()):
+				file.write("#endif\n")
 		file.write("\n")
 		# Redirects
-		for vr, _ in redirects[str(Clauses())]:
-			file.write("void " + vr + "(x64emu_t *emu, uintptr_t fnc);\n")
-		for k in redirects_idxs:
-			file.write("\n#if " + k + "\n")
+		for k in redirects:
+			if k != str(Clauses()):
+				file.write("\n#if " + k + "\n")
 			for vr, _ in redirects[k]:
 				file.write("void " + vr + "(x64emu_t *emu, uintptr_t fnc);\n")
-			file.write("#endif\n")
+			if k != str(Clauses()):
+				file.write("#endif\n")
 		file.write(files_guard["wrapper.h"].format(lbr="{", rbr="}", version=ver))
 	
 	# Rewrite the *types.h files:
 	td_types[FunctionType.values.index('A')] = "va_list"
-	for fn in mytypedefs:
+	td_types[FunctionType.values.index('V')] = "..."
+	orig_val_len = len(FunctionType.values)
+	for fn in filesspec:
+		for strc in fsp_tmp[fn][1]:
+			FunctionType.values.append(strc)
+			td_types.append(fsp_tmp[fn][1][strc][0])
+		
 		with open(os.path.join(root, "src", "wrapped", "generated", fn + "types.h"), 'w') as file:
 			file.write(files_header["fntypes.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
-			generate_typedefs(mytypedefs[fn][1], file)
+			generate_typedefs(filesspec[fn][0], file)
 			file.write("\n#define SUPER() ADDED_FUNCTIONS()")
-			for v in mytypedefs[fn][1]:
-				for f in mytypedefs[fn][0][v]:
-					file.write(" \\\n\tGO({0}, {1}_t)".format(f, v))
+			for r in filesspec[fn][0]:
+				for f in filesspec[fn][0][r]:
+					file.write(" \\\n\tGO({0}, {1}_t)".format(f, r))
 			file.write("\n")
 			file.write(files_guard["fntypes.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
+		
+		with open(os.path.join(root, "src", "wrapped", "generated", fn + "defs.h"), 'w') as file:
+			file.write(files_header["fndefs.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
+			for defined in filesspec[fn][1]:
+				file.write("#define {defined} {define}\n".format(defined=defined, define=filesspec[fn][1][defined]))
+			file.write(files_guard["fndefs.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
+		
+		with open(os.path.join(root, "src", "wrapped", "generated", fn + "undefs.h"), 'w') as file:
+			file.write(files_header["fnundefs.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
+			for defined in filesspec[fn][1]:
+				file.write("#undef {defined}\n".format(defined=defined))
+			file.write(files_guard["fnundefs.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
+		
+		FunctionType.values = FunctionType.values[:orig_val_len]
+		td_types = td_types[:orig_val_len]
 	
 	# Save the string for the next iteration, writing was successful
 	with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'w') as file:
@@ -968,6 +1318,6 @@ if __name__ == '__main__':
 		if v == "--":
 			limit.append(i)
 	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
-	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.0.1.14") != 0:
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.1.0.16") != 0:
 		exit(2)
 	exit(0)

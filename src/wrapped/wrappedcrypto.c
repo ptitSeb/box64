@@ -25,9 +25,6 @@ const char* cryptoName = "libcrypto.so.1.0.0";
 
 static library_t* my_lib = NULL;
 
-typedef int64_t (*iFpplppi_t) (void*, void*, long, void*, void*, int64_t);
-#define ADDED_FUNCTIONS() \
-    GO(ENGINE_ctrl_cmd, iFpplppi_t)
 #include "generated/wrappedcryptotypes.h"
 
 typedef struct crypto_my_s {

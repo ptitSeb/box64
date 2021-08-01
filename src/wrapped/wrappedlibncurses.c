@@ -26,17 +26,8 @@ static library_t* my_lib = NULL;
 
 // this is a simple copy of libncursesw wrapper. TODO: check if ok
 
-typedef void*       (*pFv_t)();
-typedef int         (*iFppV_t)(void*, void*, va_list);
-typedef int         (*iFpiip_t)(void*, int32_t, int32_t, void*);
-typedef int         (*iFiipV_t)(int, int, void*, ...);
-
-#define SUPER() \
-    GO(initscr, pFv_t)      \
-    GO(mvwprintw, iFpiip_t) \
-    GO(vwprintw, iFppV_t)   \
-    GO(stdscr, void*)       \
-    GO(mvprintw, iFiipV_t)
+#define ADDED_FUNCTIONS() GO(stdscr, void*)
+#include "generated/wrappedlibncursestypes.h"
 
 typedef struct libncurses_my_s {
     // functions
