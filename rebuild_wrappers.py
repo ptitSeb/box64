@@ -8,20 +8,20 @@ try:
 	if sys.version_info.minor >= 9:
 		# Python 3.9+
 		from typing import Generic, NewType, Optional, TypeVar, Union, final
-		from collections.abc import Iterable, Mapping
+		from collections.abc import Iterable
 		Dict = dict
 		List = list
 		Tuple = tuple
 	elif sys.version_info.minor >= 8:
 		# Python [3.8, 3.9)
-		from typing import Dict, List, Tuple, Generic, Iterable, Mapping, NewType, Optional, TypeVar, Union, final
+		from typing import Dict, List, Tuple, Generic, Iterable, NewType, Optional, TypeVar, Union, final
 	elif (sys.version_info.minor >= 5) and (sys.version_info.micro >= 2):
 		# Python [3.5.2, 3.8)
-		from typing import Dict, List, Tuple, Generic, Iterable, Mapping, NewType, Optional, TypeVar, Union
+		from typing import Dict, List, Tuple, Generic, Iterable, NewType, Optional, TypeVar, Union
 		final = lambda fun: fun # type: ignore
 	elif sys.version_info.minor >= 5:
 		# Python [3.5, 3.5.2)
-		from typing import Dict, List, Tuple, Generic, Iterable, Mapping, Optional, TypeVar, Union
+		from typing import Dict, List, Tuple, Generic, Iterable, Optional, TypeVar, Union
 		class GTDummy:
 			def __getitem__(self, _): return self
 		final = lambda fun: fun # type: ignore
@@ -37,7 +37,6 @@ try:
 		List = GTDummy() # type: ignore
 		Generic = GTDummy() # type: ignore
 		Iterable = GTDummy() # type: ignore
-		Mapping = GTDummy() # type: ignore
 		Optional = GTDummy() # type: ignore
 		def NewType(_, b): return b # type: ignore
 		Tuple = GTDummy() # type: ignore
