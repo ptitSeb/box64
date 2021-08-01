@@ -11,7 +11,12 @@
 #define MAPNAME3(N,M) N##M
 #define MAPNAME2(N,M) MAPNAME3(N,M)
 #define MAPNAME(N) MAPNAME2(LIBNAME,N)
+
 // prepare the maps
+#define _DOIT(P,Q) QUOTE(generated/wrapped##P##Q.h)
+#define DOIT(P,Q) _DOIT(P,Q)
+#include DOIT(LIBNAME,defs)
+
 // regular symbol mapped to itself
 #define GO(N, W)
 // regular symbol mapped to itself, but weak
@@ -102,6 +107,9 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 #undef DATAB
 #undef DATAM
 
+#include DOIT(LIBNAME,undefs)
+#undef DOIT
+#undef _DOIT
 
 void NativeLib_CommonInit(library_t *lib);
 int FUNC(_init)(library_t* lib, box64context_t* box64)

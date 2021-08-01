@@ -2,6 +2,8 @@
 #error Meh!
 #endif
 
+//%S G SDL_JoystickGUID UU
+
 // _fini
 // _init
 GO(SDL_abs, iFi)
@@ -198,7 +200,7 @@ GO(SDL_GetGlobalMouseState, uFpp)
 GO(SDL_GetGrabbedWindow, pFv)
 GO(SDL_GetHint, pFp)
 GO(SDL_GetHintBoolean, iFpi)
-GOM(SDL_GetJoystickGUIDInfo, vFppppp)   //%% the flat SDL_JoystickGUID stuct in 1st argument is same as 2 uint64
+GOM(SDL_GetJoystickGUIDInfo, vFGppp)
 GO(SDL_GetKeyboardFocus, pFv)
 GO(SDL_GetKeyboardState, pFp)
 GO(SDL_GetKeyFromName, pFp)

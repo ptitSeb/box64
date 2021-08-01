@@ -17,7 +17,7 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 // C = unsigned byte c = char
 // W = unsigned short w = short
 // u = uint32, i = int32
-// U = uint64, I= int64
+// U = uint64, I = int64
 // L = unsigned long, l = signed long (long is an int with the size of a pointer)
 // H = Huge 128bits value/struct
 // p = pointer, P = void* on the stack
@@ -835,6 +835,7 @@ void vFullip(x64emu_t *emu, uintptr_t fnc);
 void vFupupi(x64emu_t *emu, uintptr_t fnc);
 void vFuppip(x64emu_t *emu, uintptr_t fnc);
 void vFupppp(x64emu_t *emu, uintptr_t fnc);
+void vFUUppp(x64emu_t *emu, uintptr_t fnc);
 void vFfffff(x64emu_t *emu, uintptr_t fnc);
 void vFddddp(x64emu_t *emu, uintptr_t fnc);
 void vFpiiii(x64emu_t *emu, uintptr_t fnc);

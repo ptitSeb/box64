@@ -802,6 +802,7 @@
 #() vFupupi
 #() vFuppip
 #() vFupppp
+#() vFUUppp
 #() vFfffff
 #() vFddddp
 #() vFpiiii
@@ -1515,6 +1516,11 @@
 #() iFEpvvppp -> iFEpppp
 #() iFEpLvvpp -> iFEpLpp
 #() iFEpuvvppp -> iFEpuppp
+wrappedalure:
+wrappedalut:
+wrappedatk:
+wrappedatkbridge:
+wrappedatspi:
 wrappedbz2:
 - iFp:
   - BZ2_bzCompressEnd
@@ -1526,6 +1532,8 @@ wrappedbz2:
   - BZ2_bzDecompressInit
 - iFpiii:
   - BZ2_bzCompressInit
+wrappedcairo:
+wrappedcrashhandler:
 wrappedcrypto:
 - vFp:
   - CRYPTO_set_id_callback
@@ -1587,6 +1595,7 @@ wrappedflac:
   - FLAC__metadata_chain_read_with_callbacks
 - iFppppppppp:
   - FLAC__stream_decoder_init_stream
+wrappedfontconfig:
 wrappedfreetype:
 - iFpplp:
   - FT_Open_Face
@@ -1598,6 +1607,7 @@ wrappedgnutls:
 - vFpp:
   - gnutls_transport_set_pull_function
   - gnutls_transport_set_push_function
+wrappedgssapikrb5:
 wrappedkrb5:
 - iFppppppipp:
   - krb5_get_init_creds_password
@@ -1813,6 +1823,8 @@ wrappedlibc:
   - mmap64
 - iFpippppp:
   - __libc_start_main
+wrappedlibcrypt:
+wrappedlibcups:
 wrappedlibdl:
 - iFp:
   - dlclose
@@ -1830,6 +1842,8 @@ wrappedlibdl:
   - dlmopen
 - pFppp:
   - dlvsym
+wrappedlibform:
+wrappedlibformw:
 wrappedlibgl:
 - iFi:
   - glXSwapIntervalMESA
@@ -1847,6 +1861,7 @@ wrappedlibglu:
   - gluNurbsCallback
   - gluQuadricCallback
   - gluTessCallback
+wrappedlibice:
 wrappedlibm:
 - UFV:
   - cacosf
@@ -1920,6 +1935,9 @@ wrappedlibncursesw:
   - mvprintw
 - iFpiipV:
   - mvwprintw
+wrappedlibogg:
+wrappedlibpanel:
+wrappedlibpcre:
 wrappedlibpthread:
 - vFp:
   - __pthread_register_cancel
@@ -2008,6 +2026,7 @@ wrappedlibpthread:
   - pthread_cond_timedwait
 - iFpppp:
   - pthread_create
+wrappedlibresolv:
 wrappedlibrt:
 - iFupp:
   - timer_create
@@ -2038,6 +2057,8 @@ wrappedlibtinfo:
 wrappedlibtinfo6:
 - iFpip:
   - tputs
+wrappedlibuuid:
+wrappedlibvorbis:
 wrappedlibx11:
 - iFp:
   - XDestroyImage
@@ -2076,6 +2097,21 @@ wrappedlibx11:
   - XCreateImage
 - pFppiiuuuipii:
   - XGetSubImage
+wrappedlibx11xcb:
+wrappedlibxau:
+wrappedlibxcb:
+wrappedlibxcbglx:
+wrappedlibxcbimage:
+wrappedlibxcbkeysyms:
+wrappedlibxcbrandr:
+wrappedlibxcbshape:
+wrappedlibxcbshm:
+wrappedlibxcbxfixes:
+wrappedlibxcbxtest:
+wrappedlibxcomposite:
+wrappedlibxcursor:
+wrappedlibxdamage:
+wrappedlibxdmcp:
 wrappedlibxext:
 - pFp:
   - XSetExtensionErrorHandler
@@ -2087,6 +2123,14 @@ wrappedlibxext:
   - XShmCreateImage
 - iFppppiiiiuui:
   - XShmPutImage
+wrappedlibxfixes:
+wrappedlibxft:
+wrappedlibxi:
+wrappedlibxmu:
+wrappedlibxpm:
+wrappedlibxrandr:
+wrappedlibxrender:
+wrappedlibxss:
 wrappedlibxt:
 - vFpuipp:
   - XtAddEventHandler
@@ -2094,6 +2138,7 @@ wrappedlibxtst:
 - iFpppp:
   - XRecordEnableContext
   - XRecordEnableContextAsync
+wrappedlibxxf86vm:
 wrappedlibz:
 - iFp:
   - deflateEnd
@@ -2131,6 +2176,8 @@ wrappedopenal:
 wrappedpango:
 - vFpp:
   - pango_attribute_init
+wrappedpangocairo:
+wrappedpangoft2:
 wrappedpng16:
 - vFpp:
   - png_set_read_user_transform_fn
@@ -2232,6 +2279,7 @@ wrappedpulse:
   - pa_context_set_source_volume_by_name
 - iFppLpIi:
   - pa_stream_write
+wrappedpulsesimple:
 wrappedsdl1:
 - vFp:
   - SDL_KillThread
@@ -2328,6 +2376,7 @@ wrappedsdl1mixer:
   - Mix_LoadMUSType_RW
 - iFippp:
   - Mix_RegisterEffect
+wrappedsdl1net:
 wrappedsdl1sound:
 - pFpppu:
   - Sound_NewSample
@@ -2337,6 +2386,7 @@ wrappedsdl1ttf:
 - pFpiii:
   - TTF_OpenFontIndexRW
 wrappedsdl2:
+% G SDL_JoystickGUID UU
 - vFp:
   - SDL_UnloadObject
 - iFv:
@@ -2439,6 +2489,8 @@ wrappedsdl2:
   - SDL_CreateThread
 - vFpuup:
   - SDL_qsort
+- vFGppp:
+  - SDL_GetJoystickGUIDInfo
 - iFpLpp:
   - SDL_vsnprintf
 - iFpLpV:
@@ -2446,12 +2498,11 @@ wrappedsdl2:
 - uFppuu:
   - SDL_RWread
   - SDL_RWwrite
-- vFppppp:
-  - SDL_GetJoystickGUIDInfo
 - iFpippi:
   - SDL_OpenAudioDevice
 - pFpippp:
   - SDL_LoadWAV_RW
+% vFGppp
 wrappedsdl2image:
 - pFp:
   - IMG_LoadBMP_RW
@@ -2497,6 +2548,7 @@ wrappedsdl2mixer:
   - Mix_LoadMUSType_RW
 - iFippp:
   - Mix_RegisterEffect
+wrappedsdl2net:
 wrappedsdl2ttf:
 - pFpii:
   - TTF_OpenFontRW
@@ -2532,6 +2584,9 @@ wrappedvorbisfile:
 - iFppplPPPP:
   - ov_open_callbacks
   - ov_test_callbacks
+wrappedxinerama:
+wrappedxkbcommon:
+wrappedxkbcommonx11:
 wrappedxml2:
 - vFp:
   - xmlSetExternalEntityLoader
