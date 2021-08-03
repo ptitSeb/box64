@@ -1639,6 +1639,7 @@ wrappedlibc:
 - iFp:
   - _setjmp
   - getcontext
+  - setcontext
   - setjmp
   - uname
 - lFv:

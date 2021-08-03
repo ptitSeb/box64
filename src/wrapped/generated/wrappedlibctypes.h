@@ -82,6 +82,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(fork, iFv_t) \
 	GO(_setjmp, iFp_t) \
 	GO(getcontext, iFp_t) \
+	GO(setcontext, iFp_t) \
 	GO(setjmp, iFp_t) \
 	GO(uname, iFp_t) \
 	GO(syscall, lFv_t) \
