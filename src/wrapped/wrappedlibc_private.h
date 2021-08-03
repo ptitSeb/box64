@@ -826,7 +826,7 @@ GO(iopl, iFi)
 //GO(_IO_printf, 
 //GO(_IO_proc_close, 
 //GO(_IO_proc_open, 
-//GO(_IO_putc, 
+GO(_IO_putc, iFiS)
 //GO(_IO_puts, 
 //GO(_IO_remove_marker, 
 //GO(_IO_seekmark, 

@@ -151,6 +151,7 @@ void iFiu(x64emu_t *emu, uintptr_t fnc);
 void iFil(x64emu_t *emu, uintptr_t fnc);
 void iFiL(x64emu_t *emu, uintptr_t fnc);
 void iFip(x64emu_t *emu, uintptr_t fnc);
+void iFiS(x64emu_t *emu, uintptr_t fnc);
 void iFIi(x64emu_t *emu, uintptr_t fnc);
 void iFui(x64emu_t *emu, uintptr_t fnc);
 void iFuu(x64emu_t *emu, uintptr_t fnc);
