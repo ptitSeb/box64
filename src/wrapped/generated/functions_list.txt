@@ -661,6 +661,7 @@
 #() UFppip
 #() lFEpip
 #() lFEppL
+#() lFEppp
 #() lFiiLu
 #() lFiipL
 #() lFipil
@@ -1113,6 +1114,7 @@
 #() uFpppppi
 #() uFpppppp
 #() UFpippup
+#() lFEpippp
 #() lFipipLu
 #() lFipLipu
 #() lFipLipp
@@ -2134,8 +2136,12 @@ wrappedlibxrandr:
 wrappedlibxrender:
 wrappedlibxss:
 wrappedlibxt:
+- lFppp:
+  - XtAppAddWorkProc
 - vFpuipp:
   - XtAddEventHandler
+- lFpippp:
+  - XtAppAddInput
 wrappedlibxtst:
 - iFpppp:
   - XRecordEnableContext

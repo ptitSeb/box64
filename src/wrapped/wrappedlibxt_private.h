@@ -28,10 +28,10 @@ GOM(XtAddEventHandler, vFEpuipp)
 //GO(XtAppAddActions, 
 //GO(XtAppAddBlockHook, 
 //GO(XtAppAddConverter, 
-//GO(XtAppAddInput, 
+GOM(XtAppAddInput, lFEpippp)
 //GO(XtAppAddSignal, 
 //GO(XtAppAddTimeOut, 
-//GO(XtAppAddWorkProc, 
+GOM(XtAppAddWorkProc, lFEppp)
 GO(XtAppCreateShell, pFpppppu)
 //GO(_XtAppCreateShell, 
 //GO(XtAppError, 
@@ -345,13 +345,13 @@ GO(XtRegisterDrawable, vFppp)
 GO(XtRemoveEventHandler, vFpup)     // need to wrap to free event handler?
 //GO(XtRemoveEventTypeHandler, 
 //GO(XtRemoveGrab, 
-//GO(XtRemoveInput, 
+GO(XtRemoveInput, vFl)
 //GO(XtRemoveRawEventHandler, 
 //GO(XtRemoveSignal, 
 //GO(_XtRemoveStateTreeByIndex, 
 GO(XtRemoveTimeOut, vFp)
 //GO(_XtRemoveTranslations, 
-//GO(XtRemoveWorkProc, 
+GO(XtRemoveWorkProc, vFl)
 //GO(XtReservePropertyAtom, 
 GO(XtResizeWidget, vFpuuu)
 GO(XtResizeWindow, vFp)
