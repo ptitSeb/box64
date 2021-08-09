@@ -264,7 +264,7 @@ static void sigstack_key_alloc() {
 	pthread_key_create(&sigstack_key, sigstack_destroy);
 }
 
-uint64_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
+uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
         printf_log(LOG_NONE, "BOX64: Warning, calling Signal function handler %s\n", fnc?"SIG_DFL":"SIG_IGN");
@@ -303,11 +303,45 @@ uint64_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
     }
     va_end (va);
 
+    int oldquitonlongjmp = emu->quitonlongjmp;
+    emu->quitonlongjmp = 2;
+    
     //EmuCall(emu, fnc);  // avoid DynaCall for now
     DynaCall(emu, fnc);
     if(nargs>6)
         R_RSP+=((nargs-6)*4);
 
+    emu->quitonlongjmp = oldquitonlongjmp;
+
+    if(emu->longjmp) {
+        // longjmp inside signal handler, lets grab all relevent value and do the actual longjmp in the signal handler
+        emu->longjmp = 0;
+        if(sigcontext) {
+            sigcontext->uc_mcontext.gregs[X64_R8] = R_R8;
+            sigcontext->uc_mcontext.gregs[X64_R9] = R_R9;
+            sigcontext->uc_mcontext.gregs[X64_R10] = R_R10;
+            sigcontext->uc_mcontext.gregs[X64_R11] = R_R11;
+            sigcontext->uc_mcontext.gregs[X64_R12] = R_R12;
+            sigcontext->uc_mcontext.gregs[X64_R13] = R_R13;
+            sigcontext->uc_mcontext.gregs[X64_R14] = R_R14;
+            sigcontext->uc_mcontext.gregs[X64_R15] = R_R15;
+            sigcontext->uc_mcontext.gregs[X64_RAX] = R_RAX;
+            sigcontext->uc_mcontext.gregs[X64_RCX] = R_RCX;
+            sigcontext->uc_mcontext.gregs[X64_RDX] = R_RDX;
+            sigcontext->uc_mcontext.gregs[X64_RDI] = R_RDI;
+            sigcontext->uc_mcontext.gregs[X64_RSI] = R_RSI;
+            sigcontext->uc_mcontext.gregs[X64_RBP] = R_RBP;
+            sigcontext->uc_mcontext.gregs[X64_RSP] = R_RSP;
+            sigcontext->uc_mcontext.gregs[X64_RBX] = R_RBX;
+            sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;
+            // flags
+            sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
+            // get segments
+            sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
+        } else {
+            printf_log(LOG_NONE, "Warning, longjmp in signal but no sigcontext to change\n");
+        }
+    }
     if(exit)
         *exit = emu->exit;
 
@@ -375,42 +409,6 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
 }
 
 
-void my_sighandler(int32_t sig)
-{
-    int Locks = unlockMutex();
-    printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, (void*)my_context->signals[sig]);
-    // save values
-    x64emu_t *emu = thread_get_emu();
-    uintptr_t restorer = my_context->restorer[sig];
-    uintptr_t old_regs[16] = {0};
-    uintptr_t old_ip = emu->ip.q[0];
-    uint64_t old_flags = emu->eflags.x64;
-    for(int i=0; i<16; ++i)
-        old_regs[i] = emu->regs[i].q[0];
-
-    x64_stack_t *new_ss = (x64_stack_t*)pthread_getspecific(sigstack_key);
-    if(new_ss) {
-        // no alternate stack, so signal RSP needs to match thread RSP!
-        R_RSP = (uintptr_t)(new_ss->ss_sp+new_ss->ss_size-32);
-    }
-
-    int exits = 0;
-    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 1, sig);
-    // restore regs
-    emu->ip.q[0] = old_ip;
-    emu->eflags.x64 = old_flags;
-    for(int i=0; i<16; ++i)
-        emu->regs[i].q[0] = old_regs[i];
-    if(exits) {
-        relockMutex(Locks);
-        exit(ret);
-    }
-    // what about the restored regs?
-    if(restorer)
-        RunFunctionHandler(&exits, restorer, 0);
-    relockMutex(Locks);
-}
-
 #ifdef DYNAREC
 uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr)
 {
@@ -436,7 +434,7 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr)
 }
 #endif
 
-void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
+void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     int Locks = unlockMutex();
 
@@ -594,7 +592,11 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     R_RBP = sigcontext->uc_mcontext.gregs[X64_RBP];
 
     int exits = 0;
-    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, info, sigcontext);
+    int ret;
+    if (simple)
+        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 1, sig);
+    else
+        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info, sigcontext);
     // restore old value from emu
     #define GO(A) R_##A = old_##A
     GO(RAX);
@@ -693,7 +695,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
         exit(ret);
     }
     if(restorer)
-        RunFunctionHandler(&exits, 0, restorer, 0);
+        RunFunctionHandler(&exits, NULL, restorer, 0);
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
     relockMutex(Locks);
@@ -702,7 +704,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
-    int log_minimum = (my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_INFO:LOG_NONE;
+    int log_minimum = (my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_DEBUG:LOG_INFO;
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
     void* rsp = NULL;
@@ -899,10 +901,7 @@ exit(-1);
     }
     relockMutex(Locks);
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
-        if(my_context->is_sigaction[sig])
-            my_sigactionhandler_oldcode(sig, info, ucntx, &old_code, db);
-        else
-            my_sighandler(sig);
+        my_sigactionhandler_oldcode(sig, my_context->is_sigaction[sig]?0:1, info, ucntx, &old_code, db);
         return;
     }
     // no handler (or double identical segfault)
@@ -922,7 +921,7 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void* db = NULL;
     #endif
 
-    my_sigactionhandler_oldcode(sig, info, ucntx, NULL, db);
+    my_sigactionhandler_oldcode(sig, 0, info, ucntx, NULL, db);
 }
 
 void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
@@ -944,7 +943,7 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
     }
 
     printf_log(/*LOG_INFO*/LOG_DEBUG, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=%d\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
-    my_sigactionhandler_oldcode(sig, &info, &ctx, NULL, db);
+    my_sigactionhandler_oldcode(sig, 0, &info, &ctx, NULL, db);
 }
 
 EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
@@ -959,14 +958,20 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
     my_context->signals[signum] = (uintptr_t)handler;
     my_context->is_sigaction[signum] = 0;
     my_context->restorer[signum] = 0;
-    if(handler!=NULL && handler!=(sighandler_t)1) {
-        handler = my_sighandler;
-    }
+    my_context->onstack[signum] = 0;
 
     if(signum==SIGSEGV || signum==SIGBUS || signum==SIGILL)
         return 0;
 
-    return signal(signum, handler);
+    if(handler!=NULL && handler!=(sighandler_t)1) {
+        struct sigaction newact = {0};
+        struct sigaction oldact = {0};
+        newact.sa_flags = 0x04;
+        newact.sa_sigaction = my_sigactionhandler;
+        sigaction(signum, &newact, &oldact);
+        return oldact.sa_handler;
+    } else 
+        return signal(signum, handler);
 }
 EXPORT sighandler_t my___sysv_signal(x64emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
 EXPORT sighandler_t my_sysv_signal(x64emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));    // not completly exact
@@ -997,7 +1002,8 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
             my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
             my_context->is_sigaction[signum] = 0;
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                newact.sa_handler = my_sighandler;
+                newact.sa_flags|=0x04;
+                newact.sa_sigaction = my_sigactionhandler;
             } else
                 newact.sa_handler = act->_u._sa_handler;
         }
@@ -1050,7 +1056,8 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
                 my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
                 my_context->is_sigaction[signum] = 0;
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    newact.k_sa_handler = my_sighandler;
+                    newact.sa_flags|=0x4;
+                    newact.k_sa_handler = (void*)my_sigactionhandler;
                 } else {
                     newact.k_sa_handler = act->_u._sa_handler;
                 }
@@ -1092,7 +1099,8 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                     my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
                     my_context->is_sigaction[signum] = 0;
-                    newact.sa_handler = my_sighandler;
+                    newact.sa_sigaction = my_sigactionhandler;
+                    newact.sa_flags|=0x4;
                 } else {
                     newact.sa_handler = act->_u._sa_handler;
                 }

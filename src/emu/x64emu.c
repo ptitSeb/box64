@@ -466,7 +466,8 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
     if(emu->quitonlongjmp && emu->longjmp) {
-        emu->longjmp = 0;   // don't change anything because of the longjmp
+        if(emu->quitonlongjmp==1)
+            emu->longjmp = 0;   // don't change anything because of the longjmp
     } else {
         R_RBX = old_rbx;
         R_RDI = old_rdi;
