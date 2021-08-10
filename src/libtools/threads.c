@@ -197,7 +197,8 @@ x64emu_t* thread_get_emu()
 			size_t stack_size;
         	void *stack_addr;
 			if(!pthread_attr_getstack(&attr, &stack_addr, &stack_size))
-				stacksize = stack_size;
+				if(stack_size)
+					stacksize = stack_size;
 			pthread_attr_destroy(&attr);
 		}
 		void* stack = mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
@@ -363,8 +364,11 @@ EXPORT int my_pthread_attr_getstacksize(x64emu_t* emu, pthread_attr_t* attr, siz
 {
 	(void)emu;
 	void* addr;
-	return pthread_attr_getstack(getAlignedAttr(attr), &addr, size);
+	int ret = pthread_attr_getstack(getAlignedAttr(attr), &addr, size);
+	if(!*size)
+		*size = 2*1024*1024;
 	//return pthread_attr_getstacksize(getAlignedAttr(attr), size);
+	return ret;
 }
 EXPORT int my_pthread_attr_init(x64emu_t* emu, pthread_attr_t* attr)
 {
