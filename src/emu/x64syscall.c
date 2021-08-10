@@ -377,7 +377,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             emu->error |= ERR_UNIMPL;
             return;
     }
-    printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
+    printf_log(LOG_DEBUG, " => 0x%lx\n", R_RAX);
 }
 
 #define stack(n) (R_RSP+8+n)
