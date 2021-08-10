@@ -240,7 +240,7 @@ DATAB(_Xdebug, sizeof(void*))
 GO(XDefaultColormap, pFpi)
 //GO(XDefaultColormapOfScreen
 GO(XDefaultDepth, iFpi)
-//GO(XDefaultDepthOfScreen
+GO(XDefaultDepthOfScreen, iFp)
 // _XDefaultError
 GO(XDefaultGC, pFpi)
 //GO(XDefaultGCOfScreen

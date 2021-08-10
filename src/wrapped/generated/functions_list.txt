@@ -932,6 +932,7 @@
 #() pFEpupp
 #() pFEppii
 #() pFEppip
+#() pFEppLp
 #() pFEpppi
 #() pFEpppu
 #() pFEpppp
@@ -1850,6 +1851,11 @@ wrappedlibdl:
   - dlvsym
 wrappedlibform:
 wrappedlibformw:
+wrappedlibfuse:
+- iFpppp:
+  - fuse_opt_parse
+- pFppLp:
+  - fuse_lowlevel_new
 wrappedlibgl:
 - iFi:
   - glXSwapIntervalMESA

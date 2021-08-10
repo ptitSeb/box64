@@ -137,6 +137,7 @@ struct x64_stat64 {                   /* x86_64       arm64 */
     uint64_t __glibc_reserved[3];       /* 120 */   /* 120 */
 } __attribute__((packed));              /* 144 */   /* 128 */
 
+void AlignStat64(const void* source, void* dest);
 void UnalignStat64(const void* source, void* dest);
 
 // defined in wrapperlibc.c

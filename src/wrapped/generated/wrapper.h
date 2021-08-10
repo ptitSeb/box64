@@ -965,6 +965,7 @@ void pFEpipp(x64emu_t *emu, uintptr_t fnc);
 void pFEpupp(x64emu_t *emu, uintptr_t fnc);
 void pFEppii(x64emu_t *emu, uintptr_t fnc);
 void pFEppip(x64emu_t *emu, uintptr_t fnc);
+void pFEppLp(x64emu_t *emu, uintptr_t fnc);
 void pFEpppi(x64emu_t *emu, uintptr_t fnc);
 void pFEpppu(x64emu_t *emu, uintptr_t fnc);
 void pFEpppp(x64emu_t *emu, uintptr_t fnc);

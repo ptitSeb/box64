@@ -213,6 +213,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibdl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibform.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibformw.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibfuse.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibgl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibglu.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibice.c"

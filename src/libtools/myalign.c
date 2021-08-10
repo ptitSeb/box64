@@ -710,6 +710,26 @@ void UnalignStat64(const void* source, void* dest)
     x64st->st_ctim     = st->st_ctim;
 }
 
+void AlignStat64(const void* source, void* dest)
+{
+    struct stat *st = (struct stat*) dest;
+    struct x64_stat64 *x64st = (struct x64_stat64*)source;
+    
+    st->st_dev      = x64st->st_dev;
+    st->st_ino      = x64st->st_ino;
+    st->st_mode     = x64st->st_mode;
+    st->st_nlink    = x64st->st_nlink;
+    st->st_uid      = x64st->st_uid;
+    st->st_gid      = x64st->st_gid;
+    st->st_rdev     = x64st->st_rdev;
+    st->st_size     = x64st->st_size;
+    st->st_blksize  = x64st->st_blksize;
+    st->st_blocks   = x64st->st_blocks;
+    st->st_atim     = x64st->st_atim;
+    st->st_mtim     = x64st->st_mtim;
+    st->st_ctim     = x64st->st_ctim;
+}
+
 typedef union __attribute__((packed)) x64_epoll_data {
     void    *ptr;
     int      fd;
