@@ -80,6 +80,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(_ITM_deregisterTMCloneTable, vFp_t) \
 	GO(__cxa_finalize, vFp_t) \
 	GO(fork, iFv_t) \
+	GO(vfork, iFv_t) \
 	GO(_setjmp, iFp_t) \
 	GO(getcontext, iFp_t) \
 	GO(setcontext, iFp_t) \

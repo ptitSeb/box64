@@ -2041,7 +2041,7 @@ GOM(__vasprintf_chk, iFEpipp)
 GOW(versionsort, iFpp)
 GOW(versionsort64, iFpp)
 //GO(__vfork, 
-//GOW(vfork, iFv)
+GOWM(vfork, iFEv)
 GOM(vfprintf, iFEppA)
 GOM(__vfprintf_chk, iFEpvpp)
 //GO(__vfscanf, 

@@ -1639,6 +1639,7 @@ wrappedlibc:
   - __cxa_finalize
 - iFv:
   - fork
+  - vfork
 - iFp:
   - _setjmp
   - getcontext
