@@ -199,6 +199,16 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
                     
+        case 0x39:
+            INST_NAME("CMP Seg:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_cmp32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            break;
+
         case 0x66:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
