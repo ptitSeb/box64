@@ -267,7 +267,11 @@ static void sigstack_key_alloc() {
 uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
-        printf_log(LOG_NONE, "BOX64: Warning, calling Signal function handler %s\n", fnc?"SIG_DFL":"SIG_IGN");
+        printf_log(LOG_NONE, "BOX64: Warning, calling Signal function handler %s\n", fnc?"SIG_IGN":"SIG_DFL");
+        if(fnc==0) {
+            printf_log(LOG_NONE, "Unhandled signal caught, aborting\n");
+            abort();
+        }
         return 0;
     }
 #ifdef HAVE_TRACE
@@ -1276,7 +1280,7 @@ void init_signal_helper(box64context_t* context)
 {
     // setup signal handling
     for(int i=0; i<MAX_SIGNAL; ++i) {
-        context->signals[i] = 1;    // SIG_DFL
+        context->signals[i] = 0;    // SIG_DFL
     }
 	struct sigaction action = {0};
 	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
