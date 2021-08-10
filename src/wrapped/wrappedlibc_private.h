@@ -2299,3 +2299,5 @@ GOM(__deregister_frame_info, pFp)
 
 DATAM(program_invocation_name, sizeof(void*))
 DATAM(program_invocation_short_name, sizeof(void*))
+
+GO(iconvctl, iFlip)

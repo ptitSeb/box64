@@ -2020,7 +2020,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
             addr = find32bitBlock(length);
         else
             addr = findBlockNearHint(addr, length);
-    } else /*if (box64_wine)*/ {
+    } else if (box64_wine) {
         if(!addr)
             addr = find47bitBlock(length);
     }
