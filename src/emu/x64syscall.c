@@ -116,6 +116,9 @@ scwrap_t syscallwrap[] = {
     { 78, __NR_getdents, 3},
     #endif
     { 79, __NR_getcwd, 2},
+    #ifdef __NR_rename
+    { 82, __NR_rename, 2},
+    #endif
     #ifdef __NR_mkdir
     { 83, __NR_mkdir, 2},
     #endif
@@ -336,6 +339,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 R_RAX = (uint64_t)ret;
             }
             break;
+        #endif
+        #ifndef __NR_rename
+	case 82: // sys_rename
+	    *(int64_t*)&R_RAX = rename((void*)R_RDI, (void*)R_RSI);
+	    break;
         #endif
         #ifndef __NR_mkdir
         case 83: // sys_mkdir
