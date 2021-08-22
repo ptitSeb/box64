@@ -154,6 +154,7 @@ scwrap_t syscallwrap[] = {
     #endif
     { 254, __NR_inotify_add_watch, 3},
     { 255, __NR_inotify_rm_watch, 2},
+    { 257, __NR_openat, 4},
     { 274, __NR_get_robust_list, 3},
     { 294, __NR_inotify_init1, 1},
     { 298, __NR_perf_event_open, 5},
