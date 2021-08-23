@@ -103,8 +103,8 @@ DATA(atk_misc_instance, sizeof(void*))
 GO(atk_object_add_relationship, iFpip)
 //GOM(atk_object_connect_property_change_handler, uFEpp)
 //GO(atk_object_factory_create_accessible, 
-//GO(atk_object_factory_get_accessible_type, 
-//GO(atk_object_factory_get_type, 
+GO(atk_object_factory_get_accessible_type, iFp)
+GO(atk_object_factory_get_type, iFv)
 //GO(atk_object_factory_invalidate, 
 GO(atk_object_get_attributes, pFp)
 GO(atk_object_get_description, pFp)
