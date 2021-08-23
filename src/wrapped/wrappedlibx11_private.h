@@ -39,7 +39,7 @@ GO(XAllocSizeHints, pFv)
 //GO(XAllocStandardColormap
 // _XAllocTemp
 GO(XAllocWMHints, pFv)
-//GO(XAllowEvents
+GO(XAllowEvents, iFpiL)
 GO(XAllPlanes, LFv)
 // _XAsyncErrorHandler
 GO(XAutoRepeatOff, iFp)
