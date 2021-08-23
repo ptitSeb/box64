@@ -357,6 +357,7 @@
 #() uFEpW
 #() uFEpu
 #() uFEpU
+#() uFEpp
 #() uFipu
 #() uFuip
 #() uFuuu
@@ -1524,6 +1525,12 @@
 wrappedalure:
 wrappedalut:
 wrappedatk:
+- vFp:
+  - atk_focus_tracker_init
+- uFp:
+  - atk_add_focus_tracker
+- uFpp:
+  - atk_add_key_event_listener
 wrappedatkbridge:
 wrappedatspi:
 wrappedbz2:

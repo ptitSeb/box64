@@ -390,6 +390,7 @@ void IFSIi(x64emu_t *emu, uintptr_t fnc);
 void uFEpW(x64emu_t *emu, uintptr_t fnc);
 void uFEpu(x64emu_t *emu, uintptr_t fnc);
 void uFEpU(x64emu_t *emu, uintptr_t fnc);
+void uFEpp(x64emu_t *emu, uintptr_t fnc);
 void uFipu(x64emu_t *emu, uintptr_t fnc);
 void uFuip(x64emu_t *emu, uintptr_t fnc);
 void uFuuu(x64emu_t *emu, uintptr_t fnc);

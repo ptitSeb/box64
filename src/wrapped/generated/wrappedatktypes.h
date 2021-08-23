@@ -11,7 +11,13 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFp_t)(void*);
+typedef uint64_t (*uFp_t)(void*);
+typedef uint64_t (*uFpp_t)(void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(atk_focus_tracker_init, vFp_t) \
+	GO(atk_add_focus_tracker, uFp_t) \
+	GO(atk_add_key_event_listener, uFpp_t)
 
 #endif // __wrappedatkTYPES_H_

@@ -10,9 +10,9 @@ GO(atk_action_get_n_actions, iFp)
 GO(atk_action_get_name, pFpi)
 GO(atk_action_get_type, iFv)
 GO(atk_action_set_description, pFpi)
-//GO(atk_add_focus_tracker, 
-//GO(atk_add_global_event_listener, 
-//GO(atk_add_key_event_listener, 
+GOM(atk_add_focus_tracker, uFEp)
+//GOM(atk_add_global_event_listener, uFEpp)
+GOM(atk_add_key_event_listener, uFEpp)
 //GO(atk_attribute_set_free, 
 //GOM(atk_component_add_focus_handler, uFpp)
 GO(atk_component_contains, iFpiii)
@@ -45,19 +45,19 @@ GO(atk_coord_type_get_type, iFv)
 //GO(atk_editable_text_paste_text, 
 //GO(atk_editable_text_set_run_attributes, 
 //GO(atk_editable_text_set_text_contents, 
-//GO(atk_focus_tracker_init, 
-//GO(atk_focus_tracker_notify, 
+GOM(atk_focus_tracker_init, vFEp)
+GO(atk_focus_tracker_notify, vFp)
 //GO(atk_get_binary_age, 
 GO(atk_get_default_registry, pFv)
-//GO(atk_get_focus_object, 
+GO(atk_get_focus_object, pFv)
 //GO(atk_get_interface_age, 
 //GO(atk_get_major_version, 
 //GO(atk_get_micro_version, 
 //GO(atk_get_minor_version, 
-//GO(atk_get_root, 
-//GO(atk_get_toolkit_name, 
-//GO(atk_get_toolkit_version, 
-//GO(atk_get_version, 
+GO(atk_get_root, pFv)
+GO(atk_get_toolkit_name, pFv)
+GO(atk_get_toolkit_version, pFv)
+GO(atk_get_version, pFv)
 //GO(atk_gobject_accessible_for_object, 
 //GO(atk_gobject_accessible_get_object, 
 //GO(atk_gobject_accessible_get_type, 
@@ -156,9 +156,9 @@ GO(atk_registry_set_factory_type, vFpii)
 //GO(atk_relation_type_get_name, 
 //GO(atk_relation_type_get_type, 
 //GO(atk_relation_type_register, 
-//GO(atk_remove_focus_tracker, 
-//GO(atk_remove_global_event_listener, 
-//GO(atk_remove_key_event_listener, 
+GO(atk_remove_focus_tracker, vFu)
+GO(atk_remove_global_event_listener, vFu)
+GO(atk_remove_key_event_listener, vFu)
 GO(atk_role_for_name, iFp)
 GO(atk_role_get_localized_name, pFp)
 GO(atk_role_get_name, pFp)
