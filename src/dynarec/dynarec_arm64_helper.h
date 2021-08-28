@@ -744,6 +744,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
 #define sse_get_reg     STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
+#define sse_forget_reg   STEPNAME(sse_forget_reg)
 #define sse_purge07cache STEPNAME(sse_purge07cache)
 
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
@@ -884,6 +885,8 @@ int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a);
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
+// forget neon register for a SSE reg, create the entry if needed
+void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a);
 // purge the XMM0..XMM7 cache (before function call)
 void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1);
 

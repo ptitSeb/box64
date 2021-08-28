@@ -1727,4 +1727,13 @@
 #define SQDMULHQ_16(Vd, Vn, Vm)     EMIT(QDMULH_vector(1, 0, 0b01, Vm, Vn, Vd))
 #define SQDMULHQ_32(Vd, Vn, Vm)     EMIT(QDMULH_vector(1, 0, 0b10, Vm, Vn, Vd))
 
+// AES extensions
+#define AES_gen(D, Rn, Rd)      (0b01001110<<24 | 0b00<<22 | 0b10100<<17 | 0b0010<<13 | (D)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define AESD(Vd, Vn)    EMIT(AES_gen(1, Vn, Vd))
+#define AESE(Vd, Vn)    EMIT(AES_gen(0, Vn, Vd))
+
+#define AESMC_gen(D, Rn, Rd)    (0b01001110<<24 | 0b00<<22 | 0b10100<<17 | 0b0011<<13 | (D)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define AESIMC(Vd, Vn)  EMIT(AESMC_gen(1, Vn, Vd))
+#define AESMC(Vd, Vn)   EMIT(AESMC_gen(0, Vn, Vd))
+
 #endif  //__ARM64_EMITTER_H__

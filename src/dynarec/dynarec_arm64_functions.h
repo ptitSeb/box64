@@ -29,6 +29,13 @@ void arm_fsave(x64emu_t* emu, uint8_t* ed);
 void arm_frstor(x64emu_t* emu, uint8_t* ed);
 void arm_fprem1(x64emu_t* emu);
 
+void arm_aesd(x64emu_t* emu, int xmm);
+void arm_aese(x64emu_t* emu, int xmm);
+void arm_aesdlast(x64emu_t* emu, int xmm);
+void arm_aeselast(x64emu_t* emu, int xmm);
+void arm_aesimc(x64emu_t* emu, int xmm);
+
+
 void arm_ud(x64emu_t* emu);
 
 // Get an FPU scratch reg

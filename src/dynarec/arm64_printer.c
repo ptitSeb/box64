@@ -1312,6 +1312,15 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     
+    // AES
+    if(isMask(opcode, "0100111000101000010f10nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "AES%c V%d.16B, V%d.16B", sf?'D':'E', Rd, Rn);
+        return buff;
+    }
+    if(isMask(opcode, "0100111000101000011f10nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "AES%sMC V%d.16B, V%d.16B", sf?"I":"", Rd, Rn);
+        return buff;
+    }
 
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));

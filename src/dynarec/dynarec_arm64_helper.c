@@ -1114,6 +1114,21 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
     return 0;
 #endif
 }
+// forget neon register for a SSE reg, create the entry if needed
+void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a)
+{
+    (void) ninst;
+#if STEP > 1
+    if(dyn->ssecache[a]==-1)
+        return;
+    VSTR128_U12(dyn->ssecache[a], xEmu, offsetof(x64emu_t, xmm[a]));
+    fpu_free_reg(dyn, dyn->ssecache[a]);
+    dyn->ssecache[a] = -1;
+#else
+    (void)dyn; (void)a;
+#endif
+    return;
+}
 // purge the SSE cache for XMM0..XMM7 (to use before function native call)
 void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1)
 {
