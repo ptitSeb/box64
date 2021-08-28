@@ -9,6 +9,12 @@
 #include <signal.h>
 #include <sys/syscall.h>
 #include <sys/mman.h>
+#ifdef DYNAREC
+#ifdef ARM64
+#include <linux/auxvec.h>
+#include <asm/hwcap.h>
+#endif
+#endif
 
 #include "build_info.h"
 #include "debug.h"
@@ -38,6 +44,12 @@ int box64_dynarec_dump = 0;
 int box64_dynarec_forced = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
+#ifdef ARM64
+int arm64_asimd = 0;
+int arm64_aes = 0;
+int arm64_pmull = 0;
+int arm64_crc32 = 0;
+#endif
 #else   //DYNAREC
 int box64_dynarec = 0;
 #endif
@@ -115,6 +127,39 @@ void my_child_fork()
         openFTrace();
     }
 }
+
+#ifdef DYNAREC
+void GatherDynarecExtensions()
+{
+    if(box64_dynarec==0)    // no need to check if no dynarec
+        return;
+#ifdef ARM64
+    unsigned long hwcap = real_getauxval(AT_HWCAP);
+    if(!hwcap)  // no HWCap: provide a default...
+        hwcap = HWCAP_ASIMD;
+    // first, check all needed extensions, lif half, edsp and fastmult
+    if((hwcap&HWCAP_ASIMD) == 0) {
+        printf_log(LOG_INFO, "Missing ASMID cpu support, disabling Dynarec\n");
+        box64_dynarec=0;
+        return;
+    }
+    if(hwcap&HWCAP_CRC32)
+        arm64_crc32 = 1;
+    if(hwcap&HWCAP_PMULL)
+        arm64_pmull = 1;
+    if(hwcap&HWCAP_AES)
+        arm64_aes = 1;
+    printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
+    if(arm64_aes)
+        printf_log(LOG_INFO, " AES");
+    if(arm64_crc32)
+        printf_log(LOG_INFO, " CRC32");
+    if(arm64_pmull)
+        printf_log(LOG_INFO, " PMULL");
+    printf_log(LOG_INFO, " PageSize:%d\n", box64_pagesize);
+#endif
+}
+#endif
 
 
 EXPORTDYN
@@ -355,6 +400,9 @@ void LoadLogEnv()
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)
         box64_pagesize = 4096;
+#ifdef DYNAREC
+    GatherDynarecExtensions();
+#endif
 }
 
 EXPORTDYN

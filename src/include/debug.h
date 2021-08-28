@@ -13,6 +13,12 @@ extern int box64_dynarec_dump;
 extern int box64_dynarec_trace;
 extern int box64_dynarec_forced;
 extern uintptr_t box64_nodynarec_start, box64_nodynarec_end;
+#ifdef ARM64
+extern int arm64_asimd;
+extern int arm64_aes;
+extern int arm64_pmull;
+extern int arm64_crc32;
+#endif
 #endif
 extern int dlsym_error;    // log dlsym error
 #ifdef HAVE_TRACE
