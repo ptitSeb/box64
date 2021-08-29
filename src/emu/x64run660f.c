@@ -1278,6 +1278,12 @@ int Run660F(x64emu_t *emu, rex_t rex)
         GETGW;
         GW->word[0] = EB->byte[0];
         break;
+    case 0xB7:                      /* MOVZX Gw,Ew */
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        GW->word[0] = EW->word[0];
+        break;
 
     case 0xBA:                      
         nextop = F8;

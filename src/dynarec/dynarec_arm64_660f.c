@@ -1279,6 +1279,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);    // GETGW
             BFIx(gd, x1, 0, 16);        // insert in Gw
             break;
+        case 0xB7:
+            INST_NAME("MOVZX Gw, Ew");
+            nextop = F8;
+            if(MODREG) {
+                eb1 = xRAX+(nextop&7)+(rex.b<<3);
+                UBFXxw(x1, eb1, 0, 16);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff>>1, 1, rex, 0, 0);
+                LDRH_U12(x1, ed, fixedaddress);
+            }
+            gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);    // GETGW
+            BFIx(gd, x1, 0, 16);        // insert in Gw
+            break;
+
 
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
