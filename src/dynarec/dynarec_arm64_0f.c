@@ -1337,11 +1337,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = x1;
                     }
                     u8 = F8;
-                    LSRxw(x4, ed, u8&(rex.w?0x3f:0x1f));
+                    u8&=(rex.w?0x3f:0x1f);
+                    if(u8) {
+                        LSRxw(x4, ed, u8);
+                    }
                     BFIw(xFlags, x4, F_CF, 1);
                     TBNZ_MARK3(x4, 0); // bit already set, jump to next instruction
                     MOV32w(x4, 1);
-                    EORxw_REG_LSL(ed, ed, x4, u8&(rex.w?0x3f:0x1f));
+                    EORxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STRxw_U12(ed, wback, fixedaddress);
                     }
@@ -1360,11 +1363,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = x1;
                     }
                     u8 = F8;
-                    LSRxw(x4, ed, u8&(rex.w?0x3f:0x1f));
+                    u8&=(rex.w?0x3f:0x1f);
+                    if(u8) {
+                        LSRxw(x4, ed, u8);
+                    }
                     BFIw(xFlags, x4, F_CF, 1);
                     TBZ_MARK3(x4, 0); // bit already clear, jump to next instruction
                     //MOVW(x14, 1); // already 0x01
-                    EORxw_REG_LSL(ed, ed, x4, u8&(rex.w?0x3f:0x1f));
+                    EORxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STRxw_U12(ed, wback, fixedaddress);
                     }
@@ -1383,10 +1389,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = x1;
                     }
                     u8 = F8;
-                    LSRxw(x4, ed, u8&(rex.w?0x3f:0x1f));
+                    u8&=(rex.w?0x3f:0x1f);
+                    if(u8) {
+                        LSRxw(x4, ed, u8);
+                    }
                     BFIw(xFlags, x4, F_CF, 1);
                     MOV32w(x4, 1);
-                    EORxw_REG_LSL(ed, ed, x4, u8&(rex.w?0x3f:0x1f));
+                    EORxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STRxw_U12(ed, wback, fixedaddress);
                     }
