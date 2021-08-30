@@ -161,6 +161,7 @@ scwrap_t syscallwrap[] = {
     { 315, __NR_sched_getattr, 4},
     { 318, __NR_getrandom, 3},
     { 319, __NR_memfd_create, 2},
+    { 332, __NR_statx, 4},
     #ifdef __NR_fchmodat4
     { 434, __NR_fchmodat4, 4},
     #endif
