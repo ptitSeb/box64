@@ -525,6 +525,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VEXTQ_8(q0, q1, q0, u8);
                     }
                     break;
+
+                case 0x22:
+                    INST_NAME("PINSRD Gx, ED, Ib");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETED(1);
+                    u8 = F8;
+                    VMOVQSfrom(q0, (u8&3), ed);
+                    break;
+
                 default:
                     DEFAULT;
             }

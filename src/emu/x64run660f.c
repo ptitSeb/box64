@@ -641,6 +641,13 @@ int Run660F(x64emu_t *emu, rex_t rex)
                     if(tmp8u&(1<<i))
                         GX->ud[i] = 0;
                 break;
+            case 0x22:      // PINSRD GX, ED, u8
+                nextop = F8;
+                GETED(1);
+                GETGX;
+                tmp8u = F8;
+                GX->ud[tmp8u&0x3] = ED->dword[0];
+                break;
 
             case 0xDF:      // AESKEYGENASSIST Gx, Ex, u8
                 nextop = F8;
