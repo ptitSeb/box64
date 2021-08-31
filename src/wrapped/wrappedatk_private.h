@@ -164,14 +164,14 @@ GO(atk_role_get_localized_name, pFp)
 GO(atk_role_get_name, pFp)
 GO(atk_role_get_type, iFv)
 GO(atk_role_register, iFp)
-//GO(atk_selection_add_selection, 
-//GO(atk_selection_clear_selection, 
-//GO(atk_selection_get_selection_count, 
-//GO(atk_selection_get_type, 
-//GO(atk_selection_is_child_selected, 
-//GO(atk_selection_ref_selection, 
-//GO(atk_selection_remove_selection, 
-//GO(atk_selection_select_all_selection, 
+GO(atk_selection_add_selection, iFpi)
+GO(atk_selection_clear_selection, iFp)
+GO(atk_selection_get_selection_count, iFp)
+GO(atk_selection_get_type, iFv)
+GO(atk_selection_is_child_selected, iFpi)
+GO(atk_selection_ref_selection, pFpi)
+GO(atk_selection_remove_selection, iFpi)
+GO(atk_selection_select_all_selection, iFp)
 //GO(atk_socket_embed, 
 //GO(atk_socket_get_type, 
 //GO(atk_socket_is_occupied, 
