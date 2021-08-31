@@ -326,7 +326,7 @@ GO(pango_layout_xy_to_index, iFpiipp)
 //GO(pango_map_get_engine, 
 //GO(pango_map_get_engines, 
 //GO(pango_markup_parser_finish, 
-//GO(pango_markup_parser_new, 
+GO(pango_markup_parser_new, pFu)
 GO(pango_matrix_concat, vFpp)
 GO(pango_matrix_copy, pFp)
 GO(pango_matrix_free, vFp)
@@ -342,7 +342,7 @@ GO(pango_matrix_transform_rectangle, vFpp)
 GO(pango_matrix_translate, vFpdd)
 //GO(pango_module_register, 
 //GO(pango_parse_enum, 
-//GO(pango_parse_markup, 
+GO(pango_parse_markup, iFpiupppp)
 //GO(pango_parse_stretch, 
 //GO(pango_parse_style, 
 //GO(pango_parse_variant, 
