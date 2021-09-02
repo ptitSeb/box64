@@ -163,7 +163,16 @@ box64context_t *NewBox64Context(int argc)
     context->versym = NewDictionnary();
     context->system = NewBridge();
     // create vsyscall
-    context->vsyscall = AddBridge(context->system, vFv, x64Syscall, 0, NULL);
+    context->vsyscall = AddBridge(context->system, vFEv, x64Syscall, 0, NULL);
+    // create the vsyscalls
+    context->vsyscalls[0] = AddVSyscall(context->system, 96);
+    context->vsyscalls[1] = AddVSyscall(context->system, 201);
+    context->vsyscalls[2] = AddVSyscall(context->system, 309);
+    // create the alternate to map at address
+    addAlternate((void*)context->vsyscalls[0], (void*)0xffffffffff600000);
+    addAlternate((void*)context->vsyscalls[1], (void*)0xffffffffff600400);
+    addAlternate((void*)context->vsyscalls[2], (void*)0xffffffffff600800);
+    // get handle to box64 itself
     context->box64lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
     context->dlprivate = NewDLPrivate();
 

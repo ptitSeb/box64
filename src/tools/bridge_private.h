@@ -15,6 +15,12 @@ typedef union onebridge_s {
     uint8_t C3;     // C2 or C3 ret
     uint16_t N;     // N in case of C2 ret
     };
+    struct {
+    uint8_t B8;     // B8 00 11 22 33 mov rax, num
+    uint32_t num;
+    uint8_t _0F; uint8_t _05;   // 0F 05 syscall
+    uint8_t _C3;    // C3 ret
+    };
     uint64_t dummy[4];
 } onebridge_t;
 #pragma pack(pop)

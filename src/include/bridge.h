@@ -17,6 +17,8 @@ uintptr_t AddAutomaticBridge(x64emu_t* emu, bridge_t* bridge, wrapper_t w, void*
 void* GetNativeFnc(uintptr_t fnc);
 void* GetNativeFncOrFnc(uintptr_t fnc);
 
+uintptr_t AddVSyscall(bridge_t* bridge, int num);
+
 int hasAlternate(void* addr);
 void* getAlternate(void* addr);
 void addAlternate(void* addr, void* alt);

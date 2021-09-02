@@ -158,10 +158,14 @@ scwrap_t syscallwrap[] = {
     { 274, __NR_get_robust_list, 3},
     { 294, __NR_inotify_init1, 1},
     { 298, __NR_perf_event_open, 5},
+    { 309, __NR_getcpu, 3}, // need wrapping?
     { 315, __NR_sched_getattr, 4},
     { 318, __NR_getrandom, 3},
     { 319, __NR_memfd_create, 2},
+    #ifdef __NR_statx
+    // TODO: implement fallback if __NR_statx is not defined
     { 332, __NR_statx, 4},
+    #endif
     #ifdef __NR_fchmodat4
     { 434, __NR_fchmodat4, 4},
     #endif
