@@ -1340,6 +1340,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8&=(rex.w?0x3f:0x1f);
                     if(u8) {
                         LSRxw(x4, ed, u8);
+                    } else {
+                        MOVw_REG(x4, ed);
                     }
                     BFIw(xFlags, x4, F_CF, 1);
                     TBNZ_MARK3(x4, 0); // bit already set, jump to next instruction
@@ -1366,6 +1368,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8&=(rex.w?0x3f:0x1f);
                     if(u8) {
                         LSRxw(x4, ed, u8);
+                    } else {
+                        MOVw_REG(x4, ed);
                     }
                     BFIw(xFlags, x4, F_CF, 1);
                     TBZ_MARK3(x4, 0); // bit already clear, jump to next instruction
@@ -1392,6 +1396,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8&=(rex.w?0x3f:0x1f);
                     if(u8) {
                         LSRxw(x4, ed, u8);
+                    } else {
+                        MOVw_REG(x4, ed);
                     }
                     BFIw(xFlags, x4, F_CF, 1);
                     MOV32w(x4, 1);
