@@ -134,6 +134,11 @@ Allow Box64 to continue even if a library is missing.
  * 0 : Box64 will stop if a library cannot be loaded. (Default.)
  * 1 : Continue even if a needed library cannot be loaded. Unadvised, this will, in most cases, crash later on.
 
+#### BOX64_NOPULSE
+Disables the load of pulseaudio libraries.
+ * 0 : Load pulseaudio libraries if found. (Default.)
+ * 1 : Disables the load of pulse audio libraries (libpulse and libpulse-simple), both the native library and the x86 library
+
 #### BOX64_JITGDB
 
  * 0 : Just print the Segfault message on segfault (default)
