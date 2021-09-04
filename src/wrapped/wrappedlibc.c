@@ -2034,7 +2034,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         addr = findBlockNearHint(addr, length); // is this the best way?
         ret = mmap64(addr, length, prot, flags, fd, offset);
         printf_log(LOG_INFO, " tried again with %p, got %p\n", addr, ret);
-    } else if((ret!=(void*)-1) && (old_addr==NULL) && ((uintptr_t)ret>0x7fffffffffffLL)) {
+    } else if((ret!=(void*)-1) && (old_addr==NULL) && (box64_wine) && ((uintptr_t)ret>0x7fffffffffffLL)) {
         printf_log(LOG_INFO, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
