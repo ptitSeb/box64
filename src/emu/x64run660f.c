@@ -54,6 +54,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
     int32_t tmp32s;
     uint32_t tmp32u;
     uint64_t tmp64u;
+    float tmpf;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1, *opex2;
     mmx87_regs_t *opem, *opgm;
@@ -427,6 +428,19 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 GETGX;
                 for(int i=1; i>=0; --i)
                     GX->sq[i] = EX->sd[i];
+                break;
+
+            case 0x40:  /* DPPS Gx, Ex, Ib */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                tmpf = 0.0f;
+                for(int i=0; i<4; ++i)
+                    if(tmp8u&(1<<(i+4)))
+                        tmpf += GX->f[i]*EX->f[i];
+                for(int i=0; i<4; ++i)
+                    GX->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
                 break;
 
             case 0xDB:  /* AESIMC Gx, Ex */
