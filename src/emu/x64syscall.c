@@ -106,6 +106,9 @@ scwrap_t syscallwrap[] = {
     { 46, __NR_sendmsg, 3},
     { 47, __NR_recvmsg, 3},
     { 53, __NR_socketpair, 4},
+    #ifdef __NR_vfork
+    {56, __NR_vfork, 0},
+    #endif
     #ifdef __NR_fork
     { 57, __NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
     #endif
@@ -330,6 +333,14 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 25: // sys_mremap
             R_RAX = (uintptr_t)my_mremap(emu, (void*)R_RDI, R_RSI, R_RDX, R_R10d, (void*)R_R8);
             break;
+        #ifndef __NR_vfork
+        case 56:   // vfork
+            {
+                int64_t r = vfork();
+                R_RAX = r;
+            }
+            break;
+        #endif
         #ifndef __NR_fork
         case 57: 
             R_RAX = fork();
@@ -462,6 +473,10 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 25: // sys_mremap
             return (uintptr_t)my_mremap(emu, (void*)R_RSI, R_RDX, R_RCX, R_R8d, (void*)R_R9);
+        #ifndef __NR_vfork
+        case 56:   // vfork
+            return vfork();
+        #endif
         #ifndef __NR_fork
         case 57: 
             return fork();
