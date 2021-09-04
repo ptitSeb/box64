@@ -159,6 +159,7 @@ GO("libxml2.so.2", xml2)
 //GO("liblcms2.so.2", lcms2)
 GO("libkrb5.so.3", krb5)
 GO("libgssapi_krb5.so.2", gssapikrb5)
+GO("libgssapi.so.3", gssapi)
 //GO("libtiff.so.5", libtiff)
 //GO("libfuse.so.2", libfuse)
 

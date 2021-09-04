@@ -203,6 +203,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedfontconfig.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfreetype.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgnutls.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedgssapi.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgssapikrb5.c"
     "${BOX64_ROOT}/src/wrapped/wrappedkrb5.c"
     "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"

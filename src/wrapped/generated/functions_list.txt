@@ -1621,6 +1621,7 @@ wrappedgnutls:
 - vFpp:
   - gnutls_transport_set_pull_function
   - gnutls_transport_set_push_function
+wrappedgssapi:
 wrappedgssapikrb5:
 wrappedkrb5:
 - iFppppppipp:
