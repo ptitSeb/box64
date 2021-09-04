@@ -430,19 +430,6 @@ int Run660F(x64emu_t *emu, rex_t rex)
                     GX->sq[i] = EX->sd[i];
                 break;
 
-            case 0x40:  /* DPPS Gx, Ex, Ib */
-                nextop = F8;
-                GETEX(1);
-                GETGX;
-                tmp8u = F8;
-                tmpf = 0.0f;
-                for(int i=0; i<4; ++i)
-                    if(tmp8u&(1<<(i+4)))
-                        tmpf += GX->f[i]*EX->f[i];
-                for(int i=0; i<4; ++i)
-                    GX->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
-                break;
-
             case 0xDB:  /* AESIMC Gx, Ex */
                 nextop = F8;
                 GETEX(0);
@@ -661,6 +648,19 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 GETGX;
                 tmp8u = F8;
                 GX->ud[tmp8u&0x3] = ED->dword[0];
+                break;
+
+            case 0x40:  /* DPPS Gx, Ex, Ib */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                tmpf = 0.0f;
+                for(int i=0; i<4; ++i)
+                    if(tmp8u&(1<<(i+4)))
+                        tmpf += GX->f[i]*EX->f[i];
+                for(int i=0; i<4; ++i)
+                    GX->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
                 break;
 
             case 0xDF:      // AESKEYGENASSIST Gx, Ex, u8
