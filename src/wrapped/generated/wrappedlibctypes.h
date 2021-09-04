@@ -14,6 +14,7 @@
 typedef void (*vFv_t)(void);
 typedef void (*vFp_t)(void*);
 typedef int64_t (*iFv_t)(void);
+typedef int64_t (*iFi_t)(int64_t);
 typedef int64_t (*iFp_t)(void*);
 typedef intptr_t (*lFv_t)(void);
 typedef uintptr_t (*LFL_t)(uintptr_t);
@@ -81,6 +82,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(__cxa_finalize, vFp_t) \
 	GO(fork, iFv_t) \
 	GO(vfork, iFv_t) \
+	GO(iopl, iFi_t) \
 	GO(_setjmp, iFp_t) \
 	GO(getcontext, iFp_t) \
 	GO(setcontext, iFp_t) \

@@ -821,7 +821,7 @@ DATA(_IO_list_all, sizeof(void*))
 //GO(_IO_padn, 
 //GO(_IO_peekc_locked, 
 GO(ioperm, iFLLi)
-GO(iopl, iFi)
+GOM(iopl, iFEi)     //Not always present
 //GO(_IO_popen, 
 //GO(_IO_printf, 
 //GO(_IO_proc_close, 

@@ -111,6 +111,7 @@
 #() vFpS
 #() vFSi
 #() cFpp
+#() iFEi
 #() iFEp
 #() iFwp
 #() iFii
@@ -1649,6 +1650,8 @@ wrappedlibc:
 - iFv:
   - fork
   - vfork
+- iFi:
+  - iopl
 - iFp:
   - _setjmp
   - getcontext

@@ -65,6 +65,7 @@ const char* libcName = "libc.so.6";
 
 static library_t* my_lib = NULL;
 
+typedef int (*iFi_t)(int);
 typedef int (*iFL_t)(unsigned long);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
@@ -2451,6 +2452,24 @@ EXPORT void my_backtrace_symbols_fd(x64emu_t* emu, uintptr_t* buffer, int size, 
         int dummy = write(fd, s, strlen(s));
         (void)dummy;
     }
+}
+
+EXPORT int my_iopl(x64emu_t* emu, int level)
+{
+    // Set I/O permission (so access IN/OUT opcodes) Default is 0. Can Set to 0..3
+    // set permission for all 65536 ports addresses
+    // note ioperm can set individual permission
+    /*static iFi_t real_iopl = NULL;
+    static int searched = 0;
+    if(!searched) {
+        searched = 1;
+        real_iopl = (iFi_t)dlsym(my_lib, "iopl");
+    }
+    if(real_iopl)
+        return real_iopl(level);*/
+    // For now, lets just return "unsupported"
+    errno = ENOSYS;
+    return -1;
 }
 
 EXPORT char** my_environ = NULL;
