@@ -94,7 +94,17 @@ Box64 Does not wrap Vulkan libraries yet. It's planned, but for now, vulkan prog
 
 ----
 
-Final words
+Final word
 ----
 
-(If you use Box64 in your project, please don't forget to mention Box64!)
+I want to thank everyone who has contributed to box64 developpement.
+There are many ways to contribute: code contribution, financial, hardware and advertisement!
+So, in no particular order, I want to thank:
+ * For their major code contribution: rajdakin
+ * For their major financial contribution: FlyingFathead, stormchaser3000
+ * For their hardware contribution: [Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/)
+ * For their continous advertisement of box64 project: salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[TwisterOS](https://twisteros.com/) team, [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg), ekianjo ([Boilingsteam](https://boilingsteam.com/))
+
+And I also thank the many other people who participated even once in the project.
+
+(If you use Box64 in your project, please don't forget to mention it!)
