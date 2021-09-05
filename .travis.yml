@@ -4,6 +4,7 @@ arch:
   - amd64
   - arm64
 os: linux
+dist: focal
 
 compiler:
     - gcc
