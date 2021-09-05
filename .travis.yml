@@ -1,0 +1,21 @@
+language: c
+sudo: false
+arch:
+  - amd64
+  - arm64
+os: linux
+
+compiler:
+    - gcc
+
+#Build steps
+before_script:
+    - mkdir build
+    - cd build
+    - if [ $TRAVIS_CPU_ARCH = arm64 ]; then cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ;else cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ; fi
+
+script:
+    - make
+
+after_script:
+    - ctest
