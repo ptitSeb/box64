@@ -12,7 +12,7 @@ compiler:
 before_script:
     - mkdir build
     - cd build
-    - if [ $TRAVIS_CPU_ARCH = arm64 ]; then cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ;else cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ; fi
+    - if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ;else cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ; fi
 
 script:
     - make
