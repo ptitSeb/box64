@@ -8,7 +8,12 @@ os: linux
 compiler:
     - gcc
 
-#Build steps
+addons:
+  apt:
+    packages:
+      - python3
+
+      #Build steps
 before_script:
     - mkdir build
     - cd build
