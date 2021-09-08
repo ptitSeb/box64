@@ -2192,6 +2192,9 @@ wrappedmpg123:
   - mpg123_replace_reader_handle
   - mpg123_replace_reader_handle_32
   - mpg123_replace_reader_handle_64
+wrappednspr4:
+wrappednss3:
+wrappednssutil3:
 wrappedopenal:
 - vFv:
   - alRequestFoldbackStop
@@ -2582,6 +2585,8 @@ wrappedsdl2ttf:
   - TTF_OpenFontRW
 - pFpiii:
   - TTF_OpenFontIndexRW
+wrappedselinux:
+wrappedsmime3:
 wrappedsmpeg:
 - pFppi:
   - SMPEG_new_rwops

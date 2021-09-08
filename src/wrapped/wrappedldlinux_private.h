@@ -16,7 +16,7 @@
 DATA(__libc_enable_secure, sizeof(void*))
 DATA(__libc_stack_end, sizeof(void*))
 DATA(__pointer_chk_guard, sizeof(void*))
-// _r_debug //type B
+DATAB(_r_debug, 40)
 DATA(_rtld_global, sizeof(void*))
 DATA(_rtld_global_ro, sizeof(void*))
 DATA(__stack_chk_guard, sizeof(void*))

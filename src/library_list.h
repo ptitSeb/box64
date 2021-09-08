@@ -162,6 +162,11 @@ GO("libgssapi_krb5.so.2", gssapikrb5)
 GO("libgssapi.so.3", gssapi)
 //GO("libtiff.so.5", libtiff)
 //GO("libfuse.so.2", libfuse)
+GO("libnss3.so", nss3)
+GO("libnssutil3.so", nssutil3)
+GO("libsmime3.so", smime3)
+GO("libnspr4.so", nspr4)
+GO("libselinux.so.1", selinux)
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 
