@@ -1,5 +1,4 @@
 language: c
-sudo: false
 arch:
   - amd64
   - arm64
@@ -22,4 +21,4 @@ before_script:
 
 script:
     - make
-    - ctest
+    - ctest --output-on-failure
