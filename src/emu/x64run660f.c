@@ -1132,6 +1132,18 @@ int Run660F(x64emu_t *emu, rex_t rex)
             GX->ud[i] = (GX->ud[i]==EX->ud[i])?0xffffffff:0;
         break;
 
+    case 0x7C:  /* HADDPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->d[0] += GX->d[1];
+        if(EX==GX) {
+            GX->d[1] = GX->d[0];
+        } else {
+            GX->d[1] = EX->d[0] + EX->d[1];
+        }
+        break;
+
     case 0x7E:                      /* MOVD Ed, Gx */
         nextop = F8;
         GETED(0);
