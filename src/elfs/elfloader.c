@@ -289,12 +289,16 @@ int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
         if(head->PHEntries[i].p_type == PT_LOAD) {
             Elf64_Phdr * e = &head->PHEntries[i];
             char* dest = (char*)e->p_paddr + head->delta;
-            printf_log(LOG_DEBUG, "Loading block #%zu @%p (0x%lx/0x%lx)\n", i, dest, e->p_filesz, e->p_memsz);
-            fseeko64(f, e->p_offset, SEEK_SET);
-            if(e->p_filesz) {
-                if(fread(dest, e->p_filesz, 1, f)!=1) {
-                    printf_log(LOG_NONE, "Fail to read PT_LOAD part #%zu (size=%ld)\n", i, e->p_filesz);
-                    return 1;
+            printf_log(LOG_DEBUG, "MMap block #%zu @%p offset=%p (0x%lx/0x%lx)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz);
+            void* p = mmap(dest, e->p_filesz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_PRIVATE, fileno(f), e->p_offset);
+            if(p!=dest) {
+                printf_log(LOG_DEBUG, "mmap failed(%p) => Loading block #%zu @%p (0x%lx/0x%lx)\n", p, i, dest, e->p_filesz, e->p_memsz);
+                fseeko64(f, e->p_offset, SEEK_SET);
+                if(e->p_filesz) {
+                    if(fread(dest, e->p_filesz, 1, f)!=1) {
+                        printf_log(LOG_NONE, "Fail to read PT_LOAD part #%zu (size=%ld)\n", i, e->p_filesz);
+                        return 1;
+                    }
                 }
             }
 #ifdef DYNAREC
