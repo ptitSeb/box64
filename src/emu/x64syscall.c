@@ -132,6 +132,7 @@ scwrap_t syscallwrap[] = {
     { 96, __NR_gettimeofday, 2},
     { 97, __NR_getrlimit, 2},
     { 101, __NR_ptrace, 4},
+    { 118, __NR_getresuid, 3},
     { 125, __NR_capget, 2},
     { 126, __NR_capset, 2},
     { 127, __NR_rt_sigpending, 2},
