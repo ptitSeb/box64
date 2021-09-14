@@ -2396,11 +2396,11 @@ GO(MD4_Final, iFpp)
 GO(MD4_Init, iFp)
 //GO(MD4_Transform, 
 GO(MD4_Update, iFppu)
-//GO(MD5, 
+GO(MD5, pFpLp)
 //GO(md5_block_data_order, 
 GO(MD5_Final, iFpp)
 GO(MD5_Init, iFp)
-//GO(MD5_Transform, 
+GO(MD5_Transform, vFpp)
 GO(MD5_Update, iFppu)
 //GO(MDC2, 
 //GO(MDC2_Final, 
