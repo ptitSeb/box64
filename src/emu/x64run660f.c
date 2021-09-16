@@ -647,7 +647,10 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 GETED(1);
                 GETGX;
                 tmp8u = F8;
-                GX->ud[tmp8u&0x3] = ED->dword[0];
+                if(rex.w)
+                    GX->q[tmp8u&0x1] = ED->q[0];
+                else
+                    GX->ud[tmp8u&0x3] = ED->dword[0];
                 break;
 
             case 0x40:  /* DPPS Gx, Ex, Ib */

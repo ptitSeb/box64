@@ -532,7 +532,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0);
                     GETED(1);
                     u8 = F8;
-                    VMOVQSfrom(q0, (u8&3), ed);
+                    if(rex.w) {
+                        VMOVQDfrom(q0, (u8&1), ed);
+                    } else {
+                        VMOVQSfrom(q0, (u8&3), ed);
+                    }
                     break;
 
                 default:
