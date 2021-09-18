@@ -71,7 +71,7 @@
 //GO(NSSRWLock_UnlockWrite_Util, 
 //GO(NSS_SecureMemcmp, 
 //GO(NSS_SecureMemcmpZero, 
-//GO(NSS_SetAlgorithmPolicy, 
+GO(NSS_SetAlgorithmPolicy, iFiuu)
 //GO(NSSUTIL_AddNSSFlagToModuleSpec, 
 //GO(NSSUTIL_ArgDecodeNumber, 
 //GO(NSSUTIL_ArgFetchValue, 
@@ -218,7 +218,7 @@
 //DATA(SEC_SequenceOfObjectIDTemplate, 
 //DATA(SEC_SetOfAnyTemplate_Util, 
 //DATA(SEC_SkipTemplate, //R-type
-//GO(SEC_StringToOID, 
+GO(SEC_StringToOID, iFpppu)
 //DATA(SEC_T61StringTemplate, //R-type
 //DATA(SEC_UniversalStringTemplate, //R-type
 //DATA(SEC_UTF8StringTemplate_Util, //R-type

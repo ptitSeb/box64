@@ -2,6 +2,11 @@
 #error Meh....
 #endif
 
+// CK_MECHANISM_TYPE is tyoe ULong
+// CK_OBJECT_HANDLE is type ULong
+// CK_ATTRIBUTE_TYPE is type ULong
+// SECOidTag is an enum
+
 //GO(ATOB_AsciiToData, 
 //GO(ATOB_ConvertAsciiToItem, 
 //GO(BTOA_ConvertItemToAscii, 
@@ -202,7 +207,7 @@
 //GO(CERT_KeyFromDERCrl, 
 //GO(CERT_MakeCANickname, 
 //GO(CERT_MergeExtensions, 
-DATA(CERT_NameTemplate, 32)
+DATA(CERT_NameTemplate, 4*sizeof(void*))
 //GO(CERT_NameToAscii, 
 //GO(CERT_NameToAsciiInvertible, 
 //GO(CERT_NewCertList, 
@@ -329,10 +334,10 @@ DATA(CERT_NameTemplate, 32)
 //GO(NSS_InitContext, 
 //GO(NSS_Initialize, 
 //GO(__nss_InitLock, 
-//GO(NSS_InitReadWrite, 
+GO(NSS_InitReadWrite, iFp)
 //GO(NSS_InitWithMerge, 
-//GO(NSS_IsInitialized, 
-//GO(NSS_NoDB_Init, 
+GO(NSS_IsInitialized, iFv)
+GO(NSS_NoDB_Init, iFp)
 //GO(NSS_OptionGet, 
 //GO(NSS_OptionSet, 
 //GO(NSS_PutEnv, 
@@ -347,7 +352,7 @@ DATA(CERT_NameTemplate, 32)
 //GO(NSS_Shutdown, 
 //GO(NSS_ShutdownContext, 
 //GO(NSS_UnregisterShutdown, 
-//GO(NSS_VersionCheck, 
+GO(NSS_VersionCheck, iFp)
 //GO(__PBE_CreateContext, 
 //GO(PBE_CreateContext, 
 //GO(__PBE_DestroyContext, 
@@ -355,12 +360,12 @@ DATA(CERT_NameTemplate, 32)
 //GO(__PBE_GenerateBits, 
 //GO(PBE_GenerateBits, 
 //GO(PK11_AlgtagToMechanism, 
-//GO(PK11_Authenticate, 
+GO(PK11_Authenticate, iFpip)
 //GO(PK11_BlockData, 
 //GO(PK11_ChangePW, 
 //GO(PK11_CheckSSOPassword, 
-//GO(PK11_CheckUserPassword, 
-//GO(PK11_CipherOp, 
+GO(PK11_CheckUserPassword, iFpp)
+GO(PK11_CipherOp, iFpppipi)
 //GO(PK11_CloneContext, 
 //GO(PK11_ConfigurePKCS11, 
 //GO(PK11_ConvertSessionPrivKeyToTokenPrivKey, 
@@ -368,7 +373,7 @@ DATA(CERT_NameTemplate, 32)
 //GO(PK11_CopySymKeyForSigning, 
 //GO(PK11_CopyTokenPrivKeyToSessionPrivKey, 
 //GO(__PK11_CreateContextByRawKey, 
-//GO(PK11_CreateContextBySymKey, 
+GO(PK11_CreateContextBySymKey, pFiipp)
 //GO(PK11_CreateDigestContext, 
 //GO(PK11_CreateGenericObject, 
 //GO(PK11_CreateManagedGenericObject, 
@@ -377,7 +382,7 @@ DATA(CERT_NameTemplate, 32)
 //GO(PK11_CreatePBEParams, 
 //GO(PK11_CreatePBEV2AlgorithmID, 
 //GO(PK11_Decrypt, 
-//GO(PK11_DeleteTokenCertAndKey, 
+GO(PK11_DeleteTokenCertAndKey, iFpp)
 //GO(PK11_DeleteTokenPrivateKey, 
 //GO(PK11_DeleteTokenPublicKey, 
 //GO(PK11_DeleteTokenSymKey, 
@@ -386,13 +391,13 @@ DATA(CERT_NameTemplate, 32)
 //GO(PK11_DeriveWithFlags, 
 //GO(PK11_DeriveWithFlagsPerm, 
 //GO(PK11_DeriveWithTemplate, 
-//GO(PK11_DestroyContext, 
+GO(PK11_DestroyContext, vFpi)
 //GO(PK11_DestroyGenericObject, 
 //GO(PK11_DestroyGenericObjects, 
 //GO(PK11_DestroyMergeLog, 
-//GO(PK11_DestroyObject, 
+GO(PK11_DestroyObject, iFpL)
 //GO(PK11_DestroyPBEParams, 
-//GO(PK11_DestroyTokenObject, 
+GO(PK11_DestroyTokenObject, iFpL)
 //GO(PK11_DigestBegin, 
 //GO(PK11_DigestFinal, 
 //GO(PK11_DigestKey, 
@@ -405,58 +410,58 @@ DATA(CERT_NameTemplate, 32)
 //GO(PK11_ExportPrivateKeyInfo, 
 //GO(PK11_ExportPrivKeyInfo, 
 //GO(PK11_ExtractKeyValue, 
-//GO(PK11_Finalize, 
+GO(PK11_Finalize, iFp)
 //GO(PK11_FindBestKEAMatch, 
 //GO(PK11_FindCertAndKeyByRecipientList, 
 //GO(PK11_FindCertAndKeyByRecipientListNew, 
 //GO(PK11_FindCertByIssuerAndSN, 
 //GO(PK11_FindCertFromDERCert, 
-//GO(PK11_FindCertFromDERCertItem, 
+GO(PK11_FindCertFromDERCertItem, pFppp)
 //GO(PK11_FindCertFromNickname, 
 //GO(PK11_FindCertFromURI, 
 //GO(PK11_FindCertInSlot, 
 //GO(PK11_FindCertsFromEmailAddress, 
 //GO(PK11_FindCertsFromNickname, 
 //GO(PK11_FindCertsFromURI, 
-//GO(PK11_FindFixedKey, 
+GO(PK11_FindFixedKey, pFpipp)
 //GO(PK11_FindGenericObjects, 
-//GO(PK11_FindKeyByAnyCert, 
-//GO(PK11_FindKeyByDERCert, 
-//GO(PK11_FindKeyByKeyID, 
-//GO(PK11_FindPrivateKeyFromCert, 
+GO(PK11_FindKeyByAnyCert, pFpp)
+GO(PK11_FindKeyByDERCert, pFppp)
+GO(PK11_FindKeyByKeyID, pFppp)
+GO(PK11_FindPrivateKeyFromCert, pFppp)
 //GO(PK11_FindRawCertsWithSubject, 
 //GO(PK11_FindSlotByName, 
 //GO(PK11_FindSlotsByNames, 
 //GO(PK11_FortezzaHasKEA, 
 //GO(PK11_FortezzaMapSig, 
-//GO(PK11_FreeSlot, 
-//GO(PK11_FreeSlotList, 
+GO(PK11_FreeSlot, vFp)
+GO(PK11_FreeSlotList, vFp)
 //GO(PK11_FreeSlotListElement, 
-//GO(PK11_FreeSymKey, 
+GO(PK11_FreeSymKey, vFp)
 //GO(PK11_GenerateFortezzaIV, 
-//GO(PK11_GenerateKeyPair, 
+GO(PK11_GenerateKeyPair, pFpLppiip)
 //GO(PK11_GenerateKeyPairWithFlags, 
 //GO(PK11_GenerateKeyPairWithOpFlags, 
 //GO(PK11_GenerateNewParam, 
 //GO(PK11_GenerateRandom, 
 //GO(PK11_GenerateRandomOnSlot, 
 //GO(PK11_GetAllSlotsForCert, 
-//GO(PK11_GetAllTokens, 
+GO(PK11_GetAllTokens, pFLiip)
 //GO(PK11_GetBestKeyLength, 
 //GO(PK11_GetBestSlot, 
 //GO(PK11_GetBestSlotMultiple, 
 //GO(PK11_GetBestSlotMultipleWithAttributes, 
 //GO(PK11_GetBestSlotWithAttributes, 
 //GO(PK11_GetBestWrapMechanism, 
-//GO(PK11_GetBlockSize, 
+GO(PK11_GetBlockSize, iFLp)
 //GO(PK11_GetCertFromPrivateKey, 
 //GO(PK11_GetCertsMatchingPrivateKey, 
 //GO(PK11_GetCurrentWrapIndex, 
 //GO(PK11_GetDefaultArray, 
 //GO(PK11_GetDefaultFlags, 
 //GO(PK11_GetDisabledReason, 
-//GO(PK11_GetFirstSafe, 
-//GO(PK11_GetInternalKeySlot, 
+GO(PK11_GetFirstSafe, pFp)
+GO(PK11_GetInternalKeySlot, pFv)
 //GO(PK11_GetInternalSlot, 
 //GO(PK11_GetIVLength, 
 //GO(__PK11_GetKeyData, 
@@ -474,21 +479,21 @@ DATA(CERT_NameTemplate, 32)
 //GO(PK11_GetModuleID, 
 //GO(PK11_GetModuleURI, 
 //GO(PK11_GetNextGenericObject, 
-//GO(PK11_GetNextSafe, 
-//GO(PK11_GetNextSymKey, 
+GO(PK11_GetNextSafe, pFppi)
+GO(PK11_GetNextSymKey, pFp)
 //GO(PK11_GetPadMechanism, 
 //GO(PK11_GetPBECryptoMechanism, 
 //GO(PK11_GetPBEIV, 
 //GO(PK11_GetPQGParamsFromPrivateKey, 
 //GO(PK11_GetPrevGenericObject, 
-//GO(PK11_GetPrivateKeyNickname, 
+GO(PK11_GetPrivateKeyNickname, pFp)
 //GO(PK11_GetPrivateModulusLen, 
 //GO(PK11_GetPublicKeyNickname, 
 //GO(PK11_GetSlotFromKey, 
 //GO(PK11_GetSlotFromPrivateKey, 
 //GO(PK11_GetSlotID, 
 //GO(PK11_GetSlotInfo, 
-//GO(PK11_GetSlotName, 
+GO(PK11_GetSlotName, pFp)
 //GO(PK11_GetSlotPWValues, 
 //GO(PK11_GetSlotSeries, 
 //GO(PK11_GetSymKeyHandle, 
@@ -496,21 +501,21 @@ DATA(CERT_NameTemplate, 32)
 //GO(PK11_GetSymKeyType, 
 //GO(PK11_GetSymKeyUserData, 
 //GO(PK11_GetTokenInfo, 
-//GO(PK11_GetTokenName, 
+GO(PK11_GetTokenName, pFp)
 //GO(PK11_GetTokenURI, 
 //GO(PK11_GetWindow, 
 //GO(PK11_GetWrapKey, 
 //GO(PK11_HasAttributeSet, 
 //GO(PK11_HashBuf, 
 //GO(PK11_HasRootCerts, 
-//GO(PK11_ImportCert, 
+GO(PK11_ImportCert, iFppLpi)
 //GO(PK11_ImportCertForKey, 
 //GO(PK11_ImportCertForKeyToSlot, 
 //GO(PK11_ImportCRL, 
 //GO(PK11_ImportDERCert, 
 //GO(PK11_ImportDERCertForKey, 
 //GO(PK11_ImportDERPrivateKeyInfo, 
-//GO(PK11_ImportDERPrivateKeyInfoAndReturnKey, 
+GO(PK11_ImportDERPrivateKeyInfoAndReturnKey, iFppppiiupp)
 //GO(PK11_ImportEncryptedPrivateKeyInfo, 
 //GO(PK11_ImportEncryptedPrivateKeyInfoAndReturnKey, 
 //GO(PK11_ImportPrivateKeyInfo, 
@@ -518,43 +523,43 @@ DATA(CERT_NameTemplate, 32)
 //GO(PK11_ImportPublicKey, 
 //GO(PK11_ImportSymKey, 
 //GO(PK11_ImportSymKeyWithFlags, 
-//GO(PK11_InitPin, 
+GO(PK11_InitPin, iFppp)
 //GO(PK11_IsDisabled, 
-//GO(PK11_IsFIPS, 
-//GO(PK11_IsFriendly, 
-//GO(PK11_IsHW, 
-//GO(PK11_IsInternal, 
-//GO(PK11_IsInternalKeySlot, 
-//GO(PK11_IsLoggedIn, 
+GO(PK11_IsFIPS, iFv)
+GO(PK11_IsFriendly, iFp)
+GO(PK11_IsHW, iFp)
+GO(PK11_IsInternal, iFp)
+GO(PK11_IsInternalKeySlot, iFp)
+GO(PK11_IsLoggedIn, iFpp)
 //GO(PK11_IsPresent, 
-//GO(PK11_IsReadOnly, 
-//GO(PK11_IsRemovable, 
+GO(PK11_IsReadOnly, iFp)
+GO(PK11_IsRemovable, iFp)
 //GO(PK11_IVFromParam, 
-//GO(PK11_KeyForCertExists, 
+GO(PK11_KeyForCertExists, pFppp)
 //GO(PK11_KeyForDERCertExists, 
 //GO(PK11_KeyGen, 
 //GO(PK11_KeyGenWithTemplate, 
 //GO(PK11_LinkGenericObject, 
-//GO(PK11_ListCerts, 
-//GO(PK11_ListCertsInSlot, 
-//GO(PK11_ListFixedKeysInSlot, 
+GO(PK11_ListCerts, pFip)
+GO(PK11_ListCertsInSlot, pFp)
+GO(PK11_ListFixedKeysInSlot, pFppp)
 //GO(PK11_ListPrivateKeysInSlot, 
 //GO(PK11_ListPrivKeysInSlot, 
 //GO(PK11_ListPublicKeysInSlot, 
 //GO(PK11_LoadPrivKey, 
 //GO(PK11_Logout, 
 //GO(PK11_LogoutAll, 
-//GO(PK11_MakeIDFromPubKey, 
+GO(PK11_MakeIDFromPubKey, pFp)
 //GO(PK11_MakeKEAPubKey, 
 //GO(PK11_MapPBEMechanismToCryptoMechanism, 
 //GO(PK11_MapSignKeyType, 
 //GO(PK11_MechanismToAlgtag, 
 //GO(PK11_MergeTokens, 
 //GO(PK11_MoveSymKey, 
-//GO(PK11_NeedLogin, 
+GO(PK11_NeedLogin, iFp)
 //GO(PK11_NeedPWInit, 
-//GO(PK11_NeedUserInit, 
-//GO(PK11_ParamFromAlgid, 
+GO(PK11_NeedUserInit, iFp)
+GO(PK11_ParamFromAlgid, pFp)
 //GO(PK11_ParamFromIV, 
 //GO(PK11_ParamToAlgid, 
 //GO(PK11_PBEKeyGen, 
@@ -587,8 +592,8 @@ DATA(CERT_NameTemplate, 32)
 //GO(PK11_PubWrapSymKey, 
 //GO(PK11_RandomUpdate, 
 //GO(PK11_RawPBEKeyGen, 
-//GO(PK11_ReadRawAttribute, 
-//GO(PK11_ReferenceSlot, 
+GO(PK11_ReadRawAttribute, iFipLp)
+GO(PK11_ReferenceSlot, pFp)
 //GO(PK11_ReferenceSymKey, 
 //GO(PK11_ResetToken, 
 //GO(PK11_RestoreContext, 
@@ -599,15 +604,15 @@ DATA(CERT_NameTemplate, 32)
 //GO(PK11_SeedRandom, 
 //GO(__PK11_SetCertificateNickname, 
 //GO(PK11_SetFortezzaHack, 
-//GO(PK11_SetPasswordFunc, 
-//GO(PK11_SetPrivateKeyNickname, 
-//GO(PK11_SetPublicKeyNickname, 
+GOM(PK11_SetPasswordFunc, vFEp)
+GO(PK11_SetPrivateKeyNickname, iFpp)
+GO(PK11_SetPublicKeyNickname, iFpp)
 //GO(PK11_SetSlotPWValues, 
 //GO(PK11_SetSymKeyNickname, 
 //GO(PK11_SetSymKeyUserData, 
 //GO(PK11_SetWrapKey, 
-//GO(PK11_Sign, 
-//GO(PK11_SignatureLen, 
+GO(PK11_Sign, iFppp)
+GO(PK11_SignatureLen, iFp)
 //GO(PK11_SignWithMechanism, 
 //GO(PK11_SignWithSymKey, 
 //GO(PK11_SymKeyFromHandle, 
@@ -634,7 +639,7 @@ DATA(CERT_NameTemplate, 32)
 //GO(PK11_WaitForTokenEvent, 
 //GO(PK11_WrapPrivKey, 
 //GO(PK11_WrapSymKey, 
-//GO(PK11_WriteRawAttribute, 
+GO(PK11_WriteRawAttribute, iFipLp)
 //GO(PORT_Alloc, 
 //GO(PORT_ArenaAlloc, 
 //GO(PORT_ArenaGrow, 
@@ -658,10 +663,10 @@ DATA(CERT_NameTemplate, 32)
 //GO(PORT_ZAlloc, 
 //GO(PORT_ZFree, 
 //GO(RSA_FormatBlock, 
-//DATA(SEC_AnyTemplate,     //R type
+DATA(SEC_AnyTemplate, 4*sizeof(void*))    //R type
 //GO(SEC_ASN1Decode, 
-//GO(SEC_ASN1DecodeInteger, 
-//GO(SEC_ASN1DecodeItem, 
+GO(SEC_ASN1DecodeInteger, iFpp)
+GO(SEC_ASN1DecodeItem, iFpppp)
 //GO(SEC_ASN1DecoderAbort, 
 //GO(SEC_ASN1DecoderClearFilterProc, 
 //GO(SEC_ASN1DecoderClearNotifyProc, 
@@ -685,15 +690,15 @@ DATA(CERT_NameTemplate, 32)
 //GO(SEC_ASN1EncoderUpdate, 
 //GO(SEC_ASN1EncodeUnsignedInteger, 
 //GO(SEC_ASN1LengthLength, 
-DATA(SEC_BitStringTemplate, 32) //R type
-DATA(SEC_BMPStringTemplate, 32) //R type
+DATA(SEC_BitStringTemplate, 4*sizeof(void*)) //R type
+DATA(SEC_BMPStringTemplate, 4*sizeof(void*)) //R type
 //DATA(SEC_BooleanTemplate,     //R type
-//GO(SEC_CertNicknameConflict, 
+GO(SEC_CertNicknameConflict, iFppp)
 //GO(SEC_CheckCrlTimes, 
 //GO(SEC_CreateSignatureAlgorithmParameters, 
-//GO(SEC_DeletePermCertificate, 
+GO(SEC_DeletePermCertificate, iFp)
 //GO(SEC_DeletePermCRL, 
-//GO(SEC_DerSignData, 
+GO(SEC_DerSignData, iFpppipi)
 //GO(SEC_DerSignDataWithAlgorithmID, 
 //GO(SEC_DestroyCrl, 
 //GO(SEC_DupCrl, 
@@ -703,7 +708,7 @@ DATA(SEC_BMPStringTemplate, 32) //R type
 //GO(SEC_GetCrlTimes, 
 //GO(SEC_GetRegisteredHttpClient, 
 //GO(SEC_GetSignatureAlgorithmOidTag, 
-DATA(SEC_IA5StringTemplate, 32) //R type
+DATA(SEC_IA5StringTemplate, 4*sizeof(void*)) //R type
 //DATA(SEC_IntegerTemplate,     //R type
 //GO(SECITEM_AllocItem, 
 //GO(SECITEM_ArenaDupItem, 
@@ -766,32 +771,32 @@ DATA(SEC_IA5StringTemplate, 32) //R type
 //GO(SECMOD_DeleteInternalModule, 
 //GO(SECMOD_DeleteModule, 
 //GO(SECMOD_DeleteModuleEx, 
-//GO(SECMOD_DestroyModule, 
+GO(SECMOD_DestroyModule, vFp)
 //GO(SECMOD_FindModule, 
 //GO(SECMOD_FindSlot, 
 //GO(SECMOD_FreeModuleSpecList, 
 //GO(SECMOD_GetDBModuleList, 
 //GO(SECMOD_GetDeadModuleList, 
 //GO(SECMOD_GetDefaultModDBFlag, 
-//GO(SECMOD_GetDefaultModuleList, 
-//GO(SECMOD_GetDefaultModuleListLock, 
+GO(SECMOD_GetDefaultModuleList, pFv)
+GO(SECMOD_GetDefaultModuleListLock, pFv)
 //GO(SECMOD_GetInternalModule, 
 //GO(SECMOD_GetModuleSpecList, 
-//GO(SECMOD_GetReadLock, 
+GO(SECMOD_GetReadLock, vFp)
 //GO(SECMOD_GetSkipFirstFlag, 
 //GO(SECMOD_HasRemovableSlots, 
 //GO(SECMOD_HasRootCerts, 
 //GO(SECMOD_InternaltoPubMechFlags, 
 //GO(SECMOD_IsModulePresent, 
 //GO(SECMOD_LoadModule, 
-//GO(SECMOD_LoadUserModule, 
+GO(SECMOD_LoadUserModule, pFppi)
 //GO(SECMOD_LookupSlot, 
 //GO(SECMOD_OpenNewSlot, 
-//GO(SECMOD_OpenUserDB, 
+GO(SECMOD_OpenUserDB, pFp)
 //GO(SECMOD_PubCipherFlagstoInternal, 
 //GO(SECMOD_PubMechFlagstoInternal, 
 //GO(SECMOD_ReferenceModule, 
-//GO(SECMOD_ReleaseReadLock, 
+GO(SECMOD_ReleaseReadLock, vFp)
 //GO(SECMOD_RestartModules, 
 //GO(SECMOD_UnloadUserModule, 
 //GO(SECMOD_UpdateModule, 
@@ -800,9 +805,9 @@ DATA(SEC_IA5StringTemplate, 32) //R type
 //GO(SEC_NewCrl, 
 //DATA(SEC_NullTemplate,    //R type
 //DATA(SEC_ObjectIDTemplate,    //R type
-DATA(SEC_OctetStringTemplate, 32)   //R type
+DATA(SEC_OctetStringTemplate, 4*sizeof(void*))   //R type
 //GO(SECOID_AddEntry, 
-DATA(SECOID_AlgorithmIDTemplate, 128)   //R type
+DATA(SECOID_AlgorithmIDTemplate, 16*sizeof(void*))   //R type
 //GO(SECOID_CompareAlgorithmID, 
 //GO(SECOID_CopyAlgorithmID, 
 //GO(SECOID_DestroyAlgorithmID, 
@@ -820,14 +825,14 @@ DATA(SECOID_AlgorithmIDTemplate, 128)   //R type
 //GO(SEC_PKCS5IsAlgorithmPBEAlgTag, 
 //DATA(SEC_PointerToAnyTemplate, 
 //DATA(SEC_PointerToOctetStringTemplate, 
-//GO(SEC_QuickDERDecodeItem, 
-//GO(SEC_RegisterDefaultHttpClient, 
+GO(SEC_QuickDERDecodeItem, iFpppp)
+GO(SEC_RegisterDefaultHttpClient, iFp)
 //DATA(SEC_SetOfAnyTemplate, 
 //GO(SEC_SignData, 
 //GO(SEC_SignDataWithAlgorithmID, 
 //DATA(SEC_SignedCertificateTemplate, 
 //DATA(SEC_UTCTimeTemplate,     //R type
-DATA(SEC_UTF8StringTemplate, 32)    //R type
+DATA(SEC_UTF8StringTemplate, 4*sizeof(void*))    //R type
 //GO(SGN_Begin, 
 //GO(SGN_CompareDigestInfo, 
 //GO(SGN_CopyDigestInfo, 

@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFp_t)(void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(PK11_SetPasswordFunc, vFp_t)
 
 #endif // __wrappednss3TYPES_H_

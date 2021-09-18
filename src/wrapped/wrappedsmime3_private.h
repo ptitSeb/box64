@@ -17,7 +17,7 @@
 //GO(NSS_CMSContentInfo_SetContentEncAlg, 
 //GO(NSS_CMSContentInfo_SetContent_EncryptedData, 
 //GO(NSS_CMSContentInfo_SetContent_EnvelopedData, 
-//GO(NSS_CMSContentInfo_SetContent_SignedData, 
+GO(NSS_CMSContentInfo_SetContent_SignedData, iFppp)
 //GO(NSS_CMSContentInfo_SetDontStream, 
 //GO(NSS_CMSDecoder_Cancel, 
 //GO(NSS_CMSDecoder_Finish, 
@@ -34,8 +34,8 @@
 //GO(NSS_CMSDigestedData_Destroy, 
 //GO(NSS_CMSDigestedData_GetContentInfo, 
 //GO(NSS_CMSEncoder_Cancel, 
-//GO(NSS_CMSEncoder_Finish, 
-//GO(NSS_CMSEncoder_Start, 
+GO(NSS_CMSEncoder_Finish, iFp)
+GOM(NSS_CMSEncoder_Start, pFEppppppppppp)
 //GO(NSS_CMSEncoder_Update, 
 //GO(NSS_CMSEncryptedData_Create, 
 //GO(NSS_CMSEncryptedData_Destroy, 
@@ -48,11 +48,11 @@
 //GO(NSS_CMSMessage_ContentLevel, 
 //GO(NSS_CMSMessage_ContentLevelCount, 
 //GO(NSS_CMSMessage_Copy, 
-//GO(NSS_CMSMessage_Create, 
+GO(NSS_CMSMessage_Create, pFp)
 //GO(NSS_CMSMessage_CreateFromDER, 
-//GO(NSS_CMSMessage_Destroy, 
+GO(NSS_CMSMessage_Destroy, vFp)
 //GO(NSS_CMSMessage_GetContent, 
-//GO(NSS_CMSMessage_GetContentInfo, 
+GO(NSS_CMSMessage_GetContentInfo, pFp)
 //GO(NSS_CMSMessage_IsEncrypted, 
 //GO(NSS_CMSMessage_IsSigned, 
 //GO(NSS_CMSRecipientInfo_Create, 
@@ -66,13 +66,13 @@
 //GO(NSS_CMSRecipientInfo_UnwrapBulkKey, 
 //GO(NSS_CMSRecipientInfo_WrapBulkKey, 
 //GO(NSS_CMSSignedData_AddCertChain, 
-//GO(NSS_CMSSignedData_AddCertificate, 
+GO(NSS_CMSSignedData_AddCertificate, iFpp)
 //GO(NSS_CMSSignedData_AddCertList, 
 //GO(NSS_CMSSignedData_AddDigest, 
 //GO(NSS_CMSSignedData_AddSignerInfo, 
 //GO(NSS_CMSSignedData_Create, 
-//GO(NSS_CMSSignedData_CreateCertsOnly, 
-//GO(NSS_CMSSignedData_Destroy, 
+GO(NSS_CMSSignedData_CreateCertsOnly, pFppi)
+GO(NSS_CMSSignedData_Destroy, vFp)
 //GO(NSS_CMSSignedData_GetContentInfo, 
 //GO(NSS_CMSSignedData_GetDigestAlgs, 
 //GO(NSS_CMSSignedData_GetSignerInfo, 
@@ -110,29 +110,29 @@
 //GO(NSS_SMIMEUtil_FindBulkAlgForRecipients, 
 //GO(NSSSMIME_VersionCheck, 
 //GO(SECMIME_DecryptionAllowed, 
-//GO(SEC_PKCS12AddCertAndKey, 
+GO(SEC_PKCS12AddCertAndKey, iFpppppppipi)
 //GO(SEC_PKCS12AddCertOrChainAndKey, 
-//GO(SEC_PKCS12AddPasswordIntegrity, 
-//GO(SEC_PKCS12CreateExportContext, 
-//GO(SEC_PKCS12CreatePasswordPrivSafe, 
-//GO(SEC_PKCS12CreateUnencryptedSafe, 
-//GO(SEC_PKCS12DecoderFinish, 
-//GO(SEC_PKCS12DecoderGetCerts, 
-//GO(SEC_PKCS12DecoderImportBags, 
-//GO(SEC_PKCS12DecoderIterateInit, 
-//GO(SEC_PKCS12DecoderIterateNext, 
+GO(SEC_PKCS12AddPasswordIntegrity, iFppi)
+GOM(SEC_PKCS12CreateExportContext, pFEpppp)
+GO(SEC_PKCS12CreatePasswordPrivSafe, pFppi)
+GO(SEC_PKCS12CreateUnencryptedSafe, pFp)
+GO(SEC_PKCS12DecoderFinish, vFp)
+GO(SEC_PKCS12DecoderGetCerts, pFp)
+GO(SEC_PKCS12DecoderImportBags, iFp)
+GO(SEC_PKCS12DecoderIterateInit, iFp)
+GO(SEC_PKCS12DecoderIterateNext, iFpp)
 //GO(SEC_PKCS12DecoderRenameCertNicknames, 
 //GO(SEC_PKCS12DecoderSetTargetTokenCAs, 
-//GO(SEC_PKCS12DecoderStart, 
-//GO(SEC_PKCS12DecoderUpdate, 
-//GO(SEC_PKCS12DecoderValidateBags, 
-//GO(SEC_PKCS12DecoderVerify, 
+GOM(SEC_PKCS12DecoderStart, pFEpppppppp)
+GO(SEC_PKCS12DecoderUpdate, iFppL)
+GOM(SEC_PKCS12DecoderValidateBags, iFEpp)
+GO(SEC_PKCS12DecoderVerify, iFp)
 //GO(SEC_PKCS12DecryptionAllowed, 
-//GO(SEC_PKCS12DestroyExportContext, 
-//GO(SEC_PKCS12EnableCipher, 
-//GO(SEC_PKCS12Encode, 
-//GO(SEC_PKCS12IsEncryptionAllowed, 
-//GO(SEC_PKCS12SetPreferredCipher, 
+GO(SEC_PKCS12DestroyExportContext, vFp)
+GO(SEC_PKCS12EnableCipher, iFli)
+GOM(SEC_PKCS12Encode, iFEppp)
+GO(SEC_PKCS12IsEncryptionAllowed, iFv)
+GO(SEC_PKCS12SetPreferredCipher, iFli)
 //GO(SEC_PKCS7AddCertificate, 
 //GO(SEC_PKCS7AddRecipient, 
 //GO(SEC_PKCS7AddSigningTime, 

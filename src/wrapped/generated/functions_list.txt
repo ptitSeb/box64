@@ -141,6 +141,7 @@
 #() iFuu
 #() iFuL
 #() iFup
+#() iFli
 #() iFlp
 #() iFLL
 #() iFLp
@@ -792,6 +793,7 @@
 #() pFiiuu
 #() pFiiup
 #() pFiipi
+#() pFiipp
 #() pFipii
 #() pFipip
 #() pFippi
@@ -804,6 +806,7 @@
 #() pFdddd
 #() pFDipp
 #() pFlfff
+#() pFLiip
 #() pFpiii
 #() pFpiip
 #() pFpiuu
@@ -1493,6 +1496,7 @@
 #() pFpuuuwwu
 #() pFpuupwwC
 #() pFplppppp
+#() pFpLppiip
 #() pFppiiipp
 #() pFppiiCCC
 #() pFppiippp
@@ -1663,6 +1667,7 @@
 #() iFpppiiipip
 #() iFpppiiuuii
 #() iFpppiipiiu
+#() iFppppiiupp
 #() iFppppppppu
 #() iFppppppppp
 #() uFEipippppp
@@ -1672,6 +1677,7 @@
 #() pFEppuippuu
 #() pFEpppppiiV
 #() pFEpppppppi
+#() pFEpppppppp
 #() pFpiiiiuuuu
 #() pFpCuWCCuuu
 #() pFpuuwwWWww
@@ -1721,6 +1727,7 @@
 #() iFpppiiipipi
 #() iFpppLLipppp
 #() iFppppiiuuii
+#() iFpppppppipi
 #() uFpppppppppp
 #() pFEiippppppp
 #() pFEpiiiiiipp
@@ -1787,6 +1794,7 @@
 #() iFpppllipppppp
 #() iFpppppppppppp
 #() pFEppiiuuuipii
+#() pFEppppppppppp
 #() pFWWiCCCCiipup
 #() pFpCuuWWwwCCup
 #() pFpuuuWWWWWWWW
@@ -2876,6 +2884,8 @@ wrappedmpg123:
   - mpg123_replace_reader_handle_64
 wrappednspr4:
 wrappednss3:
+- vFp:
+  - PK11_SetPasswordFunc
 wrappednssutil3:
 wrappedopenal:
 - vFv:
@@ -3269,6 +3279,16 @@ wrappedsdl2ttf:
   - TTF_OpenFontIndexRW
 wrappedselinux:
 wrappedsmime3:
+- iFpp:
+  - SEC_PKCS12DecoderValidateBags
+- iFppp:
+  - SEC_PKCS12Encode
+- pFpppp:
+  - SEC_PKCS12CreateExportContext
+- pFpppppppp:
+  - SEC_PKCS12DecoderStart
+- pFppppppppppp:
+  - NSS_CMSEncoder_Start
 wrappedsmpeg:
 - pFppi:
   - SMPEG_new_rwops
