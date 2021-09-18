@@ -388,6 +388,7 @@
 #() IFiIi
 #() IFpIi
 #() IFppi
+#() IFppI
 #() IFppu
 #() IFSIi
 #() uFEpW
@@ -790,6 +791,7 @@
 #() pFiiiu
 #() pFiiuu
 #() pFiiup
+#() pFiipi
 #() pFipii
 #() pFipip
 #() pFippi
@@ -2736,6 +2738,11 @@ wrappedlibsm:
   - SmcInteractRequest
 - pFppiiLpppip:
   - SmcOpenConnection
+wrappedlibsndfile:
+- iFp:
+  - sf_close
+- pFpipp:
+  - sf_open_virtual
 wrappedlibssl:
 - vFpp:
   - SSL_CTX_set_default_passwd_cb

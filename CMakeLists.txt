@@ -240,6 +240,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibresolv.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibrt.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibsm.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibsndfile.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibssl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibtinfo.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibtinfo6.c"
