@@ -430,6 +430,24 @@ int Run660F(x64emu_t *emu, rex_t rex)
                     GX->sq[i] = EX->sd[i];
                 break;
 
+            case 0x39:  /* PMINSD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=0; i<4; ++i)
+                    if(GX->sd[i]>EX->sd[i])
+                        GX->sd[i] = EX->sd[i];
+                break;
+
+            case 0x3A:  /* PMAXSD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=0; i<4; ++i)
+                    if(GX->sd[i]<EX->sd[i])
+                        GX->sd[i] = EX->sd[i];
+                break;
+
             case 0xDB:  /* AESIMC Gx, Ex */
                 nextop = F8;
                 GETEX(0);

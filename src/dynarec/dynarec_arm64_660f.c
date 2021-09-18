@@ -381,6 +381,22 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SXTL_32(q0, q1);     // 32bits->64bits
                     break;
 
+                case 0x39:
+                    INST_NAME("PMINSD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX(q0);
+                    SMINQ_32(q0, q0, q1);
+                    break;
+
+                case 0x3D:
+                    INST_NAME("PMINSD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX(q0);
+                    SMAXQ_32(q0, q0, q1);
+                    break;
+
                 case 0xDB:
                     INST_NAME("AESIMC Gx, Ex");  // AES-NI
                     nextop = F8;
