@@ -451,8 +451,8 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
     // nope, not found
     return 0;
 }
-//void** my_GetGTKDisplay();
-//void** my_GetGthreadsGotInitialized();
+void** my_GetGTKDisplay();
+void** my_GetGthreadsGotInitialized();
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername)
 {
     if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end, self, version, vername)) {
@@ -470,18 +470,18 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
         return 1;
     }
     // some special case symbol, defined inside box64 itself
-    //if(!strcmp(name, "gdk_display")) {
-    //    *start = (uintptr_t)my_GetGTKDisplay();
-    //    *end = *start+sizeof(void*);
-    //    printf_log(LOG_INFO, "Using global gdk_display for gdk-x11 (%p:%p)\n", start, *(void**)start);
-    //    return 1;
-    //}
-    //if(!strcmp(name, "g_threads_got_initialized")) {
-    //    *start = (uintptr_t)my_GetGthreadsGotInitialized();
-    //    *end = *start+sizeof(int);
-    //    printf_log(LOG_INFO, "Using global g_threads_got_initialized for gthread2 (%p:%p)\n", start, *(void**)start);
-    //    return 1;
-    //}
+    if(!strcmp(name, "gdk_display")) {
+        *start = (uintptr_t)my_GetGTKDisplay();
+        *end = *start+sizeof(void*);
+        printf_log(LOG_INFO, "Using global gdk_display for gdk-x11 (%p:%p)\n", start, *(void**)start);
+        return 1;
+    }
+    if(!strcmp(name, "g_threads_got_initialized")) {
+        *start = (uintptr_t)my_GetGthreadsGotInitialized();
+        *end = *start+sizeof(int);
+        printf_log(LOG_INFO, "Using global g_threads_got_initialized for gthread2 (%p:%p)\n", start, *(void**)start);
+        return 1;
+    }
     // not found...
     return 0;
 }

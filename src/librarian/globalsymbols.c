@@ -24,7 +24,6 @@
 
 
 // *********** GTK *****************
-#if 0
 EXPORT void* gdk_display = NULL;   // in case it's used...
 
 void my_checkGlobalGdkDisplay()
@@ -38,7 +37,7 @@ void my_setGlobalGThreadsInit()
     int val = 1;
     uintptr_t globoffs, globend;
     if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, "g_threads_got_initialized", &globoffs, &globend, -1, NULL)) {
-        printf_log(LOG_DEBUG, "Global g_threads_got_initialized workaround, @%p <= %p\n", (void*)globoffs, (void*)val);
+        printf_log(LOG_DEBUG, "Global g_threads_got_initialized workaround, @%p <= %d\n", (void*)globoffs, val);
         memcpy((void*)globoffs, &val, sizeof(val));
     }
 }
@@ -50,14 +49,13 @@ void** my_GetGTKDisplay()
         return &gdk_display;
     
     char* name = getGDKX11LibName();
-    library_t * lib = GetLibInternal(name?name:"libgtk-1.2.so.0");
+    library_t * lib = GetLibInternal(name?name:"libgdk-x11-2.0.so.0");
     if(!lib) return &gdk_display;   // mmm, that will crash later probably
     void* s = dlsym(GetHandle(lib), "gdk_display");
     gdk_display = *(void**)s;
     return s;
 }
 
-#endif
 // **************** NCurses ****************
 EXPORT int COLS;
 EXPORT int LINES;

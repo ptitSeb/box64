@@ -30,10 +30,10 @@ typedef struct {
 
 #define CONVERT_VALIST(A) \
   va_list sysv_varargs; \
-  sysv_varargs->gp_offset=A->gp_offset; \
-  sysv_varargs->fp_offset=A->fp_offset; \
-  sysv_varargs->reg_save_area=A->reg_save_area;  \
-  sysv_varargs->overflow_arg_area=A->overflow_arg_area;
+  sysv_varargs->gp_offset=(A)->gp_offset; \
+  sysv_varargs->fp_offset=(A)->fp_offset; \
+  sysv_varargs->reg_save_area=(A)->reg_save_area;  \
+  sysv_varargs->overflow_arg_area=(A)->overflow_arg_area;
 
 #define CREATE_VALIST_FROM_VAARG(STACK, SCRATCH, N) \
   va_list sysv_varargs;                     \
@@ -70,11 +70,11 @@ typedef struct  va_list {
 
 #define CONVERT_VALIST(A)                                       \
   va_list sysv_varargs;                                         \
-  sysv_varargs.__gr_offs=-(6*8)+A->gp_offset;                   \
-  sysv_varargs.__vr_offs=-(8*16)+(A->fp_offset-X64_VA_MAX_REG); \
-  sysv_varargs.__stack=A->overflow_arg_area;                    \
-  sysv_varargs.__gr_top=A->reg_save_area + X64_VA_MAX_REG;      \
-  sysv_varargs.__vr_top=A->reg_save_area + X64_VA_MAX_XMM;
+  sysv_varargs.__gr_offs=-(6*8)+(A)->gp_offset;                   \
+  sysv_varargs.__vr_offs=-(8*16)+((A)->fp_offset-X64_VA_MAX_REG); \
+  sysv_varargs.__stack=(A)->overflow_arg_area;                    \
+  sysv_varargs.__gr_top=(A)->reg_save_area + X64_VA_MAX_REG;      \
+  sysv_varargs.__vr_top=(A)->reg_save_area + X64_VA_MAX_XMM;
 
 #define CREATE_VALIST_FROM_VAARG(STACK, SCRATCH, N)   \
   va_list sysv_varargs;                               \
