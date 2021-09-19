@@ -574,7 +574,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
         uint64_t *p = (uint64_t*)(rela[i].r_offset + head->delta);
         uintptr_t offs = 0;
         uintptr_t end = 0;
-        elfheader_t* h_tls = head;
+        elfheader_t* h_tls = NULL;//head;
         int version = head->VerSym?((Elf64_Half*)((uintptr_t)head->VerSym+head->delta))[ELF64_R_SYM(rela[i].r_info)]:-1;
         if(version!=-1) version &=0x7fff;
         const char* vername = GetSymbolVersion(head, version);
@@ -744,7 +744,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     offs = getElfIndex(my_context, h_tls);
                 }
                 if(p) {
-                    printf_dump(LOG_NEVER, "Apply %s %s @%p with sym=%s (%p -> %p)\n", "R_X86_64_DTPMOD64", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
+                    printf_dump(LOG_NEVER, "Apply %s %s @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", "R_X86_64_DTPMOD64", p, symname, *(void**)p, (void*)offs);
                     *p = offs;
                 } else {
                     printf_log(LOG_NONE, "Warning, Symbol %s or Elf not found, but R_X86_64_DTPMOD64 Slot Offset is NULL \n", symname);
@@ -760,7 +760,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     }
                     // return -1;
                 } else {
-                    if(h_tls)
+                    if(!symname || symname[0]=='\0' || bind==STB_LOCAL)
                         offs = sym->st_value;
                     if(p) {
                         int64_t tlsoffset = offs;    // it's not an offset in elf memory
