@@ -1526,6 +1526,7 @@ x64emurun:
 
 
 fini:
+    printf_log(LOG_DEBUG, "End of X86 run (%p), RIP=%p, Stack=%p, unimp=%d, emu->fork=%d, emu->uc_link=%p, emu->quit=%d\n", emu, (void*)R_RIP, (void*)R_RSP, unimp, emu->fork, emu->uc_link, emu->quit);
     if(unimp) {
         R_RIP = emu->old_ip;
         emu->quit = 1;
