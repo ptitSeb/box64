@@ -168,6 +168,7 @@ GO("libnssutil3.so", nssutil3)
 GO("libsmime3.so", smime3)
 GO("libnspr4.so", nspr4)
 GO("libselinux.so.1", selinux)
+GO("libsecret-1.so.0", secret1)
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 

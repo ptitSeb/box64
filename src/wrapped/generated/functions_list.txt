@@ -1349,6 +1349,7 @@
 #() pFppippp
 #() pFpppiii
 #() pFpppiui
+#() pFpppupp
 #() pFppppii
 #() pFpppppi
 #() pFpppppu
@@ -1844,10 +1845,12 @@
 #() pFppippipipipipipip
 #() vFppuiiiiipuiiiiiiii
 #() vFpppipppppppppppppp
+#() iFpppppppppppppppppp
 #() pFippppppppppppppppp
 #() vFpiiiiiiiiiiiiiiiiii
 #() pFiiiippppppppppppppp
 #() pFpippppppppppppppppp
+#() iFpppppppppppppppppppppp
 #() pFipppppppppppppppppppppp
 #defined(HAVE_LD80BITS) DFD
 #defined(HAVE_LD80BITS) vFppippDDC
@@ -3294,6 +3297,7 @@ wrappedsdl2ttf:
   - TTF_OpenFontRW
 - pFpiii:
   - TTF_OpenFontIndexRW
+wrappedsecret1:
 wrappedselinux:
 wrappedsmime3:
 - iFpp:
