@@ -12,21 +12,21 @@
 //GO(g_action_get_state_hint, 
 //GO(g_action_get_state_type, 
 //GO(g_action_get_type, 
-//GO(g_action_group_action_added, 
-//GO(g_action_group_action_enabled_changed, 
-//GO(g_action_group_action_removed, 
-//GO(g_action_group_action_state_changed, 
-//GO(g_action_group_activate_action, 
-//GO(g_action_group_change_action_state, 
-//GO(g_action_group_get_action_enabled, 
-//GO(g_action_group_get_action_parameter_type, 
-//GO(g_action_group_get_action_state, 
-//GO(g_action_group_get_action_state_hint, 
-//GO(g_action_group_get_action_state_type, 
-//GO(g_action_group_get_type, 
-//GO(g_action_group_has_action, 
-//GO(g_action_group_list_actions, 
-//GO(g_action_group_query_action, 
+GO(g_action_group_action_added, vFpp)
+GO(g_action_group_action_enabled_changed, vFppp)
+GO(g_action_group_action_removed, vFpp)
+GO(g_action_group_action_state_changed, vFppp)
+GO(g_action_group_activate_action, vFppp)
+GO(g_action_group_change_action_state, vFppp)
+GO(g_action_group_get_action_enabled, iFpp)
+GO(g_action_group_get_action_parameter_type, pFpp)
+GO(g_action_group_get_action_state, pFpp)
+GO(g_action_group_get_action_state_hint, pFpp)
+GO(g_action_group_get_action_state_type, pFpp)
+GO(g_action_group_get_type, iFv)
+GO(g_action_group_has_action, iFpp)
+GO(g_action_group_list_actions, pFp)
+GO(g_action_group_query_action, iFppppppp)
 //GO(g_action_map_add_action, 
 //GO(g_action_map_add_action_entries, 
 //GO(g_action_map_get_type, 

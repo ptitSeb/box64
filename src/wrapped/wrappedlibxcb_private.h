@@ -401,7 +401,7 @@ GO(xcb_open_font_checked, pFpuWp)
 //GO(xcb_point_next, 
 GO(xcb_poll_for_event, pFp)
 GO(xcb_poll_for_queued_event, pFp)
-//GO(xcb_poll_for_reply, 
+GO(xcb_poll_for_reply, iFpupp)
 //GO(xcb_poll_for_reply64, 
 GO(xcb_poll_for_special_event, pFpp)
 GO(xcb_poly_arc, pFpuuup)
