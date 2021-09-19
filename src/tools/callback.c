@@ -21,7 +21,7 @@ uint64_t RunFunction(box64context_t *context, uintptr_t fnc, int nargs, ...)
     x64emu_t *emu = thread_get_emu();
 
     if(nargs>6)
-        R_ESP -= (nargs-6)*4;   // need to push in reverse order
+        R_ESP -= (nargs-6)*sizeof(void*);   // need to push in reverse order
 
     uint64_t *p = (uint64_t*)R_RSP;
 
@@ -40,7 +40,7 @@ uint64_t RunFunction(box64context_t *context, uintptr_t fnc, int nargs, ...)
 
     DynaCall(emu, fnc);
     if(nargs>6)
-        R_ESP+=((nargs-6)*4);
+        R_ESP+=((nargs-6)*sizeof(void*));
 
     uint64_t ret = R_RAX;
 
@@ -51,7 +51,7 @@ EXPORTDYN
 uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, ...)
 {
     if(nargs>6)
-        R_ESP -= (nargs-6)*4;   // need to push in reverse order
+        R_ESP -= (nargs-6)*sizeof(void*);   // need to push in reverse order
 
     uint64_t *p = (uint64_t*)R_RSP;
 
@@ -78,7 +78,7 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
     DynaCall(emu, fnc);
 
     if(oldip==R_RIP && nargs>6)
-        R_ESP+=((nargs-6)*4);   // restore stack only if EIP is the one expected (else, it means return value is not the one expected)
+        R_ESP+=((nargs-6)*sizeof(void*));   // restore stack only if EIP is the one expected (else, it means return value is not the one expected)
 
     emu->quit = old_quit;
     emu->quitonlongjmp = oldlong;

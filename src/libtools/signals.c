@@ -290,7 +290,7 @@ uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc
         emu->segs_serial[i] = 0;
         
     if(nargs>6)
-        R_RSP -= (nargs-6)*4;   // need to push in reverse order
+        R_RSP -= (nargs-6)*sizeof(void*);   // need to push in reverse order
 
     uint64_t *p = (uint64_t*)R_RSP;
 
@@ -313,7 +313,7 @@ uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc
     //EmuCall(emu, fnc);  // avoid DynaCall for now
     DynaCall(emu, fnc);
     if(nargs>6)
-        R_RSP+=((nargs-6)*4);
+        R_RSP+=((nargs-6)*sizeof(void*));
 
     emu->quitonlongjmp = oldquitonlongjmp;
 
