@@ -34,7 +34,6 @@ typedef unsigned long (*LFpppp_t)   (void*, void*, void*, void*);
 typedef void    (*vFpippp_t)        (void*, int, void*, void*, void*);
 typedef void    (*vFpipppp_t)       (void*, int, void*, void*, void*, void*);
 typedef void*   (*vFippippp_t)      (int, void*, void*, int, void*, void*, void*);
-typedef void*   (*vFipAippp_t)      (int, void*, va_list, int, void*, void*, void*);
 typedef uint32_t(*uFipipppp_t)      (int, void*, int, void*, void*, void*, void*);
 typedef uint32_t(*uFppipppp_t)      (void*, void*, int, void*, void*, void*, void*);
 typedef void    (*vFppipppp_t)      (void*, void*, int, void*, void*, void*, void*);
@@ -42,13 +41,14 @@ typedef void    (*vFiupippp_t)      (int, uint32_t, void*, int, void*, void*, vo
 typedef void    (*vFpppuipV_t)      (void*, void*, void*, uint32_t, int, void*, ...);
 typedef void*   (*pFpppuipV_t)      (void*, void*, void*, uint32_t, int, void*, ...);
 typedef uint32_t(*uFppppppp_t)      (void*, void*, void*, void*, void*, void*, void*);
+typedef void*   (*vFLpAippp_t)      (size_t, void*, va_list, int, void*, void*, void*);
 typedef void    (*vFppiipppp_t)     (void*, void*, int, int, void*, void*, void*, void*);
 typedef void    (*vFpppiippp_t)     (void*, void*, void*, int, int, void*, void*, void*);
-typedef uint32_t(*uFipippppp_t)     (int, void*, int, void*, void*, void*, void*, void*);
+typedef uint32_t(*uFLpippppp_t)     (size_t, void*, int, void*, void*, void*, void*, void*);
 typedef void    (*vFpppiipppp_t)    (void*, void*, void*, int, int, void*, void*, void*, void*);
 typedef void    (*vFiippppppp_t)    (int, int, void*, void*, void*, void*, void*, void*, void*);
-typedef void*   (*pFiippppppp_t)    (int, int, void*, void*, void*, void*, void*, void*, void*);
 typedef void    (*vFpippppppp_t)    (void*, int, void*, void*, void*, void*, void*, void*, void*);
+typedef void*   (*pFLippppppp_t)    (size_t, int, void*, void*, void*, void*, void*, void*, void*);
 typedef uint32_t(*uFppppppippp_t)   (void*, void*, void*, void*, void*, void*, int, void*, void*, void*);
 typedef void    (*vFpppppppiippp_t) (void*, void*, void*, void*, void*, void*, void*, int, int, void*, void*, void*);
 
@@ -57,7 +57,7 @@ typedef void    (*vFpppppppiippp_t) (void*, void*, void*, void*, void*, void*, v
     GO(g_dbus_proxy_new_for_bus, vFiippppppp_t)     \
     GO(g_dbus_proxy_call, vFpppiippp_t)             \
     GO(g_dbus_proxy_call_with_unix_fd_list, vFpppiipppp_t)              \
-    GO(g_dbus_object_manager_client_new_for_bus_sync, pFiippppppp_t)    \
+    GO(g_dbus_object_manager_client_new_for_bus_sync, pFLippppppp_t)    \
     GO(g_simple_async_result_new, pFpppp_t)         \
     GO(g_simple_async_result_new_error, pFpppuipV_t)\
     GO(g_simple_async_result_new_from_error, pFpppp_t)                  \
@@ -69,7 +69,7 @@ typedef void    (*vFpppppppiippp_t) (void*, void*, void*, void*, void*, void*, v
     GO(g_simple_async_report_take_gerror_in_idle, vFpppp_t)             \
     GO(g_cancellable_connect, LFpppp_t)             \
     GO(g_async_initable_init_async, vFpippp_t)      \
-    GO(g_async_initable_new_valist_async, vFipAippp_t)                  \
+    GO(g_async_initable_new_valist_async, vFLpAippp_t)                  \
     GO(g_async_initable_newv_async, vFiupippp_t)    \
     GO(g_bus_get, vFippp_t)                         \
     GO(g_dbus_connection_new, vFppipppp_t)          \
@@ -83,7 +83,7 @@ typedef void    (*vFpppppppiippp_t) (void*, void*, void*, void*, void*, void*, v
     GO(g_dbus_connection_register_object, uFppppppp_t)                  \
     GO(g_bus_watch_name, uFipipppp_t)               \
     GO(g_bus_watch_name_on_connection, uFppipppp_t) \
-    GO(g_bus_own_name, uFipippppp_t)                \
+    GO(g_bus_own_name, uFLpippppp_t)                \
     GO(g_bus_own_name_on_connection, uFppipppp_t)
 
 
@@ -478,7 +478,7 @@ EXPORT void my_g_dbus_proxy_call_with_unix_fd_list(x64emu_t* emu, void* proxy, v
     my->g_dbus_proxy_call_with_unix_fd_list(proxy, name, param, flags, timeout, fd_list, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void* my_g_dbus_object_manager_client_new_for_bus_sync(x64emu_t* emu, int bus, int flags, void* name, void* path, void* cb, void* data, void* destroy, void* cancellable, void* error)
+EXPORT void* my_g_dbus_object_manager_client_new_for_bus_sync(x64emu_t* emu, size_t bus, int flags, void* name, void* path, void* cb, void* data, void* destroy, void* cancellable, void* error)
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
@@ -583,7 +583,7 @@ EXPORT void my_g_async_initable_init_async(x64emu_t* emu, void* initable, int pr
     my->g_async_initable_init_async(initable, priority, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void my_g_async_initable_new_valist_async(x64emu_t* emu, int type, void* first, x64_va_list_t var_args, int priority, void* cancellable, void* cb, void* data)
+EXPORT void my_g_async_initable_new_valist_async(x64emu_t* emu, size_t type, void* first, x64_va_list_t var_args, int priority, void* cancellable, void* cb, void* data)
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
@@ -592,7 +592,7 @@ EXPORT void my_g_async_initable_new_valist_async(x64emu_t* emu, int type, void* 
     my->g_async_initable_new_valist_async(type, first, VARARGS, priority, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void my_g_async_initable_new_async(x64emu_t* emu, int type, int priority, void* cancellable, void* cb, void* data, void* first, uintptr_t* V)
+EXPORT void my_g_async_initable_new_async(x64emu_t* emu, size_t type, int priority, void* cancellable, void* cb, void* data, void* first, uintptr_t* V)
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
@@ -601,7 +601,7 @@ EXPORT void my_g_async_initable_new_async(x64emu_t* emu, int type, int priority,
     my->g_async_initable_new_valist_async(type, first, VARARGS, priority, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void my_g_async_initable_newv_async(x64emu_t* emu, int type, uint32_t n, void* params, int priority, void* cancellable, void* cb, void* data)
+EXPORT void my_g_async_initable_newv_async(x64emu_t* emu, size_t type, uint32_t n, void* params, int priority, void* cancellable, void* cb, void* data)
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
@@ -609,7 +609,7 @@ EXPORT void my_g_async_initable_newv_async(x64emu_t* emu, int type, uint32_t n, 
     my->g_async_initable_newv_async(type, n, params, priority, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void my_g_bus_get(x64emu_t* emu, int type, void* cancellable, void* cb, void* data)
+EXPORT void my_g_bus_get(x64emu_t* emu, size_t type, void* cancellable, void* cb, void* data)
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
@@ -689,7 +689,7 @@ EXPORT uint32_t my_g_dbus_connection_register_object(x64emu_t* emu, void* connec
     return my->g_dbus_connection_register_object(connection, object, info, findFreeGDBusInterfaceVTable(vtable), data, findGDestroyNotifyFct(notify), error);
 }
 
-EXPORT uint32_t my_g_bus_watch_name(x64emu_t* emu, int type, void* name, int flags, void* appeared, void* vanished, void* data, void* notify)
+EXPORT uint32_t my_g_bus_watch_name(x64emu_t* emu, size_t type, void* name, int flags, void* appeared, void* vanished, void* data, void* notify)
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
@@ -705,7 +705,7 @@ EXPORT uint32_t my_g_bus_watch_name_on_connection(x64emu_t* emu, void* connectio
     return my->g_bus_watch_name_on_connection(connection, name, flags, findGBusNameAppearedCallbackFct(appeared), findGBusNameVanishedCallbackFct(vanished), data, findGDestroyNotifyFct(notify));
 }
 
-EXPORT uint32_t my_g_bus_own_name(x64emu_t* emu, int type, void* name, int flags, void* bus_acquired, void* name_acquired, void* name_lost, void* data, void* notify)
+EXPORT uint32_t my_g_bus_own_name(x64emu_t* emu, size_t type, void* name, int flags, void* bus_acquired, void* name_acquired, void* name_lost, void* data, void* notify)
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;

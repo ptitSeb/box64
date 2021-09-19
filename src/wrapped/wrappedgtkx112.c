@@ -23,16 +23,19 @@ const char* gtkx112Name = "libgtk-x11-2.0.so.0";
 static char* libname = NULL;
 #define LIBNAME gtkx112
 
-typedef int           (*iFv_t)(void);
+typedef size_t        (*LFv_t)(void);
 typedef void*         (*pFi_t)(int);
 typedef void          (*vFp_t)(void*);
 typedef int           (*iFp_t)(void*);
 typedef void*         (*pFp_t)(void*);
 typedef double        (*dFp_t)(void*);
+typedef void*         (*pFL_t)(size_t);
 typedef int           (*iFip_t)(int, void*);
 typedef int           (*iFpp_t)(void*, void*);
+typedef size_t        (*LFLp_t)(size_t, void*);
 typedef void*         (*pFpp_t)(void*, void*);
 typedef void*         (*pFpi_t)(void*, int);
+typedef void*         (*pFpL_t)(void*, size_t);
 typedef void          (*vFpp_t)(void*, void*);
 typedef void*         (*pFppi_t)(void*, void*, int32_t);
 typedef int32_t       (*iFppp_t)(void*, void*, void*);
@@ -61,19 +64,19 @@ typedef void*         (*pFpippppppp_t)(void*, int, void*, void*, void*, void*, v
 typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, void*, void*, void*, int);
 
 #define SUPER() \
-    GO(gtk_object_get_type, iFv_t)              \
+    GO(gtk_object_get_type, LFv_t)              \
     GO(gtk_object_set_data_full, vFpppp_t)      \
-    GO(g_type_check_instance_cast, pFpi_t)      \
-    GO(gtk_bin_get_type, iFv_t)                 \
-    GO(gtk_widget_get_type, iFv_t)              \
-    GO(gtk_button_get_type, iFv_t)              \
-    GO(gtk_container_get_type, iFv_t)           \
-    GO(gtk_misc_get_type, iFv_t)                \
-    GO(gtk_label_get_type, iFv_t)               \
-    GO(gtk_tree_view_get_type, iFv_t)           \
-    GO(gtk_window_get_type, iFv_t)              \
-    GO(gtk_table_get_type, iFv_t)               \
-    GO(gtk_type_class, pFi_t)                   \
+    GO(g_type_check_instance_cast, pFpL_t)      \
+    GO(gtk_bin_get_type, LFv_t)                 \
+    GO(gtk_widget_get_type, LFv_t)              \
+    GO(gtk_button_get_type, LFv_t)              \
+    GO(gtk_container_get_type, LFv_t)           \
+    GO(gtk_misc_get_type, LFv_t)                \
+    GO(gtk_label_get_type, LFv_t)               \
+    GO(gtk_tree_view_get_type, LFv_t)           \
+    GO(gtk_window_get_type, LFv_t)              \
+    GO(gtk_table_get_type, LFv_t)               \
+    GO(gtk_type_class, pFL_t)                   \
     GO(gtk_button_get_label, pFp_t)             \
     GO(gtk_signal_connect_full, LFppppppii_t)   \
     GO(gtk_dialog_add_button, pFppi_t)          \
@@ -101,20 +104,20 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_toolbar_insert_stock, pFppppppi_t)   \
     GO(gtk_tree_sortable_set_sort_func, vFpippp_t)      \
     GO(gtk_tree_sortable_set_default_sort_func, vFpppp_t)\
-    GO(gtk_type_unique, iFip_t)                 \
+    GO(gtk_type_unique, LFLp_t)                 \
     GO(gtk_spin_button_get_value, dFp_t)        \
     GO(gtk_builder_connect_signals_full, vFppp_t)       \
-    GO(gtk_action_get_type, iFv_t)              \
+    GO(gtk_action_get_type, LFv_t)              \
     GO(gtk_binding_entry_add_signall, vFpuipp_t)\
     GO(gtk_binding_entry_add_signal, vFpuipuV_t)\
     GO(gtk_container_foreach, vFppp_t)          \
     GO(gtk_cell_layout_set_cell_data_func, vFppppp_t)   \
     GO(g_module_close, iFp_t)                   \
     GO(g_module_open, pFpi_t)                   \
-    GO(g_module_supported, iFv_t)               \
+    GO(g_module_supported, LFv_t)               \
     GO(g_module_symbol, iFppp_t)                \
     GO(g_log, vFpipV_t)                         \
-    GO(g_type_class_ref, pFi_t)                 \
+    GO(g_type_class_ref, pFL_t)                 \
     GO(g_type_class_unref, vFp_t)               \
     GO(g_signal_connect_object, LFppppi_t)      \
     GO(g_signal_connect_data, LFpppppi_t)       \
@@ -669,7 +672,7 @@ EXPORT void my_gtk_message_dialog_format_secondary_markup(x64emu_t* emu, void* d
     my->gtk_message_dialog_format_secondary_markup(dialog, buf);
     free(buf);
 }
-EXPORT void* my_gtk_type_class(x64emu_t* emu, int type)
+EXPORT void* my_gtk_type_class(x64emu_t* emu, size_t type)
 {
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
@@ -820,7 +823,7 @@ EXPORT void* my_gtk_toolbar_insert_item(x64emu_t* emu, void* toolbar, void* text
     return my->gtk_toolbar_insert_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data, position);
 }
 
-EXPORT void* my_gtk_toolbar_append_element(x64emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
+EXPORT void* my_gtk_toolbar_append_element(x64emu_t* emu, void* toolbar, size_t type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
@@ -828,7 +831,7 @@ EXPORT void* my_gtk_toolbar_append_element(x64emu_t* emu, void* toolbar, int typ
     return my->gtk_toolbar_append_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
-EXPORT void* my_gtk_toolbar_prepend_element(x64emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
+EXPORT void* my_gtk_toolbar_prepend_element(x64emu_t* emu, void* toolbar, size_t type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
@@ -836,7 +839,7 @@ EXPORT void* my_gtk_toolbar_prepend_element(x64emu_t* emu, void* toolbar, int ty
     return my->gtk_toolbar_prepend_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
-EXPORT void* my_gtk_toolbar_insert_element(x64emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data, int position)
+EXPORT void* my_gtk_toolbar_insert_element(x64emu_t* emu, void* toolbar, size_t type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data, int position)
 {
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
@@ -897,7 +900,7 @@ EXPORT float my_gtk_spin_button_get_value_as_float(x64emu_t* emu, void* spinner)
     return my->gtk_spin_button_get_value(spinner);
 }
 
-static int gtk1Type(gtkx112_my_t *my, int type)
+static int gtk1Type(gtkx112_my_t *my, size_t type)
 {
     if (type==21)
         return my->gtk_object_get_type();
@@ -905,12 +908,12 @@ static int gtk1Type(gtkx112_my_t *my, int type)
 }
 
 typedef struct dummy_gtk1_button_s {
-    int type;
+    size_t type;
     int dummy[14];
     void* label;
 } dummy_gtk1_button_t;
 
-EXPORT void* my_gtk_type_check_object_cast(x64emu_t* emu, void* obj, int type)
+EXPORT void* my_gtk_type_check_object_cast(x64emu_t* emu, void* obj, size_t type)
 {
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;

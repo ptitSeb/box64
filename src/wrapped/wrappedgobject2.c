@@ -23,12 +23,12 @@ const char* gobject2Name = "libgobject-2.0.so.0";
 #define LIBNAME gobject2
 library_t *my_lib = NULL;
 
-typedef int (*iFv_t)(void);
-typedef void*(*pFi_t)(int);
+typedef size_t(*LFv_t)(void);
+typedef void*(*pFL_t)(size_t);
 
 #define ADDED_FUNCTIONS()           \
- GO(g_object_get_type, iFv_t)       \
- GO(g_type_name, pFi_t)
+ GO(g_object_get_type, LFv_t)       \
+ GO(g_type_name, pFL_t)
 
 #include "generated/wrappedgobject2types.h"
 
@@ -522,7 +522,7 @@ EXPORT int my_g_boxed_type_register_static(x64emu_t* emu, void* name, void* boxe
     return my->g_boxed_type_register_static(name, bc, bf);
 }
 
-EXPORT uint32_t my_g_signal_new(x64emu_t* emu, void* name, int itype, int flags, uint32_t offset, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void** b)
+EXPORT uint32_t my_g_signal_new(x64emu_t* emu, void* name, size_t itype, int flags, uint32_t offset, void* acc, void* accu_data, void* marsh, size_t rtype, uint32_t n, void** b)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
@@ -544,7 +544,7 @@ EXPORT uint32_t my_g_signal_new(x64emu_t* emu, void* name, int itype, int flags,
     return my->g_signal_new(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1], b[2]);
 }
 
-EXPORT uint32_t my_g_signal_newv(x64emu_t* emu, void* name, int itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void* types)
+EXPORT uint32_t my_g_signal_newv(x64emu_t* emu, void* name, size_t itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, size_t rtype, uint32_t n, void* types)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
@@ -553,7 +553,7 @@ EXPORT uint32_t my_g_signal_newv(x64emu_t* emu, void* name, int itype, int flags
     return my->g_signal_newv(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, types);
 }
 
-EXPORT uint32_t my_g_signal_new_valist(x64emu_t* emu, void* name, int itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, x64_va_list_t b)
+EXPORT uint32_t my_g_signal_new_valist(x64emu_t* emu, void* name, size_t itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, size_t rtype, uint32_t n, x64_va_list_t b)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
@@ -602,7 +602,7 @@ EXPORT unsigned long my_g_signal_handler_find(x64emu_t* emu, void* instance, int
     return my->g_signal_handler_find(instance, mask, signal, detail, closure, fnc, data);
 }
 
-EXPORT void* my_g_object_new(x64emu_t* emu, int type, void* first, void* b)
+EXPORT void* my_g_object_new(x64emu_t* emu, size_t type, void* first, void* b)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
@@ -613,21 +613,21 @@ EXPORT void* my_g_object_new(x64emu_t* emu, int type, void* first, void* b)
     return my->g_object_new(type, first);
 }
 
-EXPORT void* my_g_object_new_valist(x64emu_t* emu, int type, void* first, x64_va_list_t b)
+EXPORT void* my_g_object_new_valist(x64emu_t* emu, size_t type, void* first, x64_va_list_t b)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
     CONVERT_VALIST(b);
     return my->g_object_new_valist(type, first, VARARGS);
 }
 
-EXPORT int my_g_type_register_static(x64emu_t* emu, int parent, void* name, my_GTypeInfo_t* info, int flags)
+EXPORT size_t my_g_type_register_static(x64emu_t* emu, size_t parent, void* name, my_GTypeInfo_t* info, int flags)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
     return my->g_type_register_static(parent, name, findFreeGTypeInfo(info, parent), flags);
 }
 
-EXPORT int my_g_type_register_fundamental(x64emu_t* emu, int parent, void* name, my_GTypeInfo_t* info, void* finfo, int flags)
+EXPORT size_t my_g_type_register_fundamental(x64emu_t* emu, size_t parent, void* name, my_GTypeInfo_t* info, void* finfo, int flags)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
@@ -658,7 +658,7 @@ EXPORT unsigned long my_g_signal_add_emission_hook(x64emu_t* emu, uint32_t signa
     return my->g_signal_add_emission_hook(signal, detail, my_signal_emission_hook, sig, my_signal_delete);
 }
 
-EXPORT int my_g_type_register_static_simple(x64emu_t* emu, int parent, void* name, uint32_t class_size, void* class_init, uint32_t instance_size, void* instance_init, int flags)
+EXPORT size_t my_g_type_register_static_simple(x64emu_t* emu, size_t parent, void* name, size_t class_size, void* class_init, size_t instance_size, void* instance_init, int flags)
 {
         //gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
@@ -677,7 +677,7 @@ typedef struct my_GInterfaceInfo_s {
     void* data;
 } my_GInterfaceInfo_t;
 
-EXPORT void my_g_type_add_interface_static(x64emu_t* emu, int instance_type, int interface_type, my_GInterfaceInfo_t* info)
+EXPORT void my_g_type_add_interface_static(x64emu_t* emu, size_t instance_type, size_t interface_type, my_GInterfaceInfo_t* info)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
@@ -728,7 +728,7 @@ EXPORT void* my_g_type_class_peek_parent(x64emu_t* emu, void* object)
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
     void* klass = my->g_type_class_peek_parent(object);
-    int type = klass?*(int*)klass:0;
+    size_t type = klass?*(size_t*)klass:0;
     return wrapCopyGTKClass(klass, type);
 }
 

@@ -143,6 +143,7 @@
 #() iFup
 #() iFli
 #() iFlp
+#() iFLu
 #() iFLL
 #() iFLp
 #() iFpw
@@ -213,6 +214,7 @@
 #() LFii
 #() LFuu
 #() LFLi
+#() LFLL
 #() LFpi
 #() LFpL
 #() LFpp
@@ -230,6 +232,7 @@
 #() pFUi
 #() pFdd
 #() pFlp
+#() pFLu
 #() pFLL
 #() pFLp
 #() pFpi
@@ -278,6 +281,7 @@
 #() vFudd
 #() vFull
 #() vFulp
+#() vFuLp
 #() vFupu
 #() vFupp
 #() vFfff
@@ -300,6 +304,7 @@
 #() vFpdd
 #() vFpll
 #() vFpLi
+#() vFpLu
 #() vFpLL
 #() vFpLp
 #() vFppi
@@ -460,7 +465,6 @@
 #() pFiiu
 #() pFiip
 #() pFiIp
-#() pFiup
 #() pFipi
 #() pFipL
 #() pFipp
@@ -476,6 +480,7 @@
 #() pFdip
 #() pFddd
 #() pFDip
+#() pFLup
 #() pFpii
 #() pFpiu
 #() pFpid
@@ -510,6 +515,7 @@
 #() vFEipp
 #() vFEipV
 #() vFEipA
+#() vFELLp
 #() vFEpii
 #() vFEpip
 #() vFEpup
@@ -768,6 +774,7 @@
 #() lFppii
 #() lFppip
 #() lFpppL
+#() LFEppp
 #() LFippL
 #() LFippp
 #() LFpuuu
@@ -780,9 +787,9 @@
 #() LFpppi
 #() LFpppp
 #() pFEipp
-#() pFEipV
-#() pFEipA
 #() pFEupp
+#() pFELpV
+#() pFELpA
 #() pFEpii
 #() pFEpip
 #() pFEppi
@@ -959,7 +966,6 @@
 #() vFppppp
 #() iFEiipp
 #() iFEiipV
-#() iFEippi
 #() iFEippp
 #() iFEpiii
 #() iFEpipi
@@ -1018,6 +1024,7 @@
 #() iFplluu
 #() iFpLiLi
 #() iFpLlpp
+#() iFpLppi
 #() iFppiiu
 #() iFppiip
 #() iFppiup
@@ -1064,6 +1071,7 @@
 #() lFipili
 #() lFipLli
 #() lFipLLi
+#() LFELppi
 #() LFEpppp
 #() LFpuppi
 #() LFpLLLp
@@ -1226,7 +1234,6 @@
 #() cFppLppi
 #() iFEiippi
 #() iFEiippp
-#() iFEipppi
 #() iFElpppp
 #() iFEpiipp
 #() iFEpiipV
@@ -1308,6 +1315,7 @@
 #() lFipLipp
 #() lFipLpLL
 #() LFEupppp
+#() LFELpppi
 #() LFpipipi
 #() LFpLippp
 #() LFSpLiip
@@ -1562,7 +1570,6 @@
 #() vFpplppppi
 #() vFpplppppp
 #() vFppppiipi
-#() iFEipupupi
 #() iFEpippppp
 #() iFEpuuLppp
 #() iFEppppipp
@@ -1593,6 +1600,7 @@
 #() uFEppppppp
 #() uFuipppppp
 #() uFppuppppp
+#() LFELpLpLpi
 #() LFEpiupppp
 #() pFEppLiiip
 #() pFEpppuipV
@@ -1764,9 +1772,9 @@
 #() iFEppppiiiiuu
 #() iFiiiiiiiiiip
 #() iFppppiiuuiiL
-#() uFEpiiupppiuV
-#() uFEpiippppiup
-#() uFEpiippppiuA
+#() uFEpLiupppLuV
+#() uFEpLippppLup
+#() uFEpLippppLuA
 #() uFEppppppippp
 #() uFppppppppppp
 #() pFEpipppppppi
@@ -2184,19 +2192,20 @@ wrappedgobject2:
 - pFpp:
   - g_value_array_sort
 - vFiip:
-  - g_type_add_interface_static
   - g_value_register_transform_func
+- vFLLp:
+  - g_type_add_interface_static
 - vFppV:
   - g_object_get
   - g_object_set
 - vFppA:
   - g_object_get_valist
   - g_object_set_valist
-- iFppp:
+- LFppp:
   - g_boxed_type_register_static
-- pFipV:
+- pFLpV:
   - g_object_new
-- pFipA:
+- pFLpA:
   - g_object_new_valist
 - pFppp:
   - g_value_array_sort_with_data
@@ -2210,27 +2219,27 @@ wrappedgobject2:
   - g_signal_emit_valist
 - vFpppp:
   - g_object_set_data_full
-- iFippi:
+- LFLppi:
   - g_type_register_static
-- iFipppi:
-  - g_type_register_fundamental
 - LFupppp:
   - g_signal_add_emission_hook
+- LFLpppi:
+  - g_type_register_fundamental
 - LFpppppu:
   - g_signal_connect_data
-- iFipupupi:
-  - g_type_register_static_simple
 - uFpiupppp:
   - g_signal_handlers_block_matched
   - g_signal_handlers_disconnect_matched
   - g_signal_handlers_unblock_matched
+- LFLpLpLpi:
+  - g_type_register_static_simple
 - LFpiupppp:
   - g_signal_handler_find
-- uFpiiupppiuV:
+- uFpLiupppLuV:
   - g_signal_new
-- uFpiippppiup:
+- uFpLippppLup:
   - g_signal_newv
-- uFpiippppiuA:
+- uFpLippppLuA:
   - g_signal_new_valist
 wrappedgssapi:
 wrappedgssapikrb5:

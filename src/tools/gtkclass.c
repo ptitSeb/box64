@@ -17,9 +17,9 @@
 #include "custommem.h"
 #include "khash.h"
 
-static bridge_t*        my_bridge       = NULL;
-static const char* (*g_type_name)(int)  = NULL;
-#define GTKCLASS(A) static int my_##A = -1;
+static bridge_t*        my_bridge           = NULL;
+static const char* (*g_type_name)(size_t)   = NULL;
+#define GTKCLASS(A) static size_t my_##A    = (size_t)-1;
 GTKCLASSES()
 #undef GTKCLASS
 
@@ -114,7 +114,7 @@ AUTOBRIDGE(A, NAME)
 
 // ----- GObjectClass ------
 // wrapper x64 -> natives of callbacks
-WRAPPER(GObject, constructor, void*, (int type, uint32_t n_construct_properties, void* construct_properties), 3, type, n_construct_properties, construct_properties);
+WRAPPER(GObject, constructor, void*, (size_t type, uint32_t n_construct_properties, void* construct_properties), 3, type, n_construct_properties, construct_properties);
 WRAPPER(GObject, set_property, void, (void* object, uint32_t property_id, void* value, void* pspec), 4, object, property_id, value, pspec);
 WRAPPER(GObject, get_property, void, (void* object, uint32_t property_id, void* value, void* pspec), 4, object, property_id, value, pspec);
 WRAPPER(GObject, dispose, void, (void* object), 1, object);
@@ -124,7 +124,7 @@ WRAPPER(GObject, notify, void*, (int type, void* pspecs), 2, type, pspecs);
 WRAPPER(GObject, constructed, void, (void* object), 1, object);
 
 #define SUPERGO() \
-    GO(constructor, pFiup);                 \
+    GO(constructor, pFLup);                 \
     GO(set_property, vFpupp);               \
     GO(get_property, vFpupp);               \
     GO(dispose, vFp);                       \
@@ -678,7 +678,7 @@ static void bridgeMetaFramesClass(my_MetaFramesClass_t* class)
 #undef WRAPPED
 
 // g_type_class_peek_parent
-static void wrapGTKClass(void* cl, int type)
+static void wrapGTKClass(void* cl, size_t type)
 {
     #define GTKCLASS(A)                             \
     if(type==my_##A)                                \
@@ -691,12 +691,12 @@ static void wrapGTKClass(void* cl, int type)
             my_MetaFrames = type;
             wrapMetaFramesClass((my_MetaFramesClass_t*)cl);
         } else
-            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %d (%s)\n", type, g_type_name(type));
+            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %zu (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
 }
 
-static void unwrapGTKClass(void* cl, int type)
+static void unwrapGTKClass(void* cl, size_t type)
 {
     #define GTKCLASS(A)                             \
     if(type==my_##A)                                \
@@ -708,7 +708,7 @@ static void unwrapGTKClass(void* cl, int type)
     #undef GTKCLASS
 }
 
-static void bridgeGTKClass(void* cl, int type)
+static void bridgeGTKClass(void* cl, size_t type)
 {
     #define GTKCLASS(A)                             \
     if(type==my_##A)                                \
@@ -717,7 +717,7 @@ static void bridgeGTKClass(void* cl, int type)
 
     GTKCLASSES()
     {
-        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type %d (%s)\n", type, g_type_name(type));
+        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type %zu (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
 }
@@ -736,18 +736,18 @@ static my_GClassAll_t my_gclassall_##A;
 SUPER()
 #undef GO
 
-void* unwrapCopyGTKClass(void* klass, int type)
+void* unwrapCopyGTKClass(void* klass, size_t type)
 {
     if(!klass) return klass;
     #define GO(A) if(klass == my_gclassall_ref_##A) return &my_gclassall_##A;
     SUPER()
     #undef GO
     // check if class is the exact type we know
-    int sz = 0;
+    size_t sz = 0;
     #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
     GTKCLASSES()
     {
-        printf_log(LOG_NONE, "Warning, unwrapCopyGTKClass called with unknown class type %d (%s)\n", type, g_type_name(type));
+        printf_log(LOG_NONE, "Warning, unwrapCopyGTKClass called with unknown class type %zu (%s)\n", type, g_type_name(type));
         return klass;
     }
     #undef GTKCLASS
@@ -772,19 +772,25 @@ static my_GClassAll_t my_gclassallu_##A;
 
 SUPER()
 #undef GO
-void* wrapCopyGTKClass(void* klass, int type)
+void* wrapCopyGTKClass(void* klass, size_t type)
 {
     if(!klass) return klass;
     #define GO(A) if(klass == my_gclassallu_ref_##A) return &my_gclassallu_##A;
     SUPER()
     #undef GO
     // check if class is the exact type we know
-    int sz = 0;
+    size_t sz = 0;
     #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
     GTKCLASSES()
     {
-        printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type 0x%x (%s)\n", type, g_type_name(type));
-        return klass;
+        if(my_MetaFrames==(size_t)-1 && !strcmp(g_type_name(type), "MetaFrames")) {
+            my_MetaFrames = type;
+            sz = sizeof(my_MetaFramesClass_t);
+        }
+        if(!sz) {
+            printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type %p (%s)\n", (void*)type, g_type_name(type));
+            return klass;
+        }
     }
     #undef GTKCLASS
     my_GClassAll_t *newklass = NULL;
@@ -809,39 +815,138 @@ static my_GTypeValueTable_t   *ref_gtypevaluetable_##A = NULL;
 SUPER()
 #undef GO
 // Then the static functions callback that may be used with the structure
+// value_init ...
 #define GO(A)   \
-static uintptr_t fct_funcs_value_init_##A = 0;  \
-static void my_funcs_value_init_##A(void* value) {   \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_value_init_" #A " wrapper\n");             \
-    RunFunction(my_context, fct_funcs_value_init_##A, 1, value);    \
-}   \
-static uintptr_t fct_funcs_value_free_##A = 0;  \
-static void my_funcs_value_free_##A(void* value) {   \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_value_free_" #A " wrapper\n");             \
-    RunFunction(my_context, fct_funcs_value_free_##A, 1, value);    \
-}   \
-static uintptr_t fct_funcs_value_copy_##A = 0;  \
-static void my_funcs_value_copy_##A(void* source, void* dest) {   \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_value_copy_" #A " wrapper\n");             \
-    RunFunction(my_context, fct_funcs_value_copy_##A, 2, source, dest);    \
-}   \
-static uintptr_t fct_funcs_value_peek_pointer_##A = 0;  \
-static void* my_funcs_value_peek_pointer_##A(void* value) {   \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_value_peek_pointer_" #A " wrapper\n");             \
-    return (void*)RunFunction(my_context, fct_funcs_value_peek_pointer_##A, 1, value);    \
-}   \
-static uintptr_t fct_funcs_collect_value_##A = 0;  \
-static void* my_funcs_collect_value_##A(void* value, uint32_t n, void* collect, uint32_t flags) {   \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_collect_value_" #A " wrapper\n");             \
-    return (void*)RunFunction(my_context, fct_funcs_collect_value_##A, 4, value, n, collect, flags);    \
-}   \
-static uintptr_t fct_funcs_lcopy_value_##A = 0;  \
-static void* my_funcs_lcopy_value_##A(void* value, uint32_t n, void* collect, uint32_t flags) {   \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_lcopy_value_" #A " wrapper\n");             \
-    return (void*)RunFunction(my_context, fct_funcs_lcopy_value_##A, 4, value, n, collect, flags);    \
+static uintptr_t my_value_init_fct_##A = 0;                 \
+static void my_value_init_##A(void* a)                      \
+{                                                           \
+    RunFunction(my_context, my_value_init_fct_##A, 1, a);   \
 }
 SUPER()
 #undef GO
+static void* find_value_init_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_value_init_fct_##A == (uintptr_t)fct) return my_value_init_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_value_init_fct_##A == 0) {my_value_init_fct_##A = (uintptr_t)fct; return my_value_init_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo value_init callback\n");
+    return NULL;
+}
+// value_free ...
+#define GO(A)   \
+static uintptr_t my_value_free_fct_##A = 0;                 \
+static void my_value_free_##A(void* a)                      \
+{                                                           \
+    RunFunction(my_context, my_value_free_fct_##A, 1, a);   \
+}
+SUPER()
+#undef GO
+static void* find_value_free_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_value_free_fct_##A == (uintptr_t)fct) return my_value_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_value_free_fct_##A == 0) {my_value_free_fct_##A = (uintptr_t)fct; return my_value_free_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo value_free callback\n");
+    return NULL;
+}
+// value_copy ...
+#define GO(A)   \
+static uintptr_t my_value_copy_fct_##A = 0;                 \
+static void my_value_copy_##A(void* a, void* b)             \
+{                                                           \
+    RunFunction(my_context, my_value_copy_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* find_value_copy_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_value_copy_fct_##A == (uintptr_t)fct) return my_value_copy_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_value_copy_fct_##A == 0) {my_value_copy_fct_##A = (uintptr_t)fct; return my_value_copy_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo value_copy callback\n");
+    return NULL;
+}
+// value_peek_pointer ...
+#define GO(A)   \
+static uintptr_t my_value_peek_pointer_fct_##A = 0;                             \
+static void* my_value_peek_pointer_##A(void* a)                                 \
+{                                                                               \
+    return (void*)RunFunction(my_context, my_value_peek_pointer_fct_##A, 1, a); \
+}
+SUPER()
+#undef GO
+static void* find_value_peek_pointer_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_value_peek_pointer_fct_##A == (uintptr_t)fct) return my_value_peek_pointer_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_value_peek_pointer_fct_##A == 0) {my_value_peek_pointer_fct_##A = (uintptr_t)fct; return my_value_peek_pointer_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo value_peek_pointer callback\n");
+    return NULL;
+}
+// collect_value ...
+#define GO(A)   \
+static uintptr_t my_collect_value_fct_##A = 0;                                      \
+static void* my_collect_value_##A(void* a, uint32_t b, void* c, uint32_t d)         \
+{                                                                                   \
+    return (void*)RunFunction(my_context, my_collect_value_fct_##A, 4, a, b, c, d); \
+}
+SUPER()
+#undef GO
+static void* find_collect_value_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_collect_value_fct_##A == (uintptr_t)fct) return my_collect_value_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_collect_value_fct_##A == 0) {my_collect_value_fct_##A = (uintptr_t)fct; return my_collect_value_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo collect_value callback\n");
+    return NULL;
+}
+// lcopy_value ...
+#define GO(A)   \
+static uintptr_t my_lcopy_value_fct_##A = 0;                                      \
+static void* my_lcopy_value_##A(void* a, uint32_t b, void* c, uint32_t d)         \
+{                                                                                   \
+    return (void*)RunFunction(my_context, my_lcopy_value_fct_##A, 4, a, b, c, d); \
+}
+SUPER()
+#undef GO
+static void* find_lcopy_value_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_lcopy_value_fct_##A == (uintptr_t)fct) return my_lcopy_value_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_lcopy_value_fct_##A == 0) {my_lcopy_value_fct_##A = (uintptr_t)fct; return my_lcopy_value_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo lcopy_value callback\n");
+    return NULL;
+}
 // And now the get slot / assign... Taking into account that the desired callback may already be a wrapped one (so unwrapping it)
 my_GTypeValueTable_t* findFreeGTypeValueTable(my_GTypeValueTable_t* fcts)
 {
@@ -849,23 +954,17 @@ my_GTypeValueTable_t* findFreeGTypeValueTable(my_GTypeValueTable_t* fcts)
     #define GO(A) if(ref_gtypevaluetable_##A == fcts) return &my_gtypevaluetable_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(ref_gtypevaluetable_##A == 0) {    \
-        ref_gtypevaluetable_##A = fcts;                 \
-        my_gtypevaluetable_##A.value_init = (fcts->value_init)?((GetNativeFnc((uintptr_t)fcts->value_init))?GetNativeFnc((uintptr_t)fcts->value_init):my_funcs_value_init_##A):NULL;    \
-        fct_funcs_value_init_##A = (uintptr_t)fcts->value_init;                             \
-        my_gtypevaluetable_##A.value_free = (fcts->value_free)?((GetNativeFnc((uintptr_t)fcts->value_free))?GetNativeFnc((uintptr_t)fcts->value_free):my_funcs_value_free_##A):NULL;    \
-        fct_funcs_value_free_##A = (uintptr_t)fcts->value_free;                             \
-        my_gtypevaluetable_##A.value_copy = (fcts->value_copy)?((GetNativeFnc((uintptr_t)fcts->value_copy))?GetNativeFnc((uintptr_t)fcts->value_copy):my_funcs_value_copy_##A):NULL;    \
-        fct_funcs_value_copy_##A = (uintptr_t)fcts->value_copy;                             \
-        my_gtypevaluetable_##A.value_peek_pointer = (fcts->value_peek_pointer)?((GetNativeFnc((uintptr_t)fcts->value_peek_pointer))?GetNativeFnc((uintptr_t)fcts->value_peek_pointer):my_funcs_value_peek_pointer_##A):NULL;    \
-        fct_funcs_value_peek_pointer_##A = (uintptr_t)fcts->value_peek_pointer;             \
-        my_gtypevaluetable_##A.collect_format = fcts->collect_format;                       \
-        my_gtypevaluetable_##A.collect_value = (fcts->collect_value)?((GetNativeFnc((uintptr_t)fcts->collect_value))?GetNativeFnc((uintptr_t)fcts->collect_value):my_funcs_collect_value_##A):NULL;    \
-        fct_funcs_collect_value_##A = (uintptr_t)fcts->collect_value;                       \
-        my_gtypevaluetable_##A.lcopy_format = fcts->lcopy_format;                           \
-        my_gtypevaluetable_##A.lcopy_value = (fcts->lcopy_value)?((GetNativeFnc((uintptr_t)fcts->lcopy_value))?GetNativeFnc((uintptr_t)fcts->lcopy_value):my_funcs_lcopy_value_##A):NULL;    \
-        fct_funcs_lcopy_value_##A = (uintptr_t)fcts->lcopy_value;                           \
-        return &my_gtypevaluetable_##A;                 \
+    #define GO(A) if(ref_gtypevaluetable_##A == 0) {                                                        \
+        ref_gtypevaluetable_##A = fcts;                                                                     \
+        my_gtypevaluetable_##A.value_init = find_value_init_Fct(fcts->value_init);                          \
+        my_gtypevaluetable_##A.value_free = find_value_free_Fct(fcts->value_free);                          \
+        my_gtypevaluetable_##A.value_copy = find_value_copy_Fct(fcts->value_copy);                          \
+        my_gtypevaluetable_##A.value_peek_pointer = find_value_peek_pointer_Fct(fcts->value_peek_pointer);  \
+        my_gtypevaluetable_##A.collect_format = fcts->collect_format;                                       \
+        my_gtypevaluetable_##A.collect_value = find_collect_value_Fct(fcts->collect_value);                 \
+        my_gtypevaluetable_##A.lcopy_format = fcts->lcopy_format;                                           \
+        my_gtypevaluetable_##A.lcopy_value = find_lcopy_value_Fct(fcts->lcopy_value);                       \
+        return &my_gtypevaluetable_##A;                                                                     \
     }
     SUPER()
     #undef GO
@@ -884,68 +983,137 @@ static int              used_gtypeinfo_##A = 0;
 SUPER()
 #undef GO
 // Then the static functions callback that may be used with the structure
+// base_init ...
 #define GO(A)   \
-static int fct_parent_##A = 0 ;                     \
-static uintptr_t fct_funcs_base_init_##A = 0;       \
-static int my_funcs_base_init_##A(void* g_class) {  \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_base_init_" #A " wrapper\n");             \
-    return (int)RunFunction(my_context, fct_funcs_base_init_##A, 1, g_class);    \
-}   \
-static uintptr_t fct_funcs_base_finalize_##A = 0;   \
-static int my_funcs_base_finalize_##A(void* g_class) {   \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_base_finalize_" #A " wrapper\n");             \
-    return (int)RunFunction(my_context, fct_funcs_base_finalize_##A, 1, g_class);    \
-}   \
-static uintptr_t fct_funcs_class_init_##A = 0;                      \
-static int my_funcs_class_init_##A(void* g_class, void* data) {     \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_class_init_" #A " wrapper\n");             \
-    wrapGTKClass(g_class, fct_parent_##A);                          \
-    int ret = (int)RunFunction(my_context, fct_funcs_class_init_##A, 2, g_class, data);    \
-    unwrapGTKClass(g_class, fct_parent_##A);                        \
-    return ret;                                                     \
-}   \
-static uintptr_t fct_funcs_class_finalize_##A = 0;  \
-static int my_funcs_class_finalize_##A(void* g_class, void* data) { \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_class_finalize_" #A " wrapper\n");             \
-    wrapGTKClass(g_class, fct_parent_##A);                          \
-    int ret = (int)RunFunction(my_context, fct_funcs_class_finalize_##A, 2, g_class, data);    \
-    unwrapGTKClass(g_class, fct_parent_##A);                        \
-    return ret;                                                     \
-}   \
-static uintptr_t fct_funcs_instance_init_##A = 0;  \
-static int my_funcs_instance_init_##A(void* instance, void* data) {   \
-    printf_log(LOG_DEBUG, "Calling fct_funcs_instance_init_" #A " wrapper\n");             \
-    return (int)RunFunction(my_context, fct_funcs_instance_init_##A, 2, instance, data);    \
+static uintptr_t my_base_init_fct_##A = 0;                      \
+static int my_base_init_##A(void* a)                            \
+{                                                               \
+    return RunFunction(my_context, my_base_init_fct_##A, 1, a); \
 }
-
 SUPER()
 #undef GO
-// And now the get slot / assign... Taking into account that the desired callback may already be a wrapped one (so unwrapping it)
-my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, int parent)
+static void* find_base_init_Fct(void* fct)
 {
-    if(!fcts) return NULL;
-    #define GO(A) if(used_gtypeinfo_##A==0 && memcmp(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t))==0) return &my_gtypeinfo_##A;
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_base_init_fct_##A == (uintptr_t)fct) return my_base_init_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(used_gtypeinfo_##A == 0) {                         \
-        memcpy(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t));            \
-        fct_parent_##A = parent;                                        \
-        my_gtypeinfo_##A.class_size = fcts->class_size;                 \
-        my_gtypeinfo_##A.base_init = (fcts->base_init)?((GetNativeFnc((uintptr_t)fcts->base_init))?GetNativeFnc((uintptr_t)fcts->base_init):my_funcs_base_init_##A):NULL;    \
-        fct_funcs_base_init_##A = (uintptr_t)fcts->base_init;           \
-        my_gtypeinfo_##A.base_finalize = (fcts->base_finalize)?((GetNativeFnc((uintptr_t)fcts->base_finalize))?GetNativeFnc((uintptr_t)fcts->base_finalize):my_funcs_base_finalize_##A):NULL;    \
-        fct_funcs_base_finalize_##A = (uintptr_t)fcts->base_finalize;   \
-        my_gtypeinfo_##A.class_init = (fcts->class_init)?((GetNativeFnc((uintptr_t)fcts->class_init))?GetNativeFnc((uintptr_t)fcts->class_init):my_funcs_class_init_##A):NULL;    \
-        fct_funcs_class_init_##A = (uintptr_t)fcts->class_init;         \
-        my_gtypeinfo_##A.class_finalize = (fcts->class_finalize)?((GetNativeFnc((uintptr_t)fcts->class_finalize))?GetNativeFnc((uintptr_t)fcts->class_finalize):my_funcs_class_finalize_##A):NULL;    \
-        fct_funcs_class_finalize_##A = (uintptr_t)fcts->class_finalize; \
-        my_gtypeinfo_##A.class_data = fcts->class_data;                 \
-        my_gtypeinfo_##A.instance_size = fcts->instance_size;           \
-        my_gtypeinfo_##A.n_preallocs = fcts->n_preallocs;               \
-        my_gtypeinfo_##A.instance_init = (fcts->instance_init)?((GetNativeFnc((uintptr_t)fcts->instance_init))?GetNativeFnc((uintptr_t)fcts->instance_init):my_funcs_instance_init_##A):NULL;    \
-        fct_funcs_instance_init_##A = (uintptr_t)fcts->instance_init;   \
-        my_gtypeinfo_##A.value_table = findFreeGTypeValueTable(fcts->value_table);           \
-        return &my_gtypeinfo_##A;                                       \
+    #define GO(A) if(my_base_init_fct_##A == 0) {my_base_init_fct_##A = (uintptr_t)fct; return my_base_init_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo base_init callback\n");
+    return NULL;
+}
+// base_finalize ...
+#define GO(A)   \
+static uintptr_t my_base_finalize_fct_##A = 0;                      \
+static int my_base_finalize_##A(void* a)                            \
+{                                                                   \
+    return RunFunction(my_context, my_base_finalize_fct_##A, 1, a); \
+}
+SUPER()
+#undef GO
+static void* find_base_finalize_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_base_finalize_fct_##A == (uintptr_t)fct) return my_base_finalize_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_base_finalize_fct_##A == 0) {my_base_finalize_fct_##A = (uintptr_t)fct; return my_base_finalize_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo base_finalize callback\n");
+    return NULL;
+}
+// class_init ...
+#define GO(A)   \
+static uintptr_t my_class_init_fct_##A = 0;                         \
+static int my_class_init_##A(void* a, void* b)                      \
+{                                                                   \
+    return RunFunction(my_context, my_class_init_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_class_init_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_class_init_fct_##A == (uintptr_t)fct) return my_class_init_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_class_init_fct_##A == 0) {my_class_init_fct_##A = (uintptr_t)fct; return my_class_init_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo class_init callback\n");
+    return NULL;
+}
+// class_finalize ...
+#define GO(A)   \
+static uintptr_t my_class_finalize_fct_##A = 0;                         \
+static int my_class_finalize_##A(void* a, void* b)                      \
+{                                                                       \
+    return RunFunction(my_context, my_class_finalize_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_class_finalize_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_class_finalize_fct_##A == (uintptr_t)fct) return my_class_finalize_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_class_finalize_fct_##A == 0) {my_class_finalize_fct_##A = (uintptr_t)fct; return my_class_finalize_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo class_finalize callback\n");
+    return NULL;
+}
+// instance_init ...
+#define GO(A)   \
+static uintptr_t my_instance_init_fct_##A = 0;                         \
+static int my_instance_init_##A(void* a, void* b)                      \
+{                                                                      \
+    return RunFunction(my_context, my_instance_init_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_instance_init_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_instance_init_fct_##A == (uintptr_t)fct) return my_instance_init_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_instance_init_fct_##A == 0) {my_instance_init_fct_##A = (uintptr_t)fct; return my_instance_init_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo instance_init callback\n");
+    return NULL;
+}
+// And now the get slot / assign... Taking into account that the desired callback may already be a wrapped one (so unwrapping it)
+my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, size_t parent)
+{
+    if(!fcts) return NULL;
+    #define GO(A) if(used_gtypeinfo_##A && memcmp(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t))==0) return &my_gtypeinfo_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(used_gtypeinfo_##A == 0) {                                         \
+        used_gtypeinfo_##A = 1;                                                         \
+        memcpy(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t));                       \
+        my_gtypeinfo_##A.class_size = fcts->class_size;                                 \
+        my_gtypeinfo_##A.base_init = find_base_init_Fct(fcts->base_init);               \
+        my_gtypeinfo_##A.base_finalize = find_base_finalize_Fct(fcts->base_finalize);   \
+        my_gtypeinfo_##A.class_init = find_class_init_Fct(fcts->class_init);            \
+        my_gtypeinfo_##A.class_finalize = find_class_finalize_Fct(fcts->class_finalize);\
+        my_gtypeinfo_##A.class_data = fcts->class_data;                                 \
+        my_gtypeinfo_##A.instance_size = fcts->instance_size;                           \
+        my_gtypeinfo_##A.n_preallocs = fcts->n_preallocs;                               \
+        my_gtypeinfo_##A.instance_init = find_instance_init_Fct(fcts->instance_init);   \
+        my_gtypeinfo_##A.value_table = findFreeGTypeValueTable(fcts->value_table);      \
+        return &my_gtypeinfo_##A;                                                       \
     }
     SUPER()
     #undef GO
@@ -984,7 +1152,7 @@ static int my_gtk_base_class_init_##A(void* instance, void* data) {   \
 SUPER()
 #undef GO
 // And now the get slot / assign... Taking into account that the desired callback may already be a wrapped one (so unwrapping it)
-my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, int parent)
+my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent)
 {
     if(!fcts) return NULL;
     #define GO(A) if(used_gtktypeinfo_##A && memcmp(&ref_gtktypeinfo_##A, fcts, sizeof(my_GtkTypeInfo_t))==0) return &my_gtktypeinfo_##A;
@@ -1034,14 +1202,14 @@ void FiniGTKClass()
 }
 
 #define GTKCLASS(A)             \
-void Set##A##ID(int id)         \
+void Set##A##ID(size_t id)      \
 {                               \
     my_##A = id;                \
 }
 GTKCLASSES()
 #undef GTKCLASS
 
-void AutoBridgeGtk(void*(*ref)(int), void(*unref)(void*))
+void AutoBridgeGtk(void*(*ref)(size_t), void(*unref)(void*))
 {
     void* p;
     #define GTKCLASS(A)             \

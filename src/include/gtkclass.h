@@ -269,8 +269,8 @@ typedef struct my_GtkTypeInfo_s {
 } my_GtkTypeInfo_t ;
 
 my_GTypeValueTable_t* findFreeGTypeValueTable(my_GTypeValueTable_t* fcts);
-my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, int parent);
-my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, int parent);
+my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, size_t parent);
+my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent);
 
 void InitGTKClass(bridge_t *bridge);
 void FiniGTKClass();
@@ -289,15 +289,15 @@ GTKCLASS(GtkWindow)     \
 GTKCLASS(GtkTable)      \
 GTKCLASS(MetaFrames)    \
 
-#define GTKCLASS(A) void Set##A##ID(int id);
+#define GTKCLASS(A) void Set##A##ID(size_t id);
 GTKCLASSES()
 #undef GTKCLASS
 
 void SetGTypeName(void* f);
-void AutoBridgeGtk(void*(*ref)(int), void(*unref)(void*));
+void AutoBridgeGtk(void*(*ref)(size_t), void(*unref)(void*));
 
-void* wrapCopyGTKClass(void* cl, int type);
-void* unwrapCopyGTKClass(void* klass, int type);
+void* wrapCopyGTKClass(void* cl, size_t type);
+void* unwrapCopyGTKClass(void* klass, size_t type);
 
 typedef struct my_signal_s {
     uint64_t sign;  // signature
