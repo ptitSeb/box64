@@ -38,6 +38,7 @@ typedef void*         (*pFpi_t)(void*, int);
 typedef void*         (*pFpL_t)(void*, size_t);
 typedef void          (*vFpp_t)(void*, void*);
 typedef void*         (*pFppi_t)(void*, void*, int32_t);
+typedef void          (*vFppA_t)(void*, void*, va_list);
 typedef int32_t       (*iFppp_t)(void*, void*, void*);
 typedef void          (*vFppp_t)(void*, void*, void*);
 typedef uint32_t      (*uFupp_t)(uint32_t, void*, void*);
@@ -127,6 +128,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_clipboard_request_text, vFppp_t)     \
     GO(gtk_clipboard_request_contents, vFpppp_t)\
     GO(gtk_input_add_full, uFiipppp_t)          \
+    GO(gtk_list_store_set_valist, vFppA_t)      \
 
 
 
@@ -637,7 +639,7 @@ EXPORT void my_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, 
 
     void* btn = first;
     while(btn) {
-        int id = (int)*(b++);
+        uintptr_t id = *(b++);
         my->gtk_dialog_add_button(dialog, btn, id);
         btn = (void*)*(b++);
     }
@@ -672,6 +674,25 @@ EXPORT void my_gtk_message_dialog_format_secondary_markup(x64emu_t* emu, void* d
     my->gtk_message_dialog_format_secondary_markup(dialog, buf);
     free(buf);
 }
+
+EXPORT void my_gtk_list_store_set_valist(x64emu_t* emu, void* list, void* iter, x64_va_list_t V)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    CONVERT_VALIST(V);
+    my->gtk_list_store_set_valist(list, iter, VARARGS);
+}
+
+EXPORT void my_gtk_list_store_set(x64emu_t* emu, void* list, void* iter, uintptr_t* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    my->gtk_list_store_set_valist(list, iter, VARARGS);
+}
+
 EXPORT void* my_gtk_type_class(x64emu_t* emu, size_t type)
 {
     library_t * lib = GetLibInternal(libname);
@@ -871,7 +892,7 @@ EXPORT void my_gtk_tree_sortable_set_default_sort_func(x64emu_t* emu, void* sort
     my->gtk_tree_sortable_set_default_sort_func(sortable, findGtkTreeIterCompareFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
-EXPORT int my_gtk_type_unique(x64emu_t* emu, int parent, my_GtkTypeInfo_t* gtkinfo)
+EXPORT size_t my_gtk_type_unique(x64emu_t* emu, size_t parent, my_GtkTypeInfo_t* gtkinfo)
 {
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
@@ -900,7 +921,7 @@ EXPORT float my_gtk_spin_button_get_value_as_float(x64emu_t* emu, void* spinner)
     return my->gtk_spin_button_get_value(spinner);
 }
 
-static int gtk1Type(gtkx112_my_t *my, size_t type)
+static size_t gtk1Type(gtkx112_my_t *my, size_t type)
 {
     if (type==21)
         return my->gtk_object_get_type();

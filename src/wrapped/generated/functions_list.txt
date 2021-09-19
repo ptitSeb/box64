@@ -2272,8 +2272,11 @@ wrappedgtkx112:
   - gtk_tree_model_foreach
 - vFppV:
   - gtk_dialog_add_buttons
+  - gtk_list_store_set
   - gtk_message_dialog_format_secondary_markup
   - gtk_message_dialog_format_secondary_text
+- vFppA:
+  - gtk_list_store_set_valist
 - uFupp:
   - gtk_timeout_add
 - vFppup:
