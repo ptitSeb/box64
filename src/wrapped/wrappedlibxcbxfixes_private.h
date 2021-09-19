@@ -80,7 +80,7 @@ DATA(xcb_xfixes_id, 8)
 //GO(xcb_xfixes_intersect_region_checked, 
 //GO(xcb_xfixes_invert_region, 
 //GO(xcb_xfixes_invert_region_checked, 
-//GO(xcb_xfixes_query_version, 
+GO(xcb_xfixes_query_version, pFpuu)
 GO(xcb_xfixes_query_version_reply, pFpup)
 GO(xcb_xfixes_query_version_unchecked, pFpuu)
 //GO(xcb_xfixes_region_end, 
