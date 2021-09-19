@@ -2275,8 +2275,10 @@ wrappedgtkx112:
   - gtk_list_store_set
   - gtk_message_dialog_format_secondary_markup
   - gtk_message_dialog_format_secondary_text
+  - gtk_widget_style_get
 - vFppA:
   - gtk_list_store_set_valist
+  - gtk_widget_style_get_valist
 - uFupp:
   - gtk_timeout_add
 - vFppup:

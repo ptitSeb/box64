@@ -129,6 +129,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_clipboard_request_contents, vFpppp_t)\
     GO(gtk_input_add_full, uFiipppp_t)          \
     GO(gtk_list_store_set_valist, vFppA_t)      \
+    GO(gtk_widget_style_get_valist, vFppA_t)    \
 
 
 
@@ -691,6 +692,24 @@ EXPORT void my_gtk_list_store_set(x64emu_t* emu, void* list, void* iter, uintptr
 
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
     my->gtk_list_store_set_valist(list, iter, VARARGS);
+}
+
+EXPORT void my_gtk_widget_style_get_valist(x64emu_t* emu, void* widget, void* first, x64_va_list_t V)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    CONVERT_VALIST(V);
+    my->gtk_widget_style_get_valist(widget, first, VARARGS);
+}
+
+EXPORT void my_gtk_widget_style_get(x64emu_t* emu, void* widget, void* first, uintptr_t* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    my->gtk_widget_style_get_valist(widget, first, VARARGS);
 }
 
 EXPORT void* my_gtk_type_class(x64emu_t* emu, size_t type)
