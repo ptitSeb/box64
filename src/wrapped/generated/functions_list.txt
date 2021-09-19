@@ -1316,6 +1316,7 @@
 #() lFipLpLL
 #() LFEupppp
 #() LFELpppi
+#() LFEppppi
 #() LFpipipi
 #() LFpLippp
 #() LFSpLiip
@@ -2225,6 +2226,8 @@ wrappedgobject2:
   - g_signal_add_emission_hook
 - LFLpppi:
   - g_type_register_fundamental
+- LFppppi:
+  - g_signal_connect_object
 - LFpppppu:
   - g_signal_connect_data
 - uFpiupppp:

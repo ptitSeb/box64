@@ -1349,6 +1349,7 @@ void lFipLipp(x64emu_t *emu, uintptr_t fnc);
 void lFipLpLL(x64emu_t *emu, uintptr_t fnc);
 void LFEupppp(x64emu_t *emu, uintptr_t fnc);
 void LFELpppi(x64emu_t *emu, uintptr_t fnc);
+void LFEppppi(x64emu_t *emu, uintptr_t fnc);
 void LFpipipi(x64emu_t *emu, uintptr_t fnc);
 void LFpLippp(x64emu_t *emu, uintptr_t fnc);
 void LFSpLiip(x64emu_t *emu, uintptr_t fnc);

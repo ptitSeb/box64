@@ -375,6 +375,28 @@ static void* findValueTransformFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gobject Value Transform callback\n");
     return NULL;
 }
+// GCallback  (generic function with 6 arguments, hopefully it's enough)
+#define GO(A)   \
+static uintptr_t my_GCallback_fct_##A = 0;                                             \
+static void* my_GCallback_##A(void* a, void* b, void* c, void* d, void* e, void* f)    \
+{                                                                                           \
+    return (void*)RunFunction(my_context, my_GCallback_fct_##A, 6, a, b, c, d, e, f);  \
+}
+SUPER()
+#undef GO
+static void* findGCallbackFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GCallback_fct_##A == (uintptr_t)fct) return my_GCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GCallback_fct_##A == 0) {my_GCallback_fct_##A = (uintptr_t)fct; return my_GCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject Value Transform callback\n");
+    return NULL;
+}
 // GParamSpecTypeInfo....
 // First the structure GParamSpecTypeInfo statics, with paired x64 source pointer
 typedef struct my_GParamSpecTypeInfo_s {
@@ -513,6 +535,15 @@ static void* findcompareFct(void* fct)
     return NULL;
 }
 #undef SUPER
+
+EXPORT uintptr_t my_g_signal_connect_object(x64emu_t* emu, void* instance, void* detailed, void* c_handler, void* object, uint32_t flags)
+{
+    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
+
+    //TODO: get the type of instance to be more precise below
+
+    return my->g_signal_connect_object(instance, detailed, findGCallbackFct(c_handler), object, flags);
+}
 
 EXPORT int my_g_boxed_type_register_static(x64emu_t* emu, void* name, void* boxed_copy, void* boxed_free)
 {

@@ -1350,6 +1350,7 @@ typedef intptr_t (*lFipLipp_t)(int64_t, void*, uintptr_t, int64_t, void*, void*)
 typedef intptr_t (*lFipLpLL_t)(int64_t, void*, uintptr_t, void*, uintptr_t, uintptr_t);
 typedef uintptr_t (*LFEupppp_t)(x64emu_t*, uint64_t, void*, void*, void*, void*);
 typedef uintptr_t (*LFELpppi_t)(x64emu_t*, uintptr_t, void*, void*, void*, int64_t);
+typedef uintptr_t (*LFEppppi_t)(x64emu_t*, void*, void*, void*, void*, int64_t);
 typedef uintptr_t (*LFpipipi_t)(void*, int64_t, void*, int64_t, void*, int64_t);
 typedef uintptr_t (*LFpLippp_t)(void*, uintptr_t, int64_t, void*, void*, void*);
 typedef uintptr_t (*LFSpLiip_t)(void*, void*, uintptr_t, int64_t, int64_t, void*);
@@ -3224,6 +3225,7 @@ void lFipLipp(x64emu_t *emu, uintptr_t fcn) { lFipLipp_t fn = (lFipLipp_t)fcn; R
 void lFipLpLL(x64emu_t *emu, uintptr_t fcn) { lFipLpLL_t fn = (lFipLpLL_t)fcn; R_RAX=(intptr_t)fn((int64_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (void*)R_RCX, (uintptr_t)R_R8, (uintptr_t)R_R9); }
 void LFEupppp(x64emu_t *emu, uintptr_t fcn) { LFEupppp_t fn = (LFEupppp_t)fcn; R_RAX=(uintptr_t)fn(emu, (uint64_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8); }
 void LFELpppi(x64emu_t *emu, uintptr_t fcn) { LFELpppi_t fn = (LFELpppi_t)fcn; R_RAX=(uintptr_t)fn(emu, (uintptr_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (int64_t)R_R8); }
+void LFEppppi(x64emu_t *emu, uintptr_t fcn) { LFEppppi_t fn = (LFEppppi_t)fcn; R_RAX=(uintptr_t)fn(emu, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (int64_t)R_R8); }
 void LFpipipi(x64emu_t *emu, uintptr_t fcn) { LFpipipi_t fn = (LFpipipi_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (int64_t)R_RSI, (void*)R_RDX, (int64_t)R_RCX, (void*)R_R8, (int64_t)R_R9); }
 void LFpLippp(x64emu_t *emu, uintptr_t fcn) { LFpLippp_t fn = (LFpLippp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (int64_t)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
 void LFSpLiip(x64emu_t *emu, uintptr_t fcn) { LFSpLiip_t fn = (LFSpLiip_t)fcn; R_RAX=(uintptr_t)fn(io_convert((void*)R_RDI), (void*)R_RSI, (uintptr_t)R_RDX, (int64_t)R_RCX, (int64_t)R_R8, (void*)R_R9); }
