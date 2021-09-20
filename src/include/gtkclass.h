@@ -221,6 +221,11 @@ typedef struct my_GtkTableClass_s
   my_GtkContainerClass_t parent_class;
 } my_GtkTableClass_t;
 
+typedef struct my_GtkFixedClass_s
+{
+  my_GtkContainerClass_t parent_class;
+} my_GtkFixedClass_t;
+
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
   void     (*value_init)         (void* value);
@@ -287,6 +292,7 @@ GTKCLASS(GtkTreeView)   \
 GTKCLASS(GtkBin)        \
 GTKCLASS(GtkWindow)     \
 GTKCLASS(GtkTable)      \
+GTKCLASS(GtkFixed)      \
 GTKCLASS(MetaFrames)    \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);
@@ -312,5 +318,7 @@ my_signal_t* new_mysignal(void* f, void* data, void* destroy);
 void my_signal_delete(my_signal_t* sig);
 int my_signal_is_valid(void* sig);
 int my_signal_cb(void* a, void* b, void* c, void* d);
+
+void my_add_signal_offset(size_t klass, uint32_t offset, int n);
 
 #endif //__GTKCLASS_H__

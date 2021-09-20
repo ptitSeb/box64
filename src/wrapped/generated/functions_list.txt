@@ -223,12 +223,10 @@
 #() pFii
 #() pFiu
 #() pFip
-#() pFiV
 #() pFui
 #() pFuC
 #() pFuu
 #() pFup
-#() pFuV
 #() pFUi
 #() pFdd
 #() pFlp
@@ -313,7 +311,6 @@
 #() vFppl
 #() vFppL
 #() vFppp
-#() vFppV
 #() iFEiw
 #() iFEip
 #() iFEWW
@@ -455,6 +452,7 @@
 #() LFppL
 #() LFSpL
 #() pFEip
+#() pFEiV
 #() pFEup
 #() pFEpi
 #() pFEpu
@@ -621,7 +619,6 @@
 #() vFpppd
 #() vFpppL
 #() vFpppp
-#() vFpppV
 #() cFpiii
 #() iFEiip
 #() iFEiiN
@@ -821,7 +818,6 @@
 #() pFpipi
 #() pFpipd
 #() pFpipp
-#() pFpipV
 #() pFpCWp
 #() pFpCuW
 #() pFpCuu
@@ -855,12 +851,15 @@
 #() pFSppi
 #() vFEiipV
 #() vFEippp
+#() vFEpipV
+#() vFEpipA
 #() vFEpuup
 #() vFEpuuV
 #() vFEpupp
 #() vFEpupA
 #() vFEpLLp
 #() vFEppip
+#() vFEppiV
 #() vFEppup
 #() vFEpppp
 #() vFiiiii
@@ -938,7 +937,6 @@
 #() vFpipiu
 #() vFpuiip
 #() vFpuipp
-#() vFpuipV
 #() vFpuuuu
 #() vFpuddd
 #() vFpffff
@@ -1083,6 +1081,8 @@
 #() pFEpiii
 #() pFEpipL
 #() pFEpipp
+#() pFEpipV
+#() pFEpipA
 #() pFEpupp
 #() pFEppii
 #() pFEppip
@@ -1137,6 +1137,7 @@
 #() vFEpuipp
 #() vFEpLLpp
 #() vFEppipV
+#() vFEppipA
 #() vFEppupp
 #() vFEppppp
 #() vFiiiiii
@@ -2015,6 +2016,10 @@ wrappedgio2:
   - g_simple_async_result_new_take_error
 - vFpippp:
   - g_async_initable_init_async
+- vFppipV:
+  - g_simple_async_result_set_error
+- vFppipA:
+  - g_simple_async_result_set_error_va
 - vFpipppp:
   - g_dbus_connection_new_for_address
 - vFiippppV:
@@ -2099,9 +2104,11 @@ wrappedglib2:
   - g_build_filename
   - g_markup_printf_escaped
   - g_strdup_printf
+  - g_strjoin
   - g_variant_new
 - pFpA:
   - g_markup_vprintf_escaped
+  - g_strjoinv
   - g_variant_new_parsed_va
 - vFppp:
   - g_array_sort_with_data
@@ -2110,7 +2117,12 @@ wrappedglib2:
   - g_ptr_array_sort_with_data
   - g_static_private_set
 - vFppV:
+  - g_string_append_printf
+  - g_string_printf
   - g_variant_get
+- vFppA:
+  - g_string_append_vprintf
+  - g_string_vprintf
 - iFppp:
   - g_vasprintf
   - g_vfprintf
@@ -2138,6 +2150,10 @@ wrappedglib2:
   - g_variant_new_va
 - pFppV:
   - g_build_path
+- vFpipV:
+  - g_log
+- vFpipA:
+  - g_logv
 - vFpupp:
   - g_datalist_id_set_data_full
 - vFpppp:
@@ -2151,6 +2167,10 @@ wrappedglib2:
 - uFpipp:
   - g_io_add_watch
   - g_log_set_handler
+- pFpipV:
+  - g_error_new
+- pFpipA:
+  - g_error_new_valist
 - pFpupp:
   - g_datalist_id_dup_data
 - pFppip:
@@ -2264,6 +2284,9 @@ wrappedgtkx112:
 - iFpp:
   - gtk_init_check
   - gtk_type_unique
+- pFiV:
+  - gtk_list_store_new
+  - gtk_tree_store_new
 - pFpi:
   - gtk_type_check_object_cast
 - vFppp:
@@ -2284,6 +2307,8 @@ wrappedgtkx112:
   - gtk_widget_style_get_valist
 - uFupp:
   - gtk_timeout_add
+- vFppiV:
+  - gtk_list_store_insert_with_values
 - vFppup:
   - gtk_action_group_add_actions
 - vFpppp:

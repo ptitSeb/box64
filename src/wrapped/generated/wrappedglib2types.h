@@ -25,6 +25,7 @@ typedef void* (*pFpV_t)(void*, ...);
 typedef void* (*pFpA_t)(void*, va_list);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
+typedef void (*vFppA_t)(void*, void*, va_list);
 typedef int64_t (*iFppp_t)(void*, void*, void*);
 typedef int64_t (*iFppV_t)(void*, void*, ...);
 typedef uint64_t (*uFipp_t)(int64_t, void*, void*);
@@ -32,12 +33,16 @@ typedef uint64_t (*uFupp_t)(uint64_t, void*, void*);
 typedef uint64_t (*uFppp_t)(void*, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void* (*pFppV_t)(void*, void*, ...);
+typedef void (*vFpipV_t)(void*, int64_t, void*, ...);
+typedef void (*vFpipA_t)(void*, int64_t, void*, va_list);
 typedef void (*vFpupp_t)(void*, uint64_t, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int64_t (*iFpLpp_t)(void*, uintptr_t, void*, void*);
 typedef int64_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
 typedef uint64_t (*uFippp_t)(int64_t, void*, void*, void*);
 typedef uint64_t (*uFpipp_t)(void*, int64_t, void*, void*);
+typedef void* (*pFpipV_t)(void*, int64_t, void*, ...);
+typedef void* (*pFpipA_t)(void*, int64_t, void*, va_list);
 typedef void* (*pFpupp_t)(void*, uint64_t, void*, void*);
 typedef void* (*pFppip_t)(void*, void*, int64_t, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
@@ -87,15 +92,21 @@ typedef int64_t (*iFpppippppppp_t)(void*, void*, void*, int64_t, void*, void*, v
 	GO(g_build_filename, pFpV_t) \
 	GO(g_markup_printf_escaped, pFpV_t) \
 	GO(g_strdup_printf, pFpV_t) \
+	GO(g_strjoin, pFpV_t) \
 	GO(g_variant_new, pFpV_t) \
 	GO(g_markup_vprintf_escaped, pFpA_t) \
+	GO(g_strjoinv, pFpA_t) \
 	GO(g_variant_new_parsed_va, pFpA_t) \
 	GO(g_array_sort_with_data, vFppp_t) \
 	GO(g_hash_table_foreach, vFppp_t) \
 	GO(g_ptr_array_foreach, vFppp_t) \
 	GO(g_ptr_array_sort_with_data, vFppp_t) \
 	GO(g_static_private_set, vFppp_t) \
+	GO(g_string_append_printf, vFppV_t) \
+	GO(g_string_printf, vFppV_t) \
 	GO(g_variant_get, vFppV_t) \
+	GO(g_string_append_vprintf, vFppA_t) \
+	GO(g_string_vprintf, vFppA_t) \
 	GO(g_vasprintf, iFppp_t) \
 	GO(g_vfprintf, iFppp_t) \
 	GO(g_vsprintf, iFppp_t) \
@@ -116,6 +127,8 @@ typedef int64_t (*iFpppippppppp_t)(void*, void*, void*, int64_t, void*, void*, v
 	GO(g_slist_sort_with_data, pFppp_t) \
 	GO(g_variant_new_va, pFppp_t) \
 	GO(g_build_path, pFppV_t) \
+	GO(g_log, vFpipV_t) \
+	GO(g_logv, vFpipA_t) \
 	GO(g_datalist_id_set_data_full, vFpupp_t) \
 	GO(g_source_set_callback, vFpppp_t) \
 	GO(g_vsnprintf, iFpLpp_t) \
@@ -123,6 +136,8 @@ typedef int64_t (*iFpppippppppp_t)(void*, void*, void*, int64_t, void*, void*, v
 	GO(g_idle_add_full, uFippp_t) \
 	GO(g_io_add_watch, uFpipp_t) \
 	GO(g_log_set_handler, uFpipp_t) \
+	GO(g_error_new, pFpipV_t) \
+	GO(g_error_new_valist, pFpipA_t) \
 	GO(g_datalist_id_dup_data, pFpupp_t) \
 	GO(g_thread_create, pFppip_t) \
 	GO(g_hash_table_new_full, pFpppp_t) \

@@ -149,3 +149,5 @@ void AlignEpollEvent(void* dest, void* source, int nbr); // x86 -> Arm
 
 void UnalignSemidDs(void *dest, const void* source);
 void AlignSemidDs(void *dest, const void* source);
+
+uintptr_t getVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N);

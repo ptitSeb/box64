@@ -561,6 +561,7 @@ EXPORT uint32_t my_g_signal_new(x64emu_t* emu, void* name, size_t itype, int fla
     
     void* cb_acc = findAccumulatorFct(acc);
     void* cb_marsh = findMarshalFct(marsh);
+    my_add_signal_offset(itype, offset, n); // register the signal for later use
     switch(n) {
         case 0: return my->g_signal_new(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n);
         case 1: return my->g_signal_new(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0]);

@@ -801,3 +801,10 @@ void AlignSemidDs(void *dest, const void* source)
     arm_struct->sem_ctime = x64_struct->sem_ctime;
     arm_struct->sem_nsems = x64_struct->sem_nsems;
 }
+
+uintptr_t getVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N)
+{
+    if((pos+N)>6)
+        return b[pos+N-6];
+    return emu->regs[regs_abi[pos+N]].q[0];
+}

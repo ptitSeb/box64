@@ -26,6 +26,19 @@ GTKCLASSES()
 KHASH_SET_INIT_INT(signalmap)
 static kh_signalmap_t *my_signalmap = NULL;
 
+typedef struct sigoffset_s {
+    uint32_t offset;
+    int     n;
+} sigoffset_t;
+typedef struct sigoffset_array_s {
+    sigoffset_t *a;
+    int     cap;
+    int     sz;
+} sigoffset_array_t;
+
+KHASH_MAP_INIT_INT64(sigoffset, sigoffset_array_t)
+static kh_sigoffset_t *my_sigoffset = NULL;
+
 // ---- Defining the multiple functions now -----
 #define SUPER() \
 GO(0)   \
@@ -651,6 +664,24 @@ static void bridgeGtkTableClass(my_GtkTableClass_t* class)
     bridgeGtkContainerClass(&class->parent_class);
 }
 
+// ----- GtkFixedClass ------
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkFixedClass(my_GtkFixedClass_t* class)
+{
+    wrapGtkContainerClass(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkFixedClass(my_GtkFixedClass_t* class)
+{   
+    unwrapGtkContainerClass(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkFixedClass(my_GtkFixedClass_t* class)
+{
+    bridgeGtkContainerClass(&class->parent_class);
+}
+
 // ----- MetaFramesClass ------
 
 // wrap (so bridge all calls, just in case)
@@ -972,8 +1003,196 @@ my_GTypeValueTable_t* findFreeGTypeValueTable(my_GTypeValueTable_t* fcts)
     return NULL;
 }
 
+// signal2 ...
+#define GO(A)   \
+static uintptr_t my_signal2_fct_##A = 0;                                \
+static void* my_signal2_##A(void* a, void* b)                           \
+{                                                                       \
+    return (void*)RunFunction(my_context, my_signal2_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_signal2_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_signal2_fct_##A == (uintptr_t)fct) return my_signal2_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_signal2_fct_##A == 0) {my_signal2_fct_##A = (uintptr_t)fct; return my_signal2_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal2 callback\n");
+    return NULL;
+}
+// signal3 ...
+#define GO(A)   \
+static uintptr_t my_signal3_fct_##A = 0;                                    \
+static void* my_signal3_##A(void* a, void* b, void* c)                      \
+{                                                                           \
+    return (void*)RunFunction(my_context, my_signal3_fct_##A, 3, a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_signal3_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_signal3_fct_##A == (uintptr_t)fct) return my_signal3_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_signal3_fct_##A == 0) {my_signal3_fct_##A = (uintptr_t)fct; return my_signal3_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal3 callback\n");
+    return NULL;
+}
+// signal4 ...
+#define GO(A)   \
+static uintptr_t my_signal4_fct_##A = 0;                                        \
+static void* my_signal4_##A(void* a, void* b, void* c, void* d)                 \
+{                                                                               \
+    return (void*)RunFunction(my_context, my_signal4_fct_##A, 4, a, b, c, d);   \
+}
+SUPER()
+#undef GO
+static void* find_signal4_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_signal4_fct_##A == (uintptr_t)fct) return my_signal4_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_signal4_fct_##A == 0) {my_signal4_fct_##A = (uintptr_t)fct; return my_signal4_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal4 callback\n");
+    return NULL;
+}
+// signal5 ...
+#define GO(A)   \
+static uintptr_t my_signal5_fct_##A = 0;                                        \
+static void* my_signal5_##A(void* a, void* b, void* c, void* d, void* e)        \
+{                                                                               \
+    return (void*)RunFunction(my_context, my_signal5_fct_##A, 5, a, b, c, d, e);\
+}
+SUPER()
+#undef GO
+static void* find_signal5_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_signal5_fct_##A == (uintptr_t)fct) return my_signal5_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_signal5_fct_##A == 0) {my_signal5_fct_##A = (uintptr_t)fct; return my_signal5_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal5 callback\n");
+    return NULL;
+}
+// signal6 ...
+#define GO(A)   \
+static uintptr_t my_signal6_fct_##A = 0;                                            \
+static void* my_signal6_##A(void* a, void* b, void* c, void* d, void* e, void* f)   \
+{                                                                                   \
+    return (void*)RunFunction(my_context, my_signal6_fct_##A, 6, a, b, c, d, e, f); \
+}
+SUPER()
+#undef GO
+static void* find_signal6_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_signal6_fct_##A == (uintptr_t)fct) return my_signal6_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_signal6_fct_##A == 0) {my_signal6_fct_##A = (uintptr_t)fct; return my_signal6_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal6 callback\n");
+    return NULL;
+}
+// signal7 ...
+#define GO(A)   \
+static uintptr_t my_signal7_fct_##A = 0;                                            \
+static void* my_signal7_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g)  \
+{                                                                                           \
+    return (void*)RunFunction(my_context, my_signal7_fct_##A, 7, a, b, c, d, e, f, g);      \
+}
+SUPER()
+#undef GO
+static void* find_signal7_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_signal7_fct_##A == (uintptr_t)fct) return my_signal7_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_signal7_fct_##A == 0) {my_signal7_fct_##A = (uintptr_t)fct; return my_signal7_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal7 callback\n");
+    return NULL;
+}
+static const wrapper_t wrappers[] = {pFpp, pFppp, pFpppp, pFpppp, pFppppp, pFpppppp};
+typedef void* (*finder_t)(void*);
+static const finder_t finders[] = {find_signal2_Fct, find_signal3_Fct, find_signal4_Fct, find_signal5_Fct, find_signal6_Fct, find_signal7_Fct};
+#define MAX_SIGNAL_N 7
 
 // ---- GTypeInfo ----
+// let's handle signal with offset, that are used to wrap custom signal function
+void my_unwrap_signal_offset(void* klass);
+void my_add_signal_offset(size_t itype, uint32_t offset, int n)
+{
+    printf_log(LOG_DEBUG, "my_add_signal_offset(0x%zx, %d, %d)\n", itype, offset, n);
+    if(!offset || !itype) // no offset means no overload...
+        return;
+    if(n<0 || n>MAX_SIGNAL_N) {
+        printf_log(LOG_NONE, "Warning, signal with too many args (%d) in my_add_signal_offset\n", n);
+        return;
+    }
+    int ret;
+    khint_t k = kh_put(sigoffset, my_sigoffset, itype, &ret);
+    sigoffset_array_t *p = &kh_value(my_sigoffset, k);
+    if(ret) {
+        p->a = NULL; p->cap = 0; p->sz = 0;
+    }
+    // check if offset already there
+    for(int i=0; i<p->sz; ++i)
+        if(p->a[i].offset == offset) {
+            printf_log(LOG_INFO, "Offset already there... Bye\n");
+            return; // already there, bye
+        }
+    if(p->sz==p->cap) {
+        p->cap+=4;
+        p->a = (sigoffset_t*)realloc(p->a, sizeof(sigoffset_t)*p->cap);
+    }
+    p->a[p->sz].offset = offset;
+    p->a[p->sz++].n = n;
+}
+void my_unwrap_signal_offset(void* klass)
+{
+    if(!klass)
+        return;
+    size_t itype = *(size_t*)klass;
+    khint_t k = kh_get(sigoffset, my_sigoffset, itype);
+    if(k==kh_end(my_sigoffset))
+        return;
+    sigoffset_array_t *p = &kh_value(my_sigoffset, k);
+    printf_log(LOG_DEBUG, "my_unwrap_signal_offset(%p) type=0x%zx with %d signals with offset\n", klass, itype, p->sz);
+    for(int i=0; i<p->sz; ++i) {
+        void** f = (void**)((uintptr_t)klass + p->a[i].offset);
+        if(!GetNativeFnc((uintptr_t)*f)) {
+            // Not a native function: autobridge it
+            void* new_f = finders[p->a[i].n-2](f);
+            printf_log(LOG_DEBUG, "Unwrapping %p -> %p (with alternate)\n", *f, new_f);
+            if(!hasAlternate(new_f))
+                addAlternate(new_f, *f);
+            *f = new_f;
+        }
+    }
+}
 
 // First the structure my_GTypeInfo_t statics, with paired x64 source pointer
 #define GO(A) \
@@ -985,10 +1204,10 @@ SUPER()
 // Then the static functions callback that may be used with the structure
 // base_init ...
 #define GO(A)   \
-static uintptr_t my_base_init_fct_##A = 0;                      \
-static int my_base_init_##A(void* a)                            \
-{                                                               \
-    return RunFunction(my_context, my_base_init_fct_##A, 1, a); \
+static uintptr_t my_base_init_fct_##A = 0;                          \
+static int my_base_init_##A(void* a)                                \
+{                                                                   \
+    return RunFunction(my_context, my_base_init_fct_##A, 1, a);     \
 }
 SUPER()
 #undef GO
@@ -1029,21 +1248,27 @@ static void* find_base_finalize_Fct(void* fct)
 }
 // class_init ...
 #define GO(A)   \
-static uintptr_t my_class_init_fct_##A = 0;                         \
-static int my_class_init_##A(void* a, void* b)                      \
-{                                                                   \
-    return RunFunction(my_context, my_class_init_fct_##A, 2, a, b); \
+static uintptr_t my_class_init_fct_##A = 0;                             \
+static size_t parent_class_init_##A = 0;                                \
+static int my_class_init_##A(void* a, void* b)                          \
+{                                                                       \
+    printf_log(LOG_DEBUG, "Custom Class init %d for class %p (parent=%p)\n", A, a, (void*)parent_class_init_##A);\
+    int ret = RunFunction(my_context, my_class_init_fct_##A, 2, a, b);  \
+    unwrapGTKClass(a, parent_class_init_##A);                           \
+    bridgeGTKClass(a, parent_class_init_##A);                           \
+    my_unwrap_signal_offset(a);                                         \
+    return ret;                                                         \
 }
 SUPER()
 #undef GO
-static void* find_class_init_Fct(void* fct)
+static void* find_class_init_Fct(void* fct, size_t parent)
 {
     if(!fct) return fct;
     if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_class_init_fct_##A == (uintptr_t)fct) return my_class_init_##A;
+    #define GO(A) if(my_class_init_fct_##A == (uintptr_t)fct && parent_class_init_##A==parent) return my_class_init_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(my_class_init_fct_##A == 0) {my_class_init_fct_##A = (uintptr_t)fct; return my_class_init_##A; }
+    #define GO(A) if(my_class_init_fct_##A == 0) {my_class_init_fct_##A = (uintptr_t)fct; parent_class_init_##A=parent; return my_class_init_##A; }
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo class_init callback\n");
@@ -1106,7 +1331,7 @@ my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, size_t parent)
         my_gtypeinfo_##A.class_size = fcts->class_size;                                 \
         my_gtypeinfo_##A.base_init = find_base_init_Fct(fcts->base_init);               \
         my_gtypeinfo_##A.base_finalize = find_base_finalize_Fct(fcts->base_finalize);   \
-        my_gtypeinfo_##A.class_init = find_class_init_Fct(fcts->class_init);            \
+        my_gtypeinfo_##A.class_init = find_class_init_Fct(fcts->class_init, parent);    \
         my_gtypeinfo_##A.class_finalize = find_class_finalize_Fct(fcts->class_finalize);\
         my_gtypeinfo_##A.class_data = fcts->class_data;                                 \
         my_gtypeinfo_##A.instance_size = fcts->instance_size;                           \
@@ -1132,11 +1357,14 @@ SUPER()
 #undef GO
 // Then the static functions callback that may be used with the structure
 #define GO(A)   \
-static int fct_gtk_parent_##A = 0 ;                     \
-static uintptr_t fct_gtk_class_init_##A = 0;       \
-static int my_gtk_class_init_##A(void* g_class) {  \
-    printf_log(LOG_DEBUG, "Calling fct_gtk_class_init_" #A " wrapper\n");             \
-    return (int)RunFunction(my_context, fct_gtk_class_init_##A, 1, g_class);    \
+static int fct_gtk_parent_##A = 0 ;                 \
+static uintptr_t fct_gtk_class_init_##A = 0;        \
+static int my_gtk_class_init_##A(void* g_class) {   \
+    printf_log(LOG_DEBUG, "Calling fct_gtk_class_init_" #A " wrapper\n");           \
+    int ret = (int)RunFunction(my_context, fct_gtk_class_init_##A, 1, g_class);     \
+    unwrapGTKClass(g_class, fct_gtk_parent_##A);                                    \
+    bridgeGTKClass(g_class, fct_gtk_parent_##A);                                    \
+    return ret;                                                                     \
 }   \
 static uintptr_t fct_gtk_object_init_##A = 0;  \
 static int my_gtk_object_init_##A(void* object, void* data) {   \
@@ -1186,6 +1414,7 @@ void InitGTKClass(bridge_t *bridge)
 {
     my_bridge  = bridge;
     my_signalmap = kh_init(signalmap);
+    my_sigoffset = kh_init(sigoffset);
 }
 
 void FiniGTKClass()
@@ -1198,6 +1427,14 @@ void FiniGTKClass()
         );*/ // lets assume all signals data is freed by gtk already
         kh_destroy(signalmap, my_signalmap);
         my_signalmap = NULL;
+    }
+    if(my_sigoffset) {
+        sigoffset_array_t* p;
+        kh_foreach_value_ref(my_sigoffset, p,
+            free(p->a);
+        );
+        kh_destroy(sigoffset, my_sigoffset);
+        my_sigoffset = NULL;
     }
 }
 

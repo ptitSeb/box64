@@ -15,11 +15,13 @@ typedef float (*fFp_t)(void*);
 typedef void* (*pFi_t)(int64_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef int64_t (*iFpp_t)(void*, void*);
+typedef void* (*pFiV_t)(int64_t, ...);
 typedef void* (*pFpi_t)(void*, int64_t);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef void (*vFppA_t)(void*, void*, va_list);
 typedef uint64_t (*uFupp_t)(uint64_t, void*, void*);
+typedef void (*vFppiV_t)(void*, void*, int64_t, ...);
 typedef void (*vFppup_t)(void*, void*, uint64_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
@@ -46,6 +48,8 @@ typedef void* (*pFpipppppppi_t)(void*, int64_t, void*, void*, void*, void*, void
 	GO(gtk_init, vFpp_t) \
 	GO(gtk_init_check, iFpp_t) \
 	GO(gtk_type_unique, iFpp_t) \
+	GO(gtk_list_store_new, pFiV_t) \
+	GO(gtk_tree_store_new, pFiV_t) \
 	GO(gtk_type_check_object_cast, pFpi_t) \
 	GO(gtk_builder_connect_signals_full, vFppp_t) \
 	GO(gtk_clipboard_request_text, vFppp_t) \
@@ -61,6 +65,7 @@ typedef void* (*pFpipppppppi_t)(void*, int64_t, void*, void*, void*, void*, void
 	GO(gtk_list_store_set_valist, vFppA_t) \
 	GO(gtk_widget_style_get_valist, vFppA_t) \
 	GO(gtk_timeout_add, uFupp_t) \
+	GO(gtk_list_store_insert_with_values, vFppiV_t) \
 	GO(gtk_action_group_add_actions, vFppup_t) \
 	GO(gtk_clipboard_request_contents, vFpppp_t) \
 	GO(gtk_object_set_data_full, vFpppp_t) \

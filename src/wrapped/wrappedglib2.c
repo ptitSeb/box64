@@ -65,12 +65,15 @@ typedef void* (*pFppLiiip_t)(void*, void*, unsigned long, int, int, int, void*);
 typedef int (*iFpppipppp_t)(void*, void*, void*, int, void*, void*, void*, void*);
 typedef int (*iFpppipppppp_t)(void*, void*, void*, int, void*, void*, void*, void*, void*, void*);
 typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, void*, void*, void*, void*);
+typedef void* (*pFpipA_t)(void*, int, void*, va_list);
+typedef void (*vFpipA_t)(void*, int, void*, va_list);
+typedef void (*vFppA_t)(void*, void*, va_list);
 
 #define SUPER() \
     GO(g_list_free_full, vFpp_t)                \
     GO(g_markup_vprintf_escaped, pFpA_t)        \
     GO(g_build_filenamev, pFp_t)                \
-    GO(g_timeout_add_full, uFiuppp_t)            \
+    GO(g_timeout_add_full, uFiuppp_t)           \
     GO(g_datalist_id_set_data_full, vFpupp_t)   \
     GO(g_datalist_id_dup_data, pFpupp_t)        \
     GO(g_datalist_id_replace_data, iFpupppp_t)  \
@@ -143,6 +146,11 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_timeout_add_seconds_full, uFiuppp_t)   \
     GO(g_log_set_handler, uFpipp_t)             \
     GO(g_set_error_literal, vFppip_t)           \
+    GO(g_error_new_valist, pFpipA_t)            \
+    GO(g_logv, vFpipA_t)                        \
+    GO(g_string_append_vprintf, vFppA_t)        \
+    GO(g_string_vprintf, vFppA_t)               \
+    GO(g_strjoinv, pFpA_t)                      \
 
 
 typedef struct glib2_my_s {
@@ -175,14 +183,15 @@ EXPORT void* my_g_markup_vprintf_escaped(x64emu_t *emu, void* fmt, void* b) {
     return my->g_markup_vprintf_escaped(fmt, VARARGS);
 }
 
-EXPORT void* my_g_build_filename(x64emu_t* emu, void* first, void** b)
+EXPORT void* my_g_build_filename(x64emu_t* emu, void* first, uintptr_t* b)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
-    int i = 0;
-    while (b[i++]);
-    void* array[i+1];   // +1 for 1st (NULL terminal already included)
+    int n = 0;
+    while (getVArgs(emu, 1, b, n++));
+    void* array[n+1];   // +1 for 1st (NULL terminal already included)
     array[0] = first;
-    memcpy(array+1, b, sizeof(void*)*i);
+    for(int i=0; i<n; ++i)
+        array[i+1] = (void*)getVArgs(emu, 1, b, i);
     void* ret = my->g_build_filenamev(array);
     return ret;
 }
@@ -1263,20 +1272,20 @@ EXPORT void* my_g_slist_sort_with_data(x64emu_t *emu, void* list, void* f, void*
     return my->g_slist_sort_with_data(list, findGCompareDataFuncFct(f), data);
 }
 
-EXPORT void* my_g_build_path(x64emu_t *emu, void* sep, void* first, void** data)
+EXPORT void* my_g_build_path(x64emu_t *emu, void* sep, void* first, uintptr_t* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     int n = (first)?1:0;
-    void* p = n?data[0]:NULL;
+    void* p = n?((void*)getVArgs(emu, 2, data, 0)):NULL;
     while(p) {
-        p = data[n++];
+        p = (void*)getVArgs(emu, 2, data, n++);
     }
     ++n;    // final NULL
     void** args = (void**)malloc(n *sizeof(void*));
     args[0] = first;
     for(int i=1; i<n; ++i)
-        args[i] = data[i-1];
+        args[i] = (void*)getVArgs(emu, 2, data, i-1);
     p = my->g_build_pathv(sep, args);
     free(args);
     return p;
@@ -1346,6 +1355,118 @@ EXPORT void my_g_set_error(x64emu_t *emu, void* err, void* domain, int code, voi
     PREPARE_VALIST;
     vsnprintf(buf, sizeof(buf), fmt, VARARGS);
     my->g_set_error_literal(err, domain, code, buf);
+}
+
+EXPORT void* my_g_error_new(x64emu_t* emu, void* domain, int code, void* fmt, uintptr_t* b)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    return my->g_error_new_valist(domain, code, fmt, VARARGS);
+}
+EXPORT void* my_g_error_new_valist(x64emu_t* emu, void* domain, int code, void* fmt, x64_va_list_t V)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    CONVERT_VALIST(V);
+    return my->g_error_new_valist(domain, code, fmt, VARARGS);
+}
+
+EXPORT int my_g_fprintf(x64emu_t* emu, void* f, void* fmt, uintptr_t* b)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    return my->g_vfprintf(f, fmt, VARARGS);
+}
+
+EXPORT void my_g_logv(x64emu_t* emu, void* domain, int level, void* fmt, x64_va_list_t V)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    CONVERT_VALIST(V);
+    my->g_logv(domain, level, fmt, VARARGS);
+}
+EXPORT void my_g_log(x64emu_t* emu, void* domain, int level, void* fmt, uintptr_t* b)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    my->g_logv(domain, level, fmt, VARARGS);
+}
+
+EXPORT int my_g_printf(x64emu_t* emu, void* fmt, uintptr_t* b)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 1);
+    PREPARE_VALIST;
+    return my->g_vprintf(fmt, VARARGS);
+}
+
+EXPORT int my_g_snprintf(x64emu_t* emu, void* buf, size_t l, void* fmt, uintptr_t* b)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    return my->g_vsnprintf(buf, l, fmt, VARARGS);
+}
+
+EXPORT int my_g_sprintf(x64emu_t* emu, void* buf, void* fmt, uintptr_t* b)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    my->g_vsprintf(buf, fmt, VARARGS);
+}
+
+EXPORT void* my_g_strdup_printf(x64emu_t* emu, void* fmt, uintptr_t* b)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 1);
+    PREPARE_VALIST;
+    return my->g_strdup_vprintf(fmt, VARARGS);
+}
+
+EXPORT void my_g_string_append_printf(x64emu_t* emu, void* string, void* fmt, uintptr_t* b)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return my->g_string_append_vprintf(string, fmt, VARARGS);
+}
+
+EXPORT void my_g_string_append_vprintf(x64emu_t* emu, void* string, void* fmt, x64_va_list_t V)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    CONVERT_VALIST(V);
+    return my->g_string_append_vprintf(string, fmt, VARARGS);
+}
+
+EXPORT void my_g_string_printf(x64emu_t* emu, void* string, void* fmt, uintptr_t* b)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return my->g_string_vprintf(string, fmt, VARARGS);
+}
+
+EXPORT void my_g_string_vprintf(x64emu_t* emu, void* string, void* fmt, x64_va_list_t V)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    CONVERT_VALIST(V);
+    return my->g_string_vprintf(string, fmt, VARARGS);
+}
+
+EXPORT void* my_g_strjoin(x64emu_t* emu, void* a, uintptr_t* b)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 1);
+    return my->g_strjoinv(a, VARARGS);
+}
+
+EXPORT void* my_g_strjoinv(x64emu_t* emu, void* a, x64_va_list_t V)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    CONVERT_VALIST(V);
+    return my->g_strjoinv(a, VARARGS);
 }
 
 

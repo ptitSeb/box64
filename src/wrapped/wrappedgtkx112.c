@@ -31,6 +31,7 @@ typedef void*         (*pFp_t)(void*);
 typedef double        (*dFp_t)(void*);
 typedef void*         (*pFL_t)(size_t);
 typedef int           (*iFip_t)(int, void*);
+typedef void*         (*pFip_t)(int, void*);
 typedef int           (*iFpp_t)(void*, void*);
 typedef size_t        (*LFLp_t)(size_t, void*);
 typedef void*         (*pFpp_t)(void*, void*);
@@ -52,6 +53,7 @@ typedef void          (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void          (*vFpuipp_t)(void*, uint32_t, int, void*, void*);
 typedef void          (*vFppupp_t)(void*, void*, uint32_t, void*, void*);
 typedef uint32_t      (*uFiipppp_t)(int, int, void*, void*, void*, void*);
+typedef void          (*vFppippi_t)(void*, void*, int, void*, void*, int);
 typedef unsigned long (*LFpppppi_t)(void*, void*, void*, void*, void*, int);
 typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef void          (*vFpuipuV_t)(void*, uint32_t, int, void*, uint32_t, ...);
@@ -77,6 +79,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_tree_view_get_type, LFv_t)           \
     GO(gtk_window_get_type, LFv_t)              \
     GO(gtk_table_get_type, LFv_t)               \
+    GO(gtk_fixed_get_type, LFv_t)               \
     GO(gtk_type_class, pFL_t)                   \
     GO(gtk_button_get_label, pFp_t)             \
     GO(gtk_signal_connect_full, LFppppppii_t)   \
@@ -130,6 +133,9 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_input_add_full, uFiipppp_t)          \
     GO(gtk_list_store_set_valist, vFppA_t)      \
     GO(gtk_widget_style_get_valist, vFppA_t)    \
+    GO(gtk_list_store_insert_with_valuesv, vFppippi_t)  \
+    GO(gtk_list_store_newv, pFip_t)             \
+    GO(gtk_tree_store_newv, pFip_t)             \
 
 
 
@@ -639,10 +645,11 @@ EXPORT void my_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, 
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     void* btn = first;
+    int n = 0;
     while(btn) {
-        uintptr_t id = *(b++);
+        uintptr_t id = getVArgs(emu, 2, b, n++);
         my->gtk_dialog_add_button(dialog, btn, id);
-        btn = (void*)*(b++);
+        btn = (void*)getVArgs(emu, 2, b, n++);
     }
 }
 
@@ -990,9 +997,7 @@ typedef struct my_GSList_s {
   struct my_GSList_s *next;
 } my_GSList_t;
 
-static int regs_abi[] = {_DI, _SI, _DX, _CX, _R8, _R9};
-#define NEXT5(A, N) (N+5<6)?((void*)emu->regs[regs_abi[5+N]].q[0]):A[5+N-6]
-EXPORT void my_gtk_binding_entry_add_signal(x64emu_t* emu, void* binding, uint32_t keyval, int mod, void* name, uint32_t n, void** st)
+EXPORT void my_gtk_binding_entry_add_signal(x64emu_t* emu, void* binding, uint32_t keyval, int mod, void* name, uint32_t n, uintptr_t* b)
 {
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
@@ -1003,7 +1008,7 @@ EXPORT void my_gtk_binding_entry_add_signal(x64emu_t* emu, void* binding, uint32
     // build the list
     my_GSList_t *list = calloc(n, sizeof(my_GSList_t));
     for(uint32_t i=0; i<n; ++i) {
-        list[i].data = NEXT5(st, i);
+        list[i].data = (void*)getVArgs(emu, 5, b, i);
         list[i].next = (i==(n-1))?NULL:&list[i+1];
     }
 
@@ -1158,6 +1163,51 @@ EXPORT uint32_t my_gtk_input_add_full(x64emu_t* emu, int source, int condition, 
     return my->gtk_input_add_full(source, condition, findGdkInputFunctionFct(func), findGtkCallbackMarshalFct(marshal), data, findGDestroyNotifyFct(destroy));
 }
 
+EXPORT void my_gtk_list_store_insert_with_values(x64emu_t* emu, void* store, void* iter, int pos, uintptr_t* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    int n = 0;
+    // find the number of args
+    while((int)getVArgs(emu, 3, b, n*2)!=-1)
+        ++n;
+    int* columns = (int*)malloc(sizeof(int)*(n+1));
+    void** values = (void**)malloc(sizeof(void*)*(n+1));
+    for (int i=0; i<n; ++i) {
+        columns[i] = *(int*)getVArgs(emu, 3, b, i*2-2);
+        values[i] = (void*)getVArgs(emu, 3, b, i*2-2+1);
+    }
+    columns[n] = -1;
+    values[n] = NULL;
+
+    my->gtk_list_store_insert_with_valuesv(store, iter, pos, columns, values, n);
+    free(columns);
+    free(values);
+}
+
+EXPORT void* my_gtk_list_store_new(x64emu_t* emu, int n, uintptr_t* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    uintptr_t a[n];
+    for(int i=0; i<n; ++i)
+        a[i] = getVArgs(emu, 1, b, i);
+    return my->gtk_list_store_newv(n, a);
+}
+
+EXPORT void* my_gtk_tree_store_new(x64emu_t* emu, int n, uintptr_t* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    uintptr_t a[n];
+    for(int i=0; i<n; ++i)
+        a[i] = getVArgs(emu, 1, b, i);
+    return my->gtk_tree_store_newv(n, a);
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
@@ -1174,7 +1224,8 @@ EXPORT uint32_t my_gtk_input_add_full(x64emu_t* emu, int source, int condition, 
     SetGtkTreeViewID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());\
     SetGtkBinID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_bin_get_type());           \
     SetGtkWindowID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_window_get_type());     \
-    SetGtkTableID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_table_get_type());     \
+    SetGtkTableID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_table_get_type());       \
+    SetGtkFixedID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_fixed_get_type());       \
     lib->priv.w.needed = 2;                                                     \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \

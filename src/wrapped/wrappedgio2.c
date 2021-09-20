@@ -51,6 +51,7 @@ typedef void    (*vFpippppppp_t)    (void*, int, void*, void*, void*, void*, voi
 typedef void*   (*pFLippppppp_t)    (size_t, int, void*, void*, void*, void*, void*, void*, void*);
 typedef uint32_t(*uFppppppippp_t)   (void*, void*, void*, void*, void*, void*, int, void*, void*, void*);
 typedef void    (*vFpppppppiippp_t) (void*, void*, void*, void*, void*, void*, void*, int, int, void*, void*, void*);
+typedef void    (*vFppipA_t)        (void*, void*, int, void*, va_list);
 
 #define SUPER() \
     GO(g_dbus_proxy_new, vFpippppppp_t)             \
@@ -84,7 +85,8 @@ typedef void    (*vFpppppppiippp_t) (void*, void*, void*, void*, void*, void*, v
     GO(g_bus_watch_name, uFipipppp_t)               \
     GO(g_bus_watch_name_on_connection, uFppipppp_t) \
     GO(g_bus_own_name, uFLpippppp_t)                \
-    GO(g_bus_own_name_on_connection, uFppipppp_t)
+    GO(g_bus_own_name_on_connection, uFppipppp_t)   \
+    GO(g_simple_async_result_set_error_va, vFppipA_t)                   \
 
 
 typedef struct gio2_my_s {
@@ -693,7 +695,7 @@ EXPORT uint32_t my_g_bus_watch_name(x64emu_t* emu, size_t type, void* name, int 
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
-    // note that a mecanism with a new callback, cleaned with notify, is also possible here
+
     return my->g_bus_watch_name(type, name, flags, findGBusNameAppearedCallbackFct(appeared), findGBusNameVanishedCallbackFct(vanished), data, findGDestroyNotifyFct(notify));
 }
 
@@ -701,7 +703,7 @@ EXPORT uint32_t my_g_bus_watch_name_on_connection(x64emu_t* emu, void* connectio
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
-    // note that a mecanism with a new callback, cleaned with notify, is also possible here
+
     return my->g_bus_watch_name_on_connection(connection, name, flags, findGBusNameAppearedCallbackFct(appeared), findGBusNameVanishedCallbackFct(vanished), data, findGDestroyNotifyFct(notify));
 }
 
@@ -709,7 +711,7 @@ EXPORT uint32_t my_g_bus_own_name(x64emu_t* emu, size_t type, void* name, int fl
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
-    // note that a mecanism with a new callback, cleaned with notify, is also possible here
+
     return my->g_bus_own_name(type, name, flags, findGBusAcquiredCallbackFct(bus_acquired), findGBusNameAcquiredCallbackFct(name_acquired), findGBusNameLostCallbackFct(name_lost), data, findGDestroyNotifyFct(notify));
 }
 
@@ -717,8 +719,27 @@ EXPORT uint32_t my_g_bus_own_name_on_connection(x64emu_t* emu, void* connection,
 {
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
-    // note that a mecanism with a new callback, cleaned with notify, is also possible here
+
     return my->g_bus_own_name_on_connection(connection, name, flags, findGBusNameAcquiredCallbackFct(name_acquired), findGBusNameLostCallbackFct(name_lost), data, findGDestroyNotifyFct(notify));
+}
+
+EXPORT void my_g_simple_async_result_set_error_va(x64emu_t* emu, void* simple, void* domain, int code, void* fmt, x64_va_list_t V)
+{
+    library_t * lib = GetLibInternal(libname);
+    gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
+
+    CONVERT_VALIST(V);
+    my->g_simple_async_result_set_error_va(simple, domain, code, fmt, VARARGS);
+}
+
+EXPORT void my_g_simple_async_result_set_error(x64emu_t* emu, void* simple, void* domain, int code, void* fmt, uintptr_t* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
+
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 4);
+    PREPARE_VALIST;
+    my->g_simple_async_result_set_error_va(simple, domain, code, fmt, VARARGS);
 }
 
 #define PRE_INIT    \
