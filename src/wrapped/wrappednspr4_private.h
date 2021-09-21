@@ -42,7 +42,7 @@
 //GO(PR_Cleanup, 
 //GO(PR_ClearInterrupt, 
 //GO(PR_ClearThreadGCAble, 
-//GO(PR_Close, 
+GO(PR_Close, iFp)
 //GO(PR_CloseDir, 
 //GO(PR_CloseFileMap, 
 //GO(PR_CloseSemaphore, 
@@ -150,7 +150,7 @@
 //GO(PR_GetDirectorySepartor, 
 //GO(PR_GetEnv, 
 //GO(PR_GetEnvSecure, 
-//GO(PR_GetError, 
+GO(PR_GetError, iFv)
 //GO(PR_GetErrorText, 
 //GO(PR_GetErrorTextLength, 
 //GO(PR_GetFileInfo, 
@@ -214,12 +214,12 @@
 //GO(PR_ImportFile, 
 //GO(PR_ImportFileMapFromString, 
 //GO(PR_ImportPipe, 
-//GO(PR_ImportTCPSocket, 
+GO(PR_ImportTCPSocket, pFi)
 //GO(PR_ImportUDPSocket, 
 //GO(PR_IncrementCounter, 
 GO(PR_Init, vFiii)
 //GO(PR_Initialize, 
-//GO(PR_Initialized, 
+GO(PR_Initialized, iFv)
 //GO(PR_InitializeNetAddr, 
 //GO(PR_Interrupt, 
 //GO(PR_IntervalNow, 
@@ -267,7 +267,7 @@ GO(PR_Init, vFiii)
 //GO(PR_NotifyAll, 
 //GO(PR_NotifyAllCondVar, 
 //GO(PR_NotifyCondVar, 
-//GO(PR_Now, 
+GO(PR_Now, pFv)
 //GO(PR_ntohl, 
 //GO(PR_ntohll, 
 //GO(PR_ntohs, 
@@ -304,7 +304,7 @@ GO(PR_Init, vFiii)
 //GO(PR_QueueJob_Read, 
 //GO(PR_QueueJob_Timer, 
 //GO(PR_QueueJob_Write, 
-//GO(PR_Read, 
+GO(PR_Read, iFppi)
 //GO(PR_ReadDir, 
 //GO(PR_Realloc, 
 //GO(PR_RecordTraceEntries, 
@@ -340,7 +340,7 @@ GO(PR_Init, vFiii)
 //GO(PR_SetLogFile, 
 //GO(PR_SetNetAddr, 
 //GO(PR_SetPollableEvent, 
-//GO(PR_SetSocketOption, 
+GO(PR_SetSocketOption, iFpp)
 //GO(PR_SetStdioRedirect, 
 //GO(PR_SetSysfdTableSize, 
 //GO(PR_SetThreadAffinityMask, 
@@ -395,7 +395,7 @@ GO(PR_Init, vFiii)
 //GO(PR_WaitRecvReady, 
 //GO(PR_WaitSem, 
 //GO(PR_WaitSemaphore, 
-//GO(PR_Write, 
+GO(PR_Write, iFppi)
 //GO(PR_Writev, 
 //GO(PR_Yield, 
 //GO(PT_FPrintStats, 

@@ -12,6 +12,8 @@
 #endif
 
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef int64_t (*iFpiV_t)(void*, int64_t, ...);
+typedef int64_t (*iFpiA_t)(void*, int64_t, va_list);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int64_t (*iFpipp_t)(void*, int64_t, void*, void*);
 typedef int64_t (*iFppip_t)(void*, void*, int64_t, void*);
@@ -24,6 +26,8 @@ typedef int64_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 	GO(dbus_connection_remove_filter, vFppp_t) \
 	GO(dbus_timeout_set_data, vFppp_t) \
 	GO(dbus_watch_set_data, vFppp_t) \
+	GO(dbus_message_append_args, iFpiV_t) \
+	GO(dbus_message_append_args_valist, iFpiA_t) \
 	GO(dbus_connection_set_dispatch_status_function, vFpppp_t) \
 	GO(dbus_connection_set_wakeup_main_function, vFpppp_t) \
 	GO(dbus_connection_set_data, iFpipp_t) \

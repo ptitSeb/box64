@@ -627,6 +627,8 @@
 #() iFEupp
 #() iFEpii
 #() iFEpip
+#() iFEpiV
+#() iFEpiA
 #() iFEpLi
 #() iFEpLp
 #() iFEppi
@@ -1929,6 +1931,10 @@ wrappeddbus:
   - dbus_connection_remove_filter
   - dbus_timeout_set_data
   - dbus_watch_set_data
+- iFpiV:
+  - dbus_message_append_args
+- iFpiA:
+  - dbus_message_append_args_valist
 - vFpppp:
   - dbus_connection_set_dispatch_status_function
   - dbus_connection_set_wakeup_main_function
@@ -2301,9 +2307,11 @@ wrappedgtkx112:
   - gtk_list_store_set
   - gtk_message_dialog_format_secondary_markup
   - gtk_message_dialog_format_secondary_text
+  - gtk_tree_model_get
   - gtk_widget_style_get
 - vFppA:
   - gtk_list_store_set_valist
+  - gtk_tree_model_get_valist
   - gtk_widget_style_get_valist
 - uFupp:
   - gtk_timeout_add
@@ -2946,6 +2954,8 @@ wrappedpango:
   - pango_attribute_init
 wrappedpangocairo:
 wrappedpangoft2:
+wrappedplc4:
+wrappedplds4:
 wrappedpng16:
 - vFpp:
   - png_set_read_user_transform_fn
@@ -3345,6 +3355,7 @@ wrappedsmpeg2:
   - SMPEG_setdisplay
 - pFppii:
   - SMPEG_new_rwops
+wrappedssl3:
 wrappedtcmallocminimal:
 - iFpL:
   - munmap

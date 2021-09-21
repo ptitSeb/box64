@@ -38,6 +38,7 @@ typedef void*         (*pFpp_t)(void*, void*);
 typedef void*         (*pFpi_t)(void*, int);
 typedef void*         (*pFpL_t)(void*, size_t);
 typedef void          (*vFpp_t)(void*, void*);
+typedef void          (*vFppi_t)(void*, void*, int);
 typedef void*         (*pFppi_t)(void*, void*, int32_t);
 typedef void          (*vFppA_t)(void*, void*, va_list);
 typedef int32_t       (*iFppp_t)(void*, void*, void*);
@@ -136,6 +137,8 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_list_store_insert_with_valuesv, vFppippi_t)  \
     GO(gtk_list_store_newv, pFip_t)             \
     GO(gtk_tree_store_newv, pFip_t)             \
+    GO(gtk_list_store_insert, vFppi_t)          \
+    GO(gtk_tree_model_get_valist, vFppA_t)      \
 
 
 
@@ -1168,22 +1171,12 @@ EXPORT void my_gtk_list_store_insert_with_values(x64emu_t* emu, void* store, voi
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
-    int n = 0;
-    // find the number of args
-    while((int)getVArgs(emu, 3, b, n*2)!=-1)
-        ++n;
-    int* columns = (int*)malloc(sizeof(int)*(n+1));
-    void** values = (void**)malloc(sizeof(void*)*(n+1));
-    for (int i=0; i<n; ++i) {
-        columns[i] = *(int*)getVArgs(emu, 3, b, i*2-2);
-        values[i] = (void*)getVArgs(emu, 3, b, i*2-2+1);
-    }
-    columns[n] = -1;
-    values[n] = NULL;
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 3);
+    // not 100% exact, but better than nothing
+    my->gtk_list_store_insert(store, iter, pos);
+    my->gtk_list_store_set_valist(store, iter, VARARGS);
 
-    my->gtk_list_store_insert_with_valuesv(store, iter, pos, columns, values, n);
-    free(columns);
-    free(values);
+    //can't use gtk_list_store_insert_with_valuesv because that one use array or GValue, instead of brute value
 }
 
 EXPORT void* my_gtk_list_store_new(x64emu_t* emu, int n, uintptr_t* b)
@@ -1206,6 +1199,24 @@ EXPORT void* my_gtk_tree_store_new(x64emu_t* emu, int n, uintptr_t* b)
     for(int i=0; i<n; ++i)
         a[i] = getVArgs(emu, 1, b, i);
     return my->gtk_tree_store_newv(n, a);
+}
+
+EXPORT void my_gtk_tree_model_get_valist(x64emu_t* emu, void* tree, void* iter, x64_va_list_t V)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    CONVERT_VALIST(V);
+    my->gtk_tree_model_get_valist(tree, iter, VARARGS);
+}
+
+EXPORT void my_gtk_tree_model_get(x64emu_t* emu, void* tree, void* iter, uintptr_t* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    my->gtk_tree_model_get_valist(tree, iter, VARARGS);
 }
 
 #define PRE_INIT    \

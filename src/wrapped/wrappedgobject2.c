@@ -404,7 +404,7 @@ typedef struct my_GParamSpecTypeInfo_s {
   uint16_t  instance_size;
   uint16_t  n_preallocs;
   void      (*instance_init)    (void* pspec);
-  int       value_type;
+  size_t    value_type;
   void      (*finalize)         (void* pspec);
   void      (*value_set_default)(void* pspec, void* value);
   int       (*value_validate)   (void* pspec, void* value);
@@ -666,7 +666,7 @@ EXPORT size_t my_g_type_register_fundamental(x64emu_t* emu, size_t parent, void*
     return my->g_type_register_fundamental(parent, name, findFreeGTypeInfo(info, parent), finfo, flags);
 }
 
-EXPORT void my_g_value_register_transform_func(x64emu_t* emu, int src, int dst, void* f)
+EXPORT void my_g_value_register_transform_func(x64emu_t* emu, size_t src, size_t dst, void* f)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 

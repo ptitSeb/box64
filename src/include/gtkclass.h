@@ -9,9 +9,23 @@
 typedef struct box64context_s box64context_t;
 typedef struct bridge_s bridge_t;
 
+typedef struct my_GValue_s
+{
+  size_t      g_type;
+  union {
+    int        v_int;
+    int64_t    v_int64;
+    uint64_t   v_uint64;
+    float      v_float;
+    double     v_double;
+    void*      v_pointer;
+  } data[2];
+} my_GValue_t;
+
+
 typedef struct my_GObjectClass_s
 {
-  int   g_type_class;
+  size_t   g_type_class;
   void* construct_properties;
   void* (*constructor)     (int type, uint32_t n_construct_properties, void* construct_properties);
   void  (*set_property)    (void* object, uint32_t property_id, void* value, void* pspec);

@@ -33,7 +33,7 @@ void arm64_epilog_fast() EXPORTDYN;
 #ifdef DYNAREC
 uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr);
 
-void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2)
+void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 {
     #ifdef HAVE_TRACE
     if(!addr) {
@@ -48,7 +48,9 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2)
         // no block, let link table as is...
         if(hasAlternate((void*)addr)) {
             printf_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
-            addr = (uintptr_t)getAlternate((void*)addr);
+            addr = (uintptr_t)getAlternate((void*)addr);    // set new address
+            R_RIP = addr;   // but also new RIP!
+            *x3 = addr; // and the RIP in x27 register
             printf_log(LOG_INFO, " -> %p\n", (void*)addr);
             block = DBGetBlock(emu, addr, 1, &current);
         }

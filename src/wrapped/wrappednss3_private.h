@@ -149,7 +149,7 @@
 //GO(CERT_GenTime2FormattedAscii, 
 //GO(CERT_GetAVATag, 
 //GO(CERT_GetCertChainFromCert, 
-//GO(CERT_GetCertEmailAddress, 
+GO(CERT_GetCertEmailAddress, pFp)
 //GO(CERT_GetCertificateDer, 
 //GO(CERT_GetCertificateNames, 
 //GO(CERT_GetCertificateRequestExtensions, 
@@ -160,21 +160,21 @@
 //GO(CERT_GetCertNicknames, 
 //GO(CERT_GetCertTimes, 
 //GO(CERT_GetCertTrust, 
-//GO(CERT_GetCertUid, 
+GO(CERT_GetCertUid, pFp)
 //GO(CERT_GetClassicOCSPDisabledPolicy, 
 //GO(CERT_GetClassicOCSPEnabledHardFailurePolicy, 
 //GO(CERT_GetClassicOCSPEnabledSoftFailurePolicy, 
-//GO(CERT_GetCommonName, 
+GO(CERT_GetCommonName, pFp)
 //GO(CERT_GetConstrainedCertificateNames, 
-//GO(CERT_GetCountryName, 
+GO(CERT_GetCountryName, pFp)
 //GO(CERT_GetDBContentVersion, 
 //GO(CERT_GetDefaultCertDB, 
-//GO(CERT_GetDomainComponentName, 
+GO(CERT_GetDomainComponentName, pFp)
 //GO(CERT_GetEncodedOCSPResponse, 
 //GO(CERT_GetFirstEmailAddress, 
 //GO(CERT_GetGeneralNameTypeFromString, 
 //GO(CERT_GetImposedNameConstraints, 
-//GO(CERT_GetLocalityName, 
+GO(CERT_GetLocalityName, pFp)
 //GO(CERT_GetNextEmailAddress, 
 //GO(CERT_GetNextGeneralName, 
 //GO(CERT_GetNextNameConstraint, 
@@ -182,14 +182,14 @@
 //GO(CERT_GetOCSPResponseStatus, 
 //GO(CERT_GetOCSPStatusForCertID, 
 //GO(CERT_GetOidString, 
-//GO(CERT_GetOrgName, 
-//GO(CERT_GetOrgUnitName, 
+GO(CERT_GetOrgName, pFp)
+GO(CERT_GetOrgUnitName, pFp)
 //GO(CERT_GetPKIXVerifyNistRevocationPolicy, 
 //GO(CERT_GetPrevGeneralName, 
 //GO(CERT_GetPrevNameConstraint, 
 //GO(CERT_GetSlopTime, 
 //GO(CERT_GetSSLCACerts, 
-//GO(CERT_GetStateName, 
+GO(CERT_GetStateName, pFp)
 //GO(CERT_GetSubjectNameDigest, 
 //GO(CERT_GetSubjectPublicKeyDigest, 
 //GO(CERT_GetUsePKIXForValidation, 

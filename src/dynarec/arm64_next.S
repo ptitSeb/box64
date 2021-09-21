@@ -18,9 +18,10 @@ arm64_next:
     stp     x12, x13, [sp, (8 *  4)]
     stp     x14, x15, [sp, (8 *  6)]
     stp     x16, x17, [sp, (8 *  8)]
-    str     x18, [sp, (8 * 10)]
+    stp     x18, x27, [sp, (8 * 10)]    // also save x27(rip) to allow change in LinkNext
 
     mov     x2, lr      // "from" is in lr, so put in x2
+    add     x3, sp, 8*11    // x3 is address to change rip
     // call the function
     bl      LinkNext
     // preserve return value
@@ -31,7 +32,7 @@ arm64_next:
     ldp     x12, x13, [sp, (8 *  4)]
     ldp     x14, x15, [sp, (8 *  6)]
     ldp     x16, x17, [sp, (8 *  8)]
-    ldr     x18, [sp, (8 * 10)]
+    ldp     x18, x27, [sp, (8 * 10)]
     add     sp,  sp, (8 * 12)
     // return offset is jump address
     br      x3

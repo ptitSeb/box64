@@ -61,8 +61,10 @@ typedef void* (*pFpipppppppi_t)(void*, int64_t, void*, void*, void*, void*, void
 	GO(gtk_list_store_set, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_markup, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_text, vFppV_t) \
+	GO(gtk_tree_model_get, vFppV_t) \
 	GO(gtk_widget_style_get, vFppV_t) \
 	GO(gtk_list_store_set_valist, vFppA_t) \
+	GO(gtk_tree_model_get_valist, vFppA_t) \
 	GO(gtk_widget_style_get_valist, vFppA_t) \
 	GO(gtk_timeout_add, uFupp_t) \
 	GO(gtk_list_store_insert_with_values, vFppiV_t) \

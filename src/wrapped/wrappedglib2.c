@@ -791,21 +791,21 @@ EXPORT void* my_g_markup_printf_escaped(x64emu_t *emu, void* fmt, void* b) {
 }
 
 
-EXPORT void my_g_datalist_id_set_data_full(x64emu_t* emu, void* datalist, uint32_t key, void* data, void* freecb)
+EXPORT void my_g_datalist_id_set_data_full(x64emu_t* emu, void* datalist, uintptr_t key, void* data, void* freecb)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     void* fc = findFreeFct(freecb);
     my->g_datalist_id_set_data_full(datalist, key, data, fc);
 }
 
-EXPORT void* my_g_datalist_id_dup_data(x64emu_t* emu, void* datalist, uint32_t key, void* dupcb, void* data)
+EXPORT void* my_g_datalist_id_dup_data(x64emu_t* emu, void* datalist, uintptr_t key, void* dupcb, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     void* cc = findDuplicateFct(dupcb);
     return my->g_datalist_id_dup_data(datalist, key, cc, data);
 }
 
-EXPORT int my_g_datalist_id_replace_data(x64emu_t* emu, void* datalist, uint32_t key, void* oldval, void* newval, void* oldfree, void* newfree)
+EXPORT int my_g_datalist_id_replace_data(x64emu_t* emu, void* datalist, uintptr_t key, void* oldval, void* newval, void* oldfree, void* newfree)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     void* oldfc = findFreeFct(oldfree);
@@ -813,7 +813,7 @@ EXPORT int my_g_datalist_id_replace_data(x64emu_t* emu, void* datalist, uint32_t
     return my->g_datalist_id_replace_data(datalist, key, oldval, newval, oldfc, newfc);
 }
 
-EXPORT void* my_g_variant_new_from_data(x64emu_t* emu, void* type, void* data, uint32_t size, int trusted, void* freecb, void* datacb)
+EXPORT void* my_g_variant_new_from_data(x64emu_t* emu, void* type, void* data, size_t size, int trusted, void* freecb, void* datacb)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     void* fc = findFreeFct(freecb);
@@ -916,7 +916,7 @@ EXPORT void my_g_printerr(x64emu_t* emu, void* fmt, void* b)
     free(buf);
 }
 
-EXPORT void* my_g_source_new(x64emu_t* emu, my_GSourceFuncs_t* source_funcs, uint32_t struct_size)
+EXPORT void* my_g_source_new(x64emu_t* emu, my_GSourceFuncs_t* source_funcs, size_t struct_size)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
