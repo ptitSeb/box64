@@ -6,6 +6,8 @@ Linux Userspace x86_64 Emulator with a twist
 ----
 ![box64 build status](https://app.travis-ci.com/ptitSeb/box64.svg?branch=main)
 
+[中文](README_CN.md)
+
 Box64 lets you run x86_64 Linux programs (such as games) on non-x86_64 Linux systems, like ARM (host system needs to be 64bit little-endian).
 
 You can find many more Box64 video on Youtube in the [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ), [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) or [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA) Channels
@@ -76,7 +78,7 @@ GTK libraries are not wrapped yet on box64 (contrary to box86). Many games use g
 Notes about Steam
 ----
 
-Not that Steam is an hybrid 32buts / 64bits. You NEED box86 to run steam, as the client app is a 32bits binaries. It also use a 64bits local server binaries, but like most stuff using libsef/chromium. it's not working correctly on box64 for now.
+Not that Steam is an hybrid 32buts / 64bits. You NEED box86 to run steam, as the client app is a 32bits binaries. It also use a 64bits local server binaries, but like most stuff using libcef/chromium. it's not working correctly on box64 for now.
 So: no Steam for now on box64.
 
 ----
@@ -103,6 +105,7 @@ There are many ways to contribute: code contribution, financial, hardware and ad
 So, in no particular order, I want to thank:
  * For their major code contribution: rajdakin
  * For their major financial contribution: FlyingFathead, stormchaser3000
+ * For hardware contribution and LoongArch migration: [xiaoji](https://www.linuxgame.cn/), Deepin Beijing Develop Team
  * For their hardware contribution: [Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/)
  * For their continous advertisement of box64 project: salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[TwisterOS](https://twisteros.com/) team, [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg), ekianjo ([Boilingsteam](https://boilingsteam.com/))
 
