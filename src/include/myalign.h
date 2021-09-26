@@ -111,7 +111,7 @@ typedef struct  va_list {
     uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
     int n = (X64_VA_MAX_REG - (VA)->gp_offset)/8;                       \
     if(n) memcpy(&p[0], (VA)->reg_save_area, n*8);                      \
-    memcpy(&p[n], STACK, 100*8);                                        \
+    memcpy(&p[n], (VA)->overflow_arg_area, 100*8);                      \
     sysv_varargs = (va_list)p;                                          \
   }
 // this is an approximation, and if the va_list have some float/double, it will fail!
