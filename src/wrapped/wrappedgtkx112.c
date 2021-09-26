@@ -691,7 +691,11 @@ EXPORT void my_gtk_list_store_set_valist(x64emu_t* emu, void* list, void* iter, 
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
     my->gtk_list_store_set_valist(list, iter, VARARGS);
 }
 
@@ -709,7 +713,11 @@ EXPORT void my_gtk_widget_style_get_valist(x64emu_t* emu, void* widget, void* fi
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
     my->gtk_widget_style_get_valist(widget, first, VARARGS);
 }
 
@@ -1206,7 +1214,11 @@ EXPORT void my_gtk_tree_model_get_valist(x64emu_t* emu, void* tree, void* iter, 
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
     my->gtk_tree_model_get_valist(tree, iter, VARARGS);
 }
 

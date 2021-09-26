@@ -823,7 +823,11 @@ EXPORT void* my_g_variant_new_from_data(x64emu_t* emu, void* type, void* data, s
 EXPORT void* my_g_variant_new_parsed_va(x64emu_t* emu, void* fmt, x64_va_list_t b)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    CREATE_VALIST_FROM_VALIST(b, emu->scratch);
+    #endif
     return my->g_variant_new_parsed_va(fmt, &VARARGS);
 }
 
@@ -1196,7 +1200,11 @@ EXPORT void* my_g_variant_new_va(x64emu_t* emu, char* fmt, void* endptr, x64_va_
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(*b);
+    #else
+    CREATE_VALIST_FROM_VALIST(*b, emu->scratch);
+    #endif
     va_list* aligned = &VARARGS;
     return my->g_variant_new_va(fmt, endptr, &aligned);
 }
@@ -1367,7 +1375,11 @@ EXPORT void* my_g_error_new(x64emu_t* emu, void* domain, int code, void* fmt, ui
 EXPORT void* my_g_error_new_valist(x64emu_t* emu, void* domain, int code, void* fmt, x64_va_list_t V)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
     return my->g_error_new_valist(domain, code, fmt, VARARGS);
 }
 
@@ -1382,7 +1394,11 @@ EXPORT int my_g_fprintf(x64emu_t* emu, void* f, void* fmt, uintptr_t* b)
 EXPORT void my_g_logv(x64emu_t* emu, void* domain, int level, void* fmt, x64_va_list_t V)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
     my->g_logv(domain, level, fmt, VARARGS);
 }
 EXPORT void my_g_log(x64emu_t* emu, void* domain, int level, void* fmt, uintptr_t* b)
@@ -1436,7 +1452,12 @@ EXPORT void my_g_string_append_printf(x64emu_t* emu, void* string, void* fmt, ui
 EXPORT void my_g_string_append_vprintf(x64emu_t* emu, void* string, void* fmt, x64_va_list_t V)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, V);
+    PREPARE_VALIST;
+    #endif
     return my->g_string_append_vprintf(string, fmt, VARARGS);
 }
 
@@ -1451,7 +1472,12 @@ EXPORT void my_g_string_printf(x64emu_t* emu, void* string, void* fmt, uintptr_t
 EXPORT void my_g_string_vprintf(x64emu_t* emu, void* string, void* fmt, x64_va_list_t V)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, V);
+    PREPARE_VALIST;
+    #endif
     return my->g_string_vprintf(string, fmt, VARARGS);
 }
 
@@ -1465,7 +1491,11 @@ EXPORT void* my_g_strjoin(x64emu_t* emu, void* a, uintptr_t* b)
 EXPORT void* my_g_strjoinv(x64emu_t* emu, void* a, x64_va_list_t V)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
     return my->g_strjoinv(a, VARARGS);
 }
 

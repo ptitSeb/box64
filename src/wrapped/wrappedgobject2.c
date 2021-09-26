@@ -590,7 +590,11 @@ EXPORT uint32_t my_g_signal_new_valist(x64emu_t* emu, void* name, size_t itype, 
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
     printf_log(LOG_DEBUG, "g_signal_new_valist for \"%s\", with %d args\n", (const char*)name, n);
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    CREATE_VALIST_FROM_VALIST(b, emu->scratch);
+    #endif
     return my->g_signal_new_valist(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, VARARGS);
 }
 
@@ -648,7 +652,11 @@ EXPORT void* my_g_object_new(x64emu_t* emu, size_t type, void* first, void* b)
 EXPORT void* my_g_object_new_valist(x64emu_t* emu, size_t type, void* first, x64_va_list_t b)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    CREATE_VALIST_FROM_VALIST(b, emu->scratch);
+    #endif
     return my->g_object_new_valist(type, first, VARARGS);
 }
 
@@ -767,7 +775,11 @@ EXPORT void* my_g_type_class_peek_parent(x64emu_t* emu, void* object)
 EXPORT void my_g_signal_emit_valist(x64emu_t* emu, void* inst, uint32_t id, void* quark, x64_va_list_t b)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    CREATE_VALIST_FROM_VALIST(b, emu->scratch);
+    #endif
     my->g_signal_emit_valist(inst, id, quark, VARARGS);
 }
 
@@ -781,7 +793,11 @@ EXPORT void my_g_signal_emit(x64emu_t* emu, void* inst, uint32_t id, void* quark
 EXPORT void my_g_object_get_valist(x64emu_t* emu, void* a1, void* a2, x64_va_list_t b)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    CREATE_VALIST_FROM_VALIST(b, emu->scratch);
+    #endif
     my->g_object_get_valist(a1, a2, VARARGS);
 }
 
@@ -796,7 +812,11 @@ EXPORT void my_g_object_get(x64emu_t* emu, void* a1, void* a2, uintptr_t* b)
 EXPORT void my_g_object_set_valist(x64emu_t* emu, void* a1, void* a2, x64_va_list_t b)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    CREATE_VALIST_FROM_VALIST(b, emu->scratch);
+    #endif
     my->g_object_set_valist(a1, a2, VARARGS);
 }
 

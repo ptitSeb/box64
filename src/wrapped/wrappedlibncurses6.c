@@ -79,7 +79,12 @@ EXPORT int my6_vwprintw(x64emu_t* emu, void* p, void* fmt, x64_va_list_t b)
 {
     libncurses6_my_t *my = (libncurses6_my_t*)my_lib->priv.w.p2;
 
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     return my->vwprintw(p, fmt, VARARGS);
 }
 

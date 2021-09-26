@@ -102,8 +102,18 @@ typedef struct  va_list {
   #error TODO!
 #elif defined(__loongarch64)
 #define CREATE_SYSV_VALIST(A) \
-  va_list sysv_vaargs = (va_list)A;
+  va_list sysv_vaargs = (va_list)A
 // not creating CONVERT_VALIST(A) on purpose
+// this one will create a VA_LIST from x64_va_list using only GPRS and 100 stack element
+#define CREATE_VALIST_FROM_VALIST(VA, SCRATCH)                          \
+  va_list sysv_varargs;                                                 \
+  {                                                                     \
+    uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
+    int n = (X64_VA_MAX_REG - (VA)->gp_offset)/8                        \
+    if(n) memcpy(&p[0], (VA)->reg_save_area, n*8);                      \
+    memcpy(&p[n], STACK, 100*8);                                        \
+    sysv_varargs = (va_list)p;                                            \
+  }
 // this is an approximation, and if the va_list have some float/double, it will fail!
 // if the funciton needs more than 100 args, it will also fail
 #define CREATE_VALIST_FROM_VAARG(STACK, SCRATCH, N)                     \
@@ -113,8 +123,8 @@ typedef struct  va_list {
     p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;                                 \
     p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;                                   \
     memcpy(&p[6], STACK, 100*8);                                        \
-    sysv_varargs = (void*)&p[N];                                        \
-  }                                                                     \
+    sysv_varargs = (va_list)&p[N];                                        \
+  }
 #else
 #error Unknown architecture!
 #endif

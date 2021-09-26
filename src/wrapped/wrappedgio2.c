@@ -590,7 +590,11 @@ EXPORT void my_g_async_initable_new_valist_async(x64emu_t* emu, size_t type, voi
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(var_args);
+    #else
+    CREATE_VALIST_FROM_VALIST(var_args, emu->scratch);
+    #endif
     my->g_async_initable_new_valist_async(type, first, VARARGS, priority, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
@@ -728,7 +732,11 @@ EXPORT void my_g_simple_async_result_set_error_va(x64emu_t* emu, void* simple, v
     library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
     my->g_simple_async_result_set_error_va(simple, domain, code, fmt, VARARGS);
 }
 

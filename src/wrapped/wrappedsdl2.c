@@ -557,7 +557,12 @@ EXPORT void my2_SDL_LogSetOutputFunction(x64emu_t* emu, void* f, void* arg)
 EXPORT int my2_SDL_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b)
 {
     (void)emu;
-    CONVERT_VALIST(b)
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     int r = vsnprintf(buff, s, fmt, VARARGS);
     return r;
 }
