@@ -71,7 +71,7 @@ static void my_log_fn_##A(void* udev, int p, void *f, int l, void* fn, void* fmt
 static uintptr_t my_log_fn_fct_##A = 0;                                                                 \
 static void my_log_fn_##A(void* udev, int p, void *f, int l, void* fn, void* fmt, x64_va_list_t args)   \
 {                                                                                                       \
-    CREATE_VALIST_FROM_VALIST(b, emu->scratch);                                                         \
+    CREATE_VALIST_FROM_VALIST(b, thread_get_emu()->scratch);                                            \
     RunFunction(my_context, my_log_fn_fct_##A, 7, udev, p, f, l, fn, fmt, VARARGS);                     \
 }
 #endif
