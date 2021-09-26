@@ -78,7 +78,7 @@ GTK libraries are not wrapped yet on box64 (contrary to box86). Many games use g
 Notes about Steam
 ----
 
-Not that Steam is an hybrid 32buts / 64bits. You NEED box86 to run steam, as the client app is a 32bits binaries. It also use a 64bits local server binaries, but like most stuff using libcef/chromium. it's not working correctly on box64 for now.
+Not that Steam is an hybrid 32bits / 64bits. You NEED box86 to run steam, as the client app is a 32bits binaries. It also use a 64bits local server binaries, but like most stuff using libcef/chromium. it's not working correctly on box64 for now.
 So: no Steam for now on box64.
 
 ----
