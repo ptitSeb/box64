@@ -102,7 +102,7 @@ typedef struct  va_list {
   #error TODO!
 #elif defined(__loongarch64)
 #define CREATE_SYSV_VALIST(A) \
-  va_list sysv_vaargs = (va_list)A
+  va_list sysv_varargs = (va_list)A
 // not creating CONVERT_VALIST(A) on purpose
 // this one will create a VA_LIST from x64_va_list using only GPRS and 100 stack element
 #define CREATE_VALIST_FROM_VALIST(VA, SCRATCH)                          \
