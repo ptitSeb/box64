@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "myalign.h"
 #include "callback.h"
+#include "emu/x64emu_private.h"
 
 const char* udev1Name = "libudev.so.1";
 #define LIBNAME udev1
