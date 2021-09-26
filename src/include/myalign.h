@@ -100,6 +100,21 @@ typedef struct  va_list {
 
 #define CONVERT_VALIST(A) \
   #error TODO!
+#elif defined(__loongarch64)
+#define CREATE_SYSV_VALIST(A) \
+  va_list sysv_vaargs = (va_list)A;
+// not creating CONVERT_VALIST(A) on purpose
+// this is an approximation, and if the va_list have some float/double, it will fail!
+// if the funciton needs more than 100 args, it will also fail
+#define CREATE_VALIST_FROM_VAARG(STACK, SCRATCH, N)                     \
+  va_list sysv_varargs;                                                 \
+  {                                                                     \
+    uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
+    p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;                                 \
+    p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;                                   \
+    memcpy(&p[6], STACK, 100*8);                                        \
+    sysv_varargs = (void*)&p[N];                                        \
+  }                                                                     \
 #else
 #error Unknown architecture!
 #endif
@@ -115,9 +130,14 @@ typedef struct x64emu_s x64emu_t;
 // 1st pos is of vaarg is 0, not 1!
 void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm, int pos);
 void myStackAlignScanf(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int pos);
-void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm, int pos);
 void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm, int pos);
 void myStackAlignScanfW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int pos);
+#ifndef CONVERT_VALIST
+void myStackAlignValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_va_list_t va);
+void myStackAlignWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_va_list_t va);
+void myStackAlignScanfValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_va_list_t va);
+void myStackAlignScanfWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_va_list_t va);
+#endif
 
 struct x64_stat64 {                   /* x86_64       arm64 */
     uint64_t st_dev;                    /* 0   */   /* 0   */

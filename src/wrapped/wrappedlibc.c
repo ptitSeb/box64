@@ -558,14 +558,24 @@ EXPORT int my___printf_chk(x64emu_t *emu, int chk, void* fmt, void* b)
 
 EXPORT int my_vprintf(x64emu_t *emu, void* fmt, x64_va_list_t b) {
     (void)emu;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     return vprintf(fmt, VARARGS);
 }
 EXPORT int my___vprintf_chk(x64emu_t *emu, void* fmt, x64_va_list_t b) __attribute__((alias("my_vprintf")));
 
 EXPORT int my_vfprintf(x64emu_t *emu, void* F, void* fmt, x64_va_list_t b) {
     (void)emu;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     return vfprintf(F, fmt, VARARGS);
 }
 EXPORT int my___vfprintf_chk(x64emu_t *emu, void* F, void* fmt, x64_va_list_t b) __attribute__((alias("my_vfprintf")));
@@ -686,13 +696,23 @@ EXPORT int my___asprintf(x64emu_t* emu, void** buff, void * fmt, uint64_t * b) _
 
 EXPORT int my_vasprintf(x64emu_t* emu, char** buff, void* fmt, x64_va_list_t b) {
     (void)emu;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     return vasprintf(buff, fmt, VARARGS);
 }
 
 EXPORT int my_vsprintf(x64emu_t* emu, void* buff,  void * fmt, x64_va_list_t b) {
     (void)emu;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     return vsprintf(buff, fmt, VARARGS);
 }
 EXPORT int my___vsprintf_chk(x64emu_t* emu, void* buff, void * fmt, x64_va_list_t b) __attribute__((alias("my_vsprintf")));
@@ -700,14 +720,24 @@ EXPORT int my___vsprintf_chk(x64emu_t* emu, void* buff, void * fmt, x64_va_list_
 EXPORT int my_vfscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
 {
     (void)emu;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignScanfValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     return vfscanf(stream, fmt, VARARGS);
 }
 
 EXPORT int my_vsscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
 {
     (void)emu;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignScanfValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     return vsscanf(stream, fmt, VARARGS);
 }
 
@@ -742,7 +772,12 @@ EXPORT int my___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* 
 
 EXPORT int my_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) {
     (void)emu;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     int r = vsnprintf(buff, s, fmt, VARARGS);
     return r;
 }
@@ -768,7 +803,12 @@ EXPORT int my_vasprintf(x64emu_t* emu, void* strp, void* fmt, void* b, va_list V
 EXPORT int my___vasprintf_chk(x64emu_t* emu, void* buff, int flags, void* fmt, x64_va_list_t b)
 {
     (void)emu; (void)flags;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     int r = vasprintf(buff, fmt, VARARGS);
     return r;
 }
@@ -780,7 +820,12 @@ EXPORT int my___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void* f
 }
 EXPORT int my_vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) {
     (void)emu;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignWValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     int r = vswprintf(buff, s, fmt, VARARGS);
     return r;
 }
@@ -857,7 +902,12 @@ EXPORT void my___syslog_chk(x64emu_t* emu, int priority, int flags, const char* 
 EXPORT void my_vsyslog(x64emu_t* emu, int priority, const char* fmt, x64_va_list_t b)
 {
     (void)emu;
+    #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
     return vsyslog(priority, fmt, VARARGS);
 }
 
