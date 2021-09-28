@@ -214,6 +214,8 @@ typedef struct my_GSourceFuncs_s {
   int  (*check)    (void* source);
   int  (*dispatch) (void* source, GSourceFunc callback,void* user_data);
   void (*finalize) (void* source);
+  GSourceFunc closure;
+  void* marshal;
 } my_GSourceFuncs_t;
 
 #define SUPER() \
@@ -301,17 +303,17 @@ SUPER()
 #undef GO
 // then the static functions callback that may be used with the structure, but dispatch also have a callback...
 #define GO(A)   \
-static uintptr_t fct_funcs_prepare_##A = 0;  \
-static int my_funcs_prepare_##A(void* source, int timeout_) {   \
+static uintptr_t fct_funcs_prepare_##A = 0;                                             \
+static int my_funcs_prepare_##A(void* source, int *timeout_) {                          \
     return (int)RunFunction(my_context, fct_funcs_prepare_##A, 2, source, timeout_);    \
 }   \
-static uintptr_t fct_funcs_check_##A = 0;  \
-static int my_funcs_check_##A(void* source) {   \
+static uintptr_t fct_funcs_check_##A = 0;                                   \
+static int my_funcs_check_##A(void* source) {                               \
     return (int)RunFunction(my_context, fct_funcs_check_##A, 1, source);    \
 }   \
-static uintptr_t fct_funcs_dispatch_cb_##A = 0; \
-static int my_funcs_dispatch_cb_##A(void* a, void* b, void* c, void* d) {   \
-    return (int)RunFunction(my_context, fct_funcs_dispatch_cb_##A, 4, a, b, c, d);    \
+static uintptr_t fct_funcs_dispatch_cb_##A = 0;                                         \
+static int my_funcs_dispatch_cb_##A(void* a, void* b, void* c, void* d) {               \
+    return (int)RunFunction(my_context, fct_funcs_dispatch_cb_##A, 4, a, b, c, d);      \
 }   \
 static uintptr_t fct_funcs_dispatch_##A = 0;  \
 static int my_funcs_dispatch_##A(void* source, void* cb, void* data) {   \
