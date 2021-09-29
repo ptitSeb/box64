@@ -92,6 +92,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(getauxval, LFL_t) \
 	GO(malloc, pFL_t) \
 	GO(__deregister_frame_info, pFp_t) \
+	GO(mallinfo, pFp_t) \
 	GO(__longjmp_chk, vFpi_t) \
 	GO(_longjmp, vFpi_t) \
 	GO(longjmp, vFpi_t) \

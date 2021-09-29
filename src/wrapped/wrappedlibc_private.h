@@ -1106,7 +1106,7 @@ GOM(__lxstat64, iFEipp)
 GO(__madvise, iFpLi)
 GOW(madvise, iFpLi)
 GOWM(makecontext, iFEppiV)
-//GOW(mallinfo, ?Fv)
+GOWM(mallinfo, pFEp)
 GOM(malloc, pFL) // need to wrap to clear allocated memory?
 //GO(malloc_get_state, // Obsolete
 GOW(malloc_info, iFip)

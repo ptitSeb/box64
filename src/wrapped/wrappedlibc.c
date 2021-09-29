@@ -36,6 +36,7 @@
 #include <spawn.h>
 #include <fts.h>
 #include <syslog.h>
+#include <malloc.h>
 #include <getopt.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
@@ -2198,6 +2199,12 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     if(!ret)
         updateProtection((uintptr_t)addr, len, prot);
     return ret;
+}
+
+EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
+{
+    *(struct mallinfo*)p = mallinfo();
+    return p;
 }
 
 EXPORT int my_getopt(int argc, char* const argv[], const char *optstring)

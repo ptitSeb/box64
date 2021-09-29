@@ -2405,6 +2405,7 @@ wrappedlibc:
   - malloc
 - pFp:
   - __deregister_frame_info
+  - mallinfo
 - vFpi:
   - __longjmp_chk
   - _longjmp
