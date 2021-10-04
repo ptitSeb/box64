@@ -292,6 +292,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibz.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlzma.c"
     "${BOX64_ROOT}/src/wrapped/wrappedmpg123.c"
+    "${BOX64_ROOT}/src/wrapped/wrappednsl.c"
     "${BOX64_ROOT}/src/wrapped/wrappednspr4.c"
     "${BOX64_ROOT}/src/wrapped/wrappednss3.c"
     "${BOX64_ROOT}/src/wrapped/wrappednssutil3.c"

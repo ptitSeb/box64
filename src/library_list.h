@@ -170,6 +170,7 @@ GO("libnspr4.so", nspr4)
 GO("libplds4.so", plds4)
 GO("libplc4.so", plc4)
 GO("libssl3.so", ssl3)
+GO("libnsl.so.1", nsl)
 GO("libselinux.so.1", selinux)
 GO("libsecret-1.so.0", secret1)
 
