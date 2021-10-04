@@ -1431,7 +1431,7 @@ GO(EC_KEY_new_by_curve_name, pFi)
 //GO(EC_KEY_precompute_mult, 
 //GO(EC_KEY_print, 
 //GO(EC_KEY_print_fp, 
-//GO(EC_KEY_set_asn1_flag, 
+GO(EC_KEY_set_asn1_flag, vFpi)
 //GO(EC_KEY_set_conv_form, 
 //GO(EC_KEY_set_enc_flags, 
 //GO(EC_KEY_set_flags, 
@@ -1668,7 +1668,7 @@ GO(ERR_lib_error_string, pFu)
 //GO(ERR_load_COMP_strings, 
 //GO(ERR_load_CONF_strings, 
 GO(ERR_load_crypto_strings, vFv)
-//GO(ERR_load_CRYPTO_strings, 
+GO(ERR_load_CRYPTO_strings, vFv)
 //GO(ERR_load_DH_strings, 
 //GO(ERR_load_DSA_strings, 
 //GO(ERR_load_DSO_strings, 
@@ -1677,12 +1677,12 @@ GO(ERR_load_crypto_strings, vFv)
 //GO(ERR_load_EC_strings, 
 //GO(ERR_load_ENGINE_strings, 
 //GO(ERR_load_ERR_strings, 
-//GO(ERR_load_EVP_strings, 
+GO(ERR_load_EVP_strings, vFv)
 //GO(ERR_load_OBJ_strings, 
 //GO(ERR_load_OCSP_strings, 
 //GO(ERR_load_PEM_strings, 
 //GO(ERR_load_PKCS12_strings, 
-//GO(ERR_load_PKCS7_strings, 
+GO(ERR_load_PKCS7_strings, vFv)
 //GO(ERR_load_RAND_strings, 
 //GO(ERR_load_RSA_strings, 
 //GO(ERR_load_strings, 
@@ -1799,7 +1799,7 @@ GO(EVP_CIPHER_CTX_cleanup, iFp)
 //GO(EVP_CIPHER_CTX_copy, 
 GO(EVP_CIPHER_CTX_ctrl, iFpiip)
 //GO(EVP_CIPHER_CTX_flags, 
-//GO(EVP_CIPHER_CTX_free, 
+GO(EVP_CIPHER_CTX_free, vFp)
 //GO(EVP_CIPHER_CTX_get_app_data, 
 GO(EVP_CIPHER_CTX_init, vFp)
 //GO(EVP_CIPHER_CTX_iv_length, 
@@ -1896,14 +1896,18 @@ GO(EVP_md5, pFv)
 GO(EVP_MD_block_size, iFp)
 //GO(EVP_mdc2, 
 GO(EVP_MD_CTX_cleanup, iFp)
-//GO(EVP_MD_CTX_clear_flags, 
+GO(EVP_MD_CTX_clear_flags, vFpi)
 GO(EVP_MD_CTX_copy, iFpp)
 GO(EVP_MD_CTX_copy_ex, iFpp)
 //GO(EVP_MD_CTX_create, 
+GO(EVP_MD_CTX_ctrl, vFpiip)
 GO(EVP_MD_CTX_destroy, vFp)
+GO(EVP_MD_CTX_free, vFp)
 //GO(EVP_MD_CTX_init, 
 GO(EVP_MD_CTX_md, pFp)
-//GO(EVP_MD_CTX_set_flags, 
+GO(EVP_MD_CTX_new, pFv)
+GO(EVP_MD_CTX_reset, iFp)
+GO(EVP_MD_CTX_set_flags, vFpi)
 //GO(EVP_MD_CTX_test_flags, 
 //GO(EVP_MD_do_all, 
 //GO(EVP_MD_do_all_sorted, 
@@ -1948,21 +1952,21 @@ GO(EVP_PKEY_assign, iFpip)
 GO(EVP_PKEY_cmp, iFpp)
 GO(EVP_PKEY_cmp_parameters, iFpp)
 GO(EVP_PKEY_copy_parameters, iFpp)
-//GO(EVP_PKEY_CTX_ctrl, 
-//GO(EVP_PKEY_CTX_ctrl_str, 
-//GO(EVP_PKEY_CTX_dup, 
-//GO(EVP_PKEY_CTX_free, 
+GO(EVP_PKEY_CTX_ctrl, iFpiiiip)
+GO(EVP_PKEY_CTX_ctrl_str, iFppp)
+GO(EVP_PKEY_CTX_dup, pFp)
+GO(EVP_PKEY_CTX_free, vFp)
 //GO(EVP_PKEY_CTX_get0_peerkey, 
 //GO(EVP_PKEY_CTX_get0_pkey, 
-//GO(EVP_PKEY_CTX_get_app_data, 
+GO(EVP_PKEY_CTX_get_app_data, pFp)
 //GO(EVP_PKEY_CTX_get_cb, 
 //GO(EVP_PKEY_CTX_get_data, 
-//GO(EVP_PKEY_CTX_get_keygen_info, 
+GO(EVP_PKEY_CTX_get_keygen_info, iFpi)
 //GO(EVP_PKEY_CTX_get_operation, 
-//GO(EVP_PKEY_CTX_new, 
-//GO(EVP_PKEY_CTX_new_id, 
+GO(EVP_PKEY_CTX_new, pFpp)
+GO(EVP_PKEY_CTX_new_id, pFip)
 //GO(EVP_PKEY_CTX_set0_keygen_info, 
-//GO(EVP_PKEY_CTX_set_app_data, 
+GO(EVP_PKEY_CTX_set_app_data, vFpp)
 //GO(EVP_PKEY_CTX_set_cb, 
 //GO(EVP_PKEY_CTX_set_data, 
 //GO(EVP_PKEY_decrypt, 
@@ -1988,8 +1992,8 @@ GO(EVP_PKEY_get1_RSA, pFp)
 //GO(EVP_PKEY_get_attr_count, 
 //GO(EVP_PKEY_get_default_digest_nid, 
 //GO(EVP_PKEY_id, 
-//GO(EVP_PKEY_keygen, 
-//GO(EVP_PKEY_keygen_init, 
+GO(EVP_PKEY_keygen, iFpp)
+GO(EVP_PKEY_keygen_init, iFp)
 //GO(EVP_PKEY_meth_add0, 
 //GO(EVP_PKEY_meth_copy, 
 //GO(EVP_PKEY_meth_find, 
@@ -2013,8 +2017,8 @@ GO(EVP_PKEY_get1_RSA, pFp)
 GO(EVP_PKEY_missing_parameters, iFp)
 GO(EVP_PKEY_new, pFv)
 //GO(EVP_PKEY_new_mac_key, 
-//GO(EVP_PKEY_paramgen, 
-//GO(EVP_PKEY_paramgen_init, 
+GO(EVP_PKEY_paramgen, iFpp)
+GO(EVP_PKEY_paramgen_init, iFp)
 //GO(EVP_PKEY_print_params, 
 //GO(EVP_PKEY_print_private, 
 //GO(EVP_PKEY_print_public, 
@@ -2613,6 +2617,7 @@ GO(OPENSSL_config, vFp)
 //GO(OPENSSL_gmtime_diff, 
 //GO(OPENSSL_ia32cap_loc, 
 //GO(OPENSSL_init, 
+GO(OPENSSL_init_crypto, iFUp)
 //GO(OPENSSL_instrument_bus, 
 //GO(OPENSSL_instrument_bus2, 
 //GO(OPENSSL_isservice, 
