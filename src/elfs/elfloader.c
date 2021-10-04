@@ -448,12 +448,12 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
             case R_X86_64_GLOB_DAT:
                 if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername) && FindR64COPYRel(my_context->elfs[0], symname, &globoffs, &globp, version, vername)) {
                     // set global offs / size for the symbol
-                    offs = sym->st_value + head->delta;
+                    offs = sym->st_value;
                     end = offs + sym->st_size;
-                    if(sym->st_size) {
-                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
-                        //memmove((void*)globoffs, (void*)offs, sym->st_size);   // preapply to copy part from lib to main elf
-                        AddWeakSymbol(GetGlobalData(maplib), symname, offs, sym->st_size, version, vername);
+                    if(sym->st_size && offs) {
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)(offs + head->delta), (void*)globoffs, sym->st_size, symname);
+                        memmove((void*)globoffs, (void*)offs, sym->st_size);   // preapply to copy part from lib to main elf
+                        AddWeakSymbol(GetGlobalData(maplib), symname, offs + head->delta, sym->st_size, version, vername);
                     } else {
                         printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) null sized on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, symname);
                     }
