@@ -69,6 +69,24 @@
                     LDRSW_U12(x1, wback, fixedaddress); \
                     wb = ed = x1;                       \
                 }
+#define GETED32(D)  if(MODREG) {                        \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    LDRxw_U12(x1, wback, fixedaddress); \
+                    ed = x1;                            \
+                }
+#define GETSED32w(D)  if((nextop&0xC0)==0xC0) {         \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    SXTWx(x1, ed);                      \
+                    wb = x1;                            \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, D); \
+                    LDRSW_U12(x1, wback, fixedaddress); \
+                    wb = ed = x1;                       \
+                }
 //GETEDH can use hint for ed, and r1 or r2 for wback (depending on hint). wback is 0 if ed is xEAX..xEDI
 #define GETEDH(hint, D) if(MODREG) {                    \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
@@ -78,13 +96,30 @@
                     LDRxw_U12(hint, wback, fixedaddress); \
                     ed = hint;                            \
                 }
+#define GETED32H(hint, D) if(MODREG) {                  \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    LDRxw_U12(hint, wback, fixedaddress); \
+                    ed = hint;                            \
+                }
 //GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
-#define GETEDW(hint, ret, D)   if(MODREG) {              \
+#define GETEDW(hint, ret, D)   if(MODREG) {             \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     MOVxw_REG(ret, ed);                 \
                     wback = 0;                          \
                 } else {                                \
                     addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    ed = ret;                           \
+                    LDRxw_U12(ed, wback, fixedaddress); \
+                }
+#define GETED32W(hint, ret, D)   if(MODREG) {           \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    MOVxw_REG(ret, ed);                 \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
                     ed = ret;                           \
                     LDRxw_U12(ed, wback, fixedaddress); \
                 }
