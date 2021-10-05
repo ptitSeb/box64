@@ -313,6 +313,18 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VFMLAQS(v0, v1, q0);
             break;
 
+        case 0xE6:
+            INST_NAME("CVTPD2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(v1, 0);
+            GETGX_empty(v0);
+            u8 = sse_setround(dyn, ninst, x1, x2, x3);
+            FRINTXD(v0, v1);
+            x87_restoreround(dyn, ninst, u8);
+            VFCVTNSQD(v0, v0);  // convert double -> int64
+            SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
+            break;
+
         case 0xF0:
             INST_NAME("LDDQU Gx,Ex");
             nextop = F8;
