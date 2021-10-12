@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <sys/mman.h>
 
+#include <wrappedlibs.h>
 #include "custommem.h"
 #include "bridge.h"
 #include "bridge_private.h"
@@ -59,13 +60,14 @@ void FreeBridge(bridge_t** bridge)
     if(!bridge || !*bridge)
         return;
     brick_t *b = (*bridge)->head;
+    x64emu_t* emu = thread_get_emu();
     while(b) {
         brick_t *n = b->next;
         #ifdef DYNAREC
         if(getProtection((uintptr_t)b->b)&PROT_DYNAREC)
             unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
         #endif
-        free(b->b);
+        my_munmap(emu, b->b, NBRICK*sizeof(onebridge_t));
         free(b);
         b = n;
     }
