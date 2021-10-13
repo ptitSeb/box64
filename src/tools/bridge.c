@@ -35,6 +35,10 @@ typedef struct bridge_s {
     kh_bridgemap_t  *bridgemap;
 } bridge_t;
 
+// from src/wrapped/wrappedlibc.c
+void* my_mmap(x64emu_t* emu, void* addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
+int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
+
 brick_t* NewBrick()
 {
     brick_t* ret = (brick_t*)calloc(1, sizeof(brick_t));
