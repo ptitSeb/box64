@@ -4,7 +4,9 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <pthread.h>
+#include <sys/mman.h>
 
+#include <wrappedlibs.h>
 #include "custommem.h"
 #include "bridge.h"
 #include "bridge_private.h"
@@ -33,12 +35,18 @@ typedef struct bridge_s {
     kh_bridgemap_t  *bridgemap;
 } bridge_t;
 
+// from src/wrapped/wrappedlibc.c
+void* my_mmap(x64emu_t* emu, void* addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
+int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
+
 brick_t* NewBrick()
 {
     brick_t* ret = (brick_t*)calloc(1, sizeof(brick_t));
-    if(posix_memalign((void**)&ret->b, box64_pagesize, NBRICK*sizeof(onebridge_t))) {
+    void* ptr = my_mmap(thread_get_emu(), NULL, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE, MAP_PRIVATE | 0x40 | MAP_ANONYMOUS, -1, 0); // 0x40 is MAP_32BIT
+    if(ptr == MAP_FAILED) {
         printf_log(LOG_NONE, "Warning, cannot allocate 0x%lx aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
     }
+    ret->b = ptr;
     return ret;
 }
 
@@ -56,13 +64,14 @@ void FreeBridge(bridge_t** bridge)
     if(!bridge || !*bridge)
         return;
     brick_t *b = (*bridge)->head;
+    x64emu_t* emu = thread_get_emu();
     while(b) {
         brick_t *n = b->next;
         #ifdef DYNAREC
         if(getProtection((uintptr_t)b->b)&PROT_DYNAREC)
             unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
         #endif
-        free(b->b);
+        my_munmap(emu, b->b, NBRICK*sizeof(onebridge_t));
         free(b);
         b = n;
     }
