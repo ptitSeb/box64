@@ -47,6 +47,23 @@ If it's the first install, you also need:
 sudo systemctl restart systemd-binfmt
 ```
 
+#### for Snapdragon 845
+
+Using a 64bits OS:
+
+```
+git clone https://github.com/ptitSeb/box64
+cd box64
+mkdir build; cd build; cmake .. -DSD845=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+make -j4
+sudo make install
+```
+If it's the first install, you also need:
+```
+sudo systemctl restart systemd-binfmt
+```
+
+
 #### for LoongArch
 
 Using a 64bits OS:
