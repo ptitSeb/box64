@@ -116,7 +116,11 @@ GO(pthread_detach, iFL)
 GO(pthread_equal, iFLL)
 GO(pthread_exit, vFp)
 GOM(pthread_getaffinity_np, iFEpLp)
+#ifdef NOALIGN
 GO(pthread_getattr_np, iFLp)
+#else
+GOM(pthread_getattr_np, iFELp)
+#endif
 //GO(pthread_getconcurrency, iFv)
 //GO(pthread_getcpuclockid, iFup)
 GO(pthread_getschedparam, iFLpp)

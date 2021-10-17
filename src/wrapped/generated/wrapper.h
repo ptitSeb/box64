@@ -1908,6 +1908,7 @@ void iFipiip(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(NOALIGN)
+void iFELp(x64emu_t *emu, uintptr_t fnc);
 void iFEppu(x64emu_t *emu, uintptr_t fnc);
 void iFEiiip(x64emu_t *emu, uintptr_t fnc);
 void iFEipii(x64emu_t *emu, uintptr_t fnc);

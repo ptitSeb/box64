@@ -1864,6 +1864,7 @@
 #!defined(HAVE_LD80BITS) KFKp
 #!defined(HAVE_LD80BITS) vFppippKKC
 #defined(NOALIGN) iFipiip
+#!defined(NOALIGN) iFELp
 #!defined(NOALIGN) iFEppu
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
@@ -2730,6 +2731,8 @@ wrappedlibpthread:
 - vFpi:
   - _pthread_cleanup_pop
   - _pthread_cleanup_pop_restore
+- iFLp:
+  - pthread_getattr_np
 - iFpi:
   - __pthread_mutexattr_settype
   - pthread_attr_setdetachstate
