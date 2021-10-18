@@ -14,6 +14,7 @@
 typedef void (*vFp_t)(void*);
 typedef int64_t (*iFp_t)(void*);
 typedef void (*vFpi_t)(void*, int64_t);
+typedef int64_t (*iFLp_t)(uintptr_t, void*);
 typedef int64_t (*iFpi_t)(void*, int64_t);
 typedef int64_t (*iFpL_t)(void*, uintptr_t);
 typedef int64_t (*iFpp_t)(void*, void*);
@@ -48,6 +49,7 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_mutexattr_init, iFp_t) \
 	GO(_pthread_cleanup_pop, vFpi_t) \
 	GO(_pthread_cleanup_pop_restore, vFpi_t) \
+	GO(pthread_getattr_np, iFLp_t) \
 	GO(__pthread_mutexattr_settype, iFpi_t) \
 	GO(pthread_attr_setdetachstate, iFpi_t) \
 	GO(pthread_attr_setinheritsched, iFpi_t) \

@@ -417,6 +417,11 @@ EXPORT int my_pthread_attr_setstackaddr(x64emu_t* emu, pthread_attr_t* attr, voi
 	return pthread_attr_setstack(getAlignedAttr(attr), addr, size);
 	//return pthread_attr_setstackaddr(getAlignedAttr(attr), addr);
 }
+EXPORT int my_pthread_getattr_np(x64emu_t* emu, pthread_t thread_id, pthread_attr_t* attr)
+{
+	(void)emu;
+	return pthread_getattr_np(thread_id, getAlignedAttrWithInit(attr, 0));
+}
 #endif
 
 EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
