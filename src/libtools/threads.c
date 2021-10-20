@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <setjmp.h>
 #include <sys/mman.h>
+#include <dlfcn.h>
 
 #include "debug.h"
 #include "box64context.h"
@@ -28,8 +29,12 @@
 #include "dynablock.h"
 #endif
 
-void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
-void _pthread_cleanup_pop_restore(void* buffer, int exec);
+//void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
+//void _pthread_cleanup_pop_restore(void* buffer, int exec);
+typedef void (*vFppp_t)(void*, void*, void*);
+typedef void (*vFpi_t)(void*, int);
+static vFppp_t real_pthread_cleanup_push_defer = NULL;
+static vFpi_t real_pthread_cleanup_pop_restore = NULL;
 void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop(void* buffer, int exec);
 
@@ -668,7 +673,7 @@ EXPORT int my_pthread_cond_wait(x64emu_t* emu, pthread_cond_t* cond, void* mutex
 EXPORT void my__pthread_cleanup_push_defer(x64emu_t* emu, void* buffer, void* routine, void* arg)
 {
     (void)emu;
-	_pthread_cleanup_push_defer(buffer, findcleanup_routineFct(routine), arg);
+	real_pthread_cleanup_push_defer(buffer, findcleanup_routineFct(routine), arg);
 }
 
 EXPORT void my__pthread_cleanup_push(x64emu_t* emu, void* buffer, void* routine, void* arg)
@@ -680,7 +685,7 @@ EXPORT void my__pthread_cleanup_push(x64emu_t* emu, void* buffer, void* routine,
 EXPORT void my__pthread_cleanup_pop_restore(x64emu_t* emu, void* buffer, int exec)
 {
     (void)emu;
-	_pthread_cleanup_pop_restore(buffer, exec);
+	real_pthread_cleanup_pop_restore(buffer, exec);
 }
 
 EXPORT void my__pthread_cleanup_pop(x64emu_t* emu, void* buffer, int exec)
@@ -1135,6 +1140,9 @@ emu_jmpbuf_t* GetJmpBuf()
 
 void init_pthread_helper()
 {
+	real_pthread_cleanup_push_defer = (vFppp_t)dlsym(NULL, "_pthread_cleanup_push_defer");
+	real_pthread_cleanup_pop_restore = (vFpi_t)dlsym(NULL, "_pthread_cleanup_pop_restore");
+
 	InitCancelThread();
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 }
