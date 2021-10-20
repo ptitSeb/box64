@@ -457,7 +457,7 @@ add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX64_ROOT}/src/git_head
 set_target_properties(${BOX64} PROPERTIES ENABLE_EXPORTS ON)
 add_dependencies(${BOX64} WRAPPERS)
 #add_dependencies(${BOX64} PRINTER)
-target_link_libraries(${BOX64} m dl rt pthread)
+target_link_libraries(${BOX64} c m dl rt pthread)
 if(ARM_DYNAREC)
     target_link_libraries(${BOX64} dynarec)
 endif()
