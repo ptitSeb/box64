@@ -23,7 +23,7 @@ prepare() {
 	cd "${srcdir}/${pkgname%-arm64-git}"
 	if [[ ! -d ./build ]]; then
 		mkdir build && cd build
-		cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+		cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=Debug
 	fi
 }
 
