@@ -1,0 +1,43 @@
+# Maintainer: Jai-JAP <parjailu@gmail.com>
+# Author: Sebastien Chevalier <ptitseb@box86.org>
+pkgname=box64-x64-git
+pkgver=1116.9243ea4
+pkgrel=1
+pkgdesc="Linux Userspace x86_64 Emulator with a twist, targeted at ARM64 Linux devices."
+arch=('aarch64')
+url="https://github.com/ptitSeb/box64"
+license=('MIT')
+makedepends=('git' 'cmake' 'make')
+provides=("${pkgname%-git}" "${pkgname%-x64-git}-git" "${pkgname%-x64-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-x64-git}-git" "${pkgname%-x64-git}")
+source=('git+https://github.com/ptitSeb/box64')
+md5sums=('SKIP')
+
+pkgver() {
+	cd "$srcdir/${pkgname%-x64-git}"
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+	cd "${srcdir}/${pkgname%-x64-git}"
+	if [[ ! -d ./build ]]; then
+		mkdir build && cd build
+		cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=Debug
+	fi
+}
+
+build() {
+	cd "$srcdir/${pkgname%-x64-git}/build"
+	make -j$(nproc)
+}
+
+package() {
+	cd "$srcdir/${pkgname%-x64-git}/build"
+	make DESTDIR="${pkgdir}/" install
+	# /usr/local/bin isn't in PATH by the default,
+	# we should move it to /usr/bin
+	cd ${pkgdir}
+	mv usr/local/bin/ usr/bin/
+	# cleanup when dir is empty
+	rmdir usr/local || exit 0
+}
