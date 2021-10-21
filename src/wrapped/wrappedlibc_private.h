@@ -2089,8 +2089,8 @@ GOW(wcpncpy, pFppL)
 GOW(wcrtomb, LFpip)
 //GO(__wcrtomb_chk, 
 GOW(wcscasecmp, iFpp)
-//GO(__wcscasecmp_l, 
-//GOW(wcscasecmp_l, iFpp!)
+GO(__wcscasecmp_l, iFppp)
+GOW(wcscasecmp_l, iFppp)
 GOW(wcscat, pFpp)
 //GO(__wcscat_chk, 
 GO(wcschr, pFpi)
