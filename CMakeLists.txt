@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.4)
 
 cmake_policy(SET CMP0065 NEW)
 
+SET(CMAKE_C_FLAGS_DEBUG  "-O0 -g")
+SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
+
 option(RPI4ARM64 "Set to ON if targeting an RaspberryPI4 device with multiarch arm64 and armhf" ${RPI4ARM64})
 option(RK3326 "Set to ON if targeting an Rockchip RK3326 based device" ${RK3326})
 option(RK3399 "Set to ON if targeting an Rockchip RK3399 based device" ${RK3399})
