@@ -37,7 +37,7 @@ GO(FcCharSetNextPage, iFppp)    // second p is a fixed sized array
 GO(FcCharSetSubtract, pFpp)
 //GO(FcCharSetSubtractCount, 
 GO(FcCharSetUnion, pFpp)
-//GO(FcConfigAppFontAddDir, 
+GO(FcConfigAppFontAddDir, iFpp)
 GO(FcConfigAppFontAddFile, iFpp)
 //GO(FcConfigAppFontClear, 
 //GO(FcConfigBuildFonts, 
