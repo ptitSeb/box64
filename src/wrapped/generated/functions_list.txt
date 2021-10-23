@@ -2701,6 +2701,17 @@ wrappedlibncursesw:
   - mvprintw
 - iFpiipV:
   - mvwprintw
+wrappedlibncursesw6:
+- pFv:
+  - initscr
+- iFpV:
+  - printw
+- iFppA:
+  - vwprintw
+- iFiipV:
+  - mvprintw
+- iFpiipV:
+  - mvwprintw
 wrappedlibogg:
 wrappedlibpanel:
 wrappedlibpcre:

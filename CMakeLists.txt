@@ -256,6 +256,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibncurses.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibncurses6.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibncursesw.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibncursesw6.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibogg.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpanel.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpcre.c"
