@@ -642,7 +642,7 @@ EXPORT void my2_SDL_Log(x64emu_t* emu, void* fmt, void *b) {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // SDL_LOG_PRIORITY_INFO == 3
     // SDL_LOG_CATEGORY_APPLICATION == 0
-    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;
     my->SDL_LogMessageV(0, 3, fmt, VARARGS);
 }
