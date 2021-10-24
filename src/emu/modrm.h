@@ -31,6 +31,7 @@
 #define GETEX_OFFS(D, O)    opex=GetExO(emu, rex, nextop, D, O)
 #define GETGX               opgx=GetGx(emu, rex, nextop)
 #define GETEM(D)            opem=GetEm(emu, rex, nextop, D)
+#define GETEM32(D)          opem=GetEm32O(emu, rex, nextop, D, 0)
 #define GETGM               opgm=GetGm(emu, rex, nextop)
 #define ED  oped
 #define GD  opgd

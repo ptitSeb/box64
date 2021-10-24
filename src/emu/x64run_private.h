@@ -94,6 +94,7 @@ reg64_t* GetGd(x64emu_t *emu, rex_t rex, uint8_t v);
 #define GetGw GetGd
 reg64_t* GetGb(x64emu_t *emu, rex_t rex, uint8_t v);
 mmx87_regs_t* GetGm(x64emu_t *emu, rex_t rex, uint8_t v);
+mmx87_regs_t* GetEm32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 sse_regs_t* GetGx(x64emu_t *emu, rex_t rex, uint8_t v);
 
 void UpdateFlags(x64emu_t *emu);

@@ -1276,6 +1276,14 @@ sse_regs_t* GetEx32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr
     } else return (sse_regs_t*)GetECommon32O(emu, rex, m, delta, offset);
 }
 
+mmx87_regs_t* GetEm32O(x64emu_t *emu, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &emu->mmx[(m&0x07)];
+    } else return (mmx87_regs_t*)GetECommon32O(emu, rex, m, delta, offset);
+}
+
 
 reg64_t* GetGd(x64emu_t *emu, rex_t rex, uint8_t v)
 {

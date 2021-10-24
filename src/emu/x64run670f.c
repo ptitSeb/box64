@@ -65,6 +65,20 @@ int Run670F(x64emu_t *emu, rex_t rex, int rep)
             CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
             break;
 
+        case 0x6F:                      /* MOVQ Gm, Em */
+            nextop = F8;
+            GETEM32(0);
+            GETGM;
+            GM->q = EM->q;
+            break;
+
+        case 0x7F:                      /* MOVQ Em, Gm */
+            nextop = F8;
+            GETEM32(0);
+            GETGM;
+            EM->q = GM->q;
+            break;
+
     default:
         return 1;
     }

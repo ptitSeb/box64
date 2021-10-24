@@ -26,6 +26,12 @@
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     a = sse_get_reg(dyn, ninst, x1, gd)
 
+#define GETGM(a)                        \
+    gd = ((nextop&0x38)>>3);            \
+    a = mmx_get_reg(dyn, ninst, x1, gd)
+
+#define GETGm   gd = ((nextop&0x38)>>3)
+
 uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     (void)ip; (void)need_epilog;
@@ -38,10 +44,11 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t u8;
     int32_t i32;
     int64_t j64, i64;
-    int v0, s0;
+    int v0, v1, s0;
     MAYUSE(i32);
     MAYUSE(j64);
     MAYUSE(v0);
+    MAYUSE(v1);
     MAYUSE(s0);
 
     // REX prefix before the 67 are ignored
@@ -81,6 +88,34 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                         FCMPS(v0, s0);
                         FCOMI(x1, x2);
+                    }
+                    break;
+
+                case 0x6F:
+                    INST_NAME("MOVQ Gm, Em");
+                    nextop = F8;
+                    GETGm;
+                    if(MODREG) {
+                        v1 = mmx_get_reg(dyn, ninst, x1, nextop&7); // no rex.b on MMX
+                        v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                        VMOVeD(v0, 0, v1, 0);
+                    } else {
+                        v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                        VLDR64_U12(v0, ed, fixedaddress);
+                    }
+                    break;
+
+                case 0x7F:
+                    INST_NAME("MOVQ Em, Gm");
+                    nextop = F8;
+                    GETGM(v0);
+                    if(MODREG) {
+                        v1 = mmx_get_reg_empty(dyn, ninst, x1, nextop&7);
+                        VMOV(v1, v0);
+                    } else {
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                        VSTR64_U12(v0, ed, fixedaddress);
                     }
                     break;
 
