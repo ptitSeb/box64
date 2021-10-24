@@ -911,6 +911,11 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_INFO, "steam-runtime-check-requirements detected, faking All is good!\n");
         exit(0);    // exiting, not testing anything
     }
+    // special case for steam-runtime-check-requirements to fake 64bits suport
+    if(strstr(prgname, "steamwebhelper")==prgname) {
+        printf_log(LOG_INFO, "steamwebhelper, ignoring for now!\n");
+        exit(0);    // exiting
+    }
     // special case for UnrealLinux.bin, it doesn't like "full path resolution"
     if(!strcmp(prog, "UnrealLinux.bin") && my_context->argv[0]) {
         free(my_context->argv[0]);
