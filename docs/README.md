@@ -103,7 +103,7 @@ Final word
 I want to thank everyone who has contributed to box64 developpement.
 There are many ways to contribute: code contribution, financial, hardware and advertisement!
 So, in no particular order, I want to thank:
- * For their major code contribution: rajdakin
+ * For their major code contribution: rajdakin, mogery
  * For their major financial contribution: FlyingFathead, stormchaser3000
  * For hardware contribution and LoongArch migration: [xiaoji](https://www.linuxgame.cn/), Deepin Beijing Develop Team
  * For their hardware contribution: [Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/)
