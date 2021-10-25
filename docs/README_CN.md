@@ -108,7 +108,7 @@ Box64尚未封装原生Vulkan库，有计划这么做，但目前，vulkan程序
 我要感谢所有为 box64 开发做出贡献的人。
 贡献方式有很多种：代码贡献、财务帮助、捐赠捐赠和广告合作！
 以下感谢不分先后： 
- * 代码贡献：rajdakin
+ * 代码贡献：rajdakin, mogery
  * 财务帮助：FlyingFathead, stormchaser3000
  * 硬件捐赠：[Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/)
  * 硬件捐赠和LoongArch迁移：[xiaoji](https://www.linuxgame.cn)
