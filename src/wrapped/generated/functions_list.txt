@@ -388,6 +388,7 @@
 #() iFppl
 #() iFppL
 #() iFppp
+#() iFpOM
 #() iFSpL
 #() IFiIi
 #() IFpIi
@@ -658,6 +659,7 @@
 #() iFipui
 #() iFipup
 #() iFipLi
+#() iFipLu
 #() iFipLp
 #() iFippi
 #() iFippL
@@ -993,6 +995,8 @@
 #() iFipipu
 #() iFipuip
 #() iFipuui
+#() iFipLup
+#() iFippip
 #() iFippLi
 #() iFippLp
 #() iFipppi
@@ -1072,6 +1076,7 @@
 #() lFipili
 #() lFipLli
 #() lFipLLi
+#() lFipLpp
 #() LFELppi
 #() LFEpppp
 #() LFpuppi

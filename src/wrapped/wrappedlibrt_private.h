@@ -5,40 +5,41 @@
 //clockid_t is uint32?
 // pid_t is uint32 too? (for clock_getcpuclockid)
 // time_t is uint32?
+// mqd_t is int
 
-// aio_cancel
+GO(aio_cancel, iFip)
 // aio_cancel64
-// aio_error
+GO(aio_error, iFp)
 GO(aio_error64, iFp)
 GO(aio_fsync, iFip)
 GO(aio_fsync64, iFip)
-// aio_init
-// aio_read
+GO(aio_init, vFp)
+GO(aio_read, iFp)
 GO(aio_read64, iFp)
-// aio_return
+GO(aio_return, lFp)
 GO(aio_return64, lFp)
 GO(aio_suspend, iFpip)
 GO(aio_suspend64, iFpip)
-// aio_write
+GO(aio_write, iFp)
 GO(aio_write64, iFp)
 GO(clock_getcpuclockid, iFup)
 GO(clock_getres, iFup)
 GO(clock_gettime, iFup)
 GO(clock_nanosleep, iFuipp)
 GO(clock_settime, iFup)
-// lio_listio
+GO(lio_listio, iFippip)
 // lio_listio64
-// mq_close
+GO(mq_close, iFi)
 GO(mq_getattr, iFip)
-// mq_notify
-// mq_open
-// __mq_open_2
-// mq_receive
-// mq_send
-// mq_setattr
-// mq_timedreceive
-// mq_timedsend
-// mq_unlink
+GO(mq_notify, iFip)
+GO(mq_open, iFpOM)
+GO(__mq_open_2, iFpO)
+GO(mq_receive, lFipLp)
+GO(mq_send, iFipLu)
+GO(mq_setattr, iFipp)
+GO(mq_timedreceive, lFipLpp)
+GO(mq_timedsend, iFipLup)
+GO(mq_unlink, iFp)
 GO(shm_open, iFpiu)
 GO(shm_unlink, iFp)
 GOM(timer_create, iFEupp)
