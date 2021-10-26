@@ -32,14 +32,21 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
 {
     (void)argc; (void)ubp_av; (void)fini; (void)rtld_fini; (void)stack_end;
 
-    // let's cheat and set all args...
     if(init) {
+        Push64(emu, GetRBP(emu));   // set frame pointer
+        SetRBP(emu, GetRSP(emu));   // save RSP
+        SetRSP(emu, GetRSP(emu)&~0xFLL);    // Align RSP
         PushExit(emu);
+        SetRDX(emu, (uint64_t)my_context->envv);
+        SetRSI(emu, (uint64_t)my_context->argv);
+        SetRDI(emu, (uint64_t)my_context->argc);
         R_RIP=(uint64_t)*init;
         printf_log(LOG_DEBUG, "Calling init(%p) from __libc_start_main\n", *init);
         DynaRun(emu);
         if(emu->error)  // any error, don't bother with more
             return 0;
+        SetRSP(emu, GetRBP(emu));   // restore RSP
+        SetRBP(emu, Pop64(emu));    // restore RBP
         emu->quit = 0;
     }
     printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", my_context->argc, my_context->argv, my_context->envv, main);
