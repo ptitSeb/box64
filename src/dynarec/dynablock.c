@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
+#include <setjmp.h>
 
 #include "debug.h"
 #include "box64context.h"
@@ -290,6 +291,14 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
     return block;
 }
 
+//TODO: move this to dynrec_arm.c and track allocated structure to avoid memory leak
+static __thread struct __jmp_buf_tag dynarec_jmpbuf;
+
+void cancelFillBlock()
+{
+    longjmp(&dynarec_jmpbuf, 1);
+}
+
 /* 
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
@@ -330,6 +339,10 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     // fill the block
     block->x64_addr = (void*)addr;
     pthread_mutex_lock(&my_context->mutex_dyndump);
+    if(sigsetjmp(&dynarec_jmpbuf, 1)) {
+        printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, cancelling\n", (void*)addr);
+        return NULL;
+    }
     void* ret = FillBlock64(block, filladdr);
     pthread_mutex_unlock(&my_context->mutex_dyndump);
     if(!ret) {

@@ -29,4 +29,7 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr)
 // Create and Add an new dynablock in the list, handling direct/map
 dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* created);
 
+// for use in signal handler
+void cancelFillBlock();
+
 #endif //__DYNABLOCK_H_

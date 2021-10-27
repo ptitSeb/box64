@@ -377,7 +377,7 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, size_t size)
                 mmaplist[i].locked = 0;
                 return ret;
             } else {
-                printf_log(LOG_INFO, "BOX64: Warning, sub not found, corrupted mmaplist[%d] info?\n", i);
+                printf_log(LOG_INFO, "BOX64: Warning, sub not found, corrupted mmaplist[%zu] info?\n", i);
                 if(box64_log >= LOG_DEBUG)
                     printBlock(mmaplist[i].block, mmaplist[i].first);
             }
@@ -460,7 +460,7 @@ void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
                 memset(&mmaplist[i].helper[(uintptr_t)sub-(uintptr_t)mmaplist[i].block], 0, size);
             }
             if(mmaplist[i].locked) {
-                printf_log(LOG_INFO, "BOX64: Warning, Free a chunk in a locked mmaplist[%d]\n", i);
+                printf_log(LOG_INFO, "BOX64: Warning, Free a chunk in a locked mmaplist[%zu]\n", i);
                 ++mmaplist[i].locked;
             }
             return;
