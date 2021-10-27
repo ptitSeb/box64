@@ -1,5 +1,33 @@
 Current Version
 ======
+* More functions wrapped
+* Improve speed of the custom allocator used by dynarec and Hash (speedup loading)
+* Added a workaround for streamwebhelper to not load it
+* More opcodes added
+* More wrapped libraries, including gtk2
+* Added a fix for linking box64 on system using glibc 2.34+
+* Some residual fixes on thread attribute handling
+* Better handling of app that want 32bits jumps, like unity3d/mono (thanks mogery)
+* More ARM hardware option in CMake (Phytium, NX...)
+* Added loongarch64 support (interpretor only)
+* Some fixes to elfloader
+* Added a mecanism to cancel a Dynarec block construction if it triggers a segfault (instead of a crash)
+
+v0.1.4
+======
+* Reworked README a bit
+* Added some more wrapped libs
+* Added some SSE4x opcodes
+* Preliminary support for VSyscall (still missing VDSO)
+* Added support for AES-NI cpu extension, also in Dynarec (and using ARM extension if present)
+* Added some syscall
+* Added some more wrapped functions
+* Improvment to the handling of longjmp inside signal handlers
+* Improved wrapper helpers (from rajdakin)
+* Some fixes to opcodes (especially C2 flags for some x87 opcodes)
+* Handling of some specific opcode as privileged instruction (instead of NOP)
+* Fixed ELF signature detection
+* Some fixes to a few env. var. handling
 
 v0.1.2
 ======
