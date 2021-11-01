@@ -93,14 +93,21 @@ void openFTrace()
     char tmp[500];
     char* p = t;
     if(p && strstr(t, "%pid")) {
-        strcpy(tmp, p);
-        char* c = strstr(tmp, "%pid");
-        *c = 0; // cut
-        char pid[10];
-        sprintf(pid, "%d", getpid());
-        strcat(tmp, pid);
-        c = strstr(p, "%pid") + strlen("%pid");
-        strcat(tmp, c);
+        int next = 0;
+        do {
+            strcpy(tmp, p);
+            char* c = strstr(tmp, "%pid");
+            *c = 0; // cut
+            char pid[16];
+            if(next)
+                sprintf(pid, "%d-%d", getpid(), next);
+            else
+                sprintf(pid, "%d", getpid());
+            strcat(tmp, pid);
+            c = strstr(p, "%pid") + strlen("%pid");
+            strcat(tmp, c);
+            ++next;
+        } while (FileExist(tmp, IS_FILE));
         p = tmp;
         ftrace_has_pid = 1;
     }
