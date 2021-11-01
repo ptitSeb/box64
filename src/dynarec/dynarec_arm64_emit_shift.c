@@ -209,7 +209,7 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
         if(c>1) {
             LSRxw(s3, s1, c-1);
         }
-        BFIw(xFlags, s3, 0, 1);
+        BFIw(xFlags, (c>1)?s3:s1, 0, 1);
     }
     LSRxw(s1, s1, c);
     IFX(X_PEND) {
@@ -257,7 +257,7 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
         if(c>1) {
             ASRxw(s3, s1, c-1);
         }
-        BFIw(xFlags, s3, 0, 1);
+        BFIw(xFlags, (c>1)?s3:s1, 0, 1);
     }
     ASRxw(s1, s1, c);
     IFX(X_PEND) {
@@ -366,7 +366,7 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int3
         if(c>1) {
             LSRxw(s3, s1, c-1);
         }
-        BFIw(xFlags, s3, 0, 1);
+        BFIw(xFlags, (c>1)?s3:s1, 0, 1);
     }
     LSRxw(s3, s1, c);
     ORRxw_REG_LSL(s1, s3, s2, (rex.w?64:32)-c);
