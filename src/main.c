@@ -49,6 +49,7 @@ int arm64_asimd = 0;
 int arm64_aes = 0;
 int arm64_pmull = 0;
 int arm64_crc32 = 0;
+int arm64_atomics = 0;
 #endif
 #else   //DYNAREC
 int box64_dynarec = 0;
@@ -149,6 +150,8 @@ void GatherDynarecExtensions()
         arm64_pmull = 1;
     if(hwcap&HWCAP_AES)
         arm64_aes = 1;
+    if(hwcap&HWCAP_ATOMICS)
+        arm64_atomics = 1;
     printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
     if(arm64_aes)
         printf_log(LOG_INFO, " AES");
@@ -156,6 +159,8 @@ void GatherDynarecExtensions()
         printf_log(LOG_INFO, " CRC32");
     if(arm64_pmull)
         printf_log(LOG_INFO, " PMULL");
+    if(arm64_atomics)
+        printf_log(LOG_INFO, " ATOMICS");
     printf_log(LOG_INFO, " PageSize:%d\n", box64_pagesize);
 #endif
 }

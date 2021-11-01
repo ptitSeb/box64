@@ -18,6 +18,7 @@ extern int arm64_asimd;
 extern int arm64_aes;
 extern int arm64_pmull;
 extern int arm64_crc32;
+extern int arm64_atomics;
 #endif
 #endif
 extern int dlsym_error;    // log dlsym error
