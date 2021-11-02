@@ -53,7 +53,7 @@ GO(FT_Get_Glyph, iFpp)
 GO(FT_Get_Glyph_Name, iFpupu)
 GO(FT_Get_Kerning, iFpuuup)
 //GO(FT_Get_MM_Blend_Coordinates, 
-//GO(FT_Get_MM_Var, 
+GO(FT_Get_MM_Var, iFpp)
 //GO(FT_Get_Module, 
 //GO(FT_Get_Multi_Master, 
 GO(FT_Get_Name_Index, uFpp)
