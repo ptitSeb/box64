@@ -2936,6 +2936,8 @@ wrappedlibz:
 - iFp:
   - deflateEnd
   - inflateEnd
+- iFpi:
+  - inflate
 - iFppi:
   - inflateInit_
 - iFpipi:

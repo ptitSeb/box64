@@ -12,6 +12,7 @@
 #endif
 
 typedef int64_t (*iFp_t)(void*);
+typedef int64_t (*iFpi_t)(void*, int64_t);
 typedef int64_t (*iFppi_t)(void*, void*, int64_t);
 typedef int64_t (*iFpipi_t)(void*, int64_t, void*, int64_t);
 typedef int64_t (*iFpippi_t)(void*, int64_t, void*, void*, int64_t);
@@ -20,6 +21,7 @@ typedef int64_t (*iFpiiiiipi_t)(void*, int64_t, int64_t, int64_t, int64_t, int64
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(deflateEnd, iFp_t) \
 	GO(inflateEnd, iFp_t) \
+	GO(inflate, iFpi_t) \
 	GO(inflateInit_, iFppi_t) \
 	GO(deflateInit_, iFpipi_t) \
 	GO(inflateInit2_, iFpipi_t) \

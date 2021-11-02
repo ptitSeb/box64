@@ -173,6 +173,15 @@ EXPORT int my_deflateEnd(x64emu_t* emu, void* str)
     return r;
 }
 
+EXPORT int my_inflate(x64emu_t* emu, void* str, int flush)
+{
+    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
+    wrapper_stream_z(emu, str);
+    return my->inflate(str, flush);
+    //TODO: should unwrap the stream
+}
+
+
 
 #define CUSTOM_INIT \
     box64->zlib = lib; \
