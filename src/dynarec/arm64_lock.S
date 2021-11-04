@@ -88,7 +88,7 @@ arm64_lock_xchg:
     ret
 
 arm64_lock_storeifnull:
-    // address is x0, value is x1, x1 store to x0 only if [x0] is 0. return new [x0] value (so x1 or old value)
+    // address is x0, value is x1, x1 store to x0 only if [x0] is 0, return new [x0] value (so x1 or old value)
     ldaxr   x2, [x0]
     cbnz    x2, arm64_lock_storeifnull_exit
     mov     x2, x1
@@ -99,7 +99,7 @@ arm64_lock_storeifnull_exit:
     ret
 
 arm64_lock_storeifref:
-    // address is x0, value is x1, x1 store to x0 only if [x0] is x3. return new [x0] value (so x1 or old value)
+    // address is x0, value is x1, x1 store to x0 only if [x0] is x2, return new [x0] value (so x1 or old value)
     ldaxr   x3, [x0]
     cmp     x2, x3
     bne     arm64_lock_storeifref_exit

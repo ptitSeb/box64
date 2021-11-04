@@ -1,6 +1,8 @@
-#ifndef __DEBUG_H_
-#define __DEBUG_H_
+#ifndef __DEBUG_H__
+#define __DEBUG_H__
+
 #include <stdint.h>
+#include <stdio.h>
 
 typedef struct box64context_s box64context_t;
 extern int box64_log;    // log level
@@ -61,4 +63,4 @@ extern FILE* ftrace;
 #define EXPORTDYN 
 #endif
 
-#endif //__DEBUG_H_
+#endif //__DEBUG_H__

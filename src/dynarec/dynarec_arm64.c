@@ -338,20 +338,23 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         block->done = 1;
         return (void*)block;
     }
+    // protect the 1st page
+    protectDB(addr, 1);
     // init the helper
     dynarec_arm_t helper = {0};
     helper.start = addr;
     uintptr_t start = addr;
     uintptr_t end = arm_pass0(&helper, addr);
-    if(!helper.size) {
-        dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
+    if(!helper.size || !isprotectedDB(addr, 1)) {
+        dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p) or write on purge on pass0\n", (void*)addr);
         block->done = 1;
         return (void*)block;
     }
     helper.cap = helper.size+3; // needs epilog handling
     helper.insts = (instruction_arm64_t*)calloc(helper.cap, sizeof(instruction_arm64_t));
     // already protect the block and compute hash signature
-    protectDB(addr, end-addr);  //end is 1byte after actual end
+    if((addr&~0xfff)!=(end&~0xfff)) // need to protect some other pages too
+        protectDB(addr, end-addr);  //end is 1byte after actual end
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
     // pass 1, addresses, x64 jump addresses, flags
     arm_pass1(&helper, addr);
@@ -422,7 +425,15 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         }
         printf_log(LOG_NONE, "Table64 \t%d -> %d\n", oldtable64size*8, helper.table64size*8);
         printf_log(LOG_NONE, " ------------\n");
-        //TODO: Cancel block and return empty one
+
+        free(helper.insts);
+        free(helper.next);
+        free(helper.table64);
+        free(helper.sons_x64);
+        free(helper.sons_arm);
+        FreeDynarecMap(block, (uintptr_t)p, sz);
+        return NULL;
+
     }
     // add table64 if needed
     if(helper.table64size) {
@@ -453,7 +464,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     block->x64_size = end-start;
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
     // Check if something changed, to abbort if it as
-    if(block->hash != hash) {
+    if(block->hash != hash || !isprotectedDB(addr, end-addr)) {
         dynarec_log(LOG_INFO, "Warning, a block changed while beeing processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
         free(helper.sons_x64);
         free(helper.sons_arm);

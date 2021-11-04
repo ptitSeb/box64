@@ -38,6 +38,7 @@ uintptr_t getJumpTableAddress64(uintptr_t addr);
 #define PROT_ALLOC      0x40
 #define PROT_CUSTOM     (PROT_DYNAREC|PROT_ALLOC)
 
+// Implemented in mailbox.c
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot);
 void setProtection(uintptr_t addr, size_t size, uint32_t prot);
 void freeProtection(uintptr_t addr, size_t size);
@@ -45,10 +46,8 @@ uint32_t getProtection(uintptr_t addr);
 void loadProtectionFromMap();
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, size_t size);
-void protectDBnolock(uintptr_t addr, size_t size);
 void unprotectDB(uintptr_t addr, size_t size);
-void lockDB();
-void unlockDB();
+int isprotectedDB(uintptr_t addr, size_t size);
 #endif
 void* find32bitBlock(size_t size);
 void* findBlockNearHint(void* hint, size_t size);

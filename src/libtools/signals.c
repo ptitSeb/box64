@@ -310,8 +310,8 @@ uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc
     int oldquitonlongjmp = emu->quitonlongjmp;
     emu->quitonlongjmp = 2;
     
-    //EmuCall(emu, fnc);  // avoid DynaCall for now
-    DynaCall(emu, fnc);
+    EmuCall(emu, fnc);  // avoid DynaCall for now
+    //DynaCall(emu, fnc);
     if(nargs>6)
         R_RSP+=((nargs-6)*sizeof(void*));
 
@@ -736,8 +736,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
 #ifdef DYNAREC
-    if((Locks & (1<<8)) && (sig==SIGSEGV)) //1<<8 is mutex_dyndump
-        cancelFillBlock();  // Segfault inside a Fillblock, just cancel it's creation, don't relock mutex
+    if((Locks & (1<<8)) && (sig==SIGSEGV)) //1<<8 is building_dynablock
+        cancelFillBlock();  // Segfault inside a Fillblock, just cancel it's creation, don't relock mutexes
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
@@ -807,6 +807,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 glitch_pc = pc;
                 glitch_addr = addr;
                 glitch_prot = prot;
+                cleanDBFromAddressRange(((uintptr_t)addr)&~0xfff, 0x1000, 0);
                 relockMutex(Locks);
                 return; // try again
             }

@@ -32,6 +32,9 @@
 #include "x64run.h"
 #include "symbols.h"
 
+void startMailbox(void);
+void haltMailbox(void);
+
 box64context_t *my_context = NULL;
 int box64_log = LOG_INFO; //LOG_NONE;
 int box64_dump = 0;
@@ -711,6 +714,7 @@ void endBox64()
     int running = 1;
     int attempt = 0;
     printf_log(LOG_DEBUG, "Waiting for all threads to finish before unloading box64context\n");
+    haltMailbox();
     while(running) {
         DIR *proc_dir;
         char dirname[100];
@@ -743,7 +747,9 @@ void endBox64()
         }
     }
     // all done, free context
+    startMailbox(); // Need to restart mailbox (to use protections)
     FreeBox64Context(&my_context);
+    haltMailbox();
     if(libGL) {
         free(libGL);
         libGL = NULL;
@@ -802,6 +808,9 @@ int main(int argc, const char **argv, const char **env) {
     }
     if(!box64_nobanner)
         PrintBox64Version();
+
+    startMailbox();
+
     // precheck, for win-preload
     if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader")) 
      || strstr(prog, "wine64-preloader")==(prog+strlen(prog)-strlen("wine64-preloader"))) {

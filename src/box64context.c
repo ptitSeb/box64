@@ -6,6 +6,9 @@
 #include <signal.h>
 #include <sys/mman.h>
 
+#ifdef DYNAREC
+#include "dynarec/arm64_lock.h"
+#endif
 #include "box64context.h"
 #include "debug.h"
 #include "elfloader.h"
@@ -123,11 +126,11 @@ static void init_mutexes(box64context_t* context)
     pthread_mutex_init(&context->mutex_once, &attr);
     pthread_mutex_init(&context->mutex_once2, &attr);
     pthread_mutex_init(&context->mutex_trace, &attr);
-#ifndef DYNAREC
-    pthread_mutex_init(&context->mutex_lock, &attr);
-#else
+    #ifdef DYNAREC
     pthread_mutex_init(&context->mutex_dyndump, &attr);
-#endif
+    #else
+    pthread_mutex_init(&context->mutex_lock, &attr);
+    #endif
     pthread_mutex_init(&context->mutex_tls, &attr);
     pthread_mutex_init(&context->mutex_thread, &attr);
     pthread_mutex_init(&context->mutex_bridge, &attr);
@@ -135,10 +138,24 @@ static void init_mutexes(box64context_t* context)
     pthread_mutexattr_destroy(&attr);
 }
 
+void startMailbox(void);
+void haltMailbox(void);
+static void atfork_prepare_box64context(void)
+{
+    // semaphores will go in undetermined state
+    haltMailbox();
+}
+static void atfork_parent_box64context(void)
+{
+    // reinit mailbox only
+    init_mutexes(my_context);
+    startMailbox();
+}
 static void atfork_child_box64context(void)
 {
-    // (re)init mutex if it was lock before the fork
+    // reinit mutexes and mailbox
     init_mutexes(my_context);
+    startMailbox();
 }
 
 EXPORTDYN
@@ -180,7 +197,7 @@ box64context_t *NewBox64Context(int argc)
     context->argv = (char**)calloc(context->argc+1, sizeof(char*));
 
     init_mutexes(context);
-    pthread_atfork(NULL, NULL, atfork_child_box64context);
+    pthread_atfork(atfork_prepare_box64context, atfork_parent_box64context, atfork_child_box64context);
 
     pthread_key_create(&context->tlskey, free_tlsdatasize);
 
@@ -273,11 +290,11 @@ void FreeBox64Context(box64context_t** context)
     pthread_mutex_destroy(&ctx->mutex_once);
     pthread_mutex_destroy(&ctx->mutex_once2);
     pthread_mutex_destroy(&ctx->mutex_trace);
-#ifndef DYNAREC
-    pthread_mutex_destroy(&ctx->mutex_lock);
-#else
+    #ifdef DYNAREC
     pthread_mutex_destroy(&ctx->mutex_dyndump);
-#endif
+    #else
+    pthread_mutex_destroy(&ctx->mutex_lock);
+    #endif
     pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);
     pthread_mutex_destroy(&ctx->mutex_bridge);

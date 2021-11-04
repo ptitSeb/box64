@@ -27,13 +27,13 @@ extern void arm64_lock_read_dq(uint64_t * a, uint64_t* b, void* addr);
 // STLXRD of ADDR, return 0 if ok, 1 if not
 extern int arm64_lock_write_dq(uint64_t a, uint64_t b, void* addr);
 
-// Atomicaly exchange value at [p] with val, return old p
+// Atomically exchange value at [p] with val, return old p
 extern uintptr_t arm64_lock_xchg(void* p, uintptr_t val);
 
-// Atomicaly store value to [p] only if [p] is NULL. Return new [p] value (so val or old)
-extern void* arm64_lock_storeifnull(void*p, void* val);
+// Atomically store val to [p] only if [p] is 0. Return new [p] value (so val or old)
+extern uint64_t arm64_lock_storeifnull(void* p, uint64_t val);
 
-// Atomicaly store value to [p] only if [p] is ref. Return new [p] value (so val or old)
-extern void* arm64_lock_storeifref(void*p, void* val, void* ref);
+// Atomically store val to [p] only if [p] is ref. Return new [p] value (so val or old)
+extern uint64_t arm64_lock_storeifref(void* p, uint64_t val, uint64_t ref);
 
 #endif  //__ARM64_LOCK__H__
