@@ -41,12 +41,12 @@ static uintptr_t**         box64_jmptbldefault2[1<<JMPTABL_SHIFT];
 static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT];
 static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT];
 #endif
-#define MEMPROT_SHIFT 12
-#define MEMPROT_SHIFT2 (32-MEMPROT_SHIFT)
-#define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
 static pthread_mutex_t     mutex_prot;
-KHASH_MAP_INIT_INT(memprot, uint8_t*)
-static kh_memprot_t        *memprot;
+#define MEMPROT_SHIFT 12
+#define MEMPROT_SHIFT2 (16+12)
+#define MEMPROT_SIZE (1<<16)
+static uint8_t *memprot[1<<20];    // x86_64 mem is 48bits, page is 12bits, so memory is tracked as [20][16][page protection]
+static uint8_t memprot_default[MEMPROT_SIZE];
 static int inited = 0;
 
 typedef struct blocklist_s {
@@ -760,44 +760,33 @@ uintptr_t getJumpTableAddress64(uintptr_t addr)
 }
 
 // Remove the Write flag from an adress range, so DB can be executed safely
-void protectDBnolock(uintptr_t addr, uintptr_t size)
+void protectDB(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
+    if(end>=(1LL<<(20+16)))
+        end = (1LL<<(20+16))-1;
+    if(end<idx) // memory addresses higher than 48bits are not tracked
+        return;
+    pthread_mutex_lock(&mutex_prot);
     int ret;
-    for (uintptr_t i=idx; i<=end; ++i) {
-        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
-        khint_t k = kh_put(memprot, memprot, key, &ret);
-        if(ret) {
-            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
-            kh_value(memprot, k) = m;
+    for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
+        if(memprot[i]==memprot_default) {
+            uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
+            if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+                free(newblock);
+            }
         }
-        const uintptr_t ii = i&(MEMPROT_SIZE-1);
-        uint8_t prot = kh_value(memprot, k)[ii];
+    for (uintptr_t i=idx; i<=end; ++i) {
+        uint32_t prot = memprot[i>>16][i&0xffff];
         if(!(prot&PROT_DYNAREC)) {
             if(!prot)
                 prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
-            kh_value(memprot, k)[ii] = prot|PROT_DYNAREC;
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~(PROT_WRITE|PROT_CUSTOM));
+            memprot[i>>16][i&0xffff] = prot|PROT_DYNAREC;   // need to use atomic exchange?
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
         }
     }
-}
-
-void protectDB(uintptr_t addr, size_t size)
-{
-    pthread_mutex_lock(&mutex_prot);
-    protectDBnolock(addr, size);
-    pthread_mutex_unlock(&mutex_prot);
-}
-
-void lockDB()
-{
-    pthread_mutex_lock(&mutex_prot);
-}
-
-void unlockDB()
-{
     pthread_mutex_unlock(&mutex_prot);
 }
 
@@ -807,25 +796,46 @@ void unprotectDB(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    int ret;
+    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    if(end>=(1LL<<(20+16)))
+        end = (1LL<<(20+16))-1;
+    if(end<idx) // memory addresses higher than 48bits are not tracked
+        return;
     pthread_mutex_lock(&mutex_prot);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
-        khint_t k = kh_put(memprot, memprot, key, &ret);
-        if(ret) {
-            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
-            kh_value(memprot, k) = m;
+    for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
+        if(memprot[i]==memprot_default) {
+            uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
+            if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+                free(newblock);
+            }
         }
-        const uintptr_t ii = i&(MEMPROT_SIZE-1);
-        uint8_t prot = kh_value(memprot, k)[ii];
+    for (uintptr_t i=idx; i<=end; ++i) {
+        uint32_t prot = memprot[i>>16][i&0xffff];
         if(prot&PROT_DYNAREC) {
-            kh_value(memprot, k)[ii] = prot&~PROT_DYNAREC;
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_CUSTOM);
+            memprot[i>>16][i&0xffff] = prot&~PROT_DYNAREC;  // need to use atomic exchange?
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
             cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
         }
     }
     pthread_mutex_unlock(&mutex_prot);
+}
+
+int isprotectedDB(uintptr_t addr, size_t size)
+{
+    dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
+    if(end>=(1LL<<(20+16)))
+        end = (1LL<<(20+16))-1;
+    if(end<idx) // memory addresses higher than 48bits are not tracked
+        return 0;
+    for (uintptr_t i=idx; i<=end; ++i) {
+        uint32_t prot = memprot[i>>16][i&0xffff];
+        if(!(prot&PROT_DYNAREC)) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 #endif
@@ -834,63 +844,54 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "updateProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    int ret;
-    uintptr_t last = idx<<MEMPROT_SHIFT;
-    uint8_t oldprot = 0xff;
+    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    if(end>=(1LL<<(20+16)))
+        end = (1LL<<(20+16))-1;
+    if(end<idx) // memory addresses higher than 48bits are not tracked
+        return;
     pthread_mutex_lock(&mutex_prot);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
-        khint_t k = kh_put(memprot, memprot, key, &ret);
-        if(ret) {
-            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
-            kh_value(memprot, k) = m;
-        }
-        const uintptr_t start = i&(MEMPROT_SIZE-1);
-        const uintptr_t finish = (((i|(MEMPROT_SIZE-1))<end)?(MEMPROT_SIZE-1):end)&(MEMPROT_SIZE-1);
-        uint8_t* block = kh_value(memprot, k);
-        for(uintptr_t ii = start; ii<=finish; ++ii) {
-            uint32_t dyn = block[ii]&PROT_DYNAREC;
-            if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
-                if(oldprot!=prot) {
-                    if(oldprot!=0xff)
-                        mprotect((void*)last, (i<<MEMPROT_SHIFT)-last, oldprot&~PROT_CUSTOM); // need to optimize
-                    last = i<<MEMPROT_SHIFT;
-                    oldprot = prot;
-                }
-            } else if(prot!=0xff) {
-                mprotect((void*)last, (i<<MEMPROT_SHIFT)-last, oldprot&~PROT_CUSTOM); // need to optimize
-                last = i << MEMPROT_SHIFT;
-                oldprot = 0xff;
+    for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
+        if(memprot[i]==memprot_default) {
+            uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
+#if 0 //def ARM64   //disabled for now, not usefull with the mutex
+            if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+                free(newblock);
             }
-            block[ii] = prot|dyn|PROT_ALLOC;
+#else
+            memprot[i] = newblock;
+#endif
         }
-        i+=finish-start;    // +1 from the "for" loop
+    for (uintptr_t i=idx; i<=end; ++i) {
+        uint32_t dyn=(memprot[i>>16][i&0xffff]&PROT_DYNAREC);
+        if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+        memprot[i>>16][i&0xffff] = prot|dyn;
     }
-    if(oldprot!=0xff)
-        mprotect((void*)last, (end<<MEMPROT_SHIFT)-last, oldprot&~PROT_CUSTOM); // need to optimize
     pthread_mutex_unlock(&mutex_prot);
 }
 
 void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
-    dynarec_log(LOG_DEBUG, "setProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    int ret;
+    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    if(end>=(1LL<<(20+16)))
+        end = (1LL<<(20+16))-1;
+    if(end<idx) // memory addresses higher than 48bits are not tracked
+        return;
     pthread_mutex_lock(&mutex_prot);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
-        khint_t k = kh_put(memprot, memprot, key, &ret);
-        if(ret) {
-            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
-            kh_value(memprot, k) = m;
+    for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
+        if(memprot[i]==memprot_default) {
+            uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
+#if 0 //def ARM64   //disabled for now, not usefull with the mutex
+            if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+                free(newblock);
+            }
+#else
+            memprot[i] = newblock;
+#endif
         }
-        const uintptr_t start = i&(MEMPROT_SIZE-1);
-        const uintptr_t finish = (((i|(MEMPROT_SIZE-1))<end)?(MEMPROT_SIZE-1):end)&(MEMPROT_SIZE-1);
-        memset(kh_value(memprot, k)+start, prot|PROT_ALLOC, finish-start+1);
-        i+=finish-start;    // +1 from the "for" loop
-    }
+    for (uintptr_t i=idx; i<=end; ++i)
+        memprot[i>>16][i&0xffff] = prot;
     pthread_mutex_unlock(&mutex_prot);
 }
 
@@ -899,18 +900,26 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     dynarec_log(LOG_DEBUG, "allocProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    int ret;
+    if(end>=(1LL<<(20+16)))
+        end = (1LL<<(20+16))-1;
+    if(end<idx) // memory addresses higher than 48bits are not tracked
+        return;
     pthread_mutex_lock(&mutex_prot);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
-        khint_t k = kh_put(memprot, memprot, key, &ret);
-        if(ret) {
-            uint8_t *m = (uint8_t*)calloc(1, MEMPROT_SIZE);
-            kh_value(memprot, k) = m;
+    for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
+        if(memprot[i]==memprot_default) {
+            uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
+#if 0 //def ARM64   //disabled for now, not usefull with the mutex
+            if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+                free(newblock);
+            }
+#else
+            memprot[i] = newblock;
+#endif
         }
+    for (uintptr_t i=idx; i<=end; ++i) {
         const uintptr_t start = i&(MEMPROT_SIZE-1);
         const uintptr_t finish = (((i|(MEMPROT_SIZE-1))<end)?(MEMPROT_SIZE-1):end)&(MEMPROT_SIZE-1);
-        uint8_t* block = kh_value(memprot, k);
+        uint8_t* block = memprot[i>>16];
         for(uintptr_t ii = start; ii<=finish; ++ii) {
             if(!block[ii])
                 block[ii] = prot;
@@ -933,7 +942,7 @@ void loadProtectionFromMap()
         uintptr_t s, e;
         if(sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x)==5) {
             int prot = ((r=='r')?PROT_READ:0)|((w=='w')?PROT_WRITE:0)|((x=='x')?PROT_EXEC:0);
-            allocProtection(s, e-s, prot);
+            allocProtection(s, e-s, prot|PROT_ALLOC);
         }
     }
     fclose(f);
@@ -941,8 +950,9 @@ void loadProtectionFromMap()
 
 static int blockempty(uint8_t* mem)
 {
-    for (int i=0; i<(MEMPROT_SIZE); ++i)
-        if(mem[i])
+    uint32_t *p4 = (uint32_t*)mem;
+    for (int i=0; i<(MEMPROT_SIZE)/4; ++i, ++p4)
+        if(*p4)
             return 0;
     return 1;
 }
@@ -952,19 +962,35 @@ void freeProtection(uintptr_t addr, size_t size)
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
+    if(end>=(1LL<<(20+16)))
+        end = (1LL<<(20+16))-1;
+    if(end<idx) // memory addresses higher than 48bits are not tracked
+        return;
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
-        const uint32_t key = (i>>MEMPROT_SHIFT2)&0xffffffff;
-        khint_t k = kh_get(memprot, memprot, key);
-        if(k!=kh_end(memprot)) {
+        const uint32_t key = (i>>16);
+        if(memprot[key]!=memprot_default) {
             const uintptr_t start = i&(MEMPROT_SIZE-1);
             const uintptr_t finish = (((i|(MEMPROT_SIZE-1))<end)?(MEMPROT_SIZE-1):end)&(MEMPROT_SIZE-1);
-            uint8_t *block = kh_value(memprot, k);
+            uint8_t *block = memprot[key];
             memset(block+start, 0, finish-start+1);
-            if(blockempty(block)) {
-                free(block);
-                kh_del(memprot, memprot, k);
+#if 0 //def ARM64   //disabled for now, not usefull with the mutex
+            if (blockempty(block)) {
+                block = (void*)arm64_lock_xchg(&memprot[key], (uintptr_t)memprot_default);
+                if(!blockempty(block)) {
+                    block = (void*)arm64_lock_xchg(&memprot[key], (uintptr_t)block);
+                    for (int i = 0; i < 0x10000; ++i) {
+                        memprot[key][i] |= block[i];
+                    }
+                }
+                if (block != memprot_default) free(block);
             }
+#else
+            if(blockempty(block)) {
+                memprot[key] = memprot_default;
+                free(block);
+            }
+#endif
             i+=finish-start;    // +1 from the "for" loop
         }
     }
@@ -973,65 +999,52 @@ void freeProtection(uintptr_t addr, size_t size)
 
 uint32_t getProtection(uintptr_t addr)
 {
-    const uint32_t key = (addr>>32)&0xffffffff;
-    pthread_mutex_lock(&mutex_prot);
-    khint_t k = kh_get(memprot, memprot, key);
-    if(k==kh_end(memprot)) {
-        pthread_mutex_unlock(&mutex_prot);
+    if(addr>=(1LL<<48))
         return 0;
-    }
-    const uintptr_t idx = ((addr&0xffffffff)>>MEMPROT_SHIFT);
-    uint32_t ret = kh_val(memprot, k)[idx];
-    pthread_mutex_unlock(&mutex_prot);
+    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uint32_t ret = memprot[idx>>16][idx&0xffff];
     return ret;
 }
 
 #define LOWEST (void*)0x20000
-int availableBlock(uint8_t* p, size_t n)
-{
-    for (size_t i=0; i<n; ++i, ++p)
-        if(*p)
-            return 0;
-    return 1;
-}
 static uintptr_t nextFree(uintptr_t addr)
 {
+    if(addr>=(1LL<<48))
+        return 0;
     do {
-        const uint32_t key = (addr>>32)&0xffffffff;
-        khint_t k = kh_get(memprot, memprot, key);
-        if(k==kh_end(memprot)) {
+        uintptr_t idx = (addr>>MEMPROT_SHIFT);
+        if(memprot[idx>>16]==memprot_default) {
             return addr;
         }
-        uint8_t *block = kh_value(memprot, k);
-        for (uintptr_t i=(addr&0xffffffffLL)>>MEMPROT_SHIFT; i<MEMPROT_SIZE; ++i)
-            if(!block[i]) {
-                return (addr&~0xffffffffLL)+(i<<MEMPROT_SHIFT);
+        for (uintptr_t i=(idx&0xffff); i<MEMPROT_SIZE; ++i)
+            if(!memprot[idx>>16][i]) {
+                return ((idx>>16)<<(16+12))+(i<<MEMPROT_SHIFT);
             }
-        addr += 0x100000000LL;
-        addr &= ~0xffffffffLL;
+        addr += (1LL<<(16+12));
+        addr &= ~((1LL<<(16+12)-1LL));
     } while(1);
 }
 static uintptr_t maxFree(uintptr_t addr, uintptr_t sz)
 {
+    if(addr>=(1LL<<48))
+        return 0;
     uintptr_t mfree = 0;
     do {
-        const uint32_t key = (addr>>32)&0xffffffff;
-        khint_t k = kh_get(memprot, memprot, key);
-        if(k==kh_end(memprot)) {
-            mfree+=0x100000000LL;
+        uintptr_t idx = (addr>>MEMPROT_SHIFT);
+        if(memprot[idx>>16]==memprot_default) {
+            mfree+=(1LL<<(16+12));
             if(mfree>sz) {
                 return addr;
             }
         } else {
-            uint8_t *block = kh_value(memprot, k);
-            for (uintptr_t i=(addr&0xffffffffLL)>>MEMPROT_SHIFT; i<MEMPROT_SIZE; ++i)
-                if(!block[i]) {
-                    mfree+=1<<MEMPROT_SHIFT;
+            for (uintptr_t i=(idx&0xffffLL); i<MEMPROT_SIZE; ++i)
+                if(!memprot[idx>>16][i]) {
+                    mfree+=(1<<MEMPROT_SHIFT);
                 } else
                     return mfree;
         }
-        addr += 0x100000000LL;
-        addr &= ~0xffffffffLL;
+        addr += (1LL<<(12+16));
+        addr &= ~((1LL<<(12+16))-1LL);
     } while(1);
 }
 void* find32bitBlock(size_t size)
@@ -1042,12 +1055,10 @@ void* find47bitBlock(size_t size)
 {
     // slow iterative search... Would need something better one day
     uintptr_t addr = 0x100000000LL;
-    pthread_mutex_lock(&mutex_prot);
     do {
         addr = nextFree(addr);
         uintptr_t sz = maxFree(addr, size);
         if(sz>=size) {
-            pthread_mutex_unlock(&mutex_prot);
             return (void*)addr;
         }
         addr += sz;
@@ -1058,12 +1069,10 @@ void* find47bitBlock(size_t size)
         addr = nextFree(addr);
         uintptr_t sz = maxFree(addr, size);
         if(sz>=size) {
-            pthread_mutex_unlock(&mutex_prot);
             return (void*)addr;
         }
         addr += sz;
     } while(addr<0x100000000LL);
-    pthread_mutex_unlock(&mutex_prot);
     printf_log(LOG_NONE, "Warning: cannot find a 0x%zx block in 47bits address space\n", size);
     return NULL;
 }
@@ -1071,17 +1080,14 @@ void* find47bitBlockNearHint(void* hint, size_t size)
 {
     // slow iterative search... Would need something better one day
     uintptr_t addr = (uintptr_t)hint;
-    pthread_mutex_lock(&mutex_prot);
     do {
         addr = nextFree(addr);
         uintptr_t sz = maxFree(addr, size);
         if(sz>=size) {
-            pthread_mutex_unlock(&mutex_prot);
             return (void*)addr;
         }
         addr += sz;
     } while(addr<0x800000000000LL);
-    pthread_mutex_unlock(&mutex_prot);
     printf_log(LOG_NONE, "Warning: cannot find a 0x%zx block in 32bits address space\n", size);
     return NULL;
 }
@@ -1089,17 +1095,14 @@ void* findBlockNearHint(void* hint, size_t size)
 {
     // slow iterative search... Would need something better one day
     uintptr_t addr = (uintptr_t)hint;
-    pthread_mutex_lock(&mutex_prot);
     do {
         addr = nextFree(addr);
         uintptr_t sz = maxFree(addr, size);
         if(sz>=size) {
-            pthread_mutex_unlock(&mutex_prot);
             return (void*)addr;
         }
         addr += sz;
     } while(addr<0x100000000LL);
-    pthread_mutex_unlock(&mutex_prot);
     printf_log(LOG_NONE, "Warning: cannot find a 0x%zx block in 32bits address space\n", size);
     return NULL;
 }
@@ -1163,7 +1166,9 @@ void init_custommem_helper(box64context_t* ctx)
     if(inited) // already initialized
         return;
     inited = 1;
-    memprot = kh_init(memprot);
+    memset(memprot_default, 0, sizeof(memprot_default));
+    for(int i=0; i<(1<<20); ++i)
+        memprot[i] = memprot_default;
     init_mutexes();
 #ifdef DYNAREC
 #ifdef ARM64
@@ -1242,10 +1247,11 @@ void fini_custommem_helper(box64context_t *ctx)
     }
 #endif
     uint8_t* m;
-    kh_foreach_value(memprot, m,
-        free(m);
-    );
-    kh_destroy(memprot, memprot);
+    for(int i=0; i<(1<<20); ++i) {
+        m = memprot[i];
+        if(m!=memprot_default)
+            free(m);
+    }
 
     for(int i=0; i<n_blocks; ++i)
         #ifdef USE_MMAP

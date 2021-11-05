@@ -45,10 +45,8 @@ uint32_t getProtection(uintptr_t addr);
 void loadProtectionFromMap();
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, size_t size);
-void protectDBnolock(uintptr_t addr, size_t size);
 void unprotectDB(uintptr_t addr, size_t size);
-void lockDB();
-void unlockDB();
+int isprotectedDB(uintptr_t addr, size_t size);
 #endif
 void* find32bitBlock(size_t size);
 void* findBlockNearHint(void* hint, size_t size);

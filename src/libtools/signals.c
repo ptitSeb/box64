@@ -310,8 +310,8 @@ uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc
     int oldquitonlongjmp = emu->quitonlongjmp;
     emu->quitonlongjmp = 2;
     
-    //EmuCall(emu, fnc);  // avoid DynaCall for now
-    DynaCall(emu, fnc);
+    EmuCall(emu, fnc);  // avoid DynaCall for now
+    //DynaCall(emu, fnc);
     if(nargs>6)
         R_RSP+=((nargs-6)*sizeof(void*));
 
