@@ -49,7 +49,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t gd, ed;
     uint8_t wback;
     uint8_t u8;
-    uint64_t u64;
+    uint64_t u64, j64;
     int v0, v1;
     int q0;
     int d0, d1;
@@ -214,9 +214,15 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             GETEX(v1, 0);
             // MINSD: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
+            #if 0
             d0 = fpu_get_scratch(dyn);
             FMINNMD(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
             VMOVeD(v0, 0, d0, 0);   // to not erase uper part
+            #else
+            FCMPD(v0, v1);
+            B_NEXT(cLS);    //Less than or equal
+            VMOVeD(v0, 0, v1, 0);   // to not erase uper part
+            #endif
             break;
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
@@ -234,9 +240,15 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             GETEX(v1, 0);
             // MAXSD: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
+            #if 0
             d0 = fpu_get_scratch(dyn);
             FMAXNMD(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
             VMOVeD(v0, 0, d0, 0);   // to not erase uper part
+            #else
+            FCMPD(v0, v1);
+            B_NEXT(cGE);    //Greater than or equal
+            VMOVeD(v0, 0, v1, 0);   // to not erase uper part
+            #endif
             break;
 
         case 0x70:
@@ -282,19 +294,15 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0);
             GETEX(v1, 1);
             u8 = F8;
-            if((u8&7)==6){
-                FCMPD(v1, v0);
-            } else {
-                FCMPD(v0, v1);
-            }
+            FCMPD(v0, v1);
             switch(u8&7) {
-                case 0: CSETMx(x2, cEQ); CSELx(x2, xZR, x2, cVS); break;   // Equal
-                case 1: CSETMx(x2, cMI); CSELx(x2, xZR, x2, cVS); break;   // Less than
-                case 2: CSETMx(x2, cLE); CSELx(x2, xZR, x2, cVS); break;   // Less or equal
+                case 0: CSETMx(x2, cEQ); break;   // Equal
+                case 1: CSETMx(x2, cCC); break;   // Less than
+                case 2: CSETMx(x2, cLS); break;   // Less or equal
                 case 3: CSETMx(x2, cVS); break;   // NaN
-                case 4: CSETMx(x2, cNE); break;   // Not Equal
+                case 4: CSETMx(x2, cNE); break;   // Not Equal or unordered
                 case 5: CSETMx(x2, cCS); break;   // Greater or equal or unordered
-                case 6: CSETMx(x2, cLT); break;   // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
+                case 6: CSETMx(x2, cHI); break;   // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
                 case 7: CSETMx(x2, cVC); break;   // not NaN
             }
             VMOVQDfrom(v0, 0, x2);

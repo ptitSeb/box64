@@ -318,10 +318,10 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         tmp8s = 0;
         switch(tmp8u&7) {
             case 0: tmp8s=(GX->f[0] == EX->f[0]); break;
-            case 1: tmp8s=isless(GX->f[0], EX->f[0]); break;
-            case 2: tmp8s=islessequal(GX->f[0], EX->f[0]); break;
+            case 1: tmp8s=isless(GX->f[0], EX->f[0]) && !(isnan(GX->f[0]) || isnan(EX->f[0])); break;
+            case 2: tmp8s=islessequal(GX->f[0], EX->f[0]) && !(isnan(GX->f[0]) || isnan(EX->f[0])); break;
             case 3: tmp8s=isnan(GX->f[0]) || isnan(EX->f[0]); break;
-            case 4: tmp8s=(GX->f[0] != EX->f[0]); break;
+            case 4: tmp8s=isnan(GX->f[0]) || isnan(EX->f[0]) || (GX->f[0] != EX->f[0]); break;
             case 5: tmp8s=isnan(GX->f[0]) || isnan(EX->f[0]) || isgreaterequal(GX->f[0], EX->f[0]); break;
             case 6: tmp8s=isnan(GX->f[0]) || isnan(EX->f[0]) || isgreater(GX->f[0], EX->f[0]); break;
             case 7: tmp8s=!isnan(GX->f[0]) && !isnan(EX->f[0]); break;
