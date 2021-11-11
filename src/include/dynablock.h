@@ -9,7 +9,7 @@ typedef struct kh_dynablocks_s  kh_dynablocks_t;
 uint32_t X31_hash_code(void* addr, int len);
 dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int direct);
 void FreeDynablockList(dynablocklist_t** dynablocks);
-void FreeDynablock(dynablock_t* db);
+void FreeDynablock(dynablock_t* db, int need_lock);
 void MarkDynablock(dynablock_t* db);
 //return 1 if Dynareblock is empty
 int FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);

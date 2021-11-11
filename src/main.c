@@ -42,6 +42,7 @@ int box64_pagesize;
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
 int box64_dynarec_forced = 0;
+int box64_dynarec_bigblock = 1;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -261,6 +262,15 @@ void LoadLogEnv()
         }
         if(box64_dynarec_forced)
         printf_log(LOG_INFO, "Dynarec is Forced on all addresses\n");
+    }
+    p = getenv("BOX64_DYNAREC_BIGBLOCK");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_bigblock = p[0]-'0';
+        }
+        if(!box64_dynarec_bigblock)
+        printf_log(LOG_INFO, "Dynarec will not try to make big block\n");
     }
     p = getenv("BOX64_NODYNAREC");
     if(p) {
@@ -938,6 +948,13 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_INFO, "Zoom detected, trying to use system libturbojpeg if possible\n");
         box64_zoom = 1;
     }
+    // special case for RimWorldLinux
+    #ifdef DYNAREC
+    if(strstr(prgname, "RimWorldLinux")==prgname) {
+        printf_log(LOG_INFO, "RimWorld detected, disabling bigblock on the Dynarec\n");
+        box64_dynarec_bigblock = 0;
+    }
+    #endif
     /*if(strstr(prgname, "awesomium_process")==prgname) {
         printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
         AddPath("libpng12.so.0", &my_context->box64_emulated_libs, 0);

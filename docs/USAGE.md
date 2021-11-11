@@ -115,6 +115,11 @@ Enables/Disables trace for generated code.
 Forbid dynablock creation in the interval specified (helpfull for debugging behaviour difference between Dynarec and Interpretor)
  * 0xXXXXXXXX-0xYYYYYYYY : define the interval where dynablock cannot start (inclusive-exclusive)
 
+#### BOX64_DYNAREC_BIGBLOCK
+Enables/Disables Box64's Dynarec building BigBlock.
+ * 0 : Don't try to build block as big as possible (can help program using lots of thread and a JIT, like C#/Unity)
+ * 1 : Build Dynarec block as big as possible (Default.)
+
 #### BOX64_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL

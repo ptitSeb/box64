@@ -4,6 +4,7 @@
 #include "dynarec_private.h"
 
 typedef struct x64emu_s x64emu_t;
+typedef struct dynablock_s dynablock_t;
 
 typedef struct instruction_arm64_s {
     instruction_x64_t   x64;
@@ -50,6 +51,7 @@ typedef struct dynarec_arm_s {
     uintptr_t*          sons_x64;   // the x64 address of potential dynablock sons
     void**              sons_arm;   // the arm address of potential dynablock sons
     int                 sons_size;  // number of potential dynablock sons
+    dynablock_t*        dynablock;
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

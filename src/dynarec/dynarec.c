@@ -57,7 +57,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         if(!block) {
             #ifdef HAVE_TRACE
             dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-            printf_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL);
+            dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL);
             #endif
             //tableupdate(arm64_epilog, addr, table);
             return arm64_epilog;

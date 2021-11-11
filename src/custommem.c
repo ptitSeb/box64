@@ -31,7 +31,6 @@
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT64(dynablocks, dynablock_t*)
 static dynablocklist_t***  dynmap123[1<<DYNAMAP_SHIFT]; // 64bits.. in 4x16bits array
-static pthread_mutex_t     mutex_mmap;
 static mmaplist_t          *mmaplist = NULL;
 static size_t              mmapsize = 0;
 static size_t              mmapcap = 0;
@@ -497,11 +496,9 @@ uintptr_t AllocDynarecMap(dynablock_t* db, size_t size)
     if(!size)
         return 0;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
-        pthread_mutex_lock(&mutex_mmap);
         #ifndef USE_MMAP
         void *p = NULL;
         if(posix_memalign(&p, box64_pagesize, size)) {
-            pthread_mutex_unlock(&mutex_mmap);
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", size);
             return 0;
         }
@@ -509,7 +506,6 @@ uintptr_t AllocDynarecMap(dynablock_t* db, size_t size)
         #else
         void* p = mmap(NULL, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
         if(p==(void*)-1) {
-            pthread_mutex_unlock(&mutex_mmap);
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", size);
             return 0;
         }
@@ -524,17 +520,13 @@ uintptr_t AllocDynarecMap(dynablock_t* db, size_t size)
         int ret;
         k = kh_put(dynablocks, blocks, (uintptr_t)p, &ret);
         kh_value(blocks, k) = db;
-        pthread_mutex_unlock(&mutex_mmap);
         return (uintptr_t)p;
     }
     
-    pthread_mutex_lock(&mutex_mmap);
 
     uintptr_t ret = FindFreeDynarecMap(db, size);
     if(!ret)
         ret = AddNewDynarecMap(db, size);
-
-    pthread_mutex_unlock(&mutex_mmap);
 
     return ret;
 }
@@ -544,7 +536,6 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
     if(!addr || !size)
         return;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
-        pthread_mutex_lock(&mutex_mmap);
         #ifndef USE_MMAP
         free((void*)addr);
         #else
@@ -556,12 +547,9 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
             if(k!=kh_end(blocks))
                 kh_del(dynablocks, blocks, k);
         }
-        pthread_mutex_unlock(&mutex_mmap);
         return;
     }
-    pthread_mutex_lock(&mutex_mmap);
     ActuallyFreeDynarecMap(db, addr, size);
-    pthread_mutex_unlock(&mutex_mmap);
 }
 
 dynablocklist_t* getDB(uintptr_t idx)
@@ -883,7 +871,7 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i]==memprot_default) {
-            uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
+            uint8_t* newblock = calloc(MEMPROT_SIZE, sizeof(uint8_t));
 #if 0 //def ARM64   //disabled for now, not usefull with the mutex
             if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
                 free(newblock);
@@ -1121,9 +1109,6 @@ int unlockCustommemMutex()
         }
     GO(mutex_blocks, 0)
     GO(mutex_prot, 1)
-    #ifdef DYNAREC
-    GO(mutex_mmap, 2)
-    #endif
     #undef GO
     return ret;
 }
@@ -1136,9 +1121,6 @@ void relockCustommemMutex(int locks)
 
     GO(mutex_blocks, 0)
     GO(mutex_prot, 1)
-    #ifdef DYNAREC
-    GO(mutex_mmap, 2)
-    #endif
     #undef GO
 }
 
@@ -1149,9 +1131,6 @@ static void init_mutexes(void)
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     pthread_mutex_init(&mutex_blocks, &attr);
     pthread_mutex_init(&mutex_prot, &attr);
-#ifdef DYNAREC
-    pthread_mutex_init(&mutex_mmap, &attr);
-#endif
 
     pthread_mutexattr_destroy(&attr);
 }
@@ -1233,7 +1212,6 @@ void fini_custommem_helper(box64context_t *ctx)
             }
 
         free(mmaplist);
-        pthread_mutex_destroy(&mutex_mmap);
         for (int i3=0; i3<(1<<DYNAMAP_SHIFT); ++i3)
             if(box64_jmptbl3[i3]!=box64_jmptbldefault2) {
                 for (int i2=0; i2<(1<<DYNAMAP_SHIFT); ++i2)

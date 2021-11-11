@@ -58,13 +58,15 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
 }
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr) {
+    if(!box64_dynarec_bigblock)
+        return;
+    for(int i=0; i<dyn->next_sz; ++i)
+        if(dyn->next[i]==addr)
+            return;
     if(dyn->next_sz == dyn->next_cap) {
         dyn->next_cap += 16;
         dyn->next = (uintptr_t*)realloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
     }
-    for(int i=0; i<dyn->next_sz; ++i)
-        if(dyn->next[i]==addr)
-            return;
     dyn->next[dyn->next_sz++] = addr;
 }
 uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr) {
@@ -333,6 +335,23 @@ uintptr_t arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 uintptr_t arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
 uintptr_t arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 
+__thread void* current_helper = NULL;
+
+void CancelBlock64()
+{
+    dynarec_arm_t* helper = (dynarec_arm_t*)current_helper;
+    current_helper = NULL;
+    if(!helper)
+        return;
+    free(helper->next);
+    free(helper->insts);
+    free(helper->table64);
+    free(helper->sons_x64);
+    free(helper->sons_arm);
+    if(helper->dynablock && helper->dynablock->block)
+        FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->block, helper->dynablock->size);
+}
+
 void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
         block->done = 1;
@@ -342,29 +361,33 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     protectDB(addr, 1);
     // init the helper
     dynarec_arm_t helper = {0};
+    current_helper = &helper;
+    helper.dynablock = block;
     helper.start = addr;
     uintptr_t start = addr;
     helper.cap = 64; // needs epilog handling
     helper.insts = (instruction_arm64_t*)calloc(helper.cap, sizeof(instruction_arm64_t));
     // pass 0, addresses, x86 jump addresses, overall size of the block
     uintptr_t end = arm_pass0(&helper, addr);
+    // no need for next anymore
+    free(helper.next);
+    helper.next_sz = helper.next_cap = 0;
+    helper.next = NULL;
+    // basic checks
     if(!helper.size) {
         dynarec_log(LOG_INFO, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
-        free(helper.next);
-        free(helper.insts);
-        block->done = 1;
+        CancelBlock64();
         return (void*)block;
     }
     if(!isprotectedDB(addr, 1)) {
         dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
-        free(helper.next);
-        free(helper.insts);
-        block->done = 1;
+        CancelBlock64();
         return NULL;
     }
-    // already protect the block and compute hash signature
+    // protect the block of it goes over the 1st page
     if((addr&~0xfff)!=(end&~0xfff)) // need to protect some other pages too
         protectDB(addr, end-addr);  //end is 1byte after actual end
+    // compute hash signature
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
     // calculate barriers
     for(int i=0; i<helper.size; ++i)
@@ -400,9 +423,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     void* p = (void*)AllocDynarecMap(block, sz);
     if(p==NULL) {
         dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
-        free(helper.insts);
-        free(helper.next);
-        free(helper.table64);
+        CancelBlock64();
         return NULL;
     }
     helper.block = p;
@@ -456,8 +477,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     }
     // ok, free the helper now
     free(helper.insts);
-    free(helper.next);
+    helper.insts = NULL;
     free(helper.table64);
+    helper.table64 = NULL;
     block->size = sz;
     block->isize = helper.size;
     block->block = p;
@@ -466,13 +488,13 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     block->x64_size = end-start;
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
     // Check if something changed, to abbort if it as
-    if((block->hash != hash) || !isprotectedDB(addr, end-addr)) {
+    if((block->hash != hash)) {
         dynarec_log(LOG_INFO, "Warning, a block changed while beeing processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
-        free(helper.sons_x64);
-        free(helper.sons_arm);
-        FreeDynarecMap(block, (uintptr_t)p, sz);
+        CancelBlock64();
         return NULL;
     }    // fill sons if any
+    if(!isprotectedDB(addr, end-addr))
+        protectDB(addr, end-addr);
     dynablock_t** sons = NULL;
     int sons_size = 0;
     if(helper.sons_size) {
@@ -501,7 +523,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
             free(sons);
     }
     free(helper.sons_x64);
+    helper.sons_x64 = NULL;
     free(helper.sons_arm);
+    helper.sons_arm = NULL;
     //block->done = 1;
     return (void*)block;
 }

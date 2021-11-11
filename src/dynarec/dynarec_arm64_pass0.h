@@ -9,12 +9,12 @@
 #define BARRIER(A)      dyn->insts[ninst].x64.barrier = A
 #define BARRIER_NEXT(A) if(ninst<dyn->size) dyn->insts[ninst+1].x64.barrier = A
 #define NEW_INST \
-        ++dyn->size;                            \
         if(dyn->size+3>=dyn->cap) {             \
                 dyn->insts = (instruction_arm64_t*)realloc(dyn->insts, sizeof(instruction_arm64_t)*dyn->cap*2);     \
                 memset(&dyn->insts[dyn->cap], 0, sizeof(instruction_arm64_t)*dyn->cap);   \
                 dyn->cap *= 2;                  \
-        }
+        }                                       \
+        ++dyn->size
 #define INST_EPILOG         
 #define INST_NAME(name) 
 #define DEFAULT                         \
