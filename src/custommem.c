@@ -45,7 +45,7 @@ static pthread_mutex_t     mutex_prot;
 #define MEMPROT_SHIFT 12
 #define MEMPROT_SHIFT2 (16+12)
 #define MEMPROT_SIZE (1<<16)
-static uint8_t *memprot[1<<20];    // x86_64 mem is 48bits, page is 12bits, so memory is tracked as [20][16][page protection]
+static uint8_t *volatile memprot[1<<20];    // x86_64 mem is 48bits, page is 12bits, so memory is tracked as [20][16][page protection]
 static uint8_t memprot_default[MEMPROT_SIZE];
 static int inited = 0;
 
@@ -774,9 +774,10 @@ void protectDB(uintptr_t addr, uintptr_t size)
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i]==memprot_default) {
             uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
-            if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+            /*if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
                 free(newblock);
-            }
+            }*/
+            memprot[i] = newblock;
         }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16][i&0xffff];
@@ -805,9 +806,10 @@ void unprotectDB(uintptr_t addr, size_t size)
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i]==memprot_default) {
             uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
-            if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+            /*if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
                 free(newblock);
-            }
+            }*/
+            memprot[i] = newblock;
         }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16][i&0xffff];
