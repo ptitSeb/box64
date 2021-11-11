@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <pthread.h>
 #include <errno.h>
+#include <string.h>
 
 #include "debug.h"
 #include "box64context.h"
@@ -45,7 +46,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     INIT;
     while(ok) {
         ip = addr;
-        if(dyn->insts && (dyn->insts[ninst].x64.barrier==1)) {
+        if((dyn->insts[ninst].x64.barrier==1)) {
             dyn->last_ip = 0;
             NEW_BARRIER_INST;
         }
@@ -90,7 +91,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
         INST_EPILOG;
 
-        if(dyn->insts && dyn->insts[ninst+1].x64.barrier) {
+        if(dyn->insts[ninst+1].x64.barrier) {
             fpu_purgecache(dyn, ninst, x1, x2, x3);
             if(dyn->insts[ninst+1].x64.barrier!=2) {
                 dyn->state_flags = 0;

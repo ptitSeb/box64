@@ -227,17 +227,15 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         #define GO(NO, YES)   \
             BARRIER(2); \
             JUMP(addr+i8);\
-            if(dyn->insts) {    \
-                if(dyn->insts[ninst].x64.jmp_insts==-1) {   \
-                    /* out of the block */                  \
-                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size); \
-                    Bcond(NO, i32);     \
-                    jump_to_next(dyn, addr+i8, 0, ninst); \
-                } else {    \
-                    /* inside the block */  \
-                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
-                    Bcond(YES, i32);    \
-                }   \
+            if(dyn->insts[ninst].x64.jmp_insts==-1) {   \
+                /* out of the block */                  \
+                i32 = dyn->insts[ninst+1].address-(dyn->arm_size); \
+                Bcond(NO, i32);     \
+                jump_to_next(dyn, addr+i8, 0, ninst); \
+            } else {    \
+                /* inside the block */  \
+                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
+                Bcond(YES, i32);    \
             }
         case 0xE0:
             INST_NAME("LOOPNZ (32bits)");

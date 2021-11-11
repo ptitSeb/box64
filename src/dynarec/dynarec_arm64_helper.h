@@ -312,18 +312,18 @@
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
 #define CALL_S(F, ret) call_c(dyn, ninst, F, x7, ret, 0, 0)
 
-#define MARK    if(dyn->insts) {dyn->insts[ninst].mark = dyn->arm_size;}
-#define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
-#define MARK2   if(dyn->insts) {dyn->insts[ninst].mark2 = dyn->arm_size;}
-#define GETMARK2 ((dyn->insts)?dyn->insts[ninst].mark2:(dyn->arm_size+4))
-#define MARK3   if(dyn->insts) {dyn->insts[ninst].mark3 = dyn->arm_size;}
-#define GETMARK3 ((dyn->insts)?dyn->insts[ninst].mark3:(dyn->arm_size+4))
-#define MARKF   if(dyn->insts) {dyn->insts[ninst].markf = dyn->arm_size;}
-#define GETMARKF ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
-#define MARKSEG if(dyn->insts) {dyn->insts[ninst].markseg = dyn->arm_size;}
-#define GETMARKSEG ((dyn->insts)?dyn->insts[ninst].markseg:(dyn->arm_size+4))
-#define MARKLOCK if(dyn->insts) {dyn->insts[ninst].marklock = dyn->arm_size;}
-#define GETMARKLOCK ((dyn->insts)?dyn->insts[ninst].marklock:(dyn->arm_size+4))
+#define MARK    dyn->insts[ninst].mark = dyn->arm_size
+#define GETMARK dyn->insts[ninst].mark
+#define MARK2   dyn->insts[ninst].mark2 = dyn->arm_size
+#define GETMARK2 dyn->insts[ninst].mark2
+#define MARK3   dyn->insts[ninst].mark3 = dyn->arm_size
+#define GETMARK3 dyn->insts[ninst].mark3
+#define MARKF   dyn->insts[ninst].markf = dyn->arm_size
+#define GETMARKF dyn->insts[ninst].markf
+#define MARKSEG dyn->insts[ninst].markseg = dyn->arm_size
+#define GETMARKSEG dyn->insts[ninst].markseg
+#define MARKLOCK dyn->insts[ninst].marklock = dyn->arm_size
+#define GETMARKLOCK dyn->insts[ninst].marklock
 
 // Branch to MARK if cond (use j64)
 #define B_MARK(cond)                \
@@ -430,11 +430,11 @@
     j64 = GETMARKLOCK-(dyn->arm_size);  \
     CBNZx(reg, j64)
 
-#define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(A)))
-#define IFX_PENDOR0  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(X_PEND) || !dyn->insts[ninst].x64.need_flags))
-#define IFXX(A) if(dyn->insts && (dyn->insts[ninst].x64.need_flags==(A)))
-#define IFX2X(A, B) if(dyn->insts && (dyn->insts[ninst].x64.need_flags==(A) || dyn->insts[ninst].x64.need_flags==(B) || dyn->insts[ninst].x64.need_flags==((A)|(B))))
-#define IFXN(A, B)  if(dyn->insts && (dyn->insts[ninst].x64.need_flags&(A) && !(dyn->insts[ninst].x64.need_flags&(B))))
+#define IFX(A)  if((dyn->insts[ninst].x64.need_flags&(A)))
+#define IFX_PENDOR0  if((dyn->insts[ninst].x64.need_flags&(X_PEND) || !dyn->insts[ninst].x64.need_flags))
+#define IFXX(A) if((dyn->insts[ninst].x64.need_flags==(A)))
+#define IFX2X(A, B) if((dyn->insts[ninst].x64.need_flags==(A) || dyn->insts[ninst].x64.need_flags==(B) || dyn->insts[ninst].x64.need_flags==((A)|(B))))
+#define IFXN(A, B)  if((dyn->insts[ninst].x64.need_flags&(A) && !(dyn->insts[ninst].x64.need_flags&(B))))
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOM(s1, s2, s3)                                                    \
@@ -589,12 +589,12 @@
 #ifndef BARRIER_NEXT
 #define BARRIER_NEXT(A)
 #endif
-#define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op1));}
-#define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op2));}
-#define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x64.need_flags) {STRxw_U12(A1, xEmu, offsetof(x64emu_t, op1));STRxw_U12(A2, 0, offsetof(x64emu_t, op2));}
-#define UFLAG_RES(A) if(dyn->insts && dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, res));}
-#define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x64.need_flags) {SET_DF(r, A)}
-#define UFLAG_IF if(dyn->insts && dyn->insts[ninst].x64.need_flags)
+#define UFLAG_OP1(A) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op1));}
+#define UFLAG_OP2(A) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op2));}
+#define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A1, xEmu, offsetof(x64emu_t, op1));STRxw_U12(A2, 0, offsetof(x64emu_t, op2));}
+#define UFLAG_RES(A) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, res));}
+#define UFLAG_DF(r, A) if(dyn->insts[ninst].x64.need_flags) {SET_DF(r, A)}
+#define UFLAG_IF if(dyn->insts[ninst].x64.need_flags)
 #ifndef DEFAULT
 #define DEFAULT      *ok = -1; BARRIER(2)
 #endif

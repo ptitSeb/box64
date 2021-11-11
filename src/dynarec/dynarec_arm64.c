@@ -344,25 +344,28 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     dynarec_arm_t helper = {0};
     helper.start = addr;
     uintptr_t start = addr;
+    helper.cap = 64; // needs epilog handling
+    helper.insts = (instruction_arm64_t*)calloc(helper.cap, sizeof(instruction_arm64_t));
+    // pass 0, addresses, x86 jump addresses, overall size of the block
     uintptr_t end = arm_pass0(&helper, addr);
     if(!helper.size) {
-        dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
+        dynarec_log(LOG_INFO, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
+        free(helper.next);
+        free(helper.insts);
         block->done = 1;
         return (void*)block;
     }
     if(!isprotectedDB(addr, 1)) {
-        dynarec_log(LOG_DEBUG, "Warning, write on purge on pass0 (%p)\n", (void*)addr);
+        dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
+        free(helper.next);
+        free(helper.insts);
         block->done = 1;
-        return (void*)block;
+        return NULL;
     }
-    helper.cap = helper.size+3; // needs epilog handling
-    helper.insts = (instruction_arm64_t*)calloc(helper.cap, sizeof(instruction_arm64_t));
     // already protect the block and compute hash signature
     if((addr&~0xfff)!=(end&~0xfff)) // need to protect some other pages too
         protectDB(addr, end-addr);  //end is 1byte after actual end
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
-    // pass 1, addresses, x64 jump addresses, flags
-    arm_pass1(&helper, addr);
     // calculate barriers
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x64.jmp) {
@@ -381,6 +384,8 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
                 helper.insts[i].x64.jmp_insts = k;
             }
         }
+    // pass 1, flags
+    arm_pass1(&helper, addr);
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x64.set_flags && !helper.insts[i].x64.need_flags) {
             helper.insts[i].x64.need_flags = needed_flags(&helper, i+1, helper.insts[i].x64.set_flags, 0);
@@ -394,7 +399,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     size_t sz = helper.arm_size + helper.table64size*sizeof(uint64_t);
     void* p = (void*)AllocDynarecMap(block, sz);
     if(p==NULL) {
-        dynarec_log(LOG_DEBUG, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
+        dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
         free(helper.insts);
         free(helper.next);
         free(helper.table64);

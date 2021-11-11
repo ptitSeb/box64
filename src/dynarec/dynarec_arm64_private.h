@@ -5,7 +5,7 @@
 
 typedef struct x64emu_s x64emu_t;
 
-typedef struct instruction_arm_s {
+typedef struct instruction_arm64_s {
     instruction_x64_t   x64;
     uintptr_t           address;    // (start) address of the arm emited instruction
     uintptr_t           epilog;     // epilog of current instruction (can be start of next, of barrier stuff)

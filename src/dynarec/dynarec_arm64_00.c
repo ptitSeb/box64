@@ -639,17 +639,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BARRIER(2); \
             JUMP(addr+i8);\
             GETFLAGS;   \
-            if(dyn->insts) {    \
-                if(dyn->insts[ninst].x64.jmp_insts==-1) {   \
-                    /* out of the block */                  \
-                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size); \
-                    Bcond(NO, i32);     \
-                    jump_to_next(dyn, addr+i8, 0, ninst); \
-                } else {    \
-                    /* inside the block */  \
-                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
-                    Bcond(YES, i32);    \
-                }   \
+            if(dyn->insts[ninst].x64.jmp_insts==-1) {   \
+                /* out of the block */                  \
+                i32 = dyn->insts[ninst+1].address-(dyn->arm_size); \
+                Bcond(NO, i32);     \
+                jump_to_next(dyn, addr+i8, 0, ninst); \
+            } else {    \
+                /* inside the block */  \
+                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
+                Bcond(YES, i32);    \
             }
 
         GOCOND(0x70, "J", "ib");
@@ -1970,17 +1968,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         #define GO(Z)                                                   \
             BARRIER(2);                                                 \
             JUMP(addr+i8);                                              \
-            if(dyn->insts) {                                            \
-                if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
-                    /* out of the block */                              \
-                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size);  \
-                    if(Z) {CBNZx(xRCX, i32);} else {CBZx(xRCX, i32);};  \
-                    jump_to_next(dyn, addr+i8, 0, ninst);               \
-                } else {                                                \
-                    /* inside the block */                              \
-                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
-                    if(Z) {CBZx(xRCX, i32);} else {CBNZx(xRCX, i32);};  \
-                }   \
+            if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
+                /* out of the block */                              \
+                i32 = dyn->insts[ninst+1].address-(dyn->arm_size);  \
+                if(Z) {CBNZx(xRCX, i32);} else {CBZx(xRCX, i32);};  \
+                jump_to_next(dyn, addr+i8, 0, ninst);               \
+            } else {                                                \
+                /* inside the block */                              \
+                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
+                if(Z) {CBZx(xRCX, i32);} else {CBNZx(xRCX, i32);};  \
             }
         case 0xE0:
             INST_NAME("LOOPNZ");
@@ -2019,12 +2015,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 printf_log(LOG_INFO, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr-1));
                 #endif
             }
-            #if STEP == 0
-            if(isNativeCall(dyn, addr+i32, NULL, NULL))
-                tmp = 3;
-            else 
-                tmp = 0;
-            #elif STEP < 2
+            #if STEP < 2
             if(isNativeCall(dyn, addr+i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
                 tmp = dyn->insts[ninst].pass2choice = 3;
             else 
@@ -2042,7 +2033,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
-                    if(box64_log<2 && dyn->insts && (tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))) {
+                    if(box64_log<2 && dyn->insts[ninst].natcall && (tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8), tmp);
                         POP1(xRIP);   // pop the return address
@@ -2104,18 +2095,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 i32 = F8S;
             }
             JUMP(addr+i32);
-            if(dyn->insts) {
-                PASS2IF(dyn->insts[ninst].x64.jmp_insts==-1, 1) {
-                    // out of the block
-                    jump_to_next(dyn, addr+i32, 0, ninst);
+            PASS2IF(dyn->insts[ninst].x64.jmp_insts==-1, 1) {
+                // out of the block
+                jump_to_next(dyn, addr+i32, 0, ninst);
+            } else {
+                // inside the block
+                tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);
+                if(tmp==4) {
+                    NOP;
                 } else {
-                    // inside the block
-                    tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);
-                    if(tmp==4) {
-                        NOP;
-                    } else {
-                        B(tmp);
-                    }
+                    B(tmp);
                 }
             }
             *need_epilog = 0;
@@ -2384,8 +2373,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF(dyn->insts && 
-                           ((ninst && dyn->insts[ninst-1].x64.set_flags)
+                    PASS2IF(((ninst && dyn->insts[ninst-1].x64.set_flags)
                         || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
                     {
                         READFLAGS(X_PEND);          // that's suspicious

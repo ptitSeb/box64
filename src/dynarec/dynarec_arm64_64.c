@@ -801,8 +801,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF(dyn->insts && 
-                           ((ninst && dyn->insts[ninst-1].x64.set_flags)
+                    PASS2IF(((ninst && dyn->insts[ninst-1].x64.set_flags)
                         || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
                     {
                         READFLAGS(X_PEND);          // that's suspicious
