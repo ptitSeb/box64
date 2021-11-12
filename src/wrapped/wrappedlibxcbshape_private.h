@@ -2,8 +2,8 @@
 #error meh!
 #endif
 
-//GO(xcb_shape_combine, 
-//GO(xcb_shape_combine_checked, 
+GO(xcb_shape_combine, pFpuuupwwp)
+GO(xcb_shape_combine_checked, pFpuuupwwp)
 //GO(xcb_shape_get_rectangles, 
 //GO(xcb_shape_get_rectangles_rectangles, 
 //GO(xcb_shape_get_rectangles_rectangles_iterator, 
@@ -26,9 +26,9 @@ GO(xcb_shape_mask_checked, pFpuuuwwu)
 //GO(xcb_shape_query_extents, 
 //GO(xcb_shape_query_extents_reply, 
 //GO(xcb_shape_query_extents_unchecked, 
-//GO(xcb_shape_query_version, 
-//GO(xcb_shape_query_version_reply, 
-//GO(xcb_shape_query_version_unchecked, 
+GO(xcb_shape_query_version, pFp)
+GO(xcb_shape_query_version_reply, pFppp)
+GO(xcb_shape_query_version_unchecked, pFp)
 //GO(xcb_shape_rectangles, 
 //GO(xcb_shape_rectangles_checked, 
 //GO(xcb_shape_rectangles_rectangles, 
