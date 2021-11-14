@@ -56,6 +56,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("LOCK ADD Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            DMB_ISH();
             GETGB(x2);
             if((nextop&0xC0)==0xC0) {
                 if(rex.rex) {
@@ -77,12 +78,14 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STLXRB(x4, x1, wback);
                 CBNZx_MARKLOCK(x4);
             }
+            DMB_ISH();
             break;
         case 0x01:
             INST_NAME("LOCK ADD Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
+            DMB_ISH();
             if((nextop&0xC0)==0xC0) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 emit_add32(dyn, ninst, rex, ed, gd, x3, x4);
@@ -94,6 +97,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STLXRxw(x3, x1, wback);
                 CBNZx_MARKLOCK(x3);
             }
+            DMB_ISH();
             break;
 
         case 0x09:
@@ -101,6 +105,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
+            DMB_ISH();
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
@@ -112,6 +117,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STLXRxw(x3, x1, wback);
                 CBNZx_MARKLOCK(x3);
             }
+            DMB_ISH();
             break;
 
         case 0x0F:
@@ -123,6 +129,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
                     GETGD;
+                    DMB_ISH();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         wback = 0;
@@ -163,6 +170,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5);}
                         MOVxw_REG(xRAX, x1);    // upper par of RAX will be erase on 32bits, no mater what
                     }
+                    DMB_ISH();
                     break;
 
                 case 0xC1:
@@ -170,6 +178,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
                     GETGD;
+                    DMB_ISH();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         MOVxw_REG(x1, ed);
@@ -201,6 +210,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                         MOVxw_REG(gd, x1);
                     }
+                    DMB_ISH();
                     break;
 
                 case 0xC7:
@@ -208,6 +218,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ZF, SF_SUBSET);
                     nextop = F8;
                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                    DMB_ISH();
                     MARKLOCK;
                     LDAXPxw(x2, x3, wback);
                     CMPSxw_REG(xRAX, x2);
@@ -223,6 +234,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOVxw_REG(xRDX, x3);
                     MOV32w(x1, 0);
                     MARK3;
+                    DMB_ISH();
                     BFIw(xFlags, x1, F_ZF, 1);
                     break;
 
@@ -236,6 +248,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
+            DMB_ISH();
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 emit_sub32(dyn, ninst, rex, ed, gd, x3, x4);
@@ -247,6 +260,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STLXRxw(x3, x1, wback);
                 CBNZx_MARKLOCK(x3);
             }
+            DMB_ISH();
             break;
 
         case 0x66:
@@ -255,6 +269,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0x81:
                 case 0x83:
                     nextop = F8;
+                    DMB_ISH();
                     switch((nextop>>3)&7) {
                         case 0: //ADD
                             if(opcode==0x81) {
@@ -448,6 +463,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             }
                             break;
                     }
+                    DMB_ISH();
                     break;
                 default:
                     DEFAULT;
@@ -456,6 +472,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x80:
             nextop = F8;
+            DMB_ISH();
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     INST_NAME("ADD Eb, Ib");
@@ -614,10 +631,12 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 default:
                     DEFAULT;
             }
+            DMB_ISH();
             break;
         case 0x81:
         case 0x83:
             nextop = F8;
+            DMB_ISH();
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     if(opcode==0x81) {
@@ -794,6 +813,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
             }
+            DMB_ISH();
             break;
             
         case 0x87:
@@ -807,6 +827,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOVxw_REG(ed, x1);
             } else {
                 GETGD;
+                DMB_ISH();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
                 TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
                 B_MARK(cNE);
@@ -819,6 +840,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRxw_U12(x1, ed, 0);
                 STRxw_U12(gd, ed, 0);
                 MARK2;
+                DMB_ISH();
                 MOVxw_REG(gd, x1);
             }
             break;
@@ -830,6 +852,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0: // INC Ed
                     INST_NAME("LOCK INC Ed");
                     SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    DMB_ISH();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         emit_inc32(dyn, ninst, rex, ed, x3, x4);
@@ -852,10 +875,12 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CBNZw_MARK(x3);
                         STRxw_U12(x1, wback, 0);
                     }
+                    DMB_ISH();
                     break;
                 case 1: //DEC Ed
                     INST_NAME("LOCK DEC Ed");
                     SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    DMB_ISH();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         emit_dec32(dyn, ninst, rex, ed, x3, x4);
@@ -878,6 +903,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CBNZw_MARK(x3);
                         STRxw_U12(x1, wback, 0);
                     }
+                    DMB_ISH();
                     break;
                 default:
                     DEFAULT;

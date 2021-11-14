@@ -844,6 +844,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIx(gb1, x1, gb2*8, 8);
                 BFIx(eb1, x4, eb2*8, 8);
             } else {
+                DMB_ISH();
                 GETGB(x4);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
                 MARKLOCK;
@@ -852,6 +853,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 // do the swap 14 -> strb(ed), 1 -> gd
                 STLXRB(x3, x4, ed);
                 CBNZx_MARKLOCK(x3);
+                DMB_ISH();
                 BFIx(gb1, x1, gb2*8, 8);
             }
             break;
@@ -867,6 +869,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                DMB_ISH();
                 TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
                 B_MARK(cNE);
                 MARKLOCK;
@@ -878,6 +881,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRxw_U12(x1, ed, 0);
                 STRxw_U12(gd, ed, 0);
                 MARK2;
+                DMB_ISH();
                 MOVxw_REG(gd, x1);
             }
             break;
