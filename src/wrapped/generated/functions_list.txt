@@ -725,6 +725,7 @@
 #() iFppui
 #() iFppuu
 #() iFppup
+#() iFppdp
 #() iFppll
 #() iFpplp
 #() iFppLi
@@ -3461,3 +3462,8 @@ wrappedxml2:
   - xmlHashUpdateEntry3
 - pFpppppi:
   - xmlCreateIOParserCtxt
+wrappedxslt:
+- vFp:
+  - xsltSetLoaderFunc
+- iFppp:
+  - xsltRegisterExtModuleFunction
