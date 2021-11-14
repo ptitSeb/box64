@@ -452,6 +452,7 @@
 #() LFpLp
 #() LFppi
 #() LFppL
+#() LFppp
 #() LFSpL
 #() pFEip
 #() pFEiV
@@ -1490,6 +1491,7 @@
 #() iFpppippp
 #() iFpppuiii
 #() iFppppiii
+#() iFppppipp
 #() iFppppdpi
 #() iFpppppip
 #() iFpppppup
@@ -1604,7 +1606,9 @@
 #() iFpppipipi
 #() iFpppipppp
 #() iFppppiipi
+#() iFppppippp
 #() iFppppppii
+#() iFpppppppi
 #() iFpppppppp
 #() uFEipipppp
 #() uFEpiupppp
@@ -1674,6 +1678,7 @@
 #() iFEpiiiiipi
 #() iFEpppipppp
 #() iFEppplPPPP
+#() iFEpppppupp
 #() iFEppPPPPPP
 #() iFiiiiiiiip
 #() iFiiiipiiip
@@ -1784,6 +1789,7 @@
 #() iFEpppipppppp
 #() iFEppppiiiiuu
 #() iFiiiiiiiiiip
+#() iFppippipppip
 #() iFppppiiuuiiL
 #() uFEpLiupppLuV
 #() uFEpLippppLup
@@ -1857,12 +1863,14 @@
 #() vFppuiiiiipuiiiiiiii
 #() vFpppipppppppppppppp
 #() iFpppppppppppppppppp
+#() LFpppppppppppppppppp
 #() pFippppppppppppppppp
 #() vFpiiiiiiiiiiiiiiiiii
 #() pFiiiippppppppppppppp
 #() pFpippppppppppppppppp
 #() iFpppppppppppppppppppppp
 #() pFipppppppppppppppppppppp
+#() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) DFD
 #defined(HAVE_LD80BITS) vFppippDDC
 #!defined(HAVE_LD80BITS) KFK
@@ -2373,6 +2381,10 @@ wrappedgtkx112:
 wrappedkrb5:
 - iFppppppipp:
   - krb5_get_init_creds_password
+wrappedlber:
+wrappedldapr:
+- iFpppppupp:
+  - ldap_sasl_interactive_bind_s
 wrappedldlinux:
 - pFp:
   - __tls_get_addr
