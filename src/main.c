@@ -848,10 +848,7 @@ int main(int argc, const char **argv, const char **env) {
     // check BOX64_LD_LIBRARY_PATH and load it
     LoadEnvVars(my_context);
 
-    if(argv[0][0]=='/')
-        my_context->box64path = strdup(argv[0]);
-    else
-        my_context->box64path = ResolveFile(argv[0], &my_context->box64_path);
+    my_context->box64path = ResolveFile(argv[0], &my_context->box64_path);
     // prepare all other env. var
     my_context->envc = CountEnv(environ?environ:env);
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
@@ -893,10 +890,7 @@ int main(int argc, const char **argv, const char **env) {
     }
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
-    if(strchr(prog, '/'))
-        my_context->argv[0] = strdup(prog);
-    else
-        my_context->argv[0] = ResolveFile(prog, &my_context->box64_path);
+    my_context->argv[0] = ResolveFile(prog, &my_context->box64_path);
     // check if box86 is present
     {
         my_context->box86path = strdup(my_context->box64path);

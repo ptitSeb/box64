@@ -60,7 +60,7 @@ char* ResolveFile(const char* filename, path_collection_t* paths)
             return realpath(p, NULL);
     }
 
-    return NULL;
+    return strdup(filename); //NULL;
 }
 
 int FileIsX64ELF(const char* filename)
