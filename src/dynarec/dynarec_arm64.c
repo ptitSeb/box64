@@ -526,6 +526,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.sons_x64 = NULL;
     free(helper.sons_arm);
     helper.sons_arm = NULL;
+    current_helper = NULL;
     //block->done = 1;
     return (void*)block;
 }
