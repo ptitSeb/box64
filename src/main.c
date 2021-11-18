@@ -942,13 +942,6 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_INFO, "Zoom detected, trying to use system libturbojpeg if possible\n");
         box64_zoom = 1;
     }
-    // special case for RimWorldLinux
-    #ifdef DYNAREC
-    if(strstr(prgname, "RimWorldLinux")==prgname) {
-        printf_log(LOG_INFO, "RimWorld detected, disabling bigblock on the Dynarec\n");
-        box64_dynarec_bigblock = 0;
-    }
-    #endif
     /*if(strstr(prgname, "awesomium_process")==prgname) {
         printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
         AddPath("libpng12.so.0", &my_context->box64_emulated_libs, 0);

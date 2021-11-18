@@ -262,6 +262,12 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
         lib->priv.n.localsymbols = kh_init(mapsymbols);
 
         printf_log(LOG_INFO, "Using emulated %s\n", libname);
+        #ifdef DYNAREC
+        if(libname && strstr(libname, "libmonobdwgc-2.0.so")) {
+            printf_log(LOG_INFO, "MonoBleedingEdge detected, disable Dynarec BigBlock\n");
+            box64_dynarec_bigblock = 0;
+        }
+        #endif
         return 1;
     }
     return 0;

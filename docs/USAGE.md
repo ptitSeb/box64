@@ -117,7 +117,7 @@ Forbid dynablock creation in the interval specified (helpfull for debugging beha
 
 #### BOX64_DYNAREC_BIGBLOCK
 Enables/Disables Box64's Dynarec building BigBlock.
- * 0 : Don't try to build block as big as possible (can help program using lots of thread and a JIT, like C#/Unity)
+ * 0 : Don't try to build block as big as possible (can help program using lots of thread and a JIT, like C#/Unity) (Default when libmonobdwgc-2.0.so is loaded)
  * 1 : Build Dynarec block as big as possible (Default.)
 
 #### BOX64_LIBGL
