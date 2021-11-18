@@ -48,6 +48,8 @@ dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int direct)
     dynablocklist_t* ret = (dynablocklist_t*)calloc(1, sizeof(dynablocklist_t));
     ret->text = text;
     ret->textsz = textsz;
+    ret->minstart = text;
+    ret->maxend = text+textsz-1;
     if(direct && textsz) {
         ret->direct = (dynablock_t**)calloc(textsz, sizeof(dynablock_t*));
         if(!ret->direct) {printf_log(LOG_NONE, "Warning, fail to create direct block for dynablock @%p\n", (void*)text);}
@@ -61,7 +63,7 @@ void FreeDynablock(dynablock_t* db, int need_lock)
     if(db) {
         if(db->gone)
             return; // already in the process of deletion!
-        dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x64=%p:%p parent=%p, father=%p, with %d son(s) already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size, db->parent, db->father, db->sons_size, db->gone);
+        dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x64=%p:%p parent=%p, father=%p, with %d son(s) already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size-1, db->parent, db->father, db->sons_size, db->gone);
         if(need_lock)
             pthread_mutex_lock(&my_context->mutex_dyndump);
         db->done = 0;
@@ -121,6 +123,7 @@ void MarkDynablock(dynablock_t* db)
             db = db->father;    // mark only father
         if(db->need_test)
             return; // already done
+        dynarec_log(LOG_DEBUG, "MarkDynablock %p with %d son(s) %p-%p\n", db, db->sons_size, db->x64_addr, db->x64_addr+db->x64_size-1);
         db->need_test = 1;
         setJumpTableDefault64(db->x64_addr);
         for(int i=0; i<db->sons_size; ++i)
@@ -150,24 +153,19 @@ int IntervalIntersects(uintptr_t start1, uintptr_t end1, uintptr_t start2, uintp
 
 void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
 {
+    // Mark will try to find *any* blocks that intersect the range to mark
     if(!dynablocks)
         return;
     if(!dynablocks->direct)
         return;
     uintptr_t startdb = dynablocks->text;
-    uintptr_t enddb = startdb + dynablocks->textsz -1;
-    uintptr_t start = addr;
-    uintptr_t end = addr+size-1;
-    if(start<startdb)
-        start = startdb;
-    if(end>enddb)
-        end = enddb;
+    uintptr_t sizedb = dynablocks->textsz;
     dynablock_t *db;
-    if(end>startdb && start<enddb)
-        for(uintptr_t i = start; i<end; ++i)
-            if((db=dynablocks->direct[i-startdb]))
-                if(IntervalIntersects((uintptr_t)db->x64_addr, (uintptr_t)db->x64_addr+db->x64_size-1, addr, addr+size+1))
-                    MarkDynablock(db);
+    dynarec_log(LOG_DEBUG, "MarkDirectDynablock %p-%p .. startdb=%p, sizedb=%p\n", (void*)addr, (void*)addr+size-1, (void*)startdb, (void*)sizedb);
+    for(uintptr_t i = 0; i<sizedb; ++i)
+        if((db=dynablocks->direct[i]))
+            if(IntervalIntersects((uintptr_t)db->x64_addr, (uintptr_t)db->x64_addr+db->x64_size-1, addr, addr+size+1))
+                MarkDynablock(db);
 }
 
 int FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
@@ -218,13 +216,14 @@ void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
 {
     if(!dynablocks)
         return;
+    dynarec_log(LOG_DEBUG, "MarkRangeDynablock %p-%p\n", (void*)addr, (void*)addr+size-1);
     if(dynablocks->direct) {
-        uintptr_t new_addr = addr - dynablocks->maxsz;
-        uintptr_t new_size = size + dynablocks->maxsz;
-        MarkDirectDynablock(dynablocks, new_addr, new_size);
+        uintptr_t new_addr = dynablocks->minstart;
+        uintptr_t new_size = dynablocks->maxend - new_addr + 1;
+        MarkDirectDynablock(dynablocks, addr, size);
         // the blocks check before
         for(unsigned idx=(new_addr)>>DYNAMAP_SHIFT; idx<(addr>>DYNAMAP_SHIFT); ++idx)
-            MarkDirectDynablock(getDB(idx), new_addr, new_size);
+            MarkDirectDynablock(getDB(idx), addr, size);
     }
 }
 
@@ -364,17 +363,18 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     }
     // check size
     if(block && block->x64_size) {
+        if(dynablocks->minstart>addr)
+            dynablocks->minstart = addr;
         int blocksz = block->x64_size;
-        if(dynablocks->maxsz<blocksz) {
-            dynablocks->maxsz = blocksz;
-            for(unsigned idx=(addr>>DYNAMAP_SHIFT)+1; idx<=((addr+blocksz)>>DYNAMAP_SHIFT); ++idx) {
+        if(dynablocks->maxend<addr+blocksz) {
+            dynablocks->maxend = addr+blocksz;
+            for(unsigned idx=(addr>>DYNAMAP_SHIFT)+1; idx<=((addr+blocksz-1)>>DYNAMAP_SHIFT); ++idx) {
                 dynablocklist_t* dblist;
                 if((dblist = getDB(idx)))
-                    if(dblist->maxsz<blocksz)
-                        dblist->maxsz = blocksz;
+                    if(dblist->minstart>addr)
+                        dblist->minstart = addr;
             }
         }
-        protectDB((uintptr_t)block->x64_addr, block->x64_size);
         // fill-in jumptable
         addJumpTableIfDefault64(block->x64_addr, block->block);
         for(int i=0; i<block->sons_size; ++i) {
@@ -384,24 +384,116 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         block->done = 1;
     }
 
-    dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+((block)?block->x64_size:0)), (block)?block->block:0, (block)?block->size:0, (block)?block->sons_size:0);
+    dynarec_log(LOG_DEBUG, "%04d| --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", GetTID(), created?"created":"recycled", (void*)addr, (void*)(addr+((block)?block->x64_size:1)-1), (block)?block->block:0, (block)?block->size:0, (block)?block->sons_size:0);
 
     return block;
+}
+
+#define MAX_HOTPAGE 64
+#define HOTPAGE_STEP 64
+static int volatile hotpage_count[MAX_HOTPAGE] = {0};
+static uintptr_t volatile hotpage[MAX_HOTPAGE] = {0};
+static uintptr_t volatile hotpage_size[MAX_HOTPAGE] = {0};
+static volatile int hotpages = 0;
+
+int IsInHotPage(uintptr_t addr) {
+    if(!hotpages)
+        return 0;
+    for(int i=0; i<MAX_HOTPAGE; ++i) {
+        if((hotpage_count[i]>0) && (addr>=hotpage[i]) && (addr<hotpage[i]+0x1000*(hotpage_size[i]+1))) {
+            --hotpage_count[i];
+            if(!hotpage_count[i]) {
+                --hotpages;
+                hotpage_size[i] = 0;
+                dynarec_log(LOG_DEBUG, "End of Hotpage %p\n", (void*)hotpage[i]);
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int AreaInHotPage(uintptr_t start, uintptr_t end) {
+    if(!hotpages)
+        return 0;
+    for(int i=0; i<MAX_HOTPAGE; ++i) {
+        if(hotpage_count[i]>0)
+            if(IntervalIntersects(start, end, hotpage[i], hotpage[i]+0x1000*(hotpage_size[i]+1)-1)) {
+                --hotpage_count[i];
+                if(!hotpage_count[i]) {
+                    --hotpages;
+                    hotpage_size[i] = 0;
+                    dynarec_log(LOG_DEBUG, "End of Hotpage %p\n", (void*)hotpage[i]);
+                }
+                return 1;
+        }
+    }
+    return 0;
+}
+
+void AddHotPage(uintptr_t addr) {
+    addr&=~0xfff;
+    // look for same address
+    for(int i=0; i<MAX_HOTPAGE; ++i) {
+        if(addr>=hotpage[i] && addr<hotpage[i]+0x1000*(hotpage_size[i]+1)) {
+            if(!hotpage_count[i])
+                ++hotpages;
+            hotpage_count[i] = HOTPAGE_STEP;
+            return;
+        }
+        if(addr==hotpage[i]+0x1000*(hotpage_size[i]+1)) {
+            ++hotpage_size[i];
+            hotpage_count[i] = HOTPAGE_STEP;
+            return;
+        }
+        if(addr+0x1000==hotpage[i]) {
+            ++hotpage_size[i];
+            hotpage[i] = addr;
+            hotpage_count[i] = HOTPAGE_STEP;
+            return;
+        }
+    }
+    // look for empty spot / minium
+    int mincnt = hotpage_count[0];
+    int minidx = 0;
+    for(int i=1; i<MAX_HOTPAGE; ++i)
+        if(hotpage_count[i]<mincnt) {
+            mincnt = hotpage_count[i];
+            minidx = i;
+        }
+    if(hotpage_count[minidx]) {
+        dynarec_log(LOG_NONE, "Warning, not enough Hotpage, replacing %p(%p/%d) with %p\n", (void*)hotpage[minidx], (void*)(0x1000*(hotpage_size[minidx]+1)), hotpage_count[minidx], (void*)addr);
+        hotpage_size[minidx] = 0;
+    } else
+        ++hotpages;
+    hotpage[minidx] = addr;
+    hotpage_count[minidx] = HOTPAGE_STEP;
 }
 
 dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, dynablock_t** current)
 {
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, *current, 1);
     if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
-        if(pthread_mutex_trylock(&my_context->mutex_dyndump))
+        if(pthread_mutex_trylock(&my_context->mutex_dyndump)) {
+            dynarec_log(LOG_DEBUG, "mutex_dyndump not available when trying to validate block %p from %p:%p (hash:%X) with %d son(s) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, db->hash, db->sons_size, (void*)addr);
             return NULL;
+        }
         dynablock_t *father = db->father?db->father:db;
+        if(AreaInHotPage((uintptr_t)father->x64_addr, (uintptr_t)father->x64_addr + father->x64_size - 1)) {
+            dynarec_log(LOG_DEBUG, "Not running block %p from %p:%p with %d son(s) for %p because it's in a hotpage\n", father, father->x64_addr, father->x64_addr+father->x64_size-1, father->sons_size, (void*)addr);
+            pthread_mutex_unlock(&my_context->mutex_dyndump);
+            return NULL;
+        }
         uint32_t hash = X31_hash_code(father->x64_addr, father->x64_size);
         if(hash!=father->hash) {
             father->done = 0;   // invalidating the block
-            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) with %d son(s) for %p\n", father, father->x64_addr, father->x64_addr+father->x64_size, hash, father->hash, father->sons_size, (void*)addr);
+            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) with %d son(s) for %p\n", father, father->x64_addr, father->x64_addr+father->x64_size-1, hash, father->hash, father->sons_size, (void*)addr);
             // no more current if it gets invalidated too
-            if(*current && father->x64_addr>=(*current)->x64_addr && (father->x64_addr+father->x64_size)<(*current)->x64_addr)
+            if(*current && IntervalIntersects(
+             (uintptr_t)father->x64_addr, 
+             (uintptr_t)father->x64_addr+father->x64_size-1, 
+             (uintptr_t)(*current)->x64_addr, 
+             (uintptr_t)(*current)->x64_addr+(*current)->x64_size-1))
                 *current = NULL;
             // Free father, it's now invalid!
             FreeDynablock(father, 0);
@@ -409,6 +501,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, dynablock_t**
             db = internalDBGetBlock(emu, addr, addr, create, *current, 0);
         } else {
             father->need_test = 0;
+            dynarec_log(LOG_DEBUG, "Validating block %p from %p:%p (hash:%X) with %d son(s) for %p\n", father, father->x64_addr, father->x64_addr+father->x64_size-1, father->hash, father->sons_size, (void*)addr);
             protectDB((uintptr_t)father->x64_addr, father->x64_size);
             // fill back jumptable
             addJumpTableIfDefault64(father->x64_addr, father->block);

@@ -31,5 +31,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
 
 // for use in signal handler
 void cancelFillBlock();
+int IsInHotPage(uintptr_t addr);
+void AddHotPage(uintptr_t addr);
 
 #endif //__DYNABLOCK_H_

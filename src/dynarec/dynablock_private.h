@@ -29,7 +29,8 @@ typedef struct dynablock_s {
 typedef struct dynablocklist_s {
     uintptr_t           text;
     int                 textsz;
-    int                 maxsz;     // maxblock size (for this block or previous block)
+    uintptr_t           maxend;    // max address end for anyblock on this blocklist
+    uintptr_t           minstart;  // min start address for block overlapping this blocklist
     dynablock_t**       direct;    // direct mapping (waste of space, so the array is created at first write)
 } dynablocklist_t;
 

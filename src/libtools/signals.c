@@ -706,6 +706,9 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
 }
 
 extern __thread void* current_helper;
+#ifdef DYNAREC
+static pthread_mutex_t mutex_dynarec_prot;
+#endif
 
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
@@ -745,12 +748,23 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
-        // access error, unprotect the block (and mark them dirty)
-        unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        pthread_mutex_lock(&mutex_dynarec_prot);
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
-        dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p), prot=0x%x\n", pc, addr, db, db?((void*)db->x64_addr):NULL, prot);
+        static uintptr_t repeated_page = 0;
+        dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p), prot=0x%x (old page=%p)\n", pc, addr, db, db?((void*)db->x64_addr):NULL, prot, (void*)repeated_page);
+        static int repeated_count = 0;
+        if(repeated_page == ((uintptr_t)addr&~0xfff)) {
+            ++repeated_count;   // Access eoor multiple time on same page, disable dynarec on this page a few time...
+            dynarec_log(LOG_DEBUG, "Detecting a Hotpage at %p (%d)\n", (void*)repeated_page, repeated_count);
+            AddHotPage(repeated_page);
+        } else {
+            repeated_page = (uintptr_t)addr&~0xfff;
+            repeated_count = 0;
+        }
+        // access error, unprotect the block (and mark them dirty)
+        unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db->need_test)) {
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();
@@ -785,17 +799,21 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     dynarec_log(LOG_INFO, "Dynablock unprotected, getting out!\n");
                 }
                 relockMutex(Locks);
+                pthread_mutex_unlock(&mutex_dynarec_prot);
                 siglongjmp(ejb->jmpbuf, 2);
             }
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);
         }
         // done
-        if(prot&PROT_WRITE) {
+        if((prot&PROT_WRITE) || (prot&PROT_DYNAREC)) {
+            pthread_mutex_unlock(&mutex_dynarec_prot);
             // if there is no write permission, don't return and continue to program signal handling
             relockMutex(Locks);
             return;
         }
+        pthread_mutex_unlock(&mutex_dynarec_prot);
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE))) {
+        pthread_mutex_lock(&mutex_dynarec_prot);
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
         if(db && db->x64_addr>= addr && (db->x64_addr+db->x64_size)<addr) {
@@ -812,6 +830,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 glitch_addr = addr;
                 glitch_prot = prot;
                 relockMutex(Locks);
+                pthread_mutex_unlock(&mutex_dynarec_prot);
                 return; // try again
             }
 dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x\n", pc, addr, db, prot);
@@ -819,6 +838,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             glitch_addr = NULL;
             glitch_prot = 0;
         }
+        pthread_mutex_unlock(&mutex_dynarec_prot);
     }
 #else
     void* db = NULL;
@@ -1281,7 +1301,17 @@ EXPORT int my_swapcontext(x64emu_t* emu, void* ucp1, void* ucp2)
     my_setcontext(emu, ucp2);
     return 0;
 }
+#ifdef DYNAREC
+static void atfork_child_dynarec_prot(void)
+{
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutex_init(&mutex_dynarec_prot, &attr);
 
+    pthread_mutexattr_destroy(&attr);
+}
+#endif
 void init_signal_helper(box64context_t* context)
 {
     // setup signal handling
@@ -1300,6 +1330,10 @@ void init_signal_helper(box64context_t* context)
     sigaction(SIGILL, &action, NULL);
 
 	pthread_once(&sigstack_key_once, sigstack_key_alloc);
+#ifdef DYNAREC
+    atfork_child_dynarec_prot();
+    pthread_atfork(NULL, NULL, atfork_child_dynarec_prot);
+#endif
 }
 
 void fini_signal_helper()

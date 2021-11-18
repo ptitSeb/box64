@@ -114,16 +114,17 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
         PushExit(emu);
         R_RIP = addr;
         emu->df = d_none;
-        dynablock_t* block = NULL;
         dynablock_t* current = NULL;
+        dynablock_t* block = DBGetBlock(emu, R_RIP, 1, &current);
+        current = block;
         while(!emu->quit) {
-            block = DBGetBlock(emu, R_RIP, 1, &current);
-            current = block;
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Calling Interpretor @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 Run(emu, 1);
+                block = DBGetBlock(emu, R_RIP, 1, &current);
+                current = block;
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x64 instructions (father=%p) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,block->father, emu);
                 CHECK_FLAGS(emu);
@@ -131,6 +132,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
                 #ifdef ARM64
                 arm64_prolog(emu, block->block);
                 #endif
+                block = NULL;
             }
             if(emu->fork) {
                 int forktype = emu->fork;
@@ -194,22 +196,24 @@ int DynaRun(x64emu_t* emu)
         return Run(emu, 0);
 #ifdef DYNAREC
     else {
-        dynablock_t* block = NULL;
         dynablock_t* current = NULL;
+        dynablock_t* block = DBGetBlock(emu, R_RIP, 1, &current);;
+        current = block;
         while(!emu->quit) {
-            block = DBGetBlock(emu, R_RIP, 1, &current);
-            current = block;
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Running Interpretor @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 Run(emu, 1);
+                block = DBGetBlock(emu, R_RIP, 1, &current);
+                current = block;
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (father=%p) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->father, emu);
                 // block is here, let's run it!
                 #ifdef ARM64
                 arm64_prolog(emu, block->block);
                 #endif
+                block = NULL;
             }
             if(emu->fork) {
                 int forktype = emu->fork;

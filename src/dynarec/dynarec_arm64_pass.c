@@ -15,6 +15,7 @@
 #include "box64stack.h"
 #include "emu/x64run_private.h"
 #include "x64trace.h"
+#include "dynablock.h"
 #include "dynarec_arm64.h"
 #include "dynarec_arm64_private.h"
 #include "arm64_printer.h"
@@ -102,7 +103,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             ok = 1;
         }
         #if STEP == 0
-        if(!ok && !need_epilog && box64_dynarec_bigblock && getProtection(addr+3)&~PROT_CUSTOM)
+        if(!ok && !need_epilog && box64_dynarec_bigblock && getProtection(addr+3)&~PROT_CUSTOM && !IsInHotPage(addr+3))
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (

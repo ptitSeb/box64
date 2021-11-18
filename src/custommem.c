@@ -769,11 +769,12 @@ void protectDB(uintptr_t addr, uintptr_t size)
         }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16][i&0xffff];
-        if(!(prot&PROT_DYNAREC)) {
-            if(!prot)
-                prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
+        if(!prot)
+            prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
+        if((prot&PROT_WRITE)) {
+            prot&=~PROT_WRITE;
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot);
             memprot[i>>16][i&0xffff] = prot|PROT_DYNAREC;   // need to use atomic exchange?
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
         }
     }
     pthread_mutex_unlock(&mutex_prot);
@@ -802,9 +803,11 @@ void unprotectDB(uintptr_t addr, size_t size)
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16][i&0xffff];
         if(prot&PROT_DYNAREC) {
-            memprot[i>>16][i&0xffff] = prot&~PROT_DYNAREC;  // need to use atomic exchange?
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
+            prot&=~PROT_DYNAREC;
+            prot|=PROT_WRITE;
             cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot);
+            memprot[i>>16][i&0xffff] = prot;  // need to use atomic exchange?
         }
     }
     pthread_mutex_unlock(&mutex_prot);
@@ -812,19 +815,23 @@ void unprotectDB(uintptr_t addr, size_t size)
 
 int isprotectedDB(uintptr_t addr, size_t size)
 {
-    dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p => ", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(20+16)))
-        end = (1LL<<(20+16))-1;
-    if(end<idx) // memory addresses higher than 48bits are not tracked
+        end = (1LL<<(20+16))-1LL;
+    if(end<idx) { // memory addresses higher than 48bits are not tracked
+        dynarec_log(LOG_DEBUG, "00\n");
         return 0;
+    }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16][i&0xffff];
-        if(!(prot&PROT_DYNAREC)) {
+        if((prot&PROT_WRITE)) {
+            dynarec_log(LOG_DEBUG, "0\n");
             return 0;
         }
     }
+    dynarec_log(LOG_DEBUG, "1\n");
     return 1;
 }
 

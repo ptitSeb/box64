@@ -353,6 +353,10 @@ void CancelBlock64()
 }
 
 void* FillBlock64(dynablock_t* block, uintptr_t addr) {
+    if(IsInHotPage(addr)) {
+        dynarec_log(LOG_DEBUG, "Cancelling dynarec FillBlock on hotpage for %p\n", (void*)addr);
+        return NULL;
+    }
     if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
         block->done = 1;
         return (void*)block;
@@ -493,8 +497,12 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         CancelBlock64();
         return NULL;
     }    // fill sons if any
-    if(!isprotectedDB(addr, end-addr))
-        protectDB(addr, end-addr);
+    if(!isprotectedDB(addr, end-addr)) {
+        dynarec_log(LOG_INFO, "Warning, block unprotected while beeing processed %p:%ld, cancelling\n", block->x64_addr, block->x64_size);
+        CancelBlock64();
+        return NULL;
+        //protectDB(addr, end-addr);
+    }
     dynablock_t** sons = NULL;
     int sons_size = 0;
     if(helper.sons_size) {
