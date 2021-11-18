@@ -185,7 +185,7 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     uintptr_t end = head->multiblock_offs[j] + head->multiblock_size[j];
                     start &= ~balign;
                     if( (head->e_type == ET_DYN) ||
-                        (((bstart>=start) && (bstart<=end)) || ((bend>=start) && (bend<=end)) || ((bstart<start) && (bend>end))))
+                        (((bstart>=start) && (bstart<=end+0x1000)) || ((bend>=start) && (bend<=end)) || ((bstart<start) && (bend>end))))
                     {
                         // merge
                         ok = 1;
