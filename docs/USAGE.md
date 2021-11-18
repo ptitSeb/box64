@@ -120,6 +120,11 @@ Enables/Disables Box64's Dynarec building BigBlock.
  * 0 : Don't try to build block as big as possible (can help program using lots of thread and a JIT, like C#/Unity) (Default when libmonobdwgc-2.0.so is loaded)
  * 1 : Build Dynarec block as big as possible (Default.)
 
+#### BOX64_DYNAREC_STRONGMEM
+Enable/Disable simulation of Strong Memory model
+* 0 : Don't try anything special (Default.)
+* 1 : Enable some Memory Barrier when reading from memory (on MOV opcode) to simulate Strong Memory Model (Default when libmonobdwgc-2.0.so is loaded)
+
 #### BOX64_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL

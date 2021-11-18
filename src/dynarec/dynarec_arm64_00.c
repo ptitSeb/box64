@@ -955,6 +955,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = wback;
                 }
             } else {
+                if(box64_dynarec_strongmem) {
+                    DMB_ISH();
+                }
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, 0, 0);
                 LDRB_U12(x4, wback, fixedaddress);
                 ed = x4;
@@ -965,9 +968,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("MOV Gd, Ed");
             nextop=F8;
             GETGD;
-            if(MODREG) {   // reg <= reg
+            if(MODREG) {
                 MOVxw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
-            } else {                    // mem <= reg
+            } else {    
+                if(box64_dynarec_strongmem) {
+                    DMB_ISH();
+                }
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
                 LDRxw_U12(gd, ed, fixedaddress);
             }
