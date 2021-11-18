@@ -2453,6 +2453,7 @@ wrappedlibc:
   - sigaltstack
   - swapcontext
 - iFpV:
+  - __isoc99_scanf
   - execl
   - execlp
   - printf
