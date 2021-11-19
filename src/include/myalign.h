@@ -90,17 +90,7 @@ typedef struct  va_list {
     memcpy(&p[6], emu->xmm, 8*16);                                      \
   }
 
-#elif defined(__powerpc64__)
-// TODO, is this correct?
-#define CREATE_SYSV_VALIST(A) \
-  va_list sysv_varargs; \
-  sysv_varargs->gpr=8; \
-  sysv_varargs->fpr=8; \
-  sysv_varargs->overflow_arg_area=A;
-
-#define CONVERT_VALIST(A) \
-  #error TODO!
-#elif defined(__loongarch64)
+#elif defined(__loongarch64) || defined(__powerpc64__)
 #define CREATE_SYSV_VALIST(A) \
   va_list sysv_varargs = (va_list)A
 // not creating CONVERT_VALIST(A) on purpose

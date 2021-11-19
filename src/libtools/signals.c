@@ -733,7 +733,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #elif defined __x86_64__
     void * pc = (void*)p->uc_mcontext.gregs[X64_RIP];
 #elif defined __powerpc64__
-    void * pc = (void*)p->uc_mcontext.uc_regs->gregs[PT_NIP];
+    void * pc = (void*)p->uc_mcontext.gp_regs[PT_NIP];
 #else
     void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture
