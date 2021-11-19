@@ -1,0 +1,83 @@
+### Auto build Box64 and release its binary with Github Action
+name: Build and Release Box64
+
+on: 
+  workflow_dispatch:
+  release:
+  push:
+    paths:
+      - "**/*.c"
+      - "**/*.h"
+      - "**/*.S"
+      - "**/*.py"
+      - "CMakeList.txt"
+      - "**/*.yml"
+  pull_request: 
+    types: [assigned, opened, synchronize, reopened]
+    paths:
+      - "**/*.c"
+      - "**/*.h"
+      - "**/*.S"
+      - "**/*.py"
+      - "CMakeList.txt"
+      - "**/*.yml"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [X64, OTHER_ARM, RPI4ARM64, RK3326, RK3399, RK3288, TEGRAX1, PHYTIUM, SD845]
+        type: [Release, Trace]
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Box64 Repository"
+        uses: actions/checkout@v2
+
+      - name: "Environment preparation"
+        run: |
+          sudo apt-get update
+          if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'OTHER_ARM' ]]; then
+            echo "BOX64_PLATFORM_MARCRO=-D${{ matrix.platform }}=1" >> $GITHUB_ENV
+            echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+            sudo apt-get -y install git gcc-aarch64-linux-gnu cmake make python3
+          else
+            if [[ ${{ matrix.platform }} == 'X64' ]]; then
+              echo "BOX64_PLATFORM_MARCRO=-DLD80BITS=1 -DNOALIGN=1" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=gcc" >> $GITHUB_ENV
+              sudo apt-get -y install git cmake make python3
+              ls /bin/*gcc*
+            else
+              echo BOX64_PLATFORM_MARCRO="-DARM_DYNAREC=ON" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+              sudo apt-get -y install git gcc-aarch64-linux-gnu cmake make python3
+            fi
+          fi
+          if [[ ${{ matrix.type }} == 'Release' ]]; then
+            echo BOX64_BUILD_TYPE=Release >> $GITHUB_ENV
+            echo BOX64_HAVE_TRACE=0 >> $GITHUB_ENV
+          else
+            echo BOX64_BUILD_TYPE=RelWithDebInfo >> $GITHUB_ENV
+            echo BOX64_HAVE_TRACE=1 >> $GITHUB_ENV
+          fi
+            
+      - name: "Display Build info"
+        run: |
+          echo "CMake Platform Macro: ${{ env.BOX64_PLATFORM_MARCRO }}"
+          echo "CMake C Compiler: ${{ env.BOX64_COMPILER }}"
+          echo "Build type: ${{ env.BOX64_BUILD_TYPE }}"
+          echo "Trace Enabled: ${{ env.BOX64_HAVE_TRACE }}"
+          
+      - name: "Build Box64"
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_C_COMPILER=${{ env.BOX64_COMPILER }} ${{ env.BOX64_PLATFORM_MARCRO }} -DCMAKE_BUILD_TYPE=${{ env.BOX64_BUILD_TYPE }} -DHAVE_TRACE=${{ env.BOX64_HAVE_TRACE }} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+          make -j$(nproc) VERBOSE=1
+      
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v2
+        with:
+          name: box86-${{ matrix.platform }}-${{ matrix.type }}
+          path: build/box64
