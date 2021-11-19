@@ -1,5 +1,8 @@
 Current Version
 ======
+* Introduce "HotPage", to temporarily disable Dynarec on a page were writing is also occuring (can help speed up C# code)
+* Some work on Dynarec to limit the number of mutex use, and also allow smaller block to be built (for JIT'd programs)
+* Introduce BOX64_DYNAREC_STRONGMEM for the (Arm) dynarec to emulate StrngMemory Model (needed by some games, like RimWorld)
 * More functions wrapped
 * Improve speed of the custom allocator used by dynarec and Hash (speedup loading)
 * Added a workaround for streamwebhelper to not load it
