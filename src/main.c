@@ -276,11 +276,11 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_STRONGMEM");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
+            if(p[0]>='0' && p[0]<='2')
                 box64_dynarec_strongmem = p[0]-'0';
         }
         if(box64_dynarec_strongmem)
-        printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model\n");
+        printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performace loss":"");
     }
     p = getenv("BOX64_NODYNAREC");
     if(p) {

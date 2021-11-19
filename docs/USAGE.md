@@ -123,7 +123,8 @@ Enables/Disables Box64's Dynarec building BigBlock.
 #### BOX64_DYNAREC_STRONGMEM
 Enable/Disable simulation of Strong Memory model
 * 0 : Don't try anything special (Default.)
-* 1 : Enable some Memory Barrier when reading from memory (on MOV opcode) to simulate Strong Memory Model (Default when libmonobdwgc-2.0.so is loaded)
+* 1 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
+* 2 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model
 
 #### BOX64_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).

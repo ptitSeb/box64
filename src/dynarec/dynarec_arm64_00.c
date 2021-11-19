@@ -955,7 +955,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = wback;
                 }
             } else {
-                if(box64_dynarec_strongmem) {
+                if(box64_dynarec_strongmem && 
+                 (dyn->insts[ninst].x64.barrier || !ninst || box64_dynarec_strongmem>1 || (ninst && dyn->insts[ninst-1].x64.barrier))) {
                     DMB_ISH();
                 }
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, 0, 0);
@@ -971,7 +972,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {
                 MOVxw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
             } else {    
-                if(box64_dynarec_strongmem) {
+                if(box64_dynarec_strongmem && 
+                 (dyn->insts[ninst].x64.barrier || !ninst || box64_dynarec_strongmem>1 || (ninst && dyn->insts[ninst-1].x64.barrier))) {
                     DMB_ISH();
                 }
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
