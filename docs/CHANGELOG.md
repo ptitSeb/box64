@@ -1,4 +1,4 @@
-Current Version
+v0.1.6
 ======
 * Introduce "HotPage", to temporarily disable Dynarec on a page were writing is also occuring (can help speed up C# code)
 * Some work on Dynarec to limit the number of mutex use, and also allow smaller block to be built (for JIT'd programs)
