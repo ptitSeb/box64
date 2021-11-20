@@ -79,5 +79,5 @@ jobs:
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
         with:
-          name: box86-${{ matrix.platform }}-${{ matrix.type }}
+          name: box64-${{ matrix.platform }}-${{ matrix.type }}
           path: build/box64
