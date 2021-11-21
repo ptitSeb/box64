@@ -2213,6 +2213,7 @@ EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
 
 EXPORT int my_getopt(int argc, char* const argv[], const char *optstring)
 {
+    my_updateGlobalOpt();
     int ret = getopt(argc, argv, optstring);
     my_checkGlobalOpt();
     return ret;
@@ -2220,6 +2221,7 @@ EXPORT int my_getopt(int argc, char* const argv[], const char *optstring)
 
 EXPORT int my_getopt_long(int argc, char* const argv[], const char* optstring, const struct option *longopts, int *longindex)
 {
+    my_updateGlobalOpt();
     int ret = getopt_long(argc, argv, optstring, longopts, longindex);
     my_checkGlobalOpt();
     return ret;
@@ -2227,6 +2229,7 @@ EXPORT int my_getopt_long(int argc, char* const argv[], const char* optstring, c
 
 EXPORT int my_getopt_long_only(int argc, char* const argv[], const char* optstring, const struct option *longopts, int *longindex)
 {
+    my_updateGlobalOpt();
     int ret = getopt_long_only(argc, argv, optstring, longopts, longindex);
     my_checkGlobalOpt();
     return ret;

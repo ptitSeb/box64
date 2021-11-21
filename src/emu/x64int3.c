@@ -103,7 +103,7 @@ void x64Int3(x64emu_t* emu)
                     perr = 1;
                 } else if (!strcmp(s, "fopen") || !strcmp(s, "fopen64")) {
                     tmp = (char*)(R_RDI);
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (char*)(R_RSI));
                     perr = 2;
                 } else if (!strcmp(s, "__openat64") || !strcmp(s, "openat64") || !strcmp(s, "__openat64_2")) {
                     tmp = (char*)(R_RSI);

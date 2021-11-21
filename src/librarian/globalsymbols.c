@@ -18,8 +18,14 @@
 
 #define GLOB(A) \
     if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL)) {     \
-        printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <= %p\n", (void*)globoffs, &A);        \
+        printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <- %p\n", (void*)globoffs, &A);        \
         memcpy((void*)globoffs, &A, sizeof(A));                                                     \
+    }
+
+#define TOGLOB(A) \
+    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL)) {     \
+        printf_log(LOG_DEBUG, "Global " #A " workaround, @%p -> %p\n", (void*)globoffs, &A);        \
+        memcpy(&A, (void*)globoffs, sizeof(A));                                                     \
     }
 
 
@@ -87,9 +93,35 @@ void my_checkGlobalTInfo()
     GLOB(ttytype)
 }
 
+void my_updateGlobalTInfo()
+{
+    uintptr_t globoffs, globend;
+    TOGLOB(COLS)
+    TOGLOB(LINES)
+    TOGLOB(TABSIZE)
+    TOGLOB(curscr)
+    TOGLOB(newscr)
+    TOGLOB(stdscr)
+    TOGLOB(acs_map)
+    TOGLOB(UP)
+    TOGLOB(BC)
+    TOGLOB(PC)
+    TOGLOB(ospeed)
+    TOGLOB(ttytype)
+}
+
 // **************** getopts ****************
 EXPORT char *optarg;
 EXPORT int optind, opterr, optopt;
+
+void my_updateGlobalOpt()
+{
+    uintptr_t globoffs, globend;
+    TOGLOB(optarg);
+    TOGLOB(optind);
+    TOGLOB(opterr);
+    TOGLOB(optopt);
+}
 
 void my_checkGlobalOpt()
 {
