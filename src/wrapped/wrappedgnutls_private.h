@@ -527,7 +527,7 @@ GO(gnutls_pk_to_sign, pFpp)
 GO(gnutls_priority_set_direct, iFppp)
 //GO(gnutls_priority_sign_list, 
 //GO(gnutls_priority_string_list, 
-//GO(gnutls_privkey_decrypt_data, 
+GO(gnutls_privkey_decrypt_data, iFpipp)
 GO(gnutls_privkey_deinit, vFp)
 GO(gnutls_privkey_export_dsa_raw, iFpppppp)
 GO(gnutls_privkey_export_ecc_raw, iFppppp)

@@ -93,7 +93,7 @@ Wine64 is supported on box64. Be aware that 64-bit Wine also includes 32-bit com
 Notes about Vulkan
 ----
 
-Box64 does not wrap Vulkan libraries yet. It's planned, but for now, Vulkan programs will not run on box64.
+Box64 wrap Vulkan libraries. But note that it as only been tested with a RX550 card, some extensions may be missing depending on your graphic card.
 
 ----
 

@@ -299,6 +299,10 @@
 #() vFpuI
 #() vFpuu
 #() vFpup
+#() vFpUi
+#() vFpUu
+#() vFpUU
+#() vFpUp
 #() vFpff
 #() vFpdd
 #() vFpll
@@ -308,6 +312,7 @@
 #() vFpLp
 #() vFppi
 #() vFppu
+#() vFppU
 #() vFppd
 #() vFppl
 #() vFppL
@@ -369,6 +374,7 @@
 #() iFpup
 #() iFpUi
 #() iFpUU
+#() iFpUp
 #() iFpfu
 #() iFpff
 #() iFpdd
@@ -520,6 +526,7 @@
 #() vFEpii
 #() vFEpip
 #() vFEpup
+#() vFEpUp
 #() vFEppp
 #() vFEppV
 #() vFEppA
@@ -588,6 +595,7 @@
 #() vFpiuu
 #() vFpiuL
 #() vFpiup
+#() vFpiUu
 #() vFpifi
 #() vFpipi
 #() vFpipp
@@ -598,6 +606,13 @@
 #() vFpuup
 #() vFpudd
 #() vFpupp
+#() vFpUui
+#() vFpUuu
+#() vFpUup
+#() vFpUUi
+#() vFpUUp
+#() vFpUpp
+#() vFpfff
 #() vFpdii
 #() vFpddi
 #() vFpddd
@@ -632,6 +647,7 @@
 #() iFEpip
 #() iFEpiV
 #() iFEpiA
+#() iFEpUp
 #() iFEpLi
 #() iFEpLp
 #() iFEppi
@@ -698,13 +714,18 @@
 #() iFpuui
 #() iFpuuu
 #() iFpuup
+#() iFpuUp
 #() iFpuLL
 #() iFpuLp
 #() iFpupi
 #() iFpupu
+#() iFpupU
 #() iFpupL
 #() iFpupp
 #() iFpupV
+#() iFpUup
+#() iFpUUU
+#() iFpUpp
 #() iFplii
 #() iFplip
 #() iFpLii
@@ -945,7 +966,15 @@
 #() vFpuiip
 #() vFpuipp
 #() vFpuuuu
+#() vFpuuup
+#() vFpuupp
 #() vFpuddd
+#() vFpupup
+#() vFpUuiu
+#() vFpUUuu
+#() vFpUUup
+#() vFpUUUu
+#() vFpUUUp
 #() vFpffff
 #() vFpddii
 #() vFpdddd
@@ -976,6 +1005,7 @@
 #() iFEpipi
 #() iFEpipp
 #() iFEpipV
+#() iFEpUup
 #() iFEpLpp
 #() iFEpLpV
 #() iFEpLpA
@@ -1027,6 +1057,7 @@
 #() iFpuuup
 #() iFpuuLL
 #() iFpuupp
+#() iFpupiU
 #() iFpuppp
 #() iFplluu
 #() iFpLiLi
@@ -1145,6 +1176,7 @@
 #() vFEpiLpp
 #() vFEpippp
 #() vFEpuipp
+#() vFEpupup
 #() vFEpLLpp
 #() vFEppipV
 #() vFEppipA
@@ -1211,9 +1243,16 @@
 #() vFpiippp
 #() vFpipipV
 #() vFpipppi
+#() vFpuiiii
 #() vFpuiiiu
 #() vFpuiipp
+#() vFpuuuiu
+#() vFpuuppp
 #() vFpudddd
+#() vFpUiuup
+#() vFpUiUup
+#() vFpUipup
+#() vFpUUiup
 #() vFpdddii
 #() vFpddddd
 #() vFppiiii
@@ -1251,6 +1290,7 @@
 #() iFEpilpV
 #() iFEpippi
 #() iFEpuppp
+#() iFEpUppp
 #() iFEppppp
 #() iFiiiiii
 #() iFiiiiip
@@ -1280,6 +1320,8 @@
 #() iFpuiCpp
 #() iFpuippp
 #() iFpupuui
+#() iFpUUUip
+#() iFpUUUUp
 #() iFppiiip
 #() iFppiiuu
 #() iFppiipi
@@ -1418,6 +1460,11 @@
 #() vFpiipCpp
 #() vFpipipii
 #() vFpipppii
+#() vFpuuuuuu
+#() vFpuuUUuu
+#() vFpuupppp
+#() vFpUiUiup
+#() vFpUUUUuu
 #() vFpddiidd
 #() vFpdddddd
 #() vFppiiiii
@@ -1444,6 +1491,7 @@
 #() vFppppppi
 #() vFppppppp
 #() iFEpupppp
+#() iFEpUuppp
 #() iFEpLiLpV
 #() iFEppuppp
 #() iFEppLpIi
@@ -1452,6 +1500,7 @@
 #() iFEpppppp
 #() iFiiiiiip
 #() iFpiiiiii
+#() iFpiiiiip
 #() iFpiiiuwp
 #() iFpiiuuiu
 #() iFpiipppp
@@ -1574,8 +1623,12 @@
 #() vFlipuiuip
 #() vFpiiiiiii
 #() vFpiiiipii
+#() vFpiiULipp
+#() vFpiUuupup
 #() vFpippiiuu
 #() vFpippiipi
+#() vFpUiUiupi
+#() vFpUuuUUUi
 #() vFppiiiiii
 #() vFppiiipii
 #() vFppipipii
@@ -1600,6 +1653,7 @@
 #() iFpuuiiiii
 #() iFpupppWWu
 #() iFpupppppp
+#() iFpUuuLpUi
 #() iFppiiiiiu
 #() iFppIIIppp
 #() iFpppiiipi
@@ -1642,6 +1696,7 @@
 #() pFppiiiiii
 #() pFpppuuLLu
 #() pFpppppupp
+#() vFEpiiiiipp
 #() vFEppiipppp
 #() vFEpppiippp
 #() vFiiiiiiiii
@@ -1765,6 +1820,7 @@
 #() pFplllllllll
 #() pFppuiipuuii
 #() pFpppppppppp
+#() vFEpiiiupupup
 #() vFuiiiiiiiiip
 #() vFuiiiiiiiuip
 #() vFuiiiiiiiuup
@@ -1780,6 +1836,7 @@
 #() vFuffffffffff
 #() vFpipipiipiii
 #() vFpipppiiiipi
+#() vFpupiiupupup
 #() vFppiiiiiiiii
 #() vFppiiiiipiii
 #() vFppiiiiddddi
@@ -3416,6 +3473,96 @@ wrappedvorbisfile:
 - iFppplPPPP:
   - ov_open_callbacks
   - ov_test_callbacks
+wrappedvulkan:
+- vFpp:
+  - vkDestroyDevice
+  - vkDestroyInstance
+  - vkGetPhysicalDeviceMemoryProperties
+  - vkGetPhysicalDeviceProperties
+- pFpp:
+  - vkGetDeviceProcAddr
+  - vkGetInstanceProcAddr
+- vFpUp:
+  - vkDestroyBuffer
+  - vkDestroyBufferView
+  - vkDestroyCommandPool
+  - vkDestroyDescriptorPool
+  - vkDestroyDescriptorSetLayout
+  - vkDestroyDescriptorUpdateTemplate
+  - vkDestroyDescriptorUpdateTemplateKHR
+  - vkDestroyEvent
+  - vkDestroyFence
+  - vkDestroyFramebuffer
+  - vkDestroyImage
+  - vkDestroyImageView
+  - vkDestroyPipeline
+  - vkDestroyPipelineCache
+  - vkDestroyPipelineLayout
+  - vkDestroyQueryPool
+  - vkDestroyRenderPass
+  - vkDestroySampler
+  - vkDestroySamplerYcbcrConversionKHR
+  - vkDestroySemaphore
+  - vkDestroyShaderModule
+  - vkDestroySurfaceKHR
+  - vkDestroySwapchainKHR
+- vFppp:
+  - vkDestroyDebugUtilsMessengerEXT
+- iFpUp:
+  - vkFreeMemory
+- iFppp:
+  - vkCreateInstance
+  - vkDestroyDebugReportCallbackEXT
+  - vkGetPhysicalDeviceDisplayPropertiesKHR
+- iFpUup:
+  - vkGetDisplayPlaneCapabilitiesKHR
+- iFpppp:
+  - vkAllocateMemory
+  - vkCreateBuffer
+  - vkCreateBufferView
+  - vkCreateCommandPool
+  - vkCreateDebugReportCallbackEXT
+  - vkCreateDebugUtilsMessengerEXT
+  - vkCreateDescriptorPool
+  - vkCreateDescriptorSetLayout
+  - vkCreateDescriptorUpdateTemplate
+  - vkCreateDescriptorUpdateTemplateKHR
+  - vkCreateDevice
+  - vkCreateDisplayPlaneSurfaceKHR
+  - vkCreateEvent
+  - vkCreateFence
+  - vkCreateFramebuffer
+  - vkCreateHeadlessSurfaceEXT
+  - vkCreateImage
+  - vkCreateImageView
+  - vkCreatePipelineCache
+  - vkCreatePipelineLayout
+  - vkCreateQueryPool
+  - vkCreateRenderPass
+  - vkCreateRenderPass2
+  - vkCreateRenderPass2KHR
+  - vkCreateSampler
+  - vkCreateSamplerYcbcrConversion
+  - vkCreateSamplerYcbcrConversionKHR
+  - vkCreateSemaphore
+  - vkCreateShaderModule
+  - vkCreateSwapchainKHR
+  - vkCreateWaylandSurfaceKHR
+  - vkCreateXcbSurfaceKHR
+  - vkCreateXlibSurfaceKHR
+- vFpupup:
+  - vkUpdateDescriptorSets
+- iFpuppp:
+  - vkCreateSharedSwapchainsKHR
+- iFpUppp:
+  - vkCreateDisplayModeKHR
+- iFpUuppp:
+  - vkCreateComputePipelines
+  - vkCreateGraphicsPipelines
+- vFpiiiiipp:
+  - vkGetPhysicalDeviceSparseImageFormatProperties
+- vFpiiiupupup:
+  - vkCmdPipelineBarrier
 wrappedxinerama:
 wrappedxkbcommon:
 wrappedxkbcommonx11:

@@ -32,6 +32,7 @@ typedef struct kh_dynablocks_s  kh_dynablocks_t;
 #define JMPTABL_SHIFT 16
 
 typedef void* (*procaddess_t)(const char* name);
+typedef void* (*vkprocaddess_t)(void* instance, const char* name);
 
 #define MAX_SIGNAL 64
 
@@ -111,6 +112,9 @@ typedef struct box64context_s {
     procaddess_t        glxprocaddress;
     kh_symbolmap_t      *alwrappers;    // the map of wrapper for alGetProcAddress
     kh_symbolmap_t      *almymap;       // link to the mysymbolmap if libOpenAL
+    kh_symbolmap_t      *vkwrappers;    // the map of wrapper for VulkanProcs (TODO: check SDL2)
+    kh_symbolmap_t      *vkmymap;       // link to the mysymbolmap of libGL
+    vkprocaddess_t      vkprocaddress;
 
     pthread_mutex_t     mutex_once;
     pthread_mutex_t     mutex_once2;
