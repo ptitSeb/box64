@@ -14,8 +14,8 @@ In the future, I might try to do an unified PKGBUILD for all platforms that will
 ### 2. What platforms are currently supported.
 All specified in [COMPILE.md](../COMPILE.md).
 
-### 3. Any advantages with that sollution?
-This might give you some advantages like those:
+### 3. Any advantages with this solution?
+This might give you some advantages like:
 - automatic updates (with some AUR frontends like [`pamac-aur`](https://aur.archlinux.org/packages/pamac-aur/) or [`yay`](https://aur.archlinux.org/packages/yay));
 - easily uninstall with `pacman -R` when no needed (no need other scripts nor Makefile to do this);
 - your `box64` installation is recognized as a package (where it wasn't when installing with `make install`).
