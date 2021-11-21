@@ -1,3 +1,6 @@
+Current version
+======
+
 v0.1.6
 ======
 * Introduce "HotPage", to temporarily disable Dynarec on a page were writing is also occuring (can help speed up C# code)
