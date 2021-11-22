@@ -113,6 +113,7 @@ scwrap_t syscallwrap[] = {
     { 57, __NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
     #endif
     { 61, __NR_wait4, 4},
+    //{ 63, __NR_uname, 1}, // Needs wrapping, use old_utsname
     { 66, __NR_semctl, 4},
     { 73, __NR_flock, 2},
     #ifdef __NR_getdents
@@ -200,6 +201,14 @@ typedef struct nat_linux_dirent64_s {
     unsigned char  d_type;
     char           d_name[];
 } nat_linux_dirent64_t;
+
+typedef struct old_utsname_s {
+    char sysname[65];
+    char nodename[65];
+    char release[65];
+    char version[65];
+    char machine[65];
+} old_utsname_t;
 
 ssize_t DirentFromDirent64(void* dest, void* source, ssize_t count)
 {
@@ -348,6 +357,15 @@ void EXPORT x64Syscall(x64emu_t *emu)
             R_RAX = fork();
             break;
         #endif
+        case 63:    //uname
+            {
+                old_utsname_t *old = (old_utsname_t*)R_RDI;
+                struct utsname uts;
+                R_RAX = uname(&uts);
+                memcpy(old, &uts, sizeof(*old)); // old_uts is just missing a field from new_uts
+                strcpy(old->machine, "x86_64");
+            }
+            break;
         #ifndef __NR_getdents
         case 78:
             {
@@ -483,6 +501,15 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         case 57: 
             return fork();
         #endif
+        case 63:    //uname
+            {
+                old_utsname_t *old = (old_utsname_t*)R_RSI;
+                struct utsname uts;
+                int64_t ret = uname(&uts);
+                memcpy(old, &uts, sizeof(*old));
+                strcpy(old->machine, "x86_64");
+                return ret;
+            }
         #ifndef __NR_getdents
         case 78:
             {
