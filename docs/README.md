@@ -2,15 +2,9 @@
 
 Linux Userspace x86_64 Emulator with a twist
 
-[View changelog](https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md) [中文](https://github.com/ptitSeb/box64/blob/main/docs/README_CN.md) [Report an error](https://github.com/ptitSeb/box64/issues/new)
+[View changelog](https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md) | [中文](https://github.com/ptitSeb/box64/blob/main/docs/README_CN.md) | [Report an error](https://github.com/ptitSeb/box64/issues/new)
 
-<p align="center">
-    <img src="https://app.travis-ci.com/ptitSeb/box64.svg?branch=main" alt="build status">
-    <img src="https://img.shields.io/github/stars/ptitSeb/box64" alt="stars">
-    <img src="https://img.shields.io/github/forks/ptitSeb/box64" alt="forks">
-    <img src="https://img.shields.io/github/contributors/ptitSeb/box64" alt="contributors">
-    <img src="https://img.shields.io/github/issues-pr/ptitSeb/box64" alt="prs">
-    <img src="https://img.shields.io/github/issues/ptitSeb/box64" alt="issues">
+![build](https://app.travis-ci.com/ptitSeb/box64.svg?branch=main) ![stars](https://img.shields.io/github/stars/ptitSeb/box64) ![forks](https://img.shields.io/github/forks/ptitSeb/box64) ![contributors](https://img.shields.io/github/contributors/ptitSeb/box64) [prs](https://img.shields.io/github/issues-pr/ptitSeb/box64) [issues](https://img.shields.io/github/issues/ptitSeb/box64)
 
 ----
 
