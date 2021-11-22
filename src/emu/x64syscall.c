@@ -202,14 +202,6 @@ typedef struct nat_linux_dirent64_s {
     char           d_name[];
 } nat_linux_dirent64_t;
 
-typedef struct old_utsname_s {
-    char sysname[65];
-    char nodename[65];
-    char release[65];
-    char version[65];
-    char machine[65];
-} old_utsname_t;
-
 ssize_t DirentFromDirent64(void* dest, void* source, ssize_t count)
 {
     nat_linux_dirent64_t *src = (nat_linux_dirent64_t*)source;
@@ -232,6 +224,14 @@ ssize_t DirentFromDirent64(void* dest, void* source, ssize_t count)
 }
 
 #endif
+
+typedef struct old_utsname_s {
+    char sysname[65];
+    char nodename[65];
+    char release[65];
+    char version[65];
+    char machine[65];
+} old_utsname_t;
 
 //struct x86_pt_regs {
 //	long ebx;
