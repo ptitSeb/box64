@@ -2,9 +2,14 @@
 
 <p align="center">Linux Userspace x86_64 Emulator with a twist
 <p align="center">
-  [View changelog](https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md)
-  [中文](https://github.com/ptitSeb/box64/blob/main/docs/README_CN.md)
-  [Report an error](https://github.com/ptitSeb/box64/issues/new)
+  <a href="https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md">
+    View changelog</a>
+  |
+  <a href="https://github.com/ptitSeb/box64/blob/main/docs/README_CN.md">
+    中文</a>
+  |
+  <a href="https://github.com/ptitSeb/box64/issues/new">
+    Report an error</a>
 
 <p align="center">
     <img src="https://app.travis-ci.com/ptitSeb/box64.svg?branch=main" alt="build status">
