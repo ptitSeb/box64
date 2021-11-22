@@ -1,20 +1,35 @@
 # box64
 
 ![Official logo](img/Box64Logo.png "Official Logo")
-Linux Userspace x86_64 Emulator with a twist
+
+<p align="center">Linux Userspace x86_64 Emulator with a twist
+<p align="center">
+  <a href="https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md">
+    View changelog</a>
+  |
+  <a href="https://github.com/ptitSeb/box64/blob/main/docs/README_CN.md">
+    中文</a>
+  |
+  <a href="https://github.com/ptitSeb/box64/issues/new">
+    Report an error</a>
+
+<p align="center">
+    <img src="https://app.travis-ci.com/ptitSeb/box64.svg?branch=main" alt="build status">
+    <img src="https://img.shields.io/github/stars/ptitSeb/box64" alt="stars">
+    <img src="https://img.shields.io/github/forks/ptitSeb/box64" alt="forks">
+    <img src="https://img.shields.io/github/contributors/ptitSeb/box64" alt="contributors">
+    <img src="https://img.shields.io/github/issues-pr/ptitSeb/box64" alt="prs">
+    <img src="https://img.shields.io/github/issues/ptitSeb/box64" alt="issues">
 
 ----
-![box64 build status](https://app.travis-ci.com/ptitSeb/box64.svg?branch=main)
-
-[中文](README_CN.md)
 
 Box64 lets you run x86_64 Linux programs (such as games) on non-x86_64 Linux systems, like ARM (host system needs to be 64-bit little-endian).
 
-You can find many more Box64 video on YouTube in the [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ), [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) or [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA) channels.
+You can find many Box64 videos on the [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ), [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) or [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA) YouTube channels.
 
-Because Box64 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at thoses bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/).
+Since Box64 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at thoses bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/).
 
-Box64 integrates a DynaRec (dynamic recompiler) for the ARM64 platform, providing a speed boost between 5 to 10 times faster than using only the interpreter. Some high level information on how the DynaRec works can be found [here](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/).
+Box64 integrates with DynaRec (dynamic recompiler) for the ARM64 platform, providing a speed boost between 5 to 10 times faster than using only the interpreter. Some high level information on how DynaRec works can be found [here](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/).
 
 Some x64 internal opcodes use parts of "Realmode X86 Emulator Library", see [x64primop.c](../src/emu/x64primop.c) for copyright details
 
@@ -37,14 +52,14 @@ Note: Box64's Dynarec uses a mechanism with Memory Protection and a SegFault sig
 
 Compiling/Installation
 ----
-> Compilation instructions can be found [here](COMPILE.md)  
+> Compilation instructions can be found [here](COMPILE.md).
 
 ----
 
 Version history/Change log
 ----
 
-The change log is available [here](CHANGELOG.md)
+The change log is available [here](CHANGELOG.md).
 
 ----
 
@@ -62,8 +77,8 @@ Notes about Unity game emulation
 ----
 
 Running Unity games is a hit or miss for now. Unity uses Mono (which uses signals that are not always emulated in a 100% accurate way).
-You should also note that some Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers) for now.
-So, not all Unity games work and can require a high OpenGL profile, but many actualy works now
+You should also note that some Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers).
+So, not all Unity games work and can require a high OpenGL profile, but many actualy work now.
 Hint: on Pi4, use `MESA_GL_VERSION_OVERRIDE=3.2` and with Panfrost use `PAN_MESA_DEBUG=gl3` to use higher profile if the game starts then quits before showing anything.
 
 ----
@@ -93,14 +108,14 @@ Wine64 is supported on box64. Be aware that 64-bit Wine also includes 32-bit com
 Notes about Vulkan
 ----
 
-Box64 wrap Vulkan libraries. But note that it as only been tested with a RX550 card, some extensions may be missing depending on your graphic card.
+Box64 wraps Vulkan libraries, but note that it as only been tested with a RX550 card, some extensions may be missing depending on your graphics card.
 
 ----
 
 Final word
 ----
 
-I want to thank everyone who has contributed to box64 developpement.
+I want to thank everyone who has contributed to box64 development.
 There are many ways to contribute: code contribution, financial, hardware and advertisement!
 So, in no particular order, I want to thank:
  * For their major code contribution: rajdakin, mogery
