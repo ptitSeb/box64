@@ -31,7 +31,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t opcode = F8;
     uint8_t nextop;
     uint8_t u8;
-    uint8_t gd, ed, eb1, eb2;
+    uint8_t gd, ed, eb1, eb2, gb1, gb2;
     uint8_t wback, wb1, wb2, wb;
     int64_t i64, j64;
     int v0;
@@ -42,6 +42,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(eb2);
     MAYUSE(wb1);
     MAYUSE(wb2);
+    MAYUSE(gb1);
+    MAYUSE(gb2);
     MAYUSE(j64);
     MAYUSE(d0);
     MAYUSE(q0);
@@ -369,7 +371,40 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
-            
+        case 0x8A:
+            INST_NAME("MOV Gb, Eb");
+            nextop = F8;
+            if(rex.rex) {
+                gb1 = gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
+                gb2=0;
+            } else {
+                gd = (nextop&0x38)>>3;
+                gb1 = xRAX+(gd&3);
+                gb2 = ((gd&4)>>2);
+            }
+            if(MODREG) {
+                if(rex.rex) {
+                    wback = xRAX+(nextop&7)+(rex.b<<3);
+                    wb2 = 0;
+                } else {
+                    wback = (nextop&7);
+                    wb2 = (wback>>2);
+                    wback = xRAX+(wback&3);
+                }
+                if(wb2) {
+                    UBFXw(x4, wback, wb2*8, 8);
+                    ed = x4;
+                } else {
+                    ed = wback;
+                }
+            } else {
+                grab_segdata(dyn, addr, ninst, x4, seg);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 0);
+                LDRB_REG(x4, wback, x4);
+                ed = x4;
+            }
+            BFIx(gb1, ed, gb2*8, 8);
+            break;
         case 0x89:
             INST_NAME("MOV Seg:Ed, Gd");
             grab_segdata(dyn, addr, ninst, x4, seg);

@@ -316,7 +316,12 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                     ED->dword[0] = GD->dword[0];
             }
             break;
-
+        case 0x8A:                      /* MOV Gb,Eb */
+            nextop = F8;
+            GETEB_OFFS(0, tlsdata);
+            GETGB;
+            GB = EB->byte[0];
+            break;
         case 0x8B:                      /* MOV Gd,Ed */
             nextop = F8;
             GETED_OFFS(0, tlsdata);
