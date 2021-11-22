@@ -1,5 +1,3 @@
-# box64
-
 ![Official logo](img/Box64Logo.png "Official Logo")
 
 <p align="center">Linux Userspace x86_64 Emulator with a twist
