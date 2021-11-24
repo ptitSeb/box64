@@ -116,6 +116,22 @@ If it's the first install, you also need:
 sudo systemctl restart systemd-binfmt
 ```
 
+#### for LX2160A
+
+Using a 64bits OS:
+
+```
+git clone https://github.com/ptitSeb/box64
+cd box64
+mkdir build; cd build; cmake .. -DLX2160A=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+make -j$(nproc)
+sudo make install
+```
+If it's the first install, you also need:
+```
+sudo systemctl restart systemd-binfmt
+```
+
 #### for x86_64 Linux
 
  `mkdir build; cd build; cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
