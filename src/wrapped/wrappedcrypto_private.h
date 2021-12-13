@@ -935,7 +935,7 @@ GO(CRYPTO_strdup, pFppi)
 //GO(d2i_ASN1_VISIBLESTRING, 
 //GO(d2i_AUTHORITY_INFO_ACCESS, 
 //GO(d2i_AUTHORITY_KEYID, 
-//GO(d2i_AutoPrivateKey, 
+GO(d2i_AutoPrivateKey, pFppl)
 //GO(d2i_BASIC_CONSTRAINTS, 
 //GO(d2i_CERTIFICATEPOLICIES, 
 //GO(d2i_CMS_bio, 
@@ -1756,7 +1756,7 @@ GO(ERR_remove_thread_state, vFp)
 //GO(EVP_aes_256_cfb8, 
 //GO(EVP_aes_256_ctr, 
 //GO(EVP_aes_256_ecb, 
-//GO(EVP_aes_256_gcm, 
+GO(EVP_aes_256_gcm, pFv)
 //GO(EVP_aes_256_ofb, 
 //GO(EVP_aes_256_wrap, 
 //GO(EVP_aes_256_xts, 
@@ -1804,7 +1804,7 @@ GO(EVP_CIPHER_CTX_free, vFp)
 GO(EVP_CIPHER_CTX_init, vFp)
 //GO(EVP_CIPHER_CTX_iv_length, 
 //GO(EVP_CIPHER_CTX_key_length, 
-//GO(EVP_CIPHER_CTX_new, 
+GO(EVP_CIPHER_CTX_new, pFv)
 //GO(EVP_CIPHER_CTX_nid, 
 //GO(EVP_CIPHER_CTX_rand_key, 
 //GO(EVP_CIPHER_CTX_set_app_data, 
@@ -1973,9 +1973,9 @@ GO(EVP_PKEY_CTX_set_app_data, vFpp)
 //GO(EVP_PKEY_decrypt_init, 
 //GO(EVP_PKEY_decrypt_old, 
 //GO(EVP_PKEY_delete_attr, 
-//GO(EVP_PKEY_derive, 
-//GO(EVP_PKEY_derive_init, 
-//GO(EVP_PKEY_derive_set_peer, 
+GO(EVP_PKEY_derive, iFppp)
+GO(EVP_PKEY_derive_init, iFp)
+GO(EVP_PKEY_derive_set_peer, iFppi)
 //GO(EVP_PKEY_encrypt, 
 //GO(EVP_PKEY_encrypt_init, 
 //GO(EVP_PKEY_encrypt_old, 
@@ -2030,13 +2030,13 @@ GO(EVP_PKEY_set1_RSA, iFpp)
 //GO(evp_pkey_set_cb_translate, 
 //GO(EVP_PKEY_set_type, 
 //GO(EVP_PKEY_set_type_str, 
-//GO(EVP_PKEY_sign, 
-//GO(EVP_PKEY_sign_init, 
+GO(EVP_PKEY_sign, iFppppp)
+GO(EVP_PKEY_sign_init, iFp)
 //GO(EVP_PKEY_size, 
 GO(EVP_PKEY_type, iFi)
 GO(EVP_PKEY_up_ref, iFp)
-//GO(EVP_PKEY_verify, 
-//GO(EVP_PKEY_verify_init, 
+GO(EVP_PKEY_verify, iFppLpL)
+GO(EVP_PKEY_verify_init, iFp)
 //GO(EVP_PKEY_verify_recover, 
 //GO(EVP_PKEY_verify_recover_init, 
 //GO(EVP_rc2_40_cbc, 
