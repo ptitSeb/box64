@@ -547,9 +547,9 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
             return (int)fchmodat((int)R_ESI, (void*)R_RDX, (mode_t)R_RCX, (int)R_R8d);
         #endif
         default:
-            printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
-            emu->quit = 1;
-            emu->error |= ERR_UNIMPL;
+            printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
+            errno = ENOSYS;
+            return -1;
     }
     return 0;
 }
