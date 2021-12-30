@@ -90,7 +90,7 @@ typedef struct  va_list {
     memcpy(&p[6], emu->xmm, 8*16);                                      \
   }
 
-#elif defined(__loongarch64) || defined(__powerpc64__)
+#elif defined(__loongarch64) || defined(__powerpc64__) || defined(__riscv)
 #define CREATE_SYSV_VALIST(A) \
   va_list sysv_varargs = (va_list)A
 // not creating CONVERT_VALIST(A) on purpose
