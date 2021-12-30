@@ -100,6 +100,22 @@ If it's the first install, you also need:
 sudo systemctl restart systemd-binfmt
 ```
 
+#### for RISCV
+
+Using a 64bits OS:
+
+```
+git clone https://github.com/ptitSeb/box64
+cd box64
+mkdir build; cd build; cmake .. -DRV64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+make -j4
+sudo make install
+```
+If it's the first install, you also need:
+```
+sudo systemctl restart systemd-binfmt
+```
+
 #### for PowerPC 64 LE
 
 Using a 64bits OS:
