@@ -916,11 +916,6 @@ int main(int argc, const char **argv, const char **env) {
         prgname = prog;
     else
         ++prgname;
-    // special case for LittleInferno that use an old libvorbis
-    if(strstr(prgname, "LittleInferno.bin.x86")==prgname) {
-        printf_log(LOG_INFO, "LittleInferno detected, forcing emulated libvorbis\n");
-        AddPath("libvorbis.so.0", &my_context->box64_emulated_libs, 0);
-    }
     // special case for dontstarve that use an old SDL2
     if(strstr(prgname, "dontstarve")) {
         printf_log(LOG_INFO, "Dontstarve* detected, forcing emulated SDL2\n");
@@ -941,11 +936,6 @@ int main(int argc, const char **argv, const char **env) {
     if(strstr(prgname, "steamwebhelper")==prgname) {
         printf_log(LOG_INFO, "steamwebhelper, ignoring for now!\n");
         exit(0);    // exiting
-    }
-    // special case for UnrealLinux.bin, it doesn't like "full path resolution"
-    if(!strcmp(prog, "UnrealLinux.bin") && my_context->argv[0]) {
-        free(my_context->argv[0]);
-        my_context->argv[0] = strdup("./UnrealLinux.bin");
     }
     // special case for zoom
     if(strstr(prgname, "zoom")==prgname) {
