@@ -473,12 +473,12 @@ void AddHotPage(uintptr_t addr) {
 dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, dynablock_t** current)
 {
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, *current, 1);
-    if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
+    dynablock_t *father = (db && db->father)?db->father:db;
+    if(father && father->done && db->block && father->need_test) {
         if(pthread_mutex_trylock(&my_context->mutex_dyndump)) {
             dynarec_log(LOG_DEBUG, "mutex_dyndump not available when trying to validate block %p from %p:%p (hash:%X) with %d son(s) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, db->hash, db->sons_size, (void*)addr);
             return NULL;
         }
-        dynablock_t *father = db->father?db->father:db;
         if(AreaInHotPage((uintptr_t)father->x64_addr, (uintptr_t)father->x64_addr + father->x64_size - 1)) {
             dynarec_log(LOG_DEBUG, "Not running block %p from %p:%p with %d son(s) for %p because it's in a hotpage\n", father, father->x64_addr, father->x64_addr+father->x64_size-1, father->sons_size, (void*)addr);
             pthread_mutex_unlock(&my_context->mutex_dyndump);
@@ -518,10 +518,10 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr)
     dynarec_log(LOG_DEBUG, "Creating AlternateBlock at %p for %p\n", (void*)addr, (void*)filladdr);
     int create = 1;
     dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, NULL, 1);
-    if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
+    dynablock_t *father = (db && db->father)?db->father:db;
+    if(father && father->done && db->block && father->need_test) {
         if(pthread_mutex_trylock(&my_context->mutex_dyndump))
             return NULL;
-        dynablock_t *father = db->father?db->father:db;
         uint32_t hash = X31_hash_code(father->x64_addr, father->x64_size);
         if(hash!=father->hash) {
             father->done = 0;   // invalidating the block
