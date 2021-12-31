@@ -1321,6 +1321,10 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "AES%sMC V%d.16B, V%d.16B", sf?"I":"", Rd, Rn);
         return buff;
     }
+    // DMB ISH
+    if(isMask(opcode, "11010101000000110011nnnn10111111", &a)) {
+        snprintf(buff, sizeof(buff), "DMB %s", (Rn==0b1011)?"ISH":"???");
+    }
 
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
