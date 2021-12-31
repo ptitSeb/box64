@@ -10,7 +10,7 @@ on:
       - "**/*.h"
       - "**/*.S"
       - "**/*.py"
-      - "CMakeList.txt"
+      - "CMakeLists.txt"
       - "**/*.yml"
   pull_request: 
     types: [assigned, opened, synchronize, reopened]
@@ -19,7 +19,7 @@ on:
       - "**/*.h"
       - "**/*.S"
       - "**/*.py"
-      - "CMakeList.txt"
+      - "CMakeLists.txt"
       - "**/*.yml"
 
 jobs:
