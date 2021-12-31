@@ -1817,6 +1817,7 @@
 #() pFpCuWCCuuCW
 #() pFpuwwWWuCuu
 #() pFpuuuwwwwWW
+#() pFpuuuWWWCCi
 #() pFplllllllll
 #() pFppuiipuuii
 #() pFpppppppppp
@@ -2680,6 +2681,7 @@ wrappedlibdl:
   - dlmopen
 - pFppp:
   - dlvsym
+wrappedlibdrm:
 wrappedlibform:
 wrappedlibformw:
 wrappedlibfuse:
@@ -2961,6 +2963,9 @@ wrappedlibx11:
 wrappedlibx11xcb:
 wrappedlibxau:
 wrappedlibxcb:
+wrappedlibxcbdri2:
+% x my_xcb_cookie_t u
+wrappedlibxcbdri3:
 wrappedlibxcbglx:
 wrappedlibxcbimage:
 wrappedlibxcbkeysyms:

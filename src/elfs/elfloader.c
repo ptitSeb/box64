@@ -134,9 +134,9 @@ int CalcLoadAddr(elfheader_t* head)
                     head->tlssize++;
         }
     }
-    printf_log(LOG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%lx (align=0x%zx)\n", (void*)head->vaddr, (void*)head->paddr, head->memsz, head->align);
-    printf_log(LOG_DEBUG, "Elf Stack Memsize=%lu (align=%zu)\n", head->stacksz, head->stackalign);
-    printf_log(LOG_DEBUG, "Elf TLS Memsize=%lu (align=%zu)\n", head->tlssize, head->tlsalign);
+    printf_log(LOG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%zx (align=0x%zx)\n", (void*)head->vaddr, (void*)head->paddr, head->memsz, head->align);
+    printf_log(LOG_DEBUG, "Elf Stack Memsize=%zu (align=%zu)\n", head->stacksz, head->stackalign);
+    printf_log(LOG_DEBUG, "Elf TLS Memsize=%zu (align=%zu)\n", head->tlssize, head->tlsalign);
 
     return 0;
 }
@@ -153,7 +153,7 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     if(mainbin && head->vaddr==0) {
         char* load_addr = getenv("BOX64_LOAD_ADDR");
         if(load_addr)
-            if(sscanf(load_addr, "0x%lx", &offs)!=1)
+            if(sscanf(load_addr, "0x%zx", &offs)!=1)
                 offs = 0;
     }
     if(!offs)
@@ -210,12 +210,12 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 , MAP_PRIVATE | MAP_ANONYMOUS /*| ((wine_preloaded)?MAP_FIXED:0)*/
                 , -1, 0);
             if(p==MAP_FAILED) {
-                printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%lx/0x%zx) for elf \"%s\"\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name);
+                printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name);
                 return 1;
             }
             if(head->multiblock_offs[i] &&( p!=(void*)head->multiblock_offs[i])) {
                 if((head->e_type!=ET_DYN)) {
-                    printf_log(LOG_NONE, "Error, memory map (@%p 0x%lx/0x%zx) for elf \"%s\" allocated @%p\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name, p);
+                    printf_log(LOG_NONE, "Error, memory map (@%p 0x%zx/0x%zx) for elf \"%s\" allocated @%p\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name, p);
                     return 1;
                 } else {
                     printf_log(LOG_INFO, "Allocated memory is not at hinted %p but %p (size %lx) \"%s\"\n", (void*)head->multiblock_offs[i], p, head->multiblock_size[i], head->name);
@@ -239,17 +239,17 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         // vaddr is 0, load everything has a One block
         if(!offs && box64_wine)
             offs = (uintptr_t)find47bitBlock(head->memsz); // limit to 47bits...
-        printf_log(LOG_DEBUG, "Allocating 0x%lx memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
+        printf_log(LOG_DEBUG, "Allocating 0x%zx memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
         void* p = mmap((void*)offs, head->memsz
             , PROT_READ | PROT_WRITE | PROT_EXEC
             , MAP_PRIVATE | MAP_ANONYMOUS /*| (((offs&&wine_preloaded)?MAP_FIXED:0))*/
             , -1, 0);
         if(p==MAP_FAILED) {
-            printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%lx/0x%zx) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
+            printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
             return 1;
         }
         if(offs && (p!=(void*)offs) && (head->e_type!=ET_DYN)) {
-            printf_log(LOG_NONE, "Error, memory map (@%p 0x%lx/0x%zx) for elf \"%s\" allocated @%p\n", (void*)offs, head->memsz, head->align, head->name, p);
+            printf_log(LOG_NONE, "Error, memory map (@%p 0x%zx/0x%zx) for elf \"%s\" allocated @%p\n", (void*)offs, head->memsz, head->align, head->name, p);
             return 1;
         }
         setProtection((uintptr_t)p, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
@@ -289,7 +289,7 @@ int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
         if(head->PHEntries[i].p_type == PT_LOAD) {
             Elf64_Phdr * e = &head->PHEntries[i];
             char* dest = (char*)e->p_paddr + head->delta;
-            printf_log(LOG_DEBUG, "MMap block #%zu @%p offset=%p (0x%lx/0x%lx)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz);
+            printf_log(LOG_DEBUG, "MMap block #%zu @%p offset=%p (0x%zx/0x%zx)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz);
             void* p = (void*)-1;
             if(e->p_memsz==e->p_filesz && !(e->p_align&0xfff)) {
                 printf_log(LOG_DEBUG, "MMap block #%zu @%p offset=%p (0x%zx/0x%zx, flags:0x%x)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz, e->p_flags);
@@ -319,11 +319,11 @@ int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
         if(head->PHEntries[i].p_type == PT_TLS) {
             Elf64_Phdr * e = &head->PHEntries[i];
             char* dest = (char*)(context->tlsdata+context->tlssize+head->tlsbase);
-            printf_log(LOG_DEBUG, "Loading TLS block #%zu @%p (0x%lx/0x%lx)\n", i, dest, e->p_filesz, e->p_memsz);
+            printf_log(LOG_DEBUG, "Loading TLS block #%zu @%p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
             if(e->p_filesz) {
                 fseeko64(f, e->p_offset, SEEK_SET);
                 if(fread(dest, e->p_filesz, 1, f)!=1) {
-                    printf_log(LOG_NONE, "Fail to read PT_TLS part #%zu (size=%ld)\n", i, e->p_filesz);
+                    printf_log(LOG_NONE, "Fail to read PT_TLS part #%zu (size=%zd)\n", i, e->p_filesz);
                     return 1;
                 }
             }
@@ -343,7 +343,7 @@ int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
         if(head->PHEntries[i].p_type == PT_LOAD) {
             Elf64_Phdr * e = &head->PHEntries[i];
             char* dest = (char*)e->p_paddr + head->delta;
-            printf_log(LOG_DEBUG, "Re-loading block #%zu @%p (0x%lx/0x%lx)\n", i, dest, e->p_filesz, e->p_memsz);
+            printf_log(LOG_DEBUG, "Re-loading block #%zu @%p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
             int ret = fseeko64(f, e->p_offset, SEEK_SET);
             if(ret==-1) {printf_log(LOG_NONE, "Fail to (re)seek PT_LOAD part #%zu (offset=%ld, errno=%d/%s)\n", i, e->p_offset, errno, strerror(errno)); return 1;}
             #ifdef DYNAREC
@@ -354,7 +354,7 @@ int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
             if(e->p_filesz) {
                 ssize_t r = -1;
                 if((r=fread(dest, e->p_filesz, 1, f))!=1) {
-                    printf_log(LOG_NONE, "Fail to (re)read PT_LOAD part #%zu (dest=%p, size=%ld, return=%ld, feof=%d/ferror=%d/%s)\n", i, dest, e->p_filesz, r, feof(f), ferror(f), strerror(ferror(f)));
+                    printf_log(LOG_NONE, "Fail to (re)read PT_LOAD part #%zu (dest=%p, size=%zd, return=%zd, feof=%d/ferror=%d/%s)\n", i, dest, e->p_filesz, r, feof(f), ferror(f), strerror(ferror(f)));
                     return 1;
                 }
             }
@@ -371,22 +371,22 @@ int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t**
 {
     if(!h)
         return 0;
-    Elf64_Rela * rel = (Elf64_Rela *)(h->rela + h->delta);
+    Elf64_Rela * rela = (Elf64_Rela *)(h->rela + h->delta);
     if(!h->rela)
         return 0;
     int cnt = h->relasz / h->relaent;
     for (int i=0; i<cnt; ++i) {
-        int t = ELF64_R_TYPE(rel[i].r_info);
-        Elf64_Sym *sym = &h->DynSym[ELF64_R_SYM(rel[i].r_info)];
+        int t = ELF64_R_TYPE(rela[i].r_info);
+        Elf64_Sym *sym = &h->DynSym[ELF64_R_SYM(rela[i].r_info)];
         const char* symname = SymName(h, sym);
         if(t==R_X86_64_COPY && symname && !strcmp(symname, name)) {
-            int version2 = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[ELF64_R_SYM(rel[i].r_info)]:-1;
+            int version2 = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[ELF64_R_SYM(rela[i].r_info)]:-1;
             if(version2!=-1) version2 &= 0x7fff;
             if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
             const char* vername2 = GetSymbolVersion(h, version2);
             if(SameVersionnedSymbol(name, version, vername, symname, version2, vername2)) {
                 *offs = sym->st_value + h->delta;
-                *p = (uint64_t*)(rel[i].r_offset + h->delta + rel[i].r_addend);
+                *p = (uint64_t*)(rela[i].r_offset + h->delta + rela[i].r_addend);
                 return 1;
             }
         }
@@ -604,7 +604,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
         uint64_t* globp;
         uintptr_t tmp = 0;
         intptr_t delta;
-        switch(ELF64_R_TYPE(rela[i].r_info)) {
+        switch(t) {
             case R_X86_64_NONE:
                 break;
             case R_X86_64_PC32:
@@ -639,8 +639,8 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
-                    if(sym->st_size) {
-                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%ld on sym=%s (ver=%d/%s) \n", 
+                    if(sym->st_size && offs) {
+                        printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%zd on sym=%s (ver=%d/%s) \n", 
                             (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), 
                             (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname, version, vername?vername:"(none)");
                         //memmove((void*)globoffs, (void*)offs, sym->st_size);   // preapply to copy part from lib to main elf
@@ -939,7 +939,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         int bind = ELF64_ST_BIND(h->SymTab[i].st_info);
         int type = ELF64_ST_TYPE(h->SymTab[i].st_info);
         int vis = h->SymTab[i].st_other&0x3;
-        uint64_t sz = h->SymTab[i].st_size;
+        size_t sz = h->SymTab[i].st_size;
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->SymTab[i].st_shndx!=0)) {
             if(sz && strstr(symname, "@@")) {
@@ -997,7 +997,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
-            uint64_t sz = h->DynSym[i].st_size;
+            size_t sz = h->DynSym[i].st_size;
             int version = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
             if(version!=-1) version &= 0x7fff;
             const char* vername = GetSymbolVersion(h, version);
@@ -1018,7 +1018,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 if(bind==STB_WEAK) {
                     AddSymbol(weaksymbols, symname, offs, sz, version, vername);
                 } else {
-                    AddSymbol(mapsymbols, symname, offs, sz, version, vername);
+                    AddWeakSymbol(mapsymbols, symname, offs, sz, version?version:1, vername);
                 }
         }
     }
