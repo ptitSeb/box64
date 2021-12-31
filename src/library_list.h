@@ -174,6 +174,7 @@ GO("libssl3.so", ssl3)
 GO("libnsl.so.1", nsl)
 GO("libselinux.so.1", selinux)
 GO("libsecret-1.so.0", secret1)
+GO("libpci.so.3", libpci)
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 

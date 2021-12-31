@@ -2793,6 +2793,7 @@ wrappedlibncursesw6:
   - mvwprintw
 wrappedlibogg:
 wrappedlibpanel:
+wrappedlibpci:
 wrappedlibpcre:
 wrappedlibpthread:
 - vFp:
