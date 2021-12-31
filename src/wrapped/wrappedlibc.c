@@ -919,6 +919,17 @@ EXPORT void my_vsyslog(x64emu_t* emu, int priority, const char* fmt, x64_va_list
     #endif
     return vsyslog(priority, fmt, VARARGS);
 }
+EXPORT void my___vsyslog_chk(x64emu_t* emu, int priority, int flag, const char* fmt, x64_va_list_t b)
+{
+    (void)emu;
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return vsyslog(priority, fmt, VARARGS);
+}
 
 EXPORT int my___swprintf_chk(x64emu_t* emu, void* s, size_t n, int32_t flag, size_t slen, void* fmt, uint64_t* b)
 {
@@ -2533,6 +2544,13 @@ EXPORT int my_iopl(x64emu_t* emu, int level)
         return real_iopl(level);*/
     // For now, lets just return "unsupported"
     errno = ENOSYS;
+    return -1;
+}
+
+EXPORT int my_stime(x64emu_t* emu, const time_t *t)
+{
+    // TODO?
+    errno = EPERM;
     return -1;
 }
 

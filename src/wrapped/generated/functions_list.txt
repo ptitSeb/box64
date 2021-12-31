@@ -878,6 +878,7 @@
 #() pFpppp
 #() pFSppi
 #() vFEiipV
+#() vFEiipA
 #() vFEippp
 #() vFEpipV
 #() vFEpipA
@@ -2476,6 +2477,7 @@ wrappedlibc:
   - getcontext
   - setcontext
   - setjmp
+  - stime
   - uname
 - lFv:
   - syscall
@@ -2598,6 +2600,8 @@ wrappedlibc:
   - fts_open
 - vFiipV:
   - __syslog_chk
+- vFiipA:
+  - __vsyslog_chk
 - vFpLLp:
   - qsort
 - iFiiip:

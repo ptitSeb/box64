@@ -1738,7 +1738,7 @@ DATA(stderr, sizeof(void*))
 DATA(stdin, sizeof(void*))
 DATA(stdout, sizeof(void*))
 //GOW(step, 
-//GO(stime, // Deprecated
+GOM(stime, iFEp)
 GO(__stpcpy, pFpp)
 GO(stpcpy, pFpp)
 GO(__stpcpy_chk, pFppL)
@@ -2066,7 +2066,7 @@ GOWM(vswprintf, iFEpLpA)
 GOWM(__vswprintf_chk, iFEpuvvppp)
 //GO(vswscanf, iFppA)
 GOM(vsyslog, vFEipA)
-//GO(__vsyslog_chk, 
+GOM(__vsyslog_chk, vFEiipA)
 //GO(vtimes, // Deprecated
 //GO(vwarn, vFpA)
 //GO(vwarnx, vFpA)
