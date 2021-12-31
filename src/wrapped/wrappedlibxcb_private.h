@@ -172,8 +172,8 @@ GO(xcb_depth_visuals_iterator, HFp)  //xcb_visualtype_iterator_t is a structure
 //GO(xcb_destroy_subwindows_checked, 
 GO(xcb_destroy_window, pFpu)
 //GO(xcb_destroy_window_checked, 
-//GO(xcb_discard_reply, 
-//GO(xcb_discard_reply64, 
+GO(xcb_discard_reply, vFpu)
+GO(xcb_discard_reply64, vFpU)
 GO(xcb_disconnect, vFp)
 //GO(xcb_drawable_end, 
 //GO(xcb_drawable_next, 
