@@ -926,6 +926,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
                 STRxw_U12(gd, ed, fixedaddress);
+                if(box64_dynarec_strongmem && 
+                 (dyn->insts[ninst].x64.barrier || box64_dynarec_strongmem>1 || (dyn->insts[ninst+1].x64.barrier || dyn->insts[ninst+1].x64.jmp))) {
+                    DMB_ISH();
+                }
             }
             break;
         case 0x8A:
