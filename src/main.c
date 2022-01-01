@@ -180,6 +180,7 @@ EXPORTDYN
 void LoadLogEnv()
 {
     ftrace = stdout;
+    box64_nobanner = isatty(fileno(stdout))?0:1;
     const char *p = getenv("BOX64_NOBANNER");
     if(p) {
         if(strlen(p)==1) {
@@ -187,6 +188,9 @@ void LoadLogEnv()
                 box64_nobanner = p[0]-'0';
         }
     }
+    // grab BOX64_TRACE_FILE envvar, and change %pid to actual pid is present in the name
+    openFTrace();
+    box64_log = isatty(fileno(ftrace))?LOG_INFO:LOG_NONE; //default LOG value different if stdout is redirected or not
     p = getenv("BOX64_LOG");
     if(p) {
         if(strlen(p)==1) {
@@ -253,7 +257,7 @@ void LoadLogEnv()
             if(p[0]>='0' && p[0]<='1')
                 box64_dynarec = p[0]-'0';
         }
-        printf_log(LOG_INFO, "Dynarec is %s\n", box64_dynarec?"On":"Off");
+        printf_log(LOG_INFO, "Dynarec is %s\n", box64_dynarec?"on":"dff");
     }
     p = getenv("BOX64_DYNAREC_FORCED");
     if(p) {
@@ -262,7 +266,7 @@ void LoadLogEnv()
                 box64_dynarec_forced = p[0]-'0';
         }
         if(box64_dynarec_forced)
-        printf_log(LOG_INFO, "Dynarec is Forced on all addresses\n");
+            printf_log(LOG_INFO, "Dynarec is forced on all addresses\n");
     }
     p = getenv("BOX64_DYNAREC_BIGBLOCK");
     if(p) {
@@ -280,7 +284,7 @@ void LoadLogEnv()
                 box64_dynarec_strongmem = p[0]-'0';
         }
         if(box64_dynarec_strongmem)
-        printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performace loss":"");
+            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":"");
     }
     p = getenv("BOX64_NODYNAREC");
     if(p) {
@@ -289,7 +293,7 @@ void LoadLogEnv()
                 if(sscanf(p, "0x%lX-0x%lX", &box64_nodynarec_start, &box64_nodynarec_end)!=2)
                     sscanf(p, "%lx-%lx", &box64_nodynarec_start, &box64_nodynarec_end);
             }
-            printf_log(LOG_INFO, "No Dynablock creation that start in %p - %p range\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+            printf_log(LOG_INFO, "No dynablock creation that start in the range %p - %p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
         }
     }
 
@@ -334,8 +338,6 @@ void LoadLogEnv()
     }
 #endif
 #endif
-    // grab BOX64_TRACE_FILE envvar, and change %pid to actual pid is present in the name
-    openFTrace();
     // Other BOX64 env. var.
     p = getenv("BOX64_DLSYM_ERROR");
     if(p) {
@@ -789,6 +791,12 @@ int main(int argc, const char **argv, const char **env) {
     }
     if(argc>1 && !strcmp(argv[1], "/usr/bin/gdb") && getenv("BOX64_TRACE_FILE"))
         exit(0);
+    // uname -m is redirected to box64 -m
+    if(argc==2 && (!strcmp(argv[1], "-m") || !strcmp(argv[1], "-p") || !strcmp(argv[1], "-i")))
+    {
+        printf("x86_64\n");
+        exit(0);
+    }
 
     // init random seed
     srandom(time(NULL));
