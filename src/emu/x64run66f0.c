@@ -81,6 +81,86 @@ int Run66F0(x64emu_t *emu, rex_t rex)
             }
             break;
 
+#ifdef DYNAREC
+        #define GO(B, OP)                                           \
+        case B+1:                                                   \
+            nextop = F8;                                            \
+            GETEW(0);                                               \
+            GETGW;                                                  \
+            if(rex.w) {                                             \
+                do {                                                \
+                    tmp64u = arm64_lock_read_dd(ED);                \
+                    tmp64u = OP##64(emu, tmp64u, GD->q[0]);         \
+                } while (arm64_lock_write_dd(ED, tmp64u));          \
+            } else {                                                \
+                do {                                                \
+                    tmp16u = arm64_lock_read_h(ED);                 \
+                    tmp16u = OP##16(emu, tmp16u, GW->word[0]);      \
+                } while (arm64_lock_write_d(ED, tmp16u));           \
+                if(MODREG)                                          \
+                    EW->word[1] = 0;                                \
+            }                                                       \
+            break;                                                  \
+        case B+3:                                                   \
+            nextop = F8;                                            \
+            GETEW(0);                                               \
+            GETGW;                                                  \
+            if(rex.w)                                               \
+                GD->q[0] = OP##64(emu, GD->q[0], ED->q[0]);         \
+            else                                                    \
+                GW->word[0] = OP##16(emu, GW->word[0], EW->word[0]);\
+            break;                                                  \
+        case B+5:                                                   \
+            if(rex.w)                                               \
+                R_RAX = OP##64(emu, R_RAX, F32S64);                 \
+            else                                                    \
+                R_AX = OP##16(emu, R_AX, F16);                      \
+            break;
+#else
+        #define GO(B, OP)                                           \
+        case B+1:                                                   \
+            nextop = F8;                                            \
+            GETEW(0);                                               \
+            GETGW;                                                  \
+            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            if(rex.w)                                               \
+                ED->q[0] = OP##64(emu, ED->q[0], GD->q[0]);         \
+            else                                                    \
+                if(MODREG)                                          \
+                    ED->q[0] = OP##32(emu, ED->dword[0], GD->dword[0]);     \
+                else                                                        \
+                    EW->word[0] = OP##16(emu, EW->word[0], GW->word[0]);    \
+            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            break;                                                  \
+        case B+3:                                                   \
+            nextop = F8;                                            \
+            GETEW(0);                                               \
+            GETGW;                                                  \
+            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            if(rex.w)                                               \
+                GD->q[0] = OP##64(emu, GD->q[0], ED->q[0]);         \
+            else                                                    \
+                GW->word[0] = OP##16(emu, GW->word[0], EW->word[0]);\
+            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            break;                                                  \
+        case B+5:                                                   \
+            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            if(rex.w)                                               \
+                R_RAX = OP##64(emu, R_RAX, F32S64);                 \
+            else                                                    \
+                R_AX = OP##16(emu, R_AX, F16);                      \
+            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            break;
+#endif
+        GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
+        GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
+        GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
+        GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
+        GO(0x20, and)                   /* AND 0x20 -> 0x25 */
+        GO(0x28, sub)                   /* SUB 0x28 -> 0x2D */
+        GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
+        #undef GO
+
         case 0x81:              /* GRP Ew,Iw */
         case 0x83:              /* GRP Ew,Ib */
             nextop = F8;
