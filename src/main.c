@@ -144,6 +144,116 @@ void GatherDynarecExtensions()
     if(box64_dynarec==0)    // no need to check if no dynarec
         return;
 #ifdef ARM64
+/*
+HWCAP_FP
+    Functionality implied by ID_AA64PFR0_EL1.FP == 0b0000.
+HWCAP_ASIMD
+    Functionality implied by ID_AA64PFR0_EL1.AdvSIMD == 0b0000.
+HWCAP_EVTSTRM
+    The generic timer is configured to generate events at a frequency of
+    approximately 10KHz.
+HWCAP_AES
+    Functionality implied by ID_AA64ISAR0_EL1.AES == 0b0001.
+HWCAP_PMULL
+    Functionality implied by ID_AA64ISAR0_EL1.AES == 0b0010.
+HWCAP_SHA1
+    Functionality implied by ID_AA64ISAR0_EL1.SHA1 == 0b0001.
+HWCAP_SHA2
+    Functionality implied by ID_AA64ISAR0_EL1.SHA2 == 0b0001.
+HWCAP_CRC32
+    Functionality implied by ID_AA64ISAR0_EL1.CRC32 == 0b0001.
+HWCAP_ATOMICS
+    Functionality implied by ID_AA64ISAR0_EL1.Atomic == 0b0010.
+HWCAP_FPHP
+    Functionality implied by ID_AA64PFR0_EL1.FP == 0b0001.
+HWCAP_ASIMDHP
+    Functionality implied by ID_AA64PFR0_EL1.AdvSIMD == 0b0001.
+HWCAP_CPUID
+    EL0 access to certain ID registers is available.
+    These ID registers may imply the availability of features.
+HWCAP_ASIMDRDM
+    Functionality implied by ID_AA64ISAR0_EL1.RDM == 0b0001.
+HWCAP_JSCVT
+    Functionality implied by ID_AA64ISAR1_EL1.JSCVT == 0b0001.
+HWCAP_FCMA
+    Functionality implied by ID_AA64ISAR1_EL1.FCMA == 0b0001.
+HWCAP_LRCPC
+    Functionality implied by ID_AA64ISAR1_EL1.LRCPC == 0b0001.
+HWCAP_DCPOP
+    Functionality implied by ID_AA64ISAR1_EL1.DPB == 0b0001.
+HWCAP_SHA3
+    Functionality implied by ID_AA64ISAR0_EL1.SHA3 == 0b0001.
+HWCAP_SM3
+    Functionality implied by ID_AA64ISAR0_EL1.SM3 == 0b0001.
+HWCAP_SM4
+    Functionality implied by ID_AA64ISAR0_EL1.SM4 == 0b0001.
+HWCAP_ASIMDDP
+    Functionality implied by ID_AA64ISAR0_EL1.DP == 0b0001.
+HWCAP_SHA512
+    Functionality implied by ID_AA64ISAR0_EL1.SHA2 == 0b0010.
+HWCAP_SVE
+    Functionality implied by ID_AA64PFR0_EL1.SVE == 0b0001.
+HWCAP_ASIMDFHM
+   Functionality implied by ID_AA64ISAR0_EL1.FHM == 0b0001.
+HWCAP_DIT
+    Functionality implied by ID_AA64PFR0_EL1.DIT == 0b0001.
+HWCAP_USCAT
+    Functionality implied by ID_AA64MMFR2_EL1.AT == 0b0001.
+HWCAP_ILRCPC
+    Functionality implied by ID_AA64ISAR1_EL1.LRCPC == 0b0010.
+HWCAP_FLAGM
+    Functionality implied by ID_AA64ISAR0_EL1.TS == 0b0001.
+HWCAP_SSBS
+    Functionality implied by ID_AA64PFR1_EL1.SSBS == 0b0010.
+HWCAP_SB
+    Functionality implied by ID_AA64ISAR1_EL1.SB == 0b0001.
+HWCAP_PACA
+    Functionality implied by ID_AA64ISAR1_EL1.APA == 0b0001 or
+    ID_AA64ISAR1_EL1.API == 0b0001.
+HWCAP_PACG
+    Functionality implied by ID_AA64ISAR1_EL1.GPA == 0b0001 or
+    ID_AA64ISAR1_EL1.GPI == 0b0001.
+HWCAP2_DCPODP
+    Functionality implied by ID_AA64ISAR1_EL1.DPB == 0b0010.
+HWCAP2_SVE2
+    Functionality implied by ID_AA64ZFR0_EL1.SVEVer == 0b0001.
+HWCAP2_SVEAES
+    Functionality implied by ID_AA64ZFR0_EL1.AES == 0b0001.
+HWCAP2_SVEPMULL
+    Functionality implied by ID_AA64ZFR0_EL1.AES == 0b0010.
+HWCAP2_SVEBITPERM
+    Functionality implied by ID_AA64ZFR0_EL1.BitPerm == 0b0001.
+HWCAP2_SVESHA3
+    Functionality implied by ID_AA64ZFR0_EL1.SHA3 == 0b0001.
+HWCAP2_SVESM4
+    Functionality implied by ID_AA64ZFR0_EL1.SM4 == 0b0001.
+HWCAP2_FLAGM2
+    Functionality implied by ID_AA64ISAR0_EL1.TS == 0b0010.
+HWCAP2_FRINT
+    Functionality implied by ID_AA64ISAR1_EL1.FRINTTS == 0b0001.
+HWCAP2_SVEI8MM
+    Functionality implied by ID_AA64ZFR0_EL1.I8MM == 0b0001.
+HWCAP2_SVEF32MM
+    Functionality implied by ID_AA64ZFR0_EL1.F32MM == 0b0001.
+HWCAP2_SVEF64MM
+    Functionality implied by ID_AA64ZFR0_EL1.F64MM == 0b0001.
+HWCAP2_SVEBF16
+    Functionality implied by ID_AA64ZFR0_EL1.BF16 == 0b0001.
+HWCAP2_I8MM
+    Functionality implied by ID_AA64ISAR1_EL1.I8MM == 0b0001.
+HWCAP2_BF16
+    Functionality implied by ID_AA64ISAR1_EL1.BF16 == 0b0001.
+HWCAP2_DGH
+    Functionality implied by ID_AA64ISAR1_EL1.DGH == 0b0001.
+HWCAP2_RNG
+    Functionality implied by ID_AA64ISAR0_EL1.RNDR == 0b0001.
+HWCAP2_BTI
+    Functionality implied by ID_AA64PFR0_EL1.BT == 0b0001.
+HWCAP2_MTE
+    Functionality implied by ID_AA64PFR1_EL1.MTE == 0b0010.
+HWCAP2_ECV
+    Functionality implied by ID_AA64MMFR0_EL1.ECV == 0b0001.
+*/
     unsigned long hwcap = real_getauxval(AT_HWCAP);
     if(!hwcap)  // no HWCap: provide a default...
         hwcap = HWCAP_ASIMD;
