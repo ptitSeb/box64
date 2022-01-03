@@ -266,6 +266,28 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x66:
             opcode = F8;
             switch(opcode) {
+                case 0x09:
+                    INST_NAME("LOCK OR Ew, Gw");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    nextop = F8;
+                    GETGW(x5);
+                    DMB_ISH();
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        UXTHw(x6, ed);
+                        emit_or16(dyn, ninst, x6, x5, x3, x4);
+                        BFIx(ed, x6, 0, 16);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                        MARKLOCK;
+                        LDAXRH(x1, wback);
+                        emit_or16(dyn, ninst, x1, x5, x3, x4);
+                        STLXRH(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                    }
+                    DMB_ISH();
+                    break;
+
                 case 0x81:
                 case 0x83:
                     nextop = F8;
