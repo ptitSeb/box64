@@ -1578,7 +1578,7 @@ int dl_iterate_phdr_findsymbol(struct dl_phdr_info* info, size_t size, void* dat
                     ElfW(Verdaux)* vda = (ElfW(Verdaux)*)(((uintptr_t)v) + v->vd_aux);
                     for(int i=0; i<v->vd_cnt; ++i) {
                         const char* vername = &strtab[vda->vda_name];
-                        if((s->addr = dlvsym(s->lib, s->name, vername))) {
+                        if(vername && (s->addr = dlvsym(s->lib, s->name, vername))) {
                             printf_log(LOG_DEBUG, "Found symbol with version %s, value = %p\n", vername, s->addr);
                             return 1;   // stop searching
                         }
@@ -1598,7 +1598,10 @@ void* GetNativeSymbolUnversionned(void* lib, const char* name)
     search_symbol_t s;
     s.name = name;
     s.addr = NULL;
-    s.lib = lib;
+    if(lib) 
+        s.lib = lib;
+    else 
+        s.lib = my_context->box64lib;
     printf_log(LOG_INFO, "Look for %s in loaded elfs\n", name);
     dl_iterate_phdr(dl_iterate_phdr_findsymbol, &s);
     return s.addr;
