@@ -26,132 +26,15 @@ static library_t* my_lib = NULL;
 
 static char* libname = NULL;
 
-typedef void (*vFp_t)(void*);
-typedef void* (*pFp_t)(void*);
-typedef void  (*vFpp_t)(void*, void*);
-typedef void* (*pFup_t)(uint32_t, void*);
-typedef int  (*iFpp_t)(void*, void*);
-typedef int  (*iFpA_t)(void*, va_list);
-typedef size_t(*LFpA_t)(void*, va_list);
-typedef void* (*pFpp_t)(void*, void*);
-typedef void* (*pFpA_t)(void*, va_list);
-typedef void* (*pFpu_t)(void*, uint32_t);
-typedef uint32_t  (*uFpp_t)(void*, void*);
-typedef int  (*iFppp_t)(void*, void*, void*);
-typedef int  (*iFppA_t)(void*, void*, va_list);
-typedef uint32_t (*uFipp_t)(int, void*, void*);
-typedef uint32_t  (*uFppp_t)(void*, void*, void*);
-typedef void  (*vFppp_t)(void*, void*, void*);
-typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
-typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void  (*vFppip_t)(void*, void*, int, void*);
-typedef void* (*pFppip_t)(void*, void*, int, void*);
-typedef uint32_t (*uFpipp_t)(void*, int, void*, void*);
-typedef uint32_t (*uFuppp_t)(uint32_t, void*, void*, void*);
-typedef uint32_t (*uFippp_t)(int, void*, void*, void*);
-typedef uint32_t (*uFiuppp_t)(int, uint32_t, void*, void*, void*);
-typedef void (*vFpiLpp_t)(void*, int, unsigned long, void*, void*);
-typedef void* (*pFpppp_t)(void*, void*, void*, void*);
-typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
-typedef int (*iFpLpp_t)(void*, unsigned long, void*, void*);
-typedef int (*iFpLpA_t)(void*, unsigned long, void*, va_list);
-typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
-typedef uint32_t (*uFiippp_t)(int, int, void*, void*, void*);
-typedef uint32_t (*uFpiippp_t)(void*, int, int, void*, void*, void*);
-typedef int (*iFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
-typedef void* (*pFppuipp_t)(void*, void*, uint32_t, int32_t, void*, void*);
-typedef void* (*pFppLiiip_t)(void*, void*, unsigned long, int, int, int, void*);
-typedef int (*iFpppipppp_t)(void*, void*, void*, int, void*, void*, void*, void*);
-typedef int (*iFpppipppppp_t)(void*, void*, void*, int, void*, void*, void*, void*, void*, void*);
-typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, void*, void*, void*, void*);
-typedef void* (*pFpipA_t)(void*, int, void*, va_list);
-typedef void (*vFpipA_t)(void*, int, void*, va_list);
-typedef void (*vFppA_t)(void*, void*, va_list);
 
-#define SUPER() \
-    GO(g_list_free_full, vFpp_t)                \
-    GO(g_markup_vprintf_escaped, pFpA_t)        \
+#define ADDED_FUNCTIONS() \
     GO(g_build_filenamev, pFp_t)                \
-    GO(g_timeout_add_full, uFiuppp_t)           \
-    GO(g_datalist_id_set_data_full, vFpupp_t)   \
-    GO(g_datalist_id_dup_data, pFpupp_t)        \
-    GO(g_datalist_id_replace_data, iFpupppp_t)  \
-    GO(g_variant_new_from_data, pFppuipp_t)     \
-    GO(g_variant_new_parsed_va, pFpp_t)         \
     GO(g_variant_get_va, vFpppp_t)              \
-    GO(g_strdup_vprintf, pFpA_t)                \
-    GO(g_vprintf, iFpA_t)                       \
-    GO(g_vfprintf, iFppA_t)                     \
-    GO(g_vsprintf, iFppA_t)                     \
-    GO(g_vsnprintf, iFpLpA_t)                   \
-    GO(g_vasprintf, iFppA_t)                    \
-    GO(g_printf_string_upper_bound, LFpA_t)     \
-    GO(g_source_new, pFpu_t)                    \
-    GO(g_source_set_funcs, vFpp_t)              \
-    GO(g_source_remove_by_funcs_user_data, iFpp_t) \
-    GO(g_main_context_get_poll_func, pFp_t)     \
-    GO(g_main_context_set_poll_func, vFpp_t)    \
-    GO(g_print, vFp_t)                          \
-    GO(g_printerr, vFp_t)                       \
-    GO(g_idle_add_full, uFippp_t)               \
-    GO(g_hash_table_new, pFpp_t)                \
-    GO(g_hash_table_new_full, pFpppp_t)         \
-    GO(g_hash_table_foreach, vFppp_t)           \
-    GO(g_hash_table_foreach_remove, uFppp_t)    \
-    GO(g_hash_table_foreach_steal, uFppp_t)     \
-    GO(g_hash_table_find, pFppp_t)              \
-    GO(g_spawn_async_with_pipes, iFpppippppppp_t)\
-    GO(g_spawn_async, iFpppipppp_t)             \
-    GO(g_spawn_sync, iFpppipppppp_t)            \
-    GO(g_child_watch_add, uFipp_t)              \
-    GO(g_child_watch_add_full, uFiippp_t)       \
-    GO(g_private_new, pFp_t)                    \
-    GO(g_static_private_set, vFppp_t)           \
-    GO(g_ptr_array_new_with_free_func, pFp_t)   \
-    GO(g_ptr_array_new_full, pFup_t)            \
-    GO(g_ptr_array_set_free_func, vFpp_t)       \
-    GO(g_ptr_array_sort, vFpp_t)                \
-    GO(g_ptr_array_sort_with_data, vFppp_t)     \
-    GO(g_ptr_array_foreach, vFppp_t)            \
-    GO(g_qsort_with_data, vFpiLpp_t)            \
-    GO(g_thread_create, pFppip_t)               \
-    GO(g_thread_create_full, pFppLiiip_t)       \
-    GO(g_thread_foreach, vFpp_t)                \
-    GO(g_array_sort, vFpp_t)                    \
-    GO(g_array_sort_with_data, vFppp_t)         \
-    GO(g_array_set_clear_func, vFpp_t)          \
-    GO(g_source_set_callback, vFpppp_t)         \
-    GO(g_slist_insert_sorted, pFppp_t)          \
-    GO(g_slist_insert_sorted_with_data, pFpppp_t)   \
-    GO(g_slist_foreach, pFppp_t)                \
-    GO(g_slist_find_custom, pFppp_t)            \
-    GO(g_idle_add, uFpp_t)                      \
-    GO(g_variant_new_va, pFppp_t)               \
-    GO(g_completion_new, pFp_t)                 \
-    GO(g_completion_set_compare, vFpp_t)        \
-    GO(g_log_set_default_handler, pFpp_t)       \
-    GO(g_io_add_watch, uFpipp_t)                \
-    GO(g_io_add_watch_full, uFpiippp_t)         \
-    GO(g_set_print_handler, pFp_t)              \
-    GO(g_set_printerr_handler, pFp_t)           \
-    GO(g_slist_sort, pFpp_t)                    \
-    GO(g_slist_sort_with_data, pFppp_t)         \
     GO(g_build_pathv, pFpp_t)                   \
-    GO(g_list_sort, pFpp_t)                     \
-    GO(g_list_sort_with_data, pFppp_t)          \
-    GO(g_queue_find_custom, pFppp_t)            \
-    GO(g_list_find_custom, pFppp_t)             \
-    GO(g_timeout_add_seconds, uFupp_t)          \
-    GO(g_timeout_add_seconds_full, uFiuppp_t)   \
-    GO(g_log_set_handler, uFpipp_t)             \
     GO(g_set_error_literal, vFppip_t)           \
-    GO(g_error_new_valist, pFpipA_t)            \
-    GO(g_logv, vFpipA_t)                        \
-    GO(g_string_append_vprintf, vFppA_t)        \
-    GO(g_string_vprintf, vFppA_t)               \
-    GO(g_strjoinv, pFpA_t)                      \
 
+#include "wrappedglib2types.h"
 
 typedef struct glib2_my_s {
     // functions
@@ -1499,6 +1382,12 @@ EXPORT void* my_g_strjoinv(x64emu_t* emu, void* a, x64_va_list_t V)
     CREATE_VALIST_FROM_VALIST(V, emu->scratch);
     #endif
     return my->g_strjoinv(a, VARARGS);
+}
+
+EXPORT void* my_g_option_group_new(x64emu_t* emu, void* name, void* desc, void* help, void* data, void* destroy)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    return my->g_option_group_new(name, desc, help, data, findDestroyFct(destroy));
 }
 
 

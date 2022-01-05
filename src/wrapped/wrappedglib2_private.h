@@ -786,7 +786,7 @@ GO(g_option_context_set_translation_domain, vFpp)
 //GO(g_option_error_quark, 
 GO(g_option_group_add_entries, vFpp)
 GO(g_option_group_free, vFp)
-//GOM(g_option_group_new, pFEppppB)
+GOM(g_option_group_new, pFEppppp)
 GO(g_option_group_ref, pFp) // 2.44+
 //GOM(g_option_group_set_error_hook, vFEpB)
 //GOM(g_option_group_set_parse_hooks, vFEpBB)
@@ -812,7 +812,7 @@ GO(g_poll, iFpui)
 GOM(g_print, vFEpV)
 GOM(g_printerr, vFEpV)
 GOM(g_printf, iFEpV)
-GOM(g_printf_string_upper_bound, uFEpp)
+GOM(g_printf_string_upper_bound, LFEpA)
 GO(g_private_get, pFp)
 GOM(g_private_new, pFEp)
 GO(g_private_replace, vFpp)
@@ -1146,7 +1146,7 @@ GO(g_strdown, pFp)
 GO(g_strdup, pFp)
 GOM(g_strdup_printf, pFEpV)
 GO(g_strdupv, pFp)
-GOM(g_strdup_vprintf, pFEpp)
+GOM(g_strdup_vprintf, pFEpA)
 GO(g_str_equal, iFpp)
 GO(g_strerror, pFi)
 GO(g_strescape, pFpp)
@@ -1531,7 +1531,7 @@ GO(g_variant_new_maybe, pFpp)
 GO(g_variant_new_object_path, pFp)
 GO(g_variant_new_objv, pFpi)
 //GO2(g_variant_new_parsed, pFEpV, my_g_variant_new_parsed_va)
-GOM(g_variant_new_parsed_va, pFEpA)
+GOM(g_variant_new_parsed_va, pFEpp)
 //GO(g_variant_new_printf,  // needs alignment.....
 GO(g_variant_new_signature, pFp)
 GO(g_variant_new_string, pFp)
@@ -1563,16 +1563,16 @@ GO(g_variant_ref_sink, pFp)
 GO(g_variant_store, vFp)
 GO(g_variant_take_ref, pFp)
 GO(g_variant_type_checked_, pFp)
-//GO(g_variant_type_copy, 
-//GO(g_variant_type_dup_string, 
+GO(g_variant_type_copy, pFp)
+GO(g_variant_type_dup_string, pFp)
 //GO(g_variant_type_element, 
-//GO(g_variant_type_equal, 
+GO(g_variant_type_equal, iFpp)
 //GO(g_variant_type_first, 
-//GO(g_variant_type_free, 
-//GO(g_variant_type_get_string_length, 
-//GO(g_variant_type_hash, 
+GO(g_variant_type_free, vFp)
+GO(g_variant_type_get_string_length, LFp)
+GO(g_variant_type_hash, uFp)
 //GO(g_variant_type_info_assert_no_infos, 
-//GO(g_variant_type_info_element, 
+GO(g_variant_type_info_element, pFp)
 //GO(g_variant_type_info_get, 
 //GO(g_variant_type_info_get_type_string, 
 //GO(g_variant_type_info_member_info, 
@@ -1581,33 +1581,33 @@ GO(g_variant_type_checked_, pFp)
 //GO(g_variant_type_info_query_element, 
 //GO(g_variant_type_info_ref, 
 //GO(g_variant_type_info_unref, 
-//GO(g_variant_type_is_array, 
-//GO(g_variant_type_is_basic, 
-//GO(g_variant_type_is_container, 
-//GO(g_variant_type_is_definite, 
-//GO(g_variant_type_is_dict_entry, 
-//GO(g_variant_type_is_maybe, 
-//GO(g_variant_type_is_subtype_of, 
-//GO(g_variant_type_is_tuple, 
-//GO(g_variant_type_is_variant, 
-//GO(g_variant_type_key, 
-//GO(g_variant_type_new, 
-//GO(g_variant_type_new_array, 
-//GO(g_variant_type_new_dict_entry, 
-//GO(g_variant_type_new_maybe, 
-//GO(g_variant_type_new_tuple, 
-//GO(g_variant_type_next, 
-//GO(g_variant_type_n_items, 
-//GO(g_variant_type_peek_string, 
-//GO(g_variant_type_string_is_valid, 
-//GO(g_variant_type_string_scan, 
-//GO(g_variant_type_value, 
+GO(g_variant_type_is_array, iFp)
+GO(g_variant_type_is_basic, iFp)
+GO(g_variant_type_is_container, iFp)
+GO(g_variant_type_is_definite, iFp)
+GO(g_variant_type_is_dict_entry, iFp)
+GO(g_variant_type_is_maybe, iFp)
+GO(g_variant_type_is_subtype_of, iFpp)
+GO(g_variant_type_is_tuple, iFp)
+GO(g_variant_type_is_variant, iFp)
+GO(g_variant_type_key, pFp)
+GO(g_variant_type_new, pFp)
+GO(g_variant_type_new_array, pFp)
+GO(g_variant_type_new_dict_entry, pFpp)
+GO(g_variant_type_new_maybe, pFp)
+GO(g_variant_type_new_tuple, pFpi)
+GO(g_variant_type_next, pFp)
+GO(g_variant_type_n_items, iFp)
+GO(g_variant_type_peek_string, pFp)
+GO(g_variant_type_string_is_valid, iFp)
+GO(g_variant_type_string_scan, iFppp)
+GO(g_variant_type_value, pFp)
 GO(g_variant_unref, vFp)
-GOM(g_vasprintf, iFEppp)
-GOM(g_vfprintf, iFEppp)
-GOM(g_vprintf, iFEpp)
-GOM(g_vsnprintf, iFEpLpp)
-GOM(g_vsprintf, iFEppp)
+GOM(g_vasprintf, iFEppA)
+GOM(g_vfprintf, iFEppA)
+GOM(g_vprintf, iFEpA)
+GOM(g_vsnprintf, iFEpLpA)
+GOM(g_vsprintf, iFEppA)
 GO(g_warn_message, vFppipp)
 //GO(_init, 
 

@@ -448,6 +448,7 @@
 #() lFppL
 #() lFppp
 #() lFSpl
+#() LFEpA
 #() LFipL
 #() LFLLl
 #() LFLpu
@@ -2167,11 +2168,13 @@ wrappedglib2:
   - g_printerr
 - iFpp:
   - g_source_remove_by_funcs_user_data
-  - g_vprintf
 - iFpV:
   - g_printf
+- iFpA:
+  - g_vprintf
 - uFpp:
   - g_idle_add
+- LFpA:
   - g_printf_string_upper_bound
 - pFup:
   - g_ptr_array_new_full
@@ -2182,7 +2185,7 @@ wrappedglib2:
   - g_list_sort
   - g_log_set_default_handler
   - g_slist_sort
-  - g_strdup_vprintf
+  - g_variant_new_parsed_va
 - pFpV:
   - g_build_filename
   - g_markup_printf_escaped
@@ -2191,8 +2194,8 @@ wrappedglib2:
   - g_variant_new
 - pFpA:
   - g_markup_vprintf_escaped
+  - g_strdup_vprintf
   - g_strjoinv
-  - g_variant_new_parsed_va
 - vFppp:
   - g_array_sort_with_data
   - g_hash_table_foreach
@@ -2206,13 +2209,13 @@ wrappedglib2:
 - vFppA:
   - g_string_append_vprintf
   - g_string_vprintf
-- iFppp:
-  - g_vasprintf
-  - g_vfprintf
-  - g_vsprintf
 - iFppV:
   - g_fprintf
   - g_sprintf
+- iFppA:
+  - g_vasprintf
+  - g_vfprintf
+  - g_vsprintf
 - uFipp:
   - g_child_watch_add
 - uFupp:
@@ -2241,10 +2244,10 @@ wrappedglib2:
   - g_datalist_id_set_data_full
 - vFpppp:
   - g_source_set_callback
-- iFpLpp:
-  - g_vsnprintf
 - iFpLpV:
   - g_snprintf
+- iFpLpA:
+  - g_vsnprintf
 - uFippp:
   - g_idle_add_full
 - uFpipp:
@@ -2270,6 +2273,8 @@ wrappedglib2:
 - uFiuppp:
   - g_timeout_add_full
   - g_timeout_add_seconds_full
+- pFppppp:
+  - g_option_group_new
 - iFpupppp:
   - g_datalist_id_replace_data
 - uFpiippp:
