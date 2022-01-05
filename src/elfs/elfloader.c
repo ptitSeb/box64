@@ -1539,6 +1539,71 @@ void ElfAttachLib(elfheader_t* head, library_t* lib)
     head->lib = lib;
 }
 
+typedef struct search_symbol_s{
+    const char* name;
+    void*       addr;
+    void*       lib;
+} search_symbol_t;
+int dl_iterate_phdr_findsymbol(struct dl_phdr_info* info, size_t size, void* data)
+{
+    search_symbol_t* s = (search_symbol_t*)data;
+
+    for(int j = 0; j<info->dlpi_phnum; ++j) {
+        if (info->dlpi_phdr[j].p_type == PT_DYNAMIC) {
+            ElfW(Sym)* sym = NULL;
+            ElfW(Word) sym_cnt = 0;
+            ElfW(Verdef)* verdef = NULL;
+            ElfW(Word) verdef_cnt = 0;
+            char *strtab = NULL;
+            ElfW(Dyn)* dyn = (ElfW(Dyn)*)(info->dlpi_addr +  info->dlpi_phdr[j].p_vaddr); //Dynamic Section
+            // grab the needed info
+            while(dyn->d_tag != DT_NULL) {
+                switch(dyn->d_tag) {
+                    case DT_STRTAB:
+                        strtab = (char *)(dyn->d_un.d_ptr);
+                        break;
+                    case DT_VERDEF:
+                        verdef = (ElfW(Verdef)*)(info->dlpi_addr +  dyn->d_un.d_ptr);
+                        break;
+                    case DT_VERDEFNUM:
+                        verdef_cnt = dyn->d_un.d_val;
+                        break;
+                }
+                ++dyn;
+            }
+            if(strtab && verdef && verdef_cnt) {
+                // Look fr all defined versions now
+                ElfW(Verdef)* v = verdef;
+                for(int k=0; k<verdef_cnt; ++k) {
+                    ElfW(Verdaux)* vda = (ElfW(Verdaux)*)(((uintptr_t)v) + v->vd_aux);
+                    for(int i=0; i<v->vd_cnt; ++i) {
+                        const char* vername = &strtab[vda->vda_name];
+                        if((s->addr = dlvsym(s->lib, s->name, vername))) {
+                            printf_log(LOG_DEBUG, "Found symbol with version %s, value = %p\n", vername, s->addr);
+                            return 1;   // stop searching
+                        }
+                        vda = (ElfW(Verdaux)*)(((uintptr_t)vda) + vda->vda_next);
+                    }
+                    v = (ElfW(Verdef)*)((uintptr_t)v + v->vd_next);
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+void* GetNativeSymbolUnversionned(void* lib, const char* name)
+{
+    // try to find "name" in loaded elf, whithout checking for the symbol version (like dlsym, but no version check)
+    search_symbol_t s;
+    s.name = name;
+    s.addr = NULL;
+    s.lib = lib;
+    printf_log(LOG_INFO, "Look for %s in loaded elfs\n", name);
+    dl_iterate_phdr(dl_iterate_phdr_findsymbol, &s);
+    return s.addr;
+}
+
 uintptr_t pltResolver = ~0LL;
 EXPORT void PltResolver(x64emu_t* emu)
 {

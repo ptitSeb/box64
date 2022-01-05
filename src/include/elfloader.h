@@ -60,4 +60,6 @@ const char* GetParentSymbolVersion(elfheader_t* h, int index);
 const char* VersionnedName(const char* name, int ver, const char* vername);
 int SameVersionnedSymbol(const char* name1, int ver1, const char* vername1, const char* name2, int ver2, const char* vername2);
 
+void* GetNativeSymbolUnversionned(void* lib, const char* name);
+
 #endif //__ELF_LOADER_H_

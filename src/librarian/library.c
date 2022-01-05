@@ -704,6 +704,14 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             strcat(newname, name);
             symbol = dlsym(lib->priv.w.lib, newname);
         }
+        if(!symbol)
+            symbol = GetNativeSymbolUnversionned(lib->priv.w.lib, name);
+        if(!symbol && lib->priv.w.altprefix) {
+            char newname[200];
+            strcpy(newname, lib->priv.w.altprefix);
+            strcat(newname, name);
+            symbol = GetNativeSymbolUnversionned(lib->priv.w.lib, newname);
+        }
         if(!symbol) {
             printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
             return 0;
@@ -741,6 +749,14 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 strcat(newname, name);
                 symbol = dlsym(lib->priv.w.lib, newname);
             }
+            if(!symbol)
+                symbol = GetNativeSymbolUnversionned(lib->priv.w.lib, name);
+            if(!symbol && lib->priv.w.altprefix) {
+                char newname[200];
+                strcpy(newname, lib->priv.w.altprefix);
+                strcat(newname, name);
+                symbol = GetNativeSymbolUnversionned(lib->priv.w.lib, newname);
+            }
             if(!symbol) {
                 printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
                 return 0;
@@ -759,6 +775,8 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             symbol = dlsym(lib->priv.w.lib, kh_value(lib->symbol2map, k).name);
             if(!symbol)
                 symbol = dlsym(RTLD_DEFAULT, kh_value(lib->symbol2map, k).name);    // search globaly maybe
+            if(!symbol)
+                symbol = GetNativeSymbolUnversionned(lib->priv.w.lib, kh_value(lib->symbol2map, k).name);
             if(!symbol) {
                 printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->symbol2map, k).name, lib->name);
                 return 0;
