@@ -236,6 +236,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     VANDQ(d0, d0, q1);  // mask the index
                     VTBLQ1_8(q0, q0, d0);
                     break;
+                case 0x01:
+                    INST_NAME("PHADDW Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1, 0);
+                    VADDPQ_16(q0, q0, q1);
+                    break;
+                case 0x02:
+                    INST_NAME("PHADDD Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1, 0);
+                    VADDPQ_32(q0, q0, q1);
+                    break;
 
                 case 0x04:
                     INST_NAME("PMADDUBSW Gx,Ex");
@@ -1673,7 +1687,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeD(v0, 1, v0, 0);
             SSHLQ_32(q0, q0, v0);
             break;
-
+        case 0xE3:
+            INST_NAME("PAVGW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            URHADDQ_16(v0, v0, q0);
+            break;
         case 0xE4:
             INST_NAME("PMULHUW Gx,Ex");
             nextop = F8;
