@@ -1527,7 +1527,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q0);
             GETEX(q1, 0);
             v0 = fpu_get_scratch(dyn);
-            VDUPQ_16(v0, q0, 0);
+            VDUPQ_16(v0, q1, 0);
             NEGQ_16(v0, v0);        // neg, because SHR
             USHLQ_16(q0, q0, v0);   // SHR x8
             break;
@@ -1537,7 +1537,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q0);
             GETEX(q1, 0);
             v0 = fpu_get_scratch(dyn);
-            VDUPQ_32(v0, q0, 0);
+            VDUPQ_32(v0, q1, 0);
             NEGQ_32(v0, v0);        // neg, because SHR
             USHLQ_32(q0, q0, v0);   // SHR x4
             break;
