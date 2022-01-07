@@ -156,11 +156,10 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             LDRH_U12(x1, xEmu, offsetof(x64emu_t, mxcsr));
             UBFXx(x1, x1, 13, 2);   // extract round requested
             LSLx_REG(x1, x1, 3);
-            ADDx_U12(x1, x1, 8);    // add the actual add+jump opcodes
             // Construct a "switch case", with each case 2 instructions, so 8 bytes
-            BL(+4); // Branch with Link to next, so LR gets next PC address
+            ADR(xLR, GETMARK);
             ADDx_REG(xLR, xLR, x1);
-            B(xLR); // could use RET, but it's not really one
+            B(xLR);
             FCVTNSxwS(gd, q0);  // 0: Nearest (even)
             B_NEXT_nocond;
             FCVTMSxwS(gd, q0);  // 1: Toward -inf

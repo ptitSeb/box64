@@ -194,6 +194,10 @@
 #define SBCSw_REG(Rd, Rn, Rm)       EMIT(ADDSUBC_gen(0, 1, 1, Rm, Rn, Rd))
 #define SBCSxw_REG(Rd, Rn, Rm)      EMIT(ADDSUBC_gen(rex.w, 1, 1, Rm, Rn, Rd))
 
+// ADR
+#define ADR_gen(immlo, immhi, Rd)   ((immlo)<<29 | 0b10000<<24 | (immhi)<<5 | (Rd))
+#define ADR_S20(Rd, imm)            EMIT(ADR_gen((imm)&3, ((imm)>>2)&0x7ffff, (Rd))
+
 // LDR
 #define LDR_gen(size, op1, imm9, op2, Rn, Rt)    ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b01<<22 | (imm9)<<12 | (op2)<<10 | (Rn)<<5 | (Rt))
 #define LDRx_S9_postindex(Rt, Rn, imm9)   EMIT(LDR_gen(0b11, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))

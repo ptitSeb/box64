@@ -930,6 +930,12 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    // ADR
+    if(isMask(opcode, "0ss10000iiiiiiiiiiiiiiiiiiiddddd", &a)) {
+      snprintf(buff, sizeof(buff), "ADR, %s, %ld", Xt[Rd], signExtend((imm)<<2|(imms), 20));
+      return buff;
+    }
+
     // LDR / STR
     if(isMask(opcode, "ss111101cciiiiiiiiiiiinnnnnttttt", &a)) {
         char s = '?';
