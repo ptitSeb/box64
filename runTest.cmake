@@ -32,6 +32,9 @@ execute_process(
 
 # if the return value is !=0 bail out
 if( TEST_RESULT )
+  get_filename_component(TESTNAME "${TEST_ARGS}" NAME)
+  file(RENAME "${TEST_OUTPUT}" "${CMAKE_BINARY_DIR}/${TESTNAME}.out")
+  file(WRITE  "${CMAKE_BINARY_DIR}/${TESTNAME}.err" ${TEST_ERROR})
   message( FATAL_ERROR "Failed: Test program ${TEST_PROGRAM} exited != 0.\n${TEST_ERROR}" )
 endif( TEST_RESULT )
 
@@ -43,8 +46,16 @@ execute_process(
 
 # again, if return value is !=0 scream and shout
 if( TEST_RESULT )
+  get_filename_component(TESTNAME "${TEST_ARGS}" NAME)
+  file(RENAME "${TEST_OUTPUT}" "${CMAKE_BINARY_DIR}/${TESTNAME}.out")
+  file(WRITE  "${CMAKE_BINARY_DIR}/${TESTNAME}.err" ${TEST_ERROR})
   message( FATAL_ERROR "Failed: The output of ${TEST_PROGRAM} did not match ${TEST_REFERENCE}")
 endif( TEST_RESULT )
+
+# remove the temporary files if they exist
+if( EXISTS ${TEST_OUTPUT} )
+  file(REMOVE "${TEST_OUTPUT}")
+endif()
 
 # everything went fine...
 message( "Passed: The output of ${TEST_PROGRAM} matches ${TEST_REFERENCE}" )

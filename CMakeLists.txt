@@ -564,92 +564,92 @@ set(CPACK_DEBIAN_FILE_NAME "${BOX64}-${BOX64_MAJOR}.${BOX64_MINOR}.${BOX64_REVIS
 INCLUDE(CPack)
 
 add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01 -D TEST_OUTPUT=tmpfile01.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref01.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test02 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test02 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test02 -D TEST_OUTPUT=tmpfile02.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref02.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test03 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test03 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test03 -D TEST_OUTPUT=tmpfile03.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref03.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test04 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test04 -D TEST_ARGS2=yeah -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test04 -D TEST_ARGS2=yeah -D TEST_OUTPUT=tmpfile04.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref04.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test05 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test05 -D TEST_ARGS2=7 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test05 -D TEST_ARGS2=7 -D TEST_OUTPUT=tmpfile05.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref05.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test06 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test06 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test06 -D TEST_OUTPUT=tmpfile06.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref06.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test07 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test07 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test07 -D TEST_OUTPUT=tmpfile07.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref07.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test08 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test08 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test08 -D TEST_OUTPUT=tmpfile08.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref08.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test09 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test09 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test09 -D TEST_OUTPUT=tmpfile09.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref09.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test10 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test10 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test10 -D TEST_OUTPUT=tmpfile10.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref10.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test11 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test11 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test11 -D TEST_OUTPUT=tmpfile11.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref11.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test12 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test12 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test12 -D TEST_OUTPUT=tmpfile12.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref12.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test13 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test13 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test13 -D TEST_OUTPUT=tmpfile13.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref13.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 #add_test(test14 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-#    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test14 -D TEST_OUTPUT=tmpfile.txt 
+#    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test14 -D TEST_OUTPUT=tmpfile14.txt 
 #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref14.txt
 #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test15 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test15 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test15 -D TEST_OUTPUT=tmpfile15.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref15.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test16 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test16 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test16 -D TEST_OUTPUT=tmpfile16.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref16.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test17 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test17 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test17 -D TEST_OUTPUT=tmpfile17.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref17.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(aes ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test18 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test18 -D TEST_OUTPUT=tmpfile18.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref18.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
@@ -657,7 +657,7 @@ file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
     get_filename_component(testname "${file}" NAME_WE)
     add_test(NAME "${testname}" COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
-        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/extensions/${testname} -D TEST_OUTPUT=tmpfile.txt
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/extensions/${testname} -D TEST_OUTPUT=tmpfile-${testname}.txt
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/extensions/${testname}.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake)
 endforeach()

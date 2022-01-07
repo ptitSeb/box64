@@ -1,0 +1,95 @@
+### Manual build Box64 with Github Action
+name: Custom build Box64
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Target platform name'
+        required: true
+        default: 'GENERIC_ARM'
+        type: choice
+        options:
+        - X64
+        - GENERIC_ARM
+        - PHYTIUM
+        - RK3288
+        - RK3326
+        - RK3399
+        - RPI4ARM64
+        - SD845
+        - TEGRAX1
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'RelWithDebInfo'
+        type: choice
+        options:
+        - RelWithDebInfo
+        - Release
+        - Debug
+        - MinSizeRel
+      dynarec:
+        description: 'Enable dynarec'
+        required: false
+        default: 'true'
+        type: boolean
+      trace:
+        description: 'Enable trace'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Box64 Repository"
+        uses: actions/checkout@v2
+
+      - name: "Environment preparation"
+        run: |
+          sudo apt-get update
+          if [[ ${{ github.event.inputs.platform }} != 'X64' && ${{ github.event.inputs.platform }} != 'GENERIC_ARM' ]]; then
+            echo "BOX64_PLATFORM_MARCRO=-D${{ github.event.inputs.platform }}=1" >> $GITHUB_ENV
+            echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+            sudo apt-get -y install git gcc-aarch64-linux-gnu cmake make python3
+          else
+            if [[ ${{ github.event.inputs.platform }} == 'X64' ]]; then
+              echo "BOX64_PLATFORM_MARCRO=-DLD80BITS=1 -DNOALIGN=1" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=gcc" >> $GITHUB_ENV
+              sudo apt-get -y install git cmake make python3
+            else
+              echo BOX64_PLATFORM_MARCRO="-DARM_DYNAREC=ON" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+              sudo apt-get -y install git gcc-aarch64-linux-gnu cmake make python3
+            fi
+          fi
+
+      - name: "Display Build info"
+        run: |
+          echo "CMake Platform Macro: ${{ env.BOX64_PLATFORM_MARCRO }}"
+          echo "CMake C Compiler: ${{ env.BOX64_COMPILER }}"
+          echo "Build type: ${{ github.event.inputs.build_type }}"
+          echo "Dynarec Enabled: ${{ github.event.inputs.dynarec }}"
+          echo "Trace Enabled: ${{ github.event.inputs.trace }}"
+
+      - name: "Build Box64"
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_C_COMPILER=${{ env.BOX64_COMPILER }} ${{ env.BOX64_PLATFORM_MARCRO }}\
+                   -DCMAKE_BUILD_TYPE=${{ github.event.inputs.build_type }}\
+                   -DARM_DYNAREC:BOOL=${{ github.event.inputs.dynarec }}\
+                   -DHAVE_TRACE:BOOL=${{ github.event.inputs.trace }}\
+                   -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+          make -j$(nproc) VERBOSE=1
+
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v2
+        with:
+          name: box64-${{ github.event.inputs.platform }}-${{ github.event.inputs.build_type }}
+          path: build/box64
+
+
+
