@@ -236,6 +236,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     VANDQ(d0, d0, q1);  // mask the index
                     VTBLQ1_8(q0, q0, d0);
                     break;
+                case 0x01:
+                    INST_NAME("PHADDW Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1, 0);
+                    VADDPQ_16(q0, q0, q1);
+                    break;
+                case 0x02:
+                    INST_NAME("PHADDD Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1, 0);
+                    VADDPQ_32(q0, q0, q1);
+                    break;
 
                 case 0x04:
                     INST_NAME("PMADDUBSW Gx,Ex");
@@ -1507,17 +1521,24 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
-
+        case 0xD1:
+            INST_NAME("PSRLW Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1, 0);
+            v0 = fpu_get_scratch(dyn);
+            VDUPQ_16(v0, q1, 0);
+            NEGQ_16(v0, v0);        // neg, because SHR
+            USHLQ_16(q0, q0, v0);   // SHR x8
+            break;
         case 0xD2:
             INST_NAME("PSRLD Gx,Ex");
             nextop = F8;
             GETGX(q0);
             GETEX(q1, 0);
             v0 = fpu_get_scratch(dyn);
-            SQSHRN_32(v0, q1, 0);   // S64x1->S32x1
-            VMOVeS(v0, 1, v0, 0);   // S32x1->S32x2
-            NEG_32(v0, v0);         // neg, because SHR
-            VMOVeD(v0, 1, v0, 0);   // S32x2->S32x4
+            VDUPQ_32(v0, q1, 0);
+            NEGQ_32(v0, v0);        // neg, because SHR
             USHLQ_32(q0, q0, v0);   // SHR x4
             break;
         case 0xD3:
@@ -1673,7 +1694,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeD(v0, 1, v0, 0);
             SSHLQ_32(q0, q0, v0);
             break;
-
+        case 0xE3:
+            INST_NAME("PAVGW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0, 0);
+            URHADDQ_16(v0, v0, q0);
+            break;
         case 0xE4:
             INST_NAME("PMULHUW Gx,Ex");
             nextop = F8;

@@ -1221,30 +1221,36 @@ int Run0F(x64emu_t *emu, rex_t rex)
             CHECK_FLAGS(emu);
             nextop = F8;
             GETED(0);
-            if(rex.w) {
-                tmp64u = ED->q[0];
-                tmp64u2= ED->q[1];
-                if(R_RAX == tmp64u && R_RDX == tmp64u2) {
-                    SET_FLAG(F_ZF);
-                    ED->q[0] = R_EBX;
-                    ED->q[1] = R_ECX;
-                } else {
-                    CLEAR_FLAG(F_ZF);
-                    R_RAX = tmp64u;
-                    R_RDX = tmp64u2;
-                }
-            } else {
-                tmp32u = ED->dword[0];
-                tmp32u2= ED->dword[1];
-                if(R_EAX == tmp32u && R_EDX == tmp32u2) {
-                    SET_FLAG(F_ZF);
-                    ED->dword[0] = R_EBX;
-                    ED->dword[1] = R_ECX;
-                } else {
-                    CLEAR_FLAG(F_ZF);
-                    R_RAX = tmp32u;
-                    R_RDX = tmp32u2;
-                }
+            switch((nextop>>3)&7) {
+                case 1:
+                    if(rex.w) {
+                        tmp64u = ED->q[0];
+                        tmp64u2= ED->q[1];
+                        if(R_RAX == tmp64u && R_RDX == tmp64u2) {
+                            SET_FLAG(F_ZF);
+                            ED->q[0] = R_EBX;
+                            ED->q[1] = R_ECX;
+                        } else {
+                            CLEAR_FLAG(F_ZF);
+                            R_RAX = tmp64u;
+                            R_RDX = tmp64u2;
+                        }
+                    } else {
+                        tmp32u = ED->dword[0];
+                        tmp32u2= ED->dword[1];
+                        if(R_EAX == tmp32u && R_EDX == tmp32u2) {
+                            SET_FLAG(F_ZF);
+                            ED->dword[0] = R_EBX;
+                            ED->dword[1] = R_ECX;
+                        } else {
+                            CLEAR_FLAG(F_ZF);
+                            R_RAX = tmp32u;
+                            R_RDX = tmp32u2;
+                        }
+                    }
+                    break;
+                default:
+                    return 1;
             }
             break;
         case 0xC8:

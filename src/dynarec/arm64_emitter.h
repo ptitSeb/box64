@@ -1315,6 +1315,15 @@
 #define VUZP1Q_64(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b11, Rm, 0, Rn, Rt))
 #define VUZP2Q_64(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b11, Rm, 1, Rn, Rt))
 
+#define DUP_gen(Q, imm5, Rn, Rd)    ((Q)<<30 | 0b01110000<<21 | (imm5)<<16 | 1<<10 | (Rn)<<5 | (Rd))
+#define VDUP_8(Vd, Vn, idx)         EMIT(DUP_gen(0, ((idx)<<1|1), Vn, Vd))
+#define VDUPQ_8(Vd, Vn, idx)        EMIT(DUP_gen(1, ((idx)<<1|1), Vn, Vd))
+#define VDUP_16(Vd, Vn, idx)        EMIT(DUP_gen(0, ((idx)<<2|0b10), Vn, Vd))
+#define VDUPQ_16(Vd, Vn, idx)       EMIT(DUP_gen(1, ((idx)<<2|0b10), Vn, Vd))
+#define VDUP_32(Vd, Vn, idx)        EMIT(DUP_gen(0, ((idx)<<3|0b100), Vn, Vd))
+#define VDUPQ_32(Vd, Vn, idx)       EMIT(DUP_gen(1, ((idx)<<3|0b100), Vn, Vd))
+#define VDUPQ_64(Vd, Vn, idx)       EMIT(DUP_gen(1, ((idx)<<4|0b1000), Vn, Vd))
+
 // TBL
 #define TBL_gen(Q, Rm, len, op, Rn, Rd) ((Q)<<30 | 0b001110<<24 | (Rm)<<16 | (len)<<13 | (op)<<12 | (Rn)<<5 | (Rd))
 //Use Rm[] to pick from Rn element and store in Rd. Out-of-range element gets 0
