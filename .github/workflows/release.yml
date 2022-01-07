@@ -1,7 +1,7 @@
 ### Auto build Box64 and release its binary with Github Action
 name: Build and Release Box64
 
-on: 
+on:
   workflow_dispatch:
   release:
   push:
@@ -12,7 +12,7 @@ on:
       - "**/*.py"
       - "CMakeLists.txt"
       - "**/*.yml"
-  pull_request: 
+  pull_request:
     types: [assigned, opened, synchronize, reopened]
     paths:
       - "**/*.c"
@@ -47,7 +47,6 @@ jobs:
               echo "BOX64_PLATFORM_MARCRO=-DLD80BITS=1 -DNOALIGN=1" >> $GITHUB_ENV
               echo "BOX64_COMPILER=gcc" >> $GITHUB_ENV
               sudo apt-get -y install git cmake make python3
-              ls /bin/*gcc*
             else
               echo BOX64_PLATFORM_MARCRO="-DARM_DYNAREC=ON" >> $GITHUB_ENV
               echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
@@ -61,21 +60,31 @@ jobs:
             echo BOX64_BUILD_TYPE=RelWithDebInfo >> $GITHUB_ENV
             echo BOX64_HAVE_TRACE=1 >> $GITHUB_ENV
           fi
-            
+
       - name: "Display Build info"
         run: |
           echo "CMake Platform Macro: ${{ env.BOX64_PLATFORM_MARCRO }}"
           echo "CMake C Compiler: ${{ env.BOX64_COMPILER }}"
           echo "Build type: ${{ env.BOX64_BUILD_TYPE }}"
           echo "Trace Enabled: ${{ env.BOX64_HAVE_TRACE }}"
-          
+
       - name: "Build Box64"
         run: |
           mkdir build
           cd build
-          cmake .. -DCMAKE_C_COMPILER=${{ env.BOX64_COMPILER }} ${{ env.BOX64_PLATFORM_MARCRO }} -DCMAKE_BUILD_TYPE=${{ env.BOX64_BUILD_TYPE }} -DHAVE_TRACE=${{ env.BOX64_HAVE_TRACE }} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+          cmake .. -DCMAKE_C_COMPILER=${{ env.BOX64_COMPILER }}\
+                   ${{ env.BOX64_PLATFORM_MARCRO }}\
+                   -DCMAKE_BUILD_TYPE=${{ env.BOX64_BUILD_TYPE }}\
+                   -DHAVE_TRACE=${{ env.BOX64_HAVE_TRACE }}\
+                   -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
           make -j$(nproc) VERBOSE=1
-      
+
+      - name: "Test Box64"
+        if: ${{ matrix.platform == 'X64' }}
+        run: |
+          cd build
+          ctest -j$(nproc)
+
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
         with:
