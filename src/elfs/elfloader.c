@@ -1576,15 +1576,16 @@ int dl_iterate_phdr_findsymbol(struct dl_phdr_info* info, size_t size, void* dat
                 ElfW(Verdef)* v = verdef;
                 for(int k=0; k<verdef_cnt; ++k) {
                     ElfW(Verdaux)* vda = (ElfW(Verdaux)*)(((uintptr_t)v) + v->vd_aux);
-                    for(int i=0; i<v->vd_cnt; ++i) {
-                        const char* vername = &strtab[vda->vda_name];
-                        if(vername && (s->addr = dlvsym(s->lib, s->name, vername))) {
-                            printf_log(LOG_DEBUG, "Found symbol with version %s, value = %p\n", vername, s->addr);
-                            return 1;   // stop searching
+                    if(v->vd_version>0 && !v->vd_flags)
+                        for(int i=0; i<v->vd_cnt; ++i) {
+                            const char* vername = &strtab[vda->vda_name];
+                            if(vername && (s->addr = dlvsym(s->lib, s->name, vername))) {
+                                printf_log(LOG_DEBUG, "Found symbol with version %s, value = %p\n", vername, s->addr);
+                                return 1;   // stop searching
+                            }
+                            vda = (ElfW(Verdaux)*)(((uintptr_t)vda) + vda->vda_next);
                         }
-                        vda = (ElfW(Verdaux)*)(((uintptr_t)vda) + vda->vda_next);
-                    }
-                    v = (ElfW(Verdef)*)((uintptr_t)v + v->vd_next);
+                        v = (ElfW(Verdef)*)((uintptr_t)v + v->vd_next);
                 }
             }
         }
