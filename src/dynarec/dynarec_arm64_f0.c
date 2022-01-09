@@ -675,20 +675,20 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
-                        MOV64xw(x5, i64);
-                        TSTx_mask(wback, 1, 0, 0);    // mask=1
+                        TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
                         B_MARK(cNE);
                         MARKLOCK;
                         LDAXRxw(x1, wback);
-                        emit_add32(dyn, ninst, rex, x1, x5, x3, x4);
+                        emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5);
                         STLXRxw(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
+                        DMB_ISH();
                         B_NEXT_nocond;
                         MARK;   // unaligned! also, not enough 
                         LDRxw_U12(x1, wback, 0);
                         LDAXRB(x4, wback);
                         BFIxw(x1, x4, 0, 8); // re-inject
-                        emit_add32(dyn, ninst, rex, x1, x5, x3, x4);
+                        emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5);
                         STLXRB(x3, x1, wback);
                         CBNZx_MARK(x3);
                         STRxw_U12(x1, wback, 0);    // put the whole value
@@ -783,20 +783,20 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
-                        MOV64xw(x5, i64);
-                        TSTx_mask(wback, 1, 0, 0);    // mask=1
+                        TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
                         B_MARK(cNE);
                         MARKLOCK;
                         LDAXRxw(x1, wback);
-                        emit_sub32(dyn, ninst, rex, x1, x5, x3, x4);
+                        emit_sub32c(dyn, ninst, rex, x1, i64, x3, x4, x5);
                         STLXRxw(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
+                        DMB_ISH();
                         B_NEXT_nocond;
                         MARK;   // unaligned! also, not enough 
                         LDRxw_U12(x1, wback, 0);
                         LDAXRB(x4, wback);
                         BFIxw(x1, x4, 0, 8); // re-inject
-                        emit_sub32(dyn, ninst, rex, x1, x5, x3, x4);
+                        emit_sub32c(dyn, ninst, rex, x1, i64, x3, x4, x5);
                         STLXRB(x3, x1, wback);
                         CBNZx_MARK(x3);
                         STRxw_U12(x1, wback, 0);    // put the whole value
