@@ -36,9 +36,9 @@ lib_t *NewLibrarian(box64context_t* context, int ownlibs)
 static void freeLibraryRecurse(lib_t *maplib, x64emu_t *emu, int idx, char *freed, library_t* owner) {
     if (freed[idx]) return; // Already freed
     
-    freed[idx] = 1; // Avoid infinite loops
     library_t *lib = maplib->libraries[idx];
     if(lib==owner) return; // don't free owner of maplib
+    freed[idx] = 1; // Avoid infinite loops
     printf_log(LOG_DEBUG, "Free %s\n", lib->name);
     for (int i = lib->depended.size - 1; i >= 0; --i) {
         int j;
@@ -46,7 +46,7 @@ static void freeLibraryRecurse(lib_t *maplib, x64emu_t *emu, int idx, char *free
             if (lib->depended.libs[i] == maplib->libraries[j]) break;
         }
         if (j == maplib->libsz) {
-            printf_log(LOG_DEBUG, "Library %s (%p) needs %p, but it was not found. Ignoring.\n", lib->name, lib, lib->depended.libs[i]);
+            // dependant lib already freed
             continue;
         }
         if (freed[j] == 1) {
