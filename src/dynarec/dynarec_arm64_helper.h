@@ -347,11 +347,11 @@
     CBNZw(reg, j64)
 // Test bit N of A and branch to MARK if not set
 #define TBZ_MARK(A, N)              \
-    j64 = GETMARK2-(dyn->arm_size); \
+    j64 = GETMARK-(dyn->arm_size);  \
     TBZ(A, N, j64)
 // Test bit N of A and branch to MARK if set
 #define TBNZ_MARK(A, N)             \
-    j64 = GETMARK2-(dyn->arm_size); \
+    j64 = GETMARK-(dyn->arm_size);  \
     TBNZ(A, N, j64)
 // Branch to MARK2 if cond (use j64)
 #define B_MARK2(cond)               \
