@@ -299,7 +299,6 @@ typedef union {
 #define R_BP emu->regs[_BP].word[0]
 #define R_AL emu->regs[_AX].byte[0]
 #define R_AH emu->regs[_AX].byte[1]
-#define R_CX emu->regs[_CX].word[0]
 #define R_CL emu->regs[_CX].byte[0]
 #define R_CS emu->segs[_CS]
 #define R_DS emu->segs[_DS]
