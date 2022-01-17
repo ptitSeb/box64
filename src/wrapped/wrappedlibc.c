@@ -2113,19 +2113,19 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     void* ret = mmap64(addr, length, prot, flags, fd, offset);
     #ifndef NOALIGN
     if((ret!=(void*)-1) && (flags&0x40) && ((uintptr_t)ret>0xffffffff)) {
-        printf_log(LOG_INFO, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
+        printf_log(LOG_DEBUG, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = findBlockNearHint(addr, length); // is this the best way?
         ret = mmap64(addr, length, prot, flags, fd, offset);
-        printf_log(LOG_INFO, " tried again with %p, got %p\n", addr, ret);
-    } else if((ret!=(void*)-1) && (old_addr==NULL) && (box64_wine) && ((uintptr_t)ret>0x7fffffffffffLL)) {
-        printf_log(LOG_INFO, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
+        printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
+    } else if((ret!=(void*)-1) && ((flags&MAP_FIXED)==0) && (box64_wine) && ((uintptr_t)ret>0x7fffffffffffLL)) {
+        printf_log(LOG_DEBUG, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = find47bitBlock(length); // is this the best way?
         ret = mmap64(addr, length, prot, flags, fd, offset);
-        printf_log(LOG_INFO, " tried again with %p, got %p\n", addr, ret);
+        printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
     }
     #endif
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
@@ -2489,24 +2489,33 @@ EXPORT int my_semctl(int semid, int semnum, int cmd, union semun b)
 }
 
 // Backtrace stuff
+typedef struct i386_layout_s
+{
+  struct i386_layout_s  *next;
+  void                  *return_address;
+} i386_layout_t;
+
 EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
 {
     // Get current Framepointer
-    uintptr_t *fp = (uintptr_t*)R_RBP;
-    uintptr_t *stack_end = (uintptr_t*)(emu->init_stack + emu->size_stack);
-    uintptr_t *stack_start = (uintptr_t*)(emu->init_stack);
+    i386_layout_t *fp = (i386_layout_t*)R_RBP;
+    if((uintptr_t)fp == (uintptr_t)buffer)  // cannot find the FramePointer if it's not set in BP properly
+        return 0;
+    uintptr_t stack_end = (uintptr_t)(emu->init_stack) + emu->size_stack;
+    uintptr_t stack_start = (uintptr_t)(emu->init_stack);
     // check if fp is on another stack (in case of beeing call from a signal with altstack)
     x64emu_t *thread_emu = thread_get_emu();
-    if(emu!=thread_emu && ((fp>(uintptr_t*)(thread_emu->init_stack)) && (fp<(uintptr_t*)(thread_emu->init_stack + thread_emu->size_stack)))) {
-        stack_end = (uintptr_t*)(thread_emu->init_stack + thread_emu->size_stack);
-        stack_start = (uintptr_t*)(thread_emu->init_stack);        
+    if(emu!=thread_emu && (((uintptr_t)fp>(uintptr_t)(thread_emu->init_stack)) && ((uintptr_t)fp<((uintptr_t)(thread_emu->init_stack) + thread_emu->size_stack)))) {
+        stack_end = (uintptr_t)(thread_emu->init_stack) + thread_emu->size_stack;
+        stack_start = (uintptr_t)(thread_emu->init_stack);        
     }
     int idx=0;
     while(idx<size) {
-        if(!fp || (fp+sizeof(void*)>=stack_end) || (fp<=stack_start))
+        if(!(uintptr_t)fp || ((uintptr_t)fp+sizeof(void*)>=stack_end) || ((uintptr_t)fp<=stack_start)) {
             return idx;
-        buffer[idx] = (void*)fp[1];
-        fp = (uintptr_t*)fp[0];
+        }
+        buffer[idx] = fp->return_address;
+        fp = fp->next;
         ++idx;
     }
     return idx;
