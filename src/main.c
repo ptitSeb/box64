@@ -954,7 +954,9 @@ int main(int argc, const char **argv, const char **env) {
     // check if this is wine
     if(!strcmp(prog, "wine64")
      || !strcmp(prog, "wine64-development") 
-     || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine64"), "/wine64"))) {
+     || !strcmp(prog, "wine") 
+     || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine"), "/wine"))
+     || (strlen(prog)>7 && !strcmp(prog+strlen(prog)-strlen("/wine64"), "/wine64"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
         printf_log(LOG_INFO, "BOX64: Wine64 detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
         if(wine_preloaded)
