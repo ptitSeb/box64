@@ -176,4 +176,4 @@ They are very basic and don't test much for now.
 
 Debian Packaging
 ----
-Box86 can also be packaged into a .deb file with `DEB_BUILD_OPTIONS=nostrip dpkg-buildpackage -us -uc -nc`.
+Box64 can also be packaged into a .deb file with `DEB_BUILD_OPTIONS=nostrip dpkg-buildpackage -us -uc -nc`.
