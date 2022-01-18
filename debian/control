@@ -2,7 +2,7 @@ Source: box64
 Section: utils
 Priority: optional
 Maintainer: Ryan Fortner <ryankfortner@gmail.com>
-Build-Depends: cmake, debhelper (>=11~)
+Build-Depends: cmake, debhelper (>=11~), python3
 Standards-Version: 4.1.4
 Homepage: https://github.com/ptitSeb/box64
 
