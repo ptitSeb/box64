@@ -1572,20 +1572,22 @@ int dl_iterate_phdr_findsymbol(struct dl_phdr_info* info, size_t size, void* dat
                 ++dyn;
             }
             if(strtab && verdef && verdef_cnt) {
+                if((uintptr_t)strtab < (uintptr_t)info->dlpi_addr) // this test is need for linux-vdso on PI and some other OS (looks like a bug to me)
+                    strtab=(char*)((uintptr_t)strtab + info->dlpi_addr);
                 // Look fr all defined versions now
                 ElfW(Verdef)* v = verdef;
-                for(int k=0; k<verdef_cnt; ++k) {
+                while(v) {
                     ElfW(Verdaux)* vda = (ElfW(Verdaux)*)(((uintptr_t)v) + v->vd_aux);
                     if(v->vd_version>0 && !v->vd_flags)
                         for(int i=0; i<v->vd_cnt; ++i) {
-                            const char* vername = &strtab[vda->vda_name];
-                            if(vername && (s->addr = dlvsym(s->lib, s->name, vername))) {
-                                printf_log(LOG_DEBUG, "Found symbol with version %s, value = %p\n", vername, s->addr);
+                            const char* vername = (strtab+vda->vda_name);
+                            if(vername && vername[0] && (s->addr = dlvsym(s->lib, s->name, vername))) {
+                                printf_log(/*LOG_DEBUG*/LOG_INFO, "Found symbol with version %s, value = %p\n", vername, s->addr);
                                 return 1;   // stop searching
                             }
                             vda = (ElfW(Verdaux)*)(((uintptr_t)vda) + vda->vda_next);
                         }
-                        v = (ElfW(Verdef)*)((uintptr_t)v + v->vd_next);
+                    v = v->vd_next?(ElfW(Verdef)*)((uintptr_t)v + v->vd_next):NULL;
                 }
             }
         }
