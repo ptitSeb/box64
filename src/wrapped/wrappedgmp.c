@@ -6,20 +6,13 @@
 
 #include "wrappedlibs.h"
 
+#include "debug.h"
 #include "wrapper.h"
 #include "bridge.h"
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-const char* lberName =
-#ifdef ANDROID
-    "liblber-2.4.so"
-#else
-    "liblber-2.4.so.2"
-#endif
-    ;
-#define ALTNAME "liblber-2.5.so.0"
-#define LIBNAME lber
+const char* gmpName = "libgmp.so.10";
+#define LIBNAME gmp
 
 #include "wrappedlib_init.h"
-

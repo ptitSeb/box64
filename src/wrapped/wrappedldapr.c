@@ -23,9 +23,9 @@ const char* ldaprName =
     "libldap_r-2.4.so.2"
 #endif
     ;
+#define ALTNAME "libldap-2.5.so.0"
 #define LIBNAME ldapr
 static library_t *my_lib = NULL;
-
 typedef int     (*iFpppppupp_t)      (void*, void*, void*, void* , void*, unsigned, void*, void*);
 
 #define SUPER()                                     \
