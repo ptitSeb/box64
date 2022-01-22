@@ -171,3 +171,9 @@ Testing
 A few tests are included.
 They can be launched with `ctest`
 They are very basic and don't test much for now.
+
+----
+
+Debian Packaging
+----
+Box64 can also be packaged into a .deb file with `DEB_BUILD_OPTIONS=nostrip dpkg-buildpackage -us -uc -nc`.
