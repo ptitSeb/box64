@@ -206,6 +206,90 @@ int Run66F0(x64emu_t *emu, rex_t rex)
 #endif
             break;
 
+        case 0xFF:              /* GRP 5 Ed */
+            nextop = F8;
+            GETED(0);
+            switch((nextop>>3)&7) {
+                case 0:                 /* INC Ed */
+#ifdef DYNAREC
+                    if(rex.w)
+                        if(((uintptr_t)ED)&7) {
+                            // unaligned
+                            do {
+                                tmp64u = ED->q[0] & 0xffffffffffffff00LL;
+                                tmp64u |= arm64_lock_read_b(ED);
+                                tmp64u = inc64(emu, tmp64u);
+                            } while(arm64_lock_write_b(ED, tmp64u&0xff));
+                            ED->q[0] = tmp64u;
+                        }
+                        else
+                            do {
+                                tmp64u = arm64_lock_read_dd(ED);
+                            } while(arm64_lock_write_dd(ED, inc64(emu, tmp64u)));
+                    else {
+                        if((uintptr_t)ED&1) { 
+                            //meh.
+                            do {
+                                tmp16u = ED->word[0];
+                                tmp16u &=~0xff;
+                                tmp16u |= arm64_lock_read_b(ED);
+                                tmp16u = inc16(emu, tmp16u);
+                        } while(arm64_lock_write_b(ED, tmp16u&0xff));
+                            ED->word[0] = tmp16u;
+                        } else {
+                            do {
+                                tmp16u = arm64_lock_read_h(ED);
+                            } while(arm64_lock_write_h(ED, inc16(emu, tmp16u)));
+                        }
+                    }
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    if(rex.w) {
+                        ED->q[0] = inc64(emu, ED->q[0]);
+                    } else {
+                        ED->word[0] = inc16(emu, ED->word[0]);
+                    }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                case 1:                 /* DEC Ed */
+#ifdef DYNAREC
+                    if(rex.w)
+                        if(((uintptr_t)ED)&7) {
+                            // unaligned
+                            do {
+                                tmp64u = ED->q[0] & 0xffffffffffffff00LL;
+                                tmp64u |= arm64_lock_read_b(ED);
+                                tmp64u = dec64(emu, tmp64u);
+                            } while(arm64_lock_write_b(ED, tmp64u&0xff));
+                            ED->q[0] = tmp64u;
+                        }
+                        else
+                            do {
+                                tmp64u = arm64_lock_read_dd(ED);
+                            } while(arm64_lock_write_dd(ED, dec64(emu, tmp64u)));
+                    else {
+                        do {
+                            tmp16u = arm64_lock_read_h(ED);
+                        } while(arm64_lock_write_h(ED, dec16(emu, tmp16u)));
+                    }
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    if(rex.w) {
+                        ED->q[0] = dec64(emu, ED->q[0]);
+                    } else {
+                        ED->word[0] = dec16(emu, ED->word[0]);
+                    }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                default:
+                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0xFF 0x%02X 0x%02X\n", nextop, PK(0));
+                    emu->quit=1;
+                    emu->error |= ERR_ILLEGAL;
+                    break;
+            }
+            break;
        default:
             return 1;
     }
