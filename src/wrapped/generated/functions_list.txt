@@ -2295,6 +2295,7 @@ wrappedglib2:
 - vFppp:
   - g_array_sort_with_data
   - g_hash_table_foreach
+  - g_option_context_add_main_entries
   - g_ptr_array_foreach
   - g_ptr_array_sort_with_data
   - g_static_private_set
