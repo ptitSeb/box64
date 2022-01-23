@@ -132,7 +132,7 @@ GOM(g_async_initable_init_async, vFEpippp)
 GO(g_async_initable_init_finish, iFppp)
 GOM(g_async_initable_new_async, vFEiippppV)
 GO(g_async_initable_new_finish, pFppp)
-GOM(g_async_initable_new_valist_async, vFEippippp)
+GOM(g_async_initable_new_valist_async, vFEipAippp)
 GOM(g_async_initable_newv_async, vFEiupippp)
 //GO(g_async_result_get_source_object, 
 //GO(g_async_result_get_type, 
@@ -940,9 +940,9 @@ GO(g_icon_to_string, pFp)
 //GO(g_inet_socket_address_new_from_string, 
 GO(g_initable_get_type, LFv)
 GO(g_initable_init, iFppp)
-//GO(g_initable_new, pFippppppppppppppp)    // vaarg, should vrap with g_initable_new_valist
-GO(g_initable_newv, pFpippp)
-//GO(g_initable_new_valist, pFipppp)
+GOM(g_initable_new, pFEppppV)
+GO(g_initable_newv, pFpuppp)
+GOM(g_initable_new_valist, pFEppApp)
 //GO(g_input_stream_clear_pending, 
 //GO(g_input_stream_close, 
 //GO(g_input_stream_close_async, 

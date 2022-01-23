@@ -21,10 +21,12 @@ typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpippp_t)(void*, int64_t, void*, void*, void*);
 typedef void (*vFppipV_t)(void*, void*, int64_t, void*, ...);
 typedef void (*vFppipA_t)(void*, void*, int64_t, void*, va_list);
+typedef void* (*pFppppV_t)(void*, void*, void*, void*, ...);
+typedef void* (*pFppApp_t)(void*, void*, va_list, void*, void*);
 typedef void (*vFpipppp_t)(void*, int64_t, void*, void*, void*, void*);
 typedef void (*vFiippppV_t)(int64_t, int64_t, void*, void*, void*, void*, ...);
 typedef void (*vFiupippp_t)(int64_t, uint64_t, void*, int64_t, void*, void*, void*);
-typedef void (*vFippippp_t)(int64_t, void*, void*, int64_t, void*, void*, void*);
+typedef void (*vFipAippp_t)(int64_t, void*, va_list, int64_t, void*, void*, void*);
 typedef void (*vFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*);
 typedef void (*vFpppuipV_t)(void*, void*, void*, uint64_t, int64_t, void*, ...);
 typedef uint64_t (*uFipipppp_t)(int64_t, void*, int64_t, void*, void*, void*, void*);
@@ -57,10 +59,12 @@ typedef void (*vFpppppppiippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_async_initable_init_async, vFpippp_t) \
 	GO(g_simple_async_result_set_error, vFppipV_t) \
 	GO(g_simple_async_result_set_error_va, vFppipA_t) \
+	GO(g_initable_new, pFppppV_t) \
+	GO(g_initable_new_valist, pFppApp_t) \
 	GO(g_dbus_connection_new_for_address, vFpipppp_t) \
 	GO(g_async_initable_new_async, vFiippppV_t) \
 	GO(g_async_initable_newv_async, vFiupippp_t) \
-	GO(g_async_initable_new_valist_async, vFippippp_t) \
+	GO(g_async_initable_new_valist_async, vFipAippp_t) \
 	GO(g_dbus_connection_new, vFppipppp_t) \
 	GO(g_simple_async_report_error_in_idle, vFpppuipV_t) \
 	GO(g_bus_watch_name, uFipipppp_t) \

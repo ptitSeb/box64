@@ -24,69 +24,10 @@ const char* gio2Name = "libgio-2.0.so.0";
 
 static char* libname = NULL;
 
-typedef void    (*vFppp_t)          (void*, void*, void*);
-typedef void    (*vFppip_t)         (void*, void*, int, void*);
-typedef void    (*vFippp_t)         (int, void*, void*, void*);
-typedef void*   (*pFpppp_t)         (void*, void*, void*, void*);
-typedef void    (*vFpppp_t)         (void*, void*, void*, void*);
-typedef uint32_t(*uFpppp_t)         (void*, void*, void*, void*);
-typedef unsigned long (*LFpppp_t)   (void*, void*, void*, void*);
-typedef void    (*vFpippp_t)        (void*, int, void*, void*, void*);
-typedef void    (*vFpipppp_t)       (void*, int, void*, void*, void*, void*);
-typedef void*   (*vFippippp_t)      (int, void*, void*, int, void*, void*, void*);
-typedef uint32_t(*uFipipppp_t)      (int, void*, int, void*, void*, void*, void*);
-typedef uint32_t(*uFppipppp_t)      (void*, void*, int, void*, void*, void*, void*);
-typedef void    (*vFppipppp_t)      (void*, void*, int, void*, void*, void*, void*);
-typedef void    (*vFiupippp_t)      (int, uint32_t, void*, int, void*, void*, void*);
-typedef void    (*vFpppuipV_t)      (void*, void*, void*, uint32_t, int, void*, ...);
-typedef void*   (*pFpppuipV_t)      (void*, void*, void*, uint32_t, int, void*, ...);
-typedef uint32_t(*uFppppppp_t)      (void*, void*, void*, void*, void*, void*, void*);
-typedef void*   (*vFLpAippp_t)      (size_t, void*, va_list, int, void*, void*, void*);
-typedef void    (*vFppiipppp_t)     (void*, void*, int, int, void*, void*, void*, void*);
-typedef void    (*vFpppiippp_t)     (void*, void*, void*, int, int, void*, void*, void*);
-typedef uint32_t(*uFLpippppp_t)     (size_t, void*, int, void*, void*, void*, void*, void*);
-typedef void    (*vFpppiipppp_t)    (void*, void*, void*, int, int, void*, void*, void*, void*);
-typedef void    (*vFiippppppp_t)    (int, int, void*, void*, void*, void*, void*, void*, void*);
-typedef void    (*vFpippppppp_t)    (void*, int, void*, void*, void*, void*, void*, void*, void*);
-typedef void*   (*pFLippppppp_t)    (size_t, int, void*, void*, void*, void*, void*, void*, void*);
-typedef uint32_t(*uFppppppippp_t)   (void*, void*, void*, void*, void*, void*, int, void*, void*, void*);
-typedef void    (*vFpppppppiippp_t) (void*, void*, void*, void*, void*, void*, void*, int, int, void*, void*, void*);
-typedef void    (*vFppipA_t)        (void*, void*, int, void*, va_list);
 
-#define SUPER() \
-    GO(g_dbus_proxy_new, vFpippppppp_t)             \
-    GO(g_dbus_proxy_new_for_bus, vFiippppppp_t)     \
-    GO(g_dbus_proxy_call, vFpppiippp_t)             \
-    GO(g_dbus_proxy_call_with_unix_fd_list, vFpppiipppp_t)              \
-    GO(g_dbus_object_manager_client_new_for_bus_sync, pFLippppppp_t)    \
-    GO(g_simple_async_result_new, pFpppp_t)         \
-    GO(g_simple_async_result_new_error, pFpppuipV_t)\
-    GO(g_simple_async_result_new_from_error, pFpppp_t)                  \
-    GO(g_simple_async_result_new_take_error, pFpppp_t)                  \
-    GO(g_simple_async_result_set_op_res_gpointer, vFppp_t)              \
-    GO(g_simple_async_result_run_in_thread, vFppip_t)                   \
-    GO(g_simple_async_report_error_in_idle, vFpppuipV_t)                \
-    GO(g_simple_async_report_gerror_in_idle, vFpppp_t)                  \
-    GO(g_simple_async_report_take_gerror_in_idle, vFpppp_t)             \
-    GO(g_cancellable_connect, LFpppp_t)             \
-    GO(g_async_initable_init_async, vFpippp_t)      \
-    GO(g_async_initable_new_valist_async, vFLpAippp_t)                  \
-    GO(g_async_initable_newv_async, vFiupippp_t)    \
-    GO(g_bus_get, vFippp_t)                         \
-    GO(g_dbus_connection_new, vFppipppp_t)          \
-    GO(g_dbus_connection_new_for_address, vFpipppp_t)                   \
-    GO(g_dbus_connection_close, vFpppp_t)           \
-    GO(g_dbus_connection_flush, vFpppp_t)           \
-    GO(g_dbus_connection_call, vFpppppppiippp_t)    \
-    GO(g_dbus_connection_signal_subscribe, uFppppppippp_t)              \
-    GO(g_dbus_connection_send_message_with_reply, vFppiipppp_t)         \
-    GO(g_dbus_connection_add_filter, uFpppp_t)      \
-    GO(g_dbus_connection_register_object, uFppppppp_t)                  \
-    GO(g_bus_watch_name, uFipipppp_t)               \
-    GO(g_bus_watch_name_on_connection, uFppipppp_t) \
-    GO(g_bus_own_name, uFLpippppp_t)                \
-    GO(g_bus_own_name_on_connection, uFppipppp_t)   \
-    GO(g_simple_async_result_set_error_va, vFppipA_t)                   \
+#define ADDED_FUNCTIONS() \
+
+#include "wrappedgio2types.h"
 
 
 typedef struct gio2_my_s {
@@ -749,6 +690,30 @@ EXPORT void my_g_simple_async_result_set_error(x64emu_t* emu, void* simple, void
     PREPARE_VALIST;
     my->g_simple_async_result_set_error_va(simple, domain, code, fmt, VARARGS);
 }
+
+EXPORT void* my_g_initable_new(x64emu_t* emu, void* type, void* cancel, void* err, void* first, uintptr_t* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
+
+    myStackAlign(emu, first, b, emu->scratch, R_EAX, 4);
+    PREPARE_VALIST;
+    return my->g_initable_new_valist(type, first, VARARGS, cancel, err);
+}
+
+EXPORT void* my_g_initable_new_valist(x64emu_t* emu, void* type, void* first, x64_va_list_t V, void* cancel, void* err)
+{
+    library_t * lib = GetLibInternal(libname);
+    gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
+
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
+    return my->g_initable_new_valist(type, first, VARARGS, cancel, err);
+}
+
 
 #define PRE_INIT    \
     if(box64_nogtk) \

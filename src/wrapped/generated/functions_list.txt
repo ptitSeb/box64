@@ -1204,6 +1204,7 @@
 #() pFpuuip
 #() pFpuuWW
 #() pFpuuup
+#() pFpuppp
 #() pFpUdii
 #() pFpdddd
 #() pFplppp
@@ -1443,6 +1444,8 @@
 #() pFEpppLp
 #() pFEppppi
 #() pFEppppp
+#() pFEppppV
+#() pFEppApp
 #() pFiiiiii
 #() pFiCiiCi
 #() pFdddddd
@@ -1661,7 +1664,7 @@
 #() pFppppppp
 #() vFEiippppV
 #() vFEiupippp
-#() vFEippippp
+#() vFEipAippp
 #() vFEppipppp
 #() vFEpppuipV
 #() vFEpppppuu
@@ -2200,13 +2203,17 @@ wrappedgio2:
   - g_simple_async_result_set_error
 - vFppipA:
   - g_simple_async_result_set_error_va
+- pFppppV:
+  - g_initable_new
+- pFppApp:
+  - g_initable_new_valist
 - vFpipppp:
   - g_dbus_connection_new_for_address
 - vFiippppV:
   - g_async_initable_new_async
 - vFiupippp:
   - g_async_initable_newv_async
-- vFippippp:
+- vFipAippp:
   - g_async_initable_new_valist_async
 - vFppipppp:
   - g_dbus_connection_new
