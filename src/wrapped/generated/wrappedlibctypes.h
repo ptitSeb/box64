@@ -171,6 +171,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(vfscanf, iFppA_t) \
 	GO(vsprintf, iFppA_t) \
 	GO(vsscanf, iFppA_t) \
+	GO(vswscanf, iFppA_t) \
 	GO(__open, iFpOu_t) \
 	GO(open, iFpOu_t) \
 	GO(open64, iFpOu_t) \

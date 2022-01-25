@@ -2064,7 +2064,7 @@ GOWM(__vsscanf, iFEppp)
 GOWM(vsscanf, iFEppA)
 GOWM(vswprintf, iFEpLpA)
 GOWM(__vswprintf_chk, iFEpuvvppp)
-//GO(vswscanf, iFppA)
+GOM(vswscanf, iFEppA)
 GOM(vsyslog, vFEipA)
 GOM(__vsyslog_chk, vFEiipA)
 //GO(vtimes, // Deprecated
