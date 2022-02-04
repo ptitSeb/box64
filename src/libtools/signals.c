@@ -1210,6 +1210,8 @@ EXPORT int my_getcontext(x64emu_t* emu, void* ucp)
     // get FloatPoint status
     // get signal mask
     sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
+    // ensure uc_link is properly initialized
+    u->uc_link = emu->uc_link;
 
     return 0;
 }
