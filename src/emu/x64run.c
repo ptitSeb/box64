@@ -163,6 +163,7 @@ x64emurun:
         GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
         #undef GO
 
+	case 0x2E:	    /* segments are ignored */
         case 0x36:          /* SS: (ignored) */
             break;
 

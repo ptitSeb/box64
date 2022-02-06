@@ -372,6 +372,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i64 = F32S;
             emit_sub32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5);
             break;
+        case 0x2E:
+            INST_NAME("CS:");
+            break;
 
         case 0x30:
             INST_NAME("XOR Eb, Gb");
