@@ -586,6 +586,23 @@ int RunF0(x64emu_t *emu, rex_t rex)
                         }
                         break;
 
+                case 0xC0:                      /* XADD Gb,Eb */
+                    nextop = F8;
+                    GETEB(0);
+                    GETGB;
+#ifdef DYNAREC
+                    do {
+                        tmp8u = arm64_lock_read_b(EB);
+                        tmp8u2 = add8(emu, tmp8u, GB);
+                    } while(arm64_lock_write_b(EB, tmp8u2));
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    tmp8u = add8(emu, EB->byte[0], GB);
+                    GB = EB->byte[0];
+                    EB->byte[0] = tmp32u;
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
                 case 0xC1:                      /* XADD Gd,Ed */
                     nextop = F8;
                     GETED(0);
