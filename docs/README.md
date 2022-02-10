@@ -71,7 +71,7 @@ Hint: on Pi4, use `MESA_GL_VERSION_OVERRIDE=3.2` and with Panfrost use `PAN_MESA
 Notes about GTK programs
 ----
 
-GTK libraries are not wrapped yet on box64 (contrary to box86). Many games use gtk (setup too), like Unity game for the Screen Selection dialog. While Unity games can run without that dialog (using the default setup), many just can't. For now, you'll need to put the set of gtk x86_64 libraries in the game folder (or some other folder known by box64) to get gtk support. GTK Wrapping is planned on box64.
+GTK libraries are now wrapped on box64, bu only gtk2, not gtk3 (contrary to box86).
 
 ----
 
@@ -86,7 +86,7 @@ So, no Steam for now on box64.
 Notes about Wine
 ----
 
-Wine64 is supported on box64. Be aware that 64-bit Wine also includes 32-bit components, to be able to run 32-bit Windows programs. The 32-bit apps will need box86 and will not run without it. On a system where both box64 and box86 are present and working, a wine 64-bit setup can run both 32-bit and 64-bit Windows programs (just use `wine` and `wine64` respectively)
+Wine64 is supported on box64. Proton should also work. Be aware that 64-bit Wine also includes 32-bit components, to be able to run 32-bit Windows programs. The 32-bit apps will need box86 and will not run without it. On a system where both box64 and box86 are present and working, a wine 64-bit setup can run both 32-bit and 64-bit Windows programs (just use `wine` and `wine64` respectively)
 
 ----
 
