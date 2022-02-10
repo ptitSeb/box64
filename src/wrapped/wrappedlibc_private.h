@@ -1078,7 +1078,7 @@ GO(linkat, iFipipi)
 GOW(listen, iFii)
 GO(listxattr, lFppL)
 GO(llabs, IFI)
-//GO(lldiv, ?FII)
+GO(lldiv, HFII)
 GO(llistxattr, lFppL)
 //GO(llseek, // Deprecated
 //DATAB(loc1, 
