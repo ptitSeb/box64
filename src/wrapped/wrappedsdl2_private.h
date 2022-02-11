@@ -656,7 +656,7 @@ GO(SDL_UnlockSurface, vFp)
 GO(SDL_UnlockTexture, vFp)
 GO(SDL_UpdateTexture, iFpppi)
 GO(SDL_UpdateWindowSurface, iFp)
-// SDL_UpdateWindowSurfaceRects
+GO(SDL_UpdateWindowSurfaceRects, iFppi)
 GO(SDL_UpdateYUVTexture, iFpppipipi)
 GO(SDL_UpperBlit, iFpppp)
 GO(SDL_UpperBlitScaled, iFpppp)
