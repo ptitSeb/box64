@@ -119,11 +119,11 @@ EXPORT void *my2_IMG_Load_RW(x64emu_t* emu, void* a, int32_t b)
         RWNativeEnd2(rw);
     return r;
 }
-EXPORT int32_t my2_IMG_SavePNG_RW(x64emu_t* emu, void* surf, void* a, int32_t compression)
+EXPORT int32_t my2_IMG_SavePNG_RW(x64emu_t* emu, void* a, void* surf, int32_t compression)
 {
     sdl2image_my_t *my = (sdl2image_my_t *)my_lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    int32_t r = my->IMG_SavePNG_RW(surf, rw, compression);
+    int32_t r = my->IMG_SavePNG_RW(rw, surf, compression);
     RWNativeEnd2(rw);
     return r;
 }
