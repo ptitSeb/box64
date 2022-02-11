@@ -402,10 +402,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
             else {
                 // find jump address instruction
                 int k=-1;
-                for(int i2=0; i2<helper.size && k==-1; ++i2) {
+                for(int i2=0; (i2<helper.size) && (k==-1); ++i2) {
                     if(helper.insts[i2].x64.addr==j)
                         k=i2;
                 }
+
                 if(k!=-1)   // -1 if not found, mmm, probably wrong, exit anyway
                     helper.insts[k].x64.barrier = 1;
                 helper.insts[i].x64.jmp_insts = k;

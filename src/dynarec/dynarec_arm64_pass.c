@@ -99,9 +99,6 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 dyn->dfnone = 0;
             }
         }
-        if(!ok && !need_epilog && (addr < (dyn->start+dyn->isize))) {
-            ok = 1;
-        }
         #if STEP == 0
         if(!ok && !need_epilog && box64_dynarec_bigblock && getProtection(addr+3)&~PROT_CUSTOM && !IsInHotPage(addr+3))
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
@@ -116,13 +113,17 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     dynarec_log(LOG_DEBUG, "Cannot extend block %p -> %p (%02X %02X %02X %02X %02X %02X %02X %02x)\n", (void*)addr, (void*)next, PK(0), PK(1), PK(2), PK(3), PK(4), PK(5), PK(6), PK(7));
                 }
             }
+        #else
+        if(!ok && !need_epilog && (addr < (dyn->start+dyn->isize))) {
+            ok = 1;
+        }
         #endif
         if(ok<0)  {ok = 0; need_epilog=1;}
         ++ninst;
         #if STEP == 0
         if(ok && !isJumpTableDefault64((void*)addr))
         #else
-        if(ok && dyn->insts && (ninst==dyn->size))
+        if(ok && (ninst==dyn->size))
         #endif
         {
             #if STEP == 3

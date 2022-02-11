@@ -2092,7 +2092,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
                 default:
-                    if(ninst && dyn->insts && dyn->insts[ninst-1].x64.set_flags) {
+                    if(ninst && dyn->insts[ninst-1].x64.set_flags) {
                         READFLAGS(X_PEND);  // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
@@ -2100,10 +2100,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     // regular call
                     BARRIER(1);
                     BARRIER_NEXT(1);
-                    if(!dyn->insts || ninst==dyn->size-1) {
-                        *need_epilog = 0;
-                        *ok = 0;
-                    }
+                    *need_epilog = 0;
+                    *ok = 0;
                     TABLE64(x2, addr);
                     PUSH1(x2);
                     if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
@@ -2291,7 +2289,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVw_REG(xRAX, x2);
                         MOVw_REG(xRDX, x4);
                     } else {
-                        if(ninst && dyn->insts 
+                        if(ninst 
                            && dyn->insts[ninst-1].x64.addr 
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31 
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {

@@ -1,6 +1,10 @@
 
 #define INIT    uintptr_t sav_addr=addr
-#define FINI    dyn->isize = addr-sav_addr
+#define FINI    \
+    dyn->isize = addr-sav_addr;         \
+    dyn->insts[ninst].x64.addr = addr;  \
+    if(ninst) dyn->insts[ninst-1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst-1].x64.addr
+
 #define MESSAGE(A, ...)  
 #define SETFLAGS(A, B)  
 #define READFLAGS(A)    
@@ -14,7 +18,9 @@
                 memset(&dyn->insts[dyn->cap], 0, sizeof(instruction_arm64_t)*dyn->cap);   \
                 dyn->cap *= 2;                  \
         }                                       \
-        ++dyn->size
+        ++dyn->size;                            \
+        dyn->insts[ninst].x64.addr = ip;        \
+        if(ninst) dyn->insts[ninst-1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst-1].x64.addr
 #define INST_EPILOG         
 #define INST_NAME(name) 
 #define DEFAULT                         \

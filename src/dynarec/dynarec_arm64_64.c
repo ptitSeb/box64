@@ -752,7 +752,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVw_REG(xRAX, x2);
                         MOVw_REG(xRDX, x4);
                     } else {
-                        if(ninst && dyn->insts 
+                        if(ninst
                            && dyn->insts[ninst-1].x64.addr 
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31 
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
