@@ -40,6 +40,10 @@
 #define GETGX_empty(a)  gd = ((nextop&0x38)>>3)+(rex.r<<3); \
                         a = sse_get_reg_empty(dyn, ninst, x1, gd)
 
+#define GETGM(a)                        \
+    gd = ((nextop&0x38)>>3);            \
+    a = mmx_get_reg(dyn, ninst, x1, gd)
+
 uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     (void)ip; (void)need_epilog;
@@ -319,6 +323,14 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             TABLE64(x2, (uintptr_t)&addsubps);
             VLDR128_U12(q0, x2, 0);
             VFMLAQS(v0, v1, q0);
+            break;
+
+        case 0xD6:
+            INST_NAME("MOVDQ2Q Gm, Ex");
+            nextop = F8;
+            GETGM(v0);
+            GETEX(v1, 0);
+            VMOV(v0, v1);
             break;
 
         case 0xE6:
