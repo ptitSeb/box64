@@ -53,6 +53,13 @@ typedef struct SDL2_RWops_s {
     } hidden;
 } SDL2_RWops_t;
 
+#define SUPER()         \
+    GO(size, IFp)       \
+    GO(seek, IFpIi)     \
+    GO(read, iFppii)    \
+    GO(write, iFppii)   \
+    GO(close, iFp)
+
 EXPORT int64_t my2_native_size(SDL2_RWops_t *context)
 {
     return context->hidden.my.orig->size(context->hidden.my.orig);
@@ -118,11 +125,7 @@ SDL2_RWops_t* AddNativeRW2(x64emu_t* emu, SDL2_RWops_t* ops)
     fnc = AddCheckBridge(system, W, my2_native_##A, 0, NULL); \
     newrw->A = (sdl2_##A)fnc;
 
-    GO(size, IFp)
-    GO(seek, IFpIi)
-    GO(read, iFppii)
-    GO(write, iFppii)
-    GO(close, iFp)
+    SUPER()
 
     #undef GO
 
@@ -149,11 +152,7 @@ SDL2_RWops_t* RWNativeStart2(x64emu_t* emu, SDL2_RWops_t* ops)
     #define GO(A, W) \
     newrw->A = my2_emulated_##A;
 
-    GO(size, IFp)
-    GO(seek, IFpIi)
-    GO(read, iFppii)
-    GO(write, iFppii)
-    GO(close, iFp)
+    SUPER()
 
     #undef GO
 
@@ -167,6 +166,25 @@ void RWNativeEnd2(SDL2_RWops_t* ops)
         return; // do nothing
 
     ops->hidden.my.custom_free(ops);
+}
+
+int isRWops(SDL2_RWops_t* ops)
+{
+    if(!ops)
+        return 0;
+    #define GO(A, W)      \
+    if(!ops->A || (uintptr_t)ops->A < 0x1000) return 0;
+
+    SUPER()
+
+    #undef GO
+    // check if all then hidden content is just full of 0
+    if(ops->hidden.mem.base==NULL && ops->hidden.mem.here==NULL && ops->hidden.mem.stop==NULL)
+        return 0;
+    // check the type (not sure it's a good check here)
+    if (ops->type>5 && ops->type!=BOX64RW)
+        return 0;
+    return 1;
 }
 
 int64_t RWNativeSeek2(SDL2_RWops_t *ops, int64_t offset, int32_t whence)

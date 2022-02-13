@@ -119,12 +119,22 @@ EXPORT void *my2_IMG_Load_RW(x64emu_t* emu, void* a, int32_t b)
         RWNativeEnd2(rw);
     return r;
 }
-EXPORT int32_t my2_IMG_SavePNG_RW(x64emu_t* emu, void* a, void* surf, int32_t compression)
+EXPORT int32_t my2_IMG_SavePNG_RW(x64emu_t* emu, void* s, void* a, int32_t b)
 {
     sdl2image_my_t *my = (sdl2image_my_t *)my_lib->priv.w.p2;
-    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    int32_t r = my->IMG_SavePNG_RW(rw, surf, compression);
-    RWNativeEnd2(rw);
+    // some old? fuction signature use IMG_SavePNG_RW(dst, surf, compression) instead of the IMG_SavePNG_RW(surf, dst, freedst)
+    // need to try detect if s is in fact a RWops
+    int32_t r;
+    if(isRWops((SDL2_RWops_t*)s) && !isRWops((SDL2_RWops_t*)a)) {
+        SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)s);
+        r = my->IMG_SavePNG_RW(a, rw, 0);
+        RWNativeEnd2(rw);
+    } else {
+        SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+        r = my->IMG_SavePNG_RW(s, rw, b);
+        if(b==0)
+            RWNativeEnd2(rw);
+    }
     return r;
 }
 
