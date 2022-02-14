@@ -349,6 +349,17 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             h->textsz = h->SHEntries[ii].sh_size;
             printf_log(LOG_DEBUG, "The .text is at address %p, and is %zu big\n", (void*)h->text, h->textsz);
         }
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".eh_frame");
+        if(ii) {
+            h->ehframe = (uintptr_t)(h->SHEntries[ii].sh_addr);
+            h->ehframe_end = h->ehframe + h->SHEntries[ii].sh_size;
+            printf_log(LOG_DEBUG, "The .eh_frame section is at address %p..%p\n", (void*)h->ehframe, (void*)h->ehframe_end);
+        }
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".eh_frame_hdr");
+        if(ii) {
+            h->ehframehdr = (uintptr_t)(h->SHEntries[ii].sh_addr);
+            printf_log(LOG_DEBUG, "The .eh_frame_hdr section is at address %p\n", (void*)h->ehframehdr);
+        }
 
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);

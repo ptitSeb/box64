@@ -111,6 +111,8 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
         uint64_t old_rsi = R_RSI;
         uint64_t old_rbp = R_RBP;
         uint64_t old_rip = R_RIP;
+        Push64(emu, GetRBP(emu));   // set frame pointer
+        SetRBP(emu, GetRSP(emu));   // save RSP
         PushExit(emu);
         R_RIP = addr;
         emu->df = d_none;

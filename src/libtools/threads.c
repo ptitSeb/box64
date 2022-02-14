@@ -234,9 +234,10 @@ static void* pthread_routine(void* p)
 	et->emu->type = EMUTYPE_MAIN;
 	// setup callstack and run...
 	x64emu_t* emu = et->emu;
-	Push64(emu, 0);		// PUSH BP
+	Push64(emu, 0);	// PUSH 0 (backtrace marker: return address is 0)
+	Push64(emu, 0);	// PUSH BP
 	R_RBP = R_RSP;	// MOV BP, SP
-	R_RSP -= 56;	// Gard zone
+	R_RSP -= 56;	// Guard zone
 	PushExit(emu);
 	R_RIP = et->fnc;
 	R_RDI = (uintptr_t)et->arg;
