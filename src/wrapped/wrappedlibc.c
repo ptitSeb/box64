@@ -2502,35 +2502,34 @@ EXPORT int my_semctl(int semid, int semnum, int cmd, union semun b)
 }
 
 // Backtrace stuff
-typedef struct i386_layout_s
-{
-  struct i386_layout_s  *next;
-  void                  *return_address;
-} i386_layout_t;
 
+#include "elfs/elfdwarf_private.h"
 EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
 {
-    // Get current Framepointer
-    i386_layout_t *fp = (i386_layout_t*)R_RBP;
-    if((uintptr_t)fp == (uintptr_t)buffer)  // cannot find the FramePointer if it's not set in BP properly
-        return 0;
-    uintptr_t stack_end = (uintptr_t)(emu->init_stack) + emu->size_stack;
-    uintptr_t stack_start = (uintptr_t)(emu->init_stack);
-    // check if fp is on another stack (in case of beeing call from a signal with altstack)
-    x64emu_t *thread_emu = thread_get_emu();
-    if(emu!=thread_emu && (((uintptr_t)fp>(uintptr_t)(thread_emu->init_stack)) && ((uintptr_t)fp<((uintptr_t)(thread_emu->init_stack) + thread_emu->size_stack)))) {
-        stack_end = (uintptr_t)(thread_emu->init_stack) + thread_emu->size_stack;
-        stack_start = (uintptr_t)(thread_emu->init_stack);        
+    if (!size) return 0;
+    dwarf_unwind_t *unwind = init_dwarf_unwind_registers(emu);
+    int idx = 0;
+    char success = 0;
+    uintptr_t addr = *(uintptr_t*)R_RSP;
+    buffer[0] = (void*)addr;
+    while (++idx < size) {
+        uintptr_t ret_addr = get_parent_registers(unwind, FindElfAddress(my_context, addr), addr, &success);
+        if (ret_addr == (uintptr_t)GetExit()) {
+            // TODO: do something to be able to get the function name
+            buffer[idx] = (void*)ret_addr;
+            success = 2;
+            // See elfdwarf_private.c for the register mapping
+            unwind->regs[6] = unwind->regs[7]; // mov rsp, rbp
+            unwind->regs[7] = *(uint64_t*)unwind->regs[6]; // pop rbp
+            unwind->regs[6] += 8;
+            ret_addr = *(uint64_t*)unwind->regs[6]; // ret
+            unwind->regs[6] += 8;
+            if (++idx < size) buffer[idx] = (void*)ret_addr;
+        } else if (!success) break;
+        else buffer[idx] = (void*)ret_addr;
+        addr = ret_addr;
     }
-    int idx=0;
-    while(idx<size) {
-        if(!(uintptr_t)fp || ((uintptr_t)fp+sizeof(void*)>=stack_end) || ((uintptr_t)fp<=stack_start)) {
-            return idx;
-        }
-        buffer[idx] = fp->return_address;
-        fp = fp->next;
-        ++idx;
-    }
+    free_dwarf_unwind_registers(&unwind);
     return idx;
 }
 
@@ -2538,16 +2537,21 @@ EXPORT char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size)
 {
     (void)emu;
     char** ret = (char**)calloc(1, size*sizeof(char*) + size*100);  // capping each strings to 100 chars
-    char* s = (char*)(ret+size*sizeof(char*));
+    char* s = (char*)(ret+size);
     for (int i=0; i<size; ++i) {
         uintptr_t start = 0;
         uint64_t sz = 0;
-        const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, buffer[i]), (void*)buffer[i], &start, &sz);
-        if(symbname && buffer[i]>=start && (buffer[i]<(start+sz) || !sz))
-            snprintf(s, 100, "%s+%ld [%p]\n", symbname, buffer[i] - start, (void*)buffer[i]);
-        else 
-            snprintf(s, 100, "??? [%p]\n", (void*)buffer[i]);
-        s+=100;
+        elfheader_t *hdr = FindElfAddress(my_context, buffer[i]);
+        const char* symbname = FindNearestSymbolName(hdr, (void*)buffer[i], &start, &sz);
+        if (symbname && buffer[i]>=start && (buffer[i]<(start+sz) || !sz)) {
+            snprintf(s, 100, "%s(%s+%lx) [%p]", ElfName(hdr), symbname, buffer[i] - start, (void*)buffer[i]);
+        } else if (hdr) {
+            snprintf(s, 100, "%s+%lx [%p]", ElfName(hdr), buffer[i] - (uintptr_t)GetBaseAddress(hdr), (void*)buffer[i]);
+        } else {
+            snprintf(s, 100, "??? [%p]", (void*)buffer[i]);
+        }
+        ret[i] = s;
+        s += 100;
     }
     return ret;
 }

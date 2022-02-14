@@ -1,0 +1,5 @@
+backtrace() returned 4 addresses
+:myfunc3
+:main
+???
+:_start

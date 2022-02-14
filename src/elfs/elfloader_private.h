@@ -9,6 +9,8 @@ typedef struct library_s library_t;
 typedef struct needed_libs_s needed_libs_t;
 
 #include <pthread.h>
+#include <elf.h>
+#include "elfloader.h"
 
 struct elfheader_s {
     char*       name;
@@ -66,6 +68,9 @@ struct elfheader_s {
     uintptr_t   plt_end;
     uintptr_t   text;
     size_t      textsz;
+    uintptr_t   ehframe;
+    uintptr_t   ehframe_end;
+    uintptr_t   ehframehdr;
 
     uintptr_t   paddr;
     uintptr_t   vaddr;
