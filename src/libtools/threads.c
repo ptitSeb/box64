@@ -237,7 +237,9 @@ static void* pthread_routine(void* p)
 	Push64(emu, 0);	// PUSH 0 (backtrace marker: return address is 0)
 	Push64(emu, 0);	// PUSH BP
 	R_RBP = R_RSP;	// MOV BP, SP
-	R_RSP -= 56;	// Guard zone
+	R_RSP -= 64;	// Guard zone
+	if(R_RSP&0x8)	// align if needed (shouldn't be)
+		R_RSP-=8;
 	PushExit(emu);
 	R_RIP = et->fnc;
 	R_RDI = (uintptr_t)et->arg;
