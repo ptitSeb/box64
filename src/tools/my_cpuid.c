@@ -45,8 +45,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EAX = 0x00000601; // family and all
             R_EBX = 0 | (8<<0x8) | (ncpu<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
             {
-                unsigned int cpu =0, node=0;
-                getcpu(&cpu, &node);
+                int cpu = sched_getcpu();
+                if(cpu<0) cpu=0;
                 R_EAX |= cpu<<24;
             }
             R_EDX =   1         // fpu 
