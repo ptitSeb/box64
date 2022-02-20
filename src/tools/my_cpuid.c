@@ -1,6 +1,8 @@
+#define _GNU_SOURCE 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sched.h>
 
 #include "my_cpuid.h"
 #include "../emu/x64emu_private.h"
@@ -22,10 +24,14 @@ int get_cpuMhz()
 		MHz = 1000; // default to 1Ghz...
 	return MHz;
 }
+int getNCpu();  // defined in wrappedlibc.c
 
 void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
 {
     emu->regs[_AX].dword[1] = emu->regs[_DX].dword[1] = emu->regs[_CX].dword[1] = emu->regs[_BX].dword[1] = 0;
+    int ncpu = getNCpu();
+    if(ncpu>255) ncpu = 255;
+    if(!ncpu) ncpu = 1;
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
@@ -37,7 +43,12 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             break;
         case 0x1:
             R_EAX = 0x00000601; // family and all
-            R_EBX = 0 | (8<<0x8);          // Brand index, CLFlush (8), Max APIC ID, Local APIC ID
+            R_EBX = 0 | (8<<0x8) | (ncpu<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
+            {
+                unsigned int cpu =0, node=0;
+                getcpu(&cpu, &node);
+                R_EAX |= cpu<<24;
+            }
             R_EDX =   1         // fpu 
                     | 1<<4      // rdtsc
                     | 1<<8      // cmpxchg8
@@ -66,7 +77,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
         case 0x4:   // Cache info
             switch (R_ECX) {
                 case 0: // L1 data cache
-                    R_EAX = (1 | (1<<5) | (1<<8));   //type
+                    R_EAX = (1 | (1<<5) | (1<<8) | ((ncpu-1)<<26));   //type + (26-31):max cores per packages-1
                     R_EBX = (63 | (7<<22)); // size
                     R_ECX = 63;
                     R_EDX = 1;
@@ -140,6 +151,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EBX = 0;  // reserved
             R_ECX = (1<<5) | (1<<8); // LZCNT | PREFETCHW
             R_EDX = 1; // x87 FPU
+            //AMD flags?
+            //R_EDX = 1 | (1<<8) | (1<<11) | (1<<15) | (1<<23) | (1<<29); // fpu+cmov+cx8+syscall+mmx+lm (mmxext=22, 3dnow=31, 3dnowext=30)
             break;
         case 0x80000002:    // Brand part 1 (P4 signature)
             R_EAX = 0x20202020;

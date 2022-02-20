@@ -1297,6 +1297,12 @@ void grabNCpu() {
         if(!nCPU) nCPU=1;
     }
 }
+int getNCpu()
+{
+    if(!nCPU)
+        grabNCpu();
+    return nCPU;
+}
 void CreateCPUInfoFile(int fd)
 {
     size_t dummy;
@@ -1310,9 +1316,7 @@ void CreateCPUInfoFile(int fd)
             freq = r/1000.;
         fclose(f);
     }
-    if(!nCPU)
-        grabNCpu();
-    int n = nCPU;
+    int n = getNCpu();
     // generate fake CPUINFO
     int gigahertz=(freq>=1000.);
     #define P \
