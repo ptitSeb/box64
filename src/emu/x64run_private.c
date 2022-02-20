@@ -94,7 +94,7 @@ const char* GetNativeName(void* p)
                 strcat(buff, " ("); strcat(buff, info.dli_fname); strcat(buff, ")");
             }
         } else {
-            sprintf(buff, "%s(%s/%p)", "???", info.dli_fname, p);
+            sprintf(buff, "%s(%s+%p)", "???", info.dli_fname, p);
             return buff;
         }
     }
@@ -960,9 +960,9 @@ const char* getAddrFunctionName(uintptr_t addr)
     const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, addr), (void*)addr, &start, &sz);
     if(symbname && addr>=start && (addr<(start+sz) || !sz)) {
         if(addr==start)
-            sprintf(ret, "%s/%s", ElfName(FindElfAddress(my_context, addr)), symbname);
+            sprintf(ret, "%s:%s", ElfName(FindElfAddress(my_context, addr)), symbname);
         else
-            sprintf(ret, "%s/%s + %ld", ElfName(FindElfAddress(my_context, addr)), symbname, addr - start);
+            sprintf(ret, "%s:%s + %ld", ElfName(FindElfAddress(my_context, addr)), symbname, addr - start);
     } else
         sprintf(ret, "???");
     return ret;
@@ -975,9 +975,9 @@ void printFunctionAddr(uintptr_t nextaddr, const char* text)
     const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, nextaddr), (void*)nextaddr, &start, &sz);
     if(symbname && nextaddr>=start && (nextaddr<(start+sz) || !sz)) {
         if(nextaddr==start)
-            printf_log(LOG_NONE, " (%s%s/%s)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname);
+            printf_log(LOG_NONE, " (%s%s:%s)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname);
         else
-            printf_log(LOG_NONE, " (%s%s/%s + %ld)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname, nextaddr - start);
+            printf_log(LOG_NONE, " (%s%s:%s + %ld)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname, nextaddr - start);
     }
 }
 
