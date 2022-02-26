@@ -47,7 +47,7 @@ GO(xkb_keymap_max_keycode, uFp)
 GO(xkb_keymap_min_keycode, uFp)
 GO(xkb_keymap_mod_get_index, uFpp)
 GO(xkb_keymap_mod_get_name, pFpu)
-//GO(xkb_keymap_new_from_buffer, 
+GO(xkb_keymap_new_from_buffer, pFppLii)
 //GO(xkb_keymap_new_from_file, 
 //GO(xkb_keymap_new_from_names, 
 //GO(xkb_keymap_new_from_string, 

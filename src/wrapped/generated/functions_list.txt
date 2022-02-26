@@ -1069,6 +1069,7 @@
 #() iFiuLip
 #() iFiLLLL
 #() iFipiii
+#() iFipiup
 #() iFipipi
 #() iFipipu
 #() iFipuip
@@ -1217,6 +1218,7 @@
 #() pFppuuu
 #() pFppuup
 #() pFppddi
+#() pFppLii
 #() pFppLLp
 #() pFpppii
 #() pFpppip
