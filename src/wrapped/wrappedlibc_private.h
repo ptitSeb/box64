@@ -2114,7 +2114,7 @@ GO(wcsncat, pFppL)
 //GO(__wcsncat_chk, 
 GO(wcsncmp, iFppL)
 GOW(wcsncpy, pFppL)
-//GO(__wcsncpy_chk, 
+GO(__wcsncpy_chk, pFppLL)
 GO(wcsnlen, LFpL)
 GOW(wcsnrtombs, LFppLLp)
 //GO(__wcsnrtombs_chk, 
