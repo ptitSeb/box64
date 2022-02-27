@@ -503,7 +503,7 @@ set_target_properties(${BOX64} PROPERTIES ENABLE_EXPORTS ON)
 add_dependencies(${BOX64} WRAPPERS)
 #add_dependencies(${BOX64} PRINTER)
 target_link_libraries(${BOX64} c m dl rt pthread)
-if(ARM_DYNAREC)
+if(DYNAREC)
     target_link_libraries(${BOX64} dynarec)
 endif()
 
