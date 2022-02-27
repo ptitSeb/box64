@@ -19,16 +19,14 @@
 #include "dynarec_native.h"
 #include "custommem.h"
 
-#include "arm64_printer.h"
-#include "dynarec_arm64_private.h"
-#include "dynarec_arm64_functions.h"
-#include "dynarec_arm64_helper.h"
+#include "dynarec_arch.h"
+#include "dynarec_helper.h"
 
 #ifndef STEP
 #error No STEP defined
 #endif
 
-uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
+uintptr_t native_pass(dynarec_arm_t* dyn, uintptr_t addr)
 {
     int ok = 1;
     int ninst = 0;

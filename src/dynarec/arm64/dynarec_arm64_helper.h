@@ -674,7 +674,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define STEPNAME(N) STEPNAME2(N, STEP)
 #endif
 
-#define arm_pass        STEPNAME(arm_pass)
+#define native_pass        STEPNAME(native_pass)
 
 #define dynarec64_00       STEPNAME(dynarec64_00)
 #define dynarec64_0F       STEPNAME(dynarec64_0F)

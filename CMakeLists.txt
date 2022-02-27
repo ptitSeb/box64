@@ -433,7 +433,6 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_emit_math.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_emit_logic.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_emit_shift.c"
-    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_pass.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_00.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_0f.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_64.c"
@@ -457,7 +456,11 @@ if(ARM_DYNAREC)
 endif()
 
 if(DYNAREC)
-    set(DYNAREC_PASS "${BOX64_ROOT}/src/wrapped/generated/wrapper.h" ${DYNAREC_PASS})
+    set(DYNAREC_PASS 
+        "${BOX64_ROOT}/src/wrapped/generated/wrapper.h" 
+        ${DYNAREC_PASS}
+        "${BOX64_ROOT}/src/dynarec/dynarec_native_pass.c"
+    )
 
     add_library(dynarec_native OBJECT ${DYNAREC_SRC})
 
