@@ -448,13 +448,24 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     // get that actual ESP first!
     x64emu_t *emu = thread_get_emu();
     uintptr_t frame = R_RSP;
-#if defined(DYNAREC) && defined(__aarch64__)
+#if defined(DYNAREC) 
+#if defined(ARM64)
     ucontext_t *p = (ucontext_t *)ucntx;
     void * pc = (void*)p->uc_mcontext.pc;
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
     if(db) {
         frame = (uintptr_t)p->uc_mcontext.regs[10+_SP];
     }
+#elif defined(LA464)
+    ucontext_t *p = (ucontext_t *)ucntx;
+    void * pc = (void*)p->uc_mcontext.__pc;
+    dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
+    if(db) {
+        frame = (uintptr_t)p->uc_mcontext.regs[12+_SP];
+    }
+#else
+#error Unsupported architecture
+#endif
 #else
     (void)ucntx; (void)cur_db;
 #endif
@@ -498,7 +509,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
     // get segments
     sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
-#if defined(DYNAREC) && defined(__aarch64__)
+#if defined(DYNAREC)
+#if defined(ARM64)
     if(db) {
         sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.regs[10];
         sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.regs[11];
@@ -518,6 +530,29 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.regs[25];
         sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
     }
+#elif defined(LA464)
+    if(db) {
+        sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.regs[12];
+        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.regs[13];
+        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.regs[14];
+        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.regs[15];
+        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.regs[16];
+        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.regs[17];
+        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.regs[18];
+        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.regs[19];
+        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.regs[23];
+        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.regs[24];
+        sigcontext->uc_mcontext.gregs[X64_R10] = p->uc_mcontext.regs[25];
+        sigcontext->uc_mcontext.gregs[X64_R11] = p->uc_mcontext.regs[26];
+        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.regs[27];
+        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.regs[28];
+        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.regs[29];
+        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.regs[30];
+        sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
+    }
+#else
+#error Unsupported architecture
+#endif
 #endif
     // get FloatPoint status
     sigcontext->uc_mcontext.fpregs = (struct x64_libc_fpstate*)&sigcontext->xstate;
@@ -734,6 +769,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void * pc = (void*)p->uc_mcontext.gregs[X64_RIP];
 #elif defined __powerpc64__
     void * pc = (void*)p->uc_mcontext.gp_regs[PT_NIP];
+#elif defined(LA464)
+    void * pc = (void*)p->uc_mcontext.__pc;
 #else
     void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture
@@ -769,6 +806,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();
             if(ejb->jmpbuf_ok) {
+#ifdef ARM64
                 ejb->emu->regs[_AX].q[0] = p->uc_mcontext.regs[10];
                 ejb->emu->regs[_CX].q[0] = p->uc_mcontext.regs[11];
                 ejb->emu->regs[_DX].q[0] = p->uc_mcontext.regs[12];
@@ -793,6 +831,34 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 }
                 ejb->emu->ip.q[0] = getX64Address(db, (uintptr_t)pc);
                 ejb->emu->eflags.x64 = p->uc_mcontext.regs[26];
+#elif defined(LA464)
+                ejb->emu->regs[_AX].q[0] = p->uc_mcontext.regs[12];
+                ejb->emu->regs[_CX].q[0] = p->uc_mcontext.regs[13];
+                ejb->emu->regs[_DX].q[0] = p->uc_mcontext.regs[14];
+                ejb->emu->regs[_BX].q[0] = p->uc_mcontext.regs[15];
+                ejb->emu->regs[_SP].q[0] = p->uc_mcontext.regs[16];
+                ejb->emu->regs[_BP].q[0] = p->uc_mcontext.regs[17];
+                ejb->emu->regs[_SI].q[0] = p->uc_mcontext.regs[18];
+                ejb->emu->regs[_DI].q[0] = p->uc_mcontext.regs[19];
+                ejb->emu->regs[_R8].q[0] = p->uc_mcontext.regs[23];
+                ejb->emu->regs[_R9].q[0] = p->uc_mcontext.regs[24];
+                ejb->emu->regs[_R10].q[0] = p->uc_mcontext.regs[25];
+                ejb->emu->regs[_R11].q[0] = p->uc_mcontext.regs[26];
+                ejb->emu->regs[_R12].q[0] = p->uc_mcontext.regs[27];
+                ejb->emu->regs[_R13].q[0] = p->uc_mcontext.regs[28];
+                ejb->emu->regs[_R14].q[0] = p->uc_mcontext.regs[29];
+                ejb->emu->regs[_R15].q[0] = p->uc_mcontext.regs[30];
+                /*if(fpsimd) {
+                    ejb->emu->xmm[0].u128 = fpsimd->vregs[0];
+                    ejb->emu->xmm[1].u128 = fpsimd->vregs[1];
+                    ejb->emu->xmm[2].u128 = fpsimd->vregs[2];
+                    ejb->emu->xmm[3].u128 = fpsimd->vregs[3];
+                }*/
+                ejb->emu->ip.q[0] = getX64Address(db, (uintptr_t)pc);
+                ejb->emu->eflags.x64 = p->uc_mcontext.regs[31];
+#else
+#error  Unsupported architecture
+#endif
                 if(addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) {
                     dynarec_log(LOG_INFO, "Auto-SMC detected, getting out of current Dynablock!\n");
                 } else {
@@ -872,7 +938,8 @@ exit(-1);
             R_RIP = 0x0;
         x64pc = R_RIP;
         rsp = (void*)R_RSP;
-#if defined(__aarch64__) && defined(DYNAREC)
+#if defined(DYNAREC)
+#if defined(ARM64)
         if(db && p->uc_mcontext.regs[0]>0x10000) {
             emu = (x64emu_t*)p->uc_mcontext.regs[0];
         }
@@ -880,7 +947,18 @@ exit(-1);
             x64pc = getX64Address(db, (uintptr_t)pc);
             rsp = (void*)p->uc_mcontext.regs[10+_SP];
         }
-#endif
+#elif defined(LA464)
+        if(db && p->uc_mcontext.regs[4]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.regs[4];
+        }
+        if(db) {
+            x64pc = getX64Address(db, (uintptr_t)pc);
+            rsp = (void*)p->uc_mcontext.regs[12+_SP];
+        }
+#else
+#error Unsupported Architecture
+#endif //arch
+#endif //DYNAREC
         x64name = getAddrFunctionName(x64pc);
         elfheader_t* elf = FindElfAddress(my_context, x64pc);
         if(elf)
@@ -945,7 +1023,13 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     #ifdef DYNAREC
     ucontext_t *p = (ucontext_t *)ucntx;
+    #ifdef ARM64
     void * pc = (void*)p->uc_mcontext.pc;
+    #elif defined(LA464)
+    void * pc = (void*)p->uc_mcontext.__pc;
+    #else
+    #error Unsupported architecture
+    #endif
     dynablock_t* db = FindDynablockFromNativeAddress(pc);
     #else
     void* db = NULL;
