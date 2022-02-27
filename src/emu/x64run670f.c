@@ -20,7 +20,7 @@
 #include "box64context.h"
 #include "bridge.h"
 #ifdef DYNAREC
-#include "../dynarec/arm64_lock.h"
+#include "../dynarec/native_lock.h"
 #endif
 
 #include "modrm.h"

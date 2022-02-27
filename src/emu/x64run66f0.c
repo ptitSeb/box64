@@ -19,7 +19,9 @@
 #include "x87emu_private.h"
 #include "box64context.h"
 #include "bridge.h"
-#include "dynarec/arm64_lock.h"
+#ifdef DYNAREC
+#include "dynarec/native_lock.h"
+#endif
 
 #include "modrm.h"
 
@@ -55,10 +57,10 @@ int Run66F0(x64emu_t *emu, rex_t rex)
                     GETGW;
 #ifdef DYNAREC
                     do {
-                        tmp16u = arm64_lock_read_h(EW);
+                        tmp16u = native_lock_read_h(EW);
                         cmp16(emu, R_AX, tmp16u);
                         if(ACCESS_FLAG(F_ZF)) {
-                            tmp32s = arm64_lock_write_h(EW, GW->word[0]);
+                            tmp32s = native_lock_write_h(EW, GW->word[0]);
                         } else {
                             R_AX = tmp16u;
                             tmp32s = 0;
@@ -89,14 +91,14 @@ int Run66F0(x64emu_t *emu, rex_t rex)
             GETGW;                                                  \
             if(rex.w) {                                             \
                 do {                                                \
-                    tmp64u = arm64_lock_read_dd(ED);                \
+                    tmp64u = native_lock_read_dd(ED);                \
                     tmp64u = OP##64(emu, tmp64u, GD->q[0]);         \
-                } while (arm64_lock_write_dd(ED, tmp64u));          \
+                } while (native_lock_write_dd(ED, tmp64u));          \
             } else {                                                \
                 do {                                                \
-                    tmp16u = arm64_lock_read_h(ED);                 \
+                    tmp16u = native_lock_read_h(ED);                 \
                     tmp16u = OP##16(emu, tmp16u, GW->word[0]);      \
-                } while (arm64_lock_write_d(ED, tmp16u));           \
+                } while (native_lock_write_d(ED, tmp16u));           \
                 if(MODREG)                                          \
                     EW->word[1] = 0;                                \
             }                                                       \
@@ -181,13 +183,13 @@ int Run66F0(x64emu_t *emu, rex_t rex)
                 }
             else
                 switch((nextop>>3)&7) {
-                    case 0: do { tmp16u2 = arm64_lock_read_h(ED); tmp16u2 = add16(emu, tmp16u2, tmp64u);} while(arm64_lock_write_h(ED, tmp16u2)); break;
-                    case 1: do { tmp16u2 = arm64_lock_read_h(ED); tmp16u2 =  or16(emu, tmp16u2, tmp64u);} while(arm64_lock_write_h(ED, tmp16u2)); break;
-                    case 2: do { tmp16u2 = arm64_lock_read_h(ED); tmp16u2 = adc16(emu, tmp16u2, tmp64u);} while(arm64_lock_write_h(ED, tmp16u2)); break;
-                    case 3: do { tmp16u2 = arm64_lock_read_h(ED); tmp16u2 = sbb16(emu, tmp16u2, tmp64u);} while(arm64_lock_write_h(ED, tmp16u2)); break;
-                    case 4: do { tmp16u2 = arm64_lock_read_h(ED); tmp16u2 = and16(emu, tmp16u2, tmp64u);} while(arm64_lock_write_h(ED, tmp16u2)); break;
-                    case 5: do { tmp16u2 = arm64_lock_read_h(ED); tmp16u2 = sub16(emu, tmp16u2, tmp64u);} while(arm64_lock_write_h(ED, tmp16u2)); break;
-                    case 6: do { tmp16u2 = arm64_lock_read_h(ED); tmp16u2 = xor16(emu, tmp16u2, tmp64u);} while(arm64_lock_write_h(ED, tmp16u2)); break;
+                    case 0: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = add16(emu, tmp16u2, tmp64u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 1: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 =  or16(emu, tmp16u2, tmp64u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 2: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = adc16(emu, tmp16u2, tmp64u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 3: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = sbb16(emu, tmp16u2, tmp64u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 4: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = and16(emu, tmp16u2, tmp64u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 5: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = sub16(emu, tmp16u2, tmp64u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 6: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = xor16(emu, tmp16u2, tmp64u);} while(native_lock_write_h(ED, tmp16u2)); break;
                     case 7:                                                 cmp16(emu, ED->word[0], tmp64u); break;
                 }
 #else
@@ -217,29 +219,29 @@ int Run66F0(x64emu_t *emu, rex_t rex)
                             // unaligned
                             do {
                                 tmp64u = ED->q[0] & 0xffffffffffffff00LL;
-                                tmp64u |= arm64_lock_read_b(ED);
+                                tmp64u |= native_lock_read_b(ED);
                                 tmp64u = inc64(emu, tmp64u);
-                            } while(arm64_lock_write_b(ED, tmp64u&0xff));
+                            } while(native_lock_write_b(ED, tmp64u&0xff));
                             ED->q[0] = tmp64u;
                         }
                         else
                             do {
-                                tmp64u = arm64_lock_read_dd(ED);
-                            } while(arm64_lock_write_dd(ED, inc64(emu, tmp64u)));
+                                tmp64u = native_lock_read_dd(ED);
+                            } while(native_lock_write_dd(ED, inc64(emu, tmp64u)));
                     else {
                         if((uintptr_t)ED&1) { 
                             //meh.
                             do {
                                 tmp16u = ED->word[0];
                                 tmp16u &=~0xff;
-                                tmp16u |= arm64_lock_read_b(ED);
+                                tmp16u |= native_lock_read_b(ED);
                                 tmp16u = inc16(emu, tmp16u);
-                        } while(arm64_lock_write_b(ED, tmp16u&0xff));
+                        } while(native_lock_write_b(ED, tmp16u&0xff));
                             ED->word[0] = tmp16u;
                         } else {
                             do {
-                                tmp16u = arm64_lock_read_h(ED);
-                            } while(arm64_lock_write_h(ED, inc16(emu, tmp16u)));
+                                tmp16u = native_lock_read_h(ED);
+                            } while(native_lock_write_h(ED, inc16(emu, tmp16u)));
                         }
                     }
 #else
@@ -259,19 +261,19 @@ int Run66F0(x64emu_t *emu, rex_t rex)
                             // unaligned
                             do {
                                 tmp64u = ED->q[0] & 0xffffffffffffff00LL;
-                                tmp64u |= arm64_lock_read_b(ED);
+                                tmp64u |= native_lock_read_b(ED);
                                 tmp64u = dec64(emu, tmp64u);
-                            } while(arm64_lock_write_b(ED, tmp64u&0xff));
+                            } while(native_lock_write_b(ED, tmp64u&0xff));
                             ED->q[0] = tmp64u;
                         }
                         else
                             do {
-                                tmp64u = arm64_lock_read_dd(ED);
-                            } while(arm64_lock_write_dd(ED, dec64(emu, tmp64u)));
+                                tmp64u = native_lock_read_dd(ED);
+                            } while(native_lock_write_dd(ED, dec64(emu, tmp64u)));
                     else {
                         do {
-                            tmp16u = arm64_lock_read_h(ED);
-                        } while(arm64_lock_write_h(ED, dec16(emu, tmp16u)));
+                            tmp16u = native_lock_read_h(ED);
+                        } while(native_lock_write_h(ED, dec16(emu, tmp16u)));
                     }
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);

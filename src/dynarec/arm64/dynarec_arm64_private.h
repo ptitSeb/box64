@@ -1,7 +1,7 @@
 #ifndef __DYNAREC_ARM_PRIVATE_H_
 #define __DYNAREC_ARM_PRIVATE_H_
 
-#include "dynarec_private.h"
+#include "../dynarec_private.h"
 
 typedef struct x64emu_s x64emu_t;
 typedef struct dynablock_s dynablock_t;
@@ -28,8 +28,8 @@ typedef struct dynarec_arm_s {
     uintptr_t           start;      // start of the block
     uint32_t            isize;      // size in byte of x64 instructions included
     void*               block;      // memory pointer where next instruction is emited
-    uintptr_t           arm_start;  // start of the arm code
-    size_t              arm_size;   // size of emitted arm code
+    uintptr_t           native_start;  // start of the arm code
+    size_t              native_size;   // size of emitted arm code
     int                 state_flags;// actual state for on-demand flags
     uintptr_t           last_ip;    // last set IP in RIP (or NULL if unclean state)
     int8_t              x87cache[8];// cache status for the 8 x87 register behind the fpu stack
@@ -49,7 +49,7 @@ typedef struct dynarec_arm_s {
     int                 next_sz;
     int                 next_cap;
     uintptr_t*          sons_x64;   // the x64 address of potential dynablock sons
-    void**              sons_arm;   // the arm address of potential dynablock sons
+    void**              sons_native;   // the arm address of potential dynablock sons
     int                 sons_size;  // number of potential dynablock sons
     dynablock_t*        dynablock;
 } dynarec_arm_t;

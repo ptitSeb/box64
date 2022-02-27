@@ -16,12 +16,13 @@
 #include "emu/x64run_private.h"
 #include "x64trace.h"
 #include "dynablock.h"
-#include "dynarec_arm64.h"
-#include "dynarec_arm64_private.h"
+#include "dynarec_native.h"
+#include "custommem.h"
+
 #include "arm64_printer.h"
+#include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
-#include "custommem.h"
 
 #ifndef STEP
 #error No STEP defined

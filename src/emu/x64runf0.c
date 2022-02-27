@@ -21,7 +21,7 @@
 #include "my_cpuid.h"
 #include "bridge.h"
 #ifdef DYNAREC
-#include "../dynarec/arm64_lock.h"
+#include "../dynarec/native_lock.h"
 #endif
 
 #include "modrm.h"
@@ -53,9 +53,9 @@ int RunF0(x64emu_t *emu, rex_t rex)
             GETEB(0);                                               \
             GETGB;                                                  \
             do {                                                    \
-                tmp8u = arm64_lock_read_b(EB);                      \
+                tmp8u = native_lock_read_b(EB);                     \
                 tmp8u = OP##8(emu, tmp8u, GB);                      \
-            } while (arm64_lock_write_b(EB, tmp8u));                \
+            } while (native_lock_write_b(EB, tmp8u));               \
             break;                                                  \
         case B+1:                                                   \
             nextop = F8;                                            \
@@ -63,14 +63,14 @@ int RunF0(x64emu_t *emu, rex_t rex)
             GETGD;                                                  \
             if(rex.w) {                                             \
                 do {                                                \
-                    tmp64u = arm64_lock_read_dd(ED);                \
+                    tmp64u = native_lock_read_dd(ED);               \
                     tmp64u = OP##64(emu, tmp64u, GD->q[0]);         \
-                } while (arm64_lock_write_dd(ED, tmp64u));          \
+                } while (native_lock_write_dd(ED, tmp64u));         \
             } else {                                                \
                 do {                                                \
-                    tmp32u = arm64_lock_read_d(ED);                 \
+                    tmp32u = native_lock_read_d(ED);                \
                     tmp32u = OP##32(emu, tmp32u, GD->dword[0]);     \
-                } while (arm64_lock_write_d(ED, tmp32u));           \
+                } while (native_lock_write_d(ED, tmp32u));          \
                 if(MODREG)                                          \
                     ED->dword[1] = 0;                               \
             }                                                       \
@@ -190,14 +190,14 @@ int RunF0(x64emu_t *emu, rex_t rex)
                         }
                     } else
                         do {
-                            tmp64u = arm64_lock_read_dd(ED);
+                            tmp64u = native_lock_read_dd(ED);
                             if(tmp64u & (1LL<<tmp8u)) {
                                 SET_FLAG(F_CF);
                                 tmp32s = 0;
                             } else {
                                 tmp64u |= (1LL<<tmp8u);
                                 CLEAR_FLAG(F_CF);
-                                tmp32s = arm64_lock_write_dd(ED, tmp64u);
+                                tmp32s = native_lock_write_dd(ED, tmp64u);
                             }
                         } while(tmp32s);
                 } else {
@@ -212,14 +212,14 @@ int RunF0(x64emu_t *emu, rex_t rex)
                         ED->dword[1] = 0;
                     } else
                         do {
-                            tmp32u = arm64_lock_read_d(ED);
+                            tmp32u = native_lock_read_d(ED);
                             if(tmp32u & (1<<tmp8u)) {
                                 SET_FLAG(F_CF);
                                 tmp32s = 0;
                             } else {
                                 tmp32u |= (1<<tmp8u);
                                 CLEAR_FLAG(F_CF);
-                                tmp32s = arm64_lock_write_d(ED, tmp32u);
+                                tmp32s = native_lock_write_d(ED, tmp32u);
                             }
                         } while(tmp32s);
                 }
@@ -255,10 +255,10 @@ int RunF0(x64emu_t *emu, rex_t rex)
                     GETEB(0);
 #ifdef DYNAREC
                     do {
-                        tmp8u = arm64_lock_read_b(EB);
+                        tmp8u = native_lock_read_b(EB);
                         cmp8(emu, R_AL, tmp8u);
                         if(ACCESS_FLAG(F_ZF)) {
-                            tmp32s = arm64_lock_write_b(EB, GB);
+                            tmp32s = native_lock_write_b(EB, GB);
                         } else {
                             R_AL = tmp8u;
                             tmp32s = 0;
@@ -284,10 +284,10 @@ int RunF0(x64emu_t *emu, rex_t rex)
                         if(((uintptr_t)ED)&7) {
                             do {
                                 tmp64u = ED->q[0] & ~0xffLL;
-                                tmp64u |= arm64_lock_read_b(ED);
+                                tmp64u |= native_lock_read_b(ED);
                                 cmp64(emu, R_RAX, tmp64u);
                                 if(ACCESS_FLAG(F_ZF)) {
-                                    tmp32s = arm64_lock_write_b(ED, GD->q[0]&0xff);
+                                    tmp32s = native_lock_write_b(ED, GD->q[0]&0xff);
                                     if(!tmp32s)
                                         ED->q[0] = GD->q[0];
                                 } else {
@@ -297,10 +297,10 @@ int RunF0(x64emu_t *emu, rex_t rex)
                             } while(tmp32s);
                         } else
                             do {
-                                tmp64u = arm64_lock_read_dd(ED);
+                                tmp64u = native_lock_read_dd(ED);
                                 cmp64(emu, R_RAX, tmp64u);
                                 if(ACCESS_FLAG(F_ZF)) {
-                                    tmp32s = arm64_lock_write_dd(ED, GD->q[0]);
+                                    tmp32s = native_lock_write_dd(ED, GD->q[0]);
                                 } else {
                                     R_RAX = tmp64u;
                                     tmp32s = 0;
@@ -308,10 +308,10 @@ int RunF0(x64emu_t *emu, rex_t rex)
                             } while(tmp32s);
                     else {
                         do {
-                            tmp32u = arm64_lock_read_d(ED);
+                            tmp32u = native_lock_read_d(ED);
                             cmp32(emu, R_EAX, tmp32u);
                             if(ACCESS_FLAG(F_ZF)) {
-                                tmp32s = arm64_lock_write_d(ED, GD->dword[0]);
+                                tmp32s = native_lock_write_d(ED, GD->dword[0]);
                             } else {
                                 R_EAX = tmp32u;
                                 tmp32s = 0;
@@ -359,11 +359,11 @@ int RunF0(x64emu_t *emu, rex_t rex)
 #ifdef DYNAREC
                     if(rex.w)
                         do {
-                            tmp64u = arm64_lock_read_dd(ED);
+                            tmp64u = native_lock_read_dd(ED);
                             if(tmp64u & (1LL<<tmp8u)) {
                                 SET_FLAG(F_CF);
                                 tmp64u ^= (1LL<<tmp8u);
-                                tmp32s = arm64_lock_write_dd(ED, tmp64u);
+                                tmp32s = native_lock_write_dd(ED, tmp64u);
                             } else {
                                 CLEAR_FLAG(F_CF);
                                 tmp32s = 0;
@@ -371,11 +371,11 @@ int RunF0(x64emu_t *emu, rex_t rex)
                         } while(tmp32s);
                     else {
                         do {
-                            tmp32u = arm64_lock_read_d(ED);
+                            tmp32u = native_lock_read_d(ED);
                             if(tmp32u & (1<<tmp8u)) {
                                 SET_FLAG(F_CF);
                                 tmp32u ^= (1<<tmp8u);
-                                tmp32s = arm64_lock_write_d(ED, tmp32u);
+                                tmp32s = native_lock_write_d(ED, tmp32u);
                             } else {
                                 CLEAR_FLAG(F_CF);
                                 tmp32s = 0;
@@ -434,26 +434,26 @@ int RunF0(x64emu_t *emu, rex_t rex)
                                 if(rex.w) {
                                     tmp8u&=63;
                                     do {
-                                        tmp64u = arm64_lock_read_dd(ED);
+                                        tmp64u = native_lock_read_dd(ED);
                                         if(tmp64u & (1LL<<tmp8u)) {
                                             SET_FLAG(F_CF);
                                             tmp32s = 0;
                                         } else {
                                             tmp64u ^= (1LL<<tmp8u);
-                                            tmp32s = arm64_lock_write_dd(ED, tmp64u);
+                                            tmp32s = native_lock_write_dd(ED, tmp64u);
                                             CLEAR_FLAG(F_CF);
                                         }
                                     } while(tmp32s);
                                 } else {
                                     tmp8u&=31;
                                     do {
-                                        tmp32u = arm64_lock_read_d(ED);
+                                        tmp32u = native_lock_read_d(ED);
                                         if(tmp32u & (1<<tmp8u)) {
                                             SET_FLAG(F_CF);
                                             tmp32s = 0;
                                         } else {
                                             tmp32u ^= (1<<tmp8u);
-                                            tmp32s = arm64_lock_write_d(ED, tmp32u);
+                                            tmp32s = native_lock_write_d(ED, tmp32u);
                                             CLEAR_FLAG(F_CF);
                                         }
                                     } while(tmp32s);
@@ -488,11 +488,11 @@ int RunF0(x64emu_t *emu, rex_t rex)
                                 if(rex.w) {
                                     do {
                                         tmp8u&=63;
-                                        tmp64u = arm64_lock_read_dd(ED);
+                                        tmp64u = native_lock_read_dd(ED);
                                         if(tmp64u & (1LL<<tmp8u)) {
                                             SET_FLAG(F_CF);
                                             tmp64u ^= (1LL<<tmp8u);
-                                            tmp32s = arm64_lock_write_dd(ED, tmp64u);
+                                            tmp32s = native_lock_write_dd(ED, tmp64u);
                                         } else {
                                             tmp32s = 0;
                                             CLEAR_FLAG(F_CF);
@@ -501,11 +501,11 @@ int RunF0(x64emu_t *emu, rex_t rex)
                                 } else {
                                     tmp8u&=31;
                                     do {
-                                        tmp32u = arm64_lock_read_d(ED);
+                                        tmp32u = native_lock_read_d(ED);
                                         if(tmp32u & (1<<tmp8u)) {
                                             SET_FLAG(F_CF);
                                             tmp32u ^= (1<<tmp8u);
-                                            tmp32s = arm64_lock_write_d(ED, tmp32u);
+                                            tmp32s = native_lock_write_d(ED, tmp32u);
                                         } else {
                                             CLEAR_FLAG(F_CF);
                                             tmp32s = 0;
@@ -540,24 +540,24 @@ int RunF0(x64emu_t *emu, rex_t rex)
                                 if(rex.w) {
                                     tmp8u&=63;
                                     do {
-                                        tmp64u = arm64_lock_read_dd(ED);
+                                        tmp64u = native_lock_read_dd(ED);
                                         if(tmp64u & (1LL<<tmp8u))
                                             SET_FLAG(F_CF);
                                         else
                                             CLEAR_FLAG(F_CF);
                                         tmp64u ^= (1LL<<tmp8u);
-                                        tmp32s = arm64_lock_write_dd(ED, tmp64u);
+                                        tmp32s = native_lock_write_dd(ED, tmp64u);
                                     } while(tmp32s);
                                 } else {
                                     tmp8u&=31;
                                     do {
-                                        tmp32u = arm64_lock_read_d(ED);
+                                        tmp32u = native_lock_read_d(ED);
                                         if(tmp32u & (1<<tmp8u))
                                             SET_FLAG(F_CF);
                                         else
                                             CLEAR_FLAG(F_CF);
                                         tmp32u ^= (1<<tmp8u);
-                                        tmp32s = arm64_lock_write_d(ED, tmp32u);
+                                        tmp32s = native_lock_write_d(ED, tmp32u);
                                     } while(tmp32s);
                                 }
 #else
@@ -592,9 +592,9 @@ int RunF0(x64emu_t *emu, rex_t rex)
                     GETGB;
 #ifdef DYNAREC
                     do {
-                        tmp8u = arm64_lock_read_b(EB);
+                        tmp8u = native_lock_read_b(EB);
                         tmp8u2 = add8(emu, tmp8u, GB);
-                    } while(arm64_lock_write_b(EB, tmp8u2));
+                    } while(native_lock_write_b(EB, tmp8u2));
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     tmp8u = add8(emu, EB->byte[0], GB);
@@ -610,23 +610,23 @@ int RunF0(x64emu_t *emu, rex_t rex)
 #ifdef DYNAREC
                     if(rex.w) {
                         do {
-                            tmp64u = arm64_lock_read_dd(ED);
+                            tmp64u = native_lock_read_dd(ED);
                             tmp64u2 = add64(emu, tmp64u, GD->q[0]);
-                        } while(arm64_lock_write_dd(ED, tmp64u2));
+                        } while(native_lock_write_dd(ED, tmp64u2));
                         GD->q[0] = tmp64u;
                     } else {
                         if(((uintptr_t)ED)&3) {
                             do {
                                 tmp32u = ED->dword[0] & ~0xff;
-                                tmp32u |= arm64_lock_read_b(ED);
+                                tmp32u |= native_lock_read_b(ED);
                                 tmp32u2 = add32(emu, tmp32u, GD->dword[0]);
-                            } while(arm64_lock_write_b(ED, tmp32u2&0xff));
+                            } while(native_lock_write_b(ED, tmp32u2&0xff));
                             ED->dword[0] = tmp32u2;
                         } else {
                             do {
-                                tmp32u = arm64_lock_read_d(ED);
+                                tmp32u = native_lock_read_d(ED);
                                 tmp32u2 = add32(emu, tmp32u, GD->dword[0]);
-                            } while(arm64_lock_write_d(ED, tmp32u2));
+                            } while(native_lock_write_d(ED, tmp32u2));
                         }
                         GD->q[0] = tmp32u;
                         if(MODREG)
@@ -660,10 +660,10 @@ int RunF0(x64emu_t *emu, rex_t rex)
 #ifdef DYNAREC
                             if(rex.w)
                                 do {
-                                    arm64_lock_read_dq(&tmp64u, &tmp64u2, ED);
+                                    native_lock_read_dq(&tmp64u, &tmp64u2, ED);
                                     if(R_RAX == tmp64u && R_RDX == tmp64u2) {
                                         SET_FLAG(F_ZF);
-                                        tmp32s = arm64_lock_write_dq(R_RBX, R_RCX, ED);
+                                        tmp32s = native_lock_write_dq(R_RBX, R_RCX, ED);
                                     } else {
                                         CLEAR_FLAG(F_ZF);
                                         R_RAX = tmp64u;
@@ -673,10 +673,10 @@ int RunF0(x64emu_t *emu, rex_t rex)
                                 } while(tmp32s);
                             else
                                 do {
-                                    tmp64u = arm64_lock_read_dd(ED);
+                                    tmp64u = native_lock_read_dd(ED);
                                     if((R_EAX == (tmp64u&0xffffffff)) && (R_EDX == ((tmp64u>>32)&0xffffffff))) {
                                         SET_FLAG(F_ZF);
-                                        tmp32s = arm64_lock_write_dd(ED, R_EBX|(((uint64_t)R_ECX)<<32));
+                                        tmp32s = native_lock_write_dd(ED, R_EBX|(((uint64_t)R_ECX)<<32));
                                     } else {
                                         CLEAR_FLAG(F_ZF);
                                         R_RAX = tmp64u&0xffffffff;
@@ -733,13 +733,13 @@ int RunF0(x64emu_t *emu, rex_t rex)
             tmp8u = F8;
 #ifdef DYNAREC
             switch((nextop>>3)&7) {
-                case 0: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = add8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
-                case 1: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 =  or8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
-                case 2: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = adc8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
-                case 3: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = sbb8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
-                case 4: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = and8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
-                case 5: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = sub8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
-                case 6: do { tmp8u2 = arm64_lock_read_b(EB); tmp8u2 = xor8(emu, tmp8u2, tmp8u);} while(arm64_lock_write_b(EB, tmp8u2)); break;
+                case 0: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = add8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
+                case 1: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 =  or8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
+                case 2: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = adc8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
+                case 3: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = sbb8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
+                case 4: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = and8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
+                case 5: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = sub8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
+                case 6: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = xor8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
                 case 7:               cmp8(emu, EB->byte[0], tmp8u); break;
             }
 #else
@@ -769,13 +769,13 @@ int RunF0(x64emu_t *emu, rex_t rex)
 #ifdef DYNAREC
             if(rex.w) {
                 switch((nextop>>3)&7) {
-                    case 0: do { tmp64u2 = arm64_lock_read_dd(ED); tmp64u2 = add64(emu, tmp64u2, tmp64u);} while(arm64_lock_write_dd(ED, tmp64u2)); break;
-                    case 1: do { tmp64u2 = arm64_lock_read_dd(ED); tmp64u2 =  or64(emu, tmp64u2, tmp64u);} while(arm64_lock_write_dd(ED, tmp64u2)); break;
-                    case 2: do { tmp64u2 = arm64_lock_read_dd(ED); tmp64u2 = adc64(emu, tmp64u2, tmp64u);} while(arm64_lock_write_dd(ED, tmp64u2)); break;
-                    case 3: do { tmp64u2 = arm64_lock_read_dd(ED); tmp64u2 = sbb64(emu, tmp64u2, tmp64u);} while(arm64_lock_write_dd(ED, tmp64u2)); break;
-                    case 4: do { tmp64u2 = arm64_lock_read_dd(ED); tmp64u2 = and64(emu, tmp64u2, tmp64u);} while(arm64_lock_write_dd(ED, tmp64u2)); break;
-                    case 5: do { tmp64u2 = arm64_lock_read_dd(ED); tmp64u2 = sub64(emu, tmp64u2, tmp64u);} while(arm64_lock_write_dd(ED, tmp64u2)); break;
-                    case 6: do { tmp64u2 = arm64_lock_read_dd(ED); tmp64u2 = xor64(emu, tmp64u2, tmp64u);} while(arm64_lock_write_dd(ED, tmp64u2)); break;
+                    case 0: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = add64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
+                    case 1: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 =  or64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
+                    case 2: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = adc64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
+                    case 3: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = sbb64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
+                    case 4: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = and64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
+                    case 5: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = sub64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
+                    case 6: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = xor64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
                     case 7:                cmp64(emu, ED->q[0], tmp64u); break;
                 }
             } else {
@@ -792,13 +792,13 @@ int RunF0(x64emu_t *emu, rex_t rex)
                     }
                 else
                     switch((nextop>>3)&7) {
-                        case 0: do { tmp32u2 = arm64_lock_read_d(ED); tmp32u2 = add32(emu, tmp32u2, tmp64u);} while(arm64_lock_write_d(ED, tmp32u2)); break;
-                        case 1: do { tmp32u2 = arm64_lock_read_d(ED); tmp32u2 =  or32(emu, tmp32u2, tmp64u);} while(arm64_lock_write_d(ED, tmp32u2)); break;
-                        case 2: do { tmp32u2 = arm64_lock_read_d(ED); tmp32u2 = adc32(emu, tmp32u2, tmp64u);} while(arm64_lock_write_d(ED, tmp32u2)); break;
-                        case 3: do { tmp32u2 = arm64_lock_read_d(ED); tmp32u2 = sbb32(emu, tmp32u2, tmp64u);} while(arm64_lock_write_d(ED, tmp32u2)); break;
-                        case 4: do { tmp32u2 = arm64_lock_read_d(ED); tmp32u2 = and32(emu, tmp32u2, tmp64u);} while(arm64_lock_write_d(ED, tmp32u2)); break;
-                        case 5: do { tmp32u2 = arm64_lock_read_d(ED); tmp32u2 = sub32(emu, tmp32u2, tmp64u);} while(arm64_lock_write_d(ED, tmp32u2)); break;
-                        case 6: do { tmp32u2 = arm64_lock_read_d(ED); tmp32u2 = xor32(emu, tmp32u2, tmp64u);} while(arm64_lock_write_d(ED, tmp32u2)); break;
+                        case 0: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 = add32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
+                        case 1: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 =  or32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
+                        case 2: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 = adc32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
+                        case 3: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 = sbb32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
+                        case 4: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 = and32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
+                        case 5: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 = sub32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
+                        case 6: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 = xor32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
                         case 7:                                                 cmp32(emu, ED->dword[0], tmp64u); break;
                     }
             }
@@ -859,11 +859,11 @@ int RunF0(x64emu_t *emu, rex_t rex)
                 }
             } else {
                 if(rex.w) {
-                    GD->q[0] = arm64_lock_xchg(ED, GD->q[0]);
+                    GD->q[0] = native_lock_xchg(ED, GD->q[0]);
                 } else {
                     do {
-                        tmp32u = arm64_lock_read_d(ED);
-                    } while(arm64_lock_write_d(ED, GD->dword[0]));
+                        tmp32u = native_lock_read_d(ED);
+                    } while(native_lock_write_d(ED, GD->dword[0]));
                     GD->q[0] = tmp32u;
                 }
             }
@@ -897,29 +897,29 @@ int RunF0(x64emu_t *emu, rex_t rex)
                             // unaligned
                             do {
                                 tmp64u = ED->q[0] & 0xffffffffffffff00LL;
-                                tmp64u |= arm64_lock_read_b(ED);
+                                tmp64u |= native_lock_read_b(ED);
                                 tmp64u = inc64(emu, tmp64u);
-                            } while(arm64_lock_write_b(ED, tmp64u&0xff));
+                            } while(native_lock_write_b(ED, tmp64u&0xff));
                             ED->q[0] = tmp64u;
                         }
                         else
                             do {
-                                tmp64u = arm64_lock_read_dd(ED);
-                            } while(arm64_lock_write_dd(ED, inc64(emu, tmp64u)));
+                                tmp64u = native_lock_read_dd(ED);
+                            } while(native_lock_write_dd(ED, inc64(emu, tmp64u)));
                     else {
                         if((uintptr_t)ED&3) { 
                             //meh.
                             do {
                                 tmp32u = ED->dword[0];
                                 tmp32u &=~0xff;
-                                tmp32u |= arm64_lock_read_b(ED);
+                                tmp32u |= native_lock_read_b(ED);
                                 tmp32u = inc32(emu, tmp32u);
-                        } while(arm64_lock_write_b(ED, tmp32u&0xff));
+                        } while(native_lock_write_b(ED, tmp32u&0xff));
                             ED->dword[0] = tmp32u;
                         } else {
                             do {
-                                tmp32u = arm64_lock_read_d(ED);
-                            } while(arm64_lock_write_d(ED, inc32(emu, tmp32u)));
+                                tmp32u = native_lock_read_d(ED);
+                            } while(native_lock_write_d(ED, inc32(emu, tmp32u)));
                         }
                         if(MODREG) ED->dword[1] = 0;
                     }
@@ -943,19 +943,19 @@ int RunF0(x64emu_t *emu, rex_t rex)
                             // unaligned
                             do {
                                 tmp64u = ED->q[0] & 0xffffffffffffff00LL;
-                                tmp64u |= arm64_lock_read_b(ED);
+                                tmp64u |= native_lock_read_b(ED);
                                 tmp64u = dec64(emu, tmp64u);
-                            } while(arm64_lock_write_b(ED, tmp64u&0xff));
+                            } while(native_lock_write_b(ED, tmp64u&0xff));
                             ED->q[0] = tmp64u;
                         }
                         else
                             do {
-                                tmp64u = arm64_lock_read_dd(ED);
-                            } while(arm64_lock_write_dd(ED, dec64(emu, tmp64u)));
+                                tmp64u = native_lock_read_dd(ED);
+                            } while(native_lock_write_dd(ED, dec64(emu, tmp64u)));
                     else {
                         do {
-                            tmp32u = arm64_lock_read_d(ED);
-                        } while(arm64_lock_write_d(ED, dec32(emu, tmp32u)));
+                            tmp32u = native_lock_read_d(ED);
+                        } while(native_lock_write_d(ED, dec32(emu, tmp32u)));
                         if(MODREG) ED->dword[1] = 0;
                     }
 #else

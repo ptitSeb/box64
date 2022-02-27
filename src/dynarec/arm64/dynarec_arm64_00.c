@@ -17,10 +17,10 @@
 #include "bridge.h"
 #include "emu/x64run_private.h"
 #include "x64trace.h"
-#include "dynarec_arm64.h"
-#include "dynarec_arm64_private.h"
-#include "arm64_printer.h"
+#include "dynarec_native.h"
 
+#include "arm64_printer.h"
+#include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
@@ -644,12 +644,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETFLAGS;   \
             if(dyn->insts[ninst].x64.jmp_insts==-1) {   \
                 /* out of the block */                  \
-                i32 = dyn->insts[ninst+1].address-(dyn->arm_size); \
+                i32 = dyn->insts[ninst+1].address-(dyn->native_size); \
                 Bcond(NO, i32);     \
                 jump_to_next(dyn, addr+i8, 0, ninst); \
             } else {    \
                 /* inside the block */  \
-                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
+                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
                 Bcond(YES, i32);    \
             }
 
@@ -2001,12 +2001,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             JUMP(addr+i8);                                              \
             if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
                 /* out of the block */                              \
-                i32 = dyn->insts[ninst+1].address-(dyn->arm_size);  \
+                i32 = dyn->insts[ninst+1].address-(dyn->native_size);  \
                 if(Z) {CBNZx(xRCX, i32);} else {CBZx(xRCX, i32);};  \
                 jump_to_next(dyn, addr+i8, 0, ninst);               \
             } else {                                                \
                 /* inside the block */                              \
-                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);    \
+                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
                 if(Z) {CBZx(xRCX, i32);} else {CBNZx(xRCX, i32);};  \
             }
         case 0xE0:
@@ -2129,7 +2129,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 jump_to_next(dyn, addr+i32, 0, ninst);
             } else {
                 // inside the block
-                tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->arm_size);
+                tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);
                 if(tmp==4) {
                     NOP;
                 } else {

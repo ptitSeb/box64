@@ -15,13 +15,13 @@
 #include "callback.h"
 #include "emu/x64run_private.h"
 #include "x64trace.h"
-#include "dynarec_arm64.h"
-#include "dynarec_arm64_private.h"
-#include "dynablock_private.h"
-#include "arm64_printer.h"
+#include "dynarec_native.h"
+#include "../dynablock_private.h"
 #include "../tools/bridge_private.h"
 #include "custommem.h"
 
+#include "arm64_printer.h"
+#include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 

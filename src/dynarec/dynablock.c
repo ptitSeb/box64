@@ -19,12 +19,10 @@
 #include "dynablock_private.h"
 #include "dynarec_private.h"
 #include "elfloader.h"
-#ifdef ARM64
-#include "dynarec_arm64.h"
-#include "arm64_lock.h"
-#else
-#error Unsupported architecture!
-#endif
+
+#include "dynarec_native.h"
+#include "native_lock.h"
+
 #include "custommem.h"
 #include "khash.h"
 
@@ -74,13 +72,13 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         if(db->parent->direct) {
             uintptr_t addr = (uintptr_t)db->x64_addr;
             if(addr>=startdb && addr<enddb)
-                arm64_lock_xchg(&db->parent->direct[addr-startdb], 0);   // secured write
+                native_lock_xchg(&db->parent->direct[addr-startdb], 0);   // secured write
         }
         // remove jumptable
         setJumpTableDefault64(db->x64_addr);
         // remove and free the sons
         for (int i=0; i<db->sons_size; ++i) {
-            dynablock_t *son = (dynablock_t*)arm64_lock_xchg(&db->sons[i], 0);
+            dynablock_t *son = (dynablock_t*)native_lock_xchg(&db->sons[i], 0);
             FreeDynablock(son, 0);
         }
         // only the father free the DynarecMap
@@ -189,7 +187,7 @@ int FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t si
             end = enddb;
         if(end>startdb && start<enddb)
             for(uintptr_t i = start; i<end; ++i) {
-                db = (dynablock_t*)arm64_lock_xchg(&dynablocks->direct[i-startdb], 0);
+                db = (dynablock_t*)native_lock_xchg(&dynablocks->direct[i-startdb], 0);
                 if(db) {
                     if(db->father)
                         db = db->father;
@@ -274,7 +272,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
     pthread_mutex_lock(&my_context->mutex_dyndump);
     if(!dynablocks->direct) {
         dynablock_t** p = (dynablock_t**)calloc(dynablocks->textsz, sizeof(dynablock_t*));
-        if(arm64_lock_storeifnull(&dynablocks->direct, p)!=p)
+        if(native_lock_storeifnull(&dynablocks->direct, p)!=p)
             free(p);    // someone already create the direct array, too late...
     }
 
@@ -283,7 +281,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
 
     block = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     block->parent = dynablocks; 
-    dynablock_t* tmp = (dynablock_t*)arm64_lock_storeifnull(&dynablocks->direct[addr-dynablocks->text], block);
+    dynablock_t* tmp = (dynablock_t*)native_lock_storeifnull(&dynablocks->direct[addr-dynablocks->text], block);
     if(tmp !=  block) {
         // a block appeard!
         pthread_mutex_unlock(&my_context->mutex_dyndump);
@@ -353,7 +351,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         pthread_mutex_unlock(&my_context->mutex_dyndump);
     if(!ret) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
-        void* old = (void*)arm64_lock_storeifref(&dynablocks->direct[addr-dynablocks->text], 0, block);
+        void* old = (void*)native_lock_storeifref(&dynablocks->direct[addr-dynablocks->text], 0, block);
         if(old!=block && old) {// put it back in place, strange things are happening here!
             dynarec_log(LOG_INFO, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);
             // doing nothing else, the block has not be writen

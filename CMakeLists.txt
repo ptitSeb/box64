@@ -132,6 +132,10 @@ if(ARM_DYNAREC)
     add_definitions(-DDYNAREC)
     add_definitions(-DARM64)
     enable_language(ASM)
+    include_directories("${BOX64_ROOT}/src/dynarec/arm64")
+    set(DYNAREC ON)
+else()
+    set(DYNAREC OFF)
 endif()
 
 set(BOX64_ROOT ${CMAKE_SOURCE_DIR})
@@ -403,77 +407,84 @@ add_custom_command(
 add_custom_target(WRAPPERS DEPENDS "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt")
 #add_custom_target(PRINTER DEPENDS "${BOX64_ROOT}/src/dynarec/last_run.txt")
 
-if(ARM_DYNAREC)
+if(DYNAREC)
     set(DYNAREC_SRC
         "${BOX64_ROOT}/src/dynarec/dynablock.c"
+        "${BOX64_ROOT}/src/dynarec/dynarec_native.c"
+    )
+endif()
 
-        "${BOX64_ROOT}/src/dynarec/dynarec_arm64.c"
-        "${BOX64_ROOT}/src/dynarec/dynarec_arm64_functions.c"
-        "${BOX64_ROOT}/src/dynarec/arm64_printer.c"
+if(ARM_DYNAREC)
+    set(DYNAREC_SRC
+        ${DYNAREC_SRC}
 
-        "${BOX64_ROOT}/src/dynarec/arm64_prolog.S"
-        "${BOX64_ROOT}/src/dynarec/arm64_epilog.S"
-        "${BOX64_ROOT}/src/dynarec/arm64_next.S"
-        "${BOX64_ROOT}/src/dynarec/arm64_lock.S"
+        "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_functions.c"
+        "${BOX64_ROOT}/src/dynarec/arm64/arm64_printer.c"
+
+        "${BOX64_ROOT}/src/dynarec/arm64/arm64_prolog.S"
+        "${BOX64_ROOT}/src/dynarec/arm64/arm64_epilog.S"
+        "${BOX64_ROOT}/src/dynarec/arm64/arm64_next.S"
+        "${BOX64_ROOT}/src/dynarec/arm64/arm64_lock.S"
     )
 
     set(DYNAREC_PASS
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_helper.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_emit_tests.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_emit_math.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_emit_logic.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_emit_shift.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_pass.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_00.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_0f.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_64.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_65.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_66.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_67.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_d8.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_d9.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_da.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_db.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_dc.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_dd.c"
-    #"${BOX64_ROOT}/src/dynarec/dynarec_arm64_de.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_df.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_f0.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_660f.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_6664.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_f20f.c"
-    "${BOX64_ROOT}/src/dynarec/dynarec_arm64_f30f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_helper.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_emit_tests.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_emit_math.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_emit_logic.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_emit_shift.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_pass.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_00.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_0f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_64.c"
+    #"${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_65.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_66.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_67.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_d8.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_d9.c"
+    #"${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_da.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_db.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_dc.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_dd.c"
+    #"${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_de.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_df.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f0.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_660f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_6664.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f20f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f30f.c"
     )
+endif()
 
+if(DYNAREC)
     set(DYNAREC_PASS "${BOX64_ROOT}/src/wrapped/generated/wrapper.h" ${DYNAREC_PASS})
 
-    add_library(dynarec_arm OBJECT ${DYNAREC_SRC})
+    add_library(dynarec_native OBJECT ${DYNAREC_SRC})
 
-    add_library(arm64_pass0 OBJECT ${DYNAREC_PASS})
-    set_target_properties(arm64_pass0 PROPERTIES COMPILE_FLAGS "-DSTEP=0")
-    add_library(arm64_pass1 OBJECT ${DYNAREC_PASS})
-    set_target_properties(arm64_pass1 PROPERTIES COMPILE_FLAGS "-DSTEP=1")
-    add_library(arm64_pass2 OBJECT ${DYNAREC_PASS})
-    set_target_properties(arm64_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
-    add_library(arm64_pass3 OBJECT ${DYNAREC_PASS})
-    set_target_properties(arm64_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
-    add_dependencies(arm64_pass0 WRAPPERS)
-    add_dependencies(arm64_pass1 WRAPPERS)
-    add_dependencies(arm64_pass2 WRAPPERS)
-    add_dependencies(arm64_pass3 WRAPPERS)
+    add_library(native_pass0 OBJECT ${DYNAREC_PASS})
+    set_target_properties(native_pass0 PROPERTIES COMPILE_FLAGS "-DSTEP=0")
+    add_library(native_pass1 OBJECT ${DYNAREC_PASS})
+    set_target_properties(native_pass1 PROPERTIES COMPILE_FLAGS "-DSTEP=1")
+    add_library(native_pass2 OBJECT ${DYNAREC_PASS})
+    set_target_properties(native_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
+    add_library(native_pass3 OBJECT ${DYNAREC_PASS})
+    set_target_properties(native_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
+    add_dependencies(native_pass0 WRAPPERS)
+    add_dependencies(native_pass1 WRAPPERS)
+    add_dependencies(native_pass2 WRAPPERS)
+    add_dependencies(native_pass3 WRAPPERS)
 
     add_library(dynarec STATIC
-        $<TARGET_OBJECTS:dynarec_arm>
-        $<TARGET_OBJECTS:arm64_pass0>
-        $<TARGET_OBJECTS:arm64_pass1>
-        $<TARGET_OBJECTS:arm64_pass2>
-        $<TARGET_OBJECTS:arm64_pass3>
+        $<TARGET_OBJECTS:dynarec_native>
+        $<TARGET_OBJECTS:native_pass0>
+        $<TARGET_OBJECTS:native_pass1>
+        $<TARGET_OBJECTS:native_pass2>
+        $<TARGET_OBJECTS:native_pass3>
     )
-
 endif()
 
 # creates git_head.h
-if(ARM_DYNAREC)
+if(DYNAREC)
     add_custom_command(
         OUTPUT "${BOX64_ROOT}/src/git_head.h"
         COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""

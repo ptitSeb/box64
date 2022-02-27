@@ -312,138 +312,138 @@
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
 #define CALL_S(F, ret) call_c(dyn, ninst, F, x7, ret, 0, 0)
 
-#define MARK    dyn->insts[ninst].mark = dyn->arm_size
+#define MARK    dyn->insts[ninst].mark = dyn->native_size
 #define GETMARK dyn->insts[ninst].mark
-#define MARK2   dyn->insts[ninst].mark2 = dyn->arm_size
+#define MARK2   dyn->insts[ninst].mark2 = dyn->native_size
 #define GETMARK2 dyn->insts[ninst].mark2
-#define MARK3   dyn->insts[ninst].mark3 = dyn->arm_size
+#define MARK3   dyn->insts[ninst].mark3 = dyn->native_size
 #define GETMARK3 dyn->insts[ninst].mark3
-#define MARKF   dyn->insts[ninst].markf = dyn->arm_size
+#define MARKF   dyn->insts[ninst].markf = dyn->native_size
 #define GETMARKF dyn->insts[ninst].markf
-#define MARKSEG dyn->insts[ninst].markseg = dyn->arm_size
+#define MARKSEG dyn->insts[ninst].markseg = dyn->native_size
 #define GETMARKSEG dyn->insts[ninst].markseg
-#define MARKLOCK dyn->insts[ninst].marklock = dyn->arm_size
+#define MARKLOCK dyn->insts[ninst].marklock = dyn->native_size
 #define GETMARKLOCK dyn->insts[ninst].marklock
 
 // Branch to MARK if cond (use j64)
 #define B_MARK(cond)                \
-    j64 = GETMARK-(dyn->arm_size);  \
+    j64 = GETMARK-(dyn->native_size);  \
     Bcond(cond, j64)
 // Branch to MARK unconditionnal (use j64)
 #define B_MARK_nocond               \
-    j64 = GETMARK-(dyn->arm_size);  \
+    j64 = GETMARK-(dyn->native_size);  \
     B(j64)
 // Branch to MARK if reg is 0 (use j64)
 #define CBZxw_MARK(reg)             \
-    j64 = GETMARK-(dyn->arm_size);  \
+    j64 = GETMARK-(dyn->native_size);  \
     CBZxw(reg, j64)
 // Branch to MARK if reg is not 0 (use j64)
 #define CBNZx_MARK(reg)             \
-    j64 = GETMARK-(dyn->arm_size);  \
+    j64 = GETMARK-(dyn->native_size);  \
     CBNZx(reg, j64)
 // Branch to MARK if reg is not 0 (use j64)
 #define CBNZw_MARK(reg)             \
-    j64 = GETMARK-(dyn->arm_size);  \
+    j64 = GETMARK-(dyn->native_size);  \
     CBNZw(reg, j64)
 // Test bit N of A and branch to MARK if not set
 #define TBZ_MARK(A, N)              \
-    j64 = GETMARK-(dyn->arm_size);  \
+    j64 = GETMARK-(dyn->native_size);  \
     TBZ(A, N, j64)
 // Test bit N of A and branch to MARK if set
 #define TBNZ_MARK(A, N)             \
-    j64 = GETMARK-(dyn->arm_size);  \
+    j64 = GETMARK-(dyn->native_size);  \
     TBNZ(A, N, j64)
 // Branch to MARK2 if cond (use j64)
 #define B_MARK2(cond)               \
-    j64 = GETMARK2-(dyn->arm_size); \
+    j64 = GETMARK2-(dyn->native_size); \
     Bcond(cond, j64)
 // Branch to MARK2 unconditionnal (use j64)
 #define B_MARK2_nocond              \
-    j64 = GETMARK2-(dyn->arm_size); \
+    j64 = GETMARK2-(dyn->native_size); \
     B(j64)
 // Branch to MARK2 if reg is not 0 (use j64)
 #define CBNZx_MARK2(reg)            \
-    j64 = GETMARK2-(dyn->arm_size); \
+    j64 = GETMARK2-(dyn->native_size); \
     CBNZx(reg, j64)
 // Test bit N of A and branch to MARK2 if set
 #define TBNZ_MARK2(A, N)            \
-    j64 = GETMARK2-(dyn->arm_size); \
+    j64 = GETMARK2-(dyn->native_size); \
     TBNZ(A, N, j64)
 // Branch to MARK3 if cond (use j64)
 #define B_MARK3(cond)               \
-    j64 = GETMARK3-(dyn->arm_size); \
+    j64 = GETMARK3-(dyn->native_size); \
     Bcond(cond, j64)
 // Test bit N of A and branch to MARK3 if not set
 #define TBZ_MARK2(A, N)            \
-    j64 = GETMARK2-(dyn->arm_size); \
+    j64 = GETMARK2-(dyn->native_size); \
     TBZ(A, N, j64)
 // Branch to MARK3 unconditionnal (use j64)
 #define B_MARK3_nocond              \
-    j64 = GETMARK3-(dyn->arm_size); \
+    j64 = GETMARK3-(dyn->native_size); \
     B(j64)
 // Branch to MARK3 if reg is not 0 (use j64)
 #define CBNZx_MARK3(reg)            \
-    j64 = GETMARK3-(dyn->arm_size); \
+    j64 = GETMARK3-(dyn->native_size); \
     CBNZx(reg, j64)
 // Branch to MARK3 if reg is 0 (use j64)
 #define CBZx_MARK3(reg)             \
-    j64 = GETMARK3-(dyn->arm_size); \
+    j64 = GETMARK3-(dyn->native_size); \
     CBZx(reg, j64)
 // Test bit N of A and branch to MARK3 if not set
 #define TBZ_MARK3(A, N)             \
-    j64 = GETMARK3-(dyn->arm_size); \
+    j64 = GETMARK3-(dyn->native_size); \
     TBZ(A, N, j64)
 // Test bit N of A and branch to MARK3 if set
 #define TBNZ_MARK3(A, N)            \
-    j64 = GETMARK3-(dyn->arm_size); \
+    j64 = GETMARK3-(dyn->native_size); \
     TBNZ(A, N, j64)
 // Branch to next instruction if cond (use j64)
 #define B_NEXT(cond)     \
-    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
     Bcond(cond, j64)
 // Branch to next instruction unconditionnal (use j64)
 #define B_NEXT_nocond                                               \
-    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0;\
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;\
     B(j64)
 // Branch to next instruction if reg is 0 (use j64)
 #define CBZw_NEXT(reg)    \
-    j64 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    j64 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
     CBZw(reg, j64)
 // Branch to next instruction if reg is 0 (use j64)
 #define CBZx_NEXT(reg)    \
-    j64 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    j64 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
     CBZx(reg, j64)
 // Branch to next instruction if reg is not 0 (use j64)
 #define CBNZx_NEXT(reg)   \
-    j64 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    j64 =  (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
     CBNZx(reg, j64)
 // Test bit N of A and branch to next instruction if not set
 #define TBZ_NEXT(A, N)              \
-    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
     TBZ(A, N, j64)
 // Test bit N of A and branch to next instruction if set
 #define TBNZ_NEXT(A, N)             \
-    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0; \
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
     TBNZ(A, N, j64)
 // Branch to MARKSEG if cond (use j64)
 #define B_MARKSEG(cond)    \
-    j64 = GETMARKSEG-(dyn->arm_size);   \
+    j64 = GETMARKSEG-(dyn->native_size);   \
     Bcond(cond, j64)
 // Branch to MARKSEG if reg is 0 (use j64)
 #define CBZw_MARKSEG(reg)    \
-    j64 = GETMARKSEG-(dyn->arm_size);   \
+    j64 = GETMARKSEG-(dyn->native_size);   \
     CBZw(reg, j64)
 // Branch to MARKSEG if reg is not 0 (use j64)
 #define CBNZw_MARKSEG(reg)              \
-    j64 = GETMARKSEG-(dyn->arm_size);   \
+    j64 = GETMARKSEG-(dyn->native_size);   \
     CBNZw(reg, j64)
 // Branch to MARKLOCK if cond (use j64)
 #define B_MARKLOCK(cond)    \
-    j64 = GETMARKLOCK-(dyn->arm_size);   \
+    j64 = GETMARKLOCK-(dyn->native_size);   \
     Bcond(cond, j64)
 // Branch to MARKLOCK if reg is not 0 (use j64)
 #define CBNZx_MARKLOCK(reg)             \
-    j64 = GETMARKLOCK-(dyn->arm_size);  \
+    j64 = GETMARKLOCK-(dyn->native_size);  \
     CBNZx(reg, j64)
 
 #define IFX(A)  if((dyn->insts[ninst].x64.need_flags&(A)))
@@ -579,7 +579,7 @@
     if(((A)!=X_PEND) && dyn->state_flags!=SF_SET && dyn->state_flags!=SF_SET_PENDING) { \
         if(dyn->state_flags!=SF_PENDING) {              \
             LDRw_U12(x3, xEmu, offsetof(x64emu_t, df)); \
-            j64 = (GETMARKF)-(dyn->arm_size);           \
+            j64 = (GETMARKF)-(dyn->native_size);           \
             CBZw(x3, j64);                              \
         }                                               \
         CALL_(UpdateFlags, -1, 0);                      \

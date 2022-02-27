@@ -24,7 +24,7 @@
 #include "threads.h"
 #ifdef DYNAREC
 #include "dynablock.h"
-#include "dynarec/arm64_lock.h"
+#include "dynarec/native_lock.h"
 
 //#define USE_MMAP
 
@@ -579,17 +579,17 @@ void addDBFromAddressRange(uintptr_t addr, size_t size)
         int idx1 = (i    )&((1<<DYNAMAP_SHIFT)-1);
         if(!dynmap123[idx3]) {
             dynablocklist_t*** p = (dynablocklist_t***)calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t**));
-            if(arm64_lock_storeifnull(&dynmap123[idx3], p)!=p)
+            if(native_lock_storeifnull(&dynmap123[idx3], p)!=p)
                 free(p);
         }
         if(!dynmap123[idx3][idx2]) {
             dynablocklist_t** p = (dynablocklist_t**)calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t*));
-            if(arm64_lock_storeifnull(&dynmap123[idx3][idx2], p)!=p)
+            if(native_lock_storeifnull(&dynmap123[idx3][idx2], p)!=p)
                 free(p);
         }
         if(!dynmap123[idx3][idx2][idx1]) {
             dynablocklist_t* p = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
-            if(arm64_lock_storeifnull(&dynmap123[idx3][idx2][idx1], p)!=p)
+            if(native_lock_storeifnull(&dynmap123[idx3][idx2][idx1], p)!=p)
                 FreeDynablockList(&p);
         }
     }
@@ -618,13 +618,13 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
                 if(destroy) {
                     if(FreeRangeDynablock(dblist, addr, size) && 0) {    // dblist is empty, check if we can delete more...
                         // disabling this for now. It seems to cause random crash in Terraria
-                        if(!arm64_lock_storeifref(&dynmap123[idx3][idx2][idx1], NULL, dblist)) {
+                        if(!native_lock_storeifref(&dynmap123[idx3][idx2][idx1], NULL, dblist)) {
                             dynablocklist_t** p = dynmap123[idx3][idx2];
                             if(dynmapempty((void**)p)) {
-                                if(!arm64_lock_storeifref(&dynmap123[idx3][idx2], NULL, p)) {
+                                if(!native_lock_storeifref(&dynmap123[idx3][idx2], NULL, p)) {
                                     dynablocklist_t*** p2 = dynmap123[idx3];
                                     if(dynmapempty((void**)p2)) {
-                                        if(!arm64_lock_storeifref(&dynmap123[idx3], NULL, p2)) {
+                                        if(!native_lock_storeifref(&dynmap123[idx3], NULL, p2)) {
                                             free(p2);
                                         }
                                     }
@@ -643,6 +643,9 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
 
 #ifdef ARM64
 void arm64_next(void);
+#define native_next arm64_next
+#else
+#error Unsupported architecture
 #endif
 
 void addJumpTableIfDefault64(void* addr, void* jmp)
@@ -656,25 +659,25 @@ void addJumpTableIfDefault64(void* addr, void* jmp)
         uintptr_t*** tbl = (uintptr_t***)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault1;
-        if(arm64_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
+        if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
             free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
         uintptr_t** tbl = (uintptr_t**)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault0;
-        if(arm64_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
+        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
             free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
         uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = (uintptr_t)arm64_next;
-        if(arm64_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
+            tbl[i] = (uintptr_t)native_next;
+        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
             free(tbl);
     }
 
-    arm64_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], jmp, arm64_next);
+    native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], jmp, native_next);
 }
 void setJumpTableDefault64(void* addr)
 {
@@ -689,9 +692,9 @@ void setJumpTableDefault64(void* addr)
         return;
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
         return;
-    if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)arm64_next)
+    if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)native_next)
         return;
-    box64_jmptbl3[idx3][idx2][idx1][idx0] = (uintptr_t)arm64_next;
+    box64_jmptbl3[idx3][idx2][idx1][idx0] = (uintptr_t)native_next;
 }
 int isJumpTableDefault64(void* addr)
 {
@@ -706,9 +709,9 @@ int isJumpTableDefault64(void* addr)
         return 1;
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
         return 1;
-    if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)arm64_next)
+    if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)native_next)
         return 1;
-    return (box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)arm64_next)?1:0;
+    return (box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)native_next)?1:0;
 }
 uintptr_t getJumpTable64()
 {
@@ -726,21 +729,21 @@ uintptr_t getJumpTableAddress64(uintptr_t addr)
         uintptr_t*** tbl = (uintptr_t***)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault1;
-        if(arm64_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
+        if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
             free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
         uintptr_t** tbl = (uintptr_t**)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault0;
-        if(arm64_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
+        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
             free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
         uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = (uintptr_t)arm64_next;
-        if(arm64_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
+            tbl[i] = (uintptr_t)native_next;
+        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
             free(tbl);
     }
 
@@ -762,7 +765,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i]==memprot_default) {
             uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
-            /*if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+            /*if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
                 free(newblock);
             }*/
             memprot[i] = newblock;
@@ -795,7 +798,7 @@ void unprotectDB(uintptr_t addr, size_t size)
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i]==memprot_default) {
             uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
-            /*if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+            /*if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
                 free(newblock);
             }*/
             memprot[i] = newblock;
@@ -851,7 +854,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         if(memprot[i]==memprot_default) {
             uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
 #if 0 //def ARM64   //disabled for now, not usefull with the mutex
-            if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+            if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
                 free(newblock);
             }
 #else
@@ -880,7 +883,7 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
         if(memprot[i]==memprot_default) {
             uint8_t* newblock = calloc(MEMPROT_SIZE, sizeof(uint8_t));
 #if 0 //def ARM64   //disabled for now, not usefull with the mutex
-            if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+            if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
                 free(newblock);
             }
 #else
@@ -906,7 +909,7 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
         if(memprot[i]==memprot_default) {
             uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
 #if 0 //def ARM64   //disabled for now, not usefull with the mutex
-            if (arm64_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+            if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
                 free(newblock);
             }
 #else
@@ -973,9 +976,9 @@ void freeProtection(uintptr_t addr, size_t size)
             memset(block+start, 0, finish-start+1);
 #if 0 //def ARM64   //disabled for now, not usefull with the mutex
             if (blockempty(block)) {
-                block = (void*)arm64_lock_xchg(&memprot[key], (uintptr_t)memprot_default);
+                block = (void*)native_lock_xchg(&memprot[key], (uintptr_t)memprot_default);
                 if(!blockempty(block)) {
-                    block = (void*)arm64_lock_xchg(&memprot[key], (uintptr_t)block);
+                    block = (void*)native_lock_xchg(&memprot[key], (uintptr_t)block);
                     for (int i = 0; i < 0x10000; ++i) {
                         memprot[key][i] |= block[i];
                     }
@@ -1162,7 +1165,7 @@ void init_custommem_helper(box64context_t* ctx)
 #ifdef ARM64
     if(box64_dynarec)
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i) {
-            box64_jmptbldefault0[i] = (uintptr_t)arm64_next;
+            box64_jmptbldefault0[i] = (uintptr_t)native_next;
             box64_jmptbldefault1[i] = box64_jmptbldefault0;
             box64_jmptbldefault2[i] = box64_jmptbldefault1;
             box64_jmptbl3[i] = box64_jmptbldefault2;
