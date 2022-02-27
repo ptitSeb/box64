@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, OTHER_ARM, RPI4ARM64, RK3326, RK3399, RK3288, TEGRAX1, PHYTIUM, SD845]
+        platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RK3326, RK3399, RK3288, TEGRAX1, PHYTIUM, SD845]
         type: [Release, Trace]
 
     runs-on: ubuntu-latest
@@ -38,7 +38,7 @@ jobs:
       - name: "Environment preparation"
         run: |
           sudo apt-get update
-          if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'OTHER_ARM' ]]; then
+          if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'OTHER_ARM' && ${{ matrix.platform }} != 'RISCV' ]]; then
             echo "BOX64_PLATFORM_MARCRO=-D${{ matrix.platform }}=1" >> $GITHUB_ENV
             echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
             sudo apt-get -y install git gcc-aarch64-linux-gnu cmake make python3
@@ -47,6 +47,10 @@ jobs:
               echo "BOX64_PLATFORM_MARCRO=-DLD80BITS=1 -DNOALIGN=1" >> $GITHUB_ENV
               echo "BOX64_COMPILER=gcc" >> $GITHUB_ENV
               sudo apt-get -y install git cmake make python3
+            elif [[ ${{ matrix.platform }} == 'RISCV' ]]; then
+              echo BOX64_PLATFORM_MARCRO="-DRV64=ON" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=riscv64-linux-gnu-gcc" >> $GITHUB_ENV
+              sudo apt-get -y install git gcc-riscv64-linux-gnu cmake make python3
             else
               echo BOX64_PLATFORM_MARCRO="-DARM_DYNAREC=ON" >> $GITHUB_ENV
               echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
