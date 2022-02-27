@@ -644,6 +644,9 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
 #ifdef ARM64
 void arm64_next(void);
 #define native_next arm64_next
+#elif defined(LA464)
+void la464_next(void);
+#define native_next la464_next
 #else
 #error Unsupported architecture
 #endif
@@ -1162,7 +1165,6 @@ void init_custommem_helper(box64context_t* ctx)
         memprot[i] = memprot_default;
     init_mutexes();
 #ifdef DYNAREC
-#ifdef ARM64
     if(box64_dynarec)
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i) {
             box64_jmptbldefault0[i] = (uintptr_t)native_next;
@@ -1170,9 +1172,6 @@ void init_custommem_helper(box64context_t* ctx)
             box64_jmptbldefault2[i] = box64_jmptbldefault1;
             box64_jmptbl3[i] = box64_jmptbldefault2;
         }
-#else
-#error Unsupported architecture!
-#endif
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
 }

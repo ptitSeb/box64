@@ -26,7 +26,15 @@
 #ifdef ARM64
 void arm64_prolog(x64emu_t* emu, void* addr) EXPORTDYN;
 void arm64_epilog() EXPORTDYN;
-void arm64_epilog_fast() EXPORTDYN;
+#define native_prolog       arm64_prolog
+#define native_epilog       arm64_epilog
+#elif defined(LA464)
+void la464_prolog(x64emu_t* emu, void* addr) EXPORTDYN;
+void la464_epilog() EXPORTDYN;
+#define native_prolog       la464_prolog
+#define native_epilog       la464_epilog
+#else
+#error Unsupported architecture
 #endif
 #endif
 
@@ -59,18 +67,17 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
             dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
             dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL);
             #endif
-            //tableupdate(arm64_epilog, addr, table);
-            return arm64_epilog;
+            //tableupdate(native_epilog, addr, table);
+            return native_epilog;
         }
     }
     if(!block->done) {
         // not finished yet... leave linker
-        //tableupdate(arm_linker, addr, table);
-        return arm64_epilog;
+        return native_epilog;
     }
     if(!(jblock=block->block)) {
         // null block, but done: go to epilog, no linker here
-        return arm64_epilog;
+        return native_epilog;
     }
     //dynablock_t *father = block->father?block->father:block;
     return jblock;
@@ -131,9 +138,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
                 dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x64 instructions (father=%p) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,block->father, emu);
                 CHECK_FLAGS(emu);
                 // block is here, let's run it!
-                #ifdef ARM64
-                arm64_prolog(emu, block->block);
-                #endif
+                native_prolog(emu, block->block);
                 block = NULL;
             }
             if(emu->fork) {
@@ -212,9 +217,7 @@ int DynaRun(x64emu_t* emu)
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (father=%p) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->father, emu);
                 // block is here, let's run it!
-                #ifdef ARM64
-                arm64_prolog(emu, block->block);
-                #endif
+                native_prolog(emu, block->block);
                 block = NULL;
             }
             if(emu->fork) {
