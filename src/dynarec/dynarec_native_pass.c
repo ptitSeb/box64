@@ -26,7 +26,7 @@
 #error No STEP defined
 #endif
 
-uintptr_t native_pass(dynarec_arm_t* dyn, uintptr_t addr)
+uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
 {
     int ok = 1;
     int ninst = 0;
