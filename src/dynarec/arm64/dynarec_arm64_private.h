@@ -61,4 +61,12 @@ int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n);
 
 int Table64(dynarec_arm_t *dyn, uint64_t val);  // add a value to etable64 (if needed) and gives back the imm19 to use in LDR_literal
 
+#define GO_TRACE() \
+    GETIP(ip);              \
+    MOVx_REG(x1, xRIP);     \
+    STORE_XEMU_CALL(xRIP);  \
+    MOV32w(x2, 1);          \
+    CALL(PrintTrace, -1);   \
+    LOAD_XEMU_CALL(xRIP)
+
 #endif //__DYNAREC_ARM_PRIVATE_H_
