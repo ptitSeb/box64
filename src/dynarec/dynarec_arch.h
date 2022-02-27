@@ -6,6 +6,7 @@
 #include "arm64/dynarec_arm64_functions.h"
 
 #define instruction_native_t        instruction_arm64_t
+#define dynarec_native_t            dynarec_arm_t
 
 uintptr_t arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
 uintptr_t arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
