@@ -413,8 +413,8 @@ x64emurun:
                 EB->byte[0] = tmp8u;
             } else {
                 do {
-                    tmp8u = arm64_lock_read_b(EB);
-                } while(arm64_lock_write_b(EB, GB));
+                    tmp8u = native_lock_read_b(EB);
+                } while(native_lock_write_b(EB, GB));
                 GB = tmp8u;
             }
             // dynarec use need it's own mecanism
@@ -447,11 +447,11 @@ x64emurun:
                 }
             } else {
                 if(rex.w) {
-                    GD->q[0] = arm64_lock_xchg(ED, GD->q[0]);
+                    GD->q[0] = native_lock_xchg(ED, GD->q[0]);
                 } else {
                     do {
-                        tmp32u = arm64_lock_read_d(ED);
-                    } while(arm64_lock_write_d(ED, GD->dword[0]));
+                        tmp32u = native_lock_read_d(ED);
+                    } while(native_lock_write_d(ED, GD->dword[0]));
                     GD->q[0] = tmp32u;
                 }
             }
