@@ -461,7 +461,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     void * pc = (void*)p->uc_mcontext.__pc;
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
     if(db) {
-        frame = (uintptr_t)p->uc_mcontext.regs[12+_SP];
+        frame = (uintptr_t)p->uc_mcontext.__gregs[12+_SP];
     }
 #else
 #error Unsupported architecture
@@ -532,22 +532,22 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     }
 #elif defined(LA464)
     if(db) {
-        sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.regs[12];
-        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.regs[13];
-        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.regs[14];
-        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.regs[15];
-        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.regs[16];
-        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.regs[17];
-        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.regs[18];
-        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.regs[19];
-        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.regs[23];
-        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.regs[24];
-        sigcontext->uc_mcontext.gregs[X64_R10] = p->uc_mcontext.regs[25];
-        sigcontext->uc_mcontext.gregs[X64_R11] = p->uc_mcontext.regs[26];
-        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.regs[27];
-        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.regs[28];
-        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.regs[29];
-        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.regs[30];
+        sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.__gregs[12];
+        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[13];
+        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.__gregs[14];
+        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.__gregs[15];
+        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.__gregs[16];
+        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.__gregs[17];
+        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.__gregs[18];
+        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.__gregs[19];
+        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.__gregs[23];
+        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.__gregs[24];
+        sigcontext->uc_mcontext.gregs[X64_R10] = p->uc_mcontext.__gregs[25];
+        sigcontext->uc_mcontext.gregs[X64_R11] = p->uc_mcontext.__gregs[26];
+        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.__gregs[27];
+        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.__gregs[28];
+        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.__gregs[29];
+        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.__gregs[30];
         sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
     }
 #else
@@ -832,22 +832,22 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 ejb->emu->ip.q[0] = getX64Address(db, (uintptr_t)pc);
                 ejb->emu->eflags.x64 = p->uc_mcontext.regs[26];
 #elif defined(LA464)
-                ejb->emu->regs[_AX].q[0] = p->uc_mcontext.regs[12];
-                ejb->emu->regs[_CX].q[0] = p->uc_mcontext.regs[13];
-                ejb->emu->regs[_DX].q[0] = p->uc_mcontext.regs[14];
-                ejb->emu->regs[_BX].q[0] = p->uc_mcontext.regs[15];
-                ejb->emu->regs[_SP].q[0] = p->uc_mcontext.regs[16];
-                ejb->emu->regs[_BP].q[0] = p->uc_mcontext.regs[17];
-                ejb->emu->regs[_SI].q[0] = p->uc_mcontext.regs[18];
-                ejb->emu->regs[_DI].q[0] = p->uc_mcontext.regs[19];
-                ejb->emu->regs[_R8].q[0] = p->uc_mcontext.regs[23];
-                ejb->emu->regs[_R9].q[0] = p->uc_mcontext.regs[24];
-                ejb->emu->regs[_R10].q[0] = p->uc_mcontext.regs[25];
-                ejb->emu->regs[_R11].q[0] = p->uc_mcontext.regs[26];
-                ejb->emu->regs[_R12].q[0] = p->uc_mcontext.regs[27];
-                ejb->emu->regs[_R13].q[0] = p->uc_mcontext.regs[28];
-                ejb->emu->regs[_R14].q[0] = p->uc_mcontext.regs[29];
-                ejb->emu->regs[_R15].q[0] = p->uc_mcontext.regs[30];
+                ejb->emu->regs[_AX].q[0] = p->uc_mcontext.__gregs[12];
+                ejb->emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[13];
+                ejb->emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[14];
+                ejb->emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[15];
+                ejb->emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[16];
+                ejb->emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[17];
+                ejb->emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[18];
+                ejb->emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[19];
+                ejb->emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[23];
+                ejb->emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[24];
+                ejb->emu->regs[_R10].q[0] = p->uc_mcontext.__gregs[25];
+                ejb->emu->regs[_R11].q[0] = p->uc_mcontext.__gregs[26];
+                ejb->emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[27];
+                ejb->emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[28];
+                ejb->emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[29];
+                ejb->emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[30];
                 /*if(fpsimd) {
                     ejb->emu->xmm[0].u128 = fpsimd->vregs[0];
                     ejb->emu->xmm[1].u128 = fpsimd->vregs[1];
@@ -855,7 +855,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     ejb->emu->xmm[3].u128 = fpsimd->vregs[3];
                 }*/
                 ejb->emu->ip.q[0] = getX64Address(db, (uintptr_t)pc);
-                ejb->emu->eflags.x64 = p->uc_mcontext.regs[31];
+                ejb->emu->eflags.x64 = p->uc_mcontext.__gregs[31];
 #else
 #error  Unsupported architecture
 #endif
@@ -948,12 +948,12 @@ exit(-1);
             rsp = (void*)p->uc_mcontext.regs[10+_SP];
         }
 #elif defined(LA464)
-        if(db && p->uc_mcontext.regs[4]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.regs[4];
+        if(db && p->uc_mcontext.__gregs[4]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
         }
         if(db) {
             x64pc = getX64Address(db, (uintptr_t)pc);
-            rsp = (void*)p->uc_mcontext.regs[12+_SP];
+            rsp = (void*)p->uc_mcontext.__gregs[12+_SP];
         }
 #else
 #error Unsupported Architecture
