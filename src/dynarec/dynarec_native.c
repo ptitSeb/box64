@@ -346,10 +346,10 @@ void CancelBlock64()
         FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->block, helper->dynablock->size);
 }
 
-uintptr_t native_pass0(dynarec_arm_t* dyn, uintptr_t addr);
-uintptr_t native_pass1(dynarec_arm_t* dyn, uintptr_t addr);
-uintptr_t native_pass2(dynarec_arm_t* dyn, uintptr_t addr);
-uintptr_t native_pass3(dynarec_arm_t* dyn, uintptr_t addr);
+uintptr_t native_pass0(dynarec_native_t* dyn, uintptr_t addr);
+uintptr_t native_pass1(dynarec_native_t* dyn, uintptr_t addr);
+uintptr_t native_pass2(dynarec_native_t* dyn, uintptr_t addr);
+uintptr_t native_pass3(dynarec_native_t* dyn, uintptr_t addr);
 
 void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     if(IsInHotPage(addr)) {
