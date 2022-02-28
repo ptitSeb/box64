@@ -41,8 +41,13 @@ static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT];
 static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT];
 #endif
 static pthread_mutex_t     mutex_prot;
+#ifdef LA464
+#define MEMPROT_SHIFT 14
+#define MEMPROT_SHIFT2 (16+14)
+#else
 #define MEMPROT_SHIFT 12
 #define MEMPROT_SHIFT2 (16+12)
+#endif
 #define MEMPROT_SIZE (1<<16)
 static uint8_t *volatile memprot[1<<20];    // x86_64 mem is 48bits, page is 12bits, so memory is tracked as [20][16][page protection]
 static uint8_t memprot_default[MEMPROT_SIZE];
@@ -759,8 +764,8 @@ void protectDB(uintptr_t addr, uintptr_t size)
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    if(end>=(1LL<<(20+16)))
-        end = (1LL<<(20+16))-1;
+    if(end>=(1LL<<(48-MEMPROT_SHIFT)))
+        end = (1LL<<(48-MEMPROT_SHIFT))-1;
     if(end<idx) // memory addresses higher than 48bits are not tracked
         return;
     pthread_mutex_lock(&mutex_prot);
@@ -793,8 +798,8 @@ void unprotectDB(uintptr_t addr, size_t size)
     dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    if(end>=(1LL<<(20+16)))
-        end = (1LL<<(20+16))-1;
+    if(end>=(1LL<<(48-MEMPROT_SHIFT)))
+        end = (1LL<<(48-MEMPROT_SHIFT))-1;
     if(end<idx) // memory addresses higher than 48bits are not tracked
         return;
     pthread_mutex_lock(&mutex_prot);
@@ -824,8 +829,8 @@ int isprotectedDB(uintptr_t addr, size_t size)
     dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p => ", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    if(end>=(1LL<<(20+16)))
-        end = (1LL<<(20+16))-1LL;
+    if(end>=(1LL<<(48-MEMPROT_SHIFT)))
+        end = (1LL<<(48-MEMPROT_SHIFT))-1LL;
     if(end<idx) { // memory addresses higher than 48bits are not tracked
         dynarec_log(LOG_DEBUG, "00\n");
         return 0;
@@ -848,8 +853,8 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
     dynarec_log(LOG_DEBUG, "updateProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    if(end>=(1LL<<(20+16)))
-        end = (1LL<<(20+16))-1;
+    if(end>=(1LL<<(48-MEMPROT_SHIFT)))
+        end = (1LL<<(48-MEMPROT_SHIFT))-1;
     if(end<idx) // memory addresses higher than 48bits are not tracked
         return;
     pthread_mutex_lock(&mutex_prot);
@@ -877,8 +882,8 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    if(end>=(1LL<<(20+16)))
-        end = (1LL<<(20+16))-1;
+    if(end>=(1LL<<(48-MEMPROT_SHIFT)))
+        end = (1LL<<(48-MEMPROT_SHIFT))-1;
     if(end<idx) // memory addresses higher than 48bits are not tracked
         return;
     pthread_mutex_lock(&mutex_prot);
@@ -903,8 +908,8 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     dynarec_log(LOG_DEBUG, "allocProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    if(end>=(1LL<<(20+16)))
-        end = (1LL<<(20+16))-1;
+    if(end>=(1LL<<(48-MEMPROT_SHIFT)))
+        end = (1LL<<(48-MEMPROT_SHIFT))-1;
     if(end<idx) // memory addresses higher than 48bits are not tracked
         return;
     pthread_mutex_lock(&mutex_prot);
@@ -965,8 +970,8 @@ void freeProtection(uintptr_t addr, size_t size)
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    if(end>=(1LL<<(20+16)))
-        end = (1LL<<(20+16))-1;
+    if(end>=(1LL<<(48-MEMPROT_SHIFT)))
+        end = (1LL<<(48-MEMPROT_SHIFT))-1;
     if(end<idx) // memory addresses higher than 48bits are not tracked
         return;
     pthread_mutex_lock(&mutex_prot);
