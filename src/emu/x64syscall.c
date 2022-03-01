@@ -106,11 +106,12 @@ scwrap_t syscallwrap[] = {
     { 46, __NR_sendmsg, 3},
     { 47, __NR_recvmsg, 3},
     { 53, __NR_socketpair, 4},
-    #ifdef __NR_vfork
-    {56, __NR_vfork, 0},
-    #endif
+    //{56, __NR_clone, 5},
     #ifdef __NR_fork
     { 57, __NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
+    #endif
+    #ifdef __NR_vfork
+    {58, __NR_vfork, 0},
     #endif
     { 61, __NR_wait4, 4},
     //{ 63, __NR_uname, 1}, // Needs wrapping, use old_utsname
@@ -253,15 +254,16 @@ typedef struct old_utsname_s {
 //	int  xss;
 //};
 
-//int clone_fn(void* arg)
-//{
-//    x64emu_t *emu = (x64emu_t*)arg;
-//    R_RAX = 0;
-//    DynaRun(emu);
-//    int ret = R_EAX;
-//    FreeX64Emu(&emu);
-//    return ret;
-//}
+int clone_fn(void* arg)
+{
+    x64emu_t *emu = (x64emu_t*)arg;
+    R_RAX = 0;
+    DynaRun(emu);
+    int ret = R_EAX;
+    FreeX64Emu(&emu);
+    my_context->stack_clone_used = 0;
+    return ret;
+}
 
 void EXPORT x64Syscall(x64emu_t *emu)
 {
@@ -344,17 +346,61 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 25: // sys_mremap
             R_RAX = (uintptr_t)my_mremap(emu, (void*)R_RDI, R_RSI, R_RDX, R_R10d, (void*)R_R8);
             break;
+        case 56: // sys_clone
+            if(R_RSI)
+            {
+                void* stack_base = (void*)R_RSI;
+                int stack_size = 0;
+                if(!R_RSI) {
+                    // allocate a new stack...
+                    int currstack = 0;
+                    if((R_RSP>=(uintptr_t)emu->init_stack) && (R_RSP<=((uintptr_t)emu->init_stack+emu->size_stack)))
+                        currstack = 1;
+                    stack_size = (currstack)?emu->size_stack:(1024*1024);
+                    stack_base = mmap(NULL, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+                    // copy value from old stack to new stack
+                    if(currstack)
+                        memcpy(stack_base, emu->init_stack, stack_size);
+                    else {
+                        int size_to_copy = (uintptr_t)emu->init_stack + emu->size_stack - (R_RSP);
+                        memcpy(stack_base+stack_size-size_to_copy, (void*)R_RSP, size_to_copy);
+                    }
+                }
+                x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack_base, stack_size, (R_RSI)?0:1);
+                SetupX64Emu(newemu);
+                CloneEmu(newemu, emu);
+                SetRSP(newemu, (uintptr_t)stack_base);
+                void* mystack = NULL;
+                if(my_context->stack_clone_used) {
+                    mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+                } else {
+                    if(!my_context->stack_clone)
+                        my_context->stack_clone = malloc(1024*1024);
+                    mystack = my_context->stack_clone;
+                    my_context->stack_clone_used = 1;
+                }
+                // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
+                int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_RDI, newemu, R_R10, R_R9, R_R8);
+                R_RAX = ret;
+            }
+            else
+                #ifdef NOALIGN
+                return syscall(__NR_clone, R_RSI, R_RDX, R_R10, R_R8, R_R9);
+                #else
+                return syscall(__NR_clone, R_RSI, R_RDX, R_R10, R_R9, R_R8);    // invert R_R8/R_R9 on Aarch64 and most other
+                #endif
+            break;
+        #ifndef __NR_fork
+        case 57: 
+            R_RAX = fork();
+            break;
+        #endif
         #ifndef __NR_vfork
-        case 56:   // vfork
+        case 58:   // vfork
             {
                 int64_t r = vfork();
                 R_RAX = r;
             }
-            break;
-        #endif
-        #ifndef __NR_fork
-        case 57: 
-            R_RAX = fork();
             break;
         #endif
         case 63:    //uname
@@ -493,13 +539,59 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 25: // sys_mremap
             return (uintptr_t)my_mremap(emu, (void*)R_RSI, R_RDX, R_RCX, R_R8d, (void*)R_R9);
-        #ifndef __NR_vfork
-        case 56:   // vfork
-            return vfork();
-        #endif
+        case 56: // sys_clone
+            if(R_RDX)
+            {
+                void* stack_base = (void*)R_RDX;
+                int stack_size = 0;
+                if(!stack_base) {
+                    // allocate a new stack...
+                    int currstack = 0;
+                    if((R_RSP>=(uintptr_t)emu->init_stack) && (R_RSP<=((uintptr_t)emu->init_stack+emu->size_stack)))
+                        currstack = 1;
+                    stack_size = (currstack)?emu->size_stack:(1024*1024);
+                    stack_base = mmap(NULL, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+                    // copy value from old stack to new stack
+                    if(currstack)
+                        memcpy(stack_base, emu->init_stack, stack_size);
+                    else {
+                        int size_to_copy = (uintptr_t)emu->init_stack + emu->size_stack - (R_RSP);
+                        memcpy(stack_base+stack_size-size_to_copy, (void*)R_RSP, size_to_copy);
+                    }
+                }
+                x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack_base, stack_size, (R_RDX)?0:1);
+                SetupX64Emu(newemu);
+                CloneEmu(newemu, emu);
+                Push64(newemu, 0);
+                PushExit(newemu);
+                SetRSP(newemu, (uintptr_t)stack_base);
+                void* mystack = NULL;
+                if(my_context->stack_clone_used) {
+                    mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+                } else {
+                    if(!my_context->stack_clone)
+                        my_context->stack_clone = malloc(1024*1024);
+                    mystack = my_context->stack_clone;
+                    my_context->stack_clone_used = 1;
+                }
+                // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
+                int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_ESI, newemu, R_RCX, R_R9, R_R8);
+                return ret;
+            }
+            else
+                #ifdef NOALIGN
+                return syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
+                #else
+                return syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R9, R_R8);    // invert R_R8/R_R9 on Aarch64 and most other
+                #endif
+            break;
         #ifndef __NR_fork
         case 57: 
             return fork();
+        #endif
+        #ifndef __NR_vfork
+        case 58:   // vfork
+            return vfork();
         #endif
         case 63:    //uname
             {

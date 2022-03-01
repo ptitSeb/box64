@@ -259,6 +259,9 @@ void FreeBox64Context(box64context_t** context)
     freeGLProcWrapper(ctx);
     freeALProcWrapper(ctx);
 
+    if(ctx->stack_clone)
+        free(ctx->stack_clone);
+
 
     void* ptr;
     if ((ptr = pthread_getspecific(ctx->tlskey)) != NULL) {

@@ -4,6 +4,7 @@
 
 //socklen_t is u32
 // typedef unsigned long int nfds_t;
+// pid_t is S32
 // key_t is S32
 // uid_t is u32
 // gid_t is u32
@@ -99,8 +100,8 @@ GOW(calloc, pFLL)
 //GO(callrpc, iFpLLL@p@p)
 //GO(__call_tls_dtors, vFv)
 GOW(canonicalize_file_name, pFp)
-//GO(capget, 
-//GO(capset, 
+GO(capget, iFpp)
+GO(capset, iFpp)
 GO(catclose, iFp)
 GO(catgets, pFpiip)
 GO(catopen, pFpi)
@@ -1466,7 +1467,7 @@ GOW(readdir64, pFp)
 GOW(readdir64_r, iFppp)
 GOW(readdir_r, iFppp)
 GOWM(readlink, lFEppL)
-GO(readlinkat, lFippL)
+GOM(readlinkat, iFEippL)
 //GO(__readlinkat_chk, 
 //GO(__readlink_chk, 
 //GO(__read_nocancel, 

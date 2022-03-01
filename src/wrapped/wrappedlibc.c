@@ -2101,12 +2101,22 @@ EXPORT void my___explicit_bzero_chk(x64emu_t* emu, void* dst, uint32_t len, uint
 
 EXPORT void* my_realpath(x64emu_t* emu, void* path, void* resolved_path)
 {
-
     if(isProcSelf(path, "exe")) {
         return realpath(emu->context->fullpath, resolved_path);
     }
-        return realpath(path, resolved_path);
+    return realpath(path, resolved_path);
 }
+
+EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bufsize)
+{
+    if(isProcSelf(path, "exe")) {
+        strncpy(buf, emu->context->fullpath, bufsize);
+        size_t l = strlen(emu->context->fullpath);
+        return (l>bufsize)?bufsize:(l+1);
+    }
+    return readlinkat(fd, path, buf, bufsize);
+}
+
 
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
 {

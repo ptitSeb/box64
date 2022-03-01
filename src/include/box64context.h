@@ -188,6 +188,8 @@ typedef struct box64context_s {
     x64emu_t            *emu_sig;       // the emu with stack used for signal handling (must be separated from main ones)
     int                 no_sigsegv;
     int                 no_sigill;
+    void*               stack_clone;
+    int                 stack_clone_used;
 
 } box64context_t;
 

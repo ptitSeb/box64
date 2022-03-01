@@ -1,7 +1,7 @@
 #if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 GOM(dladdr, iFEpp)
-// dladdr1
+GOM(dladdr1, iFEpppi)
 GOM(dlclose, iFEp)
 GOM(dlerror, pFEv)
 DATAB(_dlfcn_hook, 8)

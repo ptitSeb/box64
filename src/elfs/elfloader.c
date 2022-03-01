@@ -147,6 +147,12 @@ const char* ElfName(elfheader_t* head)
         return "(noelf)";
     return head->name;
 }
+const char* ElfPath(elfheader_t* head)
+{
+    if(!head)
+        return NULL;
+    return head->path;
+}
 int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;
@@ -1366,6 +1372,13 @@ void* GetTLSPointer(box64context_t* context, elfheader_t* h)
     if(ptr->tlssize != context->tlssize)
         ptr = (tlsdatasize_t*)resizeTLSData(context, ptr);
     return ptr->tlsdata+(ptr->tlssize+h->tlsbase);
+}
+
+void* GetDynamicSection(elfheader_t* h)
+{
+    if(!h)
+        return NULL;
+    return h->Dynamic;
 }
 
 #ifdef DYNAREC

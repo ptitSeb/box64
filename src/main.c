@@ -956,6 +956,18 @@ int main(int argc, const char **argv, const char **env) {
             //wine_preloaded = 1;
         }
     }
+    #if 0
+    // pre-check for pressure-vessel-wrap
+    if(strstr(prog, "pressure-vessel-wrap")==(prog+strlen(prog)-strlen("pressure-vessel-wrap"))) {
+        // pressure-vessel-wrap detecter, skipping it and all -- args until "--" if needed
+        ++nextarg;
+        if(argv[nextarg][0]=='-' && argv[nextarg][1]=='-')
+            while(argv[nextarg][0]=='-' && argv[nextarg][1]=='-')
+                ++nextarg;
+        prog = argv[nextarg];
+        printf_log(LOG_INFO, "BOX64: pressure-vessel-wrap detected, loading \"%s\" directly\n", prog);
+    }
+    #endif
     // check if this is wine
     if(!strcmp(prog, "wine64")
      || !strcmp(prog, "wine64-development") 
@@ -990,9 +1002,9 @@ int main(int argc, const char **argv, const char **env) {
     // allocate extra space for new environment variables such as BOX64_PATH
     my_context->envv = (char**)calloc(my_context->envc+4, sizeof(char*));
     GatherEnv(&my_context->envv, environ?environ:env, my_context->box64path);
-    if(box64_dump) {
+    if(box64_dump || 1) {
         for (int i=0; i<my_context->envc; ++i)
-            printf_dump(LOG_NEVER, " Env[%02d]: %s\n", i, my_context->envv[i]);
+            printf_dump(/*LOG_NEVER*/LOG_INFO, " Env[%02d]: %s\n", i, my_context->envv[i]);
     }
 
     path_collection_t ld_preload = {0};
@@ -1117,16 +1129,19 @@ int main(int argc, const char **argv, const char **env) {
         free_contextargv();
         FreeCollection(&ld_preload);
         if(x86) {
-            // duplicate the array to change 1st arg as box86
-            const char** newargv = (const char**)calloc(argc+1, sizeof(char*));
+            // duplicate the array and insert 1st arg as box86
+            const char** newargv = (const char**)calloc(my_context->argc+2, sizeof(char*));
             newargv[0] = my_context->box86path;
+            for(int i=0; i<my_context->argc; ++i)
+                newargv[i+1] = my_context->argv[i];
             FreeBox64Context(&my_context);
-            for(int i=1; i<argc; ++i)
-                newargv[i] = argv[i];
             return execvp(newargv[0], (char * const*)newargv);
         } else {
+            const char** newargv = (const char**)calloc(my_context->argc+1, sizeof(char*));
+            for(int i=0; i<my_context->argc; ++i)
+                newargv[i] = my_context->argv[i];
             FreeBox64Context(&my_context);
-            return execvp(argv[1], (char * const*)(argv+1));
+            return execvp(newargv[0], (char * const*)newargv);
         }
         printf_log(LOG_NONE, "Failed to execvp: error is %s\n", strerror(errno));
     }

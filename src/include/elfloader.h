@@ -16,6 +16,7 @@ typedef struct dynablocklist_s dynablocklist_t;
 elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec); // exec : 0 = lib, 1 = exec
 void FreeElfHeader(elfheader_t** head);
 const char* ElfName(elfheader_t* head);
+const char* ElfPath(elfheader_t* head);
 void ElfAttachLib(elfheader_t* head, library_t* lib);
 
 // return 0 if OK
@@ -52,6 +53,7 @@ dynablocklist_t* GetDynablocksFromElf(elfheader_t* h);
 #endif
 void ResetSpecialCaseMainElf(elfheader_t* h);
 void CreateMemorymapFile(box64context_t* context, int fd);
+void* GetDynamicSection(elfheader_t* h);
 
 int ElfCheckIfUseTCMallocMinimal(elfheader_t* h);   // return 1 if tcmalloc is used
 

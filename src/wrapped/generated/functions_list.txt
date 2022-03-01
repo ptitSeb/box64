@@ -1046,6 +1046,7 @@
 #() vFppppp
 #() iFEiipp
 #() iFEiipV
+#() iFEippL
 #() iFEippp
 #() iFEpiii
 #() iFEpipi
@@ -1060,6 +1061,7 @@
 #() iFEppiV
 #() iFEppiA
 #() iFEpplp
+#() iFEpppi
 #() iFEpppp
 #() iFEpppV
 #() iFiiipu
@@ -2757,6 +2759,8 @@ wrappedlibc:
   - semctl
 - iFipii:
   - epoll_wait
+- iFippL:
+  - readlinkat
 - iFpipp:
   - __vasprintf_chk
   - glob
@@ -2832,6 +2836,8 @@ wrappedlibdl:
   - dlmopen
 - pFppp:
   - dlvsym
+- iFpppi:
+  - dladdr1
 wrappedlibdrm:
 wrappedlibform:
 wrappedlibformw:

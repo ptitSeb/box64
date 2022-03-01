@@ -4,6 +4,7 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <elf.h>
+#include <link.h>
 
 #include "wrappedlibs.h"
 
@@ -42,6 +43,7 @@ char* my_dlerror(x64emu_t* emu) EXPORT;
 void* my_dlsym(x64emu_t* emu, void *handle, void *symbol) EXPORT;
 int my_dlclose(x64emu_t* emu, void *handle) EXPORT;
 int my_dladdr(x64emu_t* emu, void *addr, void *info) EXPORT;
+int my_dladdr1(x64emu_t* emu, void *addr, void *info, void** extra_info, int flags) EXPORT;
 void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername) EXPORT;
 int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info) EXPORT;
 
@@ -338,20 +340,37 @@ int my_dlclose(x64emu_t* emu, void *handle)
     }
     return 0;
 }
-int my_dladdr(x64emu_t* emu, void *addr, void *i)
+int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
 {
     //int dladdr(void *addr, Dl_info *info);
     dlprivate_t *dl = emu->context->dlprivate;
     CLEARERR
     Dl_info *info = (Dl_info*)i;
-    printf_log(LOG_DEBUG, "Warning: partially unimplement call to dladdr(%p, %p)\n", addr, info);
+    printf_log(LOG_DEBUG, "Warning: partially unimplement call to dladdr/dladdr1(%p, %p, %p, %d)\n", addr, info, extra_info, flags);
     
     //emu->quit = 1;
     info->dli_saddr = NULL;
     info->dli_fname = NULL;
     info->dli_sname = FindSymbolName(emu->context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase);
     printf_log(LOG_DEBUG, "     dladdr return saddr=%p, fname=\"%s\", sname=\"%s\"\n", info->dli_saddr, info->dli_sname?info->dli_sname:"", info->dli_fname?info->dli_fname:"");
+    if(flags==RTLD_DL_SYMENT) {
+        printf_log(LOG_INFO, "Warning, unimplement call to dladdr1 with RTLD_DL_SYMENT flags\n");
+    } else if (flags==RTLD_DL_LINKMAP) {
+        printf_log(LOG_INFO, "Warning, partially unimplement call to dladdr1 with RTLD_DL_LINKMAP flags\n");
+        static struct link_map my_map = {0};
+        elfheader_t* elf = FindElfAddress(my_context, (uintptr_t)addr);
+        if(elf) {
+            my_map.l_addr = (uintptr_t)GetElfDelta(elf);
+            my_map.l_name = (char*)ElfPath(elf);
+            my_map.l_ld = GetDynamicSection(elf);
+        }
+        *extra_info = &my_map;
+    }
     return (info->dli_sname)?1:0;   // success is non-null here...
+}
+int my_dladdr(x64emu_t* emu, void *addr, void *i)
+{
+    return my_dladdr1(emu, addr, i, NULL, 0);
 }
 void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
 {

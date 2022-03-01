@@ -55,6 +55,7 @@ typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef int64_t (*iFiiip_t)(int64_t, int64_t, int64_t, void*);
 typedef int64_t (*iFiiiN_t)(int64_t, int64_t, int64_t, ...);
 typedef int64_t (*iFipii_t)(int64_t, void*, int64_t, int64_t);
+typedef int64_t (*iFippL_t)(int64_t, void*, void*, uintptr_t);
 typedef int64_t (*iFpipp_t)(void*, int64_t, void*, void*);
 typedef int64_t (*iFpipV_t)(void*, int64_t, void*, ...);
 typedef int64_t (*iFpLpp_t)(void*, uintptr_t, void*, void*);
@@ -183,6 +184,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(epoll_ctl, iFiiip_t) \
 	GO(semctl, iFiiiN_t) \
 	GO(epoll_wait, iFipii_t) \
+	GO(readlinkat, iFippL_t) \
 	GO(__vasprintf_chk, iFpipp_t) \
 	GO(glob, iFpipp_t) \
 	GO(glob64, iFpipp_t) \
