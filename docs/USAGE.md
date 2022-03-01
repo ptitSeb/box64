@@ -150,8 +150,17 @@ Disables the load of pulseaudio libraries.
  * 0 : Load pulseaudio libraries if found. (Default.)
  * 1 : Disables the load of pulse audio libraries (libpulse and libpulse-simple), both the native library and the x86 library
 
-#### BOX64_JITGDB
+#### BOX64_NOGTK
+Disables the loading of wrapped GTK libraries.
+ * 0 : Load wrapped GTK libraries if found. (Default.)
+ * 1 : Disables loading wrapped GTK libraries.
 
+#### BOX64_NOVULKAN
+Disables the load of vulkan libraries.
+ * 0 : Load vulkan libraries if found.
+ * 1 : Disables the load of vulkan libraries, both the native and the i386 version (can be useful on Pi4, where the vulkan driver is not quite there yet.)
+
+#### BOX64_JITGDB
  * 0 : Just print the Segfault message on segfault (default)
  * 1 : Launch `gdb` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process and go in an endless loop, waiting.
  When in gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in is stack)
