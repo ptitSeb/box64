@@ -109,7 +109,9 @@ GO(3)   \
 GO(4)   \
 GO(5)   \
 GO(6)   \
-GO(7)
+GO(7)   \
+GO(8)   \
+GO(9)   \
 
 // GCopyFct
 /*#define GO(A)   \
