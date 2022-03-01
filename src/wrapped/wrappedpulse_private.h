@@ -33,10 +33,10 @@ GOM(pa_context_exit_daemon, pFEppp)
 //GO(pa_context_get_autoload_info_by_index, 
 //GO(pa_context_get_autoload_info_by_name, 
 //GO(pa_context_get_autoload_info_list, 
-//GO(pa_context_get_card_info_by_index, 
+GOM(pa_context_get_card_info_by_index, pFEpupp)
 //GO(pa_context_get_card_info_by_name, 
-//GO(pa_context_get_card_info_list, 
-//GO(pa_context_get_client_info, 
+GOM(pa_context_get_card_info_list, pFEppp)
+GOM(pa_context_get_client_info, pFEpupp)
 GOM(pa_context_get_client_info_list, pFEppp)
 GO(pa_context_get_index, uFp)
 //GO(pa_context_get_module_info, 
@@ -56,8 +56,8 @@ GOM(pa_context_get_sink_input_info_list, pFEppp)
 GOM(pa_context_get_source_info_by_index, pFEpupp)
 GOM(pa_context_get_source_info_by_name, pFEpppp)
 GOM(pa_context_get_source_info_list, pFEppp)
-//GO(pa_context_get_source_output_info, 
-//GO(pa_context_get_source_output_info_list, 
+GOM(pa_context_get_source_output_info, pFEpupp)
+GOM(pa_context_get_source_output_info_list, pFEppp)
 GO(pa_context_get_state, iFp)
 GO(pa_context_is_local, iFp)
 GO(pa_context_is_pending, iFp)
@@ -67,7 +67,7 @@ GO(pa_context_is_pending, iFp)
 GOM(pa_context_load_module, pFEppppp)
 GOM(pa_context_move_sink_input_by_index, pFEpuupp)
 //GO(pa_context_move_sink_input_by_name, 
-//GO(pa_context_move_source_output_by_index, 
+GOM(pa_context_move_source_output_by_index, pFEpuupp)
 //GO(pa_context_move_source_output_by_name, 
 GOM(pa_context_new, pFEpp)
 GOM(pa_context_new_with_proplist, pFEppp)
@@ -79,7 +79,7 @@ GO(pa_context_ref, pFp)
 //GO(pa_context_remove_autoload_by_index, 
 //GO(pa_context_remove_autoload_by_name, 
 //GO(pa_context_remove_sample, 
-//GO(pa_context_set_card_profile_by_index, 
+GOM(pa_context_set_card_profile_by_index, pFEpuppp)
 //GO(pa_context_set_card_profile_by_name, 
 GOM(pa_context_set_default_sink, pFEpppp)
 GOM(pa_context_set_default_source, pFEpppp)
@@ -87,12 +87,15 @@ GOM(pa_context_set_event_callback, vFEppp)
 GOM(pa_context_set_name, pFEpppp)
 GOM(pa_context_set_sink_input_mute, pFEpuipp)
 GOM(pa_context_set_sink_input_volume, pFEpuppp)
-//GO(pa_context_set_sink_mute_by_index, 
+GOM(pa_context_set_sink_mute_by_index, pFEpuipp)
 //GO(pa_context_set_sink_mute_by_name, 
+GOM(pa_context_set_sink_port_by_index, pFEpuppp)
+GOM(pa_context_set_sink_port_by_name, pFEppppp)
 GOM(pa_context_set_sink_volume_by_index, pFEpuppp)
 //GO(pa_context_set_sink_volume_by_name, 
 GOM(pa_context_set_source_mute_by_index, pFEpuipp)
 //GO(pa_context_set_source_mute_by_name, 
+GOM(pa_context_set_source_port_by_index, pFEpuppp)
 GOM(pa_context_set_source_volume_by_index, pFEpuppp)
 GOM(pa_context_set_source_volume_by_name, pFEppppp)
 GOM(pa_context_set_state_callback, vFEppp)
@@ -121,12 +124,18 @@ GO(pa_cvolume_set_balance, pFppf)
 GO(pa_cvolume_set_fade, pFppf)
 GO(pa_cvolume_snprint, pFplp)
 GO(pa_cvolume_valid, iFp)
+GOM(pa_ext_device_restore_read_formats, pFEpiupp)
+GOM(pa_ext_device_restore_read_formats_all, pFEppp)
+GOM(pa_ext_device_restore_save_formats, pFEpiuCppp)
+GOM(pa_ext_device_restore_set_subscribe_cb, pFEppp)
+GOM(pa_ext_device_restore_subscribe, pFEpipp)
 //GO(pa_ext_stream_restore_delete, 
 //GO(pa_ext_stream_restore_read, 
 //GO(pa_ext_stream_restore_set_subscribe_cb, 
 //GO(pa_ext_stream_restore_subscribe, 
 //GO(pa_ext_stream_restore_test, 
 //GO(pa_ext_stream_restore_write, 
+GO(pa_format_info_new, pFv)
 GO(pa_frame_size, LFp)
 GO(pa_get_binary_name, pFpL)
 GO(pa_get_fqdn, pFpL)

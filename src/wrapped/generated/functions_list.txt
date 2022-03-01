@@ -1438,6 +1438,7 @@
 #() LFpipipi
 #() LFpLippp
 #() LFSpLiip
+#() pFEpiupp
 #() pFEpippp
 #() pFEpuipp
 #() pFEpuupp
@@ -1751,6 +1752,7 @@
 #() uFppuppppp
 #() LFELpLpLpi
 #() LFEpiupppp
+#() pFEpiuCppp
 #() pFEppLiiip
 #() pFEpppuipV
 #() pFEpppppiV
@@ -3253,13 +3255,17 @@ wrappedpulse:
 - pFppp:
   - pa_context_drain
   - pa_context_exit_daemon
+  - pa_context_get_card_info_list
   - pa_context_get_client_info_list
   - pa_context_get_module_info_list
   - pa_context_get_server_info
   - pa_context_get_sink_info_list
   - pa_context_get_sink_input_info_list
   - pa_context_get_source_info_list
+  - pa_context_get_source_output_info_list
   - pa_context_new_with_proplist
+  - pa_ext_device_restore_read_formats_all
+  - pa_ext_device_restore_set_subscribe_cb
   - pa_stream_drain
   - pa_stream_flush
   - pa_stream_prebuf
@@ -3270,11 +3276,15 @@ wrappedpulse:
 - iFpppV:
   - pa_proplist_setf
 - pFpipp:
+  - pa_ext_device_restore_subscribe
   - pa_stream_cork
 - pFpupp:
+  - pa_context_get_card_info_by_index
+  - pa_context_get_client_info
   - pa_context_get_sink_info_by_index
   - pa_context_get_sink_input_info
   - pa_context_get_source_info_by_index
+  - pa_context_get_source_output_info
   - pa_context_subscribe
   - pa_context_unload_module
   - pa_stream_update_sample_rate
@@ -3288,23 +3298,33 @@ wrappedpulse:
   - pa_stream_proplist_remove
   - pa_stream_set_buffer_attr
   - pa_stream_set_name
+- pFpiupp:
+  - pa_ext_device_restore_read_formats
 - pFpippp:
   - pa_context_proplist_update
   - pa_stream_proplist_update
 - pFpuipp:
   - pa_context_set_sink_input_mute
+  - pa_context_set_sink_mute_by_index
   - pa_context_set_source_mute_by_index
 - pFpuupp:
   - pa_context_move_sink_input_by_index
+  - pa_context_move_source_output_by_index
 - pFpuppp:
+  - pa_context_set_card_profile_by_index
   - pa_context_set_sink_input_volume
+  - pa_context_set_sink_port_by_index
   - pa_context_set_sink_volume_by_index
+  - pa_context_set_source_port_by_index
   - pa_context_set_source_volume_by_index
 - pFppppp:
   - pa_context_load_module
+  - pa_context_set_sink_port_by_name
   - pa_context_set_source_volume_by_name
 - iFppLpIi:
   - pa_stream_write
+- pFpiuCppp:
+  - pa_ext_device_restore_save_formats
 wrappedpulsesimple:
 wrappedsdl1:
 - vFp:
