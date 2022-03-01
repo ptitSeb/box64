@@ -139,7 +139,8 @@ scwrap_t syscallwrap[] = {
     { 125, __NR_capget, 2},
     { 126, __NR_capset, 2},
     { 127, __NR_rt_sigpending, 2},
-    //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack
+    //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack*
+    { 155, __NR_pivot_root, 2},
     { 157, __NR_prctl, 5 },     // needs wrapping?
     //{ 158, __NR_arch_prctl, 2},   //need wrapping
     { 186, __NR_gettid, 0 },    //0xBA
@@ -385,9 +386,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
             }
             else
                 #ifdef NOALIGN
-                return syscall(__NR_clone, R_RSI, R_RDX, R_R10, R_R8, R_R9);
+                R_RAX = syscall(__NR_clone, R_RSI, R_RDX, R_R10, R_R8, R_R9);
                 #else
-                return syscall(__NR_clone, R_RSI, R_RDX, R_R10, R_R9, R_R8);    // invert R_R8/R_R9 on Aarch64 and most other
+                R_RAX = syscall(__NR_clone, R_RSI, R_RDX, R_R10, R_R9, R_R8);    // invert R_R8/R_R9 on Aarch64 and most other
                 #endif
             break;
         #ifndef __NR_fork
