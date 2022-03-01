@@ -735,7 +735,13 @@ static void unwrapGTKClass(void* cl, size_t type)
     else 
 
     GTKCLASSES()
-    {}  // else no warning, one is enough...
+    {
+        if(my_MetaFrames==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
+            my_MetaFrames = type;
+            unwrapMetaFramesClass((my_MetaFramesClass_t*)cl);
+        } else
+            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %zu (%s)\n", type, g_type_name(type));
+    }
     #undef GTKCLASS
 }
 

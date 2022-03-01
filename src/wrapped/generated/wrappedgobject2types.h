@@ -16,6 +16,7 @@ typedef int64_t (*iFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFiip_t)(int64_t, int64_t, void*);
 typedef void (*vFLLp_t)(uintptr_t, uintptr_t, void*);
+typedef void (*vFpup_t)(void*, uint64_t, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef void (*vFppA_t)(void*, void*, va_list);
 typedef uintptr_t (*LFppp_t)(void*, void*, void*);
@@ -45,6 +46,7 @@ typedef uint64_t (*uFpLippppLuA_t)(void*, uintptr_t, int64_t, void*, void*, void
 	GO(g_value_array_sort, pFpp_t) \
 	GO(g_value_register_transform_func, vFiip_t) \
 	GO(g_type_add_interface_static, vFLLp_t) \
+	GO(g_object_class_install_properties, vFpup_t) \
 	GO(g_object_get, vFppV_t) \
 	GO(g_object_set, vFppV_t) \
 	GO(g_object_get_valist, vFppA_t) \
@@ -58,6 +60,7 @@ typedef uint64_t (*uFpLippppLuA_t)(void*, uintptr_t, int64_t, void*, void*, void
 	GO(g_param_spec_set_qdata_full, vFpupp_t) \
 	GO(g_signal_emit_valist, vFpupA_t) \
 	GO(g_object_set_data_full, vFpppp_t) \
+	GO(g_object_set_qdata_full, vFpppp_t) \
 	GO(g_type_register_static, LFLppi_t) \
 	GO(g_signal_add_emission_hook, LFupppp_t) \
 	GO(g_type_register_fundamental, LFLpppi_t) \

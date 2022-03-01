@@ -1067,6 +1067,10 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_INFO, "Zoom detected, trying to use system libturbojpeg if possible\n");
         box64_zoom = 1;
     }
+    if(strstr(prgname, "pressure-vessel-wrap")==prgname) {
+        printf_log(LOG_INFO, "pressure-vessel-wrap detected, disabling GTK\n");
+        box64_nogtk = 1;
+    }
     /*if(strstr(prgname, "awesomium_process")==prgname) {
         printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
         AddPath("libpng12.so.0", &my_context->box64_emulated_libs, 0);

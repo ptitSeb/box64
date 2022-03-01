@@ -91,15 +91,16 @@ typedef int64_t (*iFpppippppppp_t)(void*, void*, void*, int64_t, void*, void*, v
 	GO(g_list_sort, pFpp_t) \
 	GO(g_log_set_default_handler, pFpp_t) \
 	GO(g_slist_sort, pFpp_t) \
+	GO(g_strjoinv, pFpp_t) \
 	GO(g_variant_new_parsed_va, pFpp_t) \
 	GO(g_build_filename, pFpV_t) \
 	GO(g_markup_printf_escaped, pFpV_t) \
+	GO(g_strconcat, pFpV_t) \
 	GO(g_strdup_printf, pFpV_t) \
 	GO(g_strjoin, pFpV_t) \
 	GO(g_variant_new, pFpV_t) \
 	GO(g_markup_vprintf_escaped, pFpA_t) \
 	GO(g_strdup_vprintf, pFpA_t) \
-	GO(g_strjoinv, pFpA_t) \
 	GO(g_array_sort_with_data, vFppp_t) \
 	GO(g_hash_table_foreach, vFppp_t) \
 	GO(g_option_context_add_main_entries, vFppp_t) \

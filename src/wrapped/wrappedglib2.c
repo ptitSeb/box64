@@ -1207,10 +1207,10 @@ EXPORT void* my_g_build_path(x64emu_t *emu, void* sep, void* first, uintptr_t* d
         p = (void*)getVArgs(emu, 2, data, n++);
     }
     ++n;    // final NULL
-    void** args = (void**)malloc(n *sizeof(void*));
+    void** args = (void**)malloc((n+1) *sizeof(void*));
     args[0] = first;
-    for(int i=1; i<n; ++i)
-        args[i] = (void*)getVArgs(emu, 2, data, i-1);
+    for(int i=0; i<n; ++i)
+        args[i+1] = (void*)getVArgs(emu, 2, data, i);
     p = my->g_build_pathv(sep, args);
     free(args);
     return p;
@@ -1398,22 +1398,27 @@ EXPORT void my_g_string_vprintf(x64emu_t* emu, void* string, void* fmt, x64_va_l
     return my->g_string_vprintf(string, fmt, VARARGS);
 }
 
-EXPORT void* my_g_strjoin(x64emu_t* emu, void* a, uintptr_t* b)
+EXPORT void* my_g_strjoin(x64emu_t* emu, void* sep, uintptr_t* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
-    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 1);
-    return my->g_strjoinv(a, VARARGS);
+    int n = 0;
+    void* p = (void*)getVArgs(emu, 1, data, 0);
+    while(p) {
+        p = (void*)getVArgs(emu, 1, data, n++);
+    }
+    ++n;    // final NULL
+    void** args = (void**)malloc(n *sizeof(void*));
+    for(int i=0; i<n; ++i)
+        args[i] = (void*)getVArgs(emu, 1, data, i);
+    p = my->g_strjoinv(sep, args);
+    free(args);
+    return p;
 }
 
-EXPORT void* my_g_strjoinv(x64emu_t* emu, void* a, x64_va_list_t V)
+EXPORT void* my_g_strjoinv(x64emu_t* emu, void* a, void** V)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
-    #ifdef CONVERT_VALIST
-    CONVERT_VALIST(V);
-    #else
-    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
-    #endif
-    return my->g_strjoinv(a, VARARGS);
+    return my->g_strjoinv(a, V);
 }
 
 EXPORT void* my_g_option_group_new(x64emu_t* emu, void* name, void* desc, void* help, void* data, void* destroy)
@@ -1450,6 +1455,25 @@ EXPORT void my_g_option_context_add_main_entries(x64emu_t* emu, void* context, m
             p->arg_data = reverseGOptionArgFct(p->arg_data);
         ++p;
     }
+}
+
+EXPORT void* my_g_strconcat(x64emu_t* emu, void* first, uintptr_t* data)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    int n = (first)?1:0;
+    void* p = n?((void*)getVArgs(emu, 1, data, 0)):NULL;
+    while(p) {
+        p = (void*)getVArgs(emu, 1, data, n++);
+    }
+    ++n;    // final NULL
+    void** args = (void**)malloc((n+1) *sizeof(void*));
+    args[0] = first;
+    for(int i=0; i<n; ++i)
+        args[i+1] = (void*)getVArgs(emu, 1, data, i);
+    p = my->g_strjoinv(NULL, args);
+    free(args);
+    return p;
 }
 
 

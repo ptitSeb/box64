@@ -2293,17 +2293,18 @@ wrappedglib2:
   - g_list_sort
   - g_log_set_default_handler
   - g_slist_sort
+  - g_strjoinv
   - g_variant_new_parsed_va
 - pFpV:
   - g_build_filename
   - g_markup_printf_escaped
+  - g_strconcat
   - g_strdup_printf
   - g_strjoin
   - g_variant_new
 - pFpA:
   - g_markup_vprintf_escaped
   - g_strdup_vprintf
-  - g_strjoinv
 - vFppp:
   - g_array_sort_with_data
   - g_hash_table_foreach
@@ -2417,6 +2418,8 @@ wrappedgobject2:
   - g_value_register_transform_func
 - vFLLp:
   - g_type_add_interface_static
+- vFpup:
+  - g_object_class_install_properties
 - vFppV:
   - g_object_get
   - g_object_set
@@ -2441,6 +2444,7 @@ wrappedgobject2:
   - g_signal_emit_valist
 - vFpppp:
   - g_object_set_data_full
+  - g_object_set_qdata_full
 - LFLppi:
   - g_type_register_static
 - LFupppp:
