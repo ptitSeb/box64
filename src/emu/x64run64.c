@@ -136,6 +136,12 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                     break;
                 case 0x11:
                     switch(rep) {
+                        case 0: /* MOVUPS FS:Ex, Gx */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            EX->u128 = GX->u128;
+                            break;
                         case 1: /* MOVSD Ex, Gx */
                             nextop = F8;
                             GETEX_OFFS(0, tlsdata);

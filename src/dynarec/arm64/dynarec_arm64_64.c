@@ -34,7 +34,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t gd, ed, eb1, eb2, gb1, gb2;
     uint8_t wback, wb1, wb2, wb;
     int64_t i64, j64;
-    int v0;
+    int v0, v1;
     int q0;
     int d0;
     int64_t fixedaddress;
@@ -48,6 +48,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(d0);
     MAYUSE(q0);
     MAYUSE(v0);
+    MAYUSE(v1);
 
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
@@ -117,6 +118,22 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 0x11:
                     switch(rep) {
+                        case 0:
+                            INST_NAME("MOVUPS Ex,Gx");
+                            nextop = F8;
+                            GETG;
+                            v0 = sse_get_reg(dyn, ninst, x1, gd);
+                            if(MODREG) {
+                                ed = (nextop&7)+(rex.b<<3);
+                                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                                VMOVQ(v1, v0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg);
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                                ADDx_REG(x4, x4, ed);
+                                VSTR128_U12(v0, x4, fixedaddress);
+                            }
+                            break;
                         case 1:
                             INST_NAME("MOVSD Ex, Gx");
                             nextop = F8;
