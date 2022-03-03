@@ -426,7 +426,14 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xE6:
             INST_NAME("CVTDQ2PD Gx, Ex");
             nextop = F8;
-            GETEX(v1, 0);
+            // cannot use GETEX because we want 64bits not 32bits
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+            } else {
+                v1 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                VLDR64_U12(v1, ed, fixedaddress);
+            }
             GETGX_empty(v0);
             d0 = fpu_get_scratch(dyn);
             SXTL_32(v0, v1);
