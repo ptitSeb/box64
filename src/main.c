@@ -1002,9 +1002,9 @@ int main(int argc, const char **argv, const char **env) {
     // allocate extra space for new environment variables such as BOX64_PATH
     my_context->envv = (char**)calloc(my_context->envc+4, sizeof(char*));
     GatherEnv(&my_context->envv, environ?environ:env, my_context->box64path);
-    if(box64_dump || 1) {
+    if(box64_dump) {
         for (int i=0; i<my_context->envc; ++i)
-            printf_dump(/*LOG_NEVER*/LOG_INFO, " Env[%02d]: %s\n", i, my_context->envv[i]);
+            printf_dump(LOG_NEVER, " Env[%02d]: %s\n", i, my_context->envv[i]);
     }
 
     path_collection_t ld_preload = {0};
