@@ -15,6 +15,7 @@ typedef struct bridge_s bridge_t;
 typedef struct dlprivate_s dlprivate_t;
 typedef struct kh_symbolmap_s kh_symbolmap_t;
 typedef struct library_s library_t;
+typedef struct linkmap_s linkmap_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
 typedef struct atfork_fnc_s {
     uintptr_t prepare;
@@ -154,6 +155,7 @@ typedef struct box64context_s {
     library_t           *pulse;
     library_t           *d3dadapter9;
     library_t           *libglu;
+    linkmap_t           *linkmap;
 
     int                 deferedInit;
     elfheader_t         **deferedInitList;

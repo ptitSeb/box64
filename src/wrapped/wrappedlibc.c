@@ -238,6 +238,29 @@ static void* findgloberrFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc globerr callback\n");
     return NULL;
 }
+// free
+#define GO(A)   \
+static uintptr_t my_free_fct_##A = 0;               \
+static void my_free_##A(void* p)                    \
+{                                                   \
+    RunFunction(my_context, my_free_fct_##A, 1, p); \
+}
+SUPER()
+#undef GO
+static void* findfreeFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc free callback\n");
+    return NULL;
+}
 
 #if 0
 #undef dirent
@@ -1138,6 +1161,17 @@ EXPORT void* my_lsearch(x64emu_t* emu, void* key, void* base, size_t* nmemb, siz
     (void)emu;
     return lsearch(key, base, nmemb, size, findcompareFct(fnc));
 }
+
+EXPORT void* my_tsearch(x64emu_t* emu, void* key, void* root, void* fnc)
+{
+    (void)emu;
+    return tsearch(key, root, findcompareFct(fnc));
+}
+EXPORT void my_tdestroy(x64emu_t* emu, void* root, void* fnc)
+{
+    (void)emu;
+    return tdestroy(root, findfreeFct(fnc));
+}
 EXPORT void* my_lfind(x64emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
     (void)emu;
@@ -1780,7 +1814,32 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
     return ret;
 }
 
-#if 0
+EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath, 
+    const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
+{
+    int self = isProcSelf(fullpath, "exe");
+    int x64 = FileIsX64ELF(fullpath);
+    int x86 = my_context->box86path?FileIsX86ELF(fullpath):0;
+    printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn(%p, \"%s\", %p, %p, %p, %p), IsX86=%d\n", pid, fullpath, actions, attrp, argv, envp, x64);
+    if (x64 || x86 || self) {
+        // count argv...
+        int i=0;
+        while(argv[i]) ++i;
+        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        newargv[0] = x86?emu->context->box86path:emu->context->box64path;
+        for (int j=0; j<i; ++j)
+            newargv[j+1] = argv[j];
+        if(self) newargv[1] = emu->context->fullpath;
+        printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawn(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
+        int ret = posix_spawn(pid, newargv[0], actions, attrp, newargv, envp);
+        printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn returned %d\n", ret);
+        //free(newargv);
+        return ret;
+    }
+    // fullpath is gone, so the search will only be on PATH, not on BOX64_PATH (is that an issue?)
+    return posix_spawn(pid, fullpath, actions, attrp, argv, envp);
+}
+
 // execvp should use PATH to search for the program first
 EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path, 
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
@@ -1791,7 +1850,7 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     int self = isProcSelf(fullpath, "exe");
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
-    printf_log(LOG_DEBUG, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x64, fullpath);
+    printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x64, fullpath);
     free(fullpath);
     if (x64 || x86 || self) {
         // count argv...
@@ -1802,16 +1861,15 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
-        printf_log(LOG_DEBUG, " => posix_spawnp(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
+        printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawnp(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
         int ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, envp);
-        printf_log(LOG_DEBUG, "posix_spawnp returned %d\n", ret);
+        printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawnp returned %d\n", ret);
         //free(newargv);
         return ret;
     }
     // fullpath is gone, so the search will only be on PATH, not on BOX64_PATH (is that an issue?)
     return posix_spawnp(pid, path, actions, attrp, argv, envp);
 }
-#endif
 
 EXPORT void my__Jv_RegisterClasses() {}
 

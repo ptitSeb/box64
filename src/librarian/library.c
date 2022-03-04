@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include <link.h>
 
 #include "debug.h"
 #include "library.h"
@@ -191,7 +192,9 @@ static void initNativeLib(library_t *lib, box64context_t* context) {
         if(strcmp(lib->name, wrappedlibs[i].name)==0) {
             if(wrappedlibs[i].init(lib, context)) {
                 // error!
-                printf_log(LOG_NONE, "Error initializing native %s (last dlerror is %s)\n", lib->name, dlerror());
+                const char* error_str = dlerror();
+                if(error_str)   // don't print the message if there is no error string from last error
+                    printf_log(LOG_NONE, "Error initializing native %s (last dlerror is %s)\n", lib->name, error_str);
                 return; // non blocker...
             }
             printf_log(LOG_INFO, "Using native(wrapped) %s\n", lib->name);
@@ -207,6 +210,20 @@ static void initNativeLib(library_t *lib, box64context_t* context) {
                 printf_log(LOG_NONE, "Error: loading a needed libs in elf %s\n", lib->name);
                 return;
             }
+
+            linkmap_t *lm = addLinkMapLib(lib);
+            if(!lm) {
+                // Crashed already
+                printf_log(LOG_DEBUG, "Failure to add lib %s linkmap\n", lib->name);
+                break;
+            }
+            struct link_map real_lm;
+            if(dlinfo(lib->priv.w.lib, RTLD_DI_LINKMAP, &real_lm)) {
+                printf_log(LOG_DEBUG, "Failed to dlinfo lib %s\n", lib->name);
+            }
+            lm->l_addr = real_lm.l_addr;
+            lm->l_name = real_lm.l_name;
+            lm->l_ld = real_lm.l_ld;
             break;
         }
     }
@@ -835,4 +852,49 @@ lib_t* GetMaplib(library_t* lib)
     if(!lib)
         return NULL;
     return lib->maplib;
+}
+
+linkmap_t* getLinkMapLib(library_t* lib)
+{
+    linkmap_t* lm = my_context->linkmap;
+    while(lm) {
+        if(lm->l_lib == lib)
+            return lm;
+        lm = lm->l_next;
+    }
+    return NULL;
+}
+linkmap_t* addLinkMapLib(library_t* lib)
+{
+    if(!my_context->linkmap) {
+        my_context->linkmap = (linkmap_t*)calloc(1, sizeof(linkmap_t));
+        my_context->linkmap->l_lib = lib;
+        return my_context->linkmap;
+    }
+    linkmap_t* lm = my_context->linkmap;
+    while(lm->l_next)
+        lm = lm->l_next;
+    lm->l_next = (linkmap_t*)calloc(1, sizeof(linkmap_t));
+    lm->l_next->l_lib = lib;
+    lm->l_next->l_prev = lm;
+    return lm->l_next;
+}
+void removeLinkMapLib(library_t* lib)
+{
+    linkmap_t* lm = getLinkMapLib(lib);
+    if(!lm) return;
+    if(lm->l_next)
+        lm->l_next->l_prev = lm->l_prev;
+    if(lm->l_prev)
+        lm->l_prev->l_next = lm->l_next;
+    free(lm);
+}
+
+void AddMainElfToLinkmap(elfheader_t* elf)
+{
+    linkmap_t* lm = addLinkMapLib(NULL);    // main elf will have a null lib link
+
+    lm->l_addr = (Elf64_Addr)GetBaseAddress(elf);
+    lm->l_name = my_context->fullpath;
+    lm->l_ld = GetDynamicSection(elf);
 }

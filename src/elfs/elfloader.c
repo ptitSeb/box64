@@ -1081,6 +1081,20 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, lib
                 rpath = tmp;
                 free(origin);
             }
+            while(strstr(rpath, "${PLATFORM}")) {
+                char* platform = strdup("x86_64");
+                char* p = strrchr(platform, '/');
+                if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+                char* tmp = (char*)calloc(1, strlen(rpath)-strlen("${PLATFORM}")+strlen(platform)+1);
+                p = strstr(rpath, "${PLATFORM}");
+                memcpy(tmp, rpath, p-rpath);
+                strcat(tmp, platform);
+                strcat(tmp, p+strlen("${PLATFORM}"));
+                if(rpath!=rpathref)
+                    free(rpath);
+                rpath = tmp;
+                free(platform);
+            }
             if(strchr(rpath, '$')) {
                 printf_log(LOG_INFO, "BOX64: Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
             } else {

@@ -376,6 +376,7 @@
 #() iFpip
 #() iFpIi
 #() iFpII
+#() iFpCp
 #() iFpui
 #() iFpuu
 #() iFpuU
@@ -513,6 +514,7 @@
 #() pFpip
 #() pFpCC
 #() pFpCu
+#() pFpWW
 #() pFpui
 #() pFpuu
 #() pFpuL
@@ -732,6 +734,7 @@
 #() iFpipV
 #() iFpIip
 #() iFpCCC
+#() iFpCpi
 #() iFpWWu
 #() iFpuwp
 #() iFpuiL
@@ -778,6 +781,7 @@
 #() iFppLL
 #() iFppLp
 #() iFpppi
+#() iFpppC
 #() iFpppu
 #() iFpppU
 #() iFpppL
@@ -1377,6 +1381,7 @@
 #() iFpippip
 #() iFpipppL
 #() iFpipppp
+#() iFpCpipu
 #() iFpWpppp
 #() iFpuiCpp
 #() iFpuippp
@@ -1723,6 +1728,7 @@
 #() iFuipuuluf
 #() iFuuuuuuuu
 #() iFullfpppp
+#() iFpCCWWpWu
 #() iFpWCuWCuu
 #() iFpWWipppp
 #() iFpuiipppp
@@ -1887,6 +1893,7 @@
 #() vFppuuuuiiuu
 #() vFppdddddddd
 #() vFpppppppppp
+#() iFEpiiiiippp
 #() iFEpupppLppL
 #() iFEppppppipp
 #() iFEppppppppp
@@ -2645,6 +2652,7 @@ wrappedlibc:
   - _ITM_registerTMCloneTable
 - vFpp:
   - __register_frame_info
+  - tdestroy
 - vFpV:
   - warn
   - warnx
@@ -2747,6 +2755,8 @@ wrappedlibc:
   - readlink
 - pFpip:
   - fts_open
+- pFppp:
+  - tsearch
 - vFiipV:
   - __syslog_chk
 - vFiipA:
@@ -2812,6 +2822,9 @@ wrappedlibc:
 - iFpLiLpV:
   - __snprintf_chk
   - __swprintf_chk
+- iFpppppp:
+  - posix_spawn
+  - posix_spawnp
 - pFpLiiil:
   - mmap
   - mmap64
@@ -3078,6 +3091,14 @@ wrappedlibtinfo:
 wrappedlibtinfo6:
 - iFpip:
   - tputs
+wrappedlibusb1:
+- iFp:
+  - libusb_cancel_transfer
+  - libusb_submit_transfer
+- pFi:
+  - libusb_alloc_transfer
+- iFpiiiiippp:
+  - libusb_hotplug_register_callback
 wrappedlibuuid:
 wrappedlibvorbis:
 wrappedlibx11:

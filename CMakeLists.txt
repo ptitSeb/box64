@@ -311,6 +311,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibssl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibtinfo.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibtinfo6.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibusb1.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibuuid.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibvorbis.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibx11.c"
@@ -520,7 +521,8 @@ add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX64_ROOT}/src/git_head
 set_target_properties(${BOX64} PROPERTIES ENABLE_EXPORTS ON)
 add_dependencies(${BOX64} WRAPPERS)
 #add_dependencies(${BOX64} PRINTER)
-target_link_libraries(${BOX64} c m dl rt pthread)
+#target_link_libraries(${BOX64} c m dl rt pthread resolv)
+set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-Wl,--no-as-need -lc -lm -ldl -lrt -lpthread -lresolv -Wl,--as-need")
 if(DYNAREC)
     target_link_libraries(${BOX64} dynarec)
 endif()

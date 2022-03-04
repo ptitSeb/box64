@@ -1260,6 +1260,7 @@ int main(int argc, const char **argv, const char **env) {
         dynarec_wine_prereserve();
         #endif
     }
+    AddMainElfToLinkmap(elf_header);
     // pre-load lib if needed
     if(ld_preload.size) {
         if(AddNeededLib(NULL, NULL, NULL, 0, 0, (const char**)ld_preload.paths, ld_preload.size, my_context, emu)) {

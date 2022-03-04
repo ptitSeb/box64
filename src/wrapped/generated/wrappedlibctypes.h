@@ -49,6 +49,7 @@ typedef int64_t (*iFppA_t)(void*, void*, va_list);
 typedef int64_t (*iFpOu_t)(void*, int32_t, uint64_t);
 typedef intptr_t (*lFppL_t)(void*, void*, uintptr_t);
 typedef void* (*pFpip_t)(void*, int64_t, void*);
+typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFiipV_t)(int64_t, int64_t, void*, ...);
 typedef void (*vFiipA_t)(int64_t, int64_t, void*, va_list);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
@@ -74,6 +75,7 @@ typedef void* (*pFpLLiN_t)(void*, uintptr_t, uintptr_t, int64_t, ...);
 typedef void* (*pFppLLp_t)(void*, void*, uintptr_t, uintptr_t, void*);
 typedef void* (*pFpppLp_t)(void*, void*, void*, uintptr_t, void*);
 typedef int64_t (*iFpLiLpV_t)(void*, uintptr_t, int64_t, uintptr_t, void*, ...);
+typedef int64_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef void* (*pFpLiiil_t)(void*, uintptr_t, int64_t, int64_t, int64_t, intptr_t);
 typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*);
 
@@ -102,6 +104,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(siglongjmp, vFpi_t) \
 	GO(_ITM_registerTMCloneTable, vFpu_t) \
 	GO(__register_frame_info, vFpp_t) \
+	GO(tdestroy, vFpp_t) \
 	GO(warn, vFpV_t) \
 	GO(warnx, vFpV_t) \
 	GO(__sigsetjmp, iFpi_t) \
@@ -178,6 +181,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(open64, iFpOu_t) \
 	GO(readlink, lFppL_t) \
 	GO(fts_open, pFpip_t) \
+	GO(tsearch, pFppp_t) \
 	GO(__syslog_chk, vFiipV_t) \
 	GO(__vsyslog_chk, vFiipA_t) \
 	GO(qsort, vFpLLp_t) \
@@ -218,6 +222,8 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(lsearch, pFpppLp_t) \
 	GO(__snprintf_chk, iFpLiLpV_t) \
 	GO(__swprintf_chk, iFpLiLpV_t) \
+	GO(posix_spawn, iFpppppp_t) \
+	GO(posix_spawnp, iFpppppp_t) \
 	GO(mmap, pFpLiiil_t) \
 	GO(mmap64, pFpLiiil_t) \
 	GO(__libc_start_main, iFpippppp_t)

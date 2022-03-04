@@ -65,7 +65,8 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
     int is_local = (flag&0x100)?0:1;  // if not global, then local, and that means symbols are not put in the global "pot" for pther libs
     CLEARERR
     if(filename) {
-        char* rfilename = (char*)filename;
+        char* rfilename = (char*)alloca(MAX_PATH);
+        strcpy(rfilename, (char*)filename);
         if(box64_zoom && rfilename && strstr(rfilename, "/libturbojpeg.so")) {
             void* sys = my_dlopen(emu, "libturbojpeg.so.0", flag);
             if(sys)
@@ -73,6 +74,33 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         }
         if(dlsym_error || box64_log>=LOG_DEBUG) {
             printf_log(LOG_NONE, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+        }
+        // Transform any ${...} that maight be present
+        while(strstr(rfilename, "${ORIGIN}")) {
+            char* origin = strdup(my_context->fullpath);
+            char* p = strrchr(origin, '/');
+            if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+            char* tmp = (char*)calloc(1, strlen(rfilename)-strlen("${ORIGIN}")+strlen(origin)+1);
+            p = strstr(rfilename, "${ORIGIN}");
+            memcpy(tmp, rfilename, p-rfilename);
+            strcat(tmp, origin);
+            strcat(tmp, p+strlen("${ORIGIN}"));
+            strcpy(rfilename, tmp);
+            free(tmp);
+            free(origin);
+        }
+        while(strstr(rfilename, "${PLATFORM}")) {
+            char* platform = strdup("x86_64");
+            char* p = strrchr(platform, '/');
+            if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+            char* tmp = (char*)calloc(1, strlen(rfilename)-strlen("${PLATFORM}")+strlen(platform)+1);
+            p = strstr(rfilename, "${PLATFORM}");
+            memcpy(tmp, rfilename, p-rfilename);
+            strcat(tmp, platform);
+            strcat(tmp, p+strlen("${PLATFORM}"));
+            strcpy(rfilename, tmp);
+            free(tmp);
+            free(platform);
         }
         // check if alread dlopenned...
         for (size_t i=0; i<dl->lib_sz; ++i) {
@@ -349,22 +377,16 @@ int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
     printf_log(LOG_DEBUG, "Warning: partially unimplement call to dladdr/dladdr1(%p, %p, %p, %d)\n", addr, info, extra_info, flags);
     
     //emu->quit = 1;
+    library_t* lib = NULL;
     info->dli_saddr = NULL;
     info->dli_fname = NULL;
-    info->dli_sname = FindSymbolName(emu->context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase);
+    info->dli_sname = FindSymbolName(emu->context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase, &lib);
     printf_log(LOG_DEBUG, "     dladdr return saddr=%p, fname=\"%s\", sname=\"%s\"\n", info->dli_saddr, info->dli_sname?info->dli_sname:"", info->dli_fname?info->dli_fname:"");
     if(flags==RTLD_DL_SYMENT) {
         printf_log(LOG_INFO, "Warning, unimplement call to dladdr1 with RTLD_DL_SYMENT flags\n");
     } else if (flags==RTLD_DL_LINKMAP) {
-        printf_log(LOG_INFO, "Warning, partially unimplement call to dladdr1 with RTLD_DL_LINKMAP flags\n");
-        static struct link_map my_map = {0};
-        elfheader_t* elf = FindElfAddress(my_context, (uintptr_t)addr);
-        if(elf) {
-            my_map.l_addr = (uintptr_t)GetElfDelta(elf);
-            my_map.l_name = (char*)ElfPath(elf);
-            my_map.l_ld = GetDynamicSection(elf);
-        }
-        *extra_info = &my_map;
+        printf_log(LOG_INFO, "Warning, partially unimplemented call to dladdr1 with RTLD_DL_LINKMAP flags\n");
+        *(linkmap_t**)extra_info = getLinkMapLib(lib);
     }
     return (info->dli_sname)?1:0;   // success is non-null here...
 }
@@ -485,12 +507,6 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     return (void*)start;
 }
 
-typedef struct link_map_s {
-    uintptr_t   l_addr;
-    char*       l_name;
-    Elf64_Dyn*  l_ld;
-} link_map_t;
-
 int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
 {
     (void)emu;
@@ -521,15 +537,11 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
         return -1;
     }
     library_t *lib = dl->libs[nlib];
-    elfheader_t *h = (GetElfIndex(lib)>-1)?my_context->elfs[GetElfIndex(lib)]:NULL;
+    //elfheader_t *h = (GetElfIndex(lib)>-1)?my_context->elfs[GetElfIndex(lib)]:NULL;
     switch(request) {
         case 2: // RTLD_DI_LINKMAP
             {
-                static link_map_t map = {0};   //cheating, creating a structure on demand...
-                *(link_map_t**)info = &map;
-                map.l_addr = h?h->delta:0;
-                map.l_name = lib->path;
-                map.l_ld = h?h->Dynamic:NULL;
+                *(linkmap_t**)info = getLinkMapLib(lib);
             }
             return 0;
         default:

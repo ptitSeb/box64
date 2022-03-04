@@ -64,4 +64,6 @@ int SameVersionnedSymbol(const char* name1, int ver1, const char* vername1, cons
 
 void* GetNativeSymbolUnversionned(void* lib, const char* name);
 
+void AddMainElfToLinkmap(elfheader_t* lib);
+
 #endif //__ELF_LOADER_H_

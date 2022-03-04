@@ -285,6 +285,19 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
         printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
         return 1;
     }
+
+    if (lib->type == 1) {
+        // Need to add library to the linkmap (put here so the link is ordered)
+        linkmap_t *lm = addLinkMapLib(lib);
+        if(!lm) {
+            // Crashed already
+            printf_log(LOG_DEBUG, "Failure to add lib linkmap\n");
+            return 1;
+        }
+        lm->l_addr = (Elf64_Addr)GetBaseAddress(my_context->elfs[lib->priv.n.elf_index]);
+        lm->l_name = lib->name;
+        lm->l_ld = GetDynamicSection(my_context->elfs[lib->priv.n.elf_index]);
+    }
     return 0;
 }
 
@@ -588,7 +601,7 @@ int GetNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     }
     return 0;
 }
-const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint64_t* sz, const char** libname, void** base)
+const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint64_t* sz, const char** libname, void** base, library_t** lib)
 {
     // first, search in self...
     const char* ret = NULL;
@@ -597,8 +610,7 @@ const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint64_t* sz, c
     elfheader_t* h = FindElfAddress(my_context, (uintptr_t)p);
     if(h) {
         ret = FindNearestSymbolName(h, p, &offs, &size);
-    }
-    if(h) {
+
         if(start)
             *start = (void*)offs;
         if(sz)
@@ -607,6 +619,26 @@ const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint64_t* sz, c
             *libname = ElfName(h);
         if(base)
             *base = GetBaseAddress(h);
+        if(lib) {
+            if(h == my_context->elfs[0])
+                *lib = NULL;    // main elf
+            else {
+                for(int i=0; i<my_context->maplib->libsz; ++i) {
+                    int idx = GetElfIndex(my_context->maplib->libraries[i]);
+                    if((idx!=-1) && (my_context->elfs[idx]==h)) {
+                        *lib = my_context->maplib->libraries[i];
+                        return ret;
+                    }
+                }
+                for(int i=0; i<my_context->local_maplib->libsz; ++i) {
+                    int idx = GetElfIndex(my_context->local_maplib->libraries[i]);
+                    if((idx!=-1) && (my_context->elfs[idx]==h)) {
+                        *lib = my_context->local_maplib->libraries[i];
+                        return ret;
+                    }
+                }
+            }
+        }
         return ret;
     }
     // TODO: find if cyclic references exists (should also fix MapLibAddMapLib)

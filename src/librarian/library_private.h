@@ -1,6 +1,7 @@
 #ifndef __LIBRARY_PRIVATE_H_
 #define __LIBRARY_PRIVATE_H_
 #include <stdint.h>
+#include <elf.h>
 
 #include "custommem.h"
 #include "khash.h"
@@ -99,5 +100,20 @@ typedef struct map_onedata_s {
 } map_onedata_t;
 
 int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int version, const char* vername, int local);  // Add bridges to functions
+
+typedef struct linkmap_s {
+    // actual struct link_map
+    Elf64_Addr  l_addr;
+    char*       l_name;
+    Elf64_Dyn*  l_ld;
+    struct linkmap_s *l_next, *l_prev;
+    // custom
+    library_t*  l_lib;
+
+} linkmap_t;
+
+linkmap_t* getLinkMapLib(library_t* lib);
+linkmap_t* addLinkMapLib(library_t* lib);
+void removeLinkMapLib(library_t* lib);
 
 #endif //__LIBRARY_PRIVATE_H_

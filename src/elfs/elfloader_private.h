@@ -8,7 +8,6 @@ typedef struct dynablocklist_s dynablocklist_t;
 typedef struct library_s library_t;
 typedef struct needed_libs_s needed_libs_t;
 
-#include <pthread.h>
 #include <elf.h>
 #include "elfloader.h"
 
