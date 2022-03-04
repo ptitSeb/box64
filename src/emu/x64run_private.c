@@ -957,14 +957,21 @@ const char* getAddrFunctionName(uintptr_t addr)
     static char ret[1000];
     uint64_t sz = 0;
     uintptr_t start = 0;
-    const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, addr), (void*)addr, &start, &sz);
+    elfheader_t* elf = FindElfAddress(my_context, addr);
+    const char* symbname = FindNearestSymbolName(elf, (void*)addr, &start, &sz);
     if(symbname && addr>=start && (addr<(start+sz) || !sz)) {
-        if(addr==start)
-            sprintf(ret, "%s:%s", ElfName(FindElfAddress(my_context, addr)), symbname);
+        if(symbname[0]=='\0')
+            sprintf(ret, "%s + 0x%x", ElfName(elf), addr - (uintptr_t)GetBaseAddress(elf));
+        else if(addr==start)
+            sprintf(ret, "%s/%s", ElfName(elf), symbname);
         else
-            sprintf(ret, "%s:%s + %ld", ElfName(FindElfAddress(my_context, addr)), symbname, addr - start);
-    } else
-        sprintf(ret, "???");
+            sprintf(ret, "%s/%s + %d", ElfName(elf), symbname, addr - start);
+    } else {
+        if(elf) {
+            sprintf(ret, "%s + 0x%x", ElfName(elf), addr - (uintptr_t)GetBaseAddress(elf));
+        } else
+            sprintf(ret, "???");
+    }
     return ret;
 }
 
