@@ -236,6 +236,15 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "STR %s, [%s, %s, %s %d]", (size==2)?Wt[Rt]:Xt[Rt], XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm], extend[option], amount);
         return buff;
     }
+    if(isMask(opcode, "00111000001mmmmmoooS10nnnnnttttt", &a)) {
+        const char* extend[] = {"?0", "?1", "UXTW", "LSL", "?4", "?5", "SXTW", "SXTX"};
+        int amount = a.S;
+        if(option==3 && !amount)
+            snprintf(buff, sizeof(buff), "STRB %s, [%s, %s]", Wt[Rt], XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm]);
+        else
+            snprintf(buff, sizeof(buff), "STRB %s, [%s, %s, %s %d]", Wt[Rt], XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm], extend[option], amount);
+        return buff;
+    }
     if(isMask(opcode, "0x111000010iiiiiiiii01nnnnnttttt", &a)) {
         int size = a.x;
         int offset = signExtend(imm, 9);
