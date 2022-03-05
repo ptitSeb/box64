@@ -228,16 +228,39 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_cmp32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             break;
 
+        case 0x63:
+            INST_NAME("MOVSXD Gd, Ed");
+            nextop = F8;
+            GETGD;
+            if(rex.w) {
+                if(MODREG) {   // reg <= reg
+                    SXTWx(gd, xRAX+(nextop&7)+(rex.b<<3));
+                } else {                    // mem <= reg
+                    grab_segdata(dyn, addr, ninst, x4, seg);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                    LDRSW_REG(gd, ed, x4);
+                }
+            } else {
+                if(MODREG) {   // reg <= reg
+                    MOVw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
+                } else {                    // mem <= reg
+                    grab_segdata(dyn, addr, ninst, x4, seg);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                    LDRw_REG(gd, ed, x4);
+                }
+            }
+            break;
+
         case 0x66:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
 
         case 0x80:
             nextop = F8;
-            grab_segdata(dyn, addr, ninst, x1, seg);
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     INST_NAME("ADD Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEBO(x1, 1);
                     u8 = F8;
@@ -246,6 +269,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1: //OR
                     INST_NAME("OR Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEBO(x1, 1);
                     u8 = F8;
@@ -254,6 +278,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2: //ADC
                     INST_NAME("ADC Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEBO(x1, 1);
@@ -263,6 +288,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 3: //SBB
                     INST_NAME("SBB Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEBO(x1, 1);
@@ -272,6 +298,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 4: //AND
                     INST_NAME("AND Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEBO(x1, 1);
                     u8 = F8;
@@ -280,6 +307,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 5: //SUB
                     INST_NAME("SUB Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEBO(x1, 1);
                     u8 = F8;
@@ -288,6 +316,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6: //XOR
                     INST_NAME("XOR Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEBO(x1, 1);
                     u8 = F8;
@@ -296,6 +325,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7: //CMP
                     INST_NAME("CMP Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEBO(x1, 1);
                     u8 = F8;

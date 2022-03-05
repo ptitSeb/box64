@@ -236,6 +236,19 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
             break;
 
 
+        case 0x63:                      /* MOVSXD Gd,Ed */
+            nextop = F8;
+            GETED_OFFS(0, tlsdata);
+            GETGD;
+            if(rex.w)
+                GD->sq[0] = ED->sdword[0];
+            else
+                if(MODREG)
+                    GD->q[0] = ED->dword[0];    // not really a sign extension
+                else
+                    GD->sdword[0] = ED->sdword[0];  // meh?
+            break;
+
         case 0x66:
             return Run6664(emu, rex);
 
