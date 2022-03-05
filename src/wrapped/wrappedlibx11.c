@@ -79,14 +79,17 @@ typedef struct _XImage {
     ximage_t f;
 } XImage;
 
+typedef void (*vFp_t)(void*);
 typedef uint32_t (*uFv_t)(void);
 typedef int32_t (*iFpl_t)(void*, intptr_t);
 typedef uintptr_t (*LFpii_t)(void*, int32_t, int32_t);
 typedef int32_t (*iFpiiL_t)(void*, int32_t, int32_t, uintptr_t);
 typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
 
-#define ADDED_FUNCTIONS() \
-    GO(XInitThreads, uFv_t)
+#define ADDED_FUNCTIONS()       \
+    GO(XInitThreads, uFv_t)     \
+    GO(XLockDisplay, vFp_t)     \
+    GO(XUnlockDisplay, vFp_t)
 
 #include "generated/wrappedlibx11types.h"
 
@@ -462,6 +465,50 @@ static void* reverse_XSynchronizeProcFct(library_t* lib, void* fct)
     return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0, NULL);
 }
 
+// XLockDisplay
+#define GO(A)   \
+static uintptr_t my_XLockDisplay_fct_##A = 0;                   \
+static void my_XLockDisplay_##A(void* dpy)                      \
+{                                                               \
+    RunFunction(my_context, my_XLockDisplay_fct_##A, 1, dpy);   \
+}
+SUPER()
+#undef GO
+static void* findXLockDisplayFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_XLockDisplay_fct_##A == (uintptr_t)fct) return my_XLockDisplay_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XLockDisplay_fct_##A == 0) {my_XLockDisplay_fct_##A = (uintptr_t)fct; return my_XLockDisplay_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XLockDisplay callback\n");
+    return NULL;
+}
+// XUnlockDisplay
+#define GO(A)   \
+static uintptr_t my_XUnlockDisplay_fct_##A = 0;                 \
+static void my_XUnlockDisplay_##A(void* dpy)                    \
+{                                                               \
+    RunFunction(my_context, my_XUnlockDisplay_fct_##A, 1, dpy); \
+}
+SUPER()
+#undef GO
+static void* findXUnlockDisplayFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_XUnlockDisplay_fct_##A == (uintptr_t)fct) return my_XUnlockDisplay_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XUnlockDisplay_fct_##A == 0) {my_XUnlockDisplay_fct_##A = (uintptr_t)fct; return my_XUnlockDisplay_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XUnlockDisplay callback\n");
+    return NULL;
+}
 #undef SUPER
 
 void* my_XCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
@@ -796,6 +843,216 @@ EXPORT void* my_XSynchronize(x64emu_t* emu, void* display, int onoff)
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     return reverse_XSynchronizeProcFct(lib, my->XSynchronize(display, onoff));
+}
+
+typedef unsigned long XID;
+struct my_XFreeFuncs {
+    void* atoms;
+    void* modifiermap;
+    void* key_bindings;
+    void* context_db;
+    void* defaultCCCs;
+    void* clientCmaps;
+    void* intensityMaps;
+    void* im_filters;
+    void* xkb;
+};
+
+struct my_XExten {
+        struct my_XExten *next;
+        void* codes;    // XExtCodes
+        void* create_GC;    // CreateGCType
+        void* copy_GC;  // CopyGCType
+        void* flush_GC; // FlushGCType
+        void* free_GC;  // FreeGCType
+        void* create_Font;  // CreateFontType
+        void* free_Font;    // FreeFontType
+        void* close_display;    // CloseDisplayType
+        void* error;    // ErrorType
+        void* error_string; // ErrorStringType
+        char *name;
+        void* error_values; // PrintErrorType
+        void* before_flush; // BeforeFlushType
+        struct my_XExten *next_flush;
+};
+
+struct my_XInternalAsync {
+    struct my_XInternalAsync *next;
+    int (*handler)(void*, void*, char*, int, void*);
+    void* data;
+};
+
+struct my_XLockPtrs {
+    void (*lock_display)(void* dpy);
+    void (*unlock_display)(void *dpy);
+};
+
+struct my_XConnectionInfo {
+    int fd;
+    void* read_callback;    // _XInternalConnectionProc
+    void* call_data;
+    void* *watch_data;
+    struct my_XConnectionInfo *next;
+};
+
+struct my_XConnWatchInfo {
+    void* fn;   // XConnectionWatchProc
+    void* client_data;
+    struct _XConnWatchInfo *next;
+};
+
+typedef struct my_XDisplay_s
+{
+        void *ext_data;
+        struct my_XFreeFuncs *free_funcs;
+        int fd;
+        int conn_checker;
+        int proto_major_version;
+        int proto_minor_version;
+        char *vendor;
+        XID resource_base;
+        XID resource_mask;
+        XID resource_id;
+        int resource_shift;
+        XID (*resource_alloc)(void*);
+        int byte_order;
+        int bitmap_unit;
+        int bitmap_pad;
+        int bitmap_bit_order;
+        int nformats;
+        void *pixmap_format;
+        int vnumber;
+        int release;
+        void *head, *tail;
+        int qlen;
+        unsigned long last_request_read;
+        unsigned long request;
+        char *last_req;
+        char *buffer;
+        char *bufptr;
+        char *bufmax;
+        unsigned max_request_size;
+        void* *db;
+        int (*synchandler)(void*);
+        char *display_name;
+        int default_screen;
+        int nscreens;
+        void *screens;
+        unsigned long motion_buffer;
+        volatile unsigned long flags;
+        int min_keycode;
+        int max_keycode;
+        void *keysyms;
+        void *modifiermap;
+        int keysyms_per_keycode;
+        char *xdefaults;
+        char *scratch_buffer;
+        unsigned long scratch_length;
+        int ext_number;
+        struct my_XExten *ext_procs;
+        int (*event_vec[128])(void *, void *, void *);
+        int (*wire_vec[128])(void *, void *, void *);
+        XID lock_meaning;
+        void* lock;
+        struct my_XInternalAsync *async_handlers;
+        unsigned long bigreq_size;
+        struct my_XLockPtrs *lock_fns;
+        void (*idlist_alloc)(void *, void *, int);
+        void* key_bindings;
+        XID cursor_font;
+        void* *atoms;
+        unsigned int mode_switch;
+        unsigned int num_lock;
+        void* context_db;
+        int (**error_vec)(void*, void*, void*);
+        struct {
+           void* defaultCCCs;
+           void* clientCmaps;
+           void* perVisualIntensityMaps;
+        } cms;
+        void* im_filters;
+        void* qfree;
+        unsigned long next_event_serial_num;
+        struct my_XExten *flushes;
+        struct my_XConnectionInfo *im_fd_info;
+        int im_fd_length;
+        struct my_XConnWatchInfo *conn_watchers;
+        int watcher_count;
+        void* filedes;
+        int (*savedsynchandler)(void *);
+        XID resource_max;
+        int xcmisc_opcode;
+        void* *xkb_info;
+        void* *trans_conn;
+        void* *xcb;
+        unsigned int next_cookie;
+        int (*generic_event_vec[128])(void*, void*, void*);
+        int (*generic_event_copy_vec[128])(void*, void*, void*);
+        void *cookiejar;
+        unsigned long last_request_read_upper32bit; // 64bits only
+        unsigned long request_upper32bit;   // 64bits only
+        void* error_threads;
+        void* exit_handler;
+        void* exit_handler_data;
+} my_XDisplay_t;
+
+EXPORT void* my_XOpenDisplay(x64emu_t* emu, void* d)
+{
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+    void* ret = my->XOpenDisplay(d);
+    // Added automatic bridge because of thos macro from Xlibint.h
+    //#define LockDisplay(d)       if ((d)->lock_fns) (*(d)->lock_fns->lock_display)(d)
+    //#define UnlockDisplay(d)     if ((d)->lock_fns) (*(d)->lock_fns->unlock_display)(d)
+
+    my_XDisplay_t* dpy = (my_XDisplay_t*)ret;
+    if(!ret)
+        return ret;
+
+    bridge_t* system = emu->context->system;
+
+    #define GO(A, W)\
+    if(dpy->A)      \
+        if(!CheckBridged(system, dpy->A)) \
+            AddAutomaticBridge(emu, system, W, dpy->A, 0); \
+
+    #define GO2(A, B, W) \
+    if(dpy->A && dpy->A->B)  \
+        if(!CheckBridged(system, dpy->A->B)) \
+            AddAutomaticBridge(emu, system, W, dpy->A->B, 0); \
+
+
+    GO2(free_funcs, atoms, vFp)
+    GO2(free_funcs, modifiermap, iFp)
+    GO2(free_funcs, key_bindings, vFp)
+    GO2(free_funcs, context_db, vFp)
+    GO2(free_funcs, defaultCCCs, vFp)
+    GO2(free_funcs, clientCmaps, vFp)
+    GO2(free_funcs, intensityMaps, vFp)
+    GO2(free_funcs, im_filters, vFp)
+    GO2(free_funcs, xkb, vFp)
+    GO(resource_alloc, LFp)
+    GO(synchandler, iFp)
+    //TODO: ext_procs?
+    //TODO: event_vec?
+    //TODO: wire_vec?
+    //TODO: async_handlers?
+    GO2(lock_fns, lock_display, vFp);
+    GO2(lock_fns, unlock_display, vFp);
+    GO(idlist_alloc, vFppi)
+    //TODO: error_vec?
+    //TODO: flushes
+    //TODO: im_fd_info?
+    //TODO: conn_watchers
+    GO(savedsynchandler, iFp)
+    //TODO: generic_event_vec?
+    //TODO: generic_event_copy_vec?
+
+
+    #undef GO
+    #undef GO2
+
+    return ret;
 }
 
 #define CUSTOM_INIT                 \

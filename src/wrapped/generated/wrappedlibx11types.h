@@ -29,6 +29,7 @@ typedef void* (*pFppiiuuuipii_t)(void*, void*, int64_t, int64_t, uint64_t, uint6
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XDestroyImage, iFp_t) \
 	GO(XInitImage, iFp_t) \
+	GO(XOpenDisplay, pFp_t) \
 	GO(XSetErrorHandler, pFp_t) \
 	GO(XSetIOErrorHandler, pFp_t) \
 	GO(_XDeqAsyncHandler, vFpp_t) \

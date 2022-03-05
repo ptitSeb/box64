@@ -806,7 +806,7 @@ GO(XNoOp, iFp)
 // _XNoticePutBitmap
 GO(XOffsetRegion, iFpii)
 //GO(XOMOfOC
-GO(XOpenDisplay, pFp)
+GOM(XOpenDisplay, pFEp)
 GO(XOpenIM, pFpppp)
 // _XOpenLC
 //GO(XOpenOM

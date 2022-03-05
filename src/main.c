@@ -1070,10 +1070,16 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_INFO, "steam-runtime-check-requirements detected, faking All is good!\n");
         exit(0);    // exiting, not testing anything
     }
-    // special case for steam-runtime-check-requirements to fake 64bits suport
+    // special case for steamwebhelper
     if(strstr(prgname, "steamwebhelper")==prgname) {
         printf_log(LOG_INFO, "steamwebhelper, ignoring for now!\n");
         exit(0);    // exiting
+    }
+    // special case for streaming_client to use emulated libSDL2
+    if(strstr(prgname, "streaming_client")==prgname) {
+        printf_log(LOG_INFO, "streaming_client detected, using emulated libSDL2!\n");
+        AddPath("libSDL2-2.0.so.0", &my_context->box64_emulated_libs, 0);
+        AddPath("libSDL2_ttf-2.0.so.0", &my_context->box64_emulated_libs, 0);
     }
     // special case for zoom
     if(strstr(prgname, "zoom")==prgname) {

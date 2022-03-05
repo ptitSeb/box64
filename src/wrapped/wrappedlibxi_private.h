@@ -45,12 +45,12 @@ GO(XIGetClientPointer, iFppp)
 //GO(XIGetFocus, 
 GO(XIGetProperty, iFpipllipppppp)
 GO(XIGetSelectedEvents, iFpppi)
-//GO(XIGrabButton, 
+GO(XIGrabButton, iFpiippiiipip)
 GO(XIGrabDevice, iFpipLpiiip)
 //GO(XIGrabEnter, 
 //GO(XIGrabFocusIn, 
-//GO(XIGrabKeycode, 
-//GO(XIGrabTouchBegin, 
+GO(XIGrabKeycode, iFpiipiiipip)
+GO(XIGrabTouchBegin, iFpipipip)
 //GO(XIListProperties, 
 GO(XIQueryDevice, pFpip)
 GO(XIQueryPointer, iFpipppppppppp)
@@ -59,12 +59,12 @@ GO(XISelectEvents, iFpppi)
 GO(XISetClientPointer, iFppi)
 //GO(XISetFocus, 
 //GO(XIUndefineCursor, 
-//GO(XIUngrabButton, 
+GO(XIUngrabButton, iFpiipip)
 GO(XIUngrabDevice, iFpiL)
 //GO(XIUngrabEnter, 
 //GO(XIUngrabFocusIn, 
-//GO(XIUngrabKeycode, 
-//GO(XIUngrabTouchBegin, 
+GO(XIUngrabKeycode, iFpiipip)
+GO(XIUngrabTouchBegin, iFpipip)
 //GO(XIWarpPointer, 
 //GO(XListDeviceProperties, 
 GO(XListInputDevices, pFpp)

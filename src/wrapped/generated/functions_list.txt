@@ -1372,6 +1372,7 @@
 #() iFpiiiii
 #() iFpiiiip
 #() iFpiiipp
+#() iFpiipip
 #() iFpiippu
 #() iFpiippp
 #() iFpiuuup
@@ -1584,6 +1585,7 @@
 #() iFpiuiipp
 #() iFpiupiii
 #() iFpiupppp
+#() iFpipipip
 #() iFpippLpp
 #() iFpippppW
 #() iFpippppp
@@ -1898,6 +1900,7 @@
 #() iFEppppppipp
 #() iFEppppppppp
 #() iFiiiiiiiiip
+#() iFpiipiiipip
 #() iFpuupiuiipp
 #() iFpddpippppp
 #() iFppuuiiiiii
@@ -1944,6 +1947,7 @@
 #() iFEpppipppppp
 #() iFEppppiiiiuu
 #() iFiiiiiiiiiip
+#() iFpiippiiipip
 #() iFppippipppip
 #() iFppppiiuuiiL
 #() uFEpLiupppLuV
@@ -3106,6 +3110,7 @@ wrappedlibx11:
   - XDestroyImage
   - XInitImage
 - pFp:
+  - XOpenDisplay
   - XSetErrorHandler
   - XSetIOErrorHandler
 - vFpp:
