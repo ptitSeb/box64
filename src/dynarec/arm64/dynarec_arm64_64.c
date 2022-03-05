@@ -203,6 +203,27 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
+                case 0xB6:
+                    INST_NAME("MOVZX Gd, Eb");
+                    nextop = F8;
+                    grab_segdata(dyn, addr, ninst, x4, seg);
+                    GETGD;
+                    if(MODREG) {
+                        if(rex.rex) {
+                            eb1 = xRAX+(nextop&7)+(rex.b<<3);
+                            eb2 = 0;                \
+                        } else {
+                            ed = (nextop&7);
+                            eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                            eb2 = (ed&4)>>2;    // L or H
+                        }
+                        UBFXxw(gd, eb1, eb2*8, 8);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                        LDRB_REG(gd, ed, x4);
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }
@@ -226,6 +247,16 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGD;
             GETEDO(x4, 0);
             emit_cmp32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            break;
+
+        case 0x3B:
+            INST_NAME("CMP Gd, Seg:Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_cmp32(dyn, ninst, rex, gd, ed, x3, x4, x5);
             break;
 
         case 0x63:
