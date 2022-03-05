@@ -170,6 +170,29 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
+                case 0x6F:
+                    switch(rep) {
+                        case 2:
+                            INST_NAME("MOVDQU Gx,Ex");// no alignment constraint on NEON here, so same as MOVDQA
+                            nextop = F8;
+                            GETG;
+                            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                            if(MODREG) {
+                                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                                VMOVQ(v0, v1);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg);
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, 0, 0);
+                                ADDx_REG(x4, x4, ed);
+                                VLDR128_U12(v0, ed, fixedaddress);
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+
+
                 case 0xAF:
                     INST_NAME("IMUL Gd, Ed");
                     SETFLAGS(X_ALL, SF_PENDING);

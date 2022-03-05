@@ -187,6 +187,20 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                     }
                     break;
 
+                case 0x6F:
+                    switch(rep) {
+                        case 2: /* MOVDQU Gx, Ex */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            memcpy(GX, EX, 16);    // unaligned...
+                            break;
+                            
+                        default:
+                            return 1;
+                    }
+                    break;
+
                 case 0xAF:                      /* IMUL Gd,Ed */
                     nextop = F8;
                     GETED_OFFS(0, tlsdata);
