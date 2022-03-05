@@ -244,7 +244,8 @@
                     ed = i;                     \
                 } else {                        \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, D); \
-                    ADDx_REG(wback, wback, i);  \
+                    ADDx_REG(x3, wback, i);     \
+                    if(wback!=x3) wback = x3;   \
                     LDRB_U12(i, wback, fixedaddress);      \
                     wb1 = 1;                    \
                     ed = i;                     \
