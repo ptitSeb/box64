@@ -4,6 +4,7 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <signal.h>
+#include <pthread.h>
 
 #include "box64context.h"
 #include "elfloader.h"

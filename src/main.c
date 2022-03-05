@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <sys/syscall.h>
 #include <sys/mman.h>
+#include <pthread.h>
 #ifdef DYNAREC
 #ifdef ARM64
 #include <linux/auxvec.h>

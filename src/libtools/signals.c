@@ -11,6 +11,7 @@
 #include <ucontext.h>
 #include <setjmp.h>
 #include <sys/mman.h>
+#include <pthread.h>
 
 #include "box64context.h"
 #include "debug.h"
