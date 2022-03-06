@@ -294,7 +294,7 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
             printf_log(LOG_DEBUG, "Failure to add lib linkmap\n");
             return 1;
         }
-        lm->l_addr = (Elf64_Addr)GetBaseAddress(my_context->elfs[lib->priv.n.elf_index]);
+        lm->l_addr = (Elf64_Addr)GetElfDelta(my_context->elfs[lib->priv.n.elf_index]);
         lm->l_name = lib->name;
         lm->l_ld = GetDynamicSection(my_context->elfs[lib->priv.n.elf_index]);
     }

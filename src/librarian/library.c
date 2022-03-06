@@ -895,7 +895,7 @@ void AddMainElfToLinkmap(elfheader_t* elf)
 {
     linkmap_t* lm = addLinkMapLib(NULL);    // main elf will have a null lib link
 
-    lm->l_addr = (Elf64_Addr)GetBaseAddress(elf);
+    lm->l_addr = (Elf64_Addr)GetElfDelta(elf);
     lm->l_name = my_context->fullpath;
     lm->l_ld = GetDynamicSection(elf);
 }
