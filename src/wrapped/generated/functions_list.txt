@@ -1012,6 +1012,7 @@
 #() vFpuuuu
 #() vFpuuup
 #() vFpuupp
+#() vFpuUUu
 #() vFpuddd
 #() vFpupup
 #() vFpUuiu
@@ -1303,6 +1304,7 @@
 #() vFpiiipp
 #() vFpiiuuu
 #() vFpiippp
+#() vFpiUuup
 #() vFpipipV
 #() vFpipppi
 #() vFpuiiii
@@ -1387,6 +1389,7 @@
 #() iFpuiCpp
 #() iFpuippp
 #() iFpupuui
+#() iFpUuupp
 #() iFpUUUip
 #() iFpUUUUp
 #() iFpLLppp
@@ -3713,6 +3716,7 @@ wrappedvulkan:
   - vkDestroyShaderModule
   - vkDestroySurfaceKHR
   - vkDestroySwapchainKHR
+  - vkDestroyValidationCacheEXT
 - vFppp:
   - vkDestroyDebugUtilsMessengerEXT
 - iFpUp:
@@ -3754,15 +3758,18 @@ wrappedvulkan:
   - vkCreateSemaphore
   - vkCreateShaderModule
   - vkCreateSwapchainKHR
+  - vkCreateValidationCacheEXT
   - vkCreateWaylandSurfaceKHR
   - vkCreateXcbSurfaceKHR
   - vkCreateXlibSurfaceKHR
+  - vkRegisterDeviceEventEXT
 - vFpupup:
   - vkUpdateDescriptorSets
 - iFpuppp:
   - vkCreateSharedSwapchainsKHR
 - iFpUppp:
   - vkCreateDisplayModeKHR
+  - vkRegisterDisplayEventEXT
 - iFpUuppp:
   - vkCreateComputePipelines
   - vkCreateGraphicsPipelines
