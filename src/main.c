@@ -81,6 +81,7 @@ int box64_wine = 0;
 int box64_nopulse = 0;
 int box64_nogtk = 0;
 int box64_novulkan = 0;
+int box64_showsegv = 0;
 char* libGL = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
@@ -548,6 +549,15 @@ void LoadLogEnv()
         if(jit_gdb)
             printf_log(LOG_INFO, "Launch %s on segfault\n", (jit_gdb==2)?"gdbserver":"gdb");
     }
+    p = getenv("BOX64_SHOWSEGV");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_showsegv = p[0]-'0';
+        }
+        if(box64_showsegv)
+            printf_log(LOG_INFO, "Show Segfault signal even if a signal handler is present\n");
+    }
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)
         box64_pagesize = 4096;
@@ -676,6 +686,7 @@ void PrintHelp() {
     printf(" BOX64_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binary (if binary is a PIE)\n");
     printf(" BOX64_NOSIGSEGV=1 to disable handling of SigSEGV\n");
     printf(" BOX64_NOSIGILL=1  to disable handling of SigILL\n");
+    printf(" BOX64_SHOWSEGV=1 to show Segfault signal even if a signal handler is present\n");
     printf(" BOX64_X11THREADS=1 to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)");
     printf(" BOX64_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
     printf(" BOX64_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
