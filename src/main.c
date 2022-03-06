@@ -958,7 +958,7 @@ int main(int argc, const char **argv, const char **env) {
             //wine_preloaded = 1;
         }
     }
-    #if 1
+    #if 0
     // pre-check for pressure-vessel-wrap
     if(strstr(prog, "pressure-vessel-wrap")==(prog+strlen(prog)-strlen("pressure-vessel-wrap"))) {
         // pressure-vessel-wrap detecter, skipping it and all -- args until "--" if needed
