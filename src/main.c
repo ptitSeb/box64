@@ -1054,6 +1054,9 @@ int main(int argc, const char **argv, const char **env) {
         prgname = prog;
     else
         ++prgname;
+    if(box64_wine) {
+        AddPath("libdl.so.2", &ld_preload, 0);
+    }
     // special case for dontstarve that use an old SDL2
     if(strstr(prgname, "dontstarve")) {
         printf_log(LOG_INFO, "Dontstarve* detected, forcing emulated SDL2\n");

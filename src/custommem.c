@@ -1016,7 +1016,7 @@ uint32_t getProtection(uintptr_t addr)
 }
 
 #define LOWEST (void*)0x20000
-static uintptr_t nextFree(uintptr_t addr)
+static uintptr_t nextFree(uintptr_t addr, uintptr_t increment)
 {
     if(addr>=(1LL<<48))
         return 0;
@@ -1029,7 +1029,7 @@ static uintptr_t nextFree(uintptr_t addr)
             if(!memprot[idx>>16][i]) {
                 return ((idx>>16)<<(16+12))+(i<<MEMPROT_SHIFT);
             }
-        addr += (1LL<<(16+12));
+        addr += increment?increment:(1LL<<(16+12));
         addr &= ~((1LL<<(16+12)-1LL));
     } while(1);
 }
@@ -1065,7 +1065,7 @@ void* find47bitBlock(size_t size)
     // slow iterative search... Would need something better one day
     uintptr_t addr = 0x100000000LL;
     do {
-        addr = nextFree(addr);
+        addr = nextFree(addr, 0x10000);
         uintptr_t sz = maxFree(addr, size);
         if(sz>=size) {
             return (void*)addr;
@@ -1075,7 +1075,7 @@ void* find47bitBlock(size_t size)
     // search in 32bits as a backup
     addr = (uintptr_t)LOWEST;
     do {
-        addr = nextFree(addr);
+        addr = nextFree(addr, 0x10000);
         uintptr_t sz = maxFree(addr, size);
         if(sz>=size) {
             return (void*)addr;
@@ -1090,7 +1090,7 @@ void* find47bitBlockNearHint(void* hint, size_t size)
     // slow iterative search... Would need something better one day
     uintptr_t addr = (uintptr_t)hint;
     do {
-        addr = nextFree(addr);
+        addr = nextFree(addr, 0x10000);
         uintptr_t sz = maxFree(addr, size);
         if(sz>=size) {
             return (void*)addr;
@@ -1105,7 +1105,7 @@ void* findBlockNearHint(void* hint, size_t size)
     // slow iterative search... Would need something better one day
     uintptr_t addr = (uintptr_t)hint;
     do {
-        addr = nextFree(addr);
+        addr = nextFree(addr, 0x10000);
         uintptr_t sz = maxFree(addr, size);
         if(sz>=size) {
             return (void*)addr;
