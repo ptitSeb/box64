@@ -198,6 +198,7 @@ static void initNativeLib(library_t *lib, box64context_t* context) {
                 return; // non blocker...
             }
             printf_log(LOG_INFO, "Using native(wrapped) %s\n", lib->name);
+            box64_mapclean = 0;
             lib->priv.w.box64lib = context->box64lib;
             lib->context = context;
             lib->fini = wrappedlibs[i].fini;

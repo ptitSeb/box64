@@ -940,6 +940,8 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 
 void loadProtectionFromMap()
 {
+    if(box64_mapclean)
+        return;
     char buf[500];
     FILE *f = fopen("/proc/self/maps", "r");
     if(!f)
@@ -955,6 +957,7 @@ void loadProtectionFromMap()
         }
     }
     fclose(f);
+    box64_mapclean = 1;
 }
 
 static int blockempty(uint8_t* mem)

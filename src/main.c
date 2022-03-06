@@ -74,6 +74,7 @@ int x11glx = 1;
 int allow_missing_libs = 0;
 int box64_prefer_wrapped = 0;
 int fix_64bit_inodes = 0;
+int box64_mapclean = 0;
 int box64_zoom = 0;
 int box64_steam = 0;
 int box64_wine = 0;
@@ -957,7 +958,7 @@ int main(int argc, const char **argv, const char **env) {
             //wine_preloaded = 1;
         }
     }
-    #if 0
+    #if 1
     // pre-check for pressure-vessel-wrap
     if(strstr(prog, "pressure-vessel-wrap")==(prog+strlen(prog)-strlen("pressure-vessel-wrap"))) {
         // pressure-vessel-wrap detecter, skipping it and all -- args until "--" if needed
