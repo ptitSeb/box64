@@ -468,6 +468,8 @@ void** my_GetGTKDisplay();
 void** my_GetGthreadsGotInitialized();
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername)
 {
+    if(!maplib)
+        return 0;
     if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end, self, version, vername)) {
         if(start && end && *end==*start) {  // object is of 0 sized, try to see an "_END" object of null size
             uintptr_t start2, end2;
