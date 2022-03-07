@@ -811,6 +811,8 @@ int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *add
 {
     if(!lib->active)
         return 0;
+    if(version==-2) // don't send global native symbol for a version==-2 search
+        return 0;
     // check in datamaps (but no version, it's not handled there)
     if(getSymbolInDataMaps(lib, name, noweak, addr, size))
         return 1;
