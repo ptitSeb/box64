@@ -505,7 +505,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     sigcontext->uc_mcontext.gregs[X64_RBP] = R_RBP;
     sigcontext->uc_mcontext.gregs[X64_RSP] = R_RSP;
     sigcontext->uc_mcontext.gregs[X64_RBX] = R_RBX;
-    sigcontext->uc_mcontext.gregs[X64_RIP] = emu->old_ip;
+    sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;//emu->old_ip;   // old_ip should be more accurate as the "current" IP, but it's not always up-to-date
     // flags
     sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
     // get segments
@@ -934,7 +934,10 @@ exit(-1);
         const char* x64name = NULL;
         const char* elfname = NULL;
         x64emu_t* emu = thread_get_emu();
-        x64pc = emu->old_ip;
+        // Adjust RIP for special case of NULL function run
+        if(sig==SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
+            R_RIP = 0x0;
+        x64pc = R_RIP;
         rsp = (void*)R_RSP;
 #if defined(DYNAREC)
 #if defined(ARM64)
