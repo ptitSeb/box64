@@ -342,6 +342,7 @@ int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* depli
 EXPORTDYN
 int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, int bindnow, const char** paths, int npath, box64context_t* box64, x64emu_t* emu)
 {
+    box64_mapclean = 0;
     if(!neededlibs) {
         neededlibs = alloca(sizeof(needed_libs_t));
         memset(neededlibs, 0, sizeof(needed_libs_t));

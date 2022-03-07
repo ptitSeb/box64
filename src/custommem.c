@@ -940,6 +940,7 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 
 void loadProtectionFromMap()
 {
+printf_log(LOG_INFO, "loadProtectionFromMap(), mapclean=%d\n", box64_mapclean);
     if(box64_mapclean)
         return;
     char buf[500];
@@ -1091,7 +1092,7 @@ void* find47bitBlock(size_t size)
 void* find47bitBlockNearHint(void* hint, size_t size)
 {
     // slow iterative search... Would need something better one day
-    uintptr_t addr = (uintptr_t)hint;
+    uintptr_t addr = (uintptr_t)(hint?hint:LOWEST);
     do {
         addr = nextFree(addr, 0x10000);
         uintptr_t sz = maxFree(addr, size);
@@ -1106,7 +1107,7 @@ void* find47bitBlockNearHint(void* hint, size_t size)
 void* findBlockNearHint(void* hint, size_t size)
 {
     // slow iterative search... Would need something better one day
-    uintptr_t addr = (uintptr_t)hint;
+    uintptr_t addr = (uintptr_t)(hint?hint:LOWEST);
     do {
         addr = nextFree(addr, 0x10000);
         uintptr_t sz = maxFree(addr, size);
