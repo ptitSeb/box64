@@ -1545,6 +1545,8 @@ void CreateMemorymapFile(box64context_t* context, int fd)
         st.st_ino = 0;
     }
 
+    // TODO: create heap entry?
+
     for (size_t i=0; i<h->numPHEntries; ++i) {
         if (h->PHEntries[i].p_memsz == 0) continue;
 
@@ -1557,6 +1559,11 @@ void CreateMemorymapFile(box64context_t* context, int fd)
         
         dummy = write(fd, buff, strlen(buff));
     }
+    // create stack entry
+    sprintf(buff, "%16lx-%16lx %c%c%c%c %16lx %02x:%02x %ld %s\n", 
+        (uintptr_t)context->stack, (uintptr_t)context->stack+context->stacksz,
+        'r','w','-','p', 0, 0, 0, 0, "[stack]");
+    dummy = write(fd, buff, strlen(buff));
 }
 
 void ElfAttachLib(elfheader_t* head, library_t* lib)
