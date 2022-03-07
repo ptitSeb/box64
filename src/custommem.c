@@ -940,7 +940,6 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 
 void loadProtectionFromMap()
 {
-printf_log(LOG_INFO, "loadProtectionFromMap(), mapclean=%d\n", box64_mapclean);
     if(box64_mapclean)
         return;
     char buf[500];
