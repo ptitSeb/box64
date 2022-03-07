@@ -584,12 +584,12 @@ void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
 }
 
 EXPORTDYN
-int CountEnv(const char** env)
+int CountEnv(char** env)
 {
     // count, but remove all BOX64_* environnement
     // also remove PATH and LD_LIBRARY_PATH
     // but add 2 for default BOX64_PATH and BOX64_LD_LIBRARY_PATH
-    const char** p = env;
+    char** p = env;
     int c = 0;
     while(*p) {
         if(strncmp(*p, "BOX64_", 6)!=0)
@@ -600,11 +600,11 @@ int CountEnv(const char** env)
     return c+2;
 }
 EXPORTDYN
-int GatherEnv(char*** dest, const char** env, const char* prog)
+int GatherEnv(char*** dest, char** env, char* prog)
 {
     // Add all but BOX64_* environnement
     // but add 2 for default BOX64_PATH and BOX64_LD_LIBRARY_PATH
-    const char** p = env;    
+    char** p = env;    
     int idx = 0;
     int path = 0;
     int ld_path = 0;
@@ -907,7 +907,7 @@ static void free_contextargv()
         free(my_context->argv[i]);
 }
 
-const char **environ __attribute__((weak)) = NULL;
+extern char** environ;
 int main(int argc, const char **argv, const char **env) {
 
     init_auxval(argc, argv, environ?environ:env);

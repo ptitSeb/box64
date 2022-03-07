@@ -1697,6 +1697,10 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
     int self = isProcSelf(path, "exe");
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
+    // hack to update the environ var if needed
+    if(envp == my_context->envv && environ) {
+        envp = environ;
+    }
     printf_log(LOG_DEBUG, "execve(\"%s\", %p, %p) is x64=%d x86=%d\n", path, argv, envp, x64, x86);
     #if 1
     if (x64 || x86 || self) {
