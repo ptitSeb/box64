@@ -908,7 +908,7 @@ static void free_contextargv()
 }
 
 extern char** environ;
-int main(int argc, const char **argv, const char **env) {
+int main(int argc, const char **argv, char **env) {
 
     init_auxval(argc, argv, environ?environ:env);
     // trying to open and load 1st arg

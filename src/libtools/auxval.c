@@ -22,7 +22,7 @@
 
 static uintptr_t* auxval_start = NULL;
 
-int init_auxval(int argc, const char **argv, const char **env) {
+int init_auxval(int argc, const char **argv, char **env) {
     (void)argc; (void)argv;
 
     // auxval vector is after envs...
