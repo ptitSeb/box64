@@ -78,6 +78,11 @@ Disable handling of SigILL (to ease debugging mainly).
  * 0 : Let x86 program set sighandler for Illegal Instruction
  * 1 : Disables the handling of SigILL 
 
+#### BOX64_SHOWSEGV
+Show Segfault signal even if a signal handler is present
+ * 0 : Don"t force show the SIGSEGV analysis (Default.)
+ * 1 : Show SIGSEGV detail, even if a signal handler is present
+
 #### BOX64_X11THREADS
 Call XInitThreads when loading X11. (This is mostly for old Loki games with the Loki_Compat library.)
  * 0 : Don't force call XInitThreads. (Default.)

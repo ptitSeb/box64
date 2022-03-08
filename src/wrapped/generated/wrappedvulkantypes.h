@@ -56,6 +56,7 @@ typedef void (*vFpiiiupupup_t)(void*, int64_t, int64_t, int64_t, uint64_t, void*
 	GO(vkDestroyShaderModule, vFpUp_t) \
 	GO(vkDestroySurfaceKHR, vFpUp_t) \
 	GO(vkDestroySwapchainKHR, vFpUp_t) \
+	GO(vkDestroyValidationCacheEXT, vFpUp_t) \
 	GO(vkDestroyDebugUtilsMessengerEXT, vFppp_t) \
 	GO(vkFreeMemory, iFpUp_t) \
 	GO(vkCreateInstance, iFppp_t) \
@@ -92,12 +93,15 @@ typedef void (*vFpiiiupupup_t)(void*, int64_t, int64_t, int64_t, uint64_t, void*
 	GO(vkCreateSemaphore, iFpppp_t) \
 	GO(vkCreateShaderModule, iFpppp_t) \
 	GO(vkCreateSwapchainKHR, iFpppp_t) \
+	GO(vkCreateValidationCacheEXT, iFpppp_t) \
 	GO(vkCreateWaylandSurfaceKHR, iFpppp_t) \
 	GO(vkCreateXcbSurfaceKHR, iFpppp_t) \
 	GO(vkCreateXlibSurfaceKHR, iFpppp_t) \
+	GO(vkRegisterDeviceEventEXT, iFpppp_t) \
 	GO(vkUpdateDescriptorSets, vFpupup_t) \
 	GO(vkCreateSharedSwapchainsKHR, iFpuppp_t) \
 	GO(vkCreateDisplayModeKHR, iFpUppp_t) \
+	GO(vkRegisterDisplayEventEXT, iFpUppp_t) \
 	GO(vkCreateComputePipelines, iFpUuppp_t) \
 	GO(vkCreateGraphicsPipelines, iFpUuppp_t) \
 	GO(vkGetPhysicalDeviceSparseImageFormatProperties, vFpiiiiipp_t) \

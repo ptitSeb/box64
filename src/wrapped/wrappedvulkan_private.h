@@ -409,3 +409,58 @@ GO(vkCmdDrawIndirectCountKHR, vFpUUUUuu)
 // VK_AMD_draw_indirect_count
 GO(vkCmdDrawIndexedIndirectCountAMD, vFpUUUUuu)
 GO(vkCmdDrawIndirectCountAMD, vFpUUUUuu)
+
+// VK_AMD_buffer_marker
+GO(vkCmdWriteBufferMarkerAMD, vFpuUUu)
+
+// VK_AMD_shader_info
+GO(vkGetShaderInfoAMD, iFpUuupp)
+
+// VK_EXT_debug_marker
+GO(vkCmdDebugMarkerBeginEXT, vFpp)
+GO(vkCmdDebugMarkerEndEXT, vFp)
+GO(vkCmdDebugMarkerInsertEXT, vFpp)
+GO(vkDebugMarkerSetObjectNameEXT, iFpp)
+GO(vkDebugMarkerSetObjectTagEXT, iFpp)
+
+// VK_EXT_discard_rectangles
+GO(vkCmdSetDiscardRectangleEXT, vFpuup)
+
+// VK_EXT_display_control
+GO(vkDisplayPowerControlEXT, iFpUp)
+GO(vkGetSwapchainCounterEXT, iFpUup)
+GOM(vkRegisterDeviceEventEXT, iFEpppp)
+GOM(vkRegisterDisplayEventEXT, iFEpUppp)
+
+// VK_EXT_external_memory_host
+GO(vkGetMemoryHostPointerPropertiesEXT, iFpupp)
+
+// VK_EXT_hdr_metadata
+GO(vkSetHdrMetadataEXT, vFpupp)
+
+// VK_EXT_validation_cache
+GOM(vkCreateValidationCacheEXT, iFEpppp)
+GOM(vkDestroyValidationCacheEXT, vFEpUp)
+GO(vkGetValidationCacheDataEXT, iFpUpp)
+GO(vkMergeValidationCachesEXT, iFpUup)
+
+// VK_GOOGLE_display_timing
+GO(vkGetPastPresentationTimingGOOGLE, iFpUpp)
+GO(vkGetRefreshCycleDurationGOOGLE, iFpUp)
+
+// VK_KHR_external_fence_fd
+GO(vkGetFenceFdKHR, iFppp)
+GO(vkImportFenceFdKHR, iFpp)
+
+// VK_KHR_external_semaphore_fd
+GO(vkGetSemaphoreFdKHR, iFppp)
+GO(vkImportSemaphoreFdKHR, iFpp)
+
+// VK_KHR_push_descriptor
+GO(vkCmdPushDescriptorSetKHR, vFpiUuup)
+
+// VK_KHR_shared_presentable_image
+GO(vkGetSwapchainStatusKHR, iFpU)
+
+// VK_NV_clip_space_w_scaling
+GO(vkCmdSetViewportWScalingNV, vFpuup)

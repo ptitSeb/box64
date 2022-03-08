@@ -294,7 +294,7 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
             printf_log(LOG_DEBUG, "Failure to add lib linkmap\n");
             return 1;
         }
-        lm->l_addr = (Elf64_Addr)GetBaseAddress(my_context->elfs[lib->priv.n.elf_index]);
+        lm->l_addr = (Elf64_Addr)GetElfDelta(my_context->elfs[lib->priv.n.elf_index]);
         lm->l_name = lib->name;
         lm->l_ld = GetDynamicSection(my_context->elfs[lib->priv.n.elf_index]);
     }
@@ -342,6 +342,7 @@ int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* depli
 EXPORTDYN
 int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, int bindnow, const char** paths, int npath, box64context_t* box64, x64emu_t* emu)
 {
+    box64_mapclean = 0;
     if(!neededlibs) {
         neededlibs = alloca(sizeof(needed_libs_t));
         memset(neededlibs, 0, sizeof(needed_libs_t));
@@ -468,6 +469,8 @@ void** my_GetGTKDisplay();
 void** my_GetGthreadsGotInitialized();
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername)
 {
+    if(!maplib)
+        return 0;
     if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end, self, version, vername)) {
         if(start && end && *end==*start) {  // object is of 0 sized, try to see an "_END" object of null size
             uintptr_t start2, end2;

@@ -811,6 +811,8 @@ int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *add
 {
     if(!lib->active)
         return 0;
+    if(version==-2) // don't send global native symbol for a version==-2 search
+        return 0;
     // check in datamaps (but no version, it's not handled there)
     if(getSymbolInDataMaps(lib, name, noweak, addr, size))
         return 1;
@@ -894,7 +896,7 @@ void AddMainElfToLinkmap(elfheader_t* elf)
 {
     linkmap_t* lm = addLinkMapLib(NULL);    // main elf will have a null lib link
 
-    lm->l_addr = (Elf64_Addr)GetBaseAddress(elf);
+    lm->l_addr = (Elf64_Addr)GetElfDelta(elf);
     lm->l_name = my_context->fullpath;
     lm->l_ld = GetDynamicSection(elf);
 }

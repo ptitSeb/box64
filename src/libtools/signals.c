@@ -749,7 +749,7 @@ static pthread_mutex_t mutex_dynarec_prot;
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
-    int log_minimum = (my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_DEBUG:LOG_INFO;
+    int log_minimum = (box64_showsegv)?LOG_NONE:((my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_DEBUG:LOG_INFO);
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
     void* rsp = NULL;

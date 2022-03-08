@@ -32,12 +32,14 @@ extern uintptr_t trace_start, trace_end;
 extern char* trace_func;
 #endif
 extern int allow_missing_libs;
+extern int box64_mapclean;
 extern int box64_prefer_wrapped;
 extern int box64_steam;
 extern int box64_wine;
 extern int box64_nopulse;   // disabling the use of wrapped pulseaudio
 extern int box64_nogtk; // disabling the use of wrapped gtk
 extern int box64_novulkan;  // disabling the use of wrapped vulkan
+extern int box64_showsegv;  // show sigv, even if a signal handler is present
 extern uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (self modifying code)
 extern uint32_t default_gs;
 extern int jit_gdb; // launch gdb when a segfault is trapped

@@ -348,6 +348,8 @@ void EXPORT x64Syscall(x64emu_t *emu)
             R_RAX = (uintptr_t)my_mremap(emu, (void*)R_RDI, R_RSI, R_RDX, R_R10d, (void*)R_R8);
             break;
         case 56: // sys_clone
+            // x86_64 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
+            // so flags=R_RDI, stack=R_RSI, parent_tid=R_RDX, child_tid=R_R10, tls=R_R8
             if(R_RSI)
             {
                 void* stack_base = (void*)R_RSI;
@@ -370,7 +372,8 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack_base, stack_size, (R_RSI)?0:1);
                 SetupX64Emu(newemu);
                 CloneEmu(newemu, emu);
-                SetRSP(newemu, (uintptr_t)stack_base);
+                Push64(newemu, 0);
+                PushExit(newemu);
                 void* mystack = NULL;
                 if(my_context->stack_clone_used) {
                     mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
@@ -380,15 +383,14 @@ void EXPORT x64Syscall(x64emu_t *emu)
                     mystack = my_context->stack_clone;
                     my_context->stack_clone_used = 1;
                 }
-                // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
-                int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_RDI, newemu, R_R10, R_R9, R_R8);
-                R_RAX = ret;
+                int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_RDI, newemu, R_RDX, R_R8, R_R10);
+                R_RAX = (uint64_t)ret;
             }
             else
                 #ifdef NOALIGN
-                R_RAX = syscall(__NR_clone, R_RSI, R_RDX, R_R10, R_R8, R_R9);
+                R_RAX = (uint64_t)syscall(__NR_clone, R_RDI, R_RSI, R_RDX, R_R10, R_R8);
                 #else
-                R_RAX = syscall(__NR_clone, R_RSI, R_RDX, R_R10, R_R9, R_R8);    // invert R_R8/R_R9 on Aarch64 and most other
+                R_RAX = (uint64_t)syscall(__NR_clone, R_RDI, R_RSI, R_RDX, R_R8, R_R10);    // invert R_R8/R_R10 on Aarch64 and most other
                 #endif
             break;
         #ifndef __NR_fork
@@ -541,6 +543,8 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         case 25: // sys_mremap
             return (uintptr_t)my_mremap(emu, (void*)R_RSI, R_RDX, R_RCX, R_R8d, (void*)R_R9);
         case 56: // sys_clone
+            // x86_64 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
+            // so flags=R_RSI, stack=R_RDX, parent_tid=R_RCX, child_tid=R_R8, tls=R_R9
             if(R_RDX)
             {
                 void* stack_base = (void*)R_RDX;
@@ -565,7 +569,6 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
                 CloneEmu(newemu, emu);
                 Push64(newemu, 0);
                 PushExit(newemu);
-                SetRSP(newemu, (uintptr_t)stack_base);
                 void* mystack = NULL;
                 if(my_context->stack_clone_used) {
                     mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
@@ -577,13 +580,13 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
                 }
                 // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
                 int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_ESI, newemu, R_RCX, R_R9, R_R8);
-                return ret;
+                return (uintptr_t)ret;
             }
             else
                 #ifdef NOALIGN
-                return syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
+                return (uintptr_t)syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
                 #else
-                return syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R9, R_R8);    // invert R_R8/R_R9 on Aarch64 and most other
+                return (uintptr_t)syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R9, R_R8);    // invert R_R8/R_R9 on Aarch64 and most other
                 #endif
             break;
         #ifndef __NR_fork
