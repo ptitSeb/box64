@@ -1085,7 +1085,7 @@ void* find47bitBlock(size_t size)
         }
         addr += sz;
     } while(addr<0x100000000LL);
-    printf_log(LOG_NONE, "Warning: cannot find a 0x%zx block in 47bits address space\n", size);
+    printf_log(LOG_DEBUG, "Warning: cannot find a 0x%zx block in 47bits address space\n", size);
     return NULL;
 }
 void* find47bitBlockNearHint(void* hint, size_t size)
@@ -1100,7 +1100,7 @@ void* find47bitBlockNearHint(void* hint, size_t size)
         }
         addr += sz;
     } while(addr<0x800000000000LL);
-    printf_log(LOG_NONE, "Warning: cannot find a 0x%zx block in 32bits address space\n", size);
+    printf_log(LOG_DEBUG, "Warning: cannot find a 0x%zx block in 32bits address space\n", size);
     return NULL;
 }
 void* findBlockNearHint(void* hint, size_t size)
