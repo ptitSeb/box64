@@ -832,65 +832,6 @@ void unprotectDB(uintptr_t addr, size_t size)
     pthread_mutex_unlock(&mutex_prot);
 }
 
-void removeMapMem(uintptr_t begin, uintptr_t end)
-{
-    // granularity is 0x10000, like on x86_64
-    begin &=~0xffff;
-    end = (end&~0xffff)+0xffff; // full granulirity
-    // sanitize values
-    if(end==0xffff) return;
-    if(!begin) begin = 0x1000;
-    mapmem_t* m = mapmem;
-    while(begin<end) {
-        // find attach point (cannot be the 1st one by construction)
-        while(m && m->end<begin) {
-            m = m->next;
-        }
-        if(!m) {
-            return;
-        }
-        if(m->begin<end)
-            return; // block is not there
-        else if(m->begin <= begin) {
-            if(m->end>end) {
-                // whole zone to free if now free, nothing more to do, bye
-                m->begin = end + 1;
-                return;
-            } else {
-                begin = m->end + 1;
-                mapmem_t* tmp = m;
-                m = m->next;
-                m->prev = tmp->prev;
-                tmp->prev->next = m;
-                free(tmp);
-            }
-        } else {
-            if(m->end>end) {
-                // split the block!
-                mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
-                newm->begin = end+1;
-                newm->end = m->end;
-                m->end = begin - 1;
-                newm->next = m->next;
-                newm->prev = m;
-                m->next = newm;
-            } else if(m->end == end) {
-                m->end = begin - 1;
-                return;
-            } else {
-                //free the block
-                begin = m->end + 1;
-                mapmem_t* tmp = m;
-                m = m->next;
-                tmp->prev->next = m;
-                if(m)
-                    m->prev = tmp->prev;
-                free(tmp);
-            }
-        }
-    }
-}
-
 int isprotectedDB(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p => ", (void*)addr, (void*)(addr+size-1));
@@ -952,6 +893,64 @@ void addMapMem(uintptr_t begin, uintptr_t end)
         free(tmp);
     }
     // all done!
+}
+void removeMapMem(uintptr_t begin, uintptr_t end)
+{
+    // granularity is 0x10000, like on x86_64
+    begin &=~0xffff;
+    end = (end&~0xffff)+0xffff; // full granulirity
+    // sanitize values
+    if(end==0xffff) return;
+    if(!begin) begin = 0x1000;
+    mapmem_t* m = mapmem;
+    while(begin<end) {
+        // find attach point (cannot be the 1st one by construction)
+        while(m && m->end<begin) {
+            m = m->next;
+        }
+        if(!m) {
+            return;
+        }
+        if(m->begin<end)
+            return; // block is not there
+        else if(m->begin <= begin) {
+            if(m->end>end) {
+                // whole zone to free if now free, nothing more to do, bye
+                m->begin = end + 1;
+                return;
+            } else {
+                begin = m->end + 1;
+                mapmem_t* tmp = m;
+                m = m->next;
+                m->prev = tmp->prev;
+                tmp->prev->next = m;
+                free(tmp);
+            }
+        } else {
+            if(m->end>end) {
+                // split the block!
+                mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
+                newm->begin = end+1;
+                newm->end = m->end;
+                m->end = begin - 1;
+                newm->next = m->next;
+                newm->prev = m;
+                m->next = newm;
+            } else if(m->end == end) {
+                m->end = begin - 1;
+                return;
+            } else {
+                //free the block
+                begin = m->end + 1;
+                mapmem_t* tmp = m;
+                m = m->next;
+                tmp->prev->next = m;
+                if(m)
+                    m->prev = tmp->prev;
+                free(tmp);
+            }
+        }
+    }
 }
 
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
