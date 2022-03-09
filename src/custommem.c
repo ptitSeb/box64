@@ -831,44 +831,7 @@ void unprotectDB(uintptr_t addr, size_t size)
     }
     pthread_mutex_unlock(&mutex_prot);
 }
-void addMapMem(uintptr_t begin, uintptr_t end)
-{
-    // granularity is 0x10000, like on x86_64
-    begin &=~0xffff;
-    end = (end&~0xffff)+0xffff; // full granulirity
-    // sanitize values
-    if(end==0xffff) return;
-    if(!begin) begin = 0x1000;
-    // find attach point (cannot be the 1st one by construction)
-    mapmem_t* m = mapmem;
-    while(m->next && m->next->begin<begin) {
-        m = m->next;
-    }
-    // attach at the end of m
-    if(m->end>end) {
-        return; // included... nothing to do
-    }
-    if(m->end+1>=begin) {
-        m->end = end;   // enlarge block
-        return;
-    }
-    mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
-    newm->prev = m;
-    newm->next = m->next;
-    newm->begin = begin;
-    newm->end = end;
-    m->next = newm;
-    while(newm->next && newm->next->begin<newm->end) {
-        // fuse with next
-        if(newm->next->end>newm->end)
-            newm->end = newm->next->end;
-        mapmem_t* tmp = newm->next;
-        newm->next = tmp->next;
-        tmp->prev = newm;
-        free(tmp);
-    }
-    // all done!
-}
+
 void removeMapMem(uintptr_t begin, uintptr_t end)
 {
     // granularity is 0x10000, like on x86_64
@@ -951,6 +914,45 @@ int isprotectedDB(uintptr_t addr, size_t size)
 }
 
 #endif
+
+void addMapMem(uintptr_t begin, uintptr_t end)
+{
+    // granularity is 0x10000, like on x86_64
+    begin &=~0xffff;
+    end = (end&~0xffff)+0xffff; // full granulirity
+    // sanitize values
+    if(end==0xffff) return;
+    if(!begin) begin = 0x1000;
+    // find attach point (cannot be the 1st one by construction)
+    mapmem_t* m = mapmem;
+    while(m->next && m->next->begin<begin) {
+        m = m->next;
+    }
+    // attach at the end of m
+    if(m->end>end) {
+        return; // included... nothing to do
+    }
+    if(m->end+1>=begin) {
+        m->end = end;   // enlarge block
+        return;
+    }
+    mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
+    newm->prev = m;
+    newm->next = m->next;
+    newm->begin = begin;
+    newm->end = end;
+    m->next = newm;
+    while(newm->next && newm->next->begin<newm->end) {
+        // fuse with next
+        if(newm->next->end>newm->end)
+            newm->end = newm->next->end;
+        mapmem_t* tmp = newm->next;
+        newm->next = tmp->next;
+        tmp->prev = newm;
+        free(tmp);
+    }
+    // all done!
+}
 
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
