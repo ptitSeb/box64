@@ -14,8 +14,10 @@
 typedef int64_t (*iFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
+typedef void* (*pFiV_t)(int64_t, ...);
 typedef void* (*pFpi_t)(void*, int64_t);
 typedef void* (*pFpp_t)(void*, void*);
+typedef void* (*pFpV_t)(void*, ...);
 typedef int64_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpip_t)(void*, int64_t, void*);
 typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
@@ -33,8 +35,12 @@ typedef void* (*pFppiiuuuipii_t)(void*, void*, int64_t, int64_t, uint64_t, uint6
 	GO(XSetErrorHandler, pFp_t) \
 	GO(XSetIOErrorHandler, pFp_t) \
 	GO(_XDeqAsyncHandler, vFpp_t) \
+	GO(XVaCreateNestedList, pFiV_t) \
 	GO(XSynchronize, pFpi_t) \
 	GO(XSetAfterFunction, pFpp_t) \
+	GO(XCreateIC, pFpV_t) \
+	GO(XSetICValues, pFpV_t) \
+	GO(XSetIMValues, pFpV_t) \
 	GO(XAddConnectionWatch, iFppp_t) \
 	GO(XRemoveConnectionWatch, iFppp_t) \
 	GO(XESetCloseDisplay, pFpip_t) \

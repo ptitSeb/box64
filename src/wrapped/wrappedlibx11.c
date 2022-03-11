@@ -534,7 +534,207 @@ void my_XDestroyImage(x64emu_t* emu, void* image);
 void* my_XLoadQueryFont(x64emu_t* emu, void* d, void* name);
 #endif
 
-void* my_XVaCreateNestedList(int dummy, void* p);
+typedef void (*XIMProc)(void*, void*, void*);
+typedef int (*XICProc)(void*, void*, void*);
+typedef struct {
+    void* client_data;
+    XIMProc callback;
+} XIMCallback;
+
+typedef struct {
+    void* client_data;
+    XICProc callback;
+} XICCallback;
+
+#define XNGeometryCallback "geometryCallback"
+#define XNDestroyCallback "destroyCallback"
+#define XNPreeditStartCallback "preeditStartCallback"
+#define XNPreeditDoneCallback "preeditDoneCallback"
+#define XNPreeditDrawCallback "preeditDrawCallback"
+#define XNPreeditCaretCallback "preeditCaretCallback"
+#define XNPreeditStateNotifyCallback "preeditStateNotifyCallback"
+#define XNStatusStartCallback "statusStartCallback"
+#define XNStatusDoneCallback "statusDoneCallback"
+#define XNStatusDrawCallback "statusDrawCallback"
+#define XNR6PreeditCallback "r6PreeditCallback"
+#define XNStringConversionCallback "stringConversionCallback"
+
+#define SUPER()                     \
+GO(XNGeometryCallback)              \
+GO(XNDestroyCallback)               \
+GO(XNPreeditStartCallback)          \
+GO(XNPreeditDoneCallback)           \
+GO(XNPreeditDrawCallback)           \
+GO(XNPreeditCaretCallback)          \
+GO(XNPreeditStateNotifyCallback)    \
+GO(XNStatusStartCallback)           \
+GO(XNStatusDoneCallback)            \
+GO(XNStatusDrawCallback)            \
+GO(XNR6PreeditCallback)             \
+GO(XNStringConversionCallback)
+
+#define GO(A)                                                               \
+static uintptr_t my_XICProc_fct_##A = 0;                                    \
+static int my_XICProc_##A(void* a, void* b, void* c)                        \
+{                                                                           \
+    if (my_XICProc_fct_##A == 0)                                            \
+        printf_log(LOG_NONE, "%s cannot find XICProc callback\n", __func__);\
+    return (int)RunFunction(my_context, my_XICProc_fct_##A, 3, a, b, c);    \
+}                                                                           \
+static uintptr_t my_XIMProc_fct_##A = 0;                                    \
+static void my_XIMProc_##A(void* a, void* b, void* c)                       \
+{                                                                           \
+    if (my_XIMProc_fct_##A == 0)                                            \
+        printf_log(LOG_NONE, "%s cannot find XIMProc callback\n", __func__);\
+    RunFunction(my_context, my_XIMProc_fct_##A, 3, a, b, c);                \
+}
+SUPER()
+#undef GO
+
+#define VA_CALL(FUNC, FIRST_ARG, VAARGS, VAARGSZ, RESULT)       \
+switch (VAARGSZ)                                                \
+{                                                               \
+case 2:                                                         \
+    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], NULL);       \
+    break;                                                      \
+case 4:                                                         \
+    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], NULL);     \
+    break;                                                                          \
+case 6:                                                                             \
+    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], NULL);   \
+    break;                                                                                              \
+case 8:                                                                                                 \
+    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], NULL); \
+    break;                                                                                                                  \
+case 10:                                                                                                                    \
+    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9], NULL);   \
+    break;                                                                                                                                          \
+case 12:                                                                                                                                            \
+    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9],  VAARGS[10], VAARGS[11], NULL);  \
+    break;                                                                                                                                                                  \
+case 14:                                                                                                                                                                    \
+    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9],  VAARGS[10], VAARGS[11], VAARGS[12], VAARGS[13], NULL);  \
+    break;                                                                                                                                                                                          \
+case 16:                                                                                                                                                                                            \
+    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9],  VAARGS[10], VAARGS[11], VAARGS[12], VAARGS[13], VAARGS[14], VAARGS[15], NULL);  \
+    break;                                                                                                                                                                                                                  \
+case 18:                                                                                                                                                                                                                    \
+    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9],  VAARGS[10], VAARGS[11], VAARGS[12], VAARGS[13], VAARGS[14], VAARGS[15], VAARGS[16], VAARGS[17], NULL);  \
+    break;                                                                                                                                                                                                                                          \
+case 20:                                                                                                                                                                                                                                            \
+    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9],  VAARGS[10], VAARGS[11], VAARGS[12], VAARGS[13], VAARGS[14], VAARGS[15], VAARGS[16], VAARGS[17], VAARGS[18], VAARGS[19], NULL);  \
+    break;                                                                                                                                                                                                                                                                  \
+default:                                                                                                                \
+    printf_log(LOG_NONE, "warning: %s's vasize (%d) is too large, need create new call case!\n", __func__, VAARGSZ);    \
+    break;                                                                                                              \
+}
+
+#define GO(A)                                                                       \
+if (va[i] && strcmp((char*)va[i], A) == 0) {                                        \
+    XICCallback* origin = (XICCallback*)va[i+1];                                    \
+    XICCallback* new = callbacks + i;                                               \
+    new->client_data = origin->client_data;                                         \
+    my_XICProc_fct_##A = (uintptr_t)origin->callback;                               \
+    new->callback = my_XICProc_##A;                                                 \
+    new_va[i+1] = new;                                                              \
+}
+
+EXPORT void* my_XVaCreateNestedList(x64emu_t* emu, int unused, void** va) {
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+    int n = 0;
+    while (va[++n]) ;
+    void** new_va = malloc(sizeof(void*) * n);
+    XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
+
+    for (int i = 0; i < n; i += 2) {
+        new_va[i] = va[i];
+        new_va[i+1] = va[i+1];
+        SUPER()
+    }
+
+    void* res;
+    VA_CALL(my->XVaCreateNestedList, unused, new_va, n, res);
+    free(new_va);
+    free(callbacks);
+    return res;
+}
+
+EXPORT void* my_XCreateIC(x64emu_t* emu, void* xim, void** va) {
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+    int n = 0;
+    while (va[++n]) ;
+    void** new_va = malloc(sizeof(void*) * n);
+    XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
+
+    for (int i = 0; i < n; i += 2) {
+        new_va[i] = va[i];
+        new_va[i+1] = va[i+1];
+        SUPER()
+    }
+
+    void* res;
+    VA_CALL(my->XCreateIC, xim, new_va, n, res);
+    free(new_va);
+    free(callbacks);
+    return res;
+}
+
+EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, void** va) {
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+    int n = 0;
+    while (va[++n]) ;
+    void** new_va = malloc(sizeof(void*) * n);
+    XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
+
+    for (int i = 0; i < n; i += 2) {
+        new_va[i] = va[i];
+        new_va[i+1] = va[i+1];
+        SUPER()
+    }
+
+    void* res; 
+    VA_CALL(my->XSetICValues, xic, new_va, n, res);
+    free(new_va);
+    free(callbacks);
+    return res;
+}
+#undef GO
+
+EXPORT void* my_XSetIMValues(x64emu_t* emu, void* xim, void** va) {
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+    int n = 0;
+    while (va[++n]) ;
+    void** new_va = malloc(sizeof(void*) * n);
+    XIMCallback* callbacks = (XIMCallback*)malloc(sizeof(XIMCallback) * n);
+
+    #define GO(A)                                                                       \
+    if (va[i] && strcmp((char*)va[i], A) == 0) {                                        \
+        XIMCallback* origin = (XIMCallback*)va[i+1];                                    \
+        XIMCallback* new = callbacks + i;                                               \
+        new->client_data = origin->client_data;                                         \
+        my_XIMProc_fct_##A = (uintptr_t)origin->callback;                               \
+        new->callback = my_XIMProc_##A;                                                 \
+        new_va[i+1] = new;                                                              \
+    }
+    for (int i = 0; i < n; i += 2) {
+        new_va[i] = va[i];
+        new_va[i+1] = va[i+1];
+        SUPER()
+    }
+    #undef GO
+    
+    void* res;
+    VA_CALL(my->XSetIMValues, xim, new_va, n, res)
+    free(new_va);
+    free(callbacks);
+    return res;
+}
+#undef VA_CALL
+#undef SUPER
 
 EXPORT void* my_XSetErrorHandler(x64emu_t* emu, XErrorHandler handler)
 {
@@ -740,27 +940,6 @@ EXPORT void my__XDeqAsyncHandler(x64emu_t* emu, void* cb, void* data)
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     my->_XDeqAsyncHandler(findXInternalAsyncHandlerFct(cb), data);
 }
-#if 0
-typedef struct my_XIMArg_s {
-    char    *name;
-    void    *value;
-} my_XIMArg_t;
-#define my_XNVaNestedList                       "XNVaNestedList"
-
-EXPORT void* my_XVaCreateNestedList(int dummy, void* b)
-{
-    // need to create a similar function here...
-    void* p = b;
-    int n = 0;
-    while(p++) ++n;
-    void** ret = (void**)malloc(sizeof(void*)*n);
-    p = b;
-    n = 0;
-    while(p++)
-        ret[n++] = p;
-    return ret;
-}
-#endif
 
 EXPORT void* my_XESetWireToEvent(x64emu_t* emu, void* display, int32_t event_number, void* proc)
 {
