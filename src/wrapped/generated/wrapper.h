@@ -2052,7 +2052,6 @@ void vFpppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFpppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void pFpuuWWWWWWwwCCCuu(x64emu_t *emu, uintptr_t fnc);
 void pFppipipipipipipip(x64emu_t *emu, uintptr_t fnc);
-void pFpppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void vFppiiiiddddiiiiiuu(x64emu_t *emu, uintptr_t fnc);
 void pFppippipipipipipip(x64emu_t *emu, uintptr_t fnc);
 void vFppuiiiiipuiiiiiiii(x64emu_t *emu, uintptr_t fnc);
@@ -2064,7 +2063,6 @@ void vFpiiiiiiiiiiiiiiiiii(x64emu_t *emu, uintptr_t fnc);
 void pFiiiippppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void pFpippppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFpppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
-void pFipppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFpppppppppppppppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 
 #if defined(HAVE_LD80BITS)

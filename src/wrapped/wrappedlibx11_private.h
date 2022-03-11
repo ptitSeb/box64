@@ -225,7 +225,7 @@ GO(XCreateFontCursor, pFpu)
 GO(XCreateFontSet, pFppppp)
 GO(XCreateGC, pFppup)
 //GO(XCreateGlyphCursor
-GO(XCreateIC, pFpppppppppppppppp)     // use ..., so putting an arbitrary number of args, also can have Callbacks ?! Allegro have 7 args and no callback
+GOM(XCreateIC, pFEpV)     // use vararg
 GOM(XCreateImage, pFEppuiipuuii)
 GO(dummy_XCreateImage, pFppuiipuuii)    // to have the wrapper
 DATAB(_XCreateMutex_fn, sizeof(void*))
@@ -942,9 +942,9 @@ GO(XSetGraphicsExposures, iFppi)
 GO(XSetICFocus, vFp)
 GO(XSetIconName, iFppp)
 //GO(XSetIconSizes
-GO(XSetICValues, pFpppppp)          // use vaarg
+GOM(XSetICValues, pFEpV)         // use vaarg
 // _XSetImage
-GO(XSetIMValues, pFppppppppppppp)	// use vaarg
+GOM(XSetIMValues, pFEpV)	// use vaarg
 GO(XSetInputFocus, iFppiL)
 GOM(XSetIOErrorHandler, pFEp)
 GO(_XSetLastRequestRead, uFpp)
@@ -1052,7 +1052,7 @@ GO(Xutf8TextListToTextProperty, iFppiup)
 //GO(Xutf8TextPerCharExtents
 GO(Xutf8TextPropertyToTextList, iFpppp)
 // _Xutf8TextPropertyToTextList
-GO(XVaCreateNestedList, pFipppppppppppppppppppppp)  // should recreate the function instead...
+GOM(XVaCreateNestedList, pFEiV)
 GO(XVendorRelease, iFp)
 // _XVIDtoVisual
 GO(XVisualIDFromVisual, LFp)

@@ -2019,7 +2019,6 @@
 #() iFpppppppppppppppp
 #() pFpuuWWWWWWwwCCCuu
 #() pFppipipipipipipip
-#() pFpppppppppppppppp
 #() vFppiiiiddddiiiiiuu
 #() pFppippipipipipipip
 #() vFppuiiiiipuiiiiiiii
@@ -2031,7 +2030,6 @@
 #() pFiiiippppppppppppppp
 #() pFpippppppppppppppppp
 #() iFpppppppppppppppppppppp
-#() pFipppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) DFD
 #defined(HAVE_LD80BITS) vFppippDDC
@@ -3118,10 +3116,16 @@ wrappedlibx11:
   - XSetIOErrorHandler
 - vFpp:
   - _XDeqAsyncHandler
+- pFiV:
+  - XVaCreateNestedList
 - pFpi:
   - XSynchronize
 - pFpp:
   - XSetAfterFunction
+- pFpV:
+  - XCreateIC
+  - XSetICValues
+  - XSetIMValues
 - iFppp:
   - XAddConnectionWatch
   - XRemoveConnectionWatch
