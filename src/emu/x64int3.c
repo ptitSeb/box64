@@ -127,10 +127,10 @@ void x64Int3(x64emu_t* emu)
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", 0x%x)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", R_ESI);
                     perr = 1;
-                } else if (!strcmp(s, "lseek64") || !strcmp(s, "my_lseek64")) {
+                } else if (!strcmp(s, "lseek64")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %ld, %d)", tid, *(void**)(R_RSP), s, (int)R_EDI, (int64_t)R_RSI, (int)R_EDX);
                     perr = 1;
-                } else if (!strcmp(s, "lseek") || !strcmp(s, "my_lseek")) {
+                } else if (!strcmp(s, "lseek")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %ld, %d)", tid, *(void**)(R_RSP), s, (int)R_EDI, (int64_t)R_RSI, (int)R_EDX);
                     perr = 1;
                 } else if (strstr(s, "puts")==s) {
@@ -148,15 +148,15 @@ void x64Int3(x64emu_t* emu)
                 } else if (!strcmp(s, "poll")) {
                     struct pollfd* pfd = (struct pollfd*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p[%d/%d/%d, ...], %d, %d)", tid, *(void**)(R_RSP), s, pfd, pfd->fd, pfd->events, pfd->revents, R_ESI, R_EDX);
-                } else if (strstr(s, "my___printf_chk") || !strcmp(s, "__printf_chk")) {
+                } else if (strstr(s, "__printf_chk")) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, R_EDI, (tmp)?tmp:"(nil)", (void*)(R_RDX));
-                } else if (strstr(s, "my___snprintf_chk") || !strcmp(s, "__snprintf_chk")) {
+                } else if (strstr(s, "__snprintf_chk")) {
                     tmp = (char*)(R_R8);
                     pu64 = (uint64_t*)R_RDI;
                     post = 3;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, %d, %zu, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI, R_EDX, R_RCX, (tmp)?tmp:"(nil)", (void*)(R_R9));
-                } else if (strstr(s, "my_snprintf") || !strcmp(s, "snprintf")) {
+                } else if (!strcmp(s, "snprintf")) {
                     tmp = (char*)(R_RDX);
                     pu64 = (uint64_t*)R_RDI;
                     post = 3;
