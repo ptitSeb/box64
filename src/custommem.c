@@ -858,98 +858,89 @@ int isprotectedDB(uintptr_t addr, size_t size)
 
 void addMapMem(uintptr_t begin, uintptr_t end)
 {
-    // granularity is 0x10000, like on x86_64
+    // granularity is 0x10000, like on x86
     begin &=~0xffff;
-    end = (end&~0xffff)+0xffff; // full granulirity
+    end = (end&~0xffff)+0xffff; // full granularity
     // sanitize values
     if(end==0xffff) return;
     if(!begin) begin = 0x1000;
     // find attach point (cannot be the 1st one by construction)
     mapmem_t* m = mapmem;
-    while(m->next && m->next->begin<begin) {
+    while(m->next && begin>m->next->begin) {
         m = m->next;
     }
     // attach at the end of m
-    if(m->end>end) {
-        return; // included... nothing to do
+    mapmem_t* newm;
+    if(m->end>=begin-1) {
+        if(m->end<end)
+            m->end = end;   // enlarge block
+        newm = m;
+    } else {
+    // create a new block
+        newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
+        newm->prev = m;
+        newm->next = m->next;
+        newm->begin = begin;
+        newm->end = end;
+        m->next = newm;
     }
-    if(m->end+1>=begin) {
-        m->end = end;   // enlarge block
-        return;
-    }
-    mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
-    newm->prev = m;
-    newm->next = m->next;
-    newm->begin = begin;
-    newm->end = end;
-    m->next = newm;
-    while(newm->next && newm->next->begin<newm->end) {
+    while(newm->next && (newm->next->begin-1)<=newm->end) {
         // fuse with next
         if(newm->next->end>newm->end)
             newm->end = newm->next->end;
         mapmem_t* tmp = newm->next;
         newm->next = tmp->next;
-        tmp->prev = newm;
+        if(tmp->next)
+            tmp->next->prev = newm;
         free(tmp);
     }
     // all done!
 }
 void removeMapMem(uintptr_t begin, uintptr_t end)
 {
-    // granularity is 0x10000, like on x86_64
+    // granularity is 0x10000, like on x86
     begin &=~0xffff;
-    end = (end&~0xffff)+0xffff; // full granulirity
+    end = (end&~0xffff)+0xffff; // full granularity
     // sanitize values
     if(end==0xffff) return;
     if(!begin) begin = 0x1000;
     mapmem_t* m = mapmem;
-    while(begin<end) {
-        // find attach point (cannot be the 1st one by construction)
-        while(m && m->end<begin) {
-            m = m->next;
-        }
-        if(!m) {
+    while(m) {
+        // check if block is beyond the zone to free
+        if(m->end > begin)
             return;
-        }
-        if(m->begin<end)
-            return; // block is not there
-        else if(m->begin <= begin) {
-            if(m->end>end) {
-                // whole zone to free if now free, nothing more to do, bye
-                m->begin = end + 1;
-                return;
-            } else {
-                begin = m->end + 1;
-                mapmem_t* tmp = m;
-                m = m->next;
+        // check if the block is completly inside the zone to free
+        if(m->begin>=begin && m->end<=end) {
+            // just free the block
+            mapmem_t *tmp = m;
+            m = m->next;
+            if(m) {
                 m->prev = tmp->prev;
-                tmp->prev->next = m;
-                free(tmp);
             }
-        } else {
-            if(m->end>end) {
-                // split the block!
+            tmp->prev->next = m;
+            free(tmp);
+        } else if(begin>=m->begin && end<=m->end) { // the zone is totaly inside the block => split it!
+            if(begin==m->begin) {
+                m->begin = end+1;
+            } else if(end==m->end) {
+                m->end = begin - 1;
+            } else {
                 mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
-                newm->begin = end+1;
                 newm->end = m->end;
                 m->end = begin - 1;
+                newm->begin = end + 1;
                 newm->next = m->next;
                 newm->prev = m;
                 m->next = newm;
-            } else if(m->end == end) {
-                m->end = begin - 1;
+                // nothing more to free
                 return;
-            } else {
-                //free the block
-                begin = m->end + 1;
-                mapmem_t* tmp = m;
-                m = m->next;
-                tmp->prev->next = m;
-                if(m)
-                    m->prev = tmp->prev;
-                free(tmp);
             }
+        } else if(begin>m->begin && begin<m->end) {
+            m->end = begin - 1;
+        } else if(end>m->begin && end<m->end) {
+            m->begin = end + 1;
         }
+        m = m->next;
     }
 }
 
@@ -1141,8 +1132,9 @@ void* find47bitBlock(size_t size)
 void* find47bitBlockNearHint(void* hint, size_t size)
 {
     mapmem_t* m = mapmem;
+    if(hint<LOWEST) hint = LOWEST;
     while(m && m->end<0x800000000000LL) {
-        if((m->end>(uintptr_t)hint) && (!m->next || (m->next->begin-(m->end+1)>=size)))
+        if((m->end+1>=(uintptr_t)hint) && (!m->next || (m->next->begin-(m->end+1)>=size)))
             return (void*)(m->end + 1);
         m = m->next;
     }
@@ -1151,12 +1143,13 @@ void* find47bitBlockNearHint(void* hint, size_t size)
 void* findBlockNearHint(void* hint, size_t size)
 {
     mapmem_t* m = mapmem;
+    if(hint<LOWEST) hint = LOWEST;
     while(m && m->end<0x100000000LL) {
-        if((m->end>(uintptr_t)hint) && (!m->next || (m->next->begin-(m->end+1)>=size)))
+        if((m->end+1>=(uintptr_t)hint) && (!m->next || (m->next->begin-(m->end+1)>=size)))
             return (void*)(m->end + 1);
         m = m->next;
     }
-    return NULL;
+    return hint;
 }
 
 int unlockCustommemMutex()
