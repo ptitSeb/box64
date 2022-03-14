@@ -15,6 +15,7 @@
 #include "librarian.h"
 #include "box64context.h"
 #include "emu/x64emu_private.h"
+#include "myalign.h"
 
 const char* libx11Name = "libX11.so.6";
 #define LIBNAME libx11
@@ -630,7 +631,7 @@ default:                                                                        
 }
 
 #define GO(A)                                                                       \
-if (va[i] && strcmp((char*)va[i], A) == 0) {                                        \
+if (getVArgs(emu, 1, va, i) && strcmp((char*)getVArgs(emu, 1, va, i), A) == 0) {    \
     XICCallback* origin = (XICCallback*)va[i+1];                                    \
     XICCallback* new = callbacks + i;                                               \
     new->client_data = origin->client_data;                                         \
@@ -639,17 +640,17 @@ if (va[i] && strcmp((char*)va[i], A) == 0) {                                    
     new_va[i+1] = new;                                                              \
 }
 
-EXPORT void* my_XVaCreateNestedList(x64emu_t* emu, int unused, void** va) {
+EXPORT void* my_XVaCreateNestedList(x64emu_t* emu, int unused, uintptr_t* va) {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     int n = 0;
-    while (va[++n]) ;
+    while (getVArgs(emu, 1, va, ++n)) ;
     void** new_va = malloc(sizeof(void*) * n);
     XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
 
     for (int i = 0; i < n; i += 2) {
-        new_va[i] = va[i];
-        new_va[i+1] = va[i+1];
+        new_va[i] = (void*)getVArgs(emu, 1, va, i);
+        new_va[i+1] = (void*)getVArgs(emu, 1, va, i+1);
         SUPER()
     }
 
@@ -660,17 +661,17 @@ EXPORT void* my_XVaCreateNestedList(x64emu_t* emu, int unused, void** va) {
     return res;
 }
 
-EXPORT void* my_XCreateIC(x64emu_t* emu, void* xim, void** va) {
+EXPORT void* my_XCreateIC(x64emu_t* emu, void* xim, uintptr_t* va) {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     int n = 0;
-    while (va[++n]) ;
+    while (getVArgs(emu, 1, va, ++n)) ;
     void** new_va = malloc(sizeof(void*) * n);
     XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
 
     for (int i = 0; i < n; i += 2) {
-        new_va[i] = va[i];
-        new_va[i+1] = va[i+1];
+        new_va[i] = (void*)getVArgs(emu, 1, va, i);
+        new_va[i+1] = (void*)getVArgs(emu, 1, va, i+1);
         SUPER()
     }
 
@@ -681,17 +682,17 @@ EXPORT void* my_XCreateIC(x64emu_t* emu, void* xim, void** va) {
     return res;
 }
 
-EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, void** va) {
+EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, uintptr_t* va) {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     int n = 0;
-    while (va[++n]) ;
+    while (getVArgs(emu, 1, va, ++n)) ;
     void** new_va = malloc(sizeof(void*) * n);
     XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
 
     for (int i = 0; i < n; i += 2) {
-        new_va[i] = va[i];
-        new_va[i+1] = va[i+1];
+        new_va[i] = (void*)getVArgs(emu, 1, va, i);
+        new_va[i+1] = (void*)getVArgs(emu, 1, va, i+1);
         SUPER()
     }
 
@@ -703,16 +704,16 @@ EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, void** va) {
 }
 #undef GO
 
-EXPORT void* my_XSetIMValues(x64emu_t* emu, void* xim, void** va) {
+EXPORT void* my_XSetIMValues(x64emu_t* emu, void* xim, uintptr_t* va) {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     int n = 0;
-    while (va[++n]) ;
+    while (getVArgs(emu, 1, va, ++n)) ;
     void** new_va = malloc(sizeof(void*) * n);
     XIMCallback* callbacks = (XIMCallback*)malloc(sizeof(XIMCallback) * n);
 
     #define GO(A)                                                                       \
-    if (va[i] && strcmp((char*)va[i], A) == 0) {                                        \
+    if (getVArgs(emu, 1, va, i) && strcmp((char*)getVArgs(emu, 1, va, i), A) == 0) {    \
         XIMCallback* origin = (XIMCallback*)va[i+1];                                    \
         XIMCallback* new = callbacks + i;                                               \
         new->client_data = origin->client_data;                                         \
@@ -721,8 +722,8 @@ EXPORT void* my_XSetIMValues(x64emu_t* emu, void* xim, void** va) {
         new_va[i+1] = new;                                                              \
     }
     for (int i = 0; i < n; i += 2) {
-        new_va[i] = va[i];
-        new_va[i+1] = va[i+1];
+        new_va[i] = (void*)getVArgs(emu, 1, va, i);
+        new_va[i+1] = (void*)getVArgs(emu, 1, va, i+1);
         SUPER()
     }
     #undef GO
