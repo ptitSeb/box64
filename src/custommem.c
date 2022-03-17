@@ -56,7 +56,7 @@ static int inited = 0;
 
 typedef struct mapmem_s {
     uintptr_t begin, end;
-    struct mapmem_s *prev, *next;
+    struct mapmem_s *next;
 } mapmem_t;
 
 static mapmem_t *mapmem = NULL;
@@ -856,14 +856,22 @@ int isprotectedDB(uintptr_t addr, size_t size)
 
 #endif
 
+void printMapMem()
+{
+    mapmem_t* m = mapmem;
+    while(m) {
+        printf_log(LOG_INFO, " %p-%p\n", (void*)m->begin, (void*)m->end);
+        m = m->next;
+    }
+}
+
 void addMapMem(uintptr_t begin, uintptr_t end)
 {
-    // granularity is 0x10000, like on x86
-    begin &=~0xffff;
-    end = (end&~0xffff)+0xffff; // full granularity
+    begin &=~0xfff;
+    end = (end&~0xfff)+0xfff; // full page
     // sanitize values
-    if(end==0xffff) return;
-    if(!begin) begin = 0x1000;
+    if(end<0x10000) return;
+    if(!begin) begin = 0x10000;
     // find attach point (cannot be the 1st one by construction)
     mapmem_t* m = mapmem;
     while(m->next && begin>m->next->begin) {
@@ -872,13 +880,13 @@ void addMapMem(uintptr_t begin, uintptr_t end)
     // attach at the end of m
     mapmem_t* newm;
     if(m->end>=begin-1) {
-        if(m->end<end)
-            m->end = end;   // enlarge block
+        if(end<=m->end)
+            return; // zone completly inside current block, nothing to do
+        m->end = end;   // enlarge block
         newm = m;
     } else {
     // create a new block
         newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
-        newm->prev = m;
         newm->next = m->next;
         newm->begin = begin;
         newm->end = end;
@@ -890,56 +898,50 @@ void addMapMem(uintptr_t begin, uintptr_t end)
             newm->end = newm->next->end;
         mapmem_t* tmp = newm->next;
         newm->next = tmp->next;
-        if(tmp->next)
-            tmp->next->prev = newm;
         free(tmp);
     }
     // all done!
 }
 void removeMapMem(uintptr_t begin, uintptr_t end)
 {
-    // granularity is 0x10000, like on x86
-    begin &=~0xffff;
-    end = (end&~0xffff)+0xffff; // full granularity
+    begin &=~0xfff;
+    end = (end&~0xfff)+0xfff; // full page
     // sanitize values
-    if(end==0xffff) return;
-    if(!begin) begin = 0x1000;
-    mapmem_t* m = mapmem;
+    if(end<0x10000) return;
+    if(!begin) begin = 0x10000;
+    mapmem_t* m = mapmem, *prev = NULL;
     while(m) {
         // check if block is beyond the zone to free
-        if(m->end > begin)
+        if(m->begin > end)
             return;
         // check if the block is completly inside the zone to free
         if(m->begin>=begin && m->end<=end) {
             // just free the block
             mapmem_t *tmp = m;
-            m = m->next;
-            if(m) {
-                m->prev = tmp->prev;
-            }
-            tmp->prev->next = m;
-            free(tmp);
-        } else if(begin>=m->begin && end<=m->end) { // the zone is totaly inside the block => split it!
-            if(begin==m->begin) {
-                m->begin = end+1;
-            } else if(end==m->end) {
-                m->end = begin - 1;
+            if(prev) {
+                prev->next = m->next;
+                m = prev;
             } else {
-                mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
-                newm->end = m->end;
-                m->end = begin - 1;
-                newm->begin = end + 1;
-                newm->next = m->next;
-                newm->prev = m;
-                m->next = newm;
-                // nothing more to free
-                return;
+                mapmem = m->next; // change attach, but should never happens
+                m = mapmem;
+                prev = NULL;
             }
-        } else if(begin>m->begin && begin<m->end) {
+            free(tmp);
+        } else if(begin>m->begin && end<m->end) { // the zone is totaly inside the block => split it!
+            mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));    // create a new "next"
+            newm->end = m->end;
             m->end = begin - 1;
-        } else if(end>m->begin && end<m->end) {
+            newm->begin = end + 1;
+            newm->next = m->next;
+            m->next = newm;
+            // nothing more to free
+            return;
+        } else if(begin>m->begin && begin<m->end) { // free the tail of the block
+            m->end = begin - 1;
+        } else if(end>m->begin && end<m->end) { // free the head of the block
             m->begin = end + 1;
         }
+        prev = m;
         m = m->next;
     }
 }
@@ -947,7 +949,7 @@ void removeMapMem(uintptr_t begin, uintptr_t end)
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "updateProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
-    addMapMem(addr, addr+size);
+    addMapMem(addr, addr+size-1);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
@@ -977,7 +979,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 
 void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
-    addMapMem(addr, addr+size);
+    addMapMem(addr, addr+size-1);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
@@ -1004,7 +1006,7 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "allocProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
-    addMapMem(addr, addr+size);
+    addMapMem(addr, addr+size-1);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
@@ -1051,7 +1053,7 @@ void loadProtectionFromMap()
         uintptr_t s, e;
         if(sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x)==5) {
             int prot = ((r=='r')?PROT_READ:0)|((w=='w')?PROT_WRITE:0)|((x=='x')?PROT_EXEC:0);
-            allocProtection(s, e-s, prot|PROT_ALLOC);
+            allocProtection(s, e-s, prot);
         }
     }
     fclose(f);
@@ -1070,7 +1072,7 @@ static int blockempty(uint8_t* mem)
 void freeProtection(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
-    removeMapMem(addr, addr+size);
+    removeMapMem(addr, addr+size-1);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
@@ -1134,8 +1136,12 @@ void* find47bitBlockNearHint(void* hint, size_t size)
     mapmem_t* m = mapmem;
     if(hint<LOWEST) hint = LOWEST;
     while(m && m->end<0x800000000000LL) {
-        if((m->end+1>=(uintptr_t)hint) && (!m->next || (m->next->begin-(m->end+1)>=size)))
-            return (void*)(m->end + 1);
+        // granularity 0x10000
+        uintptr_t addr = (m->end+1+0xffff)&~0xffff;
+        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffff;
+        // check hint and availble saize
+        if(addr>=(uintptr_t)hint && end-addr+1>=size)
+            return (void*)addr;
         m = m->next;
     }
     return NULL;
@@ -1145,8 +1151,12 @@ void* findBlockNearHint(void* hint, size_t size)
     mapmem_t* m = mapmem;
     if(hint<LOWEST) hint = LOWEST;
     while(m && m->end<0x100000000LL) {
-        if((m->end+1>=(uintptr_t)hint) && (!m->next || (m->next->begin-(m->end+1)>=size)))
-            return (void*)(m->end + 1);
+        // granularity 0x10000
+        uintptr_t addr = (m->end+1+0xffff)&~0xffff;
+        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffff;
+        // check hint and availble saize
+        if(addr>=(uintptr_t)hint && end-addr+1>=size)
+            return (void*)addr;
         m = m->next;
     }
     return hint;
