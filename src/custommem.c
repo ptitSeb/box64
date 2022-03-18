@@ -1134,13 +1134,16 @@ void* find47bitBlock(size_t size)
 void* find47bitBlockNearHint(void* hint, size_t size)
 {
     mapmem_t* m = mapmem;
+    uintptr_t h = (uintptr_t)hint;
     if(hint<LOWEST) hint = LOWEST;
     while(m && m->end<0x800000000000LL) {
         // granularity 0x10000
         uintptr_t addr = (m->end+1+0xffff)&~0xffff;
-        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffff;
-        // check hint and availble saize
-        if(addr>=(uintptr_t)hint && end-addr+1>=size)
+        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffffffffffffLL;
+        // check hint and available size
+        if(addr<=h && end>=h && end-h+1>=size)
+            return hint;
+        if(addr>=h && end-addr+1>=size)
             return (void*)addr;
         m = m->next;
     }
@@ -1149,13 +1152,16 @@ void* find47bitBlockNearHint(void* hint, size_t size)
 void* findBlockNearHint(void* hint, size_t size)
 {
     mapmem_t* m = mapmem;
+    uintptr_t h = (uintptr_t)hint;
     if(hint<LOWEST) hint = LOWEST;
     while(m && m->end<0x100000000LL) {
         // granularity 0x10000
         uintptr_t addr = (m->end+1+0xffff)&~0xffff;
-        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffff;
-        // check hint and availble saize
-        if(addr>=(uintptr_t)hint && end-addr+1>=size)
+        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffffffffffffLL;
+        // check hint and available size
+        if(addr<=h && end>=h && end-h+1>=size)
+            return hint;
+        if(addr>=h && end-addr+1>=size)
             return (void*)addr;
         m = m->next;
     }
