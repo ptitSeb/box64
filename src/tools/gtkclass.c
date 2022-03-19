@@ -1054,6 +1054,88 @@ static void bridgeGtkFrameClass(my_GtkFrameClass_t* class)
 
 #undef SUPERGO
 
+// ----- GtkMenuShellClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkMenuShell,deactivate, void,      (void* menu_shell), 1, menu_shell);
+WRAPPER(GtkMenuShell,selection_done, void,  (void* menu_shell), 1, menu_shell);
+WRAPPER(GtkMenuShell,move_current, void,    (void* menu_shell, int direction), 2, menu_shell, direction);
+WRAPPER(GtkMenuShell,activate_current, void,(void* menu_shell, int force_hide), 2, menu_shell, force_hide);
+WRAPPER(GtkMenuShell,cancel, void,          (void* menu_shell), 1, menu_shell);
+WRAPPER(GtkMenuShell,select_item, void,     (void* menu_shell, void* menu_item), 2, menu_shell, menu_item);
+WRAPPER(GtkMenuShell,insert, void,          (void* menu_shell, void* child, int position), 3, menu_shell, child, position);
+WRAPPER(GtkMenuShell,get_popup_delay, int,  (void* menu_shell), 1, menu_shell);
+WRAPPER(GtkMenuShell,move_selected, int,    (void* menu_shell, int distance), 2, menu_shell, distance);
+
+#define SUPERGO()               \
+    GO(deactivate, vFp);        \
+    GO(selection_done, vFp);    \
+    GO(move_current, vFpi);     \
+    GO(activate_current, vFpi); \
+    GO(cancel, vFp);            \
+    GO(select_item, vFpp);      \
+    GO(insert, vFppi);          \
+    GO(get_popup_delay, iFp);   \
+    GO(move_selected, iFpi);    \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkMenuShellClass(my_GtkMenuShellClass_t* class)
+{
+    wrapGtkContainerClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkMenuShell (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkMenuShellClass(my_GtkMenuShellClass_t* class)
+{   
+    unwrapGtkContainerClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkMenuShell (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkMenuShellClass(my_GtkMenuShellClass_t* class)
+{
+    bridgeGtkContainerClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkMenuShell (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GtkMenuBarClass ------
+// no wrapper x86 -> natives of callbacks
+
+#define SUPERGO()           \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkMenuBarClass(my_GtkMenuBarClass_t* class)
+{
+    wrapGtkMenuShellClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkMenuBar (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkMenuBarClass(my_GtkMenuBarClass_t* class)
+{   
+    unwrapGtkMenuShellClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkMenuBar (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkMenuBarClass(my_GtkMenuBarClass_t* class)
+{
+    bridgeGtkMenuShellClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkMenuBar (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND

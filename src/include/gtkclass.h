@@ -318,6 +318,29 @@ typedef struct my_GtkFrameClass_s {
   void (*compute_child_allocation) (void* frame, void* allocation);
 } my_GtkFrameClass_t;
 
+typedef struct my_GtkMenuShellClass_s {
+  my_GtkContainerClass_t parent_class;
+  void (*deactivate)       (void* menu_shell);
+  void (*selection_done)   (void* menu_shell);
+  void (*move_current)     (void* menu_shell, int direction);
+  void (*activate_current) (void* menu_shell, int force_hide);
+  void (*cancel)           (void* menu_shell);
+  void (*select_item)      (void* menu_shell, void* menu_item);
+  void (*insert)           (void* menu_shell, void* child, int position);
+  int  (*get_popup_delay)  (void* menu_shell);
+  int  (*move_selected)    (void* menu_shell, int distance);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+} my_GtkMenuShellClass_t;
+
+typedef struct my_GtkMenuBarClass_s {
+  my_GtkMenuShellClass_t parent_class;
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkMenuBarClass_t;
+
 typedef struct my_MetaFramesClass_s
 {
   my_GtkWindowClass_t parent_class;
@@ -410,6 +433,8 @@ GTKCLASS(GtkSpinButton) \
 GTKCLASS(GtkProgress)   \
 GTKCLASS(GtkProgressBar)\
 GTKCLASS(GtkFrame)      \
+GTKCLASS(GtkMenuShell)  \
+GTKCLASS(GtkMenuBar)    \
 GTKCLASS(MetaFrames)    \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);

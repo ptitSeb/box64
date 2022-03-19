@@ -61,6 +61,8 @@ typedef unsigned long (*LFpppppi_t)(void*, void*, void*, void*, void*, int);
     GO(gtk_spin_button_get_type, LFv_t)         \
     GO(gtk_progress_get_type, LFv_t)            \
     GO(gtk_progress_bar_get_type, LFv_t)        \
+    GO(gtk_menu_shell_get_type, LFv_t)          \
+    GO(gtk_menu_bar_get_type, LFv_t)            \
     GO(gtk_action_get_type, LFv_t)              \
     GO(g_type_class_ref, pFL_t)                 \
     GO(g_type_class_unref, vFp_t)               \
@@ -1190,6 +1192,8 @@ EXPORT void* my_gtk_link_button_set_uri_hook(x64emu_t* emu, void* f, void* data,
     SetGtkProgressID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_progress_get_type()); \
     SetGtkProgressBarID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_progress_bar_get_type());\
     SetGtkFrameID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_frame_get_type());       \
+    SetGtkMenuShellID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_menu_shell_get_type()); \
+    SetGtkMenuBarID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_menu_bar_get_type());  \
     lib->priv.w.needed = 2;                                                     \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \
