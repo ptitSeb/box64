@@ -644,7 +644,7 @@ EXPORT void* my_XVaCreateNestedList(x64emu_t* emu, int unused, uintptr_t* va) {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     int n = 0;
-    while (getVArgs(emu, 1, va, ++n)) ;
+    while (getVArgs(emu, 1, va, n)) n+=2 ;
     void** new_va = malloc(sizeof(void*) * n);
     XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
 
@@ -665,7 +665,7 @@ EXPORT void* my_XCreateIC(x64emu_t* emu, void* xim, uintptr_t* va) {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     int n = 0;
-    while (getVArgs(emu, 1, va, ++n)) ;
+    while (getVArgs(emu, 1, va, n)) n+=2;
     void** new_va = malloc(sizeof(void*) * n);
     XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
 
@@ -686,7 +686,7 @@ EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, uintptr_t* va) {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     int n = 0;
-    while (getVArgs(emu, 1, va, ++n)) ;
+    while (getVArgs(emu, 1, va, n)) n+=2;
     void** new_va = malloc(sizeof(void*) * n);
     XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
 
@@ -708,7 +708,7 @@ EXPORT void* my_XSetIMValues(x64emu_t* emu, void* xim, uintptr_t* va) {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     int n = 0;
-    while (getVArgs(emu, 1, va, ++n)) ;
+    while (getVArgs(emu, 1, va, n)) n+=2;
     void** new_va = malloc(sizeof(void*) * n);
     XIMCallback* callbacks = (XIMCallback*)malloc(sizeof(XIMCallback) * n);
 
