@@ -183,6 +183,8 @@ void* GetNativeFnc(uintptr_t fnc)
     Dl_info info;
     if(dladdr((void*)fnc, &info))
         return (void*)fnc;
+    if(!getProtection(fnc))
+        return NULL;
     // check if it's an indirect jump
     #define PK(a)       *(uint8_t*)(fnc+a)
     #define PK32(a)     *(uint32_t*)(fnc+a)

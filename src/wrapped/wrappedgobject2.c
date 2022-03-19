@@ -21,7 +21,7 @@
 
 const char* gobject2Name = "libgobject-2.0.so.0";
 #define LIBNAME gobject2
-library_t *my_lib = NULL;
+static library_t *my_lib = NULL;
 
 typedef size_t(*LFv_t)(void);
 typedef void*(*pFL_t)(size_t);
@@ -57,7 +57,7 @@ void freeGobject2My(void* lib)
     //gobject2_my_t *my = (gobject2_my_t *)lib;
 }
 
-static int signal_cb(void* a, void* b, void* c, void* d)
+static int signal_cb(void* a, void* b, void* c, void* d, void* e)
 {
     // signal can have many signature... so first job is to find the data!
     // hopefully, no callback have more than 4 arguments...
@@ -79,14 +79,20 @@ static int signal_cb(void* a, void* b, void* c, void* d)
         sig = (my_signal_t*)d;
         i = 4;
     }
-    printf_log(LOG_DEBUG, "gobject2 Signal called, sig=%p, handler=%p, NArgs=%d\n", sig, (void*)sig->c_handler, i);
+    if(!sig && my_signal_is_valid(e)) {
+        sig = (my_signal_t*)e;
+        i = 5;
+        printf_log(LOG_DEBUG, "Warning, GObject2 signal callback with 5 args found, sig=%p!\n", sig);
+    }
+    printf_log(LOG_DEBUG, "gobject2 Signal called, sig=%p, handler=%p, NArgs=%d\n", sig, sig?(void*)sig->c_handler:NULL, i);
     switch(i) {
         case 1: return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);
         case 2: return (int)RunFunction(my_context, sig->c_handler, 2, a, sig->data);
         case 3: return (int)RunFunction(my_context, sig->c_handler, 3, a, b, sig->data);
         case 4: return (int)RunFunction(my_context, sig->c_handler, 4, a, b, c, sig->data);
+        case 5: return (int)RunFunction(my_context, sig->c_handler, 5, a, b, c, d, sig->data);
     }
-    printf_log(LOG_NONE, "Warning, GObject2 signal callback but no data found!");
+    printf_log(LOG_NONE, "Warning, GObject2 signal callback but no data found!\n");
     return 0;
 }
 static int signal_cb_swapped(my_signal_t* sig, void* b, void* c, void* d)
@@ -210,12 +216,22 @@ EXPORT uintptr_t my_g_signal_connect_data(x64emu_t* emu, void* instance, void* d
     uintptr_t ret = 0;
     #define GO(A, B) if(strcmp((const char*)detailed, A)==0) ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_##B):((void*)signal_cb_##B), sig, signal_delete, flags);
     GO("query-tooltip", 6)  // GtkWidget
+    else GO("query_tooltip", 6)
     else GO("selection-get", 5) //GtkWidget
+    else GO("selection_get", 5)
     else GO("drag-data-get", 5) //GtkWidget
     else GO("drag-data-received", 8)    //GtkWidget
+    else GO("drag_data_received", 8)
     else GO("drag-drop", 6) //GtkWidget
+    else GO("drag_drop", 6)
     else GO("drag-motion", 6)   //GtkWidget
+    else GO("drag_motion", 6)
     else GO("expand-collapse-cursor-row", 5)    //GtkTreeView
+    else GO("expand_collapse_cursor_row", 5)
+    else GO("insert-text", 5)   // GtkEditable
+    else GO("insert_text", 5)
+    else GO("move-cursor", 5)   // GtkEntry
+    else GO("move_cursor", 5)
     else
         ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped):((void*)signal_cb), sig, signal_delete, flags);
     #undef GO
@@ -264,7 +280,12 @@ GO(3)   \
 GO(4)   \
 GO(5)   \
 GO(6)   \
-GO(7)
+GO(7)   \
+GO(8)   \
+GO(9)   \
+GO(10)  \
+GO(11)  \
+GO(12)  \
 
 #define GO(A)   \
 static uintptr_t my_copy_fct_##A = 0;   \
@@ -625,7 +646,7 @@ EXPORT uint32_t my_g_signal_handlers_block_matched(x64emu_t* emu, void* instance
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
     // NOTE that I have no idea of the fnc signature!...
-    if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_block_matched called with non null function \n");
+    if (fnc) printf_log(LOG_DEBUG, "Warning, gobject g_signal_handlers_block_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
     return my->g_signal_handlers_block_matched(instance, mask, signal, detail, closure, fnc, data);
 }
@@ -635,7 +656,7 @@ EXPORT uint32_t my_g_signal_handlers_unblock_matched(x64emu_t* emu, void* instan
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
     // NOTE that I have no idea of the fnc signature!...
-    if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_unblock_matched called with non null function \n");
+    if (fnc) printf_log(LOG_DEBUG, "Warning, gobject g_signal_handlers_unblock_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
     return my->g_signal_handlers_unblock_matched(instance, mask, signal, detail, closure, fnc, data);
 }
@@ -645,7 +666,7 @@ EXPORT uint32_t my_g_signal_handlers_disconnect_matched(x64emu_t* emu, void* ins
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
     // NOTE that I have no idea of the fnc signature!...
-    if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_disconnect_matched called with non null function \n");
+    if (fnc) printf_log(LOG_DEBUG, "Warning, gobject g_signal_handlers_disconnect_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
     return my->g_signal_handlers_disconnect_matched(instance, mask, signal, detail, closure, fnc, data);
 }
@@ -655,7 +676,7 @@ EXPORT unsigned long my_g_signal_handler_find(x64emu_t* emu, void* instance, int
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
     // NOTE that I have no idea of the fnc signature!...
-    if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handler_find called with non null function \n");
+    if (fnc) printf_log(LOG_DEBUG, "Warning, gobject g_signal_handler_find called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
     return my->g_signal_handler_find(instance, mask, signal, detail, closure, fnc, data);
 }

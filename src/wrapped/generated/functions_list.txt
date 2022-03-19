@@ -2552,6 +2552,8 @@ wrappedgtkx112:
   - gtk_widget_style_get_valist
 - uFupp:
   - gtk_timeout_add
+- pFppp:
+  - gtk_link_button_set_uri_hook
 - vFppiV:
   - gtk_list_store_insert_with_values
 - vFppup:

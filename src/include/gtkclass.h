@@ -224,6 +224,100 @@ typedef struct my_GtkWindowClass_s {
   void (*_gtk_reserved4) (void);
 } my_GtkWindowClass_t;
 
+typedef struct my_GtkButtonClass_s {
+  my_GtkBinClass_t parent_class;
+  void (* pressed)  (void *button);
+  void (* released) (void *button);
+  void (* clicked)  (void *button);
+  void (* enter)    (void *button);
+  void (* leave)    (void *button);
+  void (* activate) (void *button);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkButtonClass_t;
+
+typedef struct my_GtkToggleButtonClass_s {
+  my_GtkButtonClass_t parent_class;
+  void (* toggled) (void* toggle_button);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkToggleButtonClass_t;
+
+typedef struct my_GtkCheckButtonClass_s {
+  my_GtkToggleButtonClass_t parent_class;
+  void (* draw_indicator) (void* check_button, void* area);
+  void (*_gtk_reserved0) (void);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+} my_GtkCheckButtonClass_t;
+
+typedef struct my_GtkComboBoxClass_s {
+  my_GtkBinClass_t parent_class;
+  void (* changed)        (void* combo_box);
+  void*(* get_active_text)(void* combo_box);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkComboBoxClass_t;
+
+typedef struct my_GtkEntryClass_s {
+  my_GtkWidgetClass_t parent_class;
+  void (* populate_popup)   (void* entry, void* menu);
+  void (* activate)           (void* entry);
+  void (* move_cursor)        (void* entry, int step, int count, int extend_selection);
+  void (* insert_at_cursor)   (void* entry, void* str);
+  void (* delete_from_cursor) (void* entry, int type, int count);
+  void (* backspace)          (void* entry);
+  void (* cut_clipboard)      (void* entry);
+  void (* copy_clipboard)     (void* entry);
+  void (* paste_clipboard)    (void* entry);
+  void (* toggle_overwrite)   (void* entry);
+  void (* get_text_area_size) (void* entry, void* x, void* y, void* width, void* height);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+} my_GtkEntryClass_t;
+
+typedef struct my_GtkSpinButtonClass_s {
+  my_GtkEntryClass_t parent_class;
+  int  (*input)  (void* spin_button, void* new_value);
+  int  (*output) (void* spin_button);
+  void (*value_changed) (void* spin_button);
+  void (*change_value) (void* spin_button, int scroll);
+  void (*wrapped) (void* spin_button);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+} my_GtkSpinButtonClass_t;
+
+typedef struct my_GtkProgressClass_s {
+  my_GtkWidgetClass_t parent_class;
+  void (* paint)            (void* progress);
+  void (* update)           (void* progress);
+  void (* act_mode_enter)   (void* progress);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkProgressClass_t;
+
+typedef struct my_GtkProgressBarClass_s {
+  my_GtkProgressClass_t parent_class;
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkProgressBarClass_t;
+
+typedef struct my_GtkFrameClass_s {
+  my_GtkBinClass_t parent_class;
+  void (*compute_child_allocation) (void* frame, void* allocation);
+} my_GtkFrameClass_t;
+
 typedef struct my_MetaFramesClass_s
 {
   my_GtkWindowClass_t parent_class;
@@ -307,6 +401,15 @@ GTKCLASS(GtkBin)        \
 GTKCLASS(GtkWindow)     \
 GTKCLASS(GtkTable)      \
 GTKCLASS(GtkFixed)      \
+GTKCLASS(GtkButton)     \
+GTKCLASS(GtkComboBox)   \
+GTKCLASS(GtkToggleButton)\
+GTKCLASS(GtkCheckButton)\
+GTKCLASS(GtkEntry)      \
+GTKCLASS(GtkSpinButton) \
+GTKCLASS(GtkProgress)   \
+GTKCLASS(GtkProgressBar)\
+GTKCLASS(GtkFrame)      \
 GTKCLASS(MetaFrames)    \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);

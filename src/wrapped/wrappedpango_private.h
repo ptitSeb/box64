@@ -399,12 +399,12 @@ GO(pango_tab_array_resize, vFpi)
 GO(pango_tab_array_set_tab, vFpiii)
 GO(pango_trim_string, pFp)
 GO(pango_underline_get_type, iFv)
-//GO(pango_unichar_direction, 
+GO(pango_unichar_direction, iFu)
 GO(pango_units_from_double, iFd)
 GO(pango_units_to_double, dFi)
-//GO(pango_variant_get_type, 
-//GO(pango_version, 
-//GO(pango_version_check, 
-//GO(pango_version_string, 
+GO(pango_variant_get_type, pFv)
+GO(pango_version, iFv)
+GO(pango_version_check, pFiii)
+GO(pango_version_string, pFv)
 GO(pango_weight_get_type, iFv)
 GO(pango_wrap_mode_get_type, iFv)
