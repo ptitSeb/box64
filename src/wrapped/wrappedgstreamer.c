@@ -303,25 +303,25 @@ EXPORT void my_gst_pad_set_query_function_full(x64emu_t* emu, void* pad, void* f
 EXPORT void my_gst_pad_set_getrange_function_full(x64emu_t* emu, void* pad, void* f, void* data, void* d)
 {
     gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
-    my->gst_pad_set_query_function_full(pad, findGstPadGetRangeFunctionFct(f), data, findDestroyFct(d));
+    my->gst_pad_set_getrange_function_full(pad, findGstPadGetRangeFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_chain_function_full(x64emu_t* emu, void* pad, void* f, void* data, void* d)
 {
     gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
-    my->gst_pad_set_query_function_full(pad, findGstPadChainFunctionFct(f), data, findDestroyFct(d));
+    my->gst_pad_set_chain_function_full(pad, findGstPadChainFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_event_function_full(x64emu_t* emu, void* pad, void* f, void* data, void* d)
 {
     gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
-    my->gst_pad_set_query_function_full(pad, findGstPadEventFunctionFct(f), data, findDestroyFct(d));
+    my->gst_pad_set_event_function_full(pad, findGstPadEventFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_bus_set_sync_handler(x64emu_t* emu, void* bus, void* f, void* data, void* d)
 {
     gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
-    my->gst_pad_set_query_function_full(bus, findGstBusSyncHandlerFct(f), data, findDestroyFct(d));
+    my->gst_bus_set_sync_handler(bus, findGstBusSyncHandlerFct(f), data, findDestroyFct(d));
 }
 
 #define PRE_INIT    \

@@ -170,7 +170,7 @@ GO(gst_bus_post, iFpp)
 GO(gst_bus_remove_signal_watch, vFp)
 GO(gst_bus_remove_watch, iFp)
 GO(gst_bus_set_flushing, vFpi)
-GOM(gst_bus_set_sync_handler, vFpppp)
+GOM(gst_bus_set_sync_handler, vFEpppp)
 GO(gst_bus_sync_reply_get_type, pFv)
 GO(gst_bus_sync_signal_handler, iFppp)
 GO(gst_bus_timed_pop, pFpU)
@@ -1046,7 +1046,7 @@ GO(gst_pad_template_flags_get_type, pFv)
 //GO(gst_pad_template_get_caps, 
 //GO(gst_pad_template_get_documentation_caps, 
 //GO(gst_pad_template_get_type, 
-//GO(gst_pad_template_new, 
+GO(gst_pad_template_new, pFpiip)
 //GO(gst_pad_template_new_from_static_pad_template_with_gtype, 
 //GO(gst_pad_template_new_with_gtype, 
 //GO(gst_pad_template_pad_created, 
@@ -1098,12 +1098,12 @@ GO(gst_pad_use_fixed_caps, vFp)
 //GO(gst_plugin_feature_get_plugin, 
 //GO(gst_plugin_feature_get_plugin_name, 
 //GO(gst_plugin_feature_get_rank, 
-//GO(gst_plugin_feature_get_type, 
+GO(gst_plugin_feature_get_type, LFv)
 //GO(gst_plugin_feature_list_copy, 
 //GO(gst_plugin_feature_list_debug, 
-//GO(gst_plugin_feature_list_free, 
+GO(gst_plugin_feature_list_free, vFp)
 //GO(gst_plugin_feature_load, 
-//GO(gst_plugin_feature_rank_compare_func, 
+GO(gst_plugin_feature_rank_compare_func, iFpp)
 //GO(gst_plugin_feature_set_rank, 
 //GO(gst_plugin_flags_get_type, 
 //GO(gst_plugin_get_cache_data, 
