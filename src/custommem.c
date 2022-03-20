@@ -42,7 +42,7 @@ static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT];
 static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT];
 #endif
 static pthread_mutex_t     mutex_prot;
-#ifdef LA464
+#if defined(LA464) || defined(M1)
 #define MEMPROT_SHIFT 14
 #define MEMPROT_SHIFT2 (16+14)
 #else
