@@ -42,7 +42,7 @@ static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT];
 static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT];
 #endif
 static pthread_mutex_t     mutex_prot;
-#if defined(LA464) || defined(M1)
+#if defined(PAGE16K)
 #define MEMPROT_SHIFT 14
 #define MEMPROT_SHIFT2 (16+14)
 #else
@@ -1236,6 +1236,11 @@ void init_custommem_helper(box64context_t* ctx)
     mapmem->begin = 0x0;
     mapmem->end = (uintptr_t)LOWEST - 1;
     loadProtectionFromMap();
+    // check if PageSize is correctly defined
+    if(box64_pagesize != (1<<MEMPROT_SHIFT)) {
+        printf_log(LOG_NONE, "Error: PageSize configuation is wrong: configured with %d, but got %d\n", 1<<MEMPROT_SHIFT, box64_pagesize);
+        exit(-1);   // abort or let it continue?
+    }
 }
 
 void fini_custommem_helper(box64context_t *ctx)

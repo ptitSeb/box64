@@ -80,6 +80,23 @@ If it's the first install, you also need:
 sudo systemctl restart systemd-binfmt
 ```
 
+#### for M1
+
+Only test on Asahi for now, using the default "16K page" kernel
+
+```
+git clone https://github.com/ptitSeb/box64
+cd box64
+mkdir build; cd build; cmake .. -DM1=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+make -j4
+sudo make install
+```
+If it's the first install, you also need:
+```
+sudo systemctl restart systemd-binfmt
+```
+
+
 #### for Other ARM64 Linux platforms
 
  `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
