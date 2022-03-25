@@ -19,9 +19,13 @@ uint64_t RunFunction(box64context_t *context, uintptr_t fnc, int nargs, ...)
     (void)context;
 
     x64emu_t *emu = thread_get_emu();
+    int align = (nargs>6)?(((nargs-6)&1)):0;
+    int stackn = align + ((nargs>6)?(nargs-6):0);
 
-    if(nargs>6)
-        R_ESP -= (nargs-6)*sizeof(void*);   // need to push in reverse order
+    Push64(emu, R_RBP); // push rbp
+    R_RBP = R_RSP;      // mov rbp, rsp
+
+    R_RSP -= stackn*sizeof(void*);   // need to push in reverse order
 
     uint64_t *p = (uint64_t*)R_RSP;
 
@@ -38,9 +42,13 @@ uint64_t RunFunction(box64context_t *context, uintptr_t fnc, int nargs, ...)
     }
     va_end (va);
 
+    uintptr_t oldip = R_RIP;
     DynaCall(emu, fnc);
-    if(nargs>6)
-        R_ESP+=((nargs-6)*sizeof(void*));
+
+    if(oldip==R_RIP) {
+        R_RSP = R_RBP;          // mov rsp, rbp
+        R_RBP = Pop64(emu);     // pop rbp
+    }
 
     uint64_t ret = R_RAX;
 
@@ -50,8 +58,13 @@ uint64_t RunFunction(box64context_t *context, uintptr_t fnc, int nargs, ...)
 EXPORTDYN
 uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, ...)
 {
-    if(nargs>6)
-        R_ESP -= (nargs-6)*sizeof(void*);   // need to push in reverse order
+    int align = (nargs>6)?(((nargs-6)&1)):0;
+    int stackn = align + ((nargs>6)?(nargs-6):0);
+
+    Push64(emu, R_RBP); // push rbp
+    R_RBP = R_RSP;      // mov rbp, rsp
+
+    R_RSP -= stackn*sizeof(void*);   // need to push in reverse order
 
     uint64_t *p = (uint64_t*)R_RSP;
 
@@ -77,8 +90,10 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
 
     DynaCall(emu, fnc);
 
-    if(oldip==R_RIP && nargs>6)
-        R_ESP+=((nargs-6)*sizeof(void*));   // restore stack only if EIP is the one expected (else, it means return value is not the one expected)
+    if(oldip==R_RIP) {
+        R_RSP = R_RBP;      // restore stack only if EIP is the one expected (else, it means return value is not the one expected)
+        R_RBP = Pop64(emu); //Pop EBP
+    }
 
     emu->quit = old_quit;
     emu->quitonlongjmp = oldlong;
