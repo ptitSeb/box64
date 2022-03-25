@@ -124,6 +124,49 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             switch(nextop) {
 
+                case 0xB0:
+                    INST_NAME("LOCK CMPXCHG Eb, Gb");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    nextop = F8;
+                    GETGB(x1);
+                    UBFXx(x6, xRAX, 0, 8);
+                    DMB_ISH();
+                    if(MODREG) {
+                        if(rex.rex) {
+                            wback = xRAX+(nextop&7)+(rex.b<<3);
+                            wb2 = 0;
+                        } else { 
+                            wback = (nextop&7);
+                            wb2 = (wback>>2)*8;
+                            wback = xRAX+(wback&3);
+                        } 
+                        UBFXx(x2, wback, wb2, 8);
+                        wb1 = 0;
+                        ed = x2;
+                        UFLAG_IF {emit_cmp8(dyn, ninst, x6, ed, x3, x4, x5);}
+                        CMPSxw_REG(x6, x2);
+                        B_MARK2(cNE);
+                        BFIx(wback, x2, wb2, 8);
+                        MOVxw_REG(ed, gd);
+                        MARK2;
+                        BFIx(xRAX, x2, 0, 8);
+                        B_NEXT_nocond;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 0);
+                        // Aligned version
+                        MARKLOCK;
+                        LDAXRB(x2, wback);
+                        CMPSxw_REG(x6, x2);
+                        B_MARK(cNE);
+                        // EAX == Ed
+                        STLXRB(x4, gd, wback);
+                        CBNZx_MARKLOCK(x4);
+                        // done
+                        UFLAG_IF {emit_cmp32(dyn, ninst, rex, x6, x2, x3, x4, x5);}
+                        BFIx(xRAX, x2, 0, 8);    // upper par of RAX will be erase on 32bits, no mater what
+                    }
+                    DMB_ISH();
+                    break;
                 case 0xB1:
                     INST_NAME("LOCK CMPXCHG Ed, Gd");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
