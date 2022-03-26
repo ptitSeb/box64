@@ -892,7 +892,7 @@ void addMapMem(uintptr_t begin, uintptr_t end)
         newm->end = end;
         m->next = newm;
     }
-    while(newm->next && (newm->next->begin-1)<=newm->end) {
+    while(newm && newm->next && (newm->next->begin-1)<=newm->end) {
         // fuse with next
         if(newm->next->end>newm->end)
             newm->end = newm->next->end;

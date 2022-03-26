@@ -907,6 +907,7 @@ static void free_contextargv()
         free(my_context->argv[i]);
 }
 
+void pressure_vessel(int argc, const char** argv, int nextarg);
 extern char** environ;
 int main(int argc, const char **argv, char **env) {
 
@@ -969,16 +970,12 @@ int main(int argc, const char **argv, char **env) {
             //wine_preloaded = 1;
         }
     }
-    #if 0
+    #if 1
     // pre-check for pressure-vessel-wrap
     if(strstr(prog, "pressure-vessel-wrap")==(prog+strlen(prog)-strlen("pressure-vessel-wrap"))) {
         // pressure-vessel-wrap detecter, skipping it and all -- args until "--" if needed
-        ++nextarg;
-        if(argv[nextarg][0]=='-' && argv[nextarg][1]=='-')
-            while(argv[nextarg][0]=='-' && argv[nextarg][1]=='-')
-                ++nextarg;
-        prog = argv[nextarg];
-        printf_log(LOG_INFO, "BOX64: pressure-vessel-wrap detected, loading \"%s\" directly\n", prog);
+        printf_log(LOG_INFO, "BOX64: pressure-vessel-wrap detected\n");
+        pressure_vessel(argc, argv, nextarg+1);
     }
     #endif
     // check if this is wine
@@ -1001,6 +998,10 @@ int main(int argc, const char **argv, char **env) {
     // check if this is wineserver
     if(!strcmp(prog, "wineserver") || !strcmp(prog, "wineserver64") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
         box64_wine = 1;
+    }
+    if(box64_wine) {
+        // disabling the use of futex_waitv for now
+        setenv("WINEFSYNC", "0", 1);
     }
     // Create a new context
     my_context = NewBox64Context(argc - nextarg);
@@ -1033,6 +1034,8 @@ int main(int argc, const char **argv, char **env) {
     } else {
         if(getenv("LD_PRELOAD")) {
             char* p = getenv("LD_PRELOAD");
+            if(strstr(p, "libtcmalloc_minimal.so.0"))
+                box64_tcmalloc_minimal = 1;
             if(strstr(p, "libtcmalloc_minimal.so.4"))
                 box64_tcmalloc_minimal = 1;
             if(strstr(p, "libtcmalloc_minimal_debug.so.4"))

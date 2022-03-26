@@ -437,6 +437,7 @@ void iFppd(x64emu_t *emu, uintptr_t fnc);
 void iFppl(x64emu_t *emu, uintptr_t fnc);
 void iFppL(x64emu_t *emu, uintptr_t fnc);
 void iFppp(x64emu_t *emu, uintptr_t fnc);
+void iFpOu(x64emu_t *emu, uintptr_t fnc);
 void iFpOM(x64emu_t *emu, uintptr_t fnc);
 void iFSpL(x64emu_t *emu, uintptr_t fnc);
 void IFiIi(x64emu_t *emu, uintptr_t fnc);

@@ -1137,6 +1137,8 @@ int ElfCheckIfUseTCMallocMinimal(elfheader_t* h)
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             if(!strcmp(needed, "libtcmalloc_minimal.so.4")) // tcmalloc needs to be the 1st lib loaded
                 return 1;
+            else if(!strcmp(needed, "libtcmalloc_minimal.so.0")) // tcmalloc needs to be the 1st lib loaded
+                return 1;
             else
                 return 0;
         }
