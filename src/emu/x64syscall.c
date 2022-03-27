@@ -163,6 +163,7 @@ scwrap_t syscallwrap[] = {
     { 254, __NR_inotify_add_watch, 3},
     { 255, __NR_inotify_rm_watch, 2},
     { 257, __NR_openat, 4},
+    { 272, __NR_unshare, 1},
     { 274, __NR_get_robust_list, 3},
     { 294, __NR_inotify_init1, 1},
     { 298, __NR_perf_event_open, 5},
@@ -258,9 +259,10 @@ typedef struct old_utsname_s {
 //	int  xss;
 //};
 
-int clone_fn(void* arg)
+static int clone_fn(void* arg)
 {
     x64emu_t *emu = (x64emu_t*)arg;
+    thread_set_emu(emu);
     R_RAX = 0;
     DynaRun(emu);
     int ret = R_EAX;

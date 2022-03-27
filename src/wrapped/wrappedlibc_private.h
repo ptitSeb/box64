@@ -149,8 +149,8 @@ GOW(clock_nanosleep, iFiipp)
 //GO(__clock_settime, 
 GOW(clock_settime, iFip)
 //GO(__clone, 
-//GOW(clone, iF@pipV)
-//GO(__close, 
+GOWM(clone, iFEppipppp)
+GO(__close, iFi)
 GOW(close, iFi)
 GOW(closedir, iFp)
 GO(closelog, vFv)

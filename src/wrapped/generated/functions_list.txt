@@ -186,6 +186,7 @@
 #() UFEp
 #() UFuu
 #() UFUp
+#() UFpi
 #() UFpp
 #() fFEp
 #() fFif
@@ -1475,6 +1476,7 @@
 #() pFpCuuup
 #() pFpuuwwu
 #() pFpuuuuu
+#() pFpuuupu
 #() pFplpppp
 #() pFppiiii
 #() pFppiipp
@@ -1728,6 +1730,7 @@
 #() vFpppppppp
 #() iFEpippppp
 #() iFEpuuLppp
+#() iFEppipppp
 #() iFEppppipp
 #() iFiiiiiiip
 #() iFiiupiupi
@@ -1784,6 +1787,7 @@
 #() pFpCuuuCup
 #() pFpWWiCpup
 #() pFpuuWWCuu
+#() pFpuuuuupp
 #() pFpuuuupup
 #() pFpuuupwwp
 #() pFpdwwWWui
@@ -2180,6 +2184,7 @@ wrappedfreetype:
   - FT_Open_Face
 - iFpuuLppp:
   - FTC_Manager_New
+wrappedgbm:
 wrappedgconf2:
 wrappedgdkpixbuf2:
 - pFpiiiiiipp:
@@ -2838,6 +2843,8 @@ wrappedlibc:
   - mmap64
 - iFpippppp:
   - __libc_start_main
+- iFppipppp:
+  - clone
 wrappedlibcrypt:
 wrappedlibcups:
 wrappedlibdl:

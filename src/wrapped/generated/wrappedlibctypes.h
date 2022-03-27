@@ -78,6 +78,7 @@ typedef int64_t (*iFpLiLpV_t)(void*, uintptr_t, int64_t, uintptr_t, void*, ...);
 typedef int64_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef void* (*pFpLiiil_t)(void*, uintptr_t, int64_t, int64_t, int64_t, intptr_t);
 typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*);
+typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(_Jv_RegisterClasses, vFv_t) \
@@ -226,6 +227,7 @@ typedef int64_t (*iFpippppp_t)(void*, int64_t, void*, void*, void*, void*, void*
 	GO(posix_spawnp, iFpppppp_t) \
 	GO(mmap, pFpLiiil_t) \
 	GO(mmap64, pFpLiiil_t) \
-	GO(__libc_start_main, iFpippppp_t)
+	GO(__libc_start_main, iFpippppp_t) \
+	GO(clone, iFppipppp_t)
 
 #endif // __wrappedlibcTYPES_H_

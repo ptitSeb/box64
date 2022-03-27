@@ -2674,6 +2674,49 @@ EXPORT int my_stime(x64emu_t* emu, const time_t *t)
     return -1;
 }
 
+typedef struct clone_arg_s {
+ x64emu_t* emu;
+ uintptr_t fnc;
+ void* args;
+ int stack_clone_used;
+} clone_arg_t;
+static int clone_fn(void* p)
+{
+    clone_arg_t* arg = (clone_arg_t*)p;
+    x64emu_t *emu = arg->emu;
+    thread_set_emu(emu);
+    int ret = RunFunction(my_context, arg->fnc, 1, arg->args);
+    FreeX64Emu(&emu);
+    if(arg->stack_clone_used)
+        my_context->stack_clone_used = 0;
+    free(arg);
+    return ret;
+}
+
+EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args, void* parent, void* tls, void* child)
+{
+    x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack, 0, 0);
+    SetupX64Emu(newemu);
+    CloneEmu(newemu, emu);
+    void* mystack = NULL;
+    clone_arg_t* arg = (clone_arg_t*)calloc(1, sizeof(clone_arg_t));
+    if(my_context->stack_clone_used) {
+        mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+    } else {
+        if(!my_context->stack_clone)
+            my_context->stack_clone = malloc(1024*1024);
+        mystack = my_context->stack_clone;
+        my_context->stack_clone_used = 1;
+        arg->stack_clone_used = 1;
+    }
+    arg->emu = newemu;
+    arg->args = args;
+    arg->fnc = (uintptr_t)fn;
+    // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
+    int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), flags, arg, parent, tls, child);
+    return (uintptr_t)ret;
+}
+
 EXPORT char** my_environ = NULL;
 EXPORT char** my__environ = NULL;
 EXPORT char** my___environ = NULL;  // all aliases
