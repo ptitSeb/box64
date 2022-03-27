@@ -34,6 +34,7 @@ extern char* trace_func;
 extern int allow_missing_libs;
 extern int box64_mapclean;
 extern int box64_prefer_wrapped;
+extern int box64_prefer_emulated;
 extern int box64_steam;
 extern int box64_wine;
 extern int box64_nopulse;   // disabling the use of wrapped pulseaudio

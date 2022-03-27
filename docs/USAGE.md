@@ -150,6 +150,16 @@ Allow Box64 to continue even if a library is missing.
  * 0 : Box64 will stop if a library cannot be loaded. (Default.)
  * 1 : Continue even if a needed library cannot be loaded. Unadvised, this will, in most cases, crash later on.
 
+#### BOX64_PREFER_WRAPPED
+Box64 will use wrapped libs even if the lib is specified with absolute path
+ * 0 : Try to use emulated libs when they are defined with absolute path  (Default.)
+ * 1 : Use Wrapped native libs even if path is absolute
+
+#### BOX64_PREFER_EMULATED
+Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11
+ * 0 : Native libs are prefered (Default.)
+ * 1 : Emulated libs are prefered (Default for program running inside pressure-vessel)
+
 #### BOX64_NOPULSE
 Disables the load of pulseaudio libraries.
  * 0 : Load pulseaudio libraries if found. (Default.)

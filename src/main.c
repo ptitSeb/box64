@@ -72,6 +72,7 @@ int box64_dynarec_trace = 0;
 int x11threads = 0;
 int x11glx = 1;
 int allow_missing_libs = 0;
+int box64_prefer_emulated = 0;
 int box64_prefer_wrapped = 0;
 int fix_64bit_inodes = 0;
 int box64_mapclean = 0;
@@ -659,7 +660,6 @@ void PrintHelp() {
     printf("You can also set some environment variables:\n");
     printf(" BOX64_PATH is the box64 version of PATH (default is '.:bin')\n");
     printf(" BOX64_LD_LIBRARY_PATH is the box64 version LD_LIBRARY_PATH (default is '.:lib:lib64')\n");
-    printf(" BOX64_PREFER_WRAPPED if box64 will use wrapped libs even if the lib is specified with absolute path\n");
     printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info (level 3 is level 2 + BOX64_DUMP)\n");
     printf(" BOX64_DUMP with 0/1 to dump elf infos\n");
     printf(" BOX64_NOBANNER with 0/1 to enable/disable the printing of box64 version and build at start\n");
@@ -691,6 +691,8 @@ void PrintHelp() {
     printf(" BOX64_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
     printf(" BOX64_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
     printf(" BOX64_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
+    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11\n");
+    printf(" BOX64_PREFER_WRAPPED if box64 will use wrapped libs even if the lib is specified with absolute path\n");
     printf(" BOX64_NOPULSE=1 to disable the loading of pulseaudio libs\n");
     printf(" BOX64_NOGTK=1 to disable the loading of wrapped gtk libs\n");
     printf(" BOX64_NOVULKAN=1 to disable the loading of wrapped vulkan libs\n");
@@ -718,10 +720,22 @@ void LoadEnvVars(box64context_t *context)
             printf_log(LOG_INFO, "\n");
         }
     }
+    // add libssl and libcrypto, prefer emulated version because of multiple version exist
+    AddPath("libssl.so.1", &context->box64_emulated_libs, 0);
+    AddPath("libssl.so.1.0.0", &context->box64_emulated_libs, 0);
+    AddPath("libcrypto.so.1", &context->box64_emulated_libs, 0);
+    AddPath("libcrypto.so.1.0.0", &context->box64_emulated_libs, 0);
+
     if(getenv("BOX64_PREFER_WRAPPED")) {
         if (strcmp(getenv("BOX64_PREFER_WRAPPED"), "1")==0) {
             box64_prefer_wrapped = 1;
             printf_log(LOG_INFO, "BOX64: Prefer Wrapped libs\n");
+    	}
+    }
+    if(getenv("BOX64_PREFER_EMULATED")) {
+        if (strcmp(getenv("BOX64_PREFER_EMULATED"), "1")==0) {
+            box64_prefer_emulated = 1;
+            printf_log(LOG_INFO, "BOX64: Prefer Emulated libs\n");
     	}
     }
 

@@ -310,6 +310,24 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
         }
 }
 
+static const char* essential_libs[] = {
+    "libc.so.6", "libpthread.so.0", "librt.so.1", "libGL.so.1", "libGL.so", "libX11.so.6", 
+    "libasound.so.2", "libdl.so.2", "libm.so.6",
+    "libXxf86vm.so.1", "libXinerama.so.1", "libXrandr.so.2", "libXext.so.6", "libXfixes.so.3", "libXcursor.so.1",
+    "libXrender.so.1", "libXft.so.2", "libXi.so.6", "libXss.so.1", "libXpm.so.4", "libXau.so.6", "libXdmcp.so.6",
+    "libX11-xcb.so.1", "libxcb.so.1", "libxcb-xfixes.so.0", "libxcb-shape.so.0", "libxcb-shm.so.0", "libxcb-randr.so.0",
+    "libxcb-image.so.0", "libxcb-keysyms.so.1", "libxcb-xtest.so.0", "libxcb-glx.so.0", "libxcb-dri2.so.0", "libxcb-dri3.so.0",
+    "libXtst.so.6", "libXt.so.6", "libXcomposite.so.1", "libXdamage.so.1", "libXmu.so.6", "libxkbcommon.so.0", 
+    "libxkbcommon-x11.so.0", "libpulse-simple.so.0", "libpulse.so.0", "libvulkan.so.1", "libvulkan.so",
+    "ld-linux-x86-64.so.2", "crashhandler.so", "libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.4"
+};
+static int isEssentialLib(const char* name) {
+    for (int i=0; i<sizeof(essential_libs)/sizeof(essential_libs[0]); ++i)
+        if(!strcmp(name, essential_libs[i]))
+            return 1;
+    return 0;
+}
+
 extern char* libGL;
 library_t *NewLibrary(const char* path, box64context_t* context)
 {
@@ -341,7 +359,10 @@ library_t *NewLibrary(const char* path, box64context_t* context)
         }
     }
     int notwrapped = FindInCollection(lib->name, &context->box64_emulated_libs);
-    int precise = (path && path[0]=='/')?1:0;
+    int essential = isEssentialLib(lib->name);
+    if(!notwrapped && box64_prefer_emulated && !essential)
+        notwrapped = 1;
+    int precise = (!box64_prefer_wrapped && !essential && path && path[0]=='/')?1:0;
     if(!notwrapped && precise && strstr(path, "libtcmalloc_minimal.so"))
         precise = 0;    // allow native version for tcmalloc_minimum
     // check if name is libSDL_sound-1.0.so.1 but with SDL2 loaded, then try emulated first...
