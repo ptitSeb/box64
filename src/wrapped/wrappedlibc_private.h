@@ -1262,10 +1262,10 @@ GOW(ntp_adjtime, iFp)
 //GO(_obstack_free, 
 //GO(obstack_free, 
 //GO(_obstack_memory_used, 
-//GO(_obstack_newchunk, 
+GOM(_obstack_newchunk, vFEpi)
 //GOW(obstack_printf, iFppV)
 //GO(__obstack_printf_chk, 
-//GOW(obstack_vprintf, iFppA)
+GOWM(obstack_vprintf, iFEppA)
 //GO(__obstack_vprintf_chk, 
 //GOW(on_exit, iF@p)
 GOWM(__open, iFEpOu)

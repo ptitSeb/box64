@@ -1,3 +1,5 @@
+#ifndef __MY_ALIGN__H_
+#define __MY_ALIGN__H_
 #include <stdint.h>
 
 typedef struct x64_va_list_s {
@@ -171,3 +173,5 @@ void UnalignSemidDs(void *dest, const void* source);
 void AlignSemidDs(void *dest, const void* source);
 
 uintptr_t getVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N);
+
+#endif  //__MY_ALIGN__H_

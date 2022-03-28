@@ -2659,6 +2659,7 @@ wrappedlibc:
 - vFpi:
   - __longjmp_chk
   - _longjmp
+  - _obstack_newchunk
   - longjmp
   - siglongjmp
 - vFpu:
@@ -2754,6 +2755,7 @@ wrappedlibc:
   - sscanf
   - swscanf
 - iFppA:
+  - obstack_vprintf
   - vasprintf
   - vfprintf
   - vfscanf

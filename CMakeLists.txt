@@ -241,6 +241,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/librarian/globalsymbols.c"
     "${BOX64_ROOT}/src/librarian/symbols.c"
     "${BOX64_ROOT}/src/libtools/auxval.c"
+    "${BOX64_ROOT}/src/libtools/obstack.c"
     "${BOX64_ROOT}/src/libtools/myalign.c"
     "${BOX64_ROOT}/src/libtools/sdl1rwops.c"
     "${BOX64_ROOT}/src/libtools/sdl2rwops.c"
