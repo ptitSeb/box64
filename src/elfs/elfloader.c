@@ -1564,7 +1564,7 @@ void CreateMemorymapFile(box64context_t* context, int fd)
     // create stack entry
     sprintf(buff, "%16lx-%16lx %c%c%c%c %16lx %02x:%02x %ld %s\n", 
         (uintptr_t)context->stack, (uintptr_t)context->stack+context->stacksz,
-        'r','w','-','p', 0, 0, 0, 0, "[stack]");
+        'r','w','-','p', 0L, 0, 0, 0L, "[stack]");
     dummy = write(fd, buff, strlen(buff));
 }
 
