@@ -429,6 +429,49 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 for(int i=1; i>=0; --i)
                     GX->sq[i] = EX->sd[i];
                 break;
+            
+            case 0x30: /* PMOVZXBW Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=7; i>=0; --i)
+                    GX->uw[i] = EX->ub[i];
+                break;
+            case 0x31: /* PMOVZXBD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=3; i>=0; --i)
+                    GX->ud[i] = EX->ub[i];
+                break;
+            case 0x32: /* PMOVZXBQ Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=1; i>=0; --i)
+                    GX->q[i] = EX->ub[i];
+                break;
+            case 0x33: /* PMOVZXWD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=3; i>=0; --i)
+                    GX->ud[i] = EX->uw[i];
+                break;
+            case 0x34: /* PMOVZXWQ Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=1; i>=0; --i)
+                    GX->q[i] = EX->uw[i];
+                break;
+            case 0x35: /* PMOVZXDQ Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=1; i>=0; --i)
+                    GX->q[i] = EX->ud[i];
+                break;
 
             case 0x39:  /* PMINSD Gx, Ex */
                 nextop = F8;

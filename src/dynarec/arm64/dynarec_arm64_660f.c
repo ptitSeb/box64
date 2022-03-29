@@ -395,6 +395,53 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SXTL_32(q0, q1);     // 32bits->64bits
                     break;
 
+                case 0x30:
+                    INST_NAME("PMOVZXBW Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    UXTL_8(q0, q1);     // 8bits->16bits
+                    break;
+                case 0x31:
+                    INST_NAME("PMOVZXBD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    UXTL_8(q0, q1);     // 8bits->16bits
+                    UXTL_16(q0, q0);    //16bits->32bits
+                    break;
+                case 0x32:
+                    INST_NAME("PMOVZXBQ Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    UXTL_8(q0, q1);     // 8bits->16bits
+                    UXTL_16(q0, q0);    //16bits->32bits
+                    UXTL_32(q0, q0);    //32bits->64bits
+                    break;
+                case 0x33:
+                    INST_NAME("PMOVZXWD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    UXTL_16(q0, q1);     // 16bits->32bits
+                    break;
+                case 0x34:
+                    INST_NAME("PMOVZXWQ Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    UXTL_16(q0, q1);     // 16bits->32bits
+                    UXTL_32(q0, q1);     // 32bits->64bits
+                    break;
+                case 0x35:
+                    INST_NAME("PMOVZXDQ Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX_empty(q0);
+                    UXTL_32(q0, q1);     // 32bits->64bits
+                    break;
+
                 case 0x39:
                     INST_NAME("PMINSD Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
