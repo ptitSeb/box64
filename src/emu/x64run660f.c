@@ -367,7 +367,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 GETEX(0);
                 GETGX;
                 for (int i=0; i<16; ++i) {
-                    GX->sb[i] = abs(EX->sb[i]);
+                    GX->ub[i] = abs(EX->sb[i]);
                 }
                 break;
             case 0x1D:  /* PABSW Gx, Ex */
@@ -375,7 +375,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 GETEX(0);
                 GETGX;
                 for (int i=0; i<8; ++i) {
-                    GX->sw[i] = abs(EX->sw[i]);
+                    GX->uw[i] = abs(EX->sw[i]);
                 }
                 break;
             case 0x1E:  /* PABSD Gx, Ex */
@@ -383,7 +383,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 GETEX(0);
                 GETGX;
                 for (int i=0; i<4; ++i) {
-                    GX->sd[i] = abs(EX->sd[i]);
+                    GX->ud[i] = abs(EX->sd[i]);
                 }
                 break;
 
