@@ -358,6 +358,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 nextop = F8;
                 GETEX(0);
                 GETGX;
+                CHECK_FLAGS(emu);
                 CONDITIONAL_SET_FLAG(!(GX->u128&EX->u128), F_ZF);
                 CONDITIONAL_SET_FLAG(!((~GX->u128)&EX->u128), F_CF);
                 break;
@@ -676,6 +677,25 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
 
+            case 0x14:      // PEXTRB EB, GX, u8
+                nextop = F8;
+                GETEB(1);
+                GETGX;
+                tmp8u = F8;
+                EB->byte[0] = GX->ub[tmp8u&0x0f];
+                break;
+
+            case 0x16:      // PEXTRD/Q ED, GX, u8
+                nextop = F8;
+                GETED(1);
+                GETGX;
+                tmp8u = F8;
+                if(rex.w) {
+                    ED->q[0] = GX->q[tmp8u&1];
+                } else {
+                    ED->q[0] = GX->ud[tmp8u&3];
+                }
+                break;
             case 0x17:      // EXTRACTPS ED, GX, u8
                 nextop = F8;
                 GETED(1);
