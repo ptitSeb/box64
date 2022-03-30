@@ -103,6 +103,9 @@ const v128 b128_16 = {.u16 = {
 const v128 b128_32 = {.u32 = {
     0x00000001, 0x80000000, 0x00000005, 0xfffffffe
 }};
+const v128 c128_32 = {.u32 = {
+    0x00000001, 0x80000000, 0x80000005, 0x0000fffe
+}};
 
 void print_8(v128 v) {
     for(int i=0; i<16; ++i)
@@ -219,25 +222,58 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  #undef GO1
  #undef GO2
  v128 a128;
+ int i;
 
  #define GO1(A, N, C)                               \
  a128.mm = _mm_##A##_epi##N(a128_##N.mm);           \
- printf("p%s%s(", #A, #C); print_##N(a128_##N);     \
+ printf("%s(", #C); print_##N(a128_##N);           \
  printf(") = "); print_##N(a128); printf("\n");
  #define GO2(A, N, C, A1, A2)                       \
  a128.mm = _mm_##A##_epi##N(A1.mm, A2.mm);          \
- printf("p%s%s(", #A, #C); print_##N(A1);           \
+ printf("%s(", #C); print_##N(A1);                 \
  printf(", "); print_##N(A2);                       \
+ printf(") = "); print_##N(a128); printf("\n");
+ #define GO2i(A, A1, A2)                            \
+ i = _mm_##A##_si128(A1.mm, A2.mm);                 \
+ printf("p%s(", #A); print_64(A1);                  \
+ printf(", "); print_64(A2);                        \
+ printf(") = %d\n", i);
+ #define GO3PS(A, N, A1, A2, A3)                    \
+ a128.mf = _mm_##A##_ps(A1.mf, A2.mf, A3.mf);       \
+ printf("p%s%s(", #A, "ps"); print_##N(A1);         \
+ printf(", "); print_##N(A2);                       \
+ printf(", "); print_##N(A3);                       \
  printf(") = "); print_##N(a128); printf("\n");
 
 
- GO1(abs, 8, b)
- GO1(abs, 16, w)
- GO1(abs, 32, d)
- GO2(shuffle, 8, b, a128_8, b128_8)
- GO2(hadd, 16, w, a128_16, b128_16)
- GO2(hadd, 32, d, a128_32, b128_32)
-
-
+ GO2(shuffle, 8, pshufb, a128_8, b128_8)
+ GO2(hadd, 16, phaddw, a128_16, b128_16)
+ GO2(hadd, 32, phaddd, a128_32, b128_32)
+ GO2(hadds, 16, phaddsw, a128_16, b128_16)
+ GO2(maddubs, 16, pmaddubsw, a128_8, b128_8)
+ GO2(hsub, 16, phsubw, a128_16, b128_16)
+ GO2(sign, 8, psignb, a128_8, b128_8)
+ GO2(sign, 16, psignw, a128_16, b128_16)
+ GO2(sign, 32, psignd, a128_32, b128_32)
+ GO2(mulhrs, 16, pmulhrsw, a128_16, b128_16)
+ GO3PS(blendv, 32, a128_32, b128_32, c128_32)
+ GO2i(testz, a128_32, b128_32)
+ GO2i(testc, a128_32, b128_32)
+ GO2i(testnzc, a128_32, b128_32)
+ GO1(abs, 8, pabsb)
+ GO1(abs, 16, pabsw)
+ GO1(abs, 32, pabsd)
+ GO1(cvtepi8, 16, pmovsxbw);
+ GO1(cvtepi8, 32, pmovsxbd);
+ GO1(cvtepi8, 64, pmovsxbq);
+ GO1(cvtepi16, 32, pmovsxwd);
+ GO1(cvtepi16, 64, pmovsxwq);
+ GO1(cvtepi32, 64, pmovsxdq);
+ GO1(cvtepu8, 16, pmovzxbw);
+ GO1(cvtepu8, 32, pmovzxbd);
+ GO1(cvtepu8, 64, pmovzxbq);
+ GO1(cvtepu16, 32, pmovzxwd);
+ GO1(cvtepu16, 64, pmovzxwq);
+ GO1(cvtepu32, 64, pmovzxdq);
  return 0;
 }

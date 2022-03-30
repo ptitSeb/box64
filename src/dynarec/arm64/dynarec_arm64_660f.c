@@ -385,7 +385,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEX(q1, 0);
                     GETGX_empty(q0);
                     SXTL_16(q0, q1);     // 16bits->32bits
-                    SXTL_32(q0, q1);     // 32bits->64bits
+                    SXTL_32(q0, q0);     // 32bits->64bits
                     break;
                 case 0x25:
                     INST_NAME("PMOVSXDQ Gx, Ex");  // SSE4 opcode!
@@ -432,7 +432,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEX(q1, 0);
                     GETGX_empty(q0);
                     UXTL_16(q0, q1);     // 16bits->32bits
-                    UXTL_32(q0, q1);     // 32bits->64bits
+                    UXTL_32(q0, q0);     // 32bits->64bits
                     break;
                 case 0x35:
                     INST_NAME("PMOVZXDQ Gx, Ex");  // SSE4 opcode!
@@ -451,7 +451,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     break;
 
                 case 0x3D:
-                    INST_NAME("PMINSD Gx, Ex");  // SSE4 opcode!
+                    INST_NAME("PMAXSD Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
                     GETEX(q1, 0);
                     GETGX(q0);
@@ -600,6 +600,19 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VEXTQ_8(q0, q0, d0, u8-16);
                     } else {
                         VEXTQ_8(q0, q1, q0, u8);
+                    }
+                    break;
+
+                case 0x16:
+                    if(rex.w) {INST_NAME("PEXTRQ Ed, Gx, Ib");} else {INST_NAME("PEXTRD Ed, Gx, Ib");}
+                    nextop = F8;
+                    GETGX(q0);
+                    GETED(1);
+                    u8 = F8;
+                    if(rex.w) {
+                        VMOVQDto(ed, q0, (u8&1));
+                    } else {
+                        VMOVSto(ed, q0, (u8&3));
                     }
                     break;
 
