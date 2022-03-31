@@ -1,3 +1,5 @@
+// build with  gcc -march=corei7 -O2 -g -msse -msse2 test17.c -o test17
+// and -m32 for 32bits version
 #include <string.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -103,9 +105,17 @@ const v128 b128_16 = {.u16 = {
 const v128 b128_32 = {.u32 = {
     0x00000001, 0x80000000, 0x00000005, 0xfffffffe
 }};
+const v128 b128_64 = {.u64 = {
+    0x0000000000000001LL, 0x8000000000000000LL
+}};
 const v128 c128_32 = {.u32 = {
     0x00000001, 0x80000000, 0x80000005, 0x0000fffe
 }};
+
+const v128 a128_pd = {.d64 = { 1.0, 2.0}};
+const v128 b128_pd = {.d64 = { 0.0, -2.0}};
+const v128 c128_pd = {.d64 = { INFINITY, -INFINITY}};
+const v128 d128_pd = {.d64 = { NAN, -0.0}};
 
 void print_8(v128 v) {
     for(int i=0; i<16; ++i)
@@ -122,6 +132,20 @@ void print_32(v128 v) {
 void print_64(v128 v) {
     for(int i=0; i<2; ++i)
         printf("0x%llx ", v.u64[i]);
+}
+void print_ps(v128 v) {
+    for(int i=0; i<4; ++i)
+        if(isnanf(v.f32[i]))
+            printf("nan ");
+        else
+            printf("%g ", v.f32[i]);
+}
+void print_pd(v128 v) {
+    for(int i=0; i<2; ++i)
+        if(isnan(v.d64[i]))
+            printf("0x%llx ", v.u64[i]);
+        else
+            printf("%g ", v.d64[i]);
 }
 
 int main(int argc, const char** argv)
@@ -226,13 +250,18 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
 
  #define GO1(A, N, C)                               \
  a128.mm = _mm_##A##_epi##N(a128_##N.mm);           \
- printf("%s(", #C); print_##N(a128_##N);           \
+ printf("%s(", #C); print_##N(a128_##N);            \
  printf(") = "); print_##N(a128); printf("\n");
  #define GO2(A, N, C, A1, A2)                       \
  a128.mm = _mm_##A##_epi##N(A1.mm, A2.mm);          \
- printf("%s(", #C); print_##N(A1);                 \
+ printf("%s(", #C); print_##N(A1);                  \
  printf(", "); print_##N(A2);                       \
  printf(") = "); print_##N(a128); printf("\n");
+ #define GO2C(A, N, C, A1, A2, I)                   \
+ a128.mm = _mm_##A##_epi##N(A1.mm, A2.mm, I);       \
+ printf("%s(", #C); print_##N(A1);                  \
+ printf(", "); print_##N(A2);                       \
+ printf("%d) = ", I); print_##N(a128); printf("\n");
  #define GO2i(A, A1, A2)                            \
  i = _mm_##A##_si128(A1.mm, A2.mm);                 \
  printf("p%s(", #A); print_64(A1);                  \
@@ -244,7 +273,15 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  printf(", "); print_##N(A2);                       \
  printf(", "); print_##N(A3);                       \
  printf(") = "); print_##N(a128); printf("\n");
-
+ #define GO1ipd(A, C, A1)                           \
+ i = _mm_##A##_pd(A1.md);                           \
+ printf("%s(", #C); print_64(A1);                   \
+ printf(") = 0x%x\n", i);
+ #define GO1pd(A, C, A1)                            \
+ a128.md = _mm_##A##_pd(A1.md);                     \
+ printf("%s(", #C); print_pd(A1);                   \
+ printf(") = "); print_pd(a128); printf("\n");
+ 
 
  GO2(shuffle, 8, pshufb, a128_8, b128_8)
  GO2(hadd, 16, phaddw, a128_16, b128_16)
@@ -275,5 +312,23 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO1(cvtepu16, 32, pmovzxwd);
  GO1(cvtepu16, 64, pmovzxwq);
  GO1(cvtepu32, 64, pmovzxdq);
+ GO2(min, 32, pminsd, a128_32, b128_32)
+ GO2(max, 32, pmaxsd, a128_32, b128_32)
+ GO2C(blend, 16, pblendw, a128_16, b128_16, 0)
+ GO2C(blend, 16, pblendw, a128_16, b128_16, 0xff)
+ GO2C(blend, 16, pblendw, a128_16, b128_16, 0xaa)
+ GO2C(blend, 16, pblendw, a128_16, b128_16, 2)
+ GO2C(alignr, 8, palignr, a128_8, b128_8, 0)
+ GO2C(alignr, 8, palignr, a128_8, b128_8, 2)
+ GO2C(alignr, 8, palignr, a128_8, b128_8, 7)
+ GO2C(alignr, 8, palignr, a128_8, b128_8, 15)
+ GO2C(alignr, 8, palignr, a128_8, b128_8, 16)
+ GO2C(alignr, 8, palignr, a128_8, b128_8, 0xff)
+ GO1ipd(movemask, movmskpd, a128_64)
+ GO1pd(sqrt, psqrtpd, a128_pd)
+ GO1pd(sqrt, psqrtpd, b128_pd)
+ GO1pd(sqrt, psqrtpd, c128_pd)
+ GO1pd(sqrt, psqrtpd, d128_pd)
+
  return 0;
 }

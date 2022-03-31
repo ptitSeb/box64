@@ -794,8 +794,14 @@ int Run660F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEX(0);
         GETGX;
-        GX->d[0] = sqrt(EX->d[0]);
-        GX->d[1] = sqrt(EX->d[1]);
+        for (int i=0; i<2; ++i) {
+            #ifndef NOALIGN
+            if(EX->d[i]<0.0) // on x86, default nan are negative
+                GX->d[i] = -NAN;
+            else
+            #endif
+            GX->d[i] = sqrt(EX->d[i]);
+        }
         break;
 
     case 0x54:                      /* ANDPD Gx, Ex */
