@@ -351,6 +351,12 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULITGO2pd(min, minpd)
  MULITGO2pd(div, divpd)
  MULITGO2pd(max, maxpd)
+ GO2(unpacklo, 8, punpcklbw, a128_8, b128_8)
+ GO2(unpacklo, 16, punpcklwd, a128_16, b128_16)
+ GO2(unpacklo, 32, punpckldq, a128_32, b128_32)
+ GO2(packs, 16, ppacksswb, a128_16, b128_16)
+
+ GO2(packs, 32, ppackssdw, a128_32, b128_32)
 
  return 0;
 }
