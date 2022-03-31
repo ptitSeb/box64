@@ -281,6 +281,11 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  a128.md = _mm_##A##_pd(A1.md);                     \
  printf("%s(", #C); print_pd(A1);                   \
  printf(") = "); print_pd(a128); printf("\n");
+ #define GO2pd(A, C, A1, A2)                        \
+ a128.md = _mm_##A##_pd(A1.md, A2.md);              \
+ printf("%s(", #C); print_pd(A1);                   \
+ printf(", "); print_pd(A2);                        \
+ printf(") = "); print_pd(a128); printf("\n");
  
 
  GO2(shuffle, 8, pshufb, a128_8, b128_8)
@@ -329,6 +334,20 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO1pd(sqrt, psqrtpd, b128_pd)
  GO1pd(sqrt, psqrtpd, c128_pd)
  GO1pd(sqrt, psqrtpd, d128_pd)
+ #define MULITGO2pd(A, B)       \
+ GO2pd(A, B, a128_pd, b128_pd)  \
+ GO2pd(A, B, b128_pd, c128_pd)  \
+ GO2pd(A, B, a128_pd, d128_pd)  \
+ GO2pd(A, B, b128_pd, d128_pd)  \
+ GO2pd(A, B, c128_pd, d128_pd)  \
+ GO2pd(A, B, d128_pd, d128_pd)
+ MULITGO2pd(and, andpd)
+ MULITGO2pd(andnot, andnpd)
+ MULITGO2pd(or, orpd)
+ MULITGO2pd(xor, xorpd)
+ MULITGO2pd(add, addpd)
+ MULITGO2pd(mul, mulpd)
 
  return 0;
 }
+

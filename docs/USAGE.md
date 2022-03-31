@@ -131,6 +131,11 @@ Enable/Disable simulation of Strong Memory model
 * 1 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
 * 2 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model
 
+#### BOX64_DYNAREC_FASTNAN
+Enable/Disable generation of -NAN
+* 0 : Generate -NAN like on x86 (Default.)
+* 1 : Don't do anything special with NAN, to go as fast as possible (was default before this option exsted)
+
 #### BOX64_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL
