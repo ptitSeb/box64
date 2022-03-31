@@ -11,6 +11,7 @@ std::stringstream stream;
 void append_number(int x) {
   while (lock_stream[x].load()) {}
   stream << "thread #" << x << '\n';
+  stream.flush();
   if (x != 9) lock_stream[x + 1].store(false);
 }
 

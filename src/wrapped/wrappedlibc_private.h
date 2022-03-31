@@ -2301,4 +2301,6 @@ GOM(__deregister_frame_info, pFp)
 DATAM(program_invocation_name, sizeof(void*))
 DATAM(program_invocation_short_name, sizeof(void*))
 
+DATAM(__libc_single_threaded, 1)
+
 GO(iconvctl, iFlip)
