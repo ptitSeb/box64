@@ -11,6 +11,7 @@ void bar(void);
 #define checkResults(string, val) {             \
  if (val) {                                     \
    printf("Failed with %d at %s", val, string); \
+   fflush(stdout);                               \
    exit(1);                                     \
  }                                              \
 }
@@ -39,6 +40,7 @@ void *thread_run(void *parm)
    threadparm_t     *gData;
 
    printf("Thread %d: Entered (%d/%d)\n", (pthread_self()==thread[0])?1:2, TLS_data1, TLS_data2);
+   fflush(stdout);
 
    gData = (threadparm_t *)parm;
 
@@ -55,6 +57,7 @@ void *thread_run(void *parm)
 void foo() {
    printf("Thread %d: foo(), TLS data=%d %d \"%s\"\n",
           (pthread_self()==thread[0])?1:2, TLS_data1, TLS_data2, TLS_data3);
+   fflush(stdout);
    while(!thread[1])
       usleep(300);
    if(pthread_self()==thread[0])
@@ -65,6 +68,7 @@ void foo() {
 void bar() {
    printf("Thread %d: bar(), TLS data=%d %d \"%s\"\n",
           (pthread_self()==thread[0])?1:2, TLS_data1, TLS_data2, TLS_data3);
+   fflush(stdout);
    return;
 }
  
@@ -76,6 +80,7 @@ int main(int argc, char **argv)
   threadparm_t          gData[NUMTHREADS];
  
   printf("Create/start %d threads\n", NUMTHREADS);
+  fflush(stdout);
   for (i=0; i < NUMTHREADS; i++) { 
      /* Create per-thread TLS data and pass it to the thread */
      gData[i].data1 = i;
