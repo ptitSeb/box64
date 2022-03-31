@@ -347,6 +347,10 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULITGO2pd(xor, xorpd)
  MULITGO2pd(add, addpd)
  MULITGO2pd(mul, mulpd)
+ MULITGO2pd(sub, subpd)
+ MULITGO2pd(min, minpd)
+ MULITGO2pd(div, divpd)
+ MULITGO2pd(max, maxpd)
 
  return 0;
 }

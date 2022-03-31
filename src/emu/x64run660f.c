@@ -55,6 +55,9 @@ int Run660F(x64emu_t *emu, rex_t rex)
     uint32_t tmp32u;
     uint64_t tmp64u;
     float tmpf;
+    #ifndef NOALIGN
+    int is_nan;
+    #endif
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1, *opex2;
     mmx87_regs_t *opem, *opgm;
@@ -912,8 +915,16 @@ int Run660F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEX(0);
         GETGX;
-        GX->d[0] /= EX->d[0];
-        GX->d[1] /= EX->d[1];
+        for (int i=0; i<2; ++i) {
+            #ifndef NOALIGN
+            is_nan = isnan(GX->d[i]) || isnan(EX->d[i]);
+            #endif
+            GX->d[i] /= EX->d[i];
+            #ifndef NOALIGN
+            if(!is_nan && isnan(GX->d[i]))
+                GX->d[i] = -NAN;
+            #endif
+        }
         break;
     case 0x5F:                      /* MAXPD Gx, Ex */
         nextop = F8;
