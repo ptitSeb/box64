@@ -133,6 +133,7 @@ void print_64(v128 v) {
     for(int i=0; i<2; ++i)
         printf("0x%llx ", v.u64[i]);
 }
+#define print_128 print_64
 void print_ps(v128 v) {
     for(int i=0; i<4; ++i)
         if(isnanf(v.f32[i]))
@@ -261,6 +262,16 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  printf("%s(", #C); print_##N(A1);                  \
  printf(", "); print_##N(A2);                       \
  printf(") = "); print_##N(a128); printf("\n");
+ #define GO2u(A, N, C, A1, A2)                      \
+ a128.mm = _mm_##A##_epu##N(A1.mm, A2.mm);          \
+ printf("%s(", #C); print_##N(A1);                  \
+ printf(", "); print_##N(A2);                       \
+ printf(") = "); print_##N(a128); printf("\n");
+ #define GO2f(A, C, A1, A2)                         \
+ a128.mm = _mm_##A##_si128(A1.mm, A2.mm);           \
+ printf("%s(", #C); print_128(A1);                  \
+ printf(", "); print_128(A2);                       \
+ printf(") = "); print_128(a128); printf("\n");
  #define GO2C(A, N, C, A1, A2, I)                   \
  a128.mm = _mm_##A##_epi##N(A1.mm, A2.mm, I);       \
  printf("%s(", #C); print_##N(A1);                  \
@@ -409,8 +420,46 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO2(cmpeq, 16, pcmpeqw, a128_16, b128_16)
  GO2(cmpeq, 32, pcmpeqd, a128_32, b128_32)
  MULITGO2pd(hadd, haddpd)
+ GO2(srl, 16, psrlw, a128_16, b128_16)
+ GO2(srl, 32, psrld, a128_32, b128_32)
+ GO2(srl, 64, psrlq, a128_64, b128_64)
+ GO2(add, 64, paddq, a128_64, b128_64)
+ GO2(mullo, 16, pmullw, a128_16, b128_16)
+ GO2u(subs, 8, psubusb, a128_8, b128_8)
+ GO2u(subs, 16, psubusw, a128_16, b128_16)
+ GO2u(min, 8, pminub, a128_8, b128_8)
+ GO2f(and, pand, a128_8, b128_8)
+ GO2u(adds, 8, paddusb, a128_8, b128_8)
+ GO2u(adds, 16, paddusw, a128_16, b128_16)
+ GO2u(max, 8, pmaxub, a128_8, b128_8)
+ GO2f(andnot, pandn, a128_8, b128_8)
+ GO2u(avg, 8, pavgb, a128_8, b128_8)
+ GO2(sra, 16, psraw, a128_16, b128_16)
+ GO2(sra, 32, psrad, a128_32, b128_32)
+ GO2u(avg, 16, pavgb, a128_16, b128_16)
+ GO2u(mulhi, 16, pmulhuw, a128_16, b128_16)
+ GO2(mulhi, 16, pmulhw, a128_16, b128_16)
+ GO2(subs, 8, psubsb, a128_8, b128_8)
+ GO2(subs, 16, psubsw, a128_16, b128_16)
+ GO2(min, 16, pminsw, a128_16, b128_16)
+ GO2f(or, por, a128_8, b128_8)
+ GO2(adds, 8, paddusb, a128_8, b128_8)
+ GO2(adds, 16, paddusw, a128_16, b128_16)
+ GO2(max, 16, pmaxsw, a128_16, b128_16)
+ GO2f(xor, pxor, a128_8, b128_8)
+ GO2(sll, 16, psllw, a128_16, b128_16)
+ GO2(sll, 32, pslld, a128_32, b128_32)
+ GO2(sll, 64, psllq, a128_64, b128_64)
+ GO2u(mul, 32, pmuludq, a128_32, b128_32)
+ GO2(madd, 16, pmaddwd, a128_16, b128_16)
+ GO2u(sad, 8, psadbw, a128_8, b128_8)
+ GO2(sub, 8, psubb, a128_8, b128_8)
+ GO2(sub, 16, psubw, a128_16, b128_16)
+ GO2(sub, 32, psubd, a128_32, b128_32)
+ GO2(sub, 64, psubq, a128_64, b128_64)
+ GO2(add, 8, paddb, a128_8, b128_8)
+ GO2(add, 16, paddw, a128_16, b128_16)
+ GO2(add, 32, paddd, a128_32, b128_32)
 
  return 0;
 }
-
-
