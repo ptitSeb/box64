@@ -391,10 +391,14 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO2sd(A, B, a128_pd, b128_pd)              \
  GO2sd(A, B, a128_pd, c128_pd)              \
  GO2sd(A, B, a128_pd, d128_pd)              \
+ GO2sd(A, B, b128_pd, d128_pd)              \
+ GO2sd(A, B, c128_pd, d128_pd)              \
  GO2sd(A, B, a128_pd, reverse_pd(a128_pd))  \
  GO2sd(A, B, a128_pd, reverse_pd(b128_pd))  \
  GO2sd(A, B, a128_pd, reverse_pd(c128_pd))  \
- GO2sd(A, B, a128_pd, reverse_pd(d128_pd))
+ GO2sd(A, B, a128_pd, reverse_pd(d128_pd))  \
+ GO2sd(A, B, b128_pd, reverse_pd(d128_pd))  \
+ GO2sd(A, B, b128_pd, reverse_pd(d128_pd))
 
 
  GO2(shuffle, 8, pshufb, a128_8, b128_8)
@@ -581,6 +585,10 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULTIGO2sd(sqrt, sqrtsd)
  MULTIGO2sd(add, addsd)
  MULTIGO2sd(mul, mulsd)
+ MULTIGO2sd(sub, subsd)
+ MULTIGO2sd(min, minsd)
+ MULTIGO2sd(div, divsd)
+ MULTIGO2sd(max, maxsd)
 
  return 0;
 }

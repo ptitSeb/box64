@@ -1051,7 +1051,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     //FMIN/FMAX
     if(isMask(opcode, "00011110ff1mmmmm01oo10nnnnnddddd", &a)) {
         char s = (sf==0)?'S':((sf==1)?'D':'?');
-        snprintf(buff, sizeof(buff), "F%s %c%d, %c%d, %c%d", (option==3)?"MINNM":((option==2)?"MINNMP":((!option)?"MAXNM":"MAXNMP")), s, Rd, s, Rn, s, Rm);
+        snprintf(buff, sizeof(buff), "F%s %c%d, %c%d, %c%d", (option==3)?"MINNM":((option==2)?"MAXNM":((!option)?"MAX":"MIN")), s, Rd, s, Rn, s, Rm);
         return buff;
     }
     if(isMask(opcode, "0Q001110of1mmmmm110001nnnnnddddd", &a)) {
