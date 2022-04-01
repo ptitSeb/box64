@@ -170,7 +170,16 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0);
             d1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
+            if(!box64_dynarec_fastnan) {
+                v1 = fpu_get_scratch(dyn);
+                FCMLTD_0(v1, d0);
+                USHR_64(v1, v1, 63);
+                SHL_64(v1, v1, 63);
+            }
             FSQRTD(d1, d0);
+            if(!box64_dynarec_fastnan) {
+                VORR(d1, d1, v1);
+            }
             VMOVeD(v0, 0, d1, 0);
             break;
 
@@ -186,11 +195,24 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
-            GETGX(v0);
-            d1 = fpu_get_scratch(dyn);
+            GETGX(d1);
+            v1 = fpu_get_scratch(dyn);
             GETEX(d0, 0);
-            FMULD(d1, v0, d0);
-            VMOVeD(v0, 0, d1, 0);
+            if(!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn);
+                // check if any input value was NAN
+                FMAXD(v0, d0, d1);    // propagate NAN
+                FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+            }
+            FMULD(v1, d1, d0);
+            if(!box64_dynarec_fastnan) {
+                FCMEQD(q0, d1, d1);    // 0 => out is NAN
+                VBIC(q0, v0, q0);      // forget it in any input was a NAN already
+                SHL_64(q0, q0, 63);   // only keep the sign bit
+                VORR(d1, d1, q0);      // NAN -> -NAN
+            }
+            VMOVeD(d1, 0, v1, 0);
             break;
         case 0x5A:
             INST_NAME("CVTSD2SS Gx, Ex");

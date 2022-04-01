@@ -124,7 +124,10 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEX(0);
         GETGX;
-        GX->d[0] = sqrt(EX->d[0]);
+        if(EX->d[0]<0.0 )
+            GX->d[0] = -NAN;
+        else
+            GX->d[0] = sqrt(EX->d[0]);
         break;
 
     case 0x58:  /* ADDSD Gx, Ex */
@@ -137,6 +140,12 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEX(0);
         GETGX;
+        #ifndef NOALIGN
+            // mul generate a -NAN only if doing (+/-)inf * (+/-)0
+            if((isinf(GX->d[0]) && EX->d[0]==0.0) || (isinf(EX->d[0]) && GX->d[0]==0.0))
+                GX->d[0] = -NAN;
+            else
+        #endif
         GX->d[0] *= EX->d[0];
         break;
     case 0x5A:  /* CVTSD2SS Gx, Ex */

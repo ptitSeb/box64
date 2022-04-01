@@ -366,8 +366,18 @@ int Run0F(x64emu_t *emu, rex_t rex)
             nextop = F8;
             GETEX(0);
             GETGX;
-            for(int i=0; i<4; ++i)
-                GX->f[i] = 1.0f/sqrtf(EX->f[i]);
+            for(int i=0; i<4; ++i) {
+                if(EX->f[i]==0)
+                    GX->f[i] = 1.0f/EX->f[i];
+                else if (EX->f[i]<0)
+                    GX->f[i] = NAN;
+                else if (isnan(EX->f[i]))
+                    GX->f[i] = EX->f[i];
+                else if (isinf(EX->f[i]))
+                    GX->f[i] = 0.0;
+                else
+                    GX->f[i] = 1.0f/sqrtf(EX->f[i]);
+            }
             break;
         case 0x53:                      /* RCPPS Gx, Ex */
             nextop = F8;

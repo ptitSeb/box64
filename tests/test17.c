@@ -116,6 +116,16 @@ const v128 a128_pd = {.d64 = { 1.0, 2.0}};
 const v128 b128_pd = {.d64 = { 0.0, -2.0}};
 const v128 c128_pd = {.d64 = { INFINITY, -INFINITY}};
 const v128 d128_pd = {.d64 = { NAN, -0.0}};
+const v128 a128_ps = {.f32 = { 1.0, 2.0, 3.0, -4.0}};
+const v128 b128_ps = {.f32 = { 0.0, -2.0, -10.0, 0.5}};
+const v128 c128_ps = {.f32 = { INFINITY, -INFINITY, -INFINITY, 1.0}};
+const v128 d128_ps = {.f32 = { NAN, -0.0, -NAN, INFINITY}};
+
+v128 reverse_pd(v128 a) {
+    v128 ret;
+    ret.md = _mm_shuffle_pd(a.md, a.md, 1);
+    return ret;
+}
 
 void print_8(v128 v) {
     for(int i=0; i<16; ++i)
@@ -148,6 +158,7 @@ void print_pd(v128 v) {
         else
             printf("%g ", v.d64[i]);
 }
+#define print_sd print_pd
 
 int main(int argc, const char** argv)
 {
@@ -301,7 +312,90 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  printf("%s(", #C); print_pd(A1);                   \
  printf(", "); print_pd(A2);                        \
  printf(") = "); print_pd(a128); printf("\n");
+ #define GO2Cpd(A, C, A1, A2, I)                    \
+ a128.md = _mm_##A##_pd(A1.md, A2.md, I);           \
+ printf("%s(", #C); print_pd(A1);                   \
+ printf(", "); print_pd(A2);                        \
+ printf(", %d) = ", I); print_pd(a128); printf("\n");
+ #define GO1isd(A, C, A1)                           \
+ i = _mm_##A##_sd(A1.md);                           \
+ printf("%s(", #C); print_64(A1);                   \
+ printf(") = 0x%x\n", i);
+ #define GO1sd(A, C, A1)                            \
+ a128.md = _mm_##A##_sd(A1.md);                     \
+ printf("%s(", #C); print_sd(A1);                   \
+ printf(") = "); print_sd(a128); printf("\n");
+ #define GO2sd(A, C, A1, A2)                        \
+ a128.md = _mm_##A##_sd(A1.md, A2.md);              \
+ printf("%s(", #C); print_sd(A1);                   \
+ printf(", "); print_sd(A2);                        \
+ printf(") = "); print_sd(a128); printf("\n");
+ #define GO2Csd(A, C, A1, A2, I)                    \
+ a128.md = _mm_##A##_sd(A1.md, A2.md, I);           \
+ printf("%s(", #C); print_sd(A1);                   \
+ printf(", "); print_sd(A2);                        \
+ printf(", %d) = ", I); print_sd(a128); printf("\n");
+ #define GO1ips(A, C, A1)                           \
+ i = _mm_##A##_ps(A1.mf);                           \
+ printf("%s(", #C); print_32(A1);                   \
+ printf(") = 0x%x\n", i);
+ #define GO1ps(A, C, A1)                            \
+ a128.mf = _mm_##A##_ps(A1.mf);                     \
+ printf("%s(", #C); print_ps(A1);                   \
+ printf(") = "); print_ps(a128); printf("\n");
+ #define GO2ps(A, C, A1, A2)                        \
+ a128.mf = _mm_##A##_ps(A1.mf, A2.mf);              \
+ printf("%s(", #C); print_ps(A1);                   \
+ printf(", "); print_ps(A2);                        \
+ printf(") = "); print_ps(a128); printf("\n");
+ #define GO2Cps(A, C, A1, A2, I)                    \
+ a128.mf = _mm_##A##_ps(A1.mf, A2.mf, I);           \
+ printf("%s(", #C); print_ps(A1);                   \
+ printf(", "); print_ps(A2);                        \
+ printf(", %d) = ", I); print_ps(a128); printf("\n");
  
+ #define MULITGO2pd(A, B)       \
+ GO2pd(A, B, a128_pd, b128_pd)  \
+ GO2pd(A, B, b128_pd, c128_pd)  \
+ GO2pd(A, B, a128_pd, d128_pd)  \
+ GO2pd(A, B, b128_pd, d128_pd)  \
+ GO2pd(A, B, c128_pd, d128_pd)  \
+ GO2pd(A, B, d128_pd, d128_pd)
+
+ #define MULITGO2Cpd(A, B, I)       \
+ GO2Cpd(A, B, a128_pd, b128_pd, I)  \
+ GO2Cpd(A, B, b128_pd, c128_pd, I)  \
+ GO2Cpd(A, B, a128_pd, d128_pd, I)  \
+ GO2Cpd(A, B, b128_pd, d128_pd, I)  \
+ GO2Cpd(A, B, c128_pd, d128_pd, I)  \
+ GO2Cpd(A, B, d128_pd, d128_pd, I)
+
+ #define MULITGO2ps(A, B)       \
+ GO2ps(A, B, a128_ps, b128_ps)  \
+ GO2ps(A, B, b128_ps, c128_ps)  \
+ GO2ps(A, B, a128_ps, d128_ps)  \
+ GO2ps(A, B, b128_ps, d128_ps)  \
+ GO2ps(A, B, c128_ps, d128_ps)  \
+ GO2ps(A, B, d128_ps, d128_ps)
+
+ #define MULITGO2Cps(A, B, I)       \
+ GO2Cps(A, B, a128_ps, b128_ps, I)  \
+ GO2Cps(A, B, b128_ps, c128_ps, I)  \
+ GO2Cps(A, B, a128_ps, d128_ps, I)  \
+ GO2Cps(A, B, b128_ps, d128_ps, I)  \
+ GO2Cps(A, B, c128_ps, d128_ps, I)  \
+ GO2Cps(A, B, d128_ps, d128_ps, I)
+
+ #define MULTIGO2sd(A, B)                   \
+ GO2sd(A, B, a128_pd, a128_pd)              \
+ GO2sd(A, B, a128_pd, b128_pd)              \
+ GO2sd(A, B, a128_pd, c128_pd)              \
+ GO2sd(A, B, a128_pd, d128_pd)              \
+ GO2sd(A, B, a128_pd, reverse_pd(a128_pd))  \
+ GO2sd(A, B, a128_pd, reverse_pd(b128_pd))  \
+ GO2sd(A, B, a128_pd, reverse_pd(c128_pd))  \
+ GO2sd(A, B, a128_pd, reverse_pd(d128_pd))
+
 
  GO2(shuffle, 8, pshufb, a128_8, b128_8)
  GO2(hadd, 16, phaddw, a128_16, b128_16)
@@ -349,13 +443,6 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO1pd(sqrt, psqrtpd, b128_pd)
  GO1pd(sqrt, psqrtpd, c128_pd)
  GO1pd(sqrt, psqrtpd, d128_pd)
- #define MULITGO2pd(A, B)       \
- GO2pd(A, B, a128_pd, b128_pd)  \
- GO2pd(A, B, b128_pd, c128_pd)  \
- GO2pd(A, B, a128_pd, d128_pd)  \
- GO2pd(A, B, b128_pd, d128_pd)  \
- GO2pd(A, B, c128_pd, d128_pd)  \
- GO2pd(A, B, d128_pd, d128_pd)
  MULITGO2pd(and, andpd)
  MULITGO2pd(andnot, andnpd)
  MULITGO2pd(or, orpd)
@@ -460,6 +547,40 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO2(add, 8, paddb, a128_8, b128_8)
  GO2(add, 16, paddw, a128_16, b128_16)
  GO2(add, 32, paddd, a128_32, b128_32)
+ GO2ps(movehl, pmovhlps, a128_ps, b128_ps)
+ GO2ps(unpacklo, unpcklps, a128_ps, b128_ps)
+ GO2ps(unpackhi, unpckhps, a128_ps, b128_ps)
+ GO2ps(movelh, pmovhps, a128_ps, b128_ps)
+ GO1ps(sqrt, psqrtps, a128_ps)
+ GO1ps(sqrt, psqrtps, b128_ps)
+ GO1ps(sqrt, psqrtps, c128_ps)
+ GO1ps(sqrt, psqrtps, d128_ps)
+ //GO1ps(rsqrt, prsqrtps, a128_ps)  // difference in precision
+ //GO1ps(rsqrt, prsqrtps, b128_ps)  // same
+ //GO1ps(rsqrt, prsqrtps, c128_ps)  // same
+ //GO1ps(rsqrt, prsqrtps, d128_ps)  // difference in the handling of NAN, (-)0, and INF in Dynarec
+ //GO1ps(rcp, prcpps, a128_ps)      // deference in precision
+ //GO1ps(rcp, prcpps, b128_ps)      // deference in precision
+ //GO1ps(rcp, prcpps, c128_ps)      // deference in precision
+ GO1ps(rcp, prcpps, d128_ps)
+ MULITGO2ps(and, andps)
+ MULITGO2ps(andnot, andnps)
+ MULITGO2ps(or, orps)
+ MULITGO2ps(xor, xorps)
+ MULITGO2ps(add, addps)
+ MULITGO2ps(mul, mulps)
+ MULITGO2ps(sub, subps)
+ MULITGO2ps(min, minps)
+ MULITGO2ps(div, divps)
+ MULITGO2ps(max, maxps)
+// MULITGO2Cps(cmp, cmpps, 0)   // use avx for some reason
+ MULITGO2Cps(shuffle, shufps, 0)
+ MULITGO2Cps(shuffle, shufps, 0x15)
+ MULITGO2Cps(shuffle, shufps, 0xff)
+ MULITGO2Cps(shuffle, shufps, 0x02)
+ MULTIGO2sd(sqrt, sqrtsd)
+ MULTIGO2sd(add, addsd)
+ MULTIGO2sd(mul, mulsd)
 
  return 0;
 }

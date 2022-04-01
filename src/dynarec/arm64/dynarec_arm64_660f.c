@@ -709,11 +709,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 v1 = fpu_get_scratch(dyn);
                 // check if any input value was NAN
                 VFMAXQD(v0, q0, q1);    // propagate NAN
-                FCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+                VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFMULQD(q1, q1, q0);
             if(!box64_dynarec_fastnan) {
-                FCMEQQD(v1, q1, q1);    // 0 => out is NAN
+                VFCMEQQD(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_64(v1, v1, 63);   // only keep the sign bit
                 VORRQ(q1, q1, v1);      // NAN -> -NAN
@@ -775,11 +775,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 v1 = fpu_get_scratch(dyn);
                 // check if any input value was NAN
                 VFMAXQD(v0, q0, q1);    // propagate NAN
-                FCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+                VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFDIVQD(q1, q1, q0);
             if(!box64_dynarec_fastnan) {
-                FCMEQQD(v1, q1, q1);    // 0 => out is NAN
+                VFCMEQQD(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_64(v1, v1, 63);   // only keep the sign bit
                 VORRQ(q1, q1, v1);      // NAN -> -NAN
@@ -1516,24 +1516,24 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             u8 = F8;
             switch(u8&7) {
                 // the inversion of the params in the comparison is there to handle NaN the same way SSE does
-                case 0: FCMEQQD(v0, v0, v1); break;   // Equal
-                case 1: FCMGTQD(v0, v1, v0); break;   // Less than
-                case 2: FCMGEQD(v0, v1, v0); break;   // Less or equal
-                case 3: FCMEQQD(v0, v0, v0); 
+                case 0: VFCMEQQD(v0, v0, v1); break;   // Equal
+                case 1: VFCMGTQD(v0, v1, v0); break;   // Less than
+                case 2: VFCMGEQD(v0, v1, v0); break;   // Less or equal
+                case 3: VFCMEQQD(v0, v0, v0); 
                         if(v0!=v1) {
                             q0 = fpu_get_scratch(dyn); 
-                            FCMEQQD(q0, v1, v1); 
+                            VFCMEQQD(q0, v1, v1); 
                             VANDQ(v0, v0, q0);
                         }
                         VMVNQ(v0, v0); 
                         break;   // NaN (NaN is not equal to himself)
-                case 4: FCMEQQD(v0, v0, v1); VMVNQ(v0, v0); break;   // Not Equal (or unordered on ARM, not on X86...)
-                case 5: FCMGTQD(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or equal or unordered
-                case 6: FCMGEQD(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or unordered
-                case 7: FCMEQQD(v0, v0, v0); 
+                case 4: VFCMEQQD(v0, v0, v1); VMVNQ(v0, v0); break;   // Not Equal (or unordered on ARM, not on X86...)
+                case 5: VFCMGTQD(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or equal or unordered
+                case 6: VFCMGEQD(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or unordered
+                case 7: VFCMEQQD(v0, v0, v0); 
                         if(v0!=v1) {
                             q0 = fpu_get_scratch(dyn); 
-                            FCMEQQD(q0, v1, v1); 
+                            VFCMEQQD(q0, v1, v1); 
                             VANDQ(v0, v0, q0);
                         }
                         break;   // not NaN

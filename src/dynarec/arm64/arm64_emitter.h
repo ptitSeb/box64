@@ -1467,18 +1467,35 @@
 // Vector Float CMP
 // EQual
 #define FCMP_vector(Q, U, E, sz, Rm, ac, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (E)<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b1110<<12 | (ac)<<11 | 1<<10 | (Rn)<<5 | (Rd))
-#define FCMEQQD(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 0, 0, 1, Rm, 0, Rn, Rd))
-#define FCMEQQS(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 0, 0, 0, Rm, 0, Rn, Rd))
+#define VFCMEQQD(Rd, Rn, Rm)         EMIT(FCMP_vector(1, 0, 0, 1, Rm, 0, Rn, Rd))
+#define VFCMEQQS(Rd, Rn, Rm)         EMIT(FCMP_vector(1, 0, 0, 0, Rm, 0, Rn, Rd))
 // Greater or Equal
-#define FCMGEQD(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 1, 0, 1, Rm, 0, Rn, Rd))
-#define FCMGEQS(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 1, 0, 0, Rm, 0, Rn, Rd))
-#define FCMGEQD_ABS(Rd, Rn, Rm)      EMIT(FCMP_vector(1, 1, 0, 1, Rm, 1, Rn, Rd))
-#define FCMGEQS_ABS(Rd, Rn, Rm)      EMIT(FCMP_vector(1, 1, 0, 0, Rm, 1, Rn, Rd))
+#define VFCMGEQD(Rd, Rn, Rm)         EMIT(FCMP_vector(1, 1, 0, 1, Rm, 0, Rn, Rd))
+#define VFCMGEQS(Rd, Rn, Rm)         EMIT(FCMP_vector(1, 1, 0, 0, Rm, 0, Rn, Rd))
+#define VFCMGEQD_ABS(Rd, Rn, Rm)     EMIT(FCMP_vector(1, 1, 0, 1, Rm, 1, Rn, Rd))
+#define VFCMGEQS_ABS(Rd, Rn, Rm)     EMIT(FCMP_vector(1, 1, 0, 0, Rm, 1, Rn, Rd))
 // Greater Than
-#define FCMGTQD(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 1, 1, 1, Rm, 0, Rn, Rd))
-#define FCMGTQS(Rd, Rn, Rm)          EMIT(FCMP_vector(1, 1, 1, 0, Rm, 0, Rn, Rd))
-#define FCMGTQD_ABS(Rd, Rn, Rm)      EMIT(FCMP_vector(1, 1, 1, 1, Rm, 1, Rn, Rd))
-#define FCMGTQS_ABS(Rd, Rn, Rm)      EMIT(FCMP_vector(1, 1, 1, 0, Rm, 1, Rn, Rd))
+#define VFCMGTQD(Rd, Rn, Rm)         EMIT(FCMP_vector(1, 1, 1, 1, Rm, 0, Rn, Rd))
+#define VFCMGTQS(Rd, Rn, Rm)         EMIT(FCMP_vector(1, 1, 1, 0, Rm, 0, Rn, Rd))
+#define VFCMGTQD_ABS(Rd, Rn, Rm)     EMIT(FCMP_vector(1, 1, 1, 1, Rm, 1, Rn, Rd))
+#define VFCMGTQS_ABS(Rd, Rn, Rm)     EMIT(FCMP_vector(1, 1, 1, 0, Rm, 1, Rn, Rd))
+
+// Scalar Float CMP to 0
+#define FCMP_0_scalar(U, sz, op, Rn, Rd) (0b01<<30 | (U)<<29| 0b11110<<24 | 1<<23 | (sz)<<22 | 0b10000<<17 | 0b011<<14 | (op)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Less or equal to 0
+#define FCMLES_0(Rd, Rn)             EMIT(FCMP_0_scalar(1, 0, 0b01, (Rn), (Rd)))
+#define FCMLED_0(Rd, Rn)             EMIT(FCMP_0_scalar(1, 1, 0b01, (Rn), (Rd)))
+// Greater than 0
+#define FCMGTS_0(Rd, Rn)             EMIT(FCMP_0_scalar(0, 0, 0b00, (Rn), (Rd)))
+#define FCMGTD_0(Rd, Rn)             EMIT(FCMP_0_scalar(0, 1, 0b00, (Rn), (Rd)))
+// Less than 0
+#define FCMLTS_0(Rd, Rn)             EMIT(FCMP_0_scalar(0, 0, 0b10, (Rn), (Rd)))
+#define FCMLTD_0(Rd, Rn)             EMIT(FCMP_0_scalar(0, 1, 0b10, (Rn), (Rd)))
+
+// Scalar Float CMP
+#define FCMP_op_scalar(U, E, sz, Rm, ac, Rn, Rd)    (0b01<<30 | (U)<<29 | 0b11110<<24 | (E)<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b1110<<12 | (ac<<11 | 1<<10 | (Rn)<<5 | (Rd)))
+#define FCMEQS(Rd, Rn, Rm)          EMIT(FCMP_op_scalar(1, 0, 0, (Rm), 0, (Rn), (Rd)))
+#define FCMEQD(Rd, Rn, Rm)          EMIT(FCMP_op_scalar(1, 1, 0, (Rm), 0, (Rn), (Rd)))
 
 // UMULL / SMULL
 #define MULL_vector(Q, U, size, Rm, Rn, Rd) ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b1100<<12 |(Rn)<<5 |(Rd))
