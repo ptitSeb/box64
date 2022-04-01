@@ -252,6 +252,10 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  a128.mm = _mm_##A##_epi##N(a128_##N.mm);           \
  printf("%s(", #C); print_##N(a128_##N);            \
  printf(") = "); print_##N(a128); printf("\n");
+ #define GO1C(A, N, C, A1, I)                       \
+ a128.mm = _mm_##A##_epi##N(A1.mm, I);              \
+ printf("%s(", #C); print_##N(A1);                  \
+ printf("%d) = ", I); print_##N(a128); printf("\n");
  #define GO2(A, N, C, A1, A2)                       \
  a128.mm = _mm_##A##_epi##N(A1.mm, A2.mm);          \
  printf("%s(", #C); print_##N(A1);                  \
@@ -355,9 +359,58 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO2(unpacklo, 16, punpcklwd, a128_16, b128_16)
  GO2(unpacklo, 32, punpckldq, a128_32, b128_32)
  GO2(packs, 16, ppacksswb, a128_16, b128_16)
-
+ GO2(cmpgt, 8, pcmpgtb, a128_8, b128_8)
+ GO2(cmpgt, 16, pcmpgtw, a128_16, b128_16)
+ GO2(cmpgt, 32, pcmpgtd, a128_32, b128_32)
+ GO2(packus, 16, packuswb, a128_16, b128_16)
+ GO2(unpackhi, 8, punpckhbw, a128_8, b128_8)
+ GO2(unpackhi, 16, punpckhwd, a128_16, b128_16)
+ GO2(unpackhi, 32, punpckhdq, a128_32, b128_32)
  GO2(packs, 32, ppackssdw, a128_32, b128_32)
+ GO2(unpacklo, 64, punpcklqdq, a128_64, b128_64)
+ GO2(unpackhi, 64, punpckhqdq, a128_64, b128_64)
+ GO1C(shuffle, 32, pshufd, a128_32, 0)
+ GO1C(shuffle, 32, pshufd, a128_32, 0xff)
+ GO1C(shuffle, 32, pshufd, a128_32, 0xaa)
+ GO1C(shuffle, 32, pshufd, a128_32, 2)
+ GO1C(srli, 16, psrlw, a128_16, 0)
+ GO1C(srli, 16, psrlw, a128_16, 0xff)
+ GO1C(srli, 16, psrlw, a128_16, 0xaa)
+ GO1C(srli, 16, psrlw, a128_16, 2)
+ GO1C(srli, 32, psrld, a128_32, 0)
+ GO1C(srli, 32, psrld, a128_32, 0xff)
+ GO1C(srli, 32, psrld, a128_32, 0xaa)
+ GO1C(srli, 32, psrld, a128_32, 2)
+ GO1C(srli, 64, psrlq, a128_64, 0)
+ GO1C(srli, 64, psrlq, a128_64, 0xff)
+ GO1C(srli, 64, psrlq, a128_64, 0xaa)
+ GO1C(srli, 64, psrlq, a128_64, 2)
+ GO1C(srai, 16, psraw, a128_16, 0)
+ GO1C(srai, 16, psraw, a128_16, 0xff)
+ GO1C(srai, 16, psraw, a128_16, 0xaa)
+ GO1C(srai, 16, psraw, a128_16, 2)
+ GO1C(srai, 32, psrad, a128_32, 0)
+ GO1C(srai, 32, psrad, a128_32, 0xff)
+ GO1C(srai, 32, psrad, a128_32, 0xaa)
+ GO1C(srai, 32, psrad, a128_32, 2)
+ GO1C(slli, 16, psllw, a128_16, 0)
+ GO1C(slli, 16, psllw, a128_16, 0xff)
+ GO1C(slli, 16, psllw, a128_16, 0xaa)
+ GO1C(slli, 16, psllw, a128_16, 2)
+ GO1C(slli, 32, pslld, a128_32, 0)
+ GO1C(slli, 32, pslld, a128_32, 0xff)
+ GO1C(slli, 32, pslld, a128_32, 0xaa)
+ GO1C(slli, 32, pslld, a128_32, 2)
+ GO1C(slli, 64, psllq, a128_64, 0)
+ GO1C(slli, 64, psllq, a128_64, 0xff)
+ GO1C(slli, 64, psllq, a128_64, 0xaa)
+ GO1C(slli, 64, psllq, a128_64, 2)
+ GO2(cmpeq, 8, pcmpeqb, a128_8, b128_8)
+ GO2(cmpeq, 16, pcmpeqw, a128_16, b128_16)
+ GO2(cmpeq, 32, pcmpeqd, a128_32, b128_32)
+ MULITGO2pd(hadd, haddpd)
 
  return 0;
 }
+
 
