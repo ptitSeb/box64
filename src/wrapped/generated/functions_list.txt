@@ -444,6 +444,7 @@
 #() fFull
 #() fFfff
 #() fFffp
+#() fFppi
 #() fFppL
 #() fFppp
 #() dFddd
@@ -451,6 +452,7 @@
 #() dFpdd
 #() dFppi
 #() dFppp
+#() DFppi
 #() DFppp
 #() lFili
 #() lFilL
@@ -790,6 +792,7 @@
 #() iFpppp
 #() IFEpIi
 #() IFpIip
+#() IFppii
 #() IFppip
 #() IFpppp
 #() IFSIii
@@ -811,6 +814,7 @@
 #() uFpppu
 #() uFpppp
 #() UFpipp
+#() UFppii
 #() UFppip
 #() UFpppp
 #() dFpppp

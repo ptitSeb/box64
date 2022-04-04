@@ -1836,7 +1836,7 @@ GOW(strtof64, dFpp)
 //GOW(strtof64_l, dFpp!)
 GOW(strtof64x, DFpp)
 //GOW(strtof64x_l, DFpp!)
-//GO(__strtof_internal, 
+GO(__strtof_internal, fFppi)
 GO(__strtof_l, fFppL)
 GOW(strtof_l, fFppp)
 //GO(__strtof_nan, 
@@ -1847,7 +1847,7 @@ GOW(strtok_r, pFppp)
 //GO(__strtok_r_1c, 
 GOW(strtol, lFppi)
 GO(strtold, DFpp)
-//GO(__strtold_internal, 
+GO(__strtold_internal, DFppi)
 GO(__strtold_l, DFppp)
 GOW(strtold_l, DFppp)
 //GO(__strtold_nan, 
@@ -1855,7 +1855,7 @@ GO(__strtol_internal, lFppii)
 GO(__strtol_l, lFppi)
 GOW(strtol_l, lFppip)
 GOW(strtoll, IFppi)
-//GO(__strtoll_internal, 
+GO(__strtoll_internal, IFppii)
 GOW(__strtoll_l, IFppip)
 GOW(strtoll_l, IFppip)
 GOW(strtoq, IFppi)
@@ -1864,7 +1864,7 @@ GO(__strtoul_internal, LFppii)
 //GO(__strtoul_l, 
 GOW(strtoul_l, LFppip)
 GOW(strtoull, UFppi)
-//GO(__strtoull_internal, 
+GO(__strtoull_internal, UFppii)
 GOW(__strtoull_l, LFppip)
 GOW(strtoull_l, UFppip)
 GO(strtoumax, LFppi)
