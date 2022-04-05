@@ -630,14 +630,14 @@ default:                                                                        
     break;                                                                                                              \
 }
 
-#define GO(A)                                                                       \
-if (getVArgs(emu, 1, va, i) && strcmp((char*)getVArgs(emu, 1, va, i), A) == 0) {    \
-    XICCallback* origin = (XICCallback*)va[i+1];                                    \
-    XICCallback* new = callbacks + i;                                               \
-    new->client_data = origin->client_data;                                         \
-    my_XICProc_fct_##A = (uintptr_t)origin->callback;                               \
-    new->callback = my_XICProc_##A;                                                 \
-    new_va[i+1] = new;                                                              \
+#define GO(A)                                           \
+if (new_va[i] && strcmp((char*)new_va[i], A) == 0) {    \
+    XICCallback* origin = (XICCallback*)new_va[i+1];    \
+    XICCallback* new = callbacks + i;                   \
+    new->client_data = origin->client_data;             \
+    my_XICProc_fct_##A = (uintptr_t)origin->callback;   \
+    new->callback = my_XICProc_##A;                     \
+    new_va[i+1] = new;                                  \
 }
 
 EXPORT void* my_XVaCreateNestedList(x64emu_t* emu, int unused, uintptr_t* va) {
@@ -712,14 +712,14 @@ EXPORT void* my_XSetIMValues(x64emu_t* emu, void* xim, uintptr_t* va) {
     void** new_va = malloc(sizeof(void*) * n);
     XIMCallback* callbacks = (XIMCallback*)malloc(sizeof(XIMCallback) * n);
 
-    #define GO(A)                                                                       \
-    if (getVArgs(emu, 1, va, i) && strcmp((char*)getVArgs(emu, 1, va, i), A) == 0) {    \
-        XIMCallback* origin = (XIMCallback*)va[i+1];                                    \
-        XIMCallback* new = callbacks + i;                                               \
-        new->client_data = origin->client_data;                                         \
-        my_XIMProc_fct_##A = (uintptr_t)origin->callback;                               \
-        new->callback = my_XIMProc_##A;                                                 \
-        new_va[i+1] = new;                                                              \
+    #define GO(A)                                           \
+    if (new_va[i] && strcmp((char*)new_va[i], A) == 0) {    \
+        XIMCallback* origin = (XIMCallback*)new_va[i+1];    \
+        XIMCallback* new = callbacks + i;                   \
+        new->client_data = origin->client_data;             \
+        my_XIMProc_fct_##A = (uintptr_t)origin->callback;   \
+        new->callback = my_XIMProc_##A;                     \
+        new_va[i+1] = new;                                  \
     }
     for (int i = 0; i < n; i += 2) {
         new_va[i] = (void*)getVArgs(emu, 1, va, i);
