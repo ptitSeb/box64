@@ -31,8 +31,8 @@ GO(XAllocColor, iFppp)
 GO(XAllocColorCells, iFppipipi)
 //GO(XAllocColorPlanes
 //GO(XAllocIconSize
-// _XAllocID
-// _XAllocIDs
+GO(_XAllocID, LFp)
+GO(_XAllocIDs, vFppi)
 GO(XAllocNamedColor, iFppppp)
 // _XAllocScratch
 GO(XAllocSizeHints, pFv)
@@ -255,7 +255,7 @@ GO(XDefaultVisual, pFpi)
 //GO(XDefaultVisualOfScreen
 // _XDefaultWireError
 GO(XDefineCursor, iFppp)
-GO(XDeleteContext, iFppp)
+GO(XDeleteContext, iFpLi)
 //GO(XDeleteModifiermapEntry
 GO(XDeleteProperty, iFppp)
 // _XDeq
@@ -342,7 +342,7 @@ GO(XFillPolygon, iFppppiii)
 GO(XFillRectangle, iFpppiiuu)
 GO(XFillRectangles, iFppppi)
 GO(XFilterEvent, iFpp)
-GO(XFindContext, iFpppp)
+GO(XFindContext, iFpLip)
 //GO(XFindOnExtensionList
 GO(XFlush, iFp)
 GO(_XFlush, vFp)
@@ -693,7 +693,7 @@ GO(XKeysymToKeycode, uFpp)
 // _XKeysymToModifiers
 GO(XKeysymToString, pFp)
 // _XkeyTable   // type r
-//GO(XKillClient
+GO(XKillClient, iFpL)
 GO(XLastKnownRequestProcessed, LFp)
 // _XlcAddCharSet
 // _XlcAddCT
@@ -840,11 +840,11 @@ GO(XQueryBestCursor, iFppuupp)
 GO(XQueryColor, iFppp)
 GO(XQueryColors, iFpppi)
 GOM(XQueryExtension, iFEppppp)
-GO(XQueryFont, pFpp)
+GO(XQueryFont, pFpL)
 GO(XQueryKeymap, iFpp)
 GO(XQueryPointer, iFppppppppp)
-GO(XQueryTextExtents, iFpppipppp)
-GO(XQueryTextExtents16, iFpppipppp)
+GO(XQueryTextExtents, iFpLpipppp)
+GO(XQueryTextExtents16, iFpLpipppp)
 GO(XQueryTree, pFpppppp)
 GO(XRaiseWindow, iFpp)
 GO(_XRead, iFppi)
@@ -908,7 +908,7 @@ GO(XRootWindow, pFpi)
 //GO(XRootWindowOfScreen
 GO(XRotateBuffers, iFpi)
 GO(XRotateWindowProperties, iFpppii)
-GO(XSaveContext, iFpuip)
+GO(XSaveContext, iFpLip)
 GO(XScreenCount, iFp)
 GO(XScreenNumberOfScreen, iFp)
 GO(XScreenOfDisplay, pFpi)

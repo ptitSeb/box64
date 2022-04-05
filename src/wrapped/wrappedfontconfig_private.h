@@ -81,7 +81,7 @@ GO(FcFontList, pFppp)
 GO(FcFontMatch, pFppp)
 GO(FcFontRenderPrepare, pFppp)
 GO(FcFontSetAdd, iFpp)
-//GO(FcFontSetCreate, 
+GO(FcFontSetCreate, pFv)
 GO(FcFontSetDestroy, vFp)
 //GO(FcFontSetList, 
 //GO(FcFontSetMatch, 
