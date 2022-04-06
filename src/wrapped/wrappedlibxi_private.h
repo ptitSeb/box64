@@ -26,7 +26,7 @@ GO(XGetDeviceButtonMapping, iFpppi)
 //GO(XGetDeviceModifierMapping, 
 GO(XGetDeviceMotionEvents, pFppuuppp)
 GO(XGetDeviceProperty, iFpppllipppppp)
-//GO(XGetExtensionVersion, 
+GO(XGetExtensionVersion, pFpp)
 //GO(XGetFeedbackControl, 
 //GO(XGetSelectedExtensionEvents, 
 GO(XGrabDevice, iFpppiipiiu)
@@ -80,7 +80,7 @@ GO(XSetDeviceButtonMapping, iFpppi)
 GO(XUngrabDevice, iFppu)
 //GO(XUngrabDeviceButton, 
 //GO(XUngrabDeviceKey, 
-//GO(_XiGetDevicePresenceNotifyEvent, 
+GO(_XiGetDevicePresenceNotifyEvent, iFp)
 //GO(_xibadclass, 
 //GO(_xibaddevice, 
 //GO(_xibadevent, 

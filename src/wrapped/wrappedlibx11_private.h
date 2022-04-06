@@ -976,7 +976,7 @@ GO(XSetWindowBackgroundPixmap, iFppp)
 //GO(XSetWindowBorderPixmap
 GO(XSetWindowBorderWidth, iFppu)
 GO(XSetWindowColormap, iFppp)
-//GO(XSetWMClientMachine
+GO(XSetWMClientMachine, vFppp)
 GO(XSetWMColormapWindows, iFpppi)
 GO(XSetWMHints, iFppp)
 GO(XSetWMIconName, vFppp)
