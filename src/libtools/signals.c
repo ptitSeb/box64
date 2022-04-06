@@ -879,7 +879,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             return;
         }
         pthread_mutex_unlock(&mutex_dynarec_prot);
-    } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE))) {
+    } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE)==(PROT_READ|PROT_WRITE))) {
         pthread_mutex_lock(&mutex_dynarec_prot);
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
