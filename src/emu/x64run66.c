@@ -160,6 +160,26 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
             GW->word[0] = imul16(emu, EW->word[0], (uint16_t)tmp16s);
         }
         break;
+    
+    case 0x70:
+    case 0x71:
+    case 0x72:
+    case 0x73:
+    case 0x74:
+    case 0x75:
+    case 0x76:
+    case 0x77:
+    case 0x78:
+    case 0x79:
+    case 0x7a:
+    case 0x7b:
+    case 0x7c:
+    case 0x7d:
+    case 0x7e:
+    case 0x7f:
+        // just ignore the 66 (and maybe other) prefix and use regular conditional jump
+        R_RIP--;
+        return 0;
 
     case 0x81:                              /* GRP3 Ew,Iw */
     case 0x83:                              /* GRP3 Ew,Ib */

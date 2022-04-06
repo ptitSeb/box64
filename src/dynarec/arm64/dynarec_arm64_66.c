@@ -328,6 +328,25 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GWBACK;
             break;
 
+        case 0x70:
+        case 0x71:
+        case 0x72:
+        case 0x73:
+        case 0x74:
+        case 0x75:
+        case 0x76:
+        case 0x77:
+        case 0x78:
+        case 0x79:
+        case 0x7a:
+        case 0x7b:
+        case 0x7c:
+        case 0x7d:
+        case 0x7e:
+        case 0x7f:
+            // just use regular conditional jump
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
+
         case 0x81:
         case 0x83:
             nextop = F8;
