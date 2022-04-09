@@ -243,7 +243,7 @@ GO(XDefaultDepth, iFpi)
 GO(XDefaultDepthOfScreen, iFp)
 // _XDefaultError
 GO(XDefaultGC, pFpi)
-//GO(XDefaultGCOfScreen
+GO(XDefaultGCOfScreen, pFp)
 GO(_XDefaultIOError, iFp)
 // _XDefaultOpenIM
 // _XDefaultOpenOM
