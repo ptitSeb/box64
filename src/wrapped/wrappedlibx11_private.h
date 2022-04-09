@@ -238,7 +238,7 @@ GO(XCreateSimpleWindow, pFppiiuuuLL)
 GO(XCreateWindow, pFppiiuuuiupLp)
 DATAB(_Xdebug, sizeof(void*))
 GO(XDefaultColormap, pFpi)
-//GO(XDefaultColormapOfScreen
+GO(XDefaultColormapOfScreen, pFp)
 GO(XDefaultDepth, iFpi)
 GO(XDefaultDepthOfScreen, iFp)
 // _XDefaultError
