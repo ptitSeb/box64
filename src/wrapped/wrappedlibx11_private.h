@@ -252,7 +252,7 @@ GO(XDefaultScreen, pFp)
 GO(XDefaultScreenOfDisplay, pFp)
 //GO(XDefaultString
 GO(XDefaultVisual, pFpi)
-//GO(XDefaultVisualOfScreen
+GO(XDefaultVisualOfScreen, pFp)
 // _XDefaultWireError
 GO(XDefineCursor, iFppp)
 GO(XDeleteContext, iFpLi)
