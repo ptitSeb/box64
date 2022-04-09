@@ -51,7 +51,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC7:
             INST_NAME("FFREEP STx");
             // not handling Tag...
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xE0:
@@ -71,11 +71,16 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xEF:
             INST_NAME("FUCOMIP ST0, STx");
             SETFLAGS(X_ALL, SF_SET);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            FCMPD(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0))
+            {
+                FCMPS(v1, v2);
+            } else {
+                FCMPD(v1, v2);
+            }
             FCOMI(x1, x2);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF0:
         case 0xF1:
@@ -87,11 +92,16 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xF7:
             INST_NAME("FCOMIP ST0, STx");
             SETFLAGS(X_ALL, SF_SET);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            FCMPD(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0))
+            {
+                FCMPS(v1, v2);
+            } else {
+                FCMPD(v1, v2);
+            }
             FCOMI(x1, x2);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xC8:
@@ -140,19 +150,23 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FILD ST0, Ew");
-                    v1 = x87_do_push(dyn, ninst);
+                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
                     LDRSHw_U12(x1, wback, fixedaddress);
-                    SCVTFDw(v1, x1);
+                    if(ST_IS_F(0)) {
+                        SCVTFSw(v1, x1);
+                    } else {
+                        SCVTFDw(v1, x1);
+                    }
                     break;
                 case 1:
                     INST_NAME("FISTTP Ew, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch(dyn);
                     #if 0
-                    // this version needs ARM v8.5, //TODO: add detection of this extensio to use it
+                    // this version needs ARM v8.5, //TODO: add detection of this extension to use it
                     FRINT32ZD(s0, v1);
                     // no saturation instruction on Arm, so using NEON
                     VFCVTZSd(s0, s0);
@@ -163,8 +177,12 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MSR_fpsr(x5);
-                    VFCVTZSd(s0, v1);
-                    SQXTN_S_D(s0, s0);
+                    if(ST_IS_F(0)) {
+                        VFCVTZSs(s0, v1);
+                    } else {
+                        VFCVTZSd(s0, v1);
+                        SQXTN_S_D(s0, s0);
+                    }
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
@@ -173,11 +191,11 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     STRH_U12(x5, wback, fixedaddress);
                     MARK3;
                     #endif
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 2:
                     INST_NAME("FIST Ew, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
                     ed = x1;
@@ -193,9 +211,14 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MSR_fpsr(x5);
-                    FRINTXD(s0, v1);
-                    VFCVTZSd(s0, s0);
-                    SQXTN_S_D(s0, s0);
+                    if(ST_IS_F(0)) {
+                        FRINTXS(s0, v1);
+                        VFCVTZSs(s0, s0);
+                    } else {
+                        FRINTXD(s0, v1);
+                        VFCVTZSd(s0, s0);
+                        SQXTN_S_D(s0, s0);
+                    }
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
@@ -208,7 +231,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 3:
                     INST_NAME("FISTP Ew, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
                     ed = x1;
@@ -224,9 +247,14 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MSR_fpsr(x5);
-                    FRINTXD(s0, v1);
-                    VFCVTZSd(s0, s0);
-                    SQXTN_S_D(s0, s0);
+                    if(ST_IS_F(0)) {
+                        FRINTXS(s0, v1);
+                        VFCVTZSs(s0, s0);
+                    } else {
+                        FRINTXD(s0, v1);
+                        VFCVTZSd(s0, s0);
+                        SQXTN_S_D(s0, s0);
+                    }
                     SQXTN_H_S(s0, s0);
                     VSTR16_U12(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
@@ -235,7 +263,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     STRH_U12(x5, wback, fixedaddress);
                     MARK3;
                     #endif
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 4:
@@ -247,7 +275,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 5:
                     INST_NAME("FILD ST0, i64");
-                    v1 = x87_do_push(dyn, ninst);
+                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                     LDRx_U12(x1, wback, fixedaddress);
                     SCVTFDx(v1, x1);
@@ -258,11 +286,11 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(fpu_fbst, -1);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 7:
                     INST_NAME("FISTP i64, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                     ed = x1;
@@ -285,7 +313,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MARK3;
                     #endif
                     x87_restoreround(dyn, ninst, u8);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 default:
                     DEFAULT;

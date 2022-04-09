@@ -53,10 +53,14 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC7:
             INST_NAME("FCMOVNB ST0, STx");
             READFLAGS(X_CF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTw_mask(xFlags, 0, 0);    //mask=1<<F_CF
-            FCSELD(v1, v2, v1, cEQ);    // F_CF==0
+            if(ST_IS_F(0)) {
+                FCSELS(v1, v2, v1, cEQ);
+            } else {
+                FCSELD(v1, v2, v1, cEQ);    // F_CF==0
+            }
             break;
         case 0xC8:
         case 0xC9:
@@ -68,10 +72,14 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xCF:
             INST_NAME("FCMOVNE ST0, STx");
             READFLAGS(X_ZF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTw_mask(xFlags, 0b011010, 0); //mask=1<<F_ZF
-            FCSELD(v1, v2, v1, cEQ);        // F_ZF==0
+            if(ST_IS_F(0)) {
+                FCSELS(v1, v2, v1, cEQ);
+            } else {
+                FCSELD(v1, v2, v1, cEQ);        // F_ZF==0
+            }
             break;
         case 0xD0:
         case 0xD1:
@@ -83,11 +91,15 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xD7:
             INST_NAME("FCMOVNBE ST0, STx");
             READFLAGS(X_CF|X_ZF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             MOV32w(x1, (1<<F_CF)|(1<<F_ZF));
             TSTw_REG(xFlags, x1);
-            FCSELD(v1, v2, v1, cEQ);   // F_CF==0 & F_ZF==0
+            if(ST_IS_F(0)) {
+                FCSELS(v1, v2, v1, cEQ);
+            } else {
+                FCSELD(v1, v2, v1, cEQ);   // F_CF==0 & F_ZF==0
+            }
             break;
         case 0xD8:
         case 0xD9:
@@ -99,10 +111,14 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xDF:
             INST_NAME("FCMOVNU ST0, STx");
             READFLAGS(X_PF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTw_mask(xFlags, 0b011110, 0); //mask=1<<F_PF
-            FCSELD(v1, v2, v1, cEQ);        // F_PF==0
+            if(ST_IS_F(0)) {
+                FCSELS(v1, v2, v1, cEQ);
+            } else {
+                FCSELD(v1, v2, v1, cEQ);        // F_PF==0
+            }
             break;
         case 0xE1:
             INST_NAME("FDISI8087_NOP"); // so.. NOP?
@@ -118,7 +134,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE3:
             INST_NAME("FNINIT");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            x87_purgecache(dyn, ninst, 0, x1, x2, x3);
             CALL(reset_fpu, -1);
             break;
         case 0xE8:
@@ -131,9 +147,13 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xEF:
             INST_NAME("FUCOMI ST0, STx");
             SETFLAGS(X_ALL, SF_SET);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            FCMPD(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                FCMPS(v1, v2);
+            } else {
+                FCMPD(v1, v2);
+            }
             FCOMI(x1, x2);
             break;
         case 0xF0:  
@@ -146,9 +166,13 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xF7:
             INST_NAME("FCOMI ST0, STx");
             SETFLAGS(X_ALL, SF_SET);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            FCMPD(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                FCMPS(v1, v2);
+            } else {
+                FCMPD(v1, v2);
+            }
             FCOMI(x1, x2);
             break;
 
@@ -164,7 +188,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FILD ST0, Ed");
-                    v1 = x87_do_push(dyn, ninst);
+                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
                     s0 = fpu_get_scratch(dyn);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                     VLDR32_U12(s0, ed, fixedaddress);
@@ -173,7 +197,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1:
                     INST_NAME("FISTTP Ed, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         wback = 0;
@@ -200,11 +224,11 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     STRw_U12(x5, wback, fixedaddress);
                     MARK3;
                     #endif
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 2:
                     INST_NAME("FIST Ed, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4); // x1 have the modified RPSCR reg
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -236,7 +260,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 3:
                     INST_NAME("FISTP Ed, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4); // x1 have the modified RPSCR reg
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -265,7 +289,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MARK3;
                     #endif
                     x87_restoreround(dyn, ninst, u8);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 5:
                     INST_NAME("FLD tbyte");
@@ -297,7 +321,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVx_REG(x1, ed);
                     }
                     CALL(arm_fstp, -1);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 default:
                     DEFAULT;

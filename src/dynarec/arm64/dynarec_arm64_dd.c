@@ -49,8 +49,8 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC7:
             INST_NAME("FFREE STx");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
-            MOV32w(x1, nextop-0xC0);
+            x87_purgecache(dyn, ninst, 0, x1, x2, x3);
+            MOV32w(x1, nextop&7);
             CALL(fpu_do_free, -1);
             break;
         case 0xD0:
@@ -62,13 +62,17 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xD6:
         case 0xD7:
             INST_NAME("FST ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            FMOVD(v2, v1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                FMOVS(v2, v1);
+            } else {
+                FMOVD(v2, v1);
+            }
             break;
         case 0xD8:
             INST_NAME("FSTP ST0, ST0");
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xD9:
         case 0xDA:
@@ -78,10 +82,9 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xDE:
         case 0xDF:
             INST_NAME("FSTP ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            FMOVD(v2, v1);
-            x87_do_pop(dyn, ninst);
+            // copy the cache value for st0 to stx
+            x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xE0:
@@ -93,9 +96,13 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE6:
         case 0xE7:
             INST_NAME("FUCOM ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            FCMPD(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                FCMPS(v1, v2);
+            } else {
+                FCMPD(v1, v2);
+            }
             FCOM(x1, x2, x3);
             break;
         case 0xE8:
@@ -107,11 +114,15 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xEE:
         case 0xEF:
             INST_NAME("FUCOMP ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            FCMPD(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                FCMPS(v1, v2);
+            } else {
+                FCMPD(v1, v2);
+            }
             FCOM(x1, x2, x3);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xC8:
@@ -145,37 +156,37 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FLD double");
-                    v1 = x87_do_push(dyn, ninst);
+                    v1 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                     VLDR64_U12(v1, ed, fixedaddress);
                     break;
                 case 1:
                     INST_NAME("FISTTP i64, ST0");
-                    v1 = x87_do_push(dyn, ninst);
+                    v1 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                     s0 = fpu_get_scratch(dyn);
                     FRINT64ZD(s0, v1);
                     FCVTZSxD(x2, s0);
                     STRx_U12(x2, ed, fixedaddress);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 2:
                     INST_NAME("FST double");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                     VSTR64_U12(v1, ed, fixedaddress);
                     break;
                 case 3:
                     INST_NAME("FSTP double");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                     VSTR64_U12(v1, ed, fixedaddress);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 4: 
                     INST_NAME("FRSTOR m108byte");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(arm_frstor, -1);
@@ -183,18 +194,27 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6: 
                     INST_NAME("FSAVE m108byte");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(arm_fsave, -1);
                     break;
                 case 7:
                     INST_NAME("FNSTSW m2byte");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x4, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
-                    LDRw_U12(x1, xEmu, offsetof(x64emu_t, top));
+                    LDRw_U12(x2, xEmu, offsetof(x64emu_t, top));
                     LDRH_U12(x3, xEmu, offsetof(x64emu_t, sw));
-                    BFIw(x3, x1, 11, 3); // inject TOP at bit 11 (3 bits)
+                    if(dyn->n.x87stack) {
+                        // update top
+                        if(dyn->n.x87stack>0) {
+                            SUBw_U12(x2, x2, dyn->n.x87stack);
+                        } else {
+                            ADDw_U12(x2, x2, -dyn->n.x87stack);
+                        }
+                        ANDw_mask(x2, x2, 0, 2);
+                    }
+                    BFIw(x3, x2, 11, 3); // inject TOP at bit 11 (3 bits)
                     STRH_U12(x3, ed, fixedaddress);   // store whole sw flags
                     break;
                 default:

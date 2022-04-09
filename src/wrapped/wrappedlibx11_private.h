@@ -238,12 +238,12 @@ GO(XCreateSimpleWindow, pFppiiuuuLL)
 GO(XCreateWindow, pFppiiuuuiupLp)
 DATAB(_Xdebug, sizeof(void*))
 GO(XDefaultColormap, pFpi)
-//GO(XDefaultColormapOfScreen
+GO(XDefaultColormapOfScreen, pFp)
 GO(XDefaultDepth, iFpi)
 GO(XDefaultDepthOfScreen, iFp)
 // _XDefaultError
 GO(XDefaultGC, pFpi)
-//GO(XDefaultGCOfScreen
+GO(XDefaultGCOfScreen, pFp)
 GO(_XDefaultIOError, iFp)
 // _XDefaultOpenIM
 // _XDefaultOpenOM
@@ -905,7 +905,7 @@ GO(XrmInitialize, vFv)
 //GO(XrmStringToQuarkList
 GO(XrmUniqueQuark, iFv) //typedef int XrmQuark, *XrmQuarkList;
 GO(XRootWindow, pFpi)
-//GO(XRootWindowOfScreen
+GO(XRootWindowOfScreen, pFp)
 GO(XRotateBuffers, iFpi)
 GO(XRotateWindowProperties, iFpppii)
 GO(XSaveContext, iFpLip)

@@ -85,8 +85,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             GETG;
                             if(MODREG) {
                                 ed = (nextop&7)+ (rex.b<<3);
-                                v0 = sse_get_reg(dyn, ninst, x1, gd);
-                                d0 = sse_get_reg(dyn, ninst, x1, ed);
+                                v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                                d0 = sse_get_reg(dyn, ninst, x1, ed, 0);
                                 VMOVeD(v0, 0, d0, 0);
                             } else {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
@@ -101,8 +101,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             nextop = F8;
                             GETG;
                             if(MODREG) {
-                                v0 = sse_get_reg(dyn, ninst, x1, gd);
-                                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                                v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
                                 VMOVeS(v0, 0, q0, 0);
                             } else {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
@@ -122,7 +122,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             INST_NAME("MOVUPS Ex,Gx");
                             nextop = F8;
                             GETG;
-                            v0 = sse_get_reg(dyn, ninst, x1, gd);
+                            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                             if(MODREG) {
                                 ed = (nextop&7)+(rex.b<<3);
                                 v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
@@ -138,10 +138,10 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             INST_NAME("MOVSD Ex, Gx");
                             nextop = F8;
                             GETG;
-                            v0 = sse_get_reg(dyn, ninst, x1, gd);
+                            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                             if(MODREG) {
                                 ed = (nextop&7)+ (rex.b<<3);
-                                d0 = sse_get_reg(dyn, ninst, x1, ed);
+                                d0 = sse_get_reg(dyn, ninst, x1, ed, 1);
                                 VMOVeD(d0, 0, v0, 0);
                             } else {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
@@ -154,9 +154,9 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             INST_NAME("MOVSS Ex, Gx");
                             nextop = F8;
                             GETG;
-                            v0 = sse_get_reg(dyn, ninst, x1, gd);
+                            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                             if(MODREG) {
-                                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 1);
                                 VMOVeS(q0, 0, v0, 0);
                             } else {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
@@ -178,7 +178,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             GETG;
                             v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                             if(MODREG) {
-                                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
                                 VMOVQ(v0, v1);
                             } else {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
@@ -577,14 +577,14 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEDO(x6, 0);
                     emit_rol32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACKO(x6);
                     break;
                 case 1:
                     INST_NAME("ROR Ed, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEDO(x6, 0);
                     emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACKO(x6);
@@ -923,14 +923,14 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETEDO(x6, 0);
                     emit_inc32(dyn, ninst, rex, ed, x3, x4);
                     WBACKO(x6);
                     break;
                 case 1: //DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETEDO(x6, 0);
                     emit_dec32(dyn, ninst, rex, ed, x3, x4);
                     WBACKO(x6);
@@ -945,13 +945,12 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     }
                     GETEDOx(x6, 0);
-                    BARRIER(1);
-                    BARRIER_NEXT(1);
+                    BARRIER(BARRIER_FLOAT);
                     if(!dyn->insts || ninst==dyn->size-1) {
                         *need_epilog = 0;
                         *ok = 0;
                     }
-                    GETIP(addr);
+                    GETIP_(addr);
                     PUSH1(xRIP);
                     jump_to_next(dyn, 0, ed, ninst);
                     break;

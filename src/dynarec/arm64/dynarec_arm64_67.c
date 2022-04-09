@@ -22,13 +22,13 @@
 #include "dynarec_arm64_helper.h"
 #include "dynarec_arm64_functions.h"
 
-#define GETGX(a)                        \
+#define GETGX(a, w)                     \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    a = sse_get_reg(dyn, ninst, x1, gd)
+    a = sse_get_reg(dyn, ninst, x1, gd, w)
 
 #define GETGM(a)                        \
     gd = ((nextop&0x38)>>3);            \
-    a = mmx_get_reg(dyn, ninst, x1, gd)
+    a = mmx_get_reg(dyn, ninst, x1, x2, x3, gd)
 
 #define GETGm   gd = ((nextop&0x38)>>3)
 
@@ -78,9 +78,9 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
                         SETFLAGS(X_ALL, SF_SET);
                         nextop = F8;
-                        GETGX(v0);
+                        GETGX(v0, 0);
                         if(MODREG) {
-                            s0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                            s0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
                         } else {
                             s0 = fpu_get_scratch(dyn);
                             addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
@@ -96,11 +96,11 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     nextop = F8;
                     GETGm;
                     if(MODREG) {
-                        v1 = mmx_get_reg(dyn, ninst, x1, nextop&7); // no rex.b on MMX
-                        v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                        v1 = mmx_get_reg(dyn, ninst, x1, x2, x3, nextop&7); // no rex.b on MMX
+                        v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
                         VMOVeD(v0, 0, v1, 0);
                     } else {
-                        v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                        v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
                         addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                         VLDR64_U12(v0, ed, fixedaddress);
                     }
@@ -111,7 +111,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     nextop = F8;
                     GETGM(v0);
                     if(MODREG) {
-                        v1 = mmx_get_reg_empty(dyn, ninst, x1, nextop&7);
+                        v1 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, nextop&7);
                         VMOV(v1, v0);
                     } else {
                         addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
@@ -156,7 +156,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED32(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -164,7 +164,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED32(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -224,14 +224,23 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
-        #define GO(NO, YES)   \
-            BARRIER(2); \
-            JUMP(addr+i8);\
-            if(dyn->insts[ninst].x64.jmp_insts==-1) {   \
-                /* out of the block */                  \
-                i32 = dyn->insts[ninst+1].address-(dyn->native_size); \
-                Bcond(NO, i32);     \
-                jump_to_next(dyn, addr+i8, 0, ninst); \
+        #define GO(NO, YES)                                             \
+            BARRIER(BARRIER_MAYBE);                                     \
+            JUMP(addr+i8, 1);                                           \
+            if(dyn->insts[ninst].x64.jmp_insts==-1 ||                   \
+                CHECK_CACHE()) {                                        \
+                /* out of the block */                                  \
+                i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
+                Bcond(NO, i32);                                         \
+                if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
+                    if(!dyn->insts[ninst].x64.barrier)                  \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
+                    jump_to_next(dyn, addr+i8, 0, ninst);               \
+                } else {                                                \
+                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
+                    B(i32);                                             \
+                }                                                       \
             } else {    \
                 /* inside the block */  \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \

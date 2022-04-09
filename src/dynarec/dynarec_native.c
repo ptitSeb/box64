@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
+#include <assert.h>
 
 #include "debug.h"
 #include "box64context.h"
@@ -231,53 +232,6 @@ int is_instructions(dynarec_native_t *dyn, uintptr_t addr, int n)
     return (i==n)?1:0;
 }
 
-uint32_t needed_flags(dynarec_native_t *dyn, int ninst, uint32_t setf, int recurse)
-{
-    if(recurse == 10)
-        return X_PEND;
-    if(ninst == dyn->size)
-        return X_PEND; // no more instructions, or too many jmp loop, stop
-    
-    uint32_t needed = dyn->insts[ninst].x64.use_flags;
-    if(needed) {
-        setf &= ~needed;
-        if(!setf)   // all flags already used, no need to continue
-            return needed;
-    }
-
-    if(!needed && !dyn->insts[ninst].x64.set_flags && !dyn->insts[ninst].x64.jmp_insts) {
-        int start = ninst;
-        int end = ninst;
-        while(end<dyn->size && !dyn->insts[end].x64.use_flags && !dyn->insts[end].x64.set_flags && !dyn->insts[end].x64.jmp_insts)
-            ++end;
-        needed = needed_flags(dyn, end, setf, recurse);
-        for(int i=start; i<end; ++i)
-            dyn->insts[i].x64.need_flags = needed;
-        return needed;
-    }
-
-    if(dyn->insts[ninst].x64.set_flags && (dyn->insts[ninst].x64.state_flags!=SF_MAYSET)) {
-        if((setf & ~dyn->insts[ninst].x64.set_flags) == 0)
-            return needed;    // all done, gives all the flags needed
-        setf |= dyn->insts[ninst].x64.set_flags;    // add new flags to continue
-    }
-
-    int jinst = dyn->insts[ninst].x64.jmp_insts;
-    if(dyn->insts[ninst].x64.jmp) {
-        dyn->insts[ninst].x64.need_flags = (jinst==-1)?X_PEND:needed_flags(dyn, jinst, setf, recurse+1);
-        if(dyn->insts[ninst].x64.use_flags)  // conditionnal jump
-             dyn->insts[ninst].x64.need_flags |= needed_flags(dyn, ninst+1, setf, recurse);
-    } else
-        dyn->insts[ninst].x64.need_flags = needed_flags(dyn, ninst+1, setf, recurse);
-    if(dyn->insts[ninst].x64.state_flags==SF_MAYSET)
-        needed |= dyn->insts[ninst].x64.need_flags;
-    else
-        needed |= (dyn->insts[ninst].x64.need_flags & ~dyn->insts[ninst].x64.set_flags);
-    if(needed == (X_PEND|X_ALL))
-        needed = X_ALL;
-    return needed;
-}
-
 instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x64_size, int native_size)
 {
     // x64 instruction is <16 bytes
@@ -329,6 +283,98 @@ int Table64(dynarec_native_t *dyn, uint64_t val)
     return delta;
 }
 
+static void fillPredecessors(dynarec_native_t* dyn)
+{
+    int pred_sz = 0;
+    // compute total size of predecessor to alocate the array
+    // first compute the jumps
+    for(int i=0; i<dyn->size; ++i) {
+        if(dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts!=-1) {
+            ++pred_sz;
+            ++dyn->insts[dyn->insts[i].x64.jmp_insts].pred_sz;
+        }
+    }
+    // second the "has_next"
+    for(int i=0; i<dyn->size; ++i) {
+        if(i!=dyn->size-1 && dyn->insts[i].x64.has_next && (!i || dyn->insts[i].pred_sz)) {
+            ++pred_sz;
+            ++dyn->insts[i+1].pred_sz;
+        }
+    }
+    dyn->predecessor = (int*)malloc(pred_sz*sizeof(int));
+    // fill pred pointer
+    int* p = dyn->predecessor;
+    for(int i=0; i<dyn->size; ++i) {
+        dyn->insts[i].pred = p;
+        p += dyn->insts[i].pred_sz;
+        dyn->insts[i].pred_sz=0;  // reset size, it's reused to actually fill pred[]
+    }
+    assert(p==dyn->predecessor+pred_sz);
+    // fill pred
+    for(int i=0; i<dyn->size; ++i) {
+        if(i!=dyn->size-1 && dyn->insts[i].x64.has_next && (!i || dyn->insts[i].pred_sz))
+            dyn->insts[i+1].pred[dyn->insts[i+1].pred_sz++] = i;
+        if(dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts!=-1)
+            dyn->insts[dyn->insts[i].x64.jmp_insts].pred[dyn->insts[dyn->insts[i].x64.jmp_insts].pred_sz++] = i;
+    }
+
+}
+
+static void updateNeed(dynarec_native_t* dyn, int ninst, uint32_t need) {
+    uint32_t old_need = dyn->insts[ninst].x64.need_flags;
+    uint32_t new_need = old_need | need;
+    uint32_t new_use = dyn->insts[ninst].x64.use_flags;
+    uint32_t old_use = dyn->insts[ninst].x64.old_use;
+
+    if((new_need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET) {
+        new_need &=~X_PEND;
+        new_need |= X_ALL;
+    }
+
+    uint32_t new_set = 0;
+    if(dyn->insts[ninst].x64.state_flags & SF_SET)
+        new_set = dyn->insts[ninst].x64.set_flags;
+    if(dyn->insts[ninst].x64.state_flags & SF_PENDING)
+        new_set |= X_PEND;
+    if((new_need&X_PEND) && (
+        dyn->insts[ninst].x64.state_flags==SF_SET || dyn->insts[ninst].x64.state_flags==SF_SUBSET)) {
+        new_need &=~X_PEND;
+        new_need |=X_ALL;
+    }
+    
+    dyn->insts[ninst].x64.need_flags = new_need;
+    dyn->insts[ninst].x64.old_use = new_use;
+
+    if(dyn->insts[ninst].x64.jmp_insts==-1)
+        new_need |= X_PEND;
+
+    // a Flag Barrier will change all need to "Pending", as it clear all flags optimisation
+    if(new_need && dyn->insts[ninst].x64.barrier&BARRIER_FLAGS)
+        new_need = X_PEND;
+    
+    if((new_need == old_need) && (new_use == old_use))    // no changes, bye
+        return;
+    
+    if(!(new_need && dyn->insts[ninst].x64.barrier&BARRIER_FLAGS)) {
+        new_need &=~new_set;    // clean needed flag that were suplied
+        new_need |= new_use;    // new need
+    }
+
+    if((new_need == (X_ALL|X_PEND)) && (dyn->insts[ninst].x64.state_flags & SF_SET))
+        new_need = X_ALL;
+
+    //update need to new need on predecessor
+    for(int i=0; i<dyn->insts[ninst].pred_sz; ++i)
+        updateNeed(dyn, dyn->insts[ninst].pred[i], new_need);
+}
+
+static void resetNeed(dynarec_native_t* dyn) {
+    for(int i = dyn->size; i-- > 0;) {
+        dyn->insts[i].x64.old_use = 0;
+        dyn->insts[i].x64.need_flags = dyn->insts[i].x64.default_need;
+    }
+}
+
 __thread void* current_helper = NULL;
 
 void CancelBlock64()
@@ -370,7 +416,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     uintptr_t start = addr;
     helper.cap = 64; // needs epilog handling
     helper.insts = (instruction_native_t*)calloc(helper.cap, sizeof(instruction_native_t));
-    // pass 0, addresses, x86 jump addresses, overall size of the block
+    // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr);
     // no need for next anymore
     free(helper.next);
@@ -392,33 +438,93 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         protectDB(addr, end-addr);  //end is 1byte after actual end
     // compute hash signature
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
+    // Compute flag_need, without with current barriers
+    resetNeed(&helper);
+    for(int i = helper.size; i-- > 0;)
+        updateNeed(&helper, i, 0);
     // calculate barriers
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x64.jmp) {
             uintptr_t j = helper.insts[i].x64.jmp;
-            if(j<start || j>=end)
+            if(j<start || j>=end) {
                 helper.insts[i].x64.jmp_insts = -1;
-            else {
+                helper.insts[i].x64.use_flags |= X_PEND;
+            } else {
                 // find jump address instruction
                 int k=-1;
-                for(int i2=0; (i2<helper.size) && (k==-1); ++i2) {
+                for(int i2=0; i2<helper.size && k==-1; ++i2) {
                     if(helper.insts[i2].x64.addr==j)
                         k=i2;
                 }
-
-                if(k!=-1)   // -1 if not found, mmm, probably wrong, exit anyway
-                    helper.insts[k].x64.barrier = 1;
+                if(k!=-1 && !helper.insts[i].barrier_maybe)
+                    helper.insts[k].x64.barrier |= BARRIER_FULL;
                 helper.insts[i].x64.jmp_insts = k;
             }
         }
-    // pass 1, flags
-    native_pass1(&helper, addr);
-    for(int i=0; i<helper.size; ++i)
-        if(helper.insts[i].x64.set_flags && !helper.insts[i].x64.need_flags) {
-            helper.insts[i].x64.need_flags = needed_flags(&helper, i+1, helper.insts[i].x64.set_flags, 0);
-            if((helper.insts[i].x64.need_flags&X_PEND) && (helper.insts[i].x64.state_flags==SF_MAYSET))
-                helper.insts[i].x64.need_flags = X_ALL;
+    // fill predecessors with the jump address
+    fillPredecessors(&helper);
+    // check for the optionnal barriers now
+    for(int i=helper.size-1; i>=0; --i) {
+        if(helper.insts[i].barrier_maybe) {
+            // out-of-block jump
+            if(helper.insts[i].x64.jmp_insts == -1) {
+                // nothing for now
+            } else {
+                // inside block jump
+                int k = helper.insts[i].x64.jmp_insts;
+                if(k>i) {
+                    // jump in the future
+                    if(helper.insts[k].pred_sz>1) {
+                        // with multiple flow, put a barrier
+                        helper.insts[k].x64.barrier|=BARRIER_FLAGS;
+                    }
+                } else {
+                    // jump back
+                    helper.insts[k].x64.barrier|=BARRIER_FLAGS;
+                }
+            }
+    	}
+    }
+    // check to remove useless barrier, in case of jump when destination doesn't needs flags
+    /*for(int i=helper.size-1; i>=0; --i) {
+        int k;
+        if(helper.insts[i].x64.jmp
+        && ((k=helper.insts[i].x64.jmp_insts)>=0)
+        && helper.insts[k].x64.barrier&BARRIER_FLAGS) {
+            //TODO: optimize FPU barrier too
+            if((!helper.insts[k].x64.need_flags)
+             ||(helper.insts[k].x64.set_flags==X_ALL
+                  && helper.insts[k].x64.state_flags==SF_SET)
+             ||(helper.insts[k].x64.state_flags==SF_SET_PENDING)) {
+                //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Removed barrier for inst %d\n", k);
+                helper.insts[k].x64.barrier &= ~BARRIER_FLAGS; // remove flag barrier
+             }
         }
+    }*/
+    // reset need_flags and compute again, now taking barrier into account (because barrier change use_flags)
+    for(int i = helper.size; i-- > 0;) {
+        int k;
+        if(helper.insts[i].x64.jmp 
+        && ((k=helper.insts[i].x64.jmp_insts)>=0)
+        ) {
+            if(helper.insts[k].x64.barrier&BARRIER_FLAGS)
+                // jumpto barrier
+                helper.insts[i].x64.use_flags |= X_PEND;
+            if(helper.insts[i].x64.barrier&BARRIER_FLAGS && (helper.insts[k].x64.need_flags | helper.insts[k].x64.use_flags))
+                helper.insts[k].x64.barrier|=BARRIER_FLAGS;
+            else
+                helper.insts[i].x64.use_flags |= (helper.insts[k].x64.need_flags | helper.insts[k].x64.use_flags);
+        }
+        if(helper.insts[i].x64.barrier&BARRIER_FLAGS)
+            // immediate barrier
+            helper.insts[i].x64.use_flags |= X_PEND;
+    }
+    resetNeed(&helper);
+    for(int i = helper.size; i-- > 0;)
+        updateNeed(&helper, i, 0);
+
+    // pass 1, float optimisations, first pass for flags
+    native_pass1(&helper, addr);
     
     // pass 2, instruction size
     native_pass2(&helper, addr);
@@ -496,13 +602,14 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         dynarec_log(LOG_INFO, "Warning, a block changed while beeing processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
         CancelBlock64();
         return NULL;
-    }    // fill sons if any
+    }
     if(!isprotectedDB(addr, end-addr)) {
         dynarec_log(LOG_INFO, "Warning, block unprotected while beeing processed %p:%ld, cancelling\n", block->x64_addr, block->x64_size);
         CancelBlock64();
         return NULL;
         //protectDB(addr, end-addr);
     }
+    // fill sons if any
     dynablock_t** sons = NULL;
     int sons_size = 0;
     if(helper.sons_size) {
