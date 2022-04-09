@@ -290,8 +290,8 @@ GO(gtk_button_box_set_child_secondary, vFppi)
 GO(gtk_button_box_set_child_size, vFpii)
 GO(gtk_button_box_set_layout, vFpi)
 GO(gtk_button_box_style_get_type, LFv)
-//GO(gtk_button_clicked, 
-//GO(gtk_button_enter, 
+GO(gtk_button_clicked, vFp)
+GO(gtk_button_enter, vFp)
 GO(gtk_button_get_alignment, vFppp)
 GO(gtk_button_get_event_window, pFp)
 GO(gtk_button_get_focus_on_click, iFp)
@@ -1515,19 +1515,19 @@ GO(gtk_label_set_track_visited_links, vFpi)
 GO(gtk_label_set_use_markup, vFpi)
 GO(gtk_label_set_use_underline, vFpi)
 GO(gtk_label_set_width_chars, vFpi)
-//GO(gtk_layout_freeze, 
-//GO(gtk_layout_get_bin_window, 
-//GO(gtk_layout_get_hadjustment, 
-//GO(gtk_layout_get_size, 
+GO(gtk_layout_freeze, vFp)
+GO(gtk_layout_get_bin_window, pFp)
+GO(gtk_layout_get_hadjustment, pFp)
+GO(gtk_layout_get_size, vFppp)
 GO(gtk_layout_get_type, LFv)
-//GO(gtk_layout_get_vadjustment, 
-//GO(gtk_layout_move, 
+GO(gtk_layout_get_vadjustment, pFp)
+GO(gtk_layout_move, vFppii)
 GO(gtk_layout_new, pFpp)
-//GO(gtk_layout_put, 
-//GO(gtk_layout_set_hadjustment, 
-//GO(gtk_layout_set_size, 
-//GO(gtk_layout_set_vadjustment, 
-//GO(gtk_layout_thaw, 
+GO(gtk_layout_put, vFppii)
+GO(gtk_layout_set_hadjustment, vFpp)
+GO(gtk_layout_set_size, vFpii)
+GO(gtk_layout_set_vadjustment, vFpp)
+GO(gtk_layout_thaw, vFp)
 GO(gtk_link_button_get_type, LFv)
 GO(gtk_link_button_get_uri, pFp)
 GO(gtk_link_button_get_visited, iFp)
@@ -2447,7 +2447,7 @@ GO(gtk_response_type_get_type, LFv)
 GO(gtk_ruler_get_type, LFv)
 //GO(gtk_ruler_set_metric, 
 //GO(gtk_ruler_set_range, 
-//GO(gtk_scale_add_mark, 
+GO(gtk_scale_add_mark, vFpdip)
 //GO(gtk_scale_button_get_adjustment, 
 //GO(gtk_scale_button_get_minus_button, 
 //GO(gtk_scale_button_get_orientation, 
@@ -2460,16 +2460,16 @@ GO(gtk_scale_button_get_type, LFv)
 //GO(gtk_scale_button_set_icons, 
 //GO(gtk_scale_button_set_orientation, 
 //GO(gtk_scale_button_set_value, 
-//GO(gtk_scale_clear_marks, 
-//GO(gtk_scale_get_digits, 
-//GO(gtk_scale_get_draw_value, 
-//GO(gtk_scale_get_layout, 
-//GO(gtk_scale_get_layout_offsets, 
+GO(gtk_scale_clear_marks, vFp)
+GO(gtk_scale_get_digits, iFp)
+GO(gtk_scale_get_draw_value, iFp)
+GO(gtk_scale_get_layout, pFp)
+GO(gtk_scale_get_layout_offsets, vFppp)
 GO(gtk_scale_get_type, LFv)
-//GO(gtk_scale_get_value_pos, 
-//GO(gtk_scale_set_digits, 
-//GO(gtk_scale_set_draw_value, 
-//GO(gtk_scale_set_value_pos, 
+GO(gtk_scale_get_value_pos, iFp)
+GO(gtk_scale_set_digits, vFpi)
+GO(gtk_scale_set_draw_value, vFpi)
+GO(gtk_scale_set_value_pos, vFpi)
 GO(gtk_scrollbar_get_type, LFv)
 GO(gtk_scrolled_window_add_with_viewport, vFpp)
 GO(gtk_scrolled_window_get_hadjustment, pFp)
@@ -2554,16 +2554,16 @@ GOM(gtk_signal_connect_full, LFEppppppii)
 //GO(gtk_signal_new, 
 //GO(gtk_signal_newv, 
 GO(gtk_signal_run_type_get_type, LFv)
-//GO(gtk_size_group_add_widget, 
-//GO(gtk_size_group_get_ignore_hidden, 
-//GO(gtk_size_group_get_mode, 
+GO(gtk_size_group_add_widget, vFpp)
+GO(gtk_size_group_get_ignore_hidden, iFp)
+GO(gtk_size_group_get_mode, iFp)
 GO(gtk_size_group_get_type, LFv)
-//GO(gtk_size_group_get_widgets, 
+GO(gtk_size_group_get_widgets, pFp)
 GO(gtk_size_group_mode_get_type, LFv)
-//GO(gtk_size_group_new, 
-//GO(gtk_size_group_remove_widget, 
-//GO(gtk_size_group_set_ignore_hidden, 
-//GO(gtk_size_group_set_mode, 
+GO(gtk_size_group_new, pFi)
+GO(gtk_size_group_remove_widget, vFpp)
+GO(gtk_size_group_set_ignore_hidden, vFpi)
+GO(gtk_size_group_set_mode, vFpi)
 GO(gtk_socket_add_id, vFpp)
 GO(gtk_socket_get_id, pFp)
 GO(gtk_socket_get_plug_window, pFp)
@@ -3603,12 +3603,12 @@ GO(gtk_unit_get_type, LFv)
 GO(gtk_update_type_get_type, LFv)
 GO(gtk_vbox_get_type, LFv)
 GO(gtk_vbox_new, pFii)
-//GO(gtk_vbutton_box_get_layout_default, 
-//GO(gtk_vbutton_box_get_spacing_default, 
+GO(gtk_vbutton_box_get_layout_default, iFv)
+GO(gtk_vbutton_box_get_spacing_default, iFv)
 GO(gtk_vbutton_box_get_type, LFv)
-//GO(gtk_vbutton_box_new, 
-//GO(gtk_vbutton_box_set_layout_default, 
-//GO(gtk_vbutton_box_set_spacing_default, 
+GO(gtk_vbutton_box_new, pFv)
+GO(gtk_vbutton_box_set_layout_default, vFi)
+GO(gtk_vbutton_box_set_spacing_default, vFi)
 GO(gtk_viewport_get_bin_window, pFp)
 GO(gtk_viewport_get_hadjustment, pFp)
 GO(gtk_viewport_get_shadow_type, iFp)
