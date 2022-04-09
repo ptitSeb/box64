@@ -905,7 +905,7 @@ GO(XrmInitialize, vFv)
 //GO(XrmStringToQuarkList
 GO(XrmUniqueQuark, iFv) //typedef int XrmQuark, *XrmQuarkList;
 GO(XRootWindow, pFpi)
-//GO(XRootWindowOfScreen
+GO(XRootWindowOfScreen, pFp)
 GO(XRotateBuffers, iFpi)
 GO(XRotateWindowProperties, iFpppii)
 GO(XSaveContext, iFpLip)
