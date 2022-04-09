@@ -21,10 +21,10 @@ DATAB(_qfree, 4)
 //GO(XActivateScreenSaver
 GOM(XAddConnectionWatch, iFEppp)
 GO(XAddExtension, pFp)
-//GO(XAddHost
-//GO(XAddHosts
-//GO(XAddPixel
-//GO(XAddToExtensionList
+GO(XAddHost, vFpp)
+GO(XAddHosts, vFppi)
+GO(XAddPixel, vFpl)
+GO(XAddToExtensionList, vFpp)
 //GO(XAddToSaveSet
 GO(XAllocClassHint, pFv)
 GO(XAllocColor, iFppp)
@@ -46,9 +46,9 @@ GO(XAutoRepeatOff, iFp)
 GO(XAutoRepeatOn, iFp)
 GO(XBaseFontNameListOfFontSet, pFp)
 GO(XBell, iFpi)
-//GO(XBitmapBitOrder
-//GO(XBitmapPad
-//GO(XBitmapUnit
+GO(XBitmapBitOrder, iFp)
+GO(XBitmapPad, iFp)
+GO(XBitmapUnit, iFp)
 GO(XBlackPixel, LFpi)
 //GO(XBlackPixelOfScreen
 //GO(XCellsOfScreen
@@ -248,9 +248,9 @@ GO(_XDefaultIOError, iFp)
 // _XDefaultOpenIM
 // _XDefaultOpenOM
 GO(XDefaultRootWindow, pFp)
-GO(XDefaultScreen, pFp)
+GO(XDefaultScreen, iFp)
 GO(XDefaultScreenOfDisplay, pFp)
-//GO(XDefaultString
+GO(XDefaultString, pFv)
 GO(XDefaultVisual, pFpi)
 GO(XDefaultVisualOfScreen, pFp)
 // _XDefaultWireError
@@ -267,8 +267,8 @@ GO(XDestroyRegion, iFp)
 GO(XDestroySubwindows, iFpp)
 GO(XDestroyWindow, iFpp)
 //GO(XDirectionalDependentDrawing
-//GO(XDisableAccessControl
-//GO(XDisplayCells
+GO(XDisableAccessControl, vFp)
+GO(XDisplayCells, iFpi)
 GO(XDisplayHeight, iFpi)
 GO(XDisplayHeightMM, iFpi)
 GO(XDisplayKeycodes, iFppp)
@@ -302,7 +302,7 @@ GO(_XEatData, vFpL)
 GO(_XEatDataWords, vFpL)
 //GO(XEHeadOfExtensionList
 GO(XEmptyRegion, iFp)
-//GO(XEnableAccessControl
+GO(XEnableAccessControl, vFp)
 // _XEnq
 GO(XEqualRegion, iFpp)
 // _XError
@@ -753,7 +753,7 @@ GO(XListDepths, pFpip)
 GO(XListExtensions, pFpp)
 GO(XListFonts, pFppip)
 GO(XListFontsWithInfo, pFppipp)
-//GO(XListHosts
+GO(XListHosts, pFppp)
 //GO(XListInstalledColormaps
 GO(XListPixmapFormats, pFpp)
 GO(XListProperties, pFppp)
@@ -864,8 +864,8 @@ GOM(XRegisterIMInstantiateCallback, iFEpppppp)
 // _XRegisterInternalConnection
 GOM(XRemoveConnectionWatch, iFEppp)
 //GO(XRemoveFromSaveSet
-//GO(XRemoveHost
-//GO(XRemoveHosts
+GO(XRemoveHost, vFpp)
+GO(XRemoveHosts, vFppi)
 GO(XReparentWindow, iFpppii)
 GO(_XReply, iFppii)
 GO(XResetScreenSaver, iFp)
@@ -918,7 +918,7 @@ GO(XSelectInput, iFppi)
 GO(_XSend, vFppi)
 GO(XSendEvent, uFppiip)
 GO(XServerVendor, pFp)
-GO(XSetAccessControl, iFpi)
+GO(XSetAccessControl, vFpi)
 GOM(XSetAfterFunction, pFEpp)
 GO(XSetArcMode, iFppi)
 //GO(XSetAuthorization

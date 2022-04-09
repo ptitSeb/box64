@@ -6,24 +6,24 @@ GO(gdk_colorspace_get_type, iFv)
 GO(gdk_interp_type_get_type, iFv)
 GO(gdk_pixbuf_add_alpha, pFpiCCC)
 GO(gdk_pixbuf_alpha_mode_get_type, iFv)
-//GO(gdk_pixbuf_animation_get_height, 
-//GO(gdk_pixbuf_animation_get_iter, 
-//GO(gdk_pixbuf_animation_get_static_image, 
+GO(gdk_pixbuf_animation_get_height, iFp)
+GO(gdk_pixbuf_animation_get_iter, pFpp)
+GO(gdk_pixbuf_animation_get_static_image, pFp)
 //GO(gdk_pixbuf_animation_get_type, 
-//GO(gdk_pixbuf_animation_get_width, 
-//GO(gdk_pixbuf_animation_is_static_image, 
-//GO(gdk_pixbuf_animation_iter_advance, 
-//GO(gdk_pixbuf_animation_iter_get_delay_time, 
-//GO(gdk_pixbuf_animation_iter_get_pixbuf, 
+GO(gdk_pixbuf_animation_get_width, iFp)
+GO(gdk_pixbuf_animation_is_static_image, iFp)
+GO(gdk_pixbuf_animation_iter_advance, iFpp)
+GO(gdk_pixbuf_animation_iter_get_delay_time, iFp)
+GO(gdk_pixbuf_animation_iter_get_pixbuf, pFp)
 //GO(gdk_pixbuf_animation_iter_get_type, 
-//GO(gdk_pixbuf_animation_iter_on_currently_loading_frame, 
-//GO(gdk_pixbuf_animation_new_from_file, 
+GO(gdk_pixbuf_animation_iter_on_currently_loading_frame, iFp)
+GO(gdk_pixbuf_animation_new_from_file, pFpp)
 //GO(gdk_pixbuf_animation_new_from_resource, 
 //GO(gdk_pixbuf_animation_new_from_stream, 
 //GO(gdk_pixbuf_animation_new_from_stream_async, 
 //GO(gdk_pixbuf_animation_new_from_stream_finish, 
-//GO(gdk_pixbuf_animation_ref, 
-//GO(gdk_pixbuf_animation_unref, 
+GO(gdk_pixbuf_animation_ref, pFp)
+GO(gdk_pixbuf_animation_unref, vFp)
 GO(gdk_pixbuf_apply_embedded_orientation, pFp)
 GO(gdk_pixbuf_composite, vFppiiiiddddii)
 GO(gdk_pixbuf_composite_color, vFppiiiiddddiiiiiuu)
