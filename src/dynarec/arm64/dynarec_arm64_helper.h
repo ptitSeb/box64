@@ -570,35 +570,47 @@
     LDP_REGS(R12, R13);     \
     LDP_REGS(R14, R15)
 
-#define SET_DFNONE(S)    if(!dyn->dfnone) {MOVZw(S, d_none); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=1;}
-#define SET_DF(S, N)     if((N)!=d_none) {MOVZw(S, (N)); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->dfnone=0;} else SET_DFNONE(S)
-#define SET_NODF()          dyn->dfnone = 0
-#define SET_DFOK()          dyn->dfnone = 1
+#define SET_DFNONE(S)    if(!dyn->f.dfnone) {MOVZw(S, d_none); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
+#define SET_DF(S, N)     if((N)!=d_none) {MOVZw(S, (N)); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
+#define SET_NODF()          dyn->f.dfnone = 0
+#define SET_DFOK()          dyn->f.dfnone = 1
 
 #ifndef READFLAGS
 #define READFLAGS(A) \
-    if(((A)!=X_PEND) && dyn->state_flags!=SF_SET && dyn->state_flags!=SF_SET_PENDING) { \
-        if(dyn->state_flags!=SF_PENDING) {              \
+    if(((A)!=X_PEND && dyn->f.pending!=SF_SET)          \
+    && (dyn->f.pending!=SF_SET_PENDING)) {              \
+        if(dyn->f.pending!=SF_PENDING) {                \
             LDRw_U12(x3, xEmu, offsetof(x64emu_t, df)); \
-            j64 = (GETMARKF)-(dyn->native_size);           \
+            j64 = (GETMARKF)-(dyn->native_size);        \
             CBZw(x3, j64);                              \
         }                                               \
         CALL_(UpdateFlags, -1, 0);                      \
         MARKF;                                          \
-        dyn->state_flags = SF_SET;                      \
+        dyn->f.pending = SF_SET;                        \
         SET_DFOK();                                     \
     }
 #endif
+// SF_MAYSET doesn't change the flags status cache
+// it also doesn't consume any needed flags
 #ifndef SETFLAGS
-#define SETFLAGS(A, B)  \
-    if(dyn->state_flags!=SF_SET && B==SF_SUBSET && (dyn->insts[ninst].x64.need_flags&(~((A)/*|X_PEND*/)))) \
-        READFLAGS(dyn->insts[ninst].x64.need_flags&(~(A)|X_PEND));  \
-    dyn->state_flags = (B==SF_SUBSET)?SF_SET:                       \
-        ((B==SF_SET_PENDING && !(dyn->insts[ninst].x64.need_flags&X_PEND)?SF_SET:B))
-
+#define SETFLAGS(A, B)                                                                          \
+    if(dyn->f.pending!=SF_SET                                                                   \
+    && (B==SF_SUBSET || B==SF_SUBSET_PENDING)                                                   \
+    && (dyn->insts[ninst].x64.need_flags&(~((A)|((B==SF_SUBSET_PENDING)?X_PEND:0)))))           \
+        READFLAGS(dyn->insts[ninst].x64.need_flags&(~(A)|X_PEND));                              \
+    if(dyn->insts[ninst].x64.need_flags) switch(B) {                                            \
+        case SF_SUBSET:                                                                         \
+        case SF_SET: dyn->f.pending = SF_SET; break;                                            \
+        case SF_PENDING: dyn->f.pending = SF_PENDING; break;                                    \
+        case SF_SUBSET_PENDING:                                                                 \
+        case SF_SET_PENDING:                                                                    \
+            dyn->f.pending = (dyn->insts[ninst].x64.need_flags&X_PEND)?SF_SET_PENDING:SF_SET;   \
+            break;                                                                              \
+        case SF_MAYSET: break;                                                                  \
+    } else dyn->f.pending = SF_SET
 #endif
 #ifndef JUMP
-#define JUMP(A) 
+#define JUMP(A, C) 
 #endif
 #ifndef BARRIER
 #define BARRIER(A) 
@@ -783,12 +795,16 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_push_empty STEPNAME(x87_do_push_empty)
 #define x87_do_pop      STEPNAME(x87_do_pop)
+#define x87_get_current_cache   STEPNAME(x87_get_current_cache)
 #define x87_get_cache   STEPNAME(x87_get_cache)
+#define x87_get_neoncache STEPNAME(x87_get_neoncache)
 #define x87_get_st      STEPNAME(x87_get_st)
+#define x87_get_st_empty  STEPNAME(x87_get_st)
 #define x87_refresh     STEPNAME(x87_refresh)
 #define x87_forget      STEPNAME(x87_forget)
 #define x87_reget_st    STEPNAME(x87_reget_st)
 #define x87_stackcount  STEPNAME(x87_stackcount)
+#define x87_swapreg     STEPNAME(x87_swapreg)
 #define x87_setround    STEPNAME(x87_setround)
 #define x87_restoreround STEPNAME(x87_restoreround)
 #define sse_setround    STEPNAME(sse_setround)
@@ -808,6 +824,8 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #ifdef HAVE_TRACE
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #endif
+
+#define fpuCacheTransform       STEPNAME(fpuCacheTransform)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta);
@@ -904,21 +922,29 @@ void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 // cache of the local stack counter, to avoid upadte at every call
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
 // fpu push. Return the Dd value to be used
-int x87_do_push(dynarec_arm_t* dyn, int ninst);
+int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t);
 // fpu push. Do not allocate a cache register. Needs a scratch register to do x87stack synch (or 0 to not do it)
 void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1);
 // fpu pop. All previous returned Dd should be considered invalid
-void x87_do_pop(dynarec_arm_t* dyn, int ninst);
+void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1);
+// get cache index for a x87 reg, return -1 if cache doesn't exist
+int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t);
 // get cache index for a x87 reg, create the entry if needed
-int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
+int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, int a, int t);
+// get neoncache index for a x87 reg
+int x87_get_neoncache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 // get vfpu register for a x87 reg, create the entry if needed
-int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
+int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t);
+// get vfpu register for a x87 reg, create the entry if needed. Do not fetch the Stx if not already in cache
+int x87_get_st_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t);
 // refresh a value from the cache ->emu (nothing done if value is not cached)
 void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 // refresh a value from the cache ->emu and then forget the cache (nothing done if value is not cached)
 void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 // refresh the cache value from emu
 void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
+// swap 2 x87 regs
+void x87_swapreg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int b);
 // Set rounding according to cw flags, return reg to restore flags
 int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // Restore round flag
@@ -926,15 +952,47 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 
+void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+
+#if STEP < 2
+#define CHECK_CACHE()   0
+#else
+#define CHECK_CACHE()   fpuCacheNeedsTransform(dyn, ninst)
+#endif
+
+#define neoncache_st_coherency STEPNAME(neoncache_st_coherency)
+int neoncache_st_coherency(dynarec_arm_t* dyn, int ninst, int a, int b);
+
+#if STEP == 0
+#define ST_IS_F(A)          0
+#define X87_COMBINE(A, B)   NEON_CACHE_ST_D
+#define X87_ST0             NEON_CACHE_ST_D
+#define X87_ST(A)           NEON_CACHE_ST_D
+#elif STEP == 1
+#define ST_IS_F(A) (neoncache_get_current_st(dyn, ninst, A)==NEON_CACHE_ST_F)
+#define X87_COMBINE(A, B) neoncache_combine_st(dyn, ninst, A, B)
+#define X87_ST0     neoncache_get_current_st(dyn, ninst, 0)
+#define X87_ST(A)   neoncache_get_current_st(dyn, ninst, A)
+#else
+#define ST_IS_F(A) (neoncache_get_st(dyn, ninst, A)==NEON_CACHE_ST_F)
+#if STEP == 3
+#define X87_COMBINE(A, B) neoncache_st_coherency(dyn, ninst, A, B)
+#else
+#define X87_COMBINE(A, B) neoncache_get_st(dyn, ninst, A)
+#endif
+#define X87_ST0     neoncache_get_st(dyn, ninst, 0)
+#define X87_ST(A)   neoncache_get_st(dyn, ninst, A)
+#endif
+
 //MMX helpers
 // get neon register for a MMX reg, create the entry if needed
-int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a);
+int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a);
 // get neon register for a MMX reg, but don't try to synch it if it needed to be created
-int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
+int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a);
 
 //SSE/SSE2 helpers
 // get neon register for a SSE reg, create the entry if needed
-int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a);
+int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite);
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 // forget neon register for a SSE reg, create the entry if needed
@@ -944,13 +1002,13 @@ void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1);
 
 // common coproc helpers
 // reset the cache
-void fpu_reset(dynarec_arm_t* dyn, int ninst);
+void fpu_reset(dynarec_arm_t* dyn);
 // purge the FPU cache (needs 3 scratch registers)
-void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
 // purge MMX cache
-void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1);
+void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1);
 // purge x87 cache
-void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
 #ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #endif

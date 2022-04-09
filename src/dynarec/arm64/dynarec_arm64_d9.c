@@ -50,12 +50,18 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC6:
         case 0xC7:
             INST_NAME("FLD STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            v2 = x87_do_push(dyn, ninst);
-            FMOVD(v2, v1);
+            v2 = x87_do_push(dyn, ninst, x1, X87_ST(nextop&7));
+            v1 = x87_get_st(dyn, ninst, x1, x2, (nextop&7)+1, X87_COMBINE(0, (nextop&7)+1));
+            if(ST_IS_F(0)) {
+                FMOVS(v2, v1);
+            } else {
+                FMOVD(v2, v1);
+            }
             break;
 
         case 0xC8:
+            INST_NAME("FXCH ST0");
+            break;
         case 0xC9:
         case 0xCA:
         case 0xCB:
@@ -65,11 +71,8 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xCF:
             INST_NAME("FXCH STx");
             // swap the cache value, not the double value itself :p
-            i1 = x87_get_cache(dyn, ninst, x1, x2, nextop&7);
-            i2 = x87_get_cache(dyn, ninst, x1, x2, 0);
-            i3 = dyn->x87cache[i1];
-            dyn->x87cache[i1] = dyn->x87cache[i2];
-            dyn->x87cache[i2] = i3;
+            x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
+            // should set C1 to 0
             break;
 
         case 0xD0:
@@ -78,19 +81,31 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xE0:
             INST_NAME("FCHS");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            FNEGD(v1, v1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+            if(ST_IS_F(0)) {
+                FNEGS(v1, v1);
+            } else {
+                FNEGD(v1, v1);
+            }
             break;
         case 0xE1:
             INST_NAME("FABS");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            FABSD(v1, v1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+            if(ST_IS_F(0)) {
+                FABSS(v1, v1);
+            } else {
+                FABSD(v1, v1);
+            }
             break;
 
         case 0xE4:
             INST_NAME("FTST");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            FCMPD_0(v1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+            if(ST_IS_F(0)) {
+                FCMPS_0(v1);
+            } else {
+                FCMPD_0(v1);
+            }
             FCOM(x1, x2, x3);   // same flags...
             break;
         case 0xE5:
@@ -102,64 +117,44 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xE8:
             INST_NAME("FLD1");
-            v1 = x87_do_push(dyn, ninst);
-            FTABLE64(v1, 1.0);
+            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            if(ST_IS_F(0)) {
+                FMOVS_8(v1, 0b01110000);
+            } else {
+                FMOVD_8(v1, 0b01110000);
+            }
             break;
         case 0xE9:
             INST_NAME("FLDL2T");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
             FTABLE64(v1, L2T);
             break;
         case 0xEA:     
             INST_NAME("FLDL2E");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
             FTABLE64(v1, L2E);
             break;
         case 0xEB:
             INST_NAME("FLDPI");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
             FTABLE64(v1, PI);
             break;
         case 0xEC:
             INST_NAME("FLDLG2");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
             FTABLE64(v1, LG2);
             break;
         case 0xED:
             INST_NAME("FLDLN2");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
             FTABLE64(v1, LN2);
             break;
         case 0xEE:
             INST_NAME("FLDZ");
-            v1 = x87_do_push(dyn, ninst);
-            FTABLE64(v1, 0.0);
+            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            VEOR(v1, v1, v1);
             break;
 
-        case 0xFA:
-            INST_NAME("FSQRT");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            FSQRTD(v1, v1);
-            break;
-
-        case 0xFC:
-            INST_NAME("FRNDINT");
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            // use C helper for now, nothing staightforward is available
-            x87_forget(dyn, ninst, x1, x2, 0);
-            CALL(arm_frndint, -1);
-            /*
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            VCMP_F64_0(v1);
-            VMRS_APSR();
-            B_NEXT(cVS);    // Unordered, skip
-            B_NEXT(cEQ);    // Zero, skip
-            u8 = x87_setround(dyn, ninst, x1, x2, x3);
-            VCVT_S32_F64(x1, v1);   // limit to 32bits....
-            VCVT_F64_S32(v1, x1);
-            x87_restoreround(dyn, ninst, u8);
-            */
-            break;
         case 0xF0:
             INST_NAME("F2XM1");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
@@ -172,15 +167,19 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fyl2x, -1);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF2:
-            INST_NAME("FTAN");
+            INST_NAME("FPTAN");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_ftan, -1);
-            v1 = x87_do_push(dyn, ninst);
-            FTABLE64(v1, 1.0);
+            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            if(ST_IS_F(0)) {
+                FMOVS_8(v1, 0b01110000);
+            } else {
+                FMOVD_8(v1, 0b01110000);
+            }
             break;
         case 0xF3:
             INST_NAME("FPATAN");
@@ -188,7 +187,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fpatan, -1);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF4:
             INST_NAME("FXTRACT");
@@ -206,7 +205,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xF6:
             INST_NAME("FDECSTP");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             LDRw_U12(x2, xEmu, offsetof(x64emu_t, top));
             SUBw_U12(x2, x2, 1);
             ANDw_mask(x2, x2, 0, 2);    //mask=7
@@ -214,7 +213,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xF7:
             INST_NAME("FINCSTP");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             LDRw_U12(x2, xEmu, offsetof(x64emu_t, top));
             ADDw_U12(x2, x2, 1);
             ANDw_mask(x2, x2, 0, 2);    //mask=7
@@ -233,7 +232,16 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fyl2xp1, -1);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
+            break;
+        case 0xFA:
+            INST_NAME("FSQRT");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+            if(ST_IS_F(0)) {
+                FSQRTS(v1, v1);
+            } else {
+                FSQRTD(v1, v1);
+            }
             break;
         case 0xFB:
             INST_NAME("FSINCOS");
@@ -241,6 +249,24 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             x87_do_push_empty(dyn, ninst, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fsincos, -1);
+            break;
+        case 0xFC:
+            INST_NAME("FRNDINT");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
+            // use C helper for now, nothing staightforward is available
+            x87_forget(dyn, ninst, x1, x2, 0);
+            CALL(arm_frndint, -1);
+            /*
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            VCMP_F64_0(v1);
+            VMRS_APSR();
+            B_NEXT(cVS);    // Unordered, skip
+            B_NEXT(cEQ);    // Zero, skip
+            u8 = x87_setround(dyn, ninst, x1, x2, x3);
+            VCVT_S32_F64(x1, v1);   // limit to 32bits....
+            VCVT_F64_S32(v1, x1);
+            x87_restoreround(dyn, ninst, u8);
+            */
             break;
         case 0xFD:
             INST_NAME("FSCALE");
@@ -288,33 +314,46 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FLD ST0, float[ED]");
-                    v1 = x87_do_push(dyn, ninst);
-                    s0 = fpu_get_scratch(dyn);
+                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+                    if(ST_IS_F(0))
+                        s0 = v1;
+                    else
+                        s0 = fpu_get_scratch(dyn);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                     VLDR32_U12(s0, ed, fixedaddress);
-                    FCVT_D_S(v1, s0);
+                    if(!ST_IS_F(0)) {
+                        FCVT_D_S(v1, s0);
+                    }
                     break;
                 case 2:
                     INST_NAME("FST float[ED], ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    s0 = fpu_get_scratch(dyn);
-                    FCVT_S_D(s0, v1);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
+                    if(ST_IS_F(0))
+                        s0 = v1;
+                    else {
+                        s0 = fpu_get_scratch(dyn);
+                        FCVT_S_D(s0, v1);
+                    }
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                     VSTR32_U12(s0, ed, fixedaddress);
                     break;
                 case 3:
                     INST_NAME("FSTP float[ED], ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    s0 = fpu_get_scratch(dyn);
-                    FCVT_S_D(s0, v1);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
+                    if(ST_IS_F(0))
+                        s0 = v1;
+                    else {
+                        s0 = fpu_get_scratch(dyn);
+                        FCVT_S_D(s0, v1);
+                    }
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
                     VSTR32_U12(s0, ed, fixedaddress);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 4:
                     INST_NAME("FLDENV Ed");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3); // maybe only x87, not SSE?
+                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
                     if(ed!=x1) {
                         MOVx_REG(x1, ed);
@@ -332,7 +371,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("FNSTENV Ed");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3); // maybe only x87, not SSE?
+                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
                     if(ed!=x1) {
                         MOVx_REG(x1, ed);

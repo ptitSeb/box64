@@ -56,7 +56,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 INST_NAME("MOVQ Ex, Gx");
                 nextop = F8;
                 GETG;
-                v0 = sse_get_reg(dyn, ninst, x1, gd);
+                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                 if(MODREG) {
                     v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
                     FMOVD(v1, v0);

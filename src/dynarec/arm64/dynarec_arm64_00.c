@@ -636,21 +636,30 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
-        #define GO(GETFLAGS, NO, YES, F)    \
-            READFLAGS(F);                   \
-            i8 = F8S;   \
-            BARRIER(2); \
-            JUMP(addr+i8);\
-            GETFLAGS;   \
-            if(dyn->insts[ninst].x64.jmp_insts==-1) {   \
-                /* out of the block */                  \
-                i32 = dyn->insts[ninst+1].address-(dyn->native_size); \
-                Bcond(NO, i32);     \
-                jump_to_next(dyn, addr+i8, 0, ninst); \
-            } else {    \
-                /* inside the block */  \
+        #define GO(GETFLAGS, NO, YES, F)                                \
+            READFLAGS(F);                                               \
+            i8 = F8S;                                                   \
+            BARRIER(BARRIER_MAYBE);                                     \
+            JUMP(addr+i8, 1);                                           \
+            GETFLAGS;                                                   \
+            if(dyn->insts[ninst].x64.jmp_insts==-1 ||                   \
+                CHECK_CACHE()) {                                        \
+                /* out of the block */                                  \
+                i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
+                Bcond(NO, i32);                                         \
+                if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
+                    if(!dyn->insts[ninst].x64.barrier)                  \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
+                    jump_to_next(dyn, addr+i8, 0, ninst);               \
+                } else {                                                \
+                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
+                    B(i32);                                             \
+                }                                                       \
+            } else {                                                    \
+                /* inside the block */                                  \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
-                Bcond(YES, i32);    \
+                Bcond(YES, i32);                                        \
             }
 
         GOCOND(0x70, "J", "ib");
@@ -1480,7 +1489,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -1488,7 +1497,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -1551,7 +1560,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("RETN");
             //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             READFLAGS(X_PEND);  // lets play safe here too
-            BARRIER(2);
+            BARRIER(BARRIER_FLOAT);
             i32 = F16;
             retn_to_epilog(dyn, ninst, i32);
             *need_epilog = 0;
@@ -1561,7 +1570,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("RET");
             // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
-            BARRIER(2);
+            BARRIER(BARRIER_FLOAT);
             ret_to_epilog(dyn, ninst);
             *need_epilog = 0;
             *ok = 0;
@@ -1614,7 +1623,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
-                BARRIER(2);
+                BARRIER(BARRIER_FLOAT);
                 INST_NAME("Special Box64 instruction");
                 if((PK64(0)==0))
                 {
@@ -1672,7 +1681,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xCF:
             INST_NAME("IRET");
             SETFLAGS(X_ALL, SF_SET);    // Not a hack, EFLAGS are restored
-            BARRIER(2);
+            BARRIER(BARRIER_FLOAT);
             iret_to_epilog(dyn, ninst, rex.w);
             *need_epilog = 0;
             *ok = 0;
@@ -1785,14 +1794,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED(0);
                     emit_rol32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ed, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED(0);
                     emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
@@ -1997,17 +2006,26 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             addr = dynarec64_DF(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
         #define GO(Z)                                                   \
-            BARRIER(2);                                                 \
-            JUMP(addr+i8);                                              \
-            if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
-                /* out of the block */                              \
-                i32 = dyn->insts[ninst+1].address-(dyn->native_size);  \
-                if(Z) {CBNZx(xRCX, i32);} else {CBZx(xRCX, i32);};  \
-                jump_to_next(dyn, addr+i8, 0, ninst);               \
-            } else {                                                \
-                /* inside the block */                              \
+            BARRIER(BARRIER_MAYBE);                                     \
+            JUMP(addr+i8, 1);                                           \
+            if(dyn->insts[ninst].x64.jmp_insts==-1 ||                   \
+                CHECK_CACHE()) {                                        \
+                /* out of the block */                                  \
+                i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
+                if(Z) {CBNZx(xRCX, i32);} else {CBZx(xRCX, i32);};      \
+                if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
+                    if(!dyn->insts[ninst].x64.barrier)                  \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
+                    jump_to_next(dyn, addr+i8, 0, ninst);               \
+                } else {                                                \
+                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
+                    Bcond(c__, i32);                                    \
+                }                                                       \
+            } else {                                                    \
+                /* inside the block */                                  \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
-                if(Z) {CBZx(xRCX, i32);} else {CBNZx(xRCX, i32);};  \
+                if(Z) {CBZx(xRCX, i32);} else {CBNZx(xRCX, i32);};      \
             }
         case 0xE0:
             INST_NAME("LOOPNZ");
@@ -2057,8 +2075,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch(tmp) {
                 case 3:
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                    BARRIER(1);
-                    BARRIER_NEXT(1);
+                    BARRIER(BARRIER_FULL);
+                    //BARRIER_NEXT(BARRIER_FULL);
                     TABLE64(x2, addr);
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
@@ -2098,8 +2116,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    BARRIER(1);
-                    BARRIER_NEXT(1);
+                    BARRIER(BARRIER_FULL);
+                    //BARRIER_NEXT(1);
                     *need_epilog = 0;
                     *ok = 0;
                     TABLE64(x2, addr);
@@ -2115,7 +2133,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xE9:
         case 0xEB:
-            BARRIER(1);
+            BARRIER(BARRIER_MAYBE);
             if(opcode==0xE9) {
                 INST_NAME("JMP Id");
                 i32 = F32S;
@@ -2123,12 +2141,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("JMP Ib");
                 i32 = F8S;
             }
-            JUMP(addr+i32);
-            PASS2IF(dyn->insts[ninst].x64.jmp_insts==-1, 1) {
+            JUMP(addr+i32, 0);
+            if(dyn->insts[ninst].x64.jmp_insts==-1) {
                 // out of the block
+                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
                 jump_to_next(dyn, addr+i32, 0, ninst);
             } else {
                 // inside the block
+                fpuCacheTransform(dyn, ninst, x1, x2, x3);
                 tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);
                 if(tmp==4) {
                     NOP;
@@ -2373,14 +2393,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("INC Eb");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETEB(x1, 0);
                     emit_inc8(dyn, ninst, x1, x2, x4);
                     EBBACK;
                     break;
                 case 1:
                     INST_NAME("DEC Eb");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETEB(x1, 0);
                     emit_dec8(dyn, ninst, x1, x2, x4);
                     EBBACK;
@@ -2394,14 +2414,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETED(0);
                     emit_inc32(dyn, ninst, rex, ed, x3, x4);
                     WBACK;
                     break;
                 case 1: //DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETED(0);
                     emit_dec32(dyn, ninst, rex, ed, x3, x4);
                     WBACK;
@@ -2416,19 +2436,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     }
                     GETEDx(0);
-                    BARRIER(1);
-                    BARRIER_NEXT(1);
+                    BARRIER(BARRIER_FLOAT);
+                    //BARRIER_NEXT(BARRIER_FULL);
                     if(!dyn->insts || ninst==dyn->size-1) {
                         *need_epilog = 0;
                         *ok = 0;
                     }
-                    GETIP(addr);
+                    GETIP_(addr);
                     PUSH1(xRIP);
                     jump_to_next(dyn, 0, ed, ninst);
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
-                    BARRIER(1);
+                    BARRIER(BARRIER_FULL);
                     GETEDx(0);
                     jump_to_next(dyn, 0, ed, ninst);
                     *need_epilog = 0;

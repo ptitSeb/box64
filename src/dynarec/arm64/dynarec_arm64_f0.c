@@ -917,7 +917,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             {
                 case 0: // INC Ed
                     INST_NAME("LOCK INC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     DMB_ISH();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -945,7 +945,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1: //DEC Ed
                     INST_NAME("LOCK DEC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     DMB_ISH();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);

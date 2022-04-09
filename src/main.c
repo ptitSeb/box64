@@ -391,11 +391,14 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_BIGBLOCK");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
+            if(p[0]>='0' && p[0]<='2')
                 box64_dynarec_bigblock = p[0]-'0';
         }
         if(!box64_dynarec_bigblock)
-        printf_log(LOG_INFO, "Dynarec will not try to make big block\n");
+            printf_log(LOG_INFO, "Dynarec will not try to make big block\n");
+        else if (box64_dynarec_bigblock>1)
+            printf_log(LOG_INFO, "Dynarec will try to make bigger blocks\n");
+
     }
     p = getenv("BOX64_DYNAREC_STRONGMEM");
     if(p) {
