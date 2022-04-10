@@ -485,8 +485,16 @@ int Run660F(x64emu_t *emu, rex_t rex)
                     if(GX->sd[i]>EX->sd[i])
                         GX->sd[i] = EX->sd[i];
                 break;
+            case 0x3A:  /* PMINUW Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=0; i<8; ++i)
+                    if(GX->uw[i]<EX->uw[i])
+                        GX->uw[i] = EX->uw[i];
+                break;
 
-            case 0x3A:  /* PMAXSD Gx, Ex */
+            case 0x3D:  /* PMAXSD Gx, Ex */
                 nextop = F8;
                 GETEX(0);
                 GETGX;
