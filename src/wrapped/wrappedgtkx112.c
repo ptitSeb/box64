@@ -1006,7 +1006,7 @@ EXPORT void my_gtk_cell_layout_set_cell_data_func(x64emu_t* emu, void* layout, v
     my->gtk_cell_layout_set_cell_data_func(layout, cell, findGtkCellLayoutDataFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
-EXPORT void gtk_tree_view_column_set_cell_data_func(x64emu_t* emu, void* column, void* cell, void* f, void* data, void* notify)
+EXPORT void my_gtk_tree_view_column_set_cell_data_func(x64emu_t* emu, void* column, void* cell, void* f, void* data, void* notify)
 {
     gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
 
