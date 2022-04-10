@@ -41,7 +41,7 @@
         if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts==-1)\
             dynarec_log(LOG_NONE, ", jmp=out"); \
         if(dyn->last_ip)                        \
-            dynarec_log(LOG_NONE, ", last_ip=%p", dyn->last_ip);\
+            dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);\
         for(int ii=0; ii<24; ++ii) {            \
             switch(dyn->insts[ninst].n.neoncache[ii].t) {    \
                 case NEON_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;  \
