@@ -2446,6 +2446,8 @@ wrappedgobject2:
   - g_type_add_interface_static
 - vFpup:
   - g_object_class_install_properties
+- vFppp:
+  - g_object_weak_ref
 - vFppV:
   - g_object_get
   - g_object_set

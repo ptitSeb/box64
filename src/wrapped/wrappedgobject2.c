@@ -396,6 +396,7 @@ static void* findValueTransformFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gobject Value Transform callback\n");
     return NULL;
 }
+
 // GDestroyFunc ...
 #define GO(A)   \
 static uintptr_t my_destroyfunc_fct_##A = 0;   \
@@ -418,6 +419,30 @@ static void* findDestroyFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gobject GDestroyNotify callback\n");
     return NULL;
 }
+
+// GWeakNotify
+#define GO(A)   \
+static uintptr_t my_weaknotifyfunc_fct_##A = 0;   \
+static int my_weaknotifyfunc_##A(void* a, void* b)     \
+{                                       \
+    return RunFunction(my_context, my_weaknotifyfunc_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findWeakNotifyFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_weaknotifyfunc_fct_##A == (uintptr_t)fct) return my_weaknotifyfunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_weaknotifyfunc_fct_##A == 0) {my_weaknotifyfunc_fct_##A = (uintptr_t)fct; return my_weaknotifyfunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject GWeakNotify callback\n");
+    return NULL;
+}
+
 // GCallback  (generic function with 6 arguments, hopefully it's enough)
 #define GO(A)   \
 static uintptr_t my_GCallback_fct_##A = 0;                                             \
@@ -880,6 +905,12 @@ EXPORT void my_g_object_class_install_properties(x64emu_t* emu, void* klass, uin
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
     my->g_object_class_install_properties(unwrapCopyGTKClass(klass, my->g_object_get_type()), n, specs);
+}
+
+EXPORT void my_g_object_weak_ref(x64emu_t* emu, void* object, void* notify, void* data)
+{
+    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
+    my->g_object_weak_ref(object, findWeakNotifyFct(notify), data);
 }
 
 #define PRE_INIT    \
