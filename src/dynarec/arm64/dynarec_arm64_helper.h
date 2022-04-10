@@ -667,6 +667,7 @@
             TABLE64(xRIP, (A));                         \
     }
 #endif
+#define CLEARIP()   dyn->last_ip=0
 
 #if STEP < 2
 #define PASS2IF(A, B) if(A)

@@ -401,6 +401,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     if(reg!=x1) {
         MOVx_REG(x1, xRIP);
     }
+    CLEARIP();
     #ifdef HAVE_TRACE
     //MOVx(x2, 15);    no access to PC reg 
     #endif
@@ -424,6 +425,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     LDRx_REG_LSL3(x2, x2, x3);
     MOVx_REG(x1, xRIP);
     BLR(x2); // save LR
+    CLEARIP();
 }
 
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
@@ -449,11 +451,12 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
     LDRx_REG_LSL3(x2, x2, x3);
     MOVx_REG(x1, xRIP);
     BLR(x2); // save LR
+    CLEARIP();
 }
 
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
 {
-    #warning TODO: is64bits
+    //#warning TODO: is64bits
     MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "IRet to epilog\n");
     // POP IP
@@ -480,6 +483,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     // Ret....
     MOV64x(x2, (uintptr_t)arm64_epilog);  // epilog on purpose, CS might have changed!
     BR(x2);
+    CLEARIP();
 }
 
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
