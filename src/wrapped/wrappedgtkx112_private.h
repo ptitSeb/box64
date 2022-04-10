@@ -3455,7 +3455,7 @@ GO(gtk_tree_view_column_queue_resize, vFp)
 GO(gtk_tree_view_columns_autosize, vFp)
 GO(gtk_tree_view_column_set_alignment, vFpf)
 GO(gtk_tree_view_column_set_attributes, vFpppppppppppp) //vaarg
-//GOM(gtk_tree_view_column_set_cell_data_func, vFEppBpB)
+GOM(gtk_tree_view_column_set_cell_data_func, vFEppppp)
 GO(gtk_tree_view_column_set_clickable, vFpi)
 GO(gtk_tree_view_column_set_expand, vFpi)
 GO(gtk_tree_view_column_set_fixed_width, vFpi)

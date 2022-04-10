@@ -2587,6 +2587,7 @@ wrappedgtkx112:
   - gtk_action_group_add_actions_full
 - vFppppp:
   - gtk_cell_layout_set_cell_data_func
+  - gtk_tree_view_column_set_cell_data_func
 - vFpuipuV:
   - gtk_binding_entry_add_signal
 - iFppuppp:
