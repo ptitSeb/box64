@@ -399,6 +399,30 @@ static void* findGtkCellLayoutDataFuncFct(void* fct)
     return NULL;
 }
 
+// GtkTreeCellDataFunc
+#define GO(A)   \
+static uintptr_t my_GtkTreeCellDataFunc_fct_##A = 0;                                                  \
+static void my_GtkTreeCellDataFunc_##A(void* column, void* cell, void* tree, void* iter, void* data)  \
+{                                       \
+    RunFunction(my_context, my_GtkTreeCellDataFunc_fct_##A, 5, column, cell, tree, iter, data);\
+}
+SUPER()
+#undef GO
+static void* findGtkTreeCellDataFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkTreeCellDataFunc_fct_##A == (uintptr_t)fct) return my_GtkTreeCellDataFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkTreeCellDataFunc_fct_##A == 0) {my_GtkTreeCellDataFunc_fct_##A = (uintptr_t)fct; return my_GtkTreeCellDataFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkTreeCellDataFunc callback\n");
+    return NULL;
+}
+
+
 // GDestroyNotify
 #define GO(A)   \
 static uintptr_t my_GDestroyNotify_fct_##A = 0;                     \
@@ -980,6 +1004,13 @@ EXPORT void my_gtk_cell_layout_set_cell_data_func(x64emu_t* emu, void* layout, v
     gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
 
     my->gtk_cell_layout_set_cell_data_func(layout, cell, findGtkCellLayoutDataFuncFct(f), data, findGDestroyNotifyFct(notify));
+}
+
+EXPORT void gtk_tree_view_column_set_cell_data_func(x64emu_t* emu, void* column, void* cell, void* f, void* data, void* notify)
+{
+    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
+
+    my->gtk_tree_view_column_set_cell_data_func(column, cell, findGtkTreeCellDataFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 typedef struct my_ConnectArgs_s
