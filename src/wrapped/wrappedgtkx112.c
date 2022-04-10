@@ -469,6 +469,29 @@ static void* findGtkTreeModelForeachFuncFct(void* fct)
     return NULL;
 }
 
+// GtkTreeSelectionSelectedForeachFunc
+#define GO(A)   \
+static uintptr_t my_GtkTreeSelectionSelectedForeachFunc_fct_##A = 0;                                                    \
+static int my_GtkTreeSelectionSelectedForeachFunc_##A(void* selection, void* path, void* iter, void* data)                  \
+{                                                                                                           \
+    return (int)RunFunction(my_context, my_GtkTreeSelectionSelectedForeachFunc_fct_##A, 4, selection, path, iter, data);    \
+}
+SUPER()
+#undef GO
+static void* findGtkTreeSelectionSelectedForeachFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkTreeSelectionSelectedForeachFunc_fct_##A == (uintptr_t)fct) return my_GtkTreeSelectionSelectedForeachFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkTreeSelectionSelectedForeachFunc_fct_##A == 0) {my_GtkTreeSelectionSelectedForeachFunc_fct_##A = (uintptr_t)fct; return my_GtkTreeSelectionSelectedForeachFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkTreeSelectionSelectedForeachFunc callback\n");
+    return NULL;
+}
+
 // GtkClipboardReceivedFunc
 #define GO(A)   \
 static uintptr_t my_GtkClipboardReceivedFunc_fct_##A = 0;                                   \
@@ -1112,6 +1135,13 @@ EXPORT void my_gtk_tree_model_foreach(x64emu_t* emu, void* model, void* f, void*
     gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
 
     my->gtk_tree_model_foreach(model, findGtkTreeModelForeachFuncFct(f), data);
+}
+
+EXPORT void my_gtk_tree_selection_selected_foreach(x64emu_t* emu, void* selection, void* f, void* data)
+{
+    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
+
+    my->gtk_tree_selection_selected_foreach(selection, findGtkTreeSelectionSelectedForeachFuncFct(f), data);
 }
 
 EXPORT void my_gtk_clipboard_request_contents(x64emu_t* emu, void* clipboard, void* target, void* f, void* data)

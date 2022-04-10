@@ -2551,6 +2551,7 @@ wrappedgtkx112:
   - gtk_container_foreach
   - gtk_menu_attach_to_widget
   - gtk_tree_model_foreach
+  - gtk_tree_selection_selected_foreach
 - vFppV:
   - gtk_dialog_add_buttons
   - gtk_list_store_set
