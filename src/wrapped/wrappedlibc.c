@@ -2270,7 +2270,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
     } else {
         if(old_size
         #ifdef MREMAP_DONTUNMAP
-        && flags&MREMAP_DONTUNMAP==0
+        && ((flags&MREMAP_DONTUNMAP)==0)
         #endif
         ) {
             freeProtection((uintptr_t)old_addr, old_size);

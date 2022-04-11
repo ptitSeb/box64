@@ -599,7 +599,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     tmp8u = add8(emu, EB->byte[0], GB);
                     GB = EB->byte[0];
-                    EB->byte[0] = tmp32u;
+                    EB->byte[0] = tmp8u;
                     pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
                     break;

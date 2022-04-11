@@ -1347,7 +1347,7 @@ EXPORT int my_g_sprintf(x64emu_t* emu, void* buf, void* fmt, uintptr_t* b)
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
-    my->g_vsprintf(buf, fmt, VARARGS);
+    return my->g_vsprintf(buf, fmt, VARARGS);
 }
 
 EXPORT void* my_g_strdup_printf(x64emu_t* emu, void* fmt, uintptr_t* b)

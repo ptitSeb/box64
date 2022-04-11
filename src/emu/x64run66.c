@@ -471,12 +471,12 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
                 if(rex.w) {
                     while(tmp64u) {
                         --tmp64u;
-                        tmp64u = *(uint64_t*)R_RDI;
+                        tmp64u2 = *(uint64_t*)R_RDI;
                         R_RDI += tmp8s;
-                        if(R_RAX==tmp64u)
+                        if(R_RAX==tmp64u2)
                             break;
                     }
-                    if(R_RCX) cmp64(emu, R_RAX, tmp64u);
+                    if(R_RCX) cmp64(emu, R_RAX, tmp64u2);
                 } else {
                     while(tmp64u) {
                         --tmp64u;
@@ -494,12 +494,12 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
                 if(rex.w) {
                     while(tmp64u) {
                         --tmp64u;
-                        tmp64u = *(uint64_t*)R_RDI;
+                        tmp64u2 = *(uint64_t*)R_RDI;
                         R_RDI += tmp8s;
-                        if(R_RAX!=tmp64u)
+                        if(R_RAX!=tmp64u2)
                             break;
                     }
-                    if(R_RCX) cmp64(emu, R_RAX, tmp64u);
+                    if(R_RCX) cmp64(emu, R_RAX, tmp64u2);
                 } else {
                     while(tmp64u) {
                         --tmp64u;

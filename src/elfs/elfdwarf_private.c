@@ -384,7 +384,7 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
 #undef PARSE_INST
 
                 uint64_t cfa_reg = -1;
-                unsigned char cfa_signed;
+                unsigned char cfa_signed = 0;
                 union { uint64_t uoff; int64_t soff; } cfa_offset = { .uoff = 0 };
                 ++unwind_constr.reg_count;
                 size_t tablelen = unwind_constr.reg_count * sizeof(uint64_t);
