@@ -45,6 +45,7 @@ int box64_dynarec_dump = 0;
 int box64_dynarec_forced = 0;
 int box64_dynarec_bigblock = 1;
 int box64_dynarec_strongmem = 0;
+int box64_dynarec_x87double = 0;
 int box64_dynarec_fastnan = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
@@ -408,6 +409,15 @@ void LoadLogEnv()
         }
         if(box64_dynarec_strongmem)
             printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":"");
+    }
+    p = getenv("BOX64_DYNAREC_X87DOUBLE");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_x87double = p[0]-'0';
+        }
+        if(box64_dynarec_x87double)
+            printf_log(LOG_INFO, "Dynarec will use only double for x87 emulation\n");
     }
     p = getenv("BOX64_DYNAREC_FASTNAN");
     if(p) {

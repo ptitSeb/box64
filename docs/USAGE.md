@@ -131,6 +131,11 @@ Enable/Disable simulation of Strong Memory model
 * 1 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
 * 2 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model
 
+#### BOX64_DYNAREC_X87DOUBLE
+Force the use of Double for x87 emulation
+* 0 : Try to use float when possible for x87 emulation (faster)
+* 1 : Only use Double for x87 emulation (slower, may be needed for some specific games, like Crysis)
+
 #### BOX64_DYNAREC_FASTNAN
 Enable/Disable generation of -NAN
 * 0 : Generate -NAN like on x86 (Default.)
