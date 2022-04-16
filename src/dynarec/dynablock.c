@@ -405,6 +405,7 @@ int IsInHotPage(uintptr_t addr) {
                 hotpage_size[i] = 0;
                 dynarec_log(LOG_DEBUG, "End of Hotpage %p\n", (void*)hotpage[i]);
             }
+            __sync_synchronize();
             return 1;
         }
     }
@@ -437,17 +438,20 @@ void AddHotPage(uintptr_t addr) {
             if(!hotpage_count[i])
                 ++hotpages;
             hotpage_count[i] = HOTPAGE_STEP;
+            __sync_synchronize();
             return;
         }
         if(addr==hotpage[i]+0x1000*(hotpage_size[i]+1)) {
             ++hotpage_size[i];
             hotpage_count[i] = HOTPAGE_STEP;
+            __sync_synchronize();
             return;
         }
         if(addr+0x1000==hotpage[i]) {
             ++hotpage_size[i];
             hotpage[i] = addr;
             hotpage_count[i] = HOTPAGE_STEP;
+            __sync_synchronize();
             return;
         }
     }
@@ -460,12 +464,19 @@ void AddHotPage(uintptr_t addr) {
             minidx = i;
         }
     if(hotpage_count[minidx]) {
-        dynarec_log(LOG_NONE, "Warning, not enough Hotpage, replacing %p(%p/%d) with %p\n", (void*)hotpage[minidx], (void*)(0x1000*(hotpage_size[minidx]+1)), hotpage_count[minidx], (void*)addr);
+        static int cnt = 0;
+        if(cnt<50) {
+            dynarec_log(LOG_NONE, "Warning, not enough Hotpage, replacing %p(%p/%d) with %p\n", (void*)hotpage[minidx], (void*)(0x1000*(hotpage_size[minidx]+1)), hotpage_count[minidx], (void*)addr);
+            ++cnt;
+            if(cnt==50)   // stop spamming console with message...
+                dynarec_log(LOG_NONE, "    will stop warning about not enough Hotpage now\n");
+        }
         hotpage_size[minidx] = 0;
     } else
         ++hotpages;
     hotpage[minidx] = addr;
     hotpage_count[minidx] = HOTPAGE_STEP;
+    __sync_synchronize();
 }
 
 dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, dynablock_t** current)
