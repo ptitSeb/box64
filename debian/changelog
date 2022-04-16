@@ -1,19 +1,29 @@
-box64 (0.1.6) unstable; urgency=low
+box64 (0.1.8) unstable; urgency=low
 
-  * Introduce "HotPage", to temporarily disable Dynarec on a page were writing is also occuring (can help speed up C# code)
-  * Some work on Dynarec to limit the number of mutex use, and also allow smaller block to be built (for JIT'd programs)
-  * Introduce BOX64_DYNAREC_STRONGMEM for the (Arm) dynarec to emulate StrngMemory Model (needed by some games, like RimWorld)
-  * More functions wrapped
-  * Improve speed of the custom allocator used by dynarec and Hash (speedup loading)
-  * Added a workaround for streamwebhelper to not load it
-  * More opcodes added
-  * More wrapped libraries, including gtk2
-  * Added a fix for linking box64 on system using glibc 2.34+
-  * Some residual fixes on thread attribute handling
-  * Better handling of app that want 32bits jumps, like unity3d/mono (thanks mogery)
-  * More ARM hardware option in CMake (Phytium, NX...)
-  * Added loongarch64 support (interpretor only)
-  * Some fixes to elfloader
-  * Added a mecanism to cancel a Dynarec block construction if it triggers a segfault (instead of a crash)
+  * Added an option to get generated -NAN on SSE2 operation
+  * Many small fixes and improvement to get SteamPlay (i.e. proton) working (along with box86)
+  * Added some workaround for program calling uname to mimic x86_64 system
+  * Added some granularity to mmap, and generic memory protection tracking improvment, to mimic x86 system (for wine stagging and proton)
+  * Better clone syscall and libc implementation
+  * Improved wrapping of GTK libs
+  * More wrapped libs (more gtk libs, like gstreamer-1.0 among other non-gtk libs too)
+  * More wrapped functions(with some tricky one, like dladdr1)
+  * Some fixes and improvment to some wrapped functions
+  * Refactor Dynarec:
+  *   - better handling of SSE/x87 registers
+  *   - optimisation to limit float/double conversion
+  *   - better handling of "internal" jump inside a dynablock
+  *   - make adding new architecture easier, by sharing as much infrastructure as possible
+  * Improved elfloader
+  * Improved some tests
+  * Improved a bit the "Hotpage" handling and messages
+  * Added more dynarec opcodes
+  * A few fixes in some Dynarec opcodes
+  * A bit more optimisation in some Dynarec opcodes
+  * Don't quit on unsupported syscall, return -1 / ENOSYS error
+  * Added some more Syscall
+  * Wrapped Vulkan library. Vulkan and dxvk now supported!
+  * Support building on PPC64LE (interpretor only)
+  * Added support for Risc-V (interpretor only)
 
  -- Sebastien Chevalier <ptitseb@box86.org>  Tue, 18 Jan 2022 11:20:33 -0500

@@ -1,9 +1,10 @@
-Current version
+v0.1.8
 ======
 * Added an option to get generated -NAN on SSE2 operation
 * Many small fixes and improvement to get SteamPlay (i.e. proton) working (along with box86)
 * Added some workaround for program calling uname to mimic x86_64 system
 * Added some granularity to mmap, and generic memory protection tracking improvment, to mimic x86 system (for wine stagging and proton)
+* Better clone syscall and libc implementation
 * Improved wrapping of GTK libs
 * More wrapped libs (more gtk libs, like gstreamer-1.0 among other non-gtk libs too)
 * More wrapped functions(with some tricky one, like dladdr1)
@@ -15,6 +16,7 @@ Current version
     * make adding new architecture easier, by sharing as much infrastructure as possible
 * Improved elfloader
 * Improved some tests
+* Improved a bit the "Hotpage" handling and messages
 * Added more dynarec opcodes
 * A few fixes in some Dynarec opcodes
 * A bit more optimisation in some Dynarec opcodes
