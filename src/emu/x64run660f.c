@@ -847,8 +847,15 @@ int Run660F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEX(0);
         GETGX;
-        GX->d[0] += EX->d[0];
-        GX->d[1] += EX->d[1];
+        for(int i=0; i<2; ++i) {
+            #ifndef NOALIGN
+                // add generate a -NAN only if doing inf + -inf
+                if((isinf(GX->d[i]) && isinf(EX->d[i]) && (EX->q[i]&0x8000000000000000LL)!=(GX->q[i]&0x8000000000000000LL)))
+                    GX->d[i] = -NAN;
+                else
+            #endif
+            GX->d[i] += EX->d[i];
+        }
         break;
     case 0x59:                      /* MULPD Gx, Ex */
         nextop = F8;
@@ -907,8 +914,15 @@ int Run660F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEX(0);
         GETGX;
-        GX->d[0] -= EX->d[0];
-        GX->d[1] -= EX->d[1];
+        for(int i=0; i<2; ++i) {
+            #ifndef NOALIGN
+                // sub generate a -NAN only if doing inf - inf
+                if((isinf(GX->d[i]) && isinf(EX->d[i]) && (EX->q[i]&0x8000000000000000LL)==(GX->q[i]&0x8000000000000000LL)))
+                    GX->d[i] = -NAN;
+                else
+            #endif
+            GX->d[i] -= EX->d[i];
+        }
         break;
     case 0x5D:                      /* MINPD Gx, Ex */
         nextop = F8;

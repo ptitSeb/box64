@@ -137,6 +137,12 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEX(0);
         GETGX;
+        #ifndef NOALIGN
+        // add generate a -NAN only if doing inf + -inf
+        if((isinf(GX->d[0]) && isinf(EX->d[0]) && (EX->q[0]&0x8000000000000000LL)!=(GX->q[0]&0x8000000000000000LL)))
+            GX->d[0] = -NAN;
+        else
+        #endif
         GX->d[0] += EX->d[0];
         break;
     case 0x59:  /* MULSD Gx, Ex */
@@ -162,6 +168,12 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         nextop = F8;
         GETEX(0);
         GETGX;
+        #ifndef NOALIGN
+            // sub generate a -NAN only if doing inf - inf
+            if((isinf(GX->d[0]) && isinf(EX->d[0]) && (EX->q[0]&0x8000000000000000LL)==(GX->q[0]&0x8000000000000000LL)))
+                GX->d[0] = -NAN;
+            else
+        #endif
         GX->d[0] -= EX->d[0];
         break;
     case 0x5D:  /* MINSD Gx, Ex */

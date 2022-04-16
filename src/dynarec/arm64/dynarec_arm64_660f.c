@@ -693,8 +693,21 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("ADDPD Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
-            GETGX(v0, 1);
-            VFADDQD(v0, v0, q0);
+            GETGX(q1, 1);
+            if(!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                // check if any input value was NAN
+                VFMAXQD(v0, q0, q1);    // propagate NAN
+                VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+            }
+            VFADDQD(q1, q1, q0);
+            if(!box64_dynarec_fastnan) {
+                VFCMEQQD(v1, q1, q1);    // 0 => out is NAN
+                VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
+                VSHLQ_64(v1, v1, 63);   // only keep the sign bit
+                VORRQ(q1, q1, v1);      // NAN -> -NAN
+            }
             break;
         case 0x59:
             INST_NAME("MULPD Gx, Ex");
@@ -752,8 +765,21 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("SUBPD Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
-            GETGX(v0, 1);
-            VFSUBQD(v0, v0, q0);
+            GETGX(q1, 1);
+            if(!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                // check if any input value was NAN
+                VFMAXQD(v0, q0, q1);    // propagate NAN
+                VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+            }
+            VFSUBQD(q1, q1, q0);
+            if(!box64_dynarec_fastnan) {
+                VFCMEQQD(v1, q1, q1);    // 0 => out is NAN
+                VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
+                VSHLQ_64(v1, v1, 63);   // only keep the sign bit
+                VORRQ(q1, q1, v1);      // NAN -> -NAN
+            }
             break;
         case 0x5D:
             INST_NAME("MINPD Gx, Ex");

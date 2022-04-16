@@ -185,11 +185,24 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
-            d1 = fpu_get_scratch(dyn);
+            GETGX(d1, 1);
+            v1 = fpu_get_scratch(dyn);
             GETEX(d0, 0, 0);
-            FADDD(d1, v0, d0);  // the high part of the vector is erased...
-            VMOVeD(v0, 0, d1, 0);
+            if(!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn);
+                // check if any input value was NAN
+                FMAXD(v0, d0, d1);    // propagate NAN
+                FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+            }
+            FADDD(v1, d1, d0);  // the high part of the vector is erased...
+            if(!box64_dynarec_fastnan) {
+                FCMEQD(q0, v1, v1);    // 0 => out is NAN
+                VBIC(q0, v0, q0);      // forget it in any input was a NAN already
+                SHL_64(q0, q0, 63);     // only keep the sign bit
+                VORR(v1, v1, q0);      // NAN -> -NAN
+            }
+            VMOVeD(d1, 0, v1, 0);
             break;
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
@@ -226,11 +239,24 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
-            d1 = fpu_get_scratch(dyn);
+            GETGX(d1, 1);
+            v1 = fpu_get_scratch(dyn);
             GETEX(d0, 0, 0);
-            FSUBD(d1, v0, d0);
-            VMOVeD(v0, 0, d1, 0);
+            if(!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn);
+                // check if any input value was NAN
+                FMAXD(v0, d0, d1);    // propagate NAN
+                FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+            }
+            FSUBD(v1, d1, d0);
+            if(!box64_dynarec_fastnan) {
+                FCMEQD(q0, v1, v1);    // 0 => out is NAN
+                VBIC(q0, v0, q0);      // forget it in any input was a NAN already
+                SHL_64(q0, q0, 63);     // only keep the sign bit
+                VORR(v1, v1, q0);      // NAN -> -NAN
+            }
+            VMOVeD(d1, 0, v1, 0);
             break;
         case 0x5D:
             INST_NAME("MINSD Gx, Ex");

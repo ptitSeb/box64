@@ -46,7 +46,7 @@ int box64_dynarec_forced = 0;
 int box64_dynarec_bigblock = 1;
 int box64_dynarec_strongmem = 0;
 int box64_dynarec_x87double = 0;
-int box64_dynarec_fastnan = 0;
+int box64_dynarec_fastnan = 1;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -425,8 +425,8 @@ void LoadLogEnv()
             if(p[0]>='0' && p[0]<='1')
                 box64_dynarec_fastnan = p[0]-'0';
         }
-        if(box64_dynarec_fastnan)
-            printf_log(LOG_INFO, "Dynarec will not try to normalize generated NAN\n");
+        if(!box64_dynarec_fastnan)
+            printf_log(LOG_INFO, "Dynarec will try to normalize generated NAN\n");
     }
     p = getenv("BOX64_NODYNAREC");
     if(p) {
