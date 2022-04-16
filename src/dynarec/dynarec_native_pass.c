@@ -41,7 +41,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
     dyn->f.dfnone = 0;
     fpu_reset(dyn);
     int reset_n = -1;
-    dyn->last_ip = ip;  // RIP is always set at start of block!
+    dyn->last_ip = (dyn->insts && dyn->insts[0].pred_sz)?0:ip;  // RIP is always set at start of block unless there is a predecessor!
     // ok, go now
     INIT;
     while(ok) {
