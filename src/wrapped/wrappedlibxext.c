@@ -248,12 +248,13 @@ EXPORT void* my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* ex
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getXextMy(lib);    \
     my_lib = lib;                       \
-    lib->priv.w.needed = 4;             \
+    lib->priv.w.needed = 5;             \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libX11.so.6"); \
     lib->priv.w.neededlibs[1] = strdup("libxcb.so.1"); \
     lib->priv.w.neededlibs[2] = strdup("libXau.so.6"); \
-    lib->priv.w.neededlibs[3] = strdup("libXdmcp.so.6");
+    lib->priv.w.neededlibs[3] = strdup("libdl.so.2");  \
+    lib->priv.w.neededlibs[4] = strdup("libXdmcp.so.6");
 
 #define CUSTOM_FINI \
     freeXextMy(lib->priv.w.p2); \
