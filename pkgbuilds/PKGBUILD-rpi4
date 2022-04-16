@@ -1,7 +1,7 @@
 # Maintainer: Jai-JAP <jai.jap.318@gmail.com>
 # Author: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box64-rpi-git
-pkgver=1495.e6e9fae
+pkgver=r1495.e6e9fae
 pkgrel=1
 pkgdesc="Linux Userspace x86_64 Emulator with a twist, targeted at ARM64 Linux devices."
 arch=('aarch64')
