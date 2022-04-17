@@ -50,7 +50,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t nextop, u8;
     int32_t i32;
     uint8_t gd, ed;
-    uint8_t wback, wb1;
+    uint8_t wback, wb1, wb2;
     uint8_t eb1, eb2;
     int64_t j64;
     uint64_t tmp64u, tmp64u2;
@@ -611,6 +611,15 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     } else {
                         VMOVSto(ed, q0, (u8&3));
                     }
+                    break;
+
+                case 0x20:
+                    INST_NAME("PINSRB Gx, ED, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    VMOVQBfrom(q0, (u8&15), x1);
                     break;
 
                 case 0x22:
