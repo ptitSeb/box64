@@ -47,7 +47,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         rep = opcode-0xF1;
         opcode = F8;
     }
-    // REX prefix before the F0 are ignored
+    // REX prefix before the 66 are ignored
     rex.rex = 0;
     while(opcode>=0x40 && opcode<=0x4f) {
         rex.rex = opcode;
@@ -798,6 +798,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0xF0:
+            return dynarec64_66F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+
         case 0xF7:
             nextop = F8;
             switch((nextop>>3)&7) {
