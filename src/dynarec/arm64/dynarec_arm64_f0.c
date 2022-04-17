@@ -100,6 +100,34 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             DMB_ISH();
             break;
 
+        case 0x08:
+            INST_NAME("LOCK OR Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            DMB_ISH();
+            GETGB(x2);
+            if((nextop&0xC0)==0xC0) {
+                if(rex.rex) {
+                    wback = xRAX + (nextop&7) + (rex.b<<3);
+                    wb2 = 0;
+                } else {
+                    wback = (nextop&7);    
+                    wb2 = (wback>>2);      
+                    wback = xRAX+(wback&3);
+                }
+                UBFXw(x1, wback, wb2*8, 8);   
+                emit_or8(dyn, ninst, x1, x2, x4, x3);
+                BFIx(wback, x1, wb2*8, 8);
+            } else {                   
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, 0);
+                MARKLOCK;
+                LDAXRB(x1, wback);
+                emit_or8(dyn, ninst, x1, x2, x4, x3);
+                STLXRB(x4, x1, wback);
+                CBNZx_MARKLOCK(x4);
+            }
+            DMB_ISH();
+            break;
         case 0x09:
             INST_NAME("LOCK OR Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -531,6 +559,54 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     DMB_ISH();
                     break;
+
+                    case 0xFF:
+                        nextop = F8;
+                        switch((nextop>>3)&7)
+                        {
+                            case 0: // INC Ew
+                                INST_NAME("LOCK INC Ew");
+                                SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                                DMB_ISH();
+                                if(MODREG) {
+                                    ed = xRAX+(nextop&7)+(rex.b<<3);
+                                    UXTHw(x6, ed);
+                                    emit_inc16(dyn, ninst, x6, x5, x3);
+                                    BFIx(ed, x6, 0, 16);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                                    MARKLOCK;
+                                    LDAXRH(x1, wback);
+                                    emit_inc16(dyn, ninst, x1, x3, x4);
+                                    STLXRH(x3, x1, wback);
+                                    CBNZx_MARKLOCK(x3);
+                                }
+                                DMB_ISH();
+                                break;
+                            case 1: //DEC Ew
+                                INST_NAME("LOCK DEC Ew");
+                                SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                                DMB_ISH();
+                                if(MODREG) {
+                                    ed = xRAX+(nextop&7)+(rex.b<<3);
+                                    UXTHw(x6, ed);
+                                    emit_dec16(dyn, ninst, x6, x5, x3);
+                                    BFIx(ed, x6, 0, 16);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                                    MARKLOCK;
+                                    LDAXRH(x1, wback);
+                                    emit_dec16(dyn, ninst, x1, x3, x4);
+                                    STLXRH(x3, x1, wback);
+                                    CBNZx_MARKLOCK(x3);
+                                }
+                                DMB_ISH();
+                                break;
+                            default:
+                                DEFAULT;
+                        }
+                        break;
+
                 default:
                     DEFAULT;
             }
