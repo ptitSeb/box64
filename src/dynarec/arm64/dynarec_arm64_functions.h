@@ -35,6 +35,7 @@ void arm_aesdlast(x64emu_t* emu, int xmm);
 void arm_aeselast(x64emu_t* emu, int xmm);
 void arm_aesimc(x64emu_t* emu, int xmm);
 
+void arm_clflush(x64emu_t* emu, void* p);
 
 void arm_ud(x64emu_t* emu);
 

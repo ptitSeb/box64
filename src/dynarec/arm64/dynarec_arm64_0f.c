@@ -1225,6 +1225,15 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             STRw_U12(x4, ed, fixedaddress);
                         }
                         break;
+                    case 7:
+                        INST_NAME("CLFLUSH Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization?\n");
+                        GETED(0);
+                        if(ed!=x1) {
+                            MOVx_REG(x1, ed);
+                        }
+                        CALL_(arm_clflush, -1, 0);
+                        break;
                     default:
                         DEFAULT;
                 }

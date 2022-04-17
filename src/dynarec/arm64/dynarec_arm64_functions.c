@@ -309,6 +309,11 @@ void arm_aese(x64emu_t* emu, int xmm)
     arm_aesmc(emu, xmm);
 }
 
+void arm_clflush(x64emu_t* emu, void* p)
+{
+    cleanDBFromAddressRange((uintptr_t)p, 8, 0);
+}
+
 
 #define XMM0    0
 #define XMM8    16
