@@ -348,18 +348,15 @@ static void updateNeed(dynarec_native_t* dyn, int ninst, uint32_t need) {
     if(dyn->insts[ninst].x64.jmp_insts==-1)
         new_need |= X_PEND;
 
+    if((new_need == old_need) && (new_use == old_use))    // no changes, bye
+        return;
+    
+    new_need &=~new_set;    // clean needed flag that were suplied
+    new_need |= new_use;    // new need
     // a Flag Barrier will change all need to "Pending", as it clear all flags optimisation
     if(new_need && dyn->insts[ninst].x64.barrier&BARRIER_FLAGS)
         new_need = X_PEND;
     
-    if((new_need == old_need) && (new_use == old_use))    // no changes, bye
-        return;
-    
-    if(!(new_need && dyn->insts[ninst].x64.barrier&BARRIER_FLAGS)) {
-        new_need &=~new_set;    // clean needed flag that were suplied
-        new_need |= new_use;    // new need
-    }
-
     if((new_need == (X_ALL|X_PEND)) && (dyn->insts[ninst].x64.state_flags & SF_SET))
         new_need = X_ALL;
 
@@ -438,7 +435,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         protectDB(addr, end-addr);  //end is 1byte after actual end
     // compute hash signature
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
-    // Compute flag_need, without with current barriers
+    // Compute flag_need, without current barriers
     resetNeed(&helper);
     for(int i = helper.size; i-- > 0;)
         updateNeed(&helper, i, 0);
@@ -515,7 +512,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
             else
                 helper.insts[i].x64.use_flags |= (helper.insts[k].x64.need_flags | helper.insts[k].x64.use_flags);
         }
-        if(helper.insts[i].x64.barrier&BARRIER_FLAGS)
+        if(helper.insts[i].x64.barrier&BARRIER_FLAGS && !(helper.insts[i].x64.set_flags&SF_PENDING))
             // immediate barrier
             helper.insts[i].x64.use_flags |= X_PEND;
     }
