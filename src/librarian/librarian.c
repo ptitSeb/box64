@@ -344,8 +344,7 @@ int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, in
 {
     box64_mapclean = 0;
     if(!neededlibs) {
-        neededlibs = alloca(sizeof(needed_libs_t));
-        memset(neededlibs, 0, sizeof(needed_libs_t));
+        neededlibs = calloc(1, sizeof(needed_libs_t));
     }
     int idx = neededlibs->size;
     // Add libs and symbol
