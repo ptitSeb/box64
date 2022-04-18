@@ -595,7 +595,7 @@
 #ifndef SETFLAGS
 #define SETFLAGS(A, B)                                                                          \
     if(dyn->f.pending!=SF_SET                                                                   \
-    && (B==SF_SUBSET || B==SF_SUBSET_PENDING)                                                   \
+    && ((B)&SF_SUB)                                                                             \
     && (dyn->insts[ninst].x64.need_flags&(~((A)|((B==SF_SUBSET_PENDING)?X_PEND:0)))))           \
         READFLAGS(dyn->insts[ninst].x64.need_flags&(~(A)|X_PEND));                              \
     if(dyn->insts[ninst].x64.need_flags) switch(B) {                                            \
