@@ -97,8 +97,8 @@ GO(PR_Close, iFp)
 //GO(PR_DisableClockInterrupts, 
 //GO(PR_dtoa, 
 //GO(PR_DuplicateEnvironment, 
-//GO(PR_EmulateAcceptRead, 
-//GO(PR_EmulateSendFile, 
+GO(PR_EmulateAcceptRead, iFppppiu)
+GO(PR_EmulateSendFile, iFppiu)
 //GO(PR_EnableClockInterrupts, 
 //GO(PR_EnterMonitor, 
 //GO(PR_EnumerateAddrInfo, 

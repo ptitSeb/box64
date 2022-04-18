@@ -26,7 +26,7 @@
 //GO(CERT_CacheOCSPResponseFromSideChannel, 
 //GO(CERT_CertChainFromCert, 
 //DATA(CERT_CertificateRequestTemplate, 
-//DATA(CERT_CertificateTemplate, 
+DATA(CERT_CertificateTemplate, 480)
 //GO(CERT_CertListFromCert, 
 //GO(CERT_CertTimesValid, 
 //GO(CERT_ChangeCertTrust, 
@@ -230,7 +230,7 @@ DATA(CERT_NameTemplate, 4*sizeof(void*))
 //GO(CERT_SetSlopTime, 
 //GO(CERT_SetUsePKIXForValidation, 
 //DATA(CERT_SignedCrlTemplate, 
-//DATA(CERT_SignedDataTemplate, 
+DATA(CERT_SignedDataTemplate, 160)
 //GO(CERT_StartCertExtensions, 
 //GO(CERT_StartCertificateRequestAttributes, 
 //GO(CERT_StartCRLEntryExtensions, 
@@ -743,7 +743,7 @@ DATA(SEC_IA5StringTemplate, 4*sizeof(void*)) //R type
 //GO(SECKEY_ECParamsToBasePointOrderLen, 
 //GO(SECKEY_ECParamsToKeySize, 
 //GO(SECKEY_EncodeDERSubjectPublicKeyInfo, 
-//DATA(SECKEY_EncryptedPrivateKeyInfoTemplate, 
+DATA(SECKEY_EncryptedPrivateKeyInfoTemplate, 128)
 //GO(SECKEY_ExtractPublicKey, 
 //GO(SECKEY_GetPrivateKeyType, 
 //GO(SECKEY_GetPublicKeyType, 
@@ -752,7 +752,7 @@ DATA(SEC_IA5StringTemplate, 4*sizeof(void*)) //R type
 //GO(SECKEY_NewPrivateKeyList, 
 //DATA(SECKEY_PointerToEncryptedPrivateKeyInfoTemplate, 
 //DATA(SECKEY_PointerToPrivateKeyInfoTemplate, 
-//DATA(SECKEY_PrivateKeyInfoTemplate, 
+DATA(SECKEY_PrivateKeyInfoTemplate, 192)
 //GO(SECKEY_PublicKeyStrength, 
 //GO(SECKEY_PublicKeyStrengthInBits, 
 //GO(SECKEY_RemovePrivateKeyListNode, 
