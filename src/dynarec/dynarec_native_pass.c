@@ -142,7 +142,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
             ++addr;
             pk = PK(0);
         }
-        while(pk==0x3E) {   //Branch Taken Hint ignored
+        while(pk==0x3E || pk==0x26) {   //Branch Taken Hint ignored, same for ES: prefix
             ++addr;
             pk = PK(0);
         }
