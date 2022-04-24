@@ -156,12 +156,14 @@ const char* ElfPath(elfheader_t* head)
 int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;
-    if(mainbin && head->vaddr==0) {
-        char* load_addr = getenv("BOX64_LOAD_ADDR");
-        if(load_addr)
-            if(sscanf(load_addr, "0x%zx", &offs)!=1)
-                offs = 0;
+    if((mainbin && head->vaddr==0) || (!mainbin && !head->vaddr && box64_load_addr)) {
+        if(box64_load_addr) {
+            offs = box64_load_addr;
+            box64_load_addr += head->memsz;
+            box64_load_addr = (box64_load_addr+0xffffffLL)&~0xffffffLL;
+        }
     }
+    int log_level = box64_load_addr?LOG_INFO:LOG_DEBUG;
     if(!offs)
         offs = head->vaddr;
     if(head->vaddr) {
@@ -209,8 +211,7 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             }
         head->multiblock_n = n; // might be less in fact
         for (int i=0; i<head->multiblock_n; ++i) {
-            
-            printf_log(LOG_DEBUG, "Allocating 0x%lx memory @%p for Elf \"%s\"\n", head->multiblock_size[i], (void*)head->multiblock_offs[i], head->name);
+            printf_log(log_level, "Allocating 0x%lx memory @%p for Elf \"%s\"\n", head->multiblock_size[i], (void*)head->multiblock_offs[i], head->name);
             void* p = mmap((void*)head->multiblock_offs[i], head->multiblock_size[i]
                 , PROT_READ | PROT_WRITE | PROT_EXEC
                 , MAP_PRIVATE | MAP_ANONYMOUS /*| ((wine_preloaded)?MAP_FIXED:0)*/
@@ -245,7 +246,7 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         // vaddr is 0, load everything has a One block
         if(!offs && box64_wine)
             offs = (uintptr_t)find47bitBlock(head->memsz); // limit to 47bits...
-        printf_log(LOG_DEBUG, "Allocating 0x%zx memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
+        printf_log(log_level, "Allocating 0x%zx memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
         void* p = mmap((void*)offs, head->memsz
             , PROT_READ | PROT_WRITE | PROT_EXEC
             , MAP_PRIVATE | MAP_ANONYMOUS /*| (((offs&&wine_preloaded)?MAP_FIXED:0))*/
@@ -262,7 +263,7 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         head->memory = p;
         memset(p, 0, head->memsz);
         head->delta = (intptr_t)p - (intptr_t)head->vaddr;
-        printf_log(LOG_DEBUG, "Got %p (delta=%p)\n", p, (void*)head->delta);
+        printf_log(log_level, "Got %p (delta=%p)\n", p, (void*)head->delta);
 
         head->multiblock_n = 1;
         head->multiblock_size = (uint64_t*)calloc(head->multiblock_n, sizeof(uint64_t));

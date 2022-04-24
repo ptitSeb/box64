@@ -39,6 +39,7 @@ int box64_dump = 0;
 int box64_nobanner = 0;
 int box64_dynarec_log = LOG_NONE;
 int box64_pagesize;
+uintptr_t box64_load_addr = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
@@ -481,6 +482,13 @@ void LoadLogEnv()
 #endif
 #endif
     // Other BOX64 env. var.
+    p = getenv("BOX64_LOAD_ADDR");
+    if(p) {
+        if(sscanf(p, "0x%zx", &box64_load_addr)!=1)
+            box64_load_addr = 0;
+        if(box64_load_addr)
+            printf_log(LOG_INFO, "Use a starting load address of %p\n", (void*)box64_load_addr);
+    }
     p = getenv("BOX64_DLSYM_ERROR");
     if(p) {
         if(strlen(p)==1) {
