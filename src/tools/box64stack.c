@@ -176,8 +176,12 @@ void SetupInitialStack(x64emu_t *emu)
     Push(emu, 0);
     for (int i=emu->context->envc-1; i>=0; --i)
         Push(emu, p_envv[i]);
+    free(emu->context->envv);
+    emu->context->envv = (char**)R_RSP;
     Push(emu, 0);
     for (int i=emu->context->argc-1; i>=0; --i)
         Push(emu, p_argv[i]);
+    free(emu->context->argv);
+    emu->context->argv = (char**)R_RSP;
     Push(emu, emu->context->argc);
 }
