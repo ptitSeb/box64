@@ -1233,7 +1233,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
             ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
         if(oldact && ret==0) {
             oldact->sa_flags = old.sa_flags;
-            oldact->sa_mask = old.sa_mask;
+            memcpy(&oldact->sa_mask, &old.sa_mask, (sigsetsize>8)?8:sigsetsize);
             if(old.sa_flags & 0x04)
                 oldact->_u._sa_sigaction = old.sa_sigaction; //TODO should wrap...
             else
