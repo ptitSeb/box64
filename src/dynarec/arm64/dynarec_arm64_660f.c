@@ -141,7 +141,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             VMOVeD(v0, 0, v0, 1);
             if(MODREG) {
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
                 VMOVeD(v0, 1, v1, 1);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
@@ -443,7 +443,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     INST_NAME("PMINSD Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
                     GETEX(q1, 0, 0);
-                    GETGX(q0,1);
+                    GETGX(q0, 1);
                     SMINQ_32(q0, q0, q1);
                     break;
 
@@ -715,7 +715,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;
-            GETEX(q0, 0,0);
+            GETEX(q0, 0, 0);
             GETGX(v0, 1);
             VANDQ(v0, v0, q0);
             break;
@@ -936,21 +936,21 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("PUNPCKHBW Gx,Ex");
             nextop = F8;
             GETGX(q0, 1);
-            GETEX(q1, 0, 1);
+            GETEX(q1, 0, 0);
             VZIP2Q_8(q0, q0, q1);
             break;
         case 0x69:
             INST_NAME("PUNPCKHWD Gx,Ex");
             nextop = F8;
             GETGX(q0, 1);
-            GETEX(q1, 0, 1);
+            GETEX(q1, 0, 0);
             VZIP2Q_16(q0, q0, q1);
             break;
         case 0x6A:
             INST_NAME("PUNPCKHDQ Gx,Ex");
             nextop = F8;
             GETGX(q0, 1);
-            GETEX(q1, 0, 1);
+            GETEX(q1, 0, 0);
             VZIP2Q_32(q0, q0, q1);
             break;
         case 0x6B:

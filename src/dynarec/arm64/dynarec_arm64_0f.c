@@ -834,7 +834,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
                 case 4:
-                    INST_NAME("PSRAW Ex, Ib");
+                    INST_NAME("PSRAW Em, Ib");
                     GETEM(q0, 1);
                     u8 = F8;
                     if(u8>15) u8=15;
@@ -846,7 +846,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
                 case 6:
-                    INST_NAME("PSLLW Ex, Ib");
+                    INST_NAME("PSLLW Em, Ib");
                     GETEM(q0, 1);
                     u8 = F8;
                     if(u8) {
@@ -1856,7 +1856,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xF5:
-            INST_NAME("PMADDWD Gx, Ex");
+            INST_NAME("PMADDWD Gm, Em");
             nextop = F8;
             GETGM(v0);
             GETEM(v1, 0);

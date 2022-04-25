@@ -83,9 +83,9 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("MOVSS Ex, Gx");
             nextop = F8;
             GETG;
-            v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
             if(MODREG) {
-                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
+                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 1);
                 VMOVeS(q0, 0, v0, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
