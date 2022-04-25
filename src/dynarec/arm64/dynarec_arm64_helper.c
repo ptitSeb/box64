@@ -1227,10 +1227,10 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1)
                     ++old;
                 }
                 VSTR128_U12(dyn->n.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
-                if(!next) {
-                    fpu_free_reg(dyn, dyn->n.ssecache[i].reg);
-                    dyn->n.ssecache[i].v = -1;
-                }
+            }
+            if(!next) {
+                fpu_free_reg(dyn, dyn->n.ssecache[i].reg);
+                dyn->n.ssecache[i].v = -1;
             }
         }
     if(old!=-1) {
@@ -1250,16 +1250,16 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
 {
     int start = not07?8:0;
-    // only SSE regs needs to be push back to xEmu
+    // only SSE regs needs to be push back to xEmu (needs to be "write")
     int n=0;
     for (int i=start; i<16; i++)
-        if(dyn->n.ssecache[i].v!=-1)
+        if((dyn->n.ssecache[i].v!=-1) && (dyn->n.ssecache[i].write))
             ++n;
     if(!n)
         return;
     MESSAGE(LOG_DUMP, "\tPush XMM Cache (%d)------\n", n);
     for (int i=start; i<16; ++i)
-        if(dyn->n.ssecache[i].v!=-1) {
+        if((dyn->n.ssecache[i].v!=-1) && (dyn->n.ssecache[i].write)) {
             VSTR128_U12(dyn->n.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
         }
     MESSAGE(LOG_DUMP, "\t------- Push XMM Cache (%d)\n", n);
@@ -1268,7 +1268,7 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
 void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
 {
     int start = not07?8:0;
-    // only SSE regs needs to be pop back from xEmu
+    // only SSE regs needs to be pop back from xEmu (don't need to be "write" this time)
     int n=0;
     for (int i=start; i<16; i++)
         if(dyn->n.ssecache[i].v!=-1)
