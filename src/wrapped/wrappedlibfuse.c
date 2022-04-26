@@ -90,10 +90,10 @@ GO(3)
 
 // fuse_opt_proc
 #define GO(A)   \
-static uintptr_t my_fuse_opt_proc_fct_##A = 0;                              \
-static int my_fuse_opt_proc_##A(void* a, void* b, int c, void* d)           \
-{                                                                           \
-    return RunFunction(my_context, my_fuse_opt_proc_fct_##A, 4, a, b, c, d);\
+static uintptr_t my_fuse_opt_proc_fct_##A = 0;                                      \
+static int my_fuse_opt_proc_##A(void* a, void* b, int c, void* d)                   \
+{                                                                                   \
+    return (int)RunFunction(my_context, my_fuse_opt_proc_fct_##A, 4, a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -907,7 +907,7 @@ EXPORT void* my_fuse_lowlevel_new(x64emu_t* emu, void* args, fuse_lowlevel_ops_t
 {
     libfuse_my_t *my = (libfuse_my_t*)my_lib->priv.w.p2;
     static fuse_lowlevel_ops_t o_;
-    #define GO(A) o_.A = find_##A##_Fct(o->A)
+    #define GO(A) o_.A = find_##A##_Fct(o->A); if(o_.A) printf_log(LOG_DEBUG, "fuse: %s is present\n", #A)
     GO(init);
     GO(destroy);
     GO(lookup);

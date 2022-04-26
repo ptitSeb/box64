@@ -127,16 +127,16 @@ GO(fuse_remove_signal_handlers, vFp)
 //GO(fuse_reply_buf, 
 //GO(fuse_reply_create, 
 //GO(fuse_reply_data, 
-//GO(fuse_reply_entry, 
-//GO(fuse_reply_err, 
+GO(fuse_reply_entry, iFpp)
+GO(fuse_reply_err, iFpi)
 //GO(fuse_reply_ioctl, 
 //GO(fuse_reply_ioctl_iov, 
 //GO(fuse_reply_ioctl_retry, 
 //GO(fuse_reply_iov, 
 //GO(fuse_reply_lock, 
 //GO(fuse_reply_none, 
-//GO(fuse_reply_open, 
-//GO(fuse_reply_open_compat, 
+GO(fuse_reply_open, iFpp)
+GO(fuse_reply_open_compat, iFpp)
 //GO(fuse_reply_poll, 
 //GO(fuse_reply_readlink, 
 //GO(fuse_reply_statfs, 
@@ -147,7 +147,7 @@ GO(fuse_remove_signal_handlers, vFp)
 //GO(fuse_req_getgroups, 
 //GO(fuse_req_interrupted, 
 //GO(fuse_req_interrupt_func, 
-//GO(fuse_req_userdata, 
+GO(fuse_req_userdata, pFp)
 GO(fuse_session_add_chan, vFpp)
 //GO(fuse_session_data, 
 GO(fuse_session_destroy, vFp)
@@ -174,6 +174,6 @@ GO(fuse_set_signal_handlers, iFp)
 //GO(__fuse_teardown, 
 //GO(fuse_teardown, 
 //GO(fuse_teardown_compat22, 
-//GO(fuse_unmount, 
+GO(fuse_unmount, vFpp)
 //GO(fuse_unmount_compat22, 
 //GO(fuse_version, 
