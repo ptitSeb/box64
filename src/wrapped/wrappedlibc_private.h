@@ -1729,6 +1729,7 @@ GOM(sscanf, iFEppV)
 //GOW(ssignal, @Fi@)
 //GO(sstk, 
 GOM(__stack_chk_fail, vFEv)
+GOM(stat, iFEpp)
 //GO(__statfs, 
 GOW(statfs, iFpp)
 GOW(statfs64, iFpp)

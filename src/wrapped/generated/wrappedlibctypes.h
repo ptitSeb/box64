@@ -117,6 +117,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(execv, iFpp_t) \
 	GO(execvp, iFpp_t) \
 	GO(sigaltstack, iFpp_t) \
+	GO(stat, iFpp_t) \
 	GO(swapcontext, iFpp_t) \
 	GO(__isoc99_scanf, iFpV_t) \
 	GO(execl, iFpV_t) \
