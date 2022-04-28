@@ -77,10 +77,10 @@
 //GO(is_context_customizable, 
 //GO(is_selinux_enabled, 
 //GO(is_selinux_mls_enabled, 
-//GO(lgetfilecon, 
-//GO(lgetfilecon_raw, 
-//GO(lsetfilecon, 
-//GO(lsetfilecon_raw, 
+GO(lgetfilecon, iFpp)
+GO(lgetfilecon_raw, iFpp)
+GO(lsetfilecon, iFpp)
+GO(lsetfilecon_raw, iFpp)
 //GO(manual_user_enter_context, 
 //GO(map_class, 
 //GO(map_decision, 
