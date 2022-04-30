@@ -2681,6 +2681,8 @@ wrappedlibc:
 - vFpV:
   - warn
   - warnx
+- iFip:
+  - fstat
 - iFpi:
   - __sigsetjmp
   - backtrace
@@ -2691,6 +2693,7 @@ wrappedlibc:
   - dl_iterate_phdr
   - execv
   - execvp
+  - lstat
   - sigaltstack
   - stat
   - swapcontext
@@ -2796,6 +2799,8 @@ wrappedlibc:
   - semctl
 - iFipii:
   - epoll_wait
+- iFippi:
+  - fstatat
 - iFippL:
   - readlinkat
 - iFpipp:

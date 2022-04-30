@@ -24,6 +24,7 @@ typedef void (*vFpi_t)(void*, int64_t);
 typedef void (*vFpu_t)(void*, uint64_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFpV_t)(void*, ...);
+typedef int64_t (*iFip_t)(int64_t, void*);
 typedef int64_t (*iFpi_t)(void*, int64_t);
 typedef int64_t (*iFpL_t)(void*, uintptr_t);
 typedef int64_t (*iFpp_t)(void*, void*);
@@ -56,6 +57,7 @@ typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef int64_t (*iFiiip_t)(int64_t, int64_t, int64_t, void*);
 typedef int64_t (*iFiiiN_t)(int64_t, int64_t, int64_t, ...);
 typedef int64_t (*iFipii_t)(int64_t, void*, int64_t, int64_t);
+typedef int64_t (*iFippi_t)(int64_t, void*, void*, int64_t);
 typedef int64_t (*iFippL_t)(int64_t, void*, void*, uintptr_t);
 typedef int64_t (*iFpipp_t)(void*, int64_t, void*, void*);
 typedef int64_t (*iFpipV_t)(void*, int64_t, void*, ...);
@@ -109,6 +111,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(tdestroy, vFpp_t) \
 	GO(warn, vFpV_t) \
 	GO(warnx, vFpV_t) \
+	GO(fstat, iFip_t) \
 	GO(__sigsetjmp, iFpi_t) \
 	GO(backtrace, iFpi_t) \
 	GO(munmap, iFpL_t) \
@@ -116,6 +119,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(dl_iterate_phdr, iFpp_t) \
 	GO(execv, iFpp_t) \
 	GO(execvp, iFpp_t) \
+	GO(lstat, iFpp_t) \
 	GO(sigaltstack, iFpp_t) \
 	GO(stat, iFpp_t) \
 	GO(swapcontext, iFpp_t) \
@@ -192,6 +196,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(epoll_ctl, iFiiip_t) \
 	GO(semctl, iFiiiN_t) \
 	GO(epoll_wait, iFipii_t) \
+	GO(fstatat, iFippi_t) \
 	GO(readlinkat, iFippL_t) \
 	GO(__vasprintf_chk, iFpipp_t) \
 	GO(glob, iFpipp_t) \

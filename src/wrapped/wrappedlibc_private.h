@@ -426,6 +426,8 @@ GO(__fsetlocking, iFpi)
 GO(fsetpos, iFpp)
 GO(fsetpos64, iFpp)
 GO(fsetxattr, iFippLi)
+GOM(fstat, iFip)            //%noE
+GOM(fstatat, iFippi)        //%noE
 GOW(fstatfs, iFip)
 GOW(fstatfs64, iFip)
 GOW(fstatvfs, iFip)
@@ -1101,6 +1103,7 @@ GO(__lseek, IFiIi)
 GOW(lseek, lFili)
 GOW(lseek64, lFili)
 GO(lsetxattr, iFpppLi)
+GOM(lstat, iFpp)            //%noE
 GO(lutimes, iFpp)
 GOM(__lxstat, iFEipp)
 GOM(__lxstat64, iFEipp)
