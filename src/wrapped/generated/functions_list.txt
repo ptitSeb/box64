@@ -3710,6 +3710,14 @@ wrappedudev0:
 wrappedudev1:
 - vFpp:
   - udev_set_log_fn
+wrappedunwind:
+- iFp:
+  - _ULx86_64_step
+- iFpp:
+  - _ULx86_64_get_proc_info
+  - _ULx86_64_init_local
+- iFpip:
+  - _ULx86_64_get_reg
 wrappedutil:
 - iFpppp:
   - forkpty
