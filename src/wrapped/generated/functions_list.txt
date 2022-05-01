@@ -1059,6 +1059,7 @@
 #() vFppppp
 #() iFEiipp
 #() iFEiipV
+#() iFEippi
 #() iFEippL
 #() iFEippp
 #() iFEpiii
@@ -2681,6 +2682,8 @@ wrappedlibc:
 - vFpV:
   - warn
   - warnx
+- iFip:
+  - fstat
 - iFpi:
   - __sigsetjmp
   - backtrace
@@ -2691,6 +2694,7 @@ wrappedlibc:
   - dl_iterate_phdr
   - execv
   - execvp
+  - lstat
   - sigaltstack
   - stat
   - swapcontext
@@ -2796,6 +2800,8 @@ wrappedlibc:
   - semctl
 - iFipii:
   - epoll_wait
+- iFippi:
+  - fstatat
 - iFippL:
   - readlinkat
 - iFpipp:
@@ -3705,6 +3711,14 @@ wrappedudev0:
 wrappedudev1:
 - vFpp:
   - udev_set_log_fn
+wrappedunwind:
+- iFp:
+  - _ULx86_64_step
+- iFpp:
+  - _ULx86_64_get_proc_info
+  - _ULx86_64_init_local
+- iFpip:
+  - _ULx86_64_get_reg
 wrappedutil:
 - iFpppp:
   - forkpty

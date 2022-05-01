@@ -756,6 +756,7 @@ void LoadEnvVars(box64context_t *context)
     AddPath("libssl.so.1.0.0", &context->box64_emulated_libs, 0);
     AddPath("libcrypto.so.1", &context->box64_emulated_libs, 0);
     AddPath("libcrypto.so.1.0.0", &context->box64_emulated_libs, 0);
+    AddPath("libunwind.so.8", &context->box64_emulated_libs, 0);
 
     if(getenv("BOX64_PREFER_WRAPPED")) {
         if (strcmp(getenv("BOX64_PREFER_WRAPPED"), "1")==0) {
