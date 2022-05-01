@@ -109,7 +109,7 @@ Box64 包裝 Vulkan 庫。但請注意，它僅使用 RX550 卡進行了測試�
 贡献方式有很多种：代码贡献、财务帮助、捐赠捐赠和广告合作！
 以下感谢不分先后： 
  * 代码贡献：rajdakin, mogery
- * 财务帮助：FlyingFathead, stormchaser3000
+ * 财务帮助：FlyingFathead, stormchaser3000, dennis1248
  * 硬件捐赠：[Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/), [StarFive](https://rvspace.org/)
  * 硬件捐赠和LoongArch迁移：[xiaoji](https://www.linuxgame.cn)
  * 为本项目持续的宣传：salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[TwisterOS](https://twisteros.com/) team, [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg), ekianjo ([Boilingsteam](https://boilingsteam.com/))
