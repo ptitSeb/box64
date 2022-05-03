@@ -477,6 +477,14 @@ int Run660F(x64emu_t *emu, rex_t rex)
                     GX->q[i] = EX->ud[i];
                 break;
 
+            case 0x38:  /* PMINSB Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=0; i<16; ++i)
+                    if(GX->sb[i]>EX->sb[i])
+                        GX->sb[i] = EX->sb[i];
+                break;
             case 0x39:  /* PMINSD Gx, Ex */
                 nextop = F8;
                 GETEX(0);
@@ -490,10 +498,25 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 GETEX(0);
                 GETGX;
                 for(int i=0; i<8; ++i)
-                    if(GX->uw[i]<EX->uw[i])
+                    if(GX->uw[i]>EX->uw[i])
                         GX->uw[i] = EX->uw[i];
                 break;
-
+            case 0x3B:  /* PMINUD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=0; i<4; ++i)
+                    if(GX->ud[i]>EX->ud[i])
+                        GX->ud[i] = EX->ud[i];
+                break;
+            case 0x3C:  /* PMAXSB Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=0; i<16; ++i)
+                    if(GX->sb[i]<EX->sb[i])
+                        GX->sb[i] = EX->sb[i];
+                break;
             case 0x3D:  /* PMAXSD Gx, Ex */
                 nextop = F8;
                 GETEX(0);
@@ -501,6 +524,22 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 for(int i=0; i<4; ++i)
                     if(GX->sd[i]<EX->sd[i])
                         GX->sd[i] = EX->sd[i];
+                break;
+            case 0x3E:  /* PMAXUW Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=0; i<8; ++i)
+                    if(GX->uw[i]<EX->uw[i])
+                        GX->uw[i] = EX->uw[i];
+                break;
+            case 0x3F:  /* PMAXUD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=0; i<4; ++i)
+                    if(GX->ud[i]<EX->ud[i])
+                        GX->ud[i] = EX->ud[i];
                 break;
 
             case 0xDB:  /* AESIMC Gx, Ex */

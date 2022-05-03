@@ -439,6 +439,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     UXTL_32(q0, q1);     // 32bits->64bits
                     break;
 
+                case 0x38:
+                    INST_NAME("PMINSB Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
+                    SMINQ_8(q0, q0, q1);
+                    break;
                 case 0x39:
                     INST_NAME("PMINSD Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
@@ -446,13 +453,47 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     SMINQ_32(q0, q0, q1);
                     break;
-
+                case 0x3A:
+                    INST_NAME("PMINUW Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
+                    UMINQ_16(q0, q0, q1);
+                    break;
+                case 0x3B:
+                    INST_NAME("PMINUD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
+                    UMINQ_32(q0, q0, q1);
+                    break;
+                case 0x3C:
+                    INST_NAME("PMAXSB Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
+                    SMAXQ_8(q0, q0, q1);
+                    break;
                 case 0x3D:
                     INST_NAME("PMAXSD Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
                     GETEX(q1, 0, 0);
                     GETGX(q0, 1);
                     SMAXQ_32(q0, q0, q1);
+                    break;
+                case 0x3E:
+                    INST_NAME("PMAXUW Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
+                    UMAXQ_16(q0, q0, q1);
+                    break;
+                case 0x3F:
+                    INST_NAME("PMAXUD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
+                    UMAXQ_32(q0, q0, q1);
                     break;
 
                 case 0xDB:
