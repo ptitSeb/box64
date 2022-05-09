@@ -927,8 +927,8 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
     int libcef = (strstr(h->name, "libcef.so"))?1:0;
     //libcef.so is linked with tcmalloc staticaly, but this cannot be easily supported in box64, so hacking some "unlink" here
     const char* avoid_libcef[] = {"malloc", "realloc", "free", "calloc", "cfree",
-        "__libc_calloc", "__libc_cfree", "__libc_memallign", "__liv_pvalloc",
-        "__libcrealloc", "__libc_valloc", "__posix_memalign",
+        "__libc_malloc", "__libc_calloc", "__libc_free", "__libc_memallign", "__libc_pvalloc",
+        "__libc_realloc", "__libc_valloc", "__posix_memalign",
         "valloc", "pvalloc", "posix_memalign", "malloc_stats", "malloc_usable_size",
         /*"mallopt",*/ "localtime_r",
         //c++ symbol from libstdc++ too
