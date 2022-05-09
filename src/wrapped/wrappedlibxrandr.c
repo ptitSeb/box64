@@ -21,7 +21,7 @@ const char* libxrandrName = "libXrandr.so.2";
 #define LIBNAME libxrandr
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 3,  \
+    setNeededLibs(lib, 3,           \
         "libX11.so.6",              \
         "libXext.so.6",             \
         "libXrender.so.1");

@@ -81,7 +81,7 @@ EXPORT void* myw_initscr()
 #define CUSTOM_INIT \
     getMy(lib);     \
     SETALT(myw_);   \
-    setNeededLibs(&lib->priv.w, 1, "libtinfo.so.5");
+    setNeededLibs(lib, 1, "libtinfo.so.5");
 
 #define CUSTOM_FINI \
     freeMy();

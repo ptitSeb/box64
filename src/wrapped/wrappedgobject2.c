@@ -859,7 +859,7 @@ EXPORT void my_g_object_weak_ref(x64emu_t* emu, void* object, void* notify, void
     getMy(lib);                             \
     SetGObjectID(my->g_object_get_type());  \
     SetGTypeName(my->g_type_name);          \
-    setNeededLibs(&lib->priv.w, 1, "libglib-2.0.so.0");
+    setNeededLibs(lib, 1, "libglib-2.0.so.0");
 
 #define CUSTOM_FINI \
     FiniGTKClass(); \

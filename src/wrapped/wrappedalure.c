@@ -15,7 +15,7 @@ const char* alureName = "libalure.so.1";
 #define LIBNAME alure
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 1, "libopenal.so.1");
+    setNeededLibs(lib, 1, "libopenal.so.1");
 
 #include "wrappedlib_init.h"
 

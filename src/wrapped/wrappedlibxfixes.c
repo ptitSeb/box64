@@ -15,7 +15,7 @@ const char* libxfixesName = "libXfixes.so.3";
 #define LIBNAME libxfixes
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 4,  \
+    setNeededLibs(lib, 4,           \
         "libX11.so.6",              \
         "libxcb.so.1",              \
         "libXau.so.6",              \

@@ -1128,7 +1128,7 @@ EXPORT void* my_gtk_link_button_set_uri_hook(x64emu_t* emu, void* f, void* data,
     SetGtkFrameID(my->gtk_frame_get_type());                                    \
     SetGtkMenuShellID(my->gtk_menu_shell_get_type());                           \
     SetGtkMenuBarID(my->gtk_menu_bar_get_type());                               \
-    setNeededLibs(&lib->priv.w, 2, "libgdk-x11-2.0.so.0", "libpangocairo-1.0.so.0");
+    setNeededLibs(lib, 2, "libgdk-x11-2.0.so.0", "libpangocairo-1.0.so.0");
 
 #define CUSTOM_FINI \
     freeMy();

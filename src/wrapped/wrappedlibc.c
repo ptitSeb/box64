@@ -2731,7 +2731,7 @@ EXPORT char my___libc_single_threaded = 0;
     my___progname = my_program_invocation_short_name =                          \
         strrchr(box64->argv[0], '/') + 1;                                       \
     getMy(lib);                                                                 \
-    setNeededLibs(&lib->priv.w, 3,                                              \
+    setNeededLibs(lib, 3,                                              \
         "ld-linux-x86-64.so.2",                                                 \
         "libpthread.so.0",                                                      \
         "librt.so.1");

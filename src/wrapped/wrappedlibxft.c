@@ -15,7 +15,7 @@ const char* libxftName = "libXft.so.2";
 #define LIBNAME libxft
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 4,  \
+    setNeededLibs(lib, 4,           \
         "libX11.so.6",              \
         "libfontconfig.so.1",       \
         "libXrender.so.1",          \

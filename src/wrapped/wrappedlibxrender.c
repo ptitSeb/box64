@@ -15,7 +15,7 @@ const char* libxrenderName = "libXrender.so.1";
 #define LIBNAME libxrender
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 4,  \
+    setNeededLibs(lib, 4,           \
         "libX11.so.6",              \
         "libxcb.so.1",              \
         "libXau.so.6",              \

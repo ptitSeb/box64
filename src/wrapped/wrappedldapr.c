@@ -76,7 +76,7 @@ EXPORT int my_ldap_sasl_interactive_bind_s(x64emu_t* emu, void* ld, void* dn, vo
 
 #define CUSTOM_INIT \
     getMy(lib);         \
-    setNeededLibs(&lib->priv.w, 1, NEEDED_LIB);
+    setNeededLibs(lib, 1, NEEDED_LIB);
 
 #define CUSTOM_FINI \
     freeMy();

@@ -68,7 +68,7 @@ void EXPORT *my_IMG_Load_RW(x64emu_t* emu, void* a, int32_t b)
 
 #define CUSTOM_INIT \
     getMy(lib);   \
-    setNeededLibs(&lib->priv.w, 2, "libSDL-1.2.so.0", "libz.so.1");
+    setNeededLibs(lib, 2, "libSDL-1.2.so.0", "libz.so.1");
 
 #define CUSTOM_FINI \
     freeMy();

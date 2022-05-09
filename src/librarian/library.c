@@ -925,14 +925,16 @@ void AddMainElfToLinkmap(elfheader_t* elf)
     lm->l_ld = GetDynamicSection(elf);
 }
 
-void setNeededLibs(wlib_t* wlib, int n, ...)
+void setNeededLibs(library_t* lib, int n, ...)
 {
-    wlib->needed = n;
-    wlib->neededlibs = (char**)calloc(n, sizeof(char*));
+    if(lib->type!=0)
+        return;
+    lib->priv.w.needed = n;
+    lib->priv.w.neededlibs = (char**)calloc(n, sizeof(char*));
     va_list va;
     va_start (va, n);
     for (int i=0; i<n; ++i) {
-        wlib->neededlibs[i] = strdup(va_arg(va, char*));
+        lib->priv.w.neededlibs[i] = strdup(va_arg(va, char*));
     }
     va_end (va);
 }

@@ -458,7 +458,7 @@ EXPORT int32_t my_SDL_GetWMInfo(x64emu_t* emu, void* p)
     getMy(lib);                             \
     box64->sdl1allocrw = my->SDL_AllocRW;   \
     box64->sdl1freerw  = my->SDL_FreeRW;    \
-    setNeededLibs(&lib->priv.w, 3,          \
+    setNeededLibs(lib, 3,                   \
         "libm.so.6",                        \
         "libdl.so.2",                       \
         "librt.so.1");

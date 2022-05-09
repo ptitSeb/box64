@@ -22,6 +22,6 @@ const char* libxxf86vmName = "libXxf86vm.so.1";
 
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 2, "libX11.so.6", "libXext.so.6");
+    setNeededLibs(lib, 2, "libX11.so.6", "libXext.so.6");
 
 #include "wrappedlib_init.h"

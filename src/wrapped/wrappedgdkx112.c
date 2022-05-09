@@ -127,7 +127,7 @@ EXPORT void my_gdk_window_remove_filter(x64emu_t* emu, void* window, void* f, vo
 #define CUSTOM_INIT         \
     libname = lib->name;    \
     getMy(lib);             \
-    setNeededLibs(&lib->priv.w, 3, "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0");
+    setNeededLibs(lib, 3, "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0");
 
 #define CUSTOM_FINI \
     freeMy(); \

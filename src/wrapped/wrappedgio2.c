@@ -588,7 +588,7 @@ EXPORT void* my_g_initable_new_valist(x64emu_t* emu, void* type, void* first, x6
 
 #define CUSTOM_INIT \
     getMy(lib);                         \
-    setNeededLibs(&lib->priv.w, 1, "libgmodule-2.0.so.0");
+    setNeededLibs(lib, 1, "libgmodule-2.0.so.0");
 
 #define CUSTOM_FINI \
     freeMy();

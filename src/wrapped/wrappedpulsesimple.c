@@ -25,7 +25,7 @@ const char* pulsesimpleName = "libpulse-simple.so.0";
         return -1;
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 1, "libpulse.so.0");
+    setNeededLibs(lib, 1, "libpulse.so.0");
 
 #include "wrappedlib_init.h"
 

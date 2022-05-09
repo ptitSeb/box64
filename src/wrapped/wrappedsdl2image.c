@@ -104,7 +104,7 @@ EXPORT void* my2_IMG_LoadTextureTyped_RW(x64emu_t* emu, void* rend, void* a, int
 #define CUSTOM_INIT \
     getMy(lib);     \
     SETALT(my2_);   \
-    setNeededLibs(&lib->priv.w, 1, "libSDL2-2.0.so.0");
+    setNeededLibs(lib, 1, "libSDL2-2.0.so.0");
 
 #define CUSTOM_FINI \
     freeMy();

@@ -134,7 +134,7 @@ void EXPORT my_gluNurbsCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
 #define CUSTOM_INIT                     \
     box64->libglu = lib;                \
     getMy(lib);                         \
-    setNeededLibs(&lib->priv.w, 1, "libGL.so.1");
+    setNeededLibs(lib, 1, "libGL.so.1");
 
 #define CUSTOM_FINI             \
     freeMy();

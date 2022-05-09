@@ -216,7 +216,7 @@ EXPORT void* my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* ex
 
 #define CUSTOM_INIT                 \
     getMy(lib);                     \
-    setNeededLibs(&lib->priv.w, 5,  \
+    setNeededLibs(lib, 5,           \
         "libX11.so.6",              \
         "libxcb.so.1",              \
         "libXau.so.6",              \

@@ -20,7 +20,7 @@ const char* atkbridgeName = "libatk-bridge-2.0.so.0";
         return -1;
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 5,      \
+    setNeededLibs(lib, 5,               \
         "libatk-1.0.so.0",              \
         "libSM.so.6",                   \
         "libICE.so.6",                  \
