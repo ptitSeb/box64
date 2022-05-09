@@ -20,12 +20,11 @@ const char* atkbridgeName = "libatk-bridge-2.0.so.0";
         return -1;
 
 #define CUSTOM_INIT \
-    lib->priv.w.needed = 5;                                                     \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libatk-1.0.so.0");                      \
-    lib->priv.w.neededlibs[1] = strdup("libSM.so.6");                           \
-    lib->priv.w.neededlibs[2] = strdup("libICE.so.6");                          \
-    lib->priv.w.neededlibs[3] = strdup("libXau.so.6");                          \
-    lib->priv.w.neededlibs[4] = strdup("libxcb.so.1");                          \
+    setNeededLibs(&lib->priv.w, 5,      \
+        "libatk-1.0.so.0",              \
+        "libSM.so.6",                   \
+        "libICE.so.6",                  \
+        "libXau.so.6",                  \
+        "libxcb.so.1");
 
 #include "wrappedlib_init.h"

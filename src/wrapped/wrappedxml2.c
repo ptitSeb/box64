@@ -24,56 +24,7 @@ const char* xml2Name =
 #endif
     ;
 #define LIBNAME xml2
-static library_t *my_lib = NULL;
 
-typedef int     (*iFv_t)        ();
-typedef void*   (*pFv_t)        ();
-typedef void    (*vFp_t)        (void*);
-typedef int     (*iFp_t)        (void*);
-typedef void*   (*pFpp_t)       (void*, void*);
-typedef void    (*vFpp_t)       (void*, void*);
-typedef int     (*iFppp_t)      (void*, void*, void*);
-typedef void    (*vFppp_t)      (void*, void*, void*);
-typedef void*   (*pFppp_t)      (void*, void*, void*);
-typedef void*   (*pFpppi_t)     (void*, void*, void*, int);
-typedef int     (*iFpppp_t)     (void*, void*, void*, void*);
-typedef void    (*vFpppp_t)     (void*, void*, void*, void*);
-typedef void*   (*pFpppp_t)     (void*, void*, void*, void*);
-typedef void*   (*pFppppi_t)    (void*, void*, void*, void*, int);
-typedef int     (*iFppppp_t)    (void*, void*, void*, void*, void*);
-typedef void    (*vFppppp_t)    (void*, void*, void*, void*, void*);
-typedef int     (*iFpppppp_t)   (void*, void*, void*, void*, void*, void*);
-typedef void    (*vFpppppp_t)   (void*, void*, void*, void*, void*, void*);
-typedef void*   (*pFpppppi_t)   (void*, void*, void*, void*, void*, int);
-
-#define SUPER()                                     \
-    GO(xmlHashCopy, pFpp_t)                         \
-    GO(xmlHashFree, vFpp_t)                         \
-    GO(xmlHashRemoveEntry, iFppp_t)                 \
-    GO(xmlHashRemoveEntry2, iFpppp_t)               \
-    GO(xmlHashRemoveEntry3, iFppppp_t)              \
-    GO(xmlHashScan, vFppp_t)                        \
-    GO(xmlHashScan3, vFpppppp_t)                    \
-    GO(xmlHashScanFull, vFppp_t)                    \
-    GO(xmlHashScanFull3, vFpppppp_t)                \
-    GO(xmlHashUpdateEntry, iFpppp_t)                \
-    GO(xmlHashUpdateEntry2, iFppppp_t)              \
-    GO(xmlHashUpdateEntry3, iFpppppp_t)             \
-    GO(xmlGetExternalEntityLoader, pFv_t)           \
-    GO(xmlNewCharEncodingHandler, pFppp_t)          \
-    GO(xmlOutputBufferCreateIO, pFpppp_t)           \
-    GO(xmlRegisterInputCallbacks, iFpppp_t)         \
-    GO(xmlSaveToIO, pFppppi_t)                      \
-    GO(xmlSchemaSetParserErrors, vFpppp_t)          \
-    GO(xmlSchemaSetParserStructuredErrors, vFppp_t) \
-    GO(xmlSchemaSetValidErrors, vFpppp_t)           \
-    GO(xmlSchemaSetValidStructuredErrors, vFppp_t)  \
-    GO(xmlSetExternalEntityLoader, vFp_t)           \
-    GO(xmlXPathRegisterFunc, iFppp_t)               \
-    GO(xmlParserInputBufferCreateIO, pFpppi_t)      \
-    GO(xmlInitMemory, iFv_t)                        \
-    GO(xmlParseDocument, iFp_t)                     \
-    GO(xmlCreateIOParserCtxt, pFpppppi_t)           \
 
 EXPORT uintptr_t my_xmlFree = 0;
 EXPORT uintptr_t my_xmlMalloc = 0;
@@ -110,39 +61,26 @@ void* my_wrap_xmlMemStrdup(void* p)
         return strdup(p);
 }
 
-typedef struct xml2_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} xml2_my_t;
+#define ADDED_FUNCTIONS() \
 
-void* getXml2My(library_t* lib)
-{
-    xml2_my_t* my = (xml2_my_t*)calloc(1, sizeof(xml2_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    void** p;
-    // wrap memory pointer
-    #define GO(A, W)                                                                    \
-        p=dlsym(lib->priv.w.lib, #A);                                                   \
-        printf_log(LOG_DEBUG, "Wrapping %s=>%p(%p) from lixml2\n", #A, p, p?*p:NULL);   \
-        my_##A = (p && *p)?AddBridge(lib->priv.w.bridge, W, *p, 0, #A):0;               \
-        if(p) *p = my_wrap_##A
-    GO(xmlFree, vFp);
-    GO(xmlMalloc, pFL);
-    GO(xmlRealloc, pFpL);
-    GO(xmlMemStrdup, pFp);
-    #undef GO
-    return my;
-}
-#undef SUPER
+#include "generated/wrappedxml2types.h"
 
-void freeXml2My(void* lib)
-{
-    //xml2_my_t *my = (xml2_my_t *)lib;
-}
+#define ADDED_INIT() \
+    void** p;                                                                                               \
+    p=dlsym(lib->priv.w.lib, "xmlFree");                                                                    \
+        my_xmlFree = (p && *p)?AddBridge(lib->priv.w.bridge, vFp, *p, 0, "my_wrap_xmlFree"):0;              \
+        if(p) *p = my_wrap_xmlFree;                                                                         \
+    p=dlsym(lib->priv.w.lib, "xmlMalloc");                                                                  \
+        my_xmlMalloc = (p && *p)?AddBridge(lib->priv.w.bridge, pFL, *p, 0, "my_wrap_xmlMalloc"):0;          \
+        if(p) *p = my_wrap_xmlMalloc;                                                                       \
+    p=dlsym(lib->priv.w.lib, "xmlRealloc");                                                                 \
+        my_xmlRealloc = (p && *p)?AddBridge(lib->priv.w.bridge, pFpL, *p, 0, "my_wrap_xmlRealloc"):0;       \
+        if(p) *p = my_wrap_xmlRealloc;                                                                      \
+    p=dlsym(lib->priv.w.lib, "xmlMemStrdup");                                                               \
+        my_xmlMemStrdup = (p && *p)?AddBridge(lib->priv.w.bridge, pFp, *p, 0, "my_wrap_xmlMemStrdup"):0;    \
+        if(p) *p = my_wrap_xmlMemStrdup;
+
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -1185,162 +1123,114 @@ static void* reverse_xmlExternalEntityLoaderFct(void* fct)
 
 EXPORT void* my_xmlHashCopy(x64emu_t* emu, void* table, void* f)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlHashCopy(table, find_xmlHashCopier_Fct(f));
 }
 
 EXPORT void my_xmlHashFree(x64emu_t* emu, void* table, void* f)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     my->xmlHashFree(table, find_xmlHashDeallocator_Fct(f));
 }
 
 EXPORT int my_xmlHashRemoveEntry(x64emu_t* emu, void* table, void* name, void* f)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlHashRemoveEntry(table, name, find_xmlHashDeallocator_Fct(f));
 }
 EXPORT int my_xmlHashRemoveEntry2(x64emu_t* emu, void* table, void* name, void* name2, void* f)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlHashRemoveEntry2(table, name, name2, find_xmlHashDeallocator_Fct(f));
 }
 EXPORT int my_xmlHashRemoveEntry3(x64emu_t* emu, void* table, void* name, void* name2, void* name3, void* f)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlHashRemoveEntry3(table, name, name2, name3, find_xmlHashDeallocator_Fct(f));
 }
 
 EXPORT void my_xmlHashScan(x64emu_t* emu, void* table, void* f, void* data)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     my->xmlHashScan(table, find_xmlHashScanner_Fct(f), data);
 }
 EXPORT void my_xmlHashScan3(x64emu_t* emu, void* table, void* name, void* name2, void* name3, void* f, void* data)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     my->xmlHashScan3(table, name, name2, name3, find_xmlHashScanner_Fct(f), data);
 }
 EXPORT void my_xmlHashScanFull(x64emu_t* emu, void* table, void* f, void* data)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     my->xmlHashScanFull(table, find_xmlHashScannerFull_Fct(f), data);
 }
 EXPORT void my_xmlHashScanFull3(x64emu_t* emu, void* table, void* name, void* name2, void* name3, void* f, void* data)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     my->xmlHashScanFull3(table, name, name2, name3, find_xmlHashScannerFull_Fct(f), data);
 }
 
 EXPORT int my_xmlHashUpdateEntry(x64emu_t* emu, void* table, void* name, void* data, void* f)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlHashUpdateEntry(table, name, data, find_xmlHashDeallocator_Fct(f));
 }
 EXPORT int my_xmlHashUpdateEntry2(x64emu_t* emu, void* table, void* name, void* name2, void* data, void* f)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlHashUpdateEntry2(table, name, name2, data, find_xmlHashDeallocator_Fct(f));
 }
 EXPORT int my_xmlHashUpdateEntry3(x64emu_t* emu, void* table, void* name, void* name2, void* name3, void* data, void* f)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlHashUpdateEntry3(table, name, name2, name3, data, find_xmlHashDeallocator_Fct(f));
 }
 
 EXPORT void* my_xmlGetExternalEntityLoader(x64emu_t* emu)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return reverse_xmlExternalEntityLoaderFct(my->xmlGetExternalEntityLoader());
 }
 
 EXPORT void* my_xmlNewCharEncodingHandler(x64emu_t* emu, void* name, void* fin, void* fout)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlNewCharEncodingHandler(name, find_xmlCharEncodingInputFunc_Fct(fin), find_xmlCharEncodingOutputFunc_Fct(fout));
 }
 
 EXPORT void* my_xmlOutputBufferCreateIO(x64emu_t* emu, void* fwrite, void* fclose, void* ioctx, void* encoder)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlOutputBufferCreateIO(find_xmlOutputWriteCallback_Fct(fwrite), find_xmlOutputCloseCallback_Fct(fclose), ioctx, encoder);
 }
 
 EXPORT int my_xmlRegisterInputCallbacks(x64emu_t* emu, void* fmatch, void* fop, void* frd, void* fcl)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlRegisterInputCallbacks(find_xmlInputMatchCallback_Fct(fmatch), find_xmlInputOpenCallback_Fct(fop), find_xmlInputReadCallback_Fct(frd), find_xmlInputCloseCallback_Fct(fcl));
 }
 
 EXPORT void* my_xmlSaveToIO(x64emu_t* emu, void* fwrt, void* fcl, void* ioctx, void* encoding, int options)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlSaveToIO(find_xmlOutputWriteCallback_Fct(fwrt), find_xmlOutputCloseCallback_Fct(fcl), ioctx, encoding, options);
 }
 
 EXPORT void my_xmlSchemaSetParserErrors(x64emu_t* emu, void* ctxt, void* ferr, void* fwarn, void* ctx)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     my->xmlSchemaSetParserErrors(ctxt, find_xmlSchemaValidityErrorFunc_Fct(ferr), find_xmlSchemaValidityWarningFunc_Fct(fwarn), ctx);
 }
 
 EXPORT void my_xmlSchemaSetParserStructuredErrors(x64emu_t* emu, void* ctxt, void* ferr, void* ctx)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     my->xmlSchemaSetParserStructuredErrors(ctxt, find_xmlStructuredErrorFunc_Fct(ferr), ctx);
 }
 
 EXPORT void my_xmlSchemaSetValidErrors(x64emu_t* emu, void* ctxt, void* ferr, void* fwarn, void* ctx)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     my->xmlSchemaSetValidErrors(ctxt, find_xmlSchemaValidityErrorFunc_Fct(ferr), find_xmlSchemaValidityWarningFunc_Fct(fwarn), ctx);
 }
 
 EXPORT void my_xmlSchemaSetValidStructuredErrors(x64emu_t* emu, void* ctxt, void* ferr, void* ctx)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     my->xmlSchemaSetValidStructuredErrors(ctxt, find_xmlStructuredErrorFunc_Fct(ferr), ctx);
 }
 
 EXPORT void my_xmlSetExternalEntityLoader(x64emu_t* emu, void* f)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     my->xmlSetExternalEntityLoader(find_xmlExternalEntityLoaderFct(f));
 }
 
 EXPORT int my_xmlXPathRegisterFunc(x64emu_t* emu, void* ctxt, void* name, void* f)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlXPathRegisterFunc(ctxt, name, find_xmlXPathFunction_Fct(f));
 }
 
 EXPORT void* my_xmlParserInputBufferCreateIO(x64emu_t* emu, void* ioread, void* ioclose, void* ioctx, int enc)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
-
     return my->xmlParserInputBufferCreateIO(find_xmlInputReadCallback_Fct(ioread), find_xmlInputCloseCallback_Fct(ioclose), ioctx, enc);
 }
 
@@ -1407,7 +1297,6 @@ static void restoreSaxHandler(my_xmlSAXHandler_t* sav, my_xmlSAXHandler_t* v)
 
 EXPORT int my_xmlParseDocument(x64emu_t* emu, my_xmlSAXHandler_t** p)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
     // handling of wine that change the default sax handler of...
     my_xmlSAXHandler_t* old_saxhandler = p?(*p):NULL;
     my_xmlSAXHandler_t sax_handler = {0};
@@ -1419,7 +1308,6 @@ EXPORT int my_xmlParseDocument(x64emu_t* emu, my_xmlSAXHandler_t** p)
 
 EXPORT void* my_xmlCreateIOParserCtxt(x64emu_t* emu, my_xmlSAXHandler_t** p, void* user_data, void* ioread, void* ioclose, void* ioctx, int enc)
 {
-    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
     // handling of wine that change the default sax handler of...
     my_xmlSAXHandler_t* old_saxhandler = p?(*p):NULL;
     my_xmlSAXHandler_t sax_handler = {0};
@@ -1430,12 +1318,9 @@ EXPORT void* my_xmlCreateIOParserCtxt(x64emu_t* emu, my_xmlSAXHandler_t** p, voi
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getXml2My(lib);    \
-    my_lib = lib;
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeXml2My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

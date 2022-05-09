@@ -20,31 +20,10 @@
 
 const char* expatName = "libexpat.so.1";
 #define LIBNAME expat
-static library_t* my_lib = NULL;
 
 #include "generated/wrappedexpattypes.h"
 
-typedef struct expat_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} expat_my_t;
-
-void* getExpatMy(library_t* lib)
-{
-    expat_my_t* my = (expat_my_t*)calloc(1, sizeof(expat_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeExpatMy(void* lib)
-{
-    //expat_my_t *my = (expat_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -123,23 +102,18 @@ static void* find_CharData_Fct(void* fct)
 
 EXPORT void my_XML_SetElementHandler(x64emu_t* emu, void* p, void* start, void* end)
 {
-    expat_my_t *my = (expat_my_t*)my_lib->priv.w.p2;
     my->XML_SetElementHandler(p, find_Start_Fct(start), find_End_Fct(end));
 }
 
 EXPORT void my_XML_SetCharacterDataHandler(x64emu_t* emu, void* p, void* h)
 {
-    expat_my_t *my = (expat_my_t*)my_lib->priv.w.p2;
     my->XML_SetCharacterDataHandler(p, find_CharData_Fct(h));
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getExpatMy(lib); \
-    my_lib = lib;
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeExpatMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

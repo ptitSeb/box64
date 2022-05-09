@@ -35,7 +35,6 @@ typedef struct wlib_s {
     bridge_t        *bridge;
     void*           lib;        // dlopen result
     void*           priv;       // actual private
-    void*           p2;         // second private
     void*           box64lib;   // ref to the dlopen on box64 itself from context
     char*           altprefix;  // if function names are mangled..
     int             needed;

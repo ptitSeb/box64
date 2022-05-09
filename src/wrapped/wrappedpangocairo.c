@@ -16,9 +16,7 @@ const char* pangocairoName = "libpangocairo-1.0.so.0";
 #define LIBNAME pangocairo
 
 #define CUSTOM_INIT \
-    lib->priv.w.needed = 1; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libpango-1.0.so.0");
+    setNeededLibs(&lib->priv.w, 1, "libpango-1.0.so.0");
 
 
 #include "wrappedlib_init.h"

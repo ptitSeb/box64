@@ -23,32 +23,9 @@ const char* cryptoName = "libcrypto.so.1.0.0";
 #define ALTNAME "libcrypto.so.1.0.2"
 #define ALTNAME2 "libcrypto.so.1.1"
 
-static library_t* my_lib = NULL;
-
 #include "generated/wrappedcryptotypes.h"
 
-typedef struct crypto_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} crypto_my_t;
-
-void* getCryptoMy(library_t* lib)
-{
-    crypto_my_t* my = (crypto_my_t*)calloc(1, sizeof(crypto_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeCryptoMy(void* lib)
-{
-    (void)lib;
-    //crypto_my_t *my = (crypto_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 // utility functions
 #define SUPER() \
@@ -207,115 +184,97 @@ static void* find_passphrase_Fct(void* fct)
 EXPORT int32_t my_ENGINE_ctrl(x64emu_t* emu, void* e, int32_t cmd, int32_t i, void* p, void* f)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     return my->ENGINE_ctrl(e, cmd, i, p, find_ENGINE_ctrl_cb_Fct(f));
 }
 
 EXPORT int32_t my_ENGINE_ctrl_cmd(x64emu_t* emu, void* e, void* cmd, long i, void* p, void* f, int optional)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     return my->ENGINE_ctrl_cmd(e, cmd, i, p, find_ENGINE_ctrl_cb_Fct(f), optional);
 }
 
 EXPORT void my_CRYPTO_set_id_callback(x64emu_t* emu, void* cb)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     my->CRYPTO_set_id_callback(find_id_func_Fct(cb));
 }
 
 EXPORT void my_CRYPTO_set_locking_callback(x64emu_t* emu, void* cb)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     my->CRYPTO_set_locking_callback(find_lock_func_Fct(cb));
 }
 
 EXPORT void my_PEM_read_bio_DSAPrivateKey(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     my->PEM_read_bio_DSAPrivateKey(bp, x, find_passphrase_Fct(cb), u);
 }
 
 EXPORT void my_PEM_read_bio_DSA_PUBKEY(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     my->PEM_read_bio_DSA_PUBKEY(bp, x, find_passphrase_Fct(cb), u);
 }
 
 EXPORT void my_PEM_read_bio_RSAPrivateKey(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     my->PEM_read_bio_RSAPrivateKey(bp, x, find_passphrase_Fct(cb), u);
 }
 
 EXPORT void my_PEM_read_bio_RSA_PUBKEY(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     my->PEM_read_bio_RSA_PUBKEY(bp, x, find_passphrase_Fct(cb), u);
 }
 
 EXPORT void my_PEM_read_bio_ECPrivateKey(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     my->PEM_read_bio_ECPrivateKey(bp, x, find_passphrase_Fct(cb), u);
 }
 
 EXPORT void my_PEM_read_bio_EC_PUBKEY(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     my->PEM_read_bio_EC_PUBKEY(bp, x, find_passphrase_Fct(cb), u);
 }
 
 EXPORT int my_PEM_write_bio_DSAPrivateKey(x64emu_t* emu, void* bp, void* x, void* e, void* str, int len, void* cb, void* u)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     return my->PEM_write_bio_DSAPrivateKey(bp, x, e, str, len, find_passphrase_Fct(cb), u);
 }
 
 EXPORT int my_PEM_write_bio_RSAPrivateKey(x64emu_t* emu, void* bp, void* x, void* e, void* str, int len, void* cb, void* u)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     return my->PEM_write_bio_RSAPrivateKey(bp, x, e, str, len, find_passphrase_Fct(cb), u);
 }
 
 EXPORT int my_PEM_write_bio_ECPrivateKey(x64emu_t* emu, void* bp, void* x, void* e, void* str, int len, void* cb, void* u)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     return my->PEM_write_bio_ECPrivateKey(bp, x, e, str, len, find_passphrase_Fct(cb), u);
 }
 
 EXPORT void* my_sk_new(x64emu_t* emu, void* f)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     return my->sk_new(find_cmp_fnc_Fct(f));
 }
 
 EXPORT void my_sk_pop_free(x64emu_t* emu, void* st, void* f)
 {
     (void)emu;
-    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
     my->sk_pop_free(st, find_free_fnc_Fct(f));
 }
 
 #define CUSTOM_INIT \
-    my_lib = lib;   \
-    lib->priv.w.p2 = getCryptoMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    my_lib = NULL;  \
-    freeCryptoMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

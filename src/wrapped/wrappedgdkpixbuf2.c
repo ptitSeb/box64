@@ -20,32 +20,9 @@
 const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so.0";
 #define LIBNAME gdkpixbuf2
 
-typedef void* (*pFpiiiiiipp_t)(void*, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, void*, void*);
+#include "generated/wrappedgdkpixbuf2types.h"
 
-#define SUPER() \
-    GO(gdk_pixbuf_new_from_data, pFpiiiiiipp_t)
-
-typedef struct gdkpixbuf2_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} gdkpixbuf2_my_t;
-
-void* getGdkpixbuf2My(library_t* lib)
-{
-    gdkpixbuf2_my_t* my = (gdkpixbuf2_my_t*)calloc(1, sizeof(gdkpixbuf2_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeGdkpixbuf2My(void* lib)
-{
-    //gdkpixbuf2_my_t *my = (gdkpixbuf2_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -80,9 +57,6 @@ static void* finddestroy_pixbufFct(void* fct)
 
 EXPORT void* my_gdk_pixbuf_new_from_data(x64emu_t* emu, void* data, int32_t colorspace, int32_t has_alpha, int32_t bpp, int32_t w, int32_t h, int32_t stride, void* destroy_func, void* destroy_data)
 {
-    library_t * lib = GetLibInternal(gdkpixbuf2Name);
-    gdkpixbuf2_my_t *my = (gdkpixbuf2_my_t*)lib->priv.w.p2;
-
     return my->gdk_pixbuf_new_from_data(data, colorspace, has_alpha, bpp, w, h, stride, finddestroy_pixbufFct(destroy_func), destroy_data);
 }
 
@@ -92,10 +66,9 @@ EXPORT void* my_gdk_pixbuf_new_from_data(x64emu_t* emu, void* data, int32_t colo
         return -1;
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getGdkpixbuf2My(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeGdkpixbuf2My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

@@ -21,35 +21,11 @@ const char* udev0Name = "libudev.so.0";
 // fallback to 1 version... Not sure if really correct (probably not)
 #define ALTNAME "libudev.so.1"
 
-static library_t* my_lib = NULL;
+#define ADDED_FUNCTIONS()           \
 
-typedef void (*vFpp_t)(void*, void*);
+#include "generated/wrappedudev0types.h"
 
-#define SUPER()                 \
-GO(udev_set_log_fn, vFpp_t)     \
-
-typedef struct udev0_my_s {
-    // functions
-    #define GO(A, W)    W A;
-    SUPER()
-    #undef GO
-} udev0_my_t;
-
-static void* getUdev0My(library_t* lib)
-{
-    udev0_my_t* my = (udev0_my_t*)calloc(1, sizeof(udev0_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-
-static void freeUdev0My(void* lib)
-{
-    (void)lib;
-    //udev0_my_t *my = (udev0_my_t *)lib;
-}
-#undef SUPER
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -95,20 +71,15 @@ static void* find_log_fn_Fct(void* fct)
 
 EXPORT void my0_udev_set_log_fn(x64emu_t* emu, void* udev, void* f)
 {
-    udev0_my_t* my = (udev0_my_t*)my_lib->priv.w.p2;
-
     my->udev_set_log_fn(udev, find_log_fn_Fct(f));
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getUdev0My(lib);   \
-    lib->altmy = strdup("my0_");        \
-    my_lib = lib;
+    SETALT(my0_);   \
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeUdev0My(lib->priv.w.p2);\
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"
 

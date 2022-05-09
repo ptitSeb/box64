@@ -20,29 +20,7 @@ const char* libzName = "libz.so.1";
 
 #include "generated/wrappedlibztypes.h"
 
-typedef struct libz_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libz_my_t;
-
-
-void* getZMy(library_t* lib)
-{
-    libz_my_t* my = (libz_my_t*)calloc(1, sizeof(libz_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeZMy(void* lib)
-{
-    (void)lib;
-    //libz_my_t *my = (libz_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -124,21 +102,18 @@ static void wrapper_stream_z(x64emu_t* emu, void* str)
 
 EXPORT int my_inflateInit_(x64emu_t* emu, void* str, void* version, int size)
 {
-    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, str);
     return my->inflateInit_(str, version, size);
 }
 
 EXPORT int my_inflateInit2_(x64emu_t* emu, void* str, int windowBits, void* version, int stream_size)
 {
-    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, str);
     return my->inflateInit2_(str, windowBits, version, stream_size);
 }
 
 EXPORT int my_inflateBackInit_(x64emu_t* emu, void* strm, int windowBits, void *window, void* version, int size)
 {
-    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, strm);
     return my->inflateBackInit_(strm, windowBits, window, version, size);
 }
@@ -146,21 +121,18 @@ EXPORT int my_inflateBackInit_(x64emu_t* emu, void* strm, int windowBits, void *
 // TODO: remove this?
 EXPORT int my_inflateEnd(x64emu_t* emu, void* str)
 {
-    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     int r = my->inflateEnd(str);
     return r;
 }
 
 EXPORT int my_deflateInit_(x64emu_t* emu, void* str, int level, void* version, int stream_size)
 {
-    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, str);
     return my->deflateInit_(str, level, version, stream_size);
 }
 
 EXPORT int my_deflateInit2_(x64emu_t* emu, void* str, int level, int method, int windowBits, int memLevel, int strategy, void* version, int stream_size)
 {
-    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, str);
     return my->deflateInit2_(str, level, method, windowBits, memLevel, strategy, version, stream_size);
 }
@@ -168,14 +140,12 @@ EXPORT int my_deflateInit2_(x64emu_t* emu, void* str, int level, int method, int
 // TODO: remove this?
 EXPORT int my_deflateEnd(x64emu_t* emu, void* str)
 {
-    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     int r = my->deflateEnd(str);
     return r;
 }
 
 EXPORT int my_inflate(x64emu_t* emu, void* str, int flush)
 {
-    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, str);
     return my->inflate(str, flush);
     //TODO: should unwrap the stream
@@ -185,11 +155,10 @@ EXPORT int my_inflate(x64emu_t* emu, void* str, int flush)
 
 #define CUSTOM_INIT \
     box64->zlib = lib; \
-    lib->priv.w.p2 = getZMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeZMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2); \
+    freeMy(); \
     ((box64context_t*)(lib->context))->zlib = NULL;
 
 #include "wrappedlib_init.h"

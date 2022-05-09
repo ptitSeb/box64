@@ -15,11 +15,12 @@
 #include "myalign.h"
 #include "debug.h"
 
-static library_t *my_lib = NULL;
 const char* libfuseName = "libfuse.so.2";
 #define LIBNAME libfuse
 
 #include "generated/wrappedlibfusetypes.h"
+
+#include "wrappercallback.h"
 
 typedef struct fuse_lowlevel_ops_s {
     void (*init) (void *userdata, void *conn);
@@ -57,30 +58,6 @@ typedef struct fuse_lowlevel_ops_s {
     void (*setlk) (void* req, unsigned long ino, void *fi, void *lock, int sleep);
     void (*bmap) (void* req, unsigned long ino, size_t blocksize, uint64_t idx);
 } fuse_lowlevel_ops_t;
-
-typedef struct libfuse_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libfuse_my_t;
-
-void* getFuseMy(library_t* lib)
-{
-    my_lib = lib;
-    libfuse_my_t* my = (libfuse_my_t*)calloc(1, sizeof(libfuse_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-
-void freeFuseMy(void* lib)
-{
-    (void)lib;
-    //libfuse_my_t *my = (libfuse_my_t *)lib;
-}
-#undef SUPER
 
 #define SUPER() \
 GO(0)   \
@@ -899,13 +876,11 @@ static void* find_bmap_Fct(void* fct)
 
 EXPORT int my_fuse_opt_parse(x64emu_t* emu, void* args, void* data, void* opts, void* f)
 {
-    libfuse_my_t *my = (libfuse_my_t*)my_lib->priv.w.p2;
     return my->fuse_opt_parse(args, data, opts, findfuse_opt_procFct(f));
 }
 
 EXPORT void* my_fuse_lowlevel_new(x64emu_t* emu, void* args, fuse_lowlevel_ops_t *o, size_t sz, void* data)
 {
-    libfuse_my_t *my = (libfuse_my_t*)my_lib->priv.w.p2;
     static fuse_lowlevel_ops_t o_;
     #define GO(A) o_.A = find_##A##_Fct(o->A); if(o_.A) printf_log(LOG_DEBUG, "fuse: %s is present\n", #A)
     GO(init);
@@ -947,10 +922,9 @@ EXPORT void* my_fuse_lowlevel_new(x64emu_t* emu, void* args, fuse_lowlevel_ops_t
 }
 
 #define CUSTOM_INIT                 \
-    lib->priv.w.p2 = getFuseMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI             \
-    freeFuseMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);
+    freeMy();
     
 #include "wrappedlib_init.h"

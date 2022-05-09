@@ -20,26 +20,10 @@ const char* sdl1soundName = "libSDL_sound-1.0.so.1";
 
 #include "generated/wrappedsdl1soundtypes.h"
 
-typedef struct sdl1sound_my_s {
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} sdl1sound_my_t;
-
-static library_t* my_lib = NULL;
-
-static void* getSDL1SoundMy(library_t* lib)
-{
-    sdl1sound_my_t* my = (sdl1sound_my_t*)calloc(1, sizeof(sdl1sound_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
+#include "wrappercallback.h"
 
 EXPORT void* my_Sound_NewSample(x64emu_t* emu, void* a, void* ext, void* desired, uint32_t buffersize)
 {
-    sdl1sound_my_t *my = (sdl1sound_my_t *)my_lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
     void* r = my->Sound_NewSample(rw, ext, desired, buffersize);
     //RWNativeEnd(rw);  // will be closed automatically
@@ -47,15 +31,11 @@ EXPORT void* my_Sound_NewSample(x64emu_t* emu, void* a, void* ext, void* desired
 }
 
 #define CUSTOM_INIT \
-    my_lib = lib; \
-    lib->priv.w.p2 = getSDL1SoundMy(lib);   \
-    lib->priv.w.needed = 1; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libSDL-1.2.so.0");
+    getMy(lib);   \
+    setNeededLibs(&lib->priv.w, 1, "libSDL-1.2.so.0");
 
 #define CUSTOM_FINI \
-    free(lib->priv.w.p2); \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"
 

@@ -21,40 +21,11 @@
 const char* libusb1Name = "libusb-1.0.so.0";
 #define LIBNAME libusb1
 
-typedef void*   (*pFi_t)            (int);
-typedef int     (*iFp_t)            (void*);
-typedef void    (*vFpu_t)           (void*, uint32_t);
-typedef int     (*iFpiiiiippp_t)    (void*, int, int, int, int, int, void*, void*, void*);
+#define ADDED_FUNCTIONS()           \
 
-static library_t* my_lib = NULL;
+#include "generated/wrappedlibusb1types.h"
 
-#define SUPER() \
-    GO(libusb_hotplug_register_callback, iFpiiiiippp_t) \
-    GO(libusb_alloc_transfer, pFi_t)                    \
-    GO(libusb_submit_transfer, iFp_t)                   \
-    GO(libusb_cancel_transfer, iFp_t)                   \
-
-typedef struct libusb1_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libusb1_my_t;
-
-void* getUsb1My(library_t* lib)
-{
-    libusb1_my_t* my = (libusb1_my_t*)calloc(1, sizeof(libusb1_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeUsb1My(void* lib)
-{
-//    libusb1_my_t *my = (libusb1_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -131,8 +102,6 @@ static void* reverse_transfert_Fct(void* fct)
 
 EXPORT int my_libusb_hotplug_register_callback(x64emu_t* emu, void* ctx, int event, int flags, int vendor, int product, int dev_class, void* f, void* data, void* handle)
 {
-    libusb1_my_t *my = (libusb1_my_t*)my_lib->priv.w.p2;
-
     return my->libusb_hotplug_register_callback(ctx, event, flags, vendor, product, dev_class, findhotplugFct(f), data, handle);
 }
 
@@ -160,8 +129,6 @@ typedef struct my_libusb_transfer_s {
 
 EXPORT void* my_libusb_alloc_transfer(x64emu_t* emu, int num)
 {
-    libusb1_my_t *my = (libusb1_my_t*)my_lib->priv.w.p2;
-
     my_libusb_transfer_t* ret = (my_libusb_transfer_t*)my->libusb_alloc_transfer(num);
     if(ret)
         ret->callback = reverse_transfert_Fct(ret->callback);
@@ -170,27 +137,21 @@ EXPORT void* my_libusb_alloc_transfer(x64emu_t* emu, int num)
 
 EXPORT int my_libusb_submit_transfer(x64emu_t* emu, my_libusb_transfer_t* t)
 {
-    libusb1_my_t *my = (libusb1_my_t*)my_lib->priv.w.p2;
-    
     t->callback = findtransfertFct(t->callback);
     return my->libusb_submit_transfer(t); // don't put back callback, it's unknown if it's safe
 } 
 
 EXPORT int my_libusb_cancel_transfer(x64emu_t* emu, my_libusb_transfer_t* t)
 {
-    libusb1_my_t *my = (libusb1_my_t*)my_lib->priv.w.p2;
-    
     t->callback = findtransfertFct(t->callback);
     return my->libusb_cancel_transfer(t);
 }
 
 #define CUSTOM_INIT \
-    my_lib = lib;   \
-    lib->priv.w.p2 = getUsb1My(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeUsb1My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 

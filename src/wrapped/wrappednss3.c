@@ -20,33 +20,10 @@
 
 const char* nss3Name = "libnss3.so";
 #define LIBNAME nss3
-static library_t *my_lib = NULL;
 
 #include "generated/wrappednss3types.h"
 
-typedef struct nss3_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} nss3_my_t;
-
-void* getNss3My(library_t* lib)
-{
-    my_lib = lib;
-    nss3_my_t* my = (nss3_my_t*)calloc(1, sizeof(nss3_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-
-void freeNss3My(void* lib)
-{
-    //nss3_my_t *my = (nss3_my_t *)lib;
-}
-
-#undef SUPER
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -82,17 +59,14 @@ static void* find_PK11PasswordFunc_Fct(void* fct)
 
 EXPORT void my_PK11_SetPasswordFunc(x64emu_t* emu, void* f)
 {
-    nss3_my_t* my = (nss3_my_t*)my_lib->priv.w.p2;
-
     my->PK11_SetPasswordFunc(find_PK11PasswordFunc_Fct(f));
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getNss3My(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeNss3My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 

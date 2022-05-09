@@ -116,28 +116,7 @@ typedef int (*iFpuuLppp_t)  (void*, uint32_t, uint32_t, uintptr_t, void*, void*,
     GO(FT_Open_Face, iFpplp_t)      \
     GO(FTC_Manager_New, iFpuuLppp_t)
 
-typedef struct freetype_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} freetype_my_t;
-
-void* getFreeTypeMy(library_t* lib)
-{
-    freetype_my_t* my = (freetype_my_t*)calloc(1, sizeof(freetype_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeFreeTypeMy(void* lib)
-{
-    (void)lib;
-    //freetype_my_t *my = (freetype_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 // utility functions
 #define SUPER() \
@@ -215,9 +194,6 @@ static void my_FT_Stream_CloseFunc(FT_StreamRec_t* stream)
 EXPORT int my_FT_Open_Face(x64emu_t* emu, void* library, FT_Open_Args_t* args, long face_index, void* aface)
 {
     (void)emu;
-    library_t* lib = GetLibInternal(freetypeName);
-    freetype_my_t* my = (freetype_my_t*)lib->priv.w.p2;
-
     int wrapstream = (args->flags&0x02)?1:0;
     if(wrapstream) {
         my_iofunc = (uintptr_t)args->stream->read;
@@ -238,17 +214,13 @@ EXPORT int my_FT_Open_Face(x64emu_t* emu, void* library, FT_Open_Args_t* args, l
 EXPORT int my_FTC_Manager_New(x64emu_t* emu, void* l, uint32_t max_faces, uint32_t max_sizes, uintptr_t max_bytes, void* req, void* data, void* aman)
 {
     (void)emu;
-    library_t* lib = GetLibInternal(freetypeName);
-    freetype_my_t* my = (freetype_my_t*)lib->priv.w.p2;
-
     return my->FTC_Manager_New(l, max_faces, max_sizes, max_bytes, find_FTC_Face_Requester_Fct(req), data, aman);
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getFreeTypeMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeFreeTypeMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

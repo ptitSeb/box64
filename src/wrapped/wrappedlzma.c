@@ -20,34 +20,10 @@
 
 const char* lzmaName = "liblzma.so.5";
 #define LIBNAME lzma
-static library_t* my_lib = NULL;
-
 
 #include "generated/wrappedlzmatypes.h"
 
-typedef struct lzma_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} lzma_my_t;
-
-void* getLzmaMy(library_t* lib)
-{
-    lzma_my_t* my = (lzma_my_t*)calloc(1, sizeof(lzma_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    (void)lib; // So many wrapped functions here
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeLzmaMy(void* lib)
-{
-    (void)lib;
-    //lzma_my_t *my = (lzma_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 typedef struct lzma_allocator_s {
 	void *(*alloc)(void *opaque, size_t nmemb, size_t size);
@@ -120,7 +96,6 @@ static void wrap_alloc_struct(lzma_allocator_t* dst, lzma_allocator_t* src)
 
 EXPORT int my_lzma_index_buffer_decode(x64emu_t* emu, void* i, void* memlimit, lzma_allocator_t* alloc, void* in_, void* in_pos, size_t in_size)
 {
-    lzma_my_t *my = (lzma_my_t *)my_lib->priv.w.p2;
     lzma_allocator_t allocator = {0};
     wrap_alloc_struct(&allocator, alloc);
     return my->lzma_index_buffer_decode(i, memlimit, alloc?&allocator:NULL, in_, in_pos, in_size);
@@ -128,7 +103,6 @@ EXPORT int my_lzma_index_buffer_decode(x64emu_t* emu, void* i, void* memlimit, l
 
 EXPORT void my_lzma_index_end(x64emu_t* emu, void* i, lzma_allocator_t* alloc)
 {
-    lzma_my_t *my = (lzma_my_t *)my_lib->priv.w.p2;
     lzma_allocator_t allocator = {0};
     wrap_alloc_struct(&allocator, alloc);
     return my->lzma_index_end(i,alloc?&allocator:NULL);
@@ -136,7 +110,6 @@ EXPORT void my_lzma_index_end(x64emu_t* emu, void* i, lzma_allocator_t* alloc)
 
 EXPORT int my_lzma_stream_buffer_decode(x64emu_t* emu, void* memlimit, uint32_t flags, lzma_allocator_t* alloc, void* in_, void* in_pos, size_t in_size, void* out_, void* out_pos, size_t out_size)
 {
-    lzma_my_t *my = (lzma_my_t *)my_lib->priv.w.p2;
     lzma_allocator_t allocator = {0};
     wrap_alloc_struct(&allocator, alloc);
     return my->lzma_stream_buffer_decode(memlimit, flags, alloc?&allocator:NULL, in_, in_pos, in_size, out_, out_pos, out_size);
@@ -144,12 +117,9 @@ EXPORT int my_lzma_stream_buffer_decode(x64emu_t* emu, void* memlimit, uint32_t 
 
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getLzmaMy(lib); \
-    my_lib = lib;
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeLzmaMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

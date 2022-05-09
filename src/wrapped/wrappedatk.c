@@ -20,34 +20,10 @@
 
 const char* atkName = "libatk-1.0.so.0";
 #define LIBNAME atk
-static library_t* my_lib = NULL;
 
 #include "generated/wrappedatktypes.h"
 
-typedef struct atk_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} atk_my_t;
-
-void* getAtkMy(library_t* lib)
-{
-    my_lib = lib;
-    atk_my_t* my = (atk_my_t*)calloc(1, sizeof(atk_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeAtkMy(void* lib)
-{
-    my_lib = NULL;
-    (void)lib;
-    //atk_my_t *my = (atk_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -127,22 +103,16 @@ static void* find_AtkKeySnoopFunc_Fct(void* fct)
 
 EXPORT void my_atk_focus_tracker_init(x64emu_t* emu, void* f)
 {
-    atk_my_t *my = (atk_my_t*)my_lib->priv.w.p2;
-
     my->atk_focus_tracker_init(find_AtkEventListenerInit_Fct(f));
 }
 
 EXPORT uint32_t my_atk_add_focus_tracker(x64emu_t* emu, void* f)
 {
-    atk_my_t *my = (atk_my_t*)my_lib->priv.w.p2;
-
     return my->atk_add_focus_tracker(find_AtkEventListener_Fct(f));
 }
 
 EXPORT uint32_t my_atk_add_key_event_listener(x64emu_t* emu, void* f, void* p)
 {
-    atk_my_t *my = (atk_my_t*)my_lib->priv.w.p2;
-
     return my->atk_add_key_event_listener(find_AtkEventListener_Fct(f), p);
 }
 
@@ -151,11 +121,9 @@ EXPORT uint32_t my_atk_add_key_event_listener(x64emu_t* emu, void* f, void* p)
         return -1;
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getAtkMy(lib); \
-    my_lib = lib;
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeAtkMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
+    freeMy();
 
 #include "wrappedlib_init.h"

@@ -15,12 +15,11 @@ const char* libxftName = "libXft.so.2";
 #define LIBNAME libxft
 
 #define CUSTOM_INIT \
-    lib->priv.w.needed = 4; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libX11.so.6");          \
-    lib->priv.w.neededlibs[1] = strdup("libfontconfig.so.1");   \
-    lib->priv.w.neededlibs[2] = strdup("libXrender.so.1");      \
-    lib->priv.w.neededlibs[3] = strdup("libfreetype.so.6");
+    setNeededLibs(&lib->priv.w, 4,  \
+        "libX11.so.6",              \
+        "libfontconfig.so.1",       \
+        "libXrender.so.1",          \
+        "libfreetype.so.6");
 
 #include "wrappedlib_init.h"
 

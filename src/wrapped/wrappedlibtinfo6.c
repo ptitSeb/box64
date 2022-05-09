@@ -21,31 +21,9 @@
 const char* libtinfo6Name = "libtinfo.so.6";
 #define LIBNAME libtinfo6
 
-static library_t* my_lib = NULL;
-
 #include "generated/wrappedlibtinfo6types.h"
 
-typedef struct libtinfo6_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libtinfo6_my_t;
-
-void* getTinfo6My(library_t* lib)
-{
-    libtinfo6_my_t* my = (libtinfo6_my_t*)calloc(1, sizeof(libtinfo6_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeTinfo6My(void* lib)
-{
-    //libtinfo6_my_t *my = (libtinfo6_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 // utility functions
 #define SUPER() \
@@ -83,19 +61,14 @@ static void* find_putc_Fct(void* fct)
 
 EXPORT int my6_tputs(x64emu_t* emu, void* str, int affcnt, void* f)
 {
-    libtinfo6_my_t* my = (libtinfo6_my_t*)my_lib->priv.w.p2;
-
     return my->tputs(str, affcnt, find_putc_Fct(f));
 }
 
 #define CUSTOM_INIT \
-    my_lib = lib;   \
-    lib->altmy = strdup("my6_"); \
-    lib->priv.w.p2 = getTinfo6My(lib);
+    SETALT(my6_); \
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    my_lib = NULL;              \
-    freeTinfo6My(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

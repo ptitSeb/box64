@@ -140,14 +140,6 @@ typedef struct box64context_s {
     void*               sdl2freerw;
     library_t           *sdl2mixerlib;
     library_t           *x11lib;
-    library_t           *libxcb;
-    library_t           *libxcbxfixes;
-    library_t           *libxcbshape;
-    library_t           *libxcbshm;
-    library_t           *libxcbrandr;
-    library_t           *libxcbimage;
-    library_t           *libxcbkeysyms;
-    library_t           *libxcbxtest;
     library_t           *zlib;
     library_t           *vorbisfile;
     library_t           *vorbis;

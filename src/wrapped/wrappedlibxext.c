@@ -19,7 +19,6 @@
 
 const char* libxextName = "libXext.so.6";
 #define LIBNAME libxext
-static library_t* my_lib = NULL;
 
 typedef struct _XImage XImage;
 void BridgeImageFunc(x64emu_t *emu, XImage *img);
@@ -43,28 +42,7 @@ typedef struct my_XExtensionHooks {
 
 #include "generated/wrappedlibxexttypes.h"
 
-typedef struct xext_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} xext_my_t;
-
-void* getXextMy(library_t* lib)
-{
-    xext_my_t* my = (xext_my_t*)calloc(1, sizeof(xext_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-
-void freeXextMy(void* lib)
-{
-    (void)lib;
-    //xext_my_t *my = (xext_my_t *)lib;
-}
-#undef SUPER
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -111,8 +89,6 @@ static void* reverse_exterrorhandleFct(void* fct)
 EXPORT void* my_XShmCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt
                     , void* data, void* shminfo, uint32_t w, uint32_t h)
 {
-    xext_my_t *my = (xext_my_t*)my_lib->priv.w.p2;
-
     XImage *img = my->XShmCreateImage(disp, vis, depth, fmt, data, shminfo, w, h);
     if(!img)
         return img;
@@ -125,8 +101,6 @@ EXPORT int32_t my_XShmPutImage(x64emu_t* emu, void* disp, void* drawable, void* 
                     , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
                     , uint32_t w, uint32_t h, int32_t sendevt)
 {
-    xext_my_t *my = (xext_my_t*)my_lib->priv.w.p2;
-
     UnbridgeImageFunc(emu, (XImage*)image);
     int32_t r = my->XShmPutImage(disp, drawable, gc, image, src_x, src_y, dst_x, dst_y, w, h, sendevt);
     // bridge all access functions...
@@ -136,8 +110,6 @@ EXPORT int32_t my_XShmPutImage(x64emu_t* emu, void* disp, void* drawable, void* 
 
 EXPORT int32_t my_XShmGetImage(x64emu_t* emu, void* disp, void* drawable, void* image, int32_t x, int32_t y, uint32_t plane)
 {
-    xext_my_t *my = (xext_my_t*)my_lib->priv.w.p2;
-
     UnbridgeImageFunc(emu, (XImage*)image);
     int32_t r = my->XShmGetImage(disp, drawable, image, x, y, plane);
     // bridge all access functions...
@@ -148,7 +120,6 @@ EXPORT int32_t my_XShmGetImage(x64emu_t* emu, void* disp, void* drawable, void* 
 EXPORT void* my_XSetExtensionErrorHandler(x64emu_t* emu, void* handler)
 {
     (void)emu;
-    xext_my_t *my = (xext_my_t*)my_lib->priv.w.p2;
     return reverse_exterrorhandleFct(my->XSetExtensionErrorHandler(find_exterrorhandle_Fct(handler)));
 }
 
@@ -222,8 +193,6 @@ static char* my_hook_error_string(void* a, int b, void* c, void* d, int e) {
 
 EXPORT void* my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* extname, my_XExtensionHooks* hooks, int nevents, void* data)
 {
-    xext_my_t *my = (xext_my_t*)my_lib->priv.w.p2;
-
     if(!context)
         context = emu->context;
 
@@ -245,20 +214,16 @@ EXPORT void* my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* ex
     return ret;
 }
 
-#define CUSTOM_INIT \
-    lib->priv.w.p2 = getXextMy(lib);    \
-    my_lib = lib;                       \
-    lib->priv.w.needed = 5;             \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libX11.so.6"); \
-    lib->priv.w.neededlibs[1] = strdup("libxcb.so.1"); \
-    lib->priv.w.neededlibs[2] = strdup("libXau.so.6"); \
-    lib->priv.w.neededlibs[3] = strdup("libdl.so.2");  \
-    lib->priv.w.neededlibs[4] = strdup("libXdmcp.so.6");
+#define CUSTOM_INIT                 \
+    getMy(lib);                     \
+    setNeededLibs(&lib->priv.w, 5,  \
+        "libX11.so.6",              \
+        "libxcb.so.1",              \
+        "libXau.so.6",              \
+        "libdl.so.2",               \
+        "libXdmcp.so.6");
 
 #define CUSTOM_FINI \
-    freeXextMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

@@ -19,6 +19,5 @@
 
 const char* libxcbdri3Name = "libxcb-dri3.so.0";
 #define LIBNAME libxcbdri3
-static library_t *my_lib = NULL;
 
 #include "wrappedlib_init.h"

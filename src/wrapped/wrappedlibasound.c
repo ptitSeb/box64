@@ -24,13 +24,6 @@ const char* libasoundName = "libasound.so.2";
 
 #include "generated/wrappedlibasoundtypes.h"
 
-typedef struct asound_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} asound_my_t;
-
 EXPORT uintptr_t my_snd_lib_error = 0;
 static void default_error_handler(const char *file, int line, const char *function, int err, const char *fmt, va_list ap)
 {
@@ -38,25 +31,13 @@ static void default_error_handler(const char *file, int line, const char *functi
     vprintf(fmt, ap);
 }
 
-void* getAsoundMy(library_t* lib)
-{
-    asound_my_t* my = (asound_my_t*)calloc(1, sizeof(asound_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    // setup custom error handler
+#define ADDED_INIT() \
     my_snd_lib_error = AddCheckBridge(my_context->system, vFpipipV, default_error_handler, 0, "ASoundCustomErrorHandler");
-    // all done
-    return my;
-}
-#undef SUPER
 
-void freeAsoundMy(void* lib)
-{
-    (void)lib;
-    // asound_my_t *my = (asound_my_t *)lib;
+#define ADDED_FINI() \
     my_snd_lib_error = 0;   // no removing of bridge
-}
+
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -90,15 +71,11 @@ static void* findAsyncFct(void* fct)
 
 EXPORT int my_snd_async_add_handler(x64emu_t *emu, void *handler, int fd, void* callback, void *private_data)
 {
-    asound_my_t* my = (asound_my_t*)emu->context->asound->priv.w.p2;
-
     return my->snd_async_add_handler(handler, fd, findAsyncFct(callback), private_data);
 }
 
 EXPORT int my_snd_async_add_pcm_handler(x64emu_t *emu, void *handler, void* pcm,  void* callback, void *private_data)
 {
-    asound_my_t* my = (asound_my_t*)emu->context->asound->priv.w.p2;
-
     return my->snd_async_add_pcm_handler(handler, pcm, findAsyncFct(callback), private_data);
 }
 
@@ -124,7 +101,6 @@ static void empty_error_handler(const char *file, int line, const char *function
 
 EXPORT int my_snd_lib_error_set_handler(x64emu_t* emu, void* handler)
 {
-    asound_my_t* my = (asound_my_t*)emu->context->asound->priv.w.p2;
     current_error_handler = handler;
     void *error_handler;
     uint8_t *code = (uint8_t *)handler;
@@ -163,11 +139,10 @@ EXPORT void* my_snd_dlsym(x64emu_t* emu, void* handle, void* name, void* version
 
 #define CUSTOM_INIT                     \
     box64->asound = lib;                \
-    lib->priv.w.p2 = getAsoundMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI                     \
     lib->context->asound = NULL;        \
-    freeAsoundMy(lib->priv.w.p2);       \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

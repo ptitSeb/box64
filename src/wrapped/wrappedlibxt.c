@@ -22,31 +22,7 @@ const char* libxtName = "libXt.so.6";
 
 #include "generated/wrappedlibxttypes.h"
 
-typedef struct libxt_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libxt_my_t;
-
-static library_t* my_lib = NULL;
-void* getXtMy(library_t* lib)
-{
-    my_lib = lib;
-    libxt_my_t* my = (libxt_my_t*)calloc(1, sizeof(libxt_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeXtMy(void* lib)
-{
-    my_lib = NULL;
-    (void)lib;
-    //libxt_my_t *my = (libxt_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -131,36 +107,26 @@ EXPORT void my_XtAddEventHandler(x64emu_t* emu, void* w, uint32_t mask, int32_t 
 {
     (void)emu;
     void* fct = findEventFct(cb);
-    libxt_my_t* my = (libxt_my_t*)my_lib->priv.w.p2;
-
     my->XtAddEventHandler(w, mask, maskable, fct, data);
 }
 
 EXPORT long my_XtAppAddWorkProc(x64emu_t* emu, void* context, void* proc, void* data)
 {
     (void)emu;
-    libxt_my_t* my = (libxt_my_t*)my_lib->priv.w.p2;
-
     return my->XtAppAddWorkProc(context, findWorkProcFct(proc), data);
 }
 
 EXPORT long my_XtAppAddInput(x64emu_t* emu, void* context, int source, void* cond, void* proc, void* data)
 {
     (void)emu;
-    libxt_my_t* my = (libxt_my_t*)my_lib->priv.w.p2;
-
     return my->XtAppAddInput(context, source, cond, findInputCallbackFct(proc), data);
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getXtMy(lib);   \
-    lib->priv.w.needed = 2; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libX11.so.6"); \
-    lib->priv.w.neededlibs[1] = strdup("libXext.so.6");
+    getMy(lib);   \
+    setNeededLibs(&lib->priv.w, 2, "libX11.so.6", "libXext.so.6");
 
 #define CUSTOM_FINI \
-    freeXtMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

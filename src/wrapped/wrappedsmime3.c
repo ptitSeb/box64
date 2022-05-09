@@ -20,31 +20,10 @@
 
 const char* smime3Name = "libsmime3.so";
 #define LIBNAME smime3
-static library_t *my_lib = NULL;
 
 #include "generated/wrappedsmime3types.h"
 
-typedef struct smime3_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} smime3_my_t;
-
-void* getSmime3My(library_t* lib)
-{
-    my_lib = lib;
-    smime3_my_t* my = (smime3_my_t*)calloc(1, sizeof(smime3_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-
-void freeSmime3My(void* lib)
-{
-    //smime3_my_t *my = (smime3_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #undef SUPER
 
@@ -266,31 +245,23 @@ static void* find_NSSCMSGetDecryptKeyCallback_Fct(void* fct)
 
 EXPORT void my_SEC_PKCS12CreateExportContext(x64emu_t* emu, void* f, void* pwfnarg, void* slot, void* wincx)
 {
-    smime3_my_t* my = (smime3_my_t*)my_lib->priv.w.p2;
-
     my->SEC_PKCS12CreateExportContext(find_SECKEYGetPasswordKey_Fct(f), pwfnarg, slot, wincx);
 }
 
 EXPORT void* my_SEC_PKCS12DecoderStart(x64emu_t* emu, void* item, void* slot, void* wincx, void* dOpen, void* dClose, 
     void* dRead, void* dWrite, void* dArg)
 {
-    smime3_my_t* my = (smime3_my_t*)my_lib->priv.w.p2;
-
     return my->SEC_PKCS12DecoderStart(item, slot, wincx, find_digestOpenFn_Fct(dOpen), find_digestCloseFn_Fct(dClose),
                     find_digestIOFn_Fct(dRead), find_digestIOFn_Fct(dWrite), dArg);
 }
 
 EXPORT int my_SEC_PKCS12DecoderValidateBags(x64emu_t* emu, void* ctx, void* f)
 {
-    smime3_my_t* my = (smime3_my_t*)my_lib->priv.w.p2;
-
     return my->SEC_PKCS12DecoderValidateBags(ctx, find_SEC_PKCS12NicknameCollisionCallback_Fct(f));
 }
 
 EXPORT int my_SEC_PKCS12Encode(x64emu_t* emu, void* p12exp, void* f, void* arg)
 {
-    smime3_my_t* my = (smime3_my_t*)my_lib->priv.w.p2;
-
     return my->SEC_PKCS12Encode(p12exp, find_SEC_PKCS12EncoderOutputCallback_Fct(f), arg);
 }
 
@@ -298,19 +269,16 @@ EXPORT void* my_NSS_CMSEncoder_Start(x64emu_t* emu, void* cmsg, void* outputf, v
                 void* dest, void* destpool, void* pwfn, void* pwfnarg,
                 void* decryptcb, void* decryptarg, void* detached, void* items)
 {
-    smime3_my_t* my = (smime3_my_t*)my_lib->priv.w.p2;
-
     return my->NSS_CMSEncoder_Start(cmsg, find_NSSCMSContentCallback_Fct(outputf), outputarg,
                     dest, destpool, find_PK11PasswordFunc_Fct(pwfn), pwfnarg,
                     find_NSSCMSGetDecryptKeyCallback_Fct(decryptcb), decryptarg, detached, items);
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getSmime3My(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeSmime3My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 

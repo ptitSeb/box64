@@ -22,33 +22,11 @@
 const char* gthread2Name = "libgthread-2.0.so.0";
 #define LIBNAME gthread2
 
-typedef void  (*vFp_t)(void*);
+#define ADDED_FUNCTIONS() \
 
-#define SUPER() \
-    GO(g_thread_init, vFp_t)                            \
-    GO(g_thread_init_with_errorcheck_mutexes, vFp_t)
+#include "wrappedgthread2types.h"
 
-typedef struct gthread2_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} gthread2_my_t;
-
-void* getGthread2My(library_t* lib)
-{
-    gthread2_my_t* my = (gthread2_my_t*)calloc(1, sizeof(gthread2_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeGthread2My(void* lib)
-{
-    //gthread2_my_t *my = (gthread2_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 EXPORT int g_threads_got_initialized;
 
@@ -85,9 +63,6 @@ EXPORT void my_g_thread_init(x64emu_t* emu, my_GThreadFunctions_t* vtable)
         return;
     }
 
-    library_t * lib = GetLibInternal(gthread2Name);
-    gthread2_my_t *my = (gthread2_my_t*)lib->priv.w.p2;
-
     if(!vtable)
         return my->g_thread_init(NULL);
 
@@ -106,9 +81,6 @@ EXPORT void my_g_thread_init_with_errorcheck_mutexes(x64emu_t* emu, my_GThreadFu
         my_setGlobalGThreadsInit();
         return;
     }
-
-    library_t * lib = GetLibInternal(gthread2Name);
-    gthread2_my_t *my = (gthread2_my_t*)lib->priv.w.p2;
 
     if(vtable)
         printf_log(LOG_NONE, "Warning, vtable is not NULL in g_thread_init_with_errorcheck_mutexes call!\n");
@@ -131,11 +103,10 @@ void** my_GetGthreadsGotInitialized()
         return -1;
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getGthread2My(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeGthread2My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 

@@ -23,28 +23,7 @@ const char* libsmName = "libSM.so.6";
 
 #include "generated/wrappedlibsmtypes.h"
 
-typedef struct libsm_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libsm_my_t;
-
-void* getSMMy(library_t* lib)
-{
-    libsm_my_t* my = (libsm_my_t*)calloc(1, sizeof(libsm_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeSMMy(void* lib)
-{
-    (void)lib;
-    //libsm_my_t *my = (libsm_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 typedef struct my_SmcCallbacks_s {
     struct {
@@ -100,7 +79,6 @@ static void my_save_complete(void* smcConn, void* clientData)
 EXPORT void* my_SmcOpenConnection(x64emu_t* emu, void* networkIdsList, void* context, int major, int minor, unsigned long mask, my_SmcCallbacks_t* cb, void* previousId, void* clientIdRet, int errorLength, void* errorRet)
 {
     (void)emu;
-    libsm_my_t* my = (libsm_my_t*)GetLibInternal(libsmName)->priv.w.p2;
     my_SmcCallbacks_t nat = {0};
     #define GO(A, B) if(mask&A) {my_##B##_fct = (uintptr_t)cb->B.callback; nat.B.callback = my_##B; nat.B.client_data=cb->B.client_data;}
     GO(SmcSaveYourselfProcMask, save_yourself)
@@ -148,22 +126,19 @@ static void* findRequestFct(void* fct)
 EXPORT int my_SmcInteractRequest(x64emu_t* emu, void* smcConn, int f, void* cb, void* data)
 {
     (void)emu;
-    libsm_my_t* my = (libsm_my_t*)GetLibInternal(libsmName)->priv.w.p2;
     return my->SmcInteractRequest(smcConn, f, findRequestFct(cb), data);
 }
 
 EXPORT int my_SmcRequestSaveYourselfPhase2(x64emu_t* emu, void* smcConn, void* cb, void* data)
 {
     (void)emu;
-    libsm_my_t* my = (libsm_my_t*)GetLibInternal(libsmName)->priv.w.p2;
     return my->SmcRequestSaveYourselfPhase2(smcConn, findRequestFct(cb), data);
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getSMMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeSMMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

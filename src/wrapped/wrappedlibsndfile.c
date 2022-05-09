@@ -20,35 +20,11 @@
 const char* libsndfileName = "libsndfile.so.1";
 #define LIBNAME libsndfile
 
-typedef int   (*iFp_t)(void*);
-typedef void* (*pFpipp_t)(void*, int32_t, void*, void*);
+#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(sf_open_virtual, pFpipp_t)    \
-    GO(sf_close, iFp_t)
+#include "generated/wrappedlibsndfiletypes.h"
 
-typedef struct sndfile_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} sndfile_my_t;
-
-void* getSndfileMy(library_t* lib)
-{
-    sndfile_my_t* my = (sndfile_my_t*)calloc(1, sizeof(sndfile_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-
-    return my;
-}
-#undef SUPER
-
-void freeSndfileMy(void* lib)
-{
-    //sndfile_my_t *my = (sndfile_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -184,9 +160,6 @@ typedef struct my_sfvirtual_io_s
 
 EXPORT void* my_sf_open_virtual(x64emu_t* emu, my_sfvirtual_io_t* sfvirtual, int mode, void* sfinfo, void* data)
 {
-    library_t * lib = GetLibInternal(libsndfileName);
-    sndfile_my_t *my = (sndfile_my_t*)lib->priv.w.p2;
-
     my_sfvirtual_io_t native = {0};
     native.get_filelen = find_sf_vio_get_filelen_Fct(sfvirtual->get_filelen);
     native.seek = find_sf_vio_seek_Fct(sfvirtual->seek);
@@ -199,18 +172,14 @@ EXPORT void* my_sf_open_virtual(x64emu_t* emu, my_sfvirtual_io_t* sfvirtual, int
 
 EXPORT int my_sf_close(x64emu_t* emu, void* sf)
 {
-    library_t * lib = GetLibInternal(libsndfileName);
-    sndfile_my_t *my = (sndfile_my_t*)lib->priv.w.p2;
-
     return my->sf_close(sf);
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getSndfileMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeSndfileMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 

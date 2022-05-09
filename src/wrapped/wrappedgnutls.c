@@ -21,32 +21,9 @@
 const char* gnutlsName = "libgnutls.so.30";
 #define LIBNAME gnutls
 
-static library_t *my_lib = NULL;
-
 #include "generated/wrappedgnutlstypes.h"
 
-typedef struct gnutls_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} gnutls_my_t;
-
-void* getGnutlsMy(library_t* lib)
-{
-    gnutls_my_t* my = (gnutls_my_t*)calloc(1, sizeof(gnutls_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeGnutlsMy(void* lib)
-{
-    (void)lib;
-    //gnutls_my_t *my = (gnutls_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 // utility functions
 #define SUPER() \
@@ -110,30 +87,24 @@ static void* find_pullpush_Fct(void* fct)
 EXPORT void my_gnutls_global_set_log_function(x64emu_t* emu, void* f)
 {
     (void)emu;
-    gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
     my->gnutls_global_set_log_function(find_gnutls_log_Fct(f));
 }
 
 EXPORT void my_gnutls_transport_set_pull_function(x64emu_t* emu, void* session, void* f)
 {
     (void)emu;
-    gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
     my->gnutls_transport_set_pull_function(session, find_pullpush_Fct(f));
 }
 EXPORT void my_gnutls_transport_set_push_function(x64emu_t* emu, void* session, void* f)
 {
     (void)emu;
-    gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
     my->gnutls_transport_set_push_function(session, find_pullpush_Fct(f));
 }
 
 #define CUSTOM_INIT \
-    my_lib = lib;   \
-    lib->priv.w.p2 = getGnutlsMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    my_lib = NULL;  \
-    freeGnutlsMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

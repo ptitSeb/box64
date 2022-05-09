@@ -20,35 +20,11 @@
 const char* mpg123Name = "libmpg123.so.0";
 #define LIBNAME mpg123
 
-typedef int (*iFpppp_t) (void*, void*, void*, void*);
+#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(mpg123_replace_reader_handle, iFpppp_t)      \
-    GO(mpg123_replace_reader_handle_32, iFpppp_t)   \
-    GO(mpg123_replace_reader_handle_64, iFpppp_t)   \
+#include "generated/wrappedmpg123types.h"
 
-typedef struct mpg123_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} mpg123_my_t;
-
-void* getMpg123My(library_t* lib)
-{
-    mpg123_my_t* my = (mpg123_my_t*)calloc(1, sizeof(mpg123_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-
-void freeMpg123My(void* lib)
-{
-    //mpg123_my_t *my = (mpg123_my_t *)lib;
-}
-
-#undef SUPER
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -128,34 +104,24 @@ static void* find_cleanup_Fct(void* fct)
 
 EXPORT int my_mpg123_replace_reader_handle(x64emu_t* emu, void* mh, void* r_read, void* r_lseek, void* cleanup)
 {
-    library_t * lib = GetLibInternal(mpg123Name);
-    mpg123_my_t *my = (mpg123_my_t*)lib->priv.w.p2;
-
     return my->mpg123_replace_reader_handle(mh, find_r_read_Fct(r_read), find_r_lseek_Fct(r_lseek), find_cleanup_Fct(cleanup));
 }
 
 EXPORT int my_mpg123_replace_reader_handle_32(x64emu_t* emu, void* mh, void* r_read, void* r_lseek, void* cleanup)
 {
-    library_t * lib = GetLibInternal(mpg123Name);
-    mpg123_my_t *my = (mpg123_my_t*)lib->priv.w.p2;
-
     return my->mpg123_replace_reader_handle_32(mh, find_r_read_Fct(r_read), find_r_lseek_Fct(r_lseek), find_cleanup_Fct(cleanup));
 }
 
 EXPORT int my_mpg123_replace_reader_handle_64(x64emu_t* emu, void* mh, void* r_read, void* r_lseek, void* cleanup)
 {
-    library_t * lib = GetLibInternal(mpg123Name);
-    mpg123_my_t *my = (mpg123_my_t*)lib->priv.w.p2;
-
     return my->mpg123_replace_reader_handle_64(mh, find_r_read_Fct(r_read), find_r_lseek_Fct(r_lseek), find_cleanup_Fct(cleanup));
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getMpg123My(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeMpg123My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 

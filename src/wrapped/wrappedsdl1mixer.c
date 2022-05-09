@@ -16,40 +16,14 @@
 #include "sdl1rwops.h"
 #include "callback.h"
 
-typedef void* (*pFpi_t)(void*, int32_t);
-typedef void* (*pFp_t)(void*);
-typedef int   (*iFip_t)(int, void*);
-typedef void* (*pFpii_t)(void*, int32_t, int32_t);
-typedef void  (*vFp_t)(void*);
-typedef void  (*vFpp_t)(void*, void*);
-typedef int   (*iFippp_t)(int, void*, void*, void*);
+const char* sdl1mixerName = "libSDL_mixer-1.2.so.0";
+#define LIBNAME sdl1mixer
 
-#define SUPER() \
-    GO(Mix_LoadMUSType_RW,pFpii_t)      \
-    GO(Mix_LoadMUS_RW,pFp_t)            \
-    GO(Mix_LoadWAV_RW,pFpi_t)           \
-    GO(Mix_SetPostMix,vFpp_t)           \
-    GO(Mix_ChannelFinished,vFp_t)       \
-    GO(Mix_HookMusic, vFpp_t)           \
-    GO(Mix_HookMusicFinished, vFp_t)    \
-    GO(Mix_RegisterEffect, iFippp_t)    \
-    GO(Mix_UnregisterEffect, iFip_t)    \
+#define ADDED_FUNCTIONS() \
 
-typedef struct sdl1mixer_my_s {
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} sdl1mixer_my_t;
+#include "generated/wrappedsdl1mixertypes.h"
 
-static void* getSDL1MixerMy(library_t* lib)
-{
-    sdl1mixer_my_t* my = (sdl1mixer_my_t*)calloc(1, sizeof(sdl1mixer_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -188,7 +162,6 @@ static void freeSDL1MixerMy(library_t* lib)
 
 EXPORT void* my_Mix_LoadMUSType_RW(x64emu_t* emu, void* a, int32_t b, int32_t c)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
     void* r = my->Mix_LoadMUSType_RW(rw, b, c);
     if(c==0)
@@ -197,7 +170,6 @@ EXPORT void* my_Mix_LoadMUSType_RW(x64emu_t* emu, void* a, int32_t b, int32_t c)
 }
 EXPORT void* my_Mix_LoadMUS_RW(x64emu_t* emu, void* a)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
     void* r = my->Mix_LoadMUS_RW(rw);
     RWNativeEnd(rw);  // this one never free the RWops
@@ -205,7 +177,6 @@ EXPORT void* my_Mix_LoadMUS_RW(x64emu_t* emu, void* a)
 }
 EXPORT void* my_Mix_LoadWAV_RW(x64emu_t* emu, void* a, int32_t b)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
     void* r = my->Mix_LoadWAV_RW(rw, b);
     if(b==0)
@@ -215,50 +186,40 @@ EXPORT void* my_Mix_LoadWAV_RW(x64emu_t* emu, void* a, int32_t b)
 
 EXPORT void my_Mix_SetPostMix(x64emu_t* emu, void* a, void* b)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     my->Mix_SetPostMix(find_MixFunc_Fct(a), b);
 }
 
 EXPORT void my_Mix_ChannelFinished(x64emu_t* emu, void* cb)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     my->Mix_ChannelFinished(find_ChannelFinished_Fct(cb));
 }
 
 EXPORT void my_Mix_HookMusic(x64emu_t* emu, void* f, void* arg)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     my->Mix_HookMusic(find_MixFunc_Fct(f), arg);
 }
 
 EXPORT void my_Mix_HookMusicFinished(x64emu_t* emu, void* f)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     my->Mix_HookMusicFinished(find_MusicFinished_Fct(f));
 }
 
 EXPORT int my_Mix_RegisterEffect(x64emu_t* emu, int chan, void* f, void* d, void *arg)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     return my->Mix_RegisterEffect(chan, find_EffectFunc_Fct(f), find_EffectDone_Fct(d), arg);
 }
 
 EXPORT int my_Mix_UnregisterEffect(x64emu_t* emu, int channel, void* f)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     return my->Mix_UnregisterEffect(channel, find_EffectFunc_Fct(f));
 }
 
-const char* sdl1mixerName = "libSDL_mixer-1.2.so.0";
-#define LIBNAME sdl1mixer
-
 #define CUSTOM_INIT \
     box64->sdl1mixerlib = lib; \
-    lib->priv.w.p2 = getSDL1MixerMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeSDL1MixerMy(lib); \
-    free(lib->priv.w.p2); \
+    freeMy();       \
     ((box64context_t*)(lib->context))->sdl1mixerlib = NULL;
 
 #include "wrappedlib_init.h"

@@ -19,32 +19,10 @@
 
 const char* pangoName = "libpango-1.0.so.0";
 #define LIBNAME pango
-static library_t *my_lib = NULL;
 
 #include "generated/wrappedpangotypes.h"
 
-typedef struct pango_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} pango_my_t;
-
-void* getPangoMy(library_t* lib)
-{
-    pango_my_t* my = (pango_my_t*)calloc(1, sizeof(pango_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freePangoMy(void* lib)
-{
-    (void)lib;
-    //pango_my_t *my = (pango_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 typedef struct my_PangoAttrClass_s {
   int                type;
@@ -111,7 +89,6 @@ static void* find_PangoAttrClass_Fct(my_PangoAttrClass_t* klass)
 EXPORT void my_pango_attribute_init(x64emu_t* emu, void* attr, my_PangoAttrClass_t* klass)
 {
     (void)emu;
-    pango_my_t* my = (pango_my_t*)my_lib->priv.w.p2;
     my->pango_attribute_init(attr, find_PangoAttrClass_Fct(klass));
 }
 
@@ -120,16 +97,10 @@ EXPORT void my_pango_attribute_init(x64emu_t* emu, void* attr, my_PangoAttrClass
         return -1;
 
 #define CUSTOM_INIT \
-    my_lib = lib;                   \
-    lib->priv.w.p2 = getPangoMy(lib); \
-    lib->priv.w.needed = 2;         \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libgobject-2.0.so.0");                  \
-    lib->priv.w.neededlibs[1] = strdup("libglib-2.0.so.0");
+    getMy(lib); \
+    setNeededLibs(&lib->priv.w, 2, "libgobject-2.0.so.0", "libglib-2.0.so.0");
 
 #define CUSTOM_FINI \
-    my_lib = NULL;              \
-    freePangoMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

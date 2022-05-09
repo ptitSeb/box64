@@ -21,7 +21,6 @@
 
 const char* gtkx112Name = "libgtk-x11-2.0.so.0";
 static char* libname = NULL;
-static library_t* my_lib = NULL;
 #define LIBNAME gtkx112
 
 typedef size_t        (*LFv_t)(void);
@@ -83,40 +82,19 @@ typedef unsigned long (*LFpppppi_t)(void*, void*, void*, void*, void*, int);
 
 #include "generated/wrappedgtkx112types.h"
 
-
-typedef struct gtkx112_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
+#define ADDED_STRUCT() \
     int  gtk1;
-} gtkx112_my_t;
 
-void* getGtkx112My(library_t* lib)
-{
-    my_lib = lib;
-    gtkx112_my_t* my = (gtkx112_my_t*)calloc(1, sizeof(gtkx112_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    if(strcmp(lib->name, "libgtk-1.2.so.0")==0)
+#define ADDED_INIT()                            \
+    if(strcmp(lib->name, "libgtk-1.2.so.0")==0) \
         my->gtk1 = 1;
-    return my;
-}
-#undef SUPER
 
-void freeGtkx112My(void* lib)
-{
-    //gtkx112_my_t *my = (gtkx112_my_t *)lib;
-    my_lib = NULL;
-}
+#include "wrappercallback.h"
 
 static box64context_t* context = NULL;
 
 EXPORT uintptr_t my_gtk_signal_connect_full(x64emu_t* emu, void* object, void* name, void* c_handler, void* unsupported, void* data, void* closure, uint32_t signal, int after)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     if(!context)
         context = emu->context;
 
@@ -667,8 +645,6 @@ static void* reverse_GtkLinkButtonUri_Fct(void* fct)
 
 EXPORT void my_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, uintptr_t* b)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     void* btn = first;
     int n = 0;
     while(btn) {
@@ -680,8 +656,6 @@ EXPORT void my_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, 
 
 EXPORT void my_gtk_message_dialog_format_secondary_text(x64emu_t* emu, void* dialog, void* fmt, void* b)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     char* buf = NULL;
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
@@ -694,8 +668,6 @@ EXPORT void my_gtk_message_dialog_format_secondary_text(x64emu_t* emu, void* dia
 
 EXPORT void my_gtk_message_dialog_format_secondary_markup(x64emu_t* emu, void* dialog, void* fmt, void* b)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     char* buf = NULL;
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
@@ -708,8 +680,6 @@ EXPORT void my_gtk_message_dialog_format_secondary_markup(x64emu_t* emu, void* d
 
 EXPORT void my_gtk_list_store_set_valist(x64emu_t* emu, void* list, void* iter, x64_va_list_t V)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
     #else
@@ -720,16 +690,12 @@ EXPORT void my_gtk_list_store_set_valist(x64emu_t* emu, void* list, void* iter, 
 
 EXPORT void my_gtk_list_store_set(x64emu_t* emu, void* list, void* iter, uintptr_t* b)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
     my->gtk_list_store_set_valist(list, iter, VARARGS);
 }
 
 EXPORT void my_gtk_widget_style_get_valist(x64emu_t* emu, void* widget, void* first, x64_va_list_t V)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
     #else
@@ -740,24 +706,18 @@ EXPORT void my_gtk_widget_style_get_valist(x64emu_t* emu, void* widget, void* fi
 
 EXPORT void my_gtk_widget_style_get(x64emu_t* emu, void* widget, void* first, uintptr_t* b)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
     my->gtk_widget_style_get_valist(widget, first, VARARGS);
 }
 
 EXPORT void* my_gtk_type_class(x64emu_t* emu, size_t type)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     void* class = my->gtk_type_class(type);
     return wrapCopyGTKClass(class, type);
 }
 
 EXPORT void my_gtk_init(x64emu_t* emu, void* argc, void* argv)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_init(argc, argv);
     my_checkGlobalGdkDisplay();
     AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
@@ -765,8 +725,6 @@ EXPORT void my_gtk_init(x64emu_t* emu, void* argc, void* argv)
 
 EXPORT int my_gtk_init_check(x64emu_t* emu, void* argc, void* argv)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     int ret = my->gtk_init_check(argc, argv);
     my_checkGlobalGdkDisplay();
     AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
@@ -775,8 +733,6 @@ EXPORT int my_gtk_init_check(x64emu_t* emu, void* argc, void* argv)
 
 EXPORT int my_gtk_init_with_args(x64emu_t* emu, void* argc, void* argv, void* param, void* entries, void* trans, void* error)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     int ret = my->gtk_init_with_args(argc, argv, param, entries, trans, error);
     my_checkGlobalGdkDisplay();
     AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
@@ -785,36 +741,26 @@ EXPORT int my_gtk_init_with_args(x64emu_t* emu, void* argc, void* argv, void* pa
 
 EXPORT void my_gtk_menu_attach_to_widget(x64emu_t* emu, void* menu, void* widget, void* f)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_menu_attach_to_widget(menu, widget, findMenuDetachFct(f));
 }
 
 EXPORT void my_gtk_menu_popup(x64emu_t* emu, void* menu, void* shell, void* item, void* f, void* data, uint32_t button, uint32_t time_)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_menu_popup(menu, shell, item, findMenuPositionFct(f), data, button, time_);
 }
 
 EXPORT uint32_t my_gtk_timeout_add(x64emu_t* emu, uint32_t interval, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_timeout_add(interval, findGtkFunctionFct(f), data);
 }
 
 EXPORT int my_gtk_clipboard_set_with_data(x64emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_clipboard_set_with_data(clipboard, target, n, findClipboadGetFct(f_get), findClipboadClearFct(f_clear), data);
 }
 
 EXPORT int my_gtk_clipboard_set_with_owner(x64emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_clipboard_set_with_owner(clipboard, target, n, findClipboadGetFct(f_get), findClipboadClearFct(f_clear), data);
 }
 
@@ -825,107 +771,77 @@ static void* my_translate_func(void* path, my_signal_t* sig)
 
 EXPORT void my_gtk_stock_set_translate_func(x64emu_t* emu, void* domain, void* f, void* data, void* notify)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my_signal_t *sig = new_mysignal(f, data, notify);
     my->gtk_stock_set_translate_func(domain, my_translate_func, sig, my_signal_delete);
 }
 
 EXPORT void my_gtk_container_forall(x64emu_t* emu, void* container, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_container_forall(container, findGtkCallbackFct(f), data);
 }
 
 EXPORT void my_gtk_tree_view_set_search_equal_func(x64emu_t* emu, void* tree_view, void* f, void* data, void* notify)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_tree_view_set_search_equal_func(tree_view, findGtkTreeViewSearchEqualFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT int my_gtk_text_iter_backward_find_char(x64emu_t* emu, void* iter, void* f, void* data, void* limit)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_text_iter_backward_find_char(iter, findGtkTextCharPredicateFct(f), data, limit);
 }
 
 EXPORT int my_gtk_text_iter_forward_find_char(x64emu_t* emu, void* iter, void* f, void* data, void* limit)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_text_iter_forward_find_char(iter, findGtkTextCharPredicateFct(f), data, limit);
 }
 
 EXPORT void* my_gtk_toolbar_append_item(x64emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_toolbar_append_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my_gtk_toolbar_prepend_item(x64emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_toolbar_prepend_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my_gtk_toolbar_insert_item(x64emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data, int position)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_toolbar_insert_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data, position);
 }
 
 EXPORT void* my_gtk_toolbar_append_element(x64emu_t* emu, void* toolbar, size_t type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_toolbar_append_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my_gtk_toolbar_prepend_element(x64emu_t* emu, void* toolbar, size_t type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_toolbar_prepend_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my_gtk_toolbar_insert_element(x64emu_t* emu, void* toolbar, size_t type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data, int position)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_toolbar_insert_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data, position);
 }
 
 EXPORT void* my_gtk_toolbar_insert_stock(x64emu_t* emu, void* toolbar, void* stock_id, void* tooltip_text, void* tooltip_private, void* f, void* data, int position)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_toolbar_insert_stock(toolbar, stock_id, tooltip_text, tooltip_private, findToolbarFct(f), data, position);
 }
 
 EXPORT void my_gtk_tree_sortable_set_sort_func(x64emu_t* emu, void* sortable, int id, void* f, void* data, void* notify)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_tree_sortable_set_sort_func(sortable, id, findGtkTreeIterCompareFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void my_gtk_tree_sortable_set_default_sort_func(x64emu_t* emu, void* sortable, void* f, void* data, void* notify)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_tree_sortable_set_default_sort_func(sortable, findGtkTreeIterCompareFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT size_t my_gtk_type_unique(x64emu_t* emu, size_t parent, my_GtkTypeInfo_t* gtkinfo)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_type_unique((void*)parent, findFreeGtkTypeInfo(gtkinfo, parent));
 }
 
@@ -936,15 +852,11 @@ EXPORT unsigned long my_gtk_signal_connect(x64emu_t* emu, void* object, void* na
 
 EXPORT void my_gtk_object_set_data_full(x64emu_t* emu, void* object, void* key, void* data, void* notify)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_object_set_data_full(object, key, data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT float my_gtk_spin_button_get_value_as_float(x64emu_t* emu, void* spinner)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_spin_button_get_value(spinner);
 }
 
@@ -963,8 +875,6 @@ typedef struct dummy_gtk1_button_s {
 
 EXPORT void* my_gtk_type_check_object_cast(x64emu_t* emu, void* obj, size_t type)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     if(my->gtk1 && type==my->gtk_bin_get_type())
     {
         // check if obj is a button...
@@ -986,8 +896,6 @@ EXPORT void* my_gtk_type_check_object_cast(x64emu_t* emu, void* obj, size_t type
 
 EXPORT void my_gtk_builder_connect_signals_full(x64emu_t* emu, void* builder, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_builder_connect_signals_full(builder, findBuilderConnectFct(f), data);
 }
 
@@ -998,7 +906,6 @@ typedef struct my_GSList_s {
 
 EXPORT void my_gtk_binding_entry_add_signal(x64emu_t* emu, void* binding, uint32_t keyval, int mod, void* name, uint32_t n, uintptr_t* b)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
     if(!n) {
         my->gtk_binding_entry_add_signal(binding, keyval, mod, name, 0);
         return;
@@ -1017,22 +924,16 @@ EXPORT void my_gtk_binding_entry_add_signal(x64emu_t* emu, void* binding, uint32
 
 EXPORT void my_gtk_container_foreach(x64emu_t* emu, void* container, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_container_foreach(container, findGtkCallbackFct(f), data);
 }
 
 EXPORT void my_gtk_cell_layout_set_cell_data_func(x64emu_t* emu, void* layout, void* cell, void* f, void* data, void* notify)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_cell_layout_set_cell_data_func(layout, cell, findGtkCellLayoutDataFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void my_gtk_tree_view_column_set_cell_data_func(x64emu_t* emu, void* column, void* cell, void* f, void* data, void* notify)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_tree_view_column_set_cell_data_func(column, cell, findGtkTreeCellDataFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
@@ -1085,8 +986,6 @@ static void my_gtk_builder_connect_signals_custom(void* builder,
 
 EXPORT void my_gtk_builder_connect_signals(x64emu_t* emu, void* builder, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my_ConnectArgs_t args;
 
     args.my = my;
@@ -1110,8 +1009,6 @@ typedef struct my_GtkActionEntry_s {
 
 EXPORT void my_gtk_action_group_add_actions(x64emu_t* emu, void* action_group, my_GtkActionEntry_t* entries, uint32_t n, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my_GtkActionEntry_t myentries[n];
     memcpy(myentries, entries, n*sizeof(my_GtkActionEntry_t));
     for(uint32_t i=0; i<n; ++i)
@@ -1121,8 +1018,6 @@ EXPORT void my_gtk_action_group_add_actions(x64emu_t* emu, void* action_group, m
 
 EXPORT void my_gtk_action_group_add_actions_full(x64emu_t* emu, void* action_group, my_GtkActionEntry_t* entries, uint32_t n, void* data, void* destroy)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my_GtkActionEntry_t myentries[n];
     memcpy(myentries, entries, n*sizeof(my_GtkActionEntry_t));
     for(uint32_t i=0; i<n; ++i)
@@ -1132,44 +1027,32 @@ EXPORT void my_gtk_action_group_add_actions_full(x64emu_t* emu, void* action_gro
 
 EXPORT void my_gtk_tree_model_foreach(x64emu_t* emu, void* model, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_tree_model_foreach(model, findGtkTreeModelForeachFuncFct(f), data);
 }
 
 EXPORT void my_gtk_tree_selection_selected_foreach(x64emu_t* emu, void* selection, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_tree_selection_selected_foreach(selection, findGtkTreeSelectionSelectedForeachFuncFct(f), data);
 }
 
 EXPORT void my_gtk_clipboard_request_contents(x64emu_t* emu, void* clipboard, void* target, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_clipboard_request_contents(clipboard, target, findGtkClipboardReceivedFuncFct(f), data);
 }
 
 
 EXPORT void my_gtk_clipboard_request_text(x64emu_t* emu, void* clipboard, void* f, void* data)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     my->gtk_clipboard_request_text(clipboard, findGtkClipboardTextReceivedFuncFct(f), data);
 }
 
 EXPORT uint32_t my_gtk_input_add_full(x64emu_t* emu, int source, int condition, void* func, void* marshal, void* data, void* destroy)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     return my->gtk_input_add_full(source, condition, findGdkInputFunctionFct(func), findGtkCallbackMarshalFct(marshal), data, findGDestroyNotifyFct(destroy));
 }
 
 EXPORT void my_gtk_list_store_insert_with_values(x64emu_t* emu, void* store, void* iter, int pos, uintptr_t* b)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 3);
     // not 100% exact, but better than nothing
     my->gtk_list_store_insert(store, iter, pos);
@@ -1180,8 +1063,6 @@ EXPORT void my_gtk_list_store_insert_with_values(x64emu_t* emu, void* store, voi
 
 EXPORT void* my_gtk_list_store_new(x64emu_t* emu, int n, uintptr_t* b)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     uintptr_t a[n];
     for(int i=0; i<n; ++i)
         a[i] = getVArgs(emu, 1, b, i);
@@ -1190,8 +1071,6 @@ EXPORT void* my_gtk_list_store_new(x64emu_t* emu, int n, uintptr_t* b)
 
 EXPORT void* my_gtk_tree_store_new(x64emu_t* emu, int n, uintptr_t* b)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     uintptr_t a[n];
     for(int i=0; i<n; ++i)
         a[i] = getVArgs(emu, 1, b, i);
@@ -1200,8 +1079,6 @@ EXPORT void* my_gtk_tree_store_new(x64emu_t* emu, int n, uintptr_t* b)
 
 EXPORT void my_gtk_tree_model_get_valist(x64emu_t* emu, void* tree, void* iter, x64_va_list_t V)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
     #else
@@ -1212,16 +1089,12 @@ EXPORT void my_gtk_tree_model_get_valist(x64emu_t* emu, void* tree, void* iter, 
 
 EXPORT void my_gtk_tree_model_get(x64emu_t* emu, void* tree, void* iter, uintptr_t* b)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
     my->gtk_tree_model_get_valist(tree, iter, VARARGS);
 }
 
 EXPORT void* my_gtk_link_button_set_uri_hook(x64emu_t* emu, void* f, void* data, void* d)
 {
-    gtkx112_my_t *my = (gtkx112_my_t*)my_lib->priv.w.p2;
-
     void* ret = my->gtk_link_button_set_uri_hook(find_GtkLinkButtonUri_Fct(f), data, findGDestroyNotifyFct(d));
     return reverse_GtkLinkButtonUri_Fct(ret);
 }
@@ -1231,37 +1104,33 @@ EXPORT void* my_gtk_link_button_set_uri_hook(x64emu_t* emu, void* f, void* data,
         return -1;
 
 #define CUSTOM_INIT \
-    libname = lib->name;                \
-    lib->priv.w.p2 = getGtkx112My(lib); \
-    SetGtkObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \
-    SetGtkWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
-    SetGtkContainerID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());\
-    SetGtkActionID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_action_get_type());     \
-    SetGtkMiscID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_misc_get_type());         \
-    SetGtkLabelID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_label_get_type());       \
-    SetGtkTreeViewID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());\
-    SetGtkBinID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_bin_get_type());           \
-    SetGtkWindowID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_window_get_type());     \
-    SetGtkTableID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_table_get_type());       \
-    SetGtkFixedID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_fixed_get_type());       \
-    SetGtkButtonID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_button_get_type());     \
-    SetGtkComboBoxID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_combo_box_get_type());\
-    SetGtkToggleButtonID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_toggle_button_get_type());\
-    SetGtkCheckButtonID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_check_button_get_type());\
-    SetGtkEntryID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_entry_get_type());       \
-    SetGtkSpinButtonID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_spin_button_get_type());\
-    SetGtkProgressID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_progress_get_type()); \
-    SetGtkProgressBarID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_progress_bar_get_type());\
-    SetGtkFrameID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_frame_get_type());       \
-    SetGtkMenuShellID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_menu_shell_get_type()); \
-    SetGtkMenuBarID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_menu_bar_get_type());  \
-    lib->priv.w.needed = 2;                                                     \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \
-    lib->priv.w.neededlibs[1] = strdup("libpangocairo-1.0.so.0");
+    libname = lib->name;                                                        \
+    getMy(lib);                                                                 \
+    SetGtkObjectID(my->gtk_object_get_type());                                  \
+    SetGtkWidgetID(my->gtk_widget_get_type());                                  \
+    SetGtkContainerID(my->gtk_container_get_type());                            \
+    SetGtkActionID(my->gtk_action_get_type());                                  \
+    SetGtkMiscID(my->gtk_misc_get_type());                                      \
+    SetGtkLabelID(my->gtk_label_get_type());                                    \
+    SetGtkTreeViewID(my->gtk_tree_view_get_type());                             \
+    SetGtkBinID(my->gtk_bin_get_type());                                        \
+    SetGtkWindowID(my->gtk_window_get_type());                                  \
+    SetGtkTableID(my->gtk_table_get_type());                                    \
+    SetGtkFixedID(my->gtk_fixed_get_type());                                    \
+    SetGtkButtonID(my->gtk_button_get_type());                                  \
+    SetGtkComboBoxID(my->gtk_combo_box_get_type());                             \
+    SetGtkToggleButtonID(my->gtk_toggle_button_get_type());                     \
+    SetGtkCheckButtonID(my->gtk_check_button_get_type());                       \
+    SetGtkEntryID(my->gtk_entry_get_type());                                    \
+    SetGtkSpinButtonID(my->gtk_spin_button_get_type());                         \
+    SetGtkProgressID(my->gtk_progress_get_type());                              \
+    SetGtkProgressBarID(my->gtk_progress_bar_get_type());                       \
+    SetGtkFrameID(my->gtk_frame_get_type());                                    \
+    SetGtkMenuShellID(my->gtk_menu_shell_get_type());                           \
+    SetGtkMenuBarID(my->gtk_menu_bar_get_type());                               \
+    setNeededLibs(&lib->priv.w, 2, "libgdk-x11-2.0.so.0", "libpangocairo-1.0.so.0");
 
 #define CUSTOM_FINI \
-    freeGtkx112My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

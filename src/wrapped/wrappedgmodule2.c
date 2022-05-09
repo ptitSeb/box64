@@ -20,8 +20,6 @@ const char* gmodule2Name = "libgmodule-2.0.so.0";
         return -1;
 
 #define CUSTOM_INIT \
-    lib->priv.w.needed = 1; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libglib-2.0.so.0");
+    setNeededLibs(&lib->priv.w, 1, "libglib-2.0.so.0");
 
 #include "wrappedlib_init.h"

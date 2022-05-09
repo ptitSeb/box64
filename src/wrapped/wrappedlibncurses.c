@@ -22,39 +22,15 @@
 const char* libncursesName = "libncurses.so.5";
 #define LIBNAME libncurses
 
-static library_t* my_lib = NULL;
-
 // this is a simple copy of libncursesw wrapper. TODO: check if ok
 
 #define ADDED_FUNCTIONS() GO(stdscr, void*)
 #include "generated/wrappedlibncursestypes.h"
 
-typedef struct libncurses_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libncurses_my_t;
-
-void* getNCursesMy(library_t* lib)
-{
-    libncurses_my_t* my = (libncurses_my_t*)calloc(1, sizeof(libncurses_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeNCursesMy(void* lib)
-{
-    //libncurses_my_t *my = (libncurses_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 EXPORT int my_mvwprintw(x64emu_t* emu, void* win, int32_t y, int32_t x, void* fmt, void* b)
 {
-    libncurses_my_t *my = (libncurses_my_t*)my_lib->priv.w.p2;
-
     char* buf = NULL;
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 4);
     PREPARE_VALIST;
@@ -68,8 +44,6 @@ EXPORT int my_mvwprintw(x64emu_t* emu, void* win, int32_t y, int32_t x, void* fm
 
 EXPORT int my_printw(x64emu_t* emu, void* fmt, void* b)
 {
-    libncurses_my_t *my = (libncurses_my_t*)my_lib->priv.w.p2;
-
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;
     return my->vwprintw(my->stdscr, fmt, VARARGS);
@@ -77,8 +51,6 @@ EXPORT int my_printw(x64emu_t* emu, void* fmt, void* b)
 
 EXPORT int my_vwprintw(x64emu_t* emu, void* p, void* fmt, x64_va_list_t b)
 {
-    libncurses_my_t *my = (libncurses_my_t*)my_lib->priv.w.p2;
-
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
     #else
@@ -90,8 +62,6 @@ EXPORT int my_vwprintw(x64emu_t* emu, void* p, void* fmt, x64_va_list_t b)
 
 EXPORT int my_mvprintw(x64emu_t* emu, int x, int y, void* fmt, void* b)
 {
-    libncurses_my_t *my = (libncurses_my_t*)my_lib->priv.w.p2;
-
     char* buf = NULL;
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
@@ -105,22 +75,16 @@ EXPORT int my_mvprintw(x64emu_t* emu, int x, int y, void* fmt, void* b)
 
 EXPORT void* my_initscr()
 {
-    libncurses_my_t *my = (libncurses_my_t*)my_lib->priv.w.p2;
     void* ret = my->initscr();
     my_checkGlobalTInfo();
     return ret;
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getNCursesMy(lib); \
-    my_lib = lib; \
-    lib->priv.w.needed = 1; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libtinfo.so.5");
+    getMy(lib); \
+    setNeededLibs(&lib->priv.w,  1, "libtinfo.so.5");
 
 #define CUSTOM_FINI \
-    freeNCursesMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2); \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

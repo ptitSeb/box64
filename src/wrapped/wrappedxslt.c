@@ -24,36 +24,12 @@ const char *xsltName =
 #endif
     ;
 #define LIBNAME xslt
-static library_t *my_lib = NULL;
 
-typedef void    (*vFp_t)        (void*);
-typedef int     (*iFppp_t)      (void*, void*, void*);
+#define ADDED_FUNCTIONS() \
 
-#define SUPER()                                 \
-    GO(xsltRegisterExtModuleFunction, iFppp_t)  \
-    GO(xsltSetLoaderFunc, vFp_t)                \
+#include "generated/wrappedxslttypes.h"
 
-typedef struct xslt_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} xslt_my_t;
-
-void* getXsltMy(library_t* lib)
-{
-    xslt_my_t* my = (xslt_my_t*)calloc(1, sizeof(xslt_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeXsltMy(void* lib)
-{
-    //xslt_my_t *my = (xslt_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -111,25 +87,18 @@ static void* find_xsltDocLoaderFunc_Fct(void* fct)
 
 EXPORT int my_xsltRegisterExtModuleFunction(x64emu_t* emu, void* name, void* URI, void* f)
 {
-    xslt_my_t* my = (xslt_my_t*)my_lib->priv.w.p2;
-
     return my->xsltRegisterExtModuleFunction(name, URI, find_xmlXPathFunction_Fct(f));
 }
 
 EXPORT void my_xsltSetLoaderFunc(x64emu_t* emu, void* f)
 {
-    xslt_my_t* my = (xslt_my_t*)my_lib->priv.w.p2;
-
     my->xsltSetLoaderFunc(find_xsltDocLoaderFunc_Fct(f));
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getXsltMy(lib);    \
-    my_lib = lib;
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeXsltMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

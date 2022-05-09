@@ -25,33 +25,12 @@ const char* ldaprName =
     ;
 #define ALTNAME "libldap-2.5.so.0"
 #define LIBNAME ldapr
-static library_t *my_lib = NULL;
-typedef int     (*iFpppppupp_t)      (void*, void*, void*, void* , void*, unsigned, void*, void*);
 
-#define SUPER()                                     \
-    GO(ldap_sasl_interactive_bind_s, iFpppppupp_t)  \
+#define ADDED_FUNCTIONS() \
 
-typedef struct ldapr_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} ldapr_my_t;
+#include "wrappedldaprtypes.h"
 
-void* getLdaprMy(library_t* lib)
-{
-    ldapr_my_t* my = (ldapr_my_t*)calloc(1, sizeof(ldapr_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeLdaprMy(void* lib)
-{
-    //ldapr_my_t *my = (ldapr_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -86,8 +65,6 @@ static void* find_LDAP_SASL_INTERACT_PROC_Fct(void* fct)
 
 EXPORT int my_ldap_sasl_interactive_bind_s(x64emu_t* emu, void* ld, void* dn, void* mechs, void* sctrls, void* cctrls, unsigned flags, void* f, void* defaults)
 {
-    ldapr_my_t* my = (ldapr_my_t*)my_lib->priv.w.p2;
-
     return my->ldap_sasl_interactive_bind_s(ld, dn, mechs, sctrls, cctrls, flags, find_LDAP_SASL_INTERACT_PROC_Fct(f), defaults);
 }
 
@@ -98,16 +75,11 @@ EXPORT int my_ldap_sasl_interactive_bind_s(x64emu_t* emu, void* ld, void* dn, vo
 #endif
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getLdaprMy(lib);                                           \
-    lib->priv.w.needed = 1;                                                     \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup(NEEDED_LIB);                             \
-    my_lib = lib;
+    getMy(lib);         \
+    setNeededLibs(&lib->priv.w, 1, NEEDED_LIB);
 
 #define CUSTOM_FINI \
-    freeLdaprMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"
 

@@ -21,8 +21,6 @@
 const char* flacName = "libFLAC.so.8";
 #define LIBNAME flac
 
-static library_t *my_lib = NULL;
-
 typedef struct {
   size_t (*read_func)  (void *ptr, size_t size, size_t nmemb, void *handle);
   size_t (*write_func)  (void *ptr, size_t size, size_t nmemb, void *handle);
@@ -35,27 +33,11 @@ typedef struct {
 typedef int (*iFppC_t)(void*, void*, flac_callbacks);
 typedef int (*iFpppppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);
 
-typedef struct flac_my_s {
-    // functions
-    iFppC_t         FLAC__metadata_chain_read_with_callbacks;
-    iFpppppppppp_t  FLAC__stream_decoder_init_stream;
-} flac_my_t;
+#define SUPER() \
+    GO(FLAC__metadata_chain_read_with_callbacks, iFppC_t)   \
+    GO(FLAC__stream_decoder_init_stream, iFpppppppppp_t)    \
 
-void* getFlacMy(library_t* lib)
-{
-    flac_my_t* my = (flac_my_t*)calloc(1, sizeof(flac_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(FLAC__metadata_chain_read_with_callbacks, iFppC_t)
-    GO(FLAC__stream_decoder_init_stream, iFpppppppppp_t)
-    #undef GO
-    return my;
-}
-
-void freeFlacMy(void* lib)
-{
-    (void)lib;
-    //flac_my_t *my = (flac_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)           \
@@ -338,7 +320,6 @@ static void* findErrorFct(void* fct)
 EXPORT int my_FLAC__metadata_chain_read_with_callbacks(x64emu_t* emu, void* chain, void* handle, 
     void* read_fnc, void* write_fnc, void* seek_fnc, void* tell_fnc, void* eof_fnc, void* close_fnc)
 {
-    flac_my_t* my = (flac_my_t*)my_lib->priv.w.p2;
     flac_callbacks cbs = {0};
     cbs.read_func = findread_writeFct(read_fnc);
     cbs.write_func = findread_writeFct(write_fnc);
@@ -354,8 +335,6 @@ EXPORT int my_FLAC__stream_decoder_init_stream(x64emu_t* emu, void* decoder,
     void* read_fnc, void* seek_fnc, void* tell_fnc, void* length_fnc, void* eof_fnc, 
     void* write_fnc, void* metadata_fnc, void* error_fnc, void* data)
 {
-    flac_my_t* my = (flac_my_t*)my_lib->priv.w.p2;
-
     int ret =  my->FLAC__stream_decoder_init_stream(decoder, 
         findReadFct(read_fnc), findSeekFct(seek_fnc), findTellFct(tell_fnc),
         findLengthFct(length_fnc), findEofFct(eof_fnc), findWriteFct(write_fnc),
@@ -365,13 +344,10 @@ EXPORT int my_FLAC__stream_decoder_init_stream(x64emu_t* emu, void* decoder,
 
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getFlacMy(lib);    \
-    my_lib = lib;
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeFlacMy(lib->priv.w.p2);     \
-    free(lib->priv.w.p2);           \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"
 

@@ -30,38 +30,11 @@ typedef struct {
 
 typedef int32_t (*iFppplC_t)(void*, void*, void*, long, ov_callbacks);
 
-typedef struct vorbisfile_my_s {
-    // functions
-    iFppplC_t       ov_open_callbacks;
-    iFppplC_t       ov_test_callbacks;
-} vorbisfile_my_t;
+#define SUPER() \
+    GO(ov_open_callbacks, iFppplC_t)    \
+    GO(ov_test_callbacks, iFppplC_t)    \
 
-void* getVorbisfileMy(library_t* lib)
-{
-    vorbisfile_my_t* my = (vorbisfile_my_t*)calloc(1, sizeof(vorbisfile_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(ov_open_callbacks, iFppplC_t)
-    GO(ov_test_callbacks, iFppplC_t)
-    #undef GO
-    return my;
-}
-
-void freeVorbisfileMy(void* lib)
-{
-    (void)lib;
-    //vorbisfile_my_t *my = (vorbisfile_my_t *)lib;
-}
-
-#define CUSTOM_INIT \
-    box64->vorbisfile = lib;\
-    lib->priv.w.p2 = getVorbisfileMy(lib);
-
-#define CUSTOM_FINI \
-    freeVorbisfileMy(lib->priv.w.p2);   \
-    free(lib->priv.w.p2);               \
-    lib->context->vorbisfile = NULL;
-
-#include "wrappedlib_init.h"
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)           \
@@ -166,7 +139,6 @@ static void* findtellFct(void* fct)
 
 EXPORT int32_t my_ov_open_callbacks(x64emu_t* emu, void* datasource, void* vf, void* initial, long ibytes, void* read_fnc, void* seek_fnc, void* close_fnc, void* tell_fnc)
 {
-    vorbisfile_my_t* my = (vorbisfile_my_t*)emu->context->vorbisfile->priv.w.p2;
     ov_callbacks cbs = {0};
     cbs.read_func = findreadFct(read_fnc);
     cbs.seek_func = findseekFct(seek_fnc);
@@ -178,7 +150,6 @@ EXPORT int32_t my_ov_open_callbacks(x64emu_t* emu, void* datasource, void* vf, v
 
 EXPORT int32_t my_ov_test_callbacks(x64emu_t* emu, void* datasource, void* vf, void* initial, long ibytes, void* read_fnc, void* seek_fnc, void* close_fnc, void* tell_fnc)
 {
-    vorbisfile_my_t* my = (vorbisfile_my_t*)emu->context->vorbisfile->priv.w.p2;
     ov_callbacks cbs = {0};
     cbs.read_func = findreadFct(read_fnc);
     cbs.seek_func = findseekFct(seek_fnc);
@@ -187,3 +158,20 @@ EXPORT int32_t my_ov_test_callbacks(x64emu_t* emu, void* datasource, void* vf, v
     int32_t ret =  my->ov_test_callbacks(datasource, vf, initial, ibytes, cbs);
     return ret;
 }
+
+#ifdef PANDORA
+// No really ok, because it will depends on the order of initialisation
+#define PRE_INIT \
+    vorbisfileName = (box86->sdl1mixerlib || box86->sdl2mixerlib)?vorbisfileNameAlt:vorbisfileNameReg;
+#endif
+
+#define CUSTOM_INIT \
+    box64->vorbisfile = lib;\
+    getMy(lib);
+
+#define CUSTOM_FINI \
+    freeMy();   \
+    my_context->vorbisfile = NULL;
+
+#include "wrappedlib_init.h"
+

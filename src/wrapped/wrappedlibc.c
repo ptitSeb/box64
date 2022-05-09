@@ -64,8 +64,6 @@
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
 
-static library_t* my_lib = NULL;
-
 typedef int (*iFi_t)(int);
 typedef int (*iFL_t)(unsigned long);
 typedef void (*vFpp_t)(void*, void*);
@@ -95,27 +93,7 @@ typedef void* (*pFp_t)(void*);
     GO(_IO_file_stat, iFpp_t)
 
 
-typedef struct libc_my_s {
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libc_my_t;
-
-void* getLIBCMy(library_t* lib)
-{
-    libc_my_t* my = (libc_my_t*)calloc(1, sizeof(libc_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeLIBCMy(void* lib)
-{
-    (void)lib;
-    // empty for now
-}
+#include "wrappercallback.h"
 
 static int regs_abi[] = {_DI, _SI, _DX, _CX, _R8, _R9};
 void* getVargN(x64emu_t *emu, int n)
@@ -1112,7 +1090,6 @@ EXPORT int my_fstatat(x64emu_t *emu, int fd, const char* path, void* buf, int fl
 EXPORT int my__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 {
     struct stat64 st;
-    libc_my_t *my = (libc_my_t *)emu->context->libclib->priv.w.p2;
     int r = my->_IO_file_stat(f, &st);
     UnalignStat64(&st, buf);
     return r;
@@ -2745,7 +2722,6 @@ EXPORT char my___libc_single_threaded = 0;
 
 #define CUSTOM_INIT         \
     box64->libclib = lib;   \
-    my_lib = lib;           \
     /*InitCpuModel();*/         \
     ctSetup();              \
     stSetup(box64);         \
@@ -2754,16 +2730,13 @@ EXPORT char my___libc_single_threaded = 0;
     my___progname_full = my_program_invocation_name = box64->argv[0];           \
     my___progname = my_program_invocation_short_name =                          \
         strrchr(box64->argv[0], '/') + 1;                                       \
-    lib->priv.w.p2 = getLIBCMy(lib);                                            \
-    lib->priv.w.needed = 3;                                                     \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("ld-linux-x86-64.so.2");                 \
-    lib->priv.w.neededlibs[1] = strdup("libpthread.so.0");                      \
-    lib->priv.w.neededlibs[2] = strdup("librt.so.1");
+    getMy(lib);                                                                 \
+    setNeededLibs(&lib->priv.w, 3,                                              \
+        "ld-linux-x86-64.so.2",                                                 \
+        "libpthread.so.0",                                                      \
+        "librt.so.1");
 
 #define CUSTOM_FINI \
-    freeLIBCMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

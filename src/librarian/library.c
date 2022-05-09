@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <link.h>
+#include <stdarg.h>
 
 #include "debug.h"
 #include "library.h"
@@ -922,4 +923,16 @@ void AddMainElfToLinkmap(elfheader_t* elf)
     lm->l_addr = (Elf64_Addr)GetElfDelta(elf);
     lm->l_name = my_context->fullpath;
     lm->l_ld = GetDynamicSection(elf);
+}
+
+void setNeededLibs(wlib_t* wlib, int n, ...)
+{
+    wlib->needed = n;
+    wlib->neededlibs = (char**)calloc(n, sizeof(char*));
+    va_list va;
+    va_start (va, n);
+    for (int i=0; i<n; ++i) {
+        wlib->neededlibs[i] = strdup(va_arg(va, char*));
+    }
+    va_end (va);
 }
