@@ -10,6 +10,8 @@ wget -O- https://ryanfortner.github.io/box64-debs/KEY.gpg | gpg --dearmor | sudo
 sudo apt update && sudo apt install box64 -y
 ```
 
+Alternatively, you can generate your own package using the [instructions below](https://github.com/ryanfortner/box64/blob/patch-1/docs/COMPILE.md#debian-packaging). 
+
 #### for RK3399
 
 Using a 64bit OS:
