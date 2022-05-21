@@ -1077,6 +1077,7 @@ EXPORT int my_fstat(x64emu_t *emu, int fd, void* buf)
     UnalignStat64(&st, buf);
     return r;
 }
+EXPORT int my_fstat64(x64emu_t* emu, int fd, void* buf) __attribute__((alias("my_fstat")));
 
 EXPORT int my_fstatat(x64emu_t *emu, int fd, const char* path, void* buf, int flags)
 {

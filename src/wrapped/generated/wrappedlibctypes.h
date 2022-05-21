@@ -112,6 +112,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(warn, vFpV_t) \
 	GO(warnx, vFpV_t) \
 	GO(fstat, iFip_t) \
+	GO(fstat64, iFip_t) \
 	GO(__sigsetjmp, iFpi_t) \
 	GO(backtrace, iFpi_t) \
 	GO(munmap, iFpL_t) \
