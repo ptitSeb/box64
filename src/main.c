@@ -1364,7 +1364,7 @@ int main(int argc, const char **argv, char **env) {
     my_context->ep = GetEntryPoint(my_context->maplib, elf_header);
 #if defined(RPI) || defined(RK3399) || defined(RK3326)
     // before launching emulation, let's check if this is a mojosetup from GOG
-    if (((strstr(prog, "bin/linux/x86/mojosetup") && getenv("MOJOSETUP_BASE")) || strstr(prog, ".mojosetup/mojosetup"))
+    if (((strstr(prog, "bin/linux/x86_64/mojosetup") && getenv("MOJOSETUP_BASE")) || strstr(prog, ".mojosetup/mojosetup"))
        && getenv("GTK2_RC_FILES")) {
         sanitize_mojosetup_gtk_background();
     }
