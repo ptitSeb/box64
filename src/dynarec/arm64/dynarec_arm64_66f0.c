@@ -83,7 +83,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(opcode==0x81) {
                         INST_NAME("LOCK ADD Ew, Iw");
                     } else {
-                        INST_NAME("LOCK ADD Ew, Iw");
+                        INST_NAME("LOCK ADD Ew, Ib");
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
@@ -95,7 +95,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         BFIx(ed, x6, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, (opcode==0x81)?2:1);
-                        if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
                         MOV32w(x5, i32);
                         TSTx_mask(wback, 1, 0, 0);    // mask=1
                         B_MARK(cNE);
@@ -116,7 +116,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     break;
                 case 1: //OR
-                    if(opcode==0x81) {INST_NAME("LOCK OR Ew, Iw");} else {INST_NAME("LOCK OR Ew, Iw");}
+                    if(opcode==0x81) {INST_NAME("LOCK OR Ew, Iw");} else {INST_NAME("LOCK OR Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i32 = F16S; else i32 = F8S;
