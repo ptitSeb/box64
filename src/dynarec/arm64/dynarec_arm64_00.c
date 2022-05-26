@@ -1512,7 +1512,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = F8;
                     MOV32w(x2, u8);
                     CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
-                    WBACK;
+                    SBACK(x1);
                     break;
                 case 3:
                     INST_NAME("RCR Ed, Ib");
@@ -1523,7 +1523,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = F8;
                     MOV32w(x2, u8);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
-                    WBACK;
+                    SBACK(x1);
                     break;
                 case 4:
                 case 6:
@@ -1814,7 +1814,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOV32w(x2, 1);
                     GETEDW(x4, x1, 0);
                     CALL_(rcl32, ed, x4);
-                    WBACK;
+                    SBACK(x1);
                     break;
                 case 3:
                     INST_NAME("RCR Ed, 1");
@@ -1824,7 +1824,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOV32w(x2, 1);
                     GETEDW(x4, x1, 0);
                     CALL_(rcr32, ed, x4);
-                    WBACK;
+                    SBACK(x1);
                     break;
                 case 4:
                 case 6:
@@ -1863,7 +1863,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     MOV64xw(x4, (rex.w?64:32));
                     SUBx_REG(x3, x4, x3);
-                    GETEDW(x4, x2, 0);
+                    GETED(0);
                     if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     RORxw_REG(ed, ed, x3);
@@ -1887,7 +1887,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
-                    GETEDW(x4, x2, 0);
+                    GETED(0);
                     if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     RORxw_REG(ed, ed, x3);
@@ -1918,7 +1918,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
-                    WBACK;
+                    SBACK(x1);
                     break;
                 case 3:
                     INST_NAME("RCR Ed, CL");
@@ -1934,7 +1934,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
-                    WBACK;
+                    SBACK(x1);
                     break;
                 case 4:
                 case 6:

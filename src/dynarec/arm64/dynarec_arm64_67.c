@@ -98,7 +98,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(MODREG) {
                         v1 = mmx_get_reg(dyn, ninst, x1, x2, x3, nextop&7); // no rex.b on MMX
                         v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
-                        VMOVeD(v0, 0, v1, 0);
+                        VMOV(v0, v1);
                     } else {
                         v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
                         addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
@@ -179,7 +179,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = F8;
                     MOV32w(x2, u8);
                     CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
-                    WBACK;
+                    SBACK(x1);
                     break;
                 case 3:
                     INST_NAME("RCR Ed, Ib");
@@ -190,7 +190,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = F8;
                     MOV32w(x2, u8);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
-                    WBACK;
+                    SBACK(x1);
                     break;
                 case 4:
                 case 6:
@@ -302,7 +302,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("NOT Ed");
-                    GETED32(4);
+                    GETED32(0);
                     MVNxw_REG(ed, ed);
                     WBACK;
                     break;

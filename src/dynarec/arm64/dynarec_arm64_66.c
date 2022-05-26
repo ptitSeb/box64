@@ -301,26 +301,17 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0x69:
-            INST_NAME("IMUL Gw,Ew,Iw");
-            SETFLAGS(X_ALL, SF_PENDING);
-            nextop = F8;
-            UFLAG_DF(x1, d_imul16);
-            GETSEW(x1, 2);
-            i32 = F16S;
-            MOV32w(x2, i32);
-            MULw(x2, x2, x1);
-            UFLAG_RES(x2);
-            gd=x2;
-            GWBACK;
-            break;
-
         case 0x6B:
-            INST_NAME("IMUL Gw,Ew,Ib");
+            if(opcode==0x69) {
+                INST_NAME("IMUL Gw,Ew,Iw");
+            } else {
+                INST_NAME("IMUL Gw,Ew,Ib");
+            }
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
             UFLAG_DF(x1, d_imul16);
-            GETSEW(x1, 1);
-            i32 = F8S;
+            GETSEW(x1, (opcode==0x69)?2:1);
+            if(opcode==0x69) i32 = F16S; else i32 = F8S;
             MOV32w(x2, i32);
             MULw(x2, x2, x1);
             UFLAG_RES(x2);
@@ -352,11 +343,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 0: //ADD
-                    if(opcode==0x81) {
-                        INST_NAME("ADD Ew, Iw");
-                    } else {
-                        INST_NAME("ADD Ew, Ib");
-                    }
+                    if(opcode==0x81) {INST_NAME("ADD Ew, Iw");} else {INST_NAME("ADD Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
@@ -639,7 +626,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1, 1);
                     u8 = F8;
-                    MOV32w(x2, (u8&0x1f));
+                    UFLAG_IF {MOV32w(x2, (u8&0x1f));}
                     UFLAG_OP12(ed, x2)
                     LSLw_IMM(ed, ed, u8&0x1f);
                     EWBACK;
@@ -652,7 +639,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1, 1);
                     u8 = F8;
-                    MOV32w(x2, (u8&0x1f));
+                    UFLAG_IF {MOV32w(x2, (u8&0x1f));}
                     UFLAG_OP12(ed, x2)
                     LSRw_IMM(ed, ed, u8&0x1f);
                     EWBACK;
@@ -663,9 +650,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SAR Ed, Ib");
                     SETFLAGS(X_ALL, SF_PENDING);
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
-                    GETSEW(x1, 0);
+                    GETSEW(x1, 1);
                     u8 = F8;
-                    MOV32w(x2, (u8&0x1f));
+                    UFLAG_IF {MOV32w(x2, (u8&0x1f));}
                     UFLAG_OP12(ed, x2)
                     ASRw_REG(ed, ed, x2);
                     EWBACK;
@@ -701,7 +688,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("ROL Ew, CL");
-                        ANDSw_mask(x2, xRCX, 0, 0b00100);
+                        ANDw_mask(x2, xRCX, 0, 0b00100);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET);
@@ -715,7 +702,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("ROR Ew, CL");
-                        ANDSw_mask(x2, xRCX, 0, 0b00100);
+                        ANDw_mask(x2, xRCX, 0, 0b00100);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET);
@@ -728,7 +715,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
-                    if(opcode==0xD1) {MOV32w(x2, 1);} else {ANDSw_mask(x2, xRCX, 0, 0b00100);}
+                    if(opcode==0xD1) {MOV32w(x2, 1);} else {ANDw_mask(x2, xRCX, 0, 0b00100);}
                     GETEW(x1, 0);
                     CALL_(rcl16, x1, x3);
                     EWBACK;
@@ -738,7 +725,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
-                    if(opcode==0xD1) {MOV32w(x2, 1);} else {ANDSw_mask(x2, xRCX, 0, 0b00100);}
+                    if(opcode==0xD1) {MOV32w(x2, 1);} else {ANDw_mask(x2, xRCX, 0, 0b00100);}
                     GETEW(x1, 0);
                     CALL_(rcr16, x1, x3);
                     EWBACK;
@@ -750,7 +737,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SHL Ew, CL");
-                        ANDSw_mask(x4, xRCX, 0, 0b00100);
+                        ANDw_mask(x4, xRCX, 0, 0b00100);
                     }
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
@@ -767,7 +754,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SHR Ew, CL");
-                        ANDSw_mask(x4, xRCX, 0, 0b00100);
+                        ANDw_mask(x4, xRCX, 0, 0b00100);
                     }
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
@@ -784,7 +771,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SAR Ew, CL");
-                        ANDSw_mask(x4, xRCX, 0, 0b00100);
+                        ANDw_mask(x4, xRCX, 0, 0b00100);
                     }
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
@@ -850,17 +837,25 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("DIV Ew");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEW(x1, 0);
-                    CALL(div16, -1);
+                    UXTHw(x2, xRAX);
+                    BFIw(x2, xRDX, 16, 16);
+                    UDIVw(x3, x2, ed);
+                    MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
+                    BFIx(xRAX, x3, 0, 16);
+                    BFIx(xRDX, x4, 0, 16);
                     break;
                 case 7:
                     INST_NAME("IDIV Ew");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEW(x1, 0);
-                    CALL(idiv16, -1);
+                    GETSEW(x1, 0);
+                    UXTHw(x2, xRAX);
+                    BFIw(x2, xRDX, 16, 16);
+                    SDIVw(x3, x2, ed);
+                    MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
+                    BFIx(xRAX, x3, 0, 16);
+                    BFIx(xRDX, x4, 0, 16);
                     break;
             }
             break;
