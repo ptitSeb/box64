@@ -4,8 +4,8 @@
 
 GO(XRenderAddGlyphs, vFppppipi)
 GO(XRenderAddTraps, vFppiipi)
-GO(XRenderChangePicture, vFppup)
-GO(XRenderComposite, vFppup)
+GO(XRenderChangePicture, vFppLp)
+GO(XRenderComposite, vFpipppiiiiiiuu)
 GO(XRenderCompositeDoublePoly, vFpipppiiiipii)
 GO(XRenderCompositeString16, vFpippppiiiipi)
 GO(XRenderCompositeString32, vFpippppiiiipi)
