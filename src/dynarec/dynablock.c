@@ -312,7 +312,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     // try the quickest way first: get parent of current and check if ok!
     dynablocklist_t *dynablocks = NULL;
     dynablock_t* block = NULL;
-    if(current) {
+    if(current && current->done && !current->gone) {
         dynablocks = current->parent;
         if(dynablocks && !(addr>=dynablocks->text && addr<(dynablocks->text+dynablocks->textsz)))
             dynablocks = NULL;
