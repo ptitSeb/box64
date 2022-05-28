@@ -654,7 +654,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = F8;
                     UFLAG_IF {MOV32w(x2, (u8&0x1f));}
                     UFLAG_OP12(ed, x2)
-                    ASRw_REG(ed, ed, x2);
+                    ASRw(ed, ed, (u8&0x1f));
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_sar16);
