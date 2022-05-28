@@ -423,8 +423,9 @@ EXPORT void my_FAudio_UnregisterForCallbacks(x64emu_t* emu, void* audio, my_FAud
 
 EXPORT uint32_t my_FAudio_CreateSourceVoice(x64emu_t* emu, void* audio, void* voices, void* format, uint32_t flags, float ratio, my_FAudioVoiceCallback_t* p, void* send, void* effect) {
     my_FAudioVoiceCallback_t cb = {0};
-    wrapFAudioVoiceCallback(p, &cb);
-    return my->FAudio_CreateSourceVoice(audio, voices, format, flags, ratio, &cb, send, effect);
+    if(p)
+        wrapFAudioVoiceCallback(p, &cb);
+    return my->FAudio_CreateSourceVoice(audio, voices, format, flags, ratio, p?(&cb):NULL, send, effect);
 }
 
 EXPORT uint32_t my_FAudioCreateWithCustomAllocatorEXT(x64emu_t* emu, void* pp, uint32_t flags, uint32_t proc, void* customMalloc, void* customFree, void* customRealloc) {

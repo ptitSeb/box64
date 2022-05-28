@@ -170,6 +170,7 @@
 #() CFpi
 #() CFpu
 #() CFpp
+#() WFpp
 #() uFEp
 #() uFii
 #() uFiu
@@ -178,9 +179,11 @@
 #() uFuu
 #() uFup
 #() uFUp
+#() uFpw
 #() uFpi
 #() uFpu
 #() uFpU
+#() uFpf
 #() uFpL
 #() uFpp
 #() UFEp
@@ -428,6 +431,10 @@
 #() uFpii
 #() uFpip
 #() uFpCi
+#() uFpWi
+#() uFpWu
+#() uFpWf
+#() uFpWp
 #() uFpui
 #() uFpuC
 #() uFpuu
@@ -810,6 +817,7 @@
 #() uFpCCC
 #() uFpuip
 #() uFpuuu
+#() uFpuup
 #() uFpupu
 #() uFppiu
 #() uFppLp
@@ -1165,10 +1173,12 @@
 #() uFipipp
 #() uFuiiiu
 #() uFpCCCC
+#() uFpWuip
 #() uFpuuuu
 #() uFpupuu
 #() uFppiip
 #() uFppipp
+#() uFppuup
 #() uFppupp
 #() uFpplip
 #() uFppLpp
@@ -1443,8 +1453,12 @@
 #() uFEpCppp
 #() uFEpuppp
 #() uFpippup
+#() uFpWuwCp
+#() uFpWuipp
+#() uFpWuuCp
 #() uFpuippp
 #() uFppippp
+#() uFppuuup
 #() uFppuupu
 #() uFpppppi
 #() uFpppppp
@@ -1773,6 +1787,7 @@
 #() uFEpppuppp
 #() uFEppppppp
 #() uFuipppppp
+#() uFpupuuuCp
 #() uFppuuuupp
 #() uFppuuuppi
 #() uFppuppppp

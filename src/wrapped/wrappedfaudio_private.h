@@ -2,6 +2,8 @@
 #error Meh....
 #endif
 
+//F3DAUDIO_HANDLE is uint8_t[20], so p
+
 //GO(CreateFAPOBase, 
 //GO(CreateFAPOBaseWithCustomAllocatorEXT, 
 //DATA(DATAFORMAT_SUBTYPE_ADPCM, 
@@ -18,44 +20,44 @@ GO(F3DAudioInitialize, vFufp)
 GO(F3DAudioInitialize8, uFufp)
 //GO(FACT3DApply, 
 //GO(FACT3DCalculate, 
-//GO(FACT3DInitialize, 
-//GO(FACTAudioEngine_AddRef, 
-//GO(FACTAudioEngine_CreateInMemoryWaveBank, 
-//GO(FACTAudioEngine_CreateSoundBank, 
-//GO(FACTAudioEngine_CreateStreamingWaveBank, 
-//GO(FACTAudioEngine_DoWork, 
-//GO(FACTAudioEngine_GetCategory, 
-//GO(FACTAudioEngine_GetFinalMixFormat, 
-//GO(FACTAudioEngine_GetGlobalVariable, 
-//GO(FACTAudioEngine_GetGlobalVariableIndex, 
-//GO(FACTAudioEngine_GetRendererCount, 
-//GO(FACTAudioEngine_GetRendererDetails, 
-//GO(FACTAudioEngine_Initialize, 
-//GO(FACTAudioEngine_Pause, 
+GO(FACT3DInitialize, uFpp)
+GO(FACTAudioEngine_AddRef, uFp)
+GO(FACTAudioEngine_CreateInMemoryWaveBank, uFppuuup)
+GO(FACTAudioEngine_CreateSoundBank, uFppuuup)
+GO(FACTAudioEngine_CreateStreamingWaveBank, uFppp)
+GO(FACTAudioEngine_DoWork, uFp)
+GO(FACTAudioEngine_GetCategory, WFpp)
+GO(FACTAudioEngine_GetFinalMixFormat, uFpp)
+GO(FACTAudioEngine_GetGlobalVariable, uFpWp)
+GO(FACTAudioEngine_GetGlobalVariableIndex, WFpp)
+GO(FACTAudioEngine_GetRendererCount, uFpp)
+GO(FACTAudioEngine_GetRendererDetails, uFpWp)
+GO(FACTAudioEngine_Initialize, uFpp)
+GO(FACTAudioEngine_Pause, uFpWi)
 //GO(FACTAudioEngine_PrepareInMemoryWave, 
 //GO(FACTAudioEngine_PrepareStreamingWave, 
-//GO(FACTAudioEngine_PrepareWave, 
-//GO(FACTAudioEngine_RegisterNotification, 
-//GO(FACTAudioEngine_Release, 
-//GO(FACTAudioEngine_SetGlobalVariable, 
-//GO(FACTAudioEngine_SetVolume, 
-//GO(FACTAudioEngine_ShutDown, 
-//GO(FACTAudioEngine_Stop, 
+GO(FACTAudioEngine_PrepareWave, uFpupuuuCp)
+GO(FACTAudioEngine_RegisterNotification, uFpp)
+GO(FACTAudioEngine_Release, uFp)
+GO(FACTAudioEngine_SetGlobalVariable, uFpWf)
+GO(FACTAudioEngine_SetVolume, uFpWf)
+GO(FACTAudioEngine_ShutDown, uFp)
+GO(FACTAudioEngine_Stop, uFpWu)
 //GO(FACTAudioEngine_UnRegisterNotification, 
-//GO(FACTCreateEngine, 
+GO(FACTCreateEngine, uFup)
 //GO(FACTCreateEngineWithCustomAllocatorEXT, 
-//GO(FACTCue_Destroy, 
-//GO(FACTCue_GetProperties, 
-//GO(FACTCue_GetState, 
-//GO(FACTCue_GetVariable, 
-//GO(FACTCue_GetVariableIndex, 
-//GO(FACTCue_Pause, 
-//GO(FACTCue_Play, 
-//GO(FACTCue_SetMatrixCoefficients, 
-//GO(FACTCue_SetOutputVoiceMatrix, 
-//GO(FACTCue_SetOutputVoices, 
-//GO(FACTCue_SetVariable, 
-//GO(FACTCue_Stop, 
+GO(FACTCue_Destroy, uFp)
+GO(FACTCue_GetProperties, uFpp)
+GO(FACTCue_GetState, uFpp)
+GO(FACTCue_GetVariable, uFpWp)
+GO(FACTCue_GetVariableIndex, WFpp)
+GO(FACTCue_Pause, uFpi)
+GO(FACTCue_Play, uFp)
+GO(FACTCue_SetMatrixCoefficients, uFpuup)
+GO(FACTCue_SetOutputVoiceMatrix, uFppuup)
+GO(FACTCue_SetOutputVoices, uFpp)
+GO(FACTCue_SetVariable, uFpWf)
+GO(FACTCue_Stop, uFpu)
 //GO(FACT_INTERNAL_ActivateEvent, 
 //GO(FACT_INTERNAL_APIThread, 
 //GO(FACT_INTERNAL_BeginFadeOut, 
@@ -78,32 +80,32 @@ GO(F3DAudioInitialize8, uFufp)
 //GO(FACT_INTERNAL_UpdateEngine, 
 //GO(FACT_INTERNAL_UpdateRPCs, 
 //GO(FACT_INTERNAL_UpdateSound, 
-//GO(FACTSoundBank_Destroy, 
-//GO(FACTSoundBank_GetCueIndex, 
-//GO(FACTSoundBank_GetCueProperties, 
-//GO(FACTSoundBank_GetNumCues, 
-//GO(FACTSoundBank_GetState, 
-//GO(FACTSoundBank_Play, 
-//GO(FACTSoundBank_Play3D, 
-//GO(FACTSoundBank_Prepare, 
-//GO(FACTSoundBank_Stop, 
-//GO(FACTWaveBank_Destroy, 
-//GO(FACTWaveBank_GetNumWaves, 
-//GO(FACTWaveBank_GetState, 
-//GO(FACTWaveBank_GetWaveIndex, 
-//GO(FACTWaveBank_GetWaveProperties, 
-//GO(FACTWaveBank_Play, 
-//GO(FACTWaveBank_Prepare, 
-//GO(FACTWaveBank_Stop, 
-//GO(FACTWave_Destroy, 
-//GO(FACTWave_GetProperties, 
-//GO(FACTWave_GetState, 
-//GO(FACTWave_Pause, 
-//GO(FACTWave_Play, 
-//GO(FACTWave_SetMatrixCoefficients, 
-//GO(FACTWave_SetPitch, 
-//GO(FACTWave_SetVolume, 
-//GO(FACTWave_Stop, 
+GO(FACTSoundBank_Destroy, uFp)
+GO(FACTSoundBank_GetCueIndex, WFpp)
+GO(FACTSoundBank_GetCueProperties, uFpWp)
+GO(FACTSoundBank_GetNumCues, uFpp)
+GO(FACTSoundBank_GetState, uFpp)
+GO(FACTSoundBank_Play, uFpWuip)
+GO(FACTSoundBank_Play3D, uFpWuipp)
+GO(FACTSoundBank_Prepare, uFpWuip)
+GO(FACTSoundBank_Stop, uFpWu)
+GO(FACTWaveBank_Destroy, uFp)
+GO(FACTWaveBank_GetNumWaves, uFpp)
+GO(FACTWaveBank_GetState, uFpp)
+GO(FACTWaveBank_GetWaveIndex, uFpp)
+GO(FACTWaveBank_GetWaveProperties, uFpWp)
+GO(FACTWaveBank_Play, uFpWuwCp)
+GO(FACTWaveBank_Prepare, uFpWuuCp)
+GO(FACTWaveBank_Stop, uFpWu)
+GO(FACTWave_Destroy, uFp)
+GO(FACTWave_GetProperties, uFpp)
+GO(FACTWave_GetState, uFpp)
+GO(FACTWave_Pause, uFpi)
+GO(FACTWave_Play, uFp)
+GO(FACTWave_SetMatrixCoefficients, uFpuup)
+GO(FACTWave_SetPitch, uFpw)
+GO(FACTWave_SetVolume, uFpf)
+GO(FACTWave_Stop, uFpu)
 //GO(FAPOBase_AddRef, 
 //GO(FAPOBase_BeginProcess, 
 //GO(FAPOBase_CalcInputFrames, 
@@ -160,7 +162,7 @@ GO(FAudio_CreateSubmixVoice, uFppuuuupp)
 GO(FAudioCreateVolumeMeter, uFpu)
 GOM(FAudioCreateVolumeMeterWithCustomAllocatorEXT, uFEpuppp)
 GOM(FAudioCreateWithCustomAllocatorEXT, uFEpuuppp)
-//GO(FAudio_fopen, 
+GO(FAudio_fopen, pFp)
 //GO(FAudioFXReverb_Free, 
 //GO(FAudioFXReverb_Initialize, 
 //GO(FAudioFXReverb_IsInputFormatSupported, 
