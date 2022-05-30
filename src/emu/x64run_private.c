@@ -48,6 +48,8 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
         SetRSP(emu, GetRBP(emu));   // restore RSP
         SetRBP(emu, Pop64(emu));    // restore RBP
         emu->quit = 0;
+    } else {
+        RunElfInit(my_context->elfs[0], emu);
     }
     printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", my_context->argc, my_context->argv, my_context->envv, main);
     // call main and finish
