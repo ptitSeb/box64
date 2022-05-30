@@ -70,6 +70,11 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         GX->ud[3] = GX->ud[2] = EX->ud[3];
         break;
 
+    case 0x1E:  /* ENDBR64 */
+        nextop = F8;
+        GETED(0);
+        break;
+
     case 0x2A:  /* CVTSI2SS Gx, Ed */
         nextop = F8;
         GETED(0);
@@ -345,11 +350,6 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         GX->d[0] = EX->sd[0];
         break;
 
-    case 0x1E:  /* NOP (multi-byte), endbr64 */
-		nextop = F8;
-		GETED(0);
-        break;            
-            
     default:
         return 1;
     }

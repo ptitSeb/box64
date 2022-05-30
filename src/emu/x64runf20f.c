@@ -63,6 +63,11 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         GX->q[1] = GX->q[0] = EX->q[0];
         break;
 
+    case 0x1E:  /* NOP */
+        nextop = F8;
+        GETED(0);
+        break;
+
     case 0x2A:  /* CVTSI2SD Gx, Ed */
         nextop = F8;
         GETED(0);
