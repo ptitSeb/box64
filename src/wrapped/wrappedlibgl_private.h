@@ -3383,3 +3383,11 @@ GO(eglWaitClient, iFv)
 GO(eglWaitGL, iFv)
 GO(eglWaitNative, iFi)
 GO(eglWaitSyncKHR, iFppi)
+
+// GLES stuff
+GO(glDiscardFramebuffer, vFilp)
+GO(glDiscardFramebufferARB, vFilp)
+GO(glDiscardFramebufferEXT, vFilp)
+GO(glDiscardFramebufferOES, vFilp)
+GO(glDiscardFramebufferAngle, vFilp)
+GO(glDiscardFramebufferNV, vFilp)
