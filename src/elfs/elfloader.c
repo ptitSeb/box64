@@ -1258,7 +1258,7 @@ uint32_t GetBaseSize(elfheader_t* h)
     return h->memsz;
 }
 
-int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr)
+int IsAddressInElfSpace(const elfheader_t* h, uintptr_t addr)
 {
     if(!h)
         return 0;

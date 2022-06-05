@@ -40,7 +40,7 @@ void RunDeferedElfInit(x64emu_t *emu);
 void* GetBaseAddress(elfheader_t* h);
 void* GetElfDelta(elfheader_t* h);
 uint32_t GetBaseSize(elfheader_t* h);
-int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr);
+int IsAddressInElfSpace(const elfheader_t* h, uintptr_t addr);
 elfheader_t* FindElfAddress(box64context_t *context, uintptr_t addr);
 const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uint64_t* sz);
 int32_t GetTLSBase(elfheader_t* h);

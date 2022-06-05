@@ -108,6 +108,10 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
         *success = 0;
         return 0;
     }
+    if(!IsAddressInElfSpace(ehdr, ehdr->ehframehdr)) {
+        *success = 0;
+        return 0;
+    }
     unsigned char ehfh_version = *(unsigned char*)ehdr->ehframehdr;
     if (ehfh_version != 1) {
         *success = 0;
