@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include <pthread.h>
+#include <assert.h>
 
 #include "debug.h"
 #include "librarian.h"
@@ -398,16 +399,16 @@ static int isLocal(elfheader_t* self, library_t* l)
 
 int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername)
 {
-    //excude self if defined
-    if(maplib->context->elfs[0]!=self) {
-        if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end, version, vername, 0))
-            if(*start)
-                return 1;
-        if(GetSymbolStartEnd(maplib->weaksymbols, name, start, end, version, vername, 0))
-            if(*start)
-                return 1;
+    assert(self);   // need self for this one
+    //search for the self, to start "next"
+    int go = -1;
+    for(int i=0; i<maplib->libsz && (go==-1); ++i) {
+        if(GetElfIndex(maplib->libraries[i])!=-1 && (maplib->context->elfs[GetElfIndex(maplib->libraries[i])]==self))
+            go = i+1;
     }
-    for(int i=0; i<maplib->libsz; ++i) {
+    if(go<0)
+        go = 0; // not found...
+    for(int i=go; i<maplib->libsz; ++i) {
         if(GetElfIndex(maplib->libraries[i])==-1 || (maplib->context->elfs[GetElfIndex(maplib->libraries[i])]!=self))
             if(GetLibSymbolStartEnd(maplib->libraries[i], name, start, end, version, vername, 0))
                 if(*start)
@@ -423,7 +424,7 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
                 if(*start)
                     return 1;
         }
-        for(int i=0; i<maplib->libsz; ++i) {
+        for(int i=0; i<go; ++i) {
             if(GetElfIndex(maplib->libraries[i])!=-1 && (maplib->context->elfs[GetElfIndex(maplib->libraries[i])]==self))
                 if(GetLibSymbolStartEnd(maplib->libraries[i], name, start, end, version, vername, 1))
                     if(*start)
