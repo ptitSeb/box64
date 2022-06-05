@@ -5,6 +5,7 @@
 GO("libc.so.6", libc)
 GO("libpthread.so.0", libpthread)
 GO("librt.so.1", librt)
+GO("libEGL.so.1", libegl)
 GO("libGL.so.1", libgl)
 GO("libGL.so", libgl)
 GO("libOpenGL.so.0", libgl)

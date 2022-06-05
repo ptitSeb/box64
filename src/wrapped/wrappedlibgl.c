@@ -187,7 +187,8 @@ EXPORT void my_glProgramCallbackMESA(x64emu_t* emu, void* f, void* data)
 #define PRE_INIT if(libGL) {lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
 #define CUSTOM_INIT \
     lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress"); \
-    box64->glxprocaddress = lib->priv.w.priv;
+    if (!box64->glxprocaddress) \
+        box64->glxprocaddress = lib->priv.w.priv;
 
 
 #include "wrappedlib_init.h"

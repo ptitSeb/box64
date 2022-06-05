@@ -1413,6 +1413,7 @@
 #() iFpUUUip
 #() iFpUUUUp
 #() iFpLLppp
+#() iFppiiii
 #() iFppiiip
 #() iFppiiuu
 #() iFppiipi
@@ -2905,6 +2906,9 @@ wrappedlibdl:
 - iFpppi:
   - dladdr1
 wrappedlibdrm:
+wrappedlibegl:
+- pFp:
+  - eglGetProcAddress
 wrappedlibform:
 wrappedlibformw:
 wrappedlibfuse:

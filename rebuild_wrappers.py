@@ -388,6 +388,7 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 							 or match("sdl1mixer", "sdl2mixer") \
 							 or match("sdl1net", "sdl2net") \
 							 or match("sdl1ttf", "sdl2ttf") \
+							 or match("libGL", "libEGL") \
 							 or match("libc", "tcmallocminimal"):
 								continue
 							
