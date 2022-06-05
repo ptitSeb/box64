@@ -39,7 +39,7 @@ GO(FcCharSetSubtract, pFpp)
 GO(FcCharSetUnion, pFpp)
 GO(FcConfigAppFontAddDir, iFpp)
 GO(FcConfigAppFontAddFile, iFpp)
-//GO(FcConfigAppFontClear, 
+GO(FcConfigAppFontClear, vFp)
 //GO(FcConfigBuildFonts, 
 //GO(FcConfigCreate, 
 //GO(FcConfigDestroy, 
