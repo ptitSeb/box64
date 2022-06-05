@@ -374,6 +374,7 @@ int fpu_get_reg_emm(dynarec_arm_t* dyn, int emm)
     dyn->n.fpuused[EMM0 + emm] = 1;
     dyn->n.neoncache[EMM0 + emm].t = NEON_CACHE_MM;
     dyn->n.neoncache[EMM0 + emm].n = emm;
+    dyn->n.news |= (1<<(EMM0 + emm));
     return EMM0 + emm;
 }
 // Get an XMM quad reg
@@ -388,6 +389,7 @@ int fpu_get_reg_xmm(dynarec_arm_t* dyn, int t, int xmm)
     dyn->n.fpuused[i] = 1;
     dyn->n.neoncache[i].t = t;
     dyn->n.neoncache[i].n = xmm;
+    dyn->n.news |= (1<<i);
     return i;
 }
 // Reset fpu regs counter
