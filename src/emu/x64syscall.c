@@ -169,6 +169,7 @@ scwrap_t syscallwrap[] = {
     { 298, __NR_perf_event_open, 5},
     { 309, __NR_getcpu, 3}, // need wrapping?
     { 315, __NR_sched_getattr, 4},
+    { 317, __NR_seccomp, 3},
     { 318, __NR_getrandom, 3},
     { 319, __NR_memfd_create, 2},
     #ifdef __NR_statx
