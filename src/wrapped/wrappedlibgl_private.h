@@ -3308,6 +3308,13 @@ GO(glResolveDepthValuesNV, vFv)
 //GL_OVR_multiview
 GO(glFramebufferTextureMultiviewOVR, vFiiuiil)
 
+//GL_KHR_robustness
+GO(glGetGraphicsResetStatusKHR, iFv)
+GO(glReadnPixelsKHR, vFiilliilp)
+GO(glGetnUniformfvKHR, vFuilp)
+GO(glGetnUniformivKHR, vFuilp)
+GO(glGetnUniformuivKHR, vFuilp)
+
 // EGL stuffs
 GO(eglBindAPI, iFi)
 GO(eglBindTexImage, iFppi)

@@ -1745,6 +1745,7 @@ void vFEppipppp(x64emu_t *emu, uintptr_t fnc);
 void vFEpppuipV(x64emu_t *emu, uintptr_t fnc);
 void vFEpppppuu(x64emu_t *emu, uintptr_t fnc);
 void vFiiiiuuip(x64emu_t *emu, uintptr_t fnc);
+void vFiilliilp(x64emu_t *emu, uintptr_t fnc);
 void vFilipufip(x64emu_t *emu, uintptr_t fnc);
 void vFuiiiiiii(x64emu_t *emu, uintptr_t fnc);
 void vFuiiiiill(x64emu_t *emu, uintptr_t fnc);
