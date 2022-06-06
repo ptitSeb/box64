@@ -34,6 +34,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
 int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, library_t *deplib, int local, int bindnow, box64context_t *box64, x64emu_t* emu);
 uintptr_t GetElfInit(elfheader_t* h);
 uintptr_t GetElfFini(elfheader_t* h);
+void RefreshElfTLS(elfheader_t* h);
 void RunElfInit(elfheader_t* h, x64emu_t *emu);
 void RunElfFini(elfheader_t* h, x64emu_t *emu);
 void RunDeferedElfInit(x64emu_t *emu);

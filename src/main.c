@@ -1356,6 +1356,8 @@ int main(int argc, const char **argv, char **env) {
     RelocateElfPlt(my_context->maplib, NULL, 0, elf_header);
     // defered init
     RunDeferedElfInit(emu);
+    // update TLS of main elf
+    RefreshElfTLS(elf_header);
     // do some special case check, _IO_2_1_stderr_ and friends, that are setup by libc, but it's already done here, so need to do a copy
     ResetSpecialCaseMainElf(elf_header);
     // init...
