@@ -129,7 +129,7 @@ If it's the first install, you also need:
 sudo systemctl restart systemd-binfmt
 ```
 
-#### for RISCV
+#### for RISC-V
 
 Using a 64bit OS:
 
@@ -137,7 +137,7 @@ Using a 64bit OS:
 git clone https://github.com/ptitSeb/box64
 cd box64
 mkdir build; cd build; cmake .. -DRV64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
-make -j4
+make -j`nproc`
 sudo make install
 ```
 If it's the first install, you also need:
