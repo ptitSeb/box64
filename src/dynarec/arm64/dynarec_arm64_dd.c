@@ -165,7 +165,12 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     v1 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
                     s0 = fpu_get_scratch(dyn);
+                    #if 0
+                    // those are ARM 8.5 opcode!
                     FRINT64ZD(s0, v1);
+                    #else
+                    FRINTRRD(s0, v1, 3);    // not ideal, might averflow and not set 0x8000000000000000 correctly
+                    #endif
                     FCVTZSxD(x2, s0);
                     STRx_U12(x2, ed, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
