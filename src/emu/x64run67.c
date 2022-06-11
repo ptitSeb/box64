@@ -212,6 +212,18 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
         }
         break;
 
+    case 0xC7:                      /* MOV Ed,Id */
+        nextop = F8;
+        GETED32(4);
+        if(rex.w)
+            ED->q[0] = F32S64;
+        else
+            if(MODREG)
+                ED->q[0] = F32;
+            else
+                ED->dword[0] = F32;
+        break;
+
     case 0xE0:                      /* LOOPNZ */
         CHECK_FLAGS(emu);
         tmp8s = F8S;
