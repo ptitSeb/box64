@@ -2303,6 +2303,8 @@ GOM(_ITM_deregisterTMCloneTable, vFEp)
 GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)
 
+GOWM(__cxa_pure_virtual, vFEv)     // create a function to trap pure virtual call
+
 DATAM(program_invocation_name, sizeof(void*))
 DATAM(program_invocation_short_name, sizeof(void*))
 

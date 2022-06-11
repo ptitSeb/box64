@@ -2716,6 +2716,13 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
     return (uintptr_t)ret;
 }
 
+EXPORT void my___cxa_pure_virtual(x64emu_t* emu)
+{
+    fprintf(LOG_NONE, "Pure virtual function called\n");
+    emu->quit = 1;
+    abort();
+}
+
 EXPORT char** my_environ = NULL;
 EXPORT char** my__environ = NULL;
 EXPORT char** my___environ = NULL;  // all aliases

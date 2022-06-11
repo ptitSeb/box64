@@ -85,6 +85,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(_Jv_RegisterClasses, vFv_t) \
+	GO(__cxa_pure_virtual, vFv_t) \
 	GO(__stack_chk_fail, vFv_t) \
 	GO(_ITM_deregisterTMCloneTable, vFp_t) \
 	GO(__cxa_finalize, vFp_t) \

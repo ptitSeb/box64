@@ -2663,6 +2663,7 @@ wrappedlibasound:
 wrappedlibc:
 - vFv:
   - _Jv_RegisterClasses
+  - __cxa_pure_virtual
   - __stack_chk_fail
 - vFp:
   - _ITM_deregisterTMCloneTable
