@@ -363,7 +363,7 @@ library_t *NewLibrary(const char* path, box64context_t* context)
     int essential = isEssentialLib(lib->name);
     if(!notwrapped && box64_prefer_emulated && !essential)
         notwrapped = 1;
-    int precise = (!box64_prefer_wrapped && !essential && path && path[0]=='/')?1:0;
+    int precise = (!box64_prefer_wrapped && !essential && path && strchr(path, '/'))?1:0;
     if(!notwrapped && precise && strstr(path, "libtcmalloc_minimal.so"))
         precise = 0;    // allow native version for tcmalloc_minimum
     // check if name is libSDL_sound-1.0.so.1 but with SDL2 loaded, then try emulated first...
@@ -553,9 +553,14 @@ int IsSameLib(library_t* lib, const char* path)
     if(!lib) 
         return 0;
     char* name = Path2Name(path);
-    if(strcmp(name, lib->name)==0)
-        ret=1;
-    else {
+    if((!strchr(path, '/') || lib->type==0)) {
+        if(strcmp(name, lib->name)==0)
+            ret=1;
+    } else {
+        if(!strcmp(path, lib->path))
+            ret=1;
+    }
+    if(!ret) {
         int n = NbDot(name);
         if(n>=0 && n<lib->nbdot)
             if(strncmp(name, lib->name, strlen(name))==0)
