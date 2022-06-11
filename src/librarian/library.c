@@ -553,7 +553,7 @@ int IsSameLib(library_t* lib, const char* path)
     if(!lib) 
         return 0;
     char* name = Path2Name(path);
-    if((!strchr(path, '/') || lib->type==0)) {
+    if(!strchr(path, '/') || lib->type==0 || !lib->path) {
         if(strcmp(name, lib->name)==0)
             ret=1;
     } else {
