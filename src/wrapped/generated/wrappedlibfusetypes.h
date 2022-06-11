@@ -11,11 +11,19 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int64_t (*iFpp_t)(void*, void*);
+typedef int64_t (*iFppd_t)(void*, void*, double);
+typedef int64_t (*iFppp_t)(void*, void*, void*);
 typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFppLp_t)(void*, void*, uintptr_t, void*);
+typedef uintptr_t (*LFppLppU_t)(void*, void*, uintptr_t, void*, void*, uint64_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(fuse_reply_entry, iFpp_t) \
+	GO(fuse_reply_attr, iFppd_t) \
+	GO(fuse_reply_create, iFppp_t) \
 	GO(fuse_opt_parse, iFpppp_t) \
-	GO(fuse_lowlevel_new, pFppLp_t)
+	GO(fuse_lowlevel_new, pFppLp_t) \
+	GO(fuse_add_direntry, LFppLppU_t)
 
 #endif // __wrappedlibfuseTYPES_H_

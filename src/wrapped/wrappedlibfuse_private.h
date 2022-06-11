@@ -7,7 +7,7 @@
 //GO(cuse_lowlevel_setup, 
 //GO(cuse_lowlevel_teardown, 
 //GO(fuse_add_dirent, 
-//GO(fuse_add_direntry, 
+GOM(fuse_add_direntry, LFEppLppU)
 //GO(fuse_buf_copy, 
 //GO(fuse_buf_size, 
 //GO(fuse_chan_bufsize, 
@@ -122,27 +122,27 @@ GO(fuse_parse_cmdline, iFpppp)
 //GO(fuse_read_cmd, 
 //GO(fuse_register_module, 
 GO(fuse_remove_signal_handlers, vFp)
-//GO(fuse_reply_attr, 
-//GO(fuse_reply_bmap, 
-//GO(fuse_reply_buf, 
-//GO(fuse_reply_create, 
-//GO(fuse_reply_data, 
-GO(fuse_reply_entry, iFpp)
+GOM(fuse_reply_attr, iFEppd)
+GO(fuse_reply_bmap, iFpU)
+GO(fuse_reply_buf, iFppL)
+GOM(fuse_reply_create, iFEppp)
+GO(fuse_reply_data, iFppi)
+GOM(fuse_reply_entry, iFEpp)
 GO(fuse_reply_err, iFpi)
-//GO(fuse_reply_ioctl, 
-//GO(fuse_reply_ioctl_iov, 
-//GO(fuse_reply_ioctl_retry, 
-//GO(fuse_reply_iov, 
-//GO(fuse_reply_lock, 
-//GO(fuse_reply_none, 
+GO(fuse_reply_ioctl, iFpipL)
+GO(fuse_reply_ioctl_iov, iFpipi)
+GO(fuse_reply_ioctl_retry, iFppLpL)
+GO(fuse_reply_iov, iFppi)
+GO(fuse_reply_lock, iFpp)
+GO(fuse_reply_none, vFp)
 GO(fuse_reply_open, iFpp)
 GO(fuse_reply_open_compat, iFpp)
-//GO(fuse_reply_poll, 
-//GO(fuse_reply_readlink, 
-//GO(fuse_reply_statfs, 
+GO(fuse_reply_poll, iFpu)
+GO(fuse_reply_readlink, iFpp)
+GO(fuse_reply_statfs, iFpp)
 //GO(fuse_reply_statfs_compat, 
-//GO(fuse_reply_write, 
-//GO(fuse_reply_xattr, 
+GO(fuse_reply_write, iFpL)
+GO(fuse_reply_xattr, iFpL)
 //GO(fuse_req_ctx, 
 //GO(fuse_req_getgroups, 
 //GO(fuse_req_interrupted, 
