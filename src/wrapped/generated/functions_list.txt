@@ -829,6 +829,7 @@
 #() UFppip
 #() UFpppp
 #() dFpppp
+#() lFEipV
 #() lFEpip
 #() lFEppL
 #() lFEppp
@@ -2723,6 +2724,7 @@ wrappedlibc:
   - execl
   - execlp
   - printf
+  - wprintf
 - iFpA:
   - vprintf
 - iFSp:
@@ -2802,6 +2804,8 @@ wrappedlibc:
   - __open
   - open
   - open64
+- lFipV:
+  - __wprintf_chk
 - lFppL:
   - readlink
 - pFpip:

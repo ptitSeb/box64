@@ -48,6 +48,7 @@ typedef int64_t (*iFppp_t)(void*, void*, void*);
 typedef int64_t (*iFppV_t)(void*, void*, ...);
 typedef int64_t (*iFppA_t)(void*, void*, va_list);
 typedef int64_t (*iFpOu_t)(void*, int32_t, uint64_t);
+typedef intptr_t (*lFipV_t)(int64_t, void*, ...);
 typedef intptr_t (*lFppL_t)(void*, void*, uintptr_t);
 typedef void* (*pFpip_t)(void*, int64_t, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
@@ -128,6 +129,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(execl, iFpV_t) \
 	GO(execlp, iFpV_t) \
 	GO(printf, iFpV_t) \
+	GO(wprintf, iFpV_t) \
 	GO(vprintf, iFpA_t) \
 	GO(_IO_file_stat, iFSp_t) \
 	GO(__sysv_signal, pFip_t) \
@@ -188,6 +190,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(__open, iFpOu_t) \
 	GO(open, iFpOu_t) \
 	GO(open64, iFpOu_t) \
+	GO(__wprintf_chk, lFipV_t) \
 	GO(readlink, lFppL_t) \
 	GO(fts_open, pFpip_t) \
 	GO(tsearch, pFppp_t) \

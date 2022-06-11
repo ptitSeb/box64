@@ -557,6 +557,18 @@ EXPORT int my___printf_chk(x64emu_t *emu, int chk, void* fmt, void* b)
     PREPARE_VALIST;
     return vprintf((const char*)fmt, VARARGS);
 }
+EXPORT int my_wprintf(x64emu_t *emu, void* fmt, void* b) {
+    myStackAlignW(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
+    PREPARE_VALIST;
+    return vwprintf((const wchar_t*)fmt, VARARGS);
+}
+EXPORT int my___wprintf_chk(x64emu_t *emu, int chk, void* fmt, void* b)
+{
+    (void)chk;
+    myStackAlignW(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return vwprintf((const wchar_t*)fmt, VARARGS);
+}
 
 EXPORT int my_vprintf(x64emu_t *emu, void* fmt, x64_va_list_t b) {
     (void)emu;

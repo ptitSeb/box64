@@ -2204,8 +2204,8 @@ GO(wmemset, pFpiL)
 GO(wordexp, iFppi)
 GO(wordfree, vFp)
 //GO(__woverflow, 
-//GO(wprintf, iFpV)
-//GO(__wprintf_chk, 
+GOM(wprintf, iFEpV)
+GOM(__wprintf_chk, lFEipV)
 GOW(__write, lFipL)
 GOW(write, lFipL)
 //GO(__write_nocancel, 
