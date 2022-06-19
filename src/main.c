@@ -1336,7 +1336,7 @@ int main(int argc, const char **argv, char **env) {
     if(ld_preload.size) {
         for(int i=0; i<ld_preload.size; ++i)
             if(AddNeededLib(my_context->maplib, &my_context->neededlibs, NULL, 0, 0, (const char**)&ld_preload.paths[i], 1, my_context, emu)) {
-                printf_log(LOG_INFO, "Warning, cannot pre-load a lib (%s)\n", ld_preload.paths[i]);
+                printf_log(LOG_INFO, "Warning, cannot pre-load the lib (%s)\n", ld_preload.paths[i]);
             }            
     }
     FreeCollection(&ld_preload);
