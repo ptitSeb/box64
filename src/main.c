@@ -1334,9 +1334,10 @@ int main(int argc, const char **argv, char **env) {
     AddMainElfToLinkmap(elf_header);
     // pre-load lib if needed
     if(ld_preload.size) {
-        if(AddNeededLib(NULL, NULL, NULL, 0, 0, (const char**)ld_preload.paths, ld_preload.size, my_context, emu)) {
-            printf_log(LOG_INFO, "Warning, cannot pre-load a lib\n");
-        }
+        for(int i=0; i<ld_preload.size; ++i)
+            if(AddNeededLib(my_context->maplib, &my_context->neededlibs, NULL, 0, 0, (const char**)&ld_preload.paths[i], 1, my_context, emu)) {
+                printf_log(LOG_INFO, "Warning, cannot pre-load a lib (%s)\n", ld_preload.paths[i]);
+            }            
     }
     FreeCollection(&ld_preload);
     // Call librarian to load all dependant elf
