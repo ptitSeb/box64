@@ -64,7 +64,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg)
         }
     }
     setenv("BOX64_PREFER_EMULATED", "1", 1);
-    setenv("BOX86_PREFER_EMULATED", "1", 1);
+    //setenv("BOX86_PREFER_EMULATED", "1", 1);
 
 //setenv("BOX64_TRACE_FILE", "/home/seb/trace64-%pid.txt", 1);
 //setenv("BOX86_TRACE_FILE", "/home/seb/trace86-%pid.txt", 1);
