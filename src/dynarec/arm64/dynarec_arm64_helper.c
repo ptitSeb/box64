@@ -939,7 +939,12 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         ADDw_U12(s2, s2, st);
         ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
     }
-    VLDR64_REG_LSL3(dyn->n.x87reg[ret], s1, s2);
+    if(dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_F) {
+        FCVT_S_D(31, dyn->n.x87reg[ret]);
+        VLDR64_REG_LSL3(31, s1, s2);
+    } else {
+        VLDR64_REG_LSL3(dyn->n.x87reg[ret], s1, s2);
+    }
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
 }
 
@@ -953,6 +958,10 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     if(ret==-1)    // nothing to do
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
+    #if STEP == 1
+    if(dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_F)
+        neoncache_promote_double(dyn, ninst, st);
+    #endif
     // prepare offset to fpu => s1
     ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
     // Get top
@@ -980,6 +989,10 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         if(dyn->n.x87cache[i]==st) {
             // refresh the value
             MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
+            #if STEP == 1
+            if(dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_F)
+                neoncache_promote_double(dyn, ninst, st);
+            #endif
             ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
             LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
             int a = st - dyn->n.x87stack;
