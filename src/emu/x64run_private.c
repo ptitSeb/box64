@@ -961,6 +961,7 @@ const char* getAddrFunctionName(uintptr_t addr)
     uintptr_t start = 0;
     elfheader_t* elf = FindElfAddress(my_context, addr);
     const char* symbname = FindNearestSymbolName(elf, (void*)addr, &start, &sz);
+    if(!sz) sz=0x100;   // arbitrary value...
     if(symbname && addr>=start && (addr<(start+sz) || !sz)) {
         if(symbname[0]=='\0')
             sprintf(ret, "%s + 0x%lx", ElfName(elf), addr - (uintptr_t)GetBaseAddress(elf));
@@ -982,6 +983,7 @@ void printFunctionAddr(uintptr_t nextaddr, const char* text)
     uint64_t sz = 0;
     uintptr_t start = 0;
     const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, nextaddr), (void*)nextaddr, &start, &sz);
+    if(!sz) sz=0x100;   // arbitrary value...
     if(symbname && nextaddr>=start && (nextaddr<(start+sz) || !sz)) {
         if(nextaddr==start)
             printf_log(LOG_NONE, " (%s%s:%s)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname);

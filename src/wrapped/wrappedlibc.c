@@ -2611,22 +2611,23 @@ EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
 EXPORT char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size)
 {
     (void)emu;
-    char** ret = (char**)calloc(1, size*sizeof(char*) + size*100);  // capping each strings to 100 chars
+    char** ret = (char**)calloc(1, size*sizeof(char*) + size*200);  // capping each strings to 200 chars
     char* s = (char*)(ret+size);
     for (int i=0; i<size; ++i) {
         uintptr_t start = 0;
         uint64_t sz = 0;
         elfheader_t *hdr = FindElfAddress(my_context, buffer[i]);
         const char* symbname = FindNearestSymbolName(hdr, (void*)buffer[i], &start, &sz);
+        if(!sz) sz=0x100;   // arbitrary value...
         if (symbname && buffer[i]>=start && (buffer[i]<(start+sz) || !sz)) {
-            snprintf(s, 100, "%s(%s+%lx) [%p]", ElfName(hdr), symbname, buffer[i] - start, (void*)buffer[i]);
+            snprintf(s, 200, "%s(%s+%lx) [%p]", ElfName(hdr), symbname, buffer[i] - start, (void*)buffer[i]);
         } else if (hdr) {
-            snprintf(s, 100, "%s+%lx [%p]", ElfName(hdr), buffer[i] - (uintptr_t)GetBaseAddress(hdr), (void*)buffer[i]);
+            snprintf(s, 200, "%s+%lx [%p]", ElfName(hdr), buffer[i] - (uintptr_t)GetBaseAddress(hdr), (void*)buffer[i]);
         } else {
-            snprintf(s, 100, "??? [%p]", (void*)buffer[i]);
+            snprintf(s, 200, "??? [%p]", (void*)buffer[i]);
         }
         ret[i] = s;
-        s += 100;
+        s += 200;
     }
     return ret;
 }
@@ -2634,15 +2635,16 @@ EXPORT char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size)
 EXPORT void my_backtrace_symbols_fd(x64emu_t* emu, uintptr_t* buffer, int size, int fd)
 {
     (void)emu;
-    char s[100];
+    char s[200];
     for (int i=0; i<size; ++i) {
         uintptr_t start = 0;
         uint64_t sz = 0;
         const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, buffer[i]), (void*)buffer[i], &start, &sz);
+        if(!sz) sz=0x100;   // arbitrary value...
         if(symbname && buffer[i]>=start && (buffer[i]<(start+sz) || !sz))
-            snprintf(s, 100, "%s+%ld [%p]\n", symbname, buffer[i] - start, (void*)buffer[i]);
+            snprintf(s, 200, "%s+%ld [%p]\n", symbname, buffer[i] - start, (void*)buffer[i]);
         else 
-            snprintf(s, 100, "??? [%p]\n", (void*)buffer[i]);
+            snprintf(s, 200, "??? [%p]\n", (void*)buffer[i]);
         int dummy = write(fd, s, strlen(s));
         (void)dummy;
     }

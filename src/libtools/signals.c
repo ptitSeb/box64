@@ -265,7 +265,7 @@ static void sigstack_key_alloc() {
 	pthread_key_create(&sigstack_key, sigstack_destroy);
 }
 
-uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
+uint64_t RunFunctionHandler(int* exit, int* lj, x64_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
         printf_log(LOG_NONE, "BOX64: Warning, calling Signal function handler %s\n", fnc?"SIG_IGN":"SIG_DFL");
@@ -319,6 +319,8 @@ uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc
     emu->quitonlongjmp = oldquitonlongjmp;
 
     if(emu->longjmp) {
+        if(lj)
+            *lj = 1;
         // longjmp inside signal handler, lets grab all relevent value and do the actual longjmp in the signal handler
         emu->longjmp = 0;
         if(sigcontext) {
@@ -632,11 +634,12 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     R_RBP = sigcontext->uc_mcontext.gregs[X64_RBP];
 
     int exits = 0;
+    int lj = box64_wine?0:1;
     int ret;
     if (simple)
-        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 1, sig);
+        ret = RunFunctionHandler(&exits, &lj, sigcontext, my_context->signals[sig], 1, sig);
     else
-        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info, sigcontext);
+        ret = RunFunctionHandler(&exits, &lj, sigcontext, my_context->signals[sig], 3, sig, info, sigcontext);
     // restore old value from emu
     #define GO(A) R_##A = old_##A
     GO(RAX);
@@ -649,7 +652,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     GO(RBP);
     #undef GO
 
-    if(memcmp(sigcontext, &sigcontext_copy, sizeof(x64_ucontext_t))) {
+    if(lj && memcmp(sigcontext, &sigcontext_copy, sizeof(x64_ucontext_t))) {
         emu_jmpbuf_t* ejb = GetJmpBuf();
         if(ejb->jmpbuf_ok) {
             #define GO(R)   ejb->emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_R##R]
@@ -735,7 +738,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         exit(ret);
     }
     if(restorer)
-        RunFunctionHandler(&exits, NULL, restorer, 0);
+        RunFunctionHandler(&exits, NULL, NULL, restorer, 0);
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
     relockMutex(Locks);

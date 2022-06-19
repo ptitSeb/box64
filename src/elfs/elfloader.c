@@ -156,12 +156,10 @@ const char* ElfPath(elfheader_t* head)
 int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;
-    if((mainbin && head->vaddr==0) || (!mainbin && !head->vaddr && box64_load_addr)) {
-        if(box64_load_addr) {
-            offs = box64_load_addr;
-            box64_load_addr += head->memsz;
-            box64_load_addr = (box64_load_addr+0xffffffLL)&~0xffffffLL;
-        }
+    if(!head->vaddr && box64_load_addr) {
+        offs = box64_load_addr;
+        box64_load_addr += head->memsz;
+        box64_load_addr = (box64_load_addr+0xffffffLL)&~0xffffffLL;
     }
     int log_level = box64_load_addr?LOG_INFO:LOG_DEBUG;
     if(!offs)
@@ -567,7 +565,6 @@ uintptr_t tlsdescUndefweak = 0;
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
 EXPORT uintptr_t _dl_tlsdesc_undefweak(x64emu_t* emu)
 {
-    printf_log(LOG_DEBUG, "_dl_tlsdesc_undefweak, rax=%p\n", (void*)R_RAX);
     struct tlsdesc *td = (struct tlsdesc *)R_RAX;
     return td->arg;
 }

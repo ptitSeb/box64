@@ -181,6 +181,8 @@ void x64Int3(x64emu_t* emu)
                 } else if (!strcmp(s, "glGetStringi")) {
                     post = 2;
                     snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, %d)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI);
+                } else if (!strcmp(s, "_dl_tlsdesc_undefweak")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(RAX=%p)", tid, *(void**)(R_RSP), s, (void*)R_RAX);
                 } else if (!strcmp(s, "glFramebufferTexture2D")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(0x%x, 0x%x, 0x%x, %u, %d)", tid, *(void**)(R_RSP), s, R_EDI, R_ESI, R_EDX, R_ECX, R_R8d);
                 } else if (!strcmp(s, "glTexSubImage2D")) {
