@@ -10,6 +10,7 @@
 #include <sys/syscall.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#include <sys/prctl.h>
 #ifdef DYNAREC
 #ifdef ARM64
 #include <linux/auxvec.h>
@@ -1291,6 +1292,28 @@ int main(int argc, const char **argv, char **env) {
         } else {
             printf_log(LOG_INFO, "BOX64: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
         }
+    }
+    // change process name
+    {
+        char* p = strrchr(my_context->argv[0], '/');
+        if(p)
+            ++p;
+        else
+            p = my_context->argv[0];
+        if(prctl(PR_SET_NAME, p)==-1)
+            printf_log(LOG_NONE, "Error setting process name (%s)\n", strerror(errno));
+        else
+            printf_log(LOG_INFO, "Rename process to \"%s\"\n", p);
+        // and now all change the argv (so libs libs mesa find the correct program names)
+        char* endp = (char*)argv[argc-1];
+        while(*endp)
+            ++endp;    // find last argv[] address
+        uintptr_t diff = prog - argv[0]; // this is the difference we need to compensate
+        for(p=(char*)prog; p<=endp; ++p)
+            *(p - diff) = *p;  // copy all element at argv[nextarg] to argv[0]
+        memset(endp - diff, 0, diff); // fill reminder with NULL
+        for(int i=nextarg; i<argc; ++i)
+            argv[i] -= diff;    // adjust strings
     }
     // get and alloc stack size and align
     if(CalcStackSize(my_context)) {
