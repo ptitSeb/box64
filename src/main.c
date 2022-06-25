@@ -380,7 +380,7 @@ void LoadLogEnv()
             if(p[0]>='0' && p[0]<='1')
                 box64_dynarec = p[0]-'0';
         }
-        printf_log(LOG_INFO, "Dynarec is %s\n", box64_dynarec?"on":"dff");
+        printf_log(LOG_INFO, "Dynarec is %s\n", box64_dynarec?"on":"off");
     }
     p = getenv("BOX64_DYNAREC_FORCED");
     if(p) {
