@@ -998,6 +998,16 @@ exit(-1);
             getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)), 
             (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash, 
             (void*)my_context->signals[sig]);
+#if defined(ARM64)
+        static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
+        if(db)
+            for (int i=0; i<16; ++i) {
+                if(!(i%4)) printf_log(log_minimum, "\n");
+                printf_log(log_minimum, "%s:0x%016lx ", reg_name[i], p->uc_mcontext.regs[10+i]);
+            }
+#else
+        #warning TODO
+#endif
 #else
         printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code);
 #endif
