@@ -71,6 +71,7 @@ GO(i2d_SSL_SESSION, iFpp)
 //GO(_init, 
 //GO(n_ssl3_mac, 
 //GO(OBJ_bsearch_ssl_cipher_id, 
+GO(OPENSSL_init_ssl, iFUp)
 //GO(PEM_read_bio_SSL_SESSION, 
 //GO(PEM_read_SSL_SESSION, 
 //GO(PEM_write_bio_SSL_SESSION, 

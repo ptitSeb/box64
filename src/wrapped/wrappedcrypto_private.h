@@ -787,7 +787,7 @@ GO(BN_zero, vFp)
 //GO(CONF_modules_free, 
 //GO(CONF_modules_load, 
 //GO(CONF_modules_load_file, 
-//GO(CONF_modules_unload, 
+GO(CONF_modules_unload, vFi)
 //GO(_CONF_new_data, 
 //GO(_CONF_new_section, 
 //GO(CONF_parse_list, 
