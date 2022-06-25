@@ -285,7 +285,7 @@ int Table64(dynarec_native_t *dyn, uint64_t val)
 
 static void fillPredecessors(dynarec_native_t* dyn)
 {
-    int pred_sz = 0;
+    int pred_sz = 1;    // to be safe
     // compute total size of predecessor to alocate the array
     // first compute the jumps
     for(int i=0; i<dyn->size; ++i) {
@@ -295,8 +295,8 @@ static void fillPredecessors(dynarec_native_t* dyn)
         }
     }
     // second the "has_next"
-    for(int i=0; i<dyn->size; ++i) {
-        if(i!=dyn->size-1 && dyn->insts[i].x64.has_next && (!i || dyn->insts[i].pred_sz)) {
+    for(int i=0; i<dyn->size-1; ++i) {
+        if(dyn->insts[i].x64.has_next) {
             ++pred_sz;
             ++dyn->insts[i+1].pred_sz;
         }
