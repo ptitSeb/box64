@@ -43,7 +43,7 @@ GO(FACTAudioEngine_SetGlobalVariable, uFpWf)
 GO(FACTAudioEngine_SetVolume, uFpWf)
 GO(FACTAudioEngine_ShutDown, uFp)
 GO(FACTAudioEngine_Stop, uFpWu)
-//GO(FACTAudioEngine_UnRegisterNotification, 
+GO(FACTAudioEngine_UnRegisterNotification, uFpp)
 GO(FACTCreateEngine, uFup)
 //GO(FACTCreateEngineWithCustomAllocatorEXT, 
 GO(FACTCue_Destroy, uFp)
