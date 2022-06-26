@@ -1013,8 +1013,9 @@ EXPORT int my___xstat(x64emu_t* emu, int v, void* path, void* buf)
 {
     (void)emu; (void)v;
     struct stat64 st;
-    int r = stat64((const char*)path, &st);
-    UnalignStat64(&st, buf);
+    int r = stat64((const char*)path, buf?&st:buf);
+    if(buf)
+        UnalignStat64(&st, buf);
     return r;
 }
 
