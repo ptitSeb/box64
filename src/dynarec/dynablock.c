@@ -430,6 +430,24 @@ int AreaInHotPage(uintptr_t start, uintptr_t end) {
     return 0;
 }
 
+void FuseHotPage(int idx) {
+    uintptr_t start = hotpage[idx];
+    uintptr_t end = start+0x1000*(hotpage_size[idx]+1);
+    for(int i=0; i<MAX_HOTPAGE; ++i)
+        if(i!=idx && hotpage_count[i]>0) {
+            if(IntervalIntersects(start, end, hotpage[i], hotpage[i]+0x1000*(hotpage_size[i]+1)-1)) {
+                if(hotpage_count[i]>hotpage_count[idx])
+                    hotpage_count[idx] = hotpage_count[i];
+                if(hotpage[i]>hotpage[idx])
+                    hotpage[idx]=hotpage[i];
+                if(hotpage[i]+0x1000*(hotpage_size[i]+1)>end)
+                    hotpage_size[idx] = ((hotpage[i]+0x1000*(hotpage_size[i]+1))-hotpage[idx])/0x1000 - 1;
+                hotpage_count[i] = 0;
+                return;
+            }
+        }
+}
+
 void AddHotPage(uintptr_t addr) {
     addr&=~0xfff;
     // look for same address
@@ -444,6 +462,7 @@ void AddHotPage(uintptr_t addr) {
         if(addr==hotpage[i]+0x1000*(hotpage_size[i]+1)) {
             ++hotpage_size[i];
             hotpage_count[i] = HOTPAGE_STEP;
+            FuseHotPage(i);
             __sync_synchronize();
             return;
         }
@@ -454,13 +473,28 @@ void AddHotPage(uintptr_t addr) {
             __sync_synchronize();
             return;
         }
+        if(addr==hotpage[i]+0x1000*(hotpage_size[i]+2)) {
+            hotpage_size[i]+=2;
+            hotpage_count[i] = HOTPAGE_STEP;
+            FuseHotPage(i);
+            __sync_synchronize();
+            return;
+        }
+        if(addr+0x2000==hotpage[i]) {
+            hotpage_size[i]+=2;
+            hotpage[i] = addr;
+            hotpage_count[i] = HOTPAGE_STEP;
+            FuseHotPage(i);
+            __sync_synchronize();
+            return;
+        }
     }
     // look for empty spot / minium
-    int mincnt = hotpage_count[0];
+    int mincnt = hotpage_count[0]*(hotpage_size[0]+1);
     int minidx = 0;
     for(int i=1; i<MAX_HOTPAGE; ++i)
-        if(hotpage_count[i]<mincnt) {
-            mincnt = hotpage_count[i];
+        if((hotpage_count[i]*(hotpage_size[i]+1))<mincnt) {
+            mincnt = (hotpage_count[i]*(hotpage_size[i]+1));
             minidx = i;
         }
     if(hotpage_count[minidx]) {
