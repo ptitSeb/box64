@@ -1062,9 +1062,9 @@ void loadProtectionFromMap()
 
 static int blockempty(uint8_t* mem)
 {
-    uint32_t *p4 = (uint32_t*)mem;
-    for (int i=0; i<(MEMPROT_SIZE)/4; ++i, ++p4)
-        if(*p4)
+    uint64_t *p8 = (uint64_t*)mem;
+    for (int i=0; i<(MEMPROT_SIZE)/8; ++i, ++p8)
+        if(*p8)
             return 0;
     return 1;
 }
@@ -1087,7 +1087,8 @@ void freeProtection(uintptr_t addr, size_t size)
             const uintptr_t finish = (((i|(MEMPROT_SIZE-1))<end)?(MEMPROT_SIZE-1):end)&(MEMPROT_SIZE-1);
             uint8_t *block = memprot[key];
             memset(block+start, 0, finish-start+1);
-#if 0 //def ARM64   //disabled for now, not usefull with the mutex
+            // blockempty is quite slow, so disable the free of blocks for now
+#if 0 //def ARM64   //disabled for now, not useful with the mutex
             if (blockempty(block)) {
                 block = (void*)native_lock_xchg(&memprot[key], (uintptr_t)memprot_default);
                 if(!blockempty(block)) {
@@ -1099,10 +1100,14 @@ void freeProtection(uintptr_t addr, size_t size)
                 if (block != memprot_default) free(block);
             }
 #else
-            if(blockempty(block)) {
+            if(start==0 && finish==MEMPROT_SIZE-1) {
                 memprot[key] = memprot_default;
                 free(block);
             }
+            /*else if(blockempty(block)) {
+                memprot[key] = memprot_default;
+                free(block);
+            }*/
 #endif
             i+=finish-start;    // +1 from the "for" loop
         }
