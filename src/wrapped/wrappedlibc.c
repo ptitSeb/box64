@@ -994,8 +994,9 @@ EXPORT int my___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
 {
     (void)emu; (void)vers;
     struct stat64 st;
-    int r = fstat64(fd, &st);
-    UnalignStat64(&st, buf);
+    int r = fstat64(fd, buf?&st:buf);
+    if(buf)
+        UnalignStat64(&st, buf);
     return r;
 }
 
@@ -1003,9 +1004,9 @@ EXPORT int my___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
 {
     (void)emu; (void)vers;
     struct stat64 st;
-    int r = fstat64(fd, &st);
-    //int r = syscall(__NR_stat64, fd, &st);
-    UnalignStat64(&st, buf);
+    int r = fstat64(fd, buf?&st:buf);
+    if(buf)
+        UnalignStat64(&st, buf);
     return r;
 }
 
@@ -1023,8 +1024,9 @@ EXPORT int my___xstat64(x64emu_t* emu, int v, void* path, void* buf)
 {
     (void)emu; (void)v;
     struct stat64 st;
-    int r = stat64((const char*)path, &st);
-    UnalignStat64(&st, buf);
+    int r = stat64((const char*)path, buf?&st:buf);
+    if(buf)
+        UnalignStat64(&st, buf);
     return r;
 }
 
@@ -1032,8 +1034,9 @@ EXPORT int my___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 {
     (void)emu; (void)v;
     struct stat64 st;
-    int r = lstat64((const char*)name, &st);
-    UnalignStat64(&st, buf);
+    int r = lstat64((const char*)name, buf?&st:buf);
+    if(buf)
+        UnalignStat64(&st, buf);
     return r;
 }
 
@@ -1041,8 +1044,9 @@ EXPORT int my___lxstat64(x64emu_t* emu, int v, void* name, void* buf)
 {
     (void)emu; (void)v;
     struct stat64 st;
-    int r = lstat64((const char*)name, &st);
-    UnalignStat64(&st, buf);
+    int r = lstat64((const char*)name, buf?&st:buf);
+    if(buf)
+        UnalignStat64(&st, buf);
     return r;
 }
 
