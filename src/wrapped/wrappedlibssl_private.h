@@ -580,6 +580,9 @@ GO(SSL_write, iFppi)
 //GO(tls1_set_sigalgs_list, 
 //GO(tls1_setup_key_block, 
 //GO(tls1_shared_curve, 
+GO(TLS_method, pFv)
+GO(TLS_server_method, pFv)
+GO(TLS_client_method, pFv)
 GO(TLSv1_1_client_method, pFv)
 GO(TLSv1_1_method, pFv)
 GO(TLSv1_1_server_method, pFv)
