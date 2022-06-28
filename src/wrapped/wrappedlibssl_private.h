@@ -414,7 +414,7 @@ GO(SSL_get_shutdown, iFp)
 //GO(SSL_get_srtp_profiles, 
 //GO(SSL_get_SSL_CTX, 
 //GO(SSL_get_ssl_method, 
-//GO(SSL_get_verify_callback, 
+GOM(SSL_get_verify_callback, pFEp)
 //GO(SSL_get_verify_depth, 
 //GO(SSL_get_verify_mode, 
 GO(SSL_get_verify_result, iFp)

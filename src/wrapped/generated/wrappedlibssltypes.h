@@ -11,6 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFpip_t)(void*, int64_t, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
@@ -18,6 +19,7 @@ typedef intptr_t (*lFpip_t)(void*, int64_t, void*);
 typedef int64_t (*iFlpppp_t)(intptr_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(SSL_get_verify_callback, pFp_t) \
 	GO(SSL_CTX_set_default_passwd_cb, vFpp_t) \
 	GO(SSL_set_psk_client_callback, vFpp_t) \
 	GO(SSL_CTX_set_verify, vFpip_t) \

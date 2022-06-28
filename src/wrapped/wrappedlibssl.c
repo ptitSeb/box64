@@ -106,6 +106,16 @@ static void* find_verify_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libSSL verify callback\n");
     return NULL;
 }
+static void* reverse_verify_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(my_lib->priv.w.bridge, fct);
+    #define GO(A) if(my_verify_##A == fct) return (void*)my_verify_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFip, fct, 0, NULL);
+}
 
 // ex_new
 #define GO(A)   \
@@ -275,6 +285,12 @@ EXPORT void my_SSL_CTX_set_next_proto_select_cb(x64emu_t* emu, void* ctx, void* 
 {
     (void)emu;
     my->SSL_CTX_set_next_proto_select_cb(ctx, find_proto_select_Fct(cb), arg);
+}
+
+EXPORT void* my_SSL_get_verify_callback(x64emu_t* emu, void* ctx)
+{
+    (void)emu;
+    return reverse_verify_Fct(my->SSL_get_verify_callback(ctx));
 }
 
 #define CUSTOM_INIT \

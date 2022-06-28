@@ -3147,6 +3147,8 @@ wrappedlibsndfile:
 - pFpipp:
   - sf_open_virtual
 wrappedlibssl:
+- pFp:
+  - SSL_get_verify_callback
 - vFpp:
   - SSL_CTX_set_default_passwd_cb
   - SSL_set_psk_client_callback
