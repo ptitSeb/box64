@@ -273,6 +273,7 @@ GO(SSL_CTX_free, vFp)
 GO(SSL_CTX_get_cert_store, pFp)
 //GO(SSL_CTX_get_client_CA_list, 
 //GO(SSL_CTX_get_client_cert_cb, 
+GO(SSL_CTX_get_default_passwd_cb_userdata, pFp)
 //GO(SSL_CTX_get_ex_data, 
 //GO(SSL_CTX_get_ex_new_index, 
 //GO(SSL_CTX_get_info_callback, 
