@@ -314,7 +314,7 @@ GO(BIO_int_ctrl, lFpili)
 //GO(BIO_method_type, 
 GO(BIO_new, pFp)
 //GO(BIO_new_accept, 
-//GO(BIO_new_bio_pair, 
+GO(BIO_new_bio_pair, iFpLpL)
 //GO(BIO_new_CMS, 
 //GO(BIO_new_connect, 
 //GO(BIO_new_dgram, 
