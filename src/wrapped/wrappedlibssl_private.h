@@ -313,6 +313,7 @@ GO(SSL_CTX_set_default_verify_paths, iFp)
 //GO(SSL_CTX_set_msg_callback, 
 //GO(SSL_CTX_set_next_protos_advertised_cb, 
 GOM(SSL_CTX_set_next_proto_select_cb, vFEppp)
+GO(SSL_CTX_set_options, lFpl)
 //GO(SSL_CTX_set_psk_client_callback, 
 //GO(SSL_CTX_set_psk_server_callback, 
 //GO(SSL_CTX_set_purpose, 
