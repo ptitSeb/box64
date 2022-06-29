@@ -378,7 +378,7 @@ GO(SSL_get_current_cipher, pFp)
 //GO(SSL_get_default_timeout, 
 GO(SSL_get_error, iFpi)
 GO(SSL_get_ex_data, pFpi)
-//GO(SSL_get_ex_data_X509_STORE_CTX_idx, 
+GO(SSL_get_ex_data_X509_STORE_CTX_idx, iFv)
 GOM(SSL_get_ex_new_index, iFElpppp)
 //GO(SSL_get_fd, 
 //GO(SSL_get_finished, 
