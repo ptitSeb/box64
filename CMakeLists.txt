@@ -53,6 +53,7 @@ option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" $
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
 option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation" ${ARM_DYNAREC})
 option(PAGE16K "Set to ON if host device have PageSize of 16K (instead of 4K)" ${PAGE16K})
+option(PAGE64K "Set to ON if host device have PageSize of 64K (instead of 4K)" ${PAGE64K})
 option(STATICBUILD "Set to ON to have a static build (Warning, not working)" ${STATICBUILD})
 
 if(${CMAKE_VERSION} VERSION_LESS "3.12.2")
@@ -135,6 +136,10 @@ endif()
 
 if(PAGE16K)
     add_definitions(-DPAGE16K)
+endif()
+
+if(PAGE64K)
+    add_definitions(-DPAGE64K)
 endif()
 
 if(NOGIT)
