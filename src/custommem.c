@@ -42,7 +42,10 @@ static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT];
 static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT];
 #endif
 static pthread_mutex_t     mutex_prot;
-#if defined(PAGE16K)
+#if defined(PAGE64K)
+#define MEMPROT_SHIFT 16
+#define MEMPROT_SHIFT2 (16+16)
+#elif defined(PAGE16K)
 #define MEMPROT_SHIFT 14
 #define MEMPROT_SHIFT2 (16+14)
 #else
