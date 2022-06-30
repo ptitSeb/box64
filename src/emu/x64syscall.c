@@ -96,6 +96,7 @@ scwrap_t syscallwrap[] = {
     { 23, __NR_select, 5},
     #endif
     //{ 25, __NR_mremap, 5},    // wrapped to track protection
+    { 27, __NR_mincore, 3},
     { 35, __NR_nanosleep, 2},
     { 39, __NR_getpid, 0},
     { 41, __NR_socket, 3},
