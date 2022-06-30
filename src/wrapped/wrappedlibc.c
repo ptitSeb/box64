@@ -1686,7 +1686,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         const char** newargv = (const char**)calloc(n+2, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
-        if(self) newargv[1] = emu->context->fullpath; else newargv[1] = path;
+        if(self) newargv[1] = emu->context->fullpath; else newargv[1] = skip_first?argv[skip_first]:path;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         int ret = execv(newargv[0], (char* const*)newargv);
         free(newargv);
