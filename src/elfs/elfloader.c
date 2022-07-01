@@ -354,8 +354,9 @@ int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
             #ifdef DYNAREC
             cleanDBFromAddressRange((uintptr_t)dest, e->p_memsz, 0);
             #endif
-            mprotect(dest, e->p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
-            setProtection((uintptr_t)dest, e->p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
+            uint32_t page_offset = (uintptr_t)dest & (box64_pagesize - 1);
+            mprotect(dest - page_offset, e->p_memsz + page_offset, PROT_READ | PROT_WRITE | PROT_EXEC);
+            setProtection((uintptr_t)dest - page_offset, e->p_memsz + page_offset, PROT_READ | PROT_WRITE | PROT_EXEC);
             if(e->p_filesz) {
                 ssize_t r = -1;
                 if((r=fread(dest, e->p_filesz, 1, f))!=1) {
