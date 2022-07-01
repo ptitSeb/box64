@@ -157,6 +157,7 @@ scwrap_t syscallwrap[] = {
     { 228, __NR_clock_gettime, 2},
     { 229, __NR_clock_getres, 2},
     { 230, __NR_clock_nanosleep, 4},
+    { 231, __NR_exit_group, 1},
     { 234, __NR_tgkill, 3},
     #ifdef __NR_inotify_init
     { 253, __NR_inotify_init, 0},   //0xFD
