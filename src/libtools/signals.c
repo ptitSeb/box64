@@ -1006,6 +1006,10 @@ exit(-1);
                 if(!(i%4)) printf_log(log_minimum, "\n");
                 printf_log(log_minimum, "%s:0x%016lx ", reg_name[i], p->uc_mcontext.regs[10+i]);
             }
+        if(rsp!=addr)
+            for (int i=-4; i<4; ++i) {
+                printf_log(log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
+            }
 #else
         #warning TODO
 #endif
