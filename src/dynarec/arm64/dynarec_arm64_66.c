@@ -35,10 +35,12 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t gd, ed;
     uint8_t wback, wb1;
     int64_t fixedaddress;
+    int lock;
     MAYUSE(u8);
     MAYUSE(u16);
     MAYUSE(u64);
     MAYUSE(j64);
+    MAYUSE(lock);
 
     while((opcode==0x2E) || (opcode==0x36) || (opcode==0x66))   // ignoring CS:, SS: or multiple 0x66
         opcode = F8;
@@ -440,8 +442,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIx(ed, gd, 0, 16);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, &lock, 0, 0);
                 STRH_U12(gd, ed, fixedaddress);
+                if(lock) {DMB_ISH();}
             }
             break;
         case 0x8B:
@@ -454,7 +457,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIx(gd, ed, 0, 16);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, &lock, 0, 0);
+                if(lock) {DMB_ISH();}
                 LDRH_U12(x1, ed, fixedaddress);
                 BFIx(gd, x1, 0, 16);
             }
@@ -671,10 +675,11 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOV32w(x1, u16);
                 BFIx(ed, x1, 0, 16);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 2);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, &lock, 0, 2);
                 u16 = F16;
                 MOV32w(x1, u16);
                 STRH_U12(x1, ed, fixedaddress);
+                if(lock) {DMB_ISH();}
             }
             break;
 

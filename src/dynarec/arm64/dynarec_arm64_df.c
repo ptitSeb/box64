@@ -151,7 +151,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("FILD ST0, Ew");
                     v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
                     LDRSHw_U12(x1, wback, fixedaddress);
                     if(ST_IS_F(0)) {
                         SCVTFSw(v1, x1);
@@ -162,7 +162,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 1:
                     INST_NAME("FISTTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch(dyn);
                     #if 0
@@ -197,7 +197,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FIST Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch(dyn);
                     #if 0
@@ -233,7 +233,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FISTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch(dyn);
                     #if 0
@@ -269,21 +269,21 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                     INST_NAME("FBLD ST0, tbytes");
                     x87_do_push_empty(dyn, ninst, x1);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(fpu_fbld, -1);
                     break;
                 case 5:
                     INST_NAME("FILD ST0, i64");
                     v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
                     LDRx_U12(x1, wback, fixedaddress);
                     SCVTFDx(v1, x1);
                     break;
                 case 6:
                     INST_NAME("FBSTP tbytes, ST0");
                     x87_forget(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(fpu_fbst, -1);
                     x87_do_pop(dyn, ninst, x3);
@@ -292,7 +292,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FISTP i64, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch(dyn);
                     #if 0

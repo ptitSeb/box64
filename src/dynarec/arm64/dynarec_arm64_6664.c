@@ -62,7 +62,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     FMOVD(v1, v0);
                 } else {
                     grab_segdata(dyn, addr, ninst, x4, _FS);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                     VSTR64_REG(v0, ed, x4);
                 }
                 break;
@@ -87,7 +87,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 }
             } else {
                 grab_segdata(dyn, addr, ninst, x4, _FS);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 if(rex.w) {
                     STRx_REG(gd, ed, x4);
                 } else {
@@ -111,7 +111,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 }
             } else {                    // mem <= reg
                 grab_segdata(dyn, addr, ninst, x4, _FS);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 if(rex.w) {
                     LDRx_REG(gd, ed, x4);
                 } else {

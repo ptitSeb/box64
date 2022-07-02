@@ -60,4 +60,10 @@ void relockCustommemMutex(int locks);
 void init_custommem_helper(box64context_t* ctx);
 void fini_custommem_helper(box64context_t* ctx);
 
+#ifdef DYNAREC
+// ---- StrongMemoryModel
+void addLockAddress(uintptr_t addr);    // add an address to the list of "LOCK"able
+int isLockAddress(uintptr_t addr);  // return 1 is the address is used as a LOCK, 0 else
+#endif
+
 #endif //__CUSTOM_MEM__H_

@@ -190,7 +190,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FILD ST0, Ed");
                     v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
                     s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
                     VLDR32_U12(s0, ed, fixedaddress);
                     SXTL_32(v1, s0);
                     SCVTFDD(v1, v1);
@@ -202,7 +202,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
                         ed = x1;
                     }
                     s0 = fpu_get_scratch(dyn);
@@ -234,7 +234,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
                         ed = x1;
                     }
                     s0 = fpu_get_scratch(dyn);
@@ -266,7 +266,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
                         ed = x1;
                     }
                     s0 = fpu_get_scratch(dyn);
@@ -293,7 +293,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 5:
                     INST_NAME("FLD tbyte");
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                     if(PK(0)==0xDB && ((PK(1)>>3)&7)==7) {
                         // the FLD is immediatly followed by an FSTP
                         LDRx_U12(x5, ed, 0);
@@ -302,7 +302,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MESSAGE(LOG_DUMP, "\tHack: FSTP tbyte\n");
                         nextop = F8;    //0xDB
                         nextop = F8;    //modrm
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                         STRx_U12(x5, ed, 0);
                         STRH_U12(x6, ed, 8);
                     } else {
@@ -316,7 +316,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 7:
                     INST_NAME("FSTP tbyte");
                     x87_forget(dyn, ninst, x1, x3, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {
                         MOVx_REG(x1, ed);
                     }

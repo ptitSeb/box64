@@ -40,6 +40,9 @@ static uintptr_t***        box64_jmptbl3[1<<JMPTABL_SHIFT];
 static uintptr_t**         box64_jmptbldefault2[1<<JMPTABL_SHIFT];
 static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT];
 static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT];
+// lock addresses
+KHASH_SET_INIT_INT64(lockaddress)
+static kh_lockaddress_t    *lockaddress = NULL;
 #endif
 static pthread_mutex_t     mutex_prot;
 #if defined(PAGE64K)
@@ -1237,6 +1240,7 @@ void init_custommem_helper(box64context_t* ctx)
             box64_jmptbldefault2[i] = box64_jmptbldefault1;
             box64_jmptbl3[i] = box64_jmptbldefault2;
         }
+    lockaddress = kh_init(lockaddress);
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
     // init mapmem list
@@ -1309,6 +1313,8 @@ void fini_custommem_helper(box64context_t *ctx)
                 free(box64_jmptbl3[i3]);
             }
     }
+    kh_destroy(lockaddress, lockaddress);
+    lockaddress = NULL;
 #endif
     uint8_t* m;
     for(int i=0; i<(1<<20); ++i) {
@@ -1332,3 +1338,20 @@ void fini_custommem_helper(box64context_t *ctx)
         free(tmp);
     }
 }
+
+#ifdef DYNAREC
+// add an address to the list of "LOCK"able
+void addLockAddress(uintptr_t addr)
+{
+    int ret;
+    kh_put(lockaddress, lockaddress, addr, &ret);
+}
+
+// return 1 is the address is used as a LOCK, 0 else
+int isLockAddress(uintptr_t addr)
+{
+    khint_t k = kh_get(lockaddress, lockaddress, addr);
+    return (k==kh_end(lockaddress))?0:1;
+}
+
+#endif

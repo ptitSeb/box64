@@ -44,12 +44,14 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t u8;
     int32_t i32;
     int64_t j64, i64;
+    int lock;
     int v0, v1, s0;
     MAYUSE(i32);
     MAYUSE(j64);
     MAYUSE(v0);
     MAYUSE(v1);
     MAYUSE(s0);
+    MAYUSE(lock);
 
     // REX prefix before the 67 are ignored
     rex.rex = 0;
@@ -83,7 +85,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             s0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
                         } else {
                             s0 = fpu_get_scratch(dyn);
-                            addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, 0, 0);
+                            addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
                             VLDR32_U12(s0, ed, fixedaddress);
                         }
                         FCMPS(v0, s0);
@@ -101,7 +103,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         VMOV(v0, v1);
                     } else {
                         v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
-                        addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
                         VLDR64_U12(v0, ed, fixedaddress);
                     }
                     break;
@@ -114,7 +116,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         v1 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, nextop&7);
                         VMOV(v1, v0);
                     } else {
-                        addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
                         VSTR64_U12(v0, ed, fixedaddress);
                     }
                     break;
@@ -209,8 +211,9 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {   // reg <= reg
                 MOVxw_REG(xRAX+(nextop&7)+(rex.b<<3), gd);
             } else {                    // mem <= reg
-                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
                 STRxw_U12(gd, ed, fixedaddress);
+                if(lock) {DMB_ISH();}
             }
             break;
 
@@ -220,8 +223,9 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGD;
             if(MODREG) {
                 MOVxw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
-            } else {    
-                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 0);
+            } else {
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
+                if(lock) {DMB_ISH();}
                 LDRxw_U12(gd, ed, fixedaddress);
             }
             break;
@@ -234,7 +238,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 DEFAULT;
             } else {                    // mem <= reg
                 // should a geted32 be created, to use 32bits regs instead of 64bits?
-                addr = geted32(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0, rex, 0, 0);
+                addr = geted32(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 if(ed!=gd) {
                     MOVw_REG(gd, ed);
                 }
@@ -322,10 +326,11 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 MOV64xw(ed, i64);
             } else {                    // mem <= i32
-                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, 4);
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 4);
                 i64 = F32S;
                 MOV64xw(x3, i64);
                 STRxw_U12(x3, ed, fixedaddress);
+                if(lock) {DMB_ISH();}
             }
             break;
 

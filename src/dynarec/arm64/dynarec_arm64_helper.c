@@ -27,10 +27,13 @@
 #include "dynarec_arm64_helper.h"
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta)
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int *l, int s, int delta)
 {
     MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
 
+    int lock = l?((l==LOCK_LOCK)?1:2):0;
+    if(lock==2)
+        *l = 0;
     uint8_t ret = x2;
     uint8_t scratch = x2;
     *fixaddress = 0;
@@ -54,6 +57,10 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                         *fixaddress = tmp;
                     }
                 } else {
+                    switch(lock) {
+                        case 1: addLockAddress(tmp); break;
+                        case 2: if(isLockAddress(tmp)) *l=1; break;
+                    }
                     MOV64x(ret, tmp);
                 }
             } else {
@@ -73,12 +80,15 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 GETIP(addr+delta);
                 ADDx_U12(ret, xRIP, tmp);
             } else if(tmp+addr+delta<0x1000000000000LL) {  // 3 opcodes to load immediate is cheap enough
-                tmp += addr+delta;
-                MOV64x(ret, tmp);
+                MOV64x(ret, tmp+addr+delta);
             } else {
                 MOV64x(ret, tmp);
                 GETIP(addr+delta);
                 ADDx_REG(ret, ret, xRIP);
+            }
+            switch(lock) {
+                case 1: addLockAddress(addr+delta+tmp); break;
+                case 2: if(isLockAddress(addr+delta+tmp)) *l=1; break;
             }
         } else {
             ret = xRAX+(nextop&7)+(rex.b<<3);
@@ -156,10 +166,13 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
 }
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
-uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta)
+uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta)
 {
     MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
 
+    int lock = l?((l==LOCK_LOCK)?1:2):0;
+    if(lock==2)
+        *l = 0;
     uint8_t ret = x2;
     uint8_t scratch = x2;
     *fixaddress = 0;
@@ -183,6 +196,10 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                         *fixaddress = tmp;
                     }
                 } else {
+                    switch(lock) {
+                        case 1: addLockAddress(tmp); break;
+                        case 2: if(isLockAddress(tmp)) *l=1; break;
+                    }
                     MOV64x(ret, tmp);
                 }
             } else {
@@ -197,6 +214,10 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             MOV32w(ret, tmp);
             GETIP(addr+delta);
             ADDw_REG(ret, ret, xRIP);
+            switch(lock) {
+                case 1: addLockAddress(addr+delta+tmp); break;
+                case 2: if(isLockAddress(addr+delta+tmp)) *l=1; break;
+            }
         } else {
             ret = xRAX+(nextop&7)+(rex.b<<3);
             if(ret==hint) {

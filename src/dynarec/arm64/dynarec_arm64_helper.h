@@ -32,6 +32,9 @@
 #define PK64(a)   *(uint64_t*)(addr+a)
 #define PKip(a)   *(uint8_t*)(ip+a)
 
+//LOCK_* define
+#define LOCK_LOCK   (int*)1
+
 // GETGD    get x64 register in gd
 #define GETGD   gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3)
 //GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
@@ -39,7 +42,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     LDRxw_U12(x1, wback, fixedaddress); \
                     ed = x1;                            \
                 }
@@ -47,7 +50,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<3, 7, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, D); \
                     LDRx_U12(x1, wback, fixedaddress);  \
                     ed = x1;                            \
                 }
@@ -55,7 +58,7 @@
                     ed = xEAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL,0, D); \
                     LDRw_U12(x1, wback, fixedaddress);  \
                     ed = x1;                            \
                 }
@@ -65,7 +68,7 @@
                     wb = x1;                            \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, D); \
                     LDRSW_U12(x1, wback, fixedaddress); \
                     wb = ed = x1;                       \
                 }
@@ -73,7 +76,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     LDRxw_U12(x1, wback, fixedaddress); \
                     ed = x1;                            \
                 }
@@ -83,7 +86,7 @@
                     wb = x1;                            \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, 0, D); \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, D); \
                     LDRSW_U12(x1, wback, fixedaddress); \
                     wb = ed = x1;                       \
                 }
@@ -92,7 +95,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     LDRxw_U12(hint, wback, fixedaddress); \
                     ed = hint;                            \
                 }
@@ -100,7 +103,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     LDRxw_U12(hint, wback, fixedaddress); \
                     ed = hint;                            \
                 }
@@ -110,7 +113,7 @@
                     MOVxw_REG(ret, ed);                 \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     ed = ret;                           \
                     LDRxw_U12(ed, wback, fixedaddress); \
                 }
@@ -119,7 +122,7 @@
                     MOVxw_REG(ret, ed);                 \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, 0, D); \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     ed = ret;                           \
                     LDRxw_U12(ed, wback, fixedaddress); \
                 }
@@ -136,7 +139,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, NULL, 0, D); \
                     LDRxw_REG(x1, wback, O);            \
                     ed = x1;                            \
                 }
@@ -146,7 +149,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, NULL, 0, D); \
                     LDRx_REG(x1, wback, O);             \
                     ed = x1;                            \
                 }
@@ -156,7 +159,7 @@
                     wb = x1;                            \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, NULL, 0, D); \
                     LDRSW_REG(x1, wback, O);            \
                     wb = ed = x1;                       \
                 }
@@ -175,7 +178,7 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
                     LDRH_U12(i, wback, fixedaddress); \
                     ed = i;                 \
                     wb1 = 1;                \
@@ -187,7 +190,7 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
                     LDRH_U12(i, wback, fixedaddress); \
                     ed = i;                 \
                     wb1 = 1;                \
@@ -199,7 +202,7 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
                     LDRSHx_U12(i, wback, fixedaddress);\
                     ed = i;                 \
                     wb1 = 1;                \
@@ -224,7 +227,7 @@
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
                     LDRB_U12(i, wback, fixedaddress); \
                     wb1 = 1;                    \
                     ed = i;                     \
@@ -243,7 +246,7 @@
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, NULL, 0, D); \
                     ADDx_REG(x3, wback, i);     \
                     if(wback!=x3) wback = x3;   \
                     LDRB_U12(i, wback, fixedaddress);      \
@@ -264,7 +267,7 @@
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
                     LDRSBx_U12(i, wback, fixedaddress); \
                     wb1 = 1;                    \
                     ed = i;                     \
@@ -831,10 +834,10 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define fpuCacheTransform       STEPNAME(fpuCacheTransform)
 
 /* setup r2 to address pointed by */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta);
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
 
 /* setup r2 to address pointed by */
-uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int s, int delta);
+uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
 
 /* setup r2 to address pointed by */
 uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, int s);

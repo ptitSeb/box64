@@ -157,13 +157,13 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("FLD double");
                     v1 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
                     VLDR64_U12(v1, ed, fixedaddress);
                     break;
                 case 1:
                     INST_NAME("FISTTP i64, ST0");
                     v1 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
                     s0 = fpu_get_scratch(dyn);
                     #if 0
                     // those are ARM 8.5 opcode!
@@ -178,13 +178,13 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 2:
                     INST_NAME("FST double");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
                     VSTR64_U12(v1, ed, fixedaddress);
                     break;
                 case 3:
                     INST_NAME("FSTP double");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
                     VSTR64_U12(v1, ed, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
                     break;
@@ -192,7 +192,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FRSTOR m108byte");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(arm_frstor, -1);
                     break;
@@ -200,14 +200,14 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FSAVE m108byte");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(arm_fsave, -1);
                     break;
                 case 7:
                     INST_NAME("FNSTSW m2byte");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x4, &fixedaddress, 0xfff<<1, 1, rex, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x4, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
                     LDRw_U12(x2, xEmu, offsetof(x64emu_t, top));
                     LDRH_U12(x3, xEmu, offsetof(x64emu_t, sw));
                     if(dyn->n.x87stack) {
