@@ -182,34 +182,46 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
  uintptr_t  ssp_base        0x78
  .... padding ....          0x200?
 */
+static int sizeDTS(box64context_t* context)
+{
+    return ((context->elfsize+0xff)&~0xff)*16;
+}
+static int sizeTLSData(int s)
+{
+    return (s+0xfff)&~0xfff;
+}
 
 static tlsdatasize_t* setupTLSData(box64context_t* context)
 {
     // Setup the GS segment:
-    int dtsize = context->elfsize*16;
-    void *ptr = (char*)malloc(context->tlssize+8+POS_TLS+dtsize);
-    memcpy(ptr, context->tlsdata, context->tlssize);
+    int dtssize = sizeDTS(context);
+    int datasize = sizeTLSData(context->tlssize);
+    void *ptr_oversized = (char*)malloc(dtssize+POS_TLS+datasize);
+    void *ptr = (void*)((uintptr_t)ptr_oversized + datasize);
+    memcpy((void*)((uintptr_t)ptr-context->tlssize), context->tlsdata, context->tlssize);
     tlsdatasize_t *data = (tlsdatasize_t*)calloc(1, sizeof(tlsdatasize_t));
-    data->tlsdata = ptr;
+    data->data = ptr;
     data->tlssize = context->tlssize;
+    data->ptr = ptr_oversized;
+    data->n_elfs = context->elfsize;
     pthread_setspecific(context->tlskey, data);
     // copy canary...
-    memset((void*)((uintptr_t)ptr+context->tlssize), 0, POS_TLS+dtsize);            // set to 0 remining bytes
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x28), context->canary, sizeof(void*));      // put canary in place
-    uintptr_t tlsptr = (uintptr_t)ptr+context->tlssize;
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x0), &tlsptr, sizeof(void*));
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &tlsptr, sizeof(void*));  // set tcb and self same address
-    uintptr_t dtp = (uintptr_t)ptr+context->tlssize+POS_TLS;
+    memset((void*)((uintptr_t)ptr), 0, POS_TLS+dtssize);            // set to 0 remining bytes
+    memcpy((void*)((uintptr_t)ptr+0x28), context->canary, sizeof(void*));      // put canary in place
+    uintptr_t tlsptr = (uintptr_t)ptr;
+    memcpy((void*)((uintptr_t)ptr+0x0), &tlsptr, sizeof(void*));
+    memcpy((void*)((uintptr_t)ptr+0x10), &tlsptr, sizeof(void*));  // set tcb and self same address
+    uintptr_t dtp = (uintptr_t)ptr+POS_TLS;
     memcpy((void*)(tlsptr+sizeof(void*)), &dtp, sizeof(void*));
-    if(dtsize) {
+    if(dtssize) {
         for (int i=0; i<context->elfsize; ++i) {
             // set pointer
-            dtp = (uintptr_t)ptr + (context->tlssize + GetTLSBase(context->elfs[i]));
-            *(uint64_t*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*16) = dtp;
-            *(uint64_t*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*16+8) = i; // index
+            dtp = (uintptr_t)ptr + GetTLSBase(context->elfs[i]);
+            *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16) = dtp;
+            *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16+8) = i; // index
         }
     }
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x20), &context->vsyscall, sizeof(void*));  // address of vsyscall
+    memcpy((void*)((uintptr_t)ptr+0x20), &context->vsyscall, sizeof(void*));  // address of vsyscall
     return data;
 }
 
@@ -225,13 +237,36 @@ void* resizeTLSData(box64context_t *context, void* oldptr)
 {
         pthread_mutex_lock(&context->mutex_tls);
         tlsdatasize_t* oldata = (tlsdatasize_t*)oldptr;
-        tlsdatasize_t *data = setupTLSData(context);
-        // copy the relevent old part, in case something changed
-        memcpy((void*)((uintptr_t)data->tlsdata+(context->tlssize-oldata->tlssize)), oldata->tlsdata, oldata->tlssize);
-        // all done, update new size, free old pointer and exit
-        pthread_mutex_unlock(&context->mutex_tls);
-        free_tlsdatasize(oldptr);
-        return data;
+        if(sizeTLSData(oldata->tlssize)!=sizeTLSData(context->tlssize) || (oldata->n_elfs/0xff)!=(context->elfsize/0xff)) {
+            tlsdatasize_t *data = setupTLSData(context);
+            // copy the relevent old part, in case something changed
+            memcpy((void*)((uintptr_t)data->data-oldata->tlssize), (void*)((uintptr_t)oldata->data-oldata->tlssize), oldata->tlssize);
+            // all done, update new size, free old pointer and exit
+            pthread_mutex_unlock(&context->mutex_tls);
+            free_tlsdatasize(oldptr);
+            return data;
+        } else {
+            // keep the same tlsdata, but fill in the blanks
+            // adjust tlsdata
+            void *ptr = oldata->data;
+            if(context->tlssize!=oldata->tlssize) {
+                memcpy((void*)((uintptr_t)ptr-context->tlssize), context->tlsdata, context->tlssize-oldata->tlssize);
+                oldata->tlssize = context->tlssize;
+            }
+            // adjust DTS
+            if(oldata->n_elfs!=context->elfsize) {
+                uintptr_t dtp = (uintptr_t)ptr+POS_TLS;
+                for (int i=oldata->n_elfs; i<context->elfsize; ++i) {
+                    // set pointer
+                    dtp = (uintptr_t)ptr + GetTLSBase(context->elfs[i]);
+                    *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16) = dtp;
+                    *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16+8) = i; // index
+                }
+                oldata->n_elfs = context->elfsize;
+            }
+            pthread_mutex_unlock(&context->mutex_tls);
+            return oldata;
+        }
 }
 
 static void* GetSeg33Base()
@@ -242,7 +277,7 @@ static void* GetSeg33Base()
     }
     if(ptr->tlssize != my_context->tlssize)
         ptr = (tlsdatasize_t*)resizeTLSData(my_context, ptr);
-    return ptr->tlsdata+ptr->tlssize;
+    return ptr->data;
 }
 
 void* GetSegmentBase(uint32_t desc)

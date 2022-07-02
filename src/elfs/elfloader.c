@@ -1152,12 +1152,10 @@ void RefreshElfTLS(elfheader_t* h)
         memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
         tlsdatasize_t* ptr;
         if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) != NULL)
-            if(ptr->tlssize==my_context->tlssize) {
-                // refresh in tlsdata too
-                dest = (char*)(ptr->tlsdata+ptr->tlssize+h->tlsbase);
-                printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
-                memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
-            }
+            // refresh in tlsdata too
+            dest = (char*)(ptr->data+h->tlsbase);
+            printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
+            memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
     }
 }
 
@@ -1392,7 +1390,7 @@ void* GetTLSPointer(box64context_t* context, elfheader_t* h)
     }
     if(ptr->tlssize != context->tlssize)
         ptr = (tlsdatasize_t*)resizeTLSData(context, ptr);
-    return ptr->tlsdata+(ptr->tlssize+h->tlsbase);
+    return ptr->data+h->tlsbase;
 }
 
 void* GetDynamicSection(elfheader_t* h)

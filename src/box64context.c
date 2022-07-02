@@ -63,7 +63,7 @@ void free_tlsdatasize(void* p)
     if(!p)
         return;
     tlsdatasize_t *data = (tlsdatasize_t*)p;
-    free(data->tlsdata);
+    free(data->ptr);
     free(p);
 }
 

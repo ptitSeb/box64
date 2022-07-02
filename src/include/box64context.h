@@ -38,8 +38,10 @@ typedef void* (*vkprocaddess_t)(void* instance, const char* name);
 #define MAX_SIGNAL 64
 
 typedef struct tlsdatasize_s {
-    int32_t     tlssize;
-    void*       tlsdata;
+    int         tlssize;
+    int         n_elfs;
+    void*       data;
+    void*       ptr;
 } tlsdatasize_t;
 
 void free_tlsdatasize(void* p);
