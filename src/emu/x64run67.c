@@ -105,6 +105,45 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
     GO(0x28, sub)                   /* SUB 0x28 -> 0x2D */
     GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
     #undef GO
+    case 0x38:
+        nextop = F8;
+        GETEB32(0);
+        GETGB;
+        cmp8(emu, EB->byte[0], GB);
+        break;
+    case 0x39:
+        nextop = F8;
+        GETED32(0);
+        GETGD;
+        if(rex.w)
+            cmp64(emu, ED->q[0], GD->q[0]);
+        else
+            cmp32(emu, ED->dword[0], GD->dword[0]);
+        break;
+    case 0x3A:
+        nextop = F8;
+        GETEB32(0);
+        GETGB;
+        cmp8(emu, GB, EB->byte[0]);
+        break;
+    case 0x3B:
+        nextop = F8;
+        GETED32(0);
+        GETGD;
+        if(rex.w)
+            cmp64(emu, GD->q[0], ED->q[0]);
+        else
+            cmp32(emu, GD->dword[0], ED->dword[0]);
+        break;
+    case 0x3C:
+        R_AL = cmp8(emu, R_AL, F8);
+        break;
+    case 0x3D:
+        if(rex.w)
+            cmp64(emu, R_RAX, F32S64);
+        else
+            cmp32(emu, R_EAX, F32);
+        break;
 
     case 0x66:
         return Run6766(emu, rex, rep);
