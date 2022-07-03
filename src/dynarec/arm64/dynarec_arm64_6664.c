@@ -53,7 +53,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x0F:
             opcode = F8;
             switch(opcode) {
-
+                /*  //Something is wrong, and this gives a SIGILL
                 case 0x2E:
                     // no special check...
                 case 0x2F:
@@ -72,7 +72,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     FCMPD(v0, v1);
                     FCOMI(x1, x2);
                     break;
-
+                */
             case 0xD6:
                 INST_NAME("MOVQ Ex, Gx");
                 nextop = F8;
