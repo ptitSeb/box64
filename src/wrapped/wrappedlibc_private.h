@@ -1155,7 +1155,7 @@ GO(memmove, pFppL)
 GO(__memmove_chk, pFppLL)
 GO(__mempcpy, pFppL)
 GO(mempcpy, pFppL)
-//GO(__mempcpy_chk, 
+GO(__mempcpy_chk, pFppLL)
 GOW(memrchr, pFpiL)
 GO(memset, pFpiL)
 GO(__memset_chk, pFpiLL)
