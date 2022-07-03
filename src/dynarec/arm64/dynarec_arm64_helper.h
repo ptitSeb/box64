@@ -272,6 +272,25 @@
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
+//GETEB will use i for ed, and can use r3 for wback.
+#define GETEB32(i, D) if(MODREG) {              \
+                    if(rex.rex) {               \
+                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
+                        wb2 = 0;                \
+                    } else {                    \
+                        wback = (nextop&7);     \
+                        wb2 = (wback>>2)*8;     \
+                        wback = xRAX+(wback&3); \
+                    }                           \
+                    UBFXx(i, wback, wb2, 8);    \
+                    wb1 = 0;                    \
+                    ed = i;                     \
+                } else {                        \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
+                    LDRB_U12(i, wback, fixedaddress); \
+                    wb1 = 1;                    \
+                    ed = i;                     \
+                }
 // Write eb (ed) back to original register / memory
 #define EBBACK   if(wb1) {STRB_U12(ed, wback, fixedaddress);} else {BFIx(wback, ed, wb2, 8);}
 //GETGB will use i for gd
