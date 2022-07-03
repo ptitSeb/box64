@@ -23,6 +23,7 @@ typedef int64_t (*iFpLp_t)(void*, uintptr_t, void*);
 typedef int64_t (*iFppu_t)(void*, void*, uint64_t);
 typedef int64_t (*iFppL_t)(void*, void*, uintptr_t);
 typedef int64_t (*iFppp_t)(void*, void*, void*);
+typedef int64_t (*iFppip_t)(void*, void*, int64_t, void*);
 typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
@@ -101,6 +102,7 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_atfork, iFppp_t) \
 	GO(pthread_attr_getstack, iFppp_t) \
 	GO(pthread_cond_timedwait, iFppp_t) \
+	GO(pthread_cond_clockwait, iFppip_t) \
 	GO(pthread_create, iFpppp_t)
 
 #endif // __wrappedlibpthreadTYPES_H_

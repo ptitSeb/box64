@@ -3128,6 +3128,8 @@ wrappedlibpthread:
   - pthread_atfork
   - pthread_attr_getstack
   - pthread_cond_timedwait
+- iFppip:
+  - pthread_cond_clockwait
 - iFpppp:
   - pthread_create
 wrappedlibresolv:
