@@ -1004,7 +1004,7 @@ exit(-1);
         if(db)
             for (int i=0; i<16; ++i) {
                 if(!(i%4)) printf_log(log_minimum, "\n");
-                printf_log(log_minimum, "%s:0x%016lx ", reg_name[i], p->uc_mcontext.regs[10+i]);
+                printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.regs[10+i]);
             }
         if(rsp!=addr)
             for (int i=-4; i<4; ++i) {
