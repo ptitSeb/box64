@@ -150,7 +150,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EAX = 0;  // reserved
             R_EBX = 0;  // reserved
             R_ECX = (1<<5) | (1<<8); // LZCNT | PREFETCHW
-            R_EDX = 1; // x87 FPU
+            R_EDX = 1 | (1<<29); // x87 FPU? bit 29 is 64bits available
             //AMD flags?
             //R_EDX = 1 | (1<<8) | (1<<11) | (1<<15) | (1<<23) | (1<<29); // fpu+cmov+cx8+syscall+mmx+lm (mmxext=22, 3dnow=31, 3dnowext=30)
             break;
