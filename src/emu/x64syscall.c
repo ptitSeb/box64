@@ -175,6 +175,7 @@ scwrap_t syscallwrap[] = {
     { 317, __NR_seccomp, 3},
     { 318, __NR_getrandom, 3},
     { 319, __NR_memfd_create, 2},
+    { 324, __NR_membarrier, 2},
     #ifdef __NR_statx
     // TODO: implement fallback if __NR_statx is not defined
     { 332, __NR_statx, 4},
