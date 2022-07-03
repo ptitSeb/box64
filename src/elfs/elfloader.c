@@ -620,6 +620,14 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 printf_dump(LOG_NEVER, "Apply %s R_X86_64_RELATIVE @%p (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, *(void**)p, (void*)(head->delta+ rela[i].r_addend));
                 *p = head->delta+ rela[i].r_addend;
                 break;
+            case R_X86_64_IRELATIVE:
+                {
+                    x64emu_t* emu = thread_get_emu();
+                    EmuCall(emu, head->delta+rela[i].r_addend);
+                    printf_dump(LOG_NEVER, "Apply %s R_X86_64_IRELATIVE @%p (%p -> %p()=%p)\n", (bind==STB_LOCAL)?"Local":"Global", p, *(void**)p, (void*)(head->delta+ rela[i].r_addend), (void*)(R_RAX));
+                    *p = R_RAX;
+                }
+                break;
             case R_X86_64_COPY:
                 globoffs = offs;
                 globend = end;

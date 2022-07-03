@@ -736,7 +736,12 @@ add_test(backtrace ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref19.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
+add_test(irelative_reloc ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test20 -D TEST_OUTPUT=tmpfile20.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref20.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
     get_filename_component(testname "${file}" NAME_WE)
     add_test(NAME "${testname}" COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
