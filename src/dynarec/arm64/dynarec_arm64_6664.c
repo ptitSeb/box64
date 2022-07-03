@@ -31,8 +31,10 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t opcode = F8;
     uint8_t nextop;
     uint8_t gd, ed;
+    int64_t j64;
     int v0, v1;
     int64_t fixedaddress;
+    MAYUSE(j64);
 
     // REX prefix before the 66 are ignored
     rex.rex = 0;
@@ -51,6 +53,25 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x0F:
             opcode = F8;
             switch(opcode) {
+
+                case 0x2E:
+                    // no special check...
+                case 0x2F:
+                    if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    nextop = F8;
+                    GETG;
+                    if(MODREG) {
+                        v0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
+                    } else {
+                        grab_segdata(dyn, addr, ninst, x4, _FS);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
+                        v1 = fpu_get_scratch(dyn);                                                                       \
+                        VLDR128_REG(v1, ed, x4);
+                    }
+                    FCMPD(v0, v1);
+                    FCOMI(x1, x2);
+                    break;
 
             case 0xD6:
                 INST_NAME("MOVQ Ex, Gx");
