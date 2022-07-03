@@ -74,6 +74,43 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             DMB_ISH();
             break;
 
+        case 0x0F:
+            opcode = F8;
+            switch(opcode) {
+
+                case 0xC1:
+                    INST_NAME("LOCK XADD Gw, Ew");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    nextop = F8;
+                    gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
+                    UXTHx(x5, gd);
+                    DMB_ISH();
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        BFIx(gd, ed, 0, 16);
+                        emit_add16(dyn, ninst, x5, gd, x3, x4);
+                        BFIx(ed, x5, 0, 16);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                        MARKLOCK;
+                        LDAXRH(x1, wback);
+                        ADDxw_REG(x4, x1, x5);
+                        STLXRH(x3, x4, wback);
+                        CBNZx_MARKLOCK(x3);
+                        IFX(X_ALL|X_PEND) {
+                            MOVxw_REG(x2, x1);
+                            emit_add16(dyn, ninst, x2, x5, x3, x4);
+                        }
+                        BFIx(gd, x1, 0, 16);
+                    }
+                    DMB_ISH();
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 0x81:
         case 0x83:
             nextop = F8;

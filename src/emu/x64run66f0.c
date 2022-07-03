@@ -78,6 +78,48 @@ int Run66F0(x64emu_t *emu, rex_t rex)
 #endif
                     break;
 
+                case 0xC1:                      /* XADD Gw,Ew */
+                    nextop = F8;
+                    GETEW(0);
+                    GETGW;
+#ifdef DYNAREC
+                    if(rex.w) {
+                        do {
+                            tmp64u = native_lock_read_dd(ED);
+                            tmp64u2 = add64(emu, tmp64u, GD->q[0]);
+                        } while(native_lock_write_dd(ED, tmp64u2));
+                        GD->q[0] = tmp64u;
+                    } else {
+                        if(((uintptr_t)ED)&1) {
+                            do {
+                                tmp16u = ED->word[0] & ~0xff;
+                                tmp16u |= native_lock_read_h(ED);
+                                tmp16u2 = add16(emu, tmp16u, GD->word[0]);
+                            } while(native_lock_write_h(ED, tmp16u2&0xff));
+                            ED->word[0] = tmp16u2;
+                        } else {
+                            do {
+                                tmp16u = native_lock_read_h(ED);
+                                tmp16u2 = add16(emu, tmp16u, GD->word[0]);
+                            } while(native_lock_write_h(ED, tmp16u2));
+                        }
+                        GD->word[0] = tmp16u;
+                    }
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    if(rex.w) {
+                        tmp64u = add64(emu, ED->q[0], GD->q[0]);
+                        GD->q[0] = ED->q[0];
+                        ED->q[0] = tmp64u;
+                    } else {
+                        tmp16u = add16(emu, ED->word[0], GD->word[0]);
+                        GD->word[0] = ED->word[0];
+                        ED->word[0] = tmp16u;
+                    }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+
                 default:
                     return 1;
             }
