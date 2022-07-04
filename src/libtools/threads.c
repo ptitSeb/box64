@@ -677,7 +677,12 @@ EXPORT int my_pthread_cond_wait(x64emu_t* emu, pthread_cond_t* cond, void* mutex
 EXPORT int my_pthread_cond_clockwait(x64emu_t *emu, pthread_cond_t* cond, void* mutex, __clockid_t __clock_id, const struct timespec* __abstime)
 {
 	(void)emu;
-	return pthread_cond_clockwait(cond, getAlignedMutex((pthread_mutex_t*)mutex), __clock_id, __abstime);
+	if(real_pthread_cond_clockwait)
+		return real_pthread_cond_clockwait(cond, getAlignedMutex((pthread_mutex_t*)mutex), __clock_id, __abstime);
+	else {
+		errno = EINVAL;
+		return -1;
+	}
 }
 
 EXPORT void my__pthread_cleanup_push_defer(x64emu_t* emu, void* buffer, void* routine, void* arg)
