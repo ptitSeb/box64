@@ -678,7 +678,7 @@ EXPORT int my_pthread_cond_clockwait(x64emu_t *emu, pthread_cond_t* cond, void* 
 {
 	(void)emu;
 	if(real_pthread_cond_clockwait)
-		return real_pthread_cond_clockwait(cond, getAlignedMutex((pthread_mutex_t*)mutex), __clock_id, __abstime);
+		return real_pthread_cond_clockwait(cond, getAlignedMutex((pthread_mutex_t*)mutex), __clock_id, (void*)__abstime);
 	else {
 		errno = EINVAL;
 		return -1;
