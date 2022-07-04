@@ -33,8 +33,10 @@
 //void _pthread_cleanup_pop_restore(void* buffer, int exec);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpi_t)(void*, int);
+typedef int (*iFppip_t)(void*, void*, int, void*);
 static vFppp_t real_pthread_cleanup_push_defer = NULL;
 static vFpi_t real_pthread_cleanup_pop_restore = NULL;
+static iFppip_t real_pthread_cond_clockwait = NULL;
 void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop(void* buffer, int exec);
 
@@ -1150,6 +1152,7 @@ void init_pthread_helper()
 {
 	real_pthread_cleanup_push_defer = (vFppp_t)dlsym(NULL, "_pthread_cleanup_push_defer");
 	real_pthread_cleanup_pop_restore = (vFpi_t)dlsym(NULL, "_pthread_cleanup_pop_restore");
+	real_pthread_cond_clockwait = (iFppip_t)dlsym(NULL, "pthread_cond_clockwait");
 
 	InitCancelThread();
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
