@@ -2098,7 +2098,7 @@ GOW(wcscasecmp, iFpp)
 GO(__wcscasecmp_l, iFppp)
 GOW(wcscasecmp_l, iFppp)
 GOW(wcscat, pFpp)
-//GO(__wcscat_chk, 
+GO(__wcscat_chk, pFppL)
 GO(wcschr, pFpi)
 GOW(wcschrnul, pFpi)
 GO(wcscmp, iFpp)
