@@ -52,6 +52,26 @@ int Run6664(x64emu_t *emu, rex_t rex)
                         EX->q[1] = 0;
                     break;
 
+                case 0x2E:                      /* UCOMISD Gx, Ex */
+                    // no special check...
+                case 0x2F:                      /* COMISD Gx, Ex */
+                    RESET_FLAGS(emu);
+                    nextop = F8;
+                    GETEX_OFFS(0, tlsdata);
+                    GETGX;
+                    if(isnan(GX->d[0]) || isnan(EX->d[0])) {
+                        SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
+                    } else if(isgreater(GX->d[0], EX->d[0])) {
+                        CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
+                    } else if(isless(GX->d[0], EX->d[0])) {
+                        CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); SET_FLAG(F_CF);
+                    } else {
+                        SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
+                    }
+                    CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
+                    break;
+                    break;
+
                 default:
                     return 1;
             }
