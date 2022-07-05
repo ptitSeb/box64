@@ -27,16 +27,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
         platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RK3326, RK3399, RK3288, PHYTIUM, SD845]
         type: [Release, Trace]
+        os: [ubuntu-latest]
         include:
-          - os: ubuntu-18.04
-            platform: TEGRAX1
+          - platform: TEGRAX1
             type: Release
-          - os: ubuntu-18.04
-            platform: TEGRAX1
+            os: ubuntu-18.04
+          - platform: TEGRAX1
             type: Trace
+            os: ubuntu-18.04
 
     runs-on: ${{ matrix.os }}
     steps:
