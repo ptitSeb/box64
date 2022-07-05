@@ -27,10 +27,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RK3326, RK3399, RK3288, TEGRAX1, PHYTIUM, SD845]
+        os: [ubuntu-latest]
+        platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RK3326, RK3399, RK3288, PHYTIUM, SD845]
         type: [Release, Trace]
+        include:
+          - os: ubuntu-18.04
+            platform: TEGRAX1
+            type: Release
+          - os: ubuntu-18.04
+            platform: TEGRAX1
+            type: Trace
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: "Checkout Box64 Repository"
         uses: actions/checkout@v2
