@@ -1293,6 +1293,13 @@ int main(int argc, const char **argv, char **env) {
             printf_log(LOG_INFO, "BOX64: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
         }
     }
+#if defined(RPI) || defined(RK3399) || defined(RK3326)
+    // before launching emulation, let's check if this is a mojosetup from GOG
+    if (((strstr(prog, "bin/linux/x86_64/mojosetup") && getenv("MOJOSETUP_BASE")) || strstr(prog, ".mojosetup/mojosetup"))
+       && getenv("GTK2_RC_FILES")) {
+        sanitize_mojosetup_gtk_background();
+    }
+#endif
     // change process name
     {
         char* p = strrchr(my_context->argv[0], '/');
@@ -1388,13 +1395,6 @@ int main(int argc, const char **argv, char **env) {
     setupTrace();
     // get entrypoint
     my_context->ep = GetEntryPoint(my_context->maplib, elf_header);
-#if defined(RPI) || defined(RK3399) || defined(RK3326)
-    // before launching emulation, let's check if this is a mojosetup from GOG
-    if (((strstr(prog, "bin/linux/x86_64/mojosetup") && getenv("MOJOSETUP_BASE")) || strstr(prog, ".mojosetup/mojosetup"))
-       && getenv("GTK2_RC_FILES")) {
-        sanitize_mojosetup_gtk_background();
-    }
-#endif
 
     atexit(endBox64);
     loadProtectionFromMap();
