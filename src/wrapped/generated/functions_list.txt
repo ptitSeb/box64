@@ -2223,6 +2223,7 @@ wrappedfreetype:
   - FTC_Manager_New
 wrappedgbm:
 wrappedgconf2:
+wrappedgcrypt:
 wrappedgdkpixbuf2:
 - pFpiiiiiipp:
   - gdk_pixbuf_new_from_data
