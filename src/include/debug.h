@@ -57,11 +57,13 @@ extern int box64_tcmalloc_minimal;  // when using tcmalloc_minimal
 
 extern FILE* ftrace;
 
-#define printf_log(L, ...) do {if(L<=box64_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
+#define printf_log(L, ...) do {if((L)<=box64_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 
-#define printf_dump(L, ...) do {if(box64_dump || (L<=box64_log)) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
+#define printf_dump(L, ...) do {if(box64_dump || ((L)<=box64_log)) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 
-#define dynarec_log(L, ...) do {if(L<=box64_dynarec_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
+#define printf_dlsym(L, ...) do {if(dlsym_error || ((L)<=box64_log)) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
+
+#define dynarec_log(L, ...) do {if((L)<=box64_dynarec_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 
 #define EXPORT __attribute__((visibility("default")))
 #ifdef BUILD_DYNAMIC

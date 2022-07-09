@@ -351,7 +351,7 @@ int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, in
     // Add libs and symbol
     for(int i=0; i<npath; ++i) {
         if(AddNeededLib_add(maplib, neededlibs, deplib, local, paths[i], box64, emu)) {
-            printf_log(LOG_INFO, "Error loading needed lib %s\n", paths[i]);
+            printf_log(strchr(paths[i],'/')?LOG_DEBUG:LOG_INFO, "Error loading needed lib %s\n", paths[i]);
             return 1;
         }
     }

@@ -50,7 +50,7 @@ static void* resolveSymbol(x64emu_t* emu, void* symbol, const char* rname)
     // check if alread bridged
     uintptr_t ret = CheckBridged(emu->context->system, symbol);
     if(ret) {
-        if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
+        printf_dlsym(LOG_DEBUG, "%p\n", (void*)ret);
         return (void*)ret; // already bridged
     }
     // get wrapper    
@@ -63,14 +63,14 @@ static void* resolveSymbol(x64emu_t* emu, void* symbol, const char* rname)
         k = kh_get(symbolmap, emu->context->vkwrappers, tmp);
     }
     if(k==kh_end(emu->context->vkwrappers)) {
-        if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
-        if(dlsym_error) printf_log(LOG_NONE, "Warning, no wrapper for %s\n", rname);
+        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
+        printf_dlsym(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
     const char* constname = kh_key(emu->context->vkwrappers, k);
     AddOffsetSymbol(emu->context->maplib, symbol, constname);
     ret = AddBridge(emu->context->system, kh_value(emu->context->vkwrappers, k), symbol, 0, constname);
-    if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "%p (%p)\n", (void*)ret, symbol);
+    printf_dlsym(LOG_DEBUG, "%p (%p)\n", (void*)ret, symbol);
     return (void*)ret;
 }
 
@@ -79,7 +79,7 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
     khint_t k;
     const char* rname = (const char*)name;
 
-    if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetDeviceProcAddr(%p, \"%s\") => ", device, rname);
+    printf_dlsym(LOG_DEBUG, "Calling my_vkGetDeviceProcAddr(%p, \"%s\") => ", device, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
@@ -98,7 +98,7 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
     } else 
         symbol = my->vkGetDeviceProcAddr(device, name);
     if(!symbol) {
-        if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
+        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
     }
     return resolveSymbol(emu, symbol, rname);
@@ -109,7 +109,7 @@ EXPORT void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* instance, void* name)
     khint_t k;
     const char* rname = (const char*)name;
 
-    if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetInstanceProcAddr(%p, \"%s\") => ", instance, rname);
+    printf_dlsym(LOG_DEBUG, "Calling my_vkGetInstanceProcAddr(%p, \"%s\") => ", instance, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
     if(instance!=my->currentInstance) {
@@ -122,7 +122,7 @@ EXPORT void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* instance, void* name)
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
     void* symbol = my_context->vkprocaddress(instance, rname);
     if(!symbol) {
-        if(dlsym_error && box64_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
+        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
     }
     if(is_my) {
