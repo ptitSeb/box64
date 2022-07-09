@@ -167,6 +167,7 @@ GO(vkGetPhysicalDeviceMemoryProperties2, vFpp)
 GO(vkGetPhysicalDeviceProperties2, vFpp)
 GO(vkGetPhysicalDeviceQueueFamilyProperties2, vFppp)    //VkQueueFamilyProperties2 seems OK
 GO(vkGetPhysicalDeviceSparseImageFormatProperties2, vFpppp) //VkSparseImageFormatProperties2 seems OK
+GO(vkGetPhysicalDeviceToolProperties, iFppp)
 GO(vkUpdateDescriptorSetWithTemplate, vFpUUp)
 GO(vkTrimCommandPool, vFpUi)
 
