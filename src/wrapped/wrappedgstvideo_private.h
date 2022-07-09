@@ -18,7 +18,7 @@
 //GO(gst_buffer_get_video_meta_id, 
 //GO(gst_buffer_get_video_region_of_interest_meta_id, 
 //GO(gst_buffer_pool_config_get_video_alignment, 
-//GO(gst_buffer_pool_config_set_video_alignment, 
+GO(gst_buffer_pool_config_set_video_alignment, vFpp)
 //GO(gst_color_balance_channel_get_type, 
 //GO(gst_color_balance_get_balance_type, 
 //GO(gst_color_balance_get_type, 
@@ -76,7 +76,7 @@
 //GO(gst_video_aggregator_pad_get_type, 
 //GO(gst_video_aggregator_pad_has_current_buffer, 
 //GO(gst_video_aggregator_pad_set_needs_alpha, 
-//GO(gst_video_alignment_reset, 
+GO(gst_video_alignment_reset, vFp)
 //GO(gst_video_alpha_mode_get_type, 
 //GO(gst_video_ancillary_di_d16_get_type, 
 //GO(gst_video_ancillary_did_get_type, 
@@ -86,7 +86,7 @@
 //GO(gst_video_blend_scale_linear_RGBA, 
 //GO(gst_video_buffer_flags_get_type, 
 //GO(gst_video_buffer_pool_get_type, 
-//GO(gst_video_buffer_pool_new, 
+GO(gst_video_buffer_pool_new, pFv)
 //GO(gst_video_calculate_display_ratio, 
 //GO(gst_video_caption_meta_api_get_type, 
 //GO(gst_video_caption_meta_get_info, 
@@ -228,13 +228,13 @@ GO(gst_video_format_from_fourcc, iFu)
 //GO(gst_video_formats_raw, 
 GO(gst_video_format_to_fourcc, uFi)
 GO(gst_video_format_to_string, pFi)
-//GO(gst_video_frame_copy, 
+GO(gst_video_frame_copy, iFpp)
 //GO(gst_video_frame_copy_plane, 
 //GO(gst_video_frame_flags_get_type, 
-//GO(gst_video_frame_map, 
+GO(gst_video_frame_map, iFpppu)
 //GO(gst_video_frame_map_flags_get_type, 
 //GO(gst_video_frame_map_id, 
-//GO(gst_video_frame_unmap, 
+GO(gst_video_frame_unmap, vFp)
 //GO(gst_video_gamma_mode_get_type, 
 //GO(gst_video_gl_texture_upload_meta_api_get_type, 
 //GO(gst_video_gl_texture_upload_meta_get_info, 
@@ -265,7 +265,7 @@ GO(gst_video_interlace_mode_to_string, pFi)
 //GO(gst_video_mastering_display_info_is_equal, 
 //GO(gst_video_mastering_display_info_to_string, 
 //GO(gst_video_matrix_mode_get_type, 
-//GO(gst_video_meta_api_get_type, 
+GO(gst_video_meta_api_get_type, pFv)
 //GO(gst_video_meta_get_info, 
 //GO(gst_video_meta_get_plane_height, 
 //GO(gst_video_meta_get_plane_size, 

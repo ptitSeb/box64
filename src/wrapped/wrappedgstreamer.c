@@ -21,7 +21,12 @@
 const char* gstreamerName = "libgstreamer-1.0.so.0";
 #define LIBNAME gstreamer
 
-#define ADDED_FUNCTIONS()           \
+typedef void* (*pFppA_t)(void*, void*, va_list);
+typedef void* (*pFp_t)(void*);
+
+#define ADDED_FUNCTIONS()                   \
+    GO(gst_structure_new_valist, pFppA_t)   \
+    GO(gst_structure_new_empty, pFp_t)
 
 #include "generated/wrappedgstreamertypes.h"
 
@@ -285,6 +290,19 @@ EXPORT void my_gst_pad_set_event_function_full(x64emu_t* emu, void* pad, void* f
 EXPORT void my_gst_bus_set_sync_handler(x64emu_t* emu, void* bus, void* f, void* data, void* d)
 {
     my->gst_bus_set_sync_handler(bus, findGstBusSyncHandlerFct(f), data, findDestroyFct(d));
+}
+
+EXPORT void* my_gst_buffer_new_wrapped_full(x64emu_t* emu, uint32_t f, void* data, size_t maxsize, size_t offset, size_t size, void* user, void* d)
+{
+    return my->gst_buffer_new_wrapped_full(f, data, maxsize, offset, size, user, findDestroyFct(d));
+}
+
+EXPORT void* my_gst_structure_new(x64emu_t* emu, void* name, void* first, uint64_t* b)
+{
+    if(!first)    
+        return my->gst_structure_new_empty(name);
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    return my->gst_structure_new_valist(name, first, VARARGS);
 }
 
 #define PRE_INIT    \

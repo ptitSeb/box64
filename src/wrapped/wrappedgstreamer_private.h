@@ -6,21 +6,21 @@
 //GO(gst_allocation_params_free, 
 //GO(gst_allocation_params_get_type, 
 //GO(gst_allocation_params_init, 
-//GO(gst_allocator_alloc, 
+GO(gst_allocator_alloc, pFpLp)
 //GO(gst_allocator_find, 
 //GO(gst_allocator_flags_get_type, 
 //GO(gst_allocator_free, 
-//GO(gst_allocator_get_type, 
+GO(gst_allocator_get_type, pFv)
 //GO(gst_allocator_register, 
 //GO(gst_allocator_set_default, 
 //GO(gst_atomic_queue_get_type, 
-//GO(gst_atomic_queue_length, 
-//GO(gst_atomic_queue_new, 
-//GO(gst_atomic_queue_peek, 
-//GO(gst_atomic_queue_pop, 
-//GO(gst_atomic_queue_push, 
-//GO(gst_atomic_queue_ref, 
-//GO(gst_atomic_queue_unref, 
+GO(gst_atomic_queue_length, uFp)
+GO(gst_atomic_queue_new, pFu)
+GO(gst_atomic_queue_peek, pFp)
+GO(gst_atomic_queue_pop, pFp)
+GO(gst_atomic_queue_push, vFpp)
+GO(gst_atomic_queue_ref, vFp)
+GO(gst_atomic_queue_unref, vFp)
 GO(gst_bin_add, iFpp)
 //GOM(gst_bin_add_many, vFppV)
 GO(gst_bin_find_unlinked_pad, pFpi)
@@ -107,29 +107,29 @@ GO(gst_buffer_new, pFv)
 GO(gst_buffer_new_allocate, pFplp)
 GO(gst_buffer_new_wrapped, pFpl)
 GO(gst_buffer_new_wrapped_bytes, pFp)
-//GOM(gst_buffer_new_wrapped_full, pFEiplllpB)
+GOM(gst_buffer_new_wrapped_full, pFEiplllpp)
 GO(gst_buffer_n_memory, uFp)
 GO(gst_buffer_peek_memory, pFpu)
 //GO(gst_buffer_pool_acquire_buffer, 
 //GO(gst_buffer_pool_acquire_flags_get_type, 
-//GO(gst_buffer_pool_config_add_option, 
+GO(gst_buffer_pool_config_add_option, vFpp)
 //GO(gst_buffer_pool_config_get_allocator, 
 //GO(gst_buffer_pool_config_get_option, 
 //GO(gst_buffer_pool_config_get_params, 
 //GO(gst_buffer_pool_config_has_option, 
 //GO(gst_buffer_pool_config_n_options, 
-//GO(gst_buffer_pool_config_set_allocator, 
-//GO(gst_buffer_pool_config_set_params, 
+GO(gst_buffer_pool_config_set_allocator, vFppp)
+GO(gst_buffer_pool_config_set_params, vFppuuu)
 //GO(gst_buffer_pool_config_validate_params, 
-//GO(gst_buffer_pool_get_config, 
+GO(gst_buffer_pool_get_config, pFp)
 //GO(gst_buffer_pool_get_options, 
 //GO(gst_buffer_pool_get_type, 
 //GO(gst_buffer_pool_has_option, 
 //GO(gst_buffer_pool_is_active, 
 //GO(gst_buffer_pool_new, 
 //GO(gst_buffer_pool_release_buffer, 
-//GO(gst_buffer_pool_set_active, 
-//GO(gst_buffer_pool_set_config, 
+GO(gst_buffer_pool_set_active, iFpi)
+GO(gst_buffer_pool_set_config, iFpp)
 //GO(gst_buffer_pool_set_flushing, 
 GO(gst_buffer_prepend_memory, vFpp)
 GO(gst_buffer_ref, pFp)
@@ -765,17 +765,17 @@ GO(gst_is_initialized, iFv)
 //GO(gst_memory_flags_get_type, 
 //GO(gst_memory_get_sizes, 
 //GO(gst_memory_get_type, 
-//GO(gst_memory_init, 
+GO(gst_memory_init, vFpuppLLLL)
 //GO(gst_memory_is_span, 
 //GO(gst_memory_is_type, 
 //GO(gst_memory_make_mapped, 
-//GO(gst_memory_map, 
+GO(gst_memory_map, iFppu)
 //GO(gst_memory_new_wrapped, 
 //GO(gst_memory_ref, 
 //GO(gst_memory_resize, 
 //GO(gst_memory_share, 
 //DATAB(_gst_memory_type, 
-//GO(gst_memory_unmap, 
+GO(gst_memory_unmap, vFpp)
 //GO(gst_memory_unref, 
 GO(gst_message_add_redirect_entry, vFpppp)
 GO(gst_message_copy, pFp)
@@ -899,10 +899,10 @@ GO(gst_message_writable_structure, pFp)
 //GO(gst_mini_object_flags_get_type, 
 //GO(gst_mini_object_get_qdata, 
 //GO(gst_mini_object_init, 
-//GO(gst_mini_object_is_writable, 
+GO(gst_mini_object_is_writable, iFp)
 //GO(gst_mini_object_lock, 
 GO(gst_mini_object_make_writable, pFp)
-//GO(gst_mini_object_ref, 
+GO(gst_mini_object_ref, pFp)
 //GO(gst_mini_object_remove_parent, 
 //GO(gst_mini_object_replace, 
 //GO(gst_mini_object_set_qdata, 
@@ -1308,15 +1308,15 @@ GO(gst_query_writable_structure, pFp)
 //GO(gst_registry_scan_path, 
 //GO(gst_resource_error_get_type, 
 //GO(gst_resource_error_quark, 
-//GO(gst_sample_copy, 
+GO(gst_sample_copy, pFp)
 GO(gst_sample_get_buffer, pFp)
-//GO(gst_sample_get_buffer_list, 
-//GO(gst_sample_get_caps, 
-//GO(gst_sample_get_info, 
-//GO(gst_sample_get_segment, 
-//GO(gst_sample_get_type, 
-//GO(gst_sample_new, 
-//GO(gst_sample_ref, 
+GO(gst_sample_get_buffer_list, pFp)
+GO(gst_sample_get_caps, pFp)
+GO(gst_sample_get_info, pFp)
+GO(gst_sample_get_segment, pFp)
+GO(gst_sample_get_type, pFv)
+GO(gst_sample_new, pFpppp)
+GO(gst_sample_ref, pFp)
 //GO(gst_sample_set_buffer, 
 //GO(gst_sample_set_buffer_list, 
 //GO(gst_sample_set_caps, 
@@ -1437,7 +1437,7 @@ GO(gst_structure_intersect, pFpp)
 GO(gst_structure_is_equal, iFpp)
 GO(gst_structure_is_subset, iFpp)
 //GOM(gst_structure_map_in_place, iFEpBp)
-//GOM(gst_structure_new, pFEppV
+GOM(gst_structure_new, pFEppV)
 GO(gst_structure_new_empty, pFp)
 GO(gst_structure_new_from_string, pFp)
 //GOM(gst_structure_new_id, pFEppV)

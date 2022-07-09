@@ -1749,6 +1749,7 @@
 #() vFpiUuupup
 #() vFpippiiuu
 #() vFpippiipi
+#() vFpuppLLLL
 #() vFpUiUiupi
 #() vFpUuuUUUi
 #() vFppiiiiii
@@ -1803,6 +1804,7 @@
 #() uFppuppppp
 #() LFELpLpLpi
 #() LFEpiupppp
+#() pFEiplllpp
 #() pFEpiuCppp
 #() pFEppLiiip
 #() pFEpppuipV
@@ -2545,6 +2547,8 @@ wrappedgstreamer:
   - gst_structure_get
 - iFppA:
   - gst_structure_get_valist
+- pFppV:
+  - gst_structure_new
 - vFpppp:
   - gst_bus_set_sync_handler
   - gst_pad_set_activatemode_function_full
@@ -2552,6 +2556,8 @@ wrappedgstreamer:
   - gst_pad_set_event_function_full
   - gst_pad_set_getrange_function_full
   - gst_pad_set_query_function_full
+- pFiplllpp:
+  - gst_buffer_new_wrapped_full
 - vFpippippV:
   - gst_debug_log
 - vFpippippA:
