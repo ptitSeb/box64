@@ -3,6 +3,7 @@
 #endif
 
 GO("libc.so.6", libc)
+GO("libc.musl-x86_64.so.1", libdl)
 GO("libpthread.so.0", libpthread)
 GO("librt.so.1", librt)
 GO("libEGL.so.1", libegl)

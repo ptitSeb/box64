@@ -886,6 +886,29 @@ int RunF0(x64emu_t *emu, rex_t rex)
             pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
             break;            
+
+        case 0xF6:                      /* GRP3 Eb(,Ib) */
+            nextop = F8;
+            tmp8u = (nextop>>3)&7;
+            GETEB((tmp8u<2)?1:0);
+            switch(tmp8u) {
+                case 2:                 /* NOT Eb */
+#ifdef DYNAREC
+                    do {
+                        tmp8u2 = native_lock_read_b(EB); 
+                        tmp8u2 = not8(emu, tmp8u2);
+                    } while(native_lock_write_b(EB, tmp8u2));
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    EB->byte[0] = not8(emu, EB->byte[0]);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                default:
+                    return 1;
+            }
+            break;
+
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GETED(0);

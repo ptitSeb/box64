@@ -697,7 +697,12 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
             case 1:                 /* DEC Ed */
                 EW->word[0] = dec16(emu, EW->word[0]);
                 break;
-            /*case 6:
+            case 2:                 /* CALL NEAR Ed */
+                tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
+                Push(emu, R_RIP);
+                R_RIP = tmp64u;
+                break;
+           /*case 6:
                 Push16(emu, EW->word[0]);
                 break;*/
             default:

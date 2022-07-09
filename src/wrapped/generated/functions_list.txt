@@ -685,6 +685,7 @@
 #() iFEpip
 #() iFEpiV
 #() iFEpiA
+#() iFEpup
 #() iFEpUp
 #() iFEpLi
 #() iFEpLp
@@ -815,6 +816,7 @@
 #() uFEppp
 #() uFifff
 #() uFuuuu
+#() uFpiip
 #() uFpipu
 #() uFpipp
 #() uFpCCC
@@ -852,6 +854,7 @@
 #() lFppii
 #() lFppip
 #() lFpppL
+#() LFEppL
 #() LFEppp
 #() LFippL
 #() LFippp
@@ -2138,6 +2141,8 @@ wrappedcrypto:
   - PEM_write_bio_ECPrivateKey
   - PEM_write_bio_RSAPrivateKey
 wrappedcurl:
+- iFpup:
+  - curl_multi_setopt
 - uFpup:
   - curl_easy_setopt
 wrappeddbus:
@@ -2679,6 +2684,7 @@ wrappedlibc:
   - iopl
 - iFp:
   - _setjmp
+  - atexit
   - getcontext
   - setcontext
   - setjmp
@@ -2713,6 +2719,7 @@ wrappedlibc:
 - iFpi:
   - __sigsetjmp
   - backtrace
+  - sigsetjmp
 - iFpL:
   - munmap
 - iFpp:
@@ -2813,6 +2820,9 @@ wrappedlibc:
   - __wprintf_chk
 - lFppL:
   - readlink
+- LFppL:
+  - strlcat
+  - strlcpy
 - pFpip:
   - fts_open
 - pFppp:
@@ -3058,12 +3068,14 @@ wrappedlibpthread:
   - pthread_barrierattr_init
   - pthread_condattr_destroy
   - pthread_condattr_init
+  - pthread_getattr_default_np
   - pthread_mutex_destroy
   - pthread_mutex_lock
   - pthread_mutex_trylock
   - pthread_mutex_unlock
   - pthread_mutexattr_destroy
   - pthread_mutexattr_init
+  - pthread_setattr_default_np
 - vFpi:
   - _pthread_cleanup_pop
   - _pthread_cleanup_pop_restore

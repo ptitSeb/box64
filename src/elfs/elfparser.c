@@ -46,7 +46,7 @@ int FindSection(Elf64_Shdr *s, int n, char* SHStrTab, const char* name)
 void LoadNamedSection(FILE *f, Elf64_Shdr *s, int size, char* SHStrTab, const char* name, const char* clearname, uint32_t type, void** what, size_t* num)
 {
     int n = FindSection(s, size, SHStrTab, name);
-    printf_log(LOG_DEBUG, "Loading %s (idx = %d)\n", clearname, n);
+    printf_dump(LOG_DEBUG, "Loading %s (idx = %d)\n", clearname, n);
     if(n)
         LoadSH(f, s+n, what, name, type);
     if(type==SHT_SYMTAB || type==SHT_DYNSYM) {
@@ -73,7 +73,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     if(header.e_ident[EI_CLASS]!=ELFCLASS64) {
         if(strstr(name, ".so")) {
             // less naging on libs...
-            printf_log(LOG_DEBUG, "Not a 64bits ELF (%d)\n", header.e_ident[EI_CLASS]);
+            printf_dump(LOG_DEBUG, "Not a 64bits ELF (%d)\n", header.e_ident[EI_CLASS]);
             return NULL;
         }
         if(header.e_ident[EI_CLASS]==ELFCLASS32) {
@@ -129,7 +129,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     if(header.e_shentsize && header.e_shnum) {
         // special cases for nums
         if(h->numSHEntries == 0) {
-            printf_log(LOG_DEBUG, "Read number of Sections in 1st Section\n");
+            printf_dump(LOG_DEBUG, "Read number of Sections in 1st Section\n");
             // read 1st section header and grab actual number from here
             fseeko64(f, header.e_shoff, SEEK_SET);
             Elf64_Shdr section;
@@ -141,7 +141,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             h->numSHEntries = section.sh_size;
         }
         // now read all section headers
-        printf_log(LOG_DEBUG, "Read %zu Section header\n", h->numSHEntries);
+        printf_dump(LOG_DEBUG, "Read %zu Section header\n", h->numSHEntries);
         h->SHEntries = (Elf64_Shdr*)calloc(h->numSHEntries, sizeof(Elf64_Shdr));
         fseeko64(f, header.e_shoff ,SEEK_SET);
         if(fread(h->SHEntries, sizeof(Elf64_Shdr), h->numSHEntries, f)!=h->numSHEntries) {
@@ -151,13 +151,13 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         }
 
         if(h->numPHEntries == PN_XNUM) {
-            printf_log(LOG_DEBUG, "Read number of Program Header in 1st Section\n");
+            printf_dump(LOG_DEBUG, "Read number of Program Header in 1st Section\n");
             // read 1st section header and grab actual number from here
             h->numPHEntries = h->SHEntries[0].sh_info;
         }
     }
 
-    printf_log(LOG_DEBUG, "Read %zu Program header\n", h->numPHEntries);
+    printf_dump(LOG_DEBUG, "Read %zu Program header\n", h->numPHEntries);
     h->PHEntries = (Elf64_Phdr*)calloc(h->numPHEntries, sizeof(Elf64_Phdr));
     fseeko64(f, header.e_phoff ,SEEK_SET);
     if(fread(h->PHEntries, sizeof(Elf64_Phdr), h->numPHEntries, f)!=h->numPHEntries) {
@@ -168,7 +168,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
 
     if(header.e_shentsize && header.e_shnum) {
         if(h->SHIdx == SHN_XINDEX) {
-            printf_log(LOG_DEBUG, "Read number of String Table in 1st Section\n");
+            printf_dump(LOG_DEBUG, "Read number of String Table in 1st Section\n");
             h->SHIdx = h->SHEntries[0].sh_link;
         }
         if(h->SHIdx > h->numSHEntries) {
@@ -177,7 +177,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             return NULL;
         }
         // load Section table
-        printf_log(LOG_DEBUG, "Loading Sections Table String (idx = %zu)\n", h->SHIdx);
+        printf_dump(LOG_DEBUG, "Loading Sections Table String (idx = %zu)\n", h->SHIdx);
         if(LoadSH(f, h->SHEntries+h->SHIdx, (void*)&h->SHStrTab, ".shstrtab", SHT_STRTAB)) {
             FreeElfHeader(&h);
             return NULL;
@@ -236,15 +236,15 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     break;
                 case DT_INIT: // Entry point
                     h->initentry = ptr;
-                    printf_log(LOG_DEBUG, "The DT_INIT is at address %p\n", (void*)h->initentry);
+                    printf_dump(LOG_DEBUG, "The DT_INIT is at address %p\n", (void*)h->initentry);
                     break;
                 case DT_INIT_ARRAY:
                     h->initarray = ptr;
-                    printf_log(LOG_DEBUG, "The DT_INIT_ARRAY is at address %p\n", (void*)h->initarray);
+                    printf_dump(LOG_DEBUG, "The DT_INIT_ARRAY is at address %p\n", (void*)h->initarray);
                     break;
                 case DT_INIT_ARRAYSZ:
                     h->initarray_sz = val / sizeof(Elf64_Addr);
-                    printf_log(LOG_DEBUG, "The DT_INIT_ARRAYSZ is %zu\n", h->initarray_sz);
+                    printf_dump(LOG_DEBUG, "The DT_INIT_ARRAYSZ is %zu\n", h->initarray_sz);
                     break;
                 case DT_PREINIT_ARRAYSZ:
                     if(val)
@@ -252,31 +252,31 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     break;
                 case DT_FINI: // Exit hook
                     h->finientry = ptr;
-                    printf_log(LOG_DEBUG, "The DT_FINI is at address %p\n", (void*)h->finientry);
+                    printf_dump(LOG_DEBUG, "The DT_FINI is at address %p\n", (void*)h->finientry);
                     break;
                 case DT_FINI_ARRAY:
                     h->finiarray = ptr;
-                    printf_log(LOG_DEBUG, "The DT_FINI_ARRAY is at address %p\n", (void*)h->finiarray);
+                    printf_dump(LOG_DEBUG, "The DT_FINI_ARRAY is at address %p\n", (void*)h->finiarray);
                     break;
                 case DT_FINI_ARRAYSZ:
                     h->finiarray_sz = val / sizeof(Elf64_Addr);
-                    printf_log(LOG_DEBUG, "The DT_FINI_ARRAYSZ is %zu\n", h->finiarray_sz);
+                    printf_dump(LOG_DEBUG, "The DT_FINI_ARRAYSZ is %zu\n", h->finiarray_sz);
                     break;
                 case DT_VERNEEDNUM:
                     h->szVerNeed = val;
-                    printf_log(LOG_DEBUG, "The DT_VERNEEDNUM is %d\n", h->szVerNeed);
+                    printf_dump(LOG_DEBUG, "The DT_VERNEEDNUM is %d\n", h->szVerNeed);
                     break;
                 case DT_VERNEED:
                     h->VerNeed = (Elf64_Verneed*)ptr;
-                    printf_log(LOG_DEBUG, "The DT_VERNEED is at address %p\n", h->VerNeed);
+                    printf_dump(LOG_DEBUG, "The DT_VERNEED is at address %p\n", h->VerNeed);
                     break;
                 case DT_VERDEFNUM:
                     h->szVerDef = val;
-                    printf_log(LOG_DEBUG, "The DT_VERDEFNUM is %d\n", h->szVerDef);
+                    printf_dump(LOG_DEBUG, "The DT_VERDEFNUM is %d\n", h->szVerDef);
                     break;
                 case DT_VERDEF:
                     h->VerDef = (Elf64_Verdef*)ptr;
-                    printf_log(LOG_DEBUG, "The DT_VERDEF is at address %p\n", h->VerDef);
+                    printf_dump(LOG_DEBUG, "The DT_VERDEF is at address %p\n", h->VerDef);
                     break;
                 }
             }
@@ -286,7 +286,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     FreeElfHeader(&h);
                     return NULL;
                 }
-                printf_log(LOG_DEBUG, "Rel Table @%p (0x%zx/0x%x)\n", (void*)h->rel, h->relsz, h->relent);
+                printf_dump(LOG_DEBUG, "Rel Table @%p (0x%zx/0x%x)\n", (void*)h->rel, h->relsz, h->relent);
             }
             if(h->rela) {
                 if(h->relaent != sizeof(Elf64_Rela)) {
@@ -294,7 +294,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     FreeElfHeader(&h);
                     return NULL;
                 }
-                printf_log(LOG_DEBUG, "RelA Table @%p (0x%zx/0x%x)\n", (void*)h->rela, h->relasz, h->relaent);
+                printf_dump(LOG_DEBUG, "RelA Table @%p (0x%zx/0x%x)\n", (void*)h->rela, h->relasz, h->relaent);
             }
             if(h->jmprel) {
                 if(h->pltrel == DT_REL) {
@@ -311,7 +311,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     FreeElfHeader(&h);
                     return NULL;
                 }
-                printf_log(LOG_DEBUG, "PLT Table @%p (type=%ld 0x%zx/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
+                printf_dump(LOG_DEBUG, "PLT Table @%p (type=%ld 0x%zx/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
             }
             if(h->DynStrTab && h->szDynStrTab) {
                 //DumpDynamicNeeded(h); cannot dump now, it's not loaded yet
@@ -322,43 +322,43 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         if(ii) {
             h->gotplt = h->SHEntries[ii].sh_addr;
             h->gotplt_end = h->gotplt + h->SHEntries[ii].sh_size;
-            printf_log(LOG_DEBUG, "The GOT.PLT Table is at address %p\n", (void*)h->gotplt);
+            printf_dump(LOG_DEBUG, "The GOT.PLT Table is at address %p\n", (void*)h->gotplt);
         }
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".got");
         if(ii) {
             h->got = h->SHEntries[ii].sh_addr;
             h->got_end = h->got + h->SHEntries[ii].sh_size;
-            printf_log(LOG_DEBUG, "The GOT Table is at address %p..%p\n", (void*)h->got, (void*)h->got_end);
+            printf_dump(LOG_DEBUG, "The GOT Table is at address %p..%p\n", (void*)h->got, (void*)h->got_end);
         }
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".plt");
         if(ii) {
             h->plt = h->SHEntries[ii].sh_addr;
             h->plt_end = h->plt + h->SHEntries[ii].sh_size;
-            printf_log(LOG_DEBUG, "The PLT Table is at address %p..%p\n", (void*)h->plt, (void*)h->plt_end);
+            printf_dump(LOG_DEBUG, "The PLT Table is at address %p..%p\n", (void*)h->plt, (void*)h->plt_end);
         }
         // grab version of symbols
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".gnu.version");
         if(ii) {
             h->VerSym = (Elf64_Half*)(h->SHEntries[ii].sh_addr);
-            printf_log(LOG_DEBUG, "The .gnu.version is at address %p\n", h->VerSym);
+            printf_dump(LOG_DEBUG, "The .gnu.version is at address %p\n", h->VerSym);
         }
         // grab .text for main code
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");
         if(ii) {
             h->text = (uintptr_t)(h->SHEntries[ii].sh_addr);
             h->textsz = h->SHEntries[ii].sh_size;
-            printf_log(LOG_DEBUG, "The .text is at address %p, and is %zu big\n", (void*)h->text, h->textsz);
+            printf_dump(LOG_DEBUG, "The .text is at address %p, and is %zu big\n", (void*)h->text, h->textsz);
         }
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".eh_frame");
         if(ii) {
             h->ehframe = (uintptr_t)(h->SHEntries[ii].sh_addr);
             h->ehframe_end = h->ehframe + h->SHEntries[ii].sh_size;
-            printf_log(LOG_DEBUG, "The .eh_frame section is at address %p..%p\n", (void*)h->ehframe, (void*)h->ehframe_end);
+            printf_dump(LOG_DEBUG, "The .eh_frame section is at address %p..%p\n", (void*)h->ehframe, (void*)h->ehframe_end);
         }
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".eh_frame_hdr");
         if(ii) {
             h->ehframehdr = (uintptr_t)(h->SHEntries[ii].sh_addr);
-            printf_log(LOG_DEBUG, "The .eh_frame_hdr section is at address %p\n", (void*)h->ehframehdr);
+            printf_dump(LOG_DEBUG, "The .eh_frame_hdr section is at address %p\n", (void*)h->ehframehdr);
         }
 
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
@@ -370,19 +370,23 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
 
 const char* GetSymbolVersion(elfheader_t* h, int version)
 {
-    if(!h->VerNeed || (version<2))
+    if(version<2)
         return NULL;
     /*if(version==1)
         return "*";*/
-    Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
-    while(ver) {
-        Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
-        for(int j=0; j<ver->vn_cnt; ++j) {
+    if(h->VerNeed) {
+        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
+        while(ver) {
+            Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
+            for(int j=0; j<ver->vn_cnt; ++j) {
+                if(aux->vna_other==version) 
             if(aux->vna_other==version)
-                return h->DynStr+aux->vna_name;
-            aux = (Elf64_Vernaux*)((uintptr_t)aux + aux->vna_next);
+                if(aux->vna_other==version) 
+                    return h->DynStr+aux->vna_name;
+                aux = (Elf64_Vernaux*)((uintptr_t)aux + aux->vna_next);
+            }
+            ver = ver->vn_next?((Elf64_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
         }
-        ver = ver->vn_next?((Elf64_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
     }
     return GetParentSymbolVersion(h, version);  // if symbol is "internal", use Def table instead
 }

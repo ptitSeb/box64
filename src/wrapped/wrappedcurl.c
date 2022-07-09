@@ -30,6 +30,7 @@ const char* curlName = "libcurl.so.4";
 #define FUNCTIONPOINT 20000
 #define OFF_T         30000
 #define CINIT(name,type,number) CURLOPT_ ## name = type + number
+#define CURLOPT(na,t,nu) na = t + nu
 
 typedef enum {
   CINIT(WRITEDATA, OBJECTPOINT, 1),
@@ -305,11 +306,33 @@ typedef enum {
   CINIT(ALTSVC, STRINGPOINT, 287),
   CURLOPT_LASTENTRY /* the last unused */
 } CURLoption;
+
+typedef enum {
+  CURLOPT(CURLMOPT_SOCKETFUNCTION, FUNCTIONPOINT, 1),
+  CURLOPT(CURLMOPT_SOCKETDATA, OBJECTPOINT, 2),
+  CURLOPT(CURLMOPT_PIPELINING, LONG, 3),
+  CURLOPT(CURLMOPT_TIMERFUNCTION, FUNCTIONPOINT, 4),
+  CURLOPT(CURLMOPT_TIMERDATA, OBJECTPOINT, 5),
+  CURLOPT(CURLMOPT_MAXCONNECTS, LONG, 6),
+  CURLOPT(CURLMOPT_MAX_HOST_CONNECTIONS, LONG, 7),
+  CURLOPT(CURLMOPT_MAX_PIPELINE_LENGTH, LONG, 8),
+  CURLOPT(CURLMOPT_CONTENT_LENGTH_PENALTY_SIZE, OFF_T, 9),
+  CURLOPT(CURLMOPT_CHUNK_LENGTH_PENALTY_SIZE, OFF_T, 10),
+  CURLOPT(CURLMOPT_PIPELINING_SITE_BL, OBJECTPOINT, 11),
+  CURLOPT(CURLMOPT_PIPELINING_SERVER_BL, OBJECTPOINT, 12),
+  CURLOPT(CURLMOPT_MAX_TOTAL_CONNECTIONS, LONG, 13),
+  CURLOPT(CURLMOPT_PUSHFUNCTION, FUNCTIONPOINT, 14),
+  CURLOPT(CURLMOPT_PUSHDATA, OBJECTPOINT, 15),
+  CURLOPT(CURLMOPT_MAX_CONCURRENT_STREAMS, LONG, 16),
+  CURLMOPT_LASTENTRY /* the last unused */
+} CURLMoption;
+
 #undef LONG
 #undef OBJECTPOINT
 #undef STRINGPOINT
 #undef FUNCTIONPOINT
 #undef OFF_T
+#undef CURLOPT
 #undef CINIT
 
 #define SUPER() \
@@ -478,6 +501,76 @@ static void* find_progress_int_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for curl progress_int callback\n");
     return NULL;
 }
+
+// socket
+#define GO(A)   \
+static uintptr_t my_socket_fct_##A = 0;                                         \
+static int my_socket_##A(void *a, int b, int c, void* d, void* e)               \
+{                                                                               \
+    return (int)RunFunction(my_context, my_socket_fct_##A, 5, a, b, c, d, e);   \
+}
+SUPER()
+#undef GO
+static void* find_socket_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_socket_fct_##A == (uintptr_t)fct) return my_socket_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_socket_fct_##A == 0) {my_socket_fct_##A = (uintptr_t)fct; return my_socket_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl socket callback\n");
+    return NULL;
+}
+
+// timer
+#define GO(A)   \
+static uintptr_t my_timer_fct_##A = 0;                                  \
+static int my_timer_##A(void *a, long b, void* c)                       \
+{                                                                       \
+    return (int)RunFunction(my_context, my_timer_fct_##A, 3, a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_timer_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_timer_fct_##A == (uintptr_t)fct) return my_timer_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_timer_fct_##A == 0) {my_timer_fct_##A = (uintptr_t)fct; return my_timer_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl timer callback\n");
+    return NULL;
+}
+
+// push
+#define GO(A)   \
+static uintptr_t my_push_fct_##A = 0;                                       \
+static int my_push_##A(void *a, void* b, size_t c, void* d, void* e)        \
+{                                                                           \
+    return (int)RunFunction(my_context, my_push_fct_##A, 5, a, b, c, d, e); \
+}
+SUPER()
+#undef GO
+static void* find_push_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_push_fct_##A == (uintptr_t)fct) return my_push_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_push_fct_##A == 0) {my_push_fct_##A = (uintptr_t)fct; return my_push_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl push callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option, void* param)
@@ -542,6 +635,21 @@ EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option
     }
 }
 
+EXPORT uint32_t my_curl_multi_setopt(x64emu_t* emu, void* handle, uint32_t option, void* param)
+{
+    (void)emu;
+
+    switch(option) {
+        case CURLMOPT_SOCKETFUNCTION:
+            return my->curl_multi_setopt(handle, option, find_socket_Fct(param));
+        case CURLMOPT_TIMERFUNCTION:
+            return my->curl_multi_setopt(handle, option, find_timer_Fct(param));
+        case CURLMOPT_PUSHFUNCTION:
+            return my->curl_multi_setopt(handle, option, find_push_Fct(param));
+        default:
+            return my->curl_multi_setopt(handle, option, param);
+    }
+}
 
 #define CUSTOM_INIT \
     getMy(lib);

@@ -119,8 +119,12 @@ GO(pthread_exit, vFp)
 GOM(pthread_getaffinity_np, iFEpLp)
 #ifdef NOALIGN
 GO(pthread_getattr_np, iFLp)
+GO(pthread_getattr_default_np, iFp)
+GO(pthread_setattr_default_np, iFp)
 #else
 GOM(pthread_getattr_np, iFELp)
+GOM(pthread_getattr_default_np, iFEp)
+GOM(pthread_setattr_default_np, iFEp)
 #endif
 //GO(pthread_getconcurrency, iFv)
 //GO(pthread_getcpuclockid, iFup)

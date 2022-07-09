@@ -279,6 +279,13 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
         lib->priv.n.weaksymbols = kh_init(mapsymbols);
         lib->priv.n.localsymbols = kh_init(mapsymbols);
 
+        if(strcmp(lib->path, libname)) {
+            free(lib->path);
+            lib->path = realpath(libname, NULL);
+            if(!lib->path)
+                lib->path = strdup(libname);
+        }
+
         printf_log(LOG_INFO, "Using emulated %s\n", libname);
         #ifdef DYNAREC
         if(libname && strstr(libname, "libmonobdwgc-2.0.so")) {
@@ -334,7 +341,9 @@ library_t *NewLibrary(const char* path, box64context_t* context)
 {
     printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     library_t *lib = (library_t*)calloc(1, sizeof(library_t));
-    lib->path = strdup(path);
+    lib->path = realpath(path, NULL);
+    if(!lib->path)
+        lib->path = strdup(path);
     if(libGL && !strcmp(path, libGL))
         lib->name = strdup("libGL.so.1");
     else
@@ -557,7 +566,9 @@ int IsSameLib(library_t* lib, const char* path)
         if(strcmp(name, lib->name)==0)
             ret=1;
     } else {
-        if(!strcmp(path, lib->path))
+        char rpath[PATH_MAX];
+        realpath(path, rpath);
+        if(!strcmp(rpath, lib->path))
             ret=1;
     }
     if(!ret) {

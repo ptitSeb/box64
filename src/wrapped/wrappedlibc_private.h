@@ -62,6 +62,7 @@ GOM(__asprintf_chk, iFEpipV)
 GO(__assert, vFppi)
 GO(__assert_fail, vFppup)
 GO(__assert_perror_fail, vFipup)
+GOM(atexit, iFEp)
 GO(atof, dFp)
 GO(atoi, iFp)
 GO(atol, lFp)
@@ -1703,6 +1704,7 @@ GO(sigrelse, iFi)
 //GOW(sigreturn, iF!)
 GOM(sigset, pFEip)
 GOM(__sigsetjmp, iFEpi)
+GOM(sigsetjmp, iFEpi)
 GOW(sigsetmask, iFi)
 //GO(sigstack, iF!!)
 GO(__sigsuspend, iFp)
@@ -2302,6 +2304,9 @@ GOM(_ITM_deregisterTMCloneTable, vFEp)
 
 GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)
+
+GOM(strlcpy, LFEppL)
+GOM(strlcat, LFEppL)
 
 GOWM(__cxa_pure_virtual, vFEv)     // create a function to trap pure virtual call
 

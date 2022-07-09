@@ -83,6 +83,7 @@ int box64_mapclean = 0;
 int box64_zoom = 0;
 int box64_steam = 0;
 int box64_wine = 0;
+int box64_musl = 0;
 int box64_nopulse = 0;
 int box64_nogtk = 0;
 int box64_novulkan = 0;
@@ -1025,6 +1026,7 @@ int main(int argc, const char **argv, char **env) {
         pressure_vessel(argc, argv, nextarg+1);
     }
     #endif
+    int ld_libs_args = -1;
     // check if this is wine
     if(!strcmp(prog, "wine64")
      || !strcmp(prog, "wine64-development") 
@@ -1041,6 +1043,22 @@ int main(int argc, const char **argv, char **env) {
             exit(0);    // exiting, it doesn't work anyway
         }
         box64_wine = 1;
+    } else 
+    // check if ld-musl-x86_64.so.1 is used
+    if(strstr(prog, "ld-musl-x86_64.so.1")) {
+        printf_log(LOG_INFO, "BOX64: ld-musl detected, trying to workaround and use system ld-linux\n");
+        box64_musl = 1;
+        // skip ld-musl and go through args unti "--" is found, handling "--library-path" to add some libs to BOX64_LD_LIBRARY
+        ++nextarg;
+        while(strcmp(argv[nextarg], "--")) {
+            if(!strcmp(argv[nextarg], "--library-path")) {
+                ++nextarg;
+                ld_libs_args = nextarg;
+            }
+            ++nextarg;
+        }
+        ++nextarg;
+        prog = argv[nextarg];
     }
     // check if this is wineserver
     if(!strcmp(prog, "wineserver") || !strcmp(prog, "wineserver64") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
@@ -1055,6 +1073,9 @@ int main(int argc, const char **argv, char **env) {
 
     // check BOX64_LD_LIBRARY_PATH and load it
     LoadEnvVars(my_context);
+    // Append ld_list if it exist
+    if(ld_libs_args!=-1)
+        AppendList(&my_context->box64_ld_lib, argv[ld_libs_args], 1);
 
     my_context->box64path = ResolveFile(argv[0], &my_context->box64_path);
     // prepare all other env. var

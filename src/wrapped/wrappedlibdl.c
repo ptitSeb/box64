@@ -62,7 +62,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
     library_t *lib = NULL;
     dlprivate_t *dl = my_context->dlprivate;
     size_t dlopened = 0;
-    int is_local = (flag&0x100)?0:1;  // if not global, then local, and that means symbols are not put in the global "pot" for pther libs
+    int is_local = (flag&0x100)?0:1;  // if not global, then local, and that means symbols are not put in the global "pot" for other libs
     CLEARERR
     if(filename) {
         char* rfilename = (char*)alloca(MAX_PATH);
@@ -138,7 +138,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         // Then open the lib
         const char* libs[] = {rfilename};
         my_context->deferedInit = 1;
-        int bindnow = (flag&0x2)?1:0;
+        int bindnow = (!box64_musl && (flag&0x2))?1:0;
         if(AddNeededLib(NULL, NULL, NULL, is_local, bindnow, libs, 1, emu->context, emu)) {
             printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
@@ -552,6 +552,10 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
     }
     return -1;
 }
+
+#define CUSTOM_INIT\
+    setNeededLibs(lib, 1, "libc.so.6");
+
 
 // define all standard library functions
 #include "wrappedlib_init.h"

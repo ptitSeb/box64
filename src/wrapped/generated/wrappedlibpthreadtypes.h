@@ -42,12 +42,14 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_barrierattr_init, iFp_t) \
 	GO(pthread_condattr_destroy, iFp_t) \
 	GO(pthread_condattr_init, iFp_t) \
+	GO(pthread_getattr_default_np, iFp_t) \
 	GO(pthread_mutex_destroy, iFp_t) \
 	GO(pthread_mutex_lock, iFp_t) \
 	GO(pthread_mutex_trylock, iFp_t) \
 	GO(pthread_mutex_unlock, iFp_t) \
 	GO(pthread_mutexattr_destroy, iFp_t) \
 	GO(pthread_mutexattr_init, iFp_t) \
+	GO(pthread_setattr_default_np, iFp_t) \
 	GO(_pthread_cleanup_pop, vFpi_t) \
 	GO(_pthread_cleanup_pop_restore, vFpi_t) \
 	GO(pthread_getattr_np, iFLp_t) \

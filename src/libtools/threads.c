@@ -432,6 +432,16 @@ EXPORT int my_pthread_getattr_np(x64emu_t* emu, pthread_t thread_id, pthread_att
 	(void)emu;
 	return pthread_getattr_np(thread_id, getAlignedAttrWithInit(attr, 0));
 }
+EXPORT int my_pthread_getattr_default_np(x64emu_t* emu, pthread_attr_t* attr)
+{
+	(void)emu;
+	return pthread_getattr_default_np(getAlignedAttrWithInit(attr, 0));
+}
+EXPORT int my_pthread_setattr_default_np(x64emu_t* emu, pthread_attr_t* attr)
+{
+	(void)emu;
+	return pthread_setattr_default_np(getAlignedAttr(attr));
+}
 #endif
 
 EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_routine, void* arg)

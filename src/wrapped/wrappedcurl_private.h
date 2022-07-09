@@ -44,16 +44,16 @@ GO(curl_global_init, uFu)
 //GO(curl_msnprintf, 
 //GO(curl_msprintf, 
 GO(curl_multi_add_handle, uFpp)
-//GO(curl_multi_assign, 
+GO(curl_multi_assign, uFpip)
 GO(curl_multi_cleanup, uFp)
 GO(curl_multi_fdset, uFppppp)
 GO(curl_multi_info_read, pFpp)
 GO(curl_multi_init, pFv)
 GO(curl_multi_perform, uFpp)
 GO(curl_multi_remove_handle, uFpp)
-//GO(curl_multi_setopt, 
+GOM(curl_multi_setopt, iFEpup)
 //GO(curl_multi_socket, 
-//GO(curl_multi_socket_action, 
+GO(curl_multi_socket_action, uFpiip)
 //GO(curl_multi_socket_all, 
 GO(curl_multi_strerror, pFi)
 GO(curl_multi_timeout, iFpp)

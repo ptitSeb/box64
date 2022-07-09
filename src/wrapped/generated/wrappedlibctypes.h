@@ -50,6 +50,7 @@ typedef int64_t (*iFppA_t)(void*, void*, va_list);
 typedef int64_t (*iFpOu_t)(void*, int32_t, uint64_t);
 typedef intptr_t (*lFipV_t)(int64_t, void*, ...);
 typedef intptr_t (*lFppL_t)(void*, void*, uintptr_t);
+typedef uintptr_t (*LFppL_t)(void*, void*, uintptr_t);
 typedef void* (*pFpip_t)(void*, int64_t, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFiipV_t)(int64_t, int64_t, void*, ...);
@@ -93,6 +94,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(vfork, iFv_t) \
 	GO(iopl, iFi_t) \
 	GO(_setjmp, iFp_t) \
+	GO(atexit, iFp_t) \
 	GO(getcontext, iFp_t) \
 	GO(setcontext, iFp_t) \
 	GO(setjmp, iFp_t) \
@@ -117,6 +119,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(fstat64, iFip_t) \
 	GO(__sigsetjmp, iFpi_t) \
 	GO(backtrace, iFpi_t) \
+	GO(sigsetjmp, iFpi_t) \
 	GO(munmap, iFpL_t) \
 	GO(__vprintf_chk, iFpp_t) \
 	GO(dl_iterate_phdr, iFpp_t) \
@@ -193,6 +196,8 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(open64, iFpOu_t) \
 	GO(__wprintf_chk, lFipV_t) \
 	GO(readlink, lFppL_t) \
+	GO(strlcat, LFppL_t) \
+	GO(strlcpy, LFppL_t) \
 	GO(fts_open, pFpip_t) \
 	GO(tsearch, pFppp_t) \
 	GO(__syslog_chk, vFiipV_t) \

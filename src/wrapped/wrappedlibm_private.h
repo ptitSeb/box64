@@ -92,7 +92,11 @@ GO2(cbrtl, KFK, cbrt)
 // ccosl    // Weak
 GOW(ceil, dFd)
 GOW(ceilf, fFf)
-// ceill    // Weak
+#ifdef HAVE_LD80BITS
+GOW(ceill, DFD)    // Weak
+#else
+GO2(ceill, KFK, ceil)
+#endif
 //GOS(cexp, pFpV)     // Weak, return complex
 //GOM(cexpf, UFV)     // Weak, return complex
 // cexpl    // Weak
@@ -185,8 +189,8 @@ GOW(expm1f, fFf)
 GOW(fabs, dFd)
 GOW(fabsf, fFf)
 // fabsl    // Weak
-// fdim // Weak
-// fdimf    // Weak
+GOW(fdim, dFdd)
+GOW(fdimf, fFff)
 // fdiml    // Weak
 GO(feclearexcept, iFi)
 GO(fedisableexcept, iFi)

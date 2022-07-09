@@ -2149,7 +2149,10 @@ EXPORT int32_t my___sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/vo
         ((__jmp_buf_tag_t*)p)->__mask_was_saved = 0;
     return 0;
 }
-
+EXPORT int32_t my_sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int savesigs)
+{
+    return my___sigsetjmp(emu, p, savesigs);
+}
 EXPORT int32_t my__setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
 {
     return  my___sigsetjmp(emu, p, 0);
@@ -2729,6 +2732,23 @@ EXPORT void my___cxa_pure_virtual(x64emu_t* emu)
     emu->quit = 1;
     abort();
 }
+
+EXPORT size_t my_strlcpy(x64emu_t* emu, void* dst, void* src, size_t l)
+{
+    strncpy(dst, src, l-1);
+    ((char*)dst)[l-1] = '\0';
+    return strlen(src);
+}
+EXPORT size_t my_strlcat(x64emu_t* emu, void* dst, void* src, size_t l)
+{
+    size_t s = strlen(dst);
+    if(s>=l)
+        return l;
+    strncat(dst, src, l-1);
+    ((char*)dst)[l-1] = '\0';
+    return s+strlen(src);
+}
+
 
 EXPORT char** my_environ = NULL;
 EXPORT char** my__environ = NULL;
