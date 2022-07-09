@@ -279,7 +279,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
         lib->priv.n.weaksymbols = kh_init(mapsymbols);
         lib->priv.n.localsymbols = kh_init(mapsymbols);
 
-        if(strcmp(lib->path, libname)) {
+        if(lib->path && strcmp(lib->path, libname)) {
             free(lib->path);
             lib->path = realpath(libname, NULL);
             if(!lib->path)
