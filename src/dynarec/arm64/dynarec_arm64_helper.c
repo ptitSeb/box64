@@ -825,7 +825,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
                 if(next) {
                     // need to check if a ST_F need local promotion
                     if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i])>=0) {
-                        FCVT_S_D(0, dyn->n.x87reg[i]);
+                        FCVT_D_S(0, dyn->n.x87reg[i]);
                         VSTR64_REG_LSL3(0, s1, s3);    // save the value
                     } else {
                         VSTR64_REG_LSL3(dyn->n.x87reg[i], s1, s3);    // save the value
@@ -903,7 +903,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, i
             ret = i;
     // found, setup and grab the value
     dyn->n.x87cache[ret] = st;
-    dyn->n.x87reg[ret] = fpu_get_reg_x87(dyn, t, st);
+    dyn->n.x87reg[ret] = fpu_get_reg_x87(dyn, NEON_CACHE_ST_D, st);
     if(populate) {
         ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
         LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
@@ -961,10 +961,10 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
     }
     if(dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_F) {
-        FCVT_S_D(31, dyn->n.x87reg[ret]);
-        VLDR64_REG_LSL3(31, s1, s2);
+        FCVT_D_S(31, dyn->n.x87reg[ret]);
+        VSTR64_REG_LSL3(31, s1, s2);
     } else {
-        VLDR64_REG_LSL3(dyn->n.x87reg[ret], s1, s2);
+        VSTR64_REG_LSL3(dyn->n.x87reg[ret], s1, s2);
     }
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
 }
