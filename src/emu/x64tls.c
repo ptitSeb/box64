@@ -188,7 +188,7 @@ static int sizeDTS(box64context_t* context)
 }
 static int sizeTLSData(int s)
 {
-    return (s+0xfff)&~0xfff;
+    return (s+0x1fff)&~0x1fff;
 }
 
 static tlsdatasize_t* setupTLSData(box64context_t* context)
@@ -238,6 +238,7 @@ void* resizeTLSData(box64context_t *context, void* oldptr)
         pthread_mutex_lock(&context->mutex_tls);
         tlsdatasize_t* oldata = (tlsdatasize_t*)oldptr;
         if(sizeTLSData(oldata->tlssize)!=sizeTLSData(context->tlssize) || (oldata->n_elfs/0xff)!=(context->elfsize/0xff)) {
+            printf_log(LOG_INFO, "Warning, resizing of TLS occured! size: %d->%d / n_elfs: %d->%d\n", sizeTLSData(oldata->tlssize), sizeTLSData(context->tlssize), 1+(oldata->n_elfs/0xff), 1+(context->elfsize/0xff));
             tlsdatasize_t *data = setupTLSData(context);
             // copy the relevent old part, in case something changed
             memcpy((void*)((uintptr_t)data->data-oldata->tlssize), (void*)((uintptr_t)oldata->data-oldata->tlssize), oldata->tlssize);
