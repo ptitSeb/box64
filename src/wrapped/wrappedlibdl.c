@@ -355,7 +355,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     uintptr_t start, end;
     char* rsymbol = (char*)symbol;
     CLEARERR
-    printf_dlsym(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)\n", handle, rsymbol, vername?vername:"(nil)");
+    printf_dlsym(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)%s", handle, rsymbol, vername?vername:"(nil)", dlsym_error?"":"\n");
     if(handle==NULL) {
         // special case, look globably
         if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, NULL, version, vername)) {
