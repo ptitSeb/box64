@@ -29,15 +29,15 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
     if(ip[0]==0xcc && ip[1]=='S' && ip[2]=='C') {
         uintptr_t a = *(uintptr_t*)(ip+3);
         if(a==0) {
-            dynarec_log(LOG_NONE, "%s%p: Exit x64emu%s\n", (box64_dynarec_dump>1)?"\e[1m":"", (void*)ip, (box64_dynarec_dump>1)?"\e[m":"");
+            dynarec_log(LOG_NONE, "%s%p: Exit x64emu%s\n", (box64_dynarec_dump>1)?"\e[01;33m":"", (void*)ip, (box64_dynarec_dump>1)?"\e[m":"");
         } else {
-            dynarec_log(LOG_NONE, "%s%p: Native call to %p%s\n", (box64_dynarec_dump>1)?"\e[1m":"", (void*)ip, (void*)a, (box64_dynarec_dump>1)?"\e[m":"");
+            dynarec_log(LOG_NONE, "%s%p: Native call to %p%s\n", (box64_dynarec_dump>1)?"\e[01;33m":"", (void*)ip, (void*)a, (box64_dynarec_dump>1)?"\e[m":"");
         }
     } else {
         if(dec) {
-            dynarec_log(LOG_NONE, "%s%p: %s", (box64_dynarec_dump>1)?"\e[1m":"", ip, DecodeX64Trace(dec, inst->addr));
+            dynarec_log(LOG_NONE, "%s%p: %s", (box64_dynarec_dump>1)?"\e[01;33m":"", ip, DecodeX64Trace(dec, inst->addr));
         } else {
-            dynarec_log(LOG_NONE, "%s%p: ", (box64_dynarec_dump>1)?"\e[1m":"", ip);
+            dynarec_log(LOG_NONE, "%s%p: ", (box64_dynarec_dump>1)?"\e[01;33m":"", ip);
             for(int i=0; i<inst->size; ++i) {
                 dynarec_log(LOG_NONE, "%02X ", ip[i]);
             }
