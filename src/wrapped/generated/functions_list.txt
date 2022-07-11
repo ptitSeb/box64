@@ -2857,6 +2857,7 @@ wrappedlibc:
 - iFpipV:
   - __asprintf_chk
   - __fprintf_chk
+  - __fwprintf_chk
 - iFpLpp:
   - __vsnprintf_chk
 - iFpLpV:

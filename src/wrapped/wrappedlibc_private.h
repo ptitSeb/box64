@@ -462,7 +462,7 @@ GOW(futimes, iFip)
 GO(futimesat, iFipp)
 GO(fwide, iFpi)
 GOWM(fwprintf, iFEppV)
-//GO(__fwprintf_chk, 
+GOM(__fwprintf_chk, iFEpipV)
 GO(__fwritable, iFp)
 GOW(fwrite, LFpLLp)
 GO(fwrite_unlocked, LFpLLp)

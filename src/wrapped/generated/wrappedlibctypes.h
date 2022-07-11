@@ -213,6 +213,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(glob64, iFpipp_t) \
 	GO(__asprintf_chk, iFpipV_t) \
 	GO(__fprintf_chk, iFpipV_t) \
+	GO(__fwprintf_chk, iFpipV_t) \
 	GO(__vsnprintf_chk, iFpLpp_t) \
 	GO(__snprintf, iFpLpV_t) \
 	GO(snprintf, iFpLpV_t) \
