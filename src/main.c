@@ -729,12 +729,47 @@ void PrintHelp() {
     printf(" BOX64_NOPULSE=1 to disable the loading of pulseaudio libs\n");
     printf(" BOX64_NOGTK=1 to disable the loading of wrapped gtk libs\n");
     printf(" BOX64_NOVULKAN=1 to disable the loading of wrapped vulkan libs\n");
+    printf(" BOX64_ENV='XXX=yyyy' will add XXX=yyyy env. var.\n");
+    printf(" BOX64_ENV1='XXX=yyyy' will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist\n");
     printf(" BOX64_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
+}
+
+void addNewEnvVar(const char* s)
+{
+    if(!s)
+        return;
+    char* p = strdup(s);
+    char* e = strchr(p, '=');
+    if(!e) {
+        printf_log(LOG_INFO, "Invalid speicifc env. var. '%s'\n", s);
+        free(p);
+        return;
+    }
+    *e='\0';
+    ++e;
+    setenv(p, e, 1);
+    free(p);
 }
 
 EXPORTDYN
 void LoadEnvVars(box64context_t *context)
 {
+    // Check custom env. var. and add them if needed
+    {
+        char* p = getenv("BOX64_ENV");
+        if(p)
+            addNewEnvVar(p);
+        int i = 0;
+        char box64_env[50];
+        do {
+            sprintf(box64_env, "BOX64_ENV%d", i);
+            p = getenv(box64_env);
+            if(p) {
+                addNewEnvVar(p);
+                ++i;
+            }
+        } while(p);
+    }
     // check BOX64_LD_LIBRARY_PATH and load it
     LoadEnvPath(&context->box64_ld_lib, ".:lib:lib64:x86_64:bin64:libs64", "BOX64_LD_LIBRARY_PATH");
     if(FileExist("/lib/x86_64-linux-gnu", 0))

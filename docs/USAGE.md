@@ -185,6 +185,14 @@ Disables the load of vulkan libraries.
  * 0 : Load vulkan libraries if found.
  * 1 : Disables the load of vulkan libraries, both the native and the i386 version (can be useful on Pi4, where the vulkan driver is not quite there yet.)
 
+#### BOX64_ENV
+ * XXX=yyyy
+ will add XXX=yyyy env. var.
+
+#### BOX64_ENV1
+ * XXX=yyyy
+ will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist
+
 #### BOX64_JITGDB
  * 0 : Just print the Segfault message on segfault (default)
  * 1 : Launch `gdb` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process and go in an endless loop, waiting.
