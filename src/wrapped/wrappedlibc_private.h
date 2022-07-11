@@ -2119,7 +2119,7 @@ GOW(wcsncasecmp, iFppL)
 //GO(__wcsncasecmp_l, 
 //GOW(wcsncasecmp_l, iFppL!)
 GO(wcsncat, pFppL)
-//GO(__wcsncat_chk, 
+GO(__wcsncat_chk, pFppLL)
 GO(wcsncmp, iFppL)
 GOW(wcsncpy, pFppL)
 GO(__wcsncpy_chk, pFppLL)
