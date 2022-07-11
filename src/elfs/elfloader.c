@@ -716,9 +716,13 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 break;
             case R_X86_64_64:
                 if (!offs) {
-                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
-                    ret_ok = 1;
-                    // return -1;
+                    if(symname && !strcmp(symname, "__gxx_personality_v0")) {
+                        printf_dump(LOG_NEVER, "Warning: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                    } else {
+                        printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                        ret_ok = 1;
+                        // return -1;
+                    }
                 } else {
                     printf_dump(LOG_NEVER, "Apply %s R_X86_64_64 @%p with sym=%s (ver=%d/%s) addend=0x%lx (%p -> %p)\n", 
                         (bind==STB_LOCAL)?"Local":"Global", p, symname, version, vername?vername:"(none)", rela[i].r_addend, *(void**)p, (void*)(offs+rela[i].r_addend/*+*(uint64_t*)p*/));
