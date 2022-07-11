@@ -465,3 +465,20 @@ GO(vkGetSwapchainStatusKHR, iFpU)
 
 // VK_NV_clip_space_w_scaling
 GO(vkCmdSetViewportWScalingNV, vFpuup)
+
+// VK_NV_device_diagnostic_checkpoints
+GO(vkCmdSetCheckpointNV, vFpp)
+GO(vkGetQueueCheckpointDataNV, vFppp)
+
+// VK_NV_mesh_shader
+GO(vkCmdDrawMeshTasksIndirectCountNV, vFpUUUUuu)
+GO(vkCmdDrawMeshTasksIndirectNV, vFpUUuu)
+GO(vkCmdDrawMeshTasksNV, vFpuu)
+
+// VK_NV_scissor_exclusive
+GO(vkCmdSetExclusiveScissorNV, vFpuup)
+
+// VK_NV_shading_rate_image
+GO(vkCmdBindShadingRateImageNV, vFpUi)
+GO(vkCmdSetCoarseSampleOrderNV, vFpiup)
+GO(vkCmdSetViewportShadingRatePaletteNV, vFpuup)
