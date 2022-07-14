@@ -2688,7 +2688,7 @@ EXPORT int my_stime(x64emu_t* emu, const time_t *t)
 }
 
 typedef struct clone_arg_s {
- x64emu_t* emu;
+ uintptr_t stack;
  uintptr_t fnc;
  void* args;
  int stack_clone_used;
@@ -2696,10 +2696,9 @@ typedef struct clone_arg_s {
 static int clone_fn(void* p)
 {
     clone_arg_t* arg = (clone_arg_t*)p;
-    x64emu_t *emu = arg->emu;
-    thread_set_emu(emu);
+    x64emu_t *emu = thread_get_emu();
+    R_RSP = arg->stack;
     int ret = RunFunction(my_context, arg->fnc, 1, arg->args);
-    FreeX64Emu(&emu);
     if(arg->stack_clone_used)
         my_context->stack_clone_used = 0;
     free(arg);
@@ -2708,9 +2707,6 @@ static int clone_fn(void* p)
 
 EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args, void* parent, void* tls, void* child)
 {
-    x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack, 0, 0);
-    SetupX64Emu(newemu);
-    CloneEmu(newemu, emu);
     void* mystack = NULL;
     clone_arg_t* arg = (clone_arg_t*)calloc(1, sizeof(clone_arg_t));
     if(my_context->stack_clone_used) {
@@ -2722,7 +2718,7 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
         my_context->stack_clone_used = 1;
         arg->stack_clone_used = 1;
     }
-    arg->emu = newemu;
+    arg->stack = (uintptr_t)stack &~7LL;
     arg->args = args;
     arg->fnc = (uintptr_t)fn;
     // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
