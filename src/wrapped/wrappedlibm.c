@@ -74,6 +74,8 @@ F1F(log2f)
 F1D(log2)
 F1F(logf)
 F1D(log)
+F2F(fmodf)
+F2D(fmod)
 
 #undef F2D
 #undef F2F

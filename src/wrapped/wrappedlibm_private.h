@@ -230,8 +230,8 @@ GOW(fminf, fFff)
 // fminl    // Weak
 GOW(fmod, dFdd)
 GOW(fmodf, fFff)
-// __fmodf_finite
-// __fmod_finite
+GOM(__fmodf_finite, fFff)
+GOM(__fmod_finite, dFdd)
 #ifdef HAVE_LD80BITS
 GOW(fmodl, DFDD)
 #else

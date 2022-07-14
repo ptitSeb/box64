@@ -47,9 +47,11 @@ typedef double (*dFdd_t)(double, double);
 	GO(__sinh_finite, dFd_t) \
 	GO(__sqrt_finite, dFd_t) \
 	GO(__atan2f_finite, fFff_t) \
+	GO(__fmodf_finite, fFff_t) \
 	GO(__hypotf_finite, fFff_t) \
 	GO(__powf_finite, fFff_t) \
 	GO(__atan2_finite, dFdd_t) \
+	GO(__fmod_finite, dFdd_t) \
 	GO(__hypot_finite, dFdd_t) \
 	GO(__pow_finite, dFdd_t)
 

@@ -3030,10 +3030,12 @@ wrappedlibm:
   - __sqrt_finite
 - fFff:
   - __atan2f_finite
+  - __fmodf_finite
   - __hypotf_finite
   - __powf_finite
 - dFdd:
   - __atan2_finite
+  - __fmod_finite
   - __hypot_finite
   - __pow_finite
 wrappedlibncurses:
