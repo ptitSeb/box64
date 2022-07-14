@@ -3,7 +3,7 @@
 #endif
 
 GO(FT_Activate_Size, iFp)
-//GO(FT_Add_Default_Modules, 
+GO(FT_Add_Default_Modules, vFp)
 //GO(FT_Add_Module, 
 GO(FT_Angle_Diff, lFll)
 GO(FT_Atan2, lFll)
@@ -107,7 +107,7 @@ GO(FT_Matrix_Multiply, vFpp)
 GO(FT_MulDiv, lFlll)
 GO(FT_MulFix, lFll)
 GO(FT_New_Face, iFpplp)
-GO(FT_New_Library, iFpp)
+GOM(FT_New_Library, iFEpp)
 GO(FT_New_Memory_Face, iFppllp)
 GO(FT_New_Size, iFpp)
 GOM(FT_Open_Face, iFEpplp)

@@ -2223,6 +2223,8 @@ wrappedfontconfig:
 - pFpA:
   - FcObjectSetVaBuild
 wrappedfreetype:
+- iFpp:
+  - FT_New_Library
 - iFpplp:
   - FT_Open_Face
 - iFpuuLppp:

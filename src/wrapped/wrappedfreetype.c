@@ -109,12 +109,17 @@ typedef struct  FT_FaceRec_s
     void*           internal;
 } FT_FaceRec_t;
 
-typedef int (*iFpplp_t)     (void*, void*, long, void*);
-typedef int (*iFpuuLppp_t)  (void*, uint32_t, uint32_t, uintptr_t, void*, void*, void*);
+typedef struct  FT_MemoryRec_s
+{
+    void*           user;
+    void*           alloc;
+    void*           free;
+    void*           realloc;
+} FT_MemoryRec_t;
 
-#define SUPER() \
-    GO(FT_Open_Face, iFpplp_t)      \
-    GO(FTC_Manager_New, iFpuuLppp_t)
+#define ADDED_FUNCTIONS()                   \
+
+#include "generated/wrappedfreetypetypes.h"
 
 #include "wrappercallback.h"
 
@@ -177,7 +182,103 @@ static void* find_FTC_Face_Requester_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libfreetype FTC_Face_Requester callback\n");
     return NULL;
 }
+// FT_Alloc
+#define GO(A)   \
+static uintptr_t my_FT_Alloc_fct_##A = 0;                                       \
+static void* my_FT_Alloc_##A(void* memory, long size)                           \
+{                                                                               \
+    return (void*)RunFunction(my_context, my_FT_Alloc_fct_##A, 2, memory, size);\
+}
+SUPER()
+#undef GO
+static void* find_FT_Alloc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Alloc_fct_##A == (uintptr_t)fct) return my_FT_Alloc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Alloc_fct_##A == 0) {my_FT_Alloc_fct_##A = (uintptr_t)fct; return my_FT_Alloc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Alloc callback\n");
+    return NULL;
+}
+// FT_Free
+#define GO(A)   \
+static uintptr_t my_FT_Free_fct_##A = 0;                        \
+static void my_FT_Free_##A(void* memory, void* p)               \
+{                                                               \
+    RunFunction(my_context, my_FT_Free_fct_##A, 2, memory, p);  \
+}
+SUPER()
+#undef GO
+static void* find_FT_Free_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Free_fct_##A == (uintptr_t)fct) return my_FT_Free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Free_fct_##A == 0) {my_FT_Free_fct_##A = (uintptr_t)fct; return my_FT_Free_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Free callback\n");
+    return NULL;
+}
+// FT_Realloc
+#define GO(A)   \
+static uintptr_t my_FT_Realloc_fct_##A = 0;                                                 \
+static void* my_FT_Realloc_##A(void* memory, long cur, long size, void* p)                  \
+{                                                                                           \
+    return (void*)RunFunction(my_context, my_FT_Realloc_fct_##A, 4, memory, cur, size, p);  \
+}
+SUPER()
+#undef GO
+static void* find_FT_Realloc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Realloc_fct_##A == (uintptr_t)fct) return my_FT_Realloc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Realloc_fct_##A == 0) {my_FT_Realloc_fct_##A = (uintptr_t)fct; return my_FT_Realloc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Realloc callback\n");
+    return NULL;
+}
 
+// structures
+#define GO(A)   \
+static FT_MemoryRec_t my_FT_MemoryRec_struct_##A = {0}; \
+static FT_MemoryRec_t* my_FT_MemoryRec_ref_##A = NULL;
+SUPER()
+#undef GO
+static void wrap_FT_MemoryRec(FT_MemoryRec_t* dst, FT_MemoryRec_t* src) {
+    dst->user = src->user;
+    dst->alloc = find_FT_Alloc_Fct(src->alloc);
+    dst->free = find_FT_Free_Fct(src->free);
+    dst->realloc = find_FT_Realloc_Fct(src->realloc);
+}
+static FT_MemoryRec_t* find_FT_MemoryRec_Struct(FT_MemoryRec_t* s)
+{
+    if(!s)  return NULL;
+    #define GO(A) if(my_FT_MemoryRec_ref_##A == s) return &my_FT_MemoryRec_struct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(!my_FT_MemoryRec_ref_##A) {wrap_FT_MemoryRec(&my_FT_MemoryRec_struct_##A, s); my_FT_MemoryRec_ref_##A = s; return &my_FT_MemoryRec_struct_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype Struct FT_MemoryRec wrapping\n");
+    return s;
+}
+
+
+#undef SUPER
 
 static uintptr_t my_iofunc = 0;
 static unsigned long my_FT_Stream_IoFunc(FT_StreamRec_t* stream, unsigned long offset, unsigned char* buffer, unsigned long count )
@@ -215,6 +316,11 @@ EXPORT int my_FTC_Manager_New(x64emu_t* emu, void* l, uint32_t max_faces, uint32
 {
     (void)emu;
     return my->FTC_Manager_New(l, max_faces, max_sizes, max_bytes, find_FTC_Face_Requester_Fct(req), data, aman);
+}
+
+EXPORT int my_FT_New_Library(x64emu_t* emu, FT_MemoryRec_t* memory, void* p)
+{
+    return my->FT_New_Library(find_FT_MemoryRec_Struct(memory), p);
 }
 
 #define CUSTOM_INIT \
