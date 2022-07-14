@@ -759,7 +759,7 @@ void LoadEnvVars(box64context_t *context)
         char* p = getenv("BOX64_ENV");
         if(p)
             addNewEnvVar(p);
-        int i = 0;
+        int i = 1;
         char box64_env[50];
         do {
             sprintf(box64_env, "BOX64_ENV%d", i);
