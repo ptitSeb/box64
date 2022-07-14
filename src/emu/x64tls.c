@@ -188,7 +188,8 @@ static int sizeDTS(box64context_t* context)
 }
 static int sizeTLSData(int s)
 {
-    return (s+0x1fff)&~0x1fff;
+    uint32_t mask = box64_nogtk?0xffff:0x1fff;
+    return (s+mask)&~mask;
 }
 
 static tlsdatasize_t* setupTLSData(box64context_t* context)
