@@ -128,10 +128,10 @@ GO(FcNameConstant, iFpp)
 //GO(FcNameUnregisterConstants, 
 //GO(FcNameUnregisterObjectTypes, 
 GO(FcObjectSetAdd, iFpp)
-//GO2(FcObjectSetBuild, pFpV, FcObjectSetVaBuild)
+GOM(FcObjectSetBuild, pFEpV)
 GO(FcObjectSetCreate, pFv)
 GO(FcObjectSetDestroy, vFp)
-GO(FcObjectSetVaBuild, pFpp)
+GOM(FcObjectSetVaBuild, pFEpA)
 GO(FcPatternAdd, iFppiLi)  // FcValue is a typedef with int+union, with biggest part is a double => so 1 int and 1"L"
 GO(FcPatternAddBool, iFppi)
 GO(FcPatternAddCharSet, iFppp)

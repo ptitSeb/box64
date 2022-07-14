@@ -2218,6 +2218,10 @@ wrappedflac:
 - iFppppppppp:
   - FLAC__stream_decoder_init_stream
 wrappedfontconfig:
+- pFpV:
+  - FcObjectSetBuild
+- pFpA:
+  - FcObjectSetVaBuild
 wrappedfreetype:
 - iFpplp:
   - FT_Open_Face

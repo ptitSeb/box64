@@ -11,7 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFpV_t)(void*, ...);
+typedef void* (*pFpA_t)(void*, va_list);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(FcObjectSetBuild, pFpV_t) \
+	GO(FcObjectSetVaBuild, pFpA_t)
 
 #endif // __wrappedfontconfigTYPES_H_

@@ -107,7 +107,7 @@ GO(FT_Matrix_Multiply, vFpp)
 GO(FT_MulDiv, lFlll)
 GO(FT_MulFix, lFll)
 GO(FT_New_Face, iFpplp)
-//GO(FT_New_Library, 
+GO(FT_New_Library, iFpp)
 GO(FT_New_Memory_Face, iFppllp)
 GO(FT_New_Size, iFpp)
 GOM(FT_Open_Face, iFEpplp)
