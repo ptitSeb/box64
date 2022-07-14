@@ -2,6 +2,41 @@
 #error meh!
 #endif
 
+//vkDeviceSize == uint64_t
+//VkImageLayout == enum
+//VK_DEFINE_NON_DISPATCHABLE_HANDLE == uint64_t
+// VkAccelerationStructureNV  = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkBuffer = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkBufferView = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkCommandPool = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkDeferredOperationKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkDescriptorPool = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkDescriptorSet = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkDescriptorSetLayout = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkDescriptorUpdateTemplate = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkDeviceMemory = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkDisplayKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkDisplayModeKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkEvent = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkFence = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkFramebuffer = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkImage = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkImageView = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkPipeline = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkPipelineCache = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkPipelineLayout = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkQueryPool = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkRenderPass = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkSampler = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkSamplerYcbcrConversion = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkSemaphore = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkShaderModule = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkSurfaceKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkSwapchainKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// VkPrivateDataSlot = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+
+// VkDeviceAddress = uint64_t
+
 // VK_VERSION_1_0
 GO(vkAllocateCommandBuffers, iFppp)
 GO(vkAllocateDescriptorSets, iFppp)
@@ -176,9 +211,44 @@ GO(vkResetQueryPool, vFpUuu)
 GO(vkCmdBeginRenderPass2, vFppp)
 GO(vkCmdEndRenderPass2, vFpp)
 GO(vkCmdNextSubpass2, vFppp)
-GOM(vkCreateRenderPass2, iFEpppp)
 GO(vkCmdDrawIndexedIndirectCount, vFpUUUUuu)
 GO(vkCmdDrawIndirectCount, vFpUUUUuu)
+GOM(vkCreateRenderPass2, iFEpppp)
+GO(vkGetBufferDeviceAddress, UFpp)
+GO(vkGetBufferOpaqueCaptureAddress, UFpp)
+GO(vkGetDeviceMemoryOpaqueCaptureAddress, UFpp)
+GO(vkGetSemaphoreCounterValue, iFpUp)
+GO(vkSignalSemaphore, iFpp)
+GO(vkWaitSemaphores, iFppU)
+
+// VK_VERSION_1_3
+GO(vkCmdBeginRendering, vFpp)
+GO(vkCmdEndRendering, vFp)
+GO(vkCmdBlitImage2, vFpp)
+GO(vkCmdCopyBuffer2, vFpp)
+GO(vkCmdCopyBufferToImage2, vFpp)
+GO(vkCmdCopyImage2, vFpp)
+GO(vkCmdCopyImageToBuffer2, vFpp)
+GO(vkCmdResolveImage2, vFpp)
+GO(vkCmdSetDepthBiasEnable, vFpi)
+GO(vkCmdSetLogicOp, vFpi)
+GO(vkCmdSetPatchControlPoints, vFpu)
+GO(vkCmdSetPrimitiveRestartEnable, vFpi)
+GO(vkCmdSetRasterizerDiscardEnable, vFpi)
+GOM(vkCreatePrivateDataSlot, iFEpppp)
+GOM(vkDestroyPrivateDataSlot, vFEpUp)
+GO(vkGetPrivateData, vFpiUUp)
+GO(vkSetPrivateData, iFpiUUU)
+GO(vkGetDeviceBufferMemoryRequirements, vFppp)
+GO(vkGetDeviceImageMemoryRequirements, vFppp)
+GO(vkGetDeviceImageSparseMemoryRequirements, vFpppp)
+GO(vkCmdPipelineBarrier2, vFpp)
+GO(vkCmdResetEvent2, vFpUU)
+GO(vkCmdSetEvent2, vFpUp)
+GO(vkCmdWaitEvents2, vFpupp)
+GO(vkCmdWriteTimestamp2, vFpUUu)
+GO(vkQueueSubmit2, iFpupU)
+
 
 // VK_EXT_debug_report
 GOM(vkCreateDebugReportCallbackEXT, iFEpppp)
@@ -482,3 +552,197 @@ GO(vkCmdSetExclusiveScissorNV, vFpuup)
 GO(vkCmdBindShadingRateImageNV, vFpUi)
 GO(vkCmdSetCoarseSampleOrderNV, vFpiup)
 GO(vkCmdSetViewportShadingRatePaletteNV, vFpuup)
+
+// VK_KHR_video_queue
+GO(vkBindVideoSessionMemoryKHR, iFpUup)
+GO(vkCmdBeginVideoCodingKHR, vFpp)
+GO(vkCmdControlVideoCodingKHR, vFpp)
+GO(vkCmdEndVideoCodingKHR, vFpp)
+GOM(vkCreateVideoSessionKHR, iFEpppp)
+GOM(vkCreateVideoSessionParametersKHR, iFEpppp)
+GOM(vkDestroyVideoSessionKHR, vFEpUp)
+GOM(vkDestroyVideoSessionParametersKHR, vFEpUp)
+GO(vkGetPhysicalDeviceVideoCapabilitiesKHR, iFppp)
+GO(vkGetPhysicalDeviceVideoFormatPropertiesKHR, iFpppp)
+GO(vkGetVideoSessionMemoryRequirementsKHR, iFpppp)
+GO(vkUpdateVideoSessionParametersKHR, iFpUp)
+
+// VK_KHR_buffer_device_address
+GO(vkGetBufferDeviceAddressKHR, UFpp)
+GO(vkGetBufferOpaqueCaptureAddressKHR, UFpp)
+GO(vkGetDeviceMemoryOpaqueCaptureAddressKHR, UFpp)
+
+// VK_EXT_buffer_device_address
+GO(vkGetBufferDeviceAddressEXT, UFpp)
+
+// VK_KHR_timeline_semaphore
+GO(vkGetSemaphoreCounterValueKHR, iFpUp)
+GO(vkSignalSemaphoreKHR, iFpp)
+GO(vkWaitSemaphoresKHR, iFppU)
+
+// VK_AMD_display_native_hdr
+GO(vkSetLocalDimmingAMD, vFpUi)
+
+// VK_EXT_color_write_enable
+GO(vkCmdSetColorWriteEnableEXT, vFpup)
+
+// VK_EXT_extended_dynamic_state2
+GO(vkCmdSetDepthBiasEnableEXT, vFpi)
+GO(vkCmdSetLogicOpEXT, vFpi)
+GO(vkCmdSetPatchControlPointsEXT, vFpu)
+GO(vkCmdSetPrimitiveRestartEnableEXT, vFpi)
+GO(vkCmdSetRasterizerDiscardEnableEXT, vFpi)
+
+// VK_EXT_image_drm_format_modifier
+GO(vkGetImageDrmFormatModifierPropertiesEXT, iFpUp)
+
+// VK_EXT_line_rasterization
+GO(vkCmdSetLineStippleEXT, vFpuW)
+
+// VK_EXT_multi_draw
+GO(vkCmdDrawMultiEXT, vFpupuuu)
+GO(vkCmdDrawMultiIndexedEXT, vFpupuuup)
+
+// VK_EXT_pageable_device_local_memory
+GO(vkSetDeviceMemoryPriorityEXT, vFpUf)
+
+// VK_EXT_private_data
+GOM(vkCreatePrivateDataSlotEXT, iFEpppp)
+GOM(vkDestroyPrivateDataSlotEXT, vFEpUp)
+GO(vkGetPrivateDataEXT, vFpiUUp)
+GO(vkSetPrivateDataEXT, iFpiUUU)
+
+// VK_EXT_vertex_input_dynamic_state
+GO(vkCmdSetVertexInputEXT, vFpupup)
+
+// VK_HUAWEI_invocation_mask
+GO(vkCmdBindInvocationMaskHUAWEI, vFpUi)
+
+// VK_HUAWEI_subpass_shading
+GO(vkCmdSubpassShadingHUAWEI, vFp)
+GO(vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI, iFpUp)
+
+// VK_INTEL_performance_query
+GO(vkAcquirePerformanceConfigurationINTEL, iFppp)
+GO(vkCmdSetPerformanceMarkerINTEL, iFpp)
+GO(vkCmdSetPerformanceOverrideINTEL, iFpp)
+GO(vkCmdSetPerformanceStreamMarkerINTEL, iFpp)
+GO(vkGetPerformanceParameterINTEL, iFpip)
+GO(vkInitializePerformanceApiINTEL, iFpp)
+GO(vkQueueSetPerformanceConfigurationINTEL, iFpp)
+GO(vkReleasePerformanceConfigurationINTEL, iFpU)
+GO(vkUninitializePerformanceApiINTEL, vFp)
+
+// VK_KHR_acceleration_structure
+GO(vkBuildAccelerationStructuresKHR, iFpUupp)
+GO(vkCmdBuildAccelerationStructuresIndirectKHR, vFpupppp)
+GO(vkCmdBuildAccelerationStructuresKHR, vFpupp)
+GO(vkCmdCopyAccelerationStructureKHR, vFpp)
+GO(vkCmdCopyAccelerationStructureToMemoryKHR, vFpp)
+GO(vkCmdCopyMemoryToAccelerationStructureKHR, vFpp)
+GO(vkCmdWriteAccelerationStructuresPropertiesKHR, vFpupiUu)
+GO(vkCopyAccelerationStructureKHR, iFpUp)
+GO(vkCopyAccelerationStructureToMemoryKHR, iFpUp)
+GO(vkCopyMemoryToAccelerationStructureKHR, iFpUp)
+GOM(vkCreateAccelerationStructureKHR, iFEpppp)
+GOM(vkDestroyAccelerationStructureKHR, vFEpUp)
+GO(vkGetAccelerationStructureBuildSizesKHR, vFpUppp)
+GO(vkGetAccelerationStructureDeviceAddressKHR, UFpp)
+GO(vkGetDeviceAccelerationStructureCompatibilityKHR, vFppp)
+GO(vkWriteAccelerationStructuresPropertiesKHR, iFpupiLpL)
+
+// VK_KHR_copy_commands2
+GO(vkCmdBlitImage2KHR, vFpp)
+GO(vkCmdCopyBuffer2KHR, vFpp)
+GO(vkCmdCopyBufferToImage2KHR, vFpp)
+GO(vkCmdCopyImage2KHR, vFpp)
+GO(vkCmdCopyImageToBuffer2KHR, vFpp)
+GO(vkCmdResolveImage2KHR, vFpp)
+
+// VK_KHR_deferred_host_operations
+GOM(vkCreateDeferredOperationKHR, iFEppp)
+GO(vkDeferredOperationJoinKHR, iFpU)
+GOM(vkDestroyDeferredOperationKHR, vFEpUp)
+GO(vkGetDeferredOperationMaxConcurrencyKHR, uFpU)
+GO(vkGetDeferredOperationResultKHR, iFpU)
+
+// VK_KHR_dynamic_rendering
+GO(vkCmdBeginRenderingKHR, vFpp)
+GO(vkCmdEndRenderingKHR, vFp)
+
+// VK_KHR_maintenance4
+GO(vkGetDeviceBufferMemoryRequirementsKHR, vFppp)
+GO(vkGetDeviceImageMemoryRequirementsKHR, vFppp)
+GO(vkGetDeviceImageSparseMemoryRequirementsKHR, vFpppp)
+
+// VK_KHR_pipeline_executable_properties
+GO(vkGetPipelineExecutableInternalRepresentationsKHR, iFpppp)
+GO(vkGetPipelineExecutablePropertiesKHR, iFpppp)
+GO(vkGetPipelineExecutableStatisticsKHR, iFpppp)
+
+// VK_KHR_present_wait
+GO(vkWaitForPresentKHR, iFpUUU)
+
+// VK_KHR_ray_tracing_pipeline
+GO(vkCmdSetRayTracingPipelineStackSizeKHR, vFpu)
+GO(vkCmdTraceRaysIndirectKHR, vFpppppU)
+GO(vkCmdTraceRaysKHR, vFpppppuuu)
+GOM(vkCreateRayTracingPipelinesKHR, iFEpUUuppp)
+GO(vkGetRayTracingCaptureReplayShaderGroupHandlesKHR, iFpUuuLp)
+GO(vkGetRayTracingShaderGroupHandlesKHR, iFpUuuLp)
+GO(vkGetRayTracingShaderGroupStackSizeKHR, UFpUui)
+
+// VK_KHR_synchronization2
+GO(vkCmdPipelineBarrier2KHR, vFpp)
+GO(vkCmdResetEvent2KHR, vFpUU)
+GO(vkCmdSetEvent2KHR, vFpUp)
+GO(vkCmdWaitEvents2KHR, vFpupp)
+GO(vkCmdWriteTimestamp2KHR, vFpUUu)
+GO(vkQueueSubmit2KHR, iFpupU)
+GO(vkCmdWriteBufferMarker2AMD, vFpUUUu)
+GO(vkGetQueueCheckpointData2NV, vFppp)
+
+// VK_KHR_video_decode_queue
+GO(vkCmdDecodeVideoKHR, vFpp)
+
+// VK_KHR_video_encode_queue
+GO(vkCmdEncodeVideoKHR, vFpp)
+
+// VK_NVX_binary_import
+GO(vkCmdCuLaunchKernelNVX, vFpp)
+GOM(vkCreateCuFunctionNVX, iFEpppp)
+GOM(vkCreateCuModuleNVX, iFEpppp)
+GOM(vkDestroyCuFunctionNVX, vFEpUp)
+GOM(vkDestroyCuModuleNVX, vFEpUp)
+
+// VK_NVX_image_view_handle
+GO(vkGetImageViewAddressNVX, iFpUp)
+GO(vkGetImageViewHandleNVX, uFpp)
+
+// VK_NV_device_generated_commands
+GO(vkCmdBindPipelineShaderGroupNV, vFpiUu)
+GO(vkCmdExecuteGeneratedCommandsNV, vFpip)
+GO(vkCmdPreprocessGeneratedCommandsNV, vFpp)
+GOM(vkCreateIndirectCommandsLayoutNV, iFEpppp)
+GOM(vkDestroyIndirectCommandsLayoutNV, vFEpUp)
+GO(vkGetGeneratedCommandsMemoryRequirementsNV, vFppp)
+
+// VK_NV_external_memory_rdma
+GO(vkGetMemoryRemoteAddressNV, iFppp)
+
+// VK_NV_fragment_shading_rate_enums
+GO(vkCmdSetFragmentShadingRateEnumNV, vFpip)
+
+// VK_NV_ray_tracing
+GO(vkBindAccelerationStructureMemoryNV, iFpup)
+GO(vkCmdBuildAccelerationStructureNV, vFppUUiUUUU)
+GO(vkCmdCopyAccelerationStructureNV, vFpUUi)
+GO(vkCmdTraceRaysNV, vFpUUUUUUUUUUUuuu)
+GO(vkCmdWriteAccelerationStructuresPropertiesNV, vFpupiUu)
+GO(vkCompileDeferredNV, iFpUu)
+GOM(vkCreateAccelerationStructureNV, iFEpppp)
+GOM(vkCreateRayTracingPipelinesNV, iFEpUuppp)
+GOM(vkDestroyAccelerationStructureNV, vFEpUp)
+GO(vkGetAccelerationStructureHandleNV, iFpULp)
+GO(vkGetAccelerationStructureMemoryRequirementsNV, vFppp)
+GO(vkGetRayTracingShaderGroupHandlesNV, iFpUuuLp)

@@ -308,11 +308,13 @@
 #() vFpip
 #() vFpui
 #() vFpuI
+#() vFpuW
 #() vFpuu
 #() vFpup
 #() vFpUi
 #() vFpUu
 #() vFpUU
+#() vFpUf
 #() vFpUp
 #() vFpff
 #() vFpdd
@@ -388,6 +390,7 @@
 #() iFpuL
 #() iFpup
 #() iFpUi
+#() iFpUu
 #() iFpUU
 #() iFpUp
 #() iFpfu
@@ -405,6 +408,7 @@
 #() iFppC
 #() iFppW
 #() iFppu
+#() iFppU
 #() iFppd
 #() iFppl
 #() iFppL
@@ -646,6 +650,7 @@
 #() vFpUuu
 #() vFpUup
 #() vFpUUi
+#() vFpUUu
 #() vFpUUp
 #() vFpUpp
 #() vFpfff
@@ -770,6 +775,7 @@
 #() iFpupV
 #() iFpUup
 #() iFpUUU
+#() iFpULp
 #() iFpUpp
 #() iFplii
 #() iFplip
@@ -830,6 +836,7 @@
 #() uFpppu
 #() uFpppp
 #() UFpipp
+#() UFpUui
 #() UFppii
 #() UFppip
 #() UFpppp
@@ -1029,6 +1036,7 @@
 #() vFpiipp
 #() vFpiIiI
 #() vFpiIII
+#() vFpiUUp
 #() vFpipii
 #() vFpipiu
 #() vFpuiip
@@ -1044,6 +1052,7 @@
 #() vFpUUup
 #() vFpUUUu
 #() vFpUUUp
+#() vFpUppp
 #() vFpffff
 #() vFpdiII
 #() vFpddii
@@ -1125,6 +1134,7 @@
 #() iFpiipp
 #() iFpiIip
 #() iFpiuwp
+#() iFpiUUU
 #() iFpipii
 #() iFpipiL
 #() iFpipip
@@ -1141,6 +1151,7 @@
 #() iFpuupp
 #() iFpupiU
 #() iFpuppp
+#() iFpUupp
 #() iFplluu
 #() iFpLiLi
 #() iFpLlpp
@@ -1340,6 +1351,7 @@
 #() vFpuuuiu
 #() vFpuuppp
 #() vFpudddd
+#() vFpupiUu
 #() vFpupuuu
 #() vFpupppp
 #() vFpUiuup
@@ -1372,6 +1384,7 @@
 #() vFppppii
 #() vFpppppi
 #() vFpppppu
+#() vFpppppU
 #() vFpppppL
 #() vFpppppp
 #() cFppLppi
@@ -1416,6 +1429,7 @@
 #() iFpuiCpp
 #() iFpuippp
 #() iFpupuui
+#() iFpUuuLp
 #() iFpUuupp
 #() iFpUUUip
 #() iFpUUUUp
@@ -1576,6 +1590,7 @@
 #() vFpuuuuuu
 #() vFpuuUUuu
 #() vFpuupppp
+#() vFpupuuup
 #() vFpUiUiup
 #() vFpUUUUuu
 #() vFpddiidd
@@ -1631,6 +1646,7 @@
 #() iFpuiCuCp
 #() iFpuuiuui
 #() iFpuupppp
+#() iFpupiLpL
 #() iFpupuuui
 #() iFpupupui
 #() iFpuppppp
@@ -1761,9 +1777,11 @@
 #() vFpplppppi
 #() vFpplppppp
 #() vFppppiipi
+#() vFpppppuuu
 #() vFpppppppp
 #() iFEpippppp
 #() iFEpuuLppp
+#() iFEpUUuppp
 #() iFEppipppp
 #() iFEppppipp
 #() iFiiiiiiip
@@ -1865,6 +1883,7 @@
 #() vFppipppiii
 #() vFppipppiip
 #() vFppuuiiiii
+#() vFppUUiUUUU
 #() vFpplpppppi
 #() vFpppiiiiii
 #() vFppppipiip
@@ -2052,6 +2071,7 @@
 #() iFpipppppppppppp
 #() vFuuiiiiuuiiiiiii
 #() vFfffffffffffffff
+#() vFpUUUUUUUUUUUuuu
 #() vFpppippppppppppp
 #() vFppppppppppppppp
 #() pFpuiippppppppppp
@@ -3806,9 +3826,14 @@ wrappedvulkan:
   - vkGetDeviceProcAddr
   - vkGetInstanceProcAddr
 - vFpUp:
+  - vkDestroyAccelerationStructureKHR
+  - vkDestroyAccelerationStructureNV
   - vkDestroyBuffer
   - vkDestroyBufferView
   - vkDestroyCommandPool
+  - vkDestroyCuFunctionNVX
+  - vkDestroyCuModuleNVX
+  - vkDestroyDeferredOperationKHR
   - vkDestroyDescriptorPool
   - vkDestroyDescriptorSetLayout
   - vkDestroyDescriptorUpdateTemplate
@@ -3818,9 +3843,12 @@ wrappedvulkan:
   - vkDestroyFramebuffer
   - vkDestroyImage
   - vkDestroyImageView
+  - vkDestroyIndirectCommandsLayoutNV
   - vkDestroyPipeline
   - vkDestroyPipelineCache
   - vkDestroyPipelineLayout
+  - vkDestroyPrivateDataSlot
+  - vkDestroyPrivateDataSlotEXT
   - vkDestroyQueryPool
   - vkDestroyRenderPass
   - vkDestroySampler
@@ -3830,11 +3858,14 @@ wrappedvulkan:
   - vkDestroySurfaceKHR
   - vkDestroySwapchainKHR
   - vkDestroyValidationCacheEXT
+  - vkDestroyVideoSessionKHR
+  - vkDestroyVideoSessionParametersKHR
 - vFppp:
   - vkDestroyDebugUtilsMessengerEXT
 - iFpUp:
   - vkFreeMemory
 - iFppp:
+  - vkCreateDeferredOperationKHR
   - vkCreateInstance
   - vkDestroyDebugReportCallbackEXT
   - vkGetPhysicalDeviceDisplayPropertiesKHR
@@ -3842,9 +3873,13 @@ wrappedvulkan:
   - vkGetDisplayPlaneCapabilitiesKHR
 - iFpppp:
   - vkAllocateMemory
+  - vkCreateAccelerationStructureKHR
+  - vkCreateAccelerationStructureNV
   - vkCreateBuffer
   - vkCreateBufferView
   - vkCreateCommandPool
+  - vkCreateCuFunctionNVX
+  - vkCreateCuModuleNVX
   - vkCreateDebugReportCallbackEXT
   - vkCreateDebugUtilsMessengerEXT
   - vkCreateDescriptorPool
@@ -3859,8 +3894,11 @@ wrappedvulkan:
   - vkCreateHeadlessSurfaceEXT
   - vkCreateImage
   - vkCreateImageView
+  - vkCreateIndirectCommandsLayoutNV
   - vkCreatePipelineCache
   - vkCreatePipelineLayout
+  - vkCreatePrivateDataSlot
+  - vkCreatePrivateDataSlotEXT
   - vkCreateQueryPool
   - vkCreateRenderPass
   - vkCreateRenderPass2
@@ -3872,6 +3910,8 @@ wrappedvulkan:
   - vkCreateShaderModule
   - vkCreateSwapchainKHR
   - vkCreateValidationCacheEXT
+  - vkCreateVideoSessionKHR
+  - vkCreateVideoSessionParametersKHR
   - vkCreateWaylandSurfaceKHR
   - vkCreateXcbSurfaceKHR
   - vkCreateXlibSurfaceKHR
@@ -3886,6 +3926,9 @@ wrappedvulkan:
 - iFpUuppp:
   - vkCreateComputePipelines
   - vkCreateGraphicsPipelines
+  - vkCreateRayTracingPipelinesNV
+- iFpUUuppp:
+  - vkCreateRayTracingPipelinesKHR
 - vFpiiiiipp:
   - vkGetPhysicalDeviceSparseImageFormatProperties
 - vFpiiiupupup:

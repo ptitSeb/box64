@@ -508,6 +508,48 @@ DESTROY64(vkDestroySamplerYcbcrConversionKHR)
 
 DESTROY64(vkDestroyValidationCacheEXT)
 
+CREATE(vkCreateVideoSessionKHR)
+CREATE(vkCreateVideoSessionParametersKHR)
+DESTROY64(vkDestroyVideoSessionKHR)
+DESTROY64(vkDestroyVideoSessionParametersKHR)
+
+CREATE(vkCreatePrivateDataSlot)
+CREATE(vkCreatePrivateDataSlotEXT)
+DESTROY64(vkDestroyPrivateDataSlot)
+DESTROY64(vkDestroyPrivateDataSlotEXT)
+
+CREATE(vkCreateAccelerationStructureKHR)
+DESTROY64(vkDestroyAccelerationStructureKHR)
+
+EXPORT int my_vkCreateDeferredOperationKHR(x64emu_t* emu, void* device, my_VkAllocationCallbacks_t* pAllocator, void* p)
+{
+    my_VkAllocationCallbacks_t my_alloc;
+    return my->vkCreateDeferredOperationKHR(device, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
+}
+DESTROY64(vkDestroyDeferredOperationKHR)
+
+EXPORT int my_vkCreateRayTracingPipelinesKHR(x64emu_t* emu, void* device, uint64_t op, uint64_t pipeline, uint32_t count, void* infos, my_VkAllocationCallbacks_t* pAllocator, void* p)
+{
+    my_VkAllocationCallbacks_t my_alloc;
+    return my->vkCreateRayTracingPipelinesKHR(device, op, pipeline, count, infos, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
+}
+
+CREATE(vkCreateCuFunctionNVX)
+CREATE(vkCreateCuModuleNVX)
+DESTROY64(vkDestroyCuFunctionNVX)
+DESTROY64(vkDestroyCuModuleNVX)
+
+CREATE(vkCreateIndirectCommandsLayoutNV)
+DESTROY64(vkDestroyIndirectCommandsLayoutNV)
+
+CREATE(vkCreateAccelerationStructureNV)
+EXPORT int my_vkCreateRayTracingPipelinesNV(x64emu_t* emu, void* device, uint64_t pipeline, uint32_t count, void* infos, my_VkAllocationCallbacks_t* pAllocator, void* p)
+{
+    my_VkAllocationCallbacks_t my_alloc;
+    return my->vkCreateRayTracingPipelinesNV(device, pipeline, count, infos, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
+}
+DESTROY64(vkDestroyAccelerationStructureNV)
+
 EXPORT void my_vkGetPhysicalDeviceProperties(x64emu_t* emu, void* device, void* pProps)
 {
     my->vkGetPhysicalDeviceProperties(device, pProps);
