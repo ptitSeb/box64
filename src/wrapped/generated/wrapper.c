@@ -1440,6 +1440,7 @@ typedef int64_t (*iFipiipi_t)(int64_t, void*, int64_t, int64_t, void*, int64_t);
 typedef int64_t (*iFipuufp_t)(int64_t, void*, uint64_t, uint64_t, float, void*);
 typedef int64_t (*iFipupup_t)(int64_t, void*, uint64_t, void*, uint64_t, void*);
 typedef int64_t (*iFipuppp_t)(int64_t, void*, uint64_t, void*, void*, void*);
+typedef int64_t (*iFippppp_t)(int64_t, void*, void*, void*, void*, void*);
 typedef int64_t (*iFuppppp_t)(uint64_t, void*, void*, void*, void*, void*);
 typedef int64_t (*iFdipppL_t)(double, int64_t, void*, void*, void*, uintptr_t);
 typedef int64_t (*iFDipppL_t)(long double, int64_t, void*, void*, void*, uintptr_t);
@@ -3560,6 +3561,7 @@ void iFipiipi(x64emu_t *emu, uintptr_t fcn) { iFipiipi_t fn = (iFipiipi_t)fcn; R
 void iFipuufp(x64emu_t *emu, uintptr_t fcn) { iFipuufp_t fn = (iFipuufp_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, (uint64_t)R_RDX, (uint64_t)R_RCX, emu->xmm[0].f[0], (void*)R_R8); }
 void iFipupup(x64emu_t *emu, uintptr_t fcn) { iFipupup_t fn = (iFipupup_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, (uint64_t)R_RDX, (void*)R_RCX, (uint64_t)R_R8, (void*)R_R9); }
 void iFipuppp(x64emu_t *emu, uintptr_t fcn) { iFipuppp_t fn = (iFipuppp_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, (uint64_t)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
+void iFippppp(x64emu_t *emu, uintptr_t fcn) { iFippppp_t fn = (iFippppp_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
 void iFuppppp(x64emu_t *emu, uintptr_t fcn) { iFuppppp_t fn = (iFuppppp_t)fcn; R_RAX=(int64_t)fn((uint64_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
 void iFdipppL(x64emu_t *emu, uintptr_t fcn) { iFdipppL_t fn = (iFdipppL_t)fcn; R_RAX=(int64_t)fn(emu->xmm[0].d[0], (int64_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (uintptr_t)R_R8); }
 void iFDipppL(x64emu_t *emu, uintptr_t fcn) { iFDipppL_t fn = (iFDipppL_t)fcn; R_RAX=(int64_t)fn(LD2localLD((void*)(R_RSP + 8)), (int64_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (uintptr_t)R_R8); }
@@ -5477,6 +5479,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFipuufp) return 2;
 	if (fun == &iFipupup) return 1;
 	if (fun == &iFipuppp) return 1;
+	if (fun == &iFippppp) return 1;
 	if (fun == &iFuppppp) return 1;
 	if (fun == &iFdipppL) return 2;
 	if (fun == &iFlpippp) return 1;

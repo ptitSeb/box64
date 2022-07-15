@@ -1378,7 +1378,7 @@ GOW(profil, iFpLLu)
 //GO(__profile_frequency, 
 DATA(__progname, sizeof(void*))
 DATA(__progname_full, sizeof(void))
-//GOW(pselect, iFi!!!p!)
+GOW(pselect, iFippppp)
 //GO(psiginfo, vF!p)
 GO(psignal, vFip)
 //GO(pthread_attr_destroy, 
