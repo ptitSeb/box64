@@ -3983,6 +3983,7 @@ wrappedxml2:
   - xmlHashUpdateEntry3
 - pFpppppi:
   - xmlCreateIOParserCtxt
+wrappedxshmfence:
 wrappedxslt:
 - vFp:
   - xsltSetLoaderFunc
