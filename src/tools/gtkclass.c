@@ -17,6 +17,8 @@
 #include "custommem.h"
 #include "khash.h"
 
+int is_gtk3 = 0;
+
 static bridge_t*        my_bridge           = NULL;
 static const char* (*g_type_name)(size_t)   = NULL;
 #define GTKCLASS(A) static size_t my_##A    = (size_t)-1;
@@ -132,8 +134,8 @@ WRAPPER(GObject, set_property, void, (void* object, uint32_t property_id, void* 
 WRAPPER(GObject, get_property, void, (void* object, uint32_t property_id, void* value, void* pspec), 4, object, property_id, value, pspec);
 WRAPPER(GObject, dispose, void, (void* object), 1, object);
 WRAPPER(GObject, finalize, void, (void* object), 1, object);
-WRAPPER(GObject, dispatch_properties_changed, void*, (int type, uint32_t n_pspecs, void* pspecs), 3, type, n_pspecs, pspecs);
-WRAPPER(GObject, notify, void*, (int type, void* pspecs), 2, type, pspecs);
+WRAPPER(GObject, dispatch_properties_changed, void*, (size_t type, uint32_t n_pspecs, void* pspecs), 3, type, n_pspecs, pspecs);
+WRAPPER(GObject, notify, void*, (size_t type, void* pspecs), 2, type, pspecs);
 WRAPPER(GObject, constructed, void, (void* object), 1, object);
 
 #define SUPERGO() \
@@ -142,7 +144,7 @@ WRAPPER(GObject, constructed, void, (void* object), 1, object);
     GO(get_property, vFpupp);               \
     GO(dispose, vFp);                       \
     GO(finalize, vFp);                      \
-    GO(dispatch_properties_changed, vFpup); \
+    GO(dispatch_properties_changed, vFLup); \
     GO(notify, vFpp);                       \
     GO(constructed, vFp);
 
@@ -164,6 +166,50 @@ static void unwrapGObjectClass(my_GObjectClass_t* class)
 static void bridgeGObjectClass(my_GObjectClass_t* class)
 {
     #define GO(A, W) autobridge_##A##_GObject (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+
+// ----- GInitiallyUnownedClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GInitiallyUnowned, constructor, void*, (size_t type, uint32_t n_construct_properties, void* construct_properties), 3, type, n_construct_properties, construct_properties);
+WRAPPER(GInitiallyUnowned, set_property, void, (void* object, uint32_t property_id, void* value, void* pspec), 4, object, property_id, value, pspec);
+WRAPPER(GInitiallyUnowned, get_property, void, (void* object, uint32_t property_id, void* value, void* pspec), 4, object, property_id, value, pspec);
+WRAPPER(GInitiallyUnowned, dispose, void, (void* object), 1, object);
+WRAPPER(GInitiallyUnowned, finalize, void, (void* object), 1, object);
+WRAPPER(GInitiallyUnowned, dispatch_properties_changed, void*, (size_t type, uint32_t n_pspecs, void* pspecs), 3, type, n_pspecs, pspecs);
+WRAPPER(GInitiallyUnowned, notify, void*, (size_t type, void* pspecs), 2, type, pspecs);
+WRAPPER(GInitiallyUnowned, constructed, void, (void* object), 1, object);
+
+#define SUPERGO() \
+    GO(constructor, pFLup);                 \
+    GO(set_property, vFpupp);               \
+    GO(get_property, vFpupp);               \
+    GO(dispose, vFp);                       \
+    GO(finalize, vFp);                      \
+    GO(dispatch_properties_changed, vFLup); \
+    GO(notify, vFLp);                       \
+    GO(constructed, vFp);
+
+// wrap (so bridge all calls, just in case)
+static void wrapGInitiallyUnownedClass(my_GInitiallyUnownedClass_t* class)
+{
+    #define GO(A, W) class->A = reverse_##A##_GInitiallyUnowned (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGInitiallyUnownedClass(my_GInitiallyUnownedClass_t* class)
+{   
+    #define GO(A, W)   class->A = find_##A##_GInitiallyUnowned (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGInitiallyUnownedClass(my_GInitiallyUnownedClass_t* class)
+{
+    #define GO(A, W) autobridge_##A##_GInitiallyUnowned (W, class->A)
     SUPERGO()
     #undef GO
 }
@@ -206,74 +252,74 @@ static void bridgeGtkObjectClass(my_GtkObjectClass_t* class)
 
 #undef SUPERGO
 
-// ----- GtkWidgetClass ------
-// wrapper x64 -> natives of callbacks
-WRAPPER(GtkWidget, dispatch_child_properties_changed, void, (void* widget, uint32_t n_pspecs, void* pspecs), 3, widget, n_pspecs, pspecs);
-WRAPPER(GtkWidget, show,              void, (void* widget), 1, widget);
-WRAPPER(GtkWidget, show_all,          void, (void* widget), 1, widget);
-WRAPPER(GtkWidget, hide,              void, (void* widget), 1, widget);
-WRAPPER(GtkWidget, hide_all,          void, (void* widget), 1, widget);
-WRAPPER(GtkWidget, map,               void, (void* widget), 1, widget);
-WRAPPER(GtkWidget, unmap,             void, (void* widget), 1, widget);
-WRAPPER(GtkWidget, realize,           void, (void* widget), 1, widget);
-WRAPPER(GtkWidget, unrealize,         void, (void* widget), 1, widget);
-WRAPPER(GtkWidget, size_request,      void, (void* widget, void* requisition), 2, widget, requisition);
-WRAPPER(GtkWidget, size_allocate,     void, (void* widget, void* allocation), 2, widget, allocation);
-WRAPPER(GtkWidget, state_changed,     void, (void* widget, int previous_state), 2, widget, previous_state);
-WRAPPER(GtkWidget, parent_set,        void, (void* widget, void* previous_parent), 2, widget, previous_parent);
-WRAPPER(GtkWidget, hierarchy_changed, void, (void* widget, void* previous_toplevel), 2, widget, previous_toplevel);
-WRAPPER(GtkWidget, style_set,         void, (void* widget, void* previous_style), 2, widget, previous_style);
-WRAPPER(GtkWidget, direction_changed, void, (void* widget, int previous_direction), 2, widget, previous_direction);
-WRAPPER(GtkWidget, grab_notify,       void, (void* widget, int was_grabbed), 2, widget, was_grabbed);
-WRAPPER(GtkWidget, child_notify,      void, (void* widget, void* pspec), 2, widget, pspec);
-WRAPPER(GtkWidget, mnemonic_activate, int, (void* widget, int group_cycling), 2, widget, group_cycling);
-WRAPPER(GtkWidget, grab_focus,        void, (void* widget), 1, widget);
-WRAPPER(GtkWidget, focus,             int, (void* widget, int direction), 2, widget, direction);
-WRAPPER(GtkWidget, event,             int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, button_press_event,int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, button_release_event, int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, scroll_event,      int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, motion_notify_event, int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, delete_event,       int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, destroy_event,      int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, expose_event,       int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, key_press_event,    int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, key_release_event,  int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, enter_notify_event, int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, leave_notify_event, int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, configure_event,    int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, focus_in_event,     int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, focus_out_event,    int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, map_event,          int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, unmap_event,        int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, property_notify_event,  int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, selection_clear_event,  int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, selection_request_event,int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, selection_notify_event, int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, proximity_in_event,  int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, proximity_out_event, int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, visibility_notify_event, int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, client_event,        int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, no_expose_event,     int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, window_state_event,  int, (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget, selection_get,       void, (void* widget, void* selection_data, uint32_t info, uint32_t time_), 4, widget, selection_data, info, time_);
-WRAPPER(GtkWidget, selection_received,  void, (void* widget, void* selection_data, uint32_t time_), 3, widget, selection_data, time_);
-WRAPPER(GtkWidget, drag_begin,          void, (void* widget, void* context), 2, widget, context);
-WRAPPER(GtkWidget, drag_end,            void, (void* widget, void* context), 2, widget, context);
-WRAPPER(GtkWidget, drag_data_get,       void, (void* widget, void* context, void* selection_data, uint32_t info, uint32_t time_), 5, widget, context, selection_data, info, time_);
-WRAPPER(GtkWidget, drag_data_delete,    void, (void* widget, void* context), 2, widget, context);
-WRAPPER(GtkWidget, drag_leave,          void, (void* widget, void* context, uint32_t time_), 3, widget, context, time_);
-WRAPPER(GtkWidget, drag_motion,         int, (void* widget, void* context, int32_t x, int32_t y, uint32_t time_), 5, widget, context, x, y, time_);
-WRAPPER(GtkWidget, drag_drop,           int, (void* widget, void* context, int32_t x, int32_t y, uint32_t time_), 5, widget, context, x, y, time_);
-WRAPPER(GtkWidget, drag_data_received,  void, (void* widget, void* context, int32_t x, int32_t y, void* selection_data, uint32_t info, uint32_t time_), 7, widget, context, x, y, selection_data, info, time_);
-WRAPPER(GtkWidget,  popup_menu,         int  , (void* widget), 1, widget);
-WRAPPER(GtkWidget,  show_help,          int  , (void* widget, int help_type), 2, widget, help_type);
-WRAPPER(GtkWidget, get_accessible,      void*, (void* widget), 1, widget);
-WRAPPER(GtkWidget, screen_changed,      void , (void* widget, void* previous_screen), 2, widget, previous_screen);
-WRAPPER(GtkWidget, can_activate_accel,  int  , (void* widget, uint32_t signal_id), 2, widget, signal_id);
-WRAPPER(GtkWidget, grab_broken_event,   int  , (void* widget, void* event), 2, widget, event);
-WRAPPER(GtkWidget,  composited_changed, void , (void* widget), 1, widget);
-WRAPPER(GtkWidget,  query_tooltip,      int  , (void* widget, int32_t x, int32_t y, int keyboard_tooltip, void* tooltip), 5, widget, x, y, keyboard_tooltip, tooltip);
+// ----- GtkWidget2Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkWidget2, dispatch_child_properties_changed, void, (void* widget, uint32_t n_pspecs, void* pspecs), 3, widget, n_pspecs, pspecs);
+WRAPPER(GtkWidget2, show,              void, (void* widget), 1, widget);
+WRAPPER(GtkWidget2, show_all,          void, (void* widget), 1, widget);
+WRAPPER(GtkWidget2, hide,              void, (void* widget), 1, widget);
+WRAPPER(GtkWidget2, hide_all,          void, (void* widget), 1, widget);
+WRAPPER(GtkWidget2, map,               void, (void* widget), 1, widget);
+WRAPPER(GtkWidget2, unmap,             void, (void* widget), 1, widget);
+WRAPPER(GtkWidget2, realize,           void, (void* widget), 1, widget);
+WRAPPER(GtkWidget2, unrealize,         void, (void* widget), 1, widget);
+WRAPPER(GtkWidget2, size_request,      void, (void* widget, void* requisition), 2, widget, requisition);
+WRAPPER(GtkWidget2, size_allocate,     void, (void* widget, void* allocation), 2, widget, allocation);
+WRAPPER(GtkWidget2, state_changed,     void, (void* widget, int previous_state), 2, widget, previous_state);
+WRAPPER(GtkWidget2, parent_set,        void, (void* widget, void* previous_parent), 2, widget, previous_parent);
+WRAPPER(GtkWidget2, hierarchy_changed, void, (void* widget, void* previous_toplevel), 2, widget, previous_toplevel);
+WRAPPER(GtkWidget2, style_set,         void, (void* widget, void* previous_style), 2, widget, previous_style);
+WRAPPER(GtkWidget2, direction_changed, void, (void* widget, int previous_direction), 2, widget, previous_direction);
+WRAPPER(GtkWidget2, grab_notify,       void, (void* widget, int was_grabbed), 2, widget, was_grabbed);
+WRAPPER(GtkWidget2, child_notify,      void, (void* widget, void* pspec), 2, widget, pspec);
+WRAPPER(GtkWidget2, mnemonic_activate, int, (void* widget, int group_cycling), 2, widget, group_cycling);
+WRAPPER(GtkWidget2, grab_focus,        void, (void* widget), 1, widget);
+WRAPPER(GtkWidget2, focus,             int, (void* widget, int direction), 2, widget, direction);
+WRAPPER(GtkWidget2, event,             int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, button_press_event,int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, button_release_event, int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, scroll_event,      int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, motion_notify_event, int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, delete_event,       int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, destroy_event,      int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, expose_event,       int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, key_press_event,    int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, key_release_event,  int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, enter_notify_event, int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, leave_notify_event, int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, configure_event,    int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, focus_in_event,     int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, focus_out_event,    int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, map_event,          int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, unmap_event,        int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, property_notify_event,  int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, selection_clear_event,  int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, selection_request_event,int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, selection_notify_event, int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, proximity_in_event,  int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, proximity_out_event, int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, visibility_notify_event, int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, client_event,        int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, no_expose_event,     int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, window_state_event,  int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2, selection_get,       void, (void* widget, void* selection_data, uint32_t info, uint32_t time_), 4, widget, selection_data, info, time_);
+WRAPPER(GtkWidget2, selection_received,  void, (void* widget, void* selection_data, uint32_t time_), 3, widget, selection_data, time_);
+WRAPPER(GtkWidget2, drag_begin,          void, (void* widget, void* context), 2, widget, context);
+WRAPPER(GtkWidget2, drag_end,            void, (void* widget, void* context), 2, widget, context);
+WRAPPER(GtkWidget2, drag_data_get,       void, (void* widget, void* context, void* selection_data, uint32_t info, uint32_t time_), 5, widget, context, selection_data, info, time_);
+WRAPPER(GtkWidget2, drag_data_delete,    void, (void* widget, void* context), 2, widget, context);
+WRAPPER(GtkWidget2, drag_leave,          void, (void* widget, void* context, uint32_t time_), 3, widget, context, time_);
+WRAPPER(GtkWidget2, drag_motion,         int, (void* widget, void* context, int32_t x, int32_t y, uint32_t time_), 5, widget, context, x, y, time_);
+WRAPPER(GtkWidget2, drag_drop,           int, (void* widget, void* context, int32_t x, int32_t y, uint32_t time_), 5, widget, context, x, y, time_);
+WRAPPER(GtkWidget2, drag_data_received,  void, (void* widget, void* context, int32_t x, int32_t y, void* selection_data, uint32_t info, uint32_t time_), 7, widget, context, x, y, selection_data, info, time_);
+WRAPPER(GtkWidget2,  popup_menu,         int  , (void* widget), 1, widget);
+WRAPPER(GtkWidget2,  show_help,          int  , (void* widget, int help_type), 2, widget, help_type);
+WRAPPER(GtkWidget2, get_accessible,      void*, (void* widget), 1, widget);
+WRAPPER(GtkWidget2, screen_changed,      void , (void* widget, void* previous_screen), 2, widget, previous_screen);
+WRAPPER(GtkWidget2, can_activate_accel,  int  , (void* widget, uint32_t signal_id), 2, widget, signal_id);
+WRAPPER(GtkWidget2, grab_broken_event,   int  , (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget2,  composited_changed, void , (void* widget), 1, widget);
+WRAPPER(GtkWidget2,  query_tooltip,      int  , (void* widget, int32_t x, int32_t y, int keyboard_tooltip, void* tooltip), 5, widget, x, y, keyboard_tooltip, tooltip);
 
 #define SUPERGO() \
     GO(dispatch_child_properties_changed, vFpup);   \
@@ -344,43 +390,240 @@ WRAPPER(GtkWidget,  query_tooltip,      int  , (void* widget, int32_t x, int32_t
     GO(query_tooltip, iFpiiip);
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkWidgetClass(my_GtkWidgetClass_t* class)
+static void wrapGtkWidget2Class(my_GtkWidget2Class_t* class)
 {
     wrapGtkObjectClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkWidget (W, class->A)
+    #define GO(A, W) class->A = reverse_##A##_GtkWidget2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkWidgetClass(my_GtkWidgetClass_t* class)
+static void unwrapGtkWidget2Class(my_GtkWidget2Class_t* class)
 {   
     unwrapGtkObjectClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkWidget (class->A)
+    #define GO(A, W)   class->A = find_##A##_GtkWidget2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkWidgetClass(my_GtkWidgetClass_t* class)
+static void bridgeGtkWidget2Class(my_GtkWidget2Class_t* class)
 {
     bridgeGtkObjectClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkWidget (W, class->A)
+    #define GO(A, W) autobridge_##A##_GtkWidget2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkContainerClass ------
-// wrapper x64 -> natives of callbacks
-WRAPPER(GtkContainer, add, void, (void* container, void* widget), 2, container, widget);
-WRAPPER(GtkContainer, remove, void, (void* container, void* widget), 2, container, widget);
-WRAPPER(GtkContainer, check_resize, void, (void* container), 1, container);
-WRAPPER(GtkContainer, forall, void, (void* container, int include_internals, void* callback, void* callback_data), 4, container, include_internals, AddCheckBridge(my_bridge, vFpp, callback, 0, NULL), callback_data);
-WRAPPER(GtkContainer, set_focus_child, void, (void* container, void* widget), 2, container, widget);
-WRAPPER(GtkContainer, child_type, int, (void* container), 1, container);
-WRAPPER(GtkContainer, composite_name, void*, (void* container, void* child), 2, container, child);
-WRAPPER(GtkContainer, set_child_property, void, (void* container, void* child, uint32_t property_id, void* value, void* pspec), 5, container, child, property_id, value, pspec);
-WRAPPER(GtkContainer, get_child_property, void, (void* container, void* child, uint32_t property_id, void* value, void* pspec), 5, container, child, property_id, value, pspec);
+// ----- GtkWidget3Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkWidget3, dispatch_child_properties_changed, void, (void* widget, uint32_t n_pspecs, void* pspecs), 3, widget, n_pspecs, pspecs);
+WRAPPER(GtkWidget3, destroy, void,              (void* widget), 1, widget);
+WRAPPER(GtkWidget3, show, void,                 (void* widget), 1, widget);
+WRAPPER(GtkWidget3, show_all, void,             (void* widget), 1, widget);
+WRAPPER(GtkWidget3, hide, void,                 (void* widget), 1, widget);
+WRAPPER(GtkWidget3, map, void,                  (void* widget), 1, widget);
+WRAPPER(GtkWidget3, unmap, void,                (void* widget), 1, widget);
+WRAPPER(GtkWidget3, realize, void,              (void* widget), 1, widget);
+WRAPPER(GtkWidget3, unrealize, void,            (void* widget), 1, widget);
+WRAPPER(GtkWidget3, size_allocate, void,        (void* widget, void* allocation), 2, widget, allocation);
+WRAPPER(GtkWidget3, state_changed, void,        (void* widget, int previous_state), 2, widget, previous_state);
+WRAPPER(GtkWidget3, state_flags_changed, void,  (void* widget, int previous_state_flags), 2, widget, previous_state_flags);
+WRAPPER(GtkWidget3, parent_set, void,           (void* widget, void* previous_parent), 2, widget, previous_parent);
+WRAPPER(GtkWidget3, hierarchy_changed, void,    (void* widget, void* previous_toplevel), 2, widget, previous_toplevel);
+WRAPPER(GtkWidget3, style_set, void,            (void* widget, void* previous_style), 2, widget, previous_style);
+WRAPPER(GtkWidget3, direction_changed, void,    (void* widget, int previous_direction), 2, widget, previous_direction);
+WRAPPER(GtkWidget3, grab_notify, void,          (void* widget, int was_grabbed), 2, widget, was_grabbed);
+WRAPPER(GtkWidget3, child_notify, void,         (void* widget, void* child_property), 2, widget, child_property);
+WRAPPER(GtkWidget3, draw, int,                  (void* widget, void* cr), 2, widget, cr);
+WRAPPER(GtkWidget3, get_request_mode, int,      (void* widget), 1, widget);
+WRAPPER(GtkWidget3, get_preferred_height, void, (void* widget, void* minimum_height, void* natural_height), 3, widget, minimum_height, natural_height);
+WRAPPER(GtkWidget3, get_preferred_width_for_height, void,  (void* widget, int height, void* minimum_width, void* natural_width), 4, widget, height, minimum_width, natural_width);
+WRAPPER(GtkWidget3, get_preferred_width, void,  (void* widget, void* minimum_width, void* natural_width), 3, widget, minimum_width, natural_width);
+WRAPPER(GtkWidget3, get_preferred_height_for_width, void,  (void* widget, int width, void* minimum_height, void* natural_height), 4, widget, width, minimum_height, natural_height);
+WRAPPER(GtkWidget3, mnemonic_activate, int,     (void* widget, int group_cycling), 2, widget, group_cycling);
+WRAPPER(GtkWidget3, grab_focus, void,           (void* widget), 1, widget);
+WRAPPER(GtkWidget3, focus, int,                 (void* widget, int direction), 2, widget, direction);
+WRAPPER(GtkWidget3, move_focus, void,           (void* widget, int direction), 2, widget, direction);
+WRAPPER(GtkWidget3, keynav_failed, int,         (void* widget, int direction), 2, widget, direction);
+WRAPPER(GtkWidget3, event, int,                 (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, button_press_event, int,    (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, button_release_event, int,  (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, scroll_event, int,          (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, motion_notify_event, int,   (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, delete_event, int,          (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, destroy_event, int,         (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, key_press_event, int,       (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, key_release_event, int,     (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, enter_notify_event, int,    (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, leave_notify_event, int,    (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, configure_event, int,       (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, focus_in_event, int,        (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, focus_out_event, int,       (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, map_event, int,             (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, unmap_event, int,           (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, property_notify_event, int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, selection_clear_event, int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, selection_request_event, int, (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, selection_notify_event, int,(void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, proximity_in_event, int,    (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, proximity_out_event, int,   (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, visibility_notify_event, int,   (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, window_state_event, int,    (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, damage_event, int,          (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, grab_broken_event, int,     (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, selection_get, void,        (void* widget, void* selection_data, uint32_t info, uint32_t time_), 4, widget, selection_data, info, time_);
+WRAPPER(GtkWidget3, selection_received, void,   (void* widget, void* selection_data, uint32_t time_), 3, widget, selection_data, time_);
+WRAPPER(GtkWidget3, drag_begin, void,           (void* widget, void* context), 2, widget, context);
+WRAPPER(GtkWidget3, drag_end, void,             (void* widget, void* context), 2, widget, context);
+WRAPPER(GtkWidget3, drag_data_get, void,        (void* widget, void* context, void* selection_data, uint32_t info, uint32_t time_), 5, widget, context, selection_data, info, time_);
+WRAPPER(GtkWidget3, drag_data_delete, void,     (void* widget, void* context), 2, widget, context);
+WRAPPER(GtkWidget3, drag_leave, void,           (void* widget, void* context, uint32_t time_), 3, widget, context, time_);
+WRAPPER(GtkWidget3, drag_motion, int,           (void* widget, void* context, int x, int y, uint32_t time_), 5, widget, context, x, y, time_);
+WRAPPER(GtkWidget3, drag_drop, int,             (void* widget, void* context, int x, int y, uint32_t time_), 5, widget, context, x, y, time_);
+WRAPPER(GtkWidget3, drag_data_received, void,   (void* widget, void* context, int x, int y, void* selection_data, uint32_t info, uint32_t time_), 7, widget, context, x, y, selection_data, info, time_);
+WRAPPER(GtkWidget3, drag_failed, int,           (void* widget, void* context, int result), 3, widget, context, result);
+WRAPPER(GtkWidget3, popup_menu, int,            (void* widget), 1, widget);
+WRAPPER(GtkWidget3, show_help, int,             (void* widget, int help_type), 2, widget, help_type);
+WRAPPER(GtkWidget3, get_accessible, void*,      (void *widget), 1, widget);
+WRAPPER(GtkWidget3, screen_changed, void,       (void* widget, void* previous_screen), 2, widget, previous_screen);
+WRAPPER(GtkWidget3, can_activate_accel, int,    (void* widget, uint32_t signal_id), 2, widget, signal_id);
+WRAPPER(GtkWidget3, composited_changed, void,   (void* widget), 1, widget);
+WRAPPER(GtkWidget3, query_tooltip, int,         (void* widget, int x, int y, int keyboard_tooltip, void* tooltip), 5, widget, x, y, keyboard_tooltip, tooltip);
+WRAPPER(GtkWidget3, compute_expand, void,       (void* widget, void* hexpand_p, void* vexpand_p), 3, widget, hexpand_p, vexpand_p);
+WRAPPER(GtkWidget3, adjust_size_request, void,  (void* widget, int orientation, void* minimum_size, void* natural_size), 4, widget, orientation, minimum_size, natural_size);
+WRAPPER(GtkWidget3, adjust_size_allocation, void, (void*widget, int orientation, void* minimum_size, void* natural_size, void* allocated_pos, void* allocated_size), 6, widget, orientation, minimum_size, natural_size, allocated_pos, allocated_size);
+WRAPPER(GtkWidget3, style_updated, void,        (void* widget), 1, widget);
+WRAPPER(GtkWidget3, touch_event, int,           (void* widget, void* event), 2, widget, event);
+WRAPPER(GtkWidget3, get_preferred_height_and_baseline_for_width, void, (void* widget, int width, void* minimum_height, void* natural_height, void* minimum_baseline, void* natural_baseline), 6, widget, width, minimum_height, natural_height, minimum_baseline, natural_baseline);
+WRAPPER(GtkWidget3, adjust_baseline_request, void,  (void* widget, void* minimum_baseline, void* natural_baseline), 3, widget, minimum_baseline, natural_baseline);
+WRAPPER(GtkWidget3, adjust_baseline_allocation, void,  (void* widget, void* baseline), 2, widget, baseline);
+WRAPPER(GtkWidget3, queue_draw_region, void,    (void* widget, void* region), 2, widget, region);
+
+#define SUPERGO() \
+    GO(dispatch_child_properties_changed, vFpup);   \
+    GO(destroy, vFp);                               \
+    GO(show, vFp);                                  \
+    GO(show_all, vFp);                              \
+    GO(hide, vFp);                                  \
+    GO(map, vFp);                                   \
+    GO(unmap, vFp);                                 \
+    GO(realize, vFp);                               \
+    GO(unrealize, vFp);                             \
+    GO(size_allocate, vFpp);                        \
+    GO(state_changed, vFpi);                        \
+    GO(state_flags_changed, vFpi);                  \
+    GO(parent_set, vFpp);                           \
+    GO(hierarchy_changed, vFpp);                    \
+    GO(style_set, vFpp);                            \
+    GO(direction_changed, vFpi);                    \
+    GO(grab_notify, vFpi);                          \
+    GO(child_notify, vFpp);                         \
+    GO(draw, iFpp);                                 \
+    GO(get_request_mode, iFp);                      \
+    GO(get_preferred_height, vFppp);                \
+    GO(get_preferred_width_for_height, vFpipp);     \
+    GO(get_preferred_width, vFppp);                 \
+    GO(get_preferred_height_for_width, vFpipp);     \
+    GO(mnemonic_activate, iFpi);                    \
+    GO(grab_focus, vFp);                            \
+    GO(focus, iFpi);                                \
+    GO(move_focus, vFpi);                           \
+    GO(keynav_failed, iFpi);                        \
+    GO(event, iFpp);                                \
+    GO(button_press_event, iFpp);                   \
+    GO(button_release_event, iFpp);                 \
+    GO(scroll_event, iFpp);                         \
+    GO(motion_notify_event, iFpp);                  \
+    GO(delete_event, iFpp);                         \
+    GO(destroy_event, iFpp);                        \
+    GO(key_press_event, iFpp);                      \
+    GO(key_release_event, iFpp);                    \
+    GO(enter_notify_event, iFpp);                   \
+    GO(leave_notify_event, iFpp);                   \
+    GO(configure_event, iFpp);                      \
+    GO(focus_in_event, iFpp);                       \
+    GO(focus_out_event, iFpp);                      \
+    GO(map_event, iFpp);                            \
+    GO(unmap_event, iFpp);                          \
+    GO(property_notify_event, iFpp);                \
+    GO(selection_clear_event, iFpp);                \
+    GO(selection_request_event, iFpp);              \
+    GO(selection_notify_event, iFpp);               \
+    GO(proximity_in_event, iFpp);                   \
+    GO(proximity_out_event, iFpp);                  \
+    GO(visibility_notify_event, iFpp);              \
+    GO(window_state_event, iFpp);                   \
+    GO(damage_event, iFpp);                         \
+    GO(grab_broken_event, iFpp);                    \
+    GO(selection_get, vFppuu);                      \
+    GO(selection_received, vFppu);                  \
+    GO(drag_begin, vFpp);                           \
+    GO(drag_end, vFpp);                             \
+    GO(drag_data_get, vFpppuu);                     \
+    GO(drag_data_delete, vFpp);                     \
+    GO(drag_leave, vFppu);                          \
+    GO(drag_motion, iFppiiu);                       \
+    GO(drag_drop, iFppiiu);                         \
+    GO(drag_data_received, vFppiipuu);              \
+    GO(drag_failed, iFppi);                         \
+    GO(popup_menu, iFp);                            \
+    GO(show_help, iFpi);                            \
+    GO(get_accessible, pFp);                        \
+    GO(screen_changed, vFpp);                       \
+    GO(can_activate_accel, iFpu);                   \
+    GO(grab_broken_event, iFpp);                    \
+    GO(composited_changed, vFp);                    \
+    GO(query_tooltip, iFpiiip);                     \
+    GO(compute_expand, vFppp);                      \
+    GO(adjust_size_request, vFpipp);                \
+    GO(adjust_size_allocation, vFpipppp);           \
+    GO(style_updated, vFp);                         \
+    GO(touch_event, iFpp);                          \
+    GO(get_preferred_height_and_baseline_for_width, vFpipppp);\
+    GO(adjust_baseline_request, vFppp);             \
+    GO(adjust_baseline_allocation, vFpp);           \
+    GO(queue_draw_region, vFpp);                    \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkWidget3Class(my_GtkWidget3Class_t* class)
+{
+    wrapGInitiallyUnownedClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkWidget3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkWidget3Class(my_GtkWidget3Class_t* class)
+{   
+    unwrapGInitiallyUnownedClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkWidget3 (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkWidget3Class(my_GtkWidget3Class_t* class)
+{
+    bridgeGInitiallyUnownedClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkWidget3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GtkContainer2Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkContainer2, add, void, (void* container, void* widget), 2, container, widget);
+WRAPPER(GtkContainer2, remove, void, (void* container, void* widget), 2, container, widget);
+WRAPPER(GtkContainer2, check_resize, void, (void* container), 1, container);
+WRAPPER(GtkContainer2, forall, void, (void* container, int include_internals, void* callback, void* callback_data), 4, container, include_internals, AddCheckBridge(my_bridge, vFpp, callback, 0, NULL), callback_data);
+WRAPPER(GtkContainer2, set_focus_child, void, (void* container, void* widget), 2, container, widget);
+WRAPPER(GtkContainer2, child_type, int, (void* container), 1, container);
+WRAPPER(GtkContainer2, composite_name, void*, (void* container, void* child), 2, container, child);
+WRAPPER(GtkContainer2, set_child_property, void, (void* container, void* child, uint32_t property_id, void* value, void* pspec), 5, container, child, property_id, value, pspec);
+WRAPPER(GtkContainer2, get_child_property, void, (void* container, void* child, uint32_t property_id, void* value, void* pspec), 5, container, child, property_id, value, pspec);
 
 #define SUPERGO() \
     GO(add, vFpp);                  \
@@ -394,26 +637,26 @@ WRAPPER(GtkContainer, get_child_property, void, (void* container, void* child, u
     GO(get_child_property, vFppupp);
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkContainerClass(my_GtkContainerClass_t* class)
+static void wrapGtkContainer2Class(my_GtkContainer2Class_t* class)
 {
-    wrapGtkWidgetClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkContainer (W, class->A)
+    wrapGtkWidget2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkContainer2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkContainerClass(my_GtkContainerClass_t* class)
+static void unwrapGtkContainer2Class(my_GtkContainer2Class_t* class)
 {   
-    unwrapGtkWidgetClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkContainer (class->A)
+    unwrapGtkWidget2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkContainer2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkContainerClass(my_GtkContainerClass_t* class)
+static void bridgeGtkContainer2Class(my_GtkContainer2Class_t* class)
 {
-    bridgeGtkWidgetClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkContainer (W, class->A)
+    bridgeGtkWidget2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkContainer2 (W, class->A)
     SUPERGO()
     #undef GO
 }
@@ -421,7 +664,7 @@ static void bridgeGtkContainerClass(my_GtkContainerClass_t* class)
 #undef SUPERGO
 
 // ----- GtkActionClass ------
-// wrapper x64 -> natives of callbacks
+// wrapper x86 -> natives of callbacks
 WRAPPER(GtkAction, activate, void, (void* action), 1, action);
 WRAPPER(GtkAction, create_menu_item, void*, (void* action), 1, action);
 WRAPPER(GtkAction, create_tool_item, void*, (void* action), 1, action);
@@ -463,31 +706,31 @@ static void bridgeGtkActionClass(my_GtkActionClass_t* class)
 }
 #undef SUPERGO
 
-// ----- GtkMiscClass ------
+// ----- GtkMisc2Class ------
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkMiscClass(my_GtkMiscClass_t* class)
+static void wrapGtkMisc2Class(my_GtkMisc2Class_t* class)
 {
-    wrapGtkWidgetClass(&class->parent_class);
+    wrapGtkWidget2Class(&class->parent_class);
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkMiscClass(my_GtkMiscClass_t* class)
+static void unwrapGtkMisc2Class(my_GtkMisc2Class_t* class)
 {   
-    unwrapGtkWidgetClass(&class->parent_class);
+    unwrapGtkWidget2Class(&class->parent_class);
 }
 // autobridge
-static void bridgeGtkMiscClass(my_GtkMiscClass_t* class)
+static void bridgeGtkMisc2Class(my_GtkMisc2Class_t* class)
 {
-    bridgeGtkWidgetClass(&class->parent_class);
+    bridgeGtkWidget2Class(&class->parent_class);
 }
 
 
-// ----- GtkLabelClass ------
-// wrapper x64 -> natives of callbacks
-WRAPPER(GtkMisc, move_cursor, void, (void* label, int step, int count, int extend_selection), 4, label, step, count, extend_selection);
-WRAPPER(GtkMisc, copy_clipboard, void, (void* label), 1, label);
-WRAPPER(GtkMisc, populate_popup, void, (void* label, void* menu), 2, label, menu);
-WRAPPER(GtkMisc, activate_link, int, (void* label, void* uri), 2, label, uri);
+// ----- GtkLabel2Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkMisc2, move_cursor, void, (void* label, int step, int count, int extend_selection), 4, label, step, count, extend_selection);
+WRAPPER(GtkMisc2, copy_clipboard, void, (void* label), 1, label);
+WRAPPER(GtkMisc2, populate_popup, void, (void* label, void* menu), 2, label, menu);
+WRAPPER(GtkMisc2, activate_link, int, (void* label, void* uri), 2, label, uri);
 
 #define SUPERGO() \
     GO(move_cursor, vFpiii);    \
@@ -496,49 +739,49 @@ WRAPPER(GtkMisc, activate_link, int, (void* label, void* uri), 2, label, uri);
     GO(activate_link, iFpp);    \
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkLabelClass(my_GtkLabelClass_t* class)
+static void wrapGtkLabel2Class(my_GtkLabel2Class_t* class)
 {
-    wrapGtkMiscClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkMisc (W, class->A)
+    wrapGtkMisc2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkMisc2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkLabelClass(my_GtkLabelClass_t* class)
+static void unwrapGtkLabel2Class(my_GtkLabel2Class_t* class)
 {   
-    unwrapGtkMiscClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkMisc (class->A)
+    unwrapGtkMisc2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkMisc2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkLabelClass(my_GtkLabelClass_t* class)
+static void bridgeGtkLabel2Class(my_GtkLabel2Class_t* class)
 {
-    bridgeGtkMiscClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkMisc (W, class->A)
+    bridgeGtkMisc2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkMisc2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 #undef SUPERGO
 
-// ----- GtkTreeViewClass ------
-// wrapper x64 -> natives of callbacks
-WRAPPER(GtkTreeView, set_scroll_adjustments, void, (void* tree_view, void* hadjustment, void* vadjustment), 3, tree_view, hadjustment, vadjustment);
-WRAPPER(GtkTreeView, row_activated, void, (void* tree_view, void* path, void* column), 3, tree_view, path, column);
-WRAPPER(GtkTreeView, test_expand_row, int, (void* tree_view, void* iter, void* path), 3, tree_view, iter, path);
-WRAPPER(GtkTreeView, test_collapse_row, int, (void* tree_view, void* iter, void* path), 3, tree_view, iter, path);
-WRAPPER(GtkTreeView, row_expanded, void, (void* tree_view, void* iter, void* path), 3, tree_view, iter, path);
-WRAPPER(GtkTreeView, row_collapsed, void, (void* tree_view, void* iter, void* path), 3, tree_view, iter, path);
-WRAPPER(GtkTreeView, columns_changed, void, (void* tree_view), 1, tree_view);
-WRAPPER(GtkTreeView, cursor_changed, void, (void* tree_view), 1, tree_view);
-WRAPPER(GtkTreeView, move_cursor, int, (void* tree_view, int step, int count), 3, tree_view, step, count);
-WRAPPER(GtkTreeView, select_all, int, (void* tree_view), 1, tree_view);
-WRAPPER(GtkTreeView, unselect_all, int, (void* tree_view), 1, tree_view);
-WRAPPER(GtkTreeView, select_cursor_row, int, (void* tree_view, int start_editing), 2, tree_view, start_editing);
-WRAPPER(GtkTreeView, toggle_cursor_row, int, (void* tree_view), 1, tree_view);
-WRAPPER(GtkTreeView, expand_collapse_cursor_row, int, (void* tree_view, int logical, int expand, int open_all), 4, tree_view, logical, expand, open_all);
-WRAPPER(GtkTreeView, select_cursor_parent, int, (void* tree_view), 1, tree_view);
-WRAPPER(GtkTreeView, start_interactive_search, int, (void* tree_view), 1, tree_view);
+// ----- GtkTreeView2Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkTreeView2, set_scroll_adjustments, void, (void* tree_view, void* hadjustment, void* vadjustment), 3, tree_view, hadjustment, vadjustment);
+WRAPPER(GtkTreeView2, row_activated, void, (void* tree_view, void* path, void* column), 3, tree_view, path, column);
+WRAPPER(GtkTreeView2, test_expand_row, int, (void* tree_view, void* iter, void* path), 3, tree_view, iter, path);
+WRAPPER(GtkTreeView2, test_collapse_row, int, (void* tree_view, void* iter, void* path), 3, tree_view, iter, path);
+WRAPPER(GtkTreeView2, row_expanded, void, (void* tree_view, void* iter, void* path), 3, tree_view, iter, path);
+WRAPPER(GtkTreeView2, row_collapsed, void, (void* tree_view, void* iter, void* path), 3, tree_view, iter, path);
+WRAPPER(GtkTreeView2, columns_changed, void, (void* tree_view), 1, tree_view);
+WRAPPER(GtkTreeView2, cursor_changed, void, (void* tree_view), 1, tree_view);
+WRAPPER(GtkTreeView2, move_cursor, int, (void* tree_view, int step, int count), 3, tree_view, step, count);
+WRAPPER(GtkTreeView2, select_all, int, (void* tree_view), 1, tree_view);
+WRAPPER(GtkTreeView2, unselect_all, int, (void* tree_view), 1, tree_view);
+WRAPPER(GtkTreeView2, select_cursor_row, int, (void* tree_view, int start_editing), 2, tree_view, start_editing);
+WRAPPER(GtkTreeView2, toggle_cursor_row, int, (void* tree_view), 1, tree_view);
+WRAPPER(GtkTreeView2, expand_collapse_cursor_row, int, (void* tree_view, int logical, int expand, int open_all), 4, tree_view, logical, expand, open_all);
+WRAPPER(GtkTreeView2, select_cursor_parent, int, (void* tree_view), 1, tree_view);
+WRAPPER(GtkTreeView2, start_interactive_search, int, (void* tree_view), 1, tree_view);
 
 #define SUPERGO() \
     GO(set_scroll_adjustments, vFppp);      \
@@ -559,58 +802,58 @@ WRAPPER(GtkTreeView, start_interactive_search, int, (void* tree_view), 1, tree_v
     GO(start_interactive_search, iFp);      \
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkTreeViewClass(my_GtkTreeViewClass_t* class)
+static void wrapGtkTreeView2Class(my_GtkTreeView2Class_t* class)
 {
-    wrapGtkContainerClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkTreeView (W, class->A)
+    wrapGtkContainer2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkTreeView2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkTreeViewClass(my_GtkTreeViewClass_t* class)
+static void unwrapGtkTreeView2Class(my_GtkTreeView2Class_t* class)
 {   
-    unwrapGtkContainerClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkTreeView (class->A)
+    unwrapGtkContainer2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkTreeView2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkTreeViewClass(my_GtkTreeViewClass_t* class)
+static void bridgeGtkTreeView2Class(my_GtkTreeView2Class_t* class)
 {
-    bridgeGtkContainerClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkTreeView (W, class->A)
+    bridgeGtkContainer2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkTreeView2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkBinClass ------
+// ----- GtkBin2Class ------
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkBinClass(my_GtkBinClass_t* class)
+static void wrapGtkBin2Class(my_GtkBin2Class_t* class)
 {
-    wrapGtkContainerClass(&class->parent_class);
+    wrapGtkContainer2Class(&class->parent_class);
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkBinClass(my_GtkBinClass_t* class)
+static void unwrapGtkBin2Class(my_GtkBin2Class_t* class)
 {   
-    unwrapGtkContainerClass(&class->parent_class);
+    unwrapGtkContainer2Class(&class->parent_class);
 }
 // autobridge
-static void bridgeGtkBinClass(my_GtkBinClass_t* class)
+static void bridgeGtkBin2Class(my_GtkBin2Class_t* class)
 {
-    bridgeGtkContainerClass(&class->parent_class);
+    bridgeGtkContainer2Class(&class->parent_class);
 }
 
-// ----- GtkWindowClass ------
-// wrapper x64 -> natives of callbacks
-WRAPPER(GtkWindow, set_focus, void, (void* window, void* focus), 2, window, focus);
-WRAPPER(GtkWindow, frame_event, int, (void* window, void* event), 2, window, event);
-WRAPPER(GtkWindow, activate_focus, void, (void* window), 1, window);
-WRAPPER(GtkWindow, activate_default, void, (void* window), 1, window);
-WRAPPER(GtkWindow, move_focus, void, (void* window, int direction), 2, window, direction);
-WRAPPER(GtkWindow, keys_changed, void, (void* window), 1, window);
+// ----- GtkWindow2Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkWindow2, set_focus, void, (void* window, void* focus), 2, window, focus);
+WRAPPER(GtkWindow2, frame_event, int, (void* window, void* event), 2, window, event);
+WRAPPER(GtkWindow2, activate_focus, void, (void* window), 1, window);
+WRAPPER(GtkWindow2, activate_default, void, (void* window), 1, window);
+WRAPPER(GtkWindow2, move_focus, void, (void* window, int direction), 2, window, direction);
+WRAPPER(GtkWindow2, keys_changed, void, (void* window), 1, window);
 
 #define SUPERGO()               \
     GO(set_focus, vFpp);        \
@@ -622,94 +865,130 @@ WRAPPER(GtkWindow, keys_changed, void, (void* window), 1, window);
 
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkWindowClass(my_GtkWindowClass_t* class)
+static void wrapGtkWindow2Class(my_GtkWindow2Class_t* class)
 {
-    wrapGtkBinClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkWindow (W, class->A)
+    wrapGtkBin2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkWindow2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkWindowClass(my_GtkWindowClass_t* class)
+static void unwrapGtkWindow2Class(my_GtkWindow2Class_t* class)
 {   
-    unwrapGtkBinClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkWindow (class->A)
+    unwrapGtkBin2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkWindow2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkWindowClass(my_GtkWindowClass_t* class)
+static void bridgeGtkWindow2Class(my_GtkWindow2Class_t* class)
 {
-    bridgeGtkBinClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkWindow (W, class->A)
+    bridgeGtkBin2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkWindow2 (W, class->A)
     SUPERGO()
     #undef GO
-}
-
-// ----- GtkTableClass ------
-
-// wrap (so bridge all calls, just in case)
-static void wrapGtkTableClass(my_GtkTableClass_t* class)
-{
-    wrapGtkContainerClass(&class->parent_class);
-}
-// unwrap (and use callback if not a native call anymore)
-static void unwrapGtkTableClass(my_GtkTableClass_t* class)
-{   
-    unwrapGtkContainerClass(&class->parent_class);
-}
-// autobridge
-static void bridgeGtkTableClass(my_GtkTableClass_t* class)
-{
-    bridgeGtkContainerClass(&class->parent_class);
-}
-
-// ----- GtkFixedClass ------
-
-// wrap (so bridge all calls, just in case)
-static void wrapGtkFixedClass(my_GtkFixedClass_t* class)
-{
-    wrapGtkContainerClass(&class->parent_class);
-}
-// unwrap (and use callback if not a native call anymore)
-static void unwrapGtkFixedClass(my_GtkFixedClass_t* class)
-{   
-    unwrapGtkContainerClass(&class->parent_class);
-}
-// autobridge
-static void bridgeGtkFixedClass(my_GtkFixedClass_t* class)
-{
-    bridgeGtkContainerClass(&class->parent_class);
-}
-
-// ----- MetaFramesClass ------
-
-// wrap (so bridge all calls, just in case)
-static void wrapMetaFramesClass(my_MetaFramesClass_t* class)
-{
-    wrapGtkWindowClass(&class->parent_class);
-}
-// unwrap (and use callback if not a native call anymore)
-static void unwrapMetaFramesClass(my_MetaFramesClass_t* class)
-{   
-    unwrapGtkWindowClass(&class->parent_class);
-}
-// autobridge
-static void bridgeMetaFramesClass(my_MetaFramesClass_t* class)
-{
-    bridgeGtkWindowClass(&class->parent_class);
 }
 
 #undef SUPERGO
 
-// ----- GtkButtonClass ------
+// ----- GtkTable2Class ------
+// wrap (so bridge all calls, just in case)
+static void wrapGtkTable2Class(my_GtkTable2Class_t* class)
+{
+    wrapGtkContainer2Class(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkTable2Class(my_GtkTable2Class_t* class)
+{   
+    unwrapGtkContainer2Class(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkTable2Class(my_GtkTable2Class_t* class)
+{
+    bridgeGtkContainer2Class(&class->parent_class);
+}
+
+// ----- GtkFixed2Class ------
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkFixed2Class(my_GtkFixed2Class_t* class)
+{
+    wrapGtkContainer2Class(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkFixed2Class(my_GtkFixed2Class_t* class)
+{   
+    unwrapGtkContainer2Class(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkFixed2Class(my_GtkFixed2Class_t* class)
+{
+    bridgeGtkContainer2Class(&class->parent_class);
+}
+
+// ----- MetaFrames2Class ------
+
+// wrap (so bridge all calls, just in case)
+static void wrapMetaFrames2Class(my_MetaFrames2Class_t* class)
+{
+    wrapGtkWindow2Class(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapMetaFrames2Class(my_MetaFrames2Class_t* class)
+{   
+    unwrapGtkWindow2Class(&class->parent_class);
+}
+// autobridge
+static void bridgeMetaFrames2Class(my_MetaFrames2Class_t* class)
+{
+    bridgeGtkWindow2Class(&class->parent_class);
+}
+
+// ----- GDBusObjectManagerClientClass ------
 // wrapper x86 -> natives of callbacks
-WRAPPER(GtkButton, pressed, void,  (void* button), 1, button);
-WRAPPER(GtkButton, released, void, (void* button), 1, button);
-WRAPPER(GtkButton, clicked, void,  (void* button), 1, button);
-WRAPPER(GtkButton, enter, void,    (void* button), 1, button);
-WRAPPER(GtkButton, leave, void,    (void* button), 1, button);
-WRAPPER(GtkButton, activate, void, (void* button), 1, button);
+WRAPPER(GDBusObjectManagerClient,interface_proxy_signal, void, (void* manager, void* object_proxy, void* interface_proxy, void* sender_name, void* signal_name, void* parameters), 6, manager, object_proxy, interface_proxy, sender_name, signal_name, parameters);
+WRAPPER(GDBusObjectManagerClient,interface_proxy_properties_changed, void, (void* manager, void* object_proxy, void* interface_proxy, void* changed_properties, void* invalidated_properties), 5, manager, object_proxy, interface_proxy, changed_properties, invalidated_properties);
+
+#define SUPERGO()                                       \
+    GO(interface_proxy_signal, vFpppppp);               \
+    GO(interface_proxy_properties_changed, vFppppp);    \
+
+
+// wrap (so bridge all calls, just in case)
+static void wrapGDBusObjectManagerClientClass(my_GDBusObjectManagerClientClass_t* class)
+{
+    wrapGObjectClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GDBusObjectManagerClient (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGDBusObjectManagerClientClass(my_GDBusObjectManagerClientClass_t* class)
+{   
+    unwrapGObjectClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GDBusObjectManagerClient (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGDBusObjectManagerClientClass(my_GDBusObjectManagerClientClass_t* class)
+{
+    bridgeGObjectClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GDBusObjectManagerClient (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GtkButton2Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkButton2, pressed, void,  (void* button), 1, button);
+WRAPPER(GtkButton2, released, void, (void* button), 1, button);
+WRAPPER(GtkButton2, clicked, void,  (void* button), 1, button);
+WRAPPER(GtkButton2, enter, void,    (void* button), 1, button);
+WRAPPER(GtkButton2, leave, void,    (void* button), 1, button);
+WRAPPER(GtkButton2, activate, void, (void* button), 1, button);
 
 #define SUPERGO()               \
     GO(pressed, vFp);           \
@@ -721,36 +1000,36 @@ WRAPPER(GtkButton, activate, void, (void* button), 1, button);
 
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkButtonClass(my_GtkButtonClass_t* class)
+static void wrapGtkButton2Class(my_GtkButton2Class_t* class)
 {
-    wrapGtkBinClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkButton (W, class->A)
+    wrapGtkBin2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkButton2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkButtonClass(my_GtkButtonClass_t* class)
+static void unwrapGtkButton2Class(my_GtkButton2Class_t* class)
 {   
-    unwrapGtkBinClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkButton (class->A)
+    unwrapGtkBin2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkButton2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkButtonClass(my_GtkButtonClass_t* class)
+static void bridgeGtkButton2Class(my_GtkButton2Class_t* class)
 {
-    bridgeGtkBinClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkButton (W, class->A)
+    bridgeGtkBin2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkButton2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkComboBoxClass ------
+// ----- GtkComboBox2Class ------
 // wrapper x86 -> natives of callbacks
-WRAPPER(GtkComboBox, changed, void, (void* combo_box), 1, combo_box);
-WRAPPER(GtkComboBox, get_active_text, void*, (void* combo_box), 1, combo_box);
+WRAPPER(GtkComboBox2, changed, void, (void* combo_box), 1, combo_box);
+WRAPPER(GtkComboBox2, get_active_text, void*, (void* combo_box), 1, combo_box);
 
 #define SUPERGO()               \
     GO(changed, vFp);           \
@@ -758,115 +1037,115 @@ WRAPPER(GtkComboBox, get_active_text, void*, (void* combo_box), 1, combo_box);
 
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkComboBoxClass(my_GtkComboBoxClass_t* class)
+static void wrapGtkComboBox2Class(my_GtkComboBox2Class_t* class)
 {
-    wrapGtkBinClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkComboBox (W, class->A)
+    wrapGtkBin2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkComboBox2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkComboBoxClass(my_GtkComboBoxClass_t* class)
+static void unwrapGtkComboBox2Class(my_GtkComboBox2Class_t* class)
 {   
-    unwrapGtkBinClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkComboBox (class->A)
+    unwrapGtkBin2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkComboBox2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkComboBoxClass(my_GtkComboBoxClass_t* class)
+static void bridgeGtkComboBox2Class(my_GtkComboBox2Class_t* class)
 {
-    bridgeGtkBinClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkComboBox (W, class->A)
+    bridgeGtkBin2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkComboBox2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkToggleButtonClass ------
+// ----- GtkToggleButton2Class ------
 // wrapper x86 -> natives of callbacks
-WRAPPER(GtkToggleButton, toggled, void, (void* toggle_button), 1, toggle_button);
+WRAPPER(GtkToggleButton2, toggled, void, (void* toggle_button), 1, toggle_button);
 
 #define SUPERGO()               \
     GO(toggled, vFp);           \
 
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkToggleButtonClass(my_GtkToggleButtonClass_t* class)
+static void wrapGtkToggleButton2Class(my_GtkToggleButton2Class_t* class)
 {
-    wrapGtkButtonClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkToggleButton (W, class->A)
+    wrapGtkButton2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkToggleButton2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkToggleButtonClass(my_GtkToggleButtonClass_t* class)
+static void unwrapGtkToggleButton2Class(my_GtkToggleButton2Class_t* class)
 {   
-    unwrapGtkButtonClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkToggleButton (class->A)
+    unwrapGtkButton2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkToggleButton2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkToggleButtonClass(my_GtkToggleButtonClass_t* class)
+static void bridgeGtkToggleButton2Class(my_GtkToggleButton2Class_t* class)
 {
-    bridgeGtkButtonClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkToggleButton (W, class->A)
+    bridgeGtkButton2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkToggleButton2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkCheckButtonClass ------
+// ----- GtkCheckButton2Class ------
 // wrapper x86 -> natives of callbacks
-WRAPPER(GtkCheckButton, draw_indicator, void, (void* check_button, void* area), 2, check_button, area);
+WRAPPER(GtkCheckButton2, draw_indicator, void, (void* check_button, void* area), 2, check_button, area);
 
 #define SUPERGO()               \
     GO(draw_indicator, vFpp);   \
 
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkCheckButtonClass(my_GtkCheckButtonClass_t* class)
+static void wrapGtkCheckButton2Class(my_GtkCheckButton2Class_t* class)
 {
-    wrapGtkToggleButtonClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkCheckButton (W, class->A)
+    wrapGtkToggleButton2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkCheckButton2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkCheckButtonClass(my_GtkCheckButtonClass_t* class)
+static void unwrapGtkCheckButton2Class(my_GtkCheckButton2Class_t* class)
 {   
-    unwrapGtkToggleButtonClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkCheckButton (class->A)
+    unwrapGtkToggleButton2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkCheckButton2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkCheckButtonClass(my_GtkCheckButtonClass_t* class)
+static void bridgeGtkCheckButton2Class(my_GtkCheckButton2Class_t* class)
 {
-    bridgeGtkToggleButtonClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkCheckButton (W, class->A)
+    bridgeGtkToggleButton2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkCheckButton2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkEntryClass ------
+// ----- GtkEntry2Class ------
 // wrapper x86 -> natives of callbacks
-WRAPPER(GtkEntry, populate_popup, void,     (void* entry, void* menu), 2, entry, menu);
-WRAPPER(GtkEntry, activate, void,           (void* entry), 1, entry);
-WRAPPER(GtkEntry, move_cursor, void,        (void* entry, int step, int count, int extend_selection), 4, entry, step, count, extend_selection);
-WRAPPER(GtkEntry, insert_at_cursor, void,   (void* entry, void* str), 2, entry, str);
-WRAPPER(GtkEntry, delete_from_cursor, void, (void* entry, int type, int count), 3, entry, type, count);
-WRAPPER(GtkEntry, backspace, void,          (void* entry), 1, entry);
-WRAPPER(GtkEntry, cut_clipboard, void,      (void* entry), 1, entry);
-WRAPPER(GtkEntry, copy_clipboard, void,     (void* entry), 1, entry);
-WRAPPER(GtkEntry, paste_clipboard, void,    (void* entry), 1, entry);
-WRAPPER(GtkEntry, toggle_overwrite, void,   (void* entry), 1, entry);
-WRAPPER(GtkEntry, get_text_area_size, void, (void* entry, void* x, void* y, void* width, void* height), 5, entry, x, y, width, height);
+WRAPPER(GtkEntry2, populate_popup, void,     (void* entry, void* menu), 2, entry, menu);
+WRAPPER(GtkEntry2, activate, void,           (void* entry), 1, entry);
+WRAPPER(GtkEntry2, move_cursor, void,        (void* entry, int step, int count, int extend_selection), 4, entry, step, count, extend_selection);
+WRAPPER(GtkEntry2, insert_at_cursor, void,   (void* entry, void* str), 2, entry, str);
+WRAPPER(GtkEntry2, delete_from_cursor, void, (void* entry, size_t type, int count), 3, entry, type, count);
+WRAPPER(GtkEntry2, backspace, void,          (void* entry), 1, entry);
+WRAPPER(GtkEntry2, cut_clipboard, void,      (void* entry), 1, entry);
+WRAPPER(GtkEntry2, copy_clipboard, void,     (void* entry), 1, entry);
+WRAPPER(GtkEntry2, paste_clipboard, void,    (void* entry), 1, entry);
+WRAPPER(GtkEntry2, toggle_overwrite, void,   (void* entry), 1, entry);
+WRAPPER(GtkEntry2, get_text_area_size, void, (void* entry, void* x, void* y, void* width, void* height), 5, entry, x, y, width, height);
 
 #define SUPERGO()                   \
     GO(populate_popup, vFpp);       \
@@ -882,39 +1161,39 @@ WRAPPER(GtkEntry, get_text_area_size, void, (void* entry, void* x, void* y, void
     GO(get_text_area_size, vFppppp);\
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkEntryClass(my_GtkEntryClass_t* class)
+static void wrapGtkEntry2Class(my_GtkEntry2Class_t* class)
 {
-    wrapGtkWidgetClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkEntry (W, class->A)
+    wrapGtkWidget2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkEntry2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkEntryClass(my_GtkEntryClass_t* class)
+static void unwrapGtkEntry2Class(my_GtkEntry2Class_t* class)
 {   
-    unwrapGtkWidgetClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkEntry (class->A)
+    unwrapGtkWidget2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkEntry2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkEntryClass(my_GtkEntryClass_t* class)
+static void bridgeGtkEntry2Class(my_GtkEntry2Class_t* class)
 {
-    bridgeGtkWidgetClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkEntry (W, class->A)
+    bridgeGtkWidget2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkEntry2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkSpinButtonClass ------
+// ----- GtkSpinButton2Class ------
 // wrapper x86 -> natives of callbacks
-WRAPPER(GtkSpinButton, input, int,  (void* spin_button, void* new_value), 2, spin_button, new_value);
-WRAPPER(GtkSpinButton, output, int, (void* spin_button), 1, spin_button);
-WRAPPER(GtkSpinButton, value_changed, void, (void* spin_button), 1, spin_button);
-WRAPPER(GtkSpinButton, change_value, void, (void* spin_button, int scroll), 2, spin_button, scroll);
-WRAPPER(GtkSpinButton, wrapped, void, (void* spin_button), 1, spin_button);
+WRAPPER(GtkSpinButton2, input, int,  (void* spin_button, void* new_value), 2, spin_button, new_value);
+WRAPPER(GtkSpinButton2, output, int, (void* spin_button), 1, spin_button);
+WRAPPER(GtkSpinButton2, value_changed, void, (void* spin_button), 1, spin_button);
+WRAPPER(GtkSpinButton2, change_value, void, (void* spin_button, int scroll), 2, spin_button, scroll);
+WRAPPER(GtkSpinButton2, wrapped, void, (void* spin_button), 1, spin_button);
 
 #define SUPERGO()           \
     GO(input, iFpp);        \
@@ -924,37 +1203,37 @@ WRAPPER(GtkSpinButton, wrapped, void, (void* spin_button), 1, spin_button);
     GO(wrapped, vFp);       \
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkSpinButtonClass(my_GtkSpinButtonClass_t* class)
+static void wrapGtkSpinButton2Class(my_GtkSpinButton2Class_t* class)
 {
-    wrapGtkEntryClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkSpinButton (W, class->A)
+    wrapGtkEntry2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkSpinButton2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkSpinButtonClass(my_GtkSpinButtonClass_t* class)
+static void unwrapGtkSpinButton2Class(my_GtkSpinButton2Class_t* class)
 {   
-    unwrapGtkEntryClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkSpinButton (class->A)
+    unwrapGtkEntry2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkSpinButton2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkSpinButtonClass(my_GtkSpinButtonClass_t* class)
+static void bridgeGtkSpinButton2Class(my_GtkSpinButton2Class_t* class)
 {
-    bridgeGtkEntryClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkSpinButton (W, class->A)
+    bridgeGtkEntry2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkSpinButton2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkProgressClass ------
+// ----- GtkProgress2Class ------
 // wrapper x86 -> natives of callbacks
-WRAPPER(GtkProgress, paint, void,          (void* progress), 1, progress);
-WRAPPER(GtkProgress, update, void,         (void* progress), 1, progress);
-WRAPPER(GtkProgress, act_mode_enter, void, (void* progress), 1, progress);
+WRAPPER(GtkProgress2, paint, void,          (void* progress), 1, progress);
+WRAPPER(GtkProgress2, update, void,         (void* progress), 1, progress);
+WRAPPER(GtkProgress2, act_mode_enter, void, (void* progress), 1, progress);
 
 #define SUPERGO()           \
     GO(paint, vFp);         \
@@ -962,109 +1241,109 @@ WRAPPER(GtkProgress, act_mode_enter, void, (void* progress), 1, progress);
     GO(act_mode_enter, vFp);\
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkProgressClass(my_GtkProgressClass_t* class)
+static void wrapGtkProgress2Class(my_GtkProgress2Class_t* class)
 {
-    wrapGtkWidgetClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkProgress (W, class->A)
+    wrapGtkWidget2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkProgress2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkProgressClass(my_GtkProgressClass_t* class)
+static void unwrapGtkProgress2Class(my_GtkProgress2Class_t* class)
 {   
-    unwrapGtkWidgetClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkProgress (class->A)
+    unwrapGtkWidget2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkProgress2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkProgressClass(my_GtkProgressClass_t* class)
+static void bridgeGtkProgress2Class(my_GtkProgress2Class_t* class)
 {
-    bridgeGtkWidgetClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkProgress (W, class->A)
+    bridgeGtkWidget2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkProgress2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkProgressBarClass ------
+// ----- GtkProgressBar2Class ------
 // no wrapper x86 -> natives of callbacks
 
 #define SUPERGO()           \
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkProgressBarClass(my_GtkProgressBarClass_t* class)
+static void wrapGtkProgressBar2Class(my_GtkProgressBar2Class_t* class)
 {
-    wrapGtkProgressClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkProgressBar (W, class->A)
+    wrapGtkProgress2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkProgressBar2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkProgressBarClass(my_GtkProgressBarClass_t* class)
+static void unwrapGtkProgressBar2Class(my_GtkProgressBar2Class_t* class)
 {   
-    unwrapGtkProgressClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkProgressBar (class->A)
+    unwrapGtkProgress2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkProgressBar2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkProgressBarClass(my_GtkProgressBarClass_t* class)
+static void bridgeGtkProgressBar2Class(my_GtkProgressBar2Class_t* class)
 {
-    bridgeGtkProgressClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkProgressBar (W, class->A)
+    bridgeGtkProgress2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkProgressBar2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkFrameClass ------
+// ----- GtkFrame2Class ------
 // wrapper x86 -> natives of callbacks
-WRAPPER(GtkFrame, compute_child_allocation, void, (void* frame, void* allocation), 2, frame, allocation);
+WRAPPER(GtkFrame2, compute_child_allocation, void, (void* frame, void* allocation), 2, frame, allocation);
 
 #define SUPERGO()                       \
     GO(compute_child_allocation, vFpp); \
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkFrameClass(my_GtkFrameClass_t* class)
+static void wrapGtkFrame2Class(my_GtkFrame2Class_t* class)
 {
-    wrapGtkBinClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkFrame (W, class->A)
+    wrapGtkBin2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkFrame2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkFrameClass(my_GtkFrameClass_t* class)
+static void unwrapGtkFrame2Class(my_GtkFrame2Class_t* class)
 {   
-    unwrapGtkBinClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkFrame (class->A)
+    unwrapGtkBin2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkFrame2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkFrameClass(my_GtkFrameClass_t* class)
+static void bridgeGtkFrame2Class(my_GtkFrame2Class_t* class)
 {
-    bridgeGtkBinClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkFrame (W, class->A)
+    bridgeGtkBin2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkFrame2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkMenuShellClass ------
+// ----- GtkMenuShell2Class ------
 // wrapper x86 -> natives of callbacks
-WRAPPER(GtkMenuShell,deactivate, void,      (void* menu_shell), 1, menu_shell);
-WRAPPER(GtkMenuShell,selection_done, void,  (void* menu_shell), 1, menu_shell);
-WRAPPER(GtkMenuShell,move_current, void,    (void* menu_shell, int direction), 2, menu_shell, direction);
-WRAPPER(GtkMenuShell,activate_current, void,(void* menu_shell, int force_hide), 2, menu_shell, force_hide);
-WRAPPER(GtkMenuShell,cancel, void,          (void* menu_shell), 1, menu_shell);
-WRAPPER(GtkMenuShell,select_item, void,     (void* menu_shell, void* menu_item), 2, menu_shell, menu_item);
-WRAPPER(GtkMenuShell,insert, void,          (void* menu_shell, void* child, int position), 3, menu_shell, child, position);
-WRAPPER(GtkMenuShell,get_popup_delay, int,  (void* menu_shell), 1, menu_shell);
-WRAPPER(GtkMenuShell,move_selected, int,    (void* menu_shell, int distance), 2, menu_shell, distance);
+WRAPPER(GtkMenuShell2,deactivate, void,      (void* menu_shell), 1, menu_shell);
+WRAPPER(GtkMenuShell2,selection_done, void,  (void* menu_shell), 1, menu_shell);
+WRAPPER(GtkMenuShell2,move_current, void,    (void* menu_shell, int direction), 2, menu_shell, direction);
+WRAPPER(GtkMenuShell2,activate_current, void,(void* menu_shell, int force_hide), 2, menu_shell, force_hide);
+WRAPPER(GtkMenuShell2,cancel, void,          (void* menu_shell), 1, menu_shell);
+WRAPPER(GtkMenuShell2,select_item, void,     (void* menu_shell, void* menu_item), 2, menu_shell, menu_item);
+WRAPPER(GtkMenuShell2,insert, void,          (void* menu_shell, void* child, int position), 3, menu_shell, child, position);
+WRAPPER(GtkMenuShell2,get_popup_delay, int,  (void* menu_shell), 1, menu_shell);
+WRAPPER(GtkMenuShell2,move_selected, int,    (void* menu_shell, int distance), 2, menu_shell, distance);
 
 #define SUPERGO()               \
     GO(deactivate, vFp);        \
@@ -1078,58 +1357,58 @@ WRAPPER(GtkMenuShell,move_selected, int,    (void* menu_shell, int distance), 2,
     GO(move_selected, iFpi);    \
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkMenuShellClass(my_GtkMenuShellClass_t* class)
+static void wrapGtkMenuShell2Class(my_GtkMenuShell2Class_t* class)
 {
-    wrapGtkContainerClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkMenuShell (W, class->A)
+    wrapGtkContainer2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkMenuShell2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkMenuShellClass(my_GtkMenuShellClass_t* class)
+static void unwrapGtkMenuShell2Class(my_GtkMenuShell2Class_t* class)
 {   
-    unwrapGtkContainerClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkMenuShell (class->A)
+    unwrapGtkContainer2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkMenuShell2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkMenuShellClass(my_GtkMenuShellClass_t* class)
+static void bridgeGtkMenuShell2Class(my_GtkMenuShell2Class_t* class)
 {
-    bridgeGtkContainerClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkMenuShell (W, class->A)
+    bridgeGtkContainer2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkMenuShell2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
 
-// ----- GtkMenuBarClass ------
+// ----- GtkMenuBar2Class ------
 // no wrapper x86 -> natives of callbacks
 
 #define SUPERGO()           \
 
 // wrap (so bridge all calls, just in case)
-static void wrapGtkMenuBarClass(my_GtkMenuBarClass_t* class)
+static void wrapGtkMenuBar2Class(my_GtkMenuBar2Class_t* class)
 {
-    wrapGtkMenuShellClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkMenuBar (W, class->A)
+    wrapGtkMenuShell2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkMenuBar2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
-static void unwrapGtkMenuBarClass(my_GtkMenuBarClass_t* class)
+static void unwrapGtkMenuBar2Class(my_GtkMenuBar2Class_t* class)
 {   
-    unwrapGtkMenuShellClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkMenuBar (class->A)
+    unwrapGtkMenuShell2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkMenuBar2 (class->A)
     SUPERGO()
     #undef GO
 }
 // autobridge
-static void bridgeGtkMenuBarClass(my_GtkMenuBarClass_t* class)
+static void bridgeGtkMenuBar2Class(my_GtkMenuBar2Class_t* class)
 {
-    bridgeGtkMenuShellClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkMenuBar (W, class->A)
+    bridgeGtkMenuShell2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkMenuBar2 (W, class->A)
     SUPERGO()
     #undef GO
 }
@@ -1150,13 +1429,14 @@ static void wrapGTKClass(void* cl, size_t type)
         wrap##A##Class((my_##A##Class_t*)cl);       \
     else 
 
+    printf_log(LOG_DEBUG, "wrapCopyGTKClass(%p, %d (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
     {
-        if(my_MetaFrames==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
-            my_MetaFrames = type;
-            wrapMetaFramesClass((my_MetaFramesClass_t*)cl);
+        if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames2")) {
+            my_MetaFrames2 = type;
+            wrapMetaFrames2Class((my_MetaFrames2Class_t*)cl);
         } else
-            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %zu (%s)\n", type, g_type_name(type));
+            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %d (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
 }
@@ -1168,14 +1448,9 @@ static void unwrapGTKClass(void* cl, size_t type)
         unwrap##A##Class((my_##A##Class_t*)cl);     \
     else 
 
+    printf_log(LOG_DEBUG, "unwrapGTKClass(%p, %d (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    {
-        if(my_MetaFrames==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
-            my_MetaFrames = type;
-            unwrapMetaFramesClass((my_MetaFramesClass_t*)cl);
-        } else
-            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %zu (%s)\n", type, g_type_name(type));
-    }
+    {}  // else no warning, one is enough...
     #undef GTKCLASS
 }
 
@@ -1186,9 +1461,10 @@ static void bridgeGTKClass(void* cl, size_t type)
         bridge##A##Class((my_##A##Class_t*)cl);     \
     else 
 
+    printf_log(LOG_DEBUG, "bridgeGTKClass(%p, %d (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
     {
-        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type %zu (%s)\n", type, g_type_name(type));
+        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type %d (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
 }
@@ -1246,22 +1522,17 @@ SUPER()
 void* wrapCopyGTKClass(void* klass, size_t type)
 {
     if(!klass) return klass;
+    printf_log(LOG_DEBUG, "wrapCopyGTKClass(%p, %d (%s))\n", klass, type, g_type_name(type));
     #define GO(A) if(klass == my_gclassallu_ref_##A) return &my_gclassallu_##A;
     SUPER()
     #undef GO
     // check if class is the exact type we know
-    size_t sz = 0;
+    int sz = 0;
     #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
     GTKCLASSES()
     {
-        if(my_MetaFrames==(size_t)-1 && !strcmp(g_type_name(type), "MetaFrames")) {
-            my_MetaFrames = type;
-            sz = sizeof(my_MetaFramesClass_t);
-        }
-        if(!sz) {
-            printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type %p (%s)\n", (void*)type, g_type_name(type));
-            return klass;
-        }
+        printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type 0x%x (%s)\n", type, g_type_name(type));
+        return klass;
     }
     #undef GTKCLASS
     my_GClassAll_t *newklass = NULL;

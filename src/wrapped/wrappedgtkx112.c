@@ -1107,27 +1107,27 @@ EXPORT void* my_gtk_link_button_set_uri_hook(x64emu_t* emu, void* f, void* data,
     libname = lib->name;                                                        \
     getMy(lib);                                                                 \
     SetGtkObjectID(my->gtk_object_get_type());                                  \
-    SetGtkWidgetID(my->gtk_widget_get_type());                                  \
-    SetGtkContainerID(my->gtk_container_get_type());                            \
+    SetGtkWidget2ID(my->gtk_widget_get_type());                                 \
+    SetGtkContainer2ID(my->gtk_container_get_type());                           \
     SetGtkActionID(my->gtk_action_get_type());                                  \
-    SetGtkMiscID(my->gtk_misc_get_type());                                      \
-    SetGtkLabelID(my->gtk_label_get_type());                                    \
-    SetGtkTreeViewID(my->gtk_tree_view_get_type());                             \
-    SetGtkBinID(my->gtk_bin_get_type());                                        \
-    SetGtkWindowID(my->gtk_window_get_type());                                  \
-    SetGtkTableID(my->gtk_table_get_type());                                    \
-    SetGtkFixedID(my->gtk_fixed_get_type());                                    \
-    SetGtkButtonID(my->gtk_button_get_type());                                  \
-    SetGtkComboBoxID(my->gtk_combo_box_get_type());                             \
-    SetGtkToggleButtonID(my->gtk_toggle_button_get_type());                     \
-    SetGtkCheckButtonID(my->gtk_check_button_get_type());                       \
-    SetGtkEntryID(my->gtk_entry_get_type());                                    \
-    SetGtkSpinButtonID(my->gtk_spin_button_get_type());                         \
-    SetGtkProgressID(my->gtk_progress_get_type());                              \
-    SetGtkProgressBarID(my->gtk_progress_bar_get_type());                       \
-    SetGtkFrameID(my->gtk_frame_get_type());                                    \
-    SetGtkMenuShellID(my->gtk_menu_shell_get_type());                           \
-    SetGtkMenuBarID(my->gtk_menu_bar_get_type());                               \
+    SetGtkMisc2ID(my->gtk_misc_get_type());                                     \
+    SetGtkLabel2ID(my->gtk_label_get_type());                                   \
+    SetGtkTreeView2ID(my->gtk_tree_view_get_type());                            \
+    SetGtkBin2ID(my->gtk_bin_get_type());                                       \
+    SetGtkWindow2ID(my->gtk_window_get_type());                                 \
+    SetGtkTable2ID(my->gtk_table_get_type());                                   \
+    SetGtkFixed2ID(my->gtk_fixed_get_type());                                   \
+    SetGtkButton2ID(my->gtk_button_get_type());                                 \
+    SetGtkComboBox2ID(my->gtk_combo_box_get_type());                            \
+    SetGtkToggleButton2ID(my->gtk_toggle_button_get_type());                    \
+    SetGtkCheckButton2ID(my->gtk_check_button_get_type());                      \
+    SetGtkEntry2ID(my->gtk_entry_get_type());                                   \
+    SetGtkSpinButton2ID(my->gtk_spin_button_get_type());                        \
+    SetGtkProgress2ID(my->gtk_progress_get_type());                             \
+    SetGtkProgressBar2ID(my->gtk_progress_bar_get_type());                      \
+    SetGtkFrame2ID(my->gtk_frame_get_type());                                   \
+    SetGtkMenuShell2ID(my->gtk_menu_shell_get_type());                          \
+    SetGtkMenuBar2ID(my->gtk_menu_bar_get_type());                              \
     setNeededLibs(lib, 2, "libgdk-x11-2.0.so.0", "libpangocairo-1.0.so.0");
 
 #define CUSTOM_FINI \

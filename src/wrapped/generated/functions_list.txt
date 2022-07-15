@@ -230,10 +230,12 @@
 #() pFiI
 #() pFiu
 #() pFip
+#() pFiV
 #() pFui
 #() pFuC
 #() pFuu
 #() pFup
+#() pFuV
 #() pFUi
 #() pFUU
 #() pFdi
@@ -297,6 +299,7 @@
 #() vFfpp
 #() vFddd
 #() vFdpp
+#() vFLup
 #() vFLpL
 #() vFLpp
 #() vFpii
@@ -335,6 +338,7 @@
 #() iFEWW
 #() iFEup
 #() iFEUU
+#() iFELp
 #() iFEpi
 #() iFEpL
 #() iFEpp
@@ -662,6 +666,7 @@
 #() vFppii
 #() vFppiu
 #() vFppid
+#() vFppil
 #() vFppiL
 #() vFppip
 #() vFppui
@@ -1074,10 +1079,12 @@
 #() vFppuup
 #() vFppupi
 #() vFppupp
+#() vFppddp
 #() vFpppii
 #() vFpppip
 #() vFpppuu
 #() vFpppup
+#() vFpppdd
 #() vFppppi
 #() vFppppu
 #() vFppppL
@@ -1345,6 +1352,7 @@
 #() vFpiUuup
 #() vFpipipV
 #() vFpipppi
+#() vFpipppp
 #() vFpuiiii
 #() vFpuiiiu
 #() vFpuiipp
@@ -1360,6 +1368,7 @@
 #() vFpUUiup
 #() vFpdddii
 #() vFpddddd
+#() vFpddddp
 #() vFppiiii
 #() vFppiiip
 #() vFppiiui
@@ -1372,6 +1381,7 @@
 #() vFppupii
 #() vFppuppp
 #() vFppdidd
+#() vFppdddd
 #() vFpplppi
 #() vFpplppp
 #() vFppLppi
@@ -1608,6 +1618,8 @@
 #() vFppipiip
 #() vFppipipp
 #() vFppipppp
+#() vFppddddi
+#() vFppddpii
 #() vFppLpppi
 #() vFppLpppp
 #() vFpppiiii
@@ -1885,6 +1897,7 @@
 #() vFppipppiip
 #() vFppuuiiiii
 #() vFppUUiUUUU
+#() vFppddddidd
 #() vFpplpppppi
 #() vFpppiiiiii
 #() vFppppipiip
@@ -2101,7 +2114,6 @@
 #!defined(HAVE_LD80BITS) KFKp
 #!defined(HAVE_LD80BITS) vFppippKKC
 #defined(NOALIGN) iFipiip
-#!defined(NOALIGN) iFELp
 #!defined(NOALIGN) iFEppu
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
@@ -2253,6 +2265,19 @@ wrappedfreetype:
 wrappedgbm:
 wrappedgconf2:
 wrappedgcrypt:
+wrappedgdk3:
+- vFpp:
+  - gdk_init
+- iFpp:
+  - gdk_init_check
+- vFppp:
+  - gdk_event_handler_set
+  - gdk_window_add_filter
+  - gdk_window_remove_filter
+- iFiipp:
+  - gdk_input_add
+- iFiippp:
+  - gdk_input_add_full
 wrappedgdkpixbuf2:
 - pFpiiiiiipp:
   - gdk_pixbuf_new_from_data
@@ -2595,6 +2620,59 @@ wrappedgthread2:
 - vFp:
   - g_thread_init
   - g_thread_init_with_errorcheck_mutexes
+wrappedgtk3:
+- pFi:
+  - gtk_type_class
+- vFpp:
+  - gtk_builder_connect_signals
+  - gtk_init
+- iFLp:
+  - gtk_type_unique
+- iFpp:
+  - gtk_init_check
+- vFppp:
+  - gtk_builder_connect_signals_full
+  - gtk_container_forall
+  - gtk_menu_attach_to_widget
+- vFppV:
+  - gtk_dialog_add_buttons
+  - gtk_message_dialog_format_secondary_markup
+  - gtk_message_dialog_format_secondary_text
+- uFupp:
+  - gtk_timeout_add
+- vFpppp:
+  - gtk_object_set_data_full
+  - gtk_stock_set_translate_func
+  - gtk_tree_sortable_set_default_sort_func
+  - gtk_tree_view_set_search_equal_func
+- iFpppp:
+  - gtk_text_iter_backward_find_char
+  - gtk_text_iter_forward_find_char
+- vFpippp:
+  - gtk_tree_sortable_set_sort_func
+- vFppppp:
+  - gtk_tree_view_column_set_cell_data_func
+- iFppuppp:
+  - gtk_clipboard_set_with_data
+  - gtk_clipboard_set_with_owner
+- iFpppppp:
+  - gtk_init_with_args
+- vFpppppuu:
+  - gtk_menu_popup
+- pFppppppi:
+  - gtk_toolbar_insert_stock
+- pFppppppp:
+  - gtk_toolbar_append_item
+  - gtk_toolbar_prepend_item
+- LFppppppii:
+  - gtk_signal_connect_full
+- pFpppppppi:
+  - gtk_toolbar_insert_item
+- pFpippppppp:
+  - gtk_toolbar_append_element
+  - gtk_toolbar_prepend_element
+- pFpipppppppi:
+  - gtk_toolbar_insert_element
 wrappedgtkx112:
 - fFp:
   - gtk_spin_button_get_value_as_float

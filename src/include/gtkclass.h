@@ -39,6 +39,21 @@ typedef struct my_GObjectClass_s
   void*  pdummy[6];
 } my_GObjectClass_t;
 
+typedef struct my_GInitiallyUnownedClass_s
+{
+  int   g_type_class;
+  void* construct_properties;
+  void* (*constructor)     (int type, uint32_t n_construct_properties, void* construct_properties);
+  void  (*set_property)    (void* object, uint32_t property_id, void* value, void* pspec);
+  void  (*get_property)    (void* object, uint32_t property_id, void* value, void* pspec);
+  void  (*dispose)         (void* object);
+  void  (*finalize)        (void* object);
+  void  (*dispatch_properties_changed) (void* object, uint32_t n_pspecs, void* pspecs);
+  void  (*notify)          (void* object, void* pspec);
+  void  (*constructed)     (void* object);
+  uint32_t flags;
+  void*  pdummy[6];
+} my_GInitiallyUnownedClass_t;
 
 typedef struct my_GtkObjectClass_s
 {
@@ -48,7 +63,7 @@ typedef struct my_GtkObjectClass_s
   void (*destroy) (void* object);
 } my_GtkObjectClass_t;
 
-typedef struct my_GtkWidgetClass_s
+typedef struct my_GtkWidget2Class_s
 {
   my_GtkObjectClass_t parent_class;
   uint32_t activate_signal;
@@ -122,11 +137,102 @@ typedef struct my_GtkWidgetClass_s
   void (*_gtk_reserved5) (void);
   void (*_gtk_reserved6) (void);
   void (*_gtk_reserved7) (void);
-} my_GtkWidgetClass_t;
+} my_GtkWidget2Class_t;
 
-typedef struct my_GtkContainerClass_s 
+typedef struct my_GtkWidget3Class_s
 {
-  my_GtkWidgetClass_t parent_class;
+  my_GInitiallyUnownedClass_t parent_class;
+  uint32_t activate_signal;
+  void (*dispatch_child_properties_changed) (void* widget, uint32_t n_pspecs, void* pspecs);
+  void (* destroy)             (void* widget);
+  void (* show)                (void* widget);
+  void (* show_all)            (void* widget);
+  void (* hide)                (void* widget);
+  void (* map)                 (void* widget);
+  void (* unmap)               (void* widget);
+  void (* realize)             (void* widget);
+  void (* unrealize)           (void* widget);
+  void (* size_allocate)       (void* widget, void* allocation);
+  void (* state_changed)       (void* widget, int previous_state);
+  void (* state_flags_changed) (void* widget, int previous_state_flags);
+  void (* parent_set)          (void* widget, void* previous_parent);
+  void (* hierarchy_changed)   (void* widget, void* previous_toplevel);
+  void (* style_set)           (void* widget, void* previous_style);
+  void (* direction_changed)   (void* widget, int previous_direction);
+  void (* grab_notify)         (void* widget, int was_grabbed);
+  void (* child_notify)        (void* widget, void* child_property);
+  int (* draw)                 (void* widget, void* cr);
+  int (* get_request_mode)     (void* widget);
+  void (* get_preferred_height) (void* widget, void* minimum_height, void* natural_height);
+  void (* get_preferred_width_for_height) (void* widget, int height, void* minimum_width, void* natural_width);
+  void (* get_preferred_width) (void* widget, void* minimum_width, void* natural_width);
+  void (* get_preferred_height_for_width) (void* widget, int width, void* minimum_height, void* natural_height);
+  int (* mnemonic_activate)    (void* widget, int group_cycling);
+  void (* grab_focus)          (void* widget);
+  int (* focus)                (void* widget, int direction);
+  void (* move_focus)          (void* widget, int direction);
+  int (* keynav_failed)        (void* widget, int direction);
+  int (* event)                (void* widget, void* event);
+  int (* button_press_event)   (void* widget, void* event);
+  int (* button_release_event) (void* widget, void* event);
+  int (* scroll_event)         (void* widget, void* event);
+  int (* motion_notify_event)  (void* widget, void* event);
+  int (* delete_event)         (void* widget, void* event);
+  int (* destroy_event)        (void* widget, void* event);
+  int (* key_press_event)      (void* widget, void* event);
+  int (* key_release_event)    (void* widget, void* event);
+  int (* enter_notify_event)   (void* widget, void* event);
+  int (* leave_notify_event)   (void* widget, void* event);
+  int (* configure_event)      (void* widget, void* event);
+  int (* focus_in_event)       (void* widget, void* event);
+  int (* focus_out_event)      (void* widget, void* event);
+  int (* map_event)            (void* widget, void* event);
+  int (* unmap_event)          (void* widget, void* event);
+  int (* property_notify_event) (void* widget, void* event);
+  int (* selection_clear_event) (void* widget, void* event);
+  int (* selection_request_event) (void* widget, void* event);
+  int (* selection_notify_event) (void* widget, void* event);
+  int (* proximity_in_event)   (void* widget, void* event);
+  int (* proximity_out_event)  (void* widget, void* event);
+  int (* visibility_notify_event) (void* widget, void* event);
+  int (* window_state_event)   (void* widget, void* event);
+  int (* damage_event)         (void* widget, void* event);
+  int (* grab_broken_event)    (void* widget, void* event);
+  void (* selection_get)       (void* widget, void* selection_data, uint32_t info, uint32_t time_);
+  void (* selection_received)  (void* widget, void* selection_data, uint32_t time_);
+  void (* drag_begin)          (void* widget, void* context);
+  void (* drag_end)            (void* widget, void* context);
+  void (* drag_data_get)       (void* widget, void* context, void* selection_data, uint32_t info, uint32_t time_);
+  void (* drag_data_delete)    (void* widget, void* context);
+  void (* drag_leave)          (void* widget, void* context, uint32_t time_);
+  int (* drag_motion)          (void* widget, void* context, int x, int y, uint32_t time_);
+  int (* drag_drop)            (void* widget, void* context, int x, int y, uint32_t time_);
+  void (* drag_data_received)  (void* widget, void* context, int x, int y, void* selection_data, uint32_t info, uint32_t time_);
+  int (* drag_failed)          (void* widget, void* context, int result);
+  int (* popup_menu)           (void* widget);
+  int (* show_help)            (void* widget, int help_type);
+  void* (* get_accessible)     (void *widget);
+  void (* screen_changed)      (void* widget, void* previous_screen);
+  int (* can_activate_accel)   (void* widget, uint32_t signal_id);
+  void (* composited_changed)  (void* widget);
+  int (* query_tooltip)        (void* widget, int x, int y, int keyboard_tooltip, void* tooltip);
+  void (* compute_expand)      (void* widget, void*hexpand_p, void* vexpand_p);
+  void (* adjust_size_request) (void* widget, int orientation, void* minimum_size, void* natural_size);
+  void (* adjust_size_allocation) (void*widget, int orientation, void* minimum_size, void* natural_size, void* allocated_pos, void* allocated_size);
+  void (* style_updated)       (void* widget);
+  int (* touch_event)          (void* widget, void* event);
+  void (* get_preferred_height_and_baseline_for_width) (void* widget, int width, void* minimum_height, void* natural_height, void* minimum_baseline, void* natural_baseline);
+  void (* adjust_baseline_request) (void* widget, void* minimum_baseline, void* natural_baseline);
+  void (* adjust_baseline_allocation) (void* widget, void* baseline);
+  void (*queue_draw_region)    (void* widget, void* region);
+  void* priv;
+  void (*_gtk_reserved6) (void);
+  void (*_gtk_reserved7) (void);
+} my_GtkWidget3Class_t;
+
+typedef struct my_GtkContainer2Class_s 
+{
+  my_GtkWidget2Class_t parent_class;
   void    (*add)                (void* container, void* widget);
   void    (*remove)             (void* container, void* widget);
   void    (*check_resize)       (void* container);
@@ -140,7 +246,7 @@ typedef struct my_GtkContainerClass_s
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-} my_GtkContainerClass_t;
+} my_GtkContainer2Class_t;
 
 typedef struct my_GtkActionClass_s
 {
@@ -158,14 +264,14 @@ typedef struct my_GtkActionClass_s
   void (*_gtk_reserved4) (void);
 } my_GtkActionClass_t;
 
-typedef struct my_GtkMiscClass_s
+typedef struct my_GtkMisc2Class_s
 {
-  my_GtkWidgetClass_t parent_class;
-} my_GtkMiscClass_t;
+  my_GtkWidget2Class_t parent_class;
+} my_GtkMisc2Class_t;
 
-typedef struct my_GtkLabelClass_s
+typedef struct my_GtkLabel2Class_s
 {
-  my_GtkMiscClass_t parent_class;
+  my_GtkMisc2Class_t parent_class;
   void (* move_cursor)     (void* label, int step, int count, int extend_selection);
   void (* copy_clipboard)  (void* label);
   void (* populate_popup)  (void* label, void* menu);
@@ -173,11 +279,11 @@ typedef struct my_GtkLabelClass_s
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
-} my_GtkLabelClass_t;
+} my_GtkLabel2Class_t;
 
-typedef struct my_GtkTreeViewClass_s
+typedef struct my_GtkTreeView2Class_s
 {
-  my_GtkContainerClass_t parent_class;
+  my_GtkContainer2Class_t parent_class;
   void (* set_scroll_adjustments)     (void* tree_view, void* hadjustment, void* vadjustment);
   void (* row_activated)              (void* tree_view, void* path, void* column);
   int  (* test_expand_row)            (void* tree_view, void* iter, void* path);
@@ -199,19 +305,19 @@ typedef struct my_GtkTreeViewClass_s
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-} my_GtkTreeViewClass_t;
+} my_GtkTreeView2Class_t;
 
-typedef struct my_GtkBinClass_s
+typedef struct my_GtkBin2Class_s
 {
-  my_GtkContainerClass_t parent_class;
+  my_GtkContainer2Class_t parent_class;
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-} my_GtkBinClass_t;
+} my_GtkBin2Class_t;
 
-typedef struct my_GtkWindowClass_s {
-  my_GtkBinClass_t parent_class;
+typedef struct my_GtkWindow2Class_s {
+  my_GtkBin2Class_t parent_class;
   void (* set_focus)    (void* window, void* focus);
   int  (* frame_event)  (void* window, void* event);
   void (* activate_focus)          (void* window);
@@ -222,10 +328,10 @@ typedef struct my_GtkWindowClass_s {
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-} my_GtkWindowClass_t;
+} my_GtkWindow2Class_t;
 
-typedef struct my_GtkButtonClass_s {
-  my_GtkBinClass_t parent_class;
+typedef struct my_GtkButton2Class_s {
+  my_GtkBin2Class_t parent_class;
   void (* pressed)  (void *button);
   void (* released) (void *button);
   void (* clicked)  (void *button);
@@ -236,37 +342,37 @@ typedef struct my_GtkButtonClass_s {
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-} my_GtkButtonClass_t;
+} my_GtkButton2Class_t;
 
-typedef struct my_GtkToggleButtonClass_s {
-  my_GtkButtonClass_t parent_class;
+typedef struct my_GtkToggleButton2Class_s {
+  my_GtkButton2Class_t parent_class;
   void (* toggled) (void* toggle_button);
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-} my_GtkToggleButtonClass_t;
+} my_GtkToggleButton2Class_t;
 
-typedef struct my_GtkCheckButtonClass_s {
-  my_GtkToggleButtonClass_t parent_class;
+typedef struct my_GtkCheckButton2Class_s {
+  my_GtkToggleButton2Class_t parent_class;
   void (* draw_indicator) (void* check_button, void* area);
   void (*_gtk_reserved0) (void);
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
-} my_GtkCheckButtonClass_t;
+} my_GtkCheckButton2Class_t;
 
-typedef struct my_GtkComboBoxClass_s {
-  my_GtkBinClass_t parent_class;
+typedef struct my_GtkComboBox2Class_s {
+  my_GtkBin2Class_t parent_class;
   void (* changed)        (void* combo_box);
   void*(* get_active_text)(void* combo_box);
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-} my_GtkComboBoxClass_t;
+} my_GtkComboBox2Class_t;
 
-typedef struct my_GtkEntryClass_s {
-  my_GtkWidgetClass_t parent_class;
+typedef struct my_GtkEntry2Class_s {
+  my_GtkWidget2Class_t parent_class;
   void (* populate_popup)   (void* entry, void* menu);
   void (* activate)           (void* entry);
   void (* move_cursor)        (void* entry, int step, int count, int extend_selection);
@@ -280,10 +386,10 @@ typedef struct my_GtkEntryClass_s {
   void (* get_text_area_size) (void* entry, void* x, void* y, void* width, void* height);
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
-} my_GtkEntryClass_t;
+} my_GtkEntry2Class_t;
 
-typedef struct my_GtkSpinButtonClass_s {
-  my_GtkEntryClass_t parent_class;
+typedef struct my_GtkSpinButton2Class_s {
+  my_GtkEntry2Class_t parent_class;
   int  (*input)  (void* spin_button, void* new_value);
   int  (*output) (void* spin_button);
   void (*value_changed) (void* spin_button);
@@ -292,10 +398,10 @@ typedef struct my_GtkSpinButtonClass_s {
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
-} my_GtkSpinButtonClass_t;
+} my_GtkSpinButton2Class_t;
 
-typedef struct my_GtkProgressClass_s {
-  my_GtkWidgetClass_t parent_class;
+typedef struct my_GtkProgress2Class_s {
+  my_GtkWidget2Class_t parent_class;
   void (* paint)            (void* progress);
   void (* update)           (void* progress);
   void (* act_mode_enter)   (void* progress);
@@ -303,23 +409,23 @@ typedef struct my_GtkProgressClass_s {
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-} my_GtkProgressClass_t;
+} my_GtkProgress2Class_t;
 
-typedef struct my_GtkProgressBarClass_s {
-  my_GtkProgressClass_t parent_class;
+typedef struct my_GtkProgressBar2Class_s {
+  my_GtkProgress2Class_t parent_class;
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-} my_GtkProgressBarClass_t;
+} my_GtkProgressBar2Class_t;
 
-typedef struct my_GtkFrameClass_s {
-  my_GtkBinClass_t parent_class;
+typedef struct my_GtkFrame2Class_s {
+  my_GtkBin2Class_t parent_class;
   void (*compute_child_allocation) (void* frame, void* allocation);
-} my_GtkFrameClass_t;
+} my_GtkFrame2Class_t;
 
-typedef struct my_GtkMenuShellClass_s {
-  my_GtkContainerClass_t parent_class;
+typedef struct my_GtkMenuShell2Class_s {
+  my_GtkContainer2Class_t parent_class;
   void (*deactivate)       (void* menu_shell);
   void (*selection_done)   (void* menu_shell);
   void (*move_current)     (void* menu_shell, int direction);
@@ -331,31 +437,39 @@ typedef struct my_GtkMenuShellClass_s {
   int  (*move_selected)    (void* menu_shell, int distance);
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
-} my_GtkMenuShellClass_t;
+} my_GtkMenuShell2Class_t;
 
-typedef struct my_GtkMenuBarClass_s {
-  my_GtkMenuShellClass_t parent_class;
+typedef struct my_GtkMenuBar2Class_s {
+  my_GtkMenuShell2Class_t parent_class;
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-} my_GtkMenuBarClass_t;
+} my_GtkMenuBar2Class_t;
 
-typedef struct my_MetaFramesClass_s
+typedef struct my_MetaFrames2Class_s
 {
-  my_GtkWindowClass_t parent_class;
+  my_GtkWindow2Class_t parent_class;
 
-} my_MetaFramesClass_t;
+} my_MetaFrames2Class_t;
 
-typedef struct my_GtkTableClass_s
+typedef struct my_GtkTable2Class_s
 {
-  my_GtkContainerClass_t parent_class;
-} my_GtkTableClass_t;
+  my_GtkContainer2Class_t parent_class;
+} my_GtkTable2Class_t;
 
-typedef struct my_GtkFixedClass_s
+typedef struct my_GtkFixed2Class_s
 {
-  my_GtkContainerClass_t parent_class;
-} my_GtkFixedClass_t;
+  my_GtkContainer2Class_t parent_class;
+} my_GtkFixed2Class_t;
+
+typedef struct my_GDBusObjectManagerClientClass_s
+{
+  my_GObjectClass_t parent_class;
+  void    (*interface_proxy_signal)             (void* manager, void* object_proxy, void* interface_proxy, void* sender_name, void* signal_name, void* parameters);
+  void    (*interface_proxy_properties_changed) (void* manager, void* object_proxy, void* interface_proxy, void* changed_properties, void* invalidated_properties);
+  void* padding[8];
+} my_GDBusObjectManagerClientClass_t;
 
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
@@ -411,31 +525,34 @@ my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent);
 void InitGTKClass(bridge_t *bridge);
 void FiniGTKClass();
 
-#define GTKCLASSES()    \
-GTKCLASS(GObject)       \
-GTKCLASS(GtkObject)     \
-GTKCLASS(GtkWidget)     \
-GTKCLASS(GtkContainer)  \
-GTKCLASS(GtkAction)     \
-GTKCLASS(GtkLabel)      \
-GTKCLASS(GtkMisc)       \
-GTKCLASS(GtkTreeView)   \
-GTKCLASS(GtkBin)        \
-GTKCLASS(GtkWindow)     \
-GTKCLASS(GtkTable)      \
-GTKCLASS(GtkFixed)      \
-GTKCLASS(GtkButton)     \
-GTKCLASS(GtkComboBox)   \
-GTKCLASS(GtkToggleButton)\
-GTKCLASS(GtkCheckButton)\
-GTKCLASS(GtkEntry)      \
-GTKCLASS(GtkSpinButton) \
-GTKCLASS(GtkProgress)   \
-GTKCLASS(GtkProgressBar)\
-GTKCLASS(GtkFrame)      \
-GTKCLASS(GtkMenuShell)  \
-GTKCLASS(GtkMenuBar)    \
-GTKCLASS(MetaFrames)    \
+#define GTKCLASSES()                \
+GTKCLASS(GObject)                   \
+GTKCLASS(GInitiallyUnowned)         \
+GTKCLASS(GtkObject)                 \
+GTKCLASS(GtkWidget2)                \
+GTKCLASS(GtkWidget3)                \
+GTKCLASS(GtkContainer2)             \
+GTKCLASS(GtkAction)                 \
+GTKCLASS(GtkLabel2)                 \
+GTKCLASS(GtkMisc2)                  \
+GTKCLASS(GtkTreeView2)              \
+GTKCLASS(GtkBin2)                   \
+GTKCLASS(GtkWindow2)                \
+GTKCLASS(GtkTable2)                 \
+GTKCLASS(GtkFixed2)                 \
+GTKCLASS(GtkButton2)                \
+GTKCLASS(GtkComboBox2)              \
+GTKCLASS(GtkToggleButton2)          \
+GTKCLASS(GtkCheckButton2)           \
+GTKCLASS(GtkEntry2)                 \
+GTKCLASS(GtkSpinButton2)            \
+GTKCLASS(GtkProgress2)              \
+GTKCLASS(GtkProgressBar2)           \
+GTKCLASS(GtkFrame2)                 \
+GTKCLASS(GtkMenuShell2)             \
+GTKCLASS(GtkMenuBar2)               \
+GTKCLASS(MetaFrames2)               \
+GTKCLASS(GDBusObjectManagerClient)  \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);
 GTKCLASSES()
