@@ -30,7 +30,7 @@
 //#include "myalign.h"
 #include "box64context.h"
 #include "callback.h"
-//#include "signals.h"
+#include "signals.h"
 #include "x64tls.h"
 
 typedef struct x64_sigaction_s x64_sigaction_t;
@@ -337,7 +337,25 @@ void EXPORT x64Syscall(x64emu_t *emu)
             *(int64_t*)&R_RAX = my_munmap(emu, (void*)R_RDI, R_RSI);
             break;
         case 13: // sys_rt_sigaction
-            *(int64_t*)&R_RAX = my_sigaction(emu, (int)R_EDI, (const x64_sigaction_t *)R_RSI, (x64_sigaction_t *)R_RDX/*, (size_t)R_R10*/);
+            {
+                x64_sigaction_t n ={0};
+                x64_sigaction_t o = {0};
+                if(R_RSI) {
+                    x64_sigaction_restorer_t *p = (x64_sigaction_restorer_t*)R_RSI;
+                    n._u._sa_sigaction = p->_u._sa_sigaction;
+                    n.sa_flags = p->sa_flags;
+                    n.sa_restorer = p->sa_restorer;
+                    memcpy(&n.sa_mask, &p->sa_mask, R_R10);
+                }
+                R_RAX = (int64_t)(int64_t)my_sigaction(emu, (int)R_EDI, R_RSI?&n:NULL, R_RDX?&o:NULL/*, (size_t)R_R10*/);
+                if(R_RAX>=0 && R_RDX) {
+                    x64_sigaction_restorer_t *p = (x64_sigaction_restorer_t*)R_RDX;
+                    p->_u._sa_sigaction = o._u._sa_sigaction;
+                    p->sa_flags = o.sa_flags;
+                    p->sa_restorer = o.sa_restorer;
+                    memcpy(&p->sa_mask, &o.sa_mask, R_R10);
+                }
+            }
             break;
         #ifndef __NR_access
         case 21: // sys_access
@@ -538,7 +556,26 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         case 11: // sys_munmap
             return (uint64_t)(int64_t)my_munmap(emu, (void*)R_RSI, R_RDX);
         case 13: // sys_rt_sigaction
-            return (uint64_t)(int64_t)my_sigaction(emu, (int)R_ESI, (const x64_sigaction_t *)R_RDX, (x64_sigaction_t *)R_RCX/*, (size_t)R_R8*/);
+            {
+                x64_sigaction_t n ={0};
+                x64_sigaction_t o = {0};
+                if(R_RDX) {
+                    x64_sigaction_restorer_t *p = (x64_sigaction_restorer_t*)R_RDX;
+                    n._u._sa_sigaction = p->_u._sa_sigaction;
+                    n.sa_flags = p->sa_flags;
+                    n.sa_restorer = p->sa_restorer;
+                    memcpy(&n.sa_mask, &p->sa_mask, R_R8);
+                }
+                uint64_t ret = (uint64_t)(int64_t)my_sigaction(emu, (int)R_ESI, R_RDX?&n:NULL, R_RCX?&o:NULL/*, (size_t)R_R8*/);
+                if(R_RCX) {
+                    x64_sigaction_restorer_t *p = (x64_sigaction_restorer_t*)R_RCX;
+                    p->_u._sa_sigaction = o._u._sa_sigaction;
+                    p->sa_flags = o.sa_flags;
+                    p->sa_restorer = o.sa_restorer;
+                    memcpy(&p->sa_mask, &o.sa_mask, R_R8);
+                }
+                return ret;
+            }
         #ifndef __NR_access
         case 21: // sys_access
             return (uint64_t)(int64_t)access((void*)R_RSI, R_EDX);
