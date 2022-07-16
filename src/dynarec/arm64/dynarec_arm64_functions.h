@@ -39,6 +39,7 @@ void arm_aeskeygenassist(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8);
 void arm_clflush(x64emu_t* emu, void* p);
 
 void arm_ud(x64emu_t* emu);
+void arm_priv(x64emu_t* emu);
 
 // Get an FPU scratch reg
 int fpu_get_scratch(dynarec_arm_t* dyn);

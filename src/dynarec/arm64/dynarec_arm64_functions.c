@@ -157,6 +157,11 @@ void arm_ud(x64emu_t* emu)
     emit_signal(emu, SIGILL, (void*)R_RIP, 0);
 }
 
+void arm_priv(x64emu_t* emu)
+{
+    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+}
+
 void arm_fsave(x64emu_t* emu, uint8_t* ed)
 {
     fpu_savenv(emu, (char*)ed, 0);
