@@ -62,6 +62,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             break;
 
         case 0x0B:                      /* UD2 */
+            R_RIP-=2;
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             break;
 
