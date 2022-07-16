@@ -289,16 +289,16 @@ static void fillPredecessors(dynarec_native_t* dyn)
     // compute total size of predecessor to alocate the array
     // first compute the jumps
     for(int i=0; i<dyn->size; ++i) {
-        if(dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts!=-1) {
-            ++pred_sz;
-            ++dyn->insts[dyn->insts[i].x64.jmp_insts].pred_sz;
+        if(dyn->insts[i].x64.jmp && (dyn->insts[i].x64.jmp_insts!=-1)) {
+            pred_sz++;
+            dyn->insts[dyn->insts[i].x64.jmp_insts].pred_sz++;
         }
     }
     // second the "has_next"
     for(int i=0; i<dyn->size-1; ++i) {
         if(dyn->insts[i].x64.has_next) {
-            ++pred_sz;
-            ++dyn->insts[i+1].pred_sz;
+            pred_sz++;
+            dyn->insts[i+1].pred_sz++;
         }
     }
     dyn->predecessor = (int*)malloc(pred_sz*sizeof(int));
@@ -311,10 +311,12 @@ static void fillPredecessors(dynarec_native_t* dyn)
     }
     // fill pred
     for(int i=0; i<dyn->size; ++i) {
-        if(i!=dyn->size-1 && dyn->insts[i].x64.has_next && (!i || dyn->insts[i].pred_sz))
+        if((i!=dyn->size-1) && dyn->insts[i].x64.has_next)
             dyn->insts[i+1].pred[dyn->insts[i+1].pred_sz++] = i;
-        if(dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts!=-1)
-            dyn->insts[dyn->insts[i].x64.jmp_insts].pred[dyn->insts[dyn->insts[i].x64.jmp_insts].pred_sz++] = i;
+        if(dyn->insts[i].x64.jmp && (dyn->insts[i].x64.jmp_insts!=-1)) {
+            int j = dyn->insts[i].x64.jmp_insts;
+            dyn->insts[j].pred[dyn->insts[j].pred_sz++] = i;
+        }
     }
 
 }
