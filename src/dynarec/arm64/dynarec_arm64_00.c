@@ -2082,7 +2082,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     BARRIER(BARRIER_FULL);
                     //BARRIER_NEXT(BARRIER_FULL);
-                    TABLE64(x2, addr);
+                    if(dyn->last_ip && (addr-dyn->last_ip<0x1000)) {
+                        ADDx_U12(x2, xRIP, addr-dyn->last_ip);
+                    } else {
+                        TABLE64(x2, addr);
+                    }
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
@@ -2091,6 +2095,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8), tmp);
                         POP1(xRIP);   // pop the return address
+                        dyn->last_ip = addr;
                     } else {
                         GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
                         STORE_XEMU_CALL(xRIP);
@@ -2112,6 +2117,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MARK;
                         LOAD_XEMU_REM();    // load remaining register, has they have changed
                         jump_to_epilog(dyn, 0, xRIP, ninst);
+                        dyn->last_ip = addr;
                     }
                     break;
                 default:

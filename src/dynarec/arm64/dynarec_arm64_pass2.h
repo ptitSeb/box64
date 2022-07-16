@@ -7,7 +7,7 @@
         if(ninst) {                                                                                     \
                 dyn->insts[ninst].address = (dyn->insts[ninst-1].address+dyn->insts[ninst-1].size);     \
                 if(ninst && isInstClean(dyn, ninst)) {                                                  \
-                        dyn->last_ip = 0;                                                               \
+                        if(dyn->last_ip!=ip) dyn->last_ip = 0;                                          \
                         ++dyn->sons_size;                                                               \
                 }                                                                                       \
         }

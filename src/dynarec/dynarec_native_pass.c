@@ -104,7 +104,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
                 }
             }
             reset_n = -1;
-        } else if(dyn->insts[ninst].pred_sz!=1)
+        } else if(ninst && (dyn->insts[ninst].pred_sz!=1 || dyn->insts[ninst].pred[0]!=ninst-1))
             dyn->last_ip = 0;   // reset IP if some jump are comming here
         // propagate ST stack state, especial stack pop that are defered
         if(dyn->n.stack_pop) {

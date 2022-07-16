@@ -9,7 +9,7 @@
 #define MESSAGE(A, ...)  if(box64_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST        \
     if(ninst && isInstClean(dyn, ninst)) {                      \
-        dyn->last_ip = 0;                                       \
+        if(dyn->last_ip!=ip) dyn->last_ip = 0;                  \
         dyn->sons_x64[dyn->sons_size] = (uintptr_t)ip;          \
         dyn->sons_native[dyn->sons_size] = dyn->block;          \
         MESSAGE(LOG_DUMP, "----> potential Son here %p/%p\n", (void*)ip, dyn->block);  \
