@@ -152,12 +152,19 @@ scwrap_t syscallwrap[] = {
     { 202, __NR_futex, 6},
     { 203, __NR_sched_setaffinity, 3},
     { 204, __NR_sched_getaffinity, 3},
+    #ifdef __NR_epoll_create
+    { 213, __NR_epoll_create, 1},
+    #endif
     { 217, __NR_getdents64, 3},
     { 220, __NR_semtimedop, 4},
     { 228, __NR_clock_gettime, 2},
     { 229, __NR_clock_getres, 2},
     { 230, __NR_clock_nanosleep, 4},
     { 231, __NR_exit_group, 1},
+    #ifdef __NR_epoll_wait
+    { 232, __NR_epoll_wait, 4},
+    #endif
+    { 233, __NR_epoll_ctl, 4},
     { 234, __NR_tgkill, 3},
     #ifdef __NR_inotify_init
     { 253, __NR_inotify_init, 0},   //0xFD
@@ -168,6 +175,14 @@ scwrap_t syscallwrap[] = {
     { 270, __NR_pselect6, 6},
     { 272, __NR_unshare, 1},
     { 274, __NR_get_robust_list, 3},
+    { 281, __NR_epoll_pwait, 6},
+    #ifdef _NR_eventfd
+    { 284, __NR_eventfd, 1},
+    #endif
+    { 290, __NR_eventfd2, 2},
+    { 291, __NR_epoll_create1, 1},
+    { 292, __NR_dup3, 3},
+    { 293, __NR_pipe2, 2},
     { 294, __NR_inotify_init1, 1},
     { 298, __NR_perf_event_open, 5},
     { 309, __NR_getcpu, 3}, // need wrapping?
