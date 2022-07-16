@@ -1429,10 +1429,10 @@ static void wrapGTKClass(void* cl, size_t type)
         wrap##A##Class((my_##A##Class_t*)cl);       \
     else 
 
-    printf_log(LOG_DEBUG, "wrapCopyGTKClass(%p, %d (%s))\n", cl, type, g_type_name(type));
+    printf_log(LOG_DEBUG, "wrapGTKClass(%p, %d (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
     {
-        if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames2")) {
+        if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
             my_MetaFrames2 = type;
             wrapMetaFrames2Class((my_MetaFrames2Class_t*)cl);
         } else
@@ -1531,8 +1531,13 @@ void* wrapCopyGTKClass(void* klass, size_t type)
     #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
     GTKCLASSES()
     {
-        printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type 0x%x (%s)\n", type, g_type_name(type));
-        return klass;
+        if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
+            my_MetaFrames2 = type;
+            sz = sizeof(my_MetaFrames2Class_t);
+        } else {
+            printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type 0x%x (%s)\n", type, g_type_name(type));
+            return klass;
+        }
     }
     #undef GTKCLASS
     my_GClassAll_t *newklass = NULL;
