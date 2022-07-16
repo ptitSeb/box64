@@ -154,7 +154,7 @@ void UpdateFlags(x64emu_t *emu)
         case d_add64:
             lo = (emu->op2.u64 & 0xFFFFFFFF) + (emu->op1.u64 & 0xFFFFFFFF);
             hi = (lo >> 32) + (emu->op2.u64 >> 32) + (emu->op1.u64 >> 32);
-            CONDITIONAL_SET_FLAG(hi & 0x100000000, F_CF);
+            CONDITIONAL_SET_FLAG(hi & 0x100000000L, F_CF);
             CONDITIONAL_SET_FLAG(!emu->res.u64, F_ZF);
             CONDITIONAL_SET_FLAG(emu->res.u64 & 0x8000000000000000LL, F_SF);
             CONDITIONAL_SET_FLAG(PARITY(emu->res.u64 & 0xff), F_PF);
@@ -836,7 +836,7 @@ void UpdateFlags(x64emu_t *emu)
                 lo = 1 + (emu->op1.u64 & 0xFFFFFFFF) + (emu->op2.u64 & 0xFFFFFFFF);
             }
             hi = (lo >> 32) + (emu->op1.u64 >> 32) + (emu->op2.u64 >> 32);
-            CONDITIONAL_SET_FLAG(hi & 0x1000000000000L, F_CF);
+            CONDITIONAL_SET_FLAG(hi & 0x100000000L, F_CF);
             CONDITIONAL_SET_FLAG(!emu->res.u64, F_ZF);
             CONDITIONAL_SET_FLAG(emu->res.u64 & 0x8000000000000000LL, F_SF);
             CONDITIONAL_SET_FLAG(PARITY(emu->res.u64 & 0xff), F_PF);
