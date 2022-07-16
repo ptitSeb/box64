@@ -46,7 +46,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     #ifdef HAVE_TRACE
     if(!addr) {
         dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-        printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x64addr=%p)\n", x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL);
+        printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x64addr=%p/%s)\n", x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
     }
     #endif
     dynablock_t* current = NULL;
