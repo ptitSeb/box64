@@ -159,7 +159,7 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     if(!head->vaddr && box64_load_addr) {
         offs = box64_load_addr;
         box64_load_addr += head->memsz;
-        box64_load_addr = (box64_load_addr+0xffffffLL)&~0xffffffLL;
+        box64_load_addr = (box64_load_addr+0x10ffffffLL)&~0xffffffLL;
     }
     int log_level = box64_load_addr?LOG_INFO:LOG_DEBUG;
     if(!offs)
@@ -672,7 +672,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     }
                     if (!offs) {
                         if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start"))
-                            printf_log(LOG_NONE, "%s: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", (bind==STB_WEAK)?"Warning":"Error", symname, p, *(void**)p, head->name);
+                            printf_log((bind==STB_WEAK)?LOG_INFO:LOG_NONE, "%s: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", (bind==STB_WEAK)?"Warning":"Error", symname, p, *(void**)p, head->name);
                     } else {
                         printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s (ver=%d/%s)\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname, version, vername?vername:"(none)");
                         *p = offs/* + rela[i].r_addend*/;   // not addend it seems
@@ -704,7 +704,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                                 (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(offs+rela[i].r_addend));
                             *p = offs + rela[i].r_addend;
                         } else {
-                            printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
+                            printf_log(LOG_INFO, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
                         }
                     }
                 } else {

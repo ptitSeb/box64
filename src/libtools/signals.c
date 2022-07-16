@@ -1057,7 +1057,6 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
 {
     ucontext_t ctx = {0};
-    void* db = NULL;
     siginfo_t info = {0};
     info.si_signo = sig;
     info.si_errno = (sig==SIGSEGV)?0x1234:0;    // MAark as a sign this is a #GP(0) (like privileged instruction)
@@ -1065,15 +1064,14 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
     info.si_addr = addr;
     const char* x64name = NULL;
     const char* elfname = NULL;
-    if(box64_log>LOG_NONE) {
+    if(box64_log>LOG_INFO) {
         x64name = getAddrFunctionName(R_RIP);
         elfheader_t* elf = FindElfAddress(my_context, R_RIP);
         if(elf)
             elfname = ElfName(elf);
+        printf_log(LOG_NONE, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=%d\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
     }
-
-    printf_log(/*LOG_INFO*/LOG_DEBUG, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=%d\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
-    my_sigactionhandler_oldcode(sig, 0, &info, &ctx, NULL, db);
+    my_sigactionhandler_oldcode(sig, 0, &info, &ctx, NULL, NULL);
 }
 
 EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
