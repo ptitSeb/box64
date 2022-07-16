@@ -1911,7 +1911,7 @@ EXPORT int32_t my___register_atfork(x64emu_t *emu, void* prepare, void* parent, 
 EXPORT uint64_t my___umoddi3(uint64_t a, uint64_t b)
 {
     return a%b;
-}
+}  
 EXPORT uint64_t my___udivdi3(uint64_t a, uint64_t b)
 {
     return a/b;
@@ -2692,6 +2692,7 @@ typedef struct clone_arg_s {
  uintptr_t fnc;
  void* args;
  int stack_clone_used;
+ void* tls;
 } clone_arg_t;
 static int clone_fn(void* p)
 {
@@ -2707,22 +2708,26 @@ static int clone_fn(void* p)
 
 EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args, void* parent, void* tls, void* child)
 {
+    printf_log(LOG_DEBUG, "my_clone(fn:%p(%s), stack:%p, 0x%x, args:%p, %p, %p, %p)", fn, getAddrFunctionName((uintptr_t)fn), stack, flags, args, parent, tls, child);
     void* mystack = NULL;
     clone_arg_t* arg = (clone_arg_t*)calloc(1, sizeof(clone_arg_t));
     if(my_context->stack_clone_used) {
-        mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+        printf_log(LOG_DEBUG, " no free stack_clone ");
+        mystack = malloc(4*1024*1024);  // stack for own process... memory leak, but no practical way to remove it
     } else {
         if(!my_context->stack_clone)
-            my_context->stack_clone = malloc(1024*1024);
+            my_context->stack_clone = malloc(4*1024*1024);
         mystack = my_context->stack_clone;
+        printf_log(LOG_DEBUG, " using stack_clone ");
         my_context->stack_clone_used = 1;
         arg->stack_clone_used = 1;
     }
     arg->stack = (uintptr_t)stack &~7LL;
     arg->args = args;
     arg->fnc = (uintptr_t)fn;
+    arg->tls = tls;
     // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
-    int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), flags, arg, parent, tls, child);
+    int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), flags, arg, parent, NULL, child);
     return (uintptr_t)ret;
 }
 
