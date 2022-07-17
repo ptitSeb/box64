@@ -268,7 +268,11 @@ static void sigstack_key_alloc() {
 uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
-        printf_log(LOG_NONE, "BOX64: Warning, calling Signal function handler %s\n", fnc?"SIG_IGN":"SIG_DFL");
+        va_list va;
+        va_start (va, nargs);
+        int sig = va_arg(va, int);
+        va_end (va);
+        printf_log(LOG_NONE, "%04d|BOX64: Warning, calling Signal %d function handler %s\n", GetTID(), sig, fnc?"SIG_IGN":"SIG_DFL");
         if(fnc==0) {
             printf_log(LOG_NONE, "Unhandled signal caught, aborting\n");
             abort();
