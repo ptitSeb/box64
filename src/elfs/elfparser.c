@@ -380,8 +380,6 @@ const char* GetSymbolVersion(elfheader_t* h, int version)
             Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
             for(int j=0; j<ver->vn_cnt; ++j) {
                 if(aux->vna_other==version) 
-            if(aux->vna_other==version)
-                if(aux->vna_other==version) 
                     return h->DynStr+aux->vna_name;
                 aux = (Elf64_Vernaux*)((uintptr_t)aux + aux->vna_next);
             }

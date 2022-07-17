@@ -201,7 +201,7 @@ void D2LD(void* d, void* ld)
 
 double FromLD(void* ld)
 {
-    double ret;
+    double ret = 0.0;
     LD2D(ld, &ret);
     return ret;
 }

@@ -154,12 +154,6 @@ static void* find_MusicFinished_Fct(void* fct)
 
 #undef SUPER
 
-static void freeSDL1MixerMy(library_t* lib)
-{
-    (void)lib;
-    //sdl1mixer_my_t *my = lib->priv.w.p2;
-}
-
 EXPORT void* my_Mix_LoadMUSType_RW(x64emu_t* emu, void* a, int32_t b, int32_t c)
 {
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);

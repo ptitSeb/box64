@@ -1163,11 +1163,12 @@ void RefreshElfTLS(elfheader_t* h)
         printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
         memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
         tlsdatasize_t* ptr;
-        if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) != NULL)
+        if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) != NULL) {
             // refresh in tlsdata too
             dest = (char*)(ptr->data+h->tlsbase);
             printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
             memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
+        }
     }
 }
 

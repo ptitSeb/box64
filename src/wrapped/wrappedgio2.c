@@ -22,9 +22,6 @@
 const char* gio2Name = "libgio-2.0.so.0";
 #define LIBNAME gio2
 
-static char* libname = NULL;
-
-
 #define ADDED_FUNCTIONS() \
 
 #include "wrappedgio2types.h"
