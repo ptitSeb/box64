@@ -151,7 +151,10 @@ void x64Int3(x64emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (char*)R_RSI);
                 } else if (strstr(s, "getenv")==s) {
                     tmp = (char*)(R_RDI);
+                    post = 2;
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
+                } else if (strstr(s, "setenv")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %d)", tid, *(void**)(R_RSP), s, (char*)R_RDI, (char*)R_RSI, R_EDX);
                 } else if (!strcmp(s, "poll")) {
                     struct pollfd* pfd = (struct pollfd*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p[%d/%d/%d, ...], %d, %d)", tid, *(void**)(R_RSP), s, pfd, pfd->fd, pfd->events, pfd->revents, R_ESI, R_EDX);
