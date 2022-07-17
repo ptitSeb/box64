@@ -752,7 +752,7 @@ void addNewEnvVar(const char* s)
     char* p = strdup(s);
     char* e = strchr(p, '=');
     if(!e) {
-        printf_log(LOG_INFO, "Invalid speicifc env. var. '%s'\n", s);
+        printf_log(LOG_INFO, "Invalid specific env. var. '%s'\n", s);
         free(p);
         return;
     }
