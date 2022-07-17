@@ -3403,3 +3403,6 @@ GO(glBlendBarrierARB, vFv)
 GO(glBlendBarrierEXT, vFv)
 GO(glBlendBarrierOES, vFv)
 GO(glBlendBarrierANGLE, vFv)
+
+//GL_EXT_window_rectangles
+GO(glWindowRectanglesEXT, vFilp)
