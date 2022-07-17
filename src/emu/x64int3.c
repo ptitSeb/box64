@@ -93,6 +93,7 @@ void x64Int3(x64emu_t* emu)
                 int post = 0;
                 int perr = 0;
                 uint64_t *pu64 = NULL;
+                uint32_t *pu32 = NULL;
                 const char *s = NULL;
                 s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
@@ -131,6 +132,11 @@ void x64Int3(x64emu_t* emu)
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", 0x%x)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", R_ESI);
                     perr = 1;
+                } else if (strstr(s, "waitpid")==s) {
+                    pu32 = (uint32_t*)R_RSI;
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%ld, %p, %d)", tid, *(void**)(R_RSP), s, R_RDI, pu32, R_EDX);
+                    perr = 1;
+                    post = 6;
                 } else if (!strcmp(s, "lseek64")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %ld, %d)", tid, *(void**)(R_RSP), s, (int)R_EDI, (int64_t)R_RSI, (int)R_EDX);
                     perr = 1;
@@ -238,6 +244,8 @@ void x64Int3(x64emu_t* emu)
                             else
                                 snprintf(buff2, 63, "NULL Surface");
                         }
+                        break;
+                    case 6: if(pu32) snprintf(buff2, 63, " [0x%x] ", pu32[0]);
                         break;
                 }
                 if(perr==1 && ((int)R_EAX)<0)
