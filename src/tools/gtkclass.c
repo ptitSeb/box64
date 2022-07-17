@@ -1429,14 +1429,14 @@ static void wrapGTKClass(void* cl, size_t type)
         wrap##A##Class((my_##A##Class_t*)cl);       \
     else 
 
-    printf_log(LOG_DEBUG, "wrapGTKClass(%p, %d (%s))\n", cl, type, g_type_name(type));
+    printf_log(LOG_DEBUG, "wrapGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
     {
         if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
             my_MetaFrames2 = type;
             wrapMetaFrames2Class((my_MetaFrames2Class_t*)cl);
         } else
-            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %d (%s)\n", type, g_type_name(type));
+            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %zd (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
 }
@@ -1448,7 +1448,7 @@ static void unwrapGTKClass(void* cl, size_t type)
         unwrap##A##Class((my_##A##Class_t*)cl);     \
     else 
 
-    printf_log(LOG_DEBUG, "unwrapGTKClass(%p, %d (%s))\n", cl, type, g_type_name(type));
+    printf_log(LOG_DEBUG, "unwrapGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
     {}  // else no warning, one is enough...
     #undef GTKCLASS
@@ -1461,10 +1461,10 @@ static void bridgeGTKClass(void* cl, size_t type)
         bridge##A##Class((my_##A##Class_t*)cl);     \
     else 
 
-    printf_log(LOG_DEBUG, "bridgeGTKClass(%p, %d (%s))\n", cl, type, g_type_name(type));
+    printf_log(LOG_DEBUG, "bridgeGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
     {
-        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type %d (%s)\n", type, g_type_name(type));
+        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type %zd (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
 }
@@ -1522,7 +1522,7 @@ SUPER()
 void* wrapCopyGTKClass(void* klass, size_t type)
 {
     if(!klass) return klass;
-    printf_log(LOG_DEBUG, "wrapCopyGTKClass(%p, %d (%s))\n", klass, type, g_type_name(type));
+    printf_log(LOG_DEBUG, "wrapCopyGTKClass(%p, %zd (%s))\n", klass, type, g_type_name(type));
     #define GO(A) if(klass == my_gclassallu_ref_##A) return &my_gclassallu_##A;
     SUPER()
     #undef GO
@@ -1535,7 +1535,7 @@ void* wrapCopyGTKClass(void* klass, size_t type)
             my_MetaFrames2 = type;
             sz = sizeof(my_MetaFrames2Class_t);
         } else {
-            printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type 0x%x (%s)\n", type, g_type_name(type));
+            printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
             return klass;
         }
     }
