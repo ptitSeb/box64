@@ -31,6 +31,7 @@ Enables/Disables the logging of `dlsym` errors.
 #### BOX64_TRACE_FILE
 Send all log and trace to a file instead of `stdout`
 Also, if name contains `%pid` then this is replaced by the actual PID of box64 instance
+End the filename with `+` to have thetrace appended instead of overwriten
 Use `stderr` to use this instead of default `stdout` 
 
 #### BOX64_TRACE

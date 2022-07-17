@@ -102,10 +102,18 @@ void openFTrace()
 {
     char* t = getenv("BOX64_TRACE_FILE");
     char tmp[500];
+    char tmp2[500];
     char* p = t;
+    int append=0;
+    if(p && strlen(p) && p[strlen(p)-1]=='+') {
+        strncat(tmp2, t, 499);
+        tmp2[strlen(p)-1]='\0';
+        p = tmp2;
+        append=1;
+    }
     if(p && strstr(t, "%pid")) {
         int next = 0;
-        do {
+        if(!append) do {
             strcpy(tmp, p);
             char* c = strstr(tmp, "%pid");
             *c = 0; // cut
@@ -126,13 +134,16 @@ void openFTrace()
         if(!strcmp(p, "stderr"))
             ftrace = stderr;
         else {
-            ftrace = fopen(p, "w");
+            if(append)
+                ftrace = fopen(p, "w+");
+            else
+                ftrace = fopen(p, "w");
             if(!ftrace) {
                 ftrace = stdout;
                 printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
             } else {
                 if(!box64_nobanner)
-                    printf("BOX64 Trace redirected to \"%s\"\n", p);
+                    printf("BOX64 Trace %s to \"%s\"\n", append?"appended":"redirected", p);
             }
         }
     }
@@ -1119,9 +1130,9 @@ int main(int argc, const char **argv, char **env) {
     // allocate extra space for new environment variables such as BOX64_PATH
     my_context->envv = (char**)calloc(my_context->envc+4, sizeof(char*));
     GatherEnv(&my_context->envv, environ?environ:env, my_context->box64path);
-    if(box64_dump) {
+    if(box64_dump || box64_log<=LOG_DEBUG) {
         for (int i=0; i<my_context->envc; ++i)
-            printf_dump(LOG_NEVER, " Env[%02d]: %s\n", i, my_context->envv[i]);
+            printf_dump(LOG_DEBUG, " Env[%02d]: %s\n", i, my_context->envv[i]);
     }
 
     path_collection_t ld_preload = {0};
@@ -1194,7 +1205,7 @@ int main(int argc, const char **argv, char **env) {
     // special case for steamwebhelper
     if(strstr(prgname, "steamwebhelper")==prgname) {
         printf_log(LOG_INFO, "steamwebhelper, ignoring for now!\n");
-        exit(0);    // exiting
+        //exit(0);    // exiting
     }
     // special case for streaming_client to use emulated libSDL2
     if(strstr(prgname, "streaming_client")==prgname) {
