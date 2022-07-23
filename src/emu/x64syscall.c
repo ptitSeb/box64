@@ -54,6 +54,9 @@ void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int f
 int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
 int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot);
 void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr);
+#ifndef NO_ALIGN
+int32_t my_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout);
+#endif
 
 // cannot include <fcntl.h>, it conflict with some asm includes...
 #ifndef O_NONBLOCK
@@ -471,7 +474,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         #endif
         #ifndef __NR_rename
-	case 82: // sys_rename
+	    case 82: // sys_rename
 	    *(int64_t*)&R_RAX = rename((void*)R_RDI, (void*)R_RSI);
 	    break;
         #endif
@@ -497,6 +500,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
         #ifndef __NR_time
         case 201: // sys_time
             R_RAX = (uintptr_t)time((void*)R_RDI);
+            break;
+        #endif
+        #if !defined(__NR_epoll_wait) && !defined(NO_ALIGN)
+        case 232:
+            R_RAX = my_epoll_wait(emu, (int)R_EDI, (void*)R_RSI, (int)R_EDX, (int)R_R8d);
             break;
         #endif
         #ifndef __NR_inotify_init
@@ -697,6 +705,11 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         #ifndef __NR_time
         case 201: // sys_time
             return (uintptr_t)time((void*)R_RSI);
+        #endif
+        #if !defined(__NR_epoll_wait) && !defined(NO_ALIGN)
+        case 232:
+            R_RAX = my_epoll_wait(emu, (int)R_ESI, (void*)R_RDX, (int)R_ECX, (int)R_R8d);
+            break;
         #endif
         #ifndef __NR_inotify_init
         case 253:

@@ -31,7 +31,7 @@ DATA(CERT_CertificateTemplate, 480)
 //GO(CERT_CertTimesValid, 
 //GO(CERT_ChangeCertTrust, 
 //GO(CERT_CheckCertUsage, 
-//GO(CERT_CheckCertValidTimes, 
+GO(CERT_CheckCertValidTimes, iFpIi)
 //GO(CERT_CheckNameSpace, 
 //GO(CERT_CheckOCSPStatus, 
 //GO(CERT_ClearOCSPCache, 
@@ -59,10 +59,10 @@ DATA(CERT_CertificateTemplate, 480)
 //GO(CERT_CreateValidity, 
 //GO(CERT_CRLCacheRefreshIssuer, 
 //DATA(CERT_CrlTemplate, 
-//GO(CERT_DecodeAltNameExtension, 
+GO(CERT_DecodeAltNameExtension, pFpp)
 //GO(CERT_DecodeAuthInfoAccessExtension, 
 //GO(CERT_DecodeAuthKeyID, 
-//GO(CERT_DecodeAVAValue, 
+GO(CERT_DecodeAVAValue, pFp)
 //GO(CERT_DecodeBasicConstraintValue, 
 //GO(CERT_DecodeCertificatePoliciesExtension, 
 //GO(CERT_DecodeCRLDistributionPoints, 
@@ -79,10 +79,10 @@ DATA(CERT_CertificateTemplate, 480)
 //GO(CERT_DecodeUserNotice, 
 //GO(CERT_DerNameToAscii, 
 //GO(CERT_DestroyCertArray, 
-//GO(CERT_DestroyCertificate, 
-//GO(CERT_DestroyCertificateList, 
+GO(CERT_DestroyCertificate, vFp)
+GO(CERT_DestroyCertificateList, vFp)
 //GO(CERT_DestroyCertificatePoliciesExtension, 
-//GO(CERT_DestroyCertificateRequest, 
+GO(CERT_DestroyCertificateRequest, vFp)
 //GO(CERT_DestroyCertList, 
 //GO(CERT_DestroyCERTRevocationFlags, 
 //GO(CERT_DestroyName, 
@@ -95,7 +95,7 @@ DATA(CERT_CertificateTemplate, 480)
 //GO(CERT_DisableOCSPChecking, 
 //GO(CERT_DisableOCSPDefaultResponder, 
 //GO(CERT_DistNamesFromCertList, 
-//GO(CERT_DupCertificate, 
+GO(CERT_DupCertificate, pFp)
 //GO(CERT_DupCertList, 
 //GO(CERT_DupDistNames, 
 //GO(CERT_EnableOCSPChecking, 
@@ -116,7 +116,7 @@ DATA(CERT_CertificateTemplate, 480)
 //GO(CERT_EncodePolicyMappingExtension, 
 //GO(CERT_EncodeSubjectKeyID, 
 //GO(CERT_EncodeUserNotice, 
-//GO(CERT_ExtractPublicKey, 
+GO(CERT_ExtractPublicKey, pFp)
 //GO(CERT_FilterCertListByCANames, 
 //GO(CERT_FilterCertListByUsage, 
 //GO(CERT_FilterCertListForUserCerts, 
@@ -130,7 +130,7 @@ DATA(CERT_CertificateTemplate, 480)
 //GO(CERT_FindCertByNicknameOrEmailAddrForUsage, 
 //GO(CERT_FindCertByNicknameOrEmailAddrForUsageCX, 
 //GO(CERT_FindCertBySubjectKeyID, 
-//GO(CERT_FindCertExtension, 
+GO(CERT_FindCertExtension, iFppp)
 //GO(CERT_FindCertIssuer, 
 //GO(CERT_FindCRLEntryReasonExten, 
 //GO(CERT_FindCRLNumberExten, 
@@ -147,7 +147,7 @@ DATA(CERT_CertificateTemplate, 480)
 //GO(CERT_FreeDistNames, 
 //GO(CERT_FreeNicknames, 
 //GO(CERT_GenTime2FormattedAscii, 
-//GO(CERT_GetAVATag, 
+GO(CERT_GetAVATag, iFp)
 //GO(CERT_GetCertChainFromCert, 
 GO(CERT_GetCertEmailAddress, pFp)
 //GO(CERT_GetCertificateDer, 
@@ -168,7 +168,7 @@ GO(CERT_GetCommonName, pFp)
 //GO(CERT_GetConstrainedCertificateNames, 
 GO(CERT_GetCountryName, pFp)
 //GO(CERT_GetDBContentVersion, 
-//GO(CERT_GetDefaultCertDB, 
+GO(CERT_GetDefaultCertDB, pFv)
 GO(CERT_GetDomainComponentName, pFp)
 //GO(CERT_GetEncodedOCSPResponse, 
 //GO(CERT_GetFirstEmailAddress, 
@@ -176,7 +176,7 @@ GO(CERT_GetDomainComponentName, pFp)
 //GO(CERT_GetImposedNameConstraints, 
 GO(CERT_GetLocalityName, pFp)
 //GO(CERT_GetNextEmailAddress, 
-//GO(CERT_GetNextGeneralName, 
+GO(CERT_GetNextGeneralName, pFp)
 //GO(CERT_GetNextNameConstraint, 
 //GO(CERT_GetOCSPAuthorityInfoAccessLocation, 
 //GO(CERT_GetOCSPResponseStatus, 
@@ -212,13 +212,13 @@ DATA(CERT_NameTemplate, 4*sizeof(void*))
 //GO(CERT_NameToAsciiInvertible, 
 //GO(CERT_NewCertList, 
 //GO(__CERT_NewTempCertificate, 
-//GO(CERT_NewTempCertificate, 
+GO(CERT_NewTempCertificate, pFpppii)
 //GO(CERT_NicknameStringsFromCertList, 
 //GO(CERT_OCSPCacheSettings, 
 //GO(CERT_OpenCertDBFilename, 
-//GO(CERT_PKIXVerifyCert, 
+GO(CERT_PKIXVerifyCert, iFpIppp)
 //GO(CERT_PostOCSPRequest, 
-//GO(CERT_RegisterAlternateOCSPAIAInfoCallBack, 
+GOM(CERT_RegisterAlternateOCSPAIAInfoCallBack, iFEpp)
 //GO(CERT_RemoveCertListNode, 
 //GO(CERT_RFC1485_EscapeAndQuote, 
 //GO(CERT_SaveSMimeProfile, 
@@ -251,7 +251,7 @@ DATA(CERT_SignedDataTemplate, 160)
 //GO(CERT_VerifySignedDataWithPublicKey, 
 //GO(CERT_VerifySignedDataWithPublicKeyInfo, 
 //GO(DER_AsciiToTime, 
-//GO(DER_DecodeTimeChoice, 
+GO(DER_DecodeTimeChoice, iFpp)
 //GO(DER_Encode, 
 //GO(DER_EncodeTimeChoice, 
 //GO(DER_GeneralizedDayToAscii, 
@@ -648,10 +648,10 @@ GO(PK11_WriteRawAttribute, iFipLp)
 //GO(PORT_ArenaStrdup, 
 //GO(PORT_ArenaUnmark, 
 //GO(PORT_ArenaZAlloc, 
-//GO(PORT_Free, 
-//GO(PORT_FreeArena, 
-//GO(PORT_GetError, 
-//GO(PORT_NewArena, 
+GO(PORT_Free, vFp)
+GO(PORT_FreeArena, vFpi)
+GO(PORT_GetError, iFv)
+GO(PORT_NewArena, pFL)
 //GO(PORT_Realloc, 
 //GO(PORT_SetError, 
 //GO(PORT_SetUCS2_ASCIIConversionFunction, 
@@ -715,7 +715,7 @@ DATA(SEC_IA5StringTemplate, 4*sizeof(void*)) //R type
 //GO(SECITEM_CompareItem, 
 //GO(SECITEM_CopyItem, 
 //GO(SECITEM_DupItem, 
-//GO(SECITEM_FreeItem, 
+GO(SECITEM_FreeItem, iFpi)
 //GO(SECITEM_ItemsAreEqual, 
 //GO(SECITEM_ZfreeItem, 
 //GO(SECKEY_AddPrivateKeyToListTail, 
@@ -806,7 +806,7 @@ GO(SECMOD_ReleaseReadLock, vFp)
 //DATA(SEC_NullTemplate,    //R type
 //DATA(SEC_ObjectIDTemplate,    //R type
 DATA(SEC_OctetStringTemplate, 4*sizeof(void*))   //R type
-//GO(SECOID_AddEntry, 
+GO(SECOID_AddEntry, iFp)
 DATA(SECOID_AlgorithmIDTemplate, 16*sizeof(void*))   //R type
 //GO(SECOID_CompareAlgorithmID, 
 //GO(SECOID_CopyAlgorithmID, 

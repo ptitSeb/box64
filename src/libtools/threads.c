@@ -180,6 +180,11 @@ void thread_set_emu(x64emu_t* emu)
 	// create the key
 	pthread_once(&thread_key_once, thread_key_alloc);
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+	if(!emu) {
+		if(et) free(et);
+		pthread_setspecific(thread_key, NULL);
+		return;
+	}
 	if(!et) {
 		et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
 	} else {
@@ -672,27 +677,37 @@ EXPORT int my_pthread_key_create(x64emu_t* emu, void* key, void* dtor)
 EXPORT int my___pthread_key_create(x64emu_t* emu, void* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
 
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
-
+void updateAlignedMutex(pthread_mutex_t* m, pthread_mutex_t* real);
 
 EXPORT int my_pthread_cond_timedwait(x64emu_t* emu, pthread_cond_t* cond, void* mutex, void* abstime)
 {
 	(void)emu;
-	return pthread_cond_timedwait(cond, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
+	pthread_mutex_t *real = getAlignedMutex(mutex);
+	int ret = pthread_cond_timedwait(cond, real, (const struct timespec*)abstime);
+	updateAlignedMutex(mutex, real);
+	return ret;
 }
 EXPORT int my_pthread_cond_wait(x64emu_t* emu, pthread_cond_t* cond, void* mutex)
 {
 	(void)emu;
-	return pthread_cond_wait(cond, getAlignedMutex((pthread_mutex_t*)mutex));
+	pthread_mutex_t *real = getAlignedMutex(mutex);
+	int ret = pthread_cond_wait(cond, real);
+	updateAlignedMutex(mutex, real);
+	return ret;
 }
 EXPORT int my_pthread_cond_clockwait(x64emu_t *emu, pthread_cond_t* cond, void* mutex, __clockid_t __clock_id, const struct timespec* __abstime)
 {
 	(void)emu;
-	if(real_pthread_cond_clockwait)
-		return real_pthread_cond_clockwait(cond, getAlignedMutex((pthread_mutex_t*)mutex), __clock_id, (void*)__abstime);
-	else {
+	int ret;
+	if(real_pthread_cond_clockwait) {
+		pthread_mutex_t *real = getAlignedMutex(mutex);
+		ret = real_pthread_cond_clockwait(cond, real, __clock_id, (void*)__abstime);
+		updateAlignedMutex(mutex, real);
+	} else {
 		errno = EINVAL;
-		return -1;
+		ret = -1;
 	}
+	return ret;
 }
 
 EXPORT void my__pthread_cleanup_push_defer(x64emu_t* emu, void* buffer, void* routine, void* arg)
@@ -771,6 +786,7 @@ EXPORT int my_pthread_kill(x64emu_t* emu, void* thread, int sig)
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m) {
 	return m;
 }
+void updateAlignedMutex(pthread_mutex_t* m, pthread_mutex_t* real) { }
 #else
 #define MUTEXES_SIZE	64
 typedef struct mutexes_block_s {
@@ -850,8 +866,12 @@ pthread_mutex_t* GetMutex(int k)
 
 // x86_64 pthread_mutex_t is 40 bytes (ARM64 one is 48)
 typedef struct aligned_mutex_s {
-	struct aligned_mutex_s *self;
-	uint64_t	dummy;
+	//struct aligned_mutex_s *self;
+	//uint64_t	dummy;
+	int lock;
+	unsigned int count;
+  	int owner;
+	unsigned int nusers;
 	int kind;	// kind position on x86_64
 	int k;
 	pthread_mutex_t* m;
@@ -864,11 +884,11 @@ pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 	if(!m)
 		return NULL;
 	aligned_mutex_t* am = (aligned_mutex_t*)m;
-	if(init && (am->sign==SIGNMTX && am->self==am))
+	if(init && (am->sign==SIGNMTX /*&& am->self==am*/))
 		return am->m;
 	int k = NewMutex();
-	// check again, it might be created now becayse NewMutex is under mutex
-	if(init && (am->sign==SIGNMTX && am->self==am)) {
+	// check again, it might be created now because NewMutex is under mutex
+	if(init && (am->sign==SIGNMTX /*&& am->self==am*/)) {
 		FreeMutex(k);
 		return am->m;
 	}
@@ -887,7 +907,7 @@ pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 			((int*)ret)[3+__PTHREAD_MUTEX_HAVE_PREV] = kind;		// inject in new one (i.e. "init" it)
 		}
 	}
-	am->self = am;
+	//am->self = am;
 	am->sign = SIGNMTX;
 	am->k = k;
 	am->m = ret;
@@ -896,6 +916,13 @@ pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 {
 	return getAlignedMutexWithInit(m, 1);
+}
+void updateAlignedMutex(pthread_mutex_t* m, pthread_mutex_t* real)
+{
+	aligned_mutex_t* e = (aligned_mutex_t*)m;
+	e->kind = real->__data.__kind;
+	e->lock = real->__data.__lock;
+	e->owner = real->__data.__owner;
 }
 
 EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
@@ -1000,31 +1027,46 @@ EXPORT int my_pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att)
 	my_mutexattr_t mattr = {0};
 	if(att)
 		mattr.x86 = att->x86;
-	return pthread_mutex_init(getAlignedMutexWithInit(m, 0), att?(&mattr.nat):NULL);
+	pthread_mutex_t *real = getAlignedMutexWithInit(m, 0);
+	int ret = pthread_mutex_init(real, att?(&mattr.nat):NULL);
+	updateAlignedMutex(m, real);
+	return ret;
 }
 EXPORT int my___pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att) __attribute__((alias("my_pthread_mutex_init")));
 
 EXPORT int my_pthread_mutex_lock(pthread_mutex_t *m)
 {
-	return pthread_mutex_lock(getAlignedMutex(m));
+	pthread_mutex_t *real = getAlignedMutex(m);
+	int ret = pthread_mutex_lock(real);
+	updateAlignedMutex(m, real);
+	return ret;
 }
 EXPORT int my___pthread_mutex_lock(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_lock")));
 
 EXPORT int my_pthread_mutex_timedlock(pthread_mutex_t *m, const struct timespec * t)
 {
-	return pthread_mutex_timedlock(getAlignedMutex(m), t);
+	pthread_mutex_t *real = getAlignedMutex(m);
+	int ret = pthread_mutex_timedlock(real, t);
+	updateAlignedMutex(m, real);
+	return ret;
 }
 EXPORT int my___pthread_mutex_trylock(pthread_mutex_t *m, const struct timespec * t) __attribute__((alias("my_pthread_mutex_timedlock")));
 
 EXPORT int my_pthread_mutex_trylock(pthread_mutex_t *m)
 {
-	return pthread_mutex_trylock(getAlignedMutex(m));
+	pthread_mutex_t *real = getAlignedMutex(m);
+	int ret = pthread_mutex_trylock(real);
+	updateAlignedMutex(m, real);
+	return ret;
 }
 EXPORT int my___pthread_mutex_unlock(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_trylock")));
 
 EXPORT int my_pthread_mutex_unlock(pthread_mutex_t *m)
 {
-	return pthread_mutex_unlock(getAlignedMutex(m));
+	pthread_mutex_t *real = getAlignedMutex(m);
+	int ret = pthread_mutex_unlock(real);
+	updateAlignedMutex(m, real);
+	return ret;
 }
 
 typedef union my_condattr_s {

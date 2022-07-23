@@ -12,8 +12,10 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef int64_t (*iFpp_t)(void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(PK11_SetPasswordFunc, vFp_t)
+	GO(PK11_SetPasswordFunc, vFp_t) \
+	GO(CERT_RegisterAlternateOCSPAIAInfoCallBack, iFpp_t)
 
 #endif // __wrappednss3TYPES_H_

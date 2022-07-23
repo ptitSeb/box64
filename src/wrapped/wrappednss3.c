@@ -55,11 +55,52 @@ static void* find_PK11PasswordFunc_Fct(void* fct)
     return NULL;
 }
 
+// CERT_StringFromCertFcn ...
+#define GO(A)   \
+static uintptr_t my_CERT_StringFromCertFcn_fct_##A = 0;                             \
+static void* my_CERT_StringFromCertFcn_##A(void* a)                                 \
+{                                                                                   \
+    return (void*)RunFunction(my_context, my_CERT_StringFromCertFcn_fct_##A, 1, a); \
+}
+SUPER()
+#undef GO
+static void* find_CERT_StringFromCertFcn_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_CERT_StringFromCertFcn_fct_##A == (uintptr_t)fct) return my_CERT_StringFromCertFcn_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_CERT_StringFromCertFcn_fct_##A == 0) {my_CERT_StringFromCertFcn_fct_##A = (uintptr_t)fct; return my_CERT_StringFromCertFcn_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for nss3 CERT_StringFromCertFcn callback\n");
+    return NULL;
+}
+static void* reverse_CERT_StringFromCertFcn_Fct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    #define GO(A) if(my_CERT_StringFromCertFcn_##A == fct) return (void*)my_CERT_StringFromCertFcn_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->priv.w.bridge, pFp, fct, 0, NULL);
+}
+
 #undef SUPER
 
 EXPORT void my_PK11_SetPasswordFunc(x64emu_t* emu, void* f)
 {
     my->PK11_SetPasswordFunc(find_PK11PasswordFunc_Fct(f));
+}
+
+EXPORT int my_CERT_RegisterAlternateOCSPAIAInfoCallBack(x64emu_t* emu, void* f, void** old)
+{
+    int ret = my->CERT_RegisterAlternateOCSPAIAInfoCallBack(find_CERT_StringFromCertFcn_Fct(f), old);
+    if(old)
+        *old = reverse_CERT_StringFromCertFcn_Fct(my_lib, *old);
+    return ret;
 }
 
 #define CUSTOM_INIT \

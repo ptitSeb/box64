@@ -1673,6 +1673,10 @@ EXPORT int32_t my_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd
     return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 
+EXPORT char** my_environ = NULL;
+EXPORT char** my__environ = NULL;
+EXPORT char** my___environ = NULL;  // all aliases
+
 EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
 {
     int self = isProcSelf(path, "exe");
@@ -1692,7 +1696,15 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath; else newargv[1] = skip_first?argv[skip_first]:path;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
-        int ret = execv(newargv[0], (char* const*)newargv);
+        char** envv = NULL;
+        if(my_environ!=my_context->envv) envv = my_environ;
+        if(my__environ!=my_context->envv) envv = my__environ;
+        if(my___environ!=my_context->envv) envv = my___environ;
+        int ret;
+        if(envv)
+            ret = execve(newargv[0], (char* const*)newargv, envv);
+        else
+            ret = execv(newargv[0], (char* const*)newargv);
         free(newargv);
         return ret;
     }
@@ -1705,11 +1717,11 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
     int self = isProcSelf(path, "exe");
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
+    printf_log(LOG_INFO/*LOG_DEBUG*/, "execve(\"%s\", %p, %p) is x64=%d x86=%d (my_context->envv=%p, environ=%p\n", path, argv, envp, x64, x86, my_context->envv, environ);
     // hack to update the environ var if needed
     if(envp == my_context->envv && environ) {
         envp = environ;
     }
-    printf_log(LOG_DEBUG, "execve(\"%s\", %p, %p) is x64=%d x86=%d\n", path, argv, envp, x64, x86);
     #if 1
     if (x64 || x86 || self) {
         int skip_first = 0;
@@ -1761,7 +1773,15 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
             newargv[j+1] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
-        int ret = execvp(newargv[0], newargv);
+        char** envv = NULL;
+        if(my_environ!=my_context->envv) envv = my_environ;
+        if(my__environ!=my_context->envv) envv = my__environ;
+        if(my___environ!=my_context->envv) envv = my___environ;
+        int ret;
+        if(envv)
+            ret = execvpe(newargv[0], newargv, envv);
+        else
+            ret = execvp(newargv[0], newargv);
         free(newargv);
         return ret;
     }
@@ -1771,6 +1791,7 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
         // uname -m is redirected to box64 -m
         path = my_context->box64path;
         char *argv2[3] = { my_context->box64path, argv[1], NULL };
+        
         return execvp(path, argv2);
     }
 
@@ -1821,7 +1842,15 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
         newargv[j++] = getVargN(emu, k+1);
     if(self) newargv[1] = emu->context->fullpath;
     printf_log(LOG_DEBUG, " => execlp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
-    int ret = execvp(newargv[0], newargv);
+    char** envv = NULL;
+    if(my_environ!=my_context->envv) envv = my_environ;
+    if(my__environ!=my_context->envv) envv = my__environ;
+    if(my___environ!=my_context->envv) envv = my___environ;
+    int ret;
+    if(envv)
+        ret = execvpe(newargv[0], newargv, envv);
+    else
+        ret = execvp(newargv[0], newargv);
     free(newargv);
     return ret;
 }
@@ -2687,8 +2716,40 @@ EXPORT int my_stime(x64emu_t* emu, const time_t *t)
     return -1;
 }
 
+int GetTID();
+#ifdef ANDROID
+void updateGlibcTidCache() {}
+#else
+struct glibc_pthread {
+#if defined(NO_ALIGN)
+    char header[704];
+#else
+    void* header[24];
+#endif
+  void* list[2];
+  pid_t tid;
+};
+pid_t getGlibcCachedTid() {
+  pthread_mutex_t lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+  pthread_mutex_lock(&lock);
+  pid_t tid = lock.__data.__owner;
+  pthread_mutex_unlock(&lock);
+  pthread_mutex_destroy(&lock);
+  return tid;
+}
+void updateGlibcTidCache() {
+  pid_t real_tid = GetTID();
+  pid_t cached_tid = getGlibcCachedTid();
+  if (cached_tid != real_tid) {
+    pid_t* cached_tid_location =
+        &((struct glibc_pthread*)(pthread_self()))->tid;
+    *cached_tid_location = real_tid;
+  }
+}
+#endif
 typedef struct clone_arg_s {
  uintptr_t stack;
+ x64emu_t *emu;
  uintptr_t fnc;
  void* args;
  int stack_clone_used;
@@ -2697,12 +2758,20 @@ typedef struct clone_arg_s {
 static int clone_fn(void* p)
 {
     clone_arg_t* arg = (clone_arg_t*)p;
-    x64emu_t *emu = thread_get_emu();
+    updateGlibcTidCache();  // update cache tid if needed
+    x64emu_t *emu = arg->emu;
     R_RSP = arg->stack;
-    int ret = RunFunction(my_context, arg->fnc, 1, arg->args);
+    emu->quitonexit = 1;
+    thread_set_emu(emu);
+    int ret = RunFunctionWithEmu(emu, 0, arg->fnc, 1, arg->args);
+    int exited = (emu->quitonexit==2);
+    thread_set_emu(NULL);
+    FreeX64Emu(&emu);
     if(arg->stack_clone_used)
         my_context->stack_clone_used = 0;
     free(arg);
+    /*if(exited)
+        exit(ret);*/
     return ret;
 }
 
@@ -2711,12 +2780,15 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
     printf_log(LOG_DEBUG, "my_clone(fn:%p(%s), stack:%p, 0x%x, args:%p, %p, %p, %p)", fn, getAddrFunctionName((uintptr_t)fn), stack, flags, args, parent, tls, child);
     void* mystack = NULL;
     clone_arg_t* arg = (clone_arg_t*)calloc(1, sizeof(clone_arg_t));
+    x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack, 0, 0);
+    SetupX64Emu(newemu);
+    CloneEmu(newemu, emu);
     if(my_context->stack_clone_used) {
         printf_log(LOG_DEBUG, " no free stack_clone ");
-        mystack = malloc(4*1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+        mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
     } else {
         if(!my_context->stack_clone)
-            my_context->stack_clone = malloc(4*1024*1024);
+            my_context->stack_clone = malloc(1024*1024);
         mystack = my_context->stack_clone;
         printf_log(LOG_DEBUG, " using stack_clone ");
         my_context->stack_clone_used = 1;
@@ -2726,7 +2798,9 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
     arg->args = args;
     arg->fnc = (uintptr_t)fn;
     arg->tls = tls;
-    // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
+    arg->emu = newemu;
+    if(flags|(CLONE_VM|CLONE_VFORK|CLONE_SETTLS)==flags)   // that's difficult to setup, so lets ignore all those flags :S
+        flags&=~(CLONE_VM|CLONE_VFORK|CLONE_SETTLS);
     int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), flags, arg, parent, NULL, child);
     return (uintptr_t)ret;
 }
@@ -2754,10 +2828,19 @@ EXPORT size_t my_strlcat(x64emu_t* emu, void* dst, void* src, size_t l)
     return s+strlen(src);
 }
 
+EXPORT void my_exit(x64emu_t* emu, int code)
+{
+    if(emu->quitonexit) {
+        emu->quit = 1;
+        R_EAX = code;
+        emu->quitonexit = 2;
+        return;
+    }
+    exit(code);
+}
 
-EXPORT char** my_environ = NULL;
-EXPORT char** my__environ = NULL;
-EXPORT char** my___environ = NULL;  // all aliases
+EXPORT void my__exit(x64emu_t* emu, int code) __attribute__((alias("my_exit")));
+
 
 EXPORT char* my___progname = NULL;
 EXPORT char* my___progname_full = NULL;

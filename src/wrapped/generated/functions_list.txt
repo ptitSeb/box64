@@ -87,6 +87,7 @@
 #() pFV
 #() HFi
 #() HFp
+#() vFEi
 #() vFEp
 #() vFii
 #() vFiI
@@ -1148,6 +1149,7 @@
 #() iFpippi
 #() iFpippW
 #() iFpippp
+#() iFpIppp
 #() iFpCCCC
 #() iFpuill
 #() iFpuipi
@@ -2786,6 +2788,9 @@ wrappedlibc:
   - _Jv_RegisterClasses
   - __cxa_pure_virtual
   - __stack_chk_fail
+- vFi:
+  - _exit
+  - exit
 - vFp:
   - _ITM_deregisterTMCloneTable
   - __cxa_finalize
@@ -3434,6 +3439,8 @@ wrappednspr4:
 wrappednss3:
 - vFp:
   - PK11_SetPasswordFunc
+- iFpp:
+  - CERT_RegisterAlternateOCSPAIAInfoCallBack
 wrappednssutil3:
 wrappedopenal:
 - vFv:

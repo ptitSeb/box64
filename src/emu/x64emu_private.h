@@ -73,6 +73,7 @@ typedef struct x64emu_s {
     forkpty_t*  forkpty_info;
     int         exit;
     int         quitonlongjmp;  // quit if longjmp is called
+    int         quitonexit;     // quit if exit/_exit is called
     int         longjmp;        // if quit because of longjmp
     // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
     uint64_t    scratch[200];
