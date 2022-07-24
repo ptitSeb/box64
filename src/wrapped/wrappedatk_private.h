@@ -35,7 +35,7 @@ GO(atk_coord_type_get_type, iFv)
 //GO(atk_document_get_document, 
 //GO(atk_document_get_document_type, 
 //GO(atk_document_get_locale, 
-//GO(atk_document_get_type, 
+GO(atk_document_get_type, pFv)
 //GO(atk_document_set_attribute_value, 
 //GO(atk_editable_text_copy_text, 
 //GO(atk_editable_text_cut_text, 
@@ -68,7 +68,7 @@ GO(atk_get_version, pFv)
 //GO(atk_hyperlink_get_type, 
 //GO(atk_hyperlink_get_uri, 
 //GO(atk_hyperlink_impl_get_hyperlink, 
-//GO(atk_hyperlink_impl_get_type, 
+GO(atk_hyperlink_impl_get_type, pFv)
 //GO(atk_hyperlink_is_inline, 
 //GO(atk_hyperlink_is_selected_link, 
 //GO(atk_hyperlink_is_valid, 
@@ -76,17 +76,17 @@ GO(atk_get_version, pFv)
 //GO(atk_hypertext_get_link, 
 //GO(atk_hypertext_get_link_index, 
 //GO(atk_hypertext_get_n_links, 
-//GO(atk_hypertext_get_type, 
+GO(atk_hypertext_get_type, pFv)
 //GO(atk_image_get_image_description, 
 //GO(atk_image_get_image_locale, 
 //GO(atk_image_get_image_position, 
 //GO(atk_image_get_image_size, 
-//GO(atk_image_get_type, 
+GO(atk_image_get_type, pFv)
 //GO(atk_image_set_image_description, 
 GO(atk_implementor_get_type, iFv)
 GO(atk_implementor_ref_accessible, pFp)
-//GO(atk_key_event_type_get_type, 
-//GO(atk_layer_get_type, 
+GO(atk_key_event_type_get_type, pFv)
+GO(atk_layer_get_type, pFv)
 //GO(atk_marshal_VOID__INT_INT, 
 //GO(atk_marshal_VOID__INT_INT_INT_STRING, 
 //GO(atk_marshal_VOID__INT_INT_STRING, 
@@ -98,7 +98,7 @@ GO(atk_misc_threads_leave, vFp)
 DATA(atk_misc_instance, sizeof(void*))
 //GO(atk_no_op_object_factory_get_type, 
 //GO(atk_no_op_object_factory_new, 
-//GO(atk_no_op_object_get_type, 
+GO(atk_no_op_object_get_type, pFv)
 //GO(atk_no_op_object_new, 
 GO(atk_object_add_relationship, iFpip)
 //GOM(atk_object_connect_property_change_handler, uFEpp)
@@ -251,8 +251,8 @@ GO(atk_selection_select_all_selection, iFp)
 //GO(atk_text_get_text_after_offset, 
 //GO(atk_text_get_text_at_offset, 
 //GO(atk_text_get_text_before_offset, 
-//GO(atk_text_get_type, 
-//GO(atk_text_range_get_type, 
+GO(atk_text_get_type, pFv)
+GO(atk_text_range_get_type, pFv)
 //GO(atk_text_remove_selection, 
 //GO(atk_text_set_caret_offset, 
 //GO(atk_text_set_selection, 
@@ -261,6 +261,6 @@ GO(atk_util_get_type, iFv)
 //GO(atk_value_get_maximum_value, 
 //GO(atk_value_get_minimum_increment, 
 //GO(atk_value_get_minimum_value, 
-//GO(atk_value_get_type, 
+GO(atk_value_get_type, pFv)
 //GO(atk_value_set_current_value, 
-//GO(atk_window_get_type, 
+GO(atk_window_get_type, pFv)
