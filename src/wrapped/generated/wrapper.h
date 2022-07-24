@@ -757,6 +757,7 @@ void iFiipi(x64emu_t *emu, uintptr_t fnc);
 void iFiipp(x64emu_t *emu, uintptr_t fnc);
 void iFiuwp(x64emu_t *emu, uintptr_t fnc);
 void iFiuii(x64emu_t *emu, uintptr_t fnc);
+void iFiuup(x64emu_t *emu, uintptr_t fnc);
 void iFiupp(x64emu_t *emu, uintptr_t fnc);
 void iFilli(x64emu_t *emu, uintptr_t fnc);
 void iFillu(x64emu_t *emu, uintptr_t fnc);

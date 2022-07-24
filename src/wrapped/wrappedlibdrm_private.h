@@ -72,7 +72,7 @@ GO(drmGetDeviceNameFromFd, pFi)
 //GO(drmGetLock, 
 GO(drmGetMagic, iFip)
 //GO(drmGetMap, 
-//GO(drmGetNodeTypeFromFd, 
+GO(drmGetNodeTypeFromFd, iFi)
 //GO(drmGetPrimaryDeviceNameFromFd, 
 //GO(drmGetRenderDeviceNameFromFd, 
 //GO(drmGetReservedContextList, 
@@ -153,8 +153,8 @@ GO(drmGetVersion, pFi)
 //GO(drmOpenOnceWithType, 
 //GO(drmOpenRender, 
 //GO(drmOpenWithType, 
-//GO(drmPrimeFDToHandle, 
-//GO(drmPrimeHandleToFD, 
+GO(drmPrimeFDToHandle, iFiip)
+GO(drmPrimeHandleToFD, iFiuup)
 //GO(drmRandom, 
 //GO(drmRandomCreate, 
 //GO(drmRandomDestroy, 
