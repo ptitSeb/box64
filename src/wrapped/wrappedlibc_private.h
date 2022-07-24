@@ -192,7 +192,8 @@ GOM(__cxa_thread_atexit_impl, iFEppp)
 //GO(__cyg_profile_func_enter, 
 //GO(__cyg_profile_func_exit, 
 GO(daemon, iFii)
-//DATAB(__daylight, 
+DATAB(__daylight, 4)
+DATA(daylight, 4)
 GO(__dcgettext, pFppi)
 GOW(dcgettext, pFppi)
 GOW(dcngettext, pFpppLi)
