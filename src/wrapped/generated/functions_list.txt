@@ -1266,6 +1266,7 @@
 #() pFpuWWW
 #() pFpuuip
 #() pFpuuWW
+#() pFpuuuu
 #() pFpuuup
 #() pFpuppp
 #() pFpUdii
