@@ -3443,3 +3443,6 @@ GO(glMaxShaderCompilerThreadsKHR, vFu)
 // GL_AMD_framebuffer_multisample_advanced
 GO(glRenderbufferStorageMultisampleAdvancedAMD, vFillill)
 GO(glNamedRenderbufferStorageMultisampleAdvancedAMD, vFullill)
+
+// GL_EXT_semaphore_fd
+GO(glImportSemaphoreFdEXT, vFuii)
