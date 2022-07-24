@@ -13,11 +13,15 @@
 
 typedef void* (*pFi_t)(int64_t);
 typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFpA_t)(void*, va_list);
 typedef int64_t (*iFLp_t)(uintptr_t, void*);
 typedef int64_t (*iFpp_t)(void*, void*);
+typedef void* (*pFuV_t)(uint64_t, ...);
+typedef void (*vFpiA_t)(void*, int64_t, va_list);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef uint64_t (*uFupp_t)(uint64_t, void*, void*);
+typedef void (*vFpppi_t)(void*, void*, void*, int64_t);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpippp_t)(void*, int64_t, void*, void*, void*);
@@ -36,8 +40,11 @@ typedef void* (*pFpipppppppi_t)(void*, int64_t, void*, void*, void*, void*, void
 	GO(gtk_type_class, pFi_t) \
 	GO(gtk_builder_connect_signals, vFpp_t) \
 	GO(gtk_init, vFpp_t) \
+	GO(gtk_style_context_get_style_valist, vFpA_t) \
 	GO(gtk_type_unique, iFLp_t) \
 	GO(gtk_init_check, iFpp_t) \
+	GO(gtk_tree_store_new, pFuV_t) \
+	GO(gtk_style_context_get_valist, vFpiA_t) \
 	GO(gtk_builder_connect_signals_full, vFppp_t) \
 	GO(gtk_container_forall, vFppp_t) \
 	GO(gtk_menu_attach_to_widget, vFppp_t) \
@@ -45,7 +52,9 @@ typedef void* (*pFpipppppppi_t)(void*, int64_t, void*, void*, void*, void*, void
 	GO(gtk_message_dialog_format_secondary_markup, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_text, vFppV_t) \
 	GO(gtk_timeout_add, uFupp_t) \
+	GO(gtk_enumerate_printers, vFpppi_t) \
 	GO(gtk_object_set_data_full, vFpppp_t) \
+	GO(gtk_print_job_send, vFpppp_t) \
 	GO(gtk_stock_set_translate_func, vFpppp_t) \
 	GO(gtk_tree_sortable_set_default_sort_func, vFpppp_t) \
 	GO(gtk_tree_view_set_search_equal_func, vFpppp_t) \

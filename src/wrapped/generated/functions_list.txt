@@ -236,7 +236,6 @@
 #() pFuC
 #() pFuu
 #() pFup
-#() pFuV
 #() pFUi
 #() pFUU
 #() pFdi
@@ -262,6 +261,7 @@
 #() vFEpu
 #() vFEpp
 #() vFEpV
+#() vFEpA
 #() vFiii
 #() vFiiu
 #() vFiip
@@ -500,6 +500,7 @@
 #() pFEip
 #() pFEiV
 #() pFEup
+#() pFEuV
 #() pFEpi
 #() pFEpu
 #() pFEpp
@@ -568,6 +569,7 @@
 #() vFELLp
 #() vFEpii
 #() vFEpip
+#() vFEpiA
 #() vFEpup
 #() vFEpUp
 #() vFEppp
@@ -965,6 +967,7 @@
 #() vFEppip
 #() vFEppiV
 #() vFEppup
+#() vFEpppi
 #() vFEpppp
 #() vFiiiii
 #() vFiiiiu
@@ -1239,6 +1242,7 @@
 #() pFEpppu
 #() pFEpppp
 #() pFiiiii
+#() pFiiipL
 #() pFipipL
 #() pFipppu
 #() pFuiiiu
@@ -1598,6 +1602,7 @@
 #() vFpiiiipp
 #() vFpiiliip
 #() vFpiipCpp
+#() vFpiipppp
 #() vFpipipii
 #() vFpipppii
 #() vFpuuuuuu
@@ -1804,6 +1809,7 @@
 #() iFuipuuluf
 #() iFuuuuuuuu
 #() iFullfpppp
+#() iFpippuuii
 #() iFpCCWWpWu
 #() iFpWCuWCuu
 #() iFpWWipppp
@@ -2628,10 +2634,16 @@ wrappedgtk3:
 - vFpp:
   - gtk_builder_connect_signals
   - gtk_init
+- vFpA:
+  - gtk_style_context_get_style_valist
 - iFLp:
   - gtk_type_unique
 - iFpp:
   - gtk_init_check
+- pFuV:
+  - gtk_tree_store_new
+- vFpiA:
+  - gtk_style_context_get_valist
 - vFppp:
   - gtk_builder_connect_signals_full
   - gtk_container_forall
@@ -2642,8 +2654,11 @@ wrappedgtk3:
   - gtk_message_dialog_format_secondary_text
 - uFupp:
   - gtk_timeout_add
+- vFpppi:
+  - gtk_enumerate_printers
 - vFpppp:
   - gtk_object_set_data_full
+  - gtk_print_job_send
   - gtk_stock_set_translate_func
   - gtk_tree_sortable_set_default_sort_func
   - gtk_tree_view_set_search_equal_func

@@ -1003,6 +1003,9 @@ GOM(g_initable_new_valist, pFEppApp)
 //GO(g_io_stream_splice_finish, 
 //GO(g_io_stream_splice_flags_get_type, 
 //GO(g_keyfile_settings_backend_new, 
+GO(g_list_model_get_item, pFpu)
+GO(g_list_model_get_n_items, uFp)
+GO(g_list_model_get_object, pFpu)
 //GO(g_loadable_icon_get_type, 
 //GO(g_loadable_icon_load, 
 //GO(g_loadable_icon_load_async, 

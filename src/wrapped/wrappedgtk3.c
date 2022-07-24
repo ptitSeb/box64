@@ -28,6 +28,7 @@ typedef void          (*vFp_t)(void*);
 typedef double        (*dFp_t)(void*);
 typedef void*         (*pFL_t)(size_t);
 typedef void*         (*pFpp_t)(void*, void*);
+typedef void*         (*pFup_t)(uint32_t, void*);
 typedef void*         (*pFpu_t)(void*, uint32_t);
 typedef void*         (*pFppi_t)(void*, void*, int);
 typedef void*         (*pFppp_t)(void*, void*, void*);
@@ -66,6 +67,7 @@ GO(g_module_symbol, iFppp_t)                \
 GO(g_log, vFpipV_t)                         \
 GO(g_module_open, pFpu_t)                   \
 GO(g_module_close, vFp_t)                   \
+GO(gtk_tree_store_newv, pFup_t)             \
 
 #include "generated/wrappedgtk3types.h"
 
@@ -384,6 +386,52 @@ static void* findGtkTreeIterCompareFuncFct(void* fct)
     return NULL;
 }
 
+// GtkPrinterFunc
+#define GO(A)   \
+static uintptr_t my_GtkPrinterFunc_fct_##A = 0;                                     \
+static int my_GtkPrinterFunc_##A(void* printer, void* data)                         \
+{                                                                                   \
+    return RunFunction(my_context, my_GtkPrinterFunc_fct_##A, 2, printer, data);    \
+}
+SUPER()
+#undef GO
+static void* findGtkPrinterFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkPrinterFunc_fct_##A == (uintptr_t)fct) return my_GtkPrinterFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkPrinterFunc_fct_##A == 0) {my_GtkPrinterFunc_fct_##A = (uintptr_t)fct; return my_GtkPrinterFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkPrinterFunc callback\n");
+    return NULL;
+}
+
+// GtkPrintJobCompleteHunc
+#define GO(A)   \
+static uintptr_t my_GtkPrintJobCompleteHunc_fct_##A = 0;                                \
+static void my_GtkPrintJobCompleteHunc_##A(void* job, void* data, void* error)          \
+{                                                                                       \
+    RunFunction(my_context, my_GtkPrintJobCompleteHunc_fct_##A, 3, job, data, error);   \
+}
+SUPER()
+#undef GO
+static void* findGtkPrintJobCompleteHuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkPrintJobCompleteHunc_fct_##A == (uintptr_t)fct) return my_GtkPrintJobCompleteHunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkPrintJobCompleteHunc_fct_##A == 0) {my_GtkPrintJobCompleteHunc_fct_##A = (uintptr_t)fct; return my_GtkPrintJobCompleteHunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkPrintJobCompleteHunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 /*
 EXPORT void my3_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -626,6 +674,44 @@ EXPORT void my3_gtk_builder_connect_signals(x64emu_t* emu, void* builder, void* 
 EXPORT void my3_gtk_tree_view_column_set_cell_data_func(x64emu_t* emu, void* tree, void* cell, void* f, void* data, void* destroy)
 {
     my->gtk_tree_view_column_set_cell_data_func(tree, cell, findGtkTreeCellDataFuncFct(f), data, findGDestroyNotifyFct(destroy));
+}
+
+EXPORT void* my3_gtk_tree_store_new(x64emu_t* emu, uint32_t n, uintptr_t* b)
+{
+    int c[n];
+    for(int i=0; i<n; ++i)
+        c[i] = getVArgs(emu, 1, b, i);
+    return my->gtk_tree_store_newv(n, c);
+}
+
+EXPORT void my3_gtk_style_context_get_valist(x64emu_t* emu, void* context, int state, x64_va_list_t V)
+{
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
+    my->gtk_style_context_get_valist(context, state, VARARGS);
+}
+
+EXPORT void my3_gtk_style_context_get_style_valist(x64emu_t* emu, void* context, x64_va_list_t V)
+{
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
+    my->gtk_style_context_get_style_valist(context, VARARGS);
+}
+
+EXPORT void my3_gtk_enumerate_printers(x64emu_t* emu, void* f, void* data, void* d, int i)
+{
+    my->gtk_enumerate_printers(findGtkPrinterFuncFct(f), data, findGDestroyNotifyFct(d), i);
+}
+
+EXPORT void my3_gtk_print_job_send(x64emu_t* emu, void *job, void* f, void* data, void* d)
+{
+    my->gtk_print_job_send(job, findGtkPrintJobCompleteHuncFct(f), data, findGDestroyNotifyFct(d));
 }
 
 #define PRE_INIT    \
