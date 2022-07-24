@@ -2164,6 +2164,7 @@ wrappedatk:
 - uFpp:
   - atk_add_key_event_listener
 wrappedatkbridge:
+wrappedatomic:
 wrappedatspi:
 wrappedbz2:
 - iFp:
