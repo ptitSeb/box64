@@ -143,6 +143,7 @@ scwrap_t syscallwrap[] = {
     { 125, __NR_capget, 2},
     { 126, __NR_capset, 2},
     { 127, __NR_rt_sigpending, 2},
+    { 128, __NR_rt_sigtimedwait, 4},
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack*
     { 155, __NR_pivot_root, 2},
     { 157, __NR_prctl, 5 },     // needs wrapping?
