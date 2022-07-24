@@ -1757,7 +1757,13 @@ int Run660F(x64emu_t *emu, rex_t rex)
             emu->regs[tmp8u].word[0] = __builtin_bswap16(emu->regs[tmp8u].word[0]);
         }
         break;
-
+    case 0xD0:  /* ADDSUBPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->d[0] -= EX->d[0];
+        GX->d[1] += EX->d[1];
+        break;
     case 0xD1:  /* PSRLW Gx, Ex */
         nextop = F8;
         GETEX(0);
