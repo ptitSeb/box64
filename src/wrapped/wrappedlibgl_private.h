@@ -2891,15 +2891,12 @@ GO(glGetQueryBufferObjectuiv, vFuuil)
 GO(glMemoryBarrierByRegion, vFu)
 GO(glGetTextureSubImage, vFuiiiillliilp)
 GO(glGetCompressedTextureSubImage, vFuiiiillllp)
+GO(glGetGraphicsResetStatus, iFv)
 //VERSION_4_6
 GO(glSpecializeShader, vFippp)
 
 GO(glTexturePageCommitmentEXT, vFuiiiillli)
 GO(glVertexArrayVertexAttribDivisorEXT, vFuuu)
-
-//GL_EXT_memory_object
-GO(glGetUnsignedBytei_vEXT, vFiup)
-GO(glGetUnsignedBytevEXT, vFip)
 
 //GL_ARB_polygon_offset_clamp
 GO(glPolygonOffsetClamp, vFfff)
@@ -3404,5 +3401,45 @@ GO(glBlendBarrierEXT, vFv)
 GO(glBlendBarrierOES, vFv)
 GO(glBlendBarrierANGLE, vFv)
 
-//GL_EXT_window_rectangles
+// GL_EXT_window_rectangles
 GO(glWindowRectanglesEXT, vFilp)
+
+// GL_EXT_memory_object
+GO(glGetUnsignedBytevEXT, vFip)
+GO(glGetUnsignedBytei_vEXT, vFiup)
+GO(glDeleteMemoryObjectsEXT, vFlp)
+GO(glIsMemoryObjectEXT, iFu)
+GO(glCreateMemoryObjectsEXT, vFlp)
+GO(glMemoryObjectParameterivEXT, vFuip)
+GO(glGetMemoryObjectParameterivEXT, vFuip)
+GO(glTexStorageMem2DEXT, vFililluU)
+GO(glTexStorageMem2DMultisampleEXT, vFililliuU)
+GO(glTexStorageMem3DEXT, vFilillluU)
+GO(glTexStorageMem3DMultisampleEXT, vFilillliuU)
+GO(glBufferStorageMemEXT, vFiluU)
+GO(glTextureStorageMem2DEXT, vFulilluU)
+GO(glTextureStorageMem2DMultisampleEXT, vFulilliuU)
+GO(glTextureStorageMem3DEXT, vFulillluU)
+GO(glTextureStorageMem3DMultisampleEXT, vFulillliuU)
+GO(glNamedBufferStorageMemEXT, vFuluU)
+GO(glTexStorageMem1DEXT, vFililuU)
+GO(glTextureStorageMem1DEXT, vFuliluU)
+
+// GL_EXT_semaphore
+GO(glGenSemaphoresEXT, vFlp)
+GO(glDeleteSemaphoresEXT, vFlp)
+GO(glIsSemaphoreEXT, iFu)
+GO(glSemaphoreParameterui64vEXT, vFuip)
+GO(glGetSemaphoreParameterui64vEXT, vFuip)
+GO(glWaitSemaphoreEXT, vFuupupp)
+GO(glSignalSemaphoreEXT, vFuupupp)
+
+// GL_EXT_memory_object_fd
+GO(glImportMemoryFdEXT, vFuUii)
+
+// GL_KHR_parallel_shader_compile
+GO(glMaxShaderCompilerThreadsKHR, vFu)
+
+// GL_AMD_framebuffer_multisample_advanced
+GO(glRenderbufferStorageMultisampleAdvancedAMD, vFillill)
+GO(glNamedRenderbufferStorageMultisampleAdvancedAMD, vFullill)
