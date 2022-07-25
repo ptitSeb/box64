@@ -239,6 +239,20 @@ int RunF20F(x64emu_t *emu, rex_t rex)
             GX->f[3] = EX->f[2] + EX->f[3];
         }
         break;
+    case 0x7D:  /* HSUBPS Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        GX->f[0] -= GX->f[1];
+        GX->f[1] = GX->f[2] - GX->f[3];
+        if(EX==GX) {
+            GX->f[2] = GX->f[0];
+            GX->f[3] = GX->f[1];
+        } else {
+            GX->f[2] = EX->f[0] - EX->f[1];
+            GX->f[3] = EX->f[2] - EX->f[3];
+        }
+        break;
 
     GOCOND(0x80
         , tmp32s = F32S; CHECK_FLAGS(emu);
