@@ -1415,6 +1415,90 @@ static void bridgeGtkMenuBar2Class(my_GtkMenuBar2Class_t* class)
 
 #undef SUPERGO
 
+// ----- AtkObjectClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(AtkObject, get_name, void*, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, get_description, void*, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, get_parent, void*, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, get_n_children, int, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, ref_child, void*, (void* accessible, int i), 2, accessible, i);
+WRAPPER(AtkObject, get_index_in_parent, int, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, ref_relation_set, void*, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, get_role, int, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, get_layer, int, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, get_mdi_zorder, int, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, ref_state_set, void*, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, set_name, void, (void* accessible, void* name), 2, accessible, name);
+WRAPPER(AtkObject, set_description, void, (void* accessible, void* description), 2, accessible, description);
+WRAPPER(AtkObject, set_parent, void, (void* accessible, void* parent), 2, accessible, parent);
+WRAPPER(AtkObject, set_role, void, (void* accessible, int role), 2, accessible, role);
+WRAPPER(AtkObject, connect_property_change_handler, uint32_t, (void* accessible, void* handler), 2, accessible, AddCheckBridge(my_bridge, vFpp, handler, 0, NULL));
+WRAPPER(AtkObject, remove_property_change_handler, void, (void* accessible, uint32_t handler_id), 2, accessible, handler_id);
+WRAPPER(AtkObject, initialize, void, (void* accessible, void* data), 2, accessible, data);
+WRAPPER(AtkObject, children_changed, void, (void* accessible, uint32_t change_index, void* changed_child), 3, accessible, change_index, changed_child);
+WRAPPER(AtkObject, focus_event, void, (void* accessible, int focus_in), 2, accessible, focus_in);
+WRAPPER(AtkObject, property_change, void, (void* accessible, void* values), 2, accessible, values);
+WRAPPER(AtkObject, state_change, void, (void* accessible, void* name, int state_set), 3, accessible, name, state_set);
+WRAPPER(AtkObject, visible_data_changed, void, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, active_descendant_changed, void, (void* accessible, void* child), 2, accessible, child);
+WRAPPER(AtkObject, get_attributes, void*, (void* accessible), 1, accessible);
+WRAPPER(AtkObject, get_object_locale, void*, (void* accessible), 1, accessible);
+
+#define SUPERGO() \
+    GO(get_name, pFp);                          \
+    GO(get_description, pFp);                   \
+    GO(get_parent, pFp);                        \
+    GO(get_n_children, iFp);                    \
+    GO(ref_child, pFpi);                        \
+    GO(get_index_in_parent, iFp);               \
+    GO(ref_relation_set, pFp);                  \
+    GO(get_role, iFp);                          \
+    GO(get_layer, iFp);                         \
+    GO(get_mdi_zorder, iFp);                    \
+    GO(ref_state_set, pFp);                     \
+    GO(set_name, vFpp);                         \
+    GO(set_description, vFpp);                  \
+    GO(set_parent, vFpp);                       \
+    GO(set_role, vFpi);                         \
+    GO(connect_property_change_handler, uFpp);  \
+    GO(remove_property_change_handler, vFpu);   \
+    GO(initialize, vFpp);                       \
+    GO(children_changed, vFpup);                \
+    GO(focus_event, vFpi);                      \
+    GO(property_change, vFpp);                  \
+    GO(state_change, vFppi);                    \
+    GO(visible_data_changed, vFp);              \
+    GO(active_descendant_changed, vFpp);        \
+    GO(get_attributes, pFp);                    \
+    GO(get_object_locale, pFp);                 \
+
+// wrap (so bridge all calls, just in case)
+static void wrapAtkObjectClass(my_AtkObjectClass_t* class)
+{
+    wrapGObjectClass(&class->parent);
+    #define GO(A, W) class->A = reverse_##A##_AtkObject (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapAtkObjectClass(my_AtkObjectClass_t* class)
+{   
+    unwrapGObjectClass(&class->parent);
+    #define GO(A, W)   class->A = find_##A##_AtkObject (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeAtkObjectClass(my_AtkObjectClass_t* class)
+{
+    bridgeGObjectClass(&class->parent);
+    #define GO(A, W) autobridge_##A##_AtkObject (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND

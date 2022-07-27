@@ -8,7 +8,7 @@ GO(atk_action_get_keybinding, pFpi)
 GO(atk_action_get_localized_name, pFpi)
 GO(atk_action_get_n_actions, iFp)
 GO(atk_action_get_name, pFpi)
-GO(atk_action_get_type, iFv)
+GO(atk_action_get_type, LFv)
 GO(atk_action_set_description, pFpi)
 GOM(atk_add_focus_tracker, uFEp)
 //GOM(atk_add_global_event_listener, uFEpp)
@@ -22,20 +22,21 @@ GO(atk_component_get_layer, iFp)
 GO(atk_component_get_mdi_zorder, iFp)
 GO(atk_component_get_position, vFpppi)
 GO(atk_component_get_size, vFppp)
-GO(atk_component_get_type, iFv)
+GO(atk_component_get_type, LFv)
 GO(atk_component_grab_focus, iFp)
 GO(atk_component_ref_accessible_at_point, pFpiii)
 GO(atk_component_remove_focus_handler, vFpu)
+GO(atk_component_scroll_to_point, iFpiii)
 GO(atk_component_set_extents, iFpiiiii)
 GO(atk_component_set_position, iFpiii)
 GO(atk_component_set_size, iFpii)
-GO(atk_coord_type_get_type, iFv)
+GO(atk_coord_type_get_type, LFv)
 //GO(atk_document_get_attributes, 
 //GO(atk_document_get_attribute_value, 
 //GO(atk_document_get_document, 
 //GO(atk_document_get_document_type, 
 //GO(atk_document_get_locale, 
-GO(atk_document_get_type, pFv)
+GO(atk_document_get_type, LFv)
 //GO(atk_document_set_attribute_value, 
 //GO(atk_editable_text_copy_text, 
 //GO(atk_editable_text_cut_text, 
@@ -68,7 +69,7 @@ GO(atk_get_version, pFv)
 //GO(atk_hyperlink_get_type, 
 //GO(atk_hyperlink_get_uri, 
 //GO(atk_hyperlink_impl_get_hyperlink, 
-GO(atk_hyperlink_impl_get_type, pFv)
+GO(atk_hyperlink_impl_get_type, LFv)
 //GO(atk_hyperlink_is_inline, 
 //GO(atk_hyperlink_is_selected_link, 
 //GO(atk_hyperlink_is_valid, 
@@ -76,35 +77,35 @@ GO(atk_hyperlink_impl_get_type, pFv)
 //GO(atk_hypertext_get_link, 
 //GO(atk_hypertext_get_link_index, 
 //GO(atk_hypertext_get_n_links, 
-GO(atk_hypertext_get_type, pFv)
+GO(atk_hypertext_get_type, LFv)
 //GO(atk_image_get_image_description, 
 //GO(atk_image_get_image_locale, 
 //GO(atk_image_get_image_position, 
 //GO(atk_image_get_image_size, 
-GO(atk_image_get_type, pFv)
+GO(atk_image_get_type, LFv)
 //GO(atk_image_set_image_description, 
-GO(atk_implementor_get_type, iFv)
+GO(atk_implementor_get_type, LFv)
 GO(atk_implementor_ref_accessible, pFp)
-GO(atk_key_event_type_get_type, pFv)
-GO(atk_layer_get_type, pFv)
+GO(atk_key_event_type_get_type, LFv)
+GO(atk_layer_get_type, LFv)
 //GO(atk_marshal_VOID__INT_INT, 
 //GO(atk_marshal_VOID__INT_INT_INT_STRING, 
 //GO(atk_marshal_VOID__INT_INT_STRING, 
 //GO(atk_marshal_VOID__STRING_BOOLEAN, 
 GO(atk_misc_get_instance, pFv)
-GO(atk_misc_get_type, iFv)
+GO(atk_misc_get_type, LFv)
 GO(atk_misc_threads_enter, vFp)
 GO(atk_misc_threads_leave, vFp)
 DATA(atk_misc_instance, sizeof(void*))
 //GO(atk_no_op_object_factory_get_type, 
 //GO(atk_no_op_object_factory_new, 
-GO(atk_no_op_object_get_type, pFv)
+GO(atk_no_op_object_get_type, LFv)
 //GO(atk_no_op_object_new, 
 GO(atk_object_add_relationship, iFpip)
 //GOM(atk_object_connect_property_change_handler, uFEpp)
 //GO(atk_object_factory_create_accessible, 
 GO(atk_object_factory_get_accessible_type, iFp)
-GO(atk_object_factory_get_type, iFv)
+GO(atk_object_factory_get_type, LFv)
 //GO(atk_object_factory_invalidate, 
 GO(atk_object_get_attributes, pFp)
 GO(atk_object_get_description, pFp)
@@ -116,7 +117,7 @@ GO(atk_object_get_name, pFp)
 GO(atk_object_get_object_locale, pFp)
 GO(atk_object_get_parent, pFp)
 GO(atk_object_get_role, iFp)
-GO(atk_object_get_type, iFv)
+GO(atk_object_get_type, LFv)
 GO(atk_object_initialize, vFpp)
 GO(atk_object_notify_state_change, vFpii)
 GO(atk_object_ref_accessible_child, pFpi)
@@ -162,12 +163,12 @@ GO(atk_remove_key_event_listener, vFu)
 GO(atk_role_for_name, iFp)
 GO(atk_role_get_localized_name, pFp)
 GO(atk_role_get_name, pFp)
-GO(atk_role_get_type, iFv)
+GO(atk_role_get_type, LFv)
 GO(atk_role_register, iFp)
 GO(atk_selection_add_selection, iFpi)
 GO(atk_selection_clear_selection, iFp)
 GO(atk_selection_get_selection_count, iFp)
-GO(atk_selection_get_type, iFv)
+GO(atk_selection_get_type, LFv)
 GO(atk_selection_is_child_selected, iFpi)
 GO(atk_selection_ref_selection, pFpi)
 GO(atk_selection_remove_selection, iFpi)
@@ -251,16 +252,17 @@ GO(atk_selection_select_all_selection, iFp)
 //GO(atk_text_get_text_after_offset, 
 //GO(atk_text_get_text_at_offset, 
 //GO(atk_text_get_text_before_offset, 
-GO(atk_text_get_type, pFv)
-GO(atk_text_range_get_type, pFv)
+GO(atk_text_get_type, LFv)
+GO(atk_text_range_get_type, LFv)
 //GO(atk_text_remove_selection, 
+GO(atk_text_scroll_substring_to_point, iFpiiiii)
 //GO(atk_text_set_caret_offset, 
 //GO(atk_text_set_selection, 
-GO(atk_util_get_type, iFv)
+GO(atk_util_get_type, LFv)
 //GO(atk_value_get_current_value, 
 //GO(atk_value_get_maximum_value, 
 //GO(atk_value_get_minimum_increment, 
 //GO(atk_value_get_minimum_value, 
-GO(atk_value_get_type, pFv)
+GO(atk_value_get_type, LFv)
 //GO(atk_value_set_current_value, 
-GO(atk_window_get_type, pFv)
+GO(atk_window_get_type, LFv)

@@ -471,6 +471,39 @@ typedef struct my_GDBusObjectManagerClientClass_s
   void* padding[8];
 } my_GDBusObjectManagerClientClass_t;
 
+typedef struct my_AtkObjectClass_s
+{
+  my_GObjectClass_t parent;
+  void* (* get_name)            (void* accessible);
+  void* (* get_description)     (void* accessible);
+  void* (*get_parent)           (void* accessible);
+  int   (* get_n_children)      (void* accessible);
+  void* (* ref_child)           (void* accessible, int i);
+  int   (* get_index_in_parent) (void* accessible);
+  void* (* ref_relation_set)    (void* accessible);
+  int   (* get_role)            (void* accessible);
+  int   (* get_layer)           (void* accessible);
+  int   (* get_mdi_zorder)      (void* accessible);
+  void* (* ref_state_set)       (void* accessible);
+  void  (* set_name)            (void* accessible, void* name);
+  void  (* set_description)     (void* accessible, void* description);
+  void  (* set_parent)          (void* accessible, void* parent);
+  void  (* set_role)            (void* accessible, int role);
+  uint32_t (* connect_property_change_handler)    (void* accessible, void* handler);
+  void  (* remove_property_change_handler)     (void* accessible, uint32_t handler_id);
+  void  (* initialize)          (void* accessible, void* data);
+  void  (* children_changed)    (void* accessible, uint32_t change_index, void* changed_child);
+  void  (* focus_event)         (void* accessible, int focus_in);
+  void  (* property_change)     (void* accessible, void* values);
+  void  (* state_change)        (void* accessible, void* name, int state_set);
+  void  (*visible_data_changed) (void* accessible);
+  void  (*active_descendant_changed) (void* accessible, void* child);
+  void* (*get_attributes)       (void* accessible);
+  void* (*get_object_locale)    (void* accessible);
+  void*  pad1;
+} my_AtkObjectClass_t;
+
+
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
   void     (*value_init)         (void* value);
@@ -553,6 +586,7 @@ GTKCLASS(GtkMenuShell2)             \
 GTKCLASS(GtkMenuBar2)               \
 GTKCLASS(MetaFrames2)               \
 GTKCLASS(GDBusObjectManagerClient)  \
+GTKCLASS(AtkObject)                 \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);
 GTKCLASSES()

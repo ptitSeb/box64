@@ -17,9 +17,15 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 #include "myalign.h"
+#include "gtkclass.h"
 
 const char* atkName = "libatk-1.0.so.0";
 #define LIBNAME atk
+
+typedef size_t      (*LFv_t)  ();
+
+#define ADDED_FUNCTIONS()                   \
+GO(atk_object_get_type, LFv_t)              \
 
 #include "generated/wrappedatktypes.h"
 
@@ -121,7 +127,8 @@ EXPORT uint32_t my_atk_add_key_event_listener(x64emu_t* emu, void* f, void* p)
         return -1;
 
 #define CUSTOM_INIT \
-    getMy(lib);
+    getMy(lib);     \
+    SetAtkObjectID(my->atk_object_get_type());                 \
 
 #define CUSTOM_FINI \
     freeMy();
