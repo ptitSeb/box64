@@ -3220,6 +3220,8 @@ wrappedlibpthread:
   - pthread_attr_init
   - pthread_barrierattr_destroy
   - pthread_barrierattr_init
+  - pthread_cond_broadcast
+  - pthread_cond_destroy
   - pthread_condattr_destroy
   - pthread_condattr_init
   - pthread_getattr_default_np
