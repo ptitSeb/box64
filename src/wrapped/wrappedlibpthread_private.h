@@ -101,11 +101,13 @@ GOM(pthread_condattr_init, iFEp)
 GOM(pthread_condattr_setclock, iFEpi)
 GOM(pthread_condattr_setpshared, iFEpi)
 #endif
+#ifdef NOALIGN
 GO(pthread_cond_broadcast, iFp)
 GO(pthread_cond_destroy, iFp)
-#ifdef NOALIGN
 GO(pthread_cond_init, iFpp)
 #else
+GOM(pthread_cond_broadcast, iFEp)
+GOM(pthread_cond_destroy, iFEp)
 GOM(pthread_cond_init, iFEpp)
 #endif
 GO(pthread_cond_signal, iFp)

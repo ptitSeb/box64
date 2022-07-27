@@ -678,12 +678,20 @@ EXPORT int my___pthread_key_create(x64emu_t* emu, void* key, void* dtor) __attri
 
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 void updateAlignedMutex(pthread_mutex_t* m, pthread_mutex_t* real);
+pthread_cond_t* alignCond(pthread_cond_t* pc)
+{
+#ifndef NOALIGN
+	if((uintptr_t)pc&7)
+		return (pthread_cond_t*)(((uintptr_t)pc+7)&~7);
+#endif
+	return pc;
+}
 
 EXPORT int my_pthread_cond_timedwait(x64emu_t* emu, pthread_cond_t* cond, void* mutex, void* abstime)
 {
 	(void)emu;
 	pthread_mutex_t *real = getAlignedMutex(mutex);
-	int ret = pthread_cond_timedwait(cond, real, (const struct timespec*)abstime);
+	int ret = pthread_cond_timedwait(alignCond(cond), real, (const struct timespec*)abstime);
 	updateAlignedMutex(mutex, real);
 	return ret;
 }
@@ -691,7 +699,7 @@ EXPORT int my_pthread_cond_wait(x64emu_t* emu, pthread_cond_t* cond, void* mutex
 {
 	(void)emu;
 	pthread_mutex_t *real = getAlignedMutex(mutex);
-	int ret = pthread_cond_wait(cond, real);
+	int ret = pthread_cond_wait(alignCond(cond), real);
 	updateAlignedMutex(mutex, real);
 	return ret;
 }
@@ -701,7 +709,7 @@ EXPORT int my_pthread_cond_clockwait(x64emu_t *emu, pthread_cond_t* cond, void* 
 	int ret;
 	if(real_pthread_cond_clockwait) {
 		pthread_mutex_t *real = getAlignedMutex(mutex);
-		ret = real_pthread_cond_clockwait(cond, real, __clock_id, (void*)__abstime);
+		ret = real_pthread_cond_clockwait(alignCond(cond), real, __clock_id, (void*)__abstime);
 		updateAlignedMutex(mutex, real);
 	} else {
 		errno = EINVAL;
@@ -1127,11 +1135,30 @@ EXPORT int my_pthread_cond_init(x64emu_t* emu, pthread_cond_t *pc, my_condattr_t
 	my_condattr_t cond = {0};
 	if(c)
 		cond.x86 = c->x86;
-	int ret = pthread_cond_init(pc, c?(&cond.nat):NULL);
+	int ret;
+	#ifndef NOALIGN
+	if((uintptr_t)pc & 7) {
+		// cond is not allign, re-align it on the fly
+		pthread_cond_t newc;
+		ret = pthread_cond_init(&newc, c?(&cond.nat):NULL);
+		memcpy((void*)(((uintptr_t)pc+7)&~7), &newc, sizeof(pthread_cond_t)-((uintptr_t)pc&7));
+	}
+	#endif
+	ret = pthread_cond_init(pc, c?(&cond.nat):NULL);
 	if(c)
 		c->x86 = cond.x86;
 	return ret;
 }
+#ifndef NOALIGN
+EXPORT int my_pthread_cond_destroy(x64emu_t* emu, pthread_cond_t *pc)
+{
+		return pthread_cond_destroy(alignCond(pc));
+}
+EXPORT int my_pthread_cond_broadcast(x64emu_t* emu, pthread_cond_t *pc)
+{
+		return pthread_cond_broadcast(alignCond(pc));
+}
+#endif
 
 typedef union my_barrierattr_s {
 	int						x86;
