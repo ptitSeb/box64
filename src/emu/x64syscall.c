@@ -117,6 +117,7 @@ scwrap_t syscallwrap[] = {
     #ifdef __NR_vfork
     {58, __NR_vfork, 0},
     #endif
+    { 60, __NR_exit, 1},    // Nees wrapping?
     { 61, __NR_wait4, 4},
     //{ 63, __NR_uname, 1}, // Needs wrapping, use old_utsname
     { 66, __NR_semctl, 4},
