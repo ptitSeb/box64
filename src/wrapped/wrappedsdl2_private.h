@@ -532,8 +532,8 @@ GOM(SDL_RWFromMem, pFEpi)
 GOM(SDL_SaveAllDollarTemplates, iFEp)
 GOM(SDL_SaveBMP_RW, iFEppi)
 GOM(SDL_SaveDollarTemplate, iFEip)
-// SDL_scalbn
-// SDL_scalbnf
+GO(SDL_scalbn, dFdl)
+GO(SDL_scalbnf, fFfl)
 GO(SDL_SemPost, iFp)
 GO(SDL_SemTryWait, iFp)
 GO(SDL_SemValue, uFp)
