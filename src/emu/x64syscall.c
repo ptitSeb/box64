@@ -199,7 +199,7 @@ scwrap_t syscallwrap[] = {
     { 324, __NR_membarrier, 2},
     #ifdef __NR_statx
     // TODO: implement fallback if __NR_statx is not defined
-    { 332, __NR_statx, 4},
+    { 332, __NR_statx, 5},
     #endif
     #ifdef __NR_fchmodat4
     { 434, __NR_fchmodat4, 4},
