@@ -2487,9 +2487,6 @@ EXPORT void* my___libc_dlsym(x64emu_t* emu, void* handle, void* name)
     return my_dlsym(emu, handle, name);
 }
 
-// all obstack function defined in obstack.c file
-void obstackSetup();
-
 EXPORT int my_nanosleep(const struct timespec *req, struct timespec *rem)
 {
     if(!req)
@@ -2497,6 +2494,9 @@ EXPORT int my_nanosleep(const struct timespec *req, struct timespec *rem)
     return nanosleep(req, rem);
 }
 #endif
+
+// all obstack function defined in obstack.c file
+void obstackSetup();
 
 EXPORT void* my_malloc(unsigned long size)
 {
@@ -2860,7 +2860,7 @@ EXPORT char my___libc_single_threaded = 0;
     /*InitCpuModel();*/         \
     ctSetup();              \
     stSetup(box64);         \
-    /*obstackSetup();*/         \
+    obstackSetup();         \
     my_environ = my__environ = my___environ = box64->envv;                      \
     my___progname_full = my_program_invocation_name = box64->argv[0];           \
     my___progname = my_program_invocation_short_name =                          \

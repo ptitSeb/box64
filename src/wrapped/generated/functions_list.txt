@@ -1173,6 +1173,7 @@
 #() iFplluu
 #() iFpLiLi
 #() iFpLlpp
+#() iFpLLpp
 #() iFpLppi
 #() iFppiiu
 #() iFppiip
@@ -2862,6 +2863,8 @@ wrappedlibc:
   - _ITM_registerTMCloneTable
 - vFpp:
   - __register_frame_info
+  - _obstack_free
+  - obstack_free
   - tdestroy
 - vFpV:
   - warn
@@ -3038,6 +3041,8 @@ wrappedlibc:
   - __sprintf_chk
 - iFpuppp:
   - __vswprintf_chk
+- iFpLLpp:
+  - _obstack_begin
 - pFpLLiN:
   - mremap
 - pFppLLp:

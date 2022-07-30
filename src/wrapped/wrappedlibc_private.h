@@ -1262,11 +1262,11 @@ GOW(ntp_adjtime, iFp)
 //DATAB(_obstack, 
 //GO(_obstack_allocated_p, 
 //DATA(obstack_alloc_failed_handler, 
-//GO(_obstack_begin, 
+GOM(_obstack_begin, iFpLLpp)
 //GO(_obstack_begin_1, 
 //DATA(obstack_exit_failure, 
-//GO(_obstack_free, 
-//GO(obstack_free, 
+GOM(_obstack_free, vFpp)
+GOM(obstack_free, vFpp)
 //GO(_obstack_memory_used, 
 GOM(_obstack_newchunk, vFEpi)
 //GOW(obstack_printf, iFppV)
