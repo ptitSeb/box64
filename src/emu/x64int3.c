@@ -102,7 +102,7 @@ void x64Int3(x64emu_t* emu)
                 const char *s = NULL;
                 s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
-                    snprintf(buff, 256, "%s", " ... ");
+                    snprintf(buff, 256, "%s", cycle_log?"PltResolver ":" ... ");
                 } else if (!strcmp(s, "__open") || !strcmp(s, "open") || !strcmp(s, "open ") || !strcmp(s, "open64")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI), (int)(R_EDX));
@@ -262,7 +262,7 @@ void x64Int3(x64emu_t* emu)
                 else if(perr==2 && R_EAX==0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 if(cycle_log)
-                    snprintf(buffret, 127, "0x%lX%s%s\n", R_RAX, buff2, buff3);
+                    snprintf(buffret, 127, "0x%lX%s%s", R_RAX, buff2, buff3);
                 else
                     printf_log(LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
                 pthread_mutex_unlock(&emu->context->mutex_trace);

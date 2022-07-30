@@ -64,7 +64,7 @@ typedef struct base_segment_s {
     pthread_key_t   key;
 } base_segment_t;
 
-#define CYCLE_LOG   8
+#define CYCLE_LOG   16
 
 typedef struct box64context_s {
     path_collection_t   box64_path;     // PATH env. variable
