@@ -83,12 +83,17 @@ void x64Int3(x64emu_t* emu)
             elfheader_t *h = FindElfAddress(my_context, *(uintptr_t*)(R_ESP));
             int have_trace = 0;
             if(h && strstr(ElfName(h), "libMiles")) have_trace = 1;*/
-            if(box64_log>=LOG_DEBUG /*|| have_trace*/) {
+            if(box64_log>=LOG_DEBUG || cycle_log) {
                 pthread_mutex_lock(&emu->context->mutex_trace);
                 int tid = GetTID();
-                char buff[256] = "\0";
+                char t_buff[256] = "\0";
                 char buff2[64] = "\0";
                 char buff3[64] = "\0";
+                char* buff = cycle_log?my_context->log_call[my_context->current_line]:t_buff;
+                char* buffret = cycle_log?my_context->log_ret[my_context->current_line]:NULL;
+                if(buffret) buffret[0] = '\0';
+                if(cycle_log)
+                    my_context->current_line = (my_context->current_line+1)&(CYCLE_LOG-1);
                 char *tmp;
                 int post = 0;
                 int perr = 0;
@@ -223,7 +228,7 @@ void x64Int3(x64emu_t* emu)
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s(0x%lX, 0x%lX, 0x%lX, ...)", tid, *(void**)(R_RSP), s, R_RDI, R_RSI, R_RDX);
                 }
-                printf_log(LOG_NONE, "%s =>", buff);
+                if(!cycle_log) printf_log(LOG_NONE, "%s =>", buff);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
                 w(emu, addr);   // some function never come back, so unlock the mutex first!
                 pthread_mutex_lock(&emu->context->mutex_trace);
@@ -252,7 +257,10 @@ void x64Int3(x64emu_t* emu)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==2 && R_EAX==0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
-                printf_log(LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
+                if(cycle_log)
+                    snprintf(buffret, 127, "0x%lX%s%s\n", R_RAX, buff2, buff3);
+                else
+                    printf_log(LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
             } else
                 w(emu, addr);

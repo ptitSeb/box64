@@ -990,6 +990,15 @@ exit(-1);
                 exit(-1);
             }
         }
+        if(cycle_log) {
+            int j = (my_context->current_line+1)&(CYCLE_LOG-1);
+            for (int i=0; i<CYCLE_LOG; ++i) {
+                int k = (i+j)&(CYCLE_LOG-1);
+                if(my_context->log_call[k][0]) {
+                    printf_log(log_minimum, "%s => return %s\n", my_context->log_call[k], my_context->log_ret[k]);
+                }
+            }
+        }
 #ifdef DYNAREC
         uint32_t hash = 0;
         if(db)

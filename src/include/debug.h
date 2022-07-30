@@ -27,6 +27,7 @@ extern int arm64_atomics;
 #endif
 #endif
 extern int dlsym_error;    // log dlsym error
+extern int cycle_log;      // if using rolling logs
 #ifdef HAVE_TRACE
 extern int trace_xmm;      // include XMM reg in trace?
 extern int trace_emm;      // include EMM reg in trace?

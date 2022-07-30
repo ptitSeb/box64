@@ -11,6 +11,11 @@ Controls the Verbosity level of the logs
  * 2: DEBUG : Details a lot of stuff (Example: relocations or functions called).
  * 3: DUMP : All DEBUG plus DUMP of all ELF Info.
 
+#### BOX64_ROLLING_LOG
+Show last few wrapped function call when a Signal is caught
+ * 0: No last function call printed (Default.)
+ * 1: Last few wrapped function call printed when a signal is printed. Incompatible with BOX64_LOG>1 (may need BOX64_SHOWSEGV=1 also)
+
 #### BOX64_NOBANNER
 Disables Box64 printing its version and build
  * 0 : Enable printing its banner. (Default.)
