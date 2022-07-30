@@ -74,6 +74,7 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
                     case '8':
                     case '9':
                     case '.': 
+                    case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
@@ -213,6 +214,7 @@ void myStackAlignScanf(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* m
                     case '8':
                     case '9':
                     case '.': 
+                    case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
@@ -315,6 +317,7 @@ void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mysta
                     case '8':
                     case '9':
                     case '.': 
+                    case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
@@ -454,6 +457,7 @@ void myStackAlignScanfW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* 
                     case '8':
                     case '9':
                     case '.': 
+                    case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
