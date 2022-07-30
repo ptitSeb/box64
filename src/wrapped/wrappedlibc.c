@@ -2836,6 +2836,7 @@ EXPORT void my_exit(x64emu_t* emu, int code)
         emu->quitonexit = 2;
         return;
     }
+    emu->quit = 1;
     exit(code);
 }
 
