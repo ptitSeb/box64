@@ -4069,6 +4069,9 @@ wrappedvulkan:
   - vkGetPhysicalDeviceSparseImageFormatProperties
 - vFpiiiupupup:
   - vkCmdPipelineBarrier
+wrappedwaylandclient:
+wrappedwaylandcursor:
+wrappedwaylandegl:
 wrappedxinerama:
 wrappedxkbcommon:
 wrappedxkbcommonx11:

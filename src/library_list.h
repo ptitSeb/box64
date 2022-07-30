@@ -192,6 +192,9 @@ GO("libgstvideo-1.0.so.0", gstvideo)
 GO("libxshmfence.so.1", xshmfence)
 GO("libatomic.so.1", atomic)
 GO("libsoftokn3.so", softokn3)
+GO("libwayland-egl.so.1", waylandegl)
+GO("libwayland-client.so.0", waylandclient)
+GO("libwayland-cursor.so.0", waylandcursor)
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 
