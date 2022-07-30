@@ -447,6 +447,30 @@ typedef struct my_GtkMenuBar2Class_s {
   void (*_gtk_reserved4) (void);
 } my_GtkMenuBar2Class_t;
 
+typedef struct my_GtkTextView2Class_s {
+  my_GtkContainer2Class_t parent_class;
+  void (* set_scroll_adjustments)   (void* text_view, void* hadjustment, void* vadjustment);
+  void (* populate_popup)           (void* text_view, void* menu);
+  void (* move_cursor)              (void* text_view, int step, int count, int extend_selection);
+  void (* page_horizontally)        (void* text_view, int count, int extend_selection);
+  void (* set_anchor)               (void* text_view);
+  void (* insert_at_cursor)         (void* text_view, void* str);
+  void (* delete_from_cursor)       (void* text_view, int type, int count);
+  void (* backspace)                (void* text_view);
+  void (* cut_clipboard)            (void* text_view);
+  void (* copy_clipboard)           (void* text_view);
+  void (* paste_clipboard)          (void* text_view);
+  void (* toggle_overwrite)         (void* text_view);
+  void (* move_focus)               (void* text_view, int direction);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+  void (*_gtk_reserved5) (void);
+  void (*_gtk_reserved6) (void);
+  void (*_gtk_reserved7) (void);
+} my_GtkTextView2Class_t;
+
 typedef struct my_MetaFrames2Class_s
 {
   my_GtkWindow2Class_t parent_class;
@@ -584,6 +608,7 @@ GTKCLASS(GtkProgressBar2)           \
 GTKCLASS(GtkFrame2)                 \
 GTKCLASS(GtkMenuShell2)             \
 GTKCLASS(GtkMenuBar2)               \
+GTKCLASS(GtkTextView2)              \
 GTKCLASS(MetaFrames2)               \
 GTKCLASS(GDBusObjectManagerClient)  \
 GTKCLASS(AtkObject)                 \

@@ -1415,6 +1415,64 @@ static void bridgeGtkMenuBar2Class(my_GtkMenuBar2Class_t* class)
 
 #undef SUPERGO
 
+// ----- GtkTextView2Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkTextView2, set_scroll_adjustments, void,   (void* text_view, void* hadjustment, void* vadjustment), 3, text_view, hadjustment, vadjustment);
+WRAPPER(GtkTextView2, populate_popup, void,           (void* text_view, void* menu), 2, text_view, menu);
+WRAPPER(GtkTextView2, move_cursor, void,              (void* text_view, int step, int count, int extend_selection), 4, text_view, step, count, extend_selection);
+WRAPPER(GtkTextView2, page_horizontally, void,        (void* text_view, int count, int extend_selection), 3, text_view, count, extend_selection);
+WRAPPER(GtkTextView2, set_anchor, void,               (void* text_view), 1, text_view);
+WRAPPER(GtkTextView2, insert_at_cursor, void,         (void* text_view, void* str), 2, text_view, str);
+WRAPPER(GtkTextView2, delete_from_cursor, void,       (void* text_view, int type, int count), 3, text_view, type, count);
+WRAPPER(GtkTextView2, backspace, void,                (void* text_view), 1, text_view);
+WRAPPER(GtkTextView2, cut_clipboard, void,            (void* text_view), 1, text_view);
+WRAPPER(GtkTextView2, copy_clipboard, void,           (void* text_view), 1, text_view);
+WRAPPER(GtkTextView2, paste_clipboard, void,          (void* text_view), 1, text_view);
+WRAPPER(GtkTextView2, toggle_overwrite, void,         (void* text_view), 1, text_view);
+WRAPPER(GtkTextView2, move_focus, void,               (void* text_view, int direction), 2, text_view, direction);
+
+#define SUPERGO()                       \
+    GO(set_scroll_adjustments, vFppp);  \
+    GO(populate_popup, vFpp);           \
+    GO(move_cursor, vFpiii);            \
+    GO(page_horizontally, vFpii);       \
+    GO(set_anchor, vFp);                \
+    GO(insert_at_cursor, vFpp);         \
+    GO(delete_from_cursor, vFpii);      \
+    GO(backspace, vFp);                 \
+    GO(cut_clipboard, vFp);             \
+    GO(copy_clipboard, vFp);            \
+    GO(paste_clipboard, vFp);           \
+    GO(toggle_overwrite, vFp);          \
+    GO(move_focus, vFpi);               \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkTextView2Class(my_GtkTextView2Class_t* class)
+{
+    wrapGtkContainer2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkTextView2 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkTextView2Class(my_GtkTextView2Class_t* class)
+{   
+    unwrapGtkContainer2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkTextView2 (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkTextView2Class(my_GtkTextView2Class_t* class)
+{
+    bridgeGtkContainer2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkTextView2 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
 // ----- AtkObjectClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(AtkObject, get_name, void*, (void* accessible), 1, accessible);

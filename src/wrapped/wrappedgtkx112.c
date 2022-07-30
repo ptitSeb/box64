@@ -62,6 +62,7 @@ typedef unsigned long (*LFpppppi_t)(void*, void*, void*, void*, void*, int);
     GO(gtk_progress_bar_get_type, LFv_t)        \
     GO(gtk_menu_shell_get_type, LFv_t)          \
     GO(gtk_menu_bar_get_type, LFv_t)            \
+    GO(gtk_text_view_get_type, LFv_t)           \
     GO(gtk_action_get_type, LFv_t)              \
     GO(g_type_class_ref, pFL_t)                 \
     GO(g_type_class_unref, vFp_t)               \
@@ -1128,6 +1129,7 @@ EXPORT void* my_gtk_link_button_set_uri_hook(x64emu_t* emu, void* f, void* data,
     SetGtkFrame2ID(my->gtk_frame_get_type());                                   \
     SetGtkMenuShell2ID(my->gtk_menu_shell_get_type());                          \
     SetGtkMenuBar2ID(my->gtk_menu_bar_get_type());                              \
+    SetGtkTextView2ID(my->gtk_text_view_get_type());                            \
     setNeededLibs(lib, 2, "libgdk-x11-2.0.so.0", "libpangocairo-1.0.so.0");
 
 #define CUSTOM_FINI \
