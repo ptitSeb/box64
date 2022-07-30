@@ -119,6 +119,10 @@ void x64Int3(x64emu_t* emu)
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, \"%s\", %d (,%d))", tid, *(void**)(R_RSP), s, (int)R_EDI, (tmp)?tmp:"(nil)", (int)(R_EDX), (int)(R_ECX));
                     perr = 1;
+                } else if (strstr(s, "readlink")==s) {
+                    tmp = (char*)(R_RDI);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %p, %zd)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (void*)(R_RSI), (size_t)R_RDX);
+                    perr = 1;
                 } else if (strstr(s, "mkdir")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI));
