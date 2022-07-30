@@ -93,7 +93,7 @@ GO(PR_Close, iFp)
 //GO(PR_DestroyWaitGroup, 
 //GO(PR_DetachProcess, 
 //GO(PR_DetachSharedMemory, 
-//GO(PR_DetachThread, 
+GO(PR_DetachThread, vFv)
 //GO(PR_DisableClockInterrupts, 
 //GO(PR_dtoa, 
 //GO(PR_DuplicateEnvironment, 

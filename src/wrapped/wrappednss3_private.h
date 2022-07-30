@@ -83,7 +83,7 @@ GO(CERT_DestroyCertificate, vFp)
 GO(CERT_DestroyCertificateList, vFp)
 //GO(CERT_DestroyCertificatePoliciesExtension, 
 GO(CERT_DestroyCertificateRequest, vFp)
-//GO(CERT_DestroyCertList, 
+GO(CERT_DestroyCertList, vFp)
 //GO(CERT_DestroyCERTRevocationFlags, 
 //GO(CERT_DestroyName, 
 //GO(CERT_DestroyOCSPCertID, 
@@ -279,7 +279,7 @@ GO(DER_DecodeTimeChoice, iFpp)
 //GO(HASH_GetHashOidTagByHashType, 
 //GO(HASH_GetHashTypeByOidTag, 
 //GO(HASH_GetType, 
-//GO(HASH_HashBuf, 
+GO(HASH_HashBuf, iFippu)
 //GO(HASH_ResultLen, 
 //GO(HASH_ResultLenByOidTag, 
 //GO(HASH_ResultLenContext, 
@@ -736,7 +736,7 @@ GO(SECITEM_FreeItem, iFpi)
 //GO(SECKEY_DestroyPrivateKey, 
 //GO(SECKEY_DestroyPrivateKeyInfo, 
 //GO(SECKEY_DestroyPrivateKeyList, 
-//GO(SECKEY_DestroyPublicKey, 
+GO(SECKEY_DestroyPublicKey, vFp)
 //GO(SECKEY_DestroyPublicKeyList, 
 //GO(SECKEY_DestroySubjectPublicKeyInfo, 
 //DATA(SECKEY_DSAPublicKeyTemplate,     //R type
@@ -754,7 +754,7 @@ DATA(SECKEY_EncryptedPrivateKeyInfoTemplate, 128)
 //DATA(SECKEY_PointerToPrivateKeyInfoTemplate, 
 DATA(SECKEY_PrivateKeyInfoTemplate, 192)
 //GO(SECKEY_PublicKeyStrength, 
-//GO(SECKEY_PublicKeyStrengthInBits, 
+GO(SECKEY_PublicKeyStrengthInBits, uFp)
 //GO(SECKEY_RemovePrivateKeyListNode, 
 //DATA(SECKEY_RSAPSSParamsTemplate, 
 //DATA(SECKEY_RSAPublicKeyTemplate,     //R type
@@ -813,7 +813,7 @@ DATA(SECOID_AlgorithmIDTemplate, 16*sizeof(void*))   //R type
 //GO(SECOID_DestroyAlgorithmID, 
 //GO(SECOID_FindOID, 
 //GO(SECOID_FindOIDByTag, 
-//GO(SECOID_FindOIDTag, 
+GO(SECOID_FindOIDTag, iFp)
 //GO(SECOID_FindOIDTagDescription, 
 //GO(SECOID_GetAlgorithmTag, 
 //GO(SECOID_SetAlgorithmID, 

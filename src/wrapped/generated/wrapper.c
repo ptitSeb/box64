@@ -772,6 +772,7 @@ typedef int64_t (*iFipLi_t)(int64_t, void*, uintptr_t, int64_t);
 typedef int64_t (*iFipLu_t)(int64_t, void*, uintptr_t, uint64_t);
 typedef int64_t (*iFipLp_t)(int64_t, void*, uintptr_t, void*);
 typedef int64_t (*iFippi_t)(int64_t, void*, void*, int64_t);
+typedef int64_t (*iFippu_t)(int64_t, void*, void*, uint64_t);
 typedef int64_t (*iFippL_t)(int64_t, void*, void*, uintptr_t);
 typedef int64_t (*iFippp_t)(int64_t, void*, void*, void*);
 typedef int64_t (*iFipON_t)(int64_t, void*, int32_t, ...);
@@ -2934,6 +2935,7 @@ void iFipLi(x64emu_t *emu, uintptr_t fcn) { iFipLi_t fn = (iFipLi_t)fcn; R_RAX=(
 void iFipLu(x64emu_t *emu, uintptr_t fcn) { iFipLu_t fn = (iFipLu_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (uint64_t)R_RCX); }
 void iFipLp(x64emu_t *emu, uintptr_t fcn) { iFipLp_t fn = (iFipLp_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (void*)R_RCX); }
 void iFippi(x64emu_t *emu, uintptr_t fcn) { iFippi_t fn = (iFippi_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (int64_t)R_RCX); }
+void iFippu(x64emu_t *emu, uintptr_t fcn) { iFippu_t fn = (iFippu_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (uint64_t)R_RCX); }
 void iFippL(x64emu_t *emu, uintptr_t fcn) { iFippL_t fn = (iFippL_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (uintptr_t)R_RCX); }
 void iFippp(x64emu_t *emu, uintptr_t fcn) { iFippp_t fn = (iFippp_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX); }
 void iFipON(x64emu_t *emu, uintptr_t fcn) { iFipON_t fn = (iFipON_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI, (void*)R_RSI, of_convert((int32_t)R_RDX), (void*)R_RCX); }
@@ -4988,6 +4990,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFipLu) return 1;
 	if (fun == &iFipLp) return 1;
 	if (fun == &iFippi) return 1;
+	if (fun == &iFippu) return 1;
 	if (fun == &iFippL) return 1;
 	if (fun == &iFippp) return 1;
 	if (fun == &iFuipu) return 1;
