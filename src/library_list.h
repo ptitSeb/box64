@@ -191,6 +191,7 @@ GO("libgsttag-1.0.so.0", gsttag)
 GO("libgstvideo-1.0.so.0", gstvideo)
 GO("libxshmfence.so.1", xshmfence)
 GO("libatomic.so.1", atomic)
+GO("libsoftokn3.so", softokn3)
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 

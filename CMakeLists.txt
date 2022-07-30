@@ -400,6 +400,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedsdl1sound.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl1ttf.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsecret1.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedsoftokn3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsmpeg.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl2image.c"
