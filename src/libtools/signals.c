@@ -431,8 +431,7 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr)
             x64sz+=db->instsize[i].x64;
             armsz+=db->instsize[i].nat*4;
             ++i;
-        }
-        while(db->instsize[i-1].x64==15 || db->instsize[i-1].nat==15);
+        } while((db->instsize[i-1].x64==15) || (db->instsize[i-1].nat==15));
         if(arm_addr>=armaddr && arm_addr<(armaddr+armsz))
             return x64addr;
         armaddr+=armsz;
@@ -912,14 +911,17 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         }
         pthread_mutex_unlock(&mutex_dynarec_prot);
     }
+    if(!db_searched)
+        db = FindDynablockFromNativeAddress(pc);
 #else
     void* db = NULL;
 #endif
     static int old_code = -1;
     static void* old_pc = 0;
     static void* old_addr = 0;
+    static int old_tid = 0;
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":"SIGILL");
-    if(old_code==info->si_code && old_pc==pc && old_addr==addr) {
+    if(old_code==info->si_code && old_pc==pc && old_addr==addr && old_tid==GetTID()) {
         printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p)!\n", GetTID(), signame, old_code, old_pc, old_addr);
 exit(-1);
     } else {
@@ -927,13 +929,10 @@ exit(-1);
             relockMutex(Locks);
             return; // that's probably just a multi-task glitch, like seen in terraria
         }
-#ifdef DYNAREC
-        if(!db_searched)
-            db = FindDynablockFromNativeAddress(pc);
-#endif
         old_code = info->si_code;
         old_pc = pc;
         old_addr = addr;
+        old_tid = GetTID();
         const char* name = GetNativeName(pc);
         uintptr_t x64pc = (uintptr_t)-1;
         const char* x64name = NULL;
@@ -965,6 +964,8 @@ exit(-1);
 #error Unsupported Architecture
 #endif //arch
 #endif //DYNAREC
+        if(!db && (sig==SIGSEGV) && ((uintptr_t)addr==x64pc-1))
+            x64pc--;
         x64name = getAddrFunctionName(x64pc);
         elfheader_t* elf = FindElfAddress(my_context, x64pc);
         if(elf)
