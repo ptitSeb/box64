@@ -49,6 +49,7 @@ typedef uint64_t (*uFpLippppLuA_t)(void*, uintptr_t, int64_t, void*, void*, void
 	GO(g_type_add_interface_static, vFLLp_t) \
 	GO(g_object_class_install_properties, vFpup_t) \
 	GO(g_object_weak_ref, vFppp_t) \
+	GO(g_signal_override_class_handler, vFppp_t) \
 	GO(g_object_get, vFppV_t) \
 	GO(g_object_set, vFppV_t) \
 	GO(g_object_get_valist, vFppA_t) \

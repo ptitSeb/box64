@@ -850,6 +850,11 @@ EXPORT void my_g_object_weak_ref(x64emu_t* emu, void* object, void* notify, void
     my->g_object_weak_ref(object, findWeakNotifyFct(notify), data);
 }
 
+EXPORT void my_g_signal_override_class_handler(x64emu_t* emu, char* name, void* gtype, void* callback)
+{
+    my->g_signal_override_class_handler(name, gtype, findGCallbackFct(callback));
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
