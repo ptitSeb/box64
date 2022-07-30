@@ -87,6 +87,38 @@ static void* reverse_CERT_StringFromCertFcn_Fct(library_t* lib, void* fct)
     #undef GO
     return (void*)AddBridge(lib->priv.w.bridge, pFp, fct, 0, NULL);
 }
+// CERTChainVerifyCallbackFunc ...
+#define GO(A)   \
+static uintptr_t my_CERTChainVerifyCallbackFunc_fct_##A = 0;                                    \
+static int my_CERTChainVerifyCallbackFunc_##A(void* a, void* b, void* c)                        \
+{                                                                                               \
+    return (int)RunFunction(my_context, my_CERTChainVerifyCallbackFunc_fct_##A, 3, a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_CERTChainVerifyCallbackFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_CERTChainVerifyCallbackFunc_fct_##A == (uintptr_t)fct) return my_CERTChainVerifyCallbackFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_CERTChainVerifyCallbackFunc_fct_##A == 0) {my_CERTChainVerifyCallbackFunc_fct_##A = (uintptr_t)fct; return my_CERTChainVerifyCallbackFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for nss3 CERTChainVerifyCallbackFunc callback\n");
+    return NULL;
+}
+static void* reverse_CERTChainVerifyCallbackFunc_Fct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    #define GO(A) if(my_CERTChainVerifyCallbackFunc_##A == fct) return (void*)my_CERTChainVerifyCallbackFunc_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0, NULL);
+}
 
 #undef SUPER
 
@@ -100,6 +132,50 @@ EXPORT int my_CERT_RegisterAlternateOCSPAIAInfoCallBack(x64emu_t* emu, void* f, 
     int ret = my->CERT_RegisterAlternateOCSPAIAInfoCallBack(find_CERT_StringFromCertFcn_Fct(f), old);
     if(old)
         *old = reverse_CERT_StringFromCertFcn_Fct(my_lib, *old);
+    return ret;
+}
+
+typedef int (*my_CERTChainVerifyCallbackFunc)(void *isChainValidArg, void *currentChain, void* chainOK);
+typedef struct my_CERTChainVerifyCallback_s {
+    my_CERTChainVerifyCallbackFunc isChainValid;
+    void *isChainValidArg;
+} my_CERTChainVerifyCallback_t;
+
+typedef struct my_CERTValParamInValueStr_t {
+    union {
+        uint64_t ul;
+    } scalar;
+    union {
+        void*    p;
+        my_CERTChainVerifyCallback_t *chainVerifyCallback;
+    } pointer;
+    union {
+        uint64_t *pul;
+    } array;
+    int arraySize;
+} my_CERTValParamInValue_t;
+
+typedef struct my_CERTValInParam_s {
+    int type;
+    my_CERTValParamInValue_t value;
+} my_CERTValInParam_t;
+
+EXPORT int my_CERT_PKIXVerifyCert(x64emu_t* emu, void* cert, int64_t usages, my_CERTValInParam_t* pin, void* pout, void* wincx)
+{
+    //cert_pi_chainVerifyCallback = 13
+    int i = 0;
+    while(pin[i].type) {
+        if(pin[i].type == 13)
+            pin[i].value.pointer.chainVerifyCallback->isChainValid = find_CERTChainVerifyCallbackFunc_Fct(pin[i].value.pointer.chainVerifyCallback->isChainValid);
+        ++i;
+    }
+    int ret = my->CERT_PKIXVerifyCert(cert, usages, pin, pout, wincx);
+    /*while(pin[i].type) {
+        if(pin[i].type == 13)
+            pin[i].value.pointer.p = reverse_CERTChainVerifyCallbackFunc_Fct(my_lib, pin[i].value.pointer.p);
+        ++i;
+    }*/
+
     return ret;
 }
 

@@ -216,7 +216,7 @@ GO(CERT_NewTempCertificate, pFpppii)
 //GO(CERT_NicknameStringsFromCertList, 
 //GO(CERT_OCSPCacheSettings, 
 //GO(CERT_OpenCertDBFilename, 
-GO(CERT_PKIXVerifyCert, iFpIppp)
+GOM(CERT_PKIXVerifyCert, iFEpIppp)
 //GO(CERT_PostOCSPRequest, 
 GOM(CERT_RegisterAlternateOCSPAIAInfoCallBack, iFEpp)
 //GO(CERT_RemoveCertListNode, 

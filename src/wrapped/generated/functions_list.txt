@@ -1158,7 +1158,6 @@
 #() iFpippi
 #() iFpippW
 #() iFpippp
-#() iFpIppp
 #() iFpCCCC
 #() iFpuill
 #() iFpuipi
@@ -1424,6 +1423,7 @@
 #() iFEpiipV
 #() iFEpilpV
 #() iFEpippi
+#() iFEpIppp
 #() iFEpuppp
 #() iFEpUppp
 #() iFEppppp
@@ -3484,6 +3484,8 @@ wrappednss3:
   - PK11_SetPasswordFunc
 - iFpp:
   - CERT_RegisterAlternateOCSPAIAInfoCallBack
+- iFpIppp:
+  - CERT_PKIXVerifyCert
 wrappednssutil3:
 wrappedopenal:
 - vFv:
