@@ -41,7 +41,7 @@ int InitX64Trace(box64context_t *context)
 {
     if(context->zydis)
         return 0;
-    context->zydis = (zydis_t*)calloc(1, sizeof(zydis_t));
+    context->zydis = (zydis_t*)box_calloc(1, sizeof(zydis_t));
     if(!context->zydis)
         return 1;
     context->zydis->lib = dlopen("libZydis.so", RTLD_LAZY);
@@ -69,7 +69,7 @@ void DeleteX64Trace(box64context_t *context)
         return;
     if(context->zydis->lib)
         dlclose(context->zydis->lib);
-    free(context->zydis);
+    box_free(context->zydis);
     context->zydis = NULL;
 }
 
@@ -77,7 +77,7 @@ zydis_dec_t* InitX64TraceDecoder(box64context_t *context)
 {
     if(!context->zydis)
         return NULL;
-    zydis_dec_t *dec = (zydis_dec_t*)calloc(1, sizeof(zydis_dec_t));
+    zydis_dec_t *dec = (zydis_dec_t*)box_calloc(1, sizeof(zydis_dec_t));
     dec->ZydisDecoderDecodeBuffer = context->zydis->ZydisDecoderDecodeBuffer;
     dec->ZydisFormatterFormatInstruction = context->zydis->ZydisFormatterFormatInstruction;
     context->zydis->ZydisDecoderInit(&dec->decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
@@ -87,7 +87,7 @@ zydis_dec_t* InitX64TraceDecoder(box64context_t *context)
 }
 void DeleteX64TraceDecoder(zydis_dec_t **dec)
 {
-    free(*dec);
+    box_free(*dec);
     *dec = NULL;
 }
 

@@ -29,12 +29,12 @@ typedef struct dlprivate_s {
 } dlprivate_t;
 
 dlprivate_t *NewDLPrivate() {
-    dlprivate_t* dl =  (dlprivate_t*)calloc(1, sizeof(dlprivate_t));
+    dlprivate_t* dl =  (dlprivate_t*)box_calloc(1, sizeof(dlprivate_t));
     return dl;
 }
 void FreeDLPrivate(dlprivate_t **lib) {
-    free((*lib)->last_error);
-    free(*lib);
+    box_free((*lib)->last_error);
+    box_free(*lib);
 }
 
 void* my_dlopen(x64emu_t* emu, void *filename, int flag) EXPORT;
@@ -50,7 +50,7 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info) EXPORT;
 #define LIBNAME libdl
 const char* libdlName = "libdl.so.2";
 
-#define CLEARERR    if(dl->last_error) free(dl->last_error); dl->last_error = NULL;
+#define CLEARERR    if(dl->last_error) box_free(dl->last_error); dl->last_error = NULL;
 
 extern int box64_zoom;
 // Implementation
@@ -75,30 +75,30 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         printf_dlsym(LOG_DEBUG, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
         // Transform any ${...} that maight be present
         while(strstr(rfilename, "${ORIGIN}")) {
-            char* origin = strdup(my_context->fullpath);
+            char* origin = box_strdup(my_context->fullpath);
             char* p = strrchr(origin, '/');
             if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-            char* tmp = (char*)calloc(1, strlen(rfilename)-strlen("${ORIGIN}")+strlen(origin)+1);
+            char* tmp = (char*)box_calloc(1, strlen(rfilename)-strlen("${ORIGIN}")+strlen(origin)+1);
             p = strstr(rfilename, "${ORIGIN}");
             memcpy(tmp, rfilename, p-rfilename);
             strcat(tmp, origin);
             strcat(tmp, p+strlen("${ORIGIN}"));
             strcpy(rfilename, tmp);
-            free(tmp);
-            free(origin);
+            box_free(tmp);
+            box_free(origin);
         }
         while(strstr(rfilename, "${PLATFORM}")) {
-            char* platform = strdup("x86_64");
+            char* platform = box_strdup("x86_64");
             char* p = strrchr(platform, '/');
             if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-            char* tmp = (char*)calloc(1, strlen(rfilename)-strlen("${PLATFORM}")+strlen(platform)+1);
+            char* tmp = (char*)box_calloc(1, strlen(rfilename)-strlen("${PLATFORM}")+strlen(platform)+1);
             p = strstr(rfilename, "${PLATFORM}");
             memcpy(tmp, rfilename, p-rfilename);
             strcat(tmp, platform);
             strcat(tmp, p+strlen("${PLATFORM}"));
             strcpy(rfilename, tmp);
-            free(tmp);
-            free(platform);
+            box_free(tmp);
+            box_free(platform);
         }
         // check if alread dlopenned...
         for (size_t i=0; i<dl->lib_sz; ++i) {
@@ -132,7 +132,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         if(AddNeededLib(NULL, NULL, NULL, is_local, bindnow, libs, 1, emu->context, emu)) {
             printf_dlsym(strchr(rfilename,'/')?LOG_DEBUG:LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
-                dl->last_error = malloc(129);
+                dl->last_error = box_malloc(129);
             snprintf(dl->last_error, 129, "Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             return NULL;
         }
@@ -152,9 +152,9 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
     
     if(dl->lib_sz == dl->lib_cap) {
         dl->lib_cap += 4;
-        dl->libs = (library_t**)realloc(dl->libs, sizeof(library_t*)*dl->lib_cap);
-        dl->count = (size_t*)realloc(dl->count, sizeof(size_t)*dl->lib_cap);
-        dl->dlopened = (size_t*)realloc(dl->dlopened, sizeof(size_t)*dl->lib_cap);
+        dl->libs = (library_t**)box_realloc(dl->libs, sizeof(library_t*)*dl->lib_cap);
+        dl->count = (size_t*)box_realloc(dl->count, sizeof(size_t)*dl->lib_cap);
+        dl->dlopened = (size_t*)box_realloc(dl->dlopened, sizeof(size_t)*dl->lib_cap);
         // memset count...
         memset(dl->count+dl->lib_sz, 0, (dl->lib_cap-dl->lib_sz)*sizeof(size_t));
     }
@@ -227,7 +227,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
             return (void*)start;
         }
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
         printf_dlsym(LOG_NEVER, "%p\n", NULL);
         return NULL;
@@ -240,7 +240,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
             return (void*)start;
         }
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
         printf_dlsym(LOG_NEVER, "%p\n", NULL);
         return NULL;
@@ -250,14 +250,14 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     // size_t is unsigned
     if(nlib>=dl->lib_sz) {
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
         printf_dlsym(LOG_NEVER, "%p\n", NULL);
         return NULL;
     }
     if(dl->count[nlib]==0) {
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p (already closed))\n", handle);
         printf_dlsym(LOG_NEVER, "%p\n", (void*)NULL);
         return NULL;
@@ -268,7 +268,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
             printf_dlsym(LOG_NEVER, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, GetNameLib(dl->libs[nlib]), rsymbol);
             printf_log(LOG_DEBUG, " Symbol not found\n");
             if(!dl->last_error)
-                dl->last_error = malloc(129);
+                dl->last_error = box_malloc(129);
             snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p(%s)", rsymbol, handle, GetNameLib(dl->libs[nlib]));
             return NULL;
         }
@@ -280,7 +280,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
             return (void*)start;
         }
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
         printf_dlsym(LOG_NEVER, "%p\n", NULL);
         return NULL;
@@ -299,14 +299,14 @@ int my_dlclose(x64emu_t* emu, void *handle)
     // size_t is unsigned
     if(nlib>=dl->lib_sz) {
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
         printf_dlsym(LOG_DEBUG, "dlclose: %s\n", dl->last_error);
         return -1;
     }
     if(dl->count[nlib]==0) {
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p (already closed))\n", handle);
         printf_dlsym(LOG_DEBUG, "dlclose: %s\n", dl->last_error);
         return -1;
@@ -363,7 +363,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
             return (void*)start;
         }
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
             printf_dlsym(LOG_NEVER, "%p\n", NULL);
         return NULL;
@@ -376,7 +376,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
             return (void*)start;
         }
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
             printf_dlsym(LOG_NEVER, "%p\n", NULL);
         return NULL;
@@ -386,14 +386,14 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     // size_t is unsigned
     if(nlib>=dl->lib_sz) {
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
             printf_dlsym(LOG_NEVER, "%p\n", NULL);
         return NULL;
     }
     if(dl->count[nlib]==0) {
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p (already closed))\n", handle);
             printf_dlsym(LOG_NEVER, "%p\n", (void*)NULL);
         return NULL;
@@ -404,7 +404,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
                 printf_dlsym(LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, GetNameLib(dl->libs[nlib]), rsymbol, vername?vername:"(nil)");
             printf_log(LOG_DEBUG, " Symbol not found\n");
             if(!dl->last_error)
-                dl->last_error = malloc(129);
+                dl->last_error = box_malloc(129);
             snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p(%s)", rsymbol, handle, GetNameLib(dl->libs[nlib]));
             return NULL;
         }
@@ -426,7 +426,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
             printf_dlsym(LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, "Self", rsymbol, vername?vername:"(nil)");
         printf_log(LOG_DEBUG, " Symbol not found\n");
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
         return NULL;
     }
@@ -445,14 +445,14 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
     // size_t is unsigned
     if(nlib>=dl->lib_sz) {
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
         printf_dlsym(LOG_DEBUG, "dlinfo: %s\n", dl->last_error);
         return -1;
     }
     if(dl->count[nlib]==0) {
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p (already closed))\n", handle);
         printf_dlsym(LOG_DEBUG, "dlinfo: %s\n", dl->last_error);
         return -1;
@@ -468,7 +468,7 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
         default:
             printf_log(LOG_NONE, "Warning, unsupported call to dlinfo(%p, %d, %p)\n", handle, request, info);
         if(!dl->last_error)
-            dl->last_error = malloc(129);
+            dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "unsupported call to dlinfo request:%d\n", request);
     }
     return -1;

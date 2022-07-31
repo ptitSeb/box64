@@ -208,6 +208,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/box64context.c"
     "${BOX64_ROOT}/src/build_info.c"
     "${BOX64_ROOT}/src/custommem.c"
+    "${BOX64_ROOT}/src/mallochook.c"
     "${BOX64_ROOT}/src/steam.c"
     "${BOX64_ROOT}/src/dynarec/dynarec.c"
     "${BOX64_ROOT}/src/elfs/elfdwarf_private.c"

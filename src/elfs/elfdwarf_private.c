@@ -393,17 +393,17 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
                 ++unwind_constr.reg_count;
                 size_t tablelen = unwind_constr.reg_count * sizeof(uint64_t);
                 size_t statuseslen = ((unwind_constr.reg_count+1) >> 1) * sizeof(uint8_t);
-                unwind_constr.table = (uint64_t*)malloc(tablelen);
-                unwind_constr.statuses = (uint8_t*)calloc((unwind_constr.reg_count+1) >> 1, sizeof(uint8_t));
+                unwind_constr.table = (uint64_t*)box_malloc(tablelen);
+                unwind_constr.statuses = (uint8_t*)box_calloc((unwind_constr.reg_count+1) >> 1, sizeof(uint8_t));
                 // ~~undefined is 0: no initialization needed~~ still initialize the first 17 to same_val
                 for (int i = 0; (i < 17) && (i <= unwind_constr.reg_count); ++i) {
                     SET_STATUS(unwind_constr, i, REGSTATUS_same_val);
                 }
 
                 curstacksize = 0;
-                uint64_t **table_stack = (uint64_t**)malloc(maxstacksize * sizeof(uint64_t*));
+                uint64_t **table_stack = (uint64_t**)box_malloc(maxstacksize * sizeof(uint64_t*));
                 for (uint64_t i = 0; i < maxstacksize; ++i) {
-                    table_stack[i] = (uint64_t*)malloc(tablelen);
+                    table_stack[i] = (uint64_t*)box_malloc(tablelen);
                 }
                 cur_inst = initCIEinstr;
                 uintptr_t cur_pointed_addr = pc_begin;
@@ -541,10 +541,10 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
     printf_log(LOG_DEBUG, "Trying to restore register 0x%02lX while in the intial CFIs\n", (uint64_t)reg); \
     FAILED
 #define FAILED \
-    free(unwind_constr.statuses);                                       \
-    free(unwind_constr.table);                                          \
-    for (uint64_t i = 0; i < maxstacksize; ++i) free(table_stack[i]);   \
-    free(table_stack);                                                  \
+    box_free(unwind_constr.statuses);                                       \
+    box_free(unwind_constr.table);                                          \
+    for (uint64_t i = 0; i < maxstacksize; ++i) box_free(table_stack[i]);   \
+    box_free(table_stack);                                                  \
     *success = 0; return 0;
                 while (cur_inst < endCIEinstr) {
                     unsigned char inst; READ_U1(inst, cur_inst);
@@ -553,21 +553,21 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
                 }
 #undef FAILED
 #undef RESTORE_REG
-                uint64_t *init_table = (uint64_t*)malloc(tablelen);
+                uint64_t *init_table = (uint64_t*)box_malloc(tablelen);
                 memcpy(init_table, unwind_constr.table, tablelen);
-                uint8_t *init_statuses = (uint8_t*)malloc(statuseslen);
+                uint8_t *init_statuses = (uint8_t*)box_malloc(statuseslen);
                 memcpy(init_statuses, unwind_constr.statuses, statuseslen);
                 cur_inst = cur_addr;
 #define RESTORE_REG(reg) \
     unwind_constr.table[reg] = init_table[reg]; \
     SET_STATUS(unwind_constr, (reg), ((init_statuses[(reg) >> 1] >> (((reg) & 1) << 2)) & 0xF));
 #define FAILED \
-    free(init_statuses);                                                \
-    free(init_table);                                                   \
-    free(unwind_constr.statuses);                                       \
-    free(unwind_constr.table);                                          \
-    for (uint64_t i = 0; i < maxstacksize; ++i) free(table_stack[i]);   \
-    free(table_stack);                                                  \
+    box_free(init_statuses);                                                \
+    box_free(init_table);                                                   \
+    box_free(unwind_constr.statuses);                                       \
+    box_free(unwind_constr.table);                                          \
+    for (uint64_t i = 0; i < maxstacksize; ++i) box_free(table_stack[i]);   \
+    box_free(table_stack);                                                  \
     *success = 0; return 0;
                 while ((cur_inst < next_addr) && (cur_pointed_addr <= addr)) {
                     unsigned char inst; READ_U1(inst, cur_inst);
@@ -577,16 +577,16 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
 #undef FAILED
 #undef RESTORE_REG
 #undef PARSE_INST
-                free(init_statuses);
-                free(init_table);
+                box_free(init_statuses);
+                box_free(init_table);
                 for (int i = 0; i < maxstacksize; ++i) {
-                    free(table_stack[i]);
+                    box_free(table_stack[i]);
                 }
-                free(table_stack);
+                box_free(table_stack);
 
                 dwarf_unwind_t new_unwind;
                 new_unwind.reg_count = unwind_constr.reg_count;
-                new_unwind.regs = calloc(unwind_constr.reg_count, sizeof(uint64_t));
+                new_unwind.regs = box_calloc(unwind_constr.reg_count, sizeof(uint64_t));
                 uintptr_t cfa = unwind->regs[cfa_reg];
                 if (cfa_signed) cfa += cfa_offset.soff;
                 else            cfa += cfa_offset.uoff;
@@ -600,9 +600,9 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
                     case REGSTATUS_same_val:
                         if (i >= unwind->reg_count) {
                             printf_log(LOG_DEBUG, "Invalid register status (value copied from register 0x%02lX)\n", i);
-                            free(unwind_constr.statuses);
-                            free(unwind_constr.table);
-                            free(new_unwind.regs);
+                            box_free(unwind_constr.statuses);
+                            box_free(unwind_constr.table);
+                            box_free(new_unwind.regs);
                             *success = 0;
                             return 0;
                         }
@@ -620,9 +620,9 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
                     case REGSTATUS_register:
                         if (unwind_constr.table[i] >= unwind->reg_count) {
                             printf_log(LOG_DEBUG, "Invalid register status (value copied from register 0x%02lX)\n", unwind_constr.table[i]);
-                            free(unwind_constr.statuses);
-                            free(unwind_constr.table);
-                            free(new_unwind.regs);
+                            box_free(unwind_constr.statuses);
+                            box_free(unwind_constr.table);
+                            box_free(new_unwind.regs);
                             *success = 0;
                             return 0;
                         }
@@ -632,10 +632,10 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
                     }
                 }
                 *success = (GET_STATUS(unwind_constr, return_addr_reg) == REGSTATUS_undefined) ? 0 : ((aug_fields & AUG_SIGHDLER) ? 2 : 1);
-                free(unwind_constr.statuses);
-                free(unwind_constr.table);
+                box_free(unwind_constr.statuses);
+                box_free(unwind_constr.table);
                 
-                free(unwind->regs);
+                box_free(unwind->regs);
                 unwind->reg_count = new_unwind.reg_count;
                 unwind->regs = new_unwind.regs;
 
@@ -658,9 +658,9 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
 }
 
 dwarf_unwind_t *init_dwarf_unwind_registers(x64emu_t *emu) {
-    dwarf_unwind_t *unwind_struct = (dwarf_unwind_t*)malloc(sizeof(dwarf_unwind_t));
+    dwarf_unwind_t *unwind_struct = (dwarf_unwind_t*)box_malloc(sizeof(dwarf_unwind_t));
     unwind_struct->reg_count = 17;
-    unwind_struct->regs = (uint64_t*)malloc(17*sizeof(uint64_t));
+    unwind_struct->regs = (uint64_t*)box_malloc(17*sizeof(uint64_t));
     /* x86_64-abi-0.99.pdf
      * Register Name                    | Number | Abbreviation
      * General Purpose Register RAX     | 0      | %rax
@@ -715,7 +715,7 @@ dwarf_unwind_t *init_dwarf_unwind_registers(x64emu_t *emu) {
 }
 
 void free_dwarf_unwind_registers(dwarf_unwind_t **unwind_struct) {
-    free((*unwind_struct)->regs);
-    free(*unwind_struct);
+    box_free((*unwind_struct)->regs);
+    box_free(*unwind_struct);
     *unwind_struct = NULL;
 }

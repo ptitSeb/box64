@@ -964,7 +964,7 @@ const char* getAddrFunctionName(uintptr_t addr)
     if(!sz) sz=0x100;   // arbitrary value...
     if(symbname && addr>=start && (addr<(start+sz) || !sz)) {
         if(symbname[0]=='\0')
-            sprintf(ret, "%s + 0x%lx", ElfName(elf), addr - (uintptr_t)GetBaseAddress(elf));
+            sprintf(ret, "%s + 0x%lx + 0x%lx", ElfName(elf), start - (uintptr_t)GetBaseAddress(elf), addr - start);
         else if(addr==start)
             sprintf(ret, "%s/%s", ElfName(elf), symbname);
         else

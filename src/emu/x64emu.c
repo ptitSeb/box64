@@ -89,7 +89,7 @@ x64emu_t *NewX64Emu(box64context_t *context, uintptr_t start, uintptr_t stack, i
 {
     printf_log(LOG_DEBUG, "Allocate a new X86_64 Emu, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
 
-    x64emu_t *emu = (x64emu_t*)calloc(1, sizeof(x64emu_t));
+    x64emu_t *emu = (x64emu_t*)box_calloc(1, sizeof(x64emu_t));
 
     internalX64Setup(emu, context, start, stack, stacksize, ownstack);
 
@@ -135,7 +135,7 @@ void AddCleanup(x64emu_t *emu, void *p)
     
     if(my_context->clean_sz == my_context->clean_cap) {
         my_context->clean_cap += 4;
-        my_context->cleanups = (cleanup_t*)realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
+        my_context->cleanups = (cleanup_t*)box_realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
     }
     my_context->cleanups[my_context->clean_sz].arg = 0;
     my_context->cleanups[my_context->clean_sz].a = NULL;
@@ -148,7 +148,7 @@ void AddCleanup1Arg(x64emu_t *emu, void *p, void* a)
     
     if(my_context->clean_sz == my_context->clean_cap) {
         my_context->clean_cap += 4;
-        my_context->cleanups = (cleanup_t*)realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
+        my_context->cleanups = (cleanup_t*)box_realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
     }
     my_context->cleanups[my_context->clean_sz].arg = 1;
     my_context->cleanups[my_context->clean_sz].a = a;
@@ -178,7 +178,7 @@ void CallAllCleanup(x64emu_t *emu)
         RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
     }
     my_context->clean_sz = 0;
-    free(my_context->cleanups);
+    box_free(my_context->cleanups);
     my_context->cleanups = NULL;
 }
 
@@ -197,7 +197,7 @@ void FreeX64Emu(x64emu_t **emu)
 
     internalFreeX64(*emu);
 
-    free(*emu);
+    box_free(*emu);
     *emu = NULL;
 }
 

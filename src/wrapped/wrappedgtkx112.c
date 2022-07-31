@@ -911,7 +911,7 @@ EXPORT void my_gtk_binding_entry_add_signal(x64emu_t* emu, void* binding, uint32
         my->gtk_binding_entry_add_signal(binding, keyval, mod, name, 0);
         return;
     }
-    // build the list
+    // build the list (using calloc and not box_calloc, it's program space...)
     my_GSList_t *list = calloc(n, sizeof(my_GSList_t));
     for(uint32_t i=0; i<n; ++i) {
         list[i].data = (void*)getVArgs(emu, 5, b, i);

@@ -255,7 +255,7 @@ struct kernel_sigaction {
 static void sigstack_destroy(void* p)
 {
 	x64_stack_t *ss = (x64_stack_t*)p;
-    free(ss);
+    box_free(ss);
 }
 
 static pthread_key_t sigstack_key;
@@ -390,7 +390,7 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
 
     if(ss->ss_flags==SS_DISABLE) {
         if(new_ss)
-            free(new_ss);
+            box_free(new_ss);
         pthread_setspecific(sigstack_key, NULL);
 
         return 0;
@@ -408,7 +408,7 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
         }
     }
     if(!new_ss)
-        new_ss = (x64_stack_t*)calloc(1, sizeof(x64_stack_t));
+        new_ss = (x64_stack_t*)box_calloc(1, sizeof(x64_stack_t));
     new_ss->ss_sp = ss->ss_sp;
     new_ss->ss_size = ss->ss_size;
 

@@ -66,7 +66,7 @@ void add_next(dynarec_native_t *dyn, uintptr_t addr) {
             return;
     if(dyn->next_sz == dyn->next_cap) {
         dyn->next_cap += 16;
-        dyn->next = (uintptr_t*)realloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
+        dyn->next = (uintptr_t*)box_realloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
     }
     dyn->next[dyn->next_sz++] = addr;
 }
@@ -242,7 +242,7 @@ instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x64_size, 
         toadd = 1 + native_size/15;
     if((*size)+toadd>(*cap)) {
         *cap = (*size)+toadd;
-        insts = (instsize_t*)realloc(insts, (*cap)*sizeof(instsize_t));
+        insts = (instsize_t*)box_realloc(insts, (*cap)*sizeof(instsize_t));
     }
     while(toadd) {
         if(x64_size>15)
@@ -273,7 +273,7 @@ int Table64(dynarec_native_t *dyn, uint64_t val)
     if(idx==-1) {
         if(dyn->table64size == dyn->table64cap) {
             dyn->table64cap+=4;
-            dyn->table64 = (uint64_t*)realloc(dyn->table64, dyn->table64cap * sizeof(uint64_t));
+            dyn->table64 = (uint64_t*)box_realloc(dyn->table64, dyn->table64cap * sizeof(uint64_t));
         }
         idx = dyn->table64size++;
         dyn->table64[idx] = val;
@@ -301,7 +301,7 @@ static void fillPredecessors(dynarec_native_t* dyn)
             dyn->insts[i+1].pred_sz++;
         }
     }
-    dyn->predecessor = (int*)malloc(pred_sz*sizeof(int));
+    dyn->predecessor = (int*)box_malloc(pred_sz*sizeof(int));
     // fill pred pointer
     int* p = dyn->predecessor;
     for(int i=0; i<dyn->size; ++i) {
@@ -381,11 +381,11 @@ void CancelBlock64()
     current_helper = NULL;
     if(!helper)
         return;
-    free(helper->next);
-    free(helper->insts);
-    free(helper->table64);
-    free(helper->sons_x64);
-    free(helper->sons_native);
+    box_free(helper->next);
+    box_free(helper->insts);
+    box_free(helper->table64);
+    box_free(helper->sons_x64);
+    box_free(helper->sons_native);
     if(helper->dynablock && helper->dynablock->block)
         FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->block, helper->dynablock->size);
 }
@@ -413,11 +413,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.start = addr;
     uintptr_t start = addr;
     helper.cap = 64; // needs epilog handling
-    helper.insts = (instruction_native_t*)calloc(helper.cap, sizeof(instruction_native_t));
+    helper.insts = (instruction_native_t*)box_calloc(helper.cap, sizeof(instruction_native_t));
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr);
     // no need for next anymore
-    free(helper.next);
+    box_free(helper.next);
     helper.next_sz = helper.next_cap = 0;
     helper.next = NULL;
     // basic checks
@@ -538,8 +538,8 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.native_start = (uintptr_t)p;
     helper.tablestart = helper.native_start + helper.native_size;
     if(helper.sons_size) {
-        helper.sons_x64 = (uintptr_t*)calloc(helper.sons_size, sizeof(uintptr_t));
-        helper.sons_native = (void**)calloc(helper.sons_size, sizeof(void*));
+        helper.sons_x64 = (uintptr_t*)box_calloc(helper.sons_size, sizeof(uintptr_t));
+        helper.sons_native = (void**)box_calloc(helper.sons_size, sizeof(void*));
     }
     // pass 3, emit (log emit native opcode)
     if(box64_dynarec_dump) {
@@ -578,15 +578,15 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         for(int i=0; i<helper.size; ++i)
             cap += 1 + ((helper.insts[i].x64.size>helper.insts[i].size)?helper.insts[i].x64.size:helper.insts[i].size)/15;
         size_t size = 0;
-        block->instsize = (instsize_t*)calloc(cap, sizeof(instsize_t));
+        block->instsize = (instsize_t*)box_calloc(cap, sizeof(instsize_t));
         for(int i=0; i<helper.size; ++i)
             block->instsize = addInst(block->instsize, &size, &cap, helper.insts[i].x64.size, helper.insts[i].size/4);
         block->instsize = addInst(block->instsize, &size, &cap, 0, 0);    // add a "end of block" mark, just in case
     }
     // ok, free the helper now
-    free(helper.insts);
+    box_free(helper.insts);
     helper.insts = NULL;
-    free(helper.table64);
+    box_free(helper.table64);
     helper.table64 = NULL;
     block->size = sz;
     block->isize = helper.size;
@@ -611,7 +611,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     dynablock_t** sons = NULL;
     int sons_size = 0;
     if(helper.sons_size) {
-        sons = (dynablock_t**)calloc(helper.sons_size, sizeof(dynablock_t*));
+        sons = (dynablock_t**)box_calloc(helper.sons_size, sizeof(dynablock_t*));
         for (int i=0; i<helper.sons_size; ++i) {
             int created = 1;
             dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x64[i], &created);
@@ -633,11 +633,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
             block->sons = sons;
             block->sons_size = sons_size;
         } else
-            free(sons);
+            box_free(sons);
     }
-    free(helper.sons_x64);
+    box_free(helper.sons_x64);
     helper.sons_x64 = NULL;
-    free(helper.sons_native);
+    box_free(helper.sons_native);
     helper.sons_native = NULL;
     current_helper = NULL;
     //block->done = 1;

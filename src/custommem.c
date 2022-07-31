@@ -271,7 +271,7 @@ void* customMalloc(size_t size)
     }
     // add a new block
     int i = n_blocks++;
-    p_blocks = (blocklist_t*)realloc(p_blocks, n_blocks*sizeof(blocklist_t));
+    p_blocks = (blocklist_t*)box_realloc(p_blocks, n_blocks*sizeof(blocklist_t));
     size_t allocsize = MMAPSIZE;
     if(size+2*sizeof(blockmark_t)>allocsize)
         allocsize = size+2*sizeof(blockmark_t);
@@ -279,7 +279,7 @@ void* customMalloc(size_t size)
     void* p = mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
     memset(p, 0, allocsize);
     #else
-    void* p = calloc(1, allocsize);
+    void* p = box_calloc(1, allocsize);
     #endif
     p_blocks[i].block = p;
     p_blocks[i].size = allocsize;
@@ -410,7 +410,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, size_t size)
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%zu/%zu\n", mmapsize, mmapcap);
     if(mmapsize>mmapcap) {
         mmapcap += 32;
-        mmaplist = (mmaplist_t*)realloc(mmaplist, mmapcap*sizeof(mmaplist_t));
+        mmaplist = (mmaplist_t*)box_realloc(mmaplist, mmapcap*sizeof(mmaplist_t));
     }
     #ifndef USE_MMAP
     void *p = NULL;
@@ -433,7 +433,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, size_t size)
     mmaplist[i].locked = 1;
     mmaplist[i].block = p;
     mmaplist[i].size = MMAPSIZE;
-    mmaplist[i].helper = (uint8_t*)calloc(1, MMAPSIZE);
+    mmaplist[i].helper = (uint8_t*)box_calloc(1, MMAPSIZE);
     mmaplist[i].first = p;
     // setup marks
     blockmark_t* m = (blockmark_t*)p;
@@ -556,7 +556,7 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
         return;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
         #ifndef USE_MMAP
-        free((void*)addr);
+        box_free((void*)addr);
         #else
         munmap((void*)addr, size);
         #endif
@@ -597,14 +597,14 @@ void addDBFromAddressRange(uintptr_t addr, size_t size)
         int idx2 = (i>>16)&((1<<DYNAMAP_SHIFT)-1);
         int idx1 = (i    )&((1<<DYNAMAP_SHIFT)-1);
         if(!dynmap123[idx3]) {
-            dynablocklist_t*** p = (dynablocklist_t***)calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t**));
+            dynablocklist_t*** p = (dynablocklist_t***)box_calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t**));
             if(native_lock_storeifnull(&dynmap123[idx3], p)!=p)
-                free(p);
+                box_free(p);
         }
         if(!dynmap123[idx3][idx2]) {
-            dynablocklist_t** p = (dynablocklist_t**)calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t*));
+            dynablocklist_t** p = (dynablocklist_t**)box_calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t*));
             if(native_lock_storeifnull(&dynmap123[idx3][idx2], p)!=p)
-                free(p);
+                box_free(p);
         }
         if(!dynmap123[idx3][idx2][idx1]) {
             dynablocklist_t* p = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
@@ -644,10 +644,10 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
                                     dynablocklist_t*** p2 = dynmap123[idx3];
                                     if(dynmapempty((void**)p2)) {
                                         if(!native_lock_storeifref(&dynmap123[idx3], NULL, p2)) {
-                                            free(p2);
+                                            box_free(p2);
                                         }
                                     }
-                                    free(p);
+                                    box_free(p);
                                 }
                             }
                             FreeDynablockList(&dblist);
@@ -678,25 +678,25 @@ void addJumpTableIfDefault64(void* addr, void* jmp)
     idx1 = (((uintptr_t)addr)>>16)&0xffff;
     idx0 = (((uintptr_t)addr)    )&0xffff;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
-        uintptr_t*** tbl = (uintptr_t***)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
+        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault1;
         if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
-            free(tbl);
+            box_free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
-        uintptr_t** tbl = (uintptr_t**)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
+        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault0;
         if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
-            free(tbl);
+            box_free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
-        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
+        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = (uintptr_t)native_next;
         if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
-            free(tbl);
+            box_free(tbl);
     }
 
     native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], jmp, native_next);
@@ -748,25 +748,25 @@ uintptr_t getJumpTableAddress64(uintptr_t addr)
     idx1 = ((addr)>>16)&0xffff;
     idx0 = ((addr)    )&0xffff;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
-        uintptr_t*** tbl = (uintptr_t***)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
+        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault1;
         if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
-            free(tbl);
+            box_free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
-        uintptr_t** tbl = (uintptr_t**)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
+        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = box64_jmptbldefault0;
         if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
-            free(tbl);
+            box_free(tbl);
     }
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
-        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
+        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = (uintptr_t)native_next;
         if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
-            free(tbl);
+            box_free(tbl);
     }
 
     return (uintptr_t)&box64_jmptbl3[idx3][idx2][idx1][idx0];
@@ -786,9 +786,9 @@ void protectDB(uintptr_t addr, uintptr_t size)
     int ret;
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i]==memprot_default) {
-            uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
+            uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
             /*if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
-                free(newblock);
+                box_free(newblock);
             }*/
             memprot[i] = newblock;
         }
@@ -819,9 +819,9 @@ void unprotectDB(uintptr_t addr, size_t size)
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i]==memprot_default) {
-            uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
+            uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
             /*if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
-                free(newblock);
+                box_free(newblock);
             }*/
             memprot[i] = newblock;
         }
@@ -892,7 +892,7 @@ void addMapMem(uintptr_t begin, uintptr_t end)
         newm = m;
     } else {
     // create a new block
-        newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
+        newm = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
         newm->next = m->next;
         newm->begin = begin;
         newm->end = end;
@@ -904,7 +904,7 @@ void addMapMem(uintptr_t begin, uintptr_t end)
             newm->end = newm->next->end;
         mapmem_t* tmp = newm->next;
         newm->next = tmp->next;
-        free(tmp);
+        box_free(tmp);
     }
     // all done!
 }
@@ -932,9 +932,9 @@ void removeMapMem(uintptr_t begin, uintptr_t end)
                 m = mapmem;
                 prev = NULL;
             }
-            free(tmp);
+            box_free(tmp);
         } else if(begin>m->begin && end<m->end) { // the zone is totaly inside the block => split it!
-            mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));    // create a new "next"
+            mapmem_t* newm = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));    // create a new "next"
             newm->end = m->end;
             m->end = begin - 1;
             newm->begin = end + 1;
@@ -965,10 +965,10 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i]==memprot_default) {
-            uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
+            uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
 #if 0 //def ARM64   //disabled for now, not usefull with the mutex
             if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
-                free(newblock);
+                box_free(newblock);
             }
 #else
             memprot[i] = newblock;
@@ -995,10 +995,10 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i]==memprot_default) {
-            uint8_t* newblock = calloc(MEMPROT_SIZE, sizeof(uint8_t));
+            uint8_t* newblock = box_calloc(MEMPROT_SIZE, sizeof(uint8_t));
 #if 0 //def ARM64   //disabled for now, not usefull with the mutex
             if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
-                free(newblock);
+                box_free(newblock);
             }
 #else
             memprot[i] = newblock;
@@ -1022,10 +1022,10 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i]==memprot_default) {
-            uint8_t* newblock = calloc(1<<16, sizeof(uint8_t));
+            uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
 #if 0 //def ARM64   //disabled for now, not usefull with the mutex
             if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
-                free(newblock);
+                box_free(newblock);
             }
 #else
             memprot[i] = newblock;
@@ -1103,16 +1103,16 @@ void freeProtection(uintptr_t addr, size_t size)
                         memprot[key][i] |= block[i];
                     }
                 }
-                if (block != memprot_default) free(block);
+                if (block != memprot_default) box_free(block);
             }
 #else
             if(start==0 && finish==MEMPROT_SIZE-1) {
                 memprot[key] = memprot_default;
-                free(block);
+                box_free(block);
             }
             /*else if(blockempty(block)) {
                 memprot[key] = memprot_default;
-                free(block);
+                box_free(block);
             }*/
 #endif
             i+=finish-start;    // +1 from the "for" loop
@@ -1244,7 +1244,7 @@ void init_custommem_helper(box64context_t* ctx)
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
     // init mapmem list
-    mapmem = (mapmem_t*)calloc(1, sizeof(mapmem_t));
+    mapmem = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
     mapmem->begin = 0x0;
     mapmem->end = (uintptr_t)LOWEST - 1;
     loadProtectionFromMap();
@@ -1269,14 +1269,14 @@ void fini_custommem_helper(box64context_t *ctx)
                 #ifdef USE_MMAP
                 munmap(mmaplist[i].block, mmaplist[i].size);
                 #else
-                free(mmaplist[i].block);
+                box_free(mmaplist[i].block);
                 #endif
             if(mmaplist[i].dblist) {
                 kh_destroy(dynablocks, mmaplist[i].dblist);
                 mmaplist[i].dblist = NULL;
             }
             if(mmaplist[i].helper) {
-                free(mmaplist[i].helper);
+                box_free(mmaplist[i].helper);
                 mmaplist[i].helper = NULL;
             }
         }
@@ -1294,23 +1294,23 @@ void fini_custommem_helper(box64context_t *ctx)
                         for (uintptr_t idx1=0; idx1<=0xffff; ++idx1)
                             if(dynmap123[idx3][idx2][idx1])
                                 FreeDynablockList(&dynmap123[idx3][idx2][idx1]);
-                        free(dynmap123[idx3][idx2]);
+                        box_free(dynmap123[idx3][idx2]);
                     }
-                free(dynmap123[idx3]);
+                box_free(dynmap123[idx3]);
             }
 
-        free(mmaplist);
+        box_free(mmaplist);
         for (int i3=0; i3<(1<<DYNAMAP_SHIFT); ++i3)
             if(box64_jmptbl3[i3]!=box64_jmptbldefault2) {
                 for (int i2=0; i2<(1<<DYNAMAP_SHIFT); ++i2)
                     if(box64_jmptbl3[i3][i2]!=box64_jmptbldefault1) {
                         for (int i1=0; i1<(1<<DYNAMAP_SHIFT); ++i1)
                             if(box64_jmptbl3[i3][i2][i1]!=box64_jmptbldefault0) {
-                                free(box64_jmptbl3[i3][i2][i1]);
+                                box_free(box64_jmptbl3[i3][i2][i1]);
                             }
-                        free(box64_jmptbl3[i3][i2]);
+                        box_free(box64_jmptbl3[i3][i2]);
                     }
-                free(box64_jmptbl3[i3]);
+                box_free(box64_jmptbl3[i3]);
             }
     }
     kh_destroy(lockaddress, lockaddress);
@@ -1320,22 +1320,22 @@ void fini_custommem_helper(box64context_t *ctx)
     for(int i=0; i<(1<<20); ++i) {
         m = memprot[i];
         if(m!=memprot_default)
-            free(m);
+            box_free(m);
     }
 
     for(int i=0; i<n_blocks; ++i)
         #ifdef USE_MMAP
         munmap(p_blocks[i].block, p_blocks[i].size);
         #else
-        free(p_blocks[i].block);
+        box_free(p_blocks[i].block);
         #endif
-    free(p_blocks);
+    box_free(p_blocks);
     pthread_mutex_destroy(&mutex_prot);
     pthread_mutex_destroy(&mutex_blocks);
     while(mapmem) {
         mapmem_t *tmp = mapmem;
         mapmem = mapmem->next;
-        free(tmp);
+        box_free(tmp);
     }
 }
 

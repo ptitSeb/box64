@@ -55,7 +55,7 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
         return NULL;
 
     if ((h->path = realpath(name, NULL)) == NULL) {
-        h->path = (char*)malloc(1);
+        h->path = (char*)box_malloc(1);
         h->path[0] = '\0';
     }
     return h;
@@ -72,19 +72,19 @@ void FreeElfHeader(elfheader_t** head)
         cleanDBFromAddressRange(my_context, h->text, h->textsz, 1);
     }*/ // will be free at the end, no need to free it now
 #endif
-    free(h->name);
-    free(h->path);
-    free(h->PHEntries);
-    free(h->SHEntries);
-    free(h->SHStrTab);
-    free(h->StrTab);
-    free(h->Dynamic);
-    free(h->DynStr);
-    free(h->SymTab);
-    free(h->DynSym);
+    box_free(h->name);
+    box_free(h->path);
+    box_free(h->PHEntries);
+    box_free(h->SHEntries);
+    box_free(h->SHStrTab);
+    box_free(h->StrTab);
+    box_free(h->Dynamic);
+    box_free(h->DynStr);
+    box_free(h->SymTab);
+    box_free(h->DynSym);
 
     FreeElfMemory(h);
-    free(h);
+    box_free(h);
 
     *head = NULL;
 }
@@ -169,9 +169,9 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         for (size_t i=0; i<head->numPHEntries; ++i) 
             if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags)
                 ++head->multiblock_n;
-        head->multiblock_size = (uint64_t*)calloc(head->multiblock_n, sizeof(uint64_t));
-        head->multiblock_offs = (uintptr_t*)calloc(head->multiblock_n, sizeof(uintptr_t));
-        head->multiblock = (void**)calloc(head->multiblock_n, sizeof(void*));
+        head->multiblock_size = (uint64_t*)box_calloc(head->multiblock_n, sizeof(uint64_t));
+        head->multiblock_offs = (uintptr_t*)box_calloc(head->multiblock_n, sizeof(uintptr_t));
+        head->multiblock = (void**)box_calloc(head->multiblock_n, sizeof(void*));
         // and now, create all individual blocks
         head->memory = (char*)0xffffffffffffffff;
         int n = 0;
@@ -264,9 +264,9 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         printf_log(log_level, "Got %p (delta=%p)\n", p, (void*)head->delta);
 
         head->multiblock_n = 1;
-        head->multiblock_size = (uint64_t*)calloc(head->multiblock_n, sizeof(uint64_t));
-        head->multiblock_offs = (uintptr_t*)calloc(head->multiblock_n, sizeof(uintptr_t));
-        head->multiblock = (void**)calloc(head->multiblock_n, sizeof(void*));
+        head->multiblock_size = (uint64_t*)box_calloc(head->multiblock_n, sizeof(uint64_t));
+        head->multiblock_offs = (uintptr_t*)box_calloc(head->multiblock_n, sizeof(uintptr_t));
+        head->multiblock = (void**)box_calloc(head->multiblock_n, sizeof(void*));
         head->multiblock_size[0] = head->memsz;
         head->multiblock_offs[0] = (uintptr_t)p;
         head->multiblock[0] = p;
@@ -282,9 +282,9 @@ void FreeElfMemory(elfheader_t* head)
     if(head->multiblock_n) {
         for(int i=0; i<head->multiblock_n; ++i)
             munmap(head->multiblock[i], head->multiblock_size[i]);
-        free(head->multiblock);
-        free(head->multiblock_size);
-        free(head->multiblock_offs);
+        box_free(head->multiblock);
+        box_free(head->multiblock_size);
+        box_free(head->multiblock_offs);
     }
 }
 
@@ -1065,46 +1065,46 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, lib
             char *rpathref = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             char* rpath = rpathref;
             while(strstr(rpath, "$ORIGIN")) {
-                char* origin = strdup(h->path);
+                char* origin = box_strdup(h->path);
                 char* p = strrchr(origin, '/');
                 if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-                char* tmp = (char*)calloc(1, strlen(rpath)-strlen("$ORIGIN")+strlen(origin)+1);
+                char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("$ORIGIN")+strlen(origin)+1);
                 p = strstr(rpath, "$ORIGIN");
                 memcpy(tmp, rpath, p-rpath);
                 strcat(tmp, origin);
                 strcat(tmp, p+strlen("$ORIGIN"));
                 if(rpath!=rpathref)
-                    free(rpath);
+                    box_free(rpath);
                 rpath = tmp;
-                free(origin);
+                box_free(origin);
             }
             while(strstr(rpath, "${ORIGIN}")) {
-                char* origin = strdup(h->path);
+                char* origin = box_strdup(h->path);
                 char* p = strrchr(origin, '/');
                 if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-                char* tmp = (char*)calloc(1, strlen(rpath)-strlen("${ORIGIN}")+strlen(origin)+1);
+                char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("${ORIGIN}")+strlen(origin)+1);
                 p = strstr(rpath, "${ORIGIN}");
                 memcpy(tmp, rpath, p-rpath);
                 strcat(tmp, origin);
                 strcat(tmp, p+strlen("${ORIGIN}"));
                 if(rpath!=rpathref)
-                    free(rpath);
+                    box_free(rpath);
                 rpath = tmp;
-                free(origin);
+                box_free(origin);
             }
             while(strstr(rpath, "${PLATFORM}")) {
-                char* platform = strdup("x86_64");
+                char* platform = box_strdup("x86_64");
                 char* p = strrchr(platform, '/');
                 if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-                char* tmp = (char*)calloc(1, strlen(rpath)-strlen("${PLATFORM}")+strlen(platform)+1);
+                char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("${PLATFORM}")+strlen(platform)+1);
                 p = strstr(rpath, "${PLATFORM}");
                 memcpy(tmp, rpath, p-rpath);
                 strcat(tmp, platform);
                 strcat(tmp, p+strlen("${PLATFORM}"));
                 if(rpath!=rpathref)
-                    free(rpath);
+                    box_free(rpath);
                 rpath = tmp;
-                free(platform);
+                box_free(platform);
             }
             if(strchr(rpath, '$')) {
                 printf_log(LOG_INFO, "BOX64: Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
@@ -1113,7 +1113,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, lib
                 PrependList(&box64->box64_ld_lib, rpath, 1);
             }
             if(rpath!=rpathref)
-                free(rpath);
+                box_free(rpath);
         }
 
     if(!h->neededlibs && neededlibs)
@@ -1186,7 +1186,7 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
     if(context->deferedInit) {
         if(context->deferedInitSz==context->deferedInitCap) {
             context->deferedInitCap += 4;
-            context->deferedInitList = (elfheader_t**)realloc(context->deferedInitList, context->deferedInitCap*sizeof(elfheader_t*));
+            context->deferedInitList = (elfheader_t**)box_realloc(context->deferedInitList, context->deferedInitCap*sizeof(elfheader_t*));
         }
         context->deferedInitList[context->deferedInitSz++] = h;
         return;
@@ -1225,7 +1225,7 @@ void RunDeferedElfInit(x64emu_t *emu)
     context->deferedInitCap = context->deferedInitSz = 0;
     for (int i=0; i<Sz; ++i)
         RunElfInit(List[i], emu);
-    free(List);
+    box_free(List);
 }
 
 void RunElfFini(elfheader_t* h, x64emu_t *emu)

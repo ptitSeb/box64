@@ -49,7 +49,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg)
     int x86 = my_context->box86path?FileIsX86ELF(argv[nextarg]):0;
     int x64 = my_context->box64path?FileIsX64ELF(argv[nextarg]):0;
     // create the new argv array
-    const char** newargv = (const char**)calloc((argc-nextarg)+1+((x86 || x64)?1:0), sizeof(char*));
+    const char** newargv = (const char**)box_calloc((argc-nextarg)+1+((x86 || x64)?1:0), sizeof(char*));
     if(x86 || x64) {
         newargv[0] = x64?my_context->box64path:my_context->box86path;
         printf_log(LOG_DEBUG, "argv[%d]=\"%s\"\n", 0, newargv[0]);    

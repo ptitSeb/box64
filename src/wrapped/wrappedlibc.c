@@ -1320,8 +1320,8 @@ void grabNCpu() {
     size_t dummy;
     if(f) {
         nCPU = 0;
-        size_t len = 0;
-        char* line = NULL;
+        size_t len = 500;
+        char* line[500] = {0};
         while ((dummy = getline(&line, &len, f)) != -1) {
             if(!strncmp(line, "processor\t", strlen("processor\t")))
                 ++nCPU;
@@ -1332,7 +1332,6 @@ void grabNCpu() {
                     bogoMips = tmp;
             }
         }
-        if(line) free(line);
         fclose(f);
         if(!nCPU) nCPU=1;
     }
@@ -1691,7 +1690,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
-        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
+        const char** newargv = (const char**)box_calloc(n+2, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath; else newargv[1] = skip_first?argv[skip_first]:path;
@@ -1705,7 +1704,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
             ret = execve(newargv[0], (char* const*)newargv, envv);
         else
             ret = execv(newargv[0], (char* const*)newargv);
-        free(newargv);
+        box_free(newargv);
         return ret;
     }
     #endif
@@ -1730,13 +1729,13 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
-        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
+        const char** newargv = (const char**)box_calloc(n+2, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n, envp);
         int ret = execve(newargv[0], (char* const*)newargv, envp);
-        free(newargv);
+        box_free(newargv);
         return ret;
     }
     #endif
@@ -1762,12 +1761,12 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, x64, fullpath);
-    free(fullpath);
+    box_free(fullpath);
     if (x64 || x86 || self) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
-        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        char** newargv = (char**)box_calloc(i+2, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
@@ -1782,7 +1781,7 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
             ret = execvpe(newargv[0], newargv, envv);
         else
             ret = execvp(newargv[0], newargv);
-        free(newargv);
+        box_free(newargv);
         return ret;
     }
     if((!strcmp(path + strlen(path) - strlen("/uname"), "/uname") || !strcmp(path, "uname"))
@@ -1808,7 +1807,7 @@ EXPORT int32_t my_execl(x64emu_t* emu, const char* path)
     // count argv...
     int i=0;
     while(getVargN(emu, i+1)) ++i;
-    char** newargv = (char**)calloc(i+((x64 || self)?2:1), sizeof(char*));
+    char** newargv = (char**)box_calloc(i+((x64 || self)?2:1), sizeof(char*));
     int j=0;
     if ((x64 || x86 || self))
         newargv[j++] = x86?emu->context->box86path:emu->context->box64path;
@@ -1817,7 +1816,7 @@ EXPORT int32_t my_execl(x64emu_t* emu, const char* path)
     if(self) newargv[1] = emu->context->fullpath;
     printf_log(LOG_DEBUG, " => execl(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
     int ret = execv(newargv[0], newargv);
-    free(newargv);
+    box_free(newargv);
     return ret;
 }
 
@@ -1830,11 +1829,11 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     printf_log(LOG_DEBUG, "execlp(\"%s\", ...), IsX86=%d / fullpath=\"%s\"\n", path, x64, fullpath);
-    free(fullpath);
+    box_free(fullpath);
     // count argv...
     int i=0;
     while(getVargN(emu, i+1)) ++i;
-    char** newargv = (char**)calloc(i+((x64 || self)?2:1), sizeof(char*));
+    char** newargv = (char**)box_calloc(i+((x64 || self)?2:1), sizeof(char*));
     int j=0;
     if ((x64 || x86 || self))
         newargv[j++] = x86?emu->context->box86path:emu->context->box64path;
@@ -1851,7 +1850,7 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
         ret = execvpe(newargv[0], newargv, envv);
     else
         ret = execvp(newargv[0], newargv);
-    free(newargv);
+    box_free(newargv);
     return ret;
 }
 
@@ -1866,7 +1865,7 @@ EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
         // count argv...
         int i=0;
         while(argv[i]) ++i;
-        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        char** newargv = (char**)box_calloc(i+2, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
@@ -1874,7 +1873,7 @@ EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
         printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawn(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
         int ret = posix_spawn(pid, newargv[0], actions, attrp, newargv, envp);
         printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn returned %d\n", ret);
-        //free(newargv);
+        //box_free(newargv);
         return ret;
     }
     // fullpath is gone, so the search will only be on PATH, not on BOX64_PATH (is that an issue?)
@@ -1892,12 +1891,12 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x64, fullpath);
-    free(fullpath);
+    box_free(fullpath);
     if (x64 || x86 || self) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
-        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        char** newargv = (char**)box_calloc(i+2, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
@@ -1905,7 +1904,7 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
         printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawnp(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
         int ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, envp);
         printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawnp returned %d\n", ret);
-        //free(newargv);
+        //box_free(newargv);
         return ret;
     }
     // fullpath is gone, so the search will only be on PATH, not on BOX64_PATH (is that an issue?)
@@ -1927,7 +1926,7 @@ EXPORT int32_t my___register_atfork(x64emu_t *emu, void* prepare, void* parent, 
     // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my_atfork...
     if(my_context->atfork_sz==my_context->atfork_cap) {
         my_context->atfork_cap += 4;
-        my_context->atforks = (atfork_fnc_t*)realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
+        my_context->atforks = (atfork_fnc_t*)box_realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
     }
     my_context->atforks[my_context->atfork_sz].prepare = (uintptr_t)prepare;
     my_context->atforks[my_context->atfork_sz].parent = (uintptr_t)parent;
@@ -2420,13 +2419,13 @@ static int my_cookie_close(void *p)
     int ret = 0;
     if(cookie->c)
         ret = RunFunction(my_context, cookie->c, 1, cookie->cookie);
-    free(cookie);
+    box_free(cookie);
     return ret;
 }
 EXPORT void* my_fopencookie(x64emu_t* emu, void* cookie, void* mode, void* read, void* write, void* seek, void* close)
 {
     cookie_io_functions_t io_funcs = {read?my_cookie_read:NULL, write?my_cookie_write:NULL, seek?my_cookie_seek:NULL, my_cookie_close};
-    my_cookie_t *cb = (my_cookie_t*)calloc(1, sizeof(my_cookie_t));
+    my_cookie_t *cb = (my_cookie_t*)box_calloc(1, sizeof(my_cookie_t));
     cb->r = (uintptr_t)read;
     cb->w = (uintptr_t)write;
     cb->s = (uintptr_t)seek;
@@ -2525,14 +2524,14 @@ EXPORT int my_renameat2(int olddirfd, void* oldpath, int newdirfd, void* newpath
     }
     if((flags&RENAME_EXCHANGE) && (olddirfd==-1) && (newdirfd==-1)) {
         // cannot do atomically...
-        char* tmp = (char*)malloc(strlen(oldpath)+10); // create a temp intermediary
+        char* tmp = (char*)box_malloc(strlen(oldpath)+10); // create a temp intermediary
         tmp = strcat(oldpath, ".tmp");
         int ret = renameat(-1, oldpath, -1, tmp);
         if(ret==-1) return -1;
         ret = renameat(-1, newpath, -1, oldpath);
         if(ret==-1) return -1;
         ret = renameat(-1, tmp, -1, newpath);
-        free(tmp);
+        box_free(tmp);
         return ret;
     }
     return -1; // unknown flags
@@ -2652,7 +2651,7 @@ EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
 EXPORT char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size)
 {
     (void)emu;
-    char** ret = (char**)calloc(1, size*sizeof(char*) + size*200);  // capping each strings to 200 chars
+    char** ret = (char**)calloc(1, size*sizeof(char*) + size*200);  // capping each strings to 200 chars, not using box_calloc (program space)
     char* s = (char*)(ret+size);
     for (int i=0; i<size; ++i) {
         uintptr_t start = 0;
@@ -2769,7 +2768,7 @@ static int clone_fn(void* p)
     FreeX64Emu(&emu);
     if(arg->stack_clone_used)
         my_context->stack_clone_used = 0;
-    free(arg);
+    box_free(arg);
     /*if(exited)
         exit(ret);*/
     return ret;
@@ -2779,16 +2778,16 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
 {
     printf_log(LOG_DEBUG, "my_clone(fn:%p(%s), stack:%p, 0x%x, args:%p, %p, %p, %p)", fn, getAddrFunctionName((uintptr_t)fn), stack, flags, args, parent, tls, child);
     void* mystack = NULL;
-    clone_arg_t* arg = (clone_arg_t*)calloc(1, sizeof(clone_arg_t));
+    clone_arg_t* arg = (clone_arg_t*)box_calloc(1, sizeof(clone_arg_t));
     x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack, 0, 0);
     SetupX64Emu(newemu);
     CloneEmu(newemu, emu);
     if(my_context->stack_clone_used) {
         printf_log(LOG_DEBUG, " no free stack_clone ");
-        mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+        mystack = box_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
     } else {
         if(!my_context->stack_clone)
-            my_context->stack_clone = malloc(1024*1024);
+            my_context->stack_clone = box_malloc(1024*1024);
         mystack = my_context->stack_clone;
         printf_log(LOG_DEBUG, " using stack_clone ");
         my_context->stack_clone_used = 1;

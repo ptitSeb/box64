@@ -41,7 +41,7 @@ void FreeMapSymbols(kh_mapsymbols_t** map)
     if(!map || !(*map))
         return;
     versymbols_t *v;
-    kh_foreach_value_ref(*map, v, free(v->syms););
+    kh_foreach_value_ref(*map, v, box_free(v->syms););
 
     kh_destroy(mapsymbols, *map);
     *map = NULL;
@@ -152,7 +152,7 @@ void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, ui
     // add a new record
     if(v->sz == v->cap) {
         v->cap+=4;
-        v->syms = (versymbol_t*)realloc(v->syms, v->cap*sizeof(versymbol_t));
+        v->syms = (versymbol_t*)box_realloc(v->syms, v->cap*sizeof(versymbol_t));
     }
     int idx = v->sz++;
     v->syms[idx].version = ver;
@@ -189,7 +189,7 @@ void AddWeakSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr
     // add a new record
     if(v->sz == v->cap) {
         v->cap+=4;
-        v->syms = (versymbol_t*)realloc(v->syms, v->cap*sizeof(versymbol_t));
+        v->syms = (versymbol_t*)box_realloc(v->syms, v->cap*sizeof(versymbol_t));
     }
     int idx = v->sz++;
     v->syms[idx].version = ver;

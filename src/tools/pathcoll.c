@@ -17,8 +17,8 @@ void FreeCollection(path_collection_t* collection)
         return;
     if(collection->cap) {
         for(int i=0; i<collection->size; ++i)
-            free(collection->paths[i]);
-        free(collection->paths);
+            box_free(collection->paths[i]);
+        box_free(collection->paths);
     }
     collection->paths = NULL;
     collection->size = 0;
@@ -42,7 +42,7 @@ void ParseList(const char* List, path_collection_t* collection, int folder)
     }
     // alloc empty strings
     collection->cap = cnt;
-    collection->paths = (char**)calloc(cnt, sizeof(char*));
+    collection->paths = (char**)box_calloc(cnt, sizeof(char*));
     // and now split the paths...
     char tmp[MAX_PATH];
     const char *p = List;
@@ -64,7 +64,7 @@ void ParseList(const char* List, path_collection_t* collection, int folder)
         if(l) {
             if(folder && tmp[l-1]!='/')
                 strcat(tmp, "/");
-            collection->paths[idx]  =strdup(tmp);
+            collection->paths[idx]  =box_strdup(tmp);
             collection->size=++idx;
         }
     }
@@ -73,10 +73,10 @@ void ParseList(const char* List, path_collection_t* collection, int folder)
 void CopyCollection(path_collection_t* to, path_collection_t* from)
 {
     to->cap = from->cap;
-    to->paths = (char**)calloc(to->cap, sizeof(char*));
+    to->paths = (char**)box_calloc(to->cap, sizeof(char*));
     to->size = from->size;
     for (int i=0; i<to->size; ++i)
-        to->paths[i] = strdup(from->paths[i]);
+        to->paths[i] = box_strdup(from->paths[i]);
 }
 
 void AddPath(const char* path, path_collection_t* collection, int folder)
@@ -90,9 +90,9 @@ void AddPath(const char* path, path_collection_t* collection, int folder)
             strcat(tmp, "/");
         if(collection->size==collection->cap) {
             collection->cap += 4;
-            collection->paths = (char**)realloc(collection->paths, collection->cap*sizeof(char*));
+            collection->paths = (char**)box_realloc(collection->paths, collection->cap*sizeof(char*));
         }
-        collection->paths[collection->size++]=strdup(tmp);
+        collection->paths[collection->size++]=box_strdup(tmp);
     }
 }
 void PrependPath(const char* path, path_collection_t* collection, int folder)
@@ -106,10 +106,10 @@ void PrependPath(const char* path, path_collection_t* collection, int folder)
             strcat(tmp, "/");
         if(collection->size==collection->cap) {
             collection->cap += 4;
-            collection->paths = (char**)realloc(collection->paths, collection->cap*sizeof(char*));
+            collection->paths = (char**)box_realloc(collection->paths, collection->cap*sizeof(char*));
         }
         memmove(collection->paths+1, collection->paths, sizeof(char*)*collection->size);
-        collection->paths[0]=strdup(tmp);
+        collection->paths[0]=box_strdup(tmp);
         ++collection->size;
     }
 }
@@ -149,12 +149,12 @@ void PrependList(path_collection_t* collection, const char* List, int folder)
         return;
         // and now split the paths...
     char tmp[MAX_PATH];
-    char *p = strdup(List);
+    char *p = box_strdup(List);
     while(p) {
         char *p2 = strrchr(p, ':');
         if(!p2) {
             strncpy(tmp, p, MAX_PATH - 1);
-            free(p);
+            box_free(p);
             p=NULL;
         } else {
             strncpy(tmp, p2+1, MAX_PATH - 1);

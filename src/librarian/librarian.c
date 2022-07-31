@@ -19,7 +19,7 @@ KHASH_MAP_IMPL_INT(mapoffsets, cstr_t);
 
 lib_t *NewLibrarian(box64context_t* context, int ownlibs)
 {
-    lib_t *maplib = (lib_t*)calloc(1, sizeof(lib_t));
+    lib_t *maplib = (lib_t*)box_calloc(1, sizeof(lib_t));
     
     maplib->mapsymbols = NewMapSymbols();
     maplib->weaksymbols = NewMapSymbols();
@@ -74,7 +74,7 @@ void FreeLibrarian(lib_t **maplib, x64emu_t *emu)
     (*maplib)->owner = NULL;    // to avoid recursive free
     if((*maplib)->ownlibs && (*maplib)->libsz) {
         printf_log(LOG_DEBUG, "Closing %d libs from maplib %p\n", (*maplib)->libsz, *maplib);
-        char *freed = (char*)calloc((*maplib)->libsz, sizeof(char));
+        char *freed = (char*)box_calloc((*maplib)->libsz, sizeof(char));
         if (!freed) {
             printf_log(LOG_INFO, "Failed to malloc freed table, using old algorithm (a crash is likely)\n");
             for (int i=(*maplib)->libsz-1; i>=0; --i) 
@@ -88,10 +88,10 @@ void FreeLibrarian(lib_t **maplib, x64emu_t *emu)
             }
             memset((*maplib)->libraries, 0, (*maplib)->libsz*sizeof(library_t*)); // NULL = 0 anyway
             (*maplib)->libsz = 0;
-            free(freed);
+            box_free(freed);
         }
     }
-    free((*maplib)->libraries);
+    box_free((*maplib)->libraries);
     (*maplib)->libraries = NULL;
 
     FreeMapSymbols(&(*maplib)->mapsymbols);
@@ -106,7 +106,7 @@ void FreeLibrarian(lib_t **maplib, x64emu_t *emu)
     if((*maplib)->bridge)
         FreeBridge(&(*maplib)->bridge);
 
-    free(*maplib);
+    box_free(*maplib);
     *maplib = NULL;
 
 }
@@ -163,7 +163,7 @@ void MapLibAddLib(lib_t* maplib, library_t* lib)
         return;
     if (maplib->libsz == maplib->libcap) {
         maplib->libcap += 8;
-        maplib->libraries = (library_t**)realloc(maplib->libraries, maplib->libcap*sizeof(library_t*));
+        maplib->libraries = (library_t**)box_realloc(maplib->libraries, maplib->libcap*sizeof(library_t*));
     }
     maplib->libraries[maplib->libsz] = lib;
     ++maplib->libsz;
@@ -179,7 +179,7 @@ void MapLibAddMapLib(lib_t* dest, lib_t* src)
         MapLibAddLib(dest, lib);
         if(lib->maplib && src!=lib->maplib) {   //TODO: find why is src!=lib->maplib needed
             MapLibAddMapLib(dest, lib->maplib);
-            free(lib->maplib);
+            box_free(lib->maplib);
             lib->maplib = NULL;
         }
     }
@@ -246,7 +246,7 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
             // for add the depending local libs...
             if(lib->maplib) {
                 MapLibAddMapLib(my_context->maplib, lib->maplib);
-                free(lib->maplib);
+                box_free(lib->maplib);
                 lib->maplib = NULL;
             }
             if(!libraryInMapLib(my_context->maplib, lib))
@@ -345,7 +345,7 @@ int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, in
 {
     box64_mapclean = 0;
     if(!neededlibs) {
-        neededlibs = calloc(1, sizeof(needed_libs_t));
+        neededlibs = box_calloc(1, sizeof(needed_libs_t));
     }
     int idx = neededlibs->size;
     // Add libs and symbol
@@ -474,14 +474,14 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end, self, version, vername)) {
         if(start && end && *end==*start) {  // object is of 0 sized, try to see an "_END" object of null size
             uintptr_t start2, end2;
-            char* buff = (char*)malloc(strlen(name) + strlen("_END") + 1);
+            char* buff = (char*)box_malloc(strlen(name) + strlen("_END") + 1);
             strcpy(buff, name);
             strcat(buff, "_END");
             if(GetGlobalSymbolStartEnd_internal(maplib, buff, &start2, &end2, self, version, vername)) {
                 if(end2>*end && start2==end2)
                     *end = end2;
             }
-            free(buff);
+            box_free(buff);
         }
         return 1;
     }

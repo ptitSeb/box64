@@ -20,7 +20,7 @@ void FreeDictionnary(dic_t **d)
         return;
     kh_dic_t* dic = (kh_dic_t*)*d;
     const char* k;
-    kh_foreach_key(dic, k, free((void*)k));
+    kh_foreach_key(dic, k, box_free((void*)k));
     kh_destroy(dic, dic);
     *d = NULL;
 }
@@ -31,7 +31,7 @@ const char* AddDictionnary(dic_t* d, const char* s)
     khint_t k = kh_get(dic, dic, s);
     if(k!=kh_end(dic))
         return kh_key(dic, k);
-    char* n = strdup(s);
+    char* n = box_strdup(s);
     int ret;
     k = kh_put(dic, dic, n, &ret);
     return n;

@@ -2024,7 +2024,7 @@ void my_add_signal_offset(size_t itype, uint32_t offset, int n)
         }
     if(p->sz==p->cap) {
         p->cap+=4;
-        p->a = (sigoffset_t*)realloc(p->a, sizeof(sigoffset_t)*p->cap);
+        p->a = (sigoffset_t*)box_realloc(p->a, sizeof(sigoffset_t)*p->cap);
     }
     p->a[p->sz].offset = offset;
     p->a[p->sz++].n = n;
@@ -2281,7 +2281,7 @@ void FiniGTKClass()
         /*khint_t k;
         kh_foreach_key(my_signalmap, k,
             my_signal_t* p = (my_signal_t*)(uintptr_t)k;
-            free(p);
+            box_free(p);
         );*/ // lets assume all signals data is freed by gtk already
         kh_destroy(signalmap, my_signalmap);
         my_signalmap = NULL;
@@ -2289,7 +2289,7 @@ void FiniGTKClass()
     if(my_sigoffset) {
         sigoffset_array_t* p;
         kh_foreach_value_ref(my_sigoffset, p,
-            free(p->a);
+            box_free(p->a);
         );
         kh_destroy(sigoffset, my_sigoffset);
         my_sigoffset = NULL;
@@ -2324,7 +2324,7 @@ void SetGTypeName(void* f)
 
 my_signal_t* new_mysignal(void* f, void* data, void* destroy)
 {
-    my_signal_t* sig = (my_signal_t*)calloc(1, sizeof(my_signal_t));
+    my_signal_t* sig = (my_signal_t*)box_calloc(1, sizeof(my_signal_t));
     sig->sign = SIGN;
     sig->c_handler = (uintptr_t)f;
     sig->destroy = (uintptr_t)destroy;
@@ -2346,7 +2346,7 @@ void my_signal_delete(my_signal_t* sig)
         RunFunction(my_context, d, 1, sig->data);
     }
     printf_log(LOG_DEBUG, "gtk Data deleted, sig=%p, data=%p, destroy=%p\n", sig, sig->data, (void*)d);
-    free(sig);
+    box_free(sig);
 }
 int my_signal_is_valid(void* sig)
 {

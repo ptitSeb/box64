@@ -41,7 +41,7 @@ int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
 
 brick_t* NewBrick()
 {
-    brick_t* ret = (brick_t*)calloc(1, sizeof(brick_t));
+    brick_t* ret = (brick_t*)box_calloc(1, sizeof(brick_t));
     void* ptr = my_mmap(thread_get_emu(), NULL, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE, MAP_PRIVATE | 0x40 | MAP_ANONYMOUS, -1, 0); // 0x40 is MAP_32BIT
     if(ptr == MAP_FAILED) {
         printf_log(LOG_NONE, "Warning, cannot allocate 0x%lx aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
@@ -52,7 +52,7 @@ brick_t* NewBrick()
 
 bridge_t *NewBridge()
 {
-    bridge_t *b = (bridge_t*)calloc(1, sizeof(bridge_t));
+    bridge_t *b = (bridge_t*)box_calloc(1, sizeof(bridge_t));
     b->head = NewBrick();
     b->last = b->head;
     b->bridgemap = kh_init(bridgemap);
@@ -72,11 +72,11 @@ void FreeBridge(bridge_t** bridge)
             unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
         #endif
         my_munmap(emu, b->b, NBRICK*sizeof(onebridge_t));
-        free(b);
+        box_free(b);
         b = n;
     }
     kh_destroy(bridgemap, (*bridge)->bridgemap);
-    free(*bridge);
+    box_free(*bridge);
     *bridge = NULL;
 }
 
