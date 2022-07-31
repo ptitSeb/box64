@@ -1321,8 +1321,8 @@ void grabNCpu() {
     if(f) {
         nCPU = 0;
         size_t len = 500;
-        char* line[500] = {0};
-        while ((dummy = getline(&line, &len, f)) != -1) {
+        char line[500] = {0};
+        while ((dummy = getline((char**)&line, &len, f)) != -1) {
             if(!strncmp(line, "processor\t", strlen("processor\t")))
                 ++nCPU;
             if(!nCPU && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
