@@ -12,12 +12,14 @@ void*(*__libc_malloc)(size_t) = NULL;
 void*(*__libc_realloc)(size_t, void*) = NULL;
 void*(*__libc_calloc)(size_t, size_t) = NULL;
 void (*__libc_free*)(void*) = NULL;
+void*(*__libc_memalign)(size_t, size_t) = NULL;
 
 void init_malloc_hook() {
     __libc_malloc = dlsym(RTLD_NEXT, "malloc");
     __libc_realloc = dlsym(RTLD_NEXT, "realloc");
     __libc_calloc = dlsym(RTLD_NEXT, "realloc");
     __libc_free = dlsym(RTLD_NEXT, "free");
+    __libc_memalign = dlsym(RTLD_NEXT, "memalign");
 }
 #endif
 

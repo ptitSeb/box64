@@ -414,7 +414,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, size_t size)
     }
     #ifndef USE_MMAP
     void *p = NULL;
-    if(posix_memalign(&p, box64_pagesize, MMAPSIZE)) {
+    if(!(p=box_memalign(box64_pagesize, MMAPSIZE))) {
         dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%zu\n", MMAPSIZE, i);
         --mmapsize;
         return 0;
@@ -517,7 +517,7 @@ uintptr_t AllocDynarecMap(dynablock_t* db, size_t size)
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
         #ifndef USE_MMAP
         void *p = NULL;
-        if(posix_memalign(&p, box64_pagesize, size)) {
+        if(!(p=box_memalign(box64_pagesize, size))) {
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", size);
             return 0;
         }

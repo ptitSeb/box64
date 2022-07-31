@@ -79,16 +79,19 @@ extern void*(*__libc_malloc)(size_t);
 extern void*(*__libc_realloc)(void*, size_t);
 extern void*(*__libc_calloc)(size_t, size_t);
 extern void (*__libc_free*)(void*);
+extern void*(*__libc_memalign)(size_t, size_t);
 #else
 extern void* __libc_malloc(size_t);
 extern void* __libc_realloc(void*, size_t);
 extern void* __libc_calloc(size_t, size_t);
-extern void __libc_free(void*);
+extern void  __libc_free(void*);
+extern void* __libc_memalign(size_t, size_t);
 #endif
-#define box_malloc  __libc_malloc
-#define box_realloc __libc_realloc
-#define box_calloc  __libc_calloc
-#define box_free    __libc_free
+#define box_malloc      __libc_malloc
+#define box_realloc     __libc_realloc
+#define box_calloc      __libc_calloc
+#define box_free        __libc_free
+#define box_memalign    __libc_memalign 
 extern char* box_strdup(const char* s);
 
 #endif //__DEBUG_H_
