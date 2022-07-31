@@ -40,33 +40,33 @@ int Run(x64emu_t *emu, int step)
     uint32_t tmp32u, tmp32u2;
     int64_t tmp64s;
     uint64_t tmp64u, tmp64u2, tmp64u3;
+    uintptr_t addr = R_RIP;
     rex_t rex;
     int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int unimp = 0;
 
     if(emu->quit)
         return 0;
-    if(R_RIP==0) {
+    if(addr==0) {
         emu->quit = 1;
         printf_log(LOG_INFO, "Ask to run at NULL, quit silently\n");
         return 0;
     }
-
     //ref opcode: http://ref.x64asm.net/geek32.html#xA1
-    printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p\n", emu, (void*)R_RIP, (void*)R_RSP);
+    printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p\n", emu, (void*)addr, (void*)R_RSP);
 
 x64emurun:
 
     while(1) {
 #ifdef HAVE_TRACE
-        __builtin_prefetch((void*)R_RIP, 0, 0); 
+        __builtin_prefetch((void*)addr, 0, 0); 
         emu->prev2_ip = emu->old_ip;
         if(my_context->dec && (
             (trace_end == 0) 
-            || ((R_RIP >= trace_start) && (R_RIP < trace_end))) )
-                PrintTrace(emu, R_RIP, 0);
+            || ((addr >= trace_start) && (addr < trace_end))) )
+                PrintTrace(emu, addr, 0);
 #endif
-        emu->old_ip = R_RIP;
+        emu->old_ip = addr;
 
         opcode = F8;
         
@@ -135,26 +135,28 @@ x64emurun:
         case 0x0F:                      /* More instructions */
             switch(rep) {
                 case 1:
-                    if(RunF20F(emu, rex)) {
+                    if(!(addr = RunF20F(emu, rex, addr))) {
                         unimp = 1;
                         goto fini;
                     }
                     break;
                 case 2:
-                    if(RunF30F(emu, rex)) {
+                    if(!(addr = RunF30F(emu, rex, addr))) {
                         unimp = 1;
                         goto fini;
                     }
                     break;
                 default:
-                    if(Run0F(emu, rex)) {
+                    if(!(addr = Run0F(emu, rex, addr))) {
                         unimp = 1;
                         goto fini;
                     }
                     break;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
         GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
@@ -250,36 +252,44 @@ x64emurun:
                     GD->sdword[0] = ED->sdword[0];  // meh?
             break;
         case 0x64:                      /* FS: prefix */
-            if(Run64(emu, rex, _FS)) {
+            if(!(addr = Run64(emu, rex, _FS, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0x65:                      /* GS: prefix */
-            if(Run64(emu, rex, _GS)) {
+            if(!(addr = Run64(emu, rex, _GS, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0x66:                      /* 16bits prefix */
-            if(Run66(emu, rex, rep)) {
+            if(!(addr = Run66(emu, rex, rep, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0x67:                      /* reduce EASize prefix */
-            if(Run67(emu, rex, rep)) {
+            if(!(addr = Run67(emu, rex, rep, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0x68:                      /* Push Id */
             Push(emu, F32S64);
@@ -313,14 +323,13 @@ x64emurun:
         case 0x6E:                      /* OUTSB DX */
         case 0x6F:                      /* OUTSL DX */
             // this is a privilege opcode...
-            --R_RIP;
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
 
         GOCOND(0x70
             ,   tmp8s = F8S; CHECK_FLAGS(emu);
-            ,   R_RIP += tmp8s;
+            ,   addr += tmp8s;
             ,
             )                           /* Jxx Ib */
         
@@ -1027,13 +1036,13 @@ x64emurun:
             break;
         case 0xC2:                      /* RETN Iw */
             tmp16u = F16;
-            R_RIP = Pop(emu);
+            addr = Pop(emu);
             R_RSP += tmp16u;
-            STEP
+            STEP2
             break;
         case 0xC3:                      /* RET */
-            R_RIP = Pop(emu);
-            STEP
+            addr = Pop(emu);
+            STEP2
             break;
 
         case 0xC6:                      /* MOV Eb,Ib */
@@ -1073,19 +1082,19 @@ x64emurun:
             break;
 
         case 0xCC:                      /* INT 3 */
-            x64Int3(emu);
-            if(emu->quit) goto fini;
+            x64Int3(emu, &addr);
+            if(emu->quit) goto fini;    // R_RIP is up to date when returning from x64Int3
+            addr = R_RIP;
             break;
         case 0xCD:                      /* INT n */
             // this is a privilege opcode...
-            --R_RIP;
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
 
 
         case 0xCF:                      /* IRET */
-            R_RIP = Pop(emu);
+            addr = Pop(emu);
             emu->segs[_CS] = Pop(emu)&0xffff;
             emu->segs_serial[_CS] = 0;
             emu->eflags.x64 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
@@ -1094,6 +1103,7 @@ x64emurun:
             emu->segs_serial[_SS] = 0;
             R_RSP= tmp64u;
             RESET_FLAGS(emu);
+            R_RIP = addr;
             goto fini;      // exit, to recompute CS if needed
             break;
         case 0xD0:                      /* GRP2 Eb,1 */
@@ -1158,145 +1168,160 @@ x64emurun:
             R_AL = *(uint8_t*)(R_RBX + R_AL);
             break;
         case 0xD8:                      /* x87 opcodes */
-            if(RunD8(emu, rex)) {
+            if(!(addr = RunD8(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0xD9:                      /* x87 opcodes */
-            if(RunD9(emu, rex)) {
+            if(!(addr = RunD9(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0xDA:                      /* x87 opcodes */
-            if(RunDA(emu, rex)) {
+            if(!(addr = RunDA(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0xDB:                      /* x87 opcodes */
-            if(RunDB(emu, rex)) {
+            if(!(addr = RunDB(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0xDC:                      /* x87 opcodes */
-            if(RunDC(emu, rex)) {
+            if(!(addr = RunDC(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0xDD:                      /* x87 opcodes */
-            if(RunDD(emu, rex)) {
+            if(!(RunDD(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0xDE:                      /* x87 opcodes */
-            if(RunDE(emu, rex)) {
+            if(!(addr = RunDE(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0xDF:                      /* x87 opcodes */
-            if(RunDF(emu, rex)) {
+            if(!(addr = RunDF(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
         case 0xE0:                      /* LOOPNZ */
             CHECK_FLAGS(emu);
             tmp8s = F8S;
             --R_RCX; // don't update flags
             if(R_RCX && !ACCESS_FLAG(F_ZF))
-                R_RIP += tmp8s;
-            STEP
+                addr += tmp8s;
+            STEP2
             break;
         case 0xE1:                      /* LOOPZ */
             CHECK_FLAGS(emu);
             tmp8s = F8S;
             --R_RCX; // don't update flags
             if(R_RCX && ACCESS_FLAG(F_ZF))
-                R_RIP += tmp8s;
-            STEP
+                addr += tmp8s;
+            STEP2
             break;
         case 0xE2:                      /* LOOP */
             tmp8s = F8S;
             --R_RCX; // don't update flags
             if(R_RCX)
-                R_RIP += tmp8s;
-            STEP
+                addr += tmp8s;
+            STEP2
             break;
         case 0xE3:                      /* JECXZ */
             tmp8s = F8S;
             if(!R_RCX)
-                R_RIP += tmp8s;
-            STEP
+                addr += tmp8s;
+            STEP2
             break;
         case 0xE4:                      /* IN AL, XX */
         case 0xE5:                      /* IN EAX, XX */
         case 0xE6:                      /* OUT XX, AL */
         case 0xE7:                      /* OUT XX, EAX */
             // this is a privilege opcode...
-            --R_RIP;
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
         case 0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative
-            Push(emu, R_RIP);
-            R_RIP += tmp32s;
-            STEP
+            Push(emu, addr);
+            addr += tmp32s;
+            STEP2
             break;
         case 0xE9:                      /* JMP Id */
             tmp32s = F32S; // jmp is relative
-            R_RIP += tmp32s;
-            STEP
+            addr += tmp32s;
+            STEP2
             break;
 
         case 0xEB:                      /* JMP Ib */
             tmp32s = F8S; // jump is relative
-            R_RIP += tmp32s;
-            STEP
+            addr += tmp32s;
+            STEP2
             break;
         case 0xEC:                      /* IN AL, DX */
         case 0xED:                      /* IN EAX, DX */
         case 0xEE:                      /* OUT DX, AL */
         case 0xEF:                      /* OUT DX, EAX */
             // this is a privilege opcode...
-            --R_RIP;
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
         case 0xF0:                      /* LOCK prefix */
-            if(RunF0(emu, rex)) {
+            if(!(addr = RunF0(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
-            if(emu->quit)
+            if(emu->quit) {
+                R_RIP = addr;
                 goto fini;
+            }
             break;
 
         case 0xF4:                      /* HLT */
             // this is a privilege opcode...
-            --R_RIP;
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
@@ -1414,13 +1439,11 @@ x64emurun:
             break;
         case 0xFA:                      /* CLI */
             // this is a privilege opcode...
-            --R_RIP;
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
         case 0xFB:                      /* STI */
             // this is a privilege opcode...
-            --R_RIP;
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
@@ -1471,32 +1494,30 @@ x64emurun:
                     break;
                 case 2:                 /* CALL NEAR Ed */
                     tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
-                    Push(emu, R_RIP);
-                    R_RIP = tmp64u;
-                    STEP
+                    Push(emu, addr);
+                    addr = tmp64u;
+                    STEP2
                     break;
                 case 3:                 /* CALL FAR Ed */
                     if(MODREG) {
-                        R_RIP = emu->old_ip;
                         printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
                         goto fini;
                     } else {
                         Push(emu, R_CS);
-                        Push(emu, R_RIP);
-                        R_RIP = (uintptr_t)getAlternate((void*)ED->q[0]);   // check CS?
+                        Push(emu, addr);
+                        R_RIP = addr = (uintptr_t)getAlternate((void*)ED->q[0]);   // check CS?
                         R_CS = (ED+1)->word[0];
                         goto fini;  // exit loop to recompute new CS...
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
-                    R_RIP = (uintptr_t)getAlternate((void*)ED->q[0]);
-                    STEP
+                    addr = (uintptr_t)getAlternate((void*)ED->q[0]);
+                    STEP2
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(MODREG) {
-                        R_RIP = emu->old_ip;
                         printf_log(LOG_NONE, "Illegal Opcode %p: 0x%02X 0x%02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
@@ -1512,7 +1533,6 @@ x64emurun:
                     Push(emu, tmp64u);  // avoid potential issue with push [esp+...]
                     break;
                 default:
-                    R_RIP = emu->old_ip;
                     printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
@@ -1523,18 +1543,19 @@ x64emurun:
             unimp = 1;
             goto fini;
         }
+        R_RIP = addr;
     }
 
 
 fini:
     printf_log(LOG_DEBUG, "End of X86 run (%p), RIP=%p, Stack=%p, unimp=%d, emu->fork=%d, emu->uc_link=%p, emu->quit=%d\n", emu, (void*)R_RIP, (void*)R_RSP, unimp, emu->fork, emu->uc_link, emu->quit);
     if(unimp) {
-        R_RIP = emu->old_ip;
         emu->quit = 1;
         UnimpOpcode(emu);
     }
     // fork handling
     if(emu->fork) {
+        addr = R_RIP;
         if(step)
             return 0;
         int forktype = emu->fork;
@@ -1547,6 +1568,7 @@ fini:
     else if(emu->uc_link) {
         emu->quit = 0;
         my_setcontext(emu, emu->uc_link);
+        addr = R_RIP;
         goto x64emurun;
     }
     return 0;

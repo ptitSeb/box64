@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int RunF20F(x64emu_t *emu, rex_t rex)
+uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -256,7 +256,7 @@ int RunF20F(x64emu_t *emu, rex_t rex)
 
     GOCOND(0x80
         , tmp32s = F32S; CHECK_FLAGS(emu);
-        , R_RIP += tmp32s;
+        , addr += tmp32s;
         ,
     )                               /* 0x80 -> 0x8F Jxx */
         
@@ -329,7 +329,7 @@ int RunF20F(x64emu_t *emu, rex_t rex)
         break;
 
    default:
-        return 1;
+        return 0;
     }
-    return 0;
+    return addr;
 }

@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int RunDE(x64emu_t *emu, rex_t rex)
+uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t nextop;
     reg64_t *oped;
@@ -124,7 +124,7 @@ int RunDE(x64emu_t *emu, rex_t rex)
     case 0xDD:
     case 0xDE:
     case 0xDF:
-        return 1;
+        return 0;
     
     default:
         switch((nextop>>3)&7) {
@@ -153,8 +153,8 @@ int RunDE(x64emu_t *emu, rex_t rex)
                 ST0.d = (double)EW->sword[0] / ST0.d;
                 break;
            default:
-                return 1;
+                return 0;
         }
     }
-  return 0;
+  return addr;
 }

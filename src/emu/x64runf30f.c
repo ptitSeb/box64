@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int RunF30F(x64emu_t *emu, rex_t rex)
+uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -351,7 +351,7 @@ int RunF30F(x64emu_t *emu, rex_t rex)
         break;
 
     default:
-        return 1;
+        return 0;
     }
-    return 0;
+    return addr;
 }

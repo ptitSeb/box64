@@ -25,7 +25,7 @@
 
 #include "modrm.h"
 
-int Run66(x64emu_t *emu, rex_t rex, int rep)
+uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -105,7 +105,7 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
     GO(0x30, xor)                   /* XOR 0x31 ~> 0x35 */
 
     case 0x0F:                              /* more opcdes */
-        return Run660F(emu, rex);
+        return Run660F(emu, rex, addr);
 
     case 0x39:
         nextop = F8;
@@ -133,7 +133,7 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
         break;
 
     case 0x64:                              /* FS: */
-        return Run6664(emu, rex);
+        return Run6664(emu, rex, addr);
 
     case 0x69:                      /* IMUL Gw,Ew,Iw */
         nextop = F8;
@@ -178,8 +178,8 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
     case 0x7e:
     case 0x7f:
         // just ignore the 66 (and maybe other) prefix and use regular conditional jump
-        R_RIP--;
-        return 0;
+        addr--;
+        return addr;
 
     case 0x81:                              /* GRP3 Ew,Iw */
     case 0x83:                              /* GRP3 Ew,Ib */
@@ -607,19 +607,19 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
         break;
 
     case 0xD9:                              /* x87 opcdes */
-        return Run66D9(emu, rex);
+        return Run66D9(emu, rex, addr);
 
     case 0xDD:                              /* x87 opcdes */
-        return Run66DD(emu, rex);
+        return Run66DD(emu, rex, addr);
 
     case 0xE8:                              /* CALL Id */
         tmp32s = F32S; // call is relative
-        Push(emu, R_RIP);
-        R_RIP += tmp32s;
+        Push(emu, addr);
+        addr += tmp32s;
         break;
 
     case 0xF0:                              /* LOCK: */
-        return Run66F0(emu, rex);
+        return Run66F0(emu, rex, addr);
 
     case 0xF7:                      /* GRP3 Ew(,Iw) */
         nextop = F8;
@@ -699,14 +699,13 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
                 break;
             case 2:                 /* CALL NEAR Ed */
                 tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
-                Push(emu, R_RIP);
-                R_RIP = tmp64u;
+                Push(emu, addr);
+                addr = tmp64u;
                 break;
            /*case 6:
                 Push16(emu, EW->word[0]);
                 break;*/
             default:
-                    R_RIP = emu->old_ip;
                     printf_log(LOG_NONE, "Illegal Opcode %p: 66 %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
@@ -715,7 +714,7 @@ int Run66(x64emu_t *emu, rex_t rex, int rep)
         break;
 
     default:
-        return 1;
+        return 0;
     }
-    return 0;
+    return addr;
 }

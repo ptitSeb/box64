@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int Run6664(x64emu_t *emu, rex_t rex)
+uintptr_t Run6664(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -73,7 +73,7 @@ int Run6664(x64emu_t *emu, rex_t rex)
                     break;
 
                 default:
-                    return 1;
+                    return 0;
             }
             break;
 
@@ -98,7 +98,7 @@ int Run6664(x64emu_t *emu, rex_t rex)
             break;
 
        default:
-            return 1;
+            return 0;
     }
-    return 0;
+    return addr;
 }

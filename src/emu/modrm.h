@@ -1,38 +1,40 @@
-#define F8      *(uint8_t*)(R_RIP++)
-#define F8S     *(int8_t*)(R_RIP++)
-#define F16     *(uint16_t*)(R_RIP+=2, R_RIP-2)
-#define F16S    *(int16_t*)(R_RIP+=2, R_RIP-2)
-#define F32     *(uint32_t*)(R_RIP+=4, R_RIP-4)
-#define F32S    *(int32_t*)(R_RIP+=4, R_RIP-4)
+#define F8      *(uint8_t*)(addr++)
+#define F8S     *(int8_t*)(addr++)
+#define F16     *(uint16_t*)(addr+=2, addr-2)
+#define F16S    *(int16_t*)(addr+=2, addr-2)
+#define F32     *(uint32_t*)(addr+=4, addr-4)
+#define F32S    *(int32_t*)(addr+=4, addr-4)
 #define F32S64  (uint64_t)(int64_t)F32S
-#define F64     *(uint64_t*)(R_RIP+=8, R_RIP-8)
-#define F64S    *(int64_t*)(R_RIP+=8, R_RIP-8)
-#define PK(a)   *(uint8_t*)(R_RIP+a)
+#define F64     *(uint64_t*)(addr+=8, addr-8)
+#define F64S    *(int64_t*)(addr+=8, addr-8)
+#define PK(a)   *(uint8_t*)(addr+a)
 #ifdef DYNAREC
 #define STEP if(step) return 0;
+#define STEP2 if(step) {R_RIP = addr; return 0;}
 #else
 #define STEP
+#define STEP2
 #endif
 
-#define GETED(D)            oped=GetEd(emu, rex, nextop, D)
-#define GETED32(D)          oped=GetEd32O(emu, rex, nextop, D, 0)
-#define GETED_OFFS(D, O)    oped=GetEdO(emu, rex, nextop, D, O)
-#define GETGD               opgd=GetGd(emu, rex, nextop)
-#define GETEB(D)            oped=GetEb(emu, rex, nextop, D)
-#define GETEB32(D)          oped=GetEb32O(emu, rex, nextop, D, 0)
-#define GETEB_OFFS(D, O)    oped=GetEbO(emu, rex, nextop, D, O)
-#define GETGB               opgd=GetGb(emu, rex, nextop)
-#define GETEW(D)            oped=GetEw(emu, rex, nextop, D)
-#define GETEW32(D)          oped=GetEw32O(emu, rex, nextop, D, 0)
-#define GETEW_OFFS(D, O)    oped=GetEdO(emu, rex, nextop, D, O)
-#define GETGW               opgd=GetGw(emu, rex, nextop)
-#define GETEX(D)            opex=GetEx(emu, rex, nextop, D)
-#define GETEX32(D)          opex=GetEx32O(emu, rex, nextop, D, 0)
-#define GETEX_OFFS(D, O)    opex=GetExO(emu, rex, nextop, D, O)
-#define GETGX               opgx=GetGx(emu, rex, nextop)
-#define GETEM(D)            opem=GetEm(emu, rex, nextop, D)
-#define GETEM32(D)          opem=GetEm32O(emu, rex, nextop, D, 0)
-#define GETGM               opgm=GetGm(emu, rex, nextop)
+#define GETED(D)            oped=GetEd(emu, &addr, rex, nextop, D)
+#define GETED32(D)          oped=GetEd32O(emu, &addr, rex, nextop, D, 0)
+#define GETED_OFFS(D, O)    oped=GetEdO(emu, &addr, rex, nextop, D, O)
+#define GETGD               opgd=GetGd(emu, &addr, rex, nextop)
+#define GETEB(D)            oped=GetEb(emu, &addr, rex, nextop, D)
+#define GETEB32(D)          oped=GetEb32O(emu, &addr, rex, nextop, D, 0)
+#define GETEB_OFFS(D, O)    oped=GetEbO(emu, &addr, rex, nextop, D, O)
+#define GETGB               opgd=GetGb(emu, &addr, rex, nextop)
+#define GETEW(D)            oped=GetEw(emu, &addr, rex, nextop, D)
+#define GETEW32(D)          oped=GetEw32O(emu, &addr, rex, nextop, D, 0)
+#define GETEW_OFFS(D, O)    oped=GetEdO(emu, &addr, rex, nextop, D, O)
+#define GETGW               opgd=GetGw(emu, &addr, rex, nextop)
+#define GETEX(D)            opex=GetEx(emu, &addr, rex, nextop, D)
+#define GETEX32(D)          opex=GetEx32O(emu, &addr, rex, nextop, D, 0)
+#define GETEX_OFFS(D, O)    opex=GetExO(emu, &addr, rex, nextop, D, O)
+#define GETGX               opgx=GetGx(emu, &addr, rex, nextop)
+#define GETEM(D)            opem=GetEm(emu, &addr, rex, nextop, D)
+#define GETEM32(D)          opem=GetEm32O(emu, &addr, rex, nextop, D, 0)
+#define GETGM               opgm=GetGm(emu, &addr, rex, nextop)
 #define ED  oped
 #define GD  opgd
 #define EB  oped

@@ -25,7 +25,7 @@
 
 #include "modrm.h"
 
-int Run6766(x64emu_t *emu, rex_t rex, int rep)
+uintptr_t Run6766(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 {
     // Hmmmm....
     (void)rep;
@@ -59,10 +59,10 @@ int Run6766(x64emu_t *emu, rex_t rex, int rep)
     switch(opcode) {
 
     case 0x0F:                              /* more opcodes */
-        return Run67660F(emu, rex);
+        return Run67660F(emu, rex, addr);
 
     default:
-        return 1;
+        return 0;
     }
-    return 0;
+    return addr;
 }

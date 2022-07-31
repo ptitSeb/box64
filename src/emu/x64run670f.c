@@ -25,7 +25,7 @@
 
 #include "modrm.h"
 
-int Run670F(x64emu_t *emu, rex_t rex, int rep)
+uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 {
     (void)rep;
     uint8_t opcode;
@@ -47,7 +47,7 @@ int Run670F(x64emu_t *emu, rex_t rex, int rep)
             // same for now
         case 0x2F:                      /* COMISS Gx, Ex */
             if(rep) {
-                return 1;
+                return 0;
             }
             RESET_FLAGS(emu);
             nextop = F8;
@@ -80,7 +80,7 @@ int Run670F(x64emu_t *emu, rex_t rex, int rep)
             break;
 
     default:
-        return 1;
+        return 0;
     }
-    return 0;
+    return addr;
 }

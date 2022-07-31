@@ -25,7 +25,7 @@
 
 #include "modrm.h"
 
-int Run66F0(x64emu_t *emu, rex_t rex)
+uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -43,7 +43,7 @@ int Run66F0(x64emu_t *emu, rex_t rex)
         opcode = F8;
     }
 
-    if(rex.w) return RunF0(emu, rex);
+    if(rex.w) return RunF0(emu, rex, addr);
 
     switch(opcode) {
         
@@ -121,7 +121,7 @@ int Run66F0(x64emu_t *emu, rex_t rex)
                     break;
 
                 default:
-                    return 1;
+                    return 0;
             }
             break;
 
@@ -335,7 +335,7 @@ int Run66F0(x64emu_t *emu, rex_t rex)
             }
             break;
        default:
-            return 1;
+            return 0;
     }
-    return 0;
+    return addr;
 }

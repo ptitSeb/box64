@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int RunD9(x64emu_t *emu, rex_t rex)
+uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t nextop;
     int32_t tmp32s;
@@ -223,7 +223,7 @@ int RunD9(x64emu_t *emu, rex_t rex)
         case 0xE6:
         case 0xE7:
         case 0xEF:
-            return 1;
+            return 0;
         default:
         switch((nextop>>3)&7) {
             case 0:     /* FLD ST0, Ed float */
@@ -279,8 +279,8 @@ int RunD9(x64emu_t *emu, rex_t rex)
                 EW->word[0] = emu->cw;
                 break;
             default:
-                return 1;
+                return 0;
         }
     }
-   return 0;
+   return addr;
 }

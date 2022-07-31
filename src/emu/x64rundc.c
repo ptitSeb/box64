@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int RunDC(x64emu_t *emu, rex_t rex)
+uintptr_t RunDC(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t nextop;
     reg64_t *oped;
@@ -139,8 +139,8 @@ int RunDC(x64emu_t *emu, rex_t rex)
                 ST0.d = *(double*)ED / ST0.d;
                 break;
            default:
-                return 1;
+                return 0;
         }
     }
-  return 0;
+  return addr;
 }

@@ -43,7 +43,7 @@ static uint8_t ff_mult(uint8_t a, uint8_t b)
 	return retval;
 }
 
-int Run660F(x64emu_t *emu, rex_t rex)
+uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -645,7 +645,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 break;
 
             default:
-                return 1;
+                return 0;
         }
         break;
 
@@ -819,7 +819,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 break;
 
             default:
-                return 1;
+                return 0;
         }
         break;
         
@@ -1195,7 +1195,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                     for (int i=0; i<8; ++i) EX->uw[i] <<= tmp8u;
                 break;
             default:
-                return 1;
+                return 0;
         }
         break;
     case 0x72:  /* GRP */
@@ -1224,7 +1224,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                     for (int i=0; i<4; ++i) EX->ud[i] <<= tmp8u;
                 break;
             default:
-                return 1;
+                return 0;
         }
         break;
     case 0x73:  /* GRP */
@@ -1276,7 +1276,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
             default:
-                return 1;
+                return 0;
         }
         break;
     case 0x74:  /* PCMPEQB Gx,Ex */
@@ -1589,7 +1589,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 }
                 break;
             default:
-                return 1;
+                return 0;
         }
         break;
     case 0xBB:                      /* BTC Ew,Gw */
@@ -1825,7 +1825,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
                 if(EX->ub[i]&0x80)
                     GD->dword[0] |= (1<<i);
         } else
-            return 1;
+            return 0;
         break;
     case 0xD8:  /* PSUBUSB Gx,Ex */
         nextop = F8;
@@ -2144,7 +2144,7 @@ int Run660F(x64emu_t *emu, rex_t rex)
         break;
     
     default:
-        return 1;
+        return 0;
     }
-    return 0;
+    return addr;
 }

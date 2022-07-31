@@ -28,7 +28,7 @@
 
 #include "modrm.h"
 
-int Run0F(x64emu_t *emu, rex_t rex)
+uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -46,23 +46,21 @@ int Run0F(x64emu_t *emu, rex_t rex)
     switch(opcode) {
 
         case 0x05:                      /* SYSCALL */
+            R_RIP = addr;
             x64Syscall(emu);
             break;
         case 0x06:                      /* CLTS */
             // this is a privilege opcode...
-            R_RIP-=2;
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             break;
 
         case 0x08:                      /* INVD */
         case 0x09:                      /* WBINVD */
             // this is a privilege opcode...
-            R_RIP-=2;
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             break;
 
         case 0x0B:                      /* UD2 */
-            R_RIP-=2;
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             break;
 
@@ -74,7 +72,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     __builtin_prefetch((void*)ED, 1, 0);
                     break;
                 default:    //???
-                    return 1;
+                    return 0;
             }
             break;
 
@@ -160,7 +158,6 @@ int Run0F(x64emu_t *emu, rex_t rex)
         case 0x22:                      /* MOV cxR, REG */
         case 0x23:                      /* MOV drX, REG */
             // this is a privilege opcode...
-            R_RIP-=2;
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             break;
 
@@ -308,7 +305,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     break;
 
                 default:
-                    return 1;
+                    return 0;
             }
             break;
 
@@ -334,7 +331,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     break;
 
                 default:
-                    return 1;
+                    return 0;
             }
             break;
 
@@ -649,7 +646,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                         for (int i=0; i<4; ++i) EM->uw[i] <<= tmp8u;
                     break;
                 default:
-                    return 1;
+                    return 0;
             }
             break;
         case 0x72:  /* GRP */
@@ -675,7 +672,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                         for (int i=0; i<2; ++i) EM->ud[i] <<= tmp8u;
                     break;
                 default:
-                    return 1;
+                    return 0;
             }
             break;
         case 0x73:  /* GRP */
@@ -697,7 +694,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                         {EM->q <<= tmp8u;}
                     break;
                 default:
-                    return 1;
+                    return 0;
             }
             break;
         case 0x74:                       /* PCMPEQB Gm,Em */
@@ -751,7 +748,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             break;
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
-            , R_RIP += tmp32s;
+            , addr += tmp32s;
             ,
         )                               /* 0x80 -> 0x8F Jxx */
         GOCOND(0x90
@@ -856,13 +853,13 @@ int Run0F(x64emu_t *emu, rex_t rex)
         case 0xAE:                      /* Grp Ed (SSE) */
             nextop = F8;
             if((nextop&0xF8)==0xE8) {
-                return 0;                   /* LFENCE */
+                return addr;            /* LFENCE */
             }
             if((nextop&0xF8)==0xF0) {
-                return 0;                   /* MFENCE */
+                return addr;            /* MFENCE */
             }
             if((nextop&0xF8)==0xF8) {
-                return 0;                   /* SFENCE */
+                return addr;            /* SFENCE */
             }
             GETED(0);
             switch((nextop>>3)&7) {
@@ -890,7 +887,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     #endif
                     break;
                 default:
-                    return 1;
+                    return 0;
             }
             break;
         case 0xAF:                      /* IMUL Gd,Ed */
@@ -1062,7 +1059,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     break;
 
                 default:
-                    return 1;
+                    return 0;
             }
             break;
         case 0xBB:                      /* BTC Ed,Gd */
@@ -1288,7 +1285,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
                     }
                     break;
                 default:
-                    return 1;
+                    return 0;
             }
             break;
         case 0xC8:
@@ -1477,7 +1474,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
         case 0xE7:                   /* MOVNTQ Em,Gm */
             nextop = F8;
             if((nextop&0xC0)==0xC0)
-                return 1;
+                return 0;
             GETEM(0);
             GETGM;
             EM->q = GM->q;
@@ -1630,7 +1627,7 @@ int Run0F(x64emu_t *emu, rex_t rex)
             break;
 
         default:
-            return 1;
+            return 0;
     }
-    return 0;
+    return addr;
 }

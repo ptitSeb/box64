@@ -26,7 +26,7 @@
 
 #include "modrm.h"
 
-int RunF0(x64emu_t *emu, rex_t rex)
+uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -582,7 +582,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
                                 break;
 
                             default:
-                                return 1;
+                                return 0;
                         }
                         break;
 
@@ -715,17 +715,17 @@ int RunF0(x64emu_t *emu, rex_t rex)
 #endif
                             break;
                         default:
-                            return 1;
+                            return 0;
                     }
                     break;
 
             default:
-                return 1;
+                return 0;
             }
             break;
 
         case 0x66:
-            return Run66F0(emu, rex);   // more opcode F0 66 and 66 F0 is the same
+            return Run66F0(emu, rex, addr);   // more opcode F0 66 and 66 F0 is the same
 
         case 0x80:                      /* GRP Eb,Ib */
             nextop = F8;
@@ -905,7 +905,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
 #endif
                     break;
                 default:
-                    return 1;
+                    return 0;
             }
             break;
 
@@ -1002,7 +1002,7 @@ int RunF0(x64emu_t *emu, rex_t rex)
             }
             break;
         default:
-            return 1;
+            return 0;
     }
-    return 0;
+    return addr;
 }

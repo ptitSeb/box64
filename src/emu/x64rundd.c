@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int RunDD(x64emu_t *emu, rex_t rex)
+uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t nextop;
     reg64_t *oped;
@@ -107,7 +107,7 @@ int RunDD(x64emu_t *emu, rex_t rex)
     case 0xFD:
     case 0xFE:
     case 0xFF:
-        return 1;
+        return 0;
 
     default:
         switch((nextop>>3)&7) {
@@ -182,8 +182,8 @@ int RunDD(x64emu_t *emu, rex_t rex)
                 *(uint16_t*)ED = emu->sw.x16;
                 break;
             default:
-                return 1;
+                return 0;
         }
     }
-   return 0;
+   return addr;
 }

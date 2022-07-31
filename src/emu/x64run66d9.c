@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int Run66D9(x64emu_t *emu, rex_t rex)
+uintptr_t Run66D9(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t nextop;
     reg64_t *oped;
@@ -73,7 +73,7 @@ int Run66D9(x64emu_t *emu, rex_t rex)
         case 0xFD:
         case 0xFE:
         case 0xFF:
-            return 1;
+            return 0;
         default:
         switch((nextop>>3)&7) {
             case 4:     /* FLDENV m */
@@ -87,8 +87,8 @@ int Run66D9(x64emu_t *emu, rex_t rex)
                 fpu_savenv(emu, (char*)ED, 1);
                 break;
             default:
-                return 1;
+                return 0;
         }
     }
-    return 0;
+    return addr;
 }

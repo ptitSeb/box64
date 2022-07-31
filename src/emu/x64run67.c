@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int Run67(x64emu_t *emu, rex_t rex, int rep)
+uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -98,7 +98,7 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
     GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
     GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
     case 0x0F:
-        return Run670F(emu, rex, rep);
+        return Run670F(emu, rex, rep, addr);
     GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
     GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
     GO(0x20, and)                   /* AND 0x20 -> 0x25 */
@@ -146,7 +146,7 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
         break;
 
     case 0x66:
-        return Run6766(emu, rex, rep);
+        return Run6766(emu, rex, rep, addr);
 
     case 0x80:                      /* GRP Eb,Ib */
         nextop = F8;
@@ -315,31 +315,31 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
         tmp8s = F8S;
         --R_ECX; // don't update flags
         if(R_ECX && !ACCESS_FLAG(F_ZF))
-            R_RIP += tmp8s;
+            addr += tmp8s;
         break;
     case 0xE1:                      /* LOOPZ */
         CHECK_FLAGS(emu);
         tmp8s = F8S;
         --R_ECX; // don't update flags
         if(R_ECX && ACCESS_FLAG(F_ZF))
-            R_RIP += tmp8s;
+            addr += tmp8s;
         break;
     case 0xE2:                      /* LOOP */
         tmp8s = F8S;
         --R_ECX; // don't update flags
         if(R_ECX)
-            R_RIP += tmp8s;
+            addr += tmp8s;
         break;
     case 0xE3:              /* JECXZ Ib */
         tmp8s = F8S;
         if(!R_ECX)
-            R_RIP += tmp8s;
+            addr += tmp8s;
         break;
 
     case 0xE8:                      /* CALL Id */
         tmp32s = F32S; // call is relative
-        Push(emu, R_RIP);
-        R_RIP += tmp32s;
+        Push(emu, addr);
+        addr += tmp32s;
         break;
 
     case 0xF7:                      /* GRP3 Ed(,Id) */
@@ -414,7 +414,7 @@ int Run67(x64emu_t *emu, rex_t rex, int rep)
         break;
             
     default:
-        return 1;
+        return 0;
     }
-    return 0;
+    return addr;
 }

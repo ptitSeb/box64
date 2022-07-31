@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int Run64(x64emu_t *emu, rex_t rex, int seg)
+uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -135,7 +135,7 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                             }
                             break;
                         default:
-                            return 1;
+                            return 0;
                     }
                     break;
                 case 0x11:
@@ -159,7 +159,7 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                             EX->ud[0] = GX->ud[0];
                             break;
                         default:
-                            return 1;
+                            return 0;
                     }
                     break;
 
@@ -173,7 +173,7 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                             EX->q[1] = GX->q[1];
                             break;
                         default:
-                            return 1;
+                            return 0;
                     }
                     break;
 
@@ -187,7 +187,7 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                             break;
 
                         default:
-                            return 1;
+                            return 0;
                     }
                     break;
 
@@ -201,7 +201,7 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                             break;
                             
                         default:
-                            return 1;
+                            return 0;
                     }
                     break;
 
@@ -223,7 +223,7 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                     break;
 
                 default:
-                    return 1;
+                    return 0;
             }
             break;
 
@@ -268,7 +268,7 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
             break;
 
         case 0x66:
-            return Run6664(emu, rex);
+            return Run6664(emu, rex, addr);
 
         case 0x80:                      /* GRP Eb,Ib */
             nextop = F8;
@@ -525,36 +525,34 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                     break;
                 case 2:                 /* CALL NEAR Ed */
                     tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
-                    Push(emu, R_RIP);
-                    R_RIP = tmp64u;
+                    Push(emu, addr);
+                    addr = tmp64u;
                     break;
                 case 3:                 /* CALL FAR Ed */
                     if(nextop>0xC0) {
-                        R_RIP = emu->old_ip;
                         printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
                         return 0;
                     } else {
                         Push16(emu, R_CS);
-                        Push(emu, R_RIP);
-                        R_RIP = ED->dword[0];
+                        Push(emu, addr);
+                        R_RIP = addr = ED->dword[0];
                         R_CS = (ED+1)->word[0];
                         return 0;  // exit loop to recompute new CS...
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
-                    R_RIP = (uintptr_t)getAlternate((void*)ED->q[0]);
+                    addr = (uintptr_t)getAlternate((void*)ED->q[0]);
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
-                        R_RIP = emu->old_ip;
                         printf_log(LOG_NONE, "Illegal Opcode %p: 0x%02X 0x%02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
                         return 0;
                     } else {
-                        R_RIP = ED->q[0];
+                        R_RIP = addr = ED->q[0];
                         R_CS = (ED+1)->word[0];
                         return 0;  // exit loop to recompute CS...
                     }
@@ -564,7 +562,6 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
                     Push(emu, tmp64u);  // avoid potential issue with push [esp+...]
                     break;
                 default:
-                    R_RIP = emu->old_ip;
                     printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
@@ -572,7 +569,7 @@ int Run64(x64emu_t *emu, rex_t rex, int seg)
             }
             break;
         default:
-            return 1;
+            return 0;
     }
-    return 0;
+    return addr;
 }

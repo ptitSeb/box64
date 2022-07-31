@@ -65,20 +65,31 @@ x64emu_t* x64emu_fork(x64emu_t* emu, int forktype)
     return emu;
 }
 
-extern int errno;
-void x64Int3(x64emu_t* emu)
+static uint64_t F64(uintptr_t* addr) {
+    uint64_t ret = *(uint64_t*)*addr;
+    *addr+=8;
+    return ret;
+}
+static uint8_t Peek8(uintptr_t addr, uintptr_t offset)
 {
-    if(Peek(emu, 0)=='S' && Peek(emu, 1)=='C') // Signature for "Out of x86 door"
+    return *(uint8_t*)(addr+offset);
+}
+extern int errno;
+void x64Int3(x64emu_t* emu, uintptr_t* addr)
+{
+    if(Peek8(*addr, 0)=='S' && Peek8(*addr, 1)=='C') // Signature for "Out of x86 door"
     {
-        R_RIP += 2;
-        uintptr_t addr = Fetch64(emu);
-        if(addr==0) {
+        *addr += 2;
+        uintptr_t a = F64(addr);
+        if(a==0) {
+            R_RIP = *addr;
             //printf_log(LOG_INFO, "%p:Exit x86 emu (emu=%p)\n", *(void**)(R_ESP), emu);
             emu->quit=1; // normal quit
         } else {
             RESET_FLAGS(emu);
-            wrapper_t w = (wrapper_t)addr;
-            addr = Fetch64(emu);
+            wrapper_t w = (wrapper_t)a;
+            a = F64(addr);
+            R_RIP = *addr;
             /* This party can be used to trace only 1 specific lib (but it is quite slow)
             elfheader_t *h = FindElfAddress(my_context, *(uintptr_t*)(R_ESP));
             int have_trace = 0;
@@ -100,8 +111,8 @@ void x64Int3(x64emu_t* emu)
                 uint64_t *pu64 = NULL;
                 uint32_t *pu32 = NULL;
                 const char *s = NULL;
-                s = GetNativeName((void*)addr);
-                if(addr==(uintptr_t)PltResolver) {
+                s = GetNativeName((void*)a);
+                if(a==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", cycle_log?"PltResolver ":" ... ");
                 } else if (!strcmp(s, "__open") || !strcmp(s, "open") || !strcmp(s, "open ") || !strcmp(s, "open64")) {
                     tmp = (char*)(R_RDI);
@@ -234,7 +245,7 @@ void x64Int3(x64emu_t* emu)
                 }
                 if(!cycle_log) printf_log(LOG_NONE, "%s =>", buff);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
-                w(emu, addr);   // some function never come back, so unlock the mutex first!
+                w(emu, a);   // some function never come back, so unlock the mutex first!
                 pthread_mutex_lock(&emu->context->mutex_trace);
                 if(post)
                     switch(post) { // Only ever 2 for now...
@@ -267,7 +278,7 @@ void x64Int3(x64emu_t* emu)
                     printf_log(LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
             } else
-                w(emu, addr);
+                w(emu, a);
         }
         return;
     }

@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-int RunDA(x64emu_t *emu, rex_t rex)
+uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t nextop;
     reg64_t *oped;
@@ -94,7 +94,7 @@ int RunDA(x64emu_t *emu, rex_t rex)
     case 0xF8:
     case 0xF9:
     case 0xFD:
-        return 1;
+        return 0;
     default:
         switch((nextop>>3)&7) {
             case 0:     /* FIADD ST0, Ed int */
@@ -132,5 +132,5 @@ int RunDA(x64emu_t *emu, rex_t rex)
                 break;
         }
    }
-   return 0;
+   return addr;
 }
