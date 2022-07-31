@@ -2993,7 +2993,6 @@ GO(glXJoinSwapGroupSGIX,vFpp)
 GO(glXLockVideoCaptureDeviceNV, vFpp)
 GO(glXMakeContextCurrent,iFpppp)
 GO(glXMakeCurrent,iFppp)
-GO(glXMakeCurrentReadSGI,iFppp)
 GO(glXQueryContext,iFppip)
 GO(glXQueryContextInfoEXT,iFppip)
 GO(glXQueryDrawable, iFppip)
@@ -3456,3 +3455,7 @@ GO(glNamedRenderbufferStorageMultisampleAdvancedAMD, vFullill)
 
 // GL_EXT_semaphore_fd
 GO(glImportSemaphoreFdEXT, vFuii)
+
+// GLX_SGI_make_current_read
+GO(glXMakeCurrentReadSGI, iFpppp)
+GO(glXGetCurrentReadDrawableSGI, pFv)
