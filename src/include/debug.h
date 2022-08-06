@@ -73,8 +73,9 @@ extern FILE* ftrace;
 #define EXPORTDYN 
 #endif
 
-#ifdef ANDROID
 void init_malloc_hook();
+extern size_t(*box_malloc_usable_size)(void*);
+#ifdef ANDROID
 extern void*(*__libc_malloc)(size_t);
 extern void*(*__libc_realloc)(void*, size_t);
 extern void*(*__libc_calloc)(size_t, size_t);
@@ -93,5 +94,6 @@ extern void* __libc_memalign(size_t, size_t);
 #define box_free        __libc_free
 #define box_memalign    __libc_memalign 
 extern char* box_strdup(const char* s);
+extern char* box_realpath(const char* path, char* ret);
 
 #endif //__DEBUG_H_

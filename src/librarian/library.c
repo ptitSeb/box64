@@ -280,7 +280,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
 
         if(lib->path && strcmp(lib->path, libname)) {
             box_free(lib->path);
-            lib->path = realpath(libname, NULL);
+            lib->path = box_realpath(libname, NULL);
             if(!lib->path)
                 lib->path = box_strdup(libname);
         }
@@ -340,7 +340,7 @@ library_t *NewLibrary(const char* path, box64context_t* context)
 {
     printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     library_t *lib = (library_t*)box_calloc(1, sizeof(library_t));
-    lib->path = realpath(path, NULL);
+    lib->path = box_realpath(path, NULL);
     if(!lib->path)
         lib->path = box_strdup(path);
     if(libGL && !strcmp(path, libGL))
@@ -566,7 +566,7 @@ int IsSameLib(library_t* lib, const char* path)
             ret=1;
     } else {
         char rpath[PATH_MAX];
-        realpath(path, rpath);
+        box_realpath(path, rpath);
         if(!strcmp(rpath, lib->path))
             ret=1;
     }

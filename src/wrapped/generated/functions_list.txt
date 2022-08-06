@@ -2882,8 +2882,6 @@ wrappedlibc:
   - syscall
 - LFL:
   - getauxval
-- pFL:
-  - malloc
 - pFp:
   - __deregister_frame_info
   - mallinfo
