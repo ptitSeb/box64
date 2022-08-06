@@ -19,6 +19,8 @@
 #include "myalign.h"
 #include "threads.h"
 
+#include "generated/wrappedsdl2defs.h"
+
 const char* sdl2Name = "libSDL2-2.0.so.0";
 #define LIBNAME sdl2
 static void* my_glhandle = NULL;
@@ -522,6 +524,67 @@ EXPORT int my2_SDL_snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uin
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
     return vsnprintf(buff, s, fmt, VARARGS);
+}
+
+static int get_sdl_priv(x64emu_t* emu, const char *sym_str, void **w, void **f)
+{
+    #define GO(sym, _w) \
+        else if (strcmp(#sym, sym_str) == 0) \
+        { \
+            *w = _w; \
+            *f = dlsym(emu->context->sdl2lib->priv.w.lib, #sym); \
+            return *f != NULL; \
+        }
+    #define GO2(sym, _w, sym2) \
+        else if (strcmp(#sym, sym_str) == 0) \
+        { \
+            *w = _w; \
+            *f = dlsym(emu->context->sdl2lib->priv.w.lib, #sym2); \
+            return *f != NULL; \
+        }
+    #define GOM(sym, _w) \
+        else if (strcmp(#sym, sym_str) == 0) \
+        { \
+            *w = _w; \
+            *f = dlsym(emu->context->box64lib, "my2_"#sym); \
+            return *f != NULL; \
+        }
+    #define GOS(sym, _w) GOM(sym, _w)
+    #define DATA
+    
+    if(0);
+    #include "wrappedsdl2_private.h"
+
+    #undef GO
+    #undef GOM
+    #undef GO2
+    #undef GOS
+    #undef DATA
+    return 0;
+}
+
+int EXPORT my2_SDL_DYNAPI_entry(x64emu_t* emu, uint32_t version, uintptr_t *table, uint32_t tablesize)
+{
+    int i = 0;
+    uintptr_t tab[tablesize];
+    int r = my->SDL_DYNAPI_entry(version, tab, tablesize);
+    (void)r;
+    
+    #define SDL_DYNAPI_PROC(ret, sym, args, parms, ...) \
+        if (i < tablesize) { \
+            void *w = NULL; \
+            void *f = NULL; \
+            if (get_sdl_priv(emu, #sym, &w, &f)) { \
+                table[i] = AddCheckBridge(my_context->sdl2lib->priv.w.bridge, w, f, 0, #sym); \
+            } \
+            else \
+                table[i] = (uintptr_t)NULL; \
+            printf_log(LOG_DEBUG, "SDL_DYNAPI_entry: %s => %p (%p)\n", #sym, (void*)table[i], f); \
+            i++; \
+        }
+
+    #include "SDL_dynapi_procs.h"
+    return 0;
 }
 
 char EXPORT *my2_SDL_GetBasePath(x64emu_t* emu) {
