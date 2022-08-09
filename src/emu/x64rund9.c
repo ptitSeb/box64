@@ -60,6 +60,17 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xD0:  /* FNOP */
             break;
 
+        case 0xD8:  /* FSTPNCE ST0, STx */
+        case 0xD9:
+        case 0xDA:
+        case 0xDB:
+        case 0xDC:
+        case 0xDD:
+        case 0xDE:
+        case 0xDF:
+            ST(nextop&7).q = ST0.q;
+            fpu_do_pop(emu);
+            break;
         case 0xE0:  /* FCHS */
             ST0.d = -ST0.d;
             break;
@@ -210,14 +221,6 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xD5:
         case 0xD6:
         case 0xD7:
-        case 0xD8:
-        case 0xD9:
-        case 0xDA:
-        case 0xDB:
-        case 0xDC:
-        case 0xDD:
-        case 0xDE:
-        case 0xDF:
         case 0xE2:
         case 0xE3:
         case 0xE6:

@@ -79,6 +79,22 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("FNOP");
             break;
 
+        case 0xD8:
+            INST_NAME("FSTPNCE ST0, ST0");
+            x87_do_pop(dyn, ninst, x3);
+            break;
+        case 0xD9:
+        case 0xDA:
+        case 0xDB:
+        case 0xDC:
+        case 0xDD:
+        case 0xDE:
+        case 0xDF:
+            INST_NAME("FSTPNCE ST0, STx");
+            // copy the cache value for st0 to stx
+            x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
+            x87_do_pop(dyn, ninst, x3);
+            break;
         case 0xE0:
             INST_NAME("FCHS");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
@@ -294,14 +310,6 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xD5:
         case 0xD6:
         case 0xD7:
-        case 0xD8:
-        case 0xD9:
-        case 0xDA:
-        case 0xDB:
-        case 0xDC:
-        case 0xDD:
-        case 0xDE:
-        case 0xDF:
         case 0xE2:
         case 0xE3:
         case 0xE6:
