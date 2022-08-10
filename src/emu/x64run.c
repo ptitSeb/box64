@@ -1218,7 +1218,7 @@ x64emurun:
             }
             break;
         case 0xDD:                      /* x87 opcodes */
-            if(!(RunDD(emu, rex, addr))) {
+            if(!(addr = RunDD(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
