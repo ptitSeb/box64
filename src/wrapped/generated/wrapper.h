@@ -731,6 +731,7 @@ void iFEiip(x64emu_t *emu, uintptr_t fnc);
 void iFEiiN(x64emu_t *emu, uintptr_t fnc);
 void iFEipp(x64emu_t *emu, uintptr_t fnc);
 void iFEipV(x64emu_t *emu, uintptr_t fnc);
+void iFEupu(x64emu_t *emu, uintptr_t fnc);
 void iFEupp(x64emu_t *emu, uintptr_t fnc);
 void iFEpii(x64emu_t *emu, uintptr_t fnc);
 void iFEpip(x64emu_t *emu, uintptr_t fnc);

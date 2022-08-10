@@ -70,7 +70,6 @@ uintptr_t Run6664(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     }
                     CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
                     break;
-                    break;
 
                 default:
                     return 0;

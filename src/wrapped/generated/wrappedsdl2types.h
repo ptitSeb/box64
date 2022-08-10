@@ -32,6 +32,7 @@ typedef uint64_t (*uFpU_t)(void*, uint64_t);
 typedef void* (*pFpi_t)(void*, int64_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFipV_t)(int64_t, void*, ...);
+typedef int64_t (*iFupu_t)(uint64_t, void*, uint64_t);
 typedef int64_t (*iFupp_t)(uint64_t, void*, void*);
 typedef int64_t (*iFppi_t)(void*, void*, int64_t);
 typedef int64_t (*iFppV_t)(void*, void*, ...);
@@ -113,6 +114,7 @@ typedef void* (*pFpippp_t)(void*, int64_t, void*, void*, void*);
 	GO(SDL_LogInfo, vFipV_t) \
 	GO(SDL_LogVerbose, vFipV_t) \
 	GO(SDL_LogWarn, vFipV_t) \
+	GO(SDL_DYNAPI_entry, iFupu_t) \
 	GO(SDL_TLSSet, iFupp_t) \
 	GO(SDL_SaveBMP_RW, iFppi_t) \
 	GO(SDL_sscanf, iFppV_t) \
