@@ -298,7 +298,7 @@ int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
             void* p = (void*)-1;
             if(e->p_memsz==e->p_filesz && !(e->p_align&0xfff)) {
                 printf_log(LOG_DEBUG, "MMap block #%zu @%p offset=%p (0x%zx/0x%zx, flags:0x%x)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz, e->p_flags);
-                mmap(dest, e->p_filesz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_PRIVATE, fileno(f), e->p_offset);
+                p = mmap(dest, e->p_filesz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_PRIVATE, fileno(f), e->p_offset);
             }
             if(p!=dest) {
                 printf_log(LOG_DEBUG, "Loading block #%zu %p (0x%zx/0x%zx)\n",i, dest, e->p_filesz, e->p_memsz);
