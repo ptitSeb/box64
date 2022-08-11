@@ -46,6 +46,7 @@ ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz);
 int my_stat(x64emu_t *emu, void* filename, void* buf);
 int my_lstat(x64emu_t *emu, void* filename, void* buf);
 int my_fstat(x64emu_t *emu, int fd, void* buf);
+int my_fstatat(x64emu_t *emu, int fd, const char* path, void* buf, int flags);
 
 int my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_sigaction_t *oldact);
 int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss);
