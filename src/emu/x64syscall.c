@@ -162,6 +162,7 @@ scwrap_t syscallwrap[] = {
     { 213, __NR_epoll_create, 1},
     #endif
     { 217, __NR_getdents64, 3},
+    { 218, __NR_set_tid_address, 1},
     { 220, __NR_semtimedop, 4},
     { 228, __NR_clock_gettime, 2},
     { 229, __NR_clock_getres, 2},
@@ -180,6 +181,7 @@ scwrap_t syscallwrap[] = {
     { 257, __NR_openat, 4},
     { 270, __NR_pselect6, 6},
     { 272, __NR_unshare, 1},
+    { 273, __NR_set_robust_list, 2},
     { 274, __NR_get_robust_list, 3},
     { 281, __NR_epoll_pwait, 6},
     #ifdef _NR_eventfd
@@ -191,6 +193,7 @@ scwrap_t syscallwrap[] = {
     { 293, __NR_pipe2, 2},
     { 294, __NR_inotify_init1, 1},
     { 298, __NR_perf_event_open, 5},
+    { 302, __NR_prlimit64, 4},
     { 309, __NR_getcpu, 3}, // need wrapping?
     { 315, __NR_sched_getattr, 4},
     { 317, __NR_seccomp, 3},
@@ -514,6 +517,13 @@ void EXPORT x64Syscall(x64emu_t *emu)
             R_EAX = (int)syscall(__NR_inotify_init1, 0);
             break;
         #endif
+        case 262:
+            R_EAX = (uint64_t)(int64_t)my_fstatat(emu, (int)R_RDI, (char*)R_RSI, (void*)R_RDX, (int)R_R10d);
+            break;
+        case 334: // It is helpeful to run static binary
+            R_RAX = -1;
+            errno = ENOSYS;
+            break;
 	#ifndef __NR_fchmodat4
 	case 434:
 	    *(int64_t*)R_RAX = fchmodat((int)R_EDI, (void*)R_RSI, (mode_t)R_RDX, (int)R_R10d);
@@ -717,6 +727,8 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         case 253:
             return (int)syscall(__NR_inotify_init1, 0);
         #endif
+        case 262:
+            return (uint64_t)(int64_t)my_fstatat(emu, (int)R_RSI, (char*)R_RDX, (void*)R_RCX, (int)R_R8d);
         #ifndef __NR_fchmodat4
         case 434:
             return (int)fchmodat((int)R_ESI, (void*)R_RDX, (mode_t)R_RCX, (int)R_R8d);

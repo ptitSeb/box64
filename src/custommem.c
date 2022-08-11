@@ -51,6 +51,9 @@ static pthread_mutex_t     mutex_prot;
 #elif defined(PAGE16K)
 #define MEMPROT_SHIFT 14
 #define MEMPROT_SHIFT2 (16+14)
+#elif defined(PAGE8K)
+#define MEMPROT_SHIFT 13
+#define MEMPROT_SHIFT2 (16+13)
 #else
 #define MEMPROT_SHIFT 12
 #define MEMPROT_SHIFT2 (16+12)
