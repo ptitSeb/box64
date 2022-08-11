@@ -55,6 +55,7 @@ dkms.conf
 build/
 build*/
 .vscode
+.cache
 .gdb_history
 src/git_head.h
 backup/

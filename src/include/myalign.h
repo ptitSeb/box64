@@ -92,6 +92,43 @@ typedef struct  va_list {
     memcpy(&p[6], emu->xmm, 8*16);                                      \
   }
 
+#elif defined(__sw_64__) /* or Alpha */
+/*
+typdef struct {
+  char* __base;
+  int __offset;
+}va_list;
+*/
+
+// the follow three macro is not fully compatiable with SW64/Alpha
+// so don't expect va function works well.
+#define CREATE_SYSV_VALIST(A)   \
+  va_list sysv_varargs;         \
+  sysv_varargs.__offset=0;      \
+  sysv_varargs.__base=(A)
+
+#define CREATE_VALIST_FROM_VALIST(VA, SCRATCH)                          \
+  va_list sysv_varargs;                                                 \
+  {                                                                     \
+    uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
+    int n = (X64_VA_MAX_REG - (VA)->gp_offset)/8;                       \
+    if(n) memcpy(&p[0], (VA)->reg_save_area, n*8);                      \
+    memcpy(&p[n], (VA)->overflow_arg_area, 100*8);                      \
+    sysv_varargs.__offset = (VA)->gp_offset;                            \
+    sysv_varargs.__base = (char*)p;                                     \
+  }
+
+#define CREATE_VALIST_FROM_VAARG(STACK, SCRATCH, N)                     \
+  va_list sysv_varargs;                                                 \
+  {                                                                     \
+    uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
+    p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;                                 \
+    p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;                                   \
+    memcpy(&p[8+N], STACK, 100*8 - (8+N)*8);                            \
+    sysv_varargs.__offset = N*8;                                        \
+    sysv_varargs.__base = (char*)p;                                     \
+  }
+
 #elif defined(__loongarch64) || defined(__powerpc64__) || defined(__riscv)
 #define CREATE_SYSV_VALIST(A) \
   va_list sysv_varargs = (va_list)A
