@@ -64,7 +64,7 @@ GO(CERT_DecodeAltNameExtension, pFpp)
 //GO(CERT_DecodeAuthKeyID, 
 GO(CERT_DecodeAVAValue, pFp)
 //GO(CERT_DecodeBasicConstraintValue, 
-//GO(CERT_DecodeCertificatePoliciesExtension, 
+GO(CERT_DecodeCertificatePoliciesExtension, pFp)
 //GO(CERT_DecodeCRLDistributionPoints, 
 //GO(__CERT_DecodeDERCertificate, 
 //GO(CERT_DecodeDERCrl, 
@@ -81,7 +81,7 @@ GO(CERT_DecodeAVAValue, pFp)
 //GO(CERT_DestroyCertArray, 
 GO(CERT_DestroyCertificate, vFp)
 GO(CERT_DestroyCertificateList, vFp)
-//GO(CERT_DestroyCertificatePoliciesExtension, 
+GO(CERT_DestroyCertificatePoliciesExtension, vFp)
 GO(CERT_DestroyCertificateRequest, vFp)
 GO(CERT_DestroyCertList, vFp)
 //GO(CERT_DestroyCERTRevocationFlags, 
