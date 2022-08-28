@@ -34,8 +34,8 @@ GO(XGrabDevice, iFpppiipiiu)
 //GO(XGrabDeviceKey, 
 //GO(XIAllowEvents, 
 //GO(XIAllowTouchEvents, 
-//GO(XIBarrierReleasePointer, 
-//GO(XIBarrierReleasePointers, 
+GO(XIBarrierReleasePointer, vFpipp)
+GO(XIBarrierReleasePointers, vFppi)
 //GO(XIChangeHierarchy, 
 GO(XIChangeProperty, vFpippiipi)
 //GO(XIDefineCursor, 
