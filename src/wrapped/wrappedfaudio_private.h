@@ -303,14 +303,14 @@ GO(FAudioVoice_SetVolume, uFpfu)
 //GO(LinkedList_RemoveEntry, 
 GO(ReverbConvertI3DL2ToNative, vFpp)
 GO(ReverbConvertI3DL2ToNative9, vFpp)
-//GO(XNA_EnableVisualization, 
-//GO(XNA_GetSongEnded, 
-//GO(XNA_GetSongVisualizationData, 
-//GO(XNA_PauseSong, 
-//GO(XNA_PlaySong, 
-//GO(XNA_ResumeSong, 
-//GO(XNA_SetSongVolume, 
-//GO(XNA_SongInit, 
-//GO(XNA_SongQuit, 
-//GO(XNA_StopSong, 
-//GO(XNA_VisualizationEnabled, 
+GO(XNA_EnableVisualization, vFu)
+GO(XNA_GetSongEnded, uFv)
+GO(XNA_GetSongVisualizationData, vFppu)
+GO(XNA_PauseSong, vFv)
+GO(XNA_PlaySong, fFp)
+GO(XNA_ResumeSong, vFv)
+GO(XNA_SetSongVolume, vFf)
+GO(XNA_SongInit, vFv)
+GO(XNA_SongQuit, vFv)
+GO(XNA_StopSong, vFv)
+GO(XNA_VisualizationEnabled, uFv)
