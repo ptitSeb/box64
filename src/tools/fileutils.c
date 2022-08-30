@@ -70,15 +70,12 @@ int FileIsX64ELF(const char* filename)
         return 0;
     char head[20] = {0};
     int sz = fread(head, 20, 1, f);
+    fclose(f);
     if(sz!=1) {
-        fclose(f);
         return 0;
     }
-    fclose(f);
-    if(memcmp(head, x64sign, 20)==0)
-        return 1;
     head[7] = x64lib[7];   // this one changes
-    if(memcmp(head, x64lib, 20)==0)
+    if(!memcmp(head, x64lib, 20))
         return 1;
     return 0;
 }
@@ -90,15 +87,12 @@ int FileIsX86ELF(const char* filename)
         return 0;
     char head[20] = {0};
     int sz = fread(head, 20, 1, f);
+    fclose(f);
     if(sz!=1) {
-        fclose(f);
         return 0;
     }
-    fclose(f);
-    if(memcmp(head, x86sign, 20)==0)
-        return 1;
     head[7] = x64lib[7];
-    if(memcmp(head, x86lib, 20)==0)
+    if(!memcmp(head, x86lib, 20))
         return 1;
     return 0;
 }
