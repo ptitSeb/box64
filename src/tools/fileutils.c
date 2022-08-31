@@ -17,8 +17,8 @@
 
 static const char* x86sign = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
 static const char* x64sign = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
-static const char* x86lib  = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x03" "\x00" "\x03" "\x00";
-static const char* x64lib  = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x03" "\x00" "\x3e" "\x00";
+static const char* x86lib  = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
+static const char* x64lib  = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
 
 int FileExist(const char* filename, int flags)
 {
@@ -75,6 +75,7 @@ int FileIsX64ELF(const char* filename)
         return 0;
     }
     head[7] = x64lib[7];   // this one changes
+    head[16]&=0xfe;
     if(!memcmp(head, x64lib, 20))
         return 1;
     return 0;
@@ -92,6 +93,7 @@ int FileIsX86ELF(const char* filename)
         return 0;
     }
     head[7] = x64lib[7];
+    head[16]&=0xfe;
     if(!memcmp(head, x86lib, 20))
         return 1;
     return 0;
