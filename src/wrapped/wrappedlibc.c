@@ -1465,7 +1465,7 @@ EXPORT int32_t my___open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
 //        void* p = buf+ret;
 //        if(hasDBFromAddress((uintptr_t)p)) {
 //            // allow writing the whole block (this happens with HalfLife, libMiles load code directly from .mix and other file like that)
-//            unprotectDB((uintptr_t)p, count-ret);
+//            unprotectDB((uintptr_t)p, count-ret, 1);
 //            int l;
 //            do {
 //                l = read(fd, p, count-ret); 
@@ -2231,7 +2231,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         // 0x40 is MAP_32BIT, wich only exist on x86_64!
         //flags &= ~0x40;   // let the flags in?
         addr = findBlockNearHint(addr, length);
-    } else if (box64_wine) {
+    } else if (box64_wine || 1) {   // other mmap should be restricted to 47bits
         if(!addr)
             addr = find47bitBlock(length);
     }
