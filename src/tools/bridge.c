@@ -68,8 +68,8 @@ void FreeBridge(bridge_t** bridge)
     while(b) {
         brick_t *n = b->next;
         #ifdef DYNAREC
-        if(getProtection((uintptr_t)b->b)&PROT_DYNAREC)
-            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
+        if(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))
+            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 1);
         #endif
         my_munmap(emu, b->b, NBRICK*sizeof(onebridge_t));
         box_free(b);
@@ -103,9 +103,9 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
         #ifdef DYNAREC
         pthread_mutex_unlock(&my_context->mutex_bridge);
         if(box64_dynarec) {
-            prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
+            prot=(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
             if(prot)
-                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
+                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);
             else    // only add DB if there is no protection
                 addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
         }
@@ -234,9 +234,9 @@ uintptr_t AddVSyscall(bridge_t* bridge, int num)
         #ifdef DYNAREC
         pthread_mutex_unlock(&my_context->mutex_bridge);
         if(box64_dynarec) {
-            prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
+            prot=(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
             if(prot)
-                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
+                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);
             else    // only add DB if there is no protection
                 addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
         }

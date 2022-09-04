@@ -808,7 +808,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             repeated_count = 0;
         }
         // access error, unprotect the block (and mark them dirty)
-        unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db->need_test)) {
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();

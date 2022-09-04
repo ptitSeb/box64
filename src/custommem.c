@@ -59,7 +59,8 @@ static pthread_mutex_t     mutex_prot;
 #define MEMPROT_SHIFT2 (16+12)
 #endif
 #define MEMPROT_SIZE (1<<16)
-static uint8_t *volatile memprot[1<<20];    // x86_64 mem is 48bits, page is 12bits, so memory is tracked as [20][16][page protection]
+#define MEMPROT_SIZE0 (48-MEMPROT_SHIFT2)
+static uint8_t *volatile memprot[1<<MEMPROT_SIZE0];    // x86_64 mem is 48bits, page is 12bits, so memory is tracked as [20][16][page protection]
 static uint8_t memprot_default[MEMPROT_SIZE];
 static int inited = 0;
 
@@ -708,34 +709,30 @@ void setJumpTableDefault64(void* addr)
 {
     uintptr_t idx3, idx2, idx1, idx0;
     idx3 = (((uintptr_t)addr)>>48)&0xffff;
-    idx2 = (((uintptr_t)addr)>>32)&0xffff;
-    idx1 = (((uintptr_t)addr)>>16)&0xffff;
-    idx0 = (((uintptr_t)addr)    )&0xffff;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
         return;
+    idx2 = (((uintptr_t)addr)>>32)&0xffff;
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
         return;
+    idx1 = (((uintptr_t)addr)>>16)&0xffff;
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
         return;
-    if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)native_next)
-        return;
+    idx0 = (((uintptr_t)addr)    )&0xffff;
     box64_jmptbl3[idx3][idx2][idx1][idx0] = (uintptr_t)native_next;
 }
 int isJumpTableDefault64(void* addr)
 {
     uintptr_t idx3, idx2, idx1, idx0;
     idx3 = (((uintptr_t)addr)>>48)&0xffff;
-    idx2 = (((uintptr_t)addr)>>32)&0xffff;
-    idx1 = (((uintptr_t)addr)>>16)&0xffff;
-    idx0 = (((uintptr_t)addr)    )&0xffff;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
         return 1;
+    idx2 = (((uintptr_t)addr)>>32)&0xffff;
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
         return 1;
+    idx1 = (((uintptr_t)addr)>>16)&0xffff;
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
         return 1;
-    if(box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)native_next)
-        return 1;
+    idx0 = (((uintptr_t)addr)    )&0xffff;
     return (box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)native_next)?1:0;
 }
 uintptr_t getJumpTable64()
@@ -800,19 +797,20 @@ void protectDB(uintptr_t addr, uintptr_t size)
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
         if((prot&PROT_WRITE)) {
-            prot&=~PROT_WRITE;
+            prot&=~(PROT_WRITE | PROT_CUSTOM);
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot);
             memprot[i>>16][i&0xffff] = prot|PROT_DYNAREC;   // need to use atomic exchange?
-        }
+        } else 
+            memprot[i>>16][i&0xffff] = prot|PROT_DYNAREC_R;
     }
     pthread_mutex_unlock(&mutex_prot);
 }
 
 // Add the Write flag from an adress range, and mark all block as dirty
 // no log, as it can be executed inside a signal handler
-void unprotectDB(uintptr_t addr, size_t size)
+void unprotectDB(uintptr_t addr, size_t size, int mark)
 {
-    dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p (mark=%d)\n", (void*)addr, (void*)(addr+size-1), mark);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
@@ -831,12 +829,14 @@ void unprotectDB(uintptr_t addr, size_t size)
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16][i&0xffff];
         if(prot&PROT_DYNAREC) {
-            prot&=~PROT_DYNAREC;
+            prot&=~PROT_CUSTOM;
             prot|=PROT_WRITE;
-            cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
+            if(mark)
+                cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot);
             memprot[i>>16][i&0xffff] = prot;  // need to use atomic exchange?
-        }
+        } else if(prot&PROT_DYNAREC_R)
+            memprot[i>>16][i&0xffff] = prot&~PROT_CUSTOM;
     }
     pthread_mutex_unlock(&mutex_prot);
 }
@@ -854,7 +854,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
     }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16][i&0xffff];
-        if((prot&PROT_WRITE)) {
+        if(!(prot&PROT_DYNAREC || prot&PROT_DYNAREC_R)) {
             dynarec_log(LOG_DEBUG, "0\n");
             return 0;
         }
@@ -978,9 +978,11 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 #endif
         }
     for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t dyn=(memprot[i>>16][i&0xffff]&PROT_DYNAREC);
-        if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
+        uint32_t dyn=(memprot[i>>16][i&0xffff]&(PROT_DYNAREC | PROT_DYNAREC_R));
+        if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
+            dyn = PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+        }
         memprot[i>>16][i&0xffff] = prot|dyn;
     }
     pthread_mutex_unlock(&mutex_prot);
@@ -1232,7 +1234,7 @@ void init_custommem_helper(box64context_t* ctx)
         return;
     inited = 1;
     memset(memprot_default, 0, sizeof(memprot_default));
-    for(int i=0; i<(1<<20); ++i)
+    for(int i=0; i<(1<<MEMPROT_SIZE0); ++i)
         memprot[i] = memprot_default;
     init_mutexes();
 #ifdef DYNAREC
@@ -1320,7 +1322,7 @@ void fini_custommem_helper(box64context_t *ctx)
     lockaddress = NULL;
 #endif
     uint8_t* m;
-    for(int i=0; i<(1<<20); ++i) {
+    for(int i=0; i<(1<<MEMPROT_SIZE0); ++i) {
         m = memprot[i];
         if(m!=memprot_default)
             box_free(m);
