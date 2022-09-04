@@ -444,7 +444,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, &lock, 0, 0);
                 STRH_U12(gd, ed, fixedaddress);
-                if(lock) {DMB_ISH();}
+                if(lock || (box64_dynarec_strongmem && 
+                 (dyn->insts[ninst].x64.barrier || box64_dynarec_strongmem>1 || (dyn->insts[ninst+1].x64.barrier || dyn->insts[ninst+1].x64.jmp)))) {
+                    DMB_ISH();
+                }
             }
             break;
         case 0x8B:
@@ -458,7 +461,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, &lock, 0, 0);
-                if(lock) {DMB_ISH();}
+                if(lock || (box64_dynarec_strongmem && 
+                 (dyn->insts[ninst].x64.barrier || box64_dynarec_strongmem>1 || (dyn->insts[ninst+1].x64.barrier || dyn->insts[ninst+1].x64.jmp)))) {
+                    DMB_ISH();
+                }
                 LDRH_U12(x1, ed, fixedaddress);
                 BFIx(gd, x1, 0, 16);
             }
@@ -679,7 +685,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 u16 = F16;
                 MOV32w(x1, u16);
                 STRH_U12(x1, ed, fixedaddress);
-                if(lock) {DMB_ISH();}
+                if(lock || (box64_dynarec_strongmem && 
+                 (dyn->insts[ninst].x64.barrier || box64_dynarec_strongmem>1 || (dyn->insts[ninst+1].x64.barrier || dyn->insts[ninst+1].x64.jmp)))) {
+                    DMB_ISH();
+                }
             }
             break;
 
