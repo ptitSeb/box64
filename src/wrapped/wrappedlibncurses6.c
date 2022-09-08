@@ -49,6 +49,13 @@ EXPORT int my6_printw(x64emu_t* emu, void* fmt, void* b)
     return my->vwprintw(my->stdscr, fmt, VARARGS);
 }
 
+EXPORT int my6_wprintw(x64emu_t* emu, void* win, void* fmt, void* b)
+{
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return my->vwprintw(win, fmt, VARARGS);
+}
+
 EXPORT int my6_vwprintw(x64emu_t* emu, void* p, void* fmt, x64_va_list_t b)
 {
     #ifdef CONVERT_VALIST

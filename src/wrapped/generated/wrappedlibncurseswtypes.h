@@ -13,6 +13,7 @@
 
 typedef void* (*pFv_t)(void);
 typedef int64_t (*iFpV_t)(void*, ...);
+typedef int64_t (*iFppV_t)(void*, void*, ...);
 typedef int64_t (*iFppA_t)(void*, void*, va_list);
 typedef int64_t (*iFiipV_t)(int64_t, int64_t, void*, ...);
 typedef int64_t (*iFpiipV_t)(void*, int64_t, int64_t, void*, ...);
@@ -20,6 +21,7 @@ typedef int64_t (*iFpiipV_t)(void*, int64_t, int64_t, void*, ...);
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(initscr, pFv_t) \
 	GO(printw, iFpV_t) \
+	GO(wprintw, iFppV_t) \
 	GO(vwprintw, iFppA_t) \
 	GO(mvprintw, iFiipV_t) \
 	GO(mvwprintw, iFpiipV_t)

@@ -3182,6 +3182,8 @@ wrappedlibncurses6:
   - initscr
 - iFpV:
   - printw
+- iFppV:
+  - wprintw
 - iFppA:
   - vwprintw
 - iFiipV:
@@ -3193,6 +3195,8 @@ wrappedlibncursesw:
   - initscr
 - iFpV:
   - printw
+- iFppV:
+  - wprintw
 - iFppA:
   - vwprintw
 - iFiipV:
