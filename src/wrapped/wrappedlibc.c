@@ -1716,24 +1716,27 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
     int self = isProcSelf(path, "exe");
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
-    printf_log(LOG_INFO/*LOG_DEBUG*/, "execve(\"%s\", %p, %p) is x64=%d x86=%d (my_context->envv=%p, environ=%p\n", path, argv, envp, x64, x86, my_context->envv, environ);
+    int script = (box64_bash && FileIsShell(path))?1:0;
+    printf_log(LOG_DEBUG, "execve(\"%s\", %p, %p) is x64=%d x86=%d script=%d (my_context->envv=%p, environ=%p\n", path, argv, envp, x64, x86, script, my_context->envv, environ);
     // hack to update the environ var if needed
     if(envp == my_context->envv && environ) {
         envp = environ;
     }
     #if 1
-    if (x64 || x86 || self) {
+    if (x64 || x86 || self || script) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
             skip_first++;
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
-        const char** newargv = (const char**)box_calloc(n+2, sizeof(char*));
+        int toadd = script?2:1;
+        const char** newargv = (const char**)box_calloc(n+1+toadd, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
-        memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
-        if(self) newargv[1] = emu->context->fullpath;
-        printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n, envp);
+        if(script) newargv[1] = emu->context->fullpath; // script needs to be launched with bash
+        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+toadd));
+        if(self) newargv[toadd] = emu->context->fullpath;
+        printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", newargv[0], newargv, newargv[0], (n+toadd)?newargv[1]:"", ((n+toadd)>1)?newargv[2]:"",n, envp);
         int ret = execve(newargv[0], (char* const*)newargv, envp);
         box_free(newargv);
         return ret;

@@ -15,10 +15,10 @@
 #include "debug.h"
 #include "fileutils.h"
 
-static const char* x86sign = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
-static const char* x64sign = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
 static const char* x86lib  = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
 static const char* x64lib  = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
+static const char* bashsign= "#!/bin/bash";
+static const char* shsign  = "#!/bin/sh";
 
 int FileExist(const char* filename, int flags)
 {
@@ -95,6 +95,24 @@ int FileIsX86ELF(const char* filename)
     head[7] = x64lib[7];
     head[16]&=0xfe;
     if(!memcmp(head, x86lib, 20))
+        return 1;
+    return 0;
+}
+
+int FileIsShell(const char* filename)
+{
+    FILE *f = fopen(filename, "rb");
+    if(!f)
+        return 0;
+    char head[20] = {0};
+    int sz = fread(head, strlen(bashsign), 1, f);
+    fclose(f);
+    if(sz!=1) {
+        return 0;
+    if(memcmp(head, bashsign, strlen(bashsign))==0)
+        return 1;
+    }
+    if(memcmp(head, shsign, strlen(shsign))==0)
         return 1;
     return 0;
 }

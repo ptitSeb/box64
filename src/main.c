@@ -84,6 +84,7 @@ int box64_mapclean = 0;
 int box64_zoom = 0;
 int box64_steam = 0;
 int box64_wine = 0;
+int box64_bash = 0;
 int box64_musl = 0;
 int box64_nopulse = 0;
 int box64_nogtk = 0;
@@ -1234,6 +1235,15 @@ int main(int argc, const char **argv, char **env) {
     if(strstr(prgname, "zoom")==prgname) {
         printf_log(LOG_INFO, "Zoom detected, trying to use system libturbojpeg if possible\n");
         box64_zoom = 1;
+    }
+    // special case for bash (add BOX86_NOBANNER=1 if not there)
+    if(!strcmp(prgname, "bash")) {
+        printf_log(LOG_INFO, "bash detected, disabling banner\n");
+        box64_bash = 1;
+        if (!box64_nobanner) {
+            setenv("BOX86_NOBANNER", "1", 0);
+            setenv("BOX64_NOBANNER", "1", 0);
+        }
     }
     if(strstr(prgname, "pressure-vessel-wrap")==prgname) {
         printf_log(LOG_INFO, "pressure-vessel-wrap detected, disabling GTK\n");

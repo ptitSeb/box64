@@ -41,6 +41,7 @@ extern int box64_prefer_wrapped;
 extern int box64_prefer_emulated;
 extern int box64_steam;
 extern int box64_wine;
+extern int box64_bash;
 extern int box64_musl;
 extern int box64_nopulse;   // disabling the use of wrapped pulseaudio
 extern int box64_nogtk; // disabling the use of wrapped gtk
