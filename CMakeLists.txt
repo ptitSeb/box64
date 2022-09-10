@@ -303,6 +303,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedfaudio.c"
     "${BOX64_ROOT}/src/wrapped/wrappedflac.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfontconfig.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedfreebl3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfreetype.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgbm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgconf2.c"

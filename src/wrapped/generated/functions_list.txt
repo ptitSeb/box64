@@ -2288,6 +2288,7 @@ wrappedfontconfig:
   - FcObjectSetBuild
 - pFpA:
   - FcObjectSetVaBuild
+wrappedfreebl3:
 wrappedfreetype:
 - iFpp:
   - FT_New_Library
