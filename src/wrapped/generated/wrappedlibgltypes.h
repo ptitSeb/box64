@@ -18,6 +18,7 @@ typedef void (*vFipp_t)(int64_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(glXSwapIntervalMESA, iFi_t) \
+	GO(glGetVkProcAddrNV, pFp_t) \
 	GO(glXGetProcAddress, pFp_t) \
 	GO(glXGetProcAddressARB, pFp_t) \
 	GO(glDebugMessageCallback, vFpp_t) \

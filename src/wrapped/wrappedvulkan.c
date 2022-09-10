@@ -139,6 +139,38 @@ EXPORT void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* instance, void* name)
     return resolveSymbol(emu, symbol, rname);
 }
 
+void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(const char*))
+{
+    khint_t k;
+    const char* rname = (const char*)name;
+
+    printf_dlsym(LOG_DEBUG, "Calling my_GetVkProcAddr(\"%s\", %p) => ", rname, getaddr);
+    if(!emu->context->vkwrappers)
+        fillVulkanProcWrapper(emu->context);
+    // check if vkprocaddress is filled, and search for lib and fill it if needed
+    // get proc adress using actual glXGetProcAddress
+    k = kh_get(symbolmap, emu->context->vkmymap, rname);
+    int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
+    void* symbol = getaddr(rname);
+    if(!symbol) {
+        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
+        return NULL;    // easy
+    }
+    if(is_my) {
+        // try again, by using custom "my_" now...
+        char tmp[200];
+        strcpy(tmp, "my_");
+        strcat(tmp, rname);
+        symbol = dlsym(emu->context->box64lib, tmp);
+        // need to update symbol link maybe
+        #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)getaddr(rname);
+        SUPER()
+        #undef GO
+    }
+    return resolveSymbol(emu, symbol, rname);
+}
+
+
 #undef SUPER
 
 typedef struct my_VkAllocationCallbacks_s {

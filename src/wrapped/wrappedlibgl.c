@@ -88,6 +88,7 @@ EXPORT void* my_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((a
 
 typedef int  (*iFi_t)(int);
 typedef void (*vFpp_t)(void*, void*);
+typedef void*(*pFp_t)(void*);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
 
 #define SUPER() \
@@ -182,6 +183,18 @@ EXPORT void my_glProgramCallbackMESA(x64emu_t* emu, void* f, void* data)
     if(!ProgramCallbackMESA)
         return;
     ProgramCallbackMESA(find_program_callback_Fct(f), data);
+}
+
+void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(void*));  // defined in wrappedvulkan.c
+EXPORT void* my_glGetVkProcAddrNV(x64emu_t* emu, void* name)
+{
+    static pFp_t GetVkProcAddrNV = NULL;
+    static int init = 1;
+    if(init) {
+        GetVkProcAddrNV = my_context->glxprocaddress("glGetVkProcAddrNV");
+        init = 0;
+    }
+    return my_GetVkProcAddr(emu, name, GetVkProcAddrNV);
 }
 
 #define PRE_INIT if(libGL) {lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else

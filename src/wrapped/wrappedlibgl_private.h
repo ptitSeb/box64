@@ -3301,9 +3301,6 @@ GO(glFramebufferSampleLocationsfvNV, vFiulp)
 GO(glNamedFramebufferSampleLocationsfvNV, vFuulp)
 GO(glResolveDepthValuesNV, vFv)
 
-//GL_OVR_multiview
-GO(glFramebufferTextureMultiviewOVR, vFiiuiil)
-
 //GL_KHR_robustness
 GO(glGetGraphicsResetStatusKHR, iFv)
 GO(glReadnPixelsKHR, vFiilliilp)
@@ -3466,3 +3463,104 @@ GO(glRenderbufferStorageMultisampleIMG, vFilill)
 
 // GL_ANGLE_translated_shader_source
 GO(glGetTranslatedShaderSourceANGLE, vFulpp)
+
+// GL_EXT_EGL_image_storage
+GO(glEGLImageTargetTexStorageEXT, vFipp)
+GO(glEGLImageTargetTextureStorageEXT, vFupp)
+
+// GL_EXT_external_buffer
+GO(glBufferStorageExternalEXT, vFillpu)
+GO(glNamedBufferStorageExternalEXT, vFullpp)
+
+// GL_EXT_memory_object_win32
+GO(glImportMemoryWin32HandleEXT, vFuUip)
+GO(glImportMemoryWin32NameEXT, vFuUip)
+
+// GL_EXT_semaphore_win32
+GO(glImportSemaphoreWin32HandleEXT, vFuip)
+GO(glImportSemaphoreWin32NameEXT, vFuip)
+
+// GL_EXT_shader_framebuffer_fetch_non_coherent
+GO(glFramebufferFetchBarrierEXT, vFv)
+
+// GL_EXT_win32_keyed_mutex
+GO(glAcquireKeyedMutexWin32EXT, iFuUu)
+GO(glReleaseKeyedMutexWin32EXT, iFuU)
+
+// GL_INTEL_framebuffer_CMAA
+GO(glApplyFramebufferAttachmentCMAAINTEL, vFv)
+
+// GL_NV_alpha_to_coverage_dither_control
+GO(glAlphaToCoverageDitherControlNV, vFi)
+
+// GL_NV_clip_space_w_scaling
+GO(glViewportPositionWScaleNV, vFuff)
+
+// GL_NV_conservative_raster_dilate
+GO(glConservativeRasterParameterfNV, vFif)
+
+// GL_NV_conservative_raster_pre_snap_triangles
+GO(glConservativeRasterParameteriNV, vFii)
+
+// GL_NV_draw_vulkan_image
+GO(glDrawVkImageNV, vFUufffffffff)
+GOM(glGetVkProcAddrNV, pFEp)
+GO(glWaitVkSemaphoreNV, vFU)
+GO(glSignalVkSemaphoreNV, vFU)
+GO(glSignalVkFenceNV, vFU)
+
+// GL_NV_gpu_multicast
+GO(glRenderGpuMaskNV, vFu)
+GO(glMulticastBufferSubDataNV, vFuullp)
+GO(glMulticastCopyBufferSubDataNV, vFuuuulll)
+GO(glMulticastCopyImageSubDataNV, vFuuuiiiiiuiiiiilll)
+GO(glMulticastBlitFramebufferNV, vFuuiiiiiiiiui)
+GO(glMulticastFramebufferSampleLocationsfvNV, vFuuulp)
+GO(glMulticastBarrierNV, vFv)
+GO(glMulticastWaitSyncNV, vFuu)
+GO(glMulticastGetQueryObjectivNV, vFuuip)
+GO(glMulticastGetQueryObjectuivNV, vFuuip)
+GO(glMulticastGetQueryObjecti64vNV, vFuuip)
+GO(glMulticastGetQueryObjectui64vNV, vFuuip)
+
+// GL_NV_memory_attachment
+GO(glGetMemoryObjectDetachedResourcesuivNV, vFuiilp)
+GO(glResetMemoryObjectParameterNV, vFui)
+GO(glTexAttachMemoryNV, vFiuU)
+GO(glBufferAttachMemoryNV, vFiuU)
+GO(glTextureAttachMemoryNV, vFuuU)
+GO(glNamedBufferAttachMemoryNV, vFuuU)
+
+// GL_NV_mesh_shader
+GO(glDrawMeshTasksNV, vFuu)
+GO(glDrawMeshTasksIndirectNV, vFl)
+GO(glMultiDrawMeshTasksIndirectNV, vFlll)
+GO(glMultiDrawMeshTasksIndirectCountNV, vFllll)
+
+// GL_NV_query_resource
+GO(glQueryResourceNV, iFiiup)
+
+// GL_NV_query_resource_tag
+GO(glGenQueryResourceTagNV, vFlp)
+GO(glDeleteQueryResourceTagNV, vFlp)
+GO(glQueryResourceTagNV, vFup)
+
+// GL_NV_scissor_exclusive
+GO(glScissorExclusiveArrayvNV, vFulp)
+GO(glScissorExclusiveNV, vFiill)
+
+// GL_NV_shading_rate_image
+GO(glBindShadingRateImageNV, vFu)
+GO(glShadingRateImagePaletteNV, vFuulp)
+GO(glGetShadingRateImagePaletteNV, vFuup)
+GO(glShadingRateImageBarrierNV, vFi)
+GO(glShadingRateSampleOrderNV, vFi)
+GO(glShadingRateSampleOrderCustomNV, vFiup)
+GO(glGetShadingRateSampleLocationivNV, vFiuup)
+
+// GL_NV_viewport_swizzle
+GO(glViewportSwizzleNV, vFuiiii)
+
+// GL_OVR_multiview
+GO(glFramebufferTextureMultiviewOVR, vFiiuiil)
+GO(glNamedFramebufferTextureMultiviewOVR, vFuiuiil)
