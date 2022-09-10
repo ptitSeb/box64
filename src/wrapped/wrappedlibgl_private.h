@@ -3459,3 +3459,10 @@ GO(glImportSemaphoreFdEXT, vFuii)
 // GLX_SGI_make_current_read
 GO(glXMakeCurrentReadSGI, iFpppp)
 GO(glXGetCurrentReadDrawableSGI, pFv)
+
+// GL_IMG_multisampled_render_to_texture
+GO(glFramebufferTexture2DMultisampleIMG, vFiiiuil)
+GO(glRenderbufferStorageMultisampleIMG, vFilill)
+
+// GL_ANGLE_translated_shader_source
+GO(glGetTranslatedShaderSourceANGLE, vFulpp)
