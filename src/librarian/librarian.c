@@ -425,7 +425,7 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
                     return 1;
         }
         for(int i=0; i<go; ++i) {
-            if(GetElfIndex(maplib->libraries[i])!=-1 && (maplib->context->elfs[GetElfIndex(maplib->libraries[i])]==self))
+            if(GetElfIndex(maplib->libraries[i])==-1 || (maplib->context->elfs[GetElfIndex(maplib->libraries[i])]==self))
                 if(GetLibSymbolStartEnd(maplib->libraries[i], name, start, end, version, vername, 1))
                     if(*start)
                         return 1;
