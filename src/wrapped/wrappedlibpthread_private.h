@@ -139,6 +139,7 @@ GO(pthread_join, iFLp)
 GOM(__pthread_key_create, iFEpp)
 GOM(pthread_key_create, iFEpp)
 GO(pthread_key_delete, iFL)
+GO2(pthread_kill@GLIBC_2.2.5, iFEpi, my_pthread_kill_old)
 GOM(pthread_kill, iFEpi)
 GO(pthread_kill_other_threads_np, vFv)
 #ifdef NOALIGN

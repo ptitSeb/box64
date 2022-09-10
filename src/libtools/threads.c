@@ -34,11 +34,16 @@
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpi_t)(void*, int);
 typedef int (*iFppip_t)(void*, void*, int, void*);
+typedef int (*iFli_t)(long unsigned int, int);
+
 static vFppp_t real_pthread_cleanup_push_defer = NULL;
 static vFpi_t real_pthread_cleanup_pop_restore = NULL;
 static iFppip_t real_pthread_cond_clockwait = NULL;
 void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop(void* buffer, int exec);
+// with glibc 2.34+, pthread_kill changed behaviour and might break some program, so using old version if possible
+// it will be pthread_kill@GLIBC_2.17 on aarch64, but it's GLIBC_2.2.5 on x86_64
+static iFli_t real_phtread_kill_old = NULL;
 
 typedef struct threadstack_s {
 	void* 	stack;
@@ -777,11 +782,20 @@ EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, size_t cpu
 
 EXPORT int my_pthread_kill(x64emu_t* emu, void* thread, int sig)
 {
+	// should ESCHR result be filtered, as this is expected to be the 2.34 behaviour?
 	(void)emu;
 	// check for old "is everything ok?"
 	if(thread==NULL && sig==0)
 		return pthread_kill(pthread_self(), 0);
 	return pthread_kill((pthread_t)thread, sig);
+}
+
+EXPORT int my_pthread_kill_old(x64emu_t* emu, void* thread, int sig)
+{
+    // check for old "is everything ok?"
+    if((thread==NULL) && (sig==0))
+        return real_phtread_kill_old(pthread_self(), 0);
+    return real_phtread_kill_old((pthread_t)thread, sig);
 }
 
 //EXPORT void my_pthread_exit(x64emu_t* emu, void* retval)
@@ -1237,6 +1251,19 @@ void init_pthread_helper()
 	real_pthread_cleanup_push_defer = (vFppp_t)dlsym(NULL, "_pthread_cleanup_push_defer");
 	real_pthread_cleanup_pop_restore = (vFpi_t)dlsym(NULL, "_pthread_cleanup_pop_restore");
 	real_pthread_cond_clockwait = (iFppip_t)dlsym(NULL, "pthread_cond_clockwait");
+
+	// search for older symbol for pthread_kill
+	{
+		char buff[50];
+		for(int i=0; i<34 && !real_phtread_kill_old; ++i) {
+			snprintf(buff, 50, "GLIBC_2.%d", i);
+			real_phtread_kill_old = (iFli_t)dlvsym(NULL, "pthread_kill", buff);
+		}
+	}
+	if(!real_phtread_kill_old) {
+		printf_log(LOG_INFO, "Warning, older then 2.34 pthread_kill not found, using current one\n");
+		real_phtread_kill_old = (iFli_t)pthread_kill;
+	}
 
 	InitCancelThread();
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);

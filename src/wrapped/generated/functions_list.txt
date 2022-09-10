@@ -3261,6 +3261,7 @@ wrappedlibpthread:
   - pthread_condattr_setclock
   - pthread_condattr_setpshared
   - pthread_kill
+  - pthread_kill@GLIBC_2.2.5
   - pthread_mutexattr_setkind_np
   - pthread_mutexattr_setprotocol
   - pthread_mutexattr_setpshared

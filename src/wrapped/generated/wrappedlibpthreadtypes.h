@@ -64,6 +64,7 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_condattr_setclock, iFpi_t) \
 	GO(pthread_condattr_setpshared, iFpi_t) \
 	GO(pthread_kill, iFpi_t) \
+	GO(pthread_kill@GLIBC_2.2.5, iFpi_t) \
 	GO(pthread_mutexattr_setkind_np, iFpi_t) \
 	GO(pthread_mutexattr_setprotocol, iFpi_t) \
 	GO(pthread_mutexattr_setpshared, iFpi_t) \
