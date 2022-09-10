@@ -1091,7 +1091,9 @@ GO(llistxattr, lFppL)
 //DATAB(loc2, 
 GO(localeconv, pFv)
 GO(localtime, pFp)
+GO(localtime64, pFp)
 GOW(localtime_r, pFpp)
+GOW(localtime64_r, pFpp)
 GO(lockf, iFiil)
 GOW(lockf64, iFiil)
 //DATAB(locs, 
