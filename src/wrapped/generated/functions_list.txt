@@ -3383,6 +3383,10 @@ wrappedlibusb1:
 - iFpiiiiippp:
   - libusb_hotplug_register_callback
 wrappedlibuuid:
+wrappedlibva:
+wrappedlibvadrm:
+wrappedlibvawayland:
+wrappedlibvax11:
 wrappedlibvorbis:
 wrappedlibx11:
 - iFp:

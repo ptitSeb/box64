@@ -196,6 +196,10 @@ GO("libsoftokn3.so", softokn3)
 GO("libwayland-egl.so.1", waylandegl)
 GO("libwayland-client.so.0", waylandclient)
 GO("libwayland-cursor.so.0", waylandcursor)
+GO("libva.so.2", libva)
+GO("libva-drm.so.2", libvadrm)
+GO("libva-x11.so.2", libvax11)
+GO("libva-wayland.so.2", libvawayland)
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 
