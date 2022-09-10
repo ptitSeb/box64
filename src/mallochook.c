@@ -103,22 +103,6 @@ SUPER()
 #undef GO2
 #undef GO
 
-void init_malloc_hook() {
-#ifdef ANDROID
-    __libc_malloc = dlsym(RTLD_NEXT, "malloc");
-    __libc_realloc = dlsym(RTLD_NEXT, "realloc");
-    __libc_calloc = dlsym(RTLD_NEXT, "calloc");
-    __libc_free = dlsym(RTLD_NEXT, "free");
-    __libc_memalign = dlsym(RTLD_NEXT, "memalign");
-#endif
-    box_malloc_usable_size = dlsym(RTLD_NEXT, "malloc_usable_size");
-    #define GO(A, B)
-    #define GO2(A, B)   box_##A = (B##_t)dlsym(RTLD_NEXT, #A);
-    SUPER()
-    #undef GO2
-    #undef GO
-}
-
 int GetTID();
 
 char* box_strdup(const char* s) {
@@ -602,6 +586,22 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
             }
         }
     }
+}
+
+void init_malloc_hook() {
+#ifdef ANDROID
+    __libc_malloc = dlsym(RTLD_NEXT, "malloc");
+    __libc_realloc = dlsym(RTLD_NEXT, "realloc");
+    __libc_calloc = dlsym(RTLD_NEXT, "calloc");
+    __libc_free = dlsym(RTLD_NEXT, "free");
+    __libc_memalign = dlsym(RTLD_NEXT, "memalign");
+#endif
+    box_malloc_usable_size = dlsym(RTLD_NEXT, "malloc_usable_size");
+    #define GO(A, B)
+    #define GO2(A, B)   box_##A = (B##_t)dlsym(RTLD_NEXT, #A); if(box_##A == (B##_t)A) box_##A = NULL;
+    SUPER()
+    #undef GO2
+    #undef GO
 }
 
 #undef SUPER
