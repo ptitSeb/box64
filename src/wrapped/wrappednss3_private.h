@@ -56,7 +56,7 @@ GO(CERT_CheckCertValidTimes, iFpIi)
 //GO(CERT_CreateOCSPSingleResponseUnknown, 
 //GO(CERT_CreateRDN, 
 //GO(CERT_CreateSubjectCertList, 
-//GO(CERT_CreateValidity, 
+GO(CERT_CreateValidity, pFII)
 //GO(CERT_CRLCacheRefreshIssuer, 
 //DATA(CERT_CrlTemplate, 
 GO(CERT_DecodeAltNameExtension, pFpp)
@@ -91,7 +91,7 @@ GO(CERT_DestroyCertList, vFp)
 //GO(CERT_DestroyOCSPResponse, 
 //GO(CERT_DestroyOidSequence, 
 //GO(CERT_DestroyUserNotice, 
-//GO(CERT_DestroyValidity, 
+GO(CERT_DestroyValidity, vFp)
 //GO(CERT_DisableOCSPChecking, 
 //GO(CERT_DisableOCSPDefaultResponder, 
 //GO(CERT_DistNamesFromCertList, 
@@ -616,7 +616,7 @@ GO(PK11_SignatureLen, iFp)
 //GO(PK11_SignWithMechanism, 
 //GO(PK11_SignWithSymKey, 
 //GO(PK11_SymKeyFromHandle, 
-//GO(PK11_TokenExists, 
+GO(PK11_TokenExists, iFi)
 //GO(PK11_TokenKeyGen, 
 //GO(PK11_TokenKeyGenWithFlags, 
 //GO(PK11_TokenRefresh, 
