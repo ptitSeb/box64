@@ -2319,3 +2319,4 @@ DATAM(program_invocation_short_name, sizeof(void*))
 DATAM(__libc_single_threaded, 1)
 
 GO(iconvctl, iFlip)
+GO(dummy__ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp) // for mallochook.c

@@ -568,6 +568,7 @@ void pFdUU(x64emu_t *emu, uintptr_t fnc);
 void pFddd(x64emu_t *emu, uintptr_t fnc);
 void pFDip(x64emu_t *emu, uintptr_t fnc);
 void pFLup(x64emu_t *emu, uintptr_t fnc);
+void pFLLp(x64emu_t *emu, uintptr_t fnc);
 void pFpii(x64emu_t *emu, uintptr_t fnc);
 void pFpiu(x64emu_t *emu, uintptr_t fnc);
 void pFpid(x64emu_t *emu, uintptr_t fnc);
