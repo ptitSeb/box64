@@ -15,6 +15,11 @@
 const char* atkbridgeName = "libatk-bridge-2.0.so.0";
 #define LIBNAME atkbridge
 
+EXPORT int my_atk_bridge_adaptor_init(void* argc, void** argv)
+{
+    return 0;
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;

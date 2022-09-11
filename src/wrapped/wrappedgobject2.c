@@ -27,7 +27,8 @@ typedef void*(*pFL_t)(size_t);
 
 #define ADDED_FUNCTIONS()           \
  GO(g_object_get_type, LFv_t)       \
- GO(g_type_name, pFL_t)
+ GO(g_type_name, pFL_t)             \
+ GO(g_type_class_peek, pFL_t)       \
 
 #include "generated/wrappedgobject2types.h"
 static void addGObject2Alternate(library_t* lib);
@@ -864,6 +865,7 @@ EXPORT void my_g_signal_override_class_handler(x64emu_t* emu, char* name, void* 
     getMy(lib);                             \
     SetGObjectID(my->g_object_get_type());  \
     SetGTypeName(my->g_type_name);          \
+    SetGClassPeek(my->g_type_class_peek);   \
     setNeededLibs(lib, 1, "libglib-2.0.so.0");
 
 #define CUSTOM_FINI \

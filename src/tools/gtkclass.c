@@ -21,6 +21,7 @@ int is_gtk3 = 0;
 
 static bridge_t*        my_bridge           = NULL;
 static const char* (*g_type_name)(size_t)   = NULL;
+static void* (*g_type_class_peek)(size_t)   = NULL;
 #define GTKCLASS(A) static size_t my_##A    = (size_t)-1;
 GTKCLASSES()
 #undef GTKCLASS
@@ -1557,6 +1558,52 @@ static void bridgeAtkObjectClass(my_AtkObjectClass_t* class)
 
 #undef SUPERGO
 
+// ----- AtkUtilClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(AtkUtil,add_global_event_listener, uint32_t,(void* listener, void* event_type), 2, AddCheckBridge(my_bridge, iFpupp, listener, 0, NULL), event_type);
+WRAPPER(AtkUtil,remove_global_event_listener, void ,(uint32_t listener_id), 1, listener_id);
+WRAPPER(AtkUtil,add_key_event_listener, uint32_t   ,(void* listener, void* data), 2, AddCheckBridge(my_bridge, iFpp, listener, 0, NULL), data);
+WRAPPER(AtkUtil,remove_key_event_listener, void    ,(uint32_t listener_id), 1, listener_id);
+WRAPPER(AtkUtil,get_root, void*                    ,(void), 0, 0);
+WRAPPER(AtkUtil,get_toolkit_name, void*            ,(void), 0, 0);
+WRAPPER(AtkUtil,get_toolkit_version, void*         ,(void), 0, 0);
+
+#define SUPERGO() \
+    GO(add_global_event_listener, uFpp);        \
+    GO(remove_global_event_listener, vFu);      \
+    GO(add_key_event_listener, uFpp);           \
+    GO(remove_key_event_listener, vFu);         \
+    GO(get_root, pFv);                          \
+    GO(get_toolkit_name, pFv);                  \
+    GO(get_toolkit_version, pFv);               \
+
+// wrap (so bridge all calls, just in case)
+static void wrapAtkUtilClass(my_AtkUtilClass_t* class)
+{
+    wrapGObjectClass(&class->parent);
+    #define GO(A, W) class->A = reverse_##A##_AtkUtil (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapAtkUtilClass(my_AtkUtilClass_t* class)
+{   
+    unwrapGObjectClass(&class->parent);
+    #define GO(A, W)   class->A = find_##A##_AtkUtil (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeAtkUtilClass(my_AtkUtilClass_t* class)
+{
+    bridgeGObjectClass(&class->parent);
+    #define GO(A, W) autobridge_##A##_AtkUtil (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND
@@ -2110,11 +2157,16 @@ static uintptr_t my_class_init_fct_##A = 0;                             \
 static size_t parent_class_init_##A = 0;                                \
 static int my_class_init_##A(void* a, void* b)                          \
 {                                                                       \
-    printf_log(LOG_DEBUG, "Custom Class init %d for class %p (parent=%p)\n", A, a, (void*)parent_class_init_##A);\
+    printf_log(LOG_DEBUG, "Custom Class init %d for class %p (parent=%p:%s)\n", A, a, (void*)parent_class_init_##A, g_type_name(parent_class_init_##A));\
     int ret = RunFunction(my_context, my_class_init_fct_##A, 2, a, b);  \
     unwrapGTKClass(a, parent_class_init_##A);                           \
     bridgeGTKClass(a, parent_class_init_##A);                           \
     my_unwrap_signal_offset(a);                                         \
+    if(!strcmp(g_type_name(parent_class_init_##A), "AtkUtil")) {        \
+        my_AtkUtilClass_t* p = (my_AtkUtilClass_t*)g_type_class_peek(parent_class_init_##A);\
+        unwrapGTKClass(p, parent_class_init_##A);                       \
+        bridgeGTKClass(p, parent_class_init_##A);                       \
+    }                                                                   \
     return ret;                                                         \
 }
 SUPER()
@@ -2320,6 +2372,11 @@ void AutoBridgeGtk(void*(*ref)(size_t), void(*unref)(void*))
 void SetGTypeName(void* f)
 {
     g_type_name = f;
+}
+
+void SetGClassPeek(void* f)
+{
+    g_type_class_peek = f;
 }
 
 my_signal_t* new_mysignal(void* f, void* data, void* destroy)

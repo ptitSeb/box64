@@ -527,6 +527,18 @@ typedef struct my_AtkObjectClass_s
   void*  pad1;
 } my_AtkObjectClass_t;
 
+typedef struct my_AtkUtilClass_s
+{
+   my_GObjectClass_t parent;
+   uint32_t (* add_global_event_listener)    (void* listener, void* event_type);
+   void     (* remove_global_event_listener) (uint32_t listener_id);
+   uint32_t (* add_key_event_listener)       (void* listener, void* data);
+   void     (* remove_key_event_listener)    (uint32_t listener_id);
+   void*    (* get_root)                     (void);
+   void*    (* get_toolkit_name)             (void);
+   void*    (* get_toolkit_version)          (void);
+} my_AtkUtilClass_t;
+
 
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
@@ -612,12 +624,14 @@ GTKCLASS(GtkTextView2)              \
 GTKCLASS(MetaFrames2)               \
 GTKCLASS(GDBusObjectManagerClient)  \
 GTKCLASS(AtkObject)                 \
+GTKCLASS(AtkUtil)                   \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);
 GTKCLASSES()
 #undef GTKCLASS
 
 void SetGTypeName(void* f);
+void SetGClassPeek(void* f);
 void AutoBridgeGtk(void*(*ref)(size_t), void(*unref)(void*));
 
 void* wrapCopyGTKClass(void* cl, size_t type);

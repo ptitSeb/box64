@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "x64emu.h"
 #include "box64context.h"
+#include "elfloader.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -180,9 +181,11 @@ void* GetNativeFnc(uintptr_t fnc)
 {
     if(!fnc) return NULL;
     // check if function exist in some loaded lib
-    Dl_info info;
-    if(dladdr((void*)fnc, &info))
-        return (void*)fnc;
+    if(!FindElfAddress(my_context, fnc)) {
+        Dl_info info;
+        if(dladdr((void*)fnc, &info))
+            return (void*)fnc;
+    }
     if(!getProtection(fnc))
         return NULL;
     // check if it's an indirect jump

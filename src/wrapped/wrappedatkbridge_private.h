@@ -2,5 +2,5 @@
 #error meh!
 #endif
 
-GO(atk_bridge_adaptor_cleanup, iFpp)
-GO(atk_bridge_adaptor_init, vFv)
+GO(atk_bridge_adaptor_cleanup, vFv)
+GO(atk_bridge_adaptor_init, iFpp)  //%NoE

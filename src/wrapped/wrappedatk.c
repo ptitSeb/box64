@@ -26,6 +26,7 @@ typedef size_t      (*LFv_t)  ();
 
 #define ADDED_FUNCTIONS()                   \
 GO(atk_object_get_type, LFv_t)              \
+GO(atk_util_get_type, LFv_t)                \
 
 #include "generated/wrappedatktypes.h"
 
@@ -128,7 +129,8 @@ EXPORT uint32_t my_atk_add_key_event_listener(x64emu_t* emu, void* f, void* p)
 
 #define CUSTOM_INIT \
     getMy(lib);     \
-    SetAtkObjectID(my->atk_object_get_type());                 \
+    SetAtkObjectID(my->atk_object_get_type());  \
+    SetAtkUtilID(my->atk_util_get_type());      \
 
 #define CUSTOM_FINI \
     freeMy();
