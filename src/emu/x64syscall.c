@@ -193,6 +193,7 @@ scwrap_t syscallwrap[] = {
     { 292, __NR_dup3, 3},
     { 293, __NR_pipe2, 2},
     { 294, __NR_inotify_init1, 1},
+    { 297, __NR_rt_tgsigqueueinfo, 4},
     { 298, __NR_perf_event_open, 5},
     { 302, __NR_prlimit64, 4},
     { 309, __NR_getcpu, 3}, // need wrapping?
