@@ -2,6 +2,6 @@
 #error meh!
 #endif
 
-//GO(vaGetDisplayWl, 
-//GO(vaGetImageBufferWl, 
-//GO(vaGetSurfaceBufferWl, 
+GO(vaGetDisplayWl, pFp)
+GO(vaGetImageBufferWl, iFppup)
+GO(vaGetSurfaceBufferWl, iFppup)

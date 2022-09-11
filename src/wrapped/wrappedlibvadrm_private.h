@@ -2,4 +2,4 @@
 #error meh!
 #endif
 
-//GO(vaGetDisplayDRM, 
+GO(vaGetDisplayDRM, pFi)

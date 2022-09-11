@@ -16,7 +16,7 @@
 //GO(va_dri_get_drawable, 
 //GO(va_dri_get_rendering_buffer, 
 //GO(va_dri_swap_buffer, 
-//GO(vaGetDisplay, 
+GO(vaGetDisplay, pFp)
 //GO(va_isDRI2Connected, 
 //GO(va_isRenderNodeFd, 
-//GO(vaPutSurface, 
+GO(vaPutSurface, iFpppwwWWwwWWpuu)

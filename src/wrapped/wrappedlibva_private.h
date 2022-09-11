@@ -5,77 +5,77 @@
 //GO(vaAcquireBufferHandle, 
 //GO(vaAssociateSubpicture, 
 //GO(vaAttachProtectedSession, 
-//GO(vaBeginPicture, 
+GO(vaBeginPicture, iFpup)
 //GO(vaBufferInfo, 
 //GO(vaBufferSetNumElements, 
 //GO(vaBufferTypeStr, 
-//GO(vaConfigAttribTypeStr, 
+GO(vaConfigAttribTypeStr, pFu)
 //GO(vaCopy, 
-//GO(vaCreateBuffer, 
+GO(vaCreateBuffer, iFpuiuupp)
 //GO(vaCreateBuffer2, 
-//GO(vaCreateConfig, 
-//GO(vaCreateContext, 
-//GO(vaCreateImage, 
+GO(vaCreateConfig, iFpiipip)
+GO(vaCreateContext, iFppiiipip)
+GO(vaCreateImage, iFppiip)
 //GO(vaCreateMFContext, 
 //GO(vaCreateProtectedSession, 
 //GO(vaCreateSubpicture, 
 //GO(vaCreateSurfaces@VA_API_0.32.0, 
-//GO(vaCreateSurfaces@@VA_API_0.33.0, 
+GO(vaCreateSurfaces, iFpuuupupu)
 //GO(vaDeassociateSubpicture, 
-//GO(vaDeriveImage, 
-//GO(vaDestroyBuffer, 
-//GO(vaDestroyConfig, 
-//GO(vaDestroyContext, 
-//GO(vaDestroyImage, 
+GO(vaDeriveImage, iFppp)
+GO(vaDestroyBuffer, iFpu)
+GO(vaDestroyConfig, iFpp)
+GO(vaDestroyContext, iFpu)
+GO(vaDestroyImage, iFpp)
 //GO(vaDestroyProtectedSession, 
 //GO(vaDestroySubpicture, 
-//GO(vaDestroySurfaces, 
+GO(vaDestroySurfaces, iFppi)
 //GO(vaDetachProtectedSession, 
-//GO(vaDisplayIsValid, 
-//GO(vaEndPicture, 
-//GO(vaEntrypointStr, 
+GO(vaDisplayIsValid, iFp)
+GO(vaEndPicture, iFpu)
+GO(vaEntrypointStr, pFi)
 //GO(va_errorMessage, 
-//GO(vaErrorStr, 
-//GO(vaExportSurfaceHandle, 
-//GO(vaGetConfigAttributes, 
+GO(vaErrorStr, pFi)
+GO(vaExportSurfaceHandle, iFppuup)
+GO(vaGetConfigAttributes, iFpiipi)
 //GO(vaGetDisplayAttributes, 
-//GO(vaGetImage, 
+GO(vaGetImage, iFppiiuup)
 //GO(vaGetLibFunc, 
 //GO(va_infoMessage, 
-//GO(vaInitialize, 
+GO(vaInitialize, iFppp)
 //GO(vaLockSurface, 
-//GO(vaMapBuffer, 
-//GO(vaMaxNumConfigAttributes, 
+GO(vaMapBuffer, iFpup)
+GO(vaMaxNumConfigAttributes, iFp)
 //GO(vaMaxNumDisplayAttributes, 
-//GO(vaMaxNumEntrypoints, 
-//GO(vaMaxNumImageFormats, 
-//GO(vaMaxNumProfiles, 
-//GO(vaMaxNumSubpictureFormats, 
+GO(vaMaxNumEntrypoints, iFp)
+GO(vaMaxNumImageFormats, iFp)
+GO(vaMaxNumProfiles, iFp)
+GO(vaMaxNumSubpictureFormats, iFp)
 //GO(vaMFAddContext, 
 //GO(vaMFReleaseContext, 
 //GO(vaMFSubmit, 
 //GO(va_newDisplayContext, 
 //GO(va_newDriverContext, 
 //GO(va_parseConfig, 
-//GO(vaProfileStr, 
+GO(vaProfileStr, pFu)
 //GO(vaProtectedSessionExecute, 
-//GO(vaPutImage, 
-//GO(vaQueryConfigAttributes, 
-//GO(vaQueryConfigEntrypoints, 
-//GO(vaQueryConfigProfiles, 
+GO(vaPutImage, iFpppiiuuiiuu)
+GO(vaQueryConfigAttributes, iFpppppp)
+GO(vaQueryConfigEntrypoints, iFpipp)
+GO(vaQueryConfigProfiles, iFppp)
 //GO(vaQueryDisplayAttributes, 
-//GO(vaQueryImageFormats, 
-//GO(vaQueryProcessingRate, 
-//GO(vaQuerySubpictureFormats, 
-//GO(vaQuerySurfaceAttributes, 
-//GO(vaQuerySurfaceError, 
-//GO(vaQuerySurfaceStatus, 
-//GO(vaQueryVendorString, 
+GO(vaQueryImageFormats, iFppp)
+GO(vaQueryProcessingRate, iFpppp)
+GO(vaQuerySubpictureFormats, iFpppp)
+GO(vaQuerySurfaceAttributes, iFpppp)
+GO(vaQuerySurfaceError, iFpppp)
+GO(vaQuerySurfaceStatus, iFppp)
+GO(vaQueryVendorString, pFp)
 //GO(vaQueryVideoProcFilterCaps, 
 //GO(vaQueryVideoProcFilters, 
-//GO(vaQueryVideoProcPipelineCaps, 
+GO(vaQueryVideoProcPipelineCaps, iFpupup)
 //GO(vaReleaseBufferHandle, 
-//GO(vaRenderPicture, 
+GO(vaRenderPicture, iFpupi)
 //GO(vaSetDisplayAttributes, 
 //GO(vaSetDriverName, 
 //GO(vaSetErrorCallback, 
@@ -86,11 +86,11 @@
 //GO(vaSetSubpictureImage, 
 //GO(vaStatusStr, 
 //GO(vaSyncBuffer, 
-//GO(vaSyncSurface, 
-//GO(vaSyncSurface2, 
-//GO(vaTerminate, 
+GO(vaSyncSurface, iFpp)
+GO(vaSyncSurface2, iFppU)
+GO(vaTerminate, iFp)
 //DATAB(va_trace_flag, 
 //GO(va_TracePutSurface, 
 //GO(va_TraceStatus, 
 //GO(vaUnlockSurface, 
-//GO(vaUnmapBuffer, 
+GO(vaUnmapBuffer, iFpu)
