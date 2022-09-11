@@ -55,7 +55,7 @@ GO(CERT_CheckCertValidTimes, iFpIi)
 //GO(CERT_CreateOCSPSingleResponseRevoked, 
 //GO(CERT_CreateOCSPSingleResponseUnknown, 
 //GO(CERT_CreateRDN, 
-//GO(CERT_CreateSubjectCertList, 
+GO(CERT_CreateSubjectCertList, pFpppIi)
 GO(CERT_CreateValidity, pFII)
 //GO(CERT_CRLCacheRefreshIssuer, 
 //DATA(CERT_CrlTemplate, 
@@ -159,7 +159,7 @@ GO(CERT_GetCertEmailAddress, pFp)
 //GO(CERT_GetCertKeyType, 
 //GO(CERT_GetCertNicknames, 
 //GO(CERT_GetCertTimes, 
-//GO(CERT_GetCertTrust, 
+GO(CERT_GetCertTrust, iFpp)
 GO(CERT_GetCertUid, pFp)
 //GO(CERT_GetClassicOCSPDisabledPolicy, 
 //GO(CERT_GetClassicOCSPEnabledHardFailurePolicy, 

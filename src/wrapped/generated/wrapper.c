@@ -1338,6 +1338,7 @@ typedef void* (*pFppLii_t)(void*, void*, uintptr_t, int64_t, int64_t);
 typedef void* (*pFppLLp_t)(void*, void*, uintptr_t, uintptr_t, void*);
 typedef void* (*pFpppii_t)(void*, void*, void*, int64_t, int64_t);
 typedef void* (*pFpppip_t)(void*, void*, void*, int64_t, void*);
+typedef void* (*pFpppIi_t)(void*, void*, void*, int64_t, int64_t);
 typedef void* (*pFpppui_t)(void*, void*, void*, uint64_t, int64_t);
 typedef void* (*pFpppuu_t)(void*, void*, void*, uint64_t, uint64_t);
 typedef void* (*pFpppup_t)(void*, void*, void*, uint64_t, void*);
@@ -3521,6 +3522,7 @@ void pFppLii(x64emu_t *emu, uintptr_t fcn) { pFppLii_t fn = (pFppLii_t)fcn; R_RA
 void pFppLLp(x64emu_t *emu, uintptr_t fcn) { pFppLLp_t fn = (pFppLLp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (uintptr_t)R_RCX, (void*)R_R8); }
 void pFpppii(x64emu_t *emu, uintptr_t fcn) { pFpppii_t fn = (pFpppii_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (int64_t)R_RCX, (int64_t)R_R8); }
 void pFpppip(x64emu_t *emu, uintptr_t fcn) { pFpppip_t fn = (pFpppip_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (int64_t)R_RCX, (void*)R_R8); }
+void pFpppIi(x64emu_t *emu, uintptr_t fcn) { pFpppIi_t fn = (pFpppIi_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (int64_t)R_RCX, (int64_t)R_R8); }
 void pFpppui(x64emu_t *emu, uintptr_t fcn) { pFpppui_t fn = (pFpppui_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (uint64_t)R_RCX, (int64_t)R_R8); }
 void pFpppuu(x64emu_t *emu, uintptr_t fcn) { pFpppuu_t fn = (pFpppuu_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (uint64_t)R_RCX, (uint64_t)R_R8); }
 void pFpppup(x64emu_t *emu, uintptr_t fcn) { pFpppup_t fn = (pFpppup_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (uint64_t)R_RCX, (void*)R_R8); }
@@ -5514,6 +5516,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &pFppLLp) return 1;
 	if (fun == &pFpppii) return 1;
 	if (fun == &pFpppip) return 1;
+	if (fun == &pFpppIi) return 1;
 	if (fun == &pFpppui) return 1;
 	if (fun == &pFpppuu) return 1;
 	if (fun == &pFpppup) return 1;
