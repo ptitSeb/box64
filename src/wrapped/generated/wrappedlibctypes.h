@@ -64,6 +64,7 @@ typedef int64_t (*iFippi_t)(int64_t, void*, void*, int64_t);
 typedef int64_t (*iFippL_t)(int64_t, void*, void*, uintptr_t);
 typedef int64_t (*iFpipp_t)(void*, int64_t, void*, void*);
 typedef int64_t (*iFpipV_t)(void*, int64_t, void*, ...);
+typedef int64_t (*iFpipA_t)(void*, int64_t, void*, va_list);
 typedef int64_t (*iFpLpp_t)(void*, uintptr_t, void*, void*);
 typedef int64_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
 typedef int64_t (*iFpLpA_t)(void*, uintptr_t, void*, va_list);
@@ -190,7 +191,6 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(sprintf, iFppV_t) \
 	GO(sscanf, iFppV_t) \
 	GO(swscanf, iFppV_t) \
-	GO(__vfwprintf_chk, iFppA_t) \
 	GO(obstack_vprintf, iFppA_t) \
 	GO(vasprintf, iFppA_t) \
 	GO(vfprintf, iFppA_t) \
@@ -222,6 +222,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(__asprintf_chk, iFpipV_t) \
 	GO(__fprintf_chk, iFpipV_t) \
 	GO(__fwprintf_chk, iFpipV_t) \
+	GO(__vfwprintf_chk, iFpipA_t) \
 	GO(__vsnprintf_chk, iFpLpp_t) \
 	GO(__snprintf, iFpLpV_t) \
 	GO(snprintf, iFpLpV_t) \

@@ -654,7 +654,15 @@ EXPORT int my_vfwprintf(x64emu_t *emu, void* F, void* fmt, x64_va_list_t  b) {
     #endif
     return vfwprintf(F, fmt, VARARGS);
 }
-EXPORT int my___vfwprintf_chk(x64emu_t *emu, void* F, void* fmt, x64_va_list_t b) __attribute__((alias("my_vprintf")));
+EXPORT int my___vfwprintf_chk(x64emu_t *emu, void* F, int flag, void* fmt, x64_va_list_t b)  {
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignWValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return vfwprintf(F, fmt, VARARGS);
+}
 
 #if 0
 EXPORT int my_vwprintf(x64emu_t *emu, void* fmt, void* b) {

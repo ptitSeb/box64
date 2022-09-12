@@ -1125,6 +1125,7 @@
 #() iFEpipi
 #() iFEpipp
 #() iFEpipV
+#() iFEpipA
 #() iFEpUup
 #() iFEpLpp
 #() iFEpLpV
@@ -2185,7 +2186,6 @@
 #() iFEvpp -> iFEpp
 #() pFEppv -> pFEpp
 #() iFEpvpp -> iFEppp
-#() iFEpvpA -> iFEppA
 #() iFEpvvppp -> iFEpppp
 #() iFEpLvvpp -> iFEpLpp
 #() iFEpuvvppp -> iFEpuppp
@@ -2995,7 +2995,6 @@ wrappedlibc:
   - sscanf
   - swscanf
 - iFppA:
-  - __vfwprintf_chk
   - obstack_vprintf
   - vasprintf
   - vfprintf
@@ -3043,6 +3042,8 @@ wrappedlibc:
   - __asprintf_chk
   - __fprintf_chk
   - __fwprintf_chk
+- iFpipA:
+  - __vfwprintf_chk
 - iFpLpp:
   - __vsnprintf_chk
 - iFpLpV:
