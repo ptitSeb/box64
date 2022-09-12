@@ -190,10 +190,12 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(sprintf, iFppV_t) \
 	GO(sscanf, iFppV_t) \
 	GO(swscanf, iFppV_t) \
+	GO(__vfwprintf_chk, iFppA_t) \
 	GO(obstack_vprintf, iFppA_t) \
 	GO(vasprintf, iFppA_t) \
 	GO(vfprintf, iFppA_t) \
 	GO(vfscanf, iFppA_t) \
+	GO(vfwprintf, iFppA_t) \
 	GO(vsprintf, iFppA_t) \
 	GO(vsscanf, iFppA_t) \
 	GO(vswscanf, iFppA_t) \

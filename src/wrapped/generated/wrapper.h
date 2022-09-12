@@ -2231,6 +2231,7 @@ void pFEv(x64emu_t *emu, uintptr_t fnc);
 void iFEvpp(x64emu_t *emu, uintptr_t fnc);
 void pFEppv(x64emu_t *emu, uintptr_t fnc);
 void iFEpvpp(x64emu_t *emu, uintptr_t fnc);
+void iFEpvpA(x64emu_t *emu, uintptr_t fnc);
 void iFEpvvppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpLvvpp(x64emu_t *emu, uintptr_t fnc);
 void iFEpuvvppp(x64emu_t *emu, uintptr_t fnc);

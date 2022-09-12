@@ -2057,8 +2057,8 @@ GOM(vfprintf, iFEppA)
 GOM(__vfprintf_chk, iFEpvpp)
 //GO(__vfscanf, 
 GOWM(vfscanf, iFEppA)
-//GOW(vfwprintf, iFppA)
-//GO(__vfwprintf_chk, 
+GOWM(vfwprintf, iFEppA)
+GOM(__vfwprintf_chk, iFEpvpA)
 //GOW(vfwscanf, iFppA)
 GO(vhangup, iFv)
 //GO(vlimit, // Deprecated
