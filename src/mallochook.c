@@ -409,7 +409,7 @@ EXPORT void* _ZnwmSt11align_val_t(size_t sz, size_t align)  //// operator new(un
     #endif
         if(box__ZnwmSt11align_val_t)
             return box__ZnwmSt11align_val_t(sz, align);
-        return box_memalign(sz, align);
+        return box_memalign(align, sz);
 }
 
 EXPORT void* _ZnwmSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new(unsigned long, std::align_val_t, std::nothrow_t const&)
@@ -422,7 +422,7 @@ EXPORT void* _ZnwmSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p
     #endif
         if(box__ZnwmSt11align_val_tRKSt9nothrow_t)
             return box__ZnwmSt11align_val_tRKSt9nothrow_t(sz, align, p);
-        return box_memalign(sz, align);
+        return box_memalign(align, sz);
 }
 
 EXPORT void* _ZnamSt11align_val_t(size_t sz, size_t align)  //// operator new[](unsigned long, std::align_val_t)
@@ -435,7 +435,7 @@ EXPORT void* _ZnamSt11align_val_t(size_t sz, size_t align)  //// operator new[](
     #endif
         if(box__ZnamSt11align_val_t)
             return box__ZnamSt11align_val_t(sz, align);
-        return box_memalign(sz, align);
+        return box_memalign(align, sz);
 }
 
 EXPORT void* _ZnamSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new[](unsigned long, std::align_val_t, std::nothrow_t const&)
@@ -448,7 +448,7 @@ EXPORT void* _ZnamSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p
     #endif
         if(box__ZnamSt11align_val_tRKSt9nothrow_t)
             return box__ZnamSt11align_val_tRKSt9nothrow_t(sz, align, p);
-        return box_memalign(sz, align);
+        return box_memalign(align, sz);
 }
 
 EXPORT void _ZdlPvRKSt9nothrow_t(void* p, void* n)   //operator delete(void*, std::nothrow_t const&)
@@ -549,6 +549,23 @@ EXPORT void _ZdlPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n) 
             box_free(p);
 }
 
+#pragma pack(push, 1)
+typedef struct reloc_jmp_s {
+    uint8_t _ff;
+    uint8_t _25;
+    uint32_t _00;
+    void* addr;
+} reloc_jmp_t;
+#pragma pack(pop)
+
+static void addRelocJmp(void* offs, void* where)
+{
+    reloc_jmp_t jmp = {0};
+    jmp._ff = 0xff;
+    jmp._25 = 0x25;
+    jmp.addr = where;
+    memcpy(offs, &jmp, sizeof(jmp));
+}
 
 void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
 {
@@ -564,21 +581,21 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
         && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             size_t sz = h->DynSym[i].st_size;
-            if(bind!=STB_LOCAL && bind!=STB_WEAK) {
+            if(bind!=STB_LOCAL && bind!=STB_WEAK && sz>=sizeof(reloc_jmp_t)) {
                 #ifdef EMBRACE
                 #define GO(A, B) if (!hooked_##A && !strcmp(symname, #A)) {hooked_##A = offs; elf_##A = h; if(hooked_##A) printf_log(LOG_INFO, "Overriding %s to %p (%s)\n", #A, (void*)hooked_##A, h->name);}
                 #define GO2(A, B) if (!hooked_##A &&hooked_malloc && !strcmp(symname, #A)) {hooked_##A = offs; elf_##A = h; if(hooked_##A) printf_log(LOG_INFO, "Overriding %s to %p (%s)\n", #A, (void*)hooked_##A, h->name);}
                 #else
-                #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); memcpy((void*)offs, (void*)alt, sizeof(onebridge_t));}
+                #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt);}
                 #define GO2(A, B)
                 SUPER()
                 #undef GO
-                #define GO(A, B) if(!strcmp(symname, "tc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); memcpy((void*)offs, (void*)alt, sizeof(onebridge_t));}
+                #define GO(A, B) if(!strcmp(symname, "tc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt);}
                 SUPER()
                 #undef GO
                 #undef GO2
-                #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); hooked=1; printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); memcpy((void*)offs, (void*)alt, sizeof(onebridge_t));}
-                #define GO2(A, B) if(hooked && !strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); memcpy((void*)offs, (void*)alt, sizeof(onebridge_t));}
+                #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); hooked=1; printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt);}
+                #define GO2(A, B) if(hooked && !strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt);}
                 #endif
                 SUPER()
                 #undef GO
