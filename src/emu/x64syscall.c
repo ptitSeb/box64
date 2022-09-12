@@ -363,6 +363,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
             *(int64_t*)&R_RAX = my_munmap(emu, (void*)R_RDI, R_RSI);
             break;
         case 13: // sys_rt_sigaction
+            #if 1
+            R_RAX = (int64_t)my_syscall_rt_sigaction(emu, (int)R_EDI, (const x64_sigaction_restorer_t *)R_RSI, (x64_sigaction_restorer_t *)R_RDX, (size_t)R_R10);
+            #else
             {
                 x64_sigaction_t n ={0};
                 x64_sigaction_t o = {0};
@@ -382,6 +385,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
                     memcpy(&p->sa_mask, &o.sa_mask, R_R10);
                 }
             }
+            #endif
             break;
         #ifndef __NR_access
         case 21: // sys_access
@@ -590,10 +594,13 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         case 9: // sys_mmap
             return (uintptr_t)my_mmap64(emu, (void*)R_RSI, R_RDX, (int)R_RCX, (int)R_R8d, (int)R_R9, i64(0));
         case 10: // sys_mprotect
-            return (uint64_t)(int64_t)my_mprotect(emu, (void*)R_RSI, R_RDX, (int)R_ECX);
+            return (uint64_t)my_mprotect(emu, (void*)R_RSI, R_RDX, (int)R_ECX);
         case 11: // sys_munmap
-            return (uint64_t)(int64_t)my_munmap(emu, (void*)R_RSI, R_RDX);
+            return (uint64_t)my_munmap(emu, (void*)R_RSI, R_RDX);
         case 13: // sys_rt_sigaction
+            #if 1
+            return my_syscall_rt_sigaction(emu, (int)R_ESI, (const x64_sigaction_restorer_t *)R_RDX, (x64_sigaction_restorer_t *)R_RCX, (size_t)R_R8);
+            #else
             {
                 x64_sigaction_t n ={0};
                 x64_sigaction_t o = {0};
@@ -614,6 +621,7 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
                 }
                 return ret;
             }
+            #endif
         #ifndef __NR_access
         case 21: // sys_access
             return (uint64_t)(int64_t)access((void*)R_RSI, R_EDX);

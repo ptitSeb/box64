@@ -1075,7 +1075,7 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
     ucontext_t ctx = {0};
     siginfo_t info = {0};
     info.si_signo = sig;
-    info.si_errno = (sig==SIGSEGV)?0x1234:0;    // MAark as a sign this is a #GP(0) (like privileged instruction)
+    info.si_errno = (sig==SIGSEGV)?0x1234:0;    // Mark as a sign this is a #GP(0) (like privileged instruction)
     info.si_code = code;
     info.si_addr = addr;
     const char* x64name = NULL;
@@ -1122,8 +1122,10 @@ EXPORT sighandler_t my_sysv_signal(x64emu_t* emu, int signum, sighandler_t handl
 
 int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_sigaction_t *oldact)
 {
-    if(signum<0 || signum>=MAX_SIGNAL)
+    if(signum<0 || signum>=MAX_SIGNAL) {
+        errno = EINVAL;
         return -1;
+    }
     
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
@@ -1174,8 +1176,10 @@ __attribute__((alias("my_sigaction")));
 int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigaction_restorer_t *act, x64_sigaction_restorer_t *oldact, int sigsetsize)
 {
     printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
-    if(signum<0 || signum>=MAX_SIGNAL)
+    if(signum<0 || signum>=MAX_SIGNAL) {
+        errno = EINVAL;
         return -1;
+    }
     
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
