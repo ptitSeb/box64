@@ -130,6 +130,7 @@ Forbid dynablock creation in the interval specified (helpfull for debugging beha
 Enables/Disables Box64's Dynarec building BigBlock.
  * 0 : Don't try to build block as big as possible (can help program using lots of thread and a JIT, like C#/Unity) (Default when libmonobdwgc-2.0.so is loaded)
  * 1 : Build Dynarec block as big as possible (Default.)
+ * 2 : Build Dynarec block bigger (don't stop when block overlaps)
 
 #### BOX64_DYNAREC_STRONGMEM
 Enable/Disable simulation of Strong Memory model
@@ -139,13 +140,13 @@ Enable/Disable simulation of Strong Memory model
 
 #### BOX64_DYNAREC_X87DOUBLE
 Force the use of Double for x87 emulation
-* 0 : Try to use float when possible for x87 emulation (faster)
+* 0 : Try to use float when possible for x87 emulation (default, faster)
 * 1 : Only use Double for x87 emulation (slower, may be needed for some specific games, like Crysis)
 
 #### BOX64_DYNAREC_FASTNAN
 Enable/Disable generation of -NAN
 * 0 : Generate -NAN like on x86 (Default.)
-* 1 : Don't do anything special with NAN, to go as fast as possible (was default before this option exsted)
+* 1 : Don't do anything special with NAN, to go as fast as possible (default)
 
 #### BOX64_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).
