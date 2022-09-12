@@ -620,7 +620,7 @@ GO(XkbIgnoreExtension, iFp)
 // _XkbInitReadBuffer
 DATA(_XkbInternAtomFunc, sizeof(void*))
 GO(XkbKeycodeToKeysym, LFpuuu)
-//GO(XkbKeysymToModifiers
+GO(XkbKeysymToModifiers, uFpp)
 //GO(XkbKeyTypesForCoreSymbols
 //GO(XkbLatchGroup
 //GO(XkbLatchModifiers
