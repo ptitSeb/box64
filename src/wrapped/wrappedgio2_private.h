@@ -1292,7 +1292,7 @@ GO(g_list_model_get_object, pFpu)
 //GO(g_seekable_seek, 
 //GO(g_seekable_tell, 
 //GO(g_seekable_truncate, 
-//GO(g_settings_apply, 
+GO(g_settings_apply, vFp)
 //GO(g_settings_backend_changed, 
 //GO(g_settings_backend_changed_tree, 
 //GO(g_settings_backend_flatten_tree, 
@@ -1307,15 +1307,15 @@ GO(g_list_model_get_object, pFpu)
 //GO(g_settings_bind_with_mapping, 
 //GO(g_settings_bind_writable, 
 //GO(g_settings_create_action, 
-//GO(g_settings_delay, 
+GO(g_settings_delay, vFp)
 //GO(g_settings_get, 
 //GO(g_settings_get_boolean, 
-//GO(g_settings_get_child, 
-//GO(g_settings_get_default_value, 
+GO(g_settings_get_child, pFpp)
+GO(g_settings_get_default_value, pFpp)
 //GO(g_settings_get_double, 
 //GO(g_settings_get_enum, 
 //GO(g_settings_get_flags, 
-//GO(g_settings_get_has_unapplied, 
+GO(g_settings_get_has_unapplied, iFp)
 //GO(g_settings_get_int, 
 //GO(g_settings_get_mapped, 
 //GO(g_settings_get_range, 
@@ -1323,20 +1323,20 @@ GO(g_list_model_get_object, pFpu)
 //GO(g_settings_get_strv, 
 //GO(g_settings_get_type, 
 //GO(g_settings_get_uint, 
-//GO(g_settings_get_user_value, 
-//GO(g_settings_get_value, 
-//GO(g_settings_is_writable, 
+GO(g_settings_get_user_value, pFpp)
+GO(g_settings_get_value, pFpp)
+GO(g_settings_is_writable, iFpp)
 //GO(g_settings_list_children, 
-//GO(g_settings_list_keys, 
+GO(g_settings_list_keys, pFp)
 //GO(g_settings_list_relocatable_schemas, 
 //GO(g_settings_list_schemas, 
-//GO(g_settings_new, 
+GO(g_settings_new, pFp)
 //GO(g_settings_new_full, 
 //GO(g_settings_new_with_backend, 
 //GO(g_settings_new_with_backend_and_path, 
-//GO(g_settings_new_with_path, 
+GO(g_settings_new_with_path, pFpp)
 //GO(g_settings_range_check, 
-//GO(g_settings_reset, 
+GO(g_settings_reset, vFpp)
 //GO(g_settings_revert, 
 //GO(g_settings_schema_get_id, 
 //GO(g_settings_schema_get_key, 
@@ -1370,8 +1370,8 @@ GO(g_list_model_get_object, pFpu)
 //GO(g_settings_set_string, 
 //GO(g_settings_set_strv, 
 //GO(g_settings_set_uint, 
-//GO(g_settings_set_value, 
-//GO(g_settings_sync, 
+GO(g_settings_set_value, iFppp)
+GO(g_settings_sync, vFv)
 //GO(g_settings_unbind, 
 //GO(g_simple_action_get_type, 
 //GO(g_simple_action_group_add_entries, 

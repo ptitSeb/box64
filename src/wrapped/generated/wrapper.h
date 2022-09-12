@@ -2066,6 +2066,7 @@ void iFEppppppipp(x64emu_t *emu, uintptr_t fnc);
 void iFEppppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFiiiiiiiiip(x64emu_t *emu, uintptr_t fnc);
 void iFpiipiiipip(x64emu_t *emu, uintptr_t fnc);
+void iFpippddiidd(x64emu_t *emu, uintptr_t fnc);
 void iFpuupiuiipp(x64emu_t *emu, uintptr_t fnc);
 void iFpddpippppp(x64emu_t *emu, uintptr_t fnc);
 void iFppuuiiiiii(x64emu_t *emu, uintptr_t fnc);

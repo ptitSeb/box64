@@ -124,6 +124,7 @@ GO(gdk_display_manager_get_type, iFv)
 GO(gdk_display_manager_list_displays, pFp)
 GO(gdk_display_manager_set_default_display, vFpp)
 GO(gdk_display_map_keycode, iFpuppp)
+GO(gdk_display_notify_startup_complete, vFpp)
 GO(gdk_display_open, pFp)
 //GO(gdk_display_open_default_libgtk_only, 
 GO(gdk_display_peek_event, pFp)

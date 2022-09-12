@@ -65,7 +65,7 @@ GO(XIUngrabDevice, iFpiL)
 //GO(XIUngrabFocusIn, 
 GO(XIUngrabKeycode, iFpiipip)
 GO(XIUngrabTouchBegin, iFpipip)
-//GO(XIWarpPointer, 
+GO(XIWarpPointer, iFpippddiidd)
 //GO(XListDeviceProperties, 
 GO(XListInputDevices, pFpp)
 GO(XOpenDevice, pFpp)
