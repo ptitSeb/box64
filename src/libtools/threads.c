@@ -440,7 +440,24 @@ EXPORT int my_pthread_attr_setstackaddr(x64emu_t* emu, pthread_attr_t* attr, voi
 EXPORT int my_pthread_getattr_np(x64emu_t* emu, pthread_t thread_id, pthread_attr_t* attr)
 {
 	(void)emu;
-	return pthread_getattr_np(thread_id, getAlignedAttrWithInit(attr, 0));
+	int ret = pthread_getattr_np(thread_id, getAlignedAttrWithInit(attr, 0));
+	if(!ret && thread_id==pthread_self()) {
+		if(!emu->context->stacksizes) {
+			emu->context->stacksizes = kh_init(threadstack);
+		}
+		void* stack = emu->init_stack;
+		size_t sz = emu->size_stack;
+		if (!sz) {
+			// get default stack size
+			pthread_attr_t attr;
+			pthread_getattr_default_np(&attr);
+			pthread_attr_getstacksize(&attr, &sz);
+			pthread_attr_destroy(&attr);
+			// should stack be adjusted?
+		}
+		AddStackSize(emu->context->stacksizes, (uintptr_t)attr, stack, sz);
+	}
+	return ret;
 }
 EXPORT int my_pthread_getattr_default_np(x64emu_t* emu, pthread_attr_t* attr)
 {
