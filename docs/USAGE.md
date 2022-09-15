@@ -192,6 +192,11 @@ Disables the load of vulkan libraries.
  * 0 : Load vulkan libraries if found.
  * 1 : Disables the load of vulkan libraries, both the native and the i386 version (can be useful on Pi4, where the vulkan driver is not quite there yet.)
 
+#### BOX64_BASH
+Define x86_64 bash to launch script
+ * yyyy
+ Will use yyyy as x86_64 bash to launch script. yyyy needs to be a full path to a valid x86_64 version of bash
+
 #### BOX64_ENV
  * XXX=yyyy
  will add XXX=yyyy env. var.

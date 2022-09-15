@@ -84,7 +84,6 @@ int box64_mapclean = 0;
 int box64_zoom = 0;
 int box64_steam = 0;
 int box64_wine = 0;
-int box64_bash = 0;
 int box64_musl = 0;
 int box64_nopulse = 0;
 int box64_nogtk = 0;
@@ -556,7 +555,7 @@ void LoadLogEnv()
         printf_log(LOG_INFO, "BOX64 using \"%s\" as libGL.so.1\n", p);
     }
     p = getenv("BOX64_ALLOWMISSINGLIBS");
-        if(p) {
+    if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='0'+1)
                 allow_missing_libs = p[0]-'0';
@@ -565,7 +564,7 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Allow missing needed libs\n");
     }
     p = getenv("BOX64_NOPULSE");
-        if(p) {
+    if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='0'+1)
                 box64_nopulse = p[0]-'0';
@@ -574,7 +573,7 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Disable the use of pulseaudio libs\n");
     }
     p = getenv("BOX64_NOGTK");
-        if(p) {
+    if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='0'+1)
                 box64_nogtk = p[0]-'0';
@@ -583,7 +582,7 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Disable the use of wrapped gtk libs\n");
     }
     p = getenv("BOX64_NOVULKAN");
-        if(p) {
+    if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='0'+1)
                 box64_novulkan = p[0]-'0';
@@ -592,7 +591,7 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Disable the use of wrapped vulkan libs\n");
     }
     p = getenv("BOX64_FIX_64BIT_INODES");
-        if(p) {
+    if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='0'+1)
                 fix_64bit_inodes = p[0]-'0';
@@ -601,7 +600,7 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Fix 64bit inodes\n");
     }
     p = getenv("BOX64_JITGDB");
-        if(p) {
+    if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='0'+2)
                 jit_gdb = p[0]-'0';
@@ -1044,6 +1043,18 @@ int main(int argc, const char **argv, char **env) {
 
     // check BOX64_LOG debug level
     LoadLogEnv();
+    char* bashpath = NULL;
+    {
+        char* p = getenv("BOX64_BASH");
+        if(p) {
+            if(FileIsX64ELF(p)) {
+                bashpath = p;
+                printf_log(LOG_INFO, "Using bash \"%s\"\n", bashpath);
+            } else {
+                printf_log(LOG_INFO, "the x86_64 bash \"%s\" is not an x86_64 binary\n", p);
+            }
+        }
+    }
     
     const char* prog = argv[1];
     int nextarg = 1;
@@ -1239,12 +1250,18 @@ int main(int argc, const char **argv, char **env) {
     // special case for bash (add BOX86_NOBANNER=1 if not there)
     if(!strcmp(prgname, "bash")) {
         printf_log(LOG_INFO, "bash detected, disabling banner\n");
-        box64_bash = 1;
         if (!box64_nobanner) {
             setenv("BOX86_NOBANNER", "1", 0);
             setenv("BOX64_NOBANNER", "1", 0);
         }
+        if (!bashpath) {
+            bashpath = (char*)prog;
+            setenv("BOX64_BASH", prog, 1);
+        }
     }
+    if(bashpath)
+        my_context->bashpath = box_strdup(bashpath);
+
     if(strstr(prgname, "pressure-vessel-wrap")==prgname) {
         printf_log(LOG_INFO, "pressure-vessel-wrap detected, disabling GTK\n");
         box64_nogtk = 1;
@@ -1290,26 +1307,35 @@ int main(int argc, const char **argv, char **env) {
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->argv[0], 1);
     if(!elf_header) {
         int x86 = my_context->box86path?FileIsX86ELF(my_context->argv[0]):0;
-        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->argv[0], x86?"using box86":"natively");
+        int script = my_context->bashpath?FileIsShell(my_context->argv[0]):0;
+        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->argv[0], x86?"using box86":(script?"using bash":"natively"));
         fclose(f);
-        free_contextargv();
         FreeCollection(&ld_preload);
+        int ret;
         if(x86) {
             // duplicate the array and insert 1st arg as box86
             const char** newargv = (const char**)box_calloc(my_context->argc+2, sizeof(char*));
             newargv[0] = my_context->box86path;
             for(int i=0; i<my_context->argc; ++i)
                 newargv[i+1] = my_context->argv[i];
-            FreeBox64Context(&my_context);
-            return execvp(newargv[0], (char * const*)newargv);
+            ret = execvp(newargv[0], (char * const*)newargv);
+        } else if (script) {
+            // duplicate the array and insert 1st arg as box64, 2nd is bash
+            const char** newargv = (const char**)box_calloc(my_context->argc+3, sizeof(char*));
+            newargv[0] = my_context->box64path;
+            newargv[1] = my_context->bashpath;
+            for(int i=0; i<my_context->argc; ++i)
+                newargv[i+2] = my_context->argv[i];
+            ret = execvp(newargv[0], (char * const*)newargv);
         } else {
             const char** newargv = (const char**)box_calloc(my_context->argc+1, sizeof(char*));
             for(int i=0; i<my_context->argc; ++i)
                 newargv[i] = my_context->argv[i];
-            FreeBox64Context(&my_context);
-            return execvp(newargv[0], (char * const*)newargv);
+            ret = execvp(newargv[0], (char * const*)newargv);
         }
-        printf_log(LOG_NONE, "Failed to execvp: error is %s\n", strerror(errno));
+        free_contextargv();
+        FreeBox64Context(&my_context);
+        return ret;
     }
     AddElfHeader(my_context, elf_header);
 
