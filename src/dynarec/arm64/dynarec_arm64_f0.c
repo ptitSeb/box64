@@ -30,10 +30,12 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t opcode = F8;
     uint8_t nextop;
     uint8_t gd, ed, u8;
-    uint8_t wback, wb1, wb2, gb1, gb2;
+    uint8_t wback, wb1, wb2, eb1, eb2, gb1, gb2;
     int32_t i32;
     int64_t i64, j64;
     int64_t fixedaddress;
+    MAYUSE(eb1);
+    MAYUSE(eb2);
     MAYUSE(gb1);
     MAYUSE(gb2);
     MAYUSE(wb1);
@@ -704,6 +706,39 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             DMB_ISH();
             break;
             
+        case 0x86:
+            INST_NAME("LOCK XCHG Eb, Gb");
+            // Do the swap
+            nextop = F8;
+            if(MODREG) {
+                GETGB(x4);
+                if(rex.rex) {
+                    ed = xRAX+(nextop&7)+(rex.b<<3);
+                    eb1 = ed;
+                    eb2 = 0;
+                } else {
+                    ed = (nextop&7);
+                    eb1 = xRAX+(ed&3);
+                    eb2 = ((ed&4)>>2);
+                }
+                UBFXw(x1, eb1, eb2*8, 8);
+                // do the swap 14 -> ed, 1 -> gd
+                BFIx(gb1, x1, gb2*8, 8);
+                BFIx(eb1, x4, eb2*8, 8);
+            } else {
+                DMB_ISH();
+                GETGB(x4);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                MARKLOCK;
+                // do the swap with exclusive locking
+                LDAXRB(x1, ed);
+                // do the swap 14 -> strb(ed), 1 -> gd
+                STLXRB(x3, x4, ed);
+                CBNZx_MARKLOCK(x3);
+                DMB_ISH();
+                BFIx(gb1, x1, gb2*8, 8);
+            }
+            break;
         case 0x87:
             INST_NAME("LOCK XCHG Ed, Gd");
             nextop = F8;

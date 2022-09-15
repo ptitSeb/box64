@@ -842,6 +842,35 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
             break;
+
+        case 0x86:                      /* XCHG Eb,Gb */
+            nextop = F8;
+#ifdef DYNAREC
+            GETEB(0);
+            GETGB;
+            if(MODREG) { // reg / reg: no lock
+                tmp8u = GB;
+                GB = EB->byte[0];
+                EB->byte[0] = tmp8u;
+            } else {
+                do {
+                    tmp8u = native_lock_read_b(EB);
+                } while(native_lock_write_b(EB, GB));
+                GB = tmp8u;
+            }
+            // dynarec use need it's own mecanism
+#else
+            GETEB(0);
+            GETGB;
+            if(!MODREG)
+                pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
+            tmp8u = GB;
+            GB = EB->byte[0];
+            EB->byte[0] = tmp8u;
+            if(!MODREG)
+                pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif                
+            break;
         case 0x87:                      /* XCHG Ed,Gd */
             nextop = F8;
 #ifdef DYNAREC
