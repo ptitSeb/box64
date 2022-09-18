@@ -18,6 +18,9 @@ int FileIsX86ELF(const char* filename);
 int FileIsX64ELF(const char* filename);
 int FileIsShell(const char* filename);
 
+// return temp folder (will return /tmp if nothing is correct)
+const char* GetTmpDir();
+
 #if defined(RPI) || defined(RK3399) || defined(RK3326)
 void sanitize_mojosetup_gtk_background();
 #endif

@@ -1726,7 +1726,7 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     int script = (my_context->bashpath && FileIsShell(path))?1:0;
-    printf_log(LOG_DEBUG, "execve(\"%s\", %p, %p) is x64=%d x86=%d script=%d (my_context->envv=%p, environ=%p\n", path, argv, envp, x64, x86, script, my_context->envv, environ);
+    printf_log(LOG_DEBUG, "execve(\"%s\", %p[\"%s\", \"%s\", \"%s\"...], %p) is x64=%d x86=%d script=%d (my_context->envv=%p, environ=%p\n", path, argv, argv[0], argv[1]?argv[1]:"(nil)", argv[2]?argv[2]:"(nil)", envp, x64, x86, script, my_context->envv, environ);
     // hack to update the environ var if needed
     if(envp == my_context->envv && environ) {
         envp = environ;
@@ -1743,8 +1743,9 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         const char** newargv = (const char**)box_calloc(n+1+toadd, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
-        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+toadd));
+        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[toadd] = emu->context->fullpath;
+        else newargv[toadd] = path;
         printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", newargv[0], newargv, newargv[0], (n+toadd)?newargv[1]:"", ((n+toadd)>1)?newargv[2]:"",n, envp);
         int ret = execve(newargv[0], (char* const*)newargv, envp);
         box_free(newargv);
@@ -1759,6 +1760,33 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         char *argv2[3] = { my_context->box64path, argv[1], NULL };
         return execve(path, argv2, envp);
     }
+    #ifndef NOALIGN
+    if(!strcmp(path + strlen(path) - strlen("/grep"), "/grep")
+    && argv[1] && argv[2] && !strcmp(argv[2], "/proc/cpuinfo")) {
+        // special case of a bash script shell running grep on cpuinfo to extract capacities...
+        int n=0;
+        while(argv[n]) ++n;
+        const char** newargv = (const char**)box_calloc(n+1, sizeof(char*));
+        memcpy(newargv, argv, sizeof(char*)*(n));
+        // create a dummy cpuinfo in temp (that will stay there, sorry)
+        const char* tmpdir = GetTmpDir();
+        char template[100] = {0};
+        sprintf(template, "%s/box64cpuinfoXXXXXX", tmpdir);
+        int fd = mkstemp(template);
+        CreateCPUInfoFile(fd);
+        // get back the name
+        char cpuinfo_file[100] = {0};
+        sprintf(template, "/proc/self/fd/%d", fd);
+        int rl = readlink(template, cpuinfo_file, sizeof(cpuinfo_file));
+        close(fd);
+        chmod(cpuinfo_file, 0666);
+        newargv[2] = cpuinfo_file;
+        printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", path, newargv, newargv[0], newargv[1], newargv[2],n, envp);
+        int ret = execve(path, (char* const*)newargv, envp);
+        box_free(newargv);
+        return ret;
+    }
+    #endif
 
     return execve(path, argv, envp);
 }

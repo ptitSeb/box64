@@ -154,7 +154,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     perr = 1;
                 } else if (strstr(s, "waitpid")==s) {
                     pu32 = (uint32_t*)R_RSI;
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%ld, %p, %d)", tid, *(void**)(R_RSP), s, R_RDI, pu32, R_EDX);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %d)", tid, *(void**)(R_RSP), s, R_EDI, pu32, R_EDX);
                     perr = 1;
                     post = 6;
                 } else if (!strcmp(s, "lseek64")) {
