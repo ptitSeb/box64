@@ -36,15 +36,12 @@
  with dlopen will not a be a problem.
  The downside of "Exterminate" is that side effect are less well controled. Staticaly linked stuff and anonymous symbols might put this strategy in trouble.
 
+ This is the Exterminate strategy implementation
 */
 
-//#define EMBRACE
-
-#ifndef EMBRACE
 #include "bridge.h"
 #include "tools/bridge_private.h"
 #include "wrapper.h"
-#endif
 
 #define SUPER()                 \
 GO(malloc, pFL);                \
@@ -140,19 +137,6 @@ char* box_realpath(const char* path, char* ret)
     return box_strdup(tmp);
 }
 
-#ifdef EMBRACE
-// emulated lib/program hooked memory functions
-#define GO(A, B) uintptr_t hooked_##A = 0
-#define GO2(A, B) uintptr_t hooked_##A = 0
-SUPER()
-#undef GO
-#undef GO2
-#define GO(A, B) elfheader_t* elf_##A = NULL
-#define GO2(A, B) elfheader_t* elf_##A = NULL
-SUPER()
-#undef GO
-#endif
-
 static size_t pot(size_t l) {
     size_t ret = 0;
     while (l>(1<<ret))  ++ret;
@@ -162,79 +146,36 @@ static size_t pot(size_t l) {
 // redefining all libc memory allocation routines
 EXPORT void* malloc(size_t l)
 {
-    #ifdef EMBRACE
-    if(hooked_malloc && elf_malloc && elf_malloc->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated malloc(%zd)\n", GetTID(), l);
-        void* ret = (void*)RunSafeFunction(my_context, hooked_malloc, 1, l);
-        return ret;
-    }
-    #endif
     return box_calloc(1, l);
 }
 
 EXPORT void free(void* p)
 {
-    #ifdef EMBRACE
-    if(hooked_free && elf_free && elf_free->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated free(%x)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked_free, 1, p);
-    } else
-    #endif
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void* calloc(size_t n, size_t s)
 {
-    #ifdef EMBRACE
-    if(hooked_calloc && elf_calloc && elf_calloc->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated calloc(%zd, %zd)\n", GetTID(), n, s);
-        return (void*)RunSafeFunction(my_context, hooked_calloc, 2, n, s);
-    }
-    #endif
     return box_calloc(n, s);
 }
 
 EXPORT void* realloc(void* p, size_t s)
 {
-    #ifdef EMBRACE
-    if(hooked_realloc && elf_realloc && elf_realloc->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated realloc(%p, %zd)\n", GetTID(), p, s);
-        return (void*)RunSafeFunction(my_context, hooked_realloc, 2, p, s);
-    }
-    #endif
     return box_realloc(p, s);
 }
 
 EXPORT void* aligned_alloc(size_t align, size_t size)
 {
-    #ifdef EMBRACE
-    if(hooked_aligned_alloc && elf_aligned_alloc && elf_aligned_alloc->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated aligned_alloc(%zd, %zd)\n", GetTID(), align, size);
-        return (void*)RunSafeFunction(my_context, hooked_aligned_alloc, 2, align, size);
-    }
-    #endif
     return box_memalign(align, size);
 }
 
 EXPORT void* memalign(size_t align, size_t size)
 {
-    #ifdef EMBRACE
-    if(hooked_memalign && elf_memalign && elf_memalign->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated memalign(%zd, %zd)\n", GetTID(), align, size);
-        return (void*)RunSafeFunction(my_context, hooked_memalign, 2, align, size);
-    }
-    #endif
     return box_memalign(align, size);
 }
 
 EXPORT int posix_memalign(void** p, size_t align, size_t size)
 {
-    #ifdef EMBRACE
-    if(hooked_posix_memalign && elf_posix_memalign && elf_posix_memalign->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated posix_memalign(%p, %zd, %zd)\n", GetTID(), p, align, size);
-        return (int)RunSafeFunction(my_context, hooked_posix_memalign, 3, p, align, size);
-    }
-    #endif
     if(align%sizeof(void*) || pot(align)!=align)
         return EINVAL;
     void* ret = box_memalign(align, size);
@@ -246,452 +187,254 @@ EXPORT int posix_memalign(void** p, size_t align, size_t size)
 
 EXPORT void* valloc(size_t size)
 {
-    #ifdef EMBRACE
-    if(hooked_valloc && elf_valloc && elf_valloc->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated valloc(%zd)\n", GetTID(), size);
-        return (void*)RunSafeFunction(my_context, hooked_valloc, 1, size);
-    }
-    #endif
     return box_memalign(box64_pagesize, size);
 }
 
 EXPORT void* pvalloc(size_t size)
 {
-    #ifdef EMBRACE
-    if(hooked_pvalloc && elf_pvalloc && elf_pvalloc->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated pvalloc(%zd)\n", GetTID(), size);
-        return (void*)RunSafeFunction(my_context, hooked_pvalloc, 1, size);
-    }
-    #endif
     return box_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
 }
 
 EXPORT void cfree(void* p)
 {
-    #ifdef EMBRACE
-    if(hooked_cfree && elf_cfree && elf_cfree->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated cfree(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked_cfree, 1, p);
-    } else
-    #endif
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT size_t malloc_usable_size(void* p)
 {
-    #ifdef EMBRACE
-    if(hooked_malloc_usable_size && elf_malloc_usable_size && elf_malloc_usable_size->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated malloc_usable_size(%p)\n", GetTID(), p);
-        return (size_t)RunSafeFunction(my_context, hooked_malloc_usable_size, 1, p);
-    } else
-    #endif
-        return box_malloc_usable_size(p);
+    return box_malloc_usable_size(p);
 }
 
 EXPORT void* my__Znwm(size_t sz)   //operator new(size_t)
 {
-    #ifdef EMBRACE
-    if(hooked__Znwm && elf__Znwm && elf__Znwm->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _Znwm(%zu)\n", GetTID(), sz);
-        return (void*)RunSafeFunction(my_context, hooked__Znwm, 1, sz);
-    } else
-    #endif
-        if(box__Znwm)
-            return box__Znwm(sz);
-        else
-            return box_malloc(sz);
+    if(box__Znwm)
+        return box__Znwm(sz);
+    else
+        return box_malloc(sz);
 }
 
 EXPORT void* my__ZnwmRKSt9nothrow_t(size_t sz, void* p)   //operator new(size_t, std::nothrow_t const&)
 {
-    #ifdef EMBRACE
-    if(hooked__ZnwmRKSt9nothrow_t && elf__ZnwmRKSt9nothrow_t && elf__ZnwmRKSt9nothrow_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZnwmRKSt9nothrow_t(%p)\n", GetTID(), p);
-        return (void*)RunSafeFunction(my_context, hooked__ZnwmRKSt9nothrow_t, 2, sz, p);
-    } else
-    #endif
-        if(box__ZnwmRKSt9nothrow_t)
-            return box__ZnwmRKSt9nothrow_t(sz, p);
-        else
-            return box_malloc(sz);
+    if(box__ZnwmRKSt9nothrow_t)
+        return box__ZnwmRKSt9nothrow_t(sz, p);
+    else
+        return box_malloc(sz);
 }
 
 EXPORT void* my__Znam(size_t sz)   //operator new[](size_t)
 {
-    #ifdef EMBRACE
-    if(hooked__Znam && elf__Znam && elf__Znam->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _Znam(%zu)\n", GetTID(), sz);
-        return (void*)RunSafeFunction(my_context, hooked__Znam, 1, sz);
-    } else
-    #endif
-        if(box__Znam)
-            return box__Znam(sz);
-        else
-            return box_malloc(sz);
+    if(box__Znam)
+        return box__Znam(sz);
+    else
+        return box_malloc(sz);
 }
 
 EXPORT void* my__ZnamRKSt9nothrow_t(size_t sz, void* p)   //operator new[](size_t, std::nothrow_t const&)
 {
-    #ifdef EMBRACE
-    if(hooked__ZnamRKSt9nothrow_t && elf__ZnamRKSt9nothrow_t && elf__ZnamRKSt9nothrow_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZnamRKSt9nothrow_t(%p)\n", GetTID(), p);
-        return (void*)RunSafeFunction(my_context, hooked__ZnamRKSt9nothrow_t, 2, sz, p);
-    } else
-    #endif
-        if(box__ZnamRKSt9nothrow_t)
-            return box__ZnamRKSt9nothrow_t(sz, p);
-        return box_malloc(sz);
+    if(box__ZnamRKSt9nothrow_t)
+        return box__ZnamRKSt9nothrow_t(sz, p);
+    return box_malloc(sz);
 }
 
 
 EXPORT void my__ZdaPv(void* p)   //operator delete[](void*)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdaPv && elf__ZdaPv && elf__ZdaPv->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdaPv(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdaPv, 1, p);
-    } else
-    #endif
-        if(box__ZdaPv)
-            box__ZdaPv(p);
-        else
-            box_free(p);
+    if(box__ZdaPv)
+        box__ZdaPv(p);
+    else
+        box_free(p);
 }
 
 EXPORT void my__ZdaPvm(void* p, size_t sz)   //operator delete[](void*, size_t)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdaPvm && elf__ZdaPvm && elf__ZdaPvm->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdaPvm(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdaPvm, 2, p, sz);
-    } else
-    #endif
-        if(box__ZdaPvm)
-            box__ZdaPvm(p, sz);
-        else
-            box_free(p);
+    if(box__ZdaPvm)
+        box__ZdaPvm(p, sz);
+    else
+        box_free(p);
 }
 
 EXPORT void my__ZdaPvmSt11align_val_t(void* p, size_t sz, size_t align)   //operator delete[](void*, unsigned long, std::align_val_t)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdaPvmSt11align_val_t && elf__ZdaPvmSt11align_val_t && elf__ZdaPvmSt11align_val_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdaPvmSt11align_val_t(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdaPvmSt11align_val_t, 3, p, sz, align);
-    } else
-    #endif
-        if(box__ZdaPvmSt11align_val_t)
-            box__ZdaPvmSt11align_val_t(p, sz, align);
-        else
-            box_free(p);
+    if(box__ZdaPvmSt11align_val_t)
+        box__ZdaPvmSt11align_val_t(p, sz, align);
+    else
+        box_free(p);
 }
 
 EXPORT void my__ZdlPv(void* p)   //operator delete(void*)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdlPv && elf__ZdlPv && elf__ZdlPv->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdlPv(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdlPv, 1, p);
-    } else
-    #endif
-        if(box__ZdlPv)
-            box__ZdlPv(p);
-        else
-            box_free(p);
+    if(box__ZdlPv)
+        box__ZdlPv(p);
+    else
+        box_free(p);
 }
 
 EXPORT void my__ZdlPvm(void* p, size_t sz)   //operator delete(void*, size_t)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdlPvm && elf__ZdlPvm && elf__ZdlPvm->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdlPvm(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdlPvm, 2, p, sz);
-    } else
-    #endif
-        if(box__ZdlPvm)
-            box__ZdlPvm(p, sz);
-        else
-            box_free(p);
+    if(box__ZdlPvm)
+        box__ZdlPvm(p, sz);
+    else
+        box_free(p);
 }
 
 EXPORT void* my__ZnwmSt11align_val_t(size_t sz, size_t align)  //// operator new(unsigned long, std::align_val_t)
 {
-    #ifdef EMBRACE
-    if(hooked__ZnwmSt11align_val_t && elf__ZnwmSt11align_val_t && elf__ZnwmSt11align_val_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZnwmSt11align_val_t(%zu, %zu)\n", GetTID(), sz, align);
-        return (void*)RunSafeFunction(my_context, hooked__ZnwmSt11align_val_t, 2, sz, align);
-    } else
-    #endif
-        if(box__ZnwmSt11align_val_t)
-            return box__ZnwmSt11align_val_t(sz, align);
-        else
-            return box_memalign(align, sz);
+    if(box__ZnwmSt11align_val_t)
+        return box__ZnwmSt11align_val_t(sz, align);
+    else
+        return box_memalign(align, sz);
 }
 
 EXPORT void* my__ZnwmSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new(unsigned long, std::align_val_t, std::nothrow_t const&)
 {
-    #ifdef EMBRACE
-    if(hooked__ZnwmSt11align_val_tRKSt9nothrow_t && elf__ZnwmSt11align_val_tRKSt9nothrow_t && elf__ZnwmSt11align_val_tRKSt9nothrow_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZnwmSt11align_val_tRKSt9nothrow_t(%zu, %zu, %p)\n", GetTID(), sz, align, p);
-        return (void*)RunSafeFunction(my_context, hooked__ZnwmSt11align_val_tRKSt9nothrow_t, 3, sz, align, p);
-    } else
-    #endif
-        if(box__ZnwmSt11align_val_tRKSt9nothrow_t)
-            return box__ZnwmSt11align_val_tRKSt9nothrow_t(sz, align, p);
-        else
-            return box_memalign(align, sz);
+    if(box__ZnwmSt11align_val_tRKSt9nothrow_t)
+        return box__ZnwmSt11align_val_tRKSt9nothrow_t(sz, align, p);
+    else
+        return box_memalign(align, sz);
 }
 
 EXPORT void* my__ZnamSt11align_val_t(size_t sz, size_t align)  //// operator new[](unsigned long, std::align_val_t)
 {
-    #ifdef EMBRACE
-    if(hooked__ZnamSt11align_val_t && elf__ZnamSt11align_val_t && elf__ZnamSt11align_val_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZnamSt11align_val_t(%zu, %zu)\n", GetTID(), sz, align);
-        return (void*)RunSafeFunction(my_context, hooked__ZnamSt11align_val_t, 2, sz, align);
-    } else
-    #endif
-        if(box__ZnamSt11align_val_t)
-            return box__ZnamSt11align_val_t(sz, align);
-        else
-            return box_memalign(align, sz);
+    if(box__ZnamSt11align_val_t)
+        return box__ZnamSt11align_val_t(sz, align);
+    else
+        return box_memalign(align, sz);
 }
 
 EXPORT void* my__ZnamSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new[](unsigned long, std::align_val_t, std::nothrow_t const&)
 {
-    #ifdef EMBRACE
-    if(hooked__ZnamSt11align_val_tRKSt9nothrow_t && elf__ZnamSt11align_val_tRKSt9nothrow_t && elf__ZnamSt11align_val_tRKSt9nothrow_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZnamSt11align_val_tRKSt9nothrow_t(%zu, %zu, %p)\n", GetTID(), sz, align, p);
-        return (void*)RunSafeFunction(my_context, hooked__ZnamSt11align_val_tRKSt9nothrow_t, 3, sz, align, p);
-    } else
-    #endif
-        if(box__ZnamSt11align_val_tRKSt9nothrow_t)
-            return box__ZnamSt11align_val_tRKSt9nothrow_t(sz, align, p);
-        else
-            return box_memalign(align, sz);
+    if(box__ZnamSt11align_val_tRKSt9nothrow_t)
+        return box__ZnamSt11align_val_tRKSt9nothrow_t(sz, align, p);
+    else
+        return box_memalign(align, sz);
 }
 
 EXPORT void my__ZdlPvRKSt9nothrow_t(void* p, void* n)   //operator delete(void*, std::nothrow_t const&)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdlPvRKSt9nothrow_t && elf__ZdlPvRKSt9nothrow_t && elf__ZdlPvRKSt9nothrow_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdlPvRKSt9nothrow_t(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdlPvRKSt9nothrow_t, 2, p, n);
-    } else
-    #endif
-        if(box__ZdlPvRKSt9nothrow_t)
-            box__ZdlPvRKSt9nothrow_t(p, n);
-        else
-            box_free(p);
+    if(box__ZdlPvRKSt9nothrow_t)
+        box__ZdlPvRKSt9nothrow_t(p, n);
+    else
+        box_free(p);
 }
 
 EXPORT void my__ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete[](void*, std::align_val_t, std::nothrow_t const&)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdaPvSt11align_val_tRKSt9nothrow_t && elf__ZdaPvSt11align_val_tRKSt9nothrow_t && elf__ZdaPvSt11align_val_tRKSt9nothrow_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdaPvSt11align_val_tRKSt9nothrow_t(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdaPvSt11align_val_tRKSt9nothrow_t, 3, p, align, n);
-    } else
-    #endif
-        if(box__ZdaPvSt11align_val_tRKSt9nothrow_t)
-            box__ZdaPvSt11align_val_tRKSt9nothrow_t(p, align, n);
-        else
-            box_free(p);
+    if(box__ZdaPvSt11align_val_tRKSt9nothrow_t)
+        box__ZdaPvSt11align_val_tRKSt9nothrow_t(p, align, n);
+    else
+        box_free(p);
 }
 
 EXPORT void my__ZdlPvmSt11align_val_t(void* p, size_t sz, size_t align)   //operator delete(void*, unsigned long, std::align_val_t)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdlPvmSt11align_val_t && elf__ZdlPvmSt11align_val_t && elf__ZdlPvmSt11align_val_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdlPvmSt11align_val_t(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdlPvmSt11align_val_t, 3, p, sz, align);
-    } else
-    #endif
-        if(box__ZdlPvmSt11align_val_t)
-            box__ZdlPvmSt11align_val_t(p, sz, align);
-        else
-            box_free(p);
+    if(box__ZdlPvmSt11align_val_t)
+        box__ZdlPvmSt11align_val_t(p, sz, align);
+    else
+        box_free(p);
 }
 
 EXPORT void my__ZdaPvRKSt9nothrow_t(void* p, void* n)   //operator delete[](void*, std::nothrow_t const&)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdaPvRKSt9nothrow_t && elf__ZdaPvRKSt9nothrow_t && elf__ZdaPvRKSt9nothrow_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdaPvRKSt9nothrow_t(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdaPvRKSt9nothrow_t, 2, p, n);
-    } else
-    #endif
-        if(box__ZdaPvRKSt9nothrow_t)
-            box__ZdaPvRKSt9nothrow_t(p, n);
-        else
-            box_free(p);
+    if(box__ZdaPvRKSt9nothrow_t)
+        box__ZdaPvRKSt9nothrow_t(p, n);
+    else
+        box_free(p);
 }
 
 EXPORT void my__ZdaPvSt11align_val_t(void* p, size_t align)   //operator delete[](void*, std::align_val_t)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdaPvSt11align_val_t && elf__ZdaPvSt11align_val_t && elf__ZdaPvSt11align_val_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdaPvSt11align_val_t(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdaPvSt11align_val_t, 2, p, align);
-    } else
-    #endif
-        if(box__ZdaPvSt11align_val_t)
-            box__ZdaPvSt11align_val_t(p, align);
-        else
-            box_free(p);
+    if(box__ZdaPvSt11align_val_t)
+        box__ZdaPvSt11align_val_t(p, align);
+    else
+        box_free(p);
 }
 
 EXPORT void my__ZdlPvSt11align_val_t(void* p, size_t align)   //operator delete(void*, std::align_val_t)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdlPvSt11align_val_t && elf__ZdlPvSt11align_val_t && elf__ZdlPvSt11align_val_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdlPvSt11align_val_t(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdlPvSt11align_val_t, 2, p, align);
-    } else
-    #endif
-        if(box__ZdlPvSt11align_val_t)
-            box__ZdlPvSt11align_val_t(p, align);
-        else
-            box_free(p);
+    if(box__ZdlPvSt11align_val_t)
+        box__ZdlPvSt11align_val_t(p, align);
+    else
+        box_free(p);
 }
 
 EXPORT void my__ZdlPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete(void*, std::align_val_t, std::nothrow_t const&)
 {
-    #ifdef EMBRACE
-    if(hooked__ZdlPvSt11align_val_tRKSt9nothrow_t && elf__ZdlPvSt11align_val_tRKSt9nothrow_t && elf__ZdlPvSt11align_val_tRKSt9nothrow_t->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated _ZdlPvSt11align_val_tRKSt9nothrow_t(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked__ZdlPvSt11align_val_tRKSt9nothrow_t, 3, p, align, n);
-    } else
-    #endif
-        if(box__ZdlPvSt11align_val_tRKSt9nothrow_t)
-            box__ZdlPvSt11align_val_tRKSt9nothrow_t(p, align, n);
-        else
-            box_free(p);
+    if(box__ZdlPvSt11align_val_tRKSt9nothrow_t)
+        box__ZdlPvSt11align_val_tRKSt9nothrow_t(p, align, n);
+    else
+        box_free(p);
 }
 
 EXPORT void* my_tc_calloc(size_t n, size_t s)
 {
-    #ifdef EMBRACE
-    if(hooked_tc_calloc && elf_tc_calloc && elf_tc_calloc->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated tc_calloc(%zd, %zd)\n", GetTID(), n, s);
-        return (void*)RunSafeFunction(my_context, hooked_tc_calloc, 2, n, s);
-    }
-    #endif
-        if(box_tc_calloc)
-            return box_tc_calloc(n, s);
-        else
-            return box_calloc(n, s);
+    if(box_tc_calloc)
+        return box_tc_calloc(n, s);
+    else
+        return box_calloc(n, s);
 }
 
 EXPORT void my_tc_cfree(void* p)
 {
-    #ifdef EMBRACE
-    if(hooked_tc_cfree && elf_tc_cfree && elf_tc_cfree->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated tc_cfree(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked_tc_cfree, 1, p);
-    } else
-    #endif
-        if(box_tc_cfree)
-            box_tc_cfree(p);
-        else
-            box_free(p);
+    if(box_tc_cfree)
+        box_tc_cfree(p);
+    else
+        box_free(p);
 }
 
 EXPORT void my_tc_delete(void* p)
 {
-    #ifdef EMBRACE
-    if(hooked_tc_delete && elf_tc_delete && elf_tc_delete->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated tc_delete(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked_tc_delete, 1, p);
-    } else
-    #endif
-        if(box_tc_delete)
-            box_tc_delete(p);
-        else
-            box_free(p);
+    if(box_tc_delete)
+        box_tc_delete(p);
+    else
+        box_free(p);
 }
 
 EXPORT void my_tc_deletearray(void* p)
 {
-    #ifdef EMBRACE
-    if(hooked_tc_deletearray && elf_tc_deletearray && elf_tc_deletearray->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated tc_deletearray(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked_tc_deletearray, 1, p);
-    } else
-    #endif
-        if(box_tc_deletearray)
-            box_tc_deletearray(p);
-        else
-            box_free(p);
+    if(box_tc_deletearray)
+        box_tc_deletearray(p);
+    else
+        box_free(p);
 }
 
 EXPORT void my_tc_deletearray_nothrow(void* p, void* n)
 {
-    #ifdef EMBRACE
-    if(hooked_tc_deletearray_nothrow && elf_tc_deletearray_nothrow && elf_tc_deletearray_nothrow->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated tc_deletearray_nothrow(%p, %p)\n", GetTID(), p, n);
-        RunSafeFunction(my_context, hooked_tc_deletearray_nothrow, 2, p, n);
-    } else
-    #endif
-        if(box_tc_deletearray_nothrow)
-            box_tc_deletearray_nothrow(p, n);
-        else
-            box_free(p);
+    if(box_tc_deletearray_nothrow)
+        box_tc_deletearray_nothrow(p, n);
+    else
+        box_free(p);
 }
 
 EXPORT void my_tc_delete_nothrow(void* p, void* n)
 {
-    #ifdef EMBRACE
-    if(hooked_tc_delete_nothrow && elf_tc_delete_nothrow && elf_tc_delete_nothrow->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated tc_delete_nothrow(%p, %p)\n", GetTID(), p, n);
-        RunSafeFunction(my_context, hooked_tc_delete_nothrow, 2, p, n);
-    } else
-    #endif
-        if(box_tc_delete_nothrow)
-            box_tc_delete_nothrow(p, n);
-        else
-            box_free(p);
+    if(box_tc_delete_nothrow)
+        box_tc_delete_nothrow(p, n);
+    else
+        box_free(p);
 }
 
 EXPORT void my_tc_free(void* p)
 {
-    #ifdef EMBRACE
-    if(hooked_tc_free && elf_tc_free && elf_tc_free->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated tc_free(%p)\n", GetTID(), p);
-        RunSafeFunction(my_context, hooked_tc_free, 1, p);
-    } else
-    #endif
-        if(box_tc_free)
-            box_tc_free(p);
-        else
-            box_free(p);
+    if(box_tc_free)
+        box_tc_free(p);
+    else
+        box_free(p);
 }
 
 EXPORT void* my_tc_malloc(size_t s)
 {
-    #ifdef EMBRACE
-    if(hooked_tc_malloc && elf_tc_malloc && elf_tc_malloc->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated tc_malloc(%zd)\n", GetTID(), s);
-        return (void*)RunSafeFunction(my_context, hooked_tc_malloc, 1, s);
-    }
-    #endif
-        if(box_tc_malloc)
-            return box_tc_malloc(s);
-        else
-            return box_calloc(1, s);
+    if(box_tc_malloc)
+        return box_tc_malloc(s);
+    else
+        return box_calloc(1, s);
 }
 
 EXPORT size_t my_tc_malloc_size(void* p)
 {
-    #ifdef EMBRACE
-    if(hooked_tc_malloc_size && elf_tc_malloc_size && elf_tc_malloc_size->init_done) {
-        printf_log(LOG_DEBUG, "%04d|emulated tc_malloc_size(%p)\n", GetTID(), p);
-        return (size_t)RunSafeFunction(my_context, hooked_tc_malloc_size, 1, p);
-    }
-    #endif
-        if(box_tc_malloc_size)
-            return box_tc_malloc_size(p);
-        else
-            return box_malloc_usable_size(p);
+    if(box_tc_malloc_size)
+        return box_tc_malloc_size(p);
+    else
+        return box_malloc_usable_size(p);
 }
 
 #pragma pack(push, 1)
@@ -714,9 +457,7 @@ static void addRelocJmp(void* offs, void* where)
 
 void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
 {
-    #ifndef EMBRACE
     static int hooked = 0;
-    #endif
     for (size_t i=0; i<h->numDynSym; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
@@ -727,10 +468,6 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             size_t sz = h->DynSym[i].st_size;
             if(bind!=STB_LOCAL && bind!=STB_WEAK && sz>=sizeof(reloc_jmp_t)) {
-                #ifdef EMBRACE
-                #define GO(A, B) if (!hooked_##A && !strcmp(symname, #A)) {hooked_##A = offs; elf_##A = h; if(hooked_##A) printf_log(LOG_INFO, "Overriding %s to %p (%s)\n", #A, (void*)hooked_##A, h->name);}
-                #define GO2(A, B) if (!hooked_##A &&hooked_malloc && !strcmp(symname, #A)) {hooked_##A = offs; elf_##A = h; if(hooked_##A) printf_log(LOG_INFO, "Overriding %s to %p (%s)\n", #A, (void*)hooked_##A, h->name);}
-                #else
                 #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt);}
                 #define GO2(A, B)
                 SUPER()
@@ -741,7 +478,6 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
                 #undef GO2
                 #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); hooked=1; printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt);}
                 #define GO2(A, B) if(hooked && !strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, #A); printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt);}
-                #endif
                 SUPER()
                 #undef GO
                 #undef GO2
