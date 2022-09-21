@@ -329,7 +329,7 @@ GO(XEventsQueued, iFpi)
 // _Xevent_to_mask  // type r
 // _XEventToWire
 GO(XExtendedMaxRequestSize, lFp)
-//GO(XExtentsOfFontSet
+GO(XExtentsOfFontSet, pFp)
 // _XF86BigfontFreeFontMetrics
 // _XF86LoadQueryLocaleFont
 //GO(XFetchBuffer
