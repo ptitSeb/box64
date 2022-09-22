@@ -1275,6 +1275,7 @@ void uFppppp(x64emu_t *emu, uintptr_t fnc);
 void UFuiiii(x64emu_t *emu, uintptr_t fnc);
 void lFipili(x64emu_t *emu, uintptr_t fnc);
 void lFipLli(x64emu_t *emu, uintptr_t fnc);
+void lFipLlL(x64emu_t *emu, uintptr_t fnc);
 void lFipLLi(x64emu_t *emu, uintptr_t fnc);
 void lFipLpp(x64emu_t *emu, uintptr_t fnc);
 void LFELppi(x64emu_t *emu, uintptr_t fnc);

@@ -1363,7 +1363,7 @@ GOW(pread, lFipLl)
 GOW(__pread64, lFipLI)
 GOW(pread64, lFipLl)
 //GO(__pread64_chk, 
-//GO(__pread_chk, 
+GO(__pread_chk, lFipLlL)
 GO(preadv, lFipil)
 GO(preadv2, lFipili)
 GO(preadv64, lFipil)
