@@ -104,9 +104,9 @@ GO(xcb_randr_get_output_info, pFpppu)
 //GO(xcb_randr_get_output_info_modes, 
 //GO(xcb_randr_get_output_info_modes_end, 
 //GO(xcb_randr_get_output_info_modes_length, 
-//GO(xcb_randr_get_output_info_name, 
-//GO(xcb_randr_get_output_info_name_end, 
-//GO(xcb_randr_get_output_info_name_length, 
+GO(xcb_randr_get_output_info_name, pFp)
+GO(xcb_randr_get_output_info_name_end, pFp)
+GO(xcb_randr_get_output_info_name_length, iFp)
 GO(xcb_randr_get_output_info_reply, pFpup)
 //GO(xcb_randr_get_output_info_sizeof, 
 GO(xcb_randr_get_output_info_unchecked, pFpppu)
