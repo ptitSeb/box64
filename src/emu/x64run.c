@@ -135,10 +135,11 @@ x64emurun:
         case 0x0F:                      /* More instructions */
             switch(rep) {
                 case 1:
-                    if(!(addr = RunF20F(emu, rex, addr))) {
+                    if(!(addr = RunF20F(emu, rex, addr, &step))) {
                         unimp = 1;
                         goto fini;
                     }
+                    if(step==2) STEP2;
                     break;
                 case 2:
                     if(!(addr = RunF30F(emu, rex, addr))) {
@@ -147,10 +148,11 @@ x64emurun:
                     }
                     break;
                 default:
-                    if(!(addr = Run0F(emu, rex, addr))) {
+                    if(!(addr = Run0F(emu, rex, addr, &step))) {
                         unimp = 1;
                         goto fini;
                     }
+                    if(step==2) STEP2;
                     break;
             }
             if(emu->quit) {
@@ -330,7 +332,7 @@ x64emurun:
         GOCOND(0x70
             ,   tmp8s = F8S; CHECK_FLAGS(emu);
             ,   addr += tmp8s;
-            ,
+            ,,STEP2
             )                           /* Jxx Ib */
         
         case 0x80:                      /* GRP Eb,Ib */
@@ -1270,7 +1272,7 @@ x64emurun:
                 addr += tmp8s;
             STEP2
             break;
-        case 0xE3:                      /* JECXZ */
+        case 0xE3:                      /* JRCXZ */
             tmp8s = F8S;
             if(!R_RCX)
                 addr += tmp8s;

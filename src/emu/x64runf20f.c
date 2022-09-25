@@ -22,7 +22,7 @@
 
 #include "modrm.h"
 
-uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr)
+uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -257,7 +257,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     GOCOND(0x80
         , tmp32s = F32S; CHECK_FLAGS(emu);
         , addr += tmp32s;
-        ,
+        ,,STEP3
     )                               /* 0x80 -> 0x8F Jxx */
         
     case 0xC2:  /* CMPSD Gx, Ex, Ib */

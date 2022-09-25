@@ -64,7 +64,7 @@ void UpdateFlags(x64emu_t *emu);
 #define CHECK_FLAGS(emu) if(emu->df) UpdateFlags(emu)
 #define RESET_FLAGS(emu) emu->df = d_none
 
-uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr);
+uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step);
 uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr);
 uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr);
 uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr);
@@ -85,7 +85,7 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr);
-uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr);
+uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step);
 uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr);
 
 void x64Syscall(x64emu_t *emu);

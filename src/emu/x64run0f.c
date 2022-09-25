@@ -28,7 +28,7 @@
 
 #include "modrm.h"
 
-uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr)
+uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -343,6 +343,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             CHECK_FLAGS(emu);
             , if(rex.w) {GD->q[0] = ED->q[0]; } else {GD->q[0] = ED->dword[0];}
             , if(!rex.w) GD->dword[1] = 0;
+            ,
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         
         case 0x50:                      /* MOVMSKPS Gd, Ex */
@@ -749,13 +750,14 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
             , addr += tmp32s;
-            ,
+            ,,STEP3
         )                               /* 0x80 -> 0x8F Jxx */
         GOCOND(0x90
             , nextop = F8; CHECK_FLAGS(emu);
             GETEB(0);
             , EB->byte[0]=1;
             , EB->byte[0]=0;
+            ,
         )                               /* 0x90 -> 0x9F SETxx Eb */
 
         case 0xA2:                      /* CPUID */

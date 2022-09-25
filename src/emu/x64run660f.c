@@ -829,7 +829,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEW(0);
         GETGW;
         , if(rex.w) GW->q[0] = EW->q[0]; else GW->word[0] = EW->word[0];
-        ,
+        ,,
     )                               /* 0x40 -> 0x4F CMOVxx Gw,Ew */ // conditional move, no sign
 
     case 0x50:                      /* MOVMSKPD Gd, Ex */

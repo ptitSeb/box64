@@ -11,9 +11,11 @@
 #ifdef DYNAREC
 #define STEP if(step) return 0;
 #define STEP2 if(step) {R_RIP = addr; return 0;}
+#define STEP3 if(*step) *(step)++;
 #else
 #define STEP
 #define STEP2
+#define STEP3
 #endif
 
 #define GETED(D)            oped=GetEd(emu, &addr, rex, nextop, D)
@@ -48,7 +50,7 @@
 
 #define MODREG  ((nextop&0xC0)==0xC0)
 
-#define GOCOND(BASE, PREFIX, COND, NOTCOND)     \
+#define GOCOND(BASE, PREFIX, COND, NOTCOND, POST)\
     case BASE+0x0:                              \
         PREFIX                                  \
         if(ACCESS_FLAG(F_OF)) {                 \
@@ -56,6 +58,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0x1:                              \
         PREFIX                                  \
@@ -64,6 +67,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0x2:                              \
         PREFIX                                  \
@@ -72,6 +76,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0x3:                              \
         PREFIX                                  \
@@ -80,6 +85,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0x4:                              \
         PREFIX                                  \
@@ -88,6 +94,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0x5:                              \
         PREFIX                                  \
@@ -96,6 +103,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0x6:                              \
         PREFIX                                  \
@@ -104,6 +112,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0x7:                              \
         PREFIX                                  \
@@ -112,6 +121,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0x8:                              \
         PREFIX                                  \
@@ -120,6 +130,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0x9:                              \
         PREFIX                                  \
@@ -128,6 +139,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0xA:                              \
         PREFIX                                  \
@@ -136,6 +148,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0xB:                              \
         PREFIX                                  \
@@ -144,6 +157,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0xC:                              \
         PREFIX                                  \
@@ -152,6 +166,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0xD:                              \
         PREFIX                                  \
@@ -160,6 +175,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0xE:                              \
         PREFIX                                  \
@@ -168,6 +184,7 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;                                  \
     case BASE+0xF:                              \
         PREFIX                                  \
@@ -176,4 +193,5 @@
         } else {                                \
             NOTCOND                             \
         }                                       \
+        POST                                    \
         break;

@@ -213,7 +213,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
         if(ok<0)  {ok = 0; need_epilog=1;}
         ++ninst;
         #if STEP == 0
-        if(ok && !isJumpTableDefault64((void*)addr) && (box64_dynarec_bigblock<2))
+        if(ok && ((!isJumpTableDefault64((void*)addr) && (box64_dynarec_bigblock<2)) || (addr>=box64_nodynarec_start && addr<box64_nodynarec_end)))
         #else
         if(ok && (ninst==dyn->size))
         #endif
