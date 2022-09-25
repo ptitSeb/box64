@@ -746,3 +746,7 @@ GOM(vkDestroyAccelerationStructureNV, vFEpUp)
 GO(vkGetAccelerationStructureHandleNV, iFpULp)
 GO(vkGetAccelerationStructureMemoryRequirementsNV, vFppp)
 GO(vkGetRayTracingShaderGroupHandlesNV, iFpUuuLp)
+
+// VK_EXT_acquire_xlib_display
+GO(vkAcquireXlibDisplayEXT, iFppU)
+GO(vkGetRandROutputDisplayEXT, iFpppp)
