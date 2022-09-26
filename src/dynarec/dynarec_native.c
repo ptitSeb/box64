@@ -330,7 +330,10 @@ static void updateNeed(dynarec_native_t* dyn, int ninst, uint32_t need) {
     if((new_need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET) {
         new_need &=~X_PEND;
         new_need |= X_ALL;
+    } else if((new_need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET_PENDING) {
+        new_need |= X_ALL&~dyn->insts[ninst].x64.set_flags;
     }
+
 
     uint32_t new_set = 0;
     if(dyn->insts[ninst].x64.state_flags & SF_SET)

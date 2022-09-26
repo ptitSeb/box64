@@ -54,7 +54,7 @@ typedef enum {
 	d_and16,
 	d_and32,
 	d_and64,
-	d_dec8,
+	d_dec8,		// warning dec8..inc64 needs to be in sequence
 	d_dec16,
 	d_dec32,
 	d_dec64,
@@ -131,7 +131,15 @@ typedef enum {
 	d_rcr16,
 	d_rcr32,
 	d_rcr64,
-	d_unknown	//46
+	d_dec8i,	// interpretor version, to handle the CF flags that is untouched
+	d_dec16i,
+	d_dec32i,
+	d_dec64i,
+	d_inc8i,
+	d_inc16i,
+	d_inc32i,
+	d_inc64i,
+	d_unknown	//95
 } defered_flags_t;
 
 #pragma pack(push, 1)

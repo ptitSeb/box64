@@ -89,88 +89,106 @@ uint64_t     cmp64 (x64emu_t *emu, uint64_t d, uint64_t s);
 uint8_t      daa8  (x64emu_t *emu, uint8_t d);
 uint8_t      das8  (x64emu_t *emu, uint8_t d);
 
+#define CF_SAV()	\
+	if(emu->df>=d_dec8 && emu->df<=d_inc64)	{		\
+		emu->df_sav = d_none;						\
+	} else if(emu->df<d_dec8i || emu->df>d_inc64i) {\
+		emu->df_sav = emu->df;						\
+		emu->op1_sav = emu->op1;					\
+		emu->res_sav = emu->res;					\
+	}
+
 static inline uint8_t dec8(x64emu_t *emu, uint8_t d)
 {
+	CF_SAV();
     emu->res.u8 = d - 1;
 	emu->op1.u8 = d;
-	emu->df = d_dec8;
+	emu->df = d_dec8i;
 	return emu->res.u8;
 }
 
 static inline uint16_t dec16(x64emu_t *emu, uint16_t d)
 {
+	CF_SAV();
     emu->res.u16 = d - 1;
 	emu->op1.u16 = d;
-	emu->df = d_dec16;
+	emu->df = d_dec16i;
 	return emu->res.u16;
 
 }
 
 static inline uint32_t dec32(x64emu_t *emu, uint32_t d)
 {
+	CF_SAV();
     emu->res.u32 = d - 1;
 	emu->op1.u32 = d;
-	emu->df = d_dec32;
+	emu->df = d_dec32i;
 
 	return emu->res.u32;
 }
 
 static inline uint64_t dec64(x64emu_t *emu, uint64_t d)
 {
+	CF_SAV();
     emu->res.u64 = d - 1;
 	emu->op1.u64 = d;
-	emu->df = d_dec64;
+	emu->df = d_dec64i;
 
 	return emu->res.u64;
 }
 
 static inline uint8_t inc8(x64emu_t *emu, uint8_t d)
 {
+	CF_SAV();
 	emu->res.u8 = d + 1;
 	emu->op1.u8 = d;
-	emu->df = d_inc8;
+	emu->df = d_inc8i;
 	return emu->res.u8;
 }
 
 static inline uint16_t inc16(x64emu_t *emu, uint16_t d)
 {
+	CF_SAV();
 	emu->res.u16 = d + 1;
 	emu->op1.u16 = d;
-	emu->df = d_inc16;
+	emu->df = d_inc16i;
 	return emu->res.u16;
 }
 
 static inline uint32_t inc32(x64emu_t *emu, uint32_t d)
 {
-	if(emu->df == d_shr32) {
+	/*if(emu->df == d_shr32) {
 		// workaround for some wine trickery
 		uint32_t cnt = emu->op2.u32;
         if (cnt > 0) {
             uint32_t cc = emu->op1.u32 & (1 << (cnt - 1));
 			CONDITIONAL_SET_FLAG(cc, F_CF);
 		}
-	}
+	}*/
+	CF_SAV();
 	emu->res.u32 = d + 1;
 	emu->op1.u32 = d;
-	emu->df = d_inc32;
+	emu->df = d_inc32i;
 	return emu->res.u32;
 }
 
 static inline uint64_t inc64(x64emu_t *emu, uint64_t d)
 {
-	if(emu->df == d_shr64) {
+	/*if(emu->df == d_shr64) {
 		// workaround for some wine trickery
 		uint64_t cnt = emu->op2.u64;
         if (cnt > 0) {
             uint64_t cc = emu->op1.u64 & (1LL << (cnt - 1));
 			CONDITIONAL_SET_FLAG(cc, F_CF);
 		}
-	}
+	}*/
+	CF_SAV();
 	emu->res.u64 = d + 1;
 	emu->op1.u64 = d;
-	emu->df = d_inc64;
+	emu->df = d_inc64i;
 	return emu->res.u64;
 }
+#undef CF_SAV
 
 static inline uint8_t or8(x64emu_t *emu, uint8_t d, uint8_t s)
 {

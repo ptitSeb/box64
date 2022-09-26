@@ -52,6 +52,9 @@ typedef struct x64emu_s {
     multiuint_t op1;
     multiuint_t op2;
     multiuint_t res;
+    multiuint_t op1_sav;    // for dec/inc defered flags, to be able to compute CF
+    multiuint_t res_sav;
+    defered_flags_t df_sav;
     uint32_t    *x64emu_parity_tab; // helper
     #ifdef HAVE_TRACE
     reg64_t     oldregs[16];
