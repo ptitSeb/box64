@@ -4,7 +4,7 @@
 
 //GO(lzma_alone_decoder, 
 //GO(lzma_alone_encoder, 
-//GO(lzma_auto_decoder, 
+GO(lzma_auto_decoder, iFpUu)
 //GO(lzma_block_buffer_bound, 
 //GO(lzma_block_buffer_decode, 
 //GO(lzma_block_buffer_encode, 
