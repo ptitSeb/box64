@@ -105,11 +105,6 @@ void (*__libc_free*)(void*) = NULL;
 void*(*__libc_memalign)(size_t, size_t) = NULL;
 #endif
 size_t(*box_malloc_usable_size)(void*) = NULL;
-#define GO(A, B)
-#define GO2(A, B)   B##_t box_##A = NULL
-SUPER()
-#undef GO2
-#undef GO
 
 int GetTID();
 
@@ -207,234 +202,148 @@ EXPORT size_t malloc_usable_size(void* p)
 
 EXPORT void* my__Znwm(size_t sz)   //operator new(size_t)
 {
-    if(box__Znwm)
-        return box__Znwm(sz);
-    else
-        return box_malloc(sz);
+    return box_malloc(sz);
 }
 
 EXPORT void* my__ZnwmRKSt9nothrow_t(size_t sz, void* p)   //operator new(size_t, std::nothrow_t const&)
 {
-    if(box__ZnwmRKSt9nothrow_t)
-        return box__ZnwmRKSt9nothrow_t(sz, p);
-    else
-        return box_malloc(sz);
+    return box_malloc(sz);
 }
 
 EXPORT void* my__Znam(size_t sz)   //operator new[](size_t)
 {
-    if(box__Znam)
-        return box__Znam(sz);
-    else
-        return box_malloc(sz);
+    return box_malloc(sz);
 }
 
 EXPORT void* my__ZnamRKSt9nothrow_t(size_t sz, void* p)   //operator new[](size_t, std::nothrow_t const&)
 {
-    if(box__ZnamRKSt9nothrow_t)
-        return box__ZnamRKSt9nothrow_t(sz, p);
     return box_malloc(sz);
 }
 
 
 EXPORT void my__ZdaPv(void* p)   //operator delete[](void*)
 {
-    if(box__ZdaPv)
-        box__ZdaPv(p);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my__ZdaPvm(void* p, size_t sz)   //operator delete[](void*, size_t)
 {
-    if(box__ZdaPvm)
-        box__ZdaPvm(p, sz);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my__ZdaPvmSt11align_val_t(void* p, size_t sz, size_t align)   //operator delete[](void*, unsigned long, std::align_val_t)
 {
-    if(box__ZdaPvmSt11align_val_t)
-        box__ZdaPvmSt11align_val_t(p, sz, align);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my__ZdlPv(void* p)   //operator delete(void*)
 {
-    if(box__ZdlPv)
-        box__ZdlPv(p);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my__ZdlPvm(void* p, size_t sz)   //operator delete(void*, size_t)
 {
-    if(box__ZdlPvm)
-        box__ZdlPvm(p, sz);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void* my__ZnwmSt11align_val_t(size_t sz, size_t align)  //// operator new(unsigned long, std::align_val_t)
 {
-    if(box__ZnwmSt11align_val_t)
-        return box__ZnwmSt11align_val_t(sz, align);
-    else
-        return box_memalign(align, sz);
+    return box_memalign(align, sz);
 }
 
 EXPORT void* my__ZnwmSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new(unsigned long, std::align_val_t, std::nothrow_t const&)
 {
-    if(box__ZnwmSt11align_val_tRKSt9nothrow_t)
-        return box__ZnwmSt11align_val_tRKSt9nothrow_t(sz, align, p);
-    else
-        return box_memalign(align, sz);
+    return box_memalign(align, sz);
 }
 
 EXPORT void* my__ZnamSt11align_val_t(size_t sz, size_t align)  //// operator new[](unsigned long, std::align_val_t)
 {
-    if(box__ZnamSt11align_val_t)
-        return box__ZnamSt11align_val_t(sz, align);
-    else
-        return box_memalign(align, sz);
+    return box_memalign(align, sz);
 }
 
 EXPORT void* my__ZnamSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new[](unsigned long, std::align_val_t, std::nothrow_t const&)
 {
-    if(box__ZnamSt11align_val_tRKSt9nothrow_t)
-        return box__ZnamSt11align_val_tRKSt9nothrow_t(sz, align, p);
-    else
-        return box_memalign(align, sz);
+    return box_memalign(align, sz);
 }
 
 EXPORT void my__ZdlPvRKSt9nothrow_t(void* p, void* n)   //operator delete(void*, std::nothrow_t const&)
 {
-    if(box__ZdlPvRKSt9nothrow_t)
-        box__ZdlPvRKSt9nothrow_t(p, n);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my__ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete[](void*, std::align_val_t, std::nothrow_t const&)
 {
-    if(box__ZdaPvSt11align_val_tRKSt9nothrow_t)
-        box__ZdaPvSt11align_val_tRKSt9nothrow_t(p, align, n);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my__ZdlPvmSt11align_val_t(void* p, size_t sz, size_t align)   //operator delete(void*, unsigned long, std::align_val_t)
 {
-    if(box__ZdlPvmSt11align_val_t)
-        box__ZdlPvmSt11align_val_t(p, sz, align);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my__ZdaPvRKSt9nothrow_t(void* p, void* n)   //operator delete[](void*, std::nothrow_t const&)
 {
-    if(box__ZdaPvRKSt9nothrow_t)
-        box__ZdaPvRKSt9nothrow_t(p, n);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my__ZdaPvSt11align_val_t(void* p, size_t align)   //operator delete[](void*, std::align_val_t)
 {
-    if(box__ZdaPvSt11align_val_t)
-        box__ZdaPvSt11align_val_t(p, align);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my__ZdlPvSt11align_val_t(void* p, size_t align)   //operator delete(void*, std::align_val_t)
 {
-    if(box__ZdlPvSt11align_val_t)
-        box__ZdlPvSt11align_val_t(p, align);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my__ZdlPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete(void*, std::align_val_t, std::nothrow_t const&)
 {
-    if(box__ZdlPvSt11align_val_tRKSt9nothrow_t)
-        box__ZdlPvSt11align_val_tRKSt9nothrow_t(p, align, n);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void* my_tc_calloc(size_t n, size_t s)
 {
-    if(box_tc_calloc)
-        return box_tc_calloc(n, s);
-    else
-        return box_calloc(n, s);
+    return box_calloc(n, s);
 }
 
 EXPORT void my_tc_cfree(void* p)
 {
-    if(box_tc_cfree)
-        box_tc_cfree(p);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my_tc_delete(void* p)
 {
-    if(box_tc_delete)
-        box_tc_delete(p);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my_tc_deletearray(void* p)
 {
-    if(box_tc_deletearray)
-        box_tc_deletearray(p);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my_tc_deletearray_nothrow(void* p, void* n)
 {
-    if(box_tc_deletearray_nothrow)
-        box_tc_deletearray_nothrow(p, n);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my_tc_delete_nothrow(void* p, void* n)
 {
-    if(box_tc_delete_nothrow)
-        box_tc_delete_nothrow(p, n);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void my_tc_free(void* p)
 {
-    if(box_tc_free)
-        box_tc_free(p);
-    else
-        box_free(p);
+    box_free(p);
 }
 
 EXPORT void* my_tc_malloc(size_t s)
 {
-    if(box_tc_malloc)
-        return box_tc_malloc(s);
-    else
-        return box_calloc(1, s);
+    return box_calloc(1, s);
 }
 
 EXPORT size_t my_tc_malloc_size(void* p)
 {
-    if(box_tc_malloc_size)
-        return box_tc_malloc_size(p);
-    else
-        return box_malloc_usable_size(p);
+    return box_malloc_usable_size(p);
 }
 
 #pragma pack(push, 1)
