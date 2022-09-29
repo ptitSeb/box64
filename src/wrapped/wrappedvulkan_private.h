@@ -248,7 +248,18 @@ GO(vkCmdSetEvent2, vFpUp)
 GO(vkCmdWaitEvents2, vFpupp)
 GO(vkCmdWriteTimestamp2, vFpUUu)
 GO(vkQueueSubmit2, iFpupU)
-
+GO(vkCmdBindVertexBuffers2, vFpuupppp)
+GO(vkCmdSetCullMode, vFpu)
+GO(vkCmdSetDepthBoundsTestEnable, vFpu)
+GO(vkCmdSetDepthCompareOp, vFpu)
+GO(vkCmdSetDepthTestEnable, vFpu)
+GO(vkCmdSetDepthWriteEnable, vFpu)
+GO(vkCmdSetFrontFace, vFpu)
+GO(vkCmdSetPrimitiveTopology, vFpi)
+GO(vkCmdSetScissorWithCount, vFup)
+GO(vkCmdSetStencilOp, vFpuiiii)
+GO(vkCmdSetStencilTestEnable, vFpu)
+GO(vkCmdSetViewportWithCount, vFpup)
 
 // VK_EXT_debug_report
 GOM(vkCreateDebugReportCallbackEXT, iFEpppp)
@@ -750,3 +761,7 @@ GO(vkGetRayTracingShaderGroupHandlesNV, iFpUuuLp)
 // VK_EXT_acquire_xlib_display
 GO(vkAcquireXlibDisplayEXT, iFppU)
 GO(vkGetRandROutputDisplayEXT, iFpppp)
+
+// VK_EXT_shader_module_identifier
+GO(vkGetShaderModuleCreateInfoIdentifierEXT, vFppp)
+GO(vkGetShaderModuleIdentifierEXT, vFpUp)
