@@ -491,7 +491,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
 
     // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
     // setup stack frame
-    frame -= sizeof(siginfo_t)/sizeof(uintptr_t);
+    frame -= sizeof(siginfo_t);
     siginfo_t* info2 = (siginfo_t*)frame;
     memcpy(info2, info, sizeof(siginfo_t));
     // try to fill some sigcontext....
