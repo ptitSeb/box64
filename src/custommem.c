@@ -794,11 +794,12 @@ void protectDB(uintptr_t addr, uintptr_t size)
         }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16][i&0xffff];
+        uint32_t dyn = prot&PROT_CUSTOM;
+        prot&=~PROT_CUSTOM;
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
         if((prot&PROT_WRITE)) {
-            prot&=~(PROT_WRITE | PROT_CUSTOM);
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot);
+            if(!dyn) mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
             memprot[i>>16][i&0xffff] = prot|PROT_DYNAREC;   // need to use atomic exchange?
         } else 
             memprot[i>>16][i&0xffff] = prot|PROT_DYNAREC_R;
@@ -830,7 +831,6 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
         uint32_t prot = memprot[i>>16][i&0xffff];
         if(prot&PROT_DYNAREC) {
             prot&=~PROT_CUSTOM;
-            prot|=PROT_WRITE;
             if(mark)
                 cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot);
@@ -982,6 +982,8 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
             dyn = PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+        } else if(dyn && !(prot&PROT_WRITE)) {
+            dyn = PROT_DYNAREC_R;
         }
         memprot[i>>16][i&0xffff] = prot|dyn;
     }

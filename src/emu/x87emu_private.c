@@ -23,7 +23,7 @@ void reset_fpu(x64emu_t* emu)
 {
     memset(emu->x87, 0, sizeof(emu->x87));
     memset(emu->fpu_ld, 0, sizeof(emu->fpu_ld));
-    emu->cw = 0x37F;
+    emu->cw.x16 = 0x37F;
     emu->sw.x16 = 0x0000;
     emu->top = 0;
     emu->fpu_stack = 0;
@@ -223,7 +223,7 @@ long double LD2localLD(void* ld)
 
 void fpu_loadenv(x64emu_t* emu, char* p, int b16)
 {
-    emu->cw = *(uint16_t*)p;
+    emu->cw.x16 = *(uint16_t*)p;
     p+=(b16)?2:4;
     emu->sw.x16 = *(uint16_t*)p;
     emu->top = emu->sw.f.F87_TOP;
@@ -241,7 +241,7 @@ void fpu_loadenv(x64emu_t* emu, char* p, int b16)
 void fpu_savenv(x64emu_t* emu, char* p, int b16)
 {
     emu->sw.f.F87_TOP = emu->top&7;
-    *(uint16_t*)p = emu->cw;
+    *(uint16_t*)p = emu->cw.x16;
     p+=2;
     if(!b16) {*(uint16_t*)p = 0; p+=2;}
     *(uint16_t*)p = emu->sw.x16;
@@ -299,7 +299,7 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
     if(top==0)  // check if stack is full or empty, based on tag[0]
         stack = (emu->p_regs[0].tag)?8:0;
     emu->sw.f.F87_TOP = top;
-    p->ControlWord = emu->cw;
+    p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
@@ -328,7 +328,7 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     if(top==0)  // check if stack is full or empty, based on tag[0]
         stack = (emu->p_regs[0].tag)?8:0;
     emu->sw.f.F87_TOP = top;
-    p->ControlWord = emu->cw;
+    p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
@@ -349,7 +349,7 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
 void fpu_fxrstor32(x64emu_t* emu, void* ed)
 {
     xsave32_t *p = (xsave32_t*)ed;
-    emu->cw = p->ControlWord;
+    emu->cw.x16 = p->ControlWord;
     emu->sw.x16 = p->StatusWord;
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
@@ -369,7 +369,7 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
 void fpu_fxrstor64(x64emu_t* emu, void* ed)
 {
     xsave64_t *p = (xsave64_t*)ed;
-    emu->cw = p->ControlWord;
+    emu->cw.x16 = p->ControlWord;
     emu->sw.x16 = p->StatusWord;
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;

@@ -35,12 +35,11 @@ typedef struct x64emu_s {
     // fpu / mmx
 	mmx87_regs_t x87[8];
 	mmx87_regs_t mmx[8];
-	uint16_t    cw;
+	x87control_t cw;
 	x87flags_t  sw;
 	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
     int         fpu_stack;
     uint32_t    mxcsr;
-	fpu_round_t round;
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
     fpu_ll_t    fpu_ll[8]; // for 64bits fild / fist sequence
 	fpu_p_reg_t p_regs[8];

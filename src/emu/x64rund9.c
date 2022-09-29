@@ -265,9 +265,8 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 5:     /* FLDCW Ew */
                 GETEW(0);
-                emu->cw = EW->word[0];
+                emu->cw.x16 = EW->word[0];
                 // do something with cw?
-                emu->round = (fpu_round_t)((emu->cw >> 10) & 3);
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete
@@ -279,7 +278,7 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 7: /* FNSTCW Ew */
                 GETEW(0);
-                EW->word[0] = emu->cw;
+                EW->word[0] = emu->cw.x16;
                 break;
             default:
                 return 0;

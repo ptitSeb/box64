@@ -224,10 +224,9 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
     memcpy(newemu->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
 	memcpy(newemu->p_regs, emu->p_regs, sizeof(emu->p_regs));
 	newemu->cw = emu->cw;
-	memcpy(&newemu->sw, &emu->sw, sizeof(emu->sw));
+	newemu->sw = emu->sw;
 	newemu->top = emu->top;
     newemu->fpu_stack = emu->fpu_stack;
-	memcpy(&newemu->round, &emu->round, sizeof(emu->round));
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
     newemu->mxcsr = emu->mxcsr;
     newemu->quit = emu->quit;

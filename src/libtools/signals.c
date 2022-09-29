@@ -485,10 +485,15 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             used_stack = 1;
             new_ss->ss_flags = SS_ONSTACK;
         }
+    } else {
+        frame -= 0x200; // redzone
     }
 
     // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
     // setup stack frame
+    frame -= sizeof(siginfo_t)/sizeof(uintptr_t);
+    siginfo_t* info2 = (siginfo_t*)frame;
+    memcpy(info2, info, sizeof(siginfo_t));
     // try to fill some sigcontext....
     frame -= sizeof(x64_ucontext_t);
     x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
@@ -640,7 +645,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     if (simple)
         ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 1, sig);
     else
-        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info, sigcontext);
+        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info2, sigcontext);
     // restore old value from emu
     #define GO(A) R_##A = old_##A
     GO(RAX);
@@ -885,7 +890,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             return;
         }
         pthread_mutex_unlock(&mutex_dynarec_prot);
-    } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE)==(PROT_READ|PROT_WRITE))) {
+    } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && ((prot&(PROT_READ|PROT_WRITE))==(PROT_READ|PROT_WRITE))) {
         pthread_mutex_lock(&mutex_dynarec_prot);
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;

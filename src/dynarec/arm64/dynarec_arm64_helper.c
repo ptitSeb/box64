@@ -1076,7 +1076,8 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MAYUSE(s1); MAYUSE(s2);
-    LDRw_U12(s1, xEmu, offsetof(x64emu_t, round));
+    LDRw_U12(s1, xEmu, offsetof(x64emu_t, cw));
+    BFXILw(s1, s1, 10, 2);
     UBFXw(s2, s1, 1, 1);        // bit 1 of round in bit 0 (zero extented) of s2
     BFIw(s2, s1, 1, 1);         // bit 0 of round in bit 1 of s2
     MRS_fpcr(s1);               // get fpscr

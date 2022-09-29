@@ -107,7 +107,7 @@ static inline void fpu_fcomi(x64emu_t* emu, double b)
 static inline double fpu_round(x64emu_t* emu, double d) {
     if (!isfinite(d))
         return d;
-    switch(emu->round) {
+    switch(emu->cw.f.C87_RD) {
         case ROUND_Nearest:
             return nearbyint(d);
         case ROUND_Down:
