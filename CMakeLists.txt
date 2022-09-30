@@ -454,7 +454,7 @@ set(WRAPPEDS
 
 #set(WRAPPEDS_HEAD "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9_gen.h")
 foreach(A ${WRAPPEDS})
-    string(REPLACE ".c" "_private.h" B ${A})
+    string(REGEX REPLACE ".c$" "_private.h" B ${A})
     set(WRAPPEDS_HEAD ${WRAPPEDS_HEAD} ${B})
     set_source_files_properties(${A} PROPERTIES OBJECT_DEPENDS ${B})
 endforeach()
