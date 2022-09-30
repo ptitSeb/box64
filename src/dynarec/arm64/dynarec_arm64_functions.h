@@ -35,6 +35,7 @@ void arm_aesdlast(x64emu_t* emu, int xmm);
 void arm_aeselast(x64emu_t* emu, int xmm);
 void arm_aesimc(x64emu_t* emu, int xmm);
 void arm_aeskeygenassist(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8);
+void arm_pclmul(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8);
 
 void arm_clflush(x64emu_t* emu, void* p);
 

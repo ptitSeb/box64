@@ -61,6 +61,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<26     // SSE2
                     ;
             R_ECX =   1<<0      // SSE3
+                    | 1<<1      // PCLMULQDQ
                     | 1<<9      // SSSE3
                     | 1<<12     // fma
                     | 1<<13     // cx16 (cmpxchg16)

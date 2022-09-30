@@ -155,12 +155,18 @@ void SetupInitialStack(x64emu_t *emu)
     Push(emu, real_getauxval(13)); Push(emu, 13);       //AT_GID(13)
     Push(emu, real_getauxval(14)); Push(emu, 14);       //AT_EGID(14)
     Push(emu, p_x86_64); Push(emu, 15);                 //AT_PLATFORM(15)=&"x86_64"
-    // Push HWCAP:
-    //  FPU: 1<<0 ; VME: 1<<1 ; DE : 1<<2 ; PSE: 1<<3 ; TSC: 1<<4 ; MSR: 1<<5 ; PAE: 1<<6 ; MCE: 1<<7
-    //  CX8: 1<<8 ; APIC:1<<9 ;             SEP: 1<<11; MTRR:1<<12; PGE: 1<<13; MCA: 1<<14; CMOV:1<<15
-    // FCMOV:1<<16;                                                                       ; MMX: 1<<23
-    // OSFXR:1<<24; XMM: 1<<25;XMM2: 1<<26;                                                AMD3D:1<<31
-    Push(emu, (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<8)  | (1<<15) | (1<<16) | (1<<23) | (1<<25) | (1<<26));
+    // Push HWCAP: same as CPUID 1.EDX
+    Push(emu,   1         // fpu 
+              | 1<<4      // rdtsc
+              | 1<<8      // cmpxchg8
+              | 1<<11     // sep (sysenter & sysexit)
+              | 1<<15     // cmov
+              | 1<<19     // clflush (seems to be with SSE2)
+              | 1<<23     // mmx
+              | 1<<24     // fxsr (fxsave, fxrestore)
+              | 1<<25     // SSE
+              | 1<<26     // SSE2
+        );
     Push(emu, 16);                                      //AT_HWCAP(16)=...
     //Push(emu, sysconf(_SC_CLK_TCK)); Push(emu, 17);     //AT_CLKTCK(17)=times() frequency
     Push(emu, real_getauxval(23)); Push(emu, 23);       //AT_SECURE(23)

@@ -1392,7 +1392,7 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "bogomips\t: %g\n", bogoMips);
         P;
-        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fma fxsr cpuid cx16 aes movbe pni\n");
+        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fma fxsr cpuid pclmulqdq cx16 aes movbe pni\n");
         P;
         sprintf(buff, "address sizes\t: 46 bits physical, 48 bits virtual\n");
         P;

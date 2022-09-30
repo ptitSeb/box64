@@ -797,6 +797,25 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     GX->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
                 break;
 
+            case 0x44:  /* PCLMULQDQ Gx, Ex, Ib */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                {
+                    int g = (tmp8u&1)?1:0;
+                    int e = (tmp8u&0b10000)?1:0;
+                    __int128 result = 0;
+                    __int128 op2 = EX->q[e];
+                    for (int i=0; i<64; ++i)
+                        if(GX->q[g]&(1LL<<i))
+                            result ^= (op2<<i);
+
+                    GX->q[0] = result&0xffffffffffffffffLL;
+                    GX->q[1] = (result>>64)&0xffffffffffffffffLL;
+                }
+                break;
+
             case 0xDF:      // AESKEYGENASSIST Gx, Ex, u8
                 nextop = F8;
                 GETEX(1);

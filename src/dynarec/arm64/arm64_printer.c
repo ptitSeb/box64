@@ -1351,6 +1351,17 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "AES%sMC V%d.16B, V%d.16B", sf?"I":"", Rd, Rn);
         return buff;
     }
+    // PMULL
+    if(isMask(opcode, "0Q001110ff1mmmmm111000nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "??", "??", "??", "??", "1D", "2D"};
+        const char* Z[] = {"8H", "??", "??", "1Q"};
+        int sz = sf;
+        const char* Vn = Y[(sz<<1)|a.Q];
+        const char* Vd = Z[sz];
+        snprintf(buff, sizeof(buff), "PMULL%s V%d.%s, V%d.%s, V%d.%s", a.Q?"2":"", Rd, Vd, Rn, Vn, Rm, Vn);   
+        return buff;
+    }
+
     // DMB ISH
     if(isMask(opcode, "11010101000000110011nnnn10111111", &a)) {
         snprintf(buff, sizeof(buff), "DMB %s", (Rn==0b1011)?"ISH":"???");

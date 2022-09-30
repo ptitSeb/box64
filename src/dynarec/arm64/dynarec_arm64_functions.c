@@ -332,6 +332,22 @@ void arm_aeskeygenassist(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8)
     GX->ud[3] ^= u8;
 }
 
+void arm_pclmul(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8)
+{
+    sse_regs_t *EX = p?((sse_regs_t*)p):&emu->xmm[ex];
+    sse_regs_t *GX = &emu->xmm[gx];
+    int g = (u8&1)?1:0;
+    int e = (u8&0b10000)?1:0;
+    __int128 result = 0;
+    __int128 op2 = EX->q[e];
+    for (int i=0; i<64; ++i)
+        if(GX->q[g]&(1LL<<i))
+            result ^= (op2<<i);
+
+    GX->q[0] = result&0xffffffffffffffffLL;
+    GX->q[1] = (result>>64)&0xffffffffffffffffLL;
+}
+
 void arm_clflush(x64emu_t* emu, void* p)
 {
     cleanDBFromAddressRange((uintptr_t)p, 8, 0);

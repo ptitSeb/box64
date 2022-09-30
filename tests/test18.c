@@ -56,5 +56,14 @@ int main() {
         printf("keygenassist(0x%016llX%016llX, 0xFF) = 0x%016llX%016llX\n", x.v[1], x.v[0], keygenassistFF.v[1], keygenassistFF.v[0]);
         mm128i imc = { .m = _mm_aesimc_si128(x.m) };
         printf("imc         (0x%016llX%016llX) = 0x%016llX%016llX\n", x.v[1], x.v[0], imc.v[1], imc.v[0]);
+
+        mm128i pclmul00 = { .m = _mm_clmulepi64_si128(keygenassist00.m, x.m, 0) };
+        printf("pclmul(0x%016llX%016llX, 0x00) = 0x%016llX%016llX\n", x.v[1], x.v[0], pclmul00.v[1], pclmul00.v[0]);
+        mm128i pclmul01 = { .m = _mm_clmulepi64_si128(keygenassist00.m, x.m, 0x01) };
+        printf("pclmul(0x%016llX%016llX, 0x01) = 0x%016llX%016llX\n", x.v[1], x.v[0], pclmul01.v[1], pclmul01.v[0]);
+        mm128i pclmul10 = { .m = _mm_clmulepi64_si128(keygenassist00.m, x.m, 0x10) };
+        printf("pclmul(0x%016llX%016llX, 0x10) = 0x%016llX%016llX\n", x.v[1], x.v[0], pclmul10.v[1], pclmul10.v[0]);
+        mm128i pclmul11 = { .m = _mm_clmulepi64_si128(keygenassist00.m, x.m, 0x11) };
+        printf("pclmul(0x%016llX%016llX, 0xFF) = 0x%016llX%016llX\n", x.v[1], x.v[0], pclmul11.v[1], pclmul11.v[0]);
     } while (!need_stop(&x));
 }

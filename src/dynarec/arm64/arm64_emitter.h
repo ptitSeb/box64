@@ -1764,7 +1764,7 @@
 #define SQDMULHQ_16(Vd, Vn, Vm)     EMIT(QDMULH_vector(1, 0, 0b01, Vm, Vn, Vd))
 #define SQDMULHQ_32(Vd, Vn, Vm)     EMIT(QDMULH_vector(1, 0, 0b10, Vm, Vn, Vd))
 
-// AES extensions
+// AES extension
 #define AES_gen(D, Rn, Rd)      (0b01001110<<24 | 0b00<<22 | 0b10100<<17 | 0b0010<<13 | (D)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define AESD(Vd, Vn)    EMIT(AES_gen(1, Vn, Vd))
 #define AESE(Vd, Vn)    EMIT(AES_gen(0, Vn, Vd))
@@ -1772,5 +1772,12 @@
 #define AESMC_gen(D, Rn, Rd)    (0b01001110<<24 | 0b00<<22 | 0b10100<<17 | 0b0011<<13 | (D)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define AESIMC(Vd, Vn)  EMIT(AESMC_gen(1, Vn, Vd))
 #define AESMC(Vd, Vn)   EMIT(AESMC_gen(0, Vn, Vd))
+
+// PMULL extension is PMULL_128
+#define PMULL_gen(Q, size, Rm, Rn, Rd)  (0<<31 | (Q)<<30 | 0b001110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b1110<<12 | (Rn)<<5 | (Rd))
+#define PMULL(Rd, Rn, Rm)   EMIT(PMULL_gen(0, 0b00, Rm, Rn, Rd))
+#define PMULL2(Rd, Rn, Rm)  EMIT(PMULL_gen(1, 0b00, Rm, Rn, Rd))
+#define PMULL_128(Rd, Rn, Rm)   EMIT(PMULL_gen(0, 0b11, Rm, Rn, Rd))
+#define PMULL2_128(Rd, Rn, Rm)  EMIT(PMULL_gen(1, 0b11, Rm, Rn, Rd))
 
 #endif  //__ARM64_EMITTER_H__
