@@ -1619,25 +1619,30 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGX(v0, 1);
             if(!MODREG)
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 1);
-            u8 = F8;
-            d0 = fpu_get_scratch(dyn);
-            // first two elements from Gx
-            for(int i=0; i<2; ++i) {
-                VMOVeS(d0, i, v0, (u8>>(i*2)&3));
-            }
-            // second two from Ex
-            if(MODREG) {
+            else
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
-                for(int i=2; i<4; ++i) {
-                    VMOVeS(d0, i, v1, (u8>>(i*2)&3));
-                }
+            u8 = F8;
+            if(MODREG && v0==v1 && (u8&0x3)==((u8>>2)&3) && (u8&0xf)==((u8>>4)&0xf)) {
+                VDUPQ_32(v0, v0, u8&3);
             } else {
-                for(int i=2; i<4; ++i) {
-                    ADDx_U12(x2, ed, (u8>>(i*2)&3)*4);
-                    VLD1_32(d0, i, x2);
+                d0 = fpu_get_scratch(dyn);
+                // first two elements from Gx
+                for(int i=0; i<2; ++i) {
+                    VMOVeS(d0, i, v0, (u8>>(i*2)&3));
                 }
+                // second two from Ex
+                if(MODREG) {
+                    for(int i=2; i<4; ++i) {
+                        VMOVeS(d0, i, v1, (u8>>(i*2)&3));
+                    }
+                } else {
+                    for(int i=2; i<4; ++i) {
+                        ADDx_U12(x2, ed, (u8>>(i*2)&3)*4);
+                        VLD1_32(d0, i, x2);
+                    }
+                }
+                VMOVQ(v0, d0);
             }
-            VMOVQ(v0, d0);
             break;
 
         case 0xC8:
