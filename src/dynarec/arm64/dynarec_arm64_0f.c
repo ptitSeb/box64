@@ -1370,11 +1370,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     u8 = F8;
                     u8&=rex.w?0x3f:0x1f;
-                    if(u8) {
-                        LSRxw(x1, ed, u8);
-                        ed = x1;
-                    }
-                    BFIw(xFlags, ed, F_CF, 1);
+                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     break;
                 case 5:
                     INST_NAME("BTS Ed, Ib");
@@ -1390,13 +1386,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x1f);
-                    if(u8) {
-                        LSRxw(x4, ed, u8);
-                    } else {
-                        MOVw_REG(x4, ed);
-                    }
-                    BFIw(xFlags, x4, F_CF, 1);
-                    TBNZ_MARK3(x4, 0); // bit already set, jump to next instruction
+                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    TBNZ_MARK3(xFlags, 0); // bit already set, jump to next instruction
                     MOV32w(x4, 1);
                     EORxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
@@ -1418,14 +1409,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x1f);
-                    if(u8) {
-                        LSRxw(x4, ed, u8);
-                    } else {
-                        MOVw_REG(x4, ed);
-                    }
-                    BFIw(xFlags, x4, F_CF, 1);
-                    TBZ_MARK3(x4, 0); // bit already clear, jump to next instruction
-                    //MOVW(x14, 1); // already 0x01
+                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    TBZ_MARK3(xFlags, 0); // bit already clear, jump to next instruction
+                    MOV32w(x4, 1);
                     EORxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STRxw_U12(ed, wback, fixedaddress);
@@ -1446,12 +1432,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x1f);
-                    if(u8) {
-                        LSRxw(x4, ed, u8);
-                    } else {
-                        MOVw_REG(x4, ed);
-                    }
-                    BFIw(xFlags, x4, F_CF, 1);
+                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     MOV32w(x4, 1);
                     EORxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {

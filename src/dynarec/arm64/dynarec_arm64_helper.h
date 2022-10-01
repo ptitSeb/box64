@@ -408,10 +408,18 @@
 #define CBNZx_MARK3(reg)            \
     j64 = GETMARK3-(dyn->native_size); \
     CBNZx(reg, j64)
+// Branch to MARK3 if reg is not 0 (use j64)
+#define CBNZw_MARK3(reg)            \
+    j64 = GETMARK3-(dyn->native_size); \
+    CBNZw(reg, j64)
 // Branch to MARK3 if reg is 0 (use j64)
 #define CBZx_MARK3(reg)             \
     j64 = GETMARK3-(dyn->native_size); \
     CBZx(reg, j64)
+// Branch to MARK3 if reg is 0 (use j64)
+#define CBZw_MARK3(reg)             \
+    j64 = GETMARK3-(dyn->native_size); \
+    CBZw(reg, j64)
 // Test bit N of A and branch to MARK3 if not set
 #define TBZ_MARK3(A, N)             \
     j64 = GETMARK3-(dyn->native_size); \
