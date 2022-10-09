@@ -43,13 +43,12 @@ uintptr_t Run6664(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0x0F:
             opcode = F8;
             switch(opcode) {
-                case 0xD6:                      /* MOVQ Ex,Gx */
+
+                case 0x11:                      /* MOVUPD Ex, Gx */
                     nextop = F8;
                     GETEX_OFFS(0, tlsdata);
                     GETGX;
-                    EX->q[0] = GX->q[0];
-                    if(MODREG)
-                        EX->q[1] = 0;
+                    memcpy(EX, GX, 16); // unaligned...
                     break;
 
                 case 0x2E:                      /* UCOMISD Gx, Ex */
@@ -69,6 +68,15 @@ uintptr_t Run6664(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
                     }
                     CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
+                    break;
+
+                case 0xD6:                      /* MOVQ Ex,Gx */
+                    nextop = F8;
+                    GETEX_OFFS(0, tlsdata);
+                    GETGX;
+                    EX->q[0] = GX->q[0];
+                    if(MODREG)
+                        EX->q[1] = 0;
                     break;
 
                 default:
