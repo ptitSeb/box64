@@ -19,6 +19,7 @@ static const char* x86lib  = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x
 static const char* x64lib  = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
 static const char* bashsign= "#!/bin/bash";
 static const char* shsign  = "#!/bin/sh";
+static const char* bashsign2="#!/usr/bin/env bash";
 
 int FileExist(const char* filename, int flags)
 {
@@ -109,10 +110,13 @@ int FileIsShell(const char* filename)
     fclose(f);
     if(sz!=1)
         return 0;
-    head[strlen(bashsign)+1] = 0;
+    head[strlen(bashsign2)] = 0;
+    if(!strcmp(head, bashsign2))
+        return 1;
+    head[strlen(bashsign)] = 0;
     if(!strcmp(head, bashsign))
         return 1;
-    head[strlen(shsign)+1] = 0;
+    head[strlen(shsign)] = 0;
     if(!strcmp(head, shsign))
         return 1;
     return 0;
