@@ -48,7 +48,7 @@ GO(XftDrawString32, vFpppiipi)
 GO(XftFontMatch, pFpipp)
 GO(XftFontOpen, pFpippppppppppppppppp)  // use ...
 //GO(XftFontOpenInfo, 
-//GO(XftFontOpenName, 
+GO(XftFontOpenName, pFpip)
 GO(XftFontOpenPattern, pFpp)
 GO(XftFontOpenXlfd, pFpip)
 //GO(XftFontUnloadGlyphs, 
