@@ -20,7 +20,7 @@ arm64_next:
     stp     x16, x17, [sp, (8 *  8)]
     stp     x18, x27, [sp, (8 * 10)]    // also save x27(rip) to allow change in LinkNext
 
-    mov     x2, lr      // "from" is in lr, so put in x2
+    mov     x2, x30      // "from" is in lr, so put in x2
     add     x3, sp, 8*11    // x3 is address to change rip
     // call the function
     bl      LinkNext

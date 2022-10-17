@@ -30,7 +30,7 @@ arm64_epilog:
     ldp     d12, d13, [sp, (8 *14)]
     ldp     d14, d15, [sp, (8 *16)]
     add     sp,  sp, (8 * 18)
-    ldp     lr, fp, [sp], 16  // saved lr
+    ldp     x30, x29, [sp], 16  // saved lr
     //end, return...
     ret
 
@@ -49,6 +49,6 @@ arm64_epilog_fast:
     ldp     d12, d13, [sp, (8 *14)]
     ldp     d14, d15, [sp, (8 *16)]
     add     sp,  sp, (8 * 18)
-    ldp     lr, fp, [sp], 16  // saved lr
+    ldp     x30, x29, [sp], 16  // saved lr
     //end, return...
     ret
