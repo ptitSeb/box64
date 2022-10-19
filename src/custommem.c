@@ -31,7 +31,7 @@
 
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT64(dynablocks, dynablock_t*)
-static dynablocklist_t***  dynmap123[1<<DYNAMAP_SHIFT]; // 64bits.. in 4x16bits array
+static dynablocklist_t***  dynmap123[1<<DYNAMAP_SHIFT] = {0}; // 64bits.. in 4x16bits array
 static mmaplist_t          *mmaplist = NULL;
 static size_t              mmapsize = 0;
 static size_t              mmapcap = 0;
