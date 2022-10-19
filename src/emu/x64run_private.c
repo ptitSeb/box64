@@ -69,7 +69,7 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
         SetRBP(emu, Pop64(emu));         // restore RBP
         emu->quit = 1;  // finished!
     }
-    return 0;
+    return (int)GetEAX(emu);
 }
 
 const char* GetNativeName(void* p)
