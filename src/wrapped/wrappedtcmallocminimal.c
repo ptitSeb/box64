@@ -17,7 +17,7 @@ const char* tcmallocminimalName = "libtcmalloc_minimal.so.4";
 
 // this preinit basically open "box86" as dlopen (because libtcmalloc_minimal needs to be LD_PRELOAD for it to work)
 #define PRE_INIT\
-    lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+    lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     if(0)
 
 #include "wrappedlib_init.h"

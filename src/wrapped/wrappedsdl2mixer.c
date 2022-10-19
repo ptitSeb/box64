@@ -232,6 +232,6 @@ EXPORT int my2_MinorityMix_SetPosition(x64emu_t* emu, int channel, int16_t angle
 
 #define CUSTOM_FINI \
     freeMy();       \
-    ((box64context_t*)(lib->context))->sdl2mixerlib = NULL;
+    my_context->sdl2mixerlib = NULL;
 
 #include "wrappedlib_init.h"

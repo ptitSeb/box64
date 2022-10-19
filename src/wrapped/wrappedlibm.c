@@ -32,7 +32,7 @@ EXPORT R my___##N##_finite P        \
     static int check = 0;           \
     T f = NULL;                     \
     if(!check) {                    \
-        f = (T)dlsym(my_lib->priv.w.lib, "__" #N "_finite");  \
+        f = (T)dlsym(my_lib->w.lib, "__" #N "_finite");  \
         ++check;                    \
     }                               \
     if(f)                           \

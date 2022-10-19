@@ -65,12 +65,12 @@ static void* findchunkfunFct(void* fct)
 static void* reverse_chunkfunFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->priv.w.bridge, fct))
-        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, fct))
+        return (void*)CheckBridged(lib->w.bridge, fct);
     #define GO(A) if(my_chunkfun_##A == fct) return (void*)my_chunkfun_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, pFL, fct, 0, NULL);
+    return (void*)AddBridge(lib->w.bridge, pFL, fct, 0, NULL);
 }
 // freefun
 #define GO(A)   \
@@ -98,12 +98,12 @@ static void* findfreefunFct(void* fct)
 static void* reverse_freefunFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->priv.w.bridge, fct))
-        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, fct))
+        return (void*)CheckBridged(lib->w.bridge, fct);
     #define GO(A) if(my_freefun_##A == fct) return (void*)my_freefun_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, vFp, fct, 0, NULL);
+    return (void*)AddBridge(lib->w.bridge, vFp, fct, 0, NULL);
 }
 
 #undef SUPER

@@ -634,12 +634,12 @@ static void* find_GtkLinkButtonUri_Fct(void* fct)
 static void* reverse_GtkLinkButtonUri_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->priv.w.bridge, fct))
-        return (void*)CheckBridged(my_lib->priv.w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
     #define GO(A) if(my_GtkLinkButtonUri_##A == fct) return (void*)my_GtkLinkButtonUri_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, vFppp, fct, 0, NULL);
+    return (void*)AddBridge(my_lib->w.bridge, vFppp, fct, 0, NULL);
 }
 
 #undef SUPER

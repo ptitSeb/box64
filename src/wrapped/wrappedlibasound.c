@@ -138,11 +138,9 @@ EXPORT void* my_snd_dlsym(x64emu_t* emu, void* handle, void* name, void* version
 }
 
 #define CUSTOM_INIT                     \
-    box64->asound = lib;                \
     getMy(lib);
 
 #define CUSTOM_FINI                     \
-    lib->context->asound = NULL;        \
     freeMy();
 
 #include "wrappedlib_init.h"

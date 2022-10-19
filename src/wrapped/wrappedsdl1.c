@@ -136,13 +136,12 @@ static void* find_EvtFilter_Fct(void* fct)
 static void* reverse_EvtFilterFct(void* fct)
 {
     if(!fct) return fct;
-    library_t* my_lib = my_context->sdl1lib;
-    if(CheckBridged(my_lib->priv.w.bridge, fct))
-        return (void*)CheckBridged(my_lib->priv.w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
     #define GO(A) if(my_EvtFilter_##A == fct) return (void*)my_EvtFilter_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, iFp, fct, 0, NULL);
+    return (void*)AddBridge(my_lib->w.bridge, iFp, fct, 0, NULL);
 }
 #undef SUPER
 
@@ -454,7 +453,6 @@ EXPORT int32_t my_SDL_GetWMInfo(x64emu_t* emu, void* p)
 }
 
 #define CUSTOM_INIT \
-    box64->sdl1lib = lib;                   \
     getMy(lib);                             \
     box64->sdl1allocrw = my->SDL_AllocRW;   \
     box64->sdl1freerw  = my->SDL_FreeRW;    \
@@ -464,10 +462,9 @@ EXPORT int32_t my_SDL_GetWMInfo(x64emu_t* emu, void* p)
         "librt.so.1");
 
 #define CUSTOM_FINI \
-    my->SDL_Quit();                                         \
-    freeMy();                                               \
-    ((box64context_t*)(lib->context))->sdl1lib = NULL;      \
-    ((box64context_t*)(lib->context))->sdl1allocrw = NULL;  \
-    ((box64context_t*)(lib->context))->sdl1freerw = NULL;
+    my->SDL_Quit();                         \
+    freeMy();                               \
+    my_context->sdl1allocrw = NULL;         \
+    my_context->sdl1freerw = NULL;
 
 #include "wrappedlib_init.h"

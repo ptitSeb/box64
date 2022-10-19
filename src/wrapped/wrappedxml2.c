@@ -67,17 +67,17 @@ void* my_wrap_xmlMemStrdup(void* p)
 
 #define ADDED_INIT() \
     void** p;                                                                                               \
-    p=dlsym(lib->priv.w.lib, "xmlFree");                                                                    \
-        my_xmlFree = (p && *p)?AddBridge(lib->priv.w.bridge, vFp, *p, 0, "my_wrap_xmlFree"):0;              \
+    p=dlsym(lib->w.lib, "xmlFree");                                                                    \
+        my_xmlFree = (p && *p)?AddBridge(lib->w.bridge, vFp, *p, 0, "my_wrap_xmlFree"):0;              \
         if(p) *p = my_wrap_xmlFree;                                                                         \
-    p=dlsym(lib->priv.w.lib, "xmlMalloc");                                                                  \
-        my_xmlMalloc = (p && *p)?AddBridge(lib->priv.w.bridge, pFL, *p, 0, "my_wrap_xmlMalloc"):0;          \
+    p=dlsym(lib->w.lib, "xmlMalloc");                                                                  \
+        my_xmlMalloc = (p && *p)?AddBridge(lib->w.bridge, pFL, *p, 0, "my_wrap_xmlMalloc"):0;          \
         if(p) *p = my_wrap_xmlMalloc;                                                                       \
-    p=dlsym(lib->priv.w.lib, "xmlRealloc");                                                                 \
-        my_xmlRealloc = (p && *p)?AddBridge(lib->priv.w.bridge, pFpL, *p, 0, "my_wrap_xmlRealloc"):0;       \
+    p=dlsym(lib->w.lib, "xmlRealloc");                                                                 \
+        my_xmlRealloc = (p && *p)?AddBridge(lib->w.bridge, pFpL, *p, 0, "my_wrap_xmlRealloc"):0;       \
         if(p) *p = my_wrap_xmlRealloc;                                                                      \
-    p=dlsym(lib->priv.w.lib, "xmlMemStrdup");                                                               \
-        my_xmlMemStrdup = (p && *p)?AddBridge(lib->priv.w.bridge, pFp, *p, 0, "my_wrap_xmlMemStrdup"):0;    \
+    p=dlsym(lib->w.lib, "xmlMemStrdup");                                                               \
+        my_xmlMemStrdup = (p && *p)?AddBridge(lib->w.bridge, pFp, *p, 0, "my_wrap_xmlMemStrdup"):0;    \
         if(p) *p = my_wrap_xmlMemStrdup;
 
 #include "wrappercallback.h"
@@ -1110,12 +1110,12 @@ static void* find_xmlExternalEntityLoaderFct(void* fct)
 static void* reverse_xmlExternalEntityLoaderFct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->priv.w.bridge, fct))
-        return (void*)CheckBridged(my_lib->priv.w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
     #define GO(A) if(my_xmlExternalEntityLoader_##A == fct) return (void*)my_xmlExternalEntityLoader_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, pFppp, fct, 0, "xmlExternalEntityLoader_callback");
+    return (void*)AddBridge(my_lib->w.bridge, pFppp, fct, 0, "xmlExternalEntityLoader_callback");
 }
 
 

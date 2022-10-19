@@ -21,10 +21,4 @@
 const char* libvorbisName = "libvorbis.so.0";
 #define LIBNAME libvorbis
 
-#define CUSTOM_INIT \
-    box64->vorbis = lib;
-
-#define CUSTOM_FINI \
-    lib->context->vorbis = NULL;
-
 #include "wrappedlib_init.h"

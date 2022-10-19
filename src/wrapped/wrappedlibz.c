@@ -154,11 +154,9 @@ EXPORT int my_inflate(x64emu_t* emu, void* str, int flush)
 
 
 #define CUSTOM_INIT \
-    box64->zlib = lib; \
     getMy(lib);
 
 #define CUSTOM_FINI \
-    freeMy(); \
-    ((box64context_t*)(lib->context))->zlib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

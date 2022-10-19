@@ -197,11 +197,11 @@ EXPORT void* my_glGetVkProcAddrNV(x64emu_t* emu, void* name)
     return my_GetVkProcAddr(emu, name, GetVkProcAddrNV);
 }
 
-#define PRE_INIT if(libGL) {lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
+#define PRE_INIT if(libGL) {lib->w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
 #define CUSTOM_INIT \
-    lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress"); \
+    lib->w.priv = dlsym(lib->w.lib, "glXGetProcAddress"); \
     if (!box64->glxprocaddress) \
-        box64->glxprocaddress = lib->priv.w.priv;
+        box64->glxprocaddress = lib->w.priv;
 
 
 #include "wrappedlib_init.h"

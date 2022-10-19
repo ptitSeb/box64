@@ -325,7 +325,7 @@ static void* find_DebugReportCallbackEXT_Fct(void* fct)
 
 #undef SUPER
 
-//#define PRE_INIT if(libGL) {lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
+//#define PRE_INIT if(libGL) {lib->w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
 
 #define PRE_INIT        \
     if(box64_novulkan)  \
@@ -333,8 +333,8 @@ static void* find_DebugReportCallbackEXT_Fct(void* fct)
 
 #define CUSTOM_INIT \
     getMy(lib);     \
-    lib->priv.w.priv = dlsym(lib->priv.w.lib, "vkGetInstanceProcAddr"); \
-    box64->vkprocaddress = lib->priv.w.priv;
+    lib->w.priv = dlsym(lib->w.lib, "vkGetInstanceProcAddr"); \
+    box64->vkprocaddress = lib->w.priv;
 
 #define CUSTOM_FINI \
     freeMy();

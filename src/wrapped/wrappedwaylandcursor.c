@@ -21,10 +21,4 @@
 const char* waylandcursorName = "libwayland-cursor.so.0";
 #define LIBNAME waylandcursor
 
-#define CUSTOM_INIT \
-    box64->vorbis = lib;
-
-#define CUSTOM_FINI \
-    lib->context->vorbis = NULL;
-
 #include "wrappedlib_init.h"

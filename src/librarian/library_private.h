@@ -35,19 +35,29 @@ typedef struct wlib_s {
     bridge_t        *bridge;
     void*           lib;        // dlopen result
     void*           priv;       // actual private
-    void*           box64lib;   // ref to the dlopen on box64 itself from context
     char*           altprefix;  // if function names are mangled..
     int             needed;
     char**          neededlibs;
+    kh_symbolmap_t  *symbolmap;
+    kh_symbolmap_t  *wsymbolmap;
+    kh_symbolmap_t  *mysymbolmap;
+    kh_symbolmap_t  *wmysymbolmap;
+    kh_symbolmap_t  *stsymbolmap;
+    kh_symbol2map_t *symbol2map;
+    kh_datamap_t    *datamap;
+    kh_datamap_t    *wdatamap;
+    kh_datamap_t    *mydatamap;
+    char            *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
 } wlib_t;
 
-typedef struct nlib_s {
+typedef struct elib_s {
     int             elf_index;
+    elfheader_t     *elf;
     int             finalized;
     kh_mapsymbols_t *mapsymbols;
     kh_mapsymbols_t *weaksymbols;
     kh_mapsymbols_t *localsymbols;
-} nlib_t;
+} elib_t;
 
 typedef struct library_s {
     char*               name;   // <> path
@@ -61,23 +71,13 @@ typedef struct library_s {
     wrappedlib_get_t    getlocal;
     union {
         wlib_t  w;     
-        nlib_t  n;
-    }                   priv;       // private lib data
-    box64context_t      *context;   // parent context
-    kh_bridgemap_t      *bridgemap;
-    kh_symbolmap_t      *symbolmap;
-    kh_symbolmap_t      *wsymbolmap;
-    kh_symbolmap_t      *mysymbolmap;
-    kh_symbolmap_t      *wmysymbolmap;
-    kh_symbolmap_t      *stsymbolmap;
-    kh_symbol2map_t     *symbol2map;
-    kh_datamap_t        *datamap;
-    kh_datamap_t        *wdatamap;
-    kh_datamap_t        *mydatamap;
+        elib_t  e;
+    };                              // private lib data
     char                *altmy;     // to avoid duplicate symbol, like with SDL1/SDL2
     needed_libs_t       needed;
     needed_libs_t       depended;   // used to free library
     lib_t               *maplib;    // local maplib, for dlopen'd library with LOCAL binding (most of the dlopen)
+    kh_bridgemap_t  *bridgemap;
 } library_t;
 
 // type for map elements

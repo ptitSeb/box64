@@ -28,7 +28,7 @@ EXPORT pid_t my_forkpty(x64emu_t* emu, void* amaster, void* name, void* termp, v
     forkinfo.termp = termp;
     forkinfo.winp = winp;
     library_t* lib = GetLibInternal(utilName);
-    forkinfo.f = dlsym(lib->priv.w.lib, "forkpty");
+    forkinfo.f = dlsym(lib->w.lib, "forkpty");
     
     emu->quit = 1;
     emu->fork = 2;

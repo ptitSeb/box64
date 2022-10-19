@@ -21,10 +21,4 @@
 const char* waylandeglName = "libwayland-egl.so.1";
 #define LIBNAME waylandegl
 
-#define CUSTOM_INIT \
-    box64->vorbis = lib;
-
-#define CUSTOM_FINI \
-    lib->context->vorbis = NULL;
-
 #include "wrappedlib_init.h"

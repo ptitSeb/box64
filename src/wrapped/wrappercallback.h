@@ -1,4 +1,3 @@
-
 #define TYPENAME3(N,M) N##M
 #define TYPENAME2(N,M) TYPENAME3(N,M)
 #define TYPENAME(N) TYPENAME2(LIBNAME, _my_t)
@@ -19,7 +18,7 @@ static TYPENAME(LIBNAME) * const my = &TYPENAME2(my_, LIBNAME);
 
 static void getMy(library_t* lib)
 {
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
+    #define GO(A, W) my->A = (W)dlsym(lib->w.lib, #A);
     SUPER()
     #undef GO
     my_lib = lib;

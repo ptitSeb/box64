@@ -987,7 +987,7 @@ EXPORT void my__ITM_addUserCommitAction(x64emu_t* emu, void* cb, uint32_t b, voi
     // disabled for now... Are all this _ITM_ stuff really mendatory?
     #if 0
     // quick and dirty... Should store the callback to be removed later....
-    libc_my_t *my = (libc_my_t *)emu->context->libclib->priv.w.p2;
+    libc_my_t *my = (libc_my_t *)emu->context->libclib->w.p2;
     x64emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, c, NULL, NULL, NULL);
     my->_ITM_addUserCommitAction(libc1ArgCallback, b, cbemu);
     // should keep track of cbemu to remove at some point...
@@ -1227,7 +1227,7 @@ EXPORT void* my_readdir(x64emu_t* emu, void* dirp)
         if(!f) {
             library_t* lib = my_lib;
             if(!lib) return NULL;
-            f = (pFp_t)dlsym(lib->priv.w.lib, "readdir");
+            f = (pFp_t)dlsym(lib->w.lib, "readdir");
         }
 
         return f(dirp);
@@ -1247,7 +1247,7 @@ EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** resul
                 *result = NULL;
                 return 0;
             }
-            f = (iFppp_t)dlsym(lib->priv.w.lib, "readdir64_r");
+            f = (iFppp_t)dlsym(lib->w.lib, "readdir64_r");
         }
 
         int r = f(dirp, &d64, &dp64);
@@ -1283,7 +1283,7 @@ EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** resul
                 *result = NULL;
                 return 0;
             }
-            f = (iFppp_t)dlsym(lib->priv.w.lib, "readdir_r");
+            f = (iFppp_t)dlsym(lib->w.lib, "readdir_r");
         }
 
         return f(dirp, entry, result);
@@ -1592,7 +1592,7 @@ EXPORT int32_t my_ftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd)
     if(!f) {
         library_t* lib = my_lib;
         if(!lib) return 0;
-        f = (iFppi_t)dlsym(lib->priv.w.lib, "ftw");
+        f = (iFppi_t)dlsym(lib->w.lib, "ftw");
     }
 
     return f(pathname, findftwFct(B), nopenfd);
@@ -1604,7 +1604,7 @@ EXPORT int32_t my_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, 
     if(!f) {
         library_t* lib = my_lib;
         if(!lib) return 0;
-        f = (iFppii_t)dlsym(lib->priv.w.lib, "nftw");
+        f = (iFppii_t)dlsym(lib->w.lib, "nftw");
     }
 
     return f(pathname, findnftwFct(B), nopenfd, flags);
@@ -2073,7 +2073,7 @@ EXPORT int32_t my_preadv64(x64emu_t* emu, int32_t fd, void* v, int32_t c, int64_
 {
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "preadv64");
+    void* f = dlsym(lib->w.lib, "preadv64");
     if(f)
         return ((iFipiI_t)f)(fd, v, c, o);
     return syscall(__NR_preadv, fd, v, c,(uint32_t)(o&0xffffffff), (uint32_t)((o>>32)&0xffffffff));
@@ -2083,7 +2083,7 @@ EXPORT int32_t my_pwritev64(x64emu_t* emu, int32_t fd, void* v, int32_t c, int64
 {
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "pwritev64");
+    void* f = dlsym(lib->w.lib, "pwritev64");
     if(f)
         return ((iFipiI_t)f)(fd, v, c, o);
     #ifdef __arm__
@@ -2098,7 +2098,7 @@ EXPORT int32_t my_accept4(x64emu_t* emu, int32_t fd, void* a, void* l, int32_t f
 {
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "accept4");
+    void* f = dlsym(lib->w.lib, "accept4");
     if(f)
         return ((iFippi_t)f)(fd, a, l, flags);
     if(!flags)
@@ -2112,7 +2112,7 @@ EXPORT  int32_t my_fallocate64(int fd, int mode, int64_t offs, int64_t len)
     static int done = 0;
     if(!done) {
         library_t* lib = my_lib;
-        f = (iFiiII_t)dlsym(lib->priv.w.lib, "fallocate64");
+        f = (iFiiII_t)dlsym(lib->w.lib, "fallocate64");
         done = 1;
     }
     if(f)
@@ -2521,7 +2521,7 @@ EXPORT int my___libc_alloca_cutoff(x64emu_t* emu, size_t size)
     // not always implemented on old linux version...
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "__libc_alloca_cutoff");
+    void* f = dlsym(lib->w.lib, "__libc_alloca_cutoff");
     if(f)
         return ((iFL_t)f)(size);
     // approximate version but it's better than nothing....
@@ -2620,7 +2620,7 @@ EXPORT int my_getentropy(x64emu_t* emu, void* buffer, size_t length)
 {
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "getentropy");
+    void* f = dlsym(lib->w.lib, "getentropy");
     if(f)
         return ((iFpL_t)f)(buffer, length);
     // custom implementation
@@ -2911,7 +2911,7 @@ EXPORT char my___libc_single_threaded = 0;
 
 #define PRE_INIT\
     if(box64_tcmalloc_minimal)                                      \
-        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
 
 #define CUSTOM_INIT         \

@@ -33,7 +33,7 @@ const char* ldlinuxName = "ld-linux.so.2";
 
 #define PRE_INIT\
     if(1)                                                           \
-        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
 
 // define all standard library functions

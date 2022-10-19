@@ -166,12 +166,10 @@ EXPORT int32_t my_ov_test_callbacks(x64emu_t* emu, void* datasource, void* vf, v
 #endif
 
 #define CUSTOM_INIT \
-    box64->vorbisfile = lib;\
     getMy(lib);
 
 #define CUSTOM_FINI \
-    freeMy();   \
-    my_context->vorbisfile = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"
 

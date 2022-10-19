@@ -80,12 +80,12 @@ static void* find_CERT_StringFromCertFcn_Fct(void* fct)
 static void* reverse_CERT_StringFromCertFcn_Fct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->priv.w.bridge, fct))
-        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, fct))
+        return (void*)CheckBridged(lib->w.bridge, fct);
     #define GO(A) if(my_CERT_StringFromCertFcn_##A == fct) return (void*)my_CERT_StringFromCertFcn_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, pFp, fct, 0, NULL);
+    return (void*)AddBridge(lib->w.bridge, pFp, fct, 0, NULL);
 }
 // CERTChainVerifyCallbackFunc ...
 #define GO(A)   \
@@ -112,12 +112,12 @@ static void* find_CERTChainVerifyCallbackFunc_Fct(void* fct)
 static void* reverse_CERTChainVerifyCallbackFunc_Fct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->priv.w.bridge, fct))
-        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, fct))
+        return (void*)CheckBridged(lib->w.bridge, fct);
     #define GO(A) if(my_CERTChainVerifyCallbackFunc_##A == fct) return (void*)my_CERTChainVerifyCallbackFunc_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0, NULL);
+    return (void*)AddBridge(lib->w.bridge, iFppp, fct, 0, NULL);
 }
 
 #undef SUPER

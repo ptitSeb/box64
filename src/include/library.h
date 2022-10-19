@@ -10,6 +10,10 @@ typedef struct box64context_s  box64context_t;
 typedef struct x64emu_s        x64emu_t;
 typedef struct needed_libs_s   needed_libs_t;
 
+#define LIB_NATIVE      0
+#define LIB_EMULATED    1
+#define LIB_UNNKNOW     -1
+
 library_t *NewLibrary(const char* path, box64context_t* box64);
 int AddSymbolsLibrary(lib_t* maplib, library_t* lib, x64emu_t* emu);
 int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x64emu_t* emu);

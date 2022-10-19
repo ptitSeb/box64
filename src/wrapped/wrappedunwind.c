@@ -36,7 +36,7 @@ EXPORT int my__ULx86_64_init_local(x64emu_t* emu, void* cursor, void* ctx) {
 
 #define PRE_INIT                                                \
     if(1)                                                       \
-        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);\
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);\
     else
 
 
