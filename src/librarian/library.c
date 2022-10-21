@@ -107,6 +107,8 @@ void NativeLib_FinishFini(library_t* lib)
     lib->w.lib = NULL;
     if(lib->w.altprefix)
         box_free(lib->w.altprefix);
+    if(lib->w.altmy)
+        box_free(lib->w.altmy);
     if(lib->w.neededlibs) {
         for(int i=0; i<lib->w.needed; ++i)
             box_free(lib->w.neededlibs[i]);
@@ -515,7 +517,6 @@ void Free1Library(library_t **lib, x64emu_t* emu)
     }
     box_free((*lib)->name);
     box_free((*lib)->path);
-    box_free((*lib)->altmy);
 
     if((*lib)->bridgemap) {
         bridged_t *br;
@@ -694,8 +695,8 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
     k = kh_get(datamap, lib->w.mydatamap, name);
     if (k!=kh_end(lib->w.mydatamap)) {
         char buff[200];
-        if(lib->altmy)
-            strcpy(buff, lib->altmy);
+        if(lib->w.altmy)
+            strcpy(buff, lib->w.altmy);
         else
             strcpy(buff, "my_");
         strcat(buff, name);
@@ -718,8 +719,8 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
     khint_t k = kh_get(symbolmap, lib->w.mysymbolmap, name);
     if (k!=kh_end(lib->w.mysymbolmap)) {
         char buff[200];
-        if(lib->altmy)
-            strcpy(buff, lib->altmy);
+        if(lib->w.altmy)
+            strcpy(buff, lib->w.altmy);
         else
             strcpy(buff, "my_");
         strcat(buff, name);
@@ -736,8 +737,8 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
     k = kh_get(symbolmap, lib->w.stsymbolmap, name);
     if (k!=kh_end(lib->w.stsymbolmap)) {
         char buff[200];
-        if(lib->altmy)
-            strcpy(buff, lib->altmy);
+        if(lib->w.altmy)
+            strcpy(buff, lib->w.altmy);
         else
             strcpy(buff, "my_");
         strcat(buff, name);
@@ -782,8 +783,8 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         khint_t k = kh_get(symbolmap, lib->w.wmysymbolmap, name);
         if (k!=kh_end(lib->w.wmysymbolmap)) {
             char buff[200];
-            if(lib->altmy)
-                strcpy(buff, lib->altmy);
+            if(lib->w.altmy)
+                strcpy(buff, lib->w.altmy);
             else
                 strcpy(buff, "my_");
             strcat(buff, name);
