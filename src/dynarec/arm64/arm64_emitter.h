@@ -683,7 +683,9 @@
  
 // VLDR
 #define VMEM_gen(size, opc, imm12, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | 0b01<<24 | (opc)<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
-// imm14 must be 3-aligned
+// imm13 must be 1-aligned
+#define VLDR16_U12(Ht, Rn, imm13)           EMIT(VMEM_gen(0b01, 0b01, ((uint32_t)((imm13)>>1))&0xfff, Rn, Ht))
+// imm14 must be 2-aligned
 #define VLDR32_U12(Dt, Rn, imm14)           EMIT(VMEM_gen(0b10, 0b01, ((uint32_t)((imm14)>>2))&0xfff, Rn, Dt))
 // imm15 must be 3-aligned
 #define VLDR64_U12(Dt, Rn, imm15)           EMIT(VMEM_gen(0b11, 0b01, ((uint32_t)((imm15)>>3))&0xfff, Rn, Dt))
@@ -695,22 +697,22 @@
 #define VSTR64_U12(Dt, Rn, imm15)           EMIT(VMEM_gen(0b11, 0b00, ((uint32_t)(imm15>>3))&0xfff, Rn, Dt))
 // imm16 must be 4-aligned
 #define VSTR128_U12(Qt, Rn, imm16)          EMIT(VMEM_gen(0b00, 0b10, ((uint32_t)((imm16)>>4))&0xfff, Rn, Qt))
-// (imm14) must be 1-aligned
-#define VSTR16_U12(Ht, Rn, imm14)           EMIT(VMEM_gen(0b01, 0b00, ((uint32_t)(imm14>>1))&0xfff, Rn, Ht))
+// (imm13) must be 1-aligned
+#define VSTR16_U12(Ht, Rn, imm13)           EMIT(VMEM_gen(0b01, 0b00, ((uint32_t)(imm13>>1))&0xfff, Rn, Ht))
 
 #define VMEMUR_vector(size, opc, imm9, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (Rn)<<5 | (Rt))
 // signed offset, no alignement!
-#define VLDR8_I9(Vt, Rn, imm9)              EMIT(VMEMUR(0b00, 0b01, (imm9)&0b111111111, Rn, Vt))
-#define VLDR16_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b01, 0b01, (imm9)&0b111111111, Rn, Vt))
-#define VLDR32_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b10, 0b01, (imm9)&0b111111111, Rn, Vt))
-#define VLDR64_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b11, 0b01, (imm9)&0b111111111, Rn, Vt))
-#define VLDR128_I9(Vt, Rn, imm9)            EMIT(VMEMUR(0b00, 0b11, (imm9)&0b111111111, Rn, Vt))
+#define VLDR8_I9(Vt, Rn, imm9)              EMIT(VMEMUR_vector(0b00, 0b01, (imm9)&0b111111111, Rn, Vt))
+#define VLDR16_I9(Vt, Rn, imm9)             EMIT(VMEMUR_vector(0b01, 0b01, (imm9)&0b111111111, Rn, Vt))
+#define VLDR32_I9(Vt, Rn, imm9)             EMIT(VMEMUR_vector(0b10, 0b01, (imm9)&0b111111111, Rn, Vt))
+#define VLDR64_I9(Vt, Rn, imm9)             EMIT(VMEMUR_vector(0b11, 0b01, (imm9)&0b111111111, Rn, Vt))
+#define VLDR128_I9(Vt, Rn, imm9)            EMIT(VMEMUR_vector(0b00, 0b11, (imm9)&0b111111111, Rn, Vt))
 // signed offset, no alignement!
-#define VSTR8_I9(Vt, Rn, imm9)              EMIT(VMEMUR(0b00, 0b00, (imm9)&0b111111111, Rn, Vt))
-#define VSTR16_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b01, 0b00, (imm9)&0b111111111, Rn, Vt))
-#define VSTR32_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b10, 0b00, (imm9)&0b111111111, Rn, Vt))
-#define VSTR64_I9(Vt, Rn, imm9)             EMIT(VMEMUR(0b11, 0b00, (imm9)&0b111111111, Rn, Vt))
-#define VSTR128_I9(Vt, Rn, imm9)            EMIT(VMEMUR(0b00, 0b10, (imm9)&0b111111111, Rn, Vt))
+#define VSTR8_I9(Vt, Rn, imm9)              EMIT(VMEMUR_vector(0b00, 0b00, (imm9)&0b111111111, Rn, Vt))
+#define VSTR16_I9(Vt, Rn, imm9)             EMIT(VMEMUR_vector(0b01, 0b00, (imm9)&0b111111111, Rn, Vt))
+#define VSTR32_I9(Vt, Rn, imm9)             EMIT(VMEMUR_vector(0b10, 0b00, (imm9)&0b111111111, Rn, Vt))
+#define VSTR64_I9(Vt, Rn, imm9)             EMIT(VMEMUR_vector(0b11, 0b00, (imm9)&0b111111111, Rn, Vt))
+#define VSTR128_I9(Vt, Rn, imm9)            EMIT(VMEMUR_vector(0b00, 0b10, (imm9)&0b111111111, Rn, Vt))
 
 #define VMEMW_gen(size, opc, imm9, op2, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (op2)<<10 | 0b01<<10 | (Rn)<<5 | (Rt))
 #define VLDR64_S9_postindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b11, 0b01, (imm9)&0x1ff, 0b01, Rn, Rt))
