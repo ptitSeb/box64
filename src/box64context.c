@@ -169,6 +169,8 @@ box64context_t *NewBox64Context(int argc)
     context->local_maplib = NewLibrarian(context, 1);
     context->versym = NewDictionnary();
     context->system = NewBridge();
+    context->globaldefver = NewDefaultVersion();
+    context->weakdefver = NewDefaultVersion();
     // create vsyscall
     context->vsyscall = AddBridge(context->system, vFEv, x64Syscall, 0, NULL);
     // create the vsyscalls
@@ -217,6 +219,8 @@ void FreeBox64Context(box64context_t** context)
     if(ctx->maplib)
         FreeLibrarian(&ctx->maplib, NULL);
     FreeDictionnary(&ctx->versym);
+    FreeDefaultVersion(&ctx->globaldefver);
+    FreeDefaultVersion(&ctx->weakdefver);
 
     for(int i=0; i<ctx->elfsize; ++i) {
         FreeElfHeader(&ctx->elfs[i]);
@@ -338,52 +342,3 @@ int AddTLSPartition(box64context_t* context, int tlssize) {
     return -context->tlssize;   // negative offset
 }
 
-void add_neededlib(needed_libs_t* needed, library_t* lib)
-{
-    if(!needed)
-        return;
-    for(int i=0; i<needed->size; ++i)
-        if(needed->libs[i] == lib)
-            return;
-    if(needed->size == needed->cap) {
-        needed->cap += 8;
-        needed->libs = (library_t**)box_realloc(needed->libs, needed->cap*sizeof(library_t*));
-    }
-    needed->libs[needed->size++] = lib;
-}
-
-void free_neededlib(needed_libs_t* needed)
-{
-    if(!needed)
-        return;
-    needed->cap = 0;
-    needed->size = 0;
-    if(needed->libs)
-        box_free(needed->libs);
-    needed->libs = NULL;
-}
-
-void add_dependedlib(needed_libs_t* depended, library_t* lib)
-{
-    if(!depended)
-        return;
-    for(int i=0; i<depended->size; ++i)
-        if(depended->libs[i] == lib)
-            return;
-    if(depended->size == depended->cap) {
-        depended->cap += 8;
-        depended->libs = (library_t**)box_realloc(depended->libs, depended->cap*sizeof(library_t*));
-    }
-    depended->libs[depended->size++] = lib;
-}
-
-void free_dependedlib(needed_libs_t* depended)
-{
-    if(!depended)
-        return;
-    depended->cap = 0;
-    depended->size = 0;
-    if(depended->libs)
-        box_free(depended->libs);
-    depended->libs = NULL;
-}

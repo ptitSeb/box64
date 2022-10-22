@@ -2,6 +2,8 @@
 #error Meh
 #endif
 
+#include "librarian/library_inner.h"
+
 #define FUNC3(M,N) wrapped##M##N
 #define FUNC2(M,N) FUNC3(M,N)
 #define FUNC(N) FUNC2(LIBNAME,N)
@@ -111,7 +113,6 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 #undef DOIT
 #undef _DOIT
 
-void NativeLib_CommonInit(library_t *lib);
 int FUNC(_init)(library_t* lib, box64context_t* box64)
 {
     (void)box64;
@@ -140,7 +141,7 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
 #endif
         } else lib->path = strdup(MAPNAME(Name));
     }
-    NativeLib_CommonInit(lib);
+    WrappedLib_CommonInit(lib);
 
     khint_t k;
     int ret;
@@ -201,51 +202,11 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
     return 0;
 }
 
-void NativeLib_FinishFini(library_t* lib);
 void FUNC(_fini)(library_t* lib)
 {
 #ifdef CUSTOM_FINI
     CUSTOM_FINI
 #endif
-    NativeLib_FinishFini(lib);
+    WrappedLib_FinishFini(lib);
 }
 
-int WrappedLib_defget(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local);
-int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local)
-{
-#ifdef CUSTOM_FAIL
-    uintptr_t addr = 0;
-    uintptr_t size = 0;
-    void* symbol = NULL;
-    if (!getSymbolInMaps(lib, name, 0, &addr, &size, version, vername, local)) {
-        CUSTOM_FAIL
-    }
-    if(!addr && !size)
-        return 0;
-    *offs = addr;
-    *sz = size;
-    return 1;
-#else
-    return WrappedLib_defget(lib, name, offs, sz, version, vername, local);
-#endif
-}
-
-int WrappedLib_defgetnoweak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local);
-int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int version, const char* vername, int local)
-{
-#ifdef CUSTOM_FAIL
-    uintptr_t addr = 0;
-    uintptr_t size = 0;
-    void* symbol = NULL;
-    if (!getSymbolInMaps(lib, name, 1, &addr, &size, version, vername, local)) {
-        CUSTOM_FAIL
-    }
-    if(!addr && !size)
-        return 0;
-    *offs = addr;
-    *sz = size;
-    return 1;
-#else
-    return WrappedLib_defgetnoweak(lib, name, offs, sz, version, vername, local);
-#endif
-}

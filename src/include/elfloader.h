@@ -63,6 +63,10 @@ const char* GetParentSymbolVersion(elfheader_t* h, int index);
 const char* VersionnedName(const char* name, int ver, const char* vername);
 int SameVersionnedSymbol(const char* name1, int ver1, const char* vername1, const char* name2, int ver2, const char* vername2);
 
+kh_mapsymbols_t* GetMapSymbols(elfheader_t* h);
+kh_mapsymbols_t* GetWeakSymbols(elfheader_t* h);
+kh_mapsymbols_t* GetLocalSymbols(elfheader_t* h);
+
 void* GetNativeSymbolUnversionned(void* lib, const char* name);
 
 void AddMainElfToLinkmap(elfheader_t* lib);
