@@ -148,6 +148,12 @@ Enable/Disable generation of -NAN
 * 0 : Generate -NAN like on x86
 * 1 : Don't do anything special with NAN, to go as fast as possible (default)
 
+#### BOX64_DYNAREC_SAFEFLAGS
+Handling of flags on CALL/RET opcodes
+* 0 : Treat CALL/RET as if it never needs any flags (faster but not advised)
+* 1 : most of RET will need flags, most of CALLS will not (Default)
+* 2 : All CALL/RET will need flags (slower, but might be needed. Automatically enabled for Vara.exe)
+
 #### BOX64_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL
