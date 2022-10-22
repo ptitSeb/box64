@@ -61,12 +61,20 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
 void add_next(dynarec_native_t *dyn, uintptr_t addr) {
     if(!box64_dynarec_bigblock)
         return;
+    // exist?
     for(int i=0; i<dyn->next_sz; ++i)
         if(dyn->next[i]==addr)
             return;
+    // put in a free slot
+    for(int i=0; i<dyn->next_sz; ++i)
+        if(!dyn->next[i]) {
+            dyn->next[i] = addr;
+            return;
+        }
+    // add slots
     if(dyn->next_sz == dyn->next_cap) {
         dyn->next_cap += 16;
-        dyn->next = (uintptr_t*)box_realloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
+        dyn->next = (uintptr_t*)realloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
     }
     dyn->next[dyn->next_sz++] = addr;
 }
@@ -76,13 +84,12 @@ uintptr_t get_closest_next(dynarec_native_t *dyn, uintptr_t addr) {
     int i = 0;
     while((i<dyn->next_sz) && (best!=addr)) {
         if(dyn->next[i]<addr) { // remove the address, it's before current address
-            memmove(dyn->next+i, dyn->next+i+1, (dyn->next_sz-i-1)*sizeof(uintptr_t));
-            --dyn->next_sz;
+            dyn->next[i] = 0;
         } else {
             if((dyn->next[i]<best) || !best)
                 best = dyn->next[i];
-            ++i;
         }
+        ++i;
     }
     return best;
 }
