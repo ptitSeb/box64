@@ -74,7 +74,7 @@ void add_next(dynarec_native_t *dyn, uintptr_t addr) {
     // add slots
     if(dyn->next_sz == dyn->next_cap) {
         dyn->next_cap += 16;
-        dyn->next = (uintptr_t*)realloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
+        dyn->next = (uintptr_t*)box_realloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
     }
     dyn->next[dyn->next_sz++] = addr;
 }
