@@ -41,7 +41,7 @@ void FreeMapSymbols(kh_mapsymbols_t** map)
     if(!map || !(*map))
         return;
     versymbols_t *v;
-    kh_foreach_value_ref(*map, v, free(v->syms););
+    kh_foreach_value_ref(*map, v, box_free(v->syms););
 
     kh_destroy(mapsymbols, *map);
     *map = NULL;
@@ -160,7 +160,7 @@ void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, ui
     // add a new record
     if(v->sz == v->cap) {
         v->cap+=4;
-        v->syms = (versymbol_t*)realloc(v->syms, v->cap*sizeof(versymbol_t));
+        v->syms = (versymbol_t*)box_realloc(v->syms, v->cap*sizeof(versymbol_t));
     }
     int idx = v->sz++;
     v->syms[idx].version = ver;
@@ -197,7 +197,7 @@ void AddUniqueSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t ad
     // add a new record
     if(v->sz == v->cap) {
         v->cap+=4;
-        v->syms = (versymbol_t*)realloc(v->syms, v->cap*sizeof(versymbol_t));
+        v->syms = (versymbol_t*)box_realloc(v->syms, v->cap*sizeof(versymbol_t));
     }
     int idx = v->sz++;
     v->syms[idx].version = ver;
@@ -253,7 +253,7 @@ void FreeDefaultVersion(kh_defaultversion_t** def)
     if(!def || !*def)
         return;
     const char* v;
-    kh_foreach_value(*def, v, free((char*)v););
+    kh_foreach_value(*def, v, box_free((char*)v););
 
     kh_destroy(defaultversion, *def);
     *def = NULL;
@@ -264,7 +264,7 @@ void AddDefaultVersion(kh_defaultversion_t* def, const char* symname, const char
     int ret;
     khint_t k = kh_put(defaultversion, def, symname, &ret);
     if(!ret) return;    // already set!
-    kh_value(def, k) = strdup(vername);
+    kh_value(def, k) = box_strdup(vername);
 }
 const char* GetDefaultVersion(kh_defaultversion_t* def, const char* symname)
 {

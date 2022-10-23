@@ -299,7 +299,7 @@ void freeAlignedAttr(void* attr)
 		return;
 	aligned_attr_t* at = (aligned_attr_t*)attr;
 	if(at->sign==SIGN_ATTR) {
-		free(at->at);
+		box_free(at->at);
 		at->sign = 0LL;
 	}
 }

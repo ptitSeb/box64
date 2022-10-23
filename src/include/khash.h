@@ -167,16 +167,16 @@ typedef khint_t khiter_t;
 #endif
 
 #ifndef kcalloc
-#define kcalloc(N,Z) calloc(N,Z)
+#define kcalloc(N,Z) box_calloc(N,Z)
 #endif
 #ifndef kmalloc
-#define kmalloc(Z) malloc(Z)
+#define kmalloc(Z) box_malloc(Z)
 #endif
 #ifndef krealloc
-#define krealloc(P,Z) realloc(P,Z)
+#define krealloc(P,Z) box_realloc(P,Z)
 #endif
 #ifndef kfree
-#define kfree(P) free(P)
+#define kfree(P) box_free(P)
 #endif
 
 static const double __ac_HASH_UPPER = 0.77;

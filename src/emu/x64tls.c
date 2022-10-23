@@ -197,10 +197,10 @@ static tlsdatasize_t* setupTLSData(box64context_t* context)
     // Setup the GS segment:
     int dtssize = sizeDTS(context);
     int datasize = sizeTLSData(context->tlssize);
-    void *ptr_oversized = (char*)malloc(dtssize+POS_TLS+datasize);
+    void *ptr_oversized = (char*)box_malloc(dtssize+POS_TLS+datasize);
     void *ptr = (void*)((uintptr_t)ptr_oversized + datasize);
     memcpy((void*)((uintptr_t)ptr-context->tlssize), context->tlsdata, context->tlssize);
-    tlsdatasize_t *data = (tlsdatasize_t*)calloc(1, sizeof(tlsdatasize_t));
+    tlsdatasize_t *data = (tlsdatasize_t*)box_calloc(1, sizeof(tlsdatasize_t));
     data->data = ptr;
     data->tlssize = context->tlssize;
     data->ptr = ptr_oversized;

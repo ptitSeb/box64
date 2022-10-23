@@ -325,7 +325,7 @@ static void* find_DebugReportCallbackEXT_Fct(void* fct)
 
 #undef SUPER
 
-//#define PRE_INIT if(libGL) {lib->w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
+//#define PRE_INIT if(libGL) {lib->w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = box_strdup(libGL);} else
 
 #define PRE_INIT        \
     if(box64_novulkan)  \

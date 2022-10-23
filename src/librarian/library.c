@@ -531,21 +531,21 @@ void Free1Library(library_t **lib, x64emu_t* emu)
     if((*lib)->gbridgemap) {
         bridged_t *br;
         kh_foreach_value_ref((*lib)->gbridgemap, br,
-            free(br->name);
+            box_free(br->name);
         );
         kh_destroy(bridgemap, (*lib)->gbridgemap);
     }
     if((*lib)->wbridgemap) {
         bridged_t *br;
         kh_foreach_value_ref((*lib)->wbridgemap, br,
-            free(br->name);
+            box_free(br->name);
         );
         kh_destroy(bridgemap, (*lib)->wbridgemap);
     }
     if((*lib)->lbridgemap) {
         bridged_t *br;
         kh_foreach_value_ref((*lib)->lbridgemap, br,
-            free(br->name);
+            box_free(br->name);
         );
         kh_destroy(bridgemap, (*lib)->lbridgemap);
     }
@@ -1012,7 +1012,7 @@ void add_neededlib(needed_libs_t* needed, library_t* lib)
         return;
     if(needed->size == needed->cap) {
         needed->cap += 8;
-        needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
+        needed->libs = (library_t**)box_realloc(needed->libs, needed->cap*sizeof(library_t*));
     }
     needed->libs[needed->size++] = lib;
 }
@@ -1023,7 +1023,7 @@ void free_neededlib(needed_libs_t* needed)
     needed->cap = 0;
     needed->size = 0;
     if(needed->libs)
-        free(needed->libs);
+        box_free(needed->libs);
     needed->libs = NULL;
 }
 void add_dependedbylib(needed_libs_t* dependedby, library_t* lib)
@@ -1034,7 +1034,7 @@ void add_dependedbylib(needed_libs_t* dependedby, library_t* lib)
         return;
     if(dependedby->size == dependedby->cap) {
         dependedby->cap += 8;
-        dependedby->libs = (library_t**)realloc(dependedby->libs, dependedby->cap*sizeof(library_t*));
+        dependedby->libs = (library_t**)box_realloc(dependedby->libs, dependedby->cap*sizeof(library_t*));
     }
     dependedby->libs[dependedby->size++] = lib;
 }
@@ -1045,7 +1045,7 @@ void free_dependedbylib(needed_libs_t* dependedby)
     dependedby->cap = 0;
     dependedby->size = 0;
     if(dependedby->libs)
-        free(dependedby->libs);
+        box_free(dependedby->libs);
     dependedby->libs = NULL;
 }
 

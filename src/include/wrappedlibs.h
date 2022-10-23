@@ -10,8 +10,8 @@ typedef void (*wrappedlib_fini_t)(library_t * lib);
 typedef int (*wrappedlib_get_t)(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, int* weak, int version, const char* vername, int local);
 
 void setNeededLibs(library_t* lib, int n, ...);
-#define SETALT(A)       lib->w.altmy = strdup(#A)
-#define SETALTPREFIX(A) lib->w.altprefix = strdup(A)
+#define SETALT(A)       lib->w.altmy = box_strdup(#A)
+#define SETALTPREFIX(A) lib->w.altprefix = box_strdup(A)
 
 typedef struct wrappedlib_s {
     const char*         name;
