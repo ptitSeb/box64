@@ -527,45 +527,37 @@
 #define STP_REGS(A, B)  STPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LDP_REGS(A, B)  LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define STORE_XEMU_REGS(A)  \
-    STORE_REG(RAX);         \
-    STORE_REG(RCX);         \
-    STORE_REG(RDX);         \
-    STORE_REG(RBX);         \
-    STORE_REG(RSP);         \
-    STORE_REG(RBP);         \
-    STORE_REG(RSI);         \
-    STORE_REG(RDI);         \
-    STORE_REG(R8);          \
-    STORE_REG(R9);          \
-    STORE_REG(R10);         \
-    STORE_REG(R11);         \
-    STORE_REG(R12);         \
-    STORE_REG(R13);         \
-    STORE_REG(R14);         \
-    STORE_REG(R15);         \
-    STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
-    if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
+    STP_REGS(RAX, RCX);     \
+    STP_REGS(RDX, RBX);     \
+    STP_REGS(RSP, RBP);     \
+    STP_REGS(RSI, RDI);     \
+    STP_REGS(R8, R9);       \
+    STP_REGS(R10, R11);     \
+    STP_REGS(R12, R13);     \
+    STP_REGS(R14, R15);     \
+    if(A==xRIP) {           \
+        STPx_S7_offset(xFlags, xRIP, xEmu, offsetof(x64emu_t, eflags)); \
+    } else {                \
+        STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
+        if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}  \
+    }
 
 #define LOAD_REG(A)    LDRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
-#define LOAD_XEMU_REGS(A)  \
-    LOAD_REG(RAX);         \
-    LOAD_REG(RCX);         \
-    LOAD_REG(RDX);         \
-    LOAD_REG(RBX);         \
-    LOAD_REG(RSP);         \
-    LOAD_REG(RBP);         \
-    LOAD_REG(RSI);         \
-    LOAD_REG(RDI);         \
-    LOAD_REG(R8);          \
-    LOAD_REG(R9);          \
-    LOAD_REG(R10);         \
-    LOAD_REG(R11);         \
-    LOAD_REG(R12);         \
-    LOAD_REG(R13);         \
-    LOAD_REG(R14);         \
-    LOAD_REG(R15);         \
-    LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
-    if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
+#define LOAD_XEMU_REGS(A)   \
+    LDP_REGS(RAX, RCX);     \
+    LDP_REGS(RDX, RBX);     \
+    LDP_REGS(RSP, RBP);     \
+    LDP_REGS(RSI, RDI);     \
+    LDP_REGS(R8, R9);       \
+    LDP_REGS(R10, R11);     \
+    LDP_REGS(R12, R13);     \
+    LDP_REGS(R14, R15);     \
+    if(A==xRIP) {           \
+        LDPx_S7_offset(xFlags, xRIP, xEmu, offsetof(x64emu_t, eflags)); \
+    } else {                \
+        LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
+        if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip));}  \
+    }
 
 #define STORE_XEMU_MINIMUM(A)  \
     STORE_REG(RAX);         \
