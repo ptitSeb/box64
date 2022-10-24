@@ -14,7 +14,7 @@
 //GO(xkb_compose_state_unref, 
 //GO(xkb_compose_table_new_from_buffer, 
 //GO(xkb_compose_table_new_from_file, 
-//GO(xkb_compose_table_new_from_locale, 
+GO(xkb_compose_table_new_from_locale, pFppi)
 //GO(xkb_compose_table_ref, 
 //GO(xkb_compose_table_unref, 
 //GO(xkb_context_get_log_level, 
