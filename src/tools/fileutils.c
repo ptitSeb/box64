@@ -57,8 +57,11 @@ char* ResolveFile(const char* filename, path_collection_t* paths)
         } else
             strcpy(p, paths->paths[i]);
         strcat(p, filename);
-        if(FileExist(p, IS_FILE))
-            return realpath(p, NULL);
+        if(FileExist(p, IS_FILE)) {
+            char p2[MAX_PATH];
+            realpath(p, p2);
+            return box_strdup(p2);
+        }
     }
 
     return box_strdup(filename); //NULL;
