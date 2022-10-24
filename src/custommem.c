@@ -255,8 +255,16 @@ static size_t sizeBlock(void* sub)
     return s->next.size;
 }
 
+static size_t roundSize(size_t size)
+{
+    if(!size)
+        return size;
+    return (size+7)&~7LL;   // 8 bytes align in size
+}
+
 void* customMalloc(size_t size)
 {
+    size = roundSize(size);
     // look for free space
     void* sub = NULL;
     pthread_mutex_lock(&mutex_blocks);
@@ -304,7 +312,7 @@ void* customMalloc(size_t size)
 }
 void* customCalloc(size_t n, size_t size)
 {
-    size_t newsize = n*size;
+    size_t newsize = roundSize(n*size);
     void* ret = customMalloc(newsize);
     memset(ret, 0, newsize);
     return ret;
@@ -313,6 +321,7 @@ void* customRealloc(void* p, size_t size)
 {
     if(!p)
         return customMalloc(size);
+    size = roundSize(size);
     uintptr_t addr = (uintptr_t)p;
     pthread_mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
