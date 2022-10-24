@@ -40,6 +40,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t wback, wb1, wb2, wb;
     int64_t fixedaddress;
     int lock;
+    int cacheupd;
 
     opcode = F8;
     MAYUSE(eb1);
@@ -47,6 +48,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(j64);
     MAYUSE(wb);
     MAYUSE(lock);
+    MAYUSE(cacheupd);
 
     switch(opcode) {
         case 0x00:
@@ -650,11 +652,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
                 Bcond(NO, i32);                                         \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
-                    if(!dyn->insts[ninst].x64.barrier)                  \
+                    if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
                 } else {                                                \
-                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
                     B(i32);                                             \
                 }                                                       \
@@ -1206,7 +1208,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
-                SETFLAGS(X_ALL, SF_MAYSET);
+                MAYSETFLAGS();
+                SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
                 MARK;   // Part with DF==0
@@ -1305,7 +1308,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
-                SETFLAGS(X_ALL, SF_MAYSET);
+                MAYSETFLAGS();
+                SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
                 UBFXw(x1, xRAX, 0, 8);
                 TBNZ_MARK2(xFlags, F_DF);
@@ -2035,11 +2039,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
                 if(Z) {CBNZx(xRCX, i32);} else {CBZx(xRCX, i32);};      \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
-                    if(!dyn->insts[ninst].x64.barrier)                  \
+                    if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
                 } else {                                                \
-                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
                     Bcond(c__, i32);                                    \
                 }                                                       \
@@ -2176,7 +2180,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 jump_to_next(dyn, addr+i32, 0, ninst);
             } else {
                 // inside the block
-                fpuCacheTransform(dyn, ninst, x1, x2, x3);
+                CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
                 tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);
                 if(tmp==4) {
                     NOP;

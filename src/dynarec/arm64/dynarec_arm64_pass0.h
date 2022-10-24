@@ -6,16 +6,15 @@
     if(ninst) dyn->insts[ninst-1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst-1].x64.addr
 
 #define MESSAGE(A, ...)  
+#define MAYSETFLAGS()   dyn->insts[ninst].x64.may_set = 1
 #define READFLAGS(A)    \
         dyn->insts[ninst].x64.use_flags = A; dyn->f.dfnone = 1;\
         dyn->f.pending=SF_SET
 #define SETFLAGS(A,B)   \
-        dyn->insts[ninst].x64.set_flags = A;            \
-        if(B!=SF_MAYSET) {                              \
-                dyn->insts[ninst].x64.state_flags = B;  \
-                dyn->f.pending=(B)&SF_SET_PENDING;      \
-                dyn->f.dfnone=((B)&SF_SET)?1:0;         \
-        }
+        dyn->insts[ninst].x64.set_flags = A;    \
+        dyn->insts[ninst].x64.state_flags = B;  \
+        dyn->f.pending=(B)&SF_SET_PENDING;      \
+        dyn->f.dfnone=((B)&SF_SET)?1:0;
 #define EMIT(A)     
 #define JUMP(A, C)         add_next(dyn, (uintptr_t)A); dyn->insts[ninst].x64.jmp = A; dyn->insts[ninst].x64.jmp_cond = C
 #define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3); dyn->insts[ninst].x64.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1

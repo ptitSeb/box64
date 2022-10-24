@@ -44,6 +44,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t u8;
     int32_t i32;
     int64_t j64, i64;
+    int cacheupd;
     int lock;
     int v0, v1, s0;
     MAYUSE(i32);
@@ -52,6 +53,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(v1);
     MAYUSE(s0);
     MAYUSE(lock);
+    MAYUSE(cacheupd);
 
     // REX prefix before the 67 are ignored
     rex.rex = 0;
@@ -762,11 +764,11 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
                 Bcond(NO, i32);                                         \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
-                    if(!dyn->insts[ninst].x64.barrier)                  \
+                    if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
                 } else {                                                \
-                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
                     B(i32);                                             \
                 }                                                       \

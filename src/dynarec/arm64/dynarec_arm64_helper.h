@@ -477,11 +477,11 @@
     j64 = GETMARKLOCK-(dyn->native_size);  \
     CBNZx(reg, j64)
 
-#define IFX(A)  if((dyn->insts[ninst].x64.need_flags&(A)))
-#define IFX_PENDOR0  if((dyn->insts[ninst].x64.need_flags&(X_PEND) || !dyn->insts[ninst].x64.need_flags))
-#define IFXX(A) if((dyn->insts[ninst].x64.need_flags==(A)))
-#define IFX2X(A, B) if((dyn->insts[ninst].x64.need_flags==(A) || dyn->insts[ninst].x64.need_flags==(B) || dyn->insts[ninst].x64.need_flags==((A)|(B))))
-#define IFXN(A, B)  if((dyn->insts[ninst].x64.need_flags&(A) && !(dyn->insts[ninst].x64.need_flags&(B))))
+#define IFX(A)  if((dyn->insts[ninst].x64.gen_flags&(A)))
+#define IFX_PENDOR0  if((dyn->insts[ninst].x64.gen_flags&(X_PEND) || !dyn->insts[ninst].x64.gen_flags))
+#define IFXX(A) if((dyn->insts[ninst].x64.gen_flags==(A)))
+#define IFX2X(A, B) if((dyn->insts[ninst].x64.gen_flags==(A) || dyn->insts[ninst].x64.gen_flags==(B) || dyn->insts[ninst].x64.gen_flags==((A)|(B))))
+#define IFXN(A, B)  if((dyn->insts[ninst].x64.gen_flags&(A) && !(dyn->insts[ninst].x64.gen_flags&(B))))
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOM(s1, s2, s3)                                                    \
@@ -598,6 +598,10 @@
 #define SET_NODF()          dyn->f.dfnone = 0
 #define SET_DFOK()          dyn->f.dfnone = 1
 
+#ifndef MAYSETFLAGS
+#define MAYSETFLAGS()
+#endif
+
 #ifndef READFLAGS
 #define READFLAGS(A) \
     if(((A)!=X_PEND && dyn->f.pending!=SF_SET)          \
@@ -613,23 +617,21 @@
         SET_DFOK();                                     \
     }
 #endif
-// SF_MAYSET doesn't change the flags status cache
-// it also doesn't consume any needed flags
+
 #ifndef SETFLAGS
 #define SETFLAGS(A, B)                                                                          \
     if(dyn->f.pending!=SF_SET                                                                   \
     && ((B)&SF_SUB)                                                                             \
-    && (dyn->insts[ninst].x64.need_flags&(~(A))))                                               \
-        READFLAGS(((dyn->insts[ninst].x64.need_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.need_flags)&(~(A)));\
-    if(dyn->insts[ninst].x64.need_flags) switch(B) {                                            \
+    && (dyn->insts[ninst].x64.gen_flags&(~(A))))                                                \
+        READFLAGS(((dyn->insts[ninst].x64.gen_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.gen_flags)&(~(A)));\
+    if(dyn->insts[ninst].x64.gen_flags) switch(B) {                                             \
         case SF_SUBSET:                                                                         \
         case SF_SET: dyn->f.pending = SF_SET; break;                                            \
         case SF_PENDING: dyn->f.pending = SF_PENDING; break;                                    \
         case SF_SUBSET_PENDING:                                                                 \
         case SF_SET_PENDING:                                                                    \
-            dyn->f.pending = (dyn->insts[ninst].x64.need_flags&X_PEND)?SF_SET_PENDING:SF_SET;   \
+            dyn->f.pending = (dyn->insts[ninst].x64.gen_flags&X_PEND)?SF_SET_PENDING:SF_SET;    \
             break;                                                                              \
-        case SF_MAYSET: break;                                                                  \
     } else dyn->f.pending = SF_SET
 #endif
 #ifndef JUMP
@@ -641,12 +643,12 @@
 #ifndef BARRIER_NEXT
 #define BARRIER_NEXT(A)
 #endif
-#define UFLAG_OP1(A) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op1));}
-#define UFLAG_OP2(A) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op2));}
-#define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A1, xEmu, offsetof(x64emu_t, op1));STRxw_U12(A2, 0, offsetof(x64emu_t, op2));}
-#define UFLAG_RES(A) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, res));}
-#define UFLAG_DF(r, A) if(dyn->insts[ninst].x64.need_flags) {SET_DF(r, A)}
-#define UFLAG_IF if(dyn->insts[ninst].x64.need_flags)
+#define UFLAG_OP1(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op1));}
+#define UFLAG_OP2(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op2));}
+#define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A1, xEmu, offsetof(x64emu_t, op1));STRxw_U12(A2, 0, offsetof(x64emu_t, op2));}
+#define UFLAG_RES(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, res));}
+#define UFLAG_DF(r, A) if(dyn->insts[ninst].x64.gen_flags) {SET_DF(r, A)}
+#define UFLAG_IF if(dyn->insts[ninst].x64.gen_flags)
 #ifndef DEFAULT
 #define DEFAULT      *ok = -1; BARRIER(2)
 #endif
@@ -850,7 +852,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #endif
 
-#define fpuCacheTransform       STEPNAME(fpuCacheTransform)
+#define CacheTransform       STEPNAME(CacheTransform)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
@@ -977,12 +979,12 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 
-void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
 #if STEP < 2
 #define CHECK_CACHE()   0
 #else
-#define CHECK_CACHE()   fpuCacheNeedsTransform(dyn, ninst)
+#define CHECK_CACHE()   (cacheupd = CacheNeedsTransform(dyn, ninst))
 #endif
 
 #define neoncache_st_coherency STEPNAME(neoncache_st_coherency)

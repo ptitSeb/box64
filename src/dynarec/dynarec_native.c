@@ -328,59 +328,51 @@ static void fillPredecessors(dynarec_native_t* dyn)
 
 }
 
-static void updateNeed(dynarec_native_t* dyn, int ninst, uint32_t need) {
-    uint32_t old_need = dyn->insts[ninst].x64.need_flags;
-    uint32_t new_need = old_need | need;
-    uint32_t new_use = dyn->insts[ninst].x64.use_flags;
-    uint32_t old_use = dyn->insts[ninst].x64.old_use;
-
-    if((new_need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET) {
-        new_need &=~X_PEND;
-        new_need |= X_ALL;
-    } else if((new_need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET_PENDING) {
-        new_need |= X_ALL&~dyn->insts[ninst].x64.set_flags;
+// updateNeed goes backward, from last intruction to top
+static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
+    while (ninst>=0) {
+        // need pending but instruction is only a subset: remove pend and use an X_ALL instead
+        need |= dyn->insts[ninst].x64.need_after;
+        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags==SF_SUBSET)) {
+            need &=~X_PEND;
+            need |= X_ALL;
+        }
+        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags==SF_SET)) {
+            need &=~X_PEND;
+            need |= dyn->insts[ninst].x64.set_flags;    // SF_SET will compute all flags, it's not SUBSET!
+        }
+        if((need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET_PENDING) {
+            need |= X_ALL&~(dyn->insts[ninst].x64.set_flags);
+        }
+        dyn->insts[ninst].x64.gen_flags = need&dyn->insts[ninst].x64.set_flags;
+        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags&SF_PENDING))
+            dyn->insts[ninst].x64.gen_flags |= X_PEND;
+        dyn->insts[ninst].x64.need_after = need;
+        need = dyn->insts[ninst].x64.need_after&~dyn->insts[ninst].x64.gen_flags;
+        if(dyn->insts[ninst].x64.may_set)
+            need |= dyn->insts[ninst].x64.gen_flags;    // forward the flags
+        // Consume X_PEND if relevant
+        if((need&X_PEND) && (dyn->insts[ninst].x64.set_flags&SF_PENDING))
+            need &=~X_PEND;
+        need |= dyn->insts[ninst].x64.use_flags;
+        if(dyn->insts[ninst].x64.need_before == need)
+            return ninst - 1;
+        dyn->insts[ninst].x64.need_before = need;
+        if(dyn->insts[ninst].x64.barrier&BARRIER_FLAGS) {
+            need = need?X_PEND:0;
+        }
+        int ok = 0;
+        for(int i=0; i<dyn->insts[ninst].pred_sz; ++i) {
+            if(dyn->insts[ninst].pred[i] == ninst-1)
+                ok = 1;
+            else
+                updateNeed(dyn, dyn->insts[ninst].pred[i], need);
+        }
+        if(!ok)
+            return ninst - 1;
+        --ninst;
     }
-
-
-    uint32_t new_set = 0;
-    if(dyn->insts[ninst].x64.state_flags & SF_SET)
-        new_set = dyn->insts[ninst].x64.set_flags;
-    if(dyn->insts[ninst].x64.state_flags & SF_PENDING)
-        new_set |= X_PEND;
-    if((new_need&X_PEND) && (
-        dyn->insts[ninst].x64.state_flags==SF_SET || dyn->insts[ninst].x64.state_flags==SF_SUBSET)) {
-        new_need &=~X_PEND;
-        new_need |=X_ALL;
-    }
-    
-    dyn->insts[ninst].x64.need_flags = new_need;
-    dyn->insts[ninst].x64.old_use = new_use;
-
-    if(dyn->insts[ninst].x64.jmp_insts==-1)
-        new_need |= X_PEND;
-
-    if((new_need == old_need) && (new_use == old_use))    // no changes, bye
-        return;
-    
-    new_need &=~new_set;    // clean needed flag that were suplied
-    new_need |= new_use;    // new need
-    // a Flag Barrier will change all need to "Pending", as it clear all flags optimisation
-    if(new_need && dyn->insts[ninst].x64.barrier&BARRIER_FLAGS)
-        new_need = X_PEND;
-    
-    if((new_need == (X_ALL|X_PEND)) && (dyn->insts[ninst].x64.state_flags & SF_SET))
-        new_need = X_ALL;
-
-    //update need to new need on predecessor
-    for(int i=0; i<dyn->insts[ninst].pred_sz; ++i)
-        updateNeed(dyn, dyn->insts[ninst].pred[i], new_need);
-}
-
-static void resetNeed(dynarec_native_t* dyn) {
-    for(int i = dyn->size; i-- > 0;) {
-        dyn->insts[i].x64.old_use = 0;
-        dyn->insts[i].x64.need_flags = dyn->insts[i].x64.default_need;
-    }
+    return ninst;
 }
 
 __thread void* current_helper = NULL;
@@ -446,17 +438,13 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         protectDB(addr, end-addr);  //end is 1byte after actual end
     // compute hash signature
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
-    // Compute flag_need, without current barriers
-    resetNeed(&helper);
-    for(int i = helper.size; i-- > 0;)
-        updateNeed(&helper, i, 0);
     // calculate barriers
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x64.jmp) {
             uintptr_t j = helper.insts[i].x64.jmp;
             if(j<start || j>=end) {
                 helper.insts[i].x64.jmp_insts = -1;
-                helper.insts[i].x64.use_flags |= X_PEND;
+                helper.insts[i].x64.need_after |= X_PEND;
             } else {
                 // find jump address instruction
                 int k=-1;
@@ -472,7 +460,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // fill predecessors with the jump address
     fillPredecessors(&helper);
     // check for the optionnal barriers now
-    for(int i=helper.size-1; i>=0; --i) {
+    /*for(int i=helper.size-1; i>=0; --i) {
         if(helper.insts[i].barrier_maybe) {
             // out-of-block jump
             if(helper.insts[i].x64.jmp_insts == -1) {
@@ -492,7 +480,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
                 }
             }
     	}
-    }
+    }*/
     // check to remove useless barrier, in case of jump when destination doesn't needs flags
     /*for(int i=helper.size-1; i>=0; --i) {
         int k;
@@ -509,27 +497,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
              }
         }
     }*/
-    // reset need_flags and compute again, now taking barrier into account (because barrier change use_flags)
-    for(int i = helper.size; i-- > 0;) {
-        int k;
-        if(helper.insts[i].x64.jmp 
-        && ((k=helper.insts[i].x64.jmp_insts)>=0)
-        ) {
-            if(helper.insts[k].x64.barrier&BARRIER_FLAGS)
-                // jumpto barrier
-                helper.insts[i].x64.use_flags |= X_PEND;
-            if(helper.insts[i].x64.barrier&BARRIER_FLAGS && (helper.insts[k].x64.need_flags | helper.insts[k].x64.use_flags))
-                helper.insts[k].x64.barrier|=BARRIER_FLAGS;
-            else
-                helper.insts[i].x64.use_flags |= (helper.insts[k].x64.need_flags | helper.insts[k].x64.use_flags);
-        }
-        if(helper.insts[i].x64.barrier&BARRIER_FLAGS && !(helper.insts[i].x64.set_flags&SF_PENDING))
-            // immediate barrier
-            helper.insts[i].x64.use_flags |= X_PEND;
-    }
-    resetNeed(&helper);
-    for(int i = helper.size; i-- > 0;)
-        updateNeed(&helper, i, 0);
+    int pos = helper.size;
+    while (pos>=0)
+        pos = updateNeed(&helper, pos, 0);
 
     // pass 1, float optimisations, first pass for flags
     native_pass1(&helper, addr);

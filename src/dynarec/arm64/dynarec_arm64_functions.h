@@ -72,7 +72,7 @@ void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a);
 int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b);  // with stack current dyn->n_stack*
 
 // FPU Cache transformation (for loops)
-int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int i1);
+int CacheNeedsTransform(dynarec_arm_t* dyn, int i1);
 
 // Undo the changes of a neoncache to get the status before the instruction
 void neoncacheUnwind(neoncache_t* cache);
