@@ -75,6 +75,7 @@ typedef struct blocklist_s {
     void*               block;
     size_t              maxfree;
     size_t              size;
+    void*               first;
 } blocklist_t;
 
 #define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
@@ -123,6 +124,23 @@ static void* getFirstBlock(void* block, size_t maxsize, size_t* size, void* star
     }
 
     return NULL;
+}
+
+static void* getNextFreeBlock(void* block)
+{
+    blockmark_t *m = (blockmark_t*)block;
+    while (m->next.fill) {
+         m = NEXT_BLOCK(m);
+    };
+    return m;
+}
+static void* getPrevFreeBlock(void* block)
+{
+    blockmark_t *m = (blockmark_t*)block;
+    do {
+         m = PREV_BLOCK(m);
+    } while (m->next.fill);
+    return m;
 }
 
 static size_t getMaxFreeBlock(void* block, size_t block_size, void* start)
@@ -271,11 +289,13 @@ void* customMalloc(size_t size)
     for(int i=0; i<n_blocks; ++i) {
         if(p_blocks[i].maxfree>=size) {
             size_t rsize = 0;
-            sub = getFirstBlock(p_blocks[i].block, size, &rsize, NULL);
+            sub = getFirstBlock(p_blocks[i].first, size, &rsize, NULL);
             if(sub) {
                 void* ret = allocBlock(p_blocks[i].block, sub, size, NULL);
+                if(sub==p_blocks[i].first)
+                    p_blocks[i].first = getNextFreeBlock(sub);
                 if(rsize==p_blocks[i].maxfree)
-                    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, NULL);
+                    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
                 pthread_mutex_unlock(&mutex_blocks);
                 return ret;
             }
@@ -294,6 +314,7 @@ void* customMalloc(size_t size)
     void* p = box_calloc(1, allocsize);
     #endif
     p_blocks[i].block = p;
+    p_blocks[i].first = p;
     p_blocks[i].size = allocsize;
     // setup marks
     blockmark_t* m = (blockmark_t*)p;
@@ -329,7 +350,9 @@ void* customRealloc(void* p, size_t size)
          && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
             if(expandBlock(p_blocks[i].block, sub, size)) {
-                p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, NULL);
+                if(sub<p_blocks[i].first && p+size<p_blocks[i].first)
+                    p_blocks[i].first = getNextFreeBlock(sub);
+                p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
                 pthread_mutex_unlock(&mutex_blocks);
                 return p;
             }
@@ -355,7 +378,10 @@ void customFree(void* p)
         if ((addr>(uintptr_t)p_blocks[i].block) 
          && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
+            void* n = NEXT_BLOCK((blockmark_t*)sub);
             size_t newfree = freeBlock(p_blocks[i].block, sub, NULL);
+            if(sub<=p_blocks[i].first)
+                p_blocks[i].first = getPrevFreeBlock(n);
             if(p_blocks[i].maxfree < newfree) p_blocks[i].maxfree = newfree;
             pthread_mutex_unlock(&mutex_blocks);
             return;
@@ -1214,7 +1240,7 @@ void relockCustommemMutex(int locks)
 {
     #define GO(A, B)                    \
         if(locks&(1<<B))                \
-            pthread_mutex_lock(&A);     \
+            pthread_mutex_trylock(&A);  \
 
     GO(mutex_blocks, 0)
     GO(mutex_prot, 1)

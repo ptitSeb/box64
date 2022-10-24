@@ -100,7 +100,7 @@ void relockMutex(int locks)
     relockCustommemMutex(locks);
     #define GO(A, B)                    \
         if(locks&(1<<B))                \
-            pthread_mutex_lock(&A);     \
+            pthread_mutex_trylock(&A);  \
 
     GO(my_context->mutex_once, 5)
     GO(my_context->mutex_once2, 6)

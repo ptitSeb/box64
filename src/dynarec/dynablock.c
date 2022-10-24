@@ -43,13 +43,13 @@ dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int direct)
         printf_log(LOG_NONE, "Error, creating a NULL sized Dynablock\n");
         return NULL;
     }
-    dynablocklist_t* ret = (dynablocklist_t*)box_calloc(1, sizeof(dynablocklist_t));
+    dynablocklist_t* ret = (dynablocklist_t*)customCalloc(1, sizeof(dynablocklist_t));
     ret->text = text;
     ret->textsz = textsz;
     ret->minstart = text;
     ret->maxend = text+textsz-1;
     if(direct && textsz) {
-        ret->direct = (dynablock_t**)box_calloc(textsz, sizeof(dynablock_t*));
+        ret->direct = (dynablock_t**)customCalloc(textsz, sizeof(dynablock_t*));
         if(!ret->direct) {printf_log(LOG_NONE, "Warning, fail to create direct block for dynablock @%p\n", (void*)text);}
     }
     dynarec_log(LOG_DEBUG, "New Dynablocklist %p, from %p->%p\n", ret, (void*)text, (void*)(text+textsz));
@@ -85,10 +85,10 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         if(!db->father) {
             dynarec_log(LOG_DEBUG, " -- FreeDyrecMap(%p, %d)\n", db->block, db->size);
             FreeDynarecMap(db, (uintptr_t)db->block, db->size);
-            box_free(db->sons);
-            box_free(db->instsize);
+            customFree(db->sons);
+            customFree(db->instsize);
         }
-        box_free(db);
+        customFree(db);
         if(need_lock)
             pthread_mutex_unlock(&my_context->mutex_dyndump);
     }
@@ -106,11 +106,11 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
             if((*dynablocks)->direct[i] && !(*dynablocks)->direct[i]->father) 
                 FreeDynablock((*dynablocks)->direct[i], 1);
         }
-        box_free((*dynablocks)->direct);
+        customFree((*dynablocks)->direct);
     }
     (*dynablocks)->direct = NULL;
 
-    box_free(*dynablocks);
+    customFree(*dynablocks);
     *dynablocks = NULL;
 }
 
@@ -149,6 +149,17 @@ int IntervalIntersects(uintptr_t start1, uintptr_t end1, uintptr_t start2, uintp
     return 1;
 }
 
+static int MarkedDynablock(dynablock_t* db)
+{
+    if(db) {
+        if(db->father)
+            db = db->father;    // mark only father
+        if(db->need_test)
+            return 1; // already done
+    }
+    return 0;
+}
+
 void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
 {
     // Mark will try to find *any* blocks that intersect the range to mark
@@ -161,7 +172,7 @@ void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
     dynablock_t *db;
     dynarec_log(LOG_DEBUG, "MarkDirectDynablock %p-%p .. startdb=%p, sizedb=%p\n", (void*)addr, (void*)addr+size-1, (void*)startdb, (void*)sizedb);
     for(uintptr_t i = 0; i<sizedb; ++i)
-        if((db=dynablocks->direct[i]))
+        if((db=dynablocks->direct[i]) && !MarkedDynablock(db))
             if(IntervalIntersects((uintptr_t)db->x64_addr, (uintptr_t)db->x64_addr+db->x64_size-1, addr, addr+size+1))
                 MarkDynablock(db);
 }
@@ -271,21 +282,21 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
     
     pthread_mutex_lock(&my_context->mutex_dyndump);
     if(!dynablocks->direct) {
-        dynablock_t** p = (dynablock_t**)box_calloc(dynablocks->textsz, sizeof(dynablock_t*));
+        dynablock_t** p = (dynablock_t**)customCalloc(dynablocks->textsz, sizeof(dynablock_t*));
         if(native_lock_storeifnull(&dynablocks->direct, p)!=p)
-            box_free(p);    // someone already create the direct array, too late...
+            customFree(p);    // someone already create the direct array, too late...
     }
 
     // create and add new block
     dynarec_log(LOG_VERBOSE, "Ask for DynaRec Block creation @%p\n", (void*)addr);
 
-    block = (dynablock_t*)box_calloc(1, sizeof(dynablock_t));
+    block = (dynablock_t*)customCalloc(1, sizeof(dynablock_t));
     block->parent = dynablocks; 
     dynablock_t* tmp = (dynablock_t*)native_lock_storeifnull(&dynablocks->direct[addr-dynablocks->text], block);
     if(tmp !=  block) {
         // a block appeard!
         pthread_mutex_unlock(&my_context->mutex_dyndump);
-        box_free(block);
+        customFree(block);
         *created = 0;
         return tmp;
     }
@@ -356,7 +367,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
             dynarec_log(LOG_INFO, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);
             // doing nothing else, the block has not be writen
         }
-        box_free(block);
+        customFree(block);
         block = NULL;
     }
     // check size
