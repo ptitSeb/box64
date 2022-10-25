@@ -202,6 +202,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                         default:
                             return 0;
                     }
+                    break;
 
                 case 0x6F:
                     switch(rep) {
