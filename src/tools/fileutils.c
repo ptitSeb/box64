@@ -79,6 +79,9 @@ int FileIsX64ELF(const char* filename)
         return 0;
     }
     head[7] = x64lib[7];   // this one changes
+    head[8] = x64lib[8];   // AppImage customized this
+    head[9] = x64lib[9];   // and this one too
+    head[10] = x64lib[10];   // and that last one too
     head[16]&=0xfe;
     if(!memcmp(head, x64lib, 20))
         return 1;
