@@ -6,7 +6,7 @@
 GO(xkb_compose_state_feed, iFpu)
 //GO(xkb_compose_state_get_compose_table, 
 //GO(xkb_compose_state_get_one_sym, 
-//GO(xkb_compose_state_get_status, 
+GO(xkb_compose_state_get_status, iFp)
 //GO(xkb_compose_state_get_utf8, 
 GO(xkb_compose_state_new, pFpi)
 //GO(xkb_compose_state_ref, 
