@@ -18,6 +18,7 @@
 #include "dynablock.h"
 #include "dynarec_native.h"
 #include "custommem.h"
+#include "elfloader.h"
 
 #include "dynarec_arch.h"
 #include "dynarec_helper.h"
@@ -43,6 +44,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
     fpu_reset(dyn);
     int reset_n = -1;
     dyn->last_ip = (dyn->insts && dyn->insts[0].pred_sz)?0:ip;  // RIP is always set at start of block unless there is a predecessor!
+    int stopblock = 2+(FindElfAddress(my_context, addr)?0:1); // if block is in elf_memory, it can be extended with bligblocks==2, else it needs 3
     // ok, go now
     INIT;
     while(ok) {
@@ -217,7 +219,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
         if(ok<0)  {ok = 0; need_epilog=1;}
         ++ninst;
         #if STEP == 0
-        if(ok && ((!isJumpTableDefault64((void*)addr) && (box64_dynarec_bigblock<2)) || (addr>=box64_nodynarec_start && addr<box64_nodynarec_end)))
+        if(ok && (((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)addr)) 
+            || (addr>=box64_nodynarec_start && addr<box64_nodynarec_end)))
         #else
         if(ok && (ninst==dyn->size))
         #endif
