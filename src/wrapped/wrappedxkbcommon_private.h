@@ -10,7 +10,7 @@ GO(xkb_compose_state_get_status, iFp)
 //GO(xkb_compose_state_get_utf8, 
 GO(xkb_compose_state_new, pFpi)
 //GO(xkb_compose_state_ref, 
-//GO(xkb_compose_state_reset, 
+GO(xkb_compose_state_reset, vFp)
 GO(xkb_compose_state_unref, vFp)
 //GO(xkb_compose_table_new_from_buffer, 
 //GO(xkb_compose_table_new_from_file, 
