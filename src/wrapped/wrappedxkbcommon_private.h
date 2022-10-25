@@ -3,7 +3,7 @@
 #endif
 //typedef uint32_t xkb_keycode_t
 
-//GO(xkb_compose_state_feed, 
+GO(xkb_compose_state_feed, iFpu)
 //GO(xkb_compose_state_get_compose_table, 
 //GO(xkb_compose_state_get_one_sym, 
 //GO(xkb_compose_state_get_status, 
