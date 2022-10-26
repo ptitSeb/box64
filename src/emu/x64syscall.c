@@ -81,6 +81,9 @@ scwrap_t syscallwrap[] = {
     //{ 4, __NR_stat, 2 },     // Need to align struct stat
     //{ 5, __NR_fstat, 2},
     //{ 6, __NR_lstat, 2},
+    #ifdef __NR_poll
+    { 7, __NR_poll, 3},
+    #endif
     { 8, __NR_lseek, 3},
     //{ 9, __NR_mmap, 6},       // wrapped to track mmap
     //{ 10, __NR_mprotect, 3},  // same
@@ -140,6 +143,7 @@ scwrap_t syscallwrap[] = {
     { 96, __NR_gettimeofday, 2},
     { 97, __NR_getrlimit, 2},
     { 101, __NR_ptrace, 4},
+    { 112, __NR_setsid, 0},
     { 118, __NR_getresuid, 3},
     { 120, __NR_getresgid, 3},
     { 125, __NR_capget, 2},
@@ -380,6 +384,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 6: // sys_lstat
             *(int64_t*)&R_RAX = my_lstat(emu, (void*)R_RDI, (void*)R_RSI);
             break;
+        #ifndef __NR_poll
+        case 7: // sys_poll
+            *(int64_t*)&R_RAX = poll((struct pollfd*)R_RDI, (nfds_t)R_RSI, (int)R_EDX);
+            break;
+        #endif
         case 9: // sys_mmap
             R_RAX = (uintptr_t)my_mmap64(emu, (void*)R_RDI, R_RSI, (int)R_EDX, (int)R_R10d, (int)R_R8d, R_R9);
             break;
@@ -619,6 +628,11 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
             return (uint64_t)(int64_t)my_fstat(emu, (int)R_ESI, (void*)R_RDX);
         case 6: // sys_lstat
             return (uint64_t)(int64_t)my_lstat(emu, (void*)R_RSI, (void*)R_RDX);
+        #ifndef __NR_poll
+        case 7: // sys_poll
+            return (uint64_t)(int64_t)poll((struct pollfd*)R_RSI, (nfds_t)R_RDX, (int)R_ECX);
+            break;
+        #endif
         case 9: // sys_mmap
             return (uintptr_t)my_mmap64(emu, (void*)R_RSI, R_RDX, (int)R_RCX, (int)R_R8d, (int)R_R9, i64(0));
         case 10: // sys_mprotect
