@@ -1711,7 +1711,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+toadd));
-        if(self) newargv[1] = emu->context->fullpath; else newargv[1] = skip_first?argv[skip_first]:path;
+        if(self) newargv[1] = emu->context->fullpath; else newargv[toadd] = skip_first?argv[skip_first]:path;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         char** envv = NULL;
         if(my_environ!=my_context->envv) envv = my_environ;
@@ -1921,20 +1921,23 @@ EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(fullpath):0;
     int script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
-    printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn(%p, \"%s\", %p, %p, %p, %p), IsX86=%d\n", pid, fullpath, actions, attrp, argv, envp, x64);
+    printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn(%p, \"%s\", %p, %p, %p, %p), IsX64=%d, IsX86=%d IsScript=%d\n", pid, fullpath, actions, attrp, argv, envp, x64, x86, script);
+    // hack to update the environ var if needed
+    /*if(envp == my_context->envv && environ) {
+        envp = environ;
+    }*/
     if (x64 || x86 || script || self) {
-        // count argv...
-        int i=0;
-        while(argv[i]) ++i;
+        int n=1;
+        while(argv[n]) ++n;
         int toadd = script?2:1;
-        char** newargv = (char**)box_calloc(i+toadd+1, sizeof(char*));
+        const char** newargv = (const char**)box_calloc(n+1+toadd, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
-        for (int j=0; j<i; ++j)
-            newargv[j+toadd] = argv[j];
-        if(self) newargv[1] = emu->context->fullpath;
-        printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawn(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
-        int ret = posix_spawn(pid, newargv[0], actions, attrp, newargv, envp);
+        memcpy(newargv+toadd, argv+1, sizeof(char*)*(n+1));
+        if(self) newargv[toadd] = emu->context->fullpath;
+        else newargv[toadd] = fullpath;
+        printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawn(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[0], newargv[1], n?newargv[2]:"", n, envp);
+        int ret = posix_spawn(pid, newargv[0], actions, attrp, (char* const*)newargv, envp);
         printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn returned %d\n", ret);
         //box_free(newargv);
         return ret;
@@ -1967,7 +1970,7 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
-        if(script) newargv[2] = fullpath;
+        else newargv[1+toadd] = (char*)path;
         printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawnp(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
         ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, envp);
         printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawnp returned %d\n", ret);
