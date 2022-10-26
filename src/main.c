@@ -355,17 +355,20 @@ void LoadLogEnv()
     }
     p = getenv("BOX64_ROLLING_LOG");
     if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                cycle_log = p[0]-'0';
-        }
+        int cycle = 0;
+        if(sscanf(p, "%d", &cycle)==1)
+                cycle_log = cycle;
+        if(cycle_log==1)
+            cycle_log = 16;
+        if(cycle_log<0)
+            cycle_log = 0;
         if(cycle_log && box64_log>LOG_INFO) {
             cycle_log = 0;
             printf_log(LOG_NONE, "Incompatible Rolling log and Debug Log, disabling Rolling log\n");
         }
     }
     if(!box64_nobanner && cycle_log)
-        printf_log(LOG_INFO, "Rolling log, showing last %d function call on signals\n", CYCLE_LOG);
+        printf_log(LOG_INFO, "Rolling log, showing last %d function call on signals\n", cycle_log);
     p = getenv("BOX64_DUMP");
     if(p) {
         if(strlen(p)==1) {

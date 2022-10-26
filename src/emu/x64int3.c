@@ -104,7 +104,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 char* buffret = cycle_log?my_context->log_ret[my_context->current_line]:NULL;
                 if(buffret) buffret[0] = '\0';
                 if(cycle_log)
-                    my_context->current_line = (my_context->current_line+1)&(CYCLE_LOG-1);
+                    my_context->current_line = (my_context->current_line+1)%cycle_log;
                 char *tmp;
                 int post = 0;
                 int perr = 0;
