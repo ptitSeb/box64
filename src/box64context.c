@@ -79,8 +79,6 @@ int unlockMutex()
             ret|=(1<<B);                \
         }
 
-    GO(my_context->mutex_once, 5)
-    GO(my_context->mutex_once2, 6)
     GO(my_context->mutex_trace, 7)
     #ifdef DYNAREC
     GO(my_context->mutex_dyndump, 8)
@@ -102,8 +100,6 @@ void relockMutex(int locks)
         if(locks&(1<<B))                \
             pthread_mutex_trylock(&A);  \
 
-    GO(my_context->mutex_once, 5)
-    GO(my_context->mutex_once2, 6)
     GO(my_context->mutex_trace, 7)
     #ifdef DYNAREC
     GO(my_context->mutex_dyndump, 8)
@@ -121,8 +117,6 @@ static void init_mutexes(box64context_t* context)
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
-    pthread_mutex_init(&context->mutex_once, &attr);
-    pthread_mutex_init(&context->mutex_once2, &attr);
     pthread_mutex_init(&context->mutex_trace, &attr);
 #ifndef DYNAREC
     pthread_mutex_init(&context->mutex_lock, &attr);
@@ -292,8 +286,6 @@ void FreeBox64Context(box64context_t** context)
 
     finiAllHelpers(ctx);
 
-    pthread_mutex_destroy(&ctx->mutex_once);
-    pthread_mutex_destroy(&ctx->mutex_once2);
     pthread_mutex_destroy(&ctx->mutex_trace);
 #ifndef DYNAREC
     pthread_mutex_destroy(&ctx->mutex_lock);

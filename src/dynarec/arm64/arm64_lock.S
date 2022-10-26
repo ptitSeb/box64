@@ -16,6 +16,7 @@
 .global arm64_lock_read_dq
 .global arm64_lock_write_dq
 .global arm64_lock_xchg
+.global arm64_lock_xchg_d
 .global arm64_lock_storeifnull
 .global arm64_lock_storeifref
 
@@ -98,6 +99,17 @@ arm64_lock_xchg_0:
     cbnz    w3, arm64_lock_xchg_0
     dmb     ish
     mov     x0, x2
+    ret
+
+arm64_lock_xchg_d:
+    dmb     ish
+arm64_lock_xchg_d_0:
+    // address is x0, value is x1, return old value in x0
+    ldaxr   w2, [x0]
+    stlxr   w3, w1, [x0]
+    cbnz    w3, arm64_lock_xchg_d_0
+    dmb     ish
+    mov     w0, w2
     ret
 
 arm64_lock_storeifnull:

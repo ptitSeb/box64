@@ -27,6 +27,7 @@
 #include "bridge.h"
 #ifdef DYNAREC
 #include "dynablock.h"
+#include "dynarec/native_lock.h"
 #endif
 
 //void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
@@ -669,25 +670,24 @@ static void* findcleanup_routineFct(void* fct)
 
 #undef SUPER
 
-// once_callback
-// Don't use a "GO" scheme, once callback are only called once by definition
+// custom implementation of pthread_once...
 static __thread uintptr_t my_once_callback_fct = 0;
-static void my_once_callback()
-{
-	if(my_once_callback_fct) {
-	    EmuCall(thread_get_emu(), my_once_callback_fct);  // avoid DynaCall for now
-    	//RunFunction(my_context, my_once_callback_fct, 0, 0);
-	}
-}
-
 int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 {
 	(void)emu;
-	void * n = GetNativeFnc((uintptr_t)cb);
-	if(n)
-		return pthread_once(once, n);
-	my_once_callback_fct = (uintptr_t)cb;
-	return pthread_once(once, my_once_callback);
+	#ifdef DYNAREC
+	int old = native_lock_xchg_d(once, 1);
+	#else
+	int old = *once;	// outside of the mutex in case once is badly formed
+	pthread_mutex_lock(my_context->)mutex_lock);
+	old = *once;
+	*once = 1;
+	pthread_mutex_unlock(my_context->)mutex_lock);
+	#endif
+	if(old)
+		return 0;
+	EmuCall(thread_get_emu(), (uintptr_t)cb);  // avoid DynaCall for now
+	return 0;
 }
 EXPORT int my___pthread_once(x64emu_t* emu, void* once, void* cb) __attribute__((alias("my_pthread_once")));
 

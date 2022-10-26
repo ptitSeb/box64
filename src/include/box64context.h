@@ -122,8 +122,6 @@ typedef struct box64context_s {
     kh_defaultversion_t *weakdefver;    // the weak default version for symbols (the XXX@@vvvv of symbols)
     vkprocaddess_t      vkprocaddress;
 
-    pthread_mutex_t     mutex_once;
-    pthread_mutex_t     mutex_once2;
     pthread_mutex_t     mutex_trace;
     #ifndef DYNAREC
     pthread_mutex_t     mutex_lock;     // dynarec build will use their own mecanism
