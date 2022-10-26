@@ -109,18 +109,15 @@ int FileIsShell(const char* filename)
     if(!f)
         return 0;
     char head[20] = {0};
-    int sz = fread(head, strlen(bashsign), 1, f);
+    int sz = fread(head, strlen(bashsign2), 1, f);
     fclose(f);
     if(sz!=1)
         return 0;
-    head[strlen(bashsign2)] = 0;
-    if(!strcmp(head, bashsign2))
+    if(!strncmp(head, bashsign2, strlen(bashsign2)))
         return 1;
-    head[strlen(bashsign)] = 0;
-    if(!strcmp(head, bashsign))
+    if(!strncmp(head, bashsign, strlen(bashsign)))
         return 1;
-    head[strlen(shsign)] = 0;
-    if(!strcmp(head, shsign))
+    if(!strncmp(head, shsign, strlen(shsign)))
         return 1;
     return 0;
 }
