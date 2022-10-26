@@ -2703,6 +2703,7 @@ wrappedgtk3:
 - vFppp:
   - gtk_builder_connect_signals_full
   - gtk_container_forall
+  - gtk_container_foreach
   - gtk_menu_attach_to_widget
 - vFppV:
   - gtk_dialog_add_buttons

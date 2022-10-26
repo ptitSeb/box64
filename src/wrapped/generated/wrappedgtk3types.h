@@ -47,6 +47,7 @@ typedef void* (*pFpipppppppi_t)(void*, int64_t, void*, void*, void*, void*, void
 	GO(gtk_style_context_get_valist, vFpiA_t) \
 	GO(gtk_builder_connect_signals_full, vFppp_t) \
 	GO(gtk_container_forall, vFppp_t) \
+	GO(gtk_container_foreach, vFppp_t) \
 	GO(gtk_menu_attach_to_widget, vFppp_t) \
 	GO(gtk_dialog_add_buttons, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_markup, vFppV_t) \
