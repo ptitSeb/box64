@@ -190,6 +190,19 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                             return 0;
                     }
                     break;
+                case 0x5A:
+                    switch(rep) {
+                        case 2:  /* CVTSS2SD Gx, Ex */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            GX->d[0] = EX->f[0];
+                            break;
+
+                        default:
+                            return 0;
+                    }
+                    break;
 
                 case 0x6F:
                     switch(rep) {

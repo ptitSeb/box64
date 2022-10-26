@@ -18,6 +18,7 @@ extern int box64_dynarec_bigblock;
 extern int box64_dynarec_strongmem;
 extern int box64_dynarec_fastnan;
 extern int box64_dynarec_x87double;
+extern int box64_dynarec_safeflags;
 #ifdef ARM64
 extern int arm64_asimd;
 extern int arm64_aes;

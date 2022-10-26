@@ -24,7 +24,6 @@
 #define SF_SUB      4
 #define SF_SUBSET   (SF_SUB|SF_SET)
 #define SF_SUBSET_PENDING   (SF_SUBSET|SF_PENDING)
-#define SF_MAYSET   8
 
 typedef struct instruction_x64_s {
     uintptr_t   addr;       //address of the instruction
@@ -37,9 +36,10 @@ typedef struct instruction_x64_s {
     uint8_t     state_flags;// One of SF_XXX state
     uint8_t     use_flags;  // 0 or combination of X_?F
     uint8_t     set_flags;  // 0 or combination of X_?F
-    uint8_t     default_need;// 0 or X_PEND basically
-    uint8_t     need_flags; // calculated
-    uint8_t     old_use;    // calculated
+    uint8_t     may_set;    // 1 if the flags may not be set
+    uint8_t     gen_flags;  // calculated
+    uint8_t     need_before;// calculated
+    uint8_t     need_after; // calculated
 } instruction_x64_t;
 
 void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const char* name);

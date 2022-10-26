@@ -49,6 +49,7 @@ int box64_dynarec_bigblock = 1;
 int box64_dynarec_strongmem = 0;
 int box64_dynarec_x87double = 0;
 int box64_dynarec_fastnan = 1;
+int box64_dynarec_safeflags = 1;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -420,13 +421,13 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_BIGBLOCK");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
+            if(p[0]>='0' && p[0]<='3')
                 box64_dynarec_bigblock = p[0]-'0';
         }
         if(!box64_dynarec_bigblock)
             printf_log(LOG_INFO, "Dynarec will not try to make big block\n");
         else if (box64_dynarec_bigblock>1)
-            printf_log(LOG_INFO, "Dynarec will try to make bigger blocks\n");
+            printf_log(LOG_INFO, "Dynarec will try to make bigger blocks%s\n", (box64_dynarec_bigblock>2)?" even on non-elf memory":"");
 
     }
     p = getenv("BOX64_DYNAREC_STRONGMEM");
@@ -455,6 +456,17 @@ void LoadLogEnv()
         }
         if(!box64_dynarec_fastnan)
             printf_log(LOG_INFO, "Dynarec will try to normalize generated NAN\n");
+    }
+    p = getenv("BOX64_DYNAREC_SAFEFLAGS");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='2')
+                box64_dynarec_safeflags = p[0]-'0';
+        }
+        if(!box64_dynarec_safeflags)
+            printf_log(LOG_INFO, "Dynarec will not play it safe with x64 flags\n");
+        else
+            printf_log(LOG_INFO, "Dynarec will play %s safe with x64 flags\n", (box64_dynarec_safeflags==1)?"moderatly":"it");
     }
     p = getenv("BOX64_NODYNAREC");
     if(p) {
@@ -888,7 +900,7 @@ void setupTraceInit()
             if(s_trace_start || s_trace_end)
                 SetTraceEmu(s_trace_start, s_trace_end);
         } else {
-            if (GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &s_trace_start, &s_trace_end, -1, NULL, -1)) {
+            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL, -1, NULL)) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
@@ -1464,11 +1476,11 @@ int main(int argc, const char **argv, char **env) {
 
     setupTraceInit();
     // export symbols
-    AddSymbols(my_context->maplib, GetMapSymbol(my_context->maplib), GetWeakSymbol(my_context->maplib), GetLocalSymbol(my_context->maplib), elf_header);
+    AddSymbols(my_context->maplib, GetMapSymbols(elf_header), GetWeakSymbols(elf_header), GetLocalSymbols(elf_header), elf_header);
     if(wine_preloaded) {
-        uintptr_t wineinfo = FindSymbol(GetMapSymbol(my_context->maplib), "wine_main_preload_info", -1, NULL, 1);
-        if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbol(my_context->maplib), "wine_main_preload_info", -1, NULL, 1);
-        if(!wineinfo) wineinfo = FindSymbol(GetLocalSymbol(my_context->maplib), "wine_main_preload_info", -1, NULL, 1);
+        uintptr_t wineinfo = FindSymbol(GetMapSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
+        if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
+        if(!wineinfo) wineinfo = FindSymbol(GetLocalSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
         if(!wineinfo) {printf_log(LOG_NONE, "Warning, Symbol wine_main_preload_info not found\n");}
         else {
             *(void**)wineinfo = get_wine_prereserve();

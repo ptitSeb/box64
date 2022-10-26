@@ -704,7 +704,7 @@ pthread_cond_t* alignCond(pthread_cond_t* pc)
 {
 #ifndef NOALIGN
 	if((uintptr_t)pc&7)
-		return (pthread_cond_t*)(((uintptr_t)pc+7)&~7);
+		return (pthread_cond_t*)(((uintptr_t)pc+7)&~7LL);
 #endif
 	return pc;
 }
@@ -1172,8 +1172,8 @@ EXPORT int my_pthread_cond_init(x64emu_t* emu, pthread_cond_t *pc, my_condattr_t
 		// cond is not allign, re-align it on the fly
 		pthread_cond_t newc;
 		ret = pthread_cond_init(&newc, c?(&cond.nat):NULL);
-		memcpy((void*)(((uintptr_t)pc+7)&~7), &newc, sizeof(pthread_cond_t)-((uintptr_t)pc&7));
-	}
+		memcpy((void*)(((uintptr_t)pc+7)&~7LL), &newc, sizeof(pthread_cond_t)-((uintptr_t)pc&7));
+	} else
 	#endif
 	ret = pthread_cond_init(pc, c?(&cond.nat):NULL);
 	if(c)

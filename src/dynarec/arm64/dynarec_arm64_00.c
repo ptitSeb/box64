@@ -40,6 +40,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t wback, wb1, wb2, wb;
     int64_t fixedaddress;
     int lock;
+    int cacheupd;
 
     opcode = F8;
     MAYUSE(eb1);
@@ -47,6 +48,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(j64);
     MAYUSE(wb);
     MAYUSE(lock);
+    MAYUSE(cacheupd);
 
     switch(opcode) {
         case 0x00:
@@ -650,11 +652,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
                 Bcond(NO, i32);                                         \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
-                    if(!dyn->insts[ninst].x64.barrier)                  \
+                    if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
                 } else {                                                \
-                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
                     B(i32);                                             \
                 }                                                       \
@@ -1206,7 +1208,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
-                SETFLAGS(X_ALL, SF_MAYSET);
+                MAYSETFLAGS();
+                SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
                 MARK;   // Part with DF==0
@@ -1305,7 +1308,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
-                SETFLAGS(X_ALL, SF_MAYSET);
+                MAYSETFLAGS();
+                SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
                 UBFXw(x1, xRAX, 0, 8);
                 TBNZ_MARK2(xFlags, F_DF);
@@ -1565,7 +1569,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC2:
             INST_NAME("RETN");
             //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
-            READFLAGS(X_PEND);  // lets play safe here too
+            if(box64_dynarec_safeflags) {
+                READFLAGS(X_PEND);  // lets play safe here too
+            }
             BARRIER(BARRIER_FLOAT);
             i32 = F16;
             retn_to_epilog(dyn, ninst, i32);
@@ -1575,7 +1581,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC3:
             INST_NAME("RET");
             // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
-            READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
+            if(box64_dynarec_safeflags) {
+                READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
+            }
             BARRIER(BARRIER_FLOAT);
             ret_to_epilog(dyn, ninst);
             *need_epilog = 0;
@@ -2016,7 +2024,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xDD:
             addr = dynarec64_DD(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
-
+        case 0xDE:
+            addr = dynarec64_DE(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
         case 0xDF:
             addr = dynarec64_DF(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
@@ -2029,11 +2039,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
                 if(Z) {CBNZx(xRCX, i32);} else {CBZx(xRCX, i32);};      \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
-                    if(!dyn->insts[ninst].x64.barrier)                  \
+                    if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
                 } else {                                                \
-                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
                     Bcond(c__, i32);                                    \
                 }                                                       \
@@ -2132,7 +2142,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
                 default:
-                    if(ninst && dyn->insts[ninst-1].x64.set_flags) {
+                    if((box64_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x64.set_flags)) {
                         READFLAGS(X_PEND);  // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
@@ -2170,7 +2180,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 jump_to_next(dyn, addr+i32, 0, ninst);
             } else {
                 // inside the block
-                fpuCacheTransform(dyn, ninst, x1, x2, x3);
+                CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
                 tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);
                 if(tmp==4) {
                     NOP;
@@ -2462,7 +2472,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF(((ninst && dyn->insts[ninst-1].x64.set_flags)
+                    PASS2IF((box64_dynarec_safeflags>1) || 
+                        ((ninst && dyn->insts[ninst-1].x64.set_flags)
                         || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
                     {
                         READFLAGS(X_PEND);          // that's suspicious

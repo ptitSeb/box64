@@ -1067,12 +1067,12 @@ EXPORT void* my_g_build_path(x64emu_t *emu, void* sep, void* first, uintptr_t* d
         p = (void*)getVArgs(emu, 2, data, n++);
     }
     ++n;    // final NULL
-    void** args = (void**)malloc((n+1) *sizeof(void*));
+    void** args = (void**)box_malloc((n+1) *sizeof(void*));
     args[0] = first;
     for(int i=0; i<n; ++i)
         args[i+1] = (void*)getVArgs(emu, 2, data, i);
     p = my->g_build_pathv(sep, args);
-    free(args);
+    box_free(args);
     return p;
 }
 
@@ -1236,11 +1236,11 @@ EXPORT void* my_g_strjoin(x64emu_t* emu, void* sep, uintptr_t* data)
         p = (void*)getVArgs(emu, 1, data, n++);
     }
     ++n;    // final NULL
-    void** args = (void**)malloc(n *sizeof(void*));
+    void** args = (void**)box_malloc(n *sizeof(void*));
     for(int i=0; i<n; ++i)
         args[i] = (void*)getVArgs(emu, 1, data, i);
     p = my->g_strjoinv(sep, args);
-    free(args);
+    box_free(args);
     return p;
 }
 
@@ -1291,12 +1291,12 @@ EXPORT void* my_g_strconcat(x64emu_t* emu, void* first, uintptr_t* data)
         p = (void*)getVArgs(emu, 1, data, n++);
     }
     ++n;    // final NULL
-    void** args = (void**)malloc((n+1) *sizeof(void*));
+    void** args = (void**)box_malloc((n+1) *sizeof(void*));
     args[0] = first;
     for(int i=0; i<n; ++i)
         args[i+1] = (void*)getVArgs(emu, 1, data, i);
     p = my->g_strjoinv(NULL, args);
-    free(args);
+    box_free(args);
     return p;
 }
 

@@ -61,12 +61,20 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
 void add_next(dynarec_native_t *dyn, uintptr_t addr) {
     if(!box64_dynarec_bigblock)
         return;
+    // exist?
     for(int i=0; i<dyn->next_sz; ++i)
         if(dyn->next[i]==addr)
             return;
+    // put in a free slot
+    for(int i=0; i<dyn->next_sz; ++i)
+        if(!dyn->next[i]) {
+            dyn->next[i] = addr;
+            return;
+        }
+    // add slots
     if(dyn->next_sz == dyn->next_cap) {
-        dyn->next_cap += 16;
-        dyn->next = (uintptr_t*)box_realloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
+        dyn->next_cap += 64;
+        dyn->next = (uintptr_t*)customRealloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
     }
     dyn->next[dyn->next_sz++] = addr;
 }
@@ -76,13 +84,12 @@ uintptr_t get_closest_next(dynarec_native_t *dyn, uintptr_t addr) {
     int i = 0;
     while((i<dyn->next_sz) && (best!=addr)) {
         if(dyn->next[i]<addr) { // remove the address, it's before current address
-            memmove(dyn->next+i, dyn->next+i+1, (dyn->next_sz-i-1)*sizeof(uintptr_t));
-            --dyn->next_sz;
+            dyn->next[i] = 0;
         } else {
             if((dyn->next[i]<best) || !best)
                 best = dyn->next[i];
-            ++i;
         }
+        ++i;
     }
     return best;
 }
@@ -242,7 +249,7 @@ instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x64_size, 
         toadd = 1 + native_size/15;
     if((*size)+toadd>(*cap)) {
         *cap = (*size)+toadd;
-        insts = (instsize_t*)box_realloc(insts, (*cap)*sizeof(instsize_t));
+        insts = (instsize_t*)customRealloc(insts, (*cap)*sizeof(instsize_t));
     }
     while(toadd) {
         if(x64_size>15)
@@ -273,7 +280,7 @@ int Table64(dynarec_native_t *dyn, uint64_t val)
     if(idx==-1) {
         if(dyn->table64size == dyn->table64cap) {
             dyn->table64cap+=4;
-            dyn->table64 = (uint64_t*)box_realloc(dyn->table64, dyn->table64cap * sizeof(uint64_t));
+            dyn->table64 = (uint64_t*)customRealloc(dyn->table64, dyn->table64cap * sizeof(uint64_t));
         }
         idx = dyn->table64size++;
         dyn->table64[idx] = val;
@@ -301,7 +308,7 @@ static void fillPredecessors(dynarec_native_t* dyn)
             dyn->insts[i+1].pred_sz++;
         }
     }
-    dyn->predecessor = (int*)box_malloc(pred_sz*sizeof(int));
+    dyn->predecessor = (int*)customMalloc(pred_sz*sizeof(int));
     // fill pred pointer
     int* p = dyn->predecessor;
     for(int i=0; i<dyn->size; ++i) {
@@ -321,59 +328,51 @@ static void fillPredecessors(dynarec_native_t* dyn)
 
 }
 
-static void updateNeed(dynarec_native_t* dyn, int ninst, uint32_t need) {
-    uint32_t old_need = dyn->insts[ninst].x64.need_flags;
-    uint32_t new_need = old_need | need;
-    uint32_t new_use = dyn->insts[ninst].x64.use_flags;
-    uint32_t old_use = dyn->insts[ninst].x64.old_use;
-
-    if((new_need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET) {
-        new_need &=~X_PEND;
-        new_need |= X_ALL;
-    } else if((new_need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET_PENDING) {
-        new_need |= X_ALL&~dyn->insts[ninst].x64.set_flags;
+// updateNeed goes backward, from last intruction to top
+static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
+    while (ninst>=0) {
+        // need pending but instruction is only a subset: remove pend and use an X_ALL instead
+        need |= dyn->insts[ninst].x64.need_after;
+        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags==SF_SUBSET)) {
+            need &=~X_PEND;
+            need |= X_ALL;
+        }
+        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags==SF_SET)) {
+            need &=~X_PEND;
+            need |= dyn->insts[ninst].x64.set_flags;    // SF_SET will compute all flags, it's not SUBSET!
+        }
+        if((need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET_PENDING) {
+            need |= X_ALL&~(dyn->insts[ninst].x64.set_flags);
+        }
+        dyn->insts[ninst].x64.gen_flags = need&dyn->insts[ninst].x64.set_flags;
+        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags&SF_PENDING))
+            dyn->insts[ninst].x64.gen_flags |= X_PEND;
+        dyn->insts[ninst].x64.need_after = need;
+        need = dyn->insts[ninst].x64.need_after&~dyn->insts[ninst].x64.gen_flags;
+        if(dyn->insts[ninst].x64.may_set)
+            need |= dyn->insts[ninst].x64.gen_flags;    // forward the flags
+        // Consume X_PEND if relevant
+        if((need&X_PEND) && (dyn->insts[ninst].x64.set_flags&SF_PENDING))
+            need &=~X_PEND;
+        need |= dyn->insts[ninst].x64.use_flags;
+        if(dyn->insts[ninst].x64.need_before == need)
+            return ninst - 1;
+        dyn->insts[ninst].x64.need_before = need;
+        if(dyn->insts[ninst].x64.barrier&BARRIER_FLAGS) {
+            need = need?X_PEND:0;
+        }
+        int ok = 0;
+        for(int i=0; i<dyn->insts[ninst].pred_sz; ++i) {
+            if(dyn->insts[ninst].pred[i] == ninst-1)
+                ok = 1;
+            else
+                updateNeed(dyn, dyn->insts[ninst].pred[i], need);
+        }
+        if(!ok)
+            return ninst - 1;
+        --ninst;
     }
-
-
-    uint32_t new_set = 0;
-    if(dyn->insts[ninst].x64.state_flags & SF_SET)
-        new_set = dyn->insts[ninst].x64.set_flags;
-    if(dyn->insts[ninst].x64.state_flags & SF_PENDING)
-        new_set |= X_PEND;
-    if((new_need&X_PEND) && (
-        dyn->insts[ninst].x64.state_flags==SF_SET || dyn->insts[ninst].x64.state_flags==SF_SUBSET)) {
-        new_need &=~X_PEND;
-        new_need |=X_ALL;
-    }
-    
-    dyn->insts[ninst].x64.need_flags = new_need;
-    dyn->insts[ninst].x64.old_use = new_use;
-
-    if(dyn->insts[ninst].x64.jmp_insts==-1)
-        new_need |= X_PEND;
-
-    if((new_need == old_need) && (new_use == old_use))    // no changes, bye
-        return;
-    
-    new_need &=~new_set;    // clean needed flag that were suplied
-    new_need |= new_use;    // new need
-    // a Flag Barrier will change all need to "Pending", as it clear all flags optimisation
-    if(new_need && dyn->insts[ninst].x64.barrier&BARRIER_FLAGS)
-        new_need = X_PEND;
-    
-    if((new_need == (X_ALL|X_PEND)) && (dyn->insts[ninst].x64.state_flags & SF_SET))
-        new_need = X_ALL;
-
-    //update need to new need on predecessor
-    for(int i=0; i<dyn->insts[ninst].pred_sz; ++i)
-        updateNeed(dyn, dyn->insts[ninst].pred[i], new_need);
-}
-
-static void resetNeed(dynarec_native_t* dyn) {
-    for(int i = dyn->size; i-- > 0;) {
-        dyn->insts[i].x64.old_use = 0;
-        dyn->insts[i].x64.need_flags = dyn->insts[i].x64.default_need;
-    }
+    return ninst;
 }
 
 __thread void* current_helper = NULL;
@@ -384,11 +383,11 @@ void CancelBlock64()
     current_helper = NULL;
     if(!helper)
         return;
-    box_free(helper->next);
-    box_free(helper->insts);
-    box_free(helper->table64);
-    box_free(helper->sons_x64);
-    box_free(helper->sons_native);
+    customFree(helper->next);
+    customFree(helper->insts);
+    customFree(helper->table64);
+    customFree(helper->sons_x64);
+    customFree(helper->sons_native);
     if(helper->dynablock && helper->dynablock->block)
         FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->block, helper->dynablock->size);
 }
@@ -416,11 +415,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.start = addr;
     uintptr_t start = addr;
     helper.cap = 64; // needs epilog handling
-    helper.insts = (instruction_native_t*)box_calloc(helper.cap, sizeof(instruction_native_t));
+    helper.insts = (instruction_native_t*)customCalloc(helper.cap, sizeof(instruction_native_t));
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr);
     // no need for next anymore
-    box_free(helper.next);
+    customFree(helper.next);
     helper.next_sz = helper.next_cap = 0;
     helper.next = NULL;
     // basic checks
@@ -439,17 +438,13 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         protectDB(addr, end-addr);  //end is 1byte after actual end
     // compute hash signature
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
-    // Compute flag_need, without current barriers
-    resetNeed(&helper);
-    for(int i = helper.size; i-- > 0;)
-        updateNeed(&helper, i, 0);
     // calculate barriers
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x64.jmp) {
             uintptr_t j = helper.insts[i].x64.jmp;
             if(j<start || j>=end) {
                 helper.insts[i].x64.jmp_insts = -1;
-                helper.insts[i].x64.use_flags |= X_PEND;
+                helper.insts[i].x64.need_after |= X_PEND;
             } else {
                 // find jump address instruction
                 int k=-1;
@@ -465,7 +460,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // fill predecessors with the jump address
     fillPredecessors(&helper);
     // check for the optionnal barriers now
-    for(int i=helper.size-1; i>=0; --i) {
+    /*for(int i=helper.size-1; i>=0; --i) {
         if(helper.insts[i].barrier_maybe) {
             // out-of-block jump
             if(helper.insts[i].x64.jmp_insts == -1) {
@@ -485,7 +480,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
                 }
             }
     	}
-    }
+    }*/
     // check to remove useless barrier, in case of jump when destination doesn't needs flags
     /*for(int i=helper.size-1; i>=0; --i) {
         int k;
@@ -502,27 +497,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
              }
         }
     }*/
-    // reset need_flags and compute again, now taking barrier into account (because barrier change use_flags)
-    for(int i = helper.size; i-- > 0;) {
-        int k;
-        if(helper.insts[i].x64.jmp 
-        && ((k=helper.insts[i].x64.jmp_insts)>=0)
-        ) {
-            if(helper.insts[k].x64.barrier&BARRIER_FLAGS)
-                // jumpto barrier
-                helper.insts[i].x64.use_flags |= X_PEND;
-            if(helper.insts[i].x64.barrier&BARRIER_FLAGS && (helper.insts[k].x64.need_flags | helper.insts[k].x64.use_flags))
-                helper.insts[k].x64.barrier|=BARRIER_FLAGS;
-            else
-                helper.insts[i].x64.use_flags |= (helper.insts[k].x64.need_flags | helper.insts[k].x64.use_flags);
-        }
-        if(helper.insts[i].x64.barrier&BARRIER_FLAGS && !(helper.insts[i].x64.set_flags&SF_PENDING))
-            // immediate barrier
-            helper.insts[i].x64.use_flags |= X_PEND;
-    }
-    resetNeed(&helper);
-    for(int i = helper.size; i-- > 0;)
-        updateNeed(&helper, i, 0);
+    int pos = helper.size;
+    while (pos>=0)
+        pos = updateNeed(&helper, pos, 0);
 
     // pass 1, float optimisations, first pass for flags
     native_pass1(&helper, addr);
@@ -541,9 +518,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.native_start = (uintptr_t)p;
     helper.tablestart = helper.native_start + helper.native_size;
     if(helper.sons_size) {
-        helper.sons_x64 = (uintptr_t*)box_calloc(helper.sons_size, sizeof(uintptr_t));
-        helper.sons_native = (void**)box_calloc(helper.sons_size, sizeof(void*));
+        helper.sons_x64 = (uintptr_t*)customCalloc(helper.sons_size, sizeof(uintptr_t));
+        helper.sons_native = (void**)customCalloc(helper.sons_size, sizeof(void*));
     }
+    int pass2_sons_size = helper.sons_size;
     // pass 3, emit (log emit native opcode)
     if(box64_dynarec_dump) {
         dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u x64 bytes", (box64_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize); 
@@ -581,15 +559,15 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         for(int i=0; i<helper.size; ++i)
             cap += 1 + ((helper.insts[i].x64.size>helper.insts[i].size)?helper.insts[i].x64.size:helper.insts[i].size)/15;
         size_t size = 0;
-        block->instsize = (instsize_t*)box_calloc(cap, sizeof(instsize_t));
+        block->instsize = (instsize_t*)customCalloc(cap, sizeof(instsize_t));
         for(int i=0; i<helper.size; ++i)
             block->instsize = addInst(block->instsize, &size, &cap, helper.insts[i].x64.size, helper.insts[i].size/4);
         block->instsize = addInst(block->instsize, &size, &cap, 0, 0);    // add a "end of block" mark, just in case
     }
     // ok, free the helper now
-    box_free(helper.insts);
+    customFree(helper.insts);
     helper.insts = NULL;
-    box_free(helper.table64);
+    customFree(helper.table64);
     helper.table64 = NULL;
     block->size = sz;
     block->isize = helper.size;
@@ -613,8 +591,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // fill sons if any
     dynablock_t** sons = NULL;
     int sons_size = 0;
+    if(pass2_sons_size != helper.sons_size)
+        dynarec_log(LOG_NONE, "Warning, sons size difference bitween pass2:%d and pass3:%d\n", pass2_sons_size, helper.sons_size);
     if(helper.sons_size) {
-        sons = (dynablock_t**)box_calloc(helper.sons_size, sizeof(dynablock_t*));
+        sons = (dynablock_t**)customCalloc(helper.sons_size, sizeof(dynablock_t*));
         for (int i=0; i<helper.sons_size; ++i) {
             int created = 1;
             dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x64[i], &created);
@@ -636,11 +616,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
             block->sons = sons;
             block->sons_size = sons_size;
         } else
-            box_free(sons);
+            customFree(sons);
     }
-    box_free(helper.sons_x64);
+    customFree(helper.sons_x64);
     helper.sons_x64 = NULL;
-    box_free(helper.sons_native);
+    customFree(helper.sons_native);
     helper.sons_native = NULL;
     current_helper = NULL;
     //block->done = 1;

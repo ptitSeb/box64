@@ -130,7 +130,8 @@ Forbid dynablock creation in the interval specified (helpfull for debugging beha
 Enables/Disables Box64's Dynarec building BigBlock.
  * 0 : Don't try to build block as big as possible (can help program using lots of thread and a JIT, like C#/Unity) (Default when libmonobdwgc-2.0.so is loaded)
  * 1 : Build Dynarec block as big as possible (Default.)
- * 2 : Build Dynarec block bigger (don't stop when block overlaps)
+ * 2 : Build Dynarec block bigger (don't stop when block overlaps, but only for blocks in elf memory)
+ * 3 : Build Dynarec block bigger (don't stop when block overlaps, for all type of memory)
 
 #### BOX64_DYNAREC_STRONGMEM
 Enable/Disable simulation of Strong Memory model
@@ -147,6 +148,12 @@ Force the use of Double for x87 emulation
 Enable/Disable generation of -NAN
 * 0 : Generate -NAN like on x86
 * 1 : Don't do anything special with NAN, to go as fast as possible (default)
+
+#### BOX64_DYNAREC_SAFEFLAGS
+Handling of flags on CALL/RET opcodes
+* 0 : Treat CALL/RET as if it never needs any flags (faster but not advised)
+* 1 : most of RET will need flags, most of CALLS will not (Default)
+* 2 : All CALL/RET will need flags (slower, but might be needed. Automatically enabled for Vara.exe)
 
 #### BOX64_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).

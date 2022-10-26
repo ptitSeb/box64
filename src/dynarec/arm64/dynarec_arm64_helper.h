@@ -477,11 +477,11 @@
     j64 = GETMARKLOCK-(dyn->native_size);  \
     CBNZx(reg, j64)
 
-#define IFX(A)  if((dyn->insts[ninst].x64.need_flags&(A)))
-#define IFX_PENDOR0  if((dyn->insts[ninst].x64.need_flags&(X_PEND) || !dyn->insts[ninst].x64.need_flags))
-#define IFXX(A) if((dyn->insts[ninst].x64.need_flags==(A)))
-#define IFX2X(A, B) if((dyn->insts[ninst].x64.need_flags==(A) || dyn->insts[ninst].x64.need_flags==(B) || dyn->insts[ninst].x64.need_flags==((A)|(B))))
-#define IFXN(A, B)  if((dyn->insts[ninst].x64.need_flags&(A) && !(dyn->insts[ninst].x64.need_flags&(B))))
+#define IFX(A)  if((dyn->insts[ninst].x64.gen_flags&(A)))
+#define IFX_PENDOR0  if((dyn->insts[ninst].x64.gen_flags&(X_PEND) || !dyn->insts[ninst].x64.gen_flags))
+#define IFXX(A) if((dyn->insts[ninst].x64.gen_flags==(A)))
+#define IFX2X(A, B) if((dyn->insts[ninst].x64.gen_flags==(A) || dyn->insts[ninst].x64.gen_flags==(B) || dyn->insts[ninst].x64.gen_flags==((A)|(B))))
+#define IFXN(A, B)  if((dyn->insts[ninst].x64.gen_flags&(A) && !(dyn->insts[ninst].x64.gen_flags&(B))))
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOM(s1, s2, s3)                                                    \
@@ -527,45 +527,37 @@
 #define STP_REGS(A, B)  STPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LDP_REGS(A, B)  LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define STORE_XEMU_REGS(A)  \
-    STORE_REG(RAX);         \
-    STORE_REG(RCX);         \
-    STORE_REG(RDX);         \
-    STORE_REG(RBX);         \
-    STORE_REG(RSP);         \
-    STORE_REG(RBP);         \
-    STORE_REG(RSI);         \
-    STORE_REG(RDI);         \
-    STORE_REG(R8);          \
-    STORE_REG(R9);          \
-    STORE_REG(R10);         \
-    STORE_REG(R11);         \
-    STORE_REG(R12);         \
-    STORE_REG(R13);         \
-    STORE_REG(R14);         \
-    STORE_REG(R15);         \
-    STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
-    if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
+    STP_REGS(RAX, RCX);     \
+    STP_REGS(RDX, RBX);     \
+    STP_REGS(RSP, RBP);     \
+    STP_REGS(RSI, RDI);     \
+    STP_REGS(R8, R9);       \
+    STP_REGS(R10, R11);     \
+    STP_REGS(R12, R13);     \
+    STP_REGS(R14, R15);     \
+    if(A==xRIP) {           \
+        STPx_S7_offset(xFlags, xRIP, xEmu, offsetof(x64emu_t, eflags)); \
+    } else {                \
+        STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
+        if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}  \
+    }
 
 #define LOAD_REG(A)    LDRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
-#define LOAD_XEMU_REGS(A)  \
-    LOAD_REG(RAX);         \
-    LOAD_REG(RCX);         \
-    LOAD_REG(RDX);         \
-    LOAD_REG(RBX);         \
-    LOAD_REG(RSP);         \
-    LOAD_REG(RBP);         \
-    LOAD_REG(RSI);         \
-    LOAD_REG(RDI);         \
-    LOAD_REG(R8);          \
-    LOAD_REG(R9);          \
-    LOAD_REG(R10);         \
-    LOAD_REG(R11);         \
-    LOAD_REG(R12);         \
-    LOAD_REG(R13);         \
-    LOAD_REG(R14);         \
-    LOAD_REG(R15);         \
-    LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
-    if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
+#define LOAD_XEMU_REGS(A)   \
+    LDP_REGS(RAX, RCX);     \
+    LDP_REGS(RDX, RBX);     \
+    LDP_REGS(RSP, RBP);     \
+    LDP_REGS(RSI, RDI);     \
+    LDP_REGS(R8, R9);       \
+    LDP_REGS(R10, R11);     \
+    LDP_REGS(R12, R13);     \
+    LDP_REGS(R14, R15);     \
+    if(A==xRIP) {           \
+        LDPx_S7_offset(xFlags, xRIP, xEmu, offsetof(x64emu_t, eflags)); \
+    } else {                \
+        LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags)); \
+        if(A) {LDRx_U12(A, xEmu, offsetof(x64emu_t, ip));}  \
+    }
 
 #define STORE_XEMU_MINIMUM(A)  \
     STORE_REG(RAX);         \
@@ -606,6 +598,10 @@
 #define SET_NODF()          dyn->f.dfnone = 0
 #define SET_DFOK()          dyn->f.dfnone = 1
 
+#ifndef MAYSETFLAGS
+#define MAYSETFLAGS()
+#endif
+
 #ifndef READFLAGS
 #define READFLAGS(A) \
     if(((A)!=X_PEND && dyn->f.pending!=SF_SET)          \
@@ -621,23 +617,21 @@
         SET_DFOK();                                     \
     }
 #endif
-// SF_MAYSET doesn't change the flags status cache
-// it also doesn't consume any needed flags
+
 #ifndef SETFLAGS
 #define SETFLAGS(A, B)                                                                          \
     if(dyn->f.pending!=SF_SET                                                                   \
     && ((B)&SF_SUB)                                                                             \
-    && (dyn->insts[ninst].x64.need_flags&(~(A))))                                               \
-        READFLAGS(((dyn->insts[ninst].x64.need_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.need_flags)&(~(A)));\
-    if(dyn->insts[ninst].x64.need_flags) switch(B) {                                            \
+    && (dyn->insts[ninst].x64.gen_flags&(~(A))))                                                \
+        READFLAGS(((dyn->insts[ninst].x64.gen_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.gen_flags)&(~(A)));\
+    if(dyn->insts[ninst].x64.gen_flags) switch(B) {                                             \
         case SF_SUBSET:                                                                         \
         case SF_SET: dyn->f.pending = SF_SET; break;                                            \
         case SF_PENDING: dyn->f.pending = SF_PENDING; break;                                    \
         case SF_SUBSET_PENDING:                                                                 \
         case SF_SET_PENDING:                                                                    \
-            dyn->f.pending = (dyn->insts[ninst].x64.need_flags&X_PEND)?SF_SET_PENDING:SF_SET;   \
+            dyn->f.pending = (dyn->insts[ninst].x64.gen_flags&X_PEND)?SF_SET_PENDING:SF_SET;    \
             break;                                                                              \
-        case SF_MAYSET: break;                                                                  \
     } else dyn->f.pending = SF_SET
 #endif
 #ifndef JUMP
@@ -649,12 +643,12 @@
 #ifndef BARRIER_NEXT
 #define BARRIER_NEXT(A)
 #endif
-#define UFLAG_OP1(A) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op1));}
-#define UFLAG_OP2(A) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op2));}
-#define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A1, xEmu, offsetof(x64emu_t, op1));STRxw_U12(A2, 0, offsetof(x64emu_t, op2));}
-#define UFLAG_RES(A) if(dyn->insts[ninst].x64.need_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, res));}
-#define UFLAG_DF(r, A) if(dyn->insts[ninst].x64.need_flags) {SET_DF(r, A)}
-#define UFLAG_IF if(dyn->insts[ninst].x64.need_flags)
+#define UFLAG_OP1(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op1));}
+#define UFLAG_OP2(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op2));}
+#define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A1, xEmu, offsetof(x64emu_t, op1));STRxw_U12(A2, 0, offsetof(x64emu_t, op2));}
+#define UFLAG_RES(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, res));}
+#define UFLAG_DF(r, A) if(dyn->insts[ninst].x64.gen_flags) {SET_DF(r, A)}
+#define UFLAG_IF if(dyn->insts[ninst].x64.gen_flags)
 #ifndef DEFAULT
 #define DEFAULT      *ok = -1; BARRIER(2)
 #endif
@@ -858,7 +852,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #endif
 
-#define fpuCacheTransform       STEPNAME(fpuCacheTransform)
+#define CacheTransform       STEPNAME(CacheTransform)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
@@ -985,12 +979,12 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 
-void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
 #if STEP < 2
 #define CHECK_CACHE()   0
 #else
-#define CHECK_CACHE()   fpuCacheNeedsTransform(dyn, ninst)
+#define CHECK_CACHE()   (cacheupd = CacheNeedsTransform(dyn, ninst))
 #endif
 
 #define neoncache_st_coherency STEPNAME(neoncache_st_coherency)
@@ -1060,7 +1054,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_DC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-//uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);

@@ -14,6 +14,7 @@ typedef struct lib_s lib_t;
 typedef struct bridge_s bridge_t;
 typedef struct dlprivate_s dlprivate_t;
 typedef struct kh_symbolmap_s kh_symbolmap_t;
+typedef struct kh_defaultversion_s kh_defaultversion_t;
 typedef struct library_s library_t;
 typedef struct linkmap_s linkmap_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
@@ -52,10 +53,7 @@ typedef struct needed_libs_s {
     library_t   **libs;
 } needed_libs_t;
 
-void add_neededlib(needed_libs_t* needed, library_t* lib);
 void free_neededlib(needed_libs_t* needed);
-void add_dependedlib(needed_libs_t* depended, library_t* lib);
-void free_dependedlib(needed_libs_t* depended);
 
 typedef struct base_segment_s {
     uintptr_t       base;
@@ -120,6 +118,8 @@ typedef struct box64context_s {
     kh_symbolmap_t      *almymap;       // link to the mysymbolmap if libOpenAL
     kh_symbolmap_t      *vkwrappers;    // the map of wrapper for VulkanProcs (TODO: check SDL2)
     kh_symbolmap_t      *vkmymap;       // link to the mysymbolmap of libGL
+    kh_defaultversion_t *globaldefver;  // the global default version for symbols (the XXX@@vvvv of symbols)
+    kh_defaultversion_t *weakdefver;    // the weak default version for symbols (the XXX@@vvvv of symbols)
     vkprocaddess_t      vkprocaddress;
 
     pthread_mutex_t     mutex_once;

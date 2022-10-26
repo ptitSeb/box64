@@ -521,7 +521,7 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_db.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_dc.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_dd.c"
-    #"${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_de.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_de.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_df.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f0.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_660f.c"

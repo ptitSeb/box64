@@ -7,6 +7,7 @@ typedef struct dynablocklist_s dynablocklist_t;
 
 typedef struct library_s library_t;
 typedef struct needed_libs_s needed_libs_t;
+typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 
 #include <elf.h>
 #include "elfloader.h"
@@ -95,6 +96,10 @@ struct elfheader_s {
 
     library_t   *lib;
     needed_libs_t *neededlibs;
+
+    kh_mapsymbols_t   *mapsymbols;
+    kh_mapsymbols_t   *weaksymbols;
+    kh_mapsymbols_t   *localsymbols;
 };
 
 #define R_X86_64_NONE           0       /* No reloc */

@@ -3,20 +3,20 @@
 #endif
 //typedef uint32_t xkb_keycode_t
 
-//GO(xkb_compose_state_feed, 
+GO(xkb_compose_state_feed, iFpu)
 //GO(xkb_compose_state_get_compose_table, 
 //GO(xkb_compose_state_get_one_sym, 
-//GO(xkb_compose_state_get_status, 
+GO(xkb_compose_state_get_status, iFp)
 //GO(xkb_compose_state_get_utf8, 
-//GO(xkb_compose_state_new, 
+GO(xkb_compose_state_new, pFpi)
 //GO(xkb_compose_state_ref, 
-//GO(xkb_compose_state_reset, 
-//GO(xkb_compose_state_unref, 
+GO(xkb_compose_state_reset, vFp)
+GO(xkb_compose_state_unref, vFp)
 //GO(xkb_compose_table_new_from_buffer, 
 //GO(xkb_compose_table_new_from_file, 
-//GO(xkb_compose_table_new_from_locale, 
+GO(xkb_compose_table_new_from_locale, pFppi)
 //GO(xkb_compose_table_ref, 
-//GO(xkb_compose_table_unref, 
+GO(xkb_compose_table_unref, vFp)
 //GO(xkb_context_get_log_level, 
 //GO(xkb_context_get_log_verbosity, 
 GO(xkb_context_get_user_data, pFp)

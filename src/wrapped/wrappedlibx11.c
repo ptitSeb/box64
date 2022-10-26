@@ -622,8 +622,8 @@ if (new_va[i] && strcmp((char*)new_va[i], A) == 0) {    \
 EXPORT void* my_XVaCreateNestedList(x64emu_t* emu, int unused, uintptr_t* va) {
     int n = 0;
     while (getVArgs(emu, 1, va, n)) n+=2 ;
-    void** new_va = malloc(sizeof(void*) * n);
-    XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
+    void** new_va = box_malloc(sizeof(void*) * n);
+    XICCallback* callbacks = (XICCallback*)box_malloc(sizeof(XIMCallback) * n);
 
     for (int i = 0; i < n; i += 2) {
         new_va[i] = (void*)getVArgs(emu, 1, va, i);
@@ -633,16 +633,16 @@ EXPORT void* my_XVaCreateNestedList(x64emu_t* emu, int unused, uintptr_t* va) {
 
     void* res = NULL;
     VA_CALL(my->XVaCreateNestedList, unused, new_va, n, res);
-    free(new_va);
-    free(callbacks);
+    box_free(new_va);
+    box_free(callbacks);
     return res;
 }
 
 EXPORT void* my_XCreateIC(x64emu_t* emu, void* xim, uintptr_t* va) {
     int n = 0;
     while (getVArgs(emu, 1, va, n)) n+=2;
-    void** new_va = malloc(sizeof(void*) * n);
-    XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
+    void** new_va = box_malloc(sizeof(void*) * n);
+    XICCallback* callbacks = (XICCallback*)box_malloc(sizeof(XIMCallback) * n);
 
     for (int i = 0; i < n; i += 2) {
         new_va[i] = (void*)getVArgs(emu, 1, va, i);
@@ -652,16 +652,16 @@ EXPORT void* my_XCreateIC(x64emu_t* emu, void* xim, uintptr_t* va) {
 
     void* res = NULL;
     VA_CALL(my->XCreateIC, xim, new_va, n, res);
-    free(new_va);
-    free(callbacks);
+    box_free(new_va);
+    box_free(callbacks);
     return res;
 }
 
 EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, uintptr_t* va) {
     int n = 0;
     while (getVArgs(emu, 1, va, n)) n+=2;
-    void** new_va = malloc(sizeof(void*) * n);
-    XICCallback* callbacks = (XICCallback*)malloc(sizeof(XIMCallback) * n);
+    void** new_va = box_malloc(sizeof(void*) * n);
+    XICCallback* callbacks = (XICCallback*)box_malloc(sizeof(XIMCallback) * n);
 
     for (int i = 0; i < n; i += 2) {
         new_va[i] = (void*)getVArgs(emu, 1, va, i);
@@ -671,8 +671,8 @@ EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, uintptr_t* va) {
 
     void* res = NULL; 
     VA_CALL(my->XSetICValues, xic, new_va, n, res);
-    free(new_va);
-    free(callbacks);
+    box_free(new_va);
+    box_free(callbacks);
     return res;
 }
 #undef GO
@@ -680,8 +680,8 @@ EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, uintptr_t* va) {
 EXPORT void* my_XSetIMValues(x64emu_t* emu, void* xim, uintptr_t* va) {
     int n = 0;
     while (getVArgs(emu, 1, va, n)) n+=2;
-    void** new_va = malloc(sizeof(void*) * n);
-    XIMCallback* callbacks = (XIMCallback*)malloc(sizeof(XIMCallback) * n);
+    void** new_va = box_malloc(sizeof(void*) * n);
+    XIMCallback* callbacks = (XIMCallback*)box_malloc(sizeof(XIMCallback) * n);
 
     #define GO(A)                                           \
     if (new_va[i] && strcmp((char*)new_va[i], A) == 0) {    \
@@ -701,8 +701,8 @@ EXPORT void* my_XSetIMValues(x64emu_t* emu, void* xim, uintptr_t* va) {
     
     void* res = NULL;
     VA_CALL(my->XSetIMValues, xim, new_va, n, res)
-    free(new_va);
-    free(callbacks);
+    box_free(new_va);
+    box_free(callbacks);
     return res;
 }
 #undef VA_CALL
