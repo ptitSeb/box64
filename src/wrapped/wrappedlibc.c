@@ -358,6 +358,15 @@ void EXPORT my___stack_chk_fail(x64emu_t* emu)
     #else
     sprintf(buff, "%p: Stack is corrupted, aborting\n", (void*)emu->old_ip);
     #endif
+    if(cycle_log) {
+        int j = (my_context->current_line+1)&(CYCLE_LOG-1);
+        for (int i=0; i<CYCLE_LOG; ++i) {
+            int k = (i+j)&(CYCLE_LOG-1);
+            if(my_context->log_call[k][0]) {
+                printf_log(LOG_INFO, "%s => return %s\n", my_context->log_call[k], my_context->log_ret[k]);
+            }
+        }
+    }
     StopEmu(emu, buff);
 }
 void EXPORT my___gmon_start__(x64emu_t *emu)
