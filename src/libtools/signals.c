@@ -999,9 +999,9 @@ exit(-1);
             }
         }
         if(cycle_log) {
-            int j = (my_context->current_line+1)&(CYCLE_LOG-1);
-            for (int i=0; i<CYCLE_LOG; ++i) {
-                int k = (i+j)&(CYCLE_LOG-1);
+            int j = (my_context->current_line+1)%cycle_log;
+            for (int i=0; i<cycle_log; ++i) {
+                int k = (i+j)%cycle_log;
                 if(my_context->log_call[k][0]) {
                     printf_log(log_minimum, "%s => return %s\n", my_context->log_call[k], my_context->log_ret[k]);
                 }

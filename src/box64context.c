@@ -148,11 +148,14 @@ box64context_t *NewBox64Context(int argc)
     // init and put default values
     box64context_t *context = my_context = (box64context_t*)box_calloc(1, sizeof(box64context_t));
 
-    if(cycle_log)
-        for(int i=0; i<CYCLE_LOG; ++i) {
+    if(cycle_log) {
+        context->log_call = (char**)box_calloc(cycle_log, sizeof(char*));
+        context->log_ret = (char**)box_calloc(cycle_log, sizeof(char*));
+        for(int i=0; i<cycle_log; ++i) {
             context->log_call[i] = (char*)box_calloc(256, 1);
             context->log_ret[i] = (char*)box_calloc(128, 1);
         }
+    }
 
     context->deferedInit = 1;
     context->sel_serial = 1;
@@ -296,11 +299,14 @@ void FreeBox64Context(box64context_t** context)
     pthread_mutex_destroy(&ctx->mutex_thread);
     pthread_mutex_destroy(&ctx->mutex_bridge);
 
-    if(cycle_log)
-        for(int i=0; i<CYCLE_LOG; ++i) {
+    if(cycle_log) {
+        for(int i=0; i<cycle_log; ++i) {
             box_free(ctx->log_call[i]);
             box_free(ctx->log_ret[i]);
         }
+        box_free(ctx->log_call);
+        box_free(ctx->log_ret);
+    }
 
     box_free(ctx);
 }

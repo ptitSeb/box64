@@ -679,10 +679,10 @@ int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 	int old = native_lock_xchg_d(once, 1);
 	#else
 	int old = *once;	// outside of the mutex in case once is badly formed
-	pthread_mutex_lock(my_context->)mutex_lock);
+	pthread_mutex_lock(&my_context->mutex_lock);
 	old = *once;
 	*once = 1;
-	pthread_mutex_unlock(my_context->)mutex_lock);
+	pthread_mutex_unlock(&my_context->mutex_lock);
 	#endif
 	if(old)
 		return 0;

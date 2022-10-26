@@ -62,8 +62,6 @@ typedef struct base_segment_s {
     pthread_key_t   key;
 } base_segment_t;
 
-#define CYCLE_LOG   16
-
 typedef struct box64context_s {
     path_collection_t   box64_path;     // PATH env. variable
     path_collection_t   box64_ld_lib;   // LD_LIBRARY_PATH env. variable
@@ -180,8 +178,8 @@ typedef struct box64context_s {
     int                 stack_clone_used;
 
     // rolling logs
-    char*               log_call[CYCLE_LOG];
-    char*               log_ret[CYCLE_LOG];
+    char*               *log_call;
+    char*               *log_ret;
     int                 current_line;
 
 } box64context_t;
