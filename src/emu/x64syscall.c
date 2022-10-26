@@ -494,7 +494,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 78:
             {
                 size_t count = R_RDX;
-                nat_linux_dirent64_t *d64 = (nat_linux_dirent64_t*)alloca(count);
+                nat_linux_dirent64_t d64[count];
                 ssize_t ret = syscall(__NR_getdents64, R_EDI, d64, count);
                 ret = DirentFromDirent64((void*)R_RSI, d64, ret);
                 R_RAX = (uint64_t)ret;
