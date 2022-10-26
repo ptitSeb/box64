@@ -307,7 +307,22 @@ void EXPORT x64Syscall(x64emu_t *emu)
 {
     RESET_FLAGS(emu);
     uint32_t s = R_EAX; // EAX? (syscalls only go up to 547 anyways)
-    printf_log(LOG_DEBUG, "%p: Calling syscall 0x%02X (%d) %p %p %p %p %p %p", (void*)R_RIP, s, s, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8, (void*)R_R9); 
+    int log = 0;
+    char t_buff[256] = "\0";
+    char t_buffret[128] = "\0";
+    char buff2[64] = "\0";
+    char* buff = NULL;
+    char* buffret = NULL;
+    if(box64_log>=LOG_DEBUG || cycle_log) {
+        log = 1;
+        buff = cycle_log?my_context->log_call[my_context->current_line]:t_buff;
+        buffret = cycle_log?my_context->log_ret[my_context->current_line]:t_buffret;
+        if(cycle_log)
+            my_context->current_line = (my_context->current_line+1)%cycle_log;
+        snprintf(buff, 255, "%04d|%p: Calling syscall 0x%02X (%d) %p %p %p %p %p %p", GetTID(), (void*)R_RIP, s, s, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8, (void*)R_R9); 
+        if(!cycle_log)
+            printf_log(LOG_NONE, "%s", buff);
+    }
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     for (int i=0; i<cnt; i++) {
@@ -316,7 +331,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             switch(syscallwrap[i].nbpars) {
                 case 0: *(int64_t*)&R_RAX = syscall(sc); break;
                 case 1: *(int64_t*)&R_RAX = syscall(sc, R_RDI); break;
-                case 2: if(s==33) {printf_dump(LOG_DEBUG, " => sys_access(\"%s\", %ld)\n", (char*)R_RDI, R_RSI);}; *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI); break;
+                case 2: if(s==33) {if(log) snprintf(buff2, 63, " [sys_access(\"%s\", %ld)]", (char*)R_RDI, R_RSI);}; *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI); break;
                 case 3: *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); break;
                 case 4: *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
                 case 5: *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); break;
@@ -326,7 +341,8 @@ void EXPORT x64Syscall(x64emu_t *emu)
                    emu->quit = 1;
                    return;
             }
-            printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
+            if(log) snprintf(buffret, 127, "0x%x%s", R_EAX, buff2);
+            if(log && !cycle_log) printf_log(LOG_NONE, "=> %s\n", buffret);
             return;
         }
     }
@@ -338,7 +354,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             *(int64_t*)&R_RAX = write((int)R_EDI, (void*)R_RSI, (size_t)R_RDX);
             break;
         case 2: // sys_open
-            if(s==5) {printf_log(LOG_DEBUG, " => sys_open(\"%s\", %d, %d)", (char*)R_RDI, of_convert(R_ESI), R_EDX);}; 
+            if(s==5) {if (log) snprintf(buff2, 63, " [sys_open(\"%s\", %d, %d)]", (char*)R_RDI, of_convert(R_ESI), R_EDX);}; 
             //*(int64_t*)&R_RAX = open((void*)R_EDI, of_convert(R_ESI), R_EDX);
             *(int64_t*)&R_RAX = my_open(emu, (void*)R_RDI, of_convert(R_ESI), R_EDX);
             break;
@@ -478,7 +494,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
         case 78:
             {
                 size_t count = R_RDX;
-                nat_linux_dirent64_t *d64 = (nat_linux_dirent64_t*)alloca(count);
+                nat_linux_dirent64_t d64[count];
                 ssize_t ret = syscall(__NR_getdents64, R_EDI, d64, count);
                 ret = DirentFromDirent64((void*)R_RSI, d64, ret);
                 R_RAX = (uint64_t)ret;
@@ -542,7 +558,8 @@ void EXPORT x64Syscall(x64emu_t *emu)
             emu->error |= ERR_UNIMPL;
             return;
     }
-    printf_log(LOG_DEBUG, " => 0x%lx\n", R_RAX);
+    if(log) snprintf(buffret, 127, "0x%lx%s", R_RAX, buff2);
+    if(log && !cycle_log) printf_log(LOG_NONE, "=> %s\n", buffret);
 }
 
 #define stack(n) (R_RSP+8+n)
