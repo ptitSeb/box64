@@ -70,7 +70,7 @@ void FreeBridge(bridge_t** bridge)
         brick_t *n = b->next;
         #ifdef DYNAREC
         if(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))
-            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 1);
+            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);
         #endif
         my_munmap(emu, b->b, NBRICK*sizeof(onebridge_t));
         box_free(b);
@@ -106,7 +106,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
         if(box64_dynarec) {
             prot=(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
             if(prot)
-                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);
+                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 1);
             else    // only add DB if there is no protection
                 addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
         }
@@ -239,7 +239,7 @@ uintptr_t AddVSyscall(bridge_t* bridge, int num)
         if(box64_dynarec) {
             prot=(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
             if(prot)
-                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);
+                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 1);
             else    // only add DB if there is no protection
                 addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
         }

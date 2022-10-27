@@ -90,6 +90,11 @@ Show Segfault signal even if a signal handler is present
  * 0 : Don"t force show the SIGSEGV analysis (Default.)
  * 1 : Show SIGSEGV detail, even if a signal handler is present
 
+#### BOX64_SHOWBT
+Show some Backtrace (Nativ e and Emulated) whgen a signal (SEGV, ILL or BUS) is caught
+ * 0 : Don"t show backtraces (Default.)
+ * 1 : Show Backtrace detail (for native, box64 is rename as the x86_64 binary run)
+
 #### BOX64_X11THREADS
 Call XInitThreads when loading X11. (This is mostly for old Loki games with the Loki_Compat library.)
  * 0 : Don't force call XInitThreads. (Default.)

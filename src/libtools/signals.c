@@ -12,6 +12,7 @@
 #include <setjmp.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#include <execinfo.h>
 
 #include "box64context.h"
 #include "debug.h"
@@ -1005,6 +1006,29 @@ exit(-1);
                 if(my_context->log_call[k][0]) {
                     printf_log(log_minimum, "%s => return %s\n", my_context->log_call[k], my_context->log_ret[k]);
                 }
+            }
+        }
+        if(box64_showbt) {
+            // show native bt
+            #define BT_BUF_SIZE 100
+            int nptrs;
+            void *buffer[BT_BUF_SIZE];
+            char **strings;
+            nptrs = backtrace(buffer, BT_BUF_SIZE);
+            strings = backtrace_symbols(buffer, nptrs);
+            if(strings) {
+                for (int j = 0; j < nptrs; j++)
+                    printf_log(log_minimum, "NativeBT: %s\n", strings[j]);
+                free(strings);
+            }
+            extern int my_backtrace(x64emu_t* emu, void** buffer, int size);   // in wrappedlibc
+            extern char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size);
+            nptrs = my_backtrace(emu, buffer, BT_BUF_SIZE);
+            strings = my_backtrace_symbols(emu, (uintptr_t*)buffer, nptrs);
+            if(strings) {
+                for (int j = 0; j < nptrs; j++)
+                    printf_log(log_minimum, "EmulatedBT: %s\n", strings[j]);
+                free(strings);
             }
         }
 #ifdef DYNAREC
