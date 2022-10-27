@@ -358,6 +358,7 @@ library_t *NewLibrary(const char* path, box64context_t* context)
         lib->name = Path2Name(path);
     lib->nbdot = NbDot(lib->name);
     lib->type = LIB_UNNKNOW;
+    lib->refcnt = 1;
     printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
     if(box64_nopulse) {
         if(strstr(lib->name, "libpulse.so")==lib->name || strstr(lib->name, "libpulse-simple.so")==lib->name) {
@@ -513,6 +514,9 @@ void InactiveLibrary(library_t* lib)
 void Free1Library(library_t **lib, x64emu_t* emu)
 {
     if(!(*lib)) return;
+
+    if(--(*lib)->refcnt)
+        return;
 
     if((*lib)->type==LIB_EMULATED && emu) {
         elfheader_t *elf_header = (*lib)->e.elf;
@@ -1006,6 +1010,7 @@ static int is_neededlib_present(needed_libs_t* needed, library_t* lib)
 
 void add_neededlib(needed_libs_t* needed, library_t* lib)
 {
+    ++lib->refcnt;
     if(!needed)
         return;
     if(is_neededlib_present(needed, lib))
