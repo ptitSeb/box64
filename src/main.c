@@ -90,6 +90,7 @@ int box64_nopulse = 0;
 int box64_nogtk = 0;
 int box64_novulkan = 0;
 int box64_showsegv = 0;
+int box64_showbt = 0;
 char* libGL = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
@@ -632,6 +633,15 @@ void LoadLogEnv()
         if(box64_showsegv)
             printf_log(LOG_INFO, "Show Segfault signal even if a signal handler is present\n");
     }
+    p = getenv("BOX64_SHOWBT");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_showbt = p[0]-'0';
+        }
+        if(box64_showbt)
+            printf_log(LOG_INFO, "Show a Backtrace when a Segfault signal is caught\n");
+    }
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)
         box64_pagesize = 4096;
@@ -1052,9 +1062,6 @@ int main(int argc, const char **argv, char **env) {
         printf("x86_64\n");
         exit(0);
     }
-
-    // init random seed
-    srandom(time(NULL));
 
     // check BOX64_LOG debug level
     LoadLogEnv();
