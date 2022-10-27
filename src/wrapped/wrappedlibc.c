@@ -1711,7 +1711,14 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+toadd));
-        if(self) newargv[1] = emu->context->fullpath; else newargv[1] = skip_first?argv[skip_first]:path;
+        if(self) 
+            newargv[1] = emu->context->fullpath;
+        else {
+            // TODO check if envp is not environ and add the value on a copy
+            if(strcmp(newargv[toadd], skip_first?argv[skip_first]:path))
+                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            newargv[toadd] = skip_first?argv[skip_first]:path;
+        }
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         char** envv = NULL;
         if(my_environ!=my_context->envv) envv = my_environ;
@@ -1749,15 +1756,20 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         int n=skip_first;
         while(argv[n]) ++n;
         int toadd = script?2:1;
-        const char** newargv = (const char**)box_calloc(n+1+toadd, sizeof(char*));
+        const char** newargv = (const char**)alloca((n+1+toadd-skip_first)*sizeof(char*));
+        memset(newargv, 0, (n+1+toadd)*sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
-        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1));
+        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1-skip_first));
         if(self) newargv[toadd] = emu->context->fullpath;
-        else newargv[toadd] = path;
-        printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", newargv[0], newargv, newargv[0], (n+toadd)?newargv[1]:"", ((n+toadd)>1)?newargv[2]:"",n, envp);
+        else {
+            // TODO check if envp is not environ and add the value on a copy
+            if(strcmp(newargv[toadd], path))
+                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            newargv[toadd] = path;
+        }
+        printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", newargv[0], newargv, newargv[0], (n+toadd-skip_first)?newargv[1]:"", ((n+toadd-skip_first)>1)?newargv[2]:"",n, envp);
         int ret = execve(newargv[0], (char* const*)newargv, envp);
-        box_free(newargv);
         return ret;
     }
     #endif
@@ -1775,8 +1787,8 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         // special case of a bash script shell running grep on cpuinfo to extract capacities...
         int n=0;
         while(argv[n]) ++n;
-        const char** newargv = (const char**)box_calloc(n+1, sizeof(char*));
-        memcpy(newargv, argv, sizeof(char*)*(n));
+        const char** newargv = (const char**)alloca((n+1)*sizeof(char*));
+        memcpy(newargv, argv, sizeof(char*)*(n+1));
         // create a dummy cpuinfo in temp (that will stay there, sorry)
         const char* tmpdir = GetTmpDir();
         char template[100] = {0};
@@ -1792,7 +1804,6 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         newargv[2] = cpuinfo_file;
         printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", path, newargv, newargv[0], newargv[1], newargv[2],n, envp);
         int ret = execve(path, (char* const*)newargv, envp);
-        box_free(newargv);
         return ret;
     }
     #endif
@@ -1816,13 +1827,21 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
         int i=0;
         while(argv[i]) ++i;
         int toadd = script?2:1;
-        char** newargv = (char**)box_calloc(i+toadd+1, sizeof(char*));
+        char** newargv = (char**)alloca((i+toadd+1)*sizeof(char*));
+        memset(newargv, 0, (i+toadd+1)*sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         for (int j=0; j<i; ++j)
             newargv[j+toadd] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
-        if(script) newargv[2] = fullpath;
+        //else if(script) newargv[2] = fullpath;
+        else {
+            // TODO check if envp is not environ and add the value on a copy
+            if(strcmp(newargv[toadd], path))
+                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            newargv[toadd] = fullpath;
+        }
+
         printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
         char** envv = NULL;
         if(my_environ!=my_context->envv) envv = my_environ;
@@ -1833,8 +1852,7 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
             ret = execvpe(newargv[0], newargv, envv);
         else
             ret = execvp(newargv[0], newargv);
-        box_free(newargv);
-    box_free(fullpath);
+        box_free(fullpath);
         return ret;
     }
     if((!strcmp(path + strlen(path) - strlen("/uname"), "/uname") || !strcmp(path, "uname"))
@@ -1921,26 +1939,35 @@ EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(fullpath):0;
     int script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
-    printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn(%p, \"%s\", %p, %p, %p, %p), IsX86=%d\n", pid, fullpath, actions, attrp, argv, envp, x64);
+    int ret;
+    printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn(%p, \"%s\", %p, %p, %p[\"%s\", \"%s\", ...], %p), IsX64=%d, IsX86=%d IsScript=%d %s\n", pid, fullpath, actions, attrp, argv, argv[0], argv[1]?argv[1]:"", envp, x64, x86, script, (envp==my_context->envv)?"envp is context->envv":"");
+    // hack to update the environ var if needed
+    if(envp == my_context->envv && environ) {
+        envp = environ;
+    }
     if (x64 || x86 || script || self) {
-        // count argv...
-        int i=0;
-        while(argv[i]) ++i;
+        int n=1;
+        while(argv[n]) ++n;
         int toadd = script?2:1;
-        char** newargv = (char**)box_calloc(i+toadd+1, sizeof(char*));
+        const char** newargv = (const char**)alloca((n+1+toadd)*sizeof(char*));
+        memset(newargv, 0, (n+1+toadd)*sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
-        for (int j=0; j<i; ++j)
-            newargv[j+toadd] = argv[j];
-        if(self) newargv[1] = emu->context->fullpath;
-        printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawn(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
-        int ret = posix_spawn(pid, newargv[0], actions, attrp, newargv, envp);
+        memcpy(newargv+toadd, argv, (n+1)*sizeof(char*));
+        if(self) newargv[toadd] = emu->context->fullpath;
+        else {
+            // TODO check if envp is not environ and add the value on a copy
+            if(strcmp(newargv[toadd], fullpath))
+                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            newargv[toadd] = fullpath;
+        }
+        printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawn(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[0], newargv[1], newargv[2]?newargv[2]:"", n, envp);
+        ret = posix_spawn(pid, newargv[0], actions, attrp, (char* const*)newargv, envp);
         printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn returned %d\n", ret);
         //box_free(newargv);
-        return ret;
-    }
-    // fullpath is gone, so the search will only be on PATH, not on BOX64_PATH (is that an issue?)
-    return posix_spawn(pid, fullpath, actions, attrp, argv, envp);
+    } else 
+        ret = posix_spawn(pid, fullpath, actions, attrp, argv, envp);
+    return ret;
 }
 
 // execvp should use PATH to search for the program first
@@ -1957,21 +1984,24 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     int ret;
     printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x64, fullpath);
     if (x64 || x86 || script || self) {
-        // count argv...
-        int i=0;
-        while(argv[i]) ++i;
+        int n=1;
+        while(argv[n]) ++n;
         int toadd = script?2:1;
-        char** newargv = (char**)box_calloc(i+toadd+1, sizeof(char*));
+        const char** newargv = (const char**)alloca((n+1+toadd)*sizeof(char*));
+        memset(newargv, 0, (n+1+toadd)*sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
-        for (int j=0; j<i; ++j)
-            newargv[j+1] = argv[j];
-        if(self) newargv[1] = emu->context->fullpath;
-        if(script) newargv[2] = fullpath;
-        printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawnp(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
-        ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, envp);
-        printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawnp returned %d\n", ret);
-        box_free(fullpath);
+        memcpy(newargv+toadd, argv, (n+1)*sizeof(char*));
+        if(self) newargv[toadd] = emu->context->fullpath;
+        else {
+            // TODO check if envp is not environ and add the value on a copy
+            if(strcmp(newargv[toadd], fullpath))
+                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            newargv[toadd] = fullpath;
+        }
+        printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawn(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[0], newargv[1], newargv[2]?newargv[2]:"", n, envp);
+        ret = posix_spawn(pid, newargv[0], actions, attrp, (char* const*)newargv, envp);
+        printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn returned %d\n", ret);
         //box_free(newargv);
     } else
         ret = posix_spawnp(pid, path, actions, attrp, argv, envp);

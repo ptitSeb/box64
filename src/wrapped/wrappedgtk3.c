@@ -714,6 +714,11 @@ EXPORT void my3_gtk_print_job_send(x64emu_t* emu, void *job, void* f, void* data
     my->gtk_print_job_send(job, findGtkPrintJobCompleteHuncFct(f), data, findGDestroyNotifyFct(d));
 }
 
+EXPORT void my3_gtk_container_foreach(x64emu_t* emu, void* container, void* cb, void* data)
+{
+    my->gtk_container_foreach(container, findGtkCallbackFct(cb), data);
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
