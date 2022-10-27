@@ -664,6 +664,58 @@ static void bridgeGtkContainer2Class(my_GtkContainer2Class_t* class)
 
 #undef SUPERGO
 
+// ----- GtkContainer3Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkContainer3, add, void, (void* container, void* widget), 2, container, widget);
+WRAPPER(GtkContainer3, remove, void, (void* container, void* widget), 2, container, widget);
+WRAPPER(GtkContainer3, check_resize, void, (void* container), 1, container);
+WRAPPER(GtkContainer3, forall, void, (void* container, int include_internals, void* callback, void* callback_data), 4, container, include_internals, AddCheckBridge(my_bridge, vFpp, callback, 0, NULL), callback_data);
+WRAPPER(GtkContainer3, set_focus_child, void, (void* container, void* widget), 2, container, widget);
+WRAPPER(GtkContainer3, child_type, int, (void* container), 1, container);
+WRAPPER(GtkContainer3, composite_name, void*, (void* container, void* child), 2, container, child);
+WRAPPER(GtkContainer3, set_child_property, void, (void* container, void* child, uint32_t property_id, void* value, void* pspec), 5, container, child, property_id, value, pspec);
+WRAPPER(GtkContainer3, get_child_property, void, (void* container, void* child, uint32_t property_id, void* value, void* pspec), 5, container, child, property_id, value, pspec);
+WRAPPER(GtkContainer3, get_path_for_child, void*, (void* container, void* child), 2, container, child);
+
+#define SUPERGO() \
+    GO(add, vFpp);                  \
+    GO(remove, vFpp);               \
+    GO(check_resize, vFp);          \
+    GO(forall, vFpipp);             \
+    GO(set_focus_child, vFpp);      \
+    GO(child_type, iFp);            \
+    GO(composite_name, pFpp);       \
+    GO(set_child_property, vFppupp);\
+    GO(get_child_property, vFppupp);\
+    GO(get_path_for_child, pFpp);   \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkContainer3Class(my_GtkContainer3Class_t* class)
+{
+    wrapGtkWidget3Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkContainer3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkContainer3Class(my_GtkContainer3Class_t* class)
+{   
+    unwrapGtkWidget3Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkContainer3 (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkContainer3Class(my_GtkContainer3Class_t* class)
+{
+    bridgeGtkWidget3Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkContainer3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
 // ----- GtkActionClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkAction, activate, void, (void* action), 1, action);
@@ -1468,6 +1520,66 @@ static void bridgeGtkTextView2Class(my_GtkTextView2Class_t* class)
 {
     bridgeGtkContainer2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkTextView2 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GtkTextView3Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkTextView3, populate_popup, void,           (void* text_view, void* menu), 2, text_view, menu);
+WRAPPER(GtkTextView3, move_cursor, void,              (void* text_view, int step, int count, int extend_selection), 4, text_view, step, count, extend_selection);
+WRAPPER(GtkTextView3, set_anchor, void,               (void* text_view), 1, text_view);
+WRAPPER(GtkTextView3, insert_at_cursor, void,         (void* text_view, void* str), 2, text_view, str);
+WRAPPER(GtkTextView3, delete_from_cursor, void,       (void* text_view, int type, int count), 3, text_view, type, count);
+WRAPPER(GtkTextView3, backspace, void,                (void* text_view), 1, text_view);
+WRAPPER(GtkTextView3, cut_clipboard, void,            (void* text_view), 1, text_view);
+WRAPPER(GtkTextView3, copy_clipboard, void,           (void* text_view), 1, text_view);
+WRAPPER(GtkTextView3, paste_clipboard, void,          (void* text_view), 1, text_view);
+WRAPPER(GtkTextView3, toggle_overwrite, void,         (void* text_view), 1, text_view);
+WRAPPER(GtkTextView3, create_buffer, void*,           (void* text_view), 1, text_view);
+WRAPPER(GtkTextView3, draw_layer, void,               (void* text_view, int layer, void* cr), 3, text_view, layer, cr);
+WRAPPER(GtkTextView3, extend_selection, int,          (void* text_view, int granularity, void* location, void* start, void* end), 5, text_view, granularity, location, start, end);
+WRAPPER(GtkTextView3, insert_emoji, void,             (void* text_view), 1, text_view);
+
+#define SUPERGO()                       \
+    GO(populate_popup, vFpp);           \
+    GO(move_cursor, vFpiii);            \
+    GO(set_anchor, vFp);                \
+    GO(insert_at_cursor, vFpp);         \
+    GO(delete_from_cursor, vFpii);      \
+    GO(backspace, vFp);                 \
+    GO(cut_clipboard, vFp);             \
+    GO(copy_clipboard, vFp);            \
+    GO(paste_clipboard, vFp);           \
+    GO(toggle_overwrite, vFp);          \
+    GO(create_buffer, pFp);             \
+    GO(draw_layer, vFpip);              \
+    GO(extend_selection, iFpippp);      \
+    GO(insert_emoji, vFp);              \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkTextView3Class(my_GtkTextView3Class_t* class)
+{
+    wrapGtkContainer3Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkTextView3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkTextView3Class(my_GtkTextView3Class_t* class)
+{   
+    unwrapGtkContainer3Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkTextView3 (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkTextView3Class(my_GtkTextView3Class_t* class)
+{
+    bridgeGtkContainer3Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkTextView3 (W, class->A)
     SUPERGO()
     #undef GO
 }

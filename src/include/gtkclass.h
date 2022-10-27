@@ -248,6 +248,30 @@ typedef struct my_GtkContainer2Class_s
   void (*_gtk_reserved4) (void);
 } my_GtkContainer2Class_t;
 
+typedef struct my_GtkContainer3Class_s 
+{
+  my_GtkWidget3Class_t parent_class;
+  void    (*add)                (void* container, void* widget);
+  void    (*remove)             (void* container, void* widget);
+  void    (*check_resize)       (void* container);
+  void    (*forall)             (void* container, int include_internals, void* callback, void* callback_data);
+  void    (*set_focus_child)    (void* container, void* widget);
+  int     (*child_type)         (void* container);
+  void*   (*composite_name)     (void* container, void* child);
+  void    (*set_child_property) (void* container, void* child, uint32_t property_id, void* value, void* pspec);
+  void    (*get_child_property) (void* container, void* child, uint32_t property_id, void* value, void* pspec);
+  void*   (*get_path_for_child) (void* container, void* child);
+  unsigned int _handle_border_width : 1;
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+  void (*_gtk_reserved5) (void);
+  void (*_gtk_reserved6) (void);
+  void (*_gtk_reserved7) (void);
+  void (*_gtk_reserved8) (void);
+} my_GtkContainer3Class_t;
+
 typedef struct my_GtkActionClass_s
 {
   my_GObjectClass_t   parent_class;
@@ -471,6 +495,28 @@ typedef struct my_GtkTextView2Class_s {
   void (*_gtk_reserved7) (void);
 } my_GtkTextView2Class_t;
 
+typedef struct my_GtkTextView3Class_s {
+  my_GtkContainer3Class_t parent_class;
+  void (* populate_popup)           (void* text_view, void* menu);
+  void (* move_cursor)              (void* text_view, int step, int count, int extend_selection);
+  void (* set_anchor)               (void* text_view);
+  void (* insert_at_cursor)         (void* text_view, void* str);
+  void (* delete_from_cursor)       (void* text_view, int type, int count);
+  void (* backspace)                (void* text_view);
+  void (* cut_clipboard)            (void* text_view);
+  void (* copy_clipboard)           (void* text_view);
+  void (* paste_clipboard)          (void* text_view);
+  void (* toggle_overwrite)         (void* text_view);
+  void*(* create_buffer)            (void* text_view);
+  void (* draw_layer)               (void* text_view, int layer, void* cr);
+  int  (* extend_selection)         (void* text_view, int granularity, void* location, void* start, void* end);
+  void (* insert_emoji)             (void* text_view);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkTextView3Class_t;
+
 typedef struct my_MetaFrames2Class_s
 {
   my_GtkWindow2Class_t parent_class;
@@ -601,6 +647,7 @@ GTKCLASS(GtkObject)                 \
 GTKCLASS(GtkWidget2)                \
 GTKCLASS(GtkWidget3)                \
 GTKCLASS(GtkContainer2)             \
+GTKCLASS(GtkContainer3)             \
 GTKCLASS(GtkAction)                 \
 GTKCLASS(GtkLabel2)                 \
 GTKCLASS(GtkMisc2)                  \
@@ -621,6 +668,7 @@ GTKCLASS(GtkFrame2)                 \
 GTKCLASS(GtkMenuShell2)             \
 GTKCLASS(GtkMenuBar2)               \
 GTKCLASS(GtkTextView2)              \
+GTKCLASS(GtkTextView3)              \
 GTKCLASS(MetaFrames2)               \
 GTKCLASS(GDBusObjectManagerClient)  \
 GTKCLASS(AtkObject)                 \
