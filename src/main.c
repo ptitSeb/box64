@@ -988,7 +988,7 @@ void endBox64()
     #endif
     FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
     FreeLibrarian(&my_context->maplib, emu);    // unload all libs
-    #if 0
+    #if 1
     // waiting for all thread except this one to finish
     int this_thread = GetTID();
     int pid = getpid();
