@@ -52,6 +52,7 @@ GO(gtk_fixed_get_type, LFv_t)               \
 GO(gtk_combo_box_get_type, LFv_t)           \
 GO(gtk_toggle_button_get_type, LFv_t)       \
 GO(gtk_check_button_get_type, LFv_t)        \
+GO(gtk_text_view_get_type, LFv_t)           \
 GO(gtk_frame_get_type, LFv_t)               \
 GO(gtk_entry_get_type, LFv_t)               \
 GO(gtk_spin_button_get_type, LFv_t)         \
@@ -729,6 +730,8 @@ EXPORT void my3_gtk_container_foreach(x64emu_t* emu, void* container, void* cb, 
     SETALT(my3_);                                               \
     SetGInitiallyUnownedID(my->g_initially_unowned_get_type()); \
     SetGtkWidget3ID(my->gtk_widget_get_type());                 \
+    SetGtkContainer3ID(my->gtk_container_get_type());           \
+    SetGtkTextView3ID(my->gtk_text_view_get_type());            \
     SetGtkActionID(my->gtk_action_get_type());                  \
     setNeededLibs(lib, 2, "libgdk-3.so.0", "libpangocairo-1.0.so.0");
 
