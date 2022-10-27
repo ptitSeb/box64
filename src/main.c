@@ -988,6 +988,7 @@ void endBox64()
     #endif
     FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
     FreeLibrarian(&my_context->maplib, emu);    // unload all libs
+    #if 0
     // waiting for all thread except this one to finish
     int this_thread = GetTID();
     int pid = getpid();
@@ -1025,6 +1026,7 @@ void endBox64()
             closedir(proc_dir);
         }
     }
+    #endif
     // all done, free context
     FreeBox64Context(&my_context);
     if(libGL) {

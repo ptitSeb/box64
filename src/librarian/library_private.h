@@ -73,6 +73,7 @@ typedef struct library_s {
     };                              // private lib data
     needed_libs_t       needed;
     needed_libs_t       dependedby;     // used to free library
+    int                 refcnt;         // refcounting the lib
     lib_t               *maplib;        // local maplib, for dlopen'd library with LOCAL binding (most of the dlopen)
     kh_bridgemap_t      *gbridgemap;    // global symbol bridgemap
     kh_bridgemap_t      *wbridgemap;    // weak symbol bridgemap
