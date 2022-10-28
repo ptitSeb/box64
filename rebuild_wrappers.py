@@ -389,7 +389,9 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 							 or match("sdl1net", "sdl2net") \
 							 or match("sdl1ttf", "sdl2ttf") \
 							 or match("libGL", "libEGL") \
-							 or match("libc", "tcmallocminimal"):
+							 or match("libc", "tcmallocminimal") \
+							 or match("libc", "tbbmallocproxy") \
+							 or match("tcmallocminimal", "tbbmallocproxy"):
 								continue
 							
 							# Note: this test is very (too) simple. If it ever raises, comment

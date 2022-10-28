@@ -42,6 +42,7 @@ void vFl(x64emu_t *emu, uintptr_t fnc);
 void vFL(x64emu_t *emu, uintptr_t fnc);
 void vFp(x64emu_t *emu, uintptr_t fnc);
 void vFS(x64emu_t *emu, uintptr_t fnc);
+void vFP(x64emu_t *emu, uintptr_t fnc);
 void cFv(x64emu_t *emu, uintptr_t fnc);
 void cFi(x64emu_t *emu, uintptr_t fnc);
 void cFu(x64emu_t *emu, uintptr_t fnc);
