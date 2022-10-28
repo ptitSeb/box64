@@ -1345,7 +1345,31 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             #endif
         }
         break;
-
+    case 0x7D:  /* HSUBPD Gx, Ex */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        #ifndef NOALIGN
+        is_nan = isnan(GX->d[0]) || isnan(GX->d[1]);
+        #endif
+        GX->d[0] -= GX->d[1];
+        #ifndef NOALIGN
+        if(!is_nan && isnan(GX->d[0]))
+            GX->d[0] = -NAN;
+        #endif
+        if(EX==GX) {
+            GX->d[1] = GX->d[0];
+        } else {
+            #ifndef NOALIGN
+            is_nan = isnan(EX->d[0]) || isnan(EX->d[1]);
+            #endif
+            GX->d[1] = EX->d[0] - EX->d[1];
+            #ifndef NOALIGN
+            if(!is_nan && isnan(GX->d[1]))
+                GX->d[1] = -NAN;
+            #endif
+        }
+        break;
     case 0x7E:                      /* MOVD Ed, Gx */
         nextop = F8;
         GETED(0);
