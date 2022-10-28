@@ -1303,6 +1303,26 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xAD:
+            if(rep) {
+                INST_NAME("REP LODSD");
+            } else {
+                INST_NAME("LODSD");
+            }
+            LDRxw_U12(xRAX, xRSI, 0);
+            BFIw(x2, xFlags, F_DF, 1);
+            if(rex.w) {
+                MOV32w(x1, 8);
+            } else {
+                MOV32w(x1, 4);
+            }
+            EORxw_REG_LSL(x1, x1, x2, rex.w?63:31);
+            if(rep) {
+                MULxw(x1, x1, xRCX);
+                EORw_REG(xRCX, xRCX, xRCX);
+            }
+            ADDx_REG(xRSI, xRSI, x1);
+            break;
         case 0xAE:
             switch(rep) {
             case 1:
