@@ -78,6 +78,53 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             opcode = F8;
             switch(opcode) {
 
+                case 0xB1:
+                    INST_NAME("LOCK CMPXCHG Ew, Gw");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    nextop = F8;
+                    GETGD;
+                    DMB_ISH();
+                    UXTHw(x6, xRAX);
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        wback = 0;
+                        UXTHw(x1, ed);
+                        UFLAG_IF {emit_cmp16(dyn, ninst, x6, x1, x3, x4, x5);}
+                        CMPSxw_REG(x6, x1);
+                        B_MARK(cNE);
+                        BFIx(ed, gd, 0, 16);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                        TSTx_mask(wback, 1, 0, 0);    // mask=1
+                        B_MARK3(cNE);
+                        // Aligned version
+                        MARKLOCK;
+                        LDAXRH(x1, wback);
+                        CMPSw_REG(x6, x1);
+                        B_MARK(cNE);
+                        // EAX == Ed
+                        STLXRH(x4, gd, wback);
+                        CBNZx_MARKLOCK(x4);
+                        // done
+                        B_MARK_nocond;
+                        // Unaligned version
+                        MARK3;
+                        LDRH_U12(x1, wback, 0);
+                        LDAXRB(x3, wback); // dummy read, to arm the write...
+                        CMPSw_REG(x6, x1);
+                        B_MARK(cNE);
+                        // EAX == Ed
+                        STLXRB(x4, gd, wback);
+                        CBNZx_MARK3(x4);
+                        STRH_U12(gd, wback, 0);
+                    }
+                    MARK;
+                    // Common part (and fallback for EAX != Ed)
+                    UFLAG_IF {emit_cmp32(dyn, ninst, rex, x6, x1, x3, x4, x5);}
+                    BFIx(xRAX, x1, 0, 16);
+                    DMB_ISH();
+                    break;
+                    
                 case 0xC1:
                     INST_NAME("LOCK XADD Gw, Ew");
                     SETFLAGS(X_ALL, SF_SET_PENDING);

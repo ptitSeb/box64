@@ -432,6 +432,35 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
             break;
 
+        case 0x87:
+            INST_NAME("(LOCK)XCHG Ew, Gw");
+            nextop = F8;
+            if(MODREG) {
+                GETGD;
+                GETED(0);
+                MOVxw_REG(x1, gd);
+                BFIx(gd, ed, 0, 16);
+                BFIx(ed, x1, 0, 16);
+            } else {
+                GETGD;
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                DMB_ISH();
+                TSTx_mask(ed, 1, 0, 0);    // mask=1
+                B_MARK(cNE);
+                MARKLOCK;
+                LDAXRH(x1, ed);
+                STLXRH(x3, gd, ed);
+                CBNZx_MARKLOCK(x3);
+                B_MARK2_nocond;
+                MARK;
+                LDRH_U12(x1, ed, 0);
+                STRH_U12(gd, ed, 0);
+                MARK2;
+                DMB_ISH();
+                BFIx(gd, x1, 0, 16);
+            }
+            break;
+            
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
