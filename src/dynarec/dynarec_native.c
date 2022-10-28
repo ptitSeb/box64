@@ -403,6 +403,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         return NULL;
     }
     if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
+        dynarec_log(LOG_INFO, "Stopping block in no-dynarec zone\n");
         block->done = 1;
         return (void*)block;
     }
