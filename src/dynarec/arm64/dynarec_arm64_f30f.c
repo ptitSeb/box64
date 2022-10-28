@@ -32,6 +32,16 @@
         VLDR32_U12(a, ed, fixedaddress);                                                                \
     }
 
+// Get EX as a quad
+#define GETEXQ(a, w, D)                                                                                 \
+    if(MODREG) {                                                                                        \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
+    } else {                                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, D);  \
+        a = fpu_get_scratch(dyn);                                                                       \
+        VLDR128_U12(a, ed, fixedaddress);                                                               \
+    }
+
 #define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
 
 #define GETGX(a, w) gd = ((nextop&0x38)>>3)+(rex.r<<3); \
@@ -236,9 +246,9 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeD(v0, 0, d0, 0);
             break;
         case 0x5B:
-            INST_NAME("CVTPS2DQ Gx, Ex");
+            INST_NAME("CVTTPS2DQ Gx, Ex");
             nextop = F8;
-            GETEX(d0, 0, 0);
+            GETEXQ(d0, 0, 0);
             GETGX_empty(v0);
             VFCVTZSQS(v0, d0);
             break;
@@ -297,7 +307,6 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x6F:
             INST_NAME("MOVDQU Gx,Ex");// no alignment constraint on NEON here, so same as MOVDQA
             nextop = F8;
-            GETG;
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
                 GETGX_empty(v0);
@@ -311,7 +320,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x70:
             INST_NAME("PSHUFHW Gx, Ex, Ib");
             nextop = F8;
-            GETEX(v1, 0, 1);
+            GETEXQ(v1, 0, 1);
             GETGX(v0, 1);
             u8 = F8;
             // only high part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits

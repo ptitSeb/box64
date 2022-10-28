@@ -227,7 +227,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
         {
             int j32;
             MAYUSE(j32);
-            MESSAGE(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size); 
+            MESSAGE(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size);
+            if(!box64_dynarec_dump && addr>=box64_nodynarec_start && addr<box64_nodynarec_end)
+                dynarec_log(LOG_INFO, "Stopping block in no-dynarec zone\n");
             --ninst;
             if(!dyn->insts[ninst].x64.barrier) {
                 BARRIER(BARRIER_FLOAT);

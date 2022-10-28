@@ -196,7 +196,7 @@
 
 // ADR
 #define ADR_gen(immlo, immhi, Rd)   ((immlo)<<29 | 0b10000<<24 | (immhi)<<5 | (Rd))
-#define ADR_S20(Rd, imm)            EMIT(ADR_gen((imm)&3, ((imm)>>2)&0x7ffff, (Rd))
+#define ADR_S20(Rd, imm)            EMIT(ADR_gen((imm)&3, ((imm)>>2)&0x7ffff, (Rd)))
 
 // LDR
 #define LDR_gen(size, op1, imm9, op2, Rn, Rt)    ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b01<<22 | (imm9)<<12 | (op2)<<10 | (Rn)<<5 | (Rt))
