@@ -9,7 +9,6 @@
 #() vFL
 #() vFp
 #() vFS
-#() vFP
 #() cFv
 #() cFi
 #() cFu
@@ -3976,9 +3975,8 @@ wrappedsoftokn3:
 wrappedssl3:
 wrappedtbbmallocproxy:
 - vFp:
-  - _ZdlPv
-- vFP:
   - _ZdaPv
+  - _ZdlPv
 - pFL:
   - _Znam
   - _Znwm

@@ -24,7 +24,7 @@
 //GO(__TBB_internal_find_original_malloc, 
 //GO(__TBB_malloc_proxy, 
 //GO(valloc, 
-GOM(_ZdaPv, vFP)                //%noE
+GOM(_ZdaPv, vFp)                //%noE
 GOM(_ZdaPvRKSt9nothrow_t, vFpp) //%noE
 GOM(_ZdlPv, vFp)                //%noE
 GOM(_ZdlPvRKSt9nothrow_t, vFpp) //%noE

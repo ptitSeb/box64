@@ -43,7 +43,6 @@ typedef void (*vFl_t)(intptr_t);
 typedef void (*vFL_t)(uintptr_t);
 typedef void (*vFp_t)(void*);
 typedef void (*vFS_t)(void*);
-typedef void (*vFP_t)(void*);
 typedef int8_t (*cFv_t)(void);
 typedef int8_t (*cFi_t)(int64_t);
 typedef int8_t (*cFu_t)(uint64_t);
@@ -2239,7 +2238,6 @@ void vFl(x64emu_t *emu, uintptr_t fcn) { vFl_t fn = (vFl_t)fcn; fn((intptr_t)R_R
 void vFL(x64emu_t *emu, uintptr_t fcn) { vFL_t fn = (vFL_t)fcn; fn((uintptr_t)R_RDI); }
 void vFp(x64emu_t *emu, uintptr_t fcn) { vFp_t fn = (vFp_t)fcn; fn((void*)R_RDI); }
 void vFS(x64emu_t *emu, uintptr_t fcn) { vFS_t fn = (vFS_t)fcn; fn(io_convert((void*)R_RDI)); }
-void vFP(x64emu_t *emu, uintptr_t fcn) { vFP_t fn = (vFP_t)fcn; fn(*(void**)(R_RSP + 8)); }
 void cFv(x64emu_t *emu, uintptr_t fcn) { cFv_t fn = (cFv_t)fcn; R_RAX=fn(); }
 void cFi(x64emu_t *emu, uintptr_t fcn) { cFi_t fn = (cFi_t)fcn; R_RAX=fn((int64_t)R_RDI); }
 void cFu(x64emu_t *emu, uintptr_t fcn) { cFu_t fn = (cFu_t)fcn; R_RAX=fn((uint64_t)R_RDI); }

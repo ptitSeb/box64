@@ -12,14 +12,13 @@
 #endif
 
 typedef void (*vFp_t)(void*);
-typedef void (*vFP_t)(void*);
 typedef void* (*pFL_t)(uintptr_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFLp_t)(uintptr_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(_ZdaPv, vFp_t) \
 	GO(_ZdlPv, vFp_t) \
-	GO(_ZdaPv, vFP_t) \
 	GO(_Znam, pFL_t) \
 	GO(_Znwm, pFL_t) \
 	GO(_ZdaPvRKSt9nothrow_t, vFpp_t) \
