@@ -304,6 +304,25 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     }
                     break;
 
+                case 0xF0: /* MOVBE Gd, Ed*/
+                    nextop = F8;
+                    GETGD;
+                    GETED(0);
+                    if(rex.w)
+                        GD->q[0] = __builtin_bswap64(ED->q[0]);
+                    else
+                        GD->q[0] = __builtin_bswap32(ED->dword[0]);
+                    break;
+                case 0xF1: /* MOVBE Ed, Gd*/
+                    nextop = F8;
+                    GETGD;
+                    GETED(0);
+                    if(rex.w)
+                        ED->q[0] = __builtin_bswap64(GD->q[0]);
+                    else
+                        ED->q[0] = __builtin_bswap32(GD->dword[0]);
+                    break;
+
                 default:
                     return 0;
             }
