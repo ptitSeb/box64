@@ -229,7 +229,7 @@ GOM(XCreateIC, pFEpV)     // use vararg
 GOM(XCreateImage, pFEppuiipuuii)
 GO(dummy_XCreateImage, pFppuiipuuii)    // to have the wrapper
 DATAB(_XCreateMutex_fn, sizeof(void*))
-//GO(XCreateOC
+GO(XCreateOC, pFp)
 GO(XCreatePixmap, pFppuuu)
 GO(XCreatePixmapCursor, pFpppppuu)
 GO(XCreatePixmapFromBitmapData, pFpppuuLLu)
@@ -262,7 +262,7 @@ GO(XDeleteProperty, iFppp)
 GOM(_XDeqAsyncHandler, vFEpp)
 GO(XDestroyIC, vFp)
 GOM(XDestroyImage, iFEp)  //need to unbridge
-//GO(XDestroyOC
+GO(XDestroyOC, vFp)
 GO(XDestroyRegion, iFp)
 GO(XDestroySubwindows, iFpp)
 GO(XDestroyWindow, iFpp)
@@ -403,7 +403,7 @@ GO(XGetKeyboardMapping, pFppip)
 GO(XGetModifierMapping, pFp)
 GO(XGetMotionEvents, pFppLLp)
 //GO(XGetNormalHints
-//GO(XGetOCValues
+GO(XGetOCValues, pFpppppppppp) // use varargs
 GO(XGetOMValues, pFp)
 //GOM(XGetPixel, LFEpii)  // need unbridging
 GO(dummy_XGetPixel, LFpii)     // for the wrapper
@@ -805,7 +805,7 @@ GO(XNoOp, iFp)
 // _XNoticeCreateBitmap
 // _XNoticePutBitmap
 GO(XOffsetRegion, iFpii)
-//GO(XOMOfOC
+GO(XOMOfOC, pFp)
 GOM(XOpenDisplay, pFEp)
 GO(XOpenIM, pFpppp)
 // _XOpenLC
@@ -952,7 +952,7 @@ GO(XSetLineAttributes, iFppuiii)
 GO(XSetLocaleModifiers, pFp)
 //GO(XSetModifierMapping
 GO(XSetNormalHints, iFpppp)
-//GO(XSetOCValues
+GO(XSetOCValues, pFpppppppppppppppp) // use vaarg
 GO(XSetOMValues, pFp)
 //GO(XSetPlaneMask
 //GO(XSetPointerMapping
