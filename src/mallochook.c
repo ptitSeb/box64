@@ -506,7 +506,7 @@ static void addRelocJmp(void* offs, void* where, size_t size, const char* name)
 
 void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
 {
-    static int hooked = 0;
+    int hooked = 0;
     for (size_t i=0; i<h->numDynSym && hooked<2; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
