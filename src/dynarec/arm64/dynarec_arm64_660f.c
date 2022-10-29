@@ -323,6 +323,21 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SQRDMULHQ_16(q0, q0, q1);
                     break;
 
+                case 0x10:
+                    INST_NAME("PBLENDVB Gx,Ex");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 0);
+                    v0 = sse_get_reg(dyn, ninst, x1, 0, 0);
+                    v1 = fpu_get_scratch(dyn);
+                    if(q0!=q1) {
+                        VSSHRQ_8(v1, v0, 7);    // bit[7]-> bit[7..0]
+                        VBICQ(q0, q0, v1);
+                        VANDQ(v1, q1, v1);
+                        VORRQ(q0, q0, v1);
+                    }
+                    break;
+
                 case 0x1C:
                     INST_NAME("PABSB Gx,Ex");
                     nextop = F8;
