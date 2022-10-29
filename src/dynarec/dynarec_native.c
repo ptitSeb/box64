@@ -386,8 +386,6 @@ void CancelBlock64()
     customFree(helper->next);
     customFree(helper->insts);
     customFree(helper->table64);
-    customFree(helper->sons_x64);
-    customFree(helper->sons_native);
     if(helper->dynablock && helper->dynablock->block)
         FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->block, helper->dynablock->size);
 }
@@ -519,8 +517,8 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.native_start = (uintptr_t)p;
     helper.tablestart = helper.native_start + helper.native_size;
     if(helper.sons_size) {
-        helper.sons_x64 = (uintptr_t*)customCalloc(helper.sons_size, sizeof(uintptr_t));
-        helper.sons_native = (void**)customCalloc(helper.sons_size, sizeof(void*));
+        helper.sons_x64 = (uintptr_t*)alloca(helper.sons_size*sizeof(uintptr_t));
+        helper.sons_native = (void**)alloca(helper.sons_size*sizeof(void*));
     }
     int pass2_sons_size = helper.sons_size;
     // pass 3, emit (log emit native opcode)
@@ -619,10 +617,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         } else
             customFree(sons);
     }
-    customFree(helper.sons_x64);
-    helper.sons_x64 = NULL;
-    customFree(helper.sons_native);
-    helper.sons_native = NULL;
     current_helper = NULL;
     //block->done = 1;
     return (void*)block;
