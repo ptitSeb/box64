@@ -110,7 +110,7 @@ GO(catopen, pFpi)
 GO(cfgetispeed, uFp)
 GO(cfgetospeed, uFp)
 GO(cfmakeraw, vFp)
-GO2(cfree, vFp, free)
+GO(cfree, vFp)
 GO(cfsetispeed, iFpu)
 GO(cfsetospeed, iFpu)
 GO(cfsetspeed, iFpu)
@@ -1116,7 +1116,7 @@ GO(__madvise, iFpLi)
 GOW(madvise, iFpLi)
 GOWM(makecontext, iFEppiV)
 GOWM(mallinfo, pFEp)
-GOM(malloc, pFL) // need to wrap to clear allocated memory?
+GO(malloc, pFL) // need to wrap to clear allocated memory?
 //GO(malloc_get_state, // Obsolete
 GOW(malloc_info, iFip)
 //GO(malloc_set_state, // Obsolete
@@ -2319,3 +2319,4 @@ DATAM(program_invocation_short_name, sizeof(void*))
 DATAM(__libc_single_threaded, 1)
 
 GO(iconvctl, iFlip)
+GO(dummy__ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp) // for mallochook.c

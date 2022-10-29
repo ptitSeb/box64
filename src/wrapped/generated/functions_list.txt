@@ -9,6 +9,7 @@
 #() vFL
 #() vFp
 #() vFS
+#() vFP
 #() cFv
 #() cFi
 #() cFu
@@ -535,6 +536,7 @@
 #() pFddd
 #() pFDip
 #() pFLup
+#() pFLLp
 #() pFpii
 #() pFpiu
 #() pFpid
@@ -2885,8 +2887,6 @@ wrappedlibc:
   - syscall
 - LFL:
   - getauxval
-- pFL:
-  - malloc
 - pFp:
   - __deregister_frame_info
   - mallinfo
@@ -3974,6 +3974,20 @@ wrappedsmpeg2:
   - SMPEG_new_rwops
 wrappedsoftokn3:
 wrappedssl3:
+wrappedtbbmallocproxy:
+- vFp:
+  - _ZdlPv
+- vFP:
+  - _ZdaPv
+- pFL:
+  - _Znam
+  - _Znwm
+- vFpp:
+  - _ZdaPvRKSt9nothrow_t
+  - _ZdlPvRKSt9nothrow_t
+- pFLp:
+  - _ZnamRKSt9nothrow_t
+  - _ZnwmRKSt9nothrow_t
 wrappedtcmallocminimal:
 - iFpL:
   - munmap

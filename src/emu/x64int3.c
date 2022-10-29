@@ -146,7 +146,10 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_RDX);
                     perr = 1;
                 } else if (!strcmp(s, "write")) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_RDX);
+                    if(R_EDI==2 || R_EDI==3)
+                        snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p\"%s\", %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, (char*)R_RSI, R_RDX);
+                    else
+                        snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_RDX);
                     perr = 1;
                 } else if (strstr(s, "access")==s) {
                     tmp = (char*)(R_RDI);

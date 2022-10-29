@@ -1045,10 +1045,7 @@ static void free_contextargv()
 void pressure_vessel(int argc, const char** argv, int nextarg);
 extern char** environ;
 int main(int argc, const char **argv, char **env) {
-    #ifdef ANDROID
     init_malloc_hook();
-    #endif
-
     init_auxval(argc, argv, environ?environ:env);
     // trying to open and load 1st arg
     if(argc==1) {
@@ -1318,7 +1315,7 @@ int main(int argc, const char **argv, char **env) {
         FreeCollection(&ld_preload);
         return -1;
     }
-    if(!(my_context->fullpath = realpath(my_context->argv[0], NULL)))
+    if(!(my_context->fullpath = box_realpath(my_context->argv[0], NULL)))
         my_context->fullpath = box_strdup(my_context->argv[0]);
     if(getenv("BOX64_ARG0"))
         my_context->argv[0] = box_strdup(getenv("BOX64_ARG0"));
