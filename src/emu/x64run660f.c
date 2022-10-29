@@ -347,6 +347,16 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 }
                 break;
 
+            case 0x10:  /* PBLENDVB Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for (int i=0; i<16; ++i) {
+                    if(emu->xmm[0].ub[i]&0x80)
+                        GX->ub[i] = EX->ub[i];
+                }
+                break;
+
             case 0x14:  /* BLENDVPS Gx, Ex */
                 nextop = F8;
                 GETEX(0);

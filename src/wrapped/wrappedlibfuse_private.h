@@ -107,12 +107,12 @@ GO(fuse_mount, pFpp)
 //GO(fuse_new_compat22, 
 //GO(fuse_new_compat25, 
 //GO(fuse_notify_poll, 
-//GO(fuse_opt_add_arg, 
-//GO(fuse_opt_add_opt, 
-//GO(fuse_opt_add_opt_escaped, 
+GO(fuse_opt_add_arg, iFpp)
+GO(fuse_opt_add_opt, iFpp)
+GO(fuse_opt_add_opt_escaped, iFpp)
 GO(fuse_opt_free_args, vFp)
-//GO(fuse_opt_insert_arg, 
-//GO(fuse_opt_match, 
+GO(fuse_opt_insert_arg, iFpip)
+GO(fuse_opt_match, iFpp)
 GOM(fuse_opt_parse, iFEpppp)
 GO(fuse_parse_cmdline, iFpppp)
 //GO(fuse_pollhandle_destroy, 
