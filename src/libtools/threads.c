@@ -674,6 +674,9 @@ static void* findcleanup_routineFct(void* fct)
 static __thread uintptr_t my_once_callback_fct = 0;
 int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 {
+	if(*once)	// quick test first
+		return 0;
+	// slow test now
 	#ifdef DYNAREC
 	int old = native_lock_xchg_d(once, 1);
 	#else

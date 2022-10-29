@@ -421,13 +421,13 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
                     weak = 1;
         }
         for(int i=0; i<go; ++i) {
-            if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]==self))
+            if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]!=self))
                 if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, &weak, version, vername, 1))
                     if(*start)
                         return 1;
         }
         for(int i=0; i<go; ++i) {
-            if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]==self))
+            if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]!=self))
                 GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, &weak, version, vername, 1);
         }
     if(weak && *start)
