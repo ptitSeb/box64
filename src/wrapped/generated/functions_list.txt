@@ -2321,6 +2321,8 @@ wrappedfreebl3:
 wrappedfreetype:
 - iFpp:
   - FT_New_Library
+- iFppp:
+  - FT_Outline_Decompose
 - iFpplp:
   - FT_Open_Face
 - iFpuuLppp:

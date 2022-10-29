@@ -12,11 +12,13 @@
 #endif
 
 typedef int64_t (*iFpp_t)(void*, void*);
+typedef int64_t (*iFppp_t)(void*, void*, void*);
 typedef int64_t (*iFpplp_t)(void*, void*, intptr_t, void*);
 typedef int64_t (*iFpuuLppp_t)(void*, uint64_t, uint64_t, uintptr_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(FT_New_Library, iFpp_t) \
+	GO(FT_Outline_Decompose, iFppp_t) \
 	GO(FT_Open_Face, iFpplp_t) \
 	GO(FTC_Manager_New, iFpuuLppp_t)
 
