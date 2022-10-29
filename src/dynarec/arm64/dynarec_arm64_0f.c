@@ -400,6 +400,31 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SQRDMULH_16(q0, q0, q1);
                     break;
 
+                case 0xF0:
+                    INST_NAME("MOVBE Gd, Ed");
+                    nextop=F8;
+                    GETGD;
+                    if(MODREG) {
+                        REVxw(gd, xRAX+(nextop&7)+(rex.b<<3));
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
+                        LDRxw_U12(gd, ed, fixedaddress);
+                        REVxw(gd, gd);
+                    }
+                    break;
+                case 0xF1:
+                    INST_NAME("MOVBE Ed, Gd");
+                    nextop=F8;
+                    GETGD;
+                    if(MODREG) {   // reg <= reg
+                        REVxw(xRAX+(nextop&7)+(rex.b<<3), gd);
+                    } else {                    // mem <= reg
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
+                        REVxw(x1, gd);
+                        STRxw_U12(x1, ed, fixedaddress);
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }
