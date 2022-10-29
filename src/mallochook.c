@@ -84,12 +84,33 @@ GO2(tc_delete_nothrow, vFpp);   \
 GO2(tc_free, vFp);              \
 GO2(tc_malloc, pFL);            \
 GO2(tc_malloc_size, LFp);       \
+GO2(tc_new, pFL);               \
+GO2(tc_new_nothrow, pFLp);      \
+GO2(tc_newarray, pFL);          \
+GO2(tc_newarray_nothrow, pFLp); \
+GO2(tc_pvalloc, pFL);           \
+GO2(tc_valloc, pFL);            \
+GO2(tc_memalign, pFLL);         \
+GO2(tc_malloc_skip_new_handler_weak, pFL);      \
+GO2(tc_mallocopt, iFii);        \
+GO2(tc_malloc_stats, vFv);      \
+GO2(tc_malloc_skip_new_handler, pFL);           \
+GO2(tc_mallinfo, pFv);          \
+GO2(tc_posix_memalign, iFpLL);  \
+GO2(tc_realloc, pFpL);          \
 
+//GO2(tc_set_new_mode, iFi);
+//GO2(tc_version, iFi);
+
+typedef void  (vFv_t)   (void);
+typedef int   (iFv_t)   (void);
+typedef int   (iFi_t)   (int);
 typedef void* (*pFL_t)  (size_t);
 typedef void* (*pFLp_t) (size_t, void* p);
 typedef void  (*vFp_t)  (void*);
 typedef void* (*pFp_t)  (void*);
 typedef size_t(*LFp_t)  (void*);
+typedef int   (*iFii_t) (int, int);
 typedef void  (*vFpp_t) (void*, void*);
 typedef void  (*vFpL_t) (void*, size_t);
 typedef void* (*pFLL_t) (size_t, size_t);
@@ -346,6 +367,103 @@ EXPORT size_t my_tc_malloc_size(void* p)
     return box_malloc_usable_size(p);
 }
 
+EXPORT void* my_tc_new(size_t s)
+{
+    return box_calloc(1, s);
+}
+
+EXPORT void* my_tc_new_nothrow(size_t s, void* n)
+{
+        return box_calloc(1, s);
+}
+
+EXPORT void* my_tc_newarray(size_t s)
+{
+        return box_calloc(1, s);
+}
+
+EXPORT void* my_tc_newarray_nothrow(size_t s, void* n)
+{
+        return box_calloc(1, s);
+}
+
+EXPORT void* my_tc_pvalloc(size_t size)
+{
+    return box_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
+}
+
+EXPORT void* my_tc_valloc(size_t size)
+{
+    return box_memalign(box64_pagesize, size);
+}
+
+EXPORT void* my_tc_memalign(size_t align, size_t size)
+{
+    return box_memalign(align, size);
+}
+
+EXPORT void* my_tc_malloc_skip_new_handler_weak(size_t s)
+{
+    return box_calloc(1, s);
+}
+
+EXPORT int my_tc_mallocopt(int param, int value)
+{
+    // ignoring...
+    return 1;
+}
+
+EXPORT void my_tc_malloc_stats()
+{
+    // ignoring
+}
+/*
+EXPORT int my_tc_set_new_mode(int mode)
+{
+    // ignoring
+    static int old = 0;
+    int ret = old;
+    old = mode;
+    return ret;
+}
+*/
+EXPORT void* my_tc_malloc_skip_new_handler(size_t s)
+{
+    return box_calloc(1, s);
+}
+
+EXPORT void* my_tc_mallinfo(void)
+{
+    // ignored, returning null stuffs
+    static size_t faked[10] = {0};
+    return faked;
+}
+
+EXPORT int my_tc_posix_memalign(void** p, size_t align, size_t size)
+{
+    if(align%sizeof(void*) || pot(align)!=align)
+        return EINVAL;
+    void* ret = box_memalign(align, size);
+    if(!ret)
+        return ENOMEM;
+    *p = ret;
+    return 0;
+}
+
+EXPORT void* my_tc_realloc(void* p, size_t s)
+{
+    return box_realloc(p, s);
+}
+/*
+EXPORT int my_tc_version(int i)
+{
+    return 2;
+}
+*/
+
+
+
+
 #pragma pack(push, 1)
 typedef struct reloc_jmp_s {
     uint8_t _ff;
@@ -421,9 +539,6 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
             if(bind!=STB_LOCAL && bind!=STB_WEAK) {
                 #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A);}
                 #define GO2(A, B)
-                SUPER()
-                #undef GO
-                #define GO(A, B) if(!strcmp(symname, "tc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_INFO, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A);}
                 SUPER()
                 #undef GO
                 #undef GO2
