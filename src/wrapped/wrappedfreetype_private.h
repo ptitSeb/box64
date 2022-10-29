@@ -115,7 +115,7 @@ GO(FT_OpenType_Free, vFpp)
 GO(FT_OpenType_Validate, iFpuppppp)
 GO(FT_Outline_Check, iFp)
 GO(FT_Outline_Copy, iFpp)
-GO(FT_Outline_Decompose, iFppp)
+GOM(FT_Outline_Decompose, iFEppp)
 GO(FT_Outline_Done, iFpp)
 //GO(FT_Outline_Done_Internal, 
 GO(FT_Outline_Embolden, iFpl)

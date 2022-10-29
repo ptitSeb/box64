@@ -1255,7 +1255,7 @@ int main(int argc, const char **argv, char **env) {
     // special case for steamwebhelper
     if(strstr(prgname, "steamwebhelper")==prgname) {
         printf_log(LOG_INFO, "steamwebhelper, ignoring for now!\n");
-        exit(0);    // exiting
+        //exit(0);    // exiting
     }
     // special case for streaming_client to use emulated libSDL2
     if(strstr(prgname, "streaming_client")==prgname) {

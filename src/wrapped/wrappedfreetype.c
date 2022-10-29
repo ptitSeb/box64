@@ -251,6 +251,101 @@ static void* find_FT_Realloc_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Realloc callback\n");
     return NULL;
 }
+// FT_Outline_MoveToFunc
+#define GO(A)   \
+static uintptr_t my_FT_Outline_MoveToFunc_fct_##A = 0;                                  \
+static int my_FT_Outline_MoveToFunc_##A(void* to, void* user)                           \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_FT_Outline_MoveToFunc_fct_##A, 2, to, user); \
+}
+SUPER()
+#undef GO
+static void* find_FT_Outline_MoveToFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Outline_MoveToFunc_fct_##A == (uintptr_t)fct) return my_FT_Outline_MoveToFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Outline_MoveToFunc_fct_##A == 0) {my_FT_Outline_MoveToFunc_fct_##A = (uintptr_t)fct; return my_FT_Outline_MoveToFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Outline_MoveToFunc callback\n");
+    return NULL;
+}
+
+// FT_Outline_LineToFunc
+#define GO(A)   \
+static uintptr_t my_FT_Outline_LineToFunc_fct_##A = 0;                                  \
+static int my_FT_Outline_LineToFunc_##A(void* to, void* user)                           \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_FT_Outline_LineToFunc_fct_##A, 2, to, user); \
+}
+SUPER()
+#undef GO
+static void* find_FT_Outline_LineToFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Outline_LineToFunc_fct_##A == (uintptr_t)fct) return my_FT_Outline_LineToFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Outline_LineToFunc_fct_##A == 0) {my_FT_Outline_LineToFunc_fct_##A = (uintptr_t)fct; return my_FT_Outline_LineToFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Outline_LineToFunc callback\n");
+    return NULL;
+}
+
+// FT_Outline_ConicToFunc
+#define GO(A)   \
+static uintptr_t my_FT_Outline_ConicToFunc_fct_##A = 0;                                         \
+static int my_FT_Outline_ConicToFunc_##A(void* ctl, void* to, void* user)                       \
+{                                                                                               \
+    return (int)RunFunction(my_context, my_FT_Outline_ConicToFunc_fct_##A, 3, ctl, to, user);   \
+}
+SUPER()
+#undef GO
+static void* find_FT_Outline_ConicToFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Outline_ConicToFunc_fct_##A == (uintptr_t)fct) return my_FT_Outline_ConicToFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Outline_ConicToFunc_fct_##A == 0) {my_FT_Outline_ConicToFunc_fct_##A = (uintptr_t)fct; return my_FT_Outline_ConicToFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Outline_ConicToFunc callback\n");
+    return NULL;
+}
+
+// FT_Outline_CubicToFunc
+#define GO(A)   \
+static uintptr_t my_FT_Outline_CubicToFunc_fct_##A = 0;                                                 \
+static int my_FT_Outline_CubicToFunc_##A(void* ctl1, void* ctl2, void* to, void* user)                  \
+{                                                                                                       \
+    return (int)RunFunction(my_context, my_FT_Outline_CubicToFunc_fct_##A, 4, ctl1, ctl2, to, user);    \
+}
+SUPER()
+#undef GO
+static void* find_FT_Outline_CubicToFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Outline_CubicToFunc_fct_##A == (uintptr_t)fct) return my_FT_Outline_CubicToFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Outline_CubicToFunc_fct_##A == 0) {my_FT_Outline_CubicToFunc_fct_##A = (uintptr_t)fct; return my_FT_Outline_CubicToFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Outline_CubicToFunc callback\n");
+    return NULL;
+}
 
 // structures
 #define GO(A)   \
@@ -321,6 +416,30 @@ EXPORT int my_FTC_Manager_New(x64emu_t* emu, void* l, uint32_t max_faces, uint32
 EXPORT int my_FT_New_Library(x64emu_t* emu, FT_MemoryRec_t* memory, void* p)
 {
     return my->FT_New_Library(find_FT_MemoryRec_Struct(memory), p);
+}
+
+typedef struct  my_FT_Outline_Funcs_s
+{
+    void*       move_to;
+    void*       line_to;
+    void*       conic_to;
+    void*       cubic_to;
+    int         shift;
+    signed long delta;
+} my_FT_Outline_Funcs_t;
+
+EXPORT int my_FT_Outline_Decompose(x64emu_t* emu, void* outline, my_FT_Outline_Funcs_t* tbl, void* data)
+{
+    my_FT_Outline_Funcs_t f = {0};
+    if(tbl) {
+        f.move_to = find_FT_Outline_MoveToFunc_Fct(tbl->move_to);
+        f.line_to = find_FT_Outline_LineToFunc_Fct(tbl->line_to);
+        f.conic_to = find_FT_Outline_ConicToFunc_Fct(tbl->conic_to);
+        f.cubic_to = find_FT_Outline_CubicToFunc_Fct(tbl->cubic_to);
+        f.shift = tbl->shift;
+        f.delta = tbl->delta;
+    }
+    return my->FT_Outline_Decompose(outline, tbl?(&f):tbl, data);
 }
 
 #define CUSTOM_INIT \
