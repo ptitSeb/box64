@@ -390,7 +390,6 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     //search for the self, to start "next"
     int go = -1;
     int weak = 0;
-    const char* defver = GetDefaultVersion(my_context->globaldefver, name);
     for(int i=0; i<maplib->libsz && (go==-1); ++i) {
         if(GetElfIndex(maplib->libraries[i])!=-1 && (GetElf(maplib->libraries[i])==self))
             go = i+1;
@@ -409,27 +408,31 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     // loop done, weak symbol found
     if(weak && *start)
         return 1;
-    #if 0
     // if self defined, give it another chance with self...
-    defver = GetDefaultVersion(my_context->weakdefver, name);
     if(self) {
-        if(my_context->elfs[0]==self) {
+        if(my_context->elfs[0]!=self) {
+            const char* defver = GetDefaultVersion(my_context->globaldefver, name);
             if(GetSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, start, end, version, vername, 1, defver))
                 if(*start)
                     return 1;
+            defver = GetDefaultVersion(my_context->weakdefver, name);
             if(GetSymbolStartEnd(GetWeakSymbols(my_context->elfs[0]), name, start, end, version, vername, 1, defver))
                 if(*start)
-                    return 1;
+                    weak = 1;
         }
-        // should check weak here?
         for(int i=0; i<go; ++i) {
             if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]==self))
-                if(GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, &weak, version, vername, 1))
+                if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, &weak, version, vername, 1))
                     if(*start)
                         return 1;
         }
+        for(int i=0; i<go; ++i) {
+            if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]==self))
+                GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, &weak, version, vername, 1);
+        }
+    if(weak && *start)
+        return 1;
     }
-    #endif
     // nope, not found
     return 0;
 }
