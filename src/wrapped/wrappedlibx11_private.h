@@ -74,7 +74,7 @@ GO(XClipBox, iFpp)
 GO(XCloseDisplay, iFp)
 GO(XCloseIM, iFp)
 // _XCloseLC
-//GO(XCloseOM
+GO(XCloseOM, iFp)
 // _XcmsAddCmapRec
 //GO(XcmsAddColorSpace
 //GO(XcmsAddFunctionSet
@@ -275,7 +275,7 @@ GO(XDisplayKeycodes, iFppp)
 //GO(XDisplayMotionBufferSize
 GO(XDisplayName, pFp)
 GO(XDisplayOfIM, pFp)
-//GO(XDisplayOfOM
+GO(XDisplayOfOM, pFp)
 //GO(XDisplayOfScreen
 //GO(XDisplayPlanes
 GO(XDisplayString, pFp)
@@ -404,7 +404,7 @@ GO(XGetModifierMapping, pFp)
 GO(XGetMotionEvents, pFppLLp)
 //GO(XGetNormalHints
 //GO(XGetOCValues
-//GO(XGetOMValues
+GO(XGetOMValues, pFp)
 //GOM(XGetPixel, LFEpii)  // need unbridging
 GO(dummy_XGetPixel, LFpii)     // for the wrapper
 GO(XGetPointerControl, iFpppp)
@@ -762,7 +762,7 @@ GO(XLoadQueryFont, pFpp)
 // xlocaledir
 //GO(XLocaleOfFontSet
 GO(XLocaleOfIM, pFp)
-//GO(XLocaleOfOM
+GO(XLocaleOfOM, pFp)
 GO(XLockDisplay, vFp)
 DATAB(_XLockMutex_fn, sizeof(void*))
 GO(XLookupColor, iFppppp)
@@ -809,7 +809,7 @@ GO(XOffsetRegion, iFpii)
 GOM(XOpenDisplay, pFEp)
 GO(XOpenIM, pFpppp)
 // _XOpenLC
-//GO(XOpenOM
+GO(XOpenOM, pFpppp)
 // _XParseBaseFontNameList
 GO(XParseColor, iFpppp)
 GO(XParseGeometry, iFppppp)
@@ -953,7 +953,7 @@ GO(XSetLocaleModifiers, pFp)
 //GO(XSetModifierMapping
 GO(XSetNormalHints, iFpppp)
 //GO(XSetOCValues
-//GO(XSetOMValues
+GO(XSetOMValues, pFp)
 //GO(XSetPlaneMask
 //GO(XSetPointerMapping
 GO(XSetRegion, iFppp)
