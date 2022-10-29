@@ -183,6 +183,7 @@ int FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t si
         return 1;
 
     if(dynablocks->direct) {
+        int need_lock = my_context?1:0;
         dynablock_t* db;
         int ret;
         khint_t k;
@@ -210,7 +211,7 @@ int FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t si
             }
         // purge the list
         kh_foreach_value(blocks, db,
-            FreeDynablock(db, 1);
+            FreeDynablock(db, need_lock);
         );
         kh_destroy(dynablocks, blocks);
         // check emptyness
