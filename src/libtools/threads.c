@@ -674,7 +674,6 @@ static void* findcleanup_routineFct(void* fct)
 static __thread uintptr_t my_once_callback_fct = 0;
 int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 {
-	(void)emu;
 	#ifdef DYNAREC
 	int old = native_lock_xchg_d(once, 1);
 	#else
@@ -686,7 +685,7 @@ int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 	#endif
 	if(old)
 		return 0;
-	EmuCall(thread_get_emu(), (uintptr_t)cb);  // avoid DynaCall for now
+	EmuCall(emu, (uintptr_t)cb);  // avoid DynaCall for now, functions are only used once after all
 	return 0;
 }
 EXPORT int my___pthread_once(x64emu_t* emu, void* once, void* cb) __attribute__((alias("my_pthread_once")));
