@@ -99,9 +99,6 @@ typedef struct dynarec_arm_s {
     uintptr_t*          next;       // variable array of "next" jump address
     int                 next_sz;
     int                 next_cap;
-    uintptr_t*          sons_x64;   // the x64 address of potential dynablock sons
-    void**              sons_native;   // the arm address of potential dynablock sons
-    int                 sons_size;  // number of potential dynablock sons
     int*                predecessor;// single array of all predecessor
     dynablock_t*        dynablock;
 } dynarec_arm_t;

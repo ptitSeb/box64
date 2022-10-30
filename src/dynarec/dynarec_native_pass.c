@@ -37,7 +37,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
     rex_t rex;
     int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int need_epilog = 1;
-    dyn->sons_size = 0;
     // Clean up (because there are multiple passes)
     dyn->f.pending = 0;
     dyn->f.dfnone = 0;
@@ -248,6 +247,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
         jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknow instruction
     }
     FINI;
-    MESSAGE(LOG_DUMP, "---- END OF BLOCK ---- (%d, %d sons)\n", dyn->size, dyn->sons_size);
+    MESSAGE(LOG_DUMP, "---- END OF BLOCK ---- (%d)\n", dyn->size);
     return addr;
 }

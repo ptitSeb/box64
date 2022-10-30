@@ -516,11 +516,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.block = p;
     helper.native_start = (uintptr_t)p;
     helper.tablestart = helper.native_start + helper.native_size;
-    if(helper.sons_size) {
-        helper.sons_x64 = (uintptr_t*)alloca(helper.sons_size*sizeof(uintptr_t));
-        helper.sons_native = (void**)alloca(helper.sons_size*sizeof(void*));
-    }
-    int pass2_sons_size = helper.sons_size;
     // pass 3, emit (log emit native opcode)
     if(box64_dynarec_dump) {
         dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u x64 bytes", (box64_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize); 
@@ -586,36 +581,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         CancelBlock64();
         return NULL;
         //protectDB(addr, end-addr);
-    }
-    // fill sons if any
-    dynablock_t** sons = NULL;
-    int sons_size = 0;
-    if(pass2_sons_size != helper.sons_size)
-        dynarec_log(LOG_NONE, "Warning, sons size difference bitween pass2:%d and pass3:%d\n", pass2_sons_size, helper.sons_size);
-    if(helper.sons_size) {
-        sons = (dynablock_t**)customCalloc(helper.sons_size, sizeof(dynablock_t*));
-        for (int i=0; i<helper.sons_size; ++i) {
-            int created = 1;
-            dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x64[i], &created);
-            if(created) {    // avoid breaking a working block!
-                son->block = helper.sons_native[i];
-                son->x64_addr = (void*)helper.sons_x64[i];
-                son->x64_size = end-helper.sons_x64[i];
-                if(!son->x64_size) {printf_log(LOG_NONE, "Warning, son with null x64 size! (@%p / Native=%p)", son->x64_addr, son->block);}
-                son->father = block;
-                son->size = sz + son->block - block->block; // update size count, for debugging
-                //son->done = 1;
-                if(!son->parent)
-                    son->parent = block->parent;
-                sons[sons_size] = son;
-                ++sons_size;
-            }
-        }
-        if(sons_size) {
-            block->sons = sons;
-            block->sons_size = sons_size;
-        } else
-            customFree(sons);
     }
     current_helper = NULL;
     //block->done = 1;

@@ -133,7 +133,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
                 block = DBGetBlock(emu, R_RIP, 1, &current);
                 current = block;
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x64 instructions (father=%p) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,block->father, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x64 instructions emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,emu);
                 CHECK_FLAGS(emu);
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
@@ -213,7 +213,7 @@ int DynaRun(x64emu_t* emu)
                 block = DBGetBlock(emu, R_RIP, 1, &current);
                 current = block;
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (father=%p) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->father, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, emu);
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
                 block = NULL;

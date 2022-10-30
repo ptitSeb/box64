@@ -20,9 +20,6 @@ typedef struct dynablock_s {
     uint8_t         gone;
     uint8_t         dummy;
     int             isize;
-    dynablock_t**   sons;   // sons (kind-of dummy dynablock...)
-    int             sons_size;
-    dynablock_t*    father; // set only in the case of a son
     instsize_t*     instsize;
 } dynablock_t;
 
