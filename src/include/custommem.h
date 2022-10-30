@@ -18,7 +18,6 @@ void customFree(void* p);
 
 #ifdef DYNAREC
 typedef struct dynablock_s dynablock_t;
-typedef struct dynablocklist_s dynablocklist_t;
 // custom protection flag to mark Page that are Write protected for Dynarec purpose
 uintptr_t AllocDynarecMap(dynablock_t* db, size_t size);
 void FreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size);
@@ -26,12 +25,15 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size);
 void addDBFromAddressRange(uintptr_t addr, size_t size);
 void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy);
 
-dynablocklist_t* getDB(uintptr_t idx);
-void addJumpTableIfDefault64(void* addr, void* jmp);
+dynablock_t* getDB(uintptr_t idx);
+int addJumpTableIfDefault64(void* addr, void* jmp); // return 1 if write was succesfull
+int setJumpTableIfRef64(void* addr, void* jmp, void* ref); // return 1 if write was succesfull
 void setJumpTableDefault64(void* addr);
+void setJumpTableDefaultRef64(void* addr, void* jmp);
 int isJumpTableDefault64(void* addr);
 uintptr_t getJumpTable64();
 uintptr_t getJumpTableAddress64(uintptr_t addr);
+uintptr_t getJumpAddress64(uintptr_t addr);
 #endif
 
 #define PROT_DYNAREC    0x80

@@ -20,22 +20,7 @@
 #include "dynablock.h"
 #include "dynablock_private.h"
 #include "bridge.h"
-#endif
-
-#ifdef DYNAREC
-#ifdef ARM64
-void arm64_prolog(x64emu_t* emu, void* addr) EXPORTDYN;
-void arm64_epilog() EXPORTDYN;
-#define native_prolog       arm64_prolog
-#define native_epilog       arm64_epilog
-#elif defined(LA464)
-void la464_prolog(x64emu_t* emu, void* addr) EXPORTDYN;
-void la464_epilog() EXPORTDYN;
-#define native_prolog       la464_prolog
-#define native_epilog       la464_epilog
-#else
-#error Unsupported architecture
-#endif
+#include "dynarec_next.h"
 #endif
 
 #ifdef DYNAREC
@@ -49,9 +34,8 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x64addr=%p/%s)\n", x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
     }
     #endif
-    dynablock_t* current = NULL;
     void * jblock;
-    dynablock_t* block = DBGetBlock(emu, addr, 1, &current);
+    dynablock_t* block = DBGetBlock(emu, addr, 1);
     if(!block) {
         // no block, let link table as is...
         if(hasAlternate((void*)addr)) {
@@ -60,7 +44,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
             R_RIP = addr;   // but also new RIP!
             *x3 = addr; // and the RIP in x27 register
             printf_log(LOG_DEBUG, " -> %p\n", (void*)addr);
-            block = DBGetBlock(emu, addr, 1, &current);
+            block = DBGetBlock(emu, addr, 1);
         }
         if(!block) {
             #ifdef HAVE_TRACE
@@ -121,23 +105,18 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
         PushExit(emu);
         R_RIP = addr;
         emu->df = d_none;
-        dynablock_t* current = NULL;
-        dynablock_t* block = DBGetBlock(emu, R_RIP, 1, &current);
-        current = block;
         while(!emu->quit) {
+            dynablock_t* block = DBGetBlock(emu, R_RIP, 1);
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Calling Interpretor @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 Run(emu, 1);
-                block = DBGetBlock(emu, R_RIP, 1, &current);
-                current = block;
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x64 instructions emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,emu);
                 CHECK_FLAGS(emu);
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
-                block = NULL;
             }
             if(emu->fork) {
                 int forktype = emu->fork;
@@ -201,22 +180,17 @@ int DynaRun(x64emu_t* emu)
         return Run(emu, 0);
 #ifdef DYNAREC
     else {
-        dynablock_t* current = NULL;
-        dynablock_t* block = DBGetBlock(emu, R_RIP, 1, &current);;
-        current = block;
         while(!emu->quit) {
+            dynablock_t* block = DBGetBlock(emu, R_RIP, 1);
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Running Interpretor @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 Run(emu, 1);
-                block = DBGetBlock(emu, R_RIP, 1, &current);
-                current = block;
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, emu);
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
-                block = NULL;
             }
             if(emu->fork) {
                 int forktype = emu->fork;

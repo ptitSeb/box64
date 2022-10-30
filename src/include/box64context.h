@@ -26,7 +26,6 @@ typedef struct atfork_fnc_s {
 } atfork_fnc_t;
 #ifdef DYNAREC
 typedef struct dynablock_s      dynablock_t;
-typedef struct dynablocklist_s  dynablocklist_t;
 typedef struct mmaplist_s       mmaplist_t;
 typedef struct kh_dynablocks_s  kh_dynablocks_t;
 #endif
@@ -125,6 +124,7 @@ typedef struct box64context_s {
     pthread_mutex_t     mutex_lock;     // dynarec build will use their own mecanism
     #else
     pthread_mutex_t     mutex_dyndump;
+    uintptr_t           max_db_size;    // the biggest (in x86_64 instructions bytes) built dynablock
     int                 trace_dynarec;
     #endif
     pthread_mutex_t     mutex_tls;

@@ -26,12 +26,12 @@
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/native_lock.h"
+#include "dynarec/dynarec_next.h"
 
 //#define USE_MMAP
 
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT64(dynablocks, dynablock_t*)
-static dynablocklist_t***  dynmap123[1<<DYNAMAP_SHIFT] = {0}; // 64bits.. in 4x16bits array
 static mmaplist_t          *mmaplist = NULL;
 static size_t              mmapsize = 0;
 static size_t              mmapcap = 0;
@@ -610,18 +610,29 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
     ActuallyFreeDynarecMap(db, addr, size);
 }
 
-dynablocklist_t* getDB(uintptr_t idx)
+dynablock_t* getDB(uintptr_t addr)
 {
-    // already 16bits shifted
-    uintptr_t idx3 = (idx>>32)&((1<<DYNAMAP_SHIFT)-1);
-    uintptr_t idx2 = (idx>>16)&((1<<DYNAMAP_SHIFT)-1);
-    uintptr_t idx1 = (idx    )&((1<<DYNAMAP_SHIFT)-1);
-
-    if(!dynmap123[idx3])
+    if(isJumpTableDefault64((void*)addr))
         return NULL;
-    if(!dynmap123[idx3][idx2])
-        return NULL;
-    return dynmap123[idx3][idx2][idx1];
+    uintptr_t ret = getJumpAddress64(addr);
+    return *(dynablock_t**)(ret-sizeof(void*));
+}
+uintptr_t getDefaultSize(uintptr_t addr)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
+        return (addr&~((1LL<<48)-1)|0xffffffffffffLL)-addr + 1;
+    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
+        return (addr&~((1LL<<32)-1)|0xffffffffLL)-addr + 1;
+    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
+        return (addr&~((1LL<<16)-1)|0xffffLL)-addr + 1;
+    idx0 = addr&0xffff;
+    while(idx0<0x10000 && box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)native_next)
+        ++idx0;
+    return idx0 - (addr&0xffff);
 }
 
 // each dynmap is 64k of size
@@ -629,87 +640,29 @@ dynablocklist_t* getDB(uintptr_t idx)
 void addDBFromAddressRange(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
-    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        int idx3 = (i>>32)&((1<<DYNAMAP_SHIFT)-1);
-        int idx2 = (i>>16)&((1<<DYNAMAP_SHIFT)-1);
-        int idx1 = (i    )&((1<<DYNAMAP_SHIFT)-1);
-        if(!dynmap123[idx3]) {
-            dynablocklist_t*** p = (dynablocklist_t***)box_calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t**));
-            if(native_lock_storeifnull(&dynmap123[idx3], p)!=p)
-                box_free(p);
-        }
-        if(!dynmap123[idx3][idx2]) {
-            dynablocklist_t** p = (dynablocklist_t**)box_calloc(1<<DYNAMAP_SHIFT, sizeof(dynablocklist_t*));
-            if(native_lock_storeifnull(&dynmap123[idx3][idx2], p)!=p)
-                box_free(p);
-        }
-        if(!dynmap123[idx3][idx2][idx1]) {
-            dynablocklist_t* p = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
-            if(native_lock_storeifnull(&dynmap123[idx3][idx2][idx1], p)!=p)
-                FreeDynablockList(&p);
-        }
-    }
-}
-
-static int dynmapempty(void** mem)
-{
-    for (int i=0; i<(1<<DYNAMAP_SHIFT); ++i)
-        if(mem[i])
-            return 0;
-    return 1;
+    // do nothing, dynablock are allowed based on memory protection flags
 }
 
 void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
 {
-    dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
-    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
-    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        int idx3 = (i>>32)&((1<<DYNAMAP_SHIFT)-1);
-        int idx2 = (i>>16)&((1<<DYNAMAP_SHIFT)-1);
-        int idx1 = (i    )&((1<<DYNAMAP_SHIFT)-1);
-        if(dynmap123[idx3] && dynmap123[idx3][idx2]) {
-            dynablocklist_t* dblist = dynmap123[idx3][idx2][idx1];
-            if(dblist) {
-                if(destroy) {
-                    if(FreeRangeDynablock(dblist, addr, size) && 0) {    // dblist is empty, check if we can delete more...
-                        // disabling this for now. It seems to cause random crash in Terraria
-                        if(!native_lock_storeifref(&dynmap123[idx3][idx2][idx1], NULL, dblist)) {
-                            dynablocklist_t** p = dynmap123[idx3][idx2];
-                            if(dynmapempty((void**)p)) {
-                                if(!native_lock_storeifref(&dynmap123[idx3][idx2], NULL, p)) {
-                                    dynablocklist_t*** p2 = dynmap123[idx3];
-                                    if(dynmapempty((void**)p2)) {
-                                        if(!native_lock_storeifref(&dynmap123[idx3], NULL, p2)) {
-                                            box_free(p2);
-                                        }
-                                    }
-                                    box_free(p);
-                                }
-                            }
-                            FreeDynablockList(&dblist);
-                        }
-                    }
-                } else
-                    MarkRangeDynablock(dblist, addr, size);
-            }
+    uintptr_t start_addr = my_context?((addr<my_context->max_db_size)?0:(addr-my_context->max_db_size)):addr;
+    dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p/%p -> %p %s\n", (void*)addr, (void*)start_addr, (void*)(addr+size-1), destroy?"destroy":"mark");
+    for (uintptr_t i=start_addr; i<addr+size; ++i) {
+        dynablock_t* db = getDB(i);
+        if(db) {
+            if(destroy)
+                FreeRangeDynablock(db, addr, size);
+            else
+                MarkRangeDynablock(db, addr, size);
+        } else {
+            uintptr_t next = getDefaultSize(i);
+            if(next)
+                i+=next-1;
         }
     }
 }
 
-#ifdef ARM64
-void arm64_next(void);
-#define native_next arm64_next
-#elif defined(LA464)
-void la464_next(void);
-#define native_next la464_next
-#else
-#error Unsupported architecture
-#endif
-
-void addJumpTableIfDefault64(void* addr, void* jmp)
+int addJumpTableIfDefault64(void* addr, void* jmp)
 {
     uintptr_t idx3, idx2, idx1, idx0;
     idx3 = (((uintptr_t)addr)>>48)&0xffff;
@@ -738,7 +691,7 @@ void addJumpTableIfDefault64(void* addr, void* jmp)
             box_free(tbl);
     }
 
-    native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], jmp, native_next);
+    return (native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], jmp, native_next)==jmp)?1:0;
 }
 void setJumpTableDefault64(void* addr)
 {
@@ -754,6 +707,51 @@ void setJumpTableDefault64(void* addr)
         return;
     idx0 = (((uintptr_t)addr)    )&0xffff;
     box64_jmptbl3[idx3][idx2][idx1][idx0] = (uintptr_t)native_next;
+}
+void setJumpTableDefaultRef64(void* addr, void* jmp)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
+        return;
+    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
+        return;
+    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
+        return;
+    idx0 = (((uintptr_t)addr)    )&0xffff;
+    native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], native_next, jmp);
+}
+int setJumpTableIfRef64(void* addr, void* jmp, void* ref)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+    idx0 = (((uintptr_t)addr)    )&0xffff;
+    if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
+        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = box64_jmptbldefault1;
+        if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
+            box_free(tbl);
+    }
+    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
+        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = box64_jmptbldefault0;
+        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
+            box_free(tbl);
+    }
+    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
+        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = (uintptr_t)native_next;
+        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
+            box_free(tbl);
+    }
+    return (native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], jmp, ref)==jmp)?1:0;
 }
 int isJumpTableDefault64(void* addr)
 {
@@ -805,6 +803,38 @@ uintptr_t getJumpTableAddress64(uintptr_t addr)
     }
 
     return (uintptr_t)&box64_jmptbl3[idx3][idx2][idx1][idx0];
+}
+
+uintptr_t getJumpAddress64(uintptr_t addr)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = ((addr)>>48)&0xffff;
+    idx2 = ((addr)>>32)&0xffff;
+    idx1 = ((addr)>>16)&0xffff;
+    idx0 = ((addr)    )&0xffff;
+    if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
+        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = box64_jmptbldefault1;
+        if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
+            box_free(tbl);
+    }
+    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
+        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = box64_jmptbldefault0;
+        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
+            box_free(tbl);
+    }
+    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
+        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+            tbl[i] = (uintptr_t)native_next;
+        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
+            box_free(tbl);
+    }
+
+    return (uintptr_t)box64_jmptbl3[idx3][idx2][idx1][idx0];
 }
 
 // Remove the Write flag from an adress range, so DB can be executed safely
@@ -1328,18 +1358,6 @@ void fini_custommem_helper(box64context_t *ctx)
         }
         mmapsize = 0;
         mmapcap = 0;
-        dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
-        for (uintptr_t idx3=0; idx3<=0xffff; ++idx3)
-            if(dynmap123[idx3]) {
-                for (uintptr_t idx2=0; idx2<=0xffff; ++idx2)
-                    if(dynmap123[idx3][idx2]) {
-                        for (uintptr_t idx1=0; idx1<=0xffff; ++idx1)
-                            if(dynmap123[idx3][idx2][idx1])
-                                FreeDynablockList(&dynmap123[idx3][idx2][idx1]);
-                        box_free(dynmap123[idx3][idx2]);
-                    }
-                box_free(dynmap123[idx3]);
-            }
 
         box_free(mmaplist);
         for (int i3=0; i3<(1<<DYNAMAP_SHIFT); ++i3)
