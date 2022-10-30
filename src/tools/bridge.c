@@ -135,7 +135,11 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
     pthread_mutex_unlock(&my_context->mutex_bridge);
-    // no need to reprotect the block, it will be protected later if needed
+    #ifdef DYNAREC
+    // only reprotect the block when stuffs are running
+    if(!my_context->deferedInit)
+        protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
+    #endif
     #ifdef HAVE_TRACE
     if(name)
         addBridgeName(fnc, name);
