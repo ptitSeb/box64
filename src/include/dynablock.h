@@ -20,7 +20,5 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr)
 
 // for use in signal handler
 void cancelFillBlock();
-int IsInHotPage(uintptr_t addr);
-void AddHotPage(uintptr_t addr);
 
 #endif //__DYNABLOCK_H_

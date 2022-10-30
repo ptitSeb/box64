@@ -280,7 +280,7 @@ int Table64(dynarec_native_t *dyn, uint64_t val)
     // not found, add it
     if(idx==-1) {
         if(dyn->table64size == dyn->table64cap) {
-            dyn->table64cap+=4;
+            dyn->table64cap+=16;
             dyn->table64 = (uint64_t*)customRealloc(dyn->table64, dyn->table64cap * sizeof(uint64_t));
         }
         idx = dyn->table64size++;

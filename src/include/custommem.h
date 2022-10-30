@@ -49,6 +49,9 @@ void loadProtectionFromMap();
 void protectDB(uintptr_t addr, size_t size);
 void unprotectDB(uintptr_t addr, size_t size, int mark);    // if mark==0, the blocks are not marked as potentially dirty
 int isprotectedDB(uintptr_t addr, size_t size);
+int IsInHotPage(uintptr_t addr);
+int AreaInHotPage(uintptr_t start, uintptr_t end);
+void AddHotPage(uintptr_t addr);
 #endif
 void* find32bitBlock(size_t size);
 void* findBlockNearHint(void* hint, size_t size);
