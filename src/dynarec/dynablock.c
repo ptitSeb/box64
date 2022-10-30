@@ -52,7 +52,6 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         db->done = 0;
         db->gone = 1;
         FreeDynarecMap(db, (uintptr_t)db->actual_block, db->size);
-        customFree(db->instsize);
         customFree(db);
         if(need_lock)
             pthread_mutex_unlock(&my_context->mutex_dyndump);
@@ -165,12 +164,20 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     if(block || !create)
         return block;
 
+    if(need_lock)
+        pthread_mutex_lock(&my_context->mutex_dyndump);
+    
+    block = getDB(addr);    // just in case
+    if(block) {
+        if(need_lock)
+            pthread_mutex_unlock(&my_context->mutex_dyndump);
+        return block;
+    }
+    
     block = AddNewDynablock(addr);
 
     // fill the block
     block->x64_addr = (void*)addr;
-    if(need_lock)
-        pthread_mutex_lock(&my_context->mutex_dyndump);
     if(sigsetjmp(&dynarec_jmpbuf, 1)) {
         printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, cancelling\n", (void*)addr);
         if(need_lock)
@@ -178,8 +185,6 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         return NULL;
     }
     void* ret = FillBlock64(block, filladdr);
-    if(need_lock)
-        pthread_mutex_unlock(&my_context->mutex_dyndump);
     if(!ret) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
         customFree(block);
@@ -199,6 +204,8 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
                 block->done = 1;    // don't validate the block if the size is null, but keep the block
         }
     }
+    if(need_lock)
+        pthread_mutex_unlock(&my_context->mutex_dyndump);
 
     dynarec_log(LOG_DEBUG, "%04d| --- DynaRec Block created @%p:%p (%p, 0x%x bytes)\n", GetTID(), (void*)addr, (void*)(addr+((block)?block->x64_size:1)-1), (block)?block->block:0, (block)?block->size:0);
 

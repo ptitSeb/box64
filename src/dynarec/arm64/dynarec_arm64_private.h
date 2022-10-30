@@ -5,6 +5,7 @@
 
 typedef struct x64emu_s x64emu_t;
 typedef struct dynablock_s dynablock_t;
+typedef struct instsize_s instsize_t;
 
 #define BARRIER_MAYBE   8
 
@@ -101,6 +102,7 @@ typedef struct dynarec_arm_s {
     int                 next_cap;
     int*                predecessor;// single array of all predecessor
     dynablock_t*        dynablock;
+    instsize_t*         instsize;
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

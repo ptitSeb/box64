@@ -83,7 +83,7 @@ typedef struct blocklist_s {
     void*               first;
 } blocklist_t;
 
-#define MMAPSIZE (1024*1024)      // allocate 1Mb sized blocks
+#define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
 
 static pthread_mutex_t     mutex_blocks;
 static int                 n_blocks = 0;       // number of blocks for custom malloc
@@ -279,11 +279,18 @@ static size_t sizeBlock(void* sub)
     return s->next.size;
 }
 
+#define THRESHOLD   (128-2*sizeof(blockmark_t))
+
 static size_t roundSize(size_t size)
 {
     if(!size)
         return size;
-    return (size+7)&~7LL;   // 8 bytes align in size
+    size = (size+7)&~7LL;   // 8 bytes align in size
+
+    if(size<THRESHOLD)
+        size = THRESHOLD;
+
+    return size;
 }
 
 void* customMalloc(size_t size)
@@ -298,6 +305,8 @@ void* customMalloc(size_t size)
             size_t rsize = 0;
             sub = getFirstBlock(p_blocks[i].block, size, &rsize, p_blocks[i].first);
             if(sub) {
+                if(rsize-size<THRESHOLD)
+                    size = rsize;
                 void* ret = allocBlock(p_blocks[i].block, sub, size, NULL);
                 if(sub==p_blocks[i].first)
                     p_blocks[i].first = getNextFreeBlock(sub);

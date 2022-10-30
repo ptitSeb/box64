@@ -2,8 +2,8 @@
 #define __DYNABLOCK_PRIVATE_H_
 
 typedef struct instsize_s {
-    unsigned int x64:4;
-    unsigned int nat:4;
+    unsigned char x64:4;
+    unsigned char nat:4;
 } instsize_t;
 
 typedef struct dynablock_s {

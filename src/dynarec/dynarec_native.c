@@ -386,6 +386,7 @@ void CancelBlock64()
         return;
     customFree(helper->next);
     customFree(helper->insts);
+    customFree(helper->instsize);
     customFree(helper->table64);
     if(helper->dynablock && helper->dynablock->actual_block)
         FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->actual_block, helper->dynablock->size);
@@ -494,12 +495,27 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     
     // pass 2, instruction size
     native_pass2(&helper, addr);
+    // keep size of instructions for signal handling
+    size_t insts_rsize = 0;
+    {
+        size_t insts_size = 0;
+        size_t cap = 1;
+        for(int i=0; i<helper.size; ++i)
+            cap += 1 + ((helper.insts[i].x64.size>helper.insts[i].size)?helper.insts[i].x64.size:helper.insts[i].size)/15;
+        helper.instsize = (instsize_t*)customCalloc(cap, sizeof(instsize_t));
+        for(int i=0; i<helper.size; ++i)
+            helper.instsize = addInst(helper.instsize, &insts_size, &cap, helper.insts[i].x64.size, helper.insts[i].size/4);
+        helper.instsize = addInst(helper.instsize, &insts_size, &cap, 0, 0);    // add a "end of block" mark, just in case
+        insts_rsize = insts_size*sizeof(instsize_t);
+    }
+    insts_rsize = (insts_rsize+7)&~7;   // round the size...
     // ok, now allocate mapped memory, with executable flag on
-    size_t sz = sizeof(void*) + helper.native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*);
-    //           dynablock_t*     block (arm insts)            table64                       jmpnext code
+    size_t sz = sizeof(void*) + helper.native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize;
+    //           dynablock_t*     block (arm insts)            table64                       jmpnext code       instsize
     void* actual_p = (void*)AllocDynarecMap(block, sz);
     void* p = actual_p + sizeof(void*);
     void* next = p + helper.native_size + helper.table64size*sizeof(uint64_t);
+    void* instsize = next + 4*sizeof(void*);
     if(actual_p==NULL) {
         dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
         CancelBlock64();
@@ -539,21 +555,15 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         memcpy((void*)helper.tablestart, helper.table64, helper.table64size*8);
     }
     // keep size of instructions for signal handling
-    {
-        size_t cap = 1;
-        for(int i=0; i<helper.size; ++i)
-            cap += 1 + ((helper.insts[i].x64.size>helper.insts[i].size)?helper.insts[i].x64.size:helper.insts[i].size)/15;
-        size_t size = 0;
-        block->instsize = (instsize_t*)customCalloc(cap, sizeof(instsize_t));
-        for(int i=0; i<helper.size; ++i)
-            block->instsize = addInst(block->instsize, &size, &cap, helper.insts[i].x64.size, helper.insts[i].size/4);
-        block->instsize = addInst(block->instsize, &size, &cap, 0, 0);    // add a "end of block" mark, just in case
-    }
+    memcpy(instsize, helper.instsize, insts_rsize);
+    block->instsize = instsize;
     // ok, free the helper now
     customFree(helper.insts);
     helper.insts = NULL;
     customFree(helper.table64);
     helper.table64 = NULL;
+    customFree(helper.instsize);
+    helper.instsize = NULL;
     block->size = sz;
     block->isize = helper.size;
     block->actual_block = actual_p;
