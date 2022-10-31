@@ -1,10 +1,6 @@
 #ifndef __ELFLOADER_PRIVATE_H_
 #define __ELFLOADER_PRIVATE_H_
 
-#ifdef DYNAREC
-typedef struct dynablocklist_s dynablocklist_t;
-#endif
-
 typedef struct library_s library_t;
 typedef struct needed_libs_s needed_libs_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;

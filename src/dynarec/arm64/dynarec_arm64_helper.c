@@ -403,30 +403,30 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         }
         uintptr_t tbl = getJumpTable64();
         MAYUSE(tbl);
-        TABLE64(x2, tbl);
-        UBFXx(x3, xRIP, 48, JMPTABL_SHIFT);
-        LDRx_REG_LSL3(x2, x2, x3);
-        UBFXx(x3, xRIP, 32, JMPTABL_SHIFT);
-        LDRx_REG_LSL3(x2, x2, x3);
-        UBFXx(x3, xRIP, 16, JMPTABL_SHIFT);
-        LDRx_REG_LSL3(x2, x2, x3);
-        UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
-        LDRx_REG_LSL3(x3, x2, x3);
+        TABLE64(x3, tbl);
+        UBFXx(x2, xRIP, 48, JMPTABL_SHIFT);
+        LDRx_REG_LSL3(x3, x3, x2);
+        UBFXx(x2, xRIP, 32, JMPTABL_SHIFT);
+        LDRx_REG_LSL3(x3, x3, x2);
+        UBFXx(x2, xRIP, 16, JMPTABL_SHIFT);
+        LDRx_REG_LSL3(x3, x3, x2);
+        UBFXx(x2, xRIP, 0, JMPTABL_SHIFT);
+        LDRx_REG_LSL3(x2, x3, x2);
     } else {
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
-        TABLE64(x2, p);
+        TABLE64(x3, p);
         GETIP_(ip);
-        LDRx_U12(x3, x2, 0);
+        LDRx_U12(x2, x3, 0);
     }
     if(reg!=x1) {
         MOVx_REG(x1, xRIP);
     }
     CLEARIP();
     #ifdef HAVE_TRACE
-    //MOVx(x2, 15);    no access to PC reg 
+    //MOVx(x3, 15);    no access to PC reg 
     #endif
-    BLR(x3); // save LR...
+    BLR(x2); // save LR...
 }
 
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst)

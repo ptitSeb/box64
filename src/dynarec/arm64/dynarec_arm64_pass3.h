@@ -10,10 +10,6 @@
 #define NEW_INST        \
     if(ninst && isInstClean(dyn, ninst)) {                      \
         if(dyn->last_ip!=ip) dyn->last_ip = 0;                  \
-        dyn->sons_x64[dyn->sons_size] = (uintptr_t)ip;          \
-        dyn->sons_native[dyn->sons_size] = dyn->block;          \
-        MESSAGE(LOG_DUMP, "----> potential Son here %p/%p\n", (void*)ip, dyn->block);  \
-        ++dyn->sons_size;                                       \
     }
 #define INST_EPILOG     
 #define INST_NAME(name) \
