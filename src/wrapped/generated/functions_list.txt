@@ -2170,8 +2170,10 @@
 #() pFpippppppppppppppppp
 #() iFpppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
+#defined(HAVE_LD80BITS) IFD
 #defined(HAVE_LD80BITS) DFD
 #defined(HAVE_LD80BITS) vFppippDDC
+#!defined(HAVE_LD80BITS) IFK
 #!defined(HAVE_LD80BITS) KFK
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp

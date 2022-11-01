@@ -2205,11 +2205,13 @@ void iFpppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFpppppppppppppppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 
 #if defined(HAVE_LD80BITS)
+void IFD(x64emu_t *emu, uintptr_t fnc);
 void DFD(x64emu_t *emu, uintptr_t fnc);
 void vFppippDDC(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(HAVE_LD80BITS)
+void IFK(x64emu_t *emu, uintptr_t fnc);
 void KFK(x64emu_t *emu, uintptr_t fnc);
 void KFKK(x64emu_t *emu, uintptr_t fnc);
 void KFKp(x64emu_t *emu, uintptr_t fnc);

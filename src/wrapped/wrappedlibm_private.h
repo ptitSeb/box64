@@ -305,7 +305,11 @@ GOW(lgamma_r, dFdp)
 DATAV(_LIB_VERSION, 8)
 GOW(llrint, IFd)
 GOW(llrintf, IFf)
-// llrintl  // Weak
+#ifdef HAVE_LD80BITS
+GOW(llrintl, IFD)
+#else
+GO2(llrintl, IFK, llrint)
+#endif
 GOW(llround, IFd)
 GOW(llroundf, IFf)
 // llroundl // Weak
