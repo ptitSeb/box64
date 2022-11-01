@@ -62,7 +62,7 @@ GO(XftFontOpenXlfd, pFpip)
 //GO(XftListFonts, 
 //GO(XftLockFace, 
 //GO(XftNameParse, 
-//GO(XftNameUnparse, 
+GO(XftNameUnparse, iFppi)
 //GO(XftTextExtents16, 
 GO(XftTextExtents32, vFpppip)
 //GO(XftTextExtents8, 
