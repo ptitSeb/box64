@@ -99,6 +99,7 @@ scwrap_t syscallwrap[] = {
     #ifdef __NR_pipe
     { 22, __NR_pipe, 1},
     #endif
+    { 24, __NR_sched_yield, 0},
     #ifdef __NR_select
     { 23, __NR_select, 5},
     #endif
