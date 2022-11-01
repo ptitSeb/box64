@@ -474,7 +474,7 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
 }
 
 #define CUSTOM_INIT\
-    setNeededLibs(lib, 1, "libc.so.6");
+    if(!box64_isglibc234) setNeededLibs(lib, 1, "libc.so.6");
 
 
 // define all standard library functions

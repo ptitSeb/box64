@@ -407,3 +407,31 @@ const char* GetParentSymbolVersion(elfheader_t* h, int index)
     }
     return NULL;
 }
+
+int GetVersionIndice(elfheader_t* h, const char* vername)
+{
+    if(!vername)
+        return 0;
+    if(h->VerNeed) {
+        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
+        while(ver) {
+            Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
+            for(int j=0; j<ver->vn_cnt; ++j) {
+                if(!strcmp(h->DynStr+aux->vna_name, vername)) 
+                    return aux->vna_other;
+                aux = (Elf64_Vernaux*)((uintptr_t)aux + aux->vna_next);
+            }
+            ver = ver->vn_next?((Elf64_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
+        }
+    }
+    if(h->VerDef) {
+        Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef + h->delta);
+        while(def) {
+            Elf64_Verdaux *aux = (Elf64_Verdaux*)((uintptr_t)def + def->vd_aux);
+            if(!strcmp(h->DynStr+aux->vda_name, vername))
+                return def->vd_ndx;
+            def = def->vd_next?((Elf64_Verdef*)((uintptr_t)def + def->vd_next)):NULL;
+        }
+    }
+    return 0;
+}

@@ -91,6 +91,7 @@ int box64_nogtk = 0;
 int box64_novulkan = 0;
 int box64_showsegv = 0;
 int box64_showbt = 0;
+int box64_isglibc234 = 0;
 char* libGL = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
@@ -1491,6 +1492,9 @@ int main(int argc, const char **argv, char **env) {
     setupTraceInit();
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbols(elf_header), GetWeakSymbols(elf_header), GetLocalSymbols(elf_header), elf_header);
+    box64_isglibc234 = GetVersionIndice(elf_header, "GLIBC_2.34")?1:0;
+    if(box64_isglibc234)
+        printf_log(LOG_DEBUG, "Program linked with GLIBC 2.34+\n");
     if(wine_preloaded) {
         uintptr_t wineinfo = FindSymbol(GetMapSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
         if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
