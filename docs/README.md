@@ -104,7 +104,7 @@ I want to thank everyone who has contributed to box64 development.
 There are many ways to contribute: code contribution, financial, hardware and advertisement!
 So, in no particular order, I want to thank:
  * For their major code contribution: rajdakin, mogery
- * For their major financial contribution: FlyingFathead, stormchaser3000, dennis1248
+ * For their major financial contribution: FlyingFathead, stormchaser3000, dennis1248, sll00, [libre-computer-project](https://libre.computer/)
  * For hardware contribution and LoongArch migration: [xiaoji](https://www.linuxgame.cn/), Deepin Beijing Develop Team
  * For their hardware contribution: [Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/), [StarFive](https://rvspace.org/)
  * For their continous advertisement of box64 project: salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[TwisterOS](https://twisteros.com/) team, [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg), ekianjo ([Boilingsteam](https://boilingsteam.com/))
