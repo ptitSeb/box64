@@ -82,7 +82,7 @@ extern size_t(*box_malloc_usable_size)(void*);
 extern void*(*__libc_malloc)(size_t);
 extern void*(*__libc_realloc)(void*, size_t);
 extern void*(*__libc_calloc)(size_t, size_t);
-extern void (*__libc_free*)(void*);
+extern void (*__libc_free)(void*);
 extern void*(*__libc_memalign)(size_t, size_t);
 #else
 extern void* __libc_malloc(size_t);
