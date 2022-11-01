@@ -134,10 +134,10 @@ GOM(FLAC__stream_decoder_init_stream, iFEppppppppp)
 //DATA(FLAC__StreamDecoderLengthStatusString, 
 GO(FLAC__stream_decoder_new, pFv)
 GO(FLAC__stream_decoder_process_single, iFp)
-//GO(FLAC__stream_decoder_process_until_end_of_metadata, 
-//GO(FLAC__stream_decoder_process_until_end_of_stream, 
+GO(FLAC__stream_decoder_process_until_end_of_metadata, iFp)
+GO(FLAC__stream_decoder_process_until_end_of_stream, iFp)
 //DATA(FLAC__StreamDecoderReadStatusString, 
-//GO(FLAC__stream_decoder_reset, 
+GO(FLAC__stream_decoder_reset, iFp)
 GO(FLAC__stream_decoder_seek_absolute, iFpU)
 //DATA(FLAC__StreamDecoderSeekStatusString, 
 //GO(FLAC__stream_decoder_set_md5_checking, 
