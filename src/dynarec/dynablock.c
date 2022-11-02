@@ -20,6 +20,7 @@
 #include "dynablock_private.h"
 #include "dynarec_private.h"
 #include "elfloader.h"
+#include "bridge.h"
 
 #include "dynarec_native.h"
 #include "native_lock.h"
@@ -160,6 +161,8 @@ void cancelFillBlock()
 */
 static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr, int create, int need_lock)
 {
+    if(hasAlternate((void*)addr))
+        return NULL;
     dynablock_t* block = getDB(addr);
     if(block || !create)
         return block;
