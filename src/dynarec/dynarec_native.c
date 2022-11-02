@@ -387,6 +387,7 @@ void CancelBlock64()
     customFree(helper->next);
     customFree(helper->insts);
     customFree(helper->instsize);
+    customFree(helper->predecessor);
     customFree(helper->table64);
     if(helper->dynablock && helper->dynablock->actual_block)
         FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->actual_block, helper->dynablock->size);
@@ -564,6 +565,8 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.table64 = NULL;
     customFree(helper.instsize);
     helper.instsize = NULL;
+    customFree(helper.predecessor);
+    helper.predecessor = NULL;
     block->size = sz;
     block->isize = helper.size;
     block->actual_block = actual_p;
