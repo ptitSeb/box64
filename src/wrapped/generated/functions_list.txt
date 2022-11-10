@@ -1215,6 +1215,7 @@
 #() iFpppiL
 #() iFpppip
 #() iFpppui
+#() iFpppUi
 #() iFpppLi
 #() iFpppLp
 #() iFppppi
@@ -1441,6 +1442,7 @@
 #() cFppLppi
 #() iFEiippi
 #() iFEiippp
+#() iFEippLp
 #() iFElpppp
 #() iFEpiipp
 #() iFEpiipV
@@ -3143,6 +3145,8 @@ wrappedlibfuse:
   - fuse_opt_parse
 - pFppLp:
   - fuse_lowlevel_new
+- iFippLp:
+  - fuse_main_real
 - LFppLppU:
   - fuse_add_direntry
 wrappedlibgl:

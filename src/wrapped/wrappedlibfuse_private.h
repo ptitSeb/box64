@@ -94,7 +94,7 @@ GOM(fuse_lowlevel_new, pFEppLp)
 //GO(fuse_main, 
 //GO(fuse_main_compat1, 
 //GO(fuse_main_compat2, 
-//GO(fuse_main_real, 
+GOM(fuse_main_real, iFEippLp)
 //GO(fuse_main_real_compat22, 
 //GO(fuse_main_real_compat25, 
 GO(fuse_mount, pFpp)
@@ -177,3 +177,5 @@ GO(fuse_set_signal_handlers, iFp)
 GO(fuse_unmount, vFpp)
 //GO(fuse_unmount_compat22, 
 //GO(fuse_version, 
+
+GO(dummy_readdir_op, iFpppUi)   // dummy function for callbacks
