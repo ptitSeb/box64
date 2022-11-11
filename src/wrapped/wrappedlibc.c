@@ -1362,6 +1362,7 @@ int getNCpu()
 }
 
 
+#ifndef NOALIGN
 void CreateCPUInfoFile(int fd)
 {
     size_t dummy;
@@ -1414,7 +1415,6 @@ void CreateCPUInfoFile(int fd)
     #undef P
 }
 
-#ifndef NOALIGN
 #define TMP_CPUINFO "box64_tmpcpuinfo"
 #define TMP_CPUTOPO "box64_tmpcputopo%d"
 #endif
