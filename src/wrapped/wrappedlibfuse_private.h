@@ -178,4 +178,5 @@ GO(fuse_unmount, vFpp)
 //GO(fuse_unmount_compat22, 
 //GO(fuse_version, 
 
-GO(dummy_readdir_op, iFpppUi)   // dummy function for callbacks
+GO(dummy_getdir_op, iFppiU)    // dummy functions for callbacks
+GO(dummy_readdir_op, iFpppUi)

@@ -69,18 +69,20 @@ typedef struct fuse_lowlevel_ops_s {
 typedef int(* fuse_fill_dir_t) (void *buf, const char *name, const struct stat *stbuf, off_t off, int flags);
 
 typedef struct fuse_operations_s {
-    int (*getattr_op) (const char *, struct stat *, void* fi);
+    int (*getattr_op) (const char *, struct stat *);
     int (*readlink_op) (const char *, char *, size_t);
+    int (*getdir_op) (const char *, void*, void*);
     int (*mknod_op) (const char *, mode_t, dev_t);
     int (*mkdir_op) (const char *, mode_t);
     int (*unlink_op) (const char *);
     int (*rmdir_op) (const char *);
     int (*symlink_op) (const char *, const char *);
-    int (*rename_op) (const char *, const char *, unsigned int flags);
+    int (*rename_op) (const char *, const char *);
     int (*link_op) (const char *, const char *);
-    int (*chmod_op) (const char *, mode_t, void* fi);
-    int (*chown_op) (const char *, uid_t, gid_t, void* fi);
-    int (*truncate_op) (const char *, off_t, void* fi);
+    int (*chmod_op) (const char *, mode_t);
+    int (*chown_op) (const char *, uid_t, gid_t);
+    int (*truncate_op) (const char *, off_t);
+    int (*utime_op) (const char *, void *);
     int (*open_op) (const char *, void* );
     int (*read_op) (const char *, char *, size_t, off_t, void* );
     int (*write_op) (const char *, const char *, size_t, off_t, void* );
@@ -93,24 +95,25 @@ typedef struct fuse_operations_s {
     int (*listxattr_op) (const char *, char *, size_t);
     int (*removexattr_op) (const char *, const char *);
     int (*opendir_op) (const char *, void* );
-    int (*readdir_op) (const char *, void *, fuse_fill_dir_t, off_t, void* , int);
+    int (*readdir_op) (const char *, void *, fuse_fill_dir_t, off_t, void*);
     int (*releasedir_op) (const char *, void* );
     int (*fsyncdir_op) (const char *, int, void* );
-    void *(*init_op) (void* conn, void* cfg);
+    void *(*init_op) (void* conn);
     void (*destroy_op) (void *private_data);
     int (*access_op) (const char *, int);
     int (*create_op) (const char *, mode_t, void* );
+    int (*ftruncate_op) (const char *, off_t, void*);
+    int (*fgetattr_op) (const char *, struct stat*, void*);
     int (*lock_op) (const char *, void* , int cmd, void*);
-    int (*utimens_op) (const char *, const struct timespec tv[2], void* fi);
+    int (*utimens_op) (const char *, const struct timespec tv[2]);
     int (*bmap_op) (const char *, size_t blocksize, uint64_t *idx);
-    int (*ioctl_op) (const char *, unsigned int cmd, void *arg, void* , unsigned int flags, void *data);
+    uint32_t flags;
+    int (*ioctl_op) (const char *, int cmd, void *arg, void* , unsigned int flags, void *data);
     int (*poll_op) (const char *, void* , void* ph, unsigned *reventsp);
     int (*write_buf_op) (const char *, void* buf, off_t off, void* );
     int (*read_buf_op) (const char *, void* bufp, size_t size, off_t off, void* );
     int (*flock_op) (const char *, void* , int op);
     int (*fallocate_op) (const char *, int, off_t, off_t, void* );
-    ssize_t (*copy_file_range_op) (const char *path_in, void* fi_in, off_t offset_in, const char *path_out, void* fi_out, off_t offset_out, size_t size, int flags);
-    off_t (*lseek_op) (const char *, off_t off, int whence, void* );
  } fuse_operations_t;
 
 typedef struct fuse_entry_param_s {
@@ -1146,11 +1149,15 @@ static void* find_fallocate_Fct(void* fct)
 
 // getattr_op
 #define GO(A)   \
-static uintptr_t my_getattr_op_fct_##A = 0;                                 \
-static int my_getattr_op_##A(const char * a, struct stat * b, void* c)      \
-{                                                                           \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "getattr_op");                 \
-    return (int)RunFunction(my_context, my_getattr_op_fct_##A, 3, a, b, c); \
+static uintptr_t my_getattr_op_fct_##A = 0;                                         \
+static int my_getattr_op_##A(const char * a, struct stat * b)                       \
+{                                                                                   \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "getattr_op");                         \
+    struct x64_stat64 b_;                                                           \
+    UnalignStat64(b, &b_);                                                          \
+    int ret = (int)RunFunction(my_context, my_getattr_op_fct_##A, 2, a, &b_);       \
+    AlignStat64(&b_, b);                                                            \
+    return ret;                                                                     \
 }
 SUPER()
 #undef GO
@@ -1189,6 +1196,30 @@ static void* find_readlink_op_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for Fuse readlink_op callback\n");
+    return NULL;
+}
+
+// getdir_op
+#define GO(A)   \
+static uintptr_t my_getdir_op_fct_##A = 0;                                                                                      \
+static int my_getdir_op_##A(const char * a, void* b, void* c)                                                                   \
+{                                                                                                                               \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "getdir_op");                                                                      \
+    return (int)RunFunction(my_context, my_getdir_op_fct_##A, 3, a, b, AddCheckBridge(my_lib->w.bridge, iFppiU, c, 0, NULL));   \
+}
+SUPER()
+#undef GO
+static void* find_getdir_op_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_getdir_op_fct_##A == (uintptr_t)fct) return my_getdir_op_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_getdir_op_fct_##A == 0) {my_getdir_op_fct_##A = (uintptr_t)fct; return my_getdir_op_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Fuse getdir_op callback\n");
     return NULL;
 }
 
@@ -1314,11 +1345,11 @@ static void* find_symlink_op_Fct(void* fct)
 
 // rename_op
 #define GO(A)   \
-static uintptr_t my_rename_op_fct_##A = 0;                                  \
-static int my_rename_op_##A(const char * a, const char * b, unsigned int c) \
-{                                                                           \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "rename_op");                  \
-    return (int)RunFunction(my_context, my_rename_op_fct_##A, 3, a, b, c);  \
+static uintptr_t my_rename_op_fct_##A = 0;                              \
+static int my_rename_op_##A(const char * a, const char * b)             \
+{                                                                       \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "rename_op");              \
+    return (int)RunFunction(my_context, my_rename_op_fct_##A, 2, a, b); \
 }
 SUPER()
 #undef GO
@@ -1362,11 +1393,11 @@ static void* find_link_op_Fct(void* fct)
 
 // chmod_op
 #define GO(A)   \
-static uintptr_t my_chmod_op_fct_##A = 0;                                   \
-static int my_chmod_op_##A(const char * a, mode_t b, void* c)               \
-{                                                                           \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "chmod_op");                   \
-    return (int)RunFunction(my_context, my_chmod_op_fct_##A, 3, a, b, c);   \
+static uintptr_t my_chmod_op_fct_##A = 0;                               \
+static int my_chmod_op_##A(const char * a, mode_t b)                    \
+{                                                                       \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "chmod_op");               \
+    return (int)RunFunction(my_context, my_chmod_op_fct_##A, 2, a, b);  \
 }
 SUPER()
 #undef GO
@@ -1386,11 +1417,11 @@ static void* find_chmod_op_Fct(void* fct)
 
 // chown_op
 #define GO(A)   \
-static uintptr_t my_chown_op_fct_##A = 0;                                       \
-static int my_chown_op_##A(const char * a, uid_t b, gid_t c, void* d)           \
-{                                                                               \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "chown_op");                       \
-    return (int)RunFunction(my_context, my_chown_op_fct_##A, 4, a, b, c, d);    \
+static uintptr_t my_chown_op_fct_##A = 0;                                   \
+static int my_chown_op_##A(const char * a, uid_t b, gid_t c)                \
+{                                                                           \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "chown_op");                   \
+    return (int)RunFunction(my_context, my_chown_op_fct_##A, 3, a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1410,11 +1441,11 @@ static void* find_chown_op_Fct(void* fct)
 
 // truncate_op
 #define GO(A)   \
-static uintptr_t my_truncate_op_fct_##A = 0;                                    \
-static int my_truncate_op_##A(const char * a, off_t b, void* c)                 \
-{                                                                               \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "truncate_op");                    \
-    return (int)RunFunction(my_context, my_truncate_op_fct_##A, 3, a, b, c);    \
+static uintptr_t my_truncate_op_fct_##A = 0;                                \
+static int my_truncate_op_##A(const char * a, off_t b)                      \
+{                                                                           \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "truncate_op");                \
+    return (int)RunFunction(my_context, my_truncate_op_fct_##A, 2, a, b);   \
 }
 SUPER()
 #undef GO
@@ -1429,6 +1460,30 @@ static void* find_truncate_op_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for Fuse truncate_op callback\n");
+    return NULL;
+}
+
+// utime_op
+#define GO(A)   \
+static uintptr_t my_utime_op_fct_##A = 0;                               \
+static int my_utime_op_##A(const char * a, void* b)                     \
+{                                                                       \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "utime_op");               \
+    return (int)RunFunction(my_context, my_utime_op_fct_##A, 2, a, b);  \
+}
+SUPER()
+#undef GO
+static void* find_utime_op_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_utime_op_fct_##A == (uintptr_t)fct) return my_utime_op_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_utime_op_fct_##A == 0) {my_utime_op_fct_##A = (uintptr_t)fct; return my_utime_op_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Fuse utime_op callback\n");
     return NULL;
 }
 
@@ -1722,11 +1777,11 @@ static void* find_opendir_op_Fct(void* fct)
 
 // readdir_op
 #define GO(A)   \
-static uintptr_t my_readdir_op_fct_##A = 0;                                                                                                 \
-static int my_readdir_op_##A(const char * a, void * b, fuse_fill_dir_t c, off_t d, void* e, int f)                                          \
-{                                                                                                                                           \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "readdir_op");                                                                                 \
-    return (int)RunFunction(my_context, my_readdir_op_fct_##A, 6, a, b, AddCheckBridge(my_lib->w.bridge, iFpppUi, c, 0, NULL), d, e, f);    \
+static uintptr_t my_readdir_op_fct_##A = 0;                                                                                             \
+static int my_readdir_op_##A(const char * a, void * b, fuse_fill_dir_t c, off_t d, void* e)                                             \
+{                                                                                                                                       \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "readdir_op");                                                                             \
+    return (int)RunFunction(my_context, my_readdir_op_fct_##A, 5, a, b, AddCheckBridge(my_lib->w.bridge, iFpppUi, c, 0, NULL), d, e);   \
 }
 SUPER()
 #undef GO
@@ -1794,11 +1849,11 @@ static void* find_fsyncdir_op_Fct(void* fct)
 
 // init_op
 #define GO(A)   \
-static uintptr_t my_init_op_fct_##A = 0;                    \
-static void my_init_op_##A(void* a, void* b)                \
-{                                                           \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "init_op");    \
-    RunFunction(my_context, my_init_op_fct_##A, 2, a, b);   \
+static uintptr_t my_init_op_fct_##A = 0;                                \
+static void* my_init_op_##A(void* a)                                    \
+{                                                                       \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "init_op");                \
+    return (void*)RunFunction(my_context, my_init_op_fct_##A, 1, a);    \
 }
 SUPER()
 #undef GO
@@ -1888,6 +1943,58 @@ static void* find_create_op_Fct(void* fct)
     return NULL;
 }
 
+// ftruncate_op
+#define GO(A)   \
+static uintptr_t my_ftruncate_op_fct_##A = 0;                                   \
+static int my_ftruncate_op_##A(const char * a, off_t b, void* c)                \
+{                                                                               \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "ftruncate_op");                   \
+    return (int)RunFunction(my_context, my_ftruncate_op_fct_##A, 3, a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* find_ftruncate_op_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_ftruncate_op_fct_##A == (uintptr_t)fct) return my_ftruncate_op_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ftruncate_op_fct_##A == 0) {my_ftruncate_op_fct_##A = (uintptr_t)fct; return my_ftruncate_op_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Fuse ftruncate_op callback\n");
+    return NULL;
+}
+
+// fgetattr_op
+#define GO(A)   \
+static uintptr_t my_fgetattr_op_fct_##A = 0;                                        \
+static int my_fgetattr_op_##A(const char * a, struct stat* b, void* c)              \
+{                                                                                   \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "fgetattr_op");                        \
+    struct x64_stat64 b_;                                                           \
+    UnalignStat64(b, &b_);                                                          \
+    int ret = (int)RunFunction(my_context, my_fgetattr_op_fct_##A, 3, a, &b_, c);   \
+    AlignStat64(&b_, b);                                                            \
+    return ret;                                                                     \
+}
+SUPER()
+#undef GO
+static void* find_fgetattr_op_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_fgetattr_op_fct_##A == (uintptr_t)fct) return my_fgetattr_op_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_fgetattr_op_fct_##A == 0) {my_fgetattr_op_fct_##A = (uintptr_t)fct; return my_fgetattr_op_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Fuse fgetattr_op callback\n");
+    return NULL;
+}
+
 // lock_op
 #define GO(A)   \
 static uintptr_t my_lock_op_fct_##A = 0;                                        \
@@ -1914,11 +2021,11 @@ static void* find_lock_op_Fct(void* fct)
 
 // utimens_op
 #define GO(A)   \
-static uintptr_t my_utimens_op_fct_##A = 0;                                         \
-static int my_utimens_op_##A(const char * a, const struct timespec b[2], void* c)   \
-{                                                                                   \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "utimens_op");                         \
-    return (int)RunFunction(my_context, my_utimens_op_fct_##A, 3, a, b, c);         \
+static uintptr_t my_utimens_op_fct_##A = 0;                                 \
+static int my_utimens_op_##A(const char * a, const struct timespec b[2])    \
+{                                                                           \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "utimens_op");                 \
+    return (int)RunFunction(my_context, my_utimens_op_fct_##A, 2, a, b);    \
 }
 SUPER()
 #undef GO
@@ -1962,11 +2069,11 @@ static void* find_bmap_op_Fct(void* fct)
 
 // ioctl_op
 #define GO(A)   \
-static uintptr_t my_ioctl_op_fct_##A = 0;                                                               \
-static int my_ioctl_op_##A(const char * a, unsigned int b, void* c, void* d, unsigned int e, void* f)   \
-{                                                                                                       \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "ioctl_op");                                               \
-    return (int)RunFunction(my_context, my_ioctl_op_fct_##A, 6, a, b, c, d, e, f);                      \
+static uintptr_t my_ioctl_op_fct_##A = 0;                                                       \
+static int my_ioctl_op_##A(const char * a, int b, void* c, void* d, unsigned int e, void* f)    \
+{                                                                                               \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "ioctl_op");                                       \
+    return (int)RunFunction(my_context, my_ioctl_op_fct_##A, 6, a, b, c, d, e, f);              \
 }
 SUPER()
 #undef GO
@@ -2104,55 +2211,6 @@ static void* find_fallocate_op_Fct(void* fct)
     return NULL;
 }
 
-// copy_file_range_op
-#define GO(A)   \
-static uintptr_t my_copy_file_range_op_fct_##A = 0;                                                                                 \
-static ssize_t my_copy_file_range_op_##A(const char *a, void* b, off_t c, const char *d, void* e, off_t f, size_t g, int h)         \
-{                                                                                                                                   \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "copy_file_range_op");                                                                 \
-    return (ssize_t)RunFunction(my_context, my_copy_file_range_op_fct_##A, 8, a, b, c, d, e, f, g, h);                              \
-}
-SUPER()
-#undef GO
-static void* find_copy_file_range_op_Fct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_copy_file_range_op_fct_##A == (uintptr_t)fct) return my_copy_file_range_op_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_copy_file_range_op_fct_##A == 0) {my_copy_file_range_op_fct_##A = (uintptr_t)fct; return my_copy_file_range_op_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for Fuse copy_file_range_op callback\n");
-    return NULL;
-}
-
-// lseek_op
-#define GO(A)   \
-static uintptr_t my_lseek_op_fct_##A = 0;                                       \
-static off_t my_lseek_op_##A(const char * a, off_t b, int c, void* d)           \
-{                                                                               \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "lseek_op");                       \
-    return (off_t)RunFunction(my_context, my_lseek_op_fct_##A, 4, a, b, c, d);  \
-}
-SUPER()
-#undef GO
-static void* find_lseek_op_Fct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_lseek_op_fct_##A == (uintptr_t)fct) return my_lseek_op_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_lseek_op_fct_##A == 0) {my_lseek_op_fct_##A = (uintptr_t)fct; return my_lseek_op_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for Fuse lseek_op callback\n");
-    return NULL;
-}
-
-
 #undef SUPER
 
 EXPORT int my_fuse_opt_parse(x64emu_t* emu, void* args, void* data, void* opts, void* f)
@@ -2162,9 +2220,9 @@ EXPORT int my_fuse_opt_parse(x64emu_t* emu, void* args, void* data, void* opts, 
 
 EXPORT void* my_fuse_lowlevel_new(x64emu_t* emu, void* args, fuse_lowlevel_ops_t *o, size_t sz, void* data)
 {
-    static fuse_lowlevel_ops_t o_;
+    static fuse_lowlevel_ops_t o_ = {0};
     size_t cvt = 0;
-    #define GO(A) if(cvt<=sz) {o_.A = find_##A##_Fct(o->A); cvt+=sizeof(void*); if(o_.A) printf_log(LOG_DEBUG, "fuse: %s is present\n", #A);}
+    #define GO(A) if(cvt<sz) {o_.A = find_##A##_Fct(o->A); cvt+=sizeof(void*); if(o_.A) printf_log(LOG_DEBUG, "fuse: %s is present\n", #A);}
     GO(init)
     GO(destroy)
     GO(lookup)
@@ -2253,11 +2311,16 @@ EXPORT size_t my_fuse_add_direntry(x64emu_t* emu, void* req, char *buf, size_t b
 
 EXPORT int my_fuse_main_real(x64emu_t* emu, int argc, void* argv, const fuse_operations_t* op, size_t op_size, void* data)
 {
-    static fuse_operations_t o_;
+    static fuse_operations_t o_ = {0};
+box64_log=2;
+box64_showsegv=1;
     size_t cvt = 0;
-    #define GO(A) if(cvt<=op_size) {o_.A = find_##A##_Fct(op->A); cvt+=sizeof(void*); if(o_.A) printf_log(LOG_DEBUG, "fuse: %s is present\n", #A);}
+    #define GO(A) if(cvt<op_size) {o_.A = find_##A##_Fct(op->A); cvt+=sizeof(void*); if(o_.A) printf_log(LOG_DEBUG, "fuse: %s is present\n", #A);}
+    // size is aligned in GOS
+    #define GOS(A) if(cvt<op_size) {o_.A = op->A; cvt+=sizeof(void*);}
     GO(getattr_op)
     GO(readlink_op)
+    GO(getdir_op)
     GO(mknod_op)
     GO(mkdir_op)
     GO(unlink_op)
@@ -2268,6 +2331,7 @@ EXPORT int my_fuse_main_real(x64emu_t* emu, int argc, void* argv, const fuse_ope
     GO(chmod_op)
     GO(chown_op)
     GO(truncate_op)
+    GO(utime_op)
     GO(open_op)
     GO(read_op)
     GO(write_op)
@@ -2287,20 +2351,24 @@ EXPORT int my_fuse_main_real(x64emu_t* emu, int argc, void* argv, const fuse_ope
     GO(destroy_op)
     GO(access_op)
     GO(create_op)
+    GO(ftruncate_op)
+    GO(fgetattr_op)
     GO(lock_op)
     GO(utimens_op)
     GO(bmap_op)
+    GOS(flags)
     GO(ioctl_op)
     GO(poll_op)
     GO(write_buf_op)
     GO(read_buf_op)
     GO(flock_op)
     GO(fallocate_op)
-    GO(copy_file_range_op)
-    GO(lseek_op)
     #undef GO
-    printf_log(LOG_DEBUG, "fuse_lowlevel_new called with size_ops=%zd vs %zd\n", op_size, cvt);
-    return my->fuse_main_real(argc, argv, &o_, cvt, data);
+    #undef GOS
+    printf_log(LOG_DEBUG, "fuse_main_real called for %s with size_ops=%zd vs %zd\n", my_context->fullpath, op_size, cvt);
+    int ret = my->fuse_main_real(argc, argv, &o_, cvt, data);
+    printf_log(LOG_DEBUG, "fuse_main_real returned %d\n", ret);
+    return ret;
 }
 
 #define CUSTOM_INIT                 \

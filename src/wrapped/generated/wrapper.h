@@ -850,6 +850,7 @@ void iFpLpL(x64emu_t *emu, uintptr_t fnc);
 void iFpLpp(x64emu_t *emu, uintptr_t fnc);
 void iFppii(x64emu_t *emu, uintptr_t fnc);
 void iFppiu(x64emu_t *emu, uintptr_t fnc);
+void iFppiU(x64emu_t *emu, uintptr_t fnc);
 void iFppiL(x64emu_t *emu, uintptr_t fnc);
 void iFppip(x64emu_t *emu, uintptr_t fnc);
 void iFppIL(x64emu_t *emu, uintptr_t fnc);
