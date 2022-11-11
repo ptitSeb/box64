@@ -1326,7 +1326,6 @@ EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
     return readlink((const char*)path, (char*)buf, sz);
 }
 
-#ifndef NOALIGN
 static int nCPU = 0;
 static double bogoMips = 100.;
 
@@ -1415,6 +1414,7 @@ void CreateCPUInfoFile(int fd)
     #undef P
 }
 
+#ifndef NOALIGN
 #define TMP_CPUINFO "box64_tmpcpuinfo"
 #define TMP_CPUTOPO "box64_tmpcputopo%d"
 #endif
