@@ -137,7 +137,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     pthread_mutex_unlock(&my_context->mutex_bridge);
     #ifdef DYNAREC
     // only reprotect the block when stuffs are running
-    if(!my_context->deferedInit)
+    if(!my_context->deferedInit && box64_dynarec)
         protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
     #endif
     #ifdef HAVE_TRACE
