@@ -128,6 +128,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
         case 0xB:   // Extended Topology Enumeration Leaf
             //TODO!
             R_EAX = 0;
+            R_EBX = 0;
             break;
         case 0xC:   //?
             R_EAX = 0;

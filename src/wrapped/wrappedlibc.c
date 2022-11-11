@@ -1335,16 +1335,19 @@ void grabNCpu() {
     size_t dummy;
     if(f) {
         nCPU = 0;
+        int bogo = 0;
         size_t len = 500;
-        char line[500] = {0};
-        while ((dummy = getline((char**)&line, &len, f)) != -1) {
+        char* line = alloca(len);
+        while ((dummy = getline(&line, &len, f)) != -1) {
             if(!strncmp(line, "processor\t", strlen("processor\t")))
                 ++nCPU;
-            if(!nCPU && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
+            if(!bogo && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
                 // grab 1st BogoMIPS
                 float tmp;
-                if(sscanf(line, "BogoMIPS\t: %g", &tmp)==1)
+                if(sscanf(line, "BogoMIPS\t: %g", &tmp)==1) {
                     bogoMips = tmp;
+                    bogo = 1;
+                }
             }
         }
         fclose(f);
@@ -1397,7 +1400,7 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "physical id\t: %d\nsiblings\t: %d\n", i, n);
         P;
-        sprintf(buff, "core id\t\t:%d\ncpu cores\t: %d\n", i, 1);
+        sprintf(buff, "core id\t\t: %d\ncpu cores\t: %d\n", i, 1);
         P;
         sprintf(buff, "bogomips\t: %g\n", bogoMips);
         P;
@@ -1783,8 +1786,9 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
     }
     #ifndef NOALIGN
     if(!strcmp(path + strlen(path) - strlen("/grep"), "/grep")
-    && argv[1] && argv[2] && !strcmp(argv[2], "/proc/cpuinfo")) {
+    && argv[1] && argv[2] && (!strcmp(argv[2], "/proc/cpuinfo") || (argv[1][1]=='-' && argv[3] && !strcmp(argv[3], "/proc/cpuinfo")))) {
         // special case of a bash script shell running grep on cpuinfo to extract capacities...
+        int cpuinfo = strcmp(argv[2], "/proc/cpuinfo")?3:2;
         int n=0;
         while(argv[n]) ++n;
         const char** newargv = (const char**)alloca((n+1)*sizeof(char*));
@@ -1801,7 +1805,32 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         int rl = readlink(template, cpuinfo_file, sizeof(cpuinfo_file));
         close(fd);
         chmod(cpuinfo_file, 0666);
-        newargv[2] = cpuinfo_file;
+        newargv[cpuinfo] = cpuinfo_file;
+        printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", path, newargv, newargv[0], newargv[1], newargv[2],n, envp);
+        int ret = execve(path, (char* const*)newargv, envp);
+        return ret;
+    }
+    if(!strcmp(path + strlen(path) - strlen("/cat"), "/cat")
+    && argv[1] && !strcmp(argv[1], "/proc/cpuinfo")) {
+        // special case of a bash script shell running grep on cpuinfo to extract capacities...
+        int cpuinfo = 1;
+        int n=0;
+        while(argv[n]) ++n;
+        const char** newargv = (const char**)alloca((n+1)*sizeof(char*));
+        memcpy(newargv, argv, sizeof(char*)*(n+1));
+        // create a dummy cpuinfo in temp (that will stay there, sorry)
+        const char* tmpdir = GetTmpDir();
+        char template[100] = {0};
+        sprintf(template, "%s/box64cpuinfoXXXXXX", tmpdir);
+        int fd = mkstemp(template);
+        CreateCPUInfoFile(fd);
+        // get back the name
+        char cpuinfo_file[100] = {0};
+        sprintf(template, "/proc/self/fd/%d", fd);
+        int rl = readlink(template, cpuinfo_file, sizeof(cpuinfo_file));
+        close(fd);
+        chmod(cpuinfo_file, 0666);
+        newargv[cpuinfo] = cpuinfo_file;
         printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", path, newargv, newargv[0], newargv[1], newargv[2],n, envp);
         int ret = execve(path, (char* const*)newargv, envp);
         return ret;

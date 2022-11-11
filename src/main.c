@@ -163,6 +163,7 @@ void my_child_fork()
 }
 
 #ifdef DYNAREC
+int getNCpu();
 void GatherDynarecExtensions()
 {
     if(box64_dynarec==0)    // no need to check if no dynarec
@@ -304,7 +305,9 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " PMULL");
     if(arm64_atomics)
         printf_log(LOG_INFO, " ATOMICS");
-    printf_log(LOG_INFO, " PageSize:%d\n", box64_pagesize);
+    printf_log(LOG_INFO, " PageSize:%d", box64_pagesize);
+    int ncpu = getNCpu();
+    printf_log(LOG_INFO, " Cores:%d\n", ncpu);
 #elif defined(LA464)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
     printf_log(LOG_INFO, " PageSize:%d\n", box64_pagesize);
