@@ -192,9 +192,9 @@ int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymb
     // TODO: should use librarian functions instead!
     int weak;
     // look in the library itself
-    if(lib->getglobal(lib, rsymbol, start, end, &weak, version, vername, 1))
+    if(lib->getglobal(lib, rsymbol, start, end, 0, &weak, version, vername, 1))
         return 1;
-    if(lib->getweak(lib, rsymbol, start, end, &weak, version, vername, 1))
+    if(lib->getweak(lib, rsymbol, start, end, 0, &weak, version, vername, 1))
         return 1;
     // look in other libs
     int n = GetNeededLibN(lib);
@@ -238,7 +238,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     if(handle==(void*)~0LL) {
         // special case, look globably but no self (RTLD_NEXT)
         elfheader_t *elf = FindElfAddress(my_context, *(uintptr_t*)R_RSP); // use return address to guess "self"
-        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, -1, NULL)) {
+        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, -1, NULL)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -376,7 +376,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     if(handle==(void*)~0LL) {
         // special case, look globably but no self (RTLD_NEXT)
         elfheader_t *elf = FindElfAddress(my_context, *(uintptr_t*)R_RSP); // use return address to guess "self"
-        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, version, vername)) {
+        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, version, vername)) {
                 printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }

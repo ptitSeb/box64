@@ -19,6 +19,7 @@ uintptr_t FindSymbol(kh_mapsymbols_t *mapsymbols, const char* name, int ver, con
 
 void AddUniqueSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint32_t sz, int ver, const char* vername);
 int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* start, uintptr_t* end, int ver, const char* vername, int local, const char* defver);
+int GetSizedSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int ver, const char* vername, int local, const char* defver);
 const char* GetSymbolName(kh_mapsymbols_t* mapsymbols, void* p, uintptr_t* offs, uint32_t* sz, const char** vername);
 
 // default version handling
