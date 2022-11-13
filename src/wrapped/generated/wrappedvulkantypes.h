@@ -52,6 +52,7 @@ typedef void (*vFpiiiupupup_t)(void*, int64_t, int64_t, int64_t, uint64_t, void*
 	GO(vkDestroyImage, vFpUp_t) \
 	GO(vkDestroyImageView, vFpUp_t) \
 	GO(vkDestroyIndirectCommandsLayoutNV, vFpUp_t) \
+	GO(vkDestroyOpticalFlowSessionNV, vFpUp_t) \
 	GO(vkDestroyPipeline, vFpUp_t) \
 	GO(vkDestroyPipelineCache, vFpUp_t) \
 	GO(vkDestroyPipelineLayout, vFpUp_t) \
@@ -98,6 +99,7 @@ typedef void (*vFpiiiupupup_t)(void*, int64_t, int64_t, int64_t, uint64_t, void*
 	GO(vkCreateImage, iFpppp_t) \
 	GO(vkCreateImageView, iFpppp_t) \
 	GO(vkCreateIndirectCommandsLayoutNV, iFpppp_t) \
+	GO(vkCreateOpticalFlowSessionNV, iFpppp_t) \
 	GO(vkCreatePipelineCache, iFpppp_t) \
 	GO(vkCreatePipelineLayout, iFpppp_t) \
 	GO(vkCreatePrivateDataSlot, iFpppp_t) \

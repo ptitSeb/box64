@@ -765,3 +765,10 @@ GO(vkGetRandROutputDisplayEXT, iFpppp)
 // VK_EXT_shader_module_identifier
 GO(vkGetShaderModuleCreateInfoIdentifierEXT, vFppp)
 GO(vkGetShaderModuleIdentifierEXT, vFpUp)
+
+// VK_NV_optical_flow
+GO(vkBindOpticalFlowSessionImageNV, iFpUiUi)
+GO(vkCmdOpticalFlowExecuteNV, vFpUp)
+GOM(vkCreateOpticalFlowSessionNV, iFEpppp)
+GOM(vkDestroyOpticalFlowSessionNV, vFEpUp)
+GO(vkGetPhysicalDeviceOpticalFlowImageFormatsNV, iFpppp)

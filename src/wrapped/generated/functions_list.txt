@@ -1188,6 +1188,7 @@
 #() iFpupiU
 #() iFpupup
 #() iFpuppp
+#() iFpUiUi
 #() iFpUupp
 #() iFplluu
 #() iFpLiLi
@@ -4051,6 +4052,7 @@ wrappedvulkan:
   - vkDestroyImage
   - vkDestroyImageView
   - vkDestroyIndirectCommandsLayoutNV
+  - vkDestroyOpticalFlowSessionNV
   - vkDestroyPipeline
   - vkDestroyPipelineCache
   - vkDestroyPipelineLayout
@@ -4102,6 +4104,7 @@ wrappedvulkan:
   - vkCreateImage
   - vkCreateImageView
   - vkCreateIndirectCommandsLayoutNV
+  - vkCreateOpticalFlowSessionNV
   - vkCreatePipelineCache
   - vkCreatePipelineLayout
   - vkCreatePrivateDataSlot

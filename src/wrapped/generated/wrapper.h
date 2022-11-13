@@ -1221,6 +1221,7 @@ void iFpuupp(x64emu_t *emu, uintptr_t fnc);
 void iFpupiU(x64emu_t *emu, uintptr_t fnc);
 void iFpupup(x64emu_t *emu, uintptr_t fnc);
 void iFpuppp(x64emu_t *emu, uintptr_t fnc);
+void iFpUiUi(x64emu_t *emu, uintptr_t fnc);
 void iFpUupp(x64emu_t *emu, uintptr_t fnc);
 void iFplluu(x64emu_t *emu, uintptr_t fnc);
 void iFpLiLi(x64emu_t *emu, uintptr_t fnc);

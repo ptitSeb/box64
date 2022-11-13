@@ -582,6 +582,10 @@ EXPORT int my_vkCreateRayTracingPipelinesNV(x64emu_t* emu, void* device, uint64_
 }
 DESTROY64(vkDestroyAccelerationStructureNV)
 
+
+CREATE(vkCreateOpticalFlowSessionNV)
+DESTROY64(vkDestroyOpticalFlowSessionNV)
+
 EXPORT void my_vkGetPhysicalDeviceProperties(x64emu_t* emu, void* device, void* pProps)
 {
     my->vkGetPhysicalDeviceProperties(device, pProps);
