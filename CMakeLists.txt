@@ -367,6 +367,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibvadrm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibvawayland.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibvax11.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibvdpau.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibvorbis.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibx11.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibx11xcb.c"

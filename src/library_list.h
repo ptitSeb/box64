@@ -203,6 +203,7 @@ GO("libva.so.2", libva)
 GO("libva-drm.so.2", libvadrm)
 GO("libva-x11.so.2", libvax11)
 GO("libva-wayland.so.2", libvawayland)
+GO("libvdpau.so.1", libvdpau)
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 

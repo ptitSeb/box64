@@ -3413,6 +3413,7 @@ wrappedlibva:
 wrappedlibvadrm:
 wrappedlibvawayland:
 wrappedlibvax11:
+wrappedlibvdpau:
 wrappedlibvorbis:
 wrappedlibx11:
 - iFp:
