@@ -25,15 +25,17 @@ void pressure_vessel(int argc, const char** argv, int nextarg)
                 printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
             } else if(strstr(argv[nextarg], "--env-if-host=STEAM_RUNTIME_LIBRARY_PATH=")==argv[nextarg]) {
                 // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
-                char tmp[strlen(argv[nextarg])];
-                strcpy(tmp, "BOX86_LD_");
-                strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_"));
+                char tmp[strlen(argv[nextarg])+150];
+                strcpy(tmp, "BOX86_LD_LIBRARY_PATH=/lib/box86:/usr/lib/box86:/lib/i386-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib/i686-pc-linux-gnu:/usr/lib32:");
+                strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
                 char *p = strchr(tmp, '=');
                 *p ='\0'; ++p;
                 setenv(tmp, p, 1);
                 printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
-                tmp[3] = '6';
-                tmp[4] = '4';
+                strcpy(tmp, "BOX64_LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:");
+                strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
+                p = strchr(tmp, '=');
+                *p ='\0'; ++p;
                 setenv(tmp, p, 1);
                 printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
             } else if(!strcmp(argv[nextarg], "--")) {
