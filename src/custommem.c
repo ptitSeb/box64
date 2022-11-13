@@ -627,13 +627,6 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
     ActuallyFreeDynarecMap(db, addr, size);
 }
 
-dynablock_t* getDB(uintptr_t addr)
-{
-    if(isJumpTableDefault64((void*)addr))
-        return NULL;
-    uintptr_t ret = getJumpAddress64(addr);
-    return *(dynablock_t**)(ret-sizeof(void*));
-}
 uintptr_t getDefaultSize(uintptr_t addr)
 {
     uintptr_t idx3, idx2, idx1, idx0;
@@ -852,6 +845,30 @@ uintptr_t getJumpAddress64(uintptr_t addr)
     }
 
     return (uintptr_t)box64_jmptbl3[idx3][idx2][idx1][idx0];
+}
+
+dynablock_t* getDB(uintptr_t addr)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = ((addr)>>48)&0xffff;
+    idx2 = ((addr)>>32)&0xffff;
+    idx1 = ((addr)>>16)&0xffff;
+    idx0 = ((addr)    )&0xffff;
+    /*if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
+        return NULL;
+    }
+    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
+        return NULL;
+    }
+    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
+        return NULL;
+    }*/
+
+    uintptr_t ret = (uintptr_t)box64_jmptbl3[idx3][idx2][idx1][idx0];
+    if(ret==(uintptr_t)native_next)
+        return NULL;
+
+    return *(dynablock_t**)(ret - sizeof(void*));
 }
 
 // Remove the Write flag from an adress range, so DB can be executed safely
@@ -1082,8 +1099,8 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
     if(end<idx) // memory addresses higher than 48bits are not tracked
         return;
     pthread_mutex_lock(&mutex_prot);
-    for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
-        if(memprot[i].prot==memprot_default) {
+    for (uintptr_t i=(idx>>16); i<=(end>>16); ++i) {
+        if(memprot[i].prot==memprot_default && prot) {
             uint8_t* newblock = box_calloc(MEMPROT_SIZE, sizeof(uint8_t));
 #if 0 //def ARM64   //disabled for now, not usefull with the mutex
             if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
@@ -1093,8 +1110,13 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
             memprot[i].prot = newblock;
 #endif
         }
-    for (uintptr_t i=idx; i<=end; ++i)
-        memprot[i>>16].prot[i&0xffff] = prot;
+        if(prot || memprot[i].prot!=memprot_default) {
+            uintptr_t bstart = ((i<<16)<addr)?(addr&0xffff):0;
+            uintptr_t bend = (((i<<16)+0xffff)>end)?(end&0xffff):0xffff;
+            for (uintptr_t j=bstart; i<=bend; ++i)
+                memprot[i].prot[j] = prot;
+        }
+    }
     pthread_mutex_unlock(&mutex_prot);
 }
 
@@ -1274,6 +1296,8 @@ void freeProtection(uintptr_t addr, size_t size)
             }*/
 #endif
             i+=finish-start;    // +1 from the "for" loop
+        } else {
+            i+=MEMPROT_SIZE-1;
         }
     }
     pthread_mutex_unlock(&mutex_prot);
