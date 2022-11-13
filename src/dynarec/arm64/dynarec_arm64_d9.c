@@ -31,6 +31,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t nextop = F8;
     uint8_t ed;
     uint8_t wback, wb1;
+    uint8_t u8;
     int64_t fixedaddress;
     int v1, v2;
     int s0;
@@ -71,6 +72,8 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xCF:
             INST_NAME("FXCH STx");
             // swap the cache value, not the double value itself :p
+            x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_ST(nextop&7));
+            x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
             x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
             // should set C1 to 0
             break;
@@ -92,6 +95,8 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xDF:
             INST_NAME("FSTPNCE ST0, STx");
             // copy the cache value for st0 to stx
+            x87_get_st_empty(dyn, ninst, x1, x2, nextop&7, X87_ST(nextop&7));
+            x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
             x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
             x87_do_pop(dyn, ninst, x3);
             break;
@@ -268,21 +273,17 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xFC:
             INST_NAME("FRNDINT");
+            #if 0
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             // use C helper for now, nothing staightforward is available
             x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_frndint, -1);
-            /*
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            VCMP_F64_0(v1);
-            VMRS_APSR();
-            B_NEXT(cVS);    // Unordered, skip
-            B_NEXT(cEQ);    // Zero, skip
+            #else
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
             u8 = x87_setround(dyn, ninst, x1, x2, x3);
-            VCVT_S32_F64(x1, v1);   // limit to 32bits....
-            VCVT_F64_S32(v1, x1);
+            FRINTID(v1, v1);
             x87_restoreround(dyn, ninst, u8);
-            */
+            #endif
             break;
         case 0xFD:
             INST_NAME("FSCALE");

@@ -1245,6 +1245,11 @@
 #define VFRINTISQ(Vd,Vn)            EMIT(FRINT_vector(1, 1, 1, 0, 1, Vn, Vd))
 #define VFRINTIDQ(Vd,Vn)            EMIT(FRINT_vector(1, 1, 1, 1, 1, Vn, Vd))
 
+#define FRINTI_scalar(type, Rn, Rd)  (0b11110<<24 | (type)<<22 | 1<<21 | 0b001<<18 | 0b111<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
+#define FRINTIS(Sd, Sn)             EMIT(FRINTI_scalar(0b00, Sn, Sd))
+#define FRINTID(Dd, Dn)             EMIT(FRINTI_scalar(0b01, Dn, Dd))
+
+
 #define FRINTxx_scalar(type, op, Rn, Rd)  (0b11110<<24 | (type)<<22 | 1<<21 | 0b0100<<17 | (op)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
 #define FRINT32ZS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b00, Sn, Sd))
 #define FRINT32ZD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b00, Dn, Dd))

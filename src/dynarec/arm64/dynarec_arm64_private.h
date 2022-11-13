@@ -19,15 +19,15 @@ typedef struct instsize_s instsize_t;
 typedef union neon_cache_s {
     int8_t           v;
     struct {
-        unsigned int t:4;   // reg type
-        unsigned int n:4;   // reg number
+        uint8_t t:4;   // reg type
+        uint8_t n:4;   // reg number
     };
 } neon_cache_t;
 typedef union sse_cache_s {
     int8_t      v;
     struct {
-        unsigned int reg:7;
-        unsigned int write:1;
+        uint8_t reg:7;
+        uint8_t write:1;
     };
 } sse_cache_t;
 typedef struct neoncache_s {

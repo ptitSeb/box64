@@ -83,6 +83,8 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xDF:
             INST_NAME("FSTP ST0, STx");
             // copy the cache value for st0 to stx
+            x87_get_st_empty(dyn, ninst, x1, x2, nextop&7, X87_ST(nextop&7));
+            x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
             x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
             x87_do_pop(dyn, ninst, x3);
             break;
@@ -162,7 +164,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1:
                     INST_NAME("FISTTP i64, ST0");
-                    v1 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
                     s0 = fpu_get_scratch(dyn);
                     #if 0
