@@ -296,3 +296,16 @@ int GetTID()
 {
     return syscall(SYS_gettid);
 }
+
+void print_cycle_log(int loglevel) {
+    if(cycle_log) {
+        printf_log(LOG_INFO, "Last calls\n");
+        int j = (my_context->current_line+1)%cycle_log;
+        for (int i=0; i<cycle_log; ++i) {
+            int k = (i+j)%cycle_log;
+            if(my_context->log_call[k][0]) {
+                printf_log(loglevel, "%s => return %s\n", my_context->log_call[k], my_context->log_ret[k]);
+            }
+        }
+    }
+}

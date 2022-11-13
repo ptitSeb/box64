@@ -999,15 +999,7 @@ exit(-1);
                 exit(-1);
             }
         }
-        if(cycle_log) {
-            int j = (my_context->current_line+1)%cycle_log;
-            for (int i=0; i<cycle_log; ++i) {
-                int k = (i+j)%cycle_log;
-                if(my_context->log_call[k][0]) {
-                    printf_log(log_minimum, "%s => return %s\n", my_context->log_call[k], my_context->log_ret[k]);
-                }
-            }
-        }
+        print_cycle_log(log_minimum);
         if(box64_showbt) {
             // show native bt
             #define BT_BUF_SIZE 100
@@ -1355,6 +1347,8 @@ EXPORT int my_getcontext(x64emu_t* emu, void* ucp)
     // get segments
     u->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
     // get FloatPoint status
+    u->uc_mcontext.fpregs = &u->xstate;
+    fpu_fxsave64(emu, &u->xstate);
     // get signal mask
     sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
     // ensure uc_link is properly initialized
@@ -1393,10 +1387,12 @@ EXPORT int my_setcontext(x64emu_t* emu, void* ucp)
     R_GS = (u->uc_mcontext.gregs[X64_CSGSFS]>>16)&0xffff;
     R_FS = (u->uc_mcontext.gregs[X64_CSGSFS]>>32)&0xffff;
     // set FloatPoint status
+    fpu_fxrstor64(emu, &u->xstate);
     // set signal mask
-    //sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
+    sigprocmask(SIG_SETMASK, (sigset_t*)&u->uc_sigmask, NULL);
     // set uc_link
     emu->uc_link = u->uc_link;
+    errno = 0;
 
     return R_EAX;
 }
