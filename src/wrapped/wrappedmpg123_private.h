@@ -86,7 +86,7 @@ GO(mpg123_open_handle_64, iFpp)
 //GO(mpg123_par, 
 GO(mpg123_param, iFpild)
 //GO(mpg123_parnew, 
-//GO(mpg123_plain_strerror, 
+GO(mpg123_plain_strerror, pFi)
 GO(mpg123_position, iFpIIpppp)
 GO(mpg123_position_32, iFpIIpppp)
 GO(mpg123_position_64, iFpIIpppp)
