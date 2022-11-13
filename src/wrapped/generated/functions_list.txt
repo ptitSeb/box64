@@ -2661,6 +2661,7 @@ wrappedgssapikrb5:
 wrappedgstapp:
 wrappedgstaudio:
 wrappedgstbase:
+wrappedgstgl:
 wrappedgstreamer:
 - vFppV:
   - gst_caps_set_simple

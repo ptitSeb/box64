@@ -66,14 +66,14 @@ GO(wl_proxy_destroy, vFp)
 //GO(wl_proxy_set_tag, 
 //GO(wl_proxy_set_user_data, 
 //GO(wl_proxy_wrapper_destroy, 
-//DATA(wl_region_interface, 
-//DATA(wl_registry_interface, 
-//DATA(wl_seat_interface, 
-//DATA(wl_shell_interface, 
-//DATA(wl_shell_surface_interface, 
-//DATA(wl_shm_interface, 
-//DATA(wl_shm_pool_interface, 
-//DATA(wl_subcompositor_interface, 
-//DATA(wl_subsurface_interface, 
-//DATA(wl_surface_interface, 
-//DATA(wl_touch_interface, 
+DATA(wl_region_interface, 40)
+DATA(wl_registry_interface, 40)
+DATA(wl_seat_interface, 40)
+DATA(wl_shell_interface, 40)
+DATA(wl_shell_surface_interface, 40)
+DATA(wl_shm_interface, 40)
+DATA(wl_shm_pool_interface, 40)
+DATA(wl_subcompositor_interface, 40)
+DATA(wl_subsurface_interface, 40)
+DATA(wl_surface_interface, 40)
+DATA(wl_touch_interface, 40)

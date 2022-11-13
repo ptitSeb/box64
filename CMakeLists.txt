@@ -322,6 +322,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedgstapp.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgstaudio.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgstbase.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedgstgl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgstreamer.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgsttag.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgstvideo.c"

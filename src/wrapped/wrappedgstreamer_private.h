@@ -358,7 +358,7 @@ GO(gst_clear_structure, vFp)
 //GO(gst_context_get_type, 
 //GO(gst_context_has_context_type, 
 //GO(gst_context_is_persistent, 
-//GO(gst_context_new, 
+GO(gst_context_new, pFpi)
 //GO(gst_context_ref, 
 //GO(gst_context_replace, 
 //DATAB(_gst_context_type, 
