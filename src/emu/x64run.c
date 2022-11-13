@@ -49,7 +49,17 @@ int Run(x64emu_t *emu, int step)
         return 0;
     if(addr==0) {
         emu->quit = 1;
-        printf_log(LOG_INFO, "Ask to run at NULL, quit silently\n");
+        printf_log(LOG_INFO, "%04d|Ask to run at NULL, quit silently\n", GetTID());
+        if(cycle_log) {
+            printf_log(LOG_INFO, "Last calls\n");
+            int j = (my_context->current_line+1)%cycle_log;
+            for (int i=0; i<cycle_log; ++i) {
+                int k = (i+j)%cycle_log;
+                if(my_context->log_call[k][0]) {
+                    printf_log(LOG_INFO, "%s => return %s\n", my_context->log_call[k], my_context->log_ret[k]);
+                }
+            }
+        }
         return 0;
     }
     //ref opcode: http://ref.x64asm.net/geek32.html#xA1
