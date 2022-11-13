@@ -1452,14 +1452,14 @@ GO(4)
 
 // dl_iterate_phdr ...
 #define GO(A)   \
-static uintptr_t my_dl_iterate_phdr_fct_##A = 0;                            \
-static int my_dl_iterate_phdr_##A(struct dl_phdr_info* a, size_t b, void* c)\
-{                                                                           \
-    if(!a->dlpi_name)                                                       \
-        return 0;                                                           \
-    if(!a->dlpi_name[0]) /*don't send informations about box64 itself*/     \
-        return 0;                                                           \
-    return RunFunction(my_context, my_dl_iterate_phdr_fct_##A, 3, a, b, c); \
+static uintptr_t my_dl_iterate_phdr_fct_##A = 0;                                    \
+static int my_dl_iterate_phdr_##A(struct dl_phdr_info* a, size_t b, void* c)        \
+{                                                                                   \
+    if(!a->dlpi_name)                                                               \
+        return 0;                                                                   \
+    if(!a->dlpi_name[0]) /*don't send informations about box64 itself*/             \
+        return 0;                                                                   \
+    return (int)RunFunction(my_context, my_dl_iterate_phdr_fct_##A, 3, a, b, c);    \
 }
 SUPER()
 #undef GO
