@@ -403,3 +403,4 @@ GO(gst_gl_display_new_with_type, pFi)
 //GO(gst_is_gl_memory_egl, 
 //GO(gst_is_gl_memory_pbo, 
 //GO(gst_is_gl_renderbuffer, 
+
