@@ -934,8 +934,15 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
 exit(-1);
     } else {
         if(sig==SIGSEGV && info->si_code==2 && ((prot&~PROT_CUSTOM)==5 || (prot&~PROT_CUSTOM)==7)) {
-            relockMutex(Locks);
-            return; // that's probably just a multi-task glitch, like seen in terraria
+            static uintptr_t old_addr = 0;
+        printf_log(/*LOG_DEBUG*/LOG_INFO, "Strange SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x (old_addr=%p)\n", pc, addr, db, prot, (void*)old_addr);
+            if(old_addr!=(uintptr_t)addr) {
+                old_addr = (uintptr_t)addr;
+                refreshProtection(old_addr);
+                relockMutex(Locks);
+                return; // that's probably just a multi-task glitch, like seen in terraria
+            }
+            old_addr = 0;
         }
         old_code = info->si_code;
         old_pc = pc;

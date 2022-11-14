@@ -5,6 +5,7 @@
 #include <dlfcn.h>
 #include <signal.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include "box64context.h"
 #include "elfloader.h"
@@ -1111,11 +1112,23 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 #endif
         }
         if(prot || memprot[i].prot!=memprot_default) {
-            uintptr_t bstart = ((i<<16)<addr)?(addr&0xffff):0;
+            uintptr_t bstart = ((i<<16)<idx)?(idx&0xffff):0;
             uintptr_t bend = (((i<<16)+0xffff)>end)?(end&0xffff):0xffff;
             for (uintptr_t j=bstart; i<=bend; ++i)
                 memprot[i].prot[j] = prot;
         }
+    }
+    pthread_mutex_unlock(&mutex_prot);
+}
+
+void refreshProtection(uintptr_t addr)
+{
+    pthread_mutex_lock(&mutex_prot);
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    if(memprot[idx>>16].prot!=memprot_default) {
+        int prot = memprot[idx>>16].prot[idx&0xffff];
+        int ret = mprotect((void*)(idx<<MEMPROT_SHIFT), box64_pagesize, prot&~PROT_CUSTOM);
+printf_log(LOG_INFO, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr, (void*)(idx<<MEMPROT_SHIFT), prot, ret, ret?strerror(errno):"ok");
     }
     pthread_mutex_unlock(&mutex_prot);
 }
@@ -1263,24 +1276,10 @@ void freeProtection(uintptr_t addr, size_t size)
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         const uint32_t key = (i>>16);
+        const uintptr_t start = i&(MEMPROT_SIZE-1);
+        const uintptr_t finish = (((i|(MEMPROT_SIZE-1))<end)?(MEMPROT_SIZE-1):end)&(MEMPROT_SIZE-1);
         if(memprot[key].prot!=memprot_default) {
-            const uintptr_t start = i&(MEMPROT_SIZE-1);
-            const uintptr_t finish = (((i|(MEMPROT_SIZE-1))<end)?(MEMPROT_SIZE-1):end)&(MEMPROT_SIZE-1);
             uint8_t *block = memprot[key].prot;
-            memset(block+start, 0, (finish-start+1)*sizeof(uint8_t));
-            // blockempty is quite slow, so disable the free of blocks for now
-#if 0 //def ARM64   //disabled for now, not useful with the mutex
-            if (blockempty(block)) {
-                block = (void*)native_lock_xchg(&memprot[key], (uintptr_t)memprot_default);
-                if(!blockempty(block)) {
-                    block = (void*)native_lock_xchg(&memprot[key], (uintptr_t)block);
-                    for (int i = 0; i < 0x10000; ++i) {
-                        memprot[key][i] |= block[i];
-                    }
-                }
-                if (block != memprot_default) box_free(block);
-            }
-#else
             if(start==0 && finish==MEMPROT_SIZE-1) {
                 memprot[key].prot = memprot_default;
                 box_free(block);
@@ -1289,16 +1288,29 @@ void freeProtection(uintptr_t addr, size_t size)
                     memprot[key].hot = NULL;
                     box_free(hot);
                 }
-            }
-            /*else if(blockempty(block)) {
-                memprot[key] = memprot_default;
-                box_free(block);
-            }*/
+            } else {
+                memset(block+start, 0, (finish-start+1)*sizeof(uint8_t));
+                // blockempty is quite slow, so disable the free of blocks for now
+#if 0 //def ARM64   //disabled for now, not useful with the mutex
+                if (blockempty(block)) {
+                    block = (void*)native_lock_xchg(&memprot[key], (uintptr_t)memprot_default);
+                    if(!blockempty(block)) {
+                        block = (void*)native_lock_xchg(&memprot[key], (uintptr_t)block);
+                        for (int i = 0; i < 0x10000; ++i) {
+                            memprot[key][i] |= block[i];
+                        }
+                    }
+                    if (block != memprot_default) box_free(block);
+                }
+#else
+                /*else if(blockempty(block)) {
+                    memprot[key] = memprot_default;
+                    box_free(block);
+                }*/
 #endif
-            i+=finish-start;    // +1 from the "for" loop
-        } else {
-            i+=MEMPROT_SIZE-1;
+            }
         }
+        i+=finish-start;    // +1 from the "for" loop
     }
     pthread_mutex_unlock(&mutex_prot);
 }
