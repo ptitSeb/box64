@@ -81,6 +81,7 @@ int allow_missing_libs = 0;
 int box64_prefer_emulated = 0;
 int box64_prefer_wrapped = 0;
 int fix_64bit_inodes = 0;
+int box64_dummy_crashhandler = 0;
 int box64_mapclean = 0;
 int box64_zoom = 0;
 int box64_steam = 0;
@@ -583,6 +584,15 @@ void LoadLogEnv()
         if(allow_missing_libs)
             printf_log(LOG_INFO, "Allow missing needed libs\n");
     }
+    p = getenv("BOX64_CRASHHANDLER");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_dummy_crashhandler = p[0]-'0';
+        }
+        if(box64_dummy_crashhandler)
+            printf_log(LOG_INFO, "Use of dummy crashhandler lib\n");
+    }
     p = getenv("BOX64_NOPULSE");
     if(p) {
         if(strlen(p)==1) {
@@ -780,6 +790,7 @@ void PrintHelp() {
     printf(" BOX64_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
     printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11\n");
     printf(" BOX64_PREFER_WRAPPED if box64 will use wrapped libs even if the lib is specified with absolute path\n");
+    printf(" BOX64_CRASHHANDLER=1 to use a dummy crashhandler lib (default for steam\n");
     printf(" BOX64_NOPULSE=1 to disable the loading of pulseaudio libs\n");
     printf(" BOX64_NOGTK=1 to disable the loading of wrapped gtk libs\n");
     printf(" BOX64_NOVULKAN=1 to disable the loading of wrapped vulkan libs\n");
@@ -1247,9 +1258,17 @@ int main(int argc, const char **argv, char **env) {
     }
     // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
     if(!strcmp(prgname, "steam")) {
-        printf_log(LOG_INFO, "steam detected, forcing emulated libudev\n");
+        printf_log(LOG_INFO, "steam detected...\n");
         AddPath("libudev.so.0", &my_context->box64_emulated_libs, 0);
         box64_steam = 1;
+        box64_dummy_crashhandler = 1;
+    }
+    if(!strcmp(prgname, "dota2")) {
+        printf_log(LOG_INFO, "dota2 detected, forcing dummy crashhandler\n");
+        box64_dummy_crashhandler = 1;
+        #ifdef DYNAREC
+        box64_dynarec_strongmem = 2;
+        #endif
     }
     // special case for steam-runtime-check-requirements to fake 64bits suport
     if(strstr(prgname, "steam-runtime-check-requirements")==prgname) {

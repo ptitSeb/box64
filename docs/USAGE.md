@@ -143,7 +143,7 @@ Enables/Disables Box64's Dynarec building BigBlock.
 Enable/Disable simulation of Strong Memory model
 * 0 : Don't try anything special (Default.)
 * 1 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
-* 2 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model
+* 2 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model (enabled with dota2 is detected)
 
 #### BOX64_DYNAREC_X87DOUBLE
 Force the use of Double for x87 emulation
@@ -189,6 +189,11 @@ Box64 will use wrapped libs even if the lib is specified with absolute path
 Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11
  * 0 : Native libs are prefered (Default.)
  * 1 : Emulated libs are prefered (Default for program running inside pressure-vessel)
+
+#### BOX64_CRASHHANDLER
+Box64 will use a dummy crashhandler.so library
+ * 0 : Use Emulated crashhandler.so library if needed
+ * 1 : Use an internal dummy (completly empty) crashhandler.so library (defaut for steam and dota2)
 
 #### BOX64_NOPULSE
 Disables the load of pulseaudio libraries.
