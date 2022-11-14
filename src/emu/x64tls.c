@@ -188,7 +188,7 @@ static int sizeDTS(box64context_t* context)
 }
 static int sizeTLSData(int s)
 {
-    uint32_t mask = box64_nogtk?0xffff:0x1fff;
+    uint32_t mask = 0xffff/*box64_nogtk?0xffff:0x1fff*/;    // x86_64 does the mapping per 64K blocks, so it makes sense to have it this large
     return (s+mask)&~mask;
 }
 
