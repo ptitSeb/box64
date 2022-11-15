@@ -136,6 +136,31 @@ static void atfork_child_box64context(void)
     init_mutexes(my_context);
 }
 
+void freeCycleLog(box64context_t* ctx)
+{
+    if(cycle_log) {
+        for(int i=0; i<cycle_log; ++i) {
+            box_free(ctx->log_call[i]);
+            box_free(ctx->log_ret[i]);
+        }
+        box_free(ctx->log_call);
+        box_free(ctx->log_ret);
+        ctx->log_call = NULL;
+        ctx->log_ret = NULL;
+    }
+}
+void initCycleLog(box64context_t* context)
+{
+    if(cycle_log) {
+        context->log_call = (char**)box_calloc(cycle_log, sizeof(char*));
+        context->log_ret = (char**)box_calloc(cycle_log, sizeof(char*));
+        for(int i=0; i<cycle_log; ++i) {
+            context->log_call[i] = (char*)box_calloc(256, 1);
+            context->log_ret[i] = (char*)box_calloc(128, 1);
+        }
+    }
+}
+
 EXPORTDYN
 box64context_t *NewBox64Context(int argc)
 {
@@ -148,14 +173,7 @@ box64context_t *NewBox64Context(int argc)
     // init and put default values
     box64context_t *context = my_context = (box64context_t*)box_calloc(1, sizeof(box64context_t));
 
-    if(cycle_log) {
-        context->log_call = (char**)box_calloc(cycle_log, sizeof(char*));
-        context->log_ret = (char**)box_calloc(cycle_log, sizeof(char*));
-        for(int i=0; i<cycle_log; ++i) {
-            context->log_call[i] = (char*)box_calloc(256, 1);
-            context->log_ret[i] = (char*)box_calloc(128, 1);
-        }
-    }
+    initCycleLog(context);
 
     context->deferedInit = 1;
     context->sel_serial = 1;
@@ -299,14 +317,7 @@ void FreeBox64Context(box64context_t** context)
     pthread_mutex_destroy(&ctx->mutex_thread);
     pthread_mutex_destroy(&ctx->mutex_bridge);
 
-    if(cycle_log) {
-        for(int i=0; i<cycle_log; ++i) {
-            box_free(ctx->log_call[i]);
-            box_free(ctx->log_ret[i]);
-        }
-        box_free(ctx->log_call);
-        box_free(ctx->log_ret);
-    }
+    freeCycleLog(ctx);
 
     box_free(ctx);
 }

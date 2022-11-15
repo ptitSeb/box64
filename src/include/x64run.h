@@ -10,6 +10,5 @@ uint32_t LibSyscall(x64emu_t *emu);
 void PltResolver(x64emu_t* emu);
 extern uintptr_t pltResolver;
 int GetTID();
-void print_cycle_log(int loglevel);
 
 #endif //__X64RUN_H_
