@@ -44,10 +44,10 @@ GO(AES_wrap_key, iFppppi)
 //GO(asn1_add_error, 
 //GO(ASN1_add_oid_module, 
 //GO(ASN1_BIT_STRING_check, 
-//GO(ASN1_BIT_STRING_free, 
+GO(ASN1_BIT_STRING_free, vFp)
 //GO(ASN1_BIT_STRING_get_bit, 
 //GO(ASN1_BIT_STRING_name_print, 
-//GO(ASN1_BIT_STRING_new, 
+GO(ASN1_BIT_STRING_new, pFv)
 //GO(ASN1_BIT_STRING_num_asc, 
 //GO(ASN1_BIT_STRING_set, 
 //GO(ASN1_BIT_STRING_set_asc, 
@@ -98,9 +98,9 @@ GO(ASN1_ENUMERATED_to_BN, pFpp)
 //GO(ASN1_IA5STRING_new, 
 //GO(ASN1_INTEGER_cmp, 
 //GO(ASN1_INTEGER_dup, 
-//GO(ASN1_INTEGER_free, 
+GO(ASN1_INTEGER_free, vFp)
 GO(ASN1_INTEGER_get, lFp)
-//GO(ASN1_INTEGER_new, 
+GO(ASN1_INTEGER_new, pFv)
 GO(ASN1_INTEGER_set, iFpl)
 GO(ASN1_INTEGER_to_BN, pFpp)
 //GO(ASN1_item_d2i, 
