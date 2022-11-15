@@ -3959,3 +3959,16 @@ GO(glTextureFogSGIX, vFu)
 // GL_ANGLE_request_extension
 GO(glDisableExtensionANGLE, vFp)
 GO(glRequestExtensionANGLE, vFp)
+
+// GL_KHR_debug
+GO(glDebugMessageControlKHR, vFiiilpi)
+GO(glDebugMessageInsertKHR, vFiiuilp)
+GOM(glDebugMessageCallbackKHR, vFEpp)
+GO(glGetDebugMessageLogKHR, uFulpppppp)
+GO(glPushDebugGroupKHR, vFiulp)
+GO(glPopDebugGroupKHR, vFv)
+GO(glObjectLabelKHR, vFiulp)
+GO(glGetObjectLabelKHR, vFiulpp)
+GO(glObjectPtrLabelKHR, vFplp)
+GO(glGetObjectPtrLabelKHR, vFplpp)
+GO(glGetPointervKHR, vFip)

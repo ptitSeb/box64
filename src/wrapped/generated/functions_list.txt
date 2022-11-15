@@ -693,6 +693,7 @@
 #() vFpdip
 #() vFpddi
 #() vFpddd
+#() vFplpp
 #() vFpLLL
 #() vFppii
 #() vFppiu
@@ -1352,7 +1353,9 @@
 #() vFEppppp
 #() vFiiiiii
 #() vFiiiuil
+#() vFiiilpi
 #() vFiiuiil
+#() vFiiuilp
 #() vFiiuulp
 #() vFiililp
 #() vFiiplli
@@ -1923,6 +1926,7 @@
 #() uFEpppuppp
 #() uFEppppppp
 #() uFuipppppp
+#() uFulpppppp
 #() uFpupuuuCp
 #() uFppuuuupp
 #() uFppuuuppi
@@ -3206,6 +3210,7 @@ wrappedlibgl:
   - glDebugMessageCallback
   - glDebugMessageCallbackAMD
   - glDebugMessageCallbackARB
+  - glDebugMessageCallbackKHR
 - vFipp:
   - glProgramCallbackMESA
 wrappedlibglu:

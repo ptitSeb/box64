@@ -158,6 +158,7 @@ EXPORT void my_glDebugMessageCallback(x64emu_t* emu, void* prod, void* param)
 }
 EXPORT void my_glDebugMessageCallbackARB(x64emu_t* emu, void* prod, void* param) __attribute__((alias("my_glDebugMessageCallback")));
 EXPORT void my_glDebugMessageCallbackAMD(x64emu_t* emu, void* prod, void* param) __attribute__((alias("my_glDebugMessageCallback")));
+EXPORT void my_glDebugMessageCallbackKHR(x64emu_t* emu, void* prod, void* param) __attribute__((alias("my_glDebugMessageCallback")));
 
 EXPORT int my_glXSwapIntervalMESA(int interval)
 {
