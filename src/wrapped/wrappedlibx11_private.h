@@ -303,7 +303,7 @@ GO(_XEatDataWords, vFpL)
 //GO(XEHeadOfExtensionList
 GO(XEmptyRegion, iFp)
 GO(XEnableAccessControl, vFp)
-// _XEnq
+GO(_XEnq, vFpp)
 GO(XEqualRegion, iFpp)
 // _XError
 DATAB(_XErrorFunction, sizeof(void*))
