@@ -441,7 +441,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.dynablock = block;
     helper.start = addr;
     uintptr_t start = addr;
-    helper.cap = 64; // needs epilog handling
+    helper.cap = 128;
     helper.insts = (instruction_native_t*)customCalloc(helper.cap, sizeof(instruction_native_t));
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr);
