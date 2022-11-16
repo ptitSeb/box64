@@ -23,7 +23,7 @@ prepare() {
 	cd "${srcdir}/${pkgname%-rk3399-git}"
 	if [[ ! -d ./build ]]; then
 		mkdir build && cd build
-                cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=Debug
+                cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
 	fi
 }
 
@@ -35,10 +35,4 @@ build() {
 package() {
 	cd "$srcdir/${pkgname%-rk3399-git}/build"
 	make DESTDIR="${pkgdir}/" install
-	# /usr/local/bin isn't in PATH by the default,
-	# we should move it to /usr/bin
-	cd ${pkgdir}
-	mv usr/local/bin/ usr/bin/
-	# cleanup when dir is empty
-	rmdir usr/local || exit 0
 }
