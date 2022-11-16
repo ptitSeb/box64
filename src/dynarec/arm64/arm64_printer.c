@@ -776,7 +776,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     if(isMask(opcode, "10011011U10mmmmm011111nnnnnddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%cMULH %s, %s, %s", a.U?'U':'S', Xt[Rd], Wt[Rn], Wt[Rm]);
+        snprintf(buff, sizeof(buff), "%cMULH %s, %s, %s", a.U?'U':'S', Xt[Rd], Xt[Rn], Xt[Rm]);
         return buff;
     }
     if(isMask(opcode, "f0011011000mmmmm0aaaaannnnnddddd", &a)) {

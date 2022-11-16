@@ -1542,7 +1542,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = F8;
                     MOV32w(x2, u8);
                     CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
-                    SBACK(x1);
+                    WBACK;
                     break;
                 case 3:
                     INST_NAME("RCR Ed, Ib");
@@ -1553,7 +1553,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = F8;
                     MOV32w(x2, u8);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
-                    SBACK(x1);
+                    WBACK;
                     break;
                 case 4:
                 case 6:
@@ -1856,8 +1856,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     MOV32w(x2, 1);
                     GETEDW(x4, x1, 0);
-                    CALL_(rcl32, ed, x4);
-                    SBACK(x1);
+                    CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
+                    WBACK;
                     break;
                 case 3:
                     INST_NAME("RCR Ed, 1");
@@ -1866,8 +1866,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     MOV32w(x2, 1);
                     GETEDW(x4, x1, 0);
-                    CALL_(rcr32, ed, x4);
-                    SBACK(x1);
+                    CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
+                    WBACK;
                     break;
                 case 4:
                 case 6:
@@ -1961,7 +1961,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
-                    SBACK(x1);
+                    WBACK;
                     break;
                 case 3:
                     INST_NAME("RCR Ed, CL");
@@ -1977,7 +1977,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
-                    SBACK(x1);
+                    WBACK;
                     break;
                 case 4:
                 case 6:
