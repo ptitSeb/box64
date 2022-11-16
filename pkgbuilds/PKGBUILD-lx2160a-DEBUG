@@ -23,7 +23,7 @@ prepare() {
 	cd "${srcdir}/${pkgname%-lx2160a-git}"
 	if [[ ! -d ./build ]]; then
 		mkdir build && cd build
-		cmake .. -DLX2160A=1 -DCMAKE_BUILD_TYPE=Debug
+		cmake .. -DLX2160A=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
 	fi
 }
 
@@ -35,10 +35,4 @@ build() {
 package() {
 	cd "$srcdir/${pkgname%-lx2160a-git}/build"
 	make DESTDIR="${pkgdir}/" install
-	# /usr/local/bin isn't in PATH by the default,
-	# we should move it to /usr/bin
-	cd ${pkgdir}
-	mv usr/local/bin/ usr/bin/
-	# cleanup when dir is empty
-	rmdir usr/local || exit 0
 }
