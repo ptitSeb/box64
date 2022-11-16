@@ -132,8 +132,6 @@
 #define WBACKx      if(wback) {STRx_U12(ed, wback, fixedaddress);}
 // Write back ed in wback (if wback not 0)
 #define WBACKw      if(wback) {STRw_U12(ed, wback, fixedaddress);}
-// Send back wb to either ed or wback
-#define SBACK(wb)   if(wback) {STRxw_U12(wb, wback, fixedaddress);} else {MOVxw_REG(ed, wb);}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O, D)   if(MODREG) {                     \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \

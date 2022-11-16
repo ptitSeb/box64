@@ -1149,7 +1149,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGD;
             MOVxw_REG(x2, gd);
             CALL_(rex.w?((void*)shld64):((void*)shld32), ed, x4);
-            SBACK(x1);
+            WBACK;
             break;
 
         case 0xAB:
@@ -1209,7 +1209,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGD;
             MOVxw_REG(x2, gd);
             CALL_(rex.w?((void*)shrd64):((void*)shrd32), ed, x4);
-            SBACK(x1);
+            WBACK;
             break;
 
         case 0xAE:
