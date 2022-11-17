@@ -61,9 +61,7 @@ Note that many installer (mojo setup based) will fall back to "x86" when detecti
 Notes about Unity game emulation
 ----
 
-Running Unity games is a hit or miss for now. Unity uses Mono (which uses signals that are not always emulated in a 100% accurate way).
-You should also note that some Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers).
-So, not all Unity games work and can require a high OpenGL profile, but many actualy work now.
+Running Unity games should just works, but you should also note that many Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers). Also many newer Unity3D (like KSP) games use the BC7 compressed textures, wich is not supported on many ARM integrated GPU.
 Hint: on Pi4, use `MESA_GL_VERSION_OVERRIDE=3.2` and with Panfrost use `PAN_MESA_DEBUG=gl3` to use higher profile if the game starts then quits before showing anything.
 
 ----
@@ -71,7 +69,7 @@ Hint: on Pi4, use `MESA_GL_VERSION_OVERRIDE=3.2` and with Panfrost use `PAN_MESA
 Notes about GTK programs
 ----
 
-GTK libraries are now wrapped on box64, bu only gtk2, not gtk3 (contrary to box86).
+GTK libraries are now wrapped on box64, both gtk2 and gtk3.
 
 ----
 
@@ -86,14 +84,15 @@ So, no Steam for now on box64.
 Notes about Wine
 ----
 
-Wine64 is supported on box64. Proton should also work. Be aware that 64-bit Wine also includes 32-bit components, to be able to run 32-bit Windows programs. The 32-bit apps will need box86 and will not run without it. On a system where both box64 and box86 are present and working, a wine 64-bit setup can run both 32-bit and 64-bit Windows programs (just use `wine` and `wine64` respectively)
+Wine64 is supported on box64. Proton should also work. Be aware that 64-bit Wine also includes 32-bit components, to be able to run 32-bit Windows programs. The 32-bit apps will need box86 and will not run without it. On a system where both box64 and box86 are present and working, a wine 64-bit setup can run both 32-bit and 64-bit Windows programs (just use `wine` and `wine64` respectively).
+Note that the new 32bits PE in 64bits process that the Wine time in currently implementing in Wine 7.+ is not yet supported. I tested Wine 7.5 64bits and it worked, but more recent version will probably just not work yet.
 
 ----
 
 Notes about Vulkan
 ----
 
-Box64 wraps Vulkan libraries, but note that it as only been tested with a RX550 card, some extensions may be missing depending on your graphics card.
+Box64 wraps Vulkan libraries, but note that it as only been tested with a RX550 card, so some extensions may be missing depending on your graphics card.
 
 ----
 

@@ -1,3 +1,31 @@
+v0.2.0
+======
+* Wrapped more vulkan function, dxvk 2.0 now works
+* Added support for overriden malloc/free functions
+* Refactor Dynarec memory management, reducing memory footprint (from 20% to 40% of Dynarec size)
+* Improved elf loader
+* Improved dlsym handling with RTLD_NEXT
+* Added BOX64_DYNAREC_SAFEFLAGS to allow finetuning Dynarec generated code handling of flags accross function calls and returns.
+* Added BOX64_BASH to setup x86_64 bash binary, so shell script can be run in x86_64 world 
+* Added BOX64_ROLLING_LOG to have details log only on crash
+* Work on alignment for some of pthread structures
+* More wrapped libraries in the gtk family
+* Some fixes on the Dynarec x87 code (fixing a bunch of games like ut2004 or Piczle Puzzle)
+* Improved TLS Size handling (Unity3D games now works)
+* More PageSize Compile options
+* Improved `execv` family of function to have better box64 integration
+* Added support for wrapped libfuse so AppImage works
+* Adjusted the binfmt integration so AppImage are automaticaly picked
+* Improved FAudio, SDL2, GL (and more) wrapping
+* More wrapped libs, like libEGL.so, to helps emulated Qt4/5 libs to load
+* Improved Signal Handling and memory protection traking
+* Some signature fixes to some wrapped functions (in libc)
+* Added more syscalls
+* Added a lot of new opcodes to the ARM64 Dynarec
+=> Lot's of new games stat working, to name a few: Surviving Mars, Piczle Cross Adventure (using Proton experimental), UT2004, Obduction, Machinarium, Silicon Zero, Hacknet, Absolute Drift, Art of Rally, Dota2
+=> Some apps also runs now, like TeamSpeak 3 Client and Server or Discord
+=> The bash integration is usefull for device with no binfmt integration or for script that check the machine it's running on
+
 v0.1.8
 ======
 * Added an option to get generated -NAN on SSE2 operation
