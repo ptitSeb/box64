@@ -444,7 +444,7 @@ pid_t EXPORT my_vfork(x64emu_t* emu)
 {
     #if 1
     emu->quit = 1;
-    emu->fork = 1;  // use regular fork...
+    emu->fork = 3;  // use regular fork...
     return 0;
     #else
     return 0;
@@ -1635,7 +1635,7 @@ EXPORT int32_t my_epoll_ctl(x64emu_t* emu, int32_t epfd, int32_t op, int32_t fd,
     struct epoll_event _event[1] = {0};
     if(event && (op!=EPOLL_CTL_DEL))
         AlignEpollEvent(_event, event, 1);
-    return epoll_ctl(epfd, op, fd, event?_event:event);
+    return epoll_ctl(epfd, op, fd, event?_event:NULL);
 }
 EXPORT int32_t my_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout)
 {
