@@ -456,24 +456,19 @@ EXPORT void my3_gtk_message_dialog_format_secondary_text(x64emu_t* emu, void* di
     my->gtk_message_dialog_format_secondary_text(dialog, buf);
     free(buf);
 }
-/*
+
 EXPORT void my3_gtk_message_dialog_format_secondary_markup(x64emu_t* emu, void* dialog, void* fmt, void* b)
 {
     char* buf = NULL;
-    #ifndef NOALIGN
-    myStackAlign((const char*)fmt, b, emu->scratch);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
-    iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, VARARGS);
-    #else
-    iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, b);
-    #endif
+    int ret = vasprintf(&buf, fmt, VARARGS);
+    (void)ret;
     // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
     my->gtk_message_dialog_format_secondary_markup(dialog, buf);
     free(buf);
 }
-*/
+
 EXPORT void* my3_gtk_type_class(x64emu_t* emu, size_t type)
 {
     void* class = my->gtk_type_class(type);

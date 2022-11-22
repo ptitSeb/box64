@@ -72,18 +72,18 @@ DATA(g_cclosure_marshal_VOID__VOIDv, sizeof(void*))
 //GO(g_cclosure_new_swap, 
 //GO(g_checksum_get_type, 
 GO(g_clear_object, vFp)
-//GO(g_closure_add_finalize_notifier, 
+GOM(g_closure_add_finalize_notifier, vFEppp)
 //GO(g_closure_add_invalidate_notifier, 
 //GO(g_closure_add_marshal_guards, 
 //GO(g_closure_get_type, 
 //GO(g_closure_invalidate, 
 //GO(g_closure_invoke, 
 //GO(g_closure_new_object, 
-//GO(g_closure_new_simple, 
+GO(g_closure_new_simple, pFup)
 //GO(g_closure_ref, 
 //GO(g_closure_remove_finalize_notifier, 
 //GO(g_closure_remove_invalidate_notifier, 
-//GO(g_closure_set_marshal, 
+GOM(g_closure_set_marshal, vFEpp)
 //GO(g_closure_set_meta_marshal, 
 //GO(g_closure_sink, 
 //GO(g_closure_unref, 
@@ -260,7 +260,7 @@ GO(g_signal_stop_emission, vFpup)
 GO(g_signal_stop_emission_by_name, vFpp)
 GO(g_signal_type_cclosure_new, pFLu)    //should wrap?
 GO(g_source_get_type, LFv)
-//GO(g_source_set_closure, 
+GO(g_source_set_closure, vFpp)
 //GO(g_source_set_dummy_callback, 
 GO(g_strdup_value_contents, pFp)
 GO(g_strv_get_type, LFv)

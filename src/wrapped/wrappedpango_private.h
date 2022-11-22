@@ -97,7 +97,7 @@ GO(pango_context_set_matrix, vFpp)
 //GO(pango_coverage_unref, 
 //GO(pango_default_break, 
 //GO(pango_direction_get_type, 
-//GO(pango_ellipsize_mode_get_type, 
+GO(pango_ellipsize_mode_get_type, lFv)
 //GO(pango_engine_get_type, 
 //GO(pango_engine_lang_get_type, 
 //GO(pango_engine_shape_get_type, 

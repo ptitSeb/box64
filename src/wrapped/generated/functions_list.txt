@@ -2268,6 +2268,7 @@ wrappedbz2:
 - iFpiii:
   - BZ2_bzCompressInit
 wrappedcairo:
+wrappedcairogobject:
 wrappedcrashhandler:
 wrappedcrypto:
 - vFp:
@@ -2642,6 +2643,8 @@ wrappedgnutls:
 wrappedgobject2:
 - pFp:
   - g_type_class_peek_parent
+- vFpp:
+  - g_closure_set_marshal
 - iFpp:
   - g_param_type_register_static
 - pFpp:
@@ -2653,6 +2656,7 @@ wrappedgobject2:
 - vFpup:
   - g_object_class_install_properties
 - vFppp:
+  - g_closure_add_finalize_notifier
   - g_object_weak_ref
   - g_signal_override_class_handler
 - vFppV:

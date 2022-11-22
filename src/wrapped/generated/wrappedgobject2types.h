@@ -12,6 +12,7 @@
 #endif
 
 typedef void* (*pFp_t)(void*);
+typedef void (*vFpp_t)(void*, void*);
 typedef int64_t (*iFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFiip_t)(int64_t, int64_t, void*);
@@ -43,11 +44,13 @@ typedef uint64_t (*uFpLippppLuA_t)(void*, uintptr_t, int64_t, void*, void*, void
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(g_type_class_peek_parent, pFp_t) \
+	GO(g_closure_set_marshal, vFpp_t) \
 	GO(g_param_type_register_static, iFpp_t) \
 	GO(g_value_array_sort, pFpp_t) \
 	GO(g_value_register_transform_func, vFiip_t) \
 	GO(g_type_add_interface_static, vFLLp_t) \
 	GO(g_object_class_install_properties, vFpup_t) \
+	GO(g_closure_add_finalize_notifier, vFppp_t) \
 	GO(g_object_weak_ref, vFppp_t) \
 	GO(g_signal_override_class_handler, vFppp_t) \
 	GO(g_object_get, vFppV_t) \

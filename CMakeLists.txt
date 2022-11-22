@@ -294,6 +294,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedatspi.c"
     "${BOX64_ROOT}/src/wrapped/wrappedbz2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcairo.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedcairogobject.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcrashhandler.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcrypto.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcurl.c"
