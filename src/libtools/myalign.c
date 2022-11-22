@@ -11,6 +11,7 @@
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
 #include "myalign.h"
+#include "debug.h"
 
 static int regs_abi[] = {_DI, _SI, _DX, _CX, _R8, _R9};
 
@@ -550,16 +551,9 @@ void AlignStat64(const void* source, void* dest)
     st->st_ctim     = x64st->st_ctim;
 }
 
-typedef union __attribute__((packed)) x64_epoll_data {
-    void    *ptr;
-    int      fd;
-    uint32_t u32;
-    uint64_t u64;
-} x64_epoll_data_t;
-
 struct __attribute__((packed)) x64_epoll_event {
     uint32_t            events;
-    x64_epoll_data_t    data;
+    uint64_t            data;
 };
 // Arm -> x64
 void UnalignEpollEvent(void* dest, void* source, int nbr)
@@ -568,7 +562,7 @@ void UnalignEpollEvent(void* dest, void* source, int nbr)
     struct epoll_event *arm_struct = (struct epoll_event*)source;
     while(nbr) {
         x64_struct->events = arm_struct->events;
-        x64_struct->data.u64 = arm_struct->data.u64;
+        x64_struct->data = arm_struct->data.u64;
         ++x64_struct;
         ++arm_struct;
         --nbr;
@@ -582,7 +576,7 @@ void AlignEpollEvent(void* dest, void* source, int nbr)
     struct epoll_event *arm_struct = (struct epoll_event*)dest;
     while(nbr) {
         arm_struct->events = x64_struct->events;
-        arm_struct->data.u64 = x64_struct->data.u64;
+        arm_struct->data.u64 = x64_struct->data;
         ++x64_struct;
         ++arm_struct;
         --nbr;
