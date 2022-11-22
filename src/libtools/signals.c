@@ -371,7 +371,7 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
         return -1;
     }
 	x64_stack_t *new_ss = (x64_stack_t*)pthread_getspecific(sigstack_key);
-    if(!ss) {
+    if(oss) {
         if(!new_ss) {
             oss->ss_flags = SS_DISABLE;
             oss->ss_sp = emu->init_stack;
@@ -381,6 +381,8 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
             oss->ss_sp = new_ss->ss_sp;
             oss->ss_size = new_ss->ss_size;
         }
+    }
+    if(!ss) {
         return 0;
     }
     printf_log(LOG_DEBUG, "%04d|sigaltstack called ss=%p[flags=0x%x, sp=%p, ss=0x%lx], oss=%p\n", GetTID(), ss, ss->ss_flags, ss->ss_sp, ss->ss_size, oss);
@@ -397,19 +399,9 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
         return 0;
     }
 
-    if(oss) {
-        if(!new_ss) {
-            oss->ss_flags = SS_DISABLE;
-            oss->ss_sp = emu->init_stack;
-            oss->ss_size = emu->size_stack;
-        } else {
-            oss->ss_flags = new_ss->ss_flags;
-            oss->ss_sp = new_ss->ss_sp;
-            oss->ss_size = new_ss->ss_size;
-        }
-    }
     if(!new_ss)
         new_ss = (x64_stack_t*)box_calloc(1, sizeof(x64_stack_t));
+    new_ss->ss_flags = 0;
     new_ss->ss_sp = ss->ss_sp;
     new_ss->ss_size = ss->ss_size;
 
@@ -576,7 +568,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         sigcontext->uc_stack.ss_sp = new_ss->ss_sp;
         sigcontext->uc_stack.ss_size = new_ss->ss_size;
         sigcontext->uc_stack.ss_flags = new_ss->ss_flags;
-    }
+    } else
+        sigcontext->uc_stack.ss_flags = SS_DISABLE;
     // Try to guess some X64_TRAPNO
     /*
     TRAP_x86_DIVIDE     = 0,   // Division by zero exception
@@ -648,6 +641,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     else
         ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info2, sigcontext);
     // restore old value from emu
+    if(used_stack)  // release stack
+        new_ss->ss_flags = 0;
     #define GO(A) R_##A = old_##A
     GO(RAX);
     GO(RDI);
@@ -746,8 +741,6 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     }
     if(restorer)
         RunFunctionHandler(&exits, NULL, restorer, 0);
-    if(used_stack)  // release stack
-        new_ss->ss_flags = 0;
     relockMutex(Locks);
 }
 
