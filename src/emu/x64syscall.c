@@ -206,7 +206,9 @@ scwrap_t syscallwrap[] = {
     { 258, __NR_mkdirat, 3},
     //{ 262, __NR_fstatat, 4}, 
     { 263, __NR_unlinkat, 3},
+    #ifdef __NR_renameat
     { 264, __NR_renameat, 4},
+    #endif
     { 267, __NR_readlinkat, 4},
     { 270, __NR_pselect6, 6},
     { 272, __NR_unshare, 1},
@@ -676,6 +678,13 @@ void EXPORT x64Syscall(x64emu_t *emu)
             if(R_EAX==0xffffffff)
                 R_RAX = (uint64_t)-errno;
             break;
+        #ifndef __NR_renameat
+        case 264:
+            R_EAX = (uint32_t)renameat((int)R_RDI, (const char*)R_RSI, (int)R_EDX, (const char*)R_R10);
+            if(R_EAX==0xffffffff)
+                R_RAX = (uint64_t)-errno;
+            break;
+        #endif
         #ifndef NOALIGN
         case 281:   // sys_epool_pwait
             R_EAX = (uint32_t)my_epoll_pwait(emu, (int)R_EDI, (void*)R_RSI, (int)R_EDX, (int)R_R10d, (void*)R_R8);
@@ -918,6 +927,10 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 262:
             return (uint64_t)(int64_t)my_fstatat(emu, (int)R_RSI, (char*)R_RDX, (void*)R_RCX, (int)R_R8d);
+        #ifndef __NR_renameat
+        case 264:
+            return (uint64_t)(int64_t)renameat((int)R_RSI, (const char*)R_RDX, (int)R_ECX, (const char*)R_R8);
+        #endif
         #ifndef NOALIGN
         case 281:   // sys_epool_pwait
             return (uint64_t)(int64_t)my_epoll_pwait(emu, (int)R_ESI, (void*)R_RDX, (int)R_ECX, (int)R_R8d, (void*)R_R9);
