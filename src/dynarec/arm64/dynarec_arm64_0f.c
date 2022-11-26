@@ -39,6 +39,7 @@
     if(MODREG) {                                                    \
         a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);  \
     } else {                                                        \
+        SMREAD();                                                   \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, D); \
         a = fpu_get_scratch(dyn);                                   \
         VLDR128_U12(a, ed, fixedaddress);                           \
@@ -52,6 +53,7 @@
     if(MODREG) {                                                \
         a = mmx_get_reg(dyn, ninst, x1, x2, x3, (nextop&7));    \
     } else {                                                    \
+        SMREAD();                                               \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, D); \
         a = fpu_get_scratch(dyn);                               \
         VLDR64_U12(a, ed, fixedaddress);                        \
@@ -60,6 +62,7 @@
 #define PUTEM(a)                            \
     if(!MODREG) {                           \
         VSTR64_U12(a, ed, fixedaddress);    \
+        SMWRITE2();                         \
     }
 
 uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
@@ -108,6 +111,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x05:
             INST_NAME("SYSCALL");
+            SMEND();
             GETIP(addr);
             STORE_XEMU_CALL(xRIP);
             CALL_S(x64Syscall, -1);
@@ -172,6 +176,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, 0);
                 VLDR128_U12(v0, ed, fixedaddress);   // no alignment issue with ARMv8 NEON :)
+                SMWRITE2();
             }
             break;
         case 0x11:
@@ -186,6 +191,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, 0);
                 VSTR128_U12(v0, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0x12:
@@ -198,6 +204,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 INST_NAME("MOVLPS Gx,Ex");
                 GETGX(v0, 1);
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 VLD1_64(v0, 0, ed);
             }
@@ -212,11 +219,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 VST1_64(v0, 0, ed);  // better to use VST1 than VSTR_64, to avoid NEON->VFPU transfert I assume
+                SMWRITE2();
             }
             break;
         case 0x14:
             INST_NAME("UNPCKLPS Gx, Ex");
             nextop = F8;
+            SMREAD();
             GETEX(q0, 0, 0);
             GETGX(v0, 1);
             VZIP1Q_32(v0, v0, q0);
@@ -224,6 +233,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x15:
             INST_NAME("UNPCKHPS Gx, Ex");
             nextop = F8;
+            SMREAD();
             GETEX(q0, 0, 0);
             GETGX(v0, 1);
             VZIP2Q_32(v0, v0, q0);
@@ -237,6 +247,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VMOVeD(v0, 1, v1, 0);
             } else {
                 INST_NAME("MOVHPS Gx,Ex");
+                SMREAD();
                 GETGX(v0, 1);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 VLD1_64(v0, 1, ed);
@@ -252,6 +263,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 VST1_64(v0, 1, ed);
+                SMWRITE2();
             }
             break;
         case 0x18:
@@ -303,6 +315,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VMOVQ(v0, v1);
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, 0);
                 VLDR128_U12(v0, ed, fixedaddress);
             }
@@ -319,6 +332,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, 0);
                 VSTR128_U12(v0, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
 
@@ -348,6 +362,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 s0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
             } else {
                 s0 = fpu_get_scratch(dyn);
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
                 VLDR32_U12(s0, ed, fixedaddress);
             }
@@ -407,6 +422,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(MODREG) {
                         REVxw(gd, xRAX+(nextop&7)+(rex.b<<3));
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                         LDRxw_U12(gd, ed, fixedaddress);
                         REVxw(gd, gd);
@@ -419,6 +435,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(MODREG) {   // reg <= reg
                         REVxw(xRAX+(nextop&7)+(rex.b<<3), gd);
                     } else {                    // mem <= reg
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                         REVxw(x1, gd);
                         STRxw_U12(x1, ed, fixedaddress);
@@ -491,6 +508,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIx(gd, x1, 3, 1);
             } else {
                 // EX is memory
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, (0xfff<<3)-8, 7, rex, NULL, 0, 0);
                 LDRx_U12(x1, ed, fixedaddress+0);
                 LSRx(x1, x1, 31);
@@ -1034,6 +1052,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else {
                     VSTR32_U12(v0, ed, fixedaddress);
                 }
+                SMWRITE2();
             }
             break;
         case 0x7F:
@@ -1046,6 +1065,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
                 VSTR64_U12(v0, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
 
@@ -1096,6 +1116,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {                                    \
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff, 0, rex, NULL, 0, 0); \
                 STRB_U12(x3, ed, fixedaddress);         \
+                SMWRITE();                              \
             }
 
         GOCOND(0x90, "SET", "Eb");
@@ -1115,6 +1136,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                 ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
                 ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
@@ -1162,6 +1184,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 wback = 0;
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                 ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
                 ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
@@ -1187,6 +1210,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             CSELxw(ed, ed, x4, cNE);
             if(wback) {
                 STRxw_U12(ed, wback, fixedaddress);
+                SMWRITE();
             }
             break;
         case 0xAC:
@@ -1216,12 +1240,15 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             if((nextop&0xF8)==0xE8) {
                 INST_NAME("LFENCE");
+                SMDMB();
             } else
             if((nextop&0xF8)==0xF0) {
                 INST_NAME("MFENCE");
+                SMDMB();
             } else
             if((nextop&0xF8)==0xF8) {
                 INST_NAME("SFENCE");
+                SMDMB();
             } else {
                 switch((nextop>>3)&7) {
                     case 0:
@@ -1320,6 +1347,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 wback = 0;
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                 ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
                 ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
@@ -1345,6 +1373,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             CSELxw(ed, ed, x4, cEQ);
             if(wback) {
                 STRxw_U12(ed, wback, fixedaddress);
+                SMWRITE();
             }
             break;
 
@@ -1363,6 +1392,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 UBFXxw(gd, eb1, eb2*8, 8);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff, 0, rex, NULL, 0, 0);
                 LDRB_U12(gd, ed, fixedaddress);
             }
@@ -1375,6 +1405,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 UBFXxw(gd, ed, 0, 16);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
                 LDRH_U12(gd, ed, fixedaddress);
             }
@@ -1391,6 +1422,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 1);
                         LDRxw_U12(x1, wback, fixedaddress);
                         ed = x1;
@@ -1407,6 +1439,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         wback = 0;
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 1);
                         LDRxw_U12(x1, wback, fixedaddress);
                         ed = x1;
@@ -1419,6 +1452,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     EORxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STRxw_U12(ed, wback, fixedaddress);
+                        SMWRITE();
                     }
                     MARK3;
                     break;
@@ -1430,6 +1464,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         wback = 0;
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 1);
                         LDRxw_U12(x1, wback, fixedaddress);
                         ed = x1;
@@ -1442,6 +1477,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     EORxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STRxw_U12(ed, wback, fixedaddress);
+                        SMWRITE();
                     }
                     MARK3;
                     break;
@@ -1453,6 +1489,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         wback = 0;
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 1);
                         LDRxw_U12(x1, wback, fixedaddress);
                         ed = x1;
@@ -1464,6 +1501,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     EORxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STRxw_U12(ed, wback, fixedaddress);
+                        SMWRITE();
                     }
                     MARK3;
                     break;
@@ -1481,6 +1519,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 wback = 0;
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                 ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
                 ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
@@ -1505,6 +1544,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             EORxw_REG(ed, ed, x4);
             if(wback) {
                 STRxw_U12(ed, wback, fixedaddress);
+                SMWRITE();
             }
             break;
         case 0xBC:
@@ -1553,6 +1593,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 SBFXxw(gd, wback, wb2, 8);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, 0);
                 LDRSBxw_U12(gd, ed, fixedaddress);
             }
@@ -1565,6 +1606,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 SXTHxw(gd, ed);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
                 LDRSHxw_U12(gd, ed, fixedaddress);
             }
@@ -1663,6 +1705,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         VMOVeS(d0, i, v1, (u8>>(i*2)&3));
                     }
                 } else {
+                    SMREAD();
                     for(int i=2; i<4; ++i) {
                         ADDx_U12(x2, ed, (u8>>(i*2)&3)*4);
                         VLD1_32(d0, i, x2);

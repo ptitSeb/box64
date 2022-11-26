@@ -1267,7 +1267,7 @@ int main(int argc, const char **argv, char **env) {
         printf_log(LOG_INFO, "dota2 detected, forcing dummy crashhandler\n");
         box64_dummy_crashhandler = 1;
         #ifdef DYNAREC
-        box64_dynarec_strongmem = 2;
+        box64_dynarec_strongmem = 1;
         #endif
     }
     // special case for steam-runtime-check-requirements to fake 64bits suport

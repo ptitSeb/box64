@@ -82,7 +82,7 @@ typedef struct instruction_arm64_s {
 } instruction_arm64_t;
 
 typedef struct dynarec_arm_s {
-    instruction_arm64_t *insts;
+    instruction_arm64_t*insts;
     int32_t             size;
     int32_t             cap;
     uintptr_t           start;      // start of the block
@@ -91,7 +91,7 @@ typedef struct dynarec_arm_s {
     uintptr_t           native_start;  // start of the arm code
     size_t              native_size;   // size of emitted arm code
     uintptr_t           last_ip;    // last set IP in RIP (or NULL if unclean state) TODO: move to a cache something
-    uint64_t            *table64;   // table of 64bits value
+    uint64_t*           table64;   // table of 64bits value
     int                 table64size;// size of table (will be appended at end of executable code)
     int                 table64cap;
     uintptr_t           tablestart;
@@ -103,6 +103,8 @@ typedef struct dynarec_arm_s {
     int*                predecessor;// single array of all predecessor
     dynablock_t*        dynablock;
     instsize_t*         instsize;
+    uint8_t             smread;    // for strongmem model emulation
+    uint8_t             smwrite;    // for strongmem model emulation
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

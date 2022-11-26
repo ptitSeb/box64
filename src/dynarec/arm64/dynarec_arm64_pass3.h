@@ -15,7 +15,7 @@
 #define INST_NAME(name) \
     if(box64_dynarec_dump) {\
         printf_x64_instruction(my_context->dec, &dyn->insts[ninst].x64, name); \
-        dynarec_log(LOG_NONE, "%s%p: %d emited opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X", \
+        dynarec_log(LOG_NONE, "%s%p: %d emited opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d/%d", \
             (box64_dynarec_dump>1)?"\e[32m":"", \
             (void*)(dyn->native_start+dyn->insts[ninst].address),  \
             dyn->insts[ninst].size/4,           \
@@ -29,7 +29,8 @@
             dyn->insts[ninst].x64.gen_flags,    \
             dyn->insts[ninst].x64.use_flags,    \
             dyn->insts[ninst].x64.need_before,  \
-            dyn->insts[ninst].x64.need_after);  \
+            dyn->insts[ninst].x64.need_after,   \
+            dyn->smread, dyn->smwrite);         \
         if(dyn->insts[ninst].pred_sz) {         \
             dynarec_log(LOG_NONE, ", pred=");   \
             for(int ii=0; ii<dyn->insts[ninst].pred_sz; ++ii)\

@@ -57,7 +57,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGW(x5);
-            DMB_ISH();
+            SMDMB();
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 UXTHw(x6, ed);
@@ -71,7 +71,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 STLXRH(x3, x1, wback);
                 CBNZx_MARKLOCK(x3);
             }
-            DMB_ISH();
+            SMDMB();
             break;
 
         case 0x0F:
@@ -83,7 +83,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
                     GETGD;
-                    DMB_ISH();
+                    SMDMB();
                     UXTHw(x6, xRAX);
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -122,7 +122,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     // Common part (and fallback for EAX != Ed)
                     UFLAG_IF {emit_cmp32(dyn, ninst, rex, x6, x1, x3, x4, x5);}
                     BFIx(xRAX, x1, 0, 16);
-                    DMB_ISH();
+                    SMDMB();
                     break;
                     
                 case 0xC1:
@@ -131,7 +131,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
                     UXTHx(x5, gd);
-                    DMB_ISH();
+                    SMDMB();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         BFIx(gd, ed, 0, 16);
@@ -150,7 +150,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                         BFIx(gd, x1, 0, 16);
                     }
-                    DMB_ISH();
+                    SMDMB();
                     break;
 
                 default:
@@ -161,7 +161,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x81:
         case 0x83:
             nextop = F8;
-            DMB_ISH();
+            SMDMB();
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     if(opcode==0x81) {
@@ -355,7 +355,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     break;
             }
-            DMB_ISH();
+            SMDMB();
             break;
 
             case 0xFF:
@@ -365,7 +365,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     case 0: // INC Ew
                         INST_NAME("LOCK INC Ew");
                         SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-                        DMB_ISH();
+                        SMDMB();
                         if(MODREG) {
                             ed = xRAX+(nextop&7)+(rex.b<<3);
                             UXTHw(x6, ed);
@@ -379,12 +379,12 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             STLXRH(x3, x1, wback);
                             CBNZx_MARKLOCK(x3);
                         }
-                        DMB_ISH();
+                        SMDMB();
                         break;
                     case 1: //DEC Ew
                         INST_NAME("LOCK DEC Ew");
                         SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-                        DMB_ISH();
+                        SMDMB();
                         if(MODREG) {
                             ed = xRAX+(nextop&7)+(rex.b<<3);
                             UXTHw(x6, ed);
@@ -398,7 +398,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             STLXRH(x3, x1, wback);
                             CBNZx_MARKLOCK(x3);
                         }
-                        DMB_ISH();
+                        SMDMB();
                         break;
                     default:
                         DEFAULT;

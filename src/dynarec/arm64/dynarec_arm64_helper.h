@@ -32,6 +32,30 @@
 #define PK64(a)   *(uint64_t*)(addr+a)
 #define PKip(a)   *(uint8_t*)(ip+a)
 
+// Strong mem emulation helpers
+// Sequence of Read will trigger a DMB on "first" read if strongmem is 2
+// Squence of Write will trigger a DMB on "last" write if strongmem is 1
+// Opcode will read
+#define SMREAD()    if(!dyn->smread && box64_dynarec_strongmem>1) {DMB_ISH(); dyn->smread=1;}
+// Opcode will read with option forced lock
+#define SMREADLOCK(lock)    if(lock) {SMDMB();} else if(!dyn->smread && box64_dynarec_strongmem>1) {DMB_ISH(); dyn->smread=1;}
+// Opcode migh read (depend on nextop)
+#define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
+// Opcode has wrote
+#define SMWRITE()   dyn->smwrite=1
+// Opcode has wrote (strongmem>1 only)
+#define SMWRITE2()   if(box64_dynarec_strongmem>1) dyn->smwrite=1
+// Opcode has wrote with option forced lock
+#define SMWRITELOCK(lock)   if(lock) {SMDMB();} else dyn->smwrite=1
+// Opcode migh have wrote (depend on nextop)
+#define SMMIGHTWRITE()   if(!MODREG) {SMWRITE();}
+// Start of sequence
+#define SMSTART()   SMEND()
+// End of sequence
+#define SMEND()     if(dyn->smwrite && box64_dynarec_strongmem) {DMB_ISH();} dyn->smwrite=0; dyn->smread=0;
+// Force a Data memory barrier (for LOCK: prefix)
+#define SMDMB()     DMB_ISH(); if(dyn->smwrite) dyn->smwrite=0; dyn->smread=1
+
 //LOCK_* define
 #define LOCK_LOCK   (int*)1
 
@@ -42,6 +66,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD()                            \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     LDRxw_U12(x1, wback, fixedaddress); \
                     ed = x1;                            \
@@ -50,6 +75,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, D); \
                     LDRx_U12(x1, wback, fixedaddress);  \
                     ed = x1;                            \
@@ -58,6 +84,7 @@
                     ed = xEAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL,0, D); \
                     LDRw_U12(x1, wback, fixedaddress);  \
                     ed = x1;                            \
@@ -68,6 +95,7 @@
                     wb = x1;                            \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, D); \
                     LDRSW_U12(x1, wback, fixedaddress); \
                     wb = ed = x1;                       \
@@ -76,6 +104,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     LDRxw_U12(x1, wback, fixedaddress); \
                     ed = x1;                            \
@@ -86,6 +115,7 @@
                     wb = x1;                            \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, D); \
                     LDRSW_U12(x1, wback, fixedaddress); \
                     wb = ed = x1;                       \
@@ -95,6 +125,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     LDRxw_U12(hint, wback, fixedaddress); \
                     ed = hint;                            \
@@ -103,6 +134,7 @@
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted32(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     LDRxw_U12(hint, wback, fixedaddress); \
                     ed = hint;                            \
@@ -113,6 +145,7 @@
                     MOVxw_REG(ret, ed);                 \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     ed = ret;                           \
                     LDRxw_U12(ed, wback, fixedaddress); \
@@ -122,31 +155,34 @@
                     MOVxw_REG(ret, ed);                 \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted32(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     ed = ret;                           \
                     LDRxw_U12(ed, wback, fixedaddress); \
                 }
 // Write back ed in wback (if wback not 0)
-#define WBACK       if(wback) {STRxw_U12(ed, wback, fixedaddress);}
+#define WBACK       if(wback) {STRxw_U12(ed, wback, fixedaddress); SMWRITE();}
 // Write back ed in wback (if wback not 0)
-#define WBACKx      if(wback) {STRx_U12(ed, wback, fixedaddress);}
+#define WBACKx      if(wback) {STRx_U12(ed, wback, fixedaddress); SMWRITE();}
 // Write back ed in wback (if wback not 0)
-#define WBACKw      if(wback) {STRw_U12(ed, wback, fixedaddress);}
+#define WBACKw      if(wback) {STRw_U12(ed, wback, fixedaddress); SMWRITE();}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O, D)   if(MODREG) {                     \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, NULL, 0, D); \
                     LDRxw_REG(x1, wback, O);            \
                     ed = x1;                            \
                 }
-#define WBACKO(O)   if(wback) {STRxw_REG(ed, wback, O);}
+#define WBACKO(O)   if(wback) {STRxw_REG(ed, wback, O); SMWRITE2();}
 //GETEDOx can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDOx(O, D)  if(MODREG) {                     \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, NULL, 0, D); \
                     LDRx_REG(x1, wback, O);             \
                     ed = x1;                            \
@@ -157,6 +193,7 @@
                     wb = x1;                            \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, NULL, 0, D); \
                     LDRSW_REG(x1, wback, O);            \
                     wb = ed = x1;                       \
@@ -176,6 +213,7 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
                     LDRH_U12(i, wback, fixedaddress); \
                     ed = i;                 \
@@ -188,6 +226,7 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
                     LDRH_U12(i, wback, fixedaddress); \
                     ed = i;                 \
@@ -200,15 +239,16 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
                     LDRSHx_U12(i, wback, fixedaddress);\
                     ed = i;                 \
                     wb1 = 1;                \
                 }
 // Write ed back to original register / memory
-#define EWBACK   if(wb1) {STRH_U12(ed, wback, fixedaddress);} else {BFIx(wback, ed, 0, 16);}
+#define EWBACK   if(wb1) {STRH_U12(ed, wback, fixedaddress); SMWRITE();} else {BFIx(wback, ed, 0, 16);}
 // Write w back to original register / memory
-#define EWBACKW(w)   if(wb1) {STRH_U12(w, wback, fixedaddress);} else {BFIx(wback, w, 0, 16);}
+#define EWBACKW(w)   if(wb1) {STRH_U12(w, wback, fixedaddress); SMWRITE();} else {BFIx(wback, w, 0, 16);}
 // Write back gd in correct register
 #define GWBACK       BFIx((xRAX+((nextop&0x38)>>3)+(rex.r<<3)), gd, 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
@@ -225,6 +265,7 @@
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
+                    SMREAD();                   \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
                     LDRB_U12(i, wback, fixedaddress); \
                     wb1 = 1;                    \
@@ -244,6 +285,7 @@
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
+                    SMREAD();                   \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, NULL, 0, D); \
                     ADDx_REG(x3, wback, i);     \
                     if(wback!=x3) wback = x3;   \
@@ -265,6 +307,7 @@
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
+                    SMREAD();                   \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
                     LDRSBx_U12(i, wback, fixedaddress); \
                     wb1 = 1;                    \
@@ -284,13 +327,14 @@
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
+                    SMREAD();                   \
                     addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
                     LDRB_U12(i, wback, fixedaddress); \
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
 // Write eb (ed) back to original register / memory
-#define EBBACK   if(wb1) {STRB_U12(ed, wback, fixedaddress);} else {BFIx(wback, ed, wb2, 8);}
+#define EBBACK   if(wb1) {STRB_U12(ed, wback, fixedaddress); SMWRITE();} else {BFIx(wback, ed, wb2, 8);}
 //GETGB will use i for gd
 #define GETGB(i)    if(rex.rex) {               \
                         gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);     \

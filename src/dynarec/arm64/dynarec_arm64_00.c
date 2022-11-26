@@ -530,6 +530,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(MODREG) {   // reg <= reg
                     SXTWx(gd, xRAX+(nextop&7)+(rex.b<<3));
                 } else {                    // mem <= reg
+                    SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
                     LDRSW_U12(gd, ed, fixedaddress);
                 }
@@ -537,6 +538,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(MODREG) {   // reg <= reg
                     MOVw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
                 } else {                    // mem <= reg
+                    SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
                     LDRw_U12(gd, ed, fixedaddress);
                 }
@@ -860,7 +862,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIx(gb1, x1, gb2*8, 8);
                 BFIx(eb1, x4, eb2*8, 8);
             } else {
-                DMB_ISH();
+                SMDMB();
                 GETGB(x4);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
                 MARKLOCK;
@@ -869,7 +871,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 // do the swap 14 -> strb(ed), 1 -> gd
                 STLXRB(x3, x4, ed);
                 CBNZx_MARKLOCK(x3);
-                DMB_ISH();
+                SMDMB();
                 BFIx(gb1, x1, gb2*8, 8);
             }
             break;
@@ -885,7 +887,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
-                DMB_ISH();
+                SMDMB();
                 TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
                 B_MARK(cNE);
                 MARKLOCK;
@@ -897,7 +899,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRxw_U12(x1, ed, 0);
                 STRxw_U12(gd, ed, 0);
                 MARK2;
-                DMB_ISH();
+                SMDMB();
                 MOVxw_REG(gd, x1);
             }
             break;
@@ -931,10 +933,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff, 0, rex, &lock, 0, 0);
                 STRB_U12(gd, ed, fixedaddress);
-                if(lock || (box64_dynarec_strongmem && 
-                 (dyn->insts[ninst].x64.barrier || box64_dynarec_strongmem>1 || (dyn->insts[ninst+1].x64.barrier || dyn->insts[ninst+1].x64.jmp)))) {
-                    DMB_ISH();
-                }
+                SMWRITELOCK(lock);
             }
             break;
         case 0x89:
@@ -946,10 +945,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
                 STRxw_U12(gd, ed, fixedaddress);
-                if(lock || (box64_dynarec_strongmem && 
-                 (dyn->insts[ninst].x64.barrier || box64_dynarec_strongmem>1 || (dyn->insts[ninst+1].x64.barrier || dyn->insts[ninst+1].x64.jmp)))) {
-                    DMB_ISH();
-                }
+                SMWRITELOCK(lock);
             }
             break;
         case 0x8A:
@@ -980,10 +976,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, &lock, 0, 0);
-                if(lock || (box64_dynarec_strongmem && 
-                 (dyn->insts[ninst].x64.barrier || !ninst || box64_dynarec_strongmem>1 || (ninst && dyn->insts[ninst-1].x64.barrier)))) {
-                    DMB_ISH();
-                }
+                SMREADLOCK(lock);
                 LDRB_U12(x4, wback, fixedaddress);
                 ed = x4;
             }
@@ -997,10 +990,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOVxw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
-                if(lock || (box64_dynarec_strongmem && 
-                 (dyn->insts[ninst].x64.barrier || !ninst || box64_dynarec_strongmem>1 || (ninst && dyn->insts[ninst-1].x64.barrier)))) {
-                    DMB_ISH();
-                }
+                SMREADLOCK(lock);
                 LDRxw_U12(gd, ed, fixedaddress);
             }
             break;
@@ -1013,6 +1003,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
                 STRH_U12(x3, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0x8D:
@@ -1037,6 +1028,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if((nextop&0xC0)==0xC0) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 0, rex, NULL, 0, 0);
                 LDRH_U12(x1, ed, fixedaddress);
                 ed = x1;
@@ -1144,12 +1136,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             u64 = F64;
             MOV64x(x1, u64);
             STRB_U12(xRAX, x1, 0);
+            SMWRITE();
             break;
         case 0xA3:
             INST_NAME("MOV Od,EAX");
             u64 = F64;
             MOV64x(x1, u64);
             STRxw_U12(xRAX, x1, 0);
+            SMWRITE();
             break;
         case 0xA4:
             if(rep) {
@@ -1523,7 +1517,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETED(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) { WBACK; }
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
@@ -1531,7 +1524,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETED(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) { WBACK; }
                     break;
                 case 2:
                     INST_NAME("RCL Ed, Ib");
@@ -1630,10 +1622,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 u8 = F8;
                 MOV32w(x3, u8);
                 STRB_U12(x3, ed, fixedaddress);
-                if(lock || (box64_dynarec_strongmem && 
-                 (dyn->insts[ninst].x64.barrier || box64_dynarec_strongmem>1 || (dyn->insts[ninst+1].x64.barrier || dyn->insts[ninst+1].x64.jmp)))) {
-                    DMB_ISH();
-                }
+                SMWRITELOCK(lock);
             }
             break;
         case 0xC7:
@@ -1648,10 +1637,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 i64 = F32S;
                 MOV64xw(x3, i64);
                 STRxw_U12(x3, ed, fixedaddress);
-                if(lock || (box64_dynarec_strongmem && 
-                 (dyn->insts[ninst].x64.barrier || box64_dynarec_strongmem>1 || (dyn->insts[ninst+1].x64.barrier || dyn->insts[ninst+1].x64.jmp)))) {
-                    DMB_ISH();
-                }
+                SMWRITELOCK(lock);
             }
             break;
 
@@ -2513,7 +2499,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
-                    BARRIER(BARRIER_FULL);
+                    BARRIER(BARRIER_FLOAT);
                     GETEDx(0);
                     jump_to_next(dyn, 0, ed, ninst);
                     *need_epilog = 0;

@@ -65,6 +65,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         v1 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
                     } else {
                         grab_segdata(dyn, addr, ninst, x4, _FS);
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                         v1 = fpu_get_scratch(dyn);                                                                       \
                         VLDR128_REG(v1, ed, x4);
@@ -84,6 +85,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     grab_segdata(dyn, addr, ninst, x4, _FS);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                     VSTR64_REG(v0, ed, x4);
+                    SMWRITE();
                 }
                 break;
 
@@ -113,6 +115,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 } else {
                     STRH_REG(gd, ed, x4);
                 }
+                SMWRITE();
             }
             break;
 
@@ -131,6 +134,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 }
             } else {                    // mem <= reg
                 grab_segdata(dyn, addr, ninst, x4, _FS);
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 if(rex.w) {
                     LDRx_REG(gd, ed, x4);
