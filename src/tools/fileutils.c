@@ -134,6 +134,18 @@ const char* GetTmpDir() {
     return "/tmp";  // meh...
 }
 
+char* LowerCase(const char* s) {
+    if(!s)
+        return NULL;
+    char* ret = box_calloc(1, strlen(s)+1);
+    size_t i=0;
+    while(*s) {
+        ret[i++] = (*s>='A' && *s<='Z')?(*s-'A'+'a'):(*s);
+        ++s;
+    }
+
+    return ret;
+}
 
 #if defined(RPI) || defined(RK3399) || defined(RK3326)
 void sanitize_mojosetup_gtk_background()

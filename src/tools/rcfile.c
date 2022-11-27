@@ -1,0 +1,454 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+
+#include "debug.h"
+#include "rcfile.h"
+#include "box64context.h"
+#include "fileutils.h"
+#include "pathcoll.h"
+#ifdef HAVE_TRACE
+#include "x64trace.h"
+#endif
+#include "custommem.h"
+#include "khash.h"
+
+// This file handle the box64rc files
+// file are basicaly ini file, with section [XXXX] defining the name of the process
+// and BOX64_XXXX=YYYY entry like the env. var. variables
+
+// list of all entries
+#define SUPER1()                                        \
+ENTRYINTPOS(BOX64_ROLLING_LOG, cycle_log)               \
+ENTRYSTRING_(BOX64_LD_LIBRARY_PATH, ld_library_path)    \
+ENTRYSTRING_(BOX64_PATH, box64_path)                    \
+ENTRYSTRING_(BOX64_TRACE_FILE, trace_file)              \
+ENTRYADDR(BOX64_LOAD_ADDR, box64_load_addr)             \
+ENTRYINT(BOX64_LOG, box64_log, 0, 3, 2)                 \
+ENTRYBOOL(BOX64_DUMP, box64_dump)                       \
+ENTRYBOOL(BOX64_DLSYM_ERROR, dlsym_error)               \
+CENTRYBOOL(BOX64_NOSIGSEGV, no_sigsegv)                 \
+CENTRYBOOL(BOX64_NOSIGILL, no_sigill)                   \
+ENTRYBOOL(BOX64_SHOWSEGV, box64_showsegv)               \
+ENTRYBOOL(BOX64_SHOWBT, box64_showbt)                   \
+ENTRYBOOL(BOX64_X11THREADS, box64_x11threads)           \
+ENTRYBOOL(BOX64_X11GLX, box64_x11glx)                   \
+ENTRYDSTRING(BOX64_LIBGL, box64_libGL)                  \
+ENTRYSTRING_(BOX64_EMULATED_LIBS, emulated_libs)        \
+ENTRYBOOL(BOX64_ALLOWMISSINGLIBS, allow_missing_libs)   \
+ENTRYBOOL(BOX64_PREFER_WRAPPED, box64_prefer_wrapped)   \
+ENTRYBOOL(BOX64_PREFER_EMULATED, box64_prefer_emulated) \
+ENTRYBOOL(BOX64_CRASHHANDLER, box64_dummy_crashhandler) \
+ENTRYBOOL(BOX64_NOPULSE, box64_nopulse)                 \
+ENTRYBOOL(BOX64_NOGTK, box64_nogtk)                     \
+ENTRYBOOL(BOX64_NOVULKAN, box64_novulkan)               \
+ENTRYSTRING_(BOX64_BASH, bash)                          \
+ENTRYINT(BOX64_JITGDB, jit_gdb, 0, 2, 2)                \
+
+#ifdef HAVE_TRACE
+#define SUPER2()                                        \
+ENTRYSTRING_(BOX64_TRACE, trace)                        \
+ENTRYULONG(BOX64_TRACE_START, start_cnt)                \
+ENTRYSTRING_(BOX64_TRACE_INIT, trace_init)              \
+ENTRYBOOL(BOX64_TRACE_XMM, trace_xmm)                   \
+ENTRYBOOL(BOX64_TRACE_EMM, trace_emm)                   \
+ENTRYBOOL(BOX64_TRACE_COLOR, trace_regsdiff)            \
+
+#else
+#define SUPER2()                                        \
+IGNORE(BOX64_TRACE)                                     \
+IGNORE(BOX64_TRACE_START)                               \
+IGNORE(BOX64_TRACE_INIT)                                \
+IGNORE(BOX64_TRACE_XMM)                                 \
+IGNORE(BOX64_TRACE_EMM)                                 \
+IGNORE(BOX64_TRACE_COLOR)                               \
+
+#endif
+
+#ifdef DYNAREC
+#define SUPER3()                                                    \
+ENTRYBOOL(BOX64_DYNAREC, box64_dynarec)                             \
+ENTRYINT(BOX64_DYNAREC_DUMP, box64_dynarec_dump, 0, 2, 2)           \
+ENTRYINT(BOX64_DYNAREC_LOG, box64_dynarec_log, 0, 3, 2)             \
+ENTRYBOOL(BOX64_DYNAREC_TRACE, box64_dynarec_trace)                 \
+ENTRYINT(BOX64_DYNAREC_BIGBLOCK, box64_dynarec_bigblock, 0, 3, 2)   \
+ENTRYINT(BOX64_DYNAREC_STRONGMEM, box64_dynarec_strongmem, 0, 2, 2) \
+ENTRYBOOL(BOX64_DYNAREC_X87DOUBLE, box64_dynarec_x87double)         \
+ENTRYBOOL(BOX64_DYNAREC_FASTNAN, box64_dynarec_fastnan)             \
+ENTRYINT(BOX64_DYNAREC_SAFEFLAGS, box64_dynarec_safeflags, 0, 2, 2) \
+ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
+
+#else
+#define SUPER3()                                                    \
+IGNORE(BOX64_DYNAREC)                                               \
+IGNORE(BOX64_DYNAREC_DUMP)                                          \
+IGNORE(BOX64_DYNAREC_LOG)                                           \
+IGNORE(BOX64_DYNAREC_TRACE)                                         \
+IGNORE(BOX64_DYNAREC_BIGBLOCK)                                      \
+IGNORE(BOX64_DYNAREC_STRONGMEM)                                     \
+IGNORE(BOX64_DYNAREC_X87DOUBLE)                                     \
+IGNORE(BOX64_DYNAREC_FASTNAN)                                       \
+IGNORE(BOX64_DYNAREC_SAFEFLAGS)                                     \
+IGNORE(BOX64_NODYNAREC)                                             \
+
+#endif
+
+#define SUPER() \
+SUPER1()        \
+SUPER2()        \
+SUPER3()
+
+typedef struct my_params_s {
+// is present part
+#define ENTRYBOOL(NAME, name) uint8_t is_##name##_present:1;
+#define CENTRYBOOL(NAME, name) uint8_t is_##name##_present:1;
+#define ENTRYINT(NAME, name, minval, maxval, bits) uint8_t is_##name##_present:1;
+#define ENTRYINTPOS(NAME, name) uint8_t is_##name##_present:1;
+#define ENTRYSTRING(NAME, name) uint8_t is_##name##_present:1;
+#define ENTRYSTRING_(NAME, name) uint8_t is_##name##_present:1;
+#define ENTRYDSTRING(NAME, name) uint8_t is_##name##_present:1;
+#define ENTRYADDR(NAME, name) uint8_t is_##name##_present:1;
+#define ENTRYULONG(NAME, name) uint8_t is_##name##_present:1;
+#define IGNORE(NAME) 
+SUPER()
+// done
+#undef ENTRYBOOL
+#undef CENTRYBOOL
+#undef ENTRYINT
+#undef ENTRYINTPOS
+#undef ENTRYSTRING
+#undef ENTRYSTRING_
+#undef ENTRYDSTRING
+#undef ENTRYADDR
+#undef ENTRYULONG
+// the actual fields
+#define ENTRYBOOL(NAME, name) uint8_t name:1;
+#define CENTRYBOOL(NAME, name) uint8_t name:1;
+#define ENTRYINT(NAME, name, minval, maxval, bits) uint8_t name:bits;
+#define ENTRYINTPOS(NAME, name) uint32_t name;
+#define ENTRYSTRING(NAME, name) char* name;
+#define ENTRYSTRING_(NAME, name) char* name;
+#define ENTRYDSTRING(NAME, name) char* name;
+#define ENTRYADDR(NAME, name) uintptr_t name;
+#define ENTRYULONG(NAME, name) uint64_t name;
+SUPER()
+// done
+#undef ENTRYBOOL
+#undef CENTRYBOOL
+#undef ENTRYINT
+#undef ENTRYINTPOS
+#undef ENTRYSTRING
+#undef ENTRYSTRING_
+#undef ENTRYDSTRING
+#undef ENTRYADDR
+#undef ENTRYULONG
+} my_params_t;
+
+KHASH_MAP_INIT_STR(params, my_params_t)
+
+static kh_params_t *params = NULL;
+
+static void clearParam(my_params_t* param)
+{
+    #define ENTRYBOOL(NAME, name) 
+    #define CENTRYBOOL(NAME, name) 
+    #define ENTRYINT(NAME, name, minval, maxval, bits) 
+    #define ENTRYINTPOS(NAME, name) 
+    #define ENTRYSTRING(NAME, name) free(param->name); 
+    #define ENTRYSTRING_(NAME, name) free(param->name); 
+    #define ENTRYDSTRING(NAME, name) free(param->name); 
+    #define ENTRYADDR(NAME, name) 
+    #define ENTRYULONG(NAME, name) 
+    SUPER()
+    #undef ENTRYBOOL
+    #undef CENTRYBOOL
+    #undef ENTRYINT
+    #undef ENTRYINTPOS
+    #undef ENTRYSTRING
+    #undef ENTRYSTRING_
+    #undef ENTRYDSTRING
+    #undef ENTRYADDR
+    #undef ENTRYULONG
+}
+
+static void addParam(const char* name, my_params_t* param)
+{
+    khint_t k;
+    int ret;
+    k = kh_get(params, params, name);
+    const char* oldkey = (k!=kh_end(params))?kh_key(params, k):NULL;
+    k = kh_put(params, params, strdup(name), &ret);
+    my_params_t *p = &kh_value(params, k);
+    if(!ret)
+        clearParam(p);
+    if(oldkey)
+        free((void*)oldkey);
+    memcpy(p, param, sizeof(my_params_t));
+}
+
+static void trimString(char* s)
+{
+    if(!s)
+        return;
+    // trim right space/tab
+    size_t len = strlen(s);
+    while(len && (s[len-1]==' ' || s[len-1]=='\t'))
+        s[--len] = '\0';
+    // trim left space/tab
+    while(s[0]==' ' || s[0]=='\t')
+        memmove(s, s+1, strlen(s));
+}
+
+void LoadRCFile(const char* filename)
+{
+    FILE *f = fopen(filename, "r");
+    if(!f) {
+        printf_log(LOG_INFO, "Cannot open RC file %s\n", filename);
+        return;
+    }
+    // init the hash table if needed
+    if(!params)
+        params = kh_init(params);
+    // prepare to parse the file
+    char* line = NULL;
+    size_t lsize = 0;
+    my_params_t current_param = {0};
+    char* current_name = NULL;
+    int dummy;
+    size_t len;
+    char* p;
+    // parsing
+    while ((dummy = getline(&line, &lsize, f)) != -1) {
+        // remove comments
+        if((p=strchr(line, '#')))
+            *p = '\0';
+        trimString(line);
+        len = strlen(line);
+        // check the line content
+        if(line[0]=='[' && strchr(line, ']')) {
+            // new entry, will need to add current one
+            if(current_name)
+                addParam(current_name, &current_param);
+            // prepare a new entry
+            memset(&current_param, 0, sizeof(current_param));
+            free(current_name);
+            current_name = LowerCase(line+1);
+            *strchr(current_name, ']') = '\0';
+            trimString(current_name);
+        } else if(strchr(line, '=')) {
+            // actual parameters
+            //get the key and val
+            char* key = line;
+            char* val = strchr(key, '=')+1;
+            *strchr(key, '=') = '\0';
+            trimString(key);
+            trimString(val);
+            // extract, check and set arg
+            #define ENTRYINT(NAME, name, minval, maxval, bits)          \
+                else if(!strcmp(key, #NAME)) {                          \
+                    int v = strtol(val, &p, 0);                         \
+                    if(p!=val && v>=minval && v<=maxval) {              \
+                        current_param.is_##name##_present = 1;          \
+                        current_param.name = v;                         \
+                    }                                                   \
+                }
+            #define ENTRYBOOL(NAME, name) ENTRYINT(NAME, name, 0, 1, 1)
+            #define CENTRYBOOL(NAME, name) ENTRYBOOL(NAME, name)
+            #define ENTRYINTPOS(NAME, name)                             \
+                else if(!strcmp(key, #NAME)) {                          \
+                    int v = strtol(val, &p, 0);                         \
+                    if(p!=val) {                                        \
+                        current_param.is_##name##_present = 1;          \
+                        current_param.name = v;                         \
+                    }                                                   \
+                }
+            #define ENTRYSTRING(NAME, name)                             \
+                else if(!strcmp(key, #NAME)) {                          \
+                    current_param.is_##name##_present = 1;              \
+                    if(current_param.name) free(current_param.name);    \
+                    current_param.name = strdup(val);                   \
+                }
+            #define ENTRYSTRING_(NAME, name) ENTRYSTRING(NAME, name)
+            #define ENTRYDSTRING(NAME, name) ENTRYSTRING(NAME, name)
+            #define ENTRYADDR(NAME, name)                               \
+                else if(!strcmp(key, #NAME)) {                          \
+                    uintptr_t v = strtoul(val, &p, 0);                  \
+                    if(p!=val) {                                        \
+                        current_param.is_##name##_present = 1;          \
+                        current_param.name = v;                         \
+                    }                                                   \
+                }
+            #define ENTRYULONG(NAME, name)                              \
+                else if(!strcmp(key, #NAME)) {                          \
+                    uint64_t v = strtoull(val, &p, 0);                  \
+                    if(p!=val) {                                        \
+                        current_param.is_##name##_present = 1;          \
+                        current_param.name = v;                         \
+                    }                                                   \
+                }
+            #undef IGNORE
+            #define IGNORE(NAME) else if(!strcmp(key, #NAME)) ;
+            if(0) ;
+            SUPER()
+            else if(len && current_name) {
+                printf_log(LOG_INFO, "Warning, unsupported %s=%s for [%s] in %s", key, val, current_name, filename);
+            }
+            #undef ENTRYBOOL
+            #undef CENTRYBOOL
+            #undef ENTRYINT
+            #undef ENTRYINTPOS
+            #undef ENTRYSTRING
+            #undef ENTRYSTRING_
+            #undef ENTRYDSTRING
+            #undef ENTRYADDR
+            #undef ENTRYULONG
+            #undef IGNORE
+            #define IGNORE(NAME) 
+        }
+    }
+    // last entry to be pushed too
+    if(current_name)
+        addParam(current_name, &current_param);
+    free(line);
+    printf_log(LOG_INFO, "Params database has %d entries\n", kh_size(params));
+}
+
+void DeleteParams()
+{
+    if(!params)
+        return;
+    
+    // free strings
+    my_params_t* p;
+    // need to free duplicated strings
+    kh_foreach_value_ref(params, p, clearParam(p));
+    const char* key;
+    kh_foreach_key(params, key, free((void*)key));
+    // free the hash itself
+    kh_destroy(params, params);
+    params = NULL;
+}
+
+extern int ftrace_has_pid;
+void openFTrace(const char* newtrace);
+#ifdef DYNAREC
+void GatherDynarecExtensions();
+#endif
+#ifdef HAVE_TRACE
+void setupTraceInit();
+void setupTrace();
+#endif
+void ApplyParams(const char* name)
+{
+    if(!name || !params)
+        return;
+    static const char* old_name = NULL;
+    if(old_name && !strcmp(name, old_name)) {
+        return;
+    }
+    old_name = name;
+    khint_t k;
+    {
+        char* lname = LowerCase(name);
+        k = kh_get(params, params, lname);
+        free(lname);
+    }
+    if(k == kh_end(params))
+        return;
+    my_params_t* param = &kh_value(params, k);
+    #ifdef DYNAREC
+    int olddynarec = box64_dynarec;
+    #endif
+    printf_log(LOG_INFO, "Apply RC params for %s\n", name);
+    #define ENTRYINT(NAME, name, minval, maxval, bits) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name);}
+    #define ENTRYBOOL(NAME, name) ENTRYINT(NAME, name, 0, 1, 1)
+    #define CENTRYBOOL(NAME, name) if(param->is_##name##_present) {my_context->name = param->name; printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name);}
+    #define ENTRYINTPOS(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name);}
+    #define ENTRYSTRING(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name);}
+    #define ENTRYSTRING_(NAME, name)  
+    #define ENTRYDSTRING(NAME, name) if(param->is_##name##_present) {if(name) free(name); name = strdup(param->name); printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name);}
+    #define ENTRYADDR(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%zd\n", #NAME, param->name);}
+    #define ENTRYULONG(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%lld\n", #NAME, param->name);}
+    SUPER()
+    #undef ENTRYBOOL
+    #undef CENTRYBOOL
+    #undef ENTRYINT
+    #undef ENTRYINTPOS
+    #undef ENTRYSTRING
+    #undef ENTRYSTRING_
+    #undef ENTRYDSTRING
+    #undef ENTRYADDR
+    #undef ENTRYULONG
+    // now handle the manuel entry (the one with ending underscore)
+    if(param->is_ld_library_path_present) AppendList(&my_context->box64_ld_lib, param->ld_library_path, 1);
+    if(param->is_box64_path_present) AppendList(&my_context->box64_path, param->box64_path, 1);
+    if(param->is_trace_file_present) {
+        if(ftrace_has_pid) {
+            // open a new ftrace...
+            fclose(ftrace);
+            openFTrace(param->trace_file);
+        }
+    }
+    if(param->is_emulated_libs_present) {
+        AppendList(&my_context->box64_emulated_libs, param->emulated_libs, 0);
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_EMULATED_LIBS", param->emulated_libs);
+    }
+    if(param->is_bash_present && FileIsX64ELF(param->bash)) {
+        if(my_context->bashpath)
+            free(my_context->bashpath);
+        my_context->bashpath = strdup(param->bash);
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_BASH", param->bash);
+    }
+    #ifdef HAVE_TRACE
+    int old_x64trace = my_context->x64trace;
+    if(param->is_trace_present) {
+        char*p = param->trace;
+        if (strcmp(p, "0")) {
+            my_context->x64trace = 1;
+            box64_trace = p;
+        }
+        printf_log(LOG_INFO, "Applying %s=%d", "BOX64_TRACE", param->trace);
+    }
+    if(param->is_trace_init_present) {
+        char* p = param->trace_init;
+        if (strcmp(p, "0")) {
+            my_context->x64trace = 1;
+            trace_init = p;
+        }
+        printf_log(LOG_INFO, "Applying %s=%d", "BOX64_TRACE_INIT", param->trace_init);
+    }
+    if(my_context->x64trace && !old_x64trace) {
+        printf_log(LOG_INFO, "Initializing Zydis lib\n");
+        if(InitX64Trace(my_context)) {
+            printf_log(LOG_INFO, "Zydis init failed, no x86 trace activated\n");
+            my_context->x64trace = 0;
+        }
+    }
+    if(param->is_trace_init_present)
+        setupTraceInit();
+    if(param->is_trace_present)
+        setupTrace();
+    #endif
+    #ifdef DYNAREC
+    if(param->is_box64_nodynarec_present) {
+        uintptr_t no_start = 0, no_end = 0;
+        char* p;
+        no_start = strtoul(param->box64_nodynarec, &p, 0);
+        if(p!=param->box64_nodynarec) {
+            char* p2;
+            no_end = strtoul(p, &p2, 0);
+            if(p2!=p && no_end>no_start) {
+                box64_nodynarec_start = no_start;
+                box64_nodynarec_end = no_end;
+                printf_log(LOG_INFO, "Appling BOX64_NODYNAREC=%p-%p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+            }
+        }
+    }
+    if(!olddynarec && box64_dynarec)
+        GatherDynarecExtensions();
+    #endif
+    if(box64_log==3) {
+        box64_log = 2;
+        box64_dump = 1;
+    }
+}

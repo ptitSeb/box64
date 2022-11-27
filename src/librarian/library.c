@@ -349,7 +349,6 @@ static int isEssentialLib(const char* name) {
     return 0;
 }
 
-extern char* libGL;
 library_t *NewLibrary(const char* path, box64context_t* context)
 {
     printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
@@ -357,7 +356,7 @@ library_t *NewLibrary(const char* path, box64context_t* context)
     lib->path = box_realpath(path, NULL);
     if(!lib->path)
         lib->path = box_strdup(path);
-    if(libGL && !strcmp(path, libGL))
+    if(box64_libGL && !strcmp(path, box64_libGL))
         lib->name = box_strdup("libGL.so.1");
     else
         lib->name = Path2Name(path);

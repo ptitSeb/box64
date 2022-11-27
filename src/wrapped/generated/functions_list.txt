@@ -1167,7 +1167,6 @@
 #() iFiiupp
 #() iFiipup
 #() iFiuLip
-#() iFiLLLL
 #() iFipiii
 #() iFipiup
 #() iFipipi
@@ -1475,6 +1474,7 @@
 #() cFppLppi
 #() iFEiippi
 #() iFEiippp
+#() iFEiLLLL
 #() iFEippLp
 #() iFElpppp
 #() iFEpiipp
@@ -3129,6 +3129,8 @@ wrappedlibc:
 - iFiippi:
   - __fxstatat
   - __fxstatat64
+- iFiLLLL:
+  - prctl
 - iFipiip:
   - epoll_pwait
 - iFipppp:

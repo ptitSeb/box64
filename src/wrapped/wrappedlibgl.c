@@ -16,8 +16,6 @@
 #include "librarian.h"
 #include "callback.h"
 
-extern char* libGL;
-
 const char* libglName = "libGL.so.1";
 #define LIBNAME libgl
 
@@ -198,7 +196,7 @@ EXPORT void* my_glGetVkProcAddrNV(x64emu_t* emu, void* name)
     return my_GetVkProcAddr(emu, name, GetVkProcAddrNV);
 }
 
-#define PRE_INIT if(libGL) {lib->w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
+#define PRE_INIT if(box64_libGL) {lib->w.lib = dlopen(box64_libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(box64_libGL);} else
 #define CUSTOM_INIT \
     lib->w.priv = dlsym(lib->w.lib, "glXGetProcAddress"); \
     if (!box64->glxprocaddress) \

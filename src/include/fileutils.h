@@ -21,6 +21,9 @@ int FileIsShell(const char* filename);
 // return temp folder (will return /tmp if nothing is correct)
 const char* GetTmpDir();
 
+// will lower case the string and return a copy. Nothing fancy here, just A..Z transformed to a..z, rest is untouched
+char* LowerCase(const char* s);
+
 #if defined(RPI) || defined(RK3399) || defined(RK3326)
 void sanitize_mojosetup_gtk_background();
 #endif

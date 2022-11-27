@@ -1,0 +1,34 @@
+# System-wide .box64rc 
+
+# Note that process name are case insensitive!
+
+#
+# Linux process
+# 
+
+[7z]
+# Those are safe to use on 7z and give a bit of a boost
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_BIGBLOCK=2
+
+[dontstarve]
+# use emulated sdl2
+BOX64_EMULATED_LIBS=libSDL2-2.0.so.0
+
+[dota2]
+BOX64_CRASHHANDLER=1
+BOX64_DYNAREC_STRONGMEM=1
+
+[pressure-vessel-wrap]
+BOX64_NOGTK=1
+
+[steam]
+BOX64_CRASHHANDLER=1
+BOX64_EMULATED_LIBS=libudev.so.0
+
+[streaming_client]
+BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
+
+#
+# Wine process
+#

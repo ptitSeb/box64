@@ -1358,7 +1358,7 @@ GOW(posix_spawn_file_actions_init, iFp)
 GOM(posix_spawnp, iFEpppppp)
 GO(ppoll, iFpLpp)
 //GO(__ppoll_chk, 
-GOW(prctl, iFiLLLL)
+GOWM(prctl, iFEiLLLL)
 GOW(pread, lFipLl)
 GOW(__pread64, lFipLI)
 GOW(pread64, lFipLl)

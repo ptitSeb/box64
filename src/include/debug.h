@@ -35,6 +35,9 @@ extern int trace_emm;      // include EMM reg in trace?
 extern int trace_regsdiff; // colorize standard registers on changes
 extern uintptr_t trace_start, trace_end;
 extern char* trace_func;
+extern char* trace_init;
+extern char* box64_trace;
+extern uint64_t start_cnt;
 #endif
 extern int box64_dummy_crashhandler;
 extern int allow_missing_libs;
@@ -50,6 +53,9 @@ extern int box64_novulkan;  // disabling the use of wrapped vulkan
 extern int box64_showsegv;  // show sigv, even if a signal handler is present
 extern int box64_showbt;    // show a backtrace if a signal is caught
 extern int box64_isglibc234; // is the program linked with glibc 2.34+
+extern int box64_x11threads;
+extern int box64_x11glx;
+extern char* box64_libGL;
 extern uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (self modifying code)
 extern uint32_t default_gs;
 extern int jit_gdb; // launch gdb when a segfault is trapped

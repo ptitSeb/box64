@@ -33,6 +33,7 @@
 #include "librarian.h"
 #include "x64run.h"
 #include "symbols.h"
+#include "rcfile.h"
 
 box64context_t *my_context = NULL;
 int box64_log = LOG_INFO; //LOG_NONE;
@@ -71,12 +72,14 @@ int trace_regsdiff = 0;
 uint64_t start_cnt = 0;
 uintptr_t trace_start = 0, trace_end = 0;
 char* trace_func = NULL;
+char* trace_init = NULL;
+char* box64_trace = NULL;
 #ifdef DYNAREC
 int box64_dynarec_trace = 0;
 #endif
 #endif
-int x11threads = 0;
-int x11glx = 1;
+int box64_x11threads = 0;
+int box64_x11glx = 1;
 int allow_missing_libs = 0;
 int box64_prefer_emulated = 0;
 int box64_prefer_wrapped = 0;
@@ -93,7 +96,7 @@ int box64_novulkan = 0;
 int box64_showsegv = 0;
 int box64_showbt = 0;
 int box64_isglibc234 = 0;
-char* libGL = NULL;
+char* box64_libGL = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
 uint32_t default_gs = 0xa<<3;
@@ -103,12 +106,12 @@ int box64_tcmalloc_minimal = 0;
 FILE* ftrace = NULL;
 int ftrace_has_pid = 0;
 
-void openFTrace()
+void openFTrace(const char* newtrace)
 {
-    char* t = getenv("BOX64_TRACE_FILE");
+    const char* t = newtrace?newtrace:getenv("BOX64_TRACE_FILE");
     char tmp[500];
     char tmp2[500];
-    char* p = t;
+    const char* p = t;
     int append=0;
     if(p && strlen(p) && p[strlen(p)-1]=='+') {
         strncat(tmp2, t, 499);
@@ -159,7 +162,7 @@ void my_child_fork()
     if(ftrace_has_pid) {
         // open a new ftrace...
         fclose(ftrace);
-        openFTrace();
+        openFTrace(NULL);
     }
 }
 
@@ -332,7 +335,7 @@ void LoadLogEnv()
         }
     }
     // grab BOX64_TRACE_FILE envvar, and change %pid to actual pid is present in the name
-    openFTrace();
+    openFTrace(NULL);
     box64_log = isatty(fileno(ftrace))?LOG_INFO:LOG_NONE; //default LOG value different if stdout is redirected or not
     p = getenv("BOX64_LOG");
     if(p) {
@@ -548,31 +551,31 @@ void LoadLogEnv()
     if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='0'+1)
-                x11threads = p[0]-'0';
+                box64_x11threads = p[0]-'0';
         }
-        if(x11threads)
+        if(box64_x11threads)
             printf_log(LOG_INFO, "Try to Call XInitThreads if libX11 is loaded\n");
     }
     p = getenv("BOX64_X11GLX");
     if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='0'+1)
-                x11glx = p[0]-'0';
+                box64_x11glx = p[0]-'0';
         }
-        if(x11glx)
+        if(box64_x11glx)
             printf_log(LOG_INFO, "Hack to force libX11 GLX extension present\n");
         else
             printf_log(LOG_INFO, "Disabled Hack to force libX11 GLX extension present\n");
     }
     p = getenv("BOX64_LIBGL");
     if(p)
-        libGL = box_strdup(p);
-    if(!libGL) {
+        box64_libGL = box_strdup(p);
+    if(!box64_libGL) {
         p = getenv("SDL_VIDEO_GL_DRIVER");
         if(p)
-            libGL = box_strdup(p);
+            box64_libGL = box_strdup(p);
     }
-    if(libGL) {
+    if(box64_libGL) {
         printf_log(LOG_INFO, "BOX64 using \"%s\" as libGL.so.1\n", p);
     }
     p = getenv("BOX64_ALLOWMISSINGLIBS");
@@ -892,13 +895,17 @@ void LoadEnvVars(box64context_t *context)
 #ifdef HAVE_TRACE
     char* p = getenv("BOX64_TRACE");
     if(p) {
-        if (strcmp(p, "0"))
+        if (strcmp(p, "0")) {
             context->x64trace = 1;
+            box64_trace = p;
+        }
     }
     p = getenv("BOX64_TRACE_INIT");
     if(p) {
-        if (strcmp(p, "0"))
+        if (strcmp(p, "0")) {
             context->x64trace = 1;
+            trace_init = p;
+        }
     }
     if(my_context->x64trace) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
@@ -914,7 +921,7 @@ EXPORTDYN
 void setupTraceInit()
 {
 #ifdef HAVE_TRACE
-    char* p = getenv("BOX64_TRACE_INIT");
+    char* p = trace_init;
     if(p) {
         setbuf(stdout, NULL);
         uintptr_t s_trace_start=0, s_trace_end=0;
@@ -937,7 +944,7 @@ void setupTraceInit()
             }
         }
     } else {
-        p = getenv("BOX64_TRACE");
+        p = box64_trace;
         if(p)
             if (strcmp(p, "0"))
                 SetTraceEmu(0, 1);
@@ -949,7 +956,7 @@ EXPORTDYN
 void setupTrace()
 {
 #ifdef HAVE_TRACE
-    char* p = getenv("BOX64_TRACE");
+    char* p = box64_trace;
     if(p) {
         setbuf(stdout, NULL);
         uintptr_t s_trace_start=0, s_trace_end=0;
@@ -978,6 +985,8 @@ void setupTrace()
             } else {
                 printf_log(LOG_NONE, "Warning, symbol to trace (\"%s\") not found, trying to set trace later\n", p);
                 SetTraceEmu(0, 1);  // disabling trace, mostly
+                if(trace_func)
+                    box_free(trace_func);
                 trace_func = box_strdup(p);
             }
         }
@@ -1044,9 +1053,9 @@ void endBox64()
     #endif
     // all done, free context
     FreeBox64Context(&my_context);
-    if(libGL) {
-        box_free(libGL);
-        libGL = NULL;
+    if(box64_libGL) {
+        box_free(box64_libGL);
+        box64_libGL = NULL;
     }
 }
 
@@ -1055,6 +1064,20 @@ static void free_contextargv()
 {
     for(int i=0; i<my_context->argc; ++i)
         box_free(my_context->argv[i]);
+}
+
+static void load_rcfiles()
+{
+    if(FileExist("/etc/box64.box64rc", IS_FILE))
+        LoadRCFile("/etc/box64.box64rc");
+    char* p = getenv("HOME");
+    if(p) {
+        char tmp[4096];
+        strncpy(tmp, p, 4096);
+        strncat(tmp, "/.box64rc", 4095);
+        if(FileExist(tmp, IS_FILE))
+            LoadRCFile(tmp);
+    }
 }
 
 void pressure_vessel(int argc, const char** argv, int nextarg);
@@ -1079,6 +1102,9 @@ int main(int argc, const char **argv, char **env) {
 
     // check BOX64_LOG debug level
     LoadLogEnv();
+    if(!getenv("BOX64_NORCFILES")) {
+        load_rcfiles();
+    }
     char* bashpath = NULL;
     {
         char* p = getenv("BOX64_BASH");
@@ -1251,24 +1277,10 @@ int main(int argc, const char **argv, char **env) {
     if(box64_wine) {
         AddPath("libdl.so.2", &ld_preload, 0);
     }
-    // special case for dontstarve that use an old SDL2
-    if(strstr(prgname, "dontstarve")) {
-        printf_log(LOG_INFO, "Dontstarve* detected, forcing emulated SDL2\n");
-        AddPath("libSDL2-2.0.so.0", &my_context->box64_emulated_libs, 0);
-    }
     // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
     if(!strcmp(prgname, "steam")) {
         printf_log(LOG_INFO, "steam detected...\n");
-        AddPath("libudev.so.0", &my_context->box64_emulated_libs, 0);
         box64_steam = 1;
-        box64_dummy_crashhandler = 1;
-    }
-    if(!strcmp(prgname, "dota2")) {
-        printf_log(LOG_INFO, "dota2 detected, forcing dummy crashhandler\n");
-        box64_dummy_crashhandler = 1;
-        #ifdef DYNAREC
-        box64_dynarec_strongmem = 1;
-        #endif
     }
     // special case for steam-runtime-check-requirements to fake 64bits suport
     if(strstr(prgname, "steam-runtime-check-requirements")==prgname) {
@@ -1279,12 +1291,6 @@ int main(int argc, const char **argv, char **env) {
     if(strstr(prgname, "steamwebhelper")==prgname) {
         printf_log(LOG_INFO, "steamwebhelper, ignoring for now!\n");
         exit(0);    // exiting
-    }
-    // special case for streaming_client to use emulated libSDL2
-    if(strstr(prgname, "streaming_client")==prgname) {
-        printf_log(LOG_INFO, "streaming_client detected, using emulated libSDL2!\n");
-        AddPath("libSDL2-2.0.so.0", &my_context->box64_emulated_libs, 0);
-        AddPath("libSDL2_ttf-2.0.so.0", &my_context->box64_emulated_libs, 0);
     }
     // special case for zoom
     if(strstr(prgname, "zoom")==prgname) {
@@ -1306,10 +1312,6 @@ int main(int argc, const char **argv, char **env) {
     if(bashpath)
         my_context->bashpath = box_strdup(bashpath);
 
-    if(strstr(prgname, "pressure-vessel-wrap")==prgname) {
-        printf_log(LOG_INFO, "pressure-vessel-wrap detected, disabling GTK\n");
-        box64_nogtk = 1;
-    }
     /*if(strstr(prgname, "awesomium_process")==prgname) {
         printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
         AddPath("libpng12.so.0", &my_context->box64_emulated_libs, 0);
@@ -1317,6 +1319,8 @@ int main(int argc, const char **argv, char **env) {
     /*if(!strcmp(prgname, "gdb")) {
         exit(-1);
     }*/
+    ApplyParams("*");   // [*] is a special setting for all process
+    ApplyParams(prgname);
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);

@@ -38,6 +38,7 @@
 #include <syslog.h>
 #include <malloc.h>
 #include <getopt.h>
+#include <sys/prctl.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
 
@@ -60,6 +61,7 @@
 #include "elfloader.h"
 #include "bridge.h"
 #include "globalsymbols.h"
+#include "rcfile.h"
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
@@ -2968,6 +2970,15 @@ EXPORT void my_exit(x64emu_t* emu, int code)
 }
 
 EXPORT void my__exit(x64emu_t* emu, int code) __attribute__((alias("my_exit")));
+
+EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5)
+{
+    if(option==PR_SET_NAME) {
+        printf_log(LOG_DEBUG, "BOX64: set process name to \"%s\"\n", (char*)arg2);
+        ApplyParams((char*)arg2);
+    }
+    return prctl(option, arg2, arg3, arg4, arg5);
+}
 
 
 EXPORT char* my___progname = NULL;

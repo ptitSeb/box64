@@ -58,6 +58,15 @@ Note that many installer (mojo setup based) will fall back to "x86" when detecti
 
 ----
 
+Notes about Box64 configuration
+----
+
+Box64 now have configurations files. There are 2 files loaded. `/etc/box4.box64rc` and `~/.box64rc`. Both files have the same syntax, and is basicaly an ini files. Section in square brakets define the process name, and the rest is the env. var. to set. Looke at [Usage](USAGE.md) for detail on what parameters can be put. Box64 comes with a default file that should be installed for better stability. The file in in `system/box64.box64rc` and should be installed to `/etc/box64.box64rc` If, for some reasons, you don't want to install that file here, at least copy it to `~/.box64rc` or some game may not function correctly.
+Note that the priority is: `~/.bashrc` > `/etc/box64.box64rc` > command line
+So, your settings in `~/.bashrc` may override the setting from your command line...
+
+----
+
 Notes about Unity game emulation
 ----
 

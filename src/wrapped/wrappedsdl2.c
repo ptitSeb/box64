@@ -646,7 +646,6 @@ EXPORT void my2_SDL_Log(x64emu_t* emu, void* fmt, void *b) {
 }
 
 void fillGLProcWrapper(box64context_t*);
-extern char* libGL;
 EXPORT void* my2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name) 
 {
     khint_t k;
@@ -658,9 +657,9 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
     if(!emu->context->glwrappers) {
         fillGLProcWrapper(emu->context);
         // check if libGL is loaded, load it if not (helps DeadCells)
-        if(!my_glhandle && !GetLibInternal(libGL?libGL:"libGL.so.1")) {
+        if(!my_glhandle && !GetLibInternal(box64_libGL?box64_libGL:"libGL.so.1")) {
             // use a my_dlopen to actually open that lib, like SDL2 is doing...
-            my_glhandle = my_dlopen(emu, libGL?libGL:"libGL.so.1", RTLD_LAZY|RTLD_GLOBAL);
+            my_glhandle = my_dlopen(emu, box64_libGL?box64_libGL:"libGL.so.1", RTLD_LAZY|RTLD_GLOBAL);
         }
     }
     // get proc adress using actual glXGetProcAddress

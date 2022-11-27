@@ -20,9 +20,6 @@
 const char* libx11Name = "libX11.so.6";
 #define LIBNAME libx11
 
-extern int x11threads;
-extern int x11glx;
-
 typedef int (*XErrorHandler)(void *, void *);
 void* my_XSetErrorHandler(x64emu_t* t, XErrorHandler handler);
 typedef int (*XIOErrorHandler)(void *);
@@ -915,7 +912,7 @@ EXPORT int my_XUnregisterIMInstantiateCallback(x64emu_t* emu, void* d, void* db,
 EXPORT int my_XQueryExtension(x64emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)
 {
     int ret = my->XQueryExtension(display, name, major, first_event, first_error);
-    if(!ret && name && !strcmp(name, "GLX") && x11glx) {
+    if(!ret && name && !strcmp(name, "GLX") && box64_x11glx) {
         // hack to force GLX to be accepted, even if not present
         // left major and first_XXX to default...
         ret = 1;
@@ -1154,7 +1151,7 @@ EXPORT void* my_XOpenDisplay(x64emu_t* emu, void* d)
 
 #define CUSTOM_INIT                 \
     getMy(lib);                     \
-    if(x11threads) my->XInitThreads();
+    if(box64_x11threads) my->XInitThreads();
 
 #define CUSTOM_FINI \
     freeMy();

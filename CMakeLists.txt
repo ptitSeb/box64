@@ -281,6 +281,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/gtkclass.c"
     "${BOX64_ROOT}/src/tools/pathcoll.c"
     "${BOX64_ROOT}/src/tools/fileutils.c"
+    "${BOX64_ROOT}/src/tools/rcfile.c"
     "${BOX64_ROOT}/src/tools/wine_tools.c"
     "${BOX64_ROOT}/src/wrapped/generated/wrapper.c"
 )
@@ -633,6 +634,7 @@ if(NOT _x86 AND NOT _x86_64)
   install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libstdc++.so.6 DESTINATION /usr/lib/x86_64-linux-gnu/)
   install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libgcc_s.so.1 DESTINATION /usr/lib/x86_64-linux-gnu/)
   install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libpng12.so.0 DESTINATION /usr/lib/x86_64-linux-gnu/)
+  install(FILES ${CMAKE_SOURCE_DIR}/system/box64.box64rc DESTINATION /etc/)
 endif()
 
 if(NOT TARGET uninstall)
