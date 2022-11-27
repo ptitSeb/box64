@@ -70,7 +70,6 @@ IGNORE(BOX64_TRACE_COLOR)                               \
 ENTRYBOOL(BOX64_DYNAREC, box64_dynarec)                             \
 ENTRYINT(BOX64_DYNAREC_DUMP, box64_dynarec_dump, 0, 2, 2)           \
 ENTRYINT(BOX64_DYNAREC_LOG, box64_dynarec_log, 0, 3, 2)             \
-ENTRYBOOL(BOX64_DYNAREC_TRACE, box64_dynarec_trace)                 \
 ENTRYINT(BOX64_DYNAREC_BIGBLOCK, box64_dynarec_bigblock, 0, 3, 2)   \
 ENTRYINT(BOX64_DYNAREC_STRONGMEM, box64_dynarec_strongmem, 0, 2, 2) \
 ENTRYBOOL(BOX64_DYNAREC_X87DOUBLE, box64_dynarec_x87double)         \
@@ -83,7 +82,6 @@ ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
 IGNORE(BOX64_DYNAREC)                                               \
 IGNORE(BOX64_DYNAREC_DUMP)                                          \
 IGNORE(BOX64_DYNAREC_LOG)                                           \
-IGNORE(BOX64_DYNAREC_TRACE)                                         \
 IGNORE(BOX64_DYNAREC_BIGBLOCK)                                      \
 IGNORE(BOX64_DYNAREC_STRONGMEM)                                     \
 IGNORE(BOX64_DYNAREC_X87DOUBLE)                                     \
@@ -93,10 +91,21 @@ IGNORE(BOX64_NODYNAREC)                                             \
 
 #endif
 
+#if defined(HAVE_TRACE) && defined(DYNAREC)
+#define SUPER4()                                                    \
+ENTRYBOOL(BOX64_DYNAREC_TRACE, box64_dynarec_trace)                 \
+
+#else
+#define SUPER4()                                                    \
+IGNORE(BOX64_DYNAREC_TRACE)                                         \
+
+#endif
+
 #define SUPER() \
 SUPER1()        \
 SUPER2()        \
-SUPER3()
+SUPER3()        \
+SUPER4()
 
 typedef struct my_params_s {
 // is present part
