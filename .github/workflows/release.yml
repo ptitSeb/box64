@@ -41,7 +41,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: "Checkout Box64 Repository"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: "Environment preparation"
         run: |
@@ -98,7 +98,7 @@ jobs:
           ctest -j$(nproc)
 
       - name: "Upload Artifact"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: box64-${{ matrix.platform }}-${{ matrix.type }}
           path: build/box64
