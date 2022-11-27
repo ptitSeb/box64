@@ -1337,7 +1337,7 @@ void grabNCpu() {
         nCPU = 0;
         int bogo = 0;
         size_t len = 500;
-        char* line = alloca(len);
+        char* line = malloc(len);
         while ((dummy = getline(&line, &len, f)) != -1) {
             if(!strncmp(line, "processor\t", strlen("processor\t")))
                 ++nCPU;
@@ -1350,6 +1350,7 @@ void grabNCpu() {
                 }
             }
         }
+        free(line);
         fclose(f);
         if(!nCPU) nCPU=1;
     }
