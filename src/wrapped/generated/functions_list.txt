@@ -4052,6 +4052,8 @@ wrappedtbbmallocproxy:
   - _ZnamRKSt9nothrow_t
   - _ZnwmRKSt9nothrow_t
 wrappedtcmallocminimal:
+- pFp:
+  - mallinfo
 - iFpL:
   - munmap
 - pFpLiiii:

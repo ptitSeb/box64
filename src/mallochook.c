@@ -95,7 +95,7 @@ GO2(tc_malloc_skip_new_handler_weak, pFL);      \
 GO2(tc_mallocopt, iFii);        \
 GO2(tc_malloc_stats, vFv);      \
 GO2(tc_malloc_skip_new_handler, pFL);           \
-GO2(tc_mallinfo, pFv);          \
+GO2(tc_mallinfo, pFp);          \
 GO2(tc_posix_memalign, iFpLL);  \
 GO2(tc_realloc, pFpL);          \
 
@@ -432,11 +432,11 @@ EXPORT void* my_tc_malloc_skip_new_handler(size_t s)
     return box_calloc(1, s);
 }
 
-EXPORT void* my_tc_mallinfo(void)
+EXPORT void* my_tc_mallinfo(void* p)
 {
     // ignored, returning null stuffs
-    static size_t faked[10] = {0};
-    return faked;
+    memset(p, 0, sizeof(size_t)*10);
+    return p;
 }
 
 EXPORT int my_tc_posix_memalign(void** p, size_t align, size_t size)

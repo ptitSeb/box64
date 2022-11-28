@@ -16,7 +16,7 @@ GO(__libc_memalign, pFLL)
 GO(__libc_pvalloc, pFL)
 GO(__libc_realloc, pFpL)
 GO(__libc_valloc, pFL)
-GO(mallinfo, pFv)
+GOM(mallinfo, pFEp)
 GO(malloc, pFL)
 //GO(MallocExtension_GetAllocatedSize, 
 //GO(MallocExtension_GetEstimatedAllocatedSize, 
