@@ -1668,7 +1668,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
                     tmp = isSimpleWrapper(*(wrapper_t*)(addr));
-                    if((box64_log<2 || !cycle_log) && tmp) {
+                    if((box64_log<2 && !cycle_log) && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(addr+8), tmp);
                         addr+=8+8;
@@ -2117,7 +2117,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
-                    if((box64_log<2 || !cycle_log) && dyn->insts[ninst].natcall && (tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))) {
+                    if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall && (tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8), tmp);
                         POP1(xRIP);   // pop the return address
