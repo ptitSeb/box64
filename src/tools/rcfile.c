@@ -183,15 +183,14 @@ static void clearParam(my_params_t* param)
 static void addParam(const char* name, my_params_t* param)
 {
     khint_t k;
-    int ret;
     k = kh_get(params, params, name);
-    const char* oldkey = (k!=kh_end(params))?kh_key(params, k):NULL;
-    k = kh_put(params, params, strdup(name), &ret);
+    if(k==kh_end(params)) {
+        int ret;
+        k = kh_put(params, params, strdup(name), &ret);
+    } else {
+        clearParam(&kh_value(params, k));
+    }
     my_params_t *p = &kh_value(params, k);
-    if(!ret)
-        clearParam(p);
-    if(oldkey)
-        free((void*)oldkey);
     memcpy(p, param, sizeof(my_params_t));
 }
 
