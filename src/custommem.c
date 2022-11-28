@@ -1174,15 +1174,14 @@ int IsInHotPage(uintptr_t addr) {
     if(addr<=(1LL<<48))
         return 0;
     int idx = (addr>>MEMPROT_SHIFT)>>16;
-    if(!memprot[idx].hot)
+    uint8_t *block = memprot[idx].hot;
+    if(!block)
         return 0;
     int base = (addr>>MEMPROT_SHIFT)&0xffff;
-    if(!memprot[idx].hot[base])
+    if(!block[base])
         return 0;
     // decrement hot
-    pthread_mutex_lock(&mutex_prot);
-    memprot[idx].hot[base]-=1;
-    pthread_mutex_unlock(&mutex_prot);
+    native_lock_decifnot0b(&block[base]);
     return 1;
 }
 
@@ -1196,39 +1195,36 @@ int AreaInHotPage(uintptr_t start, uintptr_t end_) {
         //dynarec_log(LOG_DEBUG, "00\n");
         return 0;
     }
+    int ret = 0;
     for (uintptr_t i=idx; i<=end; ++i) {
         uint8_t *block = memprot[i>>16].hot;
-        uint32_t hot = block?block[i&0xffff]:0;
-        if(hot) {
-            // decrement hot
-            pthread_mutex_lock(&mutex_prot);
-            block[i&0xffff]-=1;
-            pthread_mutex_unlock(&mutex_prot);
-            //dynarec_log(LOG_DEBUG, "1\n");
-            return 1;
+        if(block) {
+            uint32_t hot = block[i&0xffff];
+            if(hot) {
+                // decrement hot
+                native_lock_decifnot0b(&block[i&0xffff]);
+                //dynarec_log(LOG_DEBUG, "1\n");
+                ret = 1;
+            }
+        } else {
+            i+=0xffff;
         }
     }
     //dynarec_log(LOG_DEBUG, "0\n");
-    return 0;
+    return ret;
 
 }
 
 void AddHotPage(uintptr_t addr) {
     int idx = (addr>>MEMPROT_SHIFT)>>16;
     int base = (addr>>MEMPROT_SHIFT)&0xffff;
-    pthread_mutex_lock(&mutex_prot);
     if(!memprot[idx].hot) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
-#if 0 //def ARM64   //disabled for now, not usefull with the mutex
-            if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
+            if (native_lock_storeifnull(&memprot[idx].hot, newblock) != newblock) {
                 box_free(newblock);
             }
-#else
-            memprot[idx].hot = newblock;
-#endif
     }
-    memprot[idx].hot[base] = HOTPAGE_STEP;
-    pthread_mutex_unlock(&mutex_prot);
+    native_lock_storeb(&memprot[idx].hot[base], HOTPAGE_STEP);
 }
 #endif
 
