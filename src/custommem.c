@@ -1324,9 +1324,34 @@ uint32_t getProtection(uintptr_t addr)
 }
 
 #define LOWEST (void*)0x10000
+#define MEDIUM (void*)0x20000000
+
+void* find31bitBlockNearHint(void* hint, size_t size)
+{
+    mapmem_t* m = mapmem;
+    uintptr_t h = (uintptr_t)hint;
+    if(hint<LOWEST) hint = LOWEST;
+    while(m && m->end<0x80000000LL) {
+        // granularity 0x10000
+        uintptr_t addr = (m->end+1+0xffff)&~0xffff;
+        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffffffffffffLL;
+        // check hint and available size
+        if(addr<=h && end>=h && end-h+1>=size)
+            return hint;
+        if(addr>=h && end-addr+1>=size)
+            return (void*)addr;
+        m = m->next;
+    }
+    return NULL;
+}
+
 void* find32bitBlock(size_t size)
 {
-    return findBlockNearHint(LOWEST, size);
+    void* ret = find31bitBlockNearHint(MEDIUM, size);
+    if(ret)
+        return ret;
+    ret = find31bitBlockNearHint(LOWEST, size);
+    return ret?ret:find47bitBlock(size);
 }
 void* find47bitBlock(size_t size)
 {
@@ -1352,24 +1377,6 @@ void* find47bitBlockNearHint(void* hint, size_t size)
         m = m->next;
     }
     return NULL;
-}
-void* findBlockNearHint(void* hint, size_t size)
-{
-    mapmem_t* m = mapmem;
-    uintptr_t h = (uintptr_t)hint;
-    if(hint<LOWEST) hint = LOWEST;
-    while(m && m->end<0x100000000LL) {
-        // granularity 0x10000
-        uintptr_t addr = (m->end+1+0xffff)&~0xffff;
-        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffffffffffffLL;
-        // check hint and available size
-        if(addr<=h && end>=h && end-h+1>=size)
-            return hint;
-        if(addr>=h && end-addr+1>=size)
-            return (void*)addr;
-        m = m->next;
-    }
-    return hint;
 }
 
 int unlockCustommemMutex()

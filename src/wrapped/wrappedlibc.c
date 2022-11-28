@@ -2360,7 +2360,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     if(flags&0x40) {
         // 0x40 is MAP_32BIT, wich only exist on x86_64!
         //flags &= ~0x40;   // let the flags in?
-        addr = findBlockNearHint(addr, length);
+        addr = find31bitBlockNearHint(addr, length);
     } else if (box64_wine || 1) {   // other mmap should be restricted to 47bits
         if(!addr)
             addr = find47bitBlock(length);
@@ -2373,7 +2373,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         printf_log(LOG_DEBUG, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
-        addr = findBlockNearHint(old_addr, length); // is this the best way?
+        addr = find31bitBlockNearHint(old_addr, length); // is this the best way?
         ret = mmap64(addr, length, prot, flags, fd, offset);
         printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
     } else if((ret!=(void*)-1) && !(flags&MAP_FIXED) && (box64_wine) && (old_addr) && (addr!=ret) &&

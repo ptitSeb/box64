@@ -55,7 +55,7 @@ int AreaInHotPage(uintptr_t start, uintptr_t end);
 void AddHotPage(uintptr_t addr);
 #endif
 void* find32bitBlock(size_t size);
-void* findBlockNearHint(void* hint, size_t size);
+void* find31bitBlockNearHint(void* hint, size_t size);
 void* find47bitBlock(size_t size);
 void* find47bitBlockNearHint(void* hint, size_t size);
 
