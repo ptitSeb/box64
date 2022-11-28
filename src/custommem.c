@@ -628,7 +628,7 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
     ActuallyFreeDynarecMap(db, addr, size);
 }
 
-uintptr_t getDefaultSize(uintptr_t addr)
+uintptr_t getSizeJmpDefault(uintptr_t addr, size_t maxsize)
 {
     uintptr_t idx3, idx2, idx1, idx0;
     idx3 = (((uintptr_t)addr)>>48)&0xffff;
@@ -638,10 +638,13 @@ uintptr_t getDefaultSize(uintptr_t addr)
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
         return (addr&~((1LL<<32)-1)|0xffffffffLL)-addr + 1;
     idx1 = (((uintptr_t)addr)>>16)&0xffff;
-    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
+    uintptr_t* block = box64_jmptbl3[idx3][idx2][idx1];
+    if(block == box64_jmptbldefault0)
         return (addr&~((1LL<<16)-1)|0xffffLL)-addr + 1;
     idx0 = addr&0xffff;
-    while(idx0<0x10000 && box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)native_next)
+    if (maxsize>0x10000)
+        maxsize = 0x10000;
+    while(idx0<maxsize && block[idx0]==(uintptr_t)native_next)
         ++idx0;
     return idx0 - (addr&0xffff);
 }
@@ -666,7 +669,7 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
             else
                 MarkRangeDynablock(db, addr, size);
         } else {
-            uintptr_t next = getDefaultSize(i);
+            uintptr_t next = getSizeJmpDefault(i, size-i);
             if(next)
                 i+=next-1;
         }
