@@ -168,7 +168,7 @@ else()
 endif()
 
 #set(BOX64_ELF_ADDRESS "0x500062800000")  #random load address...
-set(BOX64_ELF_ADDRESS "0x64800000")  #low address
+set(BOX64_ELF_ADDRESS "0x34800000")  #low address
 
 if(LD80BITS)
     add_definitions(-DHAVE_LD80BITS)
