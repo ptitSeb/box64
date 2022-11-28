@@ -37,6 +37,9 @@ void FreeDLPrivate(dlprivate_t **lib) {
     box_free(*lib);
 }
 
+// dead_cells consider the "2" value to be some king of issue?
+#define MIN_NLIB 3
+
 void* my_dlopen(x64emu_t* emu, void *filename, int flag) EXPORT;
 void* my_dlmopen(x64emu_t* emu, void* mlid, void *filename, int flag) EXPORT;
 char* my_dlerror(x64emu_t* emu) EXPORT;
@@ -101,7 +104,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
             box_free(platform);
         }
         // check if alread dlopenned...
-        for (size_t i=0; i<dl->lib_sz; ++i) {
+        for (size_t i=MIN_NLIB; i<dl->lib_sz; ++i) {
             if(IsSameLib(dl->libs[i], rfilename)) {
                 if(dl->count[i]==0 && dl->dlopened[i]) {   // need to lauch init again!
                     if(flag&0x4) {
@@ -139,7 +142,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         RunDeferedElfInit(emu);
     } else {
         // check if already dlopenned...
-        for (size_t i=0; i<dl->lib_sz; ++i) {
+        for (size_t i=MIN_NLIB; i<dl->lib_sz; ++i) {
             if(!dl->libs[i]) {
                 dl->count[i] = dl->count[i]+1;
                 return (void*)(i+1);
@@ -156,6 +159,8 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         dl->dlopened = (size_t*)box_realloc(dl->dlopened, sizeof(size_t)*dl->lib_cap);
         // memset count...
         memset(dl->count+dl->lib_sz, 0, (dl->lib_cap-dl->lib_sz)*sizeof(size_t));
+        if(!dl->lib_sz)
+            dl->lib_sz = MIN_NLIB;
     }
     intptr_t idx = dl->lib_sz++; 
     dl->libs[idx] = lib;
