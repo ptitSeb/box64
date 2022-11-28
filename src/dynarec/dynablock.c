@@ -136,14 +136,9 @@ dynablock_t *AddNewDynablock(uintptr_t addr)
     }
     
     #endif
-    pthread_mutex_lock(&my_context->mutex_dyndump);
-
     // create and add new block
     dynarec_log(LOG_VERBOSE, "Ask for DynaRec Block creation @%p\n", (void*)addr);
-
     block = (dynablock_t*)customCalloc(1, sizeof(dynablock_t));
-
-    pthread_mutex_lock(&my_context->mutex_dyndump);
     return block;
 }
 
