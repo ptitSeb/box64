@@ -194,7 +194,7 @@ Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan
 #### BOX64_CRASHHANDLER *
 Box64 will use a dummy crashhandler.so library
  * 0 : Use Emulated crashhandler.so library if needed
- * 1 : Use an internal dummy (completly empty) crashhandler.so library (defaut for steam and dota2)
+ * 1 : Use an internal dummy (completly empty) crashhandler.so library (defaut)
 
 #### BOX64_NOPULSE *
 Disables the load of pulseaudio libraries.

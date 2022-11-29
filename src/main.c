@@ -84,7 +84,7 @@ int allow_missing_libs = 0;
 int box64_prefer_emulated = 0;
 int box64_prefer_wrapped = 0;
 int fix_64bit_inodes = 0;
-int box64_dummy_crashhandler = 0;
+int box64_dummy_crashhandler = 1;
 int box64_mapclean = 0;
 int box64_zoom = 0;
 int box64_steam = 0;
@@ -593,8 +593,8 @@ void LoadLogEnv()
             if(p[0]>='0' && p[0]<='0'+1)
                 box64_dummy_crashhandler = p[0]-'0';
         }
-        if(box64_dummy_crashhandler)
-            printf_log(LOG_INFO, "Use of dummy crashhandler lib\n");
+        if(!box64_dummy_crashhandler)
+            printf_log(LOG_INFO, "Don't use dummy crashhandler lib\n");
     }
     p = getenv("BOX64_NOPULSE");
     if(p) {
@@ -793,7 +793,7 @@ void PrintHelp() {
     printf(" BOX64_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
     printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11\n");
     printf(" BOX64_PREFER_WRAPPED if box64 will use wrapped libs even if the lib is specified with absolute path\n");
-    printf(" BOX64_CRASHHANDLER=1 to use a dummy crashhandler lib (default for steam\n");
+    printf(" BOX64_CRASHHANDLER=0 to not use a dummy crashhandler lib\n");
     printf(" BOX64_NOPULSE=1 to disable the loading of pulseaudio libs\n");
     printf(" BOX64_NOGTK=1 to disable the loading of wrapped gtk libs\n");
     printf(" BOX64_NOVULKAN=1 to disable the loading of wrapped vulkan libs\n");
