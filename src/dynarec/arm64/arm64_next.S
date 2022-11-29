@@ -9,6 +9,7 @@
 .extern LinkNext
 
 .global arm64_next
+
 arm64_next:
     // emu is r0
     // IP address is r1

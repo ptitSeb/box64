@@ -6,6 +6,8 @@
 .text
 .align 4
 
+.extern arm64_next
+
 .global arm64_prolog
 arm64_prolog:
     //save all 18 used register
@@ -15,7 +17,7 @@ arm64_prolog:
     stp     x21, x22, [sp, (8 * 2)]
     stp     x23, x24, [sp, (8 * 4)]
     stp     x25, x26, [sp, (8 * 6)]
-    str     x27, [sp, (8 * 8)]
+    stp     x27, X28, [sp, (8 * 8)]
     stp     d8, d9,   [sp, (8 *10)]
     stp     d10, d11, [sp, (8 *12)]
     stp     d12, d13, [sp, (8 *14)]
@@ -31,5 +33,10 @@ arm64_prolog:
     ldp     x22, x23, [x0, (8 * 12)]
     ldp     x24, x25, [x0, (8 * 14)]
     ldp     x26, x27, [x0, (8 * 16)]
+    // Push a jump next on the stack
+    adr     x28, arm64_next
+    stp     x28, xzr, [sp, -16]!
+    // Save old xSP in x28
+    add     x28, sp, 16
     //jump to function
     br       x1

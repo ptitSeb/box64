@@ -24,6 +24,7 @@
 #define xR15    25
 #define xFlags  26
 #define xRIP    27
+#define xSavedSP 28
 // 32bits version
 #define wEAX    xRAX
 #define wECX    xRCX

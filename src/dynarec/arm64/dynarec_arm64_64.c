@@ -16,6 +16,7 @@
 #include "emu/x64run_private.h"
 #include "x64trace.h"
 #include "dynarec_native.h"
+#include "custommem.h"
 
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
@@ -970,12 +971,27 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     }
                     GETEDOx(x6, 0);
-                    BARRIER(BARRIER_FLOAT);
-                    if(!dyn->insts || ninst==dyn->size-1) {
+                    if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
+                        BARRIER(BARRIER_FULL);
+                    } else {
+                        BARRIER(BARRIER_FLOAT);
                         *need_epilog = 0;
                         *ok = 0;
                     }
                     GETIP_(addr);
+                    if(box64_dynarec_callret) {
+                        // Push actual return address
+                        if(addr < (dyn->start+dyn->isize)) {
+                            // there is a next...
+                            j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
+                            ADR_S20(x4, j64);
+                        } else {
+                            j64 = getJumpTableAddress64(addr);
+                            TABLE64(x4, j64);
+                            LDRx_U12(x4, x4, 0);
+                        }
+                        STPx_S7_preindex(x4, xRIP, xSP, -16);
+                    }
                     PUSH1(xRIP);
                     jump_to_next(dyn, 0, ed, ninst);
                     break;

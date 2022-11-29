@@ -162,6 +162,11 @@ Handling of flags on CALL/RET opcodes
 * 1 : most of RET will need flags, most of CALLS will not (Default)
 * 2 : All CALL/RET will need flags (slower, but might be needed. Automatically enabled for Vara.exe)
 
+#### BOX64_DYNAREC_CALLRET *
+Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
+* 0 : Don't optimize CALL/RET, use Jump Table for boths (Default)
+* 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible (will crash if blacks are invalidate, so probably incompatible with JIT/Dynarec)
+
 #### BOX64_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL

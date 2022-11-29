@@ -51,6 +51,7 @@ int box64_dynarec_strongmem = 0;
 int box64_dynarec_x87double = 0;
 int box64_dynarec_fastnan = 1;
 int box64_dynarec_safeflags = 1;
+int box64_dynarec_callret = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -479,6 +480,15 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Dynarec will not play it safe with x64 flags\n");
         else
             printf_log(LOG_INFO, "Dynarec will play %s safe with x64 flags\n", (box64_dynarec_safeflags==1)?"moderatly":"it");
+    }
+    p = getenv("BOX64_DYNAREC_CALLRET");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_callret = p[0]-'0';
+        }
+        if(!box64_dynarec_callret)
+            printf_log(LOG_INFO, "Dynarec will optimize CALL/RET\n");
     }
     p = getenv("BOX64_NODYNAREC");
     if(p) {
