@@ -457,6 +457,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     }
     if(!isprotectedDB(addr, 1)) {
         dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
+        AddHotPage(addr);
         CancelBlock64();
         return NULL;
     }
@@ -583,12 +584,14 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
     // Check if something changed, to abbort if it as
     if((block->hash != hash)) {
-        dynarec_log(LOG_INFO, "Warning, a block changed while beeing processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
+        dynarec_log(LOG_DEBUG, "Warning, a block changed while beeing processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
+        AddHotPage(addr);
         CancelBlock64();
         return NULL;
     }
     if(!isprotectedDB(addr, end-addr)) {
-        dynarec_log(LOG_INFO, "Warning, block unprotected while beeing processed %p:%ld, cancelling\n", block->x64_addr, block->x64_size);
+        dynarec_log(LOG_DEBUG, "Warning, block unprotected while beeing processed %p:%ld, cancelling\n", block->x64_addr, block->x64_size);
+        AddHotPage(addr);
         CancelBlock64();
         return NULL;
         //protectDB(addr, end-addr);

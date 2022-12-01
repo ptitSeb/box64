@@ -52,6 +52,7 @@ int box64_dynarec_x87double = 0;
 int box64_dynarec_fastnan = 1;
 int box64_dynarec_safeflags = 1;
 int box64_dynarec_callret = 0;
+int box64_dynarec_hotpage = 16;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -489,6 +490,18 @@ void LoadLogEnv()
         }
         if(!box64_dynarec_callret)
             printf_log(LOG_INFO, "Dynarec will optimize CALL/RET\n");
+    }
+    p = getenv("BOX64_DYNAREC_HOTPAGE");
+    if(p) {
+        int val = -1;
+        if(sscanf("%d", p, &val)==1) {
+            if(val>=0)
+                box64_dynarec_hotpage = val;
+        }
+        if(!box64_dynarec_hotpage)
+            printf_log(LOG_INFO, "Dynarec will have HotPage tagged for %d ticks\n", box64_dynarec_hotpage);
+        else
+            printf_log(LOG_INFO, "Dynarec will not tag HotPage\n");
     }
     p = getenv("BOX64_NODYNAREC");
     if(p) {

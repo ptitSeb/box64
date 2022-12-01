@@ -1172,7 +1172,6 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 }
 
 #ifdef DYNAREC
-#define HOTPAGE_STEP 16
 int IsInHotPage(uintptr_t addr) {
     if(addr<=(1LL<<48))
         return 0;
@@ -1189,31 +1188,30 @@ int IsInHotPage(uintptr_t addr) {
 }
 
 int AreaInHotPage(uintptr_t start, uintptr_t end_) {
-    //dynarec_log(LOG_DEBUG, "AreaInHotPage %p -> %p => ", (void*)start, (void*)end_);
     uintptr_t idx = (start>>MEMPROT_SHIFT);
     uintptr_t end = (end_>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
         end = (1LL<<(48-MEMPROT_SHIFT))-1LL;
     if(end<idx) { // memory addresses higher than 48bits are not tracked
-        //dynarec_log(LOG_DEBUG, "00\n");
         return 0;
     }
     int ret = 0;
     for (uintptr_t i=idx; i<=end; ++i) {
         uint8_t *block = memprot[i>>16].hot;
+        int base = i&0xffff;
         if(block) {
-            uint32_t hot = block[i&0xffff];
+            uint32_t hot = block[base];
             if(hot) {
                 // decrement hot
-                native_lock_decifnot0b(&block[i&0xffff]);
-                //dynarec_log(LOG_DEBUG, "1\n");
+                native_lock_decifnot0b(&block[base]);
                 ret = 1;
             }
         } else {
-            i+=0xffff;
+            i+=0xffff-base;
         }
     }
-    //dynarec_log(LOG_DEBUG, "0\n");
+    if(ret && box64_dynarec_log>LOG_INFO)
+        dynarec_log(LOG_DEBUG, "BOX64: AreaInHotPage %p-%p\n", (void*)start, (void*)end_);
     return ret;
 
 }
@@ -1227,7 +1225,7 @@ void AddHotPage(uintptr_t addr) {
                 box_free(newblock);
             }
     }
-    native_lock_storeb(&memprot[idx].hot[base], HOTPAGE_STEP);
+    native_lock_storeb(&memprot[idx].hot[base], box64_dynarec_hotpage);
 }
 #endif
 

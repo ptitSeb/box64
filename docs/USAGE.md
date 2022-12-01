@@ -167,6 +167,11 @@ Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
 * 0 : Don't optimize CALL/RET, use Jump Table for boths (Default)
 * 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible (will crash if blacks are invalidate, so probably incompatible with JIT/Dynarec)
 
+#### BOX64_DYNAREC_HOTPAGE *
+Handling of HotPage (Page beeing both executed and writen)
+* 0 : Don't track hotpage
+* 1-255 : Trak HotPage, and disable execution of a page beeing writen for N attempts (default is 16)
+
 #### BOX64_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL
