@@ -172,6 +172,11 @@ Handling of HotPage (Page beeing both executed and writen)
 * 0 : Don't track hotpage
 * 1-255 : Trak HotPage, and disable execution of a page beeing writen for N attempts (default is 16)
 
+#### BOX64_DYNAREC_BLEEDING_EDGE *
+Detect MonoBleedingEdge and apply conservative settings
+* 0 : Don't detect MonoBleedingEdge
+* 1 : Detect MonoBleedingEdge, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
+
 #### BOX64_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL

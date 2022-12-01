@@ -5,6 +5,9 @@
 #
 # Linux process
 # 
+[3dSen.x86_64]
+BOX64_DYNAREC_BLEEDING_EDGE=0   # avoid the use of STRONGMEM for much better performances
+BOX64_DYNAREC_HOTPAGE=0 # disabling hotpage seems to give better performances here
 
 [7z]
 # Those are safe to use on 7z and give a bit of a boost

@@ -76,6 +76,7 @@ ENTRYBOOL(BOX64_DYNAREC_X87DOUBLE, box64_dynarec_x87double)         \
 ENTRYBOOL(BOX64_DYNAREC_FASTNAN, box64_dynarec_fastnan)             \
 ENTRYINT(BOX64_DYNAREC_SAFEFLAGS, box64_dynarec_safeflags, 0, 2, 2) \
 ENTRYBOOL(BOX64_DYNAREC_CALLRET, box64_dynarec_callret)             \
+ENTRYBOOL(BOX64_DYNAREC_BLEEDING_EDGE, box64_dynarec_bleeding_edge) \
 ENTRYINT(BOX64_DYNAREC_HOTPAGE, box64_dynarec_hotpage, 0, 255, 8)   \
 ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
 
@@ -90,6 +91,7 @@ IGNORE(BOX64_DYNAREC_X87DOUBLE)                                     \
 IGNORE(BOX64_DYNAREC_FASTNAN)                                       \
 IGNORE(BOX64_DYNAREC_SAFEFLAGS)                                     \
 IGNORE(BOX64_DYNAREC_CALLRET)                                       \
+IGNORE(BOX64_DYNAREC_BLEEDING_EDGE)                                 \
 IGNORE(BOX64_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX64_NODYNAREC)                                             \
 
