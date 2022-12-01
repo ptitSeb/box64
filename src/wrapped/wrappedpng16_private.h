@@ -101,4 +101,4 @@ GO(png_get_interlace_type, CFpp)
 GOM(png_set_progressive_read_fn, vFEppppp)
 GO(png_image_begin_read_from_memory, iFppL)
 GO(png_image_finish_read, iFpppip)
-
+GO(png_image_free, vFp)
