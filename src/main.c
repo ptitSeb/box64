@@ -40,7 +40,7 @@ int box64_log = LOG_INFO; //LOG_NONE;
 int box64_dump = 0;
 int box64_nobanner = 0;
 int box64_dynarec_log = LOG_NONE;
-int box64_pagesize;
+uintptr_t box64_pagesize;
 uintptr_t box64_load_addr = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
@@ -312,12 +312,12 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " PMULL");
     if(arm64_atomics)
         printf_log(LOG_INFO, " ATOMICS");
-    printf_log(LOG_INFO, " PageSize:%d", box64_pagesize);
+    printf_log(LOG_INFO, " PageSize:%zd", box64_pagesize);
     int ncpu = getNCpu();
     printf_log(LOG_INFO, " Cores:%d\n", ncpu);
 #elif defined(LA464)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
-    printf_log(LOG_INFO, " PageSize:%d\n", box64_pagesize);
+    printf_log(LOG_INFO, " PageSize:%zd\n", box64_pagesize);
 #else
 #error Unsupported architecture
 #endif

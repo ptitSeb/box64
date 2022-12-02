@@ -957,7 +957,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
     }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16].prot[i&0xffff];
-        if(!(prot&PROT_DYNAREC || prot&PROT_DYNAREC_R)) {
+        if(!(prot&(PROT_DYNAREC|PROT_DYNAREC_R))) {
             dynarec_log(LOG_DEBUG, "0\n");
             return 0;
         }

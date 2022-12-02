@@ -462,7 +462,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         return NULL;
     }
     // protect the block of it goes over the 1st page
-    if((addr&~0xfff)!=(end&~0xfff)) // need to protect some other pages too
+    if((addr&~box64_pagesize)!=(end&~box64_pagesize)) // need to protect some other pages too
         protectDB(addr, end-addr);  //end is 1byte after actual end
     // compute hash signature
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
@@ -592,8 +592,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     if(!isprotectedDB(addr, end-addr)) {
         dynarec_log(LOG_DEBUG, "Warning, block unprotected while beeing processed %p:%ld, cancelling\n", block->x64_addr, block->x64_size);
         AddHotPage(addr);
-        CancelBlock64();
-        return NULL;
+        block->need_test = 1;
         //protectDB(addr, end-addr);
     }
     current_helper = NULL;

@@ -7,7 +7,7 @@ extern int box64_log;    // log level
 extern int box64_dump;   // dump elf or not
 extern int box64_dynarec_log;
 extern int box64_dynarec;
-extern int box64_pagesize;
+extern uintptr_t box64_pagesize;
 extern uintptr_t box64_load_addr;
 #ifdef DYNAREC
 extern int box64_dynarec_dump;
