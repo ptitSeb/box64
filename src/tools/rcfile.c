@@ -19,7 +19,7 @@
 
 // list of all entries
 #define SUPER1()                                        \
-ENTRYINTPOS(BOX64_ROLLING_LOG, cycle_log)               \
+ENTRYINTPOS(BOX64_ROLLING_LOG, new_cycle_log)           \
 ENTRYSTRING_(BOX64_LD_LIBRARY_PATH, ld_library_path)    \
 ENTRYSTRING_(BOX64_PATH, box64_path)                    \
 ENTRYSTRING_(BOX64_TRACE_FILE, trace_file)              \
@@ -357,6 +357,7 @@ void ApplyParams(const char* name)
     if(!name || !params)
         return;
     static const char* old_name = NULL;
+    int new_cycle_log = cycle_log;
     if(old_name && !strcmp(name, old_name)) {
         return;
     }
@@ -394,6 +395,13 @@ void ApplyParams(const char* name)
     #undef ENTRYADDR
     #undef ENTRYULONG
     // now handle the manuel entry (the one with ending underscore)
+    if(new_cycle_log==1)
+        new_cycle_log = 16;
+    if(new_cycle_log!=cycle_log) {
+        freeCycleLog(my_context);
+        cycle_log = new_cycle_log;
+        initCycleLog(my_context);
+    }
     if(param->is_ld_library_path_present) AppendList(&my_context->box64_ld_lib, param->ld_library_path, 1);
     if(param->is_box64_path_present) AppendList(&my_context->box64_path, param->box64_path, 1);
     if(param->is_trace_file_present) {
