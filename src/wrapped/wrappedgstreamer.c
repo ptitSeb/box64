@@ -17,14 +17,18 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 #include "myalign.h"
+#include "gtkclass.h"
 
 const char* gstreamerName = "libgstreamer-1.0.so.0";
 #define LIBNAME gstreamer
 
-typedef void* (*pFppA_t)(void*, void*, va_list);
-typedef void* (*pFp_t)(void*);
+typedef void*   (*pFppA_t)(void*, void*, va_list);
+typedef size_t  (*LFv_t)();
+typedef void*   (*pFp_t)(void*);
 
 #define ADDED_FUNCTIONS()                   \
+    GO(gst_object_get_type, LFv_t)          \
+    GO(gst_allocator_get_type, LFv_t)       \
     GO(gst_structure_new_valist, pFppA_t)   \
     GO(gst_structure_new_empty, pFp_t)
 
@@ -310,7 +314,10 @@ EXPORT void* my_gst_structure_new(x64emu_t* emu, void* name, void* first, uint64
         return -1;
 
 #define CUSTOM_INIT \
-    getMy(lib);
+    getMy(lib);     \
+    SetGstObjectID(my->gst_object_get_type());                 \
+    SetGstAllocatorID(my->gst_allocator_get_type());           \
+    setNeededLibs(lib, 1, "libgtk-3.so.0");
 
 #define CUSTOM_FINI \
     freeMy();

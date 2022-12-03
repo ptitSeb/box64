@@ -1716,6 +1716,76 @@ static void bridgeAtkUtilClass(my_AtkUtilClass_t* class)
 
 #undef SUPERGO
 
+// ----- GstObjectClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstObject, deep_notify, void, (void* object, void* origin, void* pspec), 3, object, origin, pspec);
+
+#define SUPERGO() \
+    GO(deep_notify, vFppp); \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstObjectClass(my_GstObjectClass_t* class)
+{
+    wrapGInitiallyUnownedClass(&class->parent);
+    #define GO(A, W) class->A = reverse_##A##_GstObject (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstObjectClass(my_GstObjectClass_t* class)
+{   
+    unwrapGInitiallyUnownedClass(&class->parent);
+    #define GO(A, W)   class->A = find_##A##_GstObject (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstObjectClass(my_GstObjectClass_t* class)
+{
+    bridgeGInitiallyUnownedClass(&class->parent);
+    #define GO(A, W) autobridge_##A##_GstObject (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GstAllocatorClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstAllocator, alloc, void*, (void *allocator, size_t size, void *params), 3, allocator, size, params);
+WRAPPER(GstAllocator,free, void,    (void *allocator, void *memory), 2, allocator, memory);
+
+#define SUPERGO() \
+    GO(alloc, pFpLp);       \
+    GO(free, vFpp);         \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstAllocatorClass(my_GstAllocatorClass_t* class)
+{
+    wrapGstObjectClass(&class->parent);
+    #define GO(A, W) class->A = reverse_##A##_GstAllocator (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstAllocatorClass(my_GstAllocatorClass_t* class)
+{   
+    unwrapGstObjectClass(&class->parent);
+    #define GO(A, W)   class->A = find_##A##_GstAllocator (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstAllocatorClass(my_GstAllocatorClass_t* class)
+{
+    bridgeGstObjectClass(&class->parent);
+    #define GO(A, W) autobridge_##A##_GstAllocator (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND
