@@ -910,6 +910,27 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             glitch_addr = NULL;
             glitch_prot = 0;
         }
+        if(addr && pc && ((prot&(PROT_READ|PROT_WRITE))==(PROT_READ|PROT_WRITE))) {
+            static void* glitch2_pc = NULL;
+            static void* glitch2_addr = NULL;
+            static int glitch2_prot = 0;
+            if((glitch2_pc!=pc || glitch2_addr!=addr || glitch2_prot!=prot)) {
+                dynarec_log(LOG_INFO, "Is that a multi process glitch too?\n");
+                //printf_log(LOG_INFO, "Is that a multi process glitch too?\n");
+                glitch2_pc = pc;
+                glitch2_addr = addr;
+                glitch2_prot = prot;
+                sched_yield();  // give time to the other process
+                refreshProtection((uintptr_t)addr);
+                relockMutex(Locks);
+                sched_yield();  // give time to the other process
+                pthread_mutex_unlock(&mutex_dynarec_prot);
+                return; // try again
+            }
+            glitch2_pc = NULL;
+            glitch2_addr = NULL;
+            glitch2_prot = 0;
+        }
         pthread_mutex_unlock(&mutex_dynarec_prot);
     }
     if(!db_searched)

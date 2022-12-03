@@ -45,4 +45,13 @@ extern void arm64_lock_decifnot0b(void*p);
 // atomic store (with memory barrier)
 extern void arm64_lock_storeb(void*p, uint8_t b);
 
+// increment atomicaly the int at [p] only if it was 0. Return the old value of [p]
+extern int arm64_lock_incif0(void*p);
+
+// decrement atomicaly the int at [p] (but only if p not 0)
+extern int arm64_lock_decifnot0(void*p);
+
+// atomic store (with memory barrier)
+extern void arm64_lock_store(void*p, uint32_t v);
+
 #endif  //__ARM64_LOCK__H__

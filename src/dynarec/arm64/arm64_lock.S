@@ -21,6 +21,9 @@
 .global arm64_lock_storeifref
 .global arm64_lock_decifnot0b
 .global arm64_lock_storeb
+.global arm64_lock_incif0
+.global arm64_lock_decifnot0
+.global arm64_lock_store
 
 arm64_lock_read_b:
     dmb     ish
@@ -159,5 +162,39 @@ arm64_lock_decifnot0b_exit:
 arm64_lock_storeb:
     dmb     ish
     strb    w1, [x0]
+    dmb     ish
+    ret
+
+arm64_lock_decifnot0:
+    dmb     ish
+arm64_lock_decifnot0_0:
+    ldaxr   w1, [x0]
+    cmp     w1, #0
+    bne     arm64_lock_decifnot0_exit
+    sub     w3, w1, #1
+    stlxr   w2, w3, [x0]
+    cbnz    w2, arm64_lock_decifnot0_0
+arm64_lock_decifnot0_exit:
+    dmb     ish
+    mov     w0, w1
+    ret
+
+arm64_lock_incif0:
+    dmb     ish
+arm64_lock_incif0_0:
+    ldaxr   w1, [x0]
+    cmp     w1, #0
+    beq     arm64_lock_incif0_exit
+    add     w3, w1, #1
+    stlxr   w2, w3, [x0]
+    cbnz    w2, arm64_lock_incif0_0
+arm64_lock_incif0_exit:
+    dmb     ish
+    mov     w0, w1
+    ret
+
+arm64_lock_store:
+    dmb     ish
+    str     w1, [x0]
     dmb     ish
     ret

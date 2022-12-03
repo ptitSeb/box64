@@ -20,6 +20,9 @@
 #define native_lock_storeifnull(A, B)       arm64_lock_storeifnull(A, B)
 #define native_lock_decifnot0b(A)           arm64_lock_decifnot0b(A)
 #define native_lock_storeb(A, B)            arm64_lock_storeb(A, B)
+#define native_lock_incif0(A)               arm64_lock_incif0(A)
+#define native_lock_decifnot0(A)            arm64_lock_decifnot0(A)
+#define native_lock_store(A, B)             arm64_lock_store(A, B)
 
 #else
 #error Unsupported architecture
