@@ -168,24 +168,11 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;
             GETEX(q0, 0, 0);
-            #ifdef PRECISE_CVT
-            LDRH_U12(x1, xEmu, offsetof(x64emu_t, mxcsr));
-            UBFXx(x1, x1, 13, 2);   // extract round requested
-            LSLx_REG(x1, x1, 3);
-            // Construct a "switch case", with each case 2 instructions, so 8 bytes
-            ADR(xLR, GETMARK);
-            ADDx_REG(xLR, xLR, x1);
-            B(xLR);
-            FCVTNSxwS(gd, q0);  // 0: Nearest (even)
-            B_NEXT_nocond;
-            FCVTMSxwS(gd, q0);  // 1: Toward -inf
-            B_NEXT_nocond;
-            FCVTPSxwS(gd, q0);  // 2: Toward +inf
-            B_NEXT_nocond;
-            FCVTZSxwS(gd, q0);  // 3: Toward 0
-            #else
-            FCVTNSxwS(gd, q0);
-            #endif
+            u8 = sse_setround(dyn, ninst, x1, x2, x3);
+            d1 = fpu_get_scratch(dyn);
+            FRINTIS(d1, q0);
+            x87_restoreround(dyn, ninst, u8);
+            FCVTZSxwS(gd, d1);
             break;
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
