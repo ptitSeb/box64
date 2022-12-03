@@ -206,7 +206,7 @@ static void trimString(char* s)
         return;
     // trim right space/tab
     size_t len = strlen(s);
-    while(len && (s[len-1]==' ' || s[len-1]=='\t'))
+    while(len && (s[len-1]==' ' || s[len-1]=='\t' || s[len-1]=='\n'))
         s[--len] = '\0';
     // trim left space/tab
     while(s[0]==' ' || s[0]=='\t')
