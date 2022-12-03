@@ -2389,11 +2389,11 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
     if(box64_dynarec && ret!=(void*)-1) {
-        if(flags&0x100000 && addr!=ret)
+        /*if(flags&0x100000 && addr!=ret)
         {
             // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
             // and responded with a different address, so ignore it
-        } else {
+        } else*/ {
             if(prot& PROT_EXEC)
                 addDBFromAddressRange((uintptr_t)ret, length);
             else
