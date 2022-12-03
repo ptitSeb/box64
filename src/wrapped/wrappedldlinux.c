@@ -20,10 +20,10 @@ typedef struct my_tls_s {
     unsigned long int   o;
 } my_tls_t;
 
-EXPORT void* my___tls_get_addr(x64emu_t* emu, void* p)
+EXPORT void* my___tls_get_addr(void* p)
 {
     my_tls_t *t = (my_tls_t*)p;
-    void* ret = GetDTatOffset(emu->context, t->i, t->o);
+    void* ret = (void*)((char*)GetTLSPointer(my_context, my_context->elfs[t->i])+t->o);
     return ret;
 }
 

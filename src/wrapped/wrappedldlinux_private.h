@@ -20,4 +20,4 @@ DATAB(_r_debug, 40)
 DATA(_rtld_global, sizeof(void*))
 DATA(_rtld_global_ro, sizeof(void*))
 DATA(__stack_chk_guard, sizeof(void*))
-GOM(__tls_get_addr, pFEp)
+GOM(__tls_get_addr, pFp)    //%NoE
