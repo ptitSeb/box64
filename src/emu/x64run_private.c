@@ -1076,8 +1076,7 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                 printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_RSP));
                 printFunctionAddr(ip, "here: ");
             } else if(peek==0x55 || peek==0x53) {
-                printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_RSP));
-                printFunctionAddr(ip, "here: ");
+                printFunctionAddr(*(uintptr_t*)(R_RSP), " STACK_TOP: ");
             } else if(peek==0xF3 && PK(1)==0x0F && PK(2)==0x1E && PK(3)==0xFA) {
                 printFunctionAddr(*(uintptr_t*)(R_RSP), " STACK_TOP: ");
             } else if(peek==0xE8) { // Call
