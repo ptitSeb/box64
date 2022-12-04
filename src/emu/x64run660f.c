@@ -197,7 +197,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGM;
-        switch((emu->mxcsr>>13)&3) {
+        switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest:
                 GM->sd[0] = floor(EX->d[0]+0.5);
                 GM->sd[1] = floor(EX->d[1]+0.5);
@@ -668,7 +668,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETGX;
                 tmp8u = F8; // ignoring bit 3 interupt thingy
                 if(tmp8u&4)
-                    tmp8u = (emu->mxcsr>>13)&3;
+                    tmp8u = emu->mxcsr.f.MXCSR_RC;
                 else
                     tmp8u &= 3;
                 switch(tmp8u) {
@@ -692,7 +692,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETGX;
                 tmp8u = F8; // ignoring bit 3 interupt thingy
                 if(tmp8u&4)
-                    tmp8u = (emu->mxcsr>>13)&3;
+                    tmp8u = emu->mxcsr.f.MXCSR_RC;
                 else
                     tmp8u &= 3;
                 switch(tmp8u) {
@@ -951,7 +951,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        switch((emu->mxcsr>>13)&3) {
+        switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest:
                 GX->sd[0] = floorf(EX->f[0]+0.5f);
                 GX->sd[1] = floorf(EX->f[1]+0.5f);

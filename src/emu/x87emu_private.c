@@ -301,6 +301,7 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
+    p->MxCsr = emu->mxcsr.x32;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
         tags |= ((emu->p_regs[i].tag)<<(i*2)==0b11)?0:1;
@@ -330,6 +331,7 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
+    p->MxCsr = emu->mxcsr.x32;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
         tags |= ((emu->p_regs[i].tag)<<(i*2)==0b11)?0:1;
@@ -351,6 +353,9 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
     xsave32_t *p = (xsave32_t*)ed;
     emu->cw.x16 = p->ControlWord;
     emu->sw.x16 = p->StatusWord;
+    emu->mxcsr.x32 = p->MxCsr;
+    if(box64_sse_flushto0)
+        applyFlushTo0(emu);
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
     for(int i=0; i<8; ++i)
@@ -371,6 +376,9 @@ void fpu_fxrstor64(x64emu_t* emu, void* ed)
     xsave64_t *p = (xsave64_t*)ed;
     emu->cw.x16 = p->ControlWord;
     emu->sw.x16 = p->StatusWord;
+    emu->mxcsr.x32 = p->MxCsr;
+    if(box64_sse_flushto0)
+        applyFlushTo0(emu);
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
     for(int i=0; i<8; ++i)

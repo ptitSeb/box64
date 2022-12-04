@@ -86,6 +86,7 @@ int box64_x11glx = 1;
 int allow_missing_libs = 0;
 int box64_prefer_emulated = 0;
 int box64_prefer_wrapped = 0;
+int box64_sse_flushto0 = 0;
 int fix_64bit_inodes = 0;
 int box64_dummy_crashhandler = 1;
 int box64_mapclean = 0;
@@ -896,6 +897,12 @@ void LoadEnvVars(box64context_t *context)
     AddPath("libcrypto.so.1.0.0", &context->box64_emulated_libs, 0);
     AddPath("libunwind.so.8", &context->box64_emulated_libs, 0);
 
+    if(getenv("BOX64_SSE_FLUSHTO0")) {
+        if (strcmp(getenv("BOX64_SSE_FLUSHTO0"), "1")==0) {
+            box64_sse_flushto0 = 1;
+            printf_log(LOG_INFO, "BOX64: Direct apply of SSE Flush to 0 flag\n");
+    	}
+    }
     if(getenv("BOX64_PREFER_WRAPPED")) {
         if (strcmp(getenv("BOX64_PREFER_WRAPPED"), "1")==0) {
             box64_prefer_wrapped = 1;

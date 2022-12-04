@@ -95,7 +95,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GETEX(0);
         GETGD;
         if(rex.w) {
-            switch((emu->mxcsr>>13)&3) {
+            switch(emu->mxcsr.f.MXCSR_RC) {
                 case ROUND_Nearest:
                     GD->q[0] = floor(EX->d[0]+0.5);
                     break;
@@ -110,7 +110,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     break;
             }
         } else {
-            switch((emu->mxcsr>>13)&3) {
+            switch(emu->mxcsr.f.MXCSR_RC) {
                 case ROUND_Nearest:
                     GD->sdword[0] = floor(EX->d[0]+0.5);
                     break;
@@ -300,7 +300,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         GETEX(0);
         GETGX;
-        switch((emu->mxcsr>>13)&3) {
+        switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest:
                 GX->sd[0] = floor(EX->d[0]+0.5);
                 GX->sd[1] = floor(EX->d[1]+0.5);

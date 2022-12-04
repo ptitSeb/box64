@@ -101,7 +101,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGD;
         if(rex.w) {
-            switch((emu->mxcsr>>13)&3) {
+            switch(emu->mxcsr.f.MXCSR_RC) {
                 case ROUND_Nearest:
                     GD->sq[0] = floorf(EX->f[0]+0.5f);
                     break;
@@ -116,7 +116,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     break;
             }
         } else {
-            switch((emu->mxcsr>>13)&3) {
+            switch(emu->mxcsr.f.MXCSR_RC) {
                 case ROUND_Nearest:
                     GD->sdword[0] = floorf(EX->f[0]+0.5f);
                     break;

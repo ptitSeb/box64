@@ -1279,17 +1279,20 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
                         STRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        if(box64_sse_flushto0) {
+                            MRS_fpcr(x1);                   // get fpscr
+                            LSRw_IMM(x3, ed, 15);           // get FZ bit
+                            BFIw(x1, x3, 24, 1);            // inject FZ bit
+                            EORw_REG_LSR(x3, x3, ed, 1);    // FZ xor DAZ
+                            BFIw(x1, x3, 1, 1);             // inject AH bit
+                            MSR_fpcr(x1);                   // put new fpscr
+                        }
                         break;
                     case 3:
                         INST_NAME("STMXCSR Md");
-                        if(MODREG) {
-                            ed = xRAX+(nextop&7)+(rex.b<<3);
-                            LDRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                            LDRw_U12(x4, xEmu, offsetof(x64emu_t, mxcsr));
-                            STRw_U12(x4, ed, fixedaddress);
-                        }
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
+                        LDRw_U12(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                        STRw_U12(x4, ed, fixedaddress);
                         break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");

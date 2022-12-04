@@ -43,6 +43,7 @@ extern char* box64_trace;
 extern uint64_t start_cnt;
 #endif
 extern int box64_dummy_crashhandler;
+extern int box64_sse_flushto0;
 extern int allow_missing_libs;
 extern int box64_mapclean;
 extern int box64_prefer_wrapped;

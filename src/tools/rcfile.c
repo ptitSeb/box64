@@ -34,6 +34,7 @@ ENTRYBOOL(BOX64_SHOWBT, box64_showbt)                   \
 ENTRYBOOL(BOX64_X11THREADS, box64_x11threads)           \
 ENTRYBOOL(BOX64_X11GLX, box64_x11glx)                   \
 ENTRYDSTRING(BOX64_LIBGL, box64_libGL)                  \
+ENTRYBOOL(BOX64_SSE_FLUSHTO0, box64_sse_flushto0)       \
 ENTRYSTRING_(BOX64_EMULATED_LIBS, emulated_libs)        \
 ENTRYBOOL(BOX64_ALLOWMISSINGLIBS, allow_missing_libs)   \
 ENTRYBOOL(BOX64_PREFER_WRAPPED, box64_prefer_wrapped)   \

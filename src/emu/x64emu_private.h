@@ -39,7 +39,7 @@ typedef struct x64emu_s {
 	x87flags_t  sw;
 	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
     int         fpu_stack;
-    uint32_t    mxcsr;
+    mmxcontrol_t mxcsr;
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
     fpu_ll_t    fpu_ll[8]; // for 64bits fild / fist sequence
 	fpu_p_reg_t p_regs[8];
@@ -96,5 +96,7 @@ typedef struct x64emu_s {
 
 //#define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0; emu->quit=1;}
 #define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0;} // should rise a SIGFPE and not quit
+
+void applyFlushTo0(x64emu_t* emu);
 
 #endif //__X86EMU_PRIVATE_H_

@@ -23,6 +23,13 @@
 #ifdef DYNAREC
 #include "custommem.h"
 #endif
+// for the applyFlushTo0
+#ifdef __x86_64__
+#include <immintrin.h>
+#elif defined(__aarch64__)
+#else
+#warning Architecture cannot follow SSE Flush to 0 flag
+#endif
 
 typedef struct cleanup_s {
     void*       f;
@@ -81,7 +88,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     emu->segs[_GS] = default_gs;
     // setup fpu regs
     reset_fpu(emu);
-    emu->mxcsr = 0x1f80;
+    emu->mxcsr.x32 = 0x1f80;
 }
 
 EXPORTDYN
@@ -504,4 +511,17 @@ void ResetSegmentsCache(x64emu_t *emu)
     if(!emu)
         return;
     memset(emu->segs_serial, 0, sizeof(emu->segs_serial));
+}
+
+void applyFlushTo0(x64emu_t* emu)
+{
+    #ifdef __x86_64__
+    _mm_setcsr(_mm_getcsr() | (emu->mxcsr.x32&0x8040));
+    #elif defined(__aarch64__)
+    uint64_t fpcr = __builtin_aarch64_get_fpcr();
+    fpcr &= ~((1<<24) | (1<<1));    // clear bit FZ (24) and AH (1)
+    fpcr |= (emu->mxcsr.f.MXCSR_FZ)<<24;  // set FZ as mxcsr FZ
+    fpcr |= ((emu->mxcsr.f.MXCSR_DAZ)^(emu->mxcsr.f.MXCSR_FZ))<<1; // set AH if DAZ different from FZ
+    __builtin_aarch64_set_fpcr(fpcr);
+    #endif
 }
