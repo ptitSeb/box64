@@ -975,7 +975,10 @@ void setupTraceInit()
             if(s_trace_start || s_trace_end)
                 SetTraceEmu(s_trace_start, s_trace_end);
         } else {
-            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL, -1, NULL)) {
+            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL)) {
+                SetTraceEmu(s_trace_start, s_trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
+            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL)) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
@@ -1555,7 +1558,6 @@ int main(int argc, const char **argv, char **env) {
 
     thread_set_emu(emu);
 
-    setupTraceInit();
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbols(elf_header), GetWeakSymbols(elf_header), GetLocalSymbols(elf_header), elf_header);
     box64_isglibc234 = GetVersionIndice(elf_header, "GLIBC_2.34")?1:0;
@@ -1599,6 +1601,7 @@ int main(int argc, const char **argv, char **env) {
     // and handle PLT
     RelocateElfPlt(my_context->maplib, NULL, 0, elf_header);
     // defered init
+    setupTraceInit();
     RunDeferedElfInit(emu);
     // update TLS of main elf
     RefreshElfTLS(elf_header);
