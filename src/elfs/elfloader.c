@@ -1165,6 +1165,48 @@ void MarkElfInitDone(elfheader_t* h)
     if(h)
         h->init_done = 1;
 }
+void RunElfInitPltResolver(elfheader_t* h, x64emu_t *emu)
+{
+    if(!h || h->init_done)
+        return;
+    uintptr_t p = h->initentry + h->delta;
+    printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
+    h->init_done = 1;
+    R_RBP -= 32*8;    // take some space
+    // save regs
+    uintptr_t old_rdi = R_RDI;
+    uintptr_t old_rsi = R_RSI;
+    uintptr_t old_rdx = R_RDX;
+    uintptr_t old_rcx = R_RCX;
+    uintptr_t old_r8  = R_R8;
+    uintptr_t old_r9  = R_R9;
+    uintptr_t old_rax = R_RAX;
+    if(h->initentry)
+        RunFunctionWithEmu(emu, 0, p, 3, my_context->argc, my_context->argv, my_context->envv);
+    printf_dump(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
+    // and check init array now
+    Elf64_Addr *addr = (Elf64_Addr*)(h->initarray + h->delta);
+    for (size_t i=0; i<h->initarray_sz; ++i) {
+        if(addr[i]) {
+            printf_dump(LOG_DEBUG, "Calling Init[%zu] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
+            RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
+        }
+    }
+
+    h->fini_done = 0;   // can be fini'd now (in case it was re-inited)
+    // restaure regs
+    R_RDI = old_rdi;
+    R_RSI = old_rsi;
+    R_RDX = old_rdx;
+    R_RCX = old_rcx;
+    R_R8  = old_r8;
+    R_R9  = old_r9;
+    R_RAX = old_rax;
+    R_RBP += 32*8;    // take some space
+    printf_dump(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
+    return;
+}
+
 void RunElfInit(elfheader_t* h, x64emu_t *emu)
 {
     if(!h || h->init_done)
@@ -1184,22 +1226,22 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
         context->deferedInitList[context->deferedInitSz++] = h;
         return;
     }
-    printf_log(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
+    printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     h->init_done = 1;
     if(h->initentry)
         RunFunctionWithEmu(emu, 0, p, 3, context->argc, context->argv, context->envv);
-    printf_log(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
+    printf_dump(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
     // and check init array now
     Elf64_Addr *addr = (Elf64_Addr*)(h->initarray + h->delta);
     for (size_t i=0; i<h->initarray_sz; ++i) {
         if(addr[i]) {
-            printf_log(LOG_DEBUG, "Calling Init[%zu] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
+            printf_dump(LOG_DEBUG, "Calling Init[%zu] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
             RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, context->argc, context->argv, context->envv);
         }
     }
 
     h->fini_done = 0;   // can be fini'd now (in case it was re-inited)
-    printf_log(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
+    printf_dump(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
     return;
 }
 
@@ -1229,13 +1271,13 @@ void RunElfFini(elfheader_t* h, x64emu_t *emu)
     // first check fini array
     Elf64_Addr *addr = (Elf64_Addr*)(h->finiarray + h->delta);
     for (int i=h->finiarray_sz-1; i>=0; --i) {
-        printf_log(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
+        printf_dump(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
         RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 0);
     }
     // then the "old-style" fini
     if(h->finientry) {
         uintptr_t p = h->finientry + h->delta;
-        printf_log(LOG_DEBUG, "Calling Fini for %s @%p\n", ElfName(h), (void*)p);
+        printf_dump(LOG_DEBUG, "Calling Fini for %s @%p\n", ElfName(h), (void*)p);
         RunFunctionWithEmu(emu, 0, p, 0);
     }
     h->init_done = 0;   // can be re-inited again...
@@ -1708,8 +1750,14 @@ EXPORT void PltResolver(x64emu_t* emu)
         emu->quit = 1;
         return;
     } else {
+        elfheader_t* sym_elf = FindElfAddress(my_context, offs);
+        if(sym_elf && !sym_elf->init_done) {
+            printf_dump(LOG_DEBUG, "symbol %s from %s but elf not initialized yet, run Init now (from %s)\n", symname, ElfName(sym_elf), ElfName(h));
+            RunElfInitPltResolver(sym_elf, emu);
+        }
+
         if(p) {
-            printf_dump(LOG_DEBUG, "            Apply %s R_X86_64_JUMP_SLOT %p with sym=%s(ver %d: %s%s%s) (%p -> %p / %s)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, version, symname, vername?"@":"", vername?vername:"",*(void**)p, (void*)offs, ElfName(FindElfAddress(my_context, offs)));
+            printf_dump(LOG_DEBUG, "            Apply %s R_X86_64_JUMP_SLOT %p with sym=%s(ver %d: %s%s%s) (%p -> %p / %s)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, version, symname, vername?"@":"", vername?vername:"",*(void**)p, (void*)offs, ElfName(sym_elf));
             *p = offs;
         } else {
             printf_log(LOG_NONE, "PltResolver: Warning, Symbol %s(ver %d: %s%s%s) found, but Jump Slot Offset is NULL \n", symname, version, symname, vername?"@":"", vername?vername:"");
