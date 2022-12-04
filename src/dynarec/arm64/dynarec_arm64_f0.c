@@ -768,6 +768,41 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0xF6:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                case 1:
+                    INST_NAME("LOCK TEST Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SMDMB();
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
+                case 2:
+                    INST_NAME("LOCK NOT Eb");
+                    if(MODREG) {
+                        GETEB(x1, 0);
+                        MVNw_REG(x1, x1);
+                        EBBACK;
+                    } else {
+                        SMDMB();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                        MARKLOCK;
+                        LDAXRB(x1, wback);
+                        MVNw_REG(x1, x1);
+                        STLXRB(x3, x1, wback);
+                        CBNZx_MARKLOCK(x3);
+                        SMDMB();
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        
         case 0xFF:
             nextop = F8;
             switch((nextop>>3)&7)
