@@ -1452,6 +1452,7 @@
 #() vFppippi
 #() vFppippp
 #() vFppuuuu
+#() vFppuUUU
 #() vFppupii
 #() vFppuppp
 #() vFppdidd
@@ -2210,6 +2211,7 @@
 #() pFpppppppppppppppp
 #() vFuuuiiiiiuiiiiilll
 #() vFppiiiiddddiiiiiuu
+#() vFpppuppiipppuUUUpi
 #() pFppippipipipipipip
 #() vFppuiiiiipuiiiiiiii
 #() vFpppipppppppppppppp
@@ -3548,6 +3550,7 @@ wrappedlibxft:
 wrappedlibxi:
 wrappedlibxmu:
 wrappedlibxpm:
+wrappedlibxpresent:
 wrappedlibxrandr:
 wrappedlibxrender:
 wrappedlibxss:

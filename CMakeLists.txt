@@ -395,6 +395,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxi.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxmu.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxpm.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxpresent.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxrandr.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxrender.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxss.c"

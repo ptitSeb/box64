@@ -1117,7 +1117,7 @@ int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MAYUSE(s1); MAYUSE(s2);
-    LDRH_U12(s1, xEmu, offsetof(x64emu_t, mxcsr));
+    LDRw_U12(s1, xEmu, offsetof(x64emu_t, mxcsr));
     RBITw(s2, s1);              // round is on bits 13-14 on x64,
     LSRw(s2, s2, 17);           // but we want the reverse of that
     MRS_fpcr(s1);               // get fpscr
