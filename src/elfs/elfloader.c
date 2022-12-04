@@ -1755,7 +1755,7 @@ EXPORT void PltResolver(x64emu_t* emu)
         return;
     } else {
         elfheader_t* sym_elf = FindElfAddress(my_context, offs);
-        if(sym_elf && !sym_elf->init_done) {
+        if(sym_elf && sym_elf!=my_context->elfs[0] && !sym_elf->init_done) {
             printf_dump(LOG_DEBUG, "symbol %s from %s but elf not initialized yet, run Init now (from %s)\n", symname, ElfName(sym_elf), ElfName(h));
             RunElfInitPltResolver(sym_elf, emu);
         }
