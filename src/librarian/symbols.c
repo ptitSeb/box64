@@ -122,7 +122,7 @@ static versymbol_t* MatchVersion(versymbols_t* s, int ver, const char* vername, 
         if(!ret) ret = FindNoVersion(s, size);
         if(!ret) ret = FindVersionGlobal(s, size);
         if(!ret && defver) ret = FindVersion(s, size, defver);
-        //if(!ret) ret = FindFirstVersion(s);
+        //if(!ret) ret = FindFirstVersion(s, size);
         return ret;
     }
     if(ver==-2) {
