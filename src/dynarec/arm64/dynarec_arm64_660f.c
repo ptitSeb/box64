@@ -906,10 +906,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
             u8 = sse_setround(dyn, ninst, x1, x2, x3);
-            d1 = fpu_get_scratch(dyn);
-            VFRINTIS(d1, v1);
+            VFRINTISQ(v0, v1);
             x87_restoreround(dyn, ninst, u8);
-            VFCVTZSQS(v0, d1);
+            VFCVTZSQS(v0, v0);
             break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");
