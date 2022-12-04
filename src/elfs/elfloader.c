@@ -1172,7 +1172,7 @@ void RunElfInitPltResolver(elfheader_t* h, x64emu_t *emu)
     uintptr_t p = h->initentry + h->delta;
     printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     h->init_done = 1;
-    R_RBP -= 32*8;    // take some space
+    R_RSP -= 32*8;    // take some space
     // save regs
     uintptr_t old_rdi = R_RDI;
     uintptr_t old_rsi = R_RSI;
@@ -1180,6 +1180,8 @@ void RunElfInitPltResolver(elfheader_t* h, x64emu_t *emu)
     uintptr_t old_rcx = R_RCX;
     uintptr_t old_r8  = R_R8;
     uintptr_t old_r9  = R_R9;
+    uintptr_t old_r10 = R_R10;
+    uintptr_t old_r11 = R_R11;
     uintptr_t old_rax = R_RAX;
     if(h->initentry)
         RunFunctionWithEmu(emu, 0, p, 3, my_context->argc, my_context->argv, my_context->envv);
@@ -1201,8 +1203,10 @@ void RunElfInitPltResolver(elfheader_t* h, x64emu_t *emu)
     R_RCX = old_rcx;
     R_R8  = old_r8;
     R_R9  = old_r9;
+    R_R10 = old_r10;
+    R_R11 = old_r11;
     R_RAX = old_rax;
-    R_RBP += 32*8;    // take some space
+    R_RSP += 32*8;    // take some space
     printf_dump(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
     return;
 }
