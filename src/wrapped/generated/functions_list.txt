@@ -3530,6 +3530,7 @@ wrappedlibxcbicccm:
 wrappedlibxcbimage:
 wrappedlibxcbkeysyms:
 wrappedlibxcbrandr:
+wrappedlibxcbrenderutil:
 wrappedlibxcbshape:
 wrappedlibxcbshm:
 wrappedlibxcbutil:

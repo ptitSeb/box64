@@ -382,6 +382,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbicccm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbimage.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbrandr.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxcbrenderutil.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbshape.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbshm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbutil.c"
