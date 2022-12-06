@@ -12,11 +12,13 @@
 #endif
 
 typedef void (*vFpp_t)(void*, void*);
+typedef int64_t (*iFpUi_t)(void*, uint64_t, int64_t);
 typedef int64_t (*iFpppppL_t)(void*, void*, void*, void*, void*, uintptr_t);
 typedef int64_t (*iFpupppLppL_t)(void*, uint64_t, void*, void*, void*, uintptr_t, void*, void*, uintptr_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(lzma_index_end, vFpp_t) \
+	GO(lzma_stream_decoder, iFpUi_t) \
 	GO(lzma_index_buffer_decode, iFpppppL_t) \
 	GO(lzma_stream_buffer_decode, iFpupppLppL_t)
 

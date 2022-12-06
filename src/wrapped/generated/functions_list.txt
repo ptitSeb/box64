@@ -729,6 +729,7 @@
 #() iFEpiV
 #() iFEpiA
 #() iFEpup
+#() iFEpUi
 #() iFEpUp
 #() iFEpLi
 #() iFEpLp
@@ -3603,6 +3604,8 @@ wrappedlibz:
 wrappedlzma:
 - vFpp:
   - lzma_index_end
+- iFpUi:
+  - lzma_stream_decoder
 - iFpppppL:
   - lzma_index_buffer_decode
 - iFpupppLppL:

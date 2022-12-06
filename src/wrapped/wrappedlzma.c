@@ -31,6 +31,27 @@ typedef struct lzma_allocator_s {
 	void *opaque;
 } lzma_allocator_t;
 
+typedef struct lzma_stream_s {
+	const uint8_t *next_in;
+	size_t avail_in;
+	uint64_t total_in;
+	uint8_t *next_out;
+	size_t avail_out;
+	uint64_t total_out;
+	lzma_allocator_t *allocator;
+	void* internal;
+	void *reserved_ptr1;
+	void *reserved_ptr2;
+	void *reserved_ptr3;
+	void *reserved_ptr4;
+	uint64_t reserved_int1;
+	uint64_t reserved_int2;
+	size_t reserved_int3;
+	size_t reserved_int4;
+	int reserved_enum1;
+	int reserved_enum2;
+} lzma_stream_t;
+
 #define SUPER() \
 GO(0)   \
 GO(1)   \
@@ -115,6 +136,13 @@ EXPORT int my_lzma_stream_buffer_decode(x64emu_t* emu, void* memlimit, uint32_t 
     return my->lzma_stream_buffer_decode(memlimit, flags, alloc?&allocator:NULL, in_, in_pos, in_size, out_, out_pos, out_size);
 }
 
+EXPORT int my_lzma_stream_decoder(x64emu_t* emu, lzma_stream_t* stream, uint64_t memlimit, uint32_t flags)
+{
+    // not restoring the allocator after, so lzma_code and lzma_end can be used without "GOM" wrapping
+    if(stream->allocator)
+        wrap_alloc_struct(stream->allocator, stream->allocator);
+    return my->lzma_stream_decoder(stream, memlimit, flags);
+}
 
 #define CUSTOM_INIT \
     getMy(lib);

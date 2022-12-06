@@ -86,7 +86,7 @@ GO(lzma_index_uncompressed_size, UFp)
 //GO(lzma_stream_buffer_bound, 
 GOM(lzma_stream_buffer_decode, iFEpupppLppL)
 //GO(lzma_stream_buffer_encode, 
-GO(lzma_stream_decoder, iFpUi)
+GOM(lzma_stream_decoder, iFEpUi)
 //GO(lzma_stream_encoder, 
 //GO(lzma_stream_encoder_mt, 
 //GO(lzma_stream_encoder_mt_memusage, 
