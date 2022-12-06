@@ -3532,6 +3532,7 @@ wrappedlibxcbkeysyms:
 wrappedlibxcbrandr:
 wrappedlibxcbshape:
 wrappedlibxcbshm:
+wrappedlibxcbutil:
 wrappedlibxcbxfixes:
 wrappedlibxcbxtest:
 wrappedlibxcomposite:
