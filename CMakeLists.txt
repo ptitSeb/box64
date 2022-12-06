@@ -390,6 +390,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbutil.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbxinerama.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbxfixes.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxcbxkb.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbxtest.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcomposite.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcursor.c"

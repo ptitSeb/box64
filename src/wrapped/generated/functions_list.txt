@@ -976,6 +976,7 @@
 #() pFppiu
 #() pFppiL
 #() pFppip
+#() pFppWW
 #() pFppuW
 #() pFppuu
 #() pFppuL
@@ -2050,6 +2051,7 @@
 #() pFppipppppp
 #() pFpppiiiiii
 #() pFpppiipppp
+#() pFpppWWWWWp
 #() pFpppppiipp
 #() pFpppppuuCC
 #() vFEiippppppp
@@ -2091,6 +2093,7 @@
 #() iFiiiiiiiiip
 #() iFpiipiiipip
 #() iFpippddiidd
+#() iFpCuWCCCCup
 #() iFpuupiuiipp
 #() iFpddpippppp
 #() iFppuuiiiiii
@@ -2171,6 +2174,7 @@
 #() iFEppppiiiiuui
 #() iFpipllipppppp
 #() iFpipppppppppp
+#() iFpCCCWCWCCCWp
 #() iFpppllipppppp
 #() iFpppppppppppp
 #() pFEppiiuuuipii
@@ -2228,6 +2232,7 @@
 #() vFpiiiiiiiiiiiiiiiiii
 #() pFiiiippppppppppppppp
 #() pFpippppppppppppppppp
+#() pFpppWWCCpCpCpCWpCpCpC
 #() iFpppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) IFD
@@ -3542,6 +3547,7 @@ wrappedlibxcbsync:
 wrappedlibxcbutil:
 wrappedlibxcbxfixes:
 wrappedlibxcbxinerama:
+wrappedlibxcbxkb:
 wrappedlibxcbxtest:
 wrappedlibxcomposite:
 wrappedlibxcursor:
