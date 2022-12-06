@@ -1621,8 +1621,10 @@
 #() pFppippp
 #() pFpppiii
 #() pFpppiui
+#() pFpppiup
 #() pFpppupp
 #() pFppppii
+#() pFppppWW
 #() pFpppppi
 #() pFpppppu
 #() pFpppppp
@@ -2198,6 +2200,7 @@
 #() vFppiipppiiiiiii
 #() iFpipppppppppppp
 #() iFpppwwWWwwWWpuu
+#() pFppCpppwwwwwwWW
 #() vFuiiiiiuiiiiilll
 #() vFuuiiiiuuiiiiiii
 #() vFfffffffffffffff
@@ -3530,6 +3533,7 @@ wrappedlibxcbicccm:
 wrappedlibxcbimage:
 wrappedlibxcbkeysyms:
 wrappedlibxcbrandr:
+wrappedlibxcbrender:
 wrappedlibxcbrenderutil:
 wrappedlibxcbshape:
 wrappedlibxcbshm:
