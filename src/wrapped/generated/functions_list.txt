@@ -987,6 +987,7 @@
 #() pFppLp
 #() pFpppi
 #() pFpppu
+#() pFpppU
 #() pFpppL
 #() pFpppp
 #() pFSppi
@@ -3537,6 +3538,7 @@ wrappedlibxcbrender:
 wrappedlibxcbrenderutil:
 wrappedlibxcbshape:
 wrappedlibxcbshm:
+wrappedlibxcbsync:
 wrappedlibxcbutil:
 wrappedlibxcbxfixes:
 wrappedlibxcbxtest:
