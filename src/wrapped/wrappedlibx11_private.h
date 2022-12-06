@@ -528,7 +528,7 @@ DATAB(_XIOErrorFunction, sizeof(void*))
 //GO(XkbAllocGeomSections
 //GO(XkbAllocGeomShapes
 //GO(XkbAllocIndicatorMaps
-//GO(XkbAllocKeyboard
+GO(XkbAllocKeyboard, pFv)
 //GO(XkbAllocNames
 //GO(XkbAllocServerMap
 //GO(XkbApplyCompatMapToKey
