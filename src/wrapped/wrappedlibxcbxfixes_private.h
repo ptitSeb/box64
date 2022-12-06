@@ -89,8 +89,8 @@ GO(xcb_xfixes_query_version_unchecked, pFpuu)
 //GO(xcb_xfixes_region_next, 
 //GO(xcb_xfixes_select_cursor_input, 
 //GO(xcb_xfixes_select_cursor_input_checked, 
-//GO(xcb_xfixes_select_selection_input, 
-//GO(xcb_xfixes_select_selection_input_checked, 
+GO(xcb_xfixes_select_selection_input, pFppppu)
+GO(xcb_xfixes_select_selection_input_checked, pFppppu)
 //GO(xcb_xfixes_set_cursor_name, 
 //GO(xcb_xfixes_set_cursor_name_checked, 
 //GO(xcb_xfixes_set_cursor_name_name, 
