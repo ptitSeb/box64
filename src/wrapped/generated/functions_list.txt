@@ -3541,6 +3541,7 @@ wrappedlibxcbshm:
 wrappedlibxcbsync:
 wrappedlibxcbutil:
 wrappedlibxcbxfixes:
+wrappedlibxcbxinerama:
 wrappedlibxcbxtest:
 wrappedlibxcomposite:
 wrappedlibxcursor:
