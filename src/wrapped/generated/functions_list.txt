@@ -858,6 +858,7 @@
 #() IFppip
 #() IFpppp
 #() IFSIii
+#() CFpupp
 #() uFEipp
 #() uFEupp
 #() uFEpup
@@ -3525,6 +3526,7 @@ wrappedlibxcbdri2:
 % x my_xcb_cookie_t u
 wrappedlibxcbdri3:
 wrappedlibxcbglx:
+wrappedlibxcbicccm:
 wrappedlibxcbimage:
 wrappedlibxcbkeysyms:
 wrappedlibxcbrandr:
