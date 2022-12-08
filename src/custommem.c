@@ -1029,8 +1029,8 @@ void addMapMem(uintptr_t begin, uintptr_t end)
 {
     if(!mapmem)
         return;
-    begin &=~0xfff;
-    end = (end&~0xfff)+0xfff; // full page
+    begin &=~(box64_pagesize-1);
+    end = (end&~(box64_pagesize-1))+(box64_pagesize-1); // full page
     // sanitize values
     if(end<0x10000) return;
     if(!begin) begin = 0x10000;
@@ -1068,8 +1068,8 @@ void removeMapMem(uintptr_t begin, uintptr_t end)
 {
     if(!mapmem)
         return;
-    begin &=~0xfff;
-    end = (end&~0xfff)+0xfff; // full page
+    begin &=~(box64_pagesize-1);
+    end = (end&~(box64_pagesize-1))+(box64_pagesize-1); // full page
     // sanitize values
     if(end<0x10000) return;
     if(!begin) begin = 0x10000;

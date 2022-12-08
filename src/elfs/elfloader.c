@@ -305,7 +305,7 @@ int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
             char* dest = (char*)e->p_paddr + head->delta;
             printf_log(LOG_DEBUG, "MMap block #%zu @%p offset=%p (0x%zx/0x%zx)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz);
             void* p = (void*)-1;
-            if(e->p_memsz==e->p_filesz && !(e->p_align&0xfff)) {
+            if(e->p_memsz==e->p_filesz && !(e->p_align&(box64_pagesize-1))) {
                 printf_log(LOG_DEBUG, "MMap block #%zu @%p offset=%p (0x%zx/0x%zx, flags:0x%x)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz, e->p_flags);
                 p = mmap(dest, e->p_filesz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_PRIVATE, fileno(f), e->p_offset);
             }

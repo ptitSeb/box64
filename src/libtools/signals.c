@@ -798,12 +798,12 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         static uintptr_t repeated_page = 0;
         dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p), prot=0x%x (old page=%p)\n", pc, addr, db, db?((void*)db->x64_addr):NULL, prot, (void*)repeated_page);
         static int repeated_count = 0;
-        if(repeated_page == ((uintptr_t)addr&~0xfff)) {
+        if(repeated_page == ((uintptr_t)addr&~(box64_pagesize-1))) {
             ++repeated_count;   // Access eoor multiple time on same page, disable dynarec on this page a few time...
             dynarec_log(LOG_DEBUG, "Detecting a Hotpage at %p (%d)\n", (void*)repeated_page, repeated_count);
             AddHotPage(repeated_page);
         } else {
-            repeated_page = (uintptr_t)addr&~0xfff;
+            repeated_page = (uintptr_t)addr&~(box64_pagesize-1);
             repeated_count = 0;
         }
         // access error, unprotect the block (and mark them dirty)
