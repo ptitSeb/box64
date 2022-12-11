@@ -425,12 +425,14 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr)
             armsz+=db->instsize[i].nat*4;
             ++i;
         } while((db->instsize[i-1].x64==15) || (db->instsize[i-1].nat==15));
-        if(arm_addr>=armaddr && arm_addr<(armaddr+armsz))
-            return x64addr;
-        armaddr+=armsz;
-        x64addr+=x64sz;
-        if(arm_addr==armaddr)
-            return x64addr;
+        // if the opcode is a NOP on ARM side (so armsz==0), it cannot be an address to find
+        if(armsz) {
+            if((arm_addr>=armaddr) && (arm_addr<(armaddr+armsz)))
+                return x64addr;
+            armaddr+=armsz;
+            x64addr+=x64sz;
+        } else
+            x64addr+=x64sz;
     } while(db->instsize[i].x64 || db->instsize[i].nat);
     return x64addr;
 }
