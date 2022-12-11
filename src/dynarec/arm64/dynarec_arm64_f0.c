@@ -372,6 +372,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = F8;
                         emit_add8c(dyn, ninst, x1, u8, x2, x4);
                         wb1 = 0;
+                        EBBACK;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 1);
                         u8 = F8;
@@ -382,7 +383,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                     }
-                    EBBACK;
                     break;
                 case 1: //OR
                     INST_NAME("OR Eb, Ib");
@@ -392,6 +392,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = F8;
                         emit_or8c(dyn, ninst, x1, u8, x2, x4);
                         wb1 = 0;
+                        EBBACK;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 1);
                         u8 = F8;
@@ -402,7 +403,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                     }
-                    EBBACK;
                     break;
                 case 2: //ADC
                     INST_NAME("ADC Eb, Ib");
@@ -413,6 +413,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = F8;
                         emit_adc8c(dyn, ninst, x1, u8, x2, x4, x5);
                         wb1 = 0;
+                        EBBACK;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 1);
                         u8 = F8;
@@ -423,7 +424,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                     }
-                    EBBACK;
                     break;
                 case 3: //SBB
                     INST_NAME("SBB Eb, Ib");
@@ -434,6 +434,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = F8;
                         emit_sbb8c(dyn, ninst, x1, u8, x2, x4, x5);
                         wb1 = 0;
+                        EBBACK;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 1);
                         u8 = F8;
@@ -444,7 +445,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                     }
-                    EBBACK;
                     break;
                 case 4: //AND
                     INST_NAME("AND Eb, Ib");
@@ -454,6 +454,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = F8;
                         emit_and8c(dyn, ninst, x1, u8, x2, x4);
                         wb1 = 0;
+                        EBBACK;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 1);
                         u8 = F8;
@@ -464,7 +465,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                     }
-                    EBBACK;
                     break;
                 case 5: //SUB
                     INST_NAME("SUB Eb, Ib");
@@ -474,6 +474,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = F8;
                         emit_sub8c(dyn, ninst, x1, u8, x2, x4, x5);
                         wb1 = 0;
+                        EBBACK;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 1);
                         u8 = F8;
@@ -484,7 +485,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                     }
-                    EBBACK;
                     break;
                 case 6: //XOR
                     INST_NAME("XOR Eb, Ib");
@@ -494,6 +494,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = F8;
                         emit_xor8c(dyn, ninst, x1, u8, x2, x4);
                         wb1 = 0;
+                        EBBACK;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 1);
                         u8 = F8;
@@ -504,7 +505,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                     }
-                    EBBACK;
                     break;
                 case 7: //CMP
                     INST_NAME("CMP Eb, Ib");
