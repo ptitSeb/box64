@@ -1,3 +1,46 @@
+box64 (0.2.0) unstable; urgency=low
+
+ * Wrapped more vulkan function, dxvk 2.0 now works
+ * Added support for overriden malloc/free functions
+ * Refactor Dynarec memory management, reducing memory footprint (from 20% to 40% of Dynarec size)
+ * Improved elf loader
+ * Improved dlsym handling with RTLD_NEXT
+ * Added BOX64_DYNAREC_SAFEFLAGS to allow finetuning Dynarec generated code handling of flags accross function calls and returns.
+ * Added BOX64_BASH to setup x86_64 bash binary, so shell script can be run in x86_64 world
+ * Added BOX64_ROLLING_LOG to have details log only on crash
+ * Work on alignment for some of pthread structures
+ * More wrapped libraries in the gtk family
+ * Some fixes on the Dynarec x87 code (fixing a bunch of games like ut2004 or Piczle Puzzle)
+ * Improved TLS Size handling (Unity3D games now works)
+ * More PageSize Compile options
+ * Improved execv family of function to have better box64 integration
+ * Added support for wrapped libfuse so AppImage works
+ * Adjusted the binfmt integration so AppImage are automaticaly picked
+ * Improved FAudio, SDL2, GL (and more) wrapping
+ * More wrapped libs, like libEGL.so, to helps emulated Qt4/5 libs to load
+ * Improved Signal Handling and memory protection traking
+ * Some signature fixes to some wrapped functions (in libc)
+ * Added more syscalls
+ * Added a lot of new opcodes to the ARM64 Dynarec
+ * docs: add instructions for Debian-based Linux by @ryanfortner in #306
+ * Fix typos and arch type string by @archanox in #321
+ * Fix grammar by @Jai-JAP in #326
+ * Enable 64k page size by @martinmanyhats in #334
+ * Align address when call mprotect by @wannacu in #336
+ * Add wrapped functions needed for 'ls -l'. by @stiltr in #294
+ * add 18.04 tegra X1 github actions by @theofficialgman in #345
+ * change order of matrix (to preview better under checkmark dropdown by @theofficialgman in #346
+ * Backport SDL_DYNAPI_entry wrapper from box86. by @JohnnyonFlame in #374
+ * Add SW64 base support by @wannacu in #382
+ * fix overzealous replace in wrappers pathnames by @NobodyNada in #415
+ * Create X64WINE.md by @WheezyE in #423
+ * src: asm: Rename lr & fp registers to their x-equivalents by @fredldotme in #426
+ * Malloc override by @ptitSeb in #437
+ * Remove dynablocklist by @ptitSeb in #438
+ * Fix Pkgbuilds by @Jai-JAP in #452
+
+ -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 17 Nov 2022 11:20:33 -0500
+
 box64 (0.1.8) unstable; urgency=low
 
   * Added an option to get generated -NAN on SSE2 operation
