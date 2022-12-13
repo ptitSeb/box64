@@ -14,7 +14,7 @@
 GO(gnutls_alert_get, pFp)
 GO(gnutls_alert_get_name, pFp)
 //GO(gnutls_alert_get_strname, 
-//GO(gnutls_alert_send, 
+GO(gnutls_alert_send, iFppp)
 //GO(gnutls_alert_send_appropriate, 
 GO(gnutls_alpn_get_selected_protocol, iFpp)
 GO(gnutls_alpn_set_protocols, iFppuu)
