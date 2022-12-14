@@ -177,8 +177,8 @@ GO(gnutls_dh_params_init, iFp)
 //GO(gnutls_dtls_get_timeout, 
 //GO(gnutls_dtls_prestate_set, 
 //GO(gnutls_dtls_set_data_mtu, 
-//GO(gnutls_dtls_set_mtu, 
-//GO(gnutls_dtls_set_timeouts, 
+GO(gnutls_dtls_set_mtu, vFpu)
+GO(gnutls_dtls_set_timeouts, vFpuu)
 //GO(gnutls_ecc_curve_get, 
 //GO(gnutls_ecc_curve_get_id, 
 //GO(gnutls_ecc_curve_get_name, 
@@ -582,13 +582,13 @@ GO(gnutls_protocol_get_version, iFp)
 //GO(gnutls_psk_set_server_known_dh_params, 
 //GO(gnutls_psk_set_server_params_function, 
 GO(gnutls_pubkey_deinit, vFp)
-//GO(gnutls_pubkey_encrypt_data, 
+GO(gnutls_pubkey_encrypt_data, iFpupp)
 //GO(gnutls_pubkey_export, 
 //GO(gnutls_pubkey_export2, 
-//GO(gnutls_pubkey_export_dsa_raw, 
-//GO(gnutls_pubkey_export_ecc_raw, 
+GO(gnutls_pubkey_export_dsa_raw, iFppppp)
+GO(gnutls_pubkey_export_ecc_raw, iFpppp)
 //GO(gnutls_pubkey_export_ecc_x962, 
-//GO(gnutls_pubkey_export_rsa_raw, 
+GO(gnutls_pubkey_export_rsa_raw, iFppp)
 //GO(gnutls_pubkey_get_key_id, 
 //GO(gnutls_pubkey_get_key_usage, 
 //GO(gnutls_pubkey_get_openpgp_key_id, 
@@ -601,7 +601,7 @@ GO(gnutls_pubkey_import_ecc_raw, iFpppp)
 //GO(gnutls_pubkey_import_openpgp, 
 //GO(gnutls_pubkey_import_openpgp_raw, 
 //GO(gnutls_pubkey_import_pkcs11, 
-//GO(gnutls_pubkey_import_privkey, 
+GO(gnutls_pubkey_import_privkey, iFppuu)
 GO(gnutls_pubkey_import_rsa_raw, iFppp)
 //GO(gnutls_pubkey_import_tpm_raw, 
 //GO(gnutls_pubkey_import_tpm_url, 
@@ -754,7 +754,7 @@ GO(gnutls_transport_set_errno, vFpi)
 GO(gnutls_transport_set_ptr, vFpp)
 //GO(gnutls_transport_set_ptr2, 
 GOM(gnutls_transport_set_pull_function, vFEpp)
-//GO(gnutls_transport_set_pull_timeout_function, 
+GOM(gnutls_transport_set_pull_timeout_function, vFEpp)
 GOM(gnutls_transport_set_push_function, vFEpp)
 //GO(gnutls_transport_set_vec_push_function, 
 //GO(_gnutls_ucs2_to_utf8, 

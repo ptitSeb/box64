@@ -81,6 +81,30 @@ static void* find_pullpush_Fct(void* fct)
     return NULL;
 }
 
+// timeout
+#define GO(A)   \
+static uintptr_t my_timeout_fct_##A = 0;                                \
+static int my_timeout_##A(void* p, uint32_t t)                          \
+{                                                                       \
+    return (int)RunFunction(my_context, my_timeout_fct_##A, 2, p, t);   \
+}
+SUPER()
+#undef GO
+static void* find_timeout_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_timeout_fct_##A == (uintptr_t)fct) return my_timeout_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_timeout_fct_##A == 0) {my_timeout_fct_##A = (uintptr_t)fct; return my_timeout_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libgnutls.so.30 timeout callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 
@@ -99,6 +123,12 @@ EXPORT void my_gnutls_transport_set_push_function(x64emu_t* emu, void* session, 
 {
     (void)emu;
     my->gnutls_transport_set_push_function(session, find_pullpush_Fct(f));
+}
+
+EXPORT void my_gnutls_transport_set_pull_timeout_function(x64emu_t* emu, void* session, void* f)
+{
+    (void)emu;
+    my->gnutls_transport_set_pull_timeout_function(session, find_timeout_Fct(f));
 }
 
 #define CUSTOM_INIT \
