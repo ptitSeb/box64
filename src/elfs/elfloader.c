@@ -1170,43 +1170,27 @@ void RunElfInitPltResolver(elfheader_t* h, x64emu_t *emu)
     if(!h || h->init_done)
         return;
     uintptr_t p = h->initentry + h->delta;
-    printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     h->init_done = 1;
-    R_RSP -= 32*8;    // take some space
-    // save regs
-    uintptr_t old_rdi = R_RDI;
-    uintptr_t old_rsi = R_RSI;
-    uintptr_t old_rdx = R_RDX;
-    uintptr_t old_rcx = R_RCX;
-    uintptr_t old_r8  = R_R8;
-    uintptr_t old_r9  = R_R9;
-    uintptr_t old_r10 = R_R10;
-    uintptr_t old_r11 = R_R11;
-    uintptr_t old_rax = R_RAX;
+    for(int i=0; i<h->neededlibs->size; ++i) {
+        library_t *lib = h->neededlibs->libs[i];
+        elfheader_t *lib_elf = GetElf(lib);
+        if(lib_elf)
+            RunElfInitPltResolver(lib_elf, emu);
+    }
+    printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     if(h->initentry)
-        RunFunctionWithEmu(emu, 0, p, 3, my_context->argc, my_context->argv, my_context->envv);
+        RunSafeFunction(my_context, p, 3, my_context->argc, my_context->argv, my_context->envv);
     printf_dump(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
     // and check init array now
     Elf64_Addr *addr = (Elf64_Addr*)(h->initarray + h->delta);
     for (size_t i=0; i<h->initarray_sz; ++i) {
         if(addr[i]) {
             printf_dump(LOG_DEBUG, "Calling Init[%zu] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
-            RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
+            RunSafeFunction(my_context, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
         }
     }
 
     h->fini_done = 0;   // can be fini'd now (in case it was re-inited)
-    // restaure regs
-    R_RDI = old_rdi;
-    R_RSI = old_rsi;
-    R_RDX = old_rdx;
-    R_RCX = old_rcx;
-    R_R8  = old_r8;
-    R_R9  = old_r9;
-    R_R10 = old_r10;
-    R_R11 = old_r11;
-    R_RAX = old_rax;
-    R_RSP += 32*8;    // take some space
     printf_dump(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
     return;
 }
@@ -1230,8 +1214,14 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
         context->deferedInitList[context->deferedInitSz++] = h;
         return;
     }
-    printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     h->init_done = 1;
+    for(int i=0; i<h->neededlibs->size; ++i) {
+        library_t *lib = h->neededlibs->libs[i];
+        elfheader_t *lib_elf = GetElf(lib);
+        if(lib_elf)
+            RunElfInit(lib_elf, emu);
+    }
+    printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     if(h->initentry)
         RunFunctionWithEmu(emu, 0, p, 3, context->argc, context->argv, context->envv);
     printf_dump(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
