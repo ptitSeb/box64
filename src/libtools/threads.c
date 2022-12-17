@@ -247,6 +247,7 @@ static void* pthread_routine(void* p)
 	et->emu->type = EMUTYPE_MAIN;
 	// setup callstack and run...
 	x64emu_t* emu = et->emu;
+	ResetSegmentsCache(emu);
 	Push64(emu, 0);	// PUSH 0 (backtrace marker: return address is 0)
 	Push64(emu, 0);	// PUSH BP
 	R_RBP = R_RSP;	// MOV BP, SP
