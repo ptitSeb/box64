@@ -152,6 +152,7 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
             my_context->segtls[3].limit = 0;
             my_context->segtls[3].present = 1;
             pthread_setspecific(my_context->segtls[3].key, (void*)my_context->segtls[3].base);
+            ResetSegmentsCache(emu);
             return 0;
         case ARCH_GET_FS:
             *(void**)addr = GetSegmentBase(emu->segs[_FS]);
