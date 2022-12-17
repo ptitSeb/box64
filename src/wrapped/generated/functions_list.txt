@@ -972,6 +972,7 @@
 #() pFplpl
 #() pFplpp
 #() pFpLip
+#() pFpLLp
 #() pFpLpL
 #() pFppii
 #() pFppiu
@@ -2654,6 +2655,7 @@ wrappedgnutls:
   - gnutls_global_set_log_function
 - vFpp:
   - gnutls_transport_set_pull_function
+  - gnutls_transport_set_pull_timeout_function
   - gnutls_transport_set_push_function
 wrappedgobject2:
 - pFp:
@@ -4063,19 +4065,45 @@ wrappedsmpeg2:
   - SMPEG_new_rwops
 wrappedsoftokn3:
 wrappedssl3:
+wrappedtbbmalloc:
+- vFp:
+  - scalable_aligned_free
+- LFp:
+  - scalable_msize
+- LFpp:
+  - safer_scalable_msize
+- pFLL:
+  - scalable_aligned_malloc
+  - scalable_calloc
+- pFpp:
+  - safer_scalable_free
+- pFpLL:
+  - scalable_aligned_realloc
+- pFpLp:
+  - safer_scalable_realloc
+- pFpLLp:
+  - safer_scalable_aligned_realloc
 wrappedtbbmallocproxy:
 - vFp:
   - _ZdaPv
   - _ZdlPv
+  - __RML_close_factory
 - pFL:
   - _Znam
   - _Znwm
 - vFpp:
   - _ZdaPvRKSt9nothrow_t
   - _ZdlPvRKSt9nothrow_t
+  - __TBB_call_with_my_server_info
 - pFLp:
   - _ZnamRKSt9nothrow_t
   - _ZnwmRKSt9nothrow_t
+- iFipp:
+  - __TBB_internal_find_original_malloc
+- iFppi:
+  - __RML_open_factory
+- iFppp:
+  - __TBB_make_rml_server
 wrappedtcmallocminimal:
 - pFp:
   - mallinfo

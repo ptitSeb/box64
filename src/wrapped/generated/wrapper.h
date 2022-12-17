@@ -1005,6 +1005,7 @@ void pFpdIU(x64emu_t *emu, uintptr_t fnc);
 void pFplpl(x64emu_t *emu, uintptr_t fnc);
 void pFplpp(x64emu_t *emu, uintptr_t fnc);
 void pFpLip(x64emu_t *emu, uintptr_t fnc);
+void pFpLLp(x64emu_t *emu, uintptr_t fnc);
 void pFpLpL(x64emu_t *emu, uintptr_t fnc);
 void pFppii(x64emu_t *emu, uintptr_t fnc);
 void pFppiu(x64emu_t *emu, uintptr_t fnc);

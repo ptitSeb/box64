@@ -44,63 +44,71 @@
 #include "wrapper.h"
 
 #define SUPER()                 \
-GO(malloc, pFL);                \
-GO(free, vFp);                  \
-GO(calloc, pFLL);               \
-GO(realloc, pFpL);              \
-GO(aligned_alloc, pFLL);        \
-GO(memalign, pFLL);             \
-GO(posix_memalign, iFpLL);      \
-GO(pvalloc, pFL);               \
-GO(valloc, pFL);                \
-GO(cfree, vFp);                 \
-GO(malloc_usable_size, LFp) ;   \
-GO2(_Znwm, pFL);                \
-GO2(_ZnwmRKSt9nothrow_t, pFLp); \
-GO2(_Znam, pFL);                \
-GO2(_ZnamRKSt9nothrow_t, pFLp); \
-GO2(_ZdaPv, vFp);               \
-GO2(_ZdaPvm, vFpL);             \
-GO2(_ZdaPvmSt11align_val_t, vFpLL);             \
-GO2(_ZdlPv, vFp);                               \
-GO2(_ZdlPvm, vFpL);                             \
-GO2(_ZnwmSt11align_val_t, pFLL);                \
-GO2(_ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp); \
-GO2(_ZnamSt11align_val_t, pFLL);                \
-GO2(_ZnamSt11align_val_tRKSt9nothrow_t, pFLLp); \
-GO2(_ZdlPvRKSt9nothrow_t, vFpp);                \
-GO2(_ZdaPvSt11align_val_tRKSt9nothrow_t, vFpLp);\
-GO2(_ZdlPvmSt11align_val_t, vFpLL);             \
-GO2(_ZdaPvRKSt9nothrow_t, vFpp);                \
-GO2(_ZdaPvSt11align_val_t, vFpL);               \
-GO2(_ZdlPvSt11align_val_t, vFpL);               \
-GO2(_ZdlPvSt11align_val_tRKSt9nothrow_t, vFpLp);\
-GO2(tc_calloc, pFLL);           \
-GO2(tc_cfree, vFp);             \
-GO2(tc_delete, vFp);            \
-GO2(tc_deletearray, vFp);       \
-GO2(tc_deletearray_nothrow, vFpp);              \
-GO2(tc_delete_nothrow, vFpp);   \
-GO2(tc_free, vFp);              \
-GO2(tc_malloc, pFL);            \
-GO2(tc_malloc_size, LFp);       \
-GO2(tc_new, pFL);               \
-GO2(tc_new_nothrow, pFLp);      \
-GO2(tc_newarray, pFL);          \
-GO2(tc_newarray_nothrow, pFLp); \
-GO2(tc_pvalloc, pFL);           \
-GO2(tc_valloc, pFL);            \
-GO2(tc_memalign, pFLL);         \
-GO2(tc_malloc_skip_new_handler_weak, pFL);      \
-GO2(tc_mallocopt, iFii);        \
-GO2(tc_malloc_stats, vFv);      \
-GO2(tc_malloc_skip_new_handler, pFL);           \
-GO2(tc_mallinfo, pFp);          \
-GO2(tc_posix_memalign, iFpLL);  \
-GO2(tc_realloc, pFpL);          \
+GO(malloc, pFL)                 \
+GO(free, vFp)                   \
+GO(calloc, pFLL)                \
+GO(realloc, pFpL)               \
+GO(aligned_alloc, pFLL)         \
+GO(memalign, pFLL)              \
+GO(posix_memalign, iFpLL)       \
+GO(pvalloc, pFL)                \
+GO(valloc, pFL)                 \
+GO(cfree, vFp)                  \
+GO(malloc_usable_size, LFp)     \
+GO2(_Znwm, pFL)                 \
+GO2(_ZnwmRKSt9nothrow_t, pFLp)  \
+GO2(_Znam, pFL)                 \
+GO2(_ZnamRKSt9nothrow_t, pFLp)  \
+GO2(_ZdaPv, vFp)                \
+GO2(_ZdaPvm, vFpL)              \
+GO2(_ZdaPvmSt11align_val_t, vFpLL)              \
+GO2(_ZdlPv, vFp)                                \
+GO2(_ZdlPvm, vFpL)                              \
+GO2(_ZnwmSt11align_val_t, pFLL)                 \
+GO2(_ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp)  \
+GO2(_ZnamSt11align_val_t, pFLL)                 \
+GO2(_ZnamSt11align_val_tRKSt9nothrow_t, pFLLp)  \
+GO2(_ZdlPvRKSt9nothrow_t, vFpp)                 \
+GO2(_ZdaPvSt11align_val_tRKSt9nothrow_t, vFpLp) \
+GO2(_ZdlPvmSt11align_val_t, vFpLL)              \
+GO2(_ZdaPvRKSt9nothrow_t, vFpp)                 \
+GO2(_ZdaPvSt11align_val_t, vFpL)                \
+GO2(_ZdlPvSt11align_val_t, vFpL)                \
+GO2(_ZdlPvSt11align_val_tRKSt9nothrow_t, vFpLp) \
+GO2(tc_calloc, pFLL)            \
+GO2(tc_cfree, vFp)              \
+GO2(tc_delete, vFp)             \
+GO2(tc_deletearray, vFp)        \
+GO2(tc_deletearray_nothrow, vFpp)               \
+GO2(tc_delete_nothrow, vFpp)    \
+GO2(tc_free, vFp)               \
+GO2(tc_malloc, pFL)             \
+GO2(tc_malloc_size, LFp)        \
+GO2(tc_new, pFL)                \
+GO2(tc_new_nothrow, pFLp)       \
+GO2(tc_newarray, pFL)           \
+GO2(tc_newarray_nothrow, pFLp)  \
+GO2(tc_pvalloc, pFL)            \
+GO2(tc_valloc, pFL)             \
+GO2(tc_memalign, pFLL)          \
+GO2(tc_malloc_skip_new_handler_weak, pFL)       \
+GO2(tc_mallocopt, iFii)         \
+GO2(tc_malloc_stats, vFv)       \
+GO2(tc_malloc_skip_new_handler, pFL)            \
+GO2(tc_mallinfo, pFp)           \
+GO2(tc_posix_memalign, iFpLL)   \
+GO2(tc_realloc, pFpL)           \
+GO2(safer_scalable_aligned_realloc, pFpLLp)     \
+GO2(safer_scalable_free, vFpp)  \
+GO2(safer_scalable_msize, LFpp) \
+GO2(safer_scalable_realloc, pFpLp)              \
+GO2(scalable_aligned_free, vFp)                 \
+GO2(scalable_aligned_malloc, pFLL)              \
+GO2(scalable_msize, LFp)        \
 
-//GO2(tc_set_new_mode, iFi);
-//GO2(tc_version, iFi);
+
+//GO2(tc_set_new_mode, iFi) 
+//GO2(tc_version, iFi) 
 
 typedef void  (vFv_t)   (void);
 typedef int   (iFv_t)   (void);
@@ -112,11 +120,14 @@ typedef void* (*pFp_t)  (void*);
 typedef size_t(*LFp_t)  (void*);
 typedef int   (*iFii_t) (int, int);
 typedef void  (*vFpp_t) (void*, void*);
+typedef size_t(*LFpp_t) (void*, void*);
 typedef void  (*vFpL_t) (void*, size_t);
 typedef void* (*pFLL_t) (size_t, size_t);
 typedef void* (*pFLLp_t)(size_t, size_t, void* p);
 typedef void  (*vFpLp_t)(void*, size_t, void*);
+typedef void* (*pFpLp_t)(void*, size_t, void*);
 typedef void  (*vFpLL_t)(void*, size_t, size_t);
+typedef void* (*pFpLLp_t)(void*, size_t, size_t, void*);
 
 #ifdef ANDROID
 void*(*__libc_malloc)(size_t) = NULL;
@@ -157,6 +168,10 @@ static size_t pot(size_t l) {
     size_t ret = 0;
     while (l>(1<<ret))  ++ret;
     return 1<<ret;
+}
+
+static int ispot(size_t l) {
+    return pot(l)==l;
 }
 
 // redefining all libc memory allocation routines
@@ -461,7 +476,75 @@ EXPORT int my_tc_version(int i)
 }
 */
 
+EXPORT void* my_safer_scalable_aligned_realloc(void* p, size_t size, size_t align, void *old)
+{
+    if(!ispot(align)) {
+        errno = EINVAL;
+        return NULL;
+    }
+    if(align <= 8)
+        return box_realloc(p, size);
+    size_t old_size = box_malloc_usable_size(p);
+    if(old_size>=size)
+        return p;
+    void* new_p = box_memalign(align, size);
+    memcpy(new_p, p, (old_size<size)?old_size:size);
+    box_free(p);
+    return p;
+}
 
+EXPORT void my_safer_scalable_free(void*p , void* old)
+{
+    box_free(p);
+}
+
+EXPORT size_t my_safer_scalable_msize(void* p, void* old)
+{
+    return box_malloc_usable_size(p);
+}
+
+EXPORT void* my_safer_scalable_realloc(void* p, size_t size, void* old)
+{
+    return box_realloc(p, size);
+}
+
+EXPORT void my_scalable_aligned_free(void* p)
+{
+    box_free(p);
+}
+
+EXPORT void* my_scalable_aligned_malloc(size_t size, size_t align)
+{
+    if(!ispot(align)) {
+        errno = EINVAL;
+        return NULL;
+    }
+    if(align <= 8)
+        return box_malloc(size);
+    return box_memalign(align, size);
+}
+
+EXPORT void* my_scalable_aligned_realloc(void* p, size_t size, size_t align)
+{
+    if(!ispot(align)) {
+        errno = EINVAL;
+        return NULL;
+    }
+    if(align <= 8)
+        return box_realloc(p, size);
+    size_t old_size = box_malloc_usable_size(p);
+    if(old_size>=size)
+        return p;
+    void* new_p = box_memalign(align, size);
+    memcpy(new_p, p, (old_size<size)?old_size:size);
+    box_free(p);
+    return p;
+}
+
+EXPORT size_t my_scalable_msize(void* p)
+{
+    return box_malloc_usable_size(p);
+}
 
 
 #pragma pack(push, 1)
@@ -517,7 +600,7 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             size_t sz = h->DynSym[i].st_size;
             if(bind!=STB_LOCAL && bind!=STB_WEAK && sz>=sizeof(reloc_jmp_t)) {
-                #define GO(A, B) if(!strcmp(symname, #A)) ++hooked;
+                #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; if(!strcmp(symname, "scalable_" #A)) ++hooked; if(!strcmp(symname, "__TBB_internal_" #A)) ++hooked;
                 #define GO2(A, B)
                 SUPER()
                 #undef GO
@@ -543,6 +626,16 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
                 SUPER()
                 #undef GO
                 #undef GO2
+                #define GO(A, B) if(!strcmp(symname, "scalable_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A);}
+                #define GO2(A, B)
+                SUPER()
+                #undef GO
+                #undef GO2
+                #define GO(A, B) if(!strcmp(symname, "__TBB_internal_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A);}
+                #define GO2(A, B)
+                SUPER()
+                #undef GO
+                #undef GO2
                 #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A);}
                 #define GO2(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A);}
                 SUPER()
@@ -551,6 +644,42 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
             }
         }
     }
+}
+
+EXPORT int my___TBB_internal_find_original_malloc(int n, char* names[], void* ptr[])
+{
+    int ret = 1;
+    #define GO(A, B) else if(!strcmp(names[i], #A)) {ptr[i] = A;}
+    #define GO2(A, B) 
+    for (int i=0; i<n; ++i)
+        if (0) {}
+        SUPER()
+        else ret = 0;
+    return ret;
+    #undef GO
+    #undef GO2
+}
+
+EXPORT void my___TBB_call_with_my_server_info(void* cb, void* server)
+{
+    // nothing
+}
+
+EXPORT int my___TBB_make_rml_server(void* factory, void* server, void* client)
+{
+    // nothing
+    return 0;
+}
+
+EXPORT void my___RML_close_factory(void* server)
+{
+    // nothing
+}
+
+EXPORT int my___RML_open_factory(void* factory, void* server_version, int client_version)
+{
+    // nothing
+    return 0;
 }
 
 void init_malloc_hook() {

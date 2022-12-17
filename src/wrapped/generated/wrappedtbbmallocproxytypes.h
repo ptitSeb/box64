@@ -15,15 +15,23 @@ typedef void (*vFp_t)(void*);
 typedef void* (*pFL_t)(uintptr_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFLp_t)(uintptr_t, void*);
+typedef int64_t (*iFipp_t)(int64_t, void*, void*);
+typedef int64_t (*iFppi_t)(void*, void*, int64_t);
+typedef int64_t (*iFppp_t)(void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(_ZdaPv, vFp_t) \
 	GO(_ZdlPv, vFp_t) \
+	GO(__RML_close_factory, vFp_t) \
 	GO(_Znam, pFL_t) \
 	GO(_Znwm, pFL_t) \
 	GO(_ZdaPvRKSt9nothrow_t, vFpp_t) \
 	GO(_ZdlPvRKSt9nothrow_t, vFpp_t) \
+	GO(__TBB_call_with_my_server_info, vFpp_t) \
 	GO(_ZnamRKSt9nothrow_t, pFLp_t) \
-	GO(_ZnwmRKSt9nothrow_t, pFLp_t)
+	GO(_ZnwmRKSt9nothrow_t, pFLp_t) \
+	GO(__TBB_internal_find_original_malloc, iFipp_t) \
+	GO(__RML_open_factory, iFppi_t) \
+	GO(__TBB_make_rml_server, iFppp_t)
 
 #endif // __wrappedtbbmallocproxyTYPES_H_
