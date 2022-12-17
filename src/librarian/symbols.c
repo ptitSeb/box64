@@ -286,8 +286,16 @@ void AddDefaultVersion(kh_defaultversion_t* def, const char* symname, const char
 }
 const char* GetDefaultVersion(kh_defaultversion_t* def, const char* symname)
 {
+    // small Q'nD cache of last value, because it's called many time
+    static const char* previous_res = NULL;
+    static const char* previous_name = NULL;
+    if(previous_name == symname)
+        return previous_res;
     khint_t k = kh_get(defaultversion, def, symname);
+    previous_name = symname;
     if(k==kh_end(def))
-        return NULL;
-    return kh_value(def, k);
+        previous_res = NULL;
+    else
+        previous_res = kh_value(def, k);
+    return previous_res;
 }
