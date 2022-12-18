@@ -571,8 +571,8 @@ GO(xcb_set_input_focus, pFpCuu) // xcb_void_cookie_t is a struct with only 1 uin
 //GO(xcb_set_pointer_mapping_unchecked, 
 //GO(xcb_set_screen_saver, 
 //GO(xcb_set_screen_saver_checked, 
-GO(xcb_set_selection_owner, pFpuuu)
-//GO(xcb_set_selection_owner_checked, 
+GO(xcb_set_selection_owner, pFppppp)
+GO(xcb_set_selection_owner_checked, pFppppp)
 //GO(xcb_setup_authenticate_end, 
 //GO(xcb_setup_authenticate_next, 
 //GO(xcb_setup_authenticate_reason, 
