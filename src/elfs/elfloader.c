@@ -1592,39 +1592,43 @@ void ResetSpecialCaseMainElf(elfheader_t* h)
 
 void CreateMemorymapFile(box64context_t* context, int fd)
 {
+    // this will tranform current memory map
+    // by anotating anonymous entry that belong to emulated elf
+    // also anonymising current stack
+    // and setting emulated stack as the current one
+
+    char* line = NULL;
+    size_t len = 0;
     char buff[1024];
-    struct stat st;
     int dummy;
-    (void)dummy;
-
-    elfheader_t *h = context->elfs[0];
-
-    if (stat(h->path, &st)) {
-        printf_log(LOG_INFO, "Failed to stat file %s (creating memory maps \"file\")!", h->path);
-        // Some constants, to have "valid" values
-        st.st_dev = makedev(0x03, 0x00);
-        st.st_ino = 0;
+    FILE* f = fopen("/proc/self/maps", "r");
+    if(!f)
+        return;
+    while(getline(&line, &len, f)>0) {
+        // line is like
+        // aaaadd750000-aaaadd759000 r-xp 00000000 103:02 13386730                  /usr/bin/cat
+        uintptr_t start, end;
+        if (sscanf(line, "%zx-%zx", &start, &end)==2) {
+            elfheader_t* h = FindElfAddress(my_context, start);
+            size_t l = strlen(line);
+            if(h && l<73) {
+                sprintf(buff, "%s%*s\n", line, 74-strlen(line), h->name);
+                dummy = write(fd, buff, strlen(buff));
+            } else if(start==(uintptr_t)my_context->stack) {
+                sprintf(buff, "%s%*s\n", line, 74-strlen(line), "[stack]");
+                dummy = write(fd, buff, strlen(buff));
+            } else if (strstr(line, "[stack]")) {
+                char* p = strstr(line, "[stack]")-1;
+                while (*p==' ' || *p=='\t') --p;
+                p[1]='\0';
+                strcat(line, "\n");
+                write(fd, line, strlen(line));
+            } else {
+                write(fd, line, strlen(line));
+            }
+        }
     }
-
-    // TODO: create heap entry?
-
-    for (size_t i=0; i<h->numPHEntries; ++i) {
-        if (h->PHEntries[i].p_memsz == 0) continue;
-
-        sprintf(buff, "%016lx-%016lx %c%c%c%c %016lx %02x:%02x %ld %s\n", (uintptr_t)h->PHEntries[i].p_vaddr + h->delta,
-            (uintptr_t)h->PHEntries[i].p_vaddr + h->PHEntries[i].p_memsz + h->delta,
-            (h->PHEntries[i].p_type & (PF_R|PF_X) ? 'r':'-'), (h->PHEntries[i].p_type & PF_W ? 'w':'-'),
-            (h->PHEntries[i].p_type & PF_X ? 'x':'-'), 'p', // p for private or s for shared
-            (uintptr_t)h->PHEntries[i].p_offset,
-            major(st.st_dev), minor(st.st_dev), st.st_ino, h->path);
-        
-        dummy = write(fd, buff, strlen(buff));
-    }
-    // create stack entry
-    sprintf(buff, "%16lx-%16lx %c%c%c%c %16lx %02x:%02x %ld %s\n", 
-        (uintptr_t)context->stack, (uintptr_t)context->stack+context->stacksz,
-        'r','w','-','p', 0L, 0, 0, 0L, "[stack]");
-    dummy = write(fd, buff, strlen(buff));
+    fclose(f);
 }
 
 void ElfAttachLib(elfheader_t* head, library_t* lib)
