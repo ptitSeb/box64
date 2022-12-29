@@ -606,7 +606,7 @@ int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, ui
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetElfIndex(maplib->libraries[i])!=-1 && (!self || my_context->elfs[GetElfIndex(maplib->libraries[i])]==self)) {
             if(GetLibLocalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1))
-                if(*start)
+                if(*start || *end)
                     return 1;
             if(self)
                 return 0;

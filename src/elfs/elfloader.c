@@ -428,8 +428,15 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
         const char* vername = GetSymbolVersion(head, version);
         const char* defver = GetDefaultVersion((bind==STB_WEAK)?my_context->weakdefver:my_context->globaldefver, symname);
         if(bind==STB_LOCAL) {
-            offs = sym->st_value + head->delta;
-            end = offs + sym->st_size;
+            if(!symname || !symname[0]) {
+                offs = sym->st_value + head->delta;
+                end = offs + sym->st_size;
+            } else {
+                if(!offs && !end && local_maplib)
+                    GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                if(!offs && !end)
+                    GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
+            }
         } else {
             // this is probably very very wrong. A proprer way to get reloc need to be writen, but this hack seems ok for now
             // at least it work for half-life, unreal, ut99, zsnes, Undertale, ColinMcRae Remake, FTL, ShovelKnight...
@@ -601,8 +608,15 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
         const char* vername = GetSymbolVersion(head, version);
         const char* defver = GetDefaultVersion((bind==STB_WEAK)?my_context->weakdefver:my_context->globaldefver, symname);
         if(bind==STB_LOCAL) {
-            offs = sym->st_value + head->delta;
-            end = offs + sym->st_size;
+            if(!symname || !symname[0]) {
+                offs = sym->st_value + head->delta;
+                end = offs + sym->st_size;
+            } else {
+                if(!offs && !end && local_maplib)
+                    GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                if(!offs && !end)
+                    GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
+            }
         } else {
             // this is probably very very wrong. A proprer way to get reloc need to be writen, but this hack seems ok for now
             // at least it work for half-life, unreal, ut99, zsnes, Undertale, ColinMcRae Remake, FTL, ShovelKnight...
@@ -766,7 +780,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 break;
             case R_X86_64_DTPMOD64:
                 // ID of module containing symbol
-                if(!symname || symname[0]=='\0' || bind==STB_LOCAL)
+                if(!symname || symname[0]=='\0')
                     offs = getElfIndex(my_context, head);
                 else {
                     if(!h_tls) {
@@ -794,7 +808,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     }
                     // return -1;
                 } else {
-                    if(!symname || symname[0]=='\0' || bind==STB_LOCAL)
+                    if(!symname || symname[0]=='\0')
                         offs = sym->st_value;
                     if(p) {
                         int64_t tlsoffset = offs;    // it's not an offset in elf memory
@@ -956,7 +970,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         int vis = h->SymTab[i].st_other&0x3;
         size_t sz = h->SymTab[i].st_size;
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
-        && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->SymTab[i].st_shndx!=0)) {
+        && (vis==STV_DEFAULT || vis==STV_PROTECTED || (vis==STV_HIDDEN && bind==STB_LOCAL)) && (h->SymTab[i].st_shndx!=0)) {
             if(sz && strstr(symname, "@@")) {
                 char symnameversionned[strlen(symname)+1];
                 strcpy(symnameversionned, symname);
@@ -1004,7 +1018,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         int type = ELF64_ST_TYPE(h->DynSym[i].st_info);
         int vis = h->DynSym[i].st_other&0x3;
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
-        && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
+        && (vis==STV_DEFAULT || vis==STV_PROTECTED || (vis==STV_HIDDEN && bind==STB_LOCAL)) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
             size_t sz = h->DynSym[i].st_size;
             int version = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
