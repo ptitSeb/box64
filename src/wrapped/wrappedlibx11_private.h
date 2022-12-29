@@ -676,7 +676,7 @@ GO(XkbSetPerClientControls, iFpup)
 // _XkbSkipReadBufferData
 //GO(XkbToControl
 //GO(XkbTranslateKey
-//GO(XkbTranslateKeyCode
+GO(XkbTranslateKeyCode, iFpuupp)
 GO(XkbTranslateKeySym, iFppupip)
 //GO(XkbUpdateActionVirtualMods
 //GO(XkbUpdateKeyTypeVirtualMods
