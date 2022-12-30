@@ -215,7 +215,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create)
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, 1);
     if(db && db->done && db->block && db->need_test) {
         if(AreaInHotPage((uintptr_t)db->x64_addr, (uintptr_t)db->x64_addr + db->x64_size - 1)) {
-            dynarec_log(LOG_DEBUG, "Not running block %p from %p:%p with for %p because it's in a hotpage\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, (void*)addr);
+            dynarec_log(LOG_INFO, "Not running block %p from %p:%p with for %p because it's in a hotpage\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, (void*)addr);
             return NULL;
         }
         uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
