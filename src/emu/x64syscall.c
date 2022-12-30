@@ -177,6 +177,11 @@ scwrap_t syscallwrap[] = {
     { 202, __NR_futex, 6},
     { 203, __NR_sched_setaffinity, 3},
     { 204, __NR_sched_getaffinity, 3},
+    { 206, __NR_io_setup, 2},
+    { 207, __NR_io_destroy, 1},
+    { 208, __NR_io_getevents, 4},
+    { 209, __NR_io_submit, 3},
+    { 210, __NR_io_cancel, 3},
     #ifdef __NR_epoll_create
     { 213, __NR_epoll_create, 1},
     #endif
