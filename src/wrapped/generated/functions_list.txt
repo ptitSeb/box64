@@ -356,6 +356,7 @@
 #() iFEUU
 #() iFELp
 #() iFEpi
+#() iFEpU
 #() iFEpL
 #() iFEpp
 #() iFEpV
@@ -728,6 +729,7 @@
 #() iFEpip
 #() iFEpiV
 #() iFEpiA
+#() iFEpui
 #() iFEpup
 #() iFEpUi
 #() iFEpUp
@@ -760,6 +762,7 @@
 #() iFipii
 #() iFipip
 #() iFipui
+#() iFipuu
 #() iFipup
 #() iFipLi
 #() iFipLu
@@ -1165,6 +1168,7 @@
 #() iFEppiA
 #() iFEpplp
 #() iFEpppi
+#() iFEpppL
 #() iFEpppp
 #() iFEpppV
 #() iFiiipu
@@ -1199,6 +1203,7 @@
 #() iFpiuwp
 #() iFpiUUU
 #() iFpipii
+#() iFpipiu
 #() iFpipiL
 #() iFpipip
 #() iFpippi
@@ -2996,8 +3001,10 @@ wrappedlibc:
   - execv
   - execvp
   - lstat
+  - lstat64
   - sigaltstack
   - stat
+  - stat64
   - swapcontext
 - iFpV:
   - __isoc99_scanf
@@ -3110,6 +3117,7 @@ wrappedlibc:
   - epoll_wait
 - iFippi:
   - fstatat
+  - fstatat64
 - iFippL:
   - readlinkat
 - iFpipp:
@@ -3606,8 +3614,20 @@ wrappedlibz:
 wrappedlzma:
 - vFpp:
   - lzma_index_end
+- iFpU:
+  - lzma_alone_decoder
+- iFpp:
+  - lzma_alone_encoder
+  - lzma_raw_decoder
+  - lzma_raw_encoder
+- iFpui:
+  - lzma_easy_encoder
 - iFpUi:
   - lzma_stream_decoder
+- iFppi:
+  - lzma_stream_encoder
+- iFpppL:
+  - lzma_properties_decode
 - iFpppppL:
   - lzma_index_buffer_decode
 - iFpupppLppL:

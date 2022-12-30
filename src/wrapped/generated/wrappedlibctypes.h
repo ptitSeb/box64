@@ -132,8 +132,10 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(execv, iFpp_t) \
 	GO(execvp, iFpp_t) \
 	GO(lstat, iFpp_t) \
+	GO(lstat64, iFpp_t) \
 	GO(sigaltstack, iFpp_t) \
 	GO(stat, iFpp_t) \
+	GO(stat64, iFpp_t) \
 	GO(swapcontext, iFpp_t) \
 	GO(__isoc99_scanf, iFpV_t) \
 	GO(execl, iFpV_t) \
@@ -214,6 +216,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(semctl, iFiiiN_t) \
 	GO(epoll_wait, iFipii_t) \
 	GO(fstatat, iFippi_t) \
+	GO(fstatat64, iFippi_t) \
 	GO(readlinkat, iFippL_t) \
 	GO(__vasprintf_chk, iFpipp_t) \
 	GO(glob, iFpipp_t) \

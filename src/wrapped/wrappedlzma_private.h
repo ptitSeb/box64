@@ -2,8 +2,8 @@
 #error meh!
 #endif
 
-//GO(lzma_alone_decoder, 
-//GO(lzma_alone_encoder, 
+GOM(lzma_alone_decoder, iFEpU)
+GOM(lzma_alone_encoder, iFEpp)
 GO(lzma_auto_decoder, iFpUu)
 //GO(lzma_block_buffer_bound, 
 //GO(lzma_block_buffer_decode, 
@@ -17,7 +17,7 @@ GO(lzma_auto_decoder, iFpUu)
 //GO(lzma_block_total_size, 
 //GO(lzma_block_uncomp_encode, 
 //GO(lzma_block_unpadded_size, 
-//GO(lzma_check_is_supported, 
+GO(lzma_check_is_supported, iFi)
 //GO(lzma_check_size, 
 GO(lzma_code, iFpi)
 //GO(lzma_cputhreads, 
@@ -25,7 +25,7 @@ GO(lzma_code, iFpi)
 //GO(lzma_crc64, 
 //GO(lzma_easy_buffer_encode, 
 //GO(lzma_easy_decoder_memusage, 
-//GO(lzma_easy_encoder, 
+GOM(lzma_easy_encoder, iFEpui)
 //GO(lzma_easy_encoder_memusage, 
 GO(lzma_end, vFp)
 //GO(lzma_filter_decoder_is_supported, 
@@ -35,7 +35,7 @@ GO(lzma_end, vFp)
 //GO(lzma_filter_flags_size, 
 //GO(lzma_filters_copy, 
 //GO(lzma_filters_update, 
-//GO(lzma_get_check, 
+GO(lzma_get_check, iFp)
 //GO(lzma_get_progress, 
 //GO(lzma_index_append, 
 //GO(lzma_index_block_count, 
@@ -67,27 +67,27 @@ GO(lzma_index_size, UFp)
 //GO(lzma_index_stream_size, 
 //GO(lzma_index_total_size, 
 GO(lzma_index_uncompressed_size, UFp)
-//GO(lzma_lzma_preset, 
+GO(lzma_lzma_preset, iFpu)
 //GO(lzma_memlimit_get, 
 //GO(lzma_memlimit_set, 
 //GO(lzma_memusage, 
 //GO(lzma_mf_is_supported, 
 //GO(lzma_mode_is_supported, 
 //GO(lzma_physmem, 
-//GO(lzma_properties_decode, 
-//GO(lzma_properties_encode, 
-//GO(lzma_properties_size, 
+GOM(lzma_properties_decode, iFEpppL)
+GO(lzma_properties_encode, iFpp)
+GO(lzma_properties_size, iFpp)
 //GO(lzma_raw_buffer_decode, 
 //GO(lzma_raw_buffer_encode, 
-//GO(lzma_raw_decoder, 
+GOM(lzma_raw_decoder, iFEpp)
 //GO(lzma_raw_decoder_memusage, 
-//GO(lzma_raw_encoder, 
+GOM(lzma_raw_encoder, iFEpp)
 //GO(lzma_raw_encoder_memusage, 
 //GO(lzma_stream_buffer_bound, 
 GOM(lzma_stream_buffer_decode, iFEpupppLppL)
 //GO(lzma_stream_buffer_encode, 
 GOM(lzma_stream_decoder, iFEpUi)
-//GO(lzma_stream_encoder, 
+GOM(lzma_stream_encoder, iFEppi)
 //GO(lzma_stream_encoder_mt, 
 //GO(lzma_stream_encoder_mt_memusage, 
 //GO(lzma_stream_flags_compare, 

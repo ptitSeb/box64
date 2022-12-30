@@ -22,6 +22,9 @@
 #include "bridge.h"
 #include "dynarec_next.h"
 #endif
+#ifdef HAVE_TRACE
+#include "elfloader.h"
+#endif
 
 #ifdef DYNAREC
 uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr);
@@ -40,6 +43,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         // no block, let link table as is...
         if(hasAlternate((void*)addr)) {
             printf_log(LOG_DEBUG, "Jmp address has alternate: %p", (void*)addr);
+            if(box64_log<LOG_DEBUG) dynarec_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
             addr = (uintptr_t)getAlternate((void*)addr);    // set new address
             R_RIP = addr;   // but also new RIP!
             *x3 = addr; // and the RIP in x27 register
@@ -49,7 +53,8 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         if(!block) {
             #ifdef HAVE_TRACE
             dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-            dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL);
+            elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2-4);
+            dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s))\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)");
             #endif
             //tableupdate(native_epilog, addr, table);
             return native_epilog;

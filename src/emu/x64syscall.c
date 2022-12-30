@@ -235,7 +235,7 @@ scwrap_t syscallwrap[] = {
     { 302, __NR_prlimit64, 4},
     { 309, __NR_getcpu, 3}, // need wrapping?
     { 315, __NR_sched_getattr, 4},
-    { 317, __NR_seccomp, 3},
+    //{ 317, __NR_seccomp, 3},
     { 318, __NR_getrandom, 3},
     { 319, __NR_memfd_create, 2},
     { 324, __NR_membarrier, 2},
@@ -697,6 +697,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 R_RAX = (uint64_t)-errno;
             break;
         #endif
+        case 317:   // sys_seccomp
+            R_RAX = 0;  // ignoring call
+            break;
         case 334: // It is helpeful to run static binary
             R_RAX = -ENOSYS;
             break;
@@ -941,6 +944,8 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
             return (uint64_t)(int64_t)my_epoll_pwait(emu, (int)R_ESI, (void*)R_RDX, (int)R_ECX, (int)R_R8d, (void*)R_R9);
             break;
         #endif
+        case 317:   // sys_seccomp
+            return 0;  // ignoring call
         #ifndef __NR_fchmodat4
         case 434:
             return (int)fchmodat((int)R_ESI, (void*)R_RDX, (mode_t)R_RCX, (int)R_R8d);

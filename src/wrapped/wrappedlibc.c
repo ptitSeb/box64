@@ -1091,6 +1091,7 @@ EXPORT int my_stat(x64emu_t *emu, void* filename, void* buf)
     UnalignStat64(&st, buf);
     return r;
 }
+EXPORT int my_stat64(x64emu_t *emu, void* filename, void* buf) __attribute__((alias("my_stat")));
 
 EXPORT int my_lstat(x64emu_t *emu, void* filename, void* buf)
 {
@@ -1100,6 +1101,7 @@ EXPORT int my_lstat(x64emu_t *emu, void* filename, void* buf)
     UnalignStat64(&st, buf);
     return r;
 }
+EXPORT int my_lstat64(x64emu_t *emu, void* filename, void* buf) __attribute__((alias("my_lstat")));
 
 EXPORT int my_fstat(x64emu_t *emu, int fd, void* buf)
 {
@@ -1119,6 +1121,7 @@ EXPORT int my_fstatat(x64emu_t *emu, int fd, const char* path, void* buf, int fl
     UnalignStat64(&st, buf);
     return r;
 }
+EXPORT int my_fstatat64(x64emu_t *emu, int fd, const char* path, void* buf, int flags) __attribute__((alias("my_fstatat")));
 
 EXPORT int my__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 {
@@ -2971,6 +2974,10 @@ EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long
         printf_log(LOG_DEBUG, "BOX64: set process name to \"%s\"\n", (char*)arg2);
         ApplyParams((char*)arg2);
     }
+    if(option==PR_SET_SECCOMP) {
+        printf_log(LOG_INFO, "BOX64: ignoring prctl(PR_SET_SECCOMP, ...)\n");
+        return 0;
+    }
     return prctl(option, arg2, arg3, arg4, arg5);
 }
 
@@ -3007,9 +3014,10 @@ EXPORT char my___libc_single_threaded = 0;
             "libutil.so.1",                                                     \
             "librt.so.1");                                                      \
     else                                                                        \
-        setNeededLibs(lib, 3,                                                   \
+        setNeededLibs(lib, 4,                                                   \
             "ld-linux-x86-64.so.2",                                             \
             "libpthread.so.0",                                                  \
+            "libutil.so.1",                                                     \
             "librt.so.1");
 
 #define CUSTOM_FINI \
