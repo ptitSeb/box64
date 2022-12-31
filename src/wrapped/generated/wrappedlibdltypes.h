@@ -24,6 +24,7 @@ typedef int64_t (*iFpppi_t)(void*, void*, void*, int64_t);
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(dlclose, iFp_t) \
 	GO(dlerror, pFv_t) \
+	GO(_dl_find_object, iFpp_t) \
 	GO(dladdr, iFpp_t) \
 	GO(dlopen, pFpi_t) \
 	GO(dlsym, pFpp_t) \

@@ -478,6 +478,21 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
     return -1;
 }
 
+typedef struct my_dl_find_object_s {
+    uint64_t    dlfo_flags;
+    void*       dlfo_map_start;
+    void*       dlfo_map_end;
+    struct link_map *dlf_link_map;
+    void*       dlfo_eh_frame;
+    // other stuff...
+} my_dl_find_object_t;
+
+EXPORT int my__dl_find_object(x64emu_t* emu, void* addr, my_dl_find_object_t* result)
+{
+    printf_log(LOG_INFO, "Unimplemented _dl_find_object called\n");
+    return -1;
+}
+
 #define CUSTOM_INIT\
     if(!box64_isglibc234) setNeededLibs(lib, 1, "libc.so.6");
 

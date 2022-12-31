@@ -10,5 +10,6 @@ GOM(dlmopen, pFEppi)
 GOM(dlopen, pFEpi)
 GOM(dlsym, pFEpp)
 GOM(dlvsym, pFEppp)   // Weak
+GOM(_dl_find_object, iFEpp)
 
 #endif
