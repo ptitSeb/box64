@@ -2362,9 +2362,32 @@ wrappeddbusglib1:
   - dbus_g_proxy_begin_call_with_timeout
 wrappedexpat:
 - vFpp:
+  - XML_SetAttlistDeclHandler
   - XML_SetCharacterDataHandler
+  - XML_SetCommentHandler
+  - XML_SetDefaultHandler
+  - XML_SetDefaultHandlerExpand
+  - XML_SetElementDeclHandler
+  - XML_SetEndCdataSectionHandler
+  - XML_SetEndDoctypeDeclHandler
+  - XML_SetEndElementHandler
+  - XML_SetEndNamespaceDeclHandler
+  - XML_SetEntityDeclHandler
+  - XML_SetExternalEntityRefHandler
+  - XML_SetNotStandaloneHandler
+  - XML_SetNotationDeclHandler
+  - XML_SetProcessingInstructionHandler
+  - XML_SetSkippedEntityHandler
+  - XML_SetStartCdataSectionHandler
+  - XML_SetStartDoctypeDeclHandler
+  - XML_SetStartElementHandler
+  - XML_SetStartNamespaceDeclHandler
+  - XML_SetUnparsedEntityDeclHandler
+  - XML_SetXmlDeclHandler
 - vFppp:
   - XML_SetElementHandler
+  - XML_SetNamespaceDeclHandler
+  - XML_SetUnknownEncodingHandler
 wrappedfaudio:
 - vFpp:
   - FAudio_UnregisterForCallbacks

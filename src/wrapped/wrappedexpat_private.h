@@ -5,67 +5,67 @@
 //GO(_INTERNAL_trim_to_complete_utf8_characters, 
 //GO(XML_DefaultCurrent, 
 GO(XML_ErrorString, pFi)
-//GO(XML_ExpatVersion, 
-//GO(XML_ExpatVersionInfo, 
-//GO(XML_ExternalEntityParserCreate, 
-//GO(XML_FreeContentModel, 
-//GO(XML_GetBase, 
-//GO(XML_GetBuffer, 
+GO(XML_ExpatVersion, pFv)
+GO(XML_ExpatVersionInfo, pFp)   // return a struct of 3 int. Use shadow pointer on ARM64 and x86_64
+GO(XML_ExternalEntityParserCreate, pFppp)
+GO(XML_FreeContentModel, vFpp)
+GO(XML_GetBase, pFp)
+GO(XML_GetBuffer, pFpi)
 //GO(XML_GetCurrentByteCount, 
-//GO(XML_GetCurrentByteIndex, 
-//GO(XML_GetCurrentColumnNumber, 
+GO(XML_GetCurrentByteIndex, lFp)
+GO(XML_GetCurrentColumnNumber, LFp)
 GO(XML_GetCurrentLineNumber, iFp)
 GO(XML_GetErrorCode, iFp)
-//GO(XML_GetFeatureList, 
+GO(XML_GetFeatureList, pFv)
 //GO(XML_GetIdAttributeIndex, 
-//GO(XML_GetInputContext, 
+GO(XML_GetInputContext, pFppp)
 //GO(XML_GetParsingStatus, 
-//GO(XML_GetSpecifiedAttributeCount, 
+GO(XML_GetSpecifiedAttributeCount, iFp)
 //GO(XML_MemFree, 
 //GO(XML_MemMalloc, 
 //GO(XML_MemRealloc, 
 GO(XML_Parse, iFppii)
-//GO(XML_ParseBuffer, 
+GO(XML_ParseBuffer, iFpii)
 GO(XML_ParserCreate, pFp)
-//GO(XML_ParserCreate_MM, 
+GO(XML_ParserCreate_MM, pFpppp) // return a structure
 //GO(XML_ParserCreateNS, 
 GO(XML_ParserFree, vFp)
 //GO(XML_ParserReset, 
 //GO(XML_ResumeParser, 
-//GO(XML_SetAttlistDeclHandler, 
-//GO(XML_SetBase, 
+GOM(XML_SetAttlistDeclHandler, vFEpp)
+GO(XML_SetBase, iFpp)
 //GO(XML_SetCdataSectionHandler, 
 GOM(XML_SetCharacterDataHandler, vFEpp)
-//GO(XML_SetCommentHandler, 
-//GO(XML_SetDefaultHandler, 
-//GO(XML_SetDefaultHandlerExpand, 
+GOM(XML_SetCommentHandler, vFEpp)
+GOM(XML_SetDefaultHandler, vFEpp)
+GOM(XML_SetDefaultHandlerExpand, vFEpp)
 //GO(XML_SetDoctypeDeclHandler, 
-//GO(XML_SetElementDeclHandler, 
+GOM(XML_SetElementDeclHandler, vFEpp)
 GOM(XML_SetElementHandler, vFEppp)
-//GO(XML_SetEncoding, 
-//GO(XML_SetEndCdataSectionHandler, 
-//GO(XML_SetEndDoctypeDeclHandler, 
-//GO(XML_SetEndElementHandler, 
-//GO(XML_SetEndNamespaceDeclHandler, 
-//GO(XML_SetEntityDeclHandler, 
-//GO(XML_SetExternalEntityRefHandler, 
+GO(XML_SetEncoding, iFpp)
+GOM(XML_SetEndCdataSectionHandler, vFEpp)
+GOM(XML_SetEndDoctypeDeclHandler, vFEpp)
+GOM(XML_SetEndElementHandler, vFEpp)
+GOM(XML_SetEndNamespaceDeclHandler, vFEpp)
+GOM(XML_SetEntityDeclHandler, vFEpp)
+GOM(XML_SetExternalEntityRefHandler, vFEpp)
 //GO(XML_SetExternalEntityRefHandlerArg, 
-//GO(XML_SetHashSalt, 
-//GO(XML_SetNamespaceDeclHandler, 
-//GO(XML_SetNotationDeclHandler, 
-//GO(XML_SetNotStandaloneHandler, 
-//GO(XML_SetParamEntityParsing, 
-//GO(XML_SetProcessingInstructionHandler, 
-//GO(XML_SetReturnNSTriplet, 
-//GO(XML_SetSkippedEntityHandler, 
-//GO(XML_SetStartCdataSectionHandler, 
-//GO(XML_SetStartDoctypeDeclHandler, 
-//GO(XML_SetStartElementHandler, 
-//GO(XML_SetStartNamespaceDeclHandler, 
-//GO(XML_SetUnknownEncodingHandler, 
-//GO(XML_SetUnparsedEntityDeclHandler, 
+GO(XML_SetHashSalt, iFpL)
+GOM(XML_SetNamespaceDeclHandler, vFEppp)
+GOM(XML_SetNotationDeclHandler, vFEpp)
+GOM(XML_SetNotStandaloneHandler, vFEpp)
+GO(XML_SetParamEntityParsing, iFpi)
+GOM(XML_SetProcessingInstructionHandler, vFEpp)
+GO(XML_SetReturnNSTriplet, vFpi)
+GOM(XML_SetSkippedEntityHandler, vFEpp)
+GOM(XML_SetStartCdataSectionHandler, vFEpp)
+GOM(XML_SetStartDoctypeDeclHandler, vFEpp)
+GOM(XML_SetStartElementHandler, vFEpp)
+GOM(XML_SetStartNamespaceDeclHandler, vFEpp)
+GOM(XML_SetUnknownEncodingHandler, vFEppp)
+GOM(XML_SetUnparsedEntityDeclHandler, vFEpp)
 GO(XML_SetUserData, vFpp)
-//GO(XML_SetXmlDeclHandler, 
-//GO(XML_StopParser, 
-//GO(XML_UseForeignDTD, 
+GOM(XML_SetXmlDeclHandler, vFEpp)
+GO(XML_StopParser, iFpi)
+GO(XML_UseForeignDTD, iFpi)
 //GO(XML_UseParserAsHandlerArg, 
