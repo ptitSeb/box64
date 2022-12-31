@@ -470,7 +470,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x64.jmp) {
             uintptr_t j = helper.insts[i].x64.jmp;
-            if(j<start || j>=end) {
+            if(j<start || j>=end || j==helper.insts[i].x64.addr) {
                 helper.insts[i].x64.jmp_insts = -1;
                 helper.insts[i].x64.need_after |= X_PEND;
             } else {
