@@ -36,6 +36,7 @@
 #include "rcfile.h"
 
 box64context_t *my_context = NULL;
+int box64_quit = 0;
 int box64_log = LOG_INFO; //LOG_NONE;
 int box64_dump = 0;
 int box64_nobanner = 0;
@@ -1039,7 +1040,7 @@ void setupTrace()
 
 void endBox64()
 {
-    if(!my_context)
+    if(!my_context || box64_quit)
         return;
 
     x64emu_t* emu = thread_get_emu();
@@ -1047,6 +1048,7 @@ void endBox64()
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");
     CallAllCleanup(emu);
     // then call all the fini
+    box64_quit = 1;
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
     RunElfFini(my_context->elfs[0], emu);
     #ifdef DYNAREC
@@ -1579,14 +1581,16 @@ int main(int argc, const char **argv, char **env) {
     AddMainElfToLinkmap(elf_header);
     // pre-load lib if needed
     if(ld_preload.size) {
+        my_context->preload = new_neededlib(ld_preload.size);
         for(int i=0; i<ld_preload.size; ++i)
-            if(AddNeededLib(my_context->maplib, &my_context->neededlibs, NULL, 0, 0, (const char**)&ld_preload.paths[i], 1, my_context, emu)) {
-                printf_log(LOG_INFO, "Warning, cannot pre-load the lib (%s)\n", ld_preload.paths[i]);
-            }            
+            my_context->preload->names[i] = ld_preload.paths[i];
+        if(AddNeededLib(my_context->maplib, 0, 0, my_context->preload, my_context, emu)) {
+            printf_log(LOG_INFO, "Warning, cannot pre-load of the libs\n");
+        }            
     }
     FreeCollection(&ld_preload);
     // Call librarian to load all dependant elf
-    if(LoadNeededLibs(elf_header, my_context->maplib, &my_context->neededlibs, NULL, 0, 0, my_context, emu)) {
+    if(LoadNeededLibs(elf_header, my_context->maplib, 0, 0, my_context, emu)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->argv[0]);
         FreeBox64Context(&my_context);
         return -1;

@@ -110,10 +110,8 @@ void WrappedLib_FinishFini(library_t* lib)
         box_free(lib->w.altprefix);
     if(lib->w.altmy)
         box_free(lib->w.altmy);
-    if(lib->w.neededlibs) {
-        for(int i=0; i<lib->w.needed; ++i)
-            box_free(lib->w.neededlibs[i]);
-        box_free(lib->w.neededlibs);
+    if(lib->w.needed) {
+        free_neededlib(lib->w.needed);
     }
     FreeBridge(&lib->w.bridge);
 }
@@ -221,8 +219,9 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
             lib->getweak = WrappedLib_GetWeak;
             lib->getlocal = WrappedLib_GetLocal;
             lib->type = LIB_WRAPPED;
+            lib->w.refcnt = 1;
             // Call librarian to load all dependant elf
-            if(AddNeededLib(context->maplib, &lib->needed, lib, 0, 0, (const char**)lib->w.neededlibs, lib->w.needed, context, thread_get_emu())) {
+            if(AddNeededLib(context->maplib, 0, 0, lib->w.needed, context, thread_get_emu())) {
                 printf_log(LOG_NONE, "Error: loading a needed libs in elf %s\n", lib->name);
                 return;
             }
@@ -362,7 +361,6 @@ library_t *NewLibrary(const char* path, box64context_t* context)
         lib->name = Path2Name(path);
     lib->nbdot = NbDot(lib->name);
     lib->type = LIB_UNNKNOW;
-    lib->refcnt = 1;
     printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
     if(box64_nopulse) {
         if(strstr(lib->name, "libpulse.so")==lib->name || strstr(lib->name, "libpulse-simple.so")==lib->name) {
@@ -510,6 +508,25 @@ int ReloadLibrary(library_t* lib, x64emu_t* emu)
     return 0;
 }
 
+int FiniLibrary(library_t* lib, x64emu_t* emu)
+{
+    if(!lib->active)
+        return 0;   // nothing to do
+    switch (lib->type) {
+        case LIB_WRAPPED:
+            if(!--lib->w.refcnt)
+                lib->active = 0;
+            return 0;
+        case LIB_EMULATED:
+            if(emu)
+                RunElfFini(lib->e.elf, emu);
+            if(!lib->e.elf->refcnt)
+                lib->active = 0;
+            return 0;
+    }
+    return 1;   // bad type
+}
+
 void InactiveLibrary(library_t* lib)
 {
     lib->active = 0;
@@ -519,14 +536,7 @@ void Free1Library(library_t **lib, x64emu_t* emu)
 {
     if(!(*lib)) return;
 
-    if(--(*lib)->refcnt)
-        return;
-
-    if((*lib)->type==LIB_EMULATED && emu) {
-        elfheader_t *elf_header = (*lib)->e.elf;
-        RunElfFini(elf_header, emu);
-    }
-
+    // No "Fini" logic here, only memory handling
     if((*lib)->maplib)
         FreeLibrarian(&(*lib)->maplib, emu);
 
@@ -577,8 +587,6 @@ void Free1Library(library_t **lib, x64emu_t* emu)
         if((*lib)->w.symbol2map)
             kh_destroy(symbol2map, (*lib)->w.symbol2map);
     }
-    free_neededlib(&(*lib)->needed);
-    free_neededlib(&(*lib)->dependedby);
 
     box_free(*lib);
     *lib = NULL;
@@ -642,7 +650,7 @@ int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start,
 }
 int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local)
 {
-    if(!name[0] || !lib->active)
+    if(!name[0] || !lib || !lib->active)
         return 0;
     khint_t k;
     // get a new symbol
@@ -915,18 +923,34 @@ int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *add
     return 0;
 }
 
-int GetNeededLibN(library_t* lib) {
-    return lib->needed.size;
+int GetNeededLibsN(library_t* lib) {
+    switch (lib->type) {
+        case LIB_WRAPPED: return lib->w.needed?lib->w.needed->size:0;
+        case LIB_EMULATED: return lib->e.elf->needed->size;
+    }
+    return 0;
 }
 library_t* GetNeededLib(library_t* lib, int idx)
 {
-    if(idx<0 || idx>=lib->needed.size)
-        return NULL;
-    return lib->needed.libs[idx];
+    switch (lib->type) {
+        case LIB_WRAPPED:
+            if(idx<0 || !lib->w.needed || idx>=lib->w.needed->size)
+                return NULL;
+            return lib->w.needed->libs[idx];
+        case LIB_EMULATED:
+            if(idx<0 || idx>=lib->e.elf->needed->size)
+                return NULL;
+            return lib->e.elf->needed->libs[idx];
+    }
+    return NULL;
 }
-needed_libs_t* GetNeededLibs(library_t* lib)
+char** GetNeededLibs(library_t* lib)
 {
-    return &lib->needed;
+    switch (lib->type) {
+        case LIB_WRAPPED: return lib->w.needed?lib->w.needed->names:NULL;
+        case LIB_EMULATED: return lib->e.elf->needed->names;
+    }
+    return NULL;
 }
 
 void* GetHandle(library_t* lib)
@@ -990,74 +1014,57 @@ void AddMainElfToLinkmap(elfheader_t* elf)
     lm->l_ld = GetDynamicSection(elf);
 }
 
-static int is_neededlib_present(needed_libs_t* needed, library_t* lib)
+needed_libs_t* new_neededlib(int n)
 {
-    if(!needed || !lib)
-        return 0;
-    if(!needed->size)
-        return 0;
-    for(int i=0; i<needed->size; ++i)
-        if(needed->libs[i] == lib)
-            return 1;
-    return 0;
-}
-
-void add_neededlib(needed_libs_t* needed, library_t* lib)
-{
-    ++lib->refcnt;
-    if(!needed)
-        return;
-    if(is_neededlib_present(needed, lib))
-        return;
-    if(needed->size == needed->cap) {
-        needed->cap += 8;
-        needed->libs = (library_t**)box_realloc(needed->libs, needed->cap*sizeof(library_t*));
-    }
-    needed->libs[needed->size++] = lib;
+    needed_libs_t* ret = (needed_libs_t*)calloc(1, sizeof(needed_libs_t));
+    ret->cap = ret->size = n;
+    ret->libs = (library_t**)calloc(n, sizeof(library_t*));
+    ret->names = (char**)calloc(n, sizeof(char*));
+    return ret;
 }
 void free_neededlib(needed_libs_t* needed)
 {
+    if(needed)
+        return;
+    free(needed->libs);
+    free(needed->names);
+    needed->libs = NULL;
+    needed->names = NULL;
+    needed->cap = needed->size = 0;
+    free(needed);
+}
+void add1_neededlib(needed_libs_t* needed)
+{
     if(!needed)
         return;
-    needed->cap = 0;
-    needed->size = 0;
-    if(needed->libs)
-        box_free(needed->libs);
-    needed->libs = NULL;
-}
-void add_dependedbylib(needed_libs_t* dependedby, library_t* lib)
-{
-    if(!dependedby)
+    if(needed->size+1<=needed->cap)
         return;
-    if(is_neededlib_present(dependedby, lib))
-        return;
-    if(dependedby->size == dependedby->cap) {
-        dependedby->cap += 8;
-        dependedby->libs = (library_t**)box_realloc(dependedby->libs, dependedby->cap*sizeof(library_t*));
-    }
-    dependedby->libs[dependedby->size++] = lib;
-}
-void free_dependedbylib(needed_libs_t* dependedby)
-{
-    if(!dependedby)
-        return;
-    dependedby->cap = 0;
-    dependedby->size = 0;
-    if(dependedby->libs)
-        box_free(dependedby->libs);
-    dependedby->libs = NULL;
+    needed->cap = needed->size+1;
+    needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
+    needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
+    needed->size++;
 }
 
 void setNeededLibs(library_t* lib, int n, ...)
 {
     if(lib->type!=LIB_WRAPPED && lib->type!=LIB_UNNKNOW)
         return;
-    lib->w.needed = n;
-    lib->w.neededlibs = (char**)box_calloc(n, sizeof(char*));
+    lib->w.needed = new_neededlib(n);
     va_list va;
     va_start (va, n);
     for (int i=0; i<n; ++i) {
-        lib->w.neededlibs[i] = box_strdup(va_arg(va, char*));
+        lib->w.needed->names[i] = va_arg(va, char*);
     }
     va_end (va);
+}
+
+void IncRefCount(library_t* lib)
+{
+    if(lib->type!=LIB_WRAPPED && lib->type!=LIB_UNNKNOW)
+        return;
+    if(lib->type==LIB_WRAPPED) {
+        ++lib->w.refcnt;
+    } else {
+        ++lib->e.elf->refcnt;
+    }
 }

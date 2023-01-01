@@ -37,6 +37,8 @@ void FreeDLPrivate(dlprivate_t **lib) {
     box_free(*lib);
 }
 
+static needed_libs_t dl_loaded = {0};
+
 // dead_cells consider the "2" value to be some king of issue?
 #define MIN_NLIB 3
 
@@ -128,16 +130,24 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         }
         dlopened = (GetLibInternal(rfilename)==NULL);
         // Then open the lib
-        const char* libs[] = {rfilename};
         my_context->deferedInit = 1;
         int bindnow = (!box64_musl && (flag&0x2))?1:0;
-        if(AddNeededLib(NULL, NULL, NULL, is_local, bindnow, libs, 1, my_context, emu)) {
+        needed_libs_t tmp = {0};
+        char* names[] = {rfilename};
+        library_t* libs[] = { NULL };
+        tmp.size = tmp.cap = 1;
+        tmp.names = names;
+        tmp.libs = libs;
+        if(AddNeededLib(NULL, is_local, bindnow, &tmp, my_context, emu)) {
             printf_dlsym(strchr(rfilename,'/')?LOG_DEBUG:LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
                 dl->last_error = box_malloc(129);
             snprintf(dl->last_error, 129, "Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             return NULL;
         }
+        add1_neededlib(&dl_loaded);
+        dl_loaded.names[dl_loaded.size-1] = tmp.names[0];
+        dl_loaded.libs[dl_loaded.size-1] = tmp.libs[0];
         lib = GetLibInternal(rfilename);
         RunDeferedElfInit(emu);
     } else {
@@ -145,6 +155,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         for (size_t i=MIN_NLIB; i<dl->lib_sz; ++i) {
             if(!dl->libs[i]) {
                 dl->count[i] = dl->count[i]+1;
+                IncRefCount(dl->libs[i]);
                 return (void*)(i+1);
             }
         }
@@ -202,7 +213,7 @@ int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymb
     if(lib->getweak(lib, rsymbol, start, end, 0, &weak, version, vername, 1))
         return 1;
     // look in other libs
-    int n = GetNeededLibN(lib);
+    int n = GetNeededLibsN(lib);
     for (int i=0; i<n; ++i) {
         library_t *l = GetNeededLib(lib, i);
         if(recursive_dlsym_lib(collection, l, rsymbol, start, end, version, vername))
@@ -322,14 +333,7 @@ int my_dlclose(x64emu_t* emu, void *handle)
         return -1;
     }
     dl->count[nlib] = dl->count[nlib]-1;
-    if(dl->count[nlib]==0 && dl->dlopened[nlib]) {   // need to call Fini...
-        int idx = GetElfIndex(dl->libs[nlib]);
-        if(idx!=-1) {
-            printf_dlsym(LOG_DEBUG, "dlclose: Call to Fini for %p\n", handle);
-            RunElfFini(my_context->elfs[idx], emu);
-            InactiveLibrary(dl->libs[nlib]);
-        }
-    }
+    FiniLibrary(dl->libs[nlib], emu);
     return 0;
 }
 int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)

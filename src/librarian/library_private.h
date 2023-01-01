@@ -37,8 +37,7 @@ typedef struct wlib_s {
     void*           lib;        // dlopen result
     void*           priv;       // actual private
     char*           altprefix;  // if function names are mangled..
-    int             needed;
-    char**          neededlibs;
+    needed_libs_t*  needed;
     kh_symbolmap_t  *symbolmap;
     kh_symbolmap_t  *wsymbolmap;
     kh_symbolmap_t  *mysymbolmap;
@@ -49,6 +48,7 @@ typedef struct wlib_s {
     kh_datamap_t    *wdatamap;
     kh_datamap_t    *mydatamap;
     char            *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
+    int             refcnt;      // refcounting the lib
 } wlib_t;
 
 typedef struct elib_s {
@@ -71,18 +71,11 @@ typedef struct library_s {
         wlib_t  w;     
         elib_t  e;
     };                              // private lib data
-    needed_libs_t       needed;
-    needed_libs_t       dependedby;     // used to free library
-    int                 refcnt;         // refcounting the lib
     lib_t               *maplib;        // local maplib, for dlopen'd library with LOCAL binding (most of the dlopen)
     kh_bridgemap_t      *gbridgemap;    // global symbol bridgemap
     kh_bridgemap_t      *wbridgemap;    // weak symbol bridgemap
     kh_bridgemap_t      *lbridgemap;    // local symbol bridgemap
 } library_t;
-void add_neededlib(needed_libs_t* needed, library_t* lib);
-void free_neededlib(needed_libs_t* needed);
-void add_dependedbylib(needed_libs_t* dependedby, library_t* lib);
-void free_dependedbylib(needed_libs_t* dependedby);
 
 // type for map elements
 typedef struct map_onesymbol_s {

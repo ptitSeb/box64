@@ -49,10 +49,13 @@ void free_tlsdatasize(void* p);
 typedef struct needed_libs_s {
     int         cap;
     int         size;
-    library_t   **libs;
+    char**      names;
+    library_t** libs;
 } needed_libs_t;
 
 void free_neededlib(needed_libs_t* needed);
+needed_libs_t* new_neededlib(int n);
+void add1_neededlib(needed_libs_t* needed);
 
 typedef struct base_segment_s {
     uintptr_t       base;
@@ -95,7 +98,8 @@ typedef struct box64context_s {
     int                 elfsize;        // number of elf loaded
 
 
-    needed_libs_t       neededlibs;     // needed libs for main elf
+    needed_libs_t       *neededlibs;    // needed libs for main elf
+    needed_libs_t       *preload;
 
     uintptr_t           ep;             // entry point
 

@@ -83,15 +83,16 @@ struct elfheader_s {
 
     int         init_done;
     int         fini_done;
+    int         refcnt;     // ref count for the elf
 
-    char*       memory; // char* and not void* to allow math on memory pointer
+    char*       memory;     // char* and not void* to allow math on memory pointer
     void**      multiblock;
     uintptr_t*  multiblock_offs;
     uint64_t*   multiblock_size;
     int         multiblock_n;
 
-    library_t   *lib;
-    needed_libs_t *neededlibs;
+    library_t   *lib;       // attached lib (exept on main elf)
+    needed_libs_t* needed;
 
     kh_mapsymbols_t   *mapsymbols;
     kh_mapsymbols_t   *weaksymbols;

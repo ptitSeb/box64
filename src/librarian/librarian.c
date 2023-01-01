@@ -29,39 +29,7 @@ lib_t *NewLibrarian(box64context_t* context, int ownlibs)
 
     return maplib;
 }
-static void freeLibraryRecurse(lib_t *maplib, x64emu_t *emu, int idx, char *freed, library_t* owner) {
-    if (freed[idx]) return; // Already freed
-    
-    library_t *lib = maplib->libraries[idx];
-    if(lib==owner) return;  // don't free owner of maplib
-    freed[idx] = 1; // Avoid infinite loops
-    printf_log(LOG_DEBUG, "Unloading %s\n", lib->name);
-    for (int i = lib->dependedby.size - 1; i >= 0; --i) {
-        int j;
-        for (j = 0; j < maplib->libsz; ++j) {
-            if (lib->dependedby.libs[i] == maplib->libraries[j]) break;
-        }
-        if (j == maplib->libsz) {
-            // dependant lib already freed
-            // library as been freed already
-            continue;
-        }
-        if (freed[j] == 1) {
-            printf_log(LOG_DEBUG, "Cyclic dependancy detected (cycle is between %s and %s)\n", lib->name, lib->dependedby.libs[i]->name);
-            continue;
-        }
-        freeLibraryRecurse(maplib, emu, j, freed, owner);
-        if (freed[idx] != 1) {
-            printf_log(LOG_DEBUG, "Note: library already freed (cyclic dependancy break)\n");
-            return;
-        }
-    }
-    
-    library_t *ptr = maplib->libraries[idx];
-    if(maplib->ownlibs/* && (!maplib->owner || ptr->maplib==maplib)*/)
-        Free1Library(&ptr, emu);
-    freed[idx] = 2;
-}
+
 void FreeLibrarian(lib_t **maplib, x64emu_t *emu)
 {
     // should that be in reverse order?
@@ -70,24 +38,14 @@ void FreeLibrarian(lib_t **maplib, x64emu_t *emu)
 
     library_t* owner = (*maplib)->owner;
     (*maplib)->owner = NULL;    // to avoid recursive free...
+
+    // free the memory only. All the uninit logic is elsewhere
+
     
     if((*maplib)->ownlibs && (*maplib)->libsz) {
-        printf_log(LOG_DEBUG, "Closing %d libs from maplib %p\n", (*maplib)->libsz, *maplib);
-        char *freed = (char*)box_calloc((*maplib)->libsz, sizeof(char));
-        if (!freed) {
-            printf_log(LOG_INFO, "Failed to malloc freed table, using old algorithm (a crash is likely)\n");
-            for (int i=(*maplib)->libsz-1; i>=0; --i) 
-                if((*maplib)->libraries[i]!=owner) {
-                    printf_log(LOG_DEBUG, "Unloading %s\n", (*maplib)->libraries[i]->name);
-                    Free1Library(&(*maplib)->libraries[i], emu);
-                }
-        } else {
-            for (int i=(*maplib)->libsz-1; i>=0; --i) {
-                freeLibraryRecurse(*maplib, emu, i, freed, owner);
-            }
-            memset((*maplib)->libraries, 0, (*maplib)->libsz*sizeof(library_t*)); // NULL = 0 anyway
-            (*maplib)->libsz = 0;
-            box_free(freed);
+        for(int i=0; i<(*maplib)->libsz; ++i) {
+            printf_log(LOG_DEBUG, "Unloading %s\n", (*maplib)->libraries[i]->name);
+            Free1Library(&(*maplib)->libraries[i], emu);
         }
     }
     box_free((*maplib)->libraries);
@@ -203,14 +161,15 @@ static void MapLibRemoveMapLib(lib_t* dest, lib_t* src)
     }
 }
 
-int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, const char* path, box64context_t* box64, x64emu_t* emu)
+int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, box64context_t* box64, x64emu_t* emu)
 {
+    const char* path = needed->names[n];
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib%s\n", path, local?" (local)":"");
     // first check if lib is already loaded
     library_t *lib = getLib(my_context->maplib, path);
     if(lib) {
-        add_neededlib(neededlibs, lib);
-        if (lib && deplib) add_dependedbylib(&lib->dependedby, deplib);
+        IncRefCount(lib);   // increment cntref
+        needed->libs[n] = lib;
         printf_log(LOG_DEBUG, "Already present in maplib => success\n");
         return 0;
     }
@@ -218,6 +177,8 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
     lib = getLib(my_context->local_maplib, path);
     if(lib) {
         printf_log(LOG_DEBUG, "Already present in local_maplib => success\n");
+        needed->libs[n] = lib;
+        IncRefCount(lib);   // increment cntref
         if(local) {
             // add lib to maplib...
             if(maplib) {
@@ -239,19 +200,14 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
                 MapLibAddLib(my_context->maplib, lib);
             MapLibRemoveMapLib(my_context->local_maplib, my_context->maplib);
         }
-        add_neededlib(neededlibs, lib);
-        if (lib && deplib) add_dependedbylib(&lib->dependedby, deplib);
         return 0;
     }
     // load a new one
-    lib = NewLibrary(path, box64);
+    needed->libs[n] = lib = NewLibrary(path, box64);
     if(!lib) {
         printf_log(LOG_DEBUG, "Faillure to create lib => fail\n");
         return 1;   //Error
     }
-
-    add_neededlib(neededlibs, lib);
-    if (lib && deplib) add_dependedbylib(&lib->dependedby, deplib);
 
     // add lib now
     if(local) {
@@ -291,8 +247,10 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
     return 0;
 }
 
-int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, int bindnow, library_t* lib, box64context_t* box64, x64emu_t* emu)
+int AddNeededLib_init(lib_t* maplib, int local, int bindnow, library_t* lib, box64context_t* box64, x64emu_t* emu)
 {
+    if(!lib)    // no lib, error is already detected, no need to return a new one
+        return 0;
     if(!maplib)
         maplib = (local)?lib->maplib:my_context->maplib;
 
@@ -303,18 +261,28 @@ int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* depli
     } else {
         // it's an emulated lib, 
         // load dependancies and launch init sequence
-        if(LoadNeededLibs(box64->elfs[mainelf], maplib, &lib->needed, lib, 0, bindnow, box64, emu)) {
+        if(LoadNeededLibs(box64->elfs[mainelf], maplib, 0, bindnow, box64, emu)) {
             printf_log(LOG_DEBUG, "Failure to Add dependant lib => fail\n");
             return 1;
         }
         // some special case, where dependancies may not be correct
         if(!strcmp(GetNameLib(lib), "libCgGL.so")) {
-            const char* libs[] = {"libGL.so.1"};
-            AddNeededLib(maplib, &lib->needed, lib, 0, 0, libs, 1, box64, emu);
+            char* names[] = {"libGL.so.1"};    // TODO: it will never be uninit...
+            library_t* libs[] = { NULL };
+            needed_libs_t tmp = {0};
+            tmp.size = tmp.cap = 1;
+            tmp.names = names;
+            tmp.libs = libs;
+            AddNeededLib(maplib, 0, 0, &tmp, box64, emu);
         }
         if(!strcmp(GetNameLib(lib), "libmss.so.6")) {
-            const char* libs[] = {"libSDL-1.2.so.0", "libdl.so.2"};
-            AddNeededLib(maplib, &lib->needed, lib, 0, 0, libs, 2, box64, emu);
+            char* names[] = {"libSDL-1.2.so.0", "libdl.so.2"}; // TODO: they will never be uninit...
+            library_t* libs[] = { NULL, NULL };
+            needed_libs_t tmp = {0};
+            tmp.size = tmp.cap = 2;
+            tmp.names = names;
+            tmp.libs = libs;
+            AddNeededLib(maplib, 0, 0, &tmp, box64, emu);
         }
 
         // finalize the lib
@@ -330,28 +298,26 @@ int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* depli
 }
 
 EXPORTDYN
-int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, int bindnow, const char** paths, int npath, box64context_t* box64, x64emu_t* emu)
+int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, box64context_t* box64, x64emu_t* emu)
 {
+    if(!needed) // no needed libs, no problems
+        return 0;
     box64_mapclean = 0;
-    if(!neededlibs) {
-        neededlibs = box_calloc(1, sizeof(needed_libs_t));
-    }
-    int idx = neededlibs->size;
+    int ret = 0;
     // Add libs and symbol
-    for(int i=0; i<npath; ++i) {
-        if(AddNeededLib_add(maplib, neededlibs, deplib, local, paths[i], box64, emu)) {
-            printf_log(strchr(paths[i],'/')?LOG_DEBUG:LOG_INFO, "Error loading needed lib %s\n", paths[i]);
-            return 1;
+    for(int i=0; i<needed->size; ++i) {
+        if(AddNeededLib_add(maplib, local, needed, i, box64, emu)) {
+            printf_log(strchr(needed->names[i],'/')?LOG_DEBUG:LOG_INFO, "Error loading needed lib %s\n", needed->names[i]);
+            ret = 1;
         }
     }
-    int idx_end = neededlibs->size;
     // add dependant libs and init them
-    for (int i=idx; i<idx_end; ++i)
-        if(AddNeededLib_init(maplib, neededlibs, deplib, local, bindnow, neededlibs->libs[i], box64, emu)) {
-            printf_log(LOG_INFO, "Error initializing needed lib %s\n", neededlibs->libs[i]->name);
-            if(!allow_missing_libs) return 1;
+    for (int i=0; i<needed->size; ++i)
+        if(AddNeededLib_init(maplib, local, bindnow, needed->libs[i], box64, emu)) {
+            printf_log(LOG_INFO, "Error initializing needed lib %s\n", needed->names[i]);
+            if(!allow_missing_libs) ret = 1;
         }
-    return 0;
+    return ret;
 }
 
 library_t* GetLibMapLib(lib_t* maplib, const char* name)
@@ -442,16 +408,23 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
     size_t size = 0;
     // check with default version...
     const char* defver = GetDefaultVersion(my_context->globaldefver, name);
+    // search in needed libs from preloaded first, in order
+    if(my_context->preload)
+        for(int i=0; i<my_context->preload->size; ++i)
+            if(GetLibGlobalSymbolStartEnd(my_context->preload->libs[i], name, start, end, size, &weak, version, vername, isLocal(self, my_context->preload->libs[i])))
+                if(*start)
+                    return 1;
     // search non-weak symbol, from older to newer (first GLOBAL object wins)
     if(GetSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, start, end, version, vername, (my_context->elfs[0]==self || !self)?1:0, defver))
         if(*start)
             return 1;
     // TODO: create a temporary map to search lib only 1 time, and in order of needed...
     // search in needed libs from neededlibs first, in order
-    for(int i=0; i<my_context->neededlibs.size; ++i)
-        if(GetLibGlobalSymbolStartEnd(my_context->neededlibs.libs[i], name, start, end, size, &weak, version, vername, isLocal(self, my_context->neededlibs.libs[i])))
-            if(*start)
-                return 1;
+    if(my_context->neededlibs)
+        for(int i=0; i<my_context->neededlibs->size; ++i)
+            if(GetLibGlobalSymbolStartEnd(my_context->neededlibs->libs[i], name, start, end, size, &weak, version, vername, isLocal(self, my_context->neededlibs->libs[i])))
+                if(*start)
+                    return 1;
     // search in global symbols
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, isLocal(self, maplib->libraries[i])))

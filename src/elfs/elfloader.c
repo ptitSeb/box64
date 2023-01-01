@@ -62,6 +62,7 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
     h->mapsymbols = NewMapSymbols();
     h->weaksymbols = NewMapSymbols();
     h->localsymbols = NewMapSymbols();
+    h->refcnt = 1;
     
     return h;
 }
@@ -1059,8 +1060,10 @@ $PLATFORM – Expands to the processor type of the current machine (see the
 uname(1) man page description of the -i option). For more details of this token
 expansion, see “System Specific Shared Objects”
 */
-int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, library_t *deplib, int local, int bindnow, box64context_t *box64, x64emu_t* emu)
+int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, box64context_t *box64, x64emu_t* emu)
 {
+    if(h->needed)   // already done
+        return 0;
     DumpDynamicRPath(h);
     // update RPATH first
     for (size_t i=0; i<h->numDynamic; ++i)
@@ -1119,22 +1122,21 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, lib
                 box_free(rpath);
         }
 
-    if(!h->neededlibs && neededlibs)
-        h->neededlibs = neededlibs;
-
     DumpDynamicNeeded(h);
     int cnt = 0;
     for (int i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED)
             ++cnt;
-    const char* nlibs[cnt];
+    h->needed = new_neededlib(cnt);
+    if(h == my_context->elfs[0])
+        my_context->neededlibs = h->needed;
     int j=0;
     for (int i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED)
-            nlibs[j++] = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
+            h->needed->names[j++] = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
 
     // TODO: Add LD_LIBRARY_PATH and RPATH handling
-    if(AddNeededLib(maplib, neededlibs, deplib, local, bindnow, nlibs, cnt, box64, emu)) {
+    if(AddNeededLib(maplib, local, bindnow, h->needed, box64, emu)) {
         printf_log(LOG_INFO, "Error loading one of needed lib\n");
         if(!allow_missing_libs)
             return 1;   //error...
@@ -1185,8 +1187,8 @@ void RunElfInitPltResolver(elfheader_t* h, x64emu_t *emu)
         return;
     uintptr_t p = h->initentry + h->delta;
     h->init_done = 1;
-    for(int i=0; i<h->neededlibs->size; ++i) {
-        library_t *lib = h->neededlibs->libs[i];
+    for(int i=0; i<h->needed->size; ++i) {
+        library_t *lib = h->needed->libs[i];
         elfheader_t *lib_elf = GetElf(lib);
         if(lib_elf)
             RunElfInitPltResolver(lib_elf, emu);
@@ -1229,8 +1231,8 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
         return;
     }
     h->init_done = 1;
-    for(int i=0; i<h->neededlibs->size; ++i) {
-        library_t *lib = h->neededlibs->libs[i];
+    for(int i=0; i<h->needed->size; ++i) {
+        library_t *lib = h->needed->libs[i];
         elfheader_t *lib_elf = GetElf(lib);
         if(lib_elf)
             RunElfInit(lib_elf, emu);
@@ -1289,6 +1291,8 @@ void RunElfFini(elfheader_t* h, x64emu_t *emu)
         RunFunctionWithEmu(emu, 0, p, 0);
     }
     h->init_done = 0;   // can be re-inited again...
+    for(int i=0; i<h->needed->size; ++i)
+        FiniLibrary(h->needed->libs[i], emu);
     return;
 }
 

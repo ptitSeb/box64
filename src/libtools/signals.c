@@ -751,10 +751,16 @@ extern __thread void* current_helper;
 static pthread_mutex_t mutex_dynarec_prot;
 #endif
 
+extern int box64_quit;
+
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
     int log_minimum = (box64_showsegv)?LOG_NONE:((my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_DEBUG:LOG_INFO);
+    if((sig==SIGSEGV || sig==SIGBUS) && box64_quit) {
+        printf_log(LOG_INFO, "Sigfault/Segbus while quitting, exiting silently\n");
+        exit(0);    // Hack, segfault while quiting, exit silently
+    }
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
     void* rsp = NULL;
@@ -1003,8 +1009,10 @@ exit(-1);
             elfname = ElfName(elf);
         if(jit_gdb) {
             pid_t pid = getpid();
-            int v = fork(); // is this ok in a signal handler???
-            if(v) {
+            int v = vfork(); // is this ok in a signal handler???
+            if(v<0) {
+                printf("Error while forking, cannot launch gdb (errp%d/%s)\n", errno, strerror(errno));
+            } else if(v) {
                 // parent process, the one that have the segfault
                 volatile int waiting = 1;
                 printf("Waiting for %s (pid %d)...\n", (jit_gdb==2)?"gdbserver":"gdb", pid);
@@ -1035,7 +1043,8 @@ exit(-1);
                 for (int j = 0; j < nptrs; j++)
                     printf_log(log_minimum, "NativeBT: %s\n", strings[j]);
                 free(strings);
-            }
+            } else
+                printf_log(log_minimum, "NativeBT: none (%d/%s)\n", errno, strerror(errno));
             extern int my_backtrace(x64emu_t* emu, void** buffer, int size);   // in wrappedlibc
             extern char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size);
             nptrs = my_backtrace(emu, buffer, BT_BUF_SIZE);
@@ -1044,7 +1053,8 @@ exit(-1);
                 for (int j = 0; j < nptrs; j++)
                     printf_log(log_minimum, "EmulatedBT: %s\n", strings[j]);
                 free(strings);
-            }
+            } else
+                printf_log(log_minimum, "EmulatedBT: none\n");
         }
 #ifdef DYNAREC
         uint32_t hash = 0;

@@ -302,7 +302,8 @@ void FreeBox64Context(box64context_t** context)
     if(ctx->tlsdata)
         box_free(ctx->tlsdata);
 
-    free_neededlib(&ctx->neededlibs);
+    free_neededlib(ctx->neededlibs);
+    ctx->neededlibs = NULL;
 
     if(ctx->emu_sig)
         FreeX64Emu(&ctx->emu_sig);

@@ -182,9 +182,9 @@ void CallAllCleanup(x64emu_t *emu)
     printf_log(LOG_DEBUG, "Calling atexit registered functions\n");
     for(int i=my_context->clean_sz-1; i>=0; --i) {
         printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+        --my_context->clean_sz;
         RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
     }
-    my_context->clean_sz = 0;
     box_free(my_context->cleanups);
     my_context->cleanups = NULL;
 }

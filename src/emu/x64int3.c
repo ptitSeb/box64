@@ -80,7 +80,7 @@ static uint8_t Peek8(uintptr_t addr, uintptr_t offset)
 {
     return *(uint8_t*)(addr+offset);
 }
-extern int errno;
+
 void x64Int3(x64emu_t* emu, uintptr_t* addr)
 {
     if(Peek8(*addr, 0)=='S' && Peek8(*addr, 1)=='C') // Signature for "Out of x86 door"
