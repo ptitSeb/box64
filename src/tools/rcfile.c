@@ -414,9 +414,9 @@ void ApplyParams(const char* name)
     if(k == kh_end(params))
         return;
     my_params_t* param = &kh_value(params, k);
+    int want_exit = 0;
     #ifdef DYNAREC
     int olddynarec = box64_dynarec;
-    int want_exit = 0;
     #endif
     printf_log(LOG_INFO, "Apply RC params for %s\n", name);
     #define ENTRYINT(NAME, name, minval, maxval, bits) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name);}
