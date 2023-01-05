@@ -32,6 +32,9 @@ BOX64_EMULATED_LIBS=libSDL2-2.0.so.0
 BOX64_CRASHHANDLER=1
 BOX64_DYNAREC_STRONGMEM=1
 
+[heroic]
+BOX64_NOSANDBOX=1
+
 [pressure-vessel-wrap]
 BOX64_NOGTK=1
 
@@ -41,6 +44,13 @@ BOX64_EMULATED_LIBS=libudev.so.0
 
 [streaming_client]
 BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
+
+[steamwebhelper]
+BOX64_NOSANDBOX=1
+BOX64_EXIT=1
+
+[steam-runtime-check-requirements]
+BOX64_EXIT=1
 
 #
 # Wine process

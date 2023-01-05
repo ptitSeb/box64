@@ -55,6 +55,7 @@ int box64_dynarec_safeflags = 1;
 int box64_dynarec_callret = 0;
 int box64_dynarec_hotpage = 16;
 int box64_dynarec_bleeding_edge = 1;
+int box64_nosandbox = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -1115,6 +1116,8 @@ static void load_rcfiles()
 {
     if(FileExist("/etc/box64.box64rc", IS_FILE))
         LoadRCFile("/etc/box64.box64rc");
+    else
+        LoadRCFile(NULL);   // load default rcfile
     char* p = getenv("HOME");
     if(p) {
         char tmp[4096];
@@ -1322,21 +1325,6 @@ int main(int argc, const char **argv, char **env) {
     if(box64_wine) {
         AddPath("libdl.so.2", &ld_preload, 0);
     }
-    // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
-    if(!strcmp(prgname, "steam")) {
-        printf_log(LOG_INFO, "steam detected...\n");
-        box64_steam = 1;
-    }
-    // special case for steam-runtime-check-requirements to fake 64bits suport
-    if(strstr(prgname, "steam-runtime-check-requirements")==prgname) {
-        printf_log(LOG_INFO, "steam-runtime-check-requirements detected, faking All is good!\n");
-        exit(0);    // exiting, not testing anything
-    }
-    // special case for steamwebhelper
-    if(strstr(prgname, "steamwebhelper")==prgname) {
-        printf_log(LOG_INFO, "steamwebhelper, ignoring for now!\n");
-        exit(0);    // exiting
-    }
     // special case for zoom
     if(strstr(prgname, "zoom")==prgname) {
         printf_log(LOG_INFO, "Zoom detected, trying to use system libturbojpeg if possible\n");
@@ -1370,6 +1358,19 @@ int main(int argc, const char **argv, char **env) {
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
         printf_log(LOG_INFO, "argv[%i]=\"%s\"\n", i, my_context->argv[i]);
+    }
+    if(box64_nosandbox)
+    {
+        // check if sandbox is already there
+        int there = 0;
+        for(int i=1; i<my_context->argc && !there; ++i)
+            if(!strcmp(my_context->argv[i], "--no-sandbox"))
+                there = 1;
+        if(!there) {
+            my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
+            my_context->argv[my_context->argc] = box_strdup("--no-sandbox");
+            my_context->argc++;
+        }
     }
 
     // check if file exist

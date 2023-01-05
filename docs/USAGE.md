@@ -252,3 +252,16 @@ Define x86_64 bash to launch script
 
 #### BOX64_NORCFILES
 If the env var exist, no rc files (like /etc/box64.box64rc and ~/.box64rc) will be loaded
+
+----
+
+Those variables are only valid inside a rcfile:
+----
+
+#### BOX64_NOSANDBOX
+ * 0 : Nothing special
+ * 1 : Added "--no-sandbox" to command line arguments (usefull for chrome based programs)
+
+#### BOX64_EXIT
+ * 0 : Nothing special
+ * 1 : Just exit, don't try to run the program

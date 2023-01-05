@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "debug.h"
 #include "rcfile.h"
@@ -16,6 +19,32 @@
 // This file handle the box64rc files
 // file are basicaly ini file, with section [XXXX] defining the name of the process
 // and BOX64_XXXX=YYYY entry like the env. var. variables
+
+// default rcfile
+static const char default_rcfile[] = 
+"[deadcells]\n"
+"BOX64_PREFER_EMULATED=1\n"
+"\n"
+"[dontstarve]\n"
+"BOX64_EMULATED_LIBS=libSDL2-2.0.so.0\n"
+"\n"
+"[dota2]\n"
+"BOX64_CRASHHANDLER=1\n"
+"BOX64_DYNAREC_STRONGMEM=1\n"
+"\n"
+"[pressure-vessel-wrap]\n"
+"BOX64_NOGTK=1\n"
+"\n"
+"[streaming_client]\n"
+"BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0\n"
+"\n"
+"[steamwebhelper]\n"
+"BOX64_NOSANDBOX=1\n"
+"BOX64_EXIT=1\n"
+"\n"
+"[steam-runtime-check-requirements]\n"
+"BOX64_EXIT=1\n"
+;
 
 // list of all entries
 #define SUPER1()                                        \
@@ -45,6 +74,8 @@ ENTRYBOOL(BOX64_NOGTK, box64_nogtk)                     \
 ENTRYBOOL(BOX64_NOVULKAN, box64_novulkan)               \
 ENTRYSTRING_(BOX64_BASH, bash)                          \
 ENTRYINT(BOX64_JITGDB, jit_gdb, 0, 2, 2)                \
+ENTRYBOOL(BOX64_NOSANDBOX, box64_nosandbox)             \
+ENTRYBOOL(BOX64_EXIT, want_exit)                        \
 
 #ifdef HAVE_TRACE
 #define SUPER2()                                        \
@@ -216,7 +247,18 @@ static void trimString(char* s)
 
 void LoadRCFile(const char* filename)
 {
-    FILE *f = fopen(filename, "r");
+    FILE *f = NULL;
+    if(filename)
+        f = fopen(filename, "r");
+    else {
+        #define TMP_MEMRCFILE  "/box64_rcfile"
+        int tmp = shm_open(TMP_MEMRCFILE, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return; // error, bye bye
+        shm_unlink(TMP_MEMRCFILE);    // remove the shm file, but it will still exist because it's currently in use
+        write(tmp, default_rcfile, sizeof(default_rcfile));
+        lseek(tmp, 0, SEEK_SET);
+        f = fdopen(tmp, "r");
+    }
     if(!f) {
         printf_log(LOG_INFO, "Cannot open RC file %s\n", filename);
         return;
@@ -374,6 +416,7 @@ void ApplyParams(const char* name)
     my_params_t* param = &kh_value(params, k);
     #ifdef DYNAREC
     int olddynarec = box64_dynarec;
+    int want_exit = 0;
     #endif
     printf_log(LOG_INFO, "Apply RC params for %s\n", name);
     #define ENTRYINT(NAME, name, minval, maxval, bits) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name);}
@@ -396,6 +439,8 @@ void ApplyParams(const char* name)
     #undef ENTRYADDR
     #undef ENTRYULONG
     // now handle the manuel entry (the one with ending underscore)
+    if(want_exit)
+        exit(0);
     if(new_cycle_log==1)
         new_cycle_log = 16;
     if(new_cycle_log!=cycle_log) {
