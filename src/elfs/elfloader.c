@@ -781,7 +781,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 break;
             case R_X86_64_DTPMOD64:
                 // ID of module containing symbol
-                if(!symname || symname[0]=='\0')
+                if(!symname || symname[0]=='\0' || bind==STB_LOCAL)
                     offs = getElfIndex(my_context, head);
                 else {
                     if(!h_tls) {
