@@ -43,6 +43,7 @@ int box64_nobanner = 0;
 int box64_dynarec_log = LOG_NONE;
 uintptr_t box64_pagesize;
 uintptr_t box64_load_addr = 0;
+int box64_nosandbox = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
@@ -55,7 +56,6 @@ int box64_dynarec_safeflags = 1;
 int box64_dynarec_callret = 0;
 int box64_dynarec_hotpage = 16;
 int box64_dynarec_bleeding_edge = 1;
-int box64_nosandbox = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
