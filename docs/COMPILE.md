@@ -27,7 +27,32 @@ If it's the first install, you also need:
 sudo systemctl restart systemd-binfmt
 ```
 
-#### for PI4
+#### for Raspberry Pi 3
+
+Warning, you need a 64bit OS:
+
+If building on the Pi, you will also need a large swap (2 GB+)
+and reduce GPU memory to a minimum (e.g. 16 MB) using `raspi-config`
+(and reboot) before starting the build:
+
+You can use e.g. '`make -j4`' to speed up the build, but on a Pi 3 with 1GB memory you will likely
+run out of memory at some point and need to run the build again.
+Still, this can be faster if your build is attended.
+
+```
+git clone https://github.com/ptitSeb/box64
+cd box64
+mkdir build; cd build; cmake .. -DRPI3ARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+make 
+# or e.g. make -j4
+sudo make install
+```
+If it's the first install, you also need:
+```
+sudo systemctl restart systemd-binfmt
+```
+
+#### for Raspberry Pi 4
 
 Warning, you need a 64bit OS:
 
