@@ -31,9 +31,9 @@ sudo systemctl restart systemd-binfmt
 
 Warning, you need a 64bit OS:
 
-If building on the Pi, you will also need a large swap (2 GB+)
-and reduce GPU memory to a minimum (e.g. 16 MB) using `raspi-config`
-(and reboot) before starting the build:
+If building on the Pi, you will also need a large swap (3 GB+)
+[optionally reduce GPU memory to a minimum (e.g. 16 MB) using `raspi-config`
+(and reboot) before starting the build]:
 
 You can use e.g. '`make -j4`' to speed up the build, but on a Pi 3 with 1GB memory you will likely
 run out of memory at some point and need to run the build again.
