@@ -68,7 +68,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                         v1 = fpu_get_scratch(dyn);                                                                       \
-                        VLDR128_REG(v1, ed, x4);
+                        VLDR64_REG(v1, ed, x4);
                     }
                     FCMPD(v0, v1);
                     FCOMI(x1, x2);
