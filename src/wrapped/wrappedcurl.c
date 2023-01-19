@@ -571,6 +571,29 @@ static void* find_push_Fct(void* fct)
     return NULL;
 }
 
+// debug
+#define GO(A)   \
+static uintptr_t my_debug_fct_##A = 0;                                          \
+static int my_debug_##A(void *a, int b, void* c, size_t d, void* e)             \
+{                                                                               \
+    return (int)RunFunction(my_context, my_debug_fct_##A, 5, a, b, c, d, e);    \
+}
+SUPER()
+#undef GO
+static void* find_debug_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_debug_fct_##A == (uintptr_t)fct) return my_debug_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_debug_fct_##A == 0) {my_debug_fct_##A = (uintptr_t)fct; return my_debug_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl debug callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option, void* param)
@@ -604,6 +627,10 @@ EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option
             return my->curl_easy_setopt(handle, option, find_progress_Fct(param));
         case CURLOPT_XFERINFOFUNCTION:
             return my->curl_easy_setopt(handle, option, find_progress_int_Fct(param));
+        case CURLOPT_DEBUGFUNCTION:
+            return my->curl_easy_setopt(handle, option, find_debug_Fct(param));
+        case CURLOPT_DEBUGDATA:
+            return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_SOCKOPTFUNCTION:
         case CURLOPT_SOCKOPTDATA:
         case CURLOPT_OPENSOCKETFUNCTION:
@@ -611,8 +638,6 @@ EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option
         case CURLOPT_CLOSESOCKETFUNCTION:
         case CURLOPT_CLOSESOCKETDATA:
         //case CURLOPT_XFERINFODATA:
-        case CURLOPT_DEBUGFUNCTION:
-        case CURLOPT_DEBUGDATA:
         case CURLOPT_SSL_CTX_FUNCTION:
         case CURLOPT_SSL_CTX_DATA:
         case CURLOPT_CONV_TO_NETWORK_FUNCTION:
