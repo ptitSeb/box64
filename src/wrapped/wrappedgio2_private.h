@@ -1353,13 +1353,13 @@ GO(g_settings_reset, vFpp)
 //GO(g_settings_schema_key_ref, 
 //GO(g_settings_schema_key_unref, 
 //GO(g_settings_schema_ref, 
-//GO(g_settings_schema_source_get_default, 
-//GO(g_settings_schema_source_get_type, 
+GO(g_settings_schema_source_get_default, pFv)
+GO(g_settings_schema_source_get_type, LFv)
 //GO(g_settings_schema_source_list_schemas, 
 //GO(g_settings_schema_source_lookup, 
 //GO(g_settings_schema_source_new_from_directory, 
-//GO(g_settings_schema_source_ref, 
-//GO(g_settings_schema_source_unref, 
+GO(g_settings_schema_source_ref, pFp)
+GO(g_settings_schema_source_unref, vFp)
 //GO(g_settings_schema_unref, 
 //GO(g_settings_set, 
 //GO(g_settings_set_boolean, 
