@@ -6,7 +6,7 @@ typedef void (*sighandler_t)(int);
 
 typedef struct x64_sigaction_s {
 	union {
-	  __sighandler_t _sa_handler;
+	  sighandler_t _sa_handler;
 	  void (*_sa_sigaction)(int, siginfo_t *, void *);
 	} _u;
 	sigset_t sa_mask;
@@ -16,7 +16,7 @@ typedef struct x64_sigaction_s {
 
 typedef struct x64_sigaction_restorer_s {
 	union {
-	  __sighandler_t _sa_handler;
+	  sighandler_t _sa_handler;
 	  void (*_sa_sigaction)(int, siginfo_t *, void *);
 	} _u;
 	uint32_t sa_flags;
