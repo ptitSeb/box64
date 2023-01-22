@@ -140,6 +140,7 @@ scwrap_t syscallwrap[] = {
     { 66, __NR_semctl, 4},
     //{ 72, __NR_fnctl, 3}, // Needs wrapping, and not always defined anyway
     { 73, __NR_flock, 2},
+    { 74, __NR_fsync, 1},
     #ifdef __NR_getdents
     { 78, __NR_getdents, 3},
     #endif
