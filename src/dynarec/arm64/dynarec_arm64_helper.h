@@ -36,9 +36,9 @@
 // Sequence of Read will trigger a DMB on "first" read if strongmem is 2
 // Squence of Write will trigger a DMB on "last" write if strongmem is 1
 // Opcode will read
-#define SMREAD()    if(!dyn->smread && box64_dynarec_strongmem>1) {DMB_ISH(); dyn->smread=1;}
+#define SMREAD()    if(!dyn->smread && box64_dynarec_strongmem>1) {SMDMB();}
 // Opcode will read with option forced lock
-#define SMREADLOCK(lock)    if(lock) {SMDMB();} else if(!dyn->smread && box64_dynarec_strongmem>1) {DMB_ISH(); dyn->smread=1;}
+#define SMREADLOCK(lock)    if(lock || (!dyn->smread && box64_dynarec_strongmem>1)) {SMDMB();}
 // Opcode migh read (depend on nextop)
 #define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
 // Opcode has wrote
@@ -54,7 +54,7 @@
 // End of sequence
 #define SMEND()     if(dyn->smwrite && box64_dynarec_strongmem) {DMB_ISH();} dyn->smwrite=0; dyn->smread=0;
 // Force a Data memory barrier (for LOCK: prefix)
-#define SMDMB()     DMB_ISH(); if(dyn->smwrite) dyn->smwrite=0; dyn->smread=1
+#define SMDMB()     DMB_ISH(); dyn->smwrite=0; dyn->smread=1
 
 //LOCK_* define
 #define LOCK_LOCK   (int*)1
