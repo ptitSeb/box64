@@ -997,6 +997,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
+                    READFLAGS(X_PEND);
                     BARRIER(BARRIER_FLOAT);
                     GETEDOx(x6, 0);
                     jump_to_next(dyn, 0, ed, ninst);
