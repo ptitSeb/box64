@@ -1058,13 +1058,17 @@ void setNeededLibs(library_t* lib, int n, ...)
     va_end (va);
 }
 
-void IncRefCount(library_t* lib)
+void IncRefCount(library_t* lib, x64emu_t* emu)
 {
-    if(lib->type!=LIB_WRAPPED && lib->type!=LIB_UNNKNOW)
+    if(lib->type==LIB_UNNKNOW)
         return;
-    if(lib->type==LIB_WRAPPED) {
-        ++lib->w.refcnt;
-    } else {
-        ++lib->e.elf->refcnt;
+    if(!lib->active)
+        ReloadLibrary(lib, emu);
+    switch (lib->type) {
+        case LIB_WRAPPED:
+            ++lib->w.refcnt;
+            break;
+        case LIB_EMULATED:
+            ++lib->e.elf->refcnt;
     }
 }

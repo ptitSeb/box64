@@ -155,7 +155,6 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         for (size_t i=MIN_NLIB; i<dl->lib_sz; ++i) {
             if(!dl->libs[i]) {
                 dl->count[i] = dl->count[i]+1;
-                IncRefCount(dl->libs[i]);
                 return (void*)(i+1);
             }
         }

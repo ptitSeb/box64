@@ -168,7 +168,7 @@ int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, box
     // first check if lib is already loaded
     library_t *lib = getLib(my_context->maplib, path);
     if(lib) {
-        IncRefCount(lib);   // increment cntref
+        IncRefCount(lib, emu);   // increment cntref
         needed->libs[n] = lib;
         printf_log(LOG_DEBUG, "Already present in maplib => success\n");
         return 0;
@@ -178,7 +178,7 @@ int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, box
     if(lib) {
         printf_log(LOG_DEBUG, "Already present in local_maplib => success\n");
         needed->libs[n] = lib;
-        IncRefCount(lib);   // increment cntref
+        IncRefCount(lib, emu);   // increment cntref
         if(local) {
             // add lib to maplib...
             if(maplib) {

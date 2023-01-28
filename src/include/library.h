@@ -40,6 +40,6 @@ lib_t* GetMaplib(library_t* lib);
 int GetElfIndex(library_t* lib);    // -1 if no elf (i.e. wrapped)
 elfheader_t* GetElf(library_t* lib);    // NULL if no elf (i.e. wrapped)
 void* GetHandle(library_t* lib);    // NULL if not wrapped
-void IncRefCount(library_t* lib);
+void IncRefCount(library_t* lib, x64emu_t* emu);
 
 #endif //__LIBRARY_H_
