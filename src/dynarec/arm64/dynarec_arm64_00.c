@@ -1518,6 +1518,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETED(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if(u8) { WBACK; }
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
@@ -1525,6 +1526,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETED(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if(u8) { WBACK; }
                     break;
                 case 2:
                     INST_NAME("RCL Ed, Ib");
@@ -1563,9 +1565,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETED(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) {
-                        WBACK;
-                    }
+                    if(u8) { WBACK; }
                     break;
                 case 7:
                     INST_NAME("SAR Ed, Ib");
@@ -1573,9 +1573,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETED(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) {
-                        WBACK;
-                    }
+                    if(u8) { WBACK; }
                     break;
             }
             break;
