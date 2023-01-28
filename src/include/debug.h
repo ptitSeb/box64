@@ -17,6 +17,7 @@ extern uintptr_t box64_nodynarec_start, box64_nodynarec_end;
 extern int box64_dynarec_bigblock;
 extern int box64_dynarec_strongmem;
 extern int box64_dynarec_fastnan;
+extern int box64_dynarec_fastround;
 extern int box64_dynarec_x87double;
 extern int box64_dynarec_safeflags;
 extern int box64_dynarec_callret;

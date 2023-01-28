@@ -90,9 +90,15 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGD;
         if (rex.w)
-            GD->sq[0] = EX->f[0];
+            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffffffffffffLL)
+                GD->q[0] = 0x8000000000000000LL;
+            else
+                GD->sq[0] = EX->f[0];
         else {
-            GD->sdword[0] = EX->f[0];
+            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffff)
+                GD->dword[0] = 0x80000000;
+            else
+                GD->sdword[0] = EX->f[0];
             GD->dword[1] = 0;
         }
         break;
@@ -101,35 +107,41 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGD;
         if(rex.w) {
-            switch(emu->mxcsr.f.MXCSR_RC) {
-                case ROUND_Nearest:
-                    GD->sq[0] = floorf(EX->f[0]+0.5f);
-                    break;
-                case ROUND_Down:
-                    GD->sq[0] = floorf(EX->f[0]);
-                    break;
-                case ROUND_Up:
-                    GD->sq[0] = ceilf(EX->f[0]);
-                    break;
-                case ROUND_Chop:
-                    GD->sq[0] = EX->f[0];
-                    break;
-            }
+            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffffffffffffLL)
+                GD->q[0] = 0x8000000000000000LL;
+            else
+                switch(emu->mxcsr.f.MXCSR_RC) {
+                    case ROUND_Nearest:
+                        GD->sq[0] = nearbyintf(EX->f[0]);
+                        break;
+                    case ROUND_Down:
+                        GD->sq[0] = floorf(EX->f[0]);
+                        break;
+                    case ROUND_Up:
+                        GD->sq[0] = ceilf(EX->f[0]);
+                        break;
+                    case ROUND_Chop:
+                        GD->sq[0] = EX->f[0];
+                        break;
+                }
         } else {
-            switch(emu->mxcsr.f.MXCSR_RC) {
-                case ROUND_Nearest:
-                    GD->sdword[0] = floorf(EX->f[0]+0.5f);
-                    break;
-                case ROUND_Down:
-                    GD->sdword[0] = floorf(EX->f[0]);
-                    break;
-                case ROUND_Up:
-                    GD->sdword[0] = ceilf(EX->f[0]);
-                    break;
-                case ROUND_Chop:
-                    GD->sdword[0] = EX->f[0];
-                    break;
-            }
+            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffff)
+                GD->dword[0] = 0x80000000;
+            else
+                switch(emu->mxcsr.f.MXCSR_RC) {
+                    case ROUND_Nearest:
+                        GD->sdword[0] = nearbyintf(EX->f[0]);
+                        break;
+                    case ROUND_Down:
+                        GD->sdword[0] = floorf(EX->f[0]);
+                        break;
+                    case ROUND_Up:
+                        GD->sdword[0] = ceilf(EX->f[0]);
+                        break;
+                    case ROUND_Chop:
+                        GD->sdword[0] = EX->f[0];
+                        break;
+                }
             GD->dword[1] = 0;
         }
         break;

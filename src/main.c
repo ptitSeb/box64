@@ -52,6 +52,7 @@ int box64_dynarec_bigblock = 1;
 int box64_dynarec_strongmem = 0;
 int box64_dynarec_x87double = 0;
 int box64_dynarec_fastnan = 1;
+int box64_dynarec_fastround = 0;
 int box64_dynarec_safeflags = 1;
 int box64_dynarec_callret = 0;
 int box64_dynarec_hotpage = 16;
@@ -474,6 +475,15 @@ void LoadLogEnv()
         }
         if(!box64_dynarec_fastnan)
             printf_log(LOG_INFO, "Dynarec will try to normalize generated NAN\n");
+    }
+    p = getenv("BOX64_DYNAREC_FASTROUND");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_fastround = p[0]-'0';
+        }
+        if(box64_dynarec_fastround)
+            printf_log(LOG_INFO, "Dynarec will not generate x86 precise IEEE->int rounding\n");
     }
     p = getenv("BOX64_DYNAREC_SAFEFLAGS");
     if(p) {

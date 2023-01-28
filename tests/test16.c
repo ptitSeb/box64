@@ -45,6 +45,29 @@ GO(5)
 GO(6)
 GO(7)
 #undef GO
+uint64_t _cvtsd2si_(double a)
+{
+    uint64_t ret;
+    asm volatile (
+    "cvtsd2si %%xmm0, %%rax\n"
+    :"=a" (ret)::"xmm0","cc");
+    return ret;
+}
+uint32_t _stmxcsr_()
+{
+    uint32_t ret;
+    asm volatile (
+    "stmxcsr %[ret];"
+    :[ret] "=m" (ret)::"cc");
+    return ret;
+}
+void _ldmxcsr_(uint32_t a)
+{
+    volatile uint32_t ret = a;
+    asm volatile (
+    "ldmxcsr %[ret];"
+    :[ret] "=m" (ret)::"cc");
+}
 #else
 uint64_t _ucomiss_(float a, float b)
 {
@@ -185,6 +208,70 @@ GO(4)
 GO(5)
 GO(6)
 GO(7)
+#undef GO
+void test_cvtsd2si()
+{  
+    uint64_t r;
+    volatile double a;
+    a = 1.0;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = 1.49;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = 1.50;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = 1.51;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = -1.0;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = -1.49;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = -1.50;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = -1.51;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = 1e300;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %g => 0x%lx\n", a, r);
+    a = -1e300;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %g => 0x%lx\n", a, r);
+    a = INFINITY;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = -INFINITY;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = NAN;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+    a = -0.0;
+    r = _cvtsd2si_(a);
+    printf("cvtsd2si %f => 0x%lx\n", a, r);
+}
+#define GO(n) \
+void test_cvtsd2si_##n() \
+{ \
+    uint32_t old_mx; \
+    old_mx = _stmxcsr_(); \
+    uint32_t new_mx = (old_mx & ~0x6000) | (n<<13); \
+    _ldmxcsr_(new_mx), \
+    printf("MMX RoundMode = %d\n", n); \
+    test_cvtsd2si(); \
+    _ldmxcsr_(old_mx); \
+}
+GO(0)
+GO(1)
+GO(2)
+GO(3)
+#undef GO
 #endif
 int main(int argc, const char** argv)
 {
@@ -199,6 +286,11 @@ int main(int argc, const char** argv)
  test_cmpsd_5();
  test_cmpsd_6();
  test_cmpsd_7();
+ test_cvtsd2si();
+ test_cvtsd2si_0();
+ test_cvtsd2si_1();
+ test_cvtsd2si_2();
+ test_cvtsd2si_3();
  #endif
 
  return 0;

@@ -135,18 +135,46 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;
             GETEX(q0, 0, 0);
+            if(!box64_dynarec_fastround) {
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+            }
             FCVTZSxwD(gd, q0);
+            if(!box64_dynarec_fastround) {
+                MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                TBZ_NEXT(x5, FPSR_IOC);
+                if(rex.w) {
+                    MOV64x(gd, 0x8000000000000000);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
             break;
         case 0x2D:
             INST_NAME("CVTSD2SI Gd, Ex");
             nextop = F8;
             GETGD;
             GETEX(q0, 0, 0);
+            if(!box64_dynarec_fastround) {
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+            }
             u8 = sse_setround(dyn, ninst, x1, x2, x3);
             d1 = fpu_get_scratch(dyn);
             FRINTID(d1, q0);
             x87_restoreround(dyn, ninst, u8);
             FCVTZSxwD(gd, d1);
+            if(!box64_dynarec_fastround) {
+                MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                TBZ_NEXT(x5, FPSR_IOC);
+                if(rex.w) {
+                    MOV64x(gd, 0x8000000000000000);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
             break;
 
 

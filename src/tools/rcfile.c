@@ -106,6 +106,7 @@ ENTRYINT(BOX64_DYNAREC_BIGBLOCK, box64_dynarec_bigblock, 0, 3, 2)   \
 ENTRYINT(BOX64_DYNAREC_STRONGMEM, box64_dynarec_strongmem, 0, 2, 2) \
 ENTRYBOOL(BOX64_DYNAREC_X87DOUBLE, box64_dynarec_x87double)         \
 ENTRYBOOL(BOX64_DYNAREC_FASTNAN, box64_dynarec_fastnan)             \
+ENTRYBOOL(BOX64_DYNAREC_FASTROUND, box64_dynarec_fastround)         \
 ENTRYINT(BOX64_DYNAREC_SAFEFLAGS, box64_dynarec_safeflags, 0, 2, 2) \
 ENTRYBOOL(BOX64_DYNAREC_CALLRET, box64_dynarec_callret)             \
 ENTRYBOOL(BOX64_DYNAREC_BLEEDING_EDGE, box64_dynarec_bleeding_edge) \
@@ -121,6 +122,7 @@ IGNORE(BOX64_DYNAREC_BIGBLOCK)                                      \
 IGNORE(BOX64_DYNAREC_STRONGMEM)                                     \
 IGNORE(BOX64_DYNAREC_X87DOUBLE)                                     \
 IGNORE(BOX64_DYNAREC_FASTNAN)                                       \
+IGNORE(BOX64_DYNAREC_FASTROUND)                                     \
 IGNORE(BOX64_DYNAREC_SAFEFLAGS)                                     \
 IGNORE(BOX64_DYNAREC_CALLRET)                                       \
 IGNORE(BOX64_DYNAREC_BLEEDING_EDGE)                                 \

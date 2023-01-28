@@ -951,32 +951,24 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        switch(emu->mxcsr.f.MXCSR_RC) {
-            case ROUND_Nearest:
-                GX->sd[0] = floorf(EX->f[0]+0.5f);
-                GX->sd[1] = floorf(EX->f[1]+0.5f);
-                GX->sd[2] = floorf(EX->f[2]+0.5f);
-                GX->sd[3] = floorf(EX->f[3]+0.5f);
-                break;
-            case ROUND_Down:
-                GX->sd[0] = floorf(EX->f[0]);
-                GX->sd[1] = floorf(EX->f[1]);
-                GX->sd[2] = floorf(EX->f[2]);
-                GX->sd[3] = floorf(EX->f[3]);
-                break;
-            case ROUND_Up:
-                GX->sd[0] = ceilf(EX->f[0]);
-                GX->sd[1] = ceilf(EX->f[1]);
-                GX->sd[2] = ceilf(EX->f[2]);
-                GX->sd[3] = ceilf(EX->f[3]);
-                break;
-            case ROUND_Chop:
-                GX->sd[0] = EX->f[0];
-                GX->sd[1] = EX->f[1];
-                GX->sd[2] = EX->f[2];
-                GX->sd[3] = EX->f[3];
-                break;
-        }
+        for(int i=0; i<4; ++i)
+            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>0x7fffffff)
+                GX->sd[i] = 0x80000000;
+        else
+            switch(emu->mxcsr.f.MXCSR_RC) {
+                case ROUND_Nearest:
+                    GX->sd[i] = nearbyintf(EX->f[i]);
+                    break;
+                case ROUND_Down:
+                    GX->sd[i] = floorf(EX->f[i]);
+                    break;
+                case ROUND_Up:
+                    GX->sd[i] = ceilf(EX->f[i]);
+                    break;
+                case ROUND_Chop:
+                    GX->sd[i] = EX->f[i];
+                    break;
+            }
         break;
     case 0x5C:                      /* SUBPD Gx, Ex */
         nextop = F8;
@@ -2000,8 +1992,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        GX->sd[0] = EX->d[0];
-        GX->sd[1] = EX->d[1];
+        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+            GX->sd[0] = 0x80000000;
+        else
+            GX->sd[0] = EX->d[0];
+        if(isnan(EX->d[1]) || isinf(EX->d[1]) || EX->d[1]>0x7fffffff)
+            GX->sd[1] = 0x80000000;
+        else
+            GX->sd[1] = EX->d[1];
         GX->q[1] = 0;
         break;
     case 0xE7:   /* MOVNTDQ Ex, Gx */
