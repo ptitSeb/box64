@@ -108,17 +108,15 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         // check if alread dlopenned...
         for (size_t i=MIN_NLIB; i<dl->lib_sz; ++i) {
             if(IsSameLib(dl->libs[i], rfilename)) {
-                if(dl->count[i]==0 && dl->dlopened[i]) {   // need to lauch init again!
-                    if(flag&0x4) {
+                if(flag&0x4) {   // don't re-open in RTLD_NOLOAD mode
+                    if(dl->count[i]==0 && dl->dlopened[i]) {
                         printf_dlsym(LOG_DEBUG, " => not present anymore\n");
                         return NULL;    // don't re-open in RTLD_NOLOAD mode
                     }
-                    int idx = GetElfIndex(dl->libs[i]);
-                    if(idx!=-1) {
-                        printf_dlsym(LOG_DEBUG, "dlopen: Recycling, calling Init for %p (%s)\n", (void*)(i+1), rfilename);
-                        ReloadLibrary(dl->libs[i], emu);    // reset memory image, redo reloc, run inits
-                    }
+                    printf_dlsym(LOG_DEBUG, "dlopen: Recycling %s/%p count=%ld not inc (dlopened=%ld, elf_index=%d)\n", rfilename, (void*)(i+1), dl->count[i], dl->dlopened[i], GetElfIndex(dl->libs[i]));
+                    return (void*)(i+1);
                 }
+                IncRefCount(dl->libs[i], emu);
                 dl->count[i] = dl->count[i]+1;
                 printf_dlsym(LOG_DEBUG, "dlopen: Recycling %s/%p count=%ld (dlopened=%ld, elf_index=%d)\n", rfilename, (void*)(i+1), dl->count[i], dl->dlopened[i], GetElfIndex(dl->libs[i]));
                 return (void*)(i+1);
