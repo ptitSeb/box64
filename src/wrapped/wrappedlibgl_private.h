@@ -3972,3 +3972,11 @@ GO(glGetObjectLabelKHR, vFiulpp)
 GO(glObjectPtrLabelKHR, vFplp)
 GO(glGetObjectPtrLabelKHR, vFplpp)
 GO(glGetPointervKHR, vFip)
+
+// WGL_EXT_swap_control
+GO(wglSwapIntervalEXT, iFi)
+GO(wglGetSwapIntervalEXT, iFv)
+
+// GL_MESA_framebuffer_flip_y
+GO(glFramebufferParameteriMESA, vFiii)
+GO(glGetFramebufferParameterivMESA, vFiip)
