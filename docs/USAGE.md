@@ -154,12 +154,12 @@ Force the use of Double for x87 emulation
 #### BOX64_DYNAREC_FASTNAN *
 Enable/Disable generation of -NAN
 * 0 : Generate -NAN like on x86
-* 1 : Don't do anything special with NAN, to go as fast as possible (default)
+* 1 : Don't do anything special with NAN, to go as fast as possible (default, faster)
 
 #### BOX64_DYNAREC_FASTROUND *
 Enable/Disable generation of precise x86 rounding
-* 0 : Generate float/double -> int rounding like on x86 (default)
-* 1 : Don't do anything special with edge case Rounding, to go as fast as possible (no INF/NAN/Overflow -> MIN_INT conversion)
+* 0 : Generate float/double -> int rounding like on x86
+* 1 : Don't do anything special with edge case Rounding, to go as fast as possible (no INF/NAN/Overflow -> MIN_INT conversion) (default, faster)
 
 #### BOX64_DYNAREC_SAFEFLAGS *
 Handling of flags on CALL/RET opcodes
