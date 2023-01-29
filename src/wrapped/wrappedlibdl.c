@@ -113,8 +113,6 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
                         printf_dlsym(LOG_DEBUG, " => not present anymore\n");
                         return NULL;    // don't re-open in RTLD_NOLOAD mode
                     }
-                    printf_dlsym(LOG_DEBUG, "dlopen: Recycling %s/%p count=%ld not inc (dlopened=%ld, elf_index=%d)\n", rfilename, (void*)(i+1), dl->count[i], dl->dlopened[i], GetElfIndex(dl->libs[i]));
-                    return (void*)(i+1);
                 }
                 IncRefCount(dl->libs[i], emu);
                 dl->count[i] = dl->count[i]+1;
