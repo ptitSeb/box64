@@ -938,6 +938,39 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             }
             break;
 
+        case 0xFE:              /* GRP 5 Eb */
+            nextop = F8;
+            GETED(0);
+            switch((nextop>>3)&7) {
+                case 0:                 /* INC Eb */
+#ifdef DYNAREC
+                    do {
+                        tmp8u = native_lock_read_b(ED);
+                    } while(native_lock_write_b(ED, inc8(emu, tmp8u)));
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    ED->byte[0] = inc8(emu, ED->byte[0]);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                case 1:                 /* DEC Ed */
+#ifdef DYNAREC
+                    do {
+                        tmp8u = native_lock_read_b(ED);
+                    } while(native_lock_write_b(ED, dec8(emu, tmp8u)));
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    ED->byte[0] = dec8(emu, ED->byte[0]);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                default:
+                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0xFE 0x%02X 0x%02X\n", nextop, PK(0));
+                    emu->quit=1;
+                    emu->error |= ERR_ILLEGAL;
+                    break;
+            }
+            break;
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GETED(0);
