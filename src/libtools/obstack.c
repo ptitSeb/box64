@@ -107,7 +107,7 @@ static void* reverse_freefunFct(library_t* lib, void* fct)
 }
 
 #undef SUPER
-
+#if 0
 struct i386_obstack
 {
   long	chunk_size;
@@ -160,7 +160,6 @@ void from_i386_obstack(struct i386_obstack *_i386, struct obstack *native)
     native->freefun = reverse_freefunFct(my_context->libclib, _i386->freefun);
 }
 #undef SUPER
-
 EXPORT int my__obstack_begin(struct i386_obstack * obstack, size_t size, size_t alignment, void* chunkfun, void* freefun)
 {
     struct obstack native = {0};
@@ -201,6 +200,37 @@ EXPORT int32_t my_obstack_vprintf(x64emu_t* emu, struct i386_obstack* obstack, v
     to_i386_obstack(obstack, &native);  //usefull??
     return r;
 }
+#else
+
+EXPORT int my__obstack_begin(struct obstack * obstack, size_t size, size_t alignment, void* chunkfun, void* freefun)
+{
+    int ret = _obstack_begin(obstack, size, alignment, findchunkfunFct(chunkfun), findfreefunFct(freefun));
+    return ret;
+}
+
+EXPORT void my_obstack_free(struct obstack * obstack, void* block)
+{
+    obstack_free(obstack, block);
+}
+EXPORT void my__obstack_free(struct obstack * obstack, void* block) __attribute__((alias("my_obstack_free")));
+
+EXPORT void my__obstack_newchunk(x64emu_t* emu, struct obstack* obstack, int s)
+{
+    _obstack_newchunk(obstack, s);
+}
+
+EXPORT int32_t my_obstack_vprintf(x64emu_t* emu, struct obstack* obstack, void* fmt, x64_va_list_t V)
+{
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, V);
+    PREPARE_VALIST;
+    #endif
+    int r = obstack_vprintf(obstack, (const char*)fmt, VARARGS);
+    return r;
+}
+#endif
 
 EXPORT void* my_obstack_alloc_failed_handler = NULL;
 void* ref_obstack_alloc_failed_handler = NULL;
