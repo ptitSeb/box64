@@ -518,10 +518,19 @@ void applyFlushTo0(x64emu_t* emu)
     #ifdef __x86_64__
     _mm_setcsr(_mm_getcsr() | (emu->mxcsr.x32&0x8040));
     #elif defined(__aarch64__)
+    #ifdef __ANDROID__
+    uint64_t fpcr;
+    __asm__ __volatile__ ("mrs    %0, fpcr":"=r"(fpcr));
+    #else
     uint64_t fpcr = __builtin_aarch64_get_fpcr();
+    #endif
     fpcr &= ~((1<<24) | (1<<1));    // clear bit FZ (24) and AH (1)
     fpcr |= (emu->mxcsr.f.MXCSR_FZ)<<24;  // set FZ as mxcsr FZ
     fpcr |= ((emu->mxcsr.f.MXCSR_DAZ)^(emu->mxcsr.f.MXCSR_FZ))<<1; // set AH if DAZ different from FZ
+    #ifdef __ANDROID__
+    __asm__ __volatile__ ("msr    fpcr, %0"::"r"(fpcr));
+    #else
     __builtin_aarch64_set_fpcr(fpcr);
+    #endif
     #endif
 }
