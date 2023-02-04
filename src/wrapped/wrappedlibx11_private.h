@@ -335,7 +335,7 @@ GO(XExtentsOfFontSet, pFp)
 //GO(XFetchBuffer
 //GO(XFetchBytes
 // _XFetchEventCookie
-//GO(XFetchName
+GO(XFetchName, iFppp)
 GO(XFillArc, iFpppiiuuii)
 //GO(XFillArcs
 GO(XFillPolygon, iFppppiii)
@@ -402,7 +402,7 @@ GO(XGetKeyboardMapping, pFppip)
 // _XGetLCValues
 GO(XGetModifierMapping, pFp)
 GO(XGetMotionEvents, pFppLLp)
-//GO(XGetNormalHints
+GO(XGetNormalHints, iFppp)
 GO(XGetOCValues, pFpppppppppp) // use varargs
 GO(XGetOMValues, pFp)
 //GOM(XGetPixel, LFEpii)  // need unbridging
