@@ -209,6 +209,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(readlink, lFppL_t) \
 	GO(strlcat, LFppL_t) \
 	GO(strlcpy, LFppL_t) \
+	GO(fts64_open, pFpip_t) \
 	GO(fts_open, pFpip_t) \
 	GO(tsearch, pFppp_t) \
 	GO(__syslog_chk, vFiipV_t) \

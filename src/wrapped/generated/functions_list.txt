@@ -3138,6 +3138,7 @@ wrappedlibc:
   - strlcat
   - strlcpy
 - pFpip:
+  - fts64_open
   - fts_open
 - pFppp:
   - tsearch

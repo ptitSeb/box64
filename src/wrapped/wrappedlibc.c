@@ -90,10 +90,12 @@ typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
 typedef int32_t (*iFipuup_t)(int32_t, void*, uint32_t, uint32_t, void*);
 typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 typedef void* (*pFp_t)(void*);
+typedef void* (*pFpip_t)(void*, int, void*);
 
 #define SUPER() \
     GO(_ITM_addUserCommitAction, iFpup_t)   \
     GO(_IO_file_stat, iFpp_t)               \
+    GO(fts64_open, pFpip_t)                 \
     GO(register_printf_specifier, iFipp_t)  \
     GO(register_printf_type, iFp_t)
 
@@ -1276,6 +1278,12 @@ EXPORT void* my_fts_open(x64emu_t* emu, void* path, int options, void* c)
 {
     (void)emu;
     return fts_open(path, options, findcompareFct(c));
+}
+
+EXPORT void* my_fts64_open(x64emu_t* emu, void* path, int options, void* c)
+{
+    (void)emu;
+    return my->fts64_open(path, options, findcompareFct(c));
 }
 
 #if 0
