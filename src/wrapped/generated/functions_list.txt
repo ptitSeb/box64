@@ -2995,6 +2995,7 @@ wrappedlibc:
   - _setjmp
   - atexit
   - getcontext
+  - register_printf_type
   - setcontext
   - setjmp
   - stime
@@ -3088,6 +3089,7 @@ wrappedlibc:
   - __xstat
   - __xstat64
   - getopt
+  - register_printf_specifier
   - sigaction
 - iFipV:
   - __printf_chk

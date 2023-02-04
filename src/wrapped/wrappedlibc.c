@@ -67,6 +67,7 @@
 const char* libcName = "libc.so.6";
 
 typedef int (*iFi_t)(int);
+typedef int (*iFp_t)(void*);
 typedef int (*iFL_t)(unsigned long);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
@@ -92,7 +93,9 @@ typedef void* (*pFp_t)(void*);
 
 #define SUPER() \
     GO(_ITM_addUserCommitAction, iFpup_t)   \
-    GO(_IO_file_stat, iFpp_t)
+    GO(_IO_file_stat, iFpp_t)               \
+    GO(register_printf_specifier, iFipp_t)  \
+    GO(register_printf_type, iFp_t)
 
 
 #include "wrappercallback.h"
@@ -336,6 +339,75 @@ static void* findcompare64Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libc compare64 callback\n");
+    return NULL;
+}
+// printf_output
+#define GO(A)   \
+static uintptr_t my_printf_output_fct_##A = 0;                                  \
+static int my_printf_output_##A(void* a, void* b, void* c)                      \
+{                                                                               \
+    return (int)RunFunction(my_context, my_printf_output_fct_##A, 3, a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* findprintf_outputFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_printf_output_fct_##A == (uintptr_t)fct) return my_printf_output_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_printf_output_fct_##A == 0) {my_printf_output_fct_##A = (uintptr_t)fct; return my_printf_output_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc printf_output callback\n");
+    return NULL;
+}
+// printf_arginfo
+#define GO(A)   \
+static uintptr_t my_printf_arginfo_fct_##A = 0;                                     \
+static int my_printf_arginfo_##A(void* a, size_t b, void* c, void* d)               \
+{                                                                                   \
+    return (int)RunFunction(my_context, my_printf_arginfo_fct_##A, 4, a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* findprintf_arginfoFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_printf_arginfo_fct_##A == (uintptr_t)fct) return my_printf_arginfo_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_printf_arginfo_fct_##A == 0) {my_printf_arginfo_fct_##A = (uintptr_t)fct; return my_printf_arginfo_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc printf_arginfo callback\n");
+    return NULL;
+}
+// printf_type
+#define GO(A)   \
+static uintptr_t my_printf_type_fct_##A = 0;                   \
+static void my_printf_type_##A(void* a, va_list* b)            \
+{                                                              \
+    RunFunction(my_context, my_printf_type_fct_##A, 2, a, b);  \
+}
+SUPER()
+#undef GO
+static void* findprintf_typeFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_printf_type_fct_##A == (uintptr_t)fct) return my_printf_type_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_printf_type_fct_##A == 0) {my_printf_type_fct_##A = (uintptr_t)fct; return my_printf_type_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc printf_type callback\n");
     return NULL;
 }
 
@@ -2952,6 +3024,18 @@ EXPORT size_t my_strlcat(x64emu_t* emu, void* dst, void* src, size_t l)
     strncat(dst, src, l-1);
     ((char*)dst)[l-1] = '\0';
     return s+strlen(src);
+}
+
+EXPORT int my_register_printf_specifier(x64emu_t* emu, int c, void* f1, void* f2)
+{
+    //TODO: defining a new sepcifier for printf, it should also be registered on myStackAlign/myStackAlignW, using f2 to get the type of arg
+    return my->register_printf_specifier(c, findprintf_outputFct(f1), findprintf_arginfoFct(f2));
+}
+
+EXPORT int my_register_printf_type(x64emu_t* emu, void* f)
+{
+    //TODO: defining a new type, probably needs to also register that for myStackAlign stuffs
+    return my->register_printf_type(findprintf_typeFct(f));
 }
 
 EXPORT void my_exit(x64emu_t* emu, int code)

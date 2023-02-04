@@ -101,6 +101,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(_setjmp, iFp_t) \
 	GO(atexit, iFp_t) \
 	GO(getcontext, iFp_t) \
+	GO(register_printf_type, iFp_t) \
 	GO(setcontext, iFp_t) \
 	GO(setjmp, iFp_t) \
 	GO(stime, iFp_t) \
@@ -170,6 +171,7 @@ typedef int64_t (*iFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*
 	GO(__xstat, iFipp_t) \
 	GO(__xstat64, iFipp_t) \
 	GO(getopt, iFipp_t) \
+	GO(register_printf_specifier, iFipp_t) \
 	GO(sigaction, iFipp_t) \
 	GO(__printf_chk, iFipV_t) \
 	GO(mprotect, iFpLi_t) \

@@ -1506,9 +1506,9 @@ GO(regexec, iFppLpi)
 GOW(regfree, vFp)
 GOM(__register_atfork, iFEpppp)
 //GOW(register_printf_function, 
-//GOW(register_printf_modifier, 
-//GOW(register_printf_specifier, 
-//GOW(register_printf_type, 
+GOW(register_printf_modifier, iFp)
+GOWM(register_printf_specifier, iFEipp)
+GOWM(register_printf_type, iFEp)
 //GO(registerrpc, // Deprecated?
 GOW(remap_file_pages, iFpLiLi)
 //GOW(re_match, iFppii!)
