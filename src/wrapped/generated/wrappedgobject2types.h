@@ -11,6 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int64_t (*iFpp_t)(void*, void*);
@@ -43,6 +44,7 @@ typedef uint64_t (*uFpLippppLup_t)(void*, uintptr_t, int64_t, void*, void*, void
 typedef uint64_t (*uFpLippppLuA_t)(void*, uintptr_t, int64_t, void*, void*, void*, void*, uintptr_t, uint64_t, va_list);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(g_type_value_table_peek, pFL_t) \
 	GO(g_type_class_peek_parent, pFp_t) \
 	GO(g_closure_set_marshal, vFpp_t) \
 	GO(g_param_type_register_static, iFpp_t) \

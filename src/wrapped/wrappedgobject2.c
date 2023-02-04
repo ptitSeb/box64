@@ -889,6 +889,11 @@ EXPORT void my_g_closure_add_finalize_notifier(x64emu_t* emu, void* closure, voi
     my->g_closure_add_finalize_notifier(closure, data, findGClosureNotify_Fct(f));
 }
 
+EXPORT void* my_g_type_value_table_peek(x64emu_t* emu, size_t type)
+{
+    return findFreeGTypeValueTable(my->g_type_value_table_peek(type));
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
