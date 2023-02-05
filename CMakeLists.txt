@@ -588,13 +588,13 @@ endif()
 if(DYNAREC)
     add_custom_command(
         OUTPUT "${BOX64_ROOT}/src/git_head.h"
-        COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
+        COMMAND sh -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
         DEPENDS dynarec ${ELFLOADER_SRC} ${WRAPPEDS}
         VERBATIM)
 else()
     add_custom_command(
         OUTPUT "${BOX64_ROOT}/src/git_head.h"
-        COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
+        COMMAND sh -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
         DEPENDS ${ELFLOADER_SRC} ${WRAPPEDS}
         VERBATIM)
 endif()

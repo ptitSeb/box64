@@ -726,7 +726,7 @@ EXPORT int my_pthread_cond_wait(x64emu_t* emu, pthread_cond_t* cond, void* mutex
 	updateAlignedMutex(mutex, real);
 	return ret;
 }
-EXPORT int my_pthread_cond_clockwait(x64emu_t *emu, pthread_cond_t* cond, void* mutex, __clockid_t __clock_id, const struct timespec* __abstime)
+EXPORT int my_pthread_cond_clockwait(x64emu_t *emu, pthread_cond_t* cond, void* mutex, clockid_t __clock_id, const struct timespec* __abstime)
 {
 	(void)emu;
 	int ret;

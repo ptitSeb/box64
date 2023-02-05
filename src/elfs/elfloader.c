@@ -10,6 +10,9 @@
 #include <link.h>
 #include <unistd.h>
 #include <errno.h>
+#ifndef _DLFCN_H
+#include <dlfcn.h>
+#endif
 
 #include "custommem.h"
 #include "box64version.h"
