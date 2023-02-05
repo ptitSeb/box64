@@ -426,7 +426,11 @@ GOW(sqrt, dFd)
 GOW(sqrtf, fFf)
 GOM(__sqrtf_finite, fFf)
 GOM(__sqrt_finite, dFd)
-// sqrtl    // Weak
+#ifdef HAVE_LD80BITS
+GOW(sqrtl, DFD)
+#else
+GO2(sqrtl, KFK, sqrt)    // Weak
+#endif
 GO(tan, dFd)
 GOW(tanf, fFf)
 GOW(tanh, dFd)

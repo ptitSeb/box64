@@ -87,7 +87,7 @@ GO(8)   \
 GO(9)   \
 
 // GCopyFct
-/*#define GO(A)   \
+#define GO(A)   \
 static uintptr_t my_copy_fct_##A = 0;   \
 static void* my_copy_##A(void* data)     \
 {                                       \
@@ -107,7 +107,7 @@ static void* findCopyFct(void* fct)
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 Copy callback\n");
     return NULL;
-}*/
+}
 // GFreeFct
 #define GO(A)   \
 static uintptr_t my_free_fct_##A = 0;   \
@@ -661,6 +661,50 @@ static void* reverseGOptionArgFct(void* fct)
     #define GO(A) if((uintptr_t)fct == my_GOptionArg_fct_##A) return (void*)my_GOptionArg_fct_##A;
     SUPER()
     #undef GO
+    return NULL;
+}
+// GNodeTraverseFunc ...
+#define GO(A)   \
+static uintptr_t my_GNodeTraverseFunc_fct_##A = 0;                              \
+static int my_GNodeTraverseFunc_##A(void* a, void* b)                           \
+{                                                                               \
+    return (int)RunFunction(my_context, my_GNodeTraverseFunc_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* findGNodeTraverseFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GNodeTraverseFunc_fct_##A == (uintptr_t)fct) return my_GNodeTraverseFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GNodeTraverseFunc_fct_##A == 0) {my_GNodeTraverseFunc_fct_##A = (uintptr_t)fct; return my_GNodeTraverseFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GNodeTraverseFunc callback\n");
+    return NULL;
+}
+// GThreadFunc ...
+#define GO(A)   \
+static uintptr_t my_GThreadFunc_fct_##A = 0;                            \
+static void* my_GThreadFunc_##A(void* a)                                \
+{                                                                       \
+    return (void*)RunFunction(my_context, my_GThreadFunc_fct_##A, 1, a);\
+}
+SUPER()
+#undef GO
+static void* findGThreadFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GThreadFunc_fct_##A == (uintptr_t)fct) return my_GThreadFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GThreadFunc_fct_##A == 0) {my_GThreadFunc_fct_##A = (uintptr_t)fct; return my_GThreadFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GThreadFunc callback\n");
     return NULL;
 }
 
@@ -1300,6 +1344,40 @@ EXPORT void* my_g_strconcat(x64emu_t* emu, void* first, uintptr_t* data)
     return p;
 }
 
+EXPORT void* my_g_markup_parse_context_new(x64emu_t* emu, void* parser, int flags, void* data, void* destroy)
+{
+    return my->g_markup_parse_context_new(parser, flags, data, findDestroyFct(destroy));
+}
+
+EXPORT void my_g_list_foreach(x64emu_t* emu, void* list, void* func, void* data)
+{
+    my->g_list_foreach(list, findGFuncFct(func), data);
+}
+
+EXPORT void* my_g_list_insert_sorted(x64emu_t* emu, void* list, void* data, void* f)
+{
+    return my->g_list_insert_sorted(list, data, findGCompareFuncFct(f));
+}
+
+EXPORT void my_g_node_traverse(x64emu_t* emu, void* node, int order, int flags, int depth, void* f, void* data)
+{
+    my->g_node_traverse(node, order, flags, depth, findGNodeTraverseFuncFct(f), data);
+}
+
+EXPORT void* my_g_node_copy_deep(x64emu_t* emu, void* node, void* f, void* data)
+{
+    return my->g_node_copy_deep(node, findCopyFct(f), data);
+}
+
+EXPORT void* my_g_thread_try_new(x64emu_t* emu, void* name, void* f, void* data, void* err)
+{
+    return my->g_thread_try_new(name, findGThreadFuncFct(f), data, err);
+}
+
+EXPORT void my_g_slist_free_full(x64emu_t* emu, void* list, void* f)
+{
+    my->g_slist_free_full(list, findDestroyFct(f));
+}
 
 #define PRE_INIT    \
     if(box64_nogtk) \

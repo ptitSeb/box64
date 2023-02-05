@@ -343,7 +343,7 @@ GOM(g_type_register_static_simple, LFELpLpLpi)
 //GOM(g_type_remove_interface_check, vFEpB)
 GO(g_type_set_qdata, vFLpp)
 GO(g_type_test_flags, iFLu)
-//GOM(g_type_value_table_peek, pFEi)    //need to bridge GTypeValueTable
+GOM(g_type_value_table_peek, pFEL)    //need to bridge GTypeValueTable
 GO(g_value_array_append, pFpp)  //TODO: does GValueArray needs alignement?
 GO(g_value_array_copy, pFp)
 GO(g_value_array_free, vFp)
@@ -430,10 +430,10 @@ GO(g_value_unset, vFp)
 //GO(g_variant_dict_get_type, 
 //GO(g_variant_get_gtype, 
 //GO(g_variant_type_get_gtype, 
-//GO(g_weak_ref_clear, 
-//GO(g_weak_ref_get, 
-//GO(g_weak_ref_init, 
-//GO(g_weak_ref_set, 
+GO(g_weak_ref_clear, vFp)
+GO(g_weak_ref_get, pFp)
+GO(g_weak_ref_init, vFpp)
+GO(g_weak_ref_set, vFpp)
 //GO(_init, 
 
 // to have some wrapper created for gtkclass.c

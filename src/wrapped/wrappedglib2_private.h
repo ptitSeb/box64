@@ -76,7 +76,7 @@ GO2(g_atexit, vFEp, my_atexit)
 //GO(g_atomic_int_and, 
 //GO(g_atomic_int_compare_and_exchange, 
 //GO(g_atomic_int_dec_and_test, 
-//GO(g_atomic_int_exchange_and_add, 
+GO(g_atomic_int_exchange_and_add, iFpi)
 //GO(g_atomic_int_get, 
 //GO(g_atomic_int_inc, 
 //GO(g_atomic_int_or, 
@@ -211,12 +211,12 @@ GOM(g_completion_set_compare, vFEpp)
 //GO(g_compute_checksum_for_string, 
 //GO(g_compute_hmac_for_data, 
 //GO(g_compute_hmac_for_string, 
-//GO(g_cond_broadcast, 
+GO(g_cond_broadcast, vFp)
 GO(g_cond_clear, vFp)
 GO(g_cond_free, vFp)
 GO(g_cond_init, vFp)
 GO(g_cond_new, pFv)
-//GO(g_cond_signal, 
+GO(g_cond_signal, vFp)
 //GO(g_cond_timed_wait, 
 GO(g_cond_wait, vFpp)
 //GO(g_cond_wait_until, 
@@ -584,14 +584,14 @@ GO(g_listenv, pFv)
 GO(g_list_find, pFpp)
 GOM(g_list_find_custom, pFEppp)
 GO(g_list_first, pFp)
-//GOM(g_list_foreach, vFEpBp)
+GOM(g_list_foreach, vFEppp)
 GO(g_list_free, vFp)
 GO(g_list_free_1, vFp)
 GOM(g_list_free_full, vFEpp)
 GO(g_list_index, iFpp)
 GO(g_list_insert, pFppi)
 GO(g_list_insert_before, pFppp)
-//GOM(g_list_insert_sorted, pFEppB)
+GOM(g_list_insert_sorted, pFEppp)
 //GO(g_list_insert_sorted_with_data, pFEppBp)
 GO(g_list_last, pFp)
 GO(g_list_length, uFp)
@@ -671,14 +671,14 @@ GO(g_mapped_file_unref, vFp)
 //GO(g_markup_collect_attributes, 
 //GO(g_markup_error_quark, 
 GO(g_markup_escape_text, pFpl)
-//GO(g_markup_parse_context_end_parse, 
-//GO(g_markup_parse_context_free, 
+GO(g_markup_parse_context_end_parse, iFpp)
+GO(g_markup_parse_context_free, vFp)
 //GO(g_markup_parse_context_get_element, 
 //GO(g_markup_parse_context_get_element_stack, 
 //GO(g_markup_parse_context_get_position, 
 //GO(g_markup_parse_context_get_user_data, 
-//GO(g_markup_parse_context_new, 
-//GO(g_markup_parse_context_parse, 
+GOM(g_markup_parse_context_new, pFEpipp)
+GO(g_markup_parse_context_parse, iFpplp)
 //GO(g_markup_parse_context_pop, 
 //GO(g_markup_parse_context_push, 
 //GO(g_markup_parse_context_ref, 
@@ -730,29 +730,29 @@ GO(g_mutex_unlock, vFp)
 //GO(g_node_child_position, 
 //GO(g_node_children_foreach, 
 //GO(g_node_copy, 
-//GO(g_node_copy_deep, 
+GOM(g_node_copy_deep, pFEppp)
 //GO(g_node_depth, 
-//GO(g_node_destroy, 
+GO(g_node_destroy, vFp)
 //GO(g_node_find, 
 //GO(g_node_find_child, 
 //GO(g_node_first_sibling, 
-//GO(g_node_get_root, 
+GO(g_node_get_root, pFp)
 //GO(g_node_insert, 
 //GO(g_node_insert_after, 
-//GO(g_node_insert_before, 
+GO(g_node_insert_before, pFppp)
 //GO(g_node_is_ancestor, 
 //GO(g_node_last_child, 
 //GO(g_node_last_sibling, 
 //GO(g_node_max_height, 
 //GO(g_node_n_children, 
-//GO(g_node_new, 
+GO(g_node_new, pFp)
 //GO(g_node_n_nodes, 
 //GO(g_node_nth_child, 
 //GO(g_node_pop_allocator, 
 //GO(g_node_prepend, 
 //GO(g_node_push_allocator, 
 //GO(g_node_reverse_children, 
-//GO(g_node_traverse, 
+GOM(g_node_traverse, vFEpiiipp)
 //GO(g_node_unlink, 
 GO(g_nullify_pointer, vFp)
 //GO(g_once_impl, 
@@ -904,11 +904,11 @@ GO(g_rand_set_seed, vFpu)
 GO(g_rand_set_seed_array, vFppu)
 GO(g_realloc, pFpL)
 GO(g_realloc_n, pFpLL)
-//GO(g_rec_mutex_clear, 
-//GO(g_rec_mutex_init, 
-//GO(g_rec_mutex_lock, 
-//GO(g_rec_mutex_trylock, 
-//GO(g_rec_mutex_unlock, 
+GO(g_rec_mutex_clear, vFp)
+GO(g_rec_mutex_init, vFp)
+GO(g_rec_mutex_lock, vFp)
+GO(g_rec_mutex_trylock, iFp)
+GO(g_rec_mutex_unlock, vFp)
 GO(g_regex_check_replacement, iFppp)
 //GO(g_regex_error_quark, 
 GO(g_regex_escape_nul, pFpi)
@@ -1045,7 +1045,7 @@ GOM(g_slist_find_custom, pFEppp)
 GOM(g_slist_foreach, pFEppp)
 GO(g_slist_free, vFp)
 GO(g_slist_free_1, vFp)
-//GOM(g_slist_free_full, vFEpp)
+GOM(g_slist_free_full, vFEpp)
 GO(g_slist_index, iFpp)
 GO(g_slist_insert, pFppi)
 GO(g_slist_insert_before, pFppp)
@@ -1291,7 +1291,7 @@ GO(g_thread_join, pFp)
 GO(g_thread_ref, pFp)
 GO(g_thread_self, pFv)
 GO(g_thread_set_priority, vFpi)
-//GO(g_thread_try_new, 
+GOM(g_thread_try_new, pFEpppp)
 GO(g_thread_unref, vFp)
 GO(g_thread_yield, vFv)
 GOM(g_timeout_add, uFEupp)
