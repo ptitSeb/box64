@@ -103,40 +103,36 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
 {
     brick_t *b = NULL;
     int sz = -1;
+    int ret;
+
+    pthread_mutex_lock(&my_context->mutex_bridge);
+    b = bridge->last;
+    if(b->sz == NBRICK) {
+        b->next = NewBrick(b->b);
+        b = b->next;
+        bridge->last = b;
+    }
+    sz = b->sz;
+    b->sz++;
+    // add bridge to map, for fast recovery
+    khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
+    kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
+    pthread_mutex_unlock(&my_context->mutex_bridge);
+
     #ifdef DYNAREC
     int prot = 0;
-    do {
-        #endif
-        pthread_mutex_lock(&my_context->mutex_bridge);
-        b = bridge->last;
-        if(b->sz == NBRICK) {
-            b->next = NewBrick(b->b);
-            b = b->next;
-            bridge->last = b;
-        }
-	    sz = b->sz;
-        #ifdef DYNAREC
-        pthread_mutex_unlock(&my_context->mutex_bridge);
-        if(box64_dynarec) {
-            prot=(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
-            if(prot)
-                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);    // don't mark blocks, it's only new one
-        }
-    } while(sz!=b->sz); // this while loop if someone took the slot when the bridge mutex was unlocked doing memory protection managment
-    pthread_mutex_lock(&my_context->mutex_bridge);
+    if(box64_dynarec) {
+        prot=(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
+        if(prot)
+            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);    // don't mark blocks, it's only new one
+    }
     #endif
-    b->sz++;
     b->b[sz].CC = 0xCC;
     b->b[sz].S = 'S'; b->b[sz].C='C';
     b->b[sz].w = w;
     b->b[sz].f = (uintptr_t)fnc;
     b->b[sz].C3 = N?0xC2:0xC3;
     b->b[sz].N = N;
-    // add bridge to map, for fast recovery
-    int ret;
-    khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
-    kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
-    pthread_mutex_unlock(&my_context->mutex_bridge);
     #ifdef DYNAREC
     if(box64_dynarec)
         protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
