@@ -517,7 +517,7 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_HOTPAGE");
     if(p) {
         int val = -1;
-        if(sscanf("%d", p, &val)==1) {
+        if(sscanf(p, "%d", &val)==1) {
             if(val>=0)
                 box64_dynarec_hotpage = val;
         }
