@@ -1124,13 +1124,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i].prot==memprot_default) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
-#if 0 //def ARM64   //disabled for now, not usefull with the mutex
-            if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
-                box_free(newblock);
-            }
-#else
             memprot[i].prot = newblock;
-#endif
         }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t dyn=(memprot[i>>16].prot[i&0xffff]&(PROT_DYNAREC | PROT_DYNAREC_R));
@@ -1158,18 +1152,12 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i) {
         if(memprot[i].prot==memprot_default && prot) {
             uint8_t* newblock = box_calloc(MEMPROT_SIZE, sizeof(uint8_t));
-#if 0 //def ARM64   //disabled for now, not usefull with the mutex
-            if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
-                box_free(newblock);
-            }
-#else
             memprot[i].prot = newblock;
-#endif
         }
         if(prot || memprot[i].prot!=memprot_default) {
             uintptr_t bstart = ((i<<16)<idx)?(idx&0xffff):0;
             uintptr_t bend = (((i<<16)+0xffff)>end)?(end&0xffff):0xffff;
-            for (uintptr_t j=bstart; i<=bend; ++i)
+            for (uintptr_t j=bstart; j<=bend; ++j)
                 memprot[i].prot[j] = prot;
         }
     }
@@ -1202,13 +1190,7 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i].prot==memprot_default) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
-#if 0 //def ARM64   //disabled for now, not usefull with the mutex
-            if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
-                box_free(newblock);
-            }
-#else
             memprot[i].prot = newblock;
-#endif
         }
     for (uintptr_t i=idx; i<=end; ++i) {
         const uintptr_t start = i&(MEMPROT_SIZE-1);
