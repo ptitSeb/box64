@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef uint64_t (*uFpppV_t)(void*, void*, void*, ...);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(gcry_sexp_build, uFpppV_t)
 
 #endif // __wrappedgcryptTYPES_H_

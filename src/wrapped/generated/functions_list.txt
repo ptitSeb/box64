@@ -1261,8 +1261,10 @@
 #() uFEpipp
 #() uFEppuu
 #() uFEpppp
+#() uFEpppV
 #() uFiuuuu
 #() uFipipp
+#() uFipLpp
 #() uFuiiiu
 #() uFpCCCC
 #() uFpWuip
@@ -2432,6 +2434,8 @@ wrappedfreetype:
 wrappedgbm:
 wrappedgconf2:
 wrappedgcrypt:
+- uFpppV:
+  - gcry_sexp_build
 wrappedgdk3:
 - vFpp:
   - gdk_init

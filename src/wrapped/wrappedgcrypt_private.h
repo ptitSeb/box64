@@ -5,7 +5,7 @@
 
 //GO(gcry_calloc, 
 //GO(gcry_calloc_secure, 
-//GO(gcry_check_version, 
+GO(gcry_check_version, pFp)
 //GO(gcry_cipher_algo_info, 
 //GO(gcry_cipher_algo_name, 
 //GO(gcry_cipher_authenticate, 
@@ -123,7 +123,7 @@
 //GO(gcry_mpi_mulm, 
 //GO(gcry_mpi_mul_ui, 
 //GO(gcry_mpi_neg, 
-//GO(gcry_mpi_new, 
+GO(gcry_mpi_new, pFu)
 //GO(gcry_mpi_point_copy, 
 //GO(gcry_mpi_point_get, 
 //GO(gcry_mpi_point_new, 
@@ -132,9 +132,9 @@
 //GO(gcry_mpi_point_snatch_get, 
 //GO(gcry_mpi_point_snatch_set, 
 //GO(gcry_mpi_powm, 
-//GO(gcry_mpi_print, 
+GO(gcry_mpi_print, uFipLpp)
 //GO(gcry_mpi_randomize, 
-//GO(gcry_mpi_release, 
+GO(gcry_mpi_release, vFp)
 //GO(gcry_mpi_rshift, 
 //GO(gcry_mpi_scan, 
 //GO(gcry_mpi_set, 
@@ -145,7 +145,7 @@
 //GO(gcry_mpi_set_opaque_copy, 
 //GO(gcry_mpi_set_ui, 
 //GO(gcry_mpi_snatch, 
-//GO(gcry_mpi_snew, 
+GO(gcry_mpi_snew, pFu)
 //GO(gcry_mpi_sub, 
 //GO(gcry_mpi_subm, 
 //GO(gcry_mpi_sub_ui, 
@@ -155,7 +155,7 @@
 //GO(gcry_pk_algo_name, 
 //GO(gcry_pk_ctl, 
 //GO(gcry_pk_decrypt, 
-//GO(gcry_pk_encrypt, 
+GO(gcry_pk_encrypt, uFppp)
 //GO(gcry_pk_genkey, 
 //GO(gcry_pk_get_curve, 
 //GO(gcry_pk_get_keygrip, 
@@ -186,8 +186,8 @@
 //GO(gcry_set_progress_handler, 
 //GO(gcry_sexp_alist, 
 //GO(gcry_sexp_append, 
-//GO(gcry_sexp_build, 
-//GO(gcry_sexp_build_array, 
+GOM(gcry_sexp_build, uFEpppV)
+GO(gcry_sexp_build_array, uFpppp)
 //GO(gcry_sexp_cadr, 
 //GO(gcry_sexp_canon_len, 
 //GO(gcry_sexp_car, 
@@ -196,22 +196,22 @@
 //GO(gcry_sexp_create, 
 //GO(gcry_sexp_dump, 
 //GO(gcry_sexp_extract_param, 
-//GO(gcry_sexp_find_token, 
+GO(gcry_sexp_find_token, pFppL)
 //GO(gcry_sexp_length, 
 //GO(gcry_sexp_new, 
 //GO(gcry_sexp_nth, 
 //GO(gcry_sexp_nth_buffer, 
 //GO(gcry_sexp_nth_data, 
-//GO(gcry_sexp_nth_mpi, 
+GO(gcry_sexp_nth_mpi, pFpii)
 //GO(gcry_sexp_nth_string, 
 //GO(gcry_sexp_prepend, 
-//GO(gcry_sexp_release, 
+GO(gcry_sexp_release, vFp)
 //GO(gcry_sexp_sprint, 
 //GO(gcry_sexp_sscan, 
 //GO(gcry_sexp_vlist, 
 //GO(gcry_strdup, 
-//GO(gcry_strerror, 
-//GO(gcry_strsource, 
+GO(gcry_strerror, pFu)
+GO(gcry_strsource, pFu)
 //GO(gcry_xcalloc, 
 //GO(gcry_xcalloc_secure, 
 //GO(gcry_xmalloc, 
