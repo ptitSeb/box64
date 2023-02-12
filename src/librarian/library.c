@@ -1024,7 +1024,7 @@ needed_libs_t* new_neededlib(int n)
 }
 void free_neededlib(needed_libs_t* needed)
 {
-    if(needed)
+    if(!needed)
         return;
     free(needed->libs);
     free(needed->names);
