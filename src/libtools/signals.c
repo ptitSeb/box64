@@ -702,8 +702,10 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             if(used_stack)  // release stack
                 new_ss->ss_flags = 0;
             //relockMutex(Locks);   // do not relock mutex, because of the siglongjmp, whatever was running is canceled
+            #ifdef DYNAREC
             if(Locks & is_dyndump_locked)
                 CancelBlock64();
+            #endif
             siglongjmp(ejb->jmpbuf, 1);
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
@@ -744,8 +746,10 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
     if(exits) {
         //relockMutex(Locks);   // the thread will exit, so no relock there
+        #ifdef DYNAREC
         if(Locks & is_dyndump_locked)
             CancelBlock64();
+        #endif
         exit(ret);
     }
     if(restorer)
@@ -886,8 +890,10 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     dynarec_log(LOG_INFO, "Dynablock unprotected, getting out!\n");
                 }
                 //relockMutex(Locks);
+                #ifdef DYNAREC
                 if(Locks & is_dyndump_locked)
                     CancelBlock64();
+                #endif
                 mutex_unlock(&mutex_dynarec_prot);
                 siglongjmp(ejb->jmpbuf, 2);
             }
