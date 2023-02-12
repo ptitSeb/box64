@@ -18,7 +18,10 @@
 .global arm64_lock_xchg
 .global arm64_lock_xchg_d
 .global arm64_lock_storeifnull
+.global arm64_lock_storeifnull_d
 .global arm64_lock_storeifref
+.global arm64_lock_storeifref_d
+.global arm64_lock_storeifref2_d
 .global arm64_lock_decifnot0b
 .global arm64_lock_storeb
 .global arm64_lock_incif0
@@ -119,21 +122,33 @@ arm64_lock_xchg_d_0:
 arm64_lock_storeifnull:
     dmb     ish
 arm64_lock_storeifnull_0:
-    // address is x0, value is x1, x1 store to x0 only if [x0] is 0. return new [x0] value (so x1 or old value)
+    // address is x0, value is x1, x1 store to x0 only if [x0] is 0. return old [x0] value
     ldaxr   x2, [x0]
     cbnz    x2, arm64_lock_storeifnull_exit
-    mov     x2, x1
-    stlxr   w3, x2, [x0]
+    stlxr   w3, x1, [x0]
     cbnz    w3, arm64_lock_storeifnull_0
 arm64_lock_storeifnull_exit:
     dmb     ish
     mov     x0, x2
     ret
 
+arm64_lock_storeifnull_d:
+    dmb     ish
+arm64_lock_storeifnull_d_0:
+    // address is x0, value is w1, w1 store to x0 only if [x0] is 0. return old [x0] value
+    ldaxr   w2, [x0]
+    cbnz    w2, arm64_lock_storeifnull_d_exit
+    stlxr   w3, w1, [x0]
+    cbnz    w3, arm64_lock_storeifnull_d_0
+arm64_lock_storeifnull_d_exit:
+    dmb     ish
+    mov     w0, w2
+    ret
+
 arm64_lock_storeifref:
     dmb     ish
 arm64_lock_storeifref_0:
-    // address is x0, value is x1, x1 store to x0 only if [x0] is x3. return new [x0] value (so x1 or old value)
+    // address is x0, value is x1, x1 store to x0 only if [x0] is x2. return new [x0] value (so x1 or old value)
     ldaxr   x3, [x0]
     cmp     x2, x3
     bne     arm64_lock_storeifref_exit
@@ -144,6 +159,36 @@ arm64_lock_storeifref_0:
 arm64_lock_storeifref_exit:
     dmb     ish
     mov     x0, x3
+    ret
+
+arm64_lock_storeifref_d:
+    dmb     ish
+arm64_lock_storeifref_d_0:
+    // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return new [x0] value (so x1 or old value)
+    ldaxr   w3, [x0]
+    cmp     w2, w3
+    bne     arm64_lock_storeifref_d_exit
+    stlxr   w4, w1, [x0]
+    cbnz    w4, arm64_lock_storeifref_d_0
+    mov     w0, w1
+    ret
+arm64_lock_storeifref_d_exit:
+    dmb     ish
+    mov     w0, w3
+    ret
+
+arm64_lock_storeifref2_d:
+    dmb     ish
+arm64_lock_storeifref2_d_0:
+    // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return old [x0] value
+    ldaxr   w3, [x0]
+    cmp     w2, w3
+    bne     arm64_lock_storeifref2_d_exit
+    stlxr   w4, w1, [x0]
+    cbnz    w4, arm64_lock_storeifref2_d_0
+arm64_lock_storeifref2_d_exit:
+    dmb     ish
+    mov     w0, w3
     ret
 
 arm64_lock_decifnot0b:

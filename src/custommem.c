@@ -43,8 +43,12 @@ static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT];
 // lock addresses
 KHASH_SET_INIT_INT64(lockaddress)
 static kh_lockaddress_t    *lockaddress = NULL;
-#endif
+static uint32_t            mutex_prot;
+static uint32_t            mutex_blocks;
+#else
 static pthread_mutex_t     mutex_prot;
+static pthread_mutex_t     mutex_blocks;
+#endif
 #if defined(PAGE64K)
 #define MEMPROT_SHIFT 16
 #define MEMPROT_SHIFT2 (16+16)
@@ -85,7 +89,6 @@ typedef struct blocklist_s {
 
 #define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
 
-static pthread_mutex_t     mutex_blocks;
 static int                 n_blocks = 0;       // number of blocks for custom malloc
 static int                 c_blocks = 0;       // capacity of blocks for custom malloc
 static blocklist_t*        p_blocks = NULL;    // actual blocks for custom malloc
@@ -299,7 +302,7 @@ void* customMalloc(size_t size)
     // look for free space
     void* sub = NULL;
     size_t fullsize = size+2*sizeof(blockmark_t);
-    pthread_mutex_lock(&mutex_blocks);
+    mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
         if(p_blocks[i].maxfree>=size) {
             size_t rsize = 0;
@@ -312,7 +315,7 @@ void* customMalloc(size_t size)
                     p_blocks[i].first = getNextFreeBlock(sub);
                 if(rsize==p_blocks[i].maxfree)
                     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
-                pthread_mutex_unlock(&mutex_blocks);
+                mutex_unlock(&mutex_blocks);
                 return ret;
             }
         }
@@ -345,7 +348,7 @@ void* customMalloc(size_t size)
     // alloc 1st block
     void* ret  = allocBlock(p_blocks[i].block, p, size, NULL);
     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, NULL);
-    pthread_mutex_unlock(&mutex_blocks);
+    mutex_unlock(&mutex_blocks);
     return ret;
 }
 void* customCalloc(size_t n, size_t size)
@@ -361,7 +364,7 @@ void* customRealloc(void* p, size_t size)
         return customMalloc(size);
     size = roundSize(size);
     uintptr_t addr = (uintptr_t)p;
-    pthread_mutex_lock(&mutex_blocks);
+    mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
         if ((addr>(uintptr_t)p_blocks[i].block) 
          && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
@@ -370,17 +373,17 @@ void* customRealloc(void* p, size_t size)
                 if(sub<p_blocks[i].first && p+size<p_blocks[i].first)
                     p_blocks[i].first = getNextFreeBlock(sub);
                 p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
-                pthread_mutex_unlock(&mutex_blocks);
+                mutex_unlock(&mutex_blocks);
                 return p;
             }
-            pthread_mutex_unlock(&mutex_blocks);
+            mutex_unlock(&mutex_blocks);
             void* newp = customMalloc(size);
             memcpy(newp, p, sizeBlock(sub));
             customFree(p);
             return newp;
         }
     }
-    pthread_mutex_unlock(&mutex_blocks);
+    mutex_unlock(&mutex_blocks);
     if(n_blocks)
         dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for realloc, malloc'ing again without free\n", (void*)addr);
     return customMalloc(size);
@@ -390,7 +393,7 @@ void customFree(void* p)
     if(!p)
         return;
     uintptr_t addr = (uintptr_t)p;
-    pthread_mutex_lock(&mutex_blocks);
+    mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
         if ((addr>(uintptr_t)p_blocks[i].block) 
          && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
@@ -400,11 +403,11 @@ void customFree(void* p)
             if(sub<=p_blocks[i].first)
                 p_blocks[i].first = getPrevFreeBlock(n);
             if(p_blocks[i].maxfree < newfree) p_blocks[i].maxfree = newfree;
-            pthread_mutex_unlock(&mutex_blocks);
+            mutex_unlock(&mutex_blocks);
             return;
         }
     }
-    pthread_mutex_unlock(&mutex_blocks);
+    mutex_unlock(&mutex_blocks);
     if(n_blocks)
         dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Free\n", (void*)addr);
 }
@@ -933,7 +936,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
         end = (1LL<<(48-MEMPROT_SHIFT))-1;
     if(end<idx) // memory addresses higher than 48bits are not tracked
         return;
-    pthread_mutex_lock(&mutex_prot);
+    mutex_lock(&mutex_prot);
     int ret;
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i].prot==memprot_default) {
@@ -955,7 +958,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
         } else 
             memprot[i>>16].prot[i&0xffff] = prot|PROT_DYNAREC_R;
     }
-    pthread_mutex_unlock(&mutex_prot);
+    mutex_unlock(&mutex_prot);
 }
 
 // Add the Write flag from an adress range, and mark all block as dirty
@@ -969,7 +972,7 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
         end = (1LL<<(48-MEMPROT_SHIFT))-1;
     if(end<idx) // memory addresses higher than 48bits are not tracked
         return;
-    pthread_mutex_lock(&mutex_prot);
+    mutex_lock(&mutex_prot);
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i].prot==memprot_default) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
@@ -989,7 +992,7 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
         } else if(prot&PROT_DYNAREC_R)
             memprot[i>>16].prot[i&0xffff] = prot&~PROT_CUSTOM;
     }
-    pthread_mutex_unlock(&mutex_prot);
+    mutex_unlock(&mutex_prot);
 }
 
 int isprotectedDB(uintptr_t addr, size_t size)
@@ -1113,14 +1116,12 @@ void removeMapMem(uintptr_t begin, uintptr_t end)
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "updateProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
-    addMapMem(addr, addr+size-1);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
         end = (1LL<<(48-MEMPROT_SHIFT))-1;
-    if(end<idx) // memory addresses higher than 48bits are not tracked
-        return;
-    pthread_mutex_lock(&mutex_prot);
+    mutex_lock(&mutex_prot);
+    addMapMem(addr, addr+size-1);
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i].prot==memprot_default) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
@@ -1136,19 +1137,17 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         }
         memprot[i>>16].prot[i&0xffff] = prot|dyn;
     }
-    pthread_mutex_unlock(&mutex_prot);
+    mutex_unlock(&mutex_prot);
 }
 
 void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
-    addMapMem(addr, addr+size-1);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
         end = (1LL<<(48-MEMPROT_SHIFT))-1;
-    if(end<idx) // memory addresses higher than 48bits are not tracked
-        return;
-    pthread_mutex_lock(&mutex_prot);
+    mutex_lock(&mutex_prot);
+    addMapMem(addr, addr+size-1);
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i) {
         if(memprot[i].prot==memprot_default && prot) {
             uint8_t* newblock = box_calloc(MEMPROT_SIZE, sizeof(uint8_t));
@@ -1161,32 +1160,30 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
                 memprot[i].prot[j] = prot;
         }
     }
-    pthread_mutex_unlock(&mutex_prot);
+    mutex_unlock(&mutex_prot);
 }
 
 void refreshProtection(uintptr_t addr)
 {
-    pthread_mutex_lock(&mutex_prot);
+    mutex_lock(&mutex_prot);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     if(memprot[idx>>16].prot!=memprot_default) {
         int prot = memprot[idx>>16].prot[idx&0xffff];
         int ret = mprotect((void*)(idx<<MEMPROT_SHIFT), box64_pagesize, prot&~PROT_CUSTOM);
 printf_log(LOG_INFO, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr, (void*)(idx<<MEMPROT_SHIFT), prot, ret, ret?strerror(errno):"ok");
     }
-    pthread_mutex_unlock(&mutex_prot);
+    mutex_unlock(&mutex_prot);
 }
 
 void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "allocProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
-    addMapMem(addr, addr+size-1);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
         end = (1LL<<(48-MEMPROT_SHIFT))-1;
-    if(end<idx) // memory addresses higher than 48bits are not tracked
-        return;
-    pthread_mutex_lock(&mutex_prot);
+    mutex_lock(&mutex_prot);
+    addMapMem(addr, addr+size-1);
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i].prot==memprot_default) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
@@ -1202,7 +1199,7 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
         }
         i+=finish-start;    // +1 from the "for" loop
     }
-    pthread_mutex_unlock(&mutex_prot);
+    mutex_unlock(&mutex_prot);
 }
 
 #ifdef DYNAREC
@@ -1255,7 +1252,7 @@ void AddHotPage(uintptr_t addr) {
     int base = (addr>>MEMPROT_SHIFT)&0xffff;
     if(!memprot[idx].hot) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
-            if (native_lock_storeifnull(&memprot[idx].hot, newblock) != newblock) {
+            if (native_lock_storeifnull(&memprot[idx].hot, newblock)) {
                 box_free(newblock);
             }
     }
@@ -1297,14 +1294,12 @@ static int blockempty(uint8_t* mem)
 void freeProtection(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
-    removeMapMem(addr, addr+size-1);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
         end = (1LL<<(48-MEMPROT_SHIFT))-1;
-    if(end<idx) // memory addresses higher than 48bits are not tracked
-        return;
-    pthread_mutex_lock(&mutex_prot);
+    mutex_lock(&mutex_prot);
+    removeMapMem(addr, addr+size-1);
     for (uintptr_t i=idx; i<=end; ++i) {
         const uint32_t key = (i>>16);
         const uintptr_t start = i&(MEMPROT_SIZE-1);
@@ -1322,38 +1317,25 @@ void freeProtection(uintptr_t addr, size_t size)
             } else {
                 memset(block+start, 0, (finish-start+1)*sizeof(uint8_t));
                 // blockempty is quite slow, so disable the free of blocks for now
-#if 0 //def ARM64   //disabled for now, not useful with the mutex
-                if (blockempty(block)) {
-                    block = (void*)native_lock_xchg(&memprot[key], (uintptr_t)memprot_default);
-                    if(!blockempty(block)) {
-                        block = (void*)native_lock_xchg(&memprot[key], (uintptr_t)block);
-                        for (int i = 0; i < 0x10000; ++i) {
-                            memprot[key][i] |= block[i];
-                        }
-                    }
-                    if (block != memprot_default) box_free(block);
-                }
-#else
                 /*else if(blockempty(block)) {
                     memprot[key] = memprot_default;
                     box_free(block);
                 }*/
-#endif
             }
         }
         i+=finish-start;    // +1 from the "for" loop
     }
-    pthread_mutex_unlock(&mutex_prot);
+    mutex_unlock(&mutex_prot);
 }
 
 uint32_t getProtection(uintptr_t addr)
 {
     if(addr>=(1LL<<48))
         return 0;
-    pthread_mutex_lock(&mutex_prot);
+    mutex_lock(&mutex_prot);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uint32_t ret = memprot[idx>>16].prot[idx&0xffff];
-    pthread_mutex_unlock(&mutex_prot);
+    mutex_unlock(&mutex_prot);
     return ret;
 }
 
@@ -1417,11 +1399,20 @@ int unlockCustommemMutex()
 {
     int ret = 0;
     int i = 0;
+    #ifdef DYNAREC
+    uint32_t tid = (uint32_t)GetTID();
+    #define GO(A, B)                    \
+        i = (native_lock_storeifref2_d(&A, 0, tid)==tid); \
+        if(i) {                         \
+            ret|=(1<<B);                \
+        }
+    #else
     #define GO(A, B)                    \
         i = checkUnlockMutex(&A);       \
         if(i) {                         \
             ret|=(1<<B);                \
         }
+    #endif
     GO(mutex_blocks, 0)
     GO(mutex_prot, 1)
     #undef GO
@@ -1432,7 +1423,7 @@ void relockCustommemMutex(int locks)
 {
     #define GO(A, B)                    \
         if(locks&(1<<B))                \
-            pthread_mutex_trylock(&A);  \
+            mutex_trylock(&A);          \
 
     GO(mutex_blocks, 0)
     GO(mutex_prot, 1)
@@ -1441,6 +1432,10 @@ void relockCustommemMutex(int locks)
 
 static void init_mutexes(void)
 {
+    #ifdef DYNAREC
+    native_lock_store(&mutex_blocks, 0);
+    native_lock_store(&mutex_prot, 0);
+    #else
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
@@ -1448,6 +1443,7 @@ static void init_mutexes(void)
     pthread_mutex_init(&mutex_prot, &attr);
 
     pthread_mutexattr_destroy(&attr);
+    #endif
 }
 
 static void atfork_child_custommem(void)
@@ -1561,8 +1557,10 @@ void fini_custommem_helper(box64context_t *ctx)
         box_free(p_blocks[i].block);
         #endif
     box_free(p_blocks);
+    #ifndef DYNAREC
     pthread_mutex_destroy(&mutex_prot);
     pthread_mutex_destroy(&mutex_blocks);
+    #endif
     while(mapmem) {
         mapmem_t *tmp = mapmem;
         mapmem = mapmem->next;

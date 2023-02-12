@@ -31,6 +31,7 @@
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
+#include "dynarec_native.h"
 #endif
 
 
@@ -266,6 +267,8 @@ static void sigstack_key_alloc() {
 	pthread_key_create(&sigstack_key, sigstack_destroy);
 }
 
+//1<<8 is mutex_dyndump
+#define is_dyndump_locked (1<<8)
 uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
@@ -698,7 +701,9 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
             if(used_stack)  // release stack
                 new_ss->ss_flags = 0;
-            relockMutex(Locks);
+            //relockMutex(Locks);   // do not relock mutex, because of the siglongjmp, whatever was running is canceled
+            if(Locks & is_dyndump_locked)
+                CancelBlock64();
             siglongjmp(ejb->jmpbuf, 1);
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
@@ -738,7 +743,9 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
 
     printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
     if(exits) {
-        relockMutex(Locks);
+        //relockMutex(Locks);   // the thread will exit, so no relock there
+        if(Locks & is_dyndump_locked)
+            CancelBlock64();
         exit(ret);
     }
     if(restorer)
@@ -746,9 +753,9 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     relockMutex(Locks);
 }
 
-extern __thread void* current_helper;
+extern void* current_helper;
 #ifdef DYNAREC
-static pthread_mutex_t mutex_dynarec_prot;
+static uint32_t mutex_dynarec_prot = 0;
 #endif
 
 extern int box64_quit;
@@ -792,14 +799,14 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
 #ifdef DYNAREC
-    if((Locks & (1<<8)) && (sig==SIGSEGV) && current_helper) {//1<<8 is mutex_dyndump
+    if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
         relockMutex(Locks);
         cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
     }
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_CUSTOM)) {
-        pthread_mutex_lock(&mutex_dynarec_prot);
+        mutex_lock(&mutex_dynarec_prot);
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
@@ -878,22 +885,24 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 } else {
                     dynarec_log(LOG_INFO, "Dynablock unprotected, getting out!\n");
                 }
-                relockMutex(Locks);
-                pthread_mutex_unlock(&mutex_dynarec_prot);
+                //relockMutex(Locks);
+                if(Locks & is_dyndump_locked)
+                    CancelBlock64();
+                mutex_unlock(&mutex_dynarec_prot);
                 siglongjmp(ejb->jmpbuf, 2);
             }
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);
         }
         // done
         if((prot&PROT_WRITE) || (prot&PROT_DYNAREC)) {
-            pthread_mutex_unlock(&mutex_dynarec_prot);
+            mutex_unlock(&mutex_dynarec_prot);
             // if there is no write permission, don't return and continue to program signal handling
             relockMutex(Locks);
             return;
         }
-        pthread_mutex_unlock(&mutex_dynarec_prot);
+        mutex_unlock(&mutex_dynarec_prot);
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && ((prot&(PROT_READ|PROT_WRITE))==(PROT_READ|PROT_WRITE))) {
-        pthread_mutex_lock(&mutex_dynarec_prot);
+        mutex_lock(&mutex_dynarec_prot);
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
         if(db && db->x64_addr>= addr && (db->x64_addr+db->x64_size)<addr) {
@@ -910,7 +919,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 glitch_addr = addr;
                 glitch_prot = prot;
                 relockMutex(Locks);
-                pthread_mutex_unlock(&mutex_dynarec_prot);
+                mutex_unlock(&mutex_dynarec_prot);
                 return; // try again
             }
 dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x\n", pc, addr, db, prot);
@@ -932,14 +941,14 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
                 refreshProtection((uintptr_t)addr);
                 relockMutex(Locks);
                 sched_yield();  // give time to the other process
-                pthread_mutex_unlock(&mutex_dynarec_prot);
+                mutex_unlock(&mutex_dynarec_prot);
                 return; // try again
             }
             glitch2_pc = NULL;
             glitch2_addr = NULL;
             glitch2_prot = 0;
         }
-        pthread_mutex_unlock(&mutex_dynarec_prot);
+        mutex_unlock(&mutex_dynarec_prot);
     }
     if(!db_searched)
         db = FindDynablockFromNativeAddress(pc);
@@ -1482,12 +1491,7 @@ EXPORT int my_swapcontext(x64emu_t* emu, void* ucp1, void* ucp2)
 #ifdef DYNAREC
 static void atfork_child_dynarec_prot(void)
 {
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
-    pthread_mutex_init(&mutex_dynarec_prot, &attr);
-
-    pthread_mutexattr_destroy(&attr);
+    native_lock_store(&mutex_dynarec_prot, 0);
 }
 #endif
 void init_signal_helper(box64context_t* context)

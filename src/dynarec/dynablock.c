@@ -46,7 +46,7 @@ void FreeDynablock(dynablock_t* db, int need_lock)
             return; // already in the process of deletion!
         dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x64=%p:%p already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size-1, db->gone);
         if(need_lock)
-            pthread_mutex_lock(&my_context->mutex_dyndump);
+            mutex_lock(&my_context->mutex_dyndump);
         // remove jumptable
         setJumpTableDefault64(db->x64_addr);
         dynarec_log(LOG_DEBUG, " -- FreeDyrecMap(%p, %d)\n", db->actual_block, db->size);
@@ -55,7 +55,7 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         FreeDynarecMap(db, (uintptr_t)db->actual_block, db->size);
         customFree(db);
         if(need_lock)
-            pthread_mutex_unlock(&my_context->mutex_dyndump);
+            mutex_unlock(&my_context->mutex_dyndump);
     }
 }
 
@@ -163,12 +163,12 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         return block;
 
     if(need_lock)
-        pthread_mutex_lock(&my_context->mutex_dyndump);
+        mutex_lock(&my_context->mutex_dyndump);
     
     block = getDB(addr);    // just in case
     if(block) {
         if(need_lock)
-            pthread_mutex_unlock(&my_context->mutex_dyndump);
+            mutex_unlock(&my_context->mutex_dyndump);
         return block;
     }
     
@@ -179,7 +179,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     if(sigsetjmp(&dynarec_jmpbuf, 1)) {
         printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, cancelling\n", (void*)addr);
         if(need_lock)
-            pthread_mutex_unlock(&my_context->mutex_dyndump);
+            mutex_unlock(&my_context->mutex_dyndump);
         return NULL;
     }
     void* ret = FillBlock64(block, filladdr);
@@ -203,7 +203,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         }
     }
     if(need_lock)
-        pthread_mutex_unlock(&my_context->mutex_dyndump);
+        mutex_unlock(&my_context->mutex_dyndump);
 
     dynarec_log(LOG_DEBUG, "%04d| --- DynaRec Block created @%p:%p (%p, 0x%x bytes)\n", GetTID(), (void*)addr, (void*)(addr+((block)?block->x64_size:1)-1), (block)?block->block:0, (block)?block->size:0);
 
@@ -219,7 +219,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create)
             return NULL;
         }
         uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
-        if(pthread_mutex_trylock(&my_context->mutex_dyndump)) {
+        if(mutex_trylock(&my_context->mutex_dyndump)) {
             dynarec_log(LOG_DEBUG, "mutex_dyndump not available when trying to validate block %p from %p:%p (hash:%X) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, db->hash, (void*)addr);
             return NULL;
         }
@@ -237,7 +237,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create)
             // fill back jumptable
             setJumpTableIfRef64(db->x64_addr, db->block, db->jmpnext);
         }
-        pthread_mutex_unlock(&my_context->mutex_dyndump);
+        mutex_unlock(&my_context->mutex_dyndump);
     } 
     return db;
 }
@@ -248,7 +248,7 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr)
     int create = 1;
     dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, 1);
     if(db && db->done && db->block && db->need_test) {
-        if(pthread_mutex_trylock(&my_context->mutex_dyndump))
+        if(mutex_trylock(&my_context->mutex_dyndump))
             return NULL;
         uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
         if(hash!=db->hash) {
@@ -264,7 +264,7 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr)
             // fill back jumptable
             addJumpTableIfDefault64(db->x64_addr, db->block);
         }
-        pthread_mutex_unlock(&my_context->mutex_dyndump);
+        mutex_unlock(&my_context->mutex_dyndump);
     } 
     return db;
 }

@@ -229,15 +229,15 @@ static tlsdatasize_t* setupTLSData(box64context_t* context)
 
 void* fillTLSData(box64context_t *context)
 {
-        pthread_mutex_lock(&context->mutex_tls);
+        mutex_lock(&context->mutex_tls);
         tlsdatasize_t *data = setupTLSData(context);
-        pthread_mutex_unlock(&context->mutex_tls);
+        mutex_unlock(&context->mutex_tls);
         return data;
 }
 
 void* resizeTLSData(box64context_t *context, void* oldptr)
 {
-        pthread_mutex_lock(&context->mutex_tls);
+        mutex_lock(&context->mutex_tls);
         tlsdatasize_t* oldata = (tlsdatasize_t*)oldptr;
         if(sizeTLSData(oldata->tlssize)!=sizeTLSData(context->tlssize) || (oldata->n_elfs/0xff)!=(context->elfsize/0xff)) {
             printf_log(LOG_INFO, "Warning, resizing of TLS occured! size: %d->%d / n_elfs: %d->%d\n", sizeTLSData(oldata->tlssize), sizeTLSData(context->tlssize), 1+(oldata->n_elfs/0xff), 1+(context->elfsize/0xff));
@@ -245,7 +245,7 @@ void* resizeTLSData(box64context_t *context, void* oldptr)
             // copy the relevent old part, in case something changed
             memcpy((void*)((uintptr_t)data->data-oldata->tlssize), (void*)((uintptr_t)oldata->data-oldata->tlssize), oldata->tlssize);
             // all done, update new size, free old pointer and exit
-            pthread_mutex_unlock(&context->mutex_tls);
+            mutex_unlock(&context->mutex_tls);
             free_tlsdatasize(oldptr);
             return data;
         } else {
@@ -267,7 +267,7 @@ void* resizeTLSData(box64context_t *context, void* oldptr)
                 }
                 oldata->n_elfs = context->elfsize;
             }
-            pthread_mutex_unlock(&context->mutex_tls);
+            mutex_unlock(&context->mutex_tls);
             return oldata;
         }
 }

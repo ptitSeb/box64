@@ -4,6 +4,9 @@
 #include <pthread.h>
 #include "pathcoll.h"
 #include "dictionnary.h"
+#ifdef DYNAREC
+#include "dynarec/native_lock.h"
+#endif
 
 typedef struct elfheader_s elfheader_t;
 typedef struct cleanup_s cleanup_t;
@@ -123,17 +126,21 @@ typedef struct box64context_s {
     kh_defaultversion_t *weakdefver;    // the weak default version for symbols (the XXX@@vvvv of symbols)
     vkprocaddess_t      vkprocaddress;
 
-    pthread_mutex_t     mutex_trace;
     #ifndef DYNAREC
     pthread_mutex_t     mutex_lock;     // dynarec build will use their own mecanism
-    #else
-    pthread_mutex_t     mutex_dyndump;
-    uintptr_t           max_db_size;    // the biggest (in x86_64 instructions bytes) built dynablock
-    int                 trace_dynarec;
-    #endif
+    pthread_mutex_t     mutex_trace;
     pthread_mutex_t     mutex_tls;
     pthread_mutex_t     mutex_thread;
     pthread_mutex_t     mutex_bridge;
+    #else
+    uint32_t            mutex_dyndump;
+    uint32_t            mutex_trace;
+    uint32_t            mutex_tls;
+    uint32_t            mutex_thread;
+    uint32_t            mutex_bridge;
+    uintptr_t           max_db_size;    // the biggest (in x86_64 instructions bytes) built dynablock
+    int                 trace_dynarec;
+    #endif
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
     library_t           *sdl1mixerlib;
@@ -187,6 +194,17 @@ typedef struct box64context_s {
     int                 current_line;
 
 } box64context_t;
+
+#ifndef DYNAREC
+#define mutex_lock(A)       pthread_mutex_lock(A)
+#define mutex_trylock(A)    pthread_mutex_trylock(A)
+#define mutex_unlock(A)     pthread_mutex_unlock(A)
+#else
+int GetTID();
+#define mutex_lock(A)       {uint32_t tid = (uint32_t)GetTID(); while(native_lock_storeifnull_d(A, tid)) sched_yield();}
+#define mutex_trylock(A)    native_lock_storeifnull_d(A, (uint32_t)GetTID())
+#define mutex_unlock(A)     native_lock_storeifref_d(A, 0, (uint32_t)GetTID())
+#endif
 
 extern box64context_t *my_context; // global context
 

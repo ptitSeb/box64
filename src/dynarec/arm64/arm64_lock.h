@@ -33,11 +33,20 @@ extern uintptr_t arm64_lock_xchg(void* p, uintptr_t val);
 // Atomicaly exchange value at [p] with val, return old p
 extern uint32_t arm64_lock_xchg_d(void* p, uint32_t val);
 
-// Atomicaly store value to [p] only if [p] is NULL. Return new [p] value (so val or old)
+// Atomicaly store value to [p] only if [p] is NULL. Return old [p] value
+extern uint32_t arm64_lock_storeifnull_d(void*p, uint32_t val);
+
+// Atomicaly store value to [p] only if [p] is NULL. Return old [p] value
 extern void* arm64_lock_storeifnull(void*p, void* val);
 
 // Atomicaly store value to [p] only if [p] is ref. Return new [p] value (so val or old)
 extern void* arm64_lock_storeifref(void*p, void* val, void* ref);
+
+// Atomicaly store value to [p] only if [p] is ref. Return new [p] value (so val or old)
+extern uint32_t arm64_lock_storeifref_d(void*p, uint32_t val, uint32_t ref);
+
+// Atomicaly store value to [p] only if [p] is ref. Return new [p] value (so val or old)
+extern uint32_t arm64_lock_storeifref2_d(void*p, uint32_t val, uint32_t ref);
 
 // decrement atomicaly the byte at [p] (but only if p not 0)
 extern void arm64_lock_decifnot0b(void*p);

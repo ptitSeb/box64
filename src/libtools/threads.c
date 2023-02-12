@@ -80,50 +80,50 @@ void CleanStackSize(box64context_t* context)
 	threadstack_t *ts;
 	if(!context || !context->stacksizes)
 		return;
-	pthread_mutex_lock(&context->mutex_thread);
+	mutex_lock(&context->mutex_thread);
 	kh_foreach_value(context->stacksizes, ts, box_free(ts));
 	kh_destroy(threadstack, context->stacksizes);
 	context->stacksizes = NULL;
-	pthread_mutex_unlock(&context->mutex_thread);
+	mutex_unlock(&context->mutex_thread);
 }
 
 void FreeStackSize(kh_threadstack_t* map, uintptr_t attr)
 {
-	pthread_mutex_lock(&my_context->mutex_thread);
+	mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(threadstack, map, attr);
 	if(k!=kh_end(map)) {
 		box_free(kh_value(map, k));
 		kh_del(threadstack, map, k);
 	}
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	mutex_unlock(&my_context->mutex_thread);
 }
 
 void AddStackSize(kh_threadstack_t* map, uintptr_t attr, void* stack, size_t stacksize)
 {
 	khint_t k;
 	int ret;
-	pthread_mutex_lock(&my_context->mutex_thread);
+	mutex_lock(&my_context->mutex_thread);
 	k = kh_put(threadstack, map, attr, &ret);
 	threadstack_t* ts = kh_value(map, k) = (threadstack_t*)box_calloc(1, sizeof(threadstack_t));
 	ts->stack = stack;
 	ts->stacksize = stacksize;
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	mutex_unlock(&my_context->mutex_thread);
 }
 
 // return stack from attr (or from current emu if attr is not found..., wich is wrong but approximate enough?)
 int GetStackSize(x64emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 {
 	if(emu->context->stacksizes && attr) {
-		pthread_mutex_lock(&my_context->mutex_thread);
+		mutex_lock(&my_context->mutex_thread);
 		khint_t k = kh_get(threadstack, emu->context->stacksizes, attr);
 		if(k!=kh_end(emu->context->stacksizes)) {
 			threadstack_t* ts = kh_value(emu->context->stacksizes, k);
 			*stack = ts->stack;
 			*stacksize = ts->stacksize;
-			pthread_mutex_unlock(&my_context->mutex_thread);
+			mutex_unlock(&my_context->mutex_thread);
 			return 1;
 		}
-		pthread_mutex_unlock(&my_context->mutex_thread);
+		mutex_unlock(&my_context->mutex_thread);
 	}
 	// should a Warning be emited?
 	*stack = emu->init_stack;
@@ -680,10 +680,10 @@ int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 	int old = native_lock_xchg_d(once, 1);
 	#else
 	int old = *once;	// outside of the mutex in case once is badly formed
-	pthread_mutex_lock(&my_context->mutex_lock);
+	mutex_lock(&my_context->mutex_lock);
 	old = *once;
 	*once = 1;
-	pthread_mutex_unlock(&my_context->mutex_lock);
+	mutex_unlock(&my_context->mutex_lock);
 	#endif
 	if(old)
 		return 0;
@@ -837,7 +837,11 @@ typedef struct mutexes_block_s {
 } mutexes_block_t;
 
 static mutexes_block_t *mutexes = NULL;
+#ifdef DYNAREC
+static uint32_t mutex_mutexes = 0;
+#else
 static pthread_mutex_t mutex_mutexes = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 static mutexes_block_t* NewMutexesBlock()
 {
@@ -847,7 +851,7 @@ static mutexes_block_t* NewMutexesBlock()
 }
 
 static int NewMutex() {
-	pthread_mutex_lock(&mutex_mutexes);
+	mutex_lock(&mutex_mutexes);
 	if(!mutexes) {
 		mutexes = NewMutexesBlock();
 	}
@@ -864,10 +868,10 @@ static int NewMutex() {
 	for (int i=0; i<MUTEXES_SIZE; ++i)
 		if(!m->taken[i]) {
 			m->taken[i] = 1;
-			pthread_mutex_unlock(&mutex_mutexes);
+			mutex_unlock(&mutex_mutexes);
 			return j*MUTEXES_SIZE + i;
 		}
-	pthread_mutex_unlock(&mutex_mutexes);
+	mutex_unlock(&mutex_mutexes);
 	printf_log(LOG_NONE, "Error: NewMutex unreachable part reached\n");
 	return (int)-1;	// error!!!!
 }
@@ -876,13 +880,13 @@ void FreeMutex(int k)
 {
 	if(!mutexes)
 		return;	//???
-	pthread_mutex_lock(&mutex_mutexes);
+	mutex_lock(&mutex_mutexes);
 	mutexes_block_t* m = mutexes;
 	for(int i=0; i<k/MUTEXES_SIZE; ++i)
 		m = m->next;
 	m->taken[k%MUTEXES_SIZE] = 0;
 	++m->n_free;
-	pthread_mutex_unlock(&mutex_mutexes);
+	mutex_unlock(&mutex_mutexes);
 }
 
 void FreeAllMutexes(mutexes_block_t* m)
@@ -1307,6 +1311,7 @@ void fini_pthread_helper(box64context_t* context)
 	}
 }
 
+#ifndef DYNAREC
 int checkUnlockMutex(void* m)
 {
 	pthread_mutex_t* mutex = (pthread_mutex_t*)m;
@@ -1316,3 +1321,4 @@ int checkUnlockMutex(void* m)
 	}
 	return 0;
 }
+#endif

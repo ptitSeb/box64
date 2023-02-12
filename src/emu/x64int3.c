@@ -101,7 +101,6 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
             int have_trace = 0;
             if(h && strstr(ElfName(h), "libMiles")) have_trace = 1;*/
             if(box64_log>=LOG_DEBUG || cycle_log) {
-                pthread_mutex_lock(&emu->context->mutex_trace);
                 int tid = GetTID();
                 char t_buff[256] = "\0";
                 char buff2[64] = "\0";
@@ -254,10 +253,12 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 } else {
                     snprintf(buff, 256, "%04d|%p: Calling %s(0x%lX, 0x%lX, 0x%lX, ...)", tid, *(void**)(R_RSP), s, R_RDI, R_RSI, R_RDX);
                 }
-                if(!cycle_log) printf_log(LOG_NONE, "%s =>", buff);
-                pthread_mutex_unlock(&emu->context->mutex_trace);
+                if(!cycle_log) {
+                    mutex_lock(&emu->context->mutex_trace);
+                    printf_log(LOG_NONE, "%s =>", buff);
+                    mutex_unlock(&emu->context->mutex_trace);
+                }
                 w(emu, a);   // some function never come back, so unlock the mutex first!
-                pthread_mutex_lock(&emu->context->mutex_trace);
                 if(post)
                     switch(post) { // Only ever 2 for now...
                     case 1: snprintf(buff2, 64, " [%llu sec %llu nsec]", pu64?pu64[0]:~0ull, pu64?pu64[1]:~0ull);
@@ -285,9 +286,11 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
                 if(cycle_log)
                     snprintf(buffret, 128, "0x%lX%s%s", R_RAX, buff2, buff3);
-                else
+                else {
+                    mutex_lock(&emu->context->mutex_trace);
                     printf_log(LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
-                pthread_mutex_unlock(&emu->context->mutex_trace);
+                    mutex_unlock(&emu->context->mutex_trace);
+                }
             } else
                 w(emu, a);
         }

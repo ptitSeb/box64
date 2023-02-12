@@ -376,7 +376,7 @@ static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
     return ninst;
 }
 
-__thread void* current_helper = NULL;
+void* current_helper = NULL;
 
 void CancelBlock64()
 {
@@ -432,6 +432,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
         return CreateEmptyBlock(block, addr);
+    }
+    if(current_helper) {
+        dynarec_log(LOG_DEBUG, "Cancelling dynarec FillBlock at %p as anothor one is going on\n", (void*)addr);
+        return NULL;
     }
     // protect the 1st page
     protectDB(addr, 1);
