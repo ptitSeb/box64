@@ -145,6 +145,14 @@ wrappedtestundefs.h:
 
 # TODO: Add /.F.*A/ automatic generation (and suppression)
 
+class FunctionConvention(object):
+	def __init__(self, convname: str) -> None:
+		self.name = convname
+conventions = {
+	'F': FunctionConvention("System V"),
+	'W': FunctionConvention("Windows")
+}
+
 # Free letters:  B   FG  J      QR T   XYZab  e gh jk mno qrst   xyz
 class FunctionType(str):
 	values: List[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A']
@@ -163,10 +171,13 @@ class FunctionType(str):
 			# TODO: change *FEv into true functions (right now they are redirected to *FE)
 			#chk_type = s[0] + s[3:]
 		
-		if s[1] not in ["F"]:
+		if s[1] not in conventions:
 			raise NotImplementedError("Bad middle letter {0}{1}".format(s[1], post))
 		
 		return all(c in FunctionType.values for c in chk_type) and (('v' not in chk_type[1:]) or (len(chk_type) == 2))
+	
+	def get_convention(self) -> FunctionConvention:
+		return conventions[self[1]]
 	
 	def splitchar(self) -> List[int]:
 		"""
@@ -1013,9 +1024,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"\n#error Invalid return type: va_list\n",                 # A
 		]
 		
-		# Name of the registers
-		reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
-		assert(len(reg_arg) == 6)
 		# vreg: value is in a general register
 		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
 		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1]
@@ -1136,7 +1144,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"*(void**)(R_RSP + {p}), ",                 # P
 			"*(void**)(R_RSP + {p}), ",                 # A
 		]
-
+		
 		# Asserts
 		if len(FunctionType.values) != len(vstack):
 			raise NotImplementedError("len(values) = {lenval} != len(vstack) = {lenvstack}".format(lenval=len(FunctionType.values), lenvstack=len(vstack)))
@@ -1176,7 +1184,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			raise NotImplementedError("Something can be in an XMM register but not in the stack")
 		
 		# Helper functions to write the function definitions
-		def function_args(args: FunctionType, d: int = 8, r: int = 0, x: int = 0) -> str:
+		def function_args(conv: FunctionConvention, args: FunctionType, d: int = 8, r: int = 0, x: int = 0) -> str:
 			# args: string of argument types
 			# d: delta (in the stack)
 			# r: general register no
@@ -1186,40 +1194,67 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			
 			# Redirections
 			if args[0] == "0":
-				return "0, " + function_args(args[1:], d, r, x)
+				return "0, " + function_args(conv, args[1:], d, r, x)
 			elif args[0] == "1":
-				return "1, " + function_args(args[1:], d, r, x)
+				return "1, " + function_args(conv, args[1:], d, r, x)
 			
 			idx = FunctionType.values.index(args[0])
-			if (r < 6) and (vreg[idx] > 0):
-				ret = ""
-				for _ in range(vreg[idx]):
-					# There may be values in multiple registers
-					if r < 6:
-						# Value is in a general register
-						ret = ret + arg_r[idx].format(p=reg_arg[r])
-						r = r + 1
-					else:
-						# Remaining is in the stack
-						ret = ret + arg_s[idx].format(p=d)
-						d = d + 8
-				return ret + function_args(args[1:], d, r, x)
-			elif (x < 8) and (vxmm[idx] > 0):
-				# Value is in an XMM register
-				return arg_x[idx].format(p=x) + function_args(args[1:], d, r, x+1)
-			elif vstack[idx] > 0:
-				# Value is in the stack
-				return arg_s[idx].format(p=d) + function_args(args[1:], d+8*vstack[idx], r, x)
-			else:
-				# Value is somewhere else
-				return arg_o[idx].format(p=d) + function_args(args[1:], d, r, x)
+			if conv.name == "System V":
+				# Name of the registers
+				reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
+				if (r < len(reg_arg)) and (vreg[idx] > 0):
+					ret = ""
+					for _ in range(vreg[idx]):
+						# There may be values in multiple registers
+						if r < len(reg_arg):
+							# Value is in a general register
+							ret = ret + arg_r[idx].format(p=reg_arg[r])
+							r = r + 1
+						else:
+							# Remaining is in the stack
+							ret = ret + arg_s[idx].format(p=d)
+							d = d + 8
+					return ret + function_args(conv, args[1:], d, r, x)
+				elif (x < 8) and (vxmm[idx] > 0):
+					# Value is in an XMM register
+					return arg_x[idx].format(p=x) + function_args(conv, args[1:], d, r, x+1)
+				elif vstack[idx] > 0:
+					# Value is in the stack
+					return arg_s[idx].format(p=d) + function_args(conv, args[1:], d+8*vstack[idx], r, x)
+				else:
+					# Value is somewhere else
+					return arg_o[idx].format(p=d) + function_args(conv, args[1:], d, r, x)
+			else: # Windows
+				reg_arg = ["R_RCX", "R_RDX", "R_R8", "R_R9"]
+				if (r < len(reg_arg)) and (vreg[idx] > 0):
+					ret = ""
+					for _ in range(vreg[idx]):
+						# There may be values in multiple registers
+						if r < len(reg_arg):
+							# Value is in a general register
+							ret = ret + arg_r[idx].format(p=reg_arg[r])
+							r = r + 1
+						else:
+							# Remaining is in the stack
+							ret = ret + arg_s[idx].format(p=d)
+							d = d + 8
+					return ret + function_args(conv, args[1:], d, r, x)
+				elif (x < 4) and (vxmm[idx] > 0):
+					# Value is in an XMM register
+					return arg_x[idx].format(p=x) + function_args(conv, args[1:], d, r, x+1)
+				elif vstack[idx] > 0:
+					# Value is in the stack
+					return arg_s[idx].format(p=d) + function_args(conv, args[1:], d+8*vstack[idx], r, x)
+				else:
+					# Value is somewhere else
+					return arg_o[idx].format(p=d) + function_args(conv, args[1:], d, r, x)
 		
 		def function_writer(f, N: FunctionType, W: str) -> None:
 			# Write to f the function type N (real type W)
 			
 			f.write("void {0}(x64emu_t *emu, uintptr_t fcn) {2} {1} fn = ({1})fcn; ".format(N, W, "{"))
 			# Generic function
-			f.write(vals[FunctionType.values.index(N[0])].format(function_args(N[2:])[:-2]) + " }\n")
+			f.write(vals[FunctionType.values.index(N[0])].format(function_args(N.get_convention(), N[2:])[:-2]) + " }\n")
 		
 		for k in gbls:
 			if k != str(Clauses()):
