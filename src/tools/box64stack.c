@@ -91,6 +91,7 @@ void SetupInitialStack(x64emu_t *emu)
     uintptr_t p_envv[emu->context->envc];
     for (int i=emu->context->envc-1; i>=0; --i) {
         PushString(emu, emu->context->envv[i]);
+        box_free(emu->context->envv[i]);
         p_envv[i] = R_RSP;
     }
     // push args, also, free the argv[] string and point to the one in the main stack
