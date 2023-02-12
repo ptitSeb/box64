@@ -3,46 +3,45 @@
 import os
 import sys
 
-# TODO: remove these comments
 try:
-	#assert(sys.version_info.major == 3)
-	#if sys.version_info.minor >= 9:
+	assert(sys.version_info.major == 3)
+	if sys.version_info.minor >= 9:
 		# Python 3.9+
 		from typing import Generic, NewType, Optional, TypeVar, Union, final
 		from collections.abc import Iterable
 		Dict = dict
 		List = list
 		Tuple = tuple
-	#elif sys.version_info.minor >= 8:
-	#	# Python [3.8, 3.9)
-	#	from typing import Dict, List, Tuple, Generic, Iterable, NewType, Optional, TypeVar, Union, final
-	#elif (sys.version_info.minor >= 5) and (sys.version_info.micro >= 2):
-	#	# Python [3.5.2, 3.8)
-	#	from typing import Dict, List, Tuple, Generic, Iterable, NewType, Optional, TypeVar, Union
-	#	final = lambda fun: fun # type: ignore
-	#elif sys.version_info.minor >= 5:
-	#	# Python [3.5, 3.5.2)
-	#	from typing import Dict, List, Tuple, Generic, Iterable, Optional, TypeVar, Union
-	#	class GTDummy:
-	#		def __getitem__(self, _): return self
-	#	final = lambda fun: fun # type: ignore
-	#	def NewType(_, b): return b # type: ignore
-	#else:
-	#	# Python < 3.5
-	#	#print("Your Python version does not have the typing module, fallback to empty 'types'")
-	#	# Dummies
-	#	class GTDummy:
-	#		def __getitem__(self, _):
-	#			return self
-	#	Dict = GTDummy() # type: ignore
-	#	List = GTDummy() # type: ignore
-	#	Generic = GTDummy() # type: ignore
-	#	Iterable = GTDummy() # type: ignore
-	#	Optional = GTDummy() # type: ignore
-	#	def NewType(_, b): return b # type: ignore
-	#	Tuple = GTDummy() # type: ignore
-	#	def TypeVar(T): return object # type: ignore
-	#	Union = GTDummy() # type: ignore
+	elif sys.version_info.minor >= 8:
+		# Python [3.8, 3.9)
+		from typing import Dict, List, Tuple, Generic, Iterable, NewType, Optional, TypeVar, Union, final
+	elif (sys.version_info.minor >= 5) and (sys.version_info.micro >= 2):
+		# Python [3.5.2, 3.8)
+		from typing import Dict, List, Tuple, Generic, Iterable, NewType, Optional, TypeVar, Union
+		final = lambda fun: fun # type: ignore
+	elif sys.version_info.minor >= 5:
+		# Python [3.5, 3.5.2)
+		from typing import Dict, List, Tuple, Generic, Iterable, Optional, TypeVar, Union
+		class GTDummy:
+			def __getitem__(self, _): return self
+		final = lambda fun: fun # type: ignore
+		def NewType(_, b): return b # type: ignore
+	else:
+		# Python < 3.5
+		#print("Your Python version does not have the typing module, fallback to empty 'types'")
+		# Dummies
+		class GTDummy:
+			def __getitem__(self, _):
+				return self
+		Dict = GTDummy() # type: ignore
+		List = GTDummy() # type: ignore
+		Generic = GTDummy() # type: ignore
+		Iterable = GTDummy() # type: ignore
+		Optional = GTDummy() # type: ignore
+		def NewType(_, b): return b # type: ignore
+		Tuple = GTDummy() # type: ignore
+		def TypeVar(T): return object # type: ignore
+		Union = GTDummy() # type: ignore
 except ImportError:
 	print("It seems your Python version is quite broken...")
 	assert(False)
