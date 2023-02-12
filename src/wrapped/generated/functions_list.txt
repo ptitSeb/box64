@@ -2245,6 +2245,7 @@
 #() pFpippppppppppppppppp
 #() pFpppWWCCpCpCpCWpCpCpC
 #() iFpppppppppppppppppppppp
+#() vFpppppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) IFD
 #defined(HAVE_LD80BITS) DFD

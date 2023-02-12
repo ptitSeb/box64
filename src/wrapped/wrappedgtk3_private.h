@@ -2,40 +2,43 @@
 #error meh!
 #endif
 
-//GO(gtk_about_dialog_get_artists, 
-//GO(gtk_about_dialog_get_authors, 
-//GO(gtk_about_dialog_get_comments, 
-//GO(gtk_about_dialog_get_copyright, 
-//GO(gtk_about_dialog_get_documenters, 
-//GO(gtk_about_dialog_get_license, 
-//GO(gtk_about_dialog_get_logo, 
-//GO(gtk_about_dialog_get_logo_icon_name, 
-//GO(gtk_about_dialog_get_name, 
-//GO(gtk_about_dialog_get_program_name, 
-//GO(gtk_about_dialog_get_translator_credits, 
+GO(gtk_about_dialog_add_credit_section, vFppp)
+GO(gtk_about_dialog_get_artists, pFp)
+GO(gtk_about_dialog_get_authors, pFp)
+GO(gtk_about_dialog_get_comments, pFp)
+GO(gtk_about_dialog_get_copyright, pFp)
+GO(gtk_about_dialog_get_documenters, pFp)
+GO(gtk_about_dialog_get_license, pFp)
+GO(gtk_about_dialog_get_license_type, iFp)
+GO(gtk_about_dialog_get_logo, pFp)
+GO(gtk_about_dialog_get_logo_icon_name, pFp)
+GO(gtk_about_dialog_get_name, pFp)
+GO(gtk_about_dialog_get_program_name, pFp)
+GO(gtk_about_dialog_get_translator_credits, pFp)
 GO(gtk_about_dialog_get_type, pFv)
-//GO(gtk_about_dialog_get_version, 
-//GO(gtk_about_dialog_get_website, 
-//GO(gtk_about_dialog_get_website_label, 
-//GO(gtk_about_dialog_get_wrap_license, 
-//GO(gtk_about_dialog_new, 
-//GO(gtk_about_dialog_set_artists, 
-//GO(gtk_about_dialog_set_authors, 
-//GO(gtk_about_dialog_set_comments, 
-//GO(gtk_about_dialog_set_copyright, 
-//GO(gtk_about_dialog_set_documenters, 
+GO(gtk_about_dialog_get_version, pFp)
+GO(gtk_about_dialog_get_website, pFp)
+GO(gtk_about_dialog_get_website_label, pFp)
+GO(gtk_about_dialog_get_wrap_license, iFp)
+GO(gtk_about_dialog_new, pFv)
+GO(gtk_about_dialog_set_artists, vFpp)
+GO(gtk_about_dialog_set_authors, vFpp)
+GO(gtk_about_dialog_set_comments, vFpp)
+GO(gtk_about_dialog_set_copyright, vFpp)
+GO(gtk_about_dialog_set_documenters, vFpp)
 //GO(gtk_about_dialog_set_email_hook, 
-//GO(gtk_about_dialog_set_license, 
-//GO(gtk_about_dialog_set_logo, 
-//GO(gtk_about_dialog_set_logo_icon_name, 
-//GO(gtk_about_dialog_set_name, 
-//GO(gtk_about_dialog_set_program_name, 
-//GO(gtk_about_dialog_set_translator_credits, 
+GO(gtk_about_dialog_set_license, vFpp)
+GO(gtk_about_dialog_set_license_type, vFpi)
+GO(gtk_about_dialog_set_logo, vFpp)
+GO(gtk_about_dialog_set_logo_icon_name, vFpp)
+GO(gtk_about_dialog_set_name, vFpp)
+GO(gtk_about_dialog_set_program_name, vFpp)
+GO(gtk_about_dialog_set_translator_credits, vFpp)
 //GO(gtk_about_dialog_set_url_hook, 
-//GO(gtk_about_dialog_set_version, 
-//GO(gtk_about_dialog_set_website, 
-//GO(gtk_about_dialog_set_website_label, 
-//GO(gtk_about_dialog_set_wrap_license, 
+GO(gtk_about_dialog_set_version, vFpp)
+GO(gtk_about_dialog_set_website, vFpp)
+GO(gtk_about_dialog_set_website_label, vFpp)
+GO(gtk_about_dialog_set_wrap_license, vFpi)
 GO(gtk_accelerator_get_default_mod_mask, uFv)
 GO(gtk_accelerator_get_label, pFui)
 GO(gtk_accelerator_name, pFui)
@@ -2625,7 +2628,7 @@ GO(gtk_settings_set_long_property, vFpplp)
 GO(gtk_settings_set_property_value, vFppp)
 GO(gtk_settings_set_string_property, vFpppp)
 GO(gtk_shadow_type_get_type, pFv)
-//GO(gtk_show_about_dialog, 
+GO(gtk_show_about_dialog, vFpppppppppppppppppppppppp)   //vaarg
 GO(gtk_show_uri, iFppup)
 GO(gtk_side_type_get_type, pFv)
 //GO(gtk_signal_compat_matched, 
