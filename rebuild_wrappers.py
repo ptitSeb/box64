@@ -810,10 +810,12 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	assert(all(c not in allowed_simply + allowed_regs + allowed_fpr for c in forbidden_simple))
 	assert(all(c in allowed_simply + allowed_regs + allowed_fpr + forbidden_simple for c in FunctionType.values))
 	
-	def check_simple(v: FunctionType):
+	def check_simple(v: FunctionType) -> Optional[int]:
 		regs_count: int = 0
 		fpr_count : int = 0
 		
+		if v.get_convention().name != "System V":
+			return None
 		if v[0] in forbidden_simple:
 			return None
 		for c in v[2:]:
