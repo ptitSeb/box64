@@ -125,7 +125,7 @@ GO(xcb_connection_has_error, iFp)
 GO(xcb_convert_selection, pFpuuuuu)
 //GO(xcb_convert_selection_checked, 
 GO(xcb_copy_area, pFpuuuwwwwWW)
-//GO(xcb_copy_area_checked, 
+GO(xcb_copy_area_checked, pFpuuuwwwwWW)
 //GO(xcb_copy_colormap_and_free, 
 //GO(xcb_copy_colormap_and_free_checked, 
 //GO(xcb_copy_gc, 
@@ -656,7 +656,7 @@ GO(xcb_visualtype_next, vFp)
 GO(xcb_wait_for_event, pFp)
 GO(xcb_wait_for_reply, pFpup)
 GO(xcb_wait_for_reply64, pFpUp)
-//GO(xcb_wait_for_special_event, 
+GO(xcb_wait_for_special_event, pFpp)
 GO(xcb_warp_pointer, pFpuuwwWWww)
 //GO(xcb_warp_pointer_checked, 
 //GO(xcb_window_end, 

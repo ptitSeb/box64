@@ -387,6 +387,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbkeysyms.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbicccm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbimage.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxcbpresent.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbrandr.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbrender.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbrenderutil.c"
@@ -470,14 +471,19 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlber.c"
     "${BOX64_ROOT}/src/wrapped/wrappedvulkan.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxshmfence.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9.c"
 )
 
-#set(WRAPPEDS_HEAD "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9_gen.h")
+# If BOX64_ROOT contains a ".c", the build breaks...
+string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})
+set(WRAPPEDS_HEAD "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9_genvate.h")
 foreach(A ${WRAPPEDS})
-    string(REGEX REPLACE ".c$" "_private.h" B ${A})
+    string(REPLACE ".c" "_private.h" C ${A})
+    string(REPLACE "${MODROOT}" "${BOX64_ROOT}" B ${C})
     set(WRAPPEDS_HEAD ${WRAPPEDS_HEAD} ${B})
     set_source_files_properties(${A} PROPERTIES OBJECT_DEPENDS ${B})
 endforeach()
+
 
 set(WRAPPER "${BOX64_ROOT}/src/wrapped/generated/wrapper.c" "${BOX64_ROOT}/src/wrapped/generated/wrapper.h")
 

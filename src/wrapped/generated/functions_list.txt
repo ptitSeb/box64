@@ -737,6 +737,7 @@
 #() iFEpLi
 #() iFEpLp
 #() iFEppi
+#() iFEppu
 #() iFEppd
 #() iFEppL
 #() iFEppp
@@ -805,6 +806,7 @@
 #() iFpCpi
 #() iFpWWu
 #() iFpuwp
+#() iFpuiu
 #() iFpuiL
 #() iFpuip
 #() iFpuui
@@ -1155,6 +1157,7 @@
 #() iFEippL
 #() iFEippp
 #() iFEpiii
+#() iFEpiup
 #() iFEpipi
 #() iFEpipp
 #() iFEpipV
@@ -1202,6 +1205,7 @@
 #() iFpiipp
 #() iFpiIip
 #() iFpiuwp
+#() iFpiupu
 #() iFpiUUU
 #() iFpipii
 #() iFpipiu
@@ -1211,15 +1215,20 @@
 #() iFpippW
 #() iFpippp
 #() iFpCCCC
+#() iFpuiii
+#() iFpuiup
 #() iFpuill
 #() iFpuipi
 #() iFpuuip
 #() iFpuuui
 #() iFpuuup
 #() iFpuuLL
+#() iFpuupu
 #() iFpuupp
 #() iFpupiU
+#() iFpupuu
 #() iFpupup
+#() iFpuppu
 #() iFpuppp
 #() iFpUiUi
 #() iFpUupp
@@ -1250,6 +1259,8 @@
 #() iFpppiL
 #() iFpppip
 #() iFpppui
+#() iFpppuu
+#() iFpppup
 #() iFpppUi
 #() iFpppLi
 #() iFpppLp
@@ -1497,6 +1508,7 @@
 #() iFEpilpV
 #() iFEpippi
 #() iFEpIppp
+#() iFEpuuip
 #() iFEpuppp
 #() iFEpUppp
 #() iFEppppp
@@ -1517,11 +1529,13 @@
 #() iFpiiiii
 #() iFpiiiip
 #() iFpiiipp
+#() iFpiiuii
 #() iFpiipip
 #() iFpiippu
 #() iFpiippp
 #() iFpiuuup
 #() iFpiuupp
+#() iFpiuppu
 #() iFpiUUpp
 #() iFpipipi
 #() iFpippip
@@ -1529,6 +1543,7 @@
 #() iFpipppp
 #() iFpCpipu
 #() iFpWpppp
+#() iFpuiiii
 #() iFpuiCpp
 #() iFpuippp
 #() iFpupuui
@@ -1571,6 +1586,7 @@
 #() iFppppip
 #() iFppppup
 #() iFpppppi
+#() iFpppppu
 #() iFpppppL
 #() iFpppppp
 #() uFEiippp
@@ -1625,6 +1641,7 @@
 #() pFpuuwwu
 #() pFpuuuuu
 #() pFpuuupu
+#() pFpuuUUU
 #() pFplpppp
 #() pFppiiii
 #() pFppiipp
@@ -1750,6 +1767,7 @@
 #() iFpiiiiip
 #() iFpiiiuwp
 #() iFpiiuuiu
+#() iFpiiuuuu
 #() iFpiipppp
 #() iFpiuiipp
 #() iFpiupiii
@@ -1760,12 +1778,17 @@
 #() iFpippppp
 #() iFpIIpppp
 #() iFpWppppW
+#() iFpuiiiip
+#() iFpuiiuii
 #() iFpuiCuCp
 #() iFpuiuupp
+#() iFpuipupp
 #() iFpuuiuui
+#() iFpuuuppu
 #() iFpuupppp
 #() iFpupiLpL
 #() iFpupuuui
+#() iFpupuufu
 #() iFpupupui
 #() iFpuppppp
 #() iFpLipipi
@@ -1791,6 +1814,7 @@
 #() iFpppippi
 #() iFpppippp
 #() iFpppuiii
+#() iFpppuppp
 #() iFppppiii
 #() iFppppipp
 #() iFppppdpi
@@ -1905,6 +1929,8 @@
 #() vFpppppuuu
 #() vFpppppppp
 #() iFEpippppp
+#() iFEpuuiipp
+#() iFEpuuuipp
 #() iFEpuuLppp
 #() iFEpUUuppp
 #() iFEppipppp
@@ -1919,6 +1945,7 @@
 #() iFpWCuWCuu
 #() iFpWWipppp
 #() iFpuiipppp
+#() iFpuipuppp
 #() iFpuippLpp
 #() iFpuuiiiii
 #() iFpuuupupu
@@ -2023,6 +2050,8 @@
 #() vFppppipiip
 #() vFpppppippp
 #() iFEpiiiiipi
+#() iFEpuuiippu
+#() iFEpuuuiipp
 #() iFEpppipppp
 #() iFEppplPPPP
 #() iFEpppppupp
@@ -2032,7 +2061,9 @@
 #() iFipiipippi
 #() iFuilpluluf
 #() iFdddpppppp
+#() iFpiuuupipu
 #() iFpipLpiiip
+#() iFpuiuuipip
 #() iFpuuuuuuuu
 #() iFpdiiiUiUp
 #() iFppiiiiiii
@@ -2042,6 +2073,7 @@
 #() iFpppiiuuii
 #() iFpppiipiiu
 #() iFppppiiupp
+#() iFppppupiii
 #() iFppppppppu
 #() iFppppppppp
 #() uFEipippppp
@@ -2098,6 +2130,9 @@
 #() vFppdddddddd
 #() vFpppppppppp
 #() iFEpiiiiippp
+#() iFEpuipupppp
+#() iFEpuuiiuipp
+#() iFEpuuuuiipp
 #() iFEpupppLppL
 #() iFEppppppipp
 #() iFEppppppppp
@@ -2105,6 +2140,7 @@
 #() iFpiipiiipip
 #() iFpippddiidd
 #() iFpCuWCCCCup
+#() iFpuipuppppp
 #() iFpuupiuiipp
 #() iFpddpippppp
 #() iFppuuiiiiii
@@ -2151,6 +2187,8 @@
 #() vFppipppiiiii
 #() vFppipppuiiii
 #() vFppppppppppp
+#() iFEpuuiiuippu
+#() iFEpuuuuuiipp
 #() iFEpppipppppp
 #() iFEppppiiiiuu
 #() iFiiiiiiiiiip
@@ -2234,6 +2272,7 @@
 #() vFuuuiiiiiuiiiiilll
 #() vFppiiiiddddiiiiiuu
 #() vFpppuppiipppuUUUpi
+#() pFpuuuuuwwuuuuUUUup
 #() pFppippipipipipipip
 #() vFppuiiiiipuiiiiiiii
 #() vFpppipppppppppppppp
@@ -2256,7 +2295,6 @@
 #!defined(HAVE_LD80BITS) KFKp
 #!defined(HAVE_LD80BITS) vFppippKKC
 #defined(NOALIGN) iFipiip
-#!defined(NOALIGN) iFEppu
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEipiip
@@ -2324,6 +2362,9 @@ wrappedcurl:
   - curl_multi_setopt
 - uFpup:
   - curl_easy_setopt
+wrappedd3dadapter9:
+- pFp:
+  - D3DAdapter9GetProc
 wrappeddbus:
 - vFppp:
   - dbus_connection_remove_filter
@@ -3594,6 +3635,7 @@ wrappedlibxcbglx:
 wrappedlibxcbicccm:
 wrappedlibxcbimage:
 wrappedlibxcbkeysyms:
+wrappedlibxcbpresent:
 wrappedlibxcbrandr:
 wrappedlibxcbrender:
 wrappedlibxcbrenderutil:

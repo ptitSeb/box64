@@ -462,7 +462,8 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 						gotype = ln.split("(")[0].strip()
 						funname = ln.split(",")[0].split("(")[1].strip()
 						ln = ln.split(",")[1].split(")")[0].strip()
-						add_symbol_name(funname)
+						if not filename.endswith("_genvate.h"):
+							add_symbol_name(funname)
 					except IndexError:
 						raise NotImplementedError("Invalid GO command: {0}:{1}".format(
 							filename, line[:-1]
