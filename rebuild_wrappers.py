@@ -145,10 +145,20 @@ wrappedtestundefs.h:
 
 # TODO: Add /.F.*A/ automatic generation (and suppression)
 
+class FunctionConvention(object):
+	def __init__(self, ident: str, convname: str, valid_chars: List[str]) -> None:
+		self.ident = ident
+		self.name = convname
+		self.values = valid_chars
 # Free letters:  B   FG  J      QR T   XYZab  e gh jk mno qrst   xyz
+conventions = {
+	'F': FunctionConvention('F', "System V", ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A']),
+	'W': FunctionConvention('W', "Windows",  ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd',      'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M',      'P', 'A'])
+}
+sortedvalues = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', '0', '1']
+assert(all(all(c not in conv.values[:i] and c in sortedvalues for i, c in enumerate(conv.values)) for conv in conventions.values()))
+
 class FunctionType(str):
-	values: List[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A']
-	
 	@staticmethod
 	def validate(s: str, post: str) -> bool:
 		if len(s) < 3:
@@ -163,10 +173,13 @@ class FunctionType(str):
 			# TODO: change *FEv into true functions (right now they are redirected to *FE)
 			#chk_type = s[0] + s[3:]
 		
-		if s[1] not in ["F"]:
+		if s[1] not in conventions:
 			raise NotImplementedError("Bad middle letter {0}{1}".format(s[1], post))
 		
-		return all(c in FunctionType.values for c in chk_type) and (('v' not in chk_type[1:]) or (len(chk_type) == 2))
+		return all(c in conventions[s[1]].values for c in chk_type) and (('v' not in chk_type[1:]) or (len(chk_type) == 2))
+	
+	def get_convention(self) -> FunctionConvention:
+		return conventions[self[1]]
 	
 	def splitchar(self) -> List[int]:
 		"""
@@ -177,17 +190,15 @@ class FunctionType(str):
 		of `values.index`.
 		"""
 		try:
-			ret = [len(self), FunctionType.values.index(self[0])]
+			ret = [len(self), ord(self.get_convention().ident), self.get_convention().values.index(self[0])]
 			for c in self[2:]:
-				ret.append(FunctionType.values.index(c))
+				ret.append(self.get_convention().values.index(c))
 			return ret
 		except ValueError as e:
 			raise ValueError("Value is " + self) from e
 	
 	def __getitem__(self, i: Union[int, slice]) -> 'FunctionType':
 		return FunctionType(super().__getitem__(i))
-
-assert(all(c not in FunctionType.values[:i] for i, c in enumerate(FunctionType.values)))
 
 RedirectType = NewType('RedirectType', FunctionType)
 DefineType = NewType('DefineType', str)
@@ -462,7 +473,8 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 						gotype = ln.split("(")[0].strip()
 						funname = ln.split(",")[0].split("(")[1].strip()
 						ln = ln.split(",")[1].split(")")[0].strip()
-						add_symbol_name(funname)
+						if not filename.endswith("_genvate.h"):
+							add_symbol_name(funname)
 					except IndexError:
 						raise NotImplementedError("Invalid GO command: {0}:{1}".format(
 							filename, line[:-1]
@@ -471,26 +483,40 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 					hasFlatStructure = False
 					origLine = ln
 					if not FunctionType.validate(ln, " ({0}:{1})".format(filename, line[:-1])):
-						if (ln[0] in FunctionType.values) \
+						# This needs more work
+						old = RedirectType(FunctionType(ln))
+						if (ln[0] in old.get_convention().values) \
 						 and ('v' not in ln[2:]) \
-						 and all((c in FunctionType.values) or (c in mystructs) for c in ln[2:]):
+						 and all((c in old.get_convention().values) or (c in mystructs) for c in ln[2:]):
 							hasFlatStructure = True
 							
 							for sn in mystructs:
 								ln = ln.replace(sn, mystructs[sn][1])
+							ln = ln[0] + 'F' + ln[2:] # In case a structure named 'F' is used
 							mystructuses[RedirectType(FunctionType(origLine))] = FunctionType(ln)
 						else:
-							# This needs more work
-							old = RedirectType(FunctionType(ln))
-							acceptables = ['0', '1'] + FunctionType.values
-							if any(c not in acceptables for c in ln[2:]):
-								raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[:-1]))
-							# Ok, this is acceptable: there is 0, 1 and/or void
-							ln = ln[:2] + (ln[2:]
-								.replace("v", "")   # void   -> nothing
-								.replace("0", "i")  # 0      -> integer
-								.replace("1", "i")) # 1      -> integer
-							assert(len(ln) >= 3)
+							if old.get_convention().name == "System V":
+								acceptables = ['0', '1'] + old.get_convention().values
+								if any(c not in acceptables for c in ln[2:]):
+									raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[:-1]))
+								# Ok, this is acceptable: there is 0, 1 and/or void
+								ln = ln[:2] + (ln[2:]
+									.replace("v", "")   # void   -> nothing
+									.replace("0", "i")  # 0      -> integer
+									.replace("1", "i")) # 1      -> integer
+								assert(len(ln) >= 3)
+							else:
+								acceptables = ['0', '1', 'D', 'H'] + old.get_convention().values
+								if any(c not in acceptables for c in ln[2:]):
+									raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[:-1]))
+								# Ok, this is acceptable: there is 0, 1 and/or void
+								ln = ln[:2] + (ln[2:]
+									.replace("v", "")   # void              -> nothing
+									.replace("D", "p")  # long double       -> pointer
+									.replace("H", "p")  # unsigned __int128 -> pointer
+									.replace("0", "i")  # 0                 -> integer
+									.replace("1", "i")) # 1                 -> integer
+								assert(len(ln) >= 3)
 							redirects.setdefault(str(dependants), {})
 							redirects[str(dependants)][old] = FunctionType(ln)
 							
@@ -525,6 +551,7 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 						typedefs.setdefault(RedirectType(FunctionType(origLine)), [])
 				
 				# If the line is a structure metadata information...
+				# FIXME: what happens with e.g. a Windows function?
 				elif ln.startswith("//%S"):
 					metadata = [e for e in ln.split() if e]
 					if len(metadata) != 4:
@@ -538,12 +565,12 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 					if metadata[3] == "":
 						# If you need this, please open an issue (this is never actually called, empty strings are removed)
 						raise NotImplementedError("Invalid structure metadata supply (empty replacement) ({0}:{1})".format(filename, line[:-1]))
-					if any(c not in FunctionType.values for c in metadata[3]):
+					if any(c not in conventions['F'].values for c in metadata[3]):
 						# Note that replacement cannot be another structure type
 						raise NotImplementedError("Invalid structure metadata supply (invalid replacement) ({0}:{1})".format(filename, line[:-1]))
 					if metadata[1] in mystructs:
 						raise NotImplementedError("Invalid structure nickname {0} (duplicate) ({1}/{2})".format(metadata[1], filename, line[:-1]))
-					if (metadata[1] in FunctionType.values) or (metadata[1] in ['0', '1']):
+					if (metadata[1] in conventions['F'].values) or (metadata[1] in ['0', '1']):
 						raise NotImplementedError("Invalid structure nickname {0} (reserved) ({1}/{2})".format(metadata[1], filename, line[:-1]))
 					
 					# OK, add into the database
@@ -678,17 +705,21 @@ def sortArrays(gbl_tmp : JumbledGlobals, red_tmp : JumbledRedirects, filespec: J
 	for k3 in gbl:
 		gbl[k3].sort(key=FunctionType.splitchar)
 	
-	FunctionType.values = FunctionType.values + ['0', '1']
+	oldvals = { k: conventions[k].values for k in conventions }
+	for k in conventions:
+		conventions[k].values = sortedvalues
 	for k3 in redirects:
 		redirects[k3].sort(key=lambda v: v[0].splitchar() + v[1].splitchar())
-	FunctionType.values = FunctionType.values[:-2]
+	for k in conventions:
+		conventions[k].values = oldvals[k]
 	
 	sortedfilespec: SortedFilesSpecific = {}
 	for fn in filespec:
 		# Maybe do better?
 		mystructs_vals: List[str] = sorted(filespec[fn][1].keys())
 		if mystructs_vals != []:
-			FunctionType.values = FunctionType.values + list(mystructs_vals)
+			for k in conventions:
+				conventions[k].values = conventions[k].values + list(mystructs_vals)
 		
 		mytypedefs_vals: List[RedirectType] = sorted(filespec[fn][0].keys(), key=FunctionType.splitchar)
 		sortedfilespec[fn] = (
@@ -697,7 +728,8 @@ def sortArrays(gbl_tmp : JumbledGlobals, red_tmp : JumbledRedirects, filespec: J
 		)
 		
 		if mystructs_vals != []:
-			FunctionType.values = FunctionType.values[:-len(mystructs_vals)]
+			for k in conventions:
+				conventions[k].values = conventions[k].values[:-len(mystructs_vals)]
 	
 	return CustOrderedDict(gbl, gbl_idxs), CustOrderedDict(redirects, redirects_idxs), sortedfilespec
 
@@ -784,6 +816,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	
 	# Detect simple wrappings
 	simple_wraps: Dict[ClausesStr, List[Tuple[FunctionType, int]]] = {}
+	allowed_conv_ident = "F"
+	allowed_conv = conventions[allowed_conv_ident]
 	
 	# H could be allowed maybe?
 	allowed_simply: str = "v"
@@ -792,16 +826,18 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	
 	# Sanity checks
 	forbidden_simple: str = "EDKVOSNMHPA"
-	assert(len(allowed_simply) + len(allowed_regs) + len(allowed_fpr) + len(forbidden_simple) == len(FunctionType.values))
+	assert(len(allowed_simply) + len(allowed_regs) + len(allowed_fpr) + len(forbidden_simple) == len(allowed_conv.values))
 	assert(all(c not in allowed_regs for c in allowed_simply))
 	assert(all(c not in allowed_simply + allowed_regs for c in allowed_fpr))
 	assert(all(c not in allowed_simply + allowed_regs + allowed_fpr for c in forbidden_simple))
-	assert(all(c in allowed_simply + allowed_regs + allowed_fpr + forbidden_simple for c in FunctionType.values))
+	assert(all(c in allowed_simply + allowed_regs + allowed_fpr + forbidden_simple for c in allowed_conv.values))
 	
-	def check_simple(v: FunctionType):
+	def check_simple(v: FunctionType) -> Optional[int]:
 		regs_count: int = 0
 		fpr_count : int = 0
 		
+		if v.get_convention() is not allowed_conv:
+			return None
 		if v[0] in forbidden_simple:
 			return None
 		for c in v[2:]:
@@ -957,15 +993,21 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	
 	# Rewrite the wrapper.c file:
 	# i and u should only be 32 bits
-	#            E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A
-	td_types = ["x64emu_t*", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*"]
-	if len(FunctionType.values) != len(td_types):
-		raise NotImplementedError("len(values) = {lenval} != len(td_types) = {lentypes}".format(lenval=len(FunctionType.values), lentypes=len(td_types)))
+	td_types = {
+		#      E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A
+		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*"],
+		#      E            v       c         w          i          I          C          W           u           U           f        d         K         l           L            p        V        O          S        N      M      P        A
+		'W': ["x64emu_t*", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "void*", "void*"]
+	}
+	assert(all(k in conventions for k in td_types))
+	for k in conventions:
+		if len(conventions[k].values) != len(td_types[k]):
+			raise NotImplementedError("len(values) = {lenval} != len(td_types) = {lentypes}".format(lenval=len(conventions[k].values), lentypes=len(td_types[k])))
 	
 	def generate_typedefs(arr: Iterable[FunctionType], file) -> None:
 		for v in arr:
-			file.write("typedef " + td_types[FunctionType.values.index(v[0])] + " (*" + v + "_t)"
-				+ "(" + ', '.join(td_types[FunctionType.values.index(t)] for t in v[2:]) + ");\n")
+			file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + v + "_t)"
+				+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
 	
 	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.c"), 'w') as file:
 		file.write(files_header["wrapper.c"].format(lbr="{", rbr="}", version=ver))
@@ -984,37 +1026,61 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		
 		# Helper variables
 		# Return type template
-		vals = [
-			"\n#error Invalid return type: emulator\n",                # E
-			"fn({0});",                                                # v
-			"R_RAX=fn({0});",                                          # c
-			"R_RAX=fn({0});",                                          # w
-			"R_RAX=(int64_t)fn({0});",                                 # i  should be int32_t
-			"R_RAX=(int64_t)fn({0});",                                 # I
-			"R_RAX=(unsigned char)fn({0});",                           # C
-			"R_RAX=(unsigned short)fn({0});",                          # W
-			"R_RAX=(uint64_t)fn({0});",                                # u  should be uint32_t
-			"R_RAX=fn({0});",                                          # U
-			"emu->xmm[0].f[0]=fn({0});",                               # f
-			"emu->xmm[0].d[0]=fn({0});",                               # d
-			"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",  # D
-			"double db=fn({0}); fpu_do_push(emu); ST0val = db;",       # K
-			"R_RAX=(intptr_t)fn({0});",                                # l
-			"R_RAX=(uintptr_t)fn({0});",                               # L
-			"R_RAX=(uintptr_t)fn({0});",                               # p
-			"\n#error Invalid return type: va_list\n",                 # V
-			"\n#error Invalid return type: at_flags\n",                # O
-			"\n#error Invalid return type: _io_file*\n",               # S
-			"\n#error Invalid return type: ... with 1 arg\n",          # N
-			"\n#error Invalid return type: ... with 2 args\n",         # M
-			"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
-			"\n#error Invalid return type: pointer in the stack\n",    # P
-			"\n#error Invalid return type: va_list\n",                 # A
-		]
+		vals = {
+			conventions['F']: [
+				"\n#error Invalid return type: emulator\n",                # E
+				"fn({0});",                                                # v
+				"R_RAX=fn({0});",                                          # c
+				"R_RAX=fn({0});",                                          # w
+				"R_RAX=(int64_t)fn({0});",                                 # i  should be int32_t
+				"R_RAX=(int64_t)fn({0});",                                 # I
+				"R_RAX=(unsigned char)fn({0});",                           # C
+				"R_RAX=(unsigned short)fn({0});",                          # W
+				"R_RAX=(uint64_t)fn({0});",                                # u  should be uint32_t
+				"R_RAX=fn({0});",                                          # U
+				"emu->xmm[0].f[0]=fn({0});",                               # f
+				"emu->xmm[0].d[0]=fn({0});",                               # d
+				"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",  # D
+				"double db=fn({0}); fpu_do_push(emu); ST0val = db;",       # K
+				"R_RAX=(intptr_t)fn({0});",                                # l
+				"R_RAX=(uintptr_t)fn({0});",                               # L
+				"R_RAX=(uintptr_t)fn({0});",                               # p
+				"\n#error Invalid return type: va_list\n",                 # V
+				"\n#error Invalid return type: at_flags\n",                # O
+				"\n#error Invalid return type: _io_file*\n",               # S
+				"\n#error Invalid return type: ... with 1 arg\n",          # N
+				"\n#error Invalid return type: ... with 2 args\n",         # M
+				"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
+				"\n#error Invalid return type: pointer in the stack\n",    # P
+				"\n#error Invalid return type: va_list\n",                 # A
+			],
+			conventions['W']: [
+				"\n#error Invalid return type: emulator\n",                # E
+				"fn({0});",                                                # v
+				"R_RAX=fn({0});",                                          # c
+				"R_RAX=fn({0});",                                          # w
+				"R_RAX=(int64_t)fn({0});",                                 # i  should be int32_t
+				"R_RAX=(int64_t)fn({0});",                                 # I
+				"R_RAX=(unsigned char)fn({0});",                           # C
+				"R_RAX=(unsigned short)fn({0});",                          # W
+				"R_RAX=(uint64_t)fn({0});",                                # u  should be uint32_t
+				"R_RAX=fn({0});",                                          # U
+				"emu->xmm[0].f[0]=fn({0});",                               # f
+				"emu->xmm[0].d[0]=fn({0});",                               # d
+				"double db=fn({0}); fpu_do_push(emu); ST0val = db;",       # K
+				"R_RAX=(intptr_t)fn({0});",                                # l
+				"R_RAX=(uintptr_t)fn({0});",                               # L
+				"R_RAX=(uintptr_t)fn({0});",                               # p
+				"\n#error Invalid return type: va_list\n",                 # V
+				"\n#error Invalid return type: at_flags\n",                # O
+				"\n#error Invalid return type: _io_file*\n",               # S
+				"\n#error Invalid return type: ... with 1 arg\n",          # N
+				"\n#error Invalid return type: ... with 2 args\n",         # M
+				"\n#error Invalid return type: pointer in the stack\n",    # P
+				"\n#error Invalid return type: va_list\n",                 # A
+			]
+		}
 		
-		# Name of the registers
-		reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
-		assert(len(reg_arg) == 6)
 		# vreg: value is in a general register
 		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
 		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1]
@@ -1135,26 +1201,35 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"*(void**)(R_RSP + {p}), ",                 # P
 			"*(void**)(R_RSP + {p}), ",                 # A
 		]
-
+		
 		# Asserts
-		if len(FunctionType.values) != len(vstack):
-			raise NotImplementedError("len(values) = {lenval} != len(vstack) = {lenvstack}".format(lenval=len(FunctionType.values), lenvstack=len(vstack)))
-		if len(FunctionType.values) != len(vreg):
-			raise NotImplementedError("len(values) = {lenval} != len(vreg) = {lenvreg}".format(lenval=len(FunctionType.values), lenvreg=len(vreg)))
-		if len(FunctionType.values) != len(vxmm):
-			raise NotImplementedError("len(values) = {lenval} != len(vxmm) = {lenvxmm}".format(lenval=len(FunctionType.values), lenvxmm=len(vxmm)))
-		if len(FunctionType.values) != len(vother):
-			raise NotImplementedError("len(values) = {lenval} != len(vother) = {lenvother}".format(lenval=len(FunctionType.values), lenvother=len(vother)))
-		if len(FunctionType.values) != len(arg_s):
-			raise NotImplementedError("len(values) = {lenval} != len(arg_s) = {lenargs}".format(lenval=len(FunctionType.values), lenargs=len(arg_s)))
-		if len(FunctionType.values) != len(arg_r):
-			raise NotImplementedError("len(values) = {lenval} != len(arg_r) = {lenargr}".format(lenval=len(FunctionType.values), lenargr=len(arg_r)))
-		if len(FunctionType.values) != len(arg_x):
-			raise NotImplementedError("len(values) = {lenval} != len(arg_x) = {lenargx}".format(lenval=len(FunctionType.values), lenargx=len(arg_x)))
-		if len(FunctionType.values) != len(arg_o):
-			raise NotImplementedError("len(values) = {lenval} != len(arg_o) = {lenargo}".format(lenval=len(FunctionType.values), lenargo=len(arg_o)))
-		if len(FunctionType.values) != len(vals):
-			raise NotImplementedError("len(values) = {lenval} != len(vals) = {lenvals}".format(lenval=len(FunctionType.values), lenvals=len(vals)))
+		for k in conventions:
+			assert all(v in conventions['F'].values for v in conventions[k].values), "a convention is not a subset of System V"
+		assert all(vr == vs for (vr, vs) in zip(vreg, vstack) if vr != 0), "vreg and vstack are inconsistent"
+		assert all(vx == vs for (vx, vs) in zip(vxmm, vstack) if vx != 0), "vxmm and vstack are inconsistent"
+		assert all((vo == 0) == (vs != 0) for (vo, vs) in zip(vother, vstack)), "vother and vstack are inconsistent"
+		if len(conventions['F'].values) != len(vstack):
+			raise NotImplementedError("len(values) = {lenval} != len(vstack) = {lenvstack}".format(lenval=len(conventions['F'].values), lenvstack=len(vstack)))
+		if len(conventions['F'].values) != len(vreg):
+			raise NotImplementedError("len(values) = {lenval} != len(vreg) = {lenvreg}".format(lenval=len(conventions['F'].values), lenvreg=len(vreg)))
+		if len(conventions['F'].values) != len(vxmm):
+			raise NotImplementedError("len(values) = {lenval} != len(vxmm) = {lenvxmm}".format(lenval=len(conventions['F'].values), lenvxmm=len(vxmm)))
+		if len(conventions['F'].values) != len(vother):
+			raise NotImplementedError("len(values) = {lenval} != len(vother) = {lenvother}".format(lenval=len(conventions['F'].values), lenvother=len(vother)))
+		if len(conventions['F'].values) != len(arg_s):
+			raise NotImplementedError("len(values) = {lenval} != len(arg_s) = {lenargs}".format(lenval=len(conventions['F'].values), lenargs=len(arg_s)))
+		if len(conventions['F'].values) != len(arg_r):
+			raise NotImplementedError("len(values) = {lenval} != len(arg_r) = {lenargr}".format(lenval=len(conventions['F'].values), lenargr=len(arg_r)))
+		if len(conventions['F'].values) != len(arg_x):
+			raise NotImplementedError("len(values) = {lenval} != len(arg_x) = {lenargx}".format(lenval=len(conventions['F'].values), lenargx=len(arg_x)))
+		if len(conventions['F'].values) != len(arg_o):
+			raise NotImplementedError("len(values) = {lenval} != len(arg_o) = {lenargo}".format(lenval=len(conventions['F'].values), lenargo=len(arg_o)))
+		for k in conventions:
+			c = conventions[k]
+			if c not in vals:
+				raise NotImplementedError("[{k}]values not in vals".format(k=k, lenval=len(c.values), lenvals=len(vals[c])))
+			if len(c.values) != len(vals[c]):
+				raise NotImplementedError("len([{k}]values) = {lenval} != len(vals[...]) = {lenvals}".format(k=k, lenval=len(c.values), lenvals=len(vals[c])))
 		# When arg_* is not empty, v* should not be 0
 		if any(map(lambda v, a: (a != "") and (v == 0), vstack, arg_s)):
 			raise NotImplementedError("Something in the stack has a null offset and a non-empty arg string")
@@ -1175,7 +1250,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			raise NotImplementedError("Something can be in an XMM register but not in the stack")
 		
 		# Helper functions to write the function definitions
-		def function_args(args: FunctionType, d: int = 8, r: int = 0, x: int = 0) -> str:
+		systemVconv = conventions['F']
+		def function_args_systemV(args: FunctionType, d: int = 8, r: int = 0, x: int = 0) -> str:
 			# args: string of argument types
 			# d: delta (in the stack)
 			# r: general register no
@@ -1185,16 +1261,18 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			
 			# Redirections
 			if args[0] == "0":
-				return "0, " + function_args(args[1:], d, r, x)
+				return "0, " + function_args_systemV(args[1:], d, r, x)
 			elif args[0] == "1":
-				return "1, " + function_args(args[1:], d, r, x)
+				return "1, " + function_args_systemV(args[1:], d, r, x)
 			
-			idx = FunctionType.values.index(args[0])
-			if (r < 6) and (vreg[idx] > 0):
+			idx = systemVconv.values.index(args[0])
+			# Name of the registers
+			reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
+			if (r < len(reg_arg)) and (vreg[idx] > 0):
 				ret = ""
 				for _ in range(vreg[idx]):
 					# There may be values in multiple registers
-					if r < 6:
+					if r < len(reg_arg):
 						# Value is in a general register
 						ret = ret + arg_r[idx].format(p=reg_arg[r])
 						r = r + 1
@@ -1202,23 +1280,59 @@ def main(root: str, files: Iterable[Filename], ver: str):
 						# Remaining is in the stack
 						ret = ret + arg_s[idx].format(p=d)
 						d = d + 8
-				return ret + function_args(args[1:], d, r, x)
+				return ret + function_args_systemV(args[1:], d, r, x)
 			elif (x < 8) and (vxmm[idx] > 0):
 				# Value is in an XMM register
-				return arg_x[idx].format(p=x) + function_args(args[1:], d, r, x+1)
+				return arg_x[idx].format(p=x) + function_args_systemV(args[1:], d, r, x+1)
 			elif vstack[idx] > 0:
 				# Value is in the stack
-				return arg_s[idx].format(p=d) + function_args(args[1:], d+8*vstack[idx], r, x)
+				return arg_s[idx].format(p=d) + function_args_systemV(args[1:], d+8*vstack[idx], r, x)
 			else:
 				# Value is somewhere else
-				return arg_o[idx].format(p=d) + function_args(args[1:], d, r, x)
+				return arg_o[idx].format(p=d) + function_args_systemV(args[1:], d, r, x)
+		# windowsconv = conventions['W']
+		def function_args_windows(args: FunctionType, d: int = 40, r: int = 0) -> str:
+			# args: string of argument types
+			# d: delta (in the stack)
+			# r: general register no
+			# We can re-use vstack to know if we need to put a pointer or the value
+			if len(args) == 0:
+				return ""
+			
+			# Redirections
+			if args[0] == "0":
+				return "0, " + function_args_windows(args[1:], d, r)
+			elif args[0] == "1":
+				return "1, " + function_args_windows(args[1:], d, r)
+			
+			idx = systemVconv.values.index(args[0]) # Little hack to be able to re-use
+			# Name of the registers
+			reg_arg = ["R_RCX", "R_RDX", "R_R8", "R_R9"]
+			if (r < len(reg_arg)) and (vstack[idx] == 1):
+				# We use a register
+				if vreg[idx] == 1:
+					# Value is in a general register
+					return arg_r[idx].format(p=reg_arg[r]) + function_args_windows(args[1:], d, r+1)
+				else:
+					# Remaining is in an XMM register
+					return arg_x[idx].format(p=r) + function_args_windows(args[1:], d, r+1)
+			elif vstack[idx] > 0:
+				# Value is in the stack
+				return arg_s[idx].format(p=d) + function_args_windows(args[1:], d+8*vstack[idx], r)
+			else:
+				# Value is somewhere else
+				return arg_o[idx].format(p=d) + function_args_windows(args[1:], d, r)
 		
 		def function_writer(f, N: FunctionType, W: str) -> None:
 			# Write to f the function type N (real type W)
 			
 			f.write("void {0}(x64emu_t *emu, uintptr_t fcn) {2} {1} fn = ({1})fcn; ".format(N, W, "{"))
 			# Generic function
-			f.write(vals[FunctionType.values.index(N[0])].format(function_args(N[2:])[:-2]) + " }\n")
+			conv = N.get_convention()
+			if conv is systemVconv:
+				f.write(vals[conv][conv.values.index(N[0])].format(function_args_systemV(N[2:])[:-2]) + " }\n")
+			else:
+				f.write(vals[conv][conv.values.index(N[0])].format(function_args_windows(N[2:])[:-2]) + " }\n")
 		
 		for k in gbls:
 			if k != str(Clauses()):
@@ -1276,13 +1390,15 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		file.write(files_guard["wrapper.h"].format(lbr="{", rbr="}", version=ver))
 	
 	# Rewrite the *types.h files:
-	td_types[FunctionType.values.index('A')] = "va_list"
-	td_types[FunctionType.values.index('V')] = "..."
-	orig_val_len = len(FunctionType.values)
+	for k in conventions:
+		td_types[k][conventions[k].values.index('A')] = "va_list"
+		td_types[k][conventions[k].values.index('V')] = "..."
+	orig_val_len = {k: len(conventions[k].values) for k in conventions}
 	for fn in filesspec:
 		for strc in fsp_tmp[fn][1]:
-			FunctionType.values.append(strc)
-			td_types.append(fsp_tmp[fn][1][strc][0])
+			for k in conventions:
+				conventions[k].values.append(strc)
+				td_types[k].append(fsp_tmp[fn][1][strc][0])
 		
 		with open(os.path.join(root, "src", "wrapped", "generated", fn + "types.h"), 'w') as file:
 			file.write(files_header["fntypes.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
@@ -1306,8 +1422,9 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				file.write("#undef {defined}\n".format(defined=defined))
 			file.write(files_guard["fnundefs.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
 		
-		FunctionType.values = FunctionType.values[:orig_val_len]
-		td_types = td_types[:orig_val_len]
+		for k in conventions:
+			conventions[k].values = conventions[k].values[:orig_val_len[k]]
+			td_types[k] = td_types[k][:orig_val_len[k]]
 	
 	# Save the string for the next iteration, writing was successful
 	with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'w') as file:
@@ -1321,6 +1438,6 @@ if __name__ == '__main__':
 		if v == "--":
 			limit.append(i)
 	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
-	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.1.0.16") != 0:
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.2.0.16") != 0:
 		exit(2)
 	exit(0)

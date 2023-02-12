@@ -163,3 +163,47 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
 
     return R_RAX;
 }
+
+EXPORTDYN
+uint64_t RunFunctionWindows(box64context_t *context, uintptr_t fnc, int nargs, ...)
+{
+    (void)context;
+
+    x64emu_t *emu = thread_get_emu();
+    int align = (nargs>4)?(((nargs-4)&1)):0;
+    int stackn = align + ((nargs>4)?(nargs-4):0);
+
+    Push64(emu, R_RBP); // push rbp
+    R_RBP = R_RSP;      // mov rbp, rsp
+
+    R_RSP -= stackn*sizeof(void*);   // need to push in reverse order
+
+    uint64_t *p = (uint64_t*)R_RSP;
+
+    va_list va;
+    va_start (va, nargs);
+    for (int i=0; i<nargs; ++i) {
+        if(i<4) {
+            int nn[] = {_CX, _DX, _R8, _R9};
+            emu->regs[nn[i]].q[0] = va_arg(va, uint64_t);
+        } else {
+            *p = va_arg(va, uint64_t);
+            p++;
+        }
+    }
+    va_end (va);
+
+    R_RSP -= 32;    // ShadowArea
+
+    uintptr_t oldip = R_RIP;
+    DynaCall(emu, fnc);
+
+    if(oldip==R_RIP) {
+        R_RSP = R_RBP;          // mov rsp, rbp
+        R_RBP = Pop64(emu);     // pop rbp
+    }
+
+    uint64_t ret = R_RAX;
+
+    return ret;
+}

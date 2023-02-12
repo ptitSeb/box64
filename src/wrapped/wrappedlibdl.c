@@ -77,6 +77,11 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
             if(sys)
                 return sys;
         }
+        if(!strcmp(rfilename, "/usr/lib/x86_64-linux-gnu/d3d")) {
+            void* sys = my_dlopen(emu, "d3dadapter9.so.1", flag);
+            if(sys)
+                return sys;
+        }
         printf_dlsym(LOG_DEBUG, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
         // Transform any ${...} that maight be present
         while(strstr(rfilename, "${ORIGIN}")) {

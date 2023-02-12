@@ -88,6 +88,10 @@
 #() pFV
 #() HFi
 #() HFp
+#() vWp
+#() iWp
+#() uWp
+#() fWp
 #() vFEi
 #() vFEp
 #() vFii
@@ -263,6 +267,13 @@
 #() HFII
 #() HFll
 #() HFpi
+#() iWpi
+#() iWpu
+#() iWpf
+#() iWpp
+#() uWpu
+#() pWEp
+#() pWpu
 #() vFEpi
 #() vFEpu
 #() vFEpp
@@ -581,6 +592,18 @@
 #() pFppp
 #() pFpOM
 #() pFSpl
+#() vWpup
+#() iWEip
+#() iWEpp
+#() iWpiu
+#() iWpip
+#() iWpui
+#() iWpuu
+#() iWpup
+#() iWppu
+#() iWppp
+#() uWpui
+#() uWpup
 #() vFEiip
 #() vFEipp
 #() vFEipV
@@ -998,6 +1021,22 @@
 #() pFpppL
 #() pFpppp
 #() pFSppi
+#() vWpiiu
+#() vWpuup
+#() iWEpip
+#() iWEpup
+#() iWEppu
+#() iWEppp
+#() iWpiii
+#() iWpiuu
+#() iWpuiu
+#() iWpuip
+#() iWpuup
+#() iWpupu
+#() iWpupp
+#() iWppuu
+#() iWpppu
+#() iWpppp
 #() vFEiipV
 #() vFEiipA
 #() vFEippp
@@ -1354,6 +1393,21 @@
 #() pFppppi
 #() pFppppu
 #() pFppppp
+#() iWEpiup
+#() iWEpipp
+#() iWpiiii
+#() iWpiupu
+#() iWpuiii
+#() iWpuiup
+#() iWpuupu
+#() iWpuupp
+#() iWpupuu
+#() iWpupup
+#() iWpuppu
+#() iWpuppp
+#() iWpppuu
+#() iWpppup
+#() iWppppp
 #() vFEiiipp
 #() vFEpiLpp
 #() vFEpippp
@@ -1625,6 +1679,7 @@
 #() pFpuuwwu
 #() pFpuuuuu
 #() pFpuuupu
+#() pFpuuUUU
 #() pFplpppp
 #() pFppiiii
 #() pFppiipp
@@ -1641,6 +1696,14 @@
 #() pFpppppu
 #() pFpppppp
 #() pFSpiiii
+#() iWEpuuip
+#() iWEppppp
+#() iWpiiiip
+#() iWpiiuii
+#() iWpiuppu
+#() iWpuiiii
+#() iWpppppi
+#() iWpppppu
 #() vFEpiiipp
 #() vFEpipppp
 #() vFEpuipuV
@@ -1848,6 +1911,13 @@
 #() pFpppppuu
 #() pFppppppi
 #() pFppppppp
+#() iWpiiuuuu
+#() iWpuiiiip
+#() iWpuiiuii
+#() iWpuipupp
+#() iWpuuuppu
+#() iWpupuufu
+#() iWpppuppp
 #() vFEiippppV
 #() vFEiupippp
 #() vFEipAippp
@@ -1978,6 +2048,9 @@
 #() pFppiiiiii
 #() pFpppuuLLu
 #() pFpppppupp
+#() iWEpuuiipp
+#() iWEpuuuipp
+#() iWpuipuppp
 #() vFEpiiiiipp
 #() vFEpippippV
 #() vFEpippippA
@@ -2065,6 +2138,11 @@
 #() pFpppWWWWWp
 #() pFpppppiipp
 #() pFpppppuuCC
+#() iWEpuuiippu
+#() iWEpuuuiipp
+#() iWpiuuupipu
+#() iWpuiuuipip
+#() iWppppupiii
 #() vFEiippppppp
 #() vFEpippppppp
 #() vFEpppiipppp
@@ -2124,6 +2202,10 @@
 #() pFplllllllll
 #() pFppuiipuuii
 #() pFpppppppppp
+#() iWEpuipupppp
+#() iWEpuuiiuipp
+#() iWEpuuuuiipp
+#() iWpuipuppppp
 #() vFEpiiiupupup
 #() vFiiiiillliip
 #() vFiiiiilllilp
@@ -2168,6 +2250,8 @@
 #() pFEppuiipuuii
 #() pFpppppppiipp
 #() pFppppppppppp
+#() iWEpuuiiuippu
+#() iWEpuuuuuiipp
 #() vFuiiiillliilp
 #() vFuuiiiiiiiiui
 #() vFuuiiiiiiiuip
@@ -2234,6 +2318,7 @@
 #() vFuuuiiiiiuiiiiilll
 #() vFppiiiiddddiiiiiuu
 #() vFpppuppiipppuUUUpi
+#() pFpuuuuuwwuuuuUUUup
 #() pFppippipipipipipip
 #() vFppuiiiiipuiiiiiiii
 #() vFpppipppppppppppppp
@@ -2324,6 +2409,11 @@ wrappedcurl:
   - curl_multi_setopt
 - uFpup:
   - curl_easy_setopt
+wrappedd3dadapter9:
+- pWp:
+  - D3DAdapter9GetProc
+- iWip:
+  - dummy_d3d
 wrappeddbus:
 - vFppp:
   - dbus_connection_remove_filter
@@ -3594,6 +3684,7 @@ wrappedlibxcbglx:
 wrappedlibxcbicccm:
 wrappedlibxcbimage:
 wrappedlibxcbkeysyms:
+wrappedlibxcbpresent:
 wrappedlibxcbrandr:
 wrappedlibxcbrender:
 wrappedlibxcbrenderutil:
