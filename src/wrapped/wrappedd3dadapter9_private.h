@@ -2,4 +2,6 @@
 #error meh!
 #endif
 
-GOM(D3DAdapter9GetProc, pFEp)
+GOM(D3DAdapter9GetProc, pWEp)
+
+GOM(dummy_d3d, iWEip)

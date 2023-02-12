@@ -11,9 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void* (*pFp_t)(void*);
+typedef void* (*pWp_t)(void*);
+typedef int64_t (*iWip_t)(int64_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(D3DAdapter9GetProc, pFp_t)
+	GO(D3DAdapter9GetProc, pWp_t) \
+	GO(dummy_d3d, iWip_t)
 
 #endif // __wrappedd3dadapter9TYPES_H_

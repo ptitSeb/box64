@@ -78,16 +78,16 @@ static int my_GetDirect3D(x64emu_t* emu, void* This, void*** ppD3D9);
 
 #define UNPACK(...) __VA_ARGS__
 
-#define GO(name, type, size) \
-    new->name = (void*)AddBridge(emu->context->system, type, real->name, size*4, #name)
+#define GO(name, type) \
+    new->name = (void*)AddBridge(emu->context->system, type, real->name, 0, #name)
 
-#define GOM(name, type, size) \
+#define GOM(name, type) \
     my_##name##_real = (void*)real->name; \
-    new->name = (void*)AddBridge(emu->context->system, type, my_##name, size*4, "my_" #name)
+    new->name = (void*)AddBridge(emu->context->system, type, my_##name, 0, "my_" #name)
 
-#define GO2(name, type, size) \
+#define GO2(name, type) \
     my_##name##_real2 = (void*)real->name; \
-    new->name = (void*)AddBridge(emu->context->system, type, my_##name2, size*4, "my_" #name)
+    new->name = (void*)AddBridge(emu->context->system, type, my_##name2, 0, "my_" #name)
 
 #include "wrappedd3dadapter9_gen.h"
 
@@ -369,11 +369,8 @@ int my_create_device(x64emu_t* emu, void *This, unsigned RealAdapter, int Device
     return 0;
 }
 
-int my_create_adapter(x64emu_t* emu/*, int fd, ID3DAdapter9Vtbl ***x_adapter*/)
+int my_create_adapter(x64emu_t* emu, int fd, ID3DAdapter9Vtbl ***x_adapter)
 {
-
-    int fd = R_ECX;
-    ID3DAdapter9Vtbl ***x_adapter = (ID3DAdapter9Vtbl ***)R_RDX;
 
     ID3DAdapter9Vtbl **adapter;
     int r = my->create_adapter(fd, &adapter);
@@ -405,7 +402,7 @@ EXPORT void* my_D3DAdapter9GetProc(x64emu_t* emu, void *ptr)
 
     my->adapter.major_version = adapter->major_version;
     my->adapter.minor_version = adapter->minor_version;
-    my->adapter.create_adapter = (void*)AddBridge(emu->context->system, iFEv, my_create_adapter, 0, "my_create_adapter");
+    my->adapter.create_adapter = (void*)AddBridge(emu->context->system, iWEip, my_create_adapter, 0, "my_create_adapter");
 
     return &my->adapter;
 }
