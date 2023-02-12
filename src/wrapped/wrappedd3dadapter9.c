@@ -224,7 +224,7 @@ static void freeMy()
 #define GOV(ns, ret, fn, args, call) \
     static uintptr_t my_##ns##_##fn##_fct = 0; \
     static ret my_##ns##_##fn(UNPACK args) { \
-        ret r = (ret)RunFunction(my_context, my_##ns##_##fn##_fct, UNPACK call); \
+        ret r = (ret)RunFunctionWindows(my_context, my_##ns##_##fn##_fct, UNPACK call); \
 /* no closing brace */
 
 #define GOV_1(ns, ret, fn, t1) \
@@ -318,13 +318,13 @@ typedef struct my_Direct3D9 {
 unsigned my_Direct3D9_AddRef(void *This)
 {
     my_Direct3D9 *my = This;
-    return RunFunction(my_context, (uintptr_t)(*my->real)->AddRef, 1, my->real);
+    return RunFunctionWindows(my_context, (uintptr_t)(*my->real)->AddRef, 1, my->real);
 }
 
 unsigned my_Direct3D9_Release(void *This)
 {
     my_Direct3D9 *my = This;
-    return RunFunction(my_context, (uintptr_t)(*my->real)->Release, 1, my->real);
+    return RunFunctionWindows(my_context, (uintptr_t)(*my->real)->Release, 1, my->real);
 }
 
 IDirect3D9Vtbl my_Direct3D9_vtbl = {
