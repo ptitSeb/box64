@@ -175,16 +175,9 @@ static void emuthread_destroy(void* p)
 }
 
 static pthread_key_t thread_key;
-static pthread_once_t thread_key_once = PTHREAD_ONCE_INIT;
-
-static void thread_key_alloc() {
-	pthread_key_create(&thread_key, emuthread_destroy);
-}
 
 void thread_set_emu(x64emu_t* emu)
 {
-	// create the key
-	pthread_once(&thread_key_once, thread_key_alloc);
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
 	if(!emu) {
 		if(et) box_free(et);
@@ -204,8 +197,6 @@ void thread_set_emu(x64emu_t* emu)
 
 x64emu_t* thread_get_emu()
 {
-	// create the key
-	pthread_once(&thread_key_once, thread_key_alloc);
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
 	if(!et) {
 		int stacksize = 2*1024*1024;
@@ -230,8 +221,6 @@ x64emu_t* thread_get_emu()
 
 static void* pthread_routine(void* p)
 {
-	// create the key
-	pthread_once(&thread_key_once, thread_key_alloc);
 	// free current emuthread if it exist
 	{
 		void* t = pthread_getspecific(thread_key);
@@ -1289,6 +1278,9 @@ void init_pthread_helper()
 
 	InitCancelThread();
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
+	pthread_setspecific(jmpbuf_key, NULL);
+	pthread_key_create(&thread_key, emuthread_destroy);
+	pthread_setspecific(thread_key, NULL);
 }
 
 void fini_pthread_helper(box64context_t* context)
@@ -1301,13 +1293,13 @@ void fini_pthread_helper(box64context_t* context)
 #endif
 	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
 	if(ejb) {
-		emujmpbuf_destroy(ejb);
 		pthread_setspecific(jmpbuf_key, NULL);
+		emujmpbuf_destroy(ejb);
 	}
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
 	if(et) {
-		emuthread_destroy(et);
 		pthread_setspecific(thread_key, NULL);
+		emuthread_destroy(et);
 	}
 }
 
