@@ -366,8 +366,10 @@ void LoadRCFile(const char* filename)
         }
     }
     // last entry to be pushed too
-    if(current_name)
+    if(current_name) {
         addParam(current_name, &current_param);
+        free(current_name);
+    }
     free(line);
     printf_log(LOG_INFO, "Params database has %d entries\n", kh_size(params));
 }
