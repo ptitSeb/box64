@@ -2569,9 +2569,19 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     return ret;
 }
 
+typedef struct mallinfo (*mallinfo_fnc)(void);
 EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
 {
-    *(struct mallinfo*)p = mallinfo();
+    static mallinfo_fnc f = NULL;
+    static int inited = 0;
+    if(!inited) {
+        inited = 1;
+        f = (mallinfo_fnc)dlsym(my_lib->w.lib, "mallinfo");
+    }
+    if(f)
+        *(struct mallinfo*)p=f();
+    else
+        memset(p, 0, sizeof(struct mallinfo));
     return p;
 }
 
