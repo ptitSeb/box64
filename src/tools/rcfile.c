@@ -257,7 +257,8 @@ void LoadRCFile(const char* filename)
         int tmp = shm_open(TMP_MEMRCFILE, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return; // error, bye bye
         shm_unlink(TMP_MEMRCFILE);    // remove the shm file, but it will still exist because it's currently in use
-        write(tmp, default_rcfile, sizeof(default_rcfile));
+        int dummy = write(tmp, default_rcfile, sizeof(default_rcfile));
+        (void)dummy;
         lseek(tmp, 0, SEEK_SET);
         f = fdopen(tmp, "r");
     }
@@ -506,7 +507,7 @@ void ApplyParams(const char* name)
         uintptr_t no_start = 0, no_end = 0;
         char* p;
         no_start = strtoul(param->box64_nodynarec, &p, 0);
-        if(p!=param->box64_nodynarec & p[0]=='-') {
+        if(p!=param->box64_nodynarec && p[0]=='-') {
             char* p2;
             ++p;
             no_end = strtoul(p, &p2, 0);

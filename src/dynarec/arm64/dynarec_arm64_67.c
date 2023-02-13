@@ -44,7 +44,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t u8;
     int32_t i32;
     int64_t j64, i64;
-    int cacheupd;
+    int cacheupd = 0;
     int lock;
     int v0, v1, s0;
     MAYUSE(i32);

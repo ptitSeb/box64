@@ -11,7 +11,7 @@
 #ifdef DYNAREC
 #define STEP if(step) return 0;
 #define STEP2 if(step) {R_RIP = addr; return 0;}
-#define STEP3 if(*step) *(step)++;
+#define STEP3 if(*step) (*step)++;
 #else
 #define STEP
 #define STEP2

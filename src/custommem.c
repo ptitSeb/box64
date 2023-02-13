@@ -443,6 +443,7 @@ mmapchunk_t* addChunk(size_t mmapsize) {
         } else
             return &head->chunks[i];
     }
+    return NULL;    // never reached
 }
 
 uintptr_t FindFreeDynarecMap(dynablock_t* db, size_t size)
@@ -481,7 +482,7 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, size_t size)
                     native_lock_decifnot0(&chunk->lock);
                     return ret;
                 } else {
-                    printf_log(LOG_INFO, "BOX64: Warning, sub not found, corrupted mmaplist[%zu] info?\n", i);
+                    printf_log(LOG_INFO, "BOX64: Warning, sub not found, corrupted mmaplist[%i] info?\n", i);
                     native_lock_decifnot0(&chunk->lock);
                     if(box64_log >= LOG_DEBUG)
                         printBlock(chunk->block, chunk->first);
@@ -684,14 +685,14 @@ uintptr_t getSizeJmpDefault(uintptr_t addr, size_t maxsize)
     uintptr_t idx3, idx2, idx1, idx0;
     idx3 = (((uintptr_t)addr)>>48)&0xffff;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
-        return (addr&~((1LL<<48)-1)|0xffffffffffffLL)-addr + 1;
+        return ((addr&~((1LL<<48)-1))|0xffffffffffffLL)-addr + 1;
     idx2 = (((uintptr_t)addr)>>32)&0xffff;
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
-        return (addr&~((1LL<<32)-1)|0xffffffffLL)-addr + 1;
+        return ((addr&~((1LL<<32)-1))|0xffffffffLL)-addr + 1;
     idx1 = (((uintptr_t)addr)>>16)&0xffff;
     uintptr_t* block = box64_jmptbl3[idx3][idx2][idx1];
     if(block == box64_jmptbldefault0)
-        return (addr&~((1LL<<16)-1)|0xffffLL)-addr + 1;
+        return ((addr&~((1LL<<16)-1))|0xffffLL)-addr + 1;
     idx0 = addr&0xffff;
     if (maxsize>0x10000)
         maxsize = 0x10000;
@@ -1480,7 +1481,7 @@ void init_custommem_helper(box64context_t* ctx)
     loadProtectionFromMap();
     // check if PageSize is correctly defined
     if(box64_pagesize != (1<<MEMPROT_SHIFT)) {
-        printf_log(LOG_NONE, "Error: PageSize configuation is wrong: configured with %d, but got %d\n", 1<<MEMPROT_SHIFT, box64_pagesize);
+        printf_log(LOG_NONE, "Error: PageSize configuation is wrong: configured with %d, but got %zd\n", 1<<MEMPROT_SHIFT, box64_pagesize);
         exit(-1);   // abort or let it continue?
     }
 }

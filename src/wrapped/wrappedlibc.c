@@ -3005,7 +3005,7 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
     arg->fnc = (uintptr_t)fn;
     arg->tls = tls;
     arg->emu = newemu;
-    if(flags|(CLONE_VM|CLONE_VFORK|CLONE_SETTLS)==flags)   // that's difficult to setup, so lets ignore all those flags :S
+    if((flags|(CLONE_VM|CLONE_VFORK|CLONE_SETTLS))==flags)   // that's difficult to setup, so lets ignore all those flags :S
         flags&=~(CLONE_VM|CLONE_VFORK|CLONE_SETTLS);
     int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), flags, arg, parent, NULL, child);
     return (uintptr_t)ret;

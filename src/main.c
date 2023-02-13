@@ -1131,7 +1131,7 @@ static void load_rcfiles()
     char* p = getenv("HOME");
     if(p) {
         char tmp[4096];
-        strncpy(tmp, p, 4096);
+        strncpy(tmp, p, 4095);
         strncat(tmp, "/.box64rc", 4095);
         if(FileExist(tmp, IS_FILE))
             LoadRCFile(tmp);

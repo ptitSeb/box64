@@ -75,7 +75,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t wback, wb2;
     uint8_t eb1, eb2;
     int32_t i32, i32_;
-    int cacheupd;
+    int cacheupd = 0;
     int v0, v1;
     int q0, q1;
     int d0, d1;
@@ -1689,9 +1689,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
             GETGX(v0, 1);
-            if(!MODREG)
+            if(!MODREG) {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 1);
-            else
+                v1 = 0; // to avoid a warning
+            } else
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
             u8 = F8;
             if(MODREG && v0==v1 && (u8&0x3)==((u8>>2)&3) && (u8&0xf)==((u8>>4)&0xf)) {

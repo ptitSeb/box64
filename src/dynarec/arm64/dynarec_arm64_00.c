@@ -41,7 +41,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t wback, wb1, wb2, wb;
     int64_t fixedaddress;
     int lock;
-    int cacheupd;
+    int cacheupd = 0;
 
     opcode = F8;
     MAYUSE(eb1);

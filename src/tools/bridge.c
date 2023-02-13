@@ -60,7 +60,7 @@ brick_t* NewBrick(void* old)
     if(ptr == MAP_FAILED) {
         printf_log(LOG_NONE, "Warning, cannot allocate 0x%lx aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
     }
-    dynarec_log(LOG_INFO, "New Bridge brick at %p (size 0x%x)\n", ptr, NBRICK*sizeof(onebridge_t));
+    dynarec_log(LOG_INFO, "New Bridge brick at %p (size 0x%zx)\n", ptr, NBRICK*sizeof(onebridge_t));
     ret->b = ptr;
     return ret;
 }

@@ -23,7 +23,7 @@ const char* gdk3Name = "libgdk-3.so.0";
 
 static char* libname = NULL;
 
-//#define ADDED_FUNCTIONS()           \
+//#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedgdk3types.h"
 

@@ -1617,25 +1617,26 @@ void CreateMemorymapFile(box64context_t* context, int fd)
         uintptr_t start, end;
         if (sscanf(line, "%zx-%zx", &start, &end)==2) {
             elfheader_t* h = FindElfAddress(my_context, start);
-            size_t l = strlen(line);
+            int l = strlen(line);
             if(h && l<73) {
-                sprintf(buff, "%s%*s\n", line, 74-strlen(line), h->name);
+                sprintf(buff, "%s%*s\n", line, 74-l, h->name);
                 dummy = write(fd, buff, strlen(buff));
             } else if(start==(uintptr_t)my_context->stack) {
-                sprintf(buff, "%s%*s\n", line, 74-strlen(line), "[stack]");
+                sprintf(buff, "%s%*s\n", line, 74-l, "[stack]");
                 dummy = write(fd, buff, strlen(buff));
             } else if (strstr(line, "[stack]")) {
                 char* p = strstr(line, "[stack]")-1;
                 while (*p==' ' || *p=='\t') --p;
                 p[1]='\0';
                 strcat(line, "\n");
-                write(fd, line, strlen(line));
+                dummy = write(fd, line, strlen(line));
             } else {
-                write(fd, line, strlen(line));
+                dummy = write(fd, line, strlen(line));
             }
         }
     }
     fclose(f);
+    (void)dummy;
 }
 
 void ElfAttachLib(elfheader_t* head, library_t* lib)

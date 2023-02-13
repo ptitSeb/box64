@@ -188,10 +188,10 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 v1 = fpu_get_scratch(dyn);
                 FCMLTD_0(v1, d0);
                 SHL_64(v1, v1, 63);
-            }
-            FSQRTD(d1, d0);
-            if(!box64_dynarec_fastnan) {
+                FSQRTD(d1, d0);
                 VORR(d1, d1, v1);
+            } else {
+                FSQRTD(d1, d0);
             }
             VMOVeD(v0, 0, d1, 0);
             break;
@@ -208,13 +208,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 // check if any input value was NAN
                 FMAXD(v0, d0, d1);    // propagate NAN
                 FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
-            }
-            FADDD(v1, d1, d0);  // the high part of the vector is erased...
-            if(!box64_dynarec_fastnan) {
+                FADDD(v1, d1, d0);  // the high part of the vector is erased...
                 FCMEQD(q0, v1, v1);    // 0 => out is NAN
                 VBIC(q0, v0, q0);      // forget it in any input was a NAN already
                 SHL_64(q0, q0, 63);     // only keep the sign bit
                 VORR(v1, v1, q0);      // NAN -> -NAN
+            } else {
+                FADDD(v1, d1, d0);  // the high part of the vector is erased...
             }
             VMOVeD(d1, 0, v1, 0);
             break;
@@ -230,13 +230,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 // check if any input value was NAN
                 FMAXD(v0, d0, d1);    // propagate NAN
                 FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
-            }
-            FMULD(v1, d1, d0);
-            if(!box64_dynarec_fastnan) {
+                FMULD(v1, d1, d0);
                 FCMEQD(q0, v1, v1);    // 0 => out is NAN
                 VBIC(q0, v0, q0);      // forget it in any input was a NAN already
                 SHL_64(q0, q0, 63);     // only keep the sign bit
                 VORR(v1, v1, q0);      // NAN -> -NAN
+            } else {
+                FMULD(v1, d1, d0);
             }
             VMOVeD(d1, 0, v1, 0);
             break;
@@ -262,13 +262,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 // check if any input value was NAN
                 FMAXD(v0, d0, d1);    // propagate NAN
                 FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
-            }
-            FSUBD(v1, d1, d0);
-            if(!box64_dynarec_fastnan) {
+                FSUBD(v1, d1, d0);
                 FCMEQD(q0, v1, v1);    // 0 => out is NAN
                 VBIC(q0, v0, q0);      // forget it in any input was a NAN already
                 SHL_64(q0, q0, 63);     // only keep the sign bit
                 VORR(v1, v1, q0);      // NAN -> -NAN
+            } else {
+                FSUBD(v1, d1, d0);
             }
             VMOVeD(d1, 0, v1, 0);
             break;
@@ -300,13 +300,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 // check if any input value was NAN
                 FMAXD(d0, v0, v1);      // propagate NAN
                 FCMEQD(d0, d0, d0);     // 0 if NAN, 1 if not NAN
-            }
-            FDIVD(d1, v0, v1);
-            if(!box64_dynarec_fastnan) {
+                FDIVD(d1, v0, v1);
                 FCMEQD(q0, d1, d1);     // 0 => out is NAN
                 VBIC(q0, d0, q0);       // forget it in any input was a NAN already
                 SHL_64(q0, q0, 63);     // only keep the sign bit
                 VORR(d1, d1, q0);       // NAN -> -NAN
+            } else {
+                FDIVD(d1, v0, v1);
             }
             VMOVeD(v0, 0, d1, 0);
             break;

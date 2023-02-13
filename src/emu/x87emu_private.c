@@ -201,7 +201,7 @@ void D2LD(void* d, void* ld)
 
 double FromLD(void* ld)
 {
-    double ret;
+    double ret = 0;
     LD2D(ld, &ret);
     return ret;
 }
@@ -210,7 +210,7 @@ double FromLD(void* ld)
 long double LD2localLD(void* ld)
 {
     // local implementation may not be try Quad precision, but double-double precision, so simple way to keep the 80bits precision in the conversion
-    double ret;
+    double ret = 0;
     LD2D(ld, &ret);
     return ret;
 }

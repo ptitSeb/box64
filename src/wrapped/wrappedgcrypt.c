@@ -33,7 +33,7 @@ typedef uint32_t  (*uFpppp_t)(void*, void*, void*, void*);
 EXPORT uint32_t my_gcry_sexp_build(x64emu_t* emu, void* r_sexp, void* erroff, const char* fmt, uintptr_t* V)
 {
     // count the number of elements
-    int n;
+    int n = 0;
     const char* p = fmt;
     while(p) {
         if(*p == '%') {
