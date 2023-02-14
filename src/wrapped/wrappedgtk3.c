@@ -38,7 +38,6 @@ typedef void          (*vFpipV_t)(void*, int, void*, ...);
 #define ADDED_FUNCTIONS()                   \
 GO(g_type_class_ref, pFL_t)                 \
 GO(g_type_class_unref, vFp_t)               \
-GO(g_initially_unowned_get_type, LFv_t)     \
 GO(gtk_bin_get_type, LFv_t)                 \
 GO(gtk_widget_get_type, LFv_t)              \
 GO(gtk_button_get_type, LFv_t)              \
@@ -723,7 +722,6 @@ EXPORT void my3_gtk_container_foreach(x64emu_t* emu, void* container, void* cb, 
     libname = lib->name;                                        \
     getMy(lib);                                                 \
     SETALT(my3_);                                               \
-    SetGInitiallyUnownedID(my->g_initially_unowned_get_type()); \
     SetGtkWidget3ID(my->gtk_widget_get_type());                 \
     SetGtkContainer3ID(my->gtk_container_get_type());           \
     SetGtkTextView3ID(my->gtk_text_view_get_type());            \

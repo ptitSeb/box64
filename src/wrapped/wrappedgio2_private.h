@@ -343,7 +343,7 @@ GO(g_dbus_connection_unregister_subtree, iFpu)
 //GO(g_dbus_error_new_for_dbus_error, 
 //GO(g_dbus_error_quark, 
 //GO(g_dbus_error_register_error, 
-//GO(g_dbus_error_register_error_domain, 
+GO(g_dbus_error_register_error_domain, vFpppu)
 //GO(g_dbus_error_set_dbus_error, 
 //GO(g_dbus_error_set_dbus_error_valist, 
 //GO(g_dbus_error_strip_remote_error, 
