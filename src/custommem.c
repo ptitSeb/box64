@@ -433,7 +433,7 @@ mmapchunk_t* addChunk(size_t mmapsize) {
         mmaplist = (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
     mmaplist_t* head = mmaplist;
     size_t i = mmapsize;
-    while(i) {
+    while(1) {
         if(i>=NCHUNK) {
             i-=NCHUNK;
             if(!head->next) {
@@ -443,7 +443,6 @@ mmapchunk_t* addChunk(size_t mmapsize) {
         } else
             return &head->chunks[i];
     }
-    return NULL;    // never reached
 }
 
 uintptr_t FindFreeDynarecMap(dynablock_t* db, size_t size)
