@@ -11,6 +11,7 @@
 #include <sys/mman.h>
 #include <pthread.h>
 #include <sys/prctl.h>
+#include <stdarg.h>
 #ifdef DYNAREC
 #ifdef ARM64
 #include <linux/auxvec.h>
@@ -111,6 +112,7 @@ int jit_gdb = 0;
 int box64_tcmalloc_minimal = 0;
 
 FILE* ftrace = NULL;
+char* ftrace_name = NULL;
 int ftrace_has_pid = 0;
 
 void openFTrace(const char* newtrace)
@@ -145,6 +147,9 @@ void openFTrace(const char* newtrace)
         p = tmp;
         ftrace_has_pid = 1;
     }
+    if(ftrace_name)
+        free(ftrace_name);
+    ftrace_name = NULL;
     if(p) {
         if(!strcmp(p, "stderr"))
             ftrace = stderr;
@@ -157,6 +162,9 @@ void openFTrace(const char* newtrace)
                 ftrace = stdout;
                 printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
             } else {
+                ftrace_name = strdup(p);
+                /*fclose(ftrace);
+                ftrace = NULL;*/
                 if(!box64_nobanner)
                     printf("BOX64 Trace %s to \"%s\"\n", append?"appended":"redirected", p);
             }
@@ -164,11 +172,29 @@ void openFTrace(const char* newtrace)
     }
 }
 
+void printf_ftrace(const char* fmt, ...)
+{
+    if(ftrace_name) {
+        int fd = fileno(ftrace);
+        if(fd<0 || lseek(fd, 0, SEEK_CUR)==(off_t)-1)
+            ftrace=fopen(ftrace_name, "w+");
+    }
+
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(ftrace, fmt, args);
+
+    fflush(ftrace);
+
+    va_end(args);
+}
+
 void my_child_fork()
 {
     if(ftrace_has_pid) {
         // open a new ftrace...
-        fclose(ftrace);
+        if(!ftrace_name) 
+            fclose(ftrace);
         openFTrace(NULL);
     }
 }
@@ -343,7 +369,7 @@ void LoadLogEnv()
     }
     // grab BOX64_TRACE_FILE envvar, and change %pid to actual pid is present in the name
     openFTrace(NULL);
-    box64_log = isatty(fileno(ftrace))?LOG_INFO:LOG_NONE; //default LOG value different if stdout is redirected or not
+    box64_log = ftrace_name?LOG_INFO:(isatty(fileno(ftrace))?LOG_INFO:LOG_NONE); //default LOG value different if stdout is redirected or not
     p = getenv("BOX64_LOG");
     if(p) {
         if(strlen(p)==1) {

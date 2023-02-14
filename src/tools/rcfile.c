@@ -392,6 +392,8 @@ void DeleteParams()
 }
 
 extern int ftrace_has_pid;
+extern FILE* ftrace;
+extern char* ftrace_name;
 void openFTrace(const char* newtrace);
 #ifdef DYNAREC
 void GatherDynarecExtensions();
@@ -457,7 +459,7 @@ void ApplyParams(const char* name)
     if(param->is_box64_path_present) AppendList(&my_context->box64_path, param->box64_path, 1);
     if(param->is_trace_file_present) {
         // open a new ftrace...
-        if(ftrace_has_pid) {
+        if(ftrace_name) {
             fclose(ftrace);
         }
         openFTrace(param->trace_file);
