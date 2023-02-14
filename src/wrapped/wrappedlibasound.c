@@ -85,12 +85,11 @@ static void dummy_error_handler(const char *file, int line, const char *function
     (void)function; (void)err;
     va_list ap;
 
-    fprintf(ftrace, "Warning: this is a dummy snd_lib error handler\n");
-    fprintf(ftrace, "Error in file %s on line %i: ", file, line);
+    fprintf(stderr, "Warning: this is a dummy snd_lib error handler\n");
+    fprintf(stderr, "Error in file %s on line %i: ", file, line);
     va_start(ap, fmt);
-    vfprintf(ftrace, fmt, ap);
+    vfprintf(stderr, fmt, ap);
     va_end(ap);
-    fflush(ftrace);
 }
 
 static void empty_error_handler(const char *file, int line, const char *function, int err, const char *fmt, ...)
