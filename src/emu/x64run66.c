@@ -133,7 +133,9 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         break;
 
     case 0x64:                              /* FS: */
-        return Run6664(emu, rex, addr);
+        return Run6664(emu, rex, _FS, addr);
+    case 0x65:                              /* GS: */
+        return Run6664(emu, rex, _GS, addr);
 
     case 0x69:                      /* IMUL Gw,Ew,Iw */
         nextop = F8;

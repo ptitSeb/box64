@@ -22,13 +22,13 @@
 
 #include "modrm.h"
 
-uintptr_t Run6664(x64emu_t *emu, rex_t rex, uintptr_t addr)
+uintptr_t Run6664(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
 {
     uint8_t opcode;
     uint8_t nextop;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
-    uintptr_t tlsdata = GetFSBaseEmu(emu);
+    uintptr_t tlsdata = GetSegmentBaseEmu(emu, seg);
 
     opcode = F8;
     // REX prefix before the F0 are ignored

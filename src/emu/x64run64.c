@@ -119,7 +119,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                             GETEX_OFFS(0, tlsdata);
                             GETGX;
                             GX->q[0] = EX->q[0];
-                            if((nextop&0xC0)!=0xC0) {
+                            if(!MODREG) {
                                 // EX is not a register
                                 GX->q[1] = 0;
                             }
@@ -129,7 +129,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                             GETEX_OFFS(0, tlsdata);
                             GETGX;
                             GX->ud[0] = EX->ud[0];
-                            if((nextop&0xC0)!=0xC0) {
+                            if(!MODREG) {
                                 // EX is not a register (reg to reg only move 31:0)
                                 GX->ud[1] = GX->ud[2] = GX->ud[3] = 0;
                             }
@@ -163,7 +163,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     }
                     break;
 
-                case 0x29:                      /* MOVAPS Ex,Gx */
+                case 0x29:                      /* MOVAPS FS:Ex,Gx */
                     switch(rep) {
                         case 0:
                             nextop = F8;
@@ -179,7 +179,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
 
                 case 0x59:
                     switch(rep) {
-                        case 2: /* MULSS Gx, Ex */
+                        case 2: /* MULSS Gx, FS:Ex */
                             nextop = F8;
                             GETEX_OFFS(0, tlsdata);
                             GETGX;
@@ -192,7 +192,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     break;
                 case 0x5A:
                     switch(rep) {
-                        case 2:  /* CVTSS2SD Gx, Ex */
+                        case 2:  /* CVTSS2SD Gx, FS:Ex */
                             nextop = F8;
                             GETEX_OFFS(0, tlsdata);
                             GETGX;
@@ -206,7 +206,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
 
                 case 0x6F:
                     switch(rep) {
-                        case 2: /* MOVDQU Gx, Ex */
+                        case 2: /* MOVDQU Gx, FS:Ex */
                             nextop = F8;
                             GETEX_OFFS(0, tlsdata);
                             GETGX;
@@ -218,21 +218,33 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     }
                     break;
 
-                case 0xAF:                      /* IMUL Gd,Ed */
-                    nextop = F8;
-                    GETED_OFFS(0, tlsdata);
-                    GETGD;
-                    if(rex.w)
-                        GD->q[0] = imul64(emu, GD->q[0], ED->q[0]);
-                    else
-                        GD->q[0] = imul32(emu, GD->dword[0], ED->dword[0]);
+                case 0xAF:
+                    switch(rep) {
+                        case 0: /* IMUL Gd, FS:Ed */
+                            nextop = F8;
+                            GETED_OFFS(0, tlsdata);
+                            GETGD;
+                            if(rex.w)
+                                GD->q[0] = imul64(emu, GD->q[0], ED->q[0]);
+                            else
+                                GD->q[0] = imul32(emu, GD->dword[0], ED->dword[0]);
+                            break;
+                        default:
+                            return 0;
+                    }
                     break;
 
-                case 0xB6:                      /* MOVZX Gd,Eb */
-                    nextop = F8;
-                    GETEB_OFFS(0, tlsdata);
-                    GETGD;
-                    GD->q[0] = EB->byte[0];
+                case 0xB6:
+                    switch(rep) {
+                        case 0: /* MOVZX Gd, FS:Eb */
+                            nextop = F8;
+                            GETEB_OFFS(0, tlsdata);
+                            GETGD;
+                            GD->q[0] = EB->byte[0];
+                            break;
+                        default:
+                            return 0;
+                    }
                     break;
 
                 default:
@@ -267,7 +279,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             break;
 
 
-        case 0x63:                      /* MOVSXD Gd,Ed */
+        case 0x63:                      /* MOVSXD Gd, FS:Ed */
             nextop = F8;
             GETED_OFFS(0, tlsdata);
             GETGD;
@@ -281,7 +293,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             break;
 
         case 0x66:
-            return Run6664(emu, rex, addr);
+            return Run6664(emu, rex, seg, addr);
 
         case 0x80:                      /* GRP Eb,Ib */
             nextop = F8;
@@ -308,7 +320,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                 tmp32s = F8S;
             }
             if(rex.w) {
-                tmp64u = (uint64_t)tmp32s;
+                tmp64u = (uint64_t)(int64_t)tmp32s;
                 switch((nextop>>3)&7) {
                     case 0: ED->q[0] = add64(emu, ED->q[0], tmp64u); break;
                     case 1: ED->q[0] =  or64(emu, ED->q[0], tmp64u); break;
@@ -346,13 +358,13 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             }
             break;
 
-        case 0x88:                      /* MOV Eb,Gb */
+        case 0x88:                      /* MOV FS:Eb,Gb */
             nextop = F8;
             GETEB_OFFS(0, tlsdata);
             GETGB;
             EB->byte[0] = GB;
             break;
-        case 0x89:                    /* MOV Ed,Gd */
+        case 0x89:                    /* MOV FS:Ed,Gd */
             nextop = F8;
             GETED_OFFS(0, tlsdata);
             GETGD;
@@ -366,13 +378,13 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     ED->dword[0] = GD->dword[0];
             }
             break;
-        case 0x8A:                      /* MOV Gb,Eb */
+        case 0x8A:                      /* MOV Gb, FS:Eb */
             nextop = F8;
             GETEB_OFFS(0, tlsdata);
             GETGB;
             GB = EB->byte[0];
             break;
-        case 0x8B:                      /* MOV Gd,Ed */
+        case 0x8B:                      /* MOV Gd, FS:Ed */
             nextop = F8;
             GETED_OFFS(0, tlsdata);
             GETGD;
@@ -382,12 +394,12 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                 GD->q[0] = ED->dword[0];
             break;
 
-        case 0xC6:                      /* MOV Eb,Ib */
+        case 0xC6:                      /* MOV FS:Eb, Ib */
             nextop = F8;
             GETEB_OFFS(1, tlsdata);
             EB->byte[0] = F8;
             break;
-        case 0xC7:                      /* MOV Ed,Id */
+        case 0xC7:                      /* MOV FS:Ed, Id */
             nextop = F8;
             GETED_OFFS(4, tlsdata);
             if(rex.w)

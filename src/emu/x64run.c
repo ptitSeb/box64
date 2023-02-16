@@ -168,7 +168,7 @@ x64emurun:
         GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
         #undef GO
 
-	case 0x2E:	    /* segments are ignored */
+	    case 0x2E:	    /* segments are ignored */
         case 0x36:          /* SS: (ignored) */
             break;
 
@@ -1414,10 +1414,12 @@ x64emurun:
                     case 4:                 /* MUL EAX,Ed */
                         mul32_eax(emu, ED->dword[0]);
                         emu->regs[_AX].dword[1] = 0;
+                        emu->regs[_DX].dword[1] = 0;
                         break;
                     case 5:                 /* IMUL EAX,Ed */
                         imul32_eax(emu, ED->dword[0]);
                         emu->regs[_AX].dword[1] = 0;
+                        emu->regs[_DX].dword[1] = 0;
                         break;
                     case 6:                 /* DIV Ed */
                         div32(emu, ED->dword[0]);

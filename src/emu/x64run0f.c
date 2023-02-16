@@ -37,6 +37,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
     int32_t tmp32s, tmp32s2;
     uint32_t tmp32u, tmp32u2;
     uint64_t tmp64u, tmp64u2;
+    int64_t tmp64s;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1;
     mmx87_regs_t *opem, *opgm, eam1;
@@ -837,12 +838,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETED(0);
             GETGD;
-            tmp32s = GD->sdword[0];
-            tmp8u=tmp32s&(rex.w?63:31);
-            tmp32s >>= (rex.w?6:5);
+            tmp64s = rex.w?GD->sq[0]:GD->sdword[0];
+            tmp8u=tmp64s&(rex.w?63:31);
+            tmp64s >>= (rex.w?6:5);
             if(!MODREG)
             {
-                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
             }
             if(rex.w) {
                 if(ED->q[0] & (1LL<<tmp8u))
@@ -953,12 +954,14 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 }
             } else {
                 cmp32(emu, R_EAX, ED->dword[0]);
-                R_RAX = ED->dword[0];   // to erase upper part of RAX
                 if(ACCESS_FLAG(F_ZF)) {
                     if(MODREG)
                         ED->q[0] = GD->dword[0];
                     else
                         ED->dword[0] = GD->dword[0];
+                    R_RAX = R_EAX;   // to erase upper part of RAX
+                } else {
+                    R_RAX = ED->dword[0];
                 }
             }
             break;
@@ -967,12 +970,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETED(0);
             GETGD;
-            tmp32s = GD->sdword[0];
-            tmp8u=tmp32s&(rex.w?63:31);
-            tmp32s >>= (rex.w?6:5);
+            tmp64s = rex.w?GD->sq[0]:GD->sdword[0];
+            tmp8u=tmp64s&(rex.w?63:31);
+            tmp64s >>= (rex.w?6:5);
             if(!MODREG)
             {
-                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
             }
             if(rex.w) {
                 if(ED->q[0] & (1LL<<tmp8u)) {
@@ -1097,12 +1100,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETED(0);
             GETGD;
-            tmp32s = GD->sdword[0];
-            tmp8u=tmp32s&(rex.w?63:31);
-            tmp32s >>= (rex.w?6:5);
+            tmp64s = rex.w?GD->sq[0]:GD->sdword[0];
+            tmp8u=tmp64s&(rex.w?63:31);
+            tmp64s >>= (rex.w?6:5);
             if(!MODREG)
             {
-                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
             }
             if(rex.w) {
                 if(ED->q[0] & (1LL<<tmp8u))
@@ -1256,14 +1259,14 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         case 0xC4:                      /* PINSRW Gm,Ew,Ib */
             nextop = F8;
-            GETED(0);
+            GETED(1);
             GETGM;
             tmp8u = F8;
             GM->uw[tmp8u&3] = ED->word[0];   // only low 16bits
             break;
         case 0xC5:                       /* PEXTRW Gw,Em,Ib */
             nextop = F8;
-            GETEM(0);
+            GETEM(1);
             GETGD;
             tmp8u = F8;
             GD->q[0] = EM->uw[tmp8u&3];  // 16bits extract, 0 extended
@@ -1378,7 +1381,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETEM(0);
             GETGD;
-            GD->dword[0] = 0;
+            GD->q[0] = 0;
             for (int i=0; i<8; ++i)
                 if(EM->ub[i]&0x80)
                     GD->dword[0] |= (1<<i);
@@ -1457,7 +1460,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEM(0);
             GETGM;
             if(EM->q>15)
-                tmp8u = 16;
+                tmp8u = 15;
             else
                 tmp8u = EM->ub[0];
             for(int i=0; i<4; ++i)

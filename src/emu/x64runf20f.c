@@ -45,7 +45,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GETEX(0);
         GETGX;
         GX->q[0] = EX->q[0];
-        if((nextop&0xC0)!=0xC0) {
+        if(!MODREG) {
             // EX is not a register
             GX->q[1] = 0;
         }
@@ -314,8 +314,8 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GETGX;
         switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest:
-                GX->sd[0] = floor(EX->d[0]+0.5);
-                GX->sd[1] = floor(EX->d[1]+0.5);
+                GX->sd[0] = nearbyint(EX->d[0]);
+                GX->sd[1] = nearbyint(EX->d[1]);
                 break;
             case ROUND_Down:
                 GX->sd[0] = floor(EX->d[0]);

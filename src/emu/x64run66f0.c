@@ -133,16 +133,14 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETGW;                                                  \
             if(rex.w) {                                             \
                 do {                                                \
-                    tmp64u = native_lock_read_dd(ED);                \
+                    tmp64u = native_lock_read_dd(ED);               \
                     tmp64u = OP##64(emu, tmp64u, GD->q[0]);         \
-                } while (native_lock_write_dd(ED, tmp64u));          \
+                } while (native_lock_write_dd(ED, tmp64u));         \
             } else {                                                \
                 do {                                                \
-                    tmp16u = native_lock_read_h(ED);                 \
+                    tmp16u = native_lock_read_h(ED);                \
                     tmp16u = OP##16(emu, tmp16u, GW->word[0]);      \
-                } while (native_lock_write_d(ED, tmp16u));           \
-                if(MODREG)                                          \
-                    EW->word[1] = 0;                                \
+                } while (native_lock_write_h(ED, tmp16u));          \
             }                                                       \
             break;                                                  \
         case B+3:                                                   \
@@ -170,10 +168,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             if(rex.w)                                               \
                 ED->q[0] = OP##64(emu, ED->q[0], GD->q[0]);         \
             else                                                    \
-                if(MODREG)                                          \
-                    ED->q[0] = OP##32(emu, ED->dword[0], GD->dword[0]);     \
-                else                                                        \
-                    EW->word[0] = OP##16(emu, EW->word[0], GW->word[0]);    \
+                EW->word[0] = OP##16(emu, EW->word[0], GW->word[0]);\
             pthread_mutex_unlock(&emu->context->mutex_lock);        \
             break;                                                  \
         case B+3:                                                   \
@@ -278,7 +273,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 tmp16u &=~0xff;
                                 tmp16u |= native_lock_read_b(ED);
                                 tmp16u = inc16(emu, tmp16u);
-                        } while(native_lock_write_b(ED, tmp16u&0xff));
+                            } while(native_lock_write_b(ED, tmp16u&0xff));
                             ED->word[0] = tmp16u;
                         } else {
                             do {

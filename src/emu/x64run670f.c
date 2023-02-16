@@ -43,40 +43,55 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     switch(opcode) {
 
-        case 0x2E:                      /* UCOMISS Gx, Ex */
+        case 0x2E:
             // same for now
-        case 0x2F:                      /* COMISS Gx, Ex */
-            if(rep) {
-                return 0;
+        case 0x2F:                      
+            switch(rep) {
+                case 0: /* (U)COMISS Gx, Ex */
+                    RESET_FLAGS(emu);
+                    nextop = F8;
+                    GETEX32(0);
+                    GETGX;
+                    if(isnan(GX->f[0]) || isnan(EX->f[0])) {
+                        SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
+                    } else if(isgreater(GX->f[0], EX->f[0])) {
+                        CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
+                    } else if(isless(GX->f[0], EX->f[0])) {
+                        CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); SET_FLAG(F_CF);
+                    } else {
+                        SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
+                    }
+                    CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
+                    break;
+                default:
+                    return 0;
             }
-            RESET_FLAGS(emu);
-            nextop = F8;
-            GETEX32(0);
-            GETGX;
-            if(isnan(GX->f[0]) || isnan(EX->f[0])) {
-                SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
-            } else if(isgreater(GX->f[0], EX->f[0])) {
-                CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
-            } else if(isless(GX->f[0], EX->f[0])) {
-                CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); SET_FLAG(F_CF);
-            } else {
-                SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
-            }
-            CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
             break;
 
-        case 0x6F:                      /* MOVQ Gm, Em */
-            nextop = F8;
-            GETEM32(0);
-            GETGM;
-            GM->q = EM->q;
+        case 0x6F:
+            switch(rep) {
+                case 0: /* MOVQ Gm, Em */
+                    nextop = F8;
+                    GETEM32(0);
+                    GETGM;
+                    GM->q = EM->q;
+                    break;
+                default:
+                    return 0;
+            }
             break;
 
-        case 0x7F:                      /* MOVQ Em, Gm */
-            nextop = F8;
-            GETEM32(0);
-            GETGM;
-            EM->q = GM->q;
+        case 0x7F:
+            switch(rep) {
+                case 0: /* MOVQ Em, Gm */ 
+                    nextop = F8;
+                    GETEM32(0);
+                    GETGM;
+                    EM->q = GM->q;
+                    break;
+                default:
+                    return 0;
+            }
             break;
 
     default:

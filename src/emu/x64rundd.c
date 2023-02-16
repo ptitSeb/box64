@@ -114,37 +114,20 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 0: /* FLD double */
                 GETED(0);
                 fpu_do_push(emu);
-                if(!(((uintptr_t)ED)&7))
-                    ST0.d = *(double*)ED;
-                else {
-                    memcpy(&ST0.d, ED, sizeof(double));
-                }
+                ST0.d = *(double*)ED;
                 break;
             case 1: /* FISTTP ED qword */
                 GETED(0);
-                if(!(((uintptr_t)ED)&7))
-                    *(int64_t*)ED = ST0.d;
-                else {
-                    int64_t i64 = ST0.d;
-                    memcpy(ED, &i64, sizeof(int64_t));
-                }
+                *(int64_t*)ED = ST0.d;
                 fpu_do_pop(emu);
                 break;
             case 2: /* FST double */
                 GETED(0);
-                if(!(((uintptr_t)ED)&7))
-                    *(double*)ED = ST0.d;
-                else {
-                    memcpy(ED, &ST0.d, sizeof(double));
-                }
+                *(double*)ED = ST0.d;
                 break;
             case 3: /* FSTP double */
                 GETED(0);
-                if(!(((uintptr_t)ED)&7))
-                    *(double*)ED = ST0.d;
-                else {
-                    memcpy(ED, &ST0.d, sizeof(double));
-                }
+                *(double*)ED = ST0.d;
                 fpu_do_pop(emu);
                 break;
             case 4: /* FRSTOR m108byte */

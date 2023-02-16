@@ -173,10 +173,12 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 nextop = F8;
                 GETED(0);
                 GETGD;
-                tmp8u = GD->byte[0];
+                tmp64s = rex.w?GD->sq[0]:GD->sdword[0];
+                tmp8u=tmp64s&(rex.w?63:31);
+                tmp64s >>= (rex.w?6:5);
                 if(!MODREG)
                 {
-                    ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                    ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
                 }
 #ifdef DYNAREC
                 if(rex.w) {
@@ -350,10 +352,12 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     nextop = F8;
                     GETED(0);
                     GETGD;
-                    tmp8u = GD->byte[0];
+                    tmp64s = rex.w?GD->sq[0]:GD->sdword[0];
+                    tmp8u=tmp64s&(rex.w?63:31);
+                    tmp64s >>= (rex.w?6:5);
                     if(!MODREG)
                     {
-                        ED=(reg64_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                        ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
                     }
                     tmp8u&=rex.w?63:31;
 #ifdef DYNAREC
@@ -595,6 +599,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         tmp8u = native_lock_read_b(EB);
                         tmp8u2 = add8(emu, tmp8u, GB);
                     } while(native_lock_write_b(EB, tmp8u2));
+                    GB = tmp8u;
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     tmp8u = add8(emu, EB->byte[0], GB);
@@ -858,7 +863,6 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 } while(native_lock_write_b(EB, GB));
                 GB = tmp8u;
             }
-            // dynarec use need it's own mecanism
 #else
             GETEB(0);
             GETGB;
@@ -890,10 +894,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 if(rex.w) {
                     GD->q[0] = native_lock_xchg(ED, GD->q[0]);
                 } else {
-                    do {
-                        tmp32u = native_lock_read_d(ED);
-                    } while(native_lock_write_d(ED, GD->dword[0]));
-                    GD->q[0] = tmp32u;
+                    GD->dword[0] = native_lock_xchg_d(ED, GD->dword[0]);
                 }
             }
 #else
@@ -999,7 +1000,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 tmp32u &=~0xff;
                                 tmp32u |= native_lock_read_b(ED);
                                 tmp32u = inc32(emu, tmp32u);
-                        } while(native_lock_write_b(ED, tmp32u&0xff));
+                            } while(native_lock_write_b(ED, tmp32u&0xff));
                             ED->dword[0] = tmp32u;
                         } else {
                             do {

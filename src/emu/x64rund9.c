@@ -232,30 +232,15 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 0:     /* FLD ST0, Ed float */
                 GETED(0);
                 fpu_do_push(emu);
-                if(!(((uintptr_t)ED)&3))
-                    ST0.d = *(float*)ED;
-                else {
-                    memcpy(&f, ED, sizeof(float));
-                    ST0.d = f;
-                }
+                ST0.d = *(float*)ED;
                 break;
             case 2:     /* FST Ed, ST0 */
                 GETED(0);
-                if(!(((uintptr_t)ED)&3))
-                    *(float*)ED = ST0.d;
-                else {
-                    f = ST0.d;
-                    memcpy(ED, &f, sizeof(float));
-                }
+                *(float*)ED = ST0.d;
                 break;
             case 3:     /* FSTP Ed, ST0 */
                 GETED(0);
-                if(!(((uintptr_t)ED)&3))
-                    *(float*)ED = ST0.d;
-                else {
-                    f = ST0.d;
-                    memcpy(ED, &f, sizeof(float));
-                }
+                *(float*)ED = ST0.d;
                 fpu_do_pop(emu);
                 break;
             case 4:     /* FLDENV m */

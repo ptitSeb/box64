@@ -394,20 +394,22 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                 case 4:                 /* MUL EAX,Ed */
                     mul32_eax(emu, ED->dword[0]);
                     emu->regs[_AX].dword[1] = 0;
+                    emu->regs[_DX].dword[1] = 0;
                     break;
                 case 5:                 /* IMUL EAX,Ed */
                     imul32_eax(emu, ED->dword[0]);
                     emu->regs[_AX].dword[1] = 0;
+                    emu->regs[_DX].dword[1] = 0;
                     break;
                 case 6:                 /* DIV Ed */
                     div32(emu, ED->dword[0]);
-                    emu->regs[_AX].dword[1] = 0;
-                    emu->regs[_DX].dword[1] = 0;
+                    //emu->regs[_AX].dword[1] = 0;
+                    //emu->regs[_DX].dword[1] = 0;
                     break;
                 case 7:                 /* IDIV Ed */
                     idiv32(emu, ED->dword[0]);
-                    emu->regs[_AX].dword[1] = 0;
-                    emu->regs[_DX].dword[1] = 0;
+                    //emu->regs[_AX].dword[1] = 0;
+                    //emu->regs[_DX].dword[1] = 0;
                     break;
             }
         }

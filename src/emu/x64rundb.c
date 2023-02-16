@@ -133,15 +133,15 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 1: /* FISTTP Ed, ST0 */
                 GETED(0);
-                tmp32s = ST0.d; // TODO: Handling of FPU Exception
-                if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
-                    tmp32s = 0x80000000;
+                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff) || !isfinite(ST0.d))
+                    ED->sdword[0] = 0x80000000;
+                else
+                    ED->sdword[0] = ST0.d;
                 fpu_do_pop(emu);
-                ED->sdword[0] = tmp32s;
                 break;
             case 2: /* FIST Ed, ST0 */
                 GETED(0);
-                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff) || !isfinite(ST0.d))
+                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x80000000) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else {
                     volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR
@@ -150,7 +150,7 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 3: /* FISTP Ed, ST0 */
                 GETED(0);
-                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff) || !isfinite(ST0.d))
+                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x80000000) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else {
                     volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR

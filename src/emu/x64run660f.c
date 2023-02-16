@@ -54,6 +54,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     int32_t tmp32s;
     uint32_t tmp32u;
     uint64_t tmp64u;
+    int64_t tmp64s;
     float tmpf;
     #ifndef NOALIGN
     int is_nan;
@@ -199,8 +200,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETGM;
         switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest:
-                GM->sd[0] = floor(EX->d[0]+0.5);
-                GM->sd[1] = floor(EX->d[1]+0.5);
+                GM->sd[0] = nearbyint(EX->d[0]);
+                GM->sd[1] = nearbyint(EX->d[1]);
                 break;
             case ROUND_Down:
                 GM->sd[0] = floor(EX->d[0]);
@@ -673,13 +674,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     tmp8u &= 3;
                 switch(tmp8u) {
                     case ROUND_Nearest:
-                        GX->f[0] = floor(EX->f[0]+0.5);
+                        GX->f[0] = nearbyintf(EX->f[0]);
                         break;
                     case ROUND_Down:
-                        GX->f[0] = floor(EX->f[0]);
+                        GX->f[0] = floorf(EX->f[0]);
                         break;
                     case ROUND_Up:
-                        GX->f[0] = ceil(EX->f[0]);
+                        GX->f[0] = ceilf(EX->f[0]);
                         break;
                     case ROUND_Chop:
                         GX->f[0] = EX->f[0];
@@ -697,7 +698,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     tmp8u &= 3;
                 switch(tmp8u) {
                     case ROUND_Nearest:
-                        GX->d[0] = floor(EX->d[0]+0.5);
+                        GX->d[0] = nearbyint(EX->d[0]);
                         break;
                     case ROUND_Down:
                         GX->d[0] = floor(EX->d[0]);
@@ -762,12 +763,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETGX;
                 tmp8u = F8;
                 ED->dword[0] = GX->ud[tmp8u&3];
-                if(MODREG && rex.w) ED->dword[1] = 0;
+                if(MODREG) ED->dword[1] = 0;
                 break;
 
             case 0x20:      // PINSRB GX, ED, u8
                 nextop = F8;
-                GETED(1);
+                GETED(1);   // It's ED, and not EB
                 GETGX;
                 tmp8u = F8;
                 GX->ub[tmp8u&0xf] = ED->byte[0];
@@ -865,7 +866,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGD;
-        GD->dword[0] = 0;
+        GD->q[0] = 0;
         for(int i=0; i<2; ++i)
             GD->dword[0] |= ((EX->q[i]>>63)&1)<<i;
         break;
@@ -952,23 +953,23 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGX;
         for(int i=0; i<4; ++i)
-            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>0x7fffffff)
+            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>0x7fffffff || EX->f[i]<-0x80000000)
                 GX->sd[i] = 0x80000000;
-        else
-            switch(emu->mxcsr.f.MXCSR_RC) {
-                case ROUND_Nearest:
-                    GX->sd[i] = nearbyintf(EX->f[i]);
-                    break;
-                case ROUND_Down:
-                    GX->sd[i] = floorf(EX->f[i]);
-                    break;
-                case ROUND_Up:
-                    GX->sd[i] = ceilf(EX->f[i]);
-                    break;
-                case ROUND_Chop:
-                    GX->sd[i] = EX->f[i];
-                    break;
-            }
+            else
+                switch(emu->mxcsr.f.MXCSR_RC) {
+                    case ROUND_Nearest:
+                        GX->sd[i] = nearbyintf(EX->f[i]);
+                        break;
+                    case ROUND_Down:
+                        GX->sd[i] = floorf(EX->f[i]);
+                        break;
+                    case ROUND_Up:
+                        GX->sd[i] = ceilf(EX->f[i]);
+                        break;
+                    case ROUND_Chop:
+                        GX->sd[i] = EX->f[i];
+                        break;
+                }
         break;
     case 0x5C:                      /* SUBPD Gx, Ex */
         nextop = F8;
@@ -1206,6 +1207,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 4:                 /* PSRAW Ex, Ib */
                 tmp8u = F8;
+                if(tmp8u>15) tmp8u=15;
                 for (int i=0; i<8; ++i) EX->sw[i] >>= tmp8u;
                 break;
             case 6:                 /* PSLLW Ex, Ib */
@@ -1232,10 +1234,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 4:                 /* PSRAD Ex, Ib */
                 tmp8u = F8;
-                if(tmp8u>31) {
-                    for (int i=0; i<4; ++i) EX->sd[i] = (EX->sd[i]<0)?-1:0;
-                } else
-                    for (int i=0; i<4; ++i) EX->sd[i] >>= tmp8u;
+                if(tmp8u>31) tmp8u=31;
+                for (int i=0; i<4; ++i) EX->sd[i] >>= tmp8u;
                 break;
             case 6:                 /* PSLLD Ex, Ib */
                 tmp8u = F8;
@@ -1537,13 +1537,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEB(0);
         GETGW;
-        GW->word[0] = EB->byte[0];
+        if(rex.w)
+            GW->q[0] = EB->byte[0];
+        else
+            GW->word[0] = EB->byte[0];
         break;
     case 0xB7:                      /* MOVZX Gw,Ew */
         nextop = F8;
         GETEW(0);
         GETGW;
-        GW->word[0] = EW->word[0];
+        if(rex.w)
+            GW->q[0] = EW->word[0];
+        else
+            GW->word[0] = EW->word[0];
         break;
 
     case 0xBA:                      
@@ -1551,7 +1557,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         switch((nextop>>3)&7) {
             case 4:                 /* BT Ew,Ib */
                 CHECK_FLAGS(emu);
-                GETEW(0);
+                GETEW(1);
                 GETGW;
                 tmp8u = F8;
                 if(rex.w) {
@@ -1570,7 +1576,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 5:             /* BTS Ew, Ib */
                 CHECK_FLAGS(emu);
-                GETEW(0);
+                GETEW(1);
                 GETGW;
                 tmp8u = F8;
                 if(rex.w) {
@@ -1593,7 +1599,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 6:             /* BTR Ew, Ib */
                 CHECK_FLAGS(emu);
-                GETEW(0);
+                GETEW(1);
                 GETGW;
                 tmp8u = F8;
                 if(rex.w) {
@@ -1614,7 +1620,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 7:             /* BTC Ew, Ib */
                 CHECK_FLAGS(emu);
-                GETEW(0);
+                GETEW(1);
                 GETGW;
                 tmp8u = F8;
                 if(rex.w) {
@@ -1642,12 +1648,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEW(0);
         GETGW;
-        tmp32s = rex.w?GW->sdword[0]:GW->sword[0];
-        tmp8u=tmp32s&(rex.w?63:15);
-        tmp32s >>= (rex.w?6:4);
+        tmp64s = rex.w?GW->sq[0]:GW->sword[0];
+        tmp8u=tmp64s&(rex.w?63:15);
+        tmp64s >>= (rex.w?6:4);
         if(!MODREG)
         {
-            EW=(reg64_t*)(((uintptr_t)(EW))+(tmp32s<<(rex.w?3:1)));
+            EW=(reg64_t*)(((uintptr_t)(EW))+(tmp64s<<(rex.w?3:1)));
         }
         if(rex.w) {
             if(EW->q[0] & (1LL<<tmp8u))
@@ -1774,7 +1780,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(1);
         GETGD;
         tmp8u = F8;
-        GD->dword[0] = EX->uw[tmp8u&7];  // 16bits extract, 0 extended
+        GD->q[0] = EX->uw[tmp8u&7];  // 16bits extract, 0 extended
         break;
     case 0xC6:  /* SHUFPD Gx, Ex, Ib */
         nextop = F8;
@@ -1947,7 +1953,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        tmp8u=(EX->q[0]>15)?16:EX->ub[0];
+        tmp8u=(EX->q[0]>15)?15:EX->ub[0];
         for (int i=0; i<8; ++i) 
             GX->sw[i] >>= tmp8u;
         break;
@@ -1955,13 +1961,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        tmp8u=(EX->q[0]>31)?32:EX->ub[0];
-        if(tmp8u>31) 
-            for (int i=0; i<4; ++i)
-                GX->sd[i] = (GX->sd[i]<0)?-1:0;
-        else
-            for (int i=0; i<4; ++i)
-                GX->sd[i] >>= tmp8u;
+        tmp8u=(EX->q[0]>31)?31:EX->ub[0];
+        for (int i=0; i<4; ++i)
+            GX->sd[i] >>= tmp8u;
         break;
     case 0xE3:  /* PAVGW Gx, Ex */
         nextop = F8;
@@ -2038,10 +2040,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        GX->ud[0] |= EX->ud[0];
-        GX->ud[1] |= EX->ud[1];
-        GX->ud[2] |= EX->ud[2];
-        GX->ud[3] |= EX->ud[3];
+        GX->q[0] |= EX->q[0];
+        GX->q[1] |= EX->q[1];
         break;
     case 0xEC:  /* PADDSB Gx,Ex */
         nextop = F8;
@@ -2101,7 +2101,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         if(EX->q[0]>63)
             {GX->q[0] = GX->q[1] = 0;}
         else 
-            {tmp8u=EX->q[0]; for (int i=0; i<2; ++i) GX->q[i] <<= tmp8u;}
+            {tmp8u=EX->ub[0]; for (int i=0; i<2; ++i) GX->q[i] <<= tmp8u;}
         break;
     case 0xF4:  /* PMULUDQ Gx,Ex */
         nextop = F8;

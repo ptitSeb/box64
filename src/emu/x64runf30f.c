@@ -281,7 +281,6 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         if(rex.w) {
             tmp64u = ED->q[0];
             if(tmp64u) {
-                CLEAR_FLAG(F_ZF);
                 tmp8u = 0;
                 while(!(tmp64u&(1LL<<tmp8u))) ++tmp8u;
                 GD->q[0] = tmp8u;
@@ -295,16 +294,15 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         } else {
             tmp32u = ED->dword[0];
             if(tmp32u) {
-                CLEAR_FLAG(F_ZF);
                 tmp8u = 0;
                 while(!(tmp32u&(1<<tmp8u))) ++tmp8u;
-                GD->dword[0] = tmp8u;
+                GD->q[0] = tmp8u;
                 CONDITIONAL_SET_FLAG(tmp8u==0, F_ZF);
                 CLEAR_FLAG(F_CF);
             } else {
                 CLEAR_FLAG(F_ZF);
                 SET_FLAG(F_CF);
-                GD->dword[0] = 32;
+                GD->q[0] = 32;
             }
         }
         break;
