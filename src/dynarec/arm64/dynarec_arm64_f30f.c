@@ -367,6 +367,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETED(0);
             GETGD;
             TSTxw_REG(ed, ed);
+            CSETw(x1, cEQ);
             BFIw(xFlags, x1, F_CF, 1);  // CF = is source 0?
             RBITxw(x1, ed);   // reverse
             CLZxw(gd, x1);    // x2 gets leading 0 == TZCNT
@@ -382,8 +383,9 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETED(0);
             GETGD;
             TSTxw_REG(ed, ed);
+            CSETw(x1, cEQ);
             BFIw(xFlags, x1, F_CF, 1);  // CF = is source 0?
-            CLZxw(gd, x1);    // x2 gets leading 0 == LZCNT
+            CLZxw(gd, ed);    // x2 gets leading 0 == LZCNT
             TSTxw_REG(gd, gd);
             CSETw(x1, cEQ);
             BFIw(xFlags, x1, F_ZF, 1);  // ZF = is dest 0?
@@ -427,15 +429,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xE6:
             INST_NAME("CVTDQ2PD Gx, Ex");
             nextop = F8;
-            // cannot use GETEX because we want 64bits not 32bits
-            if(MODREG) {
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
-            } else {
-                v1 = fpu_get_scratch(dyn);
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
-                VLDR64_U12(v1, ed, fixedaddress);
-            }
+            GETEXSD(v1, 0, 0);
             GETGX_empty(v0);
             d0 = fpu_get_scratch(dyn);
             SXTL_32(v0, v1);
