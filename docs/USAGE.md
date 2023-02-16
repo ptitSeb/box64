@@ -182,6 +182,11 @@ Detect MonoBleedingEdge and apply conservative settings
 * 0 : Don't detect MonoBleedingEdge
 * 1 : Detect MonoBleedingEdge, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
 
+#### BOX64_DYNAREC_WAIT *
+Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
+* 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
+* 1 : Dynarec will wait for FillBlock to be ready (Default)
+
 #### BOX64_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL

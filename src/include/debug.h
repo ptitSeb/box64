@@ -23,6 +23,7 @@ extern int box64_dynarec_safeflags;
 extern int box64_dynarec_callret;
 extern int box64_dynarec_bleeding_edge;
 extern int box64_dynarec_hotpage;
+extern int box64_dynarec_wait;
 #ifdef ARM64
 extern int arm64_asimd;
 extern int arm64_aes;
