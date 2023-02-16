@@ -600,7 +600,7 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             size_t sz = h->DynSym[i].st_size;
             if(bind!=STB_LOCAL && bind!=STB_WEAK && sz>=sizeof(reloc_jmp_t)) {
-                #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; if(!strcmp(symname, "scalable_" #A)) ++hooked; if(!strcmp(symname, "__TBB_internal_" #A)) ++hooked;
+                #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; else if(!strcmp(symname, "scalable_" #A)) ++hooked; else if(!strcmp(symname, "__TBB_internal_" #A)) ++hooked;
                 #define GO2(A, B)
                 SUPER()
                 #undef GO
