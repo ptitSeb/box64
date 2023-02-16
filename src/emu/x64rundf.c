@@ -165,7 +165,7 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
             if(STll(0).sref==ST(0).sq)
                 ED->sq[0] = STll(0).sq;
             else {
-                if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x8000000000000000LL) || !isfinite(ST0.d))
+                if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL) || !isfinite(ST0.d))
                     ED->sq[0] = 0x8000000000000000LL;
                 else
                     ED->sq[0] = fpu_round(emu, ST0.d);
