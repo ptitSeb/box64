@@ -518,10 +518,11 @@ int FiniLibrary(library_t* lib, x64emu_t* emu)
                 lib->active = 0;
             return 0;
         case LIB_EMULATED:
-            if(emu)
-                RunElfFini(lib->e.elf, emu);
-            if(!lib->e.elf->refcnt)
+            if(!--lib->e.elf->refcnt) {
+                if(emu)
+                    RunElfFini(lib->e.elf, emu);
                 lib->active = 0;
+            }
             return 0;
     }
     return 1;   // bad type
