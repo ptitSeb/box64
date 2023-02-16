@@ -1319,7 +1319,7 @@ GO(g_settings_get_has_unapplied, iFp)
 //GO(g_settings_get_int, 
 //GO(g_settings_get_mapped, 
 //GO(g_settings_get_range, 
-//GO(g_settings_get_string, 
+GO(g_settings_get_string, pFpp)
 //GO(g_settings_get_strv, 
 //GO(g_settings_get_type, 
 //GO(g_settings_get_uint, 
@@ -1356,7 +1356,7 @@ GO(g_settings_reset, vFpp)
 GO(g_settings_schema_source_get_default, pFv)
 GO(g_settings_schema_source_get_type, LFv)
 //GO(g_settings_schema_source_list_schemas, 
-//GO(g_settings_schema_source_lookup, 
+GO(g_settings_schema_source_lookup, pFppi)
 //GO(g_settings_schema_source_new_from_directory, 
 GO(g_settings_schema_source_ref, pFp)
 GO(g_settings_schema_source_unref, vFp)
