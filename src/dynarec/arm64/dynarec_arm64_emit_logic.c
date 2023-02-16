@@ -47,7 +47,7 @@ void emit_or32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3,
     }
     IFX(X_SF) {
         LSRxw(s3, s1, (rex.w)?63:31);
-        BFIx(xFlags, s3, F_SF, 1);
+        BFIw(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -78,7 +78,7 @@ void emit_or32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int
     }
     IFX(X_SF) {
         LSRxw(s3, s1, (rex.w)?63:31);
-        BFIx(xFlags, s3, F_SF, 1);
+        BFIw(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -109,7 +109,7 @@ void emit_xor32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
     IFX(X_SF) {
         LSRxw(s3, s1, (rex.w)?63:31);
-        BFIx(xFlags, s3, F_SF, 1);
+        BFIw(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -140,7 +140,7 @@ void emit_xor32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     }
     IFX(X_SF) {
         LSRxw(s3, s1, (rex.w)?63:31);
-        BFIx(xFlags, s3, F_SF, 1);
+        BFIw(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -174,7 +174,7 @@ void emit_and32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
     IFX(X_SF) {
         LSRxw(s3, s1, (rex.w)?63:31);
-        BFIx(xFlags, s3, F_SF, 1);
+        BFIw(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -208,7 +208,7 @@ void emit_and32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     }
     IFX(X_SF) {
         LSRxw(s3, s1, (rex.w)?63:31);
-        BFIx(xFlags, s3, F_SF, 1);
+        BFIw(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -578,9 +578,6 @@ void emit_and16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
-    }
-    IFX(X_PEND) {
-        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_CF | X_AF | X_OF) {
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));

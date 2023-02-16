@@ -425,6 +425,19 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
 }
 
 void* FillBlock64(dynablock_t* block, uintptr_t addr) {
+    /*
+        A Block must have this layout:
+
+        0x0000..0x0007  : dynablock_t* : self
+        0x0008..8+4*n   : actual Native instructions, (n is the total number)
+        A ..    A+8*n   : Table64: n 64bits values
+        B ..    B+7     : dynablock_t* : self (as part of JmpNext, that simulate another block)
+        B+8 ..  B+15    : 2 Native code for jmpnext (or jmp epilog in case of empty block)
+        B+16 .. B+23    : jmpnext (or jmp_epilog) address
+        B+24 .. B+31    : empty (in case an architecture needs more than 2 opcodes)
+        B+32 .. B+32+sz : instsize (compressed array with each instruction lenght on x64 and native side)
+
+    */
     if(IsInHotPage(addr)) {
         dynarec_log(LOG_DEBUG, "Cancelling dynarec FillBlock on hotpage for %p\n", (void*)addr);
         return NULL;

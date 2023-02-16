@@ -24,47 +24,6 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
-#define GETG                            \
-    gd = ((nextop&0x38)>>3)+(rex.r<<3)  \
-
-#define GETGX(a, w)                     \
-    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    a = sse_get_reg(dyn, ninst, x1, gd, w)
-
-#define GETGX_empty(a)                          \
-    gd = ((nextop&0x38)>>3)+(rex.r<<3);         \
-    a = sse_get_reg_empty(dyn, ninst, x1, gd)
-
-#define GETEX(a, w, D)                                              \
-    if(MODREG) {                                                    \
-        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);  \
-    } else {                                                        \
-        SMREAD();                                                   \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, D); \
-        a = fpu_get_scratch(dyn);                                   \
-        VLDR128_U12(a, ed, fixedaddress);                           \
-    }
-
-#define GETGM(a)                        \
-    gd = ((nextop&0x38)>>3);            \
-    a = mmx_get_reg(dyn, ninst, x1, x2, x3, gd)
-
-#define GETEM(a, D)                                             \
-    if(MODREG) {                                                \
-        a = mmx_get_reg(dyn, ninst, x1, x2, x3, (nextop&7));    \
-    } else {                                                    \
-        SMREAD();                                               \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, D); \
-        a = fpu_get_scratch(dyn);                               \
-        VLDR64_U12(a, ed, fixedaddress);                        \
-    }
-
-#define PUTEM(a)                            \
-    if(!MODREG) {                           \
-        VSTR64_U12(a, ed, fixedaddress);    \
-        SMWRITE2();                         \
-    }
-
 uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     (void)ip; (void)rep; (void)need_epilog;
@@ -107,6 +66,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(arm_ud, -1);
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
             break;
 
         case 0x05:
@@ -174,9 +137,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VMOVQ(v0, v1);
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, 0);
                 VLDR128_U12(v0, ed, fixedaddress);   // no alignment issue with ARMv8 NEON :)
-                SMWRITE2();
             }
             break;
         case 0x11:
@@ -435,10 +398,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(MODREG) {   // reg <= reg
                         REVxw(xRAX+(nextop&7)+(rex.b<<3), gd);
                     } else {                    // mem <= reg
-                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                         REVxw(x1, gd);
                         STRxw_U12(x1, ed, fixedaddress);
+                        SMWRITE2();
                     }
                     break;
 
@@ -493,7 +456,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGD;
             MOV32w(gd, 0);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 // EX is an xmm reg
                 GETEX(q0, 0, 0);
                 VMOVQDto(x1, q0, 0);
@@ -721,37 +684,36 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("PUNPCKHBW Gm,Em");
             nextop = F8;
             GETGM(q0);
-            GETEM(q1, 1);
+            GETEM(q1, 0);
             VZIP2_8(q0, q0, q1);
             break;
         case 0x69:
             INST_NAME("PUNPCKHWD Gm,Em");
             nextop = F8;
             GETGM(q0);
-            GETEM(q1, 1);
+            GETEM(q1, 0);
             VZIP2_16(q0, q0, q1);
             break;
         case 0x6A:
             INST_NAME("PUNPCKHDQ Gm,Em");
             nextop = F8;
             GETGM(q0);
-            GETEM(q1, 1);
+            GETEM(q1, 0);
             VZIP2_32(q0, q0, q1);
             break;
         case 0x6B:
             INST_NAME("PACKSSDW Gm,Em");
             nextop = F8;
             GETGM(v0);
+            q0 = fpu_get_scratch(dyn);
+            VMOVeD(q0, 0, v0, 0);
             if(MODREG) {
                 GETEM(v1, 0);
-                q0 = fpu_get_scratch(dyn);
                 VMOVeD(q0, 1, v1, 0);
             } else {
-                q0 = fpu_get_scratch(dyn);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 VLD1_64(q0, 1, ed);
             }
-            VMOVeD(q0, 0, v0, 0);
             SQXTN_16(v0, q0);
             break;
 
@@ -765,6 +727,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(rex.w) {
                     FMOVDx(v0, ed);
                 } else {
+                    VEOR(v0, v0, v0);
                     FMOVSw(v0, ed);
                 }
             } else {
@@ -885,9 +848,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         } else if(u8) {
                             VSHR_16(q0, q0, u8);
                         }
-                        if(!MODREG) {
-                            VSTR64_U12(q0, ed, fixedaddress);
-                        }
+                        PUTEM(q0);
                     }
                     break;
                 case 4:
@@ -898,9 +859,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(u8) {
                         VSSHR_16(q0, q0, u8);
                     }
-                    if(!MODREG) {
-                        VSTR64_U12(q0, ed, fixedaddress);
-                    }
+                    PUTEM(q0);
                     break;
                 case 6:
                     INST_NAME("PSLLW Em, Ib");
@@ -912,9 +871,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         } else {
                             VSHL_16(q0, q0, u8);
                         }
-                        if(!MODREG) {
-                            VSTR64_U12(q0, ed, fixedaddress);
-                        }
+                        PUTEM(q0);
                     }
                     break;
                 default:
@@ -935,9 +892,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         } else if(u8) {
                             VSHR_32(d0, d0, u8);
                         }
-                        if(!MODREG) {
-                            VSTR64_U12(d0, ed, fixedaddress);
-                        }
+                        PUTEM(d0);
                     }
                     break;
                 case 4:
@@ -948,9 +903,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(u8) {
                         VSSHR_32(d0, d0, u8);
                     }
-                    if(!MODREG) {
-                        VSTR64_U12(d0, ed, fixedaddress);
-                    }
+                    PUTEM(d0);
                     break;
                 case 6:
                     INST_NAME("PSLLD Em, Ib");
@@ -962,9 +915,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         } else {
                             VSHL_32(d0, d0, u8);
                         }
-                        if(!MODREG) {
-                            VSTR64_U12(d0, ed, fixedaddress);
-                        }
+                        PUTEM(d0);
                     }
                     break;
                 default:
@@ -1040,9 +991,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if((nextop&0xC0)==0xC0) {
                 ed = xRAX + (nextop&7) + (rex.b<<3);
                 if(rex.w) {
-                    VMOVQDto(ed, v0, 0);
+                    FMOVxD(ed, v0);
                 } else {
-                    VMOVSto(ed, v0, 0);
+                    FMOVwS(ed, v0);
                     MOVxw_REG(ed, ed);
                 }
             } else {
@@ -1852,10 +1803,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xE7:
-            INST_NAME("MOVNTQ Em, Gm"); // Non Temporal par not handled for now
+            INST_NAME("MOVNTQ Em, Gm");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 DEFAULT;
             } else {
                 v0 = mmx_get_reg(dyn, ninst, x1, x2, x3, gd);
@@ -1905,7 +1856,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             gd = ((nextop&0x38)>>3);
             if(MODREG && ((nextop&7))==gd) {
-                // special case for PXOR Gx, Gx
+                // special case for PXOR Gm, Gm
                 q0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
                 VEOR(q0, q0, q0);
             } else {

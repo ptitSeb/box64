@@ -286,7 +286,7 @@
                     ed = i;                     \
                 } else {                        \
                     SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
                     ADDx_REG(x3, wback, i);     \
                     if(wback!=x3) wback = x3;   \
                     LDRB_U12(i, wback, fixedaddress);      \
@@ -359,6 +359,84 @@
                     SBFXx(gd, gb1, gb2, 8);
 // Write gb (gd) back to original register / memory
 #define GBBACK   BFIx(gb1, gd, gb2, 8);
+
+// Generic get GD, but reg value in gd (R_RAX is not added)
+#define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
+
+// Get GX as a quad (might use x1)
+#define GETGX(a, w)                     \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+    a = sse_get_reg(dyn, ninst, x1, gd, w)
+
+// Get an empty GX (use x1)
+#define GETGX_empty(a)                  \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+    a = sse_get_reg_empty(dyn, ninst, x1, gd)
+
+// Get EX as a quad, (x1 is used)
+#define GETEX(a, w, D)                                                                                  \
+    if(MODREG) {                                                                                        \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, D);  \
+        a = fpu_get_scratch(dyn);                                                                       \
+        VLDR128_U12(a, ed, fixedaddress);                                                               \
+    }
+
+// Put Back EX if it was a memory and not an emm register
+#define PUTEX(a)                                    \
+    if(!MODREG) {                                   \
+        VSTR128_U12(a, ed, fixedaddress);           \
+        SMWRITE2();                                 \
+    }
+
+
+// Get Ex as a double, not a quad (warning, x1 get used)
+#define GETEXSD(a, w, D)                                                                                \
+    if(MODREG) {                                                                                        \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        a = fpu_get_scratch(dyn);                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, D);   \
+        VLDR64_U12(a, ed, fixedaddress);                                                                \
+    }
+
+// Get Ex as a single, not a quad (warning, x1 get used)
+#define GETEXSS(a, w, D)                                                                                \
+    if(MODREG) {                                                                                        \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        a = fpu_get_scratch(dyn);                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, D);   \
+        VLDR32_U12(a, ed, fixedaddress);                                                                \
+    }
+
+// Get GM, might use x1, x2 and x3
+#define GETGM(a)                        \
+    gd = ((nextop&0x38)>>3);            \
+    a = mmx_get_reg(dyn, ninst, x1, x2, x3, gd)
+
+// Get EM, might use x1, x2 and x3
+#define GETEM(a, D)                                             \
+    if(MODREG) {                                                \
+        a = mmx_get_reg(dyn, ninst, x1, x2, x3, (nextop&7));    \
+    } else {                                                    \
+        SMREAD();                                               \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, D); \
+        a = fpu_get_scratch(dyn);                               \
+        VLDR64_U12(a, ed, fixedaddress);                        \
+    }
+
+// Put Back EM if it was a memory and not an emm register
+#define PUTEM(a)                            \
+    if(!MODREG) {                           \
+        VSTR64_U12(a, ed, fixedaddress);    \
+        SMWRITE2();                         \
+    }
+
 
 // Get Direction with size Z and based of F_DF flag, on register r ready for LDR/STR fetching
 // F_DF is 1<<10, so 1 ROR 11*2 (so F_OF)
@@ -976,14 +1054,14 @@ void emit_neg32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
 void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
-void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);
+void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
-void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);
-void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);
-void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);
-void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4);
-void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int32_t c, int s3, int s4);
-void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int32_t c, int s3, int s4);
+void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
+void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
+void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
+void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
+void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
+void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 
 void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 
@@ -1100,7 +1178,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog);
 uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);

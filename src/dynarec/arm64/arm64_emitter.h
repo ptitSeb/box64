@@ -1231,7 +1231,9 @@
 #define SCVTFDx(Dd, Xn)             EMIT(SCVTF_scalar(1, 0b01, 0b00, 0b010, Xn, Dd))
 
 #define SCVTF_vector_scalar(U, sz, Rn, Rd)    (1<<30 | (U)<<29 | 0b11110<<24 | (sz)<<22 | 0b10000<<17 | 0b11101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Convert Vn from i32 to Vd float
 #define SCVTFSS(Vd, Vn)             EMIT(SCVTF_vector_scalar(0, 0, Vn, Vd))
+// Convert Vn from i64 to Vd double
 #define SCVTFDD(Vd, Vn)             EMIT(SCVTF_vector_scalar(0, 1, Vn, Vd))
 
 #define SCVTF_vector(Q, U, sz, Rn, Rd)      ((Q)<<30 | (U)<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b11101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))

@@ -281,7 +281,11 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             #else
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
             u8 = x87_setround(dyn, ninst, x1, x2, x3);
-            FRINTID(v1, v1);
+            if(ST_IS_F(0)) {
+                FRINTIS(v1, v1);
+            } else {
+                FRINTID(v1, v1);
+            }
             x87_restoreround(dyn, ninst, u8);
             #endif
             break;
@@ -324,14 +328,10 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("FLD ST0, float[ED]");
                     v1 = x87_do_push(dyn, ninst, x1, box64_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
-                    if(ST_IS_F(0))
-                        s0 = v1;
-                    else
-                        s0 = fpu_get_scratch(dyn);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLDR32_U12(s0, ed, fixedaddress);
+                    VLDR32_U12(v1, ed, fixedaddress);
                     if(!ST_IS_F(0)) {
-                        FCVT_D_S(v1, s0);
+                        FCVT_D_S(v1, v1);
                     }
                     break;
                 case 2:
@@ -349,14 +349,11 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 3:
                     INST_NAME("FSTP float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
-                    if(ST_IS_F(0))
-                        s0 = v1;
-                    else {
-                        s0 = fpu_get_scratch(dyn);
-                        FCVT_S_D(s0, v1);
-                    }
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VSTR32_U12(s0, ed, fixedaddress);
+                    if(!ST_IS_F(0)) {
+                        FCVT_S_D(v1, v1);
+                    }
+                    VSTR32_U12(v1, ed, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
                     break;
                 case 4:

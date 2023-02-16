@@ -89,7 +89,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         wback = 0;
                         UXTHw(x1, ed);
-                        UFLAG_IF {emit_cmp16(dyn, ninst, x6, x1, x3, x4, x5);}
                         CMPSxw_REG(x6, x1);
                         B_MARK(cNE);
                         BFIx(ed, gd, 0, 16);
@@ -120,7 +119,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     MARK;
                     // Common part (and fallback for EAX != Ed)
-                    UFLAG_IF {emit_cmp32(dyn, ninst, rex, x6, x1, x3, x4, x5);}
+                    UFLAG_IF {emit_cmp16(dyn, ninst, x6, x1, x3, x4, x5);}
                     BFIx(xRAX, x1, 0, 16);
                     SMDMB();
                     break;
@@ -347,9 +346,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(opcode==0x81) i32 = F16S; else i32 = F8S;
                     if(i32) {
                         MOV32w(x5, i32);
-                        UXTHw(x6, ed);
                         emit_cmp16(dyn, ninst, x6, x5, x3, x4, x6);
-                        BFIx(ed, x6, 0, 16);
                     } else {
                         emit_cmp16_0(dyn, ninst, ed, x3, x4);
                     }

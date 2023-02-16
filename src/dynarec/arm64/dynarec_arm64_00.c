@@ -108,7 +108,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_or8(dyn, ninst, x1, x2, x4, x2);
+            emit_or8(dyn, ninst, x1, x2, x4, x5);
             EBBACK;
             break;
         case 0x09:
@@ -562,7 +562,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i64 = F32S;
             if(PK(0)==0xC3) {
                 MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
-                TABLE64(x3, ip+1);
+                TABLE64(x3, addr-4);
                 LDRSW_U12(x1, x3, 0);
                 PUSH1(x1);
             } else {
@@ -869,7 +869,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MARKLOCK;
                 // do the swap with exclusive locking
                 LDAXRB(x1, ed);
-                // do the swap 14 -> strb(ed), 1 -> gd
+                // do the swap 4 -> strb(ed), 1 -> gd
                 STLXRB(x3, x4, ed);
                 CBNZx_MARKLOCK(x3);
                 SMDMB();
@@ -1040,7 +1040,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x8F:
             INST_NAME("POP Ed");
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 POP1(xRAX+(nextop&7)+(rex.b<<3));
             } else {
                 POP1(x2); // so this can handle POP [ESP] and maybe some variant too
@@ -2303,7 +2303,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("NOT Ed");
-                    GETED(4);
+                    GETED(0);
                     MVNxw_REG(ed, ed);
                     WBACK;
                     break;

@@ -308,7 +308,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VSTR64_U12(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                     TBZ_MARK3(x5, FPSR_IOC);
-                    MOV64x(x5, 0x8000000000000000LL);
+                    ORRx_mask(x5, xZR, 1, 1, 0);    //0x8000000000000000
                     STRx_U12(x5, wback, fixedaddress);
                     MARK3;
                     #endif

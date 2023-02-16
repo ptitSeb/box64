@@ -22,29 +22,6 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
-// Get Ex as a double, not a quad (warning, x2 get used)
-#define GETEX(a, w, D)                                                                                  \
-    if(MODREG) {                                                                                        \
-        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
-    } else {                                                                                            \
-        SMREAD();                                                                                       \
-        a = fpu_get_scratch(dyn);                                                                       \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, D);   \
-        VLDR64_U12(a, ed, fixedaddress);                                                                \
-    }
-
-#define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
-
-#define GETGX(a, w) gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-                    a = sse_get_reg(dyn, ninst, x1, gd, w)
-
-#define GETGX_empty(a)  gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-                        a = sse_get_reg_empty(dyn, ninst, x1, gd)
-
-#define GETGM(a)                        \
-    gd = ((nextop&0x38)>>3);            \
-    a = mmx_get_reg(dyn, ninst, x1, x2, x3, gd)
-
 uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     (void)ip; (void)need_epilog;
@@ -134,7 +111,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("CVTTSD2SI Gd, Ex");
             nextop = F8;
             GETGD;
-            GETEX(q0, 0, 0);
+            GETEXSD(q0, 0, 0);
             if(!box64_dynarec_fastround) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
@@ -145,7 +122,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
-                    MOV64x(gd, 0x8000000000000000);
+                    ORRx_mask(gd, xZR, 1, 1, 0);    //0x8000000000000000
                 } else {
                     MOV32w(gd, 0x80000000);
                 }
@@ -155,7 +132,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("CVTSD2SI Gd, Ex");
             nextop = F8;
             GETGD;
-            GETEX(q0, 0, 0);
+            GETEXSD(q0, 0, 0);
             if(!box64_dynarec_fastround) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
@@ -170,7 +147,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
-                    MOV64x(gd, 0x8000000000000000);
+                    ORRx_mask(gd, xZR, 1, 1, 0);    //0x8000000000000000
                 } else {
                     MOV32w(gd, 0x80000000);
                 }
@@ -183,7 +160,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(v0, 1);
             d1 = fpu_get_scratch(dyn);
-            GETEX(d0, 0, 0);
+            GETEXSD(d0, 0, 0);
             if(!box64_dynarec_fastnan) {
                 v1 = fpu_get_scratch(dyn);
                 FCMLTD_0(v1, d0);
@@ -201,7 +178,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(d1, 1);
             v1 = fpu_get_scratch(dyn);
-            GETEX(d0, 0, 0);
+            GETEXSD(d0, 0, 0);
             if(!box64_dynarec_fastnan) {
                 v0 = fpu_get_scratch(dyn);
                 q0 = fpu_get_scratch(dyn);
@@ -223,7 +200,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(d1, 1);
             v1 = fpu_get_scratch(dyn);
-            GETEX(d0, 0, 0);
+            GETEXSD(d0, 0, 0);
             if(!box64_dynarec_fastnan) {
                 v0 = fpu_get_scratch(dyn);
                 q0 = fpu_get_scratch(dyn);
@@ -244,7 +221,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("CVTSD2SS Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            GETEX(d0, 0, 0);
+            GETEXSD(d0, 0, 0);
             d1 = fpu_get_scratch(dyn);
             FCVT_S_D(d1, d0);
             VMOVeS(v0, 0, d1, 0);
@@ -255,7 +232,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(d1, 1);
             v1 = fpu_get_scratch(dyn);
-            GETEX(d0, 0, 0);
+            GETEXSD(d0, 0, 0);
             if(!box64_dynarec_fastnan) {
                 v0 = fpu_get_scratch(dyn);
                 q0 = fpu_get_scratch(dyn);
@@ -276,7 +253,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("MINSD Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            GETEX(v1, 0, 0);
+            GETEXSD(v1, 0, 0);
             // MINSD: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
             #if 0
             d0 = fpu_get_scratch(dyn);
@@ -293,7 +270,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(v0, 1);
             d1 = fpu_get_scratch(dyn);
-            GETEX(v1, 0, 0);
+            GETEXSD(v1, 0, 0);
             if(!box64_dynarec_fastnan) {
                 d0 = fpu_get_scratch(dyn);
                 q0 = fpu_get_scratch(dyn);
@@ -314,7 +291,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("MAXSD Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            GETEX(v1, 0, 0);
+            GETEXSD(v1, 0, 0);
             // MAXSD: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
             #if 0
             d0 = fpu_get_scratch(dyn);
@@ -330,7 +307,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x70:
             INST_NAME("PSHUFLW Gx, Ex, Ib");
             nextop = F8;
-            GETEX(v1, 0, 1);
+            GETEXSD(v1, 0, 1);
             GETGX(v0, 1);
 
             u8 = F8;
@@ -368,7 +345,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
             GETGX(v0, 1);
-            GETEX(v1, 0, 1);
+            GETEXSD(v1, 0, 1);
             u8 = F8;
             FCMPD(v0, v1);
             switch(u8&7) {
@@ -388,7 +365,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("ADDSUBPS Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            GETEX(v1, 0, 0);
+            GETEXSD(v1, 0, 0);
             q0 = fpu_get_scratch(dyn);
             static float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
             MAYUSE(addsubps);
@@ -401,14 +378,14 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("MOVDQ2Q Gm, Ex");
             nextop = F8;
             GETGM(v0);
-            GETEX(v1, 0, 0);
+            GETEXSD(v1, 0, 0);
             VMOV(v0, v1);
             break;
 
         case 0xE6:
             INST_NAME("CVTPD2DQ Gx, Ex");
             nextop = F8;
-            GETEX(v1, 0, 0);
+            GETEXSD(v1, 0, 0);
             GETGX_empty(v0);
             u8 = sse_setround(dyn, ninst, x1, x2, x3);
             VFRINTIDQ(v0, v1);

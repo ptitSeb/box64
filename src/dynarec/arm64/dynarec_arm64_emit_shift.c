@@ -37,14 +37,11 @@ void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    IFX(F_OF) {
+    IFX(X_OF) {
         CMPSxw_U12(s2, 0);
-        IFX(F_OF) {
-            Bcond(cNE, +8);
-            BFCx(xFlags, F_OF, 1);
-        }
+        Bcond(cNE, +8+((dyn->insts[ninst].x64.gen_flags&X_PEND)?4:0));
+        BFCw(xFlags, F_OF, 1);
         IFX(X_PEND) {
-            Bcond(cNE, +8);
             STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
         }
         B_NEXT(cEQ);
@@ -81,7 +78,7 @@ void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 }
 
 // emit SHL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
-void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4)
+void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
     IFX(X_PEND) {
         MOV32w(s3, c);
@@ -92,8 +89,8 @@ void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
         SET_DFNONE(s4);
     }
     if(c==0) {
-        IFX(F_OF) {
-            BFCx(xFlags, F_OF, 1);
+        IFX(X_OF) {
+            BFCw(xFlags, F_OF, 1);
         }
         IFX(X_PEND) {
             STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
@@ -175,11 +172,7 @@ void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     IFX(X_OF) {
         CMPSxw_U12(s2, 1);   // if s2==1
             Bcond(cNE, 4+3*4);
-            if(rex.w) {
-                LSRx(s4, s1, 62);
-            } else {
-                LSRw(s4, s1, 30);
-            }
+            LSRxw(s4, s1, rex.w?62:30);
             EORw_REG_LSR(s4, s4, s4, 1);
             BFIw(xFlags, s4, F_OF, 1);
     }
@@ -189,7 +182,7 @@ void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 }
 
 // emit SHR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
-void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4)
+void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
     IFX(X_PEND) {
         MOV32w(s3, c);
@@ -206,10 +199,8 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
         return;
     }
     IFX(X_CF) {
-        if(c>1) {
-            LSRxw(s3, s1, c-1);
-        }
-        BFIw(xFlags, (c>1)?s3:s1, 0, 1);
+        LSRxw(s3, s1, c-1);
+        BFIw(xFlags, s3, 0, 1);
     }
     LSRxw(s1, s1, c);
     IFX(X_PEND) {
@@ -237,7 +228,7 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
 }
 
 // emit SAR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
-void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4)
+void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
     IFX(X_PEND) {
         MOV32w(s3, c);
@@ -254,10 +245,8 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
         return;
     }
     IFX(X_CF) {
-        if(c>1) {
-            ASRxw(s3, s1, c-1);
-        }
-        BFIw(xFlags, (c>1)?s3:s1, 0, 1);
+        ASRxw(s3, s1, c-1);
+        BFIw(xFlags, s3, 0, 1);
     }
     ASRxw(s1, s1, c);
     IFX(X_PEND) {
@@ -278,13 +267,13 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
 }
 
 // emit ROL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
-void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4)
+void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(rex); MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRxw_U12(s3, xEmu, offsetof(x64emu_t, op2));
-        SET_DF(s4, d_rol32);
+        SET_DF(s4, rex.w?d_rol64:d_rol32);
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
@@ -310,7 +299,7 @@ void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
 }
 
 // emit ROR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
-void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, int s3, int s4)
+void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
     IFX(X_PEND) {
@@ -344,7 +333,7 @@ void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int32_t c, in
 }
 
 // emit SHRD32 instruction, from s1, fill s2 , constant c, store result in s1 using s3 and s4 as scratch
-void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int32_t c, int s3, int s4)
+void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4)
 {
     c&=(rex.w?0x3f:0x1f);
     IFX(X_PEND) {
@@ -363,10 +352,8 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int3
         return;
     }
     IFX(X_CF) {
-        if(c>1) {
-            LSRxw(s3, s1, c-1);
-        }
-        BFIw(xFlags, (c>1)?s3:s1, 0, 1);
+        LSRxw(s3, s1, c-1);
+        BFIw(xFlags, s3, 0, 1);
     }
     LSRxw(s3, s1, c);
     ORRxw_REG_LSL(s1, s3, s2, (rex.w?64:32)-c);
@@ -394,7 +381,7 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int3
     }
 }
 
-void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int32_t c, int s3, int s4)
+void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4)
 {
     c&=(rex.w?0x3f:0x1f);
     IFX(X_PEND) {
@@ -407,8 +394,8 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int3
         SET_DFNONE(s4);
     }
     if(c==0) {
-        IFX(F_OF) {
-            BFCx(xFlags, F_OF, 1);
+        IFX(X_OF) {
+            BFCw(xFlags, F_OF, 1);
         }
         IFX(X_PEND) {
             STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));

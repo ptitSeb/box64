@@ -22,27 +22,6 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
-// Get EX as a quad
-#define GETEX(a, w, D)                                                                                  \
-    if(MODREG) {                                                                                        \
-        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
-    } else {                                                                                            \
-        SMREAD();                                                                                       \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, D);  \
-        a = fpu_get_scratch(dyn);                                                                       \
-        VLDR128_U12(a, ed, fixedaddress);                                                               \
-    }
-
-#define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
-
-#define GETGX(a, w)                     \
-    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    a = sse_get_reg(dyn, ninst, x1, gd, w)
-
-#define GETGX_empty(a)                  \
-    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    a = sse_get_reg_empty(dyn, ninst, x1, gd)
-
 uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     (void)ip; (void)rep; (void)need_epilog;
@@ -684,9 +663,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     INST_NAME("PINSRB Gx, ED, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
-                    GETEB(x1, 1);
+                    GETED(1);
                     u8 = F8;
-                    VMOVQBfrom(q0, (u8&15), x1);
+                    VMOVQBfrom(q0, (u8&15), ed);
                     break;
 
                 case 0x22:
@@ -1215,10 +1194,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         } else if(u8) {
                             VSHRQ_16(q0, q0, u8);
                         }
-                        if(!MODREG) {
-                            VSTR128_U12(q0, ed, fixedaddress);
-                            SMWRITE2();
-                        }
+                        PUTEX(q0);
                     }
                     break;
                 case 4:
@@ -1229,10 +1205,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(u8) {
                         VSSHRQ_16(q0, q0, u8);
                     }
-                    if(!MODREG) {
-                        VSTR128_U12(q0, ed, fixedaddress);
-                        SMWRITE2();
-                    }
+                    PUTEX(q0);
                     break;
                 case 6:
                     INST_NAME("PSLLW Ex, Ib");
@@ -1244,10 +1217,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         } else {
                             VSHLQ_16(q0, q0, u8);
                         }
-                        if(!MODREG) {
-                            VSTR128_U12(q0, ed, fixedaddress);
-                            SMWRITE2();
-                        }
+                        PUTEX(q0);
                     }
                     break;
                 default:
@@ -1268,10 +1238,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         } else if(u8) {
                             VSHRQ_32(q0, q0, u8);
                         }
-                        if(!MODREG) {
-                            VSTR128_U12(q0, ed, fixedaddress);
-                            SMWRITE2();
-                        }
+                        PUTEX(q0);
                     }
                     break;
                 case 4:
@@ -1282,10 +1249,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(u8) {
                         VSSHRQ_32(q0, q0, u8);
                     }
-                    if(!MODREG) {
-                        VSTR128_U12(q0, ed, fixedaddress);
-                        SMWRITE2();
-                    }
+                    PUTEX(q0);
                     break;
                 case 6:
                     INST_NAME("PSLLD Ex, Ib");
@@ -1297,10 +1261,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         } else {
                             VSHLQ_32(q0, q0, u8);
                         }
-                        if(!MODREG) {
-                            VSTR128_U12(q0, ed, fixedaddress);
-                            SMWRITE2();
-                        }
+                        PUTEX(q0);
                     }
                     break;
                 default:
@@ -1320,10 +1281,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         } else if(u8) {
                             VSHRQ_64(q0, q0, u8);
                         }
-                        if(!MODREG) {
-                            VSTR128_U12(q0, ed, fixedaddress);
-                            SMWRITE2();
-                        }
+                        PUTEX(q0);
                     }
                     break;
                 case 3:
@@ -1338,10 +1296,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             VEORQ(q1, q1, q1);
                             VEXTQ_8(q0, q0, q1, u8);
                         }
-                        if(!MODREG) {
-                            VSTR128_U12(q0, ed, fixedaddress);
-                            SMWRITE2();
-                        }
+                        PUTEX(q0);
                     }
                     break;
                 case 6:
@@ -1354,10 +1309,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         } else {
                             VSHLQ_64(q0, q0, u8);
                         }
-                        if(!MODREG) {
-                            VSTR128_U12(q0, ed, fixedaddress);
-                            SMWRITE2();
-                        }
+                        PUTEX(q0);
                     }
                     break;
                 case 7:
@@ -1372,10 +1324,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             VEORQ(q1, q1, q1);
                             VEXTQ_8(q0, q1, q0, 16-u8);
                         }
-                        if(!MODREG) {
-                            VSTR128_U12(q0, ed, fixedaddress);
-                            SMWRITE2();
-                        }
+                        PUTEX(q0);
                     }
                     break;
                 default:

@@ -24,9 +24,9 @@
 
 #define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
 
-uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog)
 {
-    (void)ip; (void)rep; (void)need_epilog;
+    (void)ip; (void)need_epilog;
 
     uint8_t opcode = F8;
     uint8_t nextop;
@@ -64,7 +64,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(MODREG) {
                         v1 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
                     } else {
-                        grab_segdata(dyn, addr, ninst, x4, _FS);
+                        grab_segdata(dyn, addr, ninst, x4, seg);
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                         v1 = fpu_get_scratch(dyn);                                                                       \
@@ -82,7 +82,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
                     FMOVD(v1, v0);
                 } else {
-                    grab_segdata(dyn, addr, ninst, x4, _FS);
+                    grab_segdata(dyn, addr, ninst, x4, seg);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                     VSTR64_REG(v0, ed, x4);
                     SMWRITE();
@@ -108,7 +108,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                 }
             } else {
-                grab_segdata(dyn, addr, ninst, x4, _FS);
+                grab_segdata(dyn, addr, ninst, x4, seg);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 if(rex.w) {
                     STRx_REG(gd, ed, x4);
@@ -133,7 +133,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                 }
             } else {                    // mem <= reg
-                grab_segdata(dyn, addr, ninst, x4, _FS);
+                grab_segdata(dyn, addr, ninst, x4, seg);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 if(rex.w) {

@@ -76,7 +76,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
                 MARKLOCK;
                 LDAXRB(x1, wback);
-                emit_add8(dyn, ninst, x1, x2, x4, x3);
+                emit_add8(dyn, ninst, x1, x2, x4, x5);
                 STLXRB(x4, x1, wback);
                 CBNZx_MARKLOCK(x4);
             }
@@ -124,7 +124,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
                 MARKLOCK;
                 LDAXRB(x1, wback);
-                emit_or8(dyn, ninst, x1, x2, x4, x3);
+                emit_or8(dyn, ninst, x1, x2, x4, x5);
                 STLXRB(x4, x1, wback);
                 CBNZx_MARKLOCK(x4);
             }
@@ -155,161 +155,184 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch(nextop) {
 
                 case 0xB0:
-                    INST_NAME("LOCK CMPXCHG Eb, Gb");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
-                    nextop = F8;
-                    GETGB(x1);
-                    UBFXx(x6, xRAX, 0, 8);
-                    SMDMB();
-                    if(MODREG) {
-                        if(rex.rex) {
-                            wback = xRAX+(nextop&7)+(rex.b<<3);
-                            wb2 = 0;
-                        } else { 
-                            wback = (nextop&7);
-                            wb2 = (wback>>2)*8;
-                            wback = xRAX+(wback&3);
-                        } 
-                        UBFXx(x2, wback, wb2, 8);
-                        wb1 = 0;
-                        ed = x2;
-                        UFLAG_IF {emit_cmp8(dyn, ninst, x6, ed, x3, x4, x5);}
-                        CMPSxw_REG(x6, x2);
-                        B_MARK2(cNE);
-                        BFIx(wback, x2, wb2, 8);
-                        MOVxw_REG(ed, gd);
-                        MARK2;
-                        BFIx(xRAX, x2, 0, 8);
-                        B_NEXT_nocond;
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
-                        // Aligned version
-                        MARKLOCK;
-                        LDAXRB(x2, wback);
-                        CMPSxw_REG(x6, x2);
-                        B_MARK(cNE);
-                        // EAX == Ed
-                        STLXRB(x4, gd, wback);
-                        CBNZx_MARKLOCK(x4);
-                        // done
-                        MARK;
-                        UFLAG_IF {emit_cmp32(dyn, ninst, rex, x6, x2, x3, x4, x5);}
-                        BFIx(xRAX, x2, 0, 8);    // upper par of RAX will be erase on 32bits, no mater what
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("LOCK CMPXCHG Eb, Gb");
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
+                            nextop = F8;
+                            GETGB(x1);
+                            UBFXx(x6, xRAX, 0, 8);
+                            SMDMB();
+                            if(MODREG) {
+                                if(rex.rex) {
+                                    wback = xRAX+(nextop&7)+(rex.b<<3);
+                                    wb2 = 0;
+                                } else { 
+                                    wback = (nextop&7);
+                                    wb2 = (wback>>2)*8;
+                                    wback = xRAX+(wback&3);
+                                } 
+                                UBFXx(x2, wback, wb2, 8);
+                                wb1 = 0;
+                                ed = x2;
+                                UFLAG_IF {emit_cmp8(dyn, ninst, x6, ed, x3, x4, x5);}
+                                CMPSxw_REG(x6, x2);
+                                B_MARK2(cNE);
+                                BFIx(wback, x2, wb2, 8);
+                                MOVxw_REG(ed, gd);
+                                MARK2;
+                                BFIx(xRAX, x2, 0, 8);
+                                B_NEXT_nocond;
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                                MARKLOCK;
+                                LDAXRB(x2, wback);
+                                CMPSxw_REG(x6, x2);
+                                B_MARK(cNE);
+                                // EAX == Ed
+                                STLXRB(x4, gd, wback);
+                                CBNZx_MARKLOCK(x4);
+                                // done
+                                MARK;
+                                UFLAG_IF {emit_cmp32(dyn, ninst, rex, x6, x2, x3, x4, x5);}
+                                BFIx(xRAX, x2, 0, 8);
+                            }
+                            SMDMB();
+                            break;
+                        default:
+                            DEFAULT;
                     }
-                    SMDMB();
                     break;
                 case 0xB1:
-                    INST_NAME("LOCK CMPXCHG Ed, Gd");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
-                    nextop = F8;
-                    GETGD;
-                    SMDMB();
-                    if(MODREG) {
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
-                        wback = 0;
-                        UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
-                        MOVxw_REG(x1, ed);  // save value
-                        CMPSxw_REG(xRAX, x1);
-                        B_MARK2(cNE);
-                        MOVxw_REG(ed, gd);
-                        MARK2;
-                        MOVxw_REG(xRAX, x1);
-                        B_NEXT_nocond;
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
-                        TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
-                        B_MARK3(cNE);
-                        // Aligned version
-                        MARKLOCK;
-                        LDAXRxw(x1, wback);
-                        CMPSxw_REG(xRAX, x1);
-                        B_MARK(cNE);
-                        // EAX == Ed
-                        STLXRxw(x4, gd, wback);
-                        CBNZx_MARKLOCK(x4);
-                        // done
-                        B_MARK_nocond;
-                        // Unaligned version
-                        MARK3;
-                        LDRxw_U12(x1, wback, 0);
-                        LDAXRB(x3, wback); // dummy read, to arm the write...
-                        CMPSxw_REG(xRAX, x1);
-                        B_MARK(cNE);
-                        // EAX == Ed
-                        STLXRB(x4, gd, wback);
-                        CBNZx_MARK3(x4);
-                        STRxw_U12(gd, wback, 0);
-                        MARK;
-                        // Common part (and fallback for EAX != Ed)
-                        UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5);}
-                        MOVxw_REG(xRAX, x1);    // upper par of RAX will be erase on 32bits, no mater what
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("LOCK CMPXCHG Ed, Gd");
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
+                            nextop = F8;
+                            GETGD;
+                            SMDMB();
+                            if(MODREG) {
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                wback = 0;
+                                UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
+                                MOVxw_REG(x1, ed);  // save value
+                                CMPSxw_REG(xRAX, x1);
+                                B_MARK2(cNE);
+                                MOVxw_REG(ed, gd);
+                                MARK2;
+                                MOVxw_REG(xRAX, x1);
+                                B_NEXT_nocond;
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                                TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
+                                B_MARK3(cNE);
+                                // Aligned version
+                                MARKLOCK;
+                                LDAXRxw(x1, wback);
+                                CMPSxw_REG(xRAX, x1);
+                                B_MARK(cNE);
+                                // EAX == Ed
+                                STLXRxw(x4, gd, wback);
+                                CBNZx_MARKLOCK(x4);
+                                // done
+                                B_MARK_nocond;
+                                // Unaligned version
+                                MARK3;
+                                LDRxw_U12(x1, wback, 0);
+                                LDAXRB(x3, wback); // dummy read, to arm the write...
+                                CMPSxw_REG(xRAX, x1);
+                                B_MARK(cNE);
+                                // EAX == Ed
+                                STLXRB(x4, gd, wback);
+                                CBNZx_MARK3(x4);
+                                STRxw_U12(gd, wback, 0);
+                                MARK;
+                                // Common part (and fallback for EAX != Ed)
+                                UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5);}
+                                MOVxw_REG(xRAX, x1);    // upper par of RAX will be erase on 32bits, no mater what
+                            }
+                            SMDMB();
+                            break;
+                        default:
+                            DEFAULT;
                     }
-                    SMDMB();
                     break;
 
                 case 0xC1:
-                    INST_NAME("LOCK XADD Gd, Ed");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
-                    nextop = F8;
-                    GETGD;
-                    SMDMB();
-                    if(MODREG) {
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
-                        MOVxw_REG(x1, ed);
-                        MOVxw_REG(ed, gd);
-                        MOVxw_REG(gd, x1);
-                        emit_add32(dyn, ninst, rex, ed, gd, x3, x4);
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
-                        TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
-                        B_MARK(cNE);    // unaligned
-                        MARKLOCK;
-                        LDAXRxw(x1, wback);
-                        ADDxw_REG(x4, x1, gd);
-                        STLXRxw(x3, x4, wback);
-                        CBNZx_MARKLOCK(x3);
-                        B_MARK2_nocond;
-                        MARK;
-                        LDRxw_U12(x1, wback, 0);
-                        LDAXRB(x4, wback);
-                        BFIxw(x1, x4, 0, 8);
-                        ADDxw_REG(x4, x1, gd);
-                        STLXRB(x3, x4, wback);
-                        CBNZx_MARK(x3);
-                        STRxw_U12(x4, wback, 0);
-                        MARK2;
-                        IFX(X_ALL|X_PEND) {
-                            MOVxw_REG(x2, x1);
-                            emit_add32(dyn, ninst, rex, x2, gd, x3, x4);
-                        }
-                        MOVxw_REG(gd, x1);
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("LOCK XADD Gd, Ed");
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
+                            nextop = F8;
+                            GETGD;
+                            SMDMB();
+                            if(MODREG) {
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                MOVxw_REG(x1, ed);
+                                MOVxw_REG(ed, gd);
+                                MOVxw_REG(gd, x1);
+                                emit_add32(dyn, ninst, rex, ed, gd, x3, x4);
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                                TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
+                                B_MARK(cNE);    // unaligned
+                                MARKLOCK;
+                                LDAXRxw(x1, wback);
+                                ADDxw_REG(x4, x1, gd);
+                                STLXRxw(x3, x4, wback);
+                                CBNZx_MARKLOCK(x3);
+                                B_MARK2_nocond;
+                                MARK;
+                                LDRxw_U12(x1, wback, 0);
+                                LDAXRB(x4, wback);
+                                BFIxw(x1, x4, 0, 8);
+                                ADDxw_REG(x4, x1, gd);
+                                STLXRB(x3, x4, wback);
+                                CBNZx_MARK(x3);
+                                STRxw_U12(x4, wback, 0);
+                                MARK2;
+                                IFX(X_ALL|X_PEND) {
+                                    MOVxw_REG(x2, x1);
+                                    emit_add32(dyn, ninst, rex, x2, gd, x3, x4);
+                                }
+                                MOVxw_REG(gd, x1);
+                            }
+                            SMDMB();
+                            break;
+                        default:
+                            DEFAULT;
                     }
-                    SMDMB();
                     break;
 
                 case 0xC7:
-                    INST_NAME("LOCK CMPXCHG8B Gq, Eq");
-                    SETFLAGS(X_ZF, SF_SUBSET);
-                    nextop = F8;
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
-                    SMDMB();
-                    MARKLOCK;
-                    LDAXPxw(x2, x3, wback);
-                    CMPSxw_REG(xRAX, x2);
-                    B_MARK(cNE);    // EAX != Ed[0]
-                    CMPSxw_REG(xRDX, x3);
-                    B_MARK(cNE);    // EDX != Ed[1]
-                    STLXPxw(x4, xRBX, xRCX, wback);
-                    CBNZx_MARKLOCK(x4);
-                    MOV32w(x1, 1);
-                    B_MARK3_nocond;
-                    MARK;
-                    MOVxw_REG(xRAX, x2);
-                    MOVxw_REG(xRDX, x3);
-                    MOV32w(x1, 0);
-                    MARK3;
-                    SMDMB();
-                    BFIw(xFlags, x1, F_ZF, 1);
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("LOCK CMPXCHG8B Gq, Eq");
+                            SETFLAGS(X_ZF, SF_SUBSET);
+                            nextop = F8;
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                            SMDMB();
+                            MARKLOCK;
+                            LDAXPxw(x2, x3, wback);
+                            CMPSxw_REG(xRAX, x2);
+                            B_MARK(cNE);    // EAX != Ed[0]
+                            CMPSxw_REG(xRDX, x3);
+                            B_MARK(cNE);    // EDX != Ed[1]
+                            STLXPxw(x4, xRBX, xRCX, wback);
+                            CBNZx_MARKLOCK(x4);
+                            MOV32w(x1, 1);
+                            B_MARK3_nocond;
+                            MARK;
+                            MOVxw_REG(xRAX, x2);
+                            MOVxw_REG(xRDX, x3);
+                            MOV32w(x1, 0);
+                            MARK3;
+                            SMDMB();
+                            BFIw(xFlags, x1, F_ZF, 1);
+                            break;
+                        default:
+                            DEFAULT;
+                    }
                     break;
 
                 default:
@@ -420,7 +443,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         wb1 = 1;
                         MARKLOCK;
                         LDAXRB(x1, wback);
-                        emit_adc8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        emit_adc8c(dyn, ninst, x1, u8, x2, x4, x3);
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                     }
@@ -441,7 +464,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         wb1 = 1;
                         MARKLOCK;
                         LDAXRB(x1, wback);
-                        emit_sbb8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        emit_sbb8c(dyn, ninst, x1, u8, x2, x4, x3);
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                     }
@@ -481,7 +504,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         wb1 = 1;
                         MARKLOCK;
                         LDAXRB(x1, wback);
-                        emit_sub8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        emit_sub8c(dyn, ninst, x1, u8, x2, x4, x3);
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                     }

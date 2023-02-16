@@ -103,8 +103,9 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             nextop = F8;
                             GETG;
                             if(MODREG) {
+                                ed = (nextop&7)+ (rex.b<<3);
                                 v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
-                                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
+                                q0 = sse_get_reg(dyn, ninst, x1, ed, 0);
                                 VMOVeS(v0, 0, q0, 0);
                             } else {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
@@ -161,7 +162,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             GETG;
                             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                             if(MODREG) {
-                                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 1);
+                                ed = (nextop&7)+ (rex.b<<3);
+                                q0 = sse_get_reg(dyn, ninst, x1, ed, 1);
                                 VMOVeS(q0, 0, v0, 0);
                             } else {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
@@ -201,57 +203,69 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
 
                 case 0xAF:
-                    INST_NAME("IMUL Gd, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    nextop = F8;
-                    grab_segdata(dyn, addr, ninst, x4, seg);
-                    GETGD;
-                    GETEDO(x4, 0);
-                    if(rex.w) {
-                        // 64bits imul
-                        UFLAG_IF {
-                            SMULH(x3, gd, ed);
-                            MULx(gd, gd, ed);
-                            UFLAG_OP1(x3);
-                            UFLAG_RES(gd);
-                            UFLAG_DF(x3, d_imul64);
-                        } else {
-                            MULxw(gd, gd, ed);
-                        }
-                    } else {
-                        // 32bits imul
-                        UFLAG_IF {
-                            SMULL(gd, gd, ed);
-                            UFLAG_RES(gd);
-                            LSRx(x3, gd, 32);
-                            UFLAG_OP1(x3);
-                            UFLAG_DF(x3, d_imul32);
-                            MOVw_REG(gd, gd);
-                        } else {
-                            MULxw(gd, gd, ed);
-                        }
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("IMUL Gd, Ed");
+                            SETFLAGS(X_ALL, SF_PENDING);
+                            nextop = F8;
+                            grab_segdata(dyn, addr, ninst, x4, seg);
+                            GETGD;
+                            GETEDO(x4, 0);
+                            if(rex.w) {
+                                // 64bits imul
+                                UFLAG_IF {
+                                    SMULH(x3, gd, ed);
+                                    MULx(gd, gd, ed);
+                                    UFLAG_OP1(x3);
+                                    UFLAG_RES(gd);
+                                    UFLAG_DF(x3, d_imul64);
+                                } else {
+                                    MULxw(gd, gd, ed);
+                                }
+                            } else {
+                                // 32bits imul
+                                UFLAG_IF {
+                                    SMULL(gd, gd, ed);
+                                    UFLAG_RES(gd);
+                                    LSRx(x3, gd, 32);
+                                    UFLAG_OP1(x3);
+                                    UFLAG_DF(x3, d_imul32);
+                                    MOVw_REG(gd, gd);
+                                } else {
+                                    MULxw(gd, gd, ed);
+                                }
+                            }
+                            break;
+                        default:
+                            DEFAULT;
                     }
                     break;
 
                 case 0xB6:
-                    INST_NAME("MOVZX Gd, Eb");
-                    nextop = F8;
-                    grab_segdata(dyn, addr, ninst, x4, seg);
-                    GETGD;
-                    if(MODREG) {
-                        if(rex.rex) {
-                            eb1 = xRAX+(nextop&7)+(rex.b<<3);
-                            eb2 = 0;                \
-                        } else {
-                            ed = (nextop&7);
-                            eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
-                            eb2 = (ed&4)>>2;    // L or H
-                        }
-                        UBFXxw(gd, eb1, eb2*8, 8);
-                    } else {
-                        SMREAD();
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, NULL, 0, 0);
-                        LDRB_REG(gd, ed, x4);
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("MOVZX Gd, Eb");
+                            nextop = F8;
+                            grab_segdata(dyn, addr, ninst, x4, seg);
+                            GETGD;
+                            if(MODREG) {
+                                if(rex.rex) {
+                                    eb1 = xRAX+(nextop&7)+(rex.b<<3);
+                                    eb2 = 0;                \
+                                } else {
+                                    ed = (nextop&7);
+                                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                                    eb2 = (ed&4)>>2;    // L or H
+                                }
+                                UBFXxw(gd, eb1, eb2*8, 8);
+                            } else {
+                                SMREAD();
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, NULL, 0, 0);
+                                LDRB_REG(gd, ed, x4);
+                            }
+                            break;
+                        default:
+                            DEFAULT;
                     }
                     break;
 
@@ -326,7 +340,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0x66:
-            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, seg, ok, need_epilog);
             break;
 
         case 0x80:
@@ -814,7 +828,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("NOT Ed");
-                    GETEDO(x6, 4);
+                    GETEDO(x6, 0);
                     MVNxw_REG(ed, ed);
                     WBACKO(x6);
                     break;

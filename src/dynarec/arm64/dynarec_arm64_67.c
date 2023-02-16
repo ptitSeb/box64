@@ -175,53 +175,67 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0x2E:
                     // no special check...
                 case 0x2F:
-                    if(rep) {
-                        DEFAULT;
-                    } else {
-                        if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
-                        SETFLAGS(X_ALL, SF_SET);
-                        nextop = F8;
-                        GETGX(v0, 0);
-                        if(MODREG) {
-                            s0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
-                        } else {
-                            s0 = fpu_get_scratch(dyn);
-                            SMREAD();
-                            addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                            VLDR32_U12(s0, ed, fixedaddress);
-                        }
-                        FCMPS(v0, s0);
-                        FCOMI(x1, x2);
+                    switch(rep) {
+                        case 0:
+                            if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
+                            SETFLAGS(X_ALL, SF_SET);
+                            nextop = F8;
+                            GETGX(v0, 0);
+                            if(MODREG) {
+                                s0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
+                            } else {
+                                s0 = fpu_get_scratch(dyn);
+                                SMREAD();
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
+                                VLDR32_U12(s0, ed, fixedaddress);
+                            }
+                            FCMPS(v0, s0);
+                            FCOMI(x1, x2);
+                            break;
+                        default:
+                            DEFAULT;
                     }
                     break;
 
                 case 0x6F:
-                    INST_NAME("MOVQ Gm, Em");
-                    nextop = F8;
-                    GETGm;
-                    if(MODREG) {
-                        v1 = mmx_get_reg(dyn, ninst, x1, x2, x3, nextop&7); // no rex.b on MMX
-                        v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
-                        VMOV(v0, v1);
-                    } else {
-                        v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
-                        SMREAD();
-                        addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
-                        VLDR64_U12(v0, ed, fixedaddress);
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("MOVQ Gm, Em");
+                            nextop = F8;
+                            GETGm;
+                            if(MODREG) {
+                                v1 = mmx_get_reg(dyn, ninst, x1, x2, x3, nextop&7); // no rex.b on MMX
+                                v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
+                                VMOV(v0, v1);
+                            } else {
+                                v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
+                                SMREAD();
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
+                                VLDR64_U12(v0, ed, fixedaddress);
+                            }
+                            break;
+                        default:
+                            DEFAULT;
                     }
                     break;
 
                 case 0x7F:
-                    INST_NAME("MOVQ Em, Gm");
-                    nextop = F8;
-                    GETGM(v0);
-                    if(MODREG) {
-                        v1 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, nextop&7);
-                        VMOV(v1, v0);
-                    } else {
-                        addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
-                        VSTR64_U12(v0, ed, fixedaddress);
-                        SMWRITE();
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("MOVQ Em, Gm");
+                            nextop = F8;
+                            GETGM(v0);
+                            if(MODREG) {
+                                v1 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, nextop&7);
+                                VMOV(v1, v0);
+                            } else {
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
+                                VSTR64_U12(v0, ed, fixedaddress);
+                                SMWRITE();
+                            }
+                            break;
+                        default:
+                            DEFAULT;
                     }
                     break;
 
