@@ -228,7 +228,6 @@ EXPORT void* pvalloc(size_t size)
 
 EXPORT void cfree(void* p)
 {
-printf_log(LOG_INFO, "cfree(%p)\n", p);
     box_free(p);
 }
 
