@@ -31,6 +31,9 @@
 #warning Architecture cannot follow SSE Flush to 0 flag
 #endif
 
+// from src/wrapped/wrappedlibc.c
+int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
+
 typedef struct cleanup_s {
     void*       f;
     int         arg;
@@ -192,7 +195,7 @@ void CallAllCleanup(x64emu_t *emu)
 static void internalFreeX64(x64emu_t* emu)
 {
     if(emu && emu->stack2free)
-        munmap(emu->stack2free, emu->size_stack);
+        my_munmap(NULL, emu->stack2free, emu->size_stack);
 }
 
 EXPORTDYN

@@ -12,6 +12,9 @@
 #include "emu/x64run_private.h"
 #include "auxval.h"
 
+// from src/wrapped/wrappedlibc.c
+void* my_mmap(x64emu_t* emu, void* addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
+
 EXPORTDYN
 int CalcStackSize(box64context_t *context)
 {
@@ -21,7 +24,7 @@ int CalcStackSize(box64context_t *context)
         CalcStack(context->elfs[i], &context->stacksz, &context->stackalign);
 
     //if (posix_memalign((void**)&context->stack, context->stackalign, context->stacksz)) {
-    context->stack = mmap(NULL, context->stacksz, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+    context->stack = my_mmap(NULL, NULL, context->stacksz, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
     if (context->stack==(void*)-1) {
         printf_log(LOG_NONE, "Cannot allocate aligned memory (0x%lx/0x%zx) for stack\n", context->stacksz, context->stackalign);
         return 1;

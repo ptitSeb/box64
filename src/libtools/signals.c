@@ -256,7 +256,7 @@ struct kernel_sigaction {
 
 static void sigstack_destroy(void* p)
 {
-	x64_stack_t *ss = (x64_stack_t*)p;
+    x64_stack_t *ss = (x64_stack_t*)p;
     box_free(ss);
 }
 
@@ -264,7 +264,7 @@ static pthread_key_t sigstack_key;
 static pthread_once_t sigstack_key_once = PTHREAD_ONCE_INIT;
 
 static void sigstack_key_alloc() {
-	pthread_key_create(&sigstack_key, sigstack_destroy);
+    pthread_key_create(&sigstack_key, sigstack_destroy);
 }
 
 //1<<8 is mutex_dyndump
@@ -373,7 +373,7 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
         errno = EFAULT;
         return -1;
     }
-	x64_stack_t *new_ss = (x64_stack_t*)pthread_getspecific(sigstack_key);
+    x64_stack_t *new_ss = (x64_stack_t*)pthread_getspecific(sigstack_key);
     if(oss) {
         if(!new_ss) {
             oss->ss_flags = SS_DISABLE;
@@ -408,7 +408,7 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
     new_ss->ss_sp = ss->ss_sp;
     new_ss->ss_size = ss->ss_size;
 
-	pthread_setspecific(sigstack_key, new_ss);
+    pthread_setspecific(sigstack_key, new_ss);
 
     return 0;
 }
@@ -440,6 +440,50 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr)
     return x64addr;
 }
 #endif
+
+void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
+#ifdef ARM64
+    emu->regs[_AX].q[0] = p->uc_mcontext.regs[10];
+    emu->regs[_CX].q[0] = p->uc_mcontext.regs[11];
+    emu->regs[_DX].q[0] = p->uc_mcontext.regs[12];
+    emu->regs[_BX].q[0] = p->uc_mcontext.regs[13];
+    emu->regs[_SP].q[0] = p->uc_mcontext.regs[14];
+    emu->regs[_BP].q[0] = p->uc_mcontext.regs[15];
+    emu->regs[_SI].q[0] = p->uc_mcontext.regs[16];
+    emu->regs[_DI].q[0] = p->uc_mcontext.regs[17];
+    emu->regs[_R8].q[0] = p->uc_mcontext.regs[18];
+    emu->regs[_R9].q[0] = p->uc_mcontext.regs[19];
+    emu->regs[_R10].q[0] = p->uc_mcontext.regs[20];
+    emu->regs[_R11].q[0] = p->uc_mcontext.regs[21];
+    emu->regs[_R12].q[0] = p->uc_mcontext.regs[22];
+    emu->regs[_R13].q[0] = p->uc_mcontext.regs[23];
+    emu->regs[_R14].q[0] = p->uc_mcontext.regs[24];
+    emu->regs[_R15].q[0] = p->uc_mcontext.regs[25];
+    emu->ip.q[0] = ip;
+    emu->eflags.x64 = p->uc_mcontext.regs[26];
+#elif defined(LA464)
+        emu->regs[_AX].q[0] = p->uc_mcontext.__gregs[12];
+        emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[13];
+        emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[14];
+        emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[15];
+        emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[16];
+        emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[17];
+        emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[18];
+        emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[19];
+        emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[23];
+        emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[24];
+        emu->regs[_R10].q[0] = p->uc_mcontext.__gregs[25];
+        emu->regs[_R11].q[0] = p->uc_mcontext.__gregs[26];
+        emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[27];
+        emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[28];
+        emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[29];
+        emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[30];
+        emu->ip.q[0] = ip;
+        emu->eflags.x64 = p->uc_mcontext.__gregs[31];
+#else
+#error  Unsupported architecture
+#endif
+}
 
 void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
@@ -473,7 +517,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     (void)ucntx; (void)cur_db;
 #endif
     // stack tracking
-	x64_stack_t *new_ss = my_context->onstack[sig]?(x64_stack_t*)pthread_getspecific(sigstack_key):NULL;
+    x64_stack_t *new_ss = my_context->onstack[sig]?(x64_stack_t*)pthread_getspecific(sigstack_key):NULL;
     int used_stack = 0;
     if(new_ss) {
         if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
@@ -621,6 +665,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 19;
     else if(sig==SIGILL)
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 6;
+    //TODO: SIGABRT generate what?
     // call the signal handler
     x64_ucontext_t sigcontext_copy = *sigcontext;
     // save old value from emu
@@ -711,17 +756,15 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
     }
     // restore regs...
-    #define GO(R)   emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_R##R]
-    GO(AX);
-    GO(CX);
-    GO(DX);
-    GO(DI);
-    GO(SI);
-    GO(BP);
-    GO(SP);
-    GO(BX);
-    #undef GO
-    #define GO(R)   emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_##R]
+    #define GO(R)   R_##R=sigcontext->uc_mcontext.gregs[X64_##R]
+    GO(RAX);
+    GO(RCX);
+    GO(RDX);
+    GO(RDI);
+    GO(RSI);
+    GO(RBP);
+    GO(RSP);
+    GO(RBX);
     GO(R8);
     GO(R9);
     GO(R10);
@@ -730,8 +773,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     GO(R13);
     GO(R14);
     GO(R15);
+    GO(RIP);
     #undef GO
-    emu->ip.q[0]=sigcontext->uc_mcontext.gregs[X64_RIP];
     emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
     uint16_t seg;
     seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 0)&0xffff;
@@ -766,7 +809,7 @@ extern int box64_quit;
 
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
-    // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
+    // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL || sig==SIGABRT here!
     int log_minimum = (box64_showsegv)?LOG_NONE:((my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_DEBUG:LOG_INFO);
     if((sig==SIGSEGV || sig==SIGBUS) && box64_quit) {
         printf_log(LOG_INFO, "Sigfault/Segbus while quitting, exiting silently\n");
@@ -832,56 +875,21 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();
             if(ejb->jmpbuf_ok) {
+                copyUCTXreg2Emu(ejb->emu, p, getX64Address(db, (uintptr_t)pc));
 #ifdef ARM64
-                ejb->emu->regs[_AX].q[0] = p->uc_mcontext.regs[10];
-                ejb->emu->regs[_CX].q[0] = p->uc_mcontext.regs[11];
-                ejb->emu->regs[_DX].q[0] = p->uc_mcontext.regs[12];
-                ejb->emu->regs[_BX].q[0] = p->uc_mcontext.regs[13];
-                ejb->emu->regs[_SP].q[0] = p->uc_mcontext.regs[14];
-                ejb->emu->regs[_BP].q[0] = p->uc_mcontext.regs[15];
-                ejb->emu->regs[_SI].q[0] = p->uc_mcontext.regs[16];
-                ejb->emu->regs[_DI].q[0] = p->uc_mcontext.regs[17];
-                ejb->emu->regs[_R8].q[0] = p->uc_mcontext.regs[18];
-                ejb->emu->regs[_R9].q[0] = p->uc_mcontext.regs[19];
-                ejb->emu->regs[_R10].q[0] = p->uc_mcontext.regs[20];
-                ejb->emu->regs[_R11].q[0] = p->uc_mcontext.regs[21];
-                ejb->emu->regs[_R12].q[0] = p->uc_mcontext.regs[22];
-                ejb->emu->regs[_R13].q[0] = p->uc_mcontext.regs[23];
-                ejb->emu->regs[_R14].q[0] = p->uc_mcontext.regs[24];
-                ejb->emu->regs[_R15].q[0] = p->uc_mcontext.regs[25];
                 if(fpsimd) {
                     ejb->emu->xmm[0].u128 = fpsimd->vregs[0];
                     ejb->emu->xmm[1].u128 = fpsimd->vregs[1];
                     ejb->emu->xmm[2].u128 = fpsimd->vregs[2];
                     ejb->emu->xmm[3].u128 = fpsimd->vregs[3];
                 }
-                ejb->emu->ip.q[0] = getX64Address(db, (uintptr_t)pc);
-                ejb->emu->eflags.x64 = p->uc_mcontext.regs[26];
 #elif defined(LA464)
-                ejb->emu->regs[_AX].q[0] = p->uc_mcontext.__gregs[12];
-                ejb->emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[13];
-                ejb->emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[14];
-                ejb->emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[15];
-                ejb->emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[16];
-                ejb->emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[17];
-                ejb->emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[18];
-                ejb->emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[19];
-                ejb->emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[23];
-                ejb->emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[24];
-                ejb->emu->regs[_R10].q[0] = p->uc_mcontext.__gregs[25];
-                ejb->emu->regs[_R11].q[0] = p->uc_mcontext.__gregs[26];
-                ejb->emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[27];
-                ejb->emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[28];
-                ejb->emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[29];
-                ejb->emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[30];
                 /*if(fpsimd) {
                     ejb->emu->xmm[0].u128 = fpsimd->vregs[0];
                     ejb->emu->xmm[1].u128 = fpsimd->vregs[1];
                     ejb->emu->xmm[2].u128 = fpsimd->vregs[2];
                     ejb->emu->xmm[3].u128 = fpsimd->vregs[3];
                 }*/
-                ejb->emu->ip.q[0] = getX64Address(db, (uintptr_t)pc);
-                ejb->emu->eflags.x64 = p->uc_mcontext.__gregs[31];
 #else
 #error  Unsupported architecture
 #endif
@@ -966,7 +974,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     static void* old_pc = 0;
     static void* old_addr = 0;
     static int old_tid = 0;
-    const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":"SIGILL");
+    const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":((sig==SIGILL)?"SIGILL":"SIGABRT"));
     if(old_code==info->si_code && old_pc==pc && old_addr==addr && old_tid==GetTID()) {
         printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p)!\n", GetTID(), signame, old_code, old_pc, old_addr);
 exit(-1);
@@ -1061,9 +1069,33 @@ exit(-1);
                 free(strings);
             } else
                 printf_log(log_minimum, "NativeBT: none (%d/%s)\n", errno, strerror(errno));
-            extern int my_backtrace(x64emu_t* emu, void** buffer, int size);   // in wrappedlibc
+            extern int my_backtrace_ip(x64emu_t* emu, void** buffer, int size);   // in wrappedlibc
             extern char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size);
-            nptrs = my_backtrace(emu, buffer, BT_BUF_SIZE);
+            // save and set real RIP/RSP
+            #define GO(A) uintptr_t old_##A = R_##A;
+            GO(RAX);
+            GO(RBX);
+            GO(RCX);
+            GO(RDX);
+            GO(RBP);
+            GO(RSP);
+            GO(RDI);
+            GO(RSI);
+            GO(R8);
+            GO(R9);
+            GO(R10);
+            GO(R11);
+            GO(R12);
+            GO(R13);
+            GO(R14);
+            GO(R15);
+            GO(RIP);
+            #undef GO
+            #ifdef DYNAREC
+            if(db)
+                copyUCTXreg2Emu(emu, p, x64pc);
+            #endif
+            nptrs = my_backtrace_ip(emu, buffer, BT_BUF_SIZE);
             strings = my_backtrace_symbols(emu, (uintptr_t*)buffer, nptrs);
             if(strings) {
                 for (int j = 0; j < nptrs; j++)
@@ -1071,7 +1103,28 @@ exit(-1);
                 free(strings);
             } else
                 printf_log(log_minimum, "EmulatedBT: none\n");
+            #define GO(A) R_##A = old_##A
+            GO(RAX);
+            GO(RBX);
+            GO(RCX);
+            GO(RDX);
+            GO(RBP);
+            GO(RSP);
+            GO(RDI);
+            GO(RSI);
+            GO(R8);
+            GO(R9);
+            GO(R10);
+            GO(R11);
+            GO(R12);
+            GO(R13);
+            GO(R14);
+            GO(R15);
+            GO(RIP);
+            #undef GO
         }
+        static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
+        int shown_regs = 0;
 #ifdef DYNAREC
         uint32_t hash = 0;
         if(db)
@@ -1086,12 +1139,13 @@ exit(-1);
             (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash, 
             (void*)my_context->signals[sig]);
 #if defined(ARM64)
-        static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
-        if(db)
+        if(db) {
+            shown_regs = 1;
             for (int i=0; i<16; ++i) {
                 if(!(i%4)) printf_log(log_minimum, "\n");
                 printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.regs[10+i]);
             }
+        }
         if(rsp!=addr)
             for (int i=-4; i<4; ++i) {
                 printf_log(log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
@@ -1102,6 +1156,11 @@ exit(-1);
 #else
         printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code);
 #endif
+        if(!shown_regs)
+            for (int i=0; i<16; ++i) {
+                if(!(i%4)) printf_log(log_minimum, "\n");
+                printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], emu->regs[i].q[0]);
+            }
         if(sig==SIGILL)
             printf_log(log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X (%02X %02X %02X %02X %02X)\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7], ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
         else if(sig==SIGBUS)
@@ -1116,7 +1175,7 @@ exit(-1);
     }
     // no handler (or double identical segfault)
     // set default and that's it, instruction will restart and default segfault handler will be called...
-    if(my_context->signals[sig]!=1 || sig==SIGSEGV || sig==SIGILL || sig==SIGFPE) {
+    if(my_context->signals[sig]!=1 || sig==SIGSEGV || sig==SIGILL || sig==SIGFPE || sig==SIGABRT) {
         signal(sig, (void*)my_context->signals[sig]);
     }
 }
@@ -1174,7 +1233,7 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
     my_context->restorer[signum] = 0;
     my_context->onstack[signum] = 0;
 
-    if(signum==SIGSEGV || signum==SIGBUS || signum==SIGILL)
+    if(signum==SIGSEGV || signum==SIGBUS || signum==SIGILL || signum==SIGABRT)
         return 0;
 
     if(handler!=NULL && handler!=(sighandler_t)1) {
@@ -1227,7 +1286,7 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
         my_context->onstack[signum] = (act->sa_flags&SA_ONSTACK)?1:0;
     }
     int ret = 0;
-    if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL)
+    if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL && signum!=SIGABRT)
         ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
     if(oldact) {
         oldact->sa_flags = old.sa_flags;
@@ -1332,7 +1391,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
         }
         int ret = 0;
 
-        if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL)
+        if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL && signum!=SIGABRT)
             ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
         if(oldact && ret==0) {
             oldact->sa_flags = old.sa_flags;
@@ -1507,18 +1566,21 @@ void init_signal_helper(box64context_t* context)
     for(int i=0; i<MAX_SIGNAL; ++i) {
         context->signals[i] = 0;    // SIG_DFL
     }
-	struct sigaction action = {0};
-	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
-	action.sa_sigaction = my_box64signalhandler;
+    struct sigaction action = {0};
+    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
+    action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGSEGV, &action, NULL);
-	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
-	action.sa_sigaction = my_box64signalhandler;
+    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
+    action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGBUS, &action, NULL);
-	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
-	action.sa_sigaction = my_box64signalhandler;
+    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
+    action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGILL, &action, NULL);
+    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
+    action.sa_sigaction = my_box64signalhandler;
+    sigaction(SIGABRT, &action, NULL);
 
-	pthread_once(&sigstack_key_once, sigstack_key_alloc);
+    pthread_once(&sigstack_key_once, sigstack_key_alloc);
 #ifdef DYNAREC
     atfork_child_dynarec_prot();
     pthread_atfork(NULL, NULL, atfork_child_dynarec_prot);
@@ -1530,4 +1592,5 @@ void fini_signal_helper()
     signal(SIGSEGV, SIG_DFL);
     signal(SIGBUS, SIG_DFL);
     signal(SIGILL, SIG_DFL);
+    signal(SIGABRT, SIG_DFL);
 }

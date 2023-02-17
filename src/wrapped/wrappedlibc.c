@@ -2851,14 +2851,68 @@ EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
             buffer[idx] = (void*)ret_addr;
             success = 2;
             // See elfdwarf_private.c for the register mapping
-            unwind->regs[6] = unwind->regs[7]; // mov rsp, rbp
-            unwind->regs[7] = *(uint64_t*)unwind->regs[6]; // pop rbp
-            unwind->regs[6] += 8;
-            ret_addr = *(uint64_t*)unwind->regs[6]; // ret
-            unwind->regs[6] += 8;
+            unwind->regs[7] = unwind->regs[6]; // mov rsp, rbp
+            unwind->regs[6] = *(uint64_t*)unwind->regs[7]; // pop rbp
+            unwind->regs[7] += 8;
+            ret_addr = *(uint64_t*)unwind->regs[7]; // ret
+            unwind->regs[7] += 8;
             if (++idx < size) buffer[idx] = (void*)ret_addr;
         } else if (!success) break;
         else buffer[idx] = (void*)ret_addr;
+        addr = ret_addr;
+    }
+    free_dwarf_unwind_registers(&unwind);
+    return idx;
+}
+
+// special version, called in signal with SHOWBT
+EXPORT int my_backtrace_ip(x64emu_t* emu, void** buffer, int size)
+{
+    if (!size) return 0;
+    dwarf_unwind_t *unwind = init_dwarf_unwind_registers(emu);
+    int idx = 0;
+    char success = 1;
+    uintptr_t addr = R_RIP;
+    buffer[0] = (void*)addr;
+    while ((++idx < size) && success) {
+        uintptr_t ret_addr = get_parent_registers(unwind, FindElfAddress(my_context, addr), addr, &success);
+        if (ret_addr == (uintptr_t)GetExit()) {
+            // TODO: do something to be able to get the function name
+            buffer[idx] = (void*)ret_addr;
+            success = 2;
+            // See elfdwarf_private.c for the register mapping
+            unwind->regs[7] = unwind->regs[6]; // mov rsp, rbp
+            unwind->regs[6] = *(uint64_t*)unwind->regs[7]; // pop rbp
+            unwind->regs[7] += 8;
+            ret_addr = *(uint64_t*)unwind->regs[7]; // ret
+            unwind->regs[7] += 8;
+            if (++idx < size) buffer[idx] = (void*)ret_addr;
+        } else if (!success) {
+            if(getProtection((uintptr_t)addr)&(PROT_READ)) {
+                if(getProtection((uintptr_t)addr-19) && *(uint8_t*)(addr-19)==0xCC && *(uint8_t*)(addr-19+1)=='S' && *(uint8_t*)(addr-19+2)=='C') {
+                    buffer[idx-1] = (void*)(addr-19);
+                    success = 2;
+                    if(idx==1)
+                        unwind->regs[7] -= 8;
+                    ret_addr = *(uint64_t*)unwind->regs[7]; // ret
+                    unwind->regs[7] += 8;
+                    buffer[idx] = (void*)ret_addr;
+                } else {
+                    // try a simple end of function epilog
+                    unwind->regs[7] = unwind->regs[6]; // mov rsp, rbp
+                    if(getProtection(unwind->regs[7])&(PROT_READ)) {
+                        unwind->regs[6] = *(uint64_t*)unwind->regs[7]; // pop rbp
+                        unwind->regs[7] += 8;
+                        ret_addr = *(uint64_t*)unwind->regs[7]; // ret
+                        unwind->regs[7] += 8;
+                        buffer[idx] = (void*)ret_addr;
+                        success = 2;
+                    } else 
+                        break;
+                }
+            } else
+                break;
+        } else buffer[idx] = (void*)ret_addr;
         addr = ret_addr;
     }
     free_dwarf_unwind_registers(&unwind);
