@@ -154,6 +154,58 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             switch(nextop) {
 
+                case 0xAB:
+                    INST_NAME("LOCK BTS Ed, Gd");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
+                    nextop = F8;
+                    GETGD;
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        wback = 0;
+                        if(rex.w) {
+                            ANDx_mask(x2, gd, 1, 0, 0b00101);  //mask=0x000000000000003f
+                        } else {
+                            ANDw_mask(x2, gd, 0, 0b00100);  //mask=0x00000001f
+                        }
+                        LSRxw_REG(x4, ed, x2);
+                        if(rex.w) {
+                            ANDSx_mask(x4, x4, 1, 0, 0);  //mask=1
+                        } else {
+                            ANDSw_mask(x4, x4, 0, 0);  //mask=1
+                        }
+                        BFIw(xFlags, x4, F_CF, 1);
+                        MOV32w(x4, 1);
+                        LSLxw_REG(x4, x4, x2);
+                        EORxw_REG(x4, ed, x4);
+                        CSELxw(ed, ed, x4, cNE);
+                    } else {
+                        // Will fetch only 1 byte, to avoid alignment issue
+                        if(rex.w) {
+                            ANDx_mask(x2, gd, 1, 0, 0b00010);  //mask=0x0000000000000007
+                        } else {
+                            ANDw_mask(x2, gd, 0, 0b00010);  //mask=0x000000007
+                        }
+                        SMDMB();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                        ASRxw(x1, gd, 3); // r1 = (gd>>3)
+                        ADDx_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
+                        MARKLOCK;
+                        LDAXRB(x1, wback);
+                        ed = x1;
+                        wback = x3;
+                        LSRw_REG(x4, ed, x2);
+                        ANDSw_mask(x4, x4, 0, 0);  //mask=1
+                        BFIw(xFlags, x4, F_CF, 1);
+                        MOV32w(x4, 1);
+                        LSLw_REG(x4, x4, x2);
+                        EORw_REG(x4, ed, x4);
+                        CSELw(ed, ed, x4, cNE);
+                        STLXRB(x4, ed, wback);
+                        CBNZw_MARKLOCK(x4);
+                        SMDMB();
+                    }
+                    break;
                 case 0xB0:
                     switch(rep) {
                         case 0:
@@ -255,6 +307,59 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             break;
                         default:
                             DEFAULT;
+                    }
+                    break;
+
+                case 0xB3:
+                    INST_NAME("LOCK BTR Ed, Gd");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
+                    nextop = F8;
+                    GETGD;
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        wback = 0;
+                        if(rex.w) {
+                            ANDx_mask(x2, gd, 1, 0, 0b00101);  //mask=0x000000000000003f
+                        } else {
+                            ANDw_mask(x2, gd, 0, 0b00100);  //mask=0x00000001f
+                        }
+                        LSRxw_REG(x4, ed, x2);
+                        if(rex.w) {
+                            ANDSx_mask(x4, x4, 1, 0, 0);  //mask=1
+                        } else {
+                            ANDSw_mask(x4, x4, 0, 0);  //mask=1
+                        }
+                        BFIw(xFlags, x4, F_CF, 1);
+                        MOV32w(x4, 1);
+                        LSLxw_REG(x4, x4, x2);
+                        EORxw_REG(x4, ed, x4);
+                        CSELxw(ed, ed, x4, cEQ);
+                    } else {
+                        // Will fetch only 1 byte, to avoid alignment issue
+                        if(rex.w) {
+                            ANDx_mask(x2, gd, 1, 0, 0b00010);  //mask=0x0000000000000007
+                        } else {
+                            ANDw_mask(x2, gd, 0, 0b00010);  //mask=0x000000007
+                        }
+                        SMDMB();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                        ASRxw(x1, gd, 3); // r1 = (gd>>3)
+                        ADDx_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
+                        MARKLOCK;
+                        LDAXRB(x1, wback);
+                        ed = x1;
+                        wback = x3;
+                        LSRw_REG(x4, ed, x2);
+                        ANDSw_mask(x4, x4, 0, 0);  //mask=1
+                        BFIw(xFlags, x4, F_CF, 1);
+                        MOV32w(x4, 1);
+                        LSLw_REG(x4, x4, x2);
+                        EORw_REG(x4, ed, x4);
+                        CSELw(ed, ed, x4, cEQ);
+                        STLXRB(x4, ed, wback);
+                        CBNZw_MARKLOCK(x4);
+                        SMDMB();
                     }
                     break;
 
