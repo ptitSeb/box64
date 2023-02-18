@@ -27,6 +27,21 @@ If it's the first install, you also need:
 sudo systemctl restart systemd-binfmt
 ```
 
+#### for RK3588 / RK3588S
+
+Using a 64bit OS:
+```
+git clone https://github.com/ptitSeb/box64
+cd box64
+mkdir build; cd build; cmake .. -DRK3588=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+make -j4
+sudo make install
+```
+If it's the first install, you also need:
+```
+sudo systemctl restart systemd-binfmt
+```
+
 #### for Raspberry Pi 3
 
 Warning, you need a 64bit OS:
