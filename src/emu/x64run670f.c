@@ -19,6 +19,7 @@
 #include "x87emu_private.h"
 #include "box64context.h"
 #include "bridge.h"
+#include "signals.h"
 #ifdef DYNAREC
 #include "../dynarec/native_lock.h"
 #endif
@@ -88,6 +89,18 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                     GETEM32(0);
                     GETGM;
                     EM->q = GM->q;
+                    break;
+                default:
+                    return 0;
+            }
+            break;
+
+        case 0xB9:
+            switch(rep) {
+                case 0: /* UD1 Ed */
+                    nextop = F8;
+                    GETED32(0);
+                    emit_signal(emu, SIGILL, (void*)R_RIP, 0);
                     break;
                 default:
                     return 0;
