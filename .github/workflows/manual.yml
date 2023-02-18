@@ -13,9 +13,9 @@ on:
         - X64
         - GENERIC_ARM
         - PHYTIUM
-        - RK3288
         - RK3326
         - RK3399
+        - RK3588
         - RPI4ARM64
         - SD845
         - TEGRAX1
