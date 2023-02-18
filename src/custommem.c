@@ -830,7 +830,7 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
                 mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_MMAP);
                 memprot[i>>16].prot[i&0xffff] = prot;  // need to use atomic exchange?
             } else if(prot&PROT_DYNAREC_R)
-                memprot[i>>16].prot[i&0xffff] = prot&~PROT_DYN;
+                memprot[i>>16].prot[i&0xffff] = prot&~PROT_CUSTOM;
         }
     }
     mutex_unlock(&mutex_prot);
