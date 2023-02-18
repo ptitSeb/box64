@@ -442,6 +442,7 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr)
 #endif
 
 void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
+#ifdef DYNAREC
 #ifdef ARM64
     emu->regs[_AX].q[0] = p->uc_mcontext.regs[10];
     emu->regs[_CX].q[0] = p->uc_mcontext.regs[11];
@@ -482,6 +483,7 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
         emu->eflags.x64 = p->uc_mcontext.__gregs[31];
 #else
 #error  Unsupported architecture
+#endif
 #endif
 }
 
