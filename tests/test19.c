@@ -42,6 +42,8 @@ void myfunc3()
     p = strchr(strings[j], ':');
     if(!p)
       p = strings[j];
+    if(!strcmp(p, ":ExitEmulation"))
+      p = "???";
     printf("%s\n", p);
   }
   free(strings);

@@ -157,7 +157,7 @@ int CalcLoadAddr(elfheader_t* head)
 const char* ElfName(elfheader_t* head)
 {
     if(!head)
-        return "(noelf)";
+        return "box64";
     return head->name;
 }
 const char* ElfPath(elfheader_t* head)
@@ -1353,6 +1353,22 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     const char* ret = NULL;
     uintptr_t s = 0;
     uint64_t size = 0;
+    #ifdef HAVE_TRACE
+    if(!h) {
+        if(getProtection((uintptr_t)p)&(PROT_READ)) {
+            if(*(uint8_t*)(p)==0xCC && *(uint8_t*)(p+1)=='S' && *(uint8_t*)(p+2)=='C') {
+                ret = getBridgeName(*(void**)(p+3+8));
+                if(ret) {
+                    if(start)
+                        *start = (uintptr_t)p;
+                    if(sz)
+                        *sz = 32;
+                }
+            }
+        }
+        return ret;
+    }
+    #endif
     if(!h || h->fini_done)
         return ret;
 
