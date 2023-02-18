@@ -1055,7 +1055,7 @@ exit(-1);
             }
         }
         print_cycle_log(log_minimum);
-        if(box64_showbt) {
+        if((box64_showbt || sig==SIGABRT) && log_minimum<=box64_log) {
             // show native bt
             #define BT_BUF_SIZE 100
             int nptrs;
@@ -1103,6 +1103,7 @@ exit(-1);
                 free(strings);
             } else
                 printf_log(log_minimum, "EmulatedBT: none\n");
+printf_log(log_minimum, "RDI = %p, Prot=0x%02x, ElfName(RDI)=%s\n",(void*)R_RDI, getProtection(R_RDI), ElfName(FindElfAddress(my_context, R_RDI)));
             #define GO(A) R_##A = old_##A
             GO(RAX);
             GO(RBX);
