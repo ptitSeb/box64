@@ -45,6 +45,7 @@ extern char* box64_trace;
 extern uint64_t start_cnt;
 #endif
 extern int box64_nosandbox;
+extern int box64_malloc_hack;
 extern int box64_dummy_crashhandler;
 extern int box64_sse_flushto0;
 extern int allow_missing_libs;

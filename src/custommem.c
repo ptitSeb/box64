@@ -948,15 +948,16 @@ void protectDB(uintptr_t addr, uintptr_t size)
         }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16].prot[i&0xffff];
-        uint32_t dyn = prot&PROT_CUSTOM;
+        uint32_t dyn = prot&PROT_DYN;
+        uint32_t mapped = prot&PROT_MMAP;
         prot&=~PROT_CUSTOM;
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
         if((prot&PROT_WRITE)) {
             if(!dyn) mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-            memprot[i>>16].prot[i&0xffff] = prot|PROT_DYNAREC;   // need to use atomic exchange?
+            memprot[i>>16].prot[i&0xffff] = prot|mapped|PROT_DYNAREC;   // need to use atomic exchange?
         } else 
-            memprot[i>>16].prot[i&0xffff] = prot|PROT_DYNAREC_R;
+            memprot[i>>16].prot[i&0xffff] = prot|mapped|PROT_DYNAREC_R;
     }
     mutex_unlock(&mutex_prot);
 }
@@ -984,10 +985,10 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16].prot[i&0xffff];
         if(prot&PROT_DYNAREC) {
-            prot&=~PROT_CUSTOM;
+            prot&=~PROT_DYN;
             if(mark)
                 cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot);
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_MMAP);
             memprot[i>>16].prot[i&0xffff] = prot;  // need to use atomic exchange?
         } else if(prot&PROT_DYNAREC_R)
             memprot[i>>16].prot[i&0xffff] = prot&~PROT_CUSTOM;
@@ -1128,14 +1129,15 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
             memprot[i].prot = newblock;
         }
     for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t dyn=(memprot[i>>16].prot[i&0xffff]&(PROT_DYNAREC | PROT_DYNAREC_R));
+        uint32_t dyn=(memprot[i>>16].prot[i&0xffff]&PROT_DYN);
+        uint32_t mapped=(memprot[i>>16].prot[i&0xffff]&PROT_MMAP);
         if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
             dyn = PROT_DYNAREC;
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~(PROT_WRITE|PROT_MMAP));
         } else if(dyn && !(prot&PROT_WRITE)) {
             dyn = PROT_DYNAREC_R;
         }
-        memprot[i>>16].prot[i&0xffff] = prot|dyn;
+        memprot[i>>16].prot[i&0xffff] = prot|dyn|mapped;
     }
     mutex_unlock(&mutex_prot);
 }
@@ -1161,6 +1163,11 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
         }
     }
     mutex_unlock(&mutex_prot);
+}
+
+void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
+{
+    setProtection(addr, size, prot|PROT_MMAP);
 }
 
 void refreshProtection(uintptr_t addr)
@@ -1336,7 +1343,18 @@ uint32_t getProtection(uintptr_t addr)
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uint32_t ret = memprot[idx>>16].prot[idx&0xffff];
     mutex_unlock(&mutex_prot);
-    return ret;
+    return ret&~PROT_MMAP;
+}
+
+int getMmapped(uintptr_t addr)
+{
+    if(addr>=(1LL<<48))
+        return 0;
+    mutex_lock(&mutex_prot);
+    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uint32_t ret = memprot[idx>>16].prot[idx&0xffff];
+    mutex_unlock(&mutex_prot);
+    return (ret&PROT_MMAP)?1:0;
 }
 
 #define LOWEST (void*)0x10000

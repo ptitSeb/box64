@@ -855,7 +855,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     dynablock_t* db = NULL;
     int db_searched = 0;
-    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_CUSTOM)) {
+    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYN)) {
         mutex_lock(&mutex_dynarec_prot);
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
@@ -981,7 +981,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p)!\n", GetTID(), signame, old_code, old_pc, old_addr);
 exit(-1);
     } else {
-        if(sig==SIGSEGV && info->si_code==2 && ((prot&~PROT_CUSTOM)==5 || (prot&~PROT_CUSTOM)==7)) {
+        if(sig==SIGSEGV && info->si_code==2 && ((prot&~PROT_DYN)==5 || (prot&~PROT_DYN)==7)) {
             static uintptr_t old_addr = 0;
         printf_log(/*LOG_DEBUG*/LOG_INFO, "Strange SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x (old_addr=%p)\n", pc, addr, db, prot, (void*)old_addr);
             if(old_addr!=(uintptr_t)addr) {
@@ -1105,7 +1105,6 @@ exit(-1);
                 free(strings);
             } else
                 printf_log(log_minimum, "EmulatedBT: none\n");
-printf_log(log_minimum, "RDI = %p, Prot=0x%02x, ElfName(RDI)=%s\n",(void*)R_RDI, getProtection(R_RDI), ElfName(FindElfAddress(my_context, R_RDI)));
             #define GO(A) R_##A = old_##A
             GO(RAX);
             GO(RBX);

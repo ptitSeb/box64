@@ -2425,7 +2425,6 @@ EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bu
     return readlinkat(fd, path, buf, bufsize);
 }
 
-
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
 {
     (void)emu;
@@ -2478,8 +2477,9 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         }
     }
     #endif
-    if(ret!=(void*)-1)
-        setProtection((uintptr_t)ret, length, prot);
+    if(ret!=(void*)-1) {
+        setProtection_mmap((uintptr_t)ret, length, prot);
+    }
     return ret;
 }
 EXPORT void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset) __attribute__((alias("my_mmap64")));
@@ -2525,7 +2525,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
                 cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
             #endif
         }
-        setProtection((uintptr_t)ret, new_size, prot); // should copy the protection from old block
+        setProtection_mmap((uintptr_t)ret, new_size, prot); // should copy the protection from old block
         #ifdef DYNAREC
         if(box64_dynarec)
             addDBFromAddressRange((uintptr_t)ret, new_size);
@@ -2544,8 +2544,9 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
     }
     #endif
     int ret = munmap(addr, length);
-    if(!ret)
+    if(!ret) {
         freeProtection((uintptr_t)addr, length);
+    }
     return ret;
 }
 

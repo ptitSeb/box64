@@ -4,6 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/param.h>
+#include <sys/mman.h>
 #include <dlfcn.h>
 
 #include "box64context.h"
@@ -11,6 +12,7 @@
 #include "callback.h"
 #include "librarian.h"
 #include "elfs/elfloader_private.h"
+#include "custommem.h"
 
 /*
     This file here is for handling overriding of malloc functions
@@ -139,6 +141,10 @@ void*(*__libc_memalign)(size_t, size_t) = NULL;
 size_t(*box_malloc_usable_size)(void*) = NULL;
 
 int GetTID();
+uint32_t getProtection(uintptr_t addr);
+// malloc_hack "2" handling
+// mmap history
+static int malloc_hack_2 = 0;
 
 char* box_strdup(const char* s) {
     char* ret = box_calloc(1, strlen(s)+1);
@@ -182,6 +188,13 @@ EXPORT void* malloc(size_t l)
 
 EXPORT void free(void* p)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
@@ -192,6 +205,16 @@ EXPORT void* calloc(size_t n, size_t s)
 
 EXPORT void* realloc(void* p, size_t s)
 {
+    if(malloc_hack_2)
+        if(getMmapped((uintptr_t)p)) {
+            // found! Will realloc using regular malloc then copy from old address as much as possible, but need to check size first
+            void* ret = box_malloc(s);
+            printf_log(LOG_DEBUG, "Malloc_Hack_2: hacking realloc(%p, %zu)", p, s);
+            while(s && !(getProtection((uintptr_t)p+s)&PROT_READ)) {if(s>box64_pagesize) s-=box64_pagesize; else s=0;}
+            memcpy(ret, p, s);
+            printf_log(LOG_DEBUG, " -> %p (copied %zu from old)\n", ret, s);
+            return ret;
+        }
     return box_realloc(p, s);
 }
 
@@ -228,6 +251,13 @@ EXPORT void* pvalloc(size_t size)
 
 EXPORT void cfree(void* p)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
@@ -259,26 +289,61 @@ EXPORT void* my__ZnamRKSt9nothrow_t(size_t sz, void* p)   //operator new[](size_
 
 EXPORT void my__ZdaPv(void* p)   //operator delete[](void*)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
 EXPORT void my__ZdaPvm(void* p, size_t sz)   //operator delete[](void*, size_t)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
 EXPORT void my__ZdaPvmSt11align_val_t(void* p, size_t sz, size_t align)   //operator delete[](void*, unsigned long, std::align_val_t)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
 EXPORT void my__ZdlPv(void* p)   //operator delete(void*)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
 EXPORT void my__ZdlPvm(void* p, size_t sz)   //operator delete(void*, size_t)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
@@ -304,36 +369,85 @@ EXPORT void* my__ZnamSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void
 
 EXPORT void my__ZdlPvRKSt9nothrow_t(void* p, void* n)   //operator delete(void*, std::nothrow_t const&)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
 EXPORT void my__ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete[](void*, std::align_val_t, std::nothrow_t const&)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
 EXPORT void my__ZdlPvmSt11align_val_t(void* p, size_t sz, size_t align)   //operator delete(void*, unsigned long, std::align_val_t)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
 EXPORT void my__ZdaPvRKSt9nothrow_t(void* p, void* n)   //operator delete[](void*, std::nothrow_t const&)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
 EXPORT void my__ZdaPvSt11align_val_t(void* p, size_t align)   //operator delete[](void*, std::align_val_t)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
 EXPORT void my__ZdlPvSt11align_val_t(void* p, size_t align)   //operator delete(void*, std::align_val_t)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
 EXPORT void my__ZdlPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete(void*, std::align_val_t, std::nothrow_t const&)
 {
+    if(malloc_hack_2 && p) {
+        if(getMmapped((uintptr_t)p)) {
+            printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
+            // Mmaped, do not free...
+            return;
+        }
+    }
     box_free(p);
 }
 
@@ -590,6 +704,8 @@ static void addRelocJmp(void* offs, void* where, size_t size, const char* name)
 void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
 {
     int hooked = 0;
+    if(box64_malloc_hack==1)
+        return;
     for (size_t i=0; i<h->numDynSym && hooked<2; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
@@ -611,6 +727,8 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
     if(hooked<2)
         return; // only redirect on lib that hooked / redefined the operators
     printf_log(LOG_INFO, "Redirecting overriden malloc function for %s\n", ElfName(h));
+    if(box64_malloc_hack==2)
+        malloc_hack_2 = 1;
     for (size_t i=0; i<h->numDynSym; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
