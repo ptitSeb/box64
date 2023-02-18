@@ -408,12 +408,12 @@ void ApplyParams(const char* name)
 {
     if(!name || !params)
         return;
-    static const char* old_name = NULL;
+    static char old_name[256] = "";
     int new_cycle_log = cycle_log;
-    if(old_name && !strcmp(name, old_name)) {
+    if(!strcmp(name, old_name)) {
         return;
     }
-    old_name = name;
+    strncpy(old_name, name, 255);
     khint_t k;
     {
         char* lname = LowerCase(name);
