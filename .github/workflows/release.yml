@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RK3326, RK3399, RK3288, PHYTIUM, SD845]
+        platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RK3326, RK3399, RK3588, PHYTIUM, SD845]
         type: [Release, Trace]
         os: [ubuntu-latest]
         include:
