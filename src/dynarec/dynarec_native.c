@@ -378,21 +378,28 @@ static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
 
 void* current_helper = NULL;
 
-void CancelBlock64()
+void CancelBlock64(int need_lock)
 {
+    if(need_lock)
+        mutex_lock(&my_context->mutex_dyndump);
     dynarec_native_t* helper = (dynarec_native_t*)current_helper;
     current_helper = NULL;
-    if(!helper)
+    if(!helper) {
+        if(need_lock)
+            mutex_unlock(&my_context->mutex_dyndump);
         return;
+    }
     customFree(helper->next);
     customFree(helper->insts);
     customFree(helper->instsize);
     customFree(helper->predecessor);
     customFree(helper->table64);
     if(helper->dynablock && helper->dynablock->actual_block)
-        FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->actual_block, helper->dynablock->size);
+        FreeDynarecMap((uintptr_t)helper->dynablock->actual_block);
     else if(helper->dynablock && helper->block)
-        FreeDynarecMap(helper->dynablock, (uintptr_t)helper->block-sizeof(void*), helper->dynablock->size);
+        FreeDynarecMap((uintptr_t)helper->block-sizeof(void*));
+    if(need_lock)
+        mutex_unlock(&my_context->mutex_dyndump);
 }
 
 uintptr_t native_pass0(dynarec_native_t* dyn, uintptr_t addr);
@@ -404,11 +411,11 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
     block->isize = 0;
     block->done = 0;
     size_t sz = 4*sizeof(void*);
-    void* actual_p = (void*)AllocDynarecMap(block, sz);
+    void* actual_p = (void*)AllocDynarecMap(sz);
     void* p = actual_p + sizeof(void*);
     if(actual_p==NULL) {
         dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
-        CancelBlock64();
+        CancelBlock64(0);
         return NULL;
     }
     block->size = sz;
@@ -469,13 +476,13 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // basic checks
     if(!helper.size) {
         dynarec_log(LOG_INFO, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
-        CancelBlock64();
+        CancelBlock64(0);
         return CreateEmptyBlock(block, addr);;
     }
     if(!isprotectedDB(addr, 1)) {
         dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
         AddHotPage(addr);
-        CancelBlock64();
+        CancelBlock64(0);
         return NULL;
     }
     // protect the block of it goes over the 1st page
@@ -531,13 +538,13 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // ok, now allocate mapped memory, with executable flag on
     size_t sz = sizeof(void*) + helper.native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize;
     //           dynablock_t*     block (arm insts)            table64                       jmpnext code       instsize
-    void* actual_p = (void*)AllocDynarecMap(block, sz);
+    void* actual_p = (void*)AllocDynarecMap(sz);
     void* p = actual_p + sizeof(void*);
     void* next = p + helper.native_size + helper.table64size*sizeof(uint64_t);
     void* instsize = next + 4*sizeof(void*);
     if(actual_p==NULL) {
         dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
-        CancelBlock64();
+        CancelBlock64(0);
         return NULL;
     }
     helper.block = p;
@@ -603,7 +610,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     if((block->hash != hash)) {
         dynarec_log(LOG_DEBUG, "Warning, a block changed while beeing processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
         AddHotPage(addr);
-        CancelBlock64();
+        CancelBlock64(0);
         return NULL;
     }
     if(!isprotectedDB(addr, end-addr)) {

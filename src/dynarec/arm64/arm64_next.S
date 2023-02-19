@@ -10,6 +10,7 @@
 
 .global arm64_next
 
+    .8byte  0   // NULL pointer before arm64_next, for getDB
 arm64_next:
     // emu is r0
     // IP address is r1
