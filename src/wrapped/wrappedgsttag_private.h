@@ -10,11 +10,11 @@
 //GO(gst_tag_from_id3_user_tag, 
 //GO(gst_tag_from_vorbis_tag, 
 //GO(gst_tag_get_id3v2_tag_size, 
-//GO(gst_tag_get_language_code_iso_639_1, 
-//GO(gst_tag_get_language_code_iso_639_2B, 
-//GO(gst_tag_get_language_code_iso_639_2T, 
-//GO(gst_tag_get_language_codes, 
-//GO(gst_tag_get_language_name, 
+GO(gst_tag_get_language_code_iso_639_1, pFp)
+GO(gst_tag_get_language_code_iso_639_2B, pFp)
+GO(gst_tag_get_language_code_iso_639_2T, pFp)
+GO(gst_tag_get_language_codes, pFv)
+GO(gst_tag_get_language_name, pFp)
 //GO(gst_tag_get_license_description, 
 //GO(gst_tag_get_license_flags, 
 //GO(gst_tag_get_license_jurisdiction, 
