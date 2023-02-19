@@ -550,7 +550,7 @@ void FreeDynarecMap(uintptr_t addr)
             return;
         }
         ++i;
-        if(i=NCHUNK) {
+        if(i==NCHUNK) {
             i = 0;
             list = list->next;
         }
