@@ -1322,7 +1322,7 @@ GO(gst_sample_ref, pFp)
 //GO(gst_sample_set_caps, 
 //GO(gst_sample_set_info, 
 //GO(gst_sample_set_segment, 
-//DATAB(_gst_sample_type, 
+DATAB(_gst_sample_type, sizeof(long))
 //GO(gst_sample_unref, 
 GO(gst_scheduling_flags_get_type, pFv)
 GO(gst_search_mode_get_type, pFv)
