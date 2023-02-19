@@ -83,6 +83,10 @@ void fpu_fbld(x64emu_t* emu, uint8_t* s) {
 // long double (80bits) -> double (64bits)
 void LD2D(void* ld, void* d)
 {
+    if(box64_x87_no80bits) {
+        *(uint64_t*)d = *(uint64_t*)ld;
+        return;
+    }
 	FPU_t result;
     #pragma pack(push, 1)
 	struct {
@@ -122,7 +126,7 @@ void LD2D(void* ld, void* d)
         *(uint64_t*)d = result.q;
         return;
     }
-    if(((uint32_t)(val.b&0x7fff)==0) || (exp64<=0)) {
+    if(((uint32_t)(val.b&0x7fff)==0) || (exp64<-1074)) {
         //if(val.f.q==0)
         // zero
         //if(val.f.q!=0)
@@ -132,6 +136,18 @@ void LD2D(void* ld, void* d)
             r |= 0x8000000000000000L;
         *(uint64_t*)d = r;
         return;
+    }
+
+    if(exp64<=0 && val.f.q) {
+        // try to see if it can be a denormal
+        int one = -exp64-1022;
+        uint64_t r = 0;
+        if(val.b&0x8000)
+            r |= 0x8000000000000000L;
+        r |= val.f.q>>one;
+        *(uint64_t*)d = r;
+        return;
+
     }
 
     if(exp64>=0x7ff) {
@@ -154,6 +170,10 @@ void LD2D(void* ld, void* d)
 // double (64bits) -> long double (80bits)
 void D2LD(void* d, void* ld)
 {
+    if(box64_x87_no80bits) {
+        *(uint64_t*)ld = *(uint64_t*)d;
+        return;
+    }
     #pragma pack(push, 1)
 	struct {
 		FPU_t f;
@@ -190,6 +210,12 @@ void D2LD(void* d, void* ld)
         if(exp80!=0){ 
             mant80final |= 0x8000000000000000L;
             exp80final += (BIAS80 - BIAS64);
+        } else if(mant80final!=0) {
+            // denormals -> normal
+            exp80final = BIAS80-1023;
+            int one = __builtin_clz(mant80final) + 1;
+            exp80final -= one;
+            mant80final<<=one;
         }
     }
 	val.b = ((int16_t)(sign80)<<15)| (int16_t)(exp80final);
@@ -201,6 +227,8 @@ void D2LD(void* d, void* ld)
 
 double FromLD(void* ld)
 {
+    if(box64_x87_no80bits)
+        return *(double*)ld;
     double ret; // cannot add = 0; it break factorio (issue when calling fmodl)
     LD2D(ld, &ret);
     return ret;

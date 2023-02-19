@@ -48,6 +48,7 @@ extern int box64_nosandbox;
 extern int box64_malloc_hack;
 extern int box64_dummy_crashhandler;
 extern int box64_sse_flushto0;
+extern int box64_x87_no80bits;
 extern int allow_missing_libs;
 extern int box64_mapclean;
 extern int box64_prefer_wrapped;

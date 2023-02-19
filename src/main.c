@@ -93,6 +93,7 @@ int allow_missing_libs = 0;
 int box64_prefer_emulated = 0;
 int box64_prefer_wrapped = 0;
 int box64_sse_flushto0 = 0;
+int box64_x87_no80bits = 0;
 int fix_64bit_inodes = 0;
 int box64_dummy_crashhandler = 1;
 int box64_mapclean = 0;
@@ -963,6 +964,12 @@ void LoadEnvVars(box64context_t *context)
         if (strcmp(getenv("BOX64_SSE_FLUSHTO0"), "1")==0) {
             box64_sse_flushto0 = 1;
             printf_log(LOG_INFO, "BOX64: Direct apply of SSE Flush to 0 flag\n");
+    	}
+    }
+    if(getenv("BOX64_X87_NO80BITS")) {
+        if (strcmp(getenv("BOX64_X87_NO80BITS"), "1")==0) {
+            box64_x87_no80bits = 1;
+            printf_log(LOG_INFO, "BOX64: all 80bits x87 long double will be handle as double\n");
     	}
     }
     if(getenv("BOX64_PREFER_WRAPPED")) {

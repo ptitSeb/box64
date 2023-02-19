@@ -187,6 +187,16 @@ Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is n
 * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
 * 1 : Dynarec will wait for FillBlock to be ready (Default)
 
+#### BOX64_SSE_FLUSHTO0 *
+Handling of SSE Flush to 0 flags
+* 0 : Just track the flag (Default)
+* 1 : Direct apply of SSE Flush to 0 flag
+
+#### BOX64_X87_NO80BITS *
+Handling of x87 80bits long double
+* 0 : Try to handle 80bits long double as precise as possible (Default)
+* 1 : Handle them as double
+
 #### BOX64_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL
