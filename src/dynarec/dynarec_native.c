@@ -240,7 +240,7 @@ int is_instructions(dynarec_native_t *dyn, uintptr_t addr, int n)
     return (i==n)?1:0;
 }
 
-instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x64_size, int native_size)
+void addInst(instsize_t* insts, size_t* size, int x64_size, int native_size)
 {
     // x64 instruction is <16 bytes
     int toadd;
@@ -248,10 +248,6 @@ instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x64_size, 
         toadd = 1 + x64_size/15;
     else
         toadd = 1 + native_size/15;
-    if((*size)+toadd>(*cap)) {
-        *cap = (*size)+toadd;
-        insts = (instsize_t*)customRealloc(insts, (*cap)*sizeof(instsize_t));
-    }
     while(toadd) {
         if(x64_size>15)
             insts[*size].x64 = 15;    
@@ -266,7 +262,6 @@ instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x64_size, 
         ++(*size);
         --toadd;
     }
-    return insts;
 }
 
 // add a value to table64 (if needed) and gives back the imm19 to use in LDR_literal
@@ -391,7 +386,6 @@ void CancelBlock64(int need_lock)
     }
     customFree(helper->next);
     customFree(helper->insts);
-    customFree(helper->instsize);
     customFree(helper->predecessor);
     customFree(helper->table64);
     if(helper->dynablock && helper->dynablock->actual_block)
@@ -522,18 +516,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // pass 2, instruction size
     native_pass2(&helper, addr);
     // keep size of instructions for signal handling
-    size_t insts_rsize = 0;
-    {
-        size_t insts_size = 0;
-        size_t cap = 1;
-        for(int i=0; i<helper.size; ++i)
-            cap += 1 + ((helper.insts[i].x64.size>helper.insts[i].size)?helper.insts[i].x64.size:helper.insts[i].size)/15;
-        helper.instsize = (instsize_t*)customCalloc(cap, sizeof(instsize_t));
-        for(int i=0; i<helper.size; ++i)
-            helper.instsize = addInst(helper.instsize, &insts_size, &cap, helper.insts[i].x64.size, helper.insts[i].size/4);
-        helper.instsize = addInst(helper.instsize, &insts_size, &cap, 0, 0);    // add a "end of block" mark, just in case
-        insts_rsize = insts_size*sizeof(instsize_t);
-    }
+    size_t insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
     // ok, now allocate mapped memory, with executable flag on
     size_t sz = sizeof(void*) + helper.native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize;
@@ -550,6 +533,8 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.block = p;
     helper.native_start = (uintptr_t)p;
     helper.tablestart = helper.native_start + helper.native_size;
+    helper.insts_size = 0;  // reset
+    helper.instsize = (instsize_t*)instsize;
     *(dynablock_t**)actual_p = block;
     // pass 3, emit (log emit native opcode)
     if(box64_dynarec_dump) {
@@ -581,14 +566,12 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         memcpy((void*)helper.tablestart, helper.table64, helper.table64size*8);
     }
     // keep size of instructions for signal handling
-    memcpy(instsize, helper.instsize, insts_rsize);
     block->instsize = instsize;
     // ok, free the helper now
     customFree(helper.insts);
     helper.insts = NULL;
     customFree(helper.table64);
     helper.table64 = NULL;
-    customFree(helper.instsize);
     helper.instsize = NULL;
     customFree(helper.predecessor);
     helper.predecessor = NULL;
