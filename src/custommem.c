@@ -818,24 +818,20 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
     if(end<idx) // memory addresses higher than 48bits are not tracked
         return;
     mutex_lock(&mutex_prot);
-    for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
-        if(memprot[i].prot==memprot_default) {
-            uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
-            /*if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
-                box_free(newblock);
-            }*/
-            memprot[i].prot = newblock;
-        }
     for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t prot = memprot[i>>16].prot[i&0xffff];
-        if(prot&PROT_DYNAREC) {
-            prot&=~PROT_DYN;
-            if(mark)
-                cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_MMAP);
-            memprot[i>>16].prot[i&0xffff] = prot;  // need to use atomic exchange?
-        } else if(prot&PROT_DYNAREC_R)
-            memprot[i>>16].prot[i&0xffff] = prot&~PROT_CUSTOM;
+        if(memprot[i>>16].prot==memprot_default) {
+            i=(((i>>16)+1)<<16)-1;  // next block
+        } else {
+            uint32_t prot = memprot[i>>16].prot[i&0xffff];
+            if(prot&PROT_DYNAREC) {
+                prot&=~PROT_DYN;
+                if(mark)
+                    cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
+                mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_MMAP);
+                memprot[i>>16].prot[i&0xffff] = prot;  // need to use atomic exchange?
+            } else if(prot&PROT_DYNAREC_R)
+                memprot[i>>16].prot[i&0xffff] = prot&~PROT_DYN;
+        }
     }
     mutex_unlock(&mutex_prot);
 }
@@ -853,7 +849,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
     }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16].prot[i&0xffff];
-        if(!(prot&(PROT_DYNAREC|PROT_DYNAREC_R))) {
+        if(!(prot&PROT_DYN)) {
             dynarec_log(LOG_DEBUG, "0\n");
             return 0;
         }
@@ -1035,7 +1031,8 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
         end = (1LL<<(48-MEMPROT_SHIFT))-1;
     mutex_lock(&mutex_prot);
     addMapMem(addr, addr+size-1);
-    for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
+    // don't need to add precise tracking probably
+    /*for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i].prot==memprot_default) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
             memprot[i].prot = newblock;
@@ -1049,7 +1046,7 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
                 block[ii] = prot;
         }
         i+=finish-start;    // +1 from the "for" loop
-    }
+    }*/
     mutex_unlock(&mutex_prot);
 }
 
@@ -1160,11 +1157,6 @@ void freeProtection(uintptr_t addr, size_t size)
             if(start==0 && finish==MEMPROT_SIZE-1) {
                 memprot[key].prot = memprot_default;
                 box_free(block);
-                if(memprot[key].hot) {
-                    uint8_t *hot = memprot[key].hot;
-                    memprot[key].hot = NULL;
-                    box_free(hot);
-                }
             } else {
                 memset(block+start, 0, (finish-start+1)*sizeof(uint8_t));
                 // blockempty is quite slow, so disable the free of blocks for now
@@ -1173,6 +1165,11 @@ void freeProtection(uintptr_t addr, size_t size)
                     box_free(block);
                 }*/
             }
+        }
+        if(memprot[key].hot && start==0 && finish==MEMPROT_SIZE-1) {
+            uint8_t *hot = memprot[key].hot;
+            memprot[key].hot = NULL;
+            box_free(hot);
         }
         i+=finish-start;    // +1 from the "for" loop
     }
