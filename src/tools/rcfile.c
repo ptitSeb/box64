@@ -112,7 +112,8 @@ ENTRYINT(BOX64_DYNAREC_SAFEFLAGS, box64_dynarec_safeflags, 0, 2, 2) \
 ENTRYBOOL(BOX64_DYNAREC_CALLRET, box64_dynarec_callret)             \
 ENTRYBOOL(BOX64_DYNAREC_BLEEDING_EDGE, box64_dynarec_bleeding_edge) \
 ENTRYINT(BOX64_DYNAREC_HOTPAGE, box64_dynarec_hotpage, 0, 255, 8)   \
-ENTRYBOOL(box64_dynarec_wait, box64_dynarec_wait)                   \
+ENTRYBOOL(BOX64_DYNAREC_FASTPAGE, box64_dynarec_fastpage)           \
+ENTRYBOOL(BOX64_DYNAREC_WAIT, box64_dynarec_wait)                   \
 ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
 
 #else
@@ -129,7 +130,8 @@ IGNORE(BOX64_DYNAREC_SAFEFLAGS)                                     \
 IGNORE(BOX64_DYNAREC_CALLRET)                                       \
 IGNORE(BOX64_DYNAREC_BLEEDING_EDGE)                                 \
 IGNORE(BOX64_DYNAREC_HOTPAGE)                                       \
-IGNORE(BOX64_DYNAREC_wait)                                          \
+IGNORE(BOX64_DYNAREC_FASTPAGE)                                      \
+IGNORE(BOX64_DYNAREC_WAIT)                                          \
 IGNORE(BOX64_NODYNAREC)                                             \
 
 #endif
@@ -354,7 +356,7 @@ void LoadRCFile(const char* filename)
             if(0) ;
             SUPER()
             else if(len && current_name) {
-                printf_log(LOG_INFO, "Warning, unsupported %s=%s for [%s] in %s", key, val, current_name, filename);
+                printf_log(LOG_INFO, "Warning, unsupported %s=%s for [%s] in %s\n", key, val, current_name, filename);
             }
             #undef ENTRYBOOL
             #undef CENTRYBOOL

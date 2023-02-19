@@ -205,8 +205,19 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create)
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, 1);
     if(db && db->done && db->block && db->need_test) {
         if(AreaInHotPage((uintptr_t)db->x64_addr, (uintptr_t)db->x64_addr + db->x64_size - 1)) {
-            dynarec_log(LOG_INFO, "Not running block %p from %p:%p with for %p because it's in a hotpage\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, (void*)addr);
-            return NULL;
+            if(box64_dynarec_fastpage) {
+                uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
+                if(hash==db->hash)  // seems ok, run it without reprotecting it
+                    return db;
+                db->done = 0;   // invalidating the block, it's already not good
+                dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, hash, db->hash, (void*)addr);
+                // Free db, it's now invalid!
+                FreeDynablock(db, 1);
+                return NULL;    // not building a new one, it's still a hotpage
+            } else {
+                dynarec_log(LOG_INFO, "Not running block %p from %p:%p with for %p because it's in a hotpage\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, (void*)addr);
+                return NULL;
+            }
         }
         uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
         if(mutex_trylock(&my_context->mutex_dyndump)) {
