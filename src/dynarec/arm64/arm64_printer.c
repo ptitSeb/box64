@@ -25,7 +25,7 @@ typedef struct arm64_print_s {
 
 uint64_t DecodeBitMasks(int N, int imms, int immr)
 {
-    int len = 31-__builtin_clz(N<<6 | ((~imms)&0b111111));
+    int len = 31-__builtin_clz((N<<6) | ((~imms)&0b111111));
     if(len<1) return 0;
     int levels = (1<<len) - 1;
     int s = imms & levels;
@@ -1140,8 +1140,8 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         else if(sf==0 && type==0 && rmode==0 && opcd==6) {snprintf(buff, sizeof(buff), "FMOV %s, S%d", Wt[Rn], Rd);}
         else if(sf==1 && type==1 && rmode==0 && opcd==7) {snprintf(buff, sizeof(buff), "FMOV D%d, %s", Rd, Xt[Rn]);}
         else if(sf==1 && type==2 && rmode==1 && opcd==7) {snprintf(buff, sizeof(buff), "FMOV V%d.D[1], %s", Rd, Xt[Rn]);}
-        else if(sf==1 && type==1 && rmode==0 && opcd==6) {snprintf(buff, sizeof(buff), "FMOV %s, S%d", Xt[Rn], Rd);}
-        else if(sf==1 && type==2 && rmode==1 && opcd==6) {snprintf(buff, sizeof(buff), "FMOV %s, V%d.D[1]", Xt[Rn], Rd);}
+        else if(sf==1 && type==1 && rmode==0 && opcd==6) {snprintf(buff, sizeof(buff), "FMOV %s, D%d", Xt[Rd], Rn);}
+        else if(sf==1 && type==2 && rmode==1 && opcd==6) {snprintf(buff, sizeof(buff), "FMOV %s, V%d.D[1]", Xt[Rd], Rn);}
         else snprintf(buff, sizeof(buff), "FMOV ????");
         return buff;
     }
