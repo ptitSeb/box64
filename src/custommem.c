@@ -766,8 +766,6 @@ dynablock_t* getDB(uintptr_t addr)
     }*/
 
     uintptr_t ret = (uintptr_t)box64_jmptbl3[idx3][idx2][idx1][idx0];
-    if(ret==(uintptr_t)native_next)
-        return NULL;
 
     return *(dynablock_t**)(ret - sizeof(void*));
 }
