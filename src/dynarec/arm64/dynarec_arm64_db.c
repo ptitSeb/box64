@@ -295,21 +295,33 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STRx_U12(x5, ed, 0);
                         STRH_U12(x6, ed, 8);
                     } else {
-                        if(ed!=x1) {
-                            MOVx_REG(x1, ed);
+                        if(box64_x87_no80bits) {
+                            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
+                            VLDR64_U12(v1, ed, fixedaddress);
+                        } else {
+                            if(ed!=x1) {
+                                MOVx_REG(x1, ed);
+                            }
+                            x87_do_push_empty(dyn, ninst, x3);
+                            CALL(arm_fld, -1);
                         }
-                        x87_do_push_empty(dyn, ninst, x3);
-                        CALL(arm_fld, -1);
                     }
                     break;
                 case 7:
                     INST_NAME("FSTP tbyte");
-                    x87_forget(dyn, ninst, x1, x3, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
-                    if(ed!=x1) {
-                        MOVx_REG(x1, ed);
+                    if(box64_x87_no80bits) {
+                        v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
+                        VSTR64_U12(v1, wback, fixedaddress);
+                    } else {
+                        x87_forget(dyn, ninst, x1, x3, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
+                        if(ed!=x1) {
+                            MOVx_REG(x1, ed);
+                        }
+                        CALL(arm_fstp, -1);
                     }
-                    CALL(arm_fstp, -1);
                     x87_do_pop(dyn, ninst, x3);
                     break;
                 default:
