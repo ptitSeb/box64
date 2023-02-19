@@ -28,8 +28,6 @@
 #include "custommem.h"
 #include "khash.h"
 
-KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
-
 uint32_t X31_hash_code(void* addr, int len)
 {
     if(!len) return 0;
@@ -52,7 +50,7 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         dynarec_log(LOG_DEBUG, " -- FreeDyrecMap(%p, %d)\n", db->actual_block, db->size);
         db->done = 0;
         db->gone = 1;
-        FreeDynarecMap(db, (uintptr_t)db->actual_block, db->size);
+        FreeDynarecMap((uintptr_t)db->actual_block);
         customFree(db);
         if(need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
@@ -108,20 +106,6 @@ int FreeRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size)
         return 0;
     }
     return 1;
-}
-
-dynablock_t* FindDynablockDynablocklist(void* addr, kh_dynablocks_t* dynablocks)
-{
-    if(!dynablocks)
-        return NULL;
-    dynablock_t* db;
-    kh_foreach_value(dynablocks, db, 
-        const uintptr_t s = (uintptr_t)db->block;
-        const uintptr_t e = (uintptr_t)db->block+db->size;
-        if((uintptr_t)addr>=s && (uintptr_t)addr<e)
-            return db;
-    )
-    return NULL;
 }
 
 dynablock_t *AddNewDynablock(uintptr_t addr)
@@ -201,7 +185,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
             my_context->max_db_size = blocksz;
         // fill-in jumptable
         if(!addJumpTableIfDefault64(block->x64_addr, block->block)) {
-            FreeDynablock(block, 1);
+            FreeDynablock(block, 0);
             block = getDB(addr);
         } else {
             if(block->x64_size)

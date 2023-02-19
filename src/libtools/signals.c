@@ -751,7 +751,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             //relockMutex(Locks);   // do not relock mutex, because of the siglongjmp, whatever was running is canceled
             #ifdef DYNAREC
             if(Locks & is_dyndump_locked)
-                CancelBlock64();
+                CancelBlock64(1);
             #endif
             siglongjmp(ejb->jmpbuf, 1);
         }
@@ -793,7 +793,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         //relockMutex(Locks);   // the thread will exit, so no relock there
         #ifdef DYNAREC
         if(Locks & is_dyndump_locked)
-            CancelBlock64();
+            CancelBlock64(1);
         #endif
         exit(ret);
     }
@@ -850,7 +850,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #ifdef DYNAREC
     if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
         relockMutex(Locks);
-        CancelBlock64();
+        CancelBlock64(0);
         cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
     }
     dynablock_t* db = NULL;
@@ -901,11 +901,11 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     dynarec_log(LOG_INFO, "Dynablock unprotected, getting out!\n");
                 }
                 //relockMutex(Locks);
+                mutex_unlock(&mutex_dynarec_prot);
                 #ifdef DYNAREC
                 if(Locks & is_dyndump_locked)
-                    CancelBlock64();
+                    CancelBlock64(1);
                 #endif
-                mutex_unlock(&mutex_dynarec_prot);
                 siglongjmp(ejb->jmpbuf, 2);
             }
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);

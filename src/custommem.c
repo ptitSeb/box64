@@ -32,10 +32,7 @@
 //#define USE_MMAP
 
 // init inside dynablocks.c
-KHASH_MAP_INIT_INT64(dynablocks, dynablock_t*)
 static mmaplist_t          *mmaplist = NULL;
-static size_t              mmapsize = 0;
-static kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
 static uintptr_t***        box64_jmptbl3[1<<JMPTABL_SHIFT];
 static uintptr_t**         box64_jmptbldefault2[1<<JMPTABL_SHIFT];
 static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT];
@@ -413,270 +410,151 @@ void customFree(void* p)
 }
 
 #ifdef DYNAREC
-typedef struct mmapchunk_s {
-    void*               block;
-    size_t              maxfree;
-    size_t              size;
-    kh_dynablocks_t*    dblist;
-    uint8_t*            helper;
-    void*               first;  // first free block, to speed up things
-    int                 lock;   // don't try to add stuff on locked block
-} mmapchunk_t;
 #define NCHUNK          64
 typedef struct mmaplist_s {
-    mmapchunk_t         chunks[NCHUNK];
+    blocklist_t         chunks[NCHUNK];
     mmaplist_t*         next;
 } mmaplist_t;
 
-mmapchunk_t* addChunk(size_t mmapsize) {
-    if(!mmaplist)
-        mmaplist = (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
-    mmaplist_t* head = mmaplist;
-    size_t i = mmapsize;
-    while(1) {
-        if(i>=NCHUNK) {
-            i-=NCHUNK;
-            if(!head->next) {
-                head->next = (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
-            }
-            head=head->next;
-        } else
-            return &head->chunks[i];
-    }
-}
-
-uintptr_t FindFreeDynarecMap(dynablock_t* db, size_t size)
+dynablock_t* FindDynablockFromNativeAddress(void* p)
 {
-    // look for free space
-    void* sub = NULL;
-    mmaplist_t* head = mmaplist;
-    int i = mmapsize;
-    while(head) {
-        const int n = (i>NCHUNK)?NCHUNK:i;
-        i-=n;
-        for(int i=0; i<n; ++i) {
-            mmapchunk_t* chunk = &head->chunks[i];
-            if(chunk->maxfree>=size+sizeof(blockmark_t) && !native_lock_incif0(&chunk->lock)) {
-                size_t rsize = 0;
-                sub = getFirstBlock(chunk->block, size, &rsize, chunk->first);
-                if(sub) {
-                    uintptr_t ret = (uintptr_t)allocBlock(chunk->block, sub, size, &chunk->first);
-                    if(rsize==chunk->maxfree) {
-                        chunk->maxfree = getMaxFreeBlock(chunk->block, chunk->size, chunk->first);
-                    }
-                    kh_dynablocks_t *blocks = chunk->dblist;
-                    if(!blocks) {
-                        blocks = chunk->dblist = kh_init(dynablocks);
-                        kh_resize(dynablocks, blocks, 64);
-                    }
-                    khint_t k;
-                    int r;
-                    k = kh_put(dynablocks, blocks, (uintptr_t)ret, &r);
-                    kh_value(blocks, k) = db;
-                    int size255=(size<256)?size:255;
-                    for(size_t j=0; j<size255; ++j)
-                        chunk->helper[(uintptr_t)ret-(uintptr_t)chunk->block+j] = j;
-                    if(size!=size255)
-                        memset(&chunk->helper[(uintptr_t)ret-(uintptr_t)chunk->block+256], -1, size-255);
-                    native_lock_decifnot0(&chunk->lock);
-                    return ret;
-                } else {
-                    printf_log(LOG_INFO, "BOX64: Warning, sub not found, corrupted mmaplist[%i] info?\n", i);
-                    native_lock_decifnot0(&chunk->lock);
-                    if(box64_log >= LOG_DEBUG)
-                        printBlock(chunk->block, chunk->first);
+    if(!p)
+        return NULL;
+    
+    uintptr_t addr = (uintptr_t)p;
+
+    int i= 0;
+    mmaplist_t* list = mmaplist;
+    if(!list)
+        return NULL;
+    while(list) {
+        if ((addr>(uintptr_t)list->chunks[i].block) 
+         && (addr<((uintptr_t)list->chunks[i].block+list->chunks[i].size))) {
+            blockmark_t* sub = (blockmark_t*)list->chunks[i].block;
+            while((uintptr_t)sub<addr) {
+                blockmark_t* n = NEXT_BLOCK(sub);
+                if((uintptr_t)n>addr) {
+                    // found it!
+                    // self is the field of a block
+                    return *(dynablock_t**)((uintptr_t)sub+sizeof(blockmark_t));
                 }
+                sub = n;
             }
+            return NULL;
         }
-        head = head->next;
-    }
-    return 0;
-}
-
-uintptr_t AddNewDynarecMap(dynablock_t* db, size_t size)
-{
-    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%zu\n", mmapsize);
-    mmapchunk_t* chunk = addChunk(mmapsize++);
-    native_lock_incif0(&chunk->lock);
-    #ifndef USE_MMAP
-    void *p = NULL;
-    if(!(p=box_memalign(box64_pagesize, MMAPSIZE))) {
-        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%zu\n", MMAPSIZE, mmapsize-1);
-        native_lock_store(&chunk->lock, 0);
-        --mmapsize;
-        return 0;
-    }
-    mprotect(p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
-    #else
-    void* p = mmap(NULL, MMAPSIZE, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-    if(p==(void*)-1) {
-        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%zu\n", MMAPSIZE, mmapsize-1);
-        native_lock_store(&chunk->lock, 0);
-        --mmapsize;
-        return 0;
-    }
-    #endif
-    setProtection((uintptr_t)p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
-
-    chunk->block = p;
-    chunk->size = MMAPSIZE;
-    chunk->helper = (uint8_t*)box_calloc(1, MMAPSIZE);
-    chunk->first = p;
-    // setup marks
-    blockmark_t* m = (blockmark_t*)p;
-    m->prev.x32 = 0;
-    m->next.fill = 0;
-    m->next.size = MMAPSIZE-2*sizeof(blockmark_t);
-    blockmark_t* n = NEXT_BLOCK(m);
-    n->next.x32 = 0;
-    n->prev.fill = 0;
-    n->prev.size = m->next.size;
-    // alloc 1st block
-    uintptr_t sub  = (uintptr_t)allocBlock(chunk->block, p, size, &chunk->first);
-    chunk->maxfree = getMaxFreeBlock(chunk->block, chunk->size, chunk->first);
-    kh_dynablocks_t *blocks = chunk->dblist = kh_init(dynablocks);
-    kh_resize(dynablocks, blocks, 64);
-    khint_t k;
-    int ret;
-    k = kh_put(dynablocks, blocks, (uintptr_t)sub, &ret);
-    kh_value(blocks, k) = db;
-    for(size_t j=0; j<size; ++j)
-        chunk->helper[(uintptr_t)sub-(uintptr_t)chunk->block + j] = (j<256)?j:255;
-    native_lock_decifnot0(&chunk->lock);
-    return sub;
-}
-
-void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
-{
-    mmaplist_t* head = mmaplist;
-    int i = mmapsize;
-    while(head) {
-        const int n = (i>NCHUNK)?NCHUNK:i;
-        i-=n;
-        for(int i=0; i<n; ++i) {
-            mmapchunk_t* chunk = &head->chunks[i];
-            if ((addr>(uintptr_t)(chunk->block)) 
-            && (addr<((uintptr_t)(chunk->block)+chunk->size))) {
-                int loopedwait = 256;
-                while (native_lock_incif0(&chunk->lock) && loopedwait) {
-                    sched_yield();
-                    --loopedwait;
-                }
-                if(!loopedwait) {
-                    printf_log(LOG_INFO, "BOX64: Warning, Free a chunk in a locked mmaplist[%d]\n", i);
-                    //arm_lock_incb(&chunk->lock);
-                    if(cycle_log)
-                        print_cycle_log(LOG_INFO);
-                }
-                void* sub = (void*)(addr-sizeof(blockmark_t));
-                size_t newfree = freeBlock(chunk->block, sub, &chunk->first);
-                if(chunk->maxfree < newfree) chunk->maxfree = newfree;
-                kh_dynablocks_t *blocks = chunk->dblist;
-                if(blocks) {
-                    khint_t k = kh_get(dynablocks, blocks, (uintptr_t)sub);
-                    if(k!=kh_end(blocks))
-                        kh_del(dynablocks, blocks, k);
-                    memset(&chunk->helper[(uintptr_t)sub-(uintptr_t)chunk->block], 0, size);
-                }
-                native_lock_decifnot0(&chunk->lock);
-                return;
-            }
+        ++i;
+        if(i==NCHUNK) {
+            i = 0;
+            list = list->next;
         }
-        head = head->next;
     }
-    if(mmapsize)
-        dynarec_log(LOG_NONE, "Warning, block %p (size %zu) not found in mmaplist for Free\n", (void*)addr, size);
+    return NULL;
 }
 
-dynablock_t* FindDynablockFromNativeAddress(void* addr)
-{
-    // look in actual list
-   mmaplist_t* head = mmaplist;
-    int i = mmapsize;
-    while(head) {
-        const int n = (i>NCHUNK)?NCHUNK:i;
-        i-=n;
-        for(int i=0; i<n; ++i) {
-            mmapchunk_t* chunk = &head->chunks[i];
-            if ((uintptr_t)addr>=(uintptr_t)chunk->block 
-            && ((uintptr_t)addr<(uintptr_t)chunk->block+chunk->size)) {
-                if(!chunk->helper)
-                    return FindDynablockDynablocklist(addr, chunk->dblist);
-                else {
-                    uintptr_t p = (uintptr_t)addr - (uintptr_t)chunk->block;
-                    while(chunk->helper[p]) p -= chunk->helper[p];
-                    khint_t k = kh_get(dynablocks, chunk->dblist, (uintptr_t)chunk->block + p);
-                    if(k!=kh_end(chunk->dblist))
-                        return kh_value(chunk->dblist, k);
-                    return NULL;
-                }
-            }
-        }
-        head = head->next;
-    }
-    // look in oversized
-    return FindDynablockDynablocklist(addr, dblist_oversized);
-}
-
-uintptr_t AllocDynarecMap(dynablock_t* db, size_t size)
+uintptr_t AllocDynarecMap(size_t size)
 {
     if(!size)
         return 0;
-    if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
-        #ifndef USE_MMAP
-        void *p = NULL;
-        if(!(p=box_memalign(box64_pagesize, size))) {
-            dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", size);
-            return 0;
+
+    size = roundSize(size);
+
+    mmaplist_t* list = mmaplist;
+    if(!list)
+        list = mmaplist = (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
+    // check if there is space in current open ones
+    int i = 0;
+    uintptr_t sz = size + 2*sizeof(blockmark_t);
+    while(1) {
+        if(list->chunks[i].maxfree>=size) {
+            // looks free, try to alloc!
+            size_t rsize = 0;
+            void* sub = getFirstBlock(list->chunks[i].block, size, &rsize, list->chunks[i].first);
+            if(sub) {
+                void* ret = allocBlock(list->chunks[i].block, sub, size, NULL);
+                if(sub==list->chunks[i].first)
+                    list->chunks[i].first = getNextFreeBlock(sub);
+                if(rsize==list->chunks[i].maxfree)
+                    list->chunks[i].maxfree = getMaxFreeBlock(list->chunks[i].block, list->chunks[i].size, list->chunks[i].first);
+                return (uintptr_t)ret;
+            }
         }
-        mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
-        #else
-        void* p = mmap(NULL, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
-        if(p==(void*)-1) {
-            dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", size);
-            return 0;
+        // check if new
+        if(!list->chunks[i].size) {
+            // alloc a new block, aversized or not, we are at the end of the list
+            size_t allocsize = (sz>MMAPSIZE)?sz:MMAPSIZE;
+            // allign sz with pagesize
+            allocsize = (allocsize+(box64_pagesize-1))&~(box64_pagesize-1);
+            #ifndef USE_MMAP
+            void *p = NULL;
+            if(!(p=box_memalign(box64_pagesize, allocsize))) {
+                dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", allocsize);
+                return 0;
+            }
+            mprotect(p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
+            #else
+            void* p = mmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+            if(p==(void*)-1) {
+                dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", allocsize);
+                return 0;
+            }
+            #endif
+            setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
+            list->chunks[i].block = p;
+            list->chunks[i].first = p;
+            list->chunks[i].size = allocsize;
+            // setup marks
+            blockmark_t* m = (blockmark_t*)p;
+            m->prev.x32 = 0;
+            m->next.fill = 0;
+            m->next.size = allocsize-2*sizeof(blockmark_t);
+            blockmark_t* n = NEXT_BLOCK(m);
+            n->next.x32 = 0;
+            n->prev.fill = 0;
+            n->prev.size = m->next.size;
+            // alloc 1st block
+            void* ret  = allocBlock(list->chunks[i].block, p, size, NULL);
+            list->chunks[i].maxfree = getMaxFreeBlock(list->chunks[i].block, list->chunks[i].size, NULL);
+            if(list->chunks[i].maxfree)
+                list->chunks[i].first = getNextFreeBlock(m);
+            return (uintptr_t)ret;
         }
-        #endif
-        setProtection((uintptr_t)p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
-        kh_dynablocks_t *blocks = dblist_oversized;
-        if(!blocks) {
-            blocks = dblist_oversized = kh_init(dynablocks);
-            kh_resize(dynablocks, blocks, 64);
+        // next chunk...
+        ++i;
+        if(i==NCHUNK) {
+            i = 0;
+            if(!list->next)
+                list->next = (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
+            list = list->next;
         }
-        khint_t k;
-        int ret;
-        k = kh_put(dynablocks, blocks, (uintptr_t)p, &ret);
-        kh_value(blocks, k) = db;
-        return (uintptr_t)p;
     }
-    
-
-    uintptr_t ret = FindFreeDynarecMap(db, size);
-    if(!ret)
-        ret = AddNewDynarecMap(db, size);
-
-    return ret;
 }
 
-void FreeDynarecMap(dynablock_t* db, uintptr_t addr, size_t size)
+void FreeDynarecMap(uintptr_t addr)
 {
-    if(!addr || !size)
+    if(!addr)
         return;
-    if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
-        #ifndef USE_MMAP
-        box_free((void*)addr);
-        #else
-        munmap((void*)addr, size);
-        #endif
-        kh_dynablocks_t *blocks = dblist_oversized;
-        if(blocks) {
-            khint_t k = kh_get(dynablocks, blocks, addr);
-            if(k!=kh_end(blocks))
-                kh_del(dynablocks, blocks, k);
+    
+    int i= 0;
+    mmaplist_t* list = mmaplist;
+
+    while(list) {
+        if ((addr>(uintptr_t)list->chunks[i].block) 
+         && (addr<((uintptr_t)list->chunks[i].block+list->chunks[i].size))) {
+            void* sub = (void*)(addr-sizeof(blockmark_t));
+            void* n = NEXT_BLOCK((blockmark_t*)sub);
+            size_t newfree = freeBlock(list->chunks[i].block, sub, NULL);
+            if(sub<=list->chunks[i].first)
+                list->chunks[i].first = getPrevFreeBlock(n);
+            if(list->chunks[i].maxfree < newfree)
+                list->chunks[i].maxfree = newfree;
+            return;
         }
-        return;
+        ++i;
+        if(i=NCHUNK) {
+            i = 0;
+            list = list->next;
+        }
     }
-    ActuallyFreeDynarecMap(db, addr, size);
 }
 
 uintptr_t getSizeJmpDefault(uintptr_t addr, size_t maxsize)
@@ -868,38 +746,6 @@ uintptr_t getJumpTableAddress64(uintptr_t addr)
     }
 
     return (uintptr_t)&box64_jmptbl3[idx3][idx2][idx1][idx0];
-}
-
-uintptr_t getJumpAddress64(uintptr_t addr)
-{
-    uintptr_t idx3, idx2, idx1, idx0;
-    idx3 = ((addr)>>48)&0xffff;
-    idx2 = ((addr)>>32)&0xffff;
-    idx1 = ((addr)>>16)&0xffff;
-    idx0 = ((addr)    )&0xffff;
-    if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
-        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = box64_jmptbldefault1;
-        if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
-            box_free(tbl);
-    }
-    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
-        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = box64_jmptbldefault0;
-        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
-            box_free(tbl);
-    }
-    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
-        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = (uintptr_t)native_next;
-        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
-            box_free(tbl);
-    }
-
-    return (uintptr_t)box64_jmptbl3[idx3][idx2][idx1][idx0];
 }
 
 dynablock_t* getDB(uintptr_t addr)
@@ -1504,24 +1350,11 @@ void fini_custommem_helper(box64context_t *ctx)
                     #else
                     box_free(head->chunks[i].block);
                     #endif
-                if(head->chunks[i].dblist) {
-                    kh_destroy(dynablocks, head->chunks[i].dblist);
-                    head->chunks[i].dblist = NULL;
-                }
-                if(head->chunks[i].helper) {
-                    box_free(head->chunks[i].helper);
-                    head->chunks[i].helper = NULL;
-                }
             }
             mmaplist_t *old = head;
             head = head->next;
             free(old);
         }
-        if(dblist_oversized) {
-            kh_destroy(dynablocks, dblist_oversized);
-            dblist_oversized = NULL;
-        }
-        mmapsize = 0;
 
         box_free(mmaplist);
         for (int i3=0; i3<(1<<DYNAMAP_SHIFT); ++i3)
