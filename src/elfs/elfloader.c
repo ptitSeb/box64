@@ -493,7 +493,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                         end = globend;
                     }
                     if (!offs) {
-                        if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start"))
+                        if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start") && strcmp(symname, "collector_func_load"))
                             printf_log(LOG_NONE, "%s: Global Symbol %s (ver=%d/%s) not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", (bind==STB_WEAK)?"Warning":"Error", symname, version, vername?vername:"(none)", p, *(void**)p, head->name);
                     } else {
                         printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s (ver=%d/%s)\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname, version, vername?vername:"(none)");
@@ -702,7 +702,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                         end = globend;
                     }
                     if (!offs) {
-                        if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start"))
+                        if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start") && strcmp(symname, "collector_func_load"))
                             printf_log((bind==STB_WEAK)?LOG_INFO:LOG_NONE, "%s: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", (bind==STB_WEAK)?"Warning":"Error", symname, p, *(void**)p, head->name);
                     } else {
                         printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s (ver=%d/%s)\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname, version, vername?vername:"(none)");
