@@ -266,6 +266,13 @@
 #define STRH_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b01, 0b01, ((uint32_t)((imm12)>>1))&0xfff, Rn, Rt))
 #define STRxw_U12(Rt, Rn, imm12)          EMIT(ST_gen((rex.w)?0b11:0b10, 0b01, ((uint32_t)((imm12)>>(2+rex.w)))&0xfff, Rn, Rt))
 
+#define STU_gen(size, opc, imm9, Rn, Rt)  ((size)<<30 | 0b111<<27 | (opc)<<22 | ((imm9)&0x1ff)<<12 | (Rn)<<5 | (Rt))
+#define STURx_I9(Rt, Rn, imm9)            EMIT(STU_gen(0b11, 0b00, imm9, Rn, Rt))
+#define STURw_I9(Rt, Rn, imm9)            EMIT(STU_gen(0b10, 0b00, imm9, Rn, Rt))
+#define STURxw_I9(Rt, Rn, imm9)           EMIT(STU_gen((rex.w)?0b11:0b10, 0b00, imm9, Rn, Rt))
+#define STURH_I9(Rt, Rn, imm9)            EMIT(STU_gen(0b01, 0b00, imm9, Rn, Rt))
+#define STURB_I9(Rt, Rn, imm9)            EMIT(STU_gen(0b00, 0b00, imm9, Rn, Rt))
+
 #define STR_REG_gen(size, Rm, option, S, Rn, Rt)    ((size)<<30 | 0b111<<27 | 0b00<<22 | 1<<21 | (Rm)<<16 | (option)<<13 | (S)<<12 | (0b10)<<10 | (Rn)<<5 | (Rt))
 #define STRx_REG(Rt, Rn, Rm)            EMIT(STR_REG_gen(0b11, Rm, 0b011, 0, Rn, Rt))
 #define STRx_REG_LSL3(Rt, Rn, Rm)       EMIT(STR_REG_gen(0b11, Rm, 0b011, 1, Rn, Rt))
@@ -648,6 +655,10 @@
 #define REVxw(Rd, Rn)                   EMIT(REV_gen(rex.w, 0b10|rex.w, Rn, Rd))
 #define REV16w(Rd, Rn)                  EMIT(REV_gen(0, 0b01, Rn, Rd))
 #define REV16x(Rd, Rn)                  EMIT(REV_gen(1, 0b01, Rn, Rd))
+
+// UDF
+#define UDF_gen(imm16)                  ((imm16)&0xffff)
+#define UDF(imm16)                      EMIT(UDF_gen(imm16))
 
 // MRS
 #define MRS_gen(L, o0, op1, CRn, CRm, op2, Rt)  (0b1101010100<<22 | (L)<<21 | 1<<20 | (o0)<<19 | (op1)<<16 | (CRn)<<12 | (CRm)<<8 | (op2)<<5 | (Rt))
