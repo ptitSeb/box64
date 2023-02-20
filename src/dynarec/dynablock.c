@@ -68,7 +68,7 @@ void MarkDynablock(dynablock_t* db)
     }
 }
 
-int IntervalIntersects(uintptr_t start1, uintptr_t end1, uintptr_t start2, uintptr_t end2)
+static int IntervalIntersects(uintptr_t start1, uintptr_t end1, uintptr_t start2, uintptr_t end2)
 {
     if(start1 > end2 || start2 > end1)
         return 0;
