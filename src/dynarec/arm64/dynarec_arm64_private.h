@@ -103,6 +103,7 @@ typedef struct dynarec_arm_s {
     int*                predecessor;// single array of all predecessor
     dynablock_t*        dynablock;
     instsize_t*         instsize;
+    size_t              insts_size; // size of the instruction size array (calculated)
     uint8_t             smread;    // for strongmem model emulation
     uint8_t             smwrite;    // for strongmem model emulation
 } dynarec_arm_t;

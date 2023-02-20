@@ -557,25 +557,29 @@ void FreeDynarecMap(uintptr_t addr)
     }
 }
 
-uintptr_t getSizeJmpDefault(uintptr_t addr, size_t maxsize)
+static uintptr_t getDBSize(uintptr_t addr, size_t maxsize, dynablock_t** db)
 {
-    uintptr_t idx3, idx2, idx1, idx0;
-    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    const uintptr_t idx3 = (addr>>48)&0xffff;
+    const uintptr_t idx2 = (addr>>32)&0xffff;
+    const uintptr_t idx1 = (addr>>16)&0xffff;
+    uintptr_t idx0 = addr&0xffff;
+    *db = *(dynablock_t**)(box64_jmptbl3[idx3][idx2][idx1][idx0]- sizeof(void*));
+    if(*db)
+        return 1;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
-        return ((addr&~((1LL<<48)-1))|0xffffffffffffLL)-addr + 1;
-    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+        return (addr|0xffffffffffffLL)+1-addr;
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
-        return ((addr&~((1LL<<32)-1))|0xffffffffLL)-addr + 1;
-    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+        return (addr|0xffffffffLL)+1-addr;
     uintptr_t* block = box64_jmptbl3[idx3][idx2][idx1];
     if(block == box64_jmptbldefault0)
-        return ((addr&~((1LL<<16)-1))|0xffffLL)-addr + 1;
-    idx0 = addr&0xffff;
+        return (addr|0xffffLL)+1-addr;
     if (maxsize>0x10000)
         maxsize = 0x10000;
     while(idx0<maxsize && block[idx0]==(uintptr_t)native_next)
         ++idx0;
-    return idx0 - (addr&0xffff);
+    if(idx0<0x10000)
+        *db = *(dynablock_t**)(block[idx0]- sizeof(void*));
+    return idx0+1-(addr&0xffff);
 }
 
 // each dynmap is 64k of size
@@ -590,17 +594,15 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
 {
     uintptr_t start_addr = my_context?((addr<my_context->max_db_size)?0:(addr-my_context->max_db_size)):addr;
     dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p/%p -> %p %s\n", (void*)addr, (void*)start_addr, (void*)(addr+size-1), destroy?"destroy":"mark");
-    for (uintptr_t i=start_addr; i<addr+size; ++i) {
-        dynablock_t* db = getDB(i);
+    dynablock_t* db = NULL;
+    uintptr_t end = addr+size;
+    while (start_addr<end) {
+        start_addr += getDBSize(start_addr, end-start_addr, &db);
         if(db) {
             if(destroy)
                 FreeRangeDynablock(db, addr, size);
             else
                 MarkRangeDynablock(db, addr, size);
-        } else {
-            uintptr_t next = getSizeJmpDefault(i, size-i);
-            if(next)
-                i+=next-1;
         }
     }
 }
@@ -785,9 +787,6 @@ void protectDB(uintptr_t addr, uintptr_t size)
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i)
         if(memprot[i].prot==memprot_default) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
-            /*if (native_lock_storeifref(&memprot[i], newblock, memprot_default) != newblock) {
-                box_free(newblock);
-            }*/
             memprot[i].prot = newblock;
         }
     for (uintptr_t i=idx; i<=end; ++i) {
@@ -1052,17 +1051,17 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 
 #ifdef DYNAREC
 int IsInHotPage(uintptr_t addr) {
-    if(addr<=(1LL<<48))
+    if(addr>=(1LL<<48))
         return 0;
     int idx = (addr>>MEMPROT_SHIFT)>>16;
-    uint8_t *block = memprot[idx].hot;
-    if(!block)
+    uint8_t *hot = memprot[idx].hot;
+    if(!hot)
         return 0;
     int base = (addr>>MEMPROT_SHIFT)&0xffff;
-    if(!block[base])
+    if(!hot[base])
         return 0;
     // decrement hot
-    native_lock_decifnot0b(&block[base]);
+    native_lock_decifnot0b(&hot[base]);
     return 1;
 }
 

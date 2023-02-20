@@ -1,5 +1,8 @@
 #define INIT    
-#define FINI
+#define FINI        \
+    if(ninst)       \
+        addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst].x64.size, dyn->insts[ninst].size/4); \
+    addInst(dyn->instsize, &dyn->insts_size, 0, 0);
 #define EMIT(A)     \
     if(box64_dynarec_dump) {dynarec_log(LOG_NONE, "\t%08x\t%s\n", (uint32_t)(A), arm64_print(A, (uintptr_t)dyn->block));} \
     *(uint32_t*)(dyn->block) = (uint32_t)(A);       \
@@ -10,7 +13,9 @@
 #define NEW_INST        \
     if(ninst && isInstClean(dyn, ninst)) {                      \
         if(dyn->last_ip!=ip) dyn->last_ip = 0;                  \
-    }
+    }                                                           \
+    if(ninst)                                                   \
+        addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4);
 #define INST_EPILOG     
 #define INST_NAME(name) \
     if(box64_dynarec_dump) {\
