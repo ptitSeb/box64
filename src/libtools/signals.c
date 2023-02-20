@@ -855,7 +855,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     dynablock_t* db = NULL;
     int db_searched = 0;
-    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_CUSTOM)) {
+    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
         mutex_lock(&mutex_dynarec_prot);
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
@@ -966,6 +966,9 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             glitch2_prot = 0;
         }
         mutex_unlock(&mutex_dynarec_prot);
+    } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC_R)) {
+        // unprotect and continue to signal handler, because Write is not there on purpose
+        unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
     }
     if(!db_searched)
         db = FindDynablockFromNativeAddress(pc);
