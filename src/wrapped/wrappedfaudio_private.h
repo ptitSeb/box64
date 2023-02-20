@@ -106,13 +106,13 @@ GO(FACTWave_SetMatrixCoefficients, uFpuup)
 GO(FACTWave_SetPitch, uFpw)
 GO(FACTWave_SetVolume, uFpf)
 GO(FACTWave_Stop, uFpu)
-//GO(FAPOBase_AddRef, 
+GO(FAPOBase_AddRef, iFp)
 //GO(FAPOBase_BeginProcess, 
 //GO(FAPOBase_CalcInputFrames, 
 //GO(FAPOBase_CalcOutputFrames, 
 //GO(FAPOBase_EndProcess, 
 //GO(FAPOBase_GetParameters, 
-//GO(FAPOBase_GetRegistrationProperties, 
+GO(FAPOBase_GetRegistrationProperties, uFpp)
 //GO(FAPOBase_Initialize, 
 //GO(FAPOBase_IsInputFormatSupported, 
 //GO(FAPOBase_IsOutputFormatSupported, 
@@ -120,7 +120,7 @@ GO(FACTWave_Stop, uFpu)
 //GO(FAPOBase_OnSetParameters, 
 //GO(FAPOBase_ParametersChanged, 
 //GO(FAPOBase_ProcessThru, 
-//GO(FAPOBase_Release, 
+GO(FAPOBase_Release, iFp)
 //GO(FAPOBase_Reset, 
 //GO(FAPOBase_SetParameters, 
 //GO(FAPOBase_UnlockForProcess, 
