@@ -33,10 +33,10 @@ jobs:
         include:
           - platform: TEGRAX1
             type: Release
-            os: ubuntu-18.04
+            os: ubuntu-20.04
           - platform: TEGRAX1
             type: Trace
-            os: ubuntu-18.04
+            os: ubuntu-20.04
 
     runs-on: ${{ matrix.os }}
     steps:
