@@ -1054,6 +1054,7 @@
 #() vFEpppp
 #() vFiiiii
 #() vFiiiiu
+#() vFiiipi
 #() vFiiuii
 #() vFiiuup
 #() vFiillu
@@ -1559,6 +1560,8 @@
 #() iFiiiuwp
 #() iFiuiipi
 #() iFipiipi
+#() iFipipip
+#() iFipippp
 #() iFipuufp
 #() iFipupup
 #() iFipuppp
@@ -1818,6 +1821,7 @@
 #() iFpiupiii
 #() iFpiupppp
 #() iFpipipip
+#() iFpipippp
 #() iFpippLpp
 #() iFpippppW
 #() iFpippppp
@@ -1838,6 +1842,7 @@
 #() iFppiipii
 #() iFppiipiL
 #() iFppiuppi
+#() iFppipiii
 #() iFppipiip
 #() iFppipipi
 #() iFppipipp
@@ -1892,6 +1897,7 @@
 #() pFppiiCCC
 #() pFppiippp
 #() pFppipipp
+#() pFppipLpp
 #() pFppuuppp
 #() pFppLiiip
 #() pFppLipip
@@ -1981,6 +1987,7 @@
 #() iFEppppipp
 #() iFiiiiiiip
 #() iFiiupiupi
+#() iFipippppp
 #() iFuipuuluf
 #() iFuuuuuuuu
 #() iFullfpppp
@@ -2388,14 +2395,26 @@ wrappedcrypto:
 - pFp:
   - sk_new
 - vFpp:
+  - X509_STORE_CTX_set_verify_cb
   - sk_pop_free
+- pFpp:
+  - OPENSSL_sk_pop_free
+- iFppp:
+  - ASN1_i2d_bio
 - pFpppp:
+  - ASN1_d2i_bio
   - PEM_read_bio_DSAPrivateKey
   - PEM_read_bio_DSA_PUBKEY
   - PEM_read_bio_ECPrivateKey
   - PEM_read_bio_EC_PUBKEY
+  - PEM_read_bio_PKCS7
   - PEM_read_bio_RSAPrivateKey
   - PEM_read_bio_RSA_PUBKEY
+  - PEM_read_bio_X509
+  - PEM_read_bio_X509_AUX
+  - PEM_read_bio_X509_CERT_PAIR
+  - PEM_read_bio_X509_CRL
+  - PEM_read_bio_X509_REQ
 - iFpiipp:
   - ENGINE_ctrl
 - iFpplppi:
@@ -3596,12 +3615,14 @@ wrappedlibssl:
 - pFp:
   - SSL_get_verify_callback
 - vFpp:
+  - SSL_CTX_set_client_cert_cb
   - SSL_CTX_set_default_passwd_cb
   - SSL_set_psk_client_callback
 - vFpip:
   - SSL_CTX_set_verify
   - SSL_set_verify
 - vFppp:
+  - SSL_CTX_set_cert_verify_callback
   - SSL_CTX_set_next_proto_select_cb
 - lFpip:
   - SSL_CTX_callback_ctrl

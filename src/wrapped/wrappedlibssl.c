@@ -237,6 +237,30 @@ static void* find_proto_select_Fct(void* fct)
     return NULL;
 }
 
+// client_cert
+#define GO(A)   \
+static uintptr_t my_client_cert_fct_##A = 0;                                    \
+static int my_client_cert_##A(void* a, void* b, void* c)                        \
+{                                                                               \
+    return (int)RunFunction(my_context, my_client_cert_fct_##A, 3, a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_client_cert_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_client_cert_fct_##A == (uintptr_t)fct) return my_client_cert_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_client_cert_fct_##A == 0) {my_client_cert_fct_##A = (uintptr_t)fct; return my_client_cert_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL client_cert callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my_SSL_CTX_set_default_passwd_cb(x64emu_t* emu, void* ctx, void* cb)
@@ -293,8 +317,21 @@ EXPORT void* my_SSL_get_verify_callback(x64emu_t* emu, void* ctx)
     return reverse_verify_Fct(my->SSL_get_verify_callback(ctx));
 }
 
+EXPORT void my_SSL_CTX_set_cert_verify_callback(x64emu_t* emu, void* ctx, void* cb, void* arg)
+{
+    (void)emu;
+    my->SSL_CTX_set_cert_verify_callback(ctx, find_verify_Fct(cb), arg);
+}
+
+EXPORT void my_SSL_CTX_set_client_cert_cb(x64emu_t* emu, void* ctx, void* cb)
+{
+    (void)emu;
+    my->SSL_CTX_set_client_cert_cb(ctx, find_client_cert_Fct(cb));
+}
+
 #define CUSTOM_INIT \
-    getMy(lib);
+    getMy(lib);     \
+    setNeededLibs(lib, 2, "libcrypto.so.1.1", "libpthread.so.0");
 
 #define CUSTOM_FINI \
     freeMy();
