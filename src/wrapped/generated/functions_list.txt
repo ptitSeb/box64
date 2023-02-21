@@ -2532,6 +2532,8 @@ wrappedgdk3:
   - gdk_init
 - iFpp:
   - gdk_init_check
+- uFpp:
+  - gdk_threads_add_idle
 - vFppp:
   - gdk_event_handler_set
   - gdk_window_add_filter
