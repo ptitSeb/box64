@@ -179,6 +179,126 @@ static void* find_passphrase_Fct(void* fct)
     return NULL;
 }
 
+// xnew
+#define GO(A)   \
+static uintptr_t my_xnew_fct_##A = 0;                           \
+static void* my_xnew_##A()                                      \
+{                                                               \
+    return (void*)RunFunction(my_context, my_xnew_fct_##A, 0);  \
+}
+SUPER()
+#undef GO
+static void* find_xnew_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_xnew_fct_##A == (uintptr_t)fct) return my_xnew_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xnew_fct_##A == 0) {my_xnew_fct_##A = (uintptr_t)fct; return my_xnew_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto xnew callback\n");
+    return NULL;
+}
+
+// d2i
+#define GO(A)   \
+static uintptr_t my_d2i_fct_##A = 0;                            \
+static void* my_d2i_##A()                                       \
+{                                                               \
+    return (void*)RunFunction(my_context, my_d2i_fct_##A, 0);   \
+}
+SUPER()
+#undef GO
+static void* find_d2i_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_d2i_fct_##A == (uintptr_t)fct) return my_d2i_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_d2i_fct_##A == 0) {my_d2i_fct_##A = (uintptr_t)fct; return my_d2i_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto d2i callback\n");
+    return NULL;
+}
+
+// i2d
+#define GO(A)   \
+static uintptr_t my_i2d_fct_##A = 0;                        \
+static int my_i2d_##A()                                     \
+{                                                           \
+    return (int)RunFunction(my_context, my_i2d_fct_##A, 0); \
+}
+SUPER()
+#undef GO
+static void* find_i2d_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_i2d_fct_##A == (uintptr_t)fct) return my_i2d_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_i2d_fct_##A == 0) {my_i2d_fct_##A = (uintptr_t)fct; return my_i2d_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto i2d callback\n");
+    return NULL;
+}
+
+// pem_password_cb
+#define GO(A)   \
+static uintptr_t my_pem_password_cb_fct_##A = 0;                                    \
+static int my_pem_password_cb_##A(void* a, int b, int c, void* d)                   \
+{                                                                                   \
+    return (int)RunFunction(my_context, my_pem_password_cb_fct_##A, 4, a, b, c, d); \
+}
+SUPER()
+#undef GO
+static void* find_pem_password_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_pem_password_cb_fct_##A == (uintptr_t)fct) return my_pem_password_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_pem_password_cb_fct_##A == 0) {my_pem_password_cb_fct_##A = (uintptr_t)fct; return my_pem_password_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto pem_password_cb callback\n");
+    return NULL;
+}
+
+// verify_cb
+#define GO(A)   \
+static uintptr_t my_verify_cb_fct_##A = 0;                              \
+static int my_verify_cb_##A(int a, void* b)                             \
+{                                                                       \
+    return (int)RunFunction(my_context, my_verify_cb_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_verify_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_verify_cb_fct_##A == (uintptr_t)fct) return my_verify_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_verify_cb_fct_##A == 0) {my_verify_cb_fct_##A = (uintptr_t)fct; return my_verify_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto verify_cb callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT int32_t my_ENGINE_ctrl(x64emu_t* emu, void* e, int32_t cmd, int32_t i, void* p, void* f)
@@ -269,6 +389,66 @@ EXPORT void my_sk_pop_free(x64emu_t* emu, void* st, void* f)
 {
     (void)emu;
     my->sk_pop_free(st, find_free_fnc_Fct(f));
+}
+
+EXPORT void* my_ASN1_d2i_bio(x64emu_t* emu, void* xnew, void* d2i, void* bp, void* x)
+{
+    (void)emu;
+    return my->ASN1_d2i_bio(find_xnew_Fct(xnew), find_d2i_Fct(d2i), bp, x);
+}
+
+EXPORT int my_ASN1_i2d_bio(x64emu_t* emu, void* i2d, void* bp, void* x)
+{
+    (void)emu;
+    return my->ASN1_i2d_bio(find_i2d_Fct(i2d), bp, x);
+}
+
+EXPORT void* my_PEM_read_bio_PKCS7(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    (void)emu;
+    return my->PEM_read_bio_PKCS7(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void* my_PEM_read_bio_X509(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    (void)emu;
+    return my->PEM_read_bio_X509(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void* my_PEM_read_bio_X509_AUX(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    (void)emu;
+    return my->PEM_read_bio_X509_AUX(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void* my_PEM_read_bio_X509_CRL(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    (void)emu;
+    return my->PEM_read_bio_X509_CRL(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void* my_PEM_read_bio_X509_REQ(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    (void)emu;
+    return my->PEM_read_bio_X509_REQ(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void* my_PEM_read_bio_X509_CERT_PAIR(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    (void)emu;
+    return my->PEM_read_bio_X509_CERT_PAIR(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void my_X509_STORE_CTX_set_verify_cb(x64emu_t* emu, void* ctx, void* cb)
+{
+    (void)emu;
+    my->X509_STORE_CTX_set_verify_cb(ctx, find_verify_cb_Fct(cb));
+}
+
+EXPORT void my_OPENSSL_sk_pop_free(x64emu_t* emu, void* s, void* cb)
+{
+    (void)emu;
+    my->OPENSSL_sk_pop_free(s, find_free_fnc_Fct(cb));
 }
 
 #define CUSTOM_INIT \

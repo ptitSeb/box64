@@ -41,7 +41,7 @@ GO(XAllocSizeHints, pFv)
 GO(XAllocWMHints, pFv)
 GO(XAllowEvents, iFpiL)
 GO(XAllPlanes, LFv)
-// _XAsyncErrorHandler
+GO(_XAsyncErrorHandler, iFpppip)
 GO(XAutoRepeatOff, iFp)
 GO(XAutoRepeatOn, iFp)
 GO(XBaseFontNameListOfFontSet, pFp)
