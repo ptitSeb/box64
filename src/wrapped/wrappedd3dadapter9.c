@@ -114,6 +114,7 @@ typedef struct d3d_my_s {
     int (*create_adapter)(int, ID3DAdapter9Vtbl ***);
 
     int (*CreateDevice)(void*, unsigned, int, void*, unsigned, void*, void*, void*, IDirect3DDevice9Vtbl ***);
+    int (*CreateDeviceEx)(void*, unsigned, int, void*, unsigned, void*, void*, void*, void*, IDirect3DDevice9ExVtbl ***);
 
     int presentgroup_init;
 
@@ -121,7 +122,7 @@ typedef struct d3d_my_s {
         ID3DAdapter9Vtbl adapter;
         int adapter_init;
 
-        IDirect3DDevice9Vtbl device;
+        IDirect3DDevice9ExVtbl device;
         int device_init;
 
         IDirect3DAuthenticatedChannel9Vtbl my_IDirect3DAuthenticatedChannel9Vtbl;
@@ -332,6 +333,29 @@ IDirect3D9Vtbl my_Direct3D9_vtbl = {
     .Release = my_Direct3D9_Release,
 };
 
+typedef struct my_Direct3D9Ex {
+        IDirect3D9ExVtbl *vtbl;
+        IDirect3D9ExVtbl **real;
+} my_Direct3D9Ex;
+
+unsigned my_Direct3D9Ex_AddRef(void *This)
+{
+    my_Direct3D9Ex *my = This;
+    return RunFunction(my_context, (uintptr_t)(*my->real)->AddRef, 1, my->real);
+}
+
+unsigned my_Direct3D9Ex_Release(void *This)
+{
+    my_Direct3D9Ex *my = This;
+    return RunFunction(my_context, (uintptr_t)(*my->real)->Release, 1, my->real);
+}
+
+IDirect3D9ExVtbl my_Direct3D9Ex_vtbl = {
+    .AddRef = my_Direct3D9Ex_AddRef,
+    .Release = my_Direct3D9Ex_Release,
+};
+
+
 static int my_GetDirect3D(x64emu_t* emu, void* This, void*** ppD3D9)
 {
     int r = my_GetDirect3D_real(This, ppD3D9);
@@ -358,7 +382,36 @@ int my_create_device(x64emu_t* emu, void *This, unsigned RealAdapter, int Device
     if (r) return r;
 
     if (!my->vtables.device_init) {
-        make_vtable_IDirect3DDevice9Vtbl(emu, &my->vtables.device, *ret);
+        make_vtable_IDirect3DDevice9Vtbl(emu, (IDirect3DDevice9Vtbl*)&my->vtables.device, *ret);
+        my->vtables.device_init = 1;
+    }
+
+    ret[0] = (IDirect3DDevice9Vtbl*)&my->vtables.device;
+    ret[1] = (IDirect3DDevice9Vtbl*)&my->vtables.device;
+    *ppReturnedDeviceInterface = ret;
+
+    return 0;
+}
+
+int my_create_device_ex(x64emu_t* emu, void *This, unsigned RealAdapter, int DeviceType, void *hFocusWindow, unsigned BehaviorFlags, void *pPresent, void *pFullscreenDisplayMode, IDirect3D9ExVtbl **pD3D9Ex, ID3DPresentGroupVtbl **pPresentationFactory, IDirect3DDevice9ExVtbl ***ppReturnedDeviceInterface)
+{
+    my_Direct3D9Ex *my_pD3D9Ex = malloc(sizeof(my_Direct3D9Ex));
+
+    my_pD3D9Ex->vtbl = &my_Direct3D9Ex_vtbl;
+    my_pD3D9Ex->real = pD3D9Ex;
+
+    if (!my->presentgroup_init) {
+        fixup_PresentGroupVtbl(*pPresentationFactory);
+        my->presentgroup_init = 1;
+    }
+
+    IDirect3DDevice9ExVtbl **ret;
+    int r = my->CreateDeviceEx(This, RealAdapter, DeviceType, hFocusWindow, BehaviorFlags, pPresent, pFullscreenDisplayMode, my_pD3D9Ex, pPresentationFactory, &ret);
+
+    if (r) return r;
+
+    if (!my->vtables.device_init) {
+        make_vtable_IDirect3DDevice9ExVtbl(emu, &my->vtables.device, *ret);
         my->vtables.device_init = 1;
     }
 
@@ -379,6 +432,9 @@ int my_create_adapter(x64emu_t* emu, int fd, ID3DAdapter9Vtbl ***x_adapter)
     if (!my->vtables.adapter_init) {
         my->CreateDevice = (void*)(*adapter)->CreateDevice;
         (*adapter)->CreateDevice = (void*)my_create_device;
+
+        my->CreateDeviceEx = (void*)(*adapter)->CreateDeviceEx;
+        (*adapter)->CreateDeviceEx = (void*)my_create_device_ex;
 
         make_vtable_ID3DAdapter9Vtbl(emu, &my->vtables.adapter, *adapter);
         my->vtables.adapter_init = 1;

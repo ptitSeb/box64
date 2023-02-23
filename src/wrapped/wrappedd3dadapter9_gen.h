@@ -36,7 +36,7 @@ static void make_vtable_ID3DAdapter9Vtbl(x64emu_t* emu, ID3DAdapter9Vtbl* new, I
     GO(CheckDeviceFormatConversion, iWpiii);
     GO(GetDeviceCaps, iWpip);
     GO(CreateDevice, iWEpuipupppp);
-    GO(CreateDeviceEx, iWpuipuppppp);
+    GO(CreateDeviceEx, iWEpuipuppppp);
 }
 
 static void make_vtable_IDirect3D9Vtbl(x64emu_t* emu, IDirect3D9Vtbl* new, IDirect3D9Vtbl* real)
