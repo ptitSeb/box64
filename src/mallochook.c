@@ -726,9 +726,9 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
     }
     if(hooked<2)
         return; // only redirect on lib that hooked / redefined the operators
-    printf_log(LOG_INFO, "Redirecting overriden malloc function for %s\n", ElfName(h));
     if(box64_malloc_hack==2)
         malloc_hack_2 = 1;
+    printf_log(LOG_INFO, "Redirecting overriden malloc%s function for %s\n", ElfName(h), malloc_hack_2?" with hack":"");
     for (size_t i=0; i<h->numDynSym; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
