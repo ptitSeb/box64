@@ -307,7 +307,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x70:
             INST_NAME("PSHUFLW Gx, Ex, Ib");
             nextop = F8;
-            GETEXSD(v1, 0, 1);
+            GETEX(v1, 0, 1);
             GETGX(v0, 1);
 
             u8 = F8;

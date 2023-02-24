@@ -1365,13 +1365,13 @@
 //Use Rm[] to pick from Rn, Rn+1, Rn+2, Rn+3 element and store in Rd. Out-of-range element gets 0
 #define VTBLQ4_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b11, 0, Rn, Rd))
 //Use Rm[] to pick from Rn element and store in Rd. Out-of-range element stay untouched
-#define VTBXQ1_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b00, 0, Rn, Rd))
+#define VTBXQ1_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b00, 1, Rn, Rd))
 //Use Rm[] to pick from Rn, Rn+1 element and store in Rd. Out-of-range element stay untouched
-#define VTBXQ2_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b01, 0, Rn, Rd))
+#define VTBXQ2_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b01, 1, Rn, Rd))
 //Use Rm[] to pick from Rn, Rn+1, Rn+2 element and store in Rd. Out-of-range element stay untouched
-#define VTBXQ3_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b10, 0, Rn, Rd))
+#define VTBXQ3_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b10, 1, Rn, Rd))
 //Use Rm[] to pick from Rn, Rn+1, Rn+2, Rn+3 element and store in Rd. Out-of-range element stay untouched
-#define VTBXQ4_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b11, 0, Rn, Rd))
+#define VTBXQ4_8(Rd, Rn, Rm)        EMIT(TBL_gen(1, Rm, 0b11, 1, Rn, Rd))
 
 // TRN
 #define TRN_gen(Q, size, Rm, op, Rn, Rd)    ((Q)<<30 | 0b001110<<24 | (size)<<22 | (Rm)<<16 | (op)<<14 | 0b10<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
