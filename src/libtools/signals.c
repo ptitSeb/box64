@@ -853,9 +853,14 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         CancelBlock64(0);
         cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
     }
+    // try to see if the si_code makes sense
+    if((sig==SIGSEGV) && (addr) && (info->si_code == 1) && prot&(PROT_READ|PROT_WRITE|PROT_EXEC)) {
+        printf_log(LOG_DEBUG, "Workaround for suspicious si_code for %p / prot=0x%x\n", addr, prot);
+        info->si_code = 2;
+    }
     dynablock_t* db = NULL;
     int db_searched = 0;
-    if ((sig==SIGSEGV) && (addr) && /*(info->si_code == SEGV_ACCERR) &&*/ (prot&PROT_DYNAREC)) {
+    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
         mutex_lock(&mutex_dynarec_prot);
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
