@@ -120,6 +120,11 @@ EXPORT void my3_gdk_window_remove_filter(x64emu_t* emu, void* window, void* f, v
     my->gdk_window_remove_filter(window, findFilterFct(f), data);
 }
 
+EXPORT unsigned int my3_gdk_threads_add_idle(x64emu_t* emu, void* function, void* data)
+{
+    my->gdk_threads_add_idle(function, data);
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
