@@ -855,7 +855,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     dynablock_t* db = NULL;
     int db_searched = 0;
-    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
+    if ((sig==SIGSEGV) && (addr) && /*(info->si_code == SEGV_ACCERR) &&*/ (prot&PROT_DYNAREC)) {
         mutex_lock(&mutex_dynarec_prot);
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
