@@ -968,11 +968,12 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
             memprot[i].prot = newblock;
         }
     for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t dyn=(memprot[i>>16].prot[i&0xffff]&PROT_DYN);
-        uint32_t mapped=(memprot[i>>16].prot[i&0xffff]&PROT_MMAP);
+        uint32_t old_prot = memprot[i>>16].prot[i&0xffff];
+        uint32_t dyn=(old_prot&PROT_DYN);
+        uint32_t mapped=(old_prot&PROT_MMAP);
         if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
             dyn = PROT_DYNAREC;
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~(PROT_WRITE|PROT_MMAP));
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
         } else if(dyn && !(prot&PROT_WRITE)) {
             dyn = PROT_DYNAREC_R;
         }

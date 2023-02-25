@@ -2558,7 +2558,7 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
-    if(box64_dynarec) {
+    if(box64_dynarec && !ret) {
         if(prot& PROT_EXEC)
             addDBFromAddressRange((uintptr_t)addr, len);
         else
