@@ -853,11 +853,14 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         CancelBlock64(0);
         cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
     }
+    #ifdef RK3588
     // try to see if the si_code makes sense
+    // the RK3588 tend to need a special Kernel that seems to have a weird behaviour sometimes
     if((sig==SIGSEGV) && (addr) && (info->si_code == 1) && prot&(PROT_READ|PROT_WRITE|PROT_EXEC)) {
         printf_log(LOG_DEBUG, "Workaround for suspicious si_code for %p / prot=0x%x\n", addr, prot);
         info->si_code = 2;
     }
+    #endif
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
