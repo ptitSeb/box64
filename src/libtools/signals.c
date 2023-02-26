@@ -847,12 +847,6 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #endif
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
-#ifdef DYNAREC
-    if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
-        relockMutex(Locks);
-        CancelBlock64(0);
-        cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
-    }
     #ifdef RK3588
     // try to see if the si_code makes sense
     // the RK3588 tend to need a special Kernel that seems to have a weird behaviour sometimes
@@ -861,6 +855,12 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         info->si_code = 2;
     }
     #endif
+#ifdef DYNAREC
+    if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
+        relockMutex(Locks);
+        CancelBlock64(0);
+        cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
+    }
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
