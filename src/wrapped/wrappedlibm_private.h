@@ -352,8 +352,8 @@ GOW(lroundf, iFf)
 GOW(modf, dFdp)
 GOW(modff, fFfp)
 // modfl    // Weak
-// nan  // Weak
-// nanf // Weak
+GOW(nan, dFp)
+GOW(nanf, fFp)
 // nanl // Weak
 GOW(nearbyint, dFd)
 GOW(nearbyintf, fFf)
