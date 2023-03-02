@@ -33,10 +33,11 @@
 
 // init inside dynablocks.c
 static mmaplist_t          *mmaplist = NULL;
-static uintptr_t***        box64_jmptbl3[1<<JMPTABL_SHIFT];
-static uintptr_t**         box64_jmptbldefault2[1<<JMPTABL_SHIFT];
-static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT];
-static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT];
+static uint64_t jmptbl_allocated = 0, jmptbl_allocated1 = 0, jmptbl_allocated2 = 0, jmptbl_allocated3 = 0;
+static uintptr_t***        box64_jmptbl3[1<<JMPTABL_SHIFT3];
+static uintptr_t**         box64_jmptbldefault2[1<<JMPTABL_SHIFT2];
+static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT1];
+static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT0];
 // lock addresses
 KHASH_SET_INIT_INT64(lockaddress)
 static kh_lockaddress_t    *lockaddress = NULL;
@@ -66,6 +67,9 @@ typedef struct memprot_s
     uint8_t* prot;
     uint8_t* hot;
 } memprot_t;
+#ifdef TRACE_MEMSTAT
+static uint64_t  memprot_allocated = 0, memprot_max_allocated = 0;
+#endif
 static memprot_t memprot[1<<MEMPROT_SIZE0];    // x86_64 mem is 48bits, page is 12bits, so memory is tracked as [20][16][page protection]
 static uint8_t   memprot_default[MEMPROT_SIZE];
 static int inited = 0;
@@ -293,6 +297,9 @@ static size_t roundSize(size_t size)
     return size;
 }
 
+#ifdef TRACE_MEMSTAT
+static uint64_t customMalloc_allocated = 0;
+#endif
 void* customMalloc(size_t size)
 {
     size = roundSize(size);
@@ -330,6 +337,9 @@ void* customMalloc(size_t size)
     #else
     void* p = box_calloc(1, allocsize);
     #endif
+#ifdef TRACE_MEMSTAT
+    customMalloc_allocated += allocsize;
+#endif
     p_blocks[i].block = p;
     p_blocks[i].first = p;
     p_blocks[i].size = allocsize;
@@ -451,6 +461,9 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
     return NULL;
 }
 
+#ifdef TRACE_MEMSTAT
+static uint64_t dynarec_allocated = 0;
+#endif
 uintptr_t AllocDynarecMap(size_t size)
 {
     if(!size)
@@ -498,6 +511,9 @@ uintptr_t AllocDynarecMap(size_t size)
                 return 0;
             }
             #endif
+#ifdef TRACE_MEMSTAT
+            dynarec_allocated += allocsize;
+#endif
             setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
             list->chunks[i].block = p;
             list->chunks[i].first = p;
@@ -607,110 +623,112 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
     }
 }
 
-int addJumpTableIfDefault64(void* addr, void* jmp)
+static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, uintptr_t idx3)
 {
-    uintptr_t idx3, idx2, idx1, idx0;
-    idx3 = (((uintptr_t)addr)>>48)&0xffff;
-    idx2 = (((uintptr_t)addr)>>32)&0xffff;
-    idx1 = (((uintptr_t)addr)>>16)&0xffff;
-    idx0 = (((uintptr_t)addr)    )&0xffff;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
-        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT2)*sizeof(uintptr_t**));
+        for(int i=0; i<(1<<JMPTABL_SHIFT2); ++i)
             tbl[i] = box64_jmptbldefault1;
         if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
             box_free(tbl);
+#ifdef TRACE_MEMSTAT
+        else {
+            jmptbl_allocated += (1<<JMPTABL_SHIFT2)*sizeof(uintptr_t**);
+            ++jmptbl_allocated3;
+        }
+#endif
     }
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
-        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT1)*sizeof(uintptr_t*));
+        for(int i=0; i<(1<<JMPTABL_SHIFT1); ++i)
             tbl[i] = box64_jmptbldefault0;
         if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
             box_free(tbl);
+#ifdef TRACE_MEMSTAT
+        else {
+            jmptbl_allocated += (1<<JMPTABL_SHIFT1)*sizeof(uintptr_t*);
+            ++jmptbl_allocated2;
+        }
+#endif
     }
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
-        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
+        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT0)*sizeof(uintptr_t));
+        for(int i=0; i<(1<<JMPTABL_SHIFT0); ++i)
             tbl[i] = (uintptr_t)native_next;
         if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
             box_free(tbl);
+#ifdef TRACE_MEMSTAT
+        else {
+            jmptbl_allocated += (1<<JMPTABL_SHIFT0)*sizeof(uintptr_t);
+            ++jmptbl_allocated1;
+        }
+#endif
     }
+    return &box64_jmptbl3[idx3][idx2][idx1][idx0];
+}
 
-    return (native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], jmp, native_next)==jmp)?1:0;
+int addJumpTableIfDefault64(void* addr, void* jmp)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = (((uintptr_t)addr)>>JMPTABL_START3)&JMPTABLE_MASK3;
+    idx2 = (((uintptr_t)addr)>>JMPTABL_START2)&JMPTABLE_MASK2;
+    idx1 = (((uintptr_t)addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
+    idx0 = (((uintptr_t)addr)                )&JMPTABLE_MASK0;
+
+    return (native_lock_storeifref(create_jmptbl(idx0, idx1, idx2, idx3), jmp, native_next)==jmp)?1:0;
 }
 void setJumpTableDefault64(void* addr)
 {
     uintptr_t idx3, idx2, idx1, idx0;
-    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    idx3 = (((uintptr_t)addr)>>JMPTABL_START3)&JMPTABLE_MASK3;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
         return;
-    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+    idx2 = (((uintptr_t)addr)>>JMPTABL_START2)&JMPTABLE_MASK2;
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
         return;
-    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+    idx1 = (((uintptr_t)addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
         return;
-    idx0 = (((uintptr_t)addr)    )&0xffff;
+    idx0 = (((uintptr_t)addr)    )&JMPTABLE_MASK0;
     box64_jmptbl3[idx3][idx2][idx1][idx0] = (uintptr_t)native_next;
 }
 void setJumpTableDefaultRef64(void* addr, void* jmp)
 {
     uintptr_t idx3, idx2, idx1, idx0;
-    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    idx3 = (((uintptr_t)addr)>>JMPTABL_START3)&JMPTABLE_MASK3;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
         return;
-    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+    idx2 = (((uintptr_t)addr)>>JMPTABL_START2)&JMPTABLE_MASK2;
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
         return;
-    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+    idx1 = (((uintptr_t)addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
         return;
-    idx0 = (((uintptr_t)addr)    )&0xffff;
+    idx0 = (((uintptr_t)addr)    )&JMPTABLE_MASK0;
     native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], native_next, jmp);
 }
 int setJumpTableIfRef64(void* addr, void* jmp, void* ref)
 {
     uintptr_t idx3, idx2, idx1, idx0;
-    idx3 = (((uintptr_t)addr)>>48)&0xffff;
-    idx2 = (((uintptr_t)addr)>>32)&0xffff;
-    idx1 = (((uintptr_t)addr)>>16)&0xffff;
-    idx0 = (((uintptr_t)addr)    )&0xffff;
-    if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
-        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = box64_jmptbldefault1;
-        if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
-            box_free(tbl);
-    }
-    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
-        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = box64_jmptbldefault0;
-        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
-            box_free(tbl);
-    }
-    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
-        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = (uintptr_t)native_next;
-        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
-            box_free(tbl);
-    }
-    return (native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], jmp, ref)==jmp)?1:0;
+    idx3 = (((uintptr_t)addr)>>JMPTABL_START3)&JMPTABLE_MASK3;
+    idx2 = (((uintptr_t)addr)>>JMPTABL_START2)&JMPTABLE_MASK2;
+    idx1 = (((uintptr_t)addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
+    idx0 = (((uintptr_t)addr)    )&JMPTABLE_MASK0;
+    return (native_lock_storeifref(create_jmptbl(idx0, idx1, idx2, idx3), jmp, ref)==jmp)?1:0;
 }
 int isJumpTableDefault64(void* addr)
 {
     uintptr_t idx3, idx2, idx1, idx0;
-    idx3 = (((uintptr_t)addr)>>48)&0xffff;
+    idx3 = (((uintptr_t)addr)>>JMPTABL_START3)&JMPTABLE_MASK3;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
         return 1;
-    idx2 = (((uintptr_t)addr)>>32)&0xffff;
+    idx2 = (((uintptr_t)addr)>>JMPTABL_START2)&JMPTABLE_MASK2;
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
         return 1;
-    idx1 = (((uintptr_t)addr)>>16)&0xffff;
+    idx1 = (((uintptr_t)addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
         return 1;
-    idx0 = (((uintptr_t)addr)    )&0xffff;
+    idx0 = (((uintptr_t)addr)    )&JMPTABLE_MASK0;
     return (box64_jmptbl3[idx3][idx2][idx1][idx0]==(uintptr_t)native_next)?1:0;
 }
 uintptr_t getJumpTable64()
@@ -721,42 +739,20 @@ uintptr_t getJumpTable64()
 uintptr_t getJumpTableAddress64(uintptr_t addr)
 {
     uintptr_t idx3, idx2, idx1, idx0;
-    idx3 = ((addr)>>48)&0xffff;
-    idx2 = ((addr)>>32)&0xffff;
-    idx1 = ((addr)>>16)&0xffff;
-    idx0 = ((addr)    )&0xffff;
-    if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
-        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t**));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = box64_jmptbldefault1;
-        if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
-            box_free(tbl);
-    }
-    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
-        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t*));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = box64_jmptbldefault0;
-        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
-            box_free(tbl);
-    }
-    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
-        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
-            tbl[i] = (uintptr_t)native_next;
-        if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
-            box_free(tbl);
-    }
-
-    return (uintptr_t)&box64_jmptbl3[idx3][idx2][idx1][idx0];
+    idx3 = ((addr)>>JMPTABL_START3)&JMPTABLE_MASK3;
+    idx2 = ((addr)>>JMPTABL_START2)&JMPTABLE_MASK2;
+    idx1 = ((addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
+    idx0 = ((addr)                )&JMPTABLE_MASK0;
+    return (uintptr_t)create_jmptbl(idx0, idx1, idx2, idx3);
 }
 
 dynablock_t* getDB(uintptr_t addr)
 {
     uintptr_t idx3, idx2, idx1, idx0;
-    idx3 = ((addr)>>48)&0xffff;
-    idx2 = ((addr)>>32)&0xffff;
-    idx1 = ((addr)>>16)&0xffff;
-    idx0 = ((addr)    )&0xffff;
+    idx3 = ((addr)>>JMPTABL_START3)&JMPTABLE_MASK3;
+    idx2 = ((addr)>>JMPTABL_START2)&JMPTABLE_MASK2;
+    idx1 = ((addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
+    idx0 = ((addr)                )&JMPTABLE_MASK0;
     /*if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
         return NULL;
     }
@@ -788,6 +784,10 @@ void protectDB(uintptr_t addr, uintptr_t size)
         if(memprot[i].prot==memprot_default) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
             memprot[i].prot = newblock;
+#ifdef TRACE_MEMSTAT
+            memprot_allocated += (1<<16) * sizeof(uint8_t);
+            if (memprot_allocated > memprot_max_allocated) memprot_max_allocated = memprot_allocated;
+#endif
         }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16].prot[i&0xffff];
@@ -966,6 +966,10 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         if(memprot[i].prot==memprot_default) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
             memprot[i].prot = newblock;
+#ifdef TRACE_MEMSTAT
+            memprot_allocated += (1<<16) * sizeof(uint8_t);
+            if (memprot_allocated > memprot_max_allocated) memprot_max_allocated = memprot_allocated;
+#endif
         }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t old_prot = memprot[i>>16].prot[i&0xffff];
@@ -994,6 +998,10 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
         if(memprot[i].prot==memprot_default && prot) {
             uint8_t* newblock = box_calloc(MEMPROT_SIZE, sizeof(uint8_t));
             memprot[i].prot = newblock;
+#ifdef TRACE_MEMSTAT
+            memprot_allocated += (1<<16) * sizeof(uint8_t);
+            if (memprot_allocated > memprot_max_allocated) memprot_max_allocated = memprot_allocated;
+#endif
         }
         if(prot || memprot[i].prot!=memprot_default) {
             uintptr_t bstart = ((i<<16)<idx)?(idx&0xffff):0;
@@ -1102,6 +1110,11 @@ void AddHotPage(uintptr_t addr) {
             uint8_t* newblock = box_calloc(1<<16, sizeof(uint8_t));
             if (native_lock_storeifnull(&memprot[idx].hot, newblock)) {
                 box_free(newblock);
+#ifdef TRACE_MEMSTAT
+            } else {
+                memprot_allocated += (1<<16) * sizeof(uint8_t);
+                if (memprot_allocated > memprot_max_allocated) memprot_max_allocated = memprot_allocated;
+#endif
             }
     }
     native_lock_storeb(&memprot[idx].hot[base], box64_dynarec_hotpage);
@@ -1157,6 +1170,9 @@ void freeProtection(uintptr_t addr, size_t size)
             if(start==0 && finish==MEMPROT_SIZE-1) {
                 memprot[key].prot = memprot_default;
                 box_free(block);
+#ifdef TRACE_MEMSTAT
+                memprot_allocated -= (1<<16) * sizeof(uint8_t);
+#endif
             } else {
                 memset(block+start, 0, (finish-start+1)*sizeof(uint8_t));
                 // blockempty is quite slow, so disable the free of blocks for now
@@ -1170,6 +1186,9 @@ void freeProtection(uintptr_t addr, size_t size)
             uint8_t *hot = memprot[key].hot;
             memprot[key].hot = NULL;
             box_free(hot);
+#ifdef TRACE_MEMSTAT
+            memprot_allocated -= (1<<16) * sizeof(uint8_t);
+#endif
         }
         i+=finish-start;    // +1 from the "for" loop
     }
@@ -1323,12 +1342,14 @@ void init_custommem_helper(box64context_t* ctx)
     init_mutexes();
 #ifdef DYNAREC
     if(box64_dynarec)
-        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i) {
-            box64_jmptbldefault0[i] = (uintptr_t)native_next;
-            box64_jmptbldefault1[i] = box64_jmptbldefault0;
-            box64_jmptbldefault2[i] = box64_jmptbldefault1;
+        for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i)
             box64_jmptbl3[i] = box64_jmptbldefault2;
-        }
+        for(int i=0; i<(1<<JMPTABL_SHIFT2); ++i)
+            box64_jmptbldefault2[i] = box64_jmptbldefault1;
+        for(int i=0; i<(1<<JMPTABL_SHIFT1); ++i)
+            box64_jmptbldefault1[i] = box64_jmptbldefault0;
+        for(int i=0; i<(1<<JMPTABL_SHIFT0); ++i)
+            box64_jmptbldefault0[i] = (uintptr_t)native_next;
     lockaddress = kh_init(lockaddress);
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
@@ -1347,6 +1368,26 @@ void init_custommem_helper(box64context_t* ctx)
 void fini_custommem_helper(box64context_t *ctx)
 {
     (void)ctx;
+#ifdef TRACE_MEMSTAT
+    uintptr_t njmps = 0, njmps_in_lv1_max = 0;
+    for (uintptr_t idx3 = 0; idx3 < (1 << JMPTABL_SHIFT3); ++idx3) {
+        if (box64_jmptbl3[idx3] == box64_jmptbldefault2) continue;
+        for (uintptr_t idx2 = 0; idx2 < (1 << JMPTABL_SHIFT3); ++idx2) {
+            if (box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) continue;
+            for (uintptr_t idx1 = 0; idx1 < (1 << JMPTABL_SHIFT1); ++idx1) {
+                if (box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) continue;
+                uintptr_t njmps_in_cur_lv1 = 0;
+                for (uintptr_t idx0 = 0; idx0 < (1 << JMPTABL_SHIFT0); ++idx0) {
+                    if (box64_jmptbl3[idx3][idx2][idx1][idx0] == (uintptr_t)native_next) continue;
+                    ++njmps;
+                    ++njmps_in_cur_lv1;
+                }
+                if (njmps_in_cur_lv1 > njmps_in_lv1_max) njmps_in_lv1_max = njmps_in_cur_lv1;
+            }
+        }
+    }
+    printf_log(LOG_INFO, "Allocation:\n- dynarec: %lld kio\n- customMalloc: %lld kio\n- memprot: %lld kio (peak at %lld kio)\n- jump table: %lld kio (%lld level 3, %lld level 2, %lld level 1 table allocated, for %lld jumps, with at most %lld per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, memprot_allocated / 1024, memprot_max_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated3, jmptbl_allocated2, jmptbl_allocated1, njmps, njmps_in_lv1_max);
+#endif
     if(!inited)
         return;
     inited = 0;
@@ -1370,11 +1411,11 @@ void fini_custommem_helper(box64context_t *ctx)
         }
 
         box_free(mmaplist);
-        for (int i3=0; i3<(1<<DYNAMAP_SHIFT); ++i3)
+        for (int i3=0; i3<(1<<JMPTABL_SHIFT3); ++i3)
             if(box64_jmptbl3[i3]!=box64_jmptbldefault2) {
-                for (int i2=0; i2<(1<<DYNAMAP_SHIFT); ++i2)
+                for (int i2=0; i2<(1<<JMPTABL_SHIFT2); ++i2)
                     if(box64_jmptbl3[i3][i2]!=box64_jmptbldefault1) {
-                        for (int i1=0; i1<(1<<DYNAMAP_SHIFT); ++i1)
+                        for (int i1=0; i1<(1<<JMPTABL_SHIFT1); ++i1)
                             if(box64_jmptbl3[i3][i2][i1]!=box64_jmptbldefault0) {
                                 box_free(box64_jmptbl3[i3][i2][i1]);
                             }

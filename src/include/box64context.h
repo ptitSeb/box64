@@ -33,7 +33,6 @@ typedef struct mmaplist_s       mmaplist_t;
 typedef struct kh_dynablocks_s  kh_dynablocks_t;
 #endif
 #define DYNAMAP_SHIFT 16
-#define JMPTABL_SHIFT 16
 
 typedef void* (*procaddess_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);

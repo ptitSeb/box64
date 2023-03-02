@@ -405,13 +405,13 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         uintptr_t tbl = getJumpTable64();
         MAYUSE(tbl);
         TABLE64(x3, tbl);
-        UBFXx(x2, xRIP, 48, JMPTABL_SHIFT);
+        UBFXx(x2, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
         LDRx_REG_LSL3(x3, x3, x2);
-        UBFXx(x2, xRIP, 32, JMPTABL_SHIFT);
+        UBFXx(x2, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
         LDRx_REG_LSL3(x3, x3, x2);
-        UBFXx(x2, xRIP, 16, JMPTABL_SHIFT);
+        UBFXx(x2, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
         LDRx_REG_LSL3(x3, x3, x2);
-        UBFXx(x2, xRIP, 0, JMPTABL_SHIFT);
+        UBFXx(x2, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
         LDRx_REG_LSL3(x2, x3, x2);
     } else {
         uintptr_t p = getJumpTableAddress64(ip);
@@ -450,13 +450,13 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     }
     uintptr_t tbl = getJumpTable64();
     MOV64x(x2, tbl);
-    UBFXx(x3, xRIP, 48, JMPTABL_SHIFT);
+    UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
     LDRx_REG_LSL3(x2, x2, x3);
-    UBFXx(x3, xRIP, 32, JMPTABL_SHIFT);
+    UBFXx(x3, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
     LDRx_REG_LSL3(x2, x2, x3);
-    UBFXx(x3, xRIP, 16, JMPTABL_SHIFT);
+    UBFXx(x3, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
     LDRx_REG_LSL3(x2, x2, x3);
-    UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
+    UBFXx(x3, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
     LDRx_REG_LSL3(x2, x2, x3);
     BLR(x2); // save LR
     CLEARIP();
@@ -487,13 +487,13 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
     }
     uintptr_t tbl = getJumpTable64();
     MOV64x(x2, tbl);
-    UBFXx(x3, xRIP, 48, JMPTABL_SHIFT);
+    UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
     LDRx_REG_LSL3(x2, x2, x3);
-    UBFXx(x3, xRIP, 32, JMPTABL_SHIFT);
+    UBFXx(x3, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
     LDRx_REG_LSL3(x2, x2, x3);
-    UBFXx(x3, xRIP, 16, JMPTABL_SHIFT);
+    UBFXx(x3, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
     LDRx_REG_LSL3(x2, x2, x3);
-    UBFXx(x3, xRIP, 0, JMPTABL_SHIFT);
+    UBFXx(x3, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
     LDRx_REG_LSL3(x2, x2, x3);
     BLR(x2); // save LR
     CLEARIP();
