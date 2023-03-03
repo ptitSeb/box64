@@ -763,7 +763,7 @@ EXPORT void *my_div(void *result, int numerator, int denominator) {
 #endif
 
 EXPORT int my_snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint64_t * b) {
-    #ifdef CREATE_VALIST_FROM_VAARG
+    #ifdef PREFER_CONVERT_VAARG
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 3);
     #else
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
@@ -776,7 +776,7 @@ EXPORT int my___snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint64
 EXPORT int my___snprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, size_t maxlen, void * fmt, uint64_t * b)
 {
     (void)flags; (void)maxlen;
-    #ifdef CREATE_VALIST_FROM_VAARG
+    #ifdef PREFER_CONVERT_VAARG
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 5);
     #else
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 5);
@@ -787,7 +787,7 @@ EXPORT int my___snprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, siz
 }
 
 EXPORT int my_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b) {
-    #ifdef CREATE_VALIST_FROM_VAARG
+    #ifdef PREFER_CONVERT_VAARG
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
     #else
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
@@ -797,7 +797,7 @@ EXPORT int my_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b) {
 }
 EXPORT int my___sprintf_chk(x64emu_t* emu, void* buff, int flag, size_t l, void * fmt, void * b) {
     (void)flag; (void)l;
-    #ifdef CREATE_VALIST_FROM_VAARG
+    #ifdef PREFER_CONVERT_VAARG
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 4);
     #else
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 4);
