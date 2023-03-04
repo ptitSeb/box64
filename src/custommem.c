@@ -575,27 +575,27 @@ void FreeDynarecMap(uintptr_t addr)
 
 static uintptr_t getDBSize(uintptr_t addr, size_t maxsize, dynablock_t** db)
 {
-    const uintptr_t idx3 = (addr>>48)&0xffff;
-    const uintptr_t idx2 = (addr>>32)&0xffff;
-    const uintptr_t idx1 = (addr>>16)&0xffff;
-    uintptr_t idx0 = addr&0xffff;
+    const uintptr_t idx3 = (addr>>JMPTABL_START3)&JMPTABLE_MASK3;
+    const uintptr_t idx2 = (addr>>JMPTABL_START2)&JMPTABLE_MASK2;
+    const uintptr_t idx1 = (addr>>JMPTABL_START1)&JMPTABLE_MASK1;
+    uintptr_t idx0 = addr&JMPTABLE_MASK0;
     *db = *(dynablock_t**)(box64_jmptbl3[idx3][idx2][idx1][idx0]- sizeof(void*));
     if(*db)
         return 1;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
-        return (addr|0xffffffffffffLL)+1-addr;
+        return (addr|((1LL<<JMPTABL_START3)-1))+1-addr;
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
-        return (addr|0xffffffffLL)+1-addr;
+        return (addr|((1LL<<JMPTABL_START2)-1))+1-addr;
     uintptr_t* block = box64_jmptbl3[idx3][idx2][idx1];
     if(block == box64_jmptbldefault0)
-        return (addr|0xffffLL)+1-addr;
-    if (maxsize>0x10000)
-        maxsize = 0x10000;
+        return (addr|JMPTABLE_MASK0)+1-addr;
+    if (maxsize>JMPTABLE_MASK0+1)
+        maxsize = JMPTABLE_MASK0+1;
     while(idx0<maxsize && block[idx0]==(uintptr_t)native_next)
         ++idx0;
-    if(idx0<0x10000)
+    if(idx0<JMPTABLE_MASK0+1)
         *db = *(dynablock_t**)(block[idx0]- sizeof(void*));
-    return idx0+1-(addr&0xffff);
+    return idx0+1-(addr&JMPTABLE_MASK0);
 }
 
 // each dynmap is 64k of size
