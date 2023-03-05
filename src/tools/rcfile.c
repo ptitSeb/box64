@@ -79,6 +79,7 @@ ENTRYSTRING_(BOX64_BASH, bash)                          \
 ENTRYINT(BOX64_JITGDB, jit_gdb, 0, 2, 2)                \
 ENTRYBOOL(BOX64_NOSANDBOX, box64_nosandbox)             \
 ENTRYBOOL(BOX64_EXIT, want_exit)                        \
+ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
 ENTRYINT(BOX64_MALLOC_HACK, box64_malloc_hack, 0, 2, 2) \
 
 #ifdef HAVE_TRACE

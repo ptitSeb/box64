@@ -33,6 +33,7 @@ extern int arm64_crc32;
 extern int arm64_atomics;
 #endif
 #endif
+extern int box64_libcef;
 extern int dlsym_error;    // log dlsym error
 extern int cycle_log;      // if using rolling logs
 #ifdef HAVE_TRACE
