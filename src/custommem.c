@@ -581,21 +581,23 @@ static uintptr_t getDBSize(uintptr_t addr, size_t maxsize, dynablock_t** db)
     uintptr_t idx0 = addr&JMPTABLE_MASK0;
     *db = *(dynablock_t**)(box64_jmptbl3[idx3][idx2][idx1][idx0]- sizeof(void*));
     if(*db)
-        return 1;
+        return addr+1;
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2)
-        return (addr|((1LL<<JMPTABL_START3)-1))+1-addr;
+        return ((idx3+1)<<JMPTABL_START3);
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1)
-        return (addr|((1LL<<JMPTABL_START2)-1))+1-addr;
+        return (((addr>>JMPTABL_START2)+1)<<JMPTABL_START2);
     uintptr_t* block = box64_jmptbl3[idx3][idx2][idx1];
     if(block == box64_jmptbldefault0)
-        return (addr|JMPTABLE_MASK0)+1-addr;
-    if (maxsize>JMPTABLE_MASK0+1)
-        maxsize = JMPTABLE_MASK0+1;
-    while(idx0<maxsize && block[idx0]==(uintptr_t)native_next)
+        return (((addr>>JMPTABL_START1)+1)<<JMPTABL_START1);
+    if (maxsize>JMPTABLE_MASK0)
+        maxsize = JMPTABLE_MASK0;
+    while(block[idx0]==(uintptr_t)native_next) {
         ++idx0;
-    if(idx0<JMPTABLE_MASK0+1)
-        *db = *(dynablock_t**)(block[idx0]- sizeof(void*));
-    return idx0+1-(addr&JMPTABLE_MASK0);
+        if(idx0>maxsize)
+            return (addr&~JMPTABLE_MASK0)+idx0;
+    }
+    *db = *(dynablock_t**)(block[idx0]- sizeof(void*));
+    return (addr&~JMPTABLE_MASK0)+idx0+1;
 }
 
 // each dynmap is 64k of size
@@ -613,7 +615,7 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
     dynablock_t* db = NULL;
     uintptr_t end = addr+size;
     while (start_addr<end) {
-        start_addr += getDBSize(start_addr, end-start_addr, &db);
+        start_addr = getDBSize(start_addr, end-start_addr, &db);
         if(db) {
             if(destroy)
                 FreeRangeDynablock(db, addr, size);
