@@ -113,6 +113,7 @@ typedef int64_t (*iFpppippppppp_t)(void*, void*, void*, int64_t, void*, void*, v
 	GO(g_static_private_set, vFppp_t) \
 	GO(g_string_append_printf, vFppV_t) \
 	GO(g_string_printf, vFppV_t) \
+	GO(g_variant_builder_add, vFppV_t) \
 	GO(g_variant_get, vFppV_t) \
 	GO(g_string_append_vprintf, vFppA_t) \
 	GO(g_string_vprintf, vFppA_t) \

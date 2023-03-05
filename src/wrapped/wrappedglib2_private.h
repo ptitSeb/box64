@@ -1431,7 +1431,7 @@ GO(g_utf8_to_ucs4_fast, pFplp)
 GO(g_utf8_to_utf16, pFplppp)
 GO(g_utf8_validate, iFplp)
 GO(g_utime, iFpp)
-//GO(g_variant_builder_add, vFppppppppppp)    // vaarg
+GOM(g_variant_builder_add, vFEppV)
 //GO(g_variant_builder_add_parsed, vFppppppppppp) //vaarg
 GO(g_variant_builder_add_value, vFpp)
 GO(g_variant_builder_clear, vFp)
@@ -1504,12 +1504,12 @@ GO(g_variant_is_signature, iFp)
 GO(g_variant_iter_copy, pFp)
 GO(g_variant_iter_free, vFp)
 GO(g_variant_iter_init, uFpp)
-//GO(g_variant_iter_loop, iFpppppppppppp) // vaarg
+GO(g_variant_iter_loop, iFpppppppppppp) // vaarg
 GO(g_variant_iter_n_children, uFp)
 GO(g_variant_iter_new, pFp)
 //GO(g_variant_iter_next, iFpppppppppppp) // vaarg here
 GO(g_variant_iter_next_value, pFp)
-//GO(g_variant_lookup, iFpppppppppppp)    // vaarg
+GO(g_variant_lookup, iFpppppppppppp)    // vaarg
 GO(g_variant_lookup_value, pFppp)
 GO(g_variant_n_children, uFp)
 GOM(g_variant_new, pFEpV)

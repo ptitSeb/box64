@@ -963,7 +963,7 @@ GOM(g_initable_new_valist, pFEppApp)
 //GO(g_input_stream_skip_finish, 
 //GO(g_io_error_enum_get_type, 
 //GO(g_io_error_from_errno, 
-//GO(g_io_error_quark, 
+GO(g_io_error_quark, uFv)
 //GO(g_io_extension_get_name, 
 //GO(g_io_extension_get_priority, 
 //GO(g_io_extension_get_type, 
@@ -1778,8 +1778,8 @@ GO(g_themed_icon_prepend_name, vFpp)
 //GO(g_unix_credentials_message_new, 
 //GO(g_unix_credentials_message_new_with_credentials, 
 //GO(g_unix_fd_list_append, 
-//GO(g_unix_fd_list_get, 
-//GO(g_unix_fd_list_get_length, 
+GO(g_unix_fd_list_get, iFpip)
+GO(g_unix_fd_list_get_length, iFp)
 GO(g_unix_fd_list_get_type, LFv)
 //GO(g_unix_fd_list_new, 
 //GO(g_unix_fd_list_new_from_array, 

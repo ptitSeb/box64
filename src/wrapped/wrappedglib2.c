@@ -30,6 +30,7 @@ typedef void  (*vFppip_t)(void*, void*, int, void*);
     GO(g_variant_get_va, vFpppp_t)              \
     GO(g_build_pathv, pFpp_t)                   \
     GO(g_set_error_literal, vFppip_t)           \
+    GO(g_variant_builder_add_value, vFpp_t)     \
 
 #include "wrappedglib2types.h"
 
@@ -1056,6 +1057,14 @@ EXPORT void* my_g_variant_new(x64emu_t* emu, char* fmt, uint64_t* V)
 {
     CREATE_VALIST_FROM_VAARG(V, emu->scratch, 1);
     return my->g_variant_new_va(fmt, NULL, &VARARGS);
+}
+
+EXPORT  void my_g_variant_builder_add(x64emu_t* emu, void* builder, void* fmt, uint64_t* V)
+{
+    // equivalent to calling g_variant_new and g_variant_builder_add_value
+    CREATE_VALIST_FROM_VAARG(V, emu->scratch, 2);
+    void* val = my->g_variant_new_va(fmt, NULL, &VARARGS);
+    my->g_variant_builder_add_value(builder, val);
 }
 
 EXPORT void* my_g_completion_new(x64emu_t* emu, void* f)

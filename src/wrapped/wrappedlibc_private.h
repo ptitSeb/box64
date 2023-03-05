@@ -614,7 +614,7 @@ GO(getsecretkey, iFppp)
 GO(getservbyname, pFpp)
 //GO(getservbyname_r, iFpp!pL!)
 GO(getservbyport, pFip)
-//GO(getservbyport_r, iFip!pL!)
+GO(getservbyport_r, iFipppLp)
 GO(getservent, pFv)
 //GO(getservent_r, iF!pL!)
 //GO(getsgent, 

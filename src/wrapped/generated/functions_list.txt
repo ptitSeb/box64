@@ -1566,6 +1566,7 @@
 #() iFipuufp
 #() iFipupup
 #() iFipuppp
+#() iFipppLp
 #() iFippppp
 #() iFuppppp
 #() iFdipppL
@@ -2715,6 +2716,7 @@ wrappedglib2:
 - vFppV:
   - g_string_append_printf
   - g_string_printf
+  - g_variant_builder_add
   - g_variant_get
 - vFppA:
   - g_string_append_vprintf
