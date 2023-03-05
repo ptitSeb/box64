@@ -847,6 +847,14 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #endif
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
+    #ifdef RK3588
+    // try to see if the si_code makes sense
+    // the RK3588 tend to need a special Kernel that seems to have a weird behaviour sometimes
+    if((sig==SIGSEGV) && (addr) && (info->si_code == 1) && prot&(PROT_READ|PROT_WRITE|PROT_EXEC)) {
+        printf_log(LOG_DEBUG, "Workaround for suspicious si_code for %p / prot=0x%x\n", addr, prot);
+        info->si_code = 2;
+    }
+    #endif
 #ifdef DYNAREC
     if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
         relockMutex(Locks);
@@ -984,7 +992,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p)!\n", GetTID(), signame, old_code, old_pc, old_addr);
 exit(-1);
     } else {
-        if(sig==SIGSEGV && info->si_code==2 && ((prot&~PROT_CUSTOM)==5 || (prot&~PROT_CUSTOM)==7)) {
+        if(sig==SIGSEGV && info->si_code==2 && ((prot&~PROT_DYN)==5 || (prot&~PROT_DYN)==7)) {
             static uintptr_t old_addr = 0;
         printf_log(/*LOG_DEBUG*/LOG_INFO, "Strange SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x (old_addr=%p)\n", pc, addr, db, prot, (void*)old_addr);
             if(old_addr!=(uintptr_t)addr) {
@@ -1108,7 +1116,6 @@ exit(-1);
                 free(strings);
             } else
                 printf_log(log_minimum, "EmulatedBT: none\n");
-printf_log(log_minimum, "RDI = %p, Prot=0x%02x, ElfName(RDI)=%s\n",(void*)R_RDI, getProtection(R_RDI), ElfName(FindElfAddress(my_context, R_RDI)));
             #define GO(A) R_##A = old_##A
             GO(RAX);
             GO(RBX);

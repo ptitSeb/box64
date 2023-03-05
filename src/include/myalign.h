@@ -50,7 +50,7 @@ typedef struct {
     memcpy(&p[6], emu->xmm, 8*16);                  \
   }
 
-
+#define PREFER_CONVERT_VAARG
 
 #elif defined(__aarch64__)
 // aarch64: 8 64bits general regs and 8 128bits float regs
@@ -91,6 +91,8 @@ typedef struct  va_list {
     p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;                                   \
     memcpy(&p[6], emu->xmm, 8*16);                                      \
   }
+
+#define PREFER_CONVERT_VAARG
 
 #elif defined(__sw_64__) /* or Alpha */
 /*

@@ -34,17 +34,34 @@ int isJumpTableDefault64(void* addr);
 uintptr_t getJumpTable64();
 uintptr_t getJumpTableAddress64(uintptr_t addr);
 uintptr_t getJumpAddress64(uintptr_t addr);
+
+#define JMPTABL_SHIFT3 18
+#define JMPTABL_SHIFT2 18
+#define JMPTABL_SHIFT1 18
+#define JMPTABL_SHIFT0 10
+#define JMPTABL_START3 (JMPTABL_START2+JMPTABL_SHIFT2)
+#define JMPTABL_START2 (JMPTABL_START1+JMPTABL_SHIFT1)
+#define JMPTABL_START1 (JMPTABL_START0+JMPTABL_SHIFT0)
+#define JMPTABL_START0 0
+#define JMPTABLE_MASK3 ((1<<JMPTABL_SHIFT3)-1)
+#define JMPTABLE_MASK2 ((1<<JMPTABL_SHIFT2)-1)
+#define JMPTABLE_MASK1 ((1<<JMPTABL_SHIFT1)-1)
+#define JMPTABLE_MASK0 ((1<<JMPTABL_SHIFT0)-1)
 #endif
 
 #define PROT_DYNAREC    0x80
 #define PROT_DYNAREC_R  0x40
-#define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R)
+#define PROT_MMAP       0x20
+#define PROT_DYN        (PROT_DYNAREC | PROT_DYNAREC_R)
+#define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R | PROT_MMAP)
 
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot);
 void setProtection(uintptr_t addr, size_t size, uint32_t prot);
+void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot);
 void freeProtection(uintptr_t addr, size_t size);
 void refreshProtection(uintptr_t addr);
 uint32_t getProtection(uintptr_t addr);
+int getMmapped(uintptr_t addr);
 void loadProtectionFromMap();
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, size_t size);

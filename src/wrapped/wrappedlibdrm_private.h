@@ -49,7 +49,7 @@ GO(drmAuthMagic, iFiu)
 //GO(drmFreeBufs, 
 //GO(drmFreeBusid, 
 //GO(drmFreeDevice, 
-//GO(drmFreeDevices, 
+GO(drmFreeDevices, vFpi)
 //GO(drmFreeReservedContextList, 
 GO(drmFreeVersion, vFp)
 //GO(drmGetBufInfo, 
@@ -63,7 +63,7 @@ GO(drmFreeVersion, vFp)
 //GO(drmGetDevice2, 
 GO(drmGetDeviceNameFromFd, pFi)
 //GO(drmGetDeviceNameFromFd2, 
-//GO(drmGetDevices, 
+GO(drmGetDevices, iFpi)
 //GO(drmGetDevices2, 
 //GO(drmGetEntry, 
 //GO(drmGetHashTable, 

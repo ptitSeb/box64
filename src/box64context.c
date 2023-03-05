@@ -20,6 +20,7 @@
 #include "x64emu.h"
 #include "signals.h"
 #include "rcfile.h"
+#include "gltools.h"
 
 EXPORTDYN
 void initAllHelpers(box64context_t* context)
@@ -233,6 +234,7 @@ box64context_t *NewBox64Context(int argc)
     return context;
 }
 
+void freeALProcWrapper(box64context_t* context);
 EXPORTDYN
 void FreeBox64Context(box64context_t** context)
 {

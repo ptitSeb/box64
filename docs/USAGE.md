@@ -202,6 +202,11 @@ Handling of x87 80bits long double
 * 0 : Try to handle 80bits long double as precise as possible (Default)
 * 1 : Handle them as double
 
+#### BOX64_LIBCEF *
+Detect libcef and apply malloc_hack settings
+* 0 : Don't detect libcef
+* 1 : Detect libcef, and apply MALLOC_HACK=2 if detected (Default)
+
 #### BOX64_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL
@@ -235,6 +240,12 @@ Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan
 Box64 will use a dummy crashhandler.so library
  * 0 : Use Emulated crashhandler.so library if needed
  * 1 : Use an internal dummy (completly empty) crashhandler.so library (defaut)
+
+#### BOX64_MALLOC_HACK *
+How Box64 will handle hooking of malloc operators
+ * 0 : Don't allow malloc operator to be redirected, rewriting code to use regular function (Default)
+ * 1 : Allow malloc operator to be redirected (not advised)
+ * 2 : Like 0, but track special mmap / free (some redirected functions were inlined and cannot be redirected)
 
 #### BOX64_NOPULSE *
 Disables the load of pulseaudio libraries.

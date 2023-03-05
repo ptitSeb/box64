@@ -969,6 +969,7 @@
 #() pFippi
 #() pFippu
 #() pFuiii
+#() pFuuii
 #() pFulli
 #() pFullu
 #() pFffff
@@ -1565,6 +1566,7 @@
 #() iFipuufp
 #() iFipupup
 #() iFipuppp
+#() iFipppLp
 #() iFippppp
 #() iFuppppp
 #() iFdipppL
@@ -1710,6 +1712,7 @@
 #() vFEpiiipp
 #() vFEpipppp
 #() vFEpuipuV
+#() vFEppippp
 #() vFEpppppp
 #() vFiiiiiip
 #() vFiiiiuup
@@ -1928,6 +1931,7 @@
 #() vFEiupippp
 #() vFEipAippp
 #() vFEppipppp
+#() vFEpppippp
 #() vFEpppuipV
 #() vFEpppppuu
 #() vFiiiiuuip
@@ -2061,8 +2065,10 @@
 #() vFEpiiiiipp
 #() vFEpippippV
 #() vFEpippippA
+#() vFEpuuuippp
 #() vFEppiipppp
 #() vFEpppiippp
+#() vFEppppippp
 #() vFiiiiiiiii
 #() vFiiiiiiill
 #() vFiiiiillli
@@ -2710,6 +2716,7 @@ wrappedglib2:
 - vFppV:
   - g_string_append_printf
   - g_string_printf
+  - g_variant_builder_add
   - g_variant_get
 - vFppA:
   - g_string_append_vprintf
@@ -3403,6 +3410,27 @@ wrappedlibglu:
   - gluNurbsCallback
   - gluQuadricCallback
   - gluTessCallback
+wrappedlibglx:
+- pFp:
+  - glXGetProcAddress
+  - glXGetProcAddressARB
+wrappedlibibus:
+- vFpippp:
+  - ibus_bus_current_input_context_async
+  - ibus_bus_get_global_engine_async
+  - ibus_bus_list_active_engines_async
+  - ibus_bus_list_engines_async
+  - ibus_input_context_get_engine_async
+- vFppippp:
+  - ibus_bus_create_input_context_async
+  - ibus_bus_set_global_engine_async
+  - ibus_config_get_values_async
+- vFpppippp:
+  - ibus_config_get_value_async
+- vFpuuuippp:
+  - ibus_input_context_process_key_event_async
+- vFppppippp:
+  - ibus_config_set_value_async
 wrappedlibice:
 wrappedlibm:
 - UFV:

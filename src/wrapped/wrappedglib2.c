@@ -30,6 +30,7 @@ typedef void  (*vFppip_t)(void*, void*, int, void*);
     GO(g_variant_get_va, vFpppp_t)              \
     GO(g_build_pathv, pFpp_t)                   \
     GO(g_set_error_literal, vFppip_t)           \
+    GO(g_variant_builder_add_value, vFpp_t)     \
 
 #include "wrappedglib2types.h"
 
@@ -240,7 +241,7 @@ static void* reversePollFct(void* fct)
     #define GO(A) if((uintptr_t)fct == my_poll_fct_##A) return (void*)my_poll_fct_##A;
     SUPER()
     #undef GO
-    return NULL;
+    return (void*)AddCheckBridge(my_lib->w.bridge, iFpui, fct, 0, "GPollFunc");
 }
 
 // GHashFunc ...
@@ -601,7 +602,7 @@ static void* reverseGLogFuncFct(void* fct)
     #define GO(A) if((uintptr_t)fct == my_GLogFunc_fct_##A) return (void*)my_GLogFunc_fct_##A;
     SUPER()
     #undef GO
-    return NULL;
+    return (void*)AddCheckBridge(my_lib->w.bridge, vFpipp, fct, 0, "GLogFunc");
 }
 // GPrintFunc ...
 #define GO(A)   \
@@ -661,7 +662,7 @@ static void* reverseGOptionArgFct(void* fct)
     #define GO(A) if((uintptr_t)fct == my_GOptionArg_fct_##A) return (void*)my_GOptionArg_fct_##A;
     SUPER()
     #undef GO
-    return NULL;
+    return (void*)AddCheckBridge(my_lib->w.bridge, iFpppp, fct, 0, "GOptionArgFunc");
 }
 // GNodeTraverseFunc ...
 #define GO(A)   \
@@ -1056,6 +1057,14 @@ EXPORT void* my_g_variant_new(x64emu_t* emu, char* fmt, uint64_t* V)
 {
     CREATE_VALIST_FROM_VAARG(V, emu->scratch, 1);
     return my->g_variant_new_va(fmt, NULL, &VARARGS);
+}
+
+EXPORT  void my_g_variant_builder_add(x64emu_t* emu, void* builder, void* fmt, uint64_t* V)
+{
+    // equivalent to calling g_variant_new and g_variant_builder_add_value
+    CREATE_VALIST_FROM_VAARG(V, emu->scratch, 2);
+    void* val = my->g_variant_new_va(fmt, NULL, &VARARGS);
+    my->g_variant_builder_add_value(builder, val);
 }
 
 EXPORT void* my_g_completion_new(x64emu_t* emu, void* f)

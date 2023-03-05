@@ -42,6 +42,13 @@ typedef struct sigoffset_array_s {
 KHASH_MAP_INIT_INT64(sigoffset, sigoffset_array_t)
 static kh_sigoffset_t *my_sigoffset = NULL;
 
+#define ONCE() \
+    static int done = 0;\
+    if(done)            \
+        return;         \
+    done = 1
+
+
 // ---- Defining the multiple functions now -----
 #define SUPER() \
 GO(0)   \
@@ -171,6 +178,7 @@ static void unwrapGObjectClass(my_GObjectClass_t* class)
 // autobridge
 static void bridgeGObjectClass(my_GObjectClass_t* class)
 {
+    ONCE();
     #define GO(A, W) autobridge_##A##_GObject (W, class->A)
     SUPERGO()
     #undef GO
@@ -215,6 +223,7 @@ static void unwrapGInitiallyUnownedClass(my_GInitiallyUnownedClass_t* class)
 // autobridge
 static void bridgeGInitiallyUnownedClass(my_GInitiallyUnownedClass_t* class)
 {
+    ONCE();
     #define GO(A, W) autobridge_##A##_GInitiallyUnowned (W, class->A)
     SUPERGO()
     #undef GO
@@ -250,6 +259,7 @@ static void unwrapGtkObjectClass(my_GtkObjectClass_t* class)
 // autobridge
 static void bridgeGtkObjectClass(my_GtkObjectClass_t* class)
 {
+    ONCE();
     bridgeGObjectClass(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkObject (W, class->A)
     SUPERGO()
@@ -414,6 +424,7 @@ static void unwrapGtkWidget2Class(my_GtkWidget2Class_t* class)
 // autobridge
 static void bridgeGtkWidget2Class(my_GtkWidget2Class_t* class)
 {
+    ONCE();
     bridgeGtkObjectClass(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkWidget2 (W, class->A)
     SUPERGO()
@@ -611,6 +622,7 @@ static void unwrapGtkWidget3Class(my_GtkWidget3Class_t* class)
 // autobridge
 static void bridgeGtkWidget3Class(my_GtkWidget3Class_t* class)
 {
+    ONCE();
     bridgeGInitiallyUnownedClass(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkWidget3 (W, class->A)
     SUPERGO()
@@ -661,6 +673,7 @@ static void unwrapGtkContainer2Class(my_GtkContainer2Class_t* class)
 // autobridge
 static void bridgeGtkContainer2Class(my_GtkContainer2Class_t* class)
 {
+    ONCE();
     bridgeGtkWidget2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkContainer2 (W, class->A)
     SUPERGO()
@@ -713,6 +726,7 @@ static void unwrapGtkContainer3Class(my_GtkContainer3Class_t* class)
 // autobridge
 static void bridgeGtkContainer3Class(my_GtkContainer3Class_t* class)
 {
+    ONCE();
     bridgeGtkWidget3Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkContainer3 (W, class->A)
     SUPERGO()
@@ -757,6 +771,7 @@ static void unwrapGtkActionClass(my_GtkActionClass_t* class)
 // autobridge
 static void bridgeGtkActionClass(my_GtkActionClass_t* class)
 {
+    ONCE();
     bridgeGObjectClass(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkAction (W, class->A)
     SUPERGO()
@@ -779,6 +794,7 @@ static void unwrapGtkMisc2Class(my_GtkMisc2Class_t* class)
 // autobridge
 static void bridgeGtkMisc2Class(my_GtkMisc2Class_t* class)
 {
+    ONCE();
     bridgeGtkWidget2Class(&class->parent_class);
 }
 
@@ -815,6 +831,7 @@ static void unwrapGtkLabel2Class(my_GtkLabel2Class_t* class)
 // autobridge
 static void bridgeGtkLabel2Class(my_GtkLabel2Class_t* class)
 {
+    ONCE();
     bridgeGtkMisc2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkMisc2 (W, class->A)
     SUPERGO()
@@ -878,6 +895,7 @@ static void unwrapGtkTreeView2Class(my_GtkTreeView2Class_t* class)
 // autobridge
 static void bridgeGtkTreeView2Class(my_GtkTreeView2Class_t* class)
 {
+    ONCE();
     bridgeGtkContainer2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkTreeView2 (W, class->A)
     SUPERGO()
@@ -901,6 +919,7 @@ static void unwrapGtkBin2Class(my_GtkBin2Class_t* class)
 // autobridge
 static void bridgeGtkBin2Class(my_GtkBin2Class_t* class)
 {
+    ONCE();
     bridgeGtkContainer2Class(&class->parent_class);
 }
 
@@ -941,6 +960,7 @@ static void unwrapGtkWindow2Class(my_GtkWindow2Class_t* class)
 // autobridge
 static void bridgeGtkWindow2Class(my_GtkWindow2Class_t* class)
 {
+    ONCE();
     bridgeGtkBin2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkWindow2 (W, class->A)
     SUPERGO()
@@ -963,6 +983,7 @@ static void unwrapGtkTable2Class(my_GtkTable2Class_t* class)
 // autobridge
 static void bridgeGtkTable2Class(my_GtkTable2Class_t* class)
 {
+    ONCE();
     bridgeGtkContainer2Class(&class->parent_class);
 }
 
@@ -981,6 +1002,7 @@ static void unwrapGtkFixed2Class(my_GtkFixed2Class_t* class)
 // autobridge
 static void bridgeGtkFixed2Class(my_GtkFixed2Class_t* class)
 {
+    ONCE();
     bridgeGtkContainer2Class(&class->parent_class);
 }
 
@@ -999,6 +1021,7 @@ static void unwrapMetaFrames2Class(my_MetaFrames2Class_t* class)
 // autobridge
 static void bridgeMetaFrames2Class(my_MetaFrames2Class_t* class)
 {
+    ONCE();
     bridgeGtkWindow2Class(&class->parent_class);
 }
 
@@ -1031,6 +1054,7 @@ static void unwrapGDBusObjectManagerClientClass(my_GDBusObjectManagerClientClass
 // autobridge
 static void bridgeGDBusObjectManagerClientClass(my_GDBusObjectManagerClientClass_t* class)
 {
+    ONCE();
     bridgeGObjectClass(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GDBusObjectManagerClient (W, class->A)
     SUPERGO()
@@ -1076,6 +1100,7 @@ static void unwrapGtkButton2Class(my_GtkButton2Class_t* class)
 // autobridge
 static void bridgeGtkButton2Class(my_GtkButton2Class_t* class)
 {
+    ONCE();
     bridgeGtkBin2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkButton2 (W, class->A)
     SUPERGO()
@@ -1113,6 +1138,7 @@ static void unwrapGtkComboBox2Class(my_GtkComboBox2Class_t* class)
 // autobridge
 static void bridgeGtkComboBox2Class(my_GtkComboBox2Class_t* class)
 {
+    ONCE();
     bridgeGtkBin2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkComboBox2 (W, class->A)
     SUPERGO()
@@ -1148,6 +1174,7 @@ static void unwrapGtkToggleButton2Class(my_GtkToggleButton2Class_t* class)
 // autobridge
 static void bridgeGtkToggleButton2Class(my_GtkToggleButton2Class_t* class)
 {
+    ONCE();
     bridgeGtkButton2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkToggleButton2 (W, class->A)
     SUPERGO()
@@ -1183,6 +1210,7 @@ static void unwrapGtkCheckButton2Class(my_GtkCheckButton2Class_t* class)
 // autobridge
 static void bridgeGtkCheckButton2Class(my_GtkCheckButton2Class_t* class)
 {
+    ONCE();
     bridgeGtkToggleButton2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkCheckButton2 (W, class->A)
     SUPERGO()
@@ -1237,6 +1265,7 @@ static void unwrapGtkEntry2Class(my_GtkEntry2Class_t* class)
 // autobridge
 static void bridgeGtkEntry2Class(my_GtkEntry2Class_t* class)
 {
+    ONCE();
     bridgeGtkWidget2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkEntry2 (W, class->A)
     SUPERGO()
@@ -1279,6 +1308,7 @@ static void unwrapGtkSpinButton2Class(my_GtkSpinButton2Class_t* class)
 // autobridge
 static void bridgeGtkSpinButton2Class(my_GtkSpinButton2Class_t* class)
 {
+    ONCE();
     bridgeGtkEntry2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkSpinButton2 (W, class->A)
     SUPERGO()
@@ -1317,6 +1347,7 @@ static void unwrapGtkProgress2Class(my_GtkProgress2Class_t* class)
 // autobridge
 static void bridgeGtkProgress2Class(my_GtkProgress2Class_t* class)
 {
+    ONCE();
     bridgeGtkWidget2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkProgress2 (W, class->A)
     SUPERGO()
@@ -1349,6 +1380,7 @@ static void unwrapGtkProgressBar2Class(my_GtkProgressBar2Class_t* class)
 // autobridge
 static void bridgeGtkProgressBar2Class(my_GtkProgressBar2Class_t* class)
 {
+    ONCE();
     bridgeGtkProgress2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkProgressBar2 (W, class->A)
     SUPERGO()
@@ -1383,6 +1415,7 @@ static void unwrapGtkFrame2Class(my_GtkFrame2Class_t* class)
 // autobridge
 static void bridgeGtkFrame2Class(my_GtkFrame2Class_t* class)
 {
+    ONCE();
     bridgeGtkBin2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkFrame2 (W, class->A)
     SUPERGO()
@@ -1433,6 +1466,7 @@ static void unwrapGtkMenuShell2Class(my_GtkMenuShell2Class_t* class)
 // autobridge
 static void bridgeGtkMenuShell2Class(my_GtkMenuShell2Class_t* class)
 {
+    ONCE();
     bridgeGtkContainer2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkMenuShell2 (W, class->A)
     SUPERGO()
@@ -1465,6 +1499,7 @@ static void unwrapGtkMenuBar2Class(my_GtkMenuBar2Class_t* class)
 // autobridge
 static void bridgeGtkMenuBar2Class(my_GtkMenuBar2Class_t* class)
 {
+    ONCE();
     bridgeGtkMenuShell2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkMenuBar2 (W, class->A)
     SUPERGO()
@@ -1523,6 +1558,7 @@ static void unwrapGtkTextView2Class(my_GtkTextView2Class_t* class)
 // autobridge
 static void bridgeGtkTextView2Class(my_GtkTextView2Class_t* class)
 {
+    ONCE();
     bridgeGtkContainer2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkTextView2 (W, class->A)
     SUPERGO()
@@ -1583,6 +1619,7 @@ static void unwrapGtkTextView3Class(my_GtkTextView3Class_t* class)
 // autobridge
 static void bridgeGtkTextView3Class(my_GtkTextView3Class_t* class)
 {
+    ONCE();
     bridgeGtkContainer3Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkTextView3 (W, class->A)
     SUPERGO()
@@ -1667,6 +1704,7 @@ static void unwrapAtkObjectClass(my_AtkObjectClass_t* class)
 // autobridge
 static void bridgeAtkObjectClass(my_AtkObjectClass_t* class)
 {
+    ONCE();
     bridgeGObjectClass(&class->parent);
     #define GO(A, W) autobridge_##A##_AtkObject (W, class->A)
     SUPERGO()
@@ -1713,6 +1751,7 @@ static void unwrapAtkUtilClass(my_AtkUtilClass_t* class)
 // autobridge
 static void bridgeAtkUtilClass(my_AtkUtilClass_t* class)
 {
+    ONCE();
     bridgeGObjectClass(&class->parent);
     #define GO(A, W) autobridge_##A##_AtkUtil (W, class->A)
     SUPERGO()
@@ -1747,6 +1786,7 @@ static void unwrapGstObjectClass(my_GstObjectClass_t* class)
 // autobridge
 static void bridgeGstObjectClass(my_GstObjectClass_t* class)
 {
+    ONCE();
     bridgeGInitiallyUnownedClass(&class->parent);
     #define GO(A, W) autobridge_##A##_GstObject (W, class->A)
     SUPERGO()
@@ -1783,6 +1823,7 @@ static void unwrapGstAllocatorClass(my_GstAllocatorClass_t* class)
 // autobridge
 static void bridgeGstAllocatorClass(my_GstAllocatorClass_t* class)
 {
+    ONCE();
     bridgeGstObjectClass(&class->parent);
     #define GO(A, W) autobridge_##A##_GstAllocator (W, class->A)
     SUPERGO()
@@ -1925,7 +1966,8 @@ void* wrapCopyGTKClass(void* klass, size_t type)
         return klass;
     }
     memcpy(newklass, klass, sz);
-    wrapGTKClass(newklass, type);
+    //wrapGTKClass(newklass, type);
+    bridgeGTKClass(newklass, type);
     return newklass;
 }
 

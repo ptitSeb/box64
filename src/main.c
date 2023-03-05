@@ -45,6 +45,7 @@ int box64_dynarec_log = LOG_NONE;
 uintptr_t box64_pagesize;
 uintptr_t box64_load_addr = 0;
 int box64_nosandbox = 0;
+int box64_malloc_hack = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
@@ -72,6 +73,7 @@ int arm64_atomics = 0;
 #else   //DYNAREC
 int box64_dynarec = 0;
 #endif
+int box64_libcef = 1;
 int dlsym_error = 0;
 int cycle_log = 0;
 #ifdef HAVE_TRACE
@@ -626,6 +628,15 @@ void LoadLogEnv()
 #endif
 #endif
     // Other BOX64 env. var.
+    p = getenv("BOX64_LIBCEF");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_libcef = p[0]-'0';
+        }
+        if(!box64_libcef)
+            printf_log(LOG_INFO, "Dynarec will not detect libcef\n");
+    }
     p = getenv("BOX64_LOAD_ADDR");
     if(p) {
         if(sscanf(p, "0x%zx", &box64_load_addr)!=1)
@@ -688,6 +699,19 @@ void LoadLogEnv()
         }
         if(!box64_dummy_crashhandler)
             printf_log(LOG_INFO, "Don't use dummy crashhandler lib\n");
+    }
+    p = getenv("BOX64_MALLOC_HACK");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+2)
+                box64_malloc_hack = p[0]-'0';
+        }
+        if(!box64_malloc_hack) {
+            if(box64_malloc_hack==1) {
+                printf_log(LOG_INFO, "Malloc hook will not be redirected\n");
+            } else
+                printf_log(LOG_INFO, "Malloc hook will check for mmap/free occurences\n");
+        }
     }
     p = getenv("BOX64_NOPULSE");
     if(p) {

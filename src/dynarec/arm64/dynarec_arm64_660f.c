@@ -1984,7 +1984,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            VFCVTNSQD(v0, v1);  // convert double -> int64
+            VFCVTZSQD(v0, v1);  // convert double -> int64
             SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
             break;
         case 0xE7:

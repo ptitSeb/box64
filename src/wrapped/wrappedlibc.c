@@ -763,8 +763,12 @@ EXPORT void *my_div(void *result, int numerator, int denominator) {
 #endif
 
 EXPORT int my_snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint64_t * b) {
+    #ifdef PREFER_CONVERT_VAARG
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 3);
+    #else
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
+    #endif
     int r = vsnprintf(buff, s, fmt, VARARGS);
     return r;
 }
@@ -772,21 +776,33 @@ EXPORT int my___snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint64
 EXPORT int my___snprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, size_t maxlen, void * fmt, uint64_t * b)
 {
     (void)flags; (void)maxlen;
+    #ifdef PREFER_CONVERT_VAARG
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 5);
+    #else
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 5);
     PREPARE_VALIST;
+    #endif
     int r = vsnprintf(buff, s, fmt, VARARGS);
     return r;
 }
 
 EXPORT int my_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b) {
+    #ifdef PREFER_CONVERT_VAARG
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    #else
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
+    #endif
     return vsprintf(buff, (const char*)fmt, VARARGS);
 }
 EXPORT int my___sprintf_chk(x64emu_t* emu, void* buff, int flag, size_t l, void * fmt, void * b) {
     (void)flag; (void)l;
+    #ifdef PREFER_CONVERT_VAARG
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 4);
+    #else
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 4);
     PREPARE_VALIST;
+    #endif
     return vsprintf(buff, (const char*)fmt, VARARGS);
 }
 
@@ -2425,7 +2441,6 @@ EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bu
     return readlinkat(fd, path, buf, bufsize);
 }
 
-
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
 {
     (void)emu;
@@ -2478,8 +2493,9 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         }
     }
     #endif
-    if(ret!=(void*)-1)
-        setProtection((uintptr_t)ret, length, prot);
+    if(ret!=(void*)-1) {
+        setProtection_mmap((uintptr_t)ret, length, prot);
+    }
     return ret;
 }
 EXPORT void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset) __attribute__((alias("my_mmap64")));
@@ -2525,7 +2541,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
                 cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
             #endif
         }
-        setProtection((uintptr_t)ret, new_size, prot); // should copy the protection from old block
+        setProtection_mmap((uintptr_t)ret, new_size, prot); // should copy the protection from old block
         #ifdef DYNAREC
         if(box64_dynarec)
             addDBFromAddressRange((uintptr_t)ret, new_size);
@@ -2544,8 +2560,9 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
     }
     #endif
     int ret = munmap(addr, length);
-    if(!ret)
+    if(!ret) {
         freeProtection((uintptr_t)addr, length);
+    }
     return ret;
 }
 
@@ -2557,7 +2574,7 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
-    if(box64_dynarec) {
+    if(box64_dynarec && !ret) {
         if(prot& PROT_EXEC)
             addDBFromAddressRange((uintptr_t)addr, len);
         else

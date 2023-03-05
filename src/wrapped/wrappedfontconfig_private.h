@@ -42,7 +42,7 @@ GO(FcConfigAppFontAddFile, iFpp)
 GO(FcConfigAppFontClear, vFp)
 //GO(FcConfigBuildFonts, 
 //GO(FcConfigCreate, 
-//GO(FcConfigDestroy, 
+GO(FcConfigDestroy, vFp)
 //GO(FcConfigEnableHome, 
 //GO(FcConfigFilename, 
 GO(FcConfigGetBlanks, pFp)

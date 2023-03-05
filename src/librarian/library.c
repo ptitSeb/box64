@@ -306,6 +306,10 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
             box64_dynarec_strongmem = 1;
         }
         #endif
+        if(libname && box64_libcef && strstr(libname, "libcef.so")) {
+            printf_log(LOG_INFO, "libcef detected, using malloc_hack_2\n");
+            box64_malloc_hack = 2;
+        }
         return 1;
     }
     return 0;

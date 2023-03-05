@@ -16,6 +16,7 @@
 #include "emu/x64emu_private.h"
 #include "box64context.h"
 #include "sdl1rwops.h"
+#include "gltools.h"
 
 #include "x64trace.h"
 #include "threads.h"
@@ -349,56 +350,11 @@ EXPORT void my_SDL_KillThread(x64emu_t* emu, void* p)
     my->SDL_KillThread(p);
 }
 
-void fillGLProcWrapper(box64context_t* context);
 EXPORT void* my_SDL_GL_GetProcAddress(x64emu_t* emu, void* name) 
 {
     khint_t k;
     const char* rname = (const char*)name;
-    printf_log(LOG_DEBUG, "Calling SDL_GL_GetProcAddress(%s)\n", rname);
-    // check if glxprocaddress is filled, and search for lib and fill it if needed
-    if(!emu->context->glwrappers)
-        fillGLProcWrapper(emu->context);
-    // get proc adress using actual glXGetProcAddress
-    k = kh_get(symbolmap, emu->context->glmymap, rname);
-    int is_my = (k==kh_end(emu->context->glmymap))?0:1;
-    void* symbol;
-    if(is_my) {
-        // try again, by using custom "my_" now...
-        char tmp[200];
-        strcpy(tmp, "my_");
-        strcat(tmp, rname);
-        symbol = dlsym(emu->context->box64lib, tmp);
-    } else 
-        symbol = my->SDL_GL_GetProcAddress(name);
-    if(!symbol)
-        return NULL;    // easy
-    // check if alread bridged
-    uintptr_t ret = CheckBridged(emu->context->system, symbol);
-    if(ret)
-        return (void*)ret; // already bridged
-    // get wrapper    
-    k = kh_get(symbolmap, emu->context->glwrappers, rname);
-    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "ARB")==NULL) {
-        // try again, adding ARB at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "ARB");
-        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
-    }
-    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "EXT")==NULL) {
-        // try again, adding EXT at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "EXT");
-        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
-    }
-    if(k==kh_end(emu->context->glwrappers)) {
-        printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
-        return NULL;
-    }
-    AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    const char* constname = kh_key(emu->context->glwrappers, k);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0, constname);
+    return getGLProcAddress(emu, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
 }
 
 // DL functions from wrappedlibdl.c

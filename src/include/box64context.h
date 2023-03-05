@@ -33,9 +33,8 @@ typedef struct mmaplist_s       mmaplist_t;
 typedef struct kh_dynablocks_s  kh_dynablocks_t;
 #endif
 #define DYNAMAP_SHIFT 16
-#define JMPTABL_SHIFT 16
 
-typedef void* (*procaddess_t)(const char* name);
+typedef void* (*procaddress_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
 
 #define MAX_SIGNAL 64
@@ -115,9 +114,6 @@ typedef struct box64context_s {
     uintptr_t           vsyscall;       // vsyscall bridge value
     uintptr_t           vsyscalls[3];   // the 3 x86 VSyscall pseudo bridges (mapped at 0xffffffffff600000+)
     dlprivate_t         *dlprivate;     // dlopen library map
-    kh_symbolmap_t      *glwrappers;    // the map of wrapper for glProcs (for GLX or SDL1/2)
-    kh_symbolmap_t      *glmymap;       // link to the mysymbolmap of libGL
-    procaddess_t        glxprocaddress;
     kh_symbolmap_t      *alwrappers;    // the map of wrapper for alGetProcAddress
     kh_symbolmap_t      *almymap;       // link to the mysymbolmap if libOpenAL
     kh_symbolmap_t      *vkwrappers;    // the map of wrapper for VulkanProcs (TODO: check SDL2)

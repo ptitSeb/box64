@@ -33,6 +33,7 @@ extern int arm64_crc32;
 extern int arm64_atomics;
 #endif
 #endif
+extern int box64_libcef;
 extern int dlsym_error;    // log dlsym error
 extern int cycle_log;      // if using rolling logs
 #ifdef HAVE_TRACE
@@ -46,6 +47,7 @@ extern char* box64_trace;
 extern uint64_t start_cnt;
 #endif
 extern int box64_nosandbox;
+extern int box64_malloc_hack;
 extern int box64_dummy_crashhandler;
 extern int box64_sse_flushto0;
 extern int box64_x87_no80bits;
