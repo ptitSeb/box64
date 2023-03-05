@@ -169,6 +169,8 @@ sudo systemctl restart systemd-binfmt
 
  `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
 
+You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on Linux Kernel mixed with Android, like on RK3588 or maybe Termux
+
 #### for LoongArch
 
 Using a 64bit OS:

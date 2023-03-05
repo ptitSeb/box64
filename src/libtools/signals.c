@@ -847,7 +847,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #endif
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
-    #ifdef RK3588
+    #ifdef BAD_SIGNAL
     // try to see if the si_code makes sense
     // the RK3588 tend to need a special Kernel that seems to have a weird behaviour sometimes
     if((sig==SIGSEGV) && (addr) && (info->si_code == 1) && prot&(PROT_READ|PROT_WRITE|PROT_EXEC)) {

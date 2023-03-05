@@ -23,6 +23,7 @@ option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACH
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box64" OFF)
 option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
+option(BAD_SIGNAL "Set to ON to activate the workaround for incoherent si_info on SIGSEGV" ${BAD_SIGNAL})
 option(SW64 "Set ON if targeting an SW64 based device" ${SW64})
 
 if(LARCH64)
@@ -49,6 +50,9 @@ if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RK3326 OR TEGRAX1 O
 endif()
 if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RK3326 OR TEGRAX1 OR PHYTIUM OR SD845 OR LX2160A)
     set(PAGE16K OFF CACHE BOOL "")
+endif()
+if(RK3588)
+    set(BAD_SIGNAL ON CACHE BOOL "")
 endif()
 if(M1 OR LARCH64)
     set(PAGE16K ON CACHE BOOL "")
@@ -154,6 +158,10 @@ elseif(SW64)
     add_definitions(-DSW64)
 elseif(ARM_DYNAREC)
     set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto")
+endif()
+
+if(BAD_SIGNAL)
+    add_definitions(-DBAD_SIGNAL)
 endif()
 
 if(PAGE8K)
