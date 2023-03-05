@@ -3410,6 +3410,10 @@ wrappedlibglu:
   - gluNurbsCallback
   - gluQuadricCallback
   - gluTessCallback
+wrappedlibglx:
+- pFp:
+  - glXGetProcAddress
+  - glXGetProcAddressARB
 wrappedlibibus:
 - vFpippp:
   - ibus_bus_current_input_context_async
