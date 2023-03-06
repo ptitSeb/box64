@@ -1459,7 +1459,7 @@ int getNCpu()
 
 const char* getCpuName()
 {
-    static char name[200] = "Unknown";
+    static char name[200] = "Unknown CPU";
     static int done = 0;
     if(done)
         return name;
@@ -1470,14 +1470,16 @@ const char* getCpuName()
         ssize_t s = fread(tmp, 1, 200, f);
         pclose(f);
         if(s>0) {
-            // worked!
-            // trim ending
-            while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
-                tmp[strlen(tmp)-1] = 0;
-            // incase multiple cpu type are present, there will be multiple lines
-            while(strchr(tmp, '\n'))
-                *strchr(tmp,'\n') = ' ';
-            strncpy(name, tmp, 199);
+            // worked! (unless it's saying "lscpu: command not found" or something like that)
+            if(!strstr(tmp, "lscpu")) {
+                // trim ending
+                while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
+                    tmp[strlen(tmp)-1] = 0;
+                // incase multiple cpu type are present, there will be multiple lines
+                while(strchr(tmp, '\n'))
+                    *strchr(tmp,'\n') = ' ';
+                strncpy(name, tmp, 199);
+            }
             return name;
         }
     }
