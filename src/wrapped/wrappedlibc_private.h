@@ -699,7 +699,7 @@ GOW(if_indextoname, pFup)
 GOW(if_nameindex, pFv)
 GOW(if_nametoindex, uFp)
 GOW(imaxabs, lFl)
-//GOW(imaxdiv, ?Fll)
+GOW(imaxdiv, IFII)
 DATA(in6addr_any, 16)  // type V
 DATA(in6addr_loopback, 16)  //type V
 GO(index, pFpi)
