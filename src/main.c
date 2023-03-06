@@ -348,10 +348,10 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " PMULL");
     if(arm64_atomics)
         printf_log(LOG_INFO, " ATOMICS");
-    printf_log(LOG_INFO, " PageSize:%zd\n", box64_pagesize);
+    printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #elif defined(LA464)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
-    printf_log(LOG_INFO, " PageSize:%zd\n", box64_pagesize);
+    printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #else
 #error Unsupported architecture
 #endif
