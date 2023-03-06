@@ -204,8 +204,9 @@ void my_child_fork()
     }
 }
 
-#ifdef DYNAREC
+const char* getCpuName();
 int getNCpu();
+#ifdef DYNAREC
 void GatherDynarecExtensions()
 {
     if(box64_dynarec==0)    // no need to check if no dynarec
@@ -347,9 +348,7 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " PMULL");
     if(arm64_atomics)
         printf_log(LOG_INFO, " ATOMICS");
-    printf_log(LOG_INFO, " PageSize:%zd", box64_pagesize);
-    int ncpu = getNCpu();
-    printf_log(LOG_INFO, " Cores:%d\n", ncpu);
+    printf_log(LOG_INFO, " PageSize:%zd\n", box64_pagesize);
 #elif defined(LA464)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
     printf_log(LOG_INFO, " PageSize:%zd\n", box64_pagesize);
@@ -782,6 +781,9 @@ void LoadLogEnv()
 #ifdef DYNAREC
     GatherDynarecExtensions();
 #endif
+    int ncpu = getNCpu();
+    const char* cpuname = getCpuName();
+    printf_log(LOG_INFO, "Running on %s with %d Cores\n", cpuname, ncpu);
 }
 
 EXPORTDYN

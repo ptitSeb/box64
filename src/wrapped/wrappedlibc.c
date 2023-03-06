@@ -1457,6 +1457,46 @@ int getNCpu()
     return nCPU;
 }
 
+const char* getCpuName()
+{
+    static char name[200] = "Unknown";
+    static int done = 0;
+    if(done)
+        return name;
+    done = 1;
+    FILE* f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
+    if(f) {
+        char tmp[200] = "";
+        ssize_t s = fread(tmp, 1, 200, f);
+        pclose(f);
+        if(s>0) {
+            // worked!
+            // trim ending
+            while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
+                tmp[strlen(tmp)-1] = 0;
+            strncpy(name, tmp, 199);
+            return name;
+        }
+    }
+    // failled, try to get architecture at least
+    f = popen("lscpu | grep \"Architecture:\" | sed -r 's/Architecture:\\s{1,}//g'", "r");
+    if(f) {
+        char tmp[200] = "";
+        ssize_t s = fread(tmp, 1, 200, f);
+        pclose(f);
+        if(s>0) {
+            // worked!
+            // trim ending
+            while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
+                tmp[strlen(tmp)-1] = 0;
+            snprintf(name, 199, "unknown %s cpu", tmp);
+            return name;
+        }
+    }
+    // Nope, bye
+    return name;
+}
+
 
 #ifndef NOALIGN
 void CreateCPUInfoFile(int fd)

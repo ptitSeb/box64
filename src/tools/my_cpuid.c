@@ -25,11 +25,33 @@ int get_cpuMhz()
 	return MHz;
 }
 int getNCpu();  // defined in wrappedlibc.c
+const char* getCpuName();   // same
 
 void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
 {
     emu->regs[_AX].dword[1] = emu->regs[_DX].dword[1] = emu->regs[_CX].dword[1] = emu->regs[_BX].dword[1] = 0;
     int ncpu = getNCpu();
+    static char branding[3*4*4+1] = "";
+    static int done = 0;
+    if(!done) {
+        done = 1;
+        const char* name = getCpuName();
+        if(strstr(name, "MHz") || strstr(name, "GHz")) {
+            // name already have the speed in it
+            snprintf(branding, 3*4*4, "Box64 on %s", name);
+        } else {
+            int MHz = get_cpuMhz();
+            if(MHz>15000) { // swiches to GHz display...
+                snprintf(branding, 3*4*4, "Box64 on %s @%1.2f GHz", name, MHz/1000.);
+            } else {
+                snprintf(branding, 3*4*4, "Box64 on %s @%04d MHz", name, MHz);
+            }
+        }
+        while(strlen(branding)<3*4*4) {
+            memmove(branding+1, branding, strlen(branding));
+            branding[0] = ' ';
+        }
+    }
     if(ncpu>255) ncpu = 255;
     if(!ncpu) ncpu = 1;
     switch(tmp32u) {
@@ -157,37 +179,23 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             //AMD flags?
             //R_EDX = 1 | (1<<8) | (1<<11) | (1<<15) | (1<<23) | (1<<29); // fpu+cmov+cx8+syscall+mmx+lm (mmxext=22, 3dnow=31, 3dnowext=30)
             break;
-        case 0x80000002:    // Brand part 1 (P4 signature)
-            R_EAX = 0x20202020;
-            R_EBX = 0x20202020;
-            R_ECX = 0x20202020;
-            R_EDX = 0x6E492020;
+        case 0x80000002:    // Brand part 1 (branding signature)
+            R_EAX = ((uint32_t*)branding)[0];
+            R_EBX = ((uint32_t*)branding)[1];
+            R_ECX = ((uint32_t*)branding)[2];
+            R_EDX = ((uint32_t*)branding)[3];
             break;
         case 0x80000003:    // Brand part 2
-            R_EAX = 0x286C6574;
-            R_EBX = 0x50202952;
-            R_ECX = 0x69746E65;
-            R_EDX = 0x52286D75;
+            R_EAX = ((uint32_t*)branding)[4];
+            R_EBX = ((uint32_t*)branding)[5];
+            R_ECX = ((uint32_t*)branding)[6];
+            R_EDX = ((uint32_t*)branding)[7];
             break;
         case 0x80000004:    // Brand part 3, with frequency
-            R_EAX = 0x20342029;
-            R_EBX = 0x20555043;
-            {
-                static int MHz = 0;
-                if(!MHz)
-					MHz = get_cpuMhz();
-                if(MHz>15000) { // swiches to GHz display...
-                    char tmp[11];
-                    sprintf(tmp, "%1.2f", MHz/1000.);
-                    R_ECX = *(uint32_t*)tmp;
-                    R_EDX = 0x007A4847; // GHz
-                } else {
-                    char tmp[11];
-                    sprintf(tmp, "%04d", MHz);
-                    R_ECX = *(uint32_t*)tmp;
-                    R_EDX = 0x007A484D; // MHz
-                }
-            }
+            R_EAX = ((uint32_t*)branding)[8];
+            R_EBX = ((uint32_t*)branding)[9];
+            R_ECX = ((uint32_t*)branding)[10];
+            R_EDX = ((uint32_t*)branding)[11];
             break;  
         case 0x80000005:
             R_EAX = 0;
