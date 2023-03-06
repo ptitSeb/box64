@@ -841,6 +841,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void * pc = (void*)p->uc_mcontext.__pc;
 #elif defined(SW64)
     void * pc = (void*)p->uc_mcontext.sc_pc;
+#elif defined(RV64)
+    void * pc = (void*)p->uc_mcontext.__gregs[REG_PC];
 #else
     void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture
