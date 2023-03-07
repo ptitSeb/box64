@@ -40,6 +40,10 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
     // Clean up (because there are multiple passes)
     dyn->f.pending = 0;
     dyn->f.dfnone = 0;
+    dyn->forward = 0;
+    dyn->forward_to = 0;
+    dyn->forward_size = 0;
+    dyn->forward_ninst = 0;
     fpu_reset(dyn);
     int reset_n = -1;
     dyn->last_ip = (dyn->insts && dyn->insts[0].pred_sz)?0:ip;  // RIP is always set at start of block unless there is a predecessor!
@@ -177,6 +181,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
                 dyn->last_ip = 0;
             }
         }
+        #ifndef PROT_READ
+        #define PROT_READ 1
+        #endif
         #if STEP != 0
         if(!ok && !need_epilog && (addr < (dyn->start+dyn->isize))) {
             ok = 1;
@@ -195,7 +202,29 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
             }
         }
         #else
-        if(!ok && !need_epilog && box64_dynarec_bigblock && getProtection(addr+3)&~PROT_CUSTOM)
+        if(dyn->forward) {
+            if(dyn->forward_to == addr && !need_epilog) {
+                // we made it!
+                if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block %p -> %p\n", (void*)dyn->forward, (void*)dyn->forward_to);
+                dyn->forward = 0;
+                dyn->forward_to = 0;
+                dyn->forward_size = 0;
+                dyn->forward_ninst = 0;
+                ok = 1; // in case it was 0
+            } else if ((dyn->forward_to < addr) || !ok) {
+                // something when wrong! rollback
+                if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Could not forward extend block %p -> %p\n", (void*)dyn->forward, (void*)dyn->forward_to);
+                ok = 0;
+                dyn->size = dyn->forward_size;
+                ninst = dyn->forward_ninst;
+                addr = dyn->forward;
+                dyn->forward = 0;
+                dyn->forward_to = 0;
+                dyn->forward_size = 0;
+                dyn->forward_ninst = 0;
+            }
+            // else just continue
+        } else if(!ok && !need_epilog && box64_dynarec_bigblock && (getProtection(addr+3)&~PROT_READ))
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
@@ -211,8 +240,13 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
                             ii=ninst;
                         }
                     if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %p -> %p (ninst=%d, jump from %d)\n", dyn, (void*)addr, (void*)next, ninst, reset_n);
-                } else if(next && (next-addr)<30) {
-                    if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Cannot extend block %p -> %p (%02X %02X %02X %02X %02X %02X %02X %02x)\n", (void*)addr, (void*)next, PK(0), PK(1), PK(2), PK(3), PK(4), PK(5), PK(6), PK(7));
+                } else if(next && (next-addr)<box64_dynarec_forward && (getProtection(next)&PROT_READ)/*box64_dynarec_bigblock>=stopblock*/) {
+                    dyn->forward = addr;
+                    dyn->forward_to = next;
+                    dyn->forward_size = dyn->size;
+                    dyn->forward_ninst = ninst;
+                    reset_n = -2;
+                    ok = 1;
                 }
             }
         #endif

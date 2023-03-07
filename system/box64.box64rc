@@ -13,6 +13,14 @@ BOX64_DYNAREC_HOTPAGE=0 # disabling hotpage seems to give better performances he
 # Those are safe to use on 7z and give a bit of a boost
 BOX64_DYNAREC_SAFEFLAGS=0
 BOX64_DYNAREC_BIGBLOCK=2
+BOX64_DYNAREC_FORWARD=512
+BOX64_DYNAREC_CALLRET=1
+
+[7zz]
+# Those are safe to use on 7z and give a bit of a boost
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_BIGBLOCK=2
+BOX64_DYNAREC_FORWARD=512
 BOX64_DYNAREC_CALLRET=1
 
 [chrome]
@@ -38,12 +46,27 @@ BOX64_EMULATED_LIBS=libSDL2-2.0.so.0
 BOX64_CRASHHANDLER=1
 BOX64_DYNAREC_STRONGMEM=1
 
+[factorio]
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_BIGBLOCK=2
+BOX64_DYNAREC_FORWARD=1024
+BOX64_DYNAREC_CALLRET=1
+
 [heroic]
 BOX64_NOSANDBOX=1
 BOX64_MALLOC_HACK=2
+# this is to save some memory
+BOX64_DYNAREC_BIGBLOCK=0
 
 [nacl_helper]
 BOX64_MALLOC_HACK=1
+
+[NuclearBlaze]
+BOX64_EMULATED_LIBS=libopenal.so.1
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_FORWARD=1024
+BOX64_DYNAREC_CALLRET=1
 
 [pressure-vessel-wrap]
 BOX64_NOGTK=1
@@ -57,13 +80,22 @@ BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
 
 [steamwebhelper]
 BOX64_NOSANDBOX=1
-BOX64_MALLOC_HACK=2
 BOX64_LOG=0
+BOX64_MALLOC_HACK=2
+# this is to save some memory
+BOX64_DYNAREC_BIGBLOCK=0
 # if steamwebhelper takes too much memory, enable next line to disable it
 #BOX64_EXIT=1
 
 [steam-runtime-check-requirements]
 BOX64_EXIT=1
+
+[Torchlight2.bin.x86_64]
+# Those are safe to use on 7z and give a bit of a boost
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_BIGBLOCK=2
+BOX64_DYNAREC_FORWARD=512
+BOX64_DYNAREC_CALLRET=1
 
 #
 # Wine process

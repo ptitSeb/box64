@@ -140,6 +140,11 @@ Enables/Disables Box64's Dynarec building BigBlock.
  * 2 : Build Dynarec block bigger (don't stop when block overlaps, but only for blocks in elf memory)
  * 3 : Build Dynarec block bigger (don't stop when block overlaps, for all type of memory)
 
+#### BOX64_DYNAREC_FORWARD *
+Define Box64's Dynarec max allowed forward value when building Block.
+ * 0 : No forward value. When current block end, don't try to go further even if there are previous forward jumps
+ * XXX : Allow up to XXXX bytes of gap when building a Block after the block end to next forward jump (Default: 128)
+ 
 #### BOX64_DYNAREC_STRONGMEM *
 Enable/Disable simulation of Strong Memory model
 * 0 : Don't try anything special (Default.)

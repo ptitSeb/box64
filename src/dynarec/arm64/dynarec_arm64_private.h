@@ -106,6 +106,10 @@ typedef struct dynarec_arm_s {
     size_t              insts_size; // size of the instruction size array (calculated)
     uint8_t             smread;    // for strongmem model emulation
     uint8_t             smwrite;    // for strongmem model emulation
+    uintptr_t           forward;    // address of the last end of code while testing forward
+    uintptr_t           forward_to; // address of the next jump to (to check if everything is ok)
+    int32_t             forward_size;   // size at the forward point
+    int                 forward_ninst;  // ninst at the forward point
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

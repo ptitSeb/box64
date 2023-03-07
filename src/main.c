@@ -51,6 +51,7 @@ int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
 int box64_dynarec_forced = 0;
 int box64_dynarec_bigblock = 1;
+int box64_dynarec_forward = 128;
 int box64_dynarec_strongmem = 0;
 int box64_dynarec_x87double = 0;
 int box64_dynarec_fastnan = 1;
@@ -478,6 +479,18 @@ void LoadLogEnv()
         else if (box64_dynarec_bigblock>1)
             printf_log(LOG_INFO, "Dynarec will try to make bigger blocks%s\n", (box64_dynarec_bigblock>2)?" even on non-elf memory":"");
 
+    }
+    p = getenv("BOX64_DYNAREC_FORWARD");
+    if(p) {
+        int val = -1;
+        if(sscanf(p, "%d", &val)==1) {
+            if(val>=0)
+                box64_dynarec_forward = val;
+        }
+        if(box64_dynarec_forward)
+            printf_log(LOG_INFO, "Dynarec will continue block for %d bytes on forward jump\n", box64_dynarec_forward);
+        else
+            printf_log(LOG_INFO, "Dynarec will not continue block on forward jump\n");
     }
     p = getenv("BOX64_DYNAREC_STRONGMEM");
     if(p) {
