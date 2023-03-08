@@ -205,7 +205,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
         if(dyn->forward) {
             if(dyn->forward_to == addr && !need_epilog) {
                 // we made it!
-                if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block %p -> %p\n", (void*)dyn->forward, (void*)dyn->forward_to);
+                if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %p -> %p\n", dyn->forward_to-dyn->forward, (void*)dyn->forward, (void*)dyn->forward_to);
                 dyn->forward = 0;
                 dyn->forward_to = 0;
                 dyn->forward_size = 0;
@@ -213,7 +213,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
                 ok = 1; // in case it was 0
             } else if ((dyn->forward_to < addr) || !ok) {
                 // something when wrong! rollback
-                if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Could not forward extend block %p -> %p\n", (void*)dyn->forward, (void*)dyn->forward_to);
+                if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Could not forward extend block for %d bytes %p -> %p\n", dyn->forward_to-dyn->forward, (void*)dyn->forward, (void*)dyn->forward_to);
                 ok = 0;
                 dyn->size = dyn->forward_size;
                 ninst = dyn->forward_ninst;
