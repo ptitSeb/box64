@@ -2,6 +2,9 @@
 #error Meh....
 #endif
 
+//gnutls_session_t is p
+//gnutls_channel_binding_t is i
+
 //GO(_dsa_generate_dss_g, 
 //GO(dsa_generate_dss_keypair, 
 //GO(_dsa_generate_dss_pq, 
@@ -652,7 +655,7 @@ GO(gnutls_record_send, lFppL)
 //GO(gnutls_server_name_get, 
 GO(gnutls_server_name_set, iFpppL)
 //GO(_gnutls_server_name_set_raw, 
-//GO(gnutls_session_channel_binding, 
+GO(gnutls_session_channel_binding, iFpip)
 //GO(gnutls_session_enable_compatibility_mode, 
 //GO(gnutls_session_etm_status, 
 //GO(gnutls_session_ext_master_secret_status, 
@@ -681,7 +684,7 @@ GO(gnutls_server_name_set, iFpppL)
 //GO(gnutls_session_ticket_enable_client, 
 //GO(gnutls_session_ticket_enable_server, 
 //GO(gnutls_session_ticket_key_generate, 
-//GO(gnutls_set_default_priority, 
+GO(gnutls_set_default_priority, iFp)
 //GO(gnutls_sign_algorithm_get, 
 //GO(gnutls_sign_algorithm_get_client, 
 //GO(gnutls_sign_algorithm_get_requested, 
