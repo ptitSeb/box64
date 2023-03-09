@@ -119,82 +119,82 @@ arm64_lock_xchg_d_0:
 
 arm64_lock_storeifnull:
     dmb     ish
-arm64_lock_storeifnull_0:
+1:
     // address is x0, value is x1, x1 store to x0 only if [x0] is 0. return old [x0] value
     ldaxr   x2, [x0]
-    cbnz    x2, arm64_lock_storeifnull_exit
+    cbnz    x2, 2f
     stlxr   w3, x1, [x0]
-    cbnz    w3, arm64_lock_storeifnull_0
-arm64_lock_storeifnull_exit:
+    cbnz    w3, 1b
+2:
     mov     x0, x2
     ret
 
 arm64_lock_storeifnull_d:
     dmb     ish
-arm64_lock_storeifnull_d_0:
+1:
     // address is x0, value is w1, w1 store to x0 only if [x0] is 0. return old [x0] value
     ldaxr   w2, [x0]
-    cbnz    w2, arm64_lock_storeifnull_d_exit
+    cbnz    w2, 2f
     stlxr   w3, w1, [x0]
-    cbnz    w3, arm64_lock_storeifnull_d_0
-arm64_lock_storeifnull_d_exit:
+    cbnz    w3, 1b
+2:
     dmb     ish
     mov     w0, w2
     ret
 
 arm64_lock_storeifref:
     dmb     ish
-arm64_lock_storeifref_0:
+1:
     // address is x0, value is x1, x1 store to x0 only if [x0] is x2. return new [x0] value (so x1 or old value)
     ldaxr   x3, [x0]
     cmp     x2, x3
-    bne     arm64_lock_storeifref_exit
+    bne     2f
     stlxr   w4, x1, [x0]
-    cbnz    w4, arm64_lock_storeifref_0
+    cbnz    w4, 1b
     mov     x0, x1
     ret
-arm64_lock_storeifref_exit:
+2:
     mov     x0, x3
     ret
 
 arm64_lock_storeifref_d:
     dmb     ish
-arm64_lock_storeifref_d_0:
+1:
     // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return new [x0] value (so x1 or old value)
     ldaxr   w3, [x0]
     cmp     w2, w3
-    bne     arm64_lock_storeifref_d_exit
+    bne     2f
     stlxr   w4, w1, [x0]
-    cbnz    w4, arm64_lock_storeifref_d_0
+    cbnz    w4, 1b
     mov     w0, w1
     ret
-arm64_lock_storeifref_d_exit:
+2:
     mov     w0, w3
     ret
 
 arm64_lock_storeifref2_d:
     dmb     ish
-arm64_lock_storeifref2_d_0:
+1:
     // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return old [x0] value
     ldaxr   w3, [x0]
     cmp     w2, w3
-    bne     arm64_lock_storeifref2_d_exit
+    bne     2f
     stlxr   w4, w1, [x0]
-    cbnz    w4, arm64_lock_storeifref2_d_0
-arm64_lock_storeifref2_d_exit:
+    cbnz    w4, 1b
+2:
     mov     w0, w3
     ret
 
 arm64_lock_decifnot0b:
     dmb     ish
-arm64_lock_decifnot0b_0:
+1:
     ldaxrb  w1, [x0]
     cmp     w1, #0
-    beq     arm64_lock_decifnot0b_exit
+    beq     2f
     sub     w1, w1, #1
     stlxrb  w2, w1, [x0]
-    cbnz    w2, arm64_lock_decifnot0b_0
-arm64_lock_decifnot0b_exit:
+    cbnz    w2, 1b
+2:
     ret
 
 arm64_lock_storeb:
@@ -204,27 +204,27 @@ arm64_lock_storeb:
 
 arm64_lock_decifnot0:
     dmb     ish
-arm64_lock_decifnot0_0:
+1:
     ldaxr   w1, [x0]
     cmp     w1, #0
-    beq     arm64_lock_decifnot0_exit
+    beq     2f
     sub     w3, w1, #1
     stlxr   w2, w3, [x0]
-    cbnz    w2, arm64_lock_decifnot0_0
-arm64_lock_decifnot0_exit:
+    cbnz    w2, 1b
+2:
     mov     w0, w1
     ret
 
 arm64_lock_incif0:
     dmb     ish
-arm64_lock_incif0_0:
+1:
     ldaxr   w1, [x0]
     cmp     w1, #0
-    bne     arm64_lock_incif0_exit
+    bne     2f
     add     w3, w1, #1
     stlxr   w2, w3, [x0]
-    cbnz    w2, arm64_lock_incif0_0
-arm64_lock_incif0_exit:
+    cbnz    w2, 1b
+2:
     mov     w0, w1
     ret
 
