@@ -229,7 +229,7 @@ arm64_lock_incif0:
 arm64_lock_incif0_0:
     ldaxr   w1, [x0]
     cmp     w1, #0
-    beq     arm64_lock_incif0_exit
+    bne     arm64_lock_incif0_exit
     add     w3, w1, #1
     stlxr   w2, w3, [x0]
     cbnz    w2, arm64_lock_incif0_0
