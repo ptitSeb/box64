@@ -3228,11 +3228,12 @@ EXPORT char my___libc_single_threaded = 0;
         strrchr(box64->argv[0], '/') + 1;                                       \
     getMy(lib);                                                                 \
     if(box64_isglibc234)                                                        \
-        setNeededLibs(lib, 5,                                                   \
+        setNeededLibs(lib, 6,                                                   \
             "ld-linux-x86-64.so.2",                                             \
             "libpthread.so.0",                                                  \
             "libdl.so.2",                                                       \
             "libutil.so.1",                                                     \
+            "libresolv.so.2",                                                   \
             "librt.so.1");                                                      \
     else                                                                        \
         setNeededLibs(lib, 4,                                                   \
