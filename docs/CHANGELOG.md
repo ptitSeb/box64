@@ -1,3 +1,32 @@
+v0.2.2
+======
+* Added a hacked version for overriden malloc/free functions, enabling libcef (and derivative) to work.
+    => Steam Large mode and new BigPicture are working
+    => Heroic Launcher is working
+* Added rcfile handling: box64 now read `/etc/box64.box64rc` and `~/.box64rc` and apply per process parameters
+    => Every program can be finetuned, for speed or just to make them work
+* Added BOX64_DYNAREC_CALLRET to optimized CALL/RET opcode using semi-direct native CALL/RET (get more than 10% speedup)
+* Added BOX64_DYNAREC_FORWARD to allow bigger Dynarec block to be build (can get more then 30% of Speedup!)
+* Improved memory protection tracking and signal handling, again
+* Box64 now return a custom name for the CPU instal of P4, build with Box64 and the cpu name it's running on
+* Simplified mutex handling (faster, cleaner)
+* Reduce memory used by the memory tracking (memory almost divide by 4 is some critical use case)
+* Added d3dadapter9 wrapping
+    => gallium nine is now supported on box64 too
+* More wrapped libs (especially on the gtk familly)
+* Improved/fixed some Syscall handling
+* Refactored Strong Memory Model emulation (faster and more accurate)
+* Added some more opcode to ARM64 Dynarec, and fixed some other
+* Some fixes to flags handling in the Dynarec on some special cases
+* Refactor library loading/unloading, with refcount.
+* Some special cases fixes for dlopen (fixes deadcells, maybe others too)
+* Improved mmap mapping, espcially with MAP_32BITS flag
+* More wrapped functions and syscalls
+* Lots of improvment in the Rounding of float & double (Dynarec and Interpretor), and proper handling of denormals when converting to/from 80 bits long double
+* Added specific suppport for RK3588 board (needed some hack in signal handling, probably due to the use of a non mainlined kernel)
+* More support on the RV64 port
+* More support to build under musl environment
+
 v0.2.0
 ======
 * Wrapped more vulkan function, dxvk 2.0 now works

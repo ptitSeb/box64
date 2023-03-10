@@ -1,3 +1,29 @@
+box64 (0.2.2) unstable; urgency=low
+
+ * Added a hacked version for overriden malloc/free functions, enabling libcef (and derivative) to work.
+ * Added rcfile handling: box64 now read "/etc/box64.box64rc" and "~/.box64rc" and apply per process parameters
+ * Added BOX64_DYNAREC_CALLRET to optimized CALL/RET opcode using semi-direct native CALL/RET (get more than 10% speedup)
+ * Added BOX64_DYNAREC_FORWARD to allow bigger Dynarec block to be build (can get more then 30% of Speedup!)
+ * Improved memory protection tracking and signal handling, again
+ * Simplified mutex handling (faster, cleaner)
+ * Reduce memory used by the memory tracking (memory almost divide by 4 is some critical use case)
+ * Added d3dadaptor9 wrapping
+ * More wrapped libs (especially on the gtk familly)
+ * Improved/fixed some Syscall handling
+ * Refactored Strong Memory Model emulation (faster and more accurate)
+ * Added some more opcode to ARM64 Dynarec, and fixed some other
+ * Some fixes to flags handling in the Dynarec on some special cases
+ * Refactor library loading/unloading, with refcount.
+ * Some special cases fixes for dlopen (fixes deadcells, maybe others too)
+ * Improved mmap mapping, espcially with MAP_32BITS flag
+ * More wrapped functions and syscalls
+ * Lots of improvment in the Rounding of float & double (Dynarec and Interpretor), and proper handling of denormals when converting to/from 80 bits long double
+ * Added specific suppport for RK3588 board (needed some hack in signal handling, probably due to the use of a non mainlined kernel)
+ * More support on the RV64 port
+ * More support to build under musl environment
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Thu, 10 Mar 2023 10:20:33 -0500
+
 box64 (0.2.0) unstable; urgency=low
 
  * Wrapped more vulkan function, dxvk 2.0 now works
