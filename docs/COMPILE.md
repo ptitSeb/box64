@@ -282,4 +282,4 @@ The tests are very basic and only tests some functionality for now.
 
 Debian Packaging
 ----
-Box64 can also be packaged into a .deb file with `DEB_BUILD_OPTIONS=nostrip dpkg-buildpackage -us -uc -nc`.
+Box64 can also be packaged into a .deb file ***using the source code zip from the releases page*** with `DEB_BUILD_OPTIONS=nostrip dpkg-buildpackage -us -uc -nc`. Configure any additional cmake options you might want in `debian/rules`.
