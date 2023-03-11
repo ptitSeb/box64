@@ -1061,7 +1061,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeD(v0, 0, v0, 1);
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
-                VMOVeD(v0, 1, v1, 1);
+                if(v0!=v1) {
+                    VMOVeD(v0, 1, v1, 1);
+                }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
                 ADDSx_U12(x1, ed, 8);
