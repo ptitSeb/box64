@@ -71,6 +71,10 @@ BOX64_DYNAREC_CALLRET=1
 [pressure-vessel-wrap]
 BOX64_NOGTK=1
 
+[Soma.bin.x86_64]
+# This is needed or the physics engine will not behave correctly
+BOX64_DYNAREC_FASTROUND=0
+
 [steam]
 BOX64_CRASHHANDLER=1
 BOX64_EMULATED_LIBS=libudev.so.0
