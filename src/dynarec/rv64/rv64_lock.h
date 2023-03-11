@@ -2,30 +2,11 @@
 #define __RV64_LOCK__H__
 #include <stdint.h>
 
-// Atomic read of ADDR
-extern uint8_t rv64_lock_read_b(void* addr);
-// Atomic store for ADDR, return 0 if ok, 1 if not
-extern int rv64_lock_write_b(void* addr, uint8_t val);
+// Atomicaly store val at [p] if old [p] is ref. Return 0 if OK, 1 is not. p needs to be aligned
+extern int rv64_lock_cas_d(void* p, int32_t ref, int32_t val);
 
-// Atomic read of ADDR
-extern uint16_t rv64_lock_read_h(void* addr);
-// Atomic store for ADDR, return 0 if ok, 1 if not
-extern int rv64_lock_write_h(void* addr, uint16_t val);
-
-// Atoomic read of ADDR
-extern uint32_t rv64_lock_read_d(void* addr);
-// Atomic store for ADDR, return 0 if ok, 1 if not
-extern int rv64_lock_write_d(void* addr, uint32_t val);
-
-// Atomic read of ADDR
-extern uint64_t rv64_lock_read_dd(void* addr);
-// Atomic store for ADDR, return 0 if ok, 1 if not
-extern int rv64_lock_write_dd(void* addr, uint64_t val);
-
-// Atomic read of ADDR
-extern void rv64_lock_read_dq(uint64_t * a, uint64_t* b, void* addr);
-// Atomic store for ADDR, return 0 if ok, 1 if not
-extern int rv64_lock_write_dq(uint64_t a, uint64_t b, void* addr);
+// Atomicaly store val at [p] if old [p] is ref. Return 0 if OK, 1 is not. p needs to be aligned
+extern int rv64_lock_cas_dd(void* p, int64_t ref, int64_t val);
 
 // Atomicaly exchange value at [p] with val, return old p
 extern uintptr_t rv64_lock_xchg(void* p, uintptr_t val);
@@ -62,5 +43,18 @@ extern int rv64_lock_decifnot0(void*p);
 
 // atomic store (with memory barrier)
 extern void rv64_lock_store(void*p, uint32_t v);
+
+// (mostly) Atomicaly store val1 and val2 at [p] if old [p] is ref. Return 0 if OK, 1 is not. p needs to be aligned
+extern int rv64_lock_cas_dq(void* p, uint64_t ref, uint64_t val1, uint64_t val2);
+
+// Not defined in assembler but in dynarec_rv64_functions
+uint8_t extract_byte(uint32_t val, void* address);
+uint32_t insert_byte(uint32_t val, uint8_t b, void* address);
+uint16_t extract_half(uint32_t val, void* address);
+uint32_t insert_half(uint32_t val, uint16_t h, void* address);
+
+uint8_t rv64_lock_xchg_b(void* addr, uint8_t v);
+extern int rv64_lock_cas_b(void* p, uint8_t ref, uint8_t val);
+extern int rv64_lock_cas_h(void* p, uint16_t ref, uint16_t val);
 
 #endif  //__RV64_LOCK__H__

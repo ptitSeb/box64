@@ -424,10 +424,14 @@ x64emurun:
                 GB = EB->byte[0];
                 EB->byte[0] = tmp8u;
             } else {
+                #ifdef USE_CAS
+                GB = native_lock_xchg_b(EB, GB);
+                #else
                 do {
                     tmp8u = native_lock_read_b(EB);
                 } while(native_lock_write_b(EB, GB));
                 GB = tmp8u;
+                #endif
             }
             // dynarec use need it's own mecanism
 #else
@@ -461,10 +465,14 @@ x64emurun:
                 if(rex.w) {
                     GD->q[0] = native_lock_xchg(ED, GD->q[0]);
                 } else {
+                    #ifdef USE_CAS
+                    GD->q[0] = native_lock_xchg(ED, GD->dword[0]);
+                    #else
                     do {
                         tmp32u = native_lock_read_d(ED);
                     } while(native_lock_write_d(ED, GD->dword[0]));
                     GD->q[0] = tmp32u;
+                    #endif
                 }
             }
 #else

@@ -30,23 +30,27 @@ if(LARCH64)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC OFF CACHE BOOL "")
+    set(RV64_DYNAREC OFF CACHE BOOL "")
 endif()
 if(RV64)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
-    set(ARM_DYNAREC OFF CACHE BOOL "")  
+    set(ARM_DYNAREC OFF CACHE BOOL "")
+    set(RV64_DYNAREC ON CACHE BOOL "")
     set(PAGE16K OFF CACHE BOOL "")
 endif()
 if(PPC64LE)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC OFF CACHE BOOL "")
+    set(RV64_DYNAREC OFF CACHE BOOL "")
     set(PAGE16K OFF CACHE BOOL "")
 endif()
 if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RK3326 OR TEGRAX1 OR PHYTIUM OR SD845 OR LX2160A OR M1)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC ON CACHE BOOL "")
+    set(RV64_DYNAREC OFF CACHE BOOL "")
 endif()
 if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RK3326 OR TEGRAX1 OR PHYTIUM OR SD845 OR LX2160A)
     set(PAGE16K OFF CACHE BOOL "")
@@ -66,6 +70,7 @@ endif()
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
 option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation" ${ARM_DYNAREC})
+option(RV64_DYNAREC "Set to ON to use RISC-V Dynamic Recompilation" ${RV64_DYNAREC})
 option(PAGE8K "Set to ON if host device have PageSize of 8K (instead of 4K)" ${PAGE8K})
 option(PAGE16K "Set to ON if host device have PageSize of 16K (instead of 4K)" ${PAGE16K})
 option(PAGE64K "Set to ON if host device have PageSize of 64K (instead of 4K)" ${PAGE64K})
@@ -207,6 +212,12 @@ if(ARM_DYNAREC)
     add_definitions(-DARM64)
     enable_language(ASM)
     include_directories("${BOX64_ROOT}/src/dynarec/arm64")
+    set(DYNAREC ON)
+elseif(RV64_DYNAREC)
+    add_definitions(-DDYNAREC)
+    add_definitions(-DRV64)
+    enable_language(ASM)
+    include_directories("${BOX64_ROOT}/src/dynarec/rv64")
     set(DYNAREC ON)
 else()
     set(DYNAREC OFF)
@@ -572,6 +583,49 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_66f0.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f20f.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f30f.c"
+    )
+endif()
+
+if(RV64_DYNAREC)
+    set(DYNAREC_SRC
+        ${DYNAREC_SRC}
+
+        "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_functions.c"
+        "${BOX64_ROOT}/src/dynarec/rv64/rv64_printer.c"
+        "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_jmpnext.c"
+
+        "${BOX64_ROOT}/src/dynarec/rv64/rv64_prolog.S"
+        "${BOX64_ROOT}/src/dynarec/rv64/rv64_epilog.S"
+        "${BOX64_ROOT}/src/dynarec/rv64/rv64_next.S"
+        "${BOX64_ROOT}/src/dynarec/rv64/rv64_lock.S"
+    )
+
+    set(DYNAREC_PASS
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_helper.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_tests.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_math.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_logic.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_shift.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_00.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_0f.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_64.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_65.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_66.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_67.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_d8.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_d9.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_da.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_db.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_dc.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_dd.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_de.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_df.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f0.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_660f.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_6664.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_66f0.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f20f.c"
+    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f30f.c"
     )
 endif()
 

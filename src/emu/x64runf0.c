@@ -36,6 +36,9 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
     int64_t tmp64s;
     uint64_t tmp64u, tmp64u2;
     reg64_t *oped, *opgd;
+    #ifdef USE_CAS
+    uint64_t tmpcas;
+    #endif
 
     opcode = F8;
     // REX prefix before the F0 are ignored

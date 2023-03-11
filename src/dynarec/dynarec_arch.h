@@ -18,6 +18,15 @@
 #define dynarec_native_t            dynarec_la464_t
 
 
+#elif defined(RV64)
+#include "rv64/rv64_printer.h"
+#include "rv64/dynarec_rv64_private.h"
+#include "rv64/dynarec_rv64_functions.h"
+
+#define instruction_native_t        instruction_rv64_t
+#define dynarec_native_t            dynarec_rv64_t
+
+
 #else
 #error Unsupported platform
 #endif
