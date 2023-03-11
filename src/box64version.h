@@ -3,6 +3,6 @@
 
 #define BOX64_MAJOR 0
 #define BOX64_MINOR 2
-#define BOX64_REVISION 2
+#define BOX64_REVISION 3
 
 #endif //__BOX64_VERSION_H_
