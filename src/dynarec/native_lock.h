@@ -16,6 +16,8 @@
 #define native_lock_write_dq(A, B, C)       arm64_lock_write_dq(A, B, C)
 #define native_lock_xchg_dd(A, B)           arm64_lock_xchg_dd(A, B)
 #define native_lock_xchg_d(A, B)            arm64_lock_xchg_d(A, B)
+#define native_lock_xchg_h(A, B)            arm64_lock_xchg_h(A, B)
+#define native_lock_xchg_b(A, B)            arm64_lock_xchg_b(A, B)
 #define native_lock_storeifref(A, B, C)     arm64_lock_storeifref(A, B, C)
 #define native_lock_storeifref_d(A, B, C)   arm64_lock_storeifref_d(A, B, C)
 #define native_lock_storeifref2_d(A, B, C)  arm64_lock_storeifref2_d(A, B, C)

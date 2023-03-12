@@ -33,6 +33,12 @@ extern uintptr_t arm64_lock_xchg_dd(void* p, uintptr_t val);
 // Atomicaly exchange value at [p] with val, return old p
 extern uint32_t arm64_lock_xchg_d(void* p, uint32_t val);
 
+// Atomicaly exchange value at [p] with val, return old p
+extern uint32_t arm64_lock_xchg_h(void* p, uint32_t val);
+
+// Atomicaly exchange value at [p] with val, return old p
+extern uint32_t arm64_lock_xchg_b(void* p, uint32_t val);
+
 // Atomicaly store value to [p] only if [p] is NULL. Return old [p] value
 extern uint32_t arm64_lock_storeifnull_d(void*p, uint32_t val);
 
