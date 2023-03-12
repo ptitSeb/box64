@@ -87,6 +87,8 @@
 #define SET_NODF()          dyn->f.dfnone = 0
 #define SET_DFOK()          dyn->f.dfnone = 1
 
+#define CLEAR_FLAGS() IFX(X_ALL) {ANDI(xFlags, xFlags, ~((1UL<<F_AF) | (1UL<<F_CF) | (1UL<<F_OF) | (1UL<<F_ZF) | (1UL<<F_SF) | (1UL<<F_PF)));}
+
 #ifndef MAYSETFLAGS
 #define MAYSETFLAGS()
 #endif
