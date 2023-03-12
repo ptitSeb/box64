@@ -353,6 +353,9 @@ HWCAP2_ECV
 #elif defined(LA464)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
     printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
+#elif defined(RV64)
+    printf_log(LOG_INFO, "Dynarec for RISC-V");
+    printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #else
 #error Unsupported architecture
 #endif

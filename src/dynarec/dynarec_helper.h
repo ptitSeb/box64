@@ -5,6 +5,8 @@
 #include "arm64/dynarec_arm64_helper.h"
 #elif defined(LA464)
 #include "la464/dynarec_la464_helper.h"
+#elif defined(RV64)
+#include "rv64/dynarec_rv64_helper.h"
 #else
 #error Unsupported architecture
 #endif

@@ -60,44 +60,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
                 dyn->f.pending = 0;
                 fpu_reset(dyn);
             } else {
-                MESSAGE(LOG_DEBUG, "Reset Caches with %d\n",reset_n);
-                #if STEP > 1
-                // for STEP 2 & 3, just need to refrest with current, and undo the changes (push & swap)
-                dyn->n = dyn->insts[ninst].n;
-                neoncacheUnwind(&dyn->n);
-                #ifdef HAVE_TRACE
-                if(box64_dynarec_dump)
-                    if(memcmp(&dyn->n, &dyn->insts[reset_n].n, sizeof(neon_cache_t))) {
-                        MESSAGE(LOG_DEBUG, "Warning, difference in neoncache: reset=");
-                        for(int i=0; i<24; ++i)
-                            if(dyn->insts[reset_n].n.neoncache[i].v)
-                                MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->insts[reset_n].n.neoncache[i].t, dyn->insts[reset_n].n.neoncache[i].n));
-                        if(dyn->insts[reset_n].n.combined1 || dyn->insts[reset_n].n.combined2)
-                            MESSAGE(LOG_DEBUG, " %s:%02d/%02d", dyn->insts[reset_n].n.swapped?"SWP":"CMB", dyn->insts[reset_n].n.combined1, dyn->insts[reset_n].n.combined2);
-                        if(dyn->insts[reset_n].n.stack_push || dyn->insts[reset_n].n.stack_pop)
-                            MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->insts[reset_n].n.stack_push, -dyn->insts[reset_n].n.stack_pop);
-                        MESSAGE(LOG_DEBUG, " ==> ");
-                        for(int i=0; i<24; ++i)
-                            if(dyn->insts[ninst].n.neoncache[i].v)
-                                MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->insts[ninst].n.neoncache[i].t, dyn->insts[ninst].n.neoncache[i].n));
-                        if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)
-                            MESSAGE(LOG_DEBUG, " %s:%02d/%02d", dyn->insts[ninst].n.swapped?"SWP":"CMB", dyn->insts[ninst].n.combined1, dyn->insts[ninst].n.combined2);
-                        if(dyn->insts[ninst].n.stack_push || dyn->insts[ninst].n.stack_pop)
-                            MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop);
-                        MESSAGE(LOG_DEBUG, " -> ");
-                        for(int i=0; i<24; ++i)
-                            if(dyn->n.neoncache[i].v)
-                                MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->n.neoncache[i].t, dyn->n.neoncache[i].n));
-                        if(dyn->n.combined1 || dyn->n.combined2)
-                            MESSAGE(LOG_DEBUG, " %s:%02d/%02d", dyn->n.swapped?"SWP":"CMB", dyn->n.combined1, dyn->n.combined2);
-                        if(dyn->n.stack_push || dyn->n.stack_pop)
-                            MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->n.stack_push, -dyn->n.stack_pop);
-                        MESSAGE(LOG_DEBUG, "\n");
-                    }
-                #endif //HAVE_TRACE
-                #else
-                dyn->n = dyn->insts[reset_n].n;
-                #endif
+                fpu_reset_cache(dyn, ninst, reset_n);
                 dyn->f = dyn->insts[reset_n].f_exit;
                 if(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT) {
                     MESSAGE(LOG_DEBUG, "Apply Barrier Float\n");
@@ -112,21 +75,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
             reset_n = -1;
         } else if(ninst && (dyn->insts[ninst].pred_sz!=1 || dyn->insts[ninst].pred[0]!=ninst-1))
             dyn->last_ip = 0;   // reset IP if some jump are comming here
-        // propagate ST stack state, especial stack pop that are defered
-        if(dyn->n.stack_pop) {
-            for(int j=0; j<24; ++j)
-                if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D || dyn->n.neoncache[j].t == NEON_CACHE_ST_F)) {
-                    if(dyn->n.neoncache[j].n<dyn->n.stack_pop)
-                        dyn->n.neoncache[j].v = 0;
-                    else
-                        dyn->n.neoncache[j].n-=dyn->n.stack_pop;
-                }
-            dyn->n.stack_pop = 0;
-        }
-        dyn->n.stack = dyn->n.stack_next;
-        dyn->n.news = 0;
-        dyn->n.stack_push = 0;
-        dyn->n.swapped = 0;
+        fpu_propagate_stack(dyn, ninst);
         NEW_INST;
         if(dyn->insts[ninst].pred_sz>1) {SMSTART();}
         fpu_reset_scratch(dyn);

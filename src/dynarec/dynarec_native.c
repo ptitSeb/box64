@@ -325,7 +325,7 @@ static void fillPredecessors(dynarec_native_t* dyn)
 }
 
 // updateNeed goes backward, from last intruction to top
-static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
+static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
     while (ninst>=0) {
         // need pending but instruction is only a subset: remove pend and use an X_ALL instead
         need |= dyn->insts[ninst].x64.need_after;

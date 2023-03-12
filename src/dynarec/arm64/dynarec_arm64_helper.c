@@ -1753,3 +1753,65 @@ void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     MVNw_REG(s4, s4);
     BFIw(xFlags, s4, F_PF, 1);
 }
+
+
+void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
+{
+    MESSAGE(LOG_DEBUG, "Reset Caches with %d\n",reset_n);
+    #if STEP > 1
+    // for STEP 2 & 3, just need to refrest with current, and undo the changes (push & swap)
+    dyn->n = dyn->insts[ninst].n;
+    neoncacheUnwind(&dyn->n);
+    #ifdef HAVE_TRACE
+    if(box64_dynarec_dump)
+        if(memcmp(&dyn->n, &dyn->insts[reset_n].n, sizeof(neon_cache_t))) {
+            MESSAGE(LOG_DEBUG, "Warning, difference in neoncache: reset=");
+            for(int i=0; i<24; ++i)
+                if(dyn->insts[reset_n].n.neoncache[i].v)
+                    MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->insts[reset_n].n.neoncache[i].t, dyn->insts[reset_n].n.neoncache[i].n));
+            if(dyn->insts[reset_n].n.combined1 || dyn->insts[reset_n].n.combined2)
+                MESSAGE(LOG_DEBUG, " %s:%02d/%02d", dyn->insts[reset_n].n.swapped?"SWP":"CMB", dyn->insts[reset_n].n.combined1, dyn->insts[reset_n].n.combined2);
+            if(dyn->insts[reset_n].n.stack_push || dyn->insts[reset_n].n.stack_pop)
+                MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->insts[reset_n].n.stack_push, -dyn->insts[reset_n].n.stack_pop);
+            MESSAGE(LOG_DEBUG, " ==> ");
+            for(int i=0; i<24; ++i)
+                if(dyn->insts[ninst].n.neoncache[i].v)
+                    MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->insts[ninst].n.neoncache[i].t, dyn->insts[ninst].n.neoncache[i].n));
+            if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)
+                MESSAGE(LOG_DEBUG, " %s:%02d/%02d", dyn->insts[ninst].n.swapped?"SWP":"CMB", dyn->insts[ninst].n.combined1, dyn->insts[ninst].n.combined2);
+            if(dyn->insts[ninst].n.stack_push || dyn->insts[ninst].n.stack_pop)
+                MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop);
+            MESSAGE(LOG_DEBUG, " -> ");
+            for(int i=0; i<24; ++i)
+                if(dyn->n.neoncache[i].v)
+                    MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->n.neoncache[i].t, dyn->n.neoncache[i].n));
+            if(dyn->n.combined1 || dyn->n.combined2)
+                MESSAGE(LOG_DEBUG, " %s:%02d/%02d", dyn->n.swapped?"SWP":"CMB", dyn->n.combined1, dyn->n.combined2);
+            if(dyn->n.stack_push || dyn->n.stack_pop)
+                MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->n.stack_push, -dyn->n.stack_pop);
+            MESSAGE(LOG_DEBUG, "\n");
+        }
+    #endif //HAVE_TRACE
+    #else
+    dyn->n = dyn->insts[reset_n].n;
+    #endif
+}
+
+// propagate ST stack state, especial stack pop that are defered
+void fpu_propagate_stack(dynarec_arm_t* dyn, int ninst)
+{
+    if(dyn->n.stack_pop) {
+        for(int j=0; j<24; ++j)
+            if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D || dyn->n.neoncache[j].t == NEON_CACHE_ST_F)) {
+                if(dyn->n.neoncache[j].n<dyn->n.stack_pop)
+                    dyn->n.neoncache[j].v = 0;
+                else
+                    dyn->n.neoncache[j].n-=dyn->n.stack_pop;
+            }
+        dyn->n.stack_pop = 0;
+    }
+    dyn->n.stack = dyn->n.stack_next;
+    dyn->n.news = 0;
+    dyn->n.stack_push = 0;
+    dyn->n.swapped = 0;
+}
