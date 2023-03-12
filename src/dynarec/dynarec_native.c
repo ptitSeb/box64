@@ -84,11 +84,13 @@ uintptr_t get_closest_next(dynarec_native_t *dyn, uintptr_t addr) {
     uintptr_t best = 0;
     int i = 0;
     while((i<dyn->next_sz) && (best!=addr)) {
-        if(dyn->next[i]<addr) { // remove the address, it's before current address
-            dyn->next[i] = 0;
-        } else {
-            if((dyn->next[i]<best) || !best)
-                best = dyn->next[i];
+        if(dyn->next[i]) {
+            if(dyn->next[i]<addr) { // remove the address, it's before current address
+                dyn->next[i] = 0;
+            } else {
+                if((dyn->next[i]<best) || !best)
+                    best = dyn->next[i];
+            }
         }
         ++i;
     }
