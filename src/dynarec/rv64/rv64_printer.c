@@ -18,11 +18,11 @@ typedef struct {
     bool f;
 } insn_t;
 
-static const char gpnames[32][5] = {
-    "zero", "ra",   "sp",   "gp",   "tp",   "t0",   "t1",   "t2",
+static const char gpnames[32][9] = {
+    "zero", "ra",   "sp",   "gp",   "tp",   "t0_flags",   "t1_rip",   "t2",
     "s0",   "s1",   "a0",   "a1",   "a2",   "a3",   "a4",   "a5",
-    "a6",   "a7",   "s2",   "s3",   "s4",   "s5",   "s6",   "s7",
-    "s8",   "s9",   "s10",  "s11",  "t3",   "t4",   "t5",   "t6",
+    "a6_rax",   "a7_rcx",   "s2_rdx",   "s3_rbx",   "s4_rsp",   "s5_rbp",   "s6_rsi",   "s7_rdi",
+    "s8_r8",   "s9_r9",   "s10_r10",  "s11_r11",  "t3_r12",   "t4_r13",   "t5_r14",   "t6_r15",
 };
 
 static const char fpnames[32][5] = {
@@ -409,9 +409,11 @@ static inline insn_t insn_ciwtype_read(uint16_t data)
 #define PRINT_rd_rs1_rs2() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s", insn.name, RN(rd), RN(rs1), RN(rs2)); return buff
 #define PRINT_rd_rs1_rs2_rs3() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s, %s", insn.name, RN(rd), RN(rs1), RN(rs2), RN(rs3)); return buff
 #define PRINT_rd_rs1_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %d", insn.name, RN(rd), RN(rs1), insn.imm); return buff
+#define PRINT_rd_rs1_immx() snprintf(buff, sizeof(buff), "%s\t%s, %s, 0x%x", insn.name, RN(rd), RN(rs1), insn.imm); return buff
 #define PRINT_rd_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rd), insn.imm, RN(rs1)); return buff
 #define PRINT_rs2_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rs2), insn.imm, RN(rs1)); return buff
 #define PRINT_rd_imm() snprintf(buff, sizeof(buff), "%s\t%s, %d", insn.name, RN(rd), insn.imm); return buff
+#define PRINT_rd_immx() snprintf(buff, sizeof(buff), "%s\t%s, 0x%x", insn.name, RN(rd), insn.imm); return buff
 #define PRINT_rs1_rs2_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %d", insn.name, RN(rs1), RN(rs2), insn.imm); return buff
 #define PRINT_fd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_xd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, gpnames[insn.rd], fpnames[insn.rs1]); return buff
@@ -498,7 +500,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 insn =  insn_citype_read5(data);
                 assert(insn.imm != 0);
                 insn.name = "lui";
-                PRINT_rd_imm();
+                PRINT_rd_immx();
             }
         }
         case 0x4: {
@@ -724,6 +726,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             }
         }
         case 0x4: {
+            int hex = 0;
             uint32_t funct3 = FUNCT3(data);
 
             insn =  insn_itype_read(data);
@@ -746,6 +749,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 break;
             case 0x4: /* XORI */
                 insn.name = "xori";
+                hex = 1;
                 break;
             case 0x5: {
                 uint32_t imm116 = IMM116(data);
@@ -759,12 +763,18 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             }
             case 0x6: /* ORI */
                 insn.name = "ori";
+                hex = 1;
                 break;
             case 0x7: /* ANDI */
                 insn.name = "andi";
+                hex = 1;
                 break;
             }
-            PRINT_rd_rs1_imm();
+            if(hex) {
+                PRINT_rd_rs1_immx();
+            } else {
+                PRINT_rd_rs1_imm();
+            }
         }
         case 0x5: /* AUIPC */
             insn =  insn_utype_read(data);
@@ -912,7 +922,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
         case 0xd: /* LUI */
             insn =  insn_utype_read(data);
             insn.name = "lui";
-            PRINT_rd_imm();
+            PRINT_rd_immx();
         case 0xe: {
             insn =  insn_rtype_read(data);
 

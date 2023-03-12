@@ -50,4 +50,4 @@
         dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");                       \
     }
 
-#define TABLE64(A, V)   {int val64offset = Table64(dyn, (V)); MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); AUIPC(A, (val64offset>>12)); LD_I12(A, A, (val64offset&0b111111111111));}
+#define TABLE64(A, V)   {int val64offset = Table64(dyn, (V)); MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); AUIPC(A, (val64offset>>12)); LD(A, A, (val64offset&0b111111111111));}

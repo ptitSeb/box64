@@ -60,6 +60,19 @@
 //LOCK_* define
 #define LOCK_LOCK   (int*)1
 
+// GETGD    get x64 register in gd
+#define GETGD   gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3)
+//GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETED(D)  if(MODREG) {                          \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    SMREAD()                            \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+                    LD_I12(x1, wback, fixedaddress);    \
+                    ed = x1;                            \
+                }
+                
 #ifndef MAYSETFLAGS
 #define MAYSETFLAGS()
 #endif
@@ -280,7 +293,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define rv64_move64     STEPNAME(rv64_move64)
 
 /* setup r2 to address pointed by */
-//uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
+uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
 
 /* setup r2 to address pointed by */
 //uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);

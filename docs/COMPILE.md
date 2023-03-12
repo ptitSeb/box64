@@ -257,7 +257,7 @@ The `-DCMAKE_BUILD_TYPE=RelWithDebInfo` argument makes a build that is both opti
 
 #### To have a Trace Enabled build 
 
-To have a trace enabled build (***the interpreter will be slightly slower***), add `-DHAVE_TRACE=1`. But you will need to have the [Zydis library](https://github.com/zyantific/zydis) in your `LD_LIBRARY_PATH` or in the system library folders at runtime.
+To have a trace enabled build (***the interpreter will be slightly slower***), add `-DHAVE_TRACE=1`. But you will need to have the [Zydis library](https://github.com/zyantific/zydis) in your `LD_LIBRARY_PATH` or in the system library folders at runtime. Use version v3.2.1, as later version changed the API and will no longer work with box64
 
 #### To have ARM Dynarec
 

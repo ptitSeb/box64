@@ -81,7 +81,6 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define w4      x4
 #define w5      x5
 #define w6      x6
-#define w7      x7
 // emu is r10
 #define xEmu    10
 // RV64 RA
@@ -132,7 +131,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 + imm12
 #define ADDI(rd, rs1, imm12)        EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, 0b0010011))
 // rd = rs1 - imm12 (pseudo instruction)
-#define SUBI(rd, rs1, imm12)        EMIT(I_type((-imm12)&0b111111111111, rs1, 0b000, rd, 0b0010011))
+#define SUBI(rd, rs1, imm12)        EMIT(I_type((-(imm12))&0b111111111111, rs1, 0b000, rd, 0b0010011))
 // rd = (rs1<imm12)?1:0
 #define SLTI(rd, rs1, imm12)        EMIT(I_type((imm12)&0b111111111111, rs1, 0b010, rd, 0b0010011))
 // rd = (rs1<imm12)?1:0 unsigned
@@ -172,10 +171,29 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // rd = rs1 (pseudo instruction)
 #define MV(rd, rs1)                 ADDI(rd, rs1, 0)
+// rd = rs1 (pseudo instruction)
+#define MVxw(rd, rs1)               if(rex.w) {MV(rd, rs1); } else {SLLI(rd, rs1, 32); SRLI(rd, rd, 32);}
 // rd = !rs1
 #define NOT(rd, rs1)                XORI(rd, rs1, -1)
 // rd = -rs1
 #define NEG(rd, rs1)                SUB(rd, xZR, rs1)
+
+// rd = 4-bytes[rs1+imm12] signed extended
+#define LW(rd, rs1, imm12)          EMIT(I_type(imm12, rs1, 0b010, rd, 0b0000011))
+// rd = 2-bytes[rs1+imm12] signed extended
+#define LH(rd, rs1, imm12)          EMIT(I_type(imm12, rs1, 0b001, rd, 0b0000011))
+// rd = byte[rs1+imm12] signed extended
+#define LB(rd, rs1, imm12)          EMIT(I_type(imm12, rs1, 0b000, rd, 0b0000011))
+// rd = 2-bytes[rs1+imm12] zero extended
+#define LHU(rd, rs1, imm12)         EMIT(I_type(imm12, rs1, 0b101, rd, 0b0000011))
+// rd = byte[rs1+imm12] zero extended
+#define LBU(rd, rs1, imm12)         EMIT(I_type(imm12, rs1, 0b100, rd, 0b0000011))
+// byte[rs1+imm12] = rs2
+#define SB(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b000, 0b0100011))
+// 2-bytes[rs1+imm12] = rs2
+#define SH(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b001, 0b0100011))
+// 4-bytes[rs1+imm12] = rs2
+#define SW(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b010, 0b0100011))
 
 #define FENCE_gen(pred, succ)       (((pred)<<24) | ((succ)<<20) | 0b0001111)
 #define FENCE()                     EMIT(FENCE_gen(3, 3))
@@ -184,12 +202,14 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FENCE_I()                   EMIT(FENCE_I_gen())
 
 // RV64I
-#define LWU_gen(rd, rs1, imm12)         I_type(imm12, rs1, 0b110, rd, 0b0000011)
+#define LWU(rd, rs1, imm12)         EMIT(I_type(imm12, rs1, 0b110, rd, 0b0000011))
 
 // rd = [rs1 + imm12]
-#define LD_I12(rd, rs1, imm12)          EMIT(I_type(imm12, rs1, 0b011, rd, 0b0000011))
+#define LD(rd, rs1, imm12)          EMIT(I_type(imm12, rs1, 0b011, rd, 0b0000011))
 // [rs1 + imm12] = rs2
-#define SD_I12(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b011, 0b0100011))
+#define SD(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b011, 0b0100011))
+// [rs1 + imm12] = rs2
+#define SDxw(rs2, rs1, imm12)       EMIT(S_type(imm12, rs2, rs1, 0b010+rex.w, 0b0100011))
 
 // Shift Left Immediate
 #define SLLI(rd, rs1, imm6)         EMIT(I_type(imm6, rs1, 0b001, rd, 0b0010011))
