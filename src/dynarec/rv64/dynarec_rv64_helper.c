@@ -69,7 +69,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 }
             }
         } else if((nextop&7)==5) {
-            uint64_t tmp = F32S64;
+            int64_t tmp = F32S64;
             if(i12 && (tmp>=-2048) && (tmp<=2047)) {
                 GETIP(addr+delta);
                 ret = xRIP;
@@ -77,7 +77,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             } else if((tmp>=-2048) && (tmp<=2047)) {
                 GETIP(addr+delta);
                 ADDI(ret, xRIP, tmp);
-            } else if(tmp+addr+delta<0x1000000000000LL) {  // 3 opcodes to load immediate is cheap enough
+            } else if(tmp+addr+delta<0x100000000LL) {
                 MOV64x(ret, tmp+addr+delta);
             } else {
                 MOV64x(ret, tmp);
@@ -262,6 +262,20 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
     //TODO
 }
 
+void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val)
+{
+    int32_t up=(val>>12);
+    int32_t r = val-(up<<12);
+    // check if there is the dreaded sign bit on imm12
+    if(r&0b100000000000 && r!=0xffffffff) {
+        ++up;
+        r = val-(up<<12);
+    }
+    LUI(reg, up);
+    if(r) {
+        ADDI(reg, reg, r);
+    }
+}
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
 {
     if(((val<<(64-12))>>(64-12))==val) {
@@ -271,23 +285,18 @@ void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
     }
     if(((val<<32)>>32)==val) {
         // 32bits value
-        LUI(reg, (val>>12));
-        int32_t r = val-(((val>>12))<<12);
-        if(r) {
-            ADDI(reg, reg, r);
-        }
+        rv64_move32(dyn, ninst, reg, val);
+        return;
+    }
+    if((val&0xffffffffLL)==val && (val&0x80000000)) {
+        // 32bits value, but with a sign bit
+        rv64_move32(dyn, ninst, reg, val);
+        ZEROUP(reg);
         return;
     }
     //TODO: optimize that later
     // Start with the upper 32bits
-    {
-        int32_t v = val>>32;
-        LUI(reg, (v>>12));
-        int32_t r = v-(((v>>12))<<12);
-        if(r) {
-            ADDI(reg, reg, r);
-        }
-    }
+    rv64_move32(dyn, ninst, reg, val>>32);
     // now the lower part
     uint32_t r = val&0xffffffff;
     int s = 11;

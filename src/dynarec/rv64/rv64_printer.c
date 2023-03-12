@@ -878,6 +878,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     break;
                 }
             }
+            break;
             case 0x1: {
                 switch (funct3) {
                 case 0x0: /* MUL */
@@ -906,6 +907,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     break;
                 }
             }
+            break;
             case 0x20: {
                 switch (funct3) {
                 case 0x0: /* SUB */
@@ -916,6 +918,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     break;
                 }
             }
+            break;
             }
             PRINT_rd_rs1_rs2();
         }
@@ -943,6 +946,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     break;
                 }
             }
+            break;
             case 0x1: {
                 switch (funct3) {
                 case 0x0: /* MULW */
@@ -962,6 +966,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     break;
                 }
             }
+            break;
             case 0x20: {
                 switch (funct3) {
                 case 0x0: /* SUBW */
@@ -972,6 +977,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     break;
                 }
             }
+            break;
             }
             PRINT_rd_rs1_rs2();
         }

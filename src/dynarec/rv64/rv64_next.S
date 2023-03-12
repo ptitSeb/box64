@@ -46,6 +46,9 @@ rv64_next:
     ld      x30, 64(sp)
     ld      x31, 72(sp)
     addi    sp,  sp,  (8 * 10)
+    // setup xMASK
+    xori    x7, x0, -1
+    srli    x7, x7, 32
     // return offset is jump address
     jr      a3
 

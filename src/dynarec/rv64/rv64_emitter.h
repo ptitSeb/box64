@@ -73,7 +73,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define x3      13
 #define x4      14
 #define x5      15
-#define x6      7
+// used to clear the upper 32bits
+#define xMASK   7
 // 32bits version of scratch
 #define w1      x1
 #define w2      x2
@@ -97,7 +98,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define MOV64x(A, B)    rv64_move64(dyn, ninst, A, B)
 
 // ZERO the upper part
-#define ZEROUP(r)       SLLI(r, r, 32); SRLI(r, r, 32)
+#define ZEROUP(r)       AND(r, r, xMASK)
 
 #define R_type(funct7, rs2, rs1, funct3, rd, opcode)    ((funct7)<<25 | (rs2)<<20 | (rs1)<<15 | (funct3)<<12 | (rd)<<7 | (opcode))
 #define I_type(imm12, rs1, funct3, rd, opcode)    ((imm12)<<20 | (rs1)<<15 | (funct3)<<12 | (rd)<<7 | (opcode))
@@ -172,7 +173,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 (pseudo instruction)
 #define MV(rd, rs1)                 ADDI(rd, rs1, 0)
 // rd = rs1 (pseudo instruction)
-#define MVxw(rd, rs1)               if(rex.w) {MV(rd, rs1); } else {SLLI(rd, rs1, 32); SRLI(rd, rd, 32);}
+#define MVxw(rd, rs1)               if(rex.w) {MV(rd, rs1); } else {AND(rd, rs1, xMASK);}
 // rd = !rs1
 #define NOT(rd, rs1)                XORI(rd, rs1, -1)
 // rd = -rs1

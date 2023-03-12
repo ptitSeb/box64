@@ -46,4 +46,8 @@ rv64_prolog:
     ld      x31, 120(a0)
     ld      x5, 128(a0)     //xFlags
     ld      x6, 136(a0)     // xRIP
+    // setup xMASK
+    xori    x7, x0, -1
+    srli    x7, x7, 32
+    // jump to block
     jalr    a1
