@@ -1463,12 +1463,7 @@ void* GetTLSPointer(box64context_t* context, elfheader_t* h)
 {
     if(!h->tlssize)
         return NULL;
-    tlsdatasize_t* ptr;
-    if ((ptr = (tlsdatasize_t*)pthread_getspecific(context->tlskey)) == NULL) {
-        ptr = (tlsdatasize_t*)fillTLSData(context);
-    }
-    if(ptr->tlssize != context->tlssize)
-        ptr = (tlsdatasize_t*)resizeTLSData(context, ptr);
+    tlsdatasize_t* ptr = getTLSData(context);
     return ptr->data+h->tlsbase;
 }
 

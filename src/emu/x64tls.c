@@ -227,7 +227,7 @@ static tlsdatasize_t* setupTLSData(box64context_t* context)
     return data;
 }
 
-void* fillTLSData(box64context_t *context)
+static void* fillTLSData(box64context_t *context)
 {
         mutex_lock(&context->mutex_tls);
         tlsdatasize_t *data = setupTLSData(context);
@@ -235,7 +235,7 @@ void* fillTLSData(box64context_t *context)
         return data;
 }
 
-void* resizeTLSData(box64context_t *context, void* oldptr)
+static void* resizeTLSData(box64context_t *context, void* oldptr)
 {
         mutex_lock(&context->mutex_tls);
         tlsdatasize_t* oldata = (tlsdatasize_t*)oldptr;
@@ -272,14 +272,21 @@ void* resizeTLSData(box64context_t *context, void* oldptr)
         }
 }
 
+tlsdatasize_t* getTLSData(box64context_t *context)
+{
+    static __thread tlsdatasize_t* ptr = NULL;
+    if(!ptr)
+        if ((ptr = (tlsdatasize_t*)pthread_getspecific(context->tlskey)) == NULL) {
+            ptr = (tlsdatasize_t*)fillTLSData(context);
+        }
+    if(ptr->tlssize != context->tlssize)
+        ptr = (tlsdatasize_t*)resizeTLSData(context, ptr);
+    return ptr;
+}
+
 static void* GetSeg33Base()
 {
-    tlsdatasize_t* ptr;
-    if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) == NULL) {
-        ptr = (tlsdatasize_t*)fillTLSData(my_context);
-    }
-    if(ptr->tlssize != my_context->tlssize)
-        ptr = (tlsdatasize_t*)resizeTLSData(my_context, ptr);
+    tlsdatasize_t* ptr = getTLSData(my_context);
     return ptr->data;
 }
 

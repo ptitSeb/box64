@@ -14,6 +14,7 @@
 #include "emu/x64emu_private.h"
 #include "elfloader.h"
 #include "box64context.h"
+#include "x64tls.h"
 
 typedef struct my_tls_s {
     unsigned long int   i;
@@ -23,8 +24,8 @@ typedef struct my_tls_s {
 EXPORT void* my___tls_get_addr(void* p)
 {
     my_tls_t *t = (my_tls_t*)p;
-    void* ret = (void*)((char*)GetTLSPointer(my_context, my_context->elfs[t->i])+t->o);
-    return ret;
+    tlsdatasize_t* ptr = getTLSData(my_context);
+    return ptr->data+GetTLSBase(my_context->elfs[t->i])+t->o;
 }
 
 // don't try to load the actual ld-linux (because name is variable), just use box64 itself, as it's linked to ld-linux
