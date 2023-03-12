@@ -89,6 +89,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<13     // cx16 (cmpxchg16)
                     | 1<<19     // SSE4_1
                     | 1<<22     // MOVBE
+                    | 1<<23     // POPCOUNT
                     | 1<<25     // aesni
                     ; 
             break;
