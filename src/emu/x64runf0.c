@@ -895,7 +895,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 }
             } else {
                 if(rex.w) {
-                    GD->q[0] = native_lock_xchg(ED, GD->q[0]);
+                    GD->q[0] = native_lock_xchg_dd(ED, GD->q[0]);
                 } else {
                     GD->dword[0] = native_lock_xchg_d(ED, GD->dword[0]);
                 }

@@ -97,13 +97,13 @@ arm64_lock_write_dq:
     ret
 
 
-arm64_lock_xchg:
+arm64_lock_xchg_dd:
     dmb     ish
-arm64_lock_xchg_0:
+arm64_lock_xchg_dd_0:
     // address is x0, value is x1, return old value in x0
     ldaxr   x2, [x0]
     stlxr   w3, x1, [x0]
-    cbnz    w3, arm64_lock_xchg_0
+    cbnz    w3, arm64_lock_xchg_dd_0
     mov     x0, x2
     ret
 

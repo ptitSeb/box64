@@ -14,7 +14,7 @@
 #define native_lock_write_dd(A, B)          arm64_lock_write_dd(A, B)
 #define native_lock_read_dq(A, B, C)        arm64_lock_read_dq(A, B, C)
 #define native_lock_write_dq(A, B, C)       arm64_lock_write_dq(A, B, C)
-#define native_lock_xchg(A, B)              arm64_lock_xchg(A, B)
+#define native_lock_xchg_dd(A, B)           arm64_lock_xchg_dd(A, B)
 #define native_lock_xchg_d(A, B)            arm64_lock_xchg_d(A, B)
 #define native_lock_storeifref(A, B, C)     arm64_lock_storeifref(A, B, C)
 #define native_lock_storeifref_d(A, B, C)   arm64_lock_storeifref_d(A, B, C)
@@ -36,7 +36,7 @@
 // And so need to use a Compare and Swap mecanism instead
 
 // no byte or 2-bytes atomic access on RISC-V
-#define native_lock_xchg(A, B)              rv64_lock_xchg(A, B)
+#define native_lock_xchg_dd(A, B)           rv64_lock_xchg_dd(A, B)
 #define native_lock_xchg_d(A, B)            rv64_lock_xchg_d(A, B)
 #define native_lock_storeifref(A, B, C)     rv64_lock_storeifref(A, B, C)
 #define native_lock_storeifref_d(A, B, C)   rv64_lock_storeifref_d(A, B, C)

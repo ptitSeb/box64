@@ -9,7 +9,7 @@ extern int rv64_lock_cas_d(void* p, int32_t ref, int32_t val);
 extern int rv64_lock_cas_dd(void* p, int64_t ref, int64_t val);
 
 // Atomicaly exchange value at [p] with val, return old p
-extern uintptr_t rv64_lock_xchg(void* p, uintptr_t val);
+extern uintptr_t rv64_lock_xchg_dd(void* p, uintptr_t val);
 
 // Atomicaly exchange value at [p] with val, return old p
 extern uint32_t rv64_lock_xchg_d(void* p, uint32_t val);

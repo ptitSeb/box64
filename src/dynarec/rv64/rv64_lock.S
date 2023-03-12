@@ -5,7 +5,7 @@
 .text
 .align 4
 
-.global rv64_lock_xchg
+.global rv64_lock_xchg_dd
 .global rv64_lock_xchg_d
 .global rv64_lock_storeifnull
 .global rv64_lock_storeifnull_d
@@ -21,7 +21,7 @@
 .global rv64_lock_cas_dd
 .global rv64_lock_cas_dq
 
-rv64_lock_xchg:
+rv64_lock_xchg_dd:
     // address is a0, value is a1, return old value in a0
     amoswap.d.aqrl  a0, a1, (a0)
     ret

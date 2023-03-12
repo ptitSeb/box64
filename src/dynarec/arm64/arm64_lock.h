@@ -28,7 +28,7 @@ extern void arm64_lock_read_dq(uint64_t * a, uint64_t* b, void* addr);
 extern int arm64_lock_write_dq(uint64_t a, uint64_t b, void* addr);
 
 // Atomicaly exchange value at [p] with val, return old p
-extern uintptr_t arm64_lock_xchg(void* p, uintptr_t val);
+extern uintptr_t arm64_lock_xchg_dd(void* p, uintptr_t val);
 
 // Atomicaly exchange value at [p] with val, return old p
 extern uint32_t arm64_lock_xchg_d(void* p, uint32_t val);
