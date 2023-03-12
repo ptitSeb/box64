@@ -52,6 +52,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(cacheupd);
 
     switch(opcode) {
+        case 0x29:
+            INST_NAME("SUB Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_sub32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            WBACK;
+            break;
 
         case 0x50:
         case 0x51:

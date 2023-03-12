@@ -603,7 +603,7 @@ if(RV64_DYNAREC)
     set(DYNAREC_PASS
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_helper.c"
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_tests.c"
-    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_math.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_math.c"
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_logic.c"
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_shift.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_00.c"
@@ -630,8 +630,8 @@ if(RV64_DYNAREC)
 endif()
 
 if(DYNAREC)
-    set(DYNAREC_PASS 
-        "${BOX64_ROOT}/src/wrapped/generated/wrapper.h" 
+    set(DYNAREC_PASS
+        "${BOX64_ROOT}/src/wrapped/generated/wrapper.h"
         ${DYNAREC_PASS}
         "${BOX64_ROOT}/src/dynarec/dynarec_native_pass.c"
     )
@@ -849,14 +849,14 @@ add_test(sse_asm ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 set_tests_properties(sse_asm PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTROUND=0")
-    
+
 add_test(sse_intrinsics ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test17 -D TEST_OUTPUT=tmpfile17.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref17.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 set_tests_properties(sse_intrinsics PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTNAN=0;BOX64_DYNAREC_FASTROUND=0")
-    
+
 add_test(aes ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test18 -D TEST_OUTPUT=tmpfile18.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref18.txt
