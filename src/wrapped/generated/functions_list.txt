@@ -3533,10 +3533,6 @@ wrappedlibpthread:
   - __pthread_unregister_cancel
   - __pthread_unwind_next
 - iFp:
-  - __pthread_mutex_destroy
-  - __pthread_mutex_lock
-  - __pthread_mutex_trylock
-  - __pthread_mutex_unlock
   - __pthread_mutexattr_destroy
   - __pthread_mutexattr_init
   - pthread_attr_destroy
@@ -3548,10 +3544,6 @@ wrappedlibpthread:
   - pthread_condattr_destroy
   - pthread_condattr_init
   - pthread_getattr_default_np
-  - pthread_mutex_destroy
-  - pthread_mutex_lock
-  - pthread_mutex_trylock
-  - pthread_mutex_unlock
   - pthread_mutexattr_destroy
   - pthread_mutexattr_init
   - pthread_setattr_default_np
@@ -3599,7 +3591,6 @@ wrappedlibpthread:
   - pthread_condattr_getpshared
   - pthread_key_create
   - pthread_mutex_init
-  - pthread_mutex_timedlock
   - pthread_mutexattr_getkind_np
   - pthread_mutexattr_getprotocol
   - pthread_mutexattr_gettype

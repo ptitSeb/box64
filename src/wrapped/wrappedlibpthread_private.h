@@ -180,12 +180,17 @@ GOM(__pthread_mutexattr_settype, iFEpi)
 GOM(pthread_mutexattr_settype, iFEpi)
 #endif
 // pthread_mutex_consistent_np
-#ifdef NOALIGN
 GO(__pthread_mutex_destroy, iFp)
 GO(pthread_mutex_destroy, iFp)
 // pthread_mutex_getprioceiling
+#ifdef NOALIGN
 GO(__pthread_mutex_init, iFpp)
 GO(pthread_mutex_init, iFpp)
+#else
+// phtread_mutex_t is 40 bytes on x86_64, but 48bytes on ARM64
+GOM(__pthread_mutex_init, iFpp)
+GOM(pthread_mutex_init, iFpp)
+#endif
 GO(__pthread_mutex_lock, iFp)
 GO(pthread_mutex_lock, iFp)
 // pthread_mutex_setprioceiling
@@ -194,22 +199,6 @@ GO(__pthread_mutex_trylock, iFp)
 GO(pthread_mutex_trylock, iFp)
 GO(__pthread_mutex_unlock, iFp)
 GO(pthread_mutex_unlock, iFp)
-#else
-// phtread_mutex_t is 40 bytes on x86_64, but 48bytes on ARM64
-GOM(__pthread_mutex_destroy, iFp)
-GOM(pthread_mutex_destroy, iFp)
-// pthread_mutex_getprioceiling
-GOM(__pthread_mutex_init, iFpp)
-GOM(pthread_mutex_init, iFpp)
-GOM(__pthread_mutex_lock, iFp)
-GOM(pthread_mutex_lock, iFp)
-// pthread_mutex_setprioceiling
-GOM(pthread_mutex_timedlock, iFpp)
-GOM(__pthread_mutex_trylock, iFp)
-GOM(pthread_mutex_trylock, iFp)
-GOM(__pthread_mutex_unlock, iFp)
-GOM(pthread_mutex_unlock, iFp)
-#endif
 GOM(pthread_once, iFEpp)
 GOM(__pthread_once, iFEpp)
 GOM(__pthread_register_cancel, vFEp)

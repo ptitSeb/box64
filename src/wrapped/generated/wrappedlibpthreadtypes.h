@@ -30,10 +30,6 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(__pthread_register_cancel, vFp_t) \
 	GO(__pthread_unregister_cancel, vFp_t) \
 	GO(__pthread_unwind_next, vFp_t) \
-	GO(__pthread_mutex_destroy, iFp_t) \
-	GO(__pthread_mutex_lock, iFp_t) \
-	GO(__pthread_mutex_trylock, iFp_t) \
-	GO(__pthread_mutex_unlock, iFp_t) \
 	GO(__pthread_mutexattr_destroy, iFp_t) \
 	GO(__pthread_mutexattr_init, iFp_t) \
 	GO(pthread_attr_destroy, iFp_t) \
@@ -45,10 +41,6 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_condattr_destroy, iFp_t) \
 	GO(pthread_condattr_init, iFp_t) \
 	GO(pthread_getattr_default_np, iFp_t) \
-	GO(pthread_mutex_destroy, iFp_t) \
-	GO(pthread_mutex_lock, iFp_t) \
-	GO(pthread_mutex_trylock, iFp_t) \
-	GO(pthread_mutex_unlock, iFp_t) \
 	GO(pthread_mutexattr_destroy, iFp_t) \
 	GO(pthread_mutexattr_init, iFp_t) \
 	GO(pthread_setattr_default_np, iFp_t) \
@@ -91,7 +83,6 @@ typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_condattr_getpshared, iFpp_t) \
 	GO(pthread_key_create, iFpp_t) \
 	GO(pthread_mutex_init, iFpp_t) \
-	GO(pthread_mutex_timedlock, iFpp_t) \
 	GO(pthread_mutexattr_getkind_np, iFpp_t) \
 	GO(pthread_mutexattr_getprotocol, iFpp_t) \
 	GO(pthread_mutexattr_gettype, iFpp_t) \

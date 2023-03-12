@@ -807,11 +807,6 @@ EXPORT int my_pthread_kill_old(x64emu_t* emu, void* thread, int sig)
 //}
 
 #ifndef NOALIGN
-EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
-{
-	int ret = pthread_mutex_destroy(m);
-	return ret;
-}
 typedef union my_mutexattr_s {
 	int					x86;
 	pthread_mutexattr_t nat;
@@ -895,9 +890,6 @@ EXPORT int my_pthread_mutexattr_settype(x64emu_t* emu, my_mutexattr_t *attr, int
 }
 EXPORT int my___pthread_mutexattr_settype(x64emu_t* emu, my_mutexattr_t *attr, int t) __attribute__((alias("my_pthread_mutexattr_settype")));
 
-// mutex
-int my___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_destroy")));
-
 #ifdef __SIZEOF_PTHREAD_MUTEX_T
 #if __SIZEOF_PTHREAD_MUTEX_T == 48
 #define MUTEX_OVERSIZED_8
@@ -925,33 +917,6 @@ EXPORT int my_pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att)
 	return ret;
 }
 EXPORT int my___pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att) __attribute__((alias("my_pthread_mutex_init")));
-
-EXPORT int my_pthread_mutex_lock(pthread_mutex_t *m)
-{
-	int ret = pthread_mutex_lock(m);
-	return ret;
-}
-EXPORT int my___pthread_mutex_lock(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_lock")));
-
-EXPORT int my_pthread_mutex_timedlock(pthread_mutex_t *m, const struct timespec * t)
-{
-	int ret = pthread_mutex_timedlock(m, t);
-	return ret;
-}
-EXPORT int my___pthread_mutex_trylock(pthread_mutex_t *m, const struct timespec * t) __attribute__((alias("my_pthread_mutex_timedlock")));
-
-EXPORT int my_pthread_mutex_trylock(pthread_mutex_t *m)
-{
-	int ret = pthread_mutex_trylock(m);
-	return ret;
-}
-EXPORT int my___pthread_mutex_unlock(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_trylock")));
-
-EXPORT int my_pthread_mutex_unlock(pthread_mutex_t *m)
-{
-	int ret = pthread_mutex_unlock(m);
-	return ret;
-}
 
 typedef union my_condattr_s {
 	int					x86;
