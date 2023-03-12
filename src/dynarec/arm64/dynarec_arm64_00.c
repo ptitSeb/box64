@@ -1237,7 +1237,45 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 break;
             }
             break;
-
+        case 0xA7:
+            switch(rep) {
+            case 1:
+            case 2:
+                if(rep==1) {INST_NAME("REPNZ CMPSD");} else {INST_NAME("REPZ CMPSD");}
+                MAYSETFLAGS();
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                CBZx_NEXT(xRCX);
+                TBNZ_MARK2(xFlags, F_DF);
+                MARK;   // Part with DF==0
+                LDRxw_S9_postindex(x1, xRSI, rex.w?8:4);
+                LDRxw_S9_postindex(x2, xRDI, rex.w?8:4);
+                SUBx_U12(xRCX, xRCX, 1);
+                CMPSxw_REG(x1, x2);
+                B_MARK3((rep==1)?cEQ:cNE);
+                CBNZx_MARK(xRCX);
+                B_MARK3_nocond;
+                MARK2;  // Part with DF==1
+                LDRxw_S9_postindex(x1, xRSI, rex.w?-8:-4);
+                LDRxw_S9_postindex(x2, xRDI, rex.w?-8:-4);
+                SUBx_U12(xRCX, xRCX, 1);
+                CMPSxw_REG(x1, x2);
+                B_MARK3((rep==1)?cEQ:cNE);
+                CBNZx_MARK2(xRCX);
+                MARK3;  // end
+                emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5);
+                break;
+            default:
+                INST_NAME("CMPSD");
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                GETDIR(x3, rex.w?8:4);
+                LDRxw_U12(x1, xRSI, 0);
+                LDRxw_U12(x2, xRDI, 0);
+                ADDx_REG(xRSI, xRSI, x3);
+                ADDx_REG(xRDI, xRDI, x3);
+                emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5);
+                break;
+            }
+            break;
         case 0xA8:
             INST_NAME("TEST AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
