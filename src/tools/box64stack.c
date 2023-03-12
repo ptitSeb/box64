@@ -160,7 +160,7 @@ void SetupInitialStack(x64emu_t *emu)
     Push(emu, real_getauxval(14)); Push(emu, 14);       //AT_EGID(14)
     Push(emu, p_x86_64); Push(emu, 15);                 //AT_PLATFORM(15)=&"x86_64"
     // Push HWCAP: same as CPUID 1.EDX
-    Push(emu,   1         // fpu 
+    Push(emu,   1<<0      // fpu 
               | 1<<4      // rdtsc
               | 1<<8      // cmpxchg8
               | 1<<11     // sep (sysenter & sysexit)
@@ -170,6 +170,8 @@ void SetupInitialStack(x64emu_t *emu)
               | 1<<24     // fxsr (fxsave, fxrestore)
               | 1<<25     // SSE
               | 1<<26     // SSE2
+              | 1<<28     // hyper threading
+              | 1<<30     // ia64
         );
     Push(emu, 16);                                      //AT_HWCAP(16)=...
     //Push(emu, sysconf(_SC_CLK_TCK)); Push(emu, 17);     //AT_CLKTCK(17)=times() frequency

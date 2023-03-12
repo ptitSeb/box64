@@ -397,6 +397,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SXTL_32(q0, q1);     // 32bits->64bits
                     break;
 
+                case 0x2B:
+                    INST_NAME("PACKUSDW Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
+                    v0 = fpu_get_scratch(dyn);
+                    VEORQ(v0, v0, v0);
+                    SMAX_32(v0, v0, q0);    // values < 0 => 0
+                    UQXTN_16(q0, v0);
+                    VEORQ(v0, v0, v0);
+                    SMAX_32(v0, v0, q1);
+                    UQXTN2_16(q0, v0);
+                    break;
+
                 case 0x30:
                     INST_NAME("PMOVZXBW Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
@@ -499,6 +513,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEX(q1, 0, 0);
                     GETGX(q0, 1);
                     UMAXQ_32(q0, q0, q1);
+                    break;
+                case 0x40:
+                    INST_NAME("PMULLD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
+                    VUMULL_32(q0, q0, q1);
                     break;
 
                 case 0xDB:
