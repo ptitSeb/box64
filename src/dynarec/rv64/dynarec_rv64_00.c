@@ -84,6 +84,23 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0x8D:
+            INST_NAME("LEA Gd, Ed");
+            nextop=F8;
+            GETGD;
+            if(MODREG) {   // reg <= reg? that's an invalid operation
+                DEFAULT;
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
+                if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
+                    MV(gd, ed);
+                }
+                else if(!rex.w) {
+                    ZEROUP(gd);   //truncate the higher 32bits as asked
+                }
+            }
+            break;
+
         default:
             DEFAULT;
     }
