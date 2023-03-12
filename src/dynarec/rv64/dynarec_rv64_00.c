@@ -63,12 +63,8 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x57:
             INST_NAME("PUSH reg");
             gd = xRAX+(opcode&0x07)+(rex.b<<3);
-            if(gd==xRSP) {
-                MV(x1, gd);
-                gd = x1;
-            }
+            SD(gd, xRSP, -8);
             SUBI(xRSP, xRSP, 8);
-            SD(gd, xRSP, 0);
             break;
 
         case 0x89:
@@ -101,9 +97,25 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            INST_NAME("POP reg");
+            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            LD(gd, xRSP, 0);
+            if(gd!=xRSP) {
+                ADDI(xRSP, xRSP, 8);
+            }
+            break;
+
         default:
             DEFAULT;
     }
- 
+
      return addr;
 }
