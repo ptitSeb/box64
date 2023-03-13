@@ -20,7 +20,4 @@ int isNativeCall(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t* calladdress, in
 int isPred(dynarec_rv64_t* dyn, int ninst, int pred);
 int getNominalPred(dynarec_rv64_t* dyn, int ninst);
 
-// is inst clean for a son branch?
-int isInstClean(dynarec_rv64_t* dyn, int ninst);
-
 #endif //__DYNAREC_RV64_FUNCTIONS_H__

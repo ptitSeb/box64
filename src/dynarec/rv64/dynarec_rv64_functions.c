@@ -134,17 +134,6 @@ int isNativeCall(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t* calladdress, in
 #undef PK
 }
 
-// is inst clean for a son branch?
-int isInstClean(dynarec_rv64_t* dyn, int ninst)
-{
-    // check flags cache
-    if(dyn->insts[ninst].f_entry.dfnone || dyn->insts[ninst].f_entry.pending)
-        return 0;
-    if(dyn->insts[ninst].x64.state_flags)
-        return 0;
-    return 1;
-}
-
 int isPred(dynarec_rv64_t* dyn, int ninst, int pred) {
     for(int i=0; i<dyn->insts[ninst].pred_sz; ++i)
         if(dyn->insts[ninst].pred[i]==pred)

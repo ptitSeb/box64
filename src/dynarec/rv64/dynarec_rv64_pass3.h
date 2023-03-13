@@ -11,9 +11,6 @@
 
 #define MESSAGE(A, ...)  if(box64_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST        \
-    if(ninst && isInstClean(dyn, ninst)) {                      \
-        if(dyn->last_ip!=ip) dyn->last_ip = 0;                  \
-    }                                                           \
     if(ninst)                                                   \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4);
 #define INST_EPILOG     
