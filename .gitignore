@@ -65,3 +65,6 @@ backup/
 !/LLVMprivateGenerator/Makefile
 !/LLVMprivateGenerator/main.cpp
 !/LLVMprivateGenerator/registered_structs.cpp
+
+# macOS
+.DS_Store
