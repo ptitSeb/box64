@@ -49,13 +49,20 @@ rv64_epilog:
 
 .global rv64_epilog_fast
 rv64_epilog_fast:
-    //restore all used register
     ld      ra, (sp)  // save ra
     ld      x8, 8(sp) // save fp
-    ld      x16, 16(sp)
-    ld      x17, 24(sp)
-    fld     f8, 32(sp)
-    fld     f9, 40(sp)
-    addi    sp,  sp, (8 * (2+4))
+    ld      x18, 16(sp)
+    ld      x19, 24(sp)
+    ld      x20, 32(sp)
+    ld      x21, 40(sp)
+    ld      x22, 48(sp)
+    ld      x23, 56(sp)
+    ld      x24, 64(sp)
+    ld      x25, 72(sp)
+    ld      x26, 80(sp)
+    ld      x27, 88(sp)
+    fsd     f8, 96(sp)
+    fsd     f9, 104(sp)
+    addi    sp,  sp, (8 * 14)
     //end, return...
     ret
