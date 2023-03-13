@@ -34,6 +34,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int s0;
     int64_t j64;
     int64_t fixedaddress;
+    int unscaled;
 
     MAYUSE(s0);
     MAYUSE(v2);
@@ -151,8 +152,8 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("FILD ST0, Ew");
                     v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
-                    LDRSHw_U12(x1, wback, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                    LDSHw(x1, wback, fixedaddress);
                     if(ST_IS_F(0)) {
                         SCVTFSw(v1, x1);
                     } else {
@@ -162,7 +163,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 1:
                     INST_NAME("FISTTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch(dyn);
                     #if 0
@@ -172,7 +173,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
                     SQXTN_H_S(s0, s0);
-                    VSTR16_U12(s0, wback, fixedaddress);
+                    VST16(s0, wback, fixedaddress);
                     #else
                     MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
@@ -184,11 +185,11 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SQXTN_S_D(s0, s0);
                     }
                     SQXTN_H_S(s0, s0);
-                    VSTR16_U12(s0, wback, fixedaddress);
+                    VST16(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                     TBZ_MARK3(x5, FPSR_IOC);
                     MOV32w(x5, 0x8000);
-                    STRH_U12(x5, wback, fixedaddress);
+                    STH(x5, wback, fixedaddress);
                     MARK3;
                     #endif
                     x87_do_pop(dyn, ninst, x3);
@@ -197,7 +198,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FIST Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch(dyn);
                     #if 0
@@ -206,7 +207,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
                     SQXTN_H_S(s0, s0);
-                    VSTR16_U12(s0, wback, fixedaddress);
+                    VST16(s0, wback, fixedaddress);
                     #else
                     MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
@@ -220,11 +221,11 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SQXTN_S_D(s0, s0);
                     }
                     SQXTN_H_S(s0, s0);
-                    VSTR16_U12(s0, wback, fixedaddress);
+                    VST16(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                     TBZ_MARK3(x5, FPSR_IOC);
                     MOV32w(x5, 0x8000);
-                    STRH_U12(x5, wback, fixedaddress);
+                    STH(x5, wback, fixedaddress);
                     MARK3;
                     #endif
                     x87_restoreround(dyn, ninst, u8);
@@ -233,7 +234,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FISTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch(dyn);
                     #if 0
@@ -242,7 +243,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
                     SQXTN_H_S(s0, s0);
-                    VSTR16_U12(s0, wback, fixedaddress);
+                    VST16(s0, wback, fixedaddress);
                     #else
                     MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
@@ -256,11 +257,11 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SQXTN_S_D(s0, s0);
                     }
                     SQXTN_H_S(s0, s0);
-                    VSTR16_U12(s0, wback, fixedaddress);
+                    VST16(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                     TBZ_MARK3(x5, FPSR_IOC);
                     MOV32w(x5, 0x8000);
-                    STRH_U12(x5, wback, fixedaddress);
+                    STH(x5, wback, fixedaddress);
                     MARK3;
                     #endif
                     x87_do_pop(dyn, ninst, x3);
@@ -269,21 +270,21 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                     INST_NAME("FBLD ST0, tbytes");
                     x87_do_push_empty(dyn, ninst, x1);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(fpu_fbld, -1);
                     break;
                 case 5:
                     INST_NAME("FILD ST0, i64");
                     v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
-                    LDRx_U12(x1, wback, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                    LDx(x1, wback, fixedaddress);
                     SCVTFDx(v1, x1);
                     break;
                 case 6:
                     INST_NAME("FBSTP tbytes, ST0");
                     x87_forget(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(fpu_fbst, -1);
                     x87_do_pop(dyn, ninst, x3);
@@ -292,7 +293,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FISTP i64, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     u8 = x87_setround(dyn, ninst, x1, x2, x4);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch(dyn);
                     #if 0
@@ -305,11 +306,11 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MSR_fpsr(x5);
                     FRINTXD(s0, v1);
                     VFCVTZSd(s0, s0);
-                    VSTR64_U12(s0, wback, fixedaddress);
+                    VST64(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                     TBZ_MARK3(x5, FPSR_IOC);
                     ORRx_mask(x5, xZR, 1, 1, 0);    //0x8000000000000000
-                    STRx_U12(x5, wback, fixedaddress);
+                    STx(x5, wback, fixedaddress);
                     MARK3;
                     #endif
                     x87_restoreround(dyn, ninst, u8);

@@ -35,6 +35,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t gd, ed;
     uint8_t wback, wb1;
     int64_t fixedaddress;
+    int unscaled;
     int lock;
     MAYUSE(u8);
     MAYUSE(u16);
@@ -445,7 +446,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIx(ed, x1, 0, 16);
             } else {
                 GETGD;
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, rex, LOCK_LOCK, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                 SMDMB();
                 TSTx_mask(ed, 1, 0, 0);    // mask=1
                 B_MARK(cNE);
@@ -473,8 +474,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIx(ed, gd, 0, 16);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, &lock, 0, 0);
-                STRH_U12(gd, ed, fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 0);
+                STH(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
             break;
@@ -488,9 +489,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIx(gd, ed, 0, 16);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, &lock, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 0);
                 SMREADLOCK(lock);
-                LDRH_U12(x1, ed, fixedaddress);
+                LDH(x1, ed, fixedaddress);
                 BFIx(gd, x1, 0, 16);
             }
             break;
@@ -707,10 +708,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOV32w(x1, u16);
                 BFIx(ed, x1, 0, 16);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<1, 1, rex, &lock, 0, 2);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 2);
                 u16 = F16;
                 MOV32w(x1, u16);
-                STRH_U12(x1, ed, fixedaddress);
+                STH(x1, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
             break;
@@ -918,6 +919,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     DEFAULT;
             }
             break;
+
         default:
             DEFAULT;
     }

@@ -28,11 +28,13 @@
 #include "dynarec_arm64_helper.h"
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int *l, int s, int delta)
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, rex_t rex, int *l, int s, int delta)
 {
     MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
 
     int lock = l?((l==LOCK_LOCK)?1:2):0;
+    if(unscaled)
+        *unscaled = 0;
     if(lock==2)
         *l = 0;
     uint8_t ret = x2;
@@ -50,11 +52,16 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             if((sib&0x7)==5) {
                 int64_t tmp = F32S;
                 if (sib_reg!=4) {
-                    if(tmp && ((tmp<absmin) || (tmp>absmax) || (tmp&mask))) {
+                    if(tmp && (!((tmp>=absmin) && (tmp<=absmax) && !(tmp&mask))) || !(unscaled && (tmp>-256) && (tmp<256))) {
                         MOV64x(scratch, tmp);
                         ADDx_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
                     } else {
-                        LSLx(ret, xRAX+sib_reg, (sib>>6));
+                        if(sib>>6) {
+                            LSLx(ret, xRAX+sib_reg, (sib>>6));
+                        } else
+                            ret = xRAX+sib_reg;
+                        if(unscaled && (tmp>-256) && (tmp<256))
+                            *unscaled = 1;
                         *fixaddress = tmp;
                     }
                 } else {
@@ -72,14 +79,22 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 }
             }
         } else if((nextop&7)==5) {
-            uint64_t tmp = F32S64;
+            int64_t tmp = F32S64;
             if((tmp>=absmin) && (tmp<=absmax) && !(tmp&mask)) {
                 GETIP(addr+delta);
                 ret = xRIP;
                 *fixaddress = tmp;
-            } else if(tmp<0x1000) {
+            } else if(unscaled && (tmp>-256) && (tmp<256)) {
+                GETIP(addr+delta);
+                ret = xRIP;
+                *fixaddress = tmp;
+                *unscaled = 1;
+            } else if(tmp>0 && tmp<0x1000) {
                 GETIP(addr+delta);
                 ADDx_U12(ret, xRIP, tmp);
+            } else if(tmp<0 && tmp>-0x1000) {
+                GETIP(addr+delta);
+                SUBx_U12(ret, xRIP, -tmp);
             } else if(tmp+addr+delta<0x1000000000000LL) {  // 3 opcodes to load immediate is cheap enough
                 MOV64x(ret, tmp+addr+delta);
             } else {
@@ -106,8 +121,10 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             i64 = F32S;
         else 
             i64 = F8S;
-        if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask))) {
+        if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask)) || (unscaled && (i64>-256) && (i64<256))) {
             *fixaddress = i64;
+            if(unscaled && (i64>-256) && (i64<256))
+                *unscaled = 1;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
                     ADDx_REG_LSL(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
@@ -167,11 +184,13 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
 }
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
-uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta)
+uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta)
 {
     MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
 
     int lock = l?((l==LOCK_LOCK)?1:2):0;
+    if(unscaled)
+        *unscaled = 0;
     if(lock==2)
         *l = 0;
     uint8_t ret = x2;
@@ -189,12 +208,14 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             if((sib&0x7)==5) {
                 int64_t tmp = F32S;
                 if (sib_reg!=4) {
-                    if(tmp && ((tmp<absmin) || (tmp>absmax) || (tmp&mask))) {
+                    if(tmp && (!((tmp>=absmin) && (tmp<=absmax) && !(tmp&mask))) || !(unscaled && (tmp>-256) && (tmp<256))) {
                         MOV64x(scratch, tmp);
                         ADDw_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
                     } else {
                         LSLw(ret, xRAX+sib_reg, (sib>>6));
                         *fixaddress = tmp;
+                        if(unscaled && (tmp>-256) && (tmp<256))
+                            *unscaled = 1;
                     }
                 } else {
                     switch(lock) {
@@ -237,8 +258,10 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             i64 = F32S;
         else 
             i64 = F8S;
-        if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask))) {
+        if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask)) || (unscaled && (i64>-256) && (i64>256))) {
             *fixaddress = i64;
+            if(unscaled && (i64>-256) && (i64<256))
+                *unscaled = 1;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
                     ADDw_REG_LSL(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
@@ -299,10 +322,12 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
 }
 
 /* setup r2 to address pointed by ED, r3 as scratch also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
-uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, int s)
+uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, int s)
 {
     MAYUSE(dyn); MAYUSE(ninst);
 
+    if(unscaled)
+        *unscaled = 0;
     uint8_t ret = x2;
     uint8_t scratch = x3;
     *fixaddress = 0;
@@ -323,7 +348,11 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             case 1: offset = F8S; break;
             case 2: offset = F16S; break;
         }
-        if(offset && (offset>absmax || offset<absmin || (offset&mask))) {
+        if(offset && (offset>=absmax && offset<=absmin && !(offset&mask))) {
+            *fixaddress = offset;
+            offset = 0;
+        }
+        if(offset && (unscaled && offset>-256 && offset<256)) {
             *fixaddress = offset;
             offset = 0;
         }

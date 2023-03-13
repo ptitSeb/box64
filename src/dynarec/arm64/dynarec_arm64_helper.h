@@ -67,8 +67,8 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD()                            \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
-                    LDRxw_U12(x1, wback, fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
+                    LDxw(x1, wback, fixedaddress);      \
                     ed = x1;                            \
                 }
 #define GETEDx(D)  if(MODREG) {                         \
@@ -76,8 +76,8 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, D); \
-                    LDRx_U12(x1, wback, fixedaddress);  \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, D); \
+                    LDx(x1, wback, fixedaddress);       \
                     ed = x1;                            \
                 }
 #define GETEDw(D)  if((nextop&0xC0)==0xC0) {            \
@@ -85,8 +85,8 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL,0, D); \
-                    LDRw_U12(x1, wback, fixedaddress);  \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL,0, D); \
+                    LDW(x1, wback, fixedaddress);       \
                     ed = x1;                            \
                 }
 #define GETSEDw(D)  if((nextop&0xC0)==0xC0) {           \
@@ -96,8 +96,8 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, D); \
-                    LDRSW_U12(x1, wback, fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, D); \
+                    LDSW(x1, wback, fixedaddress);      \
                     wb = ed = x1;                       \
                 }
 #define GETED32(D)  if(MODREG) {                        \
@@ -105,8 +105,8 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
-                    LDRxw_U12(x1, wback, fixedaddress); \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
+                    LDxw(x1, wback, fixedaddress);      \
                     ed = x1;                            \
                 }
 #define GETSED32w(D)  if((nextop&0xC0)==0xC0) {         \
@@ -116,8 +116,8 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, D); \
-                    LDRSW_U12(x1, wback, fixedaddress); \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, D); \
+                    LDSW(x1, wback, fixedaddress);      \
                     wb = ed = x1;                       \
                 }
 //GETEDH can use hint for ed, and r1 or r2 for wback (depending on hint). wback is 0 if ed is xEAX..xEDI
@@ -126,18 +126,18 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
-                    LDRxw_U12(hint, wback, fixedaddress); \
-                    ed = hint;                            \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
+                    LDxw(hint, wback, fixedaddress);    \
+                    ed = hint;                          \
                 }
 #define GETED32H(hint, D) if(MODREG) {                  \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
-                    LDRxw_U12(hint, wback, fixedaddress); \
-                    ed = hint;                            \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
+                    LDxw(hint, wback, fixedaddress);    \
+                    ed = hint;                          \
                 }
 //GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
 #define GETEDW(hint, ret, D)   if(MODREG) {             \
@@ -146,9 +146,9 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     ed = ret;                           \
-                    LDRxw_U12(ed, wback, fixedaddress); \
+                    LDxw(ed, wback, fixedaddress);      \
                 }
 #define GETED32W(hint, ret, D)   if(MODREG) {           \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
@@ -156,23 +156,23 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
                     ed = ret;                           \
-                    LDRxw_U12(ed, wback, fixedaddress); \
+                    LDxw(ed, wback, fixedaddress);      \
                 }
 // Write back ed in wback (if wback not 0)
-#define WBACK       if(wback) {STRxw_U12(ed, wback, fixedaddress); SMWRITE();}
+#define WBACK       if(wback) {STxw(ed, wback, fixedaddress); SMWRITE();}
 // Write back ed in wback (if wback not 0)
-#define WBACKx      if(wback) {STRx_U12(ed, wback, fixedaddress); SMWRITE();}
+#define WBACKx      if(wback) {STx(ed, wback, fixedaddress); SMWRITE();}
 // Write back ed in wback (if wback not 0)
-#define WBACKw      if(wback) {STRw_U12(ed, wback, fixedaddress); SMWRITE();}
+#define WBACKw      if(wback) {STW(ed, wback, fixedaddress); SMWRITE();}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O, D)   if(MODREG) {                     \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
                     LDRxw_REG(x1, wback, O);            \
                     ed = x1;                            \
                 }
@@ -183,7 +183,7 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
                     LDRx_REG(x1, wback, O);             \
                     ed = x1;                            \
                 }
@@ -194,7 +194,7 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
                     LDRSW_REG(x1, wback, O);            \
                     wb = ed = x1;                       \
                 }
@@ -214,8 +214,8 @@
                     wb1 = 0;                \
                 } else {                    \
                     SMREAD();               \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
-                    LDRH_U12(i, wback, fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
+                    LDH(i, wback, fixedaddress);\
                     ed = i;                 \
                     wb1 = 1;                \
                 }
@@ -227,8 +227,8 @@
                     wb1 = 0;                \
                 } else {                    \
                     SMREAD();               \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
-                    LDRH_U12(i, wback, fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
+                    LDH(i, wback, fixedaddress);   \
                     ed = i;                 \
                     wb1 = 1;                \
                 }
@@ -240,15 +240,15 @@
                     wb1 = 0;                \
                 } else {                    \
                     SMREAD();               \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
-                    LDRSHx_U12(i, wback, fixedaddress);\
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
+                    LDSHw(i, wback, fixedaddress); \
                     ed = i;                 \
                     wb1 = 1;                \
                 }
 // Write ed back to original register / memory
-#define EWBACK   if(wb1) {STRH_U12(ed, wback, fixedaddress); SMWRITE();} else {BFIx(wback, ed, 0, 16);}
+#define EWBACK       EWBACKW(ed)
 // Write w back to original register / memory
-#define EWBACKW(w)   if(wb1) {STRH_U12(w, wback, fixedaddress); SMWRITE();} else {BFIx(wback, w, 0, 16);}
+#define EWBACKW(w)   if(wb1) {STH(w, wback, fixedaddress); SMWRITE();} else {BFIx(wback, w, 0, 16);}
 // Write back gd in correct register
 #define GWBACK       BFIx((xRAX+((nextop&0x38)>>3)+(rex.r<<3)), gd, 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
@@ -266,8 +266,8 @@
                     ed = i;                     \
                 } else {                        \
                     SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
-                    LDRB_U12(i, wback, fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
+                    LDB(i, wback, fixedaddress);\
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
@@ -286,10 +286,10 @@
                     ed = i;                     \
                 } else {                        \
                     SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
                     ADDx_REG(x3, wback, i);     \
                     if(wback!=x3) wback = x3;   \
-                    LDRB_U12(i, wback, fixedaddress);      \
+                    LDB(i, wback, fixedaddress);\
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
@@ -308,8 +308,8 @@
                     ed = i;                     \
                 } else {                        \
                     SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
-                    LDRSBx_U12(i, wback, fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
+                    LDSBx(i, wback, fixedaddress); \
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
@@ -328,13 +328,13 @@
                     ed = i;                     \
                 } else {                        \
                     SMREAD();                   \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff, 0, rex, NULL, 0, D); \
-                    LDRB_U12(i, wback, fixedaddress); \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
+                    LDB(i, wback, fixedaddress);\
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
 // Write eb (ed) back to original register / memory
-#define EBBACK   if(wb1) {STRB_U12(ed, wback, fixedaddress); SMWRITE();} else {BFIx(wback, ed, wb2, 8);}
+#define EBBACK   if(wb1) {STB(ed, wback, fixedaddress); SMWRITE();} else {BFIx(wback, ed, wb2, 8);}
 //GETGB will use i for gd
 #define GETGB(i)    if(rex.rex) {               \
                         gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);     \
@@ -379,15 +379,15 @@
         a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
     } else {                                                                                            \
         SMREAD();                                                                                       \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<4, 15, rex, NULL, 0, D);  \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, D);  \
         a = fpu_get_scratch(dyn);                                                                       \
-        VLDR128_U12(a, ed, fixedaddress);                                                               \
+        VLD128(a, ed, fixedaddress);                                                                    \
     }
 
 // Put Back EX if it was a memory and not an emm register
 #define PUTEX(a)                                    \
     if(!MODREG) {                                   \
-        VSTR128_U12(a, ed, fixedaddress);           \
+        VST128(a, ed, fixedaddress);                \
         SMWRITE2();                                 \
     }
 
@@ -399,8 +399,8 @@
     } else {                                                                                            \
         SMREAD();                                                                                       \
         a = fpu_get_scratch(dyn);                                                                       \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, D);   \
-        VLDR64_U12(a, ed, fixedaddress);                                                                \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, D);   \
+        VLD64(a, ed, fixedaddress);                                                                     \
     }
 
 // Get Ex as a single, not a quad (warning, x1 get used)
@@ -410,8 +410,8 @@
     } else {                                                                                            \
         SMREAD();                                                                                       \
         a = fpu_get_scratch(dyn);                                                                       \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, D);   \
-        VLDR32_U12(a, ed, fixedaddress);                                                                \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, D);   \
+        VLD32(a, ed, fixedaddress);                                                                     \
     }
 
 // Get GM, might use x1, x2 and x3
@@ -425,15 +425,15 @@
         a = mmx_get_reg(dyn, ninst, x1, x2, x3, (nextop&7));    \
     } else {                                                    \
         SMREAD();                                               \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, D); \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, D); \
         a = fpu_get_scratch(dyn);                               \
-        VLDR64_U12(a, ed, fixedaddress);                        \
+        VLD64(a, ed, fixedaddress);                             \
     }
 
 // Put Back EM if it was a memory and not an emm register
 #define PUTEM(a)                            \
     if(!MODREG) {                           \
-        VSTR64_U12(a, ed, fixedaddress);    \
+        VST64(a, ed, fixedaddress);         \
         SMWRITE2();                         \
     }
 
@@ -981,13 +981,13 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define CacheTransform       STEPNAME(CacheTransform)
 
 /* setup r2 to address pointed by */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
 
 /* setup r2 to address pointed by */
-uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
+uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
 
 /* setup r2 to address pointed by */
-uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, int s);
+uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, int s);
 
 
 // generic x64 helper

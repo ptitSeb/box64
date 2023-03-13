@@ -33,6 +33,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t wback, wb1;
     uint8_t u8;
     int64_t fixedaddress;
+    int unscaled;
     int v1, v2;
     int s0;
     int i1, i2, i3;
@@ -328,8 +329,8 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("FLD ST0, float[ED]");
                     v1 = x87_do_push(dyn, ninst, x1, box64_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLDR32_U12(v1, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VLD32(v1, ed, fixedaddress);
                     if(!ST_IS_F(0)) {
                         FCVT_D_S(v1, v1);
                     }
@@ -343,24 +344,24 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         s0 = fpu_get_scratch(dyn);
                         FCVT_S_D(s0, v1);
                     }
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VSTR32_U12(s0, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VST32(s0, ed, fixedaddress);
                     break;
                 case 3:
                     INST_NAME("FSTP float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                     if(!ST_IS_F(0)) {
                         FCVT_S_D(v1, v1);
                     }
-                    VSTR32_U12(v1, ed, fixedaddress);
+                    VST32(v1, ed, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
                     break;
                 case 4:
                     INST_NAME("FLDENV Ed");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {
                         MOVx_REG(x1, ed);
                     }
@@ -376,7 +377,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FNSTENV Ed");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {
                         MOVx_REG(x1, ed);
                     }
@@ -385,7 +386,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7:
                     INST_NAME("FNSTCW Ew");
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0xfff<<1, 1, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                     ed = x1;
                     wb1 = 1;
                     LDRH_U12(x1, xEmu, offsetof(x64emu_t, cw));

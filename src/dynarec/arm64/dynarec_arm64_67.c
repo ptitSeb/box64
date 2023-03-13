@@ -40,6 +40,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t nextop;
     uint8_t gd, ed, wback, wb, wb1, wb2, gb1, gb2;
     int64_t fixedaddress;
+    int unscaled;
     int8_t  i8;
     uint8_t u8;
     int32_t i32;
@@ -186,8 +187,8 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             } else {
                                 s0 = fpu_get_scratch(dyn);
                                 SMREAD();
-                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                                VLDR32_U12(s0, ed, fixedaddress);
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                                VLD32(s0, ed, fixedaddress);
                             }
                             FCMPS(v0, s0);
                             FCOMI(x1, x2);
@@ -210,8 +211,8 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             } else {
                                 v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
                                 SMREAD();
-                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
-                                VLDR64_U12(v0, ed, fixedaddress);
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                                VLD64(v0, ed, fixedaddress);
                             }
                             break;
                         default:
@@ -229,8 +230,8 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 v1 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, nextop&7);
                                 VMOV(v1, v0);
                             } else {
-                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xfff<<3, 7, rex, NULL, 0, 0);
-                                VSTR64_U12(v0, ed, fixedaddress);
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                                VST64(v0, ed, fixedaddress);
                                 SMWRITE();
                             }
                             break;
@@ -648,8 +649,8 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {   // reg <= reg
                 MOVxw_REG(xRAX+(nextop&7)+(rex.b<<3), gd);
             } else {                    // mem <= reg
-                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
-                STRxw_U12(gd, ed, fixedaddress);
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
+                STxw(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
             break;
@@ -661,9 +662,9 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {
                 MOVxw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
             } else {
-                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
                 SMREADLOCK(lock);
-                LDRxw_U12(gd, ed, fixedaddress);
+                LDxw(gd, ed, fixedaddress);
             }
             break;
 
@@ -674,8 +675,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {   // reg <= reg? that's an invalid operation
                 DEFAULT;
             } else {                    // mem <= reg
-                // should a geted32 be created, to use 32bits regs instead of 64bits?
-                addr = geted32(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0, rex, NULL, 0, 0);
+                addr = geted32(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 if(ed!=gd) {
                     MOVw_REG(gd, ed);
                 }
@@ -763,10 +763,10 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 MOV64xw(ed, i64);
             } else {                    // mem <= i32
-                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 4);
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 4);
                 i64 = F32S;
                 MOV64xw(x3, i64);
-                STRxw_U12(x3, ed, fixedaddress);
+                STxw(x3, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
             break;

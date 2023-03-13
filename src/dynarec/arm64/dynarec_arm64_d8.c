@@ -31,6 +31,7 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t nextop = F8;
     uint8_t ed;
     int64_t fixedaddress;
+    int unscaled;
     int v1, v2;
     int s0;
 
@@ -185,8 +186,8 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FADD ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLDR32_U12(s0, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VLD32(s0, ed, fixedaddress);
                     if(ST_IS_F(0)) {
                         FADDS(v1, v1, s0);
                     } else {
@@ -198,8 +199,8 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FMUL ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLDR32_U12(s0, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VLD32(s0, ed, fixedaddress);
                     if(ST_IS_F(0)) {
                         FMULS(v1, v1, s0);
                     } else {
@@ -211,8 +212,8 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FCOM ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLDR32_U12(s0, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VLD32(s0, ed, fixedaddress);
                     if(ST_IS_F(0)) {
                         FCMPS(v1, s0);
                     } else {
@@ -225,8 +226,8 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FCOMP ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLDR32_U12(s0, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VLD32(s0, ed, fixedaddress);
                     if(ST_IS_F(0)) {
                         FCMPS(v1, s0);
                     } else {
@@ -240,8 +241,8 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FSUB ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLDR32_U12(s0, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VLD32(s0, ed, fixedaddress);
                     if(ST_IS_F(0)) {
                         FSUBS(v1, v1, s0);
                     } else {
@@ -253,8 +254,8 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FSUBR ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLDR32_U12(s0, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VLD32(s0, ed, fixedaddress);
                     if(ST_IS_F(0)) {
                         FSUBS(v1, s0, v1);
                     } else {
@@ -266,8 +267,8 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FDIV ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLDR32_U12(s0, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VLD32(s0, ed, fixedaddress);
                     if(ST_IS_F(0)) {
                         FDIVS(v1, v1, s0);
                     } else {
@@ -279,8 +280,8 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("FDIVR ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLDR32_U12(s0, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VLD32(s0, ed, fixedaddress);
                     if(ST_IS_F(0)) {
                         FDIVS(v1, s0, v1);
                     } else {

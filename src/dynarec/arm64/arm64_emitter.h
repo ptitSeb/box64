@@ -249,6 +249,38 @@
 #define LDR_PC_gen(opc, imm19, Rt)      ((opc)<<30 | 0b011<<27 | (imm19)<<5 | (Rt))
 #define LDRx_literal(Rt, imm19)         EMIT(LDR_PC_gen(0b01, ((imm19)>>2)&0x7FFFF, Rt))
 
+#define LDU_gen(size, opc, imm9, Rn, Rt)  ((size)<<30 | 0b111<<27 | (opc)<<22 | ((imm9)&0x1ff)<<12 | (Rn)<<5 | (Rt))
+#define LDURx_I9(Rt, Rn, imm9)            EMIT(LDU_gen(0b11, 0b01, imm9, Rn, Rt))
+#define LDURw_I9(Rt, Rn, imm9)            EMIT(LDU_gen(0b10, 0b01, imm9, Rn, Rt))
+#define LDURxw_I9(Rt, Rn, imm9)           EMIT(LDU_gen((rex.w)?0b11:0b10, 0b01, imm9, Rn, Rt))
+#define LDURH_I9(Rt, Rn, imm9)            EMIT(LDU_gen(0b01, 0b01, imm9, Rn, Rt))
+#define LDURB_I9(Rt, Rn, imm9)            EMIT(LDU_gen(0b00, 0b01, imm9, Rn, Rt))
+#define LDURSW_I9(Rt, Rn, imm9)           EMIT(LDU_gen(0b10, 0b10, imm9, Rn, Rt))
+#define LDURSHw_I9(Rt, Rn, imm9)          EMIT(LDU_gen(0b01, 0b11, imm9, Rn, Rt))
+#define LDURSHx_I9(Rt, Rn, imm9)          EMIT(LDU_gen(0b01, 0b10, imm9, Rn, Rt))
+#define LDURSHxw_I9(Rt, Rn, imm9)         EMIT(LDU_gen(0b01, (rex.w)?0b10:0b11, imm9, Rn, Rt))
+#define LDURSBw_I9(Rt, Rn, imm9)          EMIT(LDU_gen(0b00, 0b11, imm9, Rn, Rt))
+#define LDURSBx_I9(Rt, Rn, imm9)          EMIT(LDU_gen(0b00, 0b10, imm9, Rn, Rt))
+#define LDURSBxw_I9(Rt, Rn, imm9)         EMIT(LDU_gen(0b00, (rex.w)?0b10:0b11, imm9, Rn, Rt))
+
+#define LDxw(A, B, C)   if(unscaled) {LDURxw_I9(A, B, C);} else {LDRxw_U12(A, B, C);}
+#define LDx(A, B, C)    if(unscaled) {LDURx_I9(A, B, C);} else {LDRx_U12(A, B, C);}
+#define LDW(A, B, C)    if(unscaled) {LDURw_I9(A, B, C);} else {LDRw_U12(A, B, C);}
+#define LDH(A, B, C)    if(unscaled) {LDURH_I9(A, B, C);} else {LDRH_U12(A, B, C);}
+#define LDB(A, B, C)    if(unscaled) {LDURB_I9(A, B, C);} else {LDRB_U12(A, B, C);}
+#define LDSW(A, B, C)   if(unscaled) {LDURSW_I9(A, B, C);} else {LDRSW_U12(A, B, C);}
+#define LDSHxw(A, B, C) if(unscaled) {LDURSHxw_I9(A, B, C);} else {LDRSHxw_U12(A, B, C);}
+#define LDSHx(A, B, C)  if(unscaled) {LDURSHx_I9(A, B, C);} else {LDRSHx_U12(A, B, C);}
+#define LDSHw(A, B, C)  if(unscaled) {LDURSHw_I9(A, B, C);} else {LDRSHw_U12(A, B, C);}
+#define LDSBxw(A, B, C) if(unscaled) {LDURSBxw_I9(A, B, C);} else {LDRSBxw_U12(A, B, C);}
+#define LDSBx(A, B, C)  if(unscaled) {LDURSBx_I9(A, B, C);} else {LDRSBx_U12(A, B, C);}
+#define LDSBw(A, B, C)  if(unscaled) {LDURSBw_I9(A, B, C);} else {LDRSBw_U12(A, B, C);}
+#define STxw(A, B, C)   if(unscaled) {STURxw_I9(A, B, C);} else {STRxw_U12(A, B, C);}
+#define STx(A, B, C)    if(unscaled) {STURx_I9(A, B, C);} else {STRx_U12(A, B, C);}
+#define STW(A, B, C)    if(unscaled) {STURw_I9(A, B, C);} else {STRw_U12(A, B, C);}
+#define STH(A, B, C)    if(unscaled) {STURH_I9(A, B, C);} else {STRH_U12(A, B, C);}
+#define STB(A, B, C)    if(unscaled) {STURB_I9(A, B, C);} else {STRB_U12(A, B, C);}
+
 // STR
 #define STR_gen(size, op1, imm9, op2, Rn, Rt)    ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b00<<22 | (imm9)<<12 | (op2)<<10 | (Rn)<<5 | (Rt))
 #define STRx_S9_postindex(Rt, Rn, imm9)   EMIT(STR_gen(0b11, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
@@ -727,6 +759,15 @@
 #define VSTR32_I9(Vt, Rn, imm9)             EMIT(VMEMUR_vector(0b10, 0b00, (imm9)&0b111111111, Rn, Vt))
 #define VSTR64_I9(Vt, Rn, imm9)             EMIT(VMEMUR_vector(0b11, 0b00, (imm9)&0b111111111, Rn, Vt))
 #define VSTR128_I9(Vt, Rn, imm9)            EMIT(VMEMUR_vector(0b00, 0b10, (imm9)&0b111111111, Rn, Vt))
+
+#define VLD128(A, B, C)     if(unscaled) {VLDR128_I9(A, B, C);} else {VLDR128_U12(A, B, C);}
+#define VLD64(A, B, C)      if(unscaled) {VLDR64_I9(A, B, C);} else {VLDR64_U12(A, B, C);}
+#define VLD32(A, B, C)      if(unscaled) {VLDR32_I9(A, B, C);} else {VLDR32_U12(A, B, C);}
+#define VLD16(A, B, C)      if(unscaled) {VLDR16_I9(A, B, C);} else {VLDR16_U12(A, B, C);}
+#define VST128(A, B, C)     if(unscaled) {VSTR128_I9(A, B, C);} else {VSTR128_U12(A, B, C);}
+#define VST64(A, B, C)      if(unscaled) {VSTR64_I9(A, B, C);} else {VSTR64_U12(A, B, C);}
+#define VST32(A, B, C)      if(unscaled) {VSTR32_I9(A, B, C);} else {VSTR32_U12(A, B, C);}
+#define VST16(A, B, C)      if(unscaled) {VSTR16_I9(A, B, C);} else {VSTR16_U12(A, B, C);}
 
 #define VMEMW_gen(size, opc, imm9, op2, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (op2)<<10 | 0b01<<10 | (Rn)<<5 | (Rt))
 #define VLDR64_S9_postindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b11, 0b01, (imm9)&0x1ff, 0b01, Rn, Rt))
