@@ -199,7 +199,19 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
                 }
             }
         #endif
-        if(ok<0)  {ok = 0; need_epilog=1;}
+        if(ok<0)  {
+            ok = 0; need_epilog=1; 
+            #if STEP == 0
+            if(ninst) {
+                --ninst;
+                if(!dyn->insts[ninst].x64.barrier) {
+                    BARRIER(BARRIER_FLOAT);
+                }
+                dyn->insts[ninst].x64.need_after |= X_PEND;
+                ++ninst;
+            }
+            #endif
+        }
         ++ninst;
         #if STEP == 0
         if(ok && (((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)addr)) 
