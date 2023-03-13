@@ -168,7 +168,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define XORxw(rd, rs1, rs2)         do{ XOR(rd, rs1, rs2); if (!rex.w) ZEROUP(rd); }while(0)
 // rd = rs1>>rs2 logical
 #define SRL(rd, rs1, rs2)           EMIT(R_type(0b0000000, rs2, rs1, 0b101, rd, 0b0110011))
-// rd = rs1>>rs2 aritmetic
+// rd = rs1>>rs2 arithmetic
 #define SRA(rd, rs1, rs2)           EMIT(R_type(0b0100000, rs2, rs1, 0b101, rd, 0b0110011))
 // rd = rs1 | rs2
 #define OR(rd, rs1, rs2)            EMIT(R_type(0b0000000, rs2, rs1, 0b110, rd, 0b0110011))
@@ -235,7 +235,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SLLI(rd, rs1, imm6)         EMIT(I_type(imm6, rs1, 0b001, rd, 0b0010011))
 // Shift Right Logical Immediate
 #define SRLI(rd, rs1, imm6)         EMIT(I_type(imm6, rs1, 0b101, rd, 0b0010011))
-// Shift Right Aritmetic Immediate
+// Shift Right Arithmetic Immediate
 #define SRAI(rd, rs1, imm6)         EMIT(I_type((imm6)|(0b010000<<6), rs1, 0b101, rd, 0b0010011))
 
 // rd = rs1 + imm12
@@ -247,7 +247,16 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SLLW(rd, rs1, rs2)           EMIT(R_type(0b0000000, rs2, rs1, 0b001, rd, 0b0111011))
 // rd = rs1>>rs2 logical
 #define SRLW(rd, rs1, rs2)           EMIT(R_type(0b0000000, rs2, rs1, 0b101, rd, 0b0111011))
-// rd = rs1>>rs2 aritmetic
+// rd = rs1>>rs2 arithmetic
 #define SRAW(rd, rs1, rs2)           EMIT(R_type(0b0100000, rs2, rs1, 0b101, rd, 0b0111011))
+
+// Shift Left Immediate, 32-bit, sign-extended
+#define SLLIW(rd, rs1, imm5)        EMIT(I_type(imm5, rs1, 0b001, rd, 0b0011011))
+// Shift Right Logical Immediate, 32-bit, sign-extended
+#define SRLIW(rd, rs1, imm5)        EMIT(I_type(imm5, rs1, 0b101, rd, 0b0011011))
+// Shift Right Arithmetic Immediate, 32-bit, sign-extended
+#define SRAIW(rd, rs1, imm5)        EMIT(I_type((imm5)|(0b0100000<<5), rs1, 0b101, rd, 0b0011011))
+// Shift Right Arithmetic Immediate
+#define SRAIxw(rd, rs1, imm)        if (rex.w) { SRAI(rd, rs1, imm); } else { SRAIW(rd, rs1, imm); }
 
 #endif //__RV64_EMITTER_H__
