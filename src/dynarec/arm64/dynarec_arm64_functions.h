@@ -77,9 +77,6 @@ int CacheNeedsTransform(dynarec_arm_t* dyn, int i1);
 // Undo the changes of a neoncache to get the status before the instruction
 void neoncacheUnwind(neoncache_t* cache);
 
-// is inst clean for a son branch?
-int isInstClean(dynarec_arm_t* dyn, int ninst);
-
 // predecessor access
 int isPred(dynarec_arm_t* dyn, int ninst, int pred);
 int getNominalPred(dynarec_arm_t* dyn, int ninst);

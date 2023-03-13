@@ -926,21 +926,3 @@ const char* getCacheName(int t, int n)
     }
     return buff;
 }
-
-// is inst clean for a son branch?
-int isInstClean(dynarec_arm_t* dyn, int ninst)
-{
-    // check flags cache
-    if(dyn->insts[ninst].f_entry.dfnone || dyn->insts[ninst].f_entry.pending)
-        return 0;
-    if(dyn->insts[ninst].x64.state_flags)
-        return 0;
-    // check neoncache
-    neoncache_t* n = &dyn->insts[ninst].n;
-    if(n->news || n->stack || n->stack_next)
-        return 0;
-    for(int i=0; i<24; ++i)
-        if(n->neoncache[i].v)
-            return 0;
-    return 1;
-}
