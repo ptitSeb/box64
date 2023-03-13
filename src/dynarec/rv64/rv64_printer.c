@@ -420,8 +420,8 @@ static inline insn_t insn_ciwtype_read(uint16_t data)
 #define PRINT_fd_xs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], gpnames[insn.rs1]); return buff
 
 // TODO: display csr name
-#define PRINT_rd_csr_rs1() snprintf(buff, sizeof(buff), "%s\t%d, %s", insn.name, RN(rd), insn.csr, RN(rs1)); return buff
-#define PRINT_rd_csr_uimm() snprintf(buff, sizeof(buff), "%s\t%d, %d", insn.name, RN(rd), insn.csr, (uint32_t)insn.imm); return buff
+#define PRINT_rd_csr_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d, %s", insn.name, RN(rd), insn.csr, RN(rs1)); return buff
+#define PRINT_rd_csr_uimm() snprintf(buff, sizeof(buff), "%s\t%s, %d, %d", insn.name, RN(rd), insn.csr, (uint32_t)insn.imm); return buff
 
 const char* rv64_print(uint32_t data, uintptr_t addr)
 {
