@@ -47,10 +47,17 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 if (sib_reg!=4) {
                     if(tmp && ((tmp<-2048) || (tmp>2047) || !i12)) {
                         MOV64x(scratch, tmp);
-                        SLLI(ret, xRAX+sib_reg, (sib>>6));
-                        ADD(ret, ret, scratch);
+                        if((sib>>6)) {
+                            SLLI(ret, xRAX+sib_reg, (sib>>6));
+                            ADD(ret, ret, scratch);
+                        } else {
+                            ADD(ret, xRAX+sib_reg, scratch);
+                        }
                     } else {
-                        SLLI(ret, xRAX+sib_reg, (sib>>6));
+                        if(sib>>6) {
+                            SLLI(ret, xRAX+sib_reg, (sib>>6));
+                        } else
+                            ret = xRAX+sib_reg;
                         *fixaddress = tmp;
                     }
                 } else {
@@ -62,8 +69,12 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 }
             } else {
                 if (sib_reg!=4) {
-                    SLLI(scratch, xRAX+sib_reg, (sib>>6));
-                    ADD(ret, xRAX+(sib&0x7)+(rex.b<<3), scratch);
+                    if(sib>>6) {
+                        SLLI(scratch, xRAX+sib_reg, (sib>>6));
+                        ADD(ret, xRAX+(sib&0x7)+(rex.b<<3), scratch);
+                    } else {
+                        ADD(ret, xRAX+(sib&0x7)+(rex.b<<3), xRAX+sib_reg);
+                    }
                 } else {
                     ret = xRAX+(sib&0x7)+(rex.b<<3);
                 }
@@ -107,8 +118,12 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             *fixaddress = i64;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
-                    SLLI(scratch, xRAX+sib_reg, (sib>>6));
-                    ADD(ret, xRAX+(sib&0x07)+(rex.b<<3), scratch);
+                    if(sib>>6) {
+                        SLLI(scratch, xRAX+sib_reg, (sib>>6));
+                        ADD(ret, xRAX+(sib&0x07)+(rex.b<<3), scratch);
+                    } else {
+                        ADD(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg);
+                    }
                 } else {
                     ret = xRAX+(sib&0x07)+(rex.b<<3);
                 }
@@ -118,8 +133,12 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             if(i64>=-2048 && i64<=2047) {
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        SLLI(scratch, xRAX+sib_reg, (sib>>6));
-                        ADD(scratch, xRAX+(sib&0x07)+(rex.b<<3), scratch);
+                        if(sib>>6) {
+                            SLLI(scratch, xRAX+sib_reg, (sib>>6));
+                            ADD(scratch, xRAX+(sib&0x07)+(rex.b<<3), scratch);
+                        } else {
+                            ADD(scratch, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg);
+                        }
                     } else {
                         scratch = xRAX+(sib&0x07)+(rex.b<<3);
                     }
@@ -131,8 +150,12 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         ADD(scratch, scratch, xRAX+(sib&0x07)+(rex.b<<3));
-                        SLLI(ret, xRAX+sib_reg, (sib>>6));
-                        ADD(ret, scratch, ret);
+                        if(sib>>6) {
+                            SLLI(ret, xRAX+sib_reg, (sib>>6));
+                            ADD(ret, scratch, ret);
+                        } else {
+                            ADD(ret, scratch, xRAX+sib_reg);
+                        }
                     } else {
                         PASS3(int tmp = xRAX+(sib&0x07)+(rex.b<<3));
                         ADD(ret, tmp, scratch);
