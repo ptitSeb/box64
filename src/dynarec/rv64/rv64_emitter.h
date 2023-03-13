@@ -221,6 +221,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // rd = [rs1 + imm12]
 #define LD(rd, rs1, imm12)          EMIT(I_type(imm12, rs1, 0b011, rd, 0b0000011))
+// rd = [rs1 + imm12]
+#define LDxw(rd, rs1, imm12)        EMIT(I_type(imm12, rs1, 0b011<<(1-rex.w), rd, 0b0000011))
 // [rs1 + imm12] = rs2
 #define SD(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b011, 0b0100011))
 // [rs1 + imm12] = rs2
