@@ -76,6 +76,22 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SUBI(xRSP, xRSP, 8);
             break;
 
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            INST_NAME("POP reg");
+            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            LD(gd, xRSP, 0);
+            if(gd!=xRSP) {
+                ADDI(xRSP, xRSP, 8);
+            }
+            break;
+
         case 0x81:
         case 0x83:
             nextop = F8;
@@ -133,22 +149,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 else if(!rex.w) {
                     ZEROUP(gd);   //truncate the higher 32bits as asked
                 }
-            }
-            break;
-
-        case 0x58:
-        case 0x59:
-        case 0x5A:
-        case 0x5B:
-        case 0x5C:
-        case 0x5D:
-        case 0x5E:
-        case 0x5F:
-            INST_NAME("POP reg");
-            gd = xRAX+(opcode&0x07)+(rex.b<<3);
-            LD(gd, xRSP, 0);
-            if(gd!=xRSP) {
-                ADDI(xRSP, xRSP, 8);
             }
             break;
 
