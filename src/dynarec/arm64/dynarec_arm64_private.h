@@ -110,6 +110,8 @@ typedef struct dynarec_arm_s {
     uintptr_t           forward_to; // address of the next jump to (to check if everything is ok)
     int32_t             forward_size;   // size at the forward point
     int                 forward_ninst;  // ninst at the forward point
+    uint8_t             doublepush;
+    uint8_t             doublepop;
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

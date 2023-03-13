@@ -498,12 +498,36 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
-            gd = xRAX+(opcode&0x07)+(rex.b<<3);
-            if(gd==xRSP) {
-                MOVx_REG(x1, gd);
-                gd = x1;
+            if(dyn->doublepush)
+                dyn->doublepush = 0;
+            else {
+                gd = xRAX+(opcode&0x07)+(rex.b<<3);
+                if(gd==xRSP) {
+                    MOVx_REG(x1, gd);
+                    gd = x1;
+                }
+                u32 = PK(0);
+                i32 = 1;
+                rex.rex = 0;
+                while(u32>=0x40 && u32<=0x4f) {
+                    rex.rex = u32;
+                    u32 = PK(i32);
+                    i32++;
+                }
+                if(u32>=0x50 && u32<=0x57 && (dyn->size && dyn->insts[ninst+1].pred_sz==1)) {
+                    // double push!
+                    u32= xRAX+(u32&0x07)+(rex.b<<3);
+                    MESSAGE(LOG_DUMP, "DOUBLE PUSH\n");
+                    if(u32==xRSP) {
+                        MOVx_REG(x1, u32);
+                        u32 = x1;
+                    }
+                    PUSH2(gd, u32);
+                    dyn->doublepush = 1;
+                } else {
+                    PUSH1(gd);
+                }   
             }
-            PUSH1(gd);
             break;
         case 0x58:
         case 0x59:
@@ -514,12 +538,43 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
-            gd = xRAX+(opcode&0x07)+(rex.b<<3);
-            if(gd == xRSP) {
-                POP1(x1);
-                MOVx_REG(gd, x1);
-            } else {
-                POP1(gd);
+            if(dyn->doublepop)
+                dyn->doublepop = 0;
+            else {
+                gd = xRAX+(opcode&0x07)+(rex.b<<3);
+                u32 = PK(0);
+                i32 = 1;
+                rex.rex = 0;
+                while(u32>=0x40 && u32<=0x4f) {
+                    rex.rex = u32;
+                    u32 = PK(i32);
+                    i32++;
+                }
+                if(u32>=0x58 && u32<=0x5f && (dyn->size && dyn->insts[ninst+1].pred_sz==1)) {
+                    // double pop!
+                    u32= xRAX+(u32&0x07)+(rex.b<<3);
+                    MESSAGE(LOG_DUMP, "DOUBLE POP\n");
+                    if(gd==u32) {
+                        ADDx_U12(xRSP, xRSP, 0x8);
+                        POP1((gd==xRSP)?x1:gd);
+                    } else {
+                        POP2((gd==xRSP)?x1:gd, (u32==xRSP)?x1:u32);
+                        if(u32==xRSP) {
+                            MOVx_REG(u32, x1);
+                        }
+                    }
+                    if(gd == xRSP) {
+                        MOVx_REG(gd, x1);
+                    }
+                    dyn->doublepop = 1;
+                } else {
+                    if(gd == xRSP) {
+                        POP1(x1);
+                        MOVx_REG(gd, x1);
+                    } else {
+                        POP1(gd);
+                    }
+                }
             }
             break;
 

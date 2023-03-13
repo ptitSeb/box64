@@ -309,6 +309,8 @@
 // PUSH / POP helper
 #define POP1(reg)       LDRx_S9_postindex(reg, xRSP, 8)
 #define PUSH1(reg)      STRx_S9_preindex(reg, xRSP, -8)
+#define POP2(reg1, reg2)       LDPx_S7_postindex(reg1, reg2, xRSP, 16)
+#define PUSH2(reg1, reg2)      STPx_S7_preindex(reg2, reg1, xRSP, -16)
 
 // LOAD/STORE Acquire Exclusive
 #define MEMAX_gen(size, L, Rs, Rn, Rt)      ((size)<<30 | 0b001000<<24 | (L)<<22 | (Rs)<<16 | 1<<15 | 0b11111<<10 | (Rn)<<5 | (Rt))
