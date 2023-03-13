@@ -62,17 +62,33 @@
 
 // GETGD    get x64 register in gd
 #define GETGD   gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3)
-//GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+// GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETED(D)  if(MODREG) {                          \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
                     SMREAD()                            \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
-                    LD_I12(x1, wback, fixedaddress);    \
+                    LD(x1, wback, fixedaddress);    \
                     ed = x1;                            \
                 }
-                
+
+// Write back ed in wback (if wback not 0)
+#define WBACK       if(wback) {SDxw(ed, wback, fixedaddress); SMWRITE();}
+
+#define IFX(A)  if((dyn->insts[ninst].x64.gen_flags&(A)))
+#define IFX_PENDOR0  if((dyn->insts[ninst].x64.gen_flags&(X_PEND) || !dyn->insts[ninst].x64.gen_flags))
+#define IFXX(A) if((dyn->insts[ninst].x64.gen_flags==(A)))
+#define IFX2X(A, B) if((dyn->insts[ninst].x64.gen_flags==(A) || dyn->insts[ninst].x64.gen_flags==(B) || dyn->insts[ninst].x64.gen_flags==((A)|(B))))
+#define IFXN(A, B)  if((dyn->insts[ninst].x64.gen_flags&(A) && !(dyn->insts[ninst].x64.gen_flags&(B))))
+
+#define SET_DFNONE(S)    if(!dyn->f.dfnone) {MOV_U12(S, d_none); SD(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
+#define SET_DF(S, N)     if((N)!=d_none) {MOV_U12(S, (N)); SD(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
+#define SET_NODF()          dyn->f.dfnone = 0
+#define SET_DFOK()          dyn->f.dfnone = 1
+
+#define CLEAR_FLAGS() IFX(X_ALL) {ANDI(xFlags, xFlags, ~((1UL<<F_AF) | (1UL<<F_CF) | (1UL<<F_OF) | (1UL<<F_ZF) | (1UL<<F_SF) | (1UL<<F_PF)));}
+
 #ifndef MAYSETFLAGS
 #define MAYSETFLAGS()
 #endif
@@ -87,10 +103,10 @@
 
 #endif
 #ifndef JUMP
-#define JUMP(A, C) 
+#define JUMP(A, C)
 #endif
 #ifndef BARRIER
-#define BARRIER(A) 
+#define BARRIER(A)
 #endif
 #ifndef BARRIER_NEXT
 #define BARRIER_NEXT(A)
@@ -325,7 +341,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 //void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 //void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_sub32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_sub32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 //void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 //void emit_sub8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_sub8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5);
@@ -382,7 +398,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 //void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 //void emit_shld32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 
-//void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call
@@ -484,7 +500,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #if STEP < 3
 #define MAYUSE(A)   (void)A
 #else
-#define MAYUSE(A)   
+#define MAYUSE(A)
 #endif
 
 #endif //__DYNAREC_RV64_HELPER_H__

@@ -101,7 +101,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
         }
         if(nextop&0x80)
             i64 = F32S;
-        else 
+        else
             i64 = F8S;
         if(i64==0 || ((i64>=-2048) && (i64<=2047)  && i12)) {
             *fixaddress = i64;
@@ -210,7 +210,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
     }
     CLEARIP();
     #ifdef HAVE_TRACE
-    //MOVx(x3, 15);    no access to PC reg 
+    //MOVx(x3, 15);    no access to PC reg
     #endif
     SMEND();
     JALR(x2); // save LR...
@@ -276,6 +276,7 @@ void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val)
         ADDI(reg, reg, r);
     }
 }
+
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
 {
     if(((val<<(64-12))>>(64-12))==val) {
@@ -320,4 +321,21 @@ void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
     if(s) {
         SLLI(reg, reg, s);
     }
+}
+
+void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
+{
+    MAYUSE(dyn); MAYUSE(ninst);
+    // PF: (((emu->x64emu_parity_tab[(res&0xff) / 32] >> ((res&0xff) % 32)) & 1) == 0)
+    MOV64x(s4, (uintptr_t)GetParityTab());
+    SRLI(s3, s1, 3);
+    ANDI(s3, s3, 28);
+    ADD(s4, s4, s3);
+    LW(s4, s4, 0);
+    NOT(s4, s4);
+    SRLW(s4, s4, s1);
+    ANDI(s4, s4, 1);
+
+    BEQZ(s4, 4);
+    ORI(xFlags, xFlags, 1 << F_PF);
 }

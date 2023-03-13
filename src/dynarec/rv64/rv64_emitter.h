@@ -103,7 +103,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define R_type(funct7, rs2, rs1, funct3, rd, opcode)    ((funct7)<<25 | (rs2)<<20 | (rs1)<<15 | (funct3)<<12 | (rd)<<7 | (opcode))
 #define I_type(imm12, rs1, funct3, rd, opcode)    ((imm12)<<20 | (rs1)<<15 | (funct3)<<12 | (rd)<<7 | (opcode))
 #define S_type(imm12, rs2, rs1, funct3, opcode)    (((imm12)>>5)<<25 | (rs2)<<20 | (rs1)<<15 | (funct3)<<12 | ((imm12)&31)<<7 | (opcode))
-#define B_type(imm13, rs2, rs1, funct3, opcode)      ((((imm13)>>12)&1)<<31 | (((imm13)>>5)&63)<<25 | (rs)<<20 | (rs1)<<15 | (funct3)<<13 | (((imm13)>>1)&15)<<8 | (((imm13)>>11)&1)<<7 | (opcode))
+#define B_type(imm13, rs2, rs1, funct3, opcode)      ((((imm13)>>12)&1)<<31 | (((imm13)>>5)&63)<<25 | (rs2)<<20 | (rs1)<<15 | (funct3)<<13 | (((imm13)>>1)&15)<<8 | (((imm13)>>11)&1)<<7 | (opcode))
 #define U_type(imm32, rd, opcode)   (((imm32)>>12)<<12 | (rd)<<7 | (opcode))
 #define J_type(imm21, rd, opcode)    ((((imm21)>>20)&1)<<31 | (((imm21)>>1)&0b1111111111)<<21 | (((imm21)>>11)&1)<<20 | (((imm21)>>12)&0b11111111)<<12 | (rd)<<7 | (opcode))
 
@@ -142,7 +142,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 | imm12
 #define ORI(rd, rs1, imm12)         EMIT(I_type((imm12)&0b111111111111, rs1, 0b110, rd, 0b0010011))
 // rd = rs1 & imm12
-#define ANDI(rd, rs1, imm12)        EMIT(I_type((imm12)&0b111111111111, rs1, 0b101, rd, 0b0010011))
+#define ANDI(rd, rs1, imm12)        EMIT(I_type((imm12)&0b111111111111, rs1, 0b111, rd, 0b0010011))
 
 // rd = imm12
 #define MOV_U12(rd, imm12)          ADDI(rd, xZR, imm12)
@@ -153,6 +153,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define ADD(rd, rs1, rs2)           EMIT(R_type(0b0000000, rs2, rs1, 0b000, rd, 0b0110011))
 // rd = rs1 - rs2
 #define SUB(rd, rs1, rs2)           EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, 0b0110011))
+// rd = rs1 - rs2
+#define SUBxw(rd, rs1, rs2)          EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, rex.w?0b0110011:0b0111011))
 // rd = rs1<<rs2
 #define SLL(rd, rs1, rs2)           EMIT(R_type(0b0000000, rs2, rs1, 0b001, rd, 0b0110011))
 // rd = (rs1<rs2)?1:0
@@ -178,6 +180,18 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define NOT(rd, rs1)                XORI(rd, rs1, -1)
 // rd = -rs1
 #define NEG(rd, rs1)                SUB(rd, xZR, rs1)
+// rd = rs1 == 0
+#define SEQZ(rd, rs1)               SLTIU(rd, rs1, 0)
+
+#define BEQ(rs1, rs2, imm13)       EMIT(B_type(imm13, rs2, rs1, 0b000, 0b1100011))
+#define BNE(rs1, rs2, imm13)       EMIT(B_type(imm13, rs2, rs1, 0b001, 0b1100011))
+#define BLT(rs1, rs2, imm13)       EMIT(B_type(imm13, rs2, rs1, 0b100, 0b1100011))
+#define BGE(rs1, rs2, imm13)       EMIT(B_type(imm13, rs2, rs1, 0b101, 0b1100011))
+#define BLTU(rs1, rs2, imm13)      EMIT(B_type(imm13, rs2, rs1, 0b110, 0b1100011))
+#define BGEU(rs1, rs2, imm13)      EMIT(B_type(imm13, rs2, rs1, 0b111, 0b1100011))
+
+#define BEQZ(rs1, imm13)           BEQ(rs1, 0, imm13)
+#define BNEZ(rs1, imm13)           BNE(rs1, 0, imm13)
 
 // rd = 4-bytes[rs1+imm12] signed extended
 #define LW(rd, rs1, imm12)          EMIT(I_type(imm12, rs1, 0b010, rd, 0b0000011))
@@ -219,5 +233,11 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Shift Right Aritmetic Immediate
 #define SRAI(rd, rs1, imm6)         EMIT(I_type((imm6)|(0b010000<<6), rs1, 0b101, rd, 0b0010011))
 
+// rd = rs1<<rs2
+#define SLLW(rd, rs1, rs2)           EMIT(R_type(0b0000000, rs2, rs1, 0b001, rd, 0b0111011))
+// rd = rs1>>rs2 logical
+#define SRLW(rd, rs1, rs2)           EMIT(R_type(0b0000000, rs2, rs1, 0b101, rd, 0b0111011))
+// rd = rs1>>rs2 aritmetic
+#define SRAW(rd, rs1, rs2)           EMIT(R_type(0b0100000, rs2, rs1, 0b101, rd, 0b0111011))
 
-#endif //__RV64_EMITTER_H__ 
+#endif //__RV64_EMITTER_H__
