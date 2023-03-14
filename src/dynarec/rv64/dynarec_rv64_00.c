@@ -62,6 +62,16 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             WBACK;
             break;
 
+        case 0x31:
+            INST_NAME("XOR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
+            WBACK;
+            break;
+
         case 0x50:
         case 0x51:
         case 0x52:
@@ -74,6 +84,22 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = xRAX+(opcode&0x07)+(rex.b<<3);
             SD(gd, xRSP, -8);
             SUBI(xRSP, xRSP, 8);
+            break;
+
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            INST_NAME("POP reg");
+            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            LD(gd, xRSP, 0);
+            if(gd!=xRSP) {
+                ADDI(xRSP, xRSP, 8);
+            }
             break;
 
         case 0x81:
@@ -133,22 +159,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 else if(!rex.w) {
                     ZEROUP(gd);   //truncate the higher 32bits as asked
                 }
-            }
-            break;
-
-        case 0x58:
-        case 0x59:
-        case 0x5A:
-        case 0x5B:
-        case 0x5C:
-        case 0x5D:
-        case 0x5E:
-        case 0x5F:
-            INST_NAME("POP reg");
-            gd = xRAX+(opcode&0x07)+(rex.b<<3);
-            LD(gd, xRSP, 0);
-            if(gd!=xRSP) {
-                ADDI(xRSP, xRSP, 8);
             }
             break;
 
