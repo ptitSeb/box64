@@ -33,7 +33,17 @@ void emit_xor32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE(s4);
     }
 
-    XORxw(s1, s1, s2);
+    XOR(s1, s1, s2);
+
+    // test sign bit before zeroup.
+    IFX(X_SF) {
+        BGE(s1, xZR, 4);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -41,11 +51,6 @@ void emit_xor32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_ZF) {
         BNEZ(s1, 4);
         ORI(xFlags, xFlags, F_ZF);
-    }
-    IFX(X_SF) {
-        SRLI(s3, s1, rex.w?63:31);
-        BEQZ(s3, 4);
-        ORI(xFlags, xFlags, 1 << F_SF);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
