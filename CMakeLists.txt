@@ -602,7 +602,7 @@ if(RV64_DYNAREC)
 
     set(DYNAREC_PASS
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_helper.c"
-    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_tests.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_tests.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_math.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_logic.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_shift.c"
