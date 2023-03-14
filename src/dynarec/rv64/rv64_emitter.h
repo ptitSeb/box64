@@ -152,6 +152,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // rd = rs1 + rs2
 #define ADD(rd, rs1, rs2)           EMIT(R_type(0b0000000, rs2, rs1, 0b000, rd, 0b0110011))
+// rd = rs1 + rs2
+#define ADDW(rd, rs1, rs2)          EMIT(R_type(0b0000000, rs2, rs1, 0b000, rd, 0b0111011))
+// rd = rs1 + rs2
+#define ADDxw(rd, rs1, rs2)         EMIT(R_type(0b0000000, rs2, rs1, 0b000, rd, rex.w?0b0110011:0b0111011))
 // rd = rs1 - rs2
 #define SUB(rd, rs1, rs2)           EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, 0b0110011))
 // rd = rs1 - rs2
@@ -240,6 +244,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // rd = rs1 + imm12
 #define ADDIW(rd, rs1, imm12)       EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, 0b0011011))
+// rd = rs1 + imm12
+#define ADDIxw(rd, rs1, imm12)      EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, rex.w?0b0010011:0b0011011))
 
 #define SEXT_W(rd, rs1)             ADDIW(rd, rs1, 0)
 
