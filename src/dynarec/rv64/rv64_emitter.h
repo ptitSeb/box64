@@ -46,8 +46,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define xR13    29
 #define xR14    30
 #define xR15    31
-#define xFlags  5
-#define xRIP    6
+#define xFlags  8
+#define xRIP    7
 
 // 32bits version
 #define wEAX    xRAX
@@ -73,9 +73,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define x3      13
 #define x4      14
 #define x5      15
-#define x6      8
+#define x6      6
 // used to clear the upper 32bits
-#define xMASK   7
+#define xMASK   5
 // 32bits version of scratch
 #define w1      x1
 #define w2      x2

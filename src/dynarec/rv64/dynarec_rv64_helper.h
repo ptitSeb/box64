@@ -133,6 +133,10 @@
 #define CBZ_NEXT(reg1)                  \
     j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
     BEQ(reg1, xZR, j64)
+// Branch to NEXT if reg1!=0 (use j64)
+#define CBNZ_NEXT(reg1)                 \
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
+    BNE(reg1, xZR, j64)
 
 #define IFX(A)  if((dyn->insts[ninst].x64.gen_flags&(A)))
 #define IFX_PENDOR0  if((dyn->insts[ninst].x64.gen_flags&(X_PEND) || !dyn->insts[ninst].x64.gen_flags))

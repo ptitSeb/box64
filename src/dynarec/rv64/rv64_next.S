@@ -18,7 +18,7 @@ rv64_next:
     sd      a0, (sp)
     sd      a1, 8(sp)
     sd      x5, 16(sp)
-    sd      x6, 24(sp)
+    sd      x7, 24(sp)
     sd      x16, 32(sp)
     sd      x17, 40(sp)
     sd      x28, 48(sp)
@@ -38,7 +38,7 @@ rv64_next:
     ld      a0, (sp)
     ld      a1, 8(sp)
     ld      x5, 16(sp)
-    ld      x6, 24(sp)
+    ld      x7, 24(sp)
     ld      x16, 32(sp)
     ld      x17, 40(sp)
     ld      x28, 48(sp)
@@ -46,9 +46,6 @@ rv64_next:
     ld      x30, 64(sp)
     ld      x31, 72(sp)
     addi    sp,  sp,  (8 * 10)
-    // setup xMASK
-    xori    x7, x0, -1
-    srli    x7, x7, 32
     // return offset is jump address
     jr      a3
 

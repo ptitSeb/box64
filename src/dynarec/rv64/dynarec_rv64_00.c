@@ -259,6 +259,65 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0xCC:
+            SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            if(PK(0)=='S' && PK(1)=='C') {
+                addr+=2;
+                BARRIER(BARRIER_FLOAT);
+                INST_NAME("Special Box64 instruction");
+                if((PK64(0)==0))
+                {
+                    addr+=8;
+                    MESSAGE(LOG_DEBUG, "Exit x64 Emu\n");
+                    //GETIP(ip+1+2);    // no use
+                    //STORE_XEMU_REGS(xRIP);    // no need, done in epilog
+                    MOV64x(x1, 1);
+                    SW(x1, xEmu, offsetof(x64emu_t, quit));
+                    *ok = 0;
+                    *need_epilog = 1;
+                } else {
+                    MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
+                    //x87_forget(dyn, ninst, x3, x4, 0);
+                    //sse_purge07cache(dyn, ninst, x3);
+                    tmp = isSimpleWrapper(*(wrapper_t*)(addr));
+                    if((box64_log<2 && !cycle_log) && tmp) {
+                        //GETIP(ip+3+8+8); // read the 0xCC
+                        call_n(dyn, ninst, *(void**)(addr+8), tmp);
+                        addr+=8+8;
+                    } else {
+                        GETIP(ip+1); // read the 0xCC
+                        STORE_XEMU_CALL();
+                        ADDI(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
+                        CALL_S(x64Int3, -1);
+                        LOAD_XEMU_CALL();
+                        addr+=8+8;
+                        TABLE64(x3, addr); // expected return address
+                        BNE_MARK(xRIP, x3);
+                        LW(w1, xEmu, offsetof(x64emu_t, quit));
+                        CBZ_NEXT(w1);
+                        MARK;
+                        LOAD_XEMU_REM();
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                    }
+                }
+            } else {
+                #if 1
+                INST_NAME("INT 3");
+                // check if TRAP signal is handled
+                LD(x1, xEmu, offsetof(x64emu_t, context));
+                MOV64x(x2, offsetof(box64context_t, signals[SIGTRAP]));
+                ADD(x2, x2, x1);
+                LD(x3, x2, 0);
+                CBNZ_NEXT(x3);
+                MOV64x(x1, SIGTRAP);
+                CALL_(raise, -1, 0);
+                break;
+                #else
+                DEFAULT;
+                #endif
+            }
+            break;
+            
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
