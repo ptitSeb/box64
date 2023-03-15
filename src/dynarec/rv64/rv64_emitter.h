@@ -91,9 +91,19 @@ f28–31  ft8–11  FP temporaries                  Caller
 // RV64 args
 #define A0      10
 #define A1      11
+#define A2      12
+#define A3      13
+#define A4      14
+#define A5      15
+#define A6      16
+#define A7      17
 // xZR reg is 0
 #define xZR     0
 #define wZR     xZR
+
+// split a 32bits value in 20bits + 12bits, adjust the upper part is 12bits is negative
+#define SPLIT20(A)  (((A)+0x800)>>12)
+#define SPLIT12(A)  ((A)&0xfff)
 
 // MOVE64x is quite complex, so use a function for this
 #define MOV64x(A, B)    rv64_move64(dyn, ninst, A, B)
@@ -104,7 +114,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define R_type(funct7, rs2, rs1, funct3, rd, opcode)    ((funct7)<<25 | (rs2)<<20 | (rs1)<<15 | (funct3)<<12 | (rd)<<7 | (opcode))
 #define I_type(imm12, rs1, funct3, rd, opcode)    ((imm12)<<20 | (rs1)<<15 | (funct3)<<12 | (rd)<<7 | (opcode))
 #define S_type(imm12, rs2, rs1, funct3, opcode)    (((imm12)>>5)<<25 | (rs2)<<20 | (rs1)<<15 | (funct3)<<12 | ((imm12)&31)<<7 | (opcode))
-#define B_type(imm13, rs2, rs1, funct3, opcode)      ((((imm13)>>12)&1)<<31 | (((imm13)>>5)&63)<<25 | (rs2)<<20 | (rs1)<<15 | (funct3)<<13 | (((imm13)>>1)&15)<<8 | (((imm13)>>11)&1)<<7 | (opcode))
+#define B_type(imm13, rs2, rs1, funct3, opcode)      ((((imm13)>>12)&1)<<31 | (((imm13)>>5)&63)<<25 | (rs2)<<20 | (rs1)<<15 | (funct3)<<12 | (((imm13)>>1)&15)<<8 | (((imm13)>>11)&1)<<7 | (opcode))
 #define U_type(imm32, rd, opcode)   (((imm32)>>12)<<12 | (rd)<<7 | (opcode))
 #define J_type(imm21, rd, opcode)    ((((imm21)>>20)&1)<<31 | (((imm21)>>1)&0b1111111111)<<21 | (((imm21)>>11)&1)<<20 | (((imm21)>>12)&0b11111111)<<12 | (rd)<<7 | (opcode))
 
@@ -112,7 +122,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // put imm20 in the [31:12] bits of rd, zero [11:0] and sign extend bits31
 #define LUI(rd, imm20)                 EMIT(U_type((imm20)<<12, rd, 0b0110111))
 // put PC+imm20 in rd
-#define AUIPC(rd, imm20)               EMIT(U_type((imm20)>>12, rd, 0b0010111))
+#define AUIPC(rd, imm20)               EMIT(U_type((imm20)<<12, rd, 0b0010111))
 
 #define JAL_gen(rd, imm21)             J_type(imm21, rd, 0b1101111)
 // Unconditionnal branch, no return address set
@@ -216,6 +226,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SH(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b001, 0b0100011))
 // 4-bytes[rs1+imm12] = rs2
 #define SW(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b010, 0b0100011))
+
+#define PUSH1(reg)                  do {SD(reg, xRSP, -8); SUBI(xRSP, xRSP, 8);} while(0)
+#define POP1(reg)                   do {LD(reg, xRSP, 0); ADDI(xRSP, xRSP, 8);}while(0)
 
 #define FENCE_gen(pred, succ)       (((pred)<<24) | ((succ)<<20) | 0b0001111)
 #define FENCE()                     EMIT(FENCE_gen(3, 3))

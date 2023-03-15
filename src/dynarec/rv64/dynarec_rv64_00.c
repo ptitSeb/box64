@@ -92,7 +92,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SD(gd, xRSP, -8);
             SUBI(xRSP, xRSP, 8);
             break;
-
         case 0x58:
         case 0x59:
         case 0x5A:
@@ -151,6 +150,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+
         case 0x85:
             INST_NAME("TEST Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -159,6 +159,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_test32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             break;
+
         case 0x89:
             INST_NAME("MOV Ed, Gd");
             nextop=F8;
@@ -257,6 +258,122 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
+
+        case 0xE8:
+            INST_NAME("CALL Id");
+            i32 = F32S;
+            if(addr+i32==0) {
+                #if STEP == 3
+                printf_log(LOG_INFO, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr-1));
+                #endif
+            }
+            #if STEP < 2
+            if(isNativeCall(dyn, addr+i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+                tmp = dyn->insts[ninst].pass2choice = 3;
+            else 
+                tmp = dyn->insts[ninst].pass2choice = 0;
+            #else
+                tmp = dyn->insts[ninst].pass2choice;
+            #endif
+            switch(tmp) {
+                case 3:
+                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    BARRIER(BARRIER_FULL);
+                    //BARRIER_NEXT(BARRIER_FULL);
+                    if(dyn->last_ip && (addr-dyn->last_ip<0x1000)) {
+                        ADDI(x2, xRIP, addr-dyn->last_ip);
+                    } else {
+                        TABLE64(x2, addr);
+                    }
+                    PUSH1(x2);
+                    MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
+                    // calling a native function
+                    //sse_purge07cache(dyn, ninst, x3);     // TODO: chack the fpxx to purge/save when implemented
+                    if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall) {
+                        tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
+                        if(tmp>1 || tmp<0)
+                            tmp=0;  // float paramters not ready!
+                    } else
+                        tmp=0;
+                    if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
+                        //GETIP(ip+3+8+8); // read the 0xCC
+                        call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8), tmp);
+                        POP1(xRIP);       // pop the return address
+                        dyn->last_ip = addr;
+                    } else {
+                        GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
+                        STORE_XEMU_CALL();
+                        ADDI(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
+                        CALL_S(x64Int3, -1);
+                        LOAD_XEMU_CALL();
+                        TABLE64(x3, dyn->insts[ninst].natcall);
+                        ADDI(x3, x3, 2+8+8);
+                        BNE_MARK(xRIP, x3);    // Not the expected address, exit dynarec block
+                        POP1(xRIP);       // pop the return address
+                        if(dyn->insts[ninst].retn) {
+                            if(dyn->insts[ninst].retn<0x1000) {
+                                ADDI(xRSP, xRSP, dyn->insts[ninst].retn);
+                            } else {
+                                MOV64x(x3, dyn->insts[ninst].retn);
+                                ADD(xRSP, xRSP, x3);
+                            }
+                        }
+                        TABLE64(x3, addr);
+                        BNE_MARK(xRIP, x3);    // Not the expected address again
+                        LW(w1, xEmu, offsetof(x64emu_t, quit));
+                        CBZ_NEXT(w1);
+                        MARK;
+                        LOAD_XEMU_REM();    // load remaining register, has they have changed
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        dyn->last_ip = addr;
+                    }
+                    break;
+                default:
+                    if((box64_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x64.set_flags)) {
+                        READFLAGS(X_PEND);  // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    }
+                    // regular call
+                    //BARRIER_NEXT(1);
+                    if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
+                        BARRIER(BARRIER_FULL);
+                    } else {
+                        BARRIER(BARRIER_FLOAT);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
+                    TABLE64(x2, addr);
+                    PUSH1(x2);
+                    // TODO: Add support for CALLRET optim
+                    /*if(box64_dynarec_callret) {
+                        // Push actual return address
+                        if(addr < (dyn->start+dyn->isize)) {
+                            // there is a next...
+                            j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
+                            ADR_S20(x4, j64);
+                        } else {
+                            j64 = getJumpTableAddress64(addr);
+                            TABLE64(x4, j64);
+                            LDR(x4, x4, 0);
+                        }
+                        PUSH1(x4);
+                        PUSH1(x2);
+                    } else */ //CALLRET optim disable for now.
+                    {
+                        *ok = 0;
+                        *need_epilog = 0;
+                    }
+                    if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
+                        TABLE64(x4, addr-4);
+                        LD(x4, x4, 0);
+                        jump_to_next(dyn, 0, x4, ninst);
+                    } else
+                        jump_to_next(dyn, addr+i32, 0, ninst);
+                    break;
+            }
+            break;
+
         default:
             DEFAULT;
     }
