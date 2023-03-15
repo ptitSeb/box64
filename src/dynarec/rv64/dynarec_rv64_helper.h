@@ -176,7 +176,7 @@
 #define SET_NODF()          dyn->f.dfnone = 0
 #define SET_DFOK()          dyn->f.dfnone = 1
 
-#define CLEAR_FLAGS() IFX(X_ALL) {ANDI(xFlags, xFlags, ~((1UL<<F_AF) | (1UL<<F_CF) | (1UL<<F_OF) | (1UL<<F_ZF) | (1UL<<F_SF) | (1UL<<F_PF)));}
+#define CLEAR_FLAGS() IFX(X_ALL) {ANDI(xFlags, xFlags, ~((1UL<<F_AF) | (1UL<<F_CF) | (1UL<<F_OF2) | (1UL<<F_ZF) | (1UL<<F_SF) | (1UL<<F_PF)));}
 
 #define CALC_SUB_FLAGS(op1_, op2, res, scratch1, scratch2, width)         \
     IFX(X_AF | X_CF | X_OF) {                                             \
@@ -210,9 +210,24 @@
             XOR(scratch1, scratch1, scratch2);                            \
             ANDI(scratch1, scratch1, 1);                                  \
             BEQZ(scratch1, 4);                                            \
-            ORI(xFlags, xFlags, 1 << F_OF);                               \
+            ORI(xFlags, xFlags, 1 << F_OF2);                              \
         }                                                                 \
     }
+
+// Adjust the xFlags bit 11 -> bit 5, result in reg (can be xFlags, but not s1)
+#define FLAGS_ADJUST_FROM11(reg, s1)\
+    ANDI(reg, xFlags, ~(1<<5));     \
+    SRLI(s1, reg, 11-5);            \
+    ANDI(s1, s1, 1<<5);             \
+    OR(reg, reg, s1)
+
+// Adjust the xFlags bit 5 -> bit 11, source in reg (can be xFlags, but not s1)
+#define FLAGS_ADJUST_TO11(reg, s1)  \
+    MOV64x(s1, ~(1<<11));           \
+    AND(xFlags, reg, s1);           \
+    ANDI(s1, xFlags, 1<<5);         \
+    SLLI(s1, s1, 11-5);             \
+    OR(xFlags, xFlags, s1)
 
 #ifndef MAYSETFLAGS
 #define MAYSETFLAGS()
@@ -220,12 +235,36 @@
 
 #ifndef READFLAGS
 #define READFLAGS(A) \
-
+    if(((A)!=X_PEND && dyn->f.pending!=SF_SET)          \
+    && (dyn->f.pending!=SF_SET_PENDING)) {              \
+        if(dyn->f.pending!=SF_PENDING) {                \
+            LD(x3, xEmu, offsetof(x64emu_t, df));       \
+            j64 = (GETMARKF)-(dyn->native_size);        \
+            BEQ(x3, xZR, j64);                          \
+        }                                               \
+        CALL_(UpdateFlags, -1, 0);                      \
+        FLAGS_ADJUST_FROM11(xFlags, x3);                \
+        MARKF;                                          \
+        dyn->f.pending = SF_SET;                        \
+        SET_DFOK();                                     \
+    }
 #endif
 
 #ifndef SETFLAGS
 #define SETFLAGS(A, B)                                                                          \
-
+    if(dyn->f.pending!=SF_SET                                                                   \
+    && ((B)&SF_SUB)                                                                             \
+    && (dyn->insts[ninst].x64.gen_flags&(~(A))))                                                \
+        READFLAGS(((dyn->insts[ninst].x64.gen_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.gen_flags)&(~(A)));\
+    if(dyn->insts[ninst].x64.gen_flags) switch(B) {                                             \
+        case SF_SUBSET:                                                                         \
+        case SF_SET: dyn->f.pending = SF_SET; break;                                            \
+        case SF_PENDING: dyn->f.pending = SF_PENDING; break;                                    \
+        case SF_SUBSET_PENDING:                                                                 \
+        case SF_SET_PENDING:                                                                    \
+            dyn->f.pending = (dyn->insts[ninst].x64.gen_flags&X_PEND)?SF_SET_PENDING:SF_SET;    \
+            break;                                                                              \
+    } else dyn->f.pending = SF_SET
 #endif
 #ifndef JUMP
 #define JUMP(A, C)
@@ -236,7 +275,12 @@
 #ifndef BARRIER_NEXT
 #define BARRIER_NEXT(A)
 #endif
-
+#define UFLAG_OP1(A) if(dyn->insts[ninst].x64.gen_flags) {SDxw(A, xEmu, offsetof(x64emu_t, op1));}
+#define UFLAG_OP2(A) if(dyn->insts[ninst].x64.gen_flags) {SDxw(A, xEmu, offsetof(x64emu_t, op2));}
+#define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x64.gen_flags) {SDxw(A1, xEmu, offsetof(x64emu_t, op1));SDxw(A2, 0, offsetof(x64emu_t, op2));}
+#define UFLAG_RES(A) if(dyn->insts[ninst].x64.gen_flags) {SDxw(A, xEmu, offsetof(x64emu_t, res));}
+#define UFLAG_DF(r, A) if(dyn->insts[ninst].x64.gen_flags) {SET_DF(r, A)}
+#define UFLAG_IF if(dyn->insts[ninst].x64.gen_flags)
 #ifndef DEFAULT
 #define DEFAULT      *ok = -1; BARRIER(2)
 #endif

@@ -98,7 +98,7 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
             XOR(s3, s3, s4);
             ANDI(s3, s3, 1); // OF: xor of two MSB's of cc
             BEQZ(s3, 4);
-            ORI(xFlags, xFlags, 1 << F_OF);
+            ORI(xFlags, xFlags, 1 << F_OF2);
         }
     }
     IFX(X_SF) {

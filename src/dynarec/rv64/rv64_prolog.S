@@ -46,6 +46,11 @@ rv64_prolog:
     ld      x31, 120(a0)
     ld      x5, 128(a0)     //xFlags
     ld      x6, 136(a0)     // xRIP
+    // // adjust flags bit 11 -> bit 5
+    andi    x5, x5, ~(1<<5)    // probably not usefull?
+    srli    x7, x5, 11-5
+    andi    x7, x7, 1<<5
+    or      x5, x5, x7
     // setup xMASK
     xori    x7, x0, -1
     srli    x7, x7, 32

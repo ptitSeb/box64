@@ -245,6 +245,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     if(savereg==0)
         savereg = x6;
     if(saveflags) {
+        FLAGS_ADJUST_TO11(xFlags, reg);
         SD(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
     fpu_pushcache(dyn, ninst, reg, 0);
@@ -288,6 +289,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     fpu_popcache(dyn, ninst, reg, 0);
     if(saveflags) {
         LD(xFlags, xEmu, offsetof(x64emu_t, eflags));
+        FLAGS_ADJUST_FROM11(xFlags, reg);
     }
     SET_NODF();
     dyn->last_ip = 0;
@@ -296,6 +298,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
+    FLAGS_ADJUST_TO11(xFlags, x3);
     SD(xFlags, xEmu, offsetof(x64emu_t, eflags));
     fpu_pushcache(dyn, ninst, x3, 1);
     // x5..x8, x10..x17, x28..x31 those needs to be saved by caller
@@ -351,6 +354,7 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
 
     fpu_popcache(dyn, ninst, x3, 1);
     LD(xFlags, xEmu, offsetof(x64emu_t, eflags));
+    FLAGS_ADJUST_FROM11(xFlags, x3);
     SET_NODF();
 }
 

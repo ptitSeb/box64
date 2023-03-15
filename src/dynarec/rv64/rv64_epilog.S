@@ -25,6 +25,12 @@ rv64_epilog:
     sd      x29, 104(a0)
     sd      x30, 112(a0)
     sd      x31, 120(a0)
+    // adjust flags bit 5 -> bit 11
+    li      x7, ~(1<<11)
+    and     x5, x5, x7
+    andi    x7, x5, 1<<5
+    slli    x7, x7, 11-5
+    or      x5, x5, x7
     sd      x5, 128(a0)     //xFlags
     sd      x6, 136(a0)     // put back reg value in emu, including EIP (so x27 must be EIP now)
     //restore all used register
