@@ -108,7 +108,25 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADDI(xRSP, xRSP, 8);
             }
             break;
-
+        case 0x80:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 7: // CMP
+                    INST_NAME("CMP Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    if(u8) {
+                        ADDI(x2, xZR, u8);
+                        emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    } else {
+                        emit_cmp8_0(dyn, ninst, x1, x3, x4);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;
