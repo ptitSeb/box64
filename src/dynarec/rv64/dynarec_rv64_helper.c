@@ -202,25 +202,31 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
         TABLE64(x3, tbl);
         SRLI(x2, xRIP, JMPTABL_START3);
         SLLI(x2, x2, 3);
-        LD(x3, x3, x2);
-        LUI(x4, JMPTABLE_MASK2);    // x4 = mask
-        SRLI(x2, xRIP, JMPTABL_START2);
+        ADD(x3, x3, x2);
+        LD(x3, x3, 0);
+        MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
+        SRLI(x2, xRIP, JMPTABL_START2-3);
         AND(x2, x2, x4);
-        SLLI(x2, x2, 3);
-        LD(x3, x3, x2);
+        ADD(x3, x3, x2);
+        LD(x3, x3, 0);
         if(JMPTABLE_MASK2!=JMPTABLE_MASK1) {
-            LUI(x4, JMPTABLE_MASK1);    // x4 = mask
+            MOV64x(x4, JMPTABLE_MASK1<<3);    // x4 = mask
         }
-        SRLI(x2, xRIP, JMPTABL_START1);
+        SRLI(x2, xRIP, JMPTABL_START1-3);
         AND(x2, x2, x4);
-        SLLI(x2, x2, 3);
-        LD(x3, x3, x2);
-        if(JMPTABLE_MASK1!=JMPTABLE_MASK0) {
-            LUI(x4, JMPTABLE_MASK0);    // x4 = mask
+        ADD(x3, x3, x2);
+        LD(x3, x3, 0);
+        if(JMPTABLE_MASK0<2048) {
+            ANDI(x2, xRIP, JMPTABLE_MASK0);
+        } else {
+            if(JMPTABLE_MASK1!=JMPTABLE_MASK0) {
+                MOV64x(x4, JMPTABLE_MASK0);    // x4 = mask
+            }
+            AND(x2, xRIP, x4);
         }
-        AND(x2, x2, x4);
         SLLI(x2, x2, 3);
-        LD(x2, x3, x2);
+        ADD(x3, x3, x2);
+        LD(x2, x3, 0);
     } else {
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
@@ -237,6 +243,112 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
     #endif
     SMEND();
     JALR(x2); // save LR...
+}
+
+void ret_to_epilog(dynarec_rv64_t* dyn, int ninst)
+{
+    MAYUSE(dyn); MAYUSE(ninst);
+    MESSAGE(LOG_DUMP, "Ret to epilog\n");
+    POP1(xRIP);
+    MV(x1, xRIP);
+    SMEND();
+    /*if(box64_dynarec_callret) {
+        // pop the actual return address from RV64 stack
+        LDPx_S7_offset(x2, x6, xSP, 0);
+        CBZx(x6, 5*4);
+        ADDx_U12(xSP, xSP, 16);
+        SUBx_REG(x6, x6, xRIP); // is it the right address?
+        CBNZx(x6, 2*4);
+        BLR(x2);
+        // not the correct return address, regular jump
+    }*/
+    uintptr_t tbl = getJumpTable64();
+    MOV64x(x3, tbl);
+    SRLI(x2, xRIP, JMPTABL_START3);
+    SLLI(x2, x2, 3);
+    ADD(x3, x3, x2);
+    LD(x3, x3, 0);
+    MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
+    SRLI(x2, xRIP, JMPTABL_START2-3);
+    AND(x2, x2, x4);
+    ADD(x3, x3, x2);
+    LD(x3, x3, 0);
+    if(JMPTABLE_MASK2!=JMPTABLE_MASK1) {
+        MOV64x(x4, JMPTABLE_MASK1<<3);    // x4 = mask
+    }
+    SRLI(x2, xRIP, JMPTABL_START1-3);
+    AND(x2, x2, x4);
+    ADD(x3, x3, x2);
+    LD(x3, x3, 0);
+    if(JMPTABLE_MASK0<2048) {
+        ANDI(x2, xRIP, JMPTABLE_MASK0);
+    } else {
+        if(JMPTABLE_MASK1!=JMPTABLE_MASK0) {
+            MOV64x(x4, JMPTABLE_MASK0);    // x4 = mask
+        }
+        AND(x2, xRIP, x4);
+    }
+    SLLI(x2, x2, 3);
+    ADD(x3, x3, x2);
+    LD(x2, x3, 0);
+    JALR(x2); // save LR
+    CLEARIP();
+}
+
+void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, int n)
+{
+    MAYUSE(dyn); MAYUSE(ninst);
+    MESSAGE(LOG_DUMP, "Retn to epilog\n");
+    POP1(xRIP);
+    if(n>0x7ff) {
+        MOV64x(w1, n);
+        ADD(xRSP, xRSP, x1);
+    } else {
+        ADDI(xRSP, xRSP, n);
+    }
+    MV(x1, xRIP);
+    SMEND();
+    /*if(box64_dynarec_callret) {
+        // pop the actual return address from RV64 stack
+        LDPx_S7_offset(x2, x6, xSP, 0);
+        CBZx(x6, 5*4);
+        ADDx_U12(xSP, xSP, 16);
+        SUBx_REG(x6, x6, xRIP); // is it the right address?
+        CBNZx(x6, 2*4);
+        BLR(x2);
+        // not the correct return address, regular jump
+    }*/
+    uintptr_t tbl = getJumpTable64();
+    MOV64x(x3, tbl);
+    SRLI(x2, xRIP, JMPTABL_START3);
+    SLLI(x2, x2, 3);
+    ADD(x3, x3, x2);
+    LD(x3, x3, 0);
+    MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
+    SRLI(x2, xRIP, JMPTABL_START2-3);
+    AND(x2, x2, x4);
+    ADD(x3, x3, x2);
+    LD(x3, x3, 0);
+    if(JMPTABLE_MASK2!=JMPTABLE_MASK1) {
+        MOV64x(x4, JMPTABLE_MASK1<<3);    // x4 = mask
+    }
+    SRLI(x2, xRIP, JMPTABL_START1-3);
+    AND(x2, x2, x4);
+    ADD(x3, x3, x2);
+    LD(x3, x3, 0);
+    if(JMPTABLE_MASK0<2048) {
+        ANDI(x2, xRIP, JMPTABLE_MASK0);
+    } else {
+        if(JMPTABLE_MASK1!=JMPTABLE_MASK0) {
+            MOV64x(x4, JMPTABLE_MASK0);    // x4 = mask
+        }
+        AND(x2, xRIP, x4);
+    }
+    SLLI(x2, x2, 3);
+    ADD(x3, x3, x2);
+    LD(x2, x3, 0);
+    JALR(x2); // save LR
+    CLEARIP();
 }
 
 void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)

@@ -218,6 +218,30 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0xC2:
+            INST_NAME("RETN");
+            //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            if(box64_dynarec_safeflags) {
+                READFLAGS(X_PEND);  // lets play safe here too
+            }
+            BARRIER(BARRIER_FLOAT);
+            i32 = F16;
+            retn_to_epilog(dyn, ninst, i32);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+        case 0xC3:
+            INST_NAME("RET");
+            // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            if(box64_dynarec_safeflags) {
+                READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
+            }
+            BARRIER(BARRIER_FLOAT);
+            ret_to_epilog(dyn, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+
         case 0xC6:
             INST_NAME("MOV Eb, Ib");
             nextop=F8;
