@@ -76,6 +76,29 @@
 // Write back ed in wback (if wback not 0)
 #define WBACK       if(wback) {SDxw(ed, wback, fixedaddress); SMWRITE();}
 
+// GETEB will use i for ed, and can use r3 for wback.
+#define GETEB(i, D) if(MODREG) {                \
+                    if(rex.rex) {               \
+                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
+                        wb2 = 0;                \
+                    } else {                    \
+                        wback = (nextop&7);     \
+                        wb2 = (wback>>2)*8;     \
+                        wback = xRAX+(wback&3); \
+                    }                           \
+                    MV(i, wback);               \
+                    if (wb2) SRLI(i, i, wb2);   \
+                    ANDI(i, i, 0xff);           \
+                    wb1 = 0;                    \
+                    ed = i;                     \
+                } else {                        \
+                    SMREAD();                   \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 0, D); \
+                    LBU(i, wback, fixedaddress);\
+                    wb1 = 1;                    \
+                    ed = i;                     \
+                }
+
 #define IFX(A)  if((dyn->insts[ninst].x64.gen_flags&(A)))
 #define IFX_PENDOR0  if((dyn->insts[ninst].x64.gen_flags&(X_PEND) || !dyn->insts[ninst].x64.gen_flags))
 #define IFXX(A) if((dyn->insts[ninst].x64.gen_flags==(A)))
@@ -89,7 +112,7 @@
 
 #define CLEAR_FLAGS() IFX(X_ALL) {ANDI(xFlags, xFlags, ~((1UL<<F_AF) | (1UL<<F_CF) | (1UL<<F_OF) | (1UL<<F_ZF) | (1UL<<F_SF) | (1UL<<F_PF)));}
 
-#define CALC_SUB_FLAGS(op1_, op2, res, scratch1, scratch2)                \
+#define CALC_SUB_FLAGS(op1_, op2, res, scratch1, scratch2, width)         \
     IFX(X_AF | X_CF | X_OF) {                                             \
         /* calc borrow chain */                                           \
         /* bc = (res & (~op1 | op2)) | (~op1 & op2) */                    \
@@ -104,14 +127,19 @@
             ORI(xFlags, xFlags, 1 << F_AF);                               \
         }                                                                 \
         IFX(X_CF) {                                                       \
-            /* cf = bc & (rex.w?(1<<63):(1<<31)) */                       \
-            SRLI(scratch1, scratch2, rex.w?63:31);                        \
+            /* cf = bc & (1<<(width-1)) */                                \
+            if (width == 8) {                                             \
+                ANDI(scratch1, scratch2, 0x80);                           \
+            } else {                                                      \
+                SRLI(scratch1, scratch2, width-1);                        \
+                if (width == 16) ANDI(scratch1, scratch1, 1);             \
+            }                                                             \
             BEQZ(scratch1, 4);                                            \
             ORI(xFlags, xFlags, 1 << F_CF);                               \
         }                                                                 \
         IFX(X_OF) {                                                       \
-            /* of = ((bc >> rex.w?62:30) ^ (bc >> rex.w?63:31)) & 0x1; */ \
-            SRLI(scratch1, scratch2, rex.w?62:30);                        \
+            /* of = ((bc >> (width-2)) ^ (bc >> (width-1))) & 0x1; */     \
+            SRLI(scratch1, scratch2, width-2);                            \
             SRLI(scratch2, scratch1, 1);                                  \
             XOR(scratch1, scratch1, scratch2);                            \
             ANDI(scratch1, scratch1, 1);                                  \
@@ -359,10 +387,10 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 //void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 //void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w);
 //void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
-//void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 //void emit_cmp16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6);
-//void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_cmp16_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 //void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
