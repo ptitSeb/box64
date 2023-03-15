@@ -23,53 +23,6 @@
 #include "dynarec_rv64_functions.h"
 #include "dynarec_rv64_helper.h"
 
-#define CALC_SUB_FLAGS()                                                  \
-    IFX(X_PEND) {                                                         \
-        SDxw(s1, xEmu, offsetof(x64emu_t, res));                          \
-    }                                                                     \
-                                                                          \
-    IFX(X_AF | X_CF | X_OF) {                                             \
-        /* calc borrow chain */                                           \
-        /* bc = (res & (~op1 | op2)) | (~op1 & op2) */                    \
-        OR(s3, s5, s2);                                                   \
-        AND(s4, s1, s3);                                                  \
-        AND(s5, s5, s2);                                                  \
-        OR(s4, s4, s5);                                                   \
-        IFX(X_AF) {                                                       \
-            /* af = bc & 0x8 */                                           \
-            ANDI(s3, s4, 8);                                              \
-            BEQZ(s3, 4);                                                  \
-            ORI(xFlags, xFlags, 1 << F_AF);                               \
-        }                                                                 \
-        IFX(X_CF) {                                                       \
-            /* cf = bc & (rex.w?(1<<63):(1<<31)) */                       \
-            SRLI(s3, s4, rex.w?63:31);                                    \
-            BEQZ(s3, 4);                                                  \
-            ORI(xFlags, xFlags, 1 << F_CF);                               \
-        }                                                                 \
-        IFX(X_OF) {                                                       \
-            /* of = ((bc >> rex.w?62:30) ^ (bc >> rex.w?63:31)) & 0x1; */ \
-            SRLI(s3, s4, rex.w?62:30);                                    \
-            SRLI(s4, s3, 1);                                              \
-            XOR(s3, s3, s4);                                              \
-            ANDI(s3, s3, 1);                                              \
-            BEQZ(s3, 4);                                                  \
-            ORI(xFlags, xFlags, 1 << F_OF);                               \
-        }                                                                 \
-    }                                                                     \
-    IFX(X_ZF) {                                                           \
-        BEQZ(s1, 4);                                                      \
-        ORI(xFlags, xFlags, 1 << F_ZF);                                   \
-    }                                                                     \
-    IFX(X_SF) {                                                           \
-        SRLI(s3, s1, rex.w?63:31);                                        \
-        BEQZ(s3, 4);                                                      \
-        ORI(xFlags, xFlags, 1 << F_SF);                                   \
-    }                                                                     \
-    IFX(X_PF) {                                                           \
-        emit_pf(dyn, ninst, s1, s3, s4);                                  \
-    }                                                                     \
-
 // emit ADD32 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5)
 {
@@ -152,13 +105,13 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         BGE(s1, xZR, 4);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
     IFX(X_ZF) {
-        if (!rex.w) {
-            ZEROUP(s1);
-        }
         BNEZ(s1, 4);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
@@ -183,7 +136,24 @@ void emit_sub32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 
     SUBxw(s1, s1, s2);
-    CALC_SUB_FLAGS();
+    IFX(X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_SF) {
+        BGE(s1, xZR, 4);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    CALC_SUB_FLAGS(s5, s2, s1, s3, s4);
+    IFX(X_ZF) {
+        BEQZ(s1, 4);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
 }
 
 
@@ -218,7 +188,7 @@ void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
 
     if (c > -2048 && c <= 2048) {
-        ADDI(s1, s1, -c);
+        ADDIxw(s1, s1, -c);
     } else {
         IFX(X_PEND) {} else {MOV64x(s2, c);}
         SUBxw(s1, s1, s2);
@@ -230,5 +200,22 @@ void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
             MOV64x(s2, c);
         }
     }
-    CALC_SUB_FLAGS();
+    IFX(X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_SF) {
+        BGE(s1, xZR, 4);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    CALC_SUB_FLAGS(s5, s2, s1, s3, s4);
+    IFX(X_ZF) {
+        BEQZ(s1, 4);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
 }

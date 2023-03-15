@@ -23,6 +23,45 @@
 #include "dynarec_rv64_functions.h"
 #include "dynarec_rv64_helper.h"
 
+// emit CMP32 instruction, from cmp s1, s2, using s3 and s4 as scratch
+void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6)
+{
+    CLEAR_FLAGS();
+    IFX_PENDOR0 {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SDxw(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, rex.w?d_cmp64:d_cmp32);
+    } else {
+        SET_DFNONE(s4);
+    }
+
+    IFX(X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOT(s5, s1);
+    }
+
+    // It's a cmp, we can't store the result back to s1.
+    SUBxw(s6, s1, s2);
+    IFX_PENDOR0 {
+        SDxw(s6, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_SF) {
+        BGE(s6, xZR, 0);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    CALC_SUB_FLAGS(s5, s2, s6, s3, s4);
+    IFX(X_ZF) {
+        BEQZ(s6, 4);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s6, s3, s4);
+    }
+}
+
 // emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
 void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {

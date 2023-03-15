@@ -89,6 +89,37 @@
 
 #define CLEAR_FLAGS() IFX(X_ALL) {ANDI(xFlags, xFlags, ~((1UL<<F_AF) | (1UL<<F_CF) | (1UL<<F_OF) | (1UL<<F_ZF) | (1UL<<F_SF) | (1UL<<F_PF)));}
 
+#define CALC_SUB_FLAGS(op1_, op2, res, scratch1, scratch2)                \
+    IFX(X_AF | X_CF | X_OF) {                                             \
+        /* calc borrow chain */                                           \
+        /* bc = (res & (~op1 | op2)) | (~op1 & op2) */                    \
+        OR(scratch1, op1_, op2);                                          \
+        AND(scratch2, res, scratch1);                                     \
+        AND(op1_, op1_, op2);                                             \
+        OR(scratch2, scratch2, op1_);                                     \
+        IFX(X_AF) {                                                       \
+            /* af = bc & 0x8 */                                           \
+            ANDI(scratch1, scratch2, 8);                                  \
+            BEQZ(scratch1, 4);                                            \
+            ORI(xFlags, xFlags, 1 << F_AF);                               \
+        }                                                                 \
+        IFX(X_CF) {                                                       \
+            /* cf = bc & (rex.w?(1<<63):(1<<31)) */                       \
+            SRLI(scratch1, scratch2, rex.w?63:31);                        \
+            BEQZ(scratch1, 4);                                            \
+            ORI(xFlags, xFlags, 1 << F_CF);                               \
+        }                                                                 \
+        IFX(X_OF) {                                                       \
+            /* of = ((bc >> rex.w?62:30) ^ (bc >> rex.w?63:31)) & 0x1; */ \
+            SRLI(scratch1, scratch2, rex.w?62:30);                        \
+            SRLI(scratch2, scratch1, 1);                                  \
+            XOR(scratch1, scratch1, scratch2);                            \
+            ANDI(scratch1, scratch1, 1);                                  \
+            BEQZ(scratch1, 4);                                            \
+            ORI(xFlags, xFlags, 1 << F_OF);                               \
+        }                                                                 \
+    }
+
 #ifndef MAYSETFLAGS
 #define MAYSETFLAGS()
 #endif
@@ -330,7 +361,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 //void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
 //void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 //void emit_cmp16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
-//void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
+void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6);
 //void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_cmp16_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
