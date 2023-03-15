@@ -71,7 +71,14 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
             WBACK;
             break;
-
+        case 0x39:
+            INST_NAME("CMP Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_cmp32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
+            break;
         case 0x50:
         case 0x51:
         case 0x52:
