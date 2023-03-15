@@ -758,6 +758,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     insn.name = "srli";
                 } else if (imm116 == 0x10) { /* SRAI */
                     insn.name = "srai";
+                    insn.imm&=0b111111;
                 }
                 break;
             }
@@ -801,11 +802,12 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     break;
                 case 0x20: /* SRAIW */
                     insn.name = "sraiw";
+                    insn.imm&=0b111111;
                     break;
                 }
             }
             }
-            PRINT_rd_rs1_rs2();
+            PRINT_rd_rs1_imm();
         }
         case 0x8: {
             uint32_t funct3 = FUNCT3(data);
