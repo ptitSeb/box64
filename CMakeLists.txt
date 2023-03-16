@@ -625,7 +625,7 @@ if(RV64_DYNAREC)
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_6664.c"
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_66f0.c"
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f20f.c"
-    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f30f.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f30f.c"
     )
 endif()
 
