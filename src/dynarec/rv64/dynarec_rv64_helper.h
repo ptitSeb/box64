@@ -73,6 +73,17 @@
                     ed = x1;                            \
                 }
 
+// GETEDx can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETEDx(D) if(MODREG) {                          \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    SMREAD()                            \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+                    LD(x1, wback, fixedaddress);        \
+                    ed = x1;                            \
+                }
+
 // FAKEED like GETED, but doesn't get anything
 #define FAKEED  if(!MODREG) {   \
                     addr = fakeed(dyn, addr, ninst, nextop); \
@@ -330,6 +341,13 @@
 #endif
 #define CLEARIP()   dyn->last_ip=0
 
+#if STEP < 2
+#define PASS2IF(A, B) if(A)
+#elif STEP == 2
+#define PASS2IF(A, B) if(A) dyn->insts[ninst].pass2choice = B; if(dyn->insts[ninst].pass2choice == B)
+#else
+#define PASS2IF(A, B) if(dyn->insts[ninst].pass2choice == B)
+#endif
 
 #define MODREG  ((nextop&0xC0)==0xC0)
 

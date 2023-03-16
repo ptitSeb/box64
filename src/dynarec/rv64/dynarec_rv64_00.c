@@ -665,6 +665,70 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *ok = 0;
             break;
 
+        case 0xFF:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0: // INC Ed
+                    DEFAULT;
+                    break;
+                case 1: //DEC Ed
+                    DEFAULT;
+                    break;
+                case 2: // CALL Ed
+                    INST_NAME("CALL Ed");
+                    PASS2IF((box64_dynarec_safeflags>1) || 
+                        ((ninst && dyn->insts[ninst-1].x64.set_flags)
+                        || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
+                    {
+                        READFLAGS(X_PEND);          // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                    }
+                    GETEDx(0);
+                    if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
+                        BARRIER(BARRIER_FULL);
+                    } else {
+                        BARRIER(BARRIER_FLOAT);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
+                    GETIP_(addr);
+                    // TODO: Add suport for CALLRET optim
+                    /*if(box64_dynarec_callret) {
+                        // Push actual return address
+                        if(addr < (dyn->start+dyn->isize)) {
+                            // there is a next...
+                            j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
+                            ADR_S20(x4, j64);
+                        } else {
+                            j64 = getJumpTableAddress64(addr);
+                            TABLE64(x4, j64);
+                            LDRx_U12(x4, x4, 0);
+                        }
+                        STPx_S7_preindex(x4, xRIP, xSP, -16);
+                    }*/
+                    PUSH1(xRIP);
+                    jump_to_next(dyn, 0, ed, ninst);
+                    break;
+                case 4: // JMP Ed
+                    INST_NAME("JMP Ed");
+                    READFLAGS(X_PEND);
+                    BARRIER(BARRIER_FLOAT);
+                    GETEDx(0);
+                    jump_to_next(dyn, 0, ed, ninst);
+                    *need_epilog = 0;
+                    *ok = 0;
+                    break;
+                case 6: // Push Ed
+                    INST_NAME("PUSH Ed");
+                    GETEDx(0);
+                    PUSH1(ed);
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+            break;
         default:
             DEFAULT;
     }
