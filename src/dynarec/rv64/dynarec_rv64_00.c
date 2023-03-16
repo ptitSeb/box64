@@ -463,6 +463,13 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
+
+        case 0xC9:
+            INST_NAME("LEAVE");
+            MV(xRSP, xRBP);
+            POP1(xRBP);
+            break;
+
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             if(PK(0)=='S' && PK(1)=='C') {
