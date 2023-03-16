@@ -2281,6 +2281,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             LDRx_U12(x4, x4, 0);
                         }
                         STPx_S7_preindex(x4, x2, xSP, -16);
+                    } else {
+                        *ok = 0;
+                        *need_epilog = 0;
                     }
                     if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
                         TABLE64(x4, addr-4);

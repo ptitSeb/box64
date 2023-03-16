@@ -3,11 +3,13 @@
     if(ninst)       \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst].x64.size, dyn->insts[ninst].size/4); \
     addInst(dyn->instsize, &dyn->insts_size, 0, 0);
-#define EMIT(A)     \
-    if(box64_dynarec_dump) {dynarec_log(LOG_NONE, "\t%08x\t%s\n", (uint32_t)(A), arm64_print(A, (uintptr_t)dyn->block));} \
-    *(uint32_t*)(dyn->block) = (uint32_t)(A);       \
-    dyn->block += 4; dyn->native_size += 4;         \
-    dyn->insts[ninst].size2 += 4
+#define EMIT(A)                                         \
+    do{                                                 \
+        if(box64_dynarec_dump) {dynarec_log(LOG_NONE, "\t%08x\t%s\n", (uint32_t)(A), arm64_print(A, (uintptr_t)dyn->block));} \
+        *(uint32_t*)(dyn->block) = (uint32_t)(A);       \
+        dyn->block += 4; dyn->native_size += 4;         \
+        dyn->insts[ninst].size2 += 4;                   \
+    }while(0)
 
 #define MESSAGE(A, ...)  if(box64_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST        \
