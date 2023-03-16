@@ -125,6 +125,35 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 }
 
+// emit CMP32 instruction, from cmp s1, 0, using s3 and s4 as scratch
+void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
+{
+    IFX_PENDOR0 {
+        SD(s1, xEmu, offsetof(x64emu_t, op1));
+        SD(xZR, xEmu, offsetof(x64emu_t, op2));
+        SD(s1, xEmu, offsetof(x64emu_t, res));
+        SET_DF(s4, rex.w?d_cmp64:d_cmp32);
+    } else {
+        SET_DFNONE(s4);
+    }
+    IFX(X_SF) {
+        if (rex.w) {
+            BGE(s1, xZR, 4);
+        } else {
+            SRLI(s3, s1, 31);
+            BEQZ(s3, 4);
+        }
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_ZF) {
+        BEQZ(s1, 4);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
 void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {

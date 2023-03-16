@@ -150,7 +150,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x83:
             nextop = F8;
             switch((nextop>>3)&7) {
-                case 0: //ADD
+                case 0: // ADD
                     if(opcode==0x81) {INST_NAME("ADD Ed, Id");} else {INST_NAME("ADD Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED((opcode==0x81)?4:1);
@@ -165,6 +165,17 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(opcode==0x81) i64 = F32S; else i64 = F8S;
                     emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
                     WBACK;
+                    break;
+                case 7: // CMP
+                    if(opcode==0x81) {INST_NAME("CMP Ed, Id");} else {INST_NAME("CMP Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode==0x81)?4:1);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    if(i64) {
+                        MOV64xw(x2, i64);
+                        emit_cmp32(dyn, ninst, rex, ed, x2, x3, x4, x5, x6);
+                    } else
+                        emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
                     break;
                 default:
                     DEFAULT;
