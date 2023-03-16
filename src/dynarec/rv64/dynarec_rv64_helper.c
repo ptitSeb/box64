@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <assert.h>
 
+#include "bitutils.h"
 #include "debug.h"
 #include "box64context.h"
 #include "dynarec.h"
@@ -518,57 +519,39 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
 
 void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val)
 {
-    int32_t up=((val+0x800)>>12);
-    int32_t r = val&0xfff;
-    LUI(reg, up);
-    if(r) {
-        ADDI(reg, reg, r);
+    // Depending on val, the following insns are emitted.
+    // val == 0               -> ADDI
+    // lo12 != 0 && hi20 == 0 -> ADDI
+    // lo12 == 0 && hi20 != 0 -> LUI
+    // else                   -> LUI+ADDI
+    int32_t hi20 = (val+0x800)>>12 & 0xfffff;
+    int32_t lo12 = val&0xfff;
+
+    int src = xZR;
+    if (hi20) {
+        LUI(reg, hi20);
+        src = reg;
     }
+    if (lo12 || !hi20) ADDI(reg, src, lo12);
 }
 
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
 {
-    if(((val<<(64-12))>>(64-12))==val) {
-        // simple 12bit value
-        MOV_U12(reg, (val&0xfff));
-        return;
-    }
     if(((val<<32)>>32)==val) {
         // 32bits value
         rv64_move32(dyn, ninst, reg, val);
         return;
     }
-    if((val&0xffffffffLL)==val && (val&0x80000000)) {
-        // 32bits value, but with a sign bit
-        rv64_move32(dyn, ninst, reg, val);
-        ZEROUP(reg);
-        return;
-    }
-    //TODO: optimize that later
-    // Start with the upper 32bits
-    rv64_move32(dyn, ninst, reg, val>>32);
-    // now the lower part
-    uint32_t r = val&0xffffffff;
-    int s = 11;
-    if((r>>21)&0b11111111111) {
-        SLLI(reg, reg, s);
-        ORI(reg, reg, (r>>21)&0b11111111111);
-        s = 0;
-    }
-    s+=11;
-    if((r>>10)&0b11111111111) {
-        SLLI(reg, reg, s);
-        ORI(reg, reg, (r>>10)&0b11111111111);
-        s = 0;
-    }
-    s+=10;
-    if(r&0b1111111111) {
-        SLLI(reg, reg, s);
-        ORI(reg, reg, r&0b1111111111);
-        s=0;
-    }
-    if(s) {
-        SLLI(reg, reg, s);
+
+    int64_t lo12 = (val<<52)>>52;
+    int64_t hi52 = (val+0x800)>>12;
+    int shift = 12+TrailingZeros64((uint64_t)hi52);
+    hi52 = ((hi52>>(shift-12))<<shift)>>shift;
+    rv64_move64(dyn, ninst, reg, hi52);
+    SLLI(reg, reg, shift);
+
+    if (lo12) {
+        ADDI(reg, reg, lo12);
     }
 }
 
