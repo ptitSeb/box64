@@ -521,6 +521,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
@@ -634,6 +635,34 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         jump_to_next(dyn, addr+i32, 0, ninst);
                     break;
             }
+            break;
+        case 0xE9:
+        case 0xEB:
+            BARRIER(BARRIER_MAYBE);
+            if(opcode==0xE9) {
+                INST_NAME("JMP Id");
+                i32 = F32S;
+            } else {
+                INST_NAME("JMP Ib");
+                i32 = F8S;
+            }
+            JUMP(addr+i32, 0);
+            if(dyn->insts[ninst].x64.jmp_insts==-1) {
+                // out of the block
+                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
+                jump_to_next(dyn, addr+i32, 0, ninst);
+            } else {
+                // inside the block
+                CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
+                tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);
+                if(tmp==4) {
+                    NOP();
+                } else {
+                    B(tmp);
+                }
+            }
+            *need_epilog = 0;
+            *ok = 0;
             break;
 
         default:
