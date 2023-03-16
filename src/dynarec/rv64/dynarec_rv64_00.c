@@ -215,6 +215,14 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xC1:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 5:
+                    INST_NAME("SHR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    GETED(1);
+                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if(u8) { WBACK; }
+                    break;
                 case 7:
                     INST_NAME("SAR Ed, Ib");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
@@ -351,6 +359,28 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0xD1:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 5:
+                    INST_NAME("SHR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    GETED(1);
+                    emit_shr32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    GETED(1);
+                    emit_sar32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+            
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
