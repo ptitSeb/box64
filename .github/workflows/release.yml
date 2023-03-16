@@ -97,6 +97,23 @@ jobs:
           cd build
           ctest -j$(nproc)
 
+      - name: "Test Box64 on rv64"
+        if: ${{ matrix.platform == 'RISCV' }}
+        run: |
+          sudo apt-get -y install qemu-user-static systemd-container
+          wget https://archriscv.felixc.at/images/archriscv-20220727.tar.zst -O archriscv.tar.zst -q
+          mkdir /tmp/archriscv
+          sudo tar xf archriscv.tar.zst -C /tmp/archriscv
+          sudo cp -pr . /tmp/archriscv/root/
+          sudo systemd-nspawn -D /tmp/archriscv -a -U sh -c '
+          pacman -Syu --noconfirm -q
+          echo "Server = https://riscv.mirror.pkgbuild.com/repo/\$repo" >> /etc/pacman.d/mirrorlist
+          pacman -S diffutils --noconfirm -q
+          cd /root/build
+          # failed to make ctest happy, so test manually
+          bash ../.github/runtests.sh
+          '
+
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v3
         with:
