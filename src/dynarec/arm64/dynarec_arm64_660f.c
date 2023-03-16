@@ -546,7 +546,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
-                        CALL(arm_aesimc, -1);
+                        CALL(native_aesimc, -1);
                     }
                     break;
                 case 0xDC:
@@ -564,7 +564,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         GETG;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
-                        CALL(arm_aese, -1);
+                        CALL(native_aese, -1);
                         GETGX(q0, 1);
                         GETEX(q1, 0, 0);
                         VEORQ(q0, q0, q1);
@@ -584,7 +584,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         GETG;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
-                        CALL(arm_aeselast, -1);
+                        CALL(native_aeselast, -1);
                         GETGX(q0, 1);
                         GETEX(q1, 0, 0);
                         VEORQ(q0, q0, q1);
@@ -605,7 +605,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         GETG;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
-                        CALL(arm_aesd, -1);
+                        CALL(native_aesd, -1);
                         GETGX(q0, 1);
                         GETEX(q1, 0, 0);
                         VEORQ(q0, q0, q1);
@@ -625,7 +625,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         GETG;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
-                        CALL(arm_aesdlast, -1);
+                        CALL(native_aesdlast, -1);
                         GETGX(q0, 1);
                         GETEX(q1, 0, 0);
                         VEORQ(q0, q0, q1);
@@ -806,7 +806,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                         u8 = F8;
                         MOV32w(x4, u8);
-                        CALL(arm_pclmul, -1);
+                        CALL(native_pclmul, -1);
                     }
                     break;
 
@@ -830,7 +830,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     u8 = F8;
                     MOV32w(x4, u8);
-                    CALL(arm_aeskeygenassist, -1);
+                    CALL(native_aeskeygenassist, -1);
                     break;
 
                 default:

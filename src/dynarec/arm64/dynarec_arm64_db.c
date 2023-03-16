@@ -304,7 +304,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 MOVx_REG(x1, ed);
                             }
                             x87_do_push_empty(dyn, ninst, x3);
-                            CALL(arm_fld, -1);
+                            CALL(native_fld, -1);
                         }
                     }
                     break;
@@ -321,7 +321,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         if(ed!=x1) {
                             MOVx_REG(x1, ed);
                         }
-                        CALL(arm_fstp, -1);
+                        CALL(native_fstp, -1);
                         #else
                         // Painfully long, straight conversion from the C code, shoud be optimized
                         v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);

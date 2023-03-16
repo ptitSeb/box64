@@ -63,7 +63,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL();
-            CALL(rv64_ud, -1);
+            CALL(native_ud, -1);
             LOAD_XEMU_CALL();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -91,7 +91,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL();
-            CALL(rv64_ud, -1);
+            CALL(native_ud, -1);
             LOAD_XEMU_CALL();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -103,7 +103,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL();
-            CALL(rv64_ud, -1);
+            CALL(native_ud, -1);
             LOAD_XEMU_CALL();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -268,7 +268,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if(wback!=A1) {
                             MV(A1, wback);
                         }
-                        CALL_(arm_clflush, -1, 0);
+                        CALL_(native_clflush, -1, 0);
                         break;
                     default:
                         DEFAULT;

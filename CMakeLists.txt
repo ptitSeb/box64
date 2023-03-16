@@ -541,6 +541,7 @@ if(DYNAREC)
     set(DYNAREC_SRC
         "${BOX64_ROOT}/src/dynarec/dynablock.c"
         "${BOX64_ROOT}/src/dynarec/dynarec_native.c"
+        "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"
     )
 endif()
 

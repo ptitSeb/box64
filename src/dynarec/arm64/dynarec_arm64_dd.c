@@ -209,7 +209,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
-                    CALL(arm_frstor, -1);
+                    CALL(native_frstor, -1);
                     break;
                 case 6: 
                     INST_NAME("FSAVE m108byte");
@@ -217,7 +217,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
-                    CALL(arm_fsave, -1);
+                    CALL(native_fsave, -1);
                     break;
                 case 7:
                     INST_NAME("FNSTSW m2byte");

@@ -1744,9 +1744,9 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
 }
 
 void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {
-    if(cacheupd&1)
-        fpuCacheTransform(dyn, ninst, s1, s2, s3);
     if(cacheupd&2)
+        fpuCacheTransform(dyn, ninst, s1, s2, s3);
+    if(cacheupd&1)
         flagsCacheTransform(dyn, ninst, s1);
 }
 

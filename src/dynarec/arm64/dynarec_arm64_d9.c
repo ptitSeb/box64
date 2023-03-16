@@ -181,21 +181,21 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("F2XM1");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
-            CALL(arm_f2xm1, -1);
+            CALL(native_f2xm1, -1);
             break;
         case 0xF1:
             INST_NAME("FYL2X");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(arm_fyl2x, -1);
+            CALL(native_fyl2x, -1);
             x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF2:
             INST_NAME("FPTAN");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
-            CALL(arm_ftan, -1);
+            CALL(native_ftan, -1);
             v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 FMOVS_8(v1, 0b01110000);
@@ -208,7 +208,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(arm_fpatan, -1);
+            CALL(native_fpatan, -1);
             x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF4:
@@ -216,14 +216,14 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_do_push_empty(dyn, ninst, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(arm_fxtract, -1);
+            CALL(native_fxtract, -1);
             break;
         case 0xF5:
             INST_NAME("FPREM1");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(arm_fprem1, -1);
+            CALL(native_fprem1, -1);
             break;
         case 0xF6:
             INST_NAME("FDECSTP");
@@ -246,14 +246,14 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(arm_fprem, -1);
+            CALL(native_fprem, -1);
             break;
         case 0xF9:
             INST_NAME("FYL2XP1");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(arm_fyl2xp1, -1);
+            CALL(native_fyl2xp1, -1);
             x87_do_pop(dyn, ninst, x3);
             break;
         case 0xFA:
@@ -270,7 +270,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_do_push_empty(dyn, ninst, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(arm_fsincos, -1);
+            CALL(native_fsincos, -1);
             break;
         case 0xFC:
             INST_NAME("FRNDINT");
@@ -278,7 +278,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             // use C helper for now, nothing staightforward is available
             x87_forget(dyn, ninst, x1, x2, 0);
-            CALL(arm_frndint, -1);
+            CALL(native_frndint, -1);
             #else
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
             u8 = x87_setround(dyn, ninst, x1, x2, x3);
@@ -295,19 +295,19 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(arm_fscale, -1);
+            CALL(native_fscale, -1);
             break;
         case 0xFE:
             INST_NAME("FSIN");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
-            CALL(arm_fsin, -1);
+            CALL(native_fsin, -1);
             break;
         case 0xFF:
             INST_NAME("FCOS");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
-            CALL(arm_fcos, -1);
+            CALL(native_fcos, -1);
             break;
 
 
