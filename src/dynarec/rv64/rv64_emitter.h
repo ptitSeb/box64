@@ -108,8 +108,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SPLIT20(A)  (((A)+0x800)>>12)
 #define SPLIT12(A)  ((A)&0xfff)
 
-// MOVE64x is quite complex, so use a function for this
+// MOV64x/MOV32w is quite complex, so use a function for this
 #define MOV64x(A, B)    rv64_move64(dyn, ninst, A, B)
+#define MOV32w(A, B)    do{ rv64_move32(dyn, ninst, A, B); if(A&0x80000000) ZEROUP(A); }while(0);
+#define MOV64xw(A, B)   if(rex.w) {MOV64x(A, B);} else {MOV32w(A, B);}
 
 // ZERO the upper part
 #define ZEROUP(r)       AND(r, r, xMASK)

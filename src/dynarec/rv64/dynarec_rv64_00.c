@@ -61,7 +61,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
             break;
-        
+
         case 0x0F:
             switch(rep) {
             case 2:
@@ -150,7 +150,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x83:
             nextop = F8;
             switch((nextop>>3)&7) {
-                case 0: //ADD
+                case 0: // ADD
                     if(opcode==0x81) {INST_NAME("ADD Ed, Id");} else {INST_NAME("ADD Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED((opcode==0x81)?4:1);
@@ -165,6 +165,17 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(opcode==0x81) i64 = F32S; else i64 = F8S;
                     emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
                     WBACK;
+                    break;
+                case 7: // CMP
+                    if(opcode==0x81) {INST_NAME("CMP Ed, Id");} else {INST_NAME("CMP Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode==0x81)?4:1);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    if(i64) {
+                        MOV64xw(x2, i64);
+                        emit_cmp32(dyn, ninst, rex, ed, x2, x3, x4, x5, x6);
+                    } else
+                        emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
                     break;
                 default:
                     DEFAULT;
@@ -222,7 +233,24 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
-
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg, Id");
+            gd = xRAX+(opcode&7)+(rex.b<<3);
+            if(rex.w) {
+                u64 = F64;
+                MOV64x(gd, u64);
+            } else {
+                u32 = F32;
+                MOV32w(gd, u32);
+            }
+            break;
         case 0xC1:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -310,7 +338,25 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
-
+        case 0xC7:
+            INST_NAME("MOV Ed, Id");
+            nextop=F8;
+            if(MODREG) {    // reg <= i32
+                i64 = F32S;
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                MOV64xw(ed, i64);
+            } else {        // mem <= i32
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 0, 4);
+                i64 = F32S;
+                if(i64) {
+                    MOV64xw(x3, i64);
+                    ed = x3;
+                } else
+                    ed = xZR;
+                SDxw(ed, wback, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             if(PK(0)=='S' && PK(1)=='C') {
@@ -369,7 +415,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 #endif
             }
             break;
-
         case 0xD1:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -391,7 +436,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
-            
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
