@@ -517,7 +517,65 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
     //TODO
 }
 
-void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val)
+static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    //TODO
+}
+static void flagsCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1)
+{
+#if STEP > 1
+    int j64;
+    int jmp = dyn->insts[ninst].x64.jmp_insts;
+    if(jmp<0)
+        return;
+    if(dyn->f.dfnone)  // flags are fully known, nothing we can do more
+        return;
+    MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
+    int go = 0;
+    switch (dyn->insts[jmp].f_entry.pending) {
+        case SF_UNKNOWN: break;
+        case SF_SET: 
+            if(dyn->f.pending!=SF_SET && dyn->f.pending!=SF_SET_PENDING) 
+                go = 1; 
+            break;
+        case SF_SET_PENDING:
+            if(dyn->f.pending!=SF_SET 
+            && dyn->f.pending!=SF_SET_PENDING
+            && dyn->f.pending!=SF_PENDING) 
+                go = 1; 
+            break;
+        case SF_PENDING:
+            if(dyn->f.pending!=SF_SET 
+            && dyn->f.pending!=SF_SET_PENDING
+            && dyn->f.pending!=SF_PENDING)
+                go = 1;
+            else
+                go = (dyn->insts[jmp].f_entry.dfnone  == dyn->f.dfnone)?0:1;
+            break;
+    }
+    if(dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)
+        go = 1;
+    if(go) {
+        if(dyn->f.pending!=SF_PENDING) {
+            LW(s1, xEmu, offsetof(x64emu_t, df));
+            j64 = (GETMARK3)-(dyn->native_size);
+            BEQZ(s1, j64);
+        }
+        CALL_(UpdateFlags, -1, 0);
+        MARK3;
+    }
+#endif
+}
+
+void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {
+    if(cacheupd&1)
+        fpuCacheTransform(dyn, ninst, s1, s2, s3);
+    if(cacheupd&2)
+        flagsCacheTransform(dyn, ninst, s1);
+}
+
+
+void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zeroup)
 {
     // Depending on val, the following insns are emitted.
     // val == 0               -> ADDI
@@ -533,13 +591,16 @@ void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val)
         src = reg;
     }
     if (lo12 || !hi20) ADDI(reg, src, lo12);
+    if(zeroup && ((hi20&0x80000) || (!hi20 && (lo12&0x800)))) {
+        ZEROUP(reg);
+    }
 }
 
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
 {
     if(((val<<32)>>32)==val) {
         // 32bits value
-        rv64_move32(dyn, ninst, reg, val);
+        rv64_move32(dyn, ninst, reg, val, 0);
         return;
     }
 
@@ -568,6 +629,6 @@ void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
     SRLW(s4, s4, s1);
     ANDI(s4, s4, 1);
 
-    BEQZ(s4, 4);
+    BEQZ(s4, 8);
     ORI(xFlags, xFlags, 1 << F_PF);
 }

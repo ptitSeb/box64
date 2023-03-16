@@ -69,7 +69,7 @@
                 } else {                                \
                     SMREAD()                            \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
-                    LD(x1, wback, fixedaddress);    \
+                    LDxw(x1, wback, fixedaddress);      \
                     ed = x1;                            \
                 }
 
@@ -180,8 +180,8 @@
     LOAD_REG(R11);          \
 
 
-#define SET_DFNONE(S)    if(!dyn->f.dfnone) {MOV_U12(S, d_none); SD(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
-#define SET_DF(S, N)     if((N)!=d_none) {MOV_U12(S, (N)); SD(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
+#define SET_DFNONE(S)    if(!dyn->f.dfnone) {MOV_U12(S, d_none); SW(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
+#define SET_DF(S, N)     if((N)!=d_none) {MOV_U12(S, (N)); SW(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
 #define SET_NODF()          dyn->f.dfnone = 0
 #define SET_DFOK()          dyn->f.dfnone = 1
 
@@ -198,27 +198,27 @@
         IFX(X_AF) {                                                       \
             /* af = bc & 0x8 */                                           \
             ANDI(scratch1, scratch2, 8);                                  \
-            BEQZ(scratch1, 4);                                            \
+            BEQZ(scratch1, 8);                                            \
             ORI(xFlags, xFlags, 1 << F_AF);                               \
         }                                                                 \
         IFX(X_CF) {                                                       \
             /* cf = bc & (1<<(width-1)) */                                \
-            if (width == 8) {                                             \
+            if ((width) == 8) {                                           \
                 ANDI(scratch1, scratch2, 0x80);                           \
             } else {                                                      \
-                SRLI(scratch1, scratch2, width-1);                        \
-                if (width == 16) ANDI(scratch1, scratch1, 1);             \
+                SRLI(scratch1, scratch2, (width)-1);                      \
+                if ((width) == 16) ANDI(scratch1, scratch1, 1);           \
             }                                                             \
-            BEQZ(scratch1, 4);                                            \
+            BEQZ(scratch1, 8);                                            \
             ORI(xFlags, xFlags, 1 << F_CF);                               \
         }                                                                 \
         IFX(X_OF) {                                                       \
             /* of = ((bc >> (width-2)) ^ (bc >> (width-1))) & 0x1; */     \
-            SRLI(scratch1, scratch2, width-2);                            \
+            SRLI(scratch1, scratch2, (width)-2);                          \
             SRLI(scratch2, scratch1, 1);                                  \
             XOR(scratch1, scratch1, scratch2);                            \
             ANDI(scratch1, scratch1, 1);                                  \
-            BEQZ(scratch1, 4);                                            \
+            BEQZ(scratch1, 8);                                            \
             ORI(xFlags, xFlags, 1 << F_OF2);                              \
         }                                                                 \
     }
@@ -611,10 +611,10 @@ void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 // Set rounding according to mxcsr flags, return reg to restore flags
 //int sse_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
 
-//void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
+void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val);
-void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val);
+void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zeroup);
 
 #if STEP < 2
 #define CHECK_CACHE()   0
@@ -679,5 +679,100 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 #else
 #define MAYUSE(A)
 #endif
+
+// GOCOND will use x1 and x3
+#define GOCOND(B, T1, T2)                                   \
+    case B+0x0:                                             \
+        INST_NAME(T1 "O " T2);                              \
+        GO( ANDI(x1, xFlags, 1<<F_OF2)                      \
+            , BEQZ, BNEZ, X_OF)                             \
+        break;                                              \
+    case B+0x1:                                             \
+        INST_NAME(T1 "NO " T2);                             \
+        GO( ANDI(x1, xFlags, 1<<F_OF2)                      \
+            , BNEZ, BEQZ, X_OF)                             \
+        break;                                              \
+    case B+0x2:                                             \
+        INST_NAME(T1 "C " T2);                              \
+        GO( ANDI(x1, xFlags, 1<<F_CF)                       \
+            , BEQZ, BNEZ, X_CF)                             \
+        break;                                              \
+    case B+0x3:                                             \
+        INST_NAME(T1 "NC " T2);                             \
+        GO( ANDI(x1, xFlags, 1<<F_CF)                       \
+            , BNEZ, BEQZ, X_CF)                             \
+        break;                                              \
+    case B+0x4:                                             \
+        INST_NAME(T1 "Z " T2);                              \
+        GO( ANDI(x1, xFlags, 1<<F_ZF)                       \
+            , BEQZ, BNEZ, X_ZF)                             \
+        break;                                              \
+    case B+0x5:                                             \
+        INST_NAME(T1 "NZ " T2);                             \
+        GO( ANDI(x1, xFlags, 1<<F_ZF)                       \
+            , BNEZ, BEQZ, X_ZF)                             \
+        break;                                              \
+    case B+0x6:                                             \
+        INST_NAME(T1 "BE " T2);                             \
+        GO( ANDI(x1, xFlags, (1<<F_CF)|(1<<F_ZF))           \
+            , BEQZ, BNEZ, X_CF|X_ZF)                        \
+        break;                                              \
+    case B+0x7:                                             \
+        INST_NAME(T1 "NBE " T2);                            \
+        GO( ANDI(x1, xFlags, (1<<F_CF)|(1<<F_ZF))           \
+            , BNEZ, BEQZ, X_CF|X_ZF)                        \
+        break;                                              \
+    case B+0x8:                                             \
+        INST_NAME(T1 "S " T2);                              \
+        GO( ANDI(x1, xFlags, 1<<F_SF)                       \
+            , BEQZ, BNEZ, X_SF)                             \
+        break;                                              \
+    case B+0x9:                                             \
+        INST_NAME(T1 "NS " T2);                             \
+        GO( ANDI(x1, xFlags, 1<<F_SF)                       \
+            , BNEZ, BEQZ, X_SF)                             \
+        break;                                              \
+    case B+0xA:                                             \
+        INST_NAME(T1 "P " T2);                              \
+        GO( ANDI(x1, xFlags, 1<<F_PF)                       \
+            , BEQZ, BNEZ, X_PF)                             \
+        break;                                              \
+    case B+0xB:                                             \
+        INST_NAME(T1 "NP " T2);                             \
+        GO( ANDI(x1, xFlags, 1<<F_PF)                       \
+            , BNEZ, BEQZ, X_PF)                             \
+        break;                                              \
+    case B+0xC:                                             \
+        INST_NAME(T1 "L " T2);                              \
+        GO( SRLI(x1, xFlags, F_SF-F_OF2);                   \
+            XOR(x1, x1, xFlags);                            \
+            ANDI(x1, x1, 1<<F_OF2)                          \
+            , BEQZ, BNEZ, X_SF|X_OF)                        \
+        break;                                              \
+    case B+0xD:                                             \
+        INST_NAME(T1 "GE " T2);                             \
+        GO( SRLI(x1, xFlags, F_SF-F_OF2);                   \
+            XOR(x1, x1, xFlags);                            \
+            ANDI(x1, x1, 1<<F_OF2)                          \
+            , BNEZ, BEQZ, X_SF|X_OF)                        \
+        break;                                              \
+    case B+0xE:                                             \
+        INST_NAME(T1 "LE " T2);                             \
+        GO( SRLI(x1, xFlags, F_SF-F_OF2);                   \
+            XOR(x1, x1, xFlags);                            \
+            ANDI(x3, xFlags, 1<<F_ZF);                      \
+            OR(x1, x1, x3);                                 \
+            ANDI(x1, x1, (1<<F_OF2) | (1<<F_ZF))            \
+            , BEQZ, BNEZ, X_SF|X_OF|X_ZF)                   \
+        break;                                              \
+    case B+0xF:                                             \
+        INST_NAME(T1 "G " T2);                              \
+        GO( SRLI(x1, xFlags, F_SF-F_OF2);                   \
+            XOR(x1, x1, xFlags);                            \
+            ANDI(x3, xFlags, 1<<F_ZF);                      \
+            OR(x1, x1, x3);                                 \
+            ANDI(x1, x1, (1<<F_OF2) | (1<<F_ZF))            \
+            , BNEZ, BEQZ, X_SF|X_OF|X_ZF)                   \
+        break
 
 #endif //__DYNAREC_RV64_HELPER_H__

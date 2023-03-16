@@ -16,6 +16,9 @@ uintptr_t fakeed(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop)
 // Is what pointed at addr a native call? And if yes, to what function?
 int isNativeCall(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
 
+// FPU Cache transformation (for loops)
+int CacheNeedsTransform(dynarec_rv64_t* dyn, int i1);
+
 // predecessor access
 int isPred(dynarec_rv64_t* dyn, int ninst, int pred);
 int getNominalPred(dynarec_rv64_t* dyn, int ninst);

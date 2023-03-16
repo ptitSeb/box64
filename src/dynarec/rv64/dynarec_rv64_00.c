@@ -89,7 +89,9 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETED(0);
             emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
-            WBACK;
+            if(ed!=gd) {
+                WBACK;
+            }
             break;
         case 0x39:
             INST_NAME("CMP Ed, Gd");
@@ -127,6 +129,37 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADDI(xRSP, xRSP, 8);
             }
             break;
+
+        #define GO(GETFLAGS, NO, YES, F)                                \
+            READFLAGS(F);                                               \
+            i8 = F8S;                                                   \
+            BARRIER(BARRIER_MAYBE);                                     \
+            JUMP(addr+i8, 1);                                           \
+            GETFLAGS;                                                   \
+            if(dyn->insts[ninst].x64.jmp_insts==-1 ||                   \
+                CHECK_CACHE()) {                                        \
+                /* out of the block */                                  \
+                i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
+                NO(x1, i32);                                            \
+                if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
+                    if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
+                    jump_to_next(dyn, addr+i8, 0, ninst);               \
+                } else {                                                \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
+                    B(i32);                                             \
+                }                                                       \
+            } else {                                                    \
+                /* inside the block */                                  \
+                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
+                YES(x1, i32);                                           \
+            }
+
+        GOCOND(0x70, "J", "ib");
+
+        #undef GO
+
         case 0x80:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -314,17 +347,22 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
                 if (eb2) {
                     // load a mask to x3 (ffffffffffff00ff)
-                    LUI(x3, 0xffff0);
-                    ADDI(x3, x3, 0xff);
+                    LUI(x3, 0xffffffffffff0);
+                    ORI(x3, x3, 0xff);
                     // apply mask
                     AND(eb1, eb1, x3);
-                    ADDI(x4, xZR, u8);
-                    SLLI(x4, x4, 8);
-                    OR(eb1, eb1, x4);
+                    if(u8) {
+                        if((u8<<8)<2048) {
+                            ADDI(x4, xZR, u8<<8);
+                        } else {
+                            ADDI(x4, xZR, u8);
+                            SLLI(x4, x4, 8);
+                        }
+                        OR(eb1, eb1, x4);
+                    }
                 } else {
-                    SRLI(eb1, eb1, 8);
-                    SLLI(eb1, eb1, 8);
-                    ADDI(eb1, eb1, u8);
+                    ANDI(eb1, eb1, 0xf00);  // mask ffffffffffffff00
+                    ORI(eb1, eb1, u8);
                 }
             } else {                    // mem <= u8
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 0, 1);
@@ -378,6 +416,8 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     //x87_forget(dyn, ninst, x3, x4, 0);
                     //sse_purge07cache(dyn, ninst, x3);
                     tmp = isSimpleWrapper(*(wrapper_t*)(addr));
+                    if(tmp<0 || tmp>1)
+                        tmp=0;  //TODO: removed when FP is in place
                     if((box64_log<2 && !cycle_log) && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(addr+8), tmp);

@@ -24,7 +24,8 @@
 #include "dynarec_rv64_helper.h"
 
 // emit CMP8 instruction, from cmp s1, s2, using s3, s4, s5 and s6 as scratch
-void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6) {
+void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6)
+{
     CLEAR_FLAGS();
     IFX_PENDOR0 {
         SB(s1, xEmu, offsetof(x64emu_t, op1));
@@ -47,12 +48,12 @@ void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     }
     IFX(X_SF) {
         SRLI(s3, s6, 7);
-        BEQZ(s3, 4);
+        BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
     CALC_SUB_FLAGS(s5, s2, s6, s3, s4, 8);
     IFX(X_ZF) {
-        BEQZ(s6, 4);
+        BNEZ(s6, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
@@ -61,7 +62,8 @@ void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 }
 
 // emit CMP8 instruction, from cmp s1 , 0, using s3 and s4 as scratch
-void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4) {
+void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
+{
     CLEAR_FLAGS();
     IFX_PENDOR0 {
         SB(s1, xEmu, offsetof(x64emu_t, op1));
@@ -74,11 +76,11 @@ void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4) {
 
     IFX(X_SF) {
         SRLI(s3, s1, 7);
-        BEQZ(s3, 4);
+        BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
     IFX(X_ZF) {
-        BEQZ(s1, 4);
+        BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
@@ -109,15 +111,15 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s6, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_SF) {
-        BGE(s6, xZR, 0);
+        BGE(s6, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
     if (!rex.w) {
-        ZEROUP(s1);
+        ZEROUP(s6);
     }
     CALC_SUB_FLAGS(s5, s2, s6, s3, s4, rex.w?64:32);
     IFX(X_ZF) {
-        BEQZ(s6, 4);
+        BNEZ(s6, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
@@ -128,6 +130,7 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit CMP32 instruction, from cmp s1, 0, using s3 and s4 as scratch
 void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
 {
+    CLEAR_FLAGS();
     IFX_PENDOR0 {
         SD(s1, xEmu, offsetof(x64emu_t, op1));
         SD(xZR, xEmu, offsetof(x64emu_t, op2));
@@ -138,15 +141,15 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
     }
     IFX(X_SF) {
         if (rex.w) {
-            BGE(s1, xZR, 4);
+            BGE(s1, xZR, 8);
         } else {
             SRLI(s3, s1, 31);
-            BEQZ(s3, 4);
+            BEQZ(s3, 8);
         }
         ORI(xFlags, xFlags, 1 << F_SF);
     }
     IFX(X_ZF) {
-        BEQZ(s1, 4);
+        BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
@@ -172,12 +175,12 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     IFX(X_SF) {
         if (!rex.w) ZEROUP(s3);
         SRLI(s4, s3, rex.w?63:31);
-        BEQZ(s4, 4);
+        BEQZ(s4, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
     IFX(X_ZF) {
-        BNEZ(s3, 4);
-        ORI(xFlags, xFlags, F_ZF);
+        BNEZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);

@@ -6,7 +6,7 @@
         }
 
 #define MESSAGE(A, ...)  
-#define EMIT(A)     dyn->insts[ninst].size+=4; dyn->native_size+=4
+#define EMIT(A)     do {dyn->insts[ninst].size+=4; dyn->native_size+=4;}while(0)
 #define NEW_INST                                                                                        \
         if(ninst) {                                                                                     \
                 dyn->insts[ninst].address = (dyn->insts[ninst-1].address+dyn->insts[ninst-1].size);     \

@@ -107,6 +107,55 @@ uintptr_t fakeed(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop)
 #undef F8
 #undef F32
 
+static int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
+{
+    // TODO
+    return 0;
+}
+
+static int flagsCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
+{
+    int jmp = dyn->insts[ninst].x64.jmp_insts;
+    if(jmp<0)
+        return 0;
+    if(dyn->insts[ninst].f_exit.dfnone)  // flags are fully known, nothing we can do more
+        return 0;
+/*    if((dyn->f.pending!=SF_SET)
+    && (dyn->f.pending!=SF_SET_PENDING)) {
+        if(dyn->f.pending!=SF_PENDING) {*/
+    switch (dyn->insts[jmp].f_entry.pending) {
+        case SF_UNKNOWN: return 0;
+        case SF_SET: 
+            if(dyn->insts[ninst].f_exit.pending!=SF_SET && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING) 
+                return 1; 
+            else 
+                return 0;
+        case SF_SET_PENDING:
+            if(dyn->insts[ninst].f_exit.pending!=SF_SET 
+            && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING
+            && dyn->insts[ninst].f_exit.pending!=SF_PENDING) 
+                return 1; 
+            else 
+                return 0;
+        case SF_PENDING:
+            if(dyn->insts[ninst].f_exit.pending!=SF_SET 
+            && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING
+            && dyn->insts[ninst].f_exit.pending!=SF_PENDING)
+                return 1;
+            else
+                return (dyn->insts[jmp].f_entry.dfnone  == dyn->insts[ninst].f_exit.dfnone)?0:1;
+    }
+    if(dyn->insts[jmp].f_entry.dfnone && !dyn->insts[ninst].f_exit.dfnone)
+        return 1;
+    return 0;
+}
+int CacheNeedsTransform(dynarec_rv64_t* dyn, int ninst) {
+    int ret = 0;
+    if (fpuCacheNeedsTransform(dyn, ninst)) ret|=1;
+    if (flagsCacheNeedsTransform(dyn, ninst)) ret|=2;
+    return ret;
+}
+
 int isNativeCall(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
 {
     (void)dyn;

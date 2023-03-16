@@ -4,10 +4,12 @@
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst].x64.size, dyn->insts[ninst].size/4); \
     addInst(dyn->instsize, &dyn->insts_size, 0, 0);
 #define EMIT(A)     \
-    if(box64_dynarec_dump) {dynarec_log(LOG_NONE, "\t%08x\t%s\n", (uint32_t)(A), rv64_print(A, (uintptr_t)dyn->block));} \
-    *(uint32_t*)(dyn->block) = (uint32_t)(A);       \
-    dyn->block += 4; dyn->native_size += 4;         \
-    dyn->insts[ninst].size2 += 4
+    do {                                                \
+        if(box64_dynarec_dump) {dynarec_log(LOG_NONE, "\t%08x\t%s\n", (uint32_t)(A), rv64_print(A, (uintptr_t)dyn->block));} \
+        *(uint32_t*)(dyn->block) = (uint32_t)(A);       \
+        dyn->block += 4; dyn->native_size += 4;         \
+        dyn->insts[ninst].size2 += 4;                   \
+    }while(0)
 
 #define MESSAGE(A, ...)  if(box64_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST        \
@@ -35,16 +37,16 @@
             dyn->smread, dyn->smwrite);         \
         if(dyn->insts[ninst].pred_sz) {         \
             dynarec_log(LOG_NONE, ", pred=");   \
-            for(int ii=0; ii<dyn->insts[ninst].pred_sz; ++ii)\
-                dynarec_log(LOG_NONE, "%s%d", ii?"/":"", dyn->insts[ninst].pred[ii]);\
-        }                                       \
-        if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts>=0)\
-            dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);\
-        if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts==-1)\
-            dynarec_log(LOG_NONE, ", jmp=out"); \
-        if(dyn->last_ip)                        \
-            dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);\
-        dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");                       \
+            for(int ii=0; ii<dyn->insts[ninst].pred_sz; ++ii)                           \
+                dynarec_log(LOG_NONE, "%s%d", ii?"/":"", dyn->insts[ninst].pred[ii]);   \
+        }                                                                               \
+        if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts>=0)             \
+            dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);         \
+        if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts==-1)            \
+            dynarec_log(LOG_NONE, ", jmp=out");                                         \
+        if(dyn->last_ip)                                                                \
+            dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);                 \
+        dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");                \
     }
 
 #define TABLE64(A, V)   {int val64offset = Table64(dyn, (V)); MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); AUIPC(A, SPLIT20(val64offset)); LD(A, A, SPLIT12(val64offset));}

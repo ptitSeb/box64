@@ -110,7 +110,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // MOV64x/MOV32w is quite complex, so use a function for this
 #define MOV64x(A, B)    rv64_move64(dyn, ninst, A, B)
-#define MOV32w(A, B)    do{ rv64_move32(dyn, ninst, A, B); if(A&0x80000000) ZEROUP(A); }while(0);
+#define MOV32w(A, B)    rv64_move32(dyn, ninst, A, B, 1)
 #define MOV64xw(A, B)   if(rex.w) {MOV64x(A, B);} else {MOV32w(A, B);}
 
 // ZERO the upper part
