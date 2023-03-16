@@ -130,6 +130,20 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0x68:
+            INST_NAME("PUSH Id");
+            i64 = F32S;
+            if(PK(0)==0xC3) {
+                MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
+                TABLE64(x3, addr-4);
+                LW(x1, x3, 0);
+                PUSH1(x1);
+            } else {
+                MOV64x(x3, i64);
+                PUSH1(x3);
+            }
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)                                \
             READFLAGS(F);                                               \
             i8 = F8S;                                                   \
@@ -159,7 +173,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         GOCOND(0x70, "J", "ib");
 
         #undef GO
-
+        
         case 0x80:
             nextop = F8;
             switch((nextop>>3)&7) {
