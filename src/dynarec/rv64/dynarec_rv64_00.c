@@ -61,7 +61,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
             break;
-        
+
         case 0x0F:
             switch(rep) {
             case 2:
@@ -233,7 +233,24 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
-
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg, Id");
+            gd = xRAX+(opcode&7)+(rex.b<<3);
+            if(rex.w) {
+                u64 = F64;
+                MOV64x(gd, u64);
+            } else {
+                u32 = F32;
+                MOV32w(gd, u32);
+            }
+            break;
         case 0xC1:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -380,7 +397,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 #endif
             }
             break;
-
         case 0xD1:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -402,7 +418,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
-            
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
