@@ -64,6 +64,9 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0x0F:
             switch(rep) {
+            case 0:
+                addr = dynarec64_0F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                break;
             case 2:
                 addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                 break;
@@ -154,7 +157,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 CHECK_CACHE()) {                                        \
                 /* out of the block */                                  \
                 i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
-                NO(x1, i32);                                            \
+                B##NO(x1, i32);                                         \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
                     if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
@@ -167,7 +170,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {                                                    \
                 /* inside the block */                                  \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
-                YES(x1, i32);                                           \
+                B##YES(x1, i32);                                        \
             }
 
         GOCOND(0x70, "J", "ib");

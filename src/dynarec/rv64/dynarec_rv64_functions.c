@@ -29,6 +29,22 @@
 #include "bridge.h"
 #include "rv64_lock.h"
 
+void arm_clflush(x64emu_t* emu, void* p)
+{
+    cleanDBFromAddressRange((uintptr_t)p, 8, 0);
+}
+
+void rv64_ud(x64emu_t* emu)
+{
+    emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+}
+
+void rv64_priv(x64emu_t* emu)
+{
+    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+}
+
+
 void fpu_reset_scratch(dynarec_rv64_t* dyn)
 {
     //TODO

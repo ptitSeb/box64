@@ -203,7 +203,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = -rs1
 #define NEG(rd, rs1)                SUB(rd, xZR, rs1)
 // rd = rs1 == 0
-#define SEQZ(rd, rs1)               SLTIU(rd, rs1, 0)
+#define SEQZ(rd, rs1)               SLTIU(rd, rs1, 1)
+// rd = rs1 != 0
+#define SNEZ(rd, rs1)               SLTU(rd, xZR, rs1)
+
 
 #define BEQ(rs1, rs2, imm13)       EMIT(B_type(imm13, rs2, rs1, 0b000, 0b1100011))
 #define BNE(rs1, rs2, imm13)       EMIT(B_type(imm13, rs2, rs1, 0b001, 0b1100011))

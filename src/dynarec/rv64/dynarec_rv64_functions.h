@@ -5,6 +5,11 @@
 typedef struct x64emu_s x64emu_t;
 typedef struct dynarec_rv64_s dynarec_rv64_t;
 
+void arm_clflush(x64emu_t* emu, void* p);
+
+void rv64_ud(x64emu_t* emu);
+void rv64_priv(x64emu_t* emu);
+
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_rv64_t* dyn);
 

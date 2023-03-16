@@ -660,7 +660,7 @@ void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07);
 void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07);
 
 uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-//uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 //uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
 //uintptr_t dynarec64_65(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep,int* ok, int* need_epilog);
 //uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
@@ -703,76 +703,76 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     case B+0x0:                                             \
         INST_NAME(T1 "O " T2);                              \
         GO( ANDI(x1, xFlags, 1<<F_OF2)                      \
-            , BEQZ, BNEZ, X_OF)                             \
+            , EQZ, NEZ, X_OF)                               \
         break;                                              \
     case B+0x1:                                             \
         INST_NAME(T1 "NO " T2);                             \
         GO( ANDI(x1, xFlags, 1<<F_OF2)                      \
-            , BNEZ, BEQZ, X_OF)                             \
+            , NEZ, EQZ, X_OF)                               \
         break;                                              \
     case B+0x2:                                             \
         INST_NAME(T1 "C " T2);                              \
         GO( ANDI(x1, xFlags, 1<<F_CF)                       \
-            , BEQZ, BNEZ, X_CF)                             \
+            , EQZ, NEZ, X_CF)                               \
         break;                                              \
     case B+0x3:                                             \
         INST_NAME(T1 "NC " T2);                             \
         GO( ANDI(x1, xFlags, 1<<F_CF)                       \
-            , BNEZ, BEQZ, X_CF)                             \
+            , NEZ, EQZ, X_CF)                               \
         break;                                              \
     case B+0x4:                                             \
         INST_NAME(T1 "Z " T2);                              \
         GO( ANDI(x1, xFlags, 1<<F_ZF)                       \
-            , BEQZ, BNEZ, X_ZF)                             \
+            , EQZ, NEZ, X_ZF)                               \
         break;                                              \
     case B+0x5:                                             \
         INST_NAME(T1 "NZ " T2);                             \
         GO( ANDI(x1, xFlags, 1<<F_ZF)                       \
-            , BNEZ, BEQZ, X_ZF)                             \
+            , NEZ, EQZ, X_ZF)                               \
         break;                                              \
     case B+0x6:                                             \
         INST_NAME(T1 "BE " T2);                             \
         GO( ANDI(x1, xFlags, (1<<F_CF)|(1<<F_ZF))           \
-            , BEQZ, BNEZ, X_CF|X_ZF)                        \
+            , EQZ, NEZ, X_CF|X_ZF)                          \
         break;                                              \
     case B+0x7:                                             \
         INST_NAME(T1 "NBE " T2);                            \
         GO( ANDI(x1, xFlags, (1<<F_CF)|(1<<F_ZF))           \
-            , BNEZ, BEQZ, X_CF|X_ZF)                        \
+            , NEZ, EQZ, X_CF|X_ZF)                          \
         break;                                              \
     case B+0x8:                                             \
         INST_NAME(T1 "S " T2);                              \
         GO( ANDI(x1, xFlags, 1<<F_SF)                       \
-            , BEQZ, BNEZ, X_SF)                             \
+            , EQZ, NEZ, X_SF)                               \
         break;                                              \
     case B+0x9:                                             \
         INST_NAME(T1 "NS " T2);                             \
         GO( ANDI(x1, xFlags, 1<<F_SF)                       \
-            , BNEZ, BEQZ, X_SF)                             \
+            , NEZ, EQZ, X_SF)                               \
         break;                                              \
     case B+0xA:                                             \
         INST_NAME(T1 "P " T2);                              \
         GO( ANDI(x1, xFlags, 1<<F_PF)                       \
-            , BEQZ, BNEZ, X_PF)                             \
+            , EQZ, NEZ, X_PF)                               \
         break;                                              \
     case B+0xB:                                             \
         INST_NAME(T1 "NP " T2);                             \
         GO( ANDI(x1, xFlags, 1<<F_PF)                       \
-            , BNEZ, BEQZ, X_PF)                             \
+            , NEZ, EQZ, X_PF)                               \
         break;                                              \
     case B+0xC:                                             \
         INST_NAME(T1 "L " T2);                              \
         GO( SRLI(x1, xFlags, F_SF-F_OF2);                   \
             XOR(x1, x1, xFlags);                            \
             ANDI(x1, x1, 1<<F_OF2)                          \
-            , BEQZ, BNEZ, X_SF|X_OF)                        \
+            , EQZ, NEZ, X_SF|X_OF)                          \
         break;                                              \
     case B+0xD:                                             \
         INST_NAME(T1 "GE " T2);                             \
         GO( SRLI(x1, xFlags, F_SF-F_OF2);                   \
             XOR(x1, x1, xFlags);                            \
             ANDI(x1, x1, 1<<F_OF2)                          \
-            , BNEZ, BEQZ, X_SF|X_OF)                        \
+            , NEZ, EQZ, X_SF|X_OF)                          \
         break;                                              \
     case B+0xE:                                             \
         INST_NAME(T1 "LE " T2);                             \
@@ -781,7 +781,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             ANDI(x3, xFlags, 1<<F_ZF);                      \
             OR(x1, x1, x3);                                 \
             ANDI(x1, x1, (1<<F_OF2) | (1<<F_ZF))            \
-            , BEQZ, BNEZ, X_SF|X_OF|X_ZF)                   \
+            , EQZ, NEZ, X_SF|X_OF|X_ZF)                     \
         break;                                              \
     case B+0xF:                                             \
         INST_NAME(T1 "G " T2);                              \
@@ -790,7 +790,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             ANDI(x3, xFlags, 1<<F_ZF);                      \
             OR(x1, x1, x3);                                 \
             ANDI(x1, x1, (1<<F_OF2) | (1<<F_ZF))            \
-            , BNEZ, BEQZ, X_SF|X_OF|X_ZF)                   \
+            , NEZ, EQZ, X_SF|X_OF|X_ZF)                     \
         break
 
 #endif //__DYNAREC_RV64_HELPER_H__
