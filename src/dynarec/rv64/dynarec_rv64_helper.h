@@ -73,6 +73,11 @@
                     ed = x1;                            \
                 }
 
+// FAKEED like GETED, but doesn't get anything
+#define FAKEED  if(!MODREG) {   \
+                    addr = fakeed(dyn, addr, ninst, nextop); \
+                }
+
 // Write back ed in wback (if wback not 0)
 #define WBACK       if(wback) {SDxw(ed, wback, fixedaddress); SMWRITE();}
 
@@ -655,7 +660,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 //uintptr_t dynarec64_6664(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog);
 //uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
-//uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 
 #if STEP < 2
 #define PASS2(A)

@@ -52,6 +52,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(cacheupd);
 
     switch(opcode) {
+        case 0x0F:
+            switch(rep) {
+            case 2:
+                addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                break;
+            default:
+                DEFAULT;
+            }
+            break;
         case 0x29:
             INST_NAME("SUB Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -341,7 +350,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 #endif
             }
             break;
-            
+
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
@@ -353,7 +362,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             #if STEP < 2
             if(isNativeCall(dyn, addr+i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
                 tmp = dyn->insts[ninst].pass2choice = 3;
-            else 
+            else
                 tmp = dyn->insts[ninst].pass2choice = 0;
             #else
                 tmp = dyn->insts[ninst].pass2choice;
