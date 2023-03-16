@@ -276,6 +276,21 @@ int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b)
     return NEON_CACHE_ST_D;
 }
 
+static int isCacheEmpty(dynarec_native_t* dyn, int ninst) {
+    if(dyn->insts[ninst].n.stack_next) {
+        return 0;
+    }
+    for(int i=0; i<24; ++i)
+        if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
+            if(!(
+            (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D)
+            && dyn->insts[ninst].n.neoncache[i].n<dyn->insts[ninst].n.stack_pop))
+                return 0;
+        }
+    return 1;
+
+}
+
 int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
     int i2 = dyn->insts[ninst].x64.jmp_insts;
     if(i2<0)
@@ -415,8 +430,6 @@ void neoncacheUnwind(neoncache_t* cache)
     }
 }
 
-#define F8      *(uint8_t*)(addr++)
-#define F32     *(uint32_t*)(addr+=4, addr-4)
 #define F32S64  (uint64_t)(int64_t)*(int32_t*)(addr+=4, addr-4)
 // Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD
 int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity, int delta)
@@ -456,64 +469,7 @@ int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, i
         return 0; //Form [reg1 + reg2<<N + XXXXXX]
     }
 }
-
-// Do the GETED, but don't emit anything...
-uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop) 
-{
-    (void)dyn; (void)addr; (void)ninst;
-
-    if((nextop&0xC0)==0xC0)
-        return addr;
-    if(!(nextop&0xC0)) {
-        if((nextop&7)==4) {
-            uint8_t sib = F8;
-            if((sib&0x7)==5) {
-                addr+=4;
-            }
-        } else if((nextop&7)==5) {
-            addr+=4;
-        }
-    } else {
-        if((nextop&7)==4) {
-            ++addr;
-        }
-        if(nextop&0x80) {
-            addr+=4;
-        } else {
-            ++addr;
-        }
-    }
-    return addr;
-}
-#undef F8
-#undef F32
-
-int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
-{
-    (void)dyn;
-
-#define PK(a)       *(uint8_t*)(addr+a)
-#define PK32(a)     *(int32_t*)(addr+a)
-
-    if(!addr || !getProtection(addr))
-        return 0;
-    if(PK(0)==0xff && PK(1)==0x25) {            // "absolute" jump, maybe the GOT (well, RIP relative in fact)
-        uintptr_t a1 = addr + 6 + (PK32(2));    // need to add a check to see if the address is from the GOT !
-        addr = (uintptr_t)getAlternate(*(void**)a1);
-    }
-    if(!addr || !getProtection(addr))
-        return 0;
-    onebridge_t *b = (onebridge_t*)(addr);
-    if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0 && b->f!=(uintptr_t)PltResolver) {
-        // found !
-        if(retn) *retn = (b->C3==0xC2)?b->N:0;
-        if(calladdress) *calladdress = addr+1;
-        return 1;
-    }
-    return 0;
-#undef PK32
-#undef PK
-}
+#undef F32S64
 
 const char* getCacheName(int t, int n)
 {

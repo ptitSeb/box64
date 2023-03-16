@@ -409,17 +409,60 @@ int getNominalPred(dynarec_native_t* dyn, int ninst) {
     return dyn->insts[ninst].pred[0];
 }
 
-int isCacheEmpty(dynarec_native_t* dyn, int ninst) {
-    if(dyn->insts[ninst].n.stack_next) {
-        return 0;
-    }
-    for(int i=0; i<24; ++i)
-        if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
-            if(!(
-            (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D)
-            && dyn->insts[ninst].n.neoncache[i].n<dyn->insts[ninst].n.stack_pop))
-                return 0;
-        }
-    return 1;
+#define F8      *(uint8_t*)(addr++)
+// Do the GETED, but don't emit anything...
+uintptr_t fakeed(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nextop) 
+{
+    (void)dyn; (void)addr; (void)ninst;
 
+    if((nextop&0xC0)==0xC0)
+        return addr;
+    if(!(nextop&0xC0)) {
+        if((nextop&7)==4) {
+            uint8_t sib = F8;
+            if((sib&0x7)==5) {
+                addr+=4;
+            }
+        } else if((nextop&7)==5) {
+            addr+=4;
+        }
+    } else {
+        if((nextop&7)==4) {
+            ++addr;
+        }
+        if(nextop&0x80) {
+            addr+=4;
+        } else {
+            ++addr;
+        }
+    }
+    return addr;
+}
+#undef F8
+
+int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
+{
+    (void)dyn;
+
+#define PK(a)       *(uint8_t*)(addr+a)
+#define PK32(a)     *(int32_t*)(addr+a)
+
+    if(!addr || !getProtection(addr))
+        return 0;
+    if(PK(0)==0xff && PK(1)==0x25) {            // "absolute" jump, maybe the GOT (well, RIP relative in fact)
+        uintptr_t a1 = addr + 6 + (PK32(2));    // need to add a check to see if the address is from the GOT !
+        addr = (uintptr_t)getAlternate(*(void**)a1);
+    }
+    if(!addr || !getProtection(addr))
+        return 0;
+    onebridge_t *b = (onebridge_t*)(addr);
+    if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0 && b->f!=(uintptr_t)PltResolver) {
+        // found !
+        if(retn) *retn = (b->C3==0xC2)?b->N:0;
+        if(calladdress) *calladdress = addr+1;
+        return 1;
+    }
+    return 0;
+#undef PK32
+#undef PK
 }

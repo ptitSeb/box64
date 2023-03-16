@@ -53,17 +53,11 @@ int CacheNeedsTransform(dynarec_native_t* dyn, int i1);
 int isPred(dynarec_native_t* dyn, int ninst, int pred);
 int getNominalPred(dynarec_native_t* dyn, int ninst);
 
-// Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD
-int getedparity(dynarec_native_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity, int delta);
 // Do the GETED, but don't emit anything...
 uintptr_t fakeed(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
 
 // Is what pointed at addr a native call? And if yes, to what function?
 int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
-
-int isCacheEmpty(dynarec_native_t* dyn, int ninst);
-
-const char* getCacheName(int t, int n);
 
 ADDITIONNAL_DEFINITION()
 
