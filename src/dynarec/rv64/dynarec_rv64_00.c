@@ -233,6 +233,20 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+
+
+        case 0x98:
+            INST_NAME("CWDE");
+            if(rex.w) {
+                SEXT_W(xRAX, xRAX);
+            } else {
+                SLLI(xRAX, xRAX, 16);
+                SRAIW(xRAX, xRAX, 16);
+                ZEROUP(xRAX);
+            }
+            break;
+
+
         case 0xB8:
         case 0xB9:
         case 0xBA:
