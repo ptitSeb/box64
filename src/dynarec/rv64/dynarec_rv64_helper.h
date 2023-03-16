@@ -514,7 +514,7 @@ void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 //void emit_test16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
-//void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
 //void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
