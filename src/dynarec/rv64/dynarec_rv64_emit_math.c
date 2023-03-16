@@ -108,13 +108,13 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         if(c >= -2048 && c < 2048) {
             ADDIxw(s1, s1, c);
         } else {
-            MOV64x(s2, c);
+            MOV64xw(s2, c);
             ADDxw(s1, s1, s2);
         }
         return;
     }
     IFX(X_PEND | X_AF | X_CF | X_OF) {
-        MOV64x(s2, c);
+        MOV64xw(s2, c);
     }
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
@@ -151,7 +151,7 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     if(c >= -2048 && c < 2048) {
         ADDIxw(s1, s1, c);
     } else {
-        IFX(X_PEND | X_AF | X_CF | X_OF) {} else {MOV64x(s2, c);}
+        IFX(X_PEND | X_AF | X_CF | X_OF) {} else {MOV64xw(s2, c);}
         ADDxw(s1, s1, s2);
     }
 
@@ -242,7 +242,7 @@ void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         if (c > -2048 && c <= 2048) {
             ADDI(s1, s1, -c);
         } else {
-            MOV64x(s2, c);
+            MOV64xw(s2, c);
             SUBxw(s1, s1, s2);
         }
         return;
@@ -250,7 +250,7 @@ void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
-        MOV64x(s2, c);
+        MOV64xw(s2, c);
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, rex.w?d_sub64:d_sub32);
     } else IFX(X_ALL) {
@@ -265,14 +265,14 @@ void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     if (c > -2048 && c <= 2048) {
         ADDIxw(s1, s1, -c);
     } else {
-        IFX(X_PEND) {} else {MOV64x(s2, c);}
+        IFX(X_PEND) {} else {MOV64xw(s2, c);}
         SUBxw(s1, s1, s2);
     }
 
     IFX(X_AF | X_CF | X_OF) {
         IFX(X_PEND) {}
         else if (c > -2048 && c <= 2048) {
-            MOV64x(s2, c);
+            MOV64xw(s2, c);
         }
     }
     IFX(X_PEND) {
