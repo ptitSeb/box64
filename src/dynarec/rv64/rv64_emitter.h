@@ -279,6 +279,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // Shift Left Immediate, 32-bit, sign-extended
 #define SLLIW(rd, rs1, imm5)        EMIT(I_type(imm5, rs1, 0b001, rd, 0b0011011))
+// Shift Left Immediate
+#define SLLIxw(rd, rs1, imm)        if (rex.w) { SLLI(rd, rs1, imm); } else { SLLIW(rd, rs1, imm); }
 // Shift Right Logical Immediate, 32-bit, sign-extended
 #define SRLIW(rd, rs1, imm5)        EMIT(I_type(imm5, rs1, 0b101, rd, 0b0011011))
 // Shift Right Logical Immediate
