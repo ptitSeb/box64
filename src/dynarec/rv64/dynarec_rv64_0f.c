@@ -275,7 +275,37 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
-
+        case 0xAF:
+            INST_NAME("IMUL Gd, Ed");
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            if(rex.w) {
+                // 64bits imul
+                UFLAG_IF {
+                    MULH(x3, gd, ed);
+                    MUL(gd, gd, ed);
+                    UFLAG_OP1(x3);
+                    UFLAG_RES(gd);
+                    UFLAG_DF(x3, d_imul64);
+                } else {
+                    MULxw(gd, gd, ed);
+                }
+            } else {
+                // 32bits imul
+                UFLAG_IF {
+                    MUL(gd, gd, ed);
+                    UFLAG_RES(gd);
+                    SRLI(x3, gd, 32);
+                    UFLAG_OP1(x3);
+                    UFLAG_DF(x3, d_imul32);
+                    SEXT_W(gd, gd);
+                } else {
+                    MULxw(gd, gd, ed);
+                }
+            }
+            break;
         default:
             DEFAULT;
     }
