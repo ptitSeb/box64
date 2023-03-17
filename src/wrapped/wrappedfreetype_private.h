@@ -24,10 +24,11 @@ GO(FT_Done_Face, iFp)
 GO(FT_Done_FreeType, iFp)
 GO(FT_Done_Glyph, vFp)
 GO(FT_Done_Library, iFp)
+GO(FT_Done_MM_Var, iFpp)
 GO(FT_Done_Size, iFp)
 //GO(FT_Face_CheckTrueTypePatents, 
 //GO(FT_Face_GetCharsOfVariant, 
-//GO(FT_Face_GetCharVariantIndex, 
+GO(FT_Face_GetCharVariantIndex, uFpuu)
 //GO(FT_Face_GetCharVariantIsDefault, 
 //GO(FT_Face_GetVariantSelectors, 
 //GO(FT_Face_GetVariantsOfChar, 
@@ -40,6 +41,10 @@ GO(FT_Get_Advances, iFpuuip)
 //GO(FT_Get_BDF_Property, 
 GO(FT_Get_Char_Index, uFpL)
 GO(FT_Get_Charmap_Index, iFp)
+GO(FT_Get_Color_Glyph_Layer, iFpupp)
+GO(FT_Get_Color_Glyph_Paint, iFpuip)
+GO(FT_Get_Color_Glyph_ClipBox, iFpup)
+GO(FT_Get_Colorline_Stops, iFppp)
 //GO(FT_Get_CID_From_Glyph_Index, 
 //GO(FT_Get_CID_Is_Internally_CID_Keyed, 
 //GO(FT_Get_CID_Registry_Ordering_Supplement, 
@@ -58,6 +63,8 @@ GO(FT_Get_MM_Var, iFpp)
 //GO(FT_Get_Multi_Master, 
 GO(FT_Get_Name_Index, uFpp)
 GO(FT_Get_Next_Char, LFpLp)
+GO(FT_Get_Paint, iFppip)    // FT_OpaquePaint is a struct with "pi"
+GO(FT_Get_Paint_Layers, iFppp)
 //GO(FT_Get_PFR_Advance, 
 //GO(FT_Get_PFR_Kerning, 
 //GO(FT_Get_PFR_Metrics, 
@@ -72,8 +79,9 @@ GO(FT_Get_Sfnt_Name_Count, uFp)
 GO(FT_Get_Sfnt_Table, pFpi)
 GO(FT_Get_SubGlyph_Info, iFpuppppp)
 GO(FT_Get_Track_Kerning, iFplip)
+GO(FT_Get_Transform, vFppp)
 GO(FT_Get_TrueType_Engine_Type, iFp)
-//GO(FT_Get_Var_Blend_Coordinates, 
+GO(FT_Get_Var_Blend_Coordinates, iFpup)
 //GO(FT_Get_Var_Design_Coordinates, 
 GO(FT_Get_WinFNT_Header, iFpp)  // does FT_WinFNT_HeaderRec_ needs alignment?
 GO(FT_Get_X11_Font_Format, pFp)
@@ -132,6 +140,7 @@ GO(FT_Outline_Render, iFppp)
 GO(FT_Outline_Reverse, vFp)
 GO(FT_Outline_Transform, vFpp)
 GO(FT_Outline_Translate, vFpll)
+GO(FT_Palette_Select, iFpWp)
 GO(FT_Property_Get, iFpppp)
 GO(FT_Property_Set, iFpppp)
 GO(FT_Reference_Face, iFp)
@@ -152,7 +161,7 @@ GO(FT_Set_Pixel_Sizes, iFpuu)
 //GO(FT_Set_Renderer, 
 GO(FT_Set_Transform, vFppp)
 //GO(FT_Set_Var_Blend_Coordinates, 
-//GO(FT_Set_Var_Design_Coordinates, 
+GO(FT_Set_Var_Design_Coordinates, iFpup)
 //GO(FT_Sfnt_Table_Info, 
 GO(FT_Sin, lFl)
 //GO(FT_Stream_OpenBzip2, 
