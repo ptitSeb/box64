@@ -290,4 +290,15 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Shift Right Arithmetic Immediate
 #define SRAIxw(rd, rs1, imm)        if (rex.w) { SRAI(rd, rs1, imm); } else { SRAIW(rd, rs1, imm); }
 
+// RV32M
+// rd = rs1 * rs2
+#define MUL(rd, rs1, rs2)           EMIT(R_type(0b0000001, rs2, rs1, 0b000, rd, 0b0110011))
+#define MULH(rd, rs1, rs2)          EMIT(R_type(0b0000001, rs2, rs1, 0b001, rd, 0b0110011))
+
+// RV64M
+// rd = rs1 * rs2
+#define MULW(rd, rs1, rs2)          EMIT(R_type(0b0000001, rs2, rs1, 0b000, rd, 0b0111011))
+// rd = rs1 * rs2
+#define MULxw(rd, rs1, rs2)         EMIT(R_type(0b0000001, rs2, rs1, 0b000, rd, rex.w?0b0110011:0b0111011))
+
 #endif //__RV64_EMITTER_H__
