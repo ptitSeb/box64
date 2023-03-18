@@ -667,6 +667,31 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0xD3:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 7:
+                    INST_NAME("SAR Ed, CL");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    if(rex.w) {
+                        ANDI(x3, xRCX, 0x3f);
+                    } else {
+                        ANDI(x3, xRCX, 0x1f);
+                    }
+                    GETED(0);
+                    if(!rex.w && MODREG) {ZEROUP(ed);}
+                    CBZ_NEXT(x3);
+                    UFLAG_OP12(ed, x3);
+                    SRAxw(ed, ed, x3);
+                    WBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, rex.w?d_sar64:d_sar32);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
