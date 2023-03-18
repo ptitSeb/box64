@@ -167,7 +167,7 @@ GO(cupsLastErrorString, pFv)
 GO(cupsLocalizeDestOption, pFpppp)
 GO(cupsLocalizeDestValue, pFppppp)
 //GO(cupsMakeServerCredentials, 
-//GO(cupsMarkOptions, 
+GO(cupsMarkOptions, iFpip)
 //GO(_cupsMessageFree, 
 //GO(_cupsMessageLoad, 
 //GO(_cupsMessageLookup, 
@@ -282,15 +282,15 @@ GO(cupsSetDefaultDest, vFppip)
 //GO(httpAssembleURI, 
 //GO(httpAssembleURIf, 
 //GO(httpAssembleUUID, 
-//GO(httpBlocking, 
+GO(httpBlocking, vFpi)
 //GO(httpCheck, 
 //GO(httpClearCookie, 
 //GO(httpClearFields, 
-//GO(httpClose, 
+GO(httpClose, vFp)
 //GO(httpCompareCredentials, 
 //GO(httpConnect, 
 GO(httpConnect2, pFpipiiiip)
-//GO(httpConnectEncrypt, 
+GO(httpConnectEncrypt, pFpii)
 //GO(httpCopyCredentials, 
 //GO(_httpCreateCredentials, 
 //GO(httpCredentialsAreValidForName, 
@@ -306,7 +306,7 @@ GO(httpConnect2, pFpipiiiip)
 //GO(httpEncode64_2, 
 //GO(_httpEncodeURI, 
 //GO(httpEncryption, 
-//GO(httpError, 
+GO(httpError, iFp)
 //GO(httpFieldValue, 
 //GO(httpFlush, 
 //GO(httpFlushWrite, 
@@ -503,7 +503,7 @@ GO(httpConnect2, pFpipiiiip)
 //GO(_ppdCacheGetSource, 
 //GO(_ppdCacheGetType, 
 //GO(_ppdCacheWriteFile, 
-//GO(ppdClose, 
+GO(ppdClose, vFp)
 //GO(ppdCollect, 
 //GO(ppdCollect2, 
 //GO(ppdConflicts, 
@@ -514,14 +514,14 @@ GO(httpConnect2, pFpipiiiip)
 //GO(ppdEmitJCL, 
 //GO(ppdEmitJCLEnd, 
 //GO(ppdEmitString, 
-//GO(ppdErrorString, 
-//GO(ppdFindAttr, 
-//GO(ppdFindChoice, 
+GO(ppdErrorString, pFi)
+GO(ppdFindAttr, pFppp)
+GO(ppdFindChoice, pFpp)
 //GO(ppdFindCustomOption, 
 //GO(ppdFindCustomParam, 
-//GO(ppdFindMarkedChoice, 
+GO(ppdFindMarkedChoice, pFpp)
 //GO(ppdFindNextAttr, 
-//GO(ppdFindOption, 
+GO(ppdFindOption, pFpp)
 //GO(ppdFirstCustomParam, 
 //GO(ppdFirstOption, 
 //GO(_ppdFreeLanguages, 
@@ -531,13 +531,13 @@ GO(httpConnect2, pFpipiiiip)
 //GO(_ppdHashName, 
 //GO(ppdInstallableConflict, 
 //GO(ppdIsMarked, 
-//GO(ppdLastError, 
+GO(ppdLastError, iFp)
 //GO(ppdLocalize, 
 //GO(ppdLocalizeAttr, 
 //GO(_ppdLocalizedAttr, 
 //GO(ppdLocalizeIPPReason, 
 //GO(ppdLocalizeMarkerName, 
-//GO(ppdMarkDefaults, 
+GO(ppdMarkDefaults, vFp)
 //GO(ppdMarkOption, 
 //GO(ppdNextCustomParam, 
 //GO(ppdNextOption, 
@@ -547,7 +547,7 @@ GO(httpConnect2, pFpipiiiip)
 //GO(ppdOpen2, 
 //GO(ppdOpenFd, 
 //GO(_ppdOpenFile, 
-//GO(ppdOpenFile, 
+GO(ppdOpenFile, pFp)
 //GO(ppdPageLength, 
 //GO(ppdPageSize, 
 //GO(ppdPageSizeLimits, 
