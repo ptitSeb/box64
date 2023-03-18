@@ -376,7 +376,7 @@
 #endif
 #define UFLAG_OP1(A) if(dyn->insts[ninst].x64.gen_flags) {SDxw(A, xEmu, offsetof(x64emu_t, op1));}
 #define UFLAG_OP2(A) if(dyn->insts[ninst].x64.gen_flags) {SDxw(A, xEmu, offsetof(x64emu_t, op2));}
-#define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x64.gen_flags) {SDxw(A1, xEmu, offsetof(x64emu_t, op1));SDxw(A2, 0, offsetof(x64emu_t, op2));}
+#define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x64.gen_flags) {SDxw(A1, xEmu, offsetof(x64emu_t, op1));SDxw(A2, xEmu, offsetof(x64emu_t, op2));}
 #define UFLAG_RES(A) if(dyn->insts[ninst].x64.gen_flags) {SDxw(A, xEmu, offsetof(x64emu_t, res));}
 #define UFLAG_DF(r, A) if(dyn->insts[ninst].x64.gen_flags) {SET_DF(r, A)}
 #define UFLAG_IF if(dyn->insts[ninst].x64.gen_flags)
