@@ -2533,11 +2533,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             //Need to see if RDX==0 and RAX not signed
                             // or RDX==-1 and RAX signed
                             CBNZx_MARK2(xRDX);
-                            TBZ_MARK(xRAX, 31);
+                            TBZ_MARK(xRAX, 63);
                             MARK2;
                             MVNx_REG(x2, xRDX);
                             CBNZx_MARK3(x2);
-                            TBNZ_MARK(xRAX, 31);
+                            TBNZ_MARK(xRAX, 63);
                             MARK3;
                             if(ed!=x1) {MOVx_REG(x1, ed);}
                             CALL((void*)idiv64, -1);
