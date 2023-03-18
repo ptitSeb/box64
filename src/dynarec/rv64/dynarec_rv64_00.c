@@ -430,7 +430,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ZEROUP(xRAX);
             }
             break;
-
+        case 0x99:
+            INST_NAME("CDQ");
+            if(rex.w) {
+                SRLI(xRDX, xRAX, 63);
+            } else {
+                SLLI(xRDX, xRAX, 32);
+                SRLI(xRDX, xRDX, 63);
+            }
+            break;
 
         case 0xB8:
         case 0xB9:
