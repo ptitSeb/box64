@@ -79,14 +79,14 @@ GO(drmGetNodeTypeFromFd, iFi)
 //GO(drmGetStats, 
 GO(drmGetVersion, pFi)
 //GO(drmHandleEvent, 
-//GO(drmHashCreate, 
-//GO(drmHashDelete, 
-//GO(drmHashDestroy, 
-//GO(drmHashFirst, 
-//GO(drmHashInsert, 
-//GO(drmHashLookup, 
-//GO(drmHashNext, 
-//GO(drmIoctl, 
+GO(drmHashCreate, pFv)
+GO(drmHashDelete, iFpL)
+GO(drmHashDestroy, iFp)
+GO(drmHashFirst, iFppp)
+GO(drmHashInsert, iFpLL)
+GO(drmHashLookup, iFpLp)
+GO(drmHashNext, iFppp)
+GO(drmIoctl, iFiLp)
 //GO(drmIsMaster, 
 //GO(drmMalloc, 
 //GO(drmMap, 
