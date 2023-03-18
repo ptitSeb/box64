@@ -1978,6 +1978,7 @@
 #() vFppiiiiii
 #() vFppiiipii
 #() vFppipipii
+#() vFppippDDC
 #() vFppipppui
 #() vFppippppi
 #() vFppippppp
@@ -2300,6 +2301,7 @@
 #() vFuffffffffffff
 #() vFpipppiiiiiiuu
 #() vFpippppppppppp
+#() vFpuppppppppppp
 #() vFppiiiiiiiiiii
 #() vFppiipppiiiiii
 #() vFppppppppppppp
@@ -2349,12 +2351,10 @@
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) IFD
 #defined(HAVE_LD80BITS) DFD
-#defined(HAVE_LD80BITS) vFppippDDC
 #!defined(HAVE_LD80BITS) IFK
 #!defined(HAVE_LD80BITS) KFK
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
-#!defined(HAVE_LD80BITS) vFppippKKC
 #defined(NOALIGN) iFipiip
 #!defined(NOALIGN) iFEppu
 #!defined(NOALIGN) iFEiiip

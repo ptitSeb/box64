@@ -1309,18 +1309,18 @@ GO(g_settings_apply, vFp)
 //GO(g_settings_create_action, 
 GO(g_settings_delay, vFp)
 //GO(g_settings_get, 
-//GO(g_settings_get_boolean, 
+GO(g_settings_get_boolean, iFpp)
 GO(g_settings_get_child, pFpp)
 GO(g_settings_get_default_value, pFpp)
 //GO(g_settings_get_double, 
 //GO(g_settings_get_enum, 
 //GO(g_settings_get_flags, 
 GO(g_settings_get_has_unapplied, iFp)
-//GO(g_settings_get_int, 
+GO(g_settings_get_int, iFpp)
 //GO(g_settings_get_mapped, 
 //GO(g_settings_get_range, 
 GO(g_settings_get_string, pFpp)
-//GO(g_settings_get_strv, 
+GO(g_settings_get_strv, pFpp)
 //GO(g_settings_get_type, 
 //GO(g_settings_get_uint, 
 GO(g_settings_get_user_value, pFpp)
@@ -1342,7 +1342,7 @@ GO(g_settings_reset, vFpp)
 //GO(g_settings_schema_get_key, 
 //GO(g_settings_schema_get_path, 
 //GO(g_settings_schema_get_type, 
-//GO(g_settings_schema_has_key, 
+GO(g_settings_schema_has_key, iFpp)
 //GO(g_settings_schema_key_get_default_value, 
 //GO(g_settings_schema_key_get_description, 
 //GO(g_settings_schema_key_get_range, 

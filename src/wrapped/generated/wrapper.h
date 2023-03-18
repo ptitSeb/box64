@@ -2011,6 +2011,7 @@ void vFpUuuUUUi(x64emu_t *emu, uintptr_t fnc);
 void vFppiiiiii(x64emu_t *emu, uintptr_t fnc);
 void vFppiiipii(x64emu_t *emu, uintptr_t fnc);
 void vFppipipii(x64emu_t *emu, uintptr_t fnc);
+void vFppippDDC(x64emu_t *emu, uintptr_t fnc);
 void vFppipppui(x64emu_t *emu, uintptr_t fnc);
 void vFppippppi(x64emu_t *emu, uintptr_t fnc);
 void vFppippppp(x64emu_t *emu, uintptr_t fnc);
@@ -2333,6 +2334,7 @@ void vFuuuuuuuuuuuuu(x64emu_t *emu, uintptr_t fnc);
 void vFuffffffffffff(x64emu_t *emu, uintptr_t fnc);
 void vFpipppiiiiiiuu(x64emu_t *emu, uintptr_t fnc);
 void vFpippppppppppp(x64emu_t *emu, uintptr_t fnc);
+void vFpuppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void vFppiiiiiiiiiii(x64emu_t *emu, uintptr_t fnc);
 void vFppiipppiiiiii(x64emu_t *emu, uintptr_t fnc);
 void vFppppppppppppp(x64emu_t *emu, uintptr_t fnc);
@@ -2384,7 +2386,6 @@ void iFpppppppppppppppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 #if defined(HAVE_LD80BITS)
 void IFD(x64emu_t *emu, uintptr_t fnc);
 void DFD(x64emu_t *emu, uintptr_t fnc);
-void vFppippDDC(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(HAVE_LD80BITS)
@@ -2392,7 +2393,6 @@ void IFK(x64emu_t *emu, uintptr_t fnc);
 void KFK(x64emu_t *emu, uintptr_t fnc);
 void KFKK(x64emu_t *emu, uintptr_t fnc);
 void KFKp(x64emu_t *emu, uintptr_t fnc);
-void vFppippKKC(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if defined(NOALIGN)

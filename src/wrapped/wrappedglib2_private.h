@@ -38,11 +38,7 @@ GO(g_ascii_tolower, CFC)
 GO(g_ascii_toupper, CFC)
 GO(g_ascii_xdigit_value, iFC)
 GO(g_assertion_message, vFppipp)
-#ifdef HAVE_LD80BITS
 GO(g_assertion_message_cmpnum, vFppippDDC)
-#else
-GO(g_assertion_message_cmpnum, vFppippKKC)
-#endif
 GO(g_assertion_message_cmpstr, vFppippppp)
 GO(g_assertion_message_error, vFppipppui)
 GO(g_assertion_message_expr, vFppipp)
@@ -1471,7 +1467,7 @@ GO(g_variant_get_boolean, iFp)
 GO(g_variant_get_byte, CFp)
 GO(g_variant_get_bytestring, pFp)
 GO(g_variant_get_bytestring_array, pFpp)
-//GO(g_variant_get_child, vFpuppppppppppp)    //vaarg here
+GO(g_variant_get_child, vFpuppppppppppp)    //vaarg here, only pointers so should be ok
 GO(g_variant_get_child_value, pFpu)
 GO(g_variant_get_data, pFp)
 GO(g_variant_get_data_as_bytes, pFp)
@@ -1507,7 +1503,7 @@ GO(g_variant_iter_init, uFpp)
 GO(g_variant_iter_loop, iFpppppppppppp) // vaarg
 GO(g_variant_iter_n_children, uFp)
 GO(g_variant_iter_new, pFp)
-//GO(g_variant_iter_next, iFpppppppppppp) // vaarg here
+GO(g_variant_iter_next, iFpppppppppppp) // vaarg here, only pointers so should be ok
 GO(g_variant_iter_next_value, pFp)
 GO(g_variant_lookup, iFpppppppppppp)    // vaarg
 GO(g_variant_lookup_value, pFppp)
