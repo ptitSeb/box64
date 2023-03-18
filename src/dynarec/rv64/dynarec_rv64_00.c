@@ -185,7 +185,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             if(rex.w) {
                 if(MODREG) {   // reg <= reg
-                    MV(gd, xRAX+(nextop&7)+(rex.b<<3));
+                    ADDIW(gd, xRAX+(nextop&7)+(rex.b<<3), 0);
                 } else {                    // mem <= reg
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
