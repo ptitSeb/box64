@@ -71,6 +71,16 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
             break;
 
+        case 0x09:
+            INST_NAME("OR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
+            WBACK;
+            break;
+
         case 0x0F:
             switch(rep) {
             case 0:
