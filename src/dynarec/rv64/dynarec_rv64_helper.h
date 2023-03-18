@@ -83,6 +83,42 @@
                     LD(x1, wback, fixedaddress);        \
                     ed = x1;                            \
                 }
+//GETEWW will use i for ed, and can use w for wback.
+#define GETEWW(w, i, D) if(MODREG) {        \
+                    wback = xRAX+(nextop&7)+(rex.b<<3);\
+                    SLLI(i, wback, 48);     \
+                    SRLI(i, i, 48);         \
+                    ed = i;                 \
+                    wb1 = 0;                \
+                } else {                    \
+                    SMREAD();               \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, w, i, &fixedaddress, rex, NULL, 1, D); \
+                    LHU(i, wback, fixedaddress);\
+                    ed = i;                 \
+                    wb1 = 1;                \
+                }
+//GETEW will use i for ed, and can use r3 for wback.
+#define GETEW(i, D) GETEWW(x3, i, D)
+//GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
+#define GETSEW(i, D) if(MODREG) {           \
+                    wback = xRAX+(nextop&7)+(rex.b<<3);\
+                    SLLI(i, wback, 48);     \
+                    SRAI(i, i, 48);         \
+                    ed = i;                 \
+                    wb1 = 0;                \
+                } else {                    \
+                    SMREAD();               \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, i, &fixedaddress, rex, NULL, 1, D); \
+                    LH(i, wback, fixedaddress); \
+                    ed = i;                 \
+                    wb1 = 1;                \
+                }
+// Write ed back to original register / memory
+#define EWBACK       EWBACKW(ed)
+// Write w back to original register / memory (w needs to be 16bits only!)
+#define EWBACKW(w)   if(wb1) {SH(w, wback, fixedaddress); SMWRITE();} else {SRLI(wback, wback, 16); SLLI(wback, wback, 16); OR(wback, wback, w);}
+// Write back gd in correct register (gd needs to be 16bits only!)
+#define GWBACK       do{int g=xRAX+((nextop&0x38)>>3)+(rex.r<<3); SRLI(g, g, 16); SLLI(g, g, 16); OR(g, g, gd);}while(0)
 
 // FAKEED like GETED, but doesn't get anything
 #define FAKEED  if(!MODREG) {   \

@@ -85,6 +85,103 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             // just use regular conditional jump
             return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
 
+        case 0xC1:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ew, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rol16, x1, x3);
+                    EWBACK;
+                    break;
+                case 1:
+                    INST_NAME("ROR Ew, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(ror16, x1, x3);
+                    EWBACK;
+                    break;
+                case 2:
+                    INST_NAME("RCL Ew, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rcl16, x1, x3);
+                    EWBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Ew, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rcr16, x1, x3);
+                    EWBACK;
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ew, Ib");
+                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    UFLAG_IF {MOV32w(x2, (u8&0x1f));}
+                    UFLAG_OP12(ed, x2)
+                    if(MODREG) {
+                        SLLI(ed, ed, 48+(u8&0x1f));
+                        SRLI(ed, ed, 48);
+                    } else {
+                        SLLI(ed, ed, u8&0x1f);
+                    }
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shl16);
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, Ib");
+                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    UFLAG_IF {MOV32w(x2, (u8&0x1f));}
+                    UFLAG_OP12(ed, x2)
+                    SRLI(ed, ed, u8&0x1f);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shr16);
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    GETSEW(x1, 1);
+                    u8 = F8;
+                    UFLAG_IF {MOV32w(x2, (u8&0x1f));}
+                    UFLAG_OP12(ed, x2)
+                    SRAI(ed, ed, u8&0x1f);
+                    if(MODREG) {
+                        SLLI(ed, ed, 48);
+                        SRLI(ed, ed, 48);
+                    }
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar16);
+                    break;
+            }
+            break;
+            
         case 0xC7:
             INST_NAME("MOV Ew, Iw");
             nextop = F8;
