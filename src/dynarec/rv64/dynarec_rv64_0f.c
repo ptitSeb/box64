@@ -377,7 +377,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 SLLI(gd, ed, 48);
-                SRLI(gd, gd, 48);
+                SRAI(gd, gd, 48);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
