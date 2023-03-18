@@ -92,10 +92,20 @@ jobs:
           make -j$(nproc) VERBOSE=1
 
       - name: "Test Box64"
-        if: ${{ matrix.platform == 'X64' }}
+        if: ${{ matrix.platform != 'TEGRAX1' }}
         run: |
+          if [[ ${{ matrix.platform }} != 'X64' ]]; then
+            sudo apt-get -y install qemu-user
+          fi
+
+          if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
+            sudo cp -r /usr/riscv64-linux-gnu/lib/* /lib/
+          elif [[ ${{ matrix.platform }} != 'X64' ]]; then
+            sudo cp -r /usr/aarch64-linux-gnu/lib/* /lib/
+          fi
+
           cd build
-          ctest -j$(nproc)
+          ctest -j$(nproc) --rerun-failed --output-on-failure
 
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v3
