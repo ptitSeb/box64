@@ -370,6 +370,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(!rex.w)
                 ZEROUP(gd);
             break;
+        case 0xBF:
+            INST_NAME("MOVSX Gd, Ew");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                SLLI(gd, ed, 48);
+                SRLI(gd, gd, 48);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                LH(gd, ed, fixedaddress);
+            }
+            if(!rex.w)
+                ZEROUP(gd);
+            break;
 
         default:
             DEFAULT;
