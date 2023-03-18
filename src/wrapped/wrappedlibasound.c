@@ -67,6 +67,28 @@ static void* findAsyncFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for Asound Async callback\n");
     return NULL;
 }
+// snd_mixer_elem_callback_t
+#define GO(A)   \
+static uintptr_t my_elem_fct_##A = 0;   \
+static int my_elem_##A(void* elem, uint32_t mask)                       \
+{                                                                       \
+    return (int)RunFunction(my_context, my_elem_fct_##A, 2, elem, mask);\
+}
+SUPER()
+#undef GO
+static void* findElemFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_elem_fct_##A == (uintptr_t)fct) return my_elem_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_elem_fct_##A == 0) {my_elem_fct_##A = (uintptr_t)fct; return my_elem_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Asound Elem callback\n");
+    return NULL;
+}
 
 
 EXPORT int my_snd_async_add_handler(x64emu_t *emu, void *handler, int fd, void* callback, void *private_data)
@@ -113,6 +135,11 @@ EXPORT int my_snd_lib_error_set_handler(x64emu_t* emu, void* handler)
     } else error_handler = NULL;
 
     return my->snd_lib_error_set_handler(error_handler);
+}
+
+EXPORT void my_snd_mixer_elem_set_callback(x64emu_t* emu, void* handler, void* f)
+{
+    my->snd_mixer_elem_set_callback(handler, findElemFct(f));
 }
 
 void* my_dlopen(x64emu_t* emu, void *filename, int flag);   // defined in wrappedlibdl.c

@@ -3090,6 +3090,8 @@ wrappedlibasound:
 - iFp:
   - snd_dlclose
   - snd_lib_error_set_handler
+- vFpp:
+  - snd_mixer_elem_set_callback
 - pFppp:
   - snd_dlsym
 - iFpipp:
