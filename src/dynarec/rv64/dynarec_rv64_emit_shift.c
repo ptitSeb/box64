@@ -23,6 +23,54 @@
 #include "dynarec_rv64_functions.h"
 #include "dynarec_rv64_helper.h"
 
+// emit SHL32 instruction, from s1 , shift s2, store result in s1 using s3, s4 and s5 as scratch
+void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+{
+    // s2 is not 0 here and is 1..1f/3f
+    CLEAR_FLAGS();
+    IFX(X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SDxw(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, rex.w?d_shl64:d_shl32);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+
+    IFX(X_CF) {
+        SUBI(s5, s2, rex.w?64:32);
+        NEG(s5, s5);
+        SRL(s3, s1, s5);
+        ANDI(s5, s3, 1); // LSB
+        BEQZ(s5, 8);
+        ORI(xFlags, xFlags, 1 << F_CF);
+    }
+
+    SLL(s1, s1, s2);
+
+    IFX(X_SF) {
+        BGE(s1, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    IFX(X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_OF) {
+        SRLIxw(s3, s1, rex.w?63:31);
+        XOR(s3, s3, s5);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_OF2);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
 // emit SHL32 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
 void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5)
 {
