@@ -85,6 +85,26 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             // just use regular conditional jump
             return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
 
+        case 0xC7:
+            INST_NAME("MOV Ew, Iw");
+            nextop = F8;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ADDI(x1, xZR, -1);
+                SRLI(x1, x1, 48);
+                AND(ed, ed, x1);
+                u16 = F16;
+                MOV32w(x1, u16);
+                ORI(ed, ed, x1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 2);
+                u16 = F16;
+                MOV32w(x1, u16);
+                SH(x1, ed, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
+
         default:
             DEFAULT;
     }
