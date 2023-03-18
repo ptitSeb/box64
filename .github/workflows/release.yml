@@ -98,14 +98,14 @@ jobs:
             sudo apt-get -y install qemu-user
           fi
 
-          if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
-            sudo cp -r /usr/riscv64-linux-gnu/lib/* /lib/
-          elif [[ ${{ matrix.platform }} != 'X64' ]]; then
-            sudo cp -r /usr/aarch64-linux-gnu/lib/* /lib/
-          fi
-
           cd build
-          ctest -j$(nproc) --rerun-failed --output-on-failure
+          if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
+            QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
+          elif [[ ${{ matrix.platform }} != 'X64' ]]; then
+            QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
+          else
+            ctest -j$(nproc) --rerun-failed --output-on-failure
+          fi
 
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v3
