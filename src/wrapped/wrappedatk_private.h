@@ -66,7 +66,7 @@ GO(atk_get_version, pFv)
 //GO(atk_hyperlink_get_n_anchors, 
 //GO(atk_hyperlink_get_object, 
 //GO(atk_hyperlink_get_start_index, 
-//GO(atk_hyperlink_get_type, 
+GO(atk_hyperlink_get_type, LFv)
 //GO(atk_hyperlink_get_uri, 
 //GO(atk_hyperlink_impl_get_hyperlink, 
 GO(atk_hyperlink_impl_get_type, LFv)
@@ -144,18 +144,18 @@ GO(atk_registry_set_factory_type, vFpii)
 //GO(atk_relation_new, 
 //GO(atk_relation_remove_target, 
 //GO(atk_relation_set_add, 
-//GO(atk_relation_set_add_relation_by_type, 
+GO(atk_relation_set_add_relation_by_type, vFpip)
 //GO(atk_relation_set_contains, 
 //GO(atk_relation_set_contains_target, 
 //GO(atk_relation_set_get_n_relations, 
 //GO(atk_relation_set_get_relation, 
 //GO(atk_relation_set_get_relation_by_type, 
 //GO(atk_relation_set_get_type, 
-//GO(atk_relation_set_new, 
+GO(atk_relation_set_new, pFv)
 //GO(atk_relation_set_remove, 
 //GO(atk_relation_type_for_name, 
 //GO(atk_relation_type_get_name, 
-//GO(atk_relation_type_get_type, 
+GO(atk_relation_type_get_type, LFv)
 //GO(atk_relation_type_register, 
 GO(atk_remove_focus_tracker, vFu)
 GO(atk_remove_global_event_listener, vFu)
@@ -177,11 +177,11 @@ GO(atk_selection_select_all_selection, iFp)
 //GO(atk_socket_get_type, 
 //GO(atk_socket_is_occupied, 
 //GO(atk_socket_new, 
-//GO(atk_state_set_add_state, 
+GO(atk_state_set_add_state, iFpi)
 //GO(atk_state_set_add_states, 
 //GO(atk_state_set_and_sets, 
 //GO(atk_state_set_clear_states, 
-//GO(atk_state_set_contains_state, 
+GO(atk_state_set_contains_state, iFpi)
 //GO(atk_state_set_contains_states, 
 //GO(atk_state_set_get_type, 
 //GO(atk_state_set_is_empty, 
@@ -190,7 +190,7 @@ GO(atk_selection_select_all_selection, iFp)
 //GO(atk_state_set_remove_state, 
 //GO(atk_state_set_xor_sets, 
 //GO(atk_state_type_for_name, 
-//GO(atk_state_type_get_name, 
+GO(atk_state_type_get_name, pFi)
 //GO(atk_state_type_get_type, 
 //GO(atk_state_type_register, 
 //GO(atk_streamable_content_get_mime_type, 
@@ -215,7 +215,7 @@ GO(atk_selection_select_all_selection, iFp)
 //GO(atk_table_get_selected_columns, 
 //GO(atk_table_get_selected_rows, 
 //GO(atk_table_get_summary, 
-//GO(atk_table_get_type, 
+GO(atk_table_get_type, LFv)
 //GO(atk_table_is_column_selected, 
 //GO(atk_table_is_row_selected, 
 //GO(atk_table_is_selected, 
@@ -230,7 +230,7 @@ GO(atk_selection_select_all_selection, iFp)
 //GO(atk_table_set_summary, 
 //GO(atk_text_add_selection, 
 //GO(atk_text_attribute_for_name, 
-//GO(atk_text_attribute_get_name, 
+GO(atk_text_attribute_get_name, pFi)
 //GO(atk_text_attribute_get_type, 
 //GO(atk_text_attribute_get_value, 
 //GO(atk_text_attribute_register, 
@@ -240,7 +240,7 @@ GO(atk_selection_select_all_selection, iFp)
 //GO(atk_text_get_bounded_ranges, 
 //GO(atk_text_get_caret_offset, 
 //GO(atk_text_get_character_at_offset, 
-//GO(atk_text_get_character_count, 
+GO(atk_text_get_character_count, iFp)
 //GO(atk_text_get_character_extents, 
 //GO(atk_text_get_default_attributes, 
 //GO(atk_text_get_n_selections, 
