@@ -186,3 +186,38 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 }
+
+// emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
+void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5)
+{
+    CLEAR_FLAGS();
+    IFX_PENDOR0 {
+        SET_DF(s3, rex.w?d_tst64:d_tst32);
+    } else {
+        SET_DFNONE(s4);
+    }
+
+    if(c>=-2048 && c<=2047)
+        ANDI(s3, s1, c);
+    else {
+        MOV64x(s3, c);
+        AND(s3, s1, s3); // res = s1 & s2
+    }
+
+    IFX_PENDOR0 {
+        SDxw(s3, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_SF) {
+        if (!rex.w) ZEROUP(s3);
+        SRLI(s4, s3, rex.w?63:31);
+        BEQZ(s4, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_ZF) {
+        BNEZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s3, s4, s5);
+    }
+}

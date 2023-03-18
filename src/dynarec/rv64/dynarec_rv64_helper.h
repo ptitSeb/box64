@@ -72,7 +72,23 @@
                     LDxw(x1, wback, fixedaddress);      \
                     ed = x1;                            \
                 }
-
+// GETSED can use r1 for ed, and r2 for wback. ed will be sign extended!
+#define GETSED(D)  if(MODREG) {                         \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                    if(!rex.w) {                        \
+                        ADDW(x1, ed, xZR);              \
+                        ed = x1;                        \
+                    }                                   \
+                } else {                                \
+                    SMREAD()                            \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+                    if(rex.w)                           \
+                        LD(x1, wback, fixedaddress);    \
+                    else                                \
+                        LW(x1, wback, fixedaddress);    \
+                    ed = x1;                            \
+                }
 // GETEDx can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDx(D) if(MODREG) {                          \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
@@ -82,6 +98,16 @@
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
                     LD(x1, wback, fixedaddress);        \
                     ed = x1;                            \
+                }
+//GETEDH can use hint for ed, and r1 or r2 for wback (depending on hint). wback is 0 if ed is xEAX..xEDI
+#define GETEDH(hint, D) if(MODREG) {                    \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    SMREAD();                           \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, ed, &fixedaddress, rex, NULL, 1, D); \
+                    LDxw(hint, wback, fixedaddress);    \
+                    ed = hint;                          \
                 }
 //GETEWW will use i for ed, and can use w for wback.
 #define GETEWW(w, i, D) if(MODREG) {        \
@@ -173,22 +199,39 @@
 #define MARKLOCK dyn->insts[ninst].marklock = dyn->native_size
 #define GETMARKLOCK dyn->insts[ninst].marklock
 
+#define Bxx_gen(OP, M, reg1, reg2)      \
+    j64 = GET##M - dyn->native_size;    \
+    B##OP (reg1, reg2, j64)
+
 // Branch to MARK if reg1==reg2 (use j64)
-#define BEQ_MARK(reg1, reg2)           \
-    j64 = GETMARK-(dyn->native_size);  \
-    BEQ(reg1, reg2, j64)
+#define BEQ_MARK(reg1, reg2) Bxx_gen(EQ, MARK, reg1, reg2)
 // Branch to MARK if reg1!=reg2 (use j64)
-#define BNE_MARK(reg1, reg2)           \
-    j64 = GETMARK-(dyn->native_size);  \
-    BNE(reg1, reg2, j64)
+#define BNE_MARK(reg1, reg2) Bxx_gen(NE, MARK, reg1, reg2)
+// Branch to MARK if reg1<reg2 (use j64)
+#define BLT_MARK(reg1, reg2) Bxx_gen(LT, MARK, reg1, reg2)
+// Branch to MARK2 if reg1==reg2 (use j64)
+#define BEQ_MARK2(reg1, reg2) Bxx_gen(EQ, MARK2, reg1,reg2)
+// Branch to MARK2 if reg1!=reg2 (use j64)
+#define BNE_MARK2(reg1, reg2) Bxx_gen(NE, MARK2, reg1,reg2)
+// Branch to MARK2 if reg1<>reg2 (use j64)
+#define BLT_MARK2(reg1, reg2) Bxx_gen(LT, MARK2, reg1,reg2)
+// Branch to MARK3 if reg1==reg2 (use j64)
+#define BEQ_MARK3(reg1, reg2) Bxx_gen(EQ, MARK3, reg1, reg2)
+// Branch to MARK3 if reg1!=reg2 (use j64)
+#define BNE_MARK3(reg1, reg2) Bxx_gen(NE, MARK3, reg1, reg2)
+
 // Branch to NEXT if reg1==0 (use j64)
-#define CBZ_NEXT(reg1)                  \
+#define CBZ_NEXT(reg1)                 \
     j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
     BEQ(reg1, xZR, j64)
 // Branch to NEXT if reg1!=0 (use j64)
-#define CBNZ_NEXT(reg1)                 \
+#define CBNZ_NEXT(reg1)                \
     j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
     BNE(reg1, xZR, j64)
+// Branch to next instruction unconditionnal (use j64)
+#define B_NEXT_nocond                                               \
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;\
+    B(j64)
 
 #define IFX(A)  if((dyn->insts[ninst].x64.gen_flags&(A)))
 #define IFX_PENDOR0  if((dyn->insts[ninst].x64.gen_flags&(X_PEND) || !dyn->insts[ninst].x64.gen_flags))
@@ -439,6 +482,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_test8      STEPNAME(emit_test8)
 #define emit_test16     STEPNAME(emit_test16)
 #define emit_test32     STEPNAME(emit_test32)
+#define emit_test32c    STEPNAME(emit_test32)
 #define emit_add32      STEPNAME(emit_add32)
 #define emit_add32c     STEPNAME(emit_add32c)
 #define emit_add8       STEPNAME(emit_add8)
@@ -568,6 +612,7 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
 //void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 //void emit_test16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
+void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
 //void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);

@@ -293,14 +293,35 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SRAIxw(rd, rs1, imm)        if (rex.w) { SRAI(rd, rs1, imm); } else { SRAIW(rd, rs1, imm); }
 
 // RV32M
-// rd = rs1 * rs2
+// rd =(lower) rs1 * rs2 (both signed)
 #define MUL(rd, rs1, rs2)           EMIT(R_type(0b0000001, rs2, rs1, 0b000, rd, 0b0110011))
+// rd =(upper) rs1 * rs2 (both signed)
 #define MULH(rd, rs1, rs2)          EMIT(R_type(0b0000001, rs2, rs1, 0b001, rd, 0b0110011))
+// rd =(upper) (signed)rs1 * (unsigned)rs2
+#define MULHSU(rd, rs1, rs2)        EMIT(R_type(0b0000001, rs2, rs1, 0b010, rd, 0b0110011))
+// rd =(upper) rs1 * rs2 (both unsigned)
+#define MULHU(rd, rs1, rs2)         EMIT(R_type(0b0000001, rs2, rs1, 0b011, rd, 0b0110011))
+// rd =(upper) rs1 / rs2
+#define DIV(rd, rs1, rs2)           EMIT(R_type(0b0000001, rs2, rs1, 0b100, rd, 0b0110011))
+#define DIVU(rd, rs1, rs2)          EMIT(R_type(0b0000001, rs2, rs1, 0b101, rd, 0b0110011))
+// rd = rs1 mod rs2
+#define REM(rd, rs1, rs2)           EMIT(R_type(0b0000001, rs2, rs1, 0b110, rd, 0b0110011))
+#define REMU(rd, rs1, rs2)          EMIT(R_type(0b0000001, rs2, rs1, 0b111, rd, 0b0110011))
 
 // RV64M
 // rd = rs1 * rs2
 #define MULW(rd, rs1, rs2)          EMIT(R_type(0b0000001, rs2, rs1, 0b000, rd, 0b0111011))
 // rd = rs1 * rs2
 #define MULxw(rd, rs1, rs2)         EMIT(R_type(0b0000001, rs2, rs1, 0b000, rd, rex.w?0b0110011:0b0111011))
+// rd = rs1 / rs2
+#define DIVW(rd, rs1, rs2)          EMIT(R_type(0b0000001, rs2, rs1, 0b100, rd, 0b0111011))
+#define DIVxw(rd, rs1, rs2)         EMIT(R_type(0b0000001, rs2, rs1, 0b100, rd, rex.w?0b0110011:0b0111011))
+#define DIVUW(rd, rs1, rs2)         EMIT(R_type(0b0000001, rs2, rs1, 0b101, rd, 0b0111011))
+#define DIVUxw(rd, rs1, rs2)        EMIT(R_type(0b0000001, rs2, rs1, 0b101, rd, rex.w?0b0110011:0b0111011))
+// rd = rs1 mod rs2
+#define REMW(rd, rs1, rs2)          EMIT(R_type(0b0000001, rs2, rs1, 0b110, rd, 0b0111011))
+#define REMxw(rd, rs1, rs2)         EMIT(R_type(0b0000001, rs2, rs1, 0b110, rd, rex.w?0b0110011:0b0111011))
+#define REMUW(rd, rs1, rs2)         EMIT(R_type(0b0000001, rs2, rs1, 0b111, rd, 0b0111011))
+#define REMUxw(rd, rs1, rs2)        EMIT(R_type(0b0000001, rs2, rs1, 0b111, rd, rex.w?0b0110011:0b0111011))
 
 #endif //__RV64_EMITTER_H__
