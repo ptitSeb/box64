@@ -297,6 +297,45 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_test32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             break;
 
+        case 0x88:
+            INST_NAME("MOV Eb, Gb");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            if(rex.rex) {
+                gb2 = 0;
+                gb1 = xRAX + gd;
+            } else {
+                gb2 = ((gd&4)>>2);
+                gb1 = xRAX+(gd&3);
+            }
+            gd = x4;
+            if(gb2) {
+                SRLI(x4, gb1, gb2);
+                gb1 = x4;
+            }
+            if(MODREG) {
+                ed = (nextop&7) + (rex.b<<3);
+                if(rex.rex) {
+                    eb1 = xRAX+ed;
+                    eb2 = 0;
+                } else {
+                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = ((ed&4)>>2);    // L or H
+                }
+                ANDI(gd, gb1, 0xff);
+                if(eb2) {
+                    ADDI(x1, xZR, ~0xff);
+                    SLLI(x1, x1, 8);
+                    ANDI(x1, eb1, x1);
+                    SLLI(gd, gd, 8);    // it might be possible to avoid SRLI/SLLI, but that will do for now
+                }
+                ORI(eb1, eb1, gd);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                SB(gb1, ed, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
         case 0x89:
             INST_NAME("MOV Ed, Gd");
             nextop=F8;
