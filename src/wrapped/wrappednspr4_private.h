@@ -108,7 +108,7 @@ GO(PR_EmulateSendFile, iFppiu)
 //GO(PR_ErrorInstallCallback, 
 //GO(PR_ErrorInstallTable, 
 //GO(PR_ErrorLanguages, 
-//GO(PR_ErrorToName, 
+GO(PR_ErrorToName, pFi)
 //GO(PR_ErrorToString, 
 //GO(PR_ExitMonitor, 
 //GO(PR_ExplodeTime, 
@@ -151,8 +151,8 @@ GO(PR_EmulateSendFile, iFppiu)
 //GO(PR_GetEnv, 
 //GO(PR_GetEnvSecure, 
 GO(PR_GetError, iFv)
-//GO(PR_GetErrorText, 
-//GO(PR_GetErrorTextLength, 
+GO(PR_GetErrorText, iFp)
+GO(PR_GetErrorTextLength, iFv)
 //GO(PR_GetFileInfo, 
 //GO(PR_GetFileInfo64, 
 //GO(PR_GetFileMethods, 
@@ -173,7 +173,7 @@ GO(PR_GetError, iFv)
 //GO(PR_GetNumberOfProcessors, 
 //GO(PR_GetOpenFileInfo, 
 //GO(PR_GetOpenFileInfo64, 
-//GO(PR_GetOSError, 
+GO(PR_GetOSError, iFv)
 //GO(PR_GetPageShift, 
 //GO(PR_GetPageSize, 
 //GO(PR_GetPathSeparator, 
@@ -354,7 +354,7 @@ GO(PR_SetSocketOption, iFpp)
 //GO(PR_ShutdownThreadPool, 
 //GO(PR_Sleep, 
 //GO(PR_smprintf, 
-//GO(PR_smprintf_free, 
+GO(PR_smprintf_free, vFp)
 //GO(PR_snprintf, 
 //GO(PR_Socket, 
 //GO(PR_sprintf_append, 
