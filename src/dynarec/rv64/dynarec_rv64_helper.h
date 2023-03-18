@@ -388,6 +388,9 @@
 #define TABLE64(A, V)
 #endif
 
+#define ARCH_INIT()
+
+
 #if STEP < 2
 #define GETIP(A)
 #define GETIP_(A)

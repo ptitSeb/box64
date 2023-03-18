@@ -786,6 +786,10 @@
 #define FTABLE64(A, V)
 #endif
 
+#define ARCH_INIT()         \
+    dyn->doublepush = 0;    \
+    dyn->doublepop = 0;
+
 #if STEP < 2
 #define GETIP(A)
 #define GETIP_(A)
