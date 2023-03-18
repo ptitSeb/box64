@@ -321,7 +321,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     eb2 = (ed&4)>>2;    // L or H
                 }
                 if (eb2) {
-                    SRLI(gd, eb1, wb2);
+                    SRLI(gd, eb1, 8);
                     ANDI(gd, gd, 0xff);
                 } else {
                     ANDI(gd, eb1, 0xff);
