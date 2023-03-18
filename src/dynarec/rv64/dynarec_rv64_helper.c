@@ -82,18 +82,28 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             }
         } else if((nextop&7)==5) {
             int64_t tmp = F32S64;
-            if(i12 && (tmp>=-2048) && (tmp<=2047)) {
+            int64_t adj = dyn->last_ip?((addr+delta)-dyn->last_ip):0;
+            if(i12 && adj && (tmp+adj>=-2048) && (tmp+adj<=2047)) {
+                ret = xRIP;
+                *fixaddress = tmp+adj;
+            } else if(i12 && (tmp>=-2048) && (tmp<=2047)) {
                 GETIP(addr+delta);
                 ret = xRIP;
                 *fixaddress = tmp;
+            } else if(adj && (tmp+adj>=-2048) && (tmp+adj<=2047)) {
+                ADDI(ret, xRIP, tmp+adj);
             } else if((tmp>=-2048) && (tmp<=2047)) {
                 GETIP(addr+delta);
                 ADDI(ret, xRIP, tmp);
             } else if(tmp+addr+delta<0x100000000LL) {
                 MOV64x(ret, tmp+addr+delta);
             } else {
-                MOV64x(ret, tmp);
-                GETIP(addr+delta);
+                if(adj) {
+                    MOV64x(ret, tmp+adj);
+                } else {
+                    MOV64x(ret, tmp);
+                    GETIP(addr+delta);
+                }
                 ADD(ret, ret, xRIP);
             }
             switch(lock) {
