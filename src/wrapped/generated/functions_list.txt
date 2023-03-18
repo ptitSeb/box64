@@ -2378,6 +2378,7 @@ wrappedatk:
 - uFp:
   - atk_add_focus_tracker
 - uFpp:
+  - atk_add_global_event_listener
   - atk_add_key_event_listener
 wrappedatkbridge:
 wrappedatomic:

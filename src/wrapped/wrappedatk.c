@@ -105,6 +105,28 @@ static void* find_AtkKeySnoopFunc_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for atk AtkKeySnoopFunc callback\n");
     return NULL;
 }
+// GSignalEmissionHook ...
+#define GO(A)   \
+static uintptr_t my_GSignalEmissionHook_fct_##A = 0;                                    \
+static int my_GSignalEmissionHook_##A(void* a, uint32_t b, void* c, void* d)            \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_GSignalEmissionHook_fct_##A, 4, a, b, c, d); \
+}
+SUPER()
+#undef GO
+static void* find_GSignalEmissionHook_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GSignalEmissionHook_fct_##A == (uintptr_t)fct) return my_GSignalEmissionHook_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GSignalEmissionHook_fct_##A == 0) {my_GSignalEmissionHook_fct_##A = (uintptr_t)fct; return my_GSignalEmissionHook_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for atk GSignalEmissionHook callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -121,6 +143,11 @@ EXPORT uint32_t my_atk_add_focus_tracker(x64emu_t* emu, void* f)
 EXPORT uint32_t my_atk_add_key_event_listener(x64emu_t* emu, void* f, void* p)
 {
     return my->atk_add_key_event_listener(find_AtkEventListener_Fct(f), p);
+}
+
+EXPORT uint32_t my_atk_add_global_event_listener(x64emu_t* emu, void* f, void* p)
+{
+    return my->atk_add_global_event_listener(find_GSignalEmissionHook_Fct(f), p);
 }
 
 #define PRE_INIT    \
