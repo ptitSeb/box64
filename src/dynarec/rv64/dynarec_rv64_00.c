@@ -161,6 +161,29 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0x63:
+            INST_NAME("MOVSXD Gd, Ed");
+            nextop = F8;
+            GETGD;
+            if(rex.w) {
+                if(MODREG) {   // reg <= reg
+                    MV(gd, xRAX+(nextop&7)+(rex.b<<3));
+                } else {                    // mem <= reg
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LW(gd, ed, fixedaddress);
+                }
+            } else {
+                if(MODREG) {   // reg <= reg
+                    AND(gd, xRAX+(nextop&7)+(rex.b<<3), xMASK);
+                } else {                    // mem <= reg
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LWU(gd, ed, fixedaddress);
+                }
+            }
+            break;
+            
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
