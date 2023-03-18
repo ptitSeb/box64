@@ -274,7 +274,7 @@ static void* resizeTLSData(box64context_t *context, void* oldptr)
 
 tlsdatasize_t* getTLSData(box64context_t *context)
 {
-    static __thread tlsdatasize_t* ptr = NULL;
+    tlsdatasize_t* ptr = NULL;
     if(!ptr)
         if ((ptr = (tlsdatasize_t*)pthread_getspecific(context->tlskey)) == NULL) {
             ptr = (tlsdatasize_t*)fillTLSData(context);
