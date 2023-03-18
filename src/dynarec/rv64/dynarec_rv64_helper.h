@@ -412,7 +412,7 @@
     }
 #define GETIP_(A)                                       \
     if(dyn->last_ip && ((A)-dyn->last_ip)<2048) {       \
-        uint64_t _delta_ip = (A)-dyn->last_ip;          \
+        int64_t _delta_ip = (A)-dyn->last_ip;           \
         if(_delta_ip) {ADDI(xRIP, xRIP, _delta_ip);}    \
     } else {                                            \
         if((A)<0xffffffff) {                            \

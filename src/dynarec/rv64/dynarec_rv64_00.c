@@ -263,7 +263,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 CHECK_CACHE()) {                                        \
                 /* out of the block */                                  \
                 i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
-                B##NO(x1, i32);                                         \
+                B##NO##_safe(x1, i32);                                  \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
                     if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
@@ -276,7 +276,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {                                                    \
                 /* inside the block */                                  \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
-                B##YES(x1, i32);                                        \
+                B##YES##_safe(x1, i32);                                 \
             }
 
         GOCOND(0x70, "J", "ib");
@@ -891,6 +891,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 // inside the block
                 CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
                 tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);
+                MESSAGE(1, "Jump to %d / 0x%x\n", tmp, tmp);
                 if(tmp==4) {
                     NOP();
                 } else {
