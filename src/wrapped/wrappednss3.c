@@ -119,6 +119,28 @@ static void* reverse_CERTChainVerifyCallbackFunc_Fct(library_t* lib, void* fct)
     #undef GO
     return (void*)AddBridge(lib->w.bridge, iFppp, fct, 0, NULL);
 }
+// PORTCharConversionWSwapFunc ...
+#define GO(A)   \
+static uintptr_t my_PORTCharConversionWSwapFunc_fct_##A = 0;                                                    \
+static int my_PORTCharConversionWSwapFunc_##A(int a, void* b, uint32_t c, void* d, uint32_t e, void* f, int g)  \
+{                                                                                                               \
+    return (int)RunFunction(my_context, my_PORTCharConversionWSwapFunc_fct_##A, 7, a, b, c, d, e, f, g);        \
+}
+SUPER()
+#undef GO
+static void* find_PORTCharConversionWSwapFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_PORTCharConversionWSwapFunc_fct_##A == (uintptr_t)fct) return my_PORTCharConversionWSwapFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_PORTCharConversionWSwapFunc_fct_##A == 0) {my_PORTCharConversionWSwapFunc_fct_##A = (uintptr_t)fct; return my_PORTCharConversionWSwapFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for nss3 PORTCharConversionWSwapFunc callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -177,6 +199,11 @@ EXPORT int my_CERT_PKIXVerifyCert(x64emu_t* emu, void* cert, int64_t usages, my_
     }*/
 
     return ret;
+}
+
+EXPORT void my_PORT_SetUCS2_ASCIIConversionFunction(x64emu_t* emu, void* f)
+{
+    my->PORT_SetUCS2_ASCIIConversionFunction(find_PORTCharConversionWSwapFunc_Fct(f));
 }
 
 #define CUSTOM_INIT \

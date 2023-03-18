@@ -17,6 +17,7 @@ typedef int64_t (*iFpIppp_t)(void*, int64_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(PK11_SetPasswordFunc, vFp_t) \
+	GO(PORT_SetUCS2_ASCIIConversionFunction, vFp_t) \
 	GO(CERT_RegisterAlternateOCSPAIAInfoCallBack, iFpp_t) \
 	GO(CERT_PKIXVerifyCert, iFpIppp_t)
 

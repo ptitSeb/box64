@@ -69,6 +69,7 @@
 #() lFl
 #() lFp
 #() LFv
+#() LFi
 #() LFu
 #() LFL
 #() LFp
@@ -1271,6 +1272,7 @@
 #() iFpLlpp
 #() iFpLLpp
 #() iFpLppi
+#() iFpLppp
 #() iFppiiu
 #() iFppiip
 #() iFppiup
@@ -3826,6 +3828,7 @@ wrappednspr4:
 wrappednss3:
 - vFp:
   - PK11_SetPasswordFunc
+  - PORT_SetUCS2_ASCIIConversionFunction
 - iFpp:
   - CERT_RegisterAlternateOCSPAIAInfoCallBack
 - iFpIppp:

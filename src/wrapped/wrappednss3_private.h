@@ -29,7 +29,7 @@
 DATA(CERT_CertificateTemplate, 480)
 //GO(CERT_CertListFromCert, 
 //GO(CERT_CertTimesValid, 
-//GO(CERT_ChangeCertTrust, 
+GO(CERT_ChangeCertTrust, iFppp)
 //GO(CERT_CheckCertUsage, 
 GO(CERT_CheckCertValidTimes, iFpIi)
 //GO(CERT_CheckNameSpace, 
@@ -60,12 +60,12 @@ GO(CERT_CreateValidity, pFII)
 //GO(CERT_CRLCacheRefreshIssuer, 
 //DATA(CERT_CrlTemplate, 
 GO(CERT_DecodeAltNameExtension, pFpp)
-//GO(CERT_DecodeAuthInfoAccessExtension, 
-//GO(CERT_DecodeAuthKeyID, 
+GO(CERT_DecodeAuthInfoAccessExtension, pFpp)
+GO(CERT_DecodeAuthKeyID, pFpp)
 GO(CERT_DecodeAVAValue, pFp)
-//GO(CERT_DecodeBasicConstraintValue, 
+GO(CERT_DecodeBasicConstraintValue, iFpp)
 GO(CERT_DecodeCertificatePoliciesExtension, pFp)
-//GO(CERT_DecodeCRLDistributionPoints, 
+GO(CERT_DecodeCRLDistributionPoints, pFpp)
 //GO(__CERT_DecodeDERCertificate, 
 //GO(CERT_DecodeDERCrl, 
 //GO(CERT_DecodeDERCrlWithFlags, 
@@ -73,10 +73,10 @@ GO(CERT_DecodeCertificatePoliciesExtension, pFp)
 //GO(CERT_DecodeNameConstraintsExtension, 
 //GO(CERT_DecodeOCSPRequest, 
 //GO(CERT_DecodeOCSPResponse, 
-//GO(CERT_DecodeOidSequence, 
+GO(CERT_DecodeOidSequence, pFp)
 //GO(CERT_DecodePrivKeyUsagePeriodExtension, 
 //GO(CERT_DecodeTrustString, 
-//GO(CERT_DecodeUserNotice, 
+GO(CERT_DecodeUserNotice, pFp)
 //GO(CERT_DerNameToAscii, 
 //GO(CERT_DestroyCertArray, 
 GO(CERT_DestroyCertificate, vFp)
@@ -89,8 +89,8 @@ GO(CERT_DestroyCertList, vFp)
 //GO(CERT_DestroyOCSPCertID, 
 //GO(CERT_DestroyOCSPRequest, 
 //GO(CERT_DestroyOCSPResponse, 
-//GO(CERT_DestroyOidSequence, 
-//GO(CERT_DestroyUserNotice, 
+GO(CERT_DestroyOidSequence, vFp)
+GO(CERT_DestroyUserNotice, vFp)
 GO(CERT_DestroyValidity, vFp)
 //GO(CERT_DisableOCSPChecking, 
 //GO(CERT_DisableOCSPDefaultResponder, 
@@ -120,10 +120,10 @@ GO(CERT_ExtractPublicKey, pFp)
 //GO(CERT_FilterCertListByCANames, 
 //GO(CERT_FilterCertListByUsage, 
 //GO(CERT_FilterCertListForUserCerts, 
-//GO(CERT_FindCertByDERCert, 
+GO(CERT_FindCertByDERCert, pFpp)
 //GO(CERT_FindCertByIssuerAndSN, 
 //GO(CERT_FindCertByIssuerAndSNCX, 
-//GO(CERT_FindCertByName, 
+GO(CERT_FindCertByName, pFpp)
 //GO(CERT_FindCertByNickname, 
 //GO(CERT_FindCertByNicknameOrEmailAddr, 
 //GO(CERT_FindCertByNicknameOrEmailAddrCX, 
@@ -139,7 +139,7 @@ GO(CERT_FindCertExtension, iFppp)
 //GO(CERT_FindSMimeProfile, 
 //GO(CERT_FindSubjectKeyIDExtension, 
 //GO(CERT_FindUserCertByUsage, 
-//GO(CERT_FindUserCertsByUsage, 
+GO(CERT_FindUserCertsByUsage, pFpiiip)
 //GO(CERT_FinishCertificateRequestAttributes, 
 //GO(CERT_FinishExtensions, 
 //GO(CERT_ForcePostMethodForOCSP, 
@@ -158,7 +158,7 @@ GO(CERT_GetCertEmailAddress, pFp)
 //GO(CERT_GetCertIsTemp, 
 //GO(CERT_GetCertKeyType, 
 //GO(CERT_GetCertNicknames, 
-//GO(CERT_GetCertTimes, 
+GO(CERT_GetCertTimes, iFppp)
 GO(CERT_GetCertTrust, iFpp)
 GO(CERT_GetCertUid, pFp)
 //GO(CERT_GetClassicOCSPDisabledPolicy, 
@@ -171,7 +171,7 @@ GO(CERT_GetCountryName, pFp)
 GO(CERT_GetDefaultCertDB, pFv)
 GO(CERT_GetDomainComponentName, pFp)
 //GO(CERT_GetEncodedOCSPResponse, 
-//GO(CERT_GetFirstEmailAddress, 
+GO(CERT_GetFirstEmailAddress, pFp)
 //GO(CERT_GetGeneralNameTypeFromString, 
 //GO(CERT_GetImposedNameConstraints, 
 GO(CERT_GetLocalityName, pFp)
@@ -181,7 +181,7 @@ GO(CERT_GetNextGeneralName, pFp)
 //GO(CERT_GetOCSPAuthorityInfoAccessLocation, 
 //GO(CERT_GetOCSPResponseStatus, 
 //GO(CERT_GetOCSPStatusForCertID, 
-//GO(CERT_GetOidString, 
+GO(CERT_GetOidString, pFp)
 GO(CERT_GetOrgName, pFp)
 GO(CERT_GetOrgUnitName, pFp)
 //GO(CERT_GetPKIXVerifyNistRevocationPolicy, 
@@ -194,18 +194,18 @@ GO(CERT_GetStateName, pFp)
 //GO(CERT_GetSubjectPublicKeyDigest, 
 //GO(CERT_GetUsePKIXForValidation, 
 //GO(CERT_GetValidDNSPatternsFromCert, 
-//GO(CERT_Hexify, 
+GO(CERT_Hexify, pFpi)
 //GO(CERT_ImportCAChain, 
 //GO(CERT_ImportCAChainTrusted, 
 //GO(CERT_ImportCerts, 
 //GO(CERT_ImportCRL, 
-//GO(CERT_IsCACert, 
+GO(CERT_IsCACert, iFpp)
 //GO(CERT_IsCADERCert, 
 //GO(CERT_IsRootDERCert, 
 //DATA(CERT_IssuerAndSNTemplate, 
 //GO(CERT_IsUserCert, 
 //GO(CERT_KeyFromDERCrl, 
-//GO(CERT_MakeCANickname, 
+GO(CERT_MakeCANickname, pFp)
 //GO(CERT_MergeExtensions, 
 DATA(CERT_NameTemplate, 4*sizeof(void*))
 //GO(CERT_NameToAscii, 
@@ -241,9 +241,9 @@ DATA(CERT_SignedDataTemplate, 160)
 //GO(__CERT_TraversePermCertsForSubject, 
 //GO(CERT_UncacheCRL, 
 //GO(CERT_VerifyCACertForUsage, 
-//GO(CERT_VerifyCert, 
+GO(CERT_VerifyCert, iFpp)
 //GO(CERT_VerifyCertificate, 
-//GO(CERT_VerifyCertificateNow, 
+GO(CERT_VerifyCertificateNow, iFppiipp)
 //GO(CERT_VerifyCertName, 
 //GO(CERT_VerifyCertNow, 
 //GO(CERT_VerifyOCSPResponseSignature, 
@@ -402,7 +402,7 @@ GO(PK11_DestroyTokenObject, iFpL)
 //GO(PK11_DigestFinal, 
 //GO(PK11_DigestKey, 
 //GO(PK11_DigestOp, 
-//GO(PK11_DoesMechanism, 
+GO(PK11_DoesMechanism, iFpL)
 //GO(PK11_Encrypt, 
 //GO(PK11_ExportDERPrivateKeyInfo, 
 //GO(PK11_ExportEncryptedPrivateKeyInfo, 
@@ -419,7 +419,7 @@ GO(PK11_Finalize, iFp)
 GO(PK11_FindCertFromDERCertItem, pFppp)
 //GO(PK11_FindCertFromNickname, 
 //GO(PK11_FindCertFromURI, 
-//GO(PK11_FindCertInSlot, 
+GO(PK11_FindCertInSlot, LFppp)
 //GO(PK11_FindCertsFromEmailAddress, 
 //GO(PK11_FindCertsFromNickname, 
 //GO(PK11_FindCertsFromURI, 
@@ -436,7 +436,7 @@ GO(PK11_FindPrivateKeyFromCert, pFppp)
 //GO(PK11_FortezzaMapSig, 
 GO(PK11_FreeSlot, vFp)
 GO(PK11_FreeSlotList, vFp)
-//GO(PK11_FreeSlotListElement, 
+GO(PK11_FreeSlotListElement, iFpp)
 GO(PK11_FreeSymKey, vFp)
 //GO(PK11_GenerateFortezzaIV, 
 GO(PK11_GenerateKeyPair, pFpLppiip)
@@ -445,7 +445,7 @@ GO(PK11_GenerateKeyPair, pFpLppiip)
 //GO(PK11_GenerateNewParam, 
 //GO(PK11_GenerateRandom, 
 //GO(PK11_GenerateRandomOnSlot, 
-//GO(PK11_GetAllSlotsForCert, 
+GO(PK11_GetAllSlotsForCert, pFpp)
 GO(PK11_GetAllTokens, pFLiip)
 //GO(PK11_GetBestKeyLength, 
 //GO(PK11_GetBestSlot, 
@@ -475,7 +475,7 @@ GO(PK11_GetInternalKeySlot, pFv)
 //GO(PK11_GetMechanism, 
 //GO(PK11_GetMinimumPwdLength, 
 //GO(PK11_GetModInfo, 
-//GO(PK11_GetModule, 
+GO(PK11_GetModule, pFp)
 //GO(PK11_GetModuleID, 
 //GO(PK11_GetModuleURI, 
 //GO(PK11_GetNextGenericObject, 
@@ -507,7 +507,7 @@ GO(PK11_GetTokenName, pFp)
 //GO(PK11_GetWrapKey, 
 //GO(PK11_HasAttributeSet, 
 //GO(PK11_HashBuf, 
-//GO(PK11_HasRootCerts, 
+GO(PK11_HasRootCerts, iFp)
 GO(PK11_ImportCert, iFppLpi)
 //GO(PK11_ImportCertForKey, 
 //GO(PK11_ImportCertForKeyToSlot, 
@@ -531,7 +531,7 @@ GO(PK11_IsHW, iFp)
 GO(PK11_IsInternal, iFp)
 GO(PK11_IsInternalKeySlot, iFp)
 GO(PK11_IsLoggedIn, iFpp)
-//GO(PK11_IsPresent, 
+GO(PK11_IsPresent, iFp)
 GO(PK11_IsReadOnly, iFp)
 GO(PK11_IsRemovable, iFp)
 //GO(PK11_IVFromParam, 
@@ -552,7 +552,7 @@ GO(PK11_ListFixedKeysInSlot, pFppp)
 GO(PK11_MakeIDFromPubKey, pFp)
 //GO(PK11_MakeKEAPubKey, 
 //GO(PK11_MapPBEMechanismToCryptoMechanism, 
-//GO(PK11_MapSignKeyType, 
+GO(PK11_MapSignKeyType, LFi)
 //GO(PK11_MechanismToAlgtag, 
 //GO(PK11_MergeTokens, 
 //GO(PK11_MoveSymKey, 
@@ -613,7 +613,7 @@ GO(PK11_SetPublicKeyNickname, iFpp)
 //GO(PK11_SetWrapKey, 
 GO(PK11_Sign, iFppp)
 GO(PK11_SignatureLen, iFp)
-//GO(PK11_SignWithMechanism, 
+GO(PK11_SignWithMechanism, iFpLppp)
 //GO(PK11_SignWithSymKey, 
 //GO(PK11_SymKeyFromHandle, 
 GO(PK11_TokenExists, iFi)
@@ -640,8 +640,8 @@ GO(PK11_TokenExists, iFi)
 //GO(PK11_WrapPrivKey, 
 //GO(PK11_WrapSymKey, 
 GO(PK11_WriteRawAttribute, iFipLp)
-//GO(PORT_Alloc, 
-//GO(PORT_ArenaAlloc, 
+GO(PORT_Alloc, pFL)
+GO(PORT_ArenaAlloc, pFpL)
 //GO(PORT_ArenaGrow, 
 //GO(PORT_ArenaMark, 
 //GO(PORT_ArenaRelease, 
@@ -653,14 +653,14 @@ GO(PORT_FreeArena, vFpi)
 GO(PORT_GetError, iFv)
 GO(PORT_NewArena, pFL)
 //GO(PORT_Realloc, 
-//GO(PORT_SetError, 
-//GO(PORT_SetUCS2_ASCIIConversionFunction, 
+GO(PORT_SetError, vFi)
+GOM(PORT_SetUCS2_ASCIIConversionFunction, vFEp)
 //GO(PORT_SetUCS2_UTF8ConversionFunction, 
 //GO(PORT_SetUCS4_UTF8ConversionFunction, 
-//GO(PORT_Strdup, 
+GO(PORT_Strdup, pFp)
 //GO(PORT_UCS2_ASCIIConversion, 
-//GO(PORT_UCS2_UTF8Conversion, 
-//GO(PORT_ZAlloc, 
+GO(PORT_UCS2_UTF8Conversion, iFipupup)
+GO(PORT_ZAlloc, pFL)
 //GO(PORT_ZFree, 
 //GO(RSA_FormatBlock, 
 DATA(SEC_AnyTemplate, 4*sizeof(void*))    //R type
@@ -710,14 +710,14 @@ GO(SEC_DerSignData, iFpppipi)
 //GO(SEC_GetSignatureAlgorithmOidTag, 
 DATA(SEC_IA5StringTemplate, 4*sizeof(void*)) //R type
 //DATA(SEC_IntegerTemplate,     //R type
-//GO(SECITEM_AllocItem, 
+GO(SECITEM_AllocItem, pFppu)
 //GO(SECITEM_ArenaDupItem, 
-//GO(SECITEM_CompareItem, 
+GO(SECITEM_CompareItem, iFpp)
 //GO(SECITEM_CopyItem, 
 //GO(SECITEM_DupItem, 
 GO(SECITEM_FreeItem, iFpi)
 //GO(SECITEM_ItemsAreEqual, 
-//GO(SECITEM_ZfreeItem, 
+GO(SECITEM_ZfreeItem, vFpi)
 //GO(SECKEY_AddPrivateKeyToListTail, 
 //GO(SECKEY_BigIntegerBitLength, 
 //GO(SECKEY_CacheStaticFlags, 
@@ -733,7 +733,7 @@ GO(SECITEM_FreeItem, iFpi)
 //GO(SECKEY_CreateSubjectPublicKeyInfo, 
 //GO(SECKEY_DecodeDERSubjectPublicKeyInfo, 
 //GO(SECKEY_DestroyEncryptedPrivateKeyInfo, 
-//GO(SECKEY_DestroyPrivateKey, 
+GO(SECKEY_DestroyPrivateKey, vFp)
 //GO(SECKEY_DestroyPrivateKeyInfo, 
 //GO(SECKEY_DestroyPrivateKeyList, 
 GO(SECKEY_DestroyPublicKey, vFp)
@@ -744,7 +744,7 @@ GO(SECKEY_DestroyPublicKey, vFp)
 //GO(SECKEY_ECParamsToKeySize, 
 //GO(SECKEY_EncodeDERSubjectPublicKeyInfo, 
 DATA(SECKEY_EncryptedPrivateKeyInfoTemplate, 128)
-//GO(SECKEY_ExtractPublicKey, 
+GO(SECKEY_ExtractPublicKey, pFp)
 //GO(SECKEY_GetPrivateKeyType, 
 //GO(SECKEY_GetPublicKeyType, 
 //GO(SECKEY_HashPassword, 
