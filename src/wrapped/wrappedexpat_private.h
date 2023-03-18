@@ -30,7 +30,7 @@ GO(XML_ParserCreate, pFp)
 GO(XML_ParserCreate_MM, pFpppp) // return a structure
 //GO(XML_ParserCreateNS, 
 GO(XML_ParserFree, vFp)
-//GO(XML_ParserReset, 
+GO(XML_ParserReset, iFpp)
 //GO(XML_ResumeParser, 
 GOM(XML_SetAttlistDeclHandler, vFEpp)
 GO(XML_SetBase, iFpp)
