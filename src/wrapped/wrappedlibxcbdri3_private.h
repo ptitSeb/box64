@@ -41,7 +41,7 @@ GO(xcb_dri3_open, pFpuu)
 GO(xcb_dri3_open_reply, pFpup)
 GO(xcb_dri3_open_reply_fds, pFpp)
 //GO(xcb_dri3_open_unchecked, 
-//GO(xcb_dri3_pixmap_from_buffer, 
+GO(xcb_dri3_pixmap_from_buffer, pFpuuuWWWCCi)
 GO(xcb_dri3_pixmap_from_buffer_checked, pFpuuuWWWCCi)
 //GO(xcb_dri3_pixmap_from_buffers, 
 //GO(xcb_dri3_pixmap_from_buffers_checked, 
