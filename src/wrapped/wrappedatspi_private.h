@@ -7,18 +7,18 @@
 //GO(atspi_accessible_get_accessible_id, 
 //GO(atspi_accessible_get_action, 
 //GO(atspi_accessible_get_action_iface, 
-//GO(atspi_accessible_get_application, 
+GO(atspi_accessible_get_application, pFpp)
 //GO(atspi_accessible_get_atspi_version, 
-//GO(atspi_accessible_get_attributes, 
+GO(atspi_accessible_get_attributes, pFpp)
 //GO(atspi_accessible_get_attributes_as_array, 
 //GO(_atspi_accessible_get_cache_mask, 
-//GO(atspi_accessible_get_child_at_index, 
-//GO(atspi_accessible_get_child_count, 
+GO(atspi_accessible_get_child_at_index, pFpip)
+GO(atspi_accessible_get_child_count, iFpp)
 //GO(atspi_accessible_get_collection, 
 //GO(atspi_accessible_get_collection_iface, 
 //GO(atspi_accessible_get_component, 
 //GO(atspi_accessible_get_component_iface, 
-//GO(atspi_accessible_get_description, 
+GO(atspi_accessible_get_description, pFpp)
 //GO(atspi_accessible_get_document, 
 //GO(atspi_accessible_get_document_iface, 
 //GO(atspi_accessible_get_editable_text, 
@@ -32,16 +32,16 @@
 //GO(atspi_accessible_get_index_in_parent, 
 //GO(atspi_accessible_get_interfaces, 
 //GO(atspi_accessible_get_localized_role_name, 
-//GO(atspi_accessible_get_name, 
+GO(atspi_accessible_get_name, pFpp)
 //GO(atspi_accessible_get_object_locale, 
 //GO(atspi_accessible_get_parent, 
-//GO(atspi_accessible_get_process_id, 
+GO(atspi_accessible_get_process_id, uFpp)
 //GO(atspi_accessible_get_relation_set, 
-//GO(atspi_accessible_get_role, 
-//GO(atspi_accessible_get_role_name, 
+GO(atspi_accessible_get_role, iFpp)
+GO(atspi_accessible_get_role_name, pFpp)
 //GO(atspi_accessible_get_selection, 
 //GO(atspi_accessible_get_selection_iface, 
-//GO(atspi_accessible_get_state_set, 
+GO(atspi_accessible_get_state_set, pFpp)
 //GO(atspi_accessible_get_table, 
 //GO(atspi_accessible_get_table_cell, 
 //GO(atspi_accessible_get_table_iface, 
@@ -158,14 +158,14 @@
 //GO(atspi_editable_text_paste_text, 
 //GO(atspi_editable_text_set_text_contents, 
 //GO(_atspi_error_quark, 
-//GO(atspi_event_get_type, 
-//GO(atspi_event_listener_deregister, 
+GO(atspi_event_get_type, LFv)
+GO(atspi_event_listener_deregister, iFppp)
 //GO(atspi_event_listener_deregister_from_callback, 
 //GO(atspi_event_listener_deregister_no_data, 
 //GO(atspi_event_listener_get_type, 
-//GO(atspi_event_listener_new, 
+GOM(atspi_event_listener_new, pFppp)
 //GO(atspi_event_listener_new_simple, 
-//GO(atspi_event_listener_register, 
+GO(atspi_event_listener_register, iFppp)
 //GO(atspi_event_listener_register_from_callback, 
 //GO(atspi_event_listener_register_from_callback_full, 
 //GO(atspi_event_listener_register_full, 
@@ -178,7 +178,7 @@
 //GO(atspi_generate_mouse_event, 
 //GO(atspi_get_a11y_bus, 
 //GO(_atspi_get_allow_sync, 
-//GO(atspi_get_desktop, 
+GO(atspi_get_desktop, pFi)
 //GO(atspi_get_desktop_count, 
 //GO(atspi_get_desktop_list, 
 //GO(_atspi_get_iface_num, 
@@ -202,7 +202,7 @@
 //GO(atspi_image_get_image_position, 
 //GO(atspi_image_get_image_size, 
 //GO(atspi_image_get_type, 
-//GO(atspi_init, 
+GO(atspi_init, iFv)
 //DATA(atspi_interface_accessible, 
 //DATA(atspi_interface_action, 
 //DATA(atspi_interface_application, 
@@ -288,7 +288,7 @@
 //GO(atspi_state_set_compare, 
 //GO(atspi_state_set_contains, 
 //GO(atspi_state_set_equals, 
-//GO(atspi_state_set_get_states, 
+GO(atspi_state_set_get_states, pFp)
 //GO(atspi_state_set_get_type, 
 //GO(atspi_state_set_is_empty, 
 //GO(atspi_state_set_new, 

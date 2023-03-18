@@ -2383,6 +2383,8 @@ wrappedatk:
 wrappedatkbridge:
 wrappedatomic:
 wrappedatspi:
+- pFppp:
+  - atspi_event_listener_new
 wrappedbz2:
 - iFp:
   - BZ2_bzCompressEnd
