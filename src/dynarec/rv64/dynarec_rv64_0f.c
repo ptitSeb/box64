@@ -347,6 +347,30 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0xBE:
+            INST_NAME("MOVSX Gd, Eb");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                if(rex.rex) {
+                    wback = xRAX+(nextop&7)+(rex.b<<3);
+                    wb2 = 0;
+                } else {
+                    wback = (nextop&7);
+                    wb2 = (wback>>2)*8;
+                    wback = xRAX+(wback&3);
+                }
+                SLLI(gd, wback, 56-wb2);
+                SRAI(gd, gd, 56);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                LB(gd, ed, fixedaddress);
+            }
+            if(!rex.w)
+                ZEROUP(gd);
+            break;
+
         default:
             DEFAULT;
     }
