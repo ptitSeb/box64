@@ -13,6 +13,13 @@
 
 #define MESSAGE(A, ...)  if(box64_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST        \
+    if(box64_dynarec_dump) {\
+        dynarec_log(LOG_NONE, "%sNew instruction %d, native=%p (0x%x)%s\n", \
+            (box64_dynarec_dump>1)?"\e[4;32m":"",   \
+            ninst, dyn->block, dyn->native_size,    \
+            (box64_dynarec_dump>1)?"\e[m":""        \
+            );\
+    }\
     if(ninst)                                                   \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4);
 #define INST_EPILOG     
