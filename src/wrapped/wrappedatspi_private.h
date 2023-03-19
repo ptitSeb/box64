@@ -30,13 +30,13 @@ GO(atspi_accessible_get_description, pFpp)
 //GO(atspi_accessible_get_image, 
 //GO(atspi_accessible_get_image_iface, 
 //GO(atspi_accessible_get_index_in_parent, 
-//GO(atspi_accessible_get_interfaces, 
+GO(atspi_accessible_get_interfaces, pFp)
 //GO(atspi_accessible_get_localized_role_name, 
 GO(atspi_accessible_get_name, pFpp)
 //GO(atspi_accessible_get_object_locale, 
-//GO(atspi_accessible_get_parent, 
+GO(atspi_accessible_get_parent, pFpp)
 GO(atspi_accessible_get_process_id, uFpp)
-//GO(atspi_accessible_get_relation_set, 
+GO(atspi_accessible_get_relation_set, pFpp)
 GO(atspi_accessible_get_role, iFpp)
 GO(atspi_accessible_get_role_name, pFpp)
 //GO(atspi_accessible_get_selection, 
@@ -258,9 +258,9 @@ GO(atspi_init, iFv)
 //GO(_atspi_ref_accessible, 
 //GO(atspi_register_device_event_listener, 
 //GO(atspi_register_keystroke_listener, 
-//GO(atspi_relation_get_n_targets, 
-//GO(atspi_relation_get_relation_type, 
-//GO(atspi_relation_get_target, 
+GO(atspi_relation_get_n_targets, iFp)
+GO(atspi_relation_get_relation_type, iFp)
+GO(atspi_relation_get_target, pFpi)
 //GO(atspi_relation_get_type, 
 //GO(_atspi_relation_new_from_iter, 
 //GO(atspi_relation_type_get_type, 
