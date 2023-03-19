@@ -1059,7 +1059,11 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 0: // INC Ed
-                    DEFAULT;
+                    INST_NAME("INC Ed");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    GETED(0);
+                    emit_inc32(dyn, ninst, rex, ed, x3, x4, x5, x6);
+                    WBACK;
                     break;
                 case 1: //DEC Ed
                     DEFAULT;
