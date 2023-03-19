@@ -34,6 +34,7 @@ struct elfheader_s {
     Elf64_Verdef*   VerDef;
     int         szVerDef;
     int         e_type;
+    uint32_t    flags;
 
     intptr_t    delta;  // should be 0
 

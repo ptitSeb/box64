@@ -844,6 +844,10 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
 void checkHookedSymbols(lib_t *maplib, elfheader_t* h); // in mallochook.c
 int RelocateElf(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* head)
 {
+    if((head->flags&DF_BIND_NOW) && !bindnow) {
+        bindnow = 1;
+        printf_log(LOG_DEBUG, "Forcing %s to Bind Now\n", head->name);
+    }
     if(head->rel) {
         int cnt = head->relsz / head->relent;
         DumpRelTable(head, cnt, (Elf64_Rel *)(head->rel + head->delta), "Rel");
@@ -865,6 +869,10 @@ int RelocateElf(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* he
 int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* head)
 {
     int need_resolver = 0;
+    if((head->flags&DF_BIND_NOW) && !bindnow) {
+        bindnow = 1;
+        printf_log(LOG_DEBUG, "Forcing %s to Bind Now\n", head->name);
+    }
     if(head->pltrel) {
         int cnt = head->pltsz / head->pltent;
         if(head->pltrel==DT_REL) {

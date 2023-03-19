@@ -278,6 +278,10 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     h->VerDef = (Elf64_Verdef*)ptr;
                     printf_dump(LOG_DEBUG, "The DT_VERDEF is at address %p\n", h->VerDef);
                     break;
+                case DT_FLAGS:
+                    h->flags = val;
+                    printf_dump(LOG_DEBUG, "The DT_FLAGS is 0x%x\n", h->flags);
+                    break;
                 }
             }
             if(h->rel) {
