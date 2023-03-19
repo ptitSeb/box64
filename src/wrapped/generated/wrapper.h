@@ -2022,6 +2022,7 @@ void vFpplppppp(x64emu_t *emu, uintptr_t fnc);
 void vFppppiipi(x64emu_t *emu, uintptr_t fnc);
 void vFpppppuuu(x64emu_t *emu, uintptr_t fnc);
 void vFpppppppp(x64emu_t *emu, uintptr_t fnc);
+void iFEuipuupp(x64emu_t *emu, uintptr_t fnc);
 void iFEpippppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpuuLppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpUUuppp(x64emu_t *emu, uintptr_t fnc);

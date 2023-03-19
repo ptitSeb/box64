@@ -1989,6 +1989,7 @@
 #() vFppppiipi
 #() vFpppppuuu
 #() vFpppppppp
+#() iFEuipuupp
 #() iFEpippppp
 #() iFEpuuLppp
 #() iFEpUUuppp
@@ -3359,6 +3360,8 @@ wrappedlibc:
   - clone
 wrappedlibcrypt:
 wrappedlibcups:
+- iFuipuupp:
+  - cupsEnumDests
 wrappedlibdl:
 - iFp:
   - dlclose

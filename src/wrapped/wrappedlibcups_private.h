@@ -52,7 +52,7 @@ GO(cupsAddOption, iFppip)
 //GO(_cupsConnect, 
 //GO(cupsConnectDest, 
 //GO(_cupsConvertOptions, 
-//GO(cupsCopyDest, 
+GO(cupsCopyDest, iFpip)
 //GO(cupsCopyDestConflicts, 
 //GO(cupsCopyDestInfo, 
 //GO(_cupsCreateDest, 
@@ -72,7 +72,7 @@ GO(cupsAddOption, iFppip)
 //GO(cupsEncodeOptions2, 
 //GO(_cupsEncodingName, 
 //GO(cupsEncryption, 
-//GO(cupsEnumDests, 
+GOM(cupsEnumDests, iFEuipuupp)
 //GO(_cupsFileCheck, 
 //GO(_cupsFileCheckFilter, 
 //GO(cupsFileClose, 
@@ -545,7 +545,7 @@ GO(ppdMarkDefaults, vFp)
 //GO(_ppdOpen, 
 //GO(ppdOpen, 
 //GO(ppdOpen2, 
-//GO(ppdOpenFd, 
+GO(ppdOpenFd, pFi)
 //GO(_ppdOpenFile, 
 GO(ppdOpenFile, pFp)
 //GO(ppdPageLength, 
