@@ -11,8 +11,8 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFpp_t)(void*, void*);
-typedef int64_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFpppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*);
 typedef void* (*pFppppppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);

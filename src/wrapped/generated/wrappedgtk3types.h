@@ -11,30 +11,30 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void* (*pFi_t)(int64_t);
+typedef void* (*pFi_t)(int32_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFpA_t)(void*, va_list);
-typedef int64_t (*iFLp_t)(uintptr_t, void*);
-typedef int64_t (*iFpp_t)(void*, void*);
-typedef void* (*pFuV_t)(uint64_t, ...);
-typedef void (*vFpiA_t)(void*, int64_t, va_list);
+typedef int32_t (*iFLp_t)(uintptr_t, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef void* (*pFuV_t)(uint32_t, ...);
+typedef void (*vFpiA_t)(void*, int32_t, va_list);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
-typedef uint64_t (*uFupp_t)(uint64_t, void*, void*);
-typedef void (*vFpppi_t)(void*, void*, void*, int64_t);
+typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
+typedef void (*vFpppi_t)(void*, void*, void*, int32_t);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
-typedef void (*vFpippp_t)(void*, int64_t, void*, void*, void*);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
-typedef int64_t (*iFppuppp_t)(void*, void*, uint64_t, void*, void*, void*);
-typedef int64_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
-typedef void (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint64_t, uint64_t);
-typedef void* (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int64_t);
+typedef int32_t (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
+typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef void (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_t);
+typedef void* (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int32_t);
 typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
-typedef uintptr_t (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, int64_t, int64_t);
-typedef void* (*pFpppppppi_t)(void*, void*, void*, void*, void*, void*, void*, int64_t);
-typedef void* (*pFpippppppp_t)(void*, int64_t, void*, void*, void*, void*, void*, void*, void*);
-typedef void* (*pFpipppppppi_t)(void*, int64_t, void*, void*, void*, void*, void*, void*, void*, int64_t);
+typedef uintptr_t (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, int32_t, int32_t);
+typedef void* (*pFpppppppi_t)(void*, void*, void*, void*, void*, void*, void*, int32_t);
+typedef void* (*pFpippppppp_t)(void*, int32_t, void*, void*, void*, void*, void*, void*, void*);
+typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void*, void*, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gtk_type_class, pFi_t) \

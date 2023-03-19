@@ -12,22 +12,22 @@
 #endif
 
 typedef void (*vFp_t)(void*);
-typedef int64_t (*iFv_t)(void);
-typedef int64_t (*iFp_t)(void*);
-typedef uint64_t (*uFp_t)(void*);
+typedef int32_t (*iFv_t)(void);
+typedef int32_t (*iFp_t)(void*);
+typedef uint32_t (*uFp_t)(void*);
 typedef uint64_t (*UFp_t)(void*);
 typedef void* (*pFv_t)(void);
 typedef void* (*pFp_t)(void*);
-typedef int64_t (*iFup_t)(uint64_t, void*);
-typedef int64_t (*iFpp_t)(void*, void*);
-typedef uint64_t (*uFpW_t)(void*, uint16_t);
-typedef uint64_t (*uFpu_t)(void*, uint64_t);
-typedef uint64_t (*uFpU_t)(void*, uint64_t);
-typedef void* (*pFpi_t)(void*, int64_t);
+typedef int32_t (*iFup_t)(uint32_t, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef uint32_t (*uFpW_t)(void*, uint16_t);
+typedef uint32_t (*uFpu_t)(void*, uint32_t);
+typedef uint32_t (*uFpU_t)(void*, uint64_t);
+typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
-typedef int64_t (*iFppi_t)(void*, void*, int64_t);
-typedef void* (*pFupp_t)(uint64_t, void*, void*);
-typedef void* (*pFpippp_t)(void*, int64_t, void*, void*, void*);
+typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef void* (*pFupp_t)(uint32_t, void*, void*);
+typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SDL_KillThread, vFp_t) \

@@ -11,12 +11,12 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFpp_t)(void*, void*);
-typedef int64_t (*iFppd_t)(void*, void*, double);
-typedef int64_t (*iFppp_t)(void*, void*, void*);
-typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFppd_t)(void*, void*, double);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFppLp_t)(void*, void*, uintptr_t, void*);
-typedef int64_t (*iFippLp_t)(int64_t, void*, void*, uintptr_t, void*);
+typedef int32_t (*iFippLp_t)(int32_t, void*, void*, uintptr_t, void*);
 typedef uintptr_t (*LFppLppU_t)(void*, void*, uintptr_t, void*, void*, uint64_t);
 
 #define SUPER() ADDED_FUNCTIONS() \

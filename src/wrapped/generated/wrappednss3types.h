@@ -12,8 +12,8 @@
 #endif
 
 typedef void (*vFp_t)(void*);
-typedef int64_t (*iFpp_t)(void*, void*);
-typedef int64_t (*iFpIppp_t)(void*, int64_t, void*, void*, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFpIppp_t)(void*, int64_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(PK11_SetPasswordFunc, vFp_t) \

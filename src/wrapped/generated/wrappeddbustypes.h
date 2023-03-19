@@ -12,15 +12,15 @@
 #endif
 
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef int64_t (*iFpiV_t)(void*, int64_t, ...);
-typedef int64_t (*iFpiA_t)(void*, int64_t, va_list);
+typedef int32_t (*iFpiV_t)(void*, int32_t, ...);
+typedef int32_t (*iFpiA_t)(void*, int32_t, va_list);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef int64_t (*iFpipp_t)(void*, int64_t, void*, void*);
-typedef int64_t (*iFppip_t)(void*, void*, int64_t, void*);
-typedef int64_t (*iFppiA_t)(void*, void*, int64_t, va_list);
-typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
-typedef int64_t (*iFppppp_t)(void*, void*, void*, void*, void*);
-typedef int64_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
+typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
+typedef int32_t (*iFppiA_t)(void*, void*, int32_t, va_list);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
+typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(dbus_connection_remove_filter, vFppp_t) \

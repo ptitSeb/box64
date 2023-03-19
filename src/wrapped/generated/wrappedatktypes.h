@@ -12,8 +12,8 @@
 #endif
 
 typedef void (*vFp_t)(void*);
-typedef uint64_t (*uFp_t)(void*);
-typedef uint64_t (*uFpp_t)(void*, void*);
+typedef uint32_t (*uFp_t)(void*);
+typedef uint32_t (*uFpp_t)(void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(atk_focus_tracker_init, vFp_t) \

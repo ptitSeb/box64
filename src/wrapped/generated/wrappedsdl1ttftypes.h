@@ -11,8 +11,8 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void* (*pFpii_t)(void*, int64_t, int64_t);
-typedef void* (*pFpiii_t)(void*, int64_t, int64_t, int64_t);
+typedef void* (*pFpii_t)(void*, int32_t, int32_t);
+typedef void* (*pFpiii_t)(void*, int32_t, int32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(TTF_OpenFontRW, pFpii_t) \

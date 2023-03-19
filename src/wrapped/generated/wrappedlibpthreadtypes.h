@@ -12,19 +12,19 @@
 #endif
 
 typedef void (*vFp_t)(void*);
-typedef int64_t (*iFp_t)(void*);
-typedef void (*vFpi_t)(void*, int64_t);
-typedef int64_t (*iFLp_t)(uintptr_t, void*);
-typedef int64_t (*iFpi_t)(void*, int64_t);
-typedef int64_t (*iFpL_t)(void*, uintptr_t);
-typedef int64_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFp_t)(void*);
+typedef void (*vFpi_t)(void*, int32_t);
+typedef int32_t (*iFLp_t)(uintptr_t, void*);
+typedef int32_t (*iFpi_t)(void*, int32_t);
+typedef int32_t (*iFpL_t)(void*, uintptr_t);
+typedef int32_t (*iFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef int64_t (*iFpLp_t)(void*, uintptr_t, void*);
-typedef int64_t (*iFppu_t)(void*, void*, uint64_t);
-typedef int64_t (*iFppL_t)(void*, void*, uintptr_t);
-typedef int64_t (*iFppp_t)(void*, void*, void*);
-typedef int64_t (*iFppip_t)(void*, void*, int64_t, void*);
-typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFpLp_t)(void*, uintptr_t, void*);
+typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
+typedef int32_t (*iFppL_t)(void*, void*, uintptr_t);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__pthread_register_cancel, vFp_t) \

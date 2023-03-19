@@ -11,7 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFpip_t)(void*, int64_t, void*);
+typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(tputs, iFpip_t)

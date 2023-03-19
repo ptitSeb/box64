@@ -13,13 +13,13 @@
 
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef void (*vFppA_t)(void*, void*, va_list);
-typedef int64_t (*iFppV_t)(void*, void*, ...);
-typedef int64_t (*iFppA_t)(void*, void*, va_list);
+typedef int32_t (*iFppV_t)(void*, void*, ...);
+typedef int32_t (*iFppA_t)(void*, void*, va_list);
 typedef void* (*pFppV_t)(void*, void*, ...);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef void* (*pFiplllpp_t)(int64_t, void*, intptr_t, intptr_t, intptr_t, void*, void*);
-typedef void (*vFpippippV_t)(void*, int64_t, void*, void*, int64_t, void*, void*, ...);
-typedef void (*vFpippippA_t)(void*, int64_t, void*, void*, int64_t, void*, void*, va_list);
+typedef void* (*pFiplllpp_t)(int32_t, void*, intptr_t, intptr_t, intptr_t, void*, void*);
+typedef void (*vFpippippV_t)(void*, int32_t, void*, void*, int32_t, void*, void*, ...);
+typedef void (*vFpippippA_t)(void*, int32_t, void*, void*, int32_t, void*, void*, va_list);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gst_caps_set_simple, vFppV_t) \

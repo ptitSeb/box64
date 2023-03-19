@@ -11,7 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void* (*pFpiiiiiipp_t)(void*, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, void*, void*);
+typedef void* (*pFpiiiiiipp_t)(void*, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gdk_pixbuf_new_from_data, pFpiiiiiipp_t)

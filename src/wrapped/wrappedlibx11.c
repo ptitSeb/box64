@@ -43,15 +43,15 @@ typedef struct ximage_s {
     void*(*create_image)(
             void*           /* display */,
             void*           /* visual */,
-            uint64_t        /* depth */,            // Should be uint32_t instead
-            int64_t         /* format */,           // Should be int32_t instead
-            int64_t         /* offset */,           // Should be int32_t instead
+            uint32_t        /* depth */,
+            int32_t         /* format */,
+            int32_t         /* offset */,
             void*           /* data */,
-            uint64_t        /* width */,            // Should be uint32_t instead
-            uint64_t        /* height */,           // Should be uint32_t instead
-            int64_t         /* bitmap_pad */,       // Should be int32_t instead
-            int64_t         /* bytes_per_line */);  // Should be int32_t instead
-    int64_t (*destroy_image)        (void*);        // Should be int32_t instead
+            uint32_t        /* width */,
+            uint32_t        /* height */,
+            int32_t         /* bitmap_pad */,
+            int32_t         /* bytes_per_line */);
+    int32_t (*destroy_image)        (void*);
     uintptr_t (*get_pixel)           (void*, int32_t, int32_t);
     int32_t (*put_pixel)            (void*, int32_t, int32_t, uintptr_t);
     void*(*sub_image)    (void*, int32_t, int32_t, uint32_t, uint32_t); //sub_image return a new XImage that need bridging => custom wrapper

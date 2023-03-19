@@ -12,9 +12,9 @@
 #endif
 
 typedef void* (*pFp_t)(void*);
-typedef int64_t (*iFpL_t)(void*, uintptr_t);
-typedef void* (*pFpLiiii_t)(void*, uintptr_t, int64_t, int64_t, int64_t, int64_t);
-typedef void* (*pFpLiiiI_t)(void*, uintptr_t, int64_t, int64_t, int64_t, int64_t);
+typedef int32_t (*iFpL_t)(void*, uintptr_t);
+typedef void* (*pFpLiiii_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int32_t);
+typedef void* (*pFpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(mallinfo, pFp_t) \

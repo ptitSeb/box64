@@ -995,9 +995,9 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	# i and u should only be 32 bits
 	td_types = {
 		#      E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A
-		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*"],
+		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*"],
 		#      E            v       c         w          i          I          C          W           u           U           f        d         K         l           L            p        V        O          S        N      M      P        A
-		'W': ["x64emu_t*", "void", "int8_t", "int16_t", "int64_t", "int64_t", "uint8_t", "uint16_t", "uint64_t", "uint64_t", "float", "double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "void*", "void*"]
+		'W': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "void*", "void*"]
 	}
 	assert(all(k in conventions for k in td_types))
 	for k in conventions:
@@ -1032,11 +1032,11 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"fn({0});",                                                # v
 				"R_RAX=fn({0});",                                          # c
 				"R_RAX=fn({0});",                                          # w
-				"R_RAX=(int64_t)fn({0});",                                 # i  should be int32_t
+				"R_RAX=(int32_t)fn({0});",                                 # i
 				"R_RAX=(int64_t)fn({0});",                                 # I
 				"R_RAX=(unsigned char)fn({0});",                           # C
 				"R_RAX=(unsigned short)fn({0});",                          # W
-				"R_RAX=(uint64_t)fn({0});",                                # u  should be uint32_t
+				"R_RAX=(uint32_t)fn({0});",                                # u
 				"R_RAX=fn({0});",                                          # U
 				"emu->xmm[0].f[0]=fn({0});",                               # f
 				"emu->xmm[0].d[0]=fn({0});",                               # d
@@ -1059,11 +1059,11 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"fn({0});",                                                # v
 				"R_RAX=fn({0});",                                          # c
 				"R_RAX=fn({0});",                                          # w
-				"R_RAX=(int64_t)fn({0});",                                 # i  should be int32_t
+				"R_RAX=(int32_t)fn({0});",                                 # i
 				"R_RAX=(int64_t)fn({0});",                                 # I
 				"R_RAX=(unsigned char)fn({0});",                           # C
 				"R_RAX=(unsigned short)fn({0});",                          # W
-				"R_RAX=(uint64_t)fn({0});",                                # u  should be uint32_t
+				"R_RAX=(uint32_t)fn({0});",                                # u
 				"R_RAX=fn({0});",                                          # U
 				"emu->xmm[0].f[0]=fn({0});",                               # f
 				"emu->xmm[0].d[0]=fn({0});",                               # d
@@ -1098,11 +1098,11 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                            # v
 			"(int8_t){p}, ",               # c
 			"(int16_t){p}, ",              # w
-			"(int64_t){p}, ",              # i  should int32_t
+			"(int32_t){p}, ",              # i
 			"(int64_t){p}, ",              # I
 			"(uint8_t){p}, ",              # C
 			"(uint16_t){p}, ",             # W
-			"(uint64_t){p}, ",             # u  should uint32_t
+			"(uint32_t){p}, ",             # u
 			"(uint64_t){p}, ",             # U
 			"",                            # f
 			"",                            # d
@@ -1179,11 +1179,11 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                                         # v
 			"*(int8_t*)(R_RSP + {p}), ",                # c
 			"*(int16_t*)(R_RSP + {p}), ",               # w
-			"*(int64_t*)(R_RSP + {p}), ",               # i  should be int32_t
+			"*(int32_t*)(R_RSP + {p}), ",               # i
 			"*(int64_t*)(R_RSP + {p}), ",               # I
 			"*(uint8_t*)(R_RSP + {p}), ",               # C
 			"*(uint16_t*)(R_RSP + {p}), ",              # W
-			"*(uint64_t*)(R_RSP + {p}), ",              # u  should be uint32_t
+			"*(uint32_t*)(R_RSP + {p}), ",              # u
 			"*(uint64_t*)(R_RSP + {p}), ",              # U
 			"*(float*)(R_RSP + {p}), ",                 # f
 			"*(double*)(R_RSP + {p}), ",                # d

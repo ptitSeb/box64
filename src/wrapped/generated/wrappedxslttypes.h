@@ -12,7 +12,7 @@
 #endif
 
 typedef void (*vFp_t)(void*);
-typedef int64_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(xsltSetLoaderFunc, vFp_t) \

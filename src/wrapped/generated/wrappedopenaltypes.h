@@ -14,7 +14,7 @@
 typedef void (*vFv_t)(void);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpp_t)(void*, void*);
-typedef void (*vFiiipp_t)(int64_t, int64_t, int64_t, void*, void*);
+typedef void (*vFiiipp_t)(int32_t, int32_t, int32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(alRequestFoldbackStop, vFv_t) \

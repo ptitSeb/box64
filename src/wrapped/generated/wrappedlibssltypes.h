@@ -13,10 +13,10 @@
 
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
-typedef void (*vFpip_t)(void*, int64_t, void*);
+typedef void (*vFpip_t)(void*, int32_t, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef intptr_t (*lFpip_t)(void*, int64_t, void*);
-typedef int64_t (*iFlpppp_t)(intptr_t, void*, void*, void*, void*);
+typedef intptr_t (*lFpip_t)(void*, int32_t, void*);
+typedef int32_t (*iFlpppp_t)(intptr_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SSL_get_verify_callback, pFp_t) \

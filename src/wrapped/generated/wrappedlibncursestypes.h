@@ -12,10 +12,10 @@
 #endif
 
 typedef void* (*pFv_t)(void);
-typedef int64_t (*iFpV_t)(void*, ...);
-typedef int64_t (*iFppA_t)(void*, void*, va_list);
-typedef int64_t (*iFiipV_t)(int64_t, int64_t, void*, ...);
-typedef int64_t (*iFpiipV_t)(void*, int64_t, int64_t, void*, ...);
+typedef int32_t (*iFpV_t)(void*, ...);
+typedef int32_t (*iFppA_t)(void*, void*, va_list);
+typedef int32_t (*iFiipV_t)(int32_t, int32_t, void*, ...);
+typedef int32_t (*iFpiipV_t)(void*, int32_t, int32_t, void*, ...);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(initscr, pFv_t) \

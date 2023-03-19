@@ -11,7 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void (*vFpip_t)(void*, int64_t, void*);
+typedef void (*vFpip_t)(void*, int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gluNurbsCallback, vFpip_t) \

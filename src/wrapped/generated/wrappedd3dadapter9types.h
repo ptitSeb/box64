@@ -12,7 +12,7 @@
 #endif
 
 typedef void* (*pWp_t)(void*);
-typedef int64_t (*iWip_t)(int64_t, void*);
+typedef int32_t (*iWip_t)(int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(D3DAdapter9GetProc, pWp_t) \

@@ -11,7 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void* (*pFpppu_t)(void*, void*, void*, uint64_t);
+typedef void* (*pFpppu_t)(void*, void*, void*, uint32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(Sound_NewSample, pFpppu_t)

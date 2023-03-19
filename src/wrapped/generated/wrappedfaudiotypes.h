@@ -12,13 +12,13 @@
 #endif
 
 typedef void (*vFpp_t)(void*, void*);
-typedef uint64_t (*uFpp_t)(void*, void*);
+typedef uint32_t (*uFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef uint64_t (*uFpCppp_t)(void*, uint8_t, void*, void*, void*);
-typedef uint64_t (*uFpuppp_t)(void*, uint64_t, void*, void*, void*);
-typedef uint64_t (*uFpuuppp_t)(void*, uint64_t, uint64_t, void*, void*, void*);
-typedef uint64_t (*uFpppuppp_t)(void*, void*, void*, uint64_t, void*, void*, void*);
-typedef uint64_t (*uFpppufppp_t)(void*, void*, void*, uint64_t, float, void*, void*, void*);
+typedef uint32_t (*uFpCppp_t)(void*, uint8_t, void*, void*, void*);
+typedef uint32_t (*uFpuppp_t)(void*, uint32_t, void*, void*, void*);
+typedef uint32_t (*uFpuuppp_t)(void*, uint32_t, uint32_t, void*, void*, void*);
+typedef uint32_t (*uFpppuppp_t)(void*, void*, void*, uint32_t, void*, void*, void*);
+typedef uint32_t (*uFpppufppp_t)(void*, void*, void*, uint32_t, float, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(FAudio_UnregisterForCallbacks, vFpp_t) \

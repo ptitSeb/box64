@@ -11,7 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFupp_t)(uint64_t, void*, void*);
+typedef int32_t (*iFupp_t)(uint32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(timer_create, iFupp_t)

@@ -11,8 +11,8 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFpup_t)(void*, uint64_t, void*);
-typedef uint64_t (*uFpup_t)(void*, uint64_t, void*);
+typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
+typedef uint32_t (*uFpup_t)(void*, uint32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(curl_multi_setopt, iFpup_t) \

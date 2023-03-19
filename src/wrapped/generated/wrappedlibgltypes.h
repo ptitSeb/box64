@@ -11,10 +11,10 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFi_t)(int64_t);
+typedef int32_t (*iFi_t)(int32_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
-typedef void (*vFipp_t)(int64_t, void*, void*);
+typedef void (*vFipp_t)(int32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(glXSwapIntervalMESA, iFi_t) \

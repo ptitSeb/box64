@@ -11,8 +11,8 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFppPPPPPP_t)(void*, void*, void*, void*, void*, void*, void*, void*);
-typedef int64_t (*iFppppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*, void*);
+typedef int32_t (*iFppPPPPPP_t)(void*, void*, void*, void*, void*, void*, void*, void*);
+typedef int32_t (*iFppppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(FLAC__metadata_chain_read_with_callbacks, iFppPPPPPP_t) \

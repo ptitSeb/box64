@@ -11,7 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void* (*pFppi_t)(void*, void*, int64_t);
+typedef void* (*pFppi_t)(void*, void*, int32_t);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \

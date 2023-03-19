@@ -12,8 +12,8 @@
 #endif
 
 typedef intptr_t (*lFppp_t)(void*, void*, void*);
-typedef void (*vFpuipp_t)(void*, uint64_t, int64_t, void*, void*);
-typedef intptr_t (*lFpippp_t)(void*, int64_t, void*, void*, void*);
+typedef void (*vFpuipp_t)(void*, uint32_t, int32_t, void*, void*);
+typedef intptr_t (*lFpippp_t)(void*, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XtAppAddWorkProc, lFppp_t) \

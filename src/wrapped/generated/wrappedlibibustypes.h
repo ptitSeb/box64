@@ -11,11 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void (*vFpippp_t)(void*, int64_t, void*, void*, void*);
-typedef void (*vFppippp_t)(void*, void*, int64_t, void*, void*, void*);
-typedef void (*vFpppippp_t)(void*, void*, void*, int64_t, void*, void*, void*);
-typedef void (*vFpuuuippp_t)(void*, uint64_t, uint64_t, uint64_t, int64_t, void*, void*, void*);
-typedef void (*vFppppippp_t)(void*, void*, void*, void*, int64_t, void*, void*, void*);
+typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
+typedef void (*vFppippp_t)(void*, void*, int32_t, void*, void*, void*);
+typedef void (*vFpppippp_t)(void*, void*, void*, int32_t, void*, void*, void*);
+typedef void (*vFpuuuippp_t)(void*, uint32_t, uint32_t, uint32_t, int32_t, void*, void*, void*);
+typedef void (*vFppppippp_t)(void*, void*, void*, void*, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(ibus_bus_current_input_context_async, vFpippp_t) \

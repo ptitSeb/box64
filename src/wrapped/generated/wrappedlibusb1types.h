@@ -11,9 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFp_t)(void*);
-typedef void* (*pFi_t)(int64_t);
-typedef int64_t (*iFpiiiiippp_t)(void*, int64_t, int64_t, int64_t, int64_t, int64_t, void*, void*, void*);
+typedef int32_t (*iFp_t)(void*);
+typedef void* (*pFi_t)(int32_t);
+typedef int32_t (*iFpiiiiippp_t)(void*, int32_t, int32_t, int32_t, int32_t, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(libusb_cancel_transfer, iFp_t) \

@@ -15,17 +15,17 @@ typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFpUp_t)(void*, uint64_t, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef int64_t (*iFpUp_t)(void*, uint64_t, void*);
-typedef int64_t (*iFppp_t)(void*, void*, void*);
-typedef int64_t (*iFpUup_t)(void*, uint64_t, uint64_t, void*);
-typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
-typedef void (*vFpupup_t)(void*, uint64_t, void*, uint64_t, void*);
-typedef int64_t (*iFpuppp_t)(void*, uint64_t, void*, void*, void*);
-typedef int64_t (*iFpUppp_t)(void*, uint64_t, void*, void*, void*);
-typedef int64_t (*iFpUuppp_t)(void*, uint64_t, uint64_t, void*, void*, void*);
-typedef int64_t (*iFpUUuppp_t)(void*, uint64_t, uint64_t, uint64_t, void*, void*, void*);
-typedef void (*vFpiiiiipp_t)(void*, int64_t, int64_t, int64_t, int64_t, int64_t, void*, void*);
-typedef void (*vFpiiiupupup_t)(void*, int64_t, int64_t, int64_t, uint64_t, void*, uint64_t, void*, uint64_t, void*);
+typedef int32_t (*iFpUp_t)(void*, uint64_t, void*);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFpUup_t)(void*, uint64_t, uint32_t, void*);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef void (*vFpupup_t)(void*, uint32_t, void*, uint32_t, void*);
+typedef int32_t (*iFpuppp_t)(void*, uint32_t, void*, void*, void*);
+typedef int32_t (*iFpUppp_t)(void*, uint64_t, void*, void*, void*);
+typedef int32_t (*iFpUuppp_t)(void*, uint64_t, uint32_t, void*, void*, void*);
+typedef int32_t (*iFpUUuppp_t)(void*, uint64_t, uint64_t, uint32_t, void*, void*, void*);
+typedef void (*vFpiiiiipp_t)(void*, int32_t, int32_t, int32_t, int32_t, int32_t, void*, void*);
+typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*, uint32_t, void*, uint32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(vkDestroyDevice, vFpp_t) \

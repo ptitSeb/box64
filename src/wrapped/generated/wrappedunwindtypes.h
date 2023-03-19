@@ -11,9 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFp_t)(void*);
-typedef int64_t (*iFpp_t)(void*, void*);
-typedef int64_t (*iFpip_t)(void*, int64_t, void*);
+typedef int32_t (*iFp_t)(void*);
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(_ULx86_64_step, iFp_t) \

@@ -11,10 +11,10 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFpp_t)(void*, void*);
-typedef int64_t (*iFppp_t)(void*, void*, void*);
-typedef int64_t (*iFpplp_t)(void*, void*, intptr_t, void*);
-typedef int64_t (*iFpuuLppp_t)(void*, uint64_t, uint64_t, uintptr_t, void*, void*, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFpplp_t)(void*, void*, intptr_t, void*);
+typedef int32_t (*iFpuuLppp_t)(void*, uint32_t, uint32_t, uintptr_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(FT_New_Library, iFpp_t) \

@@ -11,22 +11,22 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFp_t)(void*);
+typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
-typedef void* (*pFiV_t)(int64_t, ...);
-typedef void* (*pFpi_t)(void*, int64_t);
+typedef void* (*pFiV_t)(int32_t, ...);
+typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpV_t)(void*, ...);
-typedef int64_t (*iFppp_t)(void*, void*, void*);
-typedef void* (*pFpip_t)(void*, int64_t, void*);
-typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
-typedef int64_t (*iFppppp_t)(void*, void*, void*, void*, void*);
-typedef int64_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
-typedef void* (*pFppiiuuLi_t)(void*, void*, int64_t, int64_t, uint64_t, uint64_t, uintptr_t, int64_t);
-typedef int64_t (*iFppppiiiiuu_t)(void*, void*, void*, void*, int64_t, int64_t, int64_t, int64_t, uint64_t, uint64_t);
-typedef void* (*pFppuiipuuii_t)(void*, void*, uint64_t, int64_t, int64_t, void*, uint64_t, uint64_t, int64_t, int64_t);
-typedef void* (*pFppiiuuuipii_t)(void*, void*, int64_t, int64_t, uint64_t, uint64_t, uint64_t, int64_t, void*, int64_t, int64_t);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef void* (*pFpip_t)(void*, int32_t, void*);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
+typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef void* (*pFppiiuuLi_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t);
+typedef int32_t (*iFppppiiiiuu_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
+typedef void* (*pFppuiipuuii_t)(void*, void*, uint32_t, int32_t, int32_t, void*, uint32_t, uint32_t, int32_t, int32_t);
+typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, void*, int32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XDestroyImage, iFp_t) \

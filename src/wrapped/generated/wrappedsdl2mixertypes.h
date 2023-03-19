@@ -13,11 +13,11 @@
 
 typedef void (*vFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
-typedef int64_t (*iFiw_t)(int64_t, int16_t);
-typedef int64_t (*iFip_t)(int64_t, void*);
-typedef void* (*pFpi_t)(void*, int64_t);
-typedef void* (*pFpii_t)(void*, int64_t, int64_t);
-typedef int64_t (*iFippp_t)(int64_t, void*, void*, void*);
+typedef int32_t (*iFiw_t)(int32_t, int16_t);
+typedef int32_t (*iFip_t)(int32_t, void*);
+typedef void* (*pFpi_t)(void*, int32_t);
+typedef void* (*pFpii_t)(void*, int32_t, int32_t);
+typedef int32_t (*iFippp_t)(int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(Mix_ChannelFinished, vFp_t) \

@@ -11,7 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFppppppipp_t)(void*, void*, void*, void*, void*, void*, int64_t, void*, void*);
+typedef int32_t (*iFppppppipp_t)(void*, void*, void*, void*, void*, void*, int32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(krb5_get_init_creds_password, iFppppppipp_t)

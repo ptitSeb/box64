@@ -12,7 +12,7 @@
 #endif
 
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef void* (*pFppii_t)(void*, void*, int64_t, int64_t);
+typedef void* (*pFppii_t)(void*, void*, int32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SMPEG_setdisplay, vFpppp_t) \

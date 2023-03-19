@@ -12,10 +12,10 @@
 #endif
 
 typedef void* (*pFp_t)(void*);
-typedef int64_t (*iFpppiiu_t)(void*, void*, void*, int64_t, int64_t, uint64_t);
-typedef void* (*pFppppip_t)(void*, void*, void*, void*, int64_t, void*);
-typedef void* (*pFppuippuu_t)(void*, void*, uint64_t, int64_t, void*, void*, uint64_t, uint64_t);
-typedef int64_t (*iFppppiiiiuui_t)(void*, void*, void*, void*, int64_t, int64_t, int64_t, int64_t, uint64_t, uint64_t, int64_t);
+typedef int32_t (*iFpppiiu_t)(void*, void*, void*, int32_t, int32_t, uint32_t);
+typedef void* (*pFppppip_t)(void*, void*, void*, void*, int32_t, void*);
+typedef void* (*pFppuippuu_t)(void*, void*, uint32_t, int32_t, void*, void*, uint32_t, uint32_t);
+typedef int32_t (*iFppppiiiiuui_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XSetExtensionErrorHandler, pFp_t) \

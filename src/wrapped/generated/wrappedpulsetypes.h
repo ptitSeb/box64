@@ -12,26 +12,26 @@
 #endif
 
 typedef void (*vFp_t)(void*);
-typedef int64_t (*iFp_t)(void*);
+typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef void* (*pFipp_t)(int64_t, void*, void*);
+typedef void* (*pFipp_t)(int32_t, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
-typedef int64_t (*iFppip_t)(void*, void*, int64_t, void*);
-typedef int64_t (*iFpppV_t)(void*, void*, void*, ...);
-typedef void* (*pFpipp_t)(void*, int64_t, void*, void*);
-typedef void* (*pFpupp_t)(void*, uint64_t, void*, void*);
+typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
+typedef int32_t (*iFpppV_t)(void*, void*, void*, ...);
+typedef void* (*pFpipp_t)(void*, int32_t, void*, void*);
+typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
-typedef void* (*pFpiupp_t)(void*, int64_t, uint64_t, void*, void*);
-typedef void* (*pFpippp_t)(void*, int64_t, void*, void*, void*);
-typedef void* (*pFpuipp_t)(void*, uint64_t, int64_t, void*, void*);
-typedef void* (*pFpuupp_t)(void*, uint64_t, uint64_t, void*, void*);
-typedef void* (*pFpuppp_t)(void*, uint64_t, void*, void*, void*);
+typedef void* (*pFpiupp_t)(void*, int32_t, uint32_t, void*, void*);
+typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
+typedef void* (*pFpuipp_t)(void*, uint32_t, int32_t, void*, void*);
+typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
+typedef void* (*pFpuppp_t)(void*, uint32_t, void*, void*, void*);
 typedef void* (*pFppppp_t)(void*, void*, void*, void*, void*);
-typedef int64_t (*iFppLpIi_t)(void*, void*, uintptr_t, void*, int64_t, int64_t);
-typedef void* (*pFpiuCppp_t)(void*, int64_t, uint64_t, uint8_t, void*, void*, void*);
+typedef int32_t (*iFppLpIi_t)(void*, void*, uintptr_t, void*, int64_t, int32_t);
+typedef void* (*pFpiuCppp_t)(void*, int32_t, uint32_t, uint8_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(pa_mainloop_free, vFp_t) \

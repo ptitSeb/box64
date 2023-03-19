@@ -14,8 +14,8 @@
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
-typedef void* (*pFpppppiV_t)(void*, void*, void*, void*, void*, int64_t, ...);
-typedef void* (*pFpppppiiV_t)(void*, void*, void*, void*, void*, int64_t, int64_t, ...);
+typedef void* (*pFpppppiV_t)(void*, void*, void*, void*, void*, int32_t, ...);
+typedef void* (*pFpppppiiV_t)(void*, void*, void*, void*, void*, int32_t, int32_t, ...);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(dbus_g_type_collection_value_iterate, vFppp_t) \

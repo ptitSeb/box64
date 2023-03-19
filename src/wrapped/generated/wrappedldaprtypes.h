@@ -11,7 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFpppppupp_t)(void*, void*, void*, void*, void*, uint64_t, void*, void*);
+typedef int32_t (*iFpppppupp_t)(void*, void*, void*, void*, void*, uint32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(ldap_sasl_interactive_bind_s, iFpppppupp_t)

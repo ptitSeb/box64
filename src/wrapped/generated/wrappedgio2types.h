@@ -12,36 +12,36 @@
 #endif
 
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef void (*vFippp_t)(int64_t, void*, void*, void*);
-typedef void (*vFppip_t)(void*, void*, int64_t, void*);
+typedef void (*vFippp_t)(int32_t, void*, void*, void*);
+typedef void (*vFppip_t)(void*, void*, int32_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef uint64_t (*uFpppp_t)(void*, void*, void*, void*);
+typedef uint32_t (*uFpppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
-typedef void (*vFpippp_t)(void*, int64_t, void*, void*, void*);
-typedef void (*vFppipV_t)(void*, void*, int64_t, void*, ...);
-typedef void (*vFppipA_t)(void*, void*, int64_t, void*, va_list);
+typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
+typedef void (*vFppipV_t)(void*, void*, int32_t, void*, ...);
+typedef void (*vFppipA_t)(void*, void*, int32_t, void*, va_list);
 typedef void* (*pFppppV_t)(void*, void*, void*, void*, ...);
 typedef void* (*pFppApp_t)(void*, void*, va_list, void*, void*);
-typedef void (*vFpipppp_t)(void*, int64_t, void*, void*, void*, void*);
-typedef void (*vFiippppV_t)(int64_t, int64_t, void*, void*, void*, void*, ...);
-typedef void (*vFiupippp_t)(int64_t, uint64_t, void*, int64_t, void*, void*, void*);
-typedef void (*vFipAippp_t)(int64_t, void*, va_list, int64_t, void*, void*, void*);
-typedef void (*vFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*);
-typedef void (*vFpppuipV_t)(void*, void*, void*, uint64_t, int64_t, void*, ...);
-typedef uint64_t (*uFipipppp_t)(int64_t, void*, int64_t, void*, void*, void*, void*);
-typedef uint64_t (*uFppipppp_t)(void*, void*, int64_t, void*, void*, void*, void*);
-typedef uint64_t (*uFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
-typedef void* (*pFpppuipV_t)(void*, void*, void*, uint64_t, int64_t, void*, ...);
-typedef void (*vFppiipppp_t)(void*, void*, int64_t, int64_t, void*, void*, void*, void*);
-typedef void (*vFpppiippp_t)(void*, void*, void*, int64_t, int64_t, void*, void*, void*);
-typedef uint64_t (*uFipippppp_t)(int64_t, void*, int64_t, void*, void*, void*, void*, void*);
-typedef void (*vFiippppppp_t)(int64_t, int64_t, void*, void*, void*, void*, void*, void*, void*);
-typedef void (*vFpippppppp_t)(void*, int64_t, void*, void*, void*, void*, void*, void*, void*);
-typedef void (*vFpppiipppp_t)(void*, void*, void*, int64_t, int64_t, void*, void*, void*, void*);
-typedef void* (*pFiippppppp_t)(int64_t, int64_t, void*, void*, void*, void*, void*, void*, void*);
-typedef uint64_t (*uFppppppippp_t)(void*, void*, void*, void*, void*, void*, int64_t, void*, void*, void*);
-typedef void (*vFpppppppiippp_t)(void*, void*, void*, void*, void*, void*, void*, int64_t, int64_t, void*, void*, void*);
+typedef void (*vFpipppp_t)(void*, int32_t, void*, void*, void*, void*);
+typedef void (*vFiippppV_t)(int32_t, int32_t, void*, void*, void*, void*, ...);
+typedef void (*vFiupippp_t)(int32_t, uint32_t, void*, int32_t, void*, void*, void*);
+typedef void (*vFipAippp_t)(int32_t, void*, va_list, int32_t, void*, void*, void*);
+typedef void (*vFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*);
+typedef void (*vFpppuipV_t)(void*, void*, void*, uint32_t, int32_t, void*, ...);
+typedef uint32_t (*uFipipppp_t)(int32_t, void*, int32_t, void*, void*, void*, void*);
+typedef uint32_t (*uFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*);
+typedef uint32_t (*uFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
+typedef void* (*pFpppuipV_t)(void*, void*, void*, uint32_t, int32_t, void*, ...);
+typedef void (*vFppiipppp_t)(void*, void*, int32_t, int32_t, void*, void*, void*, void*);
+typedef void (*vFpppiippp_t)(void*, void*, void*, int32_t, int32_t, void*, void*, void*);
+typedef uint32_t (*uFipippppp_t)(int32_t, void*, int32_t, void*, void*, void*, void*, void*);
+typedef void (*vFiippppppp_t)(int32_t, int32_t, void*, void*, void*, void*, void*, void*, void*);
+typedef void (*vFpippppppp_t)(void*, int32_t, void*, void*, void*, void*, void*, void*, void*);
+typedef void (*vFpppiipppp_t)(void*, void*, void*, int32_t, int32_t, void*, void*, void*, void*);
+typedef void* (*pFiippppppp_t)(int32_t, int32_t, void*, void*, void*, void*, void*, void*, void*);
+typedef uint32_t (*uFppppppippp_t)(void*, void*, void*, void*, void*, void*, int32_t, void*, void*, void*);
+typedef void (*vFpppppppiippp_t)(void*, void*, void*, void*, void*, void*, void*, int32_t, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(g_simple_async_result_set_op_res_gpointer, vFppp_t) \

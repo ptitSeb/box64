@@ -15,9 +15,9 @@ typedef void (*vFp_t)(void*);
 typedef void* (*pFL_t)(uintptr_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFLp_t)(uintptr_t, void*);
-typedef int64_t (*iFipp_t)(int64_t, void*, void*);
-typedef int64_t (*iFppi_t)(void*, void*, int64_t);
-typedef int64_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFipp_t)(int32_t, void*, void*);
+typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(_ZdaPv, vFp_t) \

@@ -12,14 +12,14 @@
 #endif
 
 typedef void (*vFpp_t)(void*, void*);
-typedef int64_t (*iFpU_t)(void*, uint64_t);
-typedef int64_t (*iFpp_t)(void*, void*);
-typedef int64_t (*iFpui_t)(void*, uint64_t, int64_t);
-typedef int64_t (*iFpUi_t)(void*, uint64_t, int64_t);
-typedef int64_t (*iFppi_t)(void*, void*, int64_t);
-typedef int64_t (*iFpppL_t)(void*, void*, void*, uintptr_t);
-typedef int64_t (*iFpppppL_t)(void*, void*, void*, void*, void*, uintptr_t);
-typedef int64_t (*iFpupppLppL_t)(void*, uint64_t, void*, void*, void*, uintptr_t, void*, void*, uintptr_t);
+typedef int32_t (*iFpU_t)(void*, uint64_t);
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFpui_t)(void*, uint32_t, int32_t);
+typedef int32_t (*iFpUi_t)(void*, uint64_t, int32_t);
+typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef int32_t (*iFpppL_t)(void*, void*, void*, uintptr_t);
+typedef int32_t (*iFpppppL_t)(void*, void*, void*, void*, void*, uintptr_t);
+typedef int32_t (*iFpupppLppL_t)(void*, uint32_t, void*, void*, void*, uintptr_t, void*, void*, uintptr_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(lzma_index_end, vFpp_t) \

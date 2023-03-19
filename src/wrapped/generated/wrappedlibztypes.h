@@ -11,12 +11,12 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int64_t (*iFp_t)(void*);
-typedef int64_t (*iFpi_t)(void*, int64_t);
-typedef int64_t (*iFppi_t)(void*, void*, int64_t);
-typedef int64_t (*iFpipi_t)(void*, int64_t, void*, int64_t);
-typedef int64_t (*iFpippi_t)(void*, int64_t, void*, void*, int64_t);
-typedef int64_t (*iFpiiiiipi_t)(void*, int64_t, int64_t, int64_t, int64_t, int64_t, void*, int64_t);
+typedef int32_t (*iFp_t)(void*);
+typedef int32_t (*iFpi_t)(void*, int32_t);
+typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef int32_t (*iFpipi_t)(void*, int32_t, void*, int32_t);
+typedef int32_t (*iFpippi_t)(void*, int32_t, void*, void*, int32_t);
+typedef int32_t (*iFpiiiiipi_t)(void*, int32_t, int32_t, int32_t, int32_t, int32_t, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(deflateEnd, iFp_t) \

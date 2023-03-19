@@ -12,8 +12,8 @@
 #endif
 
 typedef void* (*pFp_t)(void*);
-typedef void* (*pFpi_t)(void*, int64_t);
-typedef void* (*pFpip_t)(void*, int64_t, void*);
+typedef void* (*pFpi_t)(void*, int32_t);
+typedef void* (*pFpip_t)(void*, int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(IMG_LoadBMP_RW, pFp_t) \

@@ -12,22 +12,22 @@
 #endif
 
 typedef void (*vFp_t)(void*);
-typedef int64_t (*iFp_t)(void*);
+typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFv_t)(void);
 typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef int64_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef int64_t (*iFpppp_t)(void*, void*, void*, void*);
-typedef void* (*pFpppi_t)(void*, void*, void*, int64_t);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef void* (*pFpppi_t)(void*, void*, void*, int32_t);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
-typedef int64_t (*iFppppp_t)(void*, void*, void*, void*, void*);
-typedef void* (*pFppppi_t)(void*, void*, void*, void*, int64_t);
+typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
+typedef void* (*pFppppi_t)(void*, void*, void*, void*, int32_t);
 typedef void (*vFpppppp_t)(void*, void*, void*, void*, void*, void*);
-typedef int64_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
-typedef void* (*pFpppppi_t)(void*, void*, void*, void*, void*, int64_t);
+typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef void* (*pFpppppi_t)(void*, void*, void*, void*, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(xmlSetExternalEntityLoader, vFp_t) \

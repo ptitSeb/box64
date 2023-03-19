@@ -12,10 +12,10 @@
 #endif
 
 typedef void (*vFpp_t)(void*, void*);
-typedef int64_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef int64_t (*iFiipp_t)(int64_t, int64_t, void*, void*);
-typedef int64_t (*iFiippp_t)(int64_t, int64_t, void*, void*, void*);
+typedef int32_t (*iFiipp_t)(int32_t, int32_t, void*, void*);
+typedef int32_t (*iFiippp_t)(int32_t, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gdk_init, vFpp_t) \
