@@ -66,10 +66,10 @@ DATA(g_cclosure_marshal_VOID__VARIANT, sizeof(void*))
 DATA(g_cclosure_marshal_VOID__VARIANTv, sizeof(void*))
 DATA(g_cclosure_marshal_VOID__VOID, sizeof(void*))
 DATA(g_cclosure_marshal_VOID__VOIDv, sizeof(void*))
-//GO(g_cclosure_new, 
-//GO(g_cclosure_new_object, 
-//GO(g_cclosure_new_object_swap, 
-//GO(g_cclosure_new_swap, 
+GO(g_cclosure_new, pFppp)
+GO(g_cclosure_new_object, pFpp)
+GO(g_cclosure_new_object_swap, pFpp)
+GO(g_cclosure_new_swap, pFppp)
 //GO(g_checksum_get_type, 
 GO(g_clear_object, vFp)
 GOM(g_closure_add_finalize_notifier, vFEppp)

@@ -340,7 +340,7 @@ GO(cairo_surface_unmap_image, vFpp)
 //GO(cairo_surface_write_to_png, 
 //GO(cairo_surface_write_to_png_stream, 
 //GO(cairo_svg_get_versions, 
-//GO(cairo_svg_surface_create, 
+GO(cairo_svg_surface_create, pFpdd)
 //GO(cairo_svg_surface_create_for_stream, 
 //GO(cairo_svg_surface_restrict_to_version, 
 //GO(cairo_svg_version_to_string, 

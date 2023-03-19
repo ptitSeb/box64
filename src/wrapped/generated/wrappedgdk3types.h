@@ -13,6 +13,7 @@
 
 typedef void (*vFpp_t)(void*, void*);
 typedef int64_t (*iFpp_t)(void*, void*);
+typedef uint64_t (*uFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef int64_t (*iFiipp_t)(int64_t, int64_t, void*, void*);
 typedef int64_t (*iFiippp_t)(int64_t, int64_t, void*, void*, void*);
@@ -20,6 +21,7 @@ typedef int64_t (*iFiippp_t)(int64_t, int64_t, void*, void*, void*);
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gdk_init, vFpp_t) \
 	GO(gdk_init_check, iFpp_t) \
+	GO(gdk_threads_add_idle, uFpp_t) \
 	GO(gdk_event_handler_set, vFppp_t) \
 	GO(gdk_window_add_filter, vFppp_t) \
 	GO(gdk_window_remove_filter, vFppp_t) \

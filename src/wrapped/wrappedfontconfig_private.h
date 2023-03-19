@@ -57,7 +57,7 @@ GO(FcConfigGetFonts, pFpi)
 //GO(FcConfigGetRescanInverval, 
 GO(FcConfigGetSysRoot, pFp)
 //GO(FcConfigHome, 
-//GO(FcConfigParseAndLoad, 
+GO(FcConfigParseAndLoad, iFppi)
 GO(FcConfigReference, pFp)
 //GO(FcConfigSetCurrent, 
 //GO(FcConfigSetRescanInterval, 
@@ -84,7 +84,7 @@ GO(FcFontSetAdd, iFpp)
 GO(FcFontSetCreate, pFv)
 GO(FcFontSetDestroy, vFp)
 //GO(FcFontSetList, 
-//GO(FcFontSetMatch, 
+GO(FcFontSetMatch, pFppipp)
 //GO(FcFontSetPrint, 
 //GO(FcFontSetSort, 
 //GO(FcFontSetSortDestroy, 
@@ -94,7 +94,7 @@ GO(FcFontSort, pFppipp)
 //GO(FcFreeTypeCharSetAndSpacing, 
 GO(FcFreeTypeQuery, pFpipp)
 GO(FcFreeTypeQueryFace, pFppip)
-//GO(FcGetLangs, 
+GO(FcGetLangs, pFv)
 GO(FcGetVersion, iFv)
 GO(FcInit, iFv)
 //GO(FcInitBringUptoDate, 
@@ -162,7 +162,7 @@ GO(FcPatternGetMatrix, iFppip)
 GO(FcPatternGetString, iFppip)
 GO(FcPatternHash, iFp)
 //GO(FcPatternPrint, 
-//GO(FcPatternReference, 
+GO(FcPatternReference, vFp)
 //GO(FcPatternRemove, 
 GO(FcPatternVaBuild, pFpp)
 GO(FcStrBasename, pFp)
