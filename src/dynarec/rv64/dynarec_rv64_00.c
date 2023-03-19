@@ -149,7 +149,18 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_cmp32(dyn, ninst, rex, gd, ed, x3, x4, x5, x6);
             break;
-
+        case 0x3C:
+            INST_NAME("CMP AL, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            if(u8) {
+                MOV32w(x2, u8);
+                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            } else {
+                emit_cmp8_0(dyn, ninst, x1, x3, x4);
+            }
+            break;
         case 0x50:
         case 0x51:
         case 0x52:
@@ -201,7 +212,9 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
-            
+        case 0x64:
+            addr = dynarec64_64(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
+            break;
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
@@ -361,7 +374,14 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
-
+        case 0x84:
+            INST_NAME("TEST Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop=F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
         case 0x85:
             INST_NAME("TEST Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -498,6 +518,25 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = F8;
             MOV32w(x2, u8);
             emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
+        case 0xB4:
+        case 0xB5:
+        case 0xB6:
+        case 0xB7:
+            INST_NAME("MOV xH, Ib");
+            u8 = F8;
+            MOV32w(x1, u8);
+            if(rex.rex) {
+                gb1 = xRAX+(opcode&7)+(rex.b<<3);
+                ANDI(gb1, gb1, ~0xff);
+                OR(gb1, gb1, x1);
+            } else {
+                gb1 = xRAX+(opcode&3);
+                MOV64x(x2, 0xffffffffffff00ffLL);
+                AND(gb1, gb1, x2);
+                SLLI(x1, x1, 8);
+                OR(gb1, gb1, x1);
+            }
             break;
         case 0xB8:
         case 0xB9:

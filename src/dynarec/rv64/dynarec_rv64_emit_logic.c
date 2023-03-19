@@ -96,6 +96,37 @@ void emit_xor32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
 }
 
+// emit OR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+void emit_or16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4) {
+    CLEAR_FLAGS();
+    IFX(X_PEND) {
+        SET_DF(s3, d_or16);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s3);
+    }
+
+    OR(s1, s1, s2);
+    SLLI(s1, s1, 48);
+    SRLI(s1, s1, 48);
+    IFX(X_PEND) {
+        SD(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    IFX(X_SF) {
+        SRLI(s3, s1, 15);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit OR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_or32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
@@ -110,6 +141,7 @@ void emit_or32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 
     // test sign bit before zeroup.
     IFX(X_SF) {
+        if (!rex.w) SEXT_W(s1, s1);
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }

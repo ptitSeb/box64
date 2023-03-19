@@ -174,6 +174,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 - rs2
 #define SUB(rd, rs1, rs2)           EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, 0b0110011))
 // rd = rs1 - rs2
+#define SUBW(rd, rs1, rs2)          EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, 0b0111011))
+// rd = rs1 - rs2
 #define SUBxw(rd, rs1, rs2)         EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, rex.w?0b0110011:0b0111011))
 // rd = rs1<<rs2
 #define SLL(rd, rs1, rs2)           EMIT(R_type(0b0000000, rs2, rs1, 0b001, rd, 0b0110011))

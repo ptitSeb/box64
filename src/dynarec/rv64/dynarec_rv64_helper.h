@@ -176,6 +176,20 @@
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
+//GETGB will use i for gd
+#define GETGB(i) if(rex.rex) {                                \
+                    gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3); \
+                    gb2 = 0;                                  \
+                } else {                                      \
+                    gd = (nextop&0x38)>>3;                    \
+                    gb2 = ((gd&4)>>2);                        \
+                    gb1 = xRAX+(gd&3);                        \
+                }                                             \
+                gd = i;                                       \
+                MV(gd, gb1);                                  \
+                if (gb2) SRLI(gd, gd, gb2*8);                 \
+                ANDI(gd, gd, 0xff);
+
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)
@@ -232,6 +246,15 @@
 #define B_NEXT_nocond                                               \
     j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;\
     B(j64)
+
+// Branch to MARKSEG if reg is 0 (use j64)
+#define CBZ_MARKSEG(reg)    \
+    j64 = GETMARKSEG-(dyn->native_size);   \
+    BEQZ(reg, j64);
+// Branch to MARKSEG if reg is not 0 (use j64)
+#define CBNZ_MARKSEG(reg)              \
+    j64 = GETMARKSEG-(dyn->native_size);   \
+    BNEZ(reg, j64);
 
 #define IFX(A)  if((dyn->insts[ninst].x64.gen_flags&(A)))
 #define IFX_PENDOR0  if((dyn->insts[ninst].x64.gen_flags&(X_PEND) || !dyn->insts[ninst].x64.gen_flags))
@@ -605,7 +628,7 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, int n);
 //void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits);
 void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w);
-//void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
+void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
 void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 //void emit_cmp16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6);
@@ -640,7 +663,7 @@ void emit_and32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 //void emit_add16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_sub16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_sub16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_or16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_or16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_or16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_xor16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_xor16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
@@ -745,7 +768,7 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07);
 
 uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
-//uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
+uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
 //uintptr_t dynarec64_65(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep,int* ok, int* need_epilog);
 uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
