@@ -567,7 +567,7 @@ GO(g_desktop_app_info_get_keywords, pFp)
 GO(g_desktop_app_info_get_nodisplay, iFp)
 GO(g_desktop_app_info_get_show_in, iFpp)
 //GO(g_desktop_app_info_get_startup_wm_class, 
-//GO(g_desktop_app_info_get_string, 
+GO(g_desktop_app_info_get_string, pFpp)
 GO(g_desktop_app_info_get_type, LFv)
 //GO(g_desktop_app_info_has_key, 
 //GO(g_desktop_app_info_launch_action, 

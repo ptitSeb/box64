@@ -2213,7 +2213,7 @@ GO(gtk_print_settings_set_n_copies, vFpi)
 //GO(gtk_print_settings_set_number_up_layout, 
 GO(gtk_print_settings_set_orientation, vFpi)
 //GO(gtk_print_settings_set_output_bin, 
-//GO(gtk_print_settings_set_page_ranges, 
+GO(gtk_print_settings_set_page_ranges, vFppi)
 //GO(gtk_print_settings_set_page_set, 
 //GO(gtk_print_settings_set_paper_height, 
 //GO(gtk_print_settings_set_paper_size, 
@@ -4068,6 +4068,7 @@ GO(gtk_window_add_embedded_xid, vFpu)
 GO(gtk_window_add_mnemonic, vFpup)
 GO(gtk_window_begin_move_drag, vFpiiiu)
 GO(gtk_window_begin_resize_drag, vFpuiiiu)
+GO(gtk_window_close, vFp)
 GO(gtk_window_deiconify, vFp)
 GO(gtk_window_destroy, vFp)
 GO(gtk_window_fullscreen, vFp)
