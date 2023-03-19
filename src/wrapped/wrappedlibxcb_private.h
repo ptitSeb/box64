@@ -533,7 +533,7 @@ GO(xcb_screen_next, vFp)
 //GO(xcb_segment_next, 
 GO(xcb_send_event, pFpCpup)
 GO(xcb_send_event_checked, pFpCpup)
-//GO(xcb_send_fd, 
+GO(xcb_send_fd, vFpi)
 GO(xcb_send_request, uFpipp)
 GO(xcb_send_request64, UFpipp)
 GO(xcb_send_request_with_fds, uFpippup)
