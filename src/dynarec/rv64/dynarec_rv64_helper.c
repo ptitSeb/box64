@@ -199,6 +199,23 @@ void jump_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
     BR(x2);
 }
 
+void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
+{
+    MAYUSE(dyn); MAYUSE(ip); MAYUSE(ninst);
+    MESSAGE(LOG_DUMP, "Jump to epilog_fast\n");
+
+    if(reg) {
+        if(reg!=xRIP) {
+            MV(xRIP, reg);
+        }
+    } else {
+        GETIP_(ip);
+    }
+    TABLE64(x2, (uintptr_t)rv64_epilog_fast);
+    SMEND();
+    BR(x2);
+}
+
 void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MAYUSE(dyn); MAYUSE(ninst);

@@ -163,8 +163,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
                 B##NO(x1, 8);                       \
                 LDxw(gd, ed, fixedaddress);         \
-                if(!rex.w) {ZEROUP(gd);}            \
-            }
+            }                                       \
+            if(!rex.w) ZEROUP(gd);
 
         GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO

@@ -703,7 +703,9 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
                     //x87_forget(dyn, ninst, x3, x4, 0);
                     //sse_purge07cache(dyn, ninst, x3);
-                    tmp = isSimpleWrapper(*(wrapper_t*)(addr));
+                    // disabling isSimpleWrapper because all signed value less than 64bits needs to be sign extended
+                    // and return value needs to be cleanned up
+                    tmp = 0;//isSimpleWrapper(*(wrapper_t*)(addr));
                     if(tmp<0 || tmp>1)
                         tmp=0;  //TODO: removed when FP is in place
                     if((box64_log<2 && !cycle_log) && tmp) {
@@ -722,8 +724,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LW(w1, xEmu, offsetof(x64emu_t, quit));
                         CBZ_NEXT(w1);
                         MARK;
-                        LOAD_XEMU_REM();
-                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        jump_to_epilog_fast(dyn, 0, xRIP, ninst);
                     }
                 }
             } else {
@@ -828,7 +829,9 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     // calling a native function
                     //sse_purge07cache(dyn, ninst, x3);     // TODO: chack the fpxx to purge/save when implemented
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall) {
-                        tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
+                        // disabling isSimpleWrapper because all signed value less than 64bits needs to be sign extended
+                        // and return value needs to be cleanned up
+                        tmp=0;//isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
                         if(tmp>1 || tmp<0)
                             tmp=0;  // float paramters not ready!
                     } else
@@ -861,8 +864,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LW(w1, xEmu, offsetof(x64emu_t, quit));
                         CBZ_NEXT(w1);
                         MARK;
-                        LOAD_XEMU_REM();    // load remaining register, has they have changed
-                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        jump_to_epilog_fast(dyn, 0, xRIP, ninst);
                         dyn->last_ip = addr;
                     }
                     break;
@@ -881,7 +883,11 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         *need_epilog = 0;
                         *ok = 0;
                     }
-                    TABLE64(x2, addr);
+                    if(addr<0x100000000LL) {
+                        MOV64x(x2, addr);
+                    } else {
+                        TABLE64(x2, addr);
+                    }
                     PUSH1(x2);
                     // TODO: Add support for CALLRET optim
                     /*if(box64_dynarec_callret) {
@@ -903,7 +909,11 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         *need_epilog = 0;
                     }
                     if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
-                        TABLE64(x4, addr-4);
+                        if(addr-4<0x100000000LL) {
+                            MOV64x(x4, addr-4);
+                        } else {
+                            TABLE64(x4, addr-4);
+                        }
                         LD(x4, x4, 0);
                         jump_to_next(dyn, 0, x4, ninst);
                     } else
@@ -1072,7 +1082,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             //Need to see if RDX==0 and RAX not signed
                             // or RDX==-1 and RAX signed
                             BNE_MARK2(xRDX, xZR);
-                            BLT_MARK(xRAX, xZR);
+                            BGE_MARK(xRAX, xZR);
                             MARK2;
                             NOT(x2, xRDX);
                             BNE_MARK3(x2, xZR);

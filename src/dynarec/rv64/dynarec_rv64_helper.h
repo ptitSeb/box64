@@ -223,6 +223,8 @@
 #define BNE_MARK(reg1, reg2) Bxx_gen(NE, MARK, reg1, reg2)
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLT_MARK(reg1, reg2) Bxx_gen(LT, MARK, reg1, reg2)
+// Branch to MARK if reg1>=reg2 (use j64)
+#define BGE_MARK(reg1, reg2) Bxx_gen(GE, MARK, reg1, reg2)
 // Branch to MARK2 if reg1==reg2 (use j64)
 #define BEQ_MARK2(reg1, reg2) Bxx_gen(EQ, MARK2, reg1,reg2)
 // Branch to MARK2 if reg1!=reg2 (use j64)
@@ -457,6 +459,7 @@
 #define MODREG  ((nextop&0xC0)==0xC0)
 
 void rv64_epilog();
+void rv64_epilog_fast();
 void* rv64_next(x64emu_t* emu, uintptr_t addr);
 
 #ifndef STEPNAME
@@ -492,6 +495,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define geted32         STEPNAME(geted32)
 #define geted16         STEPNAME(geted16)
 #define jump_to_epilog  STEPNAME(jump_to_epilog)
+#define jump_to_epilog_fast  STEPNAME(jump_to_epilog_fast)
 #define jump_to_next    STEPNAME(jump_to_next)
 #define ret_to_epilog   STEPNAME(ret_to_epilog)
 #define retn_to_epilog  STEPNAME(retn_to_epilog)
@@ -622,6 +626,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
 
 // generic x64 helper
 void jump_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
+void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 void ret_to_epilog(dynarec_rv64_t* dyn, int ninst);
 void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, int n);
@@ -885,6 +890,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         INST_NAME(T1 "LE " T2);                             \
         GO( SRLI(x1, xFlags, F_SF-F_OF2);                   \
             XOR(x1, x1, xFlags);                            \
+            ANDI(x1, x1, 1<<F_OF2);                         \
             ANDI(x3, xFlags, 1<<F_ZF);                      \
             OR(x1, x1, x3);                                 \
             ANDI(x1, x1, (1<<F_OF2) | (1<<F_ZF))            \
@@ -894,6 +900,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         INST_NAME(T1 "G " T2);                              \
         GO( SRLI(x1, xFlags, F_SF-F_OF2);                   \
             XOR(x1, x1, xFlags);                            \
+            ANDI(x1, x1, 1<<F_OF2);                         \
             ANDI(x3, xFlags, 1<<F_ZF);                      \
             OR(x1, x1, x3);                                 \
             ANDI(x1, x1, (1<<F_OF2) | (1<<F_ZF))            \
