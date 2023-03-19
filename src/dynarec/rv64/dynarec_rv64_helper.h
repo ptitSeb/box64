@@ -176,6 +176,20 @@
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
+//GETGB will use i for gd
+#define GETGB(i) if(rex.rex) {                                \
+                    gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3); \
+                    gb2 = 0;                                  \
+                } else {                                      \
+                    gd = (nextop&0x38)>>3;                    \
+                    gb2 = ((gd&4)>>2);                        \
+                    gb1 = xRAX+(gd&3);                        \
+                }                                             \
+                gd = i;                                       \
+                MV(gd, gb1);                                  \
+                if (gb2) SRLI(gd, gd, gb2*8);                 \
+                ANDI(gd, gd, 0xff);
+
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)
