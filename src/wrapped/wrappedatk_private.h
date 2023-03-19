@@ -65,7 +65,7 @@ GO(atk_get_version, pFv)
 //GO(atk_hyperlink_get_end_index, 
 //GO(atk_hyperlink_get_n_anchors, 
 //GO(atk_hyperlink_get_object, 
-//GO(atk_hyperlink_get_start_index, 
+GO(atk_hyperlink_get_start_index, iFp)
 GO(atk_hyperlink_get_type, LFv)
 //GO(atk_hyperlink_get_uri, 
 //GO(atk_hyperlink_impl_get_hyperlink, 
@@ -74,9 +74,9 @@ GO(atk_hyperlink_impl_get_type, LFv)
 //GO(atk_hyperlink_is_selected_link, 
 //GO(atk_hyperlink_is_valid, 
 //GO(atk_hyperlink_state_flags_get_type, 
-//GO(atk_hypertext_get_link, 
+GO(atk_hypertext_get_link, pFpi)
 //GO(atk_hypertext_get_link_index, 
-//GO(atk_hypertext_get_n_links, 
+GO(atk_hypertext_get_n_links, iFp)
 GO(atk_hypertext_get_type, LFv)
 //GO(atk_image_get_image_description, 
 //GO(atk_image_get_image_locale, 
@@ -191,7 +191,7 @@ GO(atk_state_set_contains_state, iFpi)
 //GO(atk_state_set_xor_sets, 
 //GO(atk_state_type_for_name, 
 GO(atk_state_type_get_name, pFi)
-//GO(atk_state_type_get_type, 
+GO(atk_state_type_get_type, LFv)
 //GO(atk_state_type_register, 
 //GO(atk_streamable_content_get_mime_type, 
 //GO(atk_streamable_content_get_n_mime_types, 
@@ -248,7 +248,7 @@ GO(atk_text_get_character_count, iFp)
 //GO(atk_text_get_range_extents, 
 GO(atk_text_get_run_attributes, pFpipp)
 GO(atk_text_get_selection, pFpipp)
-//GO(atk_text_get_text, 
+GO(atk_text_get_text, pFpii)
 //GO(atk_text_get_text_after_offset, 
 //GO(atk_text_get_text_at_offset, 
 //GO(atk_text_get_text_before_offset, 
