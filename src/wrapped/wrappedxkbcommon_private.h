@@ -20,7 +20,7 @@ GO(xkb_compose_table_unref, vFp)
 //GO(xkb_context_get_log_level, 
 //GO(xkb_context_get_log_verbosity, 
 GO(xkb_context_get_user_data, pFp)
-//GO(xkb_context_include_path_append, 
+GO(xkb_context_include_path_append, iFpp)
 //GO(xkb_context_include_path_append_default, 
 //GO(xkb_context_include_path_clear, 
 //GO(xkb_context_include_path_get, 
