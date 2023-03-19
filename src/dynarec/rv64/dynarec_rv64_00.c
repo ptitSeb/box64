@@ -528,11 +528,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV32w(x1, u8);
             if(rex.rex) {
                 gb1 = xRAX+(opcode&7)+(rex.b<<3);
+                ANDI(gb1, gb1, ~0xff);
+                OR(gb1, gb1, x1);
             } else {
                 gb1 = xRAX+(opcode&3);
-                SRLI(x1, x1, 8);
+                MOV64x(x2, 0xffffffffffff00ffLL);
+                AND(gb1, gb1, x2);
+                SLLI(x1, x1, 8);
+                OR(gb1, gb1, x1);
             }
-            ANDI(gb1, x1, 0xff);
             break;
         case 0xB8:
         case 0xB9:

@@ -250,11 +250,11 @@
 // Branch to MARKSEG if reg is 0 (use j64)
 #define CBZ_MARKSEG(reg)    \
     j64 = GETMARKSEG-(dyn->native_size);   \
-    BEQZ_safe(reg, j64);
+    BEQZ(reg, j64);
 // Branch to MARKSEG if reg is not 0 (use j64)
 #define CBNZ_MARKSEG(reg)              \
     j64 = GETMARKSEG-(dyn->native_size);   \
-    BNEZ_safe(reg, j64);
+    BNEZ(reg, j64);
 
 #define IFX(A)  if((dyn->insts[ninst].x64.gen_flags&(A)))
 #define IFX_PENDOR0  if((dyn->insts[ninst].x64.gen_flags&(X_PEND) || !dyn->insts[ninst].x64.gen_flags))
