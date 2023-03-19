@@ -85,6 +85,23 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             // just use regular conditional jump
             return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
 
+        case 0x81:
+        case 0x83:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 1: // OR
+                    if(opcode==0x81) {INST_NAME("OR Ew, Iw");} else {INST_NAME("OR Ew, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, (opcode==0x81)?2:1);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    MOV64x(x5, i16);
+                    emit_or16(dyn, ninst, x1, x5, x2, x4);
+                    EWBACK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xC1:
             nextop = F8;
             switch((nextop>>3)&7) {
