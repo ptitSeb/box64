@@ -300,6 +300,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x80:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 3: // SBB
+                    INST_NAME("SBB Eb, Ib");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    emit_sbb8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
+                    EBBACK(x3);
+                    break;
                 case 4: // AND
                     INST_NAME("AND Eb, Ib");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
