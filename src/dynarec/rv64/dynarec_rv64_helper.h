@@ -221,10 +221,12 @@
                     assert(wb2 == 8);                   \
                     MOV64x(s1, 0xffffffffffff00ffLL);   \
                     AND(wback, wback, s1);              \
+                    ANDI(ed, ed, 0xff);                 \
                     SLLI(s1, ed, 8);                    \
                     OR(wback, wback, s1);               \
                 } else {                                \
                     ANDI(wback, wback, ~0xff);          \
+                    ANDI(ed, ed, 0xff);                 \
                     OR(wback, wback, ed);               \
                 }
 
