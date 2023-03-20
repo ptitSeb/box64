@@ -71,7 +71,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
             SLLI(x1, xRAX, 48);
-            SRLI(x1, xRAX, 48);
+            SRLI(x1, x1, 48);
             if(i32) {
                 MOV32w(x2, i32);
                 emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
@@ -113,6 +113,26 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 default:
                     DEFAULT;
+            }
+            break;
+        case 0x89:
+            INST_NAME("MOV Ew, Gw");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                if(ed!=gd) {
+                    // we don't use GETGW above, so we need let gd & 0xffff.
+                    LUI(x1, 0xffff0);
+                    AND(ed, ed, x1);
+                    SLLI(x2, gd, 48);
+                    SRLI(x2, x2, 48);
+                    OR(ed, ed, x2);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 0, 0);
+                SH(gd, ed, fixedaddress);
+                SMWRITELOCK(lock);
             }
             break;
         case 0xC1:
