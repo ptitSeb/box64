@@ -46,6 +46,8 @@ static const char fpnames[32][5] = {
 #define FUNCT3(data) (((data) >> 12) & 0x7 )
 #define FUNCT7(data) (((data) >> 25) & 0x7f)
 #define IMM116(data) (((data) >> 26) & 0x3f)
+#define AQ(data)     (((data) >> 26) & 0x1)
+#define RL(data)     (((data) >> 25) & 0x1)
 
 static inline insn_t insn_utype_read(uint32_t data)
 {
@@ -418,6 +420,8 @@ static inline insn_t insn_ciwtype_read(uint16_t data)
 #define PRINT_fd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_xd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, gpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_fd_xs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], gpnames[insn.rs1]); return buff
+#define PRINT_rd_rs1_aqrl() snprintf(buff, sizeof(buff), "%s%s%s\t%s, (%s)", insn.name, aq?".aq":"", rl?".rl":"", gpnames[insn.rd], gpnames[insn.rs1]); return buff
+#define PRINT_rd_rs1_rs2_aqrl() snprintf(buff, sizeof(buff), "%s%s%s\t%s, %s, (%s)", insn.name, aq?".aq":"", rl?".rl":"", gpnames[insn.rd], gpnames[insn.rs1], gpnames[insn.rs2]); return buff
 
 // TODO: display csr name
 #define PRINT_rd_csr_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d, %s", insn.name, RN(rd), insn.csr, RN(rs1)); return buff
@@ -844,6 +848,32 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 break;
             }
             PRINT_rs2_imm_rs1();
+        }
+        case 0xb: {
+            uint32_t funct3 = FUNCT3(data);
+            uint32_t rs1 = RS3(data);
+            bool aq = AQ(data), rl = RL(data);
+            insn =  insn_rtype_read(data);
+            switch(funct3) {
+            case 0x2:
+                switch (rs1) {
+                case 0x2: /* LR.W */
+                    insn.name = "lr.w";
+                    PRINT_rd_rs1_aqrl();
+                case 0x3: /* SC.W */
+                    insn.name = "sc.w";
+                    PRINT_rd_rs1_rs2_aqrl();
+                }
+            case 0x3:
+                switch (rs1) {
+                case 0x2: /* LR.D */
+                    insn.name = "lr.w";
+                    PRINT_rd_rs1_aqrl();
+                case 0x3: /* SC.D */
+                    insn.name = "sc.w";
+                    PRINT_rd_rs1_rs2_aqrl();
+                }
+            }
         }
         case 0xc: {
             insn =  insn_rtype_read(data);

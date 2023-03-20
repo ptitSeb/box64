@@ -130,9 +130,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define AUIPC(rd, imm20)               EMIT(U_type((imm20)<<12, rd, 0b0010111))
 
 #define JAL_gen(rd, imm21)             J_type(imm21, rd, 0b1101111)
-// Unconditionnal branch, no return address set
+// Unconditional branch, no return address set
 #define B(imm21)                       EMIT(JAL_gen(xZR, imm21))
-// Uncondiftionnal branch, return set to xRA
+// Unconditional branch, return set to xRA
 #define JAL(imm21)                     EMIT(JAL_gen(xRA, imm21))
 
 #define JALR_gen(rd, rs1, imm12)       I_type(imm12, rs1, 0b000, rd, 0b1100111)
@@ -336,5 +336,18 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define REMxw(rd, rs1, rs2)         EMIT(R_type(0b0000001, rs2, rs1, 0b110, rd, rex.w?0b0110011:0b0111011))
 #define REMUW(rd, rs1, rs2)         EMIT(R_type(0b0000001, rs2, rs1, 0b111, rd, 0b0111011))
 #define REMUxw(rd, rs1, rs2)        EMIT(R_type(0b0000001, rs2, rs1, 0b111, rd, rex.w?0b0110011:0b0111011))
+
+#define AQ_RL(f5, aq, rl) ((f5 << 2) | ((aq&1) << 1) | (rl&1))
+
+// RV32A
+#define LR_W(rd, rs1, aq, rl)       EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b010, rd, 0b0101111))
+#define SC_W(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b00011, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
+
+// RV64A
+#define LR_D(rd, rs1, aq, rl)       EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b011, rd, 0b0101111))
+#define SC_D(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b00011, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
+
+#define LRxw(rd, rs1, aq, rl)       EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b010|rex.w, rd, 0b0101111))
+#define SCxw(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b00011, aq, rl), rs2, rs1, 0b010|rex.w, rd, 0b0101111))
 
 #endif //__RV64_EMITTER_H__
