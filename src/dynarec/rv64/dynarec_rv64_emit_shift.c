@@ -33,7 +33,7 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_shl64:d_shl32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     IFX(X_CF) {
@@ -83,7 +83,7 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_shl64:d_shl32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     if(!c) {
@@ -143,7 +143,7 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_shr64:d_shr32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
     if(!c) {
         IFX(X_PEND) {
@@ -208,7 +208,7 @@ void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_sar64:d_sar32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
     if(!c) {
         IFX(X_PEND) {

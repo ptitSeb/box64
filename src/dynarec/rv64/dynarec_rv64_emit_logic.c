@@ -30,7 +30,7 @@ void emit_xor32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_PEND) {
         SET_DF(s4, rex.w?d_xor64:d_xor32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     XOR(s1, s1, s2);
@@ -64,7 +64,7 @@ void emit_xor32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     IFX(X_PEND) {
         SET_DF(s4, rex.w?d_xor64:d_xor32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     if(c>=-2048 && c<=2047) {
@@ -102,7 +102,7 @@ void emit_or16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4) {
     IFX(X_PEND) {
         SET_DF(s3, d_or16);
     } else IFX(X_ALL) {
-        SET_DFNONE(s3);
+        SET_DFNONE();
     }
 
     OR(s1, s1, s2);
@@ -134,7 +134,7 @@ void emit_or32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     IFX(X_PEND) {
         SET_DF(s4, rex.w?d_or64:d_or32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     OR(s1, s1, s2);
@@ -168,7 +168,7 @@ void emit_or32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     IFX(X_PEND) {
         SET_DF(s4, rex.w?d_or64:d_or32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     if(c>=-2048 && c<=2047) {
@@ -207,7 +207,7 @@ void emit_and8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
     IFX(X_PEND) {
         SET_DF(s3, d_and8);
     } else IFX(X_ALL) {
-        SET_DFNONE(s3);
+        SET_DFNONE();
     }
 
     ANDI(s1, s1, c&0xff);
@@ -236,7 +236,7 @@ void emit_and32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_PEND) {
         SET_DF(s3, rex.w?d_tst64:d_tst32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     AND(s1, s1, s2); // res = s1 & s2
@@ -266,7 +266,7 @@ void emit_and32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     IFX(X_PEND) {
         SET_DF(s3, rex.w?d_tst64:d_tst32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     if(c>=-2048 && c<=2047) {

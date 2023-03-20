@@ -32,7 +32,7 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, rex.w?d_add64:d_add32b);
     } else IFX(X_ALL) {
-        SET_DFNONE(s3);
+        SET_DFNONE();
     }
     IFX(X_CF) {
         if (rex.w) {
@@ -121,7 +121,7 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, rex.w?d_add64:d_add32b);
     } else IFX(X_ALL) {
-        SET_DFNONE(s3);
+        SET_DFNONE();
     }
     IFX(X_CF) {
         if (rex.w) {
@@ -202,7 +202,7 @@ void emit_sub32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, rex.w?d_sub64:d_sub32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s3);
+        SET_DFNONE();
     }
 
     IFX(X_AF | X_CF | X_OF) {
@@ -254,7 +254,7 @@ void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, rex.w?d_sub64:d_sub32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s3);
+        SET_DFNONE();
     }
 
     IFX(X_AF | X_CF | X_OF) {
@@ -305,7 +305,7 @@ void emit_inc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s3, rex.w?d_inc64:d_inc32);
     } else IFX(X_ALL) {
-        SET_DFNONE(s3);
+        SET_DFNONE();
     }
     IFX(X_AF | X_OF) {
         ORI(s3, s1, 1);      // s3 = op1 | op2

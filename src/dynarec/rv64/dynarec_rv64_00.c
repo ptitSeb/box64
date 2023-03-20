@@ -1026,7 +1026,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
                     if(!rex.w) {
-                        SET_DFNONE(x2);
+                        SET_DFNONE();
                         GETED(0);
                         SLLI(x3, xRDX, 32);
                         AND(x2, xRAX, xMASK);
@@ -1044,7 +1044,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                            && dyn->insts[ninst-1].x64.addr 
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31 
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
-                            SET_DFNONE(x2);
+                            SET_DFNONE();
                             GETED(0);
                             DIVU(x2, xRAX, ed);
                             REMU(xRDX, xRAX, ed);
@@ -1059,7 +1059,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             DIVU(x2, xRAX, ed);
                             REMU(xRDX, xRAX, ed);
                             MV(xRAX, x2);
-                            SET_DFNONE(x2);
+                            SET_DFNONE();
                         }
                     }
                     break;
@@ -1067,7 +1067,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("IDIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
                     if(!rex.w) {
-                        SET_DFNONE(x2)
+                        SET_DFNONE()
                         GETSED(0);
                         SLLI(x3, xRDX, 32);
                         AND(x2, xRAX, xMASK);
@@ -1081,7 +1081,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                            &&  dyn->insts[ninst-1].x64.addr 
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x48
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0x99) {
-                            SET_DFNONE(x2)
+                            SET_DFNONE()
                             GETED(0);
                             DIV(x2, xRAX, ed);
                             REM(xRDX, xRAX, ed);
@@ -1104,7 +1104,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             DIV(x2, xRAX, ed);
                             REM(xRDX, xRAX, ed);
                             MV(xRAX, x2);
-                            SET_DFNONE(x2)
+                            SET_DFNONE()
                         }
                     }
                     break;

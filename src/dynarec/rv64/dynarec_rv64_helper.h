@@ -310,8 +310,8 @@
     LOAD_REG(R11);          \
 
 
-#define SET_DFNONE(S)    if(!dyn->f.dfnone) {SW(xZR, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
-#define SET_DF(S, N)     if((N)!=d_none) {MOV_U12(S, (N)); SW(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
+#define SET_DFNONE()    if(!dyn->f.dfnone) {SW(xZR, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
+#define SET_DF(S, N)     if((N)!=d_none) {MOV_U12(S, (N)); SW(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE()
 #define SET_NODF()          dyn->f.dfnone = 0
 #define SET_DFOK()          dyn->f.dfnone = 1
 

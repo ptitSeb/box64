@@ -32,7 +32,7 @@ void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SB(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, d_cmp8);
     } else {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     IFX(X_AF | X_CF | X_OF) {
@@ -71,7 +71,7 @@ void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
         SB(s1, xEmu, offsetof(x64emu_t, res));
         SET_DF(s3, d_cmp8);
     } else {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     IFX(X_SF) {
@@ -97,7 +97,7 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_cmp64:d_cmp32);
     } else {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     IFX(X_AF | X_CF | X_OF) {
@@ -137,7 +137,7 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
         SD(s1, xEmu, offsetof(x64emu_t, res));
         SET_DF(s4, rex.w?d_cmp64:d_cmp32);
     } else {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
     IFX(X_SF) {
         if (rex.w) {
@@ -163,7 +163,7 @@ void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     IFX_PENDOR0 {
         SET_DF(s3, d_tst8);
     } else {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     AND(s3, s1, s2); // res = s1 & s2
@@ -192,7 +192,7 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     IFX_PENDOR0 {
         SET_DF(s3, rex.w?d_tst64:d_tst32);
     } else {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     AND(s3, s1, s2); // res = s1 & s2
@@ -222,7 +222,7 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     IFX_PENDOR0 {
         SET_DF(s3, rex.w?d_tst64:d_tst32);
     } else {
-        SET_DFNONE(s4);
+        SET_DFNONE();
     }
 
     if(c>=-2048 && c<=2047)
