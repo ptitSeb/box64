@@ -599,25 +599,25 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xC0:
             nextop = F8;
             switch((nextop>>3)&7) {
-                // case 4:
-                // case 6:
-                //     INST_NAME("SHL Eb, Ib");
-                //     GETEB(x1, 1);
-                //     u8 = (F8)&0x1f;
-                //     if(u8) {
-                //         SETFLAGS(X_ALL, SF_PENDING);
-                //         UFLAG_IF{
-                //             MOV32w(x4, u8); UFLAG_OP2(x4);
-                //         };
-                //         UFLAG_OP1(ed);
-                //         LSLw(ed, ed, u8);
-                //         EBBACK;
-                //         UFLAG_RES(ed);
-                //         UFLAG_DF(x3, d_shl8);
-                //     } else {
-                //         NOP;
-                //     }
-                //     break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Eb, Ib");
+                    GETEB(x1, 1);
+                    u8 = (F8)&0x1f;
+                    if(u8) {
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF{
+                            MOV32w(x4, u8); UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        SLLIW(ed, ed, u8);
+                        EBBACK(x5);
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_shl8);
+                    } else {
+                        NOP();
+                    }
+                    break;
                 case 5:
                     INST_NAME("SHR Eb, Ib");
                     GETEB(x1, 1);
@@ -629,7 +629,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         };
                         UFLAG_OP1(ed);
                         if(u8) {
-                            // LSRw(ed, ed, u8);
                             SRLIW(ed, ed, u8);
                             EBBACK(x5);
                         }
@@ -639,26 +638,26 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         NOP();
                     }
                     break;
-                // case 7:
-                //     INST_NAME("SAR Eb, Ib");
-                //     GETSEB(x1, 1);
-                //     u8 = (F8)&0x1f;
-                //     if(u8) {
-                //         SETFLAGS(X_ALL, SF_PENDING);
-                //         UFLAG_IF{
-                //             MOV32w(x4, u8); UFLAG_OP2(x4);
-                //         };
-                //         UFLAG_OP1(ed);
-                //         if(u8) {
-                //             SRAIW(ed, ed, u8);
-                //             EBBACK(x5);
-                //         }
-                //         UFLAG_RES(ed);
-                //         UFLAG_DF(x3, d_sar8);
-                //     } else {
-                //         NOP();
-                //     }
-                //     break;
+                case 7:
+                    INST_NAME("SAR Eb, Ib");
+                    GETSEB(x1, 1);
+                    u8 = (F8)&0x1f;
+                    if(u8) {
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF{
+                            MOV32w(x4, u8); UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        if(u8) {
+                            SRAIW(ed, ed, u8);
+                            EBBACK(x5);
+                        }
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_sar8);
+                    } else {
+                        NOP();
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
