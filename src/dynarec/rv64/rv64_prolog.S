@@ -11,7 +11,7 @@
 .global rv64_prolog
 rv64_prolog:
     //save all 18 used register
-    addi    sp,  sp, -(8 * 14)
+    addi    sp,  sp, -(8 * 22)
     sd      ra, (sp)  // save ra
     sd      x8, 8(sp) // save fp
     sd      x18, 16(sp)
@@ -24,9 +24,16 @@ rv64_prolog:
     sd      x25, 72(sp)
     sd      x26, 80(sp)
     sd      x27, 88(sp)
-    fsd     f8, 96(sp)
-    fsd     f9, 104(sp)
-    // save f18-f27 too probably
+    fsd     f18, (12*8)(sp)
+    fsd     f19, (13*8)(sp)
+    fsd     f20, (14*8)(sp)
+    fsd     f21, (15*8)(sp)
+    fsd     f22, (16*8)(sp)
+    fsd     f23, (17*8)(sp)
+    fsd     f24, (18*8)(sp)
+    fsd     f25, (19*8)(sp)
+    fsd     f26, (20*8)(sp)
+    fsd     f27, (21*8)(sp)
     //setup emu -> register
     ld      x16, (a0)
     ld      x17, 8(a0)

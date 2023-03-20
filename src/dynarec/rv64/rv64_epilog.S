@@ -7,6 +7,8 @@
 .align 4
 
 .global rv64_epilog
+.global rv64_epilog_fast
+
 rv64_epilog:
     //update register -> emu
     sd      x16, (a0)
@@ -33,27 +35,7 @@ rv64_epilog:
     or      x8, x8, x5
     sd      x8, 128(a0)     //xFlags
     sd      x7, 136(a0)     // put back reg value in emu, including EIP (so x7 must be EIP now)
-    //restore all used register
-    ld      ra, (sp)  // save ra
-    ld      x8, 8(sp) // save fp
-    ld      x18, 16(sp)
-    ld      x19, 24(sp)
-    ld      x20, 32(sp)
-    ld      x21, 40(sp)
-    ld      x22, 48(sp)
-    ld      x23, 56(sp)
-    ld      x24, 64(sp)
-    ld      x25, 72(sp)
-    ld      x26, 80(sp)
-    ld      x27, 88(sp)
-    fsd     f8, 96(sp)
-    fsd     f9, 104(sp)
-    addi    sp,  sp, (8 * 14)
-    //end, return...
-    ret
-
-
-.global rv64_epilog_fast
+    // fallback to epilog_fast now, just restoring saved regs
 rv64_epilog_fast:
     ld      ra, (sp)  // save ra
     ld      x8, 8(sp) // save fp
@@ -67,8 +49,16 @@ rv64_epilog_fast:
     ld      x25, 72(sp)
     ld      x26, 80(sp)
     ld      x27, 88(sp)
-    fsd     f8, 96(sp)
-    fsd     f9, 104(sp)
-    addi    sp,  sp, (8 * 14)
+    fld     f18, (12*8)(sp)
+    fld     f19, (13*8)(sp)
+    fld     f20, (14*8)(sp)
+    fld     f21, (15*8)(sp)
+    fld     f22, (16*8)(sp)
+    fld     f23, (17*8)(sp)
+    fld     f24, (18*8)(sp)
+    fld     f25, (19*8)(sp)
+    fld     f26, (20*8)(sp)
+    fld     f27, (21*8)(sp)
+    addi    sp,  sp, (8 * 22)
     //end, return...
     ret
