@@ -190,6 +190,21 @@
                 if (gb2) SRLI(gd, gd, gb2*8);                 \
                 ANDI(gd, gd, 0xff);
 
+// Write eb (ed) back to original register / memory, using s1 as scratch
+#define EBBACK(s1) if(wb1) {                            \
+                    SB(ed, wback, fixedaddress);        \
+                    SMWRITE();                          \
+                } else if(wb2) {                        \
+                    assert(wb2 == 8);                   \
+                    MOV64x(s1, 0xffffffffffff00ffLL);   \
+                    AND(wback, wback, s1);              \
+                    SLLI(s1, ed, 8);                    \
+                    OR(wback, wback, s1);               \
+                } else {                                \
+                    ANDI(wback, wback, ~0xff);          \
+                    OR(wback, wback, ed);               \
+                }
+
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)
@@ -663,7 +678,7 @@ void emit_and32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 //void emit_xor8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_xor8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_and8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_and8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_and8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_add16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_add16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_sub16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
