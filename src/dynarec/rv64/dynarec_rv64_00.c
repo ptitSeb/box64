@@ -94,7 +94,12 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 DEFAULT;
             }
             break;
-
+        case 0x25:
+            INST_NAME("AND EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            emit_and32c(dyn, ninst, rex, xRAX, i64, x3, x4);
+            break;
         case 0x29:
             INST_NAME("SUB Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -161,6 +166,16 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 emit_cmp8_0(dyn, ninst, x1, x3, x4);
             }
+            break;
+        case 0x3D:
+            INST_NAME("CMP EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            if(i64) {
+                MOV64xw(x2, i64);
+                emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
+            } else
+                emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
             break;
         case 0x50:
         case 0x51:
@@ -536,6 +551,13 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = F8;
             MOV32w(x2, u8);
             emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
+        case 0xA9:
+            INST_NAME("TEST EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            MOV64xw(x2, i64);
+            emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
         case 0xB4:
         case 0xB5:
@@ -968,7 +990,22 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *need_epilog = 0;
             *ok = 0;
             break;
-
+        case 0xF6:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                case 1:
+                    INST_NAME("TEST Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xF7:
             nextop = F8;
             switch((nextop>>3)&7) {
