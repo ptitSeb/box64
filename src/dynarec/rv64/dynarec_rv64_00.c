@@ -167,6 +167,16 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 emit_cmp8_0(dyn, ninst, x1, x3, x4);
             }
             break;
+        case 0x3D:
+            INST_NAME("CMP EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            if(i64) {
+                MOV64xw(x2, i64);
+                emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
+            } else
+                emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
+            break;
         case 0x50:
         case 0x51:
         case 0x52:
