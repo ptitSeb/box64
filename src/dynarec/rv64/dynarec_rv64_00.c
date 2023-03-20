@@ -94,6 +94,23 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 DEFAULT;
             }
             break;
+        case 0x21:
+            INST_NAME("AND Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_and32(dyn, ninst, rex, ed, gd, x3, x4);
+            WBACK;
+            break;
+        case 0x23:
+            INST_NAME("AND Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_and32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
         case 0x25:
             INST_NAME("AND EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
