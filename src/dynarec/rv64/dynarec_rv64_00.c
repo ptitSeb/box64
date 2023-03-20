@@ -305,8 +305,8 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEB(x1, 1);
                     u8 = F8;
-                    emit_and8c(dyn, ninst, x1, u8, x2, x4);
-                    EBBACK(x2);
+                    emit_and8c(dyn, ninst, x1, u8, x3, x4);
+                    EBBACK(x3);
                     break;
                 case 7: // CMP
                     INST_NAME("CMP Eb, Ib");
