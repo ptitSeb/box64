@@ -176,6 +176,29 @@
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
+//GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
+#define GETSEB(i, D) if(MODREG) {                \
+                    if(rex.rex) {               \
+                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
+                        wb2 = 0;                \
+                    } else {                    \
+                        wback = (nextop&7);     \
+                        wb2 = (wback>>2)*8;     \
+                        wback = xRAX+(wback&3); \
+                    }                           \
+                    MV(i, wback);               \
+                    SLLIW(i, i, 24-wb2);        \
+                    SRAIW(i, i, 24);            \
+                    wb1 = 0;                    \
+                    ed = i;                     \
+                } else {                        \
+                    SMREAD();                   \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 0, D); \
+                    LB(i, wback, fixedaddress); \
+                    wb1 = 1;                    \
+                    ed = i;                     \
+                }
+
 //GETGB will use i for gd
 #define GETGB(i) if(rex.rex) {                                \
                     gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3); \
@@ -198,10 +221,12 @@
                     assert(wb2 == 8);                   \
                     MOV64x(s1, 0xffffffffffff00ffLL);   \
                     AND(wback, wback, s1);              \
+                    ANDI(ed, ed, 0xff);                 \
                     SLLI(s1, ed, 8);                    \
                     OR(wback, wback, s1);               \
                 } else {                                \
                     ANDI(wback, wback, ~0xff);          \
+                    ANDI(ed, ed, 0xff);                 \
                     OR(wback, wback, ed);               \
                 }
 
