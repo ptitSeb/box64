@@ -310,8 +310,8 @@
     LOAD_REG(R11);          \
 
 
-#define SET_DFNONE(S)    if(!dyn->f.dfnone) {SW(xZR, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
-#define SET_DF(S, N)     if((N)!=d_none) {MOV_U12(S, (N)); SW(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
+#define SET_DFNONE()    if(!dyn->f.dfnone) {SW(xZR, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
+#define SET_DF(S, N)     if((N)!=d_none) {MOV_U12(S, (N)); SW(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE()
 #define SET_NODF()          dyn->f.dfnone = 0
 #define SET_DFOK()          dyn->f.dfnone = 1
 
@@ -703,8 +703,8 @@ void emit_inc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 //void emit_adc16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_sbb32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 //void emit_sbb32c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_sbb8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_sbb8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5);
+void emit_sbb8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_sbb8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5, int s6);
 //void emit_sbb16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_sbb16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
