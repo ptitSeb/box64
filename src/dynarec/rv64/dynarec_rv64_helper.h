@@ -337,7 +337,6 @@
                 ANDI(scratch1, scratch2, 0x80);                           \
             } else {                                                      \
                 SRLI(scratch1, scratch2, (width)-1);                      \
-                if ((width) == 16) ANDI(scratch1, scratch1, 1);           \
             }                                                             \
             BEQZ(scratch1, 8);                                            \
             ORI(xFlags, xFlags, 1 << F_CF);                               \
@@ -650,10 +649,10 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w);
 void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
 void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
-//void emit_cmp16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_cmp16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
-//void emit_cmp16_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_cmp16_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 //void emit_test16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
