@@ -299,6 +299,40 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0x6B:
+            INST_NAME("IMUL Gd, Ed, Id");
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(4);
+            i64 = F8S;
+            MOV64xw(x4, i64);
+            if(rex.w) {
+                // 64bits imul
+                UFLAG_IF {
+                    MULH(x3, ed, x4);
+                    MULW(gd, ed, x4);
+                    UFLAG_OP1(x3);
+                    UFLAG_RES(gd);
+                    UFLAG_DF(x3, d_imul64);
+                } else {
+                    MULxw(gd, ed, x4);
+                }
+            } else {
+                // 32bits imul
+                UFLAG_IF {
+                    MUL(gd, ed, x4);
+                    UFLAG_RES(gd);
+                    SRLI(x3, gd, 32);
+                    UFLAG_OP1(x3);
+                    UFLAG_DF(x3, d_imul32);
+                } else {
+                    MULxw(gd, ed, x4);
+                }
+                ZEROUP(gd);
+            }
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)                                \
             READFLAGS(F);                                               \
             i8 = F8S;                                                   \
