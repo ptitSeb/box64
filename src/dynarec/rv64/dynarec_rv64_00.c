@@ -620,18 +620,32 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64xw(x2, i64);
             emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
+
+        case 0xB0:
+        case 0xB1:
+        case 0xB2:
+        case 0xB3:
+            INST_NAME("MOV xL, Ib");
+            u8 = F8;
+            if(rex.rex)
+                gb1 = xRAX+(opcode&7)+(rex.b<<3);
+            else
+                gb1 = xRAX+(opcode&3);
+            ANDI(gb1, gb1, ~0xff);
+            ORI(gb1, gb1, u8);
+            break;
         case 0xB4:
         case 0xB5:
         case 0xB6:
         case 0xB7:
             INST_NAME("MOV xH, Ib");
             u8 = F8;
-            MOV32w(x1, u8);
             if(rex.rex) {
                 gb1 = xRAX+(opcode&7)+(rex.b<<3);
                 ANDI(gb1, gb1, ~0xff);
-                OR(gb1, gb1, x1);
+                ORI(gb1, gb1, u8);
             } else {
+                MOV32w(x1, u8);
                 gb1 = xRAX+(opcode&3);
                 MOV64x(x2, 0xffffffffffff00ffLL);
                 AND(gb1, gb1, x2);
