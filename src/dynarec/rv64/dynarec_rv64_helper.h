@@ -213,6 +213,20 @@
                 if (gb2) SRLI(gd, gd, gb2*8);                 \
                 ANDI(gd, gd, 0xff);
 
+// Write gb (gd) back to original register / memory, using s1 as scratch
+#define GBBACK(s1) if(gb2) {                            \
+                    assert(gb2 == 8);                   \
+                    MOV64x(s1, 0xffffffffffff00ffLL);   \
+                    AND(gb1, gb1, s1);                  \
+                    ANDI(gd, gd, 0xff);                 \
+                    SLLI(s1, gd, 8);                    \
+                    OR(gb1, gb1, s1);                   \
+                } else {                                \
+                    ANDI(gb1, gb1, ~0xff);              \
+                    ANDI(gd, gd, 0xff);                 \
+                    OR(gb1, gb1, gd);                   \
+                }
+
 // Write eb (ed) back to original register / memory, using s1 as scratch
 #define EBBACK(s1) if(wb1) {                            \
                     SB(ed, wback, fixedaddress);        \
@@ -701,7 +715,7 @@ void emit_xor32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_xor32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_and32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_and32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
-//void emit_or8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_or8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_or8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 //void emit_xor8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_xor8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);

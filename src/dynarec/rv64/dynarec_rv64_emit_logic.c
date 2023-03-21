@@ -50,7 +50,7 @@ void emit_xor32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     IFX(X_ZF) {
         BNEZ(s1, 8);
-        ORI(xFlags, xFlags, F_ZF);
+        ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -89,7 +89,7 @@ void emit_xor32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 
     IFX(X_ZF) {
         BNEZ(s1, 8);
-        ORI(xFlags, xFlags, F_ZF);
+        ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -120,7 +120,7 @@ void emit_or16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4) {
 
     IFX(X_ZF) {
         BNEZ(s1, 8);
-        ORI(xFlags, xFlags, F_ZF);
+        ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -155,7 +155,7 @@ void emit_or32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 
     IFX(X_ZF) {
         BNEZ(s1, 8);
-        ORI(xFlags, xFlags, F_ZF);
+        ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -193,7 +193,7 @@ void emit_or32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
 
     IFX(X_ZF) {
         BNEZ(s1, 8);
-        ORI(xFlags, xFlags, F_ZF);
+        ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -282,6 +282,35 @@ void emit_and32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     IFX(X_SF) {
         if (!rex.w) ZEROUP(s1);
         SRLI(s3, s1, rex.w?63:31);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+// emit OR8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+void emit_or8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    CLEAR_FLAGS();
+    IFX(X_PEND) {
+        SET_DF(s3, d_or8);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+
+    OR(s1, s1, s2);
+    
+    IFX(X_PEND) {
+        SB(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_SF) {
+        SRLI(s3, s1, 7);
         BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
