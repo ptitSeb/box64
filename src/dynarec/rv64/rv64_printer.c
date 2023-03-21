@@ -867,10 +867,10 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             case 0x3:
                 switch (rs1) {
                 case 0x2: /* LR.D */
-                    insn.name = "lr.w";
+                    insn.name = "lr.d";
                     PRINT_rd_rs1_aqrl();
                 case 0x3: /* SC.D */
-                    insn.name = "sc.w";
+                    insn.name = "sc.d";
                     PRINT_rd_rs1_rs2_aqrl();
                 }
             }
