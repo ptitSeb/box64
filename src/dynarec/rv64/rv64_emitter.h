@@ -305,6 +305,13 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Shift Right Arithmetic Immediate
 #define SRAIxw(rd, rs1, imm)        if (rex.w) { SRAI(rd, rs1, imm); } else { SRAIW(rd, rs1, imm); }
 
+#define CSRRW(rd, rs1, csr)         EMIT(I_type(csr, rs1, 0b001, rd, 0b1110011))
+#define CSRRS(rd, rs1, csr)         EMIT(I_type(csr, rs1, 0b010, rd, 0b1110011))
+#define CSRRC(rd, rs1, csr)         EMIT(I_type(csr, rs1, 0b011, rd, 0b1110011))
+#define CSRRWI(rd, imm, csr)        EMIT(I_type(csr, imm, 0b101, rd, 0b1110011))
+#define CSRRSI(rd, imm, csr)        EMIT(I_type(csr, imm, 0b110, rd, 0b1110011))
+#define CSRRCI(rd, imm, csr)        EMIT(I_type(csr, imm, 0b111, rd, 0b1110011))
+
 // RV32M
 // rd =(lower) rs1 * rs2 (both signed)
 #define MUL(rd, rs1, rs2)           EMIT(R_type(0b0000001, rs2, rs1, 0b000, rd, 0b0110011))
@@ -349,5 +356,59 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 #define LRxw(rd, rs1, aq, rl)       EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b010|rex.w, rd, 0b0101111))
 #define SCxw(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b00011, aq, rl), rs2, rs1, 0b010|rex.w, rd, 0b0101111))
+
+// RV32F
+// Read round mode
+#define FRRM(rd)                    CSRRS(rd, xZR, 0x002)
+// Swap round mode with rd
+#define FSRM(rd)                    CSRRWI(rd, 0b111, 0x002)
+// load single precision from rs1+imm12 to frd
+#define FLW(frd, rs1, imm12)        EMIT(I_type(imm12, rs1, 0b010, frd, 0b0000111))
+// store single precision frs2 to rs1+imm12
+#define FSW(frs2, rs1, imm12)       EMIT(S_type(imm12, frs2, rs1, 0b010, 0b0100111))
+// store rs1 with rs2 sign bit to rd
+#define FSGNJS(rd, rs1, rs2)        EMIT(R_type(0b0010000, rs2, rs1, 0b000, rd, 0b1010011))
+// move rs1 to rd
+#define FMVS(rd, rs1)               FSGNJS(rd, rs1, rs1)
+// store rs1 with oposite rs2 sign bit to rd
+#define FSGNJNS(rd, rs1, rs2)       EMIT(R_type(0b0010000, rs2, rs1, 0b001, rd, 0b1010011))
+// -rs1 => rd
+#define FNEGS(rd, rs1)              FSGNJNS(rd, rs1, rs1)
+// store rs1 with rs1^rs2 sign bit to rd
+#define FSGNJXS(rd, rs1, rs2)       EMIT(R_type(0b0010000, rs2, rs1, 0b010, rd, 0b1010011))
+// |rs1| => rd
+#define FABSS(rd, rs1)              FSGNJXS(rd, rs1, rs1)
+// Move from Single
+#define FMVXW(rd, frs1)             EMIT(R_type(0b1110000, 0b00000, frs1, 0b000, rd, 0b1010011))
+// Move to Single
+#define FMVWX(frd, rs1)             EMIT(R_type(0b1111000, 0b00000, rs1, 0b000, frd, 0b1010011))
+
+// RV32D
+// load double precision from rs1+imm12 to frd
+#define FLD(frd, rs1, imm12)        EMIT(I_type(imm12, rs1, 0b011, frd, 0b0000111))
+// store double precision frs2 to rs1+imm12
+#define FSD(frs2, rs1, imm12)       EMIT(S_type(imm12, frs2, rs1, 0b011, 0b0100111))
+// Convert Double frs1 to Single frd
+#define FCVTSD(frd, frs1)           EMIT(R_type(0b0100000, 0b00001, frs1, 0b000, frd, 0b1010011))
+// Convert Single frs1 to Double frd
+#define FCVTDS(frd, frs1)           EMIT(R_type(0b0100001, 0b00000, frs1, 0b000, frd, 0b1010011))
+// store rs1 with rs2 sign bit to rd
+#define FSGNJD(rd, rs1, rs2)        EMIT(R_type(0b0010001, rs2, rs1, 0b000, rd, 0b1010011))
+// move rs1 to rd
+#define FMVD(rd, rs1)               FSGNJD(rd, rs1, rs1)
+// store rs1 with oposite rs2 sign bit to rd
+#define FSGNJND(rd, rs1, rs2)       EMIT(R_type(0b0010001, rs2, rs1, 0b001, rd, 0b1010011))
+// -rs1 => rd
+#define FNEGD(rd, rs1)              FSGNJND(rd, rs1, rs1)
+// store rs1 with rs1^rs2 sign bit to rd
+#define FSGNJXD(rd, rs1, rs2)       EMIT(R_type(0b0010001, rs2, rs1, 0b010, rd, 0b1010011))
+// |rs1| => rd
+#define FABSD(rd, rs1)              FSGNJXD(rd, rs1, rs1)
+
+//RV64D
+// Move from Double
+#define FMVXD(rd, frs1)             EMIT(R_type(0b1110001, 0b00000, frs1, 0b000, rd, 0b1010011))
+// Move to Double
+#define FMVDX(frd, rs1)             EMIT(R_type(0b1111001, 0b00000, rs1, 0b000, frd, 0b1010011))
 
 #endif //__RV64_EMITTER_H__

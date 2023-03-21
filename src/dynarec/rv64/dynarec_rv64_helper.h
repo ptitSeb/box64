@@ -469,6 +469,9 @@
 #ifndef TABLE64
 #define TABLE64(A, V)
 #endif
+#ifndef FTABLE64
+#define FTABLE64(A, V)
+#endif
 
 #define ARCH_INIT()
 
@@ -638,7 +641,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define x87_do_pop      STEPNAME(x87_do_pop)
 #define x87_get_current_cache   STEPNAME(x87_get_current_cache)
 #define x87_get_cache   STEPNAME(x87_get_cache)
-#define x87_get_neoncache STEPNAME(x87_get_neoncache)
+#define x87_get_extcache STEPNAME(x87_get_extcache)
 #define x87_get_st      STEPNAME(x87_get_st)
 #define x87_get_st_empty  STEPNAME(x87_get_st)
 #define x87_refresh     STEPNAME(x87_refresh)
@@ -654,6 +657,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define sse_get_reg     STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
 #define sse_forget_reg   STEPNAME(sse_forget_reg)
+#define sse_purge07cache STEPNAME(sse_purge07cache)
 
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
 #define fpu_popcache    STEPNAME(fpu_popcache)
@@ -663,6 +667,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
 #define mmx_purgecache  STEPNAME(mmx_purgecache)
 #define x87_purgecache  STEPNAME(x87_purgecache)
+#define sse_purgecache  STEPNAME(sse_purgecache)
 #ifdef HAVE_TRACE
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #endif
@@ -766,37 +771,37 @@ void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call
-//void x87_stackcount(dynarec_rv64_t* dyn, int ninst, int scratch);
+void x87_stackcount(dynarec_rv64_t* dyn, int ninst, int scratch);
 // fpu push. Return the Dd value to be used
-//int x87_do_push(dynarec_rv64_t* dyn, int ninst, int s1, int t);
+int x87_do_push(dynarec_rv64_t* dyn, int ninst, int s1, int t);
 // fpu push. Do not allocate a cache register. Needs a scratch register to do x87stack synch (or 0 to not do it)
-//void x87_do_push_empty(dynarec_rv64_t* dyn, int ninst, int s1);
+void x87_do_push_empty(dynarec_rv64_t* dyn, int ninst, int s1);
 // fpu pop. All previous returned Dd should be considered invalid
-//void x87_do_pop(dynarec_rv64_t* dyn, int ninst, int s1);
+void x87_do_pop(dynarec_rv64_t* dyn, int ninst, int s1);
 // get cache index for a x87 reg, return -1 if cache doesn't exist
-//int x87_get_current_cache(dynarec_rv64_t* dyn, int ninst, int st, int t);
+int x87_get_current_cache(dynarec_rv64_t* dyn, int ninst, int st, int t);
 // get cache index for a x87 reg, create the entry if needed
-//int x87_get_cache(dynarec_rv64_t* dyn, int ninst, int populate, int s1, int s2, int a, int t);
-// get neoncache index for a x87 reg
-//int x87_get_neoncache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a);
+int x87_get_cache(dynarec_rv64_t* dyn, int ninst, int populate, int s1, int s2, int a, int t);
+// get extcache index for a x87 reg
+int x87_get_extcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a);
 // get vfpu register for a x87 reg, create the entry if needed
-//int x87_get_st(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int t);
+int x87_get_st(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int t);
 // get vfpu register for a x87 reg, create the entry if needed. Do not fetch the Stx if not already in cache
-//int x87_get_st_empty(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int t);
+int x87_get_st_empty(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int t);
 // refresh a value from the cache ->emu (nothing done if value is not cached)
-//void x87_refresh(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st);
+void x87_refresh(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st);
 // refresh a value from the cache ->emu and then forget the cache (nothing done if value is not cached)
-//void x87_forget(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st);
+void x87_forget(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st);
 // refresh the cache value from emu
-//void x87_reget_st(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st);
+void x87_reget_st(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st);
 // swap 2 x87 regs
-//void x87_swapreg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int b);
+void x87_swapreg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int b);
 // Set rounding according to cw flags, return reg to restore flags
-//int x87_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
+int x87_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
 // Restore round flag
-//void x87_restoreround(dynarec_rv64_t* dyn, int ninst, int s1);
+void x87_restoreround(dynarec_rv64_t* dyn, int ninst, int s1);
 // Set rounding according to mxcsr flags, return reg to restore flags
-//int sse_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
+int sse_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
 
 void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
@@ -808,6 +813,39 @@ void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zerou
 #else
 #define CHECK_CACHE()   (cacheupd = CacheNeedsTransform(dyn, ninst))
 #endif
+#define extcache_st_coherency STEPNAME(extcache_st_coherency)
+int extcache_st_coherency(dynarec_rv64_t* dyn, int ninst, int a, int b);
+
+#if STEP == 0
+#define ST_IS_F(A)          0
+#define X87_COMBINE(A, B)   EXT_CACHE_ST_D
+#define X87_ST0             EXT_CACHE_ST_D
+#define X87_ST(A)           EXT_CACHE_ST_D
+#elif STEP == 1
+#define ST_IS_F(A) (extcache_get_current_st(dyn, ninst, A)==EXT_CACHE_ST_F)
+#define X87_COMBINE(A, B) extcache_combine_st(dyn, ninst, A, B)
+#define X87_ST0     extcache_get_current_st(dyn, ninst, 0)
+#define X87_ST(A)   extcache_get_current_st(dyn, ninst, A)
+#else
+#define ST_IS_F(A) (extcache_get_st(dyn, ninst, A)==EXT_CACHE_ST_F)
+#if STEP == 3
+#define X87_COMBINE(A, B) extcache_st_coherency(dyn, ninst, A, B)
+#else
+#define X87_COMBINE(A, B) extcache_get_st(dyn, ninst, A)
+#endif
+#define X87_ST0     extcache_get_st(dyn, ninst, 0)
+#define X87_ST(A)   extcache_get_st(dyn, ninst, A)
+#endif
+
+//SSE/SSE2 helpers
+// get neon register for a SSE reg, create the entry if needed
+int sse_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
+// get neon register for a SSE reg, but don't try to synch it if it needed to be created
+int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
+// forget neon register for a SSE reg, create the entry if needed
+void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int a);
+// purge the XMM0..XMM7 cache (before function call)
+void sse_purge07cache(dynarec_rv64_t* dyn, int ninst, int s1);
 
 // common coproc helpers
 // reset the cache
@@ -828,6 +866,7 @@ void fpu_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07);
 void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07);
 
+
 uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
@@ -835,7 +874,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-//uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 //uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);

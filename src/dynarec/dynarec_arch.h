@@ -32,9 +32,11 @@
 #define instruction_native_t        instruction_rv64_t
 #define dynarec_native_t            dynarec_rv64_t
 
-#define ADDITIONNAL_DEFINITION()
+#define ADDITIONNAL_DEFINITION()  \
+    int fpuCacheNeedsTransform(dynarec_native_t* dyn, int ninst);
 
-#define OTHER_CACHE()
+#define OTHER_CACHE()   \
+    if (fpuCacheNeedsTransform(dyn, ninst)) ret|=2;
 
 #include "rv64/rv64_printer.h"
 #include "rv64/dynarec_rv64_private.h"

@@ -10,6 +10,52 @@ typedef struct instsize_s instsize_t;
 
 #define BARRIER_MAYBE   8
 
+#define EXT_CACHE_NONE 0
+#define EXT_CACHE_ST_D 1
+#define EXT_CACHE_ST_F 2
+#define EXT_CACHE_MM   3
+#define EXT_CACHE_SS   4
+#define EXT_CACHE_SD   5
+#define EXT_CACHE_SCR  6
+typedef union ext_cache_s {
+    int8_t           v;
+    struct {
+        uint8_t t:4;   // reg type
+        uint8_t n:4;   // reg number
+    };
+} ext_cache_t;
+typedef union sse_cache_s {
+    int8_t      v;
+    struct {
+        uint8_t     reg:7;
+        uint8_t     single:1;
+    };
+} sse_cache_t;
+typedef struct extcache_s {
+    // ext cache
+    ext_cache_t         extcache[24];
+    int8_t              stack;
+    int8_t              stack_next;
+    int8_t              stack_pop;
+    int8_t              stack_push;
+    uint8_t             combined1;
+    uint8_t             combined2;
+    uint8_t             swapped;        // the combined reg were swapped
+    uint8_t             barrier;        // is there a barrier at instruction epilog?
+    uint32_t            news;           // bitmask, wich neoncache are new for this opcode
+    // fpu cache
+    int8_t              x87cache[8];    // cache status for the 8 x87 register behind the fpu stack
+    int8_t              x87reg[8];      // reg used for x87cache entry
+    int8_t              mmxcache[8];    // cache status for the 8 MMX registers
+    sse_cache_t         ssecache[16];   // cache status for the 16 SSE(2) registers
+    int8_t              fpuused[24];    // all 10..31 & 0..1 double reg from fpu, used by x87, sse and mmx
+    int8_t              x87stack;       // cache stack counter
+    int8_t              mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
+    int8_t              fpu_scratch;    // scratch counter
+    int8_t              fpu_extra_qscratch; // some opcode need an extra quad scratch register
+    int8_t              fpu_reg;        // x87/sse/mmx reg counter
+} extcache_t;
+
 typedef struct flagcache_s {
     int                 pending;    // is there a pending flags here, or to check?
     int                 dfnone;     // if defered flags is already set to df_none
@@ -32,6 +78,7 @@ typedef struct instruction_rv64_s {
     int                 retn;
     int                 barrier_maybe;
     flagcache_t         f_exit;     // flags status at end of intruction
+    extcache_t          e;          // extcache at end of intruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
 } instruction_rv64_t;
 
@@ -50,6 +97,7 @@ typedef struct dynarec_rv64_s {
     int                 table64cap;
     uintptr_t           tablestart;
     flagcache_t         f;
+    extcache_t          e;          // cache for the 10..31 0..1 double reg from fpu, plus x87 stack delta
     uintptr_t*          next;       // variable array of "next" jump address
     int                 next_sz;
     int                 next_cap;
@@ -64,6 +112,11 @@ typedef struct dynarec_rv64_s {
     int32_t             forward_size;   // size at the forward point
     int                 forward_ninst;  // ninst at the forward point
 } dynarec_rv64_t;
+
+// convert idx (0..24) to reg index (10..31 0..1)
+#define EXTREG(A)   (((A)+10)&31)
+// convert reg index (10..31 0..1) or idx (0..24)
+#define EXTIDX(A)   (((A)-10)&31)
 
 void add_next(dynarec_rv64_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_rv64_t *dyn, uintptr_t addr);
