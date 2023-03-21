@@ -18,7 +18,7 @@ GO(__atomic_compare_exchange, iFpii)
 //GO(__atomic_compare_exchange_2, 
 //GO(__atomic_compare_exchange_4, 
 //GO(__atomic_compare_exchange_8, 
-//GO(__atomic_exchange, 
+GO(__atomic_exchange, vFpppi)
 //GO(__atomic_exchange_1, 
 //GO(__atomic_exchange_16, 
 //GO(__atomic_exchange_2, 
@@ -60,7 +60,7 @@ GO(__atomic_compare_exchange, iFpii)
 //GO(atomic_flag_test_and_set, 
 //GO(atomic_flag_test_and_set_explicit, 
 //GO(__atomic_is_lock_free, 
-//GO(__atomic_load, 
+GO(__atomic_load, vFppi)
 //GO(__atomic_load_1, 
 //GO(__atomic_load_16, 
 //GO(__atomic_load_2, 
