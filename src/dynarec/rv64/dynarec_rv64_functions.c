@@ -33,8 +33,6 @@
 #define X870    XMM0+16
 #define EMM0    XMM0+16
 
-#define SCRATCH0    0
-
 // Get a FPU scratch reg
 int fpu_get_scratch(dynarec_rv64_t* dyn)
 {

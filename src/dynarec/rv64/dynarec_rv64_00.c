@@ -931,8 +931,8 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     *need_epilog = 1;
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
-                    //x87_forget(dyn, ninst, x3, x4, 0);
-                    //sse_purge07cache(dyn, ninst, x3);
+                    x87_forget(dyn, ninst, x3, x4, 0);
+                    sse_purge07cache(dyn, ninst, x3);
                     // disabling isSimpleWrapper because all signed value less than 64bits needs to be sign extended
                     // and return value needs to be cleanned up
                     tmp = 0;//isSimpleWrapper(*(wrapper_t*)(addr));
@@ -1089,7 +1089,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
-                    //sse_purge07cache(dyn, ninst, x3);     // TODO: chack the fpxx to purge/save when implemented
+                    sse_purge07cache(dyn, ninst, x3);
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall) {
                         // disabling isSimpleWrapper because all signed value less than 64bits needs to be sign extended
                         // and return value needs to be cleanned up

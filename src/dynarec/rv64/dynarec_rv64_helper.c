@@ -39,6 +39,9 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
     uint8_t ret = x2;
     *fixaddress = 0;
     if(hint>0) ret = hint;
+    int maxval = 2047;
+    if(i12>1)
+        maxval -= i12;
     MAYUSE(scratch);
     if(!(nextop&0xC0)) {
         if((nextop&7)==4) {
@@ -47,7 +50,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             if((sib&0x7)==5) {
                 int64_t tmp = F32S;
                 if (sib_reg!=4) {
-                    if(tmp && ((tmp<-2048) || (tmp>2047) || !i12)) {
+                    if(tmp && ((tmp<-2048) || (tmp>maxval) || !i12)) {
                         MOV64x(scratch, tmp);
                         if((sib>>6)) {
                             SLLI(ret, xRAX+sib_reg, (sib>>6));
@@ -84,16 +87,16 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
         } else if((nextop&7)==5) {
             int64_t tmp = F32S64;
             int64_t adj = dyn->last_ip?((addr+delta)-dyn->last_ip):0;
-            if(i12 && adj && (tmp+adj>=-2048) && (tmp+adj<=2047)) {
+            if(i12 && adj && (tmp+adj>=-2048) && (tmp+adj<=maxval)) {
                 ret = xRIP;
                 *fixaddress = tmp+adj;
-            } else if(i12 && (tmp>=-2048) && (tmp<=2047)) {
+            } else if(i12 && (tmp>=-2048) && (tmp<=maxval)) {
                 GETIP(addr+delta);
                 ret = xRIP;
                 *fixaddress = tmp;
-            } else if(adj && (tmp+adj>=-2048) && (tmp+adj<=2047)) {
+            } else if(adj && (tmp+adj>=-2048) && (tmp+adj<=maxval)) {
                 ADDI(ret, xRIP, tmp+adj);
-            } else if((tmp>=-2048) && (tmp<=2047)) {
+            } else if((tmp>=-2048) && (tmp<=maxval)) {
                 GETIP(addr+delta);
                 ADDI(ret, xRIP, tmp);
             } else if(tmp+addr+delta<0x100000000LL) {
@@ -716,8 +719,8 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
                 if(next) {
                     // need to check if a ST_F need local promotion
                     if(extcache_get_st_f(dyn, ninst, dyn->e.x87cache[i])>=0) {
-                        FCVTDS(0, dyn->e.x87reg[i]);
-                        FSD(0, s1, offsetof(x64emu_t, x87));    // save the value
+                        FCVTDS(SCRATCH0, dyn->e.x87reg[i]);
+                        FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));    // save the value
                     } else {
                         FSD(dyn->e.x87reg[i], s1, offsetof(x64emu_t, x87));    // save the value
                     }
@@ -849,8 +852,8 @@ void x87_refresh(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
     }
     ADD(s1, xEmu, s2);
     if(dyn->e.extcache[dyn->e.x87reg[ret]].t==EXT_CACHE_ST_F) {
-        FCVTDS(0, dyn->e.x87reg[ret]);
-        FSD(31, s1, offsetof(x64emu_t, x87));
+        FCVTDS(SCRATCH0, dyn->e.x87reg[ret]);
+        FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));
     } else {
         FSD(dyn->e.x87reg[ret], s1, offsetof(x64emu_t, x87));
     }
@@ -1185,43 +1188,91 @@ static void sse_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
 #endif
 void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
 {
+    // need to save 0..1 && 10..17 (maybe) && 28..31
+    // so 0..7 (SSE) && 17..23 (x87+MMX)
     int start = not07?8:0;
     // only SSE regs needs to be push back to xEmu (needs to be "write")
     int n=0;
-    for (int i=start; i<16; i++)
+    for (int i=start; i<8; i++)
         if(dyn->e.ssecache[i].v!=-1)
             ++n;
-    if(!n)
-        return;
-    MESSAGE(LOG_DUMP, "\tPush XMM Cache (%d)------\n", n);
-    for (int i=start; i<16; ++i)
-        if(dyn->e.ssecache[i].v!=-1) {
-            if(dyn->e.ssecache[i].single)
-                FSW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
-            else
-                FSD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
-        }
-    MESSAGE(LOG_DUMP, "\t------- Push XMM Cache (%d)\n", n);
+    if(n) {
+        MESSAGE(LOG_DUMP, "\tPush XMM Cache (%d)------\n", n);
+        for (int i=start; i<8; ++i)
+            if(dyn->e.ssecache[i].v!=-1) {
+                if(dyn->e.ssecache[i].single)
+                    FSW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                else
+                    FSD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+            }
+        MESSAGE(LOG_DUMP, "\t------- Push XMM Cache (%d)\n", n);
+    }
+    n = 0;
+    for(int i=17; i<24; ++i)
+        if(dyn->e.extcache[i].v!=0)
+            ++n;
+    if(n) {
+        MESSAGE(LOG_DUMP, "\tPush x87/MMX Cache (%d)------\n", n);
+        ADDI(xSP, xSP, -8*((n+1)&~1));
+        int p = 0;
+        for(int i=17; i<24; ++i)
+            if(dyn->e.extcache[i].v!=0) {
+                switch(dyn->e.extcache[i].t) {
+                    case EXT_CACHE_ST_F: 
+                    case EXT_CACHE_SS: 
+                        FSW(EXTREG(i), xSP, p*8);
+                        break;
+                    default:
+                        FSD(EXTREG(i), xSP, p*8);
+                        break;
+                };
+                ++p;
+            }
+        MESSAGE(LOG_DUMP, "\t------- Push x87/MMX Cache (%d)\n", n);
+    }
 }
 void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
 {
     int start = not07?8:0;
     // only SSE regs needs to be pop back from xEmu (don't need to be "write" this time)
     int n=0;
-    for (int i=start; i<16; i++)
+    for (int i=start; i<8; i++)
         if(dyn->e.ssecache[i].v!=-1)
             ++n;
-    if(!n)
-        return;
-    MESSAGE(LOG_DUMP, "\tPop XMM Cache (%d)------\n", n);
-    for (int i=start; i<16; ++i)
-        if(dyn->e.ssecache[i].v!=-1) {
-            if(dyn->e.ssecache[i].single)
-                FLW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
-            else
-                FLD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
-        }
-    MESSAGE(LOG_DUMP, "\t------- Pop XMM Cache (%d)\n", n);
+    if(n) {
+        MESSAGE(LOG_DUMP, "\tPop XMM Cache (%d)------\n", n);
+        for (int i=start; i<8; ++i)
+            if(dyn->e.ssecache[i].v!=-1) {
+                if(dyn->e.ssecache[i].single)
+                    FLW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                else
+                    FLD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+            }
+        MESSAGE(LOG_DUMP, "\t------- Pop XMM Cache (%d)\n", n);
+    }
+    n = 0;
+    for(int i=17; i<24; ++i)
+        if(dyn->e.extcache[i].v!=0)
+            ++n;
+    if(n) {
+        MESSAGE(LOG_DUMP, "\tPush x87/MMX Cache (%d)------\n", n);
+        int p = 0;
+        for(int i=17; i<24; ++i)
+            if(dyn->e.extcache[i].v!=0) {
+                switch(dyn->e.extcache[i].t) {
+                    case EXT_CACHE_ST_F: 
+                    case EXT_CACHE_SS: 
+                        FLW(EXTREG(i), xSP, p*8);
+                        break;
+                    default:
+                        FLD(EXTREG(i), xSP, p*8);
+                        break;
+                };
+                ++p;
+            }
+        ADDI(xSP, xSP, 8*((n+1)&~1));
+        MESSAGE(LOG_DUMP, "\t------- Push x87/MMX Cache (%d)\n", n);
+    }
 }
 
 void fpu_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, int s3)

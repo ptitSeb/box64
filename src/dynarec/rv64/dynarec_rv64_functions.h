@@ -6,6 +6,8 @@
 typedef struct x64emu_s x64emu_t;
 typedef struct dynarec_rv64_s dynarec_rv64_t;
 
+#define SCRATCH0    2
+
 // Get an FPU scratch reg
 int fpu_get_scratch(dynarec_rv64_t* dyn);
 // Reset scratch regs counter
