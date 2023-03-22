@@ -382,6 +382,13 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FMVXW(rd, frs1)             EMIT(R_type(0b1110000, 0b00000, frs1, 0b000, rd, 0b1010011))
 // Move to Single
 #define FMVWX(frd, rs1)             EMIT(R_type(0b1111000, 0b00000, rs1, 0b000, frd, 0b1010011))
+// Convert from signed 32bits to Single
+#define FCVTSW(frd, rs1)             EMIT(R_type(0b1101000, 0b00000, rs1, 0b000, frd, 0b1010011))
+
+// RV64F
+// Convert from signed 64bits to Single
+#define FCVTSL(frd, rs1)             EMIT(R_type(0b1101000, 0b00010, rs1, 0b000, frd, 0b1010011))
+
 
 // RV32D
 // load double precision from rs1+imm12 to frd
@@ -404,11 +411,15 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FSGNJXD(rd, rs1, rs2)       EMIT(R_type(0b0010001, rs2, rs1, 0b010, rd, 0b1010011))
 // |rs1| => rd
 #define FABSD(rd, rs1)              FSGNJXD(rd, rs1, rs1)
+// Convert from signed 32bits to Double
+#define FCVTDW(frd, rs1)             EMIT(R_type(0b1101001, 0b00000, rs1, 0b000, frd, 0b1010011))
 
 //RV64D
 // Move from Double
 #define FMVXD(rd, frs1)             EMIT(R_type(0b1110001, 0b00000, frs1, 0b000, rd, 0b1010011))
 // Move to Double
 #define FMVDX(frd, rs1)             EMIT(R_type(0b1111001, 0b00000, rs1, 0b000, frd, 0b1010011))
+// Convert from signed 64bits to Double
+#define FCVTDL(frd, rs1)             EMIT(R_type(0b1101001, 0b00010, rs1, 0b000, frd, 0b1010011))
 
 #endif //__RV64_EMITTER_H__
