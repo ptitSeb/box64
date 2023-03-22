@@ -80,6 +80,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         GOCOND(0x40, "CMOV", "Gw, Ew");
         #undef GO
 
+        case 0xAF:
+            INST_NAME("IMUL Gw,Ew");
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            UFLAG_DF(x1, d_imul16);
+            GETSEW(x1, 0);
+            GETSGW(x2);
+            MULW(x2, x2, x1);
+            UFLAG_RES(x2);
+            SLLI(x2, x2, 48);
+            SRLI(x2, x2, 48);
+            GWBACK;
+            break;
+
         default:
             DEFAULT;
     }

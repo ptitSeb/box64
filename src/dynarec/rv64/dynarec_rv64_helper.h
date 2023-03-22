@@ -165,6 +165,9 @@
                     addr = fakeed(dyn, addr, ninst, nextop); \
                 }
 
+// GETGW extract x64 register in gd, that is i, Signed extented
+#define GETSGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); SLLIW(i, gd, 16); SRAIW(i, i, 16); gd = i;
+
 // Write back ed in wback (if wback not 0)
 #define WBACK       if(wback) {SDxw(ed, wback, fixedaddress); SMWRITE();}
 
