@@ -182,7 +182,11 @@ GOM(__exp2_finite, dFd)
 GOW(expf, fFf)
 GOM(__expf_finite, fFf)
 GOM(__exp_finite, dFd)
-// expl // Weak
+#ifdef HAVE_LD80BITS
+GOW(expl, DFD)
+#else
+GO2(expl, KFK, exp)
+#endif
 GOW(expm1, dFd)
 GOW(expm1f, fFf)
 // expm1l   // Weak
