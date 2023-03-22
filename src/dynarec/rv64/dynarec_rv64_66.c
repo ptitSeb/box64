@@ -113,6 +113,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x83:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0: //ADD
+                    if(opcode==0x81) {INST_NAME("ADD Ew, Iw");} else {INST_NAME("ADD Ew, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, (opcode==0x81)?2:1);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    MOV64x(x5, i16);
+                    emit_add16(dyn, ninst, ed, x5, x2, x4);
+                    EWBACK;
+                    break;
                 case 1: // OR
                     if(opcode==0x81) {INST_NAME("OR Ew, Iw");} else {INST_NAME("OR Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -121,6 +130,17 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MOV64x(x5, i16);
                     emit_or16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
+                    break;
+                case 7: //CMP
+                    if(opcode==0x81) {INST_NAME("CMP Ew, Iw");} else {INST_NAME("CMP Ew, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, (opcode==0x81)?2:1);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    if(i16) {
+                        MOV64xw(x2, i16);
+                        emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    } else
+                        emit_cmp16_0(dyn, ninst, x1, x3, x4);
                     break;
                 default:
                     DEFAULT;
@@ -296,6 +316,34 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOV32w(x1, u16);
                 SH(x1, ed, fixedaddress);
                 SMWRITELOCK(lock);
+            }
+            break;
+
+        case 0xF7:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 6:
+                    INST_NAME("DIV Ew");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEW(x1, 0);
+                    SLLI(x2, xRAX, 48);
+                    SLLI(x3, xRDX, 48);
+                    SRLI(x2, x2, 48);
+                    SRLI(x3, x3, 32);
+                    OR(x2, x2, x3);
+                    DIVUW(x3, x2, ed);
+                    REMUW(x4, x2, ed);
+                    MOV64x(x5, ~0xffff);
+                    AND(xRAX, xRAX, x5);
+                    AND(xRDX, xRDX, x5);
+                    NOT(x5, x5);
+                    AND(x3, x3, x5);
+                    AND(x4, x4, x5);
+                    OR(xRAX, xRAX, x3);
+                    OR(xRDX, xRDX, x4);
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
 
