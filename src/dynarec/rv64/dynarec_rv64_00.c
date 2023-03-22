@@ -644,7 +644,31 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64xw(x2, i64);
             emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
-
+        case 0xAB:
+            if(rep) {
+                INST_NAME("REP STOSD");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1<<F_DF);
+                BNEZ_MARK2(x1);
+                MARK;   // Part with DF==0
+                SDxw(xRAX, xRDI, 0);
+                ADDI(xRDI, xRDI, rex.w?8:4);
+                ADDI(xRCX, xRCX, -1);
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                SDxw(xRAX, xRDI, 0);
+                ADDI(xRDI, xRDI, rex.w?-8:-4);
+                ADDI(xRCX, xRCX, -1);
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("STOSD");
+                GETDIR(x3, x1, rex.w?8:4);
+                SDxw(xRAX, xRDI, 0);
+                ADD(xRDI, xRDI, x3);
+            }
+            break;
         case 0xB0:
         case 0xB1:
         case 0xB2:

@@ -244,6 +244,14 @@
                     OR(wback, wback, ed);               \
                 }
 
+// Get direction with size Z and based of F_DF flag, on register r ready for load/store fetching
+// using s as scratch.
+#define GETDIR(r, s, Z)             \
+    MOV32w(r, Z); /* mask=1<<10 */  \
+    ANDI(s, xFlags, 1<<F_DF);       \
+    BEQZ(s, 8);                     \
+    SUB(r, xZR, r);                 \
+
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)
@@ -275,6 +283,8 @@
 #define BEQ_MARK(reg1, reg2) Bxx_gen(EQ, MARK, reg1, reg2)
 // Branch to MARK if reg1!=reg2 (use j64)
 #define BNE_MARK(reg1, reg2) Bxx_gen(NE, MARK, reg1, reg2)
+// Branch to MARK if reg1!=0 (use j64)
+#define BNEZ_MARK(reg) BNE_MARK(reg, xZR)
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLT_MARK(reg1, reg2) Bxx_gen(LT, MARK, reg1, reg2)
 // Branch to MARK if reg1>=reg2 (use j64)
@@ -283,12 +293,16 @@
 #define BEQ_MARK2(reg1, reg2) Bxx_gen(EQ, MARK2, reg1,reg2)
 // Branch to MARK2 if reg1!=reg2 (use j64)
 #define BNE_MARK2(reg1, reg2) Bxx_gen(NE, MARK2, reg1,reg2)
-// Branch to MARK2 if reg1<>reg2 (use j64)
+// Branch to MARK2 if reg1!=0 (use j64)
+#define BNEZ_MARK2(reg) BNE_MARK2(reg, xZR)
+// Branch to MARK2 if reg1<reg2 (use j64)
 #define BLT_MARK2(reg1, reg2) Bxx_gen(LT, MARK2, reg1,reg2)
 // Branch to MARK3 if reg1==reg2 (use j64)
 #define BEQ_MARK3(reg1, reg2) Bxx_gen(EQ, MARK3, reg1, reg2)
 // Branch to MARK3 if reg1!=reg2 (use j64)
 #define BNE_MARK3(reg1, reg2) Bxx_gen(NE, MARK3, reg1, reg2)
+// Branch to MARK3 if reg1!=0 (use j64)
+#define BNEZ_MARK3(reg) BNE_MARK3(reg, xZR)
 // Branch to MARKLOCK if reg1!=reg2 (use j64)
 #define BNE_MARKLOCK(reg1, reg2) Bxx_gen(NE, MARKLOCK, reg1, reg2)
 // Branch to MARKLOCK if reg1!=0 (use j64)
