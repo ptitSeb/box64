@@ -1262,6 +1262,20 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MOV32w(x2, u8);
                     emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
                     break;
+                case 4:
+                    INST_NAME("MUL AL, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x1, d_mul8);
+                    GETEB(x1, 0);
+                    ANDI(x2, xRAX, 0xff);
+                    MULW(x1, x2, x1);
+                    UFLAG_RES(x1);
+                    LUI(x2, 0xffff0);
+                    AND(xRAX, xRAX, x2);
+                    SLLI(x1, x1, 48);
+                    SRLI(x1, x1, 48);
+                    OR(xRAX, xRAX, x1);
+                    break;
                 default:
                     DEFAULT;
             }
