@@ -321,10 +321,7 @@ void emit_sub8c(dynarec_rv64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
 {
     CLEAR_FLAGS();
 
-    IFX(X_ALL|X_PEND) {
-        MOV32w(s5, c&0xff);
-    }
-
+    MOV32w(s5, c&0xff);
     IFX(X_PEND) {
         SB(s1, xEmu, offsetof(x64emu_t, op1));
         SB(s5, xEmu, offsetof(x64emu_t, op2));
@@ -335,20 +332,19 @@ void emit_sub8c(dynarec_rv64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
 
     IFX(X_AF | X_CF | X_OF) {
         // for later flag calculation
-        NOT(s5, s1);
+        NOT(s2, s1);
     }
 
-    SUBW(s1, s1, s3);
-    ANDI(s1, s1, 0xff);
-
-    IFX(X_PEND) {
-        SB(s1, xEmu, offsetof(x64emu_t, res));
-    }
+    SUB(s1, s1, s5);
     IFX(X_SF) {
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    CALC_SUB_FLAGS(s5, s2, s1, s3, s4, 8);
+    ANDI(s1, s1, 0xff);
+    IFX(X_PEND) {
+        SB(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    CALC_SUB_FLAGS(s2, s5, s1, s3, s4, 8);
     IFX(X_ZF) {
         BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
