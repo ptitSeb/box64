@@ -148,6 +148,18 @@
 // Write back gd in correct register (gd needs to be 16bits only!)
 #define GWBACK       do{int g=xRAX+((nextop&0x38)>>3)+(rex.r<<3); SRLI(g, g, 16); SLLI(g, g, 16); OR(g, g, gd);}while(0)
 
+//GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETEDO(O, D, S)   if(MODREG) {                  \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    SMREAD();                           \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, S, &fixedaddress, rex, NULL, 0, D); \
+                    ADD(S, wback, O);                   \
+                    LDxw(x1, S, 0);                     \
+                    ed = x1;                            \
+                }
+
 // FAKEED like GETED, but doesn't get anything
 #define FAKEED  if(!MODREG) {   \
                     addr = fakeed(dyn, addr, ninst, nextop); \
