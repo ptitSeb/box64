@@ -383,7 +383,15 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Move to Single
 #define FMVWX(frd, rs1)             EMIT(R_type(0b1111000, 0b00000, rs1, 0b000, frd, 0b1010011))
 // Convert from signed 32bits to Single
-#define FCVTSW(frd, rs1)             EMIT(R_type(0b1101000, 0b00000, rs1, 0b000, frd, 0b1010011))
+#define FCVTSW(frd, rs1)            EMIT(R_type(0b1101000, 0b00000, rs1, 0b000, frd, 0b1010011))
+
+#define FADDS(frd, frs1, frs2)      EMIT(R_type(0b0000000, frs2, frs1, 0b000, frd, 0b1010011))
+#define FSUBS(frd, frs1, frs2)      EMIT(R_type(0b0000100, frs2, frs1, 0b000, frd, 0b1010011))
+#define FMULS(frd, frs1, frs2)      EMIT(R_type(0b0001000, frs2, frs1, 0b000, frd, 0b1010011))
+#define FDIVS(frd, frs1, frs2)      EMIT(R_type(0b0001100, frs2, frs1, 0b000, frd, 0b1010011))
+#define FSQRTS(frd, frs1)           EMIT(R_type(0b0101100, 0b00000, frs1, 0b000, frd, 0b1010011))
+#define FMINS(frd, frs1, frs2)      EMIT(R_type(0b0010100, frs2, frs1, 0b000, frd, 0b1010011))
+#define FMAXS(frd, frs1, frs2)      EMIT(R_type(0b0010100, frs2, frs1, 0b001, frd, 0b1010011))
 
 // RV64F
 // Convert from signed 64bits to Single
@@ -413,6 +421,14 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FABSD(rd, rs1)              FSGNJXD(rd, rs1, rs1)
 // Convert from signed 32bits to Double
 #define FCVTDW(frd, rs1)             EMIT(R_type(0b1101001, 0b00000, rs1, 0b000, frd, 0b1010011))
+
+#define FADDD(frd, frs1, frs2)      EMIT(R_type(0b0000001, frs2, frs1, 0b000, frd, 0b1010011))
+#define FSUBD(frd, frs1, frs2)      EMIT(R_type(0b0000101, frs2, frs1, 0b000, frd, 0b1010011))
+#define FMULD(frd, frs1, frs2)      EMIT(R_type(0b0001001, frs2, frs1, 0b000, frd, 0b1010011))
+#define FDIVD(frd, frs1, frs2)      EMIT(R_type(0b0001101, frs2, frs1, 0b000, frd, 0b1010011))
+#define FSQRTD(frd, frs1)           EMIT(R_type(0b0101101, 0b00000, frs1, 0b000, frd, 0b1010011))
+#define FMIND(frd, frs1, frs2)      EMIT(R_type(0b0010101, frs2, frs1, 0b000, frd, 0b1010011))
+#define FMAXD(frd, frs1, frs2)      EMIT(R_type(0b0010101, frs2, frs1, 0b001, frd, 0b1010011))
 
 //RV64D
 // Move from Double

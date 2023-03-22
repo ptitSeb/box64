@@ -272,6 +272,32 @@
 // Generic get GD, but reg value in gd (R_RAX is not added)
 #define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
 
+// Get GX as a Single (might use x1)
+#define GETGXSS(a)                      \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+    a = sse_get_reg(dyn, ninst, x1, gd, 1)
+
+// Get GX as a Double (might use x1)
+#define GETGXSD(a)                      \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+    a = sse_get_reg(dyn, ninst, x1, gd, 0)
+
+// Get GX as a Double (might use x1), no fetching old value
+#define GETGXSD_empty(a)                \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+    a = sse_get_reg_empty(dyn, ninst, x1, gd, 0)
+
+// Get Ex as a single, not a quad (warning, x1 get used, x2 might too)
+#define GETEXSS(a, D)                                                                                   \
+    if(MODREG) {                                                                                        \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);                                      \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        a = fpu_get_scratch(dyn);                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, D);            \
+        FLW(a, ed, fixedaddress);                                                                       \
+    }
+
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)
