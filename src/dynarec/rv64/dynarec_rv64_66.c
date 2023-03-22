@@ -319,6 +319,34 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0xF7:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 6:
+                    INST_NAME("DIV Ew");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEW(x1, 0);
+                    SLLI(x2, xRAX, 48);
+                    SLLI(x3, xRDX, 48);
+                    SRLI(x2, x2, 48);
+                    SRLI(x3, x3, 32);
+                    OR(x2, x2, x3);
+                    DIVUW(x3, x2, ed);
+                    REMUW(x4, x2, ed);
+                    MOV64x(x5, ~0xffff);
+                    AND(xRAX, xRAX, x5);
+                    AND(xRDX, xRDX, x5);
+                    NOT(x5, x5);
+                    AND(x3, x3, x5);
+                    AND(x4, x4, x5);
+                    OR(xRAX, xRAX, x3);
+                    OR(xRDX, xRDX, x4);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         default:
             DEFAULT;
     }
