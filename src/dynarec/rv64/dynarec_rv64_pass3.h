@@ -53,6 +53,22 @@
             dynarec_log(LOG_NONE, ", jmp=out");                                         \
         if(dyn->last_ip)                                                                \
             dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);                 \
+        for(int ii=0; ii<24; ++ii) {            \
+            switch(dyn->insts[ninst].e.extcache[ii].t) {    \
+                case EXT_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
+                case EXT_CACHE_ST_F: dynarec_log(LOG_NONE, " S%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
+                case EXT_CACHE_MM: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;    \
+                case EXT_CACHE_SS: dynarec_log(LOG_NONE, " S%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
+                case EXT_CACHE_SD: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
+                case EXT_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;   \
+                case EXT_CACHE_NONE:           \
+                default:    break;              \
+            }                                   \
+        }                                       \
+        if(dyn->e.stack || dyn->insts[ninst].e.stack_next || dyn->insts[ninst].e.x87stack)     \
+            dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->e.stack, dyn->insts[ninst].e.stack_next, dyn->insts[ninst].e.stack_push, dyn->insts[ninst].e.stack_pop, dyn->insts[ninst].e.x87stack); \
+        if(dyn->insts[ninst].e.combined1 || dyn->insts[ninst].e.combined2)                     \
+            dynarec_log(LOG_NONE, " %s:%d/%d", dyn->insts[ninst].e.swapped?"SWP":"CMB", dyn->insts[ninst].e.combined1, dyn->insts[ninst].e.combined2);   \
         dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");                \
     }
 

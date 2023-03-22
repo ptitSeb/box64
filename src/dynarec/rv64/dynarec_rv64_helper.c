@@ -1113,7 +1113,7 @@ int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
         return dyn->e.ssecache[a].reg;
     }
     dyn->e.ssecache[a].reg = fpu_get_reg_xmm(dyn, single?EXT_CACHE_SS:EXT_CACHE_SD, a);
-    dyn->e.ssecache[a].single = 1; // it will be write...
+    dyn->e.ssecache[a].single = single;
     return dyn->e.ssecache[a].reg;
 }
 // forget ext register for a SSE reg, create the entry if needed
