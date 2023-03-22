@@ -65,7 +65,18 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
-
+        case 0x25:
+            INST_NAME("AND AX, Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i32 = F16;
+            SLLI(x1, xRAX, 48);
+            SRLI(x1, x1, 48);
+            MOV32w(x2, i32);
+            emit_and16(dyn, ninst, x1, x2, x3, x4);
+            LUI(x3, 0xfff0);
+            AND(xRAX, xRAX, x3);
+            OR(xRAX, xRAX, x1);
+            break;
         case 0x3D:
             INST_NAME("CMP AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -114,6 +125,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 default:
                     DEFAULT;
             }
+            break;
+        case 0x85:
+            INST_NAME("TEST Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEW(x1, 0);
+            GETGW(x2);
+            emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
             break;
         case 0x89:
             INST_NAME("MOV Ew, Gw");

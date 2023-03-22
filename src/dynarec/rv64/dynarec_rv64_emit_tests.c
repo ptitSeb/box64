@@ -251,6 +251,35 @@ void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 }
 
+// emit TEST16 instruction, from test s1, s2, using s3, s4 and s5 as scratch
+void emit_test16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    CLEAR_FLAGS();
+    IFX_PENDOR0 {
+        SET_DF(s3, d_tst16);
+    } else {
+        SET_DFNONE();
+    }
+
+    AND(s3, s1, s2); // res = s1 & s2
+
+    IFX_PENDOR0 {
+        SH(s3, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_SF) {
+        SRLI(s4, s3, 15);
+        BEQZ(s4, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_ZF) {
+        BNEZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s3, s4, s5);
+    }
+}
+
 // emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
 void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
