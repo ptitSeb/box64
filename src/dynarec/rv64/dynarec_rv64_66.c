@@ -65,7 +65,18 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
-
+        case 0x25:
+            INST_NAME("AND AX, Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i32 = F16;
+            SLLI(x1, xRAX, 48);
+            SRLI(x1, x1, 48);
+            MOV32w(x2, i32);
+            emit_and16(dyn, ninst, x1, x2, x3, x4);
+            LUI(x3, 0xfff0);
+            AND(xRAX, xRAX, x3);
+            OR(xRAX, xRAX, x1);
+            break;
         case 0x3D:
             INST_NAME("CMP AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -115,6 +126,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x85:
+            INST_NAME("TEST Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEW(x1, 0);
+            GETGW(x2);
+            emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
@@ -134,6 +153,34 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SH(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
+            break;
+            case 0x90:
+            case 0x91:
+            case 0x92:
+            case 0x93:
+            case 0x94:
+            case 0x95:
+            case 0x96:
+            case 0x97:
+                gd = xRAX+(opcode&0x07)+(rex.b<<3);
+                if(gd==xRAX) {
+                    INST_NAME("NOP");
+                } else {
+                    INST_NAME("XCHG AX, Reg");
+                    LUI(x4, 0xfff0);
+                    // x2 <- rax
+                    MV(x2, xRAX);
+                    // rax[15:0] <- gd[15:0]
+                    SLLI(x3, gd, 48);
+                    SRLI(x3, x3, 48);
+                    AND(xRAX, xRAX, x4);
+                    OR(xRAX, xRAX, x3);
+                    // gd[15:0] <- x2[15:0]
+                    SLLI(x2, x2, 48);
+                    SRLI(x2, x2, 48);
+                    AND(gd, gd, x4);
+                    OR(gd, gd, x2);
+                }
             break;
         case 0xC1:
             nextop = F8;
