@@ -522,7 +522,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             gd = x4;
             if(gb2) {
-                SRLI(x4, gb1, gb2);
+                SRLI(x4, gb1, 8);
                 gb1 = x4;
             }
             if(MODREG) {
@@ -536,12 +536,13 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
                 ANDI(gd, gb1, 0xff);
                 if(eb2) {
-                    ADDI(x1, xZR, ~0xff);
-                    SLLI(x1, x1, 8);
+                    MOV64x(x1, 0xffffffffffff00ffLL);
                     ANDI(x1, eb1, x1);
-                    SLLI(gd, gd, 8);    // it might be possible to avoid SRLI/SLLI, but that will do for now
+                    SLLI(gd, gd, 8);
+                    OR(eb1, x1, gd);
+                } else {
+                    OR(eb1, eb1, gd);
                 }
-                ORI(eb1, eb1, gd);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SB(gb1, ed, fixedaddress);
