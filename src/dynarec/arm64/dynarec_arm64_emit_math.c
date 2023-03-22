@@ -432,7 +432,7 @@ void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
     }
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        STRB_U12(s3, xEmu, offsetof(x64emu_t, op2));
+        STRB_U12(s5, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, d_sub8);
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
