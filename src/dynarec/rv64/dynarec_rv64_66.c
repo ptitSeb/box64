@@ -207,10 +207,10 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("CBW");
             SLLI(x1, xRAX, 56);
             SRAI(x1, x1, 56);
-            MOV64x(x2, 0xFFFF);
-            AND(x1, x1, x2);
-            NOT(x2, x2);
+            LUI(x2, 0xffff0);
             AND(xRAX, xRAX, x2);
+            NOT(x2, x2);
+            AND(x1, x1, x2);
             OR(xRAX, xRAX, x1);
             break;
 

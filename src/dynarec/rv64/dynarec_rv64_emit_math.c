@@ -258,6 +258,7 @@ void emit_add16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit ADD8 instruction, from s1, const c, store result in s1 using s3 and s4 as scratch
 void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int c, int s2, int s3, int s4)
 {
+    CLEAR_FLAGS();
     IFX(X_PEND) {
         MOV32w(s4, c&0xff);
         SB(s1, xEmu, offsetof(x64emu_t, op1));
