@@ -122,6 +122,17 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_or16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
+                case 7: //CMP
+                    if(opcode==0x81) {INST_NAME("CMP Ew, Iw");} else {INST_NAME("CMP Ew, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, (opcode==0x81)?2:1);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    if(i16) {
+                        MOV64xw(x2, i16);
+                        emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    } else
+                        emit_cmp16_0(dyn, ninst, x1, x3, x4);
+                    break;
                 default:
                     DEFAULT;
             }
