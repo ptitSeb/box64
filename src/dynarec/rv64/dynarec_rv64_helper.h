@@ -148,10 +148,25 @@
 // Write back gd in correct register (gd needs to be 16bits only!)
 #define GWBACK       do{int g=xRAX+((nextop&0x38)>>3)+(rex.r<<3); SRLI(g, g, 16); SLLI(g, g, 16); OR(g, g, gd);}while(0)
 
+//GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETEDO(O, D, S)   if(MODREG) {                  \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    SMREAD();                           \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, S, &fixedaddress, rex, NULL, 0, D); \
+                    ADD(S, wback, O);                   \
+                    LDxw(x1, S, 0);                     \
+                    ed = x1;                            \
+                }
+
 // FAKEED like GETED, but doesn't get anything
 #define FAKEED  if(!MODREG) {   \
                     addr = fakeed(dyn, addr, ninst, nextop); \
                 }
+
+// GETGW extract x64 register in gd, that is i, Signed extented
+#define GETSGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); SLLIW(i, gd, 16); SRAIW(i, i, 16); gd = i;
 
 // Write back ed in wback (if wback not 0)
 #define WBACK       if(wback) {SDxw(ed, wback, fixedaddress); SMWRITE();}
@@ -725,7 +740,7 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
 void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
 //void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4);
 void emit_sub32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
 //void emit_sub8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
