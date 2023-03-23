@@ -1073,6 +1073,22 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shr8);
                     break;
+                case 7:
+                    if(opcode==0xD0) {
+                        INST_NAME("SAR Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SAR Eb, CL");
+                        ANDI(x2, xRCX, 0x1f);
+                    }
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETSEB(x1, 0);
+                    UFLAG_OP12(ed, x2)
+                    SRA(ed, ed, x2);
+                    EBBACK(x3);
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar8);
+                    break;
                 default:
                     DEFAULT;
             }
