@@ -2422,7 +2422,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("NEG Ed");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED(0);
-                    emit_neg32(dyn, ninst, rex, ed, x2, x3, x4);
+                    emit_neg32(dyn, ninst, rex, ed, x3, x4);
                     WBACK;
                     break;
                 case 4:
