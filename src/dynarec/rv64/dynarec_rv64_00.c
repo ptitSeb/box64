@@ -1383,7 +1383,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         AND(x2, xRAX, xMASK);
                         OR(x3, x3, x2);
                         if(MODREG) {
-                            MV(x4, ed);
+                            AND(x4, ed, xMASK);
                             ed = x4;
                         }
                         DIVU(x2, x3, ed);
