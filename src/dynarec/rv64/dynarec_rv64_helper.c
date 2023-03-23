@@ -394,7 +394,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     }
     fpu_pushcache(dyn, ninst, reg, 0);
     if(ret!=-2) {
-        ADDI(xSP, xSP, -16);   // RV64 stack needs to be 16byte aligned
+        SUBI(xSP, xSP, 16);   // RV64 stack needs to be 16byte aligned
         SD(xEmu, xSP, 0);
         SD(savereg, xSP, 8);
         // x5..x8, x10..x17, x28..x31 those needs to be saved by caller
@@ -447,7 +447,7 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
     fpu_pushcache(dyn, ninst, x3, 1);
     // x5..x8, x10..x17, x28..x31 those needs to be saved by caller
     // RDI, RSI, RDX, RCX, R8, R9 are used for function call
-    ADDI(xSP, xSP, -16);
+    SUBI(xSP, xSP, 16);
     SD(xEmu, xSP, 0);
     SD(xRIP, xSP, 8);   // ARM64 stack needs to be 16byte aligned
     STORE_REG(R12);
@@ -560,7 +560,7 @@ void x87_stackcount(dynarec_rv64_t* dyn, int ninst, int scratch)
     SW(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
     // Sub x87stack to top, with and 7
     LW(scratch, xEmu, offsetof(x64emu_t, top));
-    ADDI(scratch, scratch, -a);
+    SUBI(scratch, scratch, a);
     ANDI(scratch, scratch, 7);
     SW(scratch, xEmu, offsetof(x64emu_t, top));
     // reset x87stack, but not the stack count of extcache
@@ -674,7 +674,7 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
             // new tag to fulls
             ADDI(s3, xZR, 0);
             for (int i=0; i<a; ++i) {
-                ADDI(s2, s2, -1);
+                SUBI(s2, s2, 1);
                 ANDI(s2, s2, 7);    // (emu->top + st)&7
                 SLLI(s1, s2, 2);
                 ADD(s1, xEmu, s1);
@@ -970,7 +970,7 @@ int x87_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
     SLLI(s1, s1, 1);
     ADDI(s2, xZR, 3);
     BGE(s1, s2, 4+8);
-    ADDI(s1, s1, -4);
+    SUBI(s1, s1, 4);
     XORI(s3, s1, 0b11);
     // transform done (is there a faster way?)
     FSRM(s3);               // exange RM with current
@@ -991,7 +991,7 @@ int sse_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
     SLLI(s1, s1, 1);
     ADDI(s2, xZR, 3);
     BGE(s1, s2, 4+8);
-    ADDI(s1, s1, -4);
+    SUBI(s1, s1, 4);
     XORI(s3, s1, 0b11);
     // transform done (is there a faster way?)
     FSRM(s3);               // exange RM with current
@@ -1213,7 +1213,7 @@ void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
             ++n;
     if(n) {
         MESSAGE(LOG_DUMP, "\tPush x87/MMX Cache (%d)------\n", n);
-        ADDI(xSP, xSP, -8*((n+1)&~1));
+        SUBI(xSP, xSP, 8*((n+1)&~1));
         int p = 0;
         for(int i=17; i<24; ++i)
             if(dyn->e.extcache[i].v!=0) {
@@ -1520,7 +1520,7 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
             ADDI(s1, xEmu, offsetof(x64emu_t, p_regs));
             SLLI(s3, s3, 2);
             for (int i=0; i<a; ++i) {
-                ADDI(s3, s3, -1<<2);
+                SUBI(s3, s3, 1<<2);
                 ANDI(s3, s3, 7<<2);
                 ADD(s3, s1, s3);
                 SW(s2, s3, 0);    // that slot is full

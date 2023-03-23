@@ -401,7 +401,7 @@ void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     {
         // special case when doing math on RSP and only PEND is needed: ignoring it!
         if (c > -2048 && c <= 2048) {
-            ADDI(s1, s1, -c);
+            SUBI(s1, s1, c);
         } else {
             MOV64xw(s2, c);
             SUBxw(s1, s1, s2);

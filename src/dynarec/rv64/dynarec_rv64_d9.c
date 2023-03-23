@@ -231,7 +231,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("FDECSTP");
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             LW(x2, xEmu, offsetof(x64emu_t, top));
-            ADDI(x2, x2, -1);
+            SUBI(x2, x2, 1);
             ANDI(x2, x2, 7);
             SW(x2, xEmu, offsetof(x64emu_t, top));
             break;
