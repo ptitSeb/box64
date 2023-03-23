@@ -412,8 +412,8 @@ static inline insn_t insn_ciwtype_read(uint16_t data)
 #define PRINT_rd_rs1_rs2_rs3() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s, %s", insn.name, RN(rd), RN(rs1), RN(rs2), RN(rs3)); return buff
 #define PRINT_rd_rs1_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %d", insn.name, RN(rd), RN(rs1), insn.imm); return buff
 #define PRINT_rd_rs1_immx() snprintf(buff, sizeof(buff), "%s\t%s, %s, 0x%x", insn.name, RN(rd), RN(rs1), insn.imm); return buff
-#define PRINT_rd_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rd), insn.imm, RN(rs1)); return buff
-#define PRINT_rs2_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rs2), insn.imm, RN(rs1)); return buff
+#define PRINT_rd_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rd), insn.imm, gpnames[insn.rs1]); return buff
+#define PRINT_rs2_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rs2), insn.imm, gpnames[insn.rs1]); return buff
 #define PRINT_rd_imm() snprintf(buff, sizeof(buff), "%s\t%s, %d", insn.name, RN(rd), insn.imm); return buff
 #define PRINT_rd_immx() snprintf(buff, sizeof(buff), "%s\t%s, 0x%x", insn.name, RN(rd), insn.imm); return buff
 #define PRINT_rs1_rs2_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %d", insn.name, RN(rs1), RN(rs2), insn.imm); return buff
