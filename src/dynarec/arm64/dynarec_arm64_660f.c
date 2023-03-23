@@ -730,16 +730,57 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     break;
 
+                case 0x14:
+                    INST_NAME("PEXTRB Ed, Gx, Ib");
+                    nextop = F8;
+                    GETGX(q0, 0);
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        u8 = F8;
+                        VMOVBto(ed, q0, (u8&15));
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                        u8 = F8;
+                        VST1_8(q0, (u8&15), wback);
+                        SMWRITE2();
+                    }
+                    break;
+                case 0x15:
+                    INST_NAME("PEXTRW Ed, Gx, Ib");
+                    nextop = F8;
+                    GETGX(q0, 0);
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        u8 = F8;
+                        VMOVHto(ed, q0, (u8&7));
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                        u8 = F8;
+                        VST1_16(q0, (u8&7), wback);
+                        SMWRITE2();
+                    }
+                    break;
                 case 0x16:
                     if(rex.w) {INST_NAME("PEXTRQ Ed, Gx, Ib");} else {INST_NAME("PEXTRD Ed, Gx, Ib");}
                     nextop = F8;
                     GETGX(q0, 0);
-                    GETED(1);
-                    u8 = F8;
-                    if(rex.w) {
-                        VMOVQDto(ed, q0, (u8&1));
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        u8 = F8;
+                        if(rex.w) {
+                            VMOVQDto(ed, q0, (u8&1));
+                        } else {
+                            VMOVSto(ed, q0, (u8&3));
+                        }
                     } else {
-                        VMOVSto(ed, q0, (u8&3));
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                        u8 = F8;
+                        if(rex.w) {
+                            VST1_64(q0, (u8&1), wback);
+                        } else {
+                            VST1_32(q0, (u8&3), wback);
+                        }
+                        SMWRITE2();
                     }
                     break;
 

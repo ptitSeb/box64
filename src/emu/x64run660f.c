@@ -767,14 +767,26 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 }
                 break;
 
-            case 0x14:      // PEXTRB EB, GX, u8
+            case 0x14:      // PEXTRB ED, GX, u8
                 nextop = F8;
-                GETEB(1);
+                GETED(1);
                 GETGX;
                 tmp8u = F8;
-                EB->byte[0] = GX->ub[tmp8u&0x0f];
+                if(MODREG)
+                    ED->q[0] = GX->ub[tmp8u&0x0f];
+                else
+                    ED->byte[0] = GX->ub[tmp8u&0x0f];
                 break;
-
+            case 0x15:      // PEXTRW Ew,Gx,Ib
+                nextop = F8;
+                GETED(1);
+                GETGX;
+                tmp8u = F8;
+                if(MODREG)
+                    ED->q[0] = GX->uw[tmp8u&7];  // 16bits extract, 0 extended
+                else
+                    ED->word[0] = GX->uw[tmp8u&7];
+                break;
             case 0x16:      // PEXTRD/Q ED, GX, u8
                 nextop = F8;
                 GETED(1);
@@ -783,7 +795,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 if(rex.w) {
                     ED->q[0] = GX->q[tmp8u&1];
                 } else {
-                    ED->q[0] = GX->ud[tmp8u&3];
+                    if(MODREG)
+                        ED->q[0] = GX->ud[tmp8u&3];
+                    else
+                        ED->dword[0] = GX->ud[tmp8u&3];
                 }
                 break;
             case 0x17:      // EXTRACTPS ED, GX, u8
