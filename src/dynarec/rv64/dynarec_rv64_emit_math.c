@@ -354,6 +354,45 @@ void emit_sub8c(dynarec_rv64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
     }
 }
 
+// emit SUB16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
+void emit_sub16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    CLEAR_FLAGS();
+    IFX(X_PEND) {
+        SH(s1, xEmu, offsetof(x64emu_t, op1));
+        SH(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s3, d_sub16);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFX(X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOT(s5, s1);
+    }
+
+    SUBW(s1, s1, s2);
+    IFX(X_PEND) {
+        SH(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_SF) {
+        BGE(s1, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    SLLI(s1, s1, 48);
+    SRLI(s1, s1, 48);
+
+    CALC_SUB_FLAGS(s5, s2, s1, s3, s4, 16);
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+
 // emit SUB32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_sub32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
