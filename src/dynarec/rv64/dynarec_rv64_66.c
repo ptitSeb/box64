@@ -163,6 +163,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_or16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
+                case 4: // AND
+                    if(opcode==0x81) {INST_NAME("AND Ew, Iw");} else {INST_NAME("AND Ew, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, (opcode==0x81)?2:1);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    MOV64x(x5, i16);
+                    emit_and16(dyn, ninst, x1, x5, x2, x4);
+                    EWBACK;
+                    break;
                 case 5: // SUB
                     if(opcode==0x81) {INST_NAME("SUB Ew, Iw");} else {INST_NAME("SUB Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -172,7 +181,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_sub16(dyn, ninst, x1, x5, x2, x4, x5);
                     EWBACK;
                     break;
-                case 7: //CMP
+                case 7: // CMP
                     if(opcode==0x81) {INST_NAME("CMP Ew, Iw");} else {INST_NAME("CMP Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEW(x1, (opcode==0x81)?2:1);
