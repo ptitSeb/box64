@@ -1374,13 +1374,13 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ZEROUP(ed);
                     WBACK;
                     break;
-                /*case 3:
+                case 3:
                     INST_NAME("NEG Ed");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED(0);
-                    emit_neg32(dyn, ninst, rex, ed, x3, x4);
+                    emit_neg32(dyn, ninst, rex, ed, x2, x3, x4);
                     WBACK;
-                    break;*/
+                    break;
                 case 4:
                     INST_NAME("MUL EAX, Ed");
                     SETFLAGS(X_ALL, SF_PENDING);
