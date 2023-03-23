@@ -207,6 +207,12 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
+        case 0x35:
+            INST_NAME("XOR EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
+            break;
         case 0x38:
             INST_NAME("CMP Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
