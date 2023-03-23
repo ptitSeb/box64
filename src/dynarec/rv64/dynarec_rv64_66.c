@@ -86,6 +86,18 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
+        case 0x2D:
+            INST_NAME("SUB AX, Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i32 = F16;
+            SLLI(x1, xRAX, 48);
+            SRLI(x1, x1, 48);
+            MOV32w(x2, i32);
+            emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
+            LUI(x2, 0xffff0);
+            AND(xRAX, xRAX, x2);
+            OR(xRAX, xRAX, x1);
+            break;
         case 0x3D:
             INST_NAME("CMP AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
