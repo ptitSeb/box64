@@ -1474,7 +1474,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             GETED(0);
                             DIV(x2, xRAX, ed);
                             REM(xRDX, xRAX, ed);
-                            AND(xRAX, x2, xMASK);
+                            MV(xRAX, x2);
                         } else {
                             GETEDH(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
                             //Need to see if RDX==0 and RAX not signed
