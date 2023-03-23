@@ -665,6 +665,37 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ZEROUP(xRDX);
             }
             break;
+        case 0xA5:
+            if(rep) {
+                INST_NAME("REP MOVSD");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1<<F_DF);
+                BNEZ_MARK2(x1);
+                MARK;   // Part with DF==0
+                LDxw(x1, xRSI, 0);
+                ADDI(xRSI, xRSI, rex.w?8:4);
+                SDxw(x1, xRDI, 0);
+                ADDI(xRDI, xRDI, rex.w?8:4);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                LDxw(x1, xRSI, 0);
+                SUBI(xRSI, xRSI, rex.w?8:4);
+                SDxw(x1, xRDI, 0);
+                SUBI(xRDI, xRDI, rex.w?8:4);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("MOVSD");
+                GETDIR(x3, x1, rex.w?8:4);
+                LDxw(x1, xRSI, 0);
+                SDxw(x1, xRDI, 0);
+                ADD(xRSI, xRSI, x3);
+                ADD(xRDI, xRDI, x3);
+            }
+            break;
         case 0xA8:
             INST_NAME("TEST AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -689,13 +720,13 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MARK;   // Part with DF==0
                 SDxw(xRAX, xRDI, 0);
                 ADDI(xRDI, xRDI, rex.w?8:4);
-                ADDI(xRCX, xRCX, -1);
+                SUBI(xRCX, xRCX, 1);
                 BNEZ_MARK(xRCX);
                 B_NEXT_nocond;
                 MARK2;  // Part with DF==1
                 SDxw(xRAX, xRDI, 0);
-                ADDI(xRDI, xRDI, rex.w?-8:-4);
-                ADDI(xRCX, xRCX, -1);
+                SUBI(xRDI, xRDI, rex.w?8:4);
+                SUBI(xRCX, xRCX, 1);
                 BNEZ_MARK2(xRCX);
                 // done
             } else {
