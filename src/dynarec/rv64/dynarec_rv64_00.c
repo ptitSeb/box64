@@ -98,7 +98,14 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_or8(dyn, ninst, x1, x2, x3, x4);
             GBBACK(x5);
             break;
-
+        case 0x0B:
+            INST_NAME("OR Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_or32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
         case 0x0D:
             INST_NAME("OR EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -199,6 +206,12 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETED(0);
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+        case 0x35:
+            INST_NAME("XOR EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
         case 0x38:
             INST_NAME("CMP Eb, Gb");
