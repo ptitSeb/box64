@@ -384,6 +384,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xF7:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0:
+                case 1:
+                    INST_NAME("TEST Ew, Iw");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, 2);
+                    u16 = F16;
+                    MOV32w(x2, u16);
+                    emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
                 case 6:
                     INST_NAME("DIV Ew");
                     SETFLAGS(X_ALL, SF_SET);
