@@ -381,3 +381,10 @@ void emit_or8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
+
+// emit OR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_or8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4)
+{
+    MOV32w(s2, c&0xff);
+    emit_or8(dyn, ninst, s1, s2, s3, s4);
+}
