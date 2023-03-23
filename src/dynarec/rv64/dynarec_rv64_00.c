@@ -147,6 +147,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_and32(dyn, ninst, rex, ed, gd, x3, x4);
             WBACK;
             break;
+        case 0x22:
+            INST_NAME("AND Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x2, 0);
+            GETGB(x1);
+            emit_and8(dyn, ninst, x1, x2, x3, x4);
+            GBBACK(x5);
+            break;
         case 0x23:
             INST_NAME("AND Gd, Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -1072,6 +1081,22 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     EBBACK(x3);
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shr8);
+                    break;
+                case 7:
+                    if(opcode==0xD0) {
+                        INST_NAME("SAR Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SAR Eb, CL");
+                        ANDI(x2, xRCX, 0x1f);
+                    }
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETSEB(x1, 0);
+                    UFLAG_OP12(ed, x2)
+                    SRA(ed, ed, x2);
+                    EBBACK(x3);
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar8);
                     break;
                 default:
                     DEFAULT;
