@@ -408,6 +408,7 @@ static inline insn_t insn_ciwtype_read(uint16_t data)
 #define RN(r) insn.f ? fpnames[insn.r] : gpnames[insn.r]
 
 #define PRINT_none() snprintf(buff, sizeof(buff), "%s", insn.name); return buff
+#define PRINT_rd_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, RN(rd), RN(rs1)); return buff
 #define PRINT_rd_rs1_rs2() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s", insn.name, RN(rd), RN(rs1), RN(rs2)); return buff
 #define PRINT_rd_rs1_rs2_rs3() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s, %s", insn.name, RN(rd), RN(rs1), RN(rs2), RN(rs3)); return buff
 #define PRINT_rd_rs1_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %d", insn.name, RN(rd), RN(rs1), insn.imm); return buff
@@ -415,8 +416,11 @@ static inline insn_t insn_ciwtype_read(uint16_t data)
 #define PRINT_rd_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rd), insn.imm, gpnames[insn.rs1]); return buff
 #define PRINT_rs2_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rs2), insn.imm, gpnames[insn.rs1]); return buff
 #define PRINT_rd_imm() snprintf(buff, sizeof(buff), "%s\t%s, %d", insn.name, RN(rd), insn.imm); return buff
+#define PRINT_rd_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, pc%+d # 0x%llx", insn.name, RN(rd), insn.imm, insn.imm+(uint64_t)addr); return buff
+#define PRINT_imm_rel() snprintf(buff, sizeof(buff), "%s\tpc%+d # 0x%llx", insn.name, insn.imm, insn.imm+(uint64_t)addr); return buff
 #define PRINT_rd_immx() snprintf(buff, sizeof(buff), "%s\t%s, 0x%x", insn.name, RN(rd), insn.imm); return buff
 #define PRINT_rs1_rs2_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %d", insn.name, RN(rs1), RN(rs2), insn.imm); return buff
+#define PRINT_rs1_rs2_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, %s, pc%+d # 0x%llx", insn.name, RN(rs1), RN(rs2), insn.imm, insn.imm+(uint64_t)addr); return buff
 #define PRINT_fd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_xd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, gpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_fd_xs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], gpnames[insn.rs1]); return buff
@@ -731,12 +735,24 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
         }
         case 0x4: {
             int hex = 0;
+            int mv_alias = 0;
+            int nop_alias = 0;
+            int not_alias = 0;
             uint32_t funct3 = FUNCT3(data);
 
             insn =  insn_itype_read(data);
             switch (funct3) {
             case 0x0: /* ADDI */
                 insn.name = "addi";
+                if (insn.imm == 0) {
+                    if (insn.rd == 0 && insn.rs1 == 0) {
+                        nop_alias = 1;
+                        insn.name = "nop";
+                    } else {
+                        mv_alias = 1;
+                        insn.name = "mv";
+                    }
+                }
                 break;
             case 0x1: {
                 uint32_t imm116 = IMM116(data);
@@ -754,6 +770,10 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             case 0x4: /* XORI */
                 insn.name = "xori";
                 hex = 1;
+                if (insn.imm == -1) {
+                    not_alias = 1;
+                    insn.name = "not";
+                }
                 break;
             case 0x5: {
                 uint32_t imm116 = IMM116(data);
@@ -775,7 +795,13 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 hex = 1;
                 break;
             }
-            if(hex) {
+            if (not_alias) {
+                PRINT_rd_rs1();
+            } else if (nop_alias) {
+                PRINT_none();
+            } else if (mv_alias) {
+                PRINT_rd_rs1();
+            } else if(hex) {
                 PRINT_rd_rs1_immx();
             } else {
                 PRINT_rd_rs1_imm();
@@ -784,7 +810,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
         case 0x5: /* AUIPC */
             insn =  insn_utype_read(data);
             insn.name = "auipc";
-            PRINT_rd_imm();
+            PRINT_rd_imm_rel();
         case 0x6: {
             uint32_t funct3 = FUNCT3(data);
             uint32_t funct7 = FUNCT7(data);
@@ -1352,7 +1378,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 break;
             }
 
-            PRINT_rs1_rs2_imm();
+            PRINT_rs1_rs2_imm_rel();
         }
         case 0x19: /* JALR */
             insn =  insn_itype_read(data);
@@ -1360,8 +1386,13 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             PRINT_rd_imm_rs1();
         case 0x1b: /* JAL */
             insn =  insn_jtype_read(data);
-            insn.name = "jal";
-            PRINT_rd_imm();
+            if (insn.rd != 0) {
+                insn.name = "jal";
+                PRINT_rd_imm_rel();
+            } else {
+                insn.name = "j";
+                PRINT_imm_rel();
+            }
         case 0x1c: {
             if (data == 0x73) { /* ECALL */
                 insn.name = "ecall";
