@@ -181,9 +181,7 @@
                         wb2 = (wback>>2)*8;     \
                         wback = xRAX+(wback&3); \
                     }                           \
-                    MV(i, wback);               \
-                    if (wb2) SRLI(i, i, wb2);   \
-                    ANDI(i, i, 0xff);           \
+                    if (wb2) {MV(i, wback); SRLI(i, i, wb2); ANDI(i, i, 0xff);} else ANDI(i, wback, 0xff);   \
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
@@ -226,21 +224,17 @@
                     gb1 = xRAX+(gd&3);                        \
                 }                                             \
                 gd = i;                                       \
-                MV(gd, gb1);                                  \
-                if (gb2) SRLI(gd, gd, gb2*8);                 \
-                ANDI(gd, gd, 0xff);
+                if (gb2) {MV(gd, gb1); SRLI(gd, gd, 8); ANDI(gd, gd, 0xff);} else ANDI(gd, gb1, 0xff);
 
 // Write gb (gd) back to original register / memory, using s1 as scratch
 #define GBBACK(s1) if(gb2) {                            \
                     assert(gb2 == 8);                   \
                     MOV64x(s1, 0xffffffffffff00ffLL);   \
                     AND(gb1, gb1, s1);                  \
-                    ANDI(gd, gd, 0xff);                 \
                     SLLI(s1, gd, 8);                    \
                     OR(gb1, gb1, s1);                   \
                 } else {                                \
                     ANDI(gb1, gb1, ~0xff);              \
-                    ANDI(gd, gd, 0xff);                 \
                     OR(gb1, gb1, gd);                   \
                 }
 
