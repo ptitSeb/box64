@@ -467,7 +467,12 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ZEROUP(gd);
             }
             break;
-
+        case 0x6A:
+            INST_NAME("PUSH Ib");
+            i64 = F8S;
+            MOV64x(x3, i64);
+            PUSH1(x3);
+            break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Id");
             SETFLAGS(X_ALL, SF_PENDING);
