@@ -153,6 +153,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_sbb32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
             break;
+        case 0x20:
+            INST_NAME("AND Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x3);
+            emit_and8(dyn, ninst, x1, x3, x4, x5);
+            EBBACK(x3);
+            break;
         case 0x21:
             INST_NAME("AND Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
