@@ -62,15 +62,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
             break;
-
-        case 0x03:
-            INST_NAME("ADD Gd, Ed");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
-            nextop = F8;
-            GETGD;
-            GETED(0);
-            emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
-            break;
         case 0x02:
             INST_NAME("ADD Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -80,13 +71,20 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_add8(dyn, ninst, x1, x2, x3, x4);
             GBBACK(x5);
             break;
+        case 0x03:
+            INST_NAME("ADD Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
         case 0x05:
             INST_NAME("ADD EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i64 = F32S;
             emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
             break;
-
         case 0x08:
             INST_NAME("OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
