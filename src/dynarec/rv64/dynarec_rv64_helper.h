@@ -783,7 +783,7 @@ void emit_and32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 void emit_or8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_or8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4);
 //void emit_xor8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_xor8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_xor8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_and8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_add16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
