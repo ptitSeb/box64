@@ -61,6 +61,24 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode
 
     switch(opcode) {
+        case 0x01:
+            INST_NAME("ADD Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_add16(dyn, ninst, x1, x2, x4, x5);
+            EWBACK;
+            break;
+        case 0x03:
+            INST_NAME("ADD Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_add16(dyn, ninst, x1, x2, x3, x4);
+            GWBACK;
+            break;
         case 0x05:
             INST_NAME("ADD AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -72,6 +90,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LUI(x3, 0xffff0);
             AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
+            break;
+        case 0x09:
+            INST_NAME("OR Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_or16(dyn, ninst, x1, x2, x4, x2);
+            EWBACK;
             break;
         case 0x0B:
             INST_NAME("OR Gw, Ew");
@@ -186,6 +213,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEW(x1, 0);
             emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
             break;
+        case 0x3B:
+            INST_NAME("CMP Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            break;
         case 0x3D:
             INST_NAME("CMP AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -198,6 +233,24 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);
             }
+            break;
+        case 0x69:
+        case 0x6B:
+            if(opcode==0x69) {
+                INST_NAME("IMUL Gw,Ew,Iw");
+            } else {
+                INST_NAME("IMUL Gw,Ew,Ib");
+            }
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            UFLAG_DF(x1, d_imul16);
+            GETSEW(x1, (opcode==0x69)?2:1);
+            if(opcode==0x69) i32 = F16S; else i32 = F8S;
+            MOV32w(x2, i32);
+            MULW(x2, x2, x1);
+            UFLAG_RES(x2);
+            gd=x2;
+            GWBACK;
             break;
         case 0x70:
         case 0x71:
@@ -470,6 +523,23 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD3:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 5:
+                    if(opcode==0xD1) {
+                        INST_NAME("SHR Ew, 1");
+                        MOV32w(x4, 1);
+                    } else {
+                        INST_NAME("SHR Ew, CL");
+                        ANDI(x4, xRCX, 0x1f);
+                    }
+                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 0);
+                    UFLAG_OP12(ed, x4)
+                    SRL(ed, ed, x4);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shr16);
+                    break;
                 case 7:
                     if(opcode==0xD1) {
                         INST_NAME("SAR Ew, 1");
