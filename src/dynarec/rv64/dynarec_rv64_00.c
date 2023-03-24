@@ -222,7 +222,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_sub32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
             break;
-
+        case 0x2A:
+            INST_NAME("SUB Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x3);
+            emit_sub8(dyn, ninst, x3, x1, x4, x5, x6);
+            GBBACK(x5);
+            break;
         case 0x2B:
             INST_NAME("SUB Gd, Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
