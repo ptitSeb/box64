@@ -73,6 +73,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
+        case 0x09:
+            INST_NAME("OR Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_or16(dyn, ninst, x1, x2, x4, x2);
+            EWBACK;
+            break;
         case 0x0B:
             INST_NAME("OR Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
