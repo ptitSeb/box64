@@ -254,6 +254,63 @@ void emit_add16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
+// emit ADD8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
+void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    CLEAR_FLAGS();
+    IFX(X_PEND) {
+        SB(s1, xEmu, offsetof(x64emu_t, op1));
+        SB(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s3, d_add8);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+    IFX(X_AF | X_OF) {
+        OR(s3, s1, s2);       // s3 = op1 | op2
+        AND(s4, s1, s2);       // s4 = op1 & op2
+    }
+    ADD(s1, s1, s2);
+
+    IFX(X_AF|X_OF) {
+        NOT(s4, s1);   // s4 = ~res
+        AND(s3, s4, s3);   // s3 = ~res & (op1 | op2)
+        OR(s3, s3, s2);   // cc = (~res & (op1 | op2)) | (op1 & op2)
+        IFX(X_AF) {
+            ANDI(s4, s3, 0x08); // AF: cc & 0x08
+            BEQZ(s4, 8);
+            ORI(xFlags, xFlags, 1 << F_AF);
+        }
+        IFX(X_OF) {
+            SRLI(s3, s3, 6);
+            SRLI(s4, s3, 1);
+            XOR(s3, s3, s4);
+            ANDI(s3, s3, 1); // OF: xor of two MSB's of cc
+            BEQZ(s3, 8);
+            ORI(xFlags, xFlags, 1 << F_OF2);
+        }
+    }
+    IFX(X_CF) {
+        SRLI(s3, s1, 8);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_CF);
+    }
+    IFX(X_PEND) {
+        SH(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    ANDI(s1, s1, 0xff);
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_SF) {
+        SRLI(s3, s1, 7);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
 
 // emit ADD8 instruction, from s1, const c, store result in s1 using s3 and s4 as scratch
 void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int c, int s2, int s3, int s4)
