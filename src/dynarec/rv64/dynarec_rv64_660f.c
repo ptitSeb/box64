@@ -94,6 +94,34 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GWBACK;
             break;
 
+        case 0xBE:
+            INST_NAME("MOVSX Gw, Eb");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                if(rex.rex) {
+                    ed = xRAX+(nextop&7)+(rex.b<<3);
+                    eb1=ed;
+                    eb2=0;
+                } else {
+                    ed = (nextop&7);
+                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                }
+                SLLI(x1, eb1, 56-eb2);
+                SRAI(x1, x1, 56);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 0, 0);
+                LB(x1, ed, fixedaddress);
+            }
+            LUI(x5, 0xffff0);
+            AND(gd, gd, x5);
+            NOT(x5, x5);
+            AND(x1, x1, x5);
+            OR(gd, gd, x1);
+            break;
+
         default:
             DEFAULT;
     }

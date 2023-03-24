@@ -737,6 +737,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             int hex = 0;
             int mv_alias = 0;
             int nop_alias = 0;
+            int not_alias = 0;
             uint32_t funct3 = FUNCT3(data);
 
             insn =  insn_itype_read(data);
@@ -769,6 +770,10 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             case 0x4: /* XORI */
                 insn.name = "xori";
                 hex = 1;
+                if (insn.imm == -1) {
+                    not_alias = 1;
+                    insn.name = "not";
+                }
                 break;
             case 0x5: {
                 uint32_t imm116 = IMM116(data);
@@ -790,7 +795,9 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 hex = 1;
                 break;
             }
-            if (nop_alias) {
+            if (not_alias) {
+                PRINT_rd_rs1();
+            } else if (nop_alias) {
                 PRINT_none();
             } else if (mv_alias) {
                 PRINT_rd_rs1();
