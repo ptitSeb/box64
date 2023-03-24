@@ -487,6 +487,23 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD3:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 5:
+                    if(opcode==0xD1) {
+                        INST_NAME("SHR Ew, 1");
+                        MOV32w(x4, 1);
+                    } else {
+                        INST_NAME("SHR Ew, CL");
+                        ANDI(x4, xRCX, 0x1f);
+                    }
+                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 0);
+                    UFLAG_OP12(ed, x4)
+                    SRL(ed, ed, x4);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shr16);
+                    break;
                 case 7:
                     if(opcode==0xD1) {
                         INST_NAME("SAR Ew, 1");
