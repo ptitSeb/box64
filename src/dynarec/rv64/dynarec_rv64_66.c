@@ -70,6 +70,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_add16(dyn, ninst, x1, x2, x4, x5);
             EWBACK;
             break;
+        case 0x03:
+            INST_NAME("ADD Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_add16(dyn, ninst, x1, x2, x3, x4);
+            GWBACK;
+            break;
         case 0x05:
             INST_NAME("ADD AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
