@@ -97,6 +97,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
+        case 0x2B:
+            INST_NAME("SUB Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
+            GWBACK;
+            break;
         case 0x2D:
             INST_NAME("SUB AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
