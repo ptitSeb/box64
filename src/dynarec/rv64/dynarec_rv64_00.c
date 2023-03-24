@@ -1438,6 +1438,13 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 0);
                     CALL(div8, -1);
                     break;
+                case 7:
+                    INST_NAME("IDIV Eb");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEB(x1, 0);
+                    CALL(idiv8, -1);
+                    break;
                 default:
                     DEFAULT;
             }
