@@ -186,6 +186,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEW(x1, 0);
             emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
             break;
+        case 0x3B:
+            INST_NAME("CMP Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            break;
         case 0x3D:
             INST_NAME("CMP AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
