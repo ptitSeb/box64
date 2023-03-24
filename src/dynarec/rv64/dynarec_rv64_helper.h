@@ -171,7 +171,7 @@
 // Write back ed in wback (if wback not 0)
 #define WBACK       if(wback) {SDxw(ed, wback, fixedaddress); SMWRITE();}
 
-// GETEB will use i for ed, and can use r2 for wback.
+// GETEB will use i for ed, and can use r3 for wback.
 #define GETEB(i, D) if(MODREG) {                \
                     if(rex.rex) {               \
                         wback = xRAX+(nextop&7)+(rex.b<<3);     \
@@ -186,7 +186,7 @@
                     ed = i;                     \
                 } else {                        \
                     SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 0, D); \
                     LBU(i, wback, fixedaddress);\
                     wb1 = 1;                    \
                     ed = i;                     \
