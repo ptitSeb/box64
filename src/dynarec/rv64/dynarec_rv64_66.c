@@ -510,7 +510,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETSEW(x1, 0);
                     SLLI(x2, xRAX, 48);
                     SLLI(x3, xRDX, 48);
-                    SLLI(x2, x2, 48);
+                    SRLI(x2, x2, 48);
                     SRLI(x3, x3, 32);
                     OR(x2, x2, x3);
                     DIVW(x3, x2, ed);
