@@ -62,7 +62,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
             break;
-
+        case 0x02:
+            INST_NAME("ADD Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x2, 0);
+            GETGB(x1);
+            emit_add8(dyn, ninst, x1, x2, x3, x4);
+            GBBACK(x5);
+            break;
         case 0x03:
             INST_NAME("ADD Gd, Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -71,14 +79,12 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
             break;
-
         case 0x05:
             INST_NAME("ADD EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i64 = F32S;
             emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
             break;
-
         case 0x08:
             INST_NAME("OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -146,6 +152,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_sbb32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
+            break;
+        case 0x20:
+            INST_NAME("AND Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x3);
+            emit_and8(dyn, ninst, x1, x3, x4, x5);
+            EBBACK(x3);
             break;
         case 0x21:
             INST_NAME("AND Ed, Gd");
@@ -222,6 +237,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(ed!=gd) {
                 WBACK;
             }
+            break;
+        case 0x32:
+            INST_NAME("XOR Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x3);
+            emit_xor8(dyn, ninst, x1, x3, x4, x5);
+            GBBACK(x5);
             break;
         case 0x33:
             INST_NAME("XOR Gd, Ed");
@@ -495,6 +519,14 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_sub8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
+                    EBBACK(x3);
+                    break;
+                case 6: // XOR
+                    INST_NAME("XOR Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    emit_xor8c(dyn, ninst, x1, u8, x3, x4);
                     EBBACK(x3);
                     break;
                 case 7: // CMP
