@@ -244,7 +244,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x3);
-            emit_xor8(dyn, ninst, x1, x3, x4, x5);
+            emit_xor8(dyn, ninst, x3, x1, x4, x5);
             GBBACK(x5);
             break;
         case 0x33:
