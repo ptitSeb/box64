@@ -23,6 +23,33 @@
 #include "dynarec_rv64_functions.h"
 #include "dynarec_rv64_helper.h"
 
+// emit XOR8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+void emit_xor8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    CLEAR_FLAGS();
+    IFX(X_PEND) {
+        SET_DF(s4, d_xor8);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+    XOR(s1, s1, s2);
+    IFX(X_SF) {
+        SRLI(s3, s1, 7);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_PEND) {
+        SB(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit XOR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_xor8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 {
