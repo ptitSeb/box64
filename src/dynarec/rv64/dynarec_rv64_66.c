@@ -61,6 +61,18 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode
 
     switch(opcode) {
+        case 0x05:
+            INST_NAME("ADD AX, Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i32 = F16;
+            SLLI(x1 , xRAX, 48);
+            SRLI(x1, x1, 48);
+            MOV32w(x2, i32);
+            emit_add16(dyn, ninst, x1, x2, x3, x4);
+            LUI(x3, 0xffff0);
+            AND(xRAX, xRAX, x3);
+            OR(xRAX, xRAX, x1);
+            break;
         case 0x0B:
             INST_NAME("OR Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
