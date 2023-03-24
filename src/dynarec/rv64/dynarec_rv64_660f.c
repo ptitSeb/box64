@@ -108,7 +108,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
                     eb2 = (ed&4)>>2;    // L or H
                 }
-                SLLI(x1, eb1, 56-eb2);
+                SLLI(x1, eb1, 56-eb2*8);
                 SRAI(x1, x1, 56);
             } else {
                 SMREAD();
