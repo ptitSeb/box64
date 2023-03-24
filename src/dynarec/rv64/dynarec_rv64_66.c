@@ -421,7 +421,31 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
-
+        case 0xD1:
+        case 0xD3:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 7:
+                    if(opcode==0xD1) {
+                        INST_NAME("SAR Ew, 1");
+                        MOV32w(x4, 1);
+                    } else {
+                        INST_NAME("SAR Ew, CL");
+                        ANDI(x4, xRCX, 0x1f);
+                    }
+                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETSEW(x1, 0);
+                    UFLAG_OP12(ed, x4)
+                    SRA(ed, ed, x4);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar16);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xF7:
             nextop = F8;
             switch((nextop>>3)&7) {
