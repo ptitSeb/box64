@@ -1469,6 +1469,21 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRLI(x1, x1, 48);
                     OR(xRAX, xRAX, x1);
                     break;
+                case 5:
+                    INST_NAME("IMUL AL, Eb");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x1, d_imul8);
+                    GETSEB(x1, 0);
+                    SLLI(x2, xRAX, 56);
+                    SRAI(x2, x2, 56);
+                    MULW(x1, x2, x1);
+                    UFLAG_RES(x1);
+                    LUI(x2, 0xffff0);
+                    AND(xRAX, xRAX, x2);
+                    SLLI(x1, x1, 48);
+                    SRLI(x1, x1, 48);
+                    OR(xRAX, xRAX, x1);
+                    break;
                 case 6:
                     INST_NAME("DIV Eb");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
