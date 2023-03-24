@@ -61,6 +61,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode
 
     switch(opcode) {
+        case 0x0B:
+            INST_NAME("OR Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_or16(dyn, ninst, x1, x2, x4, x5);
+            GWBACK;
+            break;
         case 0x0D:
             INST_NAME("OR AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
