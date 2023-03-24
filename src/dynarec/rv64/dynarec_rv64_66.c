@@ -85,6 +85,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_and16(dyn, ninst, x1, x2, x4, x5);
             EWBACK;
             break;
+        case 0x23:
+            INST_NAME("AND Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_and16(dyn, ninst, x1, x2, x4, x5);
+            GWBACK;
+            break;
         case 0x25:
             INST_NAME("AND AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
