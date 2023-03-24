@@ -742,6 +742,37 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ZEROUP(xRDX);
             }
             break;
+        case 0xA4:
+            if(rep) {
+                INST_NAME("REP MOVSB");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1<<F_DF);
+                BNEZ_MARK2(x1);
+                MARK;   // Part with DF==0
+                LBU(x1, xRSI, 0);
+                SB(x1, xRDI, 0);
+                ADDI(xRSI, xRSI, 1);
+                ADDI(xRDI, xRDI, 1);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                LBU(x1, xRSI, 0);
+                LBU(x1, xRDI, 0);
+                SUBI(xRSI, xRSI, 1);
+                SUBI(xRDI, xRDI, 1);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("MOVSB");
+                GETDIR(x3, x1, 1);
+                LBU(x1, xRSI, 0);
+                SB(x1, xRDI, 0);
+                ADD(xRSI, xRSI, x3);
+                ADD(xRDI, xRDI, x3);
+            }
+            break;
         case 0xA5:
             if(rep) {
                 INST_NAME("REP MOVSD");
