@@ -629,7 +629,6 @@ void emit_sbb8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     }
 
     SUBW(s1, s1, s2);
-    ANDI(s1, s1, 0xff);
     ANDI(s3, xFlags, 1 << F_CF);
     SUBW(s1, s1, s3);
     ANDI(s1, s1, 0xff);
@@ -702,8 +701,8 @@ void emit_sbb32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 }
 
-// emit NEG32 instruction, from s1, store result in s1 using s2, s3 and s4 as scratch
-void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
+// emit NEG32 instruction, from s1, store result in s1 using s2 and s3 as scratch
+void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3)
 {
     CLEAR_FLAGS();
     IFX(X_PEND) {
@@ -713,31 +712,36 @@ void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE();
     }
     IFX(X_AF | X_OF) {
-        ORI(s3, s1, 1);      // s3 = op1 | op2
-        ANDI(s4, s1, 1);     // s4 = op1 & op2
+        MV(s3, s1);      // s3 = op1
     }
 
     NEG(s1, s1);
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
+
+    IFX(X_CF) {
+        BEQZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_CF);
+    }
+    
     IFX(X_AF | X_OF) {
-        NOT(s2, s1);     // s2 = ~res
-        AND(s3, s2, s3); // s3 = ~res & (op1 | op2)
-        OR(s3, s3, s4);  // cc = (~res & (op1 | op2)) | (op1 & op2)
+        OR(s3, s1, s3); // s3 = res | op1
         IFX(X_AF) {
-            ANDI(s2, s3, 0x08); // AF: cc & 0x08
+            /* af = bc & 0x8 */
+            ANDI(s2, s3, 8);
             BEQZ(s2, 8);
             ORI(xFlags, xFlags, 1 << F_AF);
         }
         IFX(X_OF) {
-            SRLI(s3, s3, rex.w?62:30);
-            SRLI(s2, s3, 1);
-            XOR(s3, s3, s2);
-            ANDI(s3, s3, 1); // OF: xor of two MSB's of cc
-            BEQZ(s3, 8);
+            /* of = ((bc >> (width-2)) ^ (bc >> (width-1))) & 0x1; */
+            SRLI(s2, s3, (rex.w?64:32)-2);
+            SRLI(s3, s2, 1);
+            XOR(s2, s2, s3);
+            ANDI(s2, s2, 1);
+            BEQZ(s2, 8);
             ORI(xFlags, xFlags, 1 << F_OF2);
-        }
+        }    
     }
     IFX(X_SF) {
         BGE(s1, xZR, 8);

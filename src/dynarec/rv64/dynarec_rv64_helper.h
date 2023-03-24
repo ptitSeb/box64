@@ -171,7 +171,7 @@
 // Write back ed in wback (if wback not 0)
 #define WBACK       if(wback) {SDxw(ed, wback, fixedaddress); SMWRITE();}
 
-// GETEB will use i for ed, and can use r3 for wback.
+// GETEB will use i for ed, and can use r2 for wback.
 #define GETEB(i, D) if(MODREG) {                \
                     if(rex.rex) {               \
                         wback = xRAX+(nextop&7)+(rex.b<<3);     \
@@ -181,7 +181,7 @@
                         wb2 = (wback>>2)*8;     \
                         wback = xRAX+(wback&3); \
                     }                           \
-                    if (wb2) {MV(i, wback); SRLI(i, i, wb2); ANDI(i, i, 0xff);} else ANDI(i, wback, 0xff);   \
+                    if (wb2) {MV(i, wback); SRLI(i, i, wb2); ANDI(i, i, 0xff);} else {ANDI(i, wback, 0xff);}   \
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
@@ -224,7 +224,7 @@
                     gb1 = xRAX+(gd&3);                        \
                 }                                             \
                 gd = i;                                       \
-                if (gb2) {MV(gd, gb1); SRLI(gd, gd, 8); ANDI(gd, gd, 0xff);} else ANDI(gd, gb1, 0xff);
+                if (gb2) {MV(gd, gb1); SRLI(gd, gd, 8); ANDI(gd, gd, 0xff);} else {ANDI(gd, gb1, 0xff);}
 
 // Write gb (gd) back to original register / memory, using s1 as scratch
 #define GBBACK(s1) if(gb2) {                            \
@@ -239,19 +239,19 @@
                 }
 
 // Write eb (ed) back to original register / memory, using s1 as scratch
-#define EBBACK(s1) if(wb1) {                            \
+#define EBBACK(s1, c) if(wb1) {                         \
                     SB(ed, wback, fixedaddress);        \
                     SMWRITE();                          \
                 } else if(wb2) {                        \
                     assert(wb2 == 8);                   \
                     MOV64x(s1, 0xffffffffffff00ffLL);   \
                     AND(wback, wback, s1);              \
-                    ANDI(ed, ed, 0xff);                 \
+                    if (c) {ANDI(ed, ed, 0xff);}        \
                     SLLI(s1, ed, 8);                    \
                     OR(wback, wback, s1);               \
                 } else {                                \
                     ANDI(wback, wback, ~0xff);          \
-                    ANDI(ed, ed, 0xff);                 \
+                    if (c) {ANDI(ed, ed, 0xff);}        \
                     OR(wback, wback, ed);               \
                 }
 
@@ -808,7 +808,7 @@ void emit_sbb8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 void emit_sbb8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5, int s6);
 //void emit_sbb16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_sbb16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3);
 //void emit_neg16(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_neg8(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);

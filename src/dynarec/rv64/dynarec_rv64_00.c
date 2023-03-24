@@ -92,7 +92,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x3);
             emit_or8(dyn, ninst, x1, x3, x4, x5);
-            EBBACK(x5);
+            EBBACK(x5, 0);
             break;
         case 0x09:
             INST_NAME("OR Ed, Gd");
@@ -152,6 +152,16 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 DEFAULT;
             }
             break;
+        case 0x18:
+            INST_NAME("SBB Eb, Gb");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x3);
+            emit_sbb8(dyn, ninst, x1, x3, x4, x5, x6);
+            EBBACK(x5, 0);
+            break;
         case 0x19:
             INST_NAME("SBB Ed, Gd");
             READFLAGS(X_CF);
@@ -179,7 +189,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x3);
             emit_and8(dyn, ninst, x1, x3, x4, x5);
-            EBBACK(x3);
+            EBBACK(x3, 0);
             break;
         case 0x21:
             INST_NAME("AND Ed, Gd");
@@ -261,7 +271,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x3);
             emit_xor8(dyn, ninst, x1, x3, x4, x5);
-            EBBACK(x3);
+            EBBACK(x3, 0);
             break;
         case 0x31:
             INST_NAME("XOR Ed, Gd");
@@ -531,7 +541,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_add8c(dyn, ninst, x1, u8, x3, x4, x5);
-                    EBBACK(x3);
+                    EBBACK(x3, 0);
                     break;
                 case 1: // OR
                     INST_NAME("OR Eb, Ib");
@@ -539,7 +549,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_or8c(dyn, ninst, x1, u8, x3, x4, x5);
-                    EBBACK(x3);
+                    EBBACK(x3, 0);
                     break;
                 case 3: // SBB
                     INST_NAME("SBB Eb, Ib");
@@ -548,7 +558,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_sbb8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
-                    EBBACK(x3);
+                    EBBACK(x3, 0);
                     break;
                 case 4: // AND
                     INST_NAME("AND Eb, Ib");
@@ -556,7 +566,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_and8c(dyn, ninst, x1, u8, x3, x4);
-                    EBBACK(x3);
+                    EBBACK(x3, 0);
                     break;
                 case 5: // SUB
                     INST_NAME("SUB Eb, Ib");
@@ -564,7 +574,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_sub8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
-                    EBBACK(x3);
+                    EBBACK(x3, 0);
                     break;
                 case 6: // XOR
                     INST_NAME("XOR Eb, Ib");
@@ -572,7 +582,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_xor8c(dyn, ninst, x1, u8, x3, x4);
-                    EBBACK(x3);
+                    EBBACK(x3, 0);
                     break;
                 case 7: // CMP
                     INST_NAME("CMP Eb, Ib");
@@ -972,7 +982,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         };
                         UFLAG_OP1(ed);
                         SLLIW(ed, ed, u8);
-                        EBBACK(x5);
+                        EBBACK(x5, 1);
                         UFLAG_RES(ed);
                         UFLAG_DF(x3, d_shl8);
                     } else {
@@ -991,7 +1001,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         UFLAG_OP1(ed);
                         if(u8) {
                             SRLIW(ed, ed, u8);
-                            EBBACK(x5);
+                            EBBACK(x5, 1);
                         }
                         UFLAG_RES(ed);
                         UFLAG_DF(x3, d_shr8);
@@ -1011,7 +1021,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         UFLAG_OP1(ed);
                         if(u8) {
                             SRAIW(ed, ed, u8);
-                            EBBACK(x5);
+                            EBBACK(x5, 1);
                         }
                         UFLAG_RES(ed);
                         UFLAG_DF(x3, d_sar8);
@@ -1227,7 +1237,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 0);
                     UFLAG_OP12(ed, x4);
                     SRLW(ed, ed, x4);
-                    EBBACK(x3);
+                    EBBACK(x3, 1);
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shr8);
                     break;
@@ -1243,7 +1253,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETSEB(x1, 0);
                     UFLAG_OP12(ed, x4)
                     SRA(ed, ed, x4);
-                    EBBACK(x3);
+                    EBBACK(x3, 1);
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_sar8);
                     break;
@@ -1550,7 +1560,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("NEG Ed");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED(0);
-                    emit_neg32(dyn, ninst, rex, ed, x3, x4, x5);
+                    emit_neg32(dyn, ninst, rex, ed, x3, x4);
                     WBACK;
                     break;
                 case 4:
