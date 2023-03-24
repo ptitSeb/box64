@@ -225,6 +225,24 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);
             }
             break;
+        case 0x69:
+        case 0x6B:
+            if(opcode==0x69) {
+                INST_NAME("IMUL Gw,Ew,Iw");
+            } else {
+                INST_NAME("IMUL Gw,Ew,Ib");
+            }
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            UFLAG_DF(x1, d_imul16);
+            GETSEW(x1, (opcode==0x69)?2:1);
+            if(opcode==0x69) i32 = F16S; else i32 = F8S;
+            MOV32w(x2, i32);
+            MULW(x2, x2, x1);
+            UFLAG_RES(x2);
+            gd=x2;
+            GWBACK;
+            break;
         case 0x70:
         case 0x71:
         case 0x72:
