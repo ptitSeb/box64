@@ -810,7 +810,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
         case 0x5: /* AUIPC */
             insn =  insn_utype_read(data);
             insn.name = "auipc";
-            PRINT_rd_imm();
+            PRINT_rd_imm_rel();
         case 0x6: {
             uint32_t funct3 = FUNCT3(data);
             uint32_t funct7 = FUNCT7(data);
