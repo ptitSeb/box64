@@ -153,6 +153,16 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_sbb32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
             break;
+        case 0x1C:
+            INST_NAME("SBB AL, Ib");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            emit_sbb8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
+            ANDI(xRAX, xRAX, ~0xff);
+            OR(xRAX, xRAX, x1);
+            break;
         case 0x20:
             INST_NAME("AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -244,7 +254,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x3);
-            emit_xor8(dyn, ninst, x1, x3, x4, x5);
+            emit_xor8(dyn, ninst, x3, x1, x4, x5);
             GBBACK(x5);
             break;
         case 0x33:
@@ -740,6 +750,37 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SLLI(xRDX, xRAX, 32);
                 SRAI(xRDX, xRDX, 63);
                 ZEROUP(xRDX);
+            }
+            break;
+        case 0xA4:
+            if(rep) {
+                INST_NAME("REP MOVSB");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1<<F_DF);
+                BNEZ_MARK2(x1);
+                MARK;   // Part with DF==0
+                LBU(x1, xRSI, 0);
+                SB(x1, xRDI, 0);
+                ADDI(xRSI, xRSI, 1);
+                ADDI(xRDI, xRDI, 1);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                LBU(x1, xRSI, 0);
+                LBU(x1, xRDI, 0);
+                SUBI(xRSI, xRSI, 1);
+                SUBI(xRDI, xRDI, 1);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("MOVSB");
+                GETDIR(x3, x1, 1);
+                LBU(x1, xRSI, 0);
+                SB(x1, xRDI, 0);
+                ADD(xRSI, xRSI, x3);
+                ADD(xRDI, xRDI, x3);
             }
             break;
         case 0xA5:
@@ -1406,6 +1447,13 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1, 0);
                     CALL(div8, -1);
+                    break;
+                case 7:
+                    INST_NAME("IDIV Eb");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETEB(x1, 0);
+                    CALL(idiv8, -1);
                     break;
                 default:
                     DEFAULT;

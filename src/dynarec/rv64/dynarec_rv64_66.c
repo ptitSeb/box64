@@ -61,6 +61,18 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode
 
     switch(opcode) {
+        case 0x05:
+            INST_NAME("ADD AX, Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i32 = F16;
+            SLLI(x1 , xRAX, 48);
+            SRLI(x1, x1, 48);
+            MOV32w(x2, i32);
+            emit_add16(dyn, ninst, x1, x2, x3, x4);
+            LUI(x3, 0xffff0);
+            AND(xRAX, xRAX, x3);
+            OR(xRAX, xRAX, x1);
+            break;
         case 0x0B:
             INST_NAME("OR Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -136,12 +148,29 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             AND(xRAX, xRAX, x2);
             OR(xRAX, xRAX, x1);
             break;
-
+        case 0x31:
+            INST_NAME("XOR Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
+            EWBACK;
+            break;
+        case 0x33:
+            INST_NAME("XOR Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
+            GWBACK;
+            break;
         case 0x35:
             INST_NAME("XOR AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
-            SLLI(x1, x1, 48);
+            SLLI(x1, xRAX, 48);
             SRLI(x1, x1, 48);
             MOV32w(x2, i32);
             emit_xor16(dyn, ninst, x1, x2, x3, x4, x5);
@@ -149,7 +178,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             AND(xRAX, xRAX, x5);
             OR(xRAX, xRAX, x1);
             break;
-
+        case 0x39:
+            INST_NAME("CMP Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            break;
         case 0x3D:
             INST_NAME("CMP AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -220,6 +256,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV32w(x5, i16);
                     emit_sub16(dyn, ninst, x1, x5, x2, x4, x5);
+                    EWBACK;
+                    break;
+                case 6: // XOR
+                    if(opcode==0x81) {INST_NAME("XOR Ew, Iw");} else {INST_NAME("XOR Ew, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, (opcode==0x81)?2:1);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    MOV32w(x5, i16);
+                    emit_xor16(dyn, ninst, x1, x5, x2, x4, x6);
                     EWBACK;
                     break;
                 case 7: // CMP
@@ -421,7 +466,31 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
-
+        case 0xD1:
+        case 0xD3:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 7:
+                    if(opcode==0xD1) {
+                        INST_NAME("SAR Ew, 1");
+                        MOV32w(x4, 1);
+                    } else {
+                        INST_NAME("SAR Ew, CL");
+                        ANDI(x4, xRCX, 0x1f);
+                    }
+                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETSEW(x1, 0);
+                    UFLAG_OP12(ed, x4)
+                    SRA(ed, ed, x4);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar16);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xF7:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -445,6 +514,26 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     OR(x2, x2, x3);
                     DIVUW(x3, x2, ed);
                     REMUW(x4, x2, ed);
+                    MOV64x(x5, ~0xffff);
+                    AND(xRAX, xRAX, x5);
+                    AND(xRDX, xRDX, x5);
+                    NOT(x5, x5);
+                    AND(x3, x3, x5);
+                    AND(x4, x4, x5);
+                    OR(xRAX, xRAX, x3);
+                    OR(xRDX, xRDX, x4);
+                    break;
+                case 7:
+                    INST_NAME("IDIV Ew");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETSEW(x1, 0);
+                    SLLI(x2, xRAX, 48);
+                    SLLI(x3, xRDX, 48);
+                    SRLI(x2, x2, 48);
+                    SRLI(x3, x3, 32);
+                    OR(x2, x2, x3);
+                    DIVW(x3, x2, ed);
+                    REMW(x4, x2, ed);
                     MOV64x(x5, ~0xffff);
                     AND(xRAX, xRAX, x5);
                     AND(xRDX, xRDX, x5);
