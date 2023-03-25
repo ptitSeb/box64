@@ -235,19 +235,19 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
         SRLI(x2, xRIP, JMPTABL_START3);
         SLLI(x2, x2, 3);
         ADD(x3, x3, x2);
-        LD(x3, x3, 0);
+        LD(x3, x3, 0); // could be LR_D(x3, x3, 1, 1); for better safety
         MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
         SRLI(x2, xRIP, JMPTABL_START2-3);
         AND(x2, x2, x4);
         ADD(x3, x3, x2);
-        LD(x3, x3, 0);
+        LD(x3, x3, 0); //LR_D(x3, x3, 1, 1);
         if(JMPTABLE_MASK2!=JMPTABLE_MASK1) {
             MOV64x(x4, JMPTABLE_MASK1<<3);    // x4 = mask
         }
         SRLI(x2, xRIP, JMPTABL_START1-3);
         AND(x2, x2, x4);
         ADD(x3, x3, x2);
-        LD(x3, x3, 0);
+        LD(x3, x3, 0); //LR_D(x3, x3, 1, 1);
         if(JMPTABLE_MASK0<2048) {
             ANDI(x2, xRIP, JMPTABLE_MASK0);
         } else {
@@ -258,13 +258,13 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
         }
         SLLI(x2, x2, 3);
         ADD(x3, x3, x2);
-        LD(x2, x3, 0);
+        LD(x2, x3, 0); //LR_D(x2, x3, 1, 1);
     } else {
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
         TABLE64(x3, p);
         GETIP_(ip);
-        LD(x2, x3, 0);
+        LD(x2, x3, 0); //LR_D(x2, x3, 1, 1);
     }
     if(reg!=A1) {
         MV(A1, xRIP);
