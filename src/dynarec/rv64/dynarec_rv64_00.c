@@ -1565,7 +1565,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 1:
                     INST_NAME("TEST Ed, Id");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEDH(x1, 4);
+                    GETED(4);
                     i64 = F32S;
                     emit_test32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
                     break;

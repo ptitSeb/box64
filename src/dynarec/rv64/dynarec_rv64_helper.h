@@ -99,13 +99,13 @@
                     LD(x1, wback, fixedaddress);        \
                     ed = x1;                            \
                 }
-//GETEDH can use hint for ed, and r1 or r2 for wback (depending on hint). wback is 0 if ed is xEAX..xEDI
+//GETEDH can use hint for ed, and x1 or x2 for wback (depending on hint), might also use x3. wback is 0 if ed is xEAX..xEDI
 #define GETEDH(hint, D) if(MODREG) {                    \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, ed, &fixedaddress, rex, NULL, 1, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, (hint==x1)?x1:x3, &fixedaddress, rex, NULL, 1, D); \
                     LDxw(hint, wback, fixedaddress);    \
                     ed = hint;                          \
                 }
