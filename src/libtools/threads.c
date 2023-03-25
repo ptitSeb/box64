@@ -846,6 +846,14 @@ EXPORT int my_pthread_mutexattr_gettype(x64emu_t* emu, my_mutexattr_t *attr, voi
 	attr->x86 = mattr.x86;
 	return ret;
 }
+EXPORT int my_pthread_mutexattr_getrobust(x64emu_t* emu, my_mutexattr_t *attr, void* p)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	int ret = pthread_mutexattr_getrobust(&mattr.nat, p);
+	attr->x86 = mattr.x86;
+	return ret;
+}
 EXPORT int my_pthread_mutexattr_init(x64emu_t* emu, my_mutexattr_t *attr)
 {
 	my_mutexattr_t mattr = {0};
@@ -889,6 +897,14 @@ EXPORT int my_pthread_mutexattr_settype(x64emu_t* emu, my_mutexattr_t *attr, int
 	return ret;
 }
 EXPORT int my___pthread_mutexattr_settype(x64emu_t* emu, my_mutexattr_t *attr, int t) __attribute__((alias("my_pthread_mutexattr_settype")));
+EXPORT int my_pthread_mutexattr_setrobust(x64emu_t* emu, my_mutexattr_t *attr, int t)
+{
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	int ret = pthread_mutexattr_setrobust(&mattr.nat, t);
+	attr->x86 = mattr.x86;
+	return ret;
+}
 
 #ifdef __SIZEOF_PTHREAD_MUTEX_T
 #if __SIZEOF_PTHREAD_MUTEX_T == 48
