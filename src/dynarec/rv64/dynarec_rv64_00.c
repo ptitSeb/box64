@@ -68,7 +68,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_add8(dyn, ninst, x1, x2, x4, x5);
+            emit_add8(dyn, ninst, x2, x1, x4, x5);
             GBBACK(x5);
             break;
         case 0x03:
@@ -110,7 +110,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_or8(dyn, ninst, x1, x2, x4, x5);
+            emit_or8(dyn, ninst, x2, x1, x4, x5);
             GBBACK(x5);
             break;
         case 0x0B:
@@ -206,7 +206,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_and8(dyn, ninst, x1, x2, x4, x5);
+            emit_and8(dyn, ninst, x2, x1, x4, x5);
             GBBACK(x5);
             break;
         case 0x23:
