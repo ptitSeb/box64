@@ -191,12 +191,14 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
                         }
                     if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %p -> %p (ninst=%d, jump from %d)\n", dyn, (void*)addr, (void*)next, ninst, reset_n);
                 } else if(next && (next-addr)<box64_dynarec_forward && (getProtection(next)&PROT_READ)/*box64_dynarec_bigblock>=stopblock*/) {
-                    dyn->forward = addr;
-                    dyn->forward_to = next;
-                    dyn->forward_size = dyn->size;
-                    dyn->forward_ninst = ninst;
-                    reset_n = -2;
-                    ok = 1;
+                    if(!((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)next))) {
+                        dyn->forward = addr;
+                        dyn->forward_to = next;
+                        dyn->forward_size = dyn->size;
+                        dyn->forward_ninst = ninst;
+                        reset_n = -2;
+                        ok = 1;
+                    }
                 }
             }
         #endif
@@ -221,6 +223,18 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
         if(ok && (ninst==dyn->size))
         #endif
         {
+            #if STEP == 0
+            if(dyn->forward) {
+                // stopping too soon
+                dyn->size = dyn->forward_size;
+                ninst = dyn->forward_ninst;
+                addr = dyn->forward;
+                dyn->forward = 0;
+                dyn->forward_to = 0;
+                dyn->forward_size = 0;
+                dyn->forward_ninst = 0;
+            }
+            #endif
             int j32;
             MAYUSE(j32);
             MESSAGE(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size);

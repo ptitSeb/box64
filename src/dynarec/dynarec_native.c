@@ -520,12 +520,13 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     // keep size of instructions for signal handling
     size_t insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
+    size_t native_size = (helper.native_size+7)&~7;   // round the size...
     // ok, now allocate mapped memory, with executable flag on
-    size_t sz = sizeof(void*) + helper.native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize;
+    size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize;
     //           dynablock_t*     block (arm insts)            table64                       jmpnext code       instsize
     void* actual_p = (void*)AllocDynarecMap(sz);
     void* p = actual_p + sizeof(void*);
-    void* next = p + helper.native_size + helper.table64size*sizeof(uint64_t);
+    void* next = p + native_size + helper.table64size*sizeof(uint64_t);
     void* instsize = next + 4*sizeof(void*);
     if(actual_p==NULL) {
         dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
@@ -534,7 +535,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     }
     helper.block = p;
     helper.native_start = (uintptr_t)p;
-    helper.tablestart = helper.native_start + helper.native_size;
+    helper.tablestart = helper.native_start + native_size;
     helper.insts_size = 0;  // reset
     helper.instsize = (instsize_t*)instsize;
     *(dynablock_t**)actual_p = block;
@@ -583,8 +584,8 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     block->block = p;
     block->jmpnext = next+sizeof(void*);
     *(dynablock_t**)next = block;
-    *(void**)(next+2*sizeof(void*)) = native_next;
-    CreateJmpNext(block->jmpnext, next+2*sizeof(void*));
+    *(void**)(next+3*sizeof(void*)) = native_next;
+    CreateJmpNext(block->jmpnext, next+3*sizeof(void*));
     block->need_test = 0;
     //block->x64_addr = (void*)start;
     block->x64_size = end-start;
