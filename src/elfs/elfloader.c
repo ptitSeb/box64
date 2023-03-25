@@ -170,7 +170,7 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;
     if(!head->vaddr && box64_load_addr) {
-        offs = box64_load_addr;
+        offs = (uintptr_t)find47bitBlockNearHint((void*)box64_load_addr, head->memsz);
         box64_load_addr += head->memsz;
         box64_load_addr = (box64_load_addr+0x10ffffffLL)&~0xffffffLL;
     }
@@ -255,6 +255,7 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         }
     } else {
         // vaddr is 0, load everything has a One block
+        uintptr_t old_offs = offs;
         if(!offs && box64_wine)
             offs = (uintptr_t)find47bitBlock(head->memsz); // limit to 47bits...
         printf_log(log_level, "Allocating 0x%zx memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
@@ -262,6 +263,17 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             , PROT_READ | PROT_WRITE | PROT_EXEC
             , MAP_PRIVATE | MAP_ANONYMOUS /*| (((offs&&wine_preloaded)?MAP_FIXED:0))*/
             , -1, 0);
+        if(offs &&!old_offs && p!=MAP_FAILED && offs!=(uintptr_t)p) {
+            // try again
+            munmap(p, head->memsz);
+            loadProtectionFromMap();
+            offs = (uintptr_t)find47bitBlock(head->memsz);
+            printf_log(log_level, "New, try. Allocating 0x%zx memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
+            p = mmap((void*)offs, head->memsz
+                , PROT_READ | PROT_WRITE | PROT_EXEC
+                , MAP_PRIVATE | MAP_ANONYMOUS /*| (((offs&&wine_preloaded)?MAP_FIXED:0))*/
+                , -1, 0);
+        }
         if(p==MAP_FAILED) {
             printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
             return 1;
