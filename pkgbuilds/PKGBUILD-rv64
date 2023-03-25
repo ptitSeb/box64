@@ -1,7 +1,7 @@
 # Maintainer: Jai-JAP <jai.jap.318@gmail.com>
 # Author: Sebastien Chevalier <ptitseb@box86.org>
-pkgname=box64-rpi-git
-pkgver=r1495.e6e9fae
+pkgname=box64-rv64-git
+pkgver=r2431.60c6858
 pkgrel=1
 pkgdesc="Linux Userspace x86_64 Emulator with a twist, targeted at ARM64 Linux devices."
 arch=('aarch64')
@@ -9,30 +9,28 @@ url="https://github.com/ptitSeb/box64"
 license=('MIT')
 optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
 makedepends=('git' 'cmake' 'make')
-provides=("${pkgname%-git}" "${pkgname%-rpi-git}-git" "${pkgname%-rpi-git}")
-conflicts=("${pkgname%-git}" "${pkgname%-rpi-git}-git" "${pkgname%-rpi-git}")
+provides=("${pkgname%-git}" "${pkgname%-rv64-git}-git" "${pkgname%-rv64-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-rv64-git}-git" "${pkgname%-rv64-git}")
 source=('git+https://github.com/ptitSeb/box64')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-rpi-git}"
+	cd "${srcdir}/${pkgname%-rv64-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
-	cd "${srcdir}/${pkgname%-rpi-git}"
-	if [[ ! -d ./build ]]; then
-		mkdir build && cd build
-		cmake .. -DRPI4ARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
-	fi
+	cd "${srcdir}/${pkgname%-rv64-git}"
+	[[ ! -d ./build ]] && mkdir build
+	cmake -B build -DRV64=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
 }
 
 build() {
-	cd "$srcdir/${pkgname%-rpi-git}/build"
+	cd "${srcdir}/${pkgname%-rv64-git}/build"
 	make -j$(nproc)
 }
 
 package() {
-	cd "$srcdir/${pkgname%-rpi-git}/build"
+	cd "${srcdir}/${pkgname%-rv64-git}/build"
 	make DESTDIR="${pkgdir}/" install
 }

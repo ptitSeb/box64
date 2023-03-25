@@ -1,7 +1,7 @@
 # Maintainer: Jai-JAP <jai.jap.318@gmail.com>
 # Author: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box64-arm64-git
-pkgver=r1495.e6e9fae
+pkgver=r2431.60c6858
 pkgrel=1
 pkgdesc="Linux Userspace x86_64 Emulator with a twist, targeted at ARM64 Linux devices."
 arch=('aarch64')
@@ -15,24 +15,22 @@ source=('git+https://github.com/ptitSeb/box64')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-arm64-git}"
+	cd "${srcdir}/${pkgname%-arm64-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
 	cd "${srcdir}/${pkgname%-arm64-git}"
-	if [[ ! -d ./build ]]; then
-		mkdir build && cd build
-		cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
-	fi
+	[[ ! -d ./build ]] && mkdir build
+	cmake -B build -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
 }
 
 build() {
-	cd "$srcdir/${pkgname%-arm64-git}/build"
+	cd "${srcdir}/${pkgname%-arm64-git}/build"
 	make -j$(nproc)
 }
 
 package() {
-	cd "$srcdir/${pkgname%-arm64-git}/build"
+	cd "${srcdir}/${pkgname%-arm64-git}/build"
 	make DESTDIR="${pkgdir}/" install
 }

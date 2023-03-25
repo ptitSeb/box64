@@ -1,0 +1,51 @@
+# Maintainer: Jai-JAP <jai.jap.318@gmail.com>
+# Author: Sebastien Chevalier <ptitseb@box86.org>
+pkgname=box86-rk3xxx-git
+pkgver=r2431.60c6858
+pkgrel=1
+pkgdesc="Linux Userspace x86_64 Emulator with a twist, targeted at ARM64 Linux devices."
+arch=('aarch64')
+url="https://github.com/ptitSeb/box64"
+license=('MIT')
+optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
+makedepends=('git' 'cmake' 'make')
+provides=("${pkgname%-git}" "${pkgname%-rk3xxx-git}-git" "${pkgname%-rk3xxx-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-rk3xxx-git}-git" "${pkgname%-rk3xxx-git}")
+source=('git+https://github.com/ptitSeb/box64')
+md5sums=('SKIP')
+_rkmodel=`tr -d '\0' < /proc/device-tree/compatible`
+
+pkgver() {
+	cd "${srcdir}/${pkgname%-rk3xxx-git}"
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+	cd "${srcdir}/${pkgname%-rk3xxx-git}"
+	# Check for RockChip version number
+	if [[ ${_rkmodel} =~ "rk3326" ]]; then
+		_rksuffix=3326
+	elif [[ ${_rkmodel} =~ "rk3399" ]]; then
+		_rksuffix=3399	
+	elif [[ ${_rkmodel} =~ "rk3588" ]]; then
+		_rksuffix=3588	
+	else
+		# This RKxxxx is not supported or this device is not RockChip based.
+		# We should cancel then the build.
+		echo -e "\033[01m\033[01;31m==> ERROR:\033[00;01m Your device is not supported! This script is for RockChip model 3326/3399/3588.\033[00m"
+		exit 1
+	fi
+	echo -e "\033[01m\033[01;34m==> INFO:\033[00;01m Your detected RockChip verion number is: \033[01;31m${_rksuffix}\033[01m.\033[00m"
+	[[ ! -d ./build ]] && mkdir build
+    cmake -B build -DRK${_rksuffix}=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
+}
+
+build() {
+	cd "${srcdir}/${pkgname%-rk3xxx-git}/build"
+	make -j$(nproc)
+}
+
+package() {
+	cd "${srcdir}/${pkgname%-rk3xxx-git}/build"
+	make DESTDIR="${pkgdir}/" install
+}
