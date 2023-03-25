@@ -1,7 +1,7 @@
 # Maintainer: Jai-JAP <jai.jap.318@gmail.com>
 # Author: Sebastien Chevalier <ptitseb@box86.org>
-pkgname=box64-arm64-git
-pkgver=r1495.e6e9fae
+pkgname=box64-sd845-git
+pkgver=r2431.60c6858
 pkgrel=1
 pkgdesc="Linux Userspace x86_64 Emulator with a twist, targeted at ARM64 Linux devices."
 arch=('aarch64')
@@ -9,30 +9,28 @@ url="https://github.com/ptitSeb/box64"
 license=('MIT')
 optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
 makedepends=('git' 'cmake' 'make')
-provides=("${pkgname%-git}" "${pkgname%-arm64-git}-git" "${pkgname%-arm64-git}")
-conflicts=("${pkgname%-git}" "${pkgname%-arm64-git}-git" "${pkgname%-arm64-git}")
+provides=("${pkgname%-git}" "${pkgname%-sd845-git}-git" "${pkgname%-sd845-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-sd845-git}-git" "${pkgname%-sd845-git}")
 source=('git+https://github.com/ptitSeb/box64')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-arm64-git}"
+	cd "${srcdir}/${pkgname%-sd845-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
-	cd "${srcdir}/${pkgname%-arm64-git}"
-	if [[ ! -d ./build ]]; then
-		mkdir build && cd build
-		cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
-	fi
+	cd "${srcdir}/${pkgname%-sd845-git}"
+	[[ ! -d ./build ]] && mkdir build
+	cmake -B build -DSD845=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
 }
 
 build() {
-	cd "$srcdir/${pkgname%-arm64-git}/build"
+	cd "${srcdir}/${pkgname%-sd845-git}/build"
 	make -j$(nproc)
 }
 
 package() {
-	cd "$srcdir/${pkgname%-arm64-git}/build"
+	cd "${srcdir}/${pkgname%-sd845-git}/build"
 	make DESTDIR="${pkgdir}/" install
 }
