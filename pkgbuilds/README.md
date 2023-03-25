@@ -14,7 +14,7 @@ This will copy the PKGBUILD for your platform (where you type your platform name
 In the future, I might try to do an unified PKGBUILD for all platforms that will recognize your platform automatically.
 
 ### 2. What platforms are currently supported.
-All specified in [COMPILE.md](../docs/COMPILE.md) except for PPC64LE and SW64.
+All specified in [COMPILE.md](../docs/COMPILE.md) except for LARCH64, PPC64LE and SW64.
 
 ### 3. Any advantages with this solution?
 This might give you some advantages like:
