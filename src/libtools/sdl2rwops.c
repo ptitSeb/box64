@@ -13,6 +13,7 @@
 #include "librarian/library_private.h"
 #include "bridge.h"
 #include "callback.h"
+#include "librarian.h"
 
 typedef struct SDL2_RWops_s SDL2_RWops_t;
 
@@ -105,10 +106,35 @@ EXPORT int32_t my2_emulated_close(SDL2_RWops_t *context)
     return ret;
 }
 
+static uintptr_t emulated_sdl2allocrw = 0;
+EXPORT SDL2_RWops_t* my_wrapped_sdl2allocrw()
+{
+    return (SDL2_RWops_t*)RunFunction(my_context, emulated_sdl2allocrw, 0);
+}
+static uintptr_t emulated_sdl2freerw = 0;
+EXPORT void my_wrapped_sdl2freerw(SDL2_RWops_t* p)
+{
+    RunFunction(my_context, emulated_sdl2freerw, 1, p);
+}
+
+static void checkSDL2isNative()
+{
+    if(my_context->sdl2allocrw)
+        return;
+    emulated_sdl2allocrw = FindGlobalSymbol(my_context->maplib, "SDL_AllocRW", -1, NULL);
+    emulated_sdl2freerw = FindGlobalSymbol(my_context->maplib, "SDL_FreeRW", -1, NULL);
+    if(emulated_sdl2allocrw && emulated_sdl2freerw) {
+        my_context->sdl2allocrw = my_wrapped_sdl2allocrw;
+        my_context->sdl2freerw = my_wrapped_sdl2freerw;
+    } else
+        printf_log(LOG_NONE, "Warning, cannot find SDL_AllocRW and/or SDL_FreeRW function in loaded libs");
+}
+
 SDL2_RWops_t* AddNativeRW2(x64emu_t* emu, SDL2_RWops_t* ops)
 {
     if(!ops)
         return NULL;
+    checkSDL2isNative();
     uintptr_t fnc;
     bridge_t* system = emu->context->system;
 
@@ -141,6 +167,7 @@ SDL2_RWops_t* RWNativeStart2(x64emu_t* emu, SDL2_RWops_t* ops)
     if(ops->type == BOX64RW)
         return ops->hidden.my.orig;
 
+    checkSDL2isNative();
     sdl2_allocrw Alloc = (sdl2_allocrw)emu->context->sdl2allocrw;
 
     SDL2_RWops_t* newrw = Alloc();
