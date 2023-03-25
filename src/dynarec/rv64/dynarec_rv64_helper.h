@@ -292,6 +292,25 @@
         FLW(a, ed, fixedaddress);                                                                       \
     }
 
+// Will get pointer to GX in general register a, will purge SS or SD if loaded
+#define GETGX(a)                        \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+    sse_forget_reg(dyn, ninst, gd);     \
+    ADDI(a, xEmu, offsetof(x64emu_t, xmm[gd]))
+
+// Get Ex address in regenal register a, will purge SS or SD or it's reg and is loaded. May use x3
+#define GETEX(a, D)                                                                                     \
+    if(MODREG) {                                                                                        \
+        ed = (nextop&7)+(rex.b<<3);                                                                     \
+        sse_forget_reg(dyn, ninst, ed);                                                                 \
+        fixedaddress = 0;                                                                               \
+        ADDI(a, xEmu, offsetof(x64emu_t, xmm[ed]));                                                     \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        ed=16;                                                                                          \
+        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D);          \
+    }
+
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)

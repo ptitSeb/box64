@@ -1116,7 +1116,7 @@ int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
     dyn->e.ssecache[a].single = single;
     return dyn->e.ssecache[a].reg;
 }
-// forget ext register for a SSE reg, create the entry if needed
+// forget ext register for a SSE reg, does nothing if the regs is not loaded
 void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int a)
 {
     if(dyn->e.ssecache[a].v==-1)

@@ -122,6 +122,29 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             OR(gd, gd, x1);
             break;
 
+        case 0xEF:
+            INST_NAME("PXOR Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            if(gd==ed) {
+                // just zero dest
+                SD(xZR, x1, 0);
+                SD(xZR, x1, 8);
+            } else {
+                //1st
+                LD(x3, x1, 0);
+                LD(x4, x2, 0);
+                XOR(x3, x3, x4);
+                SD(x3, x1, 0);
+                // 2nd
+                LD(x3, x1, 8);
+                LD(x4, x2, 8);
+                XOR(x3, x3, x4);
+                SD(x3, x1, 8);
+            }
+            break;
+
         default:
             DEFAULT;
     }
