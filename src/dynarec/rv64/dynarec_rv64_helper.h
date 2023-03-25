@@ -451,7 +451,11 @@
             /* cf = bc & (1<<(width-1)) */                                \
             if ((width) == 8) {                                           \
                 ANDI(scratch1, scratch2, 0x80);                           \
+            } else if ((width) == 16) {                                   \
+                SLLI(scratch2, scratch2, 48);                             \
+                SRLI(scratch1, scratch2, 63);                             \
             } else {                                                      \
+                if ((width) == 32) { ZEROUP(scratch2); }                  \
                 SRLI(scratch1, scratch2, (width)-1);                      \
                 if(width!=64) ANDI(scratch1, scratch1, 1);                \
             }                                                             \
