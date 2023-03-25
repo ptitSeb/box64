@@ -220,6 +220,8 @@ GO("libva-drm.so.2", libvadrm)
 GO("libva-x11.so.2", libvax11)
 GO("libva-wayland.so.2", libvawayland)
 GO("libvdpau.so.1", libvdpau)
+GO("libnuma.so.1", libnuma)
+GO("libnuma.so", libnuma)
 GO("d3dadapter9.so.1", d3dadapter9)
 
 GO("ld-linux-x86-64.so.2", ldlinux)

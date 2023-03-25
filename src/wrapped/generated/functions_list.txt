@@ -170,6 +170,7 @@
 #() iFpO
 #() iFSi
 #() IFEp
+#() IFip
 #() IFII
 #() IFpi
 #() IFpu
@@ -223,6 +224,7 @@
 #() DFDp
 #() DFpp
 #() lFii
+#() lFip
 #() lFll
 #() lFpi
 #() lFpl
@@ -253,6 +255,7 @@
 #() pFdi
 #() pFdd
 #() pFlp
+#() pFLi
 #() pFLu
 #() pFLL
 #() pFLp
@@ -1564,6 +1567,7 @@
 #() iFiiiiip
 #() iFiiiuwp
 #() iFiuiipi
+#() iFiLpppi
 #() iFipiipi
 #() iFipipip
 #() iFipippp
@@ -1599,6 +1603,7 @@
 #() iFpUuupp
 #() iFpUUUip
 #() iFpUUUUp
+#() iFpLipLu
 #() iFpLLppp
 #() iFppiiii
 #() iFppiiip
@@ -2315,6 +2320,7 @@
 #() pFpCuuwwWWWWuup
 #() pFpuupppwwwwWWC
 #() pFppppppppppppp
+#() vFippppppppppppp
 #() vFuffiiffiiffiip
 #() vFuddiiddiiddiip
 #() vFppiipppiiiiiii
@@ -3534,6 +3540,7 @@ wrappedlibncursesw6:
   - mvprintw
 - iFpiipV:
   - mvwprintw
+wrappedlibnuma:
 wrappedlibogg:
 wrappedlibpanel:
 wrappedlibpci:
