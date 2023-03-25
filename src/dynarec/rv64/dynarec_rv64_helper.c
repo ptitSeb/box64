@@ -522,7 +522,7 @@ void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int s
         CBZ_MARKSEG(t1);
     }
     MOV64x(x1, segment);
-    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 1, 0);
+    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 0, xFlags);
     MARKSEG;
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment==_FS)?"FS":"GS");
 }
