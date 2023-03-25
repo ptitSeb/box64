@@ -323,7 +323,7 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     if(c>=-2048 && c<=2047)
         ANDI(s3, s1, c);
     else {
-        MOV64x(s3, c);
+        MOV64xw(s3, c);
         AND(s3, s1, s3); // res = s1 & s2
     }
 
