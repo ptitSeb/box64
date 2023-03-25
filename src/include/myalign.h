@@ -114,8 +114,8 @@ typdef struct {
   {                                                                     \
     uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
     int n = (X64_VA_MAX_REG - (VA)->gp_offset)/8;                       \
-    if(n) memcpy(&p[0], (VA)->reg_save_area, n*8);                      \
-    memcpy(&p[n], (VA)->overflow_arg_area, 100*8);                      \
+    if(n) memcpy(&p[0], (VA)->reg_save_area+X64_VA_MAX_REG-n*8, n*8);   \
+    memcpy(&p[n], (VA)->overflow_arg_area, 20*8);                       \
     sysv_varargs.__offset = (VA)->gp_offset;                            \
     sysv_varargs.__base = (char*)p;                                     \
   }
@@ -126,7 +126,7 @@ typdef struct {
     uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
     p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;                                 \
     p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;                                   \
-    memcpy(&p[8+N], STACK, 100*8 - (8+N)*8);                            \
+    memcpy(&p[8+N], STACK, 20*8);                                       \
     sysv_varargs.__offset = N*8;                                        \
     sysv_varargs.__base = (char*)p;                                     \
   }
@@ -139,10 +139,11 @@ typdef struct {
 #define CREATE_VALIST_FROM_VALIST(VA, SCRATCH)                          \
   va_list sysv_varargs;                                                 \
   {                                                                     \
+    if((VA)->fp_offset!=X64_VA_MAX_XMM) printf_log(LOG_DEBUG, "Warning: %s: CREATE_VALIST_FROM_VALIST with %d XMM register!\n", __FUNCTION__, (X64_VA_MAX_XMM - (VA)->fp_offset)/16);\
     uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
     int n = (X64_VA_MAX_REG - (VA)->gp_offset)/8;                       \
-    if(n) memcpy(&p[0], (VA)->reg_save_area, n*8);                      \
-    memcpy(&p[n], (VA)->overflow_arg_area, 100*8);                      \
+    if(n) memcpy(&p[0], (VA)->reg_save_area+X64_VA_MAX_REG-n*8, n*8);   \
+    memcpy(&p[n], (VA)->overflow_arg_area, 20*8);                       \
     sysv_varargs = (va_list)p;                                          \
   }
 // this is an approximation, and if the va_list have some float/double, it will fail!
@@ -153,7 +154,7 @@ typdef struct {
     uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
     p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;                                 \
     p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;                                   \
-    memcpy(&p[6], STACK, 100*8);                                        \
+    memcpy(&p[6], STACK, 20*8);                                         \
     sysv_varargs = (va_list)&p[N];                                      \
   }
 #else

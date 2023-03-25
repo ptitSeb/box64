@@ -404,7 +404,64 @@ EXPORT int my_dbus_message_append_args_valist(x64emu_t* emu, void* message, int 
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
     #else
+    #if 1
     CREATE_VALIST_FROM_VALIST(b, emu->scratch);
+    #else
+    va_list sysv_varargs;
+    uintptr_t *p = (uintptr_t*)(emu->scratch);
+    int n = (X64_VA_MAX_REG - b->gp_offset)/8;
+    int x = (X64_VA_MAX_XMM - b->fp_offset)/8;
+    int idx = 0;
+    int type = arg;
+    while(arg) {
+        if(arg == (int)'d') {
+            // double
+            if(x)
+                *(p++) = *(uintptr_t*)(b->reg_save_area + X64_VA_MAX_XMM - (x--)*8);
+            else
+                *(p++) = *(uintptr_t*)(b->overflow_arg_area + (idx++)*8);
+        } else if(arg == (int)'a') {
+            // array
+            //  type
+            if(n)
+                *(p++) = *(uintptr_t*)(b->reg_save_area + X64_VA_MAX_REG - (n--)*8);
+            else
+                *(p++) = *(uintptr_t*)(b->overflow_arg_area + (idx++)*8);
+            //  elements
+            if(n)
+                *(p++) = *(uintptr_t*)(b->reg_save_area + X64_VA_MAX_REG - (n--)*8);
+            else
+                *(p++) = *(uintptr_t*)(b->overflow_arg_area + (idx++)*8);
+            //  number of elements
+            if(n)
+                *(p++) = *(uintptr_t*)(b->reg_save_area + X64_VA_MAX_REG - (n--)*8);
+            else
+                *(p++) = *(uintptr_t*)(b->overflow_arg_area + (idx++)*8);
+        } else if(arg == (int)'s' || arg == (int)'g' || arg == (int)'o') {
+            //  elements
+            if(n)
+                *(p++) = *(uintptr_t*)(b->reg_save_area + X64_VA_MAX_REG - (n--)*8);
+            else
+                *(p++) = *(uintptr_t*)(b->overflow_arg_area + (idx++)*8);
+            //  number of elements
+            if(n)
+                *(p++) = *(uintptr_t*)(b->reg_save_area + X64_VA_MAX_REG - (n--)*8);
+            else
+                *(p++) = *(uintptr_t*)(b->overflow_arg_area + (idx++)*8);
+        } else {
+            if(n)
+                *(p++) = *(uintptr_t*)(b->reg_save_area + X64_VA_MAX_REG - (n--)*8);
+            else
+                *(p++) = *(uintptr_t*)(b->overflow_arg_area + (idx++)*8);
+        }
+        if(n)
+            arg = *(uintptr_t*)(b->reg_save_area + X64_VA_MAX_REG - (n--)*8);
+        else
+            arg = *(uintptr_t*)(b->overflow_arg_area + (idx++)*8);
+        *(p++) = arg;
+    }
+    sysv_varargs = (va_list)p;
+    #endif
     #endif
     return my->dbus_message_append_args_valist(message, arg, VARARGS);
 }
