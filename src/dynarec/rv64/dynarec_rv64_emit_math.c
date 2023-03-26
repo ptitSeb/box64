@@ -759,6 +759,61 @@ void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 }
 
+// emit NEG8 instruction, from s1, store result in s1 using s2 and s3 as scratch
+void emit_neg8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    CLEAR_FLAGS();
+    IFX(X_PEND) {
+        SB(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s3, d_neg8);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+    IFX(X_AF | X_OF) {
+        MV(s3, s1);      // s3 = op1
+    }
+
+    NEG(s1, s1);
+    ANDI(s1, s1, 0xff);
+    IFX(X_PEND) {
+        SB(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    IFX(X_CF) {
+        BEQZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_CF);
+    }
+    
+    IFX(X_AF | X_OF) {
+        OR(s3, s1, s3); // s3 = res | op1
+        IFX(X_AF) {
+            /* af = bc & 0x8 */
+            ANDI(s2, s3, 8);
+            BEQZ(s2, 8);
+            ORI(xFlags, xFlags, 1 << F_AF);
+        }
+        IFX(X_OF) {
+            /* of = ((bc >> (width-2)) ^ (bc >> (width-1))) & 0x1; */
+            SRLI(s2, s3, 6);
+            SRLI(s3, s2, 1);
+            XOR(s2, s2, s3);
+            ANDI(s2, s2, 1);
+            BEQZ(s2, 8);
+            ORI(xFlags, xFlags, 1 << F_OF2);
+        }    
+    }
+    IFX(X_SF) {
+        ANDI(s3, s1, 1 << F_SF);    // 1<<F_SF is sign bit, so just mask
+        OR(xFlags, xFlags, s3);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s2);
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+}
 
 // emit ADC32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)

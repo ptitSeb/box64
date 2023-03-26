@@ -31,7 +31,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint8_t gd, ed;
-    uint8_t wback, wb2;
+    uint8_t wback, wb2, gback;
     uint8_t eb1, eb2;
     int32_t i32, i32_;
     int cacheupd = 0;
@@ -44,6 +44,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     int64_t fixedaddress;
     int unscaled;
     MAYUSE(wb2);
+    MAYUSE(gback);
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(q0);
@@ -111,6 +112,30 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
 
 
+        case 0x10:
+            INST_NAME("MOVUPS Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress+0);
+            LD(x4, wback, fixedaddress+8);
+            SD(x3, gback, 0);
+            SD(x4, gback, 8);
+            break;
+        case 0x11:
+            INST_NAME("MOVUPS Ex,Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, gback, 0);
+            LD(x4, gback, 8);
+            SD(x3, wback, fixedaddress+0);
+            SD(x4, wback, fixedaddress+8);
+            if(!MODREG)
+                SMWRITE2();
+            break;
+
+
         case 0x18:
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
@@ -168,6 +193,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
+
+        case 0x57:
+            INST_NAME("XORPS");
+            nextop = F8;
+            //TODO: it might be possible to check if SS or SD are used and not purge them to optimize a bit
+            GETGX(x1);
+            if(MODREG && gd==(nextop&7)+(rex.b<<3))
+            {
+                // just zero dest
+                SD(xZR, x1, 0);
+                SD(xZR, x1, 8);
+            } else {
+                GETEX(x2, 0);
+                SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
+            }
+            break;
 
         case 0x77:
             INST_NAME("EMMS");

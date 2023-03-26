@@ -292,24 +292,37 @@
         FLW(a, ed, fixedaddress);                                                                       \
     }
 
-// Will get pointer to GX in general register a, will purge SS or SD if loaded
+// Will get pointer to GX in general register a, will purge SS or SD if loaded. can use gback as load address
 #define GETGX(a)                        \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     sse_forget_reg(dyn, ninst, gd);     \
+    gback = a;                          \
     ADDI(a, xEmu, offsetof(x64emu_t, xmm[gd]))
 
-// Get Ex address in regenal register a, will purge SS or SD or it's reg and is loaded. May use x3
+// Get Ex address in regenal register a, will purge SS or SD or it's reg and is loaded. May use x3. Use wback as load adress!
 #define GETEX(a, D)                                                                                     \
     if(MODREG) {                                                                                        \
         ed = (nextop&7)+(rex.b<<3);                                                                     \
         sse_forget_reg(dyn, ninst, ed);                                                                 \
         fixedaddress = 0;                                                                               \
         ADDI(a, xEmu, offsetof(x64emu_t, xmm[ed]));                                                     \
+        wback = a;                                                                                      \
     } else {                                                                                            \
         SMREAD();                                                                                       \
         ed=16;                                                                                          \
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D);          \
     }
+
+// Loop for SSE opcode that use 64bits value and write to GX.
+#define SSE_LOOP_Q(GX1, EX1, F)         \
+    LD(GX1, gback, 0);                  \
+    LD(EX1, wback, fixedaddress+0);     \
+    F;                                  \
+    SD(GX1, gback, 0);                  \
+    LD(GX1, gback, 8);                  \
+    LD(EX1, wback, fixedaddress+8);     \
+    F;                                  \
+    SD(GX1, gback, 8)
 
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
@@ -830,10 +843,10 @@ void emit_sbb8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 //void emit_sbb16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3);
 //void emit_neg16(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
-//void emit_neg8(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_neg8(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5);
-//void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 //void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);

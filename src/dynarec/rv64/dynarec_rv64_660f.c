@@ -30,7 +30,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     uint8_t nextop, u8;
     int32_t i32;
     uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
+    uint8_t wback, wb1, wb2, gback;
     uint8_t eb1, eb2;
     int64_t j64;
     uint64_t tmp64u, tmp64u2;
@@ -126,22 +126,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("PXOR Gx, Ex");
             nextop = F8;
             GETGX(x1);
-            GETEX(x2, 0);
-            if(gd==ed) {
+            if(MODREG && gd==(nextop&7)+(rex.b<<3))
+            {
                 // just zero dest
                 SD(xZR, x1, 0);
                 SD(xZR, x1, 8);
             } else {
-                //1st
-                LD(x3, x1, 0);
-                LD(x4, x2, 0);
-                XOR(x3, x3, x4);
-                SD(x3, x1, 0);
-                // 2nd
-                LD(x3, x1, 8);
-                LD(x4, x2, 8);
-                XOR(x3, x3, x4);
-                SD(x3, x1, 8);
+                GETEX(x2, 0);
+                SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
             }
             break;
 
