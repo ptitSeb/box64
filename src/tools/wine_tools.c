@@ -31,8 +31,8 @@ static int get_prereserve(const char* reserve, void** addr, size_t* size)
         if(*reserve>='0' && *reserve<='9')  r=r*16+(*reserve)-'0';
         else if(*reserve>='A' && *reserve<='F')  r=r*16+(*reserve)-'A'+10;
         else if(*reserve>='a' && *reserve<='f')  r=r*16+(*reserve)-'a'+10;
-        else if(*reserve=='-') {if(first) {*addr=(void*)(r&~(box64_pagesize-1)); r=0; first=0;} else {printf_log(LOG_NONE, "Warning, Wine prereserve badly formated\n"); return 0;}}
-        else {printf_log(LOG_NONE, "Warning, Wine prereserve badly formated\n"); return 0;}
+        else if(*reserve=='-') {if(first) {*addr=(void*)(r&~(box64_pagesize-1)); r=0; first=0;} else {printf_log(LOG_NONE, "Warning, Wine prereserve badly formatted\n"); return 0;}}
+        else {printf_log(LOG_NONE, "Warning, Wine prereserve badly formatted\n"); return 0;}
         ++reserve;
     }
     *size = r;

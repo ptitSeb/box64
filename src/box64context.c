@@ -191,7 +191,7 @@ box64context_t *NewBox64Context(int argc)
 
     initCycleLog(context);
 
-    context->deferedInit = 1;
+    context->deferredInit = 1;
     context->sel_serial = 1;
 
     init_custommem_helper(context);
@@ -268,8 +268,8 @@ void FreeBox64Context(box64context_t** context)
     if(ctx->zydis)
         DeleteX64Trace(ctx);
 
-    if(ctx->deferedInitList)
-        box_free(ctx->deferedInitList);
+    if(ctx->deferredInitList)
+        box_free(ctx->deferredInitList);
 
     /*box_free(ctx->argv);*/
     

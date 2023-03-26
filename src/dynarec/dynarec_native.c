@@ -594,13 +594,13 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
     // Check if something changed, to abbort if it as
     if((block->hash != hash)) {
-        dynarec_log(LOG_DEBUG, "Warning, a block changed while beeing processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
+        dynarec_log(LOG_DEBUG, "Warning, a block changed while being processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
         AddHotPage(addr);
         CancelBlock64(0);
         return NULL;
     }
     if(!isprotectedDB(addr, end-addr)) {
-        dynarec_log(LOG_DEBUG, "Warning, block unprotected while beeing processed %p:%ld, cancelling\n", block->x64_addr, block->x64_size);
+        dynarec_log(LOG_DEBUG, "Warning, block unprotected while being processed %p:%ld, cancelling\n", block->x64_addr, block->x64_size);
         AddHotPage(addr);
         block->need_test = 1;
         //protectDB(addr, end-addr);

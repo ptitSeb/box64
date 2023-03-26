@@ -939,7 +939,7 @@ void UpdateFlags(x64emu_t *emu)
         case d_rcr32:
         case d_rcr64:
         case d_unknown:
-            printf_log(LOG_NONE, "Box64: %p trying to evaluate Unknown defered Flags\n", (void*)R_RIP);
+            printf_log(LOG_NONE, "Box64: %p trying to evaluate Unknown deferred Flags\n", (void*)R_RIP);
             break;
         
         case d_dec8i:
@@ -951,7 +951,7 @@ void UpdateFlags(x64emu_t *emu)
         case d_inc32i:
         case d_inc64i:
             {
-                defered_flags_t df = emu->df - (d_dec8i - d_dec8);
+                deferred_flags_t df = emu->df - (d_dec8i - d_dec8);
                 if(emu->df_sav!=d_none) {
                     // compute CF
                     multiuint_t op1 = emu->op1;

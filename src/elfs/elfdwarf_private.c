@@ -538,7 +538,7 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
             break;                                                                                              \
         }
 #define RESTORE_REG(reg) \
-    printf_log(LOG_DEBUG, "Trying to restore register 0x%02lX while in the intial CFIs\n", (uint64_t)reg); \
+    printf_log(LOG_DEBUG, "Trying to restore register 0x%02lX while in the initial CFIs\n", (uint64_t)reg); \
     FAILED
 #define FAILED \
     box_free(unwind_constr.statuses);                                       \
