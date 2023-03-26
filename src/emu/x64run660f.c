@@ -372,9 +372,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 nextop = F8;
                 GETEX(0);
                 GETGX;
-                CHECK_FLAGS(emu);
+                RESET_FLAGS(emu);
                 CONDITIONAL_SET_FLAG(!(GX->u128&EX->u128), F_ZF);
                 CONDITIONAL_SET_FLAG(!((~GX->u128)&EX->u128), F_CF);
+                CLEAR_FLAG(F_AF);
+                CLEAR_FLAG(F_OF);
+                CLEAR_FLAG(F_SF);
+                CLEAR_FLAG(F_PF);
                 break;
 
             case 0x1C:  /* PABSB Gx, Ex */
