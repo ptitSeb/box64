@@ -223,6 +223,8 @@ GO("libvdpau.so.1", libvdpau)
 GO("libnuma.so.1", libnuma)
 GO("libnuma.so", libnuma)
 GO("d3dadapter9.so.1", d3dadapter9)
+GO("libicuuc.so.72", icuuc72)
+GO("libicui18n.so.72", icui18n72)
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 

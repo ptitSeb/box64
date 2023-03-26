@@ -893,6 +893,7 @@
 #() IFpppp
 #() IFSIii
 #() CFpupp
+#() CFppip
 #() uFEipp
 #() uFEupp
 #() uFEpup
@@ -908,6 +909,7 @@
 #() uFpuup
 #() uFpupu
 #() uFppiu
+#() uFppip
 #() uFppLp
 #() uFpppi
 #() uFpppu
@@ -1012,6 +1014,7 @@
 #() pFppiu
 #() pFppiL
 #() pFppip
+#() pFppCp
 #() pFppWW
 #() pFppuW
 #() pFppuu
@@ -1258,6 +1261,7 @@
 #() iFpippW
 #() iFpippp
 #() iFpCCCC
+#() iFpCpip
 #() iFpuill
 #() iFpuipi
 #() iFpuuip
@@ -1367,6 +1371,7 @@
 #() pFpiipp
 #() pFpiCCC
 #() pFpiuuu
+#() pFpipip
 #() pFpippi
 #() pFpippp
 #() pFpCpup
@@ -1681,8 +1686,10 @@
 #() pFEppApp
 #() pFiiiiii
 #() pFiCiiCi
+#() pFipippp
 #() pFdddddd
 #() pFpiiiiu
+#() pFpiiipp
 #() pFpiiCCC
 #() pFpiUUUU
 #() pFpippip
@@ -1896,6 +1903,7 @@
 #() pFuupupup
 #() pFdiiiIiI
 #() pFpiiUdii
+#() pFpipippp
 #() pFpCuwwWW
 #() pFpCuWCCC
 #() pFpCuuwwp
@@ -2050,6 +2058,7 @@
 #() pFEpppppiV
 #() pFEppppppi
 #() pFEppppppp
+#() pFiippipip
 #() pFiipppppp
 #() pFuiiiuuuu
 #() pFuupupipp
@@ -3088,6 +3097,8 @@ wrappedgtkx112:
   - gtk_toolbar_prepend_element
 - pFpipppppppi:
   - gtk_toolbar_insert_element
+wrappedicui18n72:
+wrappedicuuc72:
 wrappedkrb5:
 - iFppppppipp:
   - krb5_get_init_creds_password

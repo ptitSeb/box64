@@ -501,6 +501,8 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedvulkan.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxshmfence.c"
     "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedicuuc72.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedicui18n72.c"
 )
 
 # If BOX64_ROOT contains a ".c", the build breaks...
