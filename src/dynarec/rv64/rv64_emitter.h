@@ -132,6 +132,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define JAL_gen(rd, imm21)             J_type(imm21, rd, 0b1101111)
 // Unconditional branch, no return address set
 #define B(imm21)                       EMIT(JAL_gen(xZR, imm21))
+#define B__(reg1, reg2, imm21)         B(imm21)
 // Unconditional branch, return set to xRA
 #define JAL(imm21)                     EMIT(JAL_gen(xRA, imm21))
 

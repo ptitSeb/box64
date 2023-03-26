@@ -166,6 +166,40 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             FAKEED;
             break;
 
+        case 0x28:
+            INST_NAME("MOVAPS Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress+0);
+            LD(x4, wback, fixedaddress+8);
+            SD(x3, gback, 0);
+            SD(x4, gback, 8);
+            break;
+        case 0x29:
+            INST_NAME("MOVAPS Ex,Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, gback, 0);
+            LD(x4, gback, 8);
+            SD(x3, wback, fixedaddress+0);
+            SD(x4, wback, fixedaddress+8);
+            if(!MODREG)
+                SMWRITE2();
+            break;
+
+        case 0x2B:
+            INST_NAME("MOVNTPS Ex,Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, gback, 0);
+            LD(x4, gback, 8);
+            SD(x3, wback, fixedaddress+0);
+            SD(x4, wback, fixedaddress+8);
+            break;
+
         case 0x31:
             INST_NAME("RDTSC");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
@@ -285,6 +319,29 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             // BX and DX are not synchronized durring the call, so need to force the update
             LD(xRDX, xEmu, offsetof(x64emu_t, regs[_DX]));
             LD(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
+            break;
+        case 0xA3:
+            INST_NAME("BT Ed, Gd");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                SRAIxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                SLLI(x1, x1, 2+rex.w);
+                ADD(x3, wback, x1); //(&ed)+=r1*4;
+                LDxw(x1, x3, fixedaddress);
+                ed = x1;
+            }
+            ANDI(x2, gd, rex.w?0x3f:0x1f);
+            SRL(x4, ed, x2);
+            ANDI(x4, x4, 1);
+            ANDI(xFlags, xFlags, ~1);   //F_CF is 1
+            OR(xFlags, xFlags, x4);
             break;
 
         case 0xAE:

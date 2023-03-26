@@ -79,6 +79,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
             break;
+        case 0x04:
+            INST_NAME("ADD AL, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            emit_add8c(dyn, ninst, x1, u8, x3, x4, x5);
+            ANDI(xRAX, xRAX, ~0xff);
+            OR(xRAX, xRAX, x1);
+            break;
         case 0x05:
             INST_NAME("ADD EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -217,6 +226,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_and32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
+        case 0x24:
+            INST_NAME("AND AL, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            emit_and8c(dyn, ninst, x1, u8, x3, x4);
+            ANDI(xRAX, xRAX, ~0xff);
+            OR(xRAX, xRAX, x1);
+            break;
         case 0x25:
             INST_NAME("AND EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -332,7 +350,14 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_cmp32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
             break;
-        
+        case 0x3A:
+            INST_NAME("CMP Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_cmp8(dyn, ninst, x2, x1, x3, x4, x5, x6);
+            break;
         case 0x3B:
             INST_NAME("CMP Gd, Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -699,6 +724,34 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_test32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             break;
 
+        case 0x87:
+            INST_NAME("(LOCK)XCHG Ed, Gd");
+            nextop = F8;
+            if(MODREG) {
+                GETGD;
+                GETED(0);
+                MVxw(x1, gd);
+                MVxw(gd, ed);
+                MVxw(ed, x1);
+            } else {
+                GETGD;
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                SMDMB();
+                ANDI(x3, ed, (1<<(2+rex.w))-1);
+                BEQ_MARK(x3, xZR);
+                MARKLOCK;
+                LRxw(x1, ed, 1, 0);
+                SCxw(x3, gd, ed, 0, 1);
+                BNE_MARKLOCK(x3, xZR);
+                B_MARK2_nocond;
+                MARK;
+                LDxw(x1, ed, 0);
+                SDxw(gd, ed, 0);
+                MARK2;
+                SMDMB();
+                MVxw(gd, x1);
+            }
+            break;
         case 0x88:
             INST_NAME("MOV Eb, Gb");
             nextop = F8;
@@ -1779,7 +1832,11 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     WBACK;
                     break;
                 case 1: //DEC Ed
-                    DEFAULT;
+                    INST_NAME("DEC Ed");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    GETED(0);
+                    emit_dec32(dyn, ninst, rex, ed, x3, x4, x5, x6);
+                    WBACK;
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");

@@ -271,6 +271,11 @@
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     a = sse_get_reg(dyn, ninst, x1, gd, 1)
 
+// Get GX as a Single (might use x1), no fetching old value
+#define GETGXSS_empty(a)                \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
+    a = sse_get_reg_empty(dyn, ninst, x1, gd, 1)
+
 // Get GX as a Double (might use x1)
 #define GETGXSD(a)                      \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
@@ -290,6 +295,17 @@
         a = fpu_get_scratch(dyn);                                                                       \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, D);            \
         FLW(a, ed, fixedaddress);                                                                       \
+    }
+
+// Get Ex as a double, not a quad (warning, x1 get used, x2 might too)
+#define GETEXSD(a, D)                                                                                   \
+    if(MODREG) {                                                                                        \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);                                      \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        a = fpu_get_scratch(dyn);                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, D);            \
+        FLD(a, ed, fixedaddress);                                                                       \
     }
 
 // Will get pointer to GX in general register a, will purge SS or SD if loaded. can use gback as load address
@@ -357,6 +373,8 @@
 #define BNE_MARK(reg1, reg2) Bxx_gen(NE, MARK, reg1, reg2)
 // Branch to MARK if reg1!=0 (use j64)
 #define BNEZ_MARK(reg) BNE_MARK(reg, xZR)
+// Branch to MARK instruction unconditionnal (use j64)
+#define B_MARK_nocond   Bxx_gen(__, MARK, 0, 0)
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLT_MARK(reg1, reg2) Bxx_gen(LT, MARK, reg1, reg2)
 // Branch to MARK if reg1>=reg2 (use j64)
@@ -369,6 +387,8 @@
 #define BNEZ_MARK2(reg) BNE_MARK2(reg, xZR)
 // Branch to MARK2 if reg1<reg2 (use j64)
 #define BLT_MARK2(reg1, reg2) Bxx_gen(LT, MARK2, reg1,reg2)
+// Branch to MARK instruction unconditionnal (use j64)
+#define B_MARK2_nocond  Bxx_gen(__, MARK2, 0, 0)
 // Branch to MARK3 if reg1==reg2 (use j64)
 #define BEQ_MARK3(reg1, reg2) Bxx_gen(EQ, MARK3, reg1, reg2)
 // Branch to MARK3 if reg1!=reg2 (use j64)
@@ -826,7 +846,7 @@ void emit_and16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_inc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 //void emit_inc16(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_inc8(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
-//void emit_dec32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
+void emit_dec32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 //void emit_dec16(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 //void emit_dec8(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);

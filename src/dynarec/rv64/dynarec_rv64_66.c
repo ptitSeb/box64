@@ -403,6 +403,32 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             OR(xRAX, xRAX, x1);
             break;
 
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg, Iw");
+            gd = xRAX+(opcode&7)+(rex.b<<3);
+            if(rex.w) {
+                u64 = F64;
+                MOV64x(gd, u64);
+            } else {
+                u16 = F16;
+                MOV64x(x1, ~0xffff);
+                AND(gd, gd, x1);
+                if(u16<2048) {
+                    ORI(gd, gd, u16);
+                } else {
+                    MOV32w(x1, u16);
+                    OR(gd, gd, x1);
+                }
+            }
+            break;
+            
         case 0xC1:
             nextop = F8;
             switch((nextop>>3)&7) {

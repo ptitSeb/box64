@@ -116,6 +116,15 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
 
+        case 0x5C:
+            INST_NAME("SUBSD Gx, Ex");
+            nextop = F8;
+            //TODO: fastnan handling
+            GETGXSD(v0);
+            GETEXSD(v1, 0);
+            FSUBD(v0, v0, v1);
+            break;
+
 
         default:
             DEFAULT;
