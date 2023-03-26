@@ -332,7 +332,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
-                    SETFLAGS(X_ZF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETGX(q0, 0);
                     GETEX(q1, 0, 0);
                     v1 = fpu_get_scratch(dyn);
@@ -352,6 +352,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         UBFXx(x1, x1, 33, 1);
                         BFIw(xFlags, x1, F_CF, 1);
                     }
+                    IFX(X_PF|X_AF|X_OF|X_SF) {
+                        MOV32w(x1, (1<<F_PF)|(1<<F_AF)|(1<<F_OF)|(1<<F_SF));
+                        BICw_REG(xFlags, xFlags, x1);
+                    }
+                    SET_DFNONE(x1);
                     break;
 
                 case 0x1C:
