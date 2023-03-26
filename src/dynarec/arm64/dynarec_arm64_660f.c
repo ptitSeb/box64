@@ -329,6 +329,31 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     break;
 
+                case 0x17:
+                    INST_NAME("PTEST Gx, Ex");
+                    nextop = F8;
+                    SETFLAGS(X_ZF|X_CF, SF_SUBSET);
+                    GETGX(q0, 0);
+                    GETEX(q1, 0, 0);
+                    v1 = fpu_get_scratch(dyn);
+                    IFX(X_ZF) {
+                        VANDQ(v1, q1, q0);
+                        CMEQQ_0_64(v1, v1);
+                        UADDLVQ_32(v1, v1);
+                        VMOVQDto(x1, v1, 0);
+                        UBFXx(x1, x1, 33, 1);   // bit33 will only be set if all bits are 1
+                        BFIw(xFlags, x1, F_ZF, 1);
+                    }
+                    IFX(X_CF) {
+                        VBICQ(v1, q1, q0);
+                        CMEQQ_0_64(v1, v1);
+                        UADDLVQ_32(v1, v1);
+                        VMOVQDto(x1, v1, 0);
+                        UBFXx(x1, x1, 33, 1);
+                        BFIw(xFlags, x1, F_CF, 1);
+                    }
+                    break;
+
                 case 0x1C:
                     INST_NAME("PABSB Gx,Ex");
                     nextop = F8;
