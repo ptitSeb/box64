@@ -227,7 +227,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
             if(dyn->forward) {
                 // stopping too soon
                 dyn->size = dyn->forward_size;
-                ninst = dyn->forward_ninst;
+                ninst = dyn->forward_ninst+1;
                 addr = dyn->forward;
                 dyn->forward = 0;
                 dyn->forward_to = 0;
