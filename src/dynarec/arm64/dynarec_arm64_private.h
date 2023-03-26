@@ -57,15 +57,15 @@ typedef struct neoncache_s {
 
 typedef struct flagcache_s {
     int                 pending;    // is there a pending flags here, or to check?
-    int                 dfnone;     // if defered flags is already set to df_none
+    int                 dfnone;     // if deferred flags is already set to df_none
 } flagcache_t;
 
 typedef struct instruction_arm64_s {
     instruction_x64_t   x64;
-    uintptr_t           address;    // (start) address of the arm emited instruction
+    uintptr_t           address;    // (start) address of the arm emitted instruction
     uintptr_t           epilog;     // epilog of current instruction (can be start of next, or barrier stuff)
-    int                 size;       // size of the arm emited instruction
-    int                 size2;      // size of the arm emited instrucion after pass2
+    int                 size;       // size of the arm emitted instruction
+    int                 size2;      // size of the arm emitted instrucion after pass2
     int                 pred_sz;    // size of predecessor list
     int                 *pred;      // predecessor array
     uintptr_t           mark, mark2, mark3;
@@ -87,7 +87,7 @@ typedef struct dynarec_arm_s {
     int32_t             cap;
     uintptr_t           start;      // start of the block
     uint32_t            isize;      // size in byte of x64 instructions included
-    void*               block;      // memory pointer where next instruction is emited
+    void*               block;      // memory pointer where next instruction is emitted
     uintptr_t           native_start;  // start of the arm code
     size_t              native_size;   // size of emitted arm code
     uintptr_t           last_ip;    // last set IP in RIP (or NULL if unclean state) TODO: move to a cache something

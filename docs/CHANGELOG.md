@@ -1,6 +1,6 @@
 v0.2.2
 ======
-* Added a hacked version for overriden malloc/free functions, enabling libcef (and derivative) to work.
+* Added a hacked version for overridden malloc/free functions, enabling libcef (and derivative) to work.
     => Steam Large mode and new BigPicture are working
     => Heroic Launcher is working
 * Added rcfile handling: box64 now read `/etc/box64.box64rc` and `~/.box64rc` and apply per process parameters
@@ -22,7 +22,7 @@ v0.2.2
 * Some special cases fixes for dlopen (fixes deadcells, maybe others too)
 * Improved mmap mapping, espcially with MAP_32BITS flag
 * More wrapped functions and syscalls
-* Lots of improvment in the Rounding of float & double (Dynarec and Interpretor), and proper handling of denormals when converting to/from 80 bits long double
+* Lots of improvment in the Rounding of float & double (Dynarec and Interpreter), and proper handling of denormals when converting to/from 80 bits long double
 * Added specific suppport for RK3588 board (needed some hack in signal handling, probably due to the use of a non mainlined kernel)
 * More support on the RV64 port
 * More support to build under musl environment
@@ -30,7 +30,7 @@ v0.2.2
 v0.2.0
 ======
 * Wrapped more vulkan function, dxvk 2.0 now works
-* Added support for overriden malloc/free functions
+* Added support for overridden malloc/free functions
 * Refactor Dynarec memory management, reducing memory footprint (from 20% to 40% of Dynarec size)
 * Improved elf loader
 * Improved dlsym handling with RTLD_NEXT
@@ -80,8 +80,8 @@ v0.1.8
 * Don't quit on unsupported syscall, return -1 / ENOSYS error
 * Added some more Syscall
 * Wrapped Vulkan library. Vulkan and dxvk now supported!
-* Support building on PPC64LE (interpretor only)
-* Added support for Risc-V (interpretor only)
+* Support building on PPC64LE (interpreter only)
+* Added support for Risc-V (interpreter only)
 
 v0.1.6
 ======
@@ -97,7 +97,7 @@ v0.1.6
 * Some residual fixes on thread attribute handling
 * Better handling of app that want 32bits jumps, like unity3d/mono (thanks mogery)
 * More ARM hardware option in CMake (Phytium, NX...)
-* Added loongarch64 support (interpretor only)
+* Added loongarch64 support (interpreter only)
 * Some fixes to elfloader
 * Added a mecanism to cancel a Dynarec block construction if it triggers a segfault (instead of a crash)
 
@@ -120,7 +120,7 @@ v0.1.4
 v0.1.2
 ======
 * OpenSource!
-* A few more opcode added to the Interpretor and the Dynarec
+* A few more opcode added to the Interpreter and the Dynarec
 * Improved Native Function calling
 * Added some function to limit allocated memory to 47bits space (for Wine)
 * Improved and Fixed the functions to limit allocated memory to 32bits space
@@ -134,7 +134,7 @@ v0.1.0
 * Some fixes to a few function signature
 * Improvement to Signal handling, and internal mutex handling
 * A few fixes to some dynarec opcodes
-* A few fixes to some interpretor opcodes
+* A few fixes to some interpreter opcodes
 
 v0.0.8
 ======

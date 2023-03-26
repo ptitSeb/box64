@@ -413,9 +413,9 @@ int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t**
         if(t==R_X86_64_COPY && symname && !strcmp(symname, name) && sym->st_size==size) {
             int version2 = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[ELF64_R_SYM(rela[i].r_info)]:-1;
             if(version2!=-1) version2 &= 0x7fff;
-            if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
+            if(version && !version2) version2=-1;   // match a versioned symbol against a global "local" symbol
             const char* vername2 = GetSymbolVersion(h, version2);
-            if(SameVersionnedSymbol(name, version, vername, symname, version2, vername2)) {
+            if(SameVersionedSymbol(name, version, vername, symname, version2, vername2)) {
                 *offs = sym->st_value + h->delta;
                 *p = (uint64_t*)(rela[i].r_offset + h->delta + rela[i].r_addend);
                 return 1;
@@ -454,7 +454,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                     GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
             }
         } else {
-            // this is probably very very wrong. A proprer way to get reloc need to be writen, but this hack seems ok for now
+            // this is probably very very wrong. A proprer way to get reloc need to be written, but this hack seems ok for now
             // at least it work for half-life, unreal, ut99, zsnes, Undertale, ColinMcRae Remake, FTL, ShovelKnight...
             /*if(bind==STB_GLOBAL && (ndx==10 || ndx==19) && t!=R_X86_64_GLOB_DAT) {
                 offs = sym->st_value + head->delta;
@@ -634,7 +634,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
             }
         } else {
-            // this is probably very very wrong. A proprer way to get reloc need to be writen, but this hack seems ok for now
+            // this is probably very very wrong. A proprer way to get reloc need to be written, but this hack seems ok for now
             // at least it work for half-life, unreal, ut99, zsnes, Undertale, ColinMcRae Remake, FTL, ShovelKnight...
             /*if(bind==STB_GLOBAL && (ndx==10 || ndx==19) && t!=R_X86_64_GLOB_DAT) {
                 offs = sym->st_value + head->delta;
@@ -996,19 +996,19 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (vis==STV_DEFAULT || vis==STV_PROTECTED || (vis==STV_HIDDEN && bind==STB_LOCAL)) && (h->SymTab[i].st_shndx!=0)) {
             if(sz && strstr(symname, "@@")) {
-                char symnameversionned[strlen(symname)+1];
-                strcpy(symnameversionned, symname);
+                char symnameversioned[strlen(symname)+1];
+                strcpy(symnameversioned, symname);
                 // extact symname@@vername
-                char* p = strchr(symnameversionned, '@');
+                char* p = strchr(symnameversioned, '@');
                 *p=0;
                 p+=2;
-                symname = AddDictionnary(my_context->versym, symnameversionned);
+                symname = AddDictionnary(my_context->versym, symnameversioned);
                 const char* vername = AddDictionnary(my_context->versym, p);
                 AddDefaultVersion((bind==STB_WEAK)?my_context->weakdefver:my_context->globaldefver, symname, vername);
                 if((bind==STB_GNU_UNIQUE /*|| (bind==STB_GLOBAL && type==STT_FUNC)*/) && FindGlobalSymbol(maplib, symname, 2, p))
                     continue;
                 uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
-                printf_dump(LOG_NEVER, "Adding Default Versionned Symbol(bind=%s) \"%s@%s\" with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, vername, (void*)offs, sz);
+                printf_dump(LOG_NEVER, "Adding Default Versioned Symbol(bind=%s) \"%s@%s\" with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, vername, (void*)offs, sz);
                 if(bind==STB_LOCAL)
                     AddSymbol(localsymbols, symname, offs, sz, 2, vername);
                 else    // add in local and global map 
@@ -1056,7 +1056,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
             int to_add = 1;
             if(!to_add || (bind==STB_GNU_UNIQUE && FindGlobalSymbol(maplib, symname, version, vername)))
                 continue;
-            printf_dump(LOG_NEVER, "Adding Versionned Symbol(bind=%s) \"%s\" (ver=%d/%s) with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, version, vername?vername:"(none)", (void*)offs, sz);
+            printf_dump(LOG_NEVER, "Adding Versioned Symbol(bind=%s) \"%s\" (ver=%d/%s) with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, version, vername?vername:"(none)", (void*)offs, sz);
             if(bind==STB_LOCAL)
                 AddSymbol(localsymbols, symname, offs, sz, version, vername);
             else // add in local and global map 
@@ -1244,13 +1244,13 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
     box64context_t* context = GetEmuContext(emu);
     // Refresh no-file part of TLS in case default value changed
     RefreshElfTLS(h);
-    // check if in deferedInit
-    if(context->deferedInit) {
-        if(context->deferedInitSz==context->deferedInitCap) {
-            context->deferedInitCap += 4;
-            context->deferedInitList = (elfheader_t**)box_realloc(context->deferedInitList, context->deferedInitCap*sizeof(elfheader_t*));
+    // check if in deferredInit
+    if(context->deferredInit) {
+        if(context->deferredInitSz==context->deferredInitCap) {
+            context->deferredInitCap += 4;
+            context->deferredInitList = (elfheader_t**)box_realloc(context->deferredInitList, context->deferredInitCap*sizeof(elfheader_t*));
         }
-        context->deferedInitList[context->deferedInitSz++] = h;
+        context->deferredInitList[context->deferredInitSz++] = h;
         return;
     }
     h->init_done = 1;
@@ -1279,18 +1279,18 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
 }
 
 EXPORTDYN
-void RunDeferedElfInit(x64emu_t *emu)
+void RunDeferredElfInit(x64emu_t *emu)
 {
     box64context_t* context = GetEmuContext(emu);
-    if(!context->deferedInit)
+    if(!context->deferredInit)
         return;
-    context->deferedInit = 0;
-    if(!context->deferedInitList)
+    context->deferredInit = 0;
+    if(!context->deferredInitList)
         return;
-    int Sz = context->deferedInitSz;
-    elfheader_t** List = context->deferedInitList;
-    context->deferedInitList = NULL;
-    context->deferedInitCap = context->deferedInitSz = 0;
+    int Sz = context->deferredInitSz;
+    elfheader_t** List = context->deferredInitList;
+    context->deferredInitList = NULL;
+    context->deferredInitCap = context->deferredInitSz = 0;
     for (int i=0; i<Sz; ++i)
         RunElfInit(List[i], emu);
     box_free(List);
@@ -1427,7 +1427,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     return ret;
 }
 
-const char* VersionnedName(const char* name, int ver, const char* vername)
+const char* VersionedName(const char* name, int ver, const char* vername)
 {
     if(ver==-1)
         return name;
@@ -1447,7 +1447,7 @@ const char* VersionnedName(const char* name, int ver, const char* vername)
     return AddDictionnary(my_context->versym, buf);
 }
 
-int SameVersionnedSymbol(const char* name1, int ver1, const char* vername1, const char* name2, int ver2, const char* vername2)
+int SameVersionedSymbol(const char* name1, int ver1, const char* vername1, const char* name2, int ver2, const char* vername2)
 {
     if(strcmp(name1, name2))    //name are different, no need to go further
         return 0;
@@ -1752,7 +1752,7 @@ int dl_iterate_phdr_findsymbol(struct dl_phdr_info* info, size_t size, void* dat
     return 0;
 }
 
-void* GetNativeSymbolUnversionned(void* lib, const char* name)
+void* GetNativeSymbolUnversioned(void* lib, const char* name)
 {
     // try to find "name" in loaded elf, whithout checking for the symbol version (like dlsym, but no version check)
     search_symbol_t s;

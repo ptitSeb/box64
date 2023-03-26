@@ -38,7 +38,7 @@ Enables/Disables the logging of `dlsym` errors.
 #### BOX64_TRACE_FILE *
 Send all log and trace to a file instead of `stdout`
 Also, if name contains `%pid` then this is replaced by the actual PID of box64 instance
-End the filename with `+` to have thetrace appended instead of overwriten
+End the filename with `+` to have thetrace appended instead of overwritten
 Use `stderr` to use this instead of default `stdout` 
 
 #### BOX64_TRACE *
@@ -130,7 +130,7 @@ Enables/Disables trace for generated code.
  * 1 : Enable trace for generated code (like regular Trace, this will slow down the program a lot and generate huge logs).
 
 #### BOX64_NODYNAREC  *
-Forbid dynablock creation in the interval specified (helpfull for debugging behaviour difference between Dynarec and Interpretor)
+Forbid dynablock creation in the interval specified (helpfull for debugging behaviour difference between Dynarec and Interpreter)
  * 0xXXXXXXXX-0xYYYYYYYY : define the interval where dynablock cannot start (inclusive-exclusive)
 
 #### BOX64_DYNAREC_BIGBLOCK *
@@ -178,12 +178,12 @@ Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
 * 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible (will crash if blacks are invalidate, so probably incompatible with JIT/Dynarec)
 
 #### BOX64_DYNAREC_HOTPAGE *
-Handling of HotPage (Page beeing both executed and writen)
+Handling of HotPage (Page being both executed and written)
 * 0 : Don't track hotpage
-* 1-255 : Track HotPage, and disable execution of a page beeing writen for N attempts (default is 4)
+* 1-255 : Track HotPage, and disable execution of a page being written for N attempts (default is 4)
 
 #### BOX64_DYNAREC_FASTPAGE *
-Will use a faster handling of HotPage (Page beeing both executed and writen)
+Will use a faster handling of HotPage (Page being both executed and written)
 * 0 : use regular hotpage (Default)
 * 1 : Use faster hotpage, taking the risk of running obsolete JIT code (might be faster, but more prone to crash)
 

@@ -1096,7 +1096,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("RET");
             // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             if(box64_dynarec_safeflags) {
-                READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
+                READFLAGS(X_PEND);  // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
             BARRIER(BARRIER_FLOAT);
             ret_to_epilog(dyn, ninst);

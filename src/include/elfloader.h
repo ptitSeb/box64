@@ -37,7 +37,7 @@ uintptr_t GetElfFini(elfheader_t* h);
 void RefreshElfTLS(elfheader_t* h);
 void RunElfInit(elfheader_t* h, x64emu_t *emu);
 void RunElfFini(elfheader_t* h, x64emu_t *emu);
-void RunDeferedElfInit(x64emu_t *emu);
+void RunDeferredElfInit(x64emu_t *emu);
 void MarkElfInitDone(elfheader_t* h);
 void* GetBaseAddress(elfheader_t* h);
 void* GetElfDelta(elfheader_t* h);
@@ -60,15 +60,15 @@ int ElfCheckIfUseTCMallocMinimal(elfheader_t* h);   // return 1 if tcmalloc is u
 
 const char* GetSymbolVersion(elfheader_t* h, int version);
 const char* GetParentSymbolVersion(elfheader_t* h, int index);
-const char* VersionnedName(const char* name, int ver, const char* vername);
-int SameVersionnedSymbol(const char* name1, int ver1, const char* vername1, const char* name2, int ver2, const char* vername2);
+const char* VersionedName(const char* name, int ver, const char* vername);
+int SameVersionedSymbol(const char* name1, int ver1, const char* vername1, const char* name2, int ver2, const char* vername2);
 int GetVersionIndice(elfheader_t* h, const char* vername);
 
 kh_mapsymbols_t* GetMapSymbols(elfheader_t* h);
 kh_mapsymbols_t* GetWeakSymbols(elfheader_t* h);
 kh_mapsymbols_t* GetLocalSymbols(elfheader_t* h);
 
-void* GetNativeSymbolUnversionned(void* lib, const char* name);
+void* GetNativeSymbolUnversioned(void* lib, const char* name);
 
 void AddMainElfToLinkmap(elfheader_t* lib);
 

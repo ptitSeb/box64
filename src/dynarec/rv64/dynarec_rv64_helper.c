@@ -1334,7 +1334,7 @@ static void swapCache(dynarec_rv64_t* dyn, int ninst, int i, int j, extcache_t *
     }
     // SWAP
     ext_cache_t tmp;
-    MESSAGE(LOG_DUMP, "\t  - Swaping %d <-> %d\n", i, j);
+    MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
     // There is no VSWP in Arm64 NEON to swap 2 register contents!
     // so use a scratch...
     #define SCRATCH 0
@@ -1771,7 +1771,7 @@ void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
     #endif
 }
 
-// propagate ST stack state, especial stack pop that are defered
+// propagate ST stack state, especial stack pop that are deferred
 void fpu_propagate_stack(dynarec_rv64_t* dyn, int ninst)
 {
     if(dyn->e.stack_pop) {

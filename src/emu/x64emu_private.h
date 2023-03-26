@@ -45,15 +45,15 @@ typedef struct x64emu_s {
 	fpu_p_reg_t p_regs[8];
     // old ip
     uintptr_t   old_ip;
-    // defered flags
+    // deferred flags
     int         dummy1;     // to align on 64bits with df
-    defered_flags_t df;
+    deferred_flags_t df;
     multiuint_t op1;
     multiuint_t op2;
     multiuint_t res;
-    multiuint_t op1_sav;    // for dec/inc defered flags, to be able to compute CF
+    multiuint_t op1_sav;    // for dec/inc deferred flags, to be able to compute CF
     multiuint_t res_sav;
-    defered_flags_t df_sav;
+    deferred_flags_t df_sav;
     uint32_t    *x64emu_parity_tab; // helper
     #ifdef HAVE_TRACE
     reg64_t     oldregs[16];
