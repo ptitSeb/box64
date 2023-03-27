@@ -125,7 +125,7 @@ int Table64(dynarec_arm_t *dyn, uint64_t val);  // add a value to etable64 (if n
 void CreateJmpNext(void* addr, void* next);
 
 #define GO_TRACE(A, B)      \
-    GETIP_(addr);           \
+    GETIP(addr);            \
     MOVx_REG(x1, xRIP);     \
     STORE_XEMU_CALL(xRIP);  \
     MOV32w(x2, B);          \
