@@ -978,9 +978,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
 #define mmx_purgecache  STEPNAME(mmx_purgecache)
 #define x87_purgecache  STEPNAME(x87_purgecache)
-#ifdef HAVE_TRACE
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
-#endif
 
 #define CacheTransform       STEPNAME(CacheTransform)
 
@@ -1170,9 +1168,7 @@ void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
 void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1);
 // purge x87 cache
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
-#ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
-#endif
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07);
 void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07);
 

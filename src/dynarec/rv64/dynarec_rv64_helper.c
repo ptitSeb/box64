@@ -743,7 +743,6 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
     MESSAGE(LOG_DUMP, "\t---Purge x87 Cache and Synch Stackcount\n");
 }
 
-#ifdef HAVE_TRACE
 static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_stackcount(dyn, ninst, s1);
@@ -766,7 +765,6 @@ static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int
             FSD(dyn->e.x87reg[i], s1, offsetof(x64emu_t, x87));
         }
 }
-#endif
 
 int x87_get_current_cache(dynarec_rv64_t* dyn, int ninst, int st, int t)
 {
@@ -1069,7 +1067,7 @@ void mmx_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
         MESSAGE(LOG_DUMP, "\t------ Purge MMX Cache\n");
     }
 }
-#ifdef HAVE_TRACE
+
 static void mmx_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
 {
     for (int i=0; i<8; ++i)
@@ -1077,7 +1075,6 @@ static void mmx_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
             FLD(dyn->e.mmxcache[i], xEmu, offsetof(x64emu_t, mmx[i]));
         }
 }
-#endif
 
 // SSE / SSE2 helpers
 static void sse_reset(dynarec_rv64_t* dyn)
@@ -1175,7 +1172,7 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
     }
 }
-#ifdef HAVE_TRACE
+
 static void sse_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
 {
     for (int i=0; i<16; ++i)
@@ -1186,7 +1183,7 @@ static void sse_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
                 FSD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
         }
 }
-#endif
+
 void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
 {
     // need to save 0..1 && 10..17 (maybe) && 28..31
@@ -1694,16 +1691,12 @@ void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
     }
 }
 
-#ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_reflectcache(dyn, ninst, s1, s2, s3);
-    if(trace_emm)
-       mmx_reflectcache(dyn, ninst, s1);
-    if(trace_xmm)
-       sse_reflectcache(dyn, ninst, s1);
+    mmx_reflectcache(dyn, ninst, s1);
+    sse_reflectcache(dyn, ninst, s1);
 }
-#endif
 
 void fpu_reset(dynarec_rv64_t* dyn)
 {
