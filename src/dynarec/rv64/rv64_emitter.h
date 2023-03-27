@@ -397,6 +397,12 @@ f28–31  ft8–11  FP temporaries                  Caller
 // RV64F
 // Convert from signed 64bits to Single
 #define FCVTSL(frd, rs1)             EMIT(R_type(0b1101000, 0b00010, rs1, 0b000, frd, 0b1010011))
+// Convert from unsigned 64bits to Single
+#define FCVTSLU(frd, rs1)            EMIT(R_type(0b1101000, 0b00011, rs1, 0b000, frd, 0b1010011))
+// Convert from Single to signed 64bits
+#define FCVTLS(rd, frs1)            EMIT(R_type(0b1100000, 0b00010, frs1, 0b000, rd, 0b1010011))
+// Convert from Single to unsigned 64bits
+#define FCVTLUS(rd, frs1)           EMIT(R_type(0b1100000, 0b00011, frs1, 0b000, rd, 0b1010011))
 
 
 // RV32D
@@ -438,5 +444,11 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FMVDX(frd, rs1)             EMIT(R_type(0b1111001, 0b00000, rs1, 0b000, frd, 0b1010011))
 // Convert from signed 64bits to Double
 #define FCVTDL(frd, rs1)             EMIT(R_type(0b1101001, 0b00010, rs1, 0b000, frd, 0b1010011))
+// Convert from unsigned 64bits to Double
+#define FCVTDLU(frd, rs1)           EMIT(R_type(0b1101001, 0b00011, rs1, 0b000, frd, 0b1010011))
+// Convert from Double to signed 64bits
+#define FCVTLD(rd, frs1)            EMIT(R_type(0b1100001, 0b00010, frs1, 0b000, rd, 0b1010011))
+// Convert from Double to unsigned 64bits
+#define FCVTLUD(rd, frs1)           EMIT(R_type(0b1100001, 0b00011, frs1, 0b000, rd, 0b1010011))
 
 #endif //__RV64_EMITTER_H__
