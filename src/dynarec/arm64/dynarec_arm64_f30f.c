@@ -418,7 +418,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX_empty(v0);
             if(MODREG) {
                 v1 = mmx_get_reg(dyn, ninst, x1, x2, x3, (nextop&7));
-                VEORQ(v0, v0, v0);  // usefull?
+                VEORQ(v0, v0, v0);  // useful?
                 VMOV(v0, v1);
             } else {
                 SMREAD();

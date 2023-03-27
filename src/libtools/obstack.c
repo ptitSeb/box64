@@ -174,7 +174,7 @@ EXPORT void my_obstack_free(struct i386_obstack * obstack, void* block)
     struct obstack native = {0};
     from_i386_obstack(obstack, &native);
     obstack_free(&native, block);
-    to_i386_obstack(obstack, &native);  // usefull??
+    to_i386_obstack(obstack, &native);  // useful??
 }
 EXPORT void my__obstack_free(struct i386_obstack * obstack, void* block) __attribute__((alias("my_obstack_free")));
 
@@ -183,7 +183,7 @@ EXPORT void my__obstack_newchunk(x64emu_t* emu, struct i386_obstack* obstack, in
     struct obstack native = {0};
     from_i386_obstack(obstack, &native);
     _obstack_newchunk(&native, s);
-    to_i386_obstack(obstack, &native);  //usefull??
+    to_i386_obstack(obstack, &native);  //useful??
 }
 
 EXPORT int32_t my_obstack_vprintf(x64emu_t* emu, struct i386_obstack* obstack, void* fmt, x64_va_list_t V)
@@ -197,7 +197,7 @@ EXPORT int32_t my_obstack_vprintf(x64emu_t* emu, struct i386_obstack* obstack, v
     PREPARE_VALIST;
     #endif
     int r = obstack_vprintf(&native, (const char*)fmt, VARARGS);
-    to_i386_obstack(obstack, &native);  //usefull??
+    to_i386_obstack(obstack, &native);  //useful??
     return r;
 }
 #else

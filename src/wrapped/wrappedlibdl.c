@@ -240,7 +240,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     CLEARERR
     printf_dlsym(LOG_DEBUG, "Call to dlsym(%p, \"%s\")%s", handle, rsymbol, dlsym_error?"":"\n");
     if(handle==NULL) {
-        // special case, look globably
+        // special case, look globally
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
@@ -252,7 +252,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         return NULL;
     }
     if(handle==(void*)~0LL) {
-        // special case, look globably but no self (RTLD_NEXT)
+        // special case, look globally but no self (RTLD_NEXT)
         elfheader_t *elf = FindElfAddress(my_context, *(uintptr_t*)R_RSP); // use return address to guess "self"
         if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, -1, NULL)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
@@ -292,8 +292,8 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
             return NULL;
         }
     } else {
-        // still usefull?
-        //  => look globably
+        // still useful?
+        //  => look globally
         const char* defver = GetDefaultVersion(my_context->globaldefver, rsymbol);
         if(!defver) defver = GetDefaultVersion(my_context->weakdefver, rsymbol);
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, defver)) {
@@ -371,7 +371,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     CLEARERR
     printf_dlsym(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)%s", handle, rsymbol, vername?vername:"(nil)", dlsym_error?"":"\n");
     if(handle==NULL) {
-        // special case, look globably
+        // special case, look globally
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, version, vername)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
@@ -383,7 +383,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
         return NULL;
     }
     if(handle==(void*)~0LL) {
-        // special case, look globably but no self (RTLD_NEXT)
+        // special case, look globally but no self (RTLD_NEXT)
         elfheader_t *elf = FindElfAddress(my_context, *(uintptr_t*)R_RSP); // use return address to guess "self"
         if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, version, vername)) {
                 printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
@@ -423,7 +423,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
             return NULL;
         }
     } else {
-        // still usefull?
+        // still useful?
          const char* defver = GetDefaultVersion(my_context->globaldefver, rsymbol);
         if(!defver) defver = GetDefaultVersion(my_context->weakdefver, rsymbol);
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, defver)) {

@@ -53,7 +53,7 @@ v0.2.0
 * Added a lot of new opcodes to the ARM64 Dynarec
 => Lot's of new games stat working, to name a few: Surviving Mars, Piczle Cross Adventure (using Proton experimental), UT2004, Obduction, Machinarium, Silicon Zero, Hacknet, Absolute Drift, Art of Rally, Dota2
 => Some apps also runs now, like TeamSpeak 3 Client and Server or Discord
-=> The bash integration is usefull for device with no binfmt integration or for script that check the machine it's running on
+=> The bash integration is useful for device with no binfmt integration or for script that check the machine it's running on
 
 v0.1.8
 ======

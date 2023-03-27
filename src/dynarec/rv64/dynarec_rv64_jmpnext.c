@@ -11,7 +11,7 @@ void CreateJmpNext(void* addr, void* next)
     #if 1
     LD(x2, x2, SPLIT12(diff));
     #else
-    // Probably not usefull, but keeping the code, just in case
+    // Probably not useful, but keeping the code, just in case
     ADDI(x2, x2, SPLIT12(diff));
     LR_D(x2, x2, 1, 1);
     #endif

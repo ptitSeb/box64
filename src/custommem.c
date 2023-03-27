@@ -888,7 +888,7 @@ void addMapMem(uintptr_t begin, uintptr_t end)
     mapmem_t* newm;
     if(m->end>=begin-1) {
         if(end<=m->end)
-            return; // zone completly inside current block, nothing to do
+            return; // zone completely inside current block, nothing to do
         m->end = end;   // enlarge block
         newm = m;
     } else {
@@ -923,7 +923,7 @@ void removeMapMem(uintptr_t begin, uintptr_t end)
         // check if block is beyond the zone to free
         if(m->begin > end)
             return;
-        // check if the block is completly inside the zone to free
+        // check if the block is completely inside the zone to free
         if(m->begin>=begin && m->end<=end) {
             // just free the block
             mapmem_t *tmp = m;

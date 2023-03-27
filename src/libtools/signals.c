@@ -286,7 +286,7 @@ uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc
 #ifdef HAVE_TRACE
     uintptr_t old_start = trace_start, old_end = trace_end;
 #if 0
-    trace_start = 0; trace_end = 1; // disabling trace, globably for now...
+    trace_start = 0; trace_end = 1; // disabling trace, globally for now...
 #endif
 #endif
 

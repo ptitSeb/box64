@@ -698,7 +698,7 @@
     if(A) {STRx_U12(A, xEmu, offsetof(x64emu_t, ip));}
 
 // Need to also store current value of some register, as they may be used by functions like setjump
-// so RBX, RSP, RBP, R12..R15 (other are scratch or parameters), R10-R11 not usefull, but why not
+// so RBX, RSP, RBP, R12..R15 (other are scratch or parameters), R10-R11 not useful, but why not
 // RBX, RSP and RBP are already saved in call function
 #define STORE_XEMU_CALL(A)  \
     STP_REGS(R10, R11);     \

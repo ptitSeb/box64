@@ -75,7 +75,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
             }
             reset_n = -1;
         } else if(ninst && (dyn->insts[ninst].pred_sz>1 || (dyn->insts[ninst].pred_sz==1 && dyn->insts[ninst].pred[0]!=ninst-1)))
-            dyn->last_ip = 0;   // reset IP if some jump are comming here
+            dyn->last_ip = 0;   // reset IP if some jump are coming here
         fpu_propagate_stack(dyn, ninst);
         NEW_INST;
         if(dyn->insts[ninst].pred_sz>1) {SMSTART();}
@@ -144,7 +144,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
             if((dyn->insts[ii].x64.barrier&BARRIER_FULL)==BARRIER_FULL)
                 reset_n = -2;    // hack to say Barrier!
             else {
-                reset_n = getNominalPred(dyn, ii);  // may get -1 if no predecessor are availble
+                reset_n = getNominalPred(dyn, ii);  // may get -1 if no predecessor are available
                 if(reset_n==-1) {
                     reset_n = -2;
                     MESSAGE(LOG_DEBUG, "Warning, Reset Caches mark not found\n");

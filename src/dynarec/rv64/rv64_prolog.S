@@ -54,7 +54,7 @@ rv64_prolog:
     ld      x8, 128(a0)     //xFlags
     ld      x7, 136(a0)     // xRIP
     // // adjust flags bit 11 -> bit 5
-    andi    x8, x8, ~(1<<5)    // probably not usefull?
+    andi    x8, x8, ~(1<<5)    // probably not useful?
     srli    x5, x8, 11-5
     andi    x5, x5, 1<<5
     or      x8, x8, x5

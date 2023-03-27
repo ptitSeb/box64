@@ -72,7 +72,7 @@ When set to 1, don't prints the banner including version and build.
 =item B<BOX64_LD_PRELOAD>=I<lib1>[:I<lib2>:...]
 
 Force loading libraries with the  binary. PreLoaded libs can be emulated or
-native, and are treated the same way as if they were comming from the binary.
+native, and are treated the same way as if they were coming from the binary.
 
 =item B<BOX64_ENV>=I<env=val>
 
@@ -132,7 +132,7 @@ Enables/Disables the logging of `dlsym` errors.
 
 Send all log and trace to a file instead of C<stdout>.  Also, if name contains
 C<%pid> then this is replaced by the actual C<PID> of B<box64> instance.  End
-the filename with `+` to have thetrace appended instead of overwritten Use
+the filename with `+` to have the trace appended instead of overwritten Use
 C<stderr> to use this instead of default C<stdout>.
 
 =item B<BOX64_TRACE>=I<0|1|symbolname|0xXXXXXXX-0xYYYYYYY>
@@ -155,7 +155,7 @@ initialization of libraries and the running program
 =item B<BOX64_TRACE_START>=I<NNNNNNN>
 
 Only on builds with trace enabled. Start trace only after I<NNNNNNNN> opcode
-execute (number is an `uint64_t`).
+execute (number is an C<uint64_t>).
 
 =item B<BOX64_TRACE_XMM>=I<0|1>
 
@@ -205,7 +205,7 @@ Show Segfault signal even if a signal handler is present
 
 =item B<BOX64_SHOWBT>=I<0|1>
 
-Show some Backtrace (Nativ e and Emulated) whgen a signal (SEGV, ILL or BUS) is caught
+Show some Backtrace (Native and Emulated) when a signal (SEGV, ILL or BUS) is caught
 
     * 0 : Don"t show backtraces (Default.)
     * 1 : Show Backtrace detail (for native, box64 is rename as the x86_64 binary run)
@@ -258,8 +258,8 @@ down the program a lot and generate huge logs.
 
 =item B<BOX64_NODYNAREC>=I<0xXXXXXXXX-0xYYYYYYYY>
 
-Forbid dynablock creation in the interval specified (helpfull for debugging
-behaviour difference between Dynarec and Interpretor)
+Forbid dynablock creation in the interval specified (helpful for debugging
+behaviour difference between Dynarec and Interpreter)
 
 =item B<BOX64_DYNAREC_BIGBLOCK>=I<0|1|2|3>
 
@@ -323,14 +323,14 @@ Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
 
 =item B<BOX64_DYNAREC_HOTPAGE>=I<0|1-255>
 
-Handling of HotPage (Page beeing both executed and writen)
+Handling of HotPage (Page being both executed and written)
 
     * 0 : Don't track hotpage
-    * 1-255 : Track HotPage, and disable execution of a page beeing writen for N attempts (default is 4)
+    * 1-255 : Track HotPage, and disable execution of a page being written for N attempts (default is 4)
 
 =item B<BOX64_DYNAREC_FASTPAGE>=I<0|1>
 
-Will use a faster handling of HotPage (Page beeing both executed and writen)
+Will use a faster handling of HotPage (Page being both executed and written)
 
     * 0 : use regular hotpage (Default)
     * 1 : Use faster hotpage, taking the risk of running obsolete JIT code (might be faster, but more prone to crash)
@@ -344,7 +344,7 @@ Detect MonoBleedingEdge and apply conservative settings
 
 =item B<BOX64_DYNAREC_WAIT>=I<0|1>
 
-Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
+Behavior with FillBlock is not available (FillBlock build Dynarec blocks and is not multithreaded)
 
     * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
     * 1 : Dynarec will wait for FillBlock to be ready (Default)
@@ -401,18 +401,18 @@ Box64 will use wrapped libs even if the lib is specified with absolute path
 
 =item B<BOX64_PREFER_EMULATED>=I<0|1>
 
-Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL,
+Box64 will prefer emulated libs first (except for glibc, alsa, pulse, GL,
 vulkan and X11
 
-   * 0 : Native libs are prefered (Default.)
-   * 1 : Emulated libs are prefered (Default for program running inside pressure-vessel)
+   * 0 : Native libs are preferred (Default.)
+   * 1 : Emulated libs are preferred (Default for program running inside pressure-vessel)
 
 =item B<BOX64_CRASHHANDLER>=I<0|1>
 
 Box64 will use a dummy crashhandler.so library
 
     * 0 : Use Emulated crashhandler.so library if needed
-    * 1 : Use an internal dummy (completly empty) crashhandler.so library (defaut)
+    * 1 : Use an internal dummy (completely empty) crashhandler.so library (default)
 
 =item B<BOX64_MALLOC_HACK>=I<0|1|2>
 
@@ -452,6 +452,6 @@ script. yyyy needs to be a full path to a valid x86_64 version of bash
 
     * 0 : Just print the Segfault message on segfault (default)
     * 1 : Launch `gdb` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process and go in an endless loop, waiting. When in gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in is stack) then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box64signalhandler`, just before the printf of the Segfault message. Then simply  `set waiting=0` to exit the infinite loop.
-    * 2 : Launch `gdbserver` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process, and go in an endless loop, waiting. Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1:1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with ` BOX64_JITGDB=1`. This mode can be usefullwhen programs redirect all console output to a file (like Unity3D Games)
+    * 2 : Launch `gdbserver` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process, and go in an endless loop, waiting. Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1:1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with ` BOX64_JITGDB=1`. This mode can be useful when programs redirect all console output to a file (like Unity3D Games)
 
 =cut

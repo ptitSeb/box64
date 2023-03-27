@@ -926,7 +926,7 @@ void PrintHelp() {
     printf(" BOX64_LIBGL=libXXXX set the name (and optionnally full path) for libGL.so.1\n");
     printf(" BOX64_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
     printf(" BOX64_ALLOWMISSINGLIBS with 1 to allow one to continue even if a lib is missing (unadvised, will probably  crash later)\n");
-    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11\n");
+    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (except for glibc, alsa, pulse, GL, vulkan and X11\n");
     printf(" BOX64_PREFER_WRAPPED if box64 will use wrapped libs even if the lib is specified with absolute path\n");
     printf(" BOX64_CRASHHANDLER=0 to not use a dummy crashhandler lib\n");
     printf(" BOX64_NOPULSE=1 to disable the loading of pulseaudio libs\n");

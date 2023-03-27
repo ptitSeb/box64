@@ -38,7 +38,7 @@ Enables/Disables the logging of `dlsym` errors.
 #### BOX64_TRACE_FILE *
 Send all log and trace to a file instead of `stdout`
 Also, if name contains `%pid` then this is replaced by the actual PID of box64 instance
-End the filename with `+` to have thetrace appended instead of overwritten
+End the filename with `+` to have the trace appended instead of overwritten
 Use `stderr` to use this instead of default `stdout` 
 
 #### BOX64_TRACE *
@@ -92,7 +92,7 @@ Show Segfault signal even if a signal handler is present
  * 1 : Show SIGSEGV detail, even if a signal handler is present
 
 #### BOX64_SHOWBT *
-Show some Backtrace (Nativ e and Emulated) whgen a signal (SEGV, ILL or BUS) is caught
+Show some Backtrace (Native and Emulated) when a signal (SEGV, ILL or BUS) is caught
  * 0 : Don"t show backtraces (Default.)
  * 1 : Show Backtrace detail (for native, box64 is rename as the x86_64 binary run)
 
@@ -130,7 +130,7 @@ Enables/Disables trace for generated code.
  * 1 : Enable trace for generated code (like regular Trace, this will slow down the program a lot and generate huge logs).
 
 #### BOX64_NODYNAREC  *
-Forbid dynablock creation in the interval specified (helpfull for debugging behaviour difference between Dynarec and Interpreter)
+Forbid dynablock creation in the interval specified (helpful for debugging behaviour difference between Dynarec and Interpreter)
  * 0xXXXXXXXX-0xYYYYYYYY : define the interval where dynablock cannot start (inclusive-exclusive)
 
 #### BOX64_DYNAREC_BIGBLOCK *
@@ -193,7 +193,7 @@ Detect MonoBleedingEdge and apply conservative settings
 * 1 : Detect MonoBleedingEdge, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
 
 #### BOX64_DYNAREC_WAIT *
-Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
+Behavior with FillBlock is not available (FillBlock build Dynarec blocks and is not multithreaded)
 * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
 * 1 : Dynarec will wait for FillBlock to be ready (Default)
 
@@ -219,7 +219,7 @@ Detect libcef and apply malloc_hack settings
 
 #### BOX64_LD_PRELOAD
  * XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary
- PreLoaded libs can be emulated or native, and are treated the same way as if they were comming from the binary
+ PreLoaded libs can be emulated or native, and are treated the same way as if they were coming from the binary
  
 #### BOX64_EMULATED_LIBS *
  * XXXX[:YYYYY] force lib XXXX (and YYYY...) to be emulated (and not wrapped)
@@ -237,14 +237,14 @@ Box64 will use wrapped libs even if the lib is specified with absolute path
  * 1 : Use Wrapped native libs even if path is absolute
 
 #### BOX64_PREFER_EMULATED *
-Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11
- * 0 : Native libs are prefered (Default.)
- * 1 : Emulated libs are prefered (Default for program running inside pressure-vessel)
+Box64 will prefer emulated libs first (except for glibc, alsa, pulse, GL, vulkan and X11
+ * 0 : Native libs are preferred (Default.)
+ * 1 : Emulated libs are preferred (Default for program running inside pressure-vessel)
 
 #### BOX64_CRASHHANDLER *
 Box64 will use a dummy crashhandler.so library
  * 0 : Use Emulated crashhandler.so library if needed
- * 1 : Use an internal dummy (completly empty) crashhandler.so library (defaut)
+ * 1 : Use an internal dummy (completely empty) crashhandler.so library (default)
 
 #### BOX64_MALLOC_HACK *
 How Box64 will handle hooking of malloc operators
@@ -289,7 +289,7 @@ Define x86_64 bash to launch script
  `set waiting=0` to exit the infinite loop.
  * 2 : Launch `gdbserver` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process, and go in an endless loop, waiting.
  Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1:1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with ` BOX64_JITGDB=1`.
- This mode can be usefullwhen programs redirect all console output to a file (like Unity3D Games)
+ This mode can be useful when programs redirect all console output to a file (like Unity3D Games)
 
 #### BOX64_NORCFILES
 If the env var exist, no rc files (like /etc/box64.box64rc and ~/.box64rc) will be loaded
@@ -301,7 +301,7 @@ Those variables are only valid inside a rcfile:
 
 #### BOX64_NOSANDBOX
  * 0 : Nothing special
- * 1 : Added "--no-sandbox" to command line arguments (usefull for chrome based programs)
+ * 1 : Added "--no-sandbox" to command line arguments (useful for chrome based programs)
 
 #### BOX64_EXIT
  * 0 : Nothing special
