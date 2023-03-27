@@ -26,6 +26,7 @@ extern int box64_dynarec_bleeding_edge;
 extern int box64_dynarec_hotpage;
 extern int box64_dynarec_fastpage;
 extern int box64_dynarec_wait;
+extern int box64_dynarec_test;
 #ifdef ARM64
 extern int arm64_asimd;
 extern int arm64_aes;

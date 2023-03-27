@@ -22,13 +22,20 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestD9(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t nextop;
     int32_t tmp32s;
     uint64_t ll;
     float f;
     reg64_t *oped;
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
+    #endif
 
     nextop = F8;
     switch (nextop) {
@@ -228,6 +235,9 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xEF:
             return 0;
         default:
+        #ifdef TEST_INTERPRETER
+        rex.w = 0;  // hack, 32bit access only here
+        #endif
         switch((nextop>>3)&7) {
             case 0:     /* FLD ST0, Ed float */
                 GETED(0);
@@ -256,7 +266,9 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 6:     /* FNSTENV m */
                 // warning, incomplete
                 GETED(0);
+                #ifndef TEST_INTERPRETER
                 fpu_savenv(emu, (char*)ED, 0);
+                #endif
                 // intruction pointer: 48bits
                 // data (operand) pointer: 48bits
                 // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)

@@ -62,6 +62,7 @@ int box64_dynarec_hotpage = 4;
 int box64_dynarec_fastpage = 0;
 int box64_dynarec_bleeding_edge = 1;
 int box64_dynarec_wait = 1;
+int box64_dynarec_test = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -598,6 +599,18 @@ void LoadLogEnv()
                     sscanf(p, "%lx-%lx", &box64_nodynarec_start, &box64_nodynarec_end);
             }
             printf_log(LOG_INFO, "No dynablock creation that start in the range %p - %p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+        }
+    }
+    p = getenv("BOX64_DYNAREC_TEST");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_test = p[0]-'0';
+        }
+        if(box64_dynarec_test) {
+            box64_dynarec_fastnan = 0;
+            box64_dynarec_fastround = 0;
+            printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
         }
     }
 

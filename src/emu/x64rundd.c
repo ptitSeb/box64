@@ -22,10 +22,17 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestDD(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t nextop;
     reg64_t *oped;
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
+    #endif
 
     nextop = F8;
     switch (nextop) {
@@ -110,6 +117,9 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
         return 0;
 
     default:
+        #ifdef TEST_INTERPRETER
+        rex.w = 1;  // hack, mostly 64bit access only here
+        #endif
         switch((nextop>>3)&7) {
             case 0: /* FLD double */
                 GETED(0);
@@ -147,6 +157,7 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETED(0);
                 // ENV first...
                 // warning, incomplete
+                #ifndef TEST_INTERPRETER
                 fpu_savenv(emu, (char*)ED, 0);
                 // save the STx
                 {
@@ -157,10 +168,14 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         p+=10;
                     }
                 }
+                #endif
                 reset_fpu(emu);
                 break;
             case 7: /* FNSTSW m2byte */
                 GETED(0);
+                #ifdef TEST_INTERPRETER
+                test->memsize = 2;
+                #endif
                 emu->sw.f.F87_TOP = emu->top&7;
                 *(uint16_t*)ED = emu->sw.x16;
                 break;

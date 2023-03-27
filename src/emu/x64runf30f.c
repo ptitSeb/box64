@@ -22,7 +22,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestF30F(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -33,6 +37,9 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1;
     mmx87_regs_t *opem;
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
+    #endif
 
     opcode = F8;
 

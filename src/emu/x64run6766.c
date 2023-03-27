@@ -25,7 +25,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test6766(x64test_t *test, rex_t rex, int rep, uintptr_t addr)
+#else
 uintptr_t Run6766(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
+#endif
 {
     // Hmmmm....
     (void)rep;
@@ -39,7 +43,9 @@ uintptr_t Run6766(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     int64_t tmp64s;                     (void)tmp64s;
     uint64_t tmp64u, tmp64u2, tmp64u3;  (void)tmp64u; (void)tmp64u2; (void)tmp64u3;
     reg64_t *oped, *opgd;               (void)oped;   (void)opgd;
-
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
     opcode = F8;
 
     while((opcode==0x2E) || (opcode==0x66))   // ignoring CS: or multiple 0x66
@@ -59,7 +65,11 @@ uintptr_t Run6766(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     switch(opcode) {
 
     case 0x0F:                              /* more opcodes */
+        #ifdef TEST_INTERPRETER
+        return Test67660F(test, rex, addr);
+        #else
         return Run67660F(emu, rex, addr);
+        #endif
 
     default:
         return 0;

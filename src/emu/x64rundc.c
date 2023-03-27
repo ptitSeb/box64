@@ -22,10 +22,17 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestDC(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t RunDC(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t nextop;
     reg64_t *oped;
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
+    #endif
 
     nextop = F8;
     switch(nextop) {
@@ -111,6 +118,9 @@ uintptr_t RunDC(x64emu_t *emu, rex_t rex, uintptr_t addr)
             ST(nextop&7).d /=  ST0.d;
             break;
         default:
+            #ifdef TEST_INTERPRETER
+            rex.w = 1;  // hack, 64bit access only here
+            #endif
             GETED(0);
             switch((nextop>>3)&7) {
             case 0:         /* FADD ST0, double */

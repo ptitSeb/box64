@@ -22,7 +22,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test67(x64test_t *test, rex_t rex, int rep, uintptr_t addr)
+#else
 uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -32,7 +36,9 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     int32_t tmp32s;
     uint64_t tmp64u;
     reg64_t *oped, *opgd;
-
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
     opcode = F8;
 
     while(opcode==0x67)
@@ -146,7 +152,11 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         break;
 
     case 0x66:
+        #ifdef TEST_INTERPRETER
+        return Test6766(test, rex, rep, addr);
+        #else
         return Run6766(emu, rex, rep, addr);
+        #endif
 
     case 0x80:                      /* GRP Eb,Ib */
         nextop = F8;

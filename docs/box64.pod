@@ -261,6 +261,14 @@ down the program a lot and generate huge logs.
 Forbid dynablock creation in the interval specified (helpfull for debugging
 behaviour difference between Dynarec and Interpretor)
 
+=item B<BOX64_DYNAREC_TEST>=I<0|1>
+
+Enables/Disables test for generated code. This will run interpreter along the Dynacrec, so this will slow
+down the program a lot.
+
+    * 0 : No test for generated code. (Default.)
+    * 1 : Enable Tests for generated code
+
 =item B<BOX64_DYNAREC_BIGBLOCK>=I<0|1|2|3>
 
 Enables/Disables Box64's Dynarec building BigBlock.

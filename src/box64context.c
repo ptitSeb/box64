@@ -143,6 +143,7 @@ static void init_mutexes(box64context_t* context)
     native_lock_store(&context->mutex_thread, 0);
     native_lock_store(&context->mutex_bridge, 0);
     native_lock_store(&context->mutex_dyndump, 0);
+    pthread_mutex_init(&context->mutex_lock, NULL);
 #endif
 }
 
@@ -325,7 +326,9 @@ void FreeBox64Context(box64context_t** context)
 
     finiAllHelpers(ctx);
 
-#ifndef DYNAREC
+#ifdef DYNAREC
+    pthread_mutex_destroy(&ctx->mutex_lock);
+#else
     pthread_mutex_destroy(&ctx->mutex_trace);
     pthread_mutex_destroy(&ctx->mutex_lock);
     pthread_mutex_destroy(&ctx->mutex_tls);

@@ -133,6 +133,11 @@ Enables/Disables trace for generated code.
 Forbid dynablock creation in the interval specified (helpfull for debugging behaviour difference between Dynarec and Interpreter)
  * 0xXXXXXXXX-0xYYYYYYYY : define the interval where dynablock cannot start (inclusive-exclusive)
 
+#### BOX64_DYNAREC_TEST *
+Dynarec will compare it's execution with the interpreter (super slow, only for testing)
+ * 0 : No comparison
+ * 1 : Each opcode runs on interepter and on Dynarec, and regs and memory are compared and print if different
+
 #### BOX64_DYNAREC_BIGBLOCK *
 Enables/Disables Box64's Dynarec building BigBlock.
  * 0 : Don't try to build block as big as possible (can help program using lots of thread and a JIT, like C#/Unity) (Default when libmonobdwgc-2.0.so is loaded)

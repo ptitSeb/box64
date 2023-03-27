@@ -266,30 +266,6 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/emu/x64int3.c"
     "${BOX64_ROOT}/src/emu/x87emu_private.c"
     "${BOX64_ROOT}/src/emu/x64primop.c"
-    "${BOX64_ROOT}/src/emu/x64run.c"
-    "${BOX64_ROOT}/src/emu/x64run0f.c"
-    "${BOX64_ROOT}/src/emu/x64run64.c"
-    "${BOX64_ROOT}/src/emu/x64run66.c"
-    "${BOX64_ROOT}/src/emu/x64run660f.c"
-    "${BOX64_ROOT}/src/emu/x64run6664.c"
-    "${BOX64_ROOT}/src/emu/x64run66d9.c"
-    "${BOX64_ROOT}/src/emu/x64run66dd.c"
-    "${BOX64_ROOT}/src/emu/x64run66f0.c"
-    "${BOX64_ROOT}/src/emu/x64run67.c"
-    "${BOX64_ROOT}/src/emu/x64run670f.c"
-    "${BOX64_ROOT}/src/emu/x64run6766.c"
-    "${BOX64_ROOT}/src/emu/x64run67660f.c"
-    "${BOX64_ROOT}/src/emu/x64rund8.c"
-    "${BOX64_ROOT}/src/emu/x64rund9.c"
-    "${BOX64_ROOT}/src/emu/x64runda.c"
-    "${BOX64_ROOT}/src/emu/x64rundb.c"
-    "${BOX64_ROOT}/src/emu/x64rundc.c"
-    "${BOX64_ROOT}/src/emu/x64rundd.c"
-    "${BOX64_ROOT}/src/emu/x64runde.c"
-    "${BOX64_ROOT}/src/emu/x64rundf.c"
-    "${BOX64_ROOT}/src/emu/x64runf0.c"
-    "${BOX64_ROOT}/src/emu/x64runf20f.c"
-    "${BOX64_ROOT}/src/emu/x64runf30f.c"
     "${BOX64_ROOT}/src/emu/x64run_private.c"
     "${BOX64_ROOT}/src/emu/x64syscall.c"
     "${BOX64_ROOT}/src/emu/x64tls.c"
@@ -317,6 +293,33 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/rcfile.c"
     "${BOX64_ROOT}/src/tools/wine_tools.c"
     "${BOX64_ROOT}/src/wrapped/generated/wrapper.c"
+)
+
+set(INTERPRETER
+    "${BOX64_ROOT}/src/emu/x64run.c"
+    "${BOX64_ROOT}/src/emu/x64run0f.c"
+    "${BOX64_ROOT}/src/emu/x64run64.c"
+    "${BOX64_ROOT}/src/emu/x64run66.c"
+    "${BOX64_ROOT}/src/emu/x64run660f.c"
+    "${BOX64_ROOT}/src/emu/x64run6664.c"
+    "${BOX64_ROOT}/src/emu/x64run66d9.c"
+    "${BOX64_ROOT}/src/emu/x64run66dd.c"
+    "${BOX64_ROOT}/src/emu/x64run66f0.c"
+    "${BOX64_ROOT}/src/emu/x64run67.c"
+    "${BOX64_ROOT}/src/emu/x64run670f.c"
+    "${BOX64_ROOT}/src/emu/x64run6766.c"
+    "${BOX64_ROOT}/src/emu/x64run67660f.c"
+    "${BOX64_ROOT}/src/emu/x64rund8.c"
+    "${BOX64_ROOT}/src/emu/x64rund9.c"
+    "${BOX64_ROOT}/src/emu/x64runda.c"
+    "${BOX64_ROOT}/src/emu/x64rundb.c"
+    "${BOX64_ROOT}/src/emu/x64rundc.c"
+    "${BOX64_ROOT}/src/emu/x64rundd.c"
+    "${BOX64_ROOT}/src/emu/x64runde.c"
+    "${BOX64_ROOT}/src/emu/x64rundf.c"
+    "${BOX64_ROOT}/src/emu/x64runf0.c"
+    "${BOX64_ROOT}/src/emu/x64runf20f.c"
+    "${BOX64_ROOT}/src/emu/x64runf30f.c"
 )
 
 set(WRAPPEDS
@@ -548,6 +551,7 @@ if(DYNAREC)
         "${BOX64_ROOT}/src/dynarec/dynablock.c"
         "${BOX64_ROOT}/src/dynarec/dynarec_native.c"
         "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"
+        "${BOX64_ROOT}/src/emu/x64test.c"
     )
 endif()
 
@@ -654,6 +658,8 @@ if(DYNAREC)
     set_target_properties(native_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
     add_library(native_pass3 OBJECT ${DYNAREC_PASS})
     set_target_properties(native_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
+    add_library(test_interpreter OBJECT ${INTERPRETER})
+    set_target_properties(test_interpreter PROPERTIES COMPILE_FLAGS "-DTEST_INTERPRETER")
     add_dependencies(native_pass0 WRAPPERS)
     add_dependencies(native_pass1 WRAPPERS)
     add_dependencies(native_pass2 WRAPPERS)
@@ -665,6 +671,7 @@ if(DYNAREC)
         $<TARGET_OBJECTS:native_pass1>
         $<TARGET_OBJECTS:native_pass2>
         $<TARGET_OBJECTS:native_pass3>
+        $<TARGET_OBJECTS:test_interpreter>
     )
 endif()
 
@@ -673,15 +680,17 @@ if(DYNAREC)
     add_custom_command(
         OUTPUT "${BOX64_ROOT}/src/git_head.h"
         COMMAND sh -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
-        DEPENDS dynarec ${ELFLOADER_SRC} ${WRAPPEDS}
+        DEPENDS dynarec ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS}
         VERBATIM)
 else()
     add_custom_command(
         OUTPUT "${BOX64_ROOT}/src/git_head.h"
         COMMAND sh -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
-        DEPENDS ${ELFLOADER_SRC} ${WRAPPEDS}
+        DEPENDS ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS}
         VERBATIM)
 endif()
+
+add_library(interpreter OBJECT ${INTERPRETER})
 
 add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX64_ROOT}/src/git_head.h")
 set_target_properties(${BOX64} PROPERTIES ENABLE_EXPORTS ON)
@@ -696,6 +705,7 @@ endif()
 if(DYNAREC)
     target_link_libraries(${BOX64} dynarec)
 endif()
+target_link_libraries(${BOX64} interpreter)
 
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
     if(NOT NOLOADADDR)

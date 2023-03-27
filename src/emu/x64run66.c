@@ -25,7 +25,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test66(x64test_t *test, rex_t rex, int rep, uintptr_t addr)
+#else
 uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -37,6 +41,9 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     int64_t tmp64s;
     uint64_t tmp64u, tmp64u2, tmp64u3;
     reg64_t *oped, *opgd;
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
 
     opcode = F8;
 
@@ -105,7 +112,11 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     GO(0x30, xor)                   /* XOR 0x31 ~> 0x35 */
 
     case 0x0F:                              /* more opcdes */
+        #ifdef TEST_INTERPRETER
+        return Test660F(test, rex, addr);
+        #else
         return Run660F(emu, rex, addr);
+        #endif
 
     case 0x39:
         nextop = F8;
@@ -133,9 +144,17 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         break;
 
     case 0x64:                              /* FS: */
+        #ifdef TEST_INTERPRETER
+        return Test6664(test, rex, _FS, addr);
+        #else
         return Run6664(emu, rex, _FS, addr);
+        #endif
     case 0x65:                              /* GS: */
+        #ifdef TEST_INTERPRETER
+        return Test6664(test, rex, _GS, addr);
+        #else
         return Run6664(emu, rex, _GS, addr);
+        #endif
 
     case 0x69:                      /* IMUL Gw,Ew,Iw */
         nextop = F8;
@@ -257,8 +276,12 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         break;
     case 0x8D:                              /* LEA Gw,M */
         nextop = F8;
-        GETED(0);
         GETGD;
+        #ifdef TEST_INTERPRETER
+        oped=GetEd(emu, &addr, rex, nextop, 0);
+        #else
+        GETED(0);
+        #endif
         if(rex.w)
             GD->q[0] = (uint64_t)ED;
         else
@@ -427,13 +450,17 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         tmp64u = (rep)?R_RCX:1L;
         if((rex.w))
             while(tmp64u) {
+                #ifndef TEST_INTERPRETER
                 *(uint64_t*)R_RDI = R_RAX;
+                #endif
                 R_RDI += tmp8s;
                 --tmp64u;
             }
         else
             while(tmp64u) {
+                #ifndef TEST_INTERPRETER
                 *(uint16_t*)R_RDI = R_AX;
+                #endif
                 R_RDI += tmp8s;
                 --tmp64u;
             }
@@ -609,10 +636,18 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         break;
 
     case 0xD9:                              /* x87 opcdes */
+        #ifdef TEST_INTERPRETER
+        return Test66D9(test, rex, addr);
+        #else
         return Run66D9(emu, rex, addr);
+        #endif
 
     case 0xDD:                              /* x87 opcdes */
+        #ifdef TEST_INTERPRETER
+        return Test66DD(test, rex, addr);
+        #else
         return Run66DD(emu, rex, addr);
+        #endif
 
     case 0xE8:                              /* CALL Id */
         tmp32s = F32S; // call is relative
@@ -621,7 +656,11 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         break;
 
     case 0xF0:                              /* LOCK: */
+        #ifdef TEST_INTERPRETER
+        return Test66F0(test, rex, addr);
+        #else
         return Run66F0(emu, rex, addr);
+        #endif
 
     case 0xF7:                      /* GRP3 Ew(,Iw) */
         nextop = F8;

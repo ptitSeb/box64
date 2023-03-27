@@ -10,6 +10,7 @@ void SetupX64Emu(x64emu_t *emu);
 void FreeX64Emu(x64emu_t **x64emu);
 void FreeX64EmuFromStack(x64emu_t **emu);
 void CloneEmu(x64emu_t *newemu, const x64emu_t* emu);
+void CopyEmu(x64emu_t *newemu, const x64emu_t* emu);
 void SetTraceEmu(uintptr_t trace_start, uintptr_t trace_end);
 
 box64context_t* GetEmuContext(x64emu_t* emu);

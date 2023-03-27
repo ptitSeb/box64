@@ -22,12 +22,19 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestDF(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t nextop;
     int16_t tmp16s;
     int64_t tmp64s;
     reg64_t *oped;
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
+    #endif
 
     nextop = F8;
     switch(nextop) {
@@ -144,10 +151,17 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
             break;
         case 4: /* FBLD ST0, tbytes */
             GETED(0);
+            #ifdef TEST_INTERPRETER
+            test->memsize = 10;
+            memcpy(ED, (void*)test->memaddr, 10);
+            #endif
             fpu_do_push(emu);
             fpu_fbld(emu, (uint8_t*)ED);
             break;
         case 5: /* FILD ST0, Gq */
+            #ifdef TEST_INTERPRETER
+            rex.w = 1;  // hack, 64bit access
+            #endif
             GETED(0);
             tmp64s = ED->sq[0];
             fpu_do_push(emu);
@@ -157,10 +171,16 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
             break;
         case 6: /* FBSTP tbytes, ST0 */
             GETED(0);
+            #ifdef TEST_INTERPRETER
+            test->memsize = 10;
+            #endif
             fpu_fbst(emu, (uint8_t*)ED);
             fpu_do_pop(emu);
             break;
         case 7: /* FISTP i64 */
+            #ifdef TEST_INTERPRETER
+            rex.w = 1;  // hack, 64bits access
+            #endif
             GETED(0);
             if(STll(0).sref==ST(0).sq)
                 ED->sq[0] = STll(0).sq;

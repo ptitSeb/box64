@@ -43,7 +43,11 @@ static uint8_t ff_mult(uint8_t a, uint8_t b)
 	return retval;
 }
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test660F(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -106,6 +110,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d,
     };
 
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
     opcode = F8;
 
     switch(opcode) {
@@ -162,7 +169,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
     case 0x1F:                      /* NOP (multi-byte) */
         nextop = F8;
-        GETED(0);
+        FAKEED(0);
         break;
 
     case 0x28:                      /* MOVAPD Gx, Ex */
@@ -1564,7 +1571,15 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         tmp32s >>= (rex.w?6:4);
         if(!MODREG)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:1)));
+            if(rex.w)
+                *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+            else
+                *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg64_t*)(((uintptr_t)(EW))+(tmp32s<<(rex.w?3:1)));
+            #endif
         }
         if(rex.w) {
             if(EW->q[0] & (1LL<<tmp8u)) {

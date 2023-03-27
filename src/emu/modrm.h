@@ -18,6 +18,27 @@
 #define STEP3
 #endif
 
+#ifdef TEST_INTERPRETER
+#define GETED(D)            oped=TestEd(test, &addr, rex, nextop, D)
+#define GETED32(D)          oped=TestEd32O(test, &addr, rex, nextop, D, 0)
+#define GETED_OFFS(D, O)    oped=TestEdO(test, &addr, rex, nextop, D, O)
+#define GETGD               opgd=GetGd(test->emu, &addr, rex, nextop)
+#define GETEB(D)            oped=TestEb(test, &addr, rex, nextop, D)
+#define GETEB32(D)          oped=TestEb32O(test, &addr, rex, nextop, D, 0)
+#define GETEB_OFFS(D, O)    oped=TestEbO(test, &addr, rex, nextop, D, O)
+#define GETGB               opgd=GetGb(test->emu, &addr, rex, nextop)
+#define GETEW(D)            oped=TestEw(test, &addr, rex, nextop, D)
+#define GETEW32(D)          oped=TestEw32O(test, &addr, rex, nextop, D, 0)
+#define GETEW_OFFS(D, O)    oped=TestEdO(test, &addr, rex, nextop, D, O)
+#define GETGW               opgd=GetGw(test->emu, &addr, rex, nextop)
+#define GETEX(D)            opex=TestEx(test, &addr, rex, nextop, D)
+#define GETEX32(D)          opex=TestEx32O(test, &addr, rex, nextop, D, 0)
+#define GETEX_OFFS(D, O)    opex=TestExO(test, &addr, rex, nextop, D, O)
+#define GETGX               opgx=GetGx(test->emu, &addr, rex, nextop)
+#define GETEM(D)            opem=TestEm(test, &addr, rex, nextop, D)
+#define GETEM32(D)          opem=TestEm32O(test, &addr, rex, nextop, D, 0)
+#define GETGM               opgm=GetGm(test->emu, &addr, rex, nextop)
+#else
 #define GETED(D)            oped=GetEd(emu, &addr, rex, nextop, D)
 #define GETED32(D)          oped=GetEd32O(emu, &addr, rex, nextop, D, 0)
 #define GETED_OFFS(D, O)    oped=GetEdO(emu, &addr, rex, nextop, D, O)
@@ -37,6 +58,7 @@
 #define GETEM(D)            opem=GetEm(emu, &addr, rex, nextop, D)
 #define GETEM32(D)          opem=GetEm32O(emu, &addr, rex, nextop, D, 0)
 #define GETGM               opgm=GetGm(emu, &addr, rex, nextop)
+#endif
 #define ED  oped
 #define GD  opgd
 #define EB  oped
@@ -47,6 +69,8 @@
 #define GX  opgx
 #define EM  opem
 #define GM  opgm
+#define FAKEED(D)           GetEd(emu, &addr, rex, nextop, D)
+#define FAKEED32(D)         GetEd32O(emu, &addr, rex, nextop, D, 0)
 
 #define MODREG  ((nextop&0xC0)==0xC0)
 

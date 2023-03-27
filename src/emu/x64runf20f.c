@@ -22,7 +22,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestF20F(x64test_t *test, rex_t rex, uintptr_t addr, int *step)
+#else
 uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -34,6 +38,9 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
     mmx87_regs_t *opgm;
     #ifndef NOALIGN
     int is_nan;
+    #endif
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
     #endif
 
     opcode = F8;

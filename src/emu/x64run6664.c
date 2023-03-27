@@ -22,12 +22,19 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test6664(x64test_t *test, rex_t rex, int seg, uintptr_t addr)
+#else
 uintptr_t Run6664(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
     uintptr_t tlsdata = GetSegmentBaseEmu(emu, seg);
 
     opcode = F8;

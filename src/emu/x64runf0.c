@@ -26,7 +26,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestF0(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -39,6 +43,9 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
     #ifdef USE_CAS
     uint64_t tmpcas;
     #endif
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
+    #endif
 
     opcode = F8;
     // REX prefix before the F0 are ignored
@@ -49,7 +56,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
     }
 
     switch(opcode) {
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
         #define GO(B, OP)                                           \
         case B+0:                                                   \
             nextop = F8;                                            \
@@ -181,9 +188,17 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 tmp64s >>= (rex.w?6:5);
                 if(!MODREG)
                 {
+                    #ifdef TEST_INTERPRETER
+                    test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:2)));
+                    if(rex.w)
+                        *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+                    else
+                        *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                    #else
                     ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
+                    #endif
                 }
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                 if(rex.w) {
                     tmp8u&=63;
                     if(MODREG) {
@@ -258,7 +273,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     nextop = F8;
                     GETGB;
                     GETEB(0);
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     do {
                         tmp8u = native_lock_read_b(EB);
                         cmp8(emu, R_AL, tmp8u);
@@ -284,7 +299,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     nextop = F8;
                     GETED(0);
                     GETGD;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(rex.w)
                         if(((uintptr_t)ED)&7) {
                             do {
@@ -360,10 +375,18 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     tmp64s >>= (rex.w?6:5);
                     if(!MODREG)
                     {
+                        #ifdef TEST_INTERPRETER
+                        test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:2)));
+                        if(rex.w)
+                            *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+                        else
+                            *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                        #else
                         ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
+                        #endif
                     }
                     tmp8u&=rex.w?63:31;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(rex.w)
                         do {
                             tmp64u = native_lock_read_dd(ED);
@@ -437,7 +460,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 CHECK_FLAGS(emu);
                                 GETED(1);
                                 tmp8u = F8;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                                 if(rex.w) {
                                     tmp8u&=63;
                                     do {
@@ -491,7 +514,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 CHECK_FLAGS(emu);
                                 GETED(1);
                                 tmp8u = F8;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                                 if(rex.w) {
                                     do {
                                         tmp8u&=63;
@@ -543,7 +566,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 CHECK_FLAGS(emu);
                                 GETED(1);
                                 tmp8u = F8;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                                 if(rex.w) {
                                     tmp8u&=63;
                                     do {
@@ -597,7 +620,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     nextop = F8;
                     GETEB(0);
                     GETGB;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     do {
                         tmp8u = native_lock_read_b(EB);
                         tmp8u2 = add8(emu, tmp8u, GB);
@@ -615,7 +638,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     nextop = F8;
                     GETED(0);
                     GETGD;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(rex.w) {
                         do {
                             tmp64u = native_lock_read_dd(ED);
@@ -665,7 +688,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         case 1:
                             CHECK_FLAGS(emu);
                             GETGD;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                             if(rex.w)
                                 do {
                                     native_lock_read_dq(&tmp64u, &tmp64u2, ED);
@@ -695,6 +718,9 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #else
                             pthread_mutex_lock(&emu->context->mutex_lock);
                             if(rex.w) {
+                                #ifdef TEST_INTERPRETER
+                                test->memsize = 16;
+                                #endif
                                 tmp64u = ED->q[0];
                                 tmp64u2= ED->q[1];
                                 if(R_RAX == tmp64u && R_RDX == tmp64u2) {
@@ -707,6 +733,9 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                     R_RDX = tmp64u2;
                                 }
                             } else {
+                                #ifdef TEST_INTERPRETER
+                                test->memsize = 8;
+                                #endif
                                 tmp32u = ED->dword[0];
                                 tmp32u2= ED->dword[1];
                                 if(R_EAX == tmp32u && R_EDX == tmp32u2) {
@@ -733,13 +762,17 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             break;
 
         case 0x66:
+            #ifdef TEST_INTERPRETER
+            return Test66F0(test, rex, addr);
+            #else
             return Run66F0(emu, rex, addr);   // more opcode F0 66 and 66 F0 is the same
+            #endif
 
         case 0x80:                      /* GRP Eb,Ib */
             nextop = F8;
             GETEB(1);
             tmp8u = F8;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             switch((nextop>>3)&7) {
                 case 0: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = add8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
                 case 1: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 =  or8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
@@ -774,7 +807,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 tmp64u = (uint64_t)tmp64s;
             } else
                 tmp64u = F32S64;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             if(rex.w) {
                 switch((nextop>>3)&7) {
                     case 0: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = add64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
@@ -853,7 +886,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
         case 0x86:                      /* XCHG Eb,Gb */
             nextop = F8;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             GETEB(0);
             GETGB;
             if(MODREG) { // reg / reg: no lock
@@ -880,7 +913,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             break;
         case 0x87:                      /* XCHG Ed,Gd */
             nextop = F8;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             GETED(0);
             GETGD;
             if(MODREG) {
@@ -926,7 +959,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETEB((tmp8u<2)?1:0);
             switch(tmp8u) {
                 case 2:                 /* NOT Eb */
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     do {
                         tmp8u2 = native_lock_read_b(EB); 
                         tmp8u2 = not8(emu, tmp8u2);
@@ -947,7 +980,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETED(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Eb */
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     do {
                         tmp8u = native_lock_read_b(ED);
                     } while(native_lock_write_b(ED, inc8(emu, tmp8u)));
@@ -958,7 +991,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #endif
                     break;
                 case 1:                 /* DEC Ed */
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     do {
                         tmp8u = native_lock_read_b(ED);
                     } while(native_lock_write_b(ED, dec8(emu, tmp8u)));
@@ -980,7 +1013,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETED(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(rex.w)
                         if(((uintptr_t)ED)&7) {
                             // unaligned
@@ -1026,7 +1059,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #endif
                     break;
                 case 1:                 /* DEC Ed */
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(rex.w)
                         if(((uintptr_t)ED)&7) {
                             // unaligned

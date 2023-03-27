@@ -25,6 +25,15 @@ typedef union multiuint_s {
     uint64_t    u64;
 } multiuint_t;
 
+typedef struct x64emu_s x64emu_t;
+
+typedef struct x64test_s {
+    x64emu_t*   emu;
+    uintptr_t   memaddr;
+    int         memsize;
+    uint8_t     mem[16];
+} x64test_t;
+
 typedef struct x64emu_s {
     // cpu
 	reg64_t     regs[16];
@@ -87,7 +96,7 @@ typedef struct x64emu_s {
     x64_ucontext_t *uc_link; // to handle setcontext
 
     int         type;       // EMUTYPE_xxx define
-
+    x64test_t   test;
 } x64emu_t;
 
 #define EMUTYPE_NONE    0

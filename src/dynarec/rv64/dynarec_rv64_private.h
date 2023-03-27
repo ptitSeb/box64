@@ -107,6 +107,7 @@ typedef struct dynarec_rv64_s {
     size_t              insts_size; // size of the instruction size array (calculated)
     uint8_t             smread;    // for strongmem model emulation
     uint8_t             smwrite;    // for strongmem model emulation
+    int8_t              test;       // test the opcode?
     uintptr_t           forward;    // address of the last end of code while testing forward
     uintptr_t           forward_to; // address of the next jump to (to check if everything is ok)
     int32_t             forward_size;   // size at the forward point
@@ -127,12 +128,12 @@ int Table64(dynarec_rv64_t *dyn, uint64_t val);  // add a value to etable64 (if 
 
 void CreateJmpNext(void* addr, void* next);
 
-#define GO_TRACE()          \
+#define GO_TRACE(A, B)      \
     GETIP_(ip);             \
     MV(A1, xRIP);           \
     STORE_XEMU_CALL();      \
-    MOV64x(A2, 1);          \
-    CALL(PrintTrace, -1);   \
+    MOV64x(A2, B);          \
+    CALL(A, -1);            \
     LOAD_XEMU_CALL()
 
 #endif //__DYNAREC_RV64_PRIVATE_H_

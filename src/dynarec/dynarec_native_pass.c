@@ -83,13 +83,20 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
         if((dyn->insts[ninst].x64.need_before&~X_PEND) && !dyn->insts[ninst].pred_sz) {
             READFLAGS(dyn->insts[ninst].x64.need_before&~X_PEND);
         }
+        if(box64_dynarec_test) {
+            MESSAGE(LOG_DUMP, "TEST INIT ----\n");
+            fpu_reflectcache(dyn, ninst, x1, x2, x3);
+            GO_TRACE(x64test_init, dyn->test);
+            MESSAGE(LOG_DUMP, "----------\n");
+            dyn->test = 1;
+        }
 #ifdef HAVE_TRACE
-        if(my_context->dec && box64_dynarec_trace) {
+        else if(my_context->dec && box64_dynarec_trace) {
         if((trace_end == 0) 
             || ((ip >= trace_start) && (ip < trace_end)))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);
-                GO_TRACE();
+                GO_TRACE(PrintTrace, 1);
                 MESSAGE(LOG_DUMP, "----------\n");
             }
         }
@@ -114,6 +121,13 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
         }
 
         addr = dynarec64_00(dyn, addr, ip, ninst, rex, rep, &ok, &need_epilog);
+
+        if(dyn->test) {
+            MESSAGE(LOG_DUMP, "TEST CHECK ----\n");
+            fpu_reflectcache(dyn, ninst, x1, x2, x3);
+            GO_TRACE(x64test_check, 1);
+            MESSAGE(LOG_DUMP, "----------\n");
+        }
 
         INST_EPILOG;
 
