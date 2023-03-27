@@ -129,7 +129,7 @@ int Table64(dynarec_rv64_t *dyn, uint64_t val);  // add a value to etable64 (if 
 void CreateJmpNext(void* addr, void* next);
 
 #define GO_TRACE(A, B)      \
-    GETIP_(ip);             \
+    GETIP(addr);            \
     MV(A1, xRIP);           \
     STORE_XEMU_CALL();      \
     MOV64x(A2, B);          \
