@@ -22,6 +22,8 @@ const char* libsslName = "libssl.so.1.0.0";
 #define ALTNAME "libssl.so.1.0.2"
 #define ALTNAME2 "libssl.so.1.1"
 
+#define ADDED_FUNCTIONS()           \
+
 #include "generated/wrappedlibssltypes.h"
 
 #include "wrappercallback.h"
@@ -261,6 +263,30 @@ static void* find_client_cert_Fct(void* fct)
     return NULL;
 }
 
+// alpn_select
+#define GO(A)   \
+static uintptr_t my_alpn_select_fct_##A = 0;                                            \
+static int my_alpn_select_##A(void* a, void* b, void* c, void* d, uint32_t e, void* f)  \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_alpn_select_fct_##A, 6, a, b, c, d, e, f);   \
+}
+SUPER()
+#undef GO
+static void* find_alpn_select_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_alpn_select_fct_##A == (uintptr_t)fct) return my_alpn_select_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_alpn_select_fct_##A == 0) {my_alpn_select_fct_##A = (uintptr_t)fct; return my_alpn_select_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL alpn_select callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my_SSL_CTX_set_default_passwd_cb(x64emu_t* emu, void* ctx, void* cb)
@@ -327,6 +353,12 @@ EXPORT void my_SSL_CTX_set_client_cert_cb(x64emu_t* emu, void* ctx, void* cb)
 {
     (void)emu;
     my->SSL_CTX_set_client_cert_cb(ctx, find_client_cert_Fct(cb));
+}
+
+EXPORT void my_SSL_CTX_set_alpn_select_cb(x64emu_t* emu, void* ctx, void* f ,void* arg)
+{
+    (void)emu;
+    my->SSL_CTX_set_alpn_select_cb(ctx, find_alpn_select_Fct(f), arg);
 }
 
 #define CUSTOM_INIT \
