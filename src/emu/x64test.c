@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stddef.h>
 
 #include "debug.h"
 #include "box64stack.h"
@@ -20,23 +21,6 @@
 #include "box64context.h"
 #include "bridge.h"
 #include "signals.h"
-
-void x64test_init(x64emu_t* ref, uintptr_t ip, int ok)
-{
-    x64test_t* test = &ref->test;
-    // check if test as a valid emu struct
-    if(!test->emu) {
-        test->emu = NewX64Emu(my_context, ip, (uintptr_t)ref->init_stack, ref->size_stack, 0);
-        CopyEmu(test->emu, ref);
-    }
-    // check if IP is same, else, sync
-    if(ip != test->emu->ip.q[0] || !ok) {
-        CopyEmu(test->emu, ref);
-    }
-    // Do a Dry single Step
-    test->memsize = 0;
-    RunTest(test);
-}
 
 void print_banner(x64emu_t* ref)
 {
@@ -134,9 +118,30 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
             printf_log(LOG_NONE, " |");
             for(int i=0; i<test->memsize; ++i)
                 printf_log(LOG_NONE, " %02x", ((uint8_t*)test->memaddr)[i]);
+            printf_log(LOG_NONE, "\n");
         }
     }
     if(banner)  // there was an error, re-sync!
         CopyEmu(emu, ref);
 }
 #undef BANNER
+
+void x64test_init(x64emu_t* ref, uintptr_t ip)
+{
+    x64test_t* test = &ref->test;
+    // check if test as a valid emu struct
+    if(!test->emu) {
+        test->emu = NewX64Emu(my_context, ip, (uintptr_t)ref->init_stack, ref->size_stack, 0);
+        CopyEmu(test->emu, ref);
+    } else if(test->test) {
+        x64test_check(ref, ip);
+    }
+    // check if IP is same, else, sync
+    if(ip != test->emu->ip.q[0] || !test->test) {
+        CopyEmu(test->emu, ref);
+    }
+    // Do a Dry single Step
+    test->memsize = 0;
+    test->test = 1;
+    RunTest(test);
+}

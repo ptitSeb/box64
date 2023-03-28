@@ -75,6 +75,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x05:
             INST_NAME("SYSCALL");
+            NOTEST(x1);
             SMEND();
             GETIP(addr);
             STORE_XEMU_CALL(xRIP);
@@ -329,6 +330,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x31:
             INST_NAME("RDTSC");
+            NOTEST(x1);
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             CALL(ReadTSC, xRAX);   // will return the u64 in xEAX
             LSRx(xRDX, xRAX, 32);
@@ -1069,6 +1071,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             
         case 0xA2:
             INST_NAME("CPUID");
+            NOTEST(x1);
             MOVx_REG(x1, xRAX);
             CALL_(my_cpuid, -1, 0);
             break;

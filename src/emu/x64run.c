@@ -1581,9 +1581,9 @@ x64emurun:
             break;
         case 0xFF:                      /* GRP 5 Ed */
             nextop = F8;
-            GETED(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
+                    GETED(0);
                     if(rex.w)
                         ED->q[0] = inc64(emu, ED->q[0]);
                     else {
@@ -1594,6 +1594,7 @@ x64emurun:
                     }
                     break;
                 case 1:                 /* DEC Ed */
+                    GETED(0);
                     if(rex.w)
                         ED->q[0] = dec64(emu, ED->q[0]);
                     else {
@@ -1604,12 +1605,14 @@ x64emurun:
                     }
                     break;
                 case 2:                 /* CALL NEAR Ed */
+                    GETE8(0);
                     tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
                     Push(emu, addr);
                     addr = tmp64u;
                     STEP2
                     break;
                 case 3:                 /* CALL FAR Ed */
+                    GETET(0);
                     if(MODREG) {
                         printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
@@ -1624,10 +1627,12 @@ x64emurun:
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
+                    GETE8(0);
                     addr = (uintptr_t)getAlternate((void*)ED->q[0]);
                     STEP2
                     break;
                 case 5:                 /* JMP FAR Ed */
+                    GETET(0);
                     if(MODREG) {
                         printf_log(LOG_NONE, "Illegal Opcode %p: 0x%02X 0x%02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
@@ -1640,6 +1645,7 @@ x64emurun:
                     }
                     break;
                 case 6:                 /* Push Ed */
+                    GETE8(0);
                     tmp64u = ED->q[0];  // rex.w ignored
                     #ifdef TEST_INTERPRETER
                     R_RSP -=8;

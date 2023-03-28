@@ -500,7 +500,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x57:
             INST_NAME("PUSH reg");
             if(dyn->doublepush) {
-                dyn->test = 0;
+                NOTEST(x1);
                 dyn->doublepush = 0;
             } else {
                 gd = xRAX+(opcode&0x07)+(rex.b<<3);
@@ -525,7 +525,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     PUSH2(gd, u32);
                     dyn->doublepush = 1;
-                    dyn->test = 0;  // disable test for this OP
+                    NOTEST(x1);  // disable test for this OP
                 } else {
                     PUSH1(gd);
                 }   
@@ -541,7 +541,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x5F:
             INST_NAME("POP reg");
             if(dyn->doublepop) {
-                dyn->test = 0;
+                NOTEST(x1);
                 dyn->doublepop = 0;
             } else {
                 gd = xRAX+(opcode&0x07)+(rex.b<<3);
@@ -566,7 +566,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                     }
                     dyn->doublepop = 1;
-                    dyn->test = 0;  // disable test for this OP
+                    NOTEST(x1);  // disable test for this OP
                 } else {
                     if(gd == xRSP) {
                         POP1(x1);
@@ -1749,7 +1749,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
-            dyn->test = 0;
+            NOTEST(x1);
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
                 BARRIER(BARRIER_FLOAT);
@@ -2216,7 +2216,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
-                    dyn->test=0;    // disable test as this hack dos 2 instructions for 1
+                    NOTEST(x1);    // disable test as this hack dos 2 instructions for 1
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall)

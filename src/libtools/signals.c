@@ -291,6 +291,10 @@ uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc
 #endif
 
     x64emu_t *emu = thread_get_emu();
+    #ifdef DYNAREC
+    if(box64_dynarec_test)
+        emu->test.test = 0;
+    #endif
 
     printf_log(LOG_DEBUG, "%04d|signal function handler %p called, RSP=%p\n", GetTID(), (void*)fnc, (void*)R_RSP);
     
@@ -325,6 +329,11 @@ uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc
         R_RSP+=((nargs-6)*sizeof(void*));
 
     emu->quitonlongjmp = oldquitonlongjmp;
+
+    #ifdef DYNAREC
+    if(box64_dynarec_test)
+        emu->test.test = 0;
+    #endif
 
     if(emu->longjmp) {
         // longjmp inside signal handler, lets grab all relevent value and do the actual longjmp in the signal handler

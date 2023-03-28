@@ -86,9 +86,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
         if(box64_dynarec_test) {
             MESSAGE(LOG_DUMP, "TEST INIT ----\n");
             fpu_reflectcache(dyn, ninst, x1, x2, x3);
-            GO_TRACE(x64test_init, dyn->test);
+            GO_TRACE(x64test_init, 1);
             MESSAGE(LOG_DUMP, "----------\n");
-            dyn->test = 1;
         }
 #ifdef HAVE_TRACE
         else if(my_context->dec && box64_dynarec_trace) {
@@ -121,13 +120,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
         }
 
         addr = dynarec64_00(dyn, addr, ip, ninst, rex, rep, &ok, &need_epilog);
-
-        if(dyn->test) {
-            MESSAGE(LOG_DUMP, "TEST CHECK ----\n");
-            fpu_reflectcache(dyn, ninst, x1, x2, x3);
-            GO_TRACE(x64test_check, 1);
-            MESSAGE(LOG_DUMP, "----------\n");
-        }
 
         INST_EPILOG;
 
@@ -262,12 +254,14 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
             dyn->insts[ninst].x64.need_after |= X_PEND;
             #endif
             ++ninst;
+            NOTEST(x3);
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             jump_to_next(dyn, addr, 0, ninst);
             ok=0; need_epilog=0;
         }
     }
     if(need_epilog) {
+        NOTEST(x3);
         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
         jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknow instruction
     }

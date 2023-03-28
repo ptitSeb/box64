@@ -1106,4 +1106,15 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             , NEZ, EQZ, X_SF|X_OF|X_ZF)                     \
         break
 
+#define NOTEST(s1)                                          \
+    if(box64_dynarec_test) {                                \
+        if(offsetof(x64emu_t, test.test)<2048) {            \
+            SW(xZR, xEmu, offsetof(x64emu_t, test.test));   \
+        } else {                                            \
+            MOV32w(s1, offsetof(x64emu_t, test.test));      \
+            ADD(s1, xEmu, s1);                              \
+            SW(xZR, s1, 0);                                 \
+        }                                                   \
+    }
+
 #endif //__DYNAREC_RV64_HELPER_H__

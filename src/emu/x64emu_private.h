@@ -31,6 +31,7 @@ typedef struct x64test_s {
     x64emu_t*   emu;
     uintptr_t   memaddr;
     int         memsize;
+    int         test;
     uint8_t     mem[16];
 } x64test_t;
 
@@ -86,6 +87,7 @@ typedef struct x64emu_s {
     int         quitonlongjmp;  // quit if longjmp is called
     int         quitonexit;     // quit if exit/_exit is called
     int         longjmp;        // if quit because of longjmp
+    x64test_t   test;       // used for dynarec testing
     // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
     uint64_t    scratch[200];
     // local stack, do be deleted when emu is freed
@@ -96,7 +98,6 @@ typedef struct x64emu_s {
     x64_ucontext_t *uc_link; // to handle setcontext
 
     int         type;       // EMUTYPE_xxx define
-    x64test_t   test;
 } x64emu_t;
 
 #define EMUTYPE_NONE    0

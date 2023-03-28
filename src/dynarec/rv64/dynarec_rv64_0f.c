@@ -73,6 +73,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0x05:
             INST_NAME("SYSCALL");
+            NOTEST(x1);
             SMEND();
             GETIP(addr);
             STORE_XEMU_CALL();
@@ -314,6 +315,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             
         case 0xA2:
             INST_NAME("CPUID");
+            NOTEST(x1);
             MV(A1, xRAX);
             CALL_(my_cpuid, -1, 0);
             // BX and DX are not synchronized durring the call, so need to force the update

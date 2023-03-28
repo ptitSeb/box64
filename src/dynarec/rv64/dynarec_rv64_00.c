@@ -1270,7 +1270,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
-            dyn->test=0;
+            NOTEST(x1);
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
                 BARRIER(BARRIER_FLOAT);
@@ -1464,7 +1464,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch(tmp) {
                 case 3:
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                    dyn->test = 0;
+                    NOTEST(x1);
                     BARRIER(BARRIER_FULL);
                     //BARRIER_NEXT(BARRIER_FULL);
                     if(dyn->last_ip && (addr-dyn->last_ip<0x1000)) {
