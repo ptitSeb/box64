@@ -117,7 +117,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SRLI(x1, x1, 48);
             MOV32w(x2, i32);
             emit_or16(dyn, ninst, x1, x2, x3, x4);
-            LUI(x3, 0xfff0);
+            LUI(x3, 0xffff0);
             AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
@@ -150,7 +150,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SRLI(x1, x1, 48);
             MOV32w(x2, i32);
             emit_and16(dyn, ninst, x1, x2, x3, x4);
-            LUI(x3, 0xfff0);
+            LUI(x3, 0xffff0);
             AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
@@ -248,6 +248,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(opcode==0x69) i32 = F16S; else i32 = F8S;
             MOV32w(x2, i32);
             MULW(x2, x2, x1);
+            SLLI(x2, x2, 48);
+            SRLI(x2, x2, 48);
             UFLAG_RES(x2);
             gd=x2;
             GWBACK;
@@ -376,7 +378,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("NOP");
                 } else {
                     INST_NAME("XCHG AX, Reg");
-                    LUI(x4, 0xfff0);
+                    LUI(x4, 0xffff0);
                     // x2 <- rax
                     MV(x2, xRAX);
                     // rax[15:0] <- gd[15:0]
@@ -579,6 +581,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETSEW(x1, 0);
                     UFLAG_OP12(ed, x4)
                     SRA(ed, ed, x4);
+                    SLLI(ed, ed, 48);
+                    SRLI(ed, ed, 48);
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_sar16);
