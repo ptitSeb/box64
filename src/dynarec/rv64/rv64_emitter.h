@@ -219,18 +219,18 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define BGEU(rs1, rs2, imm13)      EMIT(B_type(imm13, rs2, rs1, 0b111, 0b1100011))
 
 // TODO: Find a better way to have conditionnal jumps? Imm is a relative jump address, so the the 2nd jump needs to be addapted
-#define BEQ_safe(rs1, rs2, imm)     if(imm>=-0x1000 && imm<=0x1000) {BEQ(rs1, rs2, imm); NOP();} else {BNE(rs1, rs2, 8); B(imm-4);}
-#define BNE_safe(rs1, rs2, imm)     if(imm>=-0x1000 && imm<=0x1000) {BNE(rs1, rs2, imm); NOP();} else {BEQ(rs1, rs2, 8); B(imm-4);}
-#define BLT_safe(rs1, rs2, imm)     if(imm>=-0x1000 && imm<=0x1000) {BLT(rs1, rs2, imm); NOP();} else {BGE(rs2, rs1, 8); B(imm-4);}
-#define BGE_safe(rs1, rs2, imm)     if(imm>=-0x1000 && imm<=0x1000) {BGE(rs1, rs2, imm); NOP();} else {BLT(rs2, rs1, 8); B(imm-4);}
-#define BLTU_safe(rs1, rs2, imm)    if(imm>=-0x1000 && imm<=0x1000) {BLTU(rs1, rs2, imm); NOP();} else {BGEU(rs2, rs1, 8); B(imm-4);}
-#define BGEU_safe(rs1, rs2, imm)    if(imm>=-0x1000 && imm<=0x1000) {BGEU(rs1, rs2, imm); NOP();} else {BLTU(rs2, rs1, 8); B(imm-4);}
+#define BEQ_safe(rs1, rs2, imm)     if((imm)>-0x1000 && (imm)<0x1000) {BEQ(rs1, rs2, imm); NOP();} else {BNE(rs1, rs2, 8); B(imm-4);}
+#define BNE_safe(rs1, rs2, imm)     if((imm)>-0x1000 && (imm)<0x1000) {BNE(rs1, rs2, imm); NOP();} else {BEQ(rs1, rs2, 8); B(imm-4);}
+#define BLT_safe(rs1, rs2, imm)     if((imm)>-0x1000 && (imm)<0x1000) {BLT(rs1, rs2, imm); NOP();} else {BGE(rs2, rs1, 8); B(imm-4);}
+#define BGE_safe(rs1, rs2, imm)     if((imm)>-0x1000 && (imm)<0x1000) {BGE(rs1, rs2, imm); NOP();} else {BLT(rs2, rs1, 8); B(imm-4);}
+#define BLTU_safe(rs1, rs2, imm)    if((imm)>-0x1000 && (imm)<0x1000) {BLTU(rs1, rs2, imm); NOP();} else {BGEU(rs2, rs1, 8); B(imm-4);}
+#define BGEU_safe(rs1, rs2, imm)    if((imm)>-0x1000 && (imm)<0x1000) {BGEU(rs1, rs2, imm); NOP();} else {BLTU(rs2, rs1, 8); B(imm-4);}
 
 #define BEQZ(rs1, imm13)           BEQ(rs1, 0, imm13)
 #define BNEZ(rs1, imm13)           BNE(rs1, 0, imm13)
 
-#define BEQZ_safe(rs1, imm)         if(imm>=-0x1000 && imm<=0x1000) {BEQZ(rs1, imm); NOP();} else {BNEZ(rs1, 8); B(imm-4);}
-#define BNEZ_safe(rs1, imm)         if(imm>=-0x1000 && imm<=0x1000) {BNEZ(rs1, imm); NOP();} else {BEQZ(rs1, 8); B(imm-4);}
+#define BEQZ_safe(rs1, imm)         if((imm)>-0x1000 && (imm)<0x1000) {BEQZ(rs1, imm); NOP();} else {BNEZ(rs1, 8); B(imm-4);}
+#define BNEZ_safe(rs1, imm)         if((imm)>-0x1000 && (imm)<0x1000) {BNEZ(rs1, imm); NOP();} else {BEQZ(rs1, 8); B(imm-4);}
 
 // rd = 4-bytes[rs1+imm12] signed extended
 #define LW(rd, rs1, imm12)          EMIT(I_type(imm12, rs1, 0b010, rd, 0b0000011))
@@ -257,6 +257,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 #define FENCE_I_gen()               ((0b001<<12) | 0b0001111)
 #define FENCE_I()                   EMIT(FENCE_I_gen())
+
+#define EBREAK()                    EMIT(I_type(1, 0, 0, 0, 0b1110011))
 
 // RV64I
 #define LWU(rd, rs1, imm12)         EMIT(I_type(imm12, rs1, 0b110, rd, 0b0000011))

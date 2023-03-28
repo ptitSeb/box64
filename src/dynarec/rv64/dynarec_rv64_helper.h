@@ -186,7 +186,7 @@
                     ed = i;                     \
                 } else {                        \
                     SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, D); \
                     LBU(i, wback, fixedaddress);\
                     wb1 = 1;                    \
                     ed = i;                     \
@@ -208,7 +208,7 @@
                     ed = i;                     \
                 } else {                        \
                     SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, D); \
                     LB(i, wback, fixedaddress); \
                     wb1 = 1;                    \
                     ed = i;                     \
