@@ -579,6 +579,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETSEW(x1, 0);
                     UFLAG_OP12(ed, x4)
                     SRA(ed, ed, x4);
+                    SLLI(ed, ed, 48);
+                    SRLI(ed, ed, 48);
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_sar16);
