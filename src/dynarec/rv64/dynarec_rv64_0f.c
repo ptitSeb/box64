@@ -400,11 +400,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRLI(x3, gd, 32);
                     UFLAG_OP1(x3);
                     UFLAG_DF(x3, d_imul32);
-                    SLLI(gd, gd, 32);
-                    SRLI(gd, gd, 32);
                 } else {
                     MULxw(gd, gd, ed);
                 }
+                SLLI(gd, gd, 32);
+                SRLI(gd, gd, 32);
             }
             break;
 
