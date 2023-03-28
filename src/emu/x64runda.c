@@ -103,41 +103,38 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0xFD:
         return 0;
     default:
-        #ifdef TEST_INTERPRETER
-        rex.w = 0;  // hack, 32bit access only here
-        #endif
         switch((nextop>>3)&7) {
             case 0:     /* FIADD ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d += ED->sdword[0];
                 break;
             case 1:     /* FIMUL ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d *= ED->sdword[0];
                 break;
             case 2:     /* FICOM ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 fpu_fcom(emu, ED->sdword[0]);
                 break;
             case 3:     /* FICOMP ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 fpu_fcom(emu, ED->sdword[0]);
                 fpu_do_pop(emu);
                 break;
             case 4:     /* FISUB ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d -= ED->sdword[0];
                 break;
             case 5:     /* FISUBR ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d = (double)ED->sdword[0] - ST0.d;
                 break;
             case 6:     /* FIDIV ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d /= ED->sdword[0];
                 break;
             case 7:     /* FIDIVR ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d = (double)ED->sdword[0] / ST0.d;
                 break;
         }

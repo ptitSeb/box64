@@ -575,15 +575,11 @@ x64emurun:
         case 0x8D:                      /* LEA Gd,M */
             nextop = F8;
             GETGD;
-            #ifdef TEST_INTERPRETER
-            oped=GetEd(emu, &addr, rex, nextop, 0);
-            #else
-            GETED(0);
-            #endif
+            tmp64u = GETEA(0);
             if(rex.w)
-                GD->q[0] = (uint64_t)ED;
+                GD->q[0] = tmp64u;
             else
-                GD->q[0] = ((uintptr_t)ED)&0xffffffff;
+                GD->q[0] = tmp64u&0xffffffff;
             break;
 
         case 0x8F:                      /* POP Ed */

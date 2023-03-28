@@ -132,17 +132,14 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0xE7:
         return 0;
     default:
-        #ifdef TEST_INTERPRETER
-        rex.w = 0;  // hack, 32bit access only here
-        #endif
         switch((nextop>>3)&7) {
             case 0: /* FILD ST0, Ed */
-                GETED(0);
+                GETE4(0);
                 fpu_do_push(emu);
                 ST0.d = ED->sdword[0];
                 break;
             case 1: /* FISTTP Ed, ST0 */
-                GETED(0);
+                GETE4(0);
                 if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, (double)(int32_t)0x80000000) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else
@@ -150,7 +147,7 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 fpu_do_pop(emu);
                 break;
             case 2: /* FIST Ed, ST0 */
-                GETED(0);
+                GETE4(0);
                 if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, (double)(int32_t)0x80000000) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else {
@@ -159,7 +156,7 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 }
                 break;
             case 3: /* FISTP Ed, ST0 */
-                GETED(0);
+                GETE4(0);
                 if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, (double)(int32_t)0x80000000) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else {
@@ -169,21 +166,14 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 fpu_do_pop(emu);
                 break;
             case 5: /* FLD ST0, Et */
-                GETED(0);
-                #ifdef TEST_INTERPRETER
-                test->memsize = 10;
-                memcpy(ED, (void*)test->memaddr, 10);
-                #endif
+                GETET(0);
                 fpu_do_push(emu);
                 memcpy(&STld(0).ld, ED, 10);
                 LD2D(&STld(0), &ST(0).d);
                 STld(0).uref = ST0.q;
                 break;
             case 7: /* FSTP tbyte */
-                GETED(0);
-                #ifdef TEST_INTERPRETER
-                test->memsize = 10;
-                #endif
+                GETET(0);
                 if(ST0.q!=STld(0).uref)
                     D2LD(&ST0.d, ED);
                 else

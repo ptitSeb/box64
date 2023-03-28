@@ -118,10 +118,7 @@ uintptr_t RunDC(x64emu_t *emu, rex_t rex, uintptr_t addr)
             ST(nextop&7).d /=  ST0.d;
             break;
         default:
-            #ifdef TEST_INTERPRETER
-            rex.w = 1;  // hack, 64bit access only here
-            #endif
-            GETED(0);
+            GETE8(0);
             switch((nextop>>3)&7) {
             case 0:         /* FADD ST0, double */
                 ST0.d += *(double*)ED;

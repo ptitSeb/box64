@@ -277,15 +277,11 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     case 0x8D:                              /* LEA Gw,M */
         nextop = F8;
         GETGD;
-        #ifdef TEST_INTERPRETER
-        oped=GetEd(emu, &addr, rex, nextop, 0);
-        #else
-        GETED(0);
-        #endif
+        tmp64u = GETEA(0);
         if(rex.w)
-            GD->q[0] = (uint64_t)ED;
+            GD->q[0] = tmp64u;
         else
-            GD->word[0] = (uint16_t)(uintptr_t)ED;
+            GD->word[0] = (uint16_t)tmp64u;
         break;
 
         case 0x90:                      /* NOP or XCHG R8d, AX*/

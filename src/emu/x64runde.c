@@ -134,9 +134,6 @@ uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr)
         return 0;
     
     default:
-        #ifdef TEST_INTERPRETER
-        rex.w = 0;  // hack, 32bit access only here
-        #endif
         switch((nextop>>3)&7) {
             case 0:     /* FIADD ST0, Ew int */
                 GETEW(0);

@@ -235,27 +235,24 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xEF:
             return 0;
         default:
-        #ifdef TEST_INTERPRETER
-        rex.w = 0;  // hack, 32bit access only here
-        #endif
         switch((nextop>>3)&7) {
             case 0:     /* FLD ST0, Ed float */
-                GETED(0);
+                GETE4(0);
                 fpu_do_push(emu);
                 ST0.d = *(float*)ED;
                 break;
             case 2:     /* FST Ed, ST0 */
-                GETED(0);
+                GETE4(0);
                 *(float*)ED = ST0.d;
                 break;
             case 3:     /* FSTP Ed, ST0 */
-                GETED(0);
+                GETE4(0);
                 *(float*)ED = ST0.d;
                 fpu_do_pop(emu);
                 break;
             case 4:     /* FLDENV m */
                 // warning, incomplete
-                GETED(0);
+                _GETED(0);
                 fpu_loadenv(emu, (char*)ED, 0);
                 break;
             case 5:     /* FLDCW Ew */
@@ -265,7 +262,7 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete
-                GETED(0);
+                _GETED(0);
                 #ifndef TEST_INTERPRETER
                 fpu_savenv(emu, (char*)ED, 0);
                 #endif

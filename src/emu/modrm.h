@@ -20,6 +20,9 @@
 
 #ifdef TEST_INTERPRETER
 #define GETED(D)            oped=TestEd(test, &addr, rex, nextop, D)
+#define GETE4(D)            oped=TestEd4(test, &addr, rex, nextop, D)
+#define GETE8(D)            oped=TestEd8(test, &addr, rex, nextop, D)
+#define GETET(D)            oped=TestEdt(test, &addr, rex, nextop, D)
 #define GETED32(D)          oped=TestEd32O(test, &addr, rex, nextop, D, 0)
 #define GETED_OFFS(D, O)    oped=TestEdO(test, &addr, rex, nextop, D, O)
 #define GETGD               opgd=GetGd(test->emu, &addr, rex, nextop)
@@ -40,6 +43,9 @@
 #define GETGM               opgm=GetGm(test->emu, &addr, rex, nextop)
 #else
 #define GETED(D)            oped=GetEd(emu, &addr, rex, nextop, D)
+#define GETE4(D)            GETED(D)
+#define GETE8(D)            GETED(D)
+#define GETET(D)            GETED(D)
 #define GETED32(D)          oped=GetEd32O(emu, &addr, rex, nextop, D, 0)
 #define GETED_OFFS(D, O)    oped=GetEdO(emu, &addr, rex, nextop, D, O)
 #define GETGD               opgd=GetGd(emu, &addr, rex, nextop)
@@ -71,6 +77,8 @@
 #define GM  opgm
 #define FAKEED(D)           GetEd(emu, &addr, rex, nextop, D)
 #define FAKEED32(D)         GetEd32O(emu, &addr, rex, nextop, D, 0)
+#define GETEA(D)            GetEA(emu, &addr, rex, nextop, D)
+#define _GETED(D)           oped=GetEd(emu, &addr, rex, nextop, D)
 
 #define MODREG  ((nextop&0xC0)==0xC0)
 

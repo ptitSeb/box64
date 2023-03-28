@@ -150,19 +150,12 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
             fpu_do_pop(emu);
             break;
         case 4: /* FBLD ST0, tbytes */
-            GETED(0);
-            #ifdef TEST_INTERPRETER
-            test->memsize = 10;
-            memcpy(ED, (void*)test->memaddr, 10);
-            #endif
+            GETET(0);
             fpu_do_push(emu);
             fpu_fbld(emu, (uint8_t*)ED);
             break;
         case 5: /* FILD ST0, Gq */
-            #ifdef TEST_INTERPRETER
-            rex.w = 1;  // hack, 64bit access
-            #endif
-            GETED(0);
+            GETE8(0);
             tmp64s = ED->sq[0];
             fpu_do_push(emu);
             ST0.d = tmp64s;
@@ -170,18 +163,12 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
             STll(0).sref = ST0.sq;
             break;
         case 6: /* FBSTP tbytes, ST0 */
-            GETED(0);
-            #ifdef TEST_INTERPRETER
-            test->memsize = 10;
-            #endif
+            GETET(0);
             fpu_fbst(emu, (uint8_t*)ED);
             fpu_do_pop(emu);
             break;
         case 7: /* FISTP i64 */
-            #ifdef TEST_INTERPRETER
-            rex.w = 1;  // hack, 64bits access
-            #endif
-            GETED(0);
+            GETE8(0);
             if(STll(0).sref==ST(0).sq)
                 ED->sq[0] = STll(0).sq;
             else {
