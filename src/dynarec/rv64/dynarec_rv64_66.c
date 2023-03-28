@@ -117,7 +117,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SRLI(x1, x1, 48);
             MOV32w(x2, i32);
             emit_or16(dyn, ninst, x1, x2, x3, x4);
-            LUI(x3, 0xfff0);
+            LUI(x3, 0xffff0);
             AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
@@ -150,7 +150,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SRLI(x1, x1, 48);
             MOV32w(x2, i32);
             emit_and16(dyn, ninst, x1, x2, x3, x4);
-            LUI(x3, 0xfff0);
+            LUI(x3, 0xffff0);
             AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
@@ -376,7 +376,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("NOP");
                 } else {
                     INST_NAME("XCHG AX, Reg");
-                    LUI(x4, 0xfff0);
+                    LUI(x4, 0xffff0);
                     // x2 <- rax
                     MV(x2, xRAX);
                     // rax[15:0] <- gd[15:0]
