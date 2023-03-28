@@ -363,82 +363,102 @@ HWCAP2_ECV
 }
 #endif
 
+// TODO: should we also use this to store default values?
+struct box64_setting {
+    const char* varname;
+    const char* docstring;
+    void* valptr;
+    int numvals;
+    void (*prehandler)(struct box64_setting*);
+    void (*handler)(struct box64_setting*);
+    /* flexible array members are illegal in a nested context, so we waste a
+     * few bytes and make the array as large as it needs to be at most */
+    const char* loginfo[4];
+};
 
-EXPORTDYN
-void LoadLogEnv()
+void prehandler_box64_nobanner(struct box64_setting* s)
 {
-    ftrace = stdout;
-    box64_nobanner = isatty(fileno(stdout))?0:1;
-    const char *p = getenv("BOX64_NOBANNER");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_nobanner = p[0]-'0';
+    *((int*)(s->valptr)) = isatty(fileno(stdout)) ? 0 : 1;
+}
+
+void handler_intopt(struct box64_setting* s)
+{
+    const char* p = getenv(s->varname);
+    if (p) {
+        if (strlen(p) == 1) {
+            if (p[0] >= '0' && p[0] <= '0' + s->numvals - 1)
+                *((int*)(s->valptr)) = p[0] - '0';
+        }
+        if (s->loginfo[*((int*)(s->valptr))] != NULL) {
+            printf_log(LOG_INFO, "%s\n", s->loginfo[*((int*)(s->valptr))]);
         }
     }
-    // grab BOX64_TRACE_FILE envvar, and change %pid to actual pid is present in the name
+}
+
+void handler_log(struct box64_setting* s)
+{
+    ftrace = stdout;
+    // grab BOX64_TRACE_FILE envvar, and change %pid to actual pid is present in
+    // the name
     openFTrace(NULL);
-    box64_log = ftrace_name?LOG_INFO:(isatty(fileno(ftrace))?LOG_INFO:LOG_NONE); //default LOG value different if stdout is redirected or not
-    p = getenv("BOX64_LOG");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0'+LOG_NONE && p[0]<='0'+LOG_NEVER) {
-                box64_log = p[0]-'0';
-                if(box64_log == LOG_NEVER) {
+    box64_log = ftrace_name ? LOG_INFO
+                            : (isatty(fileno(ftrace))
+                                    ? LOG_INFO
+                                    : LOG_NONE); // default LOG value different if
+                                                 // stdout is redirected or not
+    const char* p = getenv("BOX64_LOG");
+    if (p) {
+        if (strlen(p) == 1) {
+            if (p[0] >= '0' + LOG_NONE && p[0] <= '0' + LOG_NEVER) {
+                box64_log = p[0] - '0';
+                if (box64_log == LOG_NEVER) {
                     --box64_log;
                     box64_dump = 1;
                 }
             }
         } else {
-            if(!strcasecmp(p, "NONE"))
+            if (!strcasecmp(p, "NONE"))
                 box64_log = LOG_NONE;
-            else if(!strcasecmp(p, "INFO"))
+            else if (!strcasecmp(p, "INFO"))
                 box64_log = LOG_INFO;
-            else if(!strcasecmp(p, "DEBUG"))
+            else if (!strcasecmp(p, "DEBUG"))
                 box64_log = LOG_DEBUG;
-            else if(!strcasecmp(p, "DUMP")) {
+            else if (!strcasecmp(p, "DUMP")) {
                 box64_log = LOG_DEBUG;
                 box64_dump = 1;
             }
         }
-        if(!box64_nobanner)
+        if (!box64_nobanner)
             printf_log(LOG_INFO, "Debug level is %d\n", box64_log);
     }
-    p = getenv("BOX64_ROLLING_LOG");
-    if(p) {
+}
+
+void handler_rolling_log(struct box64_setting* s)
+{
+    const char* p = getenv("BOX64_ROLLING_LOG");
+    if (p) {
         int cycle = 0;
-        if(sscanf(p, "%d", &cycle)==1)
-                cycle_log = cycle;
-        if(cycle_log==1)
+        if (sscanf(p, "%d", &cycle) == 1)
+            cycle_log = cycle;
+        if (cycle_log == 1)
             cycle_log = 16;
-        if(cycle_log<0)
+        if (cycle_log < 0)
             cycle_log = 0;
-        if(cycle_log && box64_log>LOG_INFO) {
+        if (cycle_log && box64_log > LOG_INFO) {
             cycle_log = 0;
-            printf_log(LOG_NONE, "Incompatible Rolling log and Debug Log, disabling Rolling log\n");
+            printf_log(
+                LOG_NONE,
+                "Incompatible Rolling log and Debug Log, disabling Rolling log\n");
         }
     }
-    if(!box64_nobanner && cycle_log)
-        printf_log(LOG_INFO, "Rolling log, showing last %d function call on signals\n", cycle_log);
-    p = getenv("BOX64_DUMP");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dump = p[0]-'0';
-        }
-    }
-    if(!box64_nobanner && box64_dump)
-        printf_log(LOG_INFO, "Elf Dump if ON\n");
-#ifdef DYNAREC
-    p = getenv("BOX64_DYNAREC_DUMP");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
-                box64_dynarec_dump = p[0]-'0';
-        }
-        if (box64_dynarec_dump) printf_log(LOG_INFO, "Dynarec blocks are dumped%s\n", (box64_dynarec_dump>1)?" in color":"");
-    }
-    p = getenv("BOX64_DYNAREC_LOG");
+    if (!box64_nobanner && cycle_log)
+        printf_log(LOG_INFO,
+            "Rolling log, showing last %d function call on signals\n",
+            cycle_log);
+}
+
+void handler_dynarec_log(struct box64_setting *s) {
+    const char *p = getenv("BOX64_DYNAREC_LOG");
     if(p) {
         if(strlen(p)==1) {
             if((p[0]>='0'+LOG_NONE) && (p[0]<='0'+LOG_NEVER))
@@ -455,153 +475,57 @@ void LoadLogEnv()
         }
         printf_log(LOG_INFO, "Dynarec log level is %d\n", box64_dynarec_log);
     }
-    p = getenv("BOX64_DYNAREC");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec = p[0]-'0';
-        }
-        printf_log(LOG_INFO, "Dynarec is %s\n", box64_dynarec?"on":"off");
-    }
-    p = getenv("BOX64_DYNAREC_FORCED");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_forced = p[0]-'0';
-        }
-        if(box64_dynarec_forced)
-            printf_log(LOG_INFO, "Dynarec is forced on all addresses\n");
-    }
-    p = getenv("BOX64_DYNAREC_BIGBLOCK");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='3')
-                box64_dynarec_bigblock = p[0]-'0';
-        }
-        if(!box64_dynarec_bigblock)
-            printf_log(LOG_INFO, "Dynarec will not try to make big block\n");
-        else if (box64_dynarec_bigblock>1)
-            printf_log(LOG_INFO, "Dynarec will try to make bigger blocks%s\n", (box64_dynarec_bigblock>2)?" even on non-elf memory":"");
+}
 
-    }
-    p = getenv("BOX64_DYNAREC_FORWARD");
-    if(p) {
+#ifdef DYNAREC
+void handler_dynarec_forward(struct box64_setting* s)
+{
+    const char* p = getenv("BOX64_DYNAREC_FORWARD");
+    if (p) {
         int val = -1;
-        if(sscanf(p, "%d", &val)==1) {
-            if(val>=0)
+        if (sscanf(p, "%d", &val) == 1) {
+            if (val >= 0)
                 box64_dynarec_forward = val;
         }
-        if(box64_dynarec_forward)
+        if (box64_dynarec_forward)
             printf_log(LOG_INFO, "Dynarec will continue block for %d bytes on forward jump\n", box64_dynarec_forward);
         else
             printf_log(LOG_INFO, "Dynarec will not continue block on forward jump\n");
     }
-    p = getenv("BOX64_DYNAREC_STRONGMEM");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
-                box64_dynarec_strongmem = p[0]-'0';
-        }
-        if(box64_dynarec_strongmem)
-            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":"");
-    }
-    p = getenv("BOX64_DYNAREC_X87DOUBLE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_x87double = p[0]-'0';
-        }
-        if(box64_dynarec_x87double)
-            printf_log(LOG_INFO, "Dynarec will use only double for x87 emulation\n");
-    }
-    p = getenv("BOX64_DYNAREC_FASTNAN");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_fastnan = p[0]-'0';
-        }
-        if(!box64_dynarec_fastnan)
-            printf_log(LOG_INFO, "Dynarec will try to normalize generated NAN\n");
-    }
-    p = getenv("BOX64_DYNAREC_FASTROUND");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_fastround = p[0]-'0';
-        }
-        if(!box64_dynarec_fastround)
-            printf_log(LOG_INFO, "Dynarec will try tp generate x86 precise IEEE->int rounding\n");
-    }
-    p = getenv("BOX64_DYNAREC_SAFEFLAGS");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
-                box64_dynarec_safeflags = p[0]-'0';
-        }
-        if(!box64_dynarec_safeflags)
-            printf_log(LOG_INFO, "Dynarec will not play it safe with x64 flags\n");
-        else
-            printf_log(LOG_INFO, "Dynarec will play %s safe with x64 flags\n", (box64_dynarec_safeflags==1)?"moderatly":"it");
-    }
-    p = getenv("BOX64_DYNAREC_CALLRET");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_callret = p[0]-'0';
-        }
-        if(box64_dynarec_callret)
-            printf_log(LOG_INFO, "Dynarec will optimize CALL/RET\n");
-    }
-    p = getenv("BOX64_DYNAREC_BLEEDING_EDGE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_bleeding_edge = p[0]-'0';
-        }
-        if(!box64_dynarec_bleeding_edge)
-            printf_log(LOG_INFO, "Dynarec will not detect MonoBleedingEdge\n");
-    }
-    p = getenv("BOX64_DYNAREC_WAIT");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_wait = p[0]-'0';
-        }
-        if(!box64_dynarec_wait)
-            printf_log(LOG_INFO, "Dynarec will not wait for FillBlock to ready and use Interpreter instead\n");
-    }
-    p = getenv("BOX64_DYNAREC_HOTPAGE");
-    if(p) {
+}
+
+void handler_dynarec_hotpage(struct box64_setting* s)
+{
+    const char* p = getenv("BOX64_DYNAREC_HOTPAGE");
+    if (p) {
         int val = -1;
-        if(sscanf(p, "%d", &val)==1) {
-            if(val>=0)
+        if (sscanf(p, "%d", &val) == 1) {
+            if (val >= 0)
                 box64_dynarec_hotpage = val;
         }
-        if(box64_dynarec_hotpage)
+        if (box64_dynarec_hotpage)
             printf_log(LOG_INFO, "Dynarec will have HotPage tagged for %d attempts\n", box64_dynarec_hotpage);
         else
             printf_log(LOG_INFO, "Dynarec will not tag HotPage\n");
     }
-    p = getenv("BOX64_DYNAREC_FASTPAGE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_fastpage = p[0]-'0';
-        }
-        if(box64_dynarec_fastpage)
-            printf_log(LOG_INFO, "Dynarec will use Fast HotPage\n");
-    }
-    p = getenv("BOX64_NODYNAREC");
-    if(p) {
-        if (strchr(p,'-')) {
-            if(sscanf(p, "%ld-%ld", &box64_nodynarec_start, &box64_nodynarec_end)!=2) {
-                if(sscanf(p, "0x%lX-0x%lX", &box64_nodynarec_start, &box64_nodynarec_end)!=2)
+}
+
+void handler_nodynarec(struct box64_setting* s)
+{
+    const char* p = getenv("BOX64_NODYNAREC");
+    if (p) {
+        if (strchr(p, '-')) {
+            if (sscanf(p, "%ld-%ld", &box64_nodynarec_start, &box64_nodynarec_end) != 2) {
+                if (sscanf(p, "0x%lX-0x%lX", &box64_nodynarec_start, &box64_nodynarec_end) != 2)
                     sscanf(p, "%lx-%lx", &box64_nodynarec_start, &box64_nodynarec_end);
             }
             printf_log(LOG_INFO, "No dynablock creation that start in the range %p - %p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
         }
     }
-    p = getenv("BOX64_DYNAREC_TEST");
+}
+
+void handler_dynarec_test(struct box64_setting* s) {
+    const char *p = getenv("BOX64_DYNAREC_TEST");
     if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='1')
@@ -613,197 +537,303 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
         }
     }
-
+}
 #endif
+
 #ifdef HAVE_TRACE
-    p = getenv("BOX64_TRACE_XMM");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                trace_xmm = p[0]-'0';
-        }
-    }
-    p = getenv("BOX64_TRACE_EMM");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                trace_emm = p[0]-'0';
-        }
-    }
-    p = getenv("BOX64_TRACE_COLOR");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                trace_regsdiff = p[0]-'0';
-        }
-    }
-    p = getenv("BOX64_TRACE_START");
-    if(p) {
+void handler_trace_start(struct box64_setting* s)
+{
+    const char* p = getenv("BOX64_TRACE_START");
+    if (p) {
         char* p2;
         start_cnt = strtoll(p, &p2, 10);
         printf_log(LOG_INFO, "Will start trace only after %lu instructions\n", start_cnt);
     }
-#ifdef DYNAREC
-    p = getenv("BOX64_DYNAREC_TRACE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_dynarec_trace = p[0]-'0';
-            if(box64_dynarec_trace)
-                printf_log(LOG_INFO, "Dynarec generated code will also print a trace\n");
-        }
-    }
+}
 #endif
-#endif
-    // Other BOX64 env. var.
-    p = getenv("BOX64_LIBCEF");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_libcef = p[0]-'0';
-        }
-        if(!box64_libcef)
-            printf_log(LOG_INFO, "Dynarec will not detect libcef\n");
-    }
-    p = getenv("BOX64_LOAD_ADDR");
-    if(p) {
-        if(sscanf(p, "0x%zx", &box64_load_addr)!=1)
+
+void handler_load_addr(struct box64_setting* s)
+{
+    const char* p = getenv("BOX64_LOAD_ADDR");
+    if (p) {
+        if (sscanf(p, "0x%zx", &box64_load_addr) != 1)
             box64_load_addr = 0;
-        if(box64_load_addr)
+        if (box64_load_addr)
             printf_log(LOG_INFO, "Use a starting load address of %p\n", (void*)box64_load_addr);
     }
-    p = getenv("BOX64_DLSYM_ERROR");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                dlsym_error = p[0]-'0';
-        }
-    }
-    p = getenv("BOX64_X11THREADS");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_x11threads = p[0]-'0';
-        }
-        if(box64_x11threads)
-            printf_log(LOG_INFO, "Try to Call XInitThreads if libX11 is loaded\n");
-    }
-    p = getenv("BOX64_X11GLX");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_x11glx = p[0]-'0';
-        }
-        if(box64_x11glx)
-            printf_log(LOG_INFO, "Hack to force libX11 GLX extension present\n");
-        else
-            printf_log(LOG_INFO, "Disabled Hack to force libX11 GLX extension present\n");
-    }
-    p = getenv("BOX64_LIBGL");
-    if(p)
+}
+
+void handler_libgl(struct box64_setting* s)
+{
+    const char* p = getenv("BOX64_LIBGL");
+    if (p)
         box64_libGL = box_strdup(p);
-    if(!box64_libGL) {
+    if (!box64_libGL) {
         p = getenv("SDL_VIDEO_GL_DRIVER");
-        if(p)
+        if (p)
             box64_libGL = box_strdup(p);
     }
-    if(box64_libGL) {
+    if (box64_libGL) {
         printf_log(LOG_INFO, "BOX64 using \"%s\" as libGL.so.1\n", p);
     }
-    p = getenv("BOX64_ALLOWMISSINGLIBS");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                allow_missing_libs = p[0]-'0';
+}
+
+struct box64_setting settings[] = {
+    {
+        .varname = "BOX64_NOBANNER",
+        .docstring = "enable/disable the printing of box64 version and build at start",
+        .valptr = &box64_nobanner,
+        .numvals = 2,
+        .prehandler = &prehandler_box64_nobanner,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, NULL },
+    },
+    { .varname = "BOX64_LOG",
+        .docstring = "0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug "
+                     "info (level 3 is level 2 + BOX64_DUMP)",
+        .handler = &handler_log },
+    {
+        .varname = "BOX64_ROLLING_LOG",
+        .docstring = "Show last few wrapped function call when a Signal is caught",
+        .handler = &handler_rolling_log,
+    },
+    { .varname = "BOX64_DUMP",
+        .docstring = "with 0/1 to dump elf infos",
+        .valptr = &box64_dump,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Elf Dump if ON\n" } },
+#ifdef DYNAREC
+    { .varname = "BOX64_DYNAREC_DUMP",
+        .docstring = "Enables/disables Box64's Dynarec's dump.",
+        .valptr = &box64_dynarec_dump,
+        .numvals = 3,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Dynarec blocks are dumped", "Dynarec blocks are dumped in color" } },
+    {
+        .varname = "BOX64_DYNAREC_LOG",
+        .docstring = "with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info",
+        .handler = &handler_dynarec_log,
+    },
+    { .varname = "BOX64_DYNAREC",
+        .docstring = "with 0/1 to disable or enable Dynarec (On by default)",
+        .valptr = &box64_dynarec,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { "Dynarec is off", "Dynarec is on" } },
+    { .varname = "BOX64_DYNAREC_FORCED",
+        .docstring = "FIXME",
+        .valptr = &box64_dynarec_forced,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Dynarec is forced on all addresses" } },
+    { .varname = "BOX64_DYNAREC_BIGBLOCK",
+        .docstring = "Enables/Disables Box64's Dynarec building BigBlock.",
+        .valptr = &box64_dynarec_bigblock,
+        .numvals = 4,
+        .handler = &handler_intopt,
+        .loginfo = { "Dynarec will not try to make big block", "Dynarec will try to make bigger blocks", "Dynarec will try to make bigger blocks even on non-elf memory" } },
+    { .varname = "BOX64_DYNAREC_FORWARD",
+        .docstring = "Define Box64's Dynarec max allowed forward value when building Block.",
+        .handler = &handler_dynarec_forward },
+    { .varname = "BOX64_DYNAREC_STRONGMEM",
+        .docstring = "Enable/Disable simulation of Strong Memory model",
+        .valptr = &box64_dynarec_strongmem,
+        .numvals = 3,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Dynarec will try to emulate a strong memory model", "Dynarec will try to emulate a strong memory model with limited performance loss" } },
+    { .varname = "BOX64_DYNAREC_X87DOUBLE",
+        .docstring = "Force the use of Double for x87 emulation",
+        .valptr = &box64_dynarec_x87double,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Dynarec will use only double for x87 emulation" } },
+    { .varname = "BOX64_DYNAREC_FASTNAN",
+        .docstring = "Enable/Disable generation of -NAN",
+        .valptr = &box64_dynarec_fastnan,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Dynarec will try to normalize generated NAN" } },
+    { .varname = "BOX64_DYNAREC_FASTROUND",
+        .docstring = "Enable/Disable generation of precise x86 rounding",
+        .valptr = &box64_dynarec_fastround,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { "Dynarec will try tp generate x86 precise IEEE->int rounding" } },
+    { .varname = "BOX64_DYNAREC_SAFEFLAGS",
+        .docstring = "Handling of flags on CALL/RET opcodes",
+        .valptr = &box64_dynarec_safeflags,
+        .numvals = 3,
+        .handler = &handler_intopt,
+        .loginfo = { "Dynarec will not play it safe with x64 flags", "Dynarec will play it moderately safe with x64 flags", "Dynarec will play it safe with x64 flags" } },
+    { .varname = "BOX64_DYNAREC_CALLRET",
+        .docstring = "Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc",
+        .valptr = &box64_dynarec_callret,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Dynarec will optimize CALL/RET" } },
+    { .varname = "BOX64_DYNAREC_BLEEDING_EDGE",
+        .docstring = "Detect MonoBleedingEdge and apply conservative settings",
+        .valptr = &box64_dynarec_bleeding_edge,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { "Dynarec will not detect MonoBleedingEdge" } },
+    { .varname = "BOX64_DYNAREC_WAIT",
+        .docstring = "BOX64_DYNAREC_WAIT",
+        .valptr = &box64_dynarec_wait,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { "Dynarec will not wait for FillBlock to ready and use Interpreter instead" } },
+    { .varname = "BOX64_DYNAREC_HOTPAGE",
+        .docstring = "Handling of HotPage (Page being both executed and written)",
+        .handler = &handler_dynarec_hotpage },
+    { .varname = "BOX64_DYNAREC_FASTPAGE",
+        .docstring = "Will use a faster handling of HotPage (Page being both executed and written)",
+        .valptr = &box64_dynarec_fastpage,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Dynarec will use Fast HotPage" } },
+    { .varname = "BOX64_NODYNAREC",
+        .docstring = "with address interval (0x1234-0x4567) to forbid dynablock creation in the interval specified",
+        .handler = &handler_nodynarec },
+    { .varname = "BOX64_DYNAREC_TEST",
+        .docstring = "Dynarec will compare it's execution with the interpreter (super slow, only for testing)",
+        .handler = &handler_dynarec_test },
+#endif
+#ifdef HAVE_TRACE
+    { .varname = "BOX64_TRACE_XMM",
+        .docstring = "to enable dump of SSE registers along with regular registers",
+        .valptr = &trace_xmm,
+        .numvals = 2,
+        .handler = &handler_intopt },
+    { .varname = "BOX64_TRACE_EMM",
+        .docstring = "to enable dump of MMX registers along with regular registers",
+        .valptr = &trace_emm,
+        .numvals = 2,
+        .handler = &handler_intopt },
+    { .varname = "BOX64_TRACE_COLOR",
+        .docstring = "to enable detection of changed general register values",
+        .valptr = &trace_regsdiff,
+        .numvals = 2,
+        .handler = &handler_intopt },
+    { .varname = "BOX64_TRACE_START",
+        .docstring = "to enable trace after N instructions",
+        .handler = &handler_trace_start },
+#ifdef DYNAREC
+    { .varname = "BOX64_DYNAREC_TRACE",
+        .docstring = "to disable or enable Trace on generated code too",
+        .valptr = &box64_dynarec_trace,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Dynarec generated code will also print a trace" } },
+#endif
+#endif
+    { .varname = "BOX64_LIBCEF",
+        .docstring = "Detect libcef and apply malloc_hack settings",
+        .valptr = &box64_libcef,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { "Dynarec will not detect libcef" } },
+    { .varname = "BOX64_LOAD_ADDR",
+        .docstring = "try to load at 0xXXXXXX main binary (if binary is a PIE",
+        .handler = &handler_load_addr },
+    { .varname = "BOX64_DLSYM_ERROR",
+        .docstring = "to log dlsym errors",
+        .valptr = &dlsym_error,
+        .numvals = 2,
+        .handler = &handler_intopt },
+    { .varname = "BOX64_X11THREADS",
+        .docstring = "to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)",
+        .valptr = &box64_x11threads,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Try to Call XInitThreads if libX11 is loaded" } },
+    { .varname = "BOX64_X11GLX",
+        .docstring = "Force libX11's GLX extension to be present.",
+        .valptr = &box64_x11glx,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { "Hack to force libX11 GLX extension present", "Disabled Hack to force libX11 GLX extension present" } },
+    {
+        .varname = "BOX64_LIBGL",
+        .docstring = "set the name (and optionnally full path) for libGL.so.1",
+        .handler = &handler_libgl,
+    },
+    { .varname = "BOX64_ALLOWMISSINGLIBS",
+        .docstring = "to allow one to continue even if a lib is missing (unadvised, will probably  crash later",
+        .valptr = &allow_missing_libs,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Allow missing needed libs" } },
+    { .varname = "BOX64_CRASHHANDLER",
+        .docstring = "to not use a dummy crashhandler lib",
+        .valptr = &box64_dummy_crashhandler,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { "Don't use dummy crashhandler lib" } },
+    { .varname = "BOX64_MALLOC_HACK",
+        .docstring = "How Box64 will handle hooking of malloc operators",
+        .valptr = &box64_malloc_hack,
+        .numvals = 3,
+        .handler = &handler_intopt,
+        .loginfo = { "Malloc hook will not be redirected", "Malloc hook will be redirected", "Malloc hook will check for mmap/free occurrences" } },
+    { .varname = "BOX64_NOPULSE",
+        .docstring = "Disables the load of pulseaudio libraries.",
+        .valptr = &box64_nopulse,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Disable the use of pulseaudio libs" } },
+    { .varname = "BOX64_NOGTK",
+        .docstring = "Disables the loading of wrapped GTK libraries.",
+        .valptr = &box64_nogtk,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Disable the use of wrapped gtk libs" } },
+    { .varname = "BOX64_NOVULKAN",
+        .docstring = "Disables the load of vulkan libraries.",
+        .valptr = &box64_novulkan,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Disable the use of wrapped vulkan libs" } },
+    { .varname = "BOX64_FIX_64BIT_INODES",
+        .docstring = "FIXME",
+        .valptr = &fix_64bit_inodes,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Fix 64bit inodes" } },
+    { .varname = "BOX64_JITGDB",
+        .docstring = "launch \"gdb\" when a segfault is trapped, attached to the offending process",
+        .valptr = &jit_gdb,
+        .numvals = 3,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Launch gdb on segfault", "Launch gdbserver on segfault" } },
+    { .varname = "BOX64_SHOWSEGV",
+        .docstring = "show Segfault signal even if a signal handler is present",
+        .valptr = &box64_showsegv,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Show Segfault signal even if a signal handler is present" } },
+    { .varname = "BOX64_SHOWBT",
+        .docstring = "Show some Backtrace (Native and Emulated) when a signal (SEGV, ILL or BUS) is caught",
+        .valptr = &box64_showbt,
+        .numvals = 2,
+        .handler = &handler_intopt,
+        .loginfo = { NULL, "Show a Backtrace when a Segfault signal is caught" } },
+    {} // end-of-list marker
+};
+
+EXPORTDYN
+void LoadLogEnv()
+{
+    struct box64_setting* cur_setting = settings;
+    while (cur_setting->varname != NULL) {
+        if (cur_setting->prehandler != NULL) {
+            cur_setting->prehandler(cur_setting);
         }
-        if(allow_missing_libs)
-            printf_log(LOG_INFO, "Allow missing needed libs\n");
+        cur_setting->handler(cur_setting);
+        cur_setting++;
     }
-    p = getenv("BOX64_CRASHHANDLER");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_dummy_crashhandler = p[0]-'0';
-        }
-        if(!box64_dummy_crashhandler)
-            printf_log(LOG_INFO, "Don't use dummy crashhandler lib\n");
-    }
-    p = getenv("BOX64_MALLOC_HACK");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+2)
-                box64_malloc_hack = p[0]-'0';
-        }
-        if(!box64_malloc_hack) {
-            if(box64_malloc_hack==1) {
-                printf_log(LOG_INFO, "Malloc hook will not be redirected\n");
-            } else
-                printf_log(LOG_INFO, "Malloc hook will check for mmap/free occurrences\n");
-        }
-    }
-    p = getenv("BOX64_NOPULSE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_nopulse = p[0]-'0';
-        }
-        if(box64_nopulse)
-            printf_log(LOG_INFO, "Disable the use of pulseaudio libs\n");
-    }
-    p = getenv("BOX64_NOGTK");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_nogtk = p[0]-'0';
-        }
-        if(box64_nogtk)
-            printf_log(LOG_INFO, "Disable the use of wrapped gtk libs\n");
-    }
-    p = getenv("BOX64_NOVULKAN");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_novulkan = p[0]-'0';
-        }
-        if(box64_novulkan)
-            printf_log(LOG_INFO, "Disable the use of wrapped vulkan libs\n");
-    }
-    p = getenv("BOX64_FIX_64BIT_INODES");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                fix_64bit_inodes = p[0]-'0';
-        }
-        if(fix_64bit_inodes)
-            printf_log(LOG_INFO, "Fix 64bit inodes\n");
-    }
-    p = getenv("BOX64_JITGDB");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+2)
-                jit_gdb = p[0]-'0';
-        }
-        if(jit_gdb)
-            printf_log(LOG_INFO, "Launch %s on segfault\n", (jit_gdb==2)?"gdbserver":"gdb");
-    }
-    p = getenv("BOX64_SHOWSEGV");
-        if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_showsegv = p[0]-'0';
-        }
-        if(box64_showsegv)
-            printf_log(LOG_INFO, "Show Segfault signal even if a signal handler is present\n");
-    }
-    p = getenv("BOX64_SHOWBT");
-        if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_showbt = p[0]-'0';
-        }
-        if(box64_showbt)
-            printf_log(LOG_INFO, "Show a Backtrace when a Segfault signal is caught\n");
-    }
+
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)
         box64_pagesize = 4096;
@@ -906,48 +936,12 @@ void PrintHelp() {
     printf("    '-v'|'--version' to print box64 version and quit\n");
     printf("    '-h'|'--help'    to print box64 help and quit\n");
     printf("You can also set some environment variables:\n");
-    printf(" BOX64_PATH is the box64 version of PATH (default is '.:bin')\n");
-    printf(" BOX64_LD_LIBRARY_PATH is the box64 version LD_LIBRARY_PATH (default is '.:lib:lib64')\n");
-    printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info (level 3 is level 2 + BOX64_DUMP)\n");
-    printf(" BOX64_DUMP with 0/1 to dump elf infos\n");
-    printf(" BOX64_NOBANNER with 0/1 to enable/disable the printing of box64 version and build at start\n");
-#ifdef DYNAREC
-    printf(" BOX64_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
-    printf(" BOX64_DYNAREC with 0/1 to disable or enable Dynarec (On by default)\n");
-    printf(" BOX64_NODYNAREC with address interval (0x1234-0x4567) to forbid dynablock creation in the interval specified\n");
-#endif
-#ifdef HAVE_TRACE
-    printf(" BOX64_TRACE with 1 to enable x86_64 execution trace\n");
-    printf("    or with XXXXXX-YYYYYY to enable x86_64 execution trace only between address\n");
-    printf("    or with FunctionName to enable x86_64 execution trace only in one specific function\n");
-    printf("  use BOX64_TRACE_INIT instead of BOX_TRACE to start trace before init of Libs and main program\n\t (function name will probably not work then)\n");
-    printf(" BOX64_TRACE_EMM with 1 to enable dump of MMX registers along with regular registers\n");
-    printf(" BOX64_TRACE_XMM with 1 to enable dump of SSE registers along with regular registers\n");
-    printf(" BOX64_TRACE_COLOR with 1 to enable detection of changed general register values\n");
-    printf(" BOX64_TRACE_START with N to enable trace after N instructions\n");
-#ifdef DYNAREC
-    printf(" BOX64_DYNAREC_TRACE with 0/1 to disable or enable Trace on generated code too\n");
-#endif
-#endif
-    printf(" BOX64_TRACE_FILE with FileName to redirect logs in a file (or stderr to use stderr instead of stdout)");
-    printf(" BOX64_DLSYM_ERROR with 1 to log dlsym errors\n");
-    printf(" BOX64_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binary (if binary is a PIE)\n");
-    printf(" BOX64_NOSIGSEGV=1 to disable handling of SigSEGV\n");
-    printf(" BOX64_NOSIGILL=1  to disable handling of SigILL\n");
-    printf(" BOX64_SHOWSEGV=1 to show Segfault signal even if a signal handler is present\n");
-    printf(" BOX64_X11THREADS=1 to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)");
-    printf(" BOX64_LIBGL=libXXXX set the name (and optionnally full path) for libGL.so.1\n");
-    printf(" BOX64_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
-    printf(" BOX64_ALLOWMISSINGLIBS with 1 to allow one to continue even if a lib is missing (unadvised, will probably  crash later)\n");
-    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11\n");
-    printf(" BOX64_PREFER_WRAPPED if box64 will use wrapped libs even if the lib is specified with absolute path\n");
-    printf(" BOX64_CRASHHANDLER=0 to not use a dummy crashhandler lib\n");
-    printf(" BOX64_NOPULSE=1 to disable the loading of pulseaudio libs\n");
-    printf(" BOX64_NOGTK=1 to disable the loading of wrapped gtk libs\n");
-    printf(" BOX64_NOVULKAN=1 to disable the loading of wrapped vulkan libs\n");
-    printf(" BOX64_ENV='XXX=yyyy' will add XXX=yyyy env. var.\n");
-    printf(" BOX64_ENV1='XXX=yyyy' will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist\n");
-    printf(" BOX64_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
+
+    struct box64_setting* cur_setting = settings;
+    while (cur_setting->varname != NULL) {
+        printf("  %-23s %s\n", cur_setting->varname, cur_setting->docstring);
+        cur_setting++;
+    }
 }
 
 void addNewEnvVar(const char* s)
@@ -1296,6 +1290,14 @@ int main(int argc, const char **argv, char **env) {
             PrintHelp();
             exit(0);
         }
+        if(!strcmp(prog, "--help=markdown")) {
+            //PrintMarkdownHelp();
+            exit(0);
+		}
+        if(!strcmp(prog, "--help=nroff")) {
+            //PrintNroffHelp();
+            exit(0);
+		}
         // other options?
         if(!strcmp(prog, "--")) {
             prog = argv[++nextarg];
