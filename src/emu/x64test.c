@@ -105,7 +105,7 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
         BANNER;
         for(int i=0; i<16; ++i) {
             if(ref->xmm[i].q[0]!=emu->xmm[i].q[0] || ref->xmm[i].q[1]!=emu->xmm[i].q[1] ) {
-                printf_log(LOG_NONE, "XMM[%02d]: %016zx-%016zx | %016zx-%016zx\n", i, ref->xmm[i].q[0], ref->xmm[i].q[1], emu->xmm[i].q[0], emu->xmm[i].q[1]);
+                printf_log(LOG_NONE, "XMM[%02d]: %016zx-%016zx | %016zx-%016zx\n", i, ref->xmm[i].q[1], ref->xmm[i].q[0], emu->xmm[i].q[1], emu->xmm[i].q[0]);
             }
         }
     }
