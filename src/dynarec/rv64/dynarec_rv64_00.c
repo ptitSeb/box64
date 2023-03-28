@@ -1664,6 +1664,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 7:
                     INST_NAME("IDIV Eb");
+                    NOTEST(x1);
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1, 0);
@@ -1778,6 +1779,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
+                    NOTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
                     if(!rex.w) {
                         SET_DFNONE()
