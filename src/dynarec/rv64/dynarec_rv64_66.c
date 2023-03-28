@@ -248,6 +248,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(opcode==0x69) i32 = F16S; else i32 = F8S;
             MOV32w(x2, i32);
             MULW(x2, x2, x1);
+            SLLI(x2, x2, 48);
+            SRLI(x2, x2, 48);
             UFLAG_RES(x2);
             gd=x2;
             GWBACK;
