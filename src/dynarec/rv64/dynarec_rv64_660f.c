@@ -128,6 +128,42 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x73:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 3:
+                    INST_NAME("PSRLDQ Ex, Ib");
+                    GETEX(x1, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if(u8>15) {
+                            // just zero dest
+                            SD(xZR, x1, fixedaddress+0);
+                            SD(xZR, x1, fixedaddress+8);
+                        } else {
+                            u8*=8;
+                            if (u8 < 64) {
+                                LD(x3, x1, fixedaddress+0);
+                                LD(x4, x1, fixedaddress+8);
+                                SRLI(x3, x3, u8);
+                                SLLI(x5, x4, 64-u8);
+                                OR(x3, x3, x5);
+                                SD(x3, x1, fixedaddress+0);
+                                SRLI(x4, x4, u8);
+                                SD(x4, x1, fixedaddress+8);
+                            } else {
+                                LD(x3, x1, fixedaddress+8);
+                                if (u8-64 > 0) { SRLI(x3, x3, u8-64); }
+                                SD(x3, x1, fixedaddress+0);
+                                SD(xZR, x1, fixedaddress+8);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x76:
             INST_NAME("PCMPEQD Gx,Ex");
             nextop = F8;
