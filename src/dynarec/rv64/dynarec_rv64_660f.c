@@ -79,7 +79,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
         GOCOND(0x40, "CMOV", "Gw, Ew");
         #undef GO
-
+        case 0x6C:
+            INST_NAME("PUNPCKLQDQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x2, (nextop&7)+(rex.b<<3), 0);
+                FSD(v1, gback, 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                LD(x3, ed, fixedaddress+0);
+                SD(x3, gback, 8);
+            }
+            break;
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
