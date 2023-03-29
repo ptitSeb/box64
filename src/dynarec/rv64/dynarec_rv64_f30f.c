@@ -119,7 +119,13 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD_empty(v0);
             FCVTDS(v0, v1);
             break;
-
+        case 0x5C:
+            INST_NAME("SUBSS Gx, Ex");
+            nextop = F8;
+            GETGXSS(v0);
+            GETEXSS(d0, 0);
+            FSUBS(v0, v0, d0);
+            break;
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");
             nextop = F8;
