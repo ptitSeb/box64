@@ -342,6 +342,18 @@
     SSE_LOOP_D_ITEM(GX1, EX1, F, 2) \
     SSE_LOOP_D_ITEM(GX1, EX1, F, 3) \
 
+#define SSE_LOOP_DS_ITEM(EX1, F, i)     \
+    LWU(EX1, wback, fixedaddress+i*4);  \
+    F;                                  \
+    SW(EX1, wback, fixedaddress+i*4);
+
+// Loop for SSE opcode that use 32bits value and write to EX.
+#define SSE_LOOP_DS(EX1, F)     \
+    SSE_LOOP_DS_ITEM(EX1, F, 0) \
+    SSE_LOOP_DS_ITEM(EX1, F, 1) \
+    SSE_LOOP_DS_ITEM(EX1, F, 2) \
+    SSE_LOOP_DS_ITEM(EX1, F, 3)
+
 #define SSE_LOOP_Q_ITEM(GX1, EX1, F, i) \
     LD(GX1, gback, i*8);                \
     LD(EX1, wback, fixedaddress+i*8);   \
