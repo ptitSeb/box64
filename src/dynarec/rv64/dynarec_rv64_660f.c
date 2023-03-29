@@ -149,7 +149,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             AND(x1, x1, x5);
             OR(gd, gd, x1);
             break;
-
+        case 0xDB:
+            INST_NAME("PAND Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
+            break;
         case 0xEF:
             INST_NAME("PXOR Gx, Ex");
             nextop = F8;
