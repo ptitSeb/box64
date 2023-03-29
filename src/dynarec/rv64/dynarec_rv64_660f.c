@@ -117,8 +117,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if(u8) {
                         if (u8>31) {
                             // just zero dest
-                            SD(xZR, x1, 0);
-                            SD(xZR, x1, 8);
+                            SD(xZR, x1, fixedaddress+0);
+                            SD(xZR, x1, fixedaddress+8);
                         } else if(u8) {
                             SSE_LOOP_DS(x3, SRLI(x3, x3, u8));
                         }
