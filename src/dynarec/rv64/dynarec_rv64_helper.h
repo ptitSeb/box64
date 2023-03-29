@@ -315,7 +315,7 @@
     gback = a;                          \
     ADDI(a, xEmu, offsetof(x64emu_t, xmm[gd]))
 
-// Get Ex address in regenal register a, will purge SS or SD or it's reg and is loaded. May use x3. Use wback as load adress!
+// Get Ex address in general register a, will purge SS or SD if it's reg and is loaded. May use x3. Use wback as load address!
 #define GETEX(a, D)                                                                                     \
     if(MODREG) {                                                                                        \
         ed = (nextop&7)+(rex.b<<3);                                                                     \
@@ -329,16 +329,29 @@
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D);          \
     }
 
+#define SSE_LOOP_D_ITEM(GX1, EX1, F, i) \
+    LWU(GX1, gback, i*4);               \
+    LWU(EX1, wback, fixedaddress+i*4);  \
+    F;                                  \
+    SW(GX1, gback, i*4);
+
+// Loop for SSE opcode that use 32bits value and write to GX.
+#define SSE_LOOP_D(GX1, EX1, F)     \
+    SSE_LOOP_D_ITEM(GX1, EX1, F, 0) \
+    SSE_LOOP_D_ITEM(GX1, EX1, F, 1) \
+    SSE_LOOP_D_ITEM(GX1, EX1, F, 2) \
+    SSE_LOOP_D_ITEM(GX1, EX1, F, 3) \
+
+#define SSE_LOOP_Q_ITEM(GX1, EX1, F, i) \
+    LD(GX1, gback, i*8);                \
+    LD(EX1, wback, fixedaddress+i*8);   \
+    F;                                  \
+    SD(GX1, gback, i*8);
+
 // Loop for SSE opcode that use 64bits value and write to GX.
-#define SSE_LOOP_Q(GX1, EX1, F)         \
-    LD(GX1, gback, 0);                  \
-    LD(EX1, wback, fixedaddress+0);     \
-    F;                                  \
-    SD(GX1, gback, 0);                  \
-    LD(GX1, gback, 8);                  \
-    LD(EX1, wback, fixedaddress+8);     \
-    F;                                  \
-    SD(GX1, gback, 8)
+#define SSE_LOOP_Q(GX1, EX1, F)     \
+    SSE_LOOP_Q_ITEM(GX1, EX1, F, 0) \
+    SSE_LOOP_Q_ITEM(GX1, EX1, F, 1)
 
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
