@@ -171,6 +171,32 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             SSE_LOOP_D(x3, x4, XOR(x3, x3, x4); SNEZ(x3, x3); ADDI(x3, x3, -1));
             break;
+        case 0x7E:
+            INST_NAME("MOVD Ed,Gx");
+            nextop = F8;
+            GETGX(x1);
+            if(rex.w) {
+                if(MODREG) {
+                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    LD(ed, x1, 0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    LD(x3, x1, 0);
+                    SD(x3, ed, fixedaddress);
+                    SMWRITE2();
+                }
+            } else {
+                if(MODREG) {
+                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    LWU(ed, x1, 0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    LWU(x3, x1, 0);
+                    SW(x3, ed, fixedaddress);
+                    SMWRITE2();
+                }
+            }
+            break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING);
