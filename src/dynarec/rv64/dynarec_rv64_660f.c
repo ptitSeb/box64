@@ -79,7 +79,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
         GOCOND(0x40, "CMOV", "Gw, Ew");
         #undef GO
-
+        case 0x6C:
+            INST_NAME("PUNPCKLQDQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x2, (nextop&7)+(rex.b<<3), 0);
+                FSD(v1, gback, 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                LD(x3, ed, fixedaddress+0);
+                SD(x3, gback, 8);
+            }
+            break;
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
@@ -128,12 +140,74 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x73:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 3:
+                    INST_NAME("PSRLDQ Ex, Ib");
+                    GETEX(x1, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if(u8>15) {
+                            // just zero dest
+                            SD(xZR, x1, fixedaddress+0);
+                            SD(xZR, x1, fixedaddress+8);
+                        } else {
+                            u8*=8;
+                            if (u8 < 64) {
+                                LD(x3, x1, fixedaddress+0);
+                                LD(x4, x1, fixedaddress+8);
+                                SRLI(x3, x3, u8);
+                                SLLI(x5, x4, 64-u8);
+                                OR(x3, x3, x5);
+                                SD(x3, x1, fixedaddress+0);
+                                SRLI(x4, x4, u8);
+                                SD(x4, x1, fixedaddress+8);
+                            } else {
+                                LD(x3, x1, fixedaddress+8);
+                                if (u8-64 > 0) { SRLI(x3, x3, u8-64); }
+                                SD(x3, x1, fixedaddress+0);
+                                SD(xZR, x1, fixedaddress+8);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x76:
             INST_NAME("PCMPEQD Gx,Ex");
             nextop = F8;
             GETGX(x1);
             GETEX(x2, 0);
             SSE_LOOP_D(x3, x4, XOR(x3, x3, x4); SNEZ(x3, x3); ADDI(x3, x3, -1));
+            break;
+        case 0x7E:
+            INST_NAME("MOVD Ed,Gx");
+            nextop = F8;
+            GETGX(x1);
+            if(rex.w) {
+                if(MODREG) {
+                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    LD(ed, x1, 0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    LD(x3, x1, 0);
+                    SD(x3, ed, fixedaddress);
+                    SMWRITE2();
+                }
+            } else {
+                if(MODREG) {
+                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    LWU(ed, x1, 0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    LWU(x3, x1, 0);
+                    SW(x3, ed, fixedaddress);
+                    SMWRITE2();
+                }
+            }
             break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
