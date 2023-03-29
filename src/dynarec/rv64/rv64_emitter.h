@@ -396,6 +396,11 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FMINS(frd, frs1, frs2)      EMIT(R_type(0b0010100, frs2, frs1, 0b000, frd, 0b1010011))
 #define FMAXS(frd, frs1, frs2)      EMIT(R_type(0b0010100, frs2, frs1, 0b001, frd, 0b1010011))
 
+// compare
+#define FEQS(rd, frs1, frs2)        EMIT(R_type(0b1010000, frs2, frs1, 0b010, rd, 0b1010011))
+#define FLTS(rd, frs1, frs2)        EMIT(R_type(0b1010000, frs2, frs1, 0b001, rd, 0b1010011))
+#define FLES(rd, frs1, frs2)        EMIT(R_type(0b1010000, frs2, frs1, 0b000, rd, 0b1010011))
+
 // RV64F
 // Convert from signed 64bits to Single
 #define FCVTSL(frd, rs1)             EMIT(R_type(0b1101000, 0b00010, rs1, 0b000, frd, 0b1010011))
@@ -430,6 +435,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FABSD(rd, rs1)              FSGNJXD(rd, rs1, rs1)
 // Convert from signed 32bits to Double
 #define FCVTDW(frd, rs1)             EMIT(R_type(0b1101001, 0b00000, rs1, 0b000, frd, 0b1010011))
+
+#define FEQD(rd, frs1, frs2)        EMIT(R_type(0b1010001, frs2, frs1, 0b010, rd, 0b1010011))
+#define FLTD(rd, frs1, frs2)        EMIT(R_type(0b1010001, frs2, frs1, 0b001, rd, 0b1010011))
+#define FLED(rd, frs1, frs2)        EMIT(R_type(0b1010001, frs2, frs1, 0b000, rd, 0b1010011))
 
 #define FADDD(frd, frs1, frs2)      EMIT(R_type(0b0000001, frs2, frs1, 0b000, frd, 0b1010011))
 #define FSUBD(frd, frs1, frs2)      EMIT(R_type(0b0000101, frs2, frs1, 0b000, frd, 0b1010011))

@@ -44,21 +44,22 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     switch(nextop) {
         case 0xC0 ... 0xC7:
-            DEFAULT;
+        
         case 0xC8 ... 0xCF:
-            DEFAULT;
+
         case 0xD0 ... 0xD7:
-            DEFAULT;
+
         case 0xD8 ... 0xDF:
-            DEFAULT;
+
         case 0xE0 ... 0xE7:
-            DEFAULT;
+
         case 0xE8 ... 0xEF:
-            DEFAULT;
+
         case 0xF0 ... 0xF7:
-            DEFAULT;
+
         case 0xF8 ... 0xFF:
             DEFAULT;
+            break;
 
         default:
             switch((nextop>>3)&7) {
