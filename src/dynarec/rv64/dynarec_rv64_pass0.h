@@ -17,7 +17,7 @@
         dyn->f.dfnone=((B)&SF_SET)?1:0;
 #define EMIT(A)     
 #define JUMP(A, C)         add_next(dyn, (uintptr_t)A); dyn->insts[ninst].x64.jmp = A; dyn->insts[ninst].x64.jmp_cond = C
-#define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3); dyn->insts[ninst].x64.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1
+#define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 1, x1, x2, x3); dyn->insts[ninst].x64.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1
 #define BARRIER_NEXT(A) dyn->insts[ninst+1].x64.barrier = A
 #define NEW_INST \
         ++dyn->size;                            \
@@ -27,11 +27,14 @@
                 dyn->cap *= 2;                  \
         }                                       \
         dyn->insts[ninst].x64.addr = ip;        \
+        dyn->e.combined1 = dyn->e.combined2 = 0;\
+        dyn->e.swapped = 0; dyn->e.barrier = 0; \
         dyn->insts[ninst].f_entry = dyn->f;     \
         if(ninst) {dyn->insts[ninst-1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst-1].x64.addr;}
 
 #define INST_EPILOG                             \
         dyn->insts[ninst].f_exit = dyn->f;      \
+        dyn->insts[ninst].e = dyn->e;           \
         dyn->insts[ninst].x64.has_next = (ok>0)?1:0;
 #define INST_NAME(name) 
 #define DEFAULT                         \
