@@ -913,6 +913,11 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ZEROUP(xRDX);
             }
             break;
+        case 0x9C:
+            INST_NAME("PUSHF");
+            READFLAGS(X_ALL);
+            PUSH1(xFlags);
+            break;
         case 0xA4:
             if(rep) {
                 INST_NAME("REP MOVSB");
