@@ -24,7 +24,7 @@
 
 void print_banner(x64emu_t* ref)
 {
-    printf_log(LOG_NONE, "Warning, difference between Interpreter and Dynarec in %p\n=======================================\n", (void*)ref->test.emu->old_ip);
+    printf_log(LOG_NONE, "Warning, difference between Interpreter and Dynarec in %p\n=======================================\n", (void*)ref->old_ip);
     printf_log(LOG_NONE, "DIFF: Dynarec |  Interpreter\n----------------------\n");
 }
 #define BANNER if(!banner) {banner=1; print_banner(ref);}
@@ -143,5 +143,6 @@ void x64test_init(x64emu_t* ref, uintptr_t ip)
     // Do a Dry single Step
     test->memsize = 0;
     test->test = 1;
+    ref->old_ip = ip;
     RunTest(test);
 }
