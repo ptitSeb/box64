@@ -68,9 +68,9 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SMDMB();
                             if(MODREG) {
                                 ed = xRAX+(nextop&7)+(rex.b<<3);
-                                MOV64xw(x1, ed);
-                                MOV64xw(ed, gd);
-                                MOV64xw(gd, x1);
+                                MVxw(x1, ed);
+                                MVxw(ed, gd);
+                                MVxw(gd, x1);
                                 emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
@@ -80,10 +80,10 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 SCxw(x3, x4, wback, 1, 1);
                                 BNEZ_MARKLOCK(x3);
                                 IFX(X_ALL|X_PEND) {
-                                    MV(x2, x1);
+                                    MVxw(x2, x1);
                                     emit_add32(dyn, ninst, rex, x2, gd, x3, x4, x5);
                                 }
-                                MV(gd, x1);
+                                MVxw(gd, x1);
                             }
                             SMDMB();
                             break;
