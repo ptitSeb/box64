@@ -206,13 +206,12 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
-            GETGX(x3);
+            GETGXSS(d0);
             GETEXSS(v0, 0);
             CLEAR_FLAGS();
-            // if isnan(gd) || isnan(v0)
+            // if isnan(d0) || isnan(v0)
             IFX(X_ZF | X_PF | X_CF) {
-                FLW(gd, x3, 0);
-                FEQS(x3, gd, gd);
+                FEQS(x3, d0, d0);
                 FEQS(x2, v0, v0);
                 AND(x2, x2, x3);
                 XORI(x2, x2, 1);
@@ -221,21 +220,20 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 B_NEXT_nocond;
             }
             MARK;
-            // else if isless(gd, v0)
+            // else if isless(d0, v0)
             IFX(X_CF) {
-                FLTS(x2, gd, v0);
+                FLTS(x2, d0, v0);
                 BEQ_MARK2(x2, xZR);
                 ORI(xFlags, xFlags, 1<<F_CF);
                 B_NEXT_nocond;
             }
             MARK2;
-            // else if gd == v0
+            // else if d0 == v0
             IFX(X_ZF) {
-                FEQS(x2, gd, v0);
-                BEQ_MARK3(x2, xZR);
+                FEQS(x2, d0, v0);
+                CBZ_NEXT(x2);
                 ORI(xFlags, xFlags, 1<<F_ZF);
             }
-            MARK3;
             break;
         case 0x31:
             INST_NAME("RDTSC");
