@@ -54,14 +54,13 @@ int fpu_get_reg_x87(dynarec_rv64_t* dyn, int t, int n)
     dyn->e.news |= (1<<i);
     return EXTREG(i); // return a Dx
 }
-// Free a FPU double reg
+// Free a FPU reg
 void fpu_free_reg(dynarec_rv64_t* dyn, int reg)
 {
     int idx = EXTIDX(reg);
     // TODO: check upper limit?
     dyn->e.fpuused[idx] = 0;
-    if(dyn->e.extcache[idx].t!=EXT_CACHE_ST_F && dyn->e.extcache[idx].t!=EXT_CACHE_ST_D)
-        dyn->e.extcache[idx].v = 0;
+    dyn->e.extcache[idx].v = 0;
 }
 // Get an MMX double reg
 int fpu_get_reg_emm(dynarec_rv64_t* dyn, int emm)
@@ -72,7 +71,7 @@ int fpu_get_reg_emm(dynarec_rv64_t* dyn, int emm)
     dyn->e.news |= (1<<(EMM0 + emm));
     return EXTREG(EMM0 + emm);
 }
-// Get an XMM quad reg
+// Get an XMM reg
 int fpu_get_reg_xmm(dynarec_rv64_t* dyn, int t, int xmm)
 {
     int i = XMM0+xmm;
@@ -316,13 +315,7 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst) {
             if(!cache_i2.extcache[i].v) {    // but there is nothing at i2 for i
                 ret = 1;
             } else if(dyn->insts[ninst].e.extcache[i].v!=cache_i2.extcache[i].v) {  // there is something different
-                if(dyn->insts[ninst].e.extcache[i].n!=cache_i2.extcache[i].n) {   // not the same x64 reg
-                    ret = 1;
-                }
-                else if(dyn->insts[ninst].e.extcache[i].t == EXT_CACHE_SS && cache_i2.extcache[i].t == EXT_CACHE_SD)
-                    {/* nothing */ }
-                else
-                    ret = 1;
+                ret = 1;
             }
         } else if(cache_i2.extcache[i].v)
             ret = 1;
@@ -394,24 +387,24 @@ void extcacheUnwind(extcache_t* cache)
             cache->fpuused[i] = 1;
             switch (cache->extcache[i].t) {
                 case EXT_CACHE_MM:
-                    cache->mmxcache[cache->extcache[i].n] = i;
+                    cache->mmxcache[cache->extcache[i].n] = EXTREG(i);
                     ++cache->mmxcount;
                     ++cache->fpu_reg;
                     break;
                 case EXT_CACHE_SS:
-                    cache->ssecache[cache->extcache[i].n].reg = i;
+                    cache->ssecache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->ssecache[cache->extcache[i].n].single = 1;
                     ++cache->fpu_reg;
                     break;
                 case EXT_CACHE_SD:
-                    cache->ssecache[cache->extcache[i].n].reg = i;
+                    cache->ssecache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->ssecache[cache->extcache[i].n].single = 0;
                     ++cache->fpu_reg;
                     break;
                 case EXT_CACHE_ST_F:
                 case EXT_CACHE_ST_D:
                     cache->x87cache[x87reg] = cache->extcache[i].n;
-                    cache->x87reg[x87reg] = i;
+                    cache->x87reg[x87reg] = EXTREG(i);
                     ++x87reg;
                     ++cache->fpu_reg;
                     break;
