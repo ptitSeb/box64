@@ -147,8 +147,18 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
             ok = 1;
             // we use the 1st predecessor here
             int ii = ninst+1;
-            while(ii<dyn->size && !dyn->insts[ii].pred_sz) 
-                ++ii;
+            if(ii<dyn->size && !dyn->insts[ii].pred_sz) {
+                while(ii<dyn->size && (!dyn->insts[ii].pred_sz || (dyn->insts[ii].pred_sz==1 && dyn->insts[ii].pred[0]==ii-1))) {
+                    // may need to skip opcodes to advance
+                    ++ninst;
+                    NEW_INST;
+                    MESSAGE(LOG_DEBUG, "Skipping unused opcode\n");
+                    INST_NAME("Skipped opcode");
+                    INST_EPILOG;
+                    addr += dyn->insts[ii].x64.size;
+                    ++ii;
+                }
+            }
             if((dyn->insts[ii].x64.barrier&BARRIER_FULL)==BARRIER_FULL)
                 reset_n = -2;    // hack to say Barrier!
             else {
