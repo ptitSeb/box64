@@ -205,6 +205,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define NOT(rd, rs1)                XORI(rd, rs1, -1)
 // rd = -rs1
 #define NEG(rd, rs1)                SUB(rd, xZR, rs1)
+// rd = -rs1
+#define NEGxw(rd, rs1)              SUBxw(rd, xZR, rs1)
 // rd = rs1 == 0
 #define SEQZ(rd, rs1)               SLTIU(rd, rs1, 1)
 // rd = rs1 != 0

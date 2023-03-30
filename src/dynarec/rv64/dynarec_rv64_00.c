@@ -834,7 +834,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SMREADLOCK(lock);
-                LB(x1, ed, fixedaddress);
+                LBU(x1, ed, fixedaddress);
             }
             if(gb2) {
                 MOV64x(x4, ~0xff00);

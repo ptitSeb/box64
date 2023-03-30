@@ -771,7 +771,7 @@ void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         MV(s3, s1);      // s3 = op1
     }
 
-    NEG(s1, s1);
+    NEGxw(s1, s1);
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
