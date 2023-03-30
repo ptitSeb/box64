@@ -801,6 +801,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define x87_purgecache  STEPNAME(x87_purgecache)
 #define sse_purgecache  STEPNAME(sse_purgecache)
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
+#define fpu_unreflectcache STEPNAME(fpu_unreflectcache)
 
 #define CacheTransform       STEPNAME(CacheTransform)
 #define rv64_move64     STEPNAME(rv64_move64)
@@ -991,6 +992,7 @@ void mmx_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1);
 // purge x87 cache
 void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, int s3);
 void fpu_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
+void fpu_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07);
 void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07);
 

@@ -87,6 +87,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
             MESSAGE(LOG_DUMP, "TEST INIT ----\n");
             fpu_reflectcache(dyn, ninst, x1, x2, x3);
             GO_TRACE(x64test_init, 1);
+            fpu_unreflectcache(dyn, ninst, x1, x2, x3);
             MESSAGE(LOG_DUMP, "----------\n");
         }
 #ifdef HAVE_TRACE
@@ -96,6 +97,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);
                 GO_TRACE(PrintTrace, 1);
+                fpu_unreflectcache(dyn, ninst, x1, x2, x3);
                 MESSAGE(LOG_DUMP, "----------\n");
             }
         }
