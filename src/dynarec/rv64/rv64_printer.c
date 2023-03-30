@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "rv64_printer.h"
 #include "debug.h"
@@ -416,14 +417,15 @@ static inline insn_t insn_ciwtype_read(uint16_t data)
 #define PRINT_rd_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rd), insn.imm, gpnames[insn.rs1]); return buff
 #define PRINT_rs2_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rs2), insn.imm, gpnames[insn.rs1]); return buff
 #define PRINT_rd_imm() snprintf(buff, sizeof(buff), "%s\t%s, %d", insn.name, RN(rd), insn.imm); return buff
-#define PRINT_rd_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, pc%+d # 0x%llx", insn.name, RN(rd), insn.imm, insn.imm+(uint64_t)addr); return buff
-#define PRINT_imm_rel() snprintf(buff, sizeof(buff), "%s\tpc%+d # 0x%llx", insn.name, insn.imm, insn.imm+(uint64_t)addr); return buff
+#define PRINT_rd_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, pc%+d # 0x%"PRIx64, insn.name, RN(rd), insn.imm, insn.imm+(uint64_t)addr); return buff
+#define PRINT_imm_rel() snprintf(buff, sizeof(buff), "%s\tpc%+d # 0x%"PRIx64, insn.name, insn.imm, insn.imm+(uint64_t)addr); return buff
 #define PRINT_rd_immx() snprintf(buff, sizeof(buff), "%s\t%s, 0x%x", insn.name, RN(rd), insn.imm); return buff
 #define PRINT_rs1_rs2_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %d", insn.name, RN(rs1), RN(rs2), insn.imm); return buff
-#define PRINT_rs1_rs2_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, %s, pc%+d # 0x%llx", insn.name, RN(rs1), RN(rs2), insn.imm, insn.imm+(uint64_t)addr); return buff
+#define PRINT_rs1_rs2_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, %s, pc%+d # 0x%"PRIx64, insn.name, RN(rs1), RN(rs2), insn.imm, insn.imm+(uint64_t)addr); return buff
 #define PRINT_fd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_xd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, gpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_fd_xs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], gpnames[insn.rs1]); return buff
+#define PRINT_rd_fs1_fs2() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s", insn.name, gpnames[insn.rd], RN(rs1), RN(rs2)); return buff
 #define PRINT_rd_rs1_aqrl() snprintf(buff, sizeof(buff), "%s%s%s\t%s, (%s)", insn.name, aq?".aq":"", rl?".rl":"", gpnames[insn.rd], gpnames[insn.rs1]); return buff
 #define PRINT_rd_rs1_rs2_aqrl() snprintf(buff, sizeof(buff), "%s%s%s\t%s, %s, (%s)", insn.name, aq?".aq":"", rl?".rl":"", gpnames[insn.rd], gpnames[insn.rs1], gpnames[insn.rs2]); return buff
 
@@ -1221,7 +1223,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     insn.name = "feq.s";
                     break;
                 }
-                PRINT_rd_rs1_rs2();
+                PRINT_rd_fs1_fs2();
             }
             case 0x51: {
                 uint32_t funct3 = FUNCT3(data);
