@@ -205,6 +205,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create)
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, 1);
     if(db && db->done && db->block && db->need_test) {
         if(AreaInHotPage((uintptr_t)db->x64_addr, (uintptr_t)db->x64_addr + db->x64_size - 1)) {
+            emu->test.test = 0;
             if(box64_dynarec_fastpage) {
                 uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
                 if(hash==db->hash)  // seems ok, run it without reprotecting it
@@ -240,6 +241,8 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create)
         }
         mutex_unlock(&my_context->mutex_dyndump);
     } 
+    if(!db || !db->block || !db->done)
+        emu->test.test = 0;
     return db;
 }
 
@@ -249,8 +252,10 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr)
     int create = 1;
     dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, 1);
     if(db && db->done && db->block && db->need_test) {
-        if(mutex_trylock(&my_context->mutex_dyndump))
+        if(mutex_trylock(&my_context->mutex_dyndump)) {
+            emu->test.test = 0;
             return NULL;
+        }
         uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
         if(hash!=db->hash) {
             db->done = 0;   // invalidating the block
@@ -267,5 +272,7 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr)
         }
         mutex_unlock(&my_context->mutex_dyndump);
     } 
+    if(!db || !db->block || !db->done)
+        emu->test.test = 0;
     return db;
 }
