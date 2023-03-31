@@ -401,6 +401,12 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMDMB();
             } else {
                 switch((nextop>>3)&7) {
+                    case 3:
+                        INST_NAME("STMXCSR Md");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        LWU(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                        SW(x4, wback, fixedaddress);
+                        break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization?\n");
