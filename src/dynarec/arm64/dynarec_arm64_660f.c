@@ -682,9 +682,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VFRINTISQ(q0, q1);
                         x87_restoreround(dyn, ninst, u8);
                     } else {
-                        const uint8_t rounds[] = {0, 2, 1, 3};
-                        MAYUSE(rounds);
-                        VFRINTRSQ(q0, q1, rounds[u8&3]);
+                        VFRINTRSQ(q0, q1, u8&3);
                     }
                     break;
                 case 0x09:
@@ -699,9 +697,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VFRINTIDQ(q0, q1);
                         x87_restoreround(dyn, ninst, u8);
                     } else {
-                        const uint8_t rounds[] = {0, 2, 1, 3};
-                        MAYUSE(rounds);
-                        VFRINTRDQ(q0, q1, rounds[u8&3]);
+                        VFRINTRDQ(q0, q1, u8&3);
                     }
                     break;
                 case 0x0A:
@@ -716,9 +712,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         FRINTXS(v1, q1);
                         x87_restoreround(dyn, ninst, u8);
                     } else {
-                        const uint8_t rounds[] = {0, 2, 1, 3};
-                        MAYUSE(rounds);
-                        FRINTRRS(v1, q1, rounds[u8&3]);
+                        FRINTRRS(v1, q1, u8&3);
                     }
                     VMOVeS(q0, 0, v1, 0);
                     break;
@@ -734,9 +728,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         FRINTXD(v1, q1);
                         x87_restoreround(dyn, ninst, u8);
                     } else {
-                        const uint8_t rounds[] = {0, 2, 1, 3};
-                        MAYUSE(rounds);
-                        FRINTRRD(v1, q1, rounds[u8&3]);
+                        FRINTRRD(v1, q1, u8&3);
                     }
                     VMOVeD(q0, 0, v1, 0);
                     break;
