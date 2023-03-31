@@ -25,10 +25,9 @@
 #include "gen.h"
 #include "utils.h"
 
-using namespace clang;
-using namespace clang::tooling;
-
-static void ParseParameter(ASTContext* AST, WrapperGenerator* Gen, ParmVarDecl* Decl, FuncInfo* Func) {
+static void ParseParameter(clang::ASTContext* AST, WrapperGenerator* Gen, clang::ParmVarDecl* Decl, FuncInfo* Func) {
+    using namespace clang;
+    (void)AST; (void)Func;
     auto ParmType = Decl->getType();
     if (ParmType->isPointerType()) {
         auto PointeeType = ParmType->getPointeeType();
@@ -40,7 +39,7 @@ static void ParseParameter(ASTContext* AST, WrapperGenerator* Gen, ParmVarDecl* 
                 }
                 Record->type = StripTypedef(PointeeType);
                 Record->decl = PointeeType->getAs<RecordType>()->getDecl();
-                Record->type_name = Record->decl->getIdentifier()->getName().str();
+                Record->type_name = Record->decl->getIdentifier() ? Record->decl->getIdentifier()->getName().str() : "<null identifier>";
             }
         } else if (PointeeType->isPointerType()) {
             PointeeType = PointeeType->getPointeeType();
@@ -53,7 +52,7 @@ static void ParseParameter(ASTContext* AST, WrapperGenerator* Gen, ParmVarDecl* 
                     
                     Record->type = StripTypedef(PointeeType);
                     Record->decl = PointeeType->getAs<RecordType>()->getDecl();
-                    Record->type_name = Record->decl->getIdentifier()->getName().str();
+                    Record->type_name = Record->decl->getIdentifier() ? Record->decl->getIdentifier()->getName().str() : "<null identifier>";
                 }
             }
         }
@@ -65,25 +64,26 @@ static void ParseParameter(ASTContext* AST, WrapperGenerator* Gen, ParmVarDecl* 
             }
             Record->type = StripTypedef(ParmType);
             Record->decl = ParmType->getAs<RecordType>()->getDecl();
-            Record->type_name = Record->decl->getIdentifier()->getName().str();
+            Record->type_name = Record->decl->getIdentifier() ? Record->decl->getIdentifier()->getName().str() : "<null identifier>";
         }
     }
 }
 
-static void ParseFunction(ASTContext* AST, WrapperGenerator* Gen, FunctionDecl* Decl) {
+static void ParseFunction(clang::ASTContext* AST, WrapperGenerator* Gen, clang::FunctionDecl* Decl) {
+    using namespace clang;
     auto Type = Decl->getType().getTypePtr();
     auto FuncInfo = &Gen->funcs[Type];
     FuncInfo->type = Type;
     FuncInfo->func_name = Decl->getNameAsString();
     FuncInfo->decl = Decl;
     FuncInfo->callback_args.resize(Decl->getNumParams());
-    if (Decl->getAttr<clang::WeakRefAttr>()) {
+    if (Decl->getAttr<WeakRefAttr>()) {
         FuncInfo->is_weak = true;
     }
     if (Decl->isVariadic()) {
         FuncInfo->is_variadaic = true;
     }
-    for (int i = 0; i < Decl->getNumParams(); i++) {
+    for (unsigned i = 0; i < Decl->getNumParams(); i++) {
         auto ParmDecl = Decl->getParamDecl(i);
         if (ParmDecl->getType()->isFunctionPointerType()) {
             FuncInfo->callback_args[i] = ParmDecl->getType().getTypePtr();
@@ -97,21 +97,21 @@ static void ParseFunction(ASTContext* AST, WrapperGenerator* Gen, FunctionDecl* 
 
 class MyASTVisitor : public clang::RecursiveASTVisitor<MyASTVisitor> {
 public:
-    MyASTVisitor(ASTContext* ctx) : Ctx(ctx) {}
-    MyASTVisitor(ASTContext* ctx, WrapperGenerator* gen) : Ctx(ctx), Gen(gen) {}
+    MyASTVisitor(clang::ASTContext* ctx) : Ctx(ctx) {}
+    MyASTVisitor(clang::ASTContext* ctx, WrapperGenerator* gen) : Ctx(ctx), Gen(gen) {}
 
-    bool VisitFunctionDecl(FunctionDecl* Decl) {
+    bool VisitFunctionDecl(clang::FunctionDecl* Decl) {
         ParseFunction(Ctx, Gen, Decl);
         return true;
     }
 private:
-    ASTContext* Ctx;
+    clang::ASTContext* Ctx;
     WrapperGenerator* Gen;
 };
 
 class MyASTConsumer : public clang::ASTConsumer {
 public:
-    MyASTConsumer(ASTContext* Context, const std::string& libname, const std::string& host_triple, const std::string& guest_triple)
+    MyASTConsumer(clang::ASTContext* Context, const std::string& libname, const std::string& host_triple, const std::string& guest_triple)
         : Visitor(Context, &Generator) {
         Generator.Init(libname, host_triple, guest_triple);
     }
@@ -120,16 +120,35 @@ public:
         std::cout << "--------------- Libclangtooling parse complete -----------------\n";
         Generator.Prepare(&Ctx);
         std::cout << "--------------- Generator prepare complete -----------------\n";
-        std::ofstream FuncDeclFile(Generator.libname + "_private.h", std::ios::out);
-        FuncDeclFile << Generator.GenFuncDeclare(&Ctx) << std::endl;
+        std::ofstream FuncDeclFile("wrapped" + Generator.libname + "_private.h", std::ios::out);
+        FuncDeclFile << Generator.GenFuncDeclare(&Ctx);
         FuncDeclFile.close();
-        std::ofstream FuncDefinelFile("wrapped" + Generator.libname + ".c", std::ios::out);
-        FuncDefinelFile << Generator.GenCallbackTypeDefs(&Ctx) << std::endl;
-        FuncDefinelFile << Generator.GenRecordDeclare(&Ctx) << std::endl;
-        FuncDefinelFile << Generator.GenRecordConvert(&Ctx) << std::endl;
-        FuncDefinelFile << Generator.GenCallbackWrap(&Ctx) << std::endl;
-        FuncDefinelFile << Generator.GenFuncDefine(&Ctx) << std::endl;
-        FuncDefinelFile.close();
+        std::ofstream FuncDefineFile("wrapped" + Generator.libname + ".c", std::ios::out);
+        FuncDefineFile << "#include <stdio.h>\n"
+                          "#include <stdlib.h>\n"
+                          "#include <string.h>\n"
+                          "#define _GNU_SOURCE         /* See feature_test_macros(7) */\n"
+                          "#include <dlfcn.h>\n"
+                          "\n"
+                          "#include \"wrappedlibs.h\"\n"
+                          "\n"
+                          "#include \"debug.h\"\n"
+                          "#include \"wrapper.h\"\n"
+                          "#include \"bridge.h\"\n"
+                          "#include \"x64emu.h\"\n"
+                          "#include \"box64context.h\"\n"
+                          "\n"
+                          "const char* " + Generator.libname + "Name = \"" + Generator.libname + "\";\n"
+                          "#define LIBNAME " + Generator.libname + "\n"
+                          "\n"
+                          "#define ADDED_FUNCTIONS()           \\\n"
+                          "\n"
+                          "#include \"generated/wrapped" + Generator.libname + "types.h\"\n";
+        FuncDefineFile << Generator.GenRecordDeclare(&Ctx);
+        FuncDefineFile << Generator.GenRecordConvert(&Ctx);
+        FuncDefineFile << Generator.GenCallbackWrap(&Ctx);
+        FuncDefineFile << Generator.GenFuncDefine(&Ctx);
+        FuncDefineFile.close();
         std::cout << "--------------- Generator gen complete -----------------\n";
     }
 private:
@@ -142,6 +161,7 @@ public:
     MyGenAction(const std::string& libname, const std::string& host_triple, const std::string& guest_triple) :
         libname(libname), host_triple(host_triple), guest_triple(guest_triple)  {}
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& Compiler, clang::StringRef file) override {
+        (void)file;
         return std::make_unique<MyASTConsumer>(&Compiler.getASTContext(), libname, host_triple, guest_triple);
     }
 private:
