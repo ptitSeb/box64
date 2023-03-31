@@ -126,6 +126,21 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSS(d0, 0);
             FSUBS(v0, v0, d0);
             break;
+        case 0x5D:
+            INST_NAME("MINSS Gx, Ex");
+            nextop = F8;
+            GETGXSS(d0);
+            GETEXSS(d1, 0);
+            FEQS(x2, d0, d0);
+            FEQS(x3, d1, d1);
+            AND(x2, x2, x3);
+            BEQ_MARK(x2, xZR);
+            FLTS(x2, d1, d0);
+            BEQ_MARK2(x2, xZR);
+            MARK;
+            FMVS(d0, d1);
+            MARK2;
+            break;
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
             nextop = F8;
