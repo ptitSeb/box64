@@ -401,6 +401,20 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMDMB();
             } else {
                 switch((nextop>>3)&7) {
+                    case 2:                 
+                        INST_NAME("LDMXCSR Md");
+                        GETED(0);
+                        SW(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        if(box64_sse_flushto0) {
+                            // TODO: applyFlushTo0 also needs to add RISC-V support.
+                        }
+                        break;
+                    case 3:
+                        INST_NAME("STMXCSR Md");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        LWU(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                        SW(x4, wback, fixedaddress);
+                        break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization?\n");
