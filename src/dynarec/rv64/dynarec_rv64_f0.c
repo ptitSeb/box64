@@ -61,6 +61,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 0xC1:
                     switch(rep) {
                         case 0:
+                            // TODO: Take care of unligned memory access.
+                            // https://github.com/ptitSeb/box64/pull/604
                             INST_NAME("LOCK XADD Gd, Ed");
                             SETFLAGS(X_ALL, SF_SET_PENDING);
                             nextop = F8;
