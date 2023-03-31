@@ -86,6 +86,41 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(x2);
             SSE_LOOP_MV_Q(x3);
             break;
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGXSD(d0);
+            GETEXSD(v0, 0);
+            CLEAR_FLAGS();
+            // if isnan(d0) || isnan(v0)
+            IFX(X_ZF | X_PF | X_CF) {
+                FEQD(x3, d0, d0);
+                FEQD(x2, v0, v0);
+                AND(x2, x2, x3);
+                XORI(x2, x2, 1);
+                BEQ_MARK(x2, xZR);
+                ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
+                B_NEXT_nocond;
+            }
+            MARK;
+            // else if isless(d0, v0)
+            IFX(X_CF) {
+                FLTD(x2, d0, v0);
+                BEQ_MARK2(x2, xZR);
+                ORI(xFlags, xFlags, 1<<F_CF);
+                B_NEXT_nocond;
+            }
+            MARK2;
+            // else if d0 == v0
+            IFX(X_ZF) {
+                FEQD(x2, d0, v0);
+                CBZ_NEXT(x2);
+                ORI(xFlags, xFlags, 1<<F_ZF);
+            }
+            break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
             nextop = F8;
