@@ -1752,7 +1752,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             NOTEST(x1);
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
-                BARRIER(BARRIER_FLOAT);
+                //BARRIER(BARRIER_FLOAT);
                 INST_NAME("Special Box64 instruction");
                 if((PK64(0)==0))
                 {
@@ -2207,7 +2207,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch(tmp) {
                 case 3:
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                    BARRIER(BARRIER_FULL);
                     //BARRIER_NEXT(BARRIER_FULL);
                     if(dyn->last_ip && (addr-dyn->last_ip<0x1000)) {
                         ADDx_U12(x2, xRIP, addr-dyn->last_ip);
