@@ -60,7 +60,8 @@ void fpu_free_reg(dynarec_rv64_t* dyn, int reg)
     int idx = EXTIDX(reg);
     // TODO: check upper limit?
     dyn->e.fpuused[idx] = 0;
-    dyn->e.extcache[idx].v = 0;
+    if(dyn->e.extcache[reg].t!=EXT_CACHE_ST_F && dyn->e.extcache[reg].t!=EXT_CACHE_ST_D)
+        dyn->e.extcache[idx].v = 0;
 }
 // Get an MMX double reg
 int fpu_get_reg_emm(dynarec_rv64_t* dyn, int emm)

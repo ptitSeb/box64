@@ -603,13 +603,6 @@ int x87_do_push(dynarec_rv64_t* dyn, int ninst, int s1, int t)
         else if(ret==-1) {
             dyn->e.x87cache[i] = 0;
             ret=dyn->e.x87reg[i]=fpu_get_reg_x87(dyn, t, 0);
-            #if STEP == 1
-            // need to check if reg is compatible with float
-            if((ret>15) && (t == EXT_CACHE_ST_F))
-                dyn->e.extcache[ret].t = EXT_CACHE_ST_D;
-            #else
-            dyn->e.extcache[ret].t = X87_ST0;
-            #endif
         }
     return ret;
 }
@@ -776,7 +769,11 @@ static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int
             ANDI(s3, s3, 7);   // (emu->top + i)&7
             SLLI(s1, s3, 3);
             ADD(s1, xEmu, s1);
-            FSD(dyn->e.x87reg[i], s1, offsetof(x64emu_t, x87));
+            if(extcache_get_st_f(dyn, ninst, dyn->e.x87cache[i])>=0) {
+                FCVTDS(SCRATCH0, dyn->e.x87reg[i]);
+                FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));
+            } else
+                FSD(dyn->e.x87reg[i], s1, offsetof(x64emu_t, x87));
         }
 }
 
@@ -1732,7 +1729,7 @@ void fpu_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 void fpu_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // need to undo the top and stack tracking that must not be reflected permenatly yet
-    x87_reflectcache(dyn, ninst, s1, s2, s3);
+    x87_unreflectcache(dyn, ninst, s1, s2, s3);
 }
 
 void fpu_reset(dynarec_rv64_t* dyn)
