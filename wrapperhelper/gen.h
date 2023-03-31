@@ -35,8 +35,8 @@ struct RecordInfo {
     bool is_union;
     bool is_special;
 
-    int guest_size;
-    int host_size;
+    uint64_t guest_size;
+    uint64_t host_size;
     std::vector<const clang::Type*> callback_fields;
 };
 
@@ -98,7 +98,8 @@ struct WrapperGenerator {
     }
     
     std::string GenRecordConvert(clang::ASTContext* Ctx) {
-        std::string res{};
+        (void)Ctx;
+        std::string res;
         for (const auto& record : records) {
             if (record.second.host_size != record.second.guest_size) {
                 res += GenRecordConvert(record.second);
@@ -127,16 +128,16 @@ private:
     std::string GenDeclare(clang::ASTContext* Ctx, const RecordInfo& Struct);
     std::string GenCallbackWrap(clang::ASTContext* Ctx, const RecordInfo& Struct);
 
-    void ParseRecordRecursive(clang::ASTContext* Ctx, const clang::Type* ReocrdType, bool& Special, std::set<const clang::Type*>& Visited);
-    std::string TypeStrify(const clang::Type* Type, clang::FieldDecl* FieldDecl, clang::ParmVarDecl* ParmDecl, std::string Name = "");
-    std::string SimpleTypeStrify(const clang::Type* Type, clang::FieldDecl* FieldDecl, clang::ParmVarDecl* ParmDecl, std::string Name = "");
-    std::string AnonRecordDecl(const clang::RecordType* Type);
-    std::string SimpleAnonRecordDecl(const clang::RecordType* Type);
+    void ParseRecordRecursive(clang::ASTContext* Ctx, const clang::Type* Type, bool& Special, std::set<const clang::Type*>& Visited);
+    std::string TypeStringify(const clang::Type* Type, clang::FieldDecl* FieldDecl, clang::ParmVarDecl* ParmDecl, std::string indent = "", std::string Name = "");
+    std::string SimpleTypeStringify(const clang::Type* Type, clang::FieldDecl* FieldDecl, clang::ParmVarDecl* ParmDecl, std::string indent = "", std::string Name = "");
+    std::string AnonRecordDecl(const clang::RecordType* Type, std::string indent);
+    std::string SimpleAnonRecordDecl(const clang::RecordType* Type, std::string indent);
     FuncDefinition GetFuncDefinition(const clang::Type* Type);
     FuncDefinition GetFuncDefinition(clang::FunctionDecl* Decl);
-    int GetRecordSize(const clang::Type* Type, const std::string& Triple);
-    std::vector<int> GetRecordFieldOffDiff(const clang::Type* Type, const std::string& GuestTriple, const std::string& HostTriple, std::vector<int>& GuestFieldOff, std::vector<int>& HostFieldOff);
-    int GetRecordAlign(const clang::Type* Type, const std::string& Triple);
+    uint64_t GetRecordSize(const clang::Type* Type, const std::string& Triple);
+    std::vector<uint64_t> GetRecordFieldOffDiff(const clang::Type* Type, const std::string& GuestTriple, const std::string& HostTriple, std::vector<uint64_t>& GuestFieldOff, std::vector<uint64_t>& HostFieldOff);
+    clang::CharUnits::QuantityType GetRecordAlign(const clang::Type* Type, const std::string& Triple);
 
     std::string GetFuncSig(clang::ASTContext* CTX, const FuncInfo& Decl);
     std::string GetFuncSig(clang::ASTContext* CTX, const clang::Type* Type);

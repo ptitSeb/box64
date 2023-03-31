@@ -5,47 +5,162 @@
 #include <clang/AST/Type.h>
 #include <clang/Basic/LLVM.h>
 
+using namespace clang;
+using namespace clang::tooling;
+
+static std::vector<uint64_t> GetRecordFieldOff(const std::string& Code, const std::string& Triple) {
+    std::vector<uint64_t> FieldOff;
+    std::vector<std::string> Args = {"-target", Triple};
+    std::unique_ptr<clang::ASTUnit> AST = clang::tooling::buildASTFromCodeWithArgs(Code, Args);
+    auto& Ctx = AST->getASTContext();
+    auto TranslateDecl = Ctx.getTranslationUnitDecl();
+    for (const auto& Decl : TranslateDecl->decls()) {
+        if (const auto RecordDecl = clang::dyn_cast<clang::RecordDecl>(Decl)) {
+            auto& RecordLayout = Ctx.getASTRecordLayout(RecordDecl);
+            for (unsigned i = 0; i < RecordLayout.getFieldCount(); i++) {
+                FieldOff.push_back(RecordLayout.getFieldOffset(i) / 8);
+            }
+            break;
+        }
+    }
+    return FieldOff;
+}
+
+static uint64_t GetRecordSize(const std::string& Code, const std::string& Triple) {
+    std::vector<std::string> Args = {"-target", Triple};
+    std::unique_ptr<ASTUnit> AST = buildASTFromCodeWithArgs(Code, Args);
+    auto& Ctx = AST->getASTContext();
+    auto TranslateDecl = Ctx.getTranslationUnitDecl();
+    for (const auto& Decl : TranslateDecl->decls()) {
+        if (const auto recordDecl = dyn_cast<RecordDecl>(Decl)) {
+            return Ctx.getTypeSize(recordDecl->getTypeForDecl()) / 8;
+        }
+    }
+    return 0;
+}
+
+static CharUnits::QuantityType GetRecordAlign(const std::string& Code, const std::string& Triple) {
+    std::vector<std::string> Args = {"-target", Triple};
+    std::unique_ptr<ASTUnit> AST = buildASTFromCodeWithArgs(Code, Args);
+    auto& Ctx = AST->getASTContext();
+    auto TranslateDecl = Ctx.getTranslationUnitDecl();
+    for (const auto& Decl : TranslateDecl->decls()) {
+        if (const auto recordDecl = dyn_cast<RecordDecl>(Decl)) {
+            auto& RecordLayout = Ctx.getASTRecordLayout(recordDecl);
+            for (unsigned i = 0; i < RecordLayout.getFieldCount(); i++) {
+                return RecordLayout.getAlignment().getQuantity() / 8;
+            }
+            break;
+        }
+    }
+    return 0;
+}
+
+static uint64_t GetTypeSize(const Type* Type, const std::string& Triple) {
+    std::string Code = Type->getCanonicalTypeInternal().getAsString() + " dummy;";
+    std::vector<std::string> Args = {"-target", Triple};
+    std::unique_ptr<ASTUnit> AST = buildASTFromCodeWithArgs(Code, Args);
+    auto& Ctx = AST->getASTContext();
+    auto TranslateDecl = Ctx.getTranslationUnitDecl();
+    for (const auto& Decl : TranslateDecl->decls()) {
+        if (const auto varDecl = dyn_cast<VarDecl>(Decl)) {
+            return Ctx.getTypeSize(varDecl->getType()) / 8;
+        }
+    }
+    return 0;
+}
+
+static std::string TypeToSig(ASTContext* Ctx, const Type* Type) {
+    if (Type->isPointerType()) {
+        return "p";
+    } else if (Type->isVoidType()) {
+        return "v";
+    } else if (Type->isUnsignedIntegerOrEnumerationType()) {
+        switch(Ctx->getTypeSizeInChars(Type).getQuantity()) {
+            case 1:
+                return "C";
+            case 2:
+                return  "W";
+            case 4:
+                return "u";
+            case 8:
+                return "U";
+            default:
+                std::cout << "Unsupported UnsignedInteger Type: " << Type->getCanonicalTypeInternal().getAsString() << std::endl;
+        }
+    } else if (Type->isSignedIntegerOrEnumerationType()) {
+        switch(Ctx->getTypeSizeInChars(Type).getQuantity()) {
+            case 1:
+                return "c";
+            case 2:
+                return  "w";
+            case 4:
+                return "i";
+            case 8:
+                return "I";
+            default:
+                std::cout << "Unsupported SignedInteger Type: " << Type->getCanonicalTypeInternal().getAsString() << std::endl;
+        }
+    } else if (Type->isCharType()) {
+        return "c";
+    } else if (Type->isFloatingType()) {
+        switch(Ctx->getTypeSizeInChars(Type).getQuantity()) {
+            case 4:
+                return "f";
+            case 8:
+                return "d";
+            case 16:
+                return "D";
+            default:
+                std::cout << "Unsupported Floating Type: " << Type->getCanonicalTypeInternal().getAsString()
+                          << " (quantity = " << Ctx->getTypeSizeInChars(Type).getQuantity() << ")" << std::endl;
+        }
+    } else {
+        std::cout << "Unsupported Type: " << Type->getCanonicalTypeInternal().getAsString() << std::endl;
+    }
+    return "?";
+}
+
 // Prepare for generation, collect the structures and functions that need to be prcessed
-void WrapperGenerator::Prepare(clang::ASTContext *Ctx) {
+void WrapperGenerator::Prepare(ASTContext *Ctx) {
   for (const auto &func_pair : funcs) {
     for (auto Type : func_pair.second.callback_args) {
       if (Type && Type->isTypedefNameType()) {
         callbacks[StripTypedef(Type->getPointeeType())] =
-            Type->getAs<clang::TypedefType>()->getDecl()->getNameAsString();
+            Type->getAs<TypedefType>()->getDecl()->getNameAsString();
       } else if (Type) {
         callbacks[StripTypedef(Type->getPointeeType())] =
             GetFuncSig(Ctx, Type->getPointeeType().getTypePtr()) + "_t";
       }
     }
   }
-  std::vector<const clang::Type *> Types;
+  std::vector<const Type *> Types;
   for (const auto &record_pair : records) {
-    auto Record = &record_pair.second;
     Types.push_back(record_pair.first);
   }
-  for (auto Type : Types) {
-    std::set<const clang::Type *> Visited{Type};
+  for (auto type : Types) {
+    std::set<const Type*> Visited{type};
     bool Special = false;
-    ParseRecordRecursive(Ctx, Type, Special, Visited);
+    ParseRecordRecursive(Ctx, type, Special, Visited);
   }
   for (auto it = records.begin(); it != records.end();) {
     if (!it->second.is_special) {
       it = records.erase(it);
     } else {
-      for (auto Type : it->second.callback_fields) {
-        if (Type->isTypedefNameType()) {
-          callbacks[StripTypedef(Type->getPointeeType())] =
-              Type->getAs<clang::TypedefType>()->getDecl()->getNameAsString();
+      for (auto field : it->second.callback_fields) {
+        if (field->isTypedefNameType()) {
+          callbacks[StripTypedef(field->getPointeeType())] =
+              field->getAs<TypedefType>()->getDecl()->getNameAsString();
         } else {
-          callbacks[StripTypedef(Type->getPointeeType())] =
-              GetFuncSig(Ctx, Type->getPointeeType().getTypePtr()) + "_t";
+          callbacks[StripTypedef(field->getPointeeType())] =
+              GetFuncSig(Ctx, field->getPointeeType().getTypePtr()) + "_t";
         }
       }
       ++it;
     }
   }
   for (auto &func_pair : funcs) {
-    for (int i = 0; i < func_pair.second.decl->getNumParams(); i++) {
+    for (unsigned i = 0; i < func_pair.second.decl->getNumParams(); i++) {
       auto ParamDecl = func_pair.second.decl->getParamDecl(i);
       auto ParamType = ParamDecl->getType();
       if (ParamType->isPointerType() &&
@@ -77,33 +192,28 @@ void WrapperGenerator::Prepare(clang::ASTContext *Ctx) {
 }
 
 // Gen callback typedef
-std::string WrapperGenerator::GenCallbackTypeDefs(clang::ASTContext *Ctx) {
-  std::string res{};
+std::string WrapperGenerator::GenCallbackTypeDefs(ASTContext *Ctx) {
+  (void)Ctx;
+  std::string res;
   for (auto callback : callbacks) {
     auto Type = callback.first;
-    auto Definiton = GetFuncDefinition(Type);
-    res += "typedef " + Definiton.ret_str + "(*" + callback.second + ")(";
-    for (int i = 0; i < Definiton.arg_size - 1; i++) {
-      res += Definiton.arg_types_str[i];
-      res += " ";
-      res += Definiton.arg_names[i];
-      res += ", ";
+    auto Definition = GetFuncDefinition(Type);
+    res += "typedef " + Definition.ret_str + "(*" + callback.second + ")(";
+    for (int i = 0; i < Definition.arg_size - 1; i++) {
+      res += Definition.arg_types_str[i] + Definition.arg_names[i] + ", ";
     }
-    if (Definiton.arg_size) {
-      res += Definiton.arg_types_str[Definiton.arg_size - 1];
-      res += " ";
-      res += Definiton.arg_names[Definiton.arg_size - 1];
+    if (Definition.arg_size) {
+      res += Definition.arg_types_str[Definition.arg_size - 1] + Definition.arg_names[Definition.arg_size - 1];
     }
-    res += ");";
-    res += "\n";
+    res += ");\n";
   }
   return res;
 }
 
 // Gen function declare
-std::string WrapperGenerator::GenDeclare(clang::ASTContext *Ctx,
+std::string WrapperGenerator::GenDeclare(ASTContext *Ctx,
                                          const FuncInfo &Func) {
-  std::string res{};
+  std::string res;
   std::string sig = GetFuncSig(Ctx, Func);
   res += "GO";
   if (Func.is_weak) {
@@ -118,16 +228,17 @@ std::string WrapperGenerator::GenDeclare(clang::ASTContext *Ctx,
 }
 
 // Gen structure declare
-std::string WrapperGenerator::GenDeclare(clang::ASTContext *Ctx,
+std::string WrapperGenerator::GenDeclare(ASTContext *Ctx,
                                          const RecordInfo &Record) {
-  std::string RecordStr{};
-  RecordStr += "typedef ";
+  (void)Ctx;
+  std::string RecordStr;
+  RecordStr += "\ntypedef ";
   RecordStr +=
       (Record.is_union ? "union " : "struct ") + Record.type_name + " {\n";
   for (const auto &Field : Record.decl->fields()) {
     auto Type = Field->getType();
     std::string Name = Field->getNameAsString();
-    RecordStr += "  ";
+    RecordStr += "    ";
     if (Type->isFunctionPointerType()) {
       auto FuncType = StripTypedef(Type->getPointeeType());
       if (callbacks.count(FuncType)) {
@@ -136,9 +247,7 @@ std::string WrapperGenerator::GenDeclare(clang::ASTContext *Ctx,
         FieldStr += Name;
         RecordStr += FieldStr;
       } else {
-        std::cout << "Err: "
-                  << "FuncPtr(" << Record.type_name << "." << Name
-                  << ") is not supported\n";
+        std::cout << "Err: FuncPtr(" << Record.type_name << "." << Name << ") is not supported\n";
       }
     } else if (Type->isPointerType()) {
       auto PointeeType = Type->getPointeeType();
@@ -149,10 +258,10 @@ std::string WrapperGenerator::GenDeclare(clang::ASTContext *Ctx,
           FieldStr += Name;
           RecordStr += FieldStr;
         } else {
-          RecordStr += "void * " + Name;
+          RecordStr += "void *" + Name;
         }
       } else {
-        RecordStr += "void * " + Name;
+        RecordStr += "void *" + Name;
       }
     } else if (Type->isRecordType()) {
       if (records.count(Type.getTypePtr())) {
@@ -161,23 +270,24 @@ std::string WrapperGenerator::GenDeclare(clang::ASTContext *Ctx,
         FieldStr += Name;
         RecordStr += FieldStr;
       } else {
-        RecordStr += TypeStrify(StripTypedef(Type), Field, nullptr);
+        RecordStr += TypeStringify(StripTypedef(Type), Field, nullptr);
       }
     } else {
-      RecordStr += TypeStrify(StripTypedef(Type), Field, nullptr);
+      RecordStr += TypeStringify(StripTypedef(Type), Field, nullptr);
     }
     RecordStr += ";\n";
   }
-  RecordStr += "}";
+  RecordStr += "} ";
   RecordStr += Record.type_name + ", *" + Record.type_name + "_ptr;\n";
   return RecordStr;
 }
 
-std::string WrapperGenerator::GenCallbackWrap(clang::ASTContext *Ctx,
+std::string WrapperGenerator::GenCallbackWrap(ASTContext *Ctx,
                                               const FuncInfo &Func) {
-  std::string res{};
+  (void)Ctx;
+  std::string res;
 
-  for (int i = 0; i < Func.decl->getNumParams(); i++) {
+  for (unsigned i = 0; i < Func.decl->getNumParams(); i++) {
     auto ParamType = Func.decl->getParamDecl(i)->getType();
     if (ParamType->isFunctionPointerType()) {
 
@@ -185,62 +295,46 @@ std::string WrapperGenerator::GenCallbackWrap(clang::ASTContext *Ctx,
       auto Definition = GetFuncDefinition(PointeeType.getTypePtr());
       std::string my_funcname =
           std::string("my_") + Func.decl->getParamDecl(i)->getNameAsString();
-      std::string funcname =
-          std::string("my_") + Func.decl->getParamDecl(i)->getNameAsString();
-      res += "#define GO(A) \\\n";
-      res +=
-          std::string("static uintptr_t ") + my_funcname + "_fct_##A = 0; \\\n";
-      res += Definition.ret_str + " " + my_funcname + "(";
+      std::string funcname = Func.decl->getParamDecl(i)->getNameAsString();
+      res += "\n#define GO(A) \\\n"
+             "static uintptr_t " + my_funcname + "_fct_##A = 0; \\\n" +
+             Definition.ret_str + " " + my_funcname + "(";
       int arg_size = Definition.arg_names.size();
       if (arg_size) {
         for (int i = 0; i < arg_size - 1; i++) {
-          res += Definition.arg_types_str[i];
-          res += " ";
-          res += Definition.arg_names[i];
-          res += ", ";
+          res += Definition.arg_types_str[i] + " " + Definition.arg_names[i] + ", ";
         }
-        res += Definition.arg_types_str[arg_size - 1];
-        res += " ";
-        res += Definition.arg_names[arg_size - 1];
+        res += Definition.arg_types_str[arg_size - 1] + " " + Definition.arg_names[arg_size - 1];
       }
-      res += ") {\\\n";
-      res += "    ";
-      res +=
-          "return RunFunction(my_context, " + my_funcname + "_fct_##A" + ", ",
-          std::to_string(arg_size);
-      if (arg_size) {
-        for (int i = 0; i < arg_size; i++) {
-          res += ", " + Definition.arg_names[i];
-        }
+      res += ") { \\\n"
+             "    return RunFunction(my_context, " + my_funcname + "_fct_##A" + ", " + std::to_string(arg_size);
+      for (int i = 0; i < arg_size; i++) {
+        res += ", " + Definition.arg_names[i];
       }
-      res += ");\\\n";
-      res += "}\n";
-      res += "#undef GO\n";
-      res += "static void* find" + funcname + "Fct(void* fct) {\n";
-      res += "  if(!fct) return fct;\n";
-      res += "  if(GetNativeFnc((uintptr_t)fct))  return "
-             "GetNativeFnc((uintptr_t)fct);\n";
-      res += "  #define GO(A) if(" + my_funcname +
-             "_fct_##A == (uintptr_t)fct) return " + my_funcname + "_##A;}\n";
-      res += "  SUPER()\n";
-      res += "  #undef GO\n";
-      res += "  #define GO(A) if(" + my_funcname + "_fct_##A == 0) {" +
-             my_funcname + "_fct_##A = (uintptr_t)fct;" + "return " +
-             my_funcname + "_##A;}\n";
-      res += "  SUPER()\n";
-      res += "  #undef GO\n";
-      res += "  return NULL;\n";
-      res += "}\n";
+      res += "); \\\n"
+             "}\n"
+             "SUPER()\n"
+             "#undef GO\n"
+             "static void* find" + funcname + "Fct(void* fct) {\n"
+             "    if (!fct) return fct;\n"
+             "    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);\n"
+             "    #define GO(A) if (" + my_funcname + "_fct_##A == (uintptr_t)fct) return " + my_funcname + "_##A;\n"
+             "    SUPER()\n"
+             "    #undef GO\n"
+             "    #define GO(A) if (" + my_funcname + "_fct_##A == 0) { " + my_funcname + "_fct_##A = (uintptr_t)fct; return " + my_funcname + "_##A; }\n"
+             "    SUPER()\n"
+             "    #undef GO\n"
+             "    return NULL;\n"
+             "}\n";
     }
   }
   return res;
 }
 
-std::string WrapperGenerator::GenCallbackWrap(clang::ASTContext *Ctx,
+std::string WrapperGenerator::GenCallbackWrap(ASTContext *Ctx,
                                               const RecordInfo &Struct) {
-  std::string res{};
-  auto Type = Struct.type;
-  auto RecordType = Type->getAs<clang::RecordType>();
+  (void)Ctx;
+  std::string res;
   for (const auto &field : Struct.decl->fields()) {
     auto FieldType = field->getType();
     if (FieldType->isFunctionPointerType()) {
@@ -248,179 +342,156 @@ std::string WrapperGenerator::GenCallbackWrap(clang::ASTContext *Ctx,
       auto Definition = GetFuncDefinition(PointeeType.getTypePtr());
       std::string my_funcname = std::string("my_") + field->getNameAsString();
       std::string funcname = field->getNameAsString();
-      res += "#define GO(A) \\\n";
-      res +=
-          std::string("static uintptr_t ") + my_funcname + "_fct_##A = 0;\\\n";
-      res += Definition.ret_str + " " + my_funcname + "_##A(";
+      res += "\n#define GO(A) \\\n"
+             "static uintptr_t " + my_funcname + "_fct_##A = 0; \\\n" +
+             Definition.ret_str + " " + my_funcname + "_##A(";
       int arg_size = Definition.arg_names.size();
       if (arg_size) {
         for (int i = 0; i < arg_size - 1; i++) {
-          res += Definition.arg_types_str[i];
-          res += " ";
-          res += Definition.arg_names[i];
-          res += ", ";
+          res += Definition.arg_types_str[i] + " " + Definition.arg_names[i] + ", ";
         }
-        res += Definition.arg_types_str[arg_size - 1];
-        res += " ";
-        res += Definition.arg_names[arg_size - 1];
+        res += Definition.arg_types_str[arg_size - 1] + " " + Definition.arg_names[arg_size - 1];
       }
-      res += ") {\\\n";
-      res += "    ";
-      res += "return RunFunction(my_context, " + my_funcname + "_fct_##A" +
-             ", " + std::to_string(arg_size);
-      if (arg_size) {
-        for (int i = 0; i < arg_size; i++) {
-          res += ", " + Definition.arg_names[i];
-        }
+      res += ") { \\\n"
+             "    return RunFunction(my_context, " + my_funcname + "_fct_##A" + ", " + std::to_string(arg_size);
+      for (int i = 0; i < arg_size; i++) {
+        res += ", " + Definition.arg_names[i];
       }
-      res += ");\\\n";
-      res += "}\n";
-      res += "#undef GO\n";
-      res += "static void* find" + funcname + "Fct(void* fct) {\n";
-      res += "  if(!fct) return fct;\n";
-      res += "  if(GetNativeFnc((uintptr_t)fct))  return "
-             "GetNativeFnc((uintptr_t)fct);\n";
-      res += "  #define GO(A) if(" + my_funcname +
-             "_fct_##A == (uintptr_t)fct) return " + my_funcname + "_##A;}\n";
-      res += "  SUPER()\n";
-      res += "  #undef GO\n";
-      res += "  #define GO(A) if(" + my_funcname + "_fct_##A == 0) {" +
-             my_funcname + "_fct_##A = (uintptr_t)fct;" + "return " +
-             my_funcname + "_##A;}\n";
-      res += "  SUPER()\n";
-      res += "  #undef GO\n";
-      res += "  return NULL;\n";
-      res += "}\n";
+      res += "); \\\n"
+             "}\n"
+             "SUPER()\n"
+             "#undef GO\n"
+             "static void* find" + funcname + "Fct(void* fct) {\n"
+             "    if(!fct) return fct;\n"
+             "    if(GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);\n"
+             "    #define GO(A) if(" + my_funcname + "_fct_##A == (uintptr_t)fct) return " + my_funcname + "_##A;}\n"
+             "    SUPER()\n"
+             "    #undef GO\n"
+             "    #define GO(A) if(" + my_funcname + "_fct_##A == 0) {" + my_funcname + "_fct_##A = (uintptr_t)fct;" + "return " + my_funcname + "_##A;}\n"
+             "    SUPER()\n"
+             "    #undef GO\n"
+             "    return NULL;\n"
+             "}\n";
     }
   }
   return res;
 }
 
-std::string WrapperGenerator::GenDefine(clang::ASTContext *Ctx,
+std::string WrapperGenerator::GenDefine(ASTContext *Ctx,
                                         const FuncInfo &Func) {
-  std::string Res{};
+  std::string res;
   auto Definition = GetFuncDefinition(Func.decl);
   std::string Sig = GetFuncSig(Ctx, Func.type);
-  Res += "EXPORT ";
-  Res += Definition.ret_str;
-  Res += "my_" + Func.func_name + "(";
+  res += "\nEXPORT " + Definition.ret_str + "my_" + Func.func_name + "(";
   if (Sig.find('E')) {
-    Res += "void* emu, ";
+    res += "void *emu, ";
   }
   int arg_size = Definition.arg_names.size();
   if (arg_size) {
     for (int i = 0; i < arg_size - 1; i++) {
       if (Definition.arg_types[i]->isPointerType()) {
         auto PointeeType = Definition.arg_types[i]->getPointeeType();
-        if (records.count(
-                Definition.arg_types[i]->getPointeeType().getTypePtr())) {
-          Res +=
+        if (records.count(PointeeType.getTypePtr())) {
+          res +=
               Definition.arg_types[i]->getCanonicalTypeInternal().getAsString();
         } else {
-          Res += Definition.arg_types_str[i];
+          res += Definition.arg_types_str[i];
         }
       } else {
-        Res += Definition.arg_types_str[i];
+        res += Definition.arg_types_str[i];
       }
-      Res += " ";
-      Res += Definition.arg_names[i];
-      Res += ", ";
+      res += " " + Definition.arg_names[i] + ", ";
     }
     if (Definition.arg_types[arg_size - 1]->isPointerType()) {
       auto PointeeType = Definition.arg_types[arg_size - 1]->getPointeeType();
-      if (records.count(Definition.arg_types[arg_size - 1]
-                            ->getPointeeType()
-                            .getTypePtr())) {
-        Res += Definition.arg_types[arg_size - 1]
+      if (records.count(PointeeType.getTypePtr())) {
+        res += Definition.arg_types[arg_size - 1]
                    ->getCanonicalTypeInternal()
                    .getAsString();
       } else {
-        Res += Definition.arg_types_str[arg_size - 1];
+        res += Definition.arg_types_str[arg_size - 1];
       }
     } else {
-      Res += Definition.arg_types_str[arg_size - 1];
+      res += Definition.arg_types_str[arg_size - 1];
     }
-    Res += " ";
-    Res += Definition.arg_names[arg_size - 1];
+    res += " ";
+    res += Definition.arg_names[arg_size - 1];
   }
-  Res += ") {\n";
-  std::string FuncBodyStr{};
+  res += ") {\n";
   if (Func.has_special_arg) {
-    FuncBodyStr += "  // WARN: This function's arg has structure ptr which is "
-                   "special, may be need wrap it for host\n";
+    res += "    // WARN: This function's arg has a structure ptr which is "
+                   "special, may need to wrap it for the host\n";
 
   } else if (Func.has_special_ret) {
-    FuncBodyStr += "  // WARN: This function's ret structure ptr which is "
-                   "special, may be need wrap it for guest\n";
+    res += "    // WARN: This function's ret is a structure ptr which is "
+                   "special, may need to wrap it for the guest\n";
   }
   if (Func.has_callback_arg) {
-    FuncBodyStr += "  " + my_lib_type + "my = " + "(" + my_lib_type + ")" +
-                   my_lib + "->priv.w.p2;\n";
-    FuncBodyStr += "  my->" + Func.func_name + "(";
+    res += "    " + my_lib_type + " *my = " + "(" + my_lib_type + "*)" +
+                   my_lib + "->priv.w.p2;\n"
+                   "    my->" + Func.func_name + "(";
     if (arg_size) {
       for (int i = 0; i < arg_size - 1; i++) {
         if (Func.callback_args[i]) {
           if (!Func.callback_args[i]->isTypedefNameType()) {
-            FuncBodyStr +=
+            res +=
                 "find" + Func.func_name + "_arg" + std::to_string(i) + "Fct";
           } else {
-            FuncBodyStr += "find" +
+            res += "find" +
                            Func.callback_args[i]
-                               ->getAs<clang::TypedefType>()
+                               ->getAs<TypedefType>()
                                ->getDecl()
                                ->getNameAsString() +
                            "Fct";
           }
-          FuncBodyStr += "(" + Definition.arg_names[i] + ")";
+          res += "(" + Definition.arg_names[i] + ")";
         } else {
-          FuncBodyStr += Definition.arg_names[i];
+          res += Definition.arg_names[i];
         }
-        FuncBodyStr += ", ";
+        res += ", ";
       }
       if (Func.callback_args[arg_size - 1]) {
         if (!Func.callback_args[arg_size - 1]->isTypedefNameType()) {
-          FuncBodyStr += "find" + Func.func_name + "_arg" +
+          res += "find" + Func.func_name + "_arg" +
                          std::to_string(arg_size - 1) + "Fct";
         } else {
-          FuncBodyStr += "find" +
+          res += "find" +
                          Func.callback_args[arg_size - 1]
-                             ->getAs<clang::TypedefType>()
+                             ->getAs<TypedefType>()
                              ->getDecl()
                              ->getNameAsString() +
                          "Fct";
         }
-        FuncBodyStr += "(" + Definition.arg_names[arg_size - 1] + ")";
+        res += "(" + Definition.arg_names[arg_size - 1] + ")";
       } else {
-        FuncBodyStr += Definition.arg_names[arg_size - 1];
+        res += Definition.arg_names[arg_size - 1];
       }
-      FuncBodyStr += ")\n";
+      res += ")\n";
     }
   } else {
-    FuncBodyStr += "  " + my_lib_type + "my = " + "(" + my_lib_type + ")" +
-                   my_lib + "->priv.w.p2;\n";
-    FuncBodyStr += "  my->" + Func.func_name + "(";
+    res += "    " + my_lib_type + " *my = (" + my_lib_type + "*)" + my_lib + "->priv.w.p2;\n"
+                   "    my->" + Func.func_name + "(";
     if (arg_size) {
       for (int i = 0; i < arg_size - 1; i++) {
-        FuncBodyStr += Definition.arg_names[i];
-        FuncBodyStr += ", ";
+        res += Definition.arg_names[i] + ", ";
       }
-      FuncBodyStr += Definition.arg_names[arg_size - 1];
-      FuncBodyStr += ");\n";
+      res += Definition.arg_names[arg_size - 1];
     }
+      res += ");\n";
   }
 
-  Res += FuncBodyStr;
-  Res += "}\n";
-  return Res;
+  res += "}\n";
+  return res;
 }
 
 std::string WrapperGenerator::GenDeclareDiffTriple(
-    clang::ASTContext *Ctx, const RecordInfo &Record,
+    ASTContext *Ctx, const RecordInfo &Record,
     const std::string &GuestTriple, const std::string &HostTriple) {
-  std::string GuestRecord{};
-  std::string HostRecord{};
-  std::vector<int> GuestFieldOff;
-  std::vector<int> HostFieldOff;
+  (void)Ctx;
+  std::string GuestRecord;
+  std::string HostRecord;
+  std::vector<uint64_t> GuestFieldOff;
+  std::vector<uint64_t> HostFieldOff;
   GuestRecord += "typedef ";
   HostRecord += "typedef ";
   GuestRecord +=
@@ -429,22 +500,21 @@ std::string WrapperGenerator::GenDeclareDiffTriple(
                 std::string("host_") + Record.type_name + " {\n";
   auto OffDiff = GetRecordFieldOffDiff(Record.type, GuestTriple, HostTriple,
                                        GuestFieldOff, HostFieldOff);
-  int GuestRecordSize = GetRecordSize(Record.type, GuestTriple);
-  int HostRecordSize = GetRecordSize(Record.type, HostTriple);
-  int SizeDiff = GuestRecordSize - HostRecordSize;
+  uint64_t GuestRecordSize = GetRecordSize(Record.type, GuestTriple);
+  uint64_t HostRecordSize = GetRecordSize(Record.type, HostTriple);
+  uint64_t SizeDiff = GuestRecordSize - HostRecordSize;
   int FieldIndex = 0;
-  std::set<clang::FieldDecl *> AlignDiffFields;
+  std::set<FieldDecl *> AlignDiffFields;
   for (const auto &Field : Record.decl->fields()) {
     if (OffDiff[FieldIndex] == 0) {
       FieldIndex++;
       continue;
     }
-    auto Type = Field->getType();
     std::string Name = Field->getNameAsString();
     if (OffDiff[FieldIndex] != SizeDiff) {
       auto Diff = OffDiff[FieldIndex];
       AlignDiffFields.insert(Field);
-      for (int i = FieldIndex; i < OffDiff.size(); i++) {
+      for (size_t i = FieldIndex; i < OffDiff.size(); i++) {
         if (OffDiff[i] == Diff) {
           OffDiff[i] = 0;
         } else {
@@ -463,16 +533,16 @@ std::string WrapperGenerator::GenDeclareDiffTriple(
     GuestRecord += "  ";
     HostRecord += "  ";
     if (AlignDiffFields.find(Field) != AlignDiffFields.end()) {
-      switch (GetTypeSize(StripTypedef(Field->getType()), guest_triple)) {
+      auto typeSize = GetTypeSize(StripTypedef(Field->getType()), guest_triple);
+      switch (typeSize) {
       // FIXME: should test more case in different triple
-      case 4:
-        GuestRecord += "int " + Name;
-      case 8:
-        GuestRecord += "int " + Name + "[2]";
+      case 4: GuestRecord += "int " + Name        ; break;
+      case 8: GuestRecord += "int " + Name + "[2]"; break;
       default:
+        std::cout << "Err: unknown type size " << typeSize << std::endl;
         break;
       }
-      HostRecord += TypeStrify(StripTypedef(Type), Field, nullptr);
+      HostRecord += TypeStringify(StripTypedef(Type), Field, nullptr);
     } else if (Type->isFunctionPointerType()) {
       auto FuncType = StripTypedef(Type->getPointeeType());
       if (callbacks.count(FuncType)) {
@@ -482,77 +552,67 @@ std::string WrapperGenerator::GenDeclareDiffTriple(
         GuestRecord += FieldStr;
         HostRecord += FieldStr;
       } else {
-        std::cout << "Err: "
-                  << "FuncPtr(" << Record.type_name << "." << Name
-                  << ") is not supported\n";
+        std::cout << "Err: FuncPtr(" << Record.type_name << "." << Name << ") is not supported" << std::endl;
       }
     } else if (Type->isPointerType()) {
       auto PointeeType = Type->getPointeeType();
       if (PointeeType->isRecordType()) {
         if (records.count(PointeeType.getTypePtr())) {
           std::string FieldStr = records[PointeeType.getTypePtr()].type_name;
-          FieldStr += "_ptr ";
-          FieldStr += Name;
+          FieldStr += "_ptr " + Name;
           GuestRecord += FieldStr;
           HostRecord += "host_" + FieldStr;
         } else {
-          GuestRecord += "void * " + Name;
-          HostRecord += "void * " + Name;
+          GuestRecord += "void *" + Name;
+          HostRecord += "void *" + Name;
         }
       } else {
-        GuestRecord += "void * " + Name;
-        HostRecord += "void * " + Name;
+        GuestRecord += "void *" + Name;
+        HostRecord += "void *" + Name;
       }
     } else if (Type->isRecordType()) {
       if (records.count(Type.getTypePtr())) {
         std::string FieldStr = records[Type.getTypePtr()].type_name;
-        FieldStr += " ";
-        FieldStr += Name;
+        FieldStr += " " + Name;
         GuestRecord += FieldStr;
         HostRecord += "host_" + FieldStr;
       } else {
-        GuestRecord += TypeStrify(StripTypedef(Type), Field, nullptr);
-        HostRecord += TypeStrify(StripTypedef(Type), Field, nullptr);
+        GuestRecord += TypeStringify(StripTypedef(Type), Field, nullptr);
+        HostRecord += TypeStringify(StripTypedef(Type), Field, nullptr);
       }
     } else {
-      HostRecord += TypeStrify(StripTypedef(Type), Field, nullptr);
-      GuestRecord += TypeStrify(StripTypedef(Type), Field, nullptr);
+      HostRecord += TypeStringify(StripTypedef(Type), Field, nullptr);
+      GuestRecord += TypeStringify(StripTypedef(Type), Field, nullptr);
     }
     GuestRecord += ";\n";
     HostRecord += ";\n";
   }
-  GuestRecord += "}";
-  GuestRecord += Record.type_name + ", *" + Record.type_name + "_ptr;\n";
-
-  HostRecord += "}";
-  HostRecord +=
-      "host_" + Record.type_name + ", *host_" + Record.type_name + "_ptr;\n";
+  GuestRecord += "} " + Record.type_name + ", *" + Record.type_name + "_ptr;\n";
+  HostRecord += "} host_" + Record.type_name + ", *host_" + Record.type_name + "_ptr;\n";
   return GuestRecord + HostRecord;
 }
 
 // Gen record convert function between host and guest
 std::string WrapperGenerator::GenRecordConvert(const RecordInfo &Record) {
-  std::string res{};
+  std::string res;
   if (Record.guest_size != Record.host_size) {
     auto RecordDecl = Record.decl;
-    std::vector<int> GuestFieldOff;
-    std::vector<int> HostFieldOff;
+    std::vector<uint64_t> GuestFieldOff;
+    std::vector<uint64_t> HostFieldOff;
     auto OffDiff = GetRecordFieldOffDiff(Record.type, guest_triple, host_triple,
                                          GuestFieldOff, HostFieldOff);
     int FieldIndex = 0;
-    std::vector<clang::FieldDecl *> AlignDiffFields;
-    int SizeDiff = Record.guest_size - Record.host_size;
+    std::vector<FieldDecl *> AlignDiffFields;
+    uint64_t SizeDiff = Record.guest_size - Record.host_size;
     for (const auto &Field : RecordDecl->fields()) {
       if (OffDiff[FieldIndex] == 0) {
         FieldIndex++;
         continue;
       }
-      auto Type = Field->getType();
-      std::string Name = Field->getNameAsString();
       if (OffDiff[FieldIndex] != SizeDiff) {
         auto Diff = OffDiff[FieldIndex];
         AlignDiffFields.push_back(Field);
-        for (int i = FieldIndex; i < OffDiff.size(); i++) {
+        for (size_t i = FieldIndex; i < OffDiff.size(); i++) {
           if (OffDiff[i] == Diff) {
             OffDiff[i] = 0;
           } else {
@@ -568,14 +628,13 @@ std::string WrapperGenerator::GenRecordConvert(const RecordInfo &Record) {
     if (!AlignDiffFields.size()) {
       return res;
     }
-    res += "void g2h_" + Record.type_name + "(" + "struct host_" +
-           Record.type_name + "* d, struct" + Record.type_name + "* s) {\n";
-    std::string body = "  memcpy(d, s, offsetof(struct " + Record.type_name +
+    res += "void g2h_" + Record.type_name + "(" + "struct host_" + Record.type_name + "*d, struct" + Record.type_name + "*s) {\n";
+    std::string body = "    memcpy(d, s, offsetof(struct " + Record.type_name +
                        ", " + AlignDiffFields[0]->getNameAsString() + "));\n";
     std::string offstr = "offsetof(struct " + Record.type_name + ", " +
                          AlignDiffFields[0]->getNameAsString() + ")";
-    for (int i = 1; i < AlignDiffFields.size() - 1; i++) {
-      body += "  memcpy(d->" + AlignDiffFields[i]->getNameAsString() + ", " +
+    for (size_t i = 1; i < AlignDiffFields.size() - 1; i++) {
+      body += "    memcpy(d->" + AlignDiffFields[i]->getNameAsString() + ", " +
               "s->" + AlignDiffFields[i]->getNameAsString() + ", " +
               "offsetof(struct " + Record.type_name + ", " +
               AlignDiffFields[i + 1]->getNameAsString() + ") - " + offstr +
@@ -583,17 +642,15 @@ std::string WrapperGenerator::GenRecordConvert(const RecordInfo &Record) {
       offstr = "offsetof(struct " + Record.type_name + ", " +
                AlignDiffFields[i + 1]->getNameAsString() + ")";
     }
-    body += "  memcpy(d->" +
+    body += "    memcpy(d->" +
             AlignDiffFields[AlignDiffFields.size() - 1]->getNameAsString() +
             ", " + "s->" +
             AlignDiffFields[AlignDiffFields.size() - 1]->getNameAsString() +
             ", " + std::to_string(GetRecordSize(Record.type, guest_triple)) +
             " - " + offstr + ");\n";
-    res += body;
-    res += "}\n";
+    res += body + "}\n";
 
-    res += "void h2g_" + Record.type_name + "(struct" + Record.type_name +
-           "* d, " + "struct host_" + Record.type_name + "* s) {\n";
+    res += "void h2g_" + Record.type_name + "(struct" + Record.type_name + "*d, " + "struct host_" + Record.type_name + "*s) {\n";
     res += body;
     res += "}\n";
   }
@@ -601,14 +658,14 @@ std::string WrapperGenerator::GenRecordConvert(const RecordInfo &Record) {
 }
 
 void WrapperGenerator::ParseRecordRecursive(
-    clang::ASTContext *Ctx, const clang::Type *Type, bool &Special,
-    std::set<const clang::Type *> &Visited) {
-  auto RecordType = Type->getAs<clang::RecordType>();
-  auto RecordDecl = RecordType->getDecl();
+    ASTContext *Ctx, const Type *type, bool &Special,
+    std::set<const Type *> &Visited) {
+  auto recordType = type->getAs<RecordType>();
+  auto RecordDecl = recordType->getDecl();
   for (const auto &field : RecordDecl->fields()) {
     auto FieldType = field->getType();
     if (FieldType->isFunctionPointerType()) {
-      auto Record = &records[Type];
+      auto Record = &records[type];
       Record->callback_fields.push_back(field->getType().getTypePtr());
       // Record->type_name =
       Special = true;
@@ -633,18 +690,18 @@ void WrapperGenerator::ParseRecordRecursive(
         Special = true;
     }
   }
-  int GuestSize = GetRecordSize(Type, guest_triple);
-  int HostSize = GetRecordSize(Type, host_triple);
+  uint64_t GuestSize = GetRecordSize(type, guest_triple);
+  uint64_t HostSize = GetRecordSize(type, host_triple);
 
-  auto Record = &records[Type];
+  auto Record = &records[type];
   if (GuestSize != HostSize) {
     Special = 1;
   }
-  if (Type->isUnionType()) {
+  if (type->isUnionType()) {
     Record->is_union = true;
   }
   if (!Record->decl) {
-    Record->type = Type;
+    Record->type = type;
     Record->decl = RecordDecl;
     if (RecordDecl->getIdentifier())
       Record->type_name = RecordDecl->getIdentifier()->getName().str();
@@ -658,11 +715,12 @@ void WrapperGenerator::ParseRecordRecursive(
 }
 
 // Type to String
-std::string WrapperGenerator::TypeStrify(const clang::Type *Type,
-                                         clang::FieldDecl *FieldDecl,
-                                         clang::ParmVarDecl *ParmDecl,
+std::string WrapperGenerator::TypeStringify(const Type *Type,
+                                         FieldDecl *FieldDecl,
+                                         ParmVarDecl *ParmDecl,
+                                         std::string indent,
                                          std::string Name) {
-  std::string res{};
+  std::string res;
   std::string name = FieldDecl
                          ? FieldDecl->getNameAsString()
                          : (ParmDecl ? ParmDecl->getNameAsString() : Name);
@@ -674,32 +732,30 @@ std::string WrapperGenerator::TypeStrify(const clang::Type *Type,
     } else if (PointeeType->isRecordType()) {
       if (records.find(StripTypedef(PointeeType)) != records.end() &&
           records[StripTypedef(PointeeType)].is_special) {
-        res += PointeeType->isUnionType() ? "union {\n" : "struct ";
-        res += records[StripTypedef(PointeeType)].type_name;
+        res += (PointeeType->isUnionType() ? "union " : "struct ") + records[StripTypedef(PointeeType)].type_name;
       } else {
         res += "void";
       }
     } else {
       res += "void";
     }
-    res += " * " + name;
+    res += " *" + name;
   } else if (Type->isEnumeralType()) {
-    res += "int ";
-    res += name;
+    res += "int " + name;
   } else if (Type->isRecordType()) {
     if (records.find(StripTypedef(Type->getCanonicalTypeInternal())) !=
             records.end() &&
         records[StripTypedef(Type->getCanonicalTypeInternal())].is_special) {
-      res += Type->isUnionType() ? "union {\n" : "struct ";
+      res += Type->isUnionType() ? "union " : "struct ";
       res += records[StripTypedef(Type->getCanonicalTypeInternal())].type_name;
       res += " ";
     } else {
-      res += AnonRecordDecl(Type->getAs<clang::RecordType>());
+      res += AnonRecordDecl(Type->getAs<RecordType>(), indent);
     }
     res += name;
   } else if (Type->isConstantArrayType()) {
     auto ArrayType =
-        clang::dyn_cast<clang::ConstantArrayType>(Type->getAsArrayTypeUnsafe());
+        dyn_cast<ConstantArrayType>(Type->getAsArrayTypeUnsafe());
     int EleSize = ArrayType->getSize().getZExtValue();
     if (ArrayType->getElementType()->isPointerType()) {
       res += "void *";
@@ -720,36 +776,37 @@ std::string WrapperGenerator::TypeStrify(const clang::Type *Type,
     res += " ";
     res += name;
   }
-  return res;
+  return indent + res;
 }
 
 // Type to String, less detail
-std::string WrapperGenerator::SimpleTypeStrify(const clang::Type *Type,
-                                               clang::FieldDecl *FieldDecl,
-                                               clang::ParmVarDecl *ParmDecl,
+std::string WrapperGenerator::SimpleTypeStringify(const Type *Type,
+                                               FieldDecl *FieldDecl,
+                                               ParmVarDecl *ParmDecl,
+                                               std::string indent,
                                                std::string Name) {
-  std::string res{};
+  std::string res;
   std::string name = FieldDecl
                          ? FieldDecl->getNameAsString()
                          : (ParmDecl ? ParmDecl->getNameAsString() : Name);
   if (Type->isPointerType()) {
-    res += "void * " + name;
+    res += "void *" + name;
   } else if (Type->isEnumeralType()) {
     res += "int ";
     res += name;
   } else if (Type->isRecordType()) {
     if (records.find(StripTypedef(Type->getCanonicalTypeInternal())) !=
         records.end()) {
-      res += Type->isUnionType() ? "union {\n" : "struct ";
+      res += Type->isUnionType() ? "union " : "struct ";
       res += records[StripTypedef(Type->getCanonicalTypeInternal())].type_name;
       res += " ";
     } else {
-      res += SimpleAnonRecordDecl(Type->getAs<clang::RecordType>());
+      res += SimpleAnonRecordDecl(Type->getAs<RecordType>(), indent);
     }
     res += name;
   } else if (Type->isConstantArrayType()) {
     auto ArrayType =
-        clang::dyn_cast<clang::ConstantArrayType>(Type->getAsArrayTypeUnsafe());
+        dyn_cast<ConstantArrayType>(Type->getAsArrayTypeUnsafe());
     int EleSize = ArrayType->getSize().getZExtValue();
     if (ArrayType->getElementType()->isPointerType()) {
       res += "void *";
@@ -770,50 +827,48 @@ std::string WrapperGenerator::SimpleTypeStrify(const clang::Type *Type,
     res += " ";
     res += name;
   }
-  return res;
+  return indent + res;
 }
 
-std::string WrapperGenerator::AnonRecordDecl(const clang::RecordType *Type) {
+std::string WrapperGenerator::AnonRecordDecl(const RecordType *Type, std::string indent) {
   auto RecordDecl = Type->getDecl();
-  std::string res{};
+  std::string res;
   res += Type->isUnionType() ? "union {\n" : "struct {\n";
   for (const auto &field : RecordDecl->fields()) {
     auto FieldType = field->getType();
-    res += "    ";
-    res += TypeStrify(StripTypedef(FieldType), field, nullptr);
+    res += TypeStringify(StripTypedef(FieldType), field, nullptr, indent + "    ");
     res += ";\n";
   }
-  res += "    } ";
+  res += indent + "} ";
   return res;
 }
 
 std::string
-WrapperGenerator::SimpleAnonRecordDecl(const clang::RecordType *Type) {
+WrapperGenerator::SimpleAnonRecordDecl(const RecordType *Type, std::string indent) {
   auto RecordDecl = Type->getDecl();
-  std::string res{};
+  std::string res;
   res += Type->isUnionType() ? "union {\n" : "struct {\n";
   for (const auto &field : RecordDecl->fields()) {
     auto FieldType = field->getType();
-    res += "    ";
-    res += SimpleTypeStrify(StripTypedef(FieldType), field, nullptr);
+    res += SimpleTypeStringify(StripTypedef(FieldType), field, nullptr, indent + "    ");
     res += ";\n";
   }
-  res += "    } ";
+  res += indent + "} ";
   return res;
 }
 
 // Get func info from FunctionType
-FuncDefinition WrapperGenerator::GetFuncDefinition(const clang::Type *Type) {
+FuncDefinition WrapperGenerator::GetFuncDefinition(const Type *Type) {
   FuncDefinition res;
-  auto ProtoType = Type->getAs<clang::FunctionProtoType>();
+  auto ProtoType = Type->getAs<FunctionProtoType>();
   res.ret = StripTypedef(ProtoType->getReturnType());
   res.ret_str =
-      TypeStrify(StripTypedef(ProtoType->getReturnType()), nullptr, nullptr);
-  for (int i = 0; i < ProtoType->getNumParams(); i++) {
+      TypeStringify(StripTypedef(ProtoType->getReturnType()), nullptr, nullptr);
+  for (unsigned i = 0; i < ProtoType->getNumParams(); i++) {
     auto ParamType = ProtoType->getParamType(i);
     res.arg_types.push_back(StripTypedef(ParamType));
     res.arg_types_str.push_back(
-        TypeStrify(StripTypedef(ParamType), nullptr, nullptr));
+        TypeStringify(StripTypedef(ParamType), nullptr, nullptr));
     res.arg_names.push_back(std::string("a") + std::to_string(i));
   }
   if (ProtoType->isVariadic()) {
@@ -824,17 +879,17 @@ FuncDefinition WrapperGenerator::GetFuncDefinition(const clang::Type *Type) {
 }
 
 // Get funcdecl info from FunctionDecl
-FuncDefinition WrapperGenerator::GetFuncDefinition(clang::FunctionDecl *Decl) {
+FuncDefinition WrapperGenerator::GetFuncDefinition(FunctionDecl *Decl) {
   FuncDefinition res;
   auto RetType = Decl->getReturnType();
   res.ret = RetType.getTypePtr();
-  res.ret_str = TypeStrify(StripTypedef(RetType), nullptr, nullptr, "");
-  for (int i = 0; i < Decl->getNumParams(); i++) {
+  res.ret_str = TypeStringify(StripTypedef(RetType), nullptr, nullptr);
+  for (unsigned i = 0; i < Decl->getNumParams(); i++) {
     auto ParamDecl = Decl->getParamDecl(i);
     auto ParamType = ParamDecl->getType();
     res.arg_types.push_back(ParamType.getTypePtr());
     res.arg_types_str.push_back(
-        TypeStrify(StripTypedef(ParamType), nullptr, nullptr, ""));
+        TypeStringify(StripTypedef(ParamType), nullptr, nullptr));
     res.arg_names.push_back(ParamDecl->getNameAsString());
   }
   if (Decl->isVariadic()) {
@@ -844,36 +899,46 @@ FuncDefinition WrapperGenerator::GetFuncDefinition(clang::FunctionDecl *Decl) {
 }
 
 // Get the offset diff between two different triple
-std::vector<int> WrapperGenerator::GetRecordFieldOffDiff(
-    const clang::Type *Type, const std::string &GuestTriple,
-    const std::string &HostTriple, std::vector<int> &GuestFieldOff,
-    std::vector<int> &HostFieldOff) {
-  std::string Code = TypeStrify(Type, nullptr, nullptr, "dummy;");
-  return ::GetRecordFieldOffDiff(Code, GuestTriple, HostTriple, GuestFieldOff,
-                                 HostFieldOff);
+std::vector<uint64_t> WrapperGenerator::GetRecordFieldOffDiff(
+    const Type *Type, const std::string &GuestTriple,
+    const std::string &HostTriple, std::vector<uint64_t> &GuestFieldOff,
+    std::vector<uint64_t> &HostFieldOff) {
+  std::string Code = TypeStringify(Type, nullptr, nullptr, "", "dummy;");
+  std::vector<uint64_t> OffsetDiff;
+  GuestFieldOff = GetRecordFieldOff(Code, GuestTriple);
+  HostFieldOff = GetRecordFieldOff(Code, HostTriple);
+  if (GuestFieldOff.size() != HostFieldOff.size()) {
+    // Should not happen
+    std::cout << "Greater field offsets in guest than in host" << std::endl;
+    return OffsetDiff;
+  }
+  for (size_t i = 0; i < GuestFieldOff.size(); i++) {
+    OffsetDiff.push_back(GuestFieldOff[i] - HostFieldOff[i]);
+  }
+  return OffsetDiff;
 }
 
 // Get the size under a specific triple
-int WrapperGenerator::GetRecordSize(const clang::Type *Type,
+uint64_t WrapperGenerator::GetRecordSize(const Type *Type,
                                     const std::string &Triple) {
-  std::string Code = TypeStrify(Type, nullptr, nullptr, "dummy;");
+  std::string Code = TypeStringify(Type, nullptr, nullptr, "", "dummy;");
   return ::GetRecordSize(Code, Triple);
 }
 
 // Get the align under a specific triple
-int WrapperGenerator::GetRecordAlign(const clang::Type *Type,
+CharUnits::QuantityType WrapperGenerator::GetRecordAlign(const Type *Type,
                                      const std::string &Triple) {
-  std::string Code = TypeStrify(Type, nullptr, nullptr, "dummy;");
+  std::string Code = TypeStringify(Type, nullptr, nullptr, "", "dummy;");
   return ::GetRecordAlign(Code, Triple);
 }
 
 // Generate the func sig by type, used for export func
-std::string WrapperGenerator::GetFuncSig(clang::ASTContext *CTX,
+std::string WrapperGenerator::GetFuncSig(ASTContext *CTX,
                                          const FuncInfo &Func) {
-  std::string sig{};
+  std::string sig;
   auto Decl = Func.decl;
   auto Type = Decl->getType().getTypePtr();
-  auto ProtoType = Type->getAs<clang::FunctionProtoType>();
+  auto ProtoType = Type->getAs<FunctionProtoType>();
   auto RetType = ProtoType->getReturnType();
 
   sig += TypeToSig(CTX, RetType.getTypePtr());
@@ -882,7 +947,7 @@ std::string WrapperGenerator::GetFuncSig(clang::ASTContext *CTX,
     sig += "E";
   }
   if (ProtoType->getNumParams()) {
-    for (int i = 0; i < ProtoType->getNumParams(); i++) {
+    for (unsigned i = 0; i < ProtoType->getNumParams(); i++) {
       sig += TypeToSig(CTX, ProtoType->getParamType(i).getTypePtr());
     }
   } else {
@@ -895,15 +960,15 @@ std::string WrapperGenerator::GetFuncSig(clang::ASTContext *CTX,
 }
 
 // Generate the func sig by type, used for callbacks
-std::string WrapperGenerator::GetFuncSig(clang::ASTContext *CTX,
-                                         const clang::Type *Type) {
-  std::string sig{};
-  auto ProtoType = Type->getAs<clang::FunctionProtoType>();
+std::string WrapperGenerator::GetFuncSig(ASTContext *CTX,
+                                         const Type *Type) {
+  std::string sig;
+  auto ProtoType = Type->getAs<FunctionProtoType>();
   auto RetType = ProtoType->getReturnType();
   sig += TypeToSig(CTX, RetType.getTypePtr());
   sig += "F";
   if (ProtoType->getNumParams()) {
-    for (int i = 0; i < ProtoType->getNumParams(); i++) {
+    for (unsigned i = 0; i < ProtoType->getNumParams(); i++) {
       sig += TypeToSig(CTX, ProtoType->getParamType(i).getTypePtr());
     }
   } else {
