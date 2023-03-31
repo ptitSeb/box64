@@ -670,6 +670,40 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x3A:  // these are some more SSSE3+ opcodes
             opcode = F8;
             switch(opcode) {
+                case 0x08:
+                    INST_NAME("ROUNDPS Gx, Ex, Ib");
+                    nextop = F8;
+                    GETEX(q1, 0, 1);
+                    GETGX_empty(q0);
+                    u8 = F8;
+                    v1 = fpu_get_scratch(dyn);
+                    if(u8&4) {
+                        u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                        VFRINTISQ(q0, q1);
+                        x87_restoreround(dyn, ninst, u8);
+                    } else {
+                        const uint8_t rounds[] = {0, 2, 1, 3};
+                        MAYUSE(rounds);
+                        VFRINTRSQ(q0, q1, rounds[u8&3]);
+                    }
+                    break;
+                case 0x09:
+                    INST_NAME("ROUNDPD Gx, Ex, Ib");
+                    nextop = F8;
+                    GETEX(q1, 0, 1);
+                    GETGX_empty(q0);
+                    u8 = F8;
+                    v1 = fpu_get_scratch(dyn);
+                    if(u8&4) {
+                        u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                        VFRINTIDQ(q0, q1);
+                        x87_restoreround(dyn, ninst, u8);
+                    } else {
+                        const uint8_t rounds[] = {0, 2, 1, 3};
+                        MAYUSE(rounds);
+                        VFRINTRDQ(q0, q1, rounds[u8&3]);
+                    }
+                    break;
                 case 0x0A:
                     INST_NAME("ROUNDSS Gx, Ex, Ib");
                     nextop = F8;

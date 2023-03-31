@@ -703,6 +703,62 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0x3A:  // these are some SSE3 & SSE4.x opcodes
         opcode = F8;
         switch(opcode) {
+            case 0x08:          // ROUNDPS Gx, Ex, u8
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8; // ignoring bit 3 interupt thingy
+                if(tmp8u&4)
+                    tmp8u = emu->mxcsr.f.MXCSR_RC;
+                else
+                    tmp8u &= 3;
+                switch(tmp8u) {
+                    case ROUND_Nearest:
+                        for(int i=0; i<4; ++i)
+                            GX->f[i] = nearbyintf(EX->f[i]);
+                        break;
+                    case ROUND_Down:
+                        for(int i=0; i<4; ++i)
+                            GX->f[i] = floorf(EX->f[i]);
+                        break;
+                    case ROUND_Up:
+                        for(int i=0; i<4; ++i)
+                            GX->f[i] = ceilf(EX->f[i]);
+                        break;
+                    case ROUND_Chop:
+                        for(int i=0; i<4; ++i)
+                            GX->f[i] = EX->f[i];
+                        break;
+                }
+                break;
+            case 0x09:          // ROUNDPD Gx, Ex, u8
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8; // ignoring bit 3 interupt thingy
+                if(tmp8u&4)
+                    tmp8u = emu->mxcsr.f.MXCSR_RC;
+                else
+                    tmp8u &= 3;
+                switch(tmp8u) {
+                    case ROUND_Nearest:
+                        GX->d[0] = nearbyint(EX->d[0]);
+                        GX->d[1] = nearbyint(EX->d[1]);
+                        break;
+                    case ROUND_Down:
+                        GX->d[0] = floor(EX->d[0]);
+                        GX->d[1] = floor(EX->d[1]);
+                        break;
+                    case ROUND_Up:
+                        GX->d[0] = ceil(EX->d[0]);
+                        GX->d[1] = ceil(EX->d[1]);
+                        break;
+                    case ROUND_Chop:
+                        GX->d[0] = EX->d[0];
+                        GX->d[1] = EX->d[1];
+                        break;
+                }
+                break;
             case 0x0A:          // ROUNDSS Gx, Ex, u8
                 nextop = F8;
                 GETEX(1);
