@@ -418,6 +418,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     } else {
         GETIP_(ip);
     }
+    NOTEST(x2);
     TABLE64(x2, (uintptr_t)arm64_epilog);
     SMEND();
     BR(x2);
@@ -432,6 +433,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         if(reg!=xRIP) {
             MOVx_REG(xRIP, reg);
         }
+        NOTEST(x2);
         uintptr_t tbl = getJumpTable64();
         MAYUSE(tbl);
         TABLE64(x3, tbl);
@@ -444,6 +446,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         UBFXx(x2, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
         LDRx_REG_LSL3(x2, x3, x2);
     } else {
+        NOTEST(x2);
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
         TABLE64(x3, p);
@@ -479,6 +482,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
         // not the correct return address, regular jump
     }
     uintptr_t tbl = getJumpTable64();
+    NOTEST(x2);
     MOV64x(x2, tbl);
     UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
     LDRx_REG_LSL3(x2, x2, x3);
@@ -516,6 +520,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
         // not the correct return address, regular jump
     }
     uintptr_t tbl = getJumpTable64();
+    NOTEST(x2);
     MOV64x(x2, tbl);
     UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
     LDRx_REG_LSL3(x2, x2, x3);
@@ -535,6 +540,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "IRet to epilog\n");
     // POP IP
+    NOTEST(x2);
     POP1(xRIP);
     // POP CS
     POP1(x2);

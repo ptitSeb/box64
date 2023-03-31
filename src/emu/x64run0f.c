@@ -150,7 +150,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         case 0x18:                       /* PREFETCHh Ed */
             nextop = F8;
-            GETED(0);
+            _GETED(0);
             if(MODREG) {
             } else
             switch((nextop>>3)&7) {

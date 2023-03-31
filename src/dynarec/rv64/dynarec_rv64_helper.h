@@ -1144,13 +1144,13 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
 #define NOTEST(s1)                                          \
     if(box64_dynarec_test) {                                \
-        if(offsetof(x64emu_t, test.test)<2048) {            \
-            SW(xZR, xEmu, offsetof(x64emu_t, test.test));   \
-        } else {                                            \
-            MOV32w(s1, offsetof(x64emu_t, test.test));      \
-            ADD(s1, xEmu, s1);                              \
-            SW(xZR, s1, 0);                                 \
-        }                                                   \
+        SW(xZR, xEmu, offsetof(x64emu_t, test.test));       \
+        SW(xZR, xEmu, offsetof(x64emu_t, test.clean));      \
+    }
+#define GOTEST(s1, s2)                                      \
+    if(box64_dynarec_test) {                                \
+        MOV32w(s2, 1);                                      \
+        SW(s2, xEmu, offsetof(x64emu_t, test.test));        \
     }
 
 #endif //__DYNAREC_RV64_HELPER_H__

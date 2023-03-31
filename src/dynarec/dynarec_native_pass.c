@@ -78,6 +78,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
             dyn->last_ip = 0;   // reset IP if some jump are comming here
         fpu_propagate_stack(dyn, ninst);
         NEW_INST;
+        if(!ninst) {
+            GOTEST(x1, x2);
+        }
         if(dyn->insts[ninst].pred_sz>1) {SMSTART();}
         fpu_reset_scratch(dyn);
         if((dyn->insts[ninst].x64.need_before&~X_PEND) && !dyn->insts[ninst].pred_sz) {

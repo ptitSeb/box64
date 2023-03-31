@@ -683,7 +683,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
                 case 0xC7:                      /* CMPXCHG8B Gq */
                     nextop = F8;
-                    GETED(0);
+                    GETE8xw(0);
                     switch((nextop>>3)&7) {
                         case 1:
                             CHECK_FLAGS(emu);

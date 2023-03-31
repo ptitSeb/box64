@@ -24,7 +24,12 @@
 
 void print_banner(x64emu_t* ref)
 {
-    printf_log(LOG_NONE, "Warning, difference between Interpreter and Dynarec in %p\n=======================================\n", (void*)ref->old_ip);
+    printf_log(LOG_NONE, "Warning, difference between Interpreter and Dynarec in %p (%02x %02x %02x %02x %02x %02x %02x %02x)\n"\
+        "=======================================\n", 
+        (void*)ref->old_ip, 
+        ((uint8_t*)ref->old_ip)[0], ((uint8_t*)ref->old_ip)[1], ((uint8_t*)ref->old_ip)[2], ((uint8_t*)ref->old_ip)[3],
+        ((uint8_t*)ref->old_ip)[4], ((uint8_t*)ref->old_ip)[5], ((uint8_t*)ref->old_ip)[6], ((uint8_t*)ref->old_ip)[7]
+    );
     printf_log(LOG_NONE, "DIFF: Dynarec |  Interpreter\n----------------------\n");
 }
 #define BANNER if(!banner) {banner=1; print_banner(ref);}
@@ -129,20 +134,27 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
 void x64test_init(x64emu_t* ref, uintptr_t ip)
 {
     x64test_t* test = &ref->test;
+    if(!test->test) {
+        test->clean = 0;
+        return;
+    }
     // check if test as a valid emu struct
     if(!test->emu) {
         test->emu = NewX64Emu(my_context, ip, (uintptr_t)ref->init_stack, ref->size_stack, 0);
         CopyEmu(test->emu, ref);
-    } else if(test->test) {
-        x64test_check(ref, ip);
-    }
-    // check if IP is same, else, sync
-    if(ip != test->emu->ip.q[0] || !test->test) {
-        CopyEmu(test->emu, ref);
+    } else {
+        // check if IP is same, else, sync
+        uintptr_t prev_ip = test->emu->ip.q[0];
+        if(test->clean)
+            x64test_check(ref, ip);
+        if(ip != prev_ip || !test->test) {
+            CopyEmu(test->emu, ref);
+        }
     }
     // Do a Dry single Step
     test->memsize = 0;
-    test->test = 1;
+    test->clean = 1;
     ref->old_ip = ip;
     RunTest(test);
+    // this will be anakyzed next step
 }

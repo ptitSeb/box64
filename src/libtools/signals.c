@@ -333,6 +333,7 @@ uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc
     #ifdef DYNAREC
     if(box64_dynarec_test)
         emu->test.test = 0;
+        emu->test.clean = 0;
     #endif
 
     if(emu->longjmp) {
