@@ -978,9 +978,8 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
 #define mmx_purgecache  STEPNAME(mmx_purgecache)
 #define x87_purgecache  STEPNAME(x87_purgecache)
-#ifdef HAVE_TRACE
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
-#endif
+#define fpu_unreflectcache STEPNAME(fpu_unreflectcache)
 
 #define CacheTransform       STEPNAME(CacheTransform)
 
@@ -1170,9 +1169,8 @@ void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
 void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1);
 // purge x87 cache
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
-#ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
-#endif
+void fpu_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07);
 void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07);
 
@@ -1304,5 +1302,16 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             TSTw_mask(x1, 0b010101, 0)                      \
             , cNE, cEQ, X_SF|X_OF|X_ZF)                     \
         break
+
+#define NOTEST(s1)                                          \
+    if(box64_dynarec_test) {                                \
+        if(offsetof(x64emu_t, test.test)<(1<<12)) {         \
+            STRw_U12(xZR, xEmu, offsetof(x64emu_t, test.test));\
+        } else {                                            \
+            MOV32w(s1, offsetof(x64emu_t, test.test));      \
+            ADDx_REG(s1, xEmu, s1);                         \
+            STRw_U12(xZR, s1, 0);                           \
+        }                                                   \
+    }
 
 #endif //__DYNAREC_ARM64_HELPER_H__

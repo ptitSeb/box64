@@ -205,6 +205,11 @@ void FreeX64Emu(x64emu_t **emu)
         return;
     printf_log(LOG_DEBUG, "%04d|Free a X86_64 Emu (%p)\n", GetTID(), *emu);
 
+    if((*emu)->test.emu) {
+        internalFreeX64((*emu)->test.emu);
+        box_free((*emu)->test.emu);
+        (*emu)->test.emu = NULL;
+    }
     internalFreeX64(*emu);
 
     box_free(*emu);
@@ -238,6 +243,13 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
 	newemu->top = emu->top;
     newemu->fpu_stack = emu->fpu_stack;
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
+    newemu->df = emu->df;
+    newemu->df_sav = emu->df_sav;
+    newemu->op1 = emu->op1;
+    newemu->op2 = emu->op2;
+    newemu->res = emu->res;
+    newemu->op1_sav = emu->op1_sav;
+    newemu->res_sav = emu->res_sav;
     newemu->mxcsr = emu->mxcsr;
     newemu->quit = emu->quit;
     newemu->error = emu->error;
@@ -245,6 +257,37 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
     uintptr_t oldst = (uintptr_t)((emu->init_stack)?emu->init_stack:emu->context->stack);
     uintptr_t newst = (uintptr_t)((newemu->init_stack)?newemu->init_stack:newemu->context->stack);
     newemu->regs[_SP].q[0] = emu->regs[_SP].q[0] + (intptr_t)(newst - oldst);
+}
+
+void CopyEmu(x64emu_t *newemu, const x64emu_t* emu)
+{
+	memcpy(newemu->regs, emu->regs, sizeof(emu->regs));
+    memcpy(&newemu->ip, &emu->ip, sizeof(emu->ip));
+	memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
+    newemu->old_ip = emu->old_ip;
+    memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
+    memcpy(newemu->segs_serial, emu->segs_serial, sizeof(emu->segs_serial));
+    memcpy(newemu->segs_offs, emu->segs_offs, sizeof(emu->segs_offs));
+	memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
+	memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
+    memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
+    memcpy(newemu->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
+    memcpy(newemu->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
+	memcpy(newemu->p_regs, emu->p_regs, sizeof(emu->p_regs));
+	newemu->cw = emu->cw;
+	newemu->sw = emu->sw;
+	newemu->top = emu->top;
+    newemu->fpu_stack = emu->fpu_stack;
+    newemu->df = emu->df;
+    newemu->df_sav = emu->df_sav;
+    newemu->op1 = emu->op1;
+    newemu->op2 = emu->op2;
+    newemu->res = emu->res;
+    newemu->op1_sav = emu->op1_sav;
+    newemu->res_sav = emu->res_sav;
+    newemu->mxcsr = emu->mxcsr;
+    newemu->quit = emu->quit;
+    newemu->error = emu->error;
 }
 
 box64context_t* GetEmuContext(x64emu_t* emu)
@@ -355,8 +398,8 @@ void ResetFlags(x64emu_t *emu)
 const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
 {
     static char buff[1000];
-    char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
-                       " R8", " R9", "R10", "R11", "R12", "R13", "R14", "R15"};
+    static const char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
+                                    " R8", " R9", "R10", "R11", "R12", "R13", "R14", "R15"};
     char tmp[160];
     buff[0] = '\0';
 #ifdef HAVE_TRACE

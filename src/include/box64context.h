@@ -107,7 +107,7 @@ typedef struct box64context_s {
 
     lib_t               *maplib;        // lib and symbols handling
     lib_t               *local_maplib;  // libs and symbols openned has local (only collection of libs, no symbols)
-    dic_t               *versym;        // dictionnary of versionned symbols
+    dic_t               *versym;        // dictionnary of versioned symbols
 
     kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
     bridge_t            *system;        // other bridges
@@ -136,6 +136,7 @@ typedef struct box64context_s {
     uint32_t            mutex_bridge;
     uintptr_t           max_db_size;    // the biggest (in x86_64 instructions bytes) built dynablock
     int                 trace_dynarec;
+    pthread_mutex_t     mutex_lock;     // this is for the Test interpreter
     #endif
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
@@ -148,10 +149,10 @@ typedef struct box64context_s {
     void*               sdl2allocrw;    // SDL2 AllocRW/FreeRW function
     void*               sdl2freerw;
 
-    int                 deferedInit;
-    elfheader_t         **deferedInitList;
-    int                 deferedInitSz;
-    int                 deferedInitCap;
+    int                 deferredInit;
+    elfheader_t         **deferredInitList;
+    int                 deferredInitSz;
+    int                 deferredInitCap;
 
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata

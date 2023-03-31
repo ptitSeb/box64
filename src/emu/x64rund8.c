@@ -22,11 +22,18 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestD8(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t RunD8(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t nextop;
     float f;
     reg64_t *oped;
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
+    #endif
 
     nextop = F8;
     switch (nextop) {
@@ -115,36 +122,36 @@ uintptr_t RunD8(x64emu_t *emu, rex_t rex, uintptr_t addr)
         default:
         switch((nextop>>3)&7) {
             case 0:         /* FADD ST0, float */
-                GETED(0);
+                GETE4(0);
                 ST0.d += *(float*)ED;
                 break;
             case 1:         /* FMUL ST0, float */
-                GETED(0);
+                GETE4(0);
                 ST0.d *= *(float*)ED;
                 break;
             case 2:      /* FCOM ST0, float */
-                GETED(0);
+                GETE4(0);
                 fpu_fcom(emu, *(float*)ED);
                 break;
             case 3:     /* FCOMP */
-                GETED(0);
+                GETE4(0);
                 fpu_fcom(emu, *(float*)ED);
                 fpu_do_pop(emu);
                 break;
             case 4:         /* FSUB ST0, float */
-                GETED(0);
+                GETE4(0);
                 ST0.d -= *(float*)ED;
                 break;
             case 5:         /* FSUBR ST0, float */
-                GETED(0);
+                GETE4(0);
                 ST0.d = *(float*)ED - ST0.d;
                 break;
             case 6:         /* FDIV ST0, float */
-                GETED(0);
+                GETE4(0);
                 ST0.d /= *(float*)ED;
                 break;
             case 7:         /* FDIVR ST0, float */
-                GETED(0);
+                GETE4(0);
                 ST0.d = *(float*)ED / ST0.d;
                 break;
             default:

@@ -26,7 +26,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test670F(x64test_t *test, rex_t rex, int rep, uintptr_t addr)
+#else
 uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
+#endif
 {
     (void)rep;
     uint8_t opcode;
@@ -40,6 +44,9 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     sse_regs_t *opex, *opgx, eax1;      (void)eax1;
     mmx87_regs_t *opem, *opgm, eam1;    (void)opem;   (void)opgm;    (void)eam1;
 
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
     opcode = F8;
 
     switch(opcode) {
@@ -99,8 +106,10 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             switch(rep) {
                 case 0: /* UD1 Ed */
                     nextop = F8;
-                    GETED32(0);
+                    FAKEED32(0);
+                    #ifndef TEST_INTERPRETER
                     emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+                    #endif
                     break;
                 default:
                     return 0;

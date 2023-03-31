@@ -1301,6 +1301,10 @@
 #define VFRINTIS(Vd,Vn)             EMIT(FRINT_vector(0, 1, 1, 0, 1, Vn, Vd))
 #define VFRINTISQ(Vd,Vn)            EMIT(FRINT_vector(1, 1, 1, 0, 1, Vn, Vd))
 #define VFRINTIDQ(Vd,Vn)            EMIT(FRINT_vector(1, 1, 1, 1, 1, Vn, Vd))
+// round with mode, mode is 0 = TieEven, 1=+inf, 2=-inf, 3=zero
+#define VFRINTRDQ(Vd,Vn, mode)      EMIT(FRINT_vector(1, 0, ((mode)>>1)&1, 1, (mode)&1, Vn, Vd))
+// round with mode, mode is 0 = TieEven, 1=+inf, 2=-inf, 3=zero
+#define VFRINTRSQ(Vd,Vn, mode)      EMIT(FRINT_vector(1, 0, ((mode)>>1)&1, 0, (mode)&1, Vn, Vd))
 
 #define FRINTI_scalar(type, Rn, Rd)  (0b11110<<24 | (type)<<22 | 1<<21 | 0b001<<18 | 0b111<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
 #define FRINTIS(Sd, Sn)             EMIT(FRINTI_scalar(0b00, Sn, Sd))

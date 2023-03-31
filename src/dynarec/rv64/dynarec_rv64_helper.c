@@ -235,19 +235,19 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
         SRLI(x2, xRIP, JMPTABL_START3);
         SLLI(x2, x2, 3);
         ADD(x3, x3, x2);
-        LD(x3, x3, 0);
+        LD(x3, x3, 0); // could be LR_D(x3, x3, 1, 1); for better safety
         MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
         SRLI(x2, xRIP, JMPTABL_START2-3);
         AND(x2, x2, x4);
         ADD(x3, x3, x2);
-        LD(x3, x3, 0);
+        LD(x3, x3, 0); //LR_D(x3, x3, 1, 1);
         if(JMPTABLE_MASK2!=JMPTABLE_MASK1) {
             MOV64x(x4, JMPTABLE_MASK1<<3);    // x4 = mask
         }
         SRLI(x2, xRIP, JMPTABL_START1-3);
         AND(x2, x2, x4);
         ADD(x3, x3, x2);
-        LD(x3, x3, 0);
+        LD(x3, x3, 0); //LR_D(x3, x3, 1, 1);
         if(JMPTABLE_MASK0<2048) {
             ANDI(x2, xRIP, JMPTABLE_MASK0);
         } else {
@@ -258,13 +258,13 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
         }
         SLLI(x2, x2, 3);
         ADD(x3, x3, x2);
-        LD(x2, x3, 0);
+        LD(x2, x3, 0); //LR_D(x2, x3, 1, 1);
     } else {
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
         TABLE64(x3, p);
         GETIP_(ip);
-        LD(x2, x3, 0);
+        LD(x2, x3, 0); //LR_D(x2, x3, 1, 1);
     }
     if(reg!=A1) {
         MV(A1, xRIP);
@@ -743,10 +743,21 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
     MESSAGE(LOG_DUMP, "\t---Purge x87 Cache and Synch Stackcount\n");
 }
 
-#ifdef HAVE_TRACE
 static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
-    x87_stackcount(dyn, ninst, s1);
+    //Sync top and stack count
+    int a = dyn->e.x87stack;
+    if(a) {
+        // Add x87stack to emu fpu_stack
+        LW(s2, xEmu, offsetof(x64emu_t, fpu_stack));
+        ADDI(s2, s2, a);
+        SW(s2, xEmu, offsetof(x64emu_t, fpu_stack));
+        // Sub x87stack to top, with and 7
+        LW(s2, xEmu, offsetof(x64emu_t, top));
+        SUBI(s2, s2, a);
+        ANDI(s2, s2, 7);
+        SW(s2, xEmu, offsetof(x64emu_t, top));
+    }
     int ret = 0;
     for (int i=0; (i<8) && (!ret); ++i)
         if(dyn->e.x87cache[i] != -1)
@@ -755,7 +766,9 @@ static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int
         return;
     // prepare offset to fpu => s1
     // Get top
-    LW(s2, xEmu, offsetof(x64emu_t, top));
+    if(!a) {
+        LW(s2, xEmu, offsetof(x64emu_t, top));
+    }
     // loop all cache entries
     for (int i=0; i<8; ++i)
         if(dyn->e.x87cache[i]!=-1) {
@@ -766,7 +779,23 @@ static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int
             FSD(dyn->e.x87reg[i], s1, offsetof(x64emu_t, x87));
         }
 }
-#endif
+
+static void x87_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    // revert top and stack count
+    int a = dyn->e.x87stack;
+    if(a) {
+        // Sub x87stack to emu fpu_stack
+        LW(s2, xEmu, offsetof(x64emu_t, fpu_stack));
+        SUBI(s2, s2, a);
+        SW(s2, xEmu, offsetof(x64emu_t, fpu_stack));
+        // Add x87stack to top, with and 7
+        LW(s2, xEmu, offsetof(x64emu_t, top));
+        ADDI(s2, s2, a);
+        ANDI(s2, s2, 7);
+        SW(s2, xEmu, offsetof(x64emu_t, top));
+    }
+}
 
 int x87_get_current_cache(dynarec_rv64_t* dyn, int ninst, int st, int t)
 {
@@ -806,6 +835,7 @@ int x87_get_cache(dynarec_rv64_t* dyn, int ninst, int populate, int s1, int s2, 
             ADDI(s2, s2, a);
             ANDI(s2, s2, 7);
         }
+        SLLI(s2, s2, 3);
         ADD(s1, xEmu, s2);
         FLD(dyn->e.x87reg[ret], s1, offsetof(x64emu_t, x87));
     }
@@ -1068,7 +1098,7 @@ void mmx_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
         MESSAGE(LOG_DUMP, "\t------ Purge MMX Cache\n");
     }
 }
-#ifdef HAVE_TRACE
+
 static void mmx_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
 {
     for (int i=0; i<8; ++i)
@@ -1076,7 +1106,6 @@ static void mmx_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
             FLD(dyn->e.mmxcache[i], xEmu, offsetof(x64emu_t, mmx[i]));
         }
 }
-#endif
 
 // SSE / SSE2 helpers
 static void sse_reset(dynarec_rv64_t* dyn)
@@ -1174,7 +1203,7 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
     }
 }
-#ifdef HAVE_TRACE
+
 static void sse_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
 {
     for (int i=0; i<16; ++i)
@@ -1185,7 +1214,7 @@ static void sse_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
                 FSD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
         }
 }
-#endif
+
 void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
 {
     // need to save 0..1 && 10..17 (maybe) && 28..31
@@ -1334,7 +1363,7 @@ static void swapCache(dynarec_rv64_t* dyn, int ninst, int i, int j, extcache_t *
     }
     // SWAP
     ext_cache_t tmp;
-    MESSAGE(LOG_DUMP, "\t  - Swaping %d <-> %d\n", i, j);
+    MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
     // There is no VSWP in Arm64 NEON to swap 2 register contents!
     // so use a scratch...
     #define SCRATCH 0
@@ -1693,16 +1722,18 @@ void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
     }
 }
 
-#ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_reflectcache(dyn, ninst, s1, s2, s3);
-    if(trace_emm)
-       mmx_reflectcache(dyn, ninst, s1);
-    if(trace_xmm)
-       sse_reflectcache(dyn, ninst, s1);
+    mmx_reflectcache(dyn, ninst, s1);
+    sse_reflectcache(dyn, ninst, s1);
 }
-#endif
+
+void fpu_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    // need to undo the top and stack tracking that must not be reflected permenatly yet
+    x87_reflectcache(dyn, ninst, s1, s2, s3);
+}
 
 void fpu_reset(dynarec_rv64_t* dyn)
 {
@@ -1771,7 +1802,7 @@ void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
     #endif
 }
 
-// propagate ST stack state, especial stack pop that are defered
+// propagate ST stack state, especial stack pop that are deferred
 void fpu_propagate_stack(dynarec_rv64_t* dyn, int ninst)
 {
     if(dyn->e.stack_pop) {

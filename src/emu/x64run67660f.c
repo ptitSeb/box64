@@ -22,7 +22,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test67660F(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t Run67660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -36,7 +40,9 @@ uintptr_t Run67660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     uint64_t tmp64u;            (void)tmp64u;
     reg64_t *oped, *opgd;       (void)oped;   (void)opgd;
     sse_regs_t *opex, *opgx;
-
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
     opcode = F8;
 
     switch(opcode) {

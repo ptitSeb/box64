@@ -37,7 +37,7 @@ void extcache_promote_double(dynarec_rv64_t* dyn, int ninst, int a);
 // Combine and propagate if needed (pass 1 only)
 int extcache_combine_st(dynarec_rv64_t* dyn, int ninst, int a, int b);  // with stack current dyn->n_stack*
 
-// FPU Cache transformation (for loops) // Specific, need to be writen par backend
+// FPU Cache transformation (for loops) // Specific, need to be written par backend
 int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst);
 
 // Undo the changes of a extcache to get the status before the instruction

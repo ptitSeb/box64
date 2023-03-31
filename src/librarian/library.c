@@ -636,13 +636,13 @@ int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start,
         *end += *start;     // lib->get(...) gives size, not end
         kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
         // check first if already in the map
-        k = kh_get(bridgemap, map, VersionnedName(name, version, vername));
+        k = kh_get(bridgemap, map, VersionedName(name, version, vername));
         if(k!=kh_end(map)) {
             *start = kh_value(map, k).start;
             *end = kh_value(map, k).end;
             return 1;
         }
-        char* symbol = box_strdup(VersionnedName(name, version, vername));
+        char* symbol = box_strdup(VersionedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, map, symbol, &ret);
         kh_value(map, k).name = symbol;
@@ -663,13 +663,13 @@ int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* star
         *end += *start;     // lib->get(...) gives size, not end
         kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
         // check if already in the map
-        k = kh_get(bridgemap, map, VersionnedName(name, version, vername));
+        k = kh_get(bridgemap, map, VersionedName(name, version, vername));
         if(k!=kh_end(map)) {
             *start = kh_value(map, k).start;
             *end = kh_value(map, k).end;
             return 1;
         }
-        char* symbol = box_strdup(VersionnedName(name, version, vername));
+        char* symbol = box_strdup(VersionedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, map, symbol, &ret);
         kh_value(map, k).name = symbol;
@@ -689,13 +689,13 @@ int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start
     if(lib->getlocal(lib, name, start, end, size, weak, version, vername, local)) {
         *end += *start;     // lib->get(...) gives size, not end
         // check first if already in the map
-        k = kh_get(bridgemap, lib->lbridgemap, VersionnedName(name, version, vername));
+        k = kh_get(bridgemap, lib->lbridgemap, VersionedName(name, version, vername));
         if(k!=kh_end(lib->lbridgemap)) {
             *start = kh_value(lib->lbridgemap, k).start;
             *end = kh_value(lib->lbridgemap, k).end;
             return 1;
         }
-        char* symbol = box_strdup(VersionnedName(name, version, vername));
+        char* symbol = box_strdup(VersionedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, lib->lbridgemap, symbol, &ret);
         kh_value(lib->lbridgemap, k).name = symbol;
@@ -820,12 +820,12 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             symbol = dlsym(lib->w.lib, newname);
         }
         if(!symbol)
-            symbol = GetNativeSymbolUnversionned(lib->w.lib, name);
+            symbol = GetNativeSymbolUnversioned(lib->w.lib, name);
         if(!symbol && lib->w.altprefix) {
             char newname[200];
             strcpy(newname, lib->w.altprefix);
             strcat(newname, name);
-            symbol = GetNativeSymbolUnversionned(lib->w.lib, newname);
+            symbol = GetNativeSymbolUnversioned(lib->w.lib, newname);
         }
         if(!symbol) {
             printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
@@ -867,12 +867,12 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 symbol = dlsym(lib->w.lib, newname);
             }
             if(!symbol)
-                symbol = GetNativeSymbolUnversionned(lib->w.lib, name);
+                symbol = GetNativeSymbolUnversioned(lib->w.lib, name);
             if(!symbol && lib->w.altprefix) {
                 char newname[200];
                 strcpy(newname, lib->w.altprefix);
                 strcat(newname, name);
-                symbol = GetNativeSymbolUnversionned(lib->w.lib, newname);
+                symbol = GetNativeSymbolUnversioned(lib->w.lib, newname);
             }
             if(!symbol) {
                 printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
@@ -894,7 +894,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             if(!symbol)
                 symbol = dlsym(RTLD_DEFAULT, kh_value(lib->w.symbol2map, k).name);    // search globaly maybe
             if(!symbol)
-                symbol = GetNativeSymbolUnversionned(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
+                symbol = GetNativeSymbolUnversioned(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
             if(!symbol) {
                 printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->w.symbol2map, k).name, lib->name);
                 return 0;
@@ -919,7 +919,7 @@ int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *add
     if(getSymbolInDataMaps(lib, name, noweak, addr, size, weak))
         return 1;
 
-    if(getSymbolInSymbolMaps(lib, VersionnedName(name, version, vername), noweak, addr, size, weak))
+    if(getSymbolInSymbolMaps(lib, VersionedName(name, version, vername), noweak, addr, size, weak))
         return 1;
 
     if(getSymbolInSymbolMaps(lib, name, noweak, addr, size, weak))

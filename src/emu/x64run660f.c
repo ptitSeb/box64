@@ -43,7 +43,11 @@ static uint8_t ff_mult(uint8_t a, uint8_t b)
 	return retval;
 }
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test660F(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -106,6 +110,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d,
     };
 
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
     opcode = F8;
 
     switch(opcode) {
@@ -124,13 +131,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         break;
     case 0x12:                      /* MOVLPD Gx, Eq */
         nextop = F8;
-        GETED(0);
+        GETE8(0);
         GETGX;
         GX->q[0] = ED->q[0];
         break;
     case 0x13:                      /* MOVLPD Eq, Gx */
         nextop = F8;
-        GETED(0);
+        GETE8(0);
         GETGX;
         ED->q[0] = GX->q[0];
         break;
@@ -149,20 +156,20 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         break;
     case 0x16:                      /* MOVHPD Gx, Ed */
         nextop = F8;
-        GETED(0);
+        GETE8(0);
         GETGX;
         GX->q[1] = ED->q[0];
         break;
     case 0x17:                      /* MOVHPD Ed, Gx */
         nextop = F8;
-        GETED(0);
+        GETE8(0);
         GETGX;
         ED->q[0] = GX->q[1];
         break;
 
     case 0x1F:                      /* NOP (multi-byte) */
         nextop = F8;
-        GETED(0);
+        FAKEED(0);
         break;
 
     case 0x28:                      /* MOVAPD Gx, Ex */
@@ -372,9 +379,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 nextop = F8;
                 GETEX(0);
                 GETGX;
-                CHECK_FLAGS(emu);
+                RESET_FLAGS(emu);
                 CONDITIONAL_SET_FLAG(!(GX->u128&EX->u128), F_ZF);
                 CONDITIONAL_SET_FLAG(!((~GX->u128)&EX->u128), F_CF);
+                CLEAR_FLAG(F_AF);
+                CLEAR_FLAG(F_OF);
+                CLEAR_FLAG(F_SF);
+                CLEAR_FLAG(F_PF);
                 break;
 
             case 0x1C:  /* PABSB Gx, Ex */
@@ -692,6 +703,62 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0x3A:  // these are some SSE3 & SSE4.x opcodes
         opcode = F8;
         switch(opcode) {
+            case 0x08:          // ROUNDPS Gx, Ex, u8
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8; // ignoring bit 3 interupt thingy
+                if(tmp8u&4)
+                    tmp8u = emu->mxcsr.f.MXCSR_RC;
+                else
+                    tmp8u &= 3;
+                switch(tmp8u) {
+                    case ROUND_Nearest:
+                        for(int i=0; i<4; ++i)
+                            GX->f[i] = nearbyintf(EX->f[i]);
+                        break;
+                    case ROUND_Down:
+                        for(int i=0; i<4; ++i)
+                            GX->f[i] = floorf(EX->f[i]);
+                        break;
+                    case ROUND_Up:
+                        for(int i=0; i<4; ++i)
+                            GX->f[i] = ceilf(EX->f[i]);
+                        break;
+                    case ROUND_Chop:
+                        for(int i=0; i<4; ++i)
+                            GX->f[i] = EX->f[i];
+                        break;
+                }
+                break;
+            case 0x09:          // ROUNDPD Gx, Ex, u8
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8; // ignoring bit 3 interupt thingy
+                if(tmp8u&4)
+                    tmp8u = emu->mxcsr.f.MXCSR_RC;
+                else
+                    tmp8u &= 3;
+                switch(tmp8u) {
+                    case ROUND_Nearest:
+                        GX->d[0] = nearbyint(EX->d[0]);
+                        GX->d[1] = nearbyint(EX->d[1]);
+                        break;
+                    case ROUND_Down:
+                        GX->d[0] = floor(EX->d[0]);
+                        GX->d[1] = floor(EX->d[1]);
+                        break;
+                    case ROUND_Up:
+                        GX->d[0] = ceil(EX->d[0]);
+                        GX->d[1] = ceil(EX->d[1]);
+                        break;
+                    case ROUND_Chop:
+                        GX->d[0] = EX->d[0];
+                        GX->d[1] = EX->d[1];
+                        break;
+                }
+                break;
             case 0x0A:          // ROUNDSS Gx, Ex, u8
                 nextop = F8;
                 GETEX(1);
@@ -1560,7 +1627,15 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         tmp32s >>= (rex.w?6:4);
         if(!MODREG)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:1)));
+            if(rex.w)
+                *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+            else
+                *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg64_t*)(((uintptr_t)(EW))+(tmp32s<<(rex.w?3:1)));
+            #endif
         }
         if(rex.w) {
             if(EW->q[0] & (1LL<<tmp8u)) {

@@ -939,7 +939,7 @@ void UpdateFlags(x64emu_t *emu)
         case d_rcr32:
         case d_rcr64:
         case d_unknown:
-            printf_log(LOG_NONE, "Box64: %p trying to evaluate Unknown defered Flags\n", (void*)R_RIP);
+            printf_log(LOG_NONE, "Box64: %p trying to evaluate Unknown deferred Flags\n", (void*)R_RIP);
             break;
         
         case d_dec8i:
@@ -951,7 +951,7 @@ void UpdateFlags(x64emu_t *emu)
         case d_inc32i:
         case d_inc64i:
             {
-                defered_flags_t df = emu->df - (d_dec8i - d_dec8);
+                deferred_flags_t df = emu->df - (d_dec8i - d_dec8);
                 if(emu->df_sav!=d_none) {
                     // compute CF
                     multiuint_t op1 = emu->op1;
@@ -1225,6 +1225,26 @@ reg64_t* GetEb(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t del
     } else return GetECommon(emu, addr, rex, m, delta);
 }
 
+reg64_t* TestEb(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+{
+    // rex ignored here
+    uint8_t m = v&0xC7;    // filter Eb
+    if(m>=0xC0) {
+        if(rex.rex) {
+            return &test->emu->regs[(m&0x07)+(rex.b<<3)];
+        } else {
+            int lowhigh = (m&4)>>2;
+            return (reg64_t *)(((char*)(&test->emu->regs[(m&0x03)]))+lowhigh);  //?
+        }
+    } else {
+        reg64_t* ret = GetECommon(test->emu, addr, rex, m, delta);
+        test->memsize = 1;
+        test->memaddr = (uintptr_t)ret;
+        test->mem[0] = ret->byte[0];
+        return (reg64_t*)test->mem;
+    }
+}
+
 reg64_t* GetEbO(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
 {
     // rex ignored here
@@ -1239,12 +1259,96 @@ reg64_t* GetEbO(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t de
     } else return GetECommonO(emu, addr, rex, m, delta, offset);
 }
 
+reg64_t* TestEbO(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
+{
+    // rex ignored here
+    uint8_t m = v&0xC7;    // filter Eb
+    if(m>=0xC0) {
+        if(rex.rex) {
+            return &test->emu->regs[(m&0x07)+(rex.b<<3)];
+        } else {
+            int lowhigh = (m&4)>>2;
+            return (reg64_t *)(((char*)(&test->emu->regs[(m&0x03)]))+lowhigh);  //?
+        }
+    } else {
+        reg64_t* ret =  GetECommonO(test->emu, addr, rex, m, delta, offset);
+        test->memsize = 1;
+        test->memaddr = (uintptr_t)ret;
+        test->mem[0] = ret->byte[0];
+        return (reg64_t*)test->mem;
+    }
+}
+
 reg64_t* GetEd(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->regs[(m&0x07)+(rex.b<<3)];
     } else return GetECommon(emu, addr, rex, m, delta);
+}
+
+reg64_t* TestEd(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &test->emu->regs[(m&0x07)+(rex.b<<3)];
+    } else {
+        reg64_t* ret =  GetECommon(test->emu, addr, rex, m, delta);
+        test->memsize = 4<<rex.w;
+        test->memaddr = (uintptr_t)ret;
+        if(rex.w)
+            *(uint64_t*)test->mem = ret->q[0];
+        else
+            *(uint32_t*)test->mem = ret->dword[0];
+        return (reg64_t*)test->mem;
+    }
+}
+reg64_t* TestEd4(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &test->emu->regs[(m&0x07)+(rex.b<<3)];
+    } else {
+        reg64_t* ret =  GetECommon(test->emu, addr, rex, m, delta);
+        test->memsize = 4;
+        test->memaddr = (uintptr_t)ret;
+        *(uint32_t*)test->mem = ret->dword[0];
+        return (reg64_t*)test->mem;
+    }
+}
+reg64_t* TestEd8(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &test->emu->regs[(m&0x07)+(rex.b<<3)];
+    } else {
+        reg64_t* ret =  GetECommon(test->emu, addr, rex, m, delta);
+        test->memsize = 8;
+        test->memaddr = (uintptr_t)ret;
+        *(uint64_t*)test->mem = ret->q[0];
+        return (reg64_t*)test->mem;
+    }
+}
+reg64_t* TestEdt(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &test->emu->regs[(m&0x07)+(rex.b<<3)];
+    } else {
+        reg64_t* ret =  GetECommon(test->emu, addr, rex, m, delta);
+        test->memsize = 4;
+        test->memaddr = (uintptr_t)ret;
+        memcpy(test->mem, ret, 10);
+        return (reg64_t*)test->mem;
+    }
+}
+
+uintptr_t GetEA(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return (uintptr_t)&emu->regs[(m&0x07)+(rex.b<<3)];
+    } else return (uintptr_t)GetECommon(emu, addr, rex, m, delta);
 }
 
 reg64_t* GetEdO(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
@@ -1255,12 +1359,46 @@ reg64_t* GetEdO(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t de
     } else return GetECommonO(emu, addr, rex, m, delta, offset);
 }
 
+reg64_t* TestEdO(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &test->emu->regs[(m&0x07)+(rex.b<<3)];
+    } else {
+        reg64_t* ret =  GetECommonO(test->emu, addr, rex, m, delta, offset);
+        test->memsize = 4<<rex.w;
+        test->memaddr = (uintptr_t)ret;
+        if(rex.w)
+            *(uint64_t*)test->mem = ret->q[0];
+        else
+            *(uint32_t*)test->mem = ret->dword[0];
+        return (reg64_t*)test->mem;
+    }
+}
+
 reg64_t* GetEd32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->regs[(m&0x07)+(rex.b<<3)];
     } else return GetECommon32O(emu, addr, rex, m, delta, offset);
+}
+
+reg64_t* TestEd32O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &test->emu->regs[(m&0x07)+(rex.b<<3)];
+    } else {
+        reg64_t* ret =  GetECommon32O(test->emu, addr, rex, m, delta, offset);
+        test->memsize = 4<<rex.w;
+        test->memaddr = (uintptr_t)ret;
+        if(rex.w)
+            *(uint64_t*)test->mem = ret->q[0];
+        else
+            *(uint32_t*)test->mem = ret->dword[0];
+        return (reg64_t*)test->mem;
+    }
 }
 
 reg64_t* GetEb32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
@@ -1276,7 +1414,27 @@ reg64_t* GetEb32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t 
     } else return GetECommon32O(emu, addr, rex, m, delta, offset);
 }
 
+reg64_t* TestEb32O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
+{
+    uint8_t m = v&0xC7;    // filter Eb
+    if(m>=0xC0) {
+        if(rex.rex) {
+            return &test->emu->regs[(m&0x07)+(rex.b<<3)];
+        } else {
+            int lowhigh = (m&4)>>2;
+            return (reg64_t *)(((char*)(&test->emu->regs[(m&0x03)]))+lowhigh);  //?
+        }
+    } else {
+        reg64_t* ret =  GetECommon32O(test->emu, addr, rex, m, delta, offset);
+        test->memsize = 1;
+        test->memaddr = (uintptr_t)ret;
+        test->mem[0] = ret->byte[0];
+        return (reg64_t*)test->mem;
+    }
+}
+
 #define GetEw GetEd
+#define TestEw TestEd
 
 reg64_t* GetEw16(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
 {
@@ -1304,6 +1462,39 @@ reg64_t* GetEw16(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
             // case 3 is C0..C7, already dealt with
         }
         return (reg64_t*)base;
+    }
+}
+
+reg64_t* TestEw16(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v)
+{
+    (void)rex;
+    x64emu_t* emu = test->emu;
+
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &emu->regs[(m&0x07)];
+    } else {
+        uintptr_t base = 0;
+        switch(m&7) {
+            case 0: base = R_BX+R_SI; break;
+            case 1: base = R_BX+R_DI; break;
+            case 2: base = R_BP+R_SI; break;
+            case 3: base = R_BP+R_DI; break;
+            case 4: base =      R_SI; break;
+            case 5: base =      R_DI; break;
+            case 6: base =      R_BP; break;
+            case 7: base =      R_BX; break;
+        }
+        switch((m>>6)&3) {
+            case 0: if(m==6) base = F16(addr); break;
+            case 1: base += F8S(addr); break;
+            case 2: base += F16S(addr); break;
+            // case 3 is C0..C7, already dealt with
+        }
+        test->memsize = 2;
+        *(uint16_t*)test->mem = *(uint16_t*)base;
+        test->memaddr = (uintptr_t)base;
+        return (reg64_t*)test->mem;
     }
 }
 
@@ -1336,12 +1527,59 @@ reg64_t* GetEw16off(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uintpt
     }
 }
 
+reg64_t* TestEw16off(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uintptr_t offset)
+{
+    (void)rex;
+    x64emu_t* emu = test->emu;
+
+    uint32_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &emu->regs[(m&0x07)];
+    } else {
+        uint32_t base = 0;
+        switch(m&7) {
+            case 0: base = R_BX+R_SI; break;
+            case 1: base = R_BX+R_DI; break;
+            case 2: base = R_BP+R_SI; break;
+            case 3: base = R_BP+R_DI; break;
+            case 4: base =      R_SI; break;
+            case 5: base =      R_DI; break;
+            case 6: base =      R_BP; break;
+            case 7: base =      R_BX; break;
+        }
+        switch((m>>6)&3) {
+            case 0: if(m==6) base = F16(addr); break;
+            case 1: base += F8S(addr); break;
+            case 2: base += F16S(addr); break;
+            // case 3 is C0..C7, already dealt with
+        }
+        test->memsize = 2;
+        *(uint16_t*)test->mem = *(uint16_t*)(base+offset);
+        test->memaddr = (uintptr_t)(base+offset);
+        return (reg64_t*)test->mem;
+    }
+}
+
 mmx87_regs_t* GetEm(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->mmx[m&0x07];
     } else return (mmx87_regs_t*)GetECommon(emu, addr, rex, m, delta);
+}
+
+mmx87_regs_t* TestEm(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &test->emu->mmx[m&0x07];
+    } else {
+        mmx87_regs_t* ret = (mmx87_regs_t*)GetECommon(test->emu, addr, rex, m, delta);
+        test->memsize = 8;
+        *(uint64_t*)test->mem = ret->q;
+        test->memaddr = (uintptr_t)ret;
+        return (mmx87_regs_t*)test->mem;
+    }
 }
 
 sse_regs_t* GetEx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
@@ -1352,12 +1590,43 @@ sse_regs_t* GetEx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t 
     } else return (sse_regs_t*)GetECommon(emu, addr, rex, m, delta);
 }
 
+sse_regs_t* TestEx(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+        test->memsize=0;
+         return &test->emu->xmm[(m&0x07)+(rex.b<<3)];
+    } else {
+        sse_regs_t* ret = (sse_regs_t*)GetECommon(test->emu, addr, rex, m, delta);
+        test->memsize = 16;
+        ((uint64_t*)test->mem)[0] = ret->q[0];
+        ((uint64_t*)test->mem)[1] = ret->q[1];
+        test->memaddr = (uintptr_t)ret;
+        return (sse_regs_t*)test->mem;
+    }
+}
+
 sse_regs_t* GetExO(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->xmm[(m&0x07)+(rex.b<<3)];
     } else return (sse_regs_t*)GetECommonO(emu, addr, rex, m, delta, offset);
+}
+
+sse_regs_t* TestExO(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &test->emu->xmm[(m&0x07)+(rex.b<<3)];
+    } else {
+        sse_regs_t* ret = (sse_regs_t*)GetECommonO(test->emu, addr, rex, m, delta, offset);
+        test->memsize = 16;
+        ((uint64_t*)test->mem)[0] = ret->q[0];
+        ((uint64_t*)test->mem)[1] = ret->q[1];
+        test->memaddr = (uintptr_t)ret;
+        return (sse_regs_t*)test->mem;
+    }
 }
 
 sse_regs_t* GetEx32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
@@ -1368,6 +1637,21 @@ sse_regs_t* GetEx32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8
     } else return (sse_regs_t*)GetECommon32O(emu, addr, rex, m, delta, offset);
 }
 
+sse_regs_t* TestEx32O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &test->emu->xmm[(m&0x07)+(rex.b<<3)];
+    } else {
+        sse_regs_t* ret = (sse_regs_t*)GetECommon32O(test->emu, addr, rex, m, delta, offset);
+        test->memsize = 16;
+        ((uint64_t*)test->mem)[0] = ret->q[0];
+        ((uint64_t*)test->mem)[1] = ret->q[1];
+        test->memaddr = (uintptr_t)ret;
+        return (sse_regs_t*)test->mem;
+    }
+}
+
 mmx87_regs_t* GetEm32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
 {
     uint8_t m = v&0xC7;    // filter Ed
@@ -1376,6 +1660,19 @@ mmx87_regs_t* GetEm32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uin
     } else return (mmx87_regs_t*)GetECommon32O(emu, addr, rex, m, delta, offset);
 }
 
+mmx87_regs_t* TestEm32O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &test->emu->mmx[(m&0x07)];
+    } else {
+        mmx87_regs_t* ret = (mmx87_regs_t*)GetECommon32O(test->emu, addr, rex, m, delta, offset);
+        test->memsize = 8;
+        *(uint64_t*)test->mem = ret->q;
+        test->memaddr = (uintptr_t)ret;
+        return (mmx87_regs_t*)test->mem;
+    }
+}
 
 reg64_t* GetGd(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
 {

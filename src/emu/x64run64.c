@@ -22,7 +22,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test64(x64test_t *test, rex_t rex, int seg, uintptr_t addr)
+#else
 uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -35,6 +39,9 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
     int rep;
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
     uintptr_t tlsdata = GetSegmentBaseEmu(emu, seg);
 
     opcode = F8;

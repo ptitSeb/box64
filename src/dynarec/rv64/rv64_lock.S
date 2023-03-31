@@ -99,15 +99,74 @@ rv64_lock_storeifref2_d:
 
 rv64_lock_decifnot0b:
     fence   rw, rw
+    andi    a3, a0, 3
+    andi    a0, a0, ~3
+    slli    a3, a3, 1   //TODO: make a jump table less hacky!
+    la      a4, table
+    add     a4, a4, a3
+    jr      a4, 10
+table:
+    j       1f
+    j       rv64_lock_decifnot0b_1  // all those are compressed
+    j       rv64_lock_decifnot0b_2
+    j       rv64_lock_decifnot0b_3
 1:
     lr.w    a1, (a0)
-    andi    a1, a1, 0xff
-    beqz    a1, 2f
-    addi    a1, a1, -1
+    andi    a3, a1, 0xff
+    beqz    a3, 2f
+    addi    a3, a3, -1
+    andi    a1, a1, ~0xff
+    or      a1, a1, a3
     sc.w    a2, a1, (a0)
     bnez    a2, 1b
 2:
     ret
+rv64_lock_decifnot0b_1:
+    li      a4, 0xffff00ff
+1:
+    lr.w    a1, (a0)
+    srli    a3, a1, 8
+    andi    a3, a3, 0xff
+    beqz    a3, 2f
+    addi    a3, a3, -1
+    and     a1, a1, a4
+    slli    a3, a3, 8
+    or      a1, a1, a3
+    sc.w    a2, a1, (a0)
+    bnez    a2, 1b
+2:
+    ret
+rv64_lock_decifnot0b_2:
+    li      a4, 0xff00ffff
+1:
+    lr.w    a1, (a0)
+    srli    a3, a1, 16
+    andi    a3, a3, 0xff
+    beqz    a3, 2f
+    addi    a3, a3, -1
+    and     a1, a1, a4
+    slli    a3, a3, 16
+    or      a1, a1, a3
+    sc.w    a2, a1, (a0)
+    bnez    a2, 1b
+2:
+    ret
+rv64_lock_decifnot0b_3:
+    li      a4, 0x00ffffff
+1:
+    lr.w    a1, (a0)
+    srli    a3, a1, 24
+    andi    a3, a3, 0xff
+    beqz    a3, 2f
+    addi    a3, a3, -1
+    and     a1, a1, a4
+    slli    a3, a3, 24
+    or      a1, a1, a3
+    sc.w    a2, a1, (a0)
+    bnez    a2, 1b
+2:
+    ret
+
 
 rv64_lock_storeb:
     sb      a1, 0(a0)

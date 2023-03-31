@@ -22,10 +22,17 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestDA(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t nextop;
     reg64_t *oped;
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
+    #endif
 
     nextop = F8;
     switch (nextop) {
@@ -98,36 +105,36 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
     default:
         switch((nextop>>3)&7) {
             case 0:     /* FIADD ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d += ED->sdword[0];
                 break;
             case 1:     /* FIMUL ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d *= ED->sdword[0];
                 break;
             case 2:     /* FICOM ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 fpu_fcom(emu, ED->sdword[0]);
                 break;
             case 3:     /* FICOMP ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 fpu_fcom(emu, ED->sdword[0]);
                 fpu_do_pop(emu);
                 break;
             case 4:     /* FISUB ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d -= ED->sdword[0];
                 break;
             case 5:     /* FISUBR ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d = (double)ED->sdword[0] - ST0.d;
                 break;
             case 6:     /* FIDIV ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d /= ED->sdword[0];
                 break;
             case 7:     /* FIDIVR ST0, Ed int */
-                GETED(0);
+                GETE4(0);
                 ST0.d = (double)ED->sdword[0] / ST0.d;
                 break;
         }

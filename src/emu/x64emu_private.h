@@ -25,6 +25,16 @@ typedef union multiuint_s {
     uint64_t    u64;
 } multiuint_t;
 
+typedef struct x64emu_s x64emu_t;
+
+typedef struct x64test_s {
+    x64emu_t*   emu;
+    uintptr_t   memaddr;
+    int         memsize;
+    int         test;
+    uint8_t     mem[16];
+} x64test_t;
+
 typedef struct x64emu_s {
     // cpu
 	reg64_t     regs[16];
@@ -45,15 +55,15 @@ typedef struct x64emu_s {
 	fpu_p_reg_t p_regs[8];
     // old ip
     uintptr_t   old_ip;
-    // defered flags
+    // deferred flags
     int         dummy1;     // to align on 64bits with df
-    defered_flags_t df;
+    deferred_flags_t df;
     multiuint_t op1;
     multiuint_t op2;
     multiuint_t res;
-    multiuint_t op1_sav;    // for dec/inc defered flags, to be able to compute CF
+    multiuint_t op1_sav;    // for dec/inc deferred flags, to be able to compute CF
     multiuint_t res_sav;
-    defered_flags_t df_sav;
+    deferred_flags_t df_sav;
     uint32_t    *x64emu_parity_tab; // helper
     #ifdef HAVE_TRACE
     reg64_t     oldregs[16];
@@ -77,6 +87,7 @@ typedef struct x64emu_s {
     int         quitonlongjmp;  // quit if longjmp is called
     int         quitonexit;     // quit if exit/_exit is called
     int         longjmp;        // if quit because of longjmp
+    x64test_t   test;       // used for dynarec testing
     // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
     uint64_t    scratch[200];
     // local stack, do be deleted when emu is freed
@@ -87,7 +98,6 @@ typedef struct x64emu_s {
     x64_ucontext_t *uc_link; // to handle setcontext
 
     int         type;       // EMUTYPE_xxx define
-
 } x64emu_t;
 
 #define EMUTYPE_NONE    0

@@ -25,7 +25,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test66F0(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -37,7 +41,9 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
     #ifdef USE_CAS
     uint64_t tmpcas;
     #endif
-
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
     opcode = F8;
     // REX prefix before the F0 are ignored
     rex.rex = 0;
@@ -58,7 +64,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     nextop = F8;
                     GETEW(0);
                     GETGW;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     do {
                         tmp16u = native_lock_read_h(EW);
                         cmp16(emu, R_AX, tmp16u);
@@ -85,7 +91,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     nextop = F8;
                     GETEW(0);
                     GETGW;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(rex.w) {
                         do {
                             tmp64u = native_lock_read_dd(ED);
@@ -128,7 +134,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             }
             break;
 
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
         #define GO(B, OP)                                           \
         case B+1:                                                   \
             nextop = F8;                                            \
@@ -209,7 +215,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETED((opcode==0x83)?1:2);
             tmp64s = (opcode==0x83)?(F8S):(F16S);
             tmp64u = (uint64_t)tmp64s;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             if(MODREG)
                 switch((nextop>>3)&7) {
                     case 0: ED->word[0] = add16(emu, ED->word[0], tmp64u); break;
@@ -253,7 +259,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETED(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(rex.w)
                         if(((uintptr_t)ED)&7) {
                             // unaligned
@@ -295,7 +301,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #endif
                     break;
                 case 1:                 /* DEC Ed */
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(rex.w)
                         if(((uintptr_t)ED)&7) {
                             // unaligned

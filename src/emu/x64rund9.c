@@ -22,13 +22,20 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestD9(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t nextop;
     int32_t tmp32s;
     uint64_t ll;
     float f;
     reg64_t *oped;
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
+    #endif
 
     nextop = F8;
     switch (nextop) {
@@ -230,22 +237,22 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
         default:
         switch((nextop>>3)&7) {
             case 0:     /* FLD ST0, Ed float */
-                GETED(0);
+                GETE4(0);
                 fpu_do_push(emu);
                 ST0.d = *(float*)ED;
                 break;
             case 2:     /* FST Ed, ST0 */
-                GETED(0);
+                GETE4(0);
                 *(float*)ED = ST0.d;
                 break;
             case 3:     /* FSTP Ed, ST0 */
-                GETED(0);
+                GETE4(0);
                 *(float*)ED = ST0.d;
                 fpu_do_pop(emu);
                 break;
             case 4:     /* FLDENV m */
                 // warning, incomplete
-                GETED(0);
+                _GETED(0);
                 fpu_loadenv(emu, (char*)ED, 0);
                 break;
             case 5:     /* FLDCW Ew */
@@ -255,8 +262,10 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete
-                GETED(0);
+                _GETED(0);
+                #ifndef TEST_INTERPRETER
                 fpu_savenv(emu, (char*)ED, 0);
+                #endif
                 // intruction pointer: 48bits
                 // data (operand) pointer: 48bits
                 // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)

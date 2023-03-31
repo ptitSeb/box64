@@ -26,12 +26,16 @@ static inline uint64_t Pop(x64emu_t *emu)
     return *st;
 }
 
+#ifdef TEST_INTERPRETER
+#define Push(E, V)  do{R_RSP -=8; test->memsize = 8; *(uint64_t*)test->mem = (V); test->memaddr = R_RSP;}while(0)
+#define Push16(E, V)  do{R_RSP -=2; test->memsize = 2; *(uint16_t*)test->mem = (V); test->memaddr = R_RSP;}while(0)
+#else
 static inline void Push(x64emu_t *emu, uint64_t v)
 {
     R_RSP -= 8;
     *((uint64_t*)R_RSP) = v;
 }
-
+#endif
 
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
 
@@ -39,24 +43,43 @@ reg64_t* GetECommon(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_
 reg64_t* GetECommonO(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_t delta, uintptr_t offset);
 reg64_t* GetECommon32O(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_t delta, uintptr_t offset);
 reg64_t* GetEb(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
+reg64_t* TestEb(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
 reg64_t* GetEbO(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
+reg64_t* TestEbO(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* GetEd(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
+reg64_t* TestEd(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
+reg64_t* TestEd4(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
+reg64_t* TestEd8(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
+reg64_t* TestEdt(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
+uintptr_t GetEA(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
 reg64_t* GetEdO(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
+reg64_t* TestEdO(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* GetEd32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
+reg64_t* TestEd32O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* GetEb32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
+reg64_t* TestEb32O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 #define GetEw GetEd
+#define TestEw TestEd
 #define GetEw32O GetEd32O
+#define TestEw32O TestEd32O
 reg64_t* GetEw16(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v);
+reg64_t* TestEw16(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v);
 reg64_t* GetEw16off(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uintptr_t offset);
+reg64_t* TestEw16off(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uintptr_t offset);
 mmx87_regs_t* GetEm(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
+mmx87_regs_t* TestEm(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
 sse_regs_t* GetEx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
+sse_regs_t* TestEx(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
 sse_regs_t* GetExO(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
+sse_regs_t* TestExO(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 sse_regs_t* GetEx32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
+sse_regs_t* TestEx32O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* GetGd(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v);
 #define GetGw GetGd
 reg64_t* GetGb(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v);
 mmx87_regs_t* GetGm(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v);
 mmx87_regs_t* GetEm32O(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
+mmx87_regs_t* TestEm32O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 sse_regs_t* GetGx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v);
 
 void UpdateFlags(x64emu_t *emu);
@@ -87,6 +110,31 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step);
 uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr);
+
+uintptr_t Test0F(x64test_t *test, rex_t rex, uintptr_t addr, int *step);
+uintptr_t Test64(x64test_t *test, rex_t rex, int seg, uintptr_t addr);
+uintptr_t Test66(x64test_t *test, rex_t rex, int rep, uintptr_t addr);
+uintptr_t Test660F(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t Test6664(x64test_t *test, rex_t rex, int seg, uintptr_t addr);
+uintptr_t Test66D9(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t Test66DD(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t Test66F0(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t Test67(x64test_t *test, rex_t rex, int rep, uintptr_t addr);
+uintptr_t Test670F(x64test_t *test, rex_t rex, int rep, uintptr_t addr);
+uintptr_t Test6766(x64test_t *test, rex_t rex, int rep, uintptr_t addr);
+uintptr_t Test67660F(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestD8(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestD9(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestDA(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestDB(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestDC(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestDD(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestDE(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestDF(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestF0(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestF20F(x64test_t *test, rex_t rex, uintptr_t addr, int *step);
+uintptr_t TestF30F(x64test_t *test, rex_t rex, uintptr_t addr);
+
 
 void x64Syscall(x64emu_t *emu);
 void x64Int3(x64emu_t* emu, uintptr_t* addr);

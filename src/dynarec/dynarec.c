@@ -115,7 +115,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
-                dynarec_log(LOG_DEBUG, "%04d|Calling Interpretor @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Calling Interpreter @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 Run(emu, 1);
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x64 instructions emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,emu);
@@ -190,7 +190,7 @@ int DynaRun(x64emu_t* emu)
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
-                dynarec_log(LOG_DEBUG, "%04d|Running Interpretor @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Running Interpreter @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 Run(emu, 1);
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, emu);

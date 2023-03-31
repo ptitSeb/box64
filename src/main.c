@@ -62,6 +62,7 @@ int box64_dynarec_hotpage = 4;
 int box64_dynarec_fastpage = 0;
 int box64_dynarec_bleeding_edge = 1;
 int box64_dynarec_wait = 1;
+int box64_dynarec_test = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -600,6 +601,18 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "No dynablock creation that start in the range %p - %p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
         }
     }
+    p = getenv("BOX64_DYNAREC_TEST");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_test = p[0]-'0';
+        }
+        if(box64_dynarec_test) {
+            box64_dynarec_fastnan = 0;
+            box64_dynarec_fastround = 0;
+            printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
+        }
+    }
 
 #endif
 #ifdef HAVE_TRACE
@@ -725,7 +738,7 @@ void LoadLogEnv()
             if(box64_malloc_hack==1) {
                 printf_log(LOG_INFO, "Malloc hook will not be redirected\n");
             } else
-                printf_log(LOG_INFO, "Malloc hook will check for mmap/free occurences\n");
+                printf_log(LOG_INFO, "Malloc hook will check for mmap/free occurrences\n");
         }
     }
     p = getenv("BOX64_NOPULSE");
@@ -923,9 +936,9 @@ void PrintHelp() {
     printf(" BOX64_NOSIGILL=1  to disable handling of SigILL\n");
     printf(" BOX64_SHOWSEGV=1 to show Segfault signal even if a signal handler is present\n");
     printf(" BOX64_X11THREADS=1 to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)");
-    printf(" BOX64_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
+    printf(" BOX64_LIBGL=libXXXX set the name (and optionnally full path) for libGL.so.1\n");
     printf(" BOX64_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
-    printf(" BOX64_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
+    printf(" BOX64_ALLOWMISSINGLIBS with 1 to allow one to continue even if a lib is missing (unadvised, will probably  crash later)\n");
     printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11\n");
     printf(" BOX64_PREFER_WRAPPED if box64 will use wrapped libs even if the lib is specified with absolute path\n");
     printf(" BOX64_CRASHHANDLER=0 to not use a dummy crashhandler lib\n");
@@ -1710,9 +1723,9 @@ int main(int argc, const char **argv, char **env) {
     }
     // and handle PLT
     RelocateElfPlt(my_context->maplib, NULL, 0, elf_header);
-    // defered init
+    // deferred init
     setupTraceInit();
-    RunDeferedElfInit(emu);
+    RunDeferredElfInit(emu);
     // update TLS of main elf
     RefreshElfTLS(elf_header);
     // do some special case check, _IO_2_1_stderr_ and friends, that are setup by libc, but it's already done here, so need to do a copy

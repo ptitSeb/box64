@@ -17,7 +17,7 @@ typedef struct onesymbol_s {
 } onesymbol_t;
 
 typedef struct versymbol_s {
-    int         version;    // -1 = no-version, 0=local, 1=global, X=versionned
+    int         version;    // -1 = no-version, 0=local, 1=global, X=versioned
     const char* vername;    // NULL or version name if version=X
     onesymbol_t sym;
 } versymbol_t;

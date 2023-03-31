@@ -28,7 +28,11 @@
 
 int my_setcontext(x64emu_t* emu, void* ucp);
 
+#ifdef TEST_INTERPRETER
+int RunTest(x64test_t *test)
+#else
 int Run(x64emu_t *emu, int step)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -40,6 +44,10 @@ int Run(x64emu_t *emu, int step)
     uint32_t tmp32u, tmp32u2;
     int64_t tmp64s;
     uint64_t tmp64u, tmp64u2, tmp64u3;
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    int step = 0;
+    #endif
     uintptr_t addr = R_RIP;
     rex_t rex;
     int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
@@ -57,9 +65,11 @@ int Run(x64emu_t *emu, int step)
     printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p\n", emu, (void*)addr, (void*)R_RSP);
 
 x64emurun:
-
-    while(1) {
-#ifdef HAVE_TRACE
+#ifndef TEST_INTERPRETER
+    while(1) 
+#endif
+    {
+#if defined(HAVE_TRACE)
         __builtin_prefetch((void*)addr, 0, 0); 
         emu->prev2_ip = emu->old_ip;
         if(my_context->dec && (
@@ -136,24 +146,39 @@ x64emurun:
         case 0x0F:                      /* More instructions */
             switch(rep) {
                 case 1:
+                    #ifdef TEST_INTERPRETER 
+                    if(!(addr = TestF20F(test, rex, addr, &step)))
+                        unimp = 1;
+                    #else
                     if(!(addr = RunF20F(emu, rex, addr, &step))) {
                         unimp = 1;
                         goto fini;
                     }
                     if(step==2) STEP2;
+                    #endif
                     break;
                 case 2:
+                    #ifdef TEST_INTERPRETER 
+                    if(!(addr = TestF30F(test, rex, addr)))
+                        unimp = 1;
+                    #else
                     if(!(addr = RunF30F(emu, rex, addr))) {
                         unimp = 1;
                         goto fini;
                     }
+                    #endif
                     break;
                 default:
+                    #ifdef TEST_INTERPRETER 
+                    if(!(addr = Test0F(test, rex, addr, &step)))
+                        unimp = 1;
+                    #else
                     if(!(addr = Run0F(emu, rex, addr, &step))) {
                         unimp = 1;
                         goto fini;
                     }
                     if(step==2) STEP2;
+                    #endif
                     break;
             }
             if(emu->quit) {
@@ -255,6 +280,10 @@ x64emurun:
                     GD->sdword[0] = ED->sdword[0];  // meh?
             break;
         case 0x64:                      /* FS: prefix */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = Test64(test, rex, _FS, addr)))
+                unimp = 1;
+            #else
             if(!(addr = Run64(emu, rex, _FS, addr))) {
                 unimp = 1;
                 goto fini;
@@ -263,8 +292,13 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0x65:                      /* GS: prefix */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = Test64(test, rex, _GS, addr)))
+                unimp = 1;
+            #else
             if(!(addr = Run64(emu, rex, _GS, addr))) {
                 unimp = 1;
                 goto fini;
@@ -273,8 +307,13 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0x66:                      /* 16bits prefix */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = Test66(test, rex, rep, addr)))
+                unimp = 1;
+            #else
             if(!(addr = Run66(emu, rex, rep, addr))) {
                 unimp = 1;
                 goto fini;
@@ -283,8 +322,13 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0x67:                      /* reduce EASize prefix */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = Test67(test, rex, rep, addr)))
+                unimp = 1;
+            #else
             if(!(addr = Run67(emu, rex, rep, addr))) {
                 unimp = 1;
                 goto fini;
@@ -293,6 +337,7 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0x68:                      /* Push Id */
             Push(emu, F32S64);
@@ -326,8 +371,10 @@ x64emurun:
         case 0x6E:                      /* OUTSB DX */
         case 0x6F:                      /* OUTSL DX */
             // this is a privilege opcode...
+            #ifndef TEST_INTERPRETOR
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
+            #endif
             break;
 
         GOCOND(0x70
@@ -416,7 +463,7 @@ x64emurun:
             break;
         case 0x86:                      /* XCHG Eb,Gb */
             nextop = F8;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             GETEB(0);
             GETGB;
             if(MODREG) { // reg / reg: no lock
@@ -441,7 +488,7 @@ x64emurun:
             break;
         case 0x87:                      /* XCHG Ed,Gd */
             nextop = F8;
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             GETED(0);
             GETGD;
             if(MODREG) {
@@ -527,12 +574,12 @@ x64emurun:
             break;
         case 0x8D:                      /* LEA Gd,M */
             nextop = F8;
-            GETED(0);
             GETGD;
+            tmp64u = GETEA(0);
             if(rex.w)
-                GD->q[0] = (uint64_t)ED;
+                GD->q[0] = tmp64u;
             else
-                GD->q[0] = ((uintptr_t)ED)&0xffffffff;
+                GD->q[0] = tmp64u&0xffffffff;
             break;
 
         case 0x8F:                      /* POP Ed */
@@ -630,7 +677,9 @@ x64emurun:
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             tmp64u = (rep)?R_RCX:1L;
             while(tmp64u) {
+                #ifndef TEST_INTERPRETER
                 *(uint8_t*)R_RDI = *(uint8_t*)R_RSI;
+                #endif
                 R_RDI += tmp8s;
                 R_RSI += tmp8s;
                 --tmp64u;
@@ -645,7 +694,9 @@ x64emurun:
                 tmp8s *= 8;
                 while(tmp64u) {
                     --tmp64u;
+                    #ifndef TEST_INTERPRETER
                     *(uint64_t*)R_RDI = *(uint64_t*)R_RSI;
+                    #endif
                     R_RDI += tmp8s;
                     R_RSI += tmp8s;
                 }
@@ -653,7 +704,9 @@ x64emurun:
                 tmp8s *= 4;
                 while(tmp64u) {
                     --tmp64u;
+                    #ifndef TEST_INTERPRETER
                     *(uint32_t*)R_RDI = *(uint32_t*)R_RSI;
+                    #endif
                     R_RDI += tmp8s;
                     R_RSI += tmp8s;
                 }
@@ -793,7 +846,9 @@ x64emurun:
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             tmp64u = (rep)?R_RCX:1L;
             while(tmp64u) {
+                #ifndef TEST_INTERPRETER
                 *(uint8_t*)R_RDI = R_AL;
+                #endif
                 R_RDI += tmp8s;
                 --tmp64u;
             }
@@ -808,7 +863,9 @@ x64emurun:
             tmp64u = (rep)?R_RCX:1L;
             if((rex.w))
                 while(tmp64u) {
+                    #ifndef TEST_INTERPRETER
                     *(uint64_t*)R_RDI = R_RAX;
+                    #endif
                     R_RDI += tmp8s;
                     --tmp64u;
                 }
@@ -1079,14 +1136,18 @@ x64emurun:
             break;
 
         case 0xCC:                      /* INT 3 */
+            #ifndef TEST_INTERPRETER
             x64Int3(emu, &addr);
             if(emu->quit) goto fini;    // R_RIP is up to date when returning from x64Int3
             addr = R_RIP;
+            #endif
             break;
         case 0xCD:                      /* INT n */
             // this is a privilege opcode...
+            #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
+            #endif
             break;
 
 
@@ -1165,6 +1226,10 @@ x64emurun:
             R_AL = *(uint8_t*)(R_RBX + R_AL);
             break;
         case 0xD8:                      /* x87 opcodes */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = TestD8(test, rex, addr)))
+                unimp = 1;
+            #else
             if(!(addr = RunD8(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
@@ -1173,8 +1238,13 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0xD9:                      /* x87 opcodes */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = TestD9(test, rex, addr)))
+                unimp = 1;
+            #else
             if(!(addr = RunD9(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
@@ -1183,8 +1253,13 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0xDA:                      /* x87 opcodes */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = TestDA(test, rex, addr)))
+                unimp = 1;
+            #else
             if(!(addr = RunDA(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
@@ -1193,8 +1268,13 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0xDB:                      /* x87 opcodes */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = TestDB(test, rex, addr)))
+                unimp = 1;
+            #else
             if(!(addr = RunDB(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
@@ -1203,8 +1283,13 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0xDC:                      /* x87 opcodes */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = TestDC(test, rex, addr)))
+                unimp = 1;
+            #else
             if(!(addr = RunDC(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
@@ -1213,8 +1298,13 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0xDD:                      /* x87 opcodes */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = TestDD(test, rex, addr)))
+                unimp = 1;
+            #else
             if(!(addr = RunDD(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
@@ -1223,8 +1313,13 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0xDE:                      /* x87 opcodes */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = TestDE(test, rex, addr)))
+                unimp = 1;
+            #else
             if(!(addr = RunDE(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
@@ -1233,8 +1328,13 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0xDF:                      /* x87 opcodes */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = TestDF(test, rex, addr)))
+                unimp = 1;
+            #else
             if(!(addr = RunDF(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
@@ -1243,6 +1343,7 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
         case 0xE0:                      /* LOOPNZ */
             CHECK_FLAGS(emu);
@@ -1278,8 +1379,10 @@ x64emurun:
         case 0xE6:                      /* OUT XX, AL */
         case 0xE7:                      /* OUT XX, EAX */
             // this is a privilege opcode...
+            #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
+            #endif
             break;
         case 0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative
@@ -1303,10 +1406,16 @@ x64emurun:
         case 0xEE:                      /* OUT DX, AL */
         case 0xEF:                      /* OUT DX, EAX */
             // this is a privilege opcode...
+            #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
+            #endif
             break;
         case 0xF0:                      /* LOCK prefix */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = TestF0(test, rex, addr)))
+                unimp = 1;
+            #else
             if(!(addr = RunF0(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
@@ -1315,12 +1424,15 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
             break;
 
         case 0xF4:                      /* HLT */
             // this is a privilege opcode...
+            #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
+            #endif
             break;
         case 0xF5:                      /* CMC */
             CHECK_FLAGS(emu);
@@ -1469,9 +1581,9 @@ x64emurun:
             break;
         case 0xFF:                      /* GRP 5 Ed */
             nextop = F8;
-            GETED(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
+                    GETED(0);
                     if(rex.w)
                         ED->q[0] = inc64(emu, ED->q[0]);
                     else {
@@ -1482,6 +1594,7 @@ x64emurun:
                     }
                     break;
                 case 1:                 /* DEC Ed */
+                    GETED(0);
                     if(rex.w)
                         ED->q[0] = dec64(emu, ED->q[0]);
                     else {
@@ -1492,12 +1605,14 @@ x64emurun:
                     }
                     break;
                 case 2:                 /* CALL NEAR Ed */
+                    GETE8(0);
                     tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
                     Push(emu, addr);
                     addr = tmp64u;
                     STEP2
                     break;
                 case 3:                 /* CALL FAR Ed */
+                    GETET(0);
                     if(MODREG) {
                         printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
@@ -1512,10 +1627,12 @@ x64emurun:
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
+                    GETE8(0);
                     addr = (uintptr_t)getAlternate((void*)ED->q[0]);
                     STEP2
                     break;
                 case 5:                 /* JMP FAR Ed */
+                    GETET(0);
                     if(MODREG) {
                         printf_log(LOG_NONE, "Illegal Opcode %p: 0x%02X 0x%02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
@@ -1528,8 +1645,17 @@ x64emurun:
                     }
                     break;
                 case 6:                 /* Push Ed */
+                    GETE8(0);
                     tmp64u = ED->q[0];  // rex.w ignored
+                    #ifdef TEST_INTERPRETER
+                    R_RSP -=8;
+                    if(test->memsize!=8)
+                        *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+                    test->memsize = 8;
+                    test->memaddr = R_RSP;
+                    #else
                     Push(emu, tmp64u);  // avoid potential issue with push [esp+...]
+                    #endif
                     break;
                 default:
                     printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
@@ -1547,6 +1673,7 @@ x64emurun:
 
 
 fini:
+#ifndef TEST_INTERPRETER
     printf_log(LOG_DEBUG, "End of X86 run (%p), RIP=%p, Stack=%p, unimp=%d, emu->fork=%d, emu->uc_link=%p, emu->quit=%d\n", emu, (void*)R_RIP, (void*)R_RSP, unimp, emu->fork, emu->uc_link, emu->quit);
     if(unimp) {
         emu->quit = 1;
@@ -1570,5 +1697,11 @@ fini:
         addr = R_RIP;
         goto x64emurun;
     }
+#else
+    if(unimp) {
+        printf_log(LOG_INFO, "Warning, inimplemented opcode in Test Interpreter\n");
+    } else
+        addr = R_RIP;
+#endif
     return 0;
 }

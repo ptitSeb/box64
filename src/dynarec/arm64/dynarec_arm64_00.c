@@ -499,9 +499,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
-            if(dyn->doublepush)
+            if(dyn->doublepush) {
+                NOTEST(x1);
                 dyn->doublepush = 0;
-            else {
+            } else {
                 gd = xRAX+(opcode&0x07)+(rex.b<<3);
                 if(gd==xRSP) {
                     MOVx_REG(x1, gd);
@@ -524,6 +525,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     PUSH2(gd, u32);
                     dyn->doublepush = 1;
+                    NOTEST(x1);  // disable test for this OP
                 } else {
                     PUSH1(gd);
                 }   
@@ -538,9 +540,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
-            if(dyn->doublepop)
+            if(dyn->doublepop) {
+                NOTEST(x1);
                 dyn->doublepop = 0;
-            else {
+            } else {
                 gd = xRAX+(opcode&0x07)+(rex.b<<3);
                 u32 = 0;
                 i32 = 0;
@@ -563,6 +566,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                     }
                     dyn->doublepop = 1;
+                    NOTEST(x1);  // disable test for this OP
                 } else {
                     if(gd == xRSP) {
                         POP1(x1);
@@ -1682,7 +1686,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("RET");
             // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             if(box64_dynarec_safeflags) {
-                READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
+                READFLAGS(X_PEND);  // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
             BARRIER(BARRIER_FLOAT);
             ret_to_epilog(dyn, ninst);
@@ -1745,6 +1749,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            NOTEST(x1);
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
                 BARRIER(BARRIER_FLOAT);
@@ -2211,6 +2216,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
+                    NOTEST(x1);    // disable test as this hack dos 2 instructions for 1
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall)
@@ -2393,6 +2399,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7:
                     INST_NAME("IDIV Eb");
+                    NOTEST(x1);
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1, 0);
@@ -2503,6 +2510,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
+                    NOTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
                     if(!rex.w) {
                         SET_DFNONE(x2)

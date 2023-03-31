@@ -28,7 +28,11 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test0F(x64test_t *test, rex_t rex, uintptr_t addr, int *step)
+#else
 uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
+#endif
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -42,27 +46,38 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
     sse_regs_t *opex, *opgx, eax1;
     mmx87_regs_t *opem, *opgm, eam1;
 
+#ifdef TEST_INTERPRETER
+    x64emu_t *emu = test->emu;
+#endif
     opcode = F8;
 
     switch(opcode) {
 
         case 0x05:                      /* SYSCALL */
+            #ifndef TEST_INTERPRETER
             R_RIP = addr;
             x64Syscall(emu);
+            #endif
             break;
         case 0x06:                      /* CLTS */
             // this is a privilege opcode...
+            #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            #endif
             break;
 
         case 0x08:                      /* INVD */
         case 0x09:                      /* WBINVD */
             // this is a privilege opcode...
+            #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            #endif
             break;
 
         case 0x0B:                      /* UD2 */
+            #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            #endif
             break;
 
         case 0x0D:
@@ -152,14 +167,16 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
         case 0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
-            GETED(0);
+            FAKEED(0);
             break;
         case 0x20:                      /* MOV REG, crX */
         case 0x21:                      /* MOV REG, drX */
         case 0x22:                      /* MOV cxR, REG */
         case 0x23:                      /* MOV drX, REG */
             // this is a privilege opcode...
+            #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            #endif
             break;
 
         case 0x28:                      /* MOVAPS Gx,Ex */
@@ -800,7 +817,15 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             tmp32s >>= (rex.w?6:5);
             if(!MODREG)
             {
+                #ifdef TEST_INTERPRETER
+                test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:2)));
+                if(rex.w)
+                    *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+                else
+                    *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                #else
                 ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
+                #endif
             }
             if(rex.w) {
                 if(ED->q[0] & (1LL<<tmp8u))
@@ -843,7 +868,15 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             tmp64s >>= (rex.w?6:5);
             if(!MODREG)
             {
-                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
+                #ifdef TEST_INTERPRETER
+                test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:2)));
+                if(rex.w)
+                    *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+                else
+                    *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                #else
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
+                #endif
             }
             if(rex.w) {
                 if(ED->q[0] & (1LL<<tmp8u))
@@ -892,27 +925,33 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETED(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* FXSAVE Ed */
+                    #ifndef TEST_INTERPRETER
                     if(rex.w)
                         fpu_fxsave64(emu, ED);
                     else
                         fpu_fxsave32(emu, ED);
+                    #endif
                     break;
                 case 1:                 /* FXRSTOR Ed */
+                    #ifndef TEST_INTERPRETER
                     if(rex.w)
                         fpu_fxrstor64(emu, ED);
                     else
                         fpu_fxrstor32(emu, ED);
+                    #endif
                     break;
                 case 2:                 /* LDMXCSR Md */
                     emu->mxcsr.x32 = ED->dword[0];
+                    #ifndef TEST_INTERPRETER
                     if(box64_sse_flushto0)
                         applyFlushTo0(emu);
+                    #endif
                     break;
                 case 3:                 /* STMXCSR Md */
                     ED->dword[0] = emu->mxcsr.x32;
                     break;
                 case 7:                 /* CLFLUSH Ed */
-                    #ifdef DYNAREC
+                    #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(box64_dynarec)
                         cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
                     #endif
@@ -975,7 +1014,15 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             tmp64s >>= (rex.w?6:5);
             if(!MODREG)
             {
-                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
+                #ifdef TEST_INTERPRETER
+                test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:2)));
+                if(rex.w)
+                    *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+                else
+                    *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                #else
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
+                #endif
             }
             if(rex.w) {
                 if(ED->q[0] & (1LL<<tmp8u)) {
@@ -1105,7 +1152,15 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             tmp64s >>= (rex.w?6:5);
             if(!MODREG)
             {
-                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
+                #ifdef TEST_INTERPRETER
+                test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:2)));
+                if(rex.w)
+                    *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+                else
+                    *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                #else
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
+                #endif
             }
             if(rex.w) {
                 if(ED->q[0] & (1LL<<tmp8u))
@@ -1289,6 +1344,10 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             CHECK_FLAGS(emu);
             nextop = F8;
             GETED(0);
+            #ifdef TEST_INTERPRETER
+            test->memsize = 16;
+            ((uint64_t*)test->mem)[1] = ((uint64_t*)test->memaddr)[1];
+            #endif
             switch((nextop>>3)&7) {
                 case 1:
                     if(rex.w) {

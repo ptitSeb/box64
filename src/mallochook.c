@@ -26,8 +26,8 @@
  The 2 different strategies to handle this can be defined as "Embrace" and "Exterminate" (as it cannot simply be ignored, 
  or you end up with mixing free/realloc from one lib and malloc/free from libc)
 
- In the "Embrace" strategy, the overriden malloc function are taken into account as soon as possible, and are used for all loaded lib, including native
- In the "Exterminate" strategy, the overriden malloc function are erased, and replaced with libc malloc as soon as they are defined.
+ In the "Embrace" strategy, the overridden malloc function are taken into account as soon as possible, and are used for all loaded lib, including native
+ In the "Exterminate" strategy, the overridden malloc function are erased, and replaced with libc malloc as soon as they are defined.
 
  The advantage of "Embrace" is that the system will run the function it supposed to be using, and potential side-effect and staticaly linked functions 
  will run as intended.
@@ -728,7 +728,7 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
         return; // only redirect on lib that hooked / redefined the operators
     if(box64_malloc_hack==2)
         malloc_hack_2 = 1;
-    printf_log(LOG_INFO, "Redirecting overriden malloc%s function for %s\n", malloc_hack_2?" with hack":"", ElfName(h));
+    printf_log(LOG_INFO, "Redirecting overridden malloc%s function for %s\n", malloc_hack_2?" with hack":"", ElfName(h));
     for (size_t i=0; i<h->numDynSym; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF64_ST_BIND(h->DynSym[i].st_info);

@@ -131,7 +131,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         }
         dlopened = (GetLibInternal(rfilename)==NULL);
         // Then open the lib
-        my_context->deferedInit = 1;
+        my_context->deferredInit = 1;
         int bindnow = (!box64_musl && (flag&0x2))?1:0;
         needed_libs_t tmp = {0};
         char* names[] = {rfilename};
@@ -150,7 +150,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         dl_loaded.names[dl_loaded.size-1] = tmp.names[0];
         dl_loaded.libs[dl_loaded.size-1] = tmp.libs[0];
         lib = GetLibInternal(rfilename);
-        RunDeferedElfInit(emu);
+        RunDeferredElfInit(emu);
     } else {
         // check if already dlopenned...
         for (size_t i=MIN_NLIB; i<dl->lib_sz; ++i) {

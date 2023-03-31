@@ -1,3 +1,4 @@
+// build with gcc -march=corei7 -O2 -g -maes -mpclmul test18.c -o test18
 #include <stdio.h>
 #include <stdint.h>
 #include <wmmintrin.h>

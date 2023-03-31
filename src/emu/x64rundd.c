@@ -22,10 +22,17 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t TestDD(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t nextop;
     reg64_t *oped;
+    #ifdef TEST_INTERPRETER
+    x64emu_t*emu = test->emu;
+    #endif
 
     nextop = F8;
     switch (nextop) {
@@ -112,26 +119,26 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
     default:
         switch((nextop>>3)&7) {
             case 0: /* FLD double */
-                GETED(0);
+                GETE8(0);
                 fpu_do_push(emu);
                 ST0.d = *(double*)ED;
                 break;
             case 1: /* FISTTP ED qword */
-                GETED(0);
+                GETE8(0);
                 *(int64_t*)ED = ST0.d;
                 fpu_do_pop(emu);
                 break;
             case 2: /* FST double */
-                GETED(0);
+                GETE8(0);
                 *(double*)ED = ST0.d;
                 break;
             case 3: /* FSTP double */
-                GETED(0);
+                GETE8(0);
                 *(double*)ED = ST0.d;
                 fpu_do_pop(emu);
                 break;
             case 4: /* FRSTOR m108byte */
-                GETED(0);
+                _GETED(0);
                 fpu_loadenv(emu, (char*)ED, 0);
                 // get the STx
                 {
@@ -144,9 +151,10 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 }
                 break;
             case 6: /* FNSAVE m108byte */
-                GETED(0);
+                _GETED(0);
                 // ENV first...
                 // warning, incomplete
+                #ifndef TEST_INTERPRETER
                 fpu_savenv(emu, (char*)ED, 0);
                 // save the STx
                 {
@@ -157,10 +165,11 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         p+=10;
                     }
                 }
+                #endif
                 reset_fpu(emu);
                 break;
             case 7: /* FNSTSW m2byte */
-                GETED(0);
+                GETEW(0);
                 emu->sw.f.F87_TOP = emu->top&7;
                 *(uint16_t*)ED = emu->sw.x16;
                 break;

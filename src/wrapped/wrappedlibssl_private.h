@@ -224,7 +224,7 @@ GO(SSL_check_private_key, iFp)
 //GO(ssl_check_serverhello_tlsext, 
 //GO(ssl_check_srvr_ecc_cert_and_alg, 
 GO(SSL_CIPHER_description, pFppi)
-//GO(SSL_CIPHER_find, 
+GO(SSL_CIPHER_find, pFpp)
 GO(SSL_CIPHER_get_bits, iFpp)
 //GO(ssl_cipher_get_cert_index, 
 //GO(ssl_cipher_get_evp, 
@@ -264,6 +264,7 @@ GO(SSL_CTX_add_client_CA, iFpp)
 //GO(SSL_CTX_add_session, 
 GOM(SSL_CTX_callback_ctrl, lFEpip)
 GO(SSL_CTX_check_private_key, iFp)
+GO(SSL_CTX_config, iFpp)
 GO(SSL_CTX_ctrl, lFpilp)
 //GO(SSL_CTX_flush_sessions, 
 GO(SSL_CTX_free, vFp)
@@ -294,12 +295,13 @@ GO(SSL_CTX_new, pFp)
 //GO(SSL_CTX_sess_set_new_cb, 
 //GO(SSL_CTX_sess_set_remove_cb, 
 //GO(SSL_CTX_set1_param, 
-//GO(SSL_CTX_set_alpn_protos, 
-//GO(SSL_CTX_set_alpn_select_cb, 
+GO(SSL_CTX_set_alpn_protos, iFppu)
+GOM(SSL_CTX_set_alpn_select_cb, vFEppp)
 //GO(SSL_CTX_set_cert_cb, 
 GO(SSL_CTX_set_cert_store, vFpp)
 GOM(SSL_CTX_set_cert_verify_callback, vFEppp)
 GO(SSL_CTX_set_cipher_list, iFpp)
+GO(SSL_CTX_set_ciphersuites, iFpp)
 GO(SSL_CTX_set_client_CA_list, vFpp)
 GOM(SSL_CTX_set_client_cert_cb, vFEpp)
 //GO(SSL_CTX_set_client_cert_engine, 
@@ -319,6 +321,7 @@ GO(SSL_CTX_set_options, lFpl)
 //GO(SSL_CTX_set_psk_server_callback, 
 //GO(SSL_CTX_set_purpose, 
 GO(SSL_CTX_set_quiet_shutdown, vFpi)
+GO(SSL_CTX_set_security_level, vFpi)
 //GO(SSL_CTX_set_session_id_context, 
 //GO(SSL_CTX_set_srp_cb_arg, 
 //GO(SSL_CTX_set_srp_client_pwd_callback, 
@@ -360,7 +363,7 @@ GO(SSL_do_handshake, iFp)
 //GO(ssl_fill_hello_random, 
 GO(SSL_free, vFp)
 //GO(ssl_free_wbio_buffer, 
-//GO(SSL_get0_alpn_selected, 
+GO(SSL_get0_alpn_selected, vFppp)
 GO(SSL_get0_next_proto_negotiated, vFppp)
 //GO(SSL_get0_param, 
 GO(SSL_get0_session, pFp)
@@ -405,6 +408,7 @@ GO(SSL_get_session, pFp)
 //GO(SSL_get_shared_ciphers, 
 //GO(SSL_get_shared_sigalgs, 
 GO(SSL_get_shutdown, iFp)
+GO(SSL_get_state, iFp)
 //GO(SSL_get_sigalgs, 
 //GO(ssl_get_sign_pkey, 
 //GO(SSL_get_srp_g, 
@@ -423,6 +427,7 @@ GO(SSL_get_version, pFp)
 //GO(SSL_get_wfd, 
 //GO(SSL_has_matching_session_id, 
 //GO(ssl_init_wbio_buffer, 
+GO(SSL_is_init_finished, iFp)
 GO(SSL_is_server, iFp)
 GO(SSL_library_init, iFv)
 //GO(ssl_load_ciphers, 
@@ -463,6 +468,7 @@ GO(SSL_SESSION_free, vFp)
 GO(SSL_SESSION_new, pFv)
 //GO(SSL_SESSION_print, 
 //GO(SSL_SESSION_print_fp, 
+GO(SSL_session_reused, iFp)
 //GO(SSL_SESSION_set1_id_context, 
 //GO(SSL_SESSION_set_ex_data, 
 //GO(SSL_SESSION_set_time, 

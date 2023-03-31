@@ -131,7 +131,7 @@ typedef enum {
 	d_rcr16,
 	d_rcr32,
 	d_rcr64,
-	d_dec8i,	// interpretor version, to handle the CF flags that is untouched
+	d_dec8i,	// interpreter version, to handle the CF flags that is untouched
 	d_dec16i,
 	d_dec32i,
 	d_dec64i,
@@ -140,7 +140,7 @@ typedef enum {
 	d_inc32i,
 	d_inc64i,
 	d_unknown	//95
-} defered_flags_t;
+} deferred_flags_t;
 
 #pragma pack(push, 1)
 

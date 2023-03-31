@@ -22,10 +22,17 @@
 
 #include "modrm.h"
 
+#ifdef TEST_INTERPRETER
+uintptr_t Test66DD(x64test_t *test, rex_t rex, uintptr_t addr)
+#else
 uintptr_t Run66DD(x64emu_t *emu, rex_t rex, uintptr_t addr)
+#endif
 {
     uint8_t nextop;
     reg64_t *oped;
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
 
     nextop = F8;
     switch (nextop) {
@@ -92,6 +99,7 @@ uintptr_t Run66DD(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 6: /* FNSAVE m94byte */
                 GETEW(0);
                 // ENV first...
+                #ifndef TEST_INTERPRETER
                 fpu_savenv(emu, (char*)ED, 1);
                 // save the STx
                 {
@@ -102,6 +110,7 @@ uintptr_t Run66DD(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         p+=10;
                     }
                 }
+                #endif
                 reset_fpu(emu);
                 break;
             default:

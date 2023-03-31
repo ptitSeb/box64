@@ -1,0 +1,58 @@
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error meh!
+#endif
+
+GO(ucurr_forLocale_72, iFppip)
+GO(ucurr_getName_72, pFppippp)
+
+GO(uloc_canonicalize_72, iFppip)
+GO(uloc_countAvailable_72, iFv)
+GO(uloc_getAvailable_72, pFi)
+GO(uloc_getBaseName_72, iFppip)
+GO(uloc_getCharacterOrientation_72, iFpp)
+GO(uloc_getCountry_72, iFppip)
+GO(uloc_getDefault_72, pFv)
+GO(uloc_getDisplayCountry_72, iFpppip)
+GO(uloc_getDisplayLanguage_72, iFpppip)
+GO(uloc_getDisplayName_72, iFpppip)
+GO(uloc_getISO3Country_72, pFp)
+GO(uloc_getISO3Language_72, pFp)
+GO(uloc_getKeywordValue_72, iFppip)
+GO(uloc_getLanguage_72, iFppip)
+GO(uloc_getLCID_72, uFp)
+GO(uloc_getName_72, iFppip)
+GO(uloc_getParent_72, iFppip)
+GO(uloc_setKeywordValue_72, iFpppip)
+
+GO(ures_close_72, vFp)
+GO(ures_getByKey_72, pFpppp)
+GO(ures_getSize_72, iFp)
+GO(ures_getStringByIndex_72, pFpipp)
+GO(ures_open_72, pFppp)
+
+GO(uldn_close_72, vFp)
+GO(uldn_keyValueDisplayName_72, iFppppip)
+GO(uldn_open_72, pFpip)
+
+GO(uenum_close_72, vFp)
+GO(uenum_count_72, iFpp)
+GO(uenum_next_72, pFppp)
+
+GO(uidna_close_72, vFp)
+GO(uidna_nameToASCII_72, iFppipipp)
+GO(uidna_nameToUnicode_72, iFppipipp)
+GO(uidna_openUTS46_72, pFpp)
+
+GO(unorm2_getNFCInstance_72, pFp)
+GO(unorm2_getNFDInstance_72, pFp)
+GO(unorm2_getNFKCInstance_72, pFp)
+GO(unorm2_getNFKDInstance_72, pFp)
+GO(unorm2_isNormalized_72, CFppip)
+GO(unorm2_normalize_72, iFppipip)
+
+GO(u_charsToUChars_72, vFppi)
+GO(u_getVersion_72, vFp)
+GO(u_strlen_72, iFp)
+GO(u_strncpy_72, pFppi)
+GO(u_tolower_72, uFu)
+GO(u_toupper_72, uFu)

@@ -1,0 +1,465 @@
+=head1 NAME
+
+box64 - Linux Userspace x86_64 Emulator with a twist
+
+=head1 SYNOPSIS
+
+B<box64> [B<--help>] [B<--version>] I<executable>
+
+=head1 DESCRIPTION
+
+B<Box64> lets you run x86_64 Linux programs (such as games) on non-x86_64 Linux
+systems, like ARM (host system needs to be 64-bit little-endian). Since B<Box64>
+uses the native versions of some "system" libraries, like libc, libm, SDL, and
+OpenGL, it's easy to integrate and use with most applications, and performance
+can be surprisingly high in many cases. B<Box64> integrates with DynaRec (dynamic
+recompiler) for the ARM64 platform, providing a speed boost between 5 to 10
+times faster than using only the interpreter.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-h,--help>
+
+Print box64 help and quit.
+
+=item B<-v,--version>
+
+Print box64 version and quit.
+
+=back
+
+=head1 CONFIGURATION FILE
+
+B<Box64> now have configurations files. There are 2 files loaded.
+F</etc/box4.box64rc> and F<~/.box64rc>. Both files have the same syntax, and is
+basically an ini files. Section in square brackets define the process name, and
+the rest is the environment variable. B<Box64> comes with a default file that
+should be installed for better stability. Note that the priority is:
+F<~/.bashrc> > F</etc/box64.box64rc> > command line So, your settings in
+F<~/.bashrc> may override the setting from your command line. Example:
+
+    [factorio]
+    BOX64_DYNAREC_SAFEFLAGS=0
+    BOX64_DYNAREC_BIGBLOCK=2
+    BOX64_DYNAREC_FORWARD=1024
+    BOX64_DYNAREC_CALLRET=1
+
+=head1 VARIABLES FOR RCFILE ONLY
+
+=over 8
+
+=item B<BOX64_NOSANDBOX=0|1>
+
+When set to 1, add C<--no-sandbox> to command line arguments (useful for chrome
+based programs).
+
+=item B<BOX64_EXIT>=I<0|1>
+
+When set to 1, just exit, don't try to run the program.
+
+=back
+
+=head1 VARIABLES ONLY FOR ENVIRONMENT AND NOT RCFILE
+
+=over 8
+
+=item B<BOX64_NOBANNER>=I<0|1>
+
+When set to 1, don't prints the banner including version and build.
+
+=item B<BOX64_LD_PRELOAD>=I<lib1>[:I<lib2>:...]
+
+Force loading libraries with the  binary. PreLoaded libs can be emulated or
+native, and are treated the same way as if they were comming from the binary.
+
+=item B<BOX64_ENV>=I<env=val>
+
+Add an variable with value to the environment.
+
+=item B<BOX64_ENV1>=I<env=val> B<BOX64_ENV2>=I<env=val> ...
+
+Add arbitrary many variables using B<BOX64_ENV1>, B<BOX64_ENV2>, ...
+
+=item B<BOX64_NORCFILES>
+
+No rc files (like F</etc/box64.box64rc> and F<~/.box64rc>) will be loaded.
+
+=back
+
+=head1 VARIABLES FOR BOTH ENVIRONMENT AND RCFILE
+
+=over 8
+
+=item B<BOX64_LOG>=I<0|NONE|1|INFO|2|DEBUG|3|DUMP>
+
+Controls the Verbosity level of the logs
+
+    * 0 or NONE : No message (except some fatal error). (Default.)
+    * 1 or INFO : Show some minimum log (Example: libraries not found)
+    * 2 or DEBUG : Details a lot of stuff (Example: relocations or functions called).
+    * 3 or DUMP : All DEBUG plus DUMP of all ELF Info.
+
+=item B<BOX64_ROLLING_LOG>=I<0|1|N>
+
+Show last few wrapped function call when a Signal is caught. Incompatible with
+B<BOX64_LOG> > 1 (may need B<BOX64_SHOWSEGV=1> also)
+
+    * 0: No last function call printed (Default.)
+    * 1: Last 16 wrapped functions calls printed when a signal is printed.
+    * N: Last N wrapped functions calls printed when a signal is printed.
+
+=item B<BOX64_LD_LIBRARY_PATH>=I</path/to/libs>
+
+Path to look for x86_64 libraries. Default is current folder and C<lib> in
+current folder.  Also, F</usr/lib/x86_64-linux-gnu> and
+F</lib/x86_64-linux-gnu> are added if they exist.
+
+=item B<BOX64_PATH>=I</path/to/bins>
+
+Path to look for x86_64 executable. Default is current folder and C<bin> in
+current folder.
+
+=item B<BOX64_DLSYM_ERROR>=I<0|1>
+
+Enables/Disables the logging of `dlsym` errors.
+
+    * 0 : Don't log `dlsym` errors. (Default.)
+    * 1 : Log dlsym errors.
+
+=item B<BOX64_TRACE_FILE>=I</path/to/file>
+
+Send all log and trace to a file instead of C<stdout>.  Also, if name contains
+C<%pid> then this is replaced by the actual C<PID> of B<box64> instance.  End
+the filename with `+` to have thetrace appended instead of overwritten Use
+C<stderr> to use this instead of default C<stdout>.
+
+=item B<BOX64_TRACE>=I<0|1|symbolname|0xXXXXXXX-0xYYYYYYY>
+
+Only on build with trace enabled. Trace allow the logging of all instruction executed, along with register dump
+
+    * 0 : No trace. (Default.)
+    * 1 : Trace enabled. Trace start after the initialisation of all depending libraries is done.
+    * symbolname : Trace only `symbolname` (trace is disable if the symbol is not found).
+    * 0xXXXXXXX-0xYYYYYYY : Trace only between the 2 addresses.
+
+=item B<BOX64_TRACE_INIT>=I<0|1>
+
+Use B<BOX64_TRACE_INIT> instead of B<BOX_TRACE> to start trace before the
+initialization of libraries and the running program
+
+    * 0 : No trace. (Default.)
+    * 1 : Trace enabled. The trace start with the initialisation of all depending libraries is done.
+
+=item B<BOX64_TRACE_START>=I<NNNNNNN>
+
+Only on builds with trace enabled. Start trace only after I<NNNNNNNN> opcode
+execute (number is an `uint64_t`).
+
+=item B<BOX64_TRACE_XMM>=I<0|1>
+
+Only on builds with trace enabled.
+
+    * 0 : The XMM (i.e. SSE/SSE2) register will not be logged with the general and x86 registers. (Default.)
+    * 1 : Dump the XMM registers.
+
+=item B<BOX64_TRACE_EMM>=I<0|1>
+
+Only on builds with trace enabled.
+
+    * 0 : The EMM (i.e. MMX) register will not be logged with the general and x86 registers. (Default.)
+    * 1 : Dump the EMM registers.
+
+=item B<BOX64_TRACE_COLOR>=I<0|1>
+
+Only on builds with trace enabled.
+
+    * 0 : The general registers will always be the default white color. (Default.)
+    * 1 : The general registers will change color in the dumps when they changed value.
+
+=item B<BOX64_LOAD_ADDR>=I<0xXXXXXXXX>
+
+Try to load at C<0xXXXXXX> main binary (if binary is a PIE). 
+
+=item B<BOX64_NOSIGSEGV>=I<0|1>
+
+Disable handling of SigSEGV. (Very useful for debugging.)
+
+    * 0 : Let the x86 program set sighandler for SEGV (Default.)
+    * 1 : Disable the handling of SigSEGV.
+
+=item B<BOX64_NOSIGILL>=I<0|1>
+
+Disable handling of SigILL (to ease debugging mainly).
+
+    * 0 : Let x86 program set sighandler for Illegal Instruction
+    * 1 : Disables the handling of SigILL
+
+=item B<BOX64_SHOWSEGV>=I<0|1>
+
+Show Segfault signal even if a signal handler is present
+
+    * 0 : Don"t force show the SIGSEGV analysis (Default.)
+    * 1 : Show SIGSEGV detail, even if a signal handler is present
+
+=item B<BOX64_SHOWBT>=I<0|1>
+
+Show some Backtrace (Nativ e and Emulated) whgen a signal (SEGV, ILL or BUS) is caught
+
+    * 0 : Don"t show backtraces (Default.)
+    * 1 : Show Backtrace detail (for native, box64 is rename as the x86_64 binary run)
+
+=item B<BOX64_X11THREADS>=I<0|1>
+
+Call XInitThreads when loading X11. (This is mostly for old Loki games with the Loki_Compat library.)
+
+    * 0 : Don't force call XInitThreads. (Default.)
+    * 1 : Call XInitThreads as soon as libX11 is loaded.
+
+=item B<BOX64_X11GLX>=I<0|1>
+
+Force libX11's GLX extension to be present.
+
+    * 0 : Do not force libX11's GLX extension to be present. 
+    * 1 : GLX will always be present when using XQueryExtension. (Default.)
+
+=item B<BOX64_DYNAREC_DUMP>=I<0|1|2>
+
+Enables/disables Box64's Dynarec's dump.
+
+    * 0 : Disable Dynarec's blocks dump. (Default.)
+    * 1 : Enable Dynarec's blocks dump.
+    * 2 : Enable Dynarec's blocks dump with some colors.
+
+=item B<BOX64_DYNAREC_LOG>=I<0|1|2|3>
+
+Set the level of DynaRec's logs.
+
+    * 0 : NONE : No Logs for DynaRec. (Default.)
+    * 1 :INFO : Minimum Dynarec Logs (only unimplemented OpCode).
+    * 2 : DEBUG : Debug Logs for Dynarec (with details on block created / executed).
+    * 3 : VERBOSE : All of the above plus more.
+
+=item B<BOX64_DYNAREC>=I<0|1>
+
+Enables/Disables Box64's Dynarec.
+
+    * 0 : Disables Dynarec.
+    * 1 : Enable Dynarec. (Default.)
+
+=item B<BOX64_DYNAREC_TRACE>=I<0|1>
+
+Enables/Disables trace for generated code. Like regular Trace, this will slow
+down the program a lot and generate huge logs.
+
+    * 0 : Disable trace for generated code. (Default.)
+    * 1 : Enable trace for generated code
+
+=item B<BOX64_NODYNAREC>=I<0xXXXXXXXX-0xYYYYYYYY>
+
+Forbid dynablock creation in the interval specified (helpfull for debugging
+behaviour difference between Dynarec and Interpretor)
+
+=item B<BOX64_DYNAREC_TEST>=I<0|1>
+
+Enables/Disables test for generated code. This will run interpreter along the Dynacrec, so this will slow
+down the program a lot.
+
+    * 0 : No test for generated code. (Default.)
+    * 1 : Enable Tests for generated code
+
+=item B<BOX64_DYNAREC_BIGBLOCK>=I<0|1|2|3>
+
+Enables/Disables Box64's Dynarec building BigBlock.
+
+ * 0 : Don't try to build block as big as possible (can help program using lots of thread and a JIT, like C#/Unity) (Default when libmonobdwgc-2.0.so is loaded)
+ * 1 : Build Dynarec block as big as possible (Default.)
+ * 2 : Build Dynarec block bigger (don't stop when block overlaps, but only for blocks in elf memory)
+ * 3 : Build Dynarec block bigger (don't stop when block overlaps, for all type of memory)
+
+=item B<BOX64_DYNAREC_FORWARD>=I<0|XXX>
+
+Define Box64's Dynarec max allowed forward value when building Block.
+
+    * 0 : No forward value. When current block end, don't try to go further even if there are previous forward jumps
+    * XXX : Allow up to XXXX bytes of gap when building a Block after the block end to next forward jump (Default: 128)
+ 
+=item B<BOX64_DYNAREC_STRONGMEM>=I<0|1|2>
+
+Enable/Disable simulation of Strong Memory model
+
+    * 0 : Don't try anything special (Default.)
+    * 1 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
+    * 2 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model
+
+=item B<BOX64_DYNAREC_X87DOUBLE>=I<0|1>
+
+Force the use of Double for x87 emulation
+
+    * 0 : Try to use float when possible for x87 emulation (default, faster)
+    * 1 : Only use Double for x87 emulation (slower, may be needed for some specific games, like Crysis)
+
+=item B<BOX64_DYNAREC_FASTNAN>=I<0|1>
+
+Enable/Disable generation of -NAN
+
+    * 0 : Generate -NAN like on x86
+    * 1 : Don't do anything special with NAN, to go as fast as possible (default, faster)
+
+=item B<BOX64_DYNAREC_FASTROUND>=I<0|1>
+
+Enable/Disable generation of precise x86 rounding
+
+    * 0 : Generate float/double -> int rounding like on x86
+    * 1 : Don't do anything special with edge case Rounding, to go as fast as possible (no INF/NAN/Overflow -> MIN_INT conversion) (default, faster)
+
+=item B<BOX64_DYNAREC_SAFEFLAGS>=I<0|1|2>
+
+Handling of flags on CALL/RET opcodes
+
+    * 0 : Treat CALL/RET as if it never needs any flags (faster but not advised)
+    * 1 : most of RET will need flags, most of CALLS will not (Default)
+    * 2 : All CALL/RET will need flags (slower, but might be needed. Automatically enabled for Vara.exe)
+
+=item B<BOX64_DYNAREC_CALLRET>=I<0|1>
+
+Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
+
+    * 0 : Don't optimize CALL/RET, use Jump Table for boths (Default)
+    * 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible (will crash if blacks are invalidate, so probably incompatible with JIT/Dynarec)
+
+=item B<BOX64_DYNAREC_HOTPAGE>=I<0|1-255>
+
+Handling of HotPage (Page beeing both executed and writen)
+
+    * 0 : Don't track hotpage
+    * 1-255 : Track HotPage, and disable execution of a page beeing writen for N attempts (default is 4)
+
+=item B<BOX64_DYNAREC_FASTPAGE>=I<0|1>
+
+Will use a faster handling of HotPage (Page beeing both executed and writen)
+
+    * 0 : use regular hotpage (Default)
+    * 1 : Use faster hotpage, taking the risk of running obsolete JIT code (might be faster, but more prone to crash)
+
+=item B<BOX64_DYNAREC_BLEEDING_EDGE>=I<0|1>
+
+Detect MonoBleedingEdge and apply conservative settings
+
+    * 0 : Don't detect MonoBleedingEdge
+    * 1 : Detect MonoBleedingEdge, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
+
+=item B<BOX64_DYNAREC_WAIT>=I<0|1>
+
+Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
+
+    * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
+    * 1 : Dynarec will wait for FillBlock to be ready (Default)
+
+=item B<BOX64_SSE_FLUSHTO0>=I<0|1>
+
+Handling of SSE Flush to 0 flags
+
+    * 0 : Just track the flag (Default)
+    * 1 : Direct apply of SSE Flush to 0 flag
+
+=item B<BOX64_X87_NO80BITS>=I<0|1>
+
+Handling of x87 80bits long double
+
+    * 0 : Try to handle 80bits long double as precise as possible (Default)
+    * 1 : Handle them as double
+
+=item B<BOX64_LIBCEF>=I<0|1>
+
+Detect libcef and apply malloc_hack settings
+
+    * 0 : Don't detect libcef
+    * 1 : Detect libcef, and apply MALLOC_HACK=2 if detected (Default)
+
+=item B<BOX64_LIBGL>=I<libXXXX|/PATH/TO/libGLXXX>
+
+You can also use B<SDL_VIDEO_GL_DRIVER>
+
+     * libXXXX set the name for libGL (defaults to libGL.so.1).
+     * /PATH/TO/libGLXXX : Sets the name and path for libGL
+
+=item B<BOX64_EMULATED_LIBS>=I<XXXX[:YYYY:...]>
+
+Force lib XXXX (and YYYY...) to be emulated (and not wrapped) Some games uses
+an old version of some libraries, with an ABI incompatible with native version.
+Note that LittleInferno for example is auto detected, and libvorbis.so.0 is
+automatical added to emulated libs, and same for Don't Starve (and Together /
+Server variant) that use an old SDL2 too
+
+=item B<BOX64_ALLOWMISSINGLIBS>=I<0|1>
+
+Allow Box64 to continue even if a library is missing.
+
+    * 0 : Box64 will stop if a library cannot be loaded. (Default.)
+    * 1 : Continue even if a needed library cannot be loaded. Unadvised, this will, in most cases, crash later on.
+
+=item B<BOX64_PREFER_WRAPPED>=I<0|1>
+
+Box64 will use wrapped libs even if the lib is specified with absolute path
+
+    * 0 : Try to use emulated libs when they are defined with absolute path  (Default.)
+    * 1 : Use Wrapped native libs even if path is absolute
+
+=item B<BOX64_PREFER_EMULATED>=I<0|1>
+
+Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL,
+vulkan and X11
+
+   * 0 : Native libs are prefered (Default.)
+   * 1 : Emulated libs are prefered (Default for program running inside pressure-vessel)
+
+=item B<BOX64_CRASHHANDLER>=I<0|1>
+
+Box64 will use a dummy crashhandler.so library
+
+    * 0 : Use Emulated crashhandler.so library if needed
+    * 1 : Use an internal dummy (completly empty) crashhandler.so library (defaut)
+
+=item B<BOX64_MALLOC_HACK>=I<0|1|2>
+
+How Box64 will handle hooking of malloc operators
+
+    * 0 : Don't allow malloc operator to be redirected, rewriting code to use regular function (Default)
+    * 1 : Allow malloc operator to be redirected (not advised)
+    * 2 : Like 0, but track special mmap / free (some redirected functions were inlined and cannot be redirected)
+
+=item B<BOX64_NOPULSE>=I<0|1>
+
+Disables the load of pulseaudio libraries.
+
+    * 0 : Load pulseaudio libraries if found. (Default.)
+    * 1 : Disables the load of pulse audio libraries (libpulse and libpulse-simple), both the native library and the x86 library
+
+=item B<BOX64_NOGTK>=I<0|1>
+
+Disables the loading of wrapped GTK libraries.
+
+    * 0 : Load wrapped GTK libraries if found. (Default.)
+    * 1 : Disables loading wrapped GTK libraries.
+
+=item B<BOX64_NOVULKAN>=I<0|1>
+
+Disables the load of vulkan libraries.
+
+    * 0 : Load vulkan libraries if found.
+    * 1 : Disables the load of vulkan libraries, both the native and the i386 version (can be useful on Pi4, where the vulkan driver is not quite there yet.)
+
+=item B<BOX64_BASH>=I<yyyy>
+
+Define x86_64 bash to launch script. Will use yyyy as x86_64 bash to launch
+script. yyyy needs to be a full path to a valid x86_64 version of bash
+
+=item B<BOX64_JITGDB>=I<0|1|2>
+
+    * 0 : Just print the Segfault message on segfault (default)
+    * 1 : Launch `gdb` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process and go in an endless loop, waiting. When in gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in is stack) then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box64signalhandler`, just before the printf of the Segfault message. Then simply  `set waiting=0` to exit the infinite loop.
+    * 2 : Launch `gdbserver` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process, and go in an endless loop, waiting. Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1:1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with ` BOX64_JITGDB=1`. This mode can be usefullwhen programs redirect all console output to a file (like Unity3D Games)
+
+=cut

@@ -26,7 +26,7 @@
 #define INST_NAME(name) \
     if(box64_dynarec_dump) {\
         printf_x64_instruction(my_context->dec, &dyn->insts[ninst].x64, name); \
-        dynarec_log(LOG_NONE, "%s%p: %d emited opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d/%d", \
+        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d/%d", \
             (box64_dynarec_dump>1)?"\e[32m":"", \
             (void*)(dyn->native_start+dyn->insts[ninst].address),  \
             dyn->insts[ninst].size/4,           \
@@ -55,12 +55,12 @@
             dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);                 \
         for(int ii=0; ii<24; ++ii) {            \
             switch(dyn->insts[ninst].e.extcache[ii].t) {    \
-                case EXT_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
-                case EXT_CACHE_ST_F: dynarec_log(LOG_NONE, " S%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
-                case EXT_CACHE_MM: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;    \
-                case EXT_CACHE_SS: dynarec_log(LOG_NONE, " S%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
-                case EXT_CACHE_SD: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
-                case EXT_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;   \
+                case EXT_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
+                case EXT_CACHE_ST_F: dynarec_log(LOG_NONE, " S%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
+                case EXT_CACHE_MM: dynarec_log(LOG_NONE, " D%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;    \
+                case EXT_CACHE_SS: dynarec_log(LOG_NONE, " S%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
+                case EXT_CACHE_SD: dynarec_log(LOG_NONE, " D%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;  \
+                case EXT_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;   \
                 case EXT_CACHE_NONE:           \
                 default:    break;              \
             }                                   \

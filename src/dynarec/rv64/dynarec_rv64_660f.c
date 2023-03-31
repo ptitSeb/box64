@@ -30,7 +30,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     uint8_t nextop, u8;
     int32_t i32;
     uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
+    uint8_t wback, wb1, wb2, gback;
     uint8_t eb1, eb2;
     int64_t j64;
     uint64_t tmp64u, tmp64u2;
@@ -79,7 +79,178 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
         GOCOND(0x40, "CMOV", "Gw, Ew");
         #undef GO
-
+        case 0x28:
+            INST_NAME("MOVAPD Gx,Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_MV_Q(x3);
+            break;
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGXSD(d0);
+            GETEXSD(v0, 0);
+            CLEAR_FLAGS();
+            // if isnan(d0) || isnan(v0)
+            IFX(X_ZF | X_PF | X_CF) {
+                FEQD(x3, d0, d0);
+                FEQD(x2, v0, v0);
+                AND(x2, x2, x3);
+                XORI(x2, x2, 1);
+                BEQ_MARK(x2, xZR);
+                ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
+                B_NEXT_nocond;
+            }
+            MARK;
+            // else if isless(d0, v0)
+            IFX(X_CF) {
+                FLTD(x2, d0, v0);
+                BEQ_MARK2(x2, xZR);
+                ORI(xFlags, xFlags, 1<<F_CF);
+                B_NEXT_nocond;
+            }
+            MARK2;
+            // else if d0 == v0
+            IFX(X_ZF) {
+                FEQD(x2, d0, v0);
+                CBZ_NEXT(x2);
+                ORI(xFlags, xFlags, 1<<F_ZF);
+            }
+            break;
+        case 0x6C:
+            INST_NAME("PUNPCKLQDQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x2, (nextop&7)+(rex.b<<3), 0);
+                FSD(v1, gback, 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                LD(x3, ed, fixedaddress+0);
+                SD(x3, gback, 8);
+            }
+            break;
+        case 0x6E:
+            INST_NAME("MOVD Gx, Ed");
+            nextop = F8;
+            if(rex.w) {
+                GETGXSD_empty(v0);
+            } else {
+                GETGXSS_empty(v0);
+            }
+            GETED(0);
+            if(rex.w) {
+                FMVDX(v0, ed);
+            } else {
+                FMVWX(v0, ed);
+                SW(xZR, xEmu, offsetof(x64emu_t, xmm[gd])+4);
+            }
+            SD(xZR, xEmu, offsetof(x64emu_t, xmm[gd])+8);
+            break;
+        case 0x6F:
+            INST_NAME("MOVDQA Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress+0);
+            LD(x4, wback, fixedaddress+8);
+            SD(x3, gback, 0);
+            SD(x4, gback, 8);
+            break;
+        case 0x72:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLD Ex, Ib");
+                    GETEX(x1, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if (u8>31) {
+                            // just zero dest
+                            SD(xZR, x1, fixedaddress+0);
+                            SD(xZR, x1, fixedaddress+8);
+                        } else if(u8) {
+                            SSE_LOOP_DS(x3, SRLI(x3, x3, u8));
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0x73:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 3:
+                    INST_NAME("PSRLDQ Ex, Ib");
+                    GETEX(x1, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if(u8>15) {
+                            // just zero dest
+                            SD(xZR, x1, fixedaddress+0);
+                            SD(xZR, x1, fixedaddress+8);
+                        } else {
+                            u8*=8;
+                            if (u8 < 64) {
+                                LD(x3, x1, fixedaddress+0);
+                                LD(x4, x1, fixedaddress+8);
+                                SRLI(x3, x3, u8);
+                                SLLI(x5, x4, 64-u8);
+                                OR(x3, x3, x5);
+                                SD(x3, x1, fixedaddress+0);
+                                SRLI(x4, x4, u8);
+                                SD(x4, x1, fixedaddress+8);
+                            } else {
+                                LD(x3, x1, fixedaddress+8);
+                                if (u8-64 > 0) { SRLI(x3, x3, u8-64); }
+                                SD(x3, x1, fixedaddress+0);
+                                SD(xZR, x1, fixedaddress+8);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0x76:
+            INST_NAME("PCMPEQD Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_D(x3, x4, XOR(x3, x3, x4); SNEZ(x3, x3); ADDI(x3, x3, -1));
+            break;
+        case 0x7E:
+            INST_NAME("MOVD Ed,Gx");
+            nextop = F8;
+            GETGX(x1);
+            if(rex.w) {
+                if(MODREG) {
+                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    LD(ed, x1, 0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    LD(x3, x1, 0);
+                    SD(x3, ed, fixedaddress);
+                    SMWRITE2();
+                }
+            } else {
+                if(MODREG) {
+                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    LWU(ed, x1, 0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    LWU(x3, x1, 0);
+                    SW(x3, ed, fixedaddress);
+                    SMWRITE2();
+                }
+            }
+            break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING);
@@ -121,30 +292,48 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             AND(x1, x1, x5);
             OR(gd, gd, x1);
             break;
-
+        case 0xDB:
+            INST_NAME("PAND Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
+            break;
+        case 0xDF:
+            INST_NAME("PANDN Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_Q(x3, x4, NOT(x3, x3); AND(x3, x3, x4));
+            break;
+        case 0xEB:
+            INST_NAME("POR Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_Q(x3, x4, OR(x3, x3, x4));
+            break;
         case 0xEF:
             INST_NAME("PXOR Gx, Ex");
             nextop = F8;
             GETGX(x1);
-            GETEX(x2, 0);
-            if(gd==ed) {
+            if(MODREG && gd==(nextop&7)+(rex.b<<3))
+            {
                 // just zero dest
                 SD(xZR, x1, 0);
                 SD(xZR, x1, 8);
             } else {
-                //1st
-                LD(x3, x1, 0);
-                LD(x4, x2, 0);
-                XOR(x3, x3, x4);
-                SD(x3, x1, 0);
-                // 2nd
-                LD(x3, x1, 8);
-                LD(x4, x2, 8);
-                XOR(x3, x3, x4);
-                SD(x3, x1, 8);
+                GETEX(x2, 0);
+                SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
             }
             break;
-
+        case 0xFE:
+            INST_NAME("PADDD Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_D(x3, x4, ADDW(x3, x3, x4));
+            break;
         default:
             DEFAULT;
     }

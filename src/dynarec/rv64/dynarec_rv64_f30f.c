@@ -29,7 +29,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint8_t gd, ed;
-    uint8_t wback;
+    uint8_t wback, gback;
     uint64_t u64;
     int v0, v1;
     int q0, q1;
@@ -119,7 +119,111 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD_empty(v0);
             FCVTDS(v0, v1);
             break;
+        case 0x5C:
+            INST_NAME("SUBSS Gx, Ex");
+            nextop = F8;
+            GETGXSS(v0);
+            GETEXSS(d0, 0);
+            FSUBS(v0, v0, d0);
+            break;
+        case 0x5D:
+            INST_NAME("MINSS Gx, Ex");
+            nextop = F8;
+            GETGXSS(d0);
+            GETEXSS(d1, 0);
+            FEQS(x2, d0, d0);
+            FEQS(x3, d1, d1);
+            AND(x2, x2, x3);
+            BEQ_MARK(x2, xZR);
+            FLTS(x2, d1, d0);
+            BEQ_MARK2(x2, xZR);
+            MARK;
+            FMVS(d0, d1);
+            MARK2;
+            break;
+        case 0x5E:
+            INST_NAME("DIVSS Gx, Ex");
+            nextop = F8;
+            GETGXSS(v0);
+            GETEXSS(d0, 0);
+            FDIVS(v0, v0, d0);
+            break;
+        case 0x5F:
+            INST_NAME("MAXSS Gx, Ex");
+            nextop = F8;
+            GETGXSS(d0);
+            GETEXSS(d1, 0);
+            FEQS(x2, d0, d0);
+            FEQS(x3, d1, d1);
+            AND(x2, x2, x3);
+            BEQ_MARK(x2, xZR);
+            FLTS(x2, d0, d1);
+            BEQ_MARK2(x2, xZR);
+            MARK;
+            FMVS(d0, d1);
+            MARK2;
+            break;
+        case 0x7E:
+            INST_NAME("MOVQ Gx, Ex");
+            nextop = F8;
+            // Will load Gx as SD. Is that a good choice?
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
+                GETGXSD_empty(v0);
+                FMVD(v0, v1);
+            } else {
+                GETGXSD_empty(v0);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                FLD(v0, ed, fixedaddress);
+            }
+            SD(xZR, xEmu, offsetof(x64emu_t, xmm[gd])+8);
+            break;
+        case 0xC2:
+            INST_NAME("CMPSS Gx, Ex, Ib");
+            nextop = F8;
+            GETGXSS(d0);
+            GETEXSS(d1, 1);
+            u8 = F8;
+            if ((u8&7) == 0) {                                      // Equal
+                FEQS(x2, d0, d1);
+            } else if ((u8&7) == 4) {                               // Not Equal or unordered
+                FEQS(x2, d0, d1);
+                XORI(x2, x2, 1);
+            } else {
+                // x2 = !(isnan(d0) || isnan(d1))
+                FEQS(x3, d0, d0);
+                FEQS(x2, d1, d1);
+                AND(x2, x2, x3);
 
+                switch(u8&7) {
+                case 1: BEQ_MARK(x2, xZR); FLTS(x2, d0, d1); break; // Less than
+                case 2: BEQ_MARK(x2, xZR); FLES(x2, d0, d1); break; // Less or equal
+                case 3: XORI(x2, x2, 1); break;                     // NaN
+                case 5: {                                           // Greater or equal or unordered
+                    BEQ_MARK2(x2, xZR);
+                    FLES(x2, d1, d0);
+                    B_MARK_nocond;
+                    break;
+                }
+                case 6: {                                           // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
+                    BEQ_MARK2(x2, xZR);
+                    FLTS(x2, d1, d0);
+                    B_MARK_nocond;
+                    break;
+                }
+                case 7: break;                                      // Not NaN
+                }
+                
+                MARK2;
+                if ((u8&7) == 5 || (u8&7) == 6) {
+                    MOV32w(x2, 1);
+                }
+                MARK;
+            }
+            NEG(x2, x2);
+            FMVWX(d0, x2);
+            break;
         default:
             DEFAULT;
     }

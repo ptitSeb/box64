@@ -31,7 +31,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint8_t gd, ed;
-    uint8_t wback, wb2;
+    uint8_t wback, wb2, gback;
     uint8_t eb1, eb2;
     int32_t i32, i32_;
     int cacheupd = 0;
@@ -44,6 +44,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     int64_t fixedaddress;
     int unscaled;
     MAYUSE(wb2);
+    MAYUSE(gback);
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(q0);
@@ -72,6 +73,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0x05:
             INST_NAME("SYSCALL");
+            NOTEST(x1);
             SMEND();
             GETIP(addr);
             STORE_XEMU_CALL();
@@ -111,6 +113,30 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
 
 
+        case 0x10:
+            INST_NAME("MOVUPS Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress+0);
+            LD(x4, wback, fixedaddress+8);
+            SD(x3, gback, 0);
+            SD(x4, gback, 8);
+            break;
+        case 0x11:
+            INST_NAME("MOVUPS Ex,Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, gback, 0);
+            LD(x4, gback, 8);
+            SD(x3, wback, fixedaddress+0);
+            SD(x4, wback, fixedaddress+8);
+            if(!MODREG)
+                SMWRITE2();
+            break;
+
+
         case 0x18:
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
@@ -141,6 +167,74 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             FAKEED;
             break;
 
+        case 0x28:
+            INST_NAME("MOVAPS Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress+0);
+            LD(x4, wback, fixedaddress+8);
+            SD(x3, gback, 0);
+            SD(x4, gback, 8);
+            break;
+        case 0x29:
+            INST_NAME("MOVAPS Ex,Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, gback, 0);
+            LD(x4, gback, 8);
+            SD(x3, wback, fixedaddress+0);
+            SD(x4, wback, fixedaddress+8);
+            if(!MODREG)
+                SMWRITE2();
+            break;
+
+        case 0x2B:
+            INST_NAME("MOVNTPS Ex,Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, gback, 0);
+            LD(x4, gback, 8);
+            SD(x3, wback, fixedaddress+0);
+            SD(x4, wback, fixedaddress+8);
+            break;
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGXSS(d0);
+            GETEXSS(v0, 0);
+            CLEAR_FLAGS();
+            // if isnan(d0) || isnan(v0)
+            IFX(X_ZF | X_PF | X_CF) {
+                FEQS(x3, d0, d0);
+                FEQS(x2, v0, v0);
+                AND(x2, x2, x3);
+                XORI(x2, x2, 1);
+                BEQ_MARK(x2, xZR);
+                ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
+                B_NEXT_nocond;
+            }
+            MARK;
+            // else if isless(d0, v0)
+            IFX(X_CF) {
+                FLTS(x2, d0, v0);
+                BEQ_MARK2(x2, xZR);
+                ORI(xFlags, xFlags, 1<<F_CF);
+                B_NEXT_nocond;
+            }
+            MARK2;
+            // else if d0 == v0
+            IFX(X_ZF) {
+                FEQS(x2, d0, v0);
+                CBZ_NEXT(x2);
+                ORI(xFlags, xFlags, 1<<F_ZF);
+            }
+            break;
         case 0x31:
             INST_NAME("RDTSC");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
@@ -168,6 +262,28 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
+        case 0x54:
+            INST_NAME("ANDPS Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
+            break;
+        case 0x57:
+            INST_NAME("XORPS Gx, Ex");
+            nextop = F8;
+            //TODO: it might be possible to check if SS or SD are used and not purge them to optimize a bit
+            GETGX(x1);
+            if(MODREG && gd==(nextop&7)+(rex.b<<3))
+            {
+                // just zero dest
+                SD(xZR, x1, 0);
+                SD(xZR, x1, 8);
+            } else {
+                GETEX(x2, 0);
+                SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
+            }
+            break;
 
         case 0x77:
             INST_NAME("EMMS");
@@ -239,11 +355,35 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             
         case 0xA2:
             INST_NAME("CPUID");
+            NOTEST(x1);
             MV(A1, xRAX);
             CALL_(my_cpuid, -1, 0);
             // BX and DX are not synchronized durring the call, so need to force the update
             LD(xRDX, xEmu, offsetof(x64emu_t, regs[_DX]));
             LD(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
+            break;
+        case 0xA3:
+            INST_NAME("BT Ed, Gd");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                SRAIxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                SLLI(x1, x1, 2+rex.w);
+                ADD(x3, wback, x1); //(&ed)+=r1*4;
+                LDxw(x1, x3, fixedaddress);
+                ed = x1;
+            }
+            ANDI(x2, gd, rex.w?0x3f:0x1f);
+            SRL(x4, ed, x2);
+            ANDI(x4, x4, 1);
+            ANDI(xFlags, xFlags, ~1);   //F_CF is 1
+            OR(xFlags, xFlags, x4);
             break;
 
         case 0xAE:
@@ -261,6 +401,20 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMDMB();
             } else {
                 switch((nextop>>3)&7) {
+                    case 2:                 
+                        INST_NAME("LDMXCSR Md");
+                        GETED(0);
+                        SW(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        if(box64_sse_flushto0) {
+                            // TODO: applyFlushTo0 also needs to add RISC-V support.
+                        }
+                        break;
+                    case 3:
+                        INST_NAME("STMXCSR Md");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        LWU(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                        SW(x4, wback, fixedaddress);
+                        break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization?\n");
@@ -300,10 +454,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRLI(x3, gd, 32);
                     UFLAG_OP1(x3);
                     UFLAG_DF(x3, d_imul32);
-                    SEXT_W(gd, gd);
                 } else {
                     MULxw(gd, gd, ed);
                 }
+                SLLI(gd, gd, 32);
+                SRLI(gd, gd, 32);
             }
             break;
 
