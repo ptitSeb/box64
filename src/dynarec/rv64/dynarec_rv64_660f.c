@@ -79,6 +79,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
         GOCOND(0x40, "CMOV", "Gw, Ew");
         #undef GO
+        case 0x28:
+            INST_NAME("MOVAPD Gx,Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_MV_Q(x3);
+            break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
             nextop = F8;
