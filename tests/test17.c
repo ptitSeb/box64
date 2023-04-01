@@ -1,4 +1,4 @@
-// build with  gcc -march=corei7 -O2 -g -msse -msse2 test17.c -o test17
+// build with  gcc -O2 -g -msse -msse2 -mssse3 -msse4.1 test17.c -o test17
 // and -m32 for 32bits version
 #include <string.h>
 #include <stdio.h>
@@ -353,6 +353,10 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  printf("%s(", #C); print_ps(A1);                   \
  printf(", "); print_ps(A2);                        \
  printf(", %d) = ", I); print_ps(a128); printf("\n");
+ #define GO1ps2dq(A, C, A1)                         \
+ a128.mm = _mm_##A##_epi32(A1.mf);                  \
+ printf("%s(", #C); print_ps(A1);                   \
+ printf(") = "); print_32(a128); printf("\n");
  
  #define MULITGO2pd(A, B)       \
  GO2pd(A, B, a128_pd, b128_pd)  \
@@ -377,6 +381,12 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO2ps(A, B, b128_ps, d128_ps)  \
  GO2ps(A, B, c128_ps, d128_ps)  \
  GO2ps(A, B, d128_ps, d128_ps)
+
+ #define MULTIGO1ps2dq(A, B)    \
+ GO1ps2dq(A, B, a128_ps)        \
+ GO1ps2dq(A, B, b128_ps)        \
+ GO1ps2dq(A, B, c128_ps)        \
+ GO1ps2dq(A, B, d128_ps)
 
  #define MULITGO2Cps(A, B, I)       \
  GO2Cps(A, B, a128_ps, b128_ps, I)  \
@@ -577,7 +587,7 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULITGO2ps(min, minps)
  MULITGO2ps(div, divps)
  MULITGO2ps(max, maxps)
-// MULITGO2Cps(cmp, cmpps, 0)   // use avx for some reason
+ //MULITGO2Cps(cmp, cmpps, 0)   // use avx for some reason
  MULITGO2Cps(shuffle, shufps, 0)
  MULITGO2Cps(shuffle, shufps, 0x15)
  MULITGO2Cps(shuffle, shufps, 0xff)
@@ -589,6 +599,7 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULTIGO2sd(min, minsd)
  MULTIGO2sd(div, divsd)
  MULTIGO2sd(max, maxsd)
+ MULTIGO1ps2dq(cvtps, cvtps2pd)
 
  return 0;
 }
