@@ -784,7 +784,8 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SLLI(gd, gd, 8);
                     OR(eb1, x1, gd);
                 } else {
-                    OR(eb1, eb1, gd);
+                    ANDI(x1, eb1, ~0xff);
+                    OR(eb1, x1, gd);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
