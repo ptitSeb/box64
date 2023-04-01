@@ -31,7 +31,6 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t nextop = F8;
     uint8_t wback;
     int64_t fixedaddress;
-    int unscaled;
     int v1, v2;
 
     MAYUSE(v2);
