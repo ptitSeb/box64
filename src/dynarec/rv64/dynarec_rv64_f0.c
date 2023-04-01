@@ -56,13 +56,51 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     switch(opcode) {
         case 0x0F:
+            // TODO: Take care of unligned memory access for all the LOCK ones.
+            // https://github.com/ptitSeb/box64/pull/604
             nextop = F8;
             switch(nextop) {
+                case 0xB1:
+                    switch (rep) {
+                        case 0:
+                            INST_NAME("LOCK CMPXCHG Ed, Gd");
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
+                            nextop = F8;
+                            GETGD;
+                            SMDMB();
+                            if (MODREG) {
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                wback = 0;
+                                UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5, x6);}
+                                MV(x1, ed); // save value
+                                SUB(x2, x1, xRAX);
+                                BNE_MARK2(x2, xZR);
+                                MV(ed, gd);
+                                MARK2;
+                                MVxw(xRAX, x1);
+                                B_NEXT_nocond;
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                                MARKLOCK;
+                                LRxw(x1, wback, 1, 1);
+                                SUB(x3, x1, xRAX);
+                                BNE_MARK(x3, xZR);
+                                // EAX == Ed
+                                SCxw(x4, gd, wback, 1, 1);
+                                BNEZ_MARKLOCK(x4);
+                                MARK;
+                                UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6);}
+                                MVxw(xRAX, x1);
+                            }
+                            SMDMB();
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
                 case 0xC1:
                     switch(rep) {
                         case 0:
-                            // TODO: Take care of unligned memory access.
-                            // https://github.com/ptitSeb/box64/pull/604
                             INST_NAME("LOCK XADD Gd, Ed");
                             SETFLAGS(X_ALL, SF_SET_PENDING);
                             nextop = F8;
