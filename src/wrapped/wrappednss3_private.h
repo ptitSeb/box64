@@ -13,7 +13,7 @@
 //GO(BTOA_DataToAscii, 
 //GO(CERT_AddCertToListHead, 
 //GO(CERT_AddCertToListSorted, 
-//GO(CERT_AddCertToListTail, 
+GO(CERT_AddCertToListTail, iFpp)
 //GO(CERT_AddExtension, 
 //GO(CERT_AddExtensionByOID, 
 //GO(CERT_AddOCSPAcceptableResponses, 
@@ -37,7 +37,7 @@ GO(CERT_CheckCertValidTimes, iFpIi)
 //GO(CERT_ClearOCSPCache, 
 //GO(__CERT_ClosePermCertDB, 
 //GO(CERT_CompareAVA, 
-//GO(CERT_CompareCerts, 
+GO(CERT_CompareCerts, iFpp)
 //GO(CERT_CompareName, 
 //GO(CERT_CompareValidityTimes, 
 //GO(CERT_CompleteCRLDecodeEntries, 
@@ -210,7 +210,7 @@ GO(CERT_MakeCANickname, pFp)
 DATA(CERT_NameTemplate, 4*sizeof(void*))
 //GO(CERT_NameToAscii, 
 //GO(CERT_NameToAsciiInvertible, 
-//GO(CERT_NewCertList, 
+GO(CERT_NewCertList, pFv)
 //GO(__CERT_NewTempCertificate, 
 GO(CERT_NewTempCertificate, pFpppii)
 //GO(CERT_NicknameStringsFromCertList, 
@@ -716,7 +716,7 @@ GO(SECITEM_CompareItem, iFpp)
 //GO(SECITEM_CopyItem, 
 //GO(SECITEM_DupItem, 
 GO(SECITEM_FreeItem, iFpi)
-//GO(SECITEM_ItemsAreEqual, 
+GO(SECITEM_ItemsAreEqual, iFpp)
 GO(SECITEM_ZfreeItem, vFpi)
 //GO(SECKEY_AddPrivateKeyToListTail, 
 //GO(SECKEY_BigIntegerBitLength, 

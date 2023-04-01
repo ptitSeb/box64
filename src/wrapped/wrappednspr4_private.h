@@ -2,6 +2,8 @@
 #error Meh....
 #endif
 
+// typedef PRUint32 PRIntervalTime;
+
 //GO(GetExecutionEnvironment, 
 //GO(libVersionPoint, 
 //GO(LL_MaxInt, 
@@ -224,7 +226,7 @@ GO(PR_Initialized, iFv)
 //GO(PR_Interrupt, 
 //GO(PR_IntervalNow, 
 //GO(PR_IntervalToMicroseconds, 
-//GO(PR_IntervalToMilliseconds, 
+GO(PR_IntervalToMilliseconds, uFu)
 //GO(PR_IntervalToSeconds, 
 //GO(PR_IsNetAddrType, 
 //GO(PR_JoinJob, 
