@@ -156,11 +156,17 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         MARKLOCK;
                         LRxw(x1, wback, 1, 1);
-                        emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
-                        SCxw(x3, x1, wback, 1, 1);
+                        if(i64>-2048 && i64<2047)
+                            ADDI(x4, x1, i64);
+                        else {
+                            MOV64xw(x4, i64);
+                            ADD(x4, x1, x4);
+                        }
+                        SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
+                        IFX(X_ALL|X_PEND)
+                            emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
                     }
-                    SMDMB();
                     break;
                 default: 
                     DEFAULT;
