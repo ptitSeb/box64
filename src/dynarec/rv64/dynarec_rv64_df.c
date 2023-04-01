@@ -64,10 +64,10 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     BNEZ(x5, 24); // equal
                     FLTS(x3, v1, v2); // x3 = (v1<v2)?1:0
                     OR(xFlags, xFlags, x3); // CF is the least significant bit
-                    JAL_gen(xZR, 16); // end
+                    J(16); // end
                     // NaN
                     ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
-                    JAL_gen(xZR, 8); // end
+                    J(8); // end
                     // equal
                     ORI(xFlags, xFlags, 1<<F_ZF);
                     // end
@@ -80,10 +80,10 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     BNEZ(x5, 24); // equal
                     FLTD(x3, v1, v2); // x3 = (v1<v2)?1:0
                     OR(xFlags, xFlags, x3); // CF is the least significant bit
-                    JAL_gen(xZR, 16); // end
+                    J(16); // end
                     // NaN
                     ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
-                    JAL_gen(xZR, 8); // end
+                    J(8); // end
                     // equal
                     ORI(xFlags, xFlags, 1<<F_ZF);
                     // end
