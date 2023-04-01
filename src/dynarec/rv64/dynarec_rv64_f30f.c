@@ -92,9 +92,32 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSS(v0);
             GETED(0);
             if(rex.w) {
-                FCVTSL(v0, ed);
+                FCVTSL(v0, ed, RD_RNE);
             } else {
-                FCVTSW(v0, ed);
+                FCVTSW(v0, ed, RD_RNE);
+            }
+            break;
+
+        case 0x2C:
+            INST_NAME("CVTTSS2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEXSS(d0, 0);
+            if(!box64_dynarec_fastround) {
+                FSFLAGSI(xZR);  // // reset all bits
+            }
+            FCVTSxw(gd, d0, RD_RTZ);
+            if(!rex.w)
+                ZEROUP(gd);
+            if(!box64_dynarec_fastround) {
+                FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+                CBZ_NEXT(x5);
+                if(rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
             }
             break;
 

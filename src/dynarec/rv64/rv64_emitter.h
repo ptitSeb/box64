@@ -369,6 +369,34 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FRRM(rd)                    CSRRS(rd, xZR, 0x002)
 // Swap round mode with rd
 #define FSRM(rd)                    CSRRWI(rd, 0b111, 0x002)
+// Write FP exception flags, immediate
+#define FSFLAGSI(imm)               CSRRWI(xZR, imm, 0x0001)
+// Read  FP exception flags to rd
+#define FRFLAGS(rd)                 CSRRS(rd, xZR, 0x0001)
+// Inexact
+#define FR_NX   0
+// Underflow
+#define FR_UF   1
+// Overflow
+#define FR_OF   2
+// Divide by Zero
+#define FR_DZ   3
+// Invalid Operation
+#define FR_NV   4
+
+// Round to Nearest, ties to Even
+#define RD_RNE      0b000
+// Round towards Zero
+#define RD_RTZ      0b001
+// Round Down (towards −∞)
+#define RD_RDN      0b010
+// Round Up (towards +∞)
+#define RD_RUP      0b011
+// Round to Nearest, ties to Max Magnitude
+#define RD_RMM      0b100
+// In instruction’s rm field, selects dynamic rounding mode;
+#define RD_RM       0b111
+
 // load single precision from rs1+imm12 to frd
 #define FLW(frd, rs1, imm12)        EMIT(I_type(imm12, rs1, 0b010, frd, 0b0000111))
 // store single precision frs2 to rs1+imm12
@@ -390,7 +418,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Move to Single
 #define FMVWX(frd, rs1)             EMIT(R_type(0b1111000, 0b00000, rs1, 0b000, frd, 0b1010011))
 // Convert from signed 32bits to Single
-#define FCVTSW(frd, rs1)            EMIT(R_type(0b1101000, 0b00000, rs1, 0b000, frd, 0b1010011))
+#define FCVTSW(frd, rs1, rm)        EMIT(R_type(0b1101000, 0b00000, rs1, rm, frd, 0b1010011))
+// Convert from Single to signed 32bits (trucated)
+#define FCVTWS(rd, frs1, tm)        EMIT(R_type(0b1100000, 0b00000, frs1, rm, rd, 0b1010011))
 
 #define FADDS(frd, frs1, frs2)      EMIT(R_type(0b0000000, frs2, frs1, 0b000, frd, 0b1010011))
 #define FSUBS(frd, frs1, frs2)      EMIT(R_type(0b0000100, frs2, frs1, 0b000, frd, 0b1010011))
@@ -407,14 +437,15 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // RV64F
 // Convert from signed 64bits to Single
-#define FCVTSL(frd, rs1)             EMIT(R_type(0b1101000, 0b00010, rs1, 0b000, frd, 0b1010011))
+#define FCVTSL(frd, rs1, rm)        EMIT(R_type(0b1101000, 0b00010, rs1, rm, frd, 0b1010011))
 // Convert from unsigned 64bits to Single
-#define FCVTSLU(frd, rs1)            EMIT(R_type(0b1101000, 0b00011, rs1, 0b000, frd, 0b1010011))
+#define FCVTSLU(frd, rs1, rm)       EMIT(R_type(0b1101000, 0b00011, rs1, rm, frd, 0b1010011))
 // Convert from Single to signed 64bits
-#define FCVTLS(rd, frs1)            EMIT(R_type(0b1100000, 0b00010, frs1, 0b000, rd, 0b1010011))
+#define FCVTLS(rd, frs1, rm)        EMIT(R_type(0b1100000, 0b00010, frs1, rm, rd, 0b1010011))
 // Convert from Single to unsigned 64bits
-#define FCVTLUS(rd, frs1)           EMIT(R_type(0b1100000, 0b00011, frs1, 0b000, rd, 0b1010011))
-
+#define FCVTLUS(rd, frs1, rm)       EMIT(R_type(0b1100000, 0b00011, frs1, rm, rd, 0b1010011))
+// onvert from Single to signed 32/64bits (trucated)
+#define FCVTSxw(rd, frs1, rm)       EMIT(R_type(0b1100000, rex.w?0b00010:0b00000, frs1, rm, rd, 0b1010011))
 
 // RV32D
 // load double precision from rs1+imm12 to frd
@@ -458,12 +489,12 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Move to Double
 #define FMVDX(frd, rs1)             EMIT(R_type(0b1111001, 0b00000, rs1, 0b000, frd, 0b1010011))
 // Convert from signed 64bits to Double
-#define FCVTDL(frd, rs1)             EMIT(R_type(0b1101001, 0b00010, rs1, 0b000, frd, 0b1010011))
+#define FCVTDL(frd, rs1, rm)        EMIT(R_type(0b1101001, 0b00010, rs1, rm, frd, 0b1010011))
 // Convert from unsigned 64bits to Double
-#define FCVTDLU(frd, rs1)           EMIT(R_type(0b1101001, 0b00011, rs1, 0b000, frd, 0b1010011))
+#define FCVTDLU(frd, rs1, rm)       EMIT(R_type(0b1101001, 0b00011, rs1, rm, frd, 0b1010011))
 // Convert from Double to signed 64bits
-#define FCVTLD(rd, frs1)            EMIT(R_type(0b1100001, 0b00010, frs1, 0b000, rd, 0b1010011))
+#define FCVTLD(rd, frs1, rm)        EMIT(R_type(0b1100001, 0b00010, frs1, rm, rd, 0b1010011))
 // Convert from Double to unsigned 64bits
-#define FCVTLUD(rd, frs1)           EMIT(R_type(0b1100001, 0b00011, frs1, 0b000, rd, 0b1010011))
+#define FCVTLUD(rd, frs1, rm)       EMIT(R_type(0b1100001, 0b00011, frs1, rm, rd, 0b1010011))
 
 #endif //__RV64_EMITTER_H__

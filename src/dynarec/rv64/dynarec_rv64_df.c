@@ -106,9 +106,9 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 1, 0);
                     LH(x1, wback, fixedaddress);
                     if(ST_IS_F(0)) {
-                        FCVTSL(v1, x1);
+                        FCVTSL(v1, x1, RD_RNE);
                     } else {
-                        FCVTDL(v1, x1);
+                        FCVTDL(v1, x1, RD_RNE);
                     }
                     break;
                 default:
