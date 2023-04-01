@@ -1064,7 +1064,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGX;
         for(int i=0; i<4; ++i)
-            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>0x7fffffff || EX->f[i]<-0x80000000)
+            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>(int32_t)0x7fffffff || EX->f[i]<(int32_t)0x80000000)
                 GX->sd[i] = 0x80000000;
             else
                 switch(emu->mxcsr.f.MXCSR_RC) {
