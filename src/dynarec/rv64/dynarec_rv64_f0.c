@@ -54,10 +54,10 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         opcode = F8;
     }
 
+    // TODO: Take care of unligned memory access for all the LOCK ones.
+    // https://github.com/ptitSeb/box64/pull/604
     switch(opcode) {
         case 0x0F:
-            // TODO: Take care of unligned memory access for all the LOCK ones.
-            // https://github.com/ptitSeb/box64/pull/604
             nextop = F8;
             switch(nextop) {
                 case 0xB1:
@@ -134,6 +134,38 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 default:
                     DEFAULT;
             }
+            break;
+        case 0x81:
+        case 0x83:
+            nextop = F8;
+            SMDMB();
+            switch((nextop>>3)&7) {
+                case 0: // ADD
+                    if(opcode==0x81) {
+                        INST_NAME("LOCK ADD Ed, Id");
+                    } else {
+                        INST_NAME("LOCK ADD Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if(MODREG) {
+                        if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode==0x81)?4:1);
+                        if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                        MARKLOCK;
+                        LRxw(x1, wback, 1, 1);
+                        emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
+                        SCxw(x3, x1, wback, 1, 1);
+                        BNEZ_MARKLOCK(x3);
+                    }
+                    SMDMB();
+                    break;
+                default: 
+                    DEFAULT;
+            }
+            SMDMB();
             break;
         default:
             DEFAULT;
