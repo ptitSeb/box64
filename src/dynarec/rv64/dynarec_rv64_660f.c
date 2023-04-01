@@ -91,6 +91,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x2F:
             if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
             SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE();
             nextop = F8;
             GETGXSD(d0);
             GETEXSD(v0, 0);
@@ -100,8 +101,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FEQD(x3, d0, d0);
                 FEQD(x2, v0, v0);
                 AND(x2, x2, x3);
-                XORI(x2, x2, 1);
-                BEQ_MARK(x2, xZR);
+                BNE_MARK(x2, xZR);
                 ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
                 B_NEXT_nocond;
             }

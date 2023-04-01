@@ -220,6 +220,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x2F:
             if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
             SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE();
             nextop = F8;
             GETGXSS(d0);
             GETEXSS(v0, 0);
@@ -229,8 +230,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FEQS(x3, d0, d0);
                 FEQS(x2, v0, v0);
                 AND(x2, x2, x3);
-                XORI(x2, x2, 1);
-                BEQ_MARK(x2, xZR);
+                BNE_MARK(x2, xZR);
                 ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
                 B_NEXT_nocond;
             }
