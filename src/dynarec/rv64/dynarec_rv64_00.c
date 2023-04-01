@@ -1450,6 +1450,9 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             addr = dynarec64_DB(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
 
+        case 0xDE:
+            addr = dynarec64_DE(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
         case 0xDF:
             addr = dynarec64_DF(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;

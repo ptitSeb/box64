@@ -1239,7 +1239,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     insn.name = "feq.d";
                     break;
                 }
-                PRINT_rd_rs1_rs2();
+                PRINT_rd_fs1_fs2();
             }
             case 0x60: {
                 uint32_t rs2 = RS2(data);
