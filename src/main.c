@@ -610,6 +610,7 @@ void LoadLogEnv()
         if(box64_dynarec_test) {
             box64_dynarec_fastnan = 0;
             box64_dynarec_fastround = 0;
+            box64_dynarec_callret = 0;
             printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
         }
     }

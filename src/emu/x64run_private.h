@@ -27,8 +27,8 @@ static inline uint64_t Pop(x64emu_t *emu)
 }
 
 #ifdef TEST_INTERPRETER
-#define Push(E, V)  do{R_RSP -=8; test->memsize = 8; *(uint64_t*)test->mem = (V); test->memaddr = R_RSP;}while(0)
-#define Push16(E, V)  do{R_RSP -=2; test->memsize = 2; *(uint16_t*)test->mem = (V); test->memaddr = R_RSP;}while(0)
+#define Push(E, V)  do{E->regs[_SP].q[0] -=8; test->memsize = 8; *(uint64_t*)test->mem = (V); test->memaddr = E->regs[_SP].q[0];}while(0)
+#define Push16(E, V)  do{E->regs[_SP].q[0] -=2; test->memsize = 2; *(uint16_t*)test->mem = (V); test->memaddr = E->regs[_SP].q[0];}while(0)
 #else
 static inline void Push(x64emu_t *emu, uint64_t v)
 {

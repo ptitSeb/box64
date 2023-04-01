@@ -1147,6 +1147,10 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         SW(xZR, xEmu, offsetof(x64emu_t, test.test));       \
         SW(xZR, xEmu, offsetof(x64emu_t, test.clean));      \
     }
+#define SKIPTEST(s1)                                        \
+    if(box64_dynarec_test) {                                \
+        SW(xZR, xEmu, offsetof(x64emu_t, test.clean));      \
+    }
 #define GOTEST(s1, s2)                                      \
     if(box64_dynarec_test) {                                \
         MOV32w(s2, 1);                                      \

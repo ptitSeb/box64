@@ -1275,7 +1275,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
-            NOTEST(x1);
+            SKIPTEST(x1);
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
                 BARRIER(BARRIER_FLOAT);
@@ -1476,7 +1476,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch(tmp) {
                 case 3:
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                    NOTEST(x1);
+                    SKIPTEST(x1);
                     BARRIER(BARRIER_FULL);
                     //BARRIER_NEXT(BARRIER_FULL);
                     if(dyn->last_ip && (addr-dyn->last_ip<0x1000)) {
@@ -1676,7 +1676,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 7:
                     INST_NAME("IDIV Eb");
-                    NOTEST(x1);
+                    SKIPTEST(x1);
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1, 0);
@@ -1791,7 +1791,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
-                    NOTEST(x1);
+                    SKIPTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
                     if(!rex.w) {
                         SET_DFNONE()
