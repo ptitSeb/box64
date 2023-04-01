@@ -1266,6 +1266,12 @@
 #define FCVT_D_S(Dd, Sn)            EMIT(FCVT_precision(0b00, 0b01, Sn, Dd))
 #define FCVT_S_D(Sd, Dn)            EMIT(FCVT_precision(0b01, 0b00, Dn, Sd))
 
+#define FCVTN_vector(Q, sz, Rn, Rd)   ((Q)<<30 | 0<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b10110<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Convert Vn from 2*Double to lower Vd as 2*float and clears the upper half, use FPCR rounding
+#define FCVTN(Vd, Vn)               EMIT(FCVTN_vector(0, 1, Vn, Vd))
+// Convert Vn from 2*Double to higher Vd as 2*float, use FPCR rounding
+#define FCVTN2(Vd, Vn)              EMIT(FCVTN_vector(1, 1, Vn, Vd))
+
 #define FCVTXN_vector(Q, sz, Rn, Rd)   ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b10110<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 // Convert Vn from 2*Double to lower Vd as 2*float and clears the upper half
 #define FCVTXN(Vd, Vn)              EMIT(FCVTXN_vector(0, 1, Vn, Vd))

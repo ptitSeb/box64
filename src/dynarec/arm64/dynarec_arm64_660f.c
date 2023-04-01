@@ -1058,17 +1058,44 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            FCVTXN(v0, v1);
+            if(box64_dynarec_fastround) {
+                FCVTXN(v0, v1);
+            } else {
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                FCVTN(v0, v1);
+                x87_restoreround(dyn, ninst, u8);
+            }
             break;
         case 0x5B:
             INST_NAME("CVTPS2DQ Gx, Ex");
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            u8 = sse_setround(dyn, ninst, x1, x2, x3);
-            VFRINTISQ(v0, v1);
-            x87_restoreround(dyn, ninst, u8);
-            VFCVTZSQS(v0, v0);
+            if(box64_dynarec_fastround) {
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                VFRINTISQ(q0, v1);
+                x87_restoreround(dyn, ninst, u8);
+                VFCVTZSQS(q0, q0);
+            } else {
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                MOV32w(x4, 0x80000000);
+                d0 = fpu_get_scratch(dyn);
+                for(int i=0; i<4; ++i) {
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MSR_fpsr(x5);
+                    VMOVeS(d0, 0, v1, i);
+                    FRINTIS(d0, d0);
+                    VFCVTZSs(d0, d0);
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ(x5, FPSR_IOC, 4+4);
+                    VMOVQSfrom(d0, 0, x4);
+                    VMOVeS(v0, i, d0, 0);
+                }
+                x87_restoreround(dyn, ninst, u8);
+            }
             break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");
