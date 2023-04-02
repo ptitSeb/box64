@@ -1073,9 +1073,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX_empty(v0);
             if(box64_dynarec_fastround) {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
-                VFRINTISQ(q0, v1);
+                VFRINTISQ(v0, v1);
                 x87_restoreround(dyn, ninst, u8);
-                VFCVTZSQS(q0, q0);
+                VFCVTZSQS(v0, v0);
             } else {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
