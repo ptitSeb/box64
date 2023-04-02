@@ -66,7 +66,6 @@
 #define GETED(D)  if(MODREG) {                          \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
-                    if (!rex.w) ZEROUP(ed);              \
                 } else {                                \
                     SMREAD()                            \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
