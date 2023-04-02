@@ -89,6 +89,9 @@ typedef struct x64emu_s {
     int         quitonexit;     // quit if exit/_exit is called
     int         longjmp;        // if quit because of longjmp
     x64test_t   test;       // used for dynarec testing
+    #ifdef HAVE_TRACE
+    sse_regs_t  old_xmm[16];
+    #endif
     // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
     uint64_t    scratch[200];
     // local stack, do be deleted when emu is freed

@@ -413,8 +413,14 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
     }
     if(trace_xmm) {
         // do xmm reg if needed
-        for(int i=0; i<8; ++i) {
-            sprintf(tmp, "%d:%016lx%016lx", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
+        for(int i=0; i<16; ++i) {
+            if (trace_regsdiff && (emu->old_xmm[i].q[0] != emu->xmm[i].q[0] || emu->old_xmm[i].q[1] != emu->xmm[i].q[1])) {
+                sprintf(tmp, "\e[1;35m%02d:%016lx-%016lx\e[m", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
+                emu->old_xmm[i].q[0] = emu->xmm[i].q[0];
+                emu->old_xmm[i].q[1] = emu->xmm[i].q[1];
+            } else {
+                sprintf(tmp, "%02d:%016lx-%016lx", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
+            }
             strcat(buff, tmp);
             if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
         }
