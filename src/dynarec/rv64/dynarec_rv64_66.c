@@ -320,7 +320,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV32w(x5, i16);
-                    emit_sub16(dyn, ninst, x1, x5, x2, x4, x5);
+                    emit_sub16(dyn, ninst, x1, x5, x2, x4, x6);
                     EWBACK;
                     break;
                 case 6: // XOR

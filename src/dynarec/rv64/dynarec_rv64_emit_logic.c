@@ -33,6 +33,7 @@ void emit_xor8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SET_DFNONE();
     }
     XOR(s1, s1, s2);
+    ANDI(s1, s1, 0xff);
     IFX(X_SF) {
         SRLI(s3, s1, 7);
         BEQZ(s3, 8);
@@ -60,6 +61,7 @@ void emit_xor8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         SET_DFNONE();
     }
     XORI(s1, s1, c&0xff);
+    ANDI(s1, s1, 0xff);
     IFX(X_SF) {
         SRLI(s3, s1, 7);
         BEQZ(s3, 8);
@@ -161,18 +163,20 @@ void emit_xor16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 
     XOR(s1, s1, s2);
+    SLLI(s1, s1, 48);
+    SRLI(s1, s1, 48);
 
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF | X_SF) {
-        SLLI(s3, s1, 48);
         IFX(X_ZF) {
-            BNEZ(s3, 8);
+            BNEZ(s1, 8);
             ORI(xFlags, xFlags, 1 << F_ZF);
         }
         IFX(X_SF) {
-            BGE(s3, xZR, 8);
+            SRLI(s3, s1, 15);
+            BEQZ(s3, 8);
             ORI(xFlags, xFlags, 1 << F_SF);
         }
     }
