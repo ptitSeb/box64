@@ -142,7 +142,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 GETGXSS_empty(v0);
             }
-            GETED(0);
+            GETED(0, true);
             if(rex.w) {
                 FMVDX(v0, ed);
             } else {

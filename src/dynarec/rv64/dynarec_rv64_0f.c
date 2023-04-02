@@ -418,7 +418,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 switch((nextop>>3)&7) {
                     case 2:                 
                         INST_NAME("LDMXCSR Md");
-                        GETED(0);
+                        GETEDx(0);
                         SW(ed, xEmu, offsetof(x64emu_t, mxcsr));
                         if(box64_sse_flushto0) {
                             // TODO: applyFlushTo0 also needs to add RISC-V support.
@@ -449,7 +449,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
             GETGD;
-            GETED(0);
+            GETED(0, true);
             if(rex.w) {
                 // 64bits imul
                 UFLAG_IF {
@@ -472,8 +472,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 } else {
                     MULxw(gd, gd, ed);
                 }
-                SLLI(gd, gd, 32);
-                SRLI(gd, gd, 32);
+                ZEROUP(gd);
             }
             break;
 

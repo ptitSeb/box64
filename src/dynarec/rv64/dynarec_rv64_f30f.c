@@ -90,7 +90,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("CVTSI2SS Gx, Ed");
             nextop = F8;
             GETGXSS(v0);
-            GETED(0);
+            GETED(0, true);
             if(rex.w) {
                 FCVTSL(v0, ed, RD_RNE);
             } else {

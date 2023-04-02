@@ -63,10 +63,15 @@
 // GETGD    get x64 register in gd
 #define GETGD   gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3)
 // GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETED(D)  if(MODREG) {                          \
+#define GETED(D, src)  if(MODREG) {                     \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
-                    if (!rex.w) ZEROUP(ed);              \
+                    if (!rex.w) {                       \
+                        if (src) {                      \
+                            AND(x1, ed, xMASK);         \
+                            ed = x1;                    \
+                        } else ZEROUP(ed);              \
+                    }                                   \
                 } else {                                \
                     SMREAD()                            \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
