@@ -434,7 +434,7 @@ GOM(xmlHashUpdateEntry3, iFEpppppp)
 GO(xmlHasFeature, iFi)
 GO(xmlHasNsProp, pFppp)
 GO(xmlHasProp, pFpp)
-//GO(__xmlIndentTreeOutput, 
+GO(__xmlIndentTreeOutput, pFv)
 GO(xmlInitCharEncodingHandlers, vFv)
 GO(xmlInitializeDict, iFv)
 GO(xmlInitGlobals, vFv)
@@ -851,8 +851,8 @@ GO(xmlSaveFile, iFpp)
 GO(xmlSaveFileEnc, iFppp)
 GO(xmlSaveFileTo, iFppp)
 GO(xmlSaveFlush, iFp)
-//GO(xmlSaveFormatFile, 
-//GO(xmlSaveFormatFileEnc, 
+GO(xmlSaveFormatFile, iFppi)
+GO(xmlSaveFormatFileEnc, iFpppi)
 //GO(xmlSaveFormatFileTo, 
 //GO(__xmlSaveNoEmptyTags, 
 //GOM(xmlSaveSetAttrEscape, iFEpB)
