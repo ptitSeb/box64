@@ -510,7 +510,25 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LHU(gd, ed, fixedaddress);
             }
             break;
-
+        case 0xBA:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 4:
+                    INST_NAME("BT Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE();
+                    GETED(1);
+                    u8 = F8;
+                    u8&=rex.w?0x3f:0x1f;
+                    SRLIxw(x3, ed, u8);
+                    ANDI(x3, x3, 1); // F_CF is 1
+                    ANDI(xFlags, xFlags, ~1);
+                    OR(xFlags, xFlags, x3);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");
             nextop = F8;
