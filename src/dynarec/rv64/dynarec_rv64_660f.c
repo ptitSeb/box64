@@ -161,6 +161,22 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SD(x3, gback, 0);
             SD(x4, gback, 8);
             break;
+        case 0x70: // TODO: Optimize this!
+            INST_NAME("PSHUFD Gx,Ex,Ib");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 1);
+            u8 = F8;
+            i32 = -1;
+            for (int i=0; i<4; ++i) {
+                int32_t idx = (u8>>(i*2))&3;
+                if (idx!=i32) {
+                    LWU(x4, wback, fixedaddress+idx*4);
+                    i32 = idx;
+                }
+                SW(x4, gback, i*4);
+            }
+            break;
         case 0x72:
             nextop = F8;
             switch((nextop>>3)&7) {
