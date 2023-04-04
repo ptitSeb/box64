@@ -187,20 +187,14 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGX(x1);
             GETEX(x2, 0);
-            LD(x3, wback, fixedaddress+0);
-            LD(x4, wback, fixedaddress+8);
-            SD(x3, gback, 0);
-            SD(x4, gback, 8);
+            SSE_LOOP_MV_Q(x3);
             break;
         case 0x29:
             INST_NAME("MOVAPS Ex,Gx");
             nextop = F8;
             GETGX(x1);
             GETEX(x2, 0);
-            LD(x3, gback, 0);
-            LD(x4, gback, 8);
-            SD(x3, wback, fixedaddress+0);
-            SD(x4, wback, fixedaddress+8);
+            SSE_LOOP_MV_Q2(x3);
             if(!MODREG)
                 SMWRITE2();
             break;
