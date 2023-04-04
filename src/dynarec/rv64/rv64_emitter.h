@@ -469,7 +469,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // |rs1| => rd
 #define FABSD(rd, rs1)              FSGNJXD(rd, rs1, rs1)
 // Convert from signed 32bits to Double
-#define FCVTDW(frd, rs1)             EMIT(R_type(0b1101001, 0b00000, rs1, 0b000, frd, 0b1010011))
+#define FCVTDW(frd, rs1, rm)        EMIT(R_type(0b1101001, 0b00000, rs1, rm, frd, 0b1010011))
 
 #define FEQD(rd, frs1, frs2)        EMIT(R_type(0b1010001, frs2, frs1, 0b010, rd, 0b1010011))
 #define FLTD(rd, frs1, frs2)        EMIT(R_type(0b1010001, frs2, frs1, 0b001, rd, 0b1010011))

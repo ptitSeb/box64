@@ -79,7 +79,17 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
-
+        case 0x2A:
+            INST_NAME("CVTSI2SD Gx, Ed");
+            nextop = F8;
+            GETGXSD(v0);
+            GETED(0);
+            if(rex.w) {
+                FCVTDL(v0, ed, RD_RNE);
+            } else {
+                FCVTDW(v0, ed, RD_RNE);
+            }
+            break;
         case 0x38:  // these are some more SSSE4.2+ opcodes
             opcode = F8;
             switch(opcode) {
@@ -124,7 +134,24 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v1, 0);
             FSUBD(v0, v0, v1);
             break;
-
+        case 0x5E:
+            INST_NAME("DIVSD Gx, Ex");
+            nextop = F8;
+            GETGXSD(v0);
+            GETEXSD(v1, 0);
+            if(!box64_dynarec_fastnan) {
+                FEQD(x3, v0, v0);
+                FEQD(x4, v1, v1);
+            }
+            FDIVD(v0, v0, v1);
+            if(!box64_dynarec_fastnan) {
+                AND(x3, x3, x4);
+                CBZ_NEXT(x3);
+                FEQD(x3, v0, v0);
+                CBNZ_NEXT(x3);
+                FNEGD(v0, v0);
+            }
+            break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
