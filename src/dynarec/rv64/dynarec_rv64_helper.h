@@ -374,6 +374,15 @@
     SSE_LOOP_MV_Q_ITEM(s, 0) \
     SSE_LOOP_MV_Q_ITEM(s, 1)
 
+#define SSE_LOOP_MV_Q_ITEM2(s, i)     \
+    LD(s, gback, i*8);                \
+    SD(s, wback, fixedaddress+i*8);
+
+// Loop for SSE opcode that moves 64bits value from gback to wback, use s as scratch.
+#define SSE_LOOP_MV_Q2(s)     \
+    SSE_LOOP_MV_Q_ITEM2(s, 0) \
+    SSE_LOOP_MV_Q_ITEM2(s, 1)
+
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)

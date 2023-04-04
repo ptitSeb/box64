@@ -139,18 +139,14 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             if(MODREG) {
                 INST_NAME("MOVLHPS Gx,Ex");
-                GETGX(x1);
-                GETEX(x2, 0);
-                LD(x4, wback, 0);
-                SD(x4, gback, fixedaddress+8);
             } else {
                 INST_NAME("MOVHPS Gx,Ex");
                 SMREAD();
-                GETGX(x1);
-                GETEX(x2, 0);
-                LD(x4, wback, 0);
-                SD(x4, gback, fixedaddress+8);
             }
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x4, wback, fixedaddress+0);
+            SD(x4, gback, 8);
             break;
         case 0x18:
             nextop = F8;
@@ -187,20 +183,14 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGX(x1);
             GETEX(x2, 0);
-            LD(x3, wback, fixedaddress+0);
-            LD(x4, wback, fixedaddress+8);
-            SD(x3, gback, 0);
-            SD(x4, gback, 8);
+            SSE_LOOP_MV_Q(x3);
             break;
         case 0x29:
             INST_NAME("MOVAPS Ex,Gx");
             nextop = F8;
             GETGX(x1);
             GETEX(x2, 0);
-            LD(x3, gback, 0);
-            LD(x4, gback, 8);
-            SD(x3, wback, fixedaddress+0);
-            SD(x4, wback, fixedaddress+8);
+            SSE_LOOP_MV_Q2(x3);
             if(!MODREG)
                 SMWRITE2();
             break;
@@ -516,7 +506,25 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LHU(gd, ed, fixedaddress);
             }
             break;
-
+        case 0xBA:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 4:
+                    INST_NAME("BT Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE();
+                    GETED(1);
+                    u8 = F8;
+                    u8&=rex.w?0x3f:0x1f;
+                    SRLIxw(x3, ed, u8);
+                    ANDI(x3, x3, 1); // F_CF is 1
+                    ANDI(xFlags, xFlags, ~1);
+                    OR(xFlags, xFlags, x3);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");
             nextop = F8;
