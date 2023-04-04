@@ -139,18 +139,14 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             if(MODREG) {
                 INST_NAME("MOVLHPS Gx,Ex");
-                GETGX(x1);
-                GETEX(x2, 0);
-                LD(x4, wback, 0);
-                SD(x4, gback, fixedaddress+8);
             } else {
                 INST_NAME("MOVHPS Gx,Ex");
                 SMREAD();
-                GETGX(x1);
-                GETEX(x2, 0);
-                LD(x4, wback, 0);
-                SD(x4, gback, fixedaddress+8);
             }
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x4, wback, fixedaddress+0);
+            SD(x4, gback, 8);
             break;
         case 0x18:
             nextop = F8;
