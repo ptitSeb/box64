@@ -179,7 +179,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(x1, ed, fixedaddress);
-                    FCVTDW(v1, x1);    // i32 -> double
+                    FCVTDW(v1, x1, RD_RNE);    // i32 -> double
                     break;
                 case 1:
                     INST_NAME("FISTTP Ed, ST0");

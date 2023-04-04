@@ -79,7 +79,17 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
-
+        case 0x2A:
+            INST_NAME("CVTSI2SD Gx, Ed");
+            nextop = F8;
+            GETGXSD(v0);
+            GETED(0);
+            if(rex.w) {
+                FCVTDL(v0, ed, RD_RNE);
+            } else {
+                FCVTDW(v0, ed, RD_RNE);
+            }
+            break;
         case 0x38:  // these are some more SSSE4.2+ opcodes
             opcode = F8;
             switch(opcode) {
