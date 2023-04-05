@@ -1374,7 +1374,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 tmp8u = F8;
                 if(tmp8u>15)
                     {EX->q[0] = EX->q[1] = 0;}
-                else {
+                else if (tmp8u!=0) {
                     tmp8u*=8;
                     if (tmp8u < 64) {
                         EX->q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
@@ -1396,7 +1396,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 tmp8u = F8;
                 if(tmp8u>15)
                     {EX->q[0] = EX->q[1] = 0;}
-                else {
+                else if (tmp8u!=0) {
                     tmp8u*=8;
                     if (tmp8u < 64) {
                         EX->q[1] = (EX->q[1] << tmp8u) | (EX->q[0] >> (64 - tmp8u));
