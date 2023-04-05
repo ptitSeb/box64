@@ -49,7 +49,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(j64);
     
     switch(opcode) {
-
+        case 0x14:
+            INST_NAME("UNPCKLPD Gx, Ex");
+            nextop = F8;
+            GETEXSD(d0, 0);
+            GETGX(x3);
+            FSD(d0, x3, 8);
+            break;
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
@@ -120,6 +126,42 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 CBZ_NEXT(x2);
                 ORI(xFlags, xFlags, 1<<F_ZF);
             }
+            break;
+        case 0x54:
+            INST_NAME("ANDPD Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
+            break;
+        case 0x55:
+            INST_NAME("ANDNPD Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_Q(x3, x4, NOT(x3, x3); AND(x3, x3, x4));
+            break;
+        case 0x57:
+            INST_NAME("XORPD Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
+            break;
+        case 0x62:
+            INST_NAME("PUNPCKLDQ Gx,Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            // GX->ud[3] = EX->ud[1];
+            LWU(x3, x1, fixedaddress+1*4);
+            SW(x3, x2, 3*4);
+            // GX->ud[2] = GX->ud[1];
+            LWU(x3, x2, 1*4);
+            SW(x3, x2, 2*4);
+            // GX->ud[1] = EX->ud[0];
+            LWU(x3, x1, fixedaddress+0*4);
+            SW(x3, x2, 1*4);
             break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
@@ -308,6 +350,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             AND(x1, x1, x5);
             OR(gd, gd, x1);
             break;
+        case 0xD4:
+            INST_NAME("PADDQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_Q(x3, x4, ADD(x3, x3, x4));
+            break;
         case 0xDB:
             INST_NAME("PAND Gx,Ex");
             nextop = F8;
@@ -343,12 +392,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
             }
             break;
+        case 0xFD:
+            INST_NAME("PADDW Gx,Ex");
+            nextop = F8;
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_WQ(x3, x4, ADDW(x3, x3, x4));
+            break;
         case 0xFE:
             INST_NAME("PADDD Gx,Ex");
             nextop = F8;
             GETGX(x1);
             GETEX(x2, 0);
-            SSE_LOOP_D(x3, x4, ADDW(x3, x3, x4));
+            SSE_LOOP_DQ(x3, x4, ADDW(x3, x3, x4));
             break;
         default:
             DEFAULT;
