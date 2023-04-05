@@ -1069,24 +1069,27 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        for(int i=0; i<4; ++i)
-            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>(int32_t)0x7fffffff || EX->f[i]<(int32_t)0x80000000)
-                GX->sd[i] = 0x80000000;
-            else
-                switch(emu->mxcsr.f.MXCSR_RC) {
-                    case ROUND_Nearest:
-                        GX->sd[i] = nearbyintf(EX->f[i]);
-                        break;
-                    case ROUND_Down:
-                        GX->sd[i] = floorf(EX->f[i]);
-                        break;
-                    case ROUND_Up:
-                        GX->sd[i] = ceilf(EX->f[i]);
-                        break;
-                    case ROUND_Chop:
-                        GX->sd[i] = EX->f[i];
-                        break;
-                }
+        for(int i=0; i<4; ++i) {
+            switch(emu->mxcsr.f.MXCSR_RC) {
+                case ROUND_Nearest:
+                    tmp64s = nearbyintf(EX->f[i]);
+                    break;
+                case ROUND_Down:
+                    tmp64s = floorf(EX->f[i]);
+                    break;
+                case ROUND_Up:
+                    tmp64s = ceilf(EX->f[i]);
+                    break;
+                case ROUND_Chop:
+                    tmp64s = EX->f[i];
+                    break;
+            }
+            if (tmp64s==(int32_t)tmp64s) {
+                GX->sd[i] = (int32_t)tmp64s;
+            } else {
+                GX->sd[i] = INT32_MIN;
+            }
+        }
         break;
     case 0x5C:                      /* SUBPD Gx, Ex */
         nextop = F8;
