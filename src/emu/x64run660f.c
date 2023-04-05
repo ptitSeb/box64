@@ -193,7 +193,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GX->d[0] = EM->sd[0];
         GX->d[1] = EM->sd[1];
         break;
-
+    case 0x2B:                      /* MOVNTPD Ex, Gx */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        EX->q[0] = GX->q[0];
+        EX->q[1] = GX->q[1];
+        break;
     case 0x2C:                      /* CVTTPD2PI Gm, Ex */
         nextop = F8;
         GETEX(0);
