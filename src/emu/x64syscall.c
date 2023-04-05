@@ -124,6 +124,7 @@ scwrap_t syscallwrap[] = {
     { 45, __NR_recvfrom, 6},
     { 46, __NR_sendmsg, 3},
     { 47, __NR_recvmsg, 3},
+    { 49, __NR_bind, 3},
     { 51, __NR_getsockname, 3},
     { 52, __NR_getpeername, 3},
     { 53, __NR_socketpair, 4},
