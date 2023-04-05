@@ -125,6 +125,7 @@ scwrap_t syscallwrap[] = {
     { 46, __NR_sendmsg, 3},
     { 47, __NR_recvmsg, 3},
     { 49, __NR_bind, 3},
+    { 50, __NR_listen, 2},
     { 51, __NR_getsockname, 3},
     { 52, __NR_getpeername, 3},
     { 53, __NR_socketpair, 4},
@@ -147,6 +148,7 @@ scwrap_t syscallwrap[] = {
     { 78, __NR_getdents, 3},
     #endif
     { 79, __NR_getcwd, 2},
+    { 80, __NR_chdir, 1},
     #ifdef __NR_rename
     { 82, __NR_rename, 2},
     #endif
@@ -239,6 +241,7 @@ scwrap_t syscallwrap[] = {
     #ifdef _NR_eventfd
     { 284, __NR_eventfd, 1},
     #endif
+    { 288, __NR_accept4, 4},
     { 290, __NR_eventfd2, 2},
     { 291, __NR_epoll_create1, 1},
     { 292, __NR_dup3, 3},
