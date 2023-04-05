@@ -141,6 +141,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(x2);
             SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
             break;
+        case 0x62:
+            INST_NAME("PUNPCKLDQ Gx,Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            // GX->ud[3] = EX->ud[1];
+            LWU(x3, x1, fixedaddress+1*4);
+            SW(x3, x2, 3*4);
+            // GX->ud[2] = GX->ud[1];
+            LWU(x3, x2, 1*4);
+            SW(x3, x2, 2*4);
+            // GX->ud[1] = EX->ud[0];
+            LWU(x3, x1, fixedaddress+0*4);
+            SW(x3, x2, 1*4);
+            break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
             nextop = F8;
