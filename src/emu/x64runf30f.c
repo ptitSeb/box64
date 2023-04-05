@@ -33,6 +33,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     int8_t tmp8s;
     uint8_t tmp8u;
     uint32_t tmp32u;
+    int64_t tmp64s;
     uint64_t tmp64u;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1;
@@ -194,10 +195,14 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        GX->sd[0] = EX->f[0];
-        GX->sd[1] = EX->f[1];
-        GX->sd[2] = EX->f[2];
-        GX->sd[3] = EX->f[3];
+        for(int i=0; i<4; ++i) {
+            tmp64s = EX->f[i];
+            if (tmp64s==(int32_t)tmp64s) {
+                GX->sd[i] = (int32_t)tmp64s;
+            } else {
+                GX->sd[i] = INT32_MIN;
+            }
+        }
         break;
     case 0x5C:  /* SUBSS Gx, Ex */
         nextop = F8;

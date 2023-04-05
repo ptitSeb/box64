@@ -193,7 +193,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GX->d[0] = EM->sd[0];
         GX->d[1] = EM->sd[1];
         break;
-
+    case 0x2B:                      /* MOVNTPD Ex, Gx */
+        nextop = F8;
+        GETEX(0);
+        GETGX;
+        EX->q[0] = GX->q[0];
+        EX->q[1] = GX->q[1];
+        break;
     case 0x2C:                      /* CVTTPD2PI Gm, Ex */
         nextop = F8;
         GETEX(0);
@@ -1063,24 +1069,27 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        for(int i=0; i<4; ++i)
-            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>(int32_t)0x7fffffff || EX->f[i]<(int32_t)0x80000000)
-                GX->sd[i] = 0x80000000;
-            else
-                switch(emu->mxcsr.f.MXCSR_RC) {
-                    case ROUND_Nearest:
-                        GX->sd[i] = nearbyintf(EX->f[i]);
-                        break;
-                    case ROUND_Down:
-                        GX->sd[i] = floorf(EX->f[i]);
-                        break;
-                    case ROUND_Up:
-                        GX->sd[i] = ceilf(EX->f[i]);
-                        break;
-                    case ROUND_Chop:
-                        GX->sd[i] = EX->f[i];
-                        break;
-                }
+        for(int i=0; i<4; ++i) {
+            switch(emu->mxcsr.f.MXCSR_RC) {
+                case ROUND_Nearest:
+                    tmp64s = nearbyintf(EX->f[i]);
+                    break;
+                case ROUND_Down:
+                    tmp64s = floorf(EX->f[i]);
+                    break;
+                case ROUND_Up:
+                    tmp64s = ceilf(EX->f[i]);
+                    break;
+                case ROUND_Chop:
+                    tmp64s = EX->f[i];
+                    break;
+            }
+            if (tmp64s==(int32_t)tmp64s) {
+                GX->sd[i] = (int32_t)tmp64s;
+            } else {
+                GX->sd[i] = INT32_MIN;
+            }
+        }
         break;
     case 0x5C:                      /* SUBPD Gx, Ex */
         nextop = F8;
@@ -1374,7 +1383,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 tmp8u = F8;
                 if(tmp8u>15)
                     {EX->q[0] = EX->q[1] = 0;}
-                else {
+                else if (tmp8u!=0) {
                     tmp8u*=8;
                     if (tmp8u < 64) {
                         EX->q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
@@ -1396,7 +1405,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 tmp8u = F8;
                 if(tmp8u>15)
                     {EX->q[0] = EX->q[1] = 0;}
-                else {
+                else if (tmp8u!=0) {
                     tmp8u*=8;
                     if (tmp8u < 64) {
                         EX->q[1] = (EX->q[1] << tmp8u) | (EX->q[0] >> (64 - tmp8u));
