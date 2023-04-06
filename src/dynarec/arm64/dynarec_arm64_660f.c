@@ -2136,13 +2136,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
-            VMOVeD(v0, 0, q1, 0);
-            VMOVeD(v0, 1, q1, 0);
-            SQXTN_32(v0, v0);   // 2*q1 in 32bits now
-            NEG_32(v0, v0);   // because we want SHR and not SHL
-            VMOVeD(v0, 1, v0, 0);
-            SQXTN_16(v0, v0);   // 4*q1 in 32bits now
-            VMOVeD(v0, 1, v0, 0);
+            v1 = fpu_get_scratch(dyn);
+            SQXTN_32(v0, q1);
+            NEG_32(v0, v0);
+            MOVI_32(v1, 15);
+            SMIN_32(v0, v0, v1);
+            NEG_32(v1, v1);
+            SMAX_32(v0, v0, v1);    // limit to -15 .. +15 values
+            VDUPQ_16(v0, v0, 0);    // only the low 8bits will be used anyway
             SSHLQ_16(q0, q0, v0);
             break;
         case 0xE2:
@@ -2151,11 +2152,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
-            VMOVeD(v0, 0, q1, 0);
-            VMOVeD(v0, 1, q1, 0);
-            SQXTN_32(v0, v0);   // 2*q1 in 32bits now
-            NEG_32(v0, v0);   // because we want SHR and not SHL
-            VMOVeD(v0, 1, v0, 0);
+            v1 = fpu_get_scratch(dyn);
+            SQXTN_32(v0, q1);
+            NEG_32(v0, v0);
+            MOVI_32(v1, 31);
+            SMIN_32(v0, v0, v1);
+            NEG_32(v1, v1);
+            SMAX_32(v0, v0, v1);    // limit to -31 .. +31 values
+            VDUPQ_32(v0, v0, 0);    // only the low 8bits will be used anyway
             SSHLQ_32(q0, q0, v0);
             break;
         case 0xE3:

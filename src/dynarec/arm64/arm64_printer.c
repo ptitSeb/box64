@@ -950,6 +950,28 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "VCMEQ V%d.%s, V%d.%s, V%d.%s", Rd, Vd, Rn, Vd, Rm, Vd);
         return buff;
     }
+    // MIN/MAX
+    if(isMask(opcode, "0QU01110ff1mmmmm0110o1nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "2D"};
+        const char* Vd = Y[((sf)<<1) | a.Q];
+        snprintf(buff, sizeof(buff), "%c%s V%d.%s, V%d.%s, V%d.%s", a.U?'U':'S', a.o?"MIN":"MAX", Rd, Vd, Rn, Vd, Rm, Vd);
+        return buff;
+    }
+
+    // MOV immediate (not)shifted 8bits
+    if(isMask(opcode, "0Q00111100000iii111001iiiiiddddd", &a)) {
+        const char* Y[] = {"8B", "16B"};
+        const char* Vd = Y[a.Q];
+        snprintf(buff, sizeof(buff), "MOVI V%d.%s, #0x%x", Rd, Vd, imm);
+        return buff;
+    }
+    // MOV immediate (not)shifted 16bits & 32bits
+    if(isMask(opcode, "0Q00111100000iiif00001iiiiiddddd", &a)) {
+        const char* Y[] = {"2S", "4S", "4H", "8H"};
+        const char* Vd = Y[(sf<<1)| a.Q];
+        snprintf(buff, sizeof(buff), "MOVI V%d.%s, #0x%x", Rd, Vd, imm);
+        return buff;
+    }
 
     // Shift
     if(isMask(opcode, "0QU011110hhhhrrr000001nnnnnddddd", &a)) {
@@ -1123,6 +1145,20 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         int n = (sf==0)?2:1;
         n *= a.Q?2:1;
         snprintf(buff, sizeof(buff), "F%s%s V%d.%d%c, V%d.%d%c, V%d.%d%c", option?"MIN":"MAX", a.Q?"Q":"", Rd, n, s, Rn, n, s, Rm, n, s);
+        return buff;
+    }
+    // NEG
+    if(isMask(opcode, "0Q101110ff100000101110nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "2D"};
+        const char* Vd = Y[(sf<<1) | a.Q];
+        snprintf(buff, sizeof(buff), "NEG%s V%d.%s, V%d.%s", a.Q?"Q":"", Rd, Vd, Rn, Vd);
+        return buff;
+    }
+    // SSHL vector
+    if(isMask(opcode, "0QU01110ff1mmmmm010rS1nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "2D"};
+        const char* Vd = Y[(sf<<1) | a.Q];
+        snprintf(buff, sizeof(buff), "%c%s%sSHL%s V%d.%s, V%d.%s, V%d.%s", a.U?'U':'S', a.r?"R":"", a.S?"Q":"", a.Q?"Q":"", Rd, Vd, Rn, Vd, Rm, Vd);
         return buff;
     }
 
@@ -1300,14 +1336,6 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     
-    // MOV immediate
-    if(isMask(opcode, "0Q00111100000iii111001iiiiiddddd", &a)) {
-        const char* Y[] = {"8B", "16B"};
-        const char* Vd = Y[a.Q];
-        snprintf(buff, sizeof(buff), "MOVI V%d.%s, #0x%x", Rd, Vd, imm);
-        return buff;
-    }
-
     // LD1/ST1 single structure
     if(isMask(opcode, "0Q0011010L000000cc0Sffnnnnnttttt", &a)) {
         int scale = a.c;
