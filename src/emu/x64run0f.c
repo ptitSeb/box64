@@ -212,12 +212,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(0);
             GETGM;
             tmp64s = EX->f[1];
-            if (tmp64s==(int32_t)tmp64s)
+            if (tmp64s==(int32_t)tmp64s && !isnanf(EX->f[1]))
                 GM->sd[1] = (int32_t)tmp64s;
             else
                 GM->sd[1] = INT32_MIN;
             tmp64s = EX->f[0];
-            if (tmp64s==(int32_t)tmp64s)
+            if (tmp64s==(int32_t)tmp64s && !isnanf(EX->f[0]))
                 GM->sd[0] = (int32_t)tmp64s;
             else
                 GM->sd[0] = INT32_MIN;
@@ -228,20 +228,23 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(0);
             GETGM;
             for(int i=1; i>=0; --i) {
-                switch(emu->mxcsr.f.MXCSR_RC) {
-                    case ROUND_Nearest:
-                        tmp64s = nearbyintf(EX->f[i]);
-                        break;
-                    case ROUND_Down:
-                        tmp64s = floorf(EX->f[i]);
-                        break;
-                    case ROUND_Up:
-                        tmp64s = ceilf(EX->f[i]);
-                        break;
-                    case ROUND_Chop:
-                        tmp64s = EX->f[i];
-                        break;
-                }
+                if(isnanf(EX->f[i]))
+                    tmp64s = INT32_MIN;
+                else
+                    switch(emu->mxcsr.f.MXCSR_RC) {
+                        case ROUND_Nearest:
+                            tmp64s = nearbyintf(EX->f[i]);
+                            break;
+                        case ROUND_Down:
+                            tmp64s = floorf(EX->f[i]);
+                            break;
+                        case ROUND_Up:
+                            tmp64s = ceilf(EX->f[i]);
+                            break;
+                        case ROUND_Chop:
+                            tmp64s = EX->f[i];
+                            break;
+                    }
                 if (tmp64s==(int32_t)tmp64s)
                     GM->sd[i] = (int32_t)tmp64s;
                 else

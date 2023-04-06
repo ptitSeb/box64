@@ -338,12 +338,12 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 tmp64s1 = EX->d[1];
                 break;
         }
-        if (tmp64s0==(int32_t)tmp64s0) {
+        if (tmp64s0==(int32_t)tmp64s0 && !isnan(EX->d[0])) {
             GX->sd[0] = (int32_t)tmp64s0;
         } else {
             GX->sd[0] = INT32_MIN;
         }
-        if (tmp64s1==(int32_t)tmp64s1) {
+        if (tmp64s1==(int32_t)tmp64s1 && !isnan(EX->d[1])) {
             GX->sd[1] = (int32_t)tmp64s1;
         } else {
             GX->sd[1] = INT32_MIN;

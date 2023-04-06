@@ -205,12 +205,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGM;
         tmp64s = EX->d[0];
-        if (tmp64s==(int32_t)tmp64s)
+        if (tmp64s==(int32_t)tmp64s && !isnan(EX->d[0]))
             GX->sd[0] = (int32_t)tmp64s;
         else
             GX->sd[0] = INT32_MIN;
         tmp64s = EX->d[1];
-        if (tmp64s==(int32_t)tmp64s)
+        if (tmp64s==(int32_t)tmp64s && !isnan(EX->d[1]))
             GX->sd[1] = (int32_t)tmp64s;
         else
             GX->sd[1] = INT32_MIN;
@@ -238,7 +238,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
         }
         for(int i=0; i<2; ++i)
-            if (tmp64s==(int32_t)i64[i])
+            if (i64[i]==(int32_t)i64[i] && !isnan(EX->d[i]))
                 GM->sd[i] = (int32_t)i64[i];
             else
                 GM->sd[i] = INT32_MIN;
@@ -1084,20 +1084,23 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGX;
         for(int i=0; i<4; ++i) {
-            switch(emu->mxcsr.f.MXCSR_RC) {
-                case ROUND_Nearest:
-                    tmp64s = nearbyintf(EX->f[i]);
-                    break;
-                case ROUND_Down:
-                    tmp64s = floorf(EX->f[i]);
-                    break;
-                case ROUND_Up:
-                    tmp64s = ceilf(EX->f[i]);
-                    break;
-                case ROUND_Chop:
-                    tmp64s = EX->f[i];
-                    break;
-            }
+            if(isnanf(EX->f[i]))
+                tmp64s = INT32_MIN;
+            else
+                switch(emu->mxcsr.f.MXCSR_RC) {
+                    case ROUND_Nearest:
+                        tmp64s = nearbyintf(EX->f[i]);
+                        break;
+                    case ROUND_Down:
+                        tmp64s = floorf(EX->f[i]);
+                        break;
+                    case ROUND_Up:
+                        tmp64s = ceilf(EX->f[i]);
+                        break;
+                    case ROUND_Chop:
+                        tmp64s = EX->f[i];
+                        break;
+                }
             if (tmp64s==(int32_t)tmp64s) {
                 GX->sd[i] = (int32_t)tmp64s;
             } else {
