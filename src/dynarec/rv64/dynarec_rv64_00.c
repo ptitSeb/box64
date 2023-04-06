@@ -870,7 +870,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                     MV(gd, ed);
                 }
-                else if(!rex.w) {
+                if(!rex.w) {
                     ZEROUP(gd);   //truncate the higher 32bits as asked
                 }
             }
