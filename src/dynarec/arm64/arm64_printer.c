@@ -1095,6 +1095,16 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "FCMP %c%d, %c%d", s, Rn, s, Rm);
         return buff;
     }
+    //FCMP vector
+    if(isMask(opcode, "0QU01110cf1mmmmm111001nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        int n = (sf==0)?2:1;
+        n *= a.Q?2:1;
+        int op = (a.c<<1) | (a.U);
+        const char* OP[] = {"EQ", "GE", "??", "GT"};
+        snprintf(buff, sizeof(buff), "FCMP%s%s V%d.%d%c, V%d.%d%c, V%d.%d%c", OP[op], a.Q?"Q":"", Rd, n, s, Rn, n, s, Rm, n, s);
+        return buff;
+    }
     //FMIN/FMAX
     if(isMask(opcode, "00011110ff1mmmmm01oo10nnnnnddddd", &a)) {
         char s = (sf==0)?'S':((sf==1)?'D':'?');
@@ -1106,6 +1116,13 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         int n = (sf==0)?2:1;
         n *= a.Q?2:1;
         snprintf(buff, sizeof(buff), "F%sNM%s V%d.%d%c, V%d.%d%c, V%d.%d%c", option?"MIN":"MAX", a.Q?"Q":"", Rd, n, s, Rn, n, s, Rm, n, s);
+        return buff;
+    }
+    if(isMask(opcode, "0Q001110of1mmmmm111101nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        int n = (sf==0)?2:1;
+        n *= a.Q?2:1;
+        snprintf(buff, sizeof(buff), "F%s%s V%d.%d%c, V%d.%d%c, V%d.%d%c", option?"MIN":"MAX", a.Q?"Q":"", Rd, n, s, Rn, n, s, Rm, n, s);
         return buff;
     }
 
@@ -1319,9 +1336,9 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             sz = 4;
         int offset = signExtend(imm, 9);
         if(!offset)
-            snprintf(buff, sizeof(buff), "%sUR %s%d, [%s]", a.L?"LD":"ST", Y[sz], Rd, XtSp[Rn]);
+            snprintf(buff, sizeof(buff), "%sUR %s%d, [%s]", a.L?"LD":"ST", Y[sz], Rt, XtSp[Rn]);
         else
-            snprintf(buff, sizeof(buff), "%sUR %s%d, [%s, %+d]", a.L?"LD":"ST", Y[sz], Rd, XtSp[Rn], imm);
+            snprintf(buff, sizeof(buff), "%sUR %s%d, [%s, %s0x%x]", a.L?"LD":"ST", Y[sz], Rt, XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     // LDR/STR vector immediate
@@ -1332,9 +1349,9 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             sz = 4;
         int offset = imm<<sz;
         if(!offset)
-            snprintf(buff, sizeof(buff), "%sR %s%d, [%s]", a.L?"LD":"ST", Y[sz], Rd, XtSp[Rn]);
+            snprintf(buff, sizeof(buff), "%sR %s%d, [%s]", a.L?"LD":"ST", Y[sz], Rt, XtSp[Rn]);
         else
-            snprintf(buff, sizeof(buff), "%sR %s%d, [%s, %+d]", a.L?"LD":"ST", Y[sz], Rd, XtSp[Rn], imm);
+            snprintf(buff, sizeof(buff), "%sR %s%d, [%s, %+d]", a.L?"LD":"ST", Y[sz], Rt, XtSp[Rn], imm);
         return buff;
     }
 
