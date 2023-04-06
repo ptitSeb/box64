@@ -53,7 +53,6 @@
 #() UFv
 #() UFu
 #() UFp
-#() UFV
 #() fFi
 #() fFf
 #() fFp
@@ -89,6 +88,8 @@
 #() pFV
 #() HFi
 #() HFp
+#() xFx
+#() XFX
 #() vWp
 #() iWp
 #() uWp
@@ -267,11 +268,12 @@
 #() pFpl
 #() pFpL
 #() pFpp
-#() pFpV
 #() pFSi
 #() HFII
 #() HFll
 #() HFpi
+#() xFxx
+#() XFXX
 #() iWpi
 #() iWpu
 #() iWpf
@@ -3495,13 +3497,6 @@ wrappedlibibus:
   - ibus_config_set_value_async
 wrappedlibice:
 wrappedlibm:
-- UFV:
-  - cacosf
-  - cacoshf
-  - casinf
-  - casinhf
-  - catanf
-  - catanhf
 - fFf:
   - __acosf_finite
   - __acoshf_finite
@@ -3526,6 +3521,9 @@ wrappedlibm:
   - __log_finite
   - __sinh_finite
   - __sqrt_finite
+- xFx:
+  - catanf
+  - catanhf
 - fFff:
   - __atan2f_finite
   - __fmodf_finite
@@ -3802,7 +3800,6 @@ wrappedlibx11xcb:
 wrappedlibxau:
 wrappedlibxcb:
 wrappedlibxcbdri2:
-% x my_xcb_cookie_t u
 wrappedlibxcbdri3:
 wrappedlibxcbglx:
 wrappedlibxcbicccm:

@@ -2,8 +2,6 @@
 #error meh!
 #endif
 
-//%S x my_xcb_cookie_t u
-
 //GO(xcb_dri2_attach_format_end, 
 //GO(xcb_dri2_attach_format_next, 
 GO(xcb_dri2_authenticate, pFpuu)

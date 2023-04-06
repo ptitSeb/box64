@@ -53,28 +53,28 @@ GOW(atanhl, DFD)
 GO2(atanhl, KFK, atanh)
 #endif
 // atanl    // Weak
-GOW(cabs, dFdd)     // only 1 arg, but is a double complex
-GOW(cabsf, fFff)    // only 1 arg, but is a float complex
+GOW(cabs, XFX)
+GOW(cabsf, xFx)
 // cabsl    // Weak
-GOS(cacos, pFpV)    // Weak, complex
-GOM(cacosf, UFV)   // Weak
-GOS(cacosh, pFpV)   // Weak, complex
-GOM(cacoshf, UFV)  // Weak
+GOW(cacos, XFX)
+GOW(cacosf, xFx)
+GOW(cacosh, XFX)
+GOW(cacoshf, xFx)
 // cacoshl  // Weak
 // cacosl   // Weak
-GOW(carg, dFdd)     // 1arg, double complex
-GOW(cargf, fFff)    // 1arg, float complex
+GOW(carg, XFX)
+GOW(cargf, xFx)
 // cargl    // Weak
-GOS(casin, pFpV)    // Weak, complex
-GOM(casinf, UFV)   // Weak
-GOS(casinh, pFpV)   // Weak, complex
-GOM(casinhf, UFV)  // Weak
+GOW(casin, XFX)
+GOW(casinf, xFx)
+GOW(casinh, XFX)
+GOW(casinhf, xFx)
 // casinhl  // Weak
 // casinl   // Weak
-GOS(catan, pFpV)    // Weak, complex
-GOM(catanf, UFV)   // Weak
-GOS(catanh, pFpV)   // Weak, complex
-GOM(catanhf, UFV)  // Weak
+GOS(catan, XFX)
+GOM(catanf, xFx)
+GOS(catanh, XFX)
+GOM(catanhf, xFx)
 // catanhl  // Weak
 // catanl   // Weak
 GOW(cbrt, dFd)
@@ -84,10 +84,10 @@ GOW(cbrtl, DFD)
 #else
 GO2(cbrtl, KFK, cbrt)
 #endif
-//GOS(ccos, pFpV) // Weak, return complex
-//GOM(ccosf, UFV)    // Weak, return complex
-//GOS(ccosh, pFpV)    // Weak, return complex
-//GOM(ccoshf, UFV)   // Weak, return complex
+GOW(ccos, XFX)
+GOW(ccosf, xFx)
+GOW(ccosh, XFX)
+GOW(ccoshf, xFx)
 // ccoshl   // Weak
 // ccosl    // Weak
 GOW(ceil, dFd)
@@ -97,13 +97,13 @@ GOW(ceill, DFD)    // Weak
 #else
 GO2(ceill, KFK, ceil)
 #endif
-//GOS(cexp, pFpV)     // Weak, return complex
-//GOM(cexpf, UFV)     // Weak, return complex
+GOW(cexp, XFX)
+GOW(cexpf, xFx)
 // cexpl    // Weak
 // cimag    // Weak
 // cimagf   // Weak
 // cimagl   // Weak
-//GOS(clog, pFpV)   // return a double complex, so ret 4
+GOW(clog, XFX)
 // clog10   // Weak
 // __clog10
 // clog10f  // Weak
@@ -126,28 +126,28 @@ GOM(__coshf_finite, fFf)
 GOM(__cosh_finite, dFd)
 // coshl    // Weak
 // cosl // Weak
-//GOS(cpow, pFpVvvvvV) // Weak, return complex
-//GOM(cpowf, UFVvvV)    // Weak
+GOW(cpow, XFXX)
+GOW(cpowf, xFxx)
 // cpowl    // Weak
-//GOS(cproj, pFpV)    // double complex
-//GOM(cprojf, UFV)
+GOW(cproj, XFX)
+GOW(cprojf, xFx)
 // cprojl   // Weak
 // creal    // Weak
 // crealf   // Weak
 // creall   // Weak
-//GOS(csin, pFpV) // Weak, return complex
-//GOM(csinf, UFV)    // Weak, return complex
-//GOS(csinh, pFpV)    // Weak, return complex
-//GOM(csinhf, UFV)   // Weak, return complex
+GOW(csin, XFX)
+GOW(csinf, xFx)
+GOW(csinh, XFX)
+GOW(csinhf, xFx)
 // csinhl   // Weak
 // csinl    // Weak
 //GOS(csqrt, pFpV)
 //GOS(csqrtf, UFV)   // Weak
 // csqrtl   // Weak
-//GOS(ctan, pFpV) // Weak, return complex
-//GOM(ctanf, UFV)    // Weak, return complex
-//GOS(ctanh, pFpV)    // Weak, return complex
-//GOM(ctanhf, UFV)   // Weak, return complex
+GOW(ctan, XFX)
+GOW(ctanf, xFx)
+GOW(ctanh, XFX)
+GOW(ctanhf, xFx)
 // ctanhl   // Weak
 // ctanl    // Weak
 // __cxa_finalize  // Weak
@@ -397,6 +397,9 @@ GOW(rintf, fFf)
 // rintl    // Weak
 GOW(round, dFd)
 GOW(roundf, fFf)
+GO(roundeven, dFd)  //since C23
+GO(roundevenf, fFf)
+//GO(roundevenl, DFD)
 // roundl   // Weak
 // scalb    // Weak
 // scalbf   // Weak

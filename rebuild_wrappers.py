@@ -152,10 +152,10 @@ class FunctionConvention(object):
 		self.values = valid_chars
 # Free letters:  B   FG  J      QR T   XYZab  e gh jk mno qrst   xyz
 conventions = {
-	'F': FunctionConvention('F', "System V", ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A']),
+	'F': FunctionConvention('F', "System V", ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X']),
 	'W': FunctionConvention('W', "Windows",  ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd',      'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M',      'P', 'A'])
 }
-sortedvalues = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', '0', '1']
+sortedvalues = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', '0', '1']
 assert(all(all(c not in conv.values[:i] and c in sortedvalues for i, c in enumerate(conv.values)) for conv in conventions.values()))
 
 class FunctionType(str):
@@ -825,7 +825,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	allowed_fpr   : str = "fd"
 	
 	# Sanity checks
-	forbidden_simple: str = "EDKVOSNMHPA"
+	forbidden_simple: str = "EDKVOSNMHPAxX"
 	assert(len(allowed_simply) + len(allowed_regs) + len(allowed_fpr) + len(forbidden_simple) == len(allowed_conv.values))
 	assert(all(c not in allowed_regs for c in allowed_simply))
 	assert(all(c not in allowed_simply + allowed_regs for c in allowed_fpr))
@@ -880,6 +880,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		#include "emu/x87emu_private.h"
 		#include "regs.h"
 		#include "x64emu.h"
+		#define COMPLEX_IMPL
+		#include "complext.h"
 		
 		extern void* my__IO_2_1_stdin_ ;
 		extern void* my__IO_2_1_stdout_;
@@ -908,12 +910,14 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		#define __WRAPPER_H_
 		#include <stdint.h>
 		#include <string.h>
+		#include "complext.h"
 		
 		typedef struct x64emu_s x64emu_t;
 		
 		// the generic wrapper pointer functions
 		typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
-		
+
+	
 		// list of defined wrapper
 		// E = current x86emu struct
 		// v = void
@@ -933,6 +937,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		// M = ... automatically sending 2 args
 		// A = va_list
 		// 0 = constant 0, 1 = constant 1
+		// x = float complex
+		// X = double complex
 		
 		""",
 		"fntypes.h": """
@@ -994,8 +1000,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	# Rewrite the wrapper.c file:
 	# i and u should only be 32 bits
 	td_types = {
-		#      E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A
-		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*"],
+		#      E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A			x				X
+		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*", "complexf_t", "complex_t"],
 		#      E            v       c         w          i          I          C          W           u           U           f        d         K         l           L            p        V        O          S        N      M      P        A
 		'W': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "void*", "void*"]
 	}
@@ -1053,6 +1059,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
 				"\n#error Invalid return type: pointer in the stack\n",    # P
 				"\n#error Invalid return type: va_list\n",                 # A
+				'from_complexf(emu, fn({0})));', 	                          # x
+				'from_complex(emu, fn({0})));'                             # X
 			],
 			conventions['W']: [
 				"\n#error Invalid return type: emulator\n",                # E
@@ -1082,17 +1090,17 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		}
 		
 		# vreg: value is in a general register
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
-		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X
+		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1, 0, 0]
 		# vxmm: value is in a XMM register
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
-		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X
+		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2]
 		# vother: value is elsewere
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
-		vother = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X
+		vother = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		# vstack: value is on the stack (or out of register)
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A
-		vstack = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X
+		vstack = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1, 2, 2]
 		arg_r = [
 			"",                            # E
 			"",                            # v
@@ -1119,6 +1127,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"\n#error Use pp instead\n",   # H
 			"",                            # P
 			"(void*){p}, ",                # A
+			"",	                           # x
+			"",                            # X
 		]
 		arg_x = [
 			"",                      # E
@@ -1146,6 +1156,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                      # H
 			"",                      # P
 			"",                      # A
+			"to_complexf(emu, {p}),",# x
+			"to_complex(emu, {p}),"  # X
 		]
 		arg_o = [
 			"emu, ",                   # E
@@ -1173,6 +1185,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                        # H
 			"",                        # P
 			"",                        # A
+			"",                        # x
+			"",                        # X
 		]
 		arg_s = [
 			"",                                         # E
@@ -1200,6 +1214,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"*(unsigned __int128)(R_RSP + {p}), ",      # H
 			"*(void**)(R_RSP + {p}), ",                 # P
 			"*(void**)(R_RSP + {p}), ",                 # A
+			"*(complexf_t*)(R_RSP + {p}), ",            # x
+			"*(complex_t*)(R_RSP + {p}), ",             # X
 		]
 		
 		# Asserts
@@ -1438,6 +1454,6 @@ if __name__ == '__main__':
 		if v == "--":
 			limit.append(i)
 	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
-	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.2.0.16") != 0:
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.2.0.17") != 0:
 		exit(2)
 	exit(0)
