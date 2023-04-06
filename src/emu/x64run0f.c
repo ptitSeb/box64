@@ -211,38 +211,42 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETEX(0);
             GETGM;
-            if(isnanf(EX->f[1]) || isinff(EX->f[1]) || EX->f[1]>0x7fffffff)
-                GM->sd[1] = 0x80000000;
+            tmp64s = EX->f[1];
+            if (tmp64s==(int32_t)tmp64s)
+                GM->sd[1] = (int32_t)tmp64s;
             else
-                GM->sd[1] = EX->f[1];
-            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffff)
-                GM->sd[0] = 0x80000000;
+                GM->sd[1] = INT32_MIN;
+            tmp64s = EX->f[0];
+            if (tmp64s==(int32_t)tmp64s)
+                GM->sd[0] = (int32_t)tmp64s;
             else
-                GM->sd[0] = EX->f[0];
+                GM->sd[0] = INT32_MIN;
             break;
         case 0x2D:                      /* CVTPS2PI Gm, Ex */
             // rounding should be done; and indefinite integer should also be assigned if overflow or NaN/Inf
             nextop = F8;
             GETEX(0);
             GETGM;
-            for(int i=1; i>=0; --i)
-                if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>0x7fffffff)
-                    GM->sd[i] = 0x80000000;
+            for(int i=1; i>=0; --i) {
+                switch(emu->mxcsr.f.MXCSR_RC) {
+                    case ROUND_Nearest:
+                        tmp64s = nearbyintf(EX->f[i]);
+                        break;
+                    case ROUND_Down:
+                        tmp64s = floorf(EX->f[i]);
+                        break;
+                    case ROUND_Up:
+                        tmp64s = ceilf(EX->f[i]);
+                        break;
+                    case ROUND_Chop:
+                        tmp64s = EX->f[i];
+                        break;
+                }
+                if (tmp64s==(int32_t)tmp64s)
+                    GM->sd[i] = (int32_t)tmp64s;
                 else
-                    switch(emu->mxcsr.f.MXCSR_RC) {
-                        case ROUND_Nearest:
-                            GM->sd[i] = nearbyintf(EX->f[i]);
-                            break;
-                        case ROUND_Down:
-                            GM->sd[i] = floorf(EX->f[i]);
-                            break;
-                        case ROUND_Up:
-                            GM->sd[i] = ceilf(EX->f[i]);
-                            break;
-                        case ROUND_Chop:
-                            GM->sd[i] = EX->f[i];
-                            break;
-                    }
+                    GM->sd[i] = INT32_MIN;
+            }
             break;
         case 0x2E:                      /* UCOMISS Gx, Ex */
             // same for now

@@ -58,7 +58,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     int32_t tmp32s;
     uint32_t tmp32u;
     uint64_t tmp64u;
-    int64_t tmp64s;
+    int64_t tmp64s, i64[4];
     float tmpf;
     #ifndef NOALIGN
     int is_nan;
@@ -204,8 +204,16 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGM;
-        GM->sd[0] = EX->d[0];
-        GM->sd[1] = EX->d[1];
+        tmp64s = EX->d[0];
+        if (tmp64s==(int32_t)tmp64s)
+            GX->sd[0] = (int32_t)tmp64s;
+        else
+            GX->sd[0] = INT32_MIN;
+        tmp64s = EX->d[1];
+        if (tmp64s==(int32_t)tmp64s)
+            GX->sd[1] = (int32_t)tmp64s;
+        else
+            GX->sd[1] = INT32_MIN;
         break;
     case 0x2D:                      /* CVTPD2PI Gm, Ex */
         nextop = F8;
@@ -213,22 +221,28 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETGM;
         switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest:
-                GM->sd[0] = nearbyint(EX->d[0]);
-                GM->sd[1] = nearbyint(EX->d[1]);
+                i64[0] = nearbyint(EX->d[0]);
+                i64[1] = nearbyint(EX->d[1]);
                 break;
             case ROUND_Down:
-                GM->sd[0] = floor(EX->d[0]);
-                GM->sd[1] = floor(EX->d[1]);
+                i64[0] = floor(EX->d[0]);
+                i64[1] = floor(EX->d[1]);
                 break;
             case ROUND_Up:
-                GM->sd[0] = ceil(EX->d[0]);
-                GM->sd[1] = ceil(EX->d[1]);
+                i64[0] = ceil(EX->d[0]);
+                i64[1] = ceil(EX->d[1]);
                 break;
             case ROUND_Chop:
-                GM->sd[0] = EX->d[0];
-                GM->sd[1] = EX->d[1];
+                i64[0] = EX->d[0];
+                i64[1] = EX->d[1];
                 break;
         }
+        for(int i=0; i<2; ++i)
+            if (tmp64s==(int32_t)i64[i])
+                GM->sd[i] = (int32_t)i64[i];
+            else
+                GM->sd[i] = INT32_MIN;
+
         break;
     case 0x2E:                      /* UCOMISD Gx, Ex */
         // no special check...
