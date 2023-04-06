@@ -242,7 +242,25 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(d0, 0, 0) ;
             GETGX_empty(v0);
-            VFCVTZSQS(v0, d0);
+            if(box64_dynarec_fastround) {
+                VFCVTZSQS(v0, d0);
+            } else {
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+                MOV32w(x4, 0x80000000);
+                d0 = fpu_get_scratch(dyn);
+                for(int i=0; i<4; ++i) {
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MSR_fpsr(x5);
+                    VMOVeS(d0, 0, v1, i);
+                    VFCVTZSs(d0, d0);
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ(x5, FPSR_IOC, 4+4);
+                    VMOVQSfrom(d0, 0, x4);
+                    VMOVeS(v0, i, d0, 0);
+                }
+            }
             break;
 
         case 0x5C:
