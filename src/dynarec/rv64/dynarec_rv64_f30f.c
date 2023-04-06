@@ -186,6 +186,13 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FMVS(d0, d1);
             MARK2;
             break;
+        case 0x6F:
+            INST_NAME("MOVDQU Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_MV_Q(x3);
+            break;
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");
             nextop = F8;
@@ -201,6 +208,14 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FLD(v0, ed, fixedaddress);
             }
             SD(xZR, xEmu, offsetof(x64emu_t, xmm[gd])+8);
+            break;
+        case 0x7F:
+            INST_NAME("MOVDQU Ex,Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_MV_Q2(x3);
+            if(!MODREG) SMWRITE2();
             break;
         case 0xC2:
             INST_NAME("CMPSS Gx, Ex, Ib");
