@@ -36,13 +36,14 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE();
     }
 
-    IFX(X_CF) {
+    IFX(X_CF|X_OF) {
         SUBI(s5, s2, rex.w?64:32);
         NEG(s5, s5);
         SRL(s3, s1, s5);
-        ANDI(s5, s3, 1); // LSB
-        BEQZ(s5, 8);
-        ORI(xFlags, xFlags, 1 << F_CF);
+        ANDI(s5, s3, 1); // F_CF
+        IFX(X_CF) {
+            OR(xFlags, xFlags, s5);
+        }
     }
 
     SLL(s1, s1, s2);
@@ -92,12 +93,13 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
         return;
     }
-    IFX(X_CF) {
+    IFX(X_CF|X_OF) {
         if (c > 0) {
             SRLI(s3, s1, (rex.w?64:32)-c);
-            ANDI(s5, s3, 1); // LSB
-            BEQZ(s5, 8);
-            ORI(xFlags, xFlags, 1 << F_CF);
+            ANDI(s5, s3, 1); // F_CF
+            IFX(X_CF) {
+                OR(xFlags, xFlags, s5);
+            }
         } else {
             IFX(X_OF) MOV64x(s5, 0);
         }
