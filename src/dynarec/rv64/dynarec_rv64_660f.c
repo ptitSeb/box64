@@ -350,6 +350,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
+        case 0x7F:
+            INST_NAME("MOVDQA Ex,Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_MV_Q2(x3);
+            if(!MODREG) SMWRITE2();
+            break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING);
