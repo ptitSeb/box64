@@ -1120,9 +1120,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5D:
             INST_NAME("MINPD Gx, Ex");
             nextop = F8;
-            GETEX(q0, 0, 0);
             GETGX(v0, 1);
-            VFMINQD(v0, v0, q0);
+            GETEX(v1, 0, 0);
+            // FMIN/FMAX wll not copy the value if v0[x] is NaN
+            // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
+            if(!box64_dynarec_fastnan && v0!=v1) {
+                q0 = fpu_get_scratch(dyn);
+                VFCMEQQD(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
+                VANDQ(v0, v0, q0);
+                VBICQ(q0, v1, q0);
+                VORRQ(v0, v0, q0);
+            }
+            VFMINQD(v0, v0, v1);
             break;
         case 0x5E:
             INST_NAME("DIVPD Gx, Ex");
@@ -1147,9 +1156,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5F:
             INST_NAME("MAXPD Gx, Ex");
             nextop = F8;
-            GETEX(q0, 0, 0);
             GETGX(v0, 1);
-            VFMAXQD(v0, v0, q0);
+            GETEX(v1, 0, 0);
+            // FMIN/FMAX wll not copy the value if v0[x] is NaN
+            // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
+            if(!box64_dynarec_fastnan && v0!=v1) {
+                q0 = fpu_get_scratch(dyn);
+                VFCMEQQD(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
+                VANDQ(v0, v0, q0);
+                VBICQ(q0, v1, q0);
+                VORRQ(v0, v0, q0);
+            }
+            VFMAXQD(v0, v0, v1);
             break;
         case 0x60:
             INST_NAME("PUNPCKLBW Gx,Ex");
