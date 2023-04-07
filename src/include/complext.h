@@ -12,7 +12,7 @@ typedef struct complexf_s { float r; float i;} complexf_t;
 inline complexf_t to_complexf(x64emu_t* emu, int i) {
     complexf_t ret; 
     ret.r = emu->xmm[i].f[0];
-    ret.i = emu->xmm[i+1].f[0];
+    ret.i = emu->xmm[i].f[1];
     return ret;
 }
 inline complex_t to_complex(x64emu_t* emu, int i) {
