@@ -2198,8 +2198,32 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            VFCVTZSQD(v0, v1);  // convert double -> int64
-            SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
+            if(box64_dynarec_fastround) {
+                VFCVTZSQD(v0, v1);  // convert double -> int64
+                SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
+            } else {
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+                ORRw_mask(x4, xZR, 1, 0);    //0x80000000
+                d0 = fpu_get_scratch(dyn);
+                for(int i=1; i>=0; --i) {
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MSR_fpsr(x5);
+                    if(i) {
+                        VMOVeD(d0, 0, v1, i);
+                        FRINTZD(d0, d0);
+                    } else {
+                        FRINTZD(d0, v1);
+                    }
+                    FCVTZSwD(x1, d0);
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ(x5, FPSR_IOC, 4+4);
+                    MOVw_REG(x1, x4);
+                    VMOVQSfrom(v0, i, x1);
+                }
+                VMOVQDfrom(v0, 1, xZR);
+            }
             break;
         case 0xE7:
             INST_NAME("MOVNTDQ Ex, Gx");
