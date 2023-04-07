@@ -144,7 +144,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 if(rex.w) {
                     ORRx_mask(gd, xZR, 1, 1, 0);    //0x8000000000000000
                 } else {
-                    MOV32w(gd, 0x80000000);
+                    ORRw_mask(gd, xZR, 1, 0);    //0x80000000
                 }
             }
             break;
@@ -169,7 +169,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 if(rex.w) {
                     ORRx_mask(gd, xZR, 1, 1, 0);    //0x8000000000000000
                 } else {
-                    MOV32w(gd, 0x80000000);
+                    ORRw_mask(gd, xZR, 1, 0);    //0x80000000
                 }
             }
             break;
