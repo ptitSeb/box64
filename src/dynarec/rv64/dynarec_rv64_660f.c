@@ -216,7 +216,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(x1);
             GETEX(x2, 1);
             u8 = F8;
-            i32 = -1;
             int32_t idx;
 
             idx = (u8>>(0*2))&3;

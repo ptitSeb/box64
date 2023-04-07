@@ -564,7 +564,28 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(!rex.w)
                 ZEROUP(gd);
             break;
+        case 0xC6: // TODO: Optimize this!
+            INST_NAME("SHUFPS Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 1);
+            u8 = F8;
+            int32_t idx;
 
+            idx = (u8>>(0*2))&3;
+            LWU(x3, gback, idx*4);
+            idx = (u8>>(1*2))&3;
+            LWU(x4, gback, idx*4);
+            idx = (u8>>(2*2))&3;
+            LWU(x5, wback, fixedaddress+idx*4);
+            idx = (u8>>(3*2))&3;
+            LWU(x6, wback, fixedaddress+idx*4);
+
+            SW(x3, gback, 0*4);
+            SW(x4, gback, 1*4);
+            SW(x5, gback, 2*4);
+            SW(x6, gback, 3*4);
+            break;
         default:
             DEFAULT;
     }
