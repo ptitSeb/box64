@@ -141,6 +141,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(x2);
             SSE_LOOP_Q(x3, x4, NOT(x3, x3); AND(x3, x3, x4));
             break;
+        case 0x56:
+            INST_NAME("ORPD Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_Q(x3, x4, OR(x3, x3, x4));
+            break;
         case 0x57:
             INST_NAME("XORPD Gx, Ex");
             nextop = F8;
