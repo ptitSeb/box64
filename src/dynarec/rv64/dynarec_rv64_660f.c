@@ -302,6 +302,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             SD(xZR, x1, fixedaddress+0);
                         }
                     }
+                    break;
                 default:
                     DEFAULT;
             }
