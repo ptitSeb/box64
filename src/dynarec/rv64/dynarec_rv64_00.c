@@ -735,14 +735,14 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GBBACK(x4);
                 EBBACK(x4, 0);
             } else {
-                GETGD;
+                GETGB(x3);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 SMDMB();
                 LBU(x1, ed, 0);
                 SB(gd, ed, 0);
                 SMDMB();
-                ANDI(gd, gd, ~0xff);
-                OR(gd, gd, x1);
+                gd = x1;
+                GBBACK(x3);
             }
             break;
         case 0x87:
