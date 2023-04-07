@@ -280,6 +280,15 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                     break;
+                case 4:
+                    INST_NAME("PSRAD Ex, Ib");
+                    GETEX(x1, 1);
+                    u8 = F8;
+                    if(u8>31) u8=31;
+                    if (u8) {
+                        SSE_LOOP_DS(x3, SRAI(x3, x3, u8));
+                    }
+                    break;
                 case 6:
                     INST_NAME("PSLLD Ex, Ib");
                     GETEX(x1, 1);
