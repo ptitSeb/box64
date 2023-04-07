@@ -433,6 +433,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             SSE_LOOP_Q(x3, x4, ADD(x3, x3, x4));
             break;
+        case 0xD6:
+            INST_NAME("MOVQ Ex, Gx");
+            nextop = F8;
+            GETGXSD(d0);
+            GETEX(x2, 0);
+            FSD(d0, wback, fixedaddress+0);
+            if (MODREG) {
+                SD(xZR, wback, fixedaddress+8);
+            } else {
+                SMWRITE2();
+            }
+            break;
         case 0xDB:
             INST_NAME("PAND Gx,Ex");
             nextop = F8;
