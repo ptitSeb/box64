@@ -1991,8 +1991,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
-            VDUPQ_16(v0, q1, 0);
-            NEGQ_16(v0, v0);        // neg, because SHR
+            v1 = fpu_get_scratch(dyn);
+            UQXTN_32(v0, q1);
+            MOVI_32(v1, 16);
+            UMIN_32(v0, v0, v1);    // limit to 0 .. +16 values
+            NEG_32(v0, v0);         // neg to do shr
+            VDUPQ_16(v0, v0, 0);    // only the low 8bits will be used anyway
             USHLQ_16(q0, q0, v0);   // SHR x8
             break;
         case 0xD2:
@@ -2001,8 +2005,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
-            VDUPQ_32(v0, q1, 0);
-            NEGQ_32(v0, v0);        // neg, because SHR
+            v1 = fpu_get_scratch(dyn);
+            UQXTN_32(v0, q1);
+            MOVI_32(v1, 32);
+            UMIN_32(v0, v0, v1);    // limit to 0 .. +32 values
+            NEG_32(v0, v0);         // neg to do shr
+            VDUPQ_16(v0, v0, 0);    // only the low 8bits will be used anyway
             USHLQ_32(q0, q0, v0);   // SHR x4
             break;
         case 0xD3:
@@ -2011,8 +2019,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
-            NEG_64(v0, q1);
-            VMOVeD(v0, 1, v0, 0);
+            v1 = fpu_get_scratch(dyn);
+            UQXTN_32(v0, q1);
+            MOVI_32(v1, 64);
+            UMIN_32(v0, v0, v1);    // limit to 0 .. +64 values
+            NEG_32(v0, v0);         // neg to do shr
+            VDUPQ_16(v0, v0, 0);    // only the low 8bits will be used anyway
             USHLQ_64(q0, q0, v0);
             break;
         case 0xD4:
