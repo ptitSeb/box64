@@ -176,6 +176,16 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SD(x3, gback, 8);
             }
             break;
+        case 0x6D:
+            INST_NAME("PUNPCKHQDQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, gback, 8);
+            SD(x3, gback, 0);
+            LD(x3, wback, fixedaddress+8);
+            SD(x3, gback, 8);
+            break;
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
@@ -206,7 +216,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(x1);
             GETEX(x2, 1);
             u8 = F8;
-            i32 = -1;
             int32_t idx;
 
             idx = (u8>>(0*2))&3;
@@ -237,6 +246,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             SD(xZR, x1, fixedaddress+8);
                         } else if(u8) {
                             SSE_LOOP_DS(x3, SRLI(x3, x3, u8));
+                        }
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLD Ex, Ib");
+                    GETEX(x1, 1);
+                    u8 = F8;
+                    if(u8) {
+                        if (u8>31) {
+                            // just zero dest
+                            SD(xZR, x1, fixedaddress+0);
+                            SD(xZR, x1, fixedaddress+8);
+                        } else if(u8) {
+                            SSE_LOOP_DS(x3, SLLI(x3, x3, u8));
                         }
                     }
                     break;
@@ -302,8 +325,23 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             SD(xZR, x1, fixedaddress+0);
                         }
                     }
+                    break;
                 default:
                     DEFAULT;
+            }
+            break;
+        case 0x74:
+            INST_NAME("PCMPEQB Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for (int i=0; i<16; ++i) {
+                LBU(x3, gback, i);
+                LBU(x4, wback, fixedaddress+i);
+                SUB(x3, x3, x4);
+                SEQZ(x3, x3);
+                NEG(x3, x3);
+                SB(x3, gback, i);
             }
             break;
         case 0x76:
@@ -338,6 +376,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SMWRITE2();
                 }
             }
+            break;
+        case 0x7F:
+            INST_NAME("MOVDQA Ex,Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_MV_Q2(x3);
+            if(!MODREG) SMWRITE2();
             break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
@@ -421,6 +467,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETEX(x2, 0);
                 SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
             }
+            break;
+        case 0xFA:
+            INST_NAME("PSUBD Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_D(x3, x4, SUBW(x3, x3, x4));
             break;
         case 0xFD:
             INST_NAME("PADDW Gx,Ex");

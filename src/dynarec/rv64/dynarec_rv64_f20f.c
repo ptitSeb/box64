@@ -90,6 +90,14 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FCVTDW(v0, ed, RD_RNE);
             }
             break;
+        case 0x2C:
+            INST_NAME("CVTTSD2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEXSD(v0, 0);
+            // TODO: fastnan handling
+            FCVTLDxw(gd, v0, RD_RTZ);
+            break;
         case 0x38:  // these are some more SSSE4.2+ opcodes
             opcode = F8;
             switch(opcode) {
@@ -148,6 +156,21 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD(v0);
             GETEXSD(v1, 0);
             FSUBD(v0, v0, v1);
+            break;
+        case 0x5D:
+            INST_NAME("MINSD Gx, Ex");
+            nextop = F8;
+            GETGXSD(v0);
+            GETEXSD(v1, 0);        
+            FEQD(x2, v0, v0);
+            FEQD(x3, v1, v1);
+            AND(x2, x2, x3);
+            BEQ_MARK(x2, xZR);
+            FLTD(x2, v1, v0);
+            BEQ_MARK2(x2, xZR);
+            MARK;
+            FMVD(v0, v1);
+            MARK2;
             break;
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
