@@ -1108,6 +1108,20 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    // FRINTI
+    if(isMask(opcode, "0Q1011101f100001100110nnnnnddddd", &a)) {
+        char s = a.Q?'V':'D';
+        char d = sf?'D':'S';
+        int n = (a.Q && !sf)?4:2;
+        snprintf(buff, sizeof(buff), "VFRINTI %c%d.%d%c, %c%d.%d%c", s, Rd, n, d, s, Rn, n, d);
+        return buff;
+    }
+    if(isMask(opcode, "00011110ff100111110000nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FRINTI %c%d, %c%d", s, Rd, s, Rn);
+        return buff;
+    }
+
     //CMP
     if(isMask(opcode, "00011110ff1mmmmm001000nnnnn0c000", &a)) {
         char s = (sf==0)?'S':((sf==1)?'D':'?');

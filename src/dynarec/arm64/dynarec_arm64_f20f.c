@@ -422,13 +422,39 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xE6:
             INST_NAME("CVTPD2DQ Gx, Ex");
             nextop = F8;
-            GETEXSD(v1, 0, 0);
+            GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            u8 = sse_setround(dyn, ninst, x1, x2, x3);
-            VFRINTIDQ(v0, v1);
-            x87_restoreround(dyn, ninst, u8);
-            VFCVTNSQD(v0, v0);  // convert double -> int64
-            SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
+            if(box64_dynarec_fastround) {
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                VFRINTIDQ(v0, v1);
+                x87_restoreround(dyn, ninst, u8);
+                VFCVTNSQD(v0, v0);  // convert double -> int64
+                SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
+            } else {
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+                ORRw_mask(x4, xZR, 1, 0);    //0x80000000
+                d0 = fpu_get_scratch(dyn);
+                for(int i=1; i>=0; --i) {
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MSR_fpsr(x5);
+                    if(i) {
+                        VMOVeD(d0, 0, v1, i);
+                        FRINTID(d0, d0);
+                    } else {
+                        FRINTID(d0, v1);
+                    }
+                    FCVTZSwD(x1, d0);
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ(x5, FPSR_IOC, 4+4);
+                    MOVw_REG(x1, x4);
+                    VMOVQSfrom(v0, i, x1);
+                }
+                x87_restoreround(dyn, ninst, u8);
+                VMOVQDfrom(v0, 1, xZR);
+            }
             break;
 
         case 0xF0:
