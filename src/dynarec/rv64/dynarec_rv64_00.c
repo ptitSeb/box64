@@ -746,8 +746,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0x87:
-            // TODO: Take care of unligned memory access for all the LOCK ones.
-            // https://github.com/ptitSeb/box64/pull/604
             INST_NAME("(LOCK)XCHG Ed, Gd");
             nextop = F8;
             if(MODREG) {
@@ -760,8 +758,17 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 SMDMB();
+                ANDI(x3, ed, (1<<(2+rex.w))-1);
+                BNE_MARK(x3, xZR);
+                MARKLOCK;
+                LRxw(x1, ed, 1, 0);
+                SCxw(x3, gd, ed, 0, 1);
+                BNE_MARKLOCK(x3, xZR);
+                B_MARK2_nocond;
+                MARK;
                 LDxw(x1, ed, 0);
                 SDxw(gd, ed, 0);
+                MARK2;
                 SMDMB();
                 MVxw(gd, x1);
             }
