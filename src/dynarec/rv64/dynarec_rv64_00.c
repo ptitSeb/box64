@@ -727,16 +727,13 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("(LOCK)XCHG Eb, Gb");
             nextop = F8;
             if(MODREG) {
-                GETGD;
-                GETED(0);
-                MV(x1, gd);
-                ANDI(gd, gd, ~0xff);
-                ANDI(x2, ed, 0xff);
-                OR(gd, gd, ed);
-
-                ANDI(ed, ed, ~0xff);
-                ANDI(x1, x1, 0xff);
-                OR(ed, ed, x1);
+                GETGB(x1);
+                GETEB(x2, 0);
+                MV(x4, gd);
+                MV(gd, ed);
+                MV(ed, x4);
+                GBBACK(x4);
+                EBBACK(x4, 0);
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
@@ -745,7 +742,6 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SB(gd, ed, 0);
                 SMDMB();
                 ANDI(gd, gd, ~0xff);
-                ANDI(x1, x1, 0xff);
                 OR(gd, gd, x1);
             }
             break;
