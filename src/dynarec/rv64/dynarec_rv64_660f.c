@@ -207,14 +207,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 1);
             u8 = F8;
             i32 = -1;
-            for (int i=0; i<4; ++i) {
-                int32_t idx = (u8>>(i*2))&3;
-                if (idx!=i32) {
-                    LWU(x4, wback, fixedaddress+idx*4);
-                    i32 = idx;
-                }
-                SW(x4, gback, i*4);
-            }
+            int32_t idx;
+
+            idx = (u8>>(0*2))&3;
+            LWU(x3, wback, fixedaddress+idx*4);
+            idx = (u8>>(1*2))&3;
+            LWU(x4, wback, fixedaddress+idx*4);
+            idx = (u8>>(2*2))&3;
+            LWU(x5, wback, fixedaddress+idx*4);
+            idx = (u8>>(3*2))&3;
+            LWU(x6, wback, fixedaddress+idx*4);
+
+            SW(x3, gback, 0*4);
+            SW(x4, gback, 1*4);
+            SW(x5, gback, 2*4);
+            SW(x6, gback, 3*4);
             break;
         case 0x72:
             nextop = F8;
