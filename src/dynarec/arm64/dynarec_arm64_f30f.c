@@ -240,15 +240,15 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5B:
             INST_NAME("CVTTPS2DQ Gx, Ex");
             nextop = F8;
-            GETEX(d0, 0, 0) ;
+            GETEX(v1, 0, 0) ;
             GETGX_empty(v0);
             if(box64_dynarec_fastround) {
-                VFCVTZSQS(v0, d0);
+                VFCVTZSQS(v0, v1);
             } else {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
-                MOV32w(x4, 0x80000000);
+                ORRw_mask(x4, xZR, 1, 0);    //0x80000000
                 d0 = fpu_get_scratch(dyn);
                 for(int i=0; i<4; ++i) {
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
