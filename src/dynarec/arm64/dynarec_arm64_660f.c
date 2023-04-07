@@ -2137,12 +2137,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
-            SQXTN_32(v0, q1);
-            NEG_32(v0, v0);
+            UQXTN_32(v0, q1);
             MOVI_32(v1, 15);
-            SMIN_32(v0, v0, v1);
-            NEG_32(v1, v1);
-            SMAX_32(v0, v0, v1);    // limit to -15 .. +15 values
+            UMIN_32(v0, v0, v1);    // limit to -15 .. +15 values
+            NEG_32(v0, v0);
             VDUPQ_16(v0, v0, 0);    // only the low 8bits will be used anyway
             SSHLQ_16(q0, q0, v0);
             break;
@@ -2153,12 +2151,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
-            SQXTN_32(v0, q1);
-            NEG_32(v0, v0);
+            UQXTN_32(v0, q1);
             MOVI_32(v1, 31);
-            SMIN_32(v0, v0, v1);
-            NEG_32(v1, v1);
-            SMAX_32(v0, v0, v1);    // limit to -31 .. +31 values
+            UMIN_32(v0, v0, v1);        // limit to 0 .. +31 values
+            NEG_32(v0, v0);
             VDUPQ_32(v0, v0, 0);    // only the low 8bits will be used anyway
             SSHLQ_32(q0, q0, v0);
             break;
@@ -2301,17 +2297,31 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0xF1:
+            INST_NAME("PSLLW Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            UQXTN_32(v0, q1);
+            MOVI_32(v1, 16);
+            UMIN_32(v0, v0, v1);    // limit to 0 .. +16 values
+            VDUPQ_16(v0, v0, 0);    // only the low 8bits will be used anyway
+            USHLQ_16(q0, q0, v0);
+            break;
         case 0xF2:
             INST_NAME("PSLLD Gx,Ex");
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
-            VMOVeD(v0, 0, q1, 0);
-            VMOVeD(v0, 1, q1, 0);
-            SQXTN_32(v0, v0); // 2*q1 in 32bits now
-            VMOVeD(v0, 1, v0, 0);
-            SSHLQ_32(q0, q0, v0);
+            v1 = fpu_get_scratch(dyn);
+            UQXTN_32(v0, q1);
+            MOVI_32(v1, 32);
+            UMIN_32(v0, v0, v1);    // limit to 0 .. +32 values
+            VDUPQ_32(v0, v0, 0);    // only the low 8bits will be used anyway
+            USHLQ_32(q0, q0, v0);
             break;
         case 0xF3:
             INST_NAME("PSLLQ Gx,Ex");
@@ -2319,8 +2329,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
-            VMOVQ(v0, q1);
-            VMOVeD(v0, 1, v0, 0);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            UQXTN_32(v0, q1);
+            MOVI_32(v1, 64);
+            UMIN_32(v0, v0, v1);    // limit to 0 .. +64 values
+            VDUPQ_64(v0, v0, 0);    // only the low 8bits will be used anyway
             USHLQ_64(q0, q0, v0);
             break;
         case 0xF4:
