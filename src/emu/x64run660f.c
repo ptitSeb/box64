@@ -343,6 +343,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         GX->sw[4+i] = EX->sw[i*2+0] - EX->sw[i*2+1];
                 }
                 break;
+            case 0x06:  /* PHSUBD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for (int i=0; i<2; ++i)
+                    GX->sd[i] = GX->sd[i*2+0] - GX->sd[i*2+1];
+                if(GX == EX) {
+                    GX->q[1] = GX->q[0];
+                } else {
+                    for (int i=0; i<2; ++i)
+                        GX->sd[2+i] = EX->sd[i*2+0] - EX->sd[i*2+1];
+                }
+                break;
 
             case 0x08:  /* PSIGNB Gx, Ex */
                 nextop = F8;
