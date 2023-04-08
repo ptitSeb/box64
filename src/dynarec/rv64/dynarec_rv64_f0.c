@@ -156,16 +156,44 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         MARKLOCK;
                         LRxw(x1, wback, 1, 1);
-                        if(i64>-2048 && i64<2047)
-                            ADDI(x4, x1, i64);
+                        if(i64>=-2048 && i64<2048)
+                            ADDIxw(x4, x1, i64);
                         else {
                             MOV64xw(x4, i64);
-                            ADD(x4, x1, x4);
+                            ADDxw(x4, x1, x4);
                         }
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         IFX(X_ALL|X_PEND)
                             emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
+                    }
+                    break;
+                case 5: // SUB
+                    if(opcode==0x81) {
+                        INST_NAME("LOCK SUB Ed, Id");
+                    } else {
+                        INST_NAME("LOCK SUB Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if(MODREG) {
+                        if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        emit_sub32(dyn, ninst, rex, ed, i64, x3, x4, x5);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode==0x81)?4:1);
+                        if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                        MARKLOCK;
+                        LRxw(x1, wback, 1, 1);
+                        if (i64>-2048 && i64<=2048) {
+                            ADDIxw(x4, x1, -i64);
+                        } else {
+                            MOV64xw(x4, i64);
+                            SUBxw(x4, x1, x4);
+                        }
+                        SCxw(x3, x4, wback, 1, 1);
+                        BNEZ_MARKLOCK(x3);
+                        IFX(X_ALL|X_PEND)
+                            emit_sub32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
                     }
                     break;
                 default: 

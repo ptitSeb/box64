@@ -723,7 +723,28 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_test32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             break;
-
+        case 0x86:
+            INST_NAME("(LOCK)XCHG Eb, Gb");
+            nextop = F8;
+            if(MODREG) {
+                GETGB(x1);
+                GETEB(x2, 0);
+                MV(x4, gd);
+                MV(gd, ed);
+                MV(ed, x4);
+                GBBACK(x4);
+                EBBACK(x4, 0);
+            } else {
+                GETGB(x3);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                SMDMB();
+                LBU(x1, ed, 0);
+                SB(gd, ed, 0);
+                SMDMB();
+                gd = x1;
+                GBBACK(x3);
+            }
+            break;
         case 0x87:
             INST_NAME("(LOCK)XCHG Ed, Gd");
             nextop = F8;
@@ -738,7 +759,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 SMDMB();
                 ANDI(x3, ed, (1<<(2+rex.w))-1);
-                BEQ_MARK(x3, xZR);
+                BNE_MARK(x3, xZR);
                 MARKLOCK;
                 LRxw(x1, ed, 1, 0);
                 SCxw(x3, gd, ed, 0, 1);
