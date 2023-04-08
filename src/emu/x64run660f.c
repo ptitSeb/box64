@@ -972,6 +972,27 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     GX->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
                 break;
 
+            case 0x42:  /* MPSADBW Gx, Ex, Ib */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                {
+                    int src = tmp8u&3;
+                    int dst = (tmp8u>>2)&1;
+                    int b[11];
+                    for (int i=0; i<11; ++i)
+                        b[i] = GX->ub[dst*4+i];
+                    for(int i=0; i<8; ++i) {
+                        int tmp = abs(b[i+0]-EX->ub[src*4+0]);
+                        tmp += abs(b[i+1]-EX->ub[src*4+1]);
+                        tmp += abs(b[i+2]-EX->ub[src*4+2]);
+                        tmp += abs(b[i+3]-EX->ub[src*4+3]);
+                        GX->uw[i] = tmp;
+                    }
+                }
+                break;
+
             case 0x44:  /* PCLMULQDQ Gx, Ex, Ib */
                 nextop = F8;
                 GETEX(1);
