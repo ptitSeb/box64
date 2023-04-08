@@ -1121,6 +1121,58 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "FRINTI %c%d, %c%d", s, Rd, s, Rn);
         return buff;
     }
+    // FRINTN
+    if(isMask(opcode, "0Q0011100f100001100010nnnnnddddd", &a)) {
+        char s = a.Q?'V':'D';
+        char d = sf?'D':'S';
+        int n = (a.Q && !sf)?4:2;
+        snprintf(buff, sizeof(buff), "VFRINTN %c%d.%d%c, %c%d.%d%c", s, Rd, n, d, s, Rn, n, d);
+        return buff;
+    }
+    if(isMask(opcode, "000111100f100100010000nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FRINTN %c%d, %c%d", s, Rd, s, Rn);
+        return buff;
+    }
+    // FRINTM
+    if(isMask(opcode, "0Q0011100f100001100110nnnnnddddd", &a)) {
+        char s = a.Q?'V':'D';
+        char d = sf?'D':'S';
+        int n = (a.Q && !sf)?4:2;
+        snprintf(buff, sizeof(buff), "VFRINTM %c%d.%d%c, %c%d.%d%c", s, Rd, n, d, s, Rn, n, d);
+        return buff;
+    }
+    if(isMask(opcode, "000111100f100101010000nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FRINTM %c%d, %c%d", s, Rd, s, Rn);
+        return buff;
+    }
+    // FRINTP
+    if(isMask(opcode, "0Q0011101f100001100010nnnnnddddd", &a)) {
+        char s = a.Q?'V':'D';
+        char d = sf?'D':'S';
+        int n = (a.Q && !sf)?4:2;
+        snprintf(buff, sizeof(buff), "VFRINTP %c%d.%d%c, %c%d.%d%c", s, Rd, n, d, s, Rn, n, d);
+        return buff;
+    }
+    if(isMask(opcode, "000111100f100100110000nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FRINTP %c%d, %c%d", s, Rd, s, Rn);
+        return buff;
+    }
+    // FRINTZ
+    if(isMask(opcode, "0Q0011101f100001100110nnnnnddddd", &a)) {
+        char s = a.Q?'V':'D';
+        char d = sf?'D':'S';
+        int n = (a.Q && !sf)?4:2;
+        snprintf(buff, sizeof(buff), "VFRINTZ %c%d.%d%c, %c%d.%d%c", s, Rd, n, d, s, Rn, n, d);
+        return buff;
+    }
+    if(isMask(opcode, "000111100f100101110000nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FRINTZ %c%d, %c%d", s, Rd, s, Rn);
+        return buff;
+    }
 
     //CMP
     if(isMask(opcode, "00011110ff1mmmmm001000nnnnn0c000", &a)) {

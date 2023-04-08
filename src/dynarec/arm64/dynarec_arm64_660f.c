@@ -49,6 +49,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(j64);
     #if STEP > 1
     static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
+    static const int8_t round_round[] = { 0, 2, 1, 3};
     #endif
 
     switch(opcode) {
@@ -715,7 +716,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VFRINTISQ(q0, q1);
                         x87_restoreround(dyn, ninst, u8);
                     } else {
-                        VFRINTRSQ(q0, q1, u8&3);
+                        VFRINTRSQ(q0, q1, round_round[u8&3]);
                     }
                     break;
                 case 0x09:
@@ -730,7 +731,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VFRINTIDQ(q0, q1);
                         x87_restoreround(dyn, ninst, u8);
                     } else {
-                        VFRINTRDQ(q0, q1, u8&3);
+                        VFRINTRDQ(q0, q1, round_round[u8&3]);
                     }
                     break;
                 case 0x0A:
@@ -745,7 +746,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         FRINTXS(v1, q1);
                         x87_restoreround(dyn, ninst, u8);
                     } else {
-                        FRINTRRS(v1, q1, u8&3);
+                        FRINTRRS(v1, q1, round_round[u8&3]);
                     }
                     VMOVeS(q0, 0, v1, 0);
                     break;
@@ -761,11 +762,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         FRINTXD(v1, q1);
                         x87_restoreround(dyn, ninst, u8);
                     } else {
-                        FRINTRRD(v1, q1, u8&3);
+                        FRINTRRD(v1, q1, round_round[u8&3]);
                     }
                     VMOVeD(q0, 0, v1, 0);
                     break;
-
                 case 0x0C:
                     INST_NAME("PBLENDPS Gx, Ex, Ib");
                     nextop = F8;
