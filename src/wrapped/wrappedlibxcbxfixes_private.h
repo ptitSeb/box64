@@ -91,12 +91,12 @@ GO(xcb_xfixes_query_version_unchecked, pFpuu)
 //GO(xcb_xfixes_select_cursor_input_checked, 
 GO(xcb_xfixes_select_selection_input, pFppppu)
 GO(xcb_xfixes_select_selection_input_checked, pFppppu)
-//GO(xcb_xfixes_set_cursor_name, 
-//GO(xcb_xfixes_set_cursor_name_checked, 
-//GO(xcb_xfixes_set_cursor_name_name, 
-//GO(xcb_xfixes_set_cursor_name_name_end, 
-//GO(xcb_xfixes_set_cursor_name_name_length, 
-//GO(xcb_xfixes_set_cursor_name_sizeof, 
+GO(xcb_xfixes_set_cursor_name, pFppWp)
+GO(xcb_xfixes_set_cursor_name_checked, pFppWp)
+GO(xcb_xfixes_set_cursor_name_name, pFp)
+GO(xcb_xfixes_set_cursor_name_name_end, pFp)
+GO(xcb_xfixes_set_cursor_name_name_length, iFp)
+GO(xcb_xfixes_set_cursor_name_sizeof, iFp)
 //GO(xcb_xfixes_set_gc_clip_region, 
 //GO(xcb_xfixes_set_gc_clip_region_checked, 
 //GO(xcb_xfixes_set_picture_clip_region, 

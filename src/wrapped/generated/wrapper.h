@@ -1055,6 +1055,7 @@ void pFppiL(x64emu_t *emu, uintptr_t fnc);
 void pFppip(x64emu_t *emu, uintptr_t fnc);
 void pFppCp(x64emu_t *emu, uintptr_t fnc);
 void pFppWW(x64emu_t *emu, uintptr_t fnc);
+void pFppWp(x64emu_t *emu, uintptr_t fnc);
 void pFppuW(x64emu_t *emu, uintptr_t fnc);
 void pFppuu(x64emu_t *emu, uintptr_t fnc);
 void pFppuL(x64emu_t *emu, uintptr_t fnc);
