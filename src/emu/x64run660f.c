@@ -394,6 +394,15 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         GX->ud[i] = EX->ud[i];
                 }
                 break;
+            case 0x15:  /* BLENDVPD Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for (int i=0; i<2; ++i) {
+                    if(emu->xmm[0].q[i]&0x8000000000000000LL)
+                        GX->q[i] = EX->q[i];
+                }
+                break;
 
             case 0x17:      // PTEST GX, EX
                 nextop = F8;
