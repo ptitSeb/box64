@@ -513,7 +513,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 for(int i=1; i>=0; --i)
                     GX->sq[i] = (GX->sq[i]==EX->sq[i])?-1LL:0LL;
                 break;
-
+            case 0x2A:  /* MOVNTDQA Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                GX->q[0] = EX->q[0];
+                GX->q[1] = EX->q[1];
+                break;
             case 0x2B:  /* PACKUSDW Gx, Ex */
                 nextop = F8;
                 GETEX(0);

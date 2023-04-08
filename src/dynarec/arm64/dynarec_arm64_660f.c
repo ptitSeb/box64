@@ -512,7 +512,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     VSMULL_32(q0, q0, v0);
                     break;
-
+                case 0x29:
+                    INST_NAME("PCMPEQQ Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX_empty(q0);
+                    VCMEQQ_64(q0, q0, q1);
+                    break;
+                case 0x2A:
+                    INST_NAME("MOVNTDQA Gx, Ex");
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
+                    VMOVQ(q0, q1);
+                    break;
                 case 0x2B:
                     INST_NAME("PACKUSDW Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
@@ -529,14 +542,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         SMAXQ_32(v0, v0, q1);
                         UQXTN2_16(q0, v0);
                     }
-                    break;
-
-                case 0x29:
-                    INST_NAME("PCMPEQQ Gx, Ex");  // SSE4 opcode!
-                    nextop = F8;
-                    GETEX(q1, 0, 0);
-                    GETGX_empty(q0);
-                    VCMEQQ_64(q0, q0, q1);
                     break;
 
                 case 0x30:
