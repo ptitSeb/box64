@@ -498,6 +498,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     GX->sq[i] = EX->sd[i];
                 break;
             
+            case 0x28:  /* PMULDQ Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                GX->sq[1] = ((int64_t)GX->sd[2])*(int64_t)EX->sd[2];
+                GX->sq[0] = ((int64_t)GX->sd[0])*(int64_t)EX->sd[0];
+                break;
             case 0x29:  /* PCMPEQQ Gx, Ex */
                 nextop = F8;
                 GETEX(0);
