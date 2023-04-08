@@ -60,6 +60,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     uint64_t tmp64u;
     int64_t tmp64s, i64[4];
     float tmpf;
+    double tmpd;
     #ifndef NOALIGN
     int is_nan;
     #endif
@@ -976,6 +977,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         tmpf += GX->f[i]*EX->f[i];
                 for(int i=0; i<4; ++i)
                     GX->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
+                break;
+            case 0x41:  /* DPPD Gx, Ex, Ib */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                tmpd = 0.0;
+                if(tmp8u&(1<<(4+0)))
+                    tmpd += GX->d[0]*EX->d[0];
+                if(tmp8u&(1<<(4+1)))
+                    tmpd += GX->d[1]*EX->d[1];
+                GX->d[0] = (tmp8u&(1<<(0)))?tmpd:0.0;
+                GX->d[1] = (tmp8u&(1<<(1)))?tmpd:0.0;
                 break;
 
             case 0x42:  /* MPSADBW Gx, Ex, Ib */
