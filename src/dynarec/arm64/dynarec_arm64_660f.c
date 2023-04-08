@@ -262,6 +262,43 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SQXTN2_16(q0, v0);
                     break;
 
+                case 0x05:
+                    INST_NAME("PHSUBW Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    VTRNQ2_16(v0, q0, q0);  // v0 have all odd elements (in double)
+                    NEGQ_16(v0, v0);
+                    VTRNQ1_16(q0, q0, v0);  // re-inject negged element to q0
+                    if(q0==q1)
+                        v0 = q1;
+                    else {
+                        VTRNQ2_16(v0, q1, q1);
+                        NEGQ_16(v0, v0);
+                        VTRNQ1_16(v0, q1, v0);
+                    }
+                    VADDPQ_16(q0, q0, v0);
+                    break;
+                case 0x06:
+                    INST_NAME("PHSUBD Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    VTRNQ2_32(v0, q0, q0);  // v0 have all odd elements (in double)
+                    NEGQ_32(v0, v0);
+                    VTRNQ1_32(q0, q0, v0);  // re-inject negged element to q0
+                    if(q0==q1)
+                        v0 = q1;
+                    else {
+                        VTRNQ2_32(v0, q1, q1);
+                        NEGQ_32(v0, v0);
+                        VTRNQ1_32(v0, q1, v0);
+                    }
+                    VADDPQ_32(q0, q0, v0);
+                    break;
+
                 case 0x08:
                     INST_NAME("PSIGNB Gx, Ex");
                     nextop = F8;
