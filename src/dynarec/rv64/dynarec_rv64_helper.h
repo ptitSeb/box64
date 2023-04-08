@@ -382,6 +382,20 @@
     SSE_LOOP_Q_ITEM(GX1, EX1, F, 0) \
     SSE_LOOP_Q_ITEM(GX1, EX1, F, 1)
 
+
+#define SSE_LOOP_FQ_ITEM(GX1, EX1, F, i)            \
+    v0 = sse_get_reg_empty(dyn, ninst, x5, GX1, 0); \
+    FLD(v0, gback, i*8);                            \
+    v1 = sse_get_reg_empty(dyn, ninst, x5, EX1, 0); \
+    FLD(v1, wback, fixedaddress+i*8);               \
+    F;                                              \
+    FSD(v0, gback, i*8);
+
+#define SSE_LOOP_FQ(GX1, EX1, F)     \
+    SSE_LOOP_FQ_ITEM(GX1, EX1, F, 0) \
+    SSE_LOOP_FQ_ITEM(GX1, EX1, F, 1)
+
+
 #define SSE_LOOP_MV_Q_ITEM(s, i)      \
     LD(s, wback, fixedaddress+i*8);   \
     SD(s, gback, i*8);
