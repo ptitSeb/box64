@@ -49,6 +49,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(j64);
     
     switch(opcode) {
+        case 0x11:
+            INST_NAME("MOVUPD Ex,Gx");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_MV_Q2(x3);
+            if(!MODREG) SMWRITE2();
+            break;
         case 0x14:
             INST_NAME("UNPCKLPD Gx, Ex");
             nextop = F8;
