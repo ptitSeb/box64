@@ -641,6 +641,23 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 for(int i=0; i<4; ++i)
                     GX->ud[i] *= EX->ud[i];
                 break;
+            case 0x41:  /* PHMINPOSUW Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                tmp16u = EX->uw[0];
+                tmp16s = 0;
+                for(int i=1; i<8; ++i) {
+                    if(EX->uw[i]<tmp16u) {
+                        tmp16u = EX->uw[i];
+                        tmp16s = i;
+                    }
+                }
+                GX->q[1] = 0;
+                GX->uw[0] = tmp16u;
+                GX->uw[1] = tmp16s;
+                GX->ud[1] = 0;
+                break;
 
             case 0xDB:  /* AESIMC Gx, Ex */
                 nextop = F8;
