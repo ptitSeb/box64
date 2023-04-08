@@ -509,6 +509,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
+        case 0xD7:
+            INST_NAME("PMOVMSKB Gd, Ex");
+            nextop = F8;
+            GETEX(x2, 0);
+            GETGD;
+            MV(gd, xZR);
+            for (int i=0; i<16; ++i) {
+                LB(x1, wback, fixedaddress+i);
+                SLT(x3, x1, xZR);
+                if (i > 0) SLLI(x3, x3, i);
+                OR(gd, gd, x3);
+            }
+            break;
         case 0xDB:
             INST_NAME("PAND Gx,Ex");
             nextop = F8;
