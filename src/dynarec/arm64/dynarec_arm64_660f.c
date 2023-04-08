@@ -647,7 +647,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETEX(q1, 0, 0);
                     GETGX(q0, 1);
-                    VUMULL_32(q0, q0, q1);
+                    VMULQ_32(q0, q0, q1);
                     break;
 
                 case 0xDB:
