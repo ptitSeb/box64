@@ -434,12 +434,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEX(q1, 0, 0);
                     GETGX(q0, 1);
                     v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
                     VEORQ(v0, v0, v0);
-                    SMAX_32(v0, v0, q0);    // values < 0 => 0
-                    UQXTN_16(q0, v0);
-                    VEORQ(v0, v0, v0);
-                    SMAX_32(v0, v0, q1);
-                    UQXTN2_16(q0, v0);
+                    SMAXQ_32(v1, v0, q0);    // values < 0 => 0
+                    UQXTN_16(q0, v1);
+                    if(q0==q1) {
+                        VMOVeD(q0, 1, q0, 0);
+                    } else {
+                        SMAXQ_32(v0, v0, q1);
+                        UQXTN2_16(q0, v0);
+                    }
                     break;
 
                 case 0x29:
