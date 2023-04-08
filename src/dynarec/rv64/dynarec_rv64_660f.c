@@ -551,6 +551,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             SSE_LOOP_Q(x3, x4, OR(x3, x3, x4));
             break;
+        case 0xEE:
+            INST_NAME("PMAXSW Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_WS(x3, x4, BGE(x3, x4, 8); MV(x3, x4));
+            break;
         case 0xEF:
             INST_NAME("PXOR Gx, Ex");
             nextop = F8;
