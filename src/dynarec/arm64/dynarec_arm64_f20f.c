@@ -402,7 +402,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("ADDSUBPS Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            GETEXSD(v1, 0, 0);
+            GETEX(v1, 0, 0);
             q0 = fpu_get_scratch(dyn);
             static float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
             MAYUSE(addsubps);
