@@ -853,7 +853,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         while(u8) {
                             if(u8&1) {
                                 if(!(i32&1) && u8&2) {
-                                    if(!(i32&1) && (u8&0xf)==0xf) {
+                                    if(!(i32&3) && (u8&0xf)==0xf) {
                                         // whole 64bits
                                         VMOVeD(q0, i32>>2, q1, i32>>2);
                                         i32+=4;
