@@ -268,17 +268,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
                     v0 = fpu_get_scratch(dyn);
-                    VTRNQ2_16(v0, q0, q0);  // v0 have all odd elements (in double)
-                    NEGQ_16(v0, v0);
-                    VTRNQ1_16(q0, q0, v0);  // re-inject negged element to q0
-                    if(q0==q1)
-                        v0 = q1;
-                    else {
-                        VTRNQ2_16(v0, q1, q1);
-                        NEGQ_16(v0, v0);
-                        VTRNQ1_16(v0, q1, v0);
-                    }
-                    VADDPQ_16(q0, q0, v0);
+                    VUZP2Q_16(v0, q0, q1);
+                    VUZP1Q_16(q0, q0, q1);
+                    VSUBQ_16(q0, q0, v0);
                     break;
                 case 0x06:
                     INST_NAME("PHSUBD Gx, Ex");
@@ -286,17 +278,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
                     v0 = fpu_get_scratch(dyn);
-                    VTRNQ2_32(v0, q0, q0);  // v0 have all odd elements (in double)
-                    NEGQ_32(v0, v0);
-                    VTRNQ1_32(q0, q0, v0);  // re-inject negged element to q0
-                    if(q0==q1)
-                        v0 = q1;
-                    else {
-                        VTRNQ2_32(v0, q1, q1);
-                        NEGQ_32(v0, v0);
-                        VTRNQ1_32(v0, q1, v0);
-                    }
-                    VADDPQ_32(q0, q0, v0);
+                    VUZP2Q_32(v0, q0, q1);
+                    VUZP1Q_32(q0, q0, q1);
+                    VSUBQ_32(q0, q0, v0);
                     break;
                 case 0x07:
                     INST_NAME("PHSUBSW Gx, Ex");
@@ -304,20 +288,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
                     v0 = fpu_get_scratch(dyn);
-                    VTRNQ2_16(v0, q0, q0);  // v0 have all odd elements (in double)
-                    NEGQ_16(v0, v0);
-                    VTRNQ1_16(q0, q0, v0);  // re-inject negged element to q0
-                    SADDLPQ_16(q0, q0);      // there is no Add Pair with saturation...
-                    SQXTN_16(q0, q0);
-                    if(q0!=q1) {
-                        VTRNQ2_16(v0, q1, q1);
-                        NEGQ_16(v0, v0);
-                        VTRNQ1_16(v0, q1, v0);
-                        SADDLPQ_16(v0, v0);
-                        SQXTN2_16(q0, v0);
-                    } else {
-                        VMOVeD(q0, 1, q0, 0);
-                    }
+                    VUZP2Q_16(v0, q0, q1);
+                    VUZP1Q_16(q0, q0, q1);
+                    SQSUBQ_16(q0, q0, v0);
                     break;
                 case 0x08:
                     INST_NAME("PSIGNB Gx, Ex");
