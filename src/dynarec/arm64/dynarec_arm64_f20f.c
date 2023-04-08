@@ -437,7 +437,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 MSR_fpsr(x5);
                 ORRw_mask(x4, xZR, 1, 0);    //0x80000000
                 d0 = fpu_get_scratch(dyn);
-                for(int i=1; i>=0; --i) {
+                for(int i=0; i<2; ++i) {
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MSR_fpsr(x5);
                     if(i) {
