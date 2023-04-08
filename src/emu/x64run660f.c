@@ -638,8 +638,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETEX(0);
                 GETGX;
                 for(int i=0; i<4; ++i)
-                    if(GX->ud[i]<EX->ud[i])
-                        GX->ud[i] *= EX->ud[i];
+                    GX->ud[i] *= EX->ud[i];
                 break;
 
             case 0xDB:  /* AESIMC Gx, Ex */
