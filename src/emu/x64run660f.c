@@ -756,7 +756,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         break;
                     case ROUND_Chop:
                         for(int i=0; i<4; ++i)
-                            GX->f[i] = EX->f[i];
+                            GX->f[i] = truncf(EX->f[i]);
                         break;
                 }
                 break;
@@ -783,8 +783,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         GX->d[1] = ceil(EX->d[1]);
                         break;
                     case ROUND_Chop:
-                        GX->d[0] = EX->d[0];
-                        GX->d[1] = EX->d[1];
+                        GX->d[0] = trunc(EX->d[0]);
+                        GX->d[1] = trunc(EX->d[1]);
                         break;
                 }
                 break;
@@ -808,7 +808,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         GX->f[0] = ceilf(EX->f[0]);
                         break;
                     case ROUND_Chop:
-                        GX->f[0] = EX->f[0];
+                        GX->f[0] = truncf(EX->f[0]);
                         break;
                 }
                 break;
@@ -832,7 +832,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         GX->d[0] = ceil(EX->d[0]);
                         break;
                     case ROUND_Chop:
-                        GX->d[0] = EX->d[0];
+                        GX->d[0] = trunc(EX->d[0]);
                         break;
                 }
                 break;
