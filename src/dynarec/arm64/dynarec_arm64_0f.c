@@ -491,6 +491,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");
             nextop = F8;
+            SKIPTEST(x1);
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
             v0 = fpu_get_scratch(dyn);
@@ -507,6 +508,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
             nextop = F8;
+            SKIPTEST(x1);
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
             if(q0 == q1)
