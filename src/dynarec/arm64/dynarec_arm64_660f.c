@@ -737,6 +737,22 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     VMOVeD(q0, 0, v1, 0);
                     break;
 
+                case 0x0C:
+                    INST_NAME("PBLENDPS Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 1);
+                    u8 = F8&0b1111;
+                    if(u8==0b0011) {
+                        VMOVeD(q0, 0, q1, 0);
+                    } else if(u8==0b1100) {
+                        VMOVeD(q0, 1, q1, 1);
+                    } else for(int i=0; i<4; ++i)
+                        if(u8&(1<<i)) {
+                            VMOVeS(q0, i, q1, i);
+                        }
+                    break;
+
                 case 0x0E:
                     INST_NAME("PBLENDW Gx, Ex, Ib");
                     nextop = F8;
