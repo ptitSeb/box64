@@ -93,6 +93,7 @@ void emit_xor32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     // test sign bit before zeroup.
     IFX(X_SF) {
+        if (!rex.w) SEXT_W(s1, s1);
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
@@ -132,6 +133,7 @@ void emit_xor32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 
     // test sign bit before zeroup.
     IFX(X_SF) {
+        if (!rex.w) SEXT_W(s1, s1);
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
