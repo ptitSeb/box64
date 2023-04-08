@@ -488,13 +488,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 nextop = F8;
                 GETEX(0);
                 GETGX;
-                for(int i=3; i>=0; --i)
-                    GX->uw[i] = ((GX->sd[i]<0)?0:(GX->sd[i]>65535)?65535:GX->sd[i]);
+                for(int i=0; i<4; ++i)
+                    GX->uw[i] = (GX->sd[i]<0)?0:((GX->sd[i]>65535)?65535:GX->sd[i]);
                 if(GX==EX)
                     GX->q[1] = GX->q[0];
                 else
                     for(int i=0; i<4; ++i)
-                        GX->uw[i+4] = ((EX->sd[i]<0)?0:(EX->sd[i]>65535)?65535:EX->sd[i]);
+                        GX->uw[i+4] = (EX->sd[i]<0)?0:((EX->sd[i]>65535)?65535:EX->sd[i]);
                 break;
 
             case 0x30: /* PMOVZXBW Gx, Ex */
