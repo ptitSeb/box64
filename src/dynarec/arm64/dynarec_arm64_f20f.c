@@ -298,7 +298,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeD(v0, 0, d0, 0);   // to not erase uper part
             #else
             FCMPD(v0, v1);
-            B_NEXT(cLS);    //Less than or equal
+            B_NEXT(cCC);    //Less than
             VMOVeD(v0, 0, v1, 0);   // to not erase uper part
             #endif
             break;
@@ -336,7 +336,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeD(v0, 0, d0, 0);   // to not erase uper part
             #else
             FCMPD(v0, v1);
-            B_NEXT(cGE);    //Greater than or equal
+            B_NEXT(cGT);    //Greater than
             VMOVeD(v0, 0, v1, 0);   // to not erase uper part
             #endif
             break;
