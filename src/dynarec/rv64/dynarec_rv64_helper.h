@@ -342,6 +342,19 @@
     SSE_LOOP_D_ITEM(GX1, EX1, F, 2) \
     SSE_LOOP_D_ITEM(GX1, EX1, F, 3)
 
+#define SSE_LOOP_DS_ITEM(GX1, EX1, F, i) \
+    LW(GX1, gback, i*4);                 \
+    LW(EX1, wback, fixedaddress+i*4);    \
+    F;                                   \
+    SW(GX1, gback, i*4);
+
+// Loop for SSE opcode that use 32bits value and write to GX.
+#define SSE_LOOP_DS(GX1, EX1, F)     \
+    SSE_LOOP_DS_ITEM(GX1, EX1, F, 0) \
+    SSE_LOOP_DS_ITEM(GX1, EX1, F, 1) \
+    SSE_LOOP_DS_ITEM(GX1, EX1, F, 2) \
+    SSE_LOOP_DS_ITEM(GX1, EX1, F, 3)
+
 #define SSE_LOOP_W(GX1, EX1, F)            \
     for (int i=0; i<8; ++i) {              \
         LHU(GX1, gback, i*2);              \
@@ -358,17 +371,17 @@
         SH(GX1, gback, i*2);              \
     }
 
-#define SSE_LOOP_DS_ITEM(EX1, F, i)     \
+#define SSE_LOOP_D_S_ITEM(EX1, F, i)    \
     LWU(EX1, wback, fixedaddress+i*4);  \
     F;                                  \
     SW(EX1, wback, fixedaddress+i*4);
 
 // Loop for SSE opcode that use 32bits value and write to EX.
-#define SSE_LOOP_DS(EX1, F)     \
-    SSE_LOOP_DS_ITEM(EX1, F, 0) \
-    SSE_LOOP_DS_ITEM(EX1, F, 1) \
-    SSE_LOOP_DS_ITEM(EX1, F, 2) \
-    SSE_LOOP_DS_ITEM(EX1, F, 3)
+#define SSE_LOOP_D_S(EX1, F)     \
+    SSE_LOOP_D_S_ITEM(EX1, F, 0) \
+    SSE_LOOP_D_S_ITEM(EX1, F, 1) \
+    SSE_LOOP_D_S_ITEM(EX1, F, 2) \
+    SSE_LOOP_D_S_ITEM(EX1, F, 3)
 
 #define SSE_LOOP_Q_ITEM(GX1, EX1, F, i) \
     LD(GX1, gback, i*8);                \
