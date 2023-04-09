@@ -237,6 +237,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             LWU(x3, x1, fixedaddress+0*4);
             SW(x3, x2, 1*4);
             break;
+        case 0x66:
+            INST_NAME("PCMPGTD Gx,Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_DS(x3, x4, SLT(x4, x4, x3); SLLI(x3, x4, 63); SRAI(x3, x3, 63));
+            break;
         case 0x69:
             INST_NAME("PUNPCKHWD Gx,Ex");
             nextop = F8;
@@ -363,7 +370,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             SD(xZR, x1, fixedaddress+0);
                             SD(xZR, x1, fixedaddress+8);
                         } else if(u8) {
-                            SSE_LOOP_DS(x3, SRLI(x3, x3, u8));
+                            SSE_LOOP_D_S(x3, SRLI(x3, x3, u8));
                         }
                     }
                     break;
@@ -373,7 +380,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     if(u8>31) u8=31;
                     if (u8) {
-                        SSE_LOOP_DS(x3, SRAIW(x3, x3, u8));
+                        SSE_LOOP_D_S(x3, SRAIW(x3, x3, u8));
                     }
                     break;
                 case 6:
@@ -386,7 +393,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             SD(xZR, x1, fixedaddress+0);
                             SD(xZR, x1, fixedaddress+8);
                         } else if(u8) {
-                            SSE_LOOP_DS(x3, SLLI(x3, x3, u8));
+                            SSE_LOOP_D_S(x3, SLLI(x3, x3, u8));
                         }
                     }
                     break;
