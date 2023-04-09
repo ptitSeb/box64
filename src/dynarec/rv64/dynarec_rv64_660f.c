@@ -71,6 +71,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(x3);
             FSD(d0, x3, 8);
             break;
+        case 0x15:
+            INST_NAME("UNPCKHPD Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            // GX->q[0] = GX->q[1];
+            LD(x3, gback, 8);
+            SD(x3, gback, 0);
+            // GX->q[1] = EX->q[1];
+            LD(x3, wback, fixedaddress+8);
+            SD(x3, gback, 8);
+            break;
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
