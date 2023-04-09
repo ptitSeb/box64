@@ -153,7 +153,7 @@ GO(gst_audio_format_build_integer, iFiiii)
 //GO(gst_audio_format_get_type, 
 //GO(gst_audio_format_info_get_type, 
 //GO(gst_audio_formats_raw, 
-//GO(gst_audio_format_to_string, 
+GO(gst_audio_format_to_string, pFi)
 //GO(gst_audio_get_channel_reorder_map, 
 //GO(gst_audio_iec61937_frame_size, 
 //GO(gst_audio_iec61937_payload, 

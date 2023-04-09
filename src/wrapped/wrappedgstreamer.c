@@ -23,14 +23,20 @@ const char* gstreamerName = "libgstreamer-1.0.so.0";
 #define LIBNAME gstreamer
 
 typedef void*   (*pFppA_t)(void*, void*, va_list);
+typedef void*   (*pFv_t)();
 typedef size_t  (*LFv_t)();
 typedef void*   (*pFp_t)(void*);
+typedef void    (*vFpp_t)(void*, void*);
+typedef int     (*iFpp_t)(void*, void*);
 
 #define ADDED_FUNCTIONS()                   \
     GO(gst_object_get_type, LFv_t)          \
     GO(gst_allocator_get_type, LFv_t)       \
     GO(gst_structure_new_valist, pFppA_t)   \
-    GO(gst_structure_new_empty, pFp_t)
+    GO(gst_structure_new_empty, pFp_t)      \
+    GO(gst_caps_new_empty, pFv_t)           \
+    GO(gst_caps_replace, iFpp_t)            \
+    GO(gst_caps_append_structure, vFpp_t)   \
 
 #include "generated/wrappedgstreamertypes.h"
 
@@ -200,6 +206,29 @@ static void* findGstBusSyncHandlerFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstBusSyncHandler callback\n");
     return NULL;
 }
+
+//GstPluginFeatureFilter
+#define GO(A)   \
+static uintptr_t my_GstPluginFeatureFilter_fct_##A = 0;                                 \
+static int my_GstPluginFeatureFilter_##A(void* a, void* b)                              \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_GstPluginFeatureFilter_fct_##A, 2, a, b);    \
+}
+SUPER()
+#undef GO
+static void* findGstPluginFeatureFilterFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_GstPluginFeatureFilter_fct_##A == (uintptr_t)fct) return my_GstPluginFeatureFilter_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstPluginFeatureFilter_fct_##A == 0) {my_GstPluginFeatureFilter_fct_##A = (uintptr_t)fct; return my_GstPluginFeatureFilter_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstPluginFeatureFilter callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my_gst_caps_set_simple(x64emu_t* emu, void* caps, void* field, void* b) {
@@ -307,6 +336,30 @@ EXPORT void* my_gst_structure_new(x64emu_t* emu, void* name, void* first, uint64
         return my->gst_structure_new_empty(name);
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
     return my->gst_structure_new_valist(name, first, VARARGS);
+}
+
+EXPORT void my_gst_mini_object_set_qdata(x64emu_t* emu, void* object, void* quark, void* data, void* d)
+{
+    my->gst_mini_object_set_qdata(object, quark, data, findDestroyFct(d));
+}
+
+EXPORT void* my_gst_caps_new_simple(x64emu_t* emu, void* type, void* name, void* b)
+{
+    // need to unroll the function here, there is no direct VA equivalent
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    void* caps = my->gst_caps_new_empty();
+    void* structure = my->gst_structure_new_valist(type, name, VARARGS);
+    if (structure)
+        my->gst_caps_append_structure(caps, structure);
+    else
+        my->gst_caps_replace(&caps, NULL);
+
+    return caps;
+}
+
+EXPORT void* my_gst_registry_feature_filter(x64emu_t* emu, void* reg, void* filter, int first, void* data)
+{
+    return my->gst_registry_feature_filter(reg, findGstPluginFeatureFilterFct(filter), first, data);
 }
 
 #define PRE_INIT    \

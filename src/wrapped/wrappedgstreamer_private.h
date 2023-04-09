@@ -240,7 +240,7 @@ GO(gst_caps_new_empty, pFv)
 GO(gst_caps_new_empty_simple, pFp)
 //GOM(gst_caps_new_full, pFEpV)
 //GOM(gst_caps_new_full_valist, pFEpA)
-//GOM(gst_caps_new_simple, pFppV)
+GOM(gst_caps_new_simple, pFEppV)
 //DATAB(_gst_caps_none, 
 GO(gst_caps_normalize, pFp)
 GO(gst_caps_ref, pFp)
@@ -745,16 +745,16 @@ GO(gst_is_initialized, iFv)
 //GO(gst_iterator_find_custom, 
 //GO(gst_iterator_fold, 
 //GO(gst_iterator_foreach, 
-//GO(gst_iterator_free, 
+GO(gst_iterator_free, vFp)
 //GO(gst_iterator_get_type, 
 //GO(gst_iterator_item_get_type, 
 //GO(gst_iterator_new, 
 //GO(gst_iterator_new_list, 
 //GO(gst_iterator_new_single, 
-//GO(gst_iterator_next, 
+GO(gst_iterator_next, iFpp)
 //GO(gst_iterator_push, 
 //GO(gst_iterator_result_get_type, 
-//GO(gst_iterator_resync, 
+GO(gst_iterator_resync, vFp)
 //GO(gst_library_error_get_type, 
 //GO(gst_library_error_quark, 
 //GO(gst_lock_flags_get_type, 
@@ -897,7 +897,7 @@ GO(gst_message_writable_structure, pFp)
 //GO(gst_mini_object_add_parent, 
 //GO(gst_mini_object_copy, 
 //GO(gst_mini_object_flags_get_type, 
-//GO(gst_mini_object_get_qdata, 
+GO(gst_mini_object_get_qdata, pFpp)
 //GO(gst_mini_object_init, 
 GO(gst_mini_object_is_writable, iFp)
 //GO(gst_mini_object_lock, 
@@ -905,7 +905,7 @@ GO(gst_mini_object_make_writable, pFp)
 GO(gst_mini_object_ref, pFp)
 //GO(gst_mini_object_remove_parent, 
 //GO(gst_mini_object_replace, 
-//GO(gst_mini_object_set_qdata, 
+GOM(gst_mini_object_set_qdata, vFEpppp)
 //GO(gst_mini_object_steal, 
 //GO(gst_mini_object_steal_qdata, 
 //GO(gst_mini_object_take, 
@@ -1097,7 +1097,7 @@ GO(gst_pad_use_fixed_caps, vFp)
 //GO(gst_plugin_feature_check_version, 
 //GO(gst_plugin_feature_get_plugin, 
 //GO(gst_plugin_feature_get_plugin_name, 
-//GO(gst_plugin_feature_get_rank, 
+GO(gst_plugin_feature_get_rank, uFp)
 GO(gst_plugin_feature_get_type, LFv)
 //GO(gst_plugin_feature_list_copy, 
 //GO(gst_plugin_feature_list_debug, 
@@ -1289,12 +1289,12 @@ GO(gst_query_writable_structure, pFp)
 //GO(gst_registry_add_feature, 
 //GO(gst_registry_add_plugin, 
 //GO(gst_registry_check_feature_version, 
-//GO(gst_registry_feature_filter, 
+GOM(gst_registry_feature_filter, pFEppip)
 //GO(gst_registry_find_feature, 
 //GO(gst_registry_find_plugin, 
 //GO(gst_registry_fork_is_enabled, 
 //GO(gst_registry_fork_set_enabled, 
-//GO(gst_registry_get, 
+GO(gst_registry_get, pFpL)
 //GO(gst_registry_get_feature_list, 
 //GO(gst_registry_get_feature_list_by_plugin, 
 //GO(gst_registry_get_feature_list_cookie, 

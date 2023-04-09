@@ -2964,14 +2964,18 @@ wrappedgstreamer:
 - iFppA:
   - gst_structure_get_valist
 - pFppV:
+  - gst_caps_new_simple
   - gst_structure_new
 - vFpppp:
   - gst_bus_set_sync_handler
+  - gst_mini_object_set_qdata
   - gst_pad_set_activatemode_function_full
   - gst_pad_set_chain_function_full
   - gst_pad_set_event_function_full
   - gst_pad_set_getrange_function_full
   - gst_pad_set_query_function_full
+- pFppip:
+  - gst_registry_feature_filter
 - pFiplllpp:
   - gst_buffer_new_wrapped_full
 - vFpippippV:
