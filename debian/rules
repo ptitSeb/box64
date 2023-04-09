@@ -6,7 +6,7 @@
 override_dh_auto_configure:
 	dh_auto_configure -- \
 	      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	      -DARM_DYNAREC=1
+	      -DARM_DYNAREC=1 \
 		  -DNOGIT=1
 
 override_dh_shlibdeps:
