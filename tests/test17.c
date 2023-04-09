@@ -1,5 +1,6 @@
-// build with  gcc -O2 -g -msse -msse2 -mssse3 -msse4.1 test17.c -o test17
+// build with  gcc -O0 -g -msse -msse2 -mssse3 -msse4.1 test17.c -o test17
 // and -m32 for 32bits version
+#include <inttypes.h>
 #include <string.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -141,7 +142,7 @@ void print_32(v128 v) {
 }
 void print_64(v128 v) {
     for(int i=0; i<2; ++i)
-        printf("0x%llx ", v.u64[i]);
+        printf("0x%"PRIx64" ", v.u64[i]);
 }
 #define print_128 print_64
 void print_ps(v128 v) {
@@ -154,7 +155,7 @@ void print_ps(v128 v) {
 void print_pd(v128 v) {
     for(int i=0; i<2; ++i)
         if(isnan(v.d64[i]))
-            printf("0x%llx ", v.u64[i]);
+            printf("0x%"PRIx64" ", v.u64[i]);
         else
             printf("%g ", v.d64[i]);
 }
@@ -163,7 +164,7 @@ void print_pd(v128 v) {
 int main(int argc, const char** argv)
 {
  float a, b;
- uint64_t flags;
+ uint32_t flags;
  uint32_t maxf = 0x7f7fffff;
  uint32_t minf = 0xff7fffff;
  uint32_t r;
@@ -171,40 +172,40 @@ int main(int argc, const char** argv)
 #define GO1(A, N)                                   \
 a = 1.0f; b = 2.0f;                                 \
 flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
 flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
 b = INFINITY;                                       \
 flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
 flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
 b = -INFINITY;                                      \
 flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
 flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
 b = NAN;                                            \
 flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
 flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
 b = a;                                              \
 flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
 flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
 a = b = INFINITY;                                   \
 flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
 a = -INFINITY;                                      \
 flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
 flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
 a = b = NAN;                                        \
 flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%lx\n", a, b, flags);
+printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);
 
 #define GO2(A, N)                               \
 a = 1.0f; b = 2.0f;                             \
