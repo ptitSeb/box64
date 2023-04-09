@@ -585,6 +585,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             AND(x1, x1, x5);
             OR(gd, gd, x1);
             break;
+        case 0xC5:
+            INST_NAME("PEXTRW Gd,Ex,Ib");
+            nextop = F8;
+            GETGD;
+            GETEX(x1, 0);
+            u8 = (F8)&7;
+            LHU(gd, wback, fixedaddress+u8*2);
+            break;
         case 0xD4:
             INST_NAME("PADDQ Gx,Ex");
             nextop = F8;
