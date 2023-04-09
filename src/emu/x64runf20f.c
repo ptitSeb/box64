@@ -205,6 +205,8 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         GETEX(0);
         GETGX;
+        if (GX->d[0] == 0.0 && EX->d[0]  == 0.0)
+            GX->d[0] = EX->d[0];
         if (isnan(GX->d[0]) || isnan(EX->d[0]) || isless(EX->d[0], GX->d[0]))
             GX->d[0] = EX->d[0];
         break;
@@ -225,6 +227,8 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         GETEX(0);
         GETGX;
+        if (GX->d[0] == 0.0 && EX->d[0]  == 0.0)
+            GX->d[0] = EX->d[0];
         if (isnan(GX->d[0]) || isnan(EX->d[0]) || isgreater(EX->d[0], GX->d[0]))
             GX->d[0] = EX->d[0];
         break;
