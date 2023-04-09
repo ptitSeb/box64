@@ -161,7 +161,13 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MINSD Gx, Ex");
             nextop = F8;
             GETGXSD(v0);
-            GETEXSD(v1, 0);        
+            GETEXSD(v1, 0);
+            d0 = sse_get_reg_empty(dyn, ninst, x1, x4, 0);
+            FMVDX(d0, xZR);
+            FEQD(x2, v0, d0);
+            FEQD(x3, v1, d0);
+            AND(x2, x2, x3);
+            BNE_MARK(x2, xZR);
             FEQD(x2, v0, v0);
             FEQD(x3, v1, v1);
             AND(x2, x2, x3);
