@@ -377,6 +377,24 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x73:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLQ Ex, Ib");
+                    GETEX(x1, 1);
+                    u8 = F8;
+                    if(!u8) break;
+                    if(u8>63) {
+                        // just zero dest
+                        SD(xZR, wback, fixedaddress+0);
+                        SD(xZR, wback, fixedaddress+8);
+                    } else {
+                        LD(x3, wback, fixedaddress+0);
+                        LD(x4, wback, fixedaddress+8);
+                        SRLI(x3, x3, u8);
+                        SRLI(x4, x4, u8);
+                        SD(x3, wback, fixedaddress+8);
+                        SD(x4, wback, fixedaddress+8);
+                    }
+                    break;
                 case 3:
                     INST_NAME("PSRLDQ Ex, Ib");
                     GETEX(x1, 1);
