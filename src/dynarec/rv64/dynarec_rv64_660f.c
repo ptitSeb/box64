@@ -617,6 +617,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 OR(gd, gd, x3);
             }
             break;
+        case 0xD9:
+            INST_NAME("PSUBUSW Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_W(x3, x4, SUB(x3, x3, x4); NOT(x4, x3); SRAI(x4, x4, 63); AND(x3, x3, x4));
+            break;
         case 0xDB:
             INST_NAME("PAND Gx,Ex");
             nextop = F8;
