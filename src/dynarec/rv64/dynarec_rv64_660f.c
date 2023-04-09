@@ -261,6 +261,26 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
+        case 0x6A:
+            INST_NAME("PUNPCKHDQ Gx,Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            // GX->ud[0] = GX->ud[2];
+            LWU(x3, gback, 2*4);
+            SW(x3, gback, 0*4);
+            // GX->ud[1] = EX->ud[2];
+            LWU(x3, wback, fixedaddress+2*4);
+            SW(x3, gback, 1*4);
+            // GX->ud[2] = GX->ud[3];
+            LWU(x3, gback, 3*4);
+            SW(x3, gback, 2*4);
+            // GX->ud[3] = EX->ud[3];
+            if (!(MODREG && (gd==ed))) {
+                LWU(x3, wback, fixedaddress+3*4);
+                SW(x3, gback, 3*4);
+            }
+            break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
             nextop = F8;
