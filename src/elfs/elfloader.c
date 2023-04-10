@@ -617,6 +617,13 @@ EXPORT uintptr_t _dl_tlsdesc_undefweak(x64emu_t* emu)
 int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* head, int cnt, Elf64_Rela *rela, int* need_resolv)
 {
     int ret_ok = 0;
+    const char* old_globdefver = NULL;
+    const char* old_weakdefver = NULL;
+    int old_bind = -1;
+    const char* old_symname = NULL;
+    uintptr_t old_offs = 0;
+    uintptr_t old_end = 0;
+    int old_version = -1;
     for (int i=0; i<cnt; ++i) {
         int t = ELF64_R_TYPE(rela[i].r_info);
         Elf64_Sym *sym = &head->DynSym[ELF64_R_SYM(rela[i].r_info)];
@@ -631,17 +638,29 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
         int version = head->VerSym?((Elf64_Half*)((uintptr_t)head->VerSym+head->delta))[ELF64_R_SYM(rela[i].r_info)]:-1;
         if(version!=-1) version &=0x7fff;
         const char* vername = GetSymbolVersion(head, version);
-        const char* globdefver = (bind==STB_WEAK)?NULL:GetMaplibDefaultVersion(maplib, local_maplib, 0, symname);
-        const char* weakdefver = (bind==STB_WEAK)?GetMaplibDefaultVersion(maplib, local_maplib, 1, symname):NULL;
+        const char* globdefver = NULL;
+        const char* weakdefver = NULL;
+        if(old_bind==bind && old_symname==symname) {
+            globdefver = old_globdefver;
+            weakdefver = old_weakdefver;
+        } else {
+            old_globdefver = globdefver = (bind==STB_WEAK)?NULL:GetMaplibDefaultVersion(maplib, local_maplib, 0, symname);
+            old_weakdefver = weakdefver = (bind==STB_WEAK)?GetMaplibDefaultVersion(maplib, local_maplib, 1, symname):NULL;
+        }
         if(bind==STB_LOCAL) {
             if(!symname || !symname[0]) {
                 offs = sym->st_value + head->delta;
                 end = offs + sym->st_size;
             } else {
-                if(!offs && !end && local_maplib)
-                    GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
-                if(!offs && !end)
-                    GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                if(old_version==version && old_bind==bind && old_symname==symname) {
+                    offs = old_offs;
+                    end = old_end;
+                } else {
+                    if(local_maplib)
+                        GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                    if(!offs && !end)
+                        GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                }
             }
         } else {
             // this is probably very very wrong. A proprer way to get reloc need to be written, but this hack seems ok for now
@@ -651,13 +670,19 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 end = offs + sym->st_size;
             }*/
             // so weak symbol are the one left
-            if(!offs && !end) {
+            if(old_version==version && old_bind==bind && old_symname==symname) {
+                offs = old_offs;
+                end = old_end;
+            } else {
                 GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
-                if(!offs && !end && local_maplib) {
+                if(!offs && !end && local_maplib)
                     GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
-                }
             }
         }
+        old_bind = bind;
+        old_symname = symname;
+        old_offs = offs;
+        old_end = end;
         uintptr_t globoffs, globend;
         uint64_t* globp;
         uintptr_t tmp = 0;
