@@ -390,7 +390,42 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ANDI(xFlags, xFlags, ~1);   //F_CF is 1
             OR(xFlags, xFlags, x4);
             break;
-
+        case 0xAB:
+            INST_NAME("BTS Ed, Gd");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                wback = 0;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                SRAI(x1, gd, 5+rex.w);
+                SLLI(x1, x1, 2+rex.w);
+                ADD(x3, wback, x1);
+                LDxw(x1, x3, fixedaddress);
+                ed = x1;
+                wback = x3;
+            }
+            if (rex.w) {
+                ANDI(x2, gd, 0x3f);
+            } else {
+                ANDI(x2, gd, 0x1f);
+            }
+            SRL(x4, ed, x2);
+            ANDI(x4, x4, 1); // F_CF is 1
+            ANDI(xFlags, xFlags, ~1);
+            OR(xFlags, xFlags, x4);
+            ADDI(x3, xZR, 1);
+            SLL(x3, x3, x2);
+            OR(ed, ed, x3);
+            if(wback) {
+                SDxw(ed, wback, fixedaddress);
+                SMWRITE();
+            }
+            break;
         case 0xAE:
             nextop = F8;
             if((nextop&0xF8)==0xE8) {
