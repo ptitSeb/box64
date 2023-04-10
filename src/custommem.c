@@ -798,7 +798,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
         prot&=~PROT_CUSTOM;
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
-        if((prot&PROT_WRITE) && !(prot&PROT_NOPROT)) {
+        if((prot&PROT_WRITE) && !(dyn&PROT_NOPROT)) {
             if(!dyn) mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
                 memprot[i>>16].prot[i&0xffff] = prot|mapped|PROT_DYNAREC;   // need to use atomic exchange?
             } else 
@@ -852,7 +852,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
     }
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i>>16].prot[i&0xffff];
-        if(!(prot&PROT_DYN) && !(prot&PROT_NOPROT)) {
+        if(!(prot&PROT_DYN)) {
             dynarec_log(LOG_DEBUG, "0\n");
             return 0;
         }
