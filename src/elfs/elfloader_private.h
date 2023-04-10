@@ -4,6 +4,7 @@
 typedef struct library_s library_t;
 typedef struct needed_libs_s needed_libs_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;
+typedef struct kh_defaultversion_s kh_defaultversion_t;
 
 #include <elf.h>
 #include "elfloader.h"
@@ -98,6 +99,8 @@ struct elfheader_s {
     kh_mapsymbols_t   *mapsymbols;
     kh_mapsymbols_t   *weaksymbols;
     kh_mapsymbols_t   *localsymbols;
+    kh_defaultversion_t *globaldefver;  // the global default version for symbols (the XXX@@vvvv of symbols)
+    kh_defaultversion_t *weakdefver;    // the weak default version for symbols (the XXX@@vvvv of symbols)
 };
 
 #define R_X86_64_NONE           0       /* No reloc */

@@ -201,8 +201,6 @@ box64context_t *NewBox64Context(int argc)
     context->local_maplib = NewLibrarian(context, 1);
     context->versym = NewDictionnary();
     context->system = NewBridge();
-    context->globaldefver = NewDefaultVersion();
-    context->weakdefver = NewDefaultVersion();
     // create vsyscall
     context->vsyscall = AddBridge(context->system, vFEv, x64Syscall, 0, NULL);
     // create the vsyscalls
@@ -252,8 +250,6 @@ void FreeBox64Context(box64context_t** context)
     if(ctx->maplib)
         FreeLibrarian(&ctx->maplib, NULL);
     FreeDictionnary(&ctx->versym);
-    FreeDefaultVersion(&ctx->globaldefver);
-    FreeDefaultVersion(&ctx->weakdefver);
 
     for(int i=0; i<ctx->elfsize; ++i) {
         FreeElfHeader(&ctx->elfs[i]);

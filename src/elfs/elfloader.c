@@ -65,6 +65,8 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
     h->mapsymbols = NewMapSymbols();
     h->weaksymbols = NewMapSymbols();
     h->localsymbols = NewMapSymbols();
+    h->globaldefver = NewDefaultVersion();
+    h->weakdefver = NewDefaultVersion();
     h->refcnt = 1;
     
     return h;
@@ -95,6 +97,8 @@ void FreeElfHeader(elfheader_t** head)
     FreeMapSymbols(&h->mapsymbols);
     FreeMapSymbols(&h->weaksymbols);
     FreeMapSymbols(&h->localsymbols);
+    FreeDefaultVersion(&h->globaldefver);
+    FreeDefaultVersion(&h->weakdefver);
     
     FreeElfMemory(h);
     box_free(h);
@@ -446,16 +450,17 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
         int version = head->VerSym?((Elf64_Half*)((uintptr_t)head->VerSym+head->delta))[ELF64_R_SYM(rel[i].r_info)]:-1;
         if(version!=-1) version &=0x7fff;
         const char* vername = GetSymbolVersion(head, version);
-        const char* defver = GetDefaultVersion((bind==STB_WEAK)?my_context->weakdefver:my_context->globaldefver, symname);
+        const char* globdefver = (bind==STB_WEAK)?NULL:GetMaplibDefaultVersion(maplib, local_maplib, 0, symname);
+        const char* weakdefver = (bind==STB_WEAK)?GetMaplibDefaultVersion(maplib, local_maplib, 1, symname):NULL;
         if(bind==STB_LOCAL) {
             if(!symname || !symname[0]) {
                 offs = sym->st_value + head->delta;
                 end = offs + sym->st_size;
             } else {
                 if(!offs && !end && local_maplib)
-                    GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                    GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
                 if(!offs && !end)
-                    GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
+                    GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
             }
         } else {
             // this is probably very very wrong. A proprer way to get reloc need to be written, but this hack seems ok for now
@@ -467,9 +472,9 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
             // so weak symbol are the one left
             if(!offs && !end) {
                 if(!offs && !end && local_maplib)
-                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
                 if(!offs && !end && local_maplib)
-                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
+                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
             }
         }
         uintptr_t globoffs, globend;
@@ -490,7 +495,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                     *p += offs;
                 break;
             case R_X86_64_GLOB_DAT:
-                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername) && FindR64COPYRel(my_context->elfs[0], symname, &globoffs, &globp, size, version, vername)) {
+                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername, globdefver) && FindR64COPYRel(my_context->elfs[0], symname, &globoffs, &globp, size, version, vername)) {
                     // set global offs / size for the symbol
                     offs = sym->st_value;
                     end = offs + sym->st_size;
@@ -504,7 +509,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                     *p = globoffs;
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername)) {
+                    if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername, globdefver)) {
                         offs = globoffs;
                         end = globend;
                     }
@@ -522,11 +527,11 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                     uintptr_t old_offs = offs;
                     uintptr_t old_end = end;
                     offs = 0;
-                    GetSizedSymbolStartEnd(GetGlobalData(maplib), symname, &offs, &end, size, version, vername, 1, defver); // try globaldata symbols first
+                    GetSizedSymbolStartEnd(GetGlobalData(maplib), symname, &offs, &end, size, version, vername, 1, globdefver); // try globaldata symbols first
                     if(offs==0) {
-                        GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head, size, version, vername);   // get original copy if any
+                        GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head, size, version, vername, globdefver, weakdefver);   // get original copy if any
                         if(!offs && local_maplib)
-                            GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head, size, version, vername);
+                            GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head, size, version, vername, globdefver, weakdefver);
                     }
                     if(!offs) {
                         offs = old_offs;
@@ -626,16 +631,17 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
         int version = head->VerSym?((Elf64_Half*)((uintptr_t)head->VerSym+head->delta))[ELF64_R_SYM(rela[i].r_info)]:-1;
         if(version!=-1) version &=0x7fff;
         const char* vername = GetSymbolVersion(head, version);
-        const char* defver = GetDefaultVersion((bind==STB_WEAK)?my_context->weakdefver:my_context->globaldefver, symname);
+        const char* globdefver = (bind==STB_WEAK)?NULL:GetMaplibDefaultVersion(maplib, local_maplib, 0, symname);
+        const char* weakdefver = (bind==STB_WEAK)?GetMaplibDefaultVersion(maplib, local_maplib, 1, symname):NULL;
         if(bind==STB_LOCAL) {
             if(!symname || !symname[0]) {
                 offs = sym->st_value + head->delta;
                 end = offs + sym->st_size;
             } else {
                 if(!offs && !end && local_maplib)
-                    GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                    GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
                 if(!offs && !end)
-                    GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
+                    GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
             }
         } else {
             // this is probably very very wrong. A proprer way to get reloc need to be written, but this hack seems ok for now
@@ -646,9 +652,9 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
             }*/
             // so weak symbol are the one left
             if(!offs && !end) {
-                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
+                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
                 if(!offs && !end && local_maplib) {
-                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
                 }
             }
         }
@@ -679,11 +685,11 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 globoffs = offs;
                 globend = end;
                 offs = end = 0;
-                GetSizedSymbolStartEnd(GetGlobalData(maplib), symname, &offs, &end, size, version, vername, 1, defver); // try globaldata symbols first
+                GetSizedSymbolStartEnd(GetGlobalData(maplib), symname, &offs, &end, size, version, vername, 1, globdefver); // try globaldata symbols first
                 if(!offs && local_maplib)
-                    GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head, size, version, vername);
+                    GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head, size, version, vername, globdefver, weakdefver);
                 if(!offs)
-                    GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head, size, version, vername);
+                    GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head, size, version, vername, globdefver, weakdefver);
                 if(!offs) {offs = globoffs; end = globend;}
                 if(offs) {
                     // add r_addend to p?
@@ -695,7 +701,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 }
                 break;
             case R_X86_64_GLOB_DAT:
-                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername) && FindR64COPYRel(my_context->elfs[0], symname, &globoffs, &globp, size, version, vername)) {
+                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername, globdefver) && FindR64COPYRel(my_context->elfs[0], symname, &globoffs, &globp, size, version, vername)) {
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
@@ -713,7 +719,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     *p = globoffs;
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername)) {
+                    if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername, globdefver)) {
                         offs = globoffs;
                         end = globend;
                     }
@@ -1008,7 +1014,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 p+=2;
                 symname = AddDictionnary(my_context->versym, symnameversioned);
                 const char* vername = AddDictionnary(my_context->versym, p);
-                AddDefaultVersion((bind==STB_WEAK)?my_context->weakdefver:my_context->globaldefver, symname, vername);
+                AddDefaultVersion((bind==STB_WEAK)?h->weakdefver:h->globaldefver, symname, vername);
                 if((bind==STB_GNU_UNIQUE /*|| (bind==STB_GLOBAL && type==STT_FUNC)*/) && FindGlobalSymbol(maplib, symname, 2, p))
                     continue;
                 uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
@@ -1050,11 +1056,11 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
             size_t sz = h->DynSym[i].st_size;
             int version = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
-            int add_default = (version!=-1 && (version&0x7fff)>1 && !(version&0x8000) && !GetDefaultVersion((bind==STB_WEAK)?my_context->weakdefver:my_context->globaldefver, symname))?1:0;
+            int add_default = (version!=-1 && (version&0x7fff)>1 && !(version&0x8000) && !GetMaplibDefaultVersion(my_context->maplib, (maplib==my_context->maplib)?NULL:maplib, (bind==STB_WEAK)?1:0, symname))?1:0;
             if(version!=-1) version &= 0x7fff;
             const char* vername = GetSymbolVersion(h, version);
             if(add_default) {
-                AddDefaultVersion((bind==STB_WEAK)?my_context->weakdefver:my_context->globaldefver, symname, vername);
+                AddDefaultVersion((bind==STB_WEAK)?h->weakdefver:h->globaldefver, symname, vername);
                 printf_dump(LOG_NEVER, "Adding Default Version \"%s\" for Symbol\"%s\"\n", vername, symname);
             }
             int to_add = 1;
@@ -1771,6 +1777,16 @@ void* GetNativeSymbolUnversioned(void* lib, const char* name)
     return s.addr;
 }
 
+kh_defaultversion_t* GetGlobalDefaultVersion(elfheader_t* h)
+{
+    return h?h->globaldefver:NULL;
+}
+kh_defaultversion_t* GetWeakDefaultVersion(elfheader_t* h)
+{
+    return h?h->weakdefver:NULL;
+}
+
+
 uintptr_t pltResolver = ~0LL;
 EXPORT void PltResolver(x64emu_t* emu)
 {
@@ -1793,12 +1809,14 @@ EXPORT void PltResolver(x64emu_t* emu)
 
     library_t* lib = h->lib;
     lib_t* local_maplib = GetMaplib(lib);
-    GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end, h, version, vername);
+    const char* globdefver = (bind==STB_WEAK)?NULL:GetMaplibDefaultVersion(my_context->maplib, (my_context->maplib==local_maplib)?NULL:local_maplib, 0, symname);
+    const char* weakdefver = (bind==STB_WEAK)?GetMaplibDefaultVersion(my_context->maplib, (my_context->maplib==local_maplib)?NULL:local_maplib, 1, symname):NULL;
+    GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end, h, version, vername, globdefver, weakdefver);
     if(!offs && !end && local_maplib) {
-        GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, h, version, vername);
+        GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, h, version, vername, globdefver, weakdefver);
     }
     if(!offs && !end && !version)
-        GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end, h, -1, NULL);
+        GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end, h, -1, NULL, globdefver, weakdefver);
 
     if (!offs) {
         printf_log(LOG_NONE, "Error: PltResolver: Symbol %s(ver %d: %s%s%s) not found, cannot apply R_X86_64_JUMP_SLOT %p (%p) in %s\n", symname, version, symname, vername?"@":"", vername?vername:"", p, *(void**)p, h->name);

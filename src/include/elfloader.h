@@ -9,6 +9,7 @@ typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 typedef struct box64context_s box64context_t;
 typedef struct x64emu_s x64emu_t;
 typedef struct needed_libs_s needed_libs_t;
+typedef struct kh_defaultversion_s kh_defaultversion_t;
 #ifdef DYNAREC
 typedef struct dynablock_s dynablock_t;
 #endif
@@ -67,6 +68,8 @@ int GetVersionIndice(elfheader_t* h, const char* vername);
 kh_mapsymbols_t* GetMapSymbols(elfheader_t* h);
 kh_mapsymbols_t* GetWeakSymbols(elfheader_t* h);
 kh_mapsymbols_t* GetLocalSymbols(elfheader_t* h);
+kh_defaultversion_t* GetGlobalDefaultVersion(elfheader_t* h);
+kh_defaultversion_t* GetWeakDefaultVersion(elfheader_t* h);
 
 void* GetNativeSymbolUnversioned(void* lib, const char* name);
 

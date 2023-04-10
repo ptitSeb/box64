@@ -196,7 +196,7 @@ char* my_dlerror(x64emu_t* emu)
 
 KHASH_SET_INIT_INT(libs);
 
-int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end, int version, const char* vername)
+int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end, int version, const char* vername, const char* globdefver, const char* weakdefver)
 {
     if(!lib)
         return 0;
@@ -208,25 +208,25 @@ int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymb
     // TODO: should use librarian functions instead!
     int weak;
     // look in the library itself
-    if(lib->getglobal(lib, rsymbol, start, end, 0, &weak, version, vername, 1))
+    if(lib->getglobal(lib, rsymbol, start, end, 0, &weak, version, vername, 1, globdefver))
         return 1;
-    if(lib->getweak(lib, rsymbol, start, end, 0, &weak, version, vername, 1))
+    if(lib->getweak(lib, rsymbol, start, end, 0, &weak, version, vername, 1, weakdefver))
         return 1;
     // look in other libs
     int n = GetNeededLibsN(lib);
     for (int i=0; i<n; ++i) {
         library_t *l = GetNeededLib(lib, i);
-        if(recursive_dlsym_lib(collection, l, rsymbol, start, end, version, vername))
+        if(recursive_dlsym_lib(collection, l, rsymbol, start, end, version, vername, globdefver, weakdefver))
             return 1;
     }
         
     return 0;
 }
 
-int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end, int version, const char* vername)
+int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end, int version, const char* vername, const char* globdefver, const char* weakdefver)
 {
     kh_libs_t *collection = kh_init(libs);
-    int ret = recursive_dlsym_lib(collection, lib, rsymbol, start, end, version, vername);
+    int ret = recursive_dlsym_lib(collection, lib, rsymbol, start, end, version, vername, globdefver, weakdefver);
     kh_destroy(libs, collection);
 
     return ret;
@@ -241,7 +241,9 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     printf_dlsym(LOG_DEBUG, "Call to dlsym(%p, \"%s\")%s", handle, rsymbol, dlsym_error?"":"\n");
     if(handle==NULL) {
         // special case, look globably
-        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL)) {
+        const char* globdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 0, rsymbol);
+        const char* weakdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 1, rsymbol);
+        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, globdefver, weakdefver)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -253,8 +255,10 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     }
     if(handle==(void*)~0LL) {
         // special case, look globably but no self (RTLD_NEXT)
+        const char* globdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 0, rsymbol);
+        const char* weakdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 1, rsymbol);
         elfheader_t *elf = FindElfAddress(my_context, *(uintptr_t*)R_RSP); // use return address to guess "self"
-        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, -1, NULL)) {
+        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, -1, NULL, globdefver, weakdefver)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -282,7 +286,9 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         return NULL;
     }
     if(dl->libs[nlib]) {
-        if(my_dlsym_lib(dl->libs[nlib], rsymbol, &start, &end, -1, NULL)==0) {
+        const char* globdefver = GetMaplibDefaultVersion(my_context->maplib, (my_context->maplib==dl->libs[nlib]->maplib)?NULL:dl->libs[nlib]->maplib, 0, rsymbol);
+        const char* weakdefver = GetMaplibDefaultVersion(my_context->maplib, (my_context->maplib==dl->libs[nlib]->maplib)?NULL:dl->libs[nlib]->maplib, 1, rsymbol);
+        if(my_dlsym_lib(dl->libs[nlib], rsymbol, &start, &end, -1, NULL, globdefver, weakdefver)==0) {
             // not found
             printf_dlsym(LOG_NEVER, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, GetNameLib(dl->libs[nlib]), rsymbol);
             printf_log(LOG_DEBUG, " Symbol not found\n");
@@ -294,9 +300,9 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     } else {
         // still usefull?
         //  => look globably
-        const char* defver = GetDefaultVersion(my_context->globaldefver, rsymbol);
-        if(!defver) defver = GetDefaultVersion(my_context->weakdefver, rsymbol);
-        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, defver)) {
+        const char* globdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 0, rsymbol);
+        const char* weakdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 1, rsymbol);
+        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, globdefver, weakdefver)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -372,7 +378,9 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     printf_dlsym(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)%s", handle, rsymbol, vername?vername:"(nil)", dlsym_error?"":"\n");
     if(handle==NULL) {
         // special case, look globably
-        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, version, vername)) {
+        const char* globdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 0, rsymbol);
+        const char* weakdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 1, rsymbol);
+        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, version, vername, globdefver, weakdefver)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -384,8 +392,10 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     }
     if(handle==(void*)~0LL) {
         // special case, look globably but no self (RTLD_NEXT)
+        const char* globdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 0, rsymbol);
+        const char* weakdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 1, rsymbol);
         elfheader_t *elf = FindElfAddress(my_context, *(uintptr_t*)R_RSP); // use return address to guess "self"
-        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, version, vername)) {
+        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, version, vername, globdefver, weakdefver)) {
                 printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -413,7 +423,9 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
         return NULL;
     }
     if(dl->libs[nlib]) {
-        if(my_dlsym_lib(dl->libs[nlib], rsymbol, &start, &end, version, vername)==0) {
+        const char* globdefver = GetMaplibDefaultVersion(my_context->maplib, (my_context->maplib==dl->libs[nlib]->maplib)?NULL:dl->libs[nlib]->maplib, 0, rsymbol);
+        const char* weakdefver = GetMaplibDefaultVersion(my_context->maplib, (my_context->maplib==dl->libs[nlib]->maplib)?NULL:dl->libs[nlib]->maplib, 1, rsymbol);
+        if(my_dlsym_lib(dl->libs[nlib], rsymbol, &start, &end, version, vername, globdefver, weakdefver)==0) {
             // not found
                 printf_dlsym(LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, GetNameLib(dl->libs[nlib]), rsymbol, vername?vername:"(nil)");
             printf_log(LOG_DEBUG, " Symbol not found\n");
@@ -424,9 +436,9 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
         }
     } else {
         // still usefull?
-         const char* defver = GetDefaultVersion(my_context->globaldefver, rsymbol);
-        if(!defver) defver = GetDefaultVersion(my_context->weakdefver, rsymbol);
-        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, defver)) {
+        const char* globdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 0, rsymbol);
+        const char* weakdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 1, rsymbol);
+        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, globdefver, weakdefver)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }

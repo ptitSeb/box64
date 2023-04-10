@@ -964,7 +964,7 @@ static void my_gtk_builder_connect_signals_custom(void* builder,
 
     uintptr_t offs = 0;
     uintptr_t end = 0;
-    GetGlobalSymbolStartEnd(my_context->maplib, handler_name, &offs, &end, NULL, -1, NULL);
+    GetGlobalSymbolStartEnd(my_context->maplib, handler_name, &offs, &end, NULL, -1, NULL, NULL, NULL);
     if(!offs) {
         if (args->module == NULL)
             args->my->g_log("Gtk", 1<<2 ,"gtk_builder_connect_signals() requires working GModule");
