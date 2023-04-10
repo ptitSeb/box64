@@ -61,7 +61,7 @@ brick_t* NewBrick(void* old)
         printf_log(LOG_NONE, "Warning, cannot allocate 0x%lx aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
     }
     #ifdef DYNAREC
-    setProtection((uintptr_t)ptr, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC | PROT_NOPROT);
+    setProtection((uintptr_t)ptr, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC | PROT_NOPROT | PROT_MMAP);
     #endif
     dynarec_log(LOG_INFO, "New Bridge brick at %p (size 0x%zx)\n", ptr, NBRICK*sizeof(onebridge_t));
     ret->b = ptr;
@@ -85,6 +85,7 @@ void FreeBridge(bridge_t** bridge)
     x64emu_t* emu = thread_get_emu();
     while(b) {
         brick_t *n = b->next;
+        dynarec_log(LOG_INFO, "FreeBridge brick at %p (size 0x%zx)\n", b->b, NBRICK*sizeof(onebridge_t));
         my_munmap(emu, b->b, NBRICK*sizeof(onebridge_t));
         box_free(b);
         b = n;

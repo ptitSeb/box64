@@ -213,6 +213,8 @@ void print_cycle_log(int loglevel);
 
 // return the index of the added header
 int AddElfHeader(box64context_t* ctx, elfheader_t* head);
+// remove an elf from list (but list is never reduced, so there can be holes)
+void RemoveElfHeader(box64context_t* ctx, elfheader_t* head);
 
 // return the tlsbase (negative) for the new TLS partition created (no partition index is stored in the context)
 int AddTLSPartition(box64context_t* context, int tlssize);

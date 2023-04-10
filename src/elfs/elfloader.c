@@ -77,12 +77,9 @@ void FreeElfHeader(elfheader_t** head)
     if(!head || !*head)
         return;
     elfheader_t *h = *head;
-#ifdef DYNAREC
-    /*if(h->text) {
-        dynarec_log(LOG_INFO, "Free Dynarec block for %s\n", h->path);
-        cleanDBFromAddressRange(my_context, h->text, h->textsz, 1);
-    }*/ // will be free at the end, no need to free it now
-#endif
+    if(my_context)
+        RemoveElfHeader(my_context, h);
+
     box_free(h->name);
     box_free(h->path);
     box_free(h->PHEntries);
@@ -311,6 +308,7 @@ void FreeElfMemory(elfheader_t* head)
     if(head->multiblock_n) {
         for(int i=0; i<head->multiblock_n; ++i) {
 #ifdef DYNAREC
+            dynarec_log(LOG_INFO, "Free DynaBlocks for %s\n", head->path);
             cleanDBFromAddressRange((uintptr_t)head->multiblock[i], head->multiblock_size[i], 1);
 #endif
             munmap(head->multiblock[i], head->multiblock_size[i]);
@@ -1333,7 +1331,7 @@ void RunDeferredElfInit(x64emu_t *emu)
 
 void RunElfFini(elfheader_t* h, x64emu_t *emu)
 {
-    if(!h || h->fini_done)
+    if(!h || h->fini_done || !h->init_done)
         return;
     h->fini_done = 1;
     // first check fini array
@@ -1350,7 +1348,7 @@ void RunElfFini(elfheader_t* h, x64emu_t *emu)
     }
     h->init_done = 0;   // can be re-inited again...
     for(int i=0; i<h->needed->size; ++i)
-        FiniLibrary(h->needed->libs[i], emu);
+        DecRefCount(&h->needed->libs[i], emu);
     return;
 }
 
@@ -1506,17 +1504,17 @@ void* GetDTatOffset(box64context_t* context, unsigned long int index, unsigned l
 
 int32_t GetTLSBase(elfheader_t* h)
 {
-    return h->tlsbase;
+    return h?h->tlsbase:0;
 }
 
 uint32_t GetTLSSize(elfheader_t* h)
 {
-    return h->tlssize;
+    return h?h->tlssize:0;
 }
 
 void* GetTLSPointer(box64context_t* context, elfheader_t* h)
 {
-    if(!h->tlssize)
+    if(!h || !h->tlssize)
         return NULL;
     tlsdatasize_t* ptr = getTLSData(context);
     return ptr->data+h->tlsbase;
@@ -1607,13 +1605,15 @@ EXPORT int my_dl_iterate_phdr(x64emu_t *emu, void* F, void *data) {
     const char* empty = "";
     int ret = 0;
     for (int idx=0; idx<context->elfsize; ++idx) {
-        my_dl_phdr_info_t info;
-        info.dlpi_addr = GetElfDelta(context->elfs[idx]);
-        info.dlpi_name = idx?context->elfs[idx]->name:empty;    //1st elf is program, and this one doesn't get a name
-        info.dlpi_phdr = context->elfs[idx]->PHEntries;
-        info.dlpi_phnum = context->elfs[idx]->numPHEntries;
-        if((ret = dl_iterate_phdr_callback(emu, F, &info, sizeof(info), data))) {
-            return ret;
+        if(context->elfs[idx]) {
+            my_dl_phdr_info_t info;
+            info.dlpi_addr = GetElfDelta(context->elfs[idx]);
+            info.dlpi_name = idx?context->elfs[idx]->name:empty;    //1st elf is program, and this one doesn't get a name
+            info.dlpi_phdr = context->elfs[idx]->PHEntries;
+            info.dlpi_phnum = context->elfs[idx]->numPHEntries;
+            if((ret = dl_iterate_phdr_callback(emu, F, &info, sizeof(info), data))) {
+                return ret;
+            }
         }
     }
     // and now, go on native version

@@ -339,7 +339,9 @@ int my_dlclose(x64emu_t* emu, void *handle)
         return -1;
     }
     dl->count[nlib] = dl->count[nlib]-1;
-    FiniLibrary(dl->libs[nlib], emu);
+    if(!DecRefCount(&dl->libs[nlib], emu)) {
+        dl->count[nlib] = 0;
+    }
     return 0;
 }
 int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)

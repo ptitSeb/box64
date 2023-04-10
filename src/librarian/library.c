@@ -416,7 +416,6 @@ int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x64emu_t* emu)
 {
     (void)emu;
 
-    lib->active = 1;
     if(lib->type==LIB_EMULATED) {
         elfheader_t *elf_header = lib->e.elf;
         // add symbols
@@ -465,7 +464,6 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x64emu_t* 
 
 int ReloadLibrary(library_t* lib, x64emu_t* emu)
 {
-    lib->active = 1;
     if(lib->type==LIB_EMULATED) {
         elfheader_t *elf_header = lib->e.elf;
         // reload image in memory and re-run the mapping
@@ -510,32 +508,30 @@ int ReloadLibrary(library_t* lib, x64emu_t* emu)
 
 int FiniLibrary(library_t* lib, x64emu_t* emu)
 {
-    if(!lib->active)
-        return 0;   // nothing to do
     switch (lib->type) {
         case LIB_WRAPPED:
-            if(!--lib->w.refcnt)
-                lib->active = 0;
             return 0;
         case LIB_EMULATED:
-            if(!--lib->e.elf->refcnt) {
-                if(emu)
-                    RunElfFini(lib->e.elf, emu);
-                lib->active = 0;
-            }
+            RunElfFini(lib->e.elf, emu);
             return 0;
     }
     return 1;   // bad type
 }
 
-void InactiveLibrary(library_t* lib)
-{
-    lib->active = 0;
-}
-
 void Free1Library(library_t **lib, x64emu_t* emu)
 {
     if(!(*lib)) return;
+
+    printf_log(LOG_DEBUG, "Free1Library %s\n", (*lib)->name);
+    // remove lib from maplib/local_maplib...
+    if(my_context) {
+        MapLibRemoveLib(my_context->maplib, *lib);
+        MapLibRemoveLib(my_context->local_maplib, *lib);
+    }
+    // free elf is relevant
+    if((*lib)->type==LIB_EMULATED) {
+        FreeElfHeader(&(*lib)->e.elf);
+    }
 
     // No "Fini" logic here, only memory handling
     if((*lib)->maplib)
@@ -624,7 +620,7 @@ int IsSameLib(library_t* lib, const char* path)
 }
 int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local, const char* defver)
 {
-    if(!name[0] || !lib->active)
+    if(!name[0])
         return 0;
     khint_t k;
     // get a new symbol
@@ -651,7 +647,7 @@ int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start,
 }
 int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local, const char* defver)
 {
-    if(!name[0] || !lib || !lib->active)
+    if(!name[0] || !lib)
         return 0;
     khint_t k;
     // get a new symbol
@@ -678,7 +674,7 @@ int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* star
 }
 int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local, const char* defver)
 {
-    if(!name[0] || !lib->active)
+    if(!name[0])
         return 0;
     khint_t k;
     // get a new symbol
@@ -907,8 +903,6 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
 
 int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int* weak, int version, const char* vername, int local)
 {
-    if(!lib->active)
-        return 0;
     if(version==-2) // don't send global native symbol for a version==-2 search
         return 0;
     // check in datamaps (but no version, it's not handled there)
@@ -1063,13 +1057,54 @@ void IncRefCount(library_t* lib, x64emu_t* emu)
 {
     if(lib->type==LIB_UNNKNOW)
         return;
-    if(!lib->active)
-        ReloadLibrary(lib, emu);
     switch (lib->type) {
         case LIB_WRAPPED:
             ++lib->w.refcnt;
             break;
         case LIB_EMULATED:
             ++lib->e.elf->refcnt;
+    }
+}
+
+int DecRefCount(library_t** lib, x64emu_t* emu)
+{
+    if(!lib || !*lib)
+        return 0;
+    if((*lib)->type==LIB_UNNKNOW)
+        return 0;
+    int ret = 0;
+    switch ((*lib)->type) {
+        case LIB_WRAPPED:
+            if(!(ret=--(*lib)->w.refcnt)) {
+                if((*lib)->w.needed)
+                    for(int i=0; i<(*lib)->w.needed->size; ++i)
+                        DecRefCount(&(*lib)->w.needed->libs[i], emu);
+                Free1Library(lib, emu);
+            }
+            break;
+        case LIB_EMULATED:
+            if(!(ret=--(*lib)->e.elf->refcnt)) {
+                if((*lib)->e.elf->needed)
+                    for(int i=0; i<(*lib)->e.elf->needed->size; ++i)
+                        DecRefCount(&(*lib)->e.elf->needed->libs[i], emu);
+                removeLinkMapLib(*lib);
+                FiniLibrary(*lib, emu);
+                Free1Library(lib, emu);
+            }
+            break;
+    }
+    return ret;
+}
+
+int GetRefCount(library_t* lib)
+{
+    switch (lib->type) {
+        case LIB_WRAPPED:
+            return lib->w.refcnt;
+            break;
+        case LIB_EMULATED:
+            return lib->e.elf->refcnt;
+        default:
+            return 0;
     }
 }

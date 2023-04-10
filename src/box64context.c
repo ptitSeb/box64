@@ -338,20 +338,44 @@ void FreeBox64Context(box64context_t** context)
 }
 
 int AddElfHeader(box64context_t* ctx, elfheader_t* head) {
-    int idx = ctx->elfsize;
-    if(idx==ctx->elfcap) {
-        // resize...
-        ctx->elfcap += 16;
-        ctx->elfs = (elfheader_t**)box_realloc(ctx->elfs, sizeof(elfheader_t*) * ctx->elfcap);
+    int idx = 0;
+    while(idx<ctx->elfsize && ctx->elfs[idx]) idx++;
+    if(idx == ctx->elfsize) {
+        if(idx==ctx->elfcap) {
+            // resize...
+            ctx->elfcap += 16;
+            ctx->elfs = (elfheader_t**)box_realloc(ctx->elfs, sizeof(elfheader_t*) * ctx->elfcap);
+        }
+        ctx->elfs[idx] = head;
+        ctx->elfsize++;
+    } else {
+        ctx->elfs[idx] = head;
     }
-    ctx->elfs[idx] = head;
-    ctx->elfsize++;
     printf_log(LOG_DEBUG, "Adding \"%s\" as #%d in elf collection\n", ElfName(head), idx);
     return idx;
 }
 
+void RemoveElfHeader(box64context_t* ctx, elfheader_t* head) {
+    if(GetTLSBase(head)) {
+        // should remove the tls info
+        int tlsbase = GetTLSBase(head);
+        if(tlsbase == -ctx->tlssize) {
+            // not really correct, but will do for now
+            ctx->tlssize -= GetTLSSize(head);
+            if(!(++ctx->sel_serial))
+                ++ctx->sel_serial;
+        }
+    }
+    for(int i=0; i<ctx->elfsize; ++i)
+        if(ctx->elfs[i] == head) {
+            ctx->elfs[i] = NULL;
+            return;
+        }
+}
+
 int AddTLSPartition(box64context_t* context, int tlssize) {
     int oldsize = context->tlssize;
+    // should in fact first try to map a hole, but rewinding all elfs and checking filled space, like with the mapmem utilities
     context->tlssize += tlssize;
     context->tlsdata = box_realloc(context->tlsdata, context->tlssize);
     memmove(context->tlsdata+tlssize, context->tlsdata, oldsize);   // move to the top, using memmove as regions will probably overlap
