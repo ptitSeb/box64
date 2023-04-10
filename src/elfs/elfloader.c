@@ -305,8 +305,12 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 void FreeElfMemory(elfheader_t* head)
 {
     if(head->multiblock_n) {
-        for(int i=0; i<head->multiblock_n; ++i)
+        for(int i=0; i<head->multiblock_n; ++i) {
+#ifdef DYNAREC
+            cleanDBFromAddressRange((uintptr_t)head->multiblock[i], head->multiblock_size[i], 1);
+#endif
             munmap(head->multiblock[i], head->multiblock_size[i]);
+        }
         box_free(head->multiblock);
         box_free(head->multiblock_size);
         box_free(head->multiblock_offs);
