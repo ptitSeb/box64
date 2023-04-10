@@ -2201,6 +2201,7 @@ void pFEpppppiiV(x64emu_t *emu, uintptr_t fnc);
 void pFEpppppppi(x64emu_t *emu, uintptr_t fnc);
 void pFEpppppppp(x64emu_t *emu, uintptr_t fnc);
 void pFpiiiiuuuu(x64emu_t *emu, uintptr_t fnc);
+void pFpiiCpWWup(x64emu_t *emu, uintptr_t fnc);
 void pFpCuWCCuuu(x64emu_t *emu, uintptr_t fnc);
 void pFpuuwwWWww(x64emu_t *emu, uintptr_t fnc);
 void pFpupuuuuup(x64emu_t *emu, uintptr_t fnc);

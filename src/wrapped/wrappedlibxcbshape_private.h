@@ -4,11 +4,11 @@
 
 GO(xcb_shape_combine, pFpuuupwwp)
 GO(xcb_shape_combine_checked, pFpuuupwwp)
-//GO(xcb_shape_get_rectangles, 
-//GO(xcb_shape_get_rectangles_rectangles, 
+GO(xcb_shape_get_rectangles, pFppi)
+GO(xcb_shape_get_rectangles_rectangles, pFp)
 //GO(xcb_shape_get_rectangles_rectangles_iterator, 
-//GO(xcb_shape_get_rectangles_rectangles_length, 
-//GO(xcb_shape_get_rectangles_reply, 
+GO(xcb_shape_get_rectangles_rectangles_length, iFp)
+GO(xcb_shape_get_rectangles_reply, pFpup)
 //GO(xcb_shape_get_rectangles_sizeof, 
 //GO(xcb_shape_get_rectangles_unchecked, 
 DATA(xcb_shape_id, 8)
@@ -29,7 +29,7 @@ GO(xcb_shape_mask_checked, pFpuuuwwu)
 GO(xcb_shape_query_version, pFp)
 GO(xcb_shape_query_version_reply, pFppp)
 GO(xcb_shape_query_version_unchecked, pFp)
-//GO(xcb_shape_rectangles, 
+GO(xcb_shape_rectangles, pFpiiCpWWup)
 //GO(xcb_shape_rectangles_checked, 
 //GO(xcb_shape_rectangles_rectangles, 
 //GO(xcb_shape_rectangles_rectangles_iterator, 

@@ -217,7 +217,7 @@ DATA(xcb_randr_id, 8)
 //GO(xcb_randr_list_provider_properties_unchecked, 
 //GO(xcb_randr_mode_end, 
 //GO(xcb_randr_mode_info_end, 
-//GO(xcb_randr_mode_info_next, 
+GO(xcb_randr_mode_info_next, vFp)
 //GO(xcb_randr_mode_next, 
 //GO(xcb_randr_monitor_info_end, 
 //GO(xcb_randr_monitor_info_next, 

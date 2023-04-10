@@ -622,7 +622,7 @@ GO(xcb_setup_roots_length, iFp)
 //GO(xcb_str_name_end, 
 //GO(xcb_str_name_length, 
 //GO(xcb_str_next, 
-//GO(xcb_str_sizeof, 
+GO(xcb_str_sizeof, iFp)
 //GO(xcb_sumof, 
 //GO(xcb_take_socket, 
 //GO(xcb_timecoord_end, 
