@@ -185,7 +185,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MARKLOCK;
                         LRxw(x1, wback, 1, 1);
                         if (i64>=-2048 && i64<2048) {
-                            ORI(x4, x1, -i64);
+                            ORI(x4, x1, i64);
                         } else {
                             MOV64xw(x4, i64);
                             OR(x4, x1, x4);
@@ -214,7 +214,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MARKLOCK;
                         LRxw(x1, wback, 1, 1);
                         if (i64>=-2048 && i64<2048) {
-                            ANDI(x4, x1, -i64);
+                            ANDI(x4, x1, i64);
                         } else {
                             MOV64xw(x4, i64);
                             AND(x4, x1, x4);
