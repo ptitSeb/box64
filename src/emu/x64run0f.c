@@ -876,13 +876,13 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             if(!MODREG)
             {
                 #ifdef TEST_INTERPRETER
-                test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:2)));
+                test->memaddr=((test->memaddr)+(tmp64s<<(rex.w?3:2)));
                 if(rex.w)
                     *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
                 else
                     *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
                 #else
-                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
                 #endif
             }
             if(rex.w) {
@@ -1022,13 +1022,13 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             if(!MODREG)
             {
                 #ifdef TEST_INTERPRETER
-                test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:2)));
+                test->memaddr=((test->memaddr)+(tmp64s<<(rex.w?3:2)));
                 if(rex.w)
                     *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
                 else
                     *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
                 #else
-                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
                 #endif
             }
             if(rex.w) {
@@ -1160,13 +1160,13 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             if(!MODREG)
             {
                 #ifdef TEST_INTERPRETER
-                test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:2)));
+                test->memaddr=((test->memaddr)+(tmp64s<<(rex.w?3:2)));
                 if(rex.w)
                     *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
                 else
                     *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
                 #else
-                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp32s<<(rex.w?3:2)));
+                ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
                 #endif
             }
             if(rex.w) {
