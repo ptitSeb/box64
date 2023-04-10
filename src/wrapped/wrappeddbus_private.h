@@ -179,21 +179,21 @@ GOM(dbus_pending_call_set_notify, iFEpppp)
 GO(dbus_pending_call_steal_reply, pFp)
 GO(dbus_pending_call_unref, vFp)
 GO(dbus_realloc, pFpL)
-//GO(dbus_server_allocate_data_slot, 
-//GO(dbus_server_disconnect, 
-//GO(dbus_server_free_data_slot, 
-//GO(dbus_server_get_address, 
+GO(dbus_server_allocate_data_slot, iFp)
+GO(dbus_server_disconnect, vFp)
+GO(dbus_server_free_data_slot, vFp)
+GO(dbus_server_get_address, pFp)
 //GO(dbus_server_get_data, 
 //GO(dbus_server_get_id, 
-//GO(dbus_server_get_is_connected, 
-//GO(dbus_server_listen, 
+GO(dbus_server_get_is_connected, iFp)
+GO(dbus_server_listen, pFpp)
 //GO(dbus_server_ref, 
 //GO(dbus_server_set_auth_mechanisms, 
-//GO(dbus_server_set_data, 
-//GO(dbus_server_set_new_connection_function, 
-//GO(dbus_server_set_timeout_functions, 
-//GO(dbus_server_set_watch_functions, 
-//GO(dbus_server_unref, 
+GOM(dbus_server_set_data, iFEpipp)
+GOM(dbus_server_set_new_connection_function, vFEpppp)
+GOM(dbus_server_set_timeout_functions, iFEpppppp)
+GOM(dbus_server_set_watch_functions, iFEpppppp)
+GO(dbus_server_unref, vFp)
 GO(dbus_set_error, vFpppppppppp)    //vaarg
 GO(dbus_set_error_const, vFppp)
 GO(dbus_set_error_from_message, iFpp)

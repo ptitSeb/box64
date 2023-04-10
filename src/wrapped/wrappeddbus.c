@@ -349,6 +349,31 @@ static void* finddbus_internal_padFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for dbus dbus_internal_pad callback\n");
     return NULL;
 }
+
+// DBusNewConnectionFunction
+#define GO(A)   \
+static uintptr_t my_DBusNewConnectionFunction_fct_##A = 0;                      \
+static void my_DBusNewConnectionFunction_##A(void* a, void* b, void* c)         \
+{                                                                               \
+    RunFunction(my_context, my_DBusNewConnectionFunction_fct_##A, 3, a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* findDBusNewConnectionFunctionFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DBusNewConnectionFunction_fct_##A == (uintptr_t)fct) return my_DBusNewConnectionFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusNewConnectionFunction_fct_##A == 0) {my_DBusNewConnectionFunction_fct_##A = (uintptr_t)fct; return my_DBusNewConnectionFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus DBusNewConnectionFunction callback\n");
+    return NULL;
+}
+
+
 #undef SUPER
 
 EXPORT void my_dbus_timeout_set_data(x64emu_t* emu, void* e, void* p, void* f)
@@ -563,7 +588,25 @@ EXPORT int my_dbus_connection_try_register_fallback(x64emu_t* emu, void* connect
     return my->dbus_connection_try_register_fallback(connection, path, vtable?&vt:NULL, data, error);
 }
 
+EXPORT int my_dbus_server_set_watch_functions(x64emu_t* emu, void* server, void* add, void* rem, void* toggle, void* data, void* d)
+{
+    return my->dbus_server_set_watch_functions(server, findDBusAddWatchFunctionFct(add), findDBusRemoveWatchFunctionFct(rem), findDBusWatchToggledFunctionFct(toggle), data, find_DBusFreeFunction_Fct(d));
+}
 
+EXPORT void my_dbus_server_set_new_connection_function(x64emu_t* emu, void* server, void* f, void* data, void* d)
+{
+    my->dbus_server_set_new_connection_function(server, findDBusNewConnectionFunctionFct(f), data, find_DBusFreeFunction_Fct(d));
+}
+
+EXPORT int my_dbus_server_set_timeout_functions(x64emu_t* emu, void* server, void* add, void* rem, void* toggle, void* data, void* d)
+{
+    return my->dbus_server_set_timeout_functions(server, find_DBusAddTimeoutFunction_Fct(add), find_DBusRemoveTimeoutFunction_Fct(rem), find_DBusTimeoutToggledFunction_Fct(toggle), data, find_DBusFreeFunction_Fct(d));
+}
+
+EXPORT int my_dbus_server_set_data(x64emu_t* emu, void* server, int slot, void* data, void* d)
+{
+    return my->dbus_server_set_data(server, slot, data, find_DBusFreeFunction_Fct(d));
+}
 
 #define CUSTOM_INIT \
     getMy(lib);

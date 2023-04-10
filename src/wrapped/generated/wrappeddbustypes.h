@@ -30,9 +30,11 @@ typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 	GO(dbus_message_append_args_valist, iFpiA_t) \
 	GO(dbus_connection_set_dispatch_status_function, vFpppp_t) \
 	GO(dbus_connection_set_wakeup_main_function, vFpppp_t) \
+	GO(dbus_server_set_new_connection_function, vFpppp_t) \
 	GO(dbus_connection_set_data, iFpipp_t) \
 	GO(dbus_message_set_data, iFpipp_t) \
 	GO(dbus_pending_call_set_data, iFpipp_t) \
+	GO(dbus_server_set_data, iFpipp_t) \
 	GO(dbus_message_get_args, iFppip_t) \
 	GO(dbus_message_get_args_valist, iFppiA_t) \
 	GO(dbus_connection_add_filter, iFpppp_t) \
@@ -40,6 +42,8 @@ typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 	GO(dbus_connection_try_register_fallback, iFppppp_t) \
 	GO(dbus_connection_try_register_object_path, iFppppp_t) \
 	GO(dbus_connection_set_timeout_functions, iFpppppp_t) \
-	GO(dbus_connection_set_watch_functions, iFpppppp_t)
+	GO(dbus_connection_set_watch_functions, iFpppppp_t) \
+	GO(dbus_server_set_timeout_functions, iFpppppp_t) \
+	GO(dbus_server_set_watch_functions, iFpppppp_t)
 
 #endif // __wrappeddbusTYPES_H_

@@ -2510,10 +2510,12 @@ wrappeddbus:
 - vFpppp:
   - dbus_connection_set_dispatch_status_function
   - dbus_connection_set_wakeup_main_function
+  - dbus_server_set_new_connection_function
 - iFpipp:
   - dbus_connection_set_data
   - dbus_message_set_data
   - dbus_pending_call_set_data
+  - dbus_server_set_data
 - iFppip:
   - dbus_message_get_args
 - iFppiA:
@@ -2527,6 +2529,8 @@ wrappeddbus:
 - iFpppppp:
   - dbus_connection_set_timeout_functions
   - dbus_connection_set_watch_functions
+  - dbus_server_set_timeout_functions
+  - dbus_server_set_watch_functions
 wrappeddbusglib1:
 - vFppp:
   - dbus_g_type_collection_value_iterate
