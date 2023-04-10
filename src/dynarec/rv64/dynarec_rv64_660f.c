@@ -250,31 +250,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x1, 0);
             GETGX(x2);
             ADDI(x5, xZR, 0xFF);
+            for(int i=0; i<8; ++i) {
+                // GX->ub[i] = (GX->sw[i]<0)?0:((GX->sw[i]>0xff)?0xff:GX->sw[i]);
+                LH(x3, gback, i*2);
+                BGE(x5, x3, 8);
+                ADDI(x3, xZR, 0xFF);
+                NOT(x4, x3);
+                SRAI(x4, x4, 63);
+                AND(x3, x3, x4);
+                SB(x3, gback, i);
+            }
             if (MODREG && (ed==gd)) {
-                for(int i=0; i<8; ++i) {
-                    // GX->ub[i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
-                    LH(x3, wback, fixedaddress+i*2);
-                    BGE(x5, x3, 8);
-                    ADDI(x3, xZR, 0xFF);
-                    NOT(x4, x3);
-                    SRAI(x4, x4, 63);
-                    AND(x3, x3, x4);
-                    SB(x3, gback, i);
-                }
                 // GX->q[1] = GX->q[0];
                 LD(x3, gback, 0*8);
                 SD(x3, gback, 1*8);
             } else {
-                for(int i=0; i<8; ++i) {
-                    // GX->ub[i] = (GX->sw[i]<0)?0:((GX->sw[i]>0xff)?0xff:GX->sw[i]);
-                    LH(x3, gback, i*2);
-                    BGE(x5, x3, 8);
-                    ADDI(x3, xZR, 0xFF);
-                    NOT(x4, x3);
-                    SRAI(x4, x4, 63);
-                    AND(x3, x3, x4);
-                    SB(x3, gback, i);
-                }
                 for(int i=0; i<8; ++i) {
                     // GX->ub[8+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
                     LH(x3, wback, fixedaddress+i*2);
@@ -329,6 +319,38 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (!(MODREG && (gd==ed))) {
                 LWU(x3, wback, fixedaddress+3*4);
                 SW(x3, gback, 3*4);
+            }
+            break;
+        case 0x6B:
+            INST_NAME("PACKSSDW Gx,Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            MOV64x(x5, 32768);
+            NEG(x6, x5);
+            for(int i=0; i<4; ++i) {
+                // GX->sw[i] = (GX->sd[i]<-32768)?-32768:((GX->sd[i]>32767)?32767:GX->sd[i]);
+                LW(x3, gback, i*4);
+                BGE(x5, x3, 8);
+                ADDI(x3, x5, -1);
+                BGE(x3, x6, 8);
+                MV(x3, x6);
+                SH(x3, gback, i*2);
+            }
+            if (MODREG && (ed==gd)) {
+                // GX->q[1] = GX->q[0];
+                LD(x3, gback, 0*8);
+                SD(x3, gback, 1*8);
+            } else {
+                for(int i=0; i<4; ++i) {
+                    // GX->sw[4+i] = (EX->sd[i]<-32768)?-32768:((EX->sd[i]>32767)?32767:EX->sd[i]);
+                    LW(x3, wback, fixedaddress+i*4);
+                    BGE(x5, x3, 8);
+                    ADDI(x3, x5, -1);
+                    BGE(x3, x6, 8);
+                    MV(x3, x6);
+                    SH(x3, gback, (4+i)*2);
+                }
             }
             break;
         case 0x6C:
