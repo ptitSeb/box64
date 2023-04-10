@@ -426,6 +426,17 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITE();
             }
             break;
+        case 0xAC:
+            nextop = F8;
+            INST_NAME("SHRD Ed, Gd, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            GETED(1);
+            GETGD;
+            u8 = F8;
+            u8&=(rex.w?0x3f:0x1f);
+            emit_shrd32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
+            WBACK;
+            break;
         case 0xAE:
             nextop = F8;
             if((nextop&0xF8)==0xE8) {
