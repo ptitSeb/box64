@@ -538,6 +538,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MOV64xw(x3, (1LL << u8));
                         XOR(ed, ed, x3);
                     }
+                    if(wback) {
+                        SDxw(ed, wback, fixedaddress);
+                        SMWRITE();
+                    }
                     break;
                 default:
                     DEFAULT;
