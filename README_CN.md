@@ -1,12 +1,12 @@
 # box64
 
-![Official logo](img/Box64Logo.png "Official Logo")
+![Official logo](docs/img/Box64Logo.png "Official Logo")
 Linux 上用户空间的 x86_64 应用模拟器（支持运行原生库）
 
 ----
 ![box64 build status](https://app.travis-ci.com/ptitSeb/box64.svg?branch=main)
 
-[English](README.md)
+[English](docs/README.md)
 
 Box64 可以在非 x86_64 Linux 系统（比如 ARM64）上运行 x86_64 Linux 程序（比如游戏），注意主机系统需要是 64 位小端。
 
@@ -18,7 +18,7 @@ Box64 集成了适用于 ARM64 平台的 DynaRec（动态重编译器），速�
 
 一些 x64 内部操作码使用 “Realmode X86 Emulator Library” 的部分内容，有关版权详细信息，请参见 [x64primop.c](../src/emu/x64primop.c)。
 
-<img src="img/Box64Icon.png" width="96" height="96">
+<img src="docs/img/Box64Icon.png" width="96" height="96">
 
 LOGO 由 @grayduck 制作，感谢！
 
@@ -29,7 +29,7 @@ LOGO 由 @grayduck 制作，感谢！
 
 有若干环境变量可以控制 Box64 的行为。
 
-可在[这里](USAGE.md)查看所有环境变量及其作用。
+可在[这里](docs/USAGE.md)查看所有环境变量及其作用。
 
 注意：Box64 的 Dynarec 使用具有内存保护和段错误信号处理的机制来执行 JIT 代码。所以，如果想使用 GDB 调试使用 JIT 代码的程序（如 Mono/Unity3D），这会触发许多“正常”的段错误。建议在 GDB 中使用类似 `handle SIGSEGV nostop` 来防止它每个段错误处停止。如果你想捕获段错误，可以在 `signals.c` 的 `my_memprotectionhandler` 中设置断点。
 
@@ -38,14 +38,14 @@ LOGO 由 @grayduck 制作，感谢！
 编译/安装
 ----
 
-编译说明可以在[这里](COMPILE.md)查看。
+编译说明可以在[这里](docs/COMPILE.md)查看。
 
 ----
 
 版本历史
 ----
 
-版本日志在[这里](CHANGELOG.md)。
+版本日志在[这里](docs/CHANGELOG.md)。
 
 ----
 
