@@ -307,6 +307,51 @@ void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
 }
 
+// emit ROL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
+{
+    IFX(X_CF) {
+        ANDI(xFlags, xFlags, ~(1UL<<F_CF));
+    }
+
+    IFX(X_PEND) {
+        MOV32w(s3, c);
+        SDxw(s3, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, rex.w?d_rol64:d_rol32);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+    if(!c) {
+        IFX(X_PEND) {
+            SDxw(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+    SLLI(s3, s1, c);
+    if (!rex.w) {
+        AND(s3, xMASK, s3);
+    }
+    SRLI(s1, s1, (rex.w?64:32)-c);
+    OR(s1, s3, s1);
+    IFX(X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_CF) {
+        // F_CF=0
+        ANDI(s4, s1, 1);
+        OR(xFlags, xFlags, s4);
+    }
+    IFX(X_OF) {
+        if(c==1) {
+            SRLIxw(s3, s1, rex.w?63:31);
+            XOR(s3, s3, s1);
+            ANDI(s3, s3, 1);
+            SLLI(s3, s3, F_OF2);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+}
+
 // emit SHRD32 instruction, from s1, fill s2 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4)
 {
