@@ -390,11 +390,12 @@ void emit_sub8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     }
 
     SUB(s1, s1, s2);
+    ANDI(s1, s1, 0xff);
     IFX(X_SF) {
-        BGE(s1, xZR, 8);
+        SRLI(s3, s1, 7);
+        BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    ANDI(s1, s1, 0xff);
     IFX(X_PEND) {
         SB(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -436,11 +437,11 @@ void emit_sub16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
     }
+    SLLI(s1, s1, 48);
     IFX(X_SF) {
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    SLLI(s1, s1, 48);
     SRLI(s1, s1, 48);
 
     CALC_SUB_FLAGS(s5, s2, s1, s3, s4, 16);
