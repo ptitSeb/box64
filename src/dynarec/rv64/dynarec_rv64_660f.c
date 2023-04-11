@@ -201,10 +201,22 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x59:
             INST_NAME("MULPD Gx, Ex");
             nextop = F8;
-            //TODO: fastnan handling
             GETEX(x1, 0);
             GETGX(x2);
-            SSE_LOOP_FQ(x3, x4, FMULD(v0, v0, v1));
+            SSE_LOOP_FQ(x3, x4, {
+                if(!box64_dynarec_fastnan) {
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                }
+                FMULD(v0, v0, v1);
+                if(!box64_dynarec_fastnan) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQD(x3, v0, v0);
+                    BNEZ(x3, 8);
+                    FNEGD(v0, v0);
+                }
+            });
             break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");
