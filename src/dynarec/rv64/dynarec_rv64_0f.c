@@ -268,12 +268,38 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
+        case 0x50:
+            INST_NAME("MOVMSKPS Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEX(x1, 0);
+            XOR(gd, gd, gd);
+            for(int i=0; i<4; ++i) {
+                LWU(x2, wback, fixedaddress+i*4);
+                SRLI(x2, x2, 31-i);
+                if (i>0) ANDI(x2, x2, 1<<i);
+                OR(gd, gd, x2);
+            }
+            break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
             nextop = F8;
-            GETEX(x1, 0);
-            GETGX(x2);
-            SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
+            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            if(!(MODREG && gd==(nextop&7)+(rex.b<<3))) {
+                GETGX(x1);
+                GETEX(x2, 0);
+                SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
+            }
+            break;
+        case 0x56:
+            INST_NAME("ORPS Gx, Ex");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            if(!(MODREG && gd==(nextop&7)+(rex.b<<3))) {
+                GETGX(x1);
+                GETEX(x2, 0);
+                SSE_LOOP_Q(x3, x4, OR(x3, x3, x4));
+            }
             break;
         case 0x57:
             INST_NAME("XORPS Gx, Ex");

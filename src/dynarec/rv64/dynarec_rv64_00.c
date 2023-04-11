@@ -250,6 +250,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i64 = F32S;
             emit_and32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
+        case 0x28:
+            INST_NAME("SUB Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_sub8(dyn, ninst, x1, x2, x4, x5, x6);
+            EBBACK(x5, 0);
+            break;
         case 0x29:
             INST_NAME("SUB Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
