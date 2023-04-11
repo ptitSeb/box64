@@ -535,7 +535,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LD(x4, wback, fixedaddress+8);
                         SRLI(x3, x3, u8);
                         SRLI(x4, x4, u8);
-                        SD(x3, wback, fixedaddress+8);
+                        SD(x3, wback, fixedaddress+0);
                         SD(x4, wback, fixedaddress+8);
                     }
                     break;
@@ -581,7 +581,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LD(x4, wback, fixedaddress+8);
                         SLLI(x3, x3, u8);
                         SLLI(x4, x4, u8);
-                        SD(x3, wback, fixedaddress+8);
+                        SD(x3, wback, fixedaddress+0);
                         SD(x4, wback, fixedaddress+8);
                     }
                     break;
