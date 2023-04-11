@@ -63,7 +63,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             SMDMB();
-            if (MODREG) {
+            if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
             } else {
