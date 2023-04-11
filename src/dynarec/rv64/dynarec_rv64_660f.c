@@ -226,6 +226,30 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(x2);
             SSE_LOOP_FQ(x3, x4, FSUBD(v0, v0, v1));
             break;
+        case 0x60:
+            INST_NAME("PUNPCKLBW Gx,Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            for(int i=7; i>0; --i) { // 0 is untouched
+                // GX->ub[2 * i] = GX->ub[i];
+                LBU(x3, gback, i);
+                SB(x3, gback, 2*i);
+            }
+            if (MODREG && (ed==gd)) {
+                for(int i=0; i<8; ++i) {
+                    // GX->ub[2 * i + 1] = GX->ub[2 * i];
+                    LBU(x3, gback, 2*i);
+                    SB(x3, gback, 2*i+1);
+                }
+            } else {
+                for(int i=0; i<8; ++i) {
+                    // GX->ub[2 * i + 1] = EX->ub[i];
+                    LBU(x3, wback, fixedaddress+i);
+                    SB(x3, gback, 2*i+1);
+                }
+            }
+            break;
         case 0x61:
             INST_NAME("PUNPCKLWD Gx,Ex");
             nextop = F8;
