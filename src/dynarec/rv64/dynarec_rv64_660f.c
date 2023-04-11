@@ -198,6 +198,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(x2);
             SSE_LOOP_FQ(x3, x4, FADDD(v0, v0, v1));
             break;
+        case 0x59:
+            INST_NAME("MULPD Gx, Ex");
+            nextop = F8;
+            //TODO: fastnan handling
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_FQ(x3, x4, FMULD(v0, v0, v1));
+            break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");
             nextop = F8;
