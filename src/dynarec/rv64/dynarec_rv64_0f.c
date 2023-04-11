@@ -136,6 +136,33 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(!MODREG)
                 SMWRITE2();
             break;
+
+        case 0x14:
+            INST_NAME("UNPCKLPS Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LWU(x5, gback, 1*4);
+            LWU(x3, wback, fixedaddress+0);
+            LWU(x4, wback, fixedaddress+4);
+            SW(x4, gback, 3*4);
+            SW(x5, gback, 2*4);
+            SW(x3, gback, 1*4);
+            break;
+        case 0x15:
+            INST_NAME("UNPCKHPS Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LWU(x3, wback, fixedaddress+2*4);
+            LWU(x4, wback, fixedaddress+3*4);
+            LWU(x5, gback, 2*4);
+            LWU(x6, gback, 3*4);
+            SW(x5, gback, 0*4);
+            SW(x3, gback, 1*4);
+            SW(x6, gback, 2*4);
+            SW(x4, gback, 3*4);
+            break;
         case 0x16:
             nextop = F8;
             if(MODREG) {
