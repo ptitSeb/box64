@@ -1880,6 +1880,13 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             };
             break;
 
+        case 0xF9:
+            INST_NAME("STC");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE();
+            ORI(xFlags, xFlags, 1 << F_CF);
+            break;
+
         case 0xFF:
             nextop = F8;
             switch((nextop>>3)&7) {
