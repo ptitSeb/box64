@@ -229,20 +229,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x60:
             INST_NAME("PUNPCKLBW Gx,Ex");
             nextop = F8;
-            GETEX(x1, 0);
             GETGX(x2);
             for(int i=7; i>0; --i) { // 0 is untouched
                 // GX->ub[2 * i] = GX->ub[i];
                 LBU(x3, gback, i);
                 SB(x3, gback, 2*i);
             }
-            if (MODREG && (ed==gd)) {
+            if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
                 for(int i=0; i<8; ++i) {
                     // GX->ub[2 * i + 1] = GX->ub[2 * i];
                     LBU(x3, gback, 2*i);
                     SB(x3, gback, 2*i+1);
                 }
             } else {
+                GETEX(x1, 0);
                 for(int i=0; i<8; ++i) {
                     // GX->ub[2 * i + 1] = EX->ub[i];
                     LBU(x3, wback, fixedaddress+i);
@@ -253,20 +253,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x61:
             INST_NAME("PUNPCKLWD Gx,Ex");
             nextop = F8;
-            GETEX(x1, 0);
             GETGX(x2);
             for(int i=3; i>0; --i) {
                 // GX->uw[2 * i] = GX->uw[i];
                 LHU(x3, gback, i*2);
                 SH(x3, gback, 2*i*2);
             }
-            if (MODREG && (ed==gd)) {
+            if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
                 for(int i=0; i<4; ++i) {
                     // GX->uw[2 * i + 1] = GX->uw[2 * i];
                     LHU(x3, gback, 2*i*2);
                     SH(x3, gback, (2*i+1)*2);
                 }
             } else {
+                GETEX(x1, 0);
                 for(int i=0; i<4; ++i) {
                     // GX->uw[2 * i + 1] = EX->uw[i];
                     LHU(x3, wback, fixedaddress+i*2);
@@ -299,7 +299,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x67:
             INST_NAME("PACKUSWB Gx, Ex");
             nextop = F8;
-            GETEX(x1, 0);
             GETGX(x2);
             ADDI(x5, xZR, 0xFF);
             for(int i=0; i<8; ++i) {
@@ -312,11 +311,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 AND(x3, x3, x4);
                 SB(x3, gback, i);
             }
-            if (MODREG && (ed==gd)) {
+            if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
                 // GX->q[1] = GX->q[0];
                 LD(x3, gback, 0*8);
                 SD(x3, gback, 1*8);
             } else {
+                GETEX(x1, 0);
                 for(int i=0; i<8; ++i) {
                     // GX->ub[8+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
                     LH(x3, wback, fixedaddress+i*2);
@@ -332,20 +332,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x69:
             INST_NAME("PUNPCKHWD Gx,Ex");
             nextop = F8;
-            GETEX(x1, 0);
             GETGX(x2);
             for(int i=0; i<4; ++i) {
                 // GX->uw[2 * i] = GX->uw[i + 4];
                 LHU(x3, gback, (i+4)*2);
                 SH(x3, gback, 2*i*2);
             }
-            if (MODREG && (ed==gd)) {
+            if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
                 for(int i=0; i<4; ++i) {
                     // GX->uw[2 * i + 1] = GX->uw[2 * i];
                     LHU(x3, gback, 2*i*2);
                     SH(x3, gback, (2*i+1)*2);
                 }
             } else {
+                GETEX(x1, 0);
                 for(int i=0; i<4; ++i) {
                     // GX->uw[2 * i + 1] = EX->uw[i + 4];
                     LHU(x3, wback, fixedaddress+(i+4)*2);
@@ -376,7 +376,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x6B:
             INST_NAME("PACKSSDW Gx,Ex");
             nextop = F8;
-            GETEX(x1, 0);
             GETGX(x2);
             MOV64x(x5, 32768);
             NEG(x6, x5);
@@ -389,11 +388,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MV(x3, x6);
                 SH(x3, gback, i*2);
             }
-            if (MODREG && (ed==gd)) {
+            if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
                 // GX->q[1] = GX->q[0];
                 LD(x3, gback, 0*8);
                 SD(x3, gback, 1*8);
             } else {
+                GETEX(x1, 0);
                 for(int i=0; i<4; ++i) {
                     // GX->sw[4+i] = (EX->sd[i]<-32768)?-32768:((EX->sd[i]>32767)?32767:EX->sd[i]);
                     LW(x3, wback, fixedaddress+i*4);

@@ -270,9 +270,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
             nextop = F8;
-            GETEX(x1, 0);
-            GETGX(x2);
-            SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
+            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            if(!(MODREG && gd==(nextop&7)+(rex.b<<3))) {
+                GETGX(x1);
+                GETEX(x2, 0);
+                SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
+            }
+            break;
+        case 0x56:
+            INST_NAME("ORPS Gx, Ex");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            if(!(MODREG && gd==(nextop&7)+(rex.b<<3))) {
+                GETGX(x1);
+                GETEX(x2, 0);
+                SSE_LOOP_Q(x3, x4, OR(x3, x3, x4));
+            }
             break;
         case 0x57:
             INST_NAME("XORPS Gx, Ex");
