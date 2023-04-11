@@ -190,6 +190,21 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FNEGD(v0, v0);
             }
             break;
+        case 0x5F:
+            INST_NAME("MAXSD Gx, Ex");
+            nextop = F8;
+            GETGXSD(v0);
+            GETEXSD(v1, 0);
+            FEQD(x2, v0, v0);
+            FEQD(x3, v1, v1);
+            AND(x2, x2, x3);
+            BEQ_MARK(x2, xZR);
+            FLED(x2, v0, v1);
+            BEQ_MARK2(x2, xZR);
+            MARK;
+            FMVD(v0, v1);
+            MARK2;
+            break;
         case 0x70: // TODO: Optimize this!
             INST_NAME("PSHUFLW Gx, Ex, Ib");
             nextop = F8;
