@@ -474,6 +474,62 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SW(x5, gback, 2*4);
             SW(x6, gback, 3*4);
             break;
+        case 0x71:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLW Ex, Ib");
+                    GETEX(x1, 1);
+                    u8 = F8;
+                    if (u8>15) {
+                        // just zero dest
+                        SD(xZR, x1, fixedaddress+0);
+                        SD(xZR, x1, fixedaddress+8);
+                    } else if(u8) {
+                        for (int i=0; i<8; ++i) {
+                            // EX->uw[i] >>= u8;
+                            LHU(x3, wback, fixedaddress+i*2);
+                            SRLI(x3, x3, u8);
+                            SH(x3, wback, fixedaddress+i*2);
+                        }
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAW Ex, Ib");
+                    GETEX(x1, 1);
+                    u8 = F8;
+                    if(u8>15) u8=15;
+                    if(u8) {
+                        for (int i=0; i<8; ++i) {
+                            // EX->sw[i] >>= u8;
+                            LH(x3, wback, fixedaddress+i*2);
+                            SRAI(x3, x3, u8);
+                            SH(x3, wback, fixedaddress+i*2);
+                        }
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLW Ex, Ib");
+                    GETEX(x1, 1);
+                    u8 = F8;
+                    if (u8>15) {
+                        // just zero dest
+                        SD(xZR, x1, fixedaddress+0);
+                        SD(xZR, x1, fixedaddress+8);
+                    } else if(u8) {
+                        for (int i=0; i<8; ++i) {
+                            // EX->uw[i] <<= u8;
+                            LHU(x3, wback, fixedaddress+i*2);
+                            SLLI(x3, x3, u8);
+                            SH(x3, wback, fixedaddress+i*2);
+                        }
+                    }
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
         case 0x72:
             nextop = F8;
             switch((nextop>>3)&7) {
