@@ -444,6 +444,16 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ANDI(xFlags, xFlags, ~1);   //F_CF is 1
             OR(xFlags, xFlags, x4);
             break;
+        case 0xA4:
+            nextop = F8;
+            INST_NAME("SHLD Ed, Gd, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            GETED(1);
+            GETGD;
+            u8 = F8;
+            emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
+            WBACK;
+            break;
         case 0xAB:
             INST_NAME("BTS Ed, Gd");
             SETFLAGS(X_CF, SF_SUBSET);
