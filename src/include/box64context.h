@@ -57,6 +57,7 @@ typedef struct needed_libs_s {
 
 void free_neededlib(needed_libs_t* needed);
 needed_libs_t* new_neededlib(int n);
+needed_libs_t* copy_neededlib(needed_libs_t* needed);
 void add1_neededlib(needed_libs_t* needed);
 
 typedef struct base_segment_s {

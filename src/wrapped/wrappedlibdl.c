@@ -37,8 +37,6 @@ void FreeDLPrivate(dlprivate_t **lib) {
     box_free(*lib);
 }
 
-static needed_libs_t dl_loaded = {0};
-
 // dead_cells consider the "2" value to be some king of issue?
 #define MIN_NLIB 3
 
@@ -146,9 +144,6 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
             snprintf(dl->last_error, 129, "Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             return NULL;
         }
-        add1_neededlib(&dl_loaded);
-        dl_loaded.names[dl_loaded.size-1] = tmp.names[0];
-        dl_loaded.libs[dl_loaded.size-1] = tmp.libs[0];
         lib = GetLibInternal(rfilename);
         RunDeferredElfInit(emu);
     } else {
@@ -339,9 +334,7 @@ int my_dlclose(x64emu_t* emu, void *handle)
         return -1;
     }
     dl->count[nlib] = dl->count[nlib]-1;
-    if(!DecRefCount(&dl->libs[nlib], emu)) {
-        dl->count[nlib] = 0;
-    }
+    DecRefCount(&dl->libs[nlib], emu);
     return 0;
 }
 int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)

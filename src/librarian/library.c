@@ -598,6 +598,8 @@ int IsSameLib(library_t* lib, const char* path)
     int ret = 0;
     if(!lib) 
         return 0;
+    if(lib->type==LIB_UNNKNOW)
+        return 0;
     char* name = Path2Name(path);
     if(!strchr(path, '/') || lib->type==LIB_WRAPPED || !lib->path) {
         if(strcmp(name, lib->name)==0)
@@ -1039,6 +1041,19 @@ void add1_neededlib(needed_libs_t* needed)
     needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
     needed->size++;
 }
+needed_libs_t* copy_neededlib(needed_libs_t* needed)
+{
+    if(!needed)
+        return NULL;
+    needed_libs_t* ret = (needed_libs_t*)calloc(1, sizeof(needed_libs_t));
+    ret->cap = needed->cap;
+    ret->size = needed->size;
+    ret->libs = (library_t**)calloc(ret->cap, sizeof(library_t*));
+    ret->names = (char**)calloc(ret->cap, sizeof(char*));
+    memcpy(ret->libs, needed->libs, ret->size*sizeof(library_t*));
+    memcpy(ret->names, needed->names, ret->size*sizeof(char*));
+    return ret;
+}
 
 void setNeededLibs(library_t* lib, int n, ...)
 {
@@ -1060,39 +1075,52 @@ void IncRefCount(library_t* lib, x64emu_t* emu)
     switch (lib->type) {
         case LIB_WRAPPED:
             ++lib->w.refcnt;
+            if(lib->w.needed)
+                for(int i=0; i<lib->w.needed->size; ++i)
+                    IncRefCount(lib->w.needed->libs[i], emu);
             break;
         case LIB_EMULATED:
             ++lib->e.elf->refcnt;
+            if(lib->e.elf->needed)
+                for(int i=0; i<lib->e.elf->needed->size; ++i)
+                    IncRefCount(lib->e.elf->needed->libs[i], emu);
     }
 }
 
 int DecRefCount(library_t** lib, x64emu_t* emu)
 {
     if(!lib || !*lib)
-        return 0;
+        return 1;
     if((*lib)->type==LIB_UNNKNOW)
-        return 0;
-    int ret = 0;
+        return 1;
+    int ret = 1;
+    needed_libs_t* needed = NULL;
+    int freed = 0;
     switch ((*lib)->type) {
         case LIB_WRAPPED:
+            needed = (*lib)->w.needed;
             if(!(ret=--(*lib)->w.refcnt)) {
-                if((*lib)->w.needed)
-                    for(int i=0; i<(*lib)->w.needed->size; ++i)
-                        DecRefCount(&(*lib)->w.needed->libs[i], emu);
+                needed = copy_neededlib(needed);
+                freed=1;
                 Free1Library(lib, emu);
             }
             break;
         case LIB_EMULATED:
+            needed = (*lib)->e.elf->needed;
             if(!(ret=--(*lib)->e.elf->refcnt)) {
-                if((*lib)->e.elf->needed)
-                    for(int i=0; i<(*lib)->e.elf->needed->size; ++i)
-                        DecRefCount(&(*lib)->e.elf->needed->libs[i], emu);
+                needed = copy_neededlib(needed);
+                freed=1;
                 removeLinkMapLib(*lib);
                 FiniLibrary(*lib, emu);
                 Free1Library(lib, emu);
             }
             break;
     }
+    if(needed)
+        for(int i=0; i<needed->size; ++i)
+            DecRefCount(&needed->libs[i], emu);
+    if(freed)
+        free_neededlib(needed);
     return ret;
 }
 
