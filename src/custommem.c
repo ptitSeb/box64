@@ -795,14 +795,16 @@ void protectDB(uintptr_t addr, uintptr_t size)
         uint32_t prot = memprot[i>>16].prot[i&0xffff];
         uint32_t dyn = prot&PROT_DYN;
         uint32_t mapped = prot&PROT_MMAP;
-        prot&=~PROT_CUSTOM;
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
-        if((prot&PROT_WRITE) && !(dyn&PROT_NOPROT)) {
-            if(!dyn) mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-                memprot[i>>16].prot[i&0xffff] = prot|mapped|PROT_DYNAREC;   // need to use atomic exchange?
-            } else 
-                memprot[i>>16].prot[i&0xffff] = prot|mapped|PROT_DYNAREC_R;
+        prot&=~PROT_CUSTOM;
+        if(!(dyn&PROT_NOPROT)) {
+            if(prot&PROT_WRITE) {
+                if(!dyn) mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+                    memprot[i>>16].prot[i&0xffff] = prot|mapped|PROT_DYNAREC;   // need to use atomic exchange?
+                } else 
+                    memprot[i>>16].prot[i&0xffff] = prot|mapped|PROT_DYNAREC_R;
+        }
     }
     mutex_unlock(&mutex_prot);
 }
@@ -979,7 +981,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         uint32_t old_prot = memprot[i>>16].prot[i&0xffff];
         uint32_t dyn=(old_prot&PROT_DYN);
         uint32_t mapped=(old_prot&PROT_MMAP);
-        if(!(prot&PROT_NOPROT)) {
+        if(!(dyn&PROT_NOPROT)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
                 dyn = PROT_DYNAREC;
                 mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
