@@ -1,5 +1,6 @@
 #include <stdio.h> 
-#include <sys/types.h> 
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h> 
   
 void forkexample() 
@@ -9,7 +10,7 @@ void forkexample()
     if (fork() == 0) 
         printf("Child has x = %d\n", ++x); 
     else {
-        usleep(20000);
+        wait(NULL);
         printf("Parent has x = %d\n", --x); 
     }
 } 
