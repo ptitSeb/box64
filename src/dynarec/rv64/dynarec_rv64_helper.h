@@ -731,6 +731,10 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define native_pass        STEPNAME(native_pass)
 
 #define dynarec64_00       STEPNAME(dynarec64_00)
+#define dynarec64_00_0     STEPNAME(dynarec64_00_0)
+#define dynarec64_00_1     STEPNAME(dynarec64_00_1)
+#define dynarec64_00_2     STEPNAME(dynarec64_00_2)
+#define dynarec64_00_3     STEPNAME(dynarec64_00_3)
 #define dynarec64_0F       STEPNAME(dynarec64_0F)
 #define dynarec64_64       STEPNAME(dynarec64_64)
 #define dynarec64_65       STEPNAME(dynarec64_65)
@@ -1068,6 +1072,10 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07);
 
 
 uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
 //uintptr_t dynarec64_65(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep,int* ok, int* need_epilog);
