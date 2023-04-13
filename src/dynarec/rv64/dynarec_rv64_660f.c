@@ -191,6 +191,40 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SB(x4, gback, i);
                     }
                     break;
+                case 0x17:
+                    INST_NAME("PTEST Gx, Ex");
+                    nextop = F8;
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    CLEAR_FLAGS();
+                    SET_DFNONE();
+                    IFX(X_ZF|X_CF) {
+                        LD(x5, wback, fixedaddress+0);
+                        LD(x6, wback, fixedaddress+8);
+
+                        IFX(X_ZF) {
+                            LD(x3, gback, 0);
+                            LD(x4, gback, 8);
+                            AND(x3, x3, x5);
+                            AND(x4, x4, x6);
+                            OR(x3, x3, x4);
+                            BNEZ(x3, 8);
+                            ORI(xFlags, xFlags, 1<<F_ZF);
+                        }
+                        IFX(X_CF) {
+                            LD(x3, gback, 0);
+                            NOT(x3, x3);
+                            LD(x4, gback, 8);
+                            NOT(x4, x4);
+                            AND(x3, x3, x5);
+                            AND(x4, x4, x6);
+                            OR(x3, x3, x4);
+                            BNEZ(x3, 8);
+                            ORI(xFlags, xFlags, 1<<F_ZF);
+                        }
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
