@@ -170,6 +170,18 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 DEFAULT;
             }
             break;
+
+        case 0x11:
+            INST_NAME("ADC Ed, Gd");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            WBACK;
+            break;
+
         case 0x18:
             INST_NAME("SBB Eb, Gb");
             READFLAGS(X_CF);
@@ -956,7 +968,18 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
+            FLAGS_ADJUST_TO11(xFlags, x2);
             PUSH1(xFlags);
+            break;
+        case 0x9D:
+            INST_NAME("POPF");
+            SETFLAGS(X_ALL, SF_SET);
+            POP1(xFlags);
+            FLAGS_ADJUST_FROM11(xFlags, x2);
+            MOV32w(x1, 0x3F7FD7);
+            AND(xFlags, xFlags, x1);
+            ORI(xFlags, xFlags, 0x2);
+            SET_DFNONE();
             break;
         case 0xA4:
             if(rep) {
@@ -1888,6 +1911,12 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             };
             break;
 
+        case 0xF8:
+            INST_NAME("CLC");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE();
+            ANDI(xFlags, xFlags, ~(1 << F_CF));
+            break;
         case 0xF9:
             INST_NAME("STC");
             SETFLAGS(X_CF, SF_SUBSET);

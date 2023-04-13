@@ -1148,6 +1148,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
+            
             PUSH1(xFlags);
             break;
         case 0x9D:

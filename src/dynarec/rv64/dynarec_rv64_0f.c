@@ -39,7 +39,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     int v0, v1;
     int q0, q1;
     int d0, d1;
-    int s0;
+    int s0, s1;
     uint64_t tmp64u;
     int64_t j64;
     int64_t fixedaddress;
@@ -342,6 +342,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETEX(x2, 0);
                 SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
             }
+            break;
+
+        case 0x5A:
+            INST_NAME("CVTPS2PD Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            FLW(s0, wback, fixedaddress);
+            FLW(s1, wback, fixedaddress+4);
+            FCVTDS(s0, s0);
+            FCVTDS(s1, s1);
+            FSD(s0, gback, 0);
+            FSD(s1, gback, 8);
             break;
 
         case 0x77:
