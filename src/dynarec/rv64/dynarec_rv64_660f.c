@@ -225,6 +225,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                     break;
+                case 0x3A:
+                    INST_NAME("PMINUW Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<8; ++i) {
+                        // if(GX->uw[i]>EX->uw[i]) GX->uw[i] = EX->uw[i];
+                        LHU(x3, gback, i*2);
+                        LHU(x4, wback, fixedaddress+i*2);
+                        BLTU(x3, x4, 8);
+                        SH(x4, gback, i*2);
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
