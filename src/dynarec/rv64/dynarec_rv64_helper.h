@@ -463,6 +463,8 @@
 #define B_MARK_nocond   Bxx_gen(__, MARK, 0, 0)
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLT_MARK(reg1, reg2) Bxx_gen(LT, MARK, reg1, reg2)
+// Branch to MARK if reg1<reg2 (use j64)
+#define BLTU_MARK(reg1, reg2) Bxx_gen(LTU, MARK, reg1, reg2)
 // Branch to MARK if reg1>=reg2 (use j64)
 #define BGE_MARK(reg1, reg2) Bxx_gen(GE, MARK, reg1, reg2)
 // Branch to MARK2 if reg1==reg2 (use j64)
@@ -485,6 +487,11 @@
 #define BNE_MARKLOCK(reg1, reg2) Bxx_gen(NE, MARKLOCK, reg1, reg2)
 // Branch to MARKLOCK if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK(reg) BNE_MARKLOCK(reg, xZR)
+
+// Branch to NEXT if reg1==reg2 (use j64)
+#define BEQ_NEXT(reg1, reg2)           \
+    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0; \
+    BEQ(reg1, reg2, j64)
 
 // Branch to NEXT if reg1==0 (use j64)
 #define CBZ_NEXT(reg1)                 \
@@ -822,6 +829,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_shr32      STEPNAME(emit_shr32)
 #define emit_shr32c     STEPNAME(emit_shr32c)
 #define emit_sar32c     STEPNAME(emit_sar32c)
+#define emit_rol32     STEPNAME(emit_rol32)
 #define emit_rol32c     STEPNAME(emit_rol32c)
 #define emit_ror32c     STEPNAME(emit_ror32c)
 #define emit_shrd32c    STEPNAME(emit_shrd32c)
@@ -954,6 +962,7 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
+void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 //void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
