@@ -328,14 +328,10 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     } else {
         ANDI(s4, s2, 0x1f);
     }
-
-    SLL(s3, s1, s4);
-    if (!rex.w) {
-        AND(s3, xMASK, s3);
-    }
+    SLLxw(s3, s1, s4);
     NEG(s4, s4);
     ADDI(s4, s4, rex.w?64:32);
-    SRL(s1, s1, s4);
+    SRLxw(s1, s1, s4);
     OR(s1, s3, s1);
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -376,11 +372,8 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
         return;
     }
-    SLLI(s3, s1, c);
-    if (!rex.w) {
-        AND(s3, xMASK, s3);
-    }
-    SRLI(s1, s1, (rex.w?64:32)-c);
+    SLLIxw(s3, s1, c);
+    SRLIxw(s1, s1, (rex.w?64:32)-c);
     OR(s1, s3, s1);
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));

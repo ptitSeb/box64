@@ -297,6 +297,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1>>rs2 arithmetic
 #define SRAW(rd, rs1, rs2)           EMIT(R_type(0b0100000, rs2, rs1, 0b101, rd, 0b0111011))
 
+#define SLLxw(rd, rs1, rs2)          EMIT(R_type(0b0000000, rs2, rs1, 0b001, rd, rex.w?0b0110011:0b0111011))
+#define SRLxw(rd, rs1, rs2)          EMIT(R_type(0b0000000, rs2, rs1, 0b101, rd, rex.w?0b0110011:0b0111011))
 #define SRAxw(rd, rs1, rs2)          if(rex.w) {SRA(rd, rs1, rs2);} else {SRAW(rd, rs1, rs2); ZEROUP(rd);}
 
 // Shift Left Immediate, 32-bit, sign-extended

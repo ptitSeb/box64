@@ -1196,6 +1196,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
                     if(u8) { WBACK; }
+                    if(!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 4:
                 case 6:
@@ -1460,8 +1461,9 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("ROL Ed, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     GETED(0);
-                    emit_rol32(dyn, ninst, rex, ed, 1, x3, x4);
+                    emit_rol32(dyn, ninst, rex, ed, xRCX, x3, x4);
                     WBACK;
+                    if(!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 4:
                 case 6:
