@@ -170,6 +170,18 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 DEFAULT;
             }
             break;
+
+        case 0x11:
+            INST_NAME("ADC Ed, Gd");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            WBACK;
+            break;
+
         case 0x18:
             INST_NAME("SBB Eb, Gb");
             READFLAGS(X_CF);
