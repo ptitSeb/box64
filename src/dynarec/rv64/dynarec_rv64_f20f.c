@@ -222,10 +222,10 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             idx = (u8>>(3*2))&3;
             LHU(x6, wback, fixedaddress+idx*2);
 
-            SW(x3, gback, 0*2);
-            SW(x4, gback, 1*2);
-            SW(x5, gback, 2*2);
-            SW(x6, gback, 3*2);
+            SH(x3, gback, 0*2);
+            SH(x4, gback, 1*2);
+            SH(x5, gback, 2*2);
+            SH(x6, gback, 3*2);
 
             if (!(MODREG && (gd==ed))) {
                 LD(x3, wback, fixedaddress+8);
