@@ -463,6 +463,8 @@
 #define B_MARK_nocond   Bxx_gen(__, MARK, 0, 0)
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLT_MARK(reg1, reg2) Bxx_gen(LT, MARK, reg1, reg2)
+// Branch to MARK if reg1<reg2 (use j64)
+#define BLTU_MARK(reg1, reg2) Bxx_gen(LTU, MARK, reg1, reg2)
 // Branch to MARK if reg1>=reg2 (use j64)
 #define BGE_MARK(reg1, reg2) Bxx_gen(GE, MARK, reg1, reg2)
 // Branch to MARK2 if reg1==reg2 (use j64)

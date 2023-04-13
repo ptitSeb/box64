@@ -865,6 +865,26 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
             }
             break;
+        case 0xF3:
+            INST_NAME("PSLLQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            ADDI(x4, xZR, 64);
+            LD(x3, wback, fixedaddress+0);
+            BLTU_MARK(x3, x4);
+            // just zero dest
+            SD(xZR, gback, 0);
+            SD(xZR, gback, 8);
+            B_NEXT_nocond;
+            MARK;
+            LD(x4, gback, 0);
+            LD(x5, gback, 8);
+            SLL(x4, x4, x3);
+            SLL(x5, x5, x3);
+            SD(x4, gback, 0);
+            SD(x5, gback, 8);
+            break;
         case 0xFA:
             INST_NAME("PSUBD Gx,Ex");
             nextop = F8;
