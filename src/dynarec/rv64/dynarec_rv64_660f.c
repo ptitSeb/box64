@@ -918,6 +918,23 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
             break;
+        case 0xDD:
+            INST_NAME("PADDUSW Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for(int i=0; i<8; ++i) {
+                // tmp32s = (int32_t)GX->uw[i] + EX->uw[i];
+                // GX->uw[i] = (tmp32s>65535)?65535:tmp32s;
+                LHU(x3, gback, i*2);
+                LHU(x4, wback, fixedaddress+i*2);
+                ADDW(x3, x3, x4);
+                MOV32w(x4, 65536);
+                BLT(x3, x4, 8);
+                ADDIW(x3, x4, -1);
+                SH(x3, gback, i*2);
+            }
+            break;
         case 0xDF:
             INST_NAME("PANDN Gx,Ex");
             nextop = F8;
