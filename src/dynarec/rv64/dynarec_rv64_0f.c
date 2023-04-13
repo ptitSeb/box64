@@ -530,30 +530,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMDMB();
             } else {
                 switch((nextop>>3)&7) {
-                    case 0:
-                        INST_NAME("FXSAVE Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
-                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                        if(MODREG) {
-                            DEFAULT;
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
-                            if(ed!=x1) {MV(x1, ed);}
-                            CALL(rex.w?((void*)fpu_fxsave64):((void*)fpu_fxsave32), -1);
-                        }
-                        break;
-                    case 1:
-                        INST_NAME("FXRSTOR Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
-                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                        if(MODREG) {
-                            DEFAULT;
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 0, 0);
-                            if(ed!=x1) {MV(x1, ed);}
-                            CALL(rex.w?((void*)fpu_fxrstor64):((void*)fpu_fxrstor32), -1);
-                        }
-                        break;
                     case 2:                 
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
