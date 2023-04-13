@@ -3142,7 +3142,9 @@ wrappedgtkx112:
   - gtk_toolbar_prepend_element
 - pFpipppppppi:
   - gtk_toolbar_insert_element
+wrappedicui18n67:
 wrappedicui18n72:
+wrappedicuuc67:
 wrappedicuuc72:
 wrappedkrb5:
 - iFppppppipp:
