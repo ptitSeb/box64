@@ -162,6 +162,39 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ORI(xFlags, xFlags, 1<<F_ZF);
             }
             break;
+        case 0x38:  // SSSE3 opcodes
+            nextop = F8;
+            switch(nextop) {
+                case 0x00:
+                    INST_NAME("PSHUFB Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    sse_forget_reg(dyn, ninst, x5);
+                    ADDI(x5, xEmu, offsetof(x64emu_t, xmm[x5]));
+
+                    // perserve gd
+                    LD(x3, gback, 0);
+                    LD(x4, gback, 8);
+                    SD(x3, x5, 0);
+                    SD(x4, x5, 8);
+
+                    for (int i=0; i<16; ++i) {
+                        LBU(x3, wback, fixedaddress+i);
+                        ANDI(x4, x3, 128);
+                        BEQZ(x4, 12);
+                        SB(xZR, gback, i);
+                        BEQZ(xZR, 20); // continue
+                        ANDI(x4, x3, 15);
+                        ADD(x4, x4, x5);
+                        LBU(x4, x4, 0);
+                        SB(x4, gback, i);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;
