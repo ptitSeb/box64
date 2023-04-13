@@ -958,6 +958,15 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_ALL);
             PUSH1(xFlags);
             break;
+        case 0x9D:
+            INST_NAME("POPF");
+            SETFLAGS(X_ALL, SF_SET);
+            POP1(xFlags);
+            MOV32w(x1, 0x3F7FD7);
+            AND(xFlags, xFlags, x1);
+            ORI(xFlags, xFlags, 0x2);
+            SET_DFNONE();
+            break;
         case 0xA4:
             if(rep) {
                 INST_NAME("REP MOVSB");
