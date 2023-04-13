@@ -52,6 +52,7 @@ GO(unorm2_normalize_72, iFppipip)
 
 GO(u_charsToUChars_72, vFppi)
 GO(u_getVersion_72, vFp)
+GO(u_strcmp_72, iFpp)
 GO(u_strlen_72, iFp)
 GO(u_strncpy_72, pFppi)
 GO(u_tolower_72, uFu)
