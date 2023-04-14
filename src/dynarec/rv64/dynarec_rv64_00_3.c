@@ -141,6 +141,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if(u8) { WBACK; }
                     if(!wback && !rex.w) ZEROUP(ed);
                     break;
+                case 1:
+                    INST_NAME("ROR Ed, Ib");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    GETED(1);
+                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if(u8) { WBACK; }
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, Ib");
@@ -331,6 +339,25 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xD2:  // TODO: Jump if CL is 0
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 1:
+                    if(opcode==0xD0) {
+                        INST_NAME("ROR Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROR Eb, CL");
+                        ANDI(x2, xRCX, 7);
+                    }
+                    SETFLAGS(X_OF|X_CF, SF_PENDING);
+                    GETEB(x1, 0);
+                    UFLAG_OP12(ed, x2);
+                    SRL(x3, ed, x2);
+                    SLLI(x4, ed, 8);
+                    SRL(x4, x4, x2);
+                    OR(ed, x3, x4);
+                    EBBACK(x5, 1);
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_ror8);
+                    break;
                 case 5:
                     if(opcode==0xD0) {
                         INST_NAME("SHR Eb, 1");
@@ -370,6 +397,22 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xD1:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ed, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    GETED(0);
+                    emit_rol32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    if(!wback && !rex.w) ZEROUP(ed);
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    GETED(0);
+                    emit_rol32c(dyn, ninst, rex, ed, rex.w?63:31, x3, x4);
+                    WBACK;
+                    if(!wback && !rex.w) ZEROUP(ed);
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, 1");
