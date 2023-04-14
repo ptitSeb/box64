@@ -149,6 +149,13 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v1, 0);
             FMULD(v0, v0, v1);
             break;
+        case 0x5A:
+            INST_NAME("CVTSD2SS Gx, Ex");
+            nextop = F8;
+            GETGXSS_empty(v0);
+            GETEXSD(v1, 0);
+            FCVTSD(v0, v1);
+            break;
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
