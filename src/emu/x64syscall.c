@@ -241,6 +241,7 @@ scwrap_t syscallwrap[] = {
     #ifdef _NR_eventfd
     { 284, __NR_eventfd, 1},
     #endif
+    { 285, __NR_fallocate, 4},
     { 288, __NR_accept4, 4},
     { 290, __NR_eventfd2, 2},
     { 291, __NR_epoll_create1, 1},
