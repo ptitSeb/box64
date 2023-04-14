@@ -409,6 +409,30 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
+        case 0x68:
+            INST_NAME("PUNPCKHBW Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            for(int i=0; i<8; ++i) {
+                // GX->ub[2 * i] = GX->ub[i + 8];
+                LBU(x3, gback, i+8);
+                SB(x3, gback, 2*i);
+            }
+            if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
+                for(int i=0; i<8; ++i) {
+                    // GX->ub[2 * i + 1] = GX->ub[2 * i];
+                    LBU(x3, gback, 2*i);
+                    SB(x3, gback, 2*i+1);
+                }
+            } else {
+                GETEX(x2, 0);
+                for(int i=0; i<8; ++i) {
+                    // GX->ub[2 * i + 1] = EX->ub[i + 8];
+                    LBU(x3, wback, fixedaddress+i+8);
+                    SB(x3, gback, 2*i+1);
+                }
+            }
+            break;
         case 0x69:
             INST_NAME("PUNPCKHWD Gx,Ex");
             nextop = F8;
