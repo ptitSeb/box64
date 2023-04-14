@@ -990,6 +990,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SD(x4, gback, 0);
             SD(x5, gback, 8);
             break;
+        case 0xF8:
+            INST_NAME("PSUBB Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for(int i=0; i<16; ++i) {
+                // GX->sb[i] -= EX->sb[i];
+                LB(x3, wback, fixedaddress+i);
+                LB(x4, gback, i);
+                SUB(x3, x4, x3);
+                SB(x3, gback, i);
+            }
+            break;
         case 0xFA:
             INST_NAME("PSUBD Gx,Ex");
             nextop = F8;
