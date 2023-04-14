@@ -3980,3 +3980,17 @@ GO(wglGetSwapIntervalEXT, iFv)
 // GL_MESA_framebuffer_flip_y
 GO(glFramebufferParameteriMESA, vFiii)
 GO(glGetFramebufferParameterivMESA, vFiip)
+
+// GL_NVX_gpu_multicast2
+GO(glUploadGpuMaskNVX, vFu)
+GO(glMulticastViewportArrayvNVX, vFuulp)
+GO(glMulticastViewportPositionWScaleNVX, vFuuff)
+GO(glMulticastScissorArrayvNVX, vFuulp)
+GO(glAsyncCopyBufferSubDataNVX, uFlppuuuullLlpp)
+GO(glAsyncCopyImageSubDataNVX, uFlppuuuuiiiiuiiiillllpp)
+
+// GL_NVX_progress_fence
+GO(glCreateProgressFenceNVX, uFv)
+GO(glSignalSemaphoreui64NVX, vFulpp)
+GO(glWaitSemaphoreui64NVX, vFulpp)
+GO(glClientWaitSemaphoreui64NVX, vFlpp)

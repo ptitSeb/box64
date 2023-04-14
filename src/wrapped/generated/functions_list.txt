@@ -675,6 +675,7 @@
 #() vFuuuf
 #() vFuuud
 #() vFuuup
+#() vFuuff
 #() vFuulp
 #() vFuupi
 #() vFuupp
@@ -2330,6 +2331,7 @@
 #() iFddddpppddpppp
 #() iFpippuuuiipppp
 #() iFpupiiiipppppp
+#() uFlppuuuullLlpp
 #() uFppppuuupppppp
 #() pFpCuuwwWWWWuup
 #() pFpuupppwwwwWWC
@@ -2370,6 +2372,7 @@
 #() pFpippppppppppppppppp
 #() pFpppWWCCpCpCpCWpCpCpC
 #() iFpppppppppppppppppppppp
+#() uFlppuuuuiiiiuiiiillllpp
 #() vFpppppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) IFD
