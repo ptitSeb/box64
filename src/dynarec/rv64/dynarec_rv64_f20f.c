@@ -79,6 +79,15 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
+        case 0x12:
+            INST_NAME("MOVDDUP Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress+0);
+            SD(x3, gback, 0);
+            SD(x3, gback, 8);
+            break;
         case 0x2A:
             INST_NAME("CVTSI2SD Gx, Ed");
             nextop = F8;
