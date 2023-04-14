@@ -409,6 +409,30 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
+        case 0x68:
+            INST_NAME("PUNPCKHBW Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            for(int i=0; i<8; ++i) {
+                // GX->ub[2 * i] = GX->ub[i + 8];
+                LBU(x3, gback, i+8);
+                SB(x3, gback, 2*i);
+            }
+            if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
+                for(int i=0; i<8; ++i) {
+                    // GX->ub[2 * i + 1] = GX->ub[2 * i];
+                    LBU(x3, gback, 2*i);
+                    SB(x3, gback, 2*i+1);
+                }
+            } else {
+                GETEX(x2, 0);
+                for(int i=0; i<8; ++i) {
+                    // GX->ub[2 * i + 1] = EX->ub[i + 8];
+                    LBU(x3, wback, fixedaddress+i+8);
+                    SB(x3, gback, 2*i+1);
+                }
+            }
+            break;
         case 0x69:
             INST_NAME("PUNPCKHWD Gx,Ex");
             nextop = F8;
@@ -990,12 +1014,32 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SD(x4, gback, 0);
             SD(x5, gback, 8);
             break;
+        case 0xF8:
+            INST_NAME("PSUBB Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for(int i=0; i<16; ++i) {
+                // GX->sb[i] -= EX->sb[i];
+                LB(x3, wback, fixedaddress+i);
+                LB(x4, gback, i);
+                SUB(x3, x4, x3);
+                SB(x3, gback, i);
+            }
+            break;
         case 0xFA:
             INST_NAME("PSUBD Gx,Ex");
             nextop = F8;
             GETGX(x1);
             GETEX(x2, 0);
             SSE_LOOP_D(x3, x4, SUBW(x3, x3, x4));
+            break;
+        case 0xFB:
+            INST_NAME("PSUBQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_Q(x3, x4, SUB(x3, x3, x4));
             break;
         case 0xFC:
             INST_NAME("PADDB Gx,Ex");
