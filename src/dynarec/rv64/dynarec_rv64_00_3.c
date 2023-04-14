@@ -141,6 +141,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if(u8) { WBACK; }
                     if(!wback && !rex.w) ZEROUP(ed);
                     break;
+                case 1:
+                    INST_NAME("ROR Ed, Ib");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    GETED(1);
+                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    emit_rol32c(dyn, ninst, rex, ed, (rex.w?64:32)-u8, x3, x4);
+                    if(u8) { WBACK; }
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, Ib");
