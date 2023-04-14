@@ -331,6 +331,25 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xD2:  // TODO: Jump if CL is 0
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 1:
+                    if(opcode==0xD0) {
+                        INST_NAME("ROR Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROR Eb, CL");
+                        ANDI(x2, xRCX, 7);
+                    }
+                    SETFLAGS(X_OF|X_CF, SF_PENDING);
+                    GETEB(x1, 0);
+                    UFLAG_OP12(ed, x2);
+                    SRL(x3, ed, x2);
+                    SLLI(x4, ed, 8);
+                    SRL(x4, x4, x2);
+                    OR(ed, x3, x4);
+                    EBBACK(x5, 1);
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_ror8);
+                    break;
                 case 5:
                     if(opcode==0xD0) {
                         INST_NAME("SHR Eb, 1");
