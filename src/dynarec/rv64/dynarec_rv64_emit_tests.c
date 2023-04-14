@@ -297,8 +297,10 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     IFX_PENDOR0 {
         SDxw(s3, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_SF) {
+    IFX(X_SF|X_ZF) {
         if (!rex.w) ZEROUP(s3);
+    }
+    IFX(X_SF) {
         SRLI(s4, s3, rex.w?63:31);
         BEQZ(s4, 8);
         ORI(xFlags, xFlags, 1 << F_SF);

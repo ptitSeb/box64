@@ -165,11 +165,11 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             PUSH1(x3);
             break;
         case 0x6B:
-            INST_NAME("IMUL Gd, Ed, Id");
+            INST_NAME("IMUL Gd, Ed, Ib");
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
             GETGD;
-            GETED(4);
+            GETED(1);
             i64 = F8S;
             MOV64xw(x4, i64);
             if(rex.w) {

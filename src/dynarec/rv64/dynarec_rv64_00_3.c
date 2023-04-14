@@ -148,6 +148,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
                     if(u8) { WBACK; }
+                    if(!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 4:
                 case 6:
