@@ -5,7 +5,7 @@
     addInst(dyn->instsize, &dyn->insts_size, 0, 0);
 #define EMIT(A)                                         \
     do{                                                 \
-        if(box64_dynarec_dump) print_arm64(dyn, ninst, (uint32_t)(A)); \
+        if(box64_dynarec_dump) print_opcode(dyn, ninst, (uint32_t)(A)); \
         *(uint32_t*)(dyn->block) = (uint32_t)(A);       \
         dyn->block += 4; dyn->native_size += 4;         \
         dyn->insts[ninst].size2 += 4;                   \

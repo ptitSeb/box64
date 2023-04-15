@@ -539,7 +539,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name)
     }
 }
 
-void print_arm64(dynarec_native_t* dyn, int ninst, uint32_t opcode)
+void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
 {
     dynarec_log(LOG_NONE, "\t%08x\t%s\n", opcode, arm64_print(opcode, (uintptr_t)dyn->block));
 }
