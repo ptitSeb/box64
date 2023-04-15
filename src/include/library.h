@@ -36,4 +36,5 @@ void IncRefCount(library_t* lib, x64emu_t* emu);
 int DecRefCount(library_t** lib, x64emu_t* emu);   // might unload the lib!
 int GetRefCount(library_t* lib);
 
+void SetDlOpenIdx(library_t* lib, int dlopen);
 #endif //__LIBRARY_H_

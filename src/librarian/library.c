@@ -585,6 +585,9 @@ void Free1Library(library_t **lib, x64emu_t* emu)
             kh_destroy(symbol2map, (*lib)->w.symbol2map);
     }
 
+    // remove frim the dlopen collection
+    if((*lib)->dlopen)
+        RemoveDlopen(lib, (*lib)->dlopen);
     box_free(*lib);
     *lib = NULL;
 }
@@ -1135,4 +1138,10 @@ int GetRefCount(library_t* lib)
         default:
             return 0;
     }
+}
+
+void SetDlOpenIdx(library_t* lib, int dlopen)
+{
+    if(lib)
+        lib->dlopen = dlopen;
 }

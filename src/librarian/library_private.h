@@ -74,6 +74,7 @@ typedef struct library_s {
     kh_bridgemap_t      *gbridgemap;    // global symbol bridgemap
     kh_bridgemap_t      *wbridgemap;    // weak symbol bridgemap
     kh_bridgemap_t      *lbridgemap;    // local symbol bridgemap
+    int                 dlopen;   // idx to the dlopen idx (or 0 if not dlopen)
 } library_t;
 
 // type for map elements
@@ -113,5 +114,7 @@ void removeLinkMapLib(library_t* lib);
 
 int FiniLibrary(library_t* lib, x64emu_t* emu);
 void Free1Library(library_t **lib, x64emu_t* emu);
+
+void RemoveDlopen(library_t** lib, int idx); // defined in wrappedlibdl.c
 
 #endif //__LIBRARY_PRIVATE_H_
