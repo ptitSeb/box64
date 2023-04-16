@@ -1183,6 +1183,7 @@ void vFupppp(x64emu_t *emu, uintptr_t fnc);
 void vFUUppp(x64emu_t *emu, uintptr_t fnc);
 void vFfffff(x64emu_t *emu, uintptr_t fnc);
 void vFddddp(x64emu_t *emu, uintptr_t fnc);
+void vFLpppp(x64emu_t *emu, uintptr_t fnc);
 void vFpiiii(x64emu_t *emu, uintptr_t fnc);
 void vFpiiiI(x64emu_t *emu, uintptr_t fnc);
 void vFpiiiu(x64emu_t *emu, uintptr_t fnc);

@@ -3,7 +3,7 @@
 #endif
 
 GO("libc.so.6", libc)
-GO("libc.musl-x86_64.so.1", libdl)
+GO("libc.musl-x86_64.so.1", libcmusl)
 GO("libpthread.so.0", libpthread)
 GO("librt.so.1", librt)
 GO("libEGL.so.1", libegl)
@@ -168,6 +168,7 @@ GO("libncurses.so.6", libncurses6)
 GO("libtinfo.so.6", libtinfo6)
 GO("libtbbmalloc.so.2", tbbmalloc)
 GO("libtbbmalloc_proxy.so.2", tbbmallocproxy)
+GO("libtbbbind_2_5.so", tbbbind)
 GO("libtcmalloc_minimal.so.0", tcmallocminimal)
 GO("libtcmalloc_minimal.so.4", tcmallocminimal)
 GO("libmpg123.so.0", mpg123)

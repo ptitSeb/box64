@@ -1146,6 +1146,7 @@
 #() vFUUppp
 #() vFfffff
 #() vFddddp
+#() vFLpppp
 #() vFpiiii
 #() vFpiiiI
 #() vFpiiiu
@@ -3426,6 +3427,7 @@ wrappedlibc:
   - __libc_start_main
 - iFppipppp:
   - clone
+wrappedlibcmusl:
 wrappedlibcrypt:
 wrappedlibcups:
 - iFuipuupp:
@@ -4359,6 +4361,20 @@ wrappedsmpeg2:
   - SMPEG_new_rwops
 wrappedsoftokn3:
 wrappedssl3:
+wrappedtbbbind:
+- vFv:
+  - __TBB_internal_destroy_system_topology
+- vFp:
+  - __TBB_internal_deallocate_binding_handler
+- vFpi:
+  - __TBB_internal_apply_affinity
+  - __TBB_internal_restore_affinity
+- iFiii:
+  - __TBB_internal_get_default_concurrency
+- pFiiii:
+  - __TBB_internal_allocate_binding_handler
+- vFLpppp:
+  - __TBB_internal_initialize_system_topology
 wrappedtbbmalloc:
 - vFp:
   - scalable_aligned_free
