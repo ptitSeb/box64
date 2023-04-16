@@ -1077,7 +1077,7 @@ exit(-1);
         old_pc = pc;
         old_addr = addr;
         old_tid = GetTID();
-        const char* name = GetNativeName(pc);
+        const char* name = (log_minimum<=box64_log)?GetNativeName(pc):NULL;
         uintptr_t x64pc = (uintptr_t)-1;
         const char* x64name = NULL;
         const char* elfname = NULL;
@@ -1118,10 +1118,12 @@ exit(-1);
 #endif //DYNAREC
         if(!db && (sig==SIGSEGV) && ((uintptr_t)addr==x64pc-1))
             x64pc--;
-        x64name = getAddrFunctionName(x64pc);
-        elfheader_t* elf = FindElfAddress(my_context, x64pc);
-        if(elf)
-            elfname = ElfName(elf);
+        if(log_minimum<=box64_log) {
+            x64name = getAddrFunctionName(x64pc);
+            elfheader_t* elf = FindElfAddress(my_context, x64pc);
+            if(elf)
+                elfname = ElfName(elf);
+        }
         if(jit_gdb) {
             pid_t pid = getpid();
             int v = vfork(); // is this ok in a signal handler???
