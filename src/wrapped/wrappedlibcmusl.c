@@ -28,7 +28,7 @@ const char* libcmuslName = "libc.musl-x86_64.so.1";
 
 #define CUSTOM_INIT \
     box64_musl = 1; \
-    setNeededLibs(lib, 5, "libtbbmalloc.so.2", "libtbbmalloc_proxy.so.2", "libtbbbind_2_5.so", "libc.so.6", "libdl.so.2");
+    setNeededLibs(lib, 7, "libtbbmalloc.so.2", "libtbbmalloc_proxy.so.2", "libtbbbind_2_5.so", "libc.so.6", "libdl.so.2", "libm.so.6", "libpthread.so.0");
 
 // define all standard library functions
 #include "wrappedlib_init.h"
