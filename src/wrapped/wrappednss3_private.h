@@ -38,7 +38,7 @@ GO(CERT_CheckCertValidTimes, iFpIi)
 //GO(__CERT_ClosePermCertDB, 
 //GO(CERT_CompareAVA, 
 GO(CERT_CompareCerts, iFpp)
-//GO(CERT_CompareName, 
+GO(CERT_CompareName, iFpp)
 //GO(CERT_CompareValidityTimes, 
 //GO(CERT_CompleteCRLDecodeEntries, 
 //GO(CERT_CopyName, 
@@ -85,7 +85,7 @@ GO(CERT_DestroyCertificatePoliciesExtension, vFp)
 GO(CERT_DestroyCertificateRequest, vFp)
 GO(CERT_DestroyCertList, vFp)
 //GO(CERT_DestroyCERTRevocationFlags, 
-//GO(CERT_DestroyName, 
+GO(CERT_DestroyName, vFp)
 //GO(CERT_DestroyOCSPCertID, 
 //GO(CERT_DestroyOCSPRequest, 
 //GO(CERT_DestroyOCSPResponse, 
@@ -248,11 +248,11 @@ GO(CERT_VerifyCertificateNow, iFppiipp)
 //GO(CERT_VerifyCertNow, 
 //GO(CERT_VerifyOCSPResponseSignature, 
 //GO(CERT_VerifySignedData, 
-//GO(CERT_VerifySignedDataWithPublicKey, 
+GO(CERT_VerifySignedDataWithPublicKey, iFppp)
 //GO(CERT_VerifySignedDataWithPublicKeyInfo, 
 //GO(DER_AsciiToTime, 
 GO(DER_DecodeTimeChoice, iFpp)
-//GO(DER_Encode, 
+GO(DER_Encode, iFpppp)
 //GO(DER_EncodeTimeChoice, 
 //GO(DER_GeneralizedDayToAscii, 
 //GO(DER_GeneralizedTimeToTime, 
@@ -269,11 +269,11 @@ GO(DER_DecodeTimeChoice, iFpp)
 //GO(DSAU_DecodeDerSigToLen, 
 //GO(DSAU_EncodeDerSig, 
 //GO(DSAU_EncodeDerSigWithLen, 
-//GO(HASH_Begin, 
+GO(HASH_Begin, vFp)
 //GO(HASH_Clone, 
-//GO(HASH_Create, 
-//GO(HASH_Destroy, 
-//GO(HASH_End, 
+GO(HASH_Create, pFi)
+GO(HASH_Destroy, vFp)
+GO(HASH_End, vFpppu)
 //GO(HASH_GetHashObject, 
 //GO(HASH_GetHashObjectByOidTag, 
 //GO(HASH_GetHashOidTagByHashType, 
@@ -282,8 +282,8 @@ GO(DER_DecodeTimeChoice, iFpp)
 GO(HASH_HashBuf, iFippu)
 //GO(HASH_ResultLen, 
 //GO(HASH_ResultLenByOidTag, 
-//GO(HASH_ResultLenContext, 
-//GO(HASH_Update, 
+GO(HASH_ResultLenContext, uFp)
+GO(HASH_Update, vFppu)
 //GO(NSSBase64_DecodeBuffer, 
 //GO(NSSBase64Decoder_Create, 
 //GO(NSSBase64Decoder_Destroy, 
@@ -647,7 +647,7 @@ GO(PORT_ArenaAlloc, pFpL)
 //GO(PORT_ArenaRelease, 
 //GO(PORT_ArenaStrdup, 
 //GO(PORT_ArenaUnmark, 
-//GO(PORT_ArenaZAlloc, 
+GO(PORT_ArenaZAlloc, pFpL)
 GO(PORT_Free, vFp)
 GO(PORT_FreeArena, vFpi)
 GO(PORT_GetError, iFv)
@@ -730,7 +730,7 @@ GO(SECITEM_ZfreeItem, vFpi)
 //GO(SECKEY_CreateDHPrivateKey, 
 //GO(SECKEY_CreateECPrivateKey, 
 //GO(SECKEY_CreateRSAPrivateKey, 
-//GO(SECKEY_CreateSubjectPublicKeyInfo, 
+GO(SECKEY_CreateSubjectPublicKeyInfo, pFp)
 //GO(SECKEY_DecodeDERSubjectPublicKeyInfo, 
 //GO(SECKEY_DestroyEncryptedPrivateKeyInfo, 
 GO(SECKEY_DestroyPrivateKey, vFp)
@@ -738,14 +738,14 @@ GO(SECKEY_DestroyPrivateKey, vFp)
 //GO(SECKEY_DestroyPrivateKeyList, 
 GO(SECKEY_DestroyPublicKey, vFp)
 //GO(SECKEY_DestroyPublicKeyList, 
-//GO(SECKEY_DestroySubjectPublicKeyInfo, 
+GO(SECKEY_DestroySubjectPublicKeyInfo, vFp)
 //DATA(SECKEY_DSAPublicKeyTemplate,     //R type
 //GO(SECKEY_ECParamsToBasePointOrderLen, 
 //GO(SECKEY_ECParamsToKeySize, 
 //GO(SECKEY_EncodeDERSubjectPublicKeyInfo, 
 DATA(SECKEY_EncryptedPrivateKeyInfoTemplate, 128)
 GO(SECKEY_ExtractPublicKey, pFp)
-//GO(SECKEY_GetPrivateKeyType, 
+GO(SECKEY_GetPrivateKeyType, iFp)
 //GO(SECKEY_GetPublicKeyType, 
 //GO(SECKEY_HashPassword, 
 //GO(SECKEY_ImportDERPublicKey, 

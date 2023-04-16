@@ -241,6 +241,29 @@ static void* find_NSSCMSGetDecryptKeyCallback_Fct(void* fct)
     return NULL;
 }
 
+// CERTImportCertificateFunc ...
+#define GO(A)   \
+static uintptr_t my_CERTImportCertificateFunc_fct_##A = 0;                                  \
+static int my_CERTImportCertificateFunc_##A(void* a, void* b, int c)                        \
+{                                                                                           \
+    return (int)RunFunction(my_context, my_CERTImportCertificateFunc_fct_##A, 2, a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_CERTImportCertificateFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_CERTImportCertificateFunc_fct_##A == (uintptr_t)fct) return my_CERTImportCertificateFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_CERTImportCertificateFunc_fct_##A == 0) {my_CERTImportCertificateFunc_fct_##A = (uintptr_t)fct; return my_CERTImportCertificateFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for smime3 CERTImportCertificateFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my_SEC_PKCS12CreateExportContext(x64emu_t* emu, void* f, void* pwfnarg, void* slot, void* wincx)
@@ -272,6 +295,11 @@ EXPORT void* my_NSS_CMSEncoder_Start(x64emu_t* emu, void* cmsg, void* outputf, v
     return my->NSS_CMSEncoder_Start(cmsg, find_NSSCMSContentCallback_Fct(outputf), outputarg,
                     dest, destpool, find_PK11PasswordFunc_Fct(pwfn), pwfnarg,
                     find_NSSCMSGetDecryptKeyCallback_Fct(decryptcb), decryptarg, detached, items);
+}
+
+EXPORT int my_CERT_DecodeCertPackage(x64emu_t* emu, void* cert, int len, void* f, void* data)
+{
+    return my->CERT_DecodeCertPackage(cert, len, find_CERTImportCertificateFunc_Fct(f), data);
 }
 
 #define CUSTOM_INIT \

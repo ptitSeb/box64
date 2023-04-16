@@ -4343,6 +4343,8 @@ wrappedsmime3:
   - SEC_PKCS12DecoderValidateBags
 - iFppp:
   - SEC_PKCS12Encode
+- iFpipp:
+  - CERT_DecodeCertPackage
 - pFpppp:
   - SEC_PKCS12CreateExportContext
 - pFpppppppp:

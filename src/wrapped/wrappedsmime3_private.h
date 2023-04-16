@@ -4,7 +4,7 @@
 
 //GO(CERT_ConvertAndDecodeCertificate, 
 //GO(CERT_DecodeCertFromPackage, 
-//GO(CERT_DecodeCertPackage, 
+GOM(CERT_DecodeCertPackage, iFEpipp)
 //GO(NSS_CMSContentInfo_GetBulkKey, 
 //GO(NSS_CMSContentInfo_GetBulkKeySize, 
 //GO(NSS_CMSContentInfo_GetContent, 
