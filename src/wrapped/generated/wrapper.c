@@ -1931,6 +1931,7 @@ typedef int32_t (*iFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 typedef uint32_t (*uFEiipppp_t)(x64emu_t*, int32_t, int32_t, void*, void*, void*, void*);
 typedef uint32_t (*uFEpiippp_t)(x64emu_t*, void*, int32_t, int32_t, void*, void*, void*);
 typedef uint32_t (*uFEpuuppp_t)(x64emu_t*, void*, uint32_t, uint32_t, void*, void*, void*);
+typedef uint32_t (*uFEpppppp_t)(x64emu_t*, void*, void*, void*, void*, void*, void*);
 typedef uint32_t (*uFuippppp_t)(uint32_t, int32_t, void*, void*, void*, void*, void*);
 typedef uint32_t (*uFppiuppp_t)(void*, void*, int32_t, uint32_t, void*, void*, void*);
 typedef uint32_t (*uFppuuuup_t)(void*, void*, uint32_t, uint32_t, uint32_t, uint32_t, void*);
@@ -4334,6 +4335,7 @@ void iFppppppp(x64emu_t *emu, uintptr_t fcn) { iFppppppp_t fn = (iFppppppp_t)fcn
 void uFEiipppp(x64emu_t *emu, uintptr_t fcn) { uFEiipppp_t fn = (uFEiipppp_t)fcn; R_RAX=(uint32_t)fn(emu, (int32_t)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
 void uFEpiippp(x64emu_t *emu, uintptr_t fcn) { uFEpiippp_t fn = (uFEpiippp_t)fcn; R_RAX=(uint32_t)fn(emu, (void*)R_RDI, (int32_t)R_RSI, (int32_t)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
 void uFEpuuppp(x64emu_t *emu, uintptr_t fcn) { uFEpuuppp_t fn = (uFEpuuppp_t)fcn; R_RAX=(uint32_t)fn(emu, (void*)R_RDI, (uint32_t)R_RSI, (uint32_t)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
+void uFEpppppp(x64emu_t *emu, uintptr_t fcn) { uFEpppppp_t fn = (uFEpppppp_t)fcn; R_RAX=(uint32_t)fn(emu, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
 void uFuippppp(x64emu_t *emu, uintptr_t fcn) { uFuippppp_t fn = (uFuippppp_t)fcn; R_RAX=(uint32_t)fn((uint32_t)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9, *(void**)(R_RSP + 8)); }
 void uFppiuppp(x64emu_t *emu, uintptr_t fcn) { uFppiuppp_t fn = (uFppiuppp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (uint32_t)R_RCX, (void*)R_R8, (void*)R_R9, *(void**)(R_RSP + 8)); }
 void uFppuuuup(x64emu_t *emu, uintptr_t fcn) { uFppuuuup_t fn = (uFppuuuup_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (void*)R_RSI, (uint32_t)R_RDX, (uint32_t)R_RCX, (uint32_t)R_R8, (uint32_t)R_R9, *(void**)(R_RSP + 8)); }

@@ -22,6 +22,67 @@
 const char* gconf2Name = "libgconf-2.so.4";
 #define LIBNAME gconf2
 
+#include "generated/wrappedgconf2types.h"
+
+#include "wrappercallback.h"
+
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)
+
+// GFreeFct
+#define GO(A)   \
+static uintptr_t my_GFreeFct_fct_##A = 0;               \
+static void my_GFreeFct_##A(void* a)                    \
+{                                                       \
+    RunFunction(my_context, my_GFreeFct_fct_##A, 1, a); \
+}
+SUPER()
+#undef GO
+static void* findGFreeFctFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GFreeFct_fct_##A == (uintptr_t)fct) return my_GFreeFct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GFreeFct_fct_##A == 0) {my_GFreeFct_fct_##A = (uintptr_t)fct; return my_GFreeFct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gconf2 GFreeFct callback\n");
+    return NULL;
+}
+// GConfClientNotifyFunc
+#define GO(A)   \
+static uintptr_t my_GConfClientNotifyFunc_fct_##A = 0;                          \
+static void my_GConfClientNotifyFunc_##A(void* a, uint32_t b, void* c, void* d) \
+{                                                                               \
+    RunFunction(my_context, my_GConfClientNotifyFunc_fct_##A, 4, a, b, c, d);   \
+}
+SUPER()
+#undef GO
+static void* findGConfClientNotifyFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GConfClientNotifyFunc_fct_##A == (uintptr_t)fct) return my_GConfClientNotifyFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GConfClientNotifyFunc_fct_##A == 0) {my_GConfClientNotifyFunc_fct_##A = (uintptr_t)fct; return my_GConfClientNotifyFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gconf2 GConfClientNotifyFunc callback\n");
+    return NULL;
+}
+
+#undef SUPER
+
+EXPORT uint32_t my_gconf_client_notify_add(x64emu_t* emu, void* client, void* section, void* f, void* data, void* d, void* error)
+{
+    return my->gconf_client_notify_add(client, section, findGConfClientNotifyFuncFct(f), data, findGFreeFctFct(d), error);
+}
 
 #define PRE_INIT    \
     if(box64_nogtk) \

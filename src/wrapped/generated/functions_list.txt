@@ -1895,6 +1895,7 @@
 #() uFEiipppp
 #() uFEpiippp
 #() uFEpuuppp
+#() uFEpppppp
 #() uFuippppp
 #() uFppiuppp
 #() uFppuuuup
@@ -2618,6 +2619,8 @@ wrappedfreetype:
   - FTC_Manager_New
 wrappedgbm:
 wrappedgconf2:
+- uFpppppp:
+  - gconf_client_notify_add
 wrappedgcrypt:
 - uFpppV:
   - gcry_sexp_build

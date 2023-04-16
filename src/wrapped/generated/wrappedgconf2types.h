@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef uint32_t (*uFpppppp_t)(void*, void*, void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(gconf_client_notify_add, uFpppppp_t)
 
 #endif // __wrappedgconf2TYPES_H_
