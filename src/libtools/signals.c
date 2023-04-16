@@ -939,7 +939,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         }
         // access error, unprotect the block (and mark them dirty)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
-        if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db->need_test)) {
+        if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || getNeedTest((uintptr_t)db->x64_addr))) {
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();
             if(ejb->jmpbuf_ok) {
@@ -998,6 +998,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         if(db && db->x64_addr>= addr && (db->x64_addr+db->x64_size)<addr) {
             dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
         }
+        // mark stuff as unclean
+        cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
         static void* glitch_pc = NULL;
         static void* glitch_addr = NULL;
         static int glitch_prot = 0;
@@ -1057,10 +1059,13 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p)!\n", GetTID(), signame, old_code, old_pc, old_addr);
 exit(-1);
     } else {
-        if(sig==SIGSEGV && info->si_code==2 && ((prot&~PROT_DYN)==5 || (prot&~PROT_DYN)==7)) {
+        if((sig==SIGSEGV) && (info->si_code == SEGV_ACCERR) && ((prot&~PROT_CUSTOM)==5 || (prot&~PROT_CUSTOM)==7)) {
             static uintptr_t old_addr = 0;
         printf_log(/*LOG_DEBUG*/LOG_INFO, "Strange SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x (old_addr=%p)\n", pc, addr, db, prot, (void*)old_addr);
-            if(old_addr!=(uintptr_t)addr) {
+            #ifdef DYNAREC
+            cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
+            #endif
+            if(old_addr!=(uintptr_t)addr || getMmapped((uintptr_t)addr)) {
                 old_addr = (uintptr_t)addr;
                 refreshProtection(old_addr);
                 relockMutex(Locks);
@@ -1222,7 +1227,7 @@ exit(-1);
             prot, db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0, 
             getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)), 
-            (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash, 
+            (db?getNeedTest((uintptr_t)db->x64_addr):0)?"need_stest":"clean", db?db->hash:0, hash, 
             (void*)my_context->signals[sig]);
 #if defined(ARM64)
         if(db) {

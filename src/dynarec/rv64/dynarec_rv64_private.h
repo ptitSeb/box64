@@ -96,6 +96,7 @@ typedef struct dynarec_rv64_s {
     int                 table64size;// size of table (will be appended at end of executable code)
     int                 table64cap;
     uintptr_t           tablestart;
+    uintptr_t           jmp_next;   // address of the jump_next address
     flagcache_t         f;
     extcache_t          e;          // cache for the 10..31 0..1 double reg from fpu, plus x87 stack delta
     uintptr_t*          next;       // variable array of "next" jump address
@@ -111,6 +112,7 @@ typedef struct dynarec_rv64_s {
     uintptr_t           forward_to; // address of the next jump to (to check if everything is ok)
     int32_t             forward_size;   // size at the forward point
     int                 forward_ninst;  // ninst at the forward point
+    uint8_t             always_test;
 } dynarec_rv64_t;
 
 // convert idx (0..24) to reg index (10..31 0..1)
@@ -123,7 +125,7 @@ uintptr_t get_closest_next(dynarec_rv64_t *dyn, uintptr_t addr);
 int is_nops(dynarec_rv64_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_rv64_t *dyn, uintptr_t addr, int n);
 
-int Table64(dynarec_rv64_t *dyn, uint64_t val);  // add a value to etable64 (if needed) and gives back the imm19 to use in LDR_literal
+int Table64(dynarec_rv64_t *dyn, uint64_t val, int pass);  // add a value to etable64 (if needed) and gives back the imm19 to use in LDR_literal
 
 void CreateJmpNext(void* addr, void* next);
 
