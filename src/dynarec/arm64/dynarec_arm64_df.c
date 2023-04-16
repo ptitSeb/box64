@@ -60,7 +60,8 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             LDRw_U12(x2, xEmu, offsetof(x64emu_t, top));
             LDRH_U12(x1, xEmu, offsetof(x64emu_t, sw));
             BFIw(x1, x2, 11, 3); // inject top
-            BFIw(xRAX, x1, 0, 16);
+            STRH_U12(x1, xEmu, offsetof(x64emu_t, sw));
+            BFIx(xRAX, x1, 0, 16);
             break;
         case 0xE8:
         case 0xE9:
