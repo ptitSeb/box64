@@ -359,12 +359,12 @@ void RemoveElfHeader(box64context_t* ctx, elfheader_t* head) {
     if(GetTLSBase(head)) {
         // should remove the tls info
         int tlsbase = GetTLSBase(head);
-        if(tlsbase == -ctx->tlssize) {
+        /*if(tlsbase == -ctx->tlssize) {
             // not really correct, but will do for now
             ctx->tlssize -= GetTLSSize(head);
             if(!(++ctx->sel_serial))
                 ++ctx->sel_serial;
-        }
+        }*/
     }
     for(int i=0; i<ctx->elfsize; ++i)
         if(ctx->elfs[i] == head) {

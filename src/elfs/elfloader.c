@@ -1347,8 +1347,6 @@ void RunElfFini(elfheader_t* h, x64emu_t *emu)
         RunFunctionWithEmu(emu, 0, p, 0);
     }
     h->init_done = 0;   // can be re-inited again...
-    for(int i=0; i<h->needed->size; ++i)
-        DecRefCount(&h->needed->libs[i], emu);
     return;
 }
 

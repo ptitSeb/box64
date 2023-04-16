@@ -1079,8 +1079,9 @@ void IncRefCount(library_t* lib, x64emu_t* emu)
         case LIB_WRAPPED:
             ++lib->w.refcnt;
             if(lib->w.needed)
-                for(int i=0; i<lib->w.needed->size; ++i)
+                for(int i=0; i<lib->w.needed->size; ++i) {
                     IncRefCount(lib->w.needed->libs[i], emu);
+                }
             break;
         case LIB_EMULATED:
             ++lib->e.elf->refcnt;
@@ -1102,7 +1103,8 @@ int DecRefCount(library_t** lib, x64emu_t* emu)
     switch ((*lib)->type) {
         case LIB_WRAPPED:
             needed = (*lib)->w.needed;
-            if(!(ret=--(*lib)->w.refcnt)) {
+            ret=--(*lib)->w.refcnt;
+            if(!ret) {
                 needed = copy_neededlib(needed);
                 freed=1;
                 Free1Library(lib, emu);
@@ -1110,7 +1112,8 @@ int DecRefCount(library_t** lib, x64emu_t* emu)
             break;
         case LIB_EMULATED:
             needed = (*lib)->e.elf->needed;
-            if(!(ret=--(*lib)->e.elf->refcnt)) {
+            ret=--(*lib)->e.elf->refcnt;
+            if(!ret) {
                 needed = copy_neededlib(needed);
                 freed=1;
                 removeLinkMapLib(*lib);
