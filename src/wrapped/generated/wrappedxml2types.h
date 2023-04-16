@@ -32,8 +32,12 @@ typedef void* (*pFpppppi_t)(void*, void*, void*, void*, void*, int32_t);
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(xmlSetExternalEntityLoader, vFp_t) \
 	GO(xmlParseDocument, iFp_t) \
+	GO(__xmlGenericError, pFv_t) \
+	GO(__xmlStructuredError, pFv_t) \
 	GO(xmlGetExternalEntityLoader, pFv_t) \
 	GO(xmlHashFree, vFpp_t) \
+	GO(xmlSetGenericErrorFunc, vFpp_t) \
+	GO(xmlSetStructuredErrorFunc, vFpp_t) \
 	GO(xmlHashCopy, pFpp_t) \
 	GO(xmlHashScan, vFppp_t) \
 	GO(xmlHashScanFull, vFppp_t) \
@@ -47,6 +51,7 @@ typedef void* (*pFpppppi_t)(void*, void*, void*, void*, void*, int32_t);
 	GO(xmlHashRemoveEntry2, iFpppp_t) \
 	GO(xmlHashUpdateEntry, iFpppp_t) \
 	GO(xmlRegisterInputCallbacks, iFpppp_t) \
+	GO(xmlRegisterOutputCallbacks, iFpppp_t) \
 	GO(xmlParserInputBufferCreateIO, pFpppi_t) \
 	GO(xmlOutputBufferCreateIO, pFpppp_t) \
 	GO(xmlHashRemoveEntry3, iFppppp_t) \

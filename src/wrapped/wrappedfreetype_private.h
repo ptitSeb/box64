@@ -156,13 +156,13 @@ GO(FT_Set_Char_Size, iFplluu)
 //GO(FT_Set_Debug_Hook, 
 //GO(FT_Set_Default_Properties, 
 //GO(FT_Set_MM_Blend_Coordinates, 
-//GO(FT_Set_MM_Design_Coordinates, 
+GO(FT_Set_MM_Design_Coordinates, iFpup)
 GO(FT_Set_Pixel_Sizes, iFpuu)
 //GO(FT_Set_Renderer, 
 GO(FT_Set_Transform, vFppp)
 //GO(FT_Set_Var_Blend_Coordinates, 
 GO(FT_Set_Var_Design_Coordinates, iFpup)
-//GO(FT_Sfnt_Table_Info, 
+GO(FT_Sfnt_Table_Info, iFpupp)
 GO(FT_Sin, lFl)
 //GO(FT_Stream_OpenBzip2, 
 //GO(FT_Stream_OpenGzip, 

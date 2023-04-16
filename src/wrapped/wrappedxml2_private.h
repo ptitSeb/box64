@@ -164,7 +164,7 @@ GO(xmlBufferWriteCHAR, vFpp)
 GO(xmlBufferWriteQuotedString, vFpp)
 GO(xmlBuildQName, pFpppi)
 GO(xmlBuildRelativeURI, pFpp)
-//GO(xmlBuildURI, 
+GO(xmlBuildURI, pFpp)
 GO(xmlByteConsumed, lFp)
 //GO(xmlC14NDocDumpMemory, 
 //GO(xmlC14NDocSave, 
@@ -190,7 +190,7 @@ GO(xmlByteConsumed, lFp)
 //GO(xmlCatalogResolveURI, 
 //GO(xmlCatalogSetDebug, 
 //GO(xmlCatalogSetDefaultPrefer, 
-//GO(xmlCatalogSetDefaults, 
+GO(xmlCatalogSetDefaults, vFi)
 GO(xmlCharEncCloseFunc, iFp)
 GO(xmlCharEncFirstLine, iFppp)
 //GO(xmlCharEncFirstLineInt, 
@@ -361,14 +361,14 @@ GO(xmlFreePropList, vFp)
 GO(xmlFreeRefTable, vFp)
 //GO(xmlFreeRMutex, 
 //GO(xmlFreeStreamCtxt, 
-//GO(xmlFreeTextReader, 
+GO(xmlFreeTextReader, vFp)
 //GO(xmlFreeTextWriter, 
 //GO(xmlFreeURI, 
 GO(xmlFreeValidCtxt, vFp)
 //GO(xmlGcMemGet, 
 //GO(xmlGcMemSetup, 
-//GO(__xmlGenericError, 
-//GO(__xmlGenericErrorContext, 
+GOM(__xmlGenericError, pFEv)
+GO(__xmlGenericErrorContext, pFv)
 //GO(xmlGenericErrorDefaultFunc, 
 GO(xmlGetBufferAllocationScheme, iFv)
 GO(xmlGetCharEncodingHandler, pFp)
@@ -777,7 +777,7 @@ GO(xmlReadDoc, pFpppi)
 //GO(xmlReaderForFd, 
 //GO(xmlReaderForFile, 
 //GO(xmlReaderForIO, 
-//GO(xmlReaderForMemory, 
+GO(xmlReaderForMemory, pFpippi)
 //GO(xmlReaderNewDoc, 
 //GO(xmlReaderNewFd, 
 //GO(xmlReaderNewFile, 
@@ -811,7 +811,7 @@ GO(xmlRegisterHTTPPostCallbacks, vFv)
 GOM(xmlRegisterInputCallbacks, iFEpppp)
 //GOM(xmlRegisterNodeDefault, BFEB)
 //GO(__xmlRegisterNodeDefaultValue, 
-//GOM(xmlRegisterOutputCallbacks, iFEBBBB)
+GOM(xmlRegisterOutputCallbacks, iFEpppp)
 //GO(xmlRegNewExecCtxt, 
 //GO(xmlRelaxNGCleanupTypes, 
 //GO(xmlRelaxNGDump, 
@@ -988,12 +988,12 @@ GO(xmlSetCompressMode, vFi)
 GO(xmlSetDocCompressMode, vFpi)
 GOM(xmlSetExternalEntityLoader, vFEp)
 GO(xmlSetFeature, iFppp)
-//GO(xmlSetGenericErrorFunc, 
+GOM(xmlSetGenericErrorFunc, vFEpp)
 GO(xmlSetListDoc, vFpp)
 GO(xmlSetNs, vFpp)
 GO(xmlSetNsProp, pFpppp)
 GO(xmlSetProp, pFppp)
-//GO(xmlSetStructuredErrorFunc, 
+GOM(xmlSetStructuredErrorFunc, vFEpp)
 GO(xmlSetTreeDoc, vFpp)
 GO(xmlSetupParserForBuffer, vFppp)
 //GO(__xmlSimpleError, 
@@ -1031,7 +1031,7 @@ GO2(xmlStrPrintf, iFpipV, xmlStrVPrintf)
 GO(xmlStrQEqual, iFppp)
 GO(xmlStrstr, pFpp)
 GO(xmlStrsub, pFpii)
-//GO(__xmlStructuredError, 
+GOM(__xmlStructuredError, pFEv)
 //GO(__xmlStructuredErrorContext, 
 GO(xmlStrVPrintf, iFpipp)
 GO(xmlSubstituteEntitiesDefault, iFi)
@@ -1047,19 +1047,19 @@ GO(xmlTextMerge, pFpp)
 //GO(xmlTextReaderClose, 
 //GO(xmlTextReaderConstBaseUri, 
 //GO(xmlTextReaderConstEncoding, 
-//GO(xmlTextReaderConstLocalName, 
-//GO(xmlTextReaderConstName, 
+GO(xmlTextReaderConstLocalName, pFp)
+GO(xmlTextReaderConstName, pFp)
 //GO(xmlTextReaderConstNamespaceUri, 
 //GO(xmlTextReaderConstPrefix, 
 //GO(xmlTextReaderConstString, 
-//GO(xmlTextReaderConstValue, 
+GO(xmlTextReaderConstValue, pFp)
 //GO(xmlTextReaderConstXmlLang, 
 //GO(xmlTextReaderConstXmlVersion, 
 //GO(xmlTextReaderCurrentDoc, 
 //GO(xmlTextReaderCurrentNode, 
 //GO(xmlTextReaderDepth, 
 //GO(xmlTextReaderExpand, 
-//GO(xmlTextReaderGetAttribute, 
+GO(xmlTextReaderGetAttribute, pFpp)
 //GO(xmlTextReaderGetAttributeNo, 
 //GO(xmlTextReaderGetAttributeNs, 
 //GO(xmlTextReaderGetErrorHandler, 
@@ -1067,33 +1067,33 @@ GO(xmlTextMerge, pFpp)
 //GO(xmlTextReaderGetParserLineNumber, 
 //GO(xmlTextReaderGetParserProp, 
 //GO(xmlTextReaderGetRemainder, 
-//GO(xmlTextReaderHasAttributes, 
+GO(xmlTextReaderHasAttributes, iFp)
 //GO(xmlTextReaderHasValue, 
 //GO(xmlTextReaderIsDefault, 
-//GO(xmlTextReaderIsEmptyElement, 
-//GO(xmlTextReaderIsNamespaceDecl, 
+GO(xmlTextReaderIsEmptyElement, iFp)
+GO(xmlTextReaderIsNamespaceDecl, iFp)
 //GO(xmlTextReaderIsValid, 
 //GO(xmlTextReaderLocalName, 
 //GO(xmlTextReaderLocatorBaseURI, 
 //GO(xmlTextReaderLocatorLineNumber, 
-//GO(xmlTextReaderLookupNamespace, 
+GO(xmlTextReaderLookupNamespace, pFpp)
 //GO(xmlTextReaderMoveToAttribute, 
 //GO(xmlTextReaderMoveToAttributeNo, 
 //GO(xmlTextReaderMoveToAttributeNs, 
-//GO(xmlTextReaderMoveToElement, 
-//GO(xmlTextReaderMoveToFirstAttribute, 
-//GO(xmlTextReaderMoveToNextAttribute, 
+GO(xmlTextReaderMoveToElement, iFp)
+GO(xmlTextReaderMoveToFirstAttribute, iFp)
+GO(xmlTextReaderMoveToNextAttribute, iFp)
 //GO(xmlTextReaderName, 
 //GO(xmlTextReaderNamespaceUri, 
 //GO(xmlTextReaderNext, 
 //GO(xmlTextReaderNextSibling, 
-//GO(xmlTextReaderNodeType, 
+GO(xmlTextReaderNodeType, iFp)
 //GO(xmlTextReaderNormalization, 
 //GO(xmlTextReaderPrefix, 
 //GO(xmlTextReaderPreserve, 
 //GO(xmlTextReaderPreservePattern, 
 //GO(xmlTextReaderQuoteChar, 
-//GO(xmlTextReaderRead, 
+GO(xmlTextReaderRead, iFp)
 //GO(xmlTextReaderReadAttributeValue, 
 //GO(xmlTextReaderReadInnerXml, 
 //GO(xmlTextReaderReadOuterXml, 

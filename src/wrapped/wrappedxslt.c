@@ -82,7 +82,50 @@ static void* find_xsltDocLoaderFunc_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libxslt xsltDocLoaderFunc callback\n");
     return NULL;
 }
-
+// xsltSecurityCheck ...
+#define GO(A)   \
+static uintptr_t my_xsltSecurityCheck_fct_##A = 0;                                  \
+static int my_xsltSecurityCheck_##A(void* a, void* b, void* c)                      \
+{                                                                                   \
+    return (int)RunFunction(my_context, my_xsltSecurityCheck_fct_##A, 3, a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_xsltSecurityCheck_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xsltSecurityCheck_fct_##A == (uintptr_t)fct) return my_xsltSecurityCheck_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xsltSecurityCheck_fct_##A == 0) {my_xsltSecurityCheck_fct_##A = (uintptr_t)fct; return my_xsltSecurityCheck_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxslt xsltSecurityCheck callback\n");
+    return NULL;
+}
+// xsltSortFunc ...
+#define GO(A)   \
+static uintptr_t my_xsltSortFunc_fct_##A = 0;                       \
+static void my_xsltSortFunc_##A(void* a, void* b, int c)            \
+{                                                                   \
+    RunFunction(my_context, my_xsltSortFunc_fct_##A, 3, a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* find_xsltSortFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xsltSortFunc_fct_##A == (uintptr_t)fct) return my_xsltSortFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xsltSortFunc_fct_##A == 0) {my_xsltSortFunc_fct_##A = (uintptr_t)fct; return my_xsltSortFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxslt xsltSortFunc callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT int my_xsltRegisterExtModuleFunction(x64emu_t* emu, void* name, void* URI, void* f)
@@ -93,6 +136,21 @@ EXPORT int my_xsltRegisterExtModuleFunction(x64emu_t* emu, void* name, void* URI
 EXPORT void my_xsltSetLoaderFunc(x64emu_t* emu, void* f)
 {
     my->xsltSetLoaderFunc(find_xsltDocLoaderFunc_Fct(f));
+}
+
+EXPORT int my_xsltRegisterExtFunction(x64emu_t* emu, void* ctx, void* name, void* uri, void* f)
+{
+    return my->xsltRegisterExtFunction(ctx, name, uri, find_xmlXPathFunction_Fct(f));
+}
+
+EXPORT int my_xsltSetSecurityPrefs(x64emu_t* emu, void* sec, void* option, void* f)
+{
+    return my->xsltSetSecurityPrefs(sec, option, find_xsltSecurityCheck_Fct(f));
+}
+
+EXPORT void my_xsltSetCtxtSortFunc(x64emu_t* emu, void* ctx, void* handler)
+{
+    return my->xsltSetCtxtSortFunc(ctx, find_xsltSortFunc_Fct(handler));
 }
 
 #define CUSTOM_INIT \

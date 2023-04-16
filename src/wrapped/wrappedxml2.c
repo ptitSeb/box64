@@ -3,6 +3,7 @@
 #include <string.h>
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
+#include <stdarg.h>
 
 #include "wrappedlibs.h"
 
@@ -400,28 +401,6 @@ static void* find_xmlSchemaValidityWarningFunc_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlSchemaValidityWarningFunc callback\n");
-    return NULL;
-}
-// xmlStructuredErrorFunc ...
-#define GO(A)   \
-static uintptr_t my_xmlStructuredErrorFunc_fct_##A = 0;                     \
-static void my_xmlStructuredErrorFunc_##A(void* a, void* b)                 \
-{                                                                           \
-    RunFunction(my_context, my_xmlStructuredErrorFunc_fct_##A, 2, a, b);    \
-}
-SUPER()
-#undef GO
-static void* find_xmlStructuredErrorFunc_Fct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_xmlStructuredErrorFunc_fct_##A == (uintptr_t)fct) return my_xmlStructuredErrorFunc_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_xmlStructuredErrorFunc_fct_##A == 0) {my_xmlStructuredErrorFunc_fct_##A = (uintptr_t)fct; return my_xmlStructuredErrorFunc_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlStructuredErrorFunc callback\n");
     return NULL;
 }
 // xmlXPathFunction ...
@@ -1119,6 +1098,123 @@ static void* reverse_xmlExternalEntityLoaderFct(void* fct)
 }
 
 
+// xmlGenericErrorFunc
+#define GO(A)   \
+static uintptr_t my_xmlGenericErrorFunc_fct_##A = 0;                                    \
+static void my_xmlGenericErrorFunc_##A(void* a, const char* fmt, ...)                   \
+{                                                                                       \
+    char buf[4096];                                                                     \
+    va_list args;                                                                       \
+    va_start(args, fmt);                                                                \
+    vsnprintf(buf, 4096, fmt, args);                                                    \
+    va_end(args);                                                                       \
+    RunFunction(my_context, my_xmlGenericErrorFunc_fct_##A, 2, a, buf);                 \
+}
+SUPER()
+#undef GO
+static void* find_xmlGenericErrorFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlGenericErrorFunc_fct_##A == (uintptr_t)fct) return my_xmlGenericErrorFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlGenericErrorFunc_fct_##A == 0) {my_xmlGenericErrorFunc_fct_##A = (uintptr_t)fct; return my_xmlGenericErrorFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlGenericErrorFunc callback\n");
+    return NULL;
+}
+static void* reverse_xmlGenericErrorFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_xmlGenericErrorFunc_##A == fct) return (void*)my_xmlGenericErrorFunc_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFpp, fct, 0, "xmlGenericErrorFunc_callback");
+}
+
+// xmlStructuredErrorFunc
+#define GO(A)   \
+static uintptr_t my_xmlStructuredErrorFunc_fct_##A = 0;                     \
+static void my_xmlStructuredErrorFunc_##A(void* a, const char* b)           \
+{                                                                           \
+    RunFunction(my_context, my_xmlStructuredErrorFunc_fct_##A, 2, a, b);    \
+}
+SUPER()
+#undef GO
+static void* find_xmlStructuredErrorFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlStructuredErrorFunc_fct_##A == (uintptr_t)fct) return my_xmlStructuredErrorFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlStructuredErrorFunc_fct_##A == 0) {my_xmlStructuredErrorFunc_fct_##A = (uintptr_t)fct; return my_xmlStructuredErrorFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlStructuredErrorFunc callback\n");
+    return NULL;
+}
+static void* reverse_xmlStructuredErrorFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_xmlStructuredErrorFunc_##A == fct) return (void*)my_xmlStructuredErrorFunc_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFpp, fct, 0, "xmlStructuredErrorFunc_callback");
+}
+
+// xmlOutputMatchCallback ...
+#define GO(A)   \
+static uintptr_t my_xmlOutputMatchCallback_fct_##A = 0;                             \
+static int my_xmlOutputMatchCallback_##A(void* a)                                   \
+{                                                                                   \
+    return (int)RunFunction(my_context, my_xmlOutputMatchCallback_fct_##A, 1, a);   \
+}
+SUPER()
+#undef GO
+static void* find_xmlOutputMatchCallback_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlOutputMatchCallback_fct_##A == (uintptr_t)fct) return my_xmlOutputMatchCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlOutputMatchCallback_fct_##A == 0) {my_xmlOutputMatchCallback_fct_##A = (uintptr_t)fct; return my_xmlOutputMatchCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlOutputMatchCallback callback\n");
+    return NULL;
+}
+
+// xmlOutputOpenCallback ...
+#define GO(A)   \
+static uintptr_t my_xmlOutputOpenCallback_fct_##A = 0;                              \
+static void* my_xmlOutputOpenCallback_##A(void* a)                                  \
+{                                                                                   \
+    return (void*)RunFunction(my_context, my_xmlOutputOpenCallback_fct_##A, 1, a);  \
+}
+SUPER()
+#undef GO
+static void* find_xmlOutputOpenCallback_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlOutputOpenCallback_fct_##A == (uintptr_t)fct) return my_xmlOutputOpenCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlOutputOpenCallback_fct_##A == 0) {my_xmlOutputOpenCallback_fct_##A = (uintptr_t)fct; return my_xmlOutputOpenCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlOutputOpenCallback callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void* my_xmlHashCopy(x64emu_t* emu, void* table, void* f)
@@ -1315,6 +1411,31 @@ EXPORT void* my_xmlCreateIOParserCtxt(x64emu_t* emu, my_xmlSAXHandler_t** p, voi
     void* ret = my->xmlCreateIOParserCtxt(p, user_data, find_xmlInputReadCallback_Fct(ioread), find_xmlInputCloseCallback_Fct(ioclose), ioctx, enc);
     restoreSaxHandler(&sax_handler, old_saxhandler);
     return ret;
+}
+
+EXPORT void*  my___xmlGenericError(x64emu_t* emu)
+{
+    return reverse_xmlGenericErrorFunc_Fct(my->__xmlGenericError());
+}
+
+EXPORT void* my___xmlStructuredError(x64emu_t* emu)
+{
+    return reverse_xmlStructuredErrorFunc_Fct(my->__xmlStructuredError());
+}
+
+EXPORT void my_xmlSetGenericErrorFunc(x64emu_t* emu, void* ctx, void* f)
+{
+    my->xmlSetGenericErrorFunc(ctx, find_xmlGenericErrorFunc_Fct(f));
+}
+
+EXPORT void my_xmlSetStructuredErrorFunc(x64emu_t* emu, void* ctx, void* f)
+{
+    my->xmlSetStructuredErrorFunc(ctx, find_xmlStructuredErrorFunc_Fct(f));
+}
+
+EXPORT int my_xmlRegisterOutputCallbacks(x64emu_t* emu, void* match, void* open, void* write, void* close)
+{
+    return my->xmlRegisterOutputCallbacks(find_xmlOutputMatchCallback_Fct(match), find_xmlOutputOpenCallback_Fct(open), find_xmlOutputWriteCallback_Fct(write), find_xmlOutputCloseCallback_Fct(close));
 }
 
 #define CUSTOM_INIT \

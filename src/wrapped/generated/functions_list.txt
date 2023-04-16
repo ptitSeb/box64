@@ -4559,9 +4559,13 @@ wrappedxml2:
 - iFp:
   - xmlParseDocument
 - pFv:
+  - __xmlGenericError
+  - __xmlStructuredError
   - xmlGetExternalEntityLoader
 - vFpp:
   - xmlHashFree
+  - xmlSetGenericErrorFunc
+  - xmlSetStructuredErrorFunc
 - pFpp:
   - xmlHashCopy
 - vFppp:
@@ -4581,6 +4585,7 @@ wrappedxml2:
   - xmlHashRemoveEntry2
   - xmlHashUpdateEntry
   - xmlRegisterInputCallbacks
+  - xmlRegisterOutputCallbacks
 - pFpppi:
   - xmlParserInputBufferCreateIO
 - pFpppp:
@@ -4601,5 +4606,10 @@ wrappedxshmfence:
 wrappedxslt:
 - vFp:
   - xsltSetLoaderFunc
+- vFpp:
+  - xsltSetCtxtSortFunc
 - iFppp:
   - xsltRegisterExtModuleFunction
+  - xsltSetSecurityPrefs
+- iFpppp:
+  - xsltRegisterExtFunction
