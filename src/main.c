@@ -1379,7 +1379,7 @@ int main(int argc, const char **argv, char **env) {
     LoadEnvVars(my_context);
     // Append ld_list if it exist
     if(ld_libs_args!=-1)
-        AppendList(&my_context->box64_ld_lib, argv[ld_libs_args], 1);
+        PrependList(&my_context->box64_ld_lib, argv[ld_libs_args], 1);
 
     my_context->box64path = ResolveFile(argv[0], &my_context->box64_path);
     // prepare all other env. var
