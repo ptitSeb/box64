@@ -141,8 +141,8 @@ GOW(csinh, XFX)
 GOW(csinhf, xFx)
 // csinhl   // Weak
 // csinl    // Weak
-//GOS(csqrt, pFpV)
-//GOS(csqrtf, UFV)   // Weak
+GOW(csqrt, XFX)
+GOW(csqrtf, xFx)
 // csqrtl   // Weak
 GOW(ctan, XFX)
 GOW(ctanf, xFx)
