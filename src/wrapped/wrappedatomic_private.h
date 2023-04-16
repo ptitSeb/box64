@@ -59,7 +59,7 @@ GO(__atomic_exchange, vFpppi)
 //GO(atomic_flag_clear_explicit, 
 //GO(atomic_flag_test_and_set, 
 //GO(atomic_flag_test_and_set_explicit, 
-GO(__atomic_is_lock_free, iFp)
+GO(__atomic_is_lock_free, iFLp)
 GO(__atomic_load, vFppi)
 //GO(__atomic_load_1, 
 //GO(__atomic_load_16, 
