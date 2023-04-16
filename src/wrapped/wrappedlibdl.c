@@ -136,18 +136,40 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
                         printf_dlsym(LOG_DEBUG, " => not present anymore\n");
                         return NULL;    // don't re-open in RTLD_NOLOAD mode
                     }
+                } else {
+                    IncRefCount(dl->dllibs[i].lib, emu);
+                    ++dl->dllibs[i].count;
                 }
-                IncRefCount(dl->dllibs[i].lib, emu);
-                ++dl->dllibs[i].count;
                 printf_dlsym(LOG_DEBUG, "dlopen: Recycling %s/%p count=%ld (dlopened=%ld, elf_index=%d)\n", rfilename, (void*)(i+1), dl->dllibs[i].count, dl->dllibs[i].dlopened, GetElfIndex(dl->dllibs[i].lib));
                 return (void*)(i+1);
             }
         }
+        lib = GetLibInternal(rfilename);
         if(flag&0x4) {   //RTLD_NOLOAD is just a "check" if lib is already loaded
+            if(lib) {
+                if(dl->lib_sz == dl->lib_cap) {
+                    dl->lib_cap += 4;
+                    dl->dllibs = (dllib_t*)box_realloc(dl->dllibs, sizeof(dllib_t)*dl->lib_cap);
+                    // memset count...
+                    memset(dl->dllibs+dl->lib_sz, 0, (dl->lib_cap-dl->lib_sz)*sizeof(dllib_t));
+                    if(!dl->lib_sz)
+                        dl->lib_sz = MIN_NLIB;
+                }
+                intptr_t idx = dl->lib_sz++;
+                dl->dllibs[idx].lib = lib;
+                ++dl->dllibs[idx].count;
+                dl->dllibs[idx].dlopened = dlopened;
+                dl->dllibs[idx].is_self = lib?0:1;
+                dl->dllibs[idx].full = 1;
+                SetDlOpenIdx(lib, idx);
+                printf_dlsym(LOG_DEBUG, "dlopen: New handle %p (%s), dlopened=%ld\n", (void*)(idx+1), (char*)filename, dlopened);
+                return (void*)(idx+1);
+
+            }
             printf_dlsym(LOG_DEBUG, " => not present\n");
             return NULL;
         }
-        dlopened = (GetLibInternal(rfilename)==NULL);
+        dlopened = (lib==NULL);
         // Then open the lib
         my_context->deferredInit = 1;
         int bindnow = (!box64_musl && (flag&0x2))?1:0;
