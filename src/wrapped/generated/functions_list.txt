@@ -2217,7 +2217,6 @@
 #() iFEpiiiiippp
 #() iFEpupppLppL
 #() iFEppppppipp
-#() iFEppppppppp
 #() iFiiiiiiiiip
 #() iFpiipiiipip
 #() iFpippddiidd
@@ -2273,6 +2272,7 @@
 #() vFppppppppppp
 #() iFEpppipppppp
 #() iFEppppiiiiuu
+#() iFEpppppppppp
 #() iFiiiiiiiiiip
 #() iFpiippiiipip
 #() iFppippipppip
@@ -2597,7 +2597,7 @@ wrappedfaudio:
 wrappedflac:
 - iFppPPPPPP:
   - FLAC__metadata_chain_read_with_callbacks
-- iFppppppppp:
+- iFpppppppppp:
   - FLAC__stream_decoder_init_stream
 wrappedfontconfig:
 - pFpV:
