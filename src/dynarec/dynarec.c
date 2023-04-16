@@ -52,9 +52,11 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         }
         if(!block) {
             #ifdef HAVE_TRACE
-            dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-            elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2-4);
-            dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s))\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)");
+            if(LOG_INFO<=box64_dynarec_log) {
+                dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
+                elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2-4);
+                dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s))\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)");
+            }
             #endif
             //tableupdate(native_epilog, addr, table);
             return native_epilog;
