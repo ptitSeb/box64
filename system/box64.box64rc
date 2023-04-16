@@ -75,7 +75,6 @@ BOX64_NOGTK=1
 [ProjectZomboid64]
 # This one is still a bit unstable. This might help, but will also slowdown emulation
 BOX64_DYNAREC_STRONGMEM=2
-BOX64_DYNAREC_BIGBLOCK=0
 BOX64_DYNAREC_SAFEFLAGS=2
 
 [Soma.bin.x86_64]
