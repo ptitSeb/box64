@@ -64,7 +64,7 @@ GO(drmFreeVersion, vFp)
 GO(drmGetDeviceNameFromFd, pFi)
 //GO(drmGetDeviceNameFromFd2, 
 GO(drmGetDevices, iFpi)
-//GO(drmGetDevices2, 
+GO(drmGetDevices2, iFupi)
 //GO(drmGetEntry, 
 //GO(drmGetHashTable, 
 //GO(drmGetInterruptFromBusID, 

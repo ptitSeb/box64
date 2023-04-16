@@ -446,6 +446,7 @@ void iFuUu(x64emu_t *emu, uintptr_t fnc);
 void iFuff(x64emu_t *emu, uintptr_t fnc);
 void iFuLL(x64emu_t *emu, uintptr_t fnc);
 void iFuLp(x64emu_t *emu, uintptr_t fnc);
+void iFupi(x64emu_t *emu, uintptr_t fnc);
 void iFupL(x64emu_t *emu, uintptr_t fnc);
 void iFupp(x64emu_t *emu, uintptr_t fnc);
 void iFfff(x64emu_t *emu, uintptr_t fnc);
