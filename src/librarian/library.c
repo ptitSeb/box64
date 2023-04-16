@@ -518,81 +518,84 @@ int FiniLibrary(library_t* lib, x64emu_t* emu)
     return 1;   // bad type
 }
 
-void Free1Library(library_t **lib, x64emu_t* emu)
+void Free1Library(library_t **the_lib, x64emu_t* emu)
 {
-    if(!(*lib)) return;
+    if(!(*the_lib)) return;
 
-    printf_log(LOG_DEBUG, "Free1Library %s\n", (*lib)->name);
+    library_t* lib = *the_lib;
+
+    printf_log(LOG_DEBUG, "Free1Library %s\n", lib->name);
     // remove lib from maplib/local_maplib...
     if(my_context) {
-        MapLibRemoveLib(my_context->maplib, *lib);
-        MapLibRemoveLib(my_context->local_maplib, *lib);
+        MapLibRemoveLib(my_context->maplib, lib);
+        MapLibRemoveLib(my_context->local_maplib, lib);
     }
     // free elf is relevant
-    if((*lib)->type==LIB_EMULATED) {
-        FreeElfHeader(&(*lib)->e.elf);
+    if(lib->type==LIB_EMULATED) {
+        FreeElfHeader(&lib->e.elf);
     }
 
     // No "Fini" logic here, only memory handling
-    if((*lib)->maplib)
-        FreeLibrarian(&(*lib)->maplib, emu);
+    if(lib->maplib)
+        FreeLibrarian(&lib->maplib, emu);
 
-    if((*lib)->type!=LIB_UNNKNOW && (*lib)->fini) {
-        (*lib)->fini(*lib);
+    if(lib->type!=LIB_UNNKNOW && lib->fini) {
+        lib->fini(lib);
     }
-    box_free((*lib)->name);
-    box_free((*lib)->path);
+    box_free(lib->name);
+    box_free(lib->path);
 
-    if((*lib)->gbridgemap) {
+    if(lib->gbridgemap) {
         bridged_t *br;
-        kh_foreach_value_ref((*lib)->gbridgemap, br,
+        kh_foreach_value_ref(lib->gbridgemap, br,
             box_free(br->name);
         );
-        kh_destroy(bridgemap, (*lib)->gbridgemap);
+        kh_destroy(bridgemap, lib->gbridgemap);
     }
-    if((*lib)->wbridgemap) {
+    if(lib->wbridgemap) {
         bridged_t *br;
-        kh_foreach_value_ref((*lib)->wbridgemap, br,
+        kh_foreach_value_ref(lib->wbridgemap, br,
             box_free(br->name);
         );
-        kh_destroy(bridgemap, (*lib)->wbridgemap);
+        kh_destroy(bridgemap, lib->wbridgemap);
     }
-    if((*lib)->lbridgemap) {
+    if(lib->lbridgemap) {
         bridged_t *br;
-        kh_foreach_value_ref((*lib)->lbridgemap, br,
+        kh_foreach_value_ref(lib->lbridgemap, br,
             box_free(br->name);
         );
-        kh_destroy(bridgemap, (*lib)->lbridgemap);
+        kh_destroy(bridgemap, lib->lbridgemap);
     }
-    if((*lib)->type == LIB_WRAPPED) {
-        if((*lib)->w.symbolmap)
-            kh_destroy(symbolmap, (*lib)->w.symbolmap);
-        if((*lib)->w.wsymbolmap)
-            kh_destroy(symbolmap, (*lib)->w.wsymbolmap);
-        if((*lib)->w.datamap)
-            kh_destroy(datamap, (*lib)->w.datamap);
-        if((*lib)->w.wdatamap)
-            kh_destroy(datamap, (*lib)->w.wdatamap);
-        if((*lib)->w.mydatamap)
-            kh_destroy(datamap, (*lib)->w.mydatamap);
-        if((*lib)->w.mysymbolmap)
-            kh_destroy(symbolmap, (*lib)->w.mysymbolmap);
-        if((*lib)->w.wmysymbolmap)
-            kh_destroy(symbolmap, (*lib)->w.wmysymbolmap);
-        if((*lib)->w.stsymbolmap)
-            kh_destroy(symbolmap, (*lib)->w.stsymbolmap);
-        if((*lib)->w.symbol2map)
-            kh_destroy(symbol2map, (*lib)->w.symbol2map);
+    if(lib->type == LIB_WRAPPED) {
+        if(lib->w.symbolmap)
+            kh_destroy(symbolmap, lib->w.symbolmap);
+        if(lib->w.wsymbolmap)
+            kh_destroy(symbolmap, lib->w.wsymbolmap);
+        if(lib->w.datamap)
+            kh_destroy(datamap, lib->w.datamap);
+        if(lib->w.wdatamap)
+            kh_destroy(datamap, lib->w.wdatamap);
+        if(lib->w.mydatamap)
+            kh_destroy(datamap, lib->w.mydatamap);
+        if(lib->w.mysymbolmap)
+            kh_destroy(symbolmap, lib->w.mysymbolmap);
+        if(lib->w.wmysymbolmap)
+            kh_destroy(symbolmap, lib->w.wmysymbolmap);
+        if(lib->w.stsymbolmap)
+            kh_destroy(symbolmap, lib->w.stsymbolmap);
+        if(lib->w.symbol2map)
+            kh_destroy(symbol2map, lib->w.symbol2map);
     }
 
     // remove frim the dlopen collection
-    if((*lib)->dlopen)
-        RemoveDlopen(lib, (*lib)->dlopen);
-    box_free(*lib);
-    *lib = NULL;
+    if(lib->dlopen)
+        RemoveDlopen(the_lib, lib->dlopen);
+    box_free(lib);
+    if(*the_lib == lib)
+        *the_lib = NULL;
 }
 
-char* GetNameLib(library_t *lib)
+char* GetNameLib(library_t* lib)
 {
     return lib->name;
 }
