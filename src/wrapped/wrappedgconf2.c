@@ -88,5 +88,11 @@ EXPORT uint32_t my_gconf_client_notify_add(x64emu_t* emu, void* client, void* se
     if(box64_nogtk) \
         return -1;
 
+#define CUSTOM_INIT \
+    getMy(lib);     \
+
+#define CUSTOM_FINI \
+    freeMy();
+
 #include "wrappedlib_init.h"
 

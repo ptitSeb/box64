@@ -957,7 +957,7 @@ GO(gtk_entry_set_visibility, vFpi)
 GO(gtk_entry_set_width_chars, uFp)
 //GO(gtk_entry_text_index_to_layout_index, 
 //GO(gtk_entry_unset_invisible_char, 
-//GO(gtk_enumerate_printers, 
+GOM(gtk_enumerate_printers, vFEpppi)
 GO(gtk_event_box_get_above_child, iFp)
 GO(gtk_event_box_get_type, LFv)
 GO(gtk_event_box_get_visible_window, iFp)
@@ -1064,7 +1064,7 @@ GO(gtk_file_chooser_unselect_uri, vFpp)
 GO(gtk_file_chooser_widget_get_type, LFv)
 GO(gtk_file_chooser_widget_new, pFi)
 GO(gtk_file_chooser_widget_new_with_backend, pFip)
-//GOM(gtk_file_filter_add_custom, vFEppppp)
+GOM(gtk_file_filter_add_custom, vFEpuppp)
 //GO(gtk_file_filter_add_mime_type, vFpp)
 GO(gtk_file_filter_add_pattern, vFpp)
 GO(gtk_file_filter_add_pixbuf_formats, vFp)
@@ -1824,26 +1824,26 @@ GO(gtk_pack_type_get_type, LFv)
 GO(gtk_page_orientation_get_type, LFv)
 GO(gtk_page_set_get_type, LFv)
 //GO(gtk_page_setup_copy, 
-//GO(gtk_page_setup_get_bottom_margin, 
-//GO(gtk_page_setup_get_left_margin, 
+GO(gtk_page_setup_get_bottom_margin, dFpi)
+GO(gtk_page_setup_get_left_margin, dFpi)
 //GO(gtk_page_setup_get_orientation, 
-//GO(gtk_page_setup_get_page_height, 
-//GO(gtk_page_setup_get_page_width, 
-//GO(gtk_page_setup_get_paper_height, 
-//GO(gtk_page_setup_get_paper_size, 
-//GO(gtk_page_setup_get_paper_width, 
-//GO(gtk_page_setup_get_right_margin, 
-//GO(gtk_page_setup_get_top_margin, 
+GO(gtk_page_setup_get_page_height, dFpi)
+GO(gtk_page_setup_get_page_width, dFpi)
+GO(gtk_page_setup_get_paper_height, dFpi)
+GO(gtk_page_setup_get_paper_size, pFp)
+GO(gtk_page_setup_get_paper_width, dFpi)
+GO(gtk_page_setup_get_right_margin, dFpi)
+GO(gtk_page_setup_get_top_margin, dFpi)
 GO(gtk_page_setup_get_type, LFv)
 //GO(gtk_page_setup_load_file, 
 //GO(gtk_page_setup_load_key_file, 
-//GO(gtk_page_setup_new, 
+GO(gtk_page_setup_new, pFv)
 //GO(gtk_page_setup_new_from_file, 
 //GO(gtk_page_setup_new_from_key_file, 
 //GO(gtk_page_setup_set_bottom_margin, 
 //GO(gtk_page_setup_set_left_margin, 
 //GO(gtk_page_setup_set_orientation, 
-//GO(gtk_page_setup_set_paper_size, 
+GO(gtk_page_setup_set_paper_size, vFpp)
 //GO(gtk_page_setup_set_paper_size_and_default_margins, 
 //GO(gtk_page_setup_set_right_margin, 
 //GO(gtk_page_setup_set_top_margin, 
@@ -1977,19 +1977,19 @@ GO(gtk_print_duplex_get_type, LFv)
 //GO(gtk_printer_compare, 
 //GO(gtk_printer_get_backend, 
 //GO(gtk_printer_get_capabilities, 
-//GO(gtk_printer_get_default_page_size, 
+GO(gtk_printer_get_default_page_size, pFp)
 //GO(gtk_printer_get_description, 
 //GO(gtk_printer_get_hard_margins, 
 //GO(gtk_printer_get_icon_name, 
 //GO(gtk_printer_get_job_count, 
 //GO(gtk_printer_get_location, 
-//GO(gtk_printer_get_name, 
+GO(gtk_printer_get_name, pFp)
 //GO(gtk_printer_get_state_message, 
 GO(gtk_printer_get_type, LFv)
 //GO(gtk_printer_has_details, 
 //GO(gtk_printer_is_accepting_jobs, 
 //GO(gtk_printer_is_active, 
-//GO(gtk_printer_is_default, 
+GO(gtk_printer_is_default, iFp)
 //GO(gtk_printer_is_new, 
 //GO(gtk_printer_is_paused, 
 //GO(gtk_printer_is_virtual, 
@@ -2044,9 +2044,9 @@ GO(gtk_print_error_get_type, LFv)
 //GO(gtk_print_job_get_title, 
 //GO(gtk_print_job_get_track_print_status, 
 GO(gtk_print_job_get_type, LFv)
-//GO(gtk_print_job_new, 
-//GO(gtk_print_job_send, 
-//GO(gtk_print_job_set_source_file, 
+GO(gtk_print_job_new, pFpppp)
+GOM(gtk_print_job_send, vFEpppp)
+GO(gtk_print_job_set_source_file, vFppp)
 //GO(gtk_print_job_set_status, 
 //GO(gtk_print_job_set_track_print_status, 
 GO(gtk_print_operation_action_get_type, LFv)
@@ -2090,7 +2090,7 @@ GO(gtk_print_pages_get_type, LFv)
 GO(gtk_print_quality_get_type, LFv)
 //GO(gtk_print_run_page_setup_dialog, 
 //GO(gtk_print_run_page_setup_dialog_async, 
-//GO(gtk_print_settings_copy, 
+GO(gtk_print_settings_copy, pFp)
 //GO(gtk_print_settings_foreach, 
 //GO(gtk_print_settings_get, 
 //GO(gtk_print_settings_get_bool, 
@@ -2108,18 +2108,18 @@ GO(gtk_print_quality_get_type, LFv)
 //GO(gtk_print_settings_get_n_copies, 
 //GO(gtk_print_settings_get_number_up, 
 //GO(gtk_print_settings_get_number_up_layout, 
-//GO(gtk_print_settings_get_orientation, 
+GO(gtk_print_settings_get_orientation, iFp)
 //GO(gtk_print_settings_get_output_bin, 
-//GO(gtk_print_settings_get_page_ranges, 
+GO(gtk_print_settings_get_page_ranges, pFpp)
 //GO(gtk_print_settings_get_page_set, 
 //GO(gtk_print_settings_get_paper_height, 
 //GO(gtk_print_settings_get_paper_size, 
 //GO(gtk_print_settings_get_paper_width, 
-//GO(gtk_print_settings_get_printer, 
+GO(gtk_print_settings_get_printer, pFp)
 //GO(gtk_print_settings_get_printer_lpi, 
-//GO(gtk_print_settings_get_print_pages, 
+GO(gtk_print_settings_get_print_pages, iFp)
 //GO(gtk_print_settings_get_quality, 
-//GO(gtk_print_settings_get_resolution, 
+GO(gtk_print_settings_get_resolution, iFp)
 //GO(gtk_print_settings_get_resolution_x, 
 //GO(gtk_print_settings_get_resolution_y, 
 //GO(gtk_print_settings_get_reverse, 
@@ -2129,12 +2129,12 @@ GO(gtk_print_settings_get_type, LFv)
 //GO(gtk_print_settings_has_key, 
 //GO(gtk_print_settings_load_file, 
 //GO(gtk_print_settings_load_key_file, 
-//GO(gtk_print_settings_new, 
+GO(gtk_print_settings_new, pFv)
 //GO(gtk_print_settings_new_from_file, 
 //GO(gtk_print_settings_new_from_key_file, 
-//GO(gtk_print_settings_set, 
+GO(gtk_print_settings_set, vFppp)
 //GO(gtk_print_settings_set_bool, 
-//GO(gtk_print_settings_set_collate, 
+GO(gtk_print_settings_set_collate, vFpi)
 //GO(gtk_print_settings_set_default_source, 
 //GO(gtk_print_settings_set_dither, 
 //GO(gtk_print_settings_set_double, 
@@ -2143,17 +2143,17 @@ GO(gtk_print_settings_get_type, LFv)
 //GO(gtk_print_settings_set_int, 
 //GO(gtk_print_settings_set_length, 
 //GO(gtk_print_settings_set_media_type, 
-//GO(gtk_print_settings_set_n_copies, 
+GO(gtk_print_settings_set_n_copies, vFpi)
 //GO(gtk_print_settings_set_number_up, 
 //GO(gtk_print_settings_set_number_up_layout, 
-//GO(gtk_print_settings_set_orientation, 
+GO(gtk_print_settings_set_orientation, vFpi)
 //GO(gtk_print_settings_set_output_bin, 
 //GO(gtk_print_settings_set_page_ranges, 
 //GO(gtk_print_settings_set_page_set, 
 //GO(gtk_print_settings_set_paper_height, 
 //GO(gtk_print_settings_set_paper_size, 
 //GO(gtk_print_settings_set_paper_width, 
-//GO(gtk_print_settings_set_printer, 
+GO(gtk_print_settings_set_printer, vFpp)
 //GO(gtk_print_settings_set_printer_lpi, 
 //GO(gtk_print_settings_set_print_pages, 
 //GO(gtk_print_settings_set_quality, 
@@ -2171,20 +2171,20 @@ GO(gtk_print_status_get_type, LFv)
 //GO(gtk_print_unix_dialog_get_embed_page_setup, 
 //GO(gtk_print_unix_dialog_get_has_selection, 
 //GO(gtk_print_unix_dialog_get_manual_capabilities, 
-//GO(gtk_print_unix_dialog_get_page_setup, 
+GO(gtk_print_unix_dialog_get_page_setup, pFp)
 //GO(gtk_print_unix_dialog_get_page_setup_set, 
-//GO(gtk_print_unix_dialog_get_selected_printer, 
-//GO(gtk_print_unix_dialog_get_settings, 
+GO(gtk_print_unix_dialog_get_selected_printer, pFp)
+GO(gtk_print_unix_dialog_get_settings, pFp)
 //GO(gtk_print_unix_dialog_get_support_selection, 
 GO(gtk_print_unix_dialog_get_type, LFv)
-//GO(gtk_print_unix_dialog_new, 
+GO(gtk_print_unix_dialog_new, pFpp)
 //GO(gtk_print_unix_dialog_set_current_page, 
-//GO(gtk_print_unix_dialog_set_embed_page_setup, 
-//GO(gtk_print_unix_dialog_set_has_selection, 
-//GO(gtk_print_unix_dialog_set_manual_capabilities, 
+GO(gtk_print_unix_dialog_set_embed_page_setup, vFpi)
+GO(gtk_print_unix_dialog_set_has_selection, vFpi)
+GO(gtk_print_unix_dialog_set_manual_capabilities, vFpi)
 //GO(gtk_print_unix_dialog_set_page_setup, 
-//GO(gtk_print_unix_dialog_set_settings, 
-//GO(gtk_print_unix_dialog_set_support_selection, 
+GO(gtk_print_unix_dialog_set_settings, vFpp)
+GO(gtk_print_unix_dialog_set_support_selection, vFpi)
 GO(gtk_private_flags_get_type, LFv)
 GO(gtk_progress_bar_get_ellipsize, iFp)
 GO(gtk_progress_bar_get_fraction, dFp)

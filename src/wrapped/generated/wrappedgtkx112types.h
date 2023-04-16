@@ -24,10 +24,12 @@ typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFppiV_t)(void*, void*, int32_t, ...);
 typedef void (*vFppup_t)(void*, void*, uint32_t, void*);
+typedef void (*vFpppi_t)(void*, void*, void*, int32_t);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
+typedef void (*vFpuppp_t)(void*, uint32_t, void*, void*, void*);
 typedef void (*vFppupp_t)(void*, void*, uint32_t, void*, void*);
 typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void (*vFpuipuV_t)(void*, uint32_t, int32_t, void*, uint32_t, ...);
@@ -72,8 +74,10 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_link_button_set_uri_hook, pFppp_t) \
 	GO(gtk_list_store_insert_with_values, vFppiV_t) \
 	GO(gtk_action_group_add_actions, vFppup_t) \
+	GO(gtk_enumerate_printers, vFpppi_t) \
 	GO(gtk_clipboard_request_contents, vFpppp_t) \
 	GO(gtk_object_set_data_full, vFpppp_t) \
+	GO(gtk_print_job_send, vFpppp_t) \
 	GO(gtk_stock_set_translate_func, vFpppp_t) \
 	GO(gtk_tree_sortable_set_default_sort_func, vFpppp_t) \
 	GO(gtk_tree_view_set_search_equal_func, vFpppp_t) \
@@ -81,6 +85,7 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_text_iter_forward_find_char, iFpppp_t) \
 	GO(gtk_signal_connect, LFpppp_t) \
 	GO(gtk_tree_sortable_set_sort_func, vFpippp_t) \
+	GO(gtk_file_filter_add_custom, vFpuppp_t) \
 	GO(gtk_action_group_add_actions_full, vFppupp_t) \
 	GO(gtk_cell_layout_set_cell_data_func, vFppppp_t) \
 	GO(gtk_tree_view_column_set_cell_data_func, vFppppp_t) \

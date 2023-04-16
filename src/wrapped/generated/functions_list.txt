@@ -1434,6 +1434,7 @@
 #() vFEpippp
 #() vFEpuipp
 #() vFEpupup
+#() vFEpuppp
 #() vFEpLLpp
 #() vFEppipV
 #() vFEppipA
@@ -3107,9 +3108,12 @@ wrappedgtkx112:
   - gtk_list_store_insert_with_values
 - vFppup:
   - gtk_action_group_add_actions
+- vFpppi:
+  - gtk_enumerate_printers
 - vFpppp:
   - gtk_clipboard_request_contents
   - gtk_object_set_data_full
+  - gtk_print_job_send
   - gtk_stock_set_translate_func
   - gtk_tree_sortable_set_default_sort_func
   - gtk_tree_view_set_search_equal_func
@@ -3120,6 +3124,8 @@ wrappedgtkx112:
   - gtk_signal_connect
 - vFpippp:
   - gtk_tree_sortable_set_sort_func
+- vFpuppp:
+  - gtk_file_filter_add_custom
 - vFppupp:
   - gtk_action_group_add_actions_full
 - vFppppp:

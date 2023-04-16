@@ -608,6 +608,72 @@ static void* findGtkCallbackMarshalFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkCallbackMarshal callback\n");
     return NULL;
 }
+// GtkPrinterFunc ...
+#define GO(A)   \
+static uintptr_t my_GtkPrinterFunc_fct_##A = 0;                         \
+static int my_GtkPrinterFunc_##A(void* a, void* b)                      \
+{                                                                       \
+    return (int)RunFunction(my_context, my_GtkPrinterFunc_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_GtkPrinterFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkPrinterFunc_fct_##A == (uintptr_t)fct) return my_GtkPrinterFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkPrinterFunc_fct_##A == 0) {my_GtkPrinterFunc_fct_##A = (uintptr_t)fct; return my_GtkPrinterFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkPrinterFunc callback\n");
+    return NULL;
+}
+// GtkFileFilterFunc ...
+#define GO(A)   \
+static uintptr_t my_GtkFileFilterFunc_fct_##A = 0;                              \
+static int my_GtkFileFilterFunc_##A(void* a, void* b)                           \
+{                                                                               \
+    return (int)RunFunction(my_context, my_GtkFileFilterFunc_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_GtkFileFilterFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkFileFilterFunc_fct_##A == (uintptr_t)fct) return my_GtkFileFilterFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkFileFilterFunc_fct_##A == 0) {my_GtkFileFilterFunc_fct_##A = (uintptr_t)fct; return my_GtkFileFilterFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkFileFilterFunc callback\n");
+    return NULL;
+}
+// GtkPrintJobCompleteFunc ...
+#define GO(A)   \
+static uintptr_t my_GtkPrintJobCompleteFunc_fct_##A = 0;                        \
+static void my_GtkPrintJobCompleteFunc_##A(void* a, void* b, void* c)           \
+{                                                                               \
+    RunFunction(my_context, my_GtkPrintJobCompleteFunc_fct_##A, 3, a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_GtkPrintJobCompleteFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkPrintJobCompleteFunc_fct_##A == (uintptr_t)fct) return my_GtkPrintJobCompleteFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkPrintJobCompleteFunc_fct_##A == 0) {my_GtkPrintJobCompleteFunc_fct_##A = (uintptr_t)fct; return my_GtkPrintJobCompleteFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkPrintJobCompleteFunc callback\n");
+    return NULL;
+}
 
 // GtkLinkButtonUri ...
 #define GO(A)   \
@@ -1098,6 +1164,24 @@ EXPORT void* my_gtk_link_button_set_uri_hook(x64emu_t* emu, void* f, void* data,
 {
     void* ret = my->gtk_link_button_set_uri_hook(find_GtkLinkButtonUri_Fct(f), data, findGDestroyNotifyFct(d));
     return reverse_GtkLinkButtonUri_Fct(ret);
+}
+
+EXPORT void my_gtk_enumerate_printers(x64emu_t* emu, void* f, void* data, void* d, int wait)
+{
+    (void)emu;
+    my->gtk_enumerate_printers(find_GtkPrinterFunc_Fct(f), data, findGDestroyNotifyFct(d), wait);
+}
+
+EXPORT void my_gtk_file_filter_add_custom(x64emu_t* emu, void* filter, uint32_t needed, void* f, void* data, void* d)
+{
+    (void)emu;
+    my->gtk_file_filter_add_custom(filter, needed, find_GtkFileFilterFunc_Fct(f), data, findGDestroyNotifyFct(d));
+}
+
+EXPORT void my_gtk_print_job_send(x64emu_t* emu, void* job, void* f, void* data, void* d)
+{
+    (void)emu;
+    my->gtk_print_job_send(job, find_GtkPrintJobCompleteFunc_Fct(f), data, findGDestroyNotifyFct(d));
 }
 
 #define PRE_INIT    \
