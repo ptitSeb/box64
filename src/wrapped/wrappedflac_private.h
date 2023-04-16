@@ -130,7 +130,7 @@ GO(FLAC__stream_decoder_get_state, iFp)
 //GO(FLAC__stream_decoder_init_ogg_FILE, 
 //GO(FLAC__stream_decoder_init_ogg_stream, 
 //DATA(FLAC__StreamDecoderInitStatusString, 
-GOM(FLAC__stream_decoder_init_stream, iFEppppppppp)
+GOM(FLAC__stream_decoder_init_stream, iFEpppppppppp)
 //DATA(FLAC__StreamDecoderLengthStatusString, 
 GO(FLAC__stream_decoder_new, pFv)
 GO(FLAC__stream_decoder_process_single, iFp)
