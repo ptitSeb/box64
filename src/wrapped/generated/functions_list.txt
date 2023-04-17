@@ -1640,7 +1640,6 @@
 #() iFppdidd
 #() iFpplppi
 #() iFppLupp
-#() iFppLpLp
 #() iFpppiuu
 #() iFpppipi
 #() iFpppipp
@@ -3919,7 +3918,6 @@ wrappedlzma:
 wrappedmpg123:
 - iFpppp:
   - mpg123_replace_reader_handle
-  - mpg123_replace_reader_handle_32
   - mpg123_replace_reader_handle_64
 wrappednotify:
 wrappednsl:
