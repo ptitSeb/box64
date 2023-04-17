@@ -190,6 +190,16 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LD(x4, wback, fixedaddress+0);
             SD(x4, gback, 8);
             break;
+        case 0x17:
+            nextop = F8;
+            INST_NAME("MOVHPS Ex,Gx");
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x4, gback, 8);
+            SD(x4, wback, fixedaddress+0);
+            if(!MODREG)
+                SMWRITE2();
+            break;
         case 0x18:
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
@@ -332,6 +342,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
             }
             break;
+        case 0x55:
+            INST_NAME("ANDNPS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_Q(x3, x4, NOT(x3, x3); AND(x3, x3, x4));
+            break;
         case 0x56:
             INST_NAME("ORPS Gx, Ex");
             nextop = F8;
@@ -372,6 +389,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FSW(s1, gback, i*4);
             }
             break;
+        case 0x59:
+            INST_NAME("MULPS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            for(int i=0; i<4; ++i) {
+                // GX->f[i] *= EX->f[i];
+                FLW(s0, wback, fixedaddress+i*4);
+                FLW(s1, gback, i*4);
+                FMULS(s1, s1, s0);
+                FSW(s1, gback, i*4);
+            }
+            break;
         case 0x5A:
             INST_NAME("CVTPS2PD Gx, Ex");
             nextop = F8;
@@ -396,6 +428,36 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LW(x3, wback, fixedaddress+i*4);
                 FCVTSW(s0, x3, RD_RNE);
                 FSW(s0, gback, i*4);
+            }
+            break;
+        case 0x5C:
+            INST_NAME("SUBPS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            for(int i=0; i<4; ++i) {
+                // GX->f[i] -= EX->f[i];
+                FLW(s0, wback, fixedaddress+i*4);
+                FLW(s1, gback, i*4);
+                FSUBS(s1, s1, s0);
+                FSW(s1, gback, i*4);
+            }
+            break;
+        case 0x5E:
+            INST_NAME("DIVPS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            for(int i=0; i<4; ++i) {
+                // GX->f[i] /= EX->f[i];
+                FLW(s0, wback, fixedaddress+i*4);
+                FLW(s1, gback, i*4);
+                FDIVS(s1, s1, s0);
+                FSW(s1, gback, i*4);
             }
             break;
         case 0x77:

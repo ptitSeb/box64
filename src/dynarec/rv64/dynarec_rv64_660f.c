@@ -1042,6 +1042,22 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SD(x4, gback, 0);
             SD(x5, gback, 8);
             break;
+        case 0xF4:
+            INST_NAME("PMULUDQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            // GX->q[1] = (uint64_t)EX->ud[2]*GX->ud[2];
+            LWU(x3, gback, 2*4);
+            LWU(x4, wback, fixedaddress+2*4);
+            MUL(x3, x3, x4);
+            SD(x3, gback, 8);
+            // GX->q[0] = (uint64_t)EX->ud[0]*GX->ud[0];
+            LWU(x3, gback, 0*4);
+            LWU(x4, wback, fixedaddress+0*4);
+            MUL(x3, x3, x4);
+            SD(x3, gback, 0);
+            break;
         case 0xF8:
             INST_NAME("PSUBB Gx,Ex");
             nextop = F8;
