@@ -372,7 +372,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             FSD(s0, gback, 0);
             FSD(s1, gback, 8);
             break;
-
+        case 0x5B:
+            INST_NAME("CVTDQ2PS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            s0 = fpu_get_scratch(dyn);
+            for (int i=0; i<4; ++i) {
+                LW(x3, wback, fixedaddress+i*4);
+                FCVTSW(s0, x3, RD_RNE);
+                FSW(s0, gback, i*4);
+            }
+            break;
         case 0x77:
             INST_NAME("EMMS");
             // empty MMX, FPU now usable
