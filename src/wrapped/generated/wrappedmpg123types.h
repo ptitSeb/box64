@@ -15,7 +15,6 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(mpg123_replace_reader_handle, iFpppp_t) \
-	GO(mpg123_replace_reader_handle_32, iFpppp_t) \
 	GO(mpg123_replace_reader_handle_64, iFpppp_t)
 
 #endif // __wrappedmpg123TYPES_H_
