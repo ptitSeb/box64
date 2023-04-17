@@ -504,6 +504,48 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ADD(xRDI, xRDI, x3);
             }
             break;
+        case 0xA6:
+            switch(rep) {
+            case 1:
+            case 2:
+                if(rep==1) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
+                MAYSETFLAGS();
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1<<F_DF);
+                BNEZ_MARK2(x1);
+                MARK;   // Part with DF==0
+                LBU(x1, xRSI, 0);
+                SUBI(xRSI, xRSI, 1);
+                LBU(x2, xRDI, 0);
+                SUBI(xRDI, xRDI, 1);
+                SUBI(xRCX, xRCX, 1);
+                if (rep==1) {BEQ_MARK3(x1, x2);} else {BNE_MARK3(x1, x2);}
+                BNEZ_MARK(xRCX);
+                B_MARK3_nocond;
+                MARK2;   // Part with DF==1
+                LBU(x1, xRSI, 0);
+                SUBI(xRSI, xRSI, -1);
+                LBU(x2, xRDI, 0);
+                SUBI(xRDI, xRDI, -1);
+                SUBI(xRCX, xRCX, 1);
+                if (rep==1) {BEQ_MARK3(x1, x2);} else {BNE_MARK3(x1, x2);}
+                BNEZ_MARK2(xRCX);
+                MARK3;  // end
+                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                break;
+            default:
+                INST_NAME("CMPSB");
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                GETDIR(x3, x1, 1);
+                LBU(x1, xRSI, 0);
+                LBU(x2, xRDI, 0);
+                ADD(xRSI, xRSI, x3);
+                ADD(xRDI, xRDI, x3);
+                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                break;
+            }
+            break;
         case 0xA8:
             INST_NAME("TEST AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
