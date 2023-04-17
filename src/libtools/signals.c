@@ -1216,62 +1216,64 @@ exit(-1);
             GO(RIP);
             #undef GO
         }
-        static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
-        int shown_regs = 0;
+        if(log_minimum<=box64_log) {
+            static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
+            int shown_regs = 0;
 #ifdef DYNAREC
-        uint32_t hash = 0;
-        if(db)
-            hash = X31_hash_code(db->x64_addr, db->x64_size);
-        printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x) handler=%p", 
-            GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, 
-            emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_RBP, 
-            addr, info->si_code, 
-            prot, db, db?db->block:0, db?(db->block+db->size):0, 
-            db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0, 
-            getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)), 
-            (db?getNeedTest((uintptr_t)db->x64_addr):0)?"need_stest":"clean", db?db->hash:0, hash, 
-            (void*)my_context->signals[sig]);
+            uint32_t hash = 0;
+            if(db)
+                hash = X31_hash_code(db->x64_addr, db->x64_size);
+            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x) handler=%p", 
+                GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, 
+                emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_RBP, 
+                addr, info->si_code, 
+                prot, db, db?db->block:0, db?(db->block+db->size):0, 
+                db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0, 
+                getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)), 
+                (db?getNeedTest((uintptr_t)db->x64_addr):0)?"need_stest":"clean", db?db->hash:0, hash, 
+                (void*)my_context->signals[sig]);
 #if defined(ARM64)
-        if(db) {
-            shown_regs = 1;
-            for (int i=0; i<16; ++i) {
-                if(!(i%4)) printf_log(log_minimum, "\n");
-                printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.regs[10+i]);
+            if(db) {
+                shown_regs = 1;
+                for (int i=0; i<16; ++i) {
+                    if(!(i%4)) printf_log(log_minimum, "\n");
+                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.regs[10+i]);
+                }
             }
-        }
-        if(rsp!=addr)
-            for (int i=-4; i<4; ++i) {
-                printf_log(log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
-            }
+            if(rsp!=addr)
+                for (int i=-4; i<4; ++i) {
+                    printf_log(log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
+                }
 #elif defined(RV64)
-        if(db) {
-            shown_regs = 1;
-            for (int i=0; i<16; ++i) {
-                if(!(i%4)) printf_log(log_minimum, "\n");
-                printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[16+i]);
+            if(db) {
+                shown_regs = 1;
+                for (int i=0; i<16; ++i) {
+                    if(!(i%4)) printf_log(log_minimum, "\n");
+                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[16+i]);
+                }
             }
+            if(rsp!=addr)
+                for (int i=-4; i<4; ++i) {
+                    printf_log(log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
+                }
+#else
+            #warning TODO
+#endif
+#else
+            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code);
+#endif
+            if(!shown_regs)
+                for (int i=0; i<16; ++i) {
+                    if(!(i%4)) printf_log(log_minimum, "\n");
+                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], emu->regs[i].q[0]);
+                }
+            if(sig==SIGILL)
+                printf_log(log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X (%02X %02X %02X %02X %02X)\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7], ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
+            else if(sig==SIGBUS)
+                printf_log(log_minimum, " x86opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4], ((uint8_t*)x64pc)[5], ((uint8_t*)x64pc)[6], ((uint8_t*)x64pc)[7]);
+            else
+                printf_log(log_minimum, "\n");
         }
-        if(rsp!=addr)
-            for (int i=-4; i<4; ++i) {
-                printf_log(log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
-            }
-#else
-        #warning TODO
-#endif
-#else
-        printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code);
-#endif
-        if(!shown_regs)
-            for (int i=0; i<16; ++i) {
-                if(!(i%4)) printf_log(log_minimum, "\n");
-                printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], emu->regs[i].q[0]);
-            }
-        if(sig==SIGILL)
-            printf_log(log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X (%02X %02X %02X %02X %02X)\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7], ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
-        else if(sig==SIGBUS)
-            printf_log(log_minimum, " x86opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4], ((uint8_t*)x64pc)[5], ((uint8_t*)x64pc)[6], ((uint8_t*)x64pc)[7]);
-        else
-            printf_log(log_minimum, "\n");
     }
     relockMutex(Locks);
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
