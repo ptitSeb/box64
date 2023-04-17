@@ -420,6 +420,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FSW(s0, gback, i*4);
             }
             break;
+        case 0x5C:
+            INST_NAME("SUBPS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            for(int i=0; i<4; ++i) {
+                // GX->f[i] -= EX->f[i];
+                FLW(s0, wback, fixedaddress+i*4);
+                FLW(s1, gback, i*4);
+                FSUBS(s1, s1, s0);
+                FSW(s1, gback, i*4);
+            }
+            break;
         case 0x5E:
             INST_NAME("DIVPS Gx, Ex");
             nextop = F8;
