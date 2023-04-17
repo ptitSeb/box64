@@ -516,18 +516,18 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BNEZ_MARK2(x1);
                 MARK;   // Part with DF==0
                 LBU(x1, xRSI, 0);
-                SUBI(xRSI, xRSI, 1);
+                ADDI(xRSI, xRSI, 1);
                 LBU(x2, xRDI, 0);
-                SUBI(xRDI, xRDI, 1);
+                ADDI(xRDI, xRDI, 1);
                 SUBI(xRCX, xRCX, 1);
                 if (rep==1) {BEQ_MARK3(x1, x2);} else {BNE_MARK3(x1, x2);}
                 BNEZ_MARK(xRCX);
                 B_MARK3_nocond;
                 MARK2;   // Part with DF==1
                 LBU(x1, xRSI, 0);
-                SUBI(xRSI, xRSI, -1);
+                SUBI(xRSI, xRSI, 1);
                 LBU(x2, xRDI, 0);
-                SUBI(xRDI, xRDI, -1);
+                SUBI(xRDI, xRDI, 1);
                 SUBI(xRCX, xRCX, 1);
                 if (rep==1) {BEQ_MARK3(x1, x2);} else {BNE_MARK3(x1, x2);}
                 BNEZ_MARK2(xRCX);
