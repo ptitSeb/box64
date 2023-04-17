@@ -16,14 +16,22 @@
 
 // workaround for Globals symbols
 
-#define GLOB(A) \
+#define GLOB(A, B) \
     if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, NULL)) {     \
+        printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <- %p\n", (void*)globoffs, &A);              \
+        memcpy((void*)globoffs, &A, sizeof(A));                                                           \
+    }                                                                                                     \
+    if (B && GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, B)) {   \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <- %p\n", (void*)globoffs, &A);              \
         memcpy((void*)globoffs, &A, sizeof(A));                                                           \
     }
 
-#define TOGLOB(A) \
+#define TOGLOB(A, B) \
     if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, NULL)) {     \
+        printf_log(LOG_DEBUG, "Global " #A " workaround, @%p -> %p\n", (void*)globoffs, &A);              \
+        memcpy(&A, (void*)globoffs, sizeof(A));                                                           \
+    }                                                                                                     \
+    if (B && GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, B)) {   \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p -> %p\n", (void*)globoffs, &A);              \
         memcpy(&A, (void*)globoffs, sizeof(A));                                                           \
     }
@@ -35,7 +43,7 @@ EXPORT void* gdk_display = NULL;   // in case it's used...
 void my_checkGlobalGdkDisplay()
 {
     uintptr_t globoffs, globend;
-    GLOB(gdk_display)
+    GLOB(gdk_display, NULL)
 }
 
 void my_setGlobalGThreadsInit()
@@ -79,35 +87,35 @@ EXPORT void* ttytype;
 void my_checkGlobalTInfo()
 {
     uintptr_t globoffs, globend;
-    GLOB(COLS)
-    GLOB(LINES)
-    GLOB(TABSIZE)
-    GLOB(curscr)
-    GLOB(newscr)
-    GLOB(stdscr)
-    GLOB(acs_map)
-    GLOB(UP)
-    GLOB(BC)
-    GLOB(PC)
-    GLOB(ospeed)
-    GLOB(ttytype)
+    GLOB(COLS, NULL)
+    GLOB(LINES, NULL)
+    GLOB(TABSIZE, NULL)
+    GLOB(curscr, NULL)
+    GLOB(newscr, NULL)
+    GLOB(stdscr, NULL)
+    GLOB(acs_map, NULL)
+    GLOB(UP, NULL)
+    GLOB(BC, NULL)
+    GLOB(PC, NULL)
+    GLOB(ospeed, NULL)
+    GLOB(ttytype, NULL)
 }
 
 void my_updateGlobalTInfo()
 {
     uintptr_t globoffs, globend;
-    TOGLOB(COLS)
-    TOGLOB(LINES)
-    TOGLOB(TABSIZE)
-    TOGLOB(curscr)
-    TOGLOB(newscr)
-    TOGLOB(stdscr)
-    TOGLOB(acs_map)
-    TOGLOB(UP)
-    TOGLOB(BC)
-    TOGLOB(PC)
-    TOGLOB(ospeed)
-    TOGLOB(ttytype)
+    TOGLOB(COLS, NULL)
+    TOGLOB(LINES, NULL)
+    TOGLOB(TABSIZE, NULL)
+    TOGLOB(curscr, NULL)
+    TOGLOB(newscr, NULL)
+    TOGLOB(stdscr, NULL)
+    TOGLOB(acs_map, NULL)
+    TOGLOB(UP, NULL)
+    TOGLOB(BC, NULL)
+    TOGLOB(PC, NULL)
+    TOGLOB(ospeed, NULL)
+    TOGLOB(ttytype, NULL)
 }
 
 // **************** getopts ****************
@@ -117,17 +125,17 @@ EXPORT int optind, opterr, optopt;
 void my_updateGlobalOpt()
 {
     uintptr_t globoffs, globend;
-    TOGLOB(optarg);
-    TOGLOB(optind);
-    TOGLOB(opterr);
-    TOGLOB(optopt);
+    TOGLOB(optarg, "GLIBC_2.2.5");
+    TOGLOB(optind, "GLIBC_2.2.5");
+    TOGLOB(opterr, "GLIBC_2.2.5");
+    TOGLOB(optopt, "GLIBC_2.2.5");
 }
 
 void my_checkGlobalOpt()
 {
     uintptr_t globoffs, globend;
-    GLOB(optarg);
-    GLOB(optind);
-    GLOB(opterr);
-    GLOB(optopt);
+    GLOB(optarg, "GLIBC_2.2.5");
+    GLOB(optind, "GLIBC_2.2.5");
+    GLOB(opterr, "GLIBC_2.2.5");
+    GLOB(optopt, "GLIBC_2.2.5");
 }
