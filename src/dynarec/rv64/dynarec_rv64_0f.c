@@ -332,6 +332,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
             }
             break;
+        case 0x55:
+            INST_NAME("ANDNPS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_Q(x3, x4, NOT(x3, x3); AND(x3, x3, x4));
+            break;
         case 0x56:
             INST_NAME("ORPS Gx, Ex");
             nextop = F8;
