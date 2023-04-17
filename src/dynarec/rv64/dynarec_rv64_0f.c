@@ -357,7 +357,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
             }
             break;
-
+        case 0x58:
+            INST_NAME("ADDPS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            for(int i=0; i<4; ++i) {
+                // GX->f[i] += EX->f[i];
+                FLW(s0, wback, fixedaddress+i*4);
+                FLW(s1, gback, i*4);
+                FADDS(s1, s1, s0);
+                FSW(s1, gback, i*4);
+            }
+            break;
         case 0x5A:
             INST_NAME("CVTPS2PD Gx, Ex");
             nextop = F8;
