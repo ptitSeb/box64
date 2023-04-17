@@ -396,14 +396,14 @@
 
 
 #define SSE_LOOP_FQ_ITEM(GX1, EX1, F, i)            \
-    v0 = sse_get_reg_empty(dyn, ninst, x5, GX1, 0); \
     FLD(v0, gback, i*8);                            \
-    v1 = sse_get_reg_empty(dyn, ninst, x5, EX1, 0); \
     FLD(v1, wback, fixedaddress+i*8);               \
     F;                                              \
     FSD(v0, gback, i*8);
 
 #define SSE_LOOP_FQ(GX1, EX1, F)     \
+    v0 = fpu_get_scratch(dyn);       \
+    v1 = fpu_get_scratch(dyn);       \
     SSE_LOOP_FQ_ITEM(GX1, EX1, F, 0) \
     SSE_LOOP_FQ_ITEM(GX1, EX1, F, 1)
 
