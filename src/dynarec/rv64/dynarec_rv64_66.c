@@ -414,7 +414,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             AND(x1, x1, x2);
             OR(xRAX, xRAX, x1);
             break;
-
+        case 0xA9:
+            INST_NAME("TEST AX,Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u16 = F16;
+            MOV32w(x2, u16);
+            SLLIW(x1, xRAX, 16);
+            SRLIW(x1, x1, 16);
+            emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
         case 0xB8:
         case 0xB9:
         case 0xBA:
