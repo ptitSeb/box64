@@ -60,7 +60,7 @@ GO(FcConfigGetSysRoot, pFp)
 //GO(FcConfigParseAndLoad, 
 GO(FcConfigReference, pFp)
 //GO(FcConfigSetCurrent, 
-//GO(FcConfigSetRescanInterval, 
+GO(FcConfigSetRescanInterval, iFpi)
 //GO(FcConfigSetRescanInverval, 
 GO(FcConfigSubstitute, iFppi)
 GO(FcConfigSubstituteWithPat, iFpppi)
@@ -162,7 +162,7 @@ GO(FcPatternGetMatrix, iFppip)
 GO(FcPatternGetString, iFppip)
 GO(FcPatternHash, iFp)
 //GO(FcPatternPrint, 
-//GO(FcPatternReference, 
+GO(FcPatternReference, vFp)
 //GO(FcPatternRemove, 
 GO(FcPatternVaBuild, pFpp)
 GO(FcStrBasename, pFp)
