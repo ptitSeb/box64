@@ -904,7 +904,10 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SET_DFNONE();
             ORI(xFlags, xFlags, 1 << F_CF);
             break;
-
+        case 0xFC:
+            INST_NAME("CLD");
+            ANDI(xFlags, xFlags, ~(1<<F_CF));
+            break;
         case 0xFF:
             nextop = F8;
             switch((nextop>>3)&7) {

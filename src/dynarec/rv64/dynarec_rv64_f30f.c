@@ -120,7 +120,13 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
-
+        case 0x51:
+            INST_NAME("SQRTSS Gx, Ex");
+            nextop = F8;
+            GETEXSS(v0, 0);
+            GETGXSS_empty(v1);
+            FSQRTS(v1, v0);
+            break;
         case 0x58:
             INST_NAME("ADDSS Gx, Ex");
             nextop = F8;

@@ -369,6 +369,34 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             LWU(x3, x1, fixedaddress+0*4);
             SW(x3, x2, 1*4);
             break;
+        case 0x64:
+            INST_NAME("PCMPGTB Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for(int i=0; i<16; ++i) {
+                // GX->ub[i] = (GX->sb[i]>EX->sb[i])?0xFF:0x00;
+                LB(x3, wback, fixedaddress+i);
+                LB(x4, gback, i);
+                SLT(x3, x3, x4);
+                NEG(x3, x3);
+                SB(x3, gback, i);
+            }
+            break;
+        case 0x65:
+            INST_NAME("PCMPGTW Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for(int i=0; i<8; ++i) {
+                // GX->uw[i] = (GX->sw[i]>EX->sw[i])?0xFFFF:0x0000;
+                LH(x3, wback, fixedaddress+i*2);
+                LH(x4, gback, i*2);
+                SLT(x3, x3, x4);
+                NEG(x3, x3);
+                SH(x3, gback, i*2);
+            }
+            break;
         case 0x66:
             INST_NAME("PCMPGTD Gx,Ex");
             nextop = F8;
