@@ -1004,11 +1004,11 @@ void x87_reget_st(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st);
 // swap 2 x87 regs
 void x87_swapreg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int b);
 // Set rounding according to cw flags, return reg to restore flags
-int x87_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
+int x87_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2);
 // Restore round flag
 void x87_restoreround(dynarec_rv64_t* dyn, int ninst, int s1);
 // Set rounding according to mxcsr flags, return reg to restore flags
-int sse_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
+int sse_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2);
 
 void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
