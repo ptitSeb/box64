@@ -131,7 +131,10 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 1: /* FISTTP Ew, ST0 */
             GETEW(0);
             tmp16s = ST0.d;
-            EW->sword[0] = tmp16s;
+            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x8000) || !isfinite(ST0.d))
+                EW->sword[0] = 0x8000;
+            else
+                EW->sword[0] = tmp16s;
             fpu_do_pop(emu);
             break;
         case 2: /* FIST Ew, ST0 */

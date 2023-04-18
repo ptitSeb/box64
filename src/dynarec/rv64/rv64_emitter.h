@@ -369,8 +369,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 // RV32F
 // Read round mode
 #define FRRM(rd)                    CSRRS(rd, xZR, 0x002)
-// Swap round mode with rd
-#define FSRM(rd)                    CSRRWI(rd, 0b111, 0x002)
+// Swap round mode
+#define FSRM(rd, rs)                CSRRW(rd, rs, 0x002)
 // Write FP exception flags, immediate
 #define FSFLAGSI(imm)               CSRRWI(xZR, imm, 0x0001)
 // Read  FP exception flags to rd
