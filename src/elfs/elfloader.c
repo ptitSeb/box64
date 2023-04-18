@@ -80,8 +80,6 @@ void FreeElfHeader(elfheader_t** head)
     if(my_context)
         RemoveElfHeader(my_context, h);
 
-    box_free(h->name);
-    box_free(h->path);
     box_free(h->PHEntries);
     box_free(h->SHEntries);
     box_free(h->SHStrTab);
@@ -98,6 +96,9 @@ void FreeElfHeader(elfheader_t** head)
     FreeDefaultVersion(&h->weakdefver);
     
     FreeElfMemory(h);
+
+    box_free(h->name);
+    box_free(h->path);
     box_free(h);
 
     *head = NULL;
