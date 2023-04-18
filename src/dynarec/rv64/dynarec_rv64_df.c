@@ -122,9 +122,14 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(!box64_dynarec_fastround) {
                         FRFLAGS(x5);   // get back FPSR to check the IOC bit
                         ANDI(x5, x5, 1<<FR_NV);
-                        CBZ_NEXT(x5);
+                        BNEZ_MARK(x5);
+                        SLLIW(x5, x4, 16);
+                        SRAIW(x5, x5, 16);
+                        BEQ_MARK2(x5, x4);
+                        MARK;
                         MOV32w(x4, 0x8000);
                     }
+                    MARK2;
                     SH(x4, wback, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
                     break;
@@ -141,9 +146,14 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(!box64_dynarec_fastround) {
                         FRFLAGS(x5);   // get back FPSR to check the IOC bit
                         ANDI(x5, x5, 1<<FR_NV);
-                        CBZ_NEXT(x5);
+                        BNEZ_MARK(x5);
+                        SLLIW(x5, x4, 16);
+                        SRAIW(x5, x5, 16);
+                        BEQ_MARK2(x5, x4);
+                        MARK;
                         MOV32w(x4, 0x8000);
                     }
+                    MARK2;
                     SH(x4, wback, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
                     break;
