@@ -115,15 +115,35 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("FISTTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 0, 0);
+                    if(!box64_dynarec_fastround) {
+                        FSFLAGSI(xZR); // reset all bits
+                    }
                     FCVTWD(x4, v1, RD_RTZ);
+                    if(!box64_dynarec_fastround) {
+                        FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                        ANDI(x5, x5, 1<<FR_NV);
+                        CBZ_NEXT(x5);
+                        MOV32w(x4, 0x8000);
+                    }
                     SH(x4, wback, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
                     break;
-                case 3: // TODO: fix rounding
+                case 3:
                     INST_NAME("FISTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 0, 0);
-                    FCVTWD(x4, v1, RD_RTZ);
+                    u8 = sse_setround(dyn, ninst, x2, x3);
+                    if(!box64_dynarec_fastround) {
+                        FSFLAGSI(xZR); // reset all bits
+                    }
+                    FCVTWD(x4, v1, RD_RM);
+                    x87_restoreround(dyn, ninst, u8);
+                    if(!box64_dynarec_fastround) {
+                        FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                        ANDI(x5, x5, 1<<FR_NV);
+                        CBZ_NEXT(x5);
+                        MOV32w(x4, 0x8000);
+                    }
                     SH(x4, wback, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
                     break;
