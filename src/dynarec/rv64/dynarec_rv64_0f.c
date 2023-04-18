@@ -1003,6 +1003,68 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SW(x5, gback, 2*4);
             SW(x6, gback, 3*4);
             break;
+
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:                  /* BSWAP reg */
+            INST_NAME("BSWAP Reg");
+            gd = xRAX+(opcode&7)+(rex.b<<3);
+            MOV_U12(x1, 0xff);
+            SLLI(x4, x1, 8); // mask 0xff00
+            if (rex.w) {
+                SLLI(x5, x1, 16); // mask 0xff0000
+                SLLI(x6, x1, 24); // mask 0xff000000
+
+                SRLI(x2, gd, 56);
+
+                SRLI(x3, gd, 40);
+                AND(x3, x3, x4);
+                OR(x2, x2, x3);
+
+                SRLI(x3, gd, 24);
+                AND(x3, x3, x5);
+                OR(x2, x2, x3);
+
+                SRLI(x3, gd, 8);
+                AND(x3, x3, x6);
+                OR(x2, x2, x3);
+
+                AND(x3, gd, x6);
+                SLLI(x3, x3, 8);
+                OR(x2, x2, x3);
+
+                AND(x3, gd, x5);
+                SLLI(x3, x3, 24);
+                OR(x2, x2, x3);
+
+                AND(x3, gd, x4);
+                SLLI(x3, x3, 40);
+                OR(x2, x2, x3);
+
+                SLLI(x3, x3, 56);
+                OR(gd, x2, x3);
+            } else {
+                SRLIW(x2, gd, 24);
+
+                SRLIW(x3, gd, 8);
+                AND(x3, x3, x4);
+                OR(x2, x2, x3);
+
+                AND(x3, gd, x4);
+                SLLI(x3, x3, 8);
+                OR(x2, x2, x3);
+
+                AND(x3, gd, x1);
+                SLLI(x3, x3, 24);
+                OR(gd, x2, x3);
+            }
+            break;
+
         default:
             DEFAULT;
     }
