@@ -104,8 +104,42 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEXSD(v0, 0);
-            // TODO: fastnan handling
+            if(!box64_dynarec_fastround) {
+                FSFLAGSI(xZR);  // // reset all bits
+            }
             FCVTLDxw(gd, v0, RD_RTZ);
+            if(!box64_dynarec_fastround) {
+                FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+                CBZ_NEXT(x5);
+                if(rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
+            break;
+        case 0x2D:
+            INST_NAME("CVTSD2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEXSD(v0, 0);
+            if(!box64_dynarec_fastround) {
+                FSFLAGSI(xZR);  // // reset all bits
+            }
+            u8 = sse_setround(dyn, ninst, x2, x3);
+            FCVTLDxw(gd, v0, RD_RM);
+            x87_restoreround(dyn, ninst, u8);
+            if(!box64_dynarec_fastround) {
+                FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+                CBZ_NEXT(x5);
+                if(rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
             break;
         case 0x38:  // these are some more SSSE4.2+ opcodes
             opcode = F8;
