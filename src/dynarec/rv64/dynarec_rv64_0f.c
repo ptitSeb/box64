@@ -1014,6 +1014,38 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xCF:                  /* BSWAP reg */
             INST_NAME("BSWAP Reg");
             gd = xRAX+(opcode&7)+(rex.b<<3);
+            #if 1
+            ANDI(x1, gd, 0xff);
+            SLLI(x1, x1, (rex.w?64:32)-8);
+            SRLI(x2, gd, 8);
+            ANDI(x3, x2, 0xff);
+            SLLI(x3, x3, (rex.w?64:32)-16);
+            OR(x1, x1, x3);
+            SRLI(x2, gd, 16);
+            ANDI(x3, x2, 0xff);
+            SLLI(x3, x3, (rex.w?64:32)-24);
+            OR(x1, x1, x3);
+            SRLI(x2, gd, 24);
+            if(rex.w) {
+                ANDI(x3, x2, 0xff);
+                SLLI(x3, x3, (rex.w?64:32)-32);
+                OR(x1, x1, x3);
+                SRLI(x2, gd, 32);
+                ANDI(x3, x2, 0xff);
+                SLLI(x3, x3, 64-40);
+                OR(x1, x1, x3);
+                SRLI(x2, gd, 40);
+                ANDI(x3, x2, 0xff);
+                SLLI(x3, x3, 64-48);
+                OR(x1, x1, x3);
+                SRLI(x2, gd, 48);
+                ANDI(x3, x2, 0xff);
+                SLLI(x3, x3, 64-56);
+                OR(x1, x1, x3);
+                SRLI(x2, gd, 56);
+            }
+            OR(gd, x1, x2);
+            #else
             MOV_U12(x1, 0xff);
             SLLI(x4, x1, 8); // mask 0xff00
             if (rex.w) {
@@ -1063,6 +1095,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SLLI(x3, x3, 24);
                 OR(gd, x2, x3);
             }
+            #endif
             break;
 
         default:
