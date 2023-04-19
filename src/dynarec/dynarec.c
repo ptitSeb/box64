@@ -94,8 +94,10 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
             if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)) {
                 printf_log(LOG_DEBUG, "Setjmp DynaCall, fs=0x%x\n", ejb->emu->segs[_FS]);
                 addr = R_RIP;   // not sure if it should still be inside DynaCall!
+                #ifdef DYNAREC
                 if(box64_dynarec_test)
                     emu->test.clean = 0;
+                #endif
             }
         }
     }
@@ -183,8 +185,10 @@ int DynaRun(x64emu_t* emu)
 #endif
             if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
+                #ifdef DYNAREC
                 if(box64_dynarec_test)
                     emu->test.clean = 0;
+                #endif
         }
     }
 #ifdef DYNAREC
