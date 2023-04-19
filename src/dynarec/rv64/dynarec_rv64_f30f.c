@@ -289,47 +289,45 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             BNE_MARK(ed, xZR);
             MOV32w(gd, rex.w?64:32);
-            B_MARK2_nocond;
-            MARK;
             ANDI(xFlags, xFlags, ~(1<<F_ZF));
+            ORI(xFlags, xFlags, 1<<F_CF);
+            B_NEXT_nocond;
+            MARK;
             if(ed!=gd)
                 u8 = gd;
             else
                 u8 = x1;
-            ADDI(u8, xZR, 0);
+            ADDI(u8, xZR, rex.w?63:31);
             if(rex.w) {
                 MV(x2, ed);
                 SRLI(x3, x2, 32);
                 BEQZ(x3, 4+2*4);
-                ADDI(u8, u8, 32);
+                SUBI(u8, u8, 32);
                 MV(x2, x3);
             } else {
                 AND(x2, ed, xMASK);
             }
             SRLI(x3, x2, 16);
             BEQZ(x3, 4+2*4);
-            ADDI(u8, u8, 16);
+            SUBI(u8, u8, 16);
             MV(x2, x3);
             SRLI(x3, x2, 8);
             BEQZ(x3, 4+2*4);
-            ADDI(u8, u8, 8);
+            SUBI(u8, u8, 8);
             MV(x2, x3);
             SRLI(x3, x2, 4);
             BEQZ(x3, 4+2*4);
-            ADDI(u8, u8, 4);
+            SUBI(u8, u8, 4);
             MV(x2, x3);
             ANDI(x2, x2, 0b1111); 
             TABLE64(x3, (uintptr_t)&lead0tab);
             ADD(x3, x3, x2);
             LBU(x2, x3, 0);
-            ADD(gd, u8, x2);
+            SUB(gd, u8, x2);
             MARK2;
             ANDI(xFlags, xFlags, ~((1<<F_ZF) | (1<<F_CF)));
             BNE(gd, xZR, 4+4);
             ORI(xFlags, xFlags, 1<<F_ZF);
-            MOV32w(x2, rex.w?64:32);
-            BNE(gd, x2, 4+4);
-            ORI(xFlags, xFlags, 1<<F_CF);
             break;
 
         case 0xC2:

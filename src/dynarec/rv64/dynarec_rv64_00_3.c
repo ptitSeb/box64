@@ -775,7 +775,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MUL(xRAX, xRAX, ed);
                         if(gd!=xRDX) {MV(xRDX, gd);}
                     } else {
-                        MUL(xRDX, xRAX, ed);  //64 <- 32x32
+                        AND(x3, xRAX, xMASK);
+                        if(MODREG) {
+                            AND(x4, ed, xMASK);
+                            ed = x4;
+                        }
+                        MUL(xRDX, x3, ed);  //64 <- 32x32
                         AND(xRAX, xRDX, xMASK);
                         SRLI(xRDX, xRDX, 32);
                     }
@@ -793,7 +798,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MUL(xRAX, xRAX, ed);
                         if(gd!=xRDX) {MV(xRDX, gd);}
                     } else {
-                        MUL(xRDX, xRAX, ed);  //64 <- 32x32
+                        ADDIW(x3, xRAX, 0); // sign extend 32bits-> 64bits
+                        MUL(xRDX, x3, ed);  //64 <- 32x32
                         AND(xRAX, xRDX, xMASK);
                         SRLI(xRDX, xRDX, 32);
                     }

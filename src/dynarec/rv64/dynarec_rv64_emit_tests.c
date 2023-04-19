@@ -324,9 +324,12 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
         SET_DFNONE();
     }
 
-    if(c>=-2048 && c<=2047)
+    if(c>=-2048 && c<=2047) {
         ANDI(s3, s1, c);
-    else {
+        IFX(X_SF|X_ZF) {
+            if (!rex.w && c<0) ZEROUP(s3);
+        }
+    } else {
         MOV64xw(s3, c);
         AND(s3, s1, s3); // res = s1 & s2
     }
@@ -335,7 +338,6 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
         SDxw(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_SF) {
-        if (!rex.w) ZEROUP(s3);
         SRLI(s4, s3, rex.w?63:31);
         BEQZ(s4, 8);
         ORI(xFlags, xFlags, 1 << F_SF);

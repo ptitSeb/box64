@@ -89,7 +89,6 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SETFLAGS(X_ALL, SF_SET_PENDING);
                             nextop = F8;
                             GETGD;
-                            SMDMB();
                             if (MODREG) {
                                 ed = xRAX+(nextop&7)+(rex.b<<3);
                                 wback = 0;
@@ -100,12 +99,12 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 MV(ed, gd);
                                 MARK2;
                                 MVxw(xRAX, x1);
-                                B_NEXT_nocond;
                             } else {
+                                SMDMB();
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                 MARKLOCK;
                                 LRxw(x1, wback, 1, 1);
-                                SUB(x3, x1, xRAX);
+                                SUBxw(x3, x1, xRAX);
                                 BNE_MARK(x3, xZR);
                                 // EAX == Ed
                                 SCxw(x4, gd, wback, 1, 1);
@@ -113,8 +112,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 MARK;
                                 UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6);}
                                 MVxw(xRAX, x1);
+                                SMDMB();
                             }
-                            SMDMB();
                             break;
                         default:
                             DEFAULT;

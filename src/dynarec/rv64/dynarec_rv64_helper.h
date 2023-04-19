@@ -604,13 +604,14 @@
     ANDI(s1, s1, 1<<5);             \
     OR(reg, reg, s1)
 
-// Adjust the xFlags bit 5 -> bit 11, source in reg (can be xFlags, but not s1)
-#define FLAGS_ADJUST_TO11(reg, s1)  \
-    MOV64x(s1, ~(1<<11));           \
-    AND(xFlags, reg, s1);           \
-    ANDI(s1, xFlags, 1<<5);         \
-    SLLI(s1, s1, 11-5);             \
-    OR(xFlags, xFlags, s1)
+// Adjust the xFlags bit 5 -> bit 11, src and dst can be the same (and can be xFlags, but not s1)
+#define FLAGS_ADJUST_TO11(dst, src, s1) \
+    MOV64x(s1, ~(1<<11));               \
+    AND(dst, src, s1);                  \
+    ANDI(s1, dst, 1<<5);                \
+    SLLI(s1, s1, 11-5);                 \
+    ANDI(dst, dst, ~(1<<5));            \
+    OR(dst, dst, s1)
 
 #ifndef MAYSETFLAGS
 #define MAYSETFLAGS()

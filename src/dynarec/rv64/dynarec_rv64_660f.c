@@ -173,7 +173,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX(x1);
                     GETEX(x2, 0);
                     sse_forget_reg(dyn, ninst, x5);
-                    ADDI(x5, xEmu, offsetof(x64emu_t, xmm[x5]));
+
+                    ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
 
                     // perserve gd
                     LD(x3, gback, 0);

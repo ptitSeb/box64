@@ -635,6 +635,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     case 0:
                         INST_NAME("FXSAVE Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        SKIPTEST(x1);
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         if(MODREG) {
                             DEFAULT;
@@ -647,6 +648,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     case 1:
                         INST_NAME("FXRSTOR Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        SKIPTEST(x1);
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         if(MODREG) {
                             DEFAULT;

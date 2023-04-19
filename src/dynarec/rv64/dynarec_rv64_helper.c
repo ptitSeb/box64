@@ -389,7 +389,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     if(savereg==0)
         savereg = x6;
     if(saveflags) {
-        FLAGS_ADJUST_TO11(xFlags, reg);
+        FLAGS_ADJUST_TO11(xFlags, xFlags, reg);
         SD(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
     fpu_pushcache(dyn, ninst, reg, 0);
@@ -442,7 +442,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
-    FLAGS_ADJUST_TO11(xFlags, x3);
+    FLAGS_ADJUST_TO11(xFlags, xFlags, x3);
     SD(xFlags, xEmu, offsetof(x64emu_t, eflags));
     fpu_pushcache(dyn, ninst, x3, 1);
     // x5..x8, x10..x17, x28..x31 those needs to be saved by caller

@@ -193,8 +193,13 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if(i64) {
                         MOV64xw(x2, i64);
                         emit_cmp32(dyn, ninst, rex, ed, x2, x3, x4, x5, x6);
-                    } else
+                    } else {
+                        if(!rex.w && MODREG) {
+                            AND(x1, ed, xMASK);
+                            ed = x1;
+                        }
                         emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
+                    }
                     break;
             }
             break;
@@ -429,8 +434,8 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
-            FLAGS_ADJUST_TO11(xFlags, x2);
-            PUSH1(xFlags);
+            FLAGS_ADJUST_TO11(x3, xFlags, x2);
+            PUSH1(x3);
             break;
         case 0x9D:
             INST_NAME("POPF");
