@@ -288,7 +288,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ed = x4;
             }
             BNE_MARK(ed, xZR);
-            MOV32w(gd, 0);
+            MOV32w(gd, rex.w?64:32);
             B_MARK2_nocond;
             MARK;
             ANDI(xFlags, xFlags, ~(1<<F_ZF));

@@ -155,12 +155,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             OR(xRAX, xRAX, x1);
             break;
         case 0x29:
-            INST_NAME("SUB Ex, Gw");
+            INST_NAME("SUB Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);
-            emit_sub16(dyn, ninst, x2, x1, x3, x4, x5);
+            emit_sub16(dyn, ninst, x2, x1, x4, x5, x6);
             EWBACK;
             break;
         case 0x2B:
