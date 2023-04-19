@@ -224,7 +224,36 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SSE_LOOP_MV_Q2(x3);
             if(!MODREG) SMWRITE2();
             break;
-
+        
+        case 0xBC:
+            INST_NAME("TZCNT Gd, Ed");
+            SETFLAGS(X_ZF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if(!rex.w && MODREG) {
+                AND(x4, ed, xMASK);
+                ed = x4;
+            }
+            BNE_MARK(ed, xZR);
+            ANDI(xFlags, xFlags, ~((1<<F_ZF) | (1<<F_CF)));
+            ORI(xFlags, xFlags, 1<<F_CF);
+            MOV32w(gd, rex.w?64:32);
+            B_NEXT_nocond;
+            MARK;
+            NEG(x2, ed);
+            AND(x2, x2, ed);
+            TABLE64(x3, 0x03f79d71b4ca8b09ULL);
+            MUL(x2, x2, x3);
+            SRLI(x2, x2, 64-6);
+            TABLE64(x1, (uintptr_t)&deBruijn64tab);
+            ADD(x1, x1, x2);
+            LBU(gd, x1, 0);
+            ANDI(xFlags, xFlags, ~((1<<F_ZF) | (1<<F_CF)));
+            BNE(gd, xZR, 4+4);
+            ORI(xFlags, xFlags, 1<<F_ZF);
+            break;
         case 0xBD:
             INST_NAME("LZCNT Gd, Ed");
             SETFLAGS(X_ZF|X_CF, SF_SUBSET);
