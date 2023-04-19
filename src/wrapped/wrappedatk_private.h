@@ -189,7 +189,7 @@ GO(atk_state_set_contains_state, iFpi)
 //GO(atk_state_set_or_sets, 
 //GO(atk_state_set_remove_state, 
 //GO(atk_state_set_xor_sets, 
-//GO(atk_state_type_for_name, 
+GO(atk_state_type_for_name, iFp)
 GO(atk_state_type_get_name, pFi)
 GO(atk_state_type_get_type, LFv)
 //GO(atk_state_type_register, 
