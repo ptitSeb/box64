@@ -355,6 +355,22 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             NEG(x2, x2);
             FMVWX(d0, x2);
             break;
+
+        case 0xE6:
+            INST_NAME("CVTDQ2PD Gx, Ex");
+            nextop = F8;
+            GETEXSD(d1, 0);
+            GETGX(d0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            LW(x1, d1, 0);
+            LW(x2, d1, 4);
+            FCVTDW(q0, x1, RD_DYN);
+            FCVTDW(q1, x2, RD_DYN);
+            FSD(q0, d0, 0);
+            FSD(q1, d0, 8);
+            break;
+
         default:
             DEFAULT;
     }
