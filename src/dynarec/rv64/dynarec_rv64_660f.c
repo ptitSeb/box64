@@ -255,7 +255,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     v1 = fpu_get_scratch(dyn);
                     if(u8&4) {
-                        u8 = sse_setround(dyn, ninst, x4, x2, x3);
+                        u8 = sse_setround(dyn, ninst, x4, x2);
                         FCVTLD(x5, d0, RD_DYN);
                         FCVTDL(v1, x5, RD_DYN);
                         x87_restoreround(dyn, ninst, u8);
