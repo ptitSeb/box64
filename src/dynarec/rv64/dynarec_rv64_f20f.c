@@ -108,6 +108,8 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FSFLAGSI(xZR);  // // reset all bits
             }
             FCVTLDxw(gd, v0, RD_RTZ);
+            if(!rex.w)
+                ZEROUP(gd);
             if(!box64_dynarec_fastround) {
                 FRFLAGS(x5);   // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));

@@ -154,9 +154,9 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, S, &fixedaddress, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, S, &fixedaddress, rex, NULL, 1, D); \
                     ADD(S, wback, O);                   \
-                    LDxw(x1, S, 0);                     \
+                    LDxw(x1, S, fixedaddress);          \
                     ed = x1;                            \
                 }
 
