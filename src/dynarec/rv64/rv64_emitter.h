@@ -423,7 +423,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Convert from signed 32bits to Single
 #define FCVTSW(frd, rs1, rm)        EMIT(R_type(0b1101000, 0b00000, rs1, rm, frd, 0b1010011))
 // Convert from Single to signed 32bits (trucated)
-#define FCVTWS(rd, frs1, tm)        EMIT(R_type(0b1100000, 0b00000, frs1, rm, rd, 0b1010011))
+#define FCVTWS(rd, frs1, rm)        EMIT(R_type(0b1100000, 0b00000, frs1, rm, rd, 0b1010011))
 
 #define FADDS(frd, frs1, frs2)      EMIT(R_type(0b0000000, frs2, frs1, 0b000, frd, 0b1010011))
 #define FSUBS(frd, frs1, frs2)      EMIT(R_type(0b0000100, frs2, frs1, 0b000, frd, 0b1010011))

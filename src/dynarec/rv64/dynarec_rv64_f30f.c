@@ -225,6 +225,28 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if(!MODREG) SMWRITE2();
             break;
         
+        case 0x5B:
+            INST_NAME("CVTTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(d1, 0) ;
+            GETGX(d0);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            FLW(v0, d1, 0);
+            FLW(v1, d1, 4);
+            FLW(q0, d1, 8);
+            FLW(q1, d1, 12);
+            FCVTWS(x1, v0, RD_RTZ);
+            FCVTWS(x2, v1, RD_RTZ);
+            FCVTWS(x3, q0, RD_RTZ);
+            FCVTWS(x4, q1, RD_RTZ);
+            SW(x1, d0, 0);
+            SW(x2, d0, 4);
+            SW(x3, d0, 8);
+            SW(x4, d0, 12);
+            break;
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
             SETFLAGS(X_ZF, SF_SUBSET);
