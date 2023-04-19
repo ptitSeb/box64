@@ -73,6 +73,17 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEDO(x4, 0, x5);
             emit_sub32(dyn, ninst, rex, gd, ed, x3, x4, x5);
             break;
+
+        // case 0x33:
+        //     INST_NAME("XOR Gd, Seg:Ed");
+        //     SETFLAGS(X_ALL, SF_SET_PENDING);
+        //     grab_segdata(dyn, addr, ninst, x4, seg);
+        //     nextop = F8;
+        //     GETGD;
+        //     GETEDO(x4, 0, x5);
+        //     emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
+        //     break;
+
         case 0x88:
             INST_NAME("MOV Seg:Eb, Gb");
             grab_segdata(dyn, addr, ninst, x4, seg);
@@ -130,6 +141,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITE2();
             }
             break;
+
         case 0x8B:
             INST_NAME("MOV Gd, Seg:Ed");
             grab_segdata(dyn, addr, ninst, x4, seg);

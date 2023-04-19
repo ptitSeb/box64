@@ -1315,7 +1315,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     insn.name = "fcvt.d.lu";
                     break;
                 }
-                PRINT_xd_fs1();
+                PRINT_fd_xs1();
             }
             case 0x70: {
                 assert(RS2(data) == 0);

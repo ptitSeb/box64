@@ -398,6 +398,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define RD_RMM      0b100
 // In instruction’s rm field, selects dynamic rounding mode;
 #define RD_RM       0b111
+#define RD_DYN      RD_RM
 
 // load single precision from rs1+imm12 to frd
 #define FLW(frd, rs1, imm12)        EMIT(I_type(imm12, rs1, 0b010, frd, 0b0000111))
@@ -422,7 +423,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Convert from signed 32bits to Single
 #define FCVTSW(frd, rs1, rm)        EMIT(R_type(0b1101000, 0b00000, rs1, rm, frd, 0b1010011))
 // Convert from Single to signed 32bits (trucated)
-#define FCVTWS(rd, frs1, tm)        EMIT(R_type(0b1100000, 0b00000, frs1, rm, rd, 0b1010011))
+#define FCVTWS(rd, frs1, rm)        EMIT(R_type(0b1100000, 0b00000, frs1, rm, rd, 0b1010011))
 
 #define FADDS(frd, frs1, frs2)      EMIT(R_type(0b0000000, frs2, frs1, 0b000, frd, 0b1010011))
 #define FSUBS(frd, frs1, frs2)      EMIT(R_type(0b0000100, frs2, frs1, 0b000, frd, 0b1010011))

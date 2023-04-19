@@ -47,6 +47,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(j64);
+
+    static const int8_t round_round[] = { RD_RNE, RD_RDN, RD_RUP, RD_RTZ };
     
     switch(opcode) {
         case 0x10:
@@ -242,6 +244,32 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x3A:  // these are some more SSSE3+ opcodes
+            opcode = F8;
+            switch(opcode) {
+                case 0x0B:
+                    INST_NAME("ROUNDSD Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEXSD(d0, 0);
+                    u8 = F8;
+                    v1 = fpu_get_scratch(dyn);
+                    if(u8&4) {
+                        u8 = sse_setround(dyn, ninst, x4, x2);
+                        FCVTLD(x5, d0, RD_DYN);
+                        FCVTDL(v1, x5, RD_DYN);
+                        x87_restoreround(dyn, ninst, u8);
+                    } else {
+                        FCVTLD(x5, d0, round_round[u8&3]);
+                        FCVTDL(v1, x5, round_round[u8&3]);
+                    }
+                    FSD(v1, gback, 0);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;

@@ -224,7 +224,58 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SSE_LOOP_MV_Q2(x3);
             if(!MODREG) SMWRITE2();
             break;
-
+        
+        case 0x5B:
+            INST_NAME("CVTTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(x5, 0) ;
+            GETGX(x6);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            FLW(v0, x5, 0);
+            FLW(v1, x5, 4);
+            FLW(q0, x5, 8);
+            FLW(q1, x5, 12);
+            FCVTWS(x1, v0, RD_RTZ);
+            FCVTWS(x2, v1, RD_RTZ);
+            FCVTWS(x3, q0, RD_RTZ);
+            FCVTWS(x4, q1, RD_RTZ);
+            SW(x1, x6, 0);
+            SW(x2, x6, 4);
+            SW(x3, x6, 8);
+            SW(x4, x6, 12);
+            break;
+        case 0xBC:
+            INST_NAME("TZCNT Gd, Ed");
+            SETFLAGS(X_ZF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if(!rex.w && MODREG) {
+                AND(x4, ed, xMASK);
+                ed = x4;
+            }
+            BNE_MARK(ed, xZR);
+            ANDI(xFlags, xFlags, ~((1<<F_ZF) | (1<<F_CF)));
+            ORI(xFlags, xFlags, 1<<F_CF);
+            MOV32w(gd, rex.w?64:32);
+            B_NEXT_nocond;
+            MARK;
+            NEG(x2, ed);
+            AND(x2, x2, ed);
+            TABLE64(x3, 0x03f79d71b4ca8b09ULL);
+            MUL(x2, x2, x3);
+            SRLI(x2, x2, 64-6);
+            TABLE64(x1, (uintptr_t)&deBruijn64tab);
+            ADD(x1, x1, x2);
+            LBU(gd, x1, 0);
+            ANDI(xFlags, xFlags, ~((1<<F_ZF) | (1<<F_CF)));
+            BNE(gd, xZR, 4+4);
+            ORI(xFlags, xFlags, 1<<F_ZF);
+            break;
         case 0xBD:
             INST_NAME("LZCNT Gd, Ed");
             SETFLAGS(X_ZF|X_CF, SF_SUBSET);
@@ -326,6 +377,22 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             NEG(x2, x2);
             FMVWX(d0, x2);
             break;
+
+        case 0xE6:
+            INST_NAME("CVTDQ2PD Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            LW(x3, x1, 0);
+            LW(x4, x1, 4);
+            FCVTDW(q0, x3, RD_DYN);
+            FCVTDW(q1, x4, RD_DYN);
+            FSD(q0, x2, 0);
+            FSD(q1, x2, 8);
+            break;
+
         default:
             DEFAULT;
     }
