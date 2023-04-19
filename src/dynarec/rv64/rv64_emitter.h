@@ -398,6 +398,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define RD_RMM      0b100
 // In instruction’s rm field, selects dynamic rounding mode;
 #define RD_RM       0b111
+#define RD_DYN      RD_RM
 
 // load single precision from rs1+imm12 to frd
 #define FLW(frd, rs1, imm12)        EMIT(I_type(imm12, rs1, 0b010, frd, 0b0000111))
