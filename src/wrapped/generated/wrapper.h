@@ -1868,6 +1868,7 @@ void vFppppppi(x64emu_t *emu, uintptr_t fnc);
 void vFppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpupppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpUuppp(x64emu_t *emu, uintptr_t fnc);
+void iFEpLiLpp(x64emu_t *emu, uintptr_t fnc);
 void iFEpLiLpV(x64emu_t *emu, uintptr_t fnc);
 void iFEppuppp(x64emu_t *emu, uintptr_t fnc);
 void iFEppLpIi(x64emu_t *emu, uintptr_t fnc);
@@ -2447,7 +2448,6 @@ void iFEvpp(x64emu_t *emu, uintptr_t fnc);
 void pFEppv(x64emu_t *emu, uintptr_t fnc);
 void iFEpvpp(x64emu_t *emu, uintptr_t fnc);
 void iFEpvvppp(x64emu_t *emu, uintptr_t fnc);
-void iFEpLvvpp(x64emu_t *emu, uintptr_t fnc);
 void iFEpuvvppp(x64emu_t *emu, uintptr_t fnc);
 
 int isSimpleWrapper(wrapper_t fun);

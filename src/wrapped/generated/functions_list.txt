@@ -1831,6 +1831,7 @@
 #() vFppppppp
 #() iFEpupppp
 #() iFEpUuppp
+#() iFEpLiLpp
 #() iFEpLiLpV
 #() iFEppuppp
 #() iFEppLpIi
@@ -2397,7 +2398,6 @@
 #() pFEppv -> pFEpp
 #() iFEpvpp -> iFEppp
 #() iFEpvvppp -> iFEpppp
-#() iFEpLvvpp -> iFEpLpp
 #() iFEpuvvppp -> iFEpuppp
 wrappedalure:
 wrappedalut:
@@ -3377,8 +3377,6 @@ wrappedlibc:
   - __fwprintf_chk
 - iFpipA:
   - __vfwprintf_chk
-- iFpLpp:
-  - __vsnprintf_chk
 - iFpLpV:
   - __snprintf
   - snprintf
@@ -3422,6 +3420,8 @@ wrappedlibc:
 - pFpppLp:
   - lfind
   - lsearch
+- iFpLiLpp:
+  - __vsnprintf_chk
 - iFpLiLpV:
   - __snprintf_chk
   - __swprintf_chk

@@ -922,7 +922,17 @@ EXPORT int my_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_
     return r;
 }
 EXPORT int my___vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) __attribute__((alias("my_vsnprintf")));
-EXPORT int my___vsnprintf_chk(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) __attribute__((alias("my_vsnprintf")));
+EXPORT int my___vsnprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, size_t slen, int blah, void * fmt, x64_va_list_t b) {
+    (void)emu;
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    int r = vsnprintf(buff, s, fmt, VARARGS);
+    return r;
+}
 #if 0
 EXPORT int my_vasprintf(x64emu_t* emu, void* strp, void* fmt, void* b, va_list V)
 {

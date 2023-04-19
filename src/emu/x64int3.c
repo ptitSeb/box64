@@ -202,14 +202,14 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     pu64 = (uint64_t*)R_RDI;
                     post = 3;
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, %zu, %d, %zu, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI, R_EDX, R_RCX, (tmp)?tmp:"(nil)", (void*)(R_R9));
-                } else if (!strcmp(s, "snprintf")) {
+                } else if (strstr(s, "snprintf")==s) {
                     tmp = (char*)(R_RDX);
                     pu64 = (uint64_t*)R_RDI;
                     post = 3;
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, %zu, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI, (tmp)?tmp:"(nil)", (void*)(R_RCX));
-                } else if (strstr(s, "vfprintf")) {
+                } else if (strstr(s, "vfprintf")==s) {
                     tmp = (char*)(R_RSI);
-                    snprintf(buff, 256, "%04d|%p: Calling %s(%p, \"%s\", ...", tid, *(void**)(R_RSP), s, (void*)R_RDI, (tmp)?tmp:"(nil)");
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p, \"%s\", ...)", tid, *(void**)(R_RSP), s, (void*)R_RDI, (tmp)?tmp:"(nil)");
                 } else if (!strcmp(s, "getcwd")) {
                     post = 2;
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, %zu)", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI);
