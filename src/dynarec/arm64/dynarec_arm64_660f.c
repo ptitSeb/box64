@@ -1958,7 +1958,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             B_MARK(cEQ);
             RBITw(x1, x1);   // reverse
             CLZw(x2, x1);    // x2 gets leading 0 == BSF
-            BFIw(gd, x2, 0, 16);
+            BFIx(gd, x2, 0, 16);
             MARK;
             CSETw(x1, cEQ);    //ZF not set
             BFIw(xFlags, x1, F_ZF, 1);
