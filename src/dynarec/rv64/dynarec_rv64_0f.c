@@ -151,6 +151,16 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FMVD(v1, v0);
             }
             break;
+        case 0x13:
+            INST_NAME("MOVLPS Ex,Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, gback, 0);
+            SD(x3, wback, fixedaddress+0);
+            if(!MODREG)
+                SMWRITE2();
+            break;
         case 0x14:
             INST_NAME("UNPCKLPS Gx,Ex");
             nextop = F8;
@@ -191,8 +201,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SD(x4, gback, 8);
             break;
         case 0x17:
-            nextop = F8;
             INST_NAME("MOVHPS Ex,Gx");
+            nextop = F8;
             GETGX(x1);
             GETEX(x2, 0);
             LD(x4, gback, 8);
