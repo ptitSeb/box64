@@ -998,7 +998,7 @@ int x87_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2)
     ADDI(s2, xZR, 3);
     BEQ(s1, s2, 12);
     ADDI(s1, s1, 1);
-    BEQ(xZR, xZR, 8);
+    J(8);
     ADDI(s1, xZR, 1);
     // transform done (is there a faster way?)
     FSRM(s1, s1);               // exange RM with current
@@ -1020,7 +1020,7 @@ int sse_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2)
     ADDI(s2, xZR, 3);
     BEQ(s1, s2, 12);
     ADDI(s1, s1, 1);
-    BEQ(xZR, xZR, 8);
+    J(8);
     ADDI(s1, xZR, 1);
     // transform done (is there a faster way?)
     FSRM(s1, s1);               // exange RM with current

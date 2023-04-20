@@ -323,7 +323,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     FCVTDL(d1, x3, RD_RTZ);
                     FLTD(x3, v0, d1);
                     BNEZ_MARK2(x3);
-                    FMVD(v0, d0);
+                    if (v0!=d0) FMVD(v0, d0);
                     B_NEXT_nocond;
                     MARK2;
                     if(u8&4) {
@@ -1116,11 +1116,11 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ADDI(x4, xZR, 0x7f);
                 BLT(x3, x4, 12);     // tmp16s>127?
                 SB(x4, gback, i);
-                BEQ(xZR, xZR, 24);   // continue
+                J(24);               // continue
                 ADDI(x4, xZR, 0xf80);
                 BLT(x4, x3, 12);     // tmp16s<-128?
                 SB(x4, gback, i);
-                BEQ(xZR, xZR, 8);    // continue
+                J(8);                // continue
                 SB(x3, gback, i);
             }
             break;
