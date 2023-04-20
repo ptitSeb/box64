@@ -130,7 +130,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FSFLAGSI(xZR);  // // reset all bits
             }
             u8 = sse_setround(dyn, ninst, x2, x3);
-            FCVTLDxw(gd, v0, RD_RM);
+            FCVTLDxw(gd, v0, RD_DYN);
             x87_restoreround(dyn, ninst, u8);
             if(!box64_dynarec_fastround) {
                 FRFLAGS(x5);   // get back FPSR to check the IOC bit
