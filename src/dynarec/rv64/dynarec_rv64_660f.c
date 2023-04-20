@@ -1100,6 +1100,30 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             SSE_LOOP_Q(x3, x4, OR(x3, x3, x4));
             break;
+        case 0xEC:
+            INST_NAME("PADDSB Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for(int i=0; i<16; ++i) {
+                // tmp16s = (int16_t)GX->sb[i] + EX->sb[i];
+                // GX->sb[i] = (tmp16s>127)?127:((tmp16s<-128)?-128:tmp16s);
+                LB(x3, gback, i);
+                LB(x4, wback, fixedaddress+i);
+                ADDW(x3, x3, x4);
+                SLLIW(x3, x3, 16);
+                SRAIW(x3, x3, 16);
+                ADDI(x4, xZR, 0x7f);
+                BLT(x3, x4, 12);     // tmp16s>127?
+                SB(x4, gback, i);
+                BEQ(xZR, xZR, 24);   // continue
+                ADDI(x4, xZR, 0xf80);
+                BLT(x4, x3, 12);     // tmp16s<-128?
+                SB(x4, gback, i);
+                BEQ(xZR, xZR, 8);    // continue
+                SB(x3, gback, i);
+            }
+            break;
         case 0xEE:
             INST_NAME("PMAXSW Gx,Ex");
             nextop = F8;
