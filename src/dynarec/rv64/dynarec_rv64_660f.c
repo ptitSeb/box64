@@ -194,6 +194,32 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SB(x4, gback, i);
                     }
                     break;
+                case 0x01:
+                    INST_NAME("PHADDW Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    for (int i=0; i<4; ++i) {
+                        // GX->sw[i] = GX->sw[i*2+0]+GX->sw[i*2+1];
+                        LH(x3, gback, 2*(i*2+0));
+                        LH(x4, gback, 2*(i*2+1));
+                        ADDW(x3, x3, x4);
+                        SH(x3, gback, 2*i);
+                    }
+                    if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
+                        // GX->q[1] = GX->q[0];
+                        LD(x3, gback, 0);
+                        SD(x3, gback, 8);
+                    } else {
+                        GETEX(x2, 0);
+                        for (int i=0; i<4; ++i) {
+                            // GX->sw[4+i] = EX->sw[i*2+0] + EX->sw[i*2+1];
+                            LH(x3, wback, fixedaddress+2*(i*2+0));
+                            LH(x4, wback, fixedaddress+2*(i*2+1));
+                            ADDW(x3, x3, x4);
+                            SH(x3, gback, 2*(4+i));
+                        }
+                    }
+                    break;
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
