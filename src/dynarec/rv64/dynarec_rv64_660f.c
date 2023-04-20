@@ -220,6 +220,38 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                     break;
+                case 0x02:
+                    INST_NAME("PHADDD Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    // GX->sd[0] += GX->sd[1];
+                    LW(x3, gback, 0*4);
+                    LW(x4, gback, 1*4);
+                    ADDW(x3, x3, x4);
+                    SW(x3, gback, 0*4);
+                    // GX->sd[1] = GX->sd[2] + GX->sd[3];
+                    LW(x3, gback, 2*4);
+                    LW(x4, gback, 3*4);
+                    ADDW(x3, x3, x4);
+                    SW(x3, gback, 1*4);
+                    if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
+                        // GX->q[1] = GX->q[0];
+                        LD(x3, gback, 0);
+                        SD(x3, gback, 8);
+                    } else {
+                        GETEX(x2, 0);
+                        // GX->sd[2] = EX->sd[0] + EX->sd[1];
+                        LW(x3, wback, fixedaddress+0*4);
+                        LW(x4, wback, fixedaddress+1*4);
+                        ADDW(x3, x3, x4);
+                        SW(x3, gback, 2*4);
+                        // GX->sd[3] = EX->sd[2] + EX->sd[3];
+                        LW(x3, wback, fixedaddress+2*4);
+                        LW(x4, wback, fixedaddress+3*4);
+                        ADDW(x3, x3, x4);
+                        SW(x3, gback, 3*4);
+                    }
+                    break;
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
