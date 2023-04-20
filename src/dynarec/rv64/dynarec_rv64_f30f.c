@@ -228,24 +228,23 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5B:
             INST_NAME("CVTTPS2DQ Gx, Ex");
             nextop = F8;
-            GETEX(x5, 0) ;
-            GETGX(x6);
+            GETGX(x1);
+            GETEX(x2, 0);
             v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
-            q0 = fpu_get_scratch(dyn);
-            q1 = fpu_get_scratch(dyn);
-            FLW(v0, x5, 0);
-            FLW(v1, x5, 4);
-            FLW(q0, x5, 8);
-            FLW(q1, x5, 12);
-            FCVTWS(x1, v0, RD_RTZ);
-            FCVTWS(x2, v1, RD_RTZ);
-            FCVTWS(x3, q0, RD_RTZ);
-            FCVTWS(x4, q1, RD_RTZ);
-            SW(x1, x6, 0);
-            SW(x2, x6, 4);
-            SW(x3, x6, 8);
-            SW(x4, x6, 12);
+            for(int i=0; i<4; ++i) {
+                if(!box64_dynarec_fastround) {
+                    FSFLAGSI(xZR); // reset all bits
+                }
+                FLW(v0, wback, fixedaddress+i*4);
+                FCVTWS(x3, v0, RD_RTZ);
+                if(!box64_dynarec_fastround) {
+                    FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                    ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+                    BEQZ(x5, 8);
+                    MOV32w(x3, 0x80000000);
+                }
+                SW(x3, gback, i*4);
+            }
             break;
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
@@ -379,16 +378,16 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xE6:
             INST_NAME("CVTDQ2PD Gx, Ex");
             nextop = F8;
-            GETEX(x1, 0);
-            GETGX(x2);
+            GETGX(x1);
+            GETEX(x2, 0);
             q0 = fpu_get_scratch(dyn);
             q1 = fpu_get_scratch(dyn);
-            LW(x3, x1, 0);
-            LW(x4, x1, 4);
-            FCVTDW(q0, x3, RD_DYN);
-            FCVTDW(q1, x4, RD_DYN);
-            FSD(q0, x2, 0);
-            FSD(q1, x2, 8);
+            LW(x3, wback, fixedaddress+0);
+            LW(x4, wback, fixedaddress+4);
+            FCVTDW(q0, x3, RD_RTZ);
+            FCVTDW(q1, x4, RD_RTZ);
+            FSD(q0, gback, 0);
+            FSD(q1, gback, 8);
             break;
 
         default:

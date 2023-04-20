@@ -281,10 +281,10 @@
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     a = sse_get_reg(dyn, ninst, x1, gd, 0)
 
-// Get GX as a Double (might use x1), no fetching old value
+// Get GX as a Double (might use x2), no fetching old value
 #define GETGXSD_empty(a)                \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    a = sse_get_reg_empty(dyn, ninst, x1, gd, 0)
+    a = sse_get_reg_empty(dyn, ninst, x2, gd, 0)
 
 // Get Ex as a single, not a quad (warning, x1 get used, x2 might too)
 #define GETEXSS(a, D)                                                                                   \
