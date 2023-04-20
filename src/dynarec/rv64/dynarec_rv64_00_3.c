@@ -914,6 +914,27 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("CLD");
             ANDI(xFlags, xFlags, ~(1<<F_CF));
             break;
+        case 0xFE:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("INC Eb");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    GETEB(x1, 0);
+                    emit_inc8(dyn, ninst, ed, x2, x4, x5);
+                    EBBACK(x5, 0);
+                    break;
+                case 1:
+                    INST_NAME("DEC Eb");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    GETEB(x1, 0);
+                    emit_dec8(dyn, ninst, ed, x2, x4, x5);
+                    EBBACK(x5, 0);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xFF:
             nextop = F8;
             switch((nextop>>3)&7) {
