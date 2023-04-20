@@ -590,6 +590,7 @@ static uintptr_t getDBSize(uintptr_t addr, size_t maxsize, dynablock_t** db)
     uintptr_t* block = box64_jmptbl3[idx3][idx2][idx1];
     if(block == box64_jmptbldefault0)
         return (((addr>>JMPTABL_START1)+1)<<JMPTABL_START1);
+    maxsize+=idx0;  // need to adjust maxsize to "end in current block"
     if (maxsize>JMPTABLE_MASK0)
         maxsize = JMPTABLE_MASK0;
     while(block[idx0]==(uintptr_t)native_next) {
