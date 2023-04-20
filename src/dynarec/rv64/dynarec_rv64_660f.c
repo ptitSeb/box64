@@ -69,9 +69,11 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x14:
             INST_NAME("UNPCKLPD Gx, Ex");
             nextop = F8;
-            GETEXSD(d0, 0);
-            GETGX(x3);
-            FSD(d0, x3, 8);
+            GETGX(x1);
+            GETEX(x2, 0);
+            // GX->q[1] = EX->q[0];
+            LD(x3, wback, fixedaddress+0);
+            SD(x3, gback, 8);
             break;
         case 0x15:
             INST_NAME("UNPCKHPD Gx, Ex");
@@ -396,6 +398,23 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     FNEGD(v0, v0);
                 }
             });
+            break;
+        case 0x5A:
+            INST_NAME("CVTPD2PS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            d0 = fpu_get_scratch(dyn);
+            // GX->f[0] = EX->d[0];
+            FLD(d0, wback, fixedaddress+0);
+            FCVTSD(d0, d0);
+            FSD(d0, gback, 0);
+            // GX->f[1] = EX->d[1];
+            FLD(d0, wback, fixedaddress+8);
+            FCVTSD(d0, d0);
+            FSD(d0, gback, 4);
+            // GX->q[1] = 0;
+            SD(xZR, gback, 8);
             break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");

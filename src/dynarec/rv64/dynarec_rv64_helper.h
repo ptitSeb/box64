@@ -266,20 +266,20 @@
 // Generic get GD, but reg value in gd (R_RAX is not added)
 #define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
 
-// Get GX as a Single (might use x1)
+// Get GX as a Single (might use x2)
 #define GETGXSS(a)                      \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    a = sse_get_reg(dyn, ninst, x1, gd, 1)
+    a = sse_get_reg(dyn, ninst, x2, gd, 1)
 
-// Get GX as a Single (might use x1), no fetching old value
+// Get GX as a Single (might use x2), no fetching old value
 #define GETGXSS_empty(a)                \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    a = sse_get_reg_empty(dyn, ninst, x1, gd, 1)
+    a = sse_get_reg_empty(dyn, ninst, x2, gd, 1)
 
-// Get GX as a Double (might use x1)
+// Get GX as a Double (might use x2)
 #define GETGXSD(a)                      \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    a = sse_get_reg(dyn, ninst, x1, gd, 0)
+    a = sse_get_reg(dyn, ninst, x2, gd, 0)
 
 // Get GX as a Double (might use x2), no fetching old value
 #define GETGXSD_empty(a)                \
