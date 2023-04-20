@@ -178,6 +178,13 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x51: // TODO: fastnan handling
+            INST_NAME("SQRTSD Gx, Ex");
+            nextop = F8;
+            GETEXSD(d0, 0);
+            GETGXSD_empty(d1);
+            FSQRTD(d1, d0);
+            break;
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
