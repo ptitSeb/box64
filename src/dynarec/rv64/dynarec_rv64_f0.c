@@ -57,6 +57,28 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     // TODO: Take care of unligned memory access for all the LOCK ones.
     // https://github.com/ptitSeb/box64/pull/604
     switch(opcode) {
+        case 0x01:
+            INST_NAME("LOCK ADD Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            SMDMB();
+            if((nextop&0xC0)==0xC0) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                MARKLOCK;
+                LRxw(x1, wback, 1, 1);
+                ADDxw(x4, x1, gd);
+                SCxw(x3, x4, wback, 1, 1);
+                BNEZ_MARKLOCK(x3);
+                IFX(X_ALL|X_PEND) {
+                    emit_add32(dyn, ninst, rex, x1, gd, x3, x4, x5);
+                }
+            }
+            SMDMB();
+            break;
         case 0x09:
             INST_NAME("LOCK OR Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
