@@ -1078,15 +1078,32 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = (F8)&7;
             LHU(gd, wback, fixedaddress+u8*2);
             break;
+        case 0xD2:
+            INST_NAME("PSRLD Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress);
+            ADDI(x4, xZR, 31);
+            BLTU_MARK(x4, x3);
+            for (int i=0; i<4; ++i) {
+                LWU(x5, gback, 4*i);
+                SRLW(x5, x5, x3);
+                SW(x5, gback, 4*i);
+            }
+            B_NEXT_nocond;
+            MARK;
+            SD(xZR, gback, 0);
+            SD(xZR, gback, 8);
+            break;
         case 0xD3:
             INST_NAME("PSRLQ Gx,Ex");
             nextop = F8;
             GETGX(x1);
             GETEX(x2, 0);
             LD(x3, wback, fixedaddress);
-            ADDI(x4, xZR, 64);
-            BGE_MARK(x3, x4);
-            ANDI(x3, x3, 0xff);
+            ADDI(x4, xZR, 63);
+            BLTU_MARK(x4, x3);
             for (int i=0; i<2; ++i) {
                 LD(x5, gback, 8*i);
                 SRL(x5, x5, x3);
