@@ -1200,6 +1200,24 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MUL(x3, x3, x4);
             SD(x3, gback, 0);
             break;
+        case 0xF5:
+            INST_NAME("PMADDWD Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for (int i=0; i<4; ++i) {
+                // GX->sd[i] = (int32_t)(GX->sw[i*2+0])*EX->sw[i*2+0] + 
+                //             (int32_t)(GX->sw[i*2+1])*EX->sw[i*2+1];
+                LH(x3, gback, 2*(i*2+0));
+                LH(x4, wback, fixedaddress+2*(i*2+0));
+                MULW(x5, x3, x4);
+                LH(x3, gback, 2*(i*2+1));
+                LH(x4, wback, fixedaddress+2*(i*2+1));
+                MULW(x6, x3, x4);
+                ADDW(x5, x5, x6);
+                SW(x5, gback, 4*i);
+            }
+            break;
         case 0xF6:
             INST_NAME("PSADBW Gx, Ex");
             nextop = F8;
