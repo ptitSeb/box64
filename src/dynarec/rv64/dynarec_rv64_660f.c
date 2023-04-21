@@ -66,6 +66,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SSE_LOOP_MV_Q2(x3);
             if(!MODREG) SMWRITE2();
             break;
+        case 0x12:
+            INST_NAME("MOVLPD Gx, Eq");
+            nextop = F8;
+            GETGX(x1);
+            if(MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            SMREAD();
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+            LD(x3, wback, fixedaddress);
+            SD(x3, gback, 0);
+            break;
         case 0x14:
             INST_NAME("UNPCKLPD Gx, Ex");
             nextop = F8;
@@ -342,7 +356,29 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
-
+        case 0x51:
+            INST_NAME("SQRTPD Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            d0 = fpu_get_scratch(dyn);
+            if(!box64_dynarec_fastnan) {
+                d1 = fpu_get_scratch(dyn);
+                FMVDX(d1, xZR);
+            }
+            for (int i=0; i<2; ++i) {
+                FLD(d0, wback, fixedaddress+i*8);
+                if(!box64_dynarec_fastnan) {
+                    FLTD(x3, d0, d1);
+                }
+                FSQRTD(d0, d0);
+                if(!box64_dynarec_fastnan) {
+                    BEQ(x3, xZR, 8);
+                    FNEGD(d0, d0);
+                }
+                FSD(d0, gback, i*8);
+            }
+            break;
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;
@@ -1042,6 +1078,25 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = (F8)&7;
             LHU(gd, wback, fixedaddress+u8*2);
             break;
+        case 0xD3:
+            INST_NAME("PSRLQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress);
+            ADDI(x4, xZR, 64);
+            BGE_MARK(x3, x4);
+            ANDI(x3, x3, 0xff);
+            for (int i=0; i<2; ++i) {
+                LD(x5, gback, 8*i);
+                SRL(x5, x5, x3);
+                SD(x5, gback, 8*i);
+            }
+            B_NEXT_nocond;
+            MARK;
+            SD(xZR, gback, 0);
+            SD(xZR, gback, 8);
+            break;
         case 0xD4:
             INST_NAME("PADDQ Gx,Ex");
             nextop = F8;
@@ -1199,6 +1254,45 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             LWU(x4, wback, fixedaddress+0*4);
             MUL(x3, x3, x4);
             SD(x3, gback, 0);
+            break;
+        case 0xF5:
+            INST_NAME("PMADDWD Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for (int i=0; i<4; ++i) {
+                // GX->sd[i] = (int32_t)(GX->sw[i*2+0])*EX->sw[i*2+0] + 
+                //             (int32_t)(GX->sw[i*2+1])*EX->sw[i*2+1];
+                LH(x3, gback, 2*(i*2+0));
+                LH(x4, wback, fixedaddress+2*(i*2+0));
+                MULW(x5, x3, x4);
+                LH(x3, gback, 2*(i*2+1));
+                LH(x4, wback, fixedaddress+2*(i*2+1));
+                MULW(x6, x3, x4);
+                ADDW(x5, x5, x6);
+                SW(x5, gback, 4*i);
+            }
+            break;
+        case 0xF6:
+            INST_NAME("PSADBW Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            MV(x6, xZR);
+            for (int i=0; i<16; ++i) {
+                LBU(x3, gback, i);
+                LBU(x4, wback, fixedaddress+i);
+                SUBW(x3, x3, x4);
+                SRAIW(x5, x3, 31);
+                XOR(x3, x5, x3);
+                SUBW(x3, x3, x5);
+                ANDI(x3, x3, 0xff);
+                ADDW(x6, x6, x3);
+                if (i==7 || i == 15) {
+                    SD(x6, gback, i+1-8);
+                    if (i==7) MV(x6, xZR);
+                }
+            }
             break;
         case 0xF8:
             INST_NAME("PSUBB Gx,Ex");
