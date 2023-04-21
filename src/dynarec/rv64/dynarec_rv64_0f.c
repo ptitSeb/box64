@@ -993,6 +993,57 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(!rex.w)
                 ZEROUP(gd);
             break;
+        case 0xC2:
+            INST_NAME("CMPPS Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 1);
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            for(int i=0; i<4; ++i) {
+                FLW(d0, gback, i*4);
+                FLW(d1, wback, fixedaddress+i*4);
+                if ((u8&7) == 0) {                                      // Equal
+                    FEQS(x3, d0, d1);
+                } else if ((u8&7) == 4) {                               // Not Equal or unordered
+                    FEQS(x3, d0, d1);
+                    XORI(x3, x3, 1);
+                } else {
+                    // x4 = !(isnan(d0) || isnan(d1))
+                    FEQS(x4, d0, d0);
+                    FEQS(x3, d1, d1);
+                    AND(x3, x3, x4);
+
+                    switch(u8&7) {
+                    case 1: BEQ_MARK(x3, xZR); FLTS(x3, d0, d1); break; // Less than
+                    case 2: BEQ_MARK(x3, xZR); FLES(x3, d0, d1); break; // Less or equal
+                    case 3: XORI(x3, x3, 1); break;                     // NaN
+                    case 5: {                                           // Greater or equal or unordered
+                        BEQ(x3, xZR, 12); // MARK2
+                        FLES(x3, d1, d0);
+                        J(8); // MARK;
+                        break;
+                    }
+                    case 6: {                                           // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
+                        BEQ(x3, xZR, 12); // MARK2
+                        FLTS(x3, d1, d0);
+                        J(8); // MARK;
+                        break;
+                    }
+                    case 7: break;                                      // Not NaN
+                    }
+                    
+                    // MARK2;
+                    if ((u8&7) == 5 || (u8&7) == 6) {
+                        MOV32w(x3, 1);
+                    }
+                    // MARK;
+                }
+                NEG(x3, x3);
+                SW(x3, gback, i*4);
+            }
+            break;
         case 0xC6: // TODO: Optimize this!
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
