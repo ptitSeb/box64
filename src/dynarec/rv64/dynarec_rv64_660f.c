@@ -80,6 +80,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             LD(x3, wback, fixedaddress);
             SD(x3, gback, 0);
             break;
+        case 0x16:
+            INST_NAME("MOVHPD Gx, Eq");
+            nextop = F8;
+            GETGX(x1);
+            if(MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            SMREAD();
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+            LD(x3, wback, fixedaddress);
+            SD(x3, gback, 8);
+            break;
         case 0x14:
             INST_NAME("UNPCKLPD Gx, Ex");
             nextop = F8;
