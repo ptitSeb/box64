@@ -356,18 +356,28 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
-        case 0x51: // TODO: fastnan handling
+        case 0x51:
             INST_NAME("SQRTPD Gx, Ex");
             nextop = F8;
             GETGX(x1);
             GETEX(x2, 0);
             d0 = fpu_get_scratch(dyn);
-            FLD(d0, wback, fixedaddress+0);
-            FSQRTD(d0, d0);
-            FSD(d0, gback, 0);
-            FLD(d0, wback, fixedaddress+8);
-            FSQRTD(d0, d0);
-            FSD(d0, gback, 8);
+            if(!box64_dynarec_fastnan) {
+                d1 = fpu_get_scratch(dyn);
+                FMVDX(d1, xZR);
+            }
+            for (int i=0; i<2; ++i) {
+                FLD(d0, wback, fixedaddress+i*8);
+                if(!box64_dynarec_fastnan) {
+                    FLTD(x3, d0, d1);
+                }
+                FSQRTD(d0, d0);
+                if(!box64_dynarec_fastnan) {
+                    BEQ(x3, xZR, 8);
+                    FNEGD(d0, d0);
+                }
+                FSD(d0, gback, i*8);
+            }
             break;
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
