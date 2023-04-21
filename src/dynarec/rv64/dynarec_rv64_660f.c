@@ -70,7 +70,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVLPD Gx, Eq");
             nextop = F8;
             GETGX(x1);
-            GETEX(x2, 0);
+            if(MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            SMREAD();
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
             LD(x3, wback, fixedaddress);
             SD(x3, gback, 0);
             break;
@@ -1061,6 +1067,25 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x1, 0);
             u8 = (F8)&7;
             LHU(gd, wback, fixedaddress+u8*2);
+            break;
+        case 0xD3:
+            INST_NAME("PSRLQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress);
+            ADDI(x4, xZR, 64);
+            BGE_MARK(x3, x4);
+            ANDI(x3, x3, 0xff);
+            for (int i=0; i<2; ++i) {
+                LD(x5, gback, 8*i);
+                SRL(x5, x5, x3);
+                SD(x5, gback, 8*i);
+            }
+            B_NEXT_nocond;
+            MARK;
+            SD(xZR, gback, 0);
+            SD(xZR, gback, 8);
             break;
         case 0xD4:
             INST_NAME("PADDQ Gx,Ex");
