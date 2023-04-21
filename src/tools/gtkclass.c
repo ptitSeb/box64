@@ -266,7 +266,7 @@ static void wrapGApplicationClass(my_GApplicationClass_t* class)
 // unwrap (and use callback if not a native call anymore)
 static void unwrapGApplicationClass(my_GApplicationClass_t* class)
 {
-    #define GO(A, W)   class->A = find_##A##_GApplication (class->A)   //SUPERGO()全部定义，但并未全部调用
+    #define GO(A, W)   class->A = find_##A##_GApplication (class->A)   //SUPERGO() defined but not used
     SUPERGO()
     #undef GO
 }
