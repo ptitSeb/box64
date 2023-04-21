@@ -998,6 +998,22 @@ static void bridgeGtkBin2Class(my_GtkBin2Class_t* class)
     bridgeGtkContainer2Class(&class->parent_class);
 }
 
+// ----- GtkBin3Class ------
+static void wrapGtkBin3Class(my_GtkBin3Class_t* class)
+{
+    wrapGtkContainer3Class(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkBin3Class(my_GtkBin3Class_t* class)
+{
+    unwrapGtkContainer3Class(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkBin3Class(my_GtkBin3Class_t* class)
+{
+    bridgeGtkContainer3Class(&class->parent_class);
+}
+
 // ----- GtkWindow2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkWindow2, set_focus, void, (void* window, void* focus), 2, window, focus);
@@ -1037,6 +1053,148 @@ static void bridgeGtkWindow2Class(my_GtkWindow2Class_t* class)
 {
     bridgeGtkBin2Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkWindow2 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GtkWindow3Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkWindow3, set_focus, void, (void* window, void* focus), 2, window, focus);
+WRAPPER(GtkWindow3, activate_focus, void, (void* window), 1, window);
+WRAPPER(GtkWindow3, activate_default, void, (void* window), 1, window);
+WRAPPER(GtkWindow3, keys_changed, void, (void* window), 1, window);
+WRAPPER(GtkWindow3, enable_debugging, int, (void* window, int toggle), 2, window, toggle);
+
+#define SUPERGO()               \
+    GO(set_focus, vFpp);        \
+    GO(activate_focus, vFp);    \
+    GO(activate_default, vFp);  \
+    GO(keys_changed, vFp);      \
+    GO(enable_debugging, iFpi);
+
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkWindow3Class(my_GtkWindow3Class_t* class)
+{
+    wrapGtkBin3Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkWindow3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkWindow3Class(my_GtkWindow3Class_t* class)
+{
+    unwrapGtkBin3Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkWindow3 (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkWindow3Class(my_GtkWindow3Class_t* class)
+{
+    bridgeGtkBin3Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkWindow3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GtkApplicationWindowClass ------
+// wrap (so bridge all calls, just in case)
+static void wrapGtkApplicationWindowClass(my_GtkApplicationWindowClass_t* class)
+{
+    wrapGtkWindow3Class(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkApplicationWindowClass(my_GtkApplicationWindowClass_t* class)
+{
+    unwrapGtkWindow3Class(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkApplicationWindowClass(my_GtkApplicationWindowClass_t* class)
+{
+    bridgeGtkWindow3Class(&class->parent_class);
+}
+
+// ----- GtkListBoxClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkListBoxClass,row_selected, void, (void *box, void *row), 2, box, row);
+WRAPPER(GtkListBoxClass,row_activated, void, (void *box, void *row), 2, box, row);
+WRAPPER(GtkListBoxClass,activate_cursor_row, void, (void *box), 1, box);
+WRAPPER(GtkListBoxClass,toggle_cursor_row, void, (void *box), 1, box);
+WRAPPER(GtkListBoxClass,move_cursor, void, (void *box, int step, int count), 3, box, step, count);
+WRAPPER(GtkListBoxClass,selected_rows_changed, void, (void *box), 1, box);
+WRAPPER(GtkListBoxClass,select_all, void, (void *box), 1, box);
+WRAPPER(GtkListBoxClass,unselect_all, void, (void *box), 1, box);
+
+#define SUPERGO()                  \
+    GO(row_selected, vFpp);        \
+    GO(row_activated, vFpp);    \
+    GO(activate_cursor_row, vFp);    \
+    GO(toggle_cursor_row, vFp);    \
+    GO(move_cursor, vFpii);    \
+    GO(selected_rows_changed, vFp);    \
+    GO(select_all, vFp);    \
+    GO(unselect_all, vFp);
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkListBoxClass(my_GtkListBoxClass_t* class)
+{
+    wrapGtkContainer3Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkListBoxClass (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkListBoxClass(my_GtkListBoxClass_t* class)
+{
+    unwrapGtkContainer3Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkListBoxClass (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkListBoxClass(my_GtkListBoxClass_t* class)
+{
+    bridgeGtkContainer3Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkListBoxClass (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GtkListBoxRowClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkListBoxRowClass, activate, void, (void *row), 1, row);
+
+#define SUPERGO()       \
+    GO(activate, vFpp);
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkListBoxRowClass(my_GtkListBoxRowClass_t* class)
+{
+    wrapGtkBin3Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkListBoxRowClass (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkListBoxRowClass(my_GtkListBoxRowClass_t* class)
+{
+    unwrapGtkBin3Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkListBoxRowClass (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkListBoxRowClass(my_GtkListBoxRowClass_t* class)
+{
+    bridgeGtkBin3Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkListBoxRowClass (W, class->A)
     SUPERGO()
     #undef GO
 }
@@ -1679,6 +1837,38 @@ static void bridgeGtkTextView3Class(my_GtkTextView3Class_t* class)
 {
     bridgeGtkContainer3Class(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkTextView3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GtkGrid3Class ------
+// no wrapper x86 -> natives of callbacks
+
+#define SUPERGO()           \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkGrid3Class(my_GtkGrid3Class_t* class)
+{
+    wrapGtkContainer3Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkGrid3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkGrid3Class(my_GtkGrid3Class_t* class)
+{
+    unwrapGtkContainer3Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkGrid3 (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkGrid3Class(my_GtkGrid3Class_t* class)
+{
+    bridgeGtkContainer3Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkGrid3 (W, class->A)
     SUPERGO()
     #undef GO
 }
