@@ -79,9 +79,9 @@ GO(g_app_launch_context_get_type, LFv)
 //GO(g_app_launch_context_new, 
 //GO(g_app_launch_context_setenv, 
 //GO(g_app_launch_context_unsetenv, 
-//GO(g_application_activate, 
+GO(g_application_activate, vFp)
 //GO(g_application_add_main_option, 
-//GO(g_application_add_main_option_entries, 
+GO(g_application_add_main_option_entries, vFpp)
 //GO(g_application_add_option_group, 
 //GO(g_application_command_line_create_file_for_arg, 
 //GO(g_application_command_line_get_arguments, 
@@ -107,16 +107,16 @@ GO(g_app_launch_context_get_type, LFv)
 //GO(g_application_get_is_registered, 
 //GO(g_application_get_is_remote, 
 //GO(g_application_get_resource_base_path, 
-//GO(g_application_get_type, 
+GO(g_application_get_type, LFv)
 //GO(g_application_hold, 
 //GO(g_application_id_is_valid, 
 //GO(g_application_mark_busy, 
-//GO(g_application_new, 
-//GO(g_application_open, 
-//GO(g_application_quit, 
-//GO(g_application_register, 
-//GO(g_application_release, 
-//GO(g_application_run, 
+GO(g_application_new, pFpi)
+GO(g_application_open, vFppip)
+GO(g_application_quit, vFp)
+GO(g_application_register, iFppp)
+GO(g_application_release, vFp)
+GO(g_application_run, iFpip)
 //GO(g_application_send_notification, 
 //GO(g_application_set_action_group, 
 //GO(g_application_set_application_id, 
@@ -809,7 +809,7 @@ GO(g_file_mount_enclosing_volume_finish, iFppp)
 //GOM(g_file_mount_mountable, vFEpippBp)
 GO(g_file_mount_mountable_finish, pFppp)
 //GOM(g_file_move, iFEppipBpp)
-//GO(g_filename_completer_get_completions, 
+GO(g_filename_completer_get_completions, pFpp)
 //GO(g_filename_completer_get_completion_suffix, 
 //GO(g_filename_completer_get_type, 
 //GO(g_filename_completer_new, 
@@ -1360,7 +1360,7 @@ GO(g_settings_schema_source_lookup, pFppi)
 //GO(g_settings_schema_source_new_from_directory, 
 GO(g_settings_schema_source_ref, pFp)
 GO(g_settings_schema_source_unref, vFp)
-//GO(g_settings_schema_unref, 
+GO(g_settings_schema_unref, vFp)
 //GO(g_settings_set, 
 //GO(g_settings_set_boolean, 
 //GO(g_settings_set_double, 
@@ -1565,9 +1565,9 @@ GO(g_simple_proxy_resolver_get_type, LFv)
 //GO(g_srv_target_get_weight, 
 //GO(g_srv_target_list_sort, 
 //GO(g_srv_target_new, 
-//GO(g_static_resource_fini, 
+GO(g_static_resource_fini, vFp)
 //GO(g_static_resource_get_resource, 
-//GO(g_static_resource_init, 
+GO(g_static_resource_init, vFp)
 //GO(g_subprocess_communicate, 
 //GO(g_subprocess_communicate_async, 
 //GO(g_subprocess_communicate_finish, 

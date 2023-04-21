@@ -55,6 +55,35 @@ typedef struct my_GInitiallyUnownedClass_s
   void*  pdummy[6];
 } my_GInitiallyUnownedClass_t;
 
+typedef struct my_GApplicationClass_s
+{
+    void* construct_properties;
+    void (* startup) (void* application);
+    void (* activate) (void* application);
+    void (* open) (void* application, void* files, int n_files, void* hint);
+    int (* command_line) (void* application, void* command_line);
+    int (* local_command_line) (void* application, void* arguments, void* exit_status);
+    void (* before_emit) (void* application, void* platform_data);
+    void (* after_emit) (void* application, void* platform_data);
+    void (* add_platform_data) (void* application, void* builder);
+    void (* quit_mainloop) (void* application);
+    void (* run_mainloop) (void* application);
+    void (* shutdown) (void* application);
+    int (* dbus_register) (void* application, void* connection, void* object_path, void* error);
+    void (* dbus_unregister) (void* appvoidlication, void* connection, void* object_path);
+    int (* handle_local_options) (void* application, void* options);
+    int (* name_lost) (void* application);
+    uint32_t flags;
+    void*  pdummy[6];
+} my_GApplicationClass_t;
+
+typedef struct my_GtkApplicationClass_s
+{
+  my_GApplicationClass_t   parent_class;
+  void (*window_added)     (void* application, void* window);
+  void (*window_removed)   (void* application, void* window);
+} my_GtkApplicationClass_t;
+
 typedef struct my_GtkObjectClass_s
 {
   my_GObjectClass_t parent_class;
@@ -657,6 +686,8 @@ void FiniGTKClass();
 #define GTKCLASSES()                \
 GTKCLASS(GObject)                   \
 GTKCLASS(GInitiallyUnowned)         \
+GTKCLASS(GApplication)              \
+GTKCLASS(GtkApplication)            \
 GTKCLASS(GtkObject)                 \
 GTKCLASS(GtkWidget2)                \
 GTKCLASS(GtkWidget3)                \
