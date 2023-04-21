@@ -80,6 +80,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             LD(x3, wback, fixedaddress);
             SD(x3, gback, 0);
             break;
+        case 0x16:
+            INST_NAME("MOVHPD Gx, Eq");
+            nextop = F8;
+            GETGX(x1);
+            if(MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            SMREAD();
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+            LD(x3, wback, fixedaddress);
+            SD(x3, gback, 8);
+            break;
         case 0x14:
             INST_NAME("UNPCKLPD Gx, Ex");
             nextop = F8;
@@ -1078,6 +1092,42 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = (F8)&7;
             LHU(gd, wback, fixedaddress+u8*2);
             break;
+        case 0xD1:
+            INST_NAME("PSRLW Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress);
+            ADDI(x4, xZR, 16);
+            BLTU_MARK(x3, x4);
+            SD(xZR, gback, 0);
+            SD(xZR, gback, 8);
+            B_NEXT_nocond;
+            MARK;
+            for (int i=0; i<8; ++i) {
+                LHU(x5, gback, 2*i);
+                SRLW(x5, x5, x3);
+                SH(x5, gback, 2*i);
+            }
+            break;
+        case 0xD2:
+            INST_NAME("PSRLD Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            LD(x3, wback, fixedaddress);
+            ADDI(x4, xZR, 32);
+            BLTU_MARK(x3, x4);
+            SD(xZR, gback, 0);
+            SD(xZR, gback, 8);
+            B_NEXT_nocond;
+            MARK;
+            for (int i=0; i<4; ++i) {
+                LWU(x5, gback, 4*i);
+                SRLW(x5, x5, x3);
+                SW(x5, gback, 4*i);
+            }
+            break;
         case 0xD3:
             INST_NAME("PSRLQ Gx,Ex");
             nextop = F8;
@@ -1085,17 +1135,16 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             LD(x3, wback, fixedaddress);
             ADDI(x4, xZR, 64);
-            BGE_MARK(x3, x4);
-            ANDI(x3, x3, 0xff);
+            BLTU_MARK(x3, x4);
+            SD(xZR, gback, 0);
+            SD(xZR, gback, 8);
+            B_NEXT_nocond;
+            MARK;
             for (int i=0; i<2; ++i) {
                 LD(x5, gback, 8*i);
                 SRL(x5, x5, x3);
                 SD(x5, gback, 8*i);
             }
-            B_NEXT_nocond;
-            MARK;
-            SD(xZR, gback, 0);
-            SD(xZR, gback, 8);
             break;
         case 0xD4:
             INST_NAME("PADDQ Gx,Ex");
@@ -1219,6 +1268,44 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
             }
             break;
+        case 0xF1:
+            INST_NAME("PSLLQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            ADDI(x4, xZR, 16);
+            LD(x3, wback, fixedaddress+0);
+            BLTU_MARK(x3, x4);
+            // just zero dest
+            SD(xZR, gback, 0);
+            SD(xZR, gback, 8);
+            B_NEXT_nocond;
+            MARK;
+            for (int i=0; i<8; ++i) {
+                LHU(x4, gback, 2*i);
+                SLLW(x4, x4, x3);
+                SH(x4, gback, 2*i);
+            }
+            break;
+        case 0xF2:
+            INST_NAME("PSLLQ Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            ADDI(x4, xZR, 32);
+            LD(x3, wback, fixedaddress+0);
+            BLTU_MARK(x3, x4);
+            // just zero dest
+            SD(xZR, gback, 0);
+            SD(xZR, gback, 8);
+            B_NEXT_nocond;
+            MARK;
+            for (int i=0; i<4; ++i) {
+                LWU(x4, gback, 4*i);
+                SLLW(x4, x4, x3);
+                SW(x4, gback, 4*i);
+            }
+            break;
         case 0xF3:
             INST_NAME("PSLLQ Gx,Ex");
             nextop = F8;
@@ -1232,12 +1319,11 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SD(xZR, gback, 8);
             B_NEXT_nocond;
             MARK;
-            LD(x4, gback, 0);
-            LD(x5, gback, 8);
-            SLL(x4, x4, x3);
-            SLL(x5, x5, x3);
-            SD(x4, gback, 0);
-            SD(x5, gback, 8);
+            for (int i=0; i<2; ++i) {
+                LD(x4, gback, 8*i);
+                SLL(x4, x4, x3);
+                SD(x4, gback, 8*i);
+            }
             break;
         case 0xF4:
             INST_NAME("PMULUDQ Gx,Ex");

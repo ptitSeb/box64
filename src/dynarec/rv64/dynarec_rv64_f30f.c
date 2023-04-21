@@ -200,6 +200,33 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             SSE_LOOP_MV_Q(x3);
             break;
+        case 0x70: // TODO: Optimize this!
+            INST_NAME("PSHUFHW Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 1);
+            u8 = F8;
+            int32_t idx;
+
+            idx = 4+((u8>>(0*2))&3);
+            LHU(x3, wback, fixedaddress+idx*2);
+            idx = 4+((u8>>(1*2))&3);
+            LHU(x4, wback, fixedaddress+idx*2);
+            idx = 4+((u8>>(2*2))&3);
+            LHU(x5, wback, fixedaddress+idx*2);
+            idx = 4+((u8>>(3*2))&3);
+            LHU(x6, wback, fixedaddress+idx*2);
+
+            SH(x3, gback, (4+0)*2);
+            SH(x4, gback, (4+1)*2);
+            SH(x5, gback, (4+2)*2);
+            SH(x6, gback, (4+3)*2);
+
+            if (!(MODREG && (gd==ed))) {
+                LD(x3, wback, fixedaddress+0);
+                SD(x3, gback, 0);
+            }
+            break;
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");
             nextop = F8;
