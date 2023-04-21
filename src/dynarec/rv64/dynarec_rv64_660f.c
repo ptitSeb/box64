@@ -1200,6 +1200,27 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MUL(x3, x3, x4);
             SD(x3, gback, 0);
             break;
+        case 0xF6:
+            INST_NAME("PSADBW Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            MV(x6, xZR);
+            for (int i=0; i<16; ++i) {
+                LBU(x3, gback, i);
+                LBU(x4, wback, fixedaddress+i);
+                SUBW(x3, x3, x4);
+                SRAIW(x5, x3, 31);
+                XOR(x3, x5, x3);
+                SUBW(x3, x3, x5);
+                ANDI(x3, x3, 0xff);
+                ADDW(x6, x6, x3);
+                if (i==7 || i == 15) {
+                    SD(x6, gback, i+1-8);
+                    if (i==7) MV(x6, xZR);
+                }
+            }
+            break;
         case 0xF8:
             INST_NAME("PSUBB Gx,Ex");
             nextop = F8;
