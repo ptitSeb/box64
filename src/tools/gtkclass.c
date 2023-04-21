@@ -221,6 +221,100 @@ static void bridgeGInitiallyUnownedClass(my_GInitiallyUnownedClass_t* class)
 }
 #undef SUPERGO
 
+// ----- GApplicationClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GApplication, startup, void, (void* application), 1, application);
+WRAPPER(GApplication, activate, void, (void* application), 1, application);
+WRAPPER(GApplication, open, void, (void* application, void* files, int n_files, void* hint), 4, application, files, n_files, hint);
+WRAPPER(GApplication, command_line, void, (void* application, void* command_line), 2, application, command_line);
+WRAPPER(GApplication, local_command_line, void, (void* application, void* arguments, void* exit_status), 3, application, arguments, exit_status);
+WRAPPER(GApplication, before_emit, void*, (void* application, void* platform_data), 2, application, platform_data);
+WRAPPER(GApplication, after_emit, void, (void* application, void* platform_data), 2, application, platform_data);
+WRAPPER(GApplication, add_platform_data, void, (void* application, void* builder), 2, application, builder);
+WRAPPER(GApplication, quit_mainloop, void, (void* application), 1, application);
+WRAPPER(GApplication, run_mainloop, void, (void* application), 1, application);
+WRAPPER(GApplication, shutdown, void, (void* application), 1, application);
+WRAPPER(GApplication, dbus_register, void, (void* application, void* connection, void* object_path, void* error), 4, application, connection, object_path, error);
+WRAPPER(GApplication, dbus_unregister, void, (void* application, void* connection, void* object_path), 3, application, connection, object_path);
+WRAPPER(GApplication, handle_local_options, void, (void* application, void* options), 2, application, options);
+WRAPPER(GApplication, name_lost, void, (void* application), 1, application);
+
+#define SUPERGO()                     \
+    GO(startup, vFp);                 \
+    GO(activate, vFp);                \
+    GO(open, vFppip);                 \
+    GO(command_line, vFpp);           \
+    GO(local_command_line, vFppp);    \
+    GO(before_emit, vFpp);            \
+    GO(after_emit, vFpp);             \
+    GO(add_platform_data, vFpp);      \
+    GO(quit_mainloop, vFp);           \
+    GO(run_mainloop, vFp);            \
+    GO(shutdown, vFp);                \
+    GO(dbus_register, vFpppp);        \
+    GO(dbus_unregister, vFppp);       \
+    GO(handle_local_options, vFpp);   \
+    GO(name_lost, vFp);
+
+// wrap (so bridge all calls, just in case)
+static void wrapGApplicationClass(my_GApplicationClass_t* class)
+{
+    #define GO(A, W) class->A = reverse_##A##_GApplication (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGApplicationClass(my_GApplicationClass_t* class)
+{
+    #define GO(A, W)   class->A = find_##A##_GApplication (class->A)   //SUPERGO()全部定义，但并未全部调用
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGApplicationClass(my_GApplicationClass_t* class)
+{
+    #define GO(A, W) autobridge_##A##_GApplication (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GtkApplicationClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkApplication, window_added, void, (void* application, void* window), 2, application, window);
+WRAPPER(GtkApplication, window_removed, void, (void* application, void* window), 2, application, window);
+
+#define SUPERGO() \
+    GO(window_added, pFpp);   \
+    GO(window_removed, vFpp);
+
+static void wrapGtkApplicationClass(my_GtkApplicationClass_t* class)
+{
+    wrapGApplicationClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkApplication (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+static void unwrapGtkApplicationClass(my_GtkApplicationClass_t* class)
+{
+    unwrapGApplicationClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkApplication (class->A)
+    SUPERGO()
+    #undef GO
+}
+
+static void bridgeGtkApplicationClass(my_GtkApplicationClass_t* class)
+{
+    bridgeGApplicationClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkApplication (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
 // ----- GtkObjectClass ------
 // wrapper x64 -> natives of callbacks
 WRAPPER(GtkObject, set_arg, void, (void* object, void* arg, uint32_t arg_id), 3, object, arg, arg_id);

@@ -191,7 +191,9 @@ GO(gtk_alignment_set_padding, vFpuuuu)
 GO(gtk_align_get_type, pFv)
 GO(gtk_alternative_dialog_button_order, iFp)
 GO(gtk_anchor_type_get_type, pFv)
+GO(gtk_application_get_new, pFpi)
 GO(gtk_application_get_type, pFv)
+GO(gtk_application_window_new, pFp)
 GO(gtk_application_window_get_type, pFv)
 GO(gtk_app_chooser_button_get_type, pFv)
 GO(gtk_app_chooser_dialog_get_type, pFv)
@@ -2481,7 +2483,7 @@ GO(gtk_recent_info_get_type, pFv)
 //GO(gtk_recent_info_last_application, 
 //GO(gtk_recent_info_match, 
 //GO(gtk_recent_info_ref, 
-//GO(gtk_recent_info_unref, 
+GO(gtk_recent_info_unref, vFp)
 //GO(gtk_recent_manager_add_full, 
 //GO(gtk_recent_manager_add_item, 
 GO(gtk_recent_manager_error_get_type, pFv)

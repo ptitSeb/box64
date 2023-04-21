@@ -60,6 +60,7 @@ GO(gtk_progress_bar_get_type, LFv_t)        \
 GO(gtk_menu_shell_get_type, LFv_t)          \
 GO(gtk_menu_bar_get_type, LFv_t)            \
 GO(gtk_action_get_type, LFv_t)              \
+GO(gtk_application_get_type, LFv_t)         \
 GO(gtk_dialog_add_button, pFppi_t)          \
 GO(gtk_spin_button_get_value, dFp_t)        \
 GO(gtk_builder_lookup_callback_symbol, pFpp_t)  \
@@ -722,6 +723,7 @@ EXPORT void my3_gtk_container_foreach(x64emu_t* emu, void* container, void* cb, 
     libname = lib->name;                                        \
     getMy(lib);                                                 \
     SETALT(my3_);                                               \
+    SetGtkApplicationID(my->gtk_application_get_type());        \
     SetGtkWidget3ID(my->gtk_widget_get_type());                 \
     SetGtkContainer3ID(my->gtk_container_get_type());           \
     SetGtkTextView3ID(my->gtk_text_view_get_type());            \
