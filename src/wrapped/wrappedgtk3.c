@@ -728,7 +728,7 @@ EXPORT void my3_gtk_container_foreach(x64emu_t* emu, void* container, void* cb, 
     SetGtkContainer3ID(my->gtk_container_get_type());           \
     SetGtkTextView3ID(my->gtk_text_view_get_type());            \
     SetGtkActionID(my->gtk_action_get_type());                  \
-    setNeededLibs(lib, 2, "libgdk-3.so.0", "libpangocairo-1.0.so.0");
+    setNeededLibs(lib, 3, "libgdk-3.so.0", "libpangocairo-1.0.so.0", "libgio-2.0.so.0");
 
 #define CUSTOM_FINI \
     freeMy();
