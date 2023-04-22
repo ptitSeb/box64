@@ -1393,6 +1393,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SB(x3, gback, i);
             }
             break;
+        case 0xF9:
+            INST_NAME("PSUBW Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_W(x3, x4, SUBW(x3, x3, x4));
+            break;
         case 0xFA:
             INST_NAME("PSUBD Gx,Ex");
             nextop = F8;

@@ -933,7 +933,7 @@ void emit_xor8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_xor8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_and8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-void emit_add16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_add16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 //void emit_add16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_sub16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 //void emit_sub16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
@@ -944,7 +944,7 @@ void emit_xor16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 void emit_and16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 //void emit_and16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_inc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
-//void emit_inc16(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_inc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_inc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_dec32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 //void emit_dec16(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
