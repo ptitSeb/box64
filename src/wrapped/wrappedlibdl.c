@@ -160,6 +160,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
                 dl->dllibs[idx].dlopened = dlopened;
                 dl->dllibs[idx].is_self = lib?0:1;
                 dl->dllibs[idx].full = 1;
+                IncRefCount(dl->dllibs[idx].lib, emu);
                 SetDlOpenIdx(lib, idx);
                 printf_dlsym(LOG_DEBUG, "dlopen: New handle %p (%s), dlopened=%ld\n", (void*)(idx+1), (char*)filename, dlopened);
                 return (void*)(idx+1);
