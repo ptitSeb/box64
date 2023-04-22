@@ -67,7 +67,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x2);
             GETEW(x1, 0);
-            emit_add16(dyn, ninst, x1, x2, x4, x5);
+            emit_add16(dyn, ninst, x1, x2, x4, x5, x6);
             EWBACK;
             break;
         case 0x03:
@@ -76,7 +76,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);
-            emit_add16(dyn, ninst, x1, x2, x3, x4);
+            emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
             GWBACK;
             break;
         case 0x05:
@@ -86,7 +86,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SLLI(x1 , xRAX, 48);
             SRLI(x1, x1, 48);
             MOV32w(x2, i32);
-            emit_add16(dyn, ninst, x1, x2, x3, x4);
+            emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
             LUI(x3, 0xffff0);
             AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
@@ -292,7 +292,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV64x(x5, i16);
-                    emit_add16(dyn, ninst, ed, x5, x2, x4);
+                    emit_add16(dyn, ninst, ed, x5, x2, x4, x6);
                     EWBACK;
                     break;
                 case 1: // OR
@@ -677,6 +677,21 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     AND(x4, x4, x5);
                     OR(xRAX, xRAX, x3);
                     OR(xRDX, xRDX, x4);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
+        case 0xFF:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("INC Ew");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    GETEW(x1, 0);
+                    emit_inc16(dyn, ninst, x1, x2, x4, x5);
+                    EWBACK;
                     break;
                 default:
                     DEFAULT;
