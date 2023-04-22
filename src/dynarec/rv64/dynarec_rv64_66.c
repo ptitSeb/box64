@@ -384,14 +384,36 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
-            case 0x90:
-            case 0x91:
-            case 0x92:
-            case 0x93:
-            case 0x94:
-            case 0x95:
-            case 0x96:
-            case 0x97:
+        case 0x8B:
+            INST_NAME("MOV Gw, Ew");
+            nextop = F8;
+            GETGD;  // don't need GETGW neither
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                if(ed!=gd) {
+                    LUI(x1, 0xffff0);
+                    AND(gd, gd, x1);
+                    SLLI(x2, ed, 48);
+                    SRLI(x2, x2, 48);
+                    OR(gd, gd, x2);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                SMREADLOCK(lock);
+                LHU(x1, ed, fixedaddress);
+                LUI(x4, 0xffff0);
+                AND(gd, gd, x4);
+                OR(gd, gd, x1);
+            }
+            break;
+        case 0x90:
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
                 gd = xRAX+(opcode&0x07)+(rex.b<<3);
                 if(gd==xRAX) {
                     INST_NAME("NOP");
