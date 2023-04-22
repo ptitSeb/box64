@@ -447,8 +447,7 @@ void EXPORT my___gmon_start__(x64emu_t *emu)
 
 int EXPORT my___cxa_atexit(x64emu_t* emu, void* p, void* a, void* dso_handle)
 {
-    (void)dso_handle;
-    AddCleanup1Arg(emu, p, a);
+    AddCleanup1Arg(emu, p, a, dso_handle);
     return 0;
 }
 void EXPORT my___cxa_finalize(x64emu_t* emu, void* p)
@@ -462,7 +461,7 @@ void EXPORT my___cxa_finalize(x64emu_t* emu, void* p)
 }
 int EXPORT my_atexit(x64emu_t* emu, void *p)
 {
-    AddCleanup(emu, p);
+    AddCleanup(emu, p, NULL);   // should grab current dso_handle?
     return 0;
 }
 
@@ -2197,7 +2196,10 @@ EXPORT void my__Jv_RegisterClasses() {}
 EXPORT int32_t my___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* obj, void* dso)
 {
     (void)emu;
-    printf_log(LOG_INFO, "Warning, call to __cxa_thread_atexit_impl(%p, %p, %p) ignored\n", dtor, obj, dso);
+    //printf_log(LOG_INFO, "Warning, call to __cxa_thread_atexit_impl(%p, %p, %p) ignored\n", dtor, obj, dso);
+    AddCleanup1Arg(emu, dtor, obj, dso);
+    return 0;
+
     return 0;
 }
 
