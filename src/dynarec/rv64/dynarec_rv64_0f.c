@@ -819,6 +819,34 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ANDI(xFlags, xFlags, ~1);
                     OR(xFlags, xFlags, x3);
                     break;
+                case 6:
+                    INST_NAME("BTR Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE();
+                    GETED(1);
+                    u8 = F8;
+                    u8&=(rex.w?0x3f:0x1f);
+                    ANDI(xFlags, xFlags, ~(1<<F_CF));
+                    if (u8 <= 10) {
+                        SRLI(x6, ed, u8);
+                        ANDI(x6, x6, 1);
+                        BEQ_MARK(x6, xZR);
+                        ORI(xFlags, xFlags, 1<<F_CF);
+                        XORI(ed, ed, 1<<u8);
+                    } else {
+                        ORI(x6, xZR, 1);
+                        SLLI(x6, x6, u8);
+                        AND(x6, ed, x6);
+                        BEQ_MARK(x6, xZR);
+                        ORI(xFlags, xFlags, 1<<F_CF);
+                        XOR(ed, ed, x6);
+                    }
+                    if (wback) {
+                        SDxw(ed, wback, fixedaddress);
+                        SMWRITE();
+                    }
+                    MARK;
+                    break;
                 case 7:
                     INST_NAME("BTC Ed, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
