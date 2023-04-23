@@ -202,6 +202,15 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             emit_sbb32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
             break;
+        case 0x1B:
+            INST_NAME("SBB Gd, Ed");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_sbb32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
         case 0x1C:
             INST_NAME("SBB AL, Ib");
             READFLAGS(X_CF);

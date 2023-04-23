@@ -383,6 +383,40 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, int n)
     CLEARIP();
 }
 
+void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits)
+{
+    //#warning TODO: is64bits
+    MAYUSE(ninst);
+    MESSAGE(LOG_DUMP, "IRet to epilog\n");
+    // POP IP
+    NOTEST(x2);
+    POP1(xRIP);
+    // POP CS
+    POP1(x2);
+    SH(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
+    MV(x1, xZR);
+    SD(x1, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
+    SD(x1, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
+    // POP EFLAGS
+    POP1(xFlags);
+    MOV32w(x1, 0x3F7FD7);
+    AND(xFlags, xFlags, x1);
+    ORI(xFlags, xFlags, 0x2);
+    SET_DFNONE();
+    // POP RSP
+    POP1(x3);
+    // POP SS
+    POP1(x2);
+    SH(x2, xEmu, offsetof(x64emu_t, segs[_SS]));
+    // set new RSP
+    MV(xRSP, x3);
+    // Ret....
+    MOV64x(x2, (uintptr_t)rv64_epilog);  // epilog on purpose, CS might have changed!
+    SMEND();
+    BR(x2);
+    CLEARIP();
+}
+
 void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
 {
     MAYUSE(fnc);

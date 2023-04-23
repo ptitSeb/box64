@@ -323,6 +323,50 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             SMDMB();
             break;
+        case 0xFF:
+            nextop = F8;
+            switch((nextop>>3)&7)
+            {
+                case 0: // INC Ed
+                    INST_NAME("LOCK INC Ed");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SMDMB();
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        emit_inc32(dyn, ninst, rex, ed, x3, x4, x5, x6);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        MARKLOCK;
+                        LRxw(x1, wback, 1, 1);
+                        ADDIxw(x4, x1, 1);
+                        SCxw(x3, x4, wback, 1, 1);
+                        BNEZ_MARKLOCK(x3);
+                        IFX(X_ALL|X_PEND)
+                            emit_inc32(dyn, ninst, rex, x1, x3, x4, x5, x6);
+                    }
+                    break;
+                case 1: // DEC Ed
+                    INST_NAME("LOCK DEC Ed");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SMDMB();
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        emit_dec32(dyn, ninst, rex, ed, x3, x4, x5, x6);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        MARKLOCK;
+                        LRxw(x1, wback, 1, 1);
+                        ADDIxw(x4, x1, -1);
+                        SCxw(x3, x4, wback, 1, 1);
+                        BNEZ_MARKLOCK(x3);
+                        IFX(X_ALL|X_PEND)
+                            emit_inc32(dyn, ninst, rex, x1, x3, x4, x5, x6);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         default:
             DEFAULT;
     }

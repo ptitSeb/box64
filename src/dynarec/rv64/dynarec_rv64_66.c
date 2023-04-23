@@ -445,6 +445,37 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             AND(x1, x1, x2);
             OR(xRAX, xRAX, x1);
             break;
+        case 0xA5:
+            if(rep) {
+                INST_NAME("REP MOVSW");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1<<F_DF);
+                BNEZ_MARK2(x1);
+                MARK;   // Part with DF==0
+                LH(x1, xRSI, 0);
+                ADDI(xRSI, xRSI, 2);
+                SH(x1, xRDI, 0);
+                ADDI(xRDI, xRDI, 2);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                LH(x1, xRSI, 0);
+                SUBI(xRSI, xRSI, 2);
+                SH(x1, xRDI, 0);
+                SUBI(xRDI, xRDI, 2);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("MOVSD");
+                GETDIR(x3, x1, 2);
+                LH(x1, xRSI, 0);
+                SH(x1, xRDI, 0);
+                ADD(xRSI, xRSI, x3);
+                ADD(xRDI, xRDI, x3);
+            }
+            break;
         case 0xA9:
             INST_NAME("TEST AX,Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -453,6 +484,31 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SLLIW(x1, xRAX, 16);
             SRLIW(x1, x1, 16);
             emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
+        case 0xAB:
+            if(rep) {
+                INST_NAME("REP STOSW");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1<<F_DF);
+                BNEZ_MARK2(x1);
+                MARK;   // Part with DF==0
+                SH(xRAX, xRDI, 0);
+                ADDI(xRDI, xRDI, 2);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                SH(xRAX, xRDI, 0);
+                SUBI(xRDI, xRDI, 2);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("STOSW");
+                GETDIR(x3, x1, 2);
+                SH(xRAX, xRDI, 0);
+                ADD(xRDI, xRDI, x3);
+            }
             break;
         case 0xB8:
         case 0xB9:

@@ -336,6 +336,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 #endif
             }
             break;
+        case 0xCF:
+            INST_NAME("IRET");
+            SETFLAGS(X_ALL, SF_SET);    // Not a hack, EFLAGS are restored
+            BARRIER(BARRIER_FLOAT);
+            iret_to_epilog(dyn, ninst, rex.w);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xD0:
         case 0xD2:  // TODO: Jump if CL is 0
             nextop = F8;
@@ -410,7 +418,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("ROR Ed, 1");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED(0);
-                    emit_rol32c(dyn, ninst, rex, ed, rex.w?63:31, x3, x4);
+                    emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
                     if(!wback && !rex.w) ZEROUP(ed);
                     break;
@@ -449,6 +457,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     GETED(0);
                     emit_rol32(dyn, ninst, rex, ed, xRCX, x3, x4);
+                    WBACK;
+                    if(!wback && !rex.w) ZEROUP(ed);
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, CL");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETED(0);
+                    emit_ror32(dyn, ninst, rex, ed, xRCX, x3, x4);
                     WBACK;
                     if(!wback && !rex.w) ZEROUP(ed);
                     break;
