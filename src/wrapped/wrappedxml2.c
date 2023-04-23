@@ -16,6 +16,7 @@
 #include "box64context.h"
 #include "librarian.h"
 #include "callback.h"
+#include "myalign.h"
 
 const char* xml2Name =
 #ifdef ANDROID
@@ -1215,6 +1216,29 @@ static void* find_xmlOutputOpenCallback_Fct(void* fct) // this one have a VAArg
     return NULL;
 }
 
+// xmlTextReaderErrorFunc ...
+#define GO(A)   \
+static uintptr_t my_xmlTextReaderErrorFunc_fct_##A = 0;                         \
+static void my_xmlTextReaderErrorFunc_##A(void* a, void* b, int c, void* d)     \
+{                                                                               \
+    RunFunction(my_context, my_xmlTextReaderErrorFunc_fct_##A, 4, a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* find_xmlTextReaderErrorFunc_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlTextReaderErrorFunc_fct_##A == (uintptr_t)fct) return my_xmlTextReaderErrorFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlTextReaderErrorFunc_fct_##A == 0) {my_xmlTextReaderErrorFunc_fct_##A = (uintptr_t)fct; return my_xmlTextReaderErrorFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlTextReaderErrorFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void* my_xmlHashCopy(x64emu_t* emu, void* table, void* f)
@@ -1436,6 +1460,34 @@ EXPORT void my_xmlSetStructuredErrorFunc(x64emu_t* emu, void* ctx, void* f)
 EXPORT int my_xmlRegisterOutputCallbacks(x64emu_t* emu, void* match, void* open, void* write, void* close)
 {
     return my->xmlRegisterOutputCallbacks(find_xmlOutputMatchCallback_Fct(match), find_xmlOutputOpenCallback_Fct(open), find_xmlOutputWriteCallback_Fct(write), find_xmlOutputCloseCallback_Fct(close));
+}
+
+EXPORT int my_xmlTextWriterWriteVFormatAttribute(x64emu_t* emu, void* writer, void* name, void* fmt, x64_va_list_t b)
+{
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return my->xmlTextWriterWriteVFormatAttribute(writer, name, fmt, VARARGS);
+}
+
+EXPORT int my_xmlTextWriterWriteFormatAttribute(x64emu_t* emu, void* writer, void* name, void* fmt, void* b)
+{
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return my->xmlTextWriterWriteVFormatAttribute(writer, name, fmt, VARARGS);
+}
+
+EXPORT void* my_xmlReaderForIO(void *emu, void * ioread, void * ioclose, void * ioctx, char * URL, char * encoding, int  options)
+{
+    return my->xmlReaderForIO(find_xmlInputReadCallback_Fct(ioread), find_xmlInputCloseCallback_Fct(ioclose), ioctx, URL, encoding, options);
+}
+
+EXPORT void my_xmlTextReaderSetErrorHandler(x64emu_t* emu, void* reader, void* f, void* arg)
+{
+    my->xmlTextReaderSetErrorHandler(reader, find_xmlTextReaderErrorFunc_Fct(f), arg);
 }
 
 #define CUSTOM_INIT \

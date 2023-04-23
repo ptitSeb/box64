@@ -20,8 +20,8 @@ GO(lzma_auto_decoder, iFpUu)
 GO(lzma_check_is_supported, iFi)
 //GO(lzma_check_size, 
 GO(lzma_code, iFpi)
-//GO(lzma_cputhreads, 
-//GO(lzma_crc32, 
+GO(lzma_cputhreads, uFv)
+GO(lzma_crc32, uFpLu)
 //GO(lzma_crc64, 
 //GO(lzma_easy_buffer_encode, 
 //GO(lzma_easy_decoder_memusage, 
@@ -70,7 +70,7 @@ GO(lzma_index_uncompressed_size, UFp)
 GO(lzma_lzma_preset, iFpu)
 //GO(lzma_memlimit_get, 
 //GO(lzma_memlimit_set, 
-//GO(lzma_memusage, 
+GO(lzma_memusage, UFp)
 //GO(lzma_mf_is_supported, 
 //GO(lzma_mode_is_supported, 
 //GO(lzma_physmem, 
@@ -88,7 +88,7 @@ GOM(lzma_stream_buffer_decode, iFEpupppLppL)
 //GO(lzma_stream_buffer_encode, 
 GOM(lzma_stream_decoder, iFEpUi)
 GOM(lzma_stream_encoder, iFEppi)
-//GO(lzma_stream_encoder_mt, 
+GOM(lzma_stream_encoder_mt, iFEpp)
 //GO(lzma_stream_encoder_mt_memusage, 
 //GO(lzma_stream_flags_compare, 
 GO(lzma_stream_footer_decode, iFpp)

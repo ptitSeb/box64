@@ -1956,14 +1956,14 @@ GO(tcsendbreak, iFii)
 GO(tcsetattr, iFiip)
 GO(tcsetpgrp, iFii)
 //GO(__tdelete, 
-//GOW(tdelete, pFpp@)
+GOWM(tdelete, pFEppp)
 GOWM(tdestroy, vFEpp)
 GO(tee, lFiiLu)
 GO(telldir, lFp)
 GO(tempnam, pFpp)
 GOW(textdomain, pFp)
 //GO(__tfind, 
-//GOW(tfind, pFpp@)
+GOWM(tfind, pFEppp)
 GOW(tgkill, iFiii)
 //GO(thrd_current, 
 //GO(thrd_equal, 

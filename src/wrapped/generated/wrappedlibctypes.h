@@ -211,6 +211,8 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(strlcpy, LFppL_t) \
 	GO(fts64_open, pFpip_t) \
 	GO(fts_open, pFpip_t) \
+	GO(tdelete, pFppp_t) \
+	GO(tfind, pFppp_t) \
 	GO(tsearch, pFppp_t) \
 	GO(__syslog_chk, vFiipV_t) \
 	GO(__vsyslog_chk, vFiipA_t) \

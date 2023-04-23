@@ -489,6 +489,7 @@
 #() uFpuu
 #() uFpup
 #() uFpfu
+#() uFpLu
 #() uFpLp
 #() uFppi
 #() uFppu
@@ -878,6 +879,7 @@
 #() iFppui
 #() iFppuu
 #() iFppup
+#() iFppdd
 #() iFppdp
 #() iFppll
 #() iFpplp
@@ -1228,6 +1230,7 @@
 #() iFEpppL
 #() iFEpppp
 #() iFEpppV
+#() iFEpppA
 #() iFiiipu
 #() iFiiipp
 #() iFiiupp
@@ -2851,6 +2854,7 @@ wrappedglib2:
   - g_thread_create
 - pFpppp:
   - g_hash_table_new_full
+  - g_list_insert_sorted_with_data
   - g_slist_insert_sorted_with_data
   - g_thread_try_new
 - vFpiLpp:
@@ -3349,6 +3353,8 @@ wrappedlibc:
   - fts64_open
   - fts_open
 - pFppp:
+  - tdelete
+  - tfind
   - tsearch
 - vFiipV:
   - __syslog_chk
@@ -3903,6 +3909,7 @@ wrappedlzma:
   - lzma_alone_encoder
   - lzma_raw_decoder
   - lzma_raw_encoder
+  - lzma_stream_encoder_mt
 - iFpui:
   - lzma_easy_encoder
 - iFpUi:
@@ -4598,6 +4605,7 @@ wrappedxml2:
   - xmlHashScanFull
   - xmlSchemaSetParserStructuredErrors
   - xmlSchemaSetValidStructuredErrors
+  - xmlTextReaderSetErrorHandler
 - iFppp:
   - xmlHashRemoveEntry
   - xmlXPathRegisterFunc
@@ -4611,6 +4619,10 @@ wrappedxml2:
   - xmlHashUpdateEntry
   - xmlRegisterInputCallbacks
   - xmlRegisterOutputCallbacks
+- iFpppV:
+  - xmlTextWriterWriteFormatAttribute
+- iFpppA:
+  - xmlTextWriterWriteVFormatAttribute
 - pFpppi:
   - xmlParserInputBufferCreateIO
 - pFpppp:
@@ -4627,6 +4639,7 @@ wrappedxml2:
   - xmlHashUpdateEntry3
 - pFpppppi:
   - xmlCreateIOParserCtxt
+  - xmlReaderForIO
 wrappedxshmfence:
 wrappedxslt:
 - vFp:

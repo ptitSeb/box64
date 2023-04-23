@@ -1388,6 +1388,11 @@ EXPORT void my_g_slist_free_full(x64emu_t* emu, void* list, void* f)
     my->g_slist_free_full(list, findDestroyFct(f));
 }
 
+EXPORT void* my_g_list_insert_sorted_with_data(x64emu_t* emu, void* list, void* data, void* f, void* user)
+{
+    return my->g_list_insert_sorted_with_data(list, data, findGCompareDataFuncFct(f), user);
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;

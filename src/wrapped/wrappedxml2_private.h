@@ -362,7 +362,7 @@ GO(xmlFreeRefTable, vFp)
 //GO(xmlFreeRMutex, 
 //GO(xmlFreeStreamCtxt, 
 GO(xmlFreeTextReader, vFp)
-//GO(xmlFreeTextWriter, 
+GO(xmlFreeTextWriter, vFp)
 //GO(xmlFreeURI, 
 GO(xmlFreeValidCtxt, vFp)
 //GO(xmlGcMemGet, 
@@ -622,7 +622,7 @@ GO(xmlNewTextLen, pFpi)
 //GO(xmlNewTextWriter, 
 //GO(xmlNewTextWriterDoc, 
 //GO(xmlNewTextWriterFilename, 
-//GO(xmlNewTextWriterMemory, 
+GO(xmlNewTextWriterMemory, pFpi)
 //GO(xmlNewTextWriterPushParser, 
 //GO(xmlNewTextWriterTree, 
 GO(xmlNewValidCtxt, pFv)
@@ -776,7 +776,7 @@ GO(xmlReadDoc, pFpppi)
 //GO(xmlReaderForDoc, 
 //GO(xmlReaderForFd, 
 //GO(xmlReaderForFile, 
-//GO(xmlReaderForIO, 
+GOM(xmlReaderForIO, pFEpppppi)
 GO(xmlReaderForMemory, pFpippi)
 //GO(xmlReaderNewDoc, 
 //GO(xmlReaderNewFd, 
@@ -1103,7 +1103,7 @@ GO(xmlTextReaderRead, iFp)
 //GO(xmlTextReaderRelaxNGValidate, 
 //GO(xmlTextReaderSchemaValidate, 
 //GO(xmlTextReaderSchemaValidateCtxt, 
-//GO(xmlTextReaderSetErrorHandler, 
+GOM(xmlTextReaderSetErrorHandler, vFEppp)
 //GO(xmlTextReaderSetParserProp, 
 //GO(xmlTextReaderSetSchema, 
 //GO(xmlTextReaderSetStructuredErrorHandler, 
@@ -1114,32 +1114,32 @@ GO(xmlTextReaderRead, iFp)
 //GO(xmlTextWriterEndAttribute, 
 //GO(xmlTextWriterEndCDATA, 
 //GO(xmlTextWriterEndComment, 
-//GO(xmlTextWriterEndDocument, 
+GO(xmlTextWriterEndDocument, iFp)
 //GO(xmlTextWriterEndDTD, 
 //GO(xmlTextWriterEndDTDAttlist, 
 //GO(xmlTextWriterEndDTDElement, 
 //GO(xmlTextWriterEndDTDEntity, 
-//GO(xmlTextWriterEndElement, 
+GO(xmlTextWriterEndElement, iFp)
 //GO(xmlTextWriterEndPI, 
 //GO(xmlTextWriterFlush, 
 //GO(xmlTextWriterFullEndElement, 
-//GO(xmlTextWriterSetIndent, 
+GO(xmlTextWriterSetIndent, iFpi)
 //GO(xmlTextWriterSetIndentString, 
 //GO(xmlTextWriterStartAttribute, 
 //GO(xmlTextWriterStartAttributeNS, 
 //GO(xmlTextWriterStartCDATA, 
 //GO(xmlTextWriterStartComment, 
-//GO(xmlTextWriterStartDocument, 
+GO(xmlTextWriterStartDocument, iFpppp)
 //GO(xmlTextWriterStartDTD, 
 //GO(xmlTextWriterStartDTDAttlist, 
 //GO(xmlTextWriterStartDTDElement, 
 //GO(xmlTextWriterStartDTDEntity, 
-//GO(xmlTextWriterStartElement, 
+GO(xmlTextWriterStartElement, iFpp)
 //GO(xmlTextWriterStartElementNS, 
 //GO(xmlTextWriterStartPI, 
-//GO(xmlTextWriterWriteAttribute, 
+GO(xmlTextWriterWriteAttribute, iFppp)
 //GO(xmlTextWriterWriteAttributeNS, 
-//GO(xmlTextWriterWriteBase64, 
+GO(xmlTextWriterWriteBase64, iFppii)
 //GO(xmlTextWriterWriteBinHex, 
 //GO(xmlTextWriterWriteCDATA, 
 //GO(xmlTextWriterWriteComment, 
@@ -1153,7 +1153,7 @@ GO(xmlTextReaderRead, iFp)
 //GO(xmlTextWriterWriteDTDNotation, 
 //GO(xmlTextWriterWriteElement, 
 //GO(xmlTextWriterWriteElementNS, 
-//GO(xmlTextWriterWriteFormatAttribute, 
+GOM(xmlTextWriterWriteFormatAttribute, iFEpppV)
 //GO(xmlTextWriterWriteFormatAttributeNS, 
 //GO(xmlTextWriterWriteFormatCDATA, 
 //GO(xmlTextWriterWriteFormatComment, 
@@ -1169,8 +1169,8 @@ GO(xmlTextReaderRead, iFp)
 //GO(xmlTextWriterWritePI, 
 //GO(xmlTextWriterWriteRaw, 
 //GO(xmlTextWriterWriteRawLen, 
-//GO(xmlTextWriterWriteString, 
-//GO(xmlTextWriterWriteVFormatAttribute, 
+GO(xmlTextWriterWriteString, iFpp)
+GOM(xmlTextWriterWriteVFormatAttribute, iFEpppA)
 //GO(xmlTextWriterWriteVFormatAttributeNS, 
 //GO(xmlTextWriterWriteVFormatCDATA, 
 //GO(xmlTextWriterWriteVFormatComment, 

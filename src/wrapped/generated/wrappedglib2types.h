@@ -154,6 +154,7 @@ typedef int32_t (*iFpppippppppp_t)(void*, void*, void*, int32_t, void*, void*, v
 	GO(g_datalist_id_dup_data, pFpupp_t) \
 	GO(g_thread_create, pFppip_t) \
 	GO(g_hash_table_new_full, pFpppp_t) \
+	GO(g_list_insert_sorted_with_data, pFpppp_t) \
 	GO(g_slist_insert_sorted_with_data, pFpppp_t) \
 	GO(g_thread_try_new, pFpppp_t) \
 	GO(g_qsort_with_data, vFpiLpp_t) \

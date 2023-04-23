@@ -1291,7 +1291,17 @@ EXPORT void* my_tsearch(x64emu_t* emu, void* key, void* root, void* fnc)
 EXPORT void my_tdestroy(x64emu_t* emu, void* root, void* fnc)
 {
     (void)emu;
-    return tdestroy(root, findfreeFct(fnc));
+    tdestroy(root, findfreeFct(fnc));
+}
+EXPORT void* my_tdelete(x64emu_t* emu, void* key, void** root, void* fnc)
+{
+    (void)emu;
+    return tdelete(key, root, findcompareFct(fnc));
+}
+EXPORT void* my_tfind(x64emu_t* emu, void* key, void** root, void* fnc)
+{
+    (void)emu;
+    return tfind(key, root, findcompareFct(fnc));
 }
 EXPORT void* my_lfind(x64emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {

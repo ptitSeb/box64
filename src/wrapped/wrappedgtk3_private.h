@@ -4205,3 +4205,5 @@ GO(gtk_gesture_get_type, LFv)
 GO(gtk_event_controller_get_type, LFv)
 GO(gtk_stack_set_visible_child_name, vFpp)
 GO(gtk_stack_get_visible_child_name, pFp)
+
+GO(dummy_iFppdd, iFppdd)    // for GtkEventController wrapping

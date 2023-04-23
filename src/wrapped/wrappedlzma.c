@@ -200,6 +200,14 @@ EXPORT int my_lzma_alone_encoder(x64emu_t* emu, lzma_stream_t* stream, void* opt
     return my->lzma_alone_encoder(stream, options);
 }
 
+EXPORT int my_lzma_stream_encoder_mt(x64emu_t* emu, lzma_stream_t* stream, void* options)
+{
+    // not restoring the allocator after, so lzma_code and lzma_end can be used without "GOM" wrapping
+    if(stream->allocator)
+        wrap_alloc_struct(stream->allocator, stream->allocator);
+    return my->lzma_stream_encoder_mt(stream, options);
+}
+
 #define CUSTOM_INIT \
     getMy(lib);
 
