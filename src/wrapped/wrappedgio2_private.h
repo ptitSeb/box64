@@ -27,10 +27,10 @@ GO(g_action_group_get_type, LFv)
 GO(g_action_group_has_action, iFpp)
 GO(g_action_group_list_actions, pFp)
 GO(g_action_group_query_action, iFppppppp)
-//GO(g_action_map_add_action, 
+GO(g_action_map_add_action, vFpp)
 //GO(g_action_map_add_action_entries, 
 //GO(g_action_map_get_type, 
-//GO(g_action_map_lookup_action, 
+GO(g_action_map_lookup_action, pFpp)
 //GO(g_action_map_remove_action, 
 //GO(g_action_name_is_valid, 
 //GO(g_action_parse_detailed_name, 
@@ -1027,9 +1027,9 @@ GO(g_list_model_get_object, pFpu)
 //GO(g_memory_output_stream_steal_as_bytes, 
 //GO(g_memory_output_stream_steal_data, 
 //GO(g_memory_settings_backend_new, 
-//GO(g_menu_append, 
+GO(g_menu_append, vFppp)
 //GO(g_menu_append_item, 
-//GO(g_menu_append_section, 
+GO(g_menu_append_section, vFppp)
 //GO(g_menu_append_submenu, 
 //GO(g_menu_attribute_iter_get_name, 
 //GO(g_menu_attribute_iter_get_next, 
@@ -1074,7 +1074,7 @@ GO(g_list_model_get_object, pFpu)
 //GO(g_menu_model_items_changed, 
 //GO(g_menu_model_iterate_item_attributes, 
 //GO(g_menu_model_iterate_item_links, 
-//GO(g_menu_new, 
+GO(g_menu_new, pFv)
 //GO(g_menu_prepend, 
 //GO(g_menu_prepend_item, 
 //GO(g_menu_prepend_section, 
@@ -1306,7 +1306,7 @@ GO(g_settings_apply, vFp)
 //GO(g_settings_bind_flags_get_type, 
 //GO(g_settings_bind_with_mapping, 
 //GO(g_settings_bind_writable, 
-//GO(g_settings_create_action, 
+GO(g_settings_create_action, pFpp)
 GO(g_settings_delay, vFp)
 //GO(g_settings_get, 
 GO(g_settings_get_boolean, iFpp)
@@ -1362,18 +1362,18 @@ GO(g_settings_schema_source_ref, pFp)
 GO(g_settings_schema_source_unref, vFp)
 GO(g_settings_schema_unref, vFp)
 //GO(g_settings_set, 
-//GO(g_settings_set_boolean, 
+GO(g_settings_set_boolean, iFppi)
 //GO(g_settings_set_double, 
 //GO(g_settings_set_enum, 
 //GO(g_settings_set_flags, 
-//GO(g_settings_set_int, 
+GO(g_settings_set_int, iFppi)
 //GO(g_settings_set_string, 
 //GO(g_settings_set_strv, 
 //GO(g_settings_set_uint, 
 GO(g_settings_set_value, iFppp)
 GO(g_settings_sync, vFv)
 //GO(g_settings_unbind, 
-//GO(g_simple_action_get_type, 
+GO(g_simple_action_get_type, LFv)
 //GO(g_simple_action_group_add_entries, 
 //GO(g_simple_action_group_get_type, 
 //GO(g_simple_action_group_insert, 
@@ -1382,7 +1382,7 @@ GO(g_settings_sync, vFv)
 //GO(g_simple_action_group_remove, 
 //GO(g_simple_action_new, 
 //GO(g_simple_action_new_stateful, 
-//GO(g_simple_action_set_enabled, 
+GO(g_simple_action_set_enabled, vFpi)
 //GO(g_simple_action_set_state, 
 GOM(g_simple_async_report_error_in_idle, vFEpppuipV)
 GOM(g_simple_async_report_gerror_in_idle, vFEpppp)
