@@ -1216,6 +1216,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             SSE_LOOP_Q(x3, x4, NOT(x3, x3); AND(x3, x3, x4));
             break;
+        case 0xE4:
+            INST_NAME("PMULHUW Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for(int i=0; i<8; ++i) {
+                LHU(x3, gback, 2*i);
+                LHU(x4, wback, fixedaddress+2*i);
+                MULW(x3, x3, x4);
+                SRLIW(x3, x3, 16);
+                SH(x3, gback, 2*i);
+            }
+            break;
         case 0xEB:
             INST_NAME("POR Gx,Ex");
             nextop = F8;
