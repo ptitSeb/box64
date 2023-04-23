@@ -403,7 +403,20 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
-
+        case 0x8E:
+            INST_NAME("MOV Seg,Ew");
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                LHU(x1, ed, fixedaddress);
+                ed = x1;
+            }
+            SW(ed, xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
+            SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[(nextop&0x38)>>3]));
+            break;
         case 0x90:
         case 0x91:
         case 0x92:
