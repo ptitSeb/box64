@@ -218,41 +218,22 @@ uintptr_t AddVSyscall(bridge_t* bridge, int num)
 {
     brick_t *b = NULL;
     int sz = -1;
-    #ifdef DYNAREC
-    int prot = 0;
-    do {
-        #endif
-        mutex_lock(&my_context->mutex_bridge);
-        b = bridge->last;
-        if(b->sz == NBRICK) {
-            b->next = NewBrick(b->b);
-            b = b->next;
-            bridge->last = b;
-        }
-	    sz = b->sz;
-        #ifdef DYNAREC
-        mutex_unlock(&my_context->mutex_bridge);
-        if(box64_dynarec) {
-            prot=(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
-            if(prot)
-                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 1);
-            else    // only add DB if there is no protection
-                addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
-        }
-    } while(sz!=b->sz); // this while loop if someone took the slot when the bridge mutex was unlocked doing memory protection managment
     mutex_lock(&my_context->mutex_bridge);
-    #endif
+    b = bridge->last;
+    if(b->sz == NBRICK) {
+        b->next = NewBrick(b->b);
+        b = b->next;
+        bridge->last = b;
+    }
+    sz = b->sz;
     b->sz++;
+    mutex_unlock(&my_context->mutex_bridge);
+
     b->b[sz].B8 = 0xB8;
     b->b[sz].num = num;
     b->b[sz]._0F = 0x0F;
     b->b[sz]._05 = 0x05;
     b->b[sz]._C3 = 0xC3;
-    mutex_unlock(&my_context->mutex_bridge);
-    #ifdef DYNAREC
-    if(box64_dynarec)
-        protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
-    #endif
 
     return (uintptr_t)&b->b[sz].CC;
 }

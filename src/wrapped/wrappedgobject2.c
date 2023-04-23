@@ -28,7 +28,6 @@ typedef void*(*pFL_t)(size_t);
 #define ADDED_FUNCTIONS()           \
  GO(g_object_get_type, LFv_t)       \
  GO(g_initially_unowned_get_type, LFv_t)    \
- GO(g_application_get_type, LFv_t)           \
  GO(g_type_name, pFL_t)             \
  GO(g_type_class_peek, pFL_t)       \
 
@@ -905,7 +904,6 @@ EXPORT void* my_g_type_value_table_peek(x64emu_t* emu, size_t type)
     getMy(lib);                             \
     SetGObjectID(my->g_object_get_type());  \
     SetGInitiallyUnownedID(my->g_initially_unowned_get_type()); \
-    SetGApplicationID(my->g_application_get_type());            \
     SetGTypeName(my->g_type_name);          \
     SetGClassPeek(my->g_type_class_peek);   \
     setNeededLibs(lib, 1, "libglib-2.0.so.0");

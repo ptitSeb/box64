@@ -18,12 +18,16 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 #include "myalign.h"
+#include "gtkclass.h"
 
 const char* gio2Name = "libgio-2.0.so.0";
 #define LIBNAME gio2
 
-#define ADDED_FUNCTIONS() \
+typedef size_t(*LFv_t)(void);
 
+#define ADDED_FUNCTIONS() \
+ GO(g_application_get_type, LFv_t)           \
+ 
 #include "wrappedgio2types.h"
 
 #include "wrappercallback.h"
@@ -585,6 +589,7 @@ EXPORT void* my_g_initable_new_valist(x64emu_t* emu, void* type, void* first, x6
 
 #define CUSTOM_INIT \
     getMy(lib);                         \
+    SetGApplicationID(my->g_application_get_type());            \
     setNeededLibs(lib, 1, "libgmodule-2.0.so.0");
 
 #define CUSTOM_FINI \

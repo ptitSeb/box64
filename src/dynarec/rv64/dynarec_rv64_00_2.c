@@ -375,7 +375,18 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LDxw(gd, ed, fixedaddress);
             }
             break;
-
+        case 0x8C:
+            INST_NAME("MOV Ed, Seg");
+            nextop=F8;
+            if((nextop&0xC0)==0xC0) {   // reg <= seg
+                LHU(xRAX+(nextop&7)+(rex.b<<3), xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
+            } else {                    // mem <= seg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LHU(x3, xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
+                SH(x3, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x8D:
             INST_NAME("LEA Gd, Ed");
             nextop=F8;
@@ -446,6 +457,26 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             AND(xFlags, xFlags, x1);
             ORI(xFlags, xFlags, 0x2);
             SET_DFNONE();
+            break;
+        case 0xA1:
+            INST_NAME("MOV EAX,Od");
+            u64 = F64;
+            MOV64x(x1, u64);
+            LDxw(xRAX, x1, 0);
+            break;
+        case 0xA2:
+            INST_NAME("MOV Ob,AL");
+            u64 = F64;
+            MOV64x(x1, u64);
+            SB(xRAX, x1, 0);
+            SMWRITE();
+            break;
+        case 0xA3:
+            INST_NAME("MOV Od,EAX");
+            u64 = F64;
+            MOV64x(x1, u64);
+            SDxw(xRAX, x1, 0);
+            SMWRITE();
             break;
         case 0xA4:
             if(rep) {

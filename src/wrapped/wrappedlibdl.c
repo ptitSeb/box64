@@ -136,10 +136,9 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
                         printf_dlsym(LOG_DEBUG, " => not present anymore\n");
                         return NULL;    // don't re-open in RTLD_NOLOAD mode
                     }
-                } else {
-                    IncRefCount(dl->dllibs[i].lib, emu);
-                    ++dl->dllibs[i].count;
                 }
+                IncRefCount(dl->dllibs[i].lib, emu);
+                ++dl->dllibs[i].count;
                 printf_dlsym(LOG_DEBUG, "dlopen: Recycling %s/%p count=%ld (dlopened=%ld, elf_index=%d)\n", rfilename, (void*)(i+1), dl->dllibs[i].count, dl->dllibs[i].dlopened, GetElfIndex(dl->dllibs[i].lib));
                 return (void*)(i+1);
             }
@@ -161,6 +160,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
                 dl->dllibs[idx].dlopened = dlopened;
                 dl->dllibs[idx].is_self = lib?0:1;
                 dl->dllibs[idx].full = 1;
+                IncRefCount(dl->dllibs[idx].lib, emu);
                 SetDlOpenIdx(lib, idx);
                 printf_dlsym(LOG_DEBUG, "dlopen: New handle %p (%s), dlopened=%ld\n", (void*)(idx+1), (char*)filename, dlopened);
                 return (void*)(idx+1);

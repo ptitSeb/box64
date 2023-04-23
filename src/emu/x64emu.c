@@ -38,6 +38,7 @@ typedef struct cleanup_s {
     void*       f;
     int         arg;
     void*       a;
+    void*       dso;
 } cleanup_t;
 
 static uint32_t x86emu_parity_tab[8] =
@@ -139,7 +140,7 @@ void SetTraceEmu(uintptr_t start, uintptr_t end)
 }
 #endif
 
-void AddCleanup(x64emu_t *emu, void *p)
+void AddCleanup(x64emu_t *emu, void *p, void* dso_handle)
 {
     (void)emu;
     
@@ -149,10 +150,11 @@ void AddCleanup(x64emu_t *emu, void *p)
     }
     my_context->cleanups[my_context->clean_sz].arg = 0;
     my_context->cleanups[my_context->clean_sz].a = NULL;
+    my_context->cleanups[my_context->clean_sz].dso = dso_handle;
     my_context->cleanups[my_context->clean_sz++].f = p;
 }
 
-void AddCleanup1Arg(x64emu_t *emu, void *p, void* a)
+void AddCleanup1Arg(x64emu_t *emu, void *p, void* a, void* dso_handle)
 {
     (void)emu;
     
@@ -162,6 +164,7 @@ void AddCleanup1Arg(x64emu_t *emu, void *p, void* a)
     }
     my_context->cleanups[my_context->clean_sz].arg = 1;
     my_context->cleanups[my_context->clean_sz].a = a;
+    my_context->cleanups[my_context->clean_sz].dso = dso_handle;
     my_context->cleanups[my_context->clean_sz++].f = p;
 }
 
@@ -169,7 +172,7 @@ void CallCleanup(x64emu_t *emu, void* p)
 {
     printf_log(LOG_DEBUG, "Calling atexit registered functions for %p mask\n", p);
     for(int i=my_context->clean_sz-1; i>=0; --i) {
-        if(p==my_context->cleanups[i].f) {
+        if(p==my_context->cleanups[i].dso) {
             printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
             RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
             // now remove the cleanup

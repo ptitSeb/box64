@@ -67,7 +67,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x2);
             GETEW(x1, 0);
-            emit_add16(dyn, ninst, x1, x2, x4, x5);
+            emit_add16(dyn, ninst, x1, x2, x4, x5, x6);
             EWBACK;
             break;
         case 0x03:
@@ -76,7 +76,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);
-            emit_add16(dyn, ninst, x1, x2, x3, x4);
+            emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
             GWBACK;
             break;
         case 0x05:
@@ -86,7 +86,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SLLI(x1 , xRAX, 48);
             SRLI(x1, x1, 48);
             MOV32w(x2, i32);
-            emit_add16(dyn, ninst, x1, x2, x3, x4);
+            emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
             LUI(x3, 0xffff0);
             AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
@@ -292,7 +292,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOV64x(x5, i16);
-                    emit_add16(dyn, ninst, ed, x5, x2, x4);
+                    emit_add16(dyn, ninst, ed, x5, x2, x4, x6);
                     EWBACK;
                     break;
                 case 1: // OR
@@ -384,14 +384,36 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
-            case 0x90:
-            case 0x91:
-            case 0x92:
-            case 0x93:
-            case 0x94:
-            case 0x95:
-            case 0x96:
-            case 0x97:
+        case 0x8B:
+            INST_NAME("MOV Gw, Ew");
+            nextop = F8;
+            GETGD;  // don't need GETGW neither
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                if(ed!=gd) {
+                    LUI(x1, 0xffff0);
+                    AND(gd, gd, x1);
+                    SLLI(x2, ed, 48);
+                    SRLI(x2, x2, 48);
+                    OR(gd, gd, x2);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                SMREADLOCK(lock);
+                LHU(x1, ed, fixedaddress);
+                LUI(x4, 0xffff0);
+                AND(gd, gd, x4);
+                OR(gd, gd, x1);
+            }
+            break;
+        case 0x90:
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
                 gd = xRAX+(opcode&0x07)+(rex.b<<3);
                 if(gd==xRAX) {
                     INST_NAME("NOP");
@@ -677,6 +699,21 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     AND(x4, x4, x5);
                     OR(xRAX, xRAX, x3);
                     OR(xRDX, xRDX, x4);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
+        case 0xFF:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("INC Ew");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    GETEW(x1, 0);
+                    emit_inc16(dyn, ninst, x1, x2, x4, x5);
+                    EWBACK;
                     break;
                 default:
                     DEFAULT;
