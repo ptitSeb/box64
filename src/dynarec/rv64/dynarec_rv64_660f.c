@@ -1092,6 +1092,22 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = (F8)&7;
             LHU(gd, wback, fixedaddress+u8*2);
             break;
+        case 0xC6:
+            INST_NAME("SHUFPD Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(x1);
+            u8 = F8;
+            if (MODREG && gd==(nextop&7)+(rex.b<<3) && u8==0) {
+                LD(x3, gback, 0);
+                SD(x3, gback, 8);
+                break;
+            }
+            GETEX(x2, 1)
+            LD(x3, gback, 8*(u8&1));
+            LD(x4, wback, fixedaddress+8*((u8>>1)&1));
+            SD(x3, gback, 0);
+            SD(x4, gback, 8);
+            break;
         case 0xD1:
             INST_NAME("PSRLW Gx,Ex");
             nextop = F8;
