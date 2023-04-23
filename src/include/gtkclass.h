@@ -55,6 +55,12 @@ typedef struct my_GInitiallyUnownedClass_s
   void*  pdummy[6];
 } my_GInitiallyUnownedClass_t;
 
+typedef struct my_GamesScoresImporterClass_s
+{
+    my_GObjectClass_t parent_class;
+    void (*importOldScores) (void *self, void* context, void* new_scores_dir, void *error);
+}my_GamesScoresImporterClass_t;
+
 typedef struct my_GApplicationClass_s
 {
     void* construct_properties;
@@ -312,6 +318,7 @@ typedef struct my_GtkActionClass_s
   void     (* connect_proxy)      (void* action, void* proxy);
   void     (* disconnect_proxy)   (void* action, void* proxy);
   void*    (* create_menu)        (void* action);
+  void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
@@ -321,6 +328,21 @@ typedef struct my_GtkMisc2Class_s
 {
   my_GtkWidget2Class_t parent_class;
 } my_GtkMisc2Class_t;
+
+typedef struct my_GtkMisc3Class_s
+{
+  my_GtkWidget3Class_t parent_class;
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkMisc3Class_t;
+
+typedef struct my_GtkMenuButtonClass_s
+{
+  my_GtkWidget3Class_t parent_class;
+  void (* activate) (void *self);
+}my_GtkMenuButtonClass_t;
 
 typedef struct my_GtkLabel2Class_s
 {
@@ -333,6 +355,23 @@ typedef struct my_GtkLabel2Class_s
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
 } my_GtkLabel2Class_t;
+
+typedef struct my_GtkLabel3Class_s
+{
+  my_GtkMisc3Class_t parent_class;
+  void (* move_cursor)     (void* label, int step, int count, int extend_selection);
+  void (* copy_clipboard)  (void* label);
+  void (* populate_popup)  (void* label, void* menu);
+  int  (*activate_link)    (void* label, void* uri);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+  void (*_gtk_reserved5) (void);
+  void (*_gtk_reserved6) (void);
+  void (*_gtk_reserved7) (void);
+  void (*_gtk_reserved8) (void);
+} my_GtkLabel3Class_t;
 
 typedef struct my_GtkTreeView2Class_s
 {
@@ -446,6 +485,20 @@ typedef struct my_GtkButton2Class_s {
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
 } my_GtkButton2Class_t;
+
+typedef struct my_GtkButton3Class_s {
+  my_GtkBin3Class_t parent_class;
+  void (* pressed)  (void *button);
+  void (* released) (void *button);
+  void (* clicked)  (void *button);
+  void (* enter)    (void *button);
+  void (* leave)    (void *button);
+  void (* activate) (void *button);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkButton3Class_t;
 
 typedef struct my_GtkToggleButton2Class_s {
   my_GtkButton2Class_t parent_class;
@@ -608,6 +661,41 @@ typedef struct my_GtkGrid3Class_s {
   void (* _gtk_reserved8) (void);
 }my_GtkGrid3Class_t;
 
+typedef struct my_GtkEventControllerClass_s {
+  my_GObjectClass_t parent_class;
+  void (* set_widget)   (void *controller, void *widget);
+  void (* unset_widget) (void *controller);
+  int (* handle_event) (void *controller, void *event, double x, double y);
+  void (* reset) (void *controller);
+  void (* handle_crossing) (void *controller, void *crossing, double x, double y);
+  int (* filter_event) (void *controller, void *event);
+  void* padding[10];
+}my_GtkEventControllerClass_t;
+
+typedef struct my_GtkGestureClass_s {
+  my_GtkEventControllerClass_t parent_class;
+  int (* check)  (void *gesture);
+  void (* begin)  (void *gesture, void *sequence);
+  void (* update) (void *gesture, void *sequence);
+  void (* end) (void *gesture, void *sequence);
+  void (* cancel) (void *gesture, void *sequence);
+  void (* sequence_state_changed) (void *gesture, void *sequence, int state);
+  void* padding[10];
+}my_GtkGestureClass_t;
+
+typedef struct my_GtkGestureSingleClass_s {
+  my_GtkGestureClass_t parent_class;
+  void* padding[10];
+}my_GtkGestureSingleClass_t;
+
+typedef struct my_GtkGestureLongPressClass_s {
+  my_GtkGestureSingleClass_t parent_class;
+  void (* pressed) (void *gesture, double x, double y);
+  void (* cancelled) (void *gesture);
+  /*< private >*/
+  void* padding[10];
+}my_GtkGestureLongPressClass_t;
+
 typedef struct my_MetaFrames2Class_s
 {
   my_GtkWindow2Class_t parent_class;
@@ -748,6 +836,7 @@ void FiniGTKClass();
 #define GTKCLASSES()                \
 GTKCLASS(GObject)                   \
 GTKCLASS(GInitiallyUnowned)         \
+GTKCLASS(GamesScoresImporter)       \
 GTKCLASS(GApplication)              \
 GTKCLASS(GtkApplication)            \
 GTKCLASS(GtkObject)                 \
@@ -757,7 +846,9 @@ GTKCLASS(GtkContainer2)             \
 GTKCLASS(GtkContainer3)             \
 GTKCLASS(GtkAction)                 \
 GTKCLASS(GtkLabel2)                 \
+GTKCLASS(GtkLabel3)                 \
 GTKCLASS(GtkMisc2)                  \
+GTKCLASS(GtkMisc3)                  \
 GTKCLASS(GtkTreeView2)              \
 GTKCLASS(GtkBin2)                   \
 GTKCLASS(GtkBin3)                   \
@@ -769,6 +860,7 @@ GTKCLASS(GtkApplicationWindow)      \
 GTKCLASS(GtkListBox)                \
 GTKCLASS(GtkListBoxRow)             \
 GTKCLASS(GtkButton2)                \
+GTKCLASS(GtkButton3)                \
 GTKCLASS(GtkComboBox2)              \
 GTKCLASS(GtkToggleButton2)          \
 GTKCLASS(GtkCheckButton2)           \
@@ -782,6 +874,10 @@ GTKCLASS(GtkMenuBar2)               \
 GTKCLASS(GtkTextView2)              \
 GTKCLASS(GtkTextView3)              \
 GTKCLASS(GtkGrid3)                  \
+GTKCLASS(GtkEventController)        \
+GTKCLASS(GtkGesture)                \
+GTKCLASS(GtkGestureSingle)          \
+GTKCLASS(GtkGestureLongPress)       \
 GTKCLASS(MetaFrames2)               \
 GTKCLASS(GDBusObjectManagerClient)  \
 GTKCLASS(AtkObject)                 \

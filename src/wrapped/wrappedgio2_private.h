@@ -28,7 +28,7 @@ GO(g_action_group_has_action, iFpp)
 GO(g_action_group_list_actions, pFp)
 GO(g_action_group_query_action, iFppppppp)
 GO(g_action_map_add_action, vFpp)
-//GO(g_action_map_add_action_entries, 
+GO(g_action_map_add_action_entries, vFppip)
 //GO(g_action_map_get_type, 
 GO(g_action_map_lookup_action, pFpp)
 //GO(g_action_map_remove_action, 
@@ -1023,7 +1023,7 @@ GO(g_list_model_get_object, pFpu)
 //GO(g_memory_output_stream_get_size, 
 //GO(g_memory_output_stream_get_type, 
 //GO(g_memory_output_stream_new, 
-//GO(g_memory_output_stream_new_resizable, 
+GO(g_memory_output_stream_new_resizable, pFv)
 //GO(g_memory_output_stream_steal_as_bytes, 
 //GO(g_memory_output_stream_steal_data, 
 //GO(g_memory_settings_backend_new, 
@@ -1321,7 +1321,7 @@ GO(g_settings_get_int, iFpp)
 //GO(g_settings_get_range, 
 GO(g_settings_get_string, pFpp)
 GO(g_settings_get_strv, pFpp)
-//GO(g_settings_get_type, 
+GO(g_settings_get_type, pFv)
 //GO(g_settings_get_uint, 
 GO(g_settings_get_user_value, pFpp)
 GO(g_settings_get_value, pFpp)
@@ -1367,7 +1367,7 @@ GO(g_settings_set_boolean, iFppi)
 //GO(g_settings_set_enum, 
 //GO(g_settings_set_flags, 
 GO(g_settings_set_int, iFppi)
-//GO(g_settings_set_string, 
+GO(g_settings_set_string, iFppp)
 //GO(g_settings_set_strv, 
 //GO(g_settings_set_uint, 
 GO(g_settings_set_value, iFppp)
