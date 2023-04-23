@@ -899,7 +899,7 @@ void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 void ret_to_epilog(dynarec_rv64_t* dyn, int ninst);
 void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, int n);
-//void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits);
+void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits);
 void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w);
 void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
