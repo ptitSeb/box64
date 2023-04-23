@@ -71,52 +71,109 @@ static uint64_t GetTypeSize(const Type* Type, const std::string& Triple) {
 }
 
 static std::string TypeToSig(ASTContext* Ctx, const Type* Type) {
-    if (Type->isPointerType()) {
-        return "p";
-    } else if (Type->isVoidType()) {
-        return "v";
-    } else if (Type->isUnsignedIntegerOrEnumerationType()) {
-        switch(Ctx->getTypeSizeInChars(Type).getQuantity()) {
-            case 1:
-                return "C";
-            case 2:
-                return  "W";
-            case 4:
-                return "u";
-            case 8:
-                return "U";
-            default:
-                std::cout << "Unsupported UnsignedInteger Type: " << Type->getCanonicalTypeInternal().getAsString() << std::endl;
-        }
-    } else if (Type->isSignedIntegerOrEnumerationType()) {
-        switch(Ctx->getTypeSizeInChars(Type).getQuantity()) {
-            case 1:
-                return "c";
-            case 2:
-                return  "w";
-            case 4:
-                return "i";
-            case 8:
-                return "I";
-            default:
-                std::cout << "Unsupported SignedInteger Type: " << Type->getCanonicalTypeInternal().getAsString() << std::endl;
-        }
-    } else if (Type->isCharType()) {
-        return "c";
-    } else if (Type->isFloatingType()) {
-        switch(Ctx->getTypeSizeInChars(Type).getQuantity()) {
-            case 4:
-                return "f";
-            case 8:
-                return "d";
-            case 16:
-                return "D";
-            default:
-                std::cout << "Unsupported Floating Type: " << Type->getCanonicalTypeInternal().getAsString()
-                          << " (quantity = " << Ctx->getTypeSizeInChars(Type).getQuantity() << ")" << std::endl;
+    if (Type->isBuiltinType()) {
+        switch (Type->getAs<clang::BuiltinType>()->getKind()) {
+        case clang::BuiltinType::Kind::Void:
+            return "v";
+        case clang::BuiltinType::Kind::Bool:
+            return "i";
+        case clang::BuiltinType::Kind::Char_U:
+            return "C";
+        case clang::BuiltinType::Kind::Char_S:
+            return "c";
+        case clang::BuiltinType::Kind::Char8:
+            return "c";
+        case clang::BuiltinType::Kind::UChar:
+            return "C";
+        case clang::BuiltinType::Kind::SChar:
+            return "c";
+        case clang::BuiltinType::Kind::WChar_U:
+            return "W";
+        case clang::BuiltinType::Kind::UShort:
+            return "W";
+        case clang::BuiltinType::Kind::WChar_S:
+            return "w";
+        case clang::BuiltinType::Kind::Char16:
+            return "w";
+        case clang::BuiltinType::Kind::Short:
+            return "w";
+        case clang::BuiltinType::Kind::UInt:
+            return "u";
+        case clang::BuiltinType::Kind::Char32:
+            return "i";
+        case clang::BuiltinType::Kind::Int:
+            return "i";
+        case clang::BuiltinType::Kind::ULong:
+            return "L";
+        case clang::BuiltinType::Kind::Long:
+            return "l";
+        case clang::BuiltinType::Kind::ULongLong:
+            return "U";
+        case clang::BuiltinType::Kind::LongLong:
+            return "I";
+        case clang::BuiltinType::Kind::UInt128:
+            return "H";
+        case clang::BuiltinType::Kind::Int128:
+            return "H";
+        case clang::BuiltinType::Kind::Float:
+            return "f";
+        case clang::BuiltinType::Kind::Double:
+            return "d";
+        case clang::BuiltinType::Kind::LongDouble:
+            return "D";
+        case clang::BuiltinType::Kind::NullPtr:
+            return "p"; // nullptr_t
+        default:
+            std::cout << "Unsupported BuiltinType: " << Type->getCanonicalTypeInternal().getAsString() << std::endl;
         }
     } else {
-        std::cout << "Unsupported Type: " << Type->getCanonicalTypeInternal().getAsString() << std::endl;
+        if (Type->isPointerType()) {
+            return "p";
+        } else if (Type->isVoidType()) {
+            return "v";
+        } else if (Type->isUnsignedIntegerOrEnumerationType()) {
+            switch(Ctx->getTypeSizeInChars(Type).getQuantity()) {
+                case 1:
+                    return "C";
+                case 2:
+                    return  "W";
+                case 4:
+                    return "u";
+                case 8:
+                    return "U";
+                default:
+                    std::cout << "Unsupported UnsignedInteger Type: " << Type->getCanonicalTypeInternal().getAsString() << std::endl;
+            }
+        } else if (Type->isSignedIntegerOrEnumerationType()) {
+            switch(Ctx->getTypeSizeInChars(Type).getQuantity()) {
+                case 1:
+                    return "c";
+                case 2:
+                    return  "w";
+                case 4:
+                    return "i";
+                case 8:
+                    return "I";
+                default:
+                    std::cout << "Unsupported SignedInteger Type: " << Type->getCanonicalTypeInternal().getAsString() << std::endl;
+            }
+        } else if (Type->isCharType()) {
+            return "c";
+        } else if (Type->isFloatingType()) {
+            switch(Ctx->getTypeSizeInChars(Type).getQuantity()) {
+                case 4:
+                    return "f";
+                case 8:
+                    return "d";
+                case 16:
+                    return "D";
+                default:
+                    std::cout << "Unsupported Floating Type: " << Type->getCanonicalTypeInternal().getAsString()
+                              << " (quantity = " << Ctx->getTypeSizeInChars(Type).getQuantity() << ")" << std::endl;
+            }
+        } else {
+            std::cout << "Unsupported Type: " << Type->getCanonicalTypeInternal().getAsString() << std::endl;
+        }
     }
     return "?";
 }
