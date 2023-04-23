@@ -384,7 +384,7 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 						# If you find no problem, comment the error below, add a "pass" line (so python is happy)
 						# and open a ticket so I can fix this.
 						raise NotImplementedError("Some functions are only implemented under one condition (probably) ({0}:{1})"
-							.format(k, filename) + " [extra note in the script]")
+							.format(k, filename) + " [extra note in the script]\nProblematic function{}: {}".format(("" if len(funsname[k]) == 1 else "s"), funsname[k]))
 					for f in funsname[k]:
 						if f in ['_fini', '_init', '__bss_start', '__data_start', '_edata', '_end']:
 							continue # Always allow those symbols [TODO: check if OK]
