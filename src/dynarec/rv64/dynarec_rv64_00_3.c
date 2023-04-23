@@ -418,7 +418,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("ROR Ed, 1");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED(0);
-                    emit_rol32c(dyn, ninst, rex, ed, rex.w?63:31, x3, x4);
+                    emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
                     if(!wback && !rex.w) ZEROUP(ed);
                     break;
