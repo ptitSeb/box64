@@ -1245,6 +1245,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SB(x3, gback, i);
             }
             break;
+        case 0xE1:
+            INST_NAME("PSRAW Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            ADDI(x4, xZR, 16);
+            LD(x3, wback, fixedaddress);
+            BLTU(x3, x4, 8);
+            SUBI(x3, x4, 1);
+            for (int i=0; i<8; ++i) {
+                LH(x4, gback, 2*i);
+                SRAW(x4, x4, x3);
+                SH(x4, gback, 2*i);
+            }
+            break;
         case 0xE3:
             INST_NAME("PAVGW Gx,Ex");
             nextop = F8;
