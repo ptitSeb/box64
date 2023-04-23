@@ -1201,6 +1201,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 OR(gd, gd, x3);
             }
             break;
+        case 0xD8:
+            INST_NAME("PSUBUSB Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for(int i=0; i<16; ++i) {
+                LBU(x3, gback, i);
+                LBU(x4, wback, fixedaddress+i);
+                SUB(x3, x3, x4);
+                NOT(x4, x3);
+                SRAI(x4, x4, 63);
+                AND(x3, x3, x4);
+                SB(x3, gback, i);
+            }
+            break;
         case 0xD9:
             INST_NAME("PSUBUSW Gx, Ex");
             nextop = F8;
