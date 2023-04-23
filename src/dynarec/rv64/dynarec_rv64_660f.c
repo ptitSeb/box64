@@ -1325,6 +1325,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SH(x3, gback, 2*i);
             }
             break;
+        case 0xE7:
+            INST_NAME("MOVNTDQ Ex, Gx");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            SSE_LOOP_MV_Q2(x3);
+            break;
         case 0xE8:
             INST_NAME("PSUBSB Gx,Ex");
             nextop = F8;
