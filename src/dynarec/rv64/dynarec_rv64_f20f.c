@@ -351,13 +351,11 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             d0 = fpu_get_scratch(dyn);
             u8 = sse_setround(dyn, ninst, x6, x4);
-            ADDI(x4, xZR, 1);
-            SLLI(x4, x4, 31);
             for (int i=0; i<2 ; ++i) {
                 FLD(d0, wback, fixedaddress+8*i);
                 FCVTLD(x3, d0, RD_DYN);
-                ADD(x5, x3, x4);
-                SRLI(x5, x5, 32);
+                SEXT_W(x5, x3);
+                SUB(x5, x5, x3);
                 BEQZ(x5, 8);
                 LUI(x3, 0x80000); // INT32_MIN
                 SW(x3, gback, 4*i);
