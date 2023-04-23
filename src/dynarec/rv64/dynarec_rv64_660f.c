@@ -1192,6 +1192,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             SSE_LOOP_Q(x3, x4, AND(x3, x3, x4));
             break;
+        case 0xDC:
+            INST_NAME("PADDUSB Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            ADDI(x5, xZR, 0xFF);
+            for(int i=0; i<16; ++i) {
+                LBU(x3, gback, i);
+                LBU(x4, wback, fixedaddress+i);
+                ADD(x3, x3, x4);
+                BLT(x3, x5, 8);
+                ADDI(x3, xZR, 0xFF);
+                SB(x3, gback, i);
+            }
+            break;
         case 0xDD:
             INST_NAME("PADDUSW Gx,Ex");
             nextop = F8;
