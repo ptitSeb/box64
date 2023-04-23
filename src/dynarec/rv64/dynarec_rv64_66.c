@@ -124,6 +124,16 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
+        case 0x1B:
+            INST_NAME("SBB Gw, Ew");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_sbb16(dyn, ninst, x1, x2, x3, x4, x5);
+            GWBACK;
+            break;
         case 0x21:
             INST_NAME("AND Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -707,6 +717,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u16 = F16;
                     MOV32w(x2, u16);
                     emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
+                case 2:
+                    INST_NAME("NOT Ew");
+                    GETEW(x1, 0);
+                    NOT(ed, ed); // No flags affected
+                    EWBACK;
                     break;
                 case 3:
                     INST_NAME("NEG Ew");
