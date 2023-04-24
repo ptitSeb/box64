@@ -6,7 +6,7 @@
 //GO(gst_buffer_add_gl_sync_meta_full, 
 //GO(gst_buffer_pool_config_get_gl_allocation_params, 
 //GO(gst_buffer_pool_config_set_gl_allocation_params, 
-//GO(gst_context_get_gl_display, 
+GO(gst_context_get_gl_display, iFpp)
 GO(gst_context_set_gl_display, vFpp)
 //GO(gst_egl_get_error_string, 
 //GO(gst_egl_image_export_dmabuf, 
@@ -23,9 +23,9 @@ GO(gst_context_set_gl_display, vFpp)
 //GO(gst_gl_allocation_params_free_data, 
 //GO(gst_gl_allocation_params_get_type, 
 //GO(gst_gl_allocation_params_init, 
-//GO(gst_gl_api_from_string, 
+GO(gst_gl_api_from_string, uFp)
 //GO(gst_gl_api_get_type, 
-//GO(gst_gl_api_to_string, 
+GO(gst_gl_api_to_string, pFu)
 //GO(gst_gl_async_debug_free, 
 //GO(gst_gl_async_debug_freeze, 
 //GO(gst_gl_async_debug_init, 
@@ -42,7 +42,7 @@ GO(gst_context_set_gl_display, vFpp)
 //GO(gst_gl_base_memory_allocator_get_type, 
 //GO(gst_gl_base_memory_alloc_data, 
 //GO(gst_gl_base_memory_error_get_type, 
-//GO(gst_gl_base_memory_error_quark, 
+GO(gst_gl_base_memory_error_quark, uFv)
 //GO(gst_gl_base_memory_get_type, 
 //GO(gst_gl_base_memory_init, 
 //GO(gst_gl_base_memory_init_once, 
@@ -57,7 +57,7 @@ GO(gst_context_set_gl_display, vFpp)
 //GO(gst_gl_buffer_pool_get_gl_allocation_params, 
 //GO(gst_gl_buffer_pool_get_type, 
 //GO(gst_gl_buffer_pool_new, 
-//GO(gst_gl_check_extension, 
+GO(gst_gl_check_extension, iFpp)
 //GO(gst_gl_color_convert_decide_allocation, 
 //GO(gst_gl_color_convert_fixate_caps, 
 //GO(gst_gl_color_convert_get_type, 
@@ -89,9 +89,9 @@ GO(gst_context_set_gl_display, vFpp)
 //DATA(GST_GL_CONFIG_ATTRIB_STENCIL_SIZE_NAME, 
 //DATA(GST_GL_CONFIG_ATTRIB_SURFACE_TYPE_NAME, 
 //GO(gst_gl_config_caveat_get_type, 
-//GO(gst_gl_config_caveat_to_string, 
+GO(gst_gl_config_caveat_to_string, pFu)
 //GO(gst_gl_config_surface_type_get_type, 
-//GO(gst_gl_config_surface_type_to_string, 
+GO(gst_gl_config_surface_type_to_string, pFu)
 //GO(gst_gl_context_activate, 
 //GO(gst_gl_context_can_share, 
 //GO(gst_gl_context_check_feature, 
@@ -100,15 +100,15 @@ GO(gst_context_set_gl_display, vFpp)
 //GO(gst_gl_context_clear_framebuffer, 
 //GO(gst_gl_context_clear_shader, 
 //GO(gst_gl_context_create, 
-//GO(gst_gl_context_default_get_proc_address, 
+GO(gst_gl_context_default_get_proc_address, pFup)
 //GO(gst_gl_context_destroy, 
 //GO(gst_gl_context_error_get_type, 
 //GO(gst_gl_context_error_quark, 
 //GO(gst_gl_context_fill_info, 
 //GO(gst_gl_context_get_config, 
 //GO(gst_gl_context_get_current, 
-//GO(gst_gl_context_get_current_gl_api, 
-//GO(gst_gl_context_get_current_gl_context, 
+GO(gst_gl_context_get_current_gl_api, uFupp)
+GO(gst_gl_context_get_current_gl_context, LFu)
 //GO(gst_gl_context_get_display, 
 //GO(gst_gl_context_get_gl_api, 
 //GO(gst_gl_context_get_gl_context, 
@@ -116,7 +116,7 @@ GO(gst_context_set_gl_display, vFpp)
 //GO(gst_gl_context_get_gl_platform_version, 
 //GO(gst_gl_context_get_gl_version, 
 //GO(gst_gl_context_get_proc_address, 
-//GO(gst_gl_context_get_proc_address_with_platform, 
+GO(gst_gl_context_get_proc_address_with_platform, pFuup)
 //GO(gst_gl_context_get_thread, 
 //GO(gst_gl_context_get_type, 
 //GO(gst_gl_context_get_window, 
@@ -163,7 +163,7 @@ GO(gst_gl_display_new_with_type, pFi)
 //GO(gst_gl_display_x11_new, 
 //GO(gst_gl_display_x11_new_with_display, 
 //GO(gst_gl_element_propagate_display_context, 
-//GO(gst_gl_ensure_element_data, 
+GO(gst_gl_ensure_element_data, iFppp)
 //GO(gst_gl_filter_add_rgba_pad_templates, 
 //GO(gst_gl_filter_draw_fullscreen_quad, 
 //GO(gst_gl_filter_filter_texture, 
@@ -173,13 +173,13 @@ GO(gst_gl_display_new_with_type, pFi)
 //GO(gst_gl_format_from_video_info, 
 //GO(gst_gl_format_get_type, 
 //GO(gst_gl_format_is_supported, 
-//GO(gst_gl_format_type_from_sized_gl_format, 
-//GO(gst_gl_format_type_n_bytes, 
+GO(gst_gl_format_type_from_sized_gl_format, vFupp)
+GO(gst_gl_format_type_n_bytes, uFuu)
 //GO(gst_gl_framebuffer_attach, 
 //GO(gst_gl_framebuffer_bind, 
 //GO(gst_gl_framebuffer_draw_to_texture, 
-//GO(gst_gl_framebuffer_get_effective_dimensions, 
-//GO(gst_gl_framebuffer_get_id, 
+GO(gst_gl_framebuffer_get_effective_dimensions, vFppp)
+GO(gst_gl_framebuffer_get_id, uFp)
 //GO(gst_gl_framebuffer_get_type, 
 //GO(gst_gl_framebuffer_new, 
 //GO(gst_gl_framebuffer_new_with_default_depth, 
@@ -187,7 +187,7 @@ GO(gst_gl_display_new_with_type, pFi)
 //GO(gst_gl_get_plane_data_size, 
 //GO(gst_gl_get_plane_start, 
 //GO(gst_gl_handle_context_query, 
-//GO(gst_gl_handle_set_context, 
+GO(gst_gl_handle_set_context, iFpppp)
 //GO(gst_gl_insert_debug_marker, 
 //GO(gst_gl_memory_allocator_get_default, 
 //GO(gst_gl_memory_allocator_get_type, 
@@ -215,21 +215,21 @@ GO(gst_gl_display_new_with_type, pFi)
 //GO(gst_gl_memory_read_pixels, 
 //GO(gst_gl_memory_setup_buffer, 
 //GO(gst_gl_memory_texsubimage, 
-//GO(gst_gl_multiply_matrix4, 
+GO(gst_gl_multiply_matrix4, vFppp)
 //GO(gst_gl_overlay_compositor_add_caps, 
 //GO(gst_gl_overlay_compositor_draw_overlays, 
 //GO(gst_gl_overlay_compositor_free_overlays, 
-//GO(gst_gl_overlay_compositor_get_type, 
+GO(gst_gl_overlay_compositor_get_type, LFv)
 //GO(gst_gl_overlay_compositor_new, 
 //GO(gst_gl_overlay_compositor_upload_overlays, 
-//GO(gst_gl_platform_from_string, 
+GO(gst_gl_platform_from_string, uFp)
 //GO(gst_gl_platform_get_type, 
-//GO(gst_gl_platform_to_string, 
+GO(gst_gl_platform_to_string, pFu)
 //GO(gst_gl_query_counter, 
 //GO(gst_gl_query_end, 
 //GO(gst_gl_query_free, 
 //GO(gst_gl_query_init, 
-//GO(gst_gl_query_local_gl_context, 
+GO(gst_gl_query_local_gl_context, iFpup)
 //GO(gst_gl_query_new, 
 //GO(gst_gl_query_result, 
 //GO(gst_gl_query_start, 
@@ -244,42 +244,42 @@ GO(gst_gl_display_new_with_type, pFi)
 //GO(gst_gl_renderbuffer_get_id, 
 //GO(gst_gl_renderbuffer_get_type, 
 //GO(gst_gl_renderbuffer_get_width, 
-//GO(gst_gl_renderbuffer_init_once, 
+GO(gst_gl_renderbuffer_init_once, vFv)
 //GO(gst_gl_set_affine_transformation_meta_from_ndc, 
 //GO(gst_gl_shader_attach, 
 //GO(gst_gl_shader_attach_unlocked, 
 //GO(gst_gl_shader_bind_attribute_location, 
-//GO(gst_gl_shader_bind_frag_data_location, 
+GO(gst_gl_shader_bind_frag_data_location, vFpup)
 //GO(gst_gl_shader_compile_attach_stage, 
 //GO(gst_gl_shader_detach, 
 //GO(gst_gl_shader_detach_unlocked, 
-//GO(gst_gl_shader_get_attribute_location, 
-//GO(gst_gl_shader_get_program_handle, 
+GO(gst_gl_shader_get_attribute_location, iFpp)
+GO(gst_gl_shader_get_program_handle, iFp)
 //GO(gst_gl_shader_get_type, 
-//GO(gst_gl_shader_is_linked, 
-//GO(gst_gl_shader_link, 
+GO(gst_gl_shader_is_linked, iFp)
+GO(gst_gl_shader_link, iFpp)
 //GO(gst_gl_shader_new, 
 //GO(gst_gl_shader_new_default, 
 //GO(gst_gl_shader_new_link_with_stages, 
 //GO(gst_gl_shader_new_with_stages, 
 //GO(gst_gl_shader_release, 
 //GO(gst_gl_shader_release_unlocked, 
-//GO(gst_gl_shader_set_uniform_1f, 
+GO(gst_gl_shader_set_uniform_1f, vFppf)
 //GO(gst_gl_shader_set_uniform_1fv, 
-//GO(gst_gl_shader_set_uniform_1i, 
+GO(gst_gl_shader_set_uniform_1i, vFppi)
 //GO(gst_gl_shader_set_uniform_1iv, 
-//GO(gst_gl_shader_set_uniform_2f, 
+GO(gst_gl_shader_set_uniform_2f, vFppff)
 //GO(gst_gl_shader_set_uniform_2fv, 
-//GO(gst_gl_shader_set_uniform_2i, 
+GO(gst_gl_shader_set_uniform_2i, vFppii)
 //GO(gst_gl_shader_set_uniform_2iv, 
-//GO(gst_gl_shader_set_uniform_3f, 
+GO(gst_gl_shader_set_uniform_3f, vFppfff)
 //GO(gst_gl_shader_set_uniform_3fv, 
-//GO(gst_gl_shader_set_uniform_3i, 
+GO(gst_gl_shader_set_uniform_3i, vFppiii)
 //GO(gst_gl_shader_set_uniform_3iv, 
-//GO(gst_gl_shader_set_uniform_4f, 
-//GO(gst_gl_shader_set_uniform_4fv, 
-//GO(gst_gl_shader_set_uniform_4i, 
-//GO(gst_gl_shader_set_uniform_4iv, 
+GO(gst_gl_shader_set_uniform_4f, vFppffff)
+GO(gst_gl_shader_set_uniform_4fv, vFppup)
+GO(gst_gl_shader_set_uniform_4i, vFppiiii)
+GO(gst_gl_shader_set_uniform_4iv, vFppup)
 //GO(gst_gl_shader_set_uniform_matrix_2fv, 
 //GO(gst_gl_shader_set_uniform_matrix_2x3fv, 
 //GO(gst_gl_shader_set_uniform_matrix_2x4fv, 
@@ -288,7 +288,7 @@ GO(gst_gl_display_new_with_type, pFi)
 //GO(gst_gl_shader_set_uniform_matrix_3x4fv, 
 //GO(gst_gl_shader_set_uniform_matrix_4fv, 
 //GO(gst_gl_shader_set_uniform_matrix_4x2fv, 
-//GO(gst_gl_shader_set_uniform_matrix_4x3fv, 
+GO(gst_gl_shader_set_uniform_matrix_4x3fv, vFppiip)
 //DATA(gst_gl_shader_string_fragment_default, 
 //DATA(gst_gl_shader_string_fragment_external_oes_default, 
 //GO(gst_gl_shader_string_fragment_external_oes_get_default, 
@@ -299,13 +299,13 @@ GO(gst_gl_display_new_with_type, pFi)
 //DATA(gst_gl_shader_string_vertex_default, 
 //DATA(gst_gl_shader_string_vertex_mat4_texture_transform, 
 //DATA(gst_gl_shader_string_vertex_mat4_vertex_transform, 
-//GO(gst_gl_shader_use, 
+GO(gst_gl_shader_use, vFp)
 //GO(gst_gl_sized_gl_format_from_gl_format_type, 
 //GO(gst_glsl_error_get_type, 
 //GO(gst_glsl_error_quark, 
-//GO(gst_glsl_profile_from_string, 
+GO(gst_glsl_profile_from_string, iFp)
 //GO(gst_glsl_profile_get_type, 
-//GO(gst_glsl_profile_to_string, 
+GO(gst_glsl_profile_to_string, pFi)
 //GO(gst_glsl_stage_compile, 
 //GO(gst_glsl_stage_get_handle, 
 //GO(gst_glsl_stage_get_profile, 
@@ -318,12 +318,12 @@ GO(gst_gl_display_new_with_type, pFi)
 //GO(gst_glsl_stage_new_with_string, 
 //GO(gst_glsl_stage_new_with_strings, 
 //GO(gst_glsl_stage_set_strings, 
-//GO(gst_glsl_string_get_version_profile, 
-//GO(gst_glsl_version_from_string, 
+GO(gst_glsl_string_get_version_profile, iFppp)
+GO(gst_glsl_version_from_string, uFp)
 //GO(gst_glsl_version_get_type, 
 //GO(gst_glsl_version_profile_from_string, 
-//GO(gst_glsl_version_profile_to_string, 
-//GO(gst_glsl_version_to_string, 
+GO(gst_glsl_version_profile_to_string, pFui)
+GO(gst_glsl_version_to_string, pFu)
 //GO(gst_gl_stereo_downmix_get_type, 
 //GO(gst_gl_stereo_downmix_mode_get_type, 
 //GO(gst_gl_sync_meta_api_get_type, 
@@ -331,11 +331,11 @@ GO(gst_gl_display_new_with_type, pFi)
 //GO(gst_gl_sync_meta_set_sync_point, 
 //GO(gst_gl_sync_meta_wait, 
 //GO(gst_gl_sync_meta_wait_cpu, 
-//GO(gst_gl_texture_target_from_gl, 
-//GO(gst_gl_texture_target_from_string, 
+GO(gst_gl_texture_target_from_gl, uFu)
+GO(gst_gl_texture_target_from_string, uFp)
 //GO(gst_gl_texture_target_get_type, 
-//GO(gst_gl_texture_target_to_buffer_pool_option, 
-//GO(gst_gl_texture_target_to_gl, 
+GO(gst_gl_texture_target_to_buffer_pool_option, pFu)
+GO(gst_gl_texture_target_to_gl, uFu)
 //GO(gst_gl_texture_target_to_string, 
 //GO(gst_gl_upload_get_caps, 
 //GO(gst_gl_upload_get_input_template_caps, 
@@ -347,10 +347,10 @@ GO(gst_gl_display_new_with_type, pFi)
 //GO(gst_gl_upload_set_caps, 
 //GO(gst_gl_upload_set_context, 
 //GO(gst_gl_upload_transform_caps, 
-//GO(gst_gl_value_get_texture_target_mask, 
-//GO(gst_gl_value_set_texture_target, 
+GO(gst_gl_value_get_texture_target_mask, uFp)
+GO(gst_gl_value_set_texture_target, iFpu)
 //GO(gst_gl_value_set_texture_target_from_mask, 
-//GO(gst_gl_version_to_glsl_version, 
+GO(gst_gl_version_to_glsl_version, uFuii)
 //GO(gst_gl_video_allocation_params_copy_data, 
 //GO(gst_gl_video_allocation_params_free_data, 
 //GO(gst_gl_video_allocation_params_get_type, 

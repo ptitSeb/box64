@@ -29,27 +29,27 @@
 //GO(gst_audio_base_src_set_provide_clock, 
 //GO(gst_audio_base_src_set_slave_method, 
 //GO(gst_audio_base_src_slave_method_get_type, 
-//GO(gst_audio_buffer_clip, 
+GO(gst_audio_buffer_clip, pFppii)
 //GO(gst_audio_buffer_map, 
-//GO(gst_audio_buffer_reorder_channels, 
-//GO(gst_audio_buffer_truncate, 
+GO(gst_audio_buffer_reorder_channels, iFpuipp)
+GO(gst_audio_buffer_truncate, pFpiLL)
 //GO(gst_audio_buffer_unmap, 
 //GO(gst_audio_cd_src_add_track, 
 //GO(gst_audio_cd_src_get_type, 
 //GO(gst_audio_cd_src_mode_get_type, 
-//GO(gst_audio_channel_get_fallback_mask, 
+GO(gst_audio_channel_get_fallback_mask, LFi)
 //GO(gst_audio_channel_mixer_flags_get_type, 
-//GO(gst_audio_channel_mixer_free, 
-//GO(gst_audio_channel_mixer_is_passthrough, 
-//GO(gst_audio_channel_mixer_new, 
-//GO(gst_audio_channel_mixer_new_with_matrix, 
-//GO(gst_audio_channel_mixer_samples, 
+GO(gst_audio_channel_mixer_free, vFp)
+GO(gst_audio_channel_mixer_is_passthrough, iFp)
+GO(gst_audio_channel_mixer_new, pFuuipip)
+GO(gst_audio_channel_mixer_new_with_matrix, pFuuiip)
+GO(gst_audio_channel_mixer_samples, vFpppi)
 //GO(gst_audio_channel_position_get_type, 
-//GO(gst_audio_channel_positions_from_mask, 
-//GO(gst_audio_channel_positions_to_mask, 
-//GO(gst_audio_channel_positions_to_string, 
-//GO(gst_audio_channel_positions_to_valid_order, 
-//GO(gst_audio_check_valid_channel_positions, 
+GO(gst_audio_channel_positions_from_mask, iFiLp)
+GO(gst_audio_channel_positions_to_mask, iFpiip)
+GO(gst_audio_channel_positions_to_string, pFpi)
+GO(gst_audio_channel_positions_to_valid_order, iFpi)
+GO(gst_audio_check_valid_channel_positions, iFpii)
 //GO(gst_audio_clipping_meta_api_get_type, 
 //GO(gst_audio_clipping_meta_get_info, 
 //GO(gst_audio_clock_adjust, 
@@ -58,20 +58,20 @@
 //GO(gst_audio_clock_invalidate, 
 //GO(gst_audio_clock_new, 
 //GO(gst_audio_clock_reset, 
-//GO(gst_audio_converter_convert, 
+GO(gst_audio_converter_convert, iFpupLpp)
 //GO(gst_audio_converter_flags_get_type, 
 //GO(gst_audio_converter_free, 
-//GO(gst_audio_converter_get_config, 
-//GO(gst_audio_converter_get_in_frames, 
-//GO(gst_audio_converter_get_max_latency, 
+GO(gst_audio_converter_get_config, pFppp)
+GO(gst_audio_converter_get_in_frames, LFpL)
+GO(gst_audio_converter_get_max_latency, LFp)
 //GO(gst_audio_converter_get_out_frames, 
 //GO(gst_audio_converter_get_type, 
-//GO(gst_audio_converter_is_passthrough, 
+GO(gst_audio_converter_is_passthrough, iFp)
 //GO(gst_audio_converter_new, 
-//GO(gst_audio_converter_reset, 
-//GO(gst_audio_converter_samples, 
+GO(gst_audio_converter_reset, vFp)
+GO(gst_audio_converter_samples, iFpupLpL)
 //GO(gst_audio_converter_supports_inplace, 
-//GO(gst_audio_converter_update_config, 
+GO(gst_audio_converter_update_config, iFpiip)
 //GO(gst_audio_decoder_allocate_output_buffer, 
 //GO(_gst_audio_decoder_error, 
 //GO(gst_audio_decoder_finish_frame, 
@@ -145,16 +145,16 @@
 //GO(gst_audio_filter_class_add_pad_templates, 
 //GO(gst_audio_filter_get_type, 
 //GO(gst_audio_flags_get_type, 
-GO(gst_audio_format_build_integer, iFiiii)
+GO(gst_audio_format_build_integer, uFiiii)
 //GO(gst_audio_format_fill_silence, 
 //GO(gst_audio_format_flags_get_type, 
-//GO(gst_audio_format_from_string, 
+GO(gst_audio_format_from_string, uFp)
 //GO(gst_audio_format_get_info, 
 //GO(gst_audio_format_get_type, 
 //GO(gst_audio_format_info_get_type, 
-//GO(gst_audio_formats_raw, 
-GO(gst_audio_format_to_string, pFi)
-//GO(gst_audio_get_channel_reorder_map, 
+GO(gst_audio_formats_raw, pFp)
+GO(gst_audio_format_to_string, pFu)
+GO(gst_audio_get_channel_reorder_map, iFippp)
 //GO(gst_audio_iec61937_frame_size, 
 //GO(gst_audio_iec61937_payload, 
 GO(gst_audio_info_convert, iFpiIip)
@@ -175,23 +175,23 @@ GO(gst_audio_layout_get_type, pFv)
 //GO(gst_audio_pack_flags_get_type, 
 //GO(gst_audio_quantize_flags_get_type, 
 //GO(gst_audio_quantize_free, 
-//GO(gst_audio_quantize_new, 
-//GO(gst_audio_quantize_reset, 
-//GO(gst_audio_quantize_samples, 
-//GO(gst_audio_reorder_channels, 
+GO(gst_audio_quantize_new, pFuuuuuu)
+GO(gst_audio_quantize_reset, vFp)
+GO(gst_audio_quantize_samples, vFpppu)
+GO(gst_audio_reorder_channels, iFpLuipp)
 //GO(gst_audio_resampler_filter_interpolation_get_type, 
 //GO(gst_audio_resampler_filter_mode_get_type, 
 //GO(gst_audio_resampler_flags_get_type, 
 //GO(gst_audio_resampler_free, 
-//GO(gst_audio_resampler_get_in_frames, 
-//GO(gst_audio_resampler_get_max_latency, 
+GO(gst_audio_resampler_get_in_frames, LFpL)
+GO(gst_audio_resampler_get_max_latency, LFp)
 //GO(gst_audio_resampler_get_out_frames, 
 //GO(gst_audio_resampler_method_get_type, 
-//GO(gst_audio_resampler_new, 
-//GO(gst_audio_resampler_options_set_quality, 
-//GO(gst_audio_resampler_resample, 
-//GO(gst_audio_resampler_reset, 
-//GO(gst_audio_resampler_update, 
+GO(gst_audio_resampler_new, pFuuuiiip)
+GO(gst_audio_resampler_options_set_quality, vFuuiip)
+GO(gst_audio_resampler_resample, vFppLpL)
+GO(gst_audio_resampler_reset, vFp)
+GO(gst_audio_resampler_update, iFpiip)
 //GO(gst_audio_ring_buffer_acquire, 
 //GO(gst_audio_ring_buffer_activate, 
 //GO(gst_audio_ring_buffer_advance, 
@@ -228,27 +228,27 @@ GO(gst_audio_layout_get_type, pFv)
 //GO(gst_audio_ring_buffer_stop, 
 //GO(gst_audio_sink_get_type, 
 //GO(gst_audio_src_get_type, 
-//GO(gst_audio_stream_align_copy, 
+GO(gst_audio_stream_align_copy, pFp)
 //GO(gst_audio_stream_align_free, 
 //GO(gst_audio_stream_align_get_alignment_threshold, 
 //GO(gst_audio_stream_align_get_discont_wait, 
-//GO(gst_audio_stream_align_get_rate, 
-//GO(gst_audio_stream_align_get_samples_since_discont, 
-//GO(gst_audio_stream_align_get_timestamp_at_discont, 
+GO(gst_audio_stream_align_get_rate, iFp)
+GO(gst_audio_stream_align_get_samples_since_discont, LFp)
+GO(gst_audio_stream_align_get_timestamp_at_discont, LFp)
 //GO(gst_audio_stream_align_get_type, 
-//GO(gst_audio_stream_align_mark_discont, 
-//GO(gst_audio_stream_align_new, 
-//GO(gst_audio_stream_align_process, 
+GO(gst_audio_stream_align_mark_discont, vFp)
+GO(gst_audio_stream_align_new, pFiLL)
+GO(gst_audio_stream_align_process, iFpiLuppp)
 //GO(gst_audio_stream_align_set_alignment_threshold, 
-//GO(gst_audio_stream_align_set_discont_wait, 
-//GO(gst_audio_stream_align_set_rate, 
-//GO(gst_buffer_add_audio_clipping_meta, 
-//GO(gst_buffer_add_audio_downmix_meta, 
+GO(gst_audio_stream_align_set_discont_wait, vFpL)
+GO(gst_audio_stream_align_set_rate, vFpi)
+GO(gst_buffer_add_audio_clipping_meta, pFpuLL)
+GO(gst_buffer_add_audio_downmix_meta, pFppipip)
 //GO(gst_buffer_add_audio_meta, 
-//GO(gst_buffer_get_audio_downmix_meta_for_channels, 
-//GO(gst_stream_volume_convert_volume, 
-//GO(gst_stream_volume_get_mute, 
-//GO(gst_stream_volume_get_type, 
-//GO(gst_stream_volume_get_volume, 
-//GO(gst_stream_volume_set_mute, 
-//GO(gst_stream_volume_set_volume, 
+GO(gst_buffer_get_audio_downmix_meta_for_channels, pFppi)
+GO(gst_stream_volume_convert_volume, dFuud)
+GO(gst_stream_volume_get_mute, iFp)
+GO(gst_stream_volume_get_type, LFv)
+GO(gst_stream_volume_get_volume, dFpu)
+GO(gst_stream_volume_set_mute, vFpi)
+GO(gst_stream_volume_set_volume, vFpud)

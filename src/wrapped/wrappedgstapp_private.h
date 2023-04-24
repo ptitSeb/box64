@@ -7,7 +7,7 @@
 //GO(gst_app_sink_get_drop, 
 //GO(gst_app_sink_get_emit_signals, 
 //GO(gst_app_sink_get_max_buffers, 
-//GO(gst_app_sink_get_type, 
+GO(gst_app_sink_get_type, LFv)
 //GO(gst_app_sink_get_wait_on_eos, 
 //GO(gst_app_sink_is_eos, 
 //GO(gst_app_sink_pull_preroll, 

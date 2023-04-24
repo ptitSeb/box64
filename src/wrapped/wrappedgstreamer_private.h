@@ -2,7 +2,7 @@
 #error meh!
 #endif
 
-//GO(gst_allocation_params_copy, 
+GO(gst_allocation_params_copy, pFp)
 //GO(gst_allocation_params_free, 
 //GO(gst_allocation_params_get_type, 
 //GO(gst_allocation_params_init, 
@@ -25,10 +25,10 @@ GO(gst_bin_add, iFpp)
 //GOM(gst_bin_add_many, vFppV)
 GO(gst_bin_find_unlinked_pad, pFpi)
 GO(gst_bin_flags_get_type, pFv)
-GO(gst_bin_get_by_interface, pFpp)
+GO(gst_bin_get_by_interface, pFpL)
 GO(gst_bin_get_by_name, pFpp)
 GO(gst_bin_get_by_name_recurse_up, pFpp)
-GO(gst_bin_get_suppressed_flags, iFp)
+GO(gst_bin_get_suppressed_flags, uFp)
 GO(gst_bin_get_type, pFv)
 GO(gst_bin_iterate_all_by_element_factory_name, pFpp)
 GO(gst_bin_iterate_all_by_interface, pFpp)
@@ -41,7 +41,7 @@ GO(gst_bin_new, pFp)
 GO(gst_bin_recalculate_latency, iFp)
 GO(gst_bin_remove, iFpp)
 //GOM(gst_bin_remove_many, iFEppV)
-GO(gst_bin_set_suppressed_flags, vFpi)
+GO(gst_bin_set_suppressed_flags, vFpu)
 GO(gst_bin_sync_children_states, iFp)
 GO(gst_bitmask_get_type, pFv)
 DATAB(_gst_bitmask_type, sizeof(void*))
@@ -82,21 +82,21 @@ GO(gst_buffer_is_all_memory_writable, iFp)
 GO(gst_buffer_is_memory_range_writable, iFpui)
 GO(gst_buffer_iterate_meta, pFpp)
 GO(gst_buffer_iterate_meta_filtered, pFppp)
-//GO(gst_buffer_list_calculate_size, 
+GO(gst_buffer_list_calculate_size, LFp)
 //GO(gst_buffer_list_copy, 
-//GO(gst_buffer_list_copy_deep, 
+GO(gst_buffer_list_copy_deep, pFp)
 //GO(gst_buffer_list_foreach, 
 //GO(gst_buffer_list_get, 
 //GO(gst_buffer_list_get_type, 
 //GO(gst_buffer_list_get_writable, 
 //GO(gst_buffer_list_insert, 
-//GO(gst_buffer_list_length, 
-//GO(gst_buffer_list_new, 
-//GO(gst_buffer_list_new_sized, 
-//GO(gst_buffer_list_ref, 
-//GO(gst_buffer_list_remove, 
+GO(gst_buffer_list_length, uFp)
+GO(gst_buffer_list_new, pFv)
+GO(gst_buffer_list_new_sized, pFu)
+GO(gst_buffer_list_ref, pFp)
+GO(gst_buffer_list_remove, vFpuu)
 //GO(gst_buffer_list_replace, 
-//GO(gst_buffer_list_take, 
+GO(gst_buffer_list_take, iFpp)
 //DATAB(_gst_buffer_list_type, 
 //GO(gst_buffer_list_unref, 
 GO(gst_buffer_map, iFppi)
@@ -110,27 +110,27 @@ GO(gst_buffer_new_wrapped_bytes, pFp)
 GOM(gst_buffer_new_wrapped_full, pFEiplllpp)
 GO(gst_buffer_n_memory, uFp)
 GO(gst_buffer_peek_memory, pFpu)
-//GO(gst_buffer_pool_acquire_buffer, 
+GO(gst_buffer_pool_acquire_buffer, iFppp)
 //GO(gst_buffer_pool_acquire_flags_get_type, 
 GO(gst_buffer_pool_config_add_option, vFpp)
-//GO(gst_buffer_pool_config_get_allocator, 
-//GO(gst_buffer_pool_config_get_option, 
-//GO(gst_buffer_pool_config_get_params, 
-//GO(gst_buffer_pool_config_has_option, 
-//GO(gst_buffer_pool_config_n_options, 
+GO(gst_buffer_pool_config_get_allocator, iFppp)
+GO(gst_buffer_pool_config_get_option, pFpu)
+GO(gst_buffer_pool_config_get_params, iFppppp)
+GO(gst_buffer_pool_config_has_option, iFpp)
+GO(gst_buffer_pool_config_n_options, uFp)
 GO(gst_buffer_pool_config_set_allocator, vFppp)
 GO(gst_buffer_pool_config_set_params, vFppuuu)
 //GO(gst_buffer_pool_config_validate_params, 
 GO(gst_buffer_pool_get_config, pFp)
-//GO(gst_buffer_pool_get_options, 
+GO(gst_buffer_pool_get_options, pFp)
 //GO(gst_buffer_pool_get_type, 
-//GO(gst_buffer_pool_has_option, 
-//GO(gst_buffer_pool_is_active, 
-//GO(gst_buffer_pool_new, 
+GO(gst_buffer_pool_has_option, iFpp)
+GO(gst_buffer_pool_is_active, iFp)
+GO(gst_buffer_pool_new, pFv)
 //GO(gst_buffer_pool_release_buffer, 
 GO(gst_buffer_pool_set_active, iFpi)
 GO(gst_buffer_pool_set_config, iFpp)
-//GO(gst_buffer_pool_set_flushing, 
+GO(gst_buffer_pool_set_flushing, vFpi)
 GO(gst_buffer_prepend_memory, vFpp)
 GO(gst_buffer_ref, pFp)
 GO(gst_buffer_remove_all_memory, vFp)
@@ -175,7 +175,7 @@ GO(gst_bus_sync_reply_get_type, pFv)
 GO(gst_bus_sync_signal_handler, iFppp)
 GO(gst_bus_timed_pop, pFpU)
 GO(gst_bus_timed_pop_filtered, pFpUi)
-//GO(gst_calculate_linear_regression, 
+GO(gst_calculate_linear_regression, iFppuppppp)
 //DATAB(_gst_caps_any, 
 GO(gst_caps_append, vFpp)
 GO(gst_caps_append_structure, vFpp)
@@ -186,28 +186,28 @@ GO(gst_caps_copy_nth, pFpu)
 //GOM(gst_caps_features_add, vFEpBp)
 //GO(gst_caps_features_add_id, 
 //DATAB(_gst_caps_features_any, 
-//GO(gst_caps_features_contains, 
-//GO(gst_caps_features_contains_id, 
-//GO(gst_caps_features_copy, 
+GO(gst_caps_features_contains, iFpp)
+GO(gst_caps_features_contains_id, iFpu)
+GO(gst_caps_features_copy, pFp)
 //GO(gst_caps_features_free, 
-//GO(gst_caps_features_from_string, 
-//GO(gst_caps_features_get_nth, 
-//GO(gst_caps_features_get_nth_id, 
-//GO(gst_caps_features_get_size, 
+GO(gst_caps_features_from_string, pFp)
+GO(gst_caps_features_get_nth, pFpu)
+GO(gst_caps_features_get_nth_id, uFpu)
+GO(gst_caps_features_get_size, uFp)
 //GO(gst_caps_features_get_type, 
-//GO(gst_caps_features_is_any, 
-//GO(gst_caps_features_is_equal, 
+GO(gst_caps_features_is_any, iFp)
+GO(gst_caps_features_is_equal, iFpp)
 //DATAB(_gst_caps_features_memory_system_memory, 
 //GO(gst_caps_features_new, 
-//GO(gst_caps_features_new_any, 
+GO(gst_caps_features_new_any, pFv)
 //GO(gst_caps_features_new_empty, 
 //GO(gst_caps_features_new_id, 
 //GO(gst_caps_features_new_id_valist, 
 //GO(gst_caps_features_new_valist, 
-//GO(gst_caps_features_remove, 
-//GO(gst_caps_features_remove_id, 
-//GO(gst_caps_features_set_parent_refcount, 
-//GO(gst_caps_features_to_string, 
+GO(gst_caps_features_remove, vFpp)
+GO(gst_caps_features_remove_id, vFpu)
+GO(gst_caps_features_set_parent_refcount, iFpp)
+GO(gst_caps_features_to_string, pFp)
 //DATAB(_gst_caps_features_type, 
 //GO(gst_caps_filter_and_map_in_place, 
 GO(gst_caps_fixate, pFp)
@@ -292,85 +292,85 @@ GO(gst_caps_unref, vFp)
 //DATAB(GST_CAT_SIGNAL, 
 //DATAB(GST_CAT_STATES, 
 //GO(gst_child_proxy_child_added, 
-//GO(gst_child_proxy_child_removed, 
+GO(gst_child_proxy_child_removed, vFppp)
 //GO(gst_child_proxy_get, 
-//GO(gst_child_proxy_get_child_by_index, 
+GO(gst_child_proxy_get_child_by_index, pFpu)
 //GO(gst_child_proxy_get_child_by_name, 
-//GO(gst_child_proxy_get_children_count, 
-//GO(gst_child_proxy_get_property, 
+GO(gst_child_proxy_get_children_count, uFp)
+GO(gst_child_proxy_get_property, vFppp)
 //GO(gst_child_proxy_get_type, 
 //GO(gst_child_proxy_get_valist, 
-//GO(gst_child_proxy_lookup, 
+GO(gst_child_proxy_lookup, iFpppp)
 //GO(gst_child_proxy_set, 
-//GO(gst_child_proxy_set_property, 
+GO(gst_child_proxy_set_property, vFppp)
 //GO(gst_child_proxy_set_valist, 
 //GO(gst_clear_buffer, 
 //GO(gst_clear_buffer_list, 
 GO(gst_clear_caps, vFp)
 GO(gst_clear_event, vFp)
 GO(gst_clear_message, vFp)
-//GO(gst_clear_mini_object, 
+GO(gst_clear_mini_object, vFp)
 //GO(gst_clear_object, 
 GO(gst_clear_query, vFp)
 GO(gst_clear_structure, vFp)
 //GO(gst_clear_tag_list, 
 //GO(gst_clear_uri, 
-//GO(gst_clock_add_observation, 
-//GO(gst_clock_add_observation_unapplied, 
+GO(gst_clock_add_observation, iFpLLp)
+GO(gst_clock_add_observation_unapplied, iFpLLppppp)
 //GO(gst_clock_adjust_unlocked, 
 //GO(gst_clock_adjust_with_calibration, 
 //GO(gst_clock_entry_type_get_type, 
 //GO(gst_clock_flags_get_type, 
-//GO(gst_clock_get_calibration, 
-//GO(gst_clock_get_internal_time, 
-//GO(gst_clock_get_master, 
+GO(gst_clock_get_calibration, vFppppp)
+GO(gst_clock_get_internal_time, LFp)
+GO(gst_clock_get_master, pFp)
 //GO(gst_clock_get_resolution, 
 //GO(gst_clock_get_time, 
 //GO(gst_clock_get_timeout, 
 //GO(gst_clock_get_type, 
 //GO(gst_clock_id_compare_func, 
-//GO(gst_clock_id_get_clock, 
-//GO(gst_clock_id_get_time, 
-//GO(gst_clock_id_ref, 
+GO(gst_clock_id_get_clock, pFp)
+GO(gst_clock_id_get_time, LFp)
+GO(gst_clock_id_ref, pFp)
 //GO(gst_clock_id_unref, 
-//GO(gst_clock_id_unschedule, 
-//GO(gst_clock_id_uses_clock, 
-//GO(gst_clock_id_wait, 
+GO(gst_clock_id_unschedule, vFp)
+GO(gst_clock_id_uses_clock, iFpp)
+GO(gst_clock_id_wait, uFpp)
 //GO(gst_clock_id_wait_async, 
-//GO(gst_clock_is_synced, 
-//GO(gst_clock_new_periodic_id, 
-//GO(gst_clock_new_single_shot_id, 
-//GO(gst_clock_periodic_id_reinit, 
+GO(gst_clock_is_synced, iFp)
+GO(gst_clock_new_periodic_id, pFpLL)
+GO(gst_clock_new_single_shot_id, pFpL)
+GO(gst_clock_periodic_id_reinit, iFppLL)
 //GO(gst_clock_return_get_type, 
-//GO(gst_clock_set_calibration, 
-//GO(gst_clock_set_master, 
+GO(gst_clock_set_calibration, vFpLLLL)
+GO(gst_clock_set_master, iFpp)
 //GO(gst_clock_set_resolution, 
-//GO(gst_clock_set_synced, 
-//GO(gst_clock_set_timeout, 
-//GO(gst_clock_single_shot_id_reinit, 
+GO(gst_clock_set_synced, vFpi)
+GO(gst_clock_set_timeout, vFpL)
+GO(gst_clock_single_shot_id_reinit, iFppL)
 //GO(gst_clock_type_get_type, 
-//GO(gst_clock_unadjust_unlocked, 
-//GO(gst_clock_unadjust_with_calibration, 
-//GO(gst_clock_wait_for_sync, 
-//GO(gst_context_copy, 
-//GO(gst_context_get_context_type, 
-//GO(gst_context_get_structure, 
+GO(gst_clock_unadjust_unlocked, LFpL)
+GO(gst_clock_unadjust_with_calibration, LFpLLLLL)
+GO(gst_clock_wait_for_sync, iFpL)
+GO(gst_context_copy, pFp)
+GO(gst_context_get_context_type, pFp)
+GO(gst_context_get_structure, pFp)
 //GO(gst_context_get_type, 
-//GO(gst_context_has_context_type, 
-//GO(gst_context_is_persistent, 
+GO(gst_context_has_context_type, iFpp)
+GO(gst_context_is_persistent, iFp)
 GO(gst_context_new, pFpi)
-//GO(gst_context_ref, 
-//GO(gst_context_replace, 
+GO(gst_context_ref, pFp)
+GO(gst_context_replace, iFpp)
 //DATAB(_gst_context_type, 
 //GO(gst_context_unref, 
-//GO(gst_context_writable_structure, 
-//GO(gst_control_binding_get_g_value_array, 
+GO(gst_context_writable_structure, pFp)
+GO(gst_control_binding_get_g_value_array, iFpLLup)
 //GO(gst_control_binding_get_type, 
-//GO(gst_control_binding_get_value, 
-//GO(gst_control_binding_get_value_array, 
-//GO(gst_control_binding_is_disabled, 
-//GO(gst_control_binding_set_disabled, 
-//GO(gst_control_binding_sync_values, 
+GO(gst_control_binding_get_value, pFpL)
+GO(gst_control_binding_get_value_array, iFpLLup)
+GO(gst_control_binding_is_disabled, iFp)
+GO(gst_control_binding_set_disabled, vFpi)
+GO(gst_control_binding_sync_values, iFppLL)
 //GO(gst_control_source_get_type, 
 //GO(gst_control_source_get_value, 
 //GO(gst_control_source_get_value_array, 
@@ -378,68 +378,68 @@ GO(gst_context_new, pFpi)
 //GO(gst_core_error_quark, 
 //GO(gst_date_time_get_day, 
 //GO(gst_date_time_get_hour, 
-//GO(gst_date_time_get_microsecond, 
+GO(gst_date_time_get_microsecond, iFp)
 //GO(gst_date_time_get_minute, 
 //GO(gst_date_time_get_month, 
 //GO(gst_date_time_get_second, 
-//GO(gst_date_time_get_time_zone_offset, 
+GO(gst_date_time_get_time_zone_offset, fFp)
 //GO(gst_date_time_get_type, 
 //GO(gst_date_time_get_year, 
 //GO(gst_date_time_has_day, 
 //GO(gst_date_time_has_month, 
-//GO(gst_date_time_has_second, 
+GO(gst_date_time_has_second, iFp)
 //GO(gst_date_time_has_time, 
 //GO(gst_date_time_has_year, 
-//GO(gst_date_time_new, 
-//GO(gst_date_time_new_from_g_date_time, 
-//GO(gst_date_time_new_from_iso8601_string, 
+GO(gst_date_time_new, pFfiiiiid)
+GO(gst_date_time_new_from_g_date_time, pFp)
+GO(gst_date_time_new_from_iso8601_string, pFp)
 //GO(gst_date_time_new_from_unix_epoch_local_time, 
 //GO(gst_date_time_new_from_unix_epoch_local_time_usecs, 
 //GO(gst_date_time_new_from_unix_epoch_utc, 
-//GO(gst_date_time_new_from_unix_epoch_utc_usecs, 
-//GO(gst_date_time_new_local_time, 
+GO(gst_date_time_new_from_unix_epoch_utc_usecs, pFl)
+GO(gst_date_time_new_local_time, pFiiiiid)
 //GO(gst_date_time_new_now_local_time, 
-//GO(gst_date_time_new_now_utc, 
-//GO(gst_date_time_new_y, 
-//GO(gst_date_time_new_ym, 
-//GO(gst_date_time_new_ymd, 
-//GO(gst_date_time_ref, 
-//GO(gst_date_time_to_g_date_time, 
-//GO(gst_date_time_to_iso8601_string, 
+GO(gst_date_time_new_now_utc, pFv)
+GO(gst_date_time_new_y, pFi)
+GO(gst_date_time_new_ym, pFii)
+GO(gst_date_time_new_ymd, pFiii)
+GO(gst_date_time_ref, pFp)
+GO(gst_date_time_to_g_date_time, pFp)
+GO(gst_date_time_to_iso8601_string, pFp)
 //DATAB(_gst_date_time_type, 
 //GO(gst_date_time_unref, 
 //GO(gst_debug_add_log_function, 
-//GO(gst_debug_add_ring_buffer_logger, 
-//GO(gst_debug_bin_to_dot_data, 
+GO(gst_debug_add_ring_buffer_logger, vFuu)
+GO(gst_debug_bin_to_dot_data, pFpi)
 //GO(gst_debug_bin_to_dot_file, 
-//GO(gst_debug_bin_to_dot_file_with_ts, 
+GO(gst_debug_bin_to_dot_file_with_ts, vFpip)
 //GO(gst_debug_category_free, 
-//GO(gst_debug_category_get_color, 
-//GO(gst_debug_category_get_description, 
+GO(gst_debug_category_get_color, uFp)
+GO(gst_debug_category_get_description, pFp)
 //GO(gst_debug_category_get_name, 
-GO(gst_debug_category_get_threshold, iFp)
-GO(_gst_debug_category_new, pFppp)
-//GO(gst_debug_category_reset_threshold, 
-//GO(gst_debug_category_set_threshold, 
+GO(gst_debug_category_get_threshold, uFp)
+GO(_gst_debug_category_new, pFpup)
+GO(gst_debug_category_reset_threshold, vFp)
+GO(gst_debug_category_set_threshold, vFpu)
 //GO(gst_debug_color_flags_get_type, 
 //GO(gst_debug_color_mode_get_type, 
-//GO(gst_debug_construct_term_color, 
-//GO(gst_debug_construct_win_color, 
-//GO(_gst_debug_dump_mem, 
+GO(gst_debug_construct_term_color, pFu)
+GO(gst_debug_construct_win_color, iFu)
+GO(_gst_debug_dump_mem, vFpppipppu)
 //DATAB(_gst_debug_enabled, 
-//GO(gst_debug_get_all_categories, 
-//GO(_gst_debug_get_category, 
-//GO(gst_debug_get_color_mode, 
-//GO(gst_debug_get_default_threshold, 
-//GO(gst_debug_get_stack_trace, 
+GO(gst_debug_get_all_categories, pFv)
+GO(_gst_debug_get_category, pFp)
+GO(gst_debug_get_color_mode, uFv)
+GO(gst_debug_get_default_threshold, uFv)
+GO(gst_debug_get_stack_trace, pFu)
 //GO(gst_debug_graph_details_get_type, 
 //GO(gst_debug_is_active, 
 //GO(gst_debug_is_colored, 
-//GO(gst_debug_level_get_name, 
+GO(gst_debug_level_get_name, pFu)
 //GO(gst_debug_level_get_type, 
 GOM(gst_debug_log, vFEpippippV)
-//GO(gst_debug_log_default, 
-//GO(gst_debug_log_get_line, 
+GO(gst_debug_log_default, vFpuppippp)
+GO(gst_debug_log_get_line, pFpuppipp)
 GOM(gst_debug_log_valist, vFEpippippA)
 //GO(gst_debug_message_get, 
 DATAB(_gst_debug_min, sizeof(int))
@@ -447,35 +447,35 @@ DATAB(_gst_debug_min, sizeof(int))
 //GO(gst_debug_print_stack_trace, 
 //GO(_gst_debug_register_funcptr, 
 //GO(gst_debug_remove_log_function, 
-//GO(gst_debug_remove_log_function_by_data, 
+GO(gst_debug_remove_log_function_by_data, uFp)
 //GO(gst_debug_remove_ring_buffer_logger, 
-//GO(gst_debug_ring_buffer_logger_get_logs, 
+GO(gst_debug_ring_buffer_logger_get_logs, pFv)
 //GO(gst_debug_set_active, 
 //GO(gst_debug_set_colored, 
-//GO(gst_debug_set_color_mode, 
+GO(gst_debug_set_color_mode, vFu)
 //GO(gst_debug_set_color_mode_from_string, 
-//GO(gst_debug_set_default_threshold, 
-//GO(gst_debug_set_threshold_for_name, 
-//GO(gst_debug_set_threshold_from_string, 
-//GO(gst_debug_unset_threshold_for_name, 
+GO(gst_debug_set_default_threshold, vFu)
+GO(gst_debug_set_threshold_for_name, vFpu)
+GO(gst_debug_set_threshold_from_string, vFpi)
+GO(gst_debug_unset_threshold_for_name, vFp)
 GO(gst_deinit, vFv)
-//GO(gst_device_create_element, 
+GO(gst_device_create_element, pFpp)
 //GO(gst_device_get_caps, 
-//GO(gst_device_get_device_class, 
+GO(gst_device_get_device_class, pFp)
 //GO(gst_device_get_display_name, 
-//GO(gst_device_get_properties, 
+GO(gst_device_get_properties, pFp)
 //GO(gst_device_get_type, 
-//GO(gst_device_has_classes, 
-//GO(gst_device_has_classesv, 
+GO(gst_device_has_classes, iFpp)
+GO(gst_device_has_classesv, iFpp)
 //GO(gst_device_monitor_add_filter, 
-//GO(gst_device_monitor_get_bus, 
-//GO(gst_device_monitor_get_devices, 
-//GO(gst_device_monitor_get_providers, 
-//GO(gst_device_monitor_get_show_all_devices, 
+GO(gst_device_monitor_get_bus, pFp)
+GO(gst_device_monitor_get_devices, pFp)
+GO(gst_device_monitor_get_providers, pFp)
+GO(gst_device_monitor_get_show_all_devices, iFp)
 //GO(gst_device_monitor_get_type, 
-//GO(gst_device_monitor_new, 
-//GO(gst_device_monitor_remove_filter, 
-//GO(gst_device_monitor_set_show_all_devices, 
+GO(gst_device_monitor_new, pFv)
+GO(gst_device_monitor_remove_filter, iFpu)
+GO(gst_device_monitor_set_show_all_devices, vFpi)
 //GO(gst_device_monitor_start, 
 //GO(gst_device_monitor_stop, 
 //GO(gst_device_provider_can_monitor, 
@@ -485,42 +485,42 @@ GO(gst_deinit, vFv)
 //GO(gst_device_provider_class_set_metadata, 
 //GO(gst_device_provider_class_set_static_metadata, 
 //GO(gst_device_provider_device_add, 
-//GO(gst_device_provider_device_changed, 
-//GO(gst_device_provider_device_remove, 
-//GO(gst_device_provider_factory_find, 
-//GO(gst_device_provider_factory_get, 
-//GO(gst_device_provider_factory_get_by_name, 
-//GO(gst_device_provider_factory_get_device_provider_type, 
-//GO(gst_device_provider_factory_get_metadata, 
-//GO(gst_device_provider_factory_get_metadata_keys, 
+GO(gst_device_provider_device_changed, vFppp)
+GO(gst_device_provider_device_remove, vFpp)
+GO(gst_device_provider_factory_find, pFp)
+GO(gst_device_provider_factory_get, pFp)
+GO(gst_device_provider_factory_get_by_name, pFp)
+GO(gst_device_provider_factory_get_device_provider_type, LFp)
+GO(gst_device_provider_factory_get_metadata, pFpp)
+GO(gst_device_provider_factory_get_metadata_keys, pFp)
 //GO(gst_device_provider_factory_get_type, 
-//GO(gst_device_provider_factory_has_classes, 
-//GO(gst_device_provider_factory_has_classesv, 
-//GO(gst_device_provider_factory_list_get_device_providers, 
-//GO(gst_device_provider_get_bus, 
-//GO(gst_device_provider_get_devices, 
-//GO(gst_device_provider_get_factory, 
-//GO(gst_device_provider_get_hidden_providers, 
-//GO(gst_device_provider_get_metadata, 
+GO(gst_device_provider_factory_has_classes, iFpp)
+GO(gst_device_provider_factory_has_classesv, iFpp)
+GO(gst_device_provider_factory_list_get_device_providers, pFu)
+GO(gst_device_provider_get_bus, pFp)
+GO(gst_device_provider_get_devices, pFp)
+GO(gst_device_provider_get_factory, pFp)
+GO(gst_device_provider_get_hidden_providers, pFp)
+GO(gst_device_provider_get_metadata, pFpp)
 //GO(gst_device_provider_get_type, 
 //GO(gst_device_provider_hide_provider, 
-//GO(gst_device_provider_register, 
+GO(gst_device_provider_register, iFppuL)
 //GO(gst_device_provider_start, 
 //GO(gst_device_provider_stop, 
-//GO(gst_device_provider_unhide_provider, 
-//GO(gst_device_reconfigure_element, 
+GO(gst_device_provider_unhide_provider, vFpp)
+GO(gst_device_reconfigure_element, iFpp)
 //DATAB(_gst_disable_registry_cache, 
 //GO(gst_double_range_get_type, 
 //DATAB(_gst_double_range_type, 
 //GO(gst_dynamic_type_factory_get_type, 
-//GO(gst_dynamic_type_factory_load, 
-//GO(gst_dynamic_type_register, 
+GO(gst_dynamic_type_factory_load, LFp)
+GO(gst_dynamic_type_register, iFpL)
 GO(gst_element_abort_state, vFp)
 GO(gst_element_add_pad, iFpp)
 GO(gst_element_add_property_deep_notify_watch, LFppi)
 GO(gst_element_add_property_notify_watch, LFppi)
 //GOM(gst_element_call_async, vFEpBpB)
-GO(gst_element_change_state, iFpi)
+GO(gst_element_change_state, uFpu)
 GO(gst_element_class_add_metadata, vFppp)
 GO(gst_element_class_add_pad_template, vFpp)
 GO(gst_element_class_add_static_metadata, vFppp)
@@ -531,7 +531,7 @@ GO(gst_element_class_get_pad_template, pFpp)
 GO(gst_element_class_get_pad_template_list, pFp)
 GO(gst_element_class_set_metadata, vFppppp)
 GO(gst_element_class_set_static_metadata, vFppppp)
-GO(gst_element_continue_state, iFpi)
+GO(gst_element_continue_state, uFpu)
 //GOM(gst_element_create_all_pads, iFEpBp)
 //GO(_gst_element_error_printf, 
 GO(gst_element_factory_can_sink_all_caps, iFpp)
@@ -540,18 +540,18 @@ GO(gst_element_factory_can_src_all_caps, iFpp)
 GO(gst_element_factory_can_src_any_caps, iFpp)
 GO(gst_element_factory_create, pFpp)
 GO(gst_element_factory_find, pFp)
-GO(gst_element_factory_get_element_type, pFp)
+GO(gst_element_factory_get_element_type, LFp)
 GO(gst_element_factory_get_metadata, pFpp)
 GO(gst_element_factory_get_metadata_keys, pFp)
 GO(gst_element_factory_get_num_pad_templates, uFp)
 GO(gst_element_factory_get_static_pad_templates, pFp)
 GO(gst_element_factory_get_type, pFv)
 GO(gst_element_factory_get_uri_protocols, pFp)
-GO(gst_element_factory_get_uri_type, iFp)
+GO(gst_element_factory_get_uri_type, uFp)
 GO(gst_element_factory_has_interface, iFpp)
 GO(gst_element_factory_list_filter, pFppii)
-GO(gst_element_factory_list_get_elements, pFpi)
-GO(gst_element_factory_list_is_type, iFpi)
+GO(gst_element_factory_list_get_elements, pFLu)
+GO(gst_element_factory_list_is_type, iFpL)
 GO(gst_element_factory_make, pFpp)
 GO(gst_element_flags_get_type, pFv)
 //GOM(gst_element_foreach_pad, iFEpBp)
@@ -565,7 +565,7 @@ GO(gst_element_get_compatible_pad_template, pFpp)
 GO(gst_element_get_context, pFpp)
 GO(gst_element_get_contexts, pFp)
 GO(gst_element_get_context_unlocked, pFpp)
-GO(gst_element_get_current_clock_time, UFp)
+GO(gst_element_get_current_clock_time, LFp)
 GO(gst_element_get_current_running_time, UFp)
 GO(gst_element_get_factory, pFp)
 GO(gst_element_get_metadata, pFpp)
@@ -573,7 +573,7 @@ GO(gst_element_get_pad_template, pFpp)
 GO(gst_element_get_pad_template_list, pFp)
 //GO(gst_element_get_request_pad, 
 GO(gst_element_get_start_time, UFp)
-GO(gst_element_get_state, iFpppU)
+GO(gst_element_get_state, uFpppL)
 GO(gst_element_get_static_pad, pFpp)
 GO(gst_element_get_type, pFv)
 GO(gst_element_is_locked_state, iFp)
@@ -585,40 +585,40 @@ GO(gst_element_link_filtered, iFppp)
 //GOM(gst_element_link_many, iFEppV)
 GO(gst_element_link_pads, iFpppp)
 GO(gst_element_link_pads_filtered, iFppppp)
-GO(gst_element_link_pads_full, iFppppi)
+GO(gst_element_link_pads_full, iFppppu)
 GO(gst_element_lost_state, vFp)
-GO(gst_element_make_from_uri, pFpppp)
-GO(gst_element_message_full, vFpipippppi)
-GO(gst_element_message_full_with_details, vFpipippppip)
+GO(gst_element_make_from_uri, pFuppp)
+GO(gst_element_message_full, vFpiuippppi)
+GO(gst_element_message_full_with_details, vFpiuippppip)
 GO(gst_element_no_more_pads, vFp)
 GO(gst_element_post_message, iFpp)
 GO(gst_element_provide_clock, pFp)
 GO(gst_element_query, iFpp)
-GO(gst_element_query_convert, iFpiIip)
-GO(gst_element_query_duration, iFpip)
+GO(gst_element_query_convert, iFpulup)
+GO(gst_element_query_duration, iFpup)
 GO(gst_element_query_position, iFpip)
 GO(gst_element_register, iFppup)
 GO(gst_element_release_request_pad, vFpp)
 GO(gst_element_remove_pad, iFpp)
 GO(gst_element_remove_property_notify_watch, vFpL)
 GO(gst_element_request_pad, pFpppp)
-GO(gst_element_seek, iFpdiiiIiI)
-GO(gst_element_seek_simple, iFpiiI)
+GO(gst_element_seek, iFpduuulul)
+GO(gst_element_seek_simple, iFpuul)
 GO(gst_element_send_event, iFpp)
 GO(gst_element_set_base_time, vFpU)
 GO(gst_element_set_bus, vFpp)
 GO(gst_element_set_clock, iFpp)
 GO(gst_element_set_context, vFpp)
 GO(gst_element_set_locked_state, iFpi)
-GO(gst_element_set_start_time, vFpU)
-GO(gst_element_set_state, iFpi)
-GO(gst_element_state_change_return_get_name, pFi)
-GO(gst_element_state_get_name, pFi)
+GO(gst_element_set_start_time, vFpL)
+GO(gst_element_set_state, uFpu)
+GO(gst_element_state_change_return_get_name, pFu)
+GO(gst_element_state_get_name, pFu)
 GO(gst_element_sync_state_with_parent, iFp)
 GO(gst_element_unlink, vFpp)
 //GOM(gst_element_unlink_many, vFEppV)
 GO(gst_element_unlink_pads, vFpppp)
-//GO(gst_error_get_message, 
+GO(gst_error_get_message, pFui)
 GO(gst_event_copy, pFp)
 GO(gst_event_copy_segment, vFpp)
 GO(gst_event_get_running_time_offset, IFp)
@@ -690,28 +690,28 @@ GO(gst_event_steal, pFp)
 GO(gst_event_take, iFpp)
 //DATAB(_gst_event_type, 
 GO(gst_event_type_flags_get_type, pFv)
-GO(gst_event_type_get_flags, iFp)
-GO(gst_event_type_get_name, pFi)
+GO(gst_event_type_get_flags, uFu)
+GO(gst_event_type_get_name, pFu)
 GO(gst_event_type_get_type, pFv)
-GO(gst_event_type_to_quark, pFi)
+GO(gst_event_type_to_quark, uFu)
 GO(gst_event_unref, vFp)
 GO(gst_event_writable_structure, pFp)
 //DATAB(_gst_executable_path, 
-//GO(gst_filename_to_uri, 
+GO(gst_filename_to_uri, pFpp)
 //GO(gst_flagset_get_type, 
-//GO(gst_flagset_register, 
+GO(gst_flagset_register, LFL)
 //DATAB(_gst_flagset_type, 
 GO(gst_flow_get_name, pFi)
 GO(gst_flow_return_get_type, pFv)
-GO(gst_flow_to_quark, pFi)
-GO(gst_format_get_by_nick, iFp)
-GO(gst_format_get_details, pFi)
-GO(gst_format_get_name, pFi)
+GO(gst_flow_to_quark, uFi)
+GO(gst_format_get_by_nick, uFp)
+GO(gst_format_get_details, pFu)
+GO(gst_format_get_name, pFu)
 GO(gst_format_get_type, pFv)
 GO(gst_format_iterate_definitions, pFv)
-GO(gst_format_register, iFpp)
-GO(gst_formats_contains, iFpi)
-GO(gst_format_to_quark, pFi)
+GO(gst_format_register, uFpp)
+GO(gst_formats_contains, iFpu)
+GO(gst_format_to_quark, uFu)
 GO(gst_fraction_get_type, pFv)
 GO(gst_fraction_range_get_type, pFv)
 //DATAB(_gst_fraction_range_type, 
@@ -738,7 +738,7 @@ GO(gst_init_get_option_group, pFv)
 //DATAB(_gst_int64_range_type, 
 //GO(gst_int_range_get_type, 
 //DATAB(_gst_int_range_type, 
-//GO(gst_is_caps_features, 
+GO(gst_is_caps_features, iFp)
 GO(gst_is_initialized, iFv)
 //GO(gst_iterator_copy, 
 //GO(gst_iterator_filter, 
@@ -881,12 +881,12 @@ GO(gst_message_take, iFpp)
 //DATAB(_gst_message_type, 
 GO(gst_message_type_get_name, pFi)
 GO(gst_message_type_get_type, pFv)
-GO(gst_message_type_to_quark, pFi)
+GO(gst_message_type_to_quark, uFi)
 GO(gst_message_unref, vFp)
 GO(gst_message_writable_structure, pFp)
-//GO(gst_meta_api_type_get_tags, 
-//GO(gst_meta_api_type_has_tag, 
-//GO(gst_meta_api_type_register, 
+GO(gst_meta_api_type_get_tags, pFL)
+GO(gst_meta_api_type_has_tag, iFLu)
+GO(gst_meta_api_type_register, LFpp)
 //GO(gst_meta_compare_seqnum, 
 //GO(gst_meta_flags_get_type, 
 //GO(gst_meta_get_info, 
@@ -919,14 +919,14 @@ GO(gst_object_default_deep_notify, vFpppp)
 GO(gst_object_default_error, vFppp)
 GO(gst_object_flags_get_type, pFv)
 GO(gst_object_get_control_binding, pFpp)
-GO(gst_object_get_control_rate, UFp)
-GO(gst_object_get_g_value_array, iFppUUup)
+GO(gst_object_get_control_rate, LFp)
+GO(gst_object_get_g_value_array, iFppLLup)
 GO(gst_object_get_name, pFp)
 GO(gst_object_get_parent, pFp)
 GO(gst_object_get_path_string, pFp)
 GO(gst_object_get_type, pFv)
-GO(gst_object_get_value, pFppU)
-GO(gst_object_get_value_array, iFppUUup)
+GO(gst_object_get_value, pFppL)
+GO(gst_object_get_value_array, iFppLLup)
 GO(gst_object_has_active_control_bindings, iFp)
 GO(gst_object_has_ancestor, iFpp)
 GO(gst_object_has_as_ancestor, iFpp)
@@ -936,12 +936,12 @@ GO(gst_object_ref_sink, pFp)
 GO(gst_object_remove_control_binding, iFpp)
 GO(gst_object_replace, iFpp)
 GO(gst_object_set_control_binding_disabled, vFppi)
-GO(gst_object_set_control_bindings_disabled, vFpp)
-GO(gst_object_set_control_rate, vFpU)
+GO(gst_object_set_control_bindings_disabled, vFpi)
+GO(gst_object_set_control_rate, vFpL)
 GO(gst_object_set_name, iFpp)
 GO(gst_object_set_parent, iFpp)
 GO(gst_object_suggest_next_sync, UFp)
-GO(gst_object_sync_values, iFpU)
+GO(gst_object_sync_values, iFpL)
 GO(gst_object_unparent, vFp)
 GO(gst_object_unref, vFp)
 GO(gst_pad_activate_mode, iFpii)
@@ -984,12 +984,12 @@ GO(gst_pad_iterate_internal_links_default, pFpp)
 GO(gst_pad_link, iFpp)
 GO(gst_pad_link_check_get_type, pFv)
 GO(gst_pad_link_full, iFppi)
-GO(gst_pad_link_get_name, pFp)
+GO(gst_pad_link_get_name, pFi)
 GO(gst_pad_link_maybe_ghosting, iFpp)
 GO(gst_pad_link_maybe_ghosting_full, iFppi)
 GO(gst_pad_link_return_get_type, pFv)
 GO(gst_pad_mark_reconfigure, vFp)
-GO(gst_pad_mode_get_name, pFi)
+GO(gst_pad_mode_get_name, pFu)
 GO(gst_pad_mode_get_type, pFv)
 GO(gst_pad_needs_reconfigure, iFp)
 GO(gst_pad_new, pFpi)
@@ -1004,7 +1004,7 @@ GO(gst_pad_peer_query_duration, iFpip)
 GO(gst_pad_peer_query_position, iFpip)
 GO(gst_pad_presence_get_type, pFv)
 //GO(gst_pad_probe_info_get_buffer, 
-//GO(gst_pad_probe_info_get_buffer_list, 
+GO(gst_pad_probe_info_get_buffer_list, pFp)
 //GO(gst_pad_probe_info_get_event, 
 //GO(gst_pad_probe_info_get_query, 
 //GO(gst_pad_probe_return_get_type, 
@@ -1053,113 +1053,113 @@ GO(gst_pad_template_new, pFpiip)
 //GO(gst_pad_template_set_documentation_caps, 
 GO(gst_pad_unlink, iFpp)
 GO(gst_pad_use_fixed_caps, vFp)
-//GO(gst_param_spec_array, 
+GO(gst_param_spec_array, pFppppi)
 //GO(gst_param_spec_array_get_type, 
-//GO(gst_param_spec_fraction, 
+GO(gst_param_spec_fraction, pFpppiiiiiii)
 //GO(gst_param_spec_fraction_get_type, 
 //GO(gst_parent_buffer_meta_api_get_type, 
 //GO(gst_parent_buffer_meta_get_info, 
-//GO(gst_parse_bin_from_description, 
-//GO(gst_parse_bin_from_description_full, 
-//GO(gst_parse_context_copy, 
+GO(gst_parse_bin_from_description, pFpip)
+GO(gst_parse_bin_from_description_full, pFpipup)
+GO(gst_parse_context_copy, pFp)
 //GO(gst_parse_context_free, 
-//GO(gst_parse_context_get_missing_elements, 
-//GO(gst_parse_context_get_type, 
-//GO(gst_parse_context_new, 
+GO(gst_parse_context_get_missing_elements, pFp)
+GO(gst_parse_context_get_type, LFv)
+GO(gst_parse_context_new, pFv)
 //GO(gst_parse_error_get_type, 
-//GO(gst_parse_error_quark, 
+GO(gst_parse_error_quark, uFv)
 //GO(gst_parse_flags_get_type, 
-//GO(gst_parse_launch, 
-//GO(gst_parse_launch_full, 
-//GO(gst_parse_launchv, 
-//GO(gst_parse_launchv_full, 
+GO(gst_parse_launch, pFpp)
+GO(gst_parse_launch_full, pFppup)
+GO(gst_parse_launchv, pFpp)
+GO(gst_parse_launchv_full, pFppup)
 //GO(gst_pipeline_auto_clock, 
 //GO(gst_pipeline_flags_get_type, 
-//GO(gst_pipeline_get_auto_flush_bus, 
-//GO(gst_pipeline_get_bus, 
+GO(gst_pipeline_get_auto_flush_bus, iFp)
+GO(gst_pipeline_get_bus, pFp)
 //GO(gst_pipeline_get_clock, 
 //GO(gst_pipeline_get_delay, 
-//GO(gst_pipeline_get_latency, 
-//GO(gst_pipeline_get_pipeline_clock, 
+GO(gst_pipeline_get_latency, LFp)
+GO(gst_pipeline_get_pipeline_clock, pFp)
 //GO(gst_pipeline_get_type, 
-//GO(gst_pipeline_new, 
-//GO(gst_pipeline_set_auto_flush_bus, 
-//GO(gst_pipeline_set_clock, 
+GO(gst_pipeline_new, pFp)
+GO(gst_pipeline_set_auto_flush_bus, vFpi)
+GO(gst_pipeline_set_clock, iFpp)
 //GO(gst_pipeline_set_delay, 
-//GO(gst_pipeline_set_latency, 
-//GO(gst_pipeline_use_clock, 
-//GO(gst_plugin_add_dependency, 
-//GO(gst_plugin_add_dependency_simple, 
+GO(gst_pipeline_set_latency, vFpL)
+GO(gst_pipeline_use_clock, vFpp)
+GO(gst_plugin_add_dependency, vFppppu)
+GO(gst_plugin_add_dependency_simple, vFppppu)
 //GO(gst_plugin_api_flags_get_type, 
 //GO(gst_plugin_dependency_flags_get_type, 
 //GO(gst_plugin_error_get_type, 
 //GO(gst_plugin_error_quark, 
-//GO(gst_plugin_feature_check_version, 
-//GO(gst_plugin_feature_get_plugin, 
-//GO(gst_plugin_feature_get_plugin_name, 
+GO(gst_plugin_feature_check_version, iFpuuu)
+GO(gst_plugin_feature_get_plugin, pFp)
+GO(gst_plugin_feature_get_plugin_name, pFp)
 GO(gst_plugin_feature_get_rank, uFp)
 GO(gst_plugin_feature_get_type, LFv)
-//GO(gst_plugin_feature_list_copy, 
-//GO(gst_plugin_feature_list_debug, 
+GO(gst_plugin_feature_list_copy, pFp)
+GO(gst_plugin_feature_list_debug, vFp)
 GO(gst_plugin_feature_list_free, vFp)
-//GO(gst_plugin_feature_load, 
+GO(gst_plugin_feature_load, pFp)
 GO(gst_plugin_feature_rank_compare_func, iFpp)
-//GO(gst_plugin_feature_set_rank, 
+GO(gst_plugin_feature_set_rank, vFpu)
 //GO(gst_plugin_flags_get_type, 
-//GO(gst_plugin_get_cache_data, 
+GO(gst_plugin_get_cache_data, pFp)
 //GO(gst_plugin_get_description, 
 //GO(gst_plugin_get_filename, 
 //GO(gst_plugin_get_license, 
 //GO(gst_plugin_get_name, 
 //GO(gst_plugin_get_origin, 
 //GO(gst_plugin_get_package, 
-//GO(gst_plugin_get_release_date_string, 
+GO(gst_plugin_get_release_date_string, pFp)
 //GO(gst_plugin_get_source, 
 //GO(gst_plugin_get_type, 
 //GO(gst_plugin_get_version, 
-//GO(gst_plugin_is_loaded, 
+GO(gst_plugin_is_loaded, iFp)
 //GO(gst_plugin_list_free, 
-//GO(gst_plugin_load, 
-//GO(gst_plugin_load_by_name, 
+GO(gst_plugin_load, pFp)
+GO(gst_plugin_load_by_name, pFp)
 //GO(_gst_plugin_loader_client_run, 
-//GO(gst_plugin_load_file, 
+GO(gst_plugin_load_file, pFpp)
 //GO(gst_plugin_register_static, 
 //GO(gst_plugin_register_static_full, 
-//GO(gst_plugin_set_cache_data, 
+GO(gst_plugin_set_cache_data, vFpp)
 //GO(gst_poll_add_fd, 
 //GO(gst_poll_fd_can_read, 
 //GO(gst_poll_fd_can_write, 
-//GO(gst_poll_fd_ctl_pri, 
+GO(gst_poll_fd_ctl_pri, iFppi)
 //GO(gst_poll_fd_ctl_read, 
 //GO(gst_poll_fd_ctl_write, 
 //GO(gst_poll_fd_has_closed, 
 //GO(gst_poll_fd_has_error, 
-//GO(gst_poll_fd_has_pri, 
-//GO(gst_poll_fd_ignored, 
-//GO(gst_poll_fd_init, 
+GO(gst_poll_fd_has_pri, iFpp)
+GO(gst_poll_fd_ignored, vFpp)
+GO(gst_poll_fd_init, vFp)
 //GO(gst_poll_free, 
-//GO(gst_poll_get_read_gpollfd, 
-//GO(gst_poll_new, 
-//GO(gst_poll_new_timer, 
-//GO(gst_poll_read_control, 
-//GO(gst_poll_remove_fd, 
-//GO(gst_poll_restart, 
-//GO(gst_poll_set_controllable, 
-//GO(gst_poll_set_flushing, 
-//GO(gst_poll_wait, 
+GO(gst_poll_get_read_gpollfd, vFpp)
+GO(gst_poll_new, pFi)
+GO(gst_poll_new_timer, pFv)
+GO(gst_poll_read_control, iFp)
+GO(gst_poll_remove_fd, iFpp)
+GO(gst_poll_restart, vFp)
+GO(gst_poll_set_controllable, iFpi)
+GO(gst_poll_set_flushing, vFpi)
+GO(gst_poll_wait, iFpL)
 //GO(gst_poll_write_control, 
-//GO(gst_preset_delete_preset, 
+GO(gst_preset_delete_preset, iFpp)
 //GO(gst_preset_get_app_dir, 
-//GO(gst_preset_get_meta, 
+GO(gst_preset_get_meta, iFpppp)
 //GO(gst_preset_get_preset_names, 
-//GO(gst_preset_get_property_names, 
+GO(gst_preset_get_property_names, pFp)
 //GO(gst_preset_get_type, 
-//GO(gst_preset_is_editable, 
+GO(gst_preset_is_editable, iFp)
 //GO(gst_preset_load_preset, 
-//GO(gst_preset_rename_preset, 
+GO(gst_preset_rename_preset, iFppp)
 //GO(gst_preset_save_preset, 
-//GO(gst_preset_set_app_dir, 
-//GO(gst_preset_set_meta, 
+GO(gst_preset_set_app_dir, iFp)
+GO(gst_preset_set_meta, iFpppp)
 //GO(gst_print, 
 //GO(gst_printerr, 
 //GO(gst_printerrln, 
@@ -1176,10 +1176,10 @@ GO(gst_plugin_feature_rank_compare_func, iFpp)
 //GO(gst_promise_result_get_type, 
 //GO(gst_promise_unref, 
 //GO(gst_promise_wait, 
-//GO(gst_protection_filter_systems_by_available_decryptors, 
+GO(gst_protection_filter_systems_by_available_decryptors, pFp)
 //GO(gst_protection_meta_api_get_type, 
 //GO(gst_protection_meta_get_info, 
-//GO(gst_protection_select_system, 
+GO(gst_protection_select_system, pFp)
 //GO(gst_proxy_pad_chain_default, 
 //GO(gst_proxy_pad_chain_list_default, 
 //GO(gst_proxy_pad_get_internal, 
@@ -1277,35 +1277,35 @@ GO(gst_query_set_uri_redirection_permanent, vFpi)
 GO(gst_query_take, iFpp)
 //DATAB(_gst_query_type, 
 GO(gst_query_type_flags_get_type, pFv)
-GO(gst_query_type_get_flags, iFi)
-GO(gst_query_type_get_name, pFi)
+GO(gst_query_type_get_flags, uFu)
+GO(gst_query_type_get_name, pFu)
 GO(gst_query_type_get_type, pFv)
-GO(gst_query_type_to_quark, pFi)
+GO(gst_query_type_to_quark, uFu)
 GO(gst_query_unref, vFp)
 GO(gst_query_writable_structure, pFp)
 //GO(gst_rank_get_type, 
 //GO(gst_reference_timestamp_meta_api_get_type, 
 //GO(gst_reference_timestamp_meta_get_info, 
-//GO(gst_registry_add_feature, 
-//GO(gst_registry_add_plugin, 
-//GO(gst_registry_check_feature_version, 
+GO(gst_registry_add_feature, iFpp)
+GO(gst_registry_add_plugin, iFpp)
+GO(gst_registry_check_feature_version, iFppuuu)
 GOM(gst_registry_feature_filter, pFEppip)
-//GO(gst_registry_find_feature, 
-//GO(gst_registry_find_plugin, 
+GO(gst_registry_find_feature, pFppL)
+GO(gst_registry_find_plugin, pFpp)
 //GO(gst_registry_fork_is_enabled, 
-//GO(gst_registry_fork_set_enabled, 
-GO(gst_registry_get, pFpL)
-//GO(gst_registry_get_feature_list, 
-//GO(gst_registry_get_feature_list_by_plugin, 
-//GO(gst_registry_get_feature_list_cookie, 
-//GO(gst_registry_get_plugin_list, 
+GO(gst_registry_fork_set_enabled, vFi)
+GO(gst_registry_get, pFv)
+GO(gst_registry_get_feature_list, pFpL)
+GO(gst_registry_get_feature_list_by_plugin, pFpp)
+GO(gst_registry_get_feature_list_cookie, uFp)
+GO(gst_registry_get_plugin_list, pFp)
 //GO(gst_registry_get_type, 
-//GO(gst_registry_lookup, 
-//GO(gst_registry_lookup_feature, 
+GO(gst_registry_lookup, pFpp)
+GO(gst_registry_lookup_feature, pFpp)
 //GO(gst_registry_plugin_filter, 
-//GO(gst_registry_remove_feature, 
-//GO(gst_registry_remove_plugin, 
-//GO(gst_registry_scan_path, 
+GO(gst_registry_remove_feature, vFpp)
+GO(gst_registry_remove_plugin, vFpp)
+GO(gst_registry_scan_path, iFpp)
 //GO(gst_resource_error_get_type, 
 //GO(gst_resource_error_quark, 
 GO(gst_sample_copy, pFp)
@@ -1318,32 +1318,32 @@ GO(gst_sample_get_type, pFv)
 GO(gst_sample_new, pFpppp)
 GO(gst_sample_ref, pFp)
 //GO(gst_sample_set_buffer, 
-//GO(gst_sample_set_buffer_list, 
+GO(gst_sample_set_buffer_list, vFpp)
 //GO(gst_sample_set_caps, 
-//GO(gst_sample_set_info, 
-//GO(gst_sample_set_segment, 
+GO(gst_sample_set_info, iFpp)
+GO(gst_sample_set_segment, vFpp)
 DATAB(_gst_sample_type, sizeof(long))
 //GO(gst_sample_unref, 
 GO(gst_scheduling_flags_get_type, pFv)
 GO(gst_search_mode_get_type, pFv)
 GO(gst_seek_flags_get_type, pFv)
 GO(gst_seek_type_get_type, pFv)
-GO(gst_segment_clip, iFpiUUpp)
+GO(gst_segment_clip, iFpuLLpp)
 GO(gst_segment_copy, pFp)
 GO(gst_segment_copy_into, vFpp)
-GO(gst_segment_do_seek, iFpdiiiUiUp)
+GO(gst_segment_do_seek, iFpduuuLuLp)
 GO(gst_segment_flags_get_type, pFv)
 GO(gst_segment_free, vFp)
 GO(gst_segment_get_type, pFv)
-GO(gst_segment_init, vFpi)
+GO(gst_segment_init, vFpu)
 GO(gst_segment_is_equal, iFpp)
 GO(gst_segment_new, pFv)
-GO(gst_segment_offset_running_time, iFpiI)
-GO(gst_segment_position_from_running_time, UFpiU)
-GO(gst_segment_position_from_running_time_full, iFpiUp)
+GO(gst_segment_offset_running_time, iFpul)
+GO(gst_segment_position_from_running_time, LFpuL)
+GO(gst_segment_position_from_running_time_full, iFpuLp)
 GO(gst_segment_position_from_stream_time, UFpiU)
 GO(gst_segment_position_from_stream_time_full, iFpiUp)
-GO(gst_segment_set_running_time, iFpiU)
+GO(gst_segment_set_running_time, iFpuL)
 //GO(gst_segment_to_position, 
 GO(gst_segment_to_running_time, UFpiU)
 GO(gst_segment_to_running_time_full, iFpiUp)
@@ -1352,7 +1352,7 @@ GO(gst_segment_to_stream_time_full, iFpiUp)
 GO(gst_segtrap_is_enabled, iFv)
 GO(gst_segtrap_set_enabled, vFi)
 GO(gst_stack_trace_flags_get_type, pFv)
-//GO(gst_state_change_get_name, 
+GO(gst_state_change_get_name, pFu)
 GO(gst_state_change_get_type, pFv)
 GO(gst_state_change_return_get_type, pFv)
 GO(gst_state_get_type, pFv)
@@ -1362,28 +1362,28 @@ GO(gst_static_caps_get_type, pFv)
 //GO(gst_static_pad_template_get, 
 //GO(gst_static_pad_template_get_caps, 
 //GO(gst_static_pad_template_get_type, 
-//GO(gst_stream_collection_add_stream, 
-//GO(gst_stream_collection_get_size, 
-//GO(gst_stream_collection_get_stream, 
+GO(gst_stream_collection_add_stream, iFpp)
+GO(gst_stream_collection_get_size, uFp)
+GO(gst_stream_collection_get_stream, pFpu)
 //GO(gst_stream_collection_get_type, 
-//GO(gst_stream_collection_get_upstream_id, 
-//GO(gst_stream_collection_new, 
+GO(gst_stream_collection_get_upstream_id, pFp)
+GO(gst_stream_collection_new, pFp)
 //GO(gst_stream_error_get_type, 
 //GO(gst_stream_error_quark, 
 //GO(gst_stream_flags_get_type, 
 //GO(gst_stream_get_caps, 
-//GO(gst_stream_get_stream_flags, 
-//GO(gst_stream_get_stream_id, 
-//GO(gst_stream_get_stream_type, 
+GO(gst_stream_get_stream_flags, uFp)
+GO(gst_stream_get_stream_id, pFp)
+GO(gst_stream_get_stream_type, uFp)
 //GO(gst_stream_get_tags, 
 //GO(gst_stream_get_type, 
 //GO(gst_stream_new, 
 //GO(gst_stream_set_caps, 
-//GO(gst_stream_set_stream_flags, 
-//GO(gst_stream_set_stream_type, 
+GO(gst_stream_set_stream_flags, vFpu)
+GO(gst_stream_set_stream_type, vFpu)
 //GO(gst_stream_set_tags, 
 //GO(gst_stream_status_type_get_type, 
-//GO(gst_stream_type_get_name, 
+GO(gst_stream_type_get_name, pFu)
 //GO(gst_stream_type_get_type, 
 GO(gst_structure_can_intersect, iFpp)
 //GO(gst_structure_change_type_get_type, 
@@ -1406,15 +1406,15 @@ GO(gst_structure_get_clock_time, iFppp)
 GO(gst_structure_get_date, iFppp)
 GO(gst_structure_get_date_time, iFppp)
 GO(gst_structure_get_double, iFppp)
-GO(gst_structure_get_enum, iFpppp)
-GO(gst_structure_get_field_type, pFpp)
+GO(gst_structure_get_enum, iFppLp)
+GO(gst_structure_get_field_type, LFpp)
 GO(gst_structure_get_flagset, iFpppp)
 GO(gst_structure_get_fraction, iFpppp)
 GO(gst_structure_get_int, iFppp)
 GO(gst_structure_get_int64, iFppp)
 GO(gst_structure_get_list, iFppp)
 GO(gst_structure_get_name, pFp)
-GO(gst_structure_get_name_id, pFp)
+GO(gst_structure_get_name_id, uFp)
 GO(gst_structure_get_string, pFpp)
 GO(gst_structure_get_type, pFv)
 GO(gst_structure_get_uint, iFppp)
@@ -1422,17 +1422,17 @@ GO(gst_structure_get_uint64, iFppp)
 GOM(gst_structure_get_valist, iFEppA)
 GO(gst_structure_get_value, pFpp)
 GO(gst_structure_has_field, iFpp)
-GO(gst_structure_has_field_typed, iFppp)
+GO(gst_structure_has_field_typed, iFppL)
 GO(gst_structure_has_name, iFpp)
 //GOM(gst_structure_id_get, iFEppV)
 //GOM(gst_structure_id_get_valist, iFEppA)
-GO(gst_structure_id_get_value, pFpp)
-GO(gst_structure_id_has_field, iFpp)
-GO(gst_structure_id_has_field_typed, iFppp)
+GO(gst_structure_id_get_value, pFpu)
+GO(gst_structure_id_has_field, iFpu)
+GO(gst_structure_id_has_field_typed, iFpuL)
 //GOM(gst_structure_id_set, iFEppV)
 //GOM(gst_structure_id_set_valist, iFEppA)
-GO(gst_structure_id_set_value, vFppp)
-GO(gst_structure_id_take_value, pFppp)
+GO(gst_structure_id_set_value, vFpup)
+GO(gst_structure_id_take_value, vFpup)
 GO(gst_structure_intersect, pFpp)
 GO(gst_structure_is_equal, iFpp)
 GO(gst_structure_is_subset, iFpp)
@@ -1441,7 +1441,7 @@ GOM(gst_structure_new, pFEppV)
 GO(gst_structure_new_empty, pFp)
 GO(gst_structure_new_from_string, pFp)
 //GOM(gst_structure_new_id, pFEppV)
-GO(gst_structure_new_id_empty, pFp)
+GO(gst_structure_new_id_empty, pFu)
 //GOM(gst_structure_new_valist, pFppA)
 GO(gst_structure_n_fields, iFp)
 GO(gst_structure_nth_field_name, pFpu)
@@ -1461,12 +1461,12 @@ GO(gst_structure_take_value, vFppp)
 GO(gst_structure_to_string, pFp)
 //DATAB(_gst_structure_type, 
 //GO(gst_system_clock_get_type, 
-//GO(gst_system_clock_obtain, 
-//GO(gst_system_clock_set_default, 
+GO(gst_system_clock_obtain, pFv)
+GO(gst_system_clock_set_default, vFp)
 //GO(gst_tag_exists, 
 //GO(gst_tag_flag_get_type, 
-//GO(gst_tag_get_description, 
-//GO(gst_tag_get_flag, 
+GO(gst_tag_get_description, pFp)
+GO(gst_tag_get_flag, uFp)
 //GO(gst_tag_get_nick, 
 //GO(gst_tag_get_type, 
 //GO(gst_tag_is_fixed, 
@@ -1534,14 +1534,14 @@ GO(gst_tag_merge_mode_get_type, pFv)
 //GO(gst_tag_setter_add_tags, 
 //GO(gst_tag_setter_add_tag_valist, 
 //GO(gst_tag_setter_add_tag_valist_values, 
-//GO(gst_tag_setter_add_tag_value, 
+GO(gst_tag_setter_add_tag_value, vFpupp)
 //GO(gst_tag_setter_add_tag_values, 
 //GO(gst_tag_setter_get_tag_list, 
-//GO(gst_tag_setter_get_tag_merge_mode, 
+GO(gst_tag_setter_get_tag_merge_mode, uFp)
 //GO(gst_tag_setter_get_type, 
 //GO(gst_tag_setter_merge_tags, 
-//GO(gst_tag_setter_reset_tags, 
-//GO(gst_tag_setter_set_tag_merge_mode, 
+GO(gst_tag_setter_reset_tags, vFp)
+GO(gst_tag_setter_set_tag_merge_mode, vFpu)
 //GO(gst_task_cleanup_all, 
 //GO(gst_task_get_pool, 
 //GO(gst_task_get_state, 
@@ -1564,61 +1564,61 @@ GO(gst_tag_merge_mode_get_type, pFv)
 //GO(gst_task_start, 
 //GO(gst_task_state_get_type, 
 //GO(gst_task_stop, 
-//GO(gst_toc_append_entry, 
+GO(gst_toc_append_entry, vFpp)
 //GO(gst_toc_dump, 
-//GO(gst_toc_entry_append_sub_entry, 
-//GO(gst_toc_entry_get_entry_type, 
-//GO(gst_toc_entry_get_loop, 
-//GO(gst_toc_entry_get_parent, 
-//GO(gst_toc_entry_get_start_stop_times, 
-//GO(gst_toc_entry_get_sub_entries, 
+GO(gst_toc_entry_append_sub_entry, vFpp)
+GO(gst_toc_entry_get_entry_type, iFp)
+GO(gst_toc_entry_get_loop, iFppp)
+GO(gst_toc_entry_get_parent, pFp)
+GO(gst_toc_entry_get_start_stop_times, iFppp)
+GO(gst_toc_entry_get_sub_entries, pFp)
 //GO(gst_toc_entry_get_tags, 
-//GO(gst_toc_entry_get_toc, 
+GO(gst_toc_entry_get_toc, pFp)
 //GO(gst_toc_entry_get_type, 
-//GO(gst_toc_entry_get_uid, 
+GO(gst_toc_entry_get_uid, pFp)
 //GO(gst_toc_entry_is_alternative, 
-//GO(gst_toc_entry_is_sequence, 
+GO(gst_toc_entry_is_sequence, iFp)
 //GO(gst_toc_entry_merge_tags, 
-//GO(gst_toc_entry_new, 
-//GO(gst_toc_entry_set_loop, 
-//GO(gst_toc_entry_set_start_stop_times, 
+GO(gst_toc_entry_new, pFip)
+GO(gst_toc_entry_set_loop, vFpui)
+GO(gst_toc_entry_set_start_stop_times, vFpll)
 //GO(gst_toc_entry_set_tags, 
 //DATAB(_gst_toc_entry_type, 
-//GO(gst_toc_entry_type_get_nick, 
+GO(gst_toc_entry_type_get_nick, pFi)
 //GO(gst_toc_entry_type_get_type, 
-//GO(gst_toc_find_entry, 
-//GO(gst_toc_get_entries, 
-//GO(gst_toc_get_scope, 
+GO(gst_toc_find_entry, pFpp)
+GO(gst_toc_get_entries, pFp)
+GO(gst_toc_get_scope, uFp)
 //GO(gst_toc_get_tags, 
 //GO(gst_toc_get_type, 
 //GO(gst_toc_loop_type_get_type, 
 //GO(gst_toc_merge_tags, 
-//GO(gst_toc_new, 
+GO(gst_toc_new, pFu)
 //GO(gst_toc_scope_get_type, 
 //GO(gst_toc_set_tags, 
-//GO(gst_toc_setter_get_toc, 
+GO(gst_toc_setter_get_toc, pFp)
 //GO(gst_toc_setter_get_type, 
-//GO(gst_toc_setter_reset, 
-//GO(gst_toc_setter_set_toc, 
+GO(gst_toc_setter_reset, vFp)
+GO(gst_toc_setter_set_toc, vFpp)
 //DATAB(_gst_toc_type, 
 //GO(gst_tracer_factory_get_list, 
-//GO(gst_tracer_factory_get_tracer_type, 
+GO(gst_tracer_factory_get_tracer_type, LFp)
 //GO(gst_tracer_factory_get_type, 
 //GO(gst_tracer_get_type, 
 //GO(gst_tracer_record_get_type, 
 //GO(gst_tracer_record_log, 
 //GO(gst_tracer_record_new, 
-//GO(gst_tracer_register, 
+GO(gst_tracer_register, iFppL)
 //GO(gst_tracer_value_flags_get_type, 
 //GO(gst_tracer_value_scope_get_type, 
 //GO(gst_tracing_get_active_tracers, 
 //GO(gst_tracing_register_hook, 
 //GO(gst_type_find_factory_call_function, 
 //GO(gst_type_find_factory_get_caps, 
-//GO(gst_type_find_factory_get_extensions, 
-//GO(gst_type_find_factory_get_list, 
+GO(gst_type_find_factory_get_extensions, pFp)
+GO(gst_type_find_factory_get_list, pFv)
 //GO(gst_type_find_factory_get_type, 
-//GO(gst_type_find_factory_has_function, 
+GO(gst_type_find_factory_has_function, iFp)
 //GO(gst_type_find_get_length, 
 //GO(gst_type_find_get_type, 
 //GO(gst_type_find_peek, 
@@ -1626,133 +1626,133 @@ GO(gst_tag_merge_mode_get_type, pFv)
 //GO(gst_type_find_register, 
 //GO(gst_type_find_suggest, 
 //GO(gst_type_find_suggest_simple, 
-//GO(gst_type_is_plugin_api, 
-//GO(gst_type_mark_as_plugin_api, 
-//GO(gst_update_registry, 
+GO(gst_type_is_plugin_api, iFLp)
+GO(gst_type_mark_as_plugin_api, vFLu)
+GO(gst_update_registry, iFv)
 //GO(gst_uri_append_path, 
 //GO(gst_uri_append_path_segment, 
 //GO(gst_uri_construct, 
-//GO(gst_uri_copy, 
-//GO(gst_uri_equal, 
+GO(gst_uri_copy, pFp)
+GO(gst_uri_equal, iFpp)
 //GO(gst_uri_error_get_type, 
 //GO(gst_uri_error_quark, 
 //GO(gst_uri_from_string, 
-//GO(gst_uri_from_string_escaped, 
-//GO(gst_uri_from_string_with_base, 
-//GO(gst_uri_get_fragment, 
+GO(gst_uri_from_string_escaped, pFp)
+GO(gst_uri_from_string_with_base, pFpp)
+GO(gst_uri_get_fragment, pFp)
 //GO(gst_uri_get_host, 
-//GO(gst_uri_get_location, 
-//GO(gst_uri_get_media_fragment_table, 
+GO(gst_uri_get_location, pFp)
+GO(gst_uri_get_media_fragment_table, pFp)
 //GO(gst_uri_get_path, 
 //GO(gst_uri_get_path_segments, 
 //GO(gst_uri_get_path_string, 
-//GO(gst_uri_get_port, 
+GO(gst_uri_get_port, uFp)
 //GO(gst_uri_get_protocol, 
-//GO(gst_uri_get_query_keys, 
-//GO(gst_uri_get_query_string, 
+GO(gst_uri_get_query_keys, pFp)
+GO(gst_uri_get_query_string, pFp)
 //GO(gst_uri_get_query_table, 
-//GO(gst_uri_get_query_value, 
+GO(gst_uri_get_query_value, pFpp)
 //GO(gst_uri_get_scheme, 
 //GO(gst_uri_get_type, 
 //GO(gst_uri_get_userinfo, 
-//GO(gst_uri_handler_get_protocols, 
+GO(gst_uri_handler_get_protocols, pFp)
 //GO(gst_uri_handler_get_type, 
-//GO(gst_uri_handler_get_uri, 
-//GO(gst_uri_handler_get_uri_type, 
-//GO(gst_uri_handler_set_uri, 
-//GO(gst_uri_has_protocol, 
-//GO(gst_uri_is_normalized, 
+GO(gst_uri_handler_get_uri, pFp)
+GO(gst_uri_handler_get_uri_type, uFp)
+GO(gst_uri_handler_set_uri, iFppp)
+GO(gst_uri_has_protocol, iFpp)
+GO(gst_uri_is_normalized, iFp)
 //GO(gst_uri_is_valid, 
 //GO(gst_uri_is_writable, 
-//GO(gst_uri_join, 
-//GO(gst_uri_join_strings, 
+GO(gst_uri_join, pFpp)
+GO(gst_uri_join_strings, pFpp)
 //GO(gst_uri_make_writable, 
-//GO(gst_uri_new, 
-//GO(gst_uri_new_with_base, 
-//GO(gst_uri_normalize, 
-//GO(gst_uri_protocol_is_supported, 
+GO(gst_uri_new, pFpppuppp)
+GO(gst_uri_new_with_base, pFppppuppp)
+GO(gst_uri_normalize, iFp)
+GO(gst_uri_protocol_is_supported, iFup)
 //GO(gst_uri_protocol_is_valid, 
-//GO(gst_uri_query_has_key, 
-//GO(gst_uri_ref, 
+GO(gst_uri_query_has_key, iFpp)
+GO(gst_uri_ref, pFp)
 //GO(gst_uri_remove_query_key, 
-//GO(gst_uri_set_fragment, 
+GO(gst_uri_set_fragment, iFpp)
 //GO(gst_uri_set_host, 
 //GO(gst_uri_set_path, 
-//GO(gst_uri_set_path_segments, 
+GO(gst_uri_set_path_segments, iFpp)
 //GO(gst_uri_set_path_string, 
-//GO(gst_uri_set_port, 
+GO(gst_uri_set_port, iFpu)
 //GO(gst_uri_set_query_string, 
-//GO(gst_uri_set_query_table, 
-//GO(gst_uri_set_query_value, 
+GO(gst_uri_set_query_table, iFpp)
+GO(gst_uri_set_query_value, iFppp)
 //GO(gst_uri_set_scheme, 
 //GO(gst_uri_set_userinfo, 
 //GO(gst_uri_to_string, 
 //GO(gst_uri_type_get_type, 
 //GO(gst_uri_unref, 
 //GO(gst_util_array_binary_search, 
-//GO(gst_util_double_to_fraction, 
+GO(gst_util_double_to_fraction, vFdpp)
 //GO(gst_util_dump_buffer, 
-//GO(gst_util_dump_mem, 
-//GO(gst_util_fraction_add, 
-//GO(gst_util_fraction_compare, 
+GO(gst_util_dump_mem, vFpu)
+GO(gst_util_fraction_add, iFiiiipp)
+GO(gst_util_fraction_compare, iFiiii)
 //GO(gst_util_fraction_multiply, 
-//GO(gst_util_fraction_to_double, 
-//GO(gst_util_gdouble_to_guint64, 
-//GO(gst_util_get_object_array, 
-//GO(gst_util_get_timestamp, 
-//GO(gst_util_greatest_common_divisor, 
-//GO(gst_util_greatest_common_divisor_int64, 
-//GO(gst_util_group_id_next, 
-//GO(gst_util_guint64_to_gdouble, 
-//GO(gst_util_seqnum_compare, 
-//GO(gst_util_seqnum_next, 
+GO(gst_util_fraction_to_double, vFiip)
+GO(gst_util_gdouble_to_guint64, LFd)
+GO(gst_util_get_object_array, iFppp)
+GO(gst_util_get_timestamp, LFv)
+GO(gst_util_greatest_common_divisor, iFii)
+GO(gst_util_greatest_common_divisor_int64, lFll)
+GO(gst_util_group_id_next, uFv)
+GO(gst_util_guint64_to_gdouble, dFL)
+GO(gst_util_seqnum_compare, iFuu)
+GO(gst_util_seqnum_next, uFv)
 GO(gst_util_set_object_arg, vFppp)
-//GO(gst_util_set_object_array, 
-//GO(gst_util_set_value_from_string, 
+GO(gst_util_set_object_array, iFppp)
+GO(gst_util_set_value_from_string, vFpp)
 GO(gst_util_uint64_scale, UFUUU)
-//GO(gst_util_uint64_scale_ceil, 
+GO(gst_util_uint64_scale_ceil, LFLLL)
 //GO(gst_util_uint64_scale_int, 
-//GO(gst_util_uint64_scale_int_ceil, 
+GO(gst_util_uint64_scale_int_ceil, LFLii)
 //GO(gst_util_uint64_scale_int_round, 
 //GO(gst_util_uint64_scale_round, 
-//GO(gst_value_array_append_and_take_value, 
+GO(gst_value_array_append_and_take_value, vFpp)
 //GO(gst_value_array_append_value, 
 //GO(gst_value_array_get_size, 
 //GO(gst_value_array_get_type, 
-//GO(gst_value_array_get_value, 
-//GO(gst_value_array_init, 
-//GO(gst_value_array_prepend_value, 
+GO(gst_value_array_get_value, pFpu)
+GO(gst_value_array_init, pFpu)
+GO(gst_value_array_prepend_value, vFpp)
 //DATAB(_gst_value_array_type, 
 //GO(gst_value_can_compare, 
 //GO(gst_value_can_intersect, 
-//GO(gst_value_can_subtract, 
+GO(gst_value_can_subtract, iFpp)
 //GO(gst_value_can_union, 
-//GO(gst_value_compare, 
-//GO(gst_value_deserialize, 
-//GO(gst_value_fixate, 
+GO(gst_value_compare, iFpp)
+GO(gst_value_deserialize, iFpp)
+GO(gst_value_fixate, iFpp)
 //GO(gst_value_fraction_multiply, 
 //GO(gst_value_fraction_subtract, 
-//GO(gst_value_get_bitmask, 
+GO(gst_value_get_bitmask, LFp)
 //GO(gst_value_get_caps, 
-//GO(gst_value_get_caps_features, 
-//GO(gst_value_get_double_range_max, 
+GO(gst_value_get_caps_features, pFp)
+GO(gst_value_get_double_range_max, dFp)
 //GO(gst_value_get_double_range_min, 
 //GO(gst_value_get_flagset_flags, 
-//GO(gst_value_get_flagset_mask, 
-//GO(gst_value_get_fraction_denominator, 
+GO(gst_value_get_flagset_mask, uFp)
+GO(gst_value_get_fraction_denominator, iFp)
 //GO(gst_value_get_fraction_numerator, 
-//GO(gst_value_get_fraction_range_max, 
+GO(gst_value_get_fraction_range_max, pFp)
 //GO(gst_value_get_fraction_range_min, 
 //GO(gst_value_get_int64_range_max, 
 //GO(gst_value_get_int64_range_min, 
-//GO(gst_value_get_int64_range_step, 
+GO(gst_value_get_int64_range_step, lFp)
 //GO(gst_value_get_int_range_max, 
 //GO(gst_value_get_int_range_min, 
 //GO(gst_value_get_int_range_step, 
-//GO(gst_value_get_structure, 
+GO(gst_value_get_structure, pFp)
 //GO(gst_value_init_and_copy, 
 //GO(gst_value_intersect, 
-//GO(gst_value_is_fixed, 
+GO(gst_value_is_fixed, iFp)
 //GO(gst_value_is_subset, 
 //GO(gst_value_list_append_and_take_value, 
 //GO(gst_value_list_append_value, 
@@ -1765,21 +1765,21 @@ GO(gst_util_uint64_scale, UFUUU)
 //GO(gst_value_list_prepend_value, 
 //DATAB(_gst_value_list_type, 
 //GO(gst_value_register, 
-//GO(gst_value_serialize, 
-//GO(gst_value_set_bitmask, 
+GO(gst_value_serialize, pFp)
+GO(gst_value_set_bitmask, vFpL)
 //GO(gst_value_set_caps, 
-//GO(gst_value_set_caps_features, 
-//GO(gst_value_set_double_range, 
-//GO(gst_value_set_flagset, 
-//GO(gst_value_set_fraction, 
-//GO(gst_value_set_fraction_range, 
-//GO(gst_value_set_fraction_range_full, 
-//GO(gst_value_set_int64_range, 
-//GO(gst_value_set_int64_range_step, 
+GO(gst_value_set_caps_features, vFpp)
+GO(gst_value_set_double_range, vFpdd)
+GO(gst_value_set_flagset, vFpuu)
+GO(gst_value_set_fraction, vFpii)
+GO(gst_value_set_fraction_range, vFppp)
+GO(gst_value_set_fraction_range_full, vFpiiii)
+GO(gst_value_set_int64_range, vFpll)
+GO(gst_value_set_int64_range_step, vFplll)
 //GO(gst_value_set_int_range, 
-//GO(gst_value_set_int_range_step, 
-//GO(gst_value_set_structure, 
-//GO(gst_value_subtract, 
+GO(gst_value_set_int_range_step, vFpiii)
+GO(gst_value_set_structure, vFpp)
+GO(gst_value_subtract, iFppp)
 //GO(gst_value_union, 
 GO(gst_version, vFpppp)
 GO(gst_version_string, pFv)
