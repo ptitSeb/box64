@@ -898,7 +898,6 @@
 #() iFpiUp
 #() iFpild
 #() iFpipi
-#() iFpipC
 #() iFpipu
 #() iFpipL
 #() iFpipp
@@ -920,6 +919,7 @@
 #() iFpuLL
 #() iFpuLp
 #() iFpupi
+#() iFpupC
 #() iFpupu
 #() iFpupU
 #() iFpupL
@@ -1286,7 +1286,7 @@
 #() vFpddii
 #() vFpdddd
 #() vFpddpp
-#() vFpliil
+#() vFpluul
 #() vFplppp
 #() vFpLLLL
 #() vFpLLpp
