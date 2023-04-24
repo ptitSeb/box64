@@ -481,6 +481,25 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(x2);
             SSE_LOOP_FQ(x3, x4, FSUBD(v0, v0, v1));
             break;
+        case 0x5D:
+            INST_NAME("MINPD Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            for (int i=0; i<2; ++i) {
+                FLD(d0, gback, 8*i);
+                FLD(d1, wback, fixedaddress+8*i);
+                FEQD(x3, d0, d0);
+                FEQD(x4, d1, d1);
+                AND(x3, x3, x4);
+                BEQ(x3, xZR, 12);
+                FLTD(x3, d1, d0);
+                BEQ(x3, xZR, 8); // continue
+                FSD(d1, gback, 8*i);
+            }
+            break;
         case 0x60:
             INST_NAME("PUNPCKLBW Gx,Ex");
             nextop = F8;
