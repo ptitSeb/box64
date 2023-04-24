@@ -473,6 +473,24 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             // GX->q[1] = 0;
             SD(xZR, gback, 8);
             break;
+        case 0x5B:
+            INST_NAME("CVTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            d0 = fpu_get_scratch(dyn);
+            u8 = sse_setround(dyn, ninst, x6, x4);
+            for (int i=0; i<4; ++i) {
+                FLW(d0, wback, fixedaddress+4*i);
+                FCVTLS(x3, d0, RD_DYN);
+                SEXT_W(x5, x3);
+                SUB(x5, x5, x3);
+                BEQZ(x5, 8);
+                LUI(x3, 0x80000); // INT32_MIN
+                SW(x3, gback, 4*i);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");
             nextop = F8;
