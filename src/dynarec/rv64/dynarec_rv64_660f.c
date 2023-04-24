@@ -1121,6 +1121,57 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             AND(x1, x1, x5);
             OR(gd, gd, x1);
             break;
+        case 0xC2:
+            INST_NAME("CMPPD Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 1);
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            for(int i=0; i<2; ++i) {
+                FLD(d0, gback, 8*i);
+                FLD(d1, wback, fixedaddress+8*i);
+                if ((u8&7) == 0) {                                      // Equal
+                    FEQD(x3, d0, d1);
+                } else if ((u8&7) == 4) {                               // Not Equal or unordered
+                    FEQD(x3, d0, d1);
+                    XORI(x3, x3, 1);
+                } else {
+                    // x4 = !(isnan(d0) || isnan(d1))
+                    FEQD(x4, d0, d0);
+                    FEQD(x3, d1, d1);
+                    AND(x3, x3, x4);
+
+                    switch(u8&7) {
+                    case 1: BEQ_MARK(x3, xZR); FLTD(x3, d0, d1); break; // Less than
+                    case 2: BEQ_MARK(x3, xZR); FLED(x3, d0, d1); break; // Less or equal
+                    case 3: XORI(x3, x3, 1); break;                     // NaN
+                    case 5: {                                           // Greater or equal or unordered
+                        BEQ(x3, xZR, 12); // MARK2
+                        FLED(x3, d1, d0);
+                        J(8); // MARK;
+                        break;
+                    }
+                    case 6: {                                           // Greater or unordered
+                        BEQ(x3, xZR, 12); // MARK2
+                        FLTD(x3, d1, d0);
+                        J(8); // MARK;
+                        break;
+                    }
+                    case 7: break;                                      // Not NaN
+                    }
+                    
+                    // MARK2;
+                    if ((u8&7) == 5 || (u8&7) == 6) {
+                        MOV32w(x3, 1);
+                    }
+                    // MARK;
+                }
+                NEG(x3, x3);
+                SD(x3, gback, 8*i);
+            }
+            break;
         case 0xC4:
             INST_NAME("PINSRW Gx,Ed,Ib");
             nextop = F8;
