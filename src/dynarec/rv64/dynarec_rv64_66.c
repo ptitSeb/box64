@@ -797,6 +797,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_inc16(dyn, ninst, x1, x2, x4, x5);
                     EWBACK;
                     break;
+                case 1:
+                    INST_NAME("DEC Ew");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    GETEW(x1, 0);
+                    emit_dec16(dyn, ninst, x1, x2, x4, x5, x6);
+                    EWBACK;
+                    break;
                 default:
                     DEFAULT;
             }
