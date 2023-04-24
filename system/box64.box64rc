@@ -97,6 +97,9 @@ BOX64_DYNAREC_BIGBLOCK=0
 # if steamwebhelper takes too much memory, enable next line to disable it
 #BOX64_EXIT=1
 
+[Stardew Valley]
+BOX64_DYNAREC_HOTPAGE=0
+
 [steam-runtime-check-requirements]
 BOX64_EXIT=1
 
