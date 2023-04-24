@@ -42,6 +42,7 @@
 #() IFf
 #() IFd
 #() IFp
+#() CFv
 #() CFi
 #() CFC
 #() CFW
@@ -158,11 +159,13 @@
 #() vFpS
 #() vFSi
 #() cFpp
+#() wFpi
 #() iFEi
 #() iFEp
 #() iFwp
 #() iFii
 #() iFiI
+#() iFiC
 #() iFiu
 #() iFil
 #() iFiL
@@ -201,6 +204,7 @@
 #() IFpu
 #() IFpd
 #() CFip
+#() CFCi
 #() CFui
 #() CFuW
 #() CFuu
@@ -214,7 +218,6 @@
 #() uFii
 #() uFiu
 #() uFip
-#() uFui
 #() uFuu
 #() uFup
 #() uFpw
@@ -437,6 +440,7 @@
 #() iFiil
 #() iFiip
 #() iFiiO
+#() iFiCC
 #() iFiuu
 #() iFill
 #() iFiLi
@@ -473,6 +477,7 @@
 #() iFpCp
 #() iFpWp
 #() iFpui
+#() iFpuC
 #() iFpuu
 #() iFpuU
 #() iFpul
@@ -633,8 +638,10 @@
 #() pFdUU
 #() pFddd
 #() pFDip
+#() pFlpi
 #() pFLup
 #() pFLLp
+#() pFLpi
 #() pFpii
 #() pFpiu
 #() pFpid
@@ -874,6 +881,7 @@
 #() iFiill
 #() iFiipi
 #() iFiipp
+#() iFiWii
 #() iFiuwp
 #() iFiuii
 #() iFiuup
@@ -1008,7 +1016,6 @@
 #() uFpipp
 #() uFpCCC
 #() uFpuip
-#() uFpuuu
 #() uFpuup
 #() uFpupi
 #() uFpupu
@@ -2078,7 +2085,9 @@
 #() iFpippLpp
 #() iFpippppW
 #() iFpIIpppp
+#() iFpWCiWCi
 #() iFpWppppW
+#() iFpWppppp
 #() iFpuiCuCp
 #() iFpuiuupp
 #() iFpuuiuui

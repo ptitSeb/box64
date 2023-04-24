@@ -1,4 +1,6 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error Meh...
+#endif
 
 GO(IMG_Init,iFi)
 GO(IMG_InvertAlpha,iFi)
@@ -37,5 +39,3 @@ GO(IMG_isWEBP,iFp)
 GO(IMG_isXCF,iFp)
 GO(IMG_isXPM,iFp)
 GO(IMG_isXV,iFp)
-
-#endif
