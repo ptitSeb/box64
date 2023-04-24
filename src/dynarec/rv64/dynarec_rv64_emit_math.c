@@ -900,13 +900,12 @@ void emit_sbb16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     ANDI(s3, xFlags, 1 << F_CF);
     SUBW(s1, s1, s3);
 
+    SLLIW(s1, s1, 16);
     IFX(X_SF) {
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-
-    SLLI(s1, s1, 48);
-    SRLI(s1, s1, 48);
+    SRLIW(s1, s1, 16);
 
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
