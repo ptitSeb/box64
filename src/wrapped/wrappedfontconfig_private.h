@@ -7,126 +7,126 @@ GO(FcAtomicDeleteNew, vFp)
 GO(FcAtomicDestroy, vFp)
 GO(FcAtomicLock, iFp)
 //GO(FcAtomicNewFile, 
-//GO(FcAtomicOrigFile, 
-//GO(FcAtomicReplaceOrig, 
+GO(FcAtomicOrigFile, pFp)
+GO(FcAtomicReplaceOrig, iFp)
 //GO(FcAtomicUnlock, 
 //GO(FcBlanksAdd, 
-//GO(FcBlanksCreate, 
-//GO(FcBlanksDestroy, 
-//GO(FcBlanksIsMember, 
+GO(FcBlanksCreate, pFv)
+GO(FcBlanksDestroy, vFp)
+GO(FcBlanksIsMember, iFpu)
 GO(FcCacheCopySet, pFp)
-//GO(FcCacheDir, 
-//GO(FcCacheNumFont, 
+GO(FcCacheDir, pFp)
+GO(FcCacheNumFont, iFp)
 GO(FcCacheNumSubdir, iFp)
 GO(FcCacheSubdir, pFpi)
 GO(FcCharSetAddChar, iFpu)
 GO(FcCharSetCopy, pFp)
-//GO(FcCharSetCount, 
-//GO(FcCharSetCoverage, 
+GO(FcCharSetCount, uFp)
+GO(FcCharSetCoverage, uFpup)
 GO(FcCharSetCreate, pFv)
 GO(FcCharSetDestroy, vFp)
 //GO(FcCharSetEqual, 
 GO(FcCharSetFirstPage, iFppp)   // second p is a fixed sized array
-GO(FcCharSetHasChar, iFpi)
+GO(FcCharSetHasChar, iFpu)
 //GO(FcCharSetIntersect, 
 //GO(FcCharSetIntersectCount, 
-//GO(FcCharSetIsSubset, 
-//GO(FcCharSetMerge, 
-//GO(FcCharSetNew, 
-GO(FcCharSetNextPage, iFppp)    // second p is a fixed sized array
+GO(FcCharSetIsSubset, iFpp)
+GO(FcCharSetMerge, iFppp)
+GO(FcCharSetNew, pFv)
+GO(FcCharSetNextPage, uFppp)
 GO(FcCharSetSubtract, pFpp)
-//GO(FcCharSetSubtractCount, 
+GO(FcCharSetSubtractCount, uFpp)
 GO(FcCharSetUnion, pFpp)
 GO(FcConfigAppFontAddDir, iFpp)
 GO(FcConfigAppFontAddFile, iFpp)
 GO(FcConfigAppFontClear, vFp)
-//GO(FcConfigBuildFonts, 
+GO(FcConfigBuildFonts, iFp)
 //GO(FcConfigCreate, 
 GO(FcConfigDestroy, vFp)
-//GO(FcConfigEnableHome, 
+GO(FcConfigEnableHome, iFi)
 //GO(FcConfigFilename, 
 GO(FcConfigGetBlanks, pFp)
-//GO(FcConfigGetCache, 
-//GO(FcConfigGetCacheDirs, 
+GO(FcConfigGetCache, pFp)
+GO(FcConfigGetCacheDirs, pFp)
 //GO(FcConfigGetConfigDirs, 
 //GO(FcConfigGetConfigFiles, 
 GO(FcConfigGetCurrent, pFv)
 GO(FcConfigGetFontDirs, pFp)
-GO(FcConfigGetFonts, pFpi)
-//GO(FcConfigGetRescanInterval, 
+GO(FcConfigGetFonts, pFpu)
+GO(FcConfigGetRescanInterval, iFp)
 //GO(FcConfigGetRescanInverval, 
 GO(FcConfigGetSysRoot, pFp)
-//GO(FcConfigHome, 
+GO(FcConfigHome, pFv)
 //GO(FcConfigParseAndLoad, 
 GO(FcConfigReference, pFp)
 //GO(FcConfigSetCurrent, 
 GO(FcConfigSetRescanInterval, iFpi)
 //GO(FcConfigSetRescanInverval, 
-GO(FcConfigSubstitute, iFppi)
-GO(FcConfigSubstituteWithPat, iFpppi)
+GO(FcConfigSubstitute, iFppu)
+GO(FcConfigSubstituteWithPat, iFpppu)
 //GO(FcConfigUptoDate, 
 GO(FcDefaultSubstitute, vFp)
-//GO(FcDirCacheLoad, 
-//GO(FcDirCacheLoadFile, 
+GO(FcDirCacheLoad, pFppp)
+GO(FcDirCacheLoadFile, pFpp)
 GO(FcDirCacheRead, pFpip)
 //GO(FcDirCacheUnlink, 
 GO(FcDirCacheUnload, vFp)
 //GO(FcDirCacheValid, 
-//GO(FcDirSave, 
-//GO(FcDirScan, 
-//GO(FcFileIsDir, 
+GO(FcDirSave, iFppp)
+GO(FcDirScan, iFpppppi)
+GO(FcFileIsDir, iFp)
 //GO(FcFileScan, 
-//GO(FcFini, 
+GO(FcFini, vFv)
 GO(FcFontList, pFppp)
 GO(FcFontMatch, pFppp)
 GO(FcFontRenderPrepare, pFppp)
 GO(FcFontSetAdd, iFpp)
 GO(FcFontSetCreate, pFv)
 GO(FcFontSetDestroy, vFp)
-//GO(FcFontSetList, 
-//GO(FcFontSetMatch, 
-//GO(FcFontSetPrint, 
-//GO(FcFontSetSort, 
-//GO(FcFontSetSortDestroy, 
+GO(FcFontSetList, pFppipp)
+GO(FcFontSetMatch, pFppipp)
+GO(FcFontSetPrint, vFp)
+GO(FcFontSetSort, pFppipipp)
+GO(FcFontSetSortDestroy, vFp)
 GO(FcFontSort, pFppipp)
 //GO(FcFreeTypeCharIndex, 
 //GO(FcFreeTypeCharSet, 
 //GO(FcFreeTypeCharSetAndSpacing, 
-GO(FcFreeTypeQuery, pFpipp)
+GO(FcFreeTypeQuery, pFpupp)
 GO(FcFreeTypeQueryFace, pFppip)
 //GO(FcGetLangs, 
 GO(FcGetVersion, iFv)
 GO(FcInit, iFv)
-//GO(FcInitBringUptoDate, 
+GO(FcInitBringUptoDate, iFv)
 //GO(FcInitLoadConfig, 
-//GO(FcInitLoadConfigAndFonts, 
+GO(FcInitLoadConfigAndFonts, pFv)
 GO(FcInitReinitialize, iFv)
-//GO(FcLangGetCharSet, 
+GO(FcLangGetCharSet, pFp)
 GO(FcLangSetAdd, iFpp)
-//GO(FcLangSetCompare, 
+GO(FcLangSetCompare, uFpp)
 //GO(FcLangSetContains, 
-//GO(FcLangSetCopy, 
+GO(FcLangSetCopy, pFp)
 GO(FcLangSetCreate, pFv)
 GO(FcLangSetDestroy, vFp)
-//GO(FcLangSetEqual, 
-//GO(FcLangSetGetLangs, 
-//GO(FcLangSetHash, 
-GO(FcLangSetHasLang, iFpp)
-//GO(FcMatrixCopy, 
-//GO(FcMatrixEqual, 
-//GO(FcMatrixMultiply, 
+GO(FcLangSetEqual, iFpp)
+GO(FcLangSetGetLangs, pFp)
+GO(FcLangSetHash, uFp)
+GO(FcLangSetHasLang, uFpp)
+GO(FcMatrixCopy, pFp)
+GO(FcMatrixEqual, iFpp)
+GO(FcMatrixMultiply, vFppp)
 //GO(FcMatrixRotate, 
 //GO(FcMatrixScale, 
-//GO(FcMatrixShear, 
+GO(FcMatrixShear, vFpdd)
 GO(FcNameConstant, iFpp)
-//GO(FcNameGetConstant, 
-//GO(FcNameGetObjectType, 
-//GO(FcNameParse, 
+GO(FcNameGetConstant, pFp)
+GO(FcNameGetObjectType, pFp)
+GO(FcNameParse, pFp)
 //GO(FcNameRegisterConstants, 
 //GO(FcNameRegisterObjectTypes, 
-//GO(FcNameUnparse, 
-//GO(FcNameUnregisterConstants, 
-//GO(FcNameUnregisterObjectTypes, 
+GO(FcNameUnparse, pFp)
+GO(FcNameUnregisterConstants, iFpi)
+GO(FcNameUnregisterObjectTypes, iFpi)
 GO(FcObjectSetAdd, iFpp)
 GOM(FcObjectSetBuild, pFEpV)
 GO(FcObjectSetCreate, pFv)
@@ -148,20 +148,20 @@ GO(FcPatternDel, iFpp)
 GO(FcPatternDestroy, vFp)
 GO(FcPatternDuplicate, pFp)
 GO(FcPatternEqual, iFpp)
-//GO(FcPatternEqualSubset, 
-//GO(FcPatternFilter, 
-//GO(FcPatternFormat, 
-GO(FcPatternGet, iFppip)
-GO(FcPatternGetBool, iFppip)
-GO(FcPatternGetCharSet, iFppip)
-GO(FcPatternGetDouble, iFppip)
+GO(FcPatternEqualSubset, iFppp)
+GO(FcPatternFilter, pFpp)
+GO(FcPatternFormat, pFpp)
+GO(FcPatternGet, uFppip)
+GO(FcPatternGetBool, uFppip)
+GO(FcPatternGetCharSet, uFppip)
+GO(FcPatternGetDouble, uFppip)
 GO(FcPatternGetFTFace, iFppip)
-GO(FcPatternGetInteger, iFppip)
-GO(FcPatternGetLangSet, iFppip)
-GO(FcPatternGetMatrix, iFppip)
-GO(FcPatternGetString, iFppip)
-GO(FcPatternHash, iFp)
-//GO(FcPatternPrint, 
+GO(FcPatternGetInteger, uFppip)
+GO(FcPatternGetLangSet, uFppip)
+GO(FcPatternGetMatrix, uFppip)
+GO(FcPatternGetString, uFppip)
+GO(FcPatternHash, uFp)
+GO(FcPatternPrint, vFp)
 GO(FcPatternReference, vFp)
 //GO(FcPatternRemove, 
 GO(FcPatternVaBuild, pFpp)
@@ -188,8 +188,8 @@ GO(FcStrSetMember, iFpp)
 GO(FcStrStr, pFpp)
 GO(FcStrStrIgnoreCase, pFpp)
 GO(FcUcs4ToUtf8, iFup)
-GO(FcUtf16Len, iFpipp)
-GO(FcUtf16ToUcs4, iFpipi)
+GO(FcUtf16Len, iFpuipp)
+GO(FcUtf16ToUcs4, iFpupi)
 GO(FcUtf8Len, iFpipp)
 GO(FcUtf8ToUcs4, iFppi)
 //GO(FcValueDestroy, 
