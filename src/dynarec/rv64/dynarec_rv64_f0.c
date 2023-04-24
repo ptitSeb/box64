@@ -174,6 +174,67 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             DEFAULT;
                     }
                     break;
+
+                case 0xC7:
+                    switch(rep) {
+                        case 0:
+                            if (rex.w) {
+                                INST_NAME("LOCK CMPXCHG16B Gq, Eq");
+                            } else {
+                                INST_NAME("LOCK CMPXCHG8B Gq, Eq");
+                            }
+                            SETFLAGS(X_ZF, SF_SUBSET);
+                            nextop = F8;
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                            ANDI(xFlags, xFlags, ~(1<<F_ZF));
+                            if (rex.w) {
+                                // there is no atomic move on 16bytes, so faking it
+                                SMDMB();
+                                // MARKLOCK;
+                                LD(x2, wback, 0);
+                                LD(x3, wback, 8);
+                                BNE_MARK(x2, xRAX);
+                                BNE_MARK(x3, xRDX);
+                                SD(xRBX, wback, 0);
+                                SD(xRCX, wback, 8);
+                                ORI(xFlags, xFlags, 1<<F_ZF);
+                                B_MARK3_nocond;
+                                MARK;
+                                MV(xRAX, x2);
+                                MV(xRDX, x3);
+                                MARK3;
+                                SMDMB();
+                            } else {
+                                SMDMB();
+                                MARKLOCK;
+                                LR_D(x2, wback, 1, 1);
+                                AND(x3, x2, xMASK);
+                                AND(x4, xRAX, xMASK);
+                                SRLI(x5, x2, 32);
+                                AND(x6, xRDX, xMASK);
+                                BNE_MARK(x3, x4); // EAX != Ed[0]
+                                BNE_MARK(x5, x6); // EDX != Ed[1]
+                                SLLI(x2, xRCX, 32);
+                                AND(x3, xRBX, xMASK);
+                                OR(x2, x2, x3);
+                                SC_D(x3, x2, wback, 1, 1);
+                                BNEZ_MARKLOCK(x3);
+                                ORI(xFlags, xFlags, 1<<F_ZF);
+                                B_MARK3_nocond;
+                                MARK;
+                                ADDI(xRAX, x3, 0);
+                                ADDI(xRDX, x5, 0);
+                                AND(xRAX, xRAX, xMASK);
+                                AND(xRDX, xRDX, xMASK);
+                                MARK3;
+                                SMDMB();
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }
