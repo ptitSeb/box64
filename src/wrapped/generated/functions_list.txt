@@ -42,6 +42,7 @@
 #() IFf
 #() IFd
 #() IFp
+#() CFi
 #() CFC
 #() CFW
 #() CFu
@@ -339,7 +340,6 @@
 #() vFucc
 #() vFuww
 #() vFuii
-#() vFuiI
 #() vFuiu
 #() vFuiU
 #() vFuif
@@ -839,7 +839,6 @@
 #() vFpppl
 #() vFpppL
 #() vFpppp
-#() cFpiii
 #() iFEiip
 #() iFEiiN
 #() iFEipp
@@ -990,6 +989,7 @@
 #() IFppip
 #() IFSIii
 #() CFuuff
+#() CFpiii
 #() CFpupp
 #() CFppip
 #() uFEipp
@@ -1216,7 +1216,6 @@
 #() vFuiiCp
 #() vFuiiup
 #() vFuiill
-#() vFuiIII
 #() vFuiuii
 #() vFuiuip
 #() vFuiuCi
