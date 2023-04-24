@@ -1404,6 +1404,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SH(x3, gback, 2*i);
             }
             break;
+        case 0xE5:
+            INST_NAME("PMULHW Gx,Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for(int i=0; i<8; ++i) {
+                LH(x3, gback, 2*i);
+                LH(x4, wback, fixedaddress+2*i);
+                MULW(x3, x3, x4);
+                SRAIW(x3, x3, 16);
+                SH(x3, gback, 2*i);
+            }
+            break;
         case 0xE7:
             INST_NAME("MOVNTDQ Ex, Gx");
             nextop = F8;
