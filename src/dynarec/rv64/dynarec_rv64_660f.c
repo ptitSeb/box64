@@ -1294,6 +1294,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SH(x3, gback, i*2);
             }
             break;
+        case 0xDE:
+            INST_NAME("PMAXUB Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            for (int i=0; i<16; ++i) {
+                LBU(x3, gback, i);
+                LBU(x4, wback, fixedaddress+i);
+                BLTU(x4, x3, 8);
+                MV(x3, x4);
+                SB(x3, gback, i);
+            }
+            break;
         case 0xDF:
             INST_NAME("PANDN Gx,Ex");
             nextop = F8;
