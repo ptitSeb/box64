@@ -377,6 +377,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x50:
+            INST_NAME("PMOVMSKD Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEX(x1, 0);
+            MV(gd, xZR);
+            for(int i=0; i<2; ++i) {
+                // GD->dword[0] |= ((EX->q[i]>>63)&1)<<i;
+                LD(x2, wback, fixedaddress+8*i);
+                SRLI(x2, x2, 63);
+                if (i) SLLI(x2, x2, 1);
+                OR(gd, gd, x2);
+            }
+            break;   
         case 0x51:
             INST_NAME("SQRTPD Gx, Ex");
             nextop = F8;
