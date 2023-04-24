@@ -207,6 +207,7 @@
 #() CFuL
 #() CFpi
 #() CFpu
+#() CFpL
 #() CFpp
 #() WFpp
 #() uFEp
@@ -543,6 +544,7 @@
 #() uFpup
 #() uFpfu
 #() uFpLu
+#() uFpLL
 #() uFpLp
 #() uFppi
 #() uFppu
@@ -591,6 +593,7 @@
 #() LFpuL
 #() LFpup
 #() LFpLi
+#() LFpLL
 #() LFpLp
 #() LFppi
 #() LFppu
@@ -1479,6 +1482,7 @@
 #() uFipipp
 #() uFipLpp
 #() uFuiiii
+#() uFLpppL
 #() uFpCCCC
 #() uFpWuip
 #() uFpuuuu
@@ -1491,6 +1495,7 @@
 #() uFpplip
 #() uFppLpp
 #() uFppppu
+#() uFppppL
 #() uFppppp
 #() UFuiiii
 #() lFipili
@@ -1863,6 +1868,7 @@
 #() uFppippp
 #() uFppuuup
 #() uFppuupu
+#() uFppLppL
 #() uFpppppi
 #() uFpppppp
 #() UFpippup
