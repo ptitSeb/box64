@@ -1,4 +1,6 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error Meh!
+#endif
 
 DATA(__data_start, 4)
 DATA(_edata, 4)
@@ -55,7 +57,7 @@ GOM(IMG_LoadTextureTyped_RW, pFEppip)
 // IMG_QuitWEBP
 // IMG_SaveJPG
 // IMG_SaveJPG_RW
-GO(IMG_SavePNG, iFppi)
+GO(IMG_SavePNG, iFpp)
 GOM(IMG_SavePNG_RW, iFEppi)
 // _init
 DATA(nsvg__colors, 4)
@@ -65,5 +67,3 @@ DATA(nsvg__colors, 4)
 // nsvgParse
 // nsvg__parseXML
 // nsvgRasterize
-
-#endif
