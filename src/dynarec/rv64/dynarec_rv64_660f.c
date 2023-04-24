@@ -377,6 +377,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x50:
+            INST_NAME("PMOVMSKD Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEX(x1, 0);
+            MV(gd, xZR);
+            for(int i=0; i<2; ++i) {
+                // GD->dword[0] |= ((EX->q[i]>>63)&1)<<i;
+                LD(x2, wback, fixedaddress+8*i);
+                SRLI(x2, x2, 63);
+                if (i) SLLI(x2, x2, 1);
+                OR(gd, gd, x2);
+            }
+            break;   
         case 0x51:
             INST_NAME("SQRTPD Gx, Ex");
             nextop = F8;
@@ -431,10 +445,22 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x58:
             INST_NAME("ADDPD Gx, Ex");
             nextop = F8;
-            //TODO: fastnan handling
             GETEX(x1, 0);
             GETGX(x2);
-            SSE_LOOP_FQ(x3, x4, FADDD(v0, v0, v1));
+            SSE_LOOP_FQ(x3, x4, {
+                if(!box64_dynarec_fastnan) {
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                }
+                FADDD(v0, v0, v1);
+                if(!box64_dynarec_fastnan) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQD(x3, v0, v0);
+                    BNEZ(x3, 8);
+                    FNEGD(v0, v0);
+                }
+            });
             break;
         case 0x59:
             INST_NAME("MULPD Gx, Ex");
@@ -473,13 +499,43 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             // GX->q[1] = 0;
             SD(xZR, gback, 8);
             break;
+        case 0x5B:
+            INST_NAME("CVTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            d0 = fpu_get_scratch(dyn);
+            u8 = sse_setround(dyn, ninst, x6, x4);
+            for (int i=0; i<4; ++i) {
+                FLW(d0, wback, fixedaddress+4*i);
+                FCVTLS(x3, d0, RD_DYN);
+                SEXT_W(x5, x3);
+                SUB(x5, x5, x3);
+                BEQZ(x5, 8);
+                LUI(x3, 0x80000); // INT32_MIN
+                SW(x3, gback, 4*i);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");
             nextop = F8;
-            //TODO: fastnan handling
             GETEX(x1, 0);
             GETGX(x2);
-            SSE_LOOP_FQ(x3, x4, FSUBD(v0, v0, v1));
+            SSE_LOOP_FQ(x3, x4, {
+                if(!box64_dynarec_fastnan) {
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                }
+                FSUBD(v0, v0, v1);
+                if(!box64_dynarec_fastnan) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQD(x3, v0, v0);
+                    BNEZ(x3, 8);
+                    FNEGD(v0, v0);
+                }
+            });
             break;
         case 0x5D:
             INST_NAME("MINPD Gx, Ex");
@@ -499,6 +555,26 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BEQ(x3, xZR, 8); // continue
                 FSD(d1, gback, 8*i);
             }
+            break;
+        case 0x5E:
+            INST_NAME("DIVPD Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0);
+            GETGX(x2);
+            SSE_LOOP_FQ(x3, x4, {
+                if(!box64_dynarec_fastnan) {
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                }
+                FDIVD(v0, v0, v1);
+                if(!box64_dynarec_fastnan) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQD(x3, v0, v0);
+                    BNEZ(x3, 8);
+                    FNEGD(v0, v0);
+                }
+            });
             break;
         case 0x5F:
             INST_NAME("MAXPD Gx, Ex");
@@ -1120,6 +1196,57 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             NOT(x5, x5);
             AND(x1, x1, x5);
             OR(gd, gd, x1);
+            break;
+        case 0xC2:
+            INST_NAME("CMPPD Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 1);
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            for(int i=0; i<2; ++i) {
+                FLD(d0, gback, 8*i);
+                FLD(d1, wback, fixedaddress+8*i);
+                if ((u8&7) == 0) {                                      // Equal
+                    FEQD(x3, d0, d1);
+                } else if ((u8&7) == 4) {                               // Not Equal or unordered
+                    FEQD(x3, d0, d1);
+                    XORI(x3, x3, 1);
+                } else {
+                    // x4 = !(isnan(d0) || isnan(d1))
+                    FEQD(x4, d0, d0);
+                    FEQD(x3, d1, d1);
+                    AND(x3, x3, x4);
+
+                    switch(u8&7) {
+                    case 1: BEQ_MARK(x3, xZR); FLTD(x3, d0, d1); break; // Less than
+                    case 2: BEQ_MARK(x3, xZR); FLED(x3, d0, d1); break; // Less or equal
+                    case 3: XORI(x3, x3, 1); break;                     // NaN
+                    case 5: {                                           // Greater or equal or unordered
+                        BEQ(x3, xZR, 12); // MARK2
+                        FLED(x3, d1, d0);
+                        J(8); // MARK;
+                        break;
+                    }
+                    case 6: {                                           // Greater or unordered
+                        BEQ(x3, xZR, 12); // MARK2
+                        FLTD(x3, d1, d0);
+                        J(8); // MARK;
+                        break;
+                    }
+                    case 7: break;                                      // Not NaN
+                    }
+                    
+                    // MARK2;
+                    if ((u8&7) == 5 || (u8&7) == 6) {
+                        MOV32w(x3, 1);
+                    }
+                    // MARK;
+                }
+                NEG(x3, x3);
+                SD(x3, gback, 8*i);
+            }
             break;
         case 0xC4:
             INST_NAME("PINSRW Gx,Ed,Ib");
