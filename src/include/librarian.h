@@ -22,6 +22,7 @@ void FreeDLPrivate(dlprivate_t **lib);
 box64context_t* GetLibrarianContext(lib_t* maplib);
 kh_mapsymbols_t* GetGlobalData(lib_t* maplib);
 int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, box64context_t* box64, x64emu_t* emu); // 0=success, 1=error
+void RemoveNeededLib(lib_t* maplib, int local, needed_libs_t* needed, box64context_t* box64, x64emu_t* emu);
 library_t* GetLibMapLib(lib_t* maplib, const char* name);
 library_t* GetLibInternal(const char* name);
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name, int version, const char* vername);

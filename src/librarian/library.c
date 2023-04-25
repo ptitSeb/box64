@@ -1047,6 +1047,24 @@ void add1_neededlib(needed_libs_t* needed)
     needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
     needed->size++;
 }
+void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name)
+{
+    if(!needed || !lib)
+        return;
+    // check if lib is already present
+    for (int i=0; i<needed->size; ++i)
+        if(needed->libs[i]==lib)
+            return;
+    // add it
+    if(needed->size+1<=needed->cap)
+        return;
+    needed->cap = needed->size+1;
+    needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
+    needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
+    needed->libs[needed->size] = lib;
+    needed->names[needed->size] = name;
+    needed->size++;
+}
 needed_libs_t* copy_neededlib(needed_libs_t* needed)
 {
     if(!needed)
@@ -1098,8 +1116,10 @@ int DecRefCount(library_t** lib, x64emu_t* emu)
 {
     if(!lib || !*lib)
         return 1;
-    if((*lib)->type==LIB_UNNKNOW)
-        return 1;
+    if((*lib)->type==LIB_UNNKNOW) {
+        Free1Library(lib, emu);
+        return 0;
+    }
     int ret = 1;
     needed_libs_t* needed = NULL;
     int freed = 0;

@@ -59,6 +59,7 @@ void free_neededlib(needed_libs_t* needed);
 needed_libs_t* new_neededlib(int n);
 needed_libs_t* copy_neededlib(needed_libs_t* needed);
 void add1_neededlib(needed_libs_t* needed);
+void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name);
 
 typedef struct base_segment_s {
     uintptr_t       base;

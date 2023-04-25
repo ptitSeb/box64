@@ -318,11 +318,6 @@ int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, b
     }
     // error while loadind lib, unload...
     if(ret) {
-        for(int i=0; i<needed->size; ++i) {
-            if(box64_log>=LOG_DEBUG && needed->libs[i])
-                printf_log(LOG_DEBUG, "Will decref after failed load %s\n", needed->names[i]);
-            AddNeededLib_remove(maplib, local, &needed->libs[i], box64, emu);
-        }
         return ret;
     }
     // add dependant libs and init them
@@ -332,14 +327,18 @@ int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, b
             if(!allow_missing_libs) ret = 1;
         }
     // error while loadind lib, unload...
-    if(ret) {
-        for(int i=0; i<needed->size; ++i) {
-            if(box64_log>=LOG_DEBUG && needed->libs[i])
-                printf_log(LOG_DEBUG, "Will remove after failed init %s\n", needed->names[i]);
-            AddNeededLib_remove(maplib, local, &needed->libs[i], box64, emu);
-        }
-    }
     return ret;
+}
+EXPORTDYN
+void RemoveNeededLib(lib_t* maplib, int local, needed_libs_t* needed, box64context_t* box64, x64emu_t* emu)
+{
+    if(!needed) // no needed libs, no problems
+        return;
+    for(int i=0; i<needed->size; ++i) {
+        if(box64_log>=LOG_DEBUG && needed->libs[i])
+            printf_log(LOG_DEBUG, "Will remove after failed init %s\n", needed->names[i]);
+        AddNeededLib_remove(maplib, local, &needed->libs[i], box64, emu);
+    }
 }
 
 library_t* GetLibMapLib(lib_t* maplib, const char* name)

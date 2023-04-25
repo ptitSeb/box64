@@ -173,19 +173,17 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         // Then open the lib
         my_context->deferredInit = 1;
         int bindnow = (!box64_musl && (flag&0x2))?1:0;
-        needed_libs_t tmp = {0};
-        char* names[] = {rfilename};
-        library_t* libs[] = { NULL };
-        tmp.size = tmp.cap = 1;
-        tmp.names = names;
-        tmp.libs = libs;
-        if(AddNeededLib(NULL, is_local, bindnow, &tmp, my_context, emu)) {
+        needed_libs_t *tmp = new_neededlib(1);
+        tmp->names[0] = rfilename;
+        if(AddNeededLib(NULL, is_local, bindnow, tmp, my_context, emu)) {
             printf_dlsym(strchr(rfilename,'/')?LOG_DEBUG:LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
                 dl->last_error = box_malloc(129);
             snprintf(dl->last_error, 129, "Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+            RemoveNeededLib(NULL, is_local, tmp, my_context, emu);
             return NULL;
         }
+        free_neededlib(tmp);
         lib = GetLibInternal(rfilename);
         RunDeferredElfInit(emu);
     } else {
