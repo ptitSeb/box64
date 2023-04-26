@@ -473,6 +473,9 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ZEROUP(xRDX);
             }
             break;
+        case 0x9B:
+            INST_NAME("FWAIT");
+            break;
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
