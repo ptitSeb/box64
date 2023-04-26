@@ -342,6 +342,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 OR(gd, gd, x2);
             }
             break;
+        case 0x51:
+            INST_NAME("SQRTPS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            d0 = fpu_get_scratch(dyn);
+            for(int i=0; i<4; ++i) {
+                FLW(d0, wback, fixedaddress+4*i);
+                FSQRTS(d0, d0);
+                FSW(d0, gback, 4*i);
+            }
+            break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
             nextop = F8;
