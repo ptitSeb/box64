@@ -14,7 +14,7 @@ You can find many Box64 videos on the [MicroLinux](https://www.youtube.com/chann
 
 Since Box64 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at thoses bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/).
 
-Box64 integrates with DynaRec (dynamic recompiler) for the ARM64 platform, providing a speed boost between 5 to 10 times faster than using only the interpreter. Some high level information on how DynaRec works can be found [here](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/).
+Box64 integrates with DynaRec (dynamic recompiler) for the ARM64 and RV64 platform, providing a speed boost between 5 to 10 times faster than using only the interpreter. Some high level information on how DynaRec works can be found [here](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/).
 
 Some x64 internal opcodes use parts of "Realmode X86 Emulator Library", see [x64primop.c](src/emu/x64primop.c) for copyright details
 
@@ -114,6 +114,7 @@ So, in no particular order, I want to thank:
  * For their major code contribution: rajdakin, mogery
  * For their major financial contribution: FlyingFathead, stormchaser3000, dennis1248, sll00, [libre-computer-project](https://libre.computer/)
  * For hardware contribution and LoongArch migration: [xiaoji](https://www.linuxgame.cn/), Deepin Beijing Develop Team
+ * For their major code contribution on the RV64 Dynarec: ksco, xctan
  * For their hardware contribution: [Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/), [StarFive](https://rvspace.org/)
  * For their continous advertisement of box64 project: salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[TwisterOS](https://twisteros.com/) team, [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg), ekianjo ([Boilingsteam](https://boilingsteam.com/))
 
