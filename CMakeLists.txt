@@ -638,7 +638,7 @@ if(RV64_DYNAREC)
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_da.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_db.c"
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_dc.c"
-    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_dd.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_dd.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_de.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_df.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f0.c"
@@ -915,6 +915,8 @@ add_test(irelative_reloc ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test22 -D TEST_OUTPUT=tmpfile22.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref22.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    set_tests_properties(x87 PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTROUND=0")
 
     file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
