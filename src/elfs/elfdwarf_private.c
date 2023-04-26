@@ -108,11 +108,11 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
         *success = 0;
         return 0;
     }
-    if(!IsAddressInElfSpace(ehdr, ehdr->ehframehdr)) {
+    if(!IsAddressInElfSpace(ehdr, ehdr->ehframehdr+ehdr->delta)) {
         *success = 0;
         return 0;
     }
-    unsigned char ehfh_version = *(unsigned char*)ehdr->ehframehdr;
+    unsigned char ehfh_version = *(unsigned char*)(ehdr->ehframehdr+ehdr->delta);
     if (ehfh_version != 1) {
         *success = 0;
         return 0;
@@ -122,8 +122,8 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
 
     // Not using the binary search table (for now)
 
-    unsigned char *cur_addr = (unsigned char*)ehdr->ehframe;
-    unsigned char *end_addr = (unsigned char*)ehdr->ehframe_end;
+    unsigned char *cur_addr = (unsigned char*)(ehdr->ehframe+ehdr->delta);
+    unsigned char *end_addr = (unsigned char*)(ehdr->ehframe_end+ehdr->delta);
 
 #define AUG_EHDATA      (1 << 0)
 #define AUG_AUGDATA     (1 << 1)
