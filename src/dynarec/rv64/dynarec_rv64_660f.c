@@ -410,6 +410,37 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             u8>>=1;
                         }
                     break;
+                case 0x0F:
+                    INST_NAME("PALIGNR Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 1);
+                    u8 = F8;
+                    sse_forget_reg(dyn, ninst, x5);
+                    ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
+                    // perserve gd
+                    LD(x3, gback, 0);
+                    LD(x4, gback, 8);
+                    SD(x3, x5, 0);
+                    SD(x4, x5, 8);
+                    if(u8>31) {
+                        SD(xZR, gback, 0);
+                        SD(xZR, gback, 8);
+                    } else {
+                        for (int i=0; i<16; ++i, ++u8) {
+                            if (u8>15) {
+                                if(u8>31) {
+                                    SB(xZR, gback, i);
+                                    continue;
+                                }
+                                else LBU(x3, x5, u8-16);
+                            } else {
+                                LBU(x3, wback, fixedaddress+u8);
+                            }
+                            SB(x3, gback, i);
+                        }
+                    }
+                    break;
                 case 0x22:
                     INST_NAME("PINSRD Gx, ED, Ib");
                     nextop = F8;
