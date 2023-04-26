@@ -342,6 +342,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 OR(gd, gd, x2);
             }
             break;
+        case 0x53:
+            INST_NAME("RCPPS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            LUI(x3, 0x3f800);
+            FMVWX(d0, x3); // 1.0f
+            for(int i=0; i<4; ++i) {
+                FLW(d1, wback, fixedaddress+4*i);
+                FDIVS(d1, d0, d1);
+                FSW(d1, gback, 4*i);
+            }
+            break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
             nextop = F8;
