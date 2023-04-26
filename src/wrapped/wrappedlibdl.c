@@ -541,7 +541,19 @@ typedef struct my_dl_find_object_s {
 
 EXPORT int my__dl_find_object(x64emu_t* emu, void* addr, my_dl_find_object_t* result)
 {
-    printf_log(LOG_INFO, "Unimplemented _dl_find_object called\n");
+    //printf_log(LOG_INFO, "Unimplemented _dl_find_object called\n");
+    uintptr_t start=0, sz=0;
+    elfheader_t* h = FindElfAddress(my_context, (uintptr_t)addr);
+    if(h) {
+        // find an actual elf
+        const char* name = FindNearestSymbolName(h, addr, &start, &sz);
+        result->dlfo_map_start = (void*)start;
+        result->dlfo_map_end = (void*)(start+sz-1);
+        result->dlfo_eh_frame = (void*)(h->ehframehdr+h->delta);
+        result->dlfo_flags = 0;   // unused it seems
+        result->dlf_link_map = (struct link_map *)getLinkMapElf(h);
+        return 0;
+    }
     return -1;
 }
 

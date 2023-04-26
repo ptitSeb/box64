@@ -109,6 +109,7 @@ typedef struct linkmap_s {
 } linkmap_t;
 
 linkmap_t* getLinkMapLib(library_t* lib);
+linkmap_t* getLinkMapElf(elfheader_t* h);
 linkmap_t* addLinkMapLib(library_t* lib);
 void removeLinkMapLib(library_t* lib);
 

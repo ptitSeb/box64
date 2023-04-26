@@ -982,6 +982,16 @@ linkmap_t* getLinkMapLib(library_t* lib)
     }
     return NULL;
 }
+linkmap_t* getLinkMapElf(elfheader_t* h)
+{
+    linkmap_t* lm = my_context->linkmap;
+    while(lm) {
+        if(lm->l_lib && lm->l_lib->type==LIB_EMULATED && lm->l_lib->e.elf == h)
+            return lm;
+        lm = lm->l_next;
+    }
+    return NULL;
+}
 linkmap_t* addLinkMapLib(library_t* lib)
 {
     if(!my_context->linkmap) {
@@ -1062,7 +1072,7 @@ void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name)
     needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
     needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
     needed->libs[needed->size] = lib;
-    needed->names[needed->size] = name;
+    needed->names[needed->size] = (char*)name;
     needed->size++;
 }
 needed_libs_t* copy_neededlib(needed_libs_t* needed)
