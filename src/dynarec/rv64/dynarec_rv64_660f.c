@@ -1171,6 +1171,48 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             SSE_LOOP_D(x3, x4, XOR(x3, x3, x4); SNEZ(x3, x3); ADDI(x3, x3, -1));
             break;
+        case 0x7C:
+            INST_NAME("HADDPD Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            FLD(d0, gback, 0);
+            FLD(d1, gback, 8);
+            if(!box64_dynarec_fastnan) {
+                FEQD(x3, d0, d0);
+                FEQD(x4, d1, d1);
+                AND(x3, x3, x4);
+            }
+            FADDD(d0, d0, d1);
+            if(!box64_dynarec_fastnan) {
+                FEQD(x4, d0, d0);
+                BEQZ(x3, 12);
+                BNEZ(x4, 8);
+                FNEGD(d0, d0);
+            }
+            FSD(d0, gback, 0);
+            if(MODREG && gd==(nextop&7)+(rex.b<<3)) {
+                FSD(d0, gback, 8);
+            } else {
+                GETEX(x2, 0);
+                FLD(d0, wback, fixedaddress+0);
+                FLD(d1, wback, fixedaddress+8);
+                if(!box64_dynarec_fastnan) {
+                    FEQD(x3, d0, d0);
+                    FEQD(x4, d1, d1);
+                    AND(x3, x3, x4);
+                }
+                FADDD(d0, d0, d1);
+                if(!box64_dynarec_fastnan) {
+                    FEQD(x4, d0, d0);
+                    BEQZ(x3, 12);
+                    BNEZ(x4, 8);
+                    FNEGD(d0, d0);
+                }
+                FSD(d0, gback, 8);
+            }
+            break;
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
             nextop = F8;
