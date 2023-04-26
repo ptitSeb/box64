@@ -184,8 +184,8 @@ Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
 
 #### BOX64_DYNAREC_HOTPAGE *
 Handling of HotPage (Page being both executed and written)
-* 0 : Don't track hotpage
-* 1-255 : Track HotPage, and disable execution of a page being written for N attempts (default is 4)
+* 0 : Don't track hotpage (Default)
+* 1-255 : Track HotPage, and disable execution of a page being written for N attempts
 
 #### BOX64_DYNAREC_FASTPAGE *
 Will use a faster handling of HotPage (Page being both executed and written)
