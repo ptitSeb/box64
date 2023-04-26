@@ -441,6 +441,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                     break;
+                case 0x16:
+                    if(rex.w) {INST_NAME("PEXTRQ Ed, Gx, Ib");} else {INST_NAME("PEXTRD Ed, Gx, Ib");}
+                    nextop = F8;
+                    GETGX(x1);
+                    GETED(1);
+                    u8 = F8;
+                    if(rex.w)
+                        LD(ed, gback, 8*(u8&1));
+                    else
+                        LWU(ed, gback, 4*(u8&3));
+                    if (wback) {
+                        SDxw(ed, wback, fixedaddress);
+                        SMWRITE2();
+                    }
+                    break;
                 case 0x22:
                     INST_NAME("PINSRD Gx, ED, Ib");
                     nextop = F8;
