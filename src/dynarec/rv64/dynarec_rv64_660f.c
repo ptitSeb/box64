@@ -373,6 +373,43 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         FCVTDL(v0, x5, round_round[u8&3]);
                     }
                     break;
+                case 0x0E:
+                    INST_NAME("PBLENDW Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 1);
+                    u8 = F8;
+                    i32 = 0;
+                    if (MODREG && gd==ed) break;
+                    while (u8)
+                        if(u8&1) {
+                            if(!(i32&1) && u8&2) {
+                                if(!(i32&3) && (u8&0xf)==0xf) {
+                                    // whole 64bits
+                                    LD(x3, wback, fixedaddress+8*(i32>>2));
+                                    SD(x3, gback, 8*(i32>>2));
+                                    i32+=4;
+                                    u8>>=4;
+                                } else {
+                                    // 32bits
+                                    LWU(x3, wback, fixedaddress+4*(i32>>1));
+                                    SW(x3, gback, 4*(i32>>1));
+                                    i32+=2;
+                                    u8>>=2;
+                                }
+                            } else {
+                                // 16 bits
+                                LHU(x3, wback, fixedaddress+2*i32);
+                                SH(x3, gback, 2*i32);
+                                i32++;
+                                u8>>=1;
+                            }
+                        } else {
+                            // nope
+                            i32++;
+                            u8>>=1;
+                        }
+                    break;
                 default:
                     DEFAULT;
             }
