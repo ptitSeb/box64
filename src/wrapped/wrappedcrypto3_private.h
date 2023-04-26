@@ -2,10 +2,10 @@
 #error meh!
 #endif
 
-//GO(a2d_ASN1_OBJECT, 
-//GO(a2i_ASN1_ENUMERATED, 
-//GO(a2i_ASN1_INTEGER, 
-//GO(a2i_ASN1_STRING, 
+GO(a2d_ASN1_OBJECT, iFpipi)
+GO(a2i_ASN1_ENUMERATED, iFpppi)
+GO(a2i_ASN1_INTEGER, iFpppi)
+GO(a2i_ASN1_STRING, iFpppi)
 //GO(a2i_GENERAL_NAME, 
 //GO(a2i_ipadd, 
 //GO(a2i_IPADDRESS, 
@@ -21,13 +21,13 @@ GO(AES_ctr128_encrypt, vFppLpppp)
 GO(AES_decrypt, vFppp)
 GO(AES_ecb_encrypt, vFpppi)
 GO(AES_encrypt, vFppp)
-GO(AES_ige_encrypt, cFppLppi)
+GO(AES_ige_encrypt, vFppLppi)
 GO(AES_ofb128_encrypt, vFppLppp)
-//GO(AES_options, 
+GO(AES_options, pFv)
 GO(AES_set_decrypt_key, iFpip)
 //GO(AES_set_enc2dec_key, 
 GO(AES_set_encrypt_key, iFpip)
-GO(AES_unwrap_key, iFppppi)
+GO(AES_unwrap_key, iFppppu)
 //GO(aes_v8_cbc_encrypt, 
 //GO(aes_v8_ctr32_encrypt_blocks, 
 //GO(aes_v8_decrypt, 
@@ -43,20 +43,20 @@ GO(AES_wrap_key, iFppppi)
 //GO(_armv8_sha256_probe, 
 //GO(asn1_add_error, 
 //GO(ASN1_add_oid_module, 
-//GO(ASN1_BIT_STRING_check, 
+GO(ASN1_BIT_STRING_check, iFppi)
 GO(ASN1_BIT_STRING_free, vFp)
-//GO(ASN1_BIT_STRING_get_bit, 
-//GO(ASN1_BIT_STRING_name_print, 
+GO(ASN1_BIT_STRING_get_bit, iFpi)
+GO(ASN1_BIT_STRING_name_print, iFpppi)
 GO(ASN1_BIT_STRING_new, pFv)
-//GO(ASN1_BIT_STRING_num_asc, 
-//GO(ASN1_BIT_STRING_set, 
-//GO(ASN1_BIT_STRING_set_asc, 
-//GO(ASN1_BIT_STRING_set_bit, 
-//GO(ASN1_BMPSTRING_free, 
-//GO(ASN1_BMPSTRING_new, 
-//GO(ASN1_bn_print, 
-//GO(ASN1_check_infinite_end, 
-//GO(ASN1_const_check_infinite_end, 
+GO(ASN1_BIT_STRING_num_asc, iFpp)
+GO(ASN1_BIT_STRING_set, iFppi)
+GO(ASN1_BIT_STRING_set_asc, iFppip)
+GO(ASN1_BIT_STRING_set_bit, iFpii)
+GO(ASN1_BMPSTRING_free, vFp)
+GO(ASN1_BMPSTRING_new, pFv)
+GO(ASN1_bn_print, iFppppi)
+GO(ASN1_check_infinite_end, iFpl)
+GO(ASN1_const_check_infinite_end, iFpl)
 //GO(asn1_const_Finish, 
 GOM(ASN1_d2i_bio, pFEpppp)
 //GO(ASN1_d2i_fp, 
@@ -68,173 +68,173 @@ GOM(ASN1_d2i_bio, pFEpppp)
 //GO(asn1_enc_init, 
 //GO(asn1_enc_restore, 
 //GO(asn1_enc_save, 
-//GO(ASN1_ENUMERATED_free, 
+GO(ASN1_ENUMERATED_free, vFp)
 GO(ASN1_ENUMERATED_get, lFp)
-//GO(ASN1_ENUMERATED_new, 
+GO(ASN1_ENUMERATED_new, pFv)
 GO(ASN1_ENUMERATED_set, iFpl)
 GO(ASN1_ENUMERATED_to_BN, pFpp)
 //GO(asn1_ex_c2i, 
 //GO(asn1_ex_i2c, 
 //GO(asn1_Finish, 
-//GO(ASN1_GENERALIZEDTIME_adj, 
-//GO(ASN1_GENERALIZEDTIME_check, 
+GO(ASN1_GENERALIZEDTIME_adj, pFplil)
+GO(ASN1_GENERALIZEDTIME_check, iFp)
 GO(ASN1_GENERALIZEDTIME_free, vFp)
-//GO(ASN1_GENERALIZEDTIME_new, 
-//GO(ASN1_GENERALIZEDTIME_print, 
-//GO(ASN1_GENERALIZEDTIME_set, 
-//GO(ASN1_GENERALIZEDTIME_set_string, 
+GO(ASN1_GENERALIZEDTIME_new, pFv)
+GO(ASN1_GENERALIZEDTIME_print, iFpp)
+GO(ASN1_GENERALIZEDTIME_set, pFpl)
+GO(ASN1_GENERALIZEDTIME_set_string, iFpp)
 //GO(asn1_generalizedtime_to_tm, 
-//GO(ASN1_GENERALSTRING_free, 
-//GO(ASN1_GENERALSTRING_new, 
-//GO(ASN1_generate_nconf, 
-//GO(ASN1_generate_v3, 
+GO(ASN1_GENERALSTRING_free, vFp)
+GO(ASN1_GENERALSTRING_new, pFv)
+GO(ASN1_generate_nconf, pFpp)
+GO(ASN1_generate_v3, pFpp)
 //GO(asn1_get_choice_selector, 
 //GO(asn1_get_field_ptr, 
-//GO(ASN1_get_object, 
+GO(ASN1_get_object, iFppppl)
 //GO(asn1_GetSequence, 
 GOM(ASN1_i2d_bio, iFEppp)
 //GO(ASN1_i2d_fp, 
-//GO(ASN1_IA5STRING_free, 
-//GO(ASN1_IA5STRING_new, 
-//GO(ASN1_INTEGER_cmp, 
-//GO(ASN1_INTEGER_dup, 
+GO(ASN1_IA5STRING_free, vFp)
+GO(ASN1_IA5STRING_new, pFv)
+GO(ASN1_INTEGER_cmp, iFpp)
+GO(ASN1_INTEGER_dup, pFp)
 GO(ASN1_INTEGER_free, vFp)
 GO(ASN1_INTEGER_get, lFp)
 GO(ASN1_INTEGER_new, pFv)
 GO(ASN1_INTEGER_set, iFpl)
 GO(ASN1_INTEGER_to_BN, pFpp)
-//GO(ASN1_item_d2i, 
-//GO(ASN1_item_d2i_bio, 
-//GO(ASN1_item_d2i_fp, 
+GO(ASN1_item_d2i, pFpplp)
+GO(ASN1_item_d2i_bio, pFppp)
+GO(ASN1_item_d2i_fp, pFppp)
 //GO(ASN1_item_digest, 
-//GO(ASN1_item_dup, 
+GO(ASN1_item_dup, pFpp)
 //GO(ASN1_item_ex_d2i, 
 //GO(ASN1_item_ex_free, 
 //GO(ASN1_item_ex_i2d, 
 //GO(ASN1_item_ex_new, 
-//GO(ASN1_item_free, 
+GO(ASN1_item_free, vFpp)
 //GO(ASN1_item_i2d, 
-//GO(ASN1_item_i2d_bio, 
-//GO(ASN1_item_i2d_fp, 
-//GO(ASN1_item_ndef_i2d, 
-//GO(ASN1_item_new, 
-//GO(ASN1_item_pack, 
-//GO(ASN1_item_print, 
+GO(ASN1_item_i2d_bio, iFppp)
+GO(ASN1_item_i2d_fp, iFppp)
+GO(ASN1_item_ndef_i2d, iFppp)
+GO(ASN1_item_new, pFp)
+GO(ASN1_item_pack, pFppp)
+GO(ASN1_item_print, iFppipp)
 //GO(ASN1_item_sign, 
 //GO(ASN1_item_sign_ctx, 
-//GO(ASN1_item_unpack, 
+GO(ASN1_item_unpack, pFpp)
 //GO(ASN1_item_verify, 
-//GO(ASN1_mbstring_copy, 
-//GO(ASN1_mbstring_ncopy, 
-//GO(ASN1_NULL_free, 
-//GO(ASN1_NULL_new, 
-//GO(ASN1_OBJECT_create, 
+GO(ASN1_mbstring_copy, iFppiiL)
+GO(ASN1_mbstring_ncopy, iFppiiLll)
+GO(ASN1_NULL_free, vFp)
+GO(ASN1_NULL_new, pFv)
+GO(ASN1_OBJECT_create, pFipipp)
 GO(ASN1_OBJECT_free, vFp)
-//GO(ASN1_OBJECT_new, 
-//GO(ASN1_object_size, 
-//GO(ASN1_OCTET_STRING_cmp, 
-//GO(ASN1_OCTET_STRING_dup, 
+GO(ASN1_OBJECT_new, pFv)
+GO(ASN1_object_size, iFiii)
+GO(ASN1_OCTET_STRING_cmp, iFpp)
+GO(ASN1_OCTET_STRING_dup, pFp)
 GO(ASN1_OCTET_STRING_free, vFp)
 GO(ASN1_OCTET_STRING_new, pFv)
 GO(ASN1_OCTET_STRING_set, iFppi)
 //GO(ASN1_pack_string, 
-//GO(ASN1_parse, 
-//GO(ASN1_parse_dump, 
-//GO(ASN1_PCTX_free, 
+GO(ASN1_parse, iFppli)
+GO(ASN1_parse_dump, iFpplii)
+GO(ASN1_PCTX_free, vFp)
 //GO(ASN1_PCTX_get_cert_flags, 
 //GO(ASN1_PCTX_get_flags, 
 //GO(ASN1_PCTX_get_nm_flags, 
 //GO(ASN1_PCTX_get_oid_flags, 
-//GO(ASN1_PCTX_get_str_flags, 
-//GO(ASN1_PCTX_new, 
+GO(ASN1_PCTX_get_str_flags, LFp)
+GO(ASN1_PCTX_new, pFv)
 //GO(ASN1_PCTX_set_cert_flags, 
 //GO(ASN1_PCTX_set_flags, 
 //GO(ASN1_PCTX_set_nm_flags, 
 //GO(ASN1_PCTX_set_oid_flags, 
-//GO(ASN1_PCTX_set_str_flags, 
+GO(ASN1_PCTX_set_str_flags, vFpL)
 //GO(ASN1_primitive_free, 
 //GO(ASN1_primitive_new, 
 //GO(ASN1_PRINTABLE_free, 
 //GO(ASN1_PRINTABLE_new, 
-//GO(ASN1_PRINTABLESTRING_free, 
-//GO(ASN1_PRINTABLESTRING_new, 
-//GO(ASN1_PRINTABLE_type, 
-//GO(ASN1_put_eoc, 
-//GO(ASN1_put_object, 
+GO(ASN1_PRINTABLESTRING_free, vFp)
+GO(ASN1_PRINTABLESTRING_new, pFv)
+GO(ASN1_PRINTABLE_type, iFpi)
+GO(ASN1_put_eoc, iFp)
+GO(ASN1_put_object, vFpiiii)
 //GO(ASN1_seq_pack, 
 //GO(ASN1_seq_unpack, 
 //GO(asn1_set_choice_selector, 
 //GO(ASN1_sign, 
 //GO(ASN1_STRING_clear_free, 
 GO(ASN1_STRING_cmp, iFpp)
-//GO(ASN1_STRING_copy, 
+GO(ASN1_STRING_copy, iFpp)
 GO(ASN1_STRING_data, pFp)
 GO(ASN1_STRING_dup, pFp)
 GO(ASN1_STRING_free, vFp)
-//GO(ASN1_STRING_get_default_mask, 
+GO(ASN1_STRING_get_default_mask, LFv)
 GO(ASN1_STRING_length, iFp)
-//GO(ASN1_STRING_length_set, 
+GO(ASN1_STRING_length_set, vFpi)
 //GO(ASN1_STRING_new, 
 GO(ASN1_STRING_print, iFpp)
-GO(ASN1_STRING_print_ex, iFppu)
-GO(ASN1_STRING_print_ex_fp, iFppu)
+GO(ASN1_STRING_print_ex, iFppL)
+GO(ASN1_STRING_print_ex_fp, iFppL)
 GO(ASN1_STRING_set, iFppi)
-//GO(ASN1_STRING_set0, 
-//GO(ASN1_STRING_set_by_NID, 
-//GO(ASN1_STRING_set_default_mask, 
-//GO(ASN1_STRING_set_default_mask_asc, 
-//GO(ASN1_STRING_TABLE_add, 
+GO(ASN1_STRING_set0, vFppi)
+GO(ASN1_STRING_set_by_NID, pFppiii)
+GO(ASN1_STRING_set_default_mask, vFL)
+GO(ASN1_STRING_set_default_mask_asc, iFp)
+GO(ASN1_STRING_TABLE_add, iFillLL)
 //GO(ASN1_STRING_TABLE_cleanup, 
-//GO(ASN1_STRING_TABLE_get, 
+GO(ASN1_STRING_TABLE_get, pFi)
 GO(ASN1_STRING_to_UTF8, iFpp)
 GO(ASN1_STRING_type, iFp)
-//GO(ASN1_STRING_type_new, 
-//GO(ASN1_T61STRING_free, 
-//GO(ASN1_T61STRING_new, 
-//GO(ASN1_tag2bit, 
-//GO(ASN1_tag2str, 
+GO(ASN1_STRING_type_new, pFi)
+GO(ASN1_T61STRING_free, vFp)
+GO(ASN1_T61STRING_new, pFv)
+GO(ASN1_tag2bit, LFi)
+GO(ASN1_tag2str, pFi)
 //GO(ASN1_template_d2i, 
 //GO(ASN1_template_free, 
 //GO(ASN1_template_i2d, 
 //GO(ASN1_template_new, 
 //GO(asn1_template_print_ctx, 
-//GO(ASN1_TIME_adj, 
-//GO(ASN1_TIME_check, 
-//GO(ASN1_TIME_diff, 
+GO(ASN1_TIME_adj, pFplil)
+GO(ASN1_TIME_check, iFp)
+GO(ASN1_TIME_diff, iFpppp)
 GO(ASN1_TIME_free, vFp)
 GO(ASN1_TIME_new, pFv)
-//GO(ASN1_TIME_print, 
-GO(ASN1_TIME_set, pFpL)
+GO(ASN1_TIME_print, iFpp)
+GO(ASN1_TIME_set, pFpl)
 //GO(ASN1_TIME_set_string, 
-//GO(ASN1_TIME_to_generalizedtime, 
-//GO(ASN1_TYPE_cmp, 
-//GO(ASN1_TYPE_free, 
-//GO(ASN1_TYPE_get, 
-//GO(ASN1_TYPE_get_int_octetstring, 
-//GO(ASN1_TYPE_get_octetstring, 
-//GO(ASN1_TYPE_new, 
-//GO(ASN1_TYPE_set, 
-//GO(ASN1_TYPE_set1, 
-//GO(ASN1_TYPE_set_int_octetstring, 
-//GO(ASN1_TYPE_set_octetstring, 
-//GO(ASN1_UNIVERSALSTRING_free, 
-//GO(ASN1_UNIVERSALSTRING_new, 
-//GO(ASN1_UNIVERSALSTRING_to_string, 
+GO(ASN1_TIME_to_generalizedtime, pFpp)
+GO(ASN1_TYPE_cmp, iFpp)
+GO(ASN1_TYPE_free, vFp)
+GO(ASN1_TYPE_get, iFp)
+GO(ASN1_TYPE_get_int_octetstring, iFpppi)
+GO(ASN1_TYPE_get_octetstring, iFppi)
+GO(ASN1_TYPE_new, pFv)
+GO(ASN1_TYPE_set, vFpip)
+GO(ASN1_TYPE_set1, iFpip)
+GO(ASN1_TYPE_set_int_octetstring, iFplpi)
+GO(ASN1_TYPE_set_octetstring, iFppi)
+GO(ASN1_UNIVERSALSTRING_free, vFp)
+GO(ASN1_UNIVERSALSTRING_new, pFv)
+GO(ASN1_UNIVERSALSTRING_to_string, iFp)
 //GO(ASN1_unpack_string, 
-//GO(ASN1_UTCTIME_adj, 
-//GO(ASN1_UTCTIME_check, 
-//GO(ASN1_UTCTIME_cmp_time_t, 
-//GO(ASN1_UTCTIME_free, 
-//GO(ASN1_UTCTIME_new, 
-//GO(ASN1_UTCTIME_print, 
-//GO(ASN1_UTCTIME_set, 
-//GO(ASN1_UTCTIME_set_string, 
+GO(ASN1_UTCTIME_adj, pFplil)
+GO(ASN1_UTCTIME_check, iFp)
+GO(ASN1_UTCTIME_cmp_time_t, iFpl)
+GO(ASN1_UTCTIME_free, vFp)
+GO(ASN1_UTCTIME_new, pFv)
+GO(ASN1_UTCTIME_print, iFpp)
+GO(ASN1_UTCTIME_set, pFpl)
+GO(ASN1_UTCTIME_set_string, iFpp)
 //GO(asn1_utctime_to_tm, 
-//GO(ASN1_UTF8STRING_free, 
-//GO(ASN1_UTF8STRING_new, 
+GO(ASN1_UTF8STRING_free, vFp)
+GO(ASN1_UTF8STRING_new, pFv)
 //GO(ASN1_verify, 
-//GO(ASN1_VISIBLESTRING_free, 
-//GO(ASN1_VISIBLESTRING_new, 
+GO(ASN1_VISIBLESTRING_free, vFp)
+GO(ASN1_VISIBLESTRING_new, pFv)
 //GO(AUTHORITY_INFO_ACCESS_free, 
 //GO(AUTHORITY_INFO_ACCESS_new, 
 GO(AUTHORITY_KEYID_free, vFp)
@@ -246,48 +246,48 @@ GO(AUTHORITY_KEYID_new, pFv)
 //GO(b2i_PVK_bio, 
 GO(BASIC_CONSTRAINTS_free, vFp)
 GO(BASIC_CONSTRAINTS_new, pFv)
-//GO(BF_cbc_encrypt, 
-//GO(BF_cfb64_encrypt, 
-//GO(BF_decrypt, 
-//GO(BF_ecb_encrypt, 
+GO(BF_cbc_encrypt, vFpplppi)
+GO(BF_cfb64_encrypt, vFpplpppi)
+GO(BF_decrypt, vFpp)
+GO(BF_ecb_encrypt, vFpppi)
 //GO(BF_encrypt, 
-//GO(BF_ofb64_encrypt, 
-//GO(BF_options, 
-//GO(BF_set_key, 
-//GO(BIO_accept, 
+GO(BF_ofb64_encrypt, vFpplppp)
+GO(BF_options, pFv)
+GO(BF_set_key, vFpip)
+GO(BIO_accept, iFip)
 //GO(BIO_asn1_get_prefix, 
-//GO(BIO_asn1_get_suffix, 
+GO(BIO_asn1_get_suffix, iFppp)
 //GO(BIO_asn1_set_prefix, 
 //GO(BIO_asn1_set_suffix, 
 //GO(BIO_callback_ctrl, 
 //GO(BIO_clear_flags, 
 //GO(BIO_CONNECT_free, 
 //GO(BIO_CONNECT_new, 
-//GO(BIO_copy_next_retry, 
+GO(BIO_copy_next_retry, vFp)
 GO(BIO_ctrl, lFpilp)
-//GO(BIO_ctrl_get_read_request, 
+GO(BIO_ctrl_get_read_request, LFp)
 //GO(BIO_ctrl_get_write_guarantee, 
 GO(BIO_ctrl_pending, LFp)
 //GO(BIO_ctrl_reset_read_request, 
 GO(BIO_ctrl_wpending, LFp)
-//GO(BIO_debug_callback, 
+GO(BIO_debug_callback, lFpipill)
 //GO(BIO_dgram_non_fatal_error, 
-//GO(BIO_dump, 
+GO(BIO_dump, iFppi)
 //GO(BIO_dump_cb, 
-//GO(BIO_dump_fp, 
-//GO(BIO_dump_indent, 
+GO(BIO_dump_fp, iFppi)
+GO(BIO_dump_indent, iFppii)
 //GO(BIO_dump_indent_cb, 
-//GO(BIO_dump_indent_fp, 
-//GO(BIO_dup_chain, 
+GO(BIO_dump_indent_fp, iFppii)
+GO(BIO_dup_chain, pFp)
 GO(BIO_eof, iFp)
-//GO(BIO_f_asn1, 
+GO(BIO_f_asn1, pFv)
 //GO(BIO_f_base64, 
 //GO(BIO_f_buffer, 
 //GO(BIO_f_cipher, 
 //GO(BIO_fd_non_fatal_error, 
 //GO(BIO_fd_should_retry, 
 GO(BIO_flush, iFp)
-//GO(BIO_find_type, 
+GO(BIO_find_type, pFpi)
 //GO(BIO_f_md, 
 //GO(BIO_f_nbio_test, 
 //GO(BIO_f_null, 
@@ -295,64 +295,64 @@ GO(BIO_free, iFp)
 GO(BIO_free_all, vFp)
 //GO(BIO_f_reliable, 
 //GO(BIO_f_zlib, 
-//GO(BIO_get_accept_socket, 
-//GO(BIO_get_callback, 
-//GO(BIO_get_callback_arg, 
+GO(BIO_get_accept_socket, iFpi)
+GO(BIO_get_callback, pFp)
+GO(BIO_get_callback_arg, pFp)
 GO(BIO_get_close, iFp)
-//GO(BIO_get_ex_data, 
+GO(BIO_get_ex_data, pFpi)
 //GO(BIO_get_ex_new_index, 
-//GO(BIO_gethostbyname, 
-//GO(BIO_get_host_ip, 
-//GO(BIO_get_port, 
-//GO(BIO_get_retry_BIO, 
-//GO(BIO_get_retry_reason, 
+GO(BIO_gethostbyname, pFp)
+GO(BIO_get_host_ip, iFpp)
+GO(BIO_get_port, iFpp)
+GO(BIO_get_retry_BIO, pFpp)
+GO(BIO_get_retry_reason, iFp)
 GO(BIO_gets, iFppi)
-//GO(BIO_hex_string, 
+GO(BIO_hex_string, iFpiipi)
 //GO(BIO_indent, 
 GO(BIO_int_ctrl, lFpili)
-//GO(BIO_method_name, 
-//GO(BIO_method_type, 
+GO(BIO_method_name, pFp)
+GO(BIO_method_type, iFp)
 GO(BIO_new, pFp)
-//GO(BIO_new_accept, 
+GO(BIO_new_accept, pFp)
 GO(BIO_new_bio_pair, iFpLpL)
 //GO(BIO_new_CMS, 
 //GO(BIO_new_connect, 
 //GO(BIO_new_dgram, 
-//GO(BIO_new_fd, 
+GO(BIO_new_fd, pFii)
 GO(BIO_new_file, pFpp)
-//GO(BIO_new_fp, 
+GO(BIO_new_fp, pFpi)
 GO(BIO_new_mem_buf, pFpi)
-//GO(BIO_new_NDEF, 
+GO(BIO_new_NDEF, pFppp)
 //GO(BIO_new_PKCS7, 
 //GO(BIO_new_socket, 
 //GO(BIO_next, 
 //GO(BIO_nread, 
 //GO(BIO_nread0, 
 //GO(BIO_number_read, 
-//GO(BIO_number_written, 
-//GO(BIO_nwrite, 
-//GO(BIO_nwrite0, 
+GO(BIO_number_written, LFp)
+GO(BIO_nwrite, iFppi)
+GO(BIO_nwrite0, iFpp)
 GO(BIO_pending, iFp)
 //GO(BIO_pop, 
 //GO(BIO_printf, 
 GO(BIO_ptr_ctrl, pFpil)
-//GO(BIO_push, 
+GO(BIO_push, pFpp)
 GO(BIO_puts, iFpp)
 GO(BIO_read, iFppi)
 GO(BIO_reset, iFp)
 //GO(BIO_s_accept, 
 //GO(BIO_s_bio, 
 //GO(BIO_s_connect, 
-//GO(BIO_s_datagram, 
+GO(BIO_s_datagram, pFv)
 GO(BIO_seek, iFpi)
 GO(BIO_set, iFpp)
 //GO(BIO_set_callback, 
-//GO(BIO_set_callback_arg, 
+GO(BIO_set_callback_arg, vFpp)
 GO(BIO_set_close, iFpl)
 //GO(BIO_set_cipher, 
-//GO(BIO_set_ex_data, 
+GO(BIO_set_ex_data, iFpip)
 //GO(BIO_set_flags, 
-//GO(BIO_set_tcp_ndelay, 
+GO(BIO_set_tcp_ndelay, iFii)
 //GO(BIO_s_fd, 
 //GO(BIO_s_file, 
 //GO(BIO_s_log, 
@@ -361,14 +361,14 @@ GO(BIO_s_mem, pFv)
 //GO(BIO_s_null, 
 //GO(BIO_sock_cleanup, 
 //GO(BIO_sock_error, 
-//GO(BIO_socket_ioctl, 
+GO(BIO_socket_ioctl, iFilp)
 //GO(BIO_socket_nbio, 
-//GO(BIO_sock_init, 
+GO(BIO_sock_init, iFv)
 //GO(BIO_sock_non_fatal_error, 
 //GO(BIO_sock_should_retry, 
 //GO(BIO_s_socket, 
 GO(BIO_tell, iFp)
-//GO(BIO_test_flags, 
+GO(BIO_test_flags, iFpi)
 GO(BIO_vfree, vFp)
 //GO(BIO_vprintf, 
 //GO(BIO_vsnprintf, 
@@ -378,122 +378,122 @@ GO(BN_add, iFppp)
 //GO(bn_add_part_words, 
 GO(BN_add_word, iFpu)
 //GO(bn_add_words, 
-//GO(BN_asc2bn, 
+GO(BN_asc2bn, iFpp)
 GO(BN_bin2bn, pFpip)
 //GO(BN_BLINDING_convert, 
-//GO(BN_BLINDING_convert_ex, 
+GO(BN_BLINDING_convert_ex, iFpppp)
 //GO(BN_BLINDING_create_param, 
 //GO(BN_BLINDING_free, 
-//GO(BN_BLINDING_get_flags, 
+GO(BN_BLINDING_get_flags, LFp)
 //GO(BN_BLINDING_get_thread_id, 
-//GO(BN_BLINDING_invert, 
-//GO(BN_BLINDING_invert_ex, 
-//GO(BN_BLINDING_new, 
-//GO(BN_BLINDING_set_flags, 
+GO(BN_BLINDING_invert, iFppp)
+GO(BN_BLINDING_invert_ex, iFpppp)
+GO(BN_BLINDING_new, pFppp)
+GO(BN_BLINDING_set_flags, vFpL)
 //GO(BN_BLINDING_set_thread_id, 
 //GO(BN_BLINDING_thread_id, 
-//GO(BN_BLINDING_update, 
+GO(BN_BLINDING_update, iFpp)
 GO(BN_bn2bin, iFpp)
 GO(BN_bn2dec, pFp)
 GO(BN_bn2hex, pFp)
 GO(BN_bn2mpi, iFpp)
-//GO(BN_bntest_rand, 
+GO(BN_bntest_rand, iFpiii)
 GO(BN_clear, vFp)
 GO(BN_clear_bit, iFpi)
 GO(BN_clear_free, vFp)
 GO(BN_cmp, iFpp)
 //GO(bn_cmp_part_words, 
 //GO(bn_cmp_words, 
-//GO(BN_consttime_swap, 
+GO(BN_consttime_swap, vFLppi)
 GO(BN_copy, pFpp)
-//GO(BN_CTX_end, 
+GO(BN_CTX_end, vFp)
 GO(BN_CTX_free, vFp)
-//GO(BN_CTX_get, 
+GO(BN_CTX_get, pFp)
 GO(BN_CTX_init, vFp)
 GO(BN_CTX_new, pFv)
 //GO(BN_CTX_start, 
 GO(BN_dec2bn, iFpp)
 GO(BN_div, iFppppp)
-//GO(BN_div_recp, 
-GO(BN_div_word, uFpu)
+GO(BN_div_recp, iFppppp)
+GO(BN_div_word, LFpL)
 //GO(bn_div_words, 
 GO(BN_dup, pFp)
 //GO(bn_dup_expand, 
 GO(BN_exp, iFpppp)
 //GO(bn_expand2, 
 GO(BN_free, vFp)
-//GO(BN_from_montgomery, 
+GO(BN_from_montgomery, iFpppp)
 GO(BN_gcd, iFpppp)
-//GO(BN_GENCB_call, 
+GO(BN_GENCB_call, iFpii)
 //GO(BN_generate_prime, pFpiippBp) //callback previous last argument...
-//GO(BN_generate_prime_ex, 
+GO(BN_generate_prime_ex, iFpiippp)
 //GO(BN_get0_nist_prime_192, 
 //GO(BN_get0_nist_prime_224, 
 //GO(BN_get0_nist_prime_256, 
 //GO(BN_get0_nist_prime_384, 
-//GO(BN_get0_nist_prime_521, 
-//GO(BN_get_params, 
-GO(BN_get_word, uFp)
+GO(BN_get0_nist_prime_521, pFv)
+GO(BN_get_params, iFi)
+GO(BN_get_word, LFp)
 //GO(BN_GF2m_add, 
-//GO(BN_GF2m_arr2poly, 
-//GO(BN_GF2m_mod, 
-//GO(BN_GF2m_mod_arr, 
+GO(BN_GF2m_arr2poly, iFpp)
+GO(BN_GF2m_mod, iFppp)
+GO(BN_GF2m_mod_arr, iFppp)
 //GO(BN_GF2m_mod_div, 
 //GO(BN_GF2m_mod_div_arr, 
-//GO(BN_GF2m_mod_exp, 
-//GO(BN_GF2m_mod_exp_arr, 
+GO(BN_GF2m_mod_exp, iFppppp)
+GO(BN_GF2m_mod_exp_arr, iFppppp)
 //GO(BN_GF2m_mod_inv, 
 //GO(BN_GF2m_mod_inv_arr, 
 //GO(BN_GF2m_mod_mul, 
 //GO(BN_GF2m_mod_mul_arr, 
 //GO(BN_GF2m_mod_solve_quad, 
-//GO(BN_GF2m_mod_solve_quad_arr, 
+GO(BN_GF2m_mod_solve_quad_arr, iFpppp)
 //GO(BN_GF2m_mod_sqr, 
 //GO(BN_GF2m_mod_sqr_arr, 
 //GO(BN_GF2m_mod_sqrt, 
 //GO(BN_GF2m_mod_sqrt_arr, 
 //GO(bn_GF2m_mul_2x2, 
-//GO(BN_GF2m_poly2arr, 
+GO(BN_GF2m_poly2arr, iFppi)
 GO(BN_hex2bn, iFpp)
 //GO(BN_init, 
 GO(BN_is_bit_set, iFpi)
 //GO(BN_is_prime, iFpiBpp)  // third argument is a callback
-//GO(BN_is_prime_ex, 
+GO(BN_is_prime_ex, iFpipp)
 //GO(BN_is_prime_fasttest, 
-//GO(BN_is_prime_fasttest_ex, 
+GO(BN_is_prime_fasttest_ex, iFpipip)
 GO(BN_is_zero, iFp) 
-//GO(BN_kronecker, 
+GO(BN_kronecker, iFppp)
 GO(BN_lshift, iFppi)
 GO(BN_lshift1, iFpp)
 GO(BN_mask_bits, iFpi)
 GO(BN_mod_add, iFppppp)
 //GO(BN_mod_add_quick, 
 GO(BN_mod_exp, iFppppp)
-//GO(BN_mod_exp2_mont, 
+GO(BN_mod_exp2_mont, iFpppppppp)
 //GO(BN_mod_exp_mont, 
-//GO(BN_mod_exp_mont_consttime, 
-//GO(BN_mod_exp_mont_word, 
+GO(BN_mod_exp_mont_consttime, iFpppppp)
+GO(BN_mod_exp_mont_word, iFpLpppp)
 //GO(BN_mod_exp_recp, 
 //GO(BN_mod_exp_simple, 
 GO(BN_mod_inverse, pFpppp)
-//GO(BN_mod_lshift, 
+GO(BN_mod_lshift, iFppipp)
 //GO(BN_mod_lshift1, 
 //GO(BN_mod_lshift1_quick, 
-//GO(BN_mod_lshift_quick, 
+GO(BN_mod_lshift_quick, iFppip)
 GO(BN_mod_mul, iFppppp)
-//GO(BN_mod_mul_montgomery, 
-//GO(BN_mod_mul_reciprocal, 
+GO(BN_mod_mul_montgomery, iFppppp)
+GO(BN_mod_mul_reciprocal, iFppppp)
 GO(BN_mod_sqr, iFpppp)
-//GO(BN_mod_sqrt, 
+GO(BN_mod_sqrt, pFpppp)
 GO(BN_mod_sub, iFppppp)
-//GO(BN_mod_sub_quick, 
-GO(BN_mod_word, uFpu)
-//GO(BN_MONT_CTX_copy, 
-//GO(BN_MONT_CTX_free, 
+GO(BN_mod_sub_quick, iFpppp)
+GO(BN_mod_word, LFpL)
+GO(BN_MONT_CTX_copy, pFpp)
+GO(BN_MONT_CTX_free, vFp)
 //GO(BN_MONT_CTX_init, 
-//GO(BN_MONT_CTX_new, 
-//GO(BN_MONT_CTX_set, 
-//GO(BN_MONT_CTX_set_locked, 
+GO(BN_MONT_CTX_new, pFv)
+GO(BN_MONT_CTX_set, iFppp)
+GO(BN_MONT_CTX_set_locked, pFpppp)
 GO(BN_mpi2bn, pFpip)
 GO(BN_mul, iFpppp)
 //GO(bn_mul_add_words, 
@@ -513,29 +513,29 @@ GO(BN_new, pFv)
 //GO(BN_nist_mod_224, 
 //GO(BN_nist_mod_256, 
 //GO(BN_nist_mod_384, 
-//GO(BN_nist_mod_521, 
+GO(BN_nist_mod_521, iFpppp)
 GO(BN_nnmod, iFpppp)
 GO(BN_num_bits, iFp)
-GO(BN_num_bits_word, iFu)
+GO(BN_num_bits_word, iFL)
 GO(BN_one, iFp)
-//GO(BN_options, 
+GO(BN_options, pFv)
 GO(BN_print, iFpp)
 GO(BN_print_fp, iFpp)
 GO(BN_pseudo_rand, iFpiii)
 GO(BN_pseudo_rand_range, iFpp)
 GO(BN_rand, iFpiii)
 //GO(BN_rand_range, 
-//GO(BN_reciprocal, 
-//GO(BN_RECP_CTX_free, 
+GO(BN_reciprocal, iFppip)
+GO(BN_RECP_CTX_free, vFp)
 //GO(BN_RECP_CTX_init, 
-//GO(BN_RECP_CTX_new, 
-//GO(BN_RECP_CTX_set, 
+GO(BN_RECP_CTX_new, pFv)
+GO(BN_RECP_CTX_set, iFppp)
 GO(BN_rshift, iFppi)
 GO(BN_rshift1, iFpp)
 GO(BN_set_bit, iFpi)
 GO(BN_set_negative, vFpi)
-//GO(BN_set_params, 
-GO(BN_set_word, iFpu)
+GO(BN_set_params, vFiiii)
+GO(BN_set_word, iFpL)
 GO(BN_sqr, iFppp)
 //GO(bn_sqr_comba4, 
 //GO(bn_sqr_comba8, 
@@ -546,16 +546,16 @@ GO(BN_sub, iFppp)
 //GO(bn_sub_part_words, 
 GO(BN_sub_word, iFpu)
 //GO(bn_sub_words, 
-GO(BN_swap, pFpp)
+GO(BN_swap, vFpp)
 GO(BN_to_ASN1_ENUMERATED, pFpp)
 GO(BN_to_ASN1_INTEGER, pFpp)
 //GO(BN_uadd, 
 GO(BN_ucmp, iFpp)
 //GO(BN_usub, 
 GO(BN_value_one, pFv)
-//GO(BN_X931_derive_prime_ex, 
-//GO(BN_X931_generate_prime_ex, 
-//GO(BN_X931_generate_Xpq, 
+GO(BN_X931_derive_prime_ex, iFppppppppp)
+GO(BN_X931_generate_prime_ex, iFppppppppp)
+GO(BN_X931_generate_Xpq, iFppip)
 GO(BN_zero, vFp)
 //GO(bsaes_cbc_encrypt, 
 //GO(bsaes_ctr32_encrypt_blocks, 
@@ -824,10 +824,10 @@ GO(CRYPTO_cleanup_all_ex_data, vFv)
 //GO(CRYPTO_dbg_realloc, 
 //GO(CRYPTO_dbg_set_options, 
 //GO(CRYPTO_destroy_dynlockid, 
-//GO(CRYPTO_dup_ex_data, 
+GO(CRYPTO_dup_ex_data, iFipp)
 //GO(CRYPTO_ex_data_new_class, 
 GO(CRYPTO_free, vFppi)
-//GO(CRYPTO_free_ex_data, 
+GO(CRYPTO_free_ex_data, vFipp)
 //GO(CRYPTO_free_locked, 
 //GO(CRYPTO_gcm128_aad, 
 //GO(CRYPTO_gcm128_decrypt, 
@@ -845,7 +845,7 @@ GO(CRYPTO_free, vFppi)
 //GO(CRYPTO_get_dynlock_destroy_callback, 
 //GO(CRYPTO_get_dynlock_lock_callback, 
 //GO(CRYPTO_get_dynlock_value, 
-//GO(CRYPTO_get_ex_data, 
+GO(CRYPTO_get_ex_data, pFpi)
 //GO(CRYPTO_get_ex_data_implementation, 
 //GO(CRYPTO_get_ex_new_index, 
 //GO(CRYPTO_get_id_callback, 
@@ -856,19 +856,19 @@ GO(CRYPTO_free, vFppi)
 //GO(CRYPTO_get_mem_debug_functions, 
 //GO(CRYPTO_get_mem_debug_options, 
 //GO(CRYPTO_get_mem_ex_functions, 
-//GO(CRYPTO_get_mem_functions, 
+GO(CRYPTO_get_mem_functions, vFppp)
 //GO(CRYPTO_get_new_dynlockid, 
 //GO(CRYPTO_get_new_lockid, 
 //GO(CRYPTO_is_mem_check_on, 
 //GO(CRYPTO_lock, 
 GO(CRYPTO_malloc, pFupi)
 //GO(CRYPTO_malloc_locked, 
-//GO(CRYPTO_memcmp, 
+GO(CRYPTO_memcmp, iFppL)
 //GO(CRYPTO_mem_ctrl, 
 //GO(CRYPTO_mem_leaks, 
 //GO(CRYPTO_mem_leaks_cb, 
 //GO(CRYPTO_mem_leaks_fp, 
-//GO(CRYPTO_new_ex_data, 
+GO(CRYPTO_new_ex_data, iFipp)
 //GO(CRYPTO_nistcts128_decrypt, 
 //GO(CRYPTO_nistcts128_decrypt_block, 
 //GO(CRYPTO_nistcts128_encrypt, 
@@ -877,7 +877,7 @@ GO(CRYPTO_num_locks, iFv)
 //GO(CRYPTO_ofb128_encrypt, 
 //GO(CRYPTO_pop_info, 
 //GO(CRYPTO_push_info_, 
-GO(CRYPTO_realloc, pFpupi)
+GO(CRYPTO_realloc, pFpLpi)
 //GO(CRYPTO_realloc_clean, 
 //GO(CRYPTO_remalloc, 
 //GO(CRYPTO_remove_all_info, 
@@ -885,7 +885,7 @@ GO(CRYPTO_realloc, pFpupi)
 //GO(CRYPTO_set_dynlock_create_callback, 
 //GO(CRYPTO_set_dynlock_destroy_callback, 
 //GO(CRYPTO_set_dynlock_lock_callback, 
-//GO(CRYPTO_set_ex_data, 
+GO(CRYPTO_set_ex_data, iFpip)
 //GO(CRYPTO_set_ex_data_implementation, 
 GOM(CRYPTO_set_id_callback, vFEp)
 //GO(CRYPTO_set_locked_mem_ex_functions, 
@@ -908,31 +908,31 @@ GO(CRYPTO_strdup, pFppi)
 //GO(CRYPTO_xts128_encrypt, 
 //GO(d2i_ACCESS_DESCRIPTION, 
 GO(d2i_ASN1_BIT_STRING, pFppl)
-//GO(d2i_ASN1_BMPSTRING, 
+GO(d2i_ASN1_BMPSTRING, pFppl)
 //GO(d2i_ASN1_BOOLEAN, 
 //GO(d2i_ASN1_bytes, 
-//GO(d2i_ASN1_ENUMERATED, 
-//GO(d2i_ASN1_GENERALIZEDTIME, 
-//GO(d2i_ASN1_GENERALSTRING, 
-//GO(d2i_ASN1_IA5STRING, 
+GO(d2i_ASN1_ENUMERATED, pFppl)
+GO(d2i_ASN1_GENERALIZEDTIME, pFppl)
+GO(d2i_ASN1_GENERALSTRING, pFppl)
+GO(d2i_ASN1_IA5STRING, pFppl)
 //GO(d2i_ASN1_INTEGER, 
-//GO(d2i_ASN1_NULL, 
-//GO(d2i_ASN1_OBJECT, 
-//GO(d2i_ASN1_OCTET_STRING, 
+GO(d2i_ASN1_NULL, pFppl)
+GO(d2i_ASN1_OBJECT, pFppl)
+GO(d2i_ASN1_OCTET_STRING, pFppl)
 //GO(d2i_ASN1_PRINTABLE, 
-//GO(d2i_ASN1_PRINTABLESTRING, 
+GO(d2i_ASN1_PRINTABLESTRING, pFppl)
 //GO(d2i_ASN1_SEQUENCE_ANY, 
 //GO(d2i_ASN1_SET, 
-//GO(d2i_ASN1_SET_ANY, 
-//GO(d2i_ASN1_T61STRING, 
-//GO(d2i_ASN1_TIME, 
-//GO(d2i_ASN1_TYPE, 
+GO(d2i_ASN1_SET_ANY, pFppl)
+GO(d2i_ASN1_T61STRING, pFppl)
+GO(d2i_ASN1_TIME, pFppl)
+GO(d2i_ASN1_TYPE, pFppl)
 //GO(d2i_ASN1_type_bytes, 
-//GO(d2i_ASN1_UINTEGER, 
-//GO(d2i_ASN1_UNIVERSALSTRING, 
-//GO(d2i_ASN1_UTCTIME, 
-//GO(d2i_ASN1_UTF8STRING, 
-//GO(d2i_ASN1_VISIBLESTRING, 
+GO(d2i_ASN1_UINTEGER, pFppl)
+GO(d2i_ASN1_UNIVERSALSTRING, pFppl)
+GO(d2i_ASN1_UTCTIME, pFppl)
+GO(d2i_ASN1_UTF8STRING, pFppl)
+GO(d2i_ASN1_VISIBLESTRING, pFppl)
 //GO(d2i_AUTHORITY_INFO_ACCESS, 
 //GO(d2i_AUTHORITY_KEYID, 
 GO(d2i_AutoPrivateKey, pFppl)
@@ -945,7 +945,7 @@ GO(d2i_BASIC_CONSTRAINTS, pFppl)
 GO(d2i_DHparams, pFppl)
 //GO(d2i_DHxparams, 
 //GO(d2i_DIRECTORYSTRING, 
-//GO(d2i_DISPLAYTEXT, 
+GO(d2i_DISPLAYTEXT, pFppl)
 //GO(d2i_DIST_POINT, 
 //GO(d2i_DIST_POINT_NAME, 
 //GO(d2i_DSAparams, 
@@ -1175,8 +1175,8 @@ GO(DH_new, pFv)
 //GO(DH_up_ref, 
 //GO(DIRECTORYSTRING_free, 
 //GO(DIRECTORYSTRING_new, 
-//GO(DISPLAYTEXT_free, 
-//GO(DISPLAYTEXT_new, 
+GO(DISPLAYTEXT_free, vFp)
+GO(DISPLAYTEXT_new, pFv)
 //GO(DIST_POINT_free, 
 //GO(DIST_POINT_NAME_free, 
 //GO(DIST_POINT_NAME_new, 
@@ -2117,41 +2117,41 @@ GO(HMAC_Init, iFppip)
 GO(HMAC_Init_ex, iFppipp)
 GO(HMAC_Update, iFppi)
 //GO(i2a_ACCESS_DESCRIPTION, 
-//GO(i2a_ASN1_ENUMERATED, 
-//GO(i2a_ASN1_INTEGER, 
-//GO(i2a_ASN1_OBJECT, 
-//GO(i2a_ASN1_STRING, 
+GO(i2a_ASN1_ENUMERATED, iFpp)
+GO(i2a_ASN1_INTEGER, iFpp)
+GO(i2a_ASN1_OBJECT, iFpp)
+GO(i2a_ASN1_STRING, iFppi)
 //GO(i2b_PrivateKey_bio, 
 //GO(i2b_PublicKey_bio, 
 //GO(i2b_PVK_bio, 
 //GO(i2c_ASN1_BIT_STRING, 
 //GO(i2c_ASN1_INTEGER, 
 //GO(i2d_ACCESS_DESCRIPTION, 
-//GO(i2d_ASN1_bio_stream, 
-//GO(i2d_ASN1_BIT_STRING, 
-//GO(i2d_ASN1_BMPSTRING, 
+GO(i2d_ASN1_bio_stream, iFpppip)
+GO(i2d_ASN1_BIT_STRING, iFpp)
+GO(i2d_ASN1_BMPSTRING, iFpp)
 //GO(i2d_ASN1_BOOLEAN, 
 //GO(i2d_ASN1_bytes, 
-//GO(i2d_ASN1_ENUMERATED, 
-//GO(i2d_ASN1_GENERALIZEDTIME, 
-//GO(i2d_ASN1_GENERALSTRING, 
-//GO(i2d_ASN1_IA5STRING, 
+GO(i2d_ASN1_ENUMERATED, iFpp)
+GO(i2d_ASN1_GENERALIZEDTIME, iFpp)
+GO(i2d_ASN1_GENERALSTRING, iFpp)
+GO(i2d_ASN1_IA5STRING, iFpp)
 GO(i2d_ASN1_INTEGER, iFpp)
-//GO(i2d_ASN1_NULL, 
-//GO(i2d_ASN1_OBJECT, 
-//GO(i2d_ASN1_OCTET_STRING, 
+GO(i2d_ASN1_NULL, iFpp)
+GO(i2d_ASN1_OBJECT, iFpp)
+GO(i2d_ASN1_OCTET_STRING, iFpp)
 //GO(i2d_ASN1_PRINTABLE, 
-//GO(i2d_ASN1_PRINTABLESTRING, 
+GO(i2d_ASN1_PRINTABLESTRING, iFpp)
 //GO(i2d_ASN1_SEQUENCE_ANY, 
 //GO(i2d_ASN1_SET, 
-//GO(i2d_ASN1_SET_ANY, 
-//GO(i2d_ASN1_T61STRING, 
-//GO(i2d_ASN1_TIME, 
+GO(i2d_ASN1_SET_ANY, iFpp)
+GO(i2d_ASN1_T61STRING, iFpp)
+GO(i2d_ASN1_TIME, iFpp)
 GO(i2d_ASN1_TYPE, iFpp)
-//GO(i2d_ASN1_UNIVERSALSTRING, 
-//GO(i2d_ASN1_UTCTIME, 
-//GO(i2d_ASN1_UTF8STRING, 
-//GO(i2d_ASN1_VISIBLESTRING, 
+GO(i2d_ASN1_UNIVERSALSTRING, iFpp)
+GO(i2d_ASN1_UTCTIME, iFpp)
+GO(i2d_ASN1_UTF8STRING, iFpp)
+GO(i2d_ASN1_VISIBLESTRING, iFpp)
 //GO(i2d_AUTHORITY_INFO_ACCESS, 
 //GO(i2d_AUTHORITY_KEYID, 
 //GO(i2d_BASIC_CONSTRAINTS, 
@@ -2164,7 +2164,7 @@ GO(i2d_CMS_bio, iFpp)
 GO(i2d_DHparams, iFpp)
 //GO(i2d_DHxparams, 
 //GO(i2d_DIRECTORYSTRING, 
-//GO(i2d_DISPLAYTEXT, 
+GO(i2d_DISPLAYTEXT, iFpp)
 //GO(i2d_DIST_POINT, 
 //GO(i2d_DIST_POINT_NAME, 
 //GO(i2d_DSAparams, 
@@ -2612,12 +2612,12 @@ GO(OPENSSL_config, vFp)
 //GO(OpenSSLDie, 
 //GO(OPENSSL_DIR_end, 
 //GO(OPENSSL_DIR_read, 
-//GO(OPENSSL_gmtime, 
-//GO(OPENSSL_gmtime_adj, 
-//GO(OPENSSL_gmtime_diff, 
+GO(OPENSSL_gmtime, pFpp)
+GO(OPENSSL_gmtime_adj, iFpil)
+GO(OPENSSL_gmtime_diff, iFpppp)
 //GO(OPENSSL_ia32cap_loc, 
 //GO(OPENSSL_init, 
-GO(OPENSSL_init_crypto, iFUp)
+GO(OPENSSL_init_crypto, iFLp)
 //GO(OPENSSL_instrument_bus, 
 //GO(OPENSSL_instrument_bus2, 
 //GO(OPENSSL_isservice, 
@@ -2635,8 +2635,8 @@ GO(OPENSSL_sk_push, iFpp)   //1.1+
 GO(OPENSSL_sk_value, pFpi)  //1.1+
 //GO(OPENSSL_showfatal, 
 //GO(OPENSSL_stderr, 
-//GO(OPENSSL_strcasecmp, 
-//GO(OPENSSL_strncasecmp, 
+GO(OPENSSL_strcasecmp, iFpp)
+GO(OPENSSL_strncasecmp, iFppL)
 //GO(OPENSSL_uni2asc, 
 //GO(OPENSSL_wipe_cpu, 
 //GO(_ossl_096_des_random_seed, 
@@ -2752,7 +2752,7 @@ GO(PEM_read_X509_AUX, pFpppp)
 //GO(PEM_SignUpdate, 
 //GO(PEM_write, 
 //GO(PEM_write_bio, 
-//GO(PEM_write_bio_ASN1_stream, 
+GO(PEM_write_bio_ASN1_stream, iFpppipp)
 //GO(PEM_write_bio_CMS, 
 //GO(PEM_write_bio_CMS_stream, 
 //GO(PEM_write_bio_DHparams, 
@@ -3120,12 +3120,12 @@ GO(SHA512_Update, iFppL)
 //GO(SHA_Init, 
 //GO(SHA_Transform, 
 //GO(SHA_Update, 
-//GO(SMIME_crlf_copy, 
-//GO(SMIME_read_ASN1, 
+GO(SMIME_crlf_copy, iFppi)
+GO(SMIME_read_ASN1, pFppp)
 //GO(SMIME_read_CMS, 
 //GO(SMIME_read_PKCS7, 
-//GO(SMIME_text, 
-//GO(SMIME_write_ASN1, 
+GO(SMIME_text, iFpp)
+GO(SMIME_write_ASN1, iFpppiiipp)
 //GO(SMIME_write_CMS, 
 //GO(SMIME_write_PKCS7, 
 //GO(SRP_Calc_A, 
@@ -3357,8 +3357,8 @@ GO(UI_set_method, pFpp)
 //GO(UI_UTIL_read_pw_string, 
 //GO(USERNOTICE_free, 
 //GO(USERNOTICE_new, 
-//GO(UTF8_getc, 
-//GO(UTF8_putc, 
+GO(UTF8_getc, iFpip)
+GO(UTF8_putc, iFpiL)
 //GO(v2i_ASN1_BIT_STRING, 
 //GO(v2i_GENERAL_NAME, 
 //GO(v2i_GENERAL_NAME_ex, 
