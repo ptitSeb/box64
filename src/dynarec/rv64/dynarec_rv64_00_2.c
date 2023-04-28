@@ -631,6 +631,31 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOV64xw(x2, i64);
             emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
+        case 0xAA:
+            if(rep) {
+                INST_NAME("REP STOSB");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1<<F_DF);
+                BNEZ_MARK2(x1);
+                MARK;   // Part with DF==0
+                SB(xRAX, xRDI, 0);
+                ADDI(xRDI, xRDI, 1);
+                ADDI(xRCX, xRCX, -1)
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                SB(xRAX, xRDI, 0);
+                ADDI(xRDI, xRDI, -1);
+                ADDI(xRCX, xRCX, -1)
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("STOSB");
+                GETDIR(x3, x1, 1);
+                SB(xRAX, xRDI, 0);
+                ADD(xRDI, xRDI, x3);
+            }
+            break;
         case 0xAB:
             if(rep) {
                 INST_NAME("REP STOSD");
