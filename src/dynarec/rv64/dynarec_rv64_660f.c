@@ -372,6 +372,102 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         FCVTLD(x5, d0, round_round[u8&3]);
                         FCVTDL(v0, x5, round_round[u8&3]);
                     }
+                    FSGNJD(v0, v0, d0);
+                    break;
+                case 0x0E:
+                    INST_NAME("PBLENDW Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 1);
+                    u8 = F8;
+                    i32 = 0;
+                    if (MODREG && gd==ed) break;
+                    while (u8)
+                        if(u8&1) {
+                            if(!(i32&1) && u8&2) {
+                                if(!(i32&3) && (u8&0xf)==0xf) {
+                                    // whole 64bits
+                                    LD(x3, wback, fixedaddress+8*(i32>>2));
+                                    SD(x3, gback, 8*(i32>>2));
+                                    i32+=4;
+                                    u8>>=4;
+                                } else {
+                                    // 32bits
+                                    LWU(x3, wback, fixedaddress+4*(i32>>1));
+                                    SW(x3, gback, 4*(i32>>1));
+                                    i32+=2;
+                                    u8>>=2;
+                                }
+                            } else {
+                                // 16 bits
+                                LHU(x3, wback, fixedaddress+2*i32);
+                                SH(x3, gback, 2*i32);
+                                i32++;
+                                u8>>=1;
+                            }
+                        } else {
+                            // nope
+                            i32++;
+                            u8>>=1;
+                        }
+                    break;
+                case 0x0F:
+                    INST_NAME("PALIGNR Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 1);
+                    u8 = F8;
+                    sse_forget_reg(dyn, ninst, x5);
+                    ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
+                    // perserve gd
+                    LD(x3, gback, 0);
+                    LD(x4, gback, 8);
+                    SD(x3, x5, 0);
+                    SD(x4, x5, 8);
+                    if(u8>31) {
+                        SD(xZR, gback, 0);
+                        SD(xZR, gback, 8);
+                    } else {
+                        for (int i=0; i<16; ++i, ++u8) {
+                            if (u8>15) {
+                                if(u8>31) {
+                                    SB(xZR, gback, i);
+                                    continue;
+                                }
+                                else LBU(x3, x5, u8-16);
+                            } else {
+                                LBU(x3, wback, fixedaddress+u8);
+                            }
+                            SB(x3, gback, i);
+                        }
+                    }
+                    break;
+                case 0x16:
+                    if(rex.w) {INST_NAME("PEXTRQ Ed, Gx, Ib");} else {INST_NAME("PEXTRD Ed, Gx, Ib");}
+                    nextop = F8;
+                    GETGX(x1);
+                    GETED(1);
+                    u8 = F8;
+                    if(rex.w)
+                        LD(ed, gback, 8*(u8&1));
+                    else
+                        LWU(ed, gback, 4*(u8&3));
+                    if (wback) {
+                        SDxw(ed, wback, fixedaddress);
+                        SMWRITE2();
+                    }
+                    break;
+                case 0x22:
+                    INST_NAME("PINSRD Gx, ED, Ib");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETED(1);
+                    u8 = F8;
+                    if(rex.w) {
+                        SD(ed, gback, 8*(u8&0x1));
+                    } else {
+                        SW(ed, gback, 4*(u8&0x3));
+                    }
                     break;
                 default:
                     DEFAULT;
@@ -1121,6 +1217,48 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(x1);
             GETEX(x2, 0);
             SSE_LOOP_D(x3, x4, XOR(x3, x3, x4); SNEZ(x3, x3); ADDI(x3, x3, -1));
+            break;
+        case 0x7C:
+            INST_NAME("HADDPD Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            FLD(d0, gback, 0);
+            FLD(d1, gback, 8);
+            if(!box64_dynarec_fastnan) {
+                FEQD(x3, d0, d0);
+                FEQD(x4, d1, d1);
+                AND(x3, x3, x4);
+            }
+            FADDD(d0, d0, d1);
+            if(!box64_dynarec_fastnan) {
+                FEQD(x4, d0, d0);
+                BEQZ(x3, 12);
+                BNEZ(x4, 8);
+                FNEGD(d0, d0);
+            }
+            FSD(d0, gback, 0);
+            if(MODREG && gd==(nextop&7)+(rex.b<<3)) {
+                FSD(d0, gback, 8);
+            } else {
+                GETEX(x2, 0);
+                FLD(d0, wback, fixedaddress+0);
+                FLD(d1, wback, fixedaddress+8);
+                if(!box64_dynarec_fastnan) {
+                    FEQD(x3, d0, d0);
+                    FEQD(x4, d1, d1);
+                    AND(x3, x3, x4);
+                }
+                FADDD(d0, d0, d1);
+                if(!box64_dynarec_fastnan) {
+                    FEQD(x4, d0, d0);
+                    BEQZ(x3, 12);
+                    BNEZ(x4, 8);
+                    FNEGD(d0, d0);
+                }
+                FSD(d0, gback, 8);
+            }
             break;
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
