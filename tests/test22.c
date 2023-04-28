@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <math.h>
 
+// Build with `gcc -march=core2 -mfpmath=387 -O2 test22.c -o test22`
+
 #if defined(__x86_64__)
 uint64_t _fucomip_(double a, double b)
 {
@@ -30,7 +32,7 @@ uint64_t _fucompp_(double a, double b)
     :"=a" (ret):"m"(a), "m"(b):"cc");
     return ret;
 }
-uint64_t _fistpw_(double a)
+uint64_t _fistpw_(double a, uint8_t rd)
 {
     uint16_t ret;
     uint16_t t1, t2;
@@ -38,15 +40,31 @@ uint64_t _fistpw_(double a)
     "fldl %1\n"
     "fstcw %2\n"
     "mov %2, %%ax\n"
-    "mov $0x0c, %%ah\n"
+    "mov %4, %%ah\n"
     "mov %%ax, %3\n"
     "fldcw %3\n"
     "fistp %0\n"
     "fldcw %2\n"
-    :"=m" (ret):"m"(a), "m"(t1), "m"(t2):"cc");
+    :"=m" (ret):"m"(a), "m"(t1), "m"(t2), "m"(rd):"cc");
     return ret;
 }
-uint64_t _fistpl_(double a)
+uint64_t _fisttpw_(double a, uint8_t rd)
+{
+    uint16_t ret;
+    uint16_t t1, t2;
+    asm volatile (
+    "fldl %1\n"
+    "fstcw %2\n"
+    "mov %2, %%ax\n"
+    "mov %4, %%ah\n"
+    "mov %%ax, %3\n"
+    "fldcw %3\n"
+    "fisttp %0\n"
+    "fldcw %2\n"
+    :"=m" (ret):"m"(a), "m"(t1), "m"(t2), "m"(rd):"cc");
+    return ret;
+}
+uint64_t _fistpl_(double a, uint8_t rd)
 {
     uint32_t ret;
     uint16_t t1, t2;
@@ -54,15 +72,31 @@ uint64_t _fistpl_(double a)
     "fldl %1\n"
     "fstcw %2\n"
     "mov %2, %%ax\n"
-    "mov $0x0c, %%ah\n"
+    "mov %4, %%ah\n"
     "mov %%ax, %3\n"
     "fldcw %3\n"
     "fistpl %0\n"
     "fldcw %2\n"
-    :"=m" (ret):"m"(a), "m"(t1), "m"(t2):"cc");
+    :"=m" (ret):"m"(a), "m"(t1), "m"(t2), "m"(rd):"cc");
     return ret;
 }
-uint64_t _fistpq_(double a)
+uint64_t _fisttpl_(double a, uint8_t rd)
+{
+    uint32_t ret;
+    uint16_t t1, t2;
+    asm volatile (
+    "fldl %1\n"
+    "fstcw %2\n"
+    "mov %2, %%ax\n"
+    "mov %4, %%ah\n"
+    "mov %%ax, %3\n"
+    "fldcw %3\n"
+    "fisttpl %0\n"
+    "fldcw %2\n"
+    :"=m" (ret):"m"(a), "m"(t1), "m"(t2), "m"(rd):"cc");
+    return ret;
+}
+uint64_t _fistpq_(double a, uint8_t rd)
 {
     uint64_t ret;
     uint16_t t1, t2;
@@ -70,15 +104,15 @@ uint64_t _fistpq_(double a)
     "fldl %1\n"
     "fstcw %2\n"
     "mov %2, %%ax\n"
-    "mov $0x0c, %%ah\n"
+    "mov %4, %%ah\n"
     "mov %%ax, %3\n"
     "fldcw %3\n"
     "fistpq %0\n"
     "fldcw %2\n"
-    :"=m" (ret):"m"(a), "m"(t1), "m"(t2):"cc");
+    :"=m" (ret):"m"(a), "m"(t1), "m"(t2), "m"(rd):"cc");
     return ret;
 }
-uint64_t _frndint_(double a)
+uint64_t _fisttpq_(double a, uint8_t rd)
 {
     uint64_t ret;
     uint16_t t1, t2;
@@ -86,13 +120,29 @@ uint64_t _frndint_(double a)
     "fldl %1\n"
     "fstcw %2\n"
     "mov %2, %%ax\n"
-    "mov $0x0c, %%ah\n"
+    "mov %4, %%ah\n"
+    "mov %%ax, %3\n"
+    "fldcw %3\n"
+    "fisttpq %0\n"
+    "fldcw %2\n"
+    :"=m" (ret):"m"(a), "m"(t1), "m"(t2), "m"(rd):"cc");
+    return ret;
+}
+uint64_t _frndint_(double a, uint8_t rd)
+{
+    uint64_t ret;
+    uint16_t t1, t2;
+    asm volatile (
+    "fldl %1\n"
+    "fstcw %2\n"
+    "mov %2, %%ax\n"
+    "mov %4, %%ah\n"
     "mov %%ax, %3\n"
     "fldcw %3\n"
     "frndint\n"
     "fstpl %0\n"
     "fldcw %2\n"
-    :"=m" (ret):"m"(a), "m"(t1), "m"(t2):"cc");
+    :"=m" (ret):"m"(a), "m"(t1), "m"(t2), "m"(rd):"cc");
     return ret;
 }
 #endif
@@ -107,6 +157,8 @@ int main(int argc, const char** argv)
   {0x0, 0x4082c00000000000LL},
   {0x8000000000000000LL, 0x4082c00000000000LL},
   {0x8000000000000000LL, 0x0},
+  {0x40dfffc000000000LL, 0x40e0002000000000LL}, 	// 0x7fff and 0x8001 as double
+  {0xc0e0002000000000LL, 0xc0dfffc000000000LL},		// -0x8001 and -0x7fff as double
   {0x8000000000000000LL, 0x3ff0000000000000LL},
   {0x3ff0000000000000LL, 0x3fe89d9000000000LL},
   {0x3ff0000000000000LL, 0x7ff0000000000000LL},
@@ -133,14 +185,23 @@ int main(int argc, const char** argv)
    za = (flags>>(8+6))&1?'Z':'-';
    pa = (flags>>(8+2))&1?'P':'-';
    printf("%c%c%c\n", za, pa, ca);
-   printf("FRNDINT 0x%llx => 0x%llx\n", *(uint64_t*)&a, _frndint_(a));
-   printf("FRNDINT 0x%llx => 0x%llx\n", *(uint64_t*)&b, _frndint_(b));
-   printf("FISTP 0x%llx => word: %x\n", *(uint64_t*)&a, _fistpw_(a));
-   printf("FISTP 0x%llx => word: %x\n", *(uint64_t*)&b, _fistpw_(b));
-   printf("FISTP 0x%llx => long: %x\n", *(uint64_t*)&a, _fistpl_(a));
-   printf("FISTP 0x%llx => long: %x\n", *(uint64_t*)&b, _fistpl_(b));
-   printf("FISTP 0x%llx => quad: %llx\n", *(uint64_t*)&a, _fistpq_(a));
-   printf("FISTP 0x%llx => quad: %llx\n", *(uint64_t*)&b, _fistpq_(b));
+   for(int rd=0; rd<3; ++rd) {
+    printf("Rounding %d\n", rd);
+    printf(" FRNDINT 0x%llx => 0x%llx\n", *(uint64_t*)&a, _frndint_(a, rd<<2));
+    printf(" FRNDINT 0x%llx => 0x%llx\n", *(uint64_t*)&b, _frndint_(b, rd<<2));
+    printf(" FISTP 0x%llx => word: %x\n", *(uint64_t*)&a, _fistpw_(a, rd<<2));
+    printf(" FISTP 0x%llx => word: %x\n", *(uint64_t*)&b, _fistpw_(b, rd<<2));
+    printf(" FISTP 0x%llx => long: %x\n", *(uint64_t*)&a, _fistpl_(a, rd<<2));
+    printf(" FISTP 0x%llx => long: %x\n", *(uint64_t*)&b, _fistpl_(b, rd<<2));
+    printf(" FISTP 0x%llx => quad: %llx\n", *(uint64_t*)&a, _fistpq_(a, rd<<2));
+    printf(" FISTP 0x%llx => quad: %llx\n", *(uint64_t*)&b, _fistpq_(b, rd<<2));
+    printf(" FISTTP 0x%llx => word: %x\n", *(uint64_t*)&a, _fisttpw_(a, rd<<2));
+    printf(" FISTTP 0x%llx => word: %x\n", *(uint64_t*)&b, _fisttpw_(b, rd<<2));
+    printf(" FISTTP 0x%llx => long: %x\n", *(uint64_t*)&a, _fisttpl_(a, rd<<2));
+    printf(" FISTTP 0x%llx => long: %x\n", *(uint64_t*)&b, _fisttpl_(b, rd<<2));
+    printf(" FISTTP 0x%llx => quad: %llx\n", *(uint64_t*)&a, _fisttpq_(a, rd<<2));
+    printf(" FISTTP 0x%llx => quad: %llx\n", *(uint64_t*)&b, _fisttpq_(b, rd<<2));
+  }
  }
  printf("\nDone\n");
 }
