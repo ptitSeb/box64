@@ -41,15 +41,21 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     switch(nextop) {
         case 0xC0 ... 0xC7:
-        
-        case 0xE0:
-        
-        case 0xE8 ... 0xEF:
+            INST_NAME("FFREEP STx");
             DEFAULT;
             break;
-        
-        case 0xF0 ... 0xF7:
-            INST_NAME("FCOMIP ST0, STx");
+
+        case 0xE0:
+            INST_NAME("FNSTSW AX");
+            DEFAULT;
+            break;
+
+        case 0xE8 ... 0xF7:
+            if (nextop < 0xF0) {
+                INST_NAME("FUCOMIP ST0, STx");
+            } else {
+                INST_NAME("FCOMIP ST0, STx");
+            }
             SETFLAGS(X_ALL, SF_SET);
             SET_DFNONE();
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
