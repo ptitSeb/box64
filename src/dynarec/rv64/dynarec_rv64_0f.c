@@ -354,6 +354,39 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FSW(d0, gback, 4*i);
             }
             break;
+        case 0x52:
+            INST_NAME("RSQRTPS Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn); // 1.0f
+            v0 = fpu_get_scratch(dyn); // 0.0f
+            // do accurate computation, because riscv doesn't have rsqrt
+            MOV32w(x3, 1);
+            FCVTSW(s1, x3, RD_DYN);
+            if (!box64_dynarec_fastnan) {
+                FCVTSW(v0, xZR, RD_DYN);
+            }
+            for(int i=0; i<4; ++i) {
+                FLW(s0, wback, fixedaddress+i*4);
+                if (!box64_dynarec_fastnan) {
+                    FLES(x3, v0, s0); // s0 >= 0.0f?
+                    BNEZ(x3, 6*4);
+                    FEQS(x3, s0, s0); // isnan(s0)?
+                    BEQZ(x3, 2*4);
+                    // s0 is negative, so generate a NaN
+                    FDIVS(s0, s1, v0);
+                    // s0 is a NaN, just copy it
+                    FSW(s0, gback, i*4);
+                    J(4*4);
+                    // do regular computation
+                }
+                FSQRTS(s0, s0);
+                FDIVS(s0, s1, s0);
+                FSW(s0, gback, i*4);
+            }
+            break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
             nextop = F8;
