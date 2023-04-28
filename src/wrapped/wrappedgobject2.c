@@ -821,7 +821,7 @@ EXPORT void my_g_signal_emit_valist(x64emu_t* emu, void* inst, uint32_t id, void
     my->g_signal_emit_valist(inst, id, quark, VARARGS);
 }
 
-EXPORT void my_g_signal_emit(x64emu_t* emu, void* inst, uint32_t id, void* quark, x64_va_list_t b)
+EXPORT void my_g_signal_emit(x64emu_t* emu, void* inst, uint32_t id, void* quark, uintptr_t* b)
 {
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 3);
     my->g_signal_emit_valist(inst, id, quark, VARARGS);

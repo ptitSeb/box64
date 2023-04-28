@@ -44,7 +44,7 @@ GO(4)
 static uintptr_t my_AtkEventListenerInit_fct_##A = 0;               \
 static void my_AtkEventListenerInit_##A()                           \
 {                                                                   \
-    RunFunction(my_context, my_AtkEventListenerInit_fct_##A, 0);    \
+    RunFunctionFmt(my_context, my_AtkEventListenerInit_fct_##A, "");\
 }
 SUPER()
 #undef GO
@@ -66,7 +66,7 @@ static void* find_AtkEventListenerInit_Fct(void* fct)
 static uintptr_t my_AtkEventListener_fct_##A = 0;               \
 static void my_AtkEventListener_##A(void* a)                    \
 {                                                               \
-    RunFunction(my_context, my_AtkEventListener_fct_##A, 1, a); \
+    RunFunctionFmt(my_context, my_AtkEventListener_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -88,7 +88,7 @@ static void* find_AtkEventListener_Fct(void* fct)
 static uintptr_t my_AtkKeySnoopFunc_fct_##A = 0;                                \
 static int my_AtkKeySnoopFunc_##A(void* a, void* b)                             \
 {                                                                               \
-    return (int)RunFunction(my_context, my_AtkKeySnoopFunc_fct_##A, 2, a, b);   \
+    return (int)RunFunctionFmt(my_context, my_AtkKeySnoopFunc_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -110,7 +110,7 @@ static void* find_AtkKeySnoopFunc_Fct(void* fct)
 static uintptr_t my_GSignalEmissionHook_fct_##A = 0;                                    \
 static int my_GSignalEmissionHook_##A(void* a, uint32_t b, void* c, void* d)            \
 {                                                                                       \
-    return (int)RunFunction(my_context, my_GSignalEmissionHook_fct_##A, 4, a, b, c, d); \
+    return (int)RunFunctionFmt(my_context, my_GSignalEmissionHook_fct_##A, "pupp", a, b, c, d); \
 }
 SUPER()
 #undef GO

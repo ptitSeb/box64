@@ -6,6 +6,7 @@
 typedef struct x64emu_s x64emu_t;
 
 uint64_t RunFunction(box64context_t *context, uintptr_t fnc, int nargs, ...);
+uint64_t RunFunctionFmt(box64context_t *context, uintptr_t fnc, const char* fmt, ...);
 // save all modified register
 uint64_t RunSafeFunction(box64context_t *context, uintptr_t fnc, int nargs, ...);
 // use emu state to run function

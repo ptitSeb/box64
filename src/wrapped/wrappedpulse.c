@@ -919,7 +919,15 @@ static void my_time_set_destroy(void* e, void* cb)
 static void* my_defer_new(void* api, void* cb, void* data)
 {
     uintptr_t b = (uintptr_t)cb;
-    void* fnc = GetNativeFnc((uintptr_t)my_mainloop_ref->defer_new);
+    static void* old_defer_new = NULL;
+    static void* old_fnc = NULL;
+    void* fnc = NULL;
+    if(old_defer_new == my_mainloop_ref->defer_new)
+        fnc = old_fnc;
+    else {
+        old_fnc = fnc = GetNativeFnc((uintptr_t)my_mainloop_ref->defer_new);
+        old_defer_new = my_mainloop_ref->defer_new;
+    }
     if(fnc) {
         if(api==my_mainloop_ref) api=my_mainloop_orig;    // need native version
         if(fnc==native_defer_new) fnc=my_mainloop_native.defer_new;

@@ -346,7 +346,7 @@ typedef enum {
 static uintptr_t my_write_fct_##A = 0;   \
 static size_t my_write_##A(char* ptr, size_t size, size_t nmemb, void* userdata)     \
 {                                       \
-    return (size_t)RunFunction(my_context, my_write_fct_##A, 4, ptr, size, nmemb, userdata);\
+    return (size_t)RunFunctionFmt(my_context, my_write_fct_##A, "pLLp", ptr, size, nmemb, userdata);\
 }
 SUPER()
 #undef GO
@@ -369,7 +369,7 @@ static void* find_write_Fct(void* fct)
 static uintptr_t my_read_fct_##A = 0;   \
 static size_t my_read_##A(char* buffer, size_t size, size_t nitems, void* userdata)     \
 {                                       \
-    return (size_t)RunFunction(my_context, my_read_fct_##A, 4, buffer, size, nitems, userdata);\
+    return (size_t)RunFunctionFmt(my_context, my_read_fct_##A, "pLLp", buffer, size, nitems, userdata);\
 }
 SUPER()
 #undef GO
@@ -392,7 +392,7 @@ static void* find_read_Fct(void* fct)
 static uintptr_t my_ioctl_fct_##A = 0;   \
 static size_t my_ioctl_##A(void* handle, int32_t fnc, void* userdata)     \
 {                                       \
-    return (size_t)RunFunction(my_context, my_ioctl_fct_##A, 3, handle, fnc, userdata);\
+    return (size_t)RunFunctionFmt(my_context, my_ioctl_fct_##A, "pip", handle, fnc, userdata);\
 }
 SUPER()
 #undef GO
@@ -415,7 +415,7 @@ static void* find_ioctl_Fct(void* fct)
 static uintptr_t my_seek_fct_##A = 0;   \
 static int32_t my_seek_##A(void* userdata, int64_t off, int32_t origin)     \
 {                                       \
-    return (int32_t)RunFunction(my_context, my_seek_fct_##A, 4, userdata, (off&0xffffffff), ((off>>32)&0xffffffff), origin);\
+    return (int32_t)RunFunctionFmt(my_context, my_seek_fct_##A, "pIi", userdata, off, origin);\
 }
 SUPER()
 #undef GO
@@ -438,7 +438,7 @@ static void* find_seek_Fct(void* fct)
 static uintptr_t my_header_fct_##A = 0;   \
 static size_t my_header_##A(char* buffer, size_t size, size_t nitems, void* userdata)     \
 {                                       \
-    return (size_t)RunFunction(my_context, my_header_fct_##A, 4, buffer, size, nitems, userdata);\
+    return (size_t)RunFunctionFmt(my_context, my_header_fct_##A, "pLLp", buffer, size, nitems, userdata);\
 }
 SUPER()
 #undef GO
@@ -461,7 +461,7 @@ static void* find_header_Fct(void* fct)
 static uintptr_t my_progress_fct_##A = 0;   \
 static int my_progress_##A(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)     \
 {                                       \
-    return (int)RunFunction(my_context, my_progress_fct_##A, 5, clientp, dltotal, dlnow, ultotal, ulnow);\
+    return (int)RunFunctionFmt(my_context, my_progress_fct_##A, "pdddd", clientp, dltotal, dlnow, ultotal, ulnow);\
 }
 SUPER()
 #undef GO
@@ -484,7 +484,7 @@ static void* find_progress_Fct(void* fct)
 static uintptr_t my_progress_int_fct_##A = 0;   \
 static int my_progress_int_##A(void *clientp, uint64_t dltotal, uint64_t dlnow, uint64_t ultotal, uint64_t ulnow)     \
 {                                       \
-    return (int)RunFunction(my_context, my_progress_int_fct_##A, 5, clientp, dltotal, dlnow, ultotal, ulnow);\
+    return (int)RunFunctionFmt(my_context, my_progress_int_fct_##A, "pUUUU", clientp, dltotal, dlnow, ultotal, ulnow);\
 }
 SUPER()
 #undef GO
@@ -507,7 +507,7 @@ static void* find_progress_int_Fct(void* fct)
 static uintptr_t my_socket_fct_##A = 0;                                         \
 static int my_socket_##A(void *a, int b, int c, void* d, void* e)               \
 {                                                                               \
-    return (int)RunFunction(my_context, my_socket_fct_##A, 5, a, b, c, d, e);   \
+    return (int)RunFunctionFmt(my_context, my_socket_fct_##A, "piipp", a, b, c, d, e);   \
 }
 SUPER()
 #undef GO
@@ -530,7 +530,7 @@ static void* find_socket_Fct(void* fct)
 static uintptr_t my_timer_fct_##A = 0;                                  \
 static int my_timer_##A(void *a, long b, void* c)                       \
 {                                                                       \
-    return (int)RunFunction(my_context, my_timer_fct_##A, 3, a, b, c);  \
+    return (int)RunFunctionFmt(my_context, my_timer_fct_##A, "plp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -553,7 +553,7 @@ static void* find_timer_Fct(void* fct)
 static uintptr_t my_push_fct_##A = 0;                                       \
 static int my_push_##A(void *a, void* b, size_t c, void* d, void* e)        \
 {                                                                           \
-    return (int)RunFunction(my_context, my_push_fct_##A, 5, a, b, c, d, e); \
+    return (int)RunFunctionFmt(my_context, my_push_fct_##A, "ppLpp", a, b, c, d, e); \
 }
 SUPER()
 #undef GO
@@ -576,7 +576,7 @@ static void* find_push_Fct(void* fct)
 static uintptr_t my_debug_fct_##A = 0;                                          \
 static int my_debug_##A(void *a, int b, void* c, size_t d, void* e)             \
 {                                                                               \
-    return (int)RunFunction(my_context, my_debug_fct_##A, 5, a, b, c, d, e);    \
+    return (int)RunFunctionFmt(my_context, my_debug_fct_##A, "pipLp", a, b, c, d, e);    \
 }
 SUPER()
 #undef GO
