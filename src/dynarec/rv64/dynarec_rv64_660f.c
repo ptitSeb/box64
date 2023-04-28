@@ -469,6 +469,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SW(ed, gback, 4*(u8&0x3));
                     }
                     break;
+                case 0x20:
+                    INST_NAME("PINSRB Gx, ED, Ib");
+                    nextop = F8;
+                    GETGX(x3);
+                    GETED(1);
+                    u8 = F8;
+                    SB(ed, x3, u8&0xF);
+                    break;
                 default:
                     DEFAULT;
             }
