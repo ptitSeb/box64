@@ -238,6 +238,7 @@
 #() fFff
 #() fFfD
 #() fFfp
+#() fFpu
 #() fFpp
 #() dFid
 #() dFdi
@@ -1034,6 +1035,7 @@
 #() uFpupp
 #() uFppiu
 #() uFppip
+#() uFppuu
 #() uFpplp
 #() uFppLp
 #() uFpppi
@@ -1347,6 +1349,7 @@
 #() vFppiii
 #() vFppiiu
 #() vFppiip
+#() vFppiui
 #() vFppiup
 #() vFppiff
 #() vFppidd
@@ -1359,6 +1362,7 @@
 #() vFppuup
 #() vFppudd
 #() vFppupi
+#() vFppupu
 #() vFppupp
 #() vFppfff
 #() vFppddp
@@ -1368,6 +1372,7 @@
 #() vFpppui
 #() vFpppuu
 #() vFpppup
+#() vFpppff
 #() vFpppdd
 #() vFppppi
 #() vFppppu
@@ -1449,9 +1454,11 @@
 #() iFpuuui
 #() iFpuuup
 #() iFpuuLL
+#() iFpuupp
 #() iFpulup
 #() iFpulpp
 #() iFpupiU
+#() iFpupui
 #() iFpupuu
 #() iFpupup
 #() iFpuppp
@@ -1482,6 +1489,7 @@
 #() iFppiLi
 #() iFppiLL
 #() iFppipi
+#() iFppipu
 #() iFppipp
 #() iFppuwp
 #() iFppuip
@@ -1524,6 +1532,7 @@
 #() uFpuuuu
 #() uFpuupp
 #() uFpupuu
+#() uFpuppp
 #() uFppipp
 #() uFppuup
 #() uFppupp
@@ -1742,11 +1751,14 @@
 #() vFpuiiiu
 #() vFpuiipp
 #() vFpuuuiu
+#() vFpuuuup
+#() vFpuuupp
 #() vFpuupuu
 #() vFpuuppp
 #() vFpudddd
 #() vFpupiUu
 #() vFpupuuu
+#() vFpupupu
 #() vFpuppuu
 #() vFpupppp
 #() vFpUiuup
@@ -1844,7 +1856,10 @@
 #() iFpuiCpp
 #() iFpuippp
 #() iFpuuuuu
+#() iFpuuuup
+#() iFpuuupp
 #() iFpuupuu
+#() iFpuuppp
 #() iFpuLLpp
 #() iFpupuui
 #() iFpupLpL
@@ -1874,6 +1889,7 @@
 #() iFppipii
 #() iFppipiL
 #() iFppipip
+#() iFppippu
 #() iFppIppp
 #() iFppuiii
 #() iFppuIII
@@ -1914,6 +1930,9 @@
 #() uFpWuuCp
 #() uFpuippp
 #() uFpuuuup
+#() uFpuuupp
+#() uFpuuppp
+#() uFpupupu
 #() uFppippp
 #() uFppuuup
 #() uFppuupu
@@ -2068,6 +2087,7 @@
 #() vFpippppu
 #() vFpuuuuuu
 #() vFpuuUUuu
+#() vFpuupupu
 #() vFpuupppp
 #() vFpupuuup
 #() vFpupppui
@@ -2102,6 +2122,7 @@
 #() vFpppiupi
 #() vFpppippi
 #() vFpppuuuu
+#() vFpppffff
 #() vFppppiip
 #() vFppppiui
 #() vFppppipi
@@ -2191,6 +2212,8 @@
 #() uFiiiuuuu
 #() uFuippppp
 #() uFpippppp
+#() uFpuuuupp
+#() uFpuuuppp
 #() uFpuupppp
 #() uFppiuppp
 #() uFppuuuup
@@ -2241,6 +2264,7 @@
 #() pFpppuipp
 #() pFpppuuui
 #() pFpppuupp
+#() pFpppupup
 #() pFpppuppp
 #() pFpppfffi
 #() pFpppdddi
@@ -2339,6 +2363,7 @@
 #() iFpuuipppp
 #() iFpuuupupu
 #() iFpuupuupp
+#() iFpuuppppp
 #() iFpupppWWu
 #() iFpupppppp
 #() iFpUuuLpUi
@@ -2370,6 +2395,7 @@
 #() uFuipppppp
 #() uFuupuuiuf
 #() uFulpppppp
+#() uFpuupupuu
 #() uFpupuuuCp
 #() uFppuuuupp
 #() uFppuuuppu
@@ -2463,6 +2489,7 @@
 #() vFppddddudd
 #() vFpplpppppi
 #() vFpppiiiiii
+#() vFpppffffff
 #() vFppppipiip
 #() vFpppppippp
 #() iFEpiiiiipi
@@ -2497,6 +2524,7 @@
 #() uFEipippppp
 #() uFEpppufppp
 #() uFuulpiuiuf
+#() uFpuupuppuu
 #() uFppLpLuppp
 #() uFppppppppp
 #() lFpppipiipp
@@ -3870,6 +3898,7 @@ wrappedlibglx:
 - pFp:
   - glXGetProcAddress
   - glXGetProcAddressARB
+wrappedlibharfbuzz:
 wrappedlibibus:
 - vFpippp:
   - ibus_bus_current_input_context_async
