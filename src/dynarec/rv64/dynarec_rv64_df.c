@@ -142,12 +142,12 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 3:
                     INST_NAME("FISTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
-                    u8 = sse_setround(dyn, ninst, x1, x2);
+                    u8 = x87_setround(dyn, ninst, x1, x2);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                     if(!box64_dynarec_fastround) {
                         FSFLAGSI(xZR); // reset all bits
                     }
-                    FCVTWD(x4, v1, RD_RTZ);
+                    FCVTWD(x4, v1, RD_DYN);
                     x87_restoreround(dyn, ninst, u8);
                     if(!box64_dynarec_fastround) {
                         FRFLAGS(x5);   // get back FPSR to check the IOC bit
