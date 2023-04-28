@@ -34,13 +34,16 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t u8;
     int64_t fixedaddress;
     int unscaled;
-    int v1, v2;
+    int v0, v1, v2;
     int s0;
     int i1, i2, i3;
+    int64_t j64;
 
     MAYUSE(s0);
-    MAYUSE(v2);
+    MAYUSE(v0);
     MAYUSE(v1);
+    MAYUSE(v2);
+    MAYUSE(j64);
 
     switch(nextop) {
         case 0xC0:
@@ -271,7 +274,43 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xFC:
             INST_NAME("FRNDINT");
-            DEFAULT;
+            v0 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+            v1 = fpu_get_scratch(dyn);
+            v2 = fpu_get_scratch(dyn);
+            u8 = x87_setround(dyn, ninst, x1, x2);
+
+            if(ST_IS_F(0)) {
+                FEQS(x2, v0, v0);
+                BNEZ_MARK(x2);
+                B_NEXT_nocond;
+                MARK; // v0 is not nan
+                FABSS(v1, v0);
+                MOV64x(x3, 1ULL << __FLT_MANT_DIG__);
+                FCVTSL(v2, x3, RD_RTZ);
+                FLTS(x3, v1, v2);
+                BNEZ_MARK2(x3);
+                B_NEXT_nocond;
+                MARK2;
+                FCVTLS(x3, v0, RD_DYN);
+                FCVTSL(v1, x3, RD_DYN);
+                FSGNJS(v0, v1, v0);
+            } else {
+                FEQD(x2, v0, v0);
+                BNEZ_MARK(x2);
+                B_NEXT_nocond;
+                MARK; // v0 is not nan
+                FABSD(v1, v0);
+                MOV64x(x3, 1ULL << __DBL_MANT_DIG__);
+                FCVTDL(v2, x3, RD_RTZ);
+                FLTD(x3, v1, v2);
+                BNEZ_MARK2(x3);
+                B_NEXT_nocond;
+                MARK2;
+                FCVTLD(x3, v0, RD_DYN);
+                FCVTDL(v1, x3, RD_DYN);
+                FSGNJD(v0, v1, v0);
+            }
+            x87_restoreround(dyn, ninst, u8);
             break;
         case 0xFD:
             INST_NAME("FSCALE");

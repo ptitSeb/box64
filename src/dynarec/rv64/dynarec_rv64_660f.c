@@ -372,6 +372,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         FCVTLD(x5, d0, round_round[u8&3]);
                         FCVTDL(v0, x5, round_round[u8&3]);
                     }
+                    FSGNJD(v0, v0, d0);
                     break;
                 case 0x0E:
                     INST_NAME("PBLENDW Gx, Ex, Ib");
