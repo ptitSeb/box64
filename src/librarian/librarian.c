@@ -156,6 +156,27 @@ static void MapLibRemoveMapLib(lib_t* dest, lib_t* src)
     }
 }
 
+void promoteLocalLibGlobal(library_t* lib)
+{
+    if(!lib || !my_context)
+        return;
+    // promote lib from local to global...
+    // for add the depending local libs...
+    if(lib->maplib) {
+        MapLibAddMapLib(my_context->maplib, lib, lib->maplib);
+    }
+    if(!libraryInMapLib(my_context->maplib, lib))
+        MapLibAddLib(my_context->maplib, lib);
+    MapLibRemoveMapLib(my_context->local_maplib, my_context->maplib);
+}
+
+int isLibLocal(library_t* lib)
+{
+    if(!lib || !my_context)
+        return 0;
+    return libraryInMapLib(my_context->local_maplib, lib);
+}
+
 int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, box64context_t* box64, x64emu_t* emu)
 {
     const char* path = needed->names[n];
@@ -187,13 +208,7 @@ int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, box
             }
         } else {
             // promote lib from local to global...
-            // for add the depending local libs...
-            if(lib->maplib) {
-                MapLibAddMapLib(my_context->maplib, lib, lib->maplib);
-            }
-            if(!libraryInMapLib(my_context->maplib, lib))
-                MapLibAddLib(my_context->maplib, lib);
-            MapLibRemoveMapLib(my_context->local_maplib, my_context->maplib);
+            promoteLocalLibGlobal(lib);
         }
         return 0;
     }

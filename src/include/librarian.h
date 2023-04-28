@@ -25,6 +25,8 @@ int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, b
 void RemoveNeededLib(lib_t* maplib, int local, needed_libs_t* needed, box64context_t* box64, x64emu_t* emu);
 library_t* GetLibMapLib(lib_t* maplib, const char* name);
 library_t* GetLibInternal(const char* name);
+void promoteLocalLibGlobal(library_t* lib);
+int isLibLocal(library_t* lib);
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name, int version, const char* vername);
 int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, size_t size, int version, const char* vername, const char* globdefver, const char* weakdefver);
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername, const char* globdefver, const char* weakdefver);
