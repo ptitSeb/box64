@@ -716,6 +716,10 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+
+        case 0xF0:
+            return dynarec64_66F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+
         case 0xF7:
             nextop = F8;
             switch((nextop>>3)&7) {

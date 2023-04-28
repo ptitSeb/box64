@@ -640,13 +640,13 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MARK;   // Part with DF==0
                 SB(xRAX, xRDI, 0);
                 ADDI(xRDI, xRDI, 1);
-                ADDI(xRCX, xRCX, -1)
+                ADDI(xRCX, xRCX, -1);
                 BNEZ_MARK(xRCX);
                 B_NEXT_nocond;
                 MARK2;  // Part with DF==1
                 SB(xRAX, xRDI, 0);
                 ADDI(xRDI, xRDI, -1);
-                ADDI(xRCX, xRCX, -1)
+                ADDI(xRCX, xRCX, -1);
                 BNEZ_MARK2(xRCX);
                 // done
             } else {
