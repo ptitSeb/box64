@@ -140,7 +140,7 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 1: /* FISTTP Ed, ST0 */
                 GETE4(0);
-                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, (double)(int32_t)0x80000000) || !isfinite(ST0.d))
+                if(isgreater(ST0.d, (double)0x7fffffff) || isless(ST0.d, -(double)0x80000000U) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else
                     ED->sdword[0] = ST0.d;
@@ -148,7 +148,7 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 2: /* FIST Ed, ST0 */
                 GETE4(0);
-                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, (double)(int32_t)0x80000000) || !isfinite(ST0.d))
+                if(isgreater(ST0.d, (double)0x7fffffff) || isless(ST0.d, -(double)0x80000000U) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else {
                     volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR
@@ -157,7 +157,7 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 3: /* FISTP Ed, ST0 */
                 GETE4(0);
-                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, (double)(int32_t)0x80000000) || !isfinite(ST0.d))
+                if(isgreater(ST0.d, (double)0x7fffffff) || isless(ST0.d, -(double)0x80000000U) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else {
                     volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR
