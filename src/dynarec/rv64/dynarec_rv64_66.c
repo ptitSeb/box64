@@ -253,6 +253,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);
             }
             break;
+        case 0x64:
+            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _FS, ok, need_epilog);
+            break;
+        case 0x65:
+            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _GS, ok, need_epilog);
+            break;
+        case 0x66:
+            addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
         case 0x69:
         case 0x6B:
             if(opcode==0x69) {
