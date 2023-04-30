@@ -834,7 +834,7 @@ int x87_get_current_cache(dynarec_rv64_t* dyn, int ninst, int st, int t)
     for (int i=0; i<8; ++i) {
         if(dyn->e.x87cache[i]==st) {
             #if STEP == 1
-            if(t==EXT_CACHE_ST_D && (dyn->e.extcache[dyn->e.x87reg[i]].t==EXT_CACHE_ST_F))
+            if(t==EXT_CACHE_ST_D && (dyn->e.extcache[EXTIDX(dyn->e.x87reg[i])].t==EXT_CACHE_ST_F))
                 extcache_promote_double(dyn, ninst, st);
             #endif
             return i;
@@ -912,7 +912,7 @@ void x87_refresh(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
         ANDI(s2, s2, 7);    // (emu->top + i)&7
     }
     ADD(s1, xEmu, s2);
-    if(dyn->e.extcache[dyn->e.x87reg[ret]].t==EXT_CACHE_ST_F) {
+    if(dyn->e.extcache[EXTIDX(dyn->e.x87reg[ret])].t==EXT_CACHE_ST_F) {
         FCVTDS(SCRATCH0, dyn->e.x87reg[ret]);
         FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));
     } else {
@@ -932,23 +932,25 @@ void x87_forget(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
     #if STEP == 1
-    if(dyn->e.extcache[dyn->e.x87reg[ret]].t==EXT_CACHE_ST_F)
+    if(dyn->e.extcache[EXTIDX(dyn->e.x87reg[ret])].t==EXT_CACHE_ST_F)
         extcache_promote_double(dyn, ninst, st);
     #endif
     // prepare offset to fpu => s1
     // Get top
     LW(s2, xEmu, offsetof(x64emu_t, top));
     // Update
-    if(st) {
-        ADDI(s2, s2, st);
+    int a = st - dyn->e.x87stack;
+    if(a) {
+        ADDI(s2, s2, a);
         ANDI(s2, s2, 7);    // (emu->top + i)&7
     }
+    SLLI(s2, s2, 3);
     ADD(s1, xEmu, s2);
     FSD(dyn->e.x87reg[ret], s1, offsetof(x64emu_t, x87));
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
     // and forget that cache
     fpu_free_reg(dyn, dyn->e.x87reg[ret]);
-    dyn->e.extcache[dyn->e.x87reg[ret]].v = 0;
+    dyn->e.extcache[EXTIDX(dyn->e.x87reg[ret])].v = 0;
     dyn->e.x87cache[ret] = -1;
     dyn->e.x87reg[ret] = -1;
 }
@@ -963,13 +965,15 @@ void x87_reget_st(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
             // refresh the value
             MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
             #if STEP == 1
-            if(dyn->e.extcache[dyn->e.x87reg[i]].t==EXT_CACHE_ST_F)
+            if(dyn->e.extcache[EXTIDX(dyn->e.x87reg[i])].t==EXT_CACHE_ST_F)
                 extcache_promote_double(dyn, ninst, st);
             #endif
             LW(s2, xEmu, offsetof(x64emu_t, top));
             int a = st - dyn->e.x87stack;
-            ADDI(s2, s2, a);
-            AND(s2, s2, 7);
+            if(a) {
+                ADDI(s2, s2, a);
+                AND(s2, s2, 7);
+            }
             SLLI(s2, s2, 3);
             ADD(s1, xEmu, s2);
             FLD(dyn->e.x87reg[i], s1, offsetof(x64emu_t, x87));
