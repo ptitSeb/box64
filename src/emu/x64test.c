@@ -147,7 +147,7 @@ void x64test_init(x64emu_t* ref, uintptr_t ip)
         uintptr_t prev_ip = test->emu->ip.q[0];
         if(test->clean)
             x64test_check(ref, ip);
-        if(ip != prev_ip || !test->test) {
+        if(ip != prev_ip || !test->test || !test->clean) {
             CopyEmu(test->emu, ref);
         }
     }
