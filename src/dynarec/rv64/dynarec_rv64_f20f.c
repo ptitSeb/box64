@@ -184,8 +184,9 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(d0, 0);
             GETGXSD_empty(d1);
             if(!box64_dynarec_fastnan) {
-                FMVDX(d1, xZR);
-                FLTD(x3, d0, d1);
+                v0 = fpu_get_scratch(dyn);  // need a scratch in case d0 == d1
+                FMVDX(v0, xZR);
+                FLTD(x3, d0, v0);
             }
             FSQRTD(d1, d0);
             if(!box64_dynarec_fastnan) {
