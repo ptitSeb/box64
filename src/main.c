@@ -71,6 +71,11 @@ int arm64_aes = 0;
 int arm64_pmull = 0;
 int arm64_crc32 = 0;
 int arm64_atomics = 0;
+#elif defined(RV64)
+int rv64_zba = 0;
+int rv64_zbb = 0;
+int rv64_zbc = 0;
+int rv64_zbs = 0;
 #endif
 #else   //DYNAREC
 int box64_dynarec = 0;
@@ -355,7 +360,14 @@ HWCAP2_ECV
     printf_log(LOG_INFO, "Dynarec for LoongArch");
     printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #elif defined(RV64)
+    void RV64_Detect_Function();
+    RV64_Detect_Function();
     printf_log(LOG_INFO, "Dynarec for RISC-V");
+    printf_log(LOG_INFO, "With extension: I M A F D C");
+    if(rv64_zba) printf_log(LOG_INFO, " Zba");
+    if(rv64_zbb) printf_log(LOG_INFO, " Zbb");
+    if(rv64_zbc) printf_log(LOG_INFO, " Zbc");
+    if(rv64_zbs) printf_log(LOG_INFO, " Zbs");
     printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #else
 #error Unsupported architecture

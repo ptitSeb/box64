@@ -33,6 +33,11 @@ extern int arm64_aes;
 extern int arm64_pmull;
 extern int arm64_crc32;
 extern int arm64_atomics;
+#elif defined(RV64)
+extern int rv64_zba;
+extern int rv64_zbb;
+extern int rv64_zbc;
+extern int rv64_zbs;
 #endif
 #endif
 extern int box64_libcef;

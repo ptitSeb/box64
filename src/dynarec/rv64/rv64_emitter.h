@@ -509,4 +509,114 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Convert from Double to unsigned integer
 #define FCVTLUDxw(rd, frs1, rm)     EMIT(R_type(0b1100001, 0b00001+(rex.w?0b10:0b00), frs1, rm, rd, 0b1010011))
 
+//Zba
+// Add unsigned word (Wz(rs1) + X(rs2))
+#define ADDUW(rd, rs1, rs2)         EMIT(R_type(0b0000100, rs2, rs1, 0b000, rd, 0b0111011))
+// Zero-extend Word
+#define ZEXTW(rd, rs1)              ADDUW(rd, rs1, xZR)
+// Shift left by 1 and add (rd = X(rs2) + X(rs1)<<1)
+#define SH1ADD(rd, rs1, rs2)        EMIT(R_type(0b0010000, rs2, rs1, 0b010, rd, 0b0110011))
+// Shift unsigned word left by 1 and add (rd = X(rs2) + Wz(rs1)<<1)
+#define SH1ADDUW(rd, rs1, rs2)      EMIT(R_type(0b0010000, rs2, rs1, 0b010, rd, 0b0111011))
+// Shift left by 2 and add (rd = X(rs2) + X(rs1)<<2)
+#define SH2ADD(rd, rs1, rs2)        EMIT(R_type(0b0010000, rs2, rs1, 0b100, rd, 0b0110011))
+// Shift unsigned word left by 2 and add (rd = X(rs2) + Wz(rs1)<<2)
+#define SH2ADDUW(rd, rs1, rs2)      EMIT(R_type(0b0010000, rs2, rs1, 0b100, rd, 0b0111011))
+// Shift left by 3 and add (rd = X(rs2) + X(rs1)<<3)
+#define SH3ADD(rd, rs1, rs2)        EMIT(R_type(0b0010000, rs2, rs1, 0b110, rd, 0b0110011))
+// Shift unsigned word left by 3 and add (rd = X(rs2) + Wz(rs1)<<3)
+#define SH3ADDUW(rd, rs1, rs2)      EMIT(R_type(0b0010000, rs2, rs1, 0b110, rd, 0b0111011))
+// Shift left unsigned word (immediate)
+#define SLLIUW(rd, rs1, imm)        EMIT(R_type(0b0000100, imm, rs1, 0b001, rd, 0b0011011))
+
+//Zbb
+// AND with reverted operand (rs1 & ~rs2)
+#define ANDN(rd, rs1, rs2)      EMIT(R_type(0b0100000, rs2, rs1, 0b111, rd, 0b0110011))
+// OR with reverted operand (rs1 | ~rs2)
+#define ORN(rd, rs1, rs2)       EMIT(R_type(0b0100000, rs2, rs1, 0b110, rd, 0b0110011))
+// Exclusive NOR (~(rs1 ^ rs2))
+#define XNOR(rd, rs1, rs2)      EMIT(R_type(0b0100000, rs2, rs1, 0b100, rd, 0b0110011))
+// Count leading zero bits
+#define CLZ(rd, rs)             EMIT(R_type(0b0110000, 0b00000, rs1, 0b001, rd, 0b0010011))
+// Count leading zero bits in word
+#define CLZW(rd, rs)            EMIT(R_type(0b0110000, 0b00000, rs1, 0b001, rd, 0b0011011))
+// Count leading zero bits
+#define CLZxw(rd, rs)           EMIT(R_type(0b0110000, 0b00000, rs1, 0b001, rd, rex.w?0b0010011:0b0011011))
+// Count trailing zero bits
+#define CTZ(rd, rs)             EMIT(R_type(0b0110000, 0b00001, rs1, 0b001, rd, 0b0010011))
+// Count trailing zero bits in word
+#define CTZW(rd, rs)            EMIT(R_type(0b0110000, 0b00001, rs1, 0b001, rd, 0b0011011))
+// Count trailing zero bits
+#define CTZxw(rd, rs)           EMIT(R_type(0b0110000, 0b00001, rs1, 0b001, rd, rex.w?0b0010011:0b0011011))
+// Count set bits
+#define CPOP(rd, rs)            EMIT(R_type(0b0110000, 0b00010, rs1, 0b001, rd, 0b0010011))
+// Count set bits in word
+#define CPOPW(rd, rs)           EMIT(R_type(0b0110000, 0b00010, rs1, 0b001, rd, 0b0011011))
+// Count set bits
+#define CPOPxw(rd, rs)          EMIT(R_type(0b0110000, 0b00010, rs1, 0b001, rd, rex.w?0b0010011:0b0011011))
+// Maximum
+#define MAX(rd, rs1, rs2)       EMIT(R_type(0b0000101, rs2, rs1, 0b110, rd, 0b0110011))
+// Unisgned maximum
+#define MAXU(rd, rs1, rs2)      EMIT(R_type(0b0000101, rs2, rs1, 0b111, rd, 0b0110011))
+// Minimum
+#define MIN(rd, rs1, rs2)       EMIT(R_type(0b0000101, rs2, rs1, 0b100, rd, 0b0110011))
+// Unsigned minimum
+#define MINU(rd, rs1, rs2)      EMIT(R_type(0b0000101, rs2, rs1, 0b101, rd, 0b0110011))
+// Sign-extend byte
+#define SEXTB(rd, rs)           EMIT(R_type(0b0110000, 0b00100, rs, 0b001, rd, 0b0010011))
+// Sign-extend half-word
+#define SEXTH(rd, rs)           EMIT(R_type(0b0110000, 0b00101, rs, 0b001, rd, 0b0010011))
+// Zero-extend half-word
+#define ZEXTH(rd, rs)           EMIT(R_type(0b0000100, 0b00000, rs, 0b100, rd, 0b0111011))
+// Rotate left (register)
+#define ROL(rd, rs1, rs2)       EMIT(R_type(0b0110000, rs2, rs1, 0b001, rd, 0b0110011))
+// Rotate left word (register)
+#define ROLW(rd, rs1, rs2)      EMIT(R_type(0b0110000, rs2, rs1, 0b001, rd, 0b0111011))
+// Rotate left (register)
+#define ROLxw(rd, rs1, rs2)     EMIT(R_type(0b0110000, rs2, rs1, 0b001, rd, rex.w?0b0110011:0b0111011))
+// Rotate right (register)
+#define ROR(rd, rs1, rs2)       EMIT(R_type(0b0110000, rs2, rs1, 0b101, rd, 0b0110011))
+// Rotate right (immediate)
+#define RORI(rd, rs1, shamt)    EMIT(R_type(0b0110000, shamt, rs1, 0b101, rd, 0b0010011))
+// Rotate right word (immediate)
+#define RORIW(rd, rs1, shamt)   EMIT(R_type(0b0110000, shamt, rs1, 0b101, rd, 0b0011011))
+// Rotate right (immediate)
+#define RORIxw(rd, rs1, shamt)  EMIT(R_type(0b0110000, shamt, rs1, 0b101, rd, rex.w?0b0010011:0b0011011))
+// Rotate right word (register)
+#define RORW(rd, rs1, rs2)      EMIT(R_type(0b0110000, rs2, rs1, 0b101, rd, 0b0111011))
+// Rotate right (register)
+#define RORxw(rd, rs1, rs2)     EMIT(R_type(0b0110000, rs2, rs1, 0b101, rd, rex.w?0b0110011:0b0111011))
+// Bitwise OR Combine, byte granule (for all byte, if byte==0, res.byte=0, else res.byte=0xff)
+#define ORCB(rd, rs)            EMIT(I_type(0b001010000111, rs, 0b101, rd, 0b0010011))
+// Byte-reverse register
+#define REV8(rd, rs)            EMIT(I_type(0b011010111000, rs, 0b101, rd, 0b0010011))
+
+//Zbc
+// Carry-less multily (low-part)
+#define CLMUL(rd, rs1, rs2)         EMIT(R_type(0b0000101, rs2, rs1, 0b001, rd, 0b0110011))
+// Carry-less multiply (high-part)
+#define CLMULH(rd, rs1, rs2)        EMIT(R_type(0b0000101, rs2, rs1, 0b011, rd, 0b0110011))
+// Carry-less multiply (reversed)
+#define CLMULR(rd, rs1, rs2)        EMIT(R_type(0b0000101, rs2, rs1, 0b010, rd, 0b0110011))
+
+//Zbs
+// encoding of the "imm" on RV64 use a slight different mask, but it will work using R_type with high bit of imm ovewriting low bit op func
+// Single-bit Clear (Register)
+#define BCLR(rd, rs1, rs2)          EMIT(R_type(0b0100100, rs2, rs1, 0b001, rd, 0b0110011))
+// Single-bit Clear (Immediate)
+#define BCLI(rd, rs1, imm)          EMIT(R_type(0b0100100, imm, rs1, 0b001, rd, 0b0010011))
+// Single-bit Extreact (Register)
+#define BEXT(rd, rs1, rs2)          EMIT(R_type(0b0100100, rs2, rs1, 0b101, rd, 0b0110011))
+// Single-bit Extract (Immediate)
+#define BEXTI(rd, rs1, imm)         EMIT(R_type(0b0100100, imm, rs1, 0b101, rd, 0b0010011))
+// Single-bit Invert (Register)
+#define BINV(rd, rs1, rs2)          EMIT(R_type(0b0110100, rs2, rs1, 0b001, rd, 0b0110011))
+// Single-bit Invert (Immediate)
+#define BINVI(rd, rs1, imm)         EMIT(R_type(0b0110100, imm, rs1, 0b001, rd, 0b0010011))
+// Single-bit Set (Register)
+#define BSET(rd, rs1, rs2)          EMIT(R_type(0b0010100, rs2, rs1, 0b001, rd, 0b0110011))
+// Single-bit Set (Immediate)
+#define BSETI(rd, rs1, imm)         EMIT(R_type(0b0010100, imm, rs1, 0b001, rd, 0b0010011))
+
+
 #endif //__RV64_EMITTER_H__
