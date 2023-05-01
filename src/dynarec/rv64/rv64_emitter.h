@@ -528,6 +528,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SH3ADDUW(rd, rs1, rs2)      EMIT(R_type(0b0010000, rs2, rs1, 0b110, rd, 0b0111011))
 // Shift left unsigned word (immediate)
 #define SLLIUW(rd, rs1, imm)        EMIT(R_type(0b0000100, imm, rs1, 0b001, rd, 0b0011011))
+// Shift left by 1,2 or 3 and add (rd = X(rs2) + X(rs1)<<x)
+#define SHxADD(rd, rs1, x, rs2)        EMIT(R_type(0b0010000, rs2, rs1, (x)<<1, rd, 0b0110011))
+// Shift unsigned word left by 1,2 or 3 and add (rd = X(rs2) + Wz(rs1)<<x)
+#define SHxADDUW(rd, rs1, x, rs2)      EMIT(R_type(0b0010000, rs2, rs1, (x)<<1, rd, 0b0111011))
 
 //Zbb
 // AND with reverted operand (rs1 & ~rs2)
@@ -537,23 +541,23 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Exclusive NOR (~(rs1 ^ rs2))
 #define XNOR(rd, rs1, rs2)      EMIT(R_type(0b0100000, rs2, rs1, 0b100, rd, 0b0110011))
 // Count leading zero bits
-#define CLZ(rd, rs)             EMIT(R_type(0b0110000, 0b00000, rs1, 0b001, rd, 0b0010011))
+#define CLZ(rd, rs)             EMIT(R_type(0b0110000, 0b00000, rs, 0b001, rd, 0b0010011))
 // Count leading zero bits in word
-#define CLZW(rd, rs)            EMIT(R_type(0b0110000, 0b00000, rs1, 0b001, rd, 0b0011011))
+#define CLZW(rd, rs)            EMIT(R_type(0b0110000, 0b00000, rs, 0b001, rd, 0b0011011))
 // Count leading zero bits
-#define CLZxw(rd, rs)           EMIT(R_type(0b0110000, 0b00000, rs1, 0b001, rd, rex.w?0b0010011:0b0011011))
+#define CLZxw(rd, rs)           EMIT(R_type(0b0110000, 0b00000, rs, 0b001, rd, rex.w?0b0010011:0b0011011))
 // Count trailing zero bits
-#define CTZ(rd, rs)             EMIT(R_type(0b0110000, 0b00001, rs1, 0b001, rd, 0b0010011))
+#define CTZ(rd, rs)             EMIT(R_type(0b0110000, 0b00001, rs, 0b001, rd, 0b0010011))
 // Count trailing zero bits in word
-#define CTZW(rd, rs)            EMIT(R_type(0b0110000, 0b00001, rs1, 0b001, rd, 0b0011011))
+#define CTZW(rd, rs)            EMIT(R_type(0b0110000, 0b00001, rs, 0b001, rd, 0b0011011))
 // Count trailing zero bits
-#define CTZxw(rd, rs)           EMIT(R_type(0b0110000, 0b00001, rs1, 0b001, rd, rex.w?0b0010011:0b0011011))
+#define CTZxw(rd, rs)           EMIT(R_type(0b0110000, 0b00001, rs, 0b001, rd, rex.w?0b0010011:0b0011011))
 // Count set bits
-#define CPOP(rd, rs)            EMIT(R_type(0b0110000, 0b00010, rs1, 0b001, rd, 0b0010011))
+#define CPOP(rd, rs)            EMIT(R_type(0b0110000, 0b00010, rs, 0b001, rd, 0b0010011))
 // Count set bits in word
-#define CPOPW(rd, rs)           EMIT(R_type(0b0110000, 0b00010, rs1, 0b001, rd, 0b0011011))
+#define CPOPW(rd, rs)           EMIT(R_type(0b0110000, 0b00010, rs, 0b001, rd, 0b0011011))
 // Count set bits
-#define CPOPxw(rd, rs)          EMIT(R_type(0b0110000, 0b00010, rs1, 0b001, rd, rex.w?0b0010011:0b0011011))
+#define CPOPxw(rd, rs)          EMIT(R_type(0b0110000, 0b00010, rs, 0b001, rd, rex.w?0b0010011:0b0011011))
 // Maximum
 #define MAX(rd, rs1, rs2)       EMIT(R_type(0b0000101, rs2, rs1, 0b110, rd, 0b0110011))
 // Unisgned maximum

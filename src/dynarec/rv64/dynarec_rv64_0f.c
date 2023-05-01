@@ -1058,14 +1058,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ORI(xFlags, xFlags, 1<<F_ZF);
             B_NEXT_nocond;
             MARK;
-            NEG(x2, ed);
-            AND(x2, x2, ed);
-            TABLE64(x3, 0x03f79d71b4ca8b09ULL);
-            MUL(x2, x2, x3);
-            SRLI(x2, x2, 64-6);
-            TABLE64(x1, (uintptr_t)&deBruijn64tab);
-            ADD(x1, x1, x2);
-            LBU(gd, x1, 0);
+            if(rv64_zbb) {
+                CTZxw(gd, ed);
+            } else {
+                NEG(x2, ed);
+                AND(x2, x2, ed);
+                TABLE64(x3, 0x03f79d71b4ca8b09ULL);
+                MUL(x2, x2, x3);
+                SRLI(x2, x2, 64-6);
+                TABLE64(x1, (uintptr_t)&deBruijn64tab);
+                ADD(x1, x1, x2);
+                LBU(gd, x1, 0);
+            }
             ANDI(xFlags, xFlags, ~(1<<F_ZF));
             break;
         case 0xBD:
@@ -1084,37 +1088,43 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             B_NEXT_nocond;
             MARK;
             ANDI(xFlags, xFlags, ~(1<<F_ZF));
-            if(ed!=gd)
-                u8 = gd;
-            else
-                u8 = x1;
-            ADDI(u8, xZR, 0);
-            if(rex.w) {
-                MV(x2, ed);
-                SRLI(x3, x2, 32);
-                BEQZ(x3, 4+2*4);
-                ADDI(u8, u8, 32);
-                MV(x2, x3);
+            if(rv64_zbb) {
+                MOV32w(x1, rex.w?63:31);
+                CLZxw(gd, ed);
+                SUB(gd, x1, gd);
             } else {
-                AND(x2, ed, xMASK);
+                if(ed!=gd)
+                    u8 = gd;
+                else
+                    u8 = x1;
+                ADDI(u8, xZR, 0);
+                if(rex.w) {
+                    MV(x2, ed);
+                    SRLI(x3, x2, 32);
+                    BEQZ(x3, 4+2*4);
+                    ADDI(u8, u8, 32);
+                    MV(x2, x3);
+                } else {
+                    AND(x2, ed, xMASK);
+                }
+                SRLI(x3, x2, 16);
+                BEQZ(x3, 4+2*4);
+                ADDI(u8, u8, 16);
+                MV(x2, x3);
+                SRLI(x3, x2, 8);
+                BEQZ(x3, 4+2*4);
+                ADDI(u8, u8, 8);
+                MV(x2, x3);
+                SRLI(x3, x2, 4);
+                BEQZ(x3, 4+2*4);
+                ADDI(u8, u8, 4);
+                MV(x2, x3);
+                ANDI(x2, x2, 0b1111); 
+                TABLE64(x3, (uintptr_t)&lead0tab);
+                ADD(x3, x3, x2);
+                LBU(x2, x3, 0);
+                ADD(gd, u8, x2);
             }
-            SRLI(x3, x2, 16);
-            BEQZ(x3, 4+2*4);
-            ADDI(u8, u8, 16);
-            MV(x2, x3);
-            SRLI(x3, x2, 8);
-            BEQZ(x3, 4+2*4);
-            ADDI(u8, u8, 8);
-            MV(x2, x3);
-            SRLI(x3, x2, 4);
-            BEQZ(x3, 4+2*4);
-            ADDI(u8, u8, 4);
-            MV(x2, x3);
-            ANDI(x2, x2, 0b1111); 
-            TABLE64(x3, (uintptr_t)&lead0tab);
-            ADD(x3, x3, x2);
-            LBU(x2, x3, 0);
-            ADD(gd, u8, x2);
             break;
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");
