@@ -968,6 +968,20 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 }
             }
             break;
+            case 0x10: {
+                switch (funct3) {
+                case 0b010:
+                    insn.name = "sh1add";
+                    break;
+                case 0b100:
+                    insn.name = "sh2add";
+                    break;
+                case 0b110:
+                    insn.name = "sh3add";
+                    break;
+                }
+            }
+            break;
             case 0x20: {
                 switch (funct3) {
                 case 0x0: /* SUB */

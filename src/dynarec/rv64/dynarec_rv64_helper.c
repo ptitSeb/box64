@@ -47,14 +47,19 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
         if((nextop&7)==4) {
             uint8_t sib = F8;
             int sib_reg = ((sib>>3)&7)+(rex.x<<3);
+            int sib_reg2 = (sib&0x7)+(rex.b<<3);
             if((sib&0x7)==5) {
                 int64_t tmp = F32S;
                 if (sib_reg!=4) {
                     if(tmp && ((tmp<-2048) || (tmp>maxval) || !i12)) {
                         MOV64x(scratch, tmp);
                         if((sib>>6)) {
-                            SLLI(ret, xRAX+sib_reg, (sib>>6));
-                            ADD(ret, ret, scratch);
+                            if(rv64_zba) {
+                                SHxADD(ret, xRAX+sib_reg, sib>>6, scratch);
+                            } else {
+                                SLLI(ret, xRAX+sib_reg, (sib>>6));
+                                ADD(ret, ret, scratch);
+                            }
                         } else {
                             ADD(ret, xRAX+sib_reg, scratch);
                         }
@@ -75,13 +80,17 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             } else {
                 if (sib_reg!=4) {
                     if(sib>>6) {
-                        SLLI(scratch, xRAX+sib_reg, (sib>>6));
-                        ADD(ret, xRAX+(sib&0x7)+(rex.b<<3), scratch);
+                        if(rv64_zba) {
+                            SHxADD(ret, xRAX+sib_reg, sib>>6, xRAX+sib_reg2);
+                        } else {
+                            SLLI(scratch, xRAX+sib_reg, (sib>>6));
+                            ADD(ret, xRAX+sib_reg2, scratch);
+                        }
                     } else {
-                        ADD(ret, xRAX+(sib&0x7)+(rex.b<<3), xRAX+sib_reg);
+                        ADD(ret, xRAX+sib_reg2, xRAX+sib_reg);
                     }
                 } else {
-                    ret = xRAX+(sib&0x7)+(rex.b<<3);
+                    ret = xRAX+sib_reg2;
                 }
             }
         } else if((nextop&7)==5) {
@@ -125,6 +134,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             sib = F8;
             sib_reg = ((sib>>3)&7)+(rex.x<<3);
         }
+        int sib_reg2 = (sib&0x07)+(rex.b<<3);
         if(nextop&0x80)
             i64 = F32S;
         else
@@ -134,13 +144,17 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
                     if(sib>>6) {
-                        SLLI(scratch, xRAX+sib_reg, (sib>>6));
-                        ADD(ret, xRAX+(sib&0x07)+(rex.b<<3), scratch);
+                        if(rv64_zba) {
+                            SHxADD(ret, xRAX+sib_reg, sib>>6, xRAX+sib_reg2);
+                        } else {
+                            SLLI(scratch, xRAX+sib_reg, (sib>>6));
+                            ADD(ret, xRAX+sib_reg2, scratch);
+                        }
                     } else {
-                        ADD(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg);
+                        ADD(ret, xRAX+sib_reg2, xRAX+sib_reg);
                     }
                 } else {
-                    ret = xRAX+(sib&0x07)+(rex.b<<3);
+                    ret = xRAX+sib_reg2;
                 }
             } else
                 ret = xRAX+(nextop&0x07)+(rex.b<<3);
@@ -149,13 +163,17 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         if(sib>>6) {
-                            SLLI(scratch, xRAX+sib_reg, (sib>>6));
-                            ADD(scratch, xRAX+(sib&0x07)+(rex.b<<3), scratch);
+                            if(rv64_zba) {
+                                SHxADD(scratch, xRAX+sib_reg, sib>>6, xRAX+sib_reg2);
+                            } else {
+                                SLLI(scratch, xRAX+sib_reg, (sib>>6));
+                                ADD(scratch, xRAX+sib_reg2, scratch);
+                            }
                         } else {
-                            ADD(scratch, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg);
+                            ADD(scratch, xRAX+sib_reg2, xRAX+sib_reg);
                         }
                     } else {
-                        scratch = xRAX+(sib&0x07)+(rex.b<<3);
+                        scratch = xRAX+sib_reg2;
                     }
                 } else
                     scratch = xRAX+(nextop&0x07)+(rex.b<<3);
@@ -164,15 +182,19 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 MOV64x(scratch, i64);
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        ADD(scratch, scratch, xRAX+(sib&0x07)+(rex.b<<3));
+                        ADD(scratch, scratch, xRAX+sib_reg2);
                         if(sib>>6) {
-                            SLLI(ret, xRAX+sib_reg, (sib>>6));
-                            ADD(ret, scratch, ret);
+                            if(rv64_zba) {
+                                SHxADD(ret, xRAX+sib_reg, sib>>6, scratch);
+                            } else {
+                                SLLI(ret, xRAX+sib_reg, (sib>>6));
+                                ADD(ret, scratch, ret);
+                            }
                         } else {
                             ADD(ret, scratch, xRAX+sib_reg);
                         }
                     } else {
-                        PASS3(int tmp = xRAX+(sib&0x07)+(rex.b<<3));
+                        PASS3(int tmp = xRAX+sib_reg2);
                         ADD(ret, tmp, scratch);
                     }
                 } else {
@@ -233,8 +255,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
         MAYUSE(tbl);
         TABLE64(x3, tbl);
         SRLI(x2, xRIP, JMPTABL_START3);
-        SLLI(x2, x2, 3);
-        ADD(x3, x3, x2);
+        if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
         LD(x3, x3, 0); // could be LR_D(x3, x3, 1, 1); for better safety
         MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
         SRLI(x2, xRIP, JMPTABL_START2-3);
@@ -256,8 +277,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
             }
             AND(x2, xRIP, x4);
         }
-        SLLI(x2, x2, 3);
-        ADD(x3, x3, x2);
+        if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
         LD(x2, x3, 0); //LR_D(x2, x3, 1, 1);
     } else {
         uintptr_t p = getJumpTableAddress64(ip);
@@ -297,8 +317,7 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst)
     uintptr_t tbl = getJumpTable64();
     MOV64x(x3, tbl);
     SRLI(x2, xRIP, JMPTABL_START3);
-    SLLI(x2, x2, 3);
-    ADD(x3, x3, x2);
+    if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
     LD(x3, x3, 0);
     MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
     SRLI(x2, xRIP, JMPTABL_START2-3);
@@ -320,8 +339,7 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst)
         }
         AND(x2, xRIP, x4);
     }
-    SLLI(x2, x2, 3);
-    ADD(x3, x3, x2);
+    if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
     LD(x2, x3, 0);
     JALR(x2); // save LR
     CLEARIP();
@@ -353,8 +371,7 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, int n)
     uintptr_t tbl = getJumpTable64();
     MOV64x(x3, tbl);
     SRLI(x2, xRIP, JMPTABL_START3);
-    SLLI(x2, x2, 3);
-    ADD(x3, x3, x2);
+    if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
     LD(x3, x3, 0);
     MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
     SRLI(x2, xRIP, JMPTABL_START2-3);
@@ -376,8 +393,7 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, int n)
         }
         AND(x2, xRIP, x4);
     }
-    SLLI(x2, x2, 3);
-    ADD(x3, x3, x2);
+    if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
     LD(x2, x3, 0);
     JALR(x2); // save LR
     CLEARIP();
@@ -703,16 +719,14 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
             for (int i=0; i<a; ++i) {
                 SUBI(s2, s2, 1);
                 ANDI(s2, s2, 7);    // (emu->top + st)&7
-                SLLI(s1, s2, 2);
-                ADD(s1, xEmu, s1);
+                if(rv64_zba) SH2ADD(s1, s2, xEmu); else {SLLI(s1, s2, 2); ADD(s1, xEmu, s1);}
                 SW(s3, s1, offsetof(x64emu_t, p_regs));
             }
         } else {
             // empty tags
             ADDI(s3, xZR, 0b11);
             for (int i=0; i<-a; ++i) {
-                SLLI(s1, s2, 2);
-                ADD(s1, xEmu, s1);
+                if(rv64_zba) SH2ADD(s1, s2, xEmu); else {SLLI(s1, s2, 2); ADD(s1, xEmu, s1);}
                 SW(s3, s1, offsetof(x64emu_t, p_regs));
                 ADDI(s2, s2, 1);
                 ANDI(s2, s2, 7);    // (emu->top + st)&7
@@ -741,8 +755,7 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
                 #endif
                 ADDI(s3, s2, dyn->e.x87cache[i]);
                 ANDI(s3, s3, 7);   // (emu->top + st)&7
-                SLLI(s1, s3, 3);
-                ADD(s1, xEmu, s1);
+                if(rv64_zba) SH3ADD(s1, s3, xEmu); else {SLLI(s1, s3, 3); ADD(s1, xEmu, s1);}
                 if(next) {
                     // need to check if a ST_F need local promotion
                     if(extcache_get_st_f(dyn, ninst, dyn->e.x87cache[i])>=0) {
@@ -801,8 +814,7 @@ static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int
         if(dyn->e.x87cache[i]!=-1) {
             ADDI(s3, s2, dyn->e.x87cache[i]);
             ANDI(s3, s3, 7);   // (emu->top + i)&7
-            SLLI(s1, s3, 3);
-            ADD(s1, xEmu, s1);
+            if(rv64_zba) SH3ADD(s1, s3, xEmu); else {SLLI(s1, s3, 3); ADD(s1, xEmu, s1);}
             if(extcache_get_st_f(dyn, ninst, dyn->e.x87cache[i])>=0) {
                 FCVTDS(SCRATCH0, dyn->e.x87reg[i]);
                 FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));
@@ -866,8 +878,7 @@ int x87_get_cache(dynarec_rv64_t* dyn, int ninst, int populate, int s1, int s2, 
             ADDI(s2, s2, a);
             ANDI(s2, s2, 7);
         }
-        SLLI(s2, s2, 3);
-        ADD(s1, xEmu, s2);
+        if(rv64_zba) SH3ADD(s1, s2, xEmu); else  {SLLI(s2, s2, 3); ADD(s1, xEmu, s2);}
         FLD(dyn->e.x87reg[ret], s1, offsetof(x64emu_t, x87));
     }
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
@@ -944,8 +955,7 @@ void x87_forget(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
         ADDI(s2, s2, a);
         ANDI(s2, s2, 7);    // (emu->top + i)&7
     }
-    SLLI(s2, s2, 3);
-    ADD(s1, xEmu, s2);
+    if(rv64_zba) SH3ADD(s1, s2, xEmu); else {SLLI(s2, s2, 3); ADD(s1, xEmu, s2);}
     FSD(dyn->e.x87reg[ret], s1, offsetof(x64emu_t, x87));
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
     // and forget that cache
@@ -974,8 +984,7 @@ void x87_reget_st(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
                 ADDI(s2, s2, a);
                 AND(s2, s2, 7);
             }
-            SLLI(s2, s2, 3);
-            ADD(s1, xEmu, s2);
+            if(rv64_zba) SH3ADD(s1, s2, xEmu); else {SLLI(s2, s2, 3); ADD(s1, xEmu, s2);}
             FLD(dyn->e.x87reg[i], s1, offsetof(x64emu_t, x87));
             MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
             // ok
@@ -995,8 +1004,7 @@ void x87_reget_st(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
     int a = st - dyn->e.x87stack;
     ADDI(s2, s2, a);
     ANDI(s2, s2, 7);    // (emu->top + i)&7
-    SLLI(s2, s2, 3);
-    ADD(s1, xEmu, s2);
+    if(rv64_zba) SH3ADD(s1, s2, xEmu); else {SLLI(s2, s2, 3); ADD(s1, xEmu, s2);}
     FLD(dyn->e.x87reg[ret], s1, offsetof(x64emu_t, x87));
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
 }
@@ -1475,8 +1483,7 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
             }
             *s3_top += a;
             *s2_val = 0;
-            SLLI(s2, s3, 3);
-            ADD(s2, xEmu, s2);
+            if(rv64_zba) SH3ADD(s2, s3, xEmu); else {SLLI(s2, s3, 3); ADD(s2, xEmu, s2);}
             FLD(reg, s2, offsetof(x64emu_t, x87));
             if(t==EXT_CACHE_ST_F) {
                 FCVTSD(reg, reg);
@@ -1521,8 +1528,7 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
                 ANDI(s3, s3, 7);
             }
             *s3_top += a;
-            SLLI(s2, s3, 3);
-            ADD(s2, xEmu, s2);
+            if(rv64_zba) SH3ADD(s2, s3, xEmu); else {SLLI(s2, s3, 3); ADD(s2, xEmu, s2);}
             *s2_val = 0;
             if(t==EXT_CACHE_ST_F) {
                 FCVTDS(reg, reg);
