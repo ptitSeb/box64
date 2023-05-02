@@ -14,6 +14,7 @@
 #include "gdbstub_private.h"
 #include "box64context.h"
 #include "emu/x64emu_private.h"
+#include "elfs/elfloader_private.h"
 
 #define GDBSTUB_PKT_PREFIX '$'
 #define GDBSTUB_PKT_SUFFIX '#'
@@ -195,6 +196,26 @@ static void GdbStubHandleRegsRead(gdbstub_t *stub, char *payload) {
     GdbStubSendPkt(stub, packet);
 }
 
+static void GdbStubHandleMemRead(gdbstub_t *stub, char *payload) {
+    static uint8_t buf[512];
+    static char packet[GDBSTUB_MAX_PKT_SIZE] = {0};
+    size_t maddr, mlen;
+    sscanf(payload, "%lx,%lx", &maddr, &mlen);
+ 
+    for (int i = 0; i < stub->emu->context->elfsize; i++) {
+        elfheader_t *h = stub->emu->context->elfs[i];
+        for (int j = 0; j < h->multiblock_n; j++) {
+            if (maddr >= h->multiblock_offs[j] && maddr <= h->multiblock_offs[j]+h->multiblock_size[j]) {
+                memcpy(buf, (void *)maddr, mlen);         
+                HexToStr(buf, packet, mlen);
+                GdbStubSendPkt(stub, packet);
+                return;
+            }
+        }
+    }
+    GdbStubSendPkt(stub, "E14");
+}
+
 static gdbstub_action_t GdbStubHandlePkt(gdbstub_t *stub) {
     uint8_t req = stub->pktbuf[0];
     char *payload = (char *)&stub->pktbuf[1];
@@ -208,8 +229,7 @@ static gdbstub_action_t GdbStubHandlePkt(gdbstub_t *stub) {
         GdbStubHandleRegsRead(stub, payload);
         break;
     case 'm': // read mem
-        // TODO
-        GdbStubSendPkt(stub, "");
+        GdbStubHandleMemRead(stub, payload);
         break;
     case 'p': // read reg
         // TODO
