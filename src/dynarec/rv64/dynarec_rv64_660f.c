@@ -1703,6 +1703,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SH(x3, gback, 2*i);
             }
             break;
+        case 0xE6:
+            INST_NAME("CVTTPD2DQ Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            FLD(v0, wback, 0);
+            FLD(v1, wback, 8);
+            FCVTWD(x3, v0, RD_RTZ);
+            FCVTWD(x4, v1, RD_RTZ);
+            SW(x3, gback, 0);
+            SW(x4, gback, 4);
+            SD(xZR, gback, 8);
+            break;
         case 0xE7:
             INST_NAME("MOVNTDQ Ex, Gx");
             nextop = F8;
