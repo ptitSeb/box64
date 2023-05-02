@@ -113,6 +113,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *ok = 0;
             break;
 
+        case 0x0D:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 1:
+                    INST_NAME("PREFETCHW");
+                    // nop without Zicbom, Zicbop, Zicboz extensions
+                    FAKEED;
+                    break;
+                default:    //???
+                    DEFAULT;
+            }
+            break;
 
         case 0x10:
             INST_NAME("MOVUPS Gx,Ex");
