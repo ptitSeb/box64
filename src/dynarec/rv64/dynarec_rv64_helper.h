@@ -109,6 +109,17 @@
                     LDxw(hint, wback, fixedaddress);    \
                     ed = hint;                          \
                 }
+//GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
+#define GETEDW(hint, ret, D)   if(MODREG) {             \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    MV(ret, ed);                        \
+                    wback = 0;                          \
+                } else {                                \
+                    SMREAD();                           \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, (hint==x1)?x1:x3, &fixedaddress, rex, NULL, 0, D); \
+                    ed = ret;                           \
+                    LDxw(ed, wback, fixedaddress);      \
+                }
 // GETGW extract x64 register in gd, that is i
 #define GETGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); SLLI(i, gd, 48); SRLI(i, i, 48); gd = i;
 //GETEWW will use i for ed, and can use w for wback.
