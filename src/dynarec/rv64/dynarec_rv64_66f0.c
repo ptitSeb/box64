@@ -130,4 +130,6 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         default:
             DEFAULT;
     }
+
+    return addr;
 }
