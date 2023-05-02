@@ -361,7 +361,8 @@ HWCAP2_ECV
     printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #elif defined(RV64)
     void RV64_Detect_Function();
-    RV64_Detect_Function();
+    if(!getenv("BOX64_DYNAREC_RV64NOEXT"))
+        RV64_Detect_Function();
     printf_log(LOG_INFO, "Dynarec for RISC-V ");
     printf_log(LOG_INFO, "With extension: I M A F D C");
     if(rv64_zba) printf_log(LOG_INFO, " Zba");
