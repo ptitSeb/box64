@@ -1712,8 +1712,26 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             v1 = fpu_get_scratch(dyn);
             FLD(v0, wback, 0);
             FLD(v1, wback, 8);
+            if(!box64_dynarec_fastround) {
+                FSFLAGSI(xZR);  // // reset all bits
+            }
             FCVTWD(x3, v0, RD_RTZ);
+            if(!box64_dynarec_fastround) {
+                FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+                BEQ_MARK(x5, xZR);
+                MOV32w(x3, 0x80000000);
+                MARK;
+                FSFLAGSI(xZR);  // // reset all bits
+            }
             FCVTWD(x4, v1, RD_RTZ);
+            if(!box64_dynarec_fastround) {
+                FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+                BEQ_MARK2(x5, xZR);
+                MOV32w(x4, 0x80000000);
+                MARK2;
+            }
             SW(x3, gback, 0);
             SW(x4, gback, 4);
             SD(xZR, gback, 8);
