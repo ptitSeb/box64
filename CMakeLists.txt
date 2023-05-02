@@ -271,6 +271,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/emu/x64syscall.c"
     "${BOX64_ROOT}/src/emu/x64tls.c"
     "${BOX64_ROOT}/src/emu/x64trace.c"
+    "${BOX64_ROOT}/src/gdbstub/gdbstub.c"
     "${BOX64_ROOT}/src/librarian/librarian.c"
     "${BOX64_ROOT}/src/librarian/library.c"
     "${BOX64_ROOT}/src/librarian/dictionnary.c"
@@ -671,6 +672,8 @@ if(DYNAREC)
     set_target_properties(native_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
     add_library(test_interpreter OBJECT ${INTERPRETER})
     set_target_properties(test_interpreter PROPERTIES COMPILE_FLAGS "-DTEST_INTERPRETER")
+    add_library(gdbstub OBJECT ${INTERPRETER})
+    set_target_properties(gdbstub PROPERTIES COMPILE_FLAGS "-DGDBSTUB")
     add_dependencies(native_pass0 WRAPPERS)
     add_dependencies(native_pass1 WRAPPERS)
     add_dependencies(native_pass2 WRAPPERS)
@@ -683,6 +686,7 @@ if(DYNAREC)
         $<TARGET_OBJECTS:native_pass2>
         $<TARGET_OBJECTS:native_pass3>
         $<TARGET_OBJECTS:test_interpreter>
+        $<TARGET_OBJECTS:gdbstub>
     )
 endif()
 

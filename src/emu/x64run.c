@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +21,7 @@
 #include "box64context.h"
 #include "bridge.h"
 #include "signals.h"
+#include "gdbstub.h"
 #ifdef DYNAREC
 #include "../dynarec/native_lock.h"
 #endif
@@ -30,6 +32,8 @@ int my_setcontext(x64emu_t* emu, void* ucp);
 
 #ifdef TEST_INTERPRETER
 int RunTest(x64test_t *test)
+#elif GDBSTUB
+int RunGdbStub(x64emu_t *emu)
 #else
 int Run(x64emu_t *emu, int step)
 #endif
@@ -46,6 +50,8 @@ int Run(x64emu_t *emu, int step)
     uint64_t tmp64u, tmp64u2, tmp64u3;
     #ifdef TEST_INTERPRETER
     x64emu_t* emu = test->emu;
+    int step = 0;
+    #elif GDBSTUB
     int step = 0;
     #endif
     uintptr_t addr = R_RIP;
@@ -65,10 +71,15 @@ int Run(x64emu_t *emu, int step)
     printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p\n", emu, (void*)addr, (void*)R_RSP);
 
 x64emurun:
-#ifndef TEST_INTERPRETER
-    while(1) 
-#endif
+#ifdef TEST_INTERPRETER
     {
+#elif GDBSTUB
+    while(1) {
+        gdbstub_action_t action = GdbStubStep(emu->context->gdbstub);
+        if (action == GDBSTUB_ACTION_NONE) continue;
+#else
+    while(1) {
+#endif
 #if defined(HAVE_TRACE)
         __builtin_prefetch((void*)addr, 0, 0); 
         emu->prev2_ip = emu->old_ip;

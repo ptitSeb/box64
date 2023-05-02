@@ -35,6 +35,7 @@
 #include "x64run.h"
 #include "symbols.h"
 #include "rcfile.h"
+#include "gdbstub.h"
 
 box64context_t *my_context = NULL;
 int box64_quit = 0;
@@ -46,6 +47,7 @@ uintptr_t box64_pagesize;
 uintptr_t box64_load_addr = 0;
 int box64_nosandbox = 0;
 int box64_malloc_hack = 0;
+int box64_gdbstub = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
@@ -205,7 +207,7 @@ void my_child_fork()
 {
     if(ftrace_has_pid) {
         // open a new ftrace...
-        if(!ftrace_name) 
+        if(!ftrace_name)
             fclose(ftrace);
         openFTrace(NULL);
     }
@@ -629,6 +631,13 @@ void LoadLogEnv()
     }
 
 #endif
+    p = getenv("BOX64_GDBSTUB");
+    if (p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_gdbstub = p[0]-'0';
+        }
+    }
 #ifdef HAVE_TRACE
     p = getenv("BOX64_TRACE_XMM");
     if(p) {
@@ -867,7 +876,7 @@ int GatherEnv(char*** dest, char** env, char* prog)
 {
     // Add all but BOX64_* environnement
     // but add 2 for default BOX64_PATH and BOX64_LD_LIBRARY_PATH
-    char** p = env;    
+    char** p = env;
     int idx = 0;
     int path = 0;
     int ld_path = 0;
@@ -1297,7 +1306,7 @@ int main(int argc, const char **argv, char **env) {
             }
         }
     }
-    
+
     const char* prog = argv[1];
     int nextarg = 1;
     // check if some options are passed
@@ -1325,7 +1334,7 @@ int main(int argc, const char **argv, char **env) {
     if(!box64_nobanner)
         PrintBox64Version();
     // precheck, for win-preload
-    if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader")) 
+    if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader"))
      || strstr(prog, "wine64-preloader")==(prog+strlen(prog)-strlen("wine64-preloader"))) {
         // wine-preloader detecter, skipping it if next arg exist and is an x86 binary
         int x64 = (nextarg<argc)?FileIsX64ELF(argv[nextarg]):0;
@@ -1346,8 +1355,8 @@ int main(int argc, const char **argv, char **env) {
     int ld_libs_args = -1;
     // check if this is wine
     if(!strcmp(prog, "wine64")
-     || !strcmp(prog, "wine64-development") 
-     || !strcmp(prog, "wine") 
+     || !strcmp(prog, "wine64-development")
+     || !strcmp(prog, "wine")
      || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine"), "/wine"))
      || (strlen(prog)>7 && !strcmp(prog+strlen(prog)-strlen("/wine64"), "/wine64"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
@@ -1360,7 +1369,7 @@ int main(int argc, const char **argv, char **env) {
             exit(0);    // exiting, it doesn't work anyway
         }
         box64_wine = 1;
-    } else 
+    } else
     // check if ld-musl-x86_64.so.1 is used
     if(strstr(prog, "ld-musl-x86_64.so.1")) {
         printf_log(LOG_INFO, "BOX64: ld-musl detected, trying to workaround and use system ld-linux\n");
@@ -1766,7 +1775,15 @@ int main(int argc, const char **argv, char **env) {
     ResetFlags(emu);
     PushExit(emu);  // push to pop it just after
     SetRDX(emu, Pop64(emu));    // RDX is exit function
-    Run(emu, 0);
+    if (box64_gdbstub) {
+        if (box64_dynarec) {
+            printf_log(LOG_INFO, "Gdbstub cannot be used with Dynarec, cancelling\n");
+        } else {
+            printf_log(LOG_INFO, "Starting gdbstub on 0.0.0.0:1234\n");
+            GdbStubInit(emu, "0.0.0.0", 1234);
+        }
+        RunGdbStub(emu);
+    } else Run(emu, 0);
     // Get EAX
     int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);

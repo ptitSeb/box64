@@ -334,6 +334,9 @@ void FreeBox64Context(box64context_t** context)
 
     freeCycleLog(ctx);
 
+    if (ctx->gdbstub)
+        box_free(ctx->gdbstub);
+
     box_free(ctx);
 }
 

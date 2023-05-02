@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include "pathcoll.h"
 #include "dictionnary.h"
+#include "gdbstub.h"
 #ifdef DYNAREC
 #include "dynarec/native_lock.h"
 #endif
@@ -190,6 +191,7 @@ typedef struct box64context_s {
     char*               *log_ret;
     int                 current_line;
 
+    gdbstub_t           *gdbstub;
 } box64context_t;
 
 #ifndef DYNAREC
