@@ -349,27 +349,28 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEXSD(d0, 0);
                     GETGXSD_empty(v0);
                     d1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
                     u8 = F8;
                     FEQD(x2, d0, d0);
                     BNEZ_MARK(x2);
-                    FADDD(v0, d0, d0);
+                    if (v0!=d0) FMVD(v0, d0);
                     B_NEXT_nocond;
                     MARK; // d0 is not nan
-                    FABSD(v0, d0);
+                    FABSD(v1, d0);
                     MOV64x(x3, 1ULL << __DBL_MANT_DIG__);
                     FCVTDL(d1, x3, RD_RTZ);
-                    FLTD(x3, v0, d1);
+                    FLTD(x3, v1, d1);
                     BNEZ_MARK2(x3);
                     if (v0!=d0) FMVD(v0, d0);
                     B_NEXT_nocond;
                     MARK2;
                     if(u8&4) {
                         u8 = sse_setround(dyn, ninst, x4, x2);
-                        FCVTLD(x5, d0, RD_DYN);
+                        FCVTLD(x5, v1, RD_DYN);
                         FCVTDL(v0, x5, RD_DYN);
                         x87_restoreround(dyn, ninst, u8);
                     } else {
-                        FCVTLD(x5, d0, round_round[u8&3]);
+                        FCVTLD(x5, v1, round_round[u8&3]);
                         FCVTDL(v0, x5, round_round[u8&3]);
                     }
                     FSGNJD(v0, v0, d0);
