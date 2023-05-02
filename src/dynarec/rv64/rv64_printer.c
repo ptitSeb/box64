@@ -785,6 +785,9 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 } else if (imm116 == 0x10) { /* SRAI */
                     insn.name = "srai";
                     insn.imm&=0b111111;
+                } else if (insn.imm==0b011010111000) {
+                    insn.name = "rev8";
+                    PRINT_rd_rs1();
                 }
                 break;
             }
