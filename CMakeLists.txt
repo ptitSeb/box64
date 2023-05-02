@@ -672,8 +672,6 @@ if(DYNAREC)
     set_target_properties(native_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
     add_library(test_interpreter OBJECT ${INTERPRETER})
     set_target_properties(test_interpreter PROPERTIES COMPILE_FLAGS "-DTEST_INTERPRETER")
-    add_library(gdbstub OBJECT ${INTERPRETER})
-    set_target_properties(gdbstub PROPERTIES COMPILE_FLAGS "-DGDBSTUB")
     add_dependencies(native_pass0 WRAPPERS)
     add_dependencies(native_pass1 WRAPPERS)
     add_dependencies(native_pass2 WRAPPERS)
@@ -686,7 +684,6 @@ if(DYNAREC)
         $<TARGET_OBJECTS:native_pass2>
         $<TARGET_OBJECTS:native_pass3>
         $<TARGET_OBJECTS:test_interpreter>
-        $<TARGET_OBJECTS:gdbstub>
     )
 endif()
 
@@ -705,7 +702,13 @@ else()
         VERBATIM)
 endif()
 
-add_library(interpreter OBJECT ${INTERPRETER})
+add_library(gdbstub OBJECT ${INTERPRETER})
+set_target_properties(gdbstub PROPERTIES COMPILE_FLAGS "-DGDBSTUB")
+
+add_library(interpreter STATIC 
+        ${INTERPRETER}
+        $<TARGET_OBJECTS:gdbstub>
+    )
 
 add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX64_ROOT}/src/git_head.h")
 set_target_properties(${BOX64} PROPERTIES ENABLE_EXPORTS ON)
