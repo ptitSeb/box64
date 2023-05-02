@@ -37,8 +37,7 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_CF) {
         if (rex.w) {
             AND(s5, xMASK, s1);
-            AND(s4, xMASK, s2);
-            ADD(s5, s5, s4); // lo
+            if(rv64_zba) ADDUW(s5, s2, s5); else {AND(s4, xMASK, s2); ADD(s5, s5, s4);} // lo
             SRLI(s3, s1, 0x20);
             SRLI(s4, s2, 0x20);
             ADD(s4, s4, s3);
@@ -65,8 +64,12 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF | X_OF) {
-        NOT(s5, s1);   // s5 = ~res
-        AND(s3, s5, s3);   // s3 = ~res & (op1 | op2)
+        if(rv64_zbb) {
+            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+        } else {
+            NOT(s5, s1);   // s5 = ~res
+            AND(s3, s5, s3);   // s3 = ~res & (op1 | op2)
+        }
         OR(s3, s3, s4);   // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s4, s3, 0x08); // AF: cc & 0x08
@@ -126,8 +129,7 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     IFX(X_CF) {
         if (rex.w) {
             AND(s5, xMASK, s1);
-            AND(s4, xMASK, s2);
-            ADD(s5, s5, s4); // lo
+            if(rv64_zba) ADDUW(s5, s2, s5); else {AND(s4, xMASK, s2); ADD(s5, s5, s4);} // lo
             SRLI(s3, s1, 0x20);
             SRLI(s4, s2, 0x20);
             ADD(s4, s4, s3);
@@ -159,8 +161,12 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF | X_OF) {
-        NOT(s2, s1);   // s2 = ~res
-        AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
+        if(rv64_zbb) {
+            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+        } else {
+            NOT(s2, s1);   // s2 = ~res
+            AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
+        }
         OR(s3, s3, s4);   // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s4, s3, 0x08); // AF: cc & 0x08
@@ -213,8 +219,12 @@ void emit_add16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SW(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF | X_OF) {
-        NOT(s5, s1);   // s5 = ~res
-        AND(s3, s5, s3);   // s3 = ~res & (op1 | op2)
+        if(rv64_zbb) {
+            ANDN(s3, s1, s3);    // s3 = ~res & (op1 | op2)
+        } else {
+            NOT(s5, s1);   // s5 = ~res
+            AND(s3, s5, s3);   // s3 = ~res & (op1 | op2)
+        }
         OR(s3, s3, s4);   // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s4, s3, 0x08); // AF: cc & 0x08
@@ -272,8 +282,12 @@ void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     ADD(s1, s1, s2);
 
     IFX(X_AF|X_OF) {
-        NOT(s4, s1);   // s4 = ~res
-        AND(s3, s4, s3);   // s3 = ~res & (op1 | op2)
+        if(rv64_zbb) {
+            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+        } else {
+            NOT(s4, s1);   // s4 = ~res
+            AND(s3, s4, s3);   // s3 = ~res & (op1 | op2)
+        }
         OR(s3, s3, s2);   // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s4, s3, 0x08); // AF: cc & 0x08
@@ -332,8 +346,12 @@ void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
     ADDI(s1, s1, c);
 
     IFX(X_AF|X_OF) {
-        NOT(s2, s1);   // s2 = ~res
-        AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
+        if(rv64_zbb) {
+            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+        } else {
+            NOT(s2, s1);   // s2 = ~res
+            AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
+        }
         OR(s3, s3, s4);   // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s4, s3, 0x08); // AF: cc & 0x08
@@ -580,8 +598,12 @@ void emit_inc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SB(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF | X_OF) {
-        NOT(s2, s1);   // s2 = ~res
-        AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
+        if(rv64_zbb) {
+            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+        } else {
+            NOT(s2, s1);   // s2 = ~res
+            AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
+        }
         OR(s3, s3, s4);   // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s2, s3, 0x08); // AF: cc & 0x08
@@ -625,8 +647,9 @@ void emit_dec8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SET_DFNONE();
     }
     IFX(X_AF | X_OF) {
-        ORI(s3, s1, 1);      // s3 = op1 | op2
-        ANDI(s4, s1, 1);      // s4 = op1 & op2
+        NOT(s4, s1);        // s4 = ~op1
+        ORI(s3, s4, 1);      // s3 = ~op1 | op2
+        ANDI(s4, s4, 1);      // s4 = ~op1 & op2
     }
 
     ADDIW(s1, s1, -1);
@@ -635,9 +658,8 @@ void emit_dec8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SB(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF | X_OF) {
-        NOT(s2, s1);   // s2 = ~res
-        AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
-        OR(s3, s3, s4);   // cc = (~res & (op1 | op2)) | (op1 & op2)
+        AND(s3, s1, s3);   // s3 = res & (~op1 | op2)
+        OR(s3, s3, s4);   // cc = (res & (~op1 | op2)) | (~op1 & op2)
         IFX(X_AF) {
             ANDI(s2, s3, 0x08); // AF: cc & 0x08
             BEQZ(s2, 8);
@@ -689,8 +711,12 @@ void emit_inc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF | X_OF) {
-        NOT(s2, s1);   // s2 = ~res
-        AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
+        if(rv64_zbb) {
+            ANDN(s3, s1, s3);    // s3 = ~res & (op1 | op2)
+        } else {
+            NOT(s2, s1);   // s2 = ~res
+            AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
+        }
         OR(s3, s3, s5);   // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s2, s3, 0x08); // AF: cc & 0x08
@@ -798,8 +824,12 @@ void emit_inc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SH(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF | X_OF) {
-        NOT(s2, s1);   // s2 = ~res
-        AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
+        if(rv64_zbb) {
+            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+        } else {
+            NOT(s2, s1);   // s2 = ~res
+            AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
+        }
         OR(s3, s3, s4);   // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s4, s3, 0x08); // AF: cc & 0x08
@@ -816,8 +846,7 @@ void emit_inc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
     }
 
-    SLLI(s1, s1, 48);
-    SRLI(s1, s1, 48);
+    if(rv64_zbb) ZEXTH(s1, s1); else {SLLI(s1, s1, 48); SRLI(s1, s1, 48);}
 
     IFX(X_ZF) {
         BNEZ(s1, 8);
@@ -1091,8 +1120,7 @@ void emit_neg16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
     }
 
     NEG(s1, s1);
-    SLLI(s1, s1, 48);
-    SRLI(s1, s1, 48);
+    if(rv64_zbb) ZEXTH(s1, s1); else {SLLI(s1, s1, 48); SRLI(s1, s1, 48);}
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -1213,8 +1241,12 @@ void emit_adc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SW(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF | X_OF) {
-        NOT(s2, s1);     // s2 = ~res
-        AND(s3, s2, s4); // s3 = ~res & (op1 | op2)
+        if(rv64_zbb) {
+            ANDN(s3, s1, s4);   // s3 = ~res & (op1 | op2)
+        } else {
+            NOT(s2, s1);     // s2 = ~res
+            AND(s3, s2, s4); // s3 = ~res & (op1 | op2)
+        }
         OR(s3, s3, s5);  // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s4, s3, 0x08); // AF: cc & 0x08
@@ -1236,8 +1268,7 @@ void emit_adc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         ORI(xFlags, xFlags, 1 << F_CF);
     }
 
-    SLLI(s1, s1, 48);
-    SRLI(s1, s1, 48);
+    if(rv64_zbb) ZEXTH(s1, s1); else {SLLI(s1, s1, 48); SRLI(s1, s1, 48);}
 
     IFX(X_ZF) {
         BNEZ(s1, 8);
@@ -1267,8 +1298,7 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_CF) {
         if (rex.w) {
             AND(s5, xMASK, s1);
-            AND(s4, xMASK, s2);
-            ADD(s5, s5, s4); // lo
+            if(rv64_zba) ADDUW(s5, s2, s5); else {AND(s4, xMASK, s2); ADD(s5, s5, s4);} // lo
             SRLI(s3, s1, 0x20);
             SRLI(s4, s2, 0x20);
             ADD(s4, s4, s3);
@@ -1297,8 +1327,12 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF | X_OF) {
-        NOT(s2, s1);     // s2 = ~res
-        AND(s3, s2, s4); // s3 = ~res & (op1 | op2)
+        if(rv64_zbb) {
+            ANDN(s3, s1, s4);   // s3 = ~res & (op1 | op2)
+        } else {
+            NOT(s2, s1);     // s2 = ~res
+            AND(s3, s2, s4); // s3 = ~res & (op1 | op2)
+        }
         OR(s3, s3, s5);  // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s4, s3, 0x08); // AF: cc & 0x08
