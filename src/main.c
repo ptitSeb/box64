@@ -362,7 +362,7 @@ HWCAP2_ECV
 #elif defined(RV64)
     void RV64_Detect_Function();
     RV64_Detect_Function();
-    printf_log(LOG_INFO, "Dynarec for RISC-V");
+    printf_log(LOG_INFO, "Dynarec for RISC-V ");
     printf_log(LOG_INFO, "With extension: I M A F D C");
     if(rv64_zba) printf_log(LOG_INFO, " Zba");
     if(rv64_zbb) printf_log(LOG_INFO, " Zbb");
