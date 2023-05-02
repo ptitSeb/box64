@@ -22,15 +22,15 @@ static int Check(void* block)
     // Clear instruction cache
     __clear_cache(block, block+box64_pagesize);
     // Setup SIGILL signal handler
-    signal(SIGILL, detect_sigill);
+    __sighandler_t old = signal(SIGILL, detect_sigill);
     if(sigsetjmp(sigbuf, 1)) {
         // didn't work, extension not present
-        signal(SIGILL, SIG_DFL);
+        signal(SIGILL, old);
         return 0;
     }
     ((vFii_t)block)(0, 1);
     // done...
-    signal(SIGILL, SIG_DFL);
+    signal(SIGILL, old);
     return 1;
 }
 
