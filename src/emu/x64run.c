@@ -76,7 +76,13 @@ x64emurun:
 #elif GDBSTUB
     while(1) {
         gdbstub_action_t action = GdbStubStep(emu->context->gdbstub);
-        if (action == GDBSTUB_ACTION_NONE) continue;
+        switch (action) {
+            case GDBSTUB_ACTION_NONE: continue;
+            case GDBSTUB_ACTION_DETACH:
+                printf_log(LOG_INFO, "Gdbstub detected detach from client, exiting...\n");
+                goto fini;
+            default: break;
+        }
 #else
     while(1) {
 #endif
