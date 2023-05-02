@@ -201,8 +201,8 @@ static gdbstub_action_t GdbStubHandlePkt(gdbstub_t *stub) {
 
     switch (req) {
     case 'c': // continue
-        // TODO
-        GdbStubSendPkt(stub, "");
+        stub->cont = true;
+        GdbStubSendPkt(stub, "OK");
         break;
     case 'g':
         GdbStubHandleRegsRead(stub, payload);
@@ -263,6 +263,7 @@ static gdbstub_action_t GdbStubHandlePkt(gdbstub_t *stub) {
 
 // Step forward gdbstub, handles one packet a time. returns an action.
 gdbstub_action_t GdbStubStep(gdbstub_t *stub) {
+    if (stub->cont) return GDBSTUB_ACTION_STEP;
     GdbStubRecvPkt(stub);
     return GdbStubHandlePkt(stub);
 }

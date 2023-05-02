@@ -15,6 +15,7 @@ struct conn_s {
 typedef struct gdbstub_s {
     struct conn_s conn;
     x64emu_t* emu;
+    bool cont;
 
     // Packet buffer, should be enough, replace this with a dynamic buffer maybe.
     uint8_t pktbuf[GDBSTUB_MAX_PKT_SIZE];
