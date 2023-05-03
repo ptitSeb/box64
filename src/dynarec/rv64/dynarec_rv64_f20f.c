@@ -105,7 +105,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;
             GETEXSD(v0, 0);
             if(!box64_dynarec_fastround) {
-                FSFLAGSI(xZR);  // // reset all bits
+                FSFLAGSI(0);  // // reset all bits
             }
             FCVTLDxw(gd, v0, RD_RTZ);
             if(!rex.w)
@@ -127,7 +127,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;
             GETEXSD(v0, 0);
             if(!box64_dynarec_fastround) {
-                FSFLAGSI(xZR);  // // reset all bits
+                FSFLAGSI(0);  // // reset all bits
             }
             u8 = sse_setround(dyn, ninst, x2, x3);
             FCVTLDxw(gd, v0, RD_DYN);

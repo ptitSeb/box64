@@ -105,7 +105,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;
             GETEXSS(d0, 0);
             if(!box64_dynarec_fastround) {
-                FSFLAGSI(xZR);  // // reset all bits
+                FSFLAGSI(0);  // // reset all bits
             }
             FCVTSxw(gd, d0, RD_RTZ);
             if(!rex.w)
@@ -127,7 +127,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;
             GETEXSS(d0, 0);
             if(!box64_dynarec_fastround) {
-                FSFLAGSI(xZR);  // // reset all bits
+                FSFLAGSI(0);  // // reset all bits
             }
             u8 = sse_setround(dyn, ninst, x5, x6);
             FCVTSxw(gd, d0, RD_DYN);
@@ -285,7 +285,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             v0 = fpu_get_scratch(dyn);
             for(int i=0; i<4; ++i) {
                 if(!box64_dynarec_fastround) {
-                    FSFLAGSI(xZR); // reset all bits
+                    FSFLAGSI(0); // reset all bits
                 }
                 FLW(v0, wback, fixedaddress+i*4);
                 FCVTWS(x3, v0, RD_RTZ);
