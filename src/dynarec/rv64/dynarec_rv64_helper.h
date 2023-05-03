@@ -99,6 +99,16 @@
                     LD(x1, wback, fixedaddress);        \
                     ed = x1;                            \
                 }
+// GETED32 can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETED32(D)  if(MODREG) {                        \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    SMREAD()                            \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+                    LDxw(x1, wback, fixedaddress);      \
+                    ed = x1;                            \
+                }
 //GETEDH can use hint for ed, and x1 or x2 for wback (depending on hint), might also use x3. wback is 0 if ed is xEAX..xEDI
 #define GETEDH(hint, D) if(MODREG) {                    \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
@@ -221,6 +231,26 @@
                     SMREAD();                   \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, D); \
                     LB(i, wback, fixedaddress); \
+                    wb1 = 1;                    \
+                    ed = i;                     \
+                }
+// GETEB32 will use i for ed, and can use r3 for wback.
+#define GETEB32(i, D) if(MODREG) {                \
+                    if(rex.rex) {               \
+                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
+                        wb2 = 0;                \
+                    } else {                    \
+                        wback = (nextop&7);     \
+                        wb2 = (wback>>2)*8;     \
+                        wback = xRAX+(wback&3); \
+                    }                           \
+                    if (wb2) {MV(i, wback); SRLI(i, i, wb2); ANDI(i, i, 0xff);} else {ANDI(i, wback, 0xff);}   \
+                    wb1 = 0;                    \
+                    ed = i;                     \
+                } else {                        \
+                    SMREAD();                   \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, D); \
+                    LBU(i, wback, fixedaddress);\
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
@@ -899,7 +929,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
 
 /* setup r2 to address pointed by */
-//uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
+uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
 
 /* setup r2 to address pointed by */
 //uintptr_t geted16(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int absmax, uint32_t mask, int s);
