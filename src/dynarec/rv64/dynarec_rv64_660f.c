@@ -1710,10 +1710,10 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
-            FLD(v0, wback, 0);
-            FLD(v1, wback, 8);
+            FLD(v0, wback, fixedaddress+0);
+            FLD(v1, wback, fixedaddress+8);
             if(!box64_dynarec_fastround) {
-                FSFLAGSI(xZR);  // // reset all bits
+                FSFLAGSI(0);  // // reset all bits
             }
             FCVTWD(x3, v0, RD_RTZ);
             if(!box64_dynarec_fastround) {
@@ -1722,7 +1722,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BEQ_MARK(x5, xZR);
                 MOV32w(x3, 0x80000000);
                 MARK;
-                FSFLAGSI(xZR);  // // reset all bits
+                FSFLAGSI(0);  // // reset all bits
             }
             FCVTWD(x4, v1, RD_RTZ);
             if(!box64_dynarec_fastround) {

@@ -263,7 +263,12 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xFA:
             INST_NAME("FSQRT");
-            DEFAULT;
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+            if(ST_IS_F(0)) {
+                FSQRTS(v1, v1);
+            } else {
+                FSQRTD(v1, v1);
+            }
             break;
         case 0xFB:
             INST_NAME("FSINCOS");

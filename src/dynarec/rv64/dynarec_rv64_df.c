@@ -47,9 +47,18 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0xE0:
             INST_NAME("FNSTSW AX");
-            DEFAULT;
+            LHU(x2, xEmu, offsetof(x64emu_t, top));
+            LHU(x1, xEmu, offsetof(x64emu_t, sw));
+            MOV32w(x3, 0b1100011111111111); // mask
+            AND(x1, x1, x3);
+            NOT(x3, x3);
+            AND(x2, x2, x3);
+            OR(x1, x1, x2); // inject top
+            SH(x1, xEmu, offsetof(x64emu_t, sw));
+            SRLI(xRAX, xRAX, 16);
+            SLLI(xRAX, xRAX, 16);
+            OR(xRAX, xRAX, x1);
             break;
-
         case 0xE8 ... 0xF7:
             if (nextop < 0xF0) {
                 INST_NAME("FUCOMIP ST0, STx");
@@ -122,7 +131,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 1, 0);
                     if(!box64_dynarec_fastround) {
-                        FSFLAGSI(xZR); // reset all bits
+                        FSFLAGSI(0); // reset all bits
                     }
                     FCVTWD(x4, v1, RD_RTZ);
                     if(!box64_dynarec_fastround) {
@@ -145,7 +154,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u8 = x87_setround(dyn, ninst, x1, x2);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                     if(!box64_dynarec_fastround) {
-                        FSFLAGSI(xZR); // reset all bits
+                        FSFLAGSI(0); // reset all bits
                     }
                     FCVTWD(x4, v1, RD_DYN);
                     x87_restoreround(dyn, ninst, u8);
@@ -170,7 +179,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                     v2 = fpu_get_scratch(dyn);
                     if(!box64_dynarec_fastround) {
-                        FSFLAGSI(xZR); // reset all bits
+                        FSFLAGSI(0); // reset all bits
                     }
                     FCVTLD(x4, v1, RD_DYN);
                     x87_restoreround(dyn, ninst, u8);
