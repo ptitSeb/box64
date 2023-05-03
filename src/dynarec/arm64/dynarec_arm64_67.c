@@ -38,7 +38,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
     uint8_t opcode = F8;
     uint8_t nextop;
-    uint8_t gd, ed, wback, wb, wb1, wb2, gb1, gb2;
+    uint8_t gd, ed, wback, wb, wb1, wb2, gb1, gb2, eb1, eb2;
     int64_t fixedaddress;
     int unscaled;
     int8_t  i8;
@@ -642,6 +642,39 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
             
+        case 0x88:
+            INST_NAME("MOV Eb, Gb");
+            nextop = F8;
+            gd = ((nextop&0x38)>>3)+(rex.r<<3);
+            if(rex.rex) {
+                gb2 = 0;
+                gb1 = xRAX + gd;
+            } else {
+                gb2 = ((gd&4)>>2);
+                gb1 = xRAX+(gd&3);
+            }
+            if(gb2) {
+                gd = x4;
+                UBFXw(gd, gb1, gb2*8, 8);
+            } else {
+                gd = gb1;   // no need to extract
+            }
+            if(MODREG) {
+                ed = (nextop&7) + (rex.b<<3);
+                if(rex.rex) {
+                    eb1 = xRAX+ed;
+                    eb2 = 0;
+                } else {
+                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = ((ed&4)>>2);    // L or H
+                }
+                BFIx(eb1, gd, eb2*8, 8);
+            } else {
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff, 0, rex, &lock, 0, 0);
+                STB(gd, ed, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
         case 0x89:
             INST_NAME("MOV Ed, Gd");
             nextop=F8;
