@@ -170,6 +170,19 @@ void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, ui
     v->syms[idx].sym.sz = sz;
 }
 
+void ForceUpdateSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint32_t sz)
+{
+    int ret;
+    khint_t k = kh_put(mapsymbols, mapsymbols, name, &ret);
+    versymbols_t * v = &kh_val(mapsymbols, k);
+    if(ret) {v->sz = v->cap = 0; v->syms = NULL;}
+    // now check if that version already exist, and update record and exit if yes
+    for(int i=0; i<v->sz; ++i) {
+        v->syms[i].sym.offs = addr;
+        v->syms[i].sym.sz = sz;
+    }
+}
+
 uintptr_t FindSymbol(kh_mapsymbols_t *mapsymbols, const char* name, int ver, const char* vername, int local, const char* defver)
 {
     if(!mapsymbols)

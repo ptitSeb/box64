@@ -890,7 +890,6 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
     }
     return bindnow?ret_ok:0;
 }
-void checkHookedSymbols(lib_t *maplib, elfheader_t* h); // in mallochook.c
 int RelocateElf(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* head)
 {
     if((head->flags&DF_BIND_NOW) && !bindnow) {
@@ -911,7 +910,6 @@ int RelocateElf(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* he
         if(RelocateElfRELA(maplib, local_maplib, bindnow, head, cnt, (Elf64_Rela *)(head->rela + head->delta), NULL))
             return -1;
     }
-    checkHookedSymbols(maplib, head);
     return 0;
 }
 
@@ -1020,6 +1018,7 @@ uintptr_t GetLastByte(elfheader_t* h)
     return (uintptr_t)h->memory/* + h->delta*/ + h->memsz;
 }
 
+void checkHookedSymbols(elfheader_t* h); // in mallochook.c
 void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h)
 {
     if(box64_dump && h->DynSym) DumpDynSym(h);
@@ -1104,6 +1103,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 }
         }
     }
+    checkHookedSymbols(h);
 }
 
 /*
