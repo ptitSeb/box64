@@ -76,7 +76,11 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xDE:
         case 0xDF:
             INST_NAME("FSTP ST0, STx");
-            DEFAULT;
+            // copy the cache value for st0 to stx
+            x87_get_st_empty(dyn, ninst, x1, x2, nextop&7, X87_ST(nextop&7));
+            x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+            x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xE0:
         case 0xE1:
