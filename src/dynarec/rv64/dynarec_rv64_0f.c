@@ -229,16 +229,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else
             switch((nextop>>3)&7) {
                 case 0:
-                    DEFAULT;
-                    break;
                 case 1:
-                    DEFAULT;
-                    break;
                 case 2:
-                    DEFAULT;
-                    break;
                 case 3:
-                    DEFAULT;
+                    INST_NAME("PREFETCHh Ed");
+                    FAKEED;
                     break;
                 default:
                     INST_NAME("NOP (multibyte)");
