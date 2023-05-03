@@ -709,7 +709,7 @@ typedef struct simple_jmp_s {
 
 static void addRelocJmp(void* offs, void* where, size_t size, const char* name, elfheader_t* h)
 {
-    if(malloc_hack_2 && !strcmp(name, "free")) {
+    if(0 && malloc_hack_2 && !strcmp(name, "free")) {
         if(!real_free /*&& !strcmp(name, "free")*/)
             real_free = (uintptr_t)offs;
         // a bridge jump is roughly 32 bytes
