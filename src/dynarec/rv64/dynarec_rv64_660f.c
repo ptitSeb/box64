@@ -1415,13 +1415,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("SHUFPD Gx, Ex, Ib");
             nextop = F8;
             GETGX(x1);
+            GETEX(x2, 1);
             u8 = F8;
             if (MODREG && gd==(nextop&7)+(rex.b<<3) && u8==0) {
                 LD(x3, gback, 0);
                 SD(x3, gback, 8);
                 break;
             }
-            GETEX(x2, 1)
             LD(x3, gback, 8*(u8&1));
             LD(x4, wback, fixedaddress+8*((u8>>1)&1));
             SD(x3, gback, 0);
