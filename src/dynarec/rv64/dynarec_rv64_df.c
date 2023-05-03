@@ -47,9 +47,18 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0xE0:
             INST_NAME("FNSTSW AX");
-            DEFAULT;
+            LHU(x2, xEmu, offsetof(x64emu_t, top));
+            LHU(x1, xEmu, offsetof(x64emu_t, sw));
+            MOV32w(x3, 0b1100011111111111); // mask
+            AND(x1, x1, x3);
+            NOT(x3, x3);
+            AND(x2, x2, x3);
+            OR(x1, x1, x2); // inject top
+            SH(x1, xEmu, offsetof(x64emu_t, sw));
+            SRLI(xRAX, xRAX, 16);
+            SLLI(xRAX, xRAX, 16);
+            OR(xRAX, xRAX, x1);
             break;
-
         case 0xE8 ... 0xF7:
             if (nextop < 0xF0) {
                 INST_NAME("FUCOMIP ST0, STx");
