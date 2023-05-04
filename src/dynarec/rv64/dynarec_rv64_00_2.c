@@ -690,8 +690,8 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZ_NEXT(xRCX);
                 ANDI(x1, xRAX, 0xff);
-                ANDI(x1, xFlags, 1<<F_DF);
-                BNEZ_MARK2(x1);
+                ANDI(x2, xFlags, 1<<F_DF);
+                BNEZ_MARK2(x2);
                 MARK;   // Part with DF==0
                 LBU(x2, xRDI, 0);
                 ADDI(xRDI, xRDI, 1);
@@ -716,6 +716,44 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LBU(x2, xRDI, 0);
                 ADD(xRDI, xRDI, x3);
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                break;
+            }
+            break;
+        case 0xAF:
+            switch (rep) {
+            case 1:
+            case 2:
+                if (rep==1) {INST_NAME("REPNZ SCASD");} else {INST_NAME("REPZ SCASD");}
+                MAYSETFLAGS();
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                CBZ_NEXT(xRCX);
+                if (rex.w) {MV(x1, xRAX);} else {AND(x1, xRAX, xMASK);}
+                ANDI(x2, xFlags, 1<<F_DF);
+                BNEZ_MARK2(x2);
+                MARK;   // Part with DF==0
+                LDxw(x2, xRDI, 0);
+                ADDI(xRDI, xRDI, rex.w?8:4);
+                SUBI(xRCX, xRCX, 1);
+                if (rep==1) {BEQ_MARK3(x1, x2);} else {BNE_MARK3(x1, x2);}
+                BNE_MARK(xRCX, xZR);
+                B_MARK3_nocond;
+                MARK2;  // Part with DF==1
+                LDxw(x2, xRDI, 0);
+                SUBI(xRDI, xRDI, rex.w?8:4);
+                SUBI(xRCX, xRCX, 1);
+                if (rep==1) {BEQ_MARK3(x1, x2);} else {BNE_MARK3(x1, x2);}
+                BNE_MARK2(xRCX, xZR);
+                MARK3; // end
+                emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5, x6);
+                break;
+            default:
+                INST_NAME("SCASD");
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                GETDIR(x3, x1, rex.w?8:4);
+                AND(x1, xRAX, xMASK);
+                LDxw(x2, xRDI, 0);
+                ADD(xRDI, xRDI, x3);
+                emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5, x6);
                 break;
             }
             break;
