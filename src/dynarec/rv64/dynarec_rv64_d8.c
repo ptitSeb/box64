@@ -62,7 +62,7 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 AND(x5, x5, x4);
                 BEQZ(x5, 24); // undefined/NaN
                 FEQS(x5, v1, v2);
-                BNEZ(x5, 24); // equal
+                BNEZ(x5, 28); // equal
                 FLTS(x3, v1, v2); // x3 = (v1<v2)?1:0
                 SLLI(x1, x3, 8);
                 J(20); // end
@@ -79,7 +79,7 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 AND(x5, x5, x4);
                 BEQZ(x5, 24); // undefined/NaN
                 FEQD(x5, v1, v2);
-                BNEZ(x5, 24); // equal
+                BNEZ(x5, 28); // equal
                 FLTD(x3, v1, v2); // x3 = (v1<v2)?1:0
                 SLLI(x1, x3, 8);
                 J(20); // end

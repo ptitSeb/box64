@@ -639,7 +639,7 @@ if(RV64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_d9.c"
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_da.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_db.c"
-    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_dc.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_dc.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_dd.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_de.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_df.c"
