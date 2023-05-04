@@ -401,6 +401,14 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                 GD->q[0] = ED->dword[0];
             break;
 
+        case 0xA1:                      /* MOV EAX,FS:Od */
+            tmp64u = F64;
+            if(rex.w)
+                R_RAX = *(uint64_t*)(tlsdata+tmp64u);
+            else
+                R_RAX = *(uint32_t*)(tlsdata+tmp64u);
+            break;
+
         case 0xC6:                      /* MOV FS:Eb, Ib */
             nextop = F8;
             GETEB_OFFS(1, tlsdata);
