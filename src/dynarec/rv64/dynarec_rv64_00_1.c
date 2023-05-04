@@ -114,7 +114,9 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
-
+        case 0x67:
+            addr = dynarec64_67(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
         case 0x68:
             INST_NAME("PUSH Id");
             i64 = F32S;
