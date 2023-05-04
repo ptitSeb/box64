@@ -259,7 +259,7 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     case 0x8D:                      /* LEA Gd,M */
         nextop = F8;
-        GETED32(0);
+        _GETED32(0);
         GETGD;
         if(rex.w)
             GD->q[0] = (uint64_t)ED;

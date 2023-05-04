@@ -929,10 +929,10 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             if((nextop&0xF8)==0xF8) {
                 return addr;            /* SFENCE */
             }
-            GETED(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* FXSAVE Ed */
                     #ifndef TEST_INTERPRETER
+                    GETED(0);
                     if(rex.w)
                         fpu_fxsave64(emu, ED);
                     else
@@ -941,6 +941,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     break;
                 case 1:                 /* FXRSTOR Ed */
                     #ifndef TEST_INTERPRETER
+                    GETED(0);
                     if(rex.w)
                         fpu_fxrstor64(emu, ED);
                     else
@@ -948,6 +949,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     #endif
                     break;
                 case 2:                 /* LDMXCSR Md */
+                    GETED(0);
                     emu->mxcsr.x32 = ED->dword[0];
                     #ifndef TEST_INTERPRETER
                     if(box64_sse_flushto0)
@@ -955,10 +957,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     #endif
                     break;
                 case 3:                 /* STMXCSR Md */
+                    GETED(0);
                     ED->dword[0] = emu->mxcsr.x32;
                     break;
                 case 7:                 /* CLFLUSH Ed */
                     #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                    GETED(0);
                     if(box64_dynarec)
                         cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
                     #endif
