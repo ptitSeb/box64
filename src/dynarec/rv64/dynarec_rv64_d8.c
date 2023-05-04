@@ -96,7 +96,15 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             x87_do_pop(dyn, ninst, x3);
             break;
         case 0xE0 ... 0xE7:
-
+            INST_NAME("FSUB ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                FSUBS(v1, v1, v2);
+            } else {
+                FSUBD(v1, v1, v2);
+            }
+            break;
         case 0xE8 ... 0xEF:
 
         case 0xF0 ... 0xF7:
