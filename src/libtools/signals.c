@@ -939,7 +939,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         }
         // access error, unprotect the block (and mark them dirty)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
-        if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || getNeedTest((uintptr_t)db->x64_addr))) {
+        int db_need_test = db?getNeedTest((uintptr_t)db->x64_addr):0;
+        if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db_need_test)) {
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();
             if(ejb->jmpbuf_ok) {
@@ -984,7 +985,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);
         }
         // done
-        if((prot&PROT_WRITE) || (prot&PROT_DYNAREC)) {
+        if((prot&PROT_WRITE)/*|| (prot&PROT_DYNAREC)*/) {
             mutex_unlock(&mutex_dynarec_prot);
             // if there is no write permission, don't return and continue to program signal handling
             relockMutex(Locks);

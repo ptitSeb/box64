@@ -85,13 +85,14 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     // prepare setjump for signal handling
     emu_jmpbuf_t *ejb = NULL;
     int jmpbuf_reset = 0;
+    int skip = 0;
     if(emu->type == EMUTYPE_MAIN) {
         ejb = GetJmpBuf();
         if(!ejb->jmpbuf_ok) {
             ejb->emu = emu;
             ejb->jmpbuf_ok = 1;
             jmpbuf_reset = 1;
-            if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)) {
+            if((skip = sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))) {
                 printf_log(LOG_DEBUG, "Setjmp DynaCall, fs=0x%x\n", ejb->emu->segs[_FS]);
                 addr = R_RIP;   // not sure if it should still be inside DynaCall!
                 #ifdef DYNAREC
@@ -120,8 +121,9 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
         R_RIP = addr;
         emu->df = d_none;
         while(!emu->quit) {
-            dynablock_t* block = DBGetBlock(emu, R_RIP, 1);
+            dynablock_t* block = (skip==2)?NULL:DBGetBlock(emu, R_RIP, 1);
             if(!block || !block->block || !block->done) {
+                skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Calling Interpreter @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
@@ -175,6 +177,7 @@ int DynaRun(x64emu_t* emu)
 {
     // prepare setjump for signal handling
     emu_jmpbuf_t *ejb = NULL;
+    int skip;
 #ifdef DYNAREC
     int jmpbuf_reset = 1;
 #endif
@@ -186,7 +189,7 @@ int DynaRun(x64emu_t* emu)
 #ifdef DYNAREC
             jmpbuf_reset = 1;
 #endif
-            if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))
+            if((skip=sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)))
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
                 #ifdef DYNAREC
                 if(box64_dynarec_test) {
@@ -204,8 +207,9 @@ int DynaRun(x64emu_t* emu)
 #ifdef DYNAREC
     else {
         while(!emu->quit) {
-            dynablock_t* block = DBGetBlock(emu, R_RIP, 1);
+            dynablock_t* block = (skip==2)?NULL:DBGetBlock(emu, R_RIP, 1);
             if(!block || !block->block || !block->done) {
+                skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Running Interpreter @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
