@@ -946,12 +946,13 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             if(ejb->jmpbuf_ok) {
                 copyUCTXreg2Emu(ejb->emu, p, getX64Address(db, (uintptr_t)pc));
 #ifdef ARM64
-                if(fpsimd) {
+                //TODO: Need proper SIMD/x87 register traking!
+                /*if(fpsimd) {
                     ejb->emu->xmm[0].u128 = fpsimd->vregs[0];
                     ejb->emu->xmm[1].u128 = fpsimd->vregs[1];
                     ejb->emu->xmm[2].u128 = fpsimd->vregs[2];
                     ejb->emu->xmm[3].u128 = fpsimd->vregs[3];
-                }
+                }*/
 #elif defined(LA464)
                 /*if(fpsimd) {
                     ejb->emu->xmm[0].u128 = fpsimd->vregs[0];
@@ -979,6 +980,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 #ifdef DYNAREC
                 if(Locks & is_dyndump_locked)
                     CancelBlock64(1);
+                ejb->emu->test.clean = 0;
                 #endif
                 siglongjmp(ejb->jmpbuf, 2);
             }
