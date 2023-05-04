@@ -1645,17 +1645,9 @@ x64emurun:
                     }
                     break;
                 case 6:                 /* Push Ed */
-                    GETE8(0);
+                    _GETED(0);
                     tmp64u = ED->q[0];  // rex.w ignored
-                    #ifdef TEST_INTERPRETER
-                    R_RSP -=8;
-                    if(test->memsize!=8)
-                        *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
-                    test->memsize = 8;
-                    test->memaddr = R_RSP;
-                    #else
                     Push(emu, tmp64u);  // avoid potential issue with push [esp+...]
-                    #endif
                     break;
                 default:
                     printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
