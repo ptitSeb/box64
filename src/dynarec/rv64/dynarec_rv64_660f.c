@@ -458,6 +458,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SMWRITE2();
                     }
                     break;
+                case 0x20:
+                    INST_NAME("PINSRB Gx, ED, Ib");
+                    nextop = F8;
+                    GETGX(x3);
+                    GETED(1);
+                    u8 = F8;
+                    SB(ed, x3, u8&0xF);
+                    break;
                 case 0x22:
                     INST_NAME("PINSRD Gx, ED, Ib");
                     nextop = F8;
@@ -470,15 +478,29 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SW(ed, gback, 4*(u8&0x3));
                     }
                     break;
-                case 0x20:
-                    INST_NAME("PINSRB Gx, ED, Ib");
+                case 0x44:
+                    INST_NAME("PCLMULQDQ Gx, Ex, Ib");
                     nextop = F8;
-                    GETGX(x3);
-                    GETED(1);
+                    GETG;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd); // gx
+                    if(MODREG) {
+                        ed = (nextop&7)+(rex.b<<3); 
+                        sse_forget_reg(dyn, ninst, ed);
+                        MOV32w(x2, ed);
+                        MOV32w(x3, 0);  // p = NULL
+                    } else {
+                        MOV32w(x2, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x5, &fixedaddress, rex, NULL, 0, 1);
+                        if(ed!=x3) {
+                            MV(x3, ed);
+                        }
+                    }
                     u8 = F8;
-                    SB(ed, x3, u8&0xF);
+                    MOV32w(x4, u8);
+                    CALL(native_pclmul, -1);
                     break;
-                default:
+            default:
                     DEFAULT;
             }
             break;
@@ -939,7 +961,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 v1 = sse_get_reg(dyn, ninst, x2, (nextop&7)+(rex.b<<3), 0);
                 FSD(v1, gback, 8);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 LD(x3, ed, fixedaddress+0);
                 SD(x3, gback, 8);
             }
@@ -1278,7 +1300,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ed = xRAX + (nextop&7) + (rex.b<<3);
                     LD(ed, x1, 0);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                     LD(x3, x1, 0);
                     SD(x3, ed, fixedaddress);
                     SMWRITE2();
@@ -1288,7 +1310,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ed = xRAX + (nextop&7) + (rex.b<<3);
                     LWU(ed, x1, 0);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                     LWU(x3, x1, 0);
                     SW(x3, ed, fixedaddress);
                     SMWRITE2();
@@ -1335,7 +1357,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SRAI(x1, x1, 56);
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0);
                 LB(x1, ed, fixedaddress);
             }
             LUI(x5, 0xffff0);
