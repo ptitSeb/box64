@@ -51,7 +51,10 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xC6:
         case 0xC7:
             INST_NAME("FFREE STx");
-            DEFAULT;
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
+            x87_purgecache(dyn, ninst, 0, x1, x2, x3);
+            MOV32w(x1, nextop&7);
+            CALL(fpu_do_free, -1);
             break;
         case 0xD0:
         case 0xD1:
