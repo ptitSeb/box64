@@ -50,7 +50,51 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD0 ... 0xD7:
 
         case 0xD8 ... 0xDF:
-
+            INST_NAME("FCOMP ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            LHU(x3, xEmu, offsetof(x64emu_t, sw));
+            MOV32w(x1, 0b1110100011111111); // mask off c0,c1,c2,c3
+            AND(x3, x3, x1);
+            if(ST_IS_F(0)) {
+                FEQS(x5, v1, v1);
+                FEQS(x4, v2, v2);
+                AND(x5, x5, x4);
+                BEQZ(x5, 24); // undefined/NaN
+                FEQS(x5, v1, v2);
+                BNEZ(x5, 24); // equal
+                FLTS(x3, v1, v2); // x3 = (v1<v2)?1:0
+                SLLI(x1, x3, 8);
+                J(20); // end
+                // undefined/NaN
+                LUI(x1, 1);
+                ADDI(x1, x1, 0b010100000000);
+                J(8); // end
+                // equal
+                LUI(x1, 1);
+                // end
+            } else {
+                FEQD(x5, v1, v1);
+                FEQD(x4, v2, v2);
+                AND(x5, x5, x4);
+                BEQZ(x5, 24); // undefined/NaN
+                FEQD(x5, v1, v2);
+                BNEZ(x5, 24); // equal
+                FLTD(x3, v1, v2); // x3 = (v1<v2)?1:0
+                SLLI(x1, x3, 8);
+                J(20); // end
+                // undefined/NaN
+                LUI(x1, 1);
+                ADDI(x1, x1, 0b010100000000);
+                J(8); // end
+                // equal
+                LUI(x1, 1);
+                // end
+            }
+            OR(x3, x3, x1);
+            SH(x3, xEmu, offsetof(x64emu_t, sw));
+            x87_do_pop(dyn, ninst, x3);
+            break;
         case 0xE0 ... 0xE7:
 
         case 0xE8 ... 0xEF:
