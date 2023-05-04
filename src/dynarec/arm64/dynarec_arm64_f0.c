@@ -247,7 +247,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 CBNZx_MARKLOCK(x4);
                                 // done
                                 MARK;
-                                UFLAG_IF {emit_cmp32(dyn, ninst, rex, x6, x2, x3, x4, x5);}
+                                UFLAG_IF {emit_cmp8(dyn, ninst, x6, x2, x3, x4, x5);}
                                 BFIx(xRAX, x2, 0, 8);
                             }
                             SMDMB();
