@@ -27,7 +27,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     (void)ip; (void)need_epilog;
 
     uint8_t opcode = F8;
-    uint8_t nextop, u8;
+    uint8_t nextop, u8, s8;
     int32_t i32;
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2, gback;
@@ -465,6 +465,22 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETED(1);
                     u8 = F8;
                     SB(ed, x3, u8&0xF);
+                    break;
+                case 0x21:
+                    INST_NAME("INSERTPS GX, EX, Ib");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 1);
+                    u8 = F8;
+                    if(MODREG) s8 = (u8>>6)&3; else s8 = 0;
+                    // GX->ud[(tmp8u>>4)&3] = EX->ud[tmp8s];
+                    LWU(x3, wback, fixedaddress+4*s8);
+                    SW(x3, gback, 4*(u8>>4));
+                    for(int i=0; i<4; ++i) {
+                        if(u8&(1<<i))
+                            // GX->ud[i] = 0;
+                            SW(xZR, gback, 4*i);
+                    }
                     break;
                 case 0x22:
                     INST_NAME("PINSRD Gx, ED, Ib");
