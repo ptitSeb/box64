@@ -1808,6 +1808,23 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 #endif
             }
             break;
+        case 0xCD:
+            INST_NAME("INT n");
+            u8 = F8;
+            if(box64_wine && u8==0x2D) {
+                // lets do nothing
+                MESSAGE(LOG_INFO, "INT 2D Windows anti-debug hack\n");
+            } else {
+                SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+                GETIP(ip);
+                STORE_XEMU_CALL(xRIP);
+                CALL(native_priv, -1);
+                LOAD_XEMU_CALL(xRIP);
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+            }
+            break;
 
         case 0xCF:
             INST_NAME("IRET");

@@ -1143,11 +1143,17 @@ x64emurun:
             #endif
             break;
         case 0xCD:                      /* INT n */
+            tmp8u = F8;
             // this is a privilege opcode...
-            #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
-            STEP;
-            #endif
+            if(box64_wine && tmp8u==0x2D) {
+                // lets ignore the INT 2D
+                printf_log(LOG_DEBUG, "INT 2D called\n");
+            } else {
+                #ifndef TEST_INTERPRETER
+                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+                STEP;
+                #endif
+            }
             break;
 
 
