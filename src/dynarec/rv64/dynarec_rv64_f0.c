@@ -104,6 +104,101 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             nextop = F8;
             switch(nextop) {
+                case 0xB0:
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("LOCK CMPXCHG Eb, Gb");
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
+                            nextop = F8;
+                            ANDI(x6, xRAX, 0xff); // AL
+                            SMDMB();
+                            if(MODREG) {
+                                if(rex.rex) {
+                                    wback = xRAX+(nextop&7)+(rex.b<<3);
+                                    wb2 = 0;
+                                } else { 
+                                    wback = (nextop&7);
+                                    wb2 = (wback>>2)*8;
+                                    wback = xRAX+(wback&3);
+                                }
+                                if (wb2) {
+                                    MV(x2, wback); 
+                                    SRLI(x2, x2, wb2); 
+                                    ANDI(x2, x2, 0xff);
+                                } else {
+                                    ANDI(x2, wback, 0xff);
+                                }
+                                wb1 = 0;
+                                ed = x2;
+                                UFLAG_IF {
+                                    emit_cmp8(dyn, ninst, x6, ed, x3, x4, x5, x1);
+                                }
+                                BNE_MARK2(x6, x2);
+                                if (wb2) {
+                                    MV(wback, x2); 
+                                    SRLI(wback, wback, wb2); 
+                                    ANDI(wback, wback, 0xff);
+                                } else {
+                                    ANDI(wback, x2, 0xff);
+                                }
+                                GETGB(x1);
+                                MV(ed, gd);
+                                MARK2;
+                                ANDI(xRAX, xRAX, ~0xff);
+                                OR(xRAX, xRAX, x2);
+                                B_NEXT_nocond;
+                            } else {
+                                // this one is tricky, and did some repetitive work.
+                                // mostly because we only got 6 scratch registers, 
+                                // and has so much to do.
+                                if(rex.rex) {
+                                    gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
+                                    gb2 = 0;
+                                } else {
+                                    gd = (nextop&0x38)>>3;
+                                    gb2 = ((gd&4)>>2);
+                                    gb1 = xRAX+(gd&3);
+                                }
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                                MARKLOCK;
+                                ANDI(x2, wback, ~0b11); // align to 32bit
+                                ANDI(x5, wback, 0b11);
+                                SLLI(x5, x5, 3);        // shamt
+                                LWU(x1, x2, 0);
+                                LR_W(x4, x2, 1, 1);
+                                SRL(x4, x4, x5);
+                                ANDI(x4, x4, 0xff);
+                                BNE_MARK(x6, x4); // compare AL with m8
+                                // AL == m8, r8 is loaded into m8
+                                ADDI(x2, xZR, 0xff);
+                                SLL(x2, x2, x5);
+                                NOT(x2, x2);
+                                AND(x2, x1, x2);
+                                if (gb2) {
+                                    MV(x1, gb1);
+                                    SRLI(x1, x1, 8);
+                                    ANDI(x1, x1, 0xff);
+                                } else {
+                                    ANDI(x1, gb1, 0xff);
+                                }
+                                SLL(x1, x1, x5);
+                                OR(x1, x1, x2);
+                                ANDI(x2, wback, ~0b11); // align to 32bit again
+                                SC_W(x5, x1, x2, 1, 1);
+                                BNEZ_MARKLOCK(x5);
+                                // done
+                                MARK;
+                                UFLAG_IF {emit_cmp8(dyn, ninst, x6, x4, x1, x2, x3, x5);}
+                                // load m8 into AL
+                                ANDI(xRAX, xRAX, ~0xff);
+                                OR(xRAX, xRAX, x4);
+                            }
+                            SMDMB();
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
                 case 0xB1:
                     switch (rep) {
                         case 0:
