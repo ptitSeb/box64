@@ -172,6 +172,13 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SH(x4, wback, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
                     break;
+                case 5:
+                    INST_NAME("FILD ST0, i64");
+                    v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_D);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                    LD(x1, wback, fixedaddress);
+                    FCVTDL(v1, x1, RD_RTZ);
+                    break;
                 case 7:
                     INST_NAME("FISTP i64, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);

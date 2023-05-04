@@ -483,7 +483,19 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
-
+        case 0x8D:
+            INST_NAME("LEA Gd, Ed");
+            nextop=F8;
+            GETGD;
+            if(MODREG) {   // reg <= reg? that's an invalid operation
+                DEFAULT;
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
+                if(ed!=gd) {
+                    AND(gd, ed, xMASK);
+                }
+            }
+            break;
         default:
             DEFAULT;
     }
