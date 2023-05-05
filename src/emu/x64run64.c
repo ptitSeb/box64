@@ -401,6 +401,16 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                 GD->q[0] = ED->dword[0];
             break;
 
+        case 0x8D:                      /* LEA Gd,M */
+            nextop = F8;
+            GETGD;
+            tmp64u = GETEA(0);
+            if(rex.w)
+                GD->q[0] = tmp64u;
+            else
+                GD->q[0] = tmp64u&0xffffffff;
+            break;
+
         case 0xA1:                      /* MOV EAX,FS:Od */
             tmp64u = F64;
             if(rex.w)

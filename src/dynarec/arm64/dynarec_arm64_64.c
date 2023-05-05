@@ -570,6 +570,23 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x8D:
+            INST_NAME("LEA Gd, Ed");
+            nextop=F8;
+            GETGD;
+            if(MODREG) {   // reg <= reg? that's an invalid operation
+                DEFAULT;
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
+                    MOVxw_REG(gd, ed);
+                }
+                else if(!rex.w) {
+                    MOVw_REG(gd, gd);   //truncate the higher 32bits as asked
+                }
+            }
+            break;
+
         case 0xC6:
             INST_NAME("MOV Seg:Eb, Ib");
             grab_segdata(dyn, addr, ninst, x4, seg);
