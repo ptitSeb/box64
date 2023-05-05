@@ -441,7 +441,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
             }
             break;
-            
+
         case 0x88:
             INST_NAME("MOV Eb, Gb");
             nextop = F8;
@@ -480,6 +480,18 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SB(gb1, ed, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
+        case 0x89:
+            INST_NAME("MOV Ed, Gd");
+            nextop=F8;
+            GETGD;
+            if(MODREG) {   // reg <= reg
+                MVxw(xRAX+(nextop&7)+(rex.b<<3), gd);
+            } else {                    // mem <= reg
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                SDxw(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
             break;
