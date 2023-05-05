@@ -2590,7 +2590,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
             freeProtection((uintptr_t)ret+new_size, old_size-new_size);
             #ifdef DYNAREC
             if(box64_dynarec)
-                cleanDBFromAddressRange((uintptr_t)ret+new_size, new_size-old_size, 1);
+                cleanDBFromAddressRange((uintptr_t)ret+new_size, old_size-new_size, 1);
             #endif
         } else if(!old_size) {
             setProtection((uintptr_t)ret, new_size, prot);
@@ -2644,14 +2644,14 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
-    if(box64_dynarec && !ret) {
+    if(box64_dynarec && !ret && len) {
         if(prot& PROT_EXEC)
             addDBFromAddressRange((uintptr_t)addr, len);
         else
             cleanDBFromAddressRange((uintptr_t)addr, len, 0);
     }
     #endif
-    if(!ret)
+    if(!ret && len)
         updateProtection((uintptr_t)addr, len, prot);
     return ret;
 }

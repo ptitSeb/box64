@@ -1364,6 +1364,30 @@ static void atfork_child_custommem(void)
     init_mutexes();
 }
 
+void reserveHighMem()
+{
+    intptr_t cur = 1LL<<47;
+    mapmem_t* m = mapmem;
+    while(m && (m->end<cur)) {
+        m = m->next;
+    }
+    while (m) {
+        uintptr_t addr = 0, end = 0;
+        if(m->begin>cur) {
+            void* ret = mmap64((void*)cur, m->begin-cur, 0, MAP_ANONYMOUS|MAP_FIXED|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+            printf_log(LOG_DEBUG, "Reserve %p(0x%zx) => %p (%s)\n", (void*)cur, m->begin-cur, ret, strerror(errno));
+            if(ret!=(void*)-1) {
+                addr = cur;
+                end = m->begin;
+            }
+        }
+        cur = m->end + 1;
+        m = m->next;
+        if(addr)
+            addMapMem(addr, end);
+    }
+}
+
 void init_custommem_helper(box64context_t* ctx)
 {
     (void)ctx;
@@ -1392,6 +1416,7 @@ void init_custommem_helper(box64context_t* ctx)
     mapmem->begin = 0x0;
     mapmem->end = (uintptr_t)LOWEST - 1;
     loadProtectionFromMap();
+    reserveHighMem();
     // check if PageSize is correctly defined
     if(box64_pagesize != (1<<MEMPROT_SHIFT)) {
         printf_log(LOG_NONE, "Error: PageSize configuration is wrong: configured with %d, but got %zd\n", 1<<MEMPROT_SHIFT, box64_pagesize);

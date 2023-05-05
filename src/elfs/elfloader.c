@@ -258,7 +258,7 @@ int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     } else {
         // vaddr is 0, load everything has a One block
         uintptr_t old_offs = offs;
-        if(!offs && box64_wine)
+        if(!offs /*&& box64_wine*/)
             offs = (uintptr_t)find47bitBlock(head->memsz); // limit to 47bits...
         printf_log(log_level, "Allocating 0x%zx memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
         void* p = mmap((void*)offs, head->memsz
