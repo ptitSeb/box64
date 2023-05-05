@@ -483,6 +483,18 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
+        case 0x8B:
+            INST_NAME("MOV Gd, Ed");
+            nextop=F8;
+            GETGD;
+            if(MODREG) {
+                MVxw(gd, xRAX+(nextop&7)+(rex.b<<3));
+            } else {
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                SMREADLOCK(lock);
+                LDxw(gd, ed, fixedaddress);
+            }
+            break;
         case 0x8D:
             INST_NAME("LEA Gd, Ed");
             nextop=F8;
@@ -490,7 +502,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(MODREG) {   // reg <= reg? that's an invalid operation
                 DEFAULT;
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
+                addr = geted32(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
                 if(ed!=gd) {
                     AND(gd, ed, xMASK);
                 }
