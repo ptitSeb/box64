@@ -1,5 +1,8 @@
 # Wrapper helper
 
+**WARNING: There are still many problems with this tool. Please do NOT submit code generated directly by the tool, you should only use it as a preliminary reference.**
+
+
 This tool is based on libclangtooling.
 
 It parses the AST of the library header files, generating the required structures of the wrapping library, including:
