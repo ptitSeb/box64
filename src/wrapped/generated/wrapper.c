@@ -605,6 +605,7 @@ typedef float (*fFppp_t)(void*, void*, void*);
 typedef double (*dFuud_t)(uint32_t, uint32_t, double);
 typedef double (*dFddd_t)(double, double, double);
 typedef double (*dFddp_t)(double, double, void*);
+typedef double (*dFpii_t)(void*, int32_t, int32_t);
 typedef double (*dFpdd_t)(void*, double, double);
 typedef double (*dFppi_t)(void*, void*, int32_t);
 typedef double (*dFppu_t)(void*, void*, uint32_t);
@@ -3401,6 +3402,7 @@ void fFppp(x64emu_t *emu, uintptr_t fcn) { fFppp_t fn = (fFppp_t)fcn; emu->xmm[0
 void dFuud(x64emu_t *emu, uintptr_t fcn) { dFuud_t fn = (dFuud_t)fcn; emu->xmm[0].d[0]=fn((uint32_t)R_RDI, (uint32_t)R_RSI, emu->xmm[0].d[0]); }
 void dFddd(x64emu_t *emu, uintptr_t fcn) { dFddd_t fn = (dFddd_t)fcn; emu->xmm[0].d[0]=fn(emu->xmm[0].d[0], emu->xmm[1].d[0], emu->xmm[2].d[0]); }
 void dFddp(x64emu_t *emu, uintptr_t fcn) { dFddp_t fn = (dFddp_t)fcn; emu->xmm[0].d[0]=fn(emu->xmm[0].d[0], emu->xmm[1].d[0], (void*)R_RDI); }
+void dFpii(x64emu_t *emu, uintptr_t fcn) { dFpii_t fn = (dFpii_t)fcn; emu->xmm[0].d[0]=fn((void*)R_RDI, (int32_t)R_RSI, (int32_t)R_RDX); }
 void dFpdd(x64emu_t *emu, uintptr_t fcn) { dFpdd_t fn = (dFpdd_t)fcn; emu->xmm[0].d[0]=fn((void*)R_RDI, emu->xmm[0].d[0], emu->xmm[1].d[0]); }
 void dFppi(x64emu_t *emu, uintptr_t fcn) { dFppi_t fn = (dFppi_t)fcn; emu->xmm[0].d[0]=fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX); }
 void dFppu(x64emu_t *emu, uintptr_t fcn) { dFppu_t fn = (dFppu_t)fcn; emu->xmm[0].d[0]=fn((void*)R_RDI, (void*)R_RSI, (uint32_t)R_RDX); }
@@ -6125,6 +6127,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &dFuud) return -2;
 	if (fun == &dFddd) return -4;
 	if (fun == &dFddp) return -3;
+	if (fun == &dFpii) return -1;
 	if (fun == &dFpdd) return -3;
 	if (fun == &dFppi) return -1;
 	if (fun == &dFppu) return -1;

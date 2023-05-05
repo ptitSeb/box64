@@ -16,19 +16,19 @@ GO(mpg123_decoder, iFpp)
 //GO(mpg123_decoders, 
 GO(mpg123_delete, vFp)
 GO(mpg123_delete_pars, vFp)
-//GO(mpg123_enc_from_id3, 
+GO(mpg123_enc_from_id3, iFC)
 GO(mpg123_encodings, vFpp)
 GO(mpg123_encsize, iFi)
-//GO(mpg123_eq, 
+GO(mpg123_eq, iFpiid)
 GO(mpg123_errcode, iFp)
 GO(mpg123_exit, vFv)
 GO(mpg123_feature, iFi)
 GO(mpg123_feed, iFppL)
 GO(mpg123_feedseek, lFplip)
 GO(mpg123_feedseek_64, IFpIip)
-//GO(mpg123_fmt, 
+GO(mpg123_fmt, iFplii)
 GO(mpg123_fmt_all, iFp)
-//GO(mpg123_fmt_none, 
+GO(mpg123_fmt_none, iFp)
 GO(mpg123_fmt_support, iFpli)
 GO(mpg123_format, iFplii)
 GO(mpg123_format_all, iFp)
@@ -43,12 +43,12 @@ GO(mpg123_framelength_64, IFp)
 GO(mpg123_framepos, IFp)
 GO(mpg123_framepos_64, IFp)
 GO(mpg123_free_string, vFp)
-//GO(mpg123_geteq, 
+GO(mpg123_geteq, dFpii)
 GO(mpg123_getformat, iFpppp)
 GO(mpg123_getformat2, iFppppi)
-//GO(mpg123_getpar, 
+GO(mpg123_getpar, iFpipp)
 GO(mpg123_getparam, iFpipp)
-//GO(mpg123_getstate, 
+GO(mpg123_getstate, iFpipp)
 GO(mpg123_getvolume, iFpppp)
 GO(mpg123_grow_string, iFpL)
 GO(mpg123_icy, iFpp)
@@ -56,7 +56,7 @@ GO(mpg123_icy2utf8, pFp)
 GO(mpg123_id3, iFppp)
 GO(mpg123_index, iFpppp)
 GO(mpg123_index_64, iFpppp)
-//GO(mpg123_info, 
+GO(mpg123_info, iFpp)
 GO(mpg123_init, iFv)
 //GO(mpg123_init_string, 
 GO(mpg123_length, lFp)
@@ -73,7 +73,7 @@ GO(mpg123_open_feed, iFp)
 GO(mpg123_open_handle, iFpp)
 GO(mpg123_open_handle_64, iFpp)
 GO(mpg123_outblock, LFp)
-//GO(mpg123_par, 
+GO(mpg123_par, iFpild)
 GO(mpg123_param, iFpild)
 GO(mpg123_parnew, pFppp)
 GO(mpg123_plain_strerror, pFi)
@@ -101,7 +101,7 @@ GO(mpg123_set_index_64, iFppIL)
 GO(mpg123_set_string, iFpp)
 GO(mpg123_set_substring, iFppLL)
 //GO(mpg123_spf, 
-//GO(mpg123_store_utf8, 
+GO(mpg123_store_utf8, iFpipL)
 GO(mpg123_strerror, pFp)
 GO(mpg123_strlen, LFpi)
 GO(mpg123_supported_decoders, pFv)
@@ -115,4 +115,4 @@ GO(mpg123_timeframe, lFpd)
 GO(mpg123_timeframe_64, IFpd)
 GO(mpg123_tpf, dFp)
 //GO(mpg123_volume, 
-//GO(mpg123_volume_change, 
+GO(mpg123_volume_change, iFpd)

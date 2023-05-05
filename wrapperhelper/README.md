@@ -10,6 +10,15 @@ etc. Of course, this cannot completely automate everything, it can only be used 
 
 At the same time, this tool is also quite rough, and may even have errors.
 
+## Build
+
+```
+sudo apt install libclang-14-dev
+cd wrapperhelper
+mkdir build; cd build; cmake ..
+make
+```
+
 ## Usage:
 
     helper <filename> <libname> [guest_triple] [host_triple] -- <clang_flags>
