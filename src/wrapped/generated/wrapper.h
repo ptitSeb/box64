@@ -606,6 +606,7 @@ void fFppp(x64emu_t *emu, uintptr_t fnc);
 void dFuud(x64emu_t *emu, uintptr_t fnc);
 void dFddd(x64emu_t *emu, uintptr_t fnc);
 void dFddp(x64emu_t *emu, uintptr_t fnc);
+void dFpii(x64emu_t *emu, uintptr_t fnc);
 void dFpdd(x64emu_t *emu, uintptr_t fnc);
 void dFppi(x64emu_t *emu, uintptr_t fnc);
 void dFppu(x64emu_t *emu, uintptr_t fnc);

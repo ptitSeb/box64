@@ -1,5 +1,8 @@
 # Wrapper helper
 
+**WARNING: There are still many problems with this tool. Please do NOT submit code generated directly by the tool, you should only use it as a preliminary reference.**
+
+
 This tool is based on libclangtooling.
 
 It parses the AST of the library header files, generating the required structures of the wrapping library, including:
@@ -9,6 +12,15 @@ It parses the AST of the library header files, generating the required structure
 etc. Of course, this cannot completely automate everything, it can only be used as a reference.
 
 At the same time, this tool is also quite rough, and may even have errors.
+
+## Build
+
+```
+sudo apt install libclang-14-dev
+cd wrapperhelper
+mkdir build; cd build; cmake ..
+make
+```
 
 ## Usage:
 
