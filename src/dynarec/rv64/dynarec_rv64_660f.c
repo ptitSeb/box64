@@ -369,6 +369,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(x2, 0);
                     SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
                     break;
+
+                case 0xDF:
+                    INST_NAME("AESDECLAST Gx, Ex");  // AES-NI
+                    nextop = F8;
+                    GETG;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aesdlast, -1);
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
+                    break;
                 default:
                     DEFAULT;
             }
