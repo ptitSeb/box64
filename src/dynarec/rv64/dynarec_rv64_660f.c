@@ -411,14 +411,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MARK2;
                     if(u8&4) {
                         u8 = sse_setround(dyn, ninst, x4, x2);
-                        FCVTLD(x5, v1, RD_DYN);
-                        FCVTDL(v0, x5, RD_DYN);
+                        FCVTLD(x5, d0, RD_DYN);
+                        FCVTDL(v0, x5, RD_RTZ);
                         x87_restoreround(dyn, ninst, u8);
                     } else {
-                        FCVTLD(x5, v1, round_round[u8&3]);
-                        FCVTDL(v0, x5, round_round[u8&3]);
+                        FCVTLD(x5, d0, round_round[u8&3]);
+                        FCVTDL(v0, x5, RD_RTZ);
                     }
-                    FSGNJD(v0, v0, d0);
                     break;
                 case 0x0E:
                     INST_NAME("PBLENDW Gx, Ex, Ib");
