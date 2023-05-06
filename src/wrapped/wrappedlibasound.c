@@ -47,10 +47,10 @@ GO(3)
 
 // snd_async_callback_t
 #define GO(A)   \
-static uintptr_t my_async_fct_##A = 0;   \
-static void* my_async_##A(void* handler)     \
-{                                       \
-    return (void*)RunFunction(my_context, my_async_fct_##A, 1, handler);\
+static uintptr_t my_async_fct_##A = 0;                                          \
+static void* my_async_##A(void* handler)                                        \
+{                                                                               \
+    return (void*)RunFunctionFmt(my_context, my_async_fct_##A, "p", handler);   \
 }
 SUPER()
 #undef GO
@@ -69,10 +69,10 @@ static void* findAsyncFct(void* fct)
 }
 // snd_mixer_elem_callback_t
 #define GO(A)   \
-static uintptr_t my_elem_fct_##A = 0;   \
-static int my_elem_##A(void* elem, uint32_t mask)                       \
-{                                                                       \
-    return (int)RunFunction(my_context, my_elem_fct_##A, 2, elem, mask);\
+static uintptr_t my_elem_fct_##A = 0;                                           \
+static int my_elem_##A(void* elem, uint32_t mask)                               \
+{                                                                               \
+    return (int)RunFunctionFmt(my_context, my_elem_fct_##A, "pu", elem, mask);  \
 }
 SUPER()
 #undef GO

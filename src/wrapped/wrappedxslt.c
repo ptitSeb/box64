@@ -40,10 +40,10 @@ GO(4)
 
 // xmlXPathFunction ...
 #define GO(A)   \
-static uintptr_t my_xmlXPathFunction_fct_##A = 0;                   \
-static void my_xmlXPathFunction_##A(void* a, int b)                 \
-{                                                                   \
-    RunFunction(my_context, my_xmlXPathFunction_fct_##A, 2, a, b);  \
+static uintptr_t my_xmlXPathFunction_fct_##A = 0;                           \
+static void my_xmlXPathFunction_##A(void* a, int b)                         \
+{                                                                           \
+    RunFunctionFmt(my_context, my_xmlXPathFunction_fct_##A, "pi", a, b);    \
 }
 SUPER()
 #undef GO
@@ -62,10 +62,10 @@ static void* find_xmlXPathFunction_Fct(void* fct)
 }
 // xsltDocLoaderFunc ...
 #define GO(A)   \
-static uintptr_t my_xsltDocLoaderFunc_fct_##A = 0;                                          \
-static void* my_xsltDocLoaderFunc_##A(void* a, void* b, int c, void* d, int e)              \
-{                                                                                           \
-    return (void*)RunFunction(my_context, my_xsltDocLoaderFunc_fct_##A, 5, a, b, c, d, e);  \
+static uintptr_t my_xsltDocLoaderFunc_fct_##A = 0;                              \
+static void* my_xsltDocLoaderFunc_##A(void* a, void* b, int c, void* d, int e)  \
+{                                                                               \
+    return (void*)RunFunctionFmt(my_context, my_xsltDocLoaderFunc_fct_##A, "ppipi", a, b, c, d, e); \
 }
 SUPER()
 #undef GO
@@ -84,10 +84,10 @@ static void* find_xsltDocLoaderFunc_Fct(void* fct)
 }
 // xsltSecurityCheck ...
 #define GO(A)   \
-static uintptr_t my_xsltSecurityCheck_fct_##A = 0;                                  \
-static int my_xsltSecurityCheck_##A(void* a, void* b, void* c)                      \
-{                                                                                   \
-    return (int)RunFunction(my_context, my_xsltSecurityCheck_fct_##A, 3, a, b, c);  \
+static uintptr_t my_xsltSecurityCheck_fct_##A = 0;                                          \
+static int my_xsltSecurityCheck_##A(void* a, void* b, void* c)                              \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_xsltSecurityCheck_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -106,10 +106,10 @@ static void* find_xsltSecurityCheck_Fct(void* fct)
 }
 // xsltSortFunc ...
 #define GO(A)   \
-static uintptr_t my_xsltSortFunc_fct_##A = 0;                       \
-static void my_xsltSortFunc_##A(void* a, void* b, int c)            \
-{                                                                   \
-    RunFunction(my_context, my_xsltSortFunc_fct_##A, 3, a, b, c);   \
+static uintptr_t my_xsltSortFunc_fct_##A = 0;                               \
+static void my_xsltSortFunc_##A(void* a, void* b, int c)                    \
+{                                                                           \
+    RunFunctionFmt(my_context, my_xsltSortFunc_fct_##A, "ppi", a, b, c);    \
 }
 SUPER()
 #undef GO

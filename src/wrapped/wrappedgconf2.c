@@ -34,10 +34,10 @@ GO(3)
 
 // GFreeFct
 #define GO(A)   \
-static uintptr_t my_GFreeFct_fct_##A = 0;               \
-static void my_GFreeFct_##A(void* a)                    \
-{                                                       \
-    RunFunction(my_context, my_GFreeFct_fct_##A, 1, a); \
+static uintptr_t my_GFreeFct_fct_##A = 0;                    \
+static void my_GFreeFct_##A(void* a)                         \
+{                                                            \
+    RunFunctionFmt(my_context, my_GFreeFct_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -56,10 +56,10 @@ static void* findGFreeFctFct(void* fct)
 }
 // GConfClientNotifyFunc
 #define GO(A)   \
-static uintptr_t my_GConfClientNotifyFunc_fct_##A = 0;                          \
-static void my_GConfClientNotifyFunc_##A(void* a, uint32_t b, void* c, void* d) \
-{                                                                               \
-    RunFunction(my_context, my_GConfClientNotifyFunc_fct_##A, 4, a, b, c, d);   \
+static uintptr_t my_GConfClientNotifyFunc_fct_##A = 0;                                \
+static void my_GConfClientNotifyFunc_##A(void* a, uint32_t b, void* c, void* d)       \
+{                                                                                     \
+    RunFunctionFmt(my_context, my_GConfClientNotifyFunc_fct_##A, "pupp", a, b, c, d); \
 }
 SUPER()
 #undef GO

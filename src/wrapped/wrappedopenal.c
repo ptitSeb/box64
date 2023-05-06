@@ -38,7 +38,7 @@ GO(4)
 static uintptr_t my_Request_fct_##A = 0;                    \
 static void my_Request_##A(int32_t a, int32_t b)            \
 {                                                           \
-    RunFunction(my_context, my_Request_fct_##A, 2, a, b);   \
+    RunFunctionFmt(my_context, my_Request_fct_##A, "ii", a, b);   \
 }
 SUPER()
 #undef GO
@@ -113,7 +113,7 @@ void freeALProcWrapper(box64context_t* context)
     context->almymap = NULL;
 }
 
-EXPORT void* my_alGetProcAddress(x64emu_t* emu, void* name) 
+EXPORT void* my_alGetProcAddress(x64emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
@@ -130,7 +130,7 @@ EXPORT void* my_alGetProcAddress(x64emu_t* emu, void* name)
         strcpy(tmp, "my_");
         strcat(tmp, rname);
         symbol = dlsym(emu->context->box64lib, tmp);
-    } else 
+    } else
         symbol = my->alGetProcAddress(name);
     if(!symbol)
         return NULL;    // easy
@@ -138,7 +138,7 @@ EXPORT void* my_alGetProcAddress(x64emu_t* emu, void* name)
     uintptr_t ret = CheckBridged(emu->context->system, symbol);
     if(ret)
         return (void*)ret; // already bridged
-    // get wrapper    
+    // get wrapper
     k = kh_get(symbolmap, emu->context->alwrappers, rname);
     if(k==kh_end(emu->context->alwrappers)) {
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
@@ -166,14 +166,14 @@ EXPORT void* my_alcGetProcAddress(x64emu_t* emu, void* device, void* name)
         strcpy(tmp, "my_");
         strcat(tmp, rname);
         symbol = dlsym(emu->context->box64lib, tmp);
-    } else 
+    } else
         symbol = my->alcGetProcAddress(device, name);
     if(!symbol)
         return NULL;    // easy
     uintptr_t ret = CheckBridged(emu->context->system, symbol);
     if(ret)
         return (void*)ret; // already bridged
-    // get wrapper    
+    // get wrapper
     k = kh_get(symbolmap, emu->context->alwrappers, rname);
     if(k==kh_end(emu->context->alwrappers)) {
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);

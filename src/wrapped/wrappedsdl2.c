@@ -104,7 +104,7 @@ GO(4)
 static uintptr_t my_Timer_fct_##A = 0;                                      \
 static uint64_t my_Timer_##A(uint64_t a, void* b)                           \
 {                                                                           \
-    return (uint64_t)RunFunction(my_context, my_Timer_fct_##A, 2, a, b);    \
+    return (uint64_t)RunFunctionFmt(my_context, my_Timer_fct_##A, "Up", a, b);    \
 }
 SUPER()
 #undef GO
@@ -121,14 +121,14 @@ static void* find_Timer_Fct(void* fct)
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for SDL2 Timer callback\n");
     return NULL;
-    
+
 }
 // AudioCallback
 #define GO(A)   \
 static uintptr_t my_AudioCallback_fct_##A = 0;                      \
 static void my_AudioCallback_##A(void* a, void* b, int c)           \
 {                                                                   \
-    RunFunction(my_context, my_AudioCallback_fct_##A, 3, a, b, c);  \
+    RunFunctionFmt(my_context, my_AudioCallback_fct_##A, "ppi", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -145,14 +145,14 @@ static void* find_AudioCallback_Fct(void* fct)
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for SDL2 AudioCallback callback\n");
     return NULL;
-    
+
 }
 // eventfilter
 #define GO(A)   \
 static uintptr_t my_eventfilter_fct_##A = 0;                                \
 static int my_eventfilter_##A(void* userdata, void* event)                  \
 {                                                                           \
-    return (int)RunFunction(my_context, my_eventfilter_fct_##A, 2, userdata, event);    \
+    return (int)RunFunctionFmt(my_context, my_eventfilter_fct_##A, "pp", userdata, event);    \
 }
 SUPER()
 #undef GO
@@ -169,7 +169,7 @@ static void* find_eventfilter_Fct(void* fct)
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for SDL2 eventfilter callback\n");
     return NULL;
-    
+
 }
 static void* reverse_eventfilter_Fct(void* fct)
 {
@@ -187,7 +187,7 @@ static void* reverse_eventfilter_Fct(void* fct)
 static uintptr_t my_LogOutput_fct_##A = 0;                                  \
 static void my_LogOutput_##A(void* a, int b, int c, void* d)                \
 {                                                                           \
-    RunFunction(my_context, my_LogOutput_fct_##A, 4, a, b, c, d);  \
+    RunFunctionFmt(my_context, my_LogOutput_fct_##A, "piip", a, b, c, d);  \
 }
 SUPER()
 #undef GO
@@ -552,7 +552,7 @@ static int get_sdl_priv(x64emu_t* emu, const char *sym_str, void **w, void **f)
         }
     #define GOS(sym, _w) GOM(sym, _w)
     #define DATA
-    
+
     if(0);
     #include "wrappedsdl2_private.h"
 
@@ -570,7 +570,7 @@ int EXPORT my2_SDL_DYNAPI_entry(x64emu_t* emu, uint32_t version, uintptr_t *tabl
     uintptr_t tab[tablesize];
     int r = my->SDL_DYNAPI_entry(version, tab, tablesize);
     (void)r;
-    
+
     #define SDL_DYNAPI_PROC(ret, sym, args, parms, ...) \
         if (i < tablesize) { \
             void *w = NULL; \
@@ -646,7 +646,7 @@ EXPORT void my2_SDL_Log(x64emu_t* emu, void* fmt, void *b) {
     my->SDL_LogMessageV(0, 3, fmt, VARARGS);
 }
 
-EXPORT void* my2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name) 
+EXPORT void* my2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
@@ -667,7 +667,7 @@ static uintptr_t dtor_emu[nb_once] = {0};
 static void tls_dtor_callback(int n, void* a)
 {
 	if(dtor_emu[n]) {
-        RunFunction(my_context, dtor_emu[n], 1, a);
+        RunFunctionFmt(my_context, dtor_emu[n], "p", a);
 	}
 }
 #define GO(N) \

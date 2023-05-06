@@ -35,10 +35,10 @@ GO(4)
 
 // gnutls_log
 #define GO(A)   \
-static uintptr_t my_gnutls_log_fct_##A = 0;                       \
-static void my_gnutls_log_##A(int level, const char* p)           \
-{                                                                 \
-    RunFunction(my_context, my_gnutls_log_fct_##A, 2, level, p);  \
+static uintptr_t my_gnutls_log_fct_##A = 0;                            \
+static void my_gnutls_log_##A(int level, const char* p)                \
+{                                                                      \
+    RunFunctionFmt(my_context, my_gnutls_log_fct_##A, "ip", level, p); \
 }
 SUPER()
 #undef GO
@@ -59,10 +59,10 @@ static void* find_gnutls_log_Fct(void* fct)
 
 // pullpush
 #define GO(A)   \
-static uintptr_t my_pullpush_fct_##A = 0;                                   \
-static long my_pullpush_##A(void* p, void* d, size_t l)                     \
-{                                                                           \
-    return (long)RunFunction(my_context, my_pullpush_fct_##A, 3, p, d, l);  \
+static uintptr_t my_pullpush_fct_##A = 0;                                         \
+static long my_pullpush_##A(void* p, void* d, size_t l)                           \
+{                                                                                 \
+    return (long)RunFunctionFmt(my_context, my_pullpush_fct_##A, "ppL", p, d, l); \
 }
 SUPER()
 #undef GO
@@ -83,10 +83,10 @@ static void* find_pullpush_Fct(void* fct)
 
 // timeout
 #define GO(A)   \
-static uintptr_t my_timeout_fct_##A = 0;                                \
-static int my_timeout_##A(void* p, uint32_t t)                          \
-{                                                                       \
-    return (int)RunFunction(my_context, my_timeout_fct_##A, 2, p, t);   \
+static uintptr_t my_timeout_fct_##A = 0;                                    \
+static int my_timeout_##A(void* p, uint32_t t)                              \
+{                                                                           \
+    return (int)RunFunctionFmt(my_context, my_timeout_fct_##A, "pu", p, t); \
 }
 SUPER()
 #undef GO

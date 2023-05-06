@@ -24,7 +24,7 @@ const char* sdl2imageName = "libSDL2_image-2.0.so.0";
 
 #include "wrappercallback.h"
 
-#define GO(A) \
+#define GO(A)   \
 EXPORT void *my2_##A(x64emu_t* emu, void* a) \
 { \
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a); \

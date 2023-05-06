@@ -140,10 +140,10 @@ GO(3)
 
 // fuse_opt_proc
 #define GO(A)   \
-static uintptr_t my_fuse_opt_proc_fct_##A = 0;                                      \
-static int my_fuse_opt_proc_##A(void* a, void* b, int c, void* d)                   \
-{                                                                                   \
-    return (int)RunFunction(my_context, my_fuse_opt_proc_fct_##A, 4, a, b, c, d);   \
+static uintptr_t my_fuse_opt_proc_fct_##A = 0;                                              \
+static int my_fuse_opt_proc_##A(void* a, void* b, int c, void* d)                           \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_fuse_opt_proc_fct_##A, "ppip", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -163,11 +163,11 @@ static void* findfuse_opt_procFct(void* fct)
 
 // init
 #define GO(A)   \
-static uintptr_t my_init_fct_##A = 0;                 \
-static void my_init_##A(void* a, void* b)             \
-{                                                     \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "init");               \
-    RunFunction(my_context, my_init_fct_##A, 2, a, b);\
+static uintptr_t my_init_fct_##A = 0;                           \
+static void my_init_##A(void* a, void* b)                       \
+{                                                               \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "init");           \
+    RunFunctionFmt(my_context, my_init_fct_##A, "pp", a, b);    \
 }
 SUPER()
 #undef GO
@@ -187,11 +187,11 @@ static void* find_init_Fct(void* fct)
 
 // destroy
 #define GO(A)   \
-static uintptr_t my_destroy_fct_##A = 0;                \
-static void my_destroy_##A(void* a)                     \
-{                                                       \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "destroy");                \
-    RunFunction(my_context, my_destroy_fct_##A, 1, a);  \
+static uintptr_t my_destroy_fct_##A = 0;                    \
+static void my_destroy_##A(void* a)                         \
+{                                                           \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "destroy");    \
+    RunFunctionFmt(my_context, my_destroy_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -215,7 +215,7 @@ static uintptr_t my_lookup_fct_##A = 0;                                         
 static void my_lookup_##A(void* a, unsigned long b, const char* c)              \
 {                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s(%p, %lu, %s)\n", "lookup", a, b, c);   \
-    RunFunction(my_context, my_lookup_fct_##A, 3, a, b, c);                     \
+    RunFunctionFmt(my_context, my_lookup_fct_##A, "pUp", a, b, c);              \
 }
 SUPER()
 #undef GO
@@ -235,11 +235,11 @@ static void* find_lookup_Fct(void* fct)
 
 // forget
 #define GO(A)   \
-static uintptr_t my_forget_fct_##A = 0;                     \
-static void my_forget_##A(void* a, unsigned long b, unsigned long c)\
-{                                                           \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "forget");             \
-    RunFunction(my_context, my_forget_fct_##A, 3, a, b, c); \
+static uintptr_t my_forget_fct_##A = 0;                                 \
+static void my_forget_##A(void* a, unsigned long b, unsigned long c)    \
+{                                                                       \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "forget");                 \
+    RunFunctionFmt(my_context, my_forget_fct_##A, "pUU", a, b, c);      \
 }
 SUPER()
 #undef GO
@@ -259,11 +259,11 @@ static void* find_forget_Fct(void* fct)
 
 // getattr
 #define GO(A)   \
-static uintptr_t my_getattr_fct_##A = 0;                        \
-static void my_getattr_##A(void* a, unsigned long b, void* c)   \
-{                                                               \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "getattr");        \
-    RunFunction(my_context, my_getattr_fct_##A, 3, a, b, c);    \
+static uintptr_t my_getattr_fct_##A = 0;                            \
+static void my_getattr_##A(void* a, unsigned long b, void* c)       \
+{                                                                   \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "getattr");            \
+    RunFunctionFmt(my_context, my_getattr_fct_##A, "pUp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -283,13 +283,13 @@ static void* find_getattr_Fct(void* fct)
 
 // setattr
 #define GO(A)   \
-static uintptr_t my_setattr_fct_##A = 0;                        \
-static void my_setattr_##A(void* a, unsigned long b, struct stat* c, int d, void* e)   \
-{                                                               \
-    struct stat c_;                                             \
-    AlignStat64(c, &c_);                                        \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "setattr");        \
-    RunFunction(my_context, my_setattr_fct_##A, 5, a, b, &c_, d, e);    \
+static uintptr_t my_setattr_fct_##A = 0;                                            \
+static void my_setattr_##A(void* a, unsigned long b, struct stat* c, int d, void* e)\
+{                                                                                   \
+    struct stat c_;                                                                 \
+    AlignStat64(c, &c_);                                                            \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "setattr");                            \
+    RunFunctionFmt(my_context, my_setattr_fct_##A, "pUpip", a, b, &c_, d, e);       \
 }
 SUPER()
 #undef GO
@@ -309,11 +309,11 @@ static void* find_setattr_Fct(void* fct)
 
 // readlink
 #define GO(A)   \
-static uintptr_t my_readlink_fct_##A = 0;                   \
-static void my_readlink_##A(void* a, unsigned long b)       \
-{                                                           \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "readlink");               \
-    RunFunction(my_context, my_readlink_fct_##A, 2, a, b);  \
+static uintptr_t my_readlink_fct_##A = 0;                           \
+static void my_readlink_##A(void* a, unsigned long b)               \
+{                                                                   \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "readlink");           \
+    RunFunctionFmt(my_context, my_readlink_fct_##A, "pU", a, b);    \
 }
 SUPER()
 #undef GO
@@ -336,8 +336,8 @@ static void* find_readlink_Fct(void* fct)
 static uintptr_t my_mknod_fct_##A = 0;                                                  \
 static void my_mknod_##A(void* a, unsigned long b, const char* c, mode_t d, dev_t e)    \
 {                                                                                       \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "mknod");              \
-    RunFunction(my_context, my_mknod_fct_##A, 5, a, b, c, of_convert(d), e);            \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "mknod");                                  \
+    RunFunctionFmt(my_context, my_mknod_fct_##A, "pUpuU", a, b, c, of_convert(d), e);   \
 }
 SUPER()
 #undef GO
@@ -357,11 +357,11 @@ static void* find_mknod_Fct(void* fct)
 
 // mkdir
 #define GO(A)   \
-static uintptr_t my_mkdir_fct_##A = 0;                                      \
-static void my_mkdir_##A(void* a, unsigned long b, const char* c, mode_t d) \
-{                                                                           \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "mkdir");              \
-    RunFunction(my_context, my_mkdir_fct_##A, 4, a, b, c, of_convert(d));   \
+static uintptr_t my_mkdir_fct_##A = 0;                                              \
+static void my_mkdir_##A(void* a, unsigned long b, const char* c, mode_t d)         \
+{                                                                                   \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "mkdir");                              \
+    RunFunctionFmt(my_context, my_mkdir_fct_##A, "pUpu", a, b, c, of_convert(d));   \
 }
 SUPER()
 #undef GO
@@ -385,7 +385,7 @@ static uintptr_t my_unlink_fct_##A = 0;                             \
 static void my_unlink_##A(void* a, unsigned long b, const char* c)  \
 {                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "unlink");             \
-    RunFunction(my_context, my_unlink_fct_##A, 3, a, b, c);         \
+    RunFunctionFmt(my_context, my_unlink_fct_##A, "pUp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -405,11 +405,11 @@ static void* find_unlink_Fct(void* fct)
 
 // rmdir
 #define GO(A)   \
-static uintptr_t my_rmdir_fct_##A = 0;                             \
-static void my_rmdir_##A(void* a, unsigned long b, const char* c)  \
+static uintptr_t my_rmdir_fct_##A = 0;                              \
+static void my_rmdir_##A(void* a, unsigned long b, const char* c)   \
 {                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "rmdir");              \
-    RunFunction(my_context, my_rmdir_fct_##A, 3, a, b, c);         \
+    RunFunctionFmt(my_context, my_rmdir_fct_##A, "pUp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -429,11 +429,11 @@ static void* find_rmdir_Fct(void* fct)
 
 // symlink
 #define GO(A)   \
-static uintptr_t my_symlink_fct_##A = 0;                                            \
+static uintptr_t my_symlink_fct_##A = 0;                                \
 static void my_symlink_##A(void* a, const char* b, unsigned long c, const char* d)  \
-{                                                                                   \
+{                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "symlink");                \
-    RunFunction(my_context, my_symlink_fct_##A, 4, a, b, c, d);                     \
+    RunFunctionFmt(my_context, my_symlink_fct_##A, "ppUp", a, b, c, d); \
 }
 SUPER()
 #undef GO
@@ -453,11 +453,11 @@ static void* find_symlink_Fct(void* fct)
 
 // rename
 #define GO(A)   \
-static uintptr_t my_rename_fct_##A = 0;                                                             \
+static uintptr_t my_rename_fct_##A = 0;                                     \
 static void my_rename_##A(void* a, unsigned long b, const char* c, unsigned long d, const char* e)  \
-{                                                                                                   \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "rename");             \
-    RunFunction(my_context, my_rename_fct_##A, 5, a, b, c, d, e);                                   \
+{                                                                           \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "rename");                     \
+    RunFunctionFmt(my_context, my_rename_fct_##A, "pUpUp", a, b, c, d, e);  \
 }
 SUPER()
 #undef GO
@@ -477,11 +477,11 @@ static void* find_rename_Fct(void* fct)
 
 // link
 #define GO(A)   \
-static uintptr_t my_link_fct_##A = 0;                                               \
+static uintptr_t my_link_fct_##A = 0;                                   \
 static void my_link_##A(void* a, unsigned long b, unsigned long c, const char* d)   \
-{                                                                                   \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "link");               \
-    RunFunction(my_context, my_link_fct_##A, 4, a, b, c, d);                        \
+{                                                                       \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "link");                   \
+    RunFunctionFmt(my_context, my_link_fct_##A, "pUUp", a, b, c, d);    \
 }
 SUPER()
 #undef GO
@@ -501,11 +501,11 @@ static void* find_link_Fct(void* fct)
 
 // open
 #define GO(A)   \
-static uintptr_t my_open_fct_##A = 0;                           \
-static void my_open_##A(void* a, unsigned long b, const char* c)\
-{                                                               \
+static uintptr_t my_open_fct_##A = 0;                               \
+static void my_open_##A(void* a, unsigned long b, const char* c)    \
+{                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "open");               \
-    RunFunction(my_context, my_open_fct_##A, 3, a, b, c);       \
+    RunFunctionFmt(my_context, my_open_fct_##A, "pUp", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -525,11 +525,11 @@ static void* find_open_Fct(void* fct)
 
 // read
 #define GO(A)   \
-static uintptr_t my_read_fct_##A = 0;                                                           \
+static uintptr_t my_read_fct_##A = 0;                                           \
 static void my_read_##A(void* a, unsigned long b, const char* c, size_t d, off_t e, void* f)    \
-{                                                                                               \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "read");               \
-    RunFunction(my_context, my_read_fct_##A, 6, a, b, c, d, e, f);                              \
+{                                                                               \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "read");                           \
+    RunFunctionFmt(my_context, my_read_fct_##A, "pUpLLp", a, b, c, d, e, f);    \
 }
 SUPER()
 #undef GO
@@ -549,11 +549,11 @@ static void* find_read_Fct(void* fct)
 
 // write
 #define GO(A)   \
-static uintptr_t my_write_fct_##A = 0;                                                          \
+static uintptr_t my_write_fct_##A = 0;                                          \
 static void my_write_##A(void* a, unsigned long b, const char* c, size_t d, off_t e, void* f)   \
-{                                                                                               \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "write");              \
-    RunFunction(my_context, my_write_fct_##A, 6, a, b, c, d, e, f);                             \
+{                                                                               \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "write");                          \
+    RunFunctionFmt(my_context, my_write_fct_##A, "pUpLLp", a, b, c, d, e, f);   \
 }
 SUPER()
 #undef GO
@@ -577,7 +577,7 @@ static uintptr_t my_flush_fct_##A = 0;                              \
 static void my_flush_##A(void* a, unsigned long b, const char* c)   \
 {                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "flush");              \
-    RunFunction(my_context, my_flush_fct_##A, 3, a, b, c);          \
+    RunFunctionFmt(my_context, my_flush_fct_##A, "pUp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -597,11 +597,11 @@ static void* find_flush_Fct(void* fct)
 
 // release
 #define GO(A)   \
-static uintptr_t my_release_fct_##A = 0;                              \
-static void my_release_##A(void* a, unsigned long b, const char* c)   \
+static uintptr_t my_release_fct_##A = 0;                            \
+static void my_release_##A(void* a, unsigned long b, const char* c) \
 {                                                                   \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "release");                \
-    RunFunction(my_context, my_release_fct_##A, 3, a, b, c);          \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "release");            \
+    RunFunctionFmt(my_context, my_release_fct_##A, "pUp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -621,11 +621,11 @@ static void* find_release_Fct(void* fct)
 
 // fsync
 #define GO(A)   \
-static uintptr_t my_fsync_fct_##A = 0;                              \
-static void my_fsync_##A(void* a, unsigned long b, int c, void* d)  \
-{                                                                   \
-    printf_log(LOG_DEBUG, "fuse: call %s\n", "fsync");              \
-    RunFunction(my_context, my_fsync_fct_##A, 4, a, b, c, d);       \
+static uintptr_t my_fsync_fct_##A = 0;                                  \
+static void my_fsync_##A(void* a, unsigned long b, int c, void* d)      \
+{                                                                       \
+    printf_log(LOG_DEBUG, "fuse: call %s\n", "fsync");                  \
+    RunFunctionFmt(my_context, my_fsync_fct_##A, "pUip", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -649,7 +649,7 @@ static uintptr_t my_opendir_fct_##A = 0;                                        
 static void my_opendir_##A(void* a, unsigned long b, void* c)                   \
 {                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s(%p, %lu, %p)\n", "opendir", a, b, c);  \
-    RunFunction(my_context, my_opendir_fct_##A, 3, a, b, c);                    \
+    RunFunctionFmt(my_context, my_opendir_fct_##A, "pUp", a, b, c);                    \
 }
 SUPER()
 #undef GO
@@ -673,7 +673,7 @@ static uintptr_t my_readdir_fct_##A = 0;                                        
 static void my_readdir_##A(void* a, unsigned long b, size_t c, off_t d, void* e)    \
 {                                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "readdir");                \
-    RunFunction(my_context, my_readdir_fct_##A, 5, a, b, c, d, e);                  \
+    RunFunctionFmt(my_context, my_readdir_fct_##A, "pULLp", a, b, c, d, e);                  \
 }
 SUPER()
 #undef GO
@@ -697,7 +697,7 @@ static uintptr_t my_releasedir_fct_##A = 0;                                     
 static void my_releasedir_##A(void* a, unsigned long b, void* c)                    \
 {                                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s(%p, %lu, %p)\n", "releasedir", a, b, c);   \
-    RunFunction(my_context, my_releasedir_fct_##A, 3, a, b, c);                     \
+    RunFunctionFmt(my_context, my_releasedir_fct_##A, "pUp", a, b, c);                     \
 }
 SUPER()
 #undef GO
@@ -721,7 +721,7 @@ static uintptr_t my_fsyncdir_fct_##A = 0;                               \
 static void my_fsyncdir_##A(void* a, unsigned long b, int c, void* d)   \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "fsyncdir");               \
-    RunFunction(my_context, my_fsyncdir_fct_##A, 4, a, b, c, d);        \
+    RunFunctionFmt(my_context, my_fsyncdir_fct_##A, "pUip", a, b, c, d);        \
 }
 SUPER()
 #undef GO
@@ -745,7 +745,7 @@ static uintptr_t my_statfs_fct_##A = 0;                     \
 static void my_statfs_##A(void* a, unsigned long b)         \
 {                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "statfs");             \
-    RunFunction(my_context, my_statfs_fct_##A, 2, a, b);    \
+    RunFunctionFmt(my_context, my_statfs_fct_##A, "pU", a, b);    \
 }
 SUPER()
 #undef GO
@@ -769,7 +769,7 @@ static uintptr_t my_setxattr_fct_##A = 0;                                       
 static void my_setxattr_##A(void* a, unsigned long b, const char* c, const char* d, size_t e, int f)    \
 {                                                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "setxattr");               \
-    RunFunction(my_context, my_setxattr_fct_##A, 6, a, b, c, d, e, f);                                  \
+    RunFunctionFmt(my_context, my_setxattr_fct_##A, "pUppLi", a, b, c, d, e, f);                                  \
 }
 SUPER()
 #undef GO
@@ -793,7 +793,7 @@ static uintptr_t my_getxattr_fct_##A = 0;                                       
 static void my_getxattr_##A(void* a, unsigned long b, const char* c, const char* d, size_t e)   \
 {                                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "getxattr");               \
-    RunFunction(my_context, my_getxattr_fct_##A, 5, a, b, c, d, e);                             \
+    RunFunctionFmt(my_context, my_getxattr_fct_##A, "pUppL", a, b, c, d, e);                             \
 }
 SUPER()
 #undef GO
@@ -817,7 +817,7 @@ static uintptr_t my_listxattr_fct_##A = 0;                      \
 static void my_listxattr_##A(void* a, unsigned long b, size_t c)\
 {                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "listxattr");              \
-    RunFunction(my_context, my_listxattr_fct_##A, 3, a, b, c);  \
+    RunFunctionFmt(my_context, my_listxattr_fct_##A, "pUL", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -841,7 +841,7 @@ static uintptr_t my_removexattr_fct_##A = 0;                            \
 static void my_removexattr_##A(void* a, unsigned long b, const char* c) \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "removexattr");                \
-    RunFunction(my_context, my_removexattr_fct_##A, 3, a, b, c);        \
+    RunFunctionFmt(my_context, my_removexattr_fct_##A, "pLp", a, b, c);        \
 }
 SUPER()
 #undef GO
@@ -865,7 +865,7 @@ static uintptr_t my_access_fct_##A = 0;                     \
 static void my_access_##A(void* a, unsigned long b, int c)  \
 {                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "access");             \
-    RunFunction(my_context, my_access_fct_##A, 3, a, b, c); \
+    RunFunctionFmt(my_context, my_access_fct_##A, "pLi", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -889,7 +889,7 @@ static uintptr_t my_create_fct_##A = 0;                                         
 static void my_create_##A(void* a, unsigned long b, const char* c, mode_t d, void* e)   \
 {                                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "create");             \
-    RunFunction(my_context, my_create_fct_##A, 5, a, b, c, of_convert(d), e);           \
+    RunFunctionFmt(my_context, my_create_fct_##A, "pUpup", a, b, c, of_convert(d), e);           \
 }
 SUPER()
 #undef GO
@@ -913,7 +913,7 @@ static uintptr_t my_getlk_fct_##A = 0;                              \
 static void my_getlk_##A(void* a, unsigned long b, void* c, void* d)\
 {                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "getlk");              \
-    RunFunction(my_context, my_getlk_fct_##A, 4, a, b, c, d);       \
+    RunFunctionFmt(my_context, my_getlk_fct_##A, "pUpp", a, b, c, d);       \
 }
 SUPER()
 #undef GO
@@ -937,7 +937,7 @@ static uintptr_t my_setlk_fct_##A = 0;                                      \
 static void my_setlk_##A(void* a, unsigned long b, void* c, void* d, int e) \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "setlk");              \
-    RunFunction(my_context, my_setlk_fct_##A, 5, a, b, c, d, e);            \
+    RunFunctionFmt(my_context, my_setlk_fct_##A, "pUppi", a, b, c, d, e);            \
 }
 SUPER()
 #undef GO
@@ -961,7 +961,7 @@ static uintptr_t my_bmap_fct_##A = 0;                                   \
 static void my_bmap_##A(void* a, unsigned long b, size_t c, uint64_t d) \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "bmap");               \
-    RunFunction(my_context, my_bmap_fct_##A, 4, a, b, c, d);            \
+    RunFunctionFmt(my_context, my_bmap_fct_##A, "pULU", a, b, c, d);            \
 }
 SUPER()
 #undef GO
@@ -985,7 +985,7 @@ static uintptr_t my_ioctl_fct_##A = 0;                                          
 static void my_ioctl_##A(void* a, unsigned long b, int c, void* d, void* e, unsigned f, void* g, size_t h, size_t i)\
 {                                                                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "ioctl");                                                              \
-    RunFunction(my_context, my_ioctl_fct_##A, 9, a, b, c, d, e, f, g, h, i);                                        \
+    RunFunctionFmt(my_context, my_ioctl_fct_##A, "pUippupLL", a, b, c, d, e, f, g, h, i);                                        \
 }
 SUPER()
 #undef GO
@@ -1009,7 +1009,7 @@ static uintptr_t my_poll_fct_##A = 0;                                  \
 static void my_poll_##A(void* a, unsigned long b, void* c, void* d)    \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "poll");                  \
-    RunFunction(my_context, my_poll_fct_##A, 4, a, b, c, d);           \
+    RunFunctionFmt(my_context, my_poll_fct_##A, "pUpp", a, b, c, d);           \
 }
 SUPER()
 #undef GO
@@ -1033,7 +1033,7 @@ static uintptr_t my_write_buf_fct_##A = 0;                                      
 static void my_write_buf_##A(void* a, unsigned long b, void* c, off_t d, void* e)   \
 {                                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "write_buf");                          \
-    RunFunction(my_context, my_write_buf_fct_##A, 5, a, b, c, d, e);                \
+    RunFunctionFmt(my_context, my_write_buf_fct_##A, "pUpLp", a, b, c, d, e);                \
 }
 SUPER()
 #undef GO
@@ -1057,7 +1057,7 @@ static uintptr_t my_retrieve_reply_fct_##A = 0;                                 
 static void my_retrieve_reply_##A(void* a, void* b, unsigned long c, off_t d, void* e)  \
 {                                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "retrieve_reply");                         \
-    RunFunction(my_context, my_retrieve_reply_fct_##A, 5, a, b, c, d, e);               \
+    RunFunctionFmt(my_context, my_retrieve_reply_fct_##A, "ppULp", a, b, c, d, e);               \
 }
 SUPER()
 #undef GO
@@ -1081,7 +1081,7 @@ static uintptr_t my_forget_multi_fct_##A = 0;                       \
 static void my_forget_multi_##A(void* a, size_t b, void* c)         \
 {                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "forget_multi");       \
-    RunFunction(my_context, my_forget_multi_fct_##A, 3, a, b, c);   \
+    RunFunctionFmt(my_context, my_forget_multi_fct_##A, "pLp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1105,7 +1105,7 @@ static uintptr_t my_flock_fct_##A = 0;                              \
 static void my_flock_##A(void* a, unsigned long b, void* c, int d)  \
 {                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "flock");              \
-    RunFunction(my_context, my_flock_fct_##A, 4, a, b, c, d);       \
+    RunFunctionFmt(my_context, my_flock_fct_##A, "pUpi", a, b, c, d);       \
 }
 SUPER()
 #undef GO
@@ -1129,7 +1129,7 @@ static uintptr_t my_fallocate_fct_##A = 0;                                      
 static void my_fallocate_##A(void* a, unsigned long b, int c, off_t d, off_t e, void* f)    \
 {                                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "fallocate");                                  \
-    RunFunction(my_context, my_fallocate_fct_##A, 6, a, b, c, d, e, f);                     \
+    RunFunctionFmt(my_context, my_fallocate_fct_##A, "pUiLLp", a, b, c, d, e, f);                     \
 }
 SUPER()
 #undef GO
@@ -1155,7 +1155,7 @@ static int my_getattr_op_##A(const char * a, struct stat * b)                   
     printf_log(LOG_DEBUG, "fuse: call %s\n", "getattr_op");                         \
     struct x64_stat64 b_;                                                           \
     UnalignStat64(b, &b_);                                                          \
-    int ret = (int)RunFunction(my_context, my_getattr_op_fct_##A, 2, a, &b_);       \
+    int ret = (int)RunFunctionFmt(my_context, my_getattr_op_fct_##A, "pp", a, &b_);       \
     AlignStat64(&b_, b);                                                            \
     return ret;                                                                     \
 }
@@ -1181,7 +1181,7 @@ static uintptr_t my_readlink_op_fct_##A = 0;                            \
 static int my_readlink_op_##A(const char * a, char * b, size_t c)       \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "readlink_op");            \
-    return (int)RunFunction(my_context, my_readlink_op_fct_##A, 3, a, b, c);\
+    return (int)RunFunctionFmt(my_context, my_readlink_op_fct_##A, "ppL", a, b, c);\
 }
 SUPER()
 #undef GO
@@ -1205,7 +1205,7 @@ static uintptr_t my_getdir_op_fct_##A = 0;                                      
 static int my_getdir_op_##A(const char * a, void* b, void* c)                                                                   \
 {                                                                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "getdir_op");                                                                      \
-    return (int)RunFunction(my_context, my_getdir_op_fct_##A, 3, a, b, AddCheckBridge(my_lib->w.bridge, iFppiU, c, 0, NULL));   \
+    return (int)RunFunctionFmt(my_context, my_getdir_op_fct_##A, "ppp", a, b, AddCheckBridge(my_lib->w.bridge, iFppiU, c, 0, NULL));   \
 }
 SUPER()
 #undef GO
@@ -1229,7 +1229,7 @@ static uintptr_t my_mknod_op_fct_##A = 0;                                   \
 static int my_mknod_op_##A(const char * a, mode_t b, dev_t c)               \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "mknod_op");                   \
-    return (int)RunFunction(my_context, my_mknod_op_fct_##A, 3, a, b, c);   \
+    return (int)RunFunctionFmt(my_context, my_mknod_op_fct_##A, "puU", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1253,7 +1253,7 @@ static uintptr_t my_mkdir_op_fct_##A = 0;                               \
 static int my_mkdir_op_##A(const char * a, mode_t b)                    \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "mkdir_op");               \
-    return (int)RunFunction(my_context, my_mkdir_op_fct_##A, 2, a, b);  \
+    return (int)RunFunctionFmt(my_context, my_mkdir_op_fct_##A, "pu", a, b);  \
 }
 SUPER()
 #undef GO
@@ -1277,7 +1277,7 @@ static uintptr_t my_unlink_op_fct_##A = 0;                              \
 static int my_unlink_op_##A(const char * a)                             \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "unlink_op");              \
-    return (int)RunFunction(my_context, my_unlink_op_fct_##A, 1, a);    \
+    return (int)RunFunctionFmt(my_context, my_unlink_op_fct_##A, "p", a);    \
 }
 SUPER()
 #undef GO
@@ -1301,7 +1301,7 @@ static uintptr_t my_rmdir_op_fct_##A = 0;                           \
 static int my_rmdir_op_##A(const char * a)                          \
 {                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "rmdir_op");           \
-    return (int)RunFunction(my_context, my_rmdir_op_fct_##A, 1, a); \
+    return (int)RunFunctionFmt(my_context, my_rmdir_op_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -1325,7 +1325,7 @@ static uintptr_t my_symlink_op_fct_##A = 0;                                 \
 static int my_symlink_op_##A(const char * a, const char * b)                \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "symlink_op");                 \
-    return (int)RunFunction(my_context, my_symlink_op_fct_##A, 2, a, b);    \
+    return (int)RunFunctionFmt(my_context, my_symlink_op_fct_##A, "pp", a, b);    \
 }
 SUPER()
 #undef GO
@@ -1349,7 +1349,7 @@ static uintptr_t my_rename_op_fct_##A = 0;                              \
 static int my_rename_op_##A(const char * a, const char * b)             \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "rename_op");              \
-    return (int)RunFunction(my_context, my_rename_op_fct_##A, 2, a, b); \
+    return (int)RunFunctionFmt(my_context, my_rename_op_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -1373,7 +1373,7 @@ static uintptr_t my_link_op_fct_##A = 0;                                \
 static int my_link_op_##A(const char * a, const char * b)               \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "link_op");                \
-    return (int)RunFunction(my_context, my_link_op_fct_##A, 2, a, b);   \
+    return (int)RunFunctionFmt(my_context, my_link_op_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -1397,7 +1397,7 @@ static uintptr_t my_chmod_op_fct_##A = 0;                               \
 static int my_chmod_op_##A(const char * a, mode_t b)                    \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "chmod_op");               \
-    return (int)RunFunction(my_context, my_chmod_op_fct_##A, 2, a, b);  \
+    return (int)RunFunctionFmt(my_context, my_chmod_op_fct_##A, "pu", a, b);  \
 }
 SUPER()
 #undef GO
@@ -1421,7 +1421,7 @@ static uintptr_t my_chown_op_fct_##A = 0;                                   \
 static int my_chown_op_##A(const char * a, uid_t b, gid_t c)                \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "chown_op");                   \
-    return (int)RunFunction(my_context, my_chown_op_fct_##A, 3, a, b, c);   \
+    return (int)RunFunctionFmt(my_context, my_chown_op_fct_##A, "puu", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1445,7 +1445,7 @@ static uintptr_t my_truncate_op_fct_##A = 0;                                \
 static int my_truncate_op_##A(const char * a, off_t b)                      \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "truncate_op");                \
-    return (int)RunFunction(my_context, my_truncate_op_fct_##A, 2, a, b);   \
+    return (int)RunFunctionFmt(my_context, my_truncate_op_fct_##A, "pL", a, b);   \
 }
 SUPER()
 #undef GO
@@ -1469,7 +1469,7 @@ static uintptr_t my_utime_op_fct_##A = 0;                               \
 static int my_utime_op_##A(const char * a, void* b)                     \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "utime_op");               \
-    return (int)RunFunction(my_context, my_utime_op_fct_##A, 2, a, b);  \
+    return (int)RunFunctionFmt(my_context, my_utime_op_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -1493,7 +1493,7 @@ static uintptr_t my_open_op_fct_##A = 0;                                \
 static int my_open_op_##A(const char * a, void* b)                      \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "open_op");                \
-    return (int)RunFunction(my_context, my_open_op_fct_##A, 2, a, b);   \
+    return (int)RunFunctionFmt(my_context, my_open_op_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -1517,7 +1517,7 @@ static uintptr_t my_read_op_fct_##A = 0;                                        
 static int my_read_op_##A(const char * a, char * b, size_t c, off_t d, void* e) \
 {                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "read_op");                        \
-    return (int)RunFunction(my_context, my_read_op_fct_##A, 5, a, b, c, d, e);  \
+    return (int)RunFunctionFmt(my_context, my_read_op_fct_##A, "ppLLp", a, b, c, d, e);  \
 }
 SUPER()
 #undef GO
@@ -1541,7 +1541,7 @@ static uintptr_t my_write_op_fct_##A = 0;                                       
 static int my_write_op_##A(const char * a, const char * b, size_t c, off_t d, void* e)  \
 {                                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "write_op");                               \
-    return (int)RunFunction(my_context, my_write_op_fct_##A, 5, a, b, c, d, e);         \
+    return (int)RunFunctionFmt(my_context, my_write_op_fct_##A, "ppLLp", a, b, c, d, e);         \
 }
 SUPER()
 #undef GO
@@ -1565,7 +1565,7 @@ static uintptr_t my_statfs_op_fct_##A = 0;                              \
 static int my_statfs_op_##A(const char * a, void* b)         \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "statfs_op");              \
-    return (int)RunFunction(my_context, my_statfs_op_fct_##A, 2, a, b); \
+    return (int)RunFunctionFmt(my_context, my_statfs_op_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -1589,7 +1589,7 @@ static uintptr_t my_flush_op_fct_##A = 0;                               \
 static int my_flush_op_##A(const char * a, void* b)                     \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "flush_op");               \
-    return (int)RunFunction(my_context, my_flush_op_fct_##A, 2, a, b);  \
+    return (int)RunFunctionFmt(my_context, my_flush_op_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -1613,7 +1613,7 @@ static uintptr_t my_release_op_fct_##A = 0;                                 \
 static int my_release_op_##A(const char * a, void* b)                       \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "release_op");                 \
-    return (int)RunFunction(my_context, my_release_op_fct_##A, 2, a, b);    \
+    return (int)RunFunctionFmt(my_context, my_release_op_fct_##A, "pp", a, b);    \
 }
 SUPER()
 #undef GO
@@ -1637,7 +1637,7 @@ static uintptr_t my_fsync_op_fct_##A = 0;                                   \
 static int my_fsync_op_##A(const char * a, int b, void* c)                  \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "fsync_op");                   \
-    return (int)RunFunction(my_context, my_fsync_op_fct_##A, 3, a, b, c);   \
+    return (int)RunFunctionFmt(my_context, my_fsync_op_fct_##A, "pip", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1661,7 +1661,7 @@ static uintptr_t my_setxattr_op_fct_##A = 0;                                    
 static int my_setxattr_op_##A(const char * a, const char * b, const char * c, size_t d, int e)  \
 {                                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "setxattr_op");                                    \
-    return (int)RunFunction(my_context, my_setxattr_op_fct_##A, 5, a, b, c, d, e);                  \
+    return (int)RunFunctionFmt(my_context, my_setxattr_op_fct_##A, "pppLi", a, b, c, d, e);                  \
 }
 SUPER()
 #undef GO
@@ -1685,7 +1685,7 @@ static uintptr_t my_getxattr_op_fct_##A = 0;                                    
 static int my_getxattr_op_##A(const char * a, const char * b, char * c, size_t d)   \
 {                                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "getxattr_op");                        \
-    return (int)RunFunction(my_context, my_getxattr_op_fct_##A, 4, a, b, c, d);     \
+    return (int)RunFunctionFmt(my_context, my_getxattr_op_fct_##A, "pppL", a, b, c, d);     \
 }
 SUPER()
 #undef GO
@@ -1709,7 +1709,7 @@ static uintptr_t my_listxattr_op_fct_##A = 0;                                   
 static int my_listxattr_op_##A(const char * a, char * b, size_t c)              \
 {                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "listxattr_op");                   \
-    return (int)RunFunction(my_context, my_listxattr_op_fct_##A, 3, a, b, c);   \
+    return (int)RunFunctionFmt(my_context, my_listxattr_op_fct_##A, "ppL", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1733,7 +1733,7 @@ static uintptr_t my_removexattr_op_fct_##A = 0;                                 
 static int my_removexattr_op_##A(const char * a, const char * b)                \
 {                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "removexattr_op");                 \
-    return (int)RunFunction(my_context, my_removexattr_op_fct_##A, 2, a, b);    \
+    return (int)RunFunctionFmt(my_context, my_removexattr_op_fct_##A, "pp", a, b);    \
 }
 SUPER()
 #undef GO
@@ -1757,7 +1757,7 @@ static uintptr_t my_opendir_op_fct_##A = 0;                                 \
 static int my_opendir_op_##A(const char * a, void* b)                       \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "opendir_op");                 \
-    return (int)RunFunction(my_context, my_opendir_op_fct_##A, 2, a, b);    \
+    return (int)RunFunctionFmt(my_context, my_opendir_op_fct_##A, "pp", a, b);    \
 }
 SUPER()
 #undef GO
@@ -1781,7 +1781,7 @@ static uintptr_t my_readdir_op_fct_##A = 0;                                     
 static int my_readdir_op_##A(const char * a, void * b, fuse_fill_dir_t c, off_t d, void* e)                                             \
 {                                                                                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "readdir_op");                                                                             \
-    return (int)RunFunction(my_context, my_readdir_op_fct_##A, 5, a, b, AddCheckBridge(my_lib->w.bridge, iFpppUi, c, 0, NULL), d, e);   \
+    return (int)RunFunctionFmt(my_context, my_readdir_op_fct_##A, "pppLp", a, b, AddCheckBridge(my_lib->w.bridge, iFpppUi, c, 0, NULL), d, e);   \
 }
 SUPER()
 #undef GO
@@ -1805,7 +1805,7 @@ static uintptr_t my_releasedir_op_fct_##A = 0;                              \
 static int my_releasedir_op_##A(const char * a, void* b)                    \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "releasedir_op");              \
-    return (int)RunFunction(my_context, my_releasedir_op_fct_##A,2, a, b);  \
+    return (int)RunFunctionFmt(my_context, my_releasedir_op_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -1829,7 +1829,7 @@ static uintptr_t my_fsyncdir_op_fct_##A = 0;                                \
 static int my_fsyncdir_op_##A(const char * a, int b, void* c)               \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "fsyncdir_op");                \
-    return (int)RunFunction(my_context, my_fsyncdir_op_fct_##A, 3, a, b, c);\
+    return (int)RunFunctionFmt(my_context, my_fsyncdir_op_fct_##A, "pip", a, b, c);\
 }
 SUPER()
 #undef GO
@@ -1853,7 +1853,7 @@ static uintptr_t my_init_op_fct_##A = 0;                                \
 static void* my_init_op_##A(void* a)                                    \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "init_op");                \
-    return (void*)RunFunction(my_context, my_init_op_fct_##A, 1, a);    \
+    return (void*)RunFunctionFmt(my_context, my_init_op_fct_##A, "p", a);    \
 }
 SUPER()
 #undef GO
@@ -1877,7 +1877,7 @@ static uintptr_t my_destroy_op_fct_##A = 0;                 \
 static void my_destroy_op_##A(void * a)                     \
 {                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "destroy_op"); \
-    RunFunction(my_context, my_destroy_op_fct_##A, 1, a);   \
+    RunFunctionFmt(my_context, my_destroy_op_fct_##A, "p", a);   \
 }
 SUPER()
 #undef GO
@@ -1901,7 +1901,7 @@ static uintptr_t my_access_op_fct_##A = 0;                              \
 static int my_access_op_##A(const char * a, int b)                      \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "access_op");              \
-    return (int)RunFunction(my_context, my_access_op_fct_##A, 2, a, b); \
+    return (int)RunFunctionFmt(my_context, my_access_op_fct_##A, "pi", a, b); \
 }
 SUPER()
 #undef GO
@@ -1925,7 +1925,7 @@ static uintptr_t my_create_op_fct_##A = 0;                                  \
 static int my_create_op_##A(const char * a, mode_t b, void* c)              \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "create_op");                  \
-    return (int)RunFunction(my_context, my_create_op_fct_##A, 3, a, b, c);  \
+    return (int)RunFunctionFmt(my_context, my_create_op_fct_##A, "pup", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -1949,7 +1949,7 @@ static uintptr_t my_ftruncate_op_fct_##A = 0;                                   
 static int my_ftruncate_op_##A(const char * a, off_t b, void* c)                \
 {                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "ftruncate_op");                   \
-    return (int)RunFunction(my_context, my_ftruncate_op_fct_##A, 3, a, b, c);   \
+    return (int)RunFunctionFmt(my_context, my_ftruncate_op_fct_##A, "pLp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1975,7 +1975,7 @@ static int my_fgetattr_op_##A(const char * a, struct stat* b, void* c)          
     printf_log(LOG_DEBUG, "fuse: call %s\n", "fgetattr_op");                        \
     struct x64_stat64 b_;                                                           \
     UnalignStat64(b, &b_);                                                          \
-    int ret = (int)RunFunction(my_context, my_fgetattr_op_fct_##A, 3, a, &b_, c);   \
+    int ret = (int)RunFunctionFmt(my_context, my_fgetattr_op_fct_##A, "ppp", a, &b_, c);   \
     AlignStat64(&b_, b);                                                            \
     return ret;                                                                     \
 }
@@ -2001,7 +2001,7 @@ static uintptr_t my_lock_op_fct_##A = 0;                                        
 static int my_lock_op_##A(const char * a, void* b, int c, void* d)              \
 {                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "lock_op");                        \
-    return (int)RunFunction(my_context, my_lock_op_fct_##A, 4, a, b, c, d);     \
+    return (int)RunFunctionFmt(my_context, my_lock_op_fct_##A, "ppip", a, b, c, d);     \
 }
 SUPER()
 #undef GO
@@ -2025,7 +2025,7 @@ static uintptr_t my_utimens_op_fct_##A = 0;                                 \
 static int my_utimens_op_##A(const char * a, const struct timespec b[2])    \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "utimens_op");                 \
-    return (int)RunFunction(my_context, my_utimens_op_fct_##A, 2, a, b);    \
+    return (int)RunFunctionFmt(my_context, my_utimens_op_fct_##A, "pp", a, b);    \
 }
 SUPER()
 #undef GO
@@ -2049,7 +2049,7 @@ static uintptr_t my_bmap_op_fct_##A = 0;                                    \
 static int my_bmap_op_##A(const char * a, size_t b, uint64_t *c)            \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "bmap_op");                    \
-    return (int)RunFunction(my_context, my_bmap_op_fct_##A, 3, a, b, c);    \
+    return (int)RunFunctionFmt(my_context, my_bmap_op_fct_##A, "pLp", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -2073,7 +2073,7 @@ static uintptr_t my_ioctl_op_fct_##A = 0;                                       
 static int my_ioctl_op_##A(const char * a, int b, void* c, void* d, unsigned int e, void* f)    \
 {                                                                                               \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "ioctl_op");                                       \
-    return (int)RunFunction(my_context, my_ioctl_op_fct_##A, 6, a, b, c, d, e, f);              \
+    return (int)RunFunctionFmt(my_context, my_ioctl_op_fct_##A, "pippup", a, b, c, d, e, f);              \
 }
 SUPER()
 #undef GO
@@ -2097,7 +2097,7 @@ static uintptr_t my_poll_op_fct_##A = 0;                                    \
 static int my_poll_op_##A(const char * a, void* b, void* c, unsigned * d)   \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "poll_op");                    \
-    return (int)RunFunction(my_context, my_poll_op_fct_##A, 4, a, b, c, d); \
+    return (int)RunFunctionFmt(my_context, my_poll_op_fct_##A, "pppp", a, b, c, d); \
 }
 SUPER()
 #undef GO
@@ -2121,7 +2121,7 @@ static uintptr_t my_write_buf_op_fct_##A = 0;                                   
 static int my_write_buf_op_##A(const char * a, void* b, off_t c, void* d)           \
 {                                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "write_buf_op");                       \
-    return (int)RunFunction(my_context, my_write_buf_op_fct_##A, 4, a, b, c, d);    \
+    return (int)RunFunctionFmt(my_context, my_write_buf_op_fct_##A, "ppLp", a, b, c, d);    \
 }
 SUPER()
 #undef GO
@@ -2145,7 +2145,7 @@ static uintptr_t my_read_buf_op_fct_##A = 0;                                    
 static int my_read_buf_op_##A(const char * a, void* b, size_t c, off_t d, void* e)  \
 {                                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "read_buf_op");                        \
-    return (int)RunFunction(my_context, my_read_buf_op_fct_##A, 5, a, b, c, d, e);  \
+    return (int)RunFunctionFmt(my_context, my_read_buf_op_fct_##A, "ppLLp", a, b, c, d, e);  \
 }
 SUPER()
 #undef GO
@@ -2169,7 +2169,7 @@ static uintptr_t my_flock_op_fct_##A = 0;                                   \
 static int my_flock_op_##A(const char * a, void* b, int c)                  \
 {                                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "flock_op");                   \
-    return (int)RunFunction(my_context, my_flock_op_fct_##A, 3, a, b, c);   \
+    return (int)RunFunctionFmt(my_context, my_flock_op_fct_##A, "ppi", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -2193,7 +2193,7 @@ static uintptr_t my_fallocate_op_fct_##A = 0;                                   
 static int my_fallocate_op_##A(const char * a, int b, off_t c, off_t d, void* e)    \
 {                                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "fallocate_op");                       \
-    return (int)RunFunction(my_context, my_fallocate_op_fct_##A, 5, a, b, c, d, e); \
+    return (int)RunFunctionFmt(my_context, my_fallocate_op_fct_##A, "piLLp", a, b, c, d, e); \
 }
 SUPER()
 #undef GO
@@ -2376,5 +2376,5 @@ box64_showsegv=1;
 
 #define CUSTOM_FINI             \
     freeMy();
-    
+
 #include "wrappedlib_init.h"

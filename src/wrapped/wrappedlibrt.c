@@ -40,7 +40,7 @@ GO(3)
 static uintptr_t my_sigev_notify_fct_##A = 0;   \
 static void my_sigev_notify_##A(void* sigval)    \
 {                                       \
-    RunFunction(my_context, my_sigev_notify_fct_##A, 1, sigval);\
+    RunFunctionFmt(my_context, my_sigev_notify_fct_##A, "p", sigval);\
 }
 SUPER()
 #undef GO
