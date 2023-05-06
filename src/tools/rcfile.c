@@ -52,7 +52,7 @@ static const char default_rcfile[] =
 "BOX64_NOSANDBOX=1\n"
 "BOX64_MALLOC_HACK=2\n"
 "BOX64_LOG=0\n"
-"BOX64_NOGTK=1\n"
+"BOX64_DYNAREC_BIGBLOCK=0\n"
 "\n"
 "[steam-runtime-check-requirements]\n"
 "BOX64_EXIT=1\n"
