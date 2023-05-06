@@ -470,7 +470,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ANDI(gd, gb1, 0xff);
                 if(eb2) {
                     MOV64x(x1, 0xffffffffffff00ffLL);
-                    ANDI(x1, eb1, x1);
+                    AND(x1, eb1, x1);
                     SLLI(gd, gd, 8);
                     OR(eb1, x1, gd);
                 } else {
