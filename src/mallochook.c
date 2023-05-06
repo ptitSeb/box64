@@ -195,7 +195,7 @@ EXPORT void free(void* p)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -219,7 +219,7 @@ EXPORT void* realloc(void* p, size_t s)
             printf_log(LOG_DEBUG, " -> %p (copied %zu from old)\n", ret, s);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return ret;
         }
     return box_realloc(p, s);
@@ -263,7 +263,7 @@ EXPORT void cfree(void* p)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -303,7 +303,7 @@ EXPORT void my__ZdaPv(void* p)   //operator delete[](void*)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -317,7 +317,7 @@ EXPORT void my__ZdaPvm(void* p, size_t sz)   //operator delete[](void*, size_t)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -331,7 +331,7 @@ EXPORT void my__ZdaPvmSt11align_val_t(void* p, size_t sz, size_t align)   //oper
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -345,7 +345,7 @@ EXPORT void my__ZdlPv(void* p)   //operator delete(void*)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -359,7 +359,7 @@ EXPORT void my__ZdlPvm(void* p, size_t sz)   //operator delete(void*, size_t)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -393,7 +393,7 @@ EXPORT void my__ZdlPvRKSt9nothrow_t(void* p, void* n)   //operator delete(void*,
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -407,7 +407,7 @@ EXPORT void my__ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* 
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -421,7 +421,7 @@ EXPORT void my__ZdlPvmSt11align_val_t(void* p, size_t sz, size_t align)   //oper
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -435,7 +435,7 @@ EXPORT void my__ZdaPvRKSt9nothrow_t(void* p, void* n)   //operator delete[](void
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -449,7 +449,7 @@ EXPORT void my__ZdaPvSt11align_val_t(void* p, size_t align)   //operator delete[
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -463,7 +463,7 @@ EXPORT void my__ZdlPvSt11align_val_t(void* p, size_t align)   //operator delete(
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
@@ -477,7 +477,7 @@ EXPORT void my__ZdlPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* 
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "vFp", p);
+                RunFunctionFmt(my_context, real_free, "p", p);
             return;
         }
     }
