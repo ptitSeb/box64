@@ -255,8 +255,10 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create)
             emu->test.test = 0;
             if(box64_dynarec_fastpage) {
                 uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
-                if(hash==db->hash)  // seems ok, run it without reprotecting it
+                if(hash==db->hash) { // seems ok, run it without reprotecting it
+                    setJumpTableIfRef64(db->x64_addr, db->block, db->jmpnext);
                     return db;
+                }
                 db->done = 0;   // invalidating the block, it's already not good
                 dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, hash, db->hash, (void*)addr);
                 // Free db, it's now invalid!
