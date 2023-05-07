@@ -1917,6 +1917,63 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
 
 
+        case 0xBA:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 4:
+                    INST_NAME("BT Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
+                    gd = x2;
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    u8&=rex.w?0x3f:0x0f;
+                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    break;
+                case 5:
+                    INST_NAME("BTS Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    u8&=(rex.w?0x3f:0x0f);
+                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    TBNZ_MARK3(xFlags, 0); // bit already set, jump to next instruction
+                    MOV32w(x4, 1);
+                    EORxw_REG_LSL(ed, ed, x4, u8);
+                    EWBACK(x1);
+                    MARK3;
+                    break;
+                case 6:
+                    INST_NAME("BTR Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    u8&=(rex.w?0x3f:0x0f);
+                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    TBZ_MARK3(xFlags, 0); // bit already clear, jump to next instruction
+                    MOV32w(x4, 1);
+                    EORxw_REG_LSL(ed, ed, x4, u8);
+                    EWBACK(x1);
+                    MARK3;
+                    break;
+                case 7:
+                    INST_NAME("BTC Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    u8&=(rex.w?0x3f:0x0f);
+                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    MOV32w(x4, 1);
+                    EORxw_REG_LSL(ed, ed, x4, u8);
+                    EWBACK(x1);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
             SETFLAGS(X_CF, SF_SUBSET);
