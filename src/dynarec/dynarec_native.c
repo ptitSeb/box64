@@ -472,7 +472,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     if(!helper.size) {
         dynarec_log(LOG_INFO, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
         CancelBlock64(0);
-        return CreateEmptyBlock(block, addr);;
+        return CreateEmptyBlock(block, addr);
     }
     if(!isprotectedDB(addr, 1)) {
         dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
