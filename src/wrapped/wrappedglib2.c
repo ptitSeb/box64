@@ -425,7 +425,7 @@ static void* findGCompletionFct(void* fct)
 static uintptr_t my_GCompletionStrncmpFunc_fct_##A = 0;                                        \
 static int my_GCompletionStrncmpFunc_##A(void* a, void* b, unsigned long n)                    \
 {                                                                                              \
-    return (int)RunFunctionFmt(my_context, my_GCompletionStrncmpFunc_fct_##A, "ppU", a, b, n); \
+    return (int)RunFunctionFmt(my_context, my_GCompletionStrncmpFunc_fct_##A, "ppL", a, b, n); \
 }
 SUPER()
 #undef GO
