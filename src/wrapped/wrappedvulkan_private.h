@@ -805,3 +805,7 @@ GO(vkCmdSetShadingRateImageEnableNV, vFpi)
 GO(vkCmdSetTessellationDomainOriginEXT, vFpi)
 GO(vkCmdSetViewportSwizzleNV, vFpuup)
 GO(vkCmdSetViewportWScalingEnableNV, vFpi)
+
+// VK_KHR_external_memory_win32
+GO(vkGetMemoryWin32HandleKHR, iFppp)
+GO(vkGetMemoryWin32HandlePropertiesKHR, iFpipp)

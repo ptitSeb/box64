@@ -84,8 +84,8 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
         fillVulkanProcWrapper(emu->context);
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
-    void* symbol;
-    if(is_my) {
+    void* symbol = my->vkGetDeviceProcAddr(device, name);
+    if(symbol && is_my) {   // only wrap if symbol exist
         // try again, by using custom "my_" now...
         char tmp[200];
         strcpy(tmp, "my_");
@@ -95,8 +95,7 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
         #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)my->vkGetDeviceProcAddr(device, name);
         SUPER()
         #undef GO
-    } else
-        symbol = my->vkGetDeviceProcAddr(device, name);
+    } 
     if(!symbol) {
         printf_dlsym(LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
