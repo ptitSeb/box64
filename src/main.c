@@ -63,6 +63,7 @@ int box64_dynarec_fastpage = 0;
 int box64_dynarec_bleeding_edge = 1;
 int box64_dynarec_wait = 1;
 int box64_dynarec_test = 0;
+int box64_dynarec_missing = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -603,6 +604,15 @@ void LoadLogEnv()
         }
         if(box64_dynarec_fastpage)
             printf_log(LOG_INFO, "Dynarec will use Fast HotPage\n");
+    }
+    p = getenv("BOX64_DYNAREC_MISSING");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_missing = p[0]-'0';
+        }
+        if(box64_dynarec_missing)
+            printf_log(LOG_INFO, "Dynarec will print missing opcodes\n");
     }
     p = getenv("BOX64_NODYNAREC");
     if(p) {

@@ -131,6 +131,7 @@ ENTRYBOOL(BOX64_DYNAREC_FASTPAGE, box64_dynarec_fastpage)           \
 ENTRYBOOL(BOX64_DYNAREC_WAIT, box64_dynarec_wait)                   \
 ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
 ENTRYBOOL(BOX64_DYNAREC_TEST, box64_dynarec_test)                   \
+ENTRYBOOL(BOX64_DYNAREC_MISSING, box64_dynarec_missing)             \
 
 #else
 #define SUPER3()                                                    \
@@ -151,6 +152,7 @@ IGNORE(BOX64_DYNAREC_FASTPAGE)                                      \
 IGNORE(BOX64_DYNAREC_WAIT)                                          \
 IGNORE(BOX64_NODYNAREC)                                             \
 IGNORE(BOX64_DYNAREC_TEST)                                          \
+IGNORE(BOX64_DYNAREC_MISSING)                                       \
 
 #endif
 
