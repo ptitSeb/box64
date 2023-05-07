@@ -60,7 +60,7 @@ static void* find_r_read_Fct(void* fct)
 static uintptr_t my_r_lseek_fct_##A = 0;                                 \
 static int64_t my_r_lseek_##A(void* a, int64_t b, int n)             \
 {                                                                                       \
-    return (int64_t)RunFunctionFmt(my_context, my_r_lseek_fct_##A, "pLi", a, b, n); \
+    return (int64_t)RunFunctionFmt(my_context, my_r_lseek_fct_##A, "pIi", a, b, n); \
 }
 SUPER()
 #undef GO

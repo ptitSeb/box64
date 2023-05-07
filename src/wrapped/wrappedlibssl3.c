@@ -120,7 +120,7 @@ static void* reverse_verify_Fct(void* fct)
 static uintptr_t my3_ex_new_fct_##A = 0;                                                        \
 static void my3_ex_new_##A(void* parent, void* ptr, void* ad, int idx, long argl, void* argp)   \
 {                                                                                           \
-    RunFunctionFmt(my_context, my3_ex_new_fct_##A, "pppiLp", parent, ptr, ad, idx, argl, argp);           \
+    RunFunctionFmt(my_context, my3_ex_new_fct_##A, "pppilp", parent, ptr, ad, idx, argl, argp);           \
 }
 SUPER()
 #undef GO
@@ -144,7 +144,7 @@ static void* find_ex_new_Fct(void* fct)
 static uintptr_t my3_ex_free_fct_##A = 0;                                                        \
 static void my3_ex_free_##A(void* parent, void* ptr, void* ad, int idx, long argl, void* argp)   \
 {                                                                                               \
-    RunFunctionFmt(my_context, my3_ex_free_fct_##A, "pppiLp", parent, ptr, ad, idx, argl, argp);           \
+    RunFunctionFmt(my_context, my3_ex_free_fct_##A, "pppilp", parent, ptr, ad, idx, argl, argp);           \
 }
 SUPER()
 #undef GO
@@ -168,7 +168,7 @@ static void* find_ex_free_Fct(void* fct)
 static uintptr_t my3_ex_dup_fct_##A = 0;                                                             \
 static int my3_ex_dup_##A(void* to, void* from, void* from_d, int idx, long argl, void* argp)        \
 {                                                                                                   \
-    return (int) RunFunctionFmt(my_context, my3_ex_dup_fct_##A, "pppiLp", to, from, from_d, idx, argl, argp);  \
+    return (int) RunFunctionFmt(my_context, my3_ex_dup_fct_##A, "pppilp", to, from, from_d, idx, argl, argp);  \
 }
 SUPER()
 #undef GO

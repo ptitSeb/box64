@@ -76,7 +76,7 @@ static void* findread_writeFct(void* fct)
 static uintptr_t my_seek_fct_##A = 0;                                                    \
 static int my_seek_##A(void* ptr, int64_t offset, int whence)                            \
 {                                                                                        \
-    return (int)RunFunctionFmt(my_context, my_seek_fct_##A, "pLi", ptr, offset, whence); \
+    return (int)RunFunctionFmt(my_context, my_seek_fct_##A, "pIi", ptr, offset, whence); \
 }
 SUPER()
 #undef GO

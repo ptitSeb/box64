@@ -89,7 +89,7 @@ EXPORT int64_t my2_emulated_size(SDL2_RWops_t *context)
 }
 EXPORT int64_t my2_emulated_seek(SDL2_RWops_t *context, int64_t offset, int32_t whence)
 {
-    return (int64_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->seek, "pLi", context->hidden.my.orig, offset, whence);
+    return (int64_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->seek, "pIi", context->hidden.my.orig, offset, whence);
 }
 EXPORT int32_t my2_emulated_read(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
 {

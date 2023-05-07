@@ -337,7 +337,7 @@ static void* findSpawnChildSetupFct(void* fct)
 static uintptr_t my_GSourceFunc_fct_##A = 0;                                \
 static void my_GSourceFunc_##A(void* a, void* b, void* c, void* d)          \
 {                                                                           \
-    RunFunctionFmt(my_context, my_GSourceFunc_fct_##A, "oooo", a, b, c, d); \
+    RunFunctionFmt(my_context, my_GSourceFunc_fct_##A, "pppp", a, b, c, d); \
 }
 SUPER()
 #undef GO

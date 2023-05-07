@@ -673,7 +673,7 @@ static void* find_unparsedEntityDeclSAXFunc_Fct(void* fct)
 static uintptr_t my_setDocumentLocatorSAXFunc_fct_##A = 0;                      \
 static void my_setDocumentLocatorSAXFunc_##A(void* a, void* b)                  \
 {                                                                               \
-    RunFunctionFmt(my_context, my_setDocumentLocatorSAXFunc_fct_##A, "p", a, b);\
+    RunFunctionFmt(my_context, my_setDocumentLocatorSAXFunc_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO

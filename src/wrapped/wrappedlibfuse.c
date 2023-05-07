@@ -841,7 +841,7 @@ static uintptr_t my_removexattr_fct_##A = 0;                            \
 static void my_removexattr_##A(void* a, unsigned long b, const char* c) \
 {                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "removexattr");                \
-    RunFunctionFmt(my_context, my_removexattr_fct_##A, "pLp", a, b, c);        \
+    RunFunctionFmt(my_context, my_removexattr_fct_##A, "pUp", a, b, c);        \
 }
 SUPER()
 #undef GO
@@ -865,7 +865,7 @@ static uintptr_t my_access_fct_##A = 0;                     \
 static void my_access_##A(void* a, unsigned long b, int c)  \
 {                                                           \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "access");             \
-    RunFunctionFmt(my_context, my_access_fct_##A, "pLi", a, b, c); \
+    RunFunctionFmt(my_context, my_access_fct_##A, "pUi", a, b, c); \
 }
 SUPER()
 #undef GO

@@ -187,7 +187,7 @@ static int  my_hook_error(void* a, void* b, void* c, int* d) {
 }
 static char* my_hook_error_string(void* a, int b, void* c, void* d, int e) {
     if(my_hook_error_string_fnc)
-        return (char*)RunFunctionFmt(context, my_hook_error_string_fnc, "ppppi", a, b, c, d, e);
+        return (char*)RunFunctionFmt(context, my_hook_error_string_fnc, "pippi", a, b, c, d, e);
     return 0;
 }
 
