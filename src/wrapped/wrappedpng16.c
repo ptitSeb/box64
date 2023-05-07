@@ -151,7 +151,7 @@ static void* findwarningFct(void* fct)
 static uintptr_t my_malloc_fct_##A = 0;   \
 static void my_malloc_##A(void* a, unsigned long b)    \
 {                                       \
-    RunFunctionFmt(my_context, my_malloc_fct_##A, "pU", a, b);\
+    RunFunctionFmt(my_context, my_malloc_fct_##A, "pL", a, b);\
 }
 SUPER()
 #undef GO

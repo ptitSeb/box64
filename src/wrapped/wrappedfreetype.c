@@ -378,7 +378,7 @@ static FT_MemoryRec_t* find_FT_MemoryRec_Struct(FT_MemoryRec_t* s)
 static uintptr_t my_iofunc = 0;
 static unsigned long my_FT_Stream_IoFunc(FT_StreamRec_t* stream, unsigned long offset, unsigned char* buffer, unsigned long count )
 {
-    return (unsigned long)RunFunctionFmt(my_context, my_iofunc, "pUpU", stream, offset, buffer, count);
+    return (unsigned long)RunFunctionFmt(my_context, my_iofunc, "pLpL", stream, offset, buffer, count);
 }
 
 static uintptr_t my_closefunc = 0;

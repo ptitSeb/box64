@@ -108,7 +108,7 @@ static void* find_digestCloseFn_Fct(void* fct)
 static uintptr_t my_digestIOFn_fct_##A = 0;                             \
 static int my_digestIOFn_##A(void* a, void* b, unsigned long c)         \
 {                                                                       \
-    return RunFunctionFmt(my_context, my_digestIOFn_fct_##A, "ppU", a, b, c);  \
+    return RunFunctionFmt(my_context, my_digestIOFn_fct_##A, "ppL", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -151,10 +151,10 @@ static void* find_SEC_PKCS12NicknameCollisionCallback_Fct(void* fct)
 
 // SEC_PKCS12EncoderOutputCallback ...
 #define GO(A)   \
-static uintptr_t my_SEC_PKCS12EncoderOutputCallback_fct_##A = 0;                        \
-static void my_SEC_PKCS12EncoderOutputCallback_##A(void* a, void* b, unsigned long c)   \
-{                                                                                       \
-    RunFunctionFmt(my_context, my_SEC_PKCS12EncoderOutputCallback_fct_##A, "ppU", a, b, c);    \
+static uintptr_t my_SEC_PKCS12EncoderOutputCallback_fct_##A = 0;                            \
+static void my_SEC_PKCS12EncoderOutputCallback_##A(void* a, void* b, unsigned long c)       \
+{                                                                                           \
+    RunFunctionFmt(my_context, my_SEC_PKCS12EncoderOutputCallback_fct_##A, "ppL", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -177,7 +177,7 @@ static void* find_SEC_PKCS12EncoderOutputCallback_Fct(void* fct)
 static uintptr_t my_NSSCMSContentCallback_fct_##A = 0;                      \
 static void my_NSSCMSContentCallback_##A(void* a, void* b, unsigned long c) \
 {                                                                           \
-    RunFunctionFmt(my_context, my_NSSCMSContentCallback_fct_##A, "ppU", a, b, c);  \
+    RunFunctionFmt(my_context, my_NSSCMSContentCallback_fct_##A, "ppL", a, b, c);  \
 }
 SUPER()
 #undef GO

@@ -54,7 +54,7 @@ GO(7)
 static uintptr_t my_read_write_fct_##A = 0;                                                              \
 static unsigned long my_read_write_##A(void* ptr, unsigned long size, unsigned long nmemb, void* handle) \
 {                                                                                                        \
-    return RunFunctionFmt(my_context, my_read_write_fct_##A, "pUUp", ptr, size, nmemb, handle);          \
+    return RunFunctionFmt(my_context, my_read_write_fct_##A, "pLLp", ptr, size, nmemb, handle);          \
 }
 SUPER()
 #undef GO

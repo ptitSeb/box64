@@ -206,7 +206,7 @@ static void* findDeferEventFct(void* fct)
 static uintptr_t my_poll_fct_##A = 0;   \
 static int my_poll_##A(void* ufds, unsigned long nfds, int timeout, void* data)         \
 {                                       \
-    return (int)RunFunctionFmt(my_context, my_poll_fct_##A, "pUip", ufds, nfds, timeout, data); \
+    return (int)RunFunctionFmt(my_context, my_poll_fct_##A, "pLip", ufds, nfds, timeout, data); \
 }
 SUPER()
 #undef GO
