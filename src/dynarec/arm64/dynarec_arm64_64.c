@@ -834,6 +834,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             
         case 0xF7:
             nextop = F8;
+            grab_segdata(dyn, addr, ninst, x6, seg);
             switch((nextop>>3)&7) {
                 case 0:
                 case 1:
