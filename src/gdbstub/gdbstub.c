@@ -83,7 +83,7 @@ fail:
 
 static uint8_t ConnGetchar(struct conn_s *conn) {
     static uint8_t c;
-    read(conn->socket_fd, &c, 1);
+    int _ = read(conn->socket_fd, &c, 1);
     return c;
 }
 
@@ -201,17 +201,23 @@ static void GdbStubHandleMemRead(gdbstub_t *stub, char *payload) {
     static char packet[GDBSTUB_MAX_PKT_SIZE] = {0};
     size_t maddr, mlen;
     sscanf(payload, "%lx,%lx", &maddr, &mlen);
- 
+
     for (int i = 0; i < stub->emu->context->elfsize; i++) {
         elfheader_t *h = stub->emu->context->elfs[i];
-        for (int j = 0; j < h->multiblock_n; j++) {
-            if (maddr >= h->multiblock_offs[j] && maddr <= h->multiblock_offs[j]+h->multiblock_size[j]) {
-                memcpy(buf, (void *)maddr, mlen);         
-                HexToStr(buf, packet, mlen);
-                GdbStubSendPkt(stub, packet);
-                return;
+        #define TRY()   \
+            for (int j = 0; j < h->multiblock_n; j++) {                                                         \
+                if (maddr >= h->multiblock_offs[j] && maddr <= h->multiblock_offs[j]+h->multiblock_size[j]) {   \
+                    memcpy(buf, (void *)maddr, mlen);                                                           \
+                    HexToStr(buf, packet, mlen);                                                                \
+                    GdbStubSendPkt(stub, packet);                                                               \
+                    return;                                                                                     \
+                }                                                                                               \
             }
-        }
+        TRY();
+        // Gdb might send us a address before mmap (read from elf file), so add delta try again
+        maddr += h->delta;
+        TRY();
+        #undef TRY
     }
     GdbStubSendPkt(stub, "E14");
 }

@@ -1778,11 +1778,12 @@ int main(int argc, const char **argv, char **env) {
     if (box64_gdbstub) {
         if (box64_dynarec) {
             printf_log(LOG_INFO, "Gdbstub cannot be used with Dynarec, cancelling\n");
+            Run(emu, 0);
         } else {
             printf_log(LOG_INFO, "Starting gdbstub on 0.0.0.0:1234\n");
             GdbStubInit(emu, "0.0.0.0", 1234);
+            RunGdbStub(emu);
         }
-        RunGdbStub(emu);
     } else Run(emu, 0);
     // Get EAX
     int ret = GetEAX(emu);
