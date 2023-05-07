@@ -249,6 +249,21 @@ static void GdbStubHandleSetBp(gdbstub_t *stub, char *payload) {
     printf_log(LOG_DEBUG, "[GDBSTUB] Set breakpoint: %p\n", addr);
 }
 
+static void GdbStubHandleDelBp(gdbstub_t *stub, char *payload) {
+    size_t type, addr, kind;
+    sscanf(payload, "%zx,%zx,%zx", &type, &addr, &kind);
+    addr = GdbStubUnifyAddr(stub, addr);
+    if (type != 0 || addr == 0) {
+        GdbStubSendPkt(stub, "E01");
+        return;
+    }
+    khint64_t k;
+    k = kh_get(bps, stub->bps, addr);
+    kh_del(bps, stub->bps, k);
+    GdbStubSendPkt(stub, "OK");
+    printf_log(LOG_DEBUG, "[GDBSTUB] Delete breakpoint: %p\n", addr);
+}
+
 static gdbstub_action_t GdbStubHandlePkt(gdbstub_t *stub) {
     uint8_t req = stub->pktbuf[0];
     char *payload = (char *)&stub->pktbuf[1];
@@ -278,8 +293,7 @@ static gdbstub_action_t GdbStubHandlePkt(gdbstub_t *stub) {
         GdbStubHandleVCont(stub, payload);
         break;
     case 'z': // delete bp
-        // TODO
-        GdbStubSendPkt(stub, "");
+        GdbStubHandleDelBp(stub, payload);
         break;
     case '?': // why halted?
         GdbStubSendPkt(stub, "S05");
