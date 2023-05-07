@@ -270,7 +270,7 @@ static void sigstack_key_alloc() {
 
 //1<<8 is mutex_dyndump
 #define is_dyndump_locked (1<<8)
-uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
+uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
         va_list va;
@@ -324,8 +324,11 @@ uint64_t RunFunctionHandler(int* exit, x64_ucontext_t* sigcontext, uintptr_t fnc
     int oldquitonlongjmp = emu->quitonlongjmp;
     emu->quitonlongjmp = 2;
     
-    EmuCall(emu, fnc);  // avoid DynaCall for now
-    //DynaCall(emu, fnc);
+    if(dynarec)
+        DynaCall(emu, fnc);
+    else
+        EmuCall(emu, fnc);
+
     if(nargs>6)
         R_RSP+=((nargs-6)*sizeof(void*));
 
@@ -745,10 +748,15 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
 
     int exits = 0;
     int ret;
+    int dynarec = 0;
+    #ifdef DYNAREC
+    if(sig!=SIGSEGV && !(Locks&is_dyndump_locked))
+        dynarec = 1;
+    #endif
     if (simple)
-        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 1, sig);
+        ret = RunFunctionHandler(&exits, dynarec, sigcontext, my_context->signals[sig], 1, sig);
     else
-        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info2, sigcontext);
+        ret = RunFunctionHandler(&exits, dynarec, sigcontext, my_context->signals[sig], 3, sig, info2, sigcontext);
     // restore old value from emu
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
@@ -855,7 +863,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         exit(ret);
     }
     if(restorer)
-        RunFunctionHandler(&exits, NULL, restorer, 0);
+        RunFunctionHandler(&exits, 0, NULL, restorer, 0);
     relockMutex(Locks);
 }
 
