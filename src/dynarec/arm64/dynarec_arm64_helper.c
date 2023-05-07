@@ -1783,11 +1783,11 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
     if(go) {
         if(dyn->f.pending!=SF_PENDING) {
             LDRw_U12(s1, xEmu, offsetof(x64emu_t, df));
-            j64 = (GETMARK3)-(dyn->native_size);
+            j64 = (GETMARKF2)-(dyn->native_size);
             CBZw(s1, j64);
         }
         CALL_(UpdateFlags, -1, 0);
-        MARK3;
+        MARKF2;
     }
 #endif
 }

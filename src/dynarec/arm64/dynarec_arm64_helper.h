@@ -455,17 +455,19 @@
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
 #define CALL_S(F, ret) call_c(dyn, ninst, F, x7, ret, 0, 0)
 
-#define MARK    dyn->insts[ninst].mark = dyn->native_size
-#define GETMARK dyn->insts[ninst].mark
-#define MARK2   dyn->insts[ninst].mark2 = dyn->native_size
-#define GETMARK2 dyn->insts[ninst].mark2
-#define MARK3   dyn->insts[ninst].mark3 = dyn->native_size
-#define GETMARK3 dyn->insts[ninst].mark3
-#define MARKF   dyn->insts[ninst].markf = dyn->native_size
-#define GETMARKF dyn->insts[ninst].markf
-#define MARKSEG dyn->insts[ninst].markseg = dyn->native_size
-#define GETMARKSEG dyn->insts[ninst].markseg
-#define MARKLOCK dyn->insts[ninst].marklock = dyn->native_size
+#define MARK        dyn->insts[ninst].mark = dyn->native_size
+#define GETMARK     dyn->insts[ninst].mark
+#define MARK2       dyn->insts[ninst].mark2 = dyn->native_size
+#define GETMARK2    dyn->insts[ninst].mark2
+#define MARK3       dyn->insts[ninst].mark3 = dyn->native_size
+#define GETMARK3    dyn->insts[ninst].mark3
+#define MARKF       dyn->insts[ninst].markf = dyn->native_size
+#define GETMARKF    dyn->insts[ninst].markf
+#define MARKF2      dyn->insts[ninst].markf2 = dyn->native_size
+#define GETMARKF2   dyn->insts[ninst].markf2
+#define MARKSEG     dyn->insts[ninst].markseg = dyn->native_size
+#define GETMARKSEG  dyn->insts[ninst].markseg
+#define MARKLOCK    dyn->insts[ninst].marklock = dyn->native_size
 #define GETMARKLOCK dyn->insts[ninst].marklock
 
 // Branch to MARK if cond (use j64)
