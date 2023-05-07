@@ -83,6 +83,8 @@ x64emurun:
                 goto fini;
             default: break;
         }
+
+        GdbStubCheckBp(emu->context->gdbstub, addr);
 #else
     while(1) {
 #endif

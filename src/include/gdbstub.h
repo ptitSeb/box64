@@ -18,5 +18,7 @@ typedef struct gdbstub_s gdbstub_t;
 
 bool GdbStubInit(x64emu_t *emu, char *addr_str, int port);
 gdbstub_action_t GdbStubStep(gdbstub_t *stub);
+void GdbStubCheckBp(gdbstub_t *stub, uintptr_t addr);
+void GdbStubDestroy(gdbstub_t *stub);
 
 #endif // __GDBSTUB_H_

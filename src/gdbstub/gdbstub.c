@@ -93,8 +93,29 @@ bool GdbStubInit(x64emu_t *emu, char *addr_str, int port) {
     if (!ConnInit(&emu->context->gdbstub->conn, addr_str, port)) {
         return false;
     }
+    emu->context->gdbstub->bps = kh_init(bps);
 
     return true;
+}
+
+static uintptr_t GdbStubUnifyAddr(gdbstub_t *stub, uintptr_t addr) {
+    for (int i = 0; i < stub->emu->context->elfsize; i++) {
+        elfheader_t *h = stub->emu->context->elfs[i];
+        #define TRY()   \
+            for (int j = 0; j < h->multiblock_n; j++) {                                                     \
+                if (addr >= h->multiblock_offs[j] && addr <= h->multiblock_offs[j]+h->multiblock_size[j]) { \
+                    return addr;                                                                            \
+                }                                                                                           \
+            }
+        TRY();
+        // Gdb might send us a address before mmap (read from elf file),
+        // so add delta try again
+        addr += h->delta;
+        TRY();
+        #undef TRY
+    }
+
+    return 0;
 }
 
 static void GdbStubSendStr(gdbstub_t *stub, char *str)
@@ -202,24 +223,30 @@ static void GdbStubHandleMemRead(gdbstub_t *stub, char *payload) {
     size_t maddr, mlen;
     sscanf(payload, "%lx,%lx", &maddr, &mlen);
 
-    for (int i = 0; i < stub->emu->context->elfsize; i++) {
-        elfheader_t *h = stub->emu->context->elfs[i];
-        #define TRY()   \
-            for (int j = 0; j < h->multiblock_n; j++) {                                                         \
-                if (maddr >= h->multiblock_offs[j] && maddr <= h->multiblock_offs[j]+h->multiblock_size[j]) {   \
-                    memcpy(buf, (void *)maddr, mlen);                                                           \
-                    HexToStr(buf, packet, mlen);                                                                \
-                    GdbStubSendPkt(stub, packet);                                                               \
-                    return;                                                                                     \
-                }                                                                                               \
-            }
-        TRY();
-        // Gdb might send us a address before mmap (read from elf file), so add delta try again
-        maddr += h->delta;
-        TRY();
-        #undef TRY
+    maddr = GdbStubUnifyAddr(stub, maddr);
+    if (maddr) {
+        memcpy(buf, (void *)maddr, mlen);
+        HexToStr(buf, packet, mlen);
+        GdbStubSendPkt(stub, packet);
+    } else {
+        GdbStubSendPkt(stub, "E14");
     }
-    GdbStubSendPkt(stub, "E14");
+}
+
+static void GdbStubHandleSetBp(gdbstub_t *stub, char *payload) {
+    size_t type, addr, kind;
+    sscanf(payload, "%zx,%zx,%zx", &type, &addr, &kind);
+    addr = GdbStubUnifyAddr(stub, addr);
+    if (type != 0 || addr == 0) {
+        GdbStubSendPkt(stub, "E01");
+        return;
+    }
+    int absent;
+    khint64_t k;
+    k = kh_put(bps, stub->bps, addr, &absent);
+    kh_value(stub->bps, k) = true;
+    GdbStubSendPkt(stub, "OK");
+    printf_log(LOG_DEBUG, "[GDBSTUB] Set breakpoint: %p\n", addr);
 }
 
 static gdbstub_action_t GdbStubHandlePkt(gdbstub_t *stub) {
@@ -276,8 +303,7 @@ static gdbstub_action_t GdbStubHandlePkt(gdbstub_t *stub) {
         GdbStubSendPkt(stub, "");
         break;
     case 'Z': // set bp
-        // TODO
-        GdbStubSendPkt(stub, "");
+        GdbStubHandleSetBp(stub, payload);
         break;
     default:
         GdbStubSendPkt(stub, "");
@@ -292,4 +318,17 @@ gdbstub_action_t GdbStubStep(gdbstub_t *stub) {
     if (stub->cont) return GDBSTUB_ACTION_STEP;
     GdbStubRecvPkt(stub);
     return GdbStubHandlePkt(stub);
+}
+
+void GdbStubCheckBp(gdbstub_t *stub, uintptr_t addr) {
+    khint64_t k = kh_get(bps, stub->bps, addr);
+    if (k != kh_end(stub->bps)) {
+        stub->cont = false;
+        printf_log(LOG_DEBUG, "[GDBSTUB] Hit breakpoint: %p\n", addr);
+        GdbStubSendPkt(stub, "S05");
+    }
+}
+
+void GdbStubDestroy(gdbstub_t *stub) {
+    kh_destroy(bps, stub->bps);
 }
