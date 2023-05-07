@@ -109,14 +109,14 @@ GO(11)  \
 GO(12)  \
 GO(13)  \
 GO(14)  \
-GO(15)  
+GO(15)
 
 // wire_to_event
 #define GO(A)   \
 static uintptr_t my_wire_to_event_fct_##A = 0;                      \
 static int my_wire_to_event_##A(void* dpy, void* re, void* event)   \
 {                                                                   \
-    return (int)RunFunction(my_context, my_wire_to_event_fct_##A, 3, dpy, re, event);\
+    return (int)RunFunctionFmt(my_context, my_wire_to_event_fct_##A, "ppp", dpy, re, event);\
 }
 SUPER()
 #undef GO
@@ -149,7 +149,7 @@ static void* reverse_wire_to_eventFct(library_t* lib, void* fct)
 static uintptr_t my_event_to_wire_fct_##A = 0;                      \
 static int my_event_to_wire_##A(void* dpy, void* re, void* event)   \
 {                                                                   \
-    return (int)RunFunction(my_context, my_event_to_wire_fct_##A, 3, dpy, re, event);\
+    return (int)RunFunctionFmt(my_context, my_event_to_wire_fct_##A, "ppp", dpy, re, event);\
 }
 SUPER()
 #undef GO
@@ -182,7 +182,7 @@ static void* reverse_event_to_wireFct(library_t* lib, void* fct)
 static uintptr_t my_error_handler_fct_##A = 0;                      \
 static int my_error_handler_##A(void* dpy, void* error)   \
 {                                                                   \
-    return (int)RunFunction(my_context, my_error_handler_fct_##A, 2, dpy, error);\
+    return (int)RunFunctionFmt(my_context, my_error_handler_fct_##A, "pp", dpy, error);\
 }
 SUPER()
 #undef GO
@@ -215,7 +215,7 @@ static void* reverse_error_handlerFct(library_t* lib, void* fct)
 static uintptr_t my_ioerror_handler_fct_##A = 0;                      \
 static int my_ioerror_handler_##A(void* dpy)   \
 {                                                                   \
-    return (int)RunFunction(my_context, my_ioerror_handler_fct_##A, 1, dpy);\
+    return (int)RunFunctionFmt(my_context, my_ioerror_handler_fct_##A, "p", dpy);\
 }
 SUPER()
 #undef GO
@@ -248,7 +248,7 @@ static void* reverse_ioerror_handlerFct(library_t* lib, void* fct)
 static uintptr_t my_exterror_handler_fct_##A = 0;                      \
 static int my_exterror_handler_##A(void* dpy, void* err, void* codes, int* ret_code)   \
 {                                                                   \
-    return (int)RunFunction(my_context, my_exterror_handler_fct_##A, 4, dpy, err, codes, ret_code);\
+    return (int)RunFunctionFmt(my_context, my_exterror_handler_fct_##A, "pppp", dpy, err, codes, ret_code);\
 }
 SUPER()
 #undef GO
@@ -281,7 +281,7 @@ static void* reverse_exterror_handlerFct(library_t* lib, void* fct)
 static uintptr_t my_close_display_fct_##A = 0;                      \
 static int my_close_display_##A(void* dpy, void* codes)   \
 {                                                                   \
-    return (int)RunFunction(my_context, my_close_display_fct_##A, 2, dpy, codes);\
+    return (int)RunFunctionFmt(my_context, my_close_display_fct_##A, "pp", dpy, codes);\
 }
 SUPER()
 #undef GO
@@ -314,7 +314,7 @@ static void* reverse_close_displayFct(library_t* lib, void* fct)
 static uintptr_t my_register_im_fct_##A = 0;                        \
 static void my_register_im_##A(void* dpy, void* u, void* d)         \
 {                                                                   \
-    RunFunction(my_context, my_register_im_fct_##A, 3, dpy, u, d);  \
+    RunFunctionFmt(my_context, my_register_im_fct_##A, "ppp", dpy, u, d);  \
 }
 SUPER()
 #undef GO
@@ -347,7 +347,7 @@ static void* reverse_register_imFct(library_t* lib, void* fct)
 static uintptr_t my_XConnectionWatchProc_fct_##A = 0;                               \
 static void my_XConnectionWatchProc_##A(void* dpy, void* data, int op, void* d)     \
 {                                                                                   \
-    RunFunction(my_context, my_XConnectionWatchProc_fct_##A, 4, dpy, data, op, d);  \
+    RunFunctionFmt(my_context, my_XConnectionWatchProc_fct_##A, "ppip", dpy, data, op, d);  \
 }
 SUPER()
 #undef GO
@@ -369,7 +369,7 @@ static void* findXConnectionWatchProcFct(void* fct)
 static uintptr_t my_xifevent_fct_##A = 0;                                   \
 static int my_xifevent_##A(void* dpy, void* event, void* d)                 \
 {                                                                           \
-    return RunFunction(my_context, my_xifevent_fct_##A, 3, dpy, event, d);  \
+    return RunFunctionFmt(my_context, my_xifevent_fct_##A, "ppp", dpy, event, d);  \
 }
 SUPER()
 #undef GO
@@ -391,7 +391,7 @@ static void* findxifeventFct(void* fct)
 static uintptr_t my_XInternalAsyncHandler_fct_##A = 0;                                              \
 static int my_XInternalAsyncHandler_##A(void* dpy, void* rep, void* buf, int len, void* data)       \
 {                                                                                                   \
-    return RunFunction(my_context, my_XInternalAsyncHandler_fct_##A, 5, dpy, rep, buf, len, data);  \
+    return RunFunctionFmt(my_context, my_XInternalAsyncHandler_fct_##A, "pppip", dpy, rep, buf, len, data);  \
 }
 SUPER()
 #undef GO
@@ -414,7 +414,7 @@ static void* findXInternalAsyncHandlerFct(void* fct)
 static uintptr_t my_XSynchronizeProc_fct_##A = 0;                       \
 static int my_XSynchronizeProc_##A()                                    \
 {                                                                       \
-    return (int)RunFunction(my_context, my_XSynchronizeProc_fct_##A, 0);\
+    return (int)RunFunctionFmt(my_context, my_XSynchronizeProc_fct_##A, "");\
 }
 SUPER()
 #undef GO
@@ -447,7 +447,7 @@ static void* reverse_XSynchronizeProcFct(library_t* lib, void* fct)
 static uintptr_t my_XLockDisplay_fct_##A = 0;                   \
 static void my_XLockDisplay_##A(void* dpy)                      \
 {                                                               \
-    RunFunction(my_context, my_XLockDisplay_fct_##A, 1, dpy);   \
+    RunFunctionFmt(my_context, my_XLockDisplay_fct_##A, "p", dpy);   \
 }
 SUPER()
 #undef GO
@@ -469,7 +469,7 @@ static void* findXLockDisplayFct(void* fct)
 static uintptr_t my_XUnlockDisplay_fct_##A = 0;                 \
 static void my_XUnlockDisplay_##A(void* dpy)                    \
 {                                                               \
-    RunFunction(my_context, my_XUnlockDisplay_fct_##A, 1, dpy); \
+    RunFunctionFmt(my_context, my_XUnlockDisplay_fct_##A, "p", dpy); \
 }
 SUPER()
 #undef GO
@@ -556,14 +556,14 @@ static int my_XICProc_##A(void* a, void* b, void* c)                        \
 {                                                                           \
     if (my_XICProc_fct_##A == 0)                                            \
         printf_log(LOG_NONE, "%s cannot find XICProc callback\n", __func__);\
-    return (int)RunFunction(my_context, my_XICProc_fct_##A, 3, a, b, c);    \
+    return (int)RunFunctionFmt(my_context, my_XICProc_fct_##A, "ppp", a, b, c);    \
 }                                                                           \
 static uintptr_t my_XIMProc_fct_##A = 0;                                    \
 static void my_XIMProc_##A(void* a, void* b, void* c)                       \
 {                                                                           \
     if (my_XIMProc_fct_##A == 0)                                            \
         printf_log(LOG_NONE, "%s cannot find XIMProc callback\n", __func__);\
-    RunFunction(my_context, my_XIMProc_fct_##A, 3, a, b, c);                \
+    RunFunctionFmt(my_context, my_XIMProc_fct_##A, "ppp", a, b, c);                \
 }
 SUPER()
 #undef GO
@@ -666,7 +666,7 @@ EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, uintptr_t* va) {
         SUPER()
     }
 
-    void* res = NULL; 
+    void* res = NULL;
     VA_CALL(my->XSetICValues, xic, new_va, n, res);
     box_free(new_va);
     box_free(callbacks);
@@ -695,7 +695,7 @@ EXPORT void* my_XSetIMValues(x64emu_t* emu, void* xim, uintptr_t* va) {
         SUPER()
     }
     #undef GO
-    
+
     void* res = NULL;
     VA_CALL(my->XSetIMValues, xim, new_va, n, res)
     box_free(new_va);
@@ -792,7 +792,7 @@ void UnbridgeImageFunc(x64emu_t *emu, XImage *img)
 
 void sub_image_wrapper(x64emu_t *emu, uintptr_t fnc)
 {
-    pFpiiuu_t fn = (pFpiiuu_t)fnc; 
+    pFpiiuu_t fn = (pFpiiuu_t)fnc;
     void* img = fn(*(void**)(R_RDI), *(int32_t*)(R_RSI), *(int32_t*)(R_RDX), *(uint32_t*)(R_RCX), *(uint32_t*)(R_R8));
     BridgeImageFunc(emu, (XImage*)img);
     R_EAX=(uintptr_t)img;
@@ -903,7 +903,7 @@ EXPORT int my_XRegisterIMInstantiateCallback(x64emu_t* emu, void* d, void* db, v
 {
     return my->XRegisterIMInstantiateCallback(d, db, res_name, res_class, findregister_imFct(cb), data);
 }
-    
+
 EXPORT int my_XUnregisterIMInstantiateCallback(x64emu_t* emu, void* d, void* db, void* res_name, void* res_class, void* cb, void* data)
 {
     return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, reverse_register_imFct(my_lib, cb), data);

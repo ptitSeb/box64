@@ -34,10 +34,10 @@ GO(4)
 
 // Start ...
 #define GO(A)   \
-static uintptr_t my_Start_fct_##A = 0;                                              \
-static void* my_Start_##A(void* data, void* name, void* attr)                       \
-{                                                                                   \
-    return (void*)RunFunction(my_context, my_Start_fct_##A, 3, data, name, attr);   \
+static uintptr_t my_Start_fct_##A = 0;                                                      \
+static void* my_Start_##A(void* data, void* name, void* attr)                               \
+{                                                                                           \
+    return (void*)RunFunctionFmt(my_context, my_Start_fct_##A, "ppp", data, name, attr);    \
 }
 SUPER()
 #undef GO
@@ -56,10 +56,10 @@ static void* find_Start_Fct(void* fct)
 }
 // End ...
 #define GO(A)   \
-static uintptr_t my_End_fct_##A = 0;                       \
-static void my_End_##A(void* data, void* name)             \
-{                                                          \
-    RunFunction(my_context, my_End_fct_##A, 2, data, name);\
+static uintptr_t my_End_fct_##A = 0;                                \
+static void my_End_##A(void* data, void* name)                      \
+{                                                                   \
+    RunFunctionFmt(my_context, my_End_fct_##A, "pp", data, name);   \
 }
 SUPER()
 #undef GO
@@ -78,10 +78,10 @@ static void* find_End_Fct(void* fct)
 }
 // CharData ...
 #define GO(A)   \
-static uintptr_t my_CharData_fct_##A = 0;                       \
-static void my_CharData_##A(void* data, void* s, int l)         \
-{                                                               \
-    RunFunction(my_context, my_CharData_fct_##A, 3, data, s, l);\
+static uintptr_t my_CharData_fct_##A = 0;                               \
+static void my_CharData_##A(void* data, void* s, int l)                 \
+{                                                                       \
+    RunFunctionFmt(my_context, my_CharData_fct_##A, "ppi", data, s, l); \
 }
 SUPER()
 #undef GO
@@ -100,10 +100,10 @@ static void* find_CharData_Fct(void* fct)
 }
 // StartNamespaceDecl ...
 #define GO(A)   \
-static uintptr_t my_StartNamespaceDecl_fct_##A = 0;                                 \
-static void my_StartNamespaceDecl_##A(void* data, void* name, void* attr)           \
-{                                                                               \
-    RunFunction(my_context, my_StartNamespaceDecl_fct_##A, 3, data, name, attr);    \
+static uintptr_t my_StartNamespaceDecl_fct_##A = 0;                                     \
+static void my_StartNamespaceDecl_##A(void* data, void* name, void* attr)               \
+{                                                                                       \
+    RunFunctionFmt(my_context, my_StartNamespaceDecl_fct_##A, "ppp", data, name, attr); \
 }
 SUPER()
 #undef GO
@@ -122,10 +122,10 @@ static void* find_StartNamespaceDecl_Fct(void* fct)
 }
 // EndNamespaceDecl ...
 #define GO(A)   \
-static uintptr_t my_EndNamespaceDecl_fct_##A = 0;                       \
-static void my_EndNamespaceDecl_##A(void* data, void* name)             \
-{                                                          \
-    RunFunction(my_context, my_EndNamespaceDecl_fct_##A, 2, data, name);\
+static uintptr_t my_EndNamespaceDecl_fct_##A = 0;                               \
+static void my_EndNamespaceDecl_##A(void* data, void* name)                     \
+{                                                                               \
+    RunFunctionFmt(my_context, my_EndNamespaceDecl_fct_##A, "pp", data, name);  \
 }
 SUPER()
 #undef GO
@@ -144,10 +144,10 @@ static void* find_EndNamespaceDecl_Fct(void* fct)
 }
 // StartElement ...
 #define GO(A)   \
-static uintptr_t my_StartElement_fct_##A = 0;                                 \
-static void my_StartElement_##A(void* data, void* name, void* attr)           \
-{                                                                               \
-    RunFunction(my_context, my_StartElement_fct_##A, 3, data, name, attr);    \
+static uintptr_t my_StartElement_fct_##A = 0;                                       \
+static void my_StartElement_##A(void* data, void* name, void* attr)                 \
+{                                                                                   \
+    RunFunctionFmt(my_context, my_StartElement_fct_##A, "ppp", data, name, attr);   \
 }
 SUPER()
 #undef GO
@@ -166,10 +166,10 @@ static void* find_StartElement_Fct(void* fct)
 }
 // EndElement ...
 #define GO(A)   \
-static uintptr_t my_EndElement_fct_##A = 0;                       \
-static void my_EndElement_##A(void* data, void* name)             \
-{                                                          \
-    RunFunction(my_context, my_EndElement_fct_##A, 2, data, name);\
+static uintptr_t my_EndElement_fct_##A = 0;                                 \
+static void my_EndElement_##A(void* data, void* name)                       \
+{                                                                           \
+    RunFunctionFmt(my_context, my_EndElement_fct_##A, "pp", data, name);    \
 }
 SUPER()
 #undef GO
@@ -188,10 +188,10 @@ static void* find_EndElement_Fct(void* fct)
 }
 // CharacterData ...
 #define GO(A)   \
-static uintptr_t my_CharacterData_fct_##A = 0;                              \
-static void my_CharacterData_##A(void* data, void* name, int len)           \
-{                                                                           \
-    RunFunction(my_context, my_CharacterData_fct_##A, 3, data, name, len);  \
+static uintptr_t my_CharacterData_fct_##A = 0;                                    \
+static void my_CharacterData_##A(void* data, void* name, int len)                 \
+{                                                                                 \
+    RunFunctionFmt(my_context, my_CharacterData_fct_##A, "ppi", data, name, len); \
 }
 SUPER()
 #undef GO
@@ -210,10 +210,10 @@ static void* find_CharacterData_Fct(void* fct)
 }
 // ProcessingInstruction ...
 #define GO(A)   \
-static uintptr_t my_ProcessingInstruction_fct_##A = 0;                      \
-static void my_ProcessingInstruction_##A(void* a, void* b, void* c)         \
-{                                                                           \
-    RunFunction(my_context, my_ProcessingInstruction_fct_##A, 3, a, b, c);  \
+static uintptr_t my_ProcessingInstruction_fct_##A = 0;                            \
+static void my_ProcessingInstruction_##A(void* a, void* b, void* c)               \
+{                                                                                 \
+    RunFunctionFmt(my_context, my_ProcessingInstruction_fct_##A, "ppp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -232,10 +232,10 @@ static void* find_ProcessingInstruction_Fct(void* fct)
 }
 // Comment ...
 #define GO(A)   \
-static uintptr_t my_Comment_fct_##A = 0;                    \
-static void my_Comment_##A(void* a, void* b)                \
-{                                                           \
-    RunFunction(my_context, my_Comment_fct_##A, 2, a, b);   \
+static uintptr_t my_Comment_fct_##A = 0;                        \
+static void my_Comment_##A(void* a, void* b)                    \
+{                                                               \
+    RunFunctionFmt(my_context, my_Comment_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -254,10 +254,10 @@ static void* find_Comment_Fct(void* fct)
 }
 // StartCdataSection ...
 #define GO(A)   \
-static uintptr_t my_StartCdataSection_fct_##A = 0;                     \
-static void my_StartCdataSection_##A(void* data)                       \
-{                                                                      \
-    RunFunction(my_context, my_StartCdataSection_fct_##A, 1, data);    \
+static uintptr_t my_StartCdataSection_fct_##A = 0;                       \
+static void my_StartCdataSection_##A(void* data)                         \
+{                                                                        \
+    RunFunctionFmt(my_context, my_StartCdataSection_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO
@@ -276,10 +276,10 @@ static void* find_StartCdataSection_Fct(void* fct)
 }
 // EndCdataSection ...
 #define GO(A)   \
-static uintptr_t my_EndCdataSection_fct_##A = 0;                   \
-static void my_EndCdataSection_##A(void* data)                     \
-{                                                                  \
-    RunFunction(my_context, my_EndCdataSection_fct_##A, 1, data);  \
+static uintptr_t my_EndCdataSection_fct_##A = 0;                       \
+static void my_EndCdataSection_##A(void* data)                         \
+{                                                                      \
+    RunFunctionFmt(my_context, my_EndCdataSection_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO
@@ -298,10 +298,10 @@ static void* find_EndCdataSection_Fct(void* fct)
 }
 // Default ...
 #define GO(A)   \
-static uintptr_t my_Default_fct_##A = 0;                              \
-static void my_Default_##A(void* data, void* name, int len)           \
-{                                                                     \
-    RunFunction(my_context, my_Default_fct_##A, 3, data, name, len);  \
+static uintptr_t my_Default_fct_##A = 0;                                    \
+static void my_Default_##A(void* data, void* name, int len)                 \
+{                                                                           \
+    RunFunctionFmt(my_context, my_Default_fct_##A, "ppi", data, name, len); \
 }
 SUPER()
 #undef GO
@@ -320,10 +320,10 @@ static void* find_Default_Fct(void* fct)
 }
 // StartDoctypeDecl ...
 #define GO(A)   \
-static uintptr_t my_StartDoctypeDecl_fct_##A = 0;                               \
-static void my_StartDoctypeDecl_##A(void* a, void* b, void* c, void* d, int e)  \
-{                                                                               \
-    RunFunction(my_context, my_StartDoctypeDecl_fct_##A, 5, a, b, c, d, e);     \
+static uintptr_t my_StartDoctypeDecl_fct_##A = 0;                                    \
+static void my_StartDoctypeDecl_##A(void* a, void* b, void* c, void* d, int e)       \
+{                                                                                    \
+    RunFunctionFmt(my_context, my_StartDoctypeDecl_fct_##A, "ppppi", a, b, c, d, e); \
 }
 SUPER()
 #undef GO
@@ -342,10 +342,10 @@ static void* find_StartDoctypeDecl_Fct(void* fct)
 }
 // EndDoctypeDecl ...
 #define GO(A)   \
-static uintptr_t my_EndDoctypeDecl_fct_##A = 0;                     \
-static void my_EndDoctypeDecl_##A(void* data)                       \
-{                                                                   \
-    RunFunction(my_context, my_EndDoctypeDecl_fct_##A, 1, data);    \
+static uintptr_t my_EndDoctypeDecl_fct_##A = 0;                       \
+static void my_EndDoctypeDecl_##A(void* data)                         \
+{                                                                     \
+    RunFunctionFmt(my_context, my_EndDoctypeDecl_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO
@@ -364,10 +364,10 @@ static void* find_EndDoctypeDecl_Fct(void* fct)
 }
 // EntityDecl ...
 #define GO(A)   \
-static uintptr_t my_EntityDecl_fct_##A = 0;                                                                 \
-static void my_EntityDecl_##A(void* a, void* b, int c, void* d, int e, void* f, void* g, void* h, void* i)  \
-{                                                                                                           \
-    RunFunction(my_context, my_EntityDecl_fct_##A, 9, a, b, c, d, e, f, g, h, i);                           \
+static uintptr_t my_EntityDecl_fct_##A = 0;                                                                \
+static void my_EntityDecl_##A(void* a, void* b, int c, void* d, int e, void* f, void* g, void* h, void* i) \
+{                                                                                                          \
+    RunFunctionFmt(my_context, my_EntityDecl_fct_##A, "ppipipppp", a, b, c, d, e, f, g, h, i);             \
 }
 SUPER()
 #undef GO
@@ -386,10 +386,10 @@ static void* find_EntityDecl_Fct(void* fct)
 }
 // ElementDecl ...
 #define GO(A)   \
-static uintptr_t my_ElementDecl_fct_##A = 0;                        \
-static void my_ElementDecl_##A(void* a, void* b, void* c)           \
-{                                                                   \
-    RunFunction(my_context, my_ElementDecl_fct_##A, 3, a, b, c);    \
+static uintptr_t my_ElementDecl_fct_##A = 0;                            \
+static void my_ElementDecl_##A(void* a, void* b, void* c)               \
+{                                                                       \
+    RunFunctionFmt(my_context, my_ElementDecl_fct_##A, "ppp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -408,10 +408,10 @@ static void* find_ElementDecl_Fct(void* fct)
 }
 // UnknownEncoding ...
 #define GO(A)   \
-static uintptr_t my_UnknownEncoding_fct_##A = 0;                                    \
-static int my_UnknownEncoding_##A(void* a, void* b, void* c)                        \
-{                                                                                   \
-    return (int)RunFunction(my_context, my_UnknownEncoding_fct_##A, 3, a, b, c);    \
+static uintptr_t my_UnknownEncoding_fct_##A = 0;                                        \
+static int my_UnknownEncoding_##A(void* a, void* b, void* c)                            \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_context, my_UnknownEncoding_fct_##A, "ppp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -433,7 +433,7 @@ static void* find_UnknownEncoding_Fct(void* fct)
 static uintptr_t my_UnparsedEntityDecl_fct_##A = 0;                                         \
 static void my_UnparsedEntityDecl_##A(void* a, void* b, void* c, void* d, void* e, void* f) \
 {                                                                                           \
-    RunFunction(my_context, my_UnparsedEntityDecl_fct_##A, 6, a, b, c, d, e, f);            \
+    RunFunctionFmt(my_context, my_UnparsedEntityDecl_fct_##A, "pppppp", a, b, c, d, e, f);  \
 }
 SUPER()
 #undef GO
@@ -452,10 +452,10 @@ static void* find_UnparsedEntityDecl_Fct(void* fct)
 }
 // NotationDecl ...
 #define GO(A)   \
-static uintptr_t my_NotationDecl_fct_##A = 0;                                   \
-static void my_NotationDecl_##A(void* a, void* b, void* c, void* d, void* e)    \
-{                                                                               \
-    RunFunction(my_context, my_NotationDecl_fct_##A, 5, a, b, c, d, e);         \
+static uintptr_t my_NotationDecl_fct_##A = 0;                                    \
+static void my_NotationDecl_##A(void* a, void* b, void* c, void* d, void* e)     \
+{                                                                                \
+    RunFunctionFmt(my_context, my_NotationDecl_fct_##A, "ppppp", a, b, c, d, e); \
 }
 SUPER()
 #undef GO
@@ -474,10 +474,10 @@ static void* find_NotationDecl_Fct(void* fct)
 }
 // NotStandalone ...
 #define GO(A)   \
-static uintptr_t my_NotStandalone_fct_##A = 0;                              \
-static int my_NotStandalone_##A(void* data)                                 \
-{                                                                           \
-    return (int)RunFunction(my_context, my_NotStandalone_fct_##A, 1, data); \
+static uintptr_t my_NotStandalone_fct_##A = 0;                                   \
+static int my_NotStandalone_##A(void* data)                                      \
+{                                                                                \
+    return (int)RunFunctionFmt(my_context, my_NotStandalone_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO
@@ -496,10 +496,10 @@ static void* find_NotStandalone_Fct(void* fct)
 }
 // ExternalEntityRef ...
 #define GO(A)   \
-static uintptr_t my_ExternalEntityRef_fct_##A = 0;                                          \
-static int my_ExternalEntityRef_##A(void* a, void* b, void* c, void* d, void* e)            \
-{                                                                                           \
-    return (int)RunFunction(my_context, my_ExternalEntityRef_fct_##A, 5, a, b, c, d, e);    \
+static uintptr_t my_ExternalEntityRef_fct_##A = 0;                                                \
+static int my_ExternalEntityRef_##A(void* a, void* b, void* c, void* d, void* e)                  \
+{                                                                                                 \
+    return (int)RunFunctionFmt(my_context, my_ExternalEntityRef_fct_##A, "ppppp", a, b, c, d, e); \
 }
 SUPER()
 #undef GO
@@ -518,10 +518,10 @@ static void* find_ExternalEntityRef_Fct(void* fct)
 }
 // XmlDecl ...
 #define GO(A)   \
-static uintptr_t my_XmlDecl_fct_##A = 0;                        \
-static void my_XmlDecl_##A(void* a, void* b, void* c, int d)    \
-{                                                               \
-    RunFunction(my_context, my_XmlDecl_fct_##A, 4, a, b, c, d); \
+static uintptr_t my_XmlDecl_fct_##A = 0;                                \
+static void my_XmlDecl_##A(void* a, void* b, void* c, int d)            \
+{                                                                       \
+    RunFunctionFmt(my_context, my_XmlDecl_fct_##A, "pppi", a, b, c, d); \
 }
 SUPER()
 #undef GO
@@ -543,7 +543,7 @@ static void* find_XmlDecl_Fct(void* fct)
 static uintptr_t my_AttlistDecl_fct_##A = 0;                                        \
 static void my_AttlistDecl_##A(void* a, void* b, void* c, void* d, void* e, int f)  \
 {                                                                                   \
-    RunFunction(my_context, my_AttlistDecl_fct_##A, 6, a, b, c, d, e, f);           \
+    RunFunctionFmt(my_context, my_AttlistDecl_fct_##A, "pppppi", a, b, c, d, e, f); \
 }
 SUPER()
 #undef GO
@@ -562,10 +562,10 @@ static void* find_AttlistDecl_Fct(void* fct)
 }
 // SkippedEntity ...
 #define GO(A)   \
-static uintptr_t my_SkippedEntity_fct_##A = 0;                      \
-static void my_SkippedEntity_##A(void* a, void* b, int c)           \
-{                                                                   \
-    RunFunction(my_context, my_SkippedEntity_fct_##A, 3, a, b, c);  \
+static uintptr_t my_SkippedEntity_fct_##A = 0;                            \
+static void my_SkippedEntity_##A(void* a, void* b, int c)                 \
+{                                                                         \
+    RunFunctionFmt(my_context, my_SkippedEntity_fct_##A, "ppi", a, b, c); \
 }
 SUPER()
 #undef GO

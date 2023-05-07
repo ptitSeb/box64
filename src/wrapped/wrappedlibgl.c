@@ -23,7 +23,7 @@ static library_t* my_lib = NULL;
 
 // FIXME: old wrapped* type of file, cannot use generated/wrappedlibgltypes.h
 
-EXPORT void* my_glXGetProcAddress(x64emu_t* emu, void* name) 
+EXPORT void* my_glXGetProcAddress(x64emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
@@ -58,7 +58,7 @@ GO(4)
 static uintptr_t my_debug_callback_fct_##A = 0;                                                                         \
 static void my_debug_callback_##A(int32_t a, int32_t b, uint32_t c, int32_t d, int32_t e, const char* f, const void* g) \
 {                                                                                                                       \
-    RunFunction(my_context, my_debug_callback_fct_##A, 7, a, b, c, d, e, f, g);                                         \
+    RunFunctionFmt(my_context, my_debug_callback_fct_##A, "iiuiipp", a, b, c, d, e, f, g);                                         \
 }
 SUPER()
 #undef GO
@@ -80,7 +80,7 @@ static void* find_debug_callback_Fct(void* fct)
 static uintptr_t my_program_callback_fct_##A = 0;                   \
 static void my_program_callback_##A(int32_t a, void* b)             \
 {                                                                   \
-    RunFunction(my_context, my_program_callback_fct_##A, 2, a, b);  \
+    RunFunctionFmt(my_context, my_program_callback_fct_##A, "ip", a, b);  \
 }
 SUPER()
 #undef GO
@@ -359,7 +359,7 @@ void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rnam
         }
         #undef GO
         #undef SUPER
-    } else 
+    } else
         symbol = procaddr(rname);
     if(!symbol) {
         printf_dlsym(LOG_DEBUG, "%p\n", NULL);
@@ -371,7 +371,7 @@ void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rnam
         printf_dlsym(LOG_DEBUG, "%p\n", (void*)ret);
         return (void*)ret; // already bridged
     }
-    // get wrapper    
+    // get wrapper
     k = kh_get(symbolmap, wrappers->glwrappers, rname);
     if(k==kh_end(wrappers->glwrappers) && strstr(rname, "ARB")==NULL) {
         // try again, adding ARB at the end if not present

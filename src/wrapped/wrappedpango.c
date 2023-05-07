@@ -46,17 +46,17 @@ static my_PangoAttrClass_t my_PangoAttrClass_struct_##A = {0};  \
 static uintptr_t my_PangoAttrClass_copy_##A = 0;                \
 static void* my_PangoAttrClass_copyfct##A(void* attr)           \
 {                                                               \
-    return (void*)RunFunction(my_context, my_PangoAttrClass_copy_##A, 1, attr);  \
+    return (void*)RunFunctionFmt(my_context, my_PangoAttrClass_copy_##A, "p", attr);  \
 }                                                               \
 static uintptr_t my_PangoAttrClass_del_##A = 0;                 \
 static void my_PangoAttrClass_delfct##A(void* attr)             \
 {                                                               \
-    RunFunction(my_context, my_PangoAttrClass_del_##A, 1, attr);\
+    RunFunctionFmt(my_context, my_PangoAttrClass_del_##A, "p", attr);\
 }                                                               \
 static uintptr_t my_PangoAttrClass_equal_##A = 0;               \
 static int my_PangoAttrClass_equalfct##A(void* a, void* b)      \
 {                                                               \
-    return (int)RunFunction(my_context, my_PangoAttrClass_equal_##A, 2, a, b);\
+    return (int)RunFunctionFmt(my_context, my_PangoAttrClass_equal_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO

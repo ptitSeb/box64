@@ -24,7 +24,7 @@
 #include <poll.h>
 #include <sys/epoll.h>
 #include <ftw.h>
-#include <sys/syscall.h> 
+#include <sys/syscall.h>
 #include <sys/socket.h>
 #include <sys/utsname.h>
 #include <sys/mman.h>
@@ -131,10 +131,10 @@ GO(15)
 
 // compare
 #define GO(A)   \
-static uintptr_t my_compare_fct_##A = 0;        \
-static int my_compare_##A(void* a, void* b)     \
-{                                               \
-    return (int)RunFunction(my_context, my_compare_fct_##A, 2, a, b);\
+static uintptr_t my_compare_fct_##A = 0;                                    \
+static int my_compare_##A(void* a, void* b)                                 \
+{                                                                           \
+    return (int)RunFunctionFmt(my_context, my_compare_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -160,7 +160,7 @@ static int my_ftw64_##A(void* fpath, void* sb, int flag)    \
 {                                                           \
     struct x64_stat64 x64st;                                \
     UnalignStat64(sb, &x64st);                              \
-    return (int)RunFunction(my_context, my_ftw64_fct_##A, 3, fpath, &x64st, flag);  \
+    return (int)RunFunctionFmt(my_context, my_ftw64_fct_##A, "ppi", fpath, &x64st, flag);   \
 }
 SUPER()
 #undef GO
@@ -182,9 +182,9 @@ static void* findftw64Fct(void* fct)
 static uintptr_t my_nftw64_fct_##A = 0;                                     \
 static int my_nftw64_##A(void* fpath, void* sb, int flag, void* ftwbuff)    \
 {                                                                           \
-    struct x64_stat64 x64st;                                              \
-    UnalignStat64(sb, &x64st);                                             \
-    return (int)RunFunction(my_context, my_nftw64_fct_##A, 4, fpath, &x64st, flag, ftwbuff);   \
+    struct x64_stat64 x64st;                                                \
+    UnalignStat64(sb, &x64st);                                              \
+    return (int)RunFunctionFmt(my_context, my_nftw64_fct_##A, "ppip", fpath, &x64st, flag, ftwbuff);    \
 }
 SUPER()
 #undef GO
@@ -202,10 +202,10 @@ static void* findnftw64Fct(void* fct)
 }
 // globerr
 #define GO(A)   \
-static uintptr_t my_globerr_fct_##A = 0;                                        \
-static int my_globerr_##A(void* epath, int eerrno)                              \
-{                                                                               \
-    return (int)RunFunction(my_context, my_globerr_fct_##A, 2, epath, eerrno);  \
+static uintptr_t my_globerr_fct_##A = 0;                                                \
+static int my_globerr_##A(void* epath, int eerrno)                                      \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_context, my_globerr_fct_##A, "pi", epath, eerrno);    \
 }
 SUPER()
 #undef GO
@@ -225,10 +225,10 @@ static void* findgloberrFct(void* fct)
 }
 // free
 #define GO(A)   \
-static uintptr_t my_free_fct_##A = 0;               \
-static void my_free_##A(void* p)                    \
-{                                                   \
-    RunFunction(my_context, my_free_fct_##A, 1, p); \
+static uintptr_t my_free_fct_##A = 0;                       \
+static void my_free_##A(void* p)                            \
+{                                                           \
+    RunFunctionFmt(my_context, my_free_fct_##A, "p", p);    \
 }
 SUPER()
 #undef GO
@@ -251,10 +251,10 @@ static void* findfreeFct(void* fct)
 #undef dirent
 // filter_dir
 #define GO(A)   \
-static uintptr_t my_filter_dir_fct_##A = 0;                               \
-static int my_filter_dir_##A(const struct dirent* a)                    \
-{                                                                       \
-    return (int)RunFunction(my_context, my_filter_dir_fct_##A, 1, a);     \
+static uintptr_t my_filter_dir_fct_##A = 0;                                 \
+static int my_filter_dir_##A(const struct dirent* a)                        \
+{                                                                           \
+    return (int)RunFunctionFmt(my_context, my_filter_dir_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -274,10 +274,10 @@ static void* findfilter_dirFct(void* fct)
 }
 // compare_dir
 #define GO(A)   \
-static uintptr_t my_compare_dir_fct_##A = 0;                                  \
-static int my_compare_dir_##A(const struct dirent* a, const struct dirent* b)    \
-{                                                                           \
-    return (int)RunFunction(my_context, my_compare_dir_fct_##A, 2, a, b);     \
+static uintptr_t my_compare_dir_fct_##A = 0;                                    \
+static int my_compare_dir_##A(const struct dirent* a, const struct dirent* b)   \
+{                                                                               \
+    return (int)RunFunctionFmt(my_context, my_compare_dir_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -299,10 +299,10 @@ static void* findcompare_dirFct(void* fct)
 
 // filter64
 #define GO(A)   \
-static uintptr_t my_filter64_fct_##A = 0;                               \
-static int my_filter64_##A(const struct dirent64* a)                    \
-{                                                                       \
-    return (int)RunFunction(my_context, my_filter64_fct_##A, 1, a);     \
+static uintptr_t my_filter64_fct_##A = 0;                                   \
+static int my_filter64_##A(const struct dirent64* a)                        \
+{                                                                           \
+    return (int)RunFunctionFmt(my_context, my_filter64_fct_##A, "p", a);    \
 }
 SUPER()
 #undef GO
@@ -325,7 +325,7 @@ static void* findfilter64Fct(void* fct)
 static uintptr_t my_compare64_fct_##A = 0;                                      \
 static int my_compare64_##A(const struct dirent64* a, const struct dirent64* b) \
 {                                                                               \
-    return (int)RunFunction(my_context, my_compare64_fct_##A, 2, a, b);         \
+    return (int)RunFunctionFmt(my_context, my_compare64_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -345,10 +345,10 @@ static void* findcompare64Fct(void* fct)
 }
 // printf_output
 #define GO(A)   \
-static uintptr_t my_printf_output_fct_##A = 0;                                  \
-static int my_printf_output_##A(void* a, void* b, void* c)                      \
-{                                                                               \
-    return (int)RunFunction(my_context, my_printf_output_fct_##A, 3, a, b, c);  \
+static uintptr_t my_printf_output_fct_##A = 0;                                          \
+static int my_printf_output_##A(void* a, void* b, void* c)                              \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_context, my_printf_output_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -368,10 +368,10 @@ static void* findprintf_outputFct(void* fct)
 }
 // printf_arginfo
 #define GO(A)   \
-static uintptr_t my_printf_arginfo_fct_##A = 0;                                     \
-static int my_printf_arginfo_##A(void* a, size_t b, void* c, void* d)               \
-{                                                                                   \
-    return (int)RunFunction(my_context, my_printf_arginfo_fct_##A, 4, a, b, c, d);  \
+static uintptr_t my_printf_arginfo_fct_##A = 0;                                             \
+static int my_printf_arginfo_##A(void* a, size_t b, void* c, void* d)                       \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_printf_arginfo_fct_##A, "pLpp", a, b, c, d);  \
 }
 SUPER()
 #undef GO
@@ -391,10 +391,10 @@ static void* findprintf_arginfoFct(void* fct)
 }
 // printf_type
 #define GO(A)   \
-static uintptr_t my_printf_type_fct_##A = 0;                   \
-static void my_printf_type_##A(void* a, va_list* b)            \
-{                                                              \
-    RunFunction(my_context, my_printf_type_fct_##A, 2, a, b);  \
+static uintptr_t my_printf_type_fct_##A = 0;                        \
+static void my_printf_type_##A(void* a, va_list* b)                 \
+{                                                                   \
+    RunFunctionFmt(my_context, my_printf_type_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -416,8 +416,8 @@ static void* findprintf_typeFct(void* fct)
 #undef SUPER
 
 // some my_XXX declare and defines
-int32_t my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), 
-    int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), 
+int32_t my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *),
+    int argc, char * * ubp_av, void (*init) (void), void (*fini) (void),
     void (*rtld_fini) (void), void (* stack_end)); // implemented in x64run_private.c
 EXPORT void my___libc_init_first(x64emu_t* emu, int argc, char* arg0, char** b)
 {
@@ -494,7 +494,7 @@ pid_t EXPORT my_fork(x64emu_t* emu)
     if(v<0) {
         printf_log(LOG_NONE, "BOX64: Warning, fork errored... (%d)\n", v);
         // error...
-    } else if(v>0) {  
+    } else if(v>0) {
         // execute atforks parent functions
         for (int i=0; i<my_context->atfork_sz; --i)
             if(my_context->atforks[i].parent)
@@ -1649,7 +1649,7 @@ EXPORT int32_t my___open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
 //            unprotectDB((uintptr_t)p, count-ret, 1);
 //            int l;
 //            do {
-//                l = read(fd, p, count-ret); 
+//                l = read(fd, p, count-ret);
 //                if(l>0) {
 //                    p+=l; ret+=l;
 //                }
@@ -1877,7 +1877,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+toadd));
-        if(self) 
+        if(self)
             newargv[1] = emu->context->fullpath;
         else {
             // TODO check if envp is not environ and add the value on a copy
@@ -2053,7 +2053,7 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
         // uname -m is redirected to box64 -m
         path = my_context->box64path;
         char *argv2[3] = { my_context->box64path, argv[1], NULL };
-        
+
         return execvp(path, argv2);
     }
 
@@ -2124,7 +2124,7 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
     return ret;
 }
 
-EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath, 
+EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
 {
     int self = isProcSelf(fullpath, "exe");
@@ -2157,13 +2157,13 @@ EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
         ret = posix_spawn(pid, newargv[0], actions, attrp, (char* const*)newargv, envp);
         printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn returned %d\n", ret);
         //box_free(newargv);
-    } else 
+    } else
         ret = posix_spawn(pid, fullpath, actions, attrp, argv, envp);
     return ret;
 }
 
 // execvp should use PATH to search for the program first
-EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path, 
+EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
 {
     // need to use BOX64_PATH / PATH here...
@@ -2232,7 +2232,7 @@ EXPORT int32_t my___register_atfork(x64emu_t *emu, void* prepare, void* parent, 
 EXPORT uint64_t my___umoddi3(uint64_t a, uint64_t b)
 {
     return a%b;
-}  
+}
 EXPORT uint64_t my___udivdi3(uint64_t a, uint64_t b)
 {
     return a/b;
@@ -2297,8 +2297,8 @@ EXPORT int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c)
     int ret = fcntl(a, b, c);
     if(b==F_GETFL && ret!=-1)
         ret = of_unconvert(ret);
-    
-    return ret;    
+
+    return ret;
 }
 EXPORT int32_t my___fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c) __attribute__((alias("my_fcntl")));
 
@@ -2371,10 +2371,10 @@ void InitCpuModel()
     my___cpu_model.__cpu_vendor = VENDOR_INTEL;
     my___cpu_model.__cpu_type = INTEL_PENTIUM_M;
     my___cpu_model.__cpu_subtype = 0; // N/A
-    my___cpu_model.__cpu_features[0] = (1<<FEATURE_CMOV) 
-                                     | (1<<FEATURE_MMX) 
-                                     | (1<<FEATURE_SSE) 
-                                     | (1<<FEATURE_SSE2) 
+    my___cpu_model.__cpu_features[0] = (1<<FEATURE_CMOV)
+                                     | (1<<FEATURE_MMX)
+                                     | (1<<FEATURE_SSE)
+                                     | (1<<FEATURE_SSE2)
                                      | (1<<FEATURE_SSE3)
                                      | (1<<FEATURE_SSSE3)
                                      | (1<<FEATURE_MOVBE)
@@ -2514,7 +2514,7 @@ EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bu
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
 {
     (void)emu;
-    if(prot&PROT_WRITE) 
+    if(prot&PROT_WRITE)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %ld) => ", addr, length, prot, flags, fd, offset);}
     #ifndef NOALIGN
@@ -2530,7 +2530,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     #endif
     void* ret = mmap64(addr, length, prot, flags, fd, offset);
     #ifndef NOALIGN
-    if((ret!=(void*)-1) && (flags&0x40) && 
+    if((ret!=(void*)-1) && (flags&0x40) &&
       (((uintptr_t)ret>0xffffffffLL) || (box64_wine && ((uintptr_t)ret&0xffff)))) {
         printf_log(LOG_DEBUG, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
@@ -2640,7 +2640,7 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
 {
     (void)emu;
     dynarec_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
-    if(prot&PROT_WRITE) 
+    if(prot&PROT_WRITE)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
@@ -2705,24 +2705,24 @@ typedef struct my_cookie_s {
 static ssize_t my_cookie_read(void *p, char *buf, size_t size)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
-    return (ssize_t)RunFunction(my_context, cookie->r, 3, cookie->cookie, buf, size);
+    return (ssize_t)RunFunctionFmt(my_context, cookie->r, "ppL", cookie->cookie, buf, size);
 }
 static ssize_t my_cookie_write(void *p, const char *buf, size_t size)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
-    return (ssize_t)RunFunction(my_context, cookie->w, 3, cookie->cookie, buf, size);
+    return (ssize_t)RunFunctionFmt(my_context, cookie->w, "ppL", cookie->cookie, buf, size);
 }
 static int my_cookie_seek(void *p, off64_t *offset, int whence)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
-    return RunFunction(my_context, cookie->s, 3, cookie->cookie, offset, whence);
+    return RunFunctionFmt(my_context, cookie->s, "ppi", cookie->cookie, offset, whence);
 }
 static int my_cookie_close(void *p)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
     int ret = 0;
     if(cookie->c)
-        ret = RunFunction(my_context, cookie->c, 1, cookie->cookie);
+        ret = RunFunctionFmt(my_context, cookie->c, "p", cookie->cookie);
     box_free(cookie);
     return ret;
 }
@@ -2994,7 +2994,7 @@ EXPORT int my_backtrace_ip(x64emu_t* emu, void** buffer, int size)
                         unwind->regs[7] += 8;
                         buffer[idx] = (void*)ret_addr;
                         success = 2;
-                    } else 
+                    } else
                         break;
                 }
             } else
@@ -3041,7 +3041,7 @@ EXPORT void my_backtrace_symbols_fd(x64emu_t* emu, uintptr_t* buffer, int size, 
         if(!sz) sz=0x100;   // arbitrary value...
         if(symbname && buffer[i]>=start && (buffer[i]<(start+sz) || !sz))
             snprintf(s, 200, "%s+%ld [%p]\n", symbname, buffer[i] - start, (void*)buffer[i]);
-        else 
+        else
             snprintf(s, 200, "??? [%p]\n", (void*)buffer[i]);
         int dummy = write(fd, s, strlen(s));
         (void)dummy;

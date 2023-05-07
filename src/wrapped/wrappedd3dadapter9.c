@@ -341,13 +341,13 @@ typedef struct my_Direct3D9Ex {
 unsigned my_Direct3D9Ex_AddRef(void *This)
 {
     my_Direct3D9Ex *my = This;
-    return RunFunction(my_context, (uintptr_t)(*my->real)->AddRef, 1, my->real);
+    return RunFunctionFmt(my_context, (uintptr_t)(*my->real)->AddRef, "p", my->real);
 }
 
 unsigned my_Direct3D9Ex_Release(void *This)
 {
     my_Direct3D9Ex *my = This;
-    return RunFunction(my_context, (uintptr_t)(*my->real)->Release, 1, my->real);
+    return RunFunctionFmt(my_context, (uintptr_t)(*my->real)->Release, "p", my->real);
 }
 
 IDirect3D9ExVtbl my_Direct3D9Ex_vtbl = {

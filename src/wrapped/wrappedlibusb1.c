@@ -45,7 +45,7 @@ GO(9)   \
 static uintptr_t my_hotplug_fct_##A = 0;                                                    \
 static int my_hotplug_##A(void* ctx, void* device, int event, void* data)                   \
 {                                                                                           \
-    return (int)RunFunction(my_context, my_hotplug_fct_##A, 4, ctx, device, event, data);   \
+    return (int)RunFunctionFmt(my_context, my_hotplug_fct_##A, "ppip", ctx, device, event, data);   \
 }
 SUPER()
 #undef GO
@@ -67,7 +67,7 @@ static void* findhotplugFct(void* fct)
 static uintptr_t my_transfert_fct_##A = 0;                      \
 static void my_transfert_##A(void* ctx)                         \
 {                                                               \
-    RunFunction(my_context, my_transfert_fct_##A, 1, ctx);      \
+    RunFunctionFmt(my_context, my_transfert_fct_##A, "p", ctx);      \
 }
 SUPER()
 #undef GO
@@ -139,7 +139,7 @@ EXPORT int my_libusb_submit_transfer(x64emu_t* emu, my_libusb_transfer_t* t)
 {
     t->callback = findtransfertFct(t->callback);
     return my->libusb_submit_transfer(t); // don't put back callback, it's unknown if it's safe
-} 
+}
 
 EXPORT int my_libusb_cancel_transfer(x64emu_t* emu, my_libusb_transfer_t* t)
 {

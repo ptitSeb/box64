@@ -56,7 +56,7 @@ GO(4)
 static uintptr_t my_exterrorhandle_fct_##A = 0;                                                 \
 static int my_exterrorhandle_##A(void* display, void* ext_name, void* reason)                   \
 {                                                                                               \
-    return RunFunction(my_context, my_exterrorhandle_fct_##A, 3, display, ext_name, reason);    \
+    return RunFunctionFmt(my_context, my_exterrorhandle_fct_##A, "ppp", display, ext_name, reason);    \
 }
 SUPER()
 #undef GO
@@ -137,57 +137,57 @@ static uintptr_t my_hook_error_fnc = 0;
 static uintptr_t my_hook_error_string_fnc = 0;
 static int  my_hook_create_gc(void* a, uint32_t b, void* c) {
     if(my_hook_create_gc_fnc)
-        return (int)RunFunction(context, my_hook_create_gc_fnc, 3, a, b, c);
+        return (int)RunFunctionFmt(context, my_hook_create_gc_fnc, "pup", a, b, c);
     return 0;
 }
 static int  my_hook_copy_gc(void* a, uint32_t b, void* c) {
     if(my_hook_copy_gc_fnc)
-        return (int)RunFunction(context, my_hook_copy_gc_fnc, 3, a, b, c);
+        return (int)RunFunctionFmt(context, my_hook_copy_gc_fnc, "pup", a, b, c);
     return 0;
 }
 static int  my_hook_flush_gc(void* a, uint32_t b, void* c) {
     if(my_hook_flush_gc_fnc)
-        return (int)RunFunction(context, my_hook_flush_gc_fnc, 3, a, b, c);
+        return (int)RunFunctionFmt(context, my_hook_flush_gc_fnc, "pup", a, b, c);
     return 0;
 }
 static int  my_hook_free_gc(void* a, uint32_t b, void* c) {
     if(my_hook_free_gc_fnc)
-        return (int)RunFunction(context, my_hook_free_gc_fnc, 3, a, b, c);
+        return (int)RunFunctionFmt(context, my_hook_free_gc_fnc, "pup", a, b, c);
     return 0;
 }
 static int  my_hook_create_font(void* a, void* b, void* c) {
     if(my_hook_create_font_fnc)
-        return (int)RunFunction(context, my_hook_create_font_fnc, 3, a, b, c);
+        return (int)RunFunctionFmt(context, my_hook_create_font_fnc, "ppp", a, b, c);
     return 0;
 }
 static int  my_hook_free_font(void* a, void* b, void* c) {
     if(my_hook_free_font_fnc)
-        return (int)RunFunction(context, my_hook_free_font_fnc, 3, a, b, c);
+        return (int)RunFunctionFmt(context, my_hook_free_font_fnc, "ppp", a, b, c);
     return 0;
 }
 static int  my_hook_close_display(void* a, void* b) {
     if(my_hook_close_display_fnc)
-        return (int)RunFunction(context, my_hook_close_display_fnc, 2, a, b);
+        return (int)RunFunctionFmt(context, my_hook_close_display_fnc, "pp", a, b);
     return 0;
 }
 static int  my_hook_wire_to_event(void* a, void* b, void* c) {
     if(my_hook_wire_to_event_fnc)
-        return (int)RunFunction(context, my_hook_wire_to_event_fnc, 3, a, b, c);
+        return (int)RunFunctionFmt(context, my_hook_wire_to_event_fnc, "ppp", a, b, c);
     return 0;
 }
 static int  my_hook_event_to_wire(void* a, void* b, void* c) {
     if(my_hook_event_to_wire_fnc)
-        return (int)RunFunction(context, my_hook_event_to_wire_fnc, 3, a, b, c);
+        return (int)RunFunctionFmt(context, my_hook_event_to_wire_fnc, "ppp", a, b, c);
     return 0;
 }
 static int  my_hook_error(void* a, void* b, void* c, int* d) {
     if(my_hook_error_fnc)
-        return (int)RunFunction(context, my_hook_error_fnc, 4, a, b, c, d);
+        return (int)RunFunctionFmt(context, my_hook_error_fnc, "pppp", a, b, c, d);
     return 0;
 }
 static char* my_hook_error_string(void* a, int b, void* c, void* d, int e) {
     if(my_hook_error_string_fnc)
-        return (char*)RunFunction(context, my_hook_error_string_fnc, 5, a, b, c, d, e);
+        return (char*)RunFunctionFmt(context, my_hook_error_string_fnc, "pippi", a, b, c, d, e);
     return 0;
 }
 

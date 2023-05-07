@@ -20,7 +20,7 @@ typedef void  (*pcre_free_t)(void *);
 EXPORT uintptr_t my_pcre_free;
 
 void wrapped_pcre_free(void* p) {
-    RunFunction(my_context, my_pcre_free, 1, p);
+    RunFunctionFmt(my_context, my_pcre_free, "p", p);
 }
 EXPORT pcre_free_t pcre_free = wrapped_pcre_free;
 

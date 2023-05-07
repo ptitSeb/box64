@@ -64,7 +64,7 @@ GO(4)
 static uintptr_t my_alloc_fct_##A = 0;                                              \
 static void* my_alloc_##A(void* opaque, size_t items, size_t size)                  \
 {                                                                                   \
-    return (void*)RunFunction(my_context, my_alloc_fct_##A, 3, opaque, items, size);\
+    return (void*)RunFunctionFmt(my_context, my_alloc_fct_##A, "pLL", opaque, items, size);\
 }
 SUPER()
 #undef GO
@@ -86,7 +86,7 @@ static void* find_alloc_Fct(void* fct)
 static uintptr_t my_free_fct_##A = 0;                               \
 static void my_free_##A(void* opaque, void* address)                \
 {                                                                   \
-    RunFunction(my_context, my_free_fct_##A, 2, opaque, address);   \
+    RunFunctionFmt(my_context, my_free_fct_##A, "pp", opaque, address);   \
 }
 SUPER()
 #undef GO
@@ -112,7 +112,7 @@ static void wrap_alloc_struct(lzma_allocator_t* dst, lzma_allocator_t* src)
     dst->opaque = src->opaque;
     dst->alloc = find_alloc_Fct(src->alloc);
     dst->free = find_free_Fct(src->free);
-    
+
 }
 
 EXPORT int my_lzma_index_buffer_decode(x64emu_t* emu, void* i, void* memlimit, lzma_allocator_t* alloc, void* in_, void* in_pos, size_t in_size)

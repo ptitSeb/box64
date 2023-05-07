@@ -36,10 +36,10 @@ GO(4)
 
 // cups_dest_cb_t ...
 #define GO(A)   \
-static uintptr_t my_cups_dest_cb_t_fct_##A = 0;                                 \
-static int my_cups_dest_cb_t_##A(void* a, uint32_t b, void* c)                  \
-{                                                                               \
-    return (int)RunFunction(my_context, my_cups_dest_cb_t_fct_##A, 3, a, b, c); \
+static uintptr_t my_cups_dest_cb_t_fct_##A = 0;                                         \
+static int my_cups_dest_cb_t_##A(void* a, uint32_t b, void* c)                          \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_context, my_cups_dest_cb_t_fct_##A, "pup", a, b, c);  \
 }
 SUPER()
 #undef GO

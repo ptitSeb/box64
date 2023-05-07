@@ -42,7 +42,7 @@ GO(9)   \
 static uintptr_t my_glu_callback_fct_##A = 0;                       \
 static void my_glu_callback_##A(void* a, void* b)                   \
 {                                                                   \
-    RunFunction(my_context, my_glu_callback_fct_##A, 2, a, b);  \
+    RunFunctionFmt(my_context, my_glu_callback_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -64,7 +64,7 @@ static void* findglu_callbackFct(void* fct)
 static uintptr_t my_glu_callback4_fct_##A = 0;                              \
 static void my_glu_callback4_##A(void* a, void* b, void* c, void* d)        \
 {                                                                           \
-    RunFunction(my_context, my_glu_callback4_fct_##A, 4, a, b, c, d);   \
+    RunFunctionFmt(my_context, my_glu_callback4_fct_##A, "pppp", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -86,7 +86,7 @@ static void* findglu_callback4Fct(void* fct)
 static uintptr_t my_glu_callback5_fct_##A = 0;                                  \
 static void my_glu_callback5_##A(void* a, void* b, void* c, void* d, void* e)   \
 {                                                                               \
-    RunFunction(my_context, my_glu_callback5_fct_##A, 5, a, b, c, d, e);    \
+    RunFunctionFmt(my_context, my_glu_callback5_fct_##A, "ppppp", a, b, c, d, e);    \
 }
 SUPER()
 #undef GO

@@ -54,25 +54,25 @@ typedef struct my_SmcCallbacks_s {
 static uintptr_t my_save_yourself_fct = 0;
 static void my_save_yourself(void* smcConn, void* clientData, int saveType, int shutdown, int interactStyle, int fast)
 {
-    RunFunction(my_context, my_save_yourself_fct, 6, smcConn, clientData, saveType, shutdown, interactStyle, fast);
+    RunFunctionFmt(my_context, my_save_yourself_fct, "ppiiii", smcConn, clientData, saveType, shutdown, interactStyle, fast);
 }
 
 static uintptr_t my_die_fct = 0;
 static void my_die(void* smcConn, void* clientData)
 {
-    RunFunction(my_context, my_die_fct, 2, smcConn, clientData);
+    RunFunctionFmt(my_context, my_die_fct, "pp", smcConn, clientData);
 }
 
 static uintptr_t my_shutdown_cancelled_fct = 0;
 static void my_shutdown_cancelled(void* smcConn, void* clientData)
 {
-    RunFunction(my_context, my_shutdown_cancelled_fct, 2, smcConn, clientData);
+    RunFunctionFmt(my_context, my_shutdown_cancelled_fct, "pp", smcConn, clientData);
 }
 
 static uintptr_t my_save_complete_fct = 0;
 static void my_save_complete(void* smcConn, void* clientData)
 {
-    RunFunction(my_context, my_save_complete_fct, 2, smcConn, clientData);
+    RunFunctionFmt(my_context, my_save_complete_fct, "pp", smcConn, clientData);
 }
 
 
@@ -102,7 +102,7 @@ GO(4)
 static uintptr_t my_Request_fct_##A = 0;        \
 static void my_Request_##A(void* a, void* b)     \
 {                                               \
-    RunFunction(my_context, my_Request_fct_##A, 2, a, b);\
+    RunFunctionFmt(my_context, my_Request_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO

@@ -34,7 +34,7 @@ GO(4)
 static uintptr_t my_alloc_fct_##A = 0;                                          \
 static void* my_alloc_##A(void* opaque, uint32_t items, uint32_t size)                  \
 {                                                                                       \
-    return (void*)RunFunction(my_context, my_alloc_fct_##A, 3, opaque, items, size);    \
+    return (void*)RunFunctionFmt(my_context, my_alloc_fct_##A, "puu", opaque, items, size);    \
 }
 SUPER()
 #undef GO
@@ -56,7 +56,7 @@ static void* find_alloc_Fct(void* fct)
 static uintptr_t my_free_fct_##A = 0;                               \
 static void my_free_##A(void* opaque, void* address)                \
 {                                                                   \
-    RunFunction(my_context, my_free_fct_##A, 2, opaque, address);   \
+    RunFunctionFmt(my_context, my_free_fct_##A, "pp", opaque, address);   \
 }
 SUPER()
 #undef GO
@@ -76,7 +76,7 @@ static void* find_free_Fct(void* fct)
 #undef SUPER
 
 typedef struct z_stream_s {
-    void *next_in;   
+    void *next_in;
     uint32_t     avail_in;
     uintptr_t    total_in;
     void    *next_out;
@@ -85,11 +85,11 @@ typedef struct z_stream_s {
     char *msg;
     void *state;
     void* zalloc;
-    void*  zfree; 
+    void*  zfree;
     void*     opaque;
     int32_t     data_type;
-    uintptr_t   adler;    
-    uintptr_t   reserved; 
+    uintptr_t   adler;
+    uintptr_t   reserved;
 } z_stream;
 
 static void wrapper_stream_z(x64emu_t* emu, void* str)
