@@ -20,9 +20,7 @@ void fini_pthread_helper(box64context_t* context);
 // prepare an "emuthread structure" in pet and return address of function pointer for a "thread creation routine"
 void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet);
 
-#ifndef DYNAREC
 //check and unlock if a mutex is locked by current thread (works only for PTHREAD_MUTEX_ERRORCHECK typed mutex)
 int checkUnlockMutex(void* m);
-#endif
 
 #endif //_THREADS_H_

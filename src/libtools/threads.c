@@ -1131,7 +1131,6 @@ void fini_pthread_helper(box64context_t* context)
 	}
 }
 
-#ifndef DYNAREC
 int checkUnlockMutex(void* m)
 {
 	pthread_mutex_t* mutex = (pthread_mutex_t*)m;
@@ -1141,4 +1140,3 @@ int checkUnlockMutex(void* m)
 	}
 	return 0;
 }
-#endif

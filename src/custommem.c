@@ -42,8 +42,13 @@ static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT0];
 // lock addresses
 KHASH_SET_INIT_INT64(lockaddress)
 static kh_lockaddress_t    *lockaddress = NULL;
+#ifdef USE_CUSTOM_MUTEX
 static uint32_t            mutex_prot;
 static uint32_t            mutex_blocks;
+#else
+static pthread_mutex_t     mutex_prot;
+static pthread_mutex_t     mutex_blocks;
+#endif
 #else
 static pthread_mutex_t     mutex_prot;
 static pthread_mutex_t     mutex_blocks;
@@ -1311,7 +1316,7 @@ int unlockCustommemMutex()
 {
     int ret = 0;
     int i = 0;
-    #ifdef DYNAREC
+    #ifdef USE_CUSTOM_MUTEX
     uint32_t tid = (uint32_t)GetTID();
     #define GO(A, B)                    \
         i = (native_lock_storeifref2_d(&A, 0, tid)==tid); \
@@ -1344,7 +1349,7 @@ void relockCustommemMutex(int locks)
 
 static void init_mutexes(void)
 {
-    #ifdef DYNAREC
+    #ifdef USE_CUSTOM_MUTEX
     native_lock_store(&mutex_blocks, 0);
     native_lock_store(&mutex_prot, 0);
     #else
@@ -1503,7 +1508,7 @@ void fini_custommem_helper(box64context_t *ctx)
         box_free(p_blocks[i].block);
         #endif
     box_free(p_blocks);
-    #ifndef DYNAREC
+    #ifndef USE_CUSTOM_MUTEX
     pthread_mutex_destroy(&mutex_prot);
     pthread_mutex_destroy(&mutex_blocks);
     #endif

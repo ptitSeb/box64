@@ -76,7 +76,7 @@ int unlockMutex()
 {
     int ret = unlockCustommemMutex();
     int i;
-    #ifdef DYNAREC
+    #ifdef USE_CUSTOM_MUTEX
     uint32_t tid = (uint32_t)GetTID();
     #define GO(A, B)                    \
         i = (native_lock_storeifref2_d(&A, 0, tid)==tid); \
@@ -138,11 +138,23 @@ static void init_mutexes(box64context_t* context)
 
     pthread_mutexattr_destroy(&attr);
 #else
+    #ifdef USE_CUSTOM_MUTEX
     native_lock_store(&context->mutex_trace, 0);
     native_lock_store(&context->mutex_tls, 0);
     native_lock_store(&context->mutex_thread, 0);
     native_lock_store(&context->mutex_bridge, 0);
     native_lock_store(&context->mutex_dyndump, 0);
+    #else
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutex_init(&context->mutex_trace, &attr);
+    pthread_mutex_init(&context->mutex_tls, &attr);
+    pthread_mutex_init(&context->mutex_thread, &attr);
+    pthread_mutex_init(&context->mutex_bridge, &attr);
+    pthread_mutex_init(&context->mutex_dyndump, &attr);
+    pthread_mutexattr_destroy(&attr);
+    #endif
     pthread_mutex_init(&context->mutex_lock, NULL);
 #endif
 }
