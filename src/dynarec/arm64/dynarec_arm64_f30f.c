@@ -378,6 +378,42 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0xB8:
+            INST_NAME("POPCNT Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE(x1);
+            nextop = F8;
+            v1 = fpu_get_scratch(dyn);
+            GETGD;
+            if(MODREG) {
+                GETED(0);
+                if(rex.w)
+                    VMOVQDfrom(v1, 0, ed);
+                else {
+                    MOVxw_REG(x1, ed);  // need to clear uper part
+                    VMOVQDfrom(v1, 0, x1);
+                }
+            } else {
+                if(rex.w) {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                    VLD64(v1, ed, fixedaddress);
+                } else {
+                    GETED(0);   // just load and clear the upper part
+                    VMOVQDfrom(v1, 0, ed);
+                }
+            }
+            CNT_8(v1, v1);
+            UADDLV_8(v1, v1);
+            VMOVQDto(gd, v1, 0);
+            IFX(X_ALL) {
+                MOV32w(x1, (1<<F_OF) | (1<<F_SF) | (1<<F_ZF) | (1<<F_AF) | (1<<F_CF) | (1<<F_PF));
+                BICw(xFlags, xFlags, x1);
+                CBNZx(gd, 4+4);
+                BFIw(xFlags, xFlags, F_ZF, 1);
+            }
+            break;
+
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
             SETFLAGS(X_CF|X_ZF, SF_SUBSET);

@@ -1691,6 +1691,11 @@
 #define UADDLV_16(Rd, Rn)           EMIT(ADDLV_vector(0, 1, 0b01, Rn, Rd))
 #define UADDLV_32(Rd, Rn)           EMIT(ADDLV_vector(0, 1, 0b10, Rn, Rd))
 
+// Population Count per byte
+#define CNT_vector(Q, size, Rn, Rd)     ((Q)<<30 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | 0b00101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define CNT_8(Rd, Rn)               EMIT(CNT_vector(0, 0b00, Rn, Rd))
+#define CNTQ_8(Rd, Rn)              EMIT(CNT_vector(1, 0b00, Rn, Rd))
+
 // MOV Immediate
 #define MOVI_vector(Q, op, abc, cmode, defgh, Rd)   ((Q)<<30 | (op)<<29 | 0b0111100000<<19 | (abc)<<16 | (cmode)<<12 | 1<<10 | (defgh)<<5 | (Rd))
 #define MOVIQ_8(Rd, imm8)           EMIT(MOVI_vector(1, 0, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
