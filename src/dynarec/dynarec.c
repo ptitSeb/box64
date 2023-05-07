@@ -102,6 +102,8 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
                     emu->test.clean = 0;
                 }
                 #endif
+                if(skip!=2)
+                    skip = 0;
             }
         }
     }
@@ -198,6 +200,8 @@ int DynaRun(x64emu_t* emu)
                     emu->test.clean = 0;
                 }
                 #endif
+                if(skip!=2)
+                    skip = 0;
         }
     }
 #ifdef DYNAREC
