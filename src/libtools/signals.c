@@ -753,9 +753,9 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     if(sig!=SIGSEGV && !(Locks&is_dyndump_locked))
         dynarec = 1;
     #endif
-    if (simple)
+    /*if (simple)
         ret = RunFunctionHandler(&exits, dynarec, sigcontext, my_context->signals[sig], 1, sig);
-    else
+    else*/
         ret = RunFunctionHandler(&exits, dynarec, sigcontext, my_context->signals[sig], 3, sig, info2, sigcontext);
     // restore old value from emu
     if(used_stack)  // release stack

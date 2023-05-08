@@ -33,6 +33,8 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
     (void)argc; (void)ubp_av; (void)fini; (void)rtld_fini; (void)stack_end;
 
     if(init) {
+        uintptr_t old_rsp = GetRSP(emu);
+        uintptr_t old_rbp = GetRBP(emu); // should not be needed, but seems to be without dynarec
         Push64(emu, GetRBP(emu));   // set frame pointer
         SetRBP(emu, GetRSP(emu));   // save RSP
         SetRSP(emu, GetRSP(emu)&~0xFLL);    // Align RSP
@@ -47,6 +49,8 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
             return 0;
         SetRSP(emu, GetRBP(emu));   // restore RSP
         SetRBP(emu, Pop64(emu));    // restore RBP
+        SetRSP(emu, old_rsp);
+        SetRBP(emu, old_rbp);
         emu->quit = 0;
     } else {
         RunElfInit(my_context->elfs[0], emu);

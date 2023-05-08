@@ -133,7 +133,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
                     emu->test.clean = 0;
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x64 instructions emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,emu);
+                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x64 instructions (hash=0x%x) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,block->hash, emu);
                 CHECK_FLAGS(emu);
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
@@ -221,7 +221,7 @@ int DynaRun(x64emu_t* emu)
                     emu->test.clean = 0;
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (hash=0x%x) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->hash, emu);
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
             }

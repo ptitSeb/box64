@@ -117,10 +117,18 @@ x64emu_t *NewX64EmuFromStack(x64emu_t* emu, box64context_t *context, uintptr_t s
 }
 
 EXPORTDYN
-void SetupX64Emu(x64emu_t *emu)
+void SetupX64Emu(x64emu_t *emu, x64emu_t *ref)
 {
     printf_log(LOG_DEBUG, "Setup X86_64 Emu\n");
-    (void)emu;  // Not doing much here...
+    if(ref) {
+        // save RIP and RSP
+        uintptr_t old_rip = R_RIP;
+        uintptr_t old_rsp = R_RSP;
+        CloneEmu(emu, ref);
+        // restore RIP and RSP
+        R_RIP = old_rip;
+        R_RSP = old_rsp;
+    }
 }
 
 #ifdef HAVE_TRACE

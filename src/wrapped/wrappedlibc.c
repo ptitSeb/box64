@@ -482,6 +482,11 @@ int my_dl_iterate_phdr(x64emu_t *emu, void* F, void *data);
 
 pid_t EXPORT my_fork(x64emu_t* emu)
 {
+    #if 1
+    emu->quit = 1;
+    emu->fork = 3;  // use regular fork...
+    return 0;
+    #else
     // execute atforks prepare functions, in reverse order
     for (int i=my_context->atfork_sz-1; i>=0; --i)
         if(my_context->atforks[i].prepare)
@@ -507,6 +512,7 @@ pid_t EXPORT my_fork(x64emu_t* emu)
                 RunFunctionWithEmu(emu, 0, my_context->atforks[i].child, 0);
     }
     return v;
+    #endif
 }
 pid_t EXPORT my___fork(x64emu_t* emu) __attribute__((alias("my_fork")));
 pid_t EXPORT my_vfork(x64emu_t* emu)
@@ -3138,8 +3144,8 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
     void* mystack = NULL;
     clone_arg_t* arg = (clone_arg_t*)box_calloc(1, sizeof(clone_arg_t));
     x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack, 0, 0);
-    SetupX64Emu(newemu);
-    CloneEmu(newemu, emu);
+    SetupX64Emu(newemu, emu);
+    //CloneEmu(newemu, emu);
     if(my_context->stack_clone_used) {
         printf_log(LOG_DEBUG, " no free stack_clone ");
         mystack = box_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it

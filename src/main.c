@@ -1366,8 +1366,13 @@ int main(int argc, const char **argv, char **env) {
             wine_prereserve(prereserve);
         // special case for winedbg, doesn't work anyway
         if(argv[nextarg+1] && strstr(argv[nextarg+1], "winedbg")==argv[nextarg+1]) {
-            printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
-            exit(0);    // exiting, it doesn't work anyway
+            if(getenv("BOX64_WINEDBG")) {
+                box64_nobanner = 1;
+                box64_log = 0;
+            } else {
+                printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
+                exit(0);    // exiting, it doesn't work anyway
+            }
         }
         box64_wine = 1;
     } else 
@@ -1692,7 +1697,7 @@ int main(int argc, const char **argv, char **env) {
     x64emu_t *emu = NewX64Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
     // stack setup is much more complicated then just that!
     SetupInitialStack(emu); // starting here, the argv[] don't need free anymore
-    SetupX64Emu(emu);
+    SetupX64Emu(emu, NULL);
     SetRSI(emu, my_context->argc);
     SetRDX(emu, (uint64_t)my_context->argv);
     SetRCX(emu, (uint64_t)my_context->envv);

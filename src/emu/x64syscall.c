@@ -198,6 +198,7 @@ scwrap_t syscallwrap[] = {
     { 208, __NR_io_getevents, 4},
     { 209, __NR_io_submit, 3},
     { 210, __NR_io_cancel, 3},
+    { 212, __NR_lookup_dcookie, 3},
     #ifdef __NR_epoll_create
     { 213, __NR_epoll_create, 1},
     #endif
@@ -557,8 +558,8 @@ void EXPORT x64Syscall(x64emu_t *emu)
                         }
                     }
                     x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack_base, stack_size, (R_RSI)?0:1);
-                    SetupX64Emu(newemu);
-                    CloneEmu(newemu, emu);
+                    SetupX64Emu(newemu, emu);
+                    //CloneEmu(newemu, emu);
                     Push64(newemu, 0);
                     PushExit(newemu);
                     void* mystack = NULL;
@@ -858,8 +859,8 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
                     }
                 }
                 x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack_base, stack_size, (R_RDX)?0:1);
-                SetupX64Emu(newemu);
-                CloneEmu(newemu, emu);
+                SetupX64Emu(newemu, emu);
+                //CloneEmu(newemu, emu);
                 Push64(newemu, 0);
                 PushExit(newemu);
                 void* mystack = NULL;
