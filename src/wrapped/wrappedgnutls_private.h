@@ -189,6 +189,8 @@ GO(gnutls_dtls_set_timeouts, vFpuu)
 //GO(gnutls_ecc_curve_get_pk, 
 //GO(gnutls_ecc_curve_get_size, 
 //GO(gnutls_ecc_curve_list, 
+GO(_gnutls_ecdh_compute_key, iFppp)
+GO(gnutls_ecdh_compute_key, iFppp)
 //GO(gnutls_encode_ber_digest_info, 
 //GO(_gnutls_encode_ber_rs_raw, 
 //GO(gnutls_error_is_fatal, 
@@ -560,6 +562,7 @@ GO(gnutls_privkey_import_rsa_raw, iFppppppppp)
 GO(gnutls_privkey_init, iFp)
 //GO(gnutls_privkey_set_flags, 
 //GO(gnutls_privkey_set_pin_function, 
+GO(gnutls_privkey_set_spki, iFppu)
 //GO(gnutls_privkey_sign_data, 
 GO(gnutls_privkey_sign_hash, iFppupp)
 //GO(gnutls_privkey_status, 
@@ -616,6 +619,7 @@ GO(gnutls_pubkey_init, iFp)
 //GO(gnutls_pubkey_print, 
 //GO(gnutls_pubkey_set_key_usage, 
 //GO(gnutls_pubkey_set_pin_function, 
+GO(gnutls_pubkey_set_spki, iFppu)
 //GO(gnutls_pubkey_verify_data2, 
 GO(gnutls_pubkey_verify_hash2, iFppupp)
 //GO(gnutls_pubkey_verify_params, 
@@ -1092,6 +1096,9 @@ GO(gnutls_x509_privkey_get_pk_algorithm2, iFpp)
 //GO(gnutls_x509_rdn_get2, 
 //GO(gnutls_x509_rdn_get_by_oid, 
 //GO(gnutls_x509_rdn_get_oid, 
+GO(gnutls_x509_spki_deinit, vFp)
+GO(gnutls_x509_spki_init, vFp)
+GO(gnutls_x509_spki_set_rsa_pss_params, vFppu)
 //GO(gnutls_x509_tlsfeatures_add, 
 //GO(gnutls_x509_tlsfeatures_check_crt, 
 //GO(gnutls_x509_tlsfeatures_deinit, 

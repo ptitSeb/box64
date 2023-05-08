@@ -201,7 +201,7 @@ GO(gcry_sexp_find_token, pFppL)
 //GO(gcry_sexp_new, 
 //GO(gcry_sexp_nth, 
 //GO(gcry_sexp_nth_buffer, 
-//GO(gcry_sexp_nth_data, 
+GO(gcry_sexp_nth_data, pFpip)
 GO(gcry_sexp_nth_mpi, pFpii)
 //GO(gcry_sexp_nth_string, 
 //GO(gcry_sexp_prepend, 
