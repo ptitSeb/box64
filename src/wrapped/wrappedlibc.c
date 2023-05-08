@@ -3203,6 +3203,7 @@ EXPORT int my_register_printf_type(x64emu_t* emu, void* f)
     return my->register_printf_type(findprintf_typeFct(f));
 }
 
+extern int box64_quit;
 EXPORT void my_exit(x64emu_t* emu, int code)
 {
     if(emu->quitonexit) {
@@ -3212,6 +3213,7 @@ EXPORT void my_exit(x64emu_t* emu, int code)
         return;
     }
     emu->quit = 1;
+    box64_quit = 1;
     exit(code);
 }
 
