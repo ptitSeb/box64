@@ -339,8 +339,6 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
     p->ErrorSelector = 0;
     p->DataOffset = 0;
     p->DataSelector = 0;
-    p->MxCsr = 0;
-    p->MxCsr_Mask = 0;
     // copy FPU/MMX regs...
     for(int i=0; i<8; ++i)
         memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
@@ -367,8 +365,6 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     p->ErrorOpcode = 0;
     p->ErrorOffset = 0;
     p->DataOffset = 0;
-    p->MxCsr = 0;
-    p->MxCsr_Mask = 0;
     // copy FPU/MMX regs...
     for(int i=0; i<8; ++i)
         memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
