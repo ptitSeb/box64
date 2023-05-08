@@ -1136,9 +1136,9 @@ GO(__mbrtowc, LFppLp)
 GO(mbrtowc, LFppLp)
 GOW(mbsinit, iFp)
 GO(mbsnrtowcs, LFppLLp)
-//GO(__mbsnrtowcs_chk, 
+GO(__mbsnrtowcs_chk, LFppLLpL)
 GO(mbsrtowcs, LFppLp)
-//GO(__mbsrtowcs_chk, 
+GO(__mbsrtowcs_chk, LFppLpL)
 GO(mbstowcs, LFppL)
 //GO(__mbstowcs_chk, 
 GO(mbtowc, iFppL)
@@ -2207,11 +2207,11 @@ GO(wmemcmp, iFppL)
 GOW(wmemcpy, pFppL)
 GO(__wmemcpy_chk, pFppLL)
 GO(wmemmove, pFppL)
-//GO(__wmemmove_chk, 
+GO(__wmemmove_chk, pFppLL)
 GOW(wmempcpy, pFppL)
 //GO(__wmempcpy_chk, 
 GO(wmemset, pFpuL)
-//GO(__wmemset_chk, 
+GO(__wmemset_chk, pFpuLL)
 GO(wordexp, iFppi)
 GO(wordfree, vFp)
 //GO(__woverflow, 
