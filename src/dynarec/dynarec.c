@@ -191,7 +191,7 @@ int DynaRun(x64emu_t* emu)
 #ifdef DYNAREC
             jmpbuf_reset = 1;
 #endif
-            if((skip=sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)))
+            if((skip=sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))) {
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
                 #ifdef DYNAREC
                 if(box64_dynarec_test) {
@@ -202,6 +202,7 @@ int DynaRun(x64emu_t* emu)
                 #endif
                 if(skip!=2)
                     skip = 0;
+            }
         }
     }
 #ifdef DYNAREC
