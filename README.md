@@ -2,7 +2,7 @@
 
 Linux Userspace x86_64 Emulator with a twist
 
-[View changelog](https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md) | [中文](https://github.com/ptitSeb/box64/blob/main/docs/README_CN.md) | [Report an error](https://github.com/ptitSeb/box64/issues/new)
+[View changelog](https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md) | [中文](https://github.com/ptitSeb/box64/blob/main/README_CN.md) | [Report an error](https://github.com/ptitSeb/box64/issues/new)
 
 ![build](https://app.travis-ci.com/ptitSeb/box64.svg?branch=main) ![stars](https://img.shields.io/github/stars/ptitSeb/box64) ![forks](https://img.shields.io/github/forks/ptitSeb/box64) ![contributors](https://img.shields.io/github/contributors/ptitSeb/box64) ![prs](https://img.shields.io/github/issues-pr/ptitSeb/box64) ![issues](https://img.shields.io/github/issues/ptitSeb/box64)
 
@@ -37,7 +37,8 @@ Note: Box64's Dynarec uses a mechanism with Memory Protection and a SegFault sig
 
 Compiling/Installation
 ----
-> Compilation instructions can be found [here](docs/COMPILE.md).
+> Compilation instructions can be found [here](docs/COMPILE.md)\
+> Instructions for installing Wine for Box64 can be found [here](docs/X64WINE.md)
 
 ----
 
