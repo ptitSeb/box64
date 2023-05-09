@@ -102,8 +102,6 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
                     emu->test.clean = 0;
                 }
                 #endif
-                if(skip!=2)
-                    skip = 0;
             }
         }
     }
@@ -123,7 +121,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
         R_RIP = addr;
         emu->df = d_none;
         while(!emu->quit) {
-            dynablock_t* block = (skip==2)?NULL:DBGetBlock(emu, R_RIP, 1);
+            dynablock_t* block = (skip)?NULL:DBGetBlock(emu, R_RIP, 1);
             if(!block || !block->block || !block->done) {
                 skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
@@ -200,8 +198,6 @@ int DynaRun(x64emu_t* emu)
                     emu->test.clean = 0;
                 }
                 #endif
-                if(skip!=2)
-                    skip = 0;
             }
         }
     }
@@ -212,7 +208,7 @@ int DynaRun(x64emu_t* emu)
 #ifdef DYNAREC
     else {
         while(!emu->quit) {
-            dynablock_t* block = (skip==2)?NULL:DBGetBlock(emu, R_RIP, 1);
+            dynablock_t* block = (skip)?NULL:DBGetBlock(emu, R_RIP, 1);
             if(!block || !block->block || !block->done) {
                 skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
@@ -236,7 +232,7 @@ int DynaRun(x64emu_t* emu)
                     ejb->emu = emu;
                     ejb->jmpbuf_ok = 1;
                     jmpbuf_reset = 1;
-                    if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))
+                    if((skip = sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)))
                         printf_log(LOG_DEBUG, "Setjmp inner DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
                 }
             }
