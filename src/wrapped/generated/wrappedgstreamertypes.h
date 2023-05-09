@@ -13,6 +13,7 @@
 
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef void (*vFppA_t)(void*, void*, va_list);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int32_t (*iFppA_t)(void*, void*, va_list);
 typedef void* (*pFppV_t)(void*, void*, ...);
@@ -27,6 +28,7 @@ typedef void (*vFpippippA_t)(void*, int32_t, void*, void*, int32_t, void*, void*
 	GO(gst_structure_remove_fields, vFppV_t) \
 	GO(gst_caps_set_simple_valist, vFppA_t) \
 	GO(gst_structure_remove_fields_valist, vFppA_t) \
+	GO(gst_caps_foreach, iFppp_t) \
 	GO(gst_structure_get, iFppV_t) \
 	GO(gst_structure_get_valist, iFppA_t) \
 	GO(gst_caps_new_simple, pFppV_t) \

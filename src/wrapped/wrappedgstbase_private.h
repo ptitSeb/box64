@@ -370,7 +370,7 @@ GO(gst_queue_array_push_tail_struct, vFpp)
 //GO(gst_type_find_helper_for_buffer, 
 //GO(gst_type_find_helper_for_buffer_with_extension, 
 //GO(gst_type_find_helper_for_data, 
-//GO(gst_type_find_helper_for_data_with_extension, 
+GO(gst_type_find_helper_for_data_with_extension, pFppLpp)
 //GO(gst_type_find_helper_for_extension, 
 //GO(gst_type_find_helper_get_range, 
 //GO(gst_type_find_helper_get_range_full, 
