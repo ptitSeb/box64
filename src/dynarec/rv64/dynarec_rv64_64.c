@@ -64,6 +64,15 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     }
 
     switch(opcode) {
+        case 0x03:
+            INST_NAME("ADD Gd, Seg:Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0, x5);
+            emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
         case 0x2B:
             INST_NAME("SUB Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -87,7 +96,92 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x66:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, seg, ok, need_epilog);
             break;
-
+        case 0x81:
+        case 0x83:
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x6, seg);
+            switch((nextop>>3)&7) {
+                case 0: // ADD
+                    if(opcode==0x81) {INST_NAME("ADD Ed, Id");} else {INST_NAME("ADD Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEDO(x6, (opcode==0x81)?4:1, x5);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    SD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
+                    LD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    WBACKO(x6);
+                    break;
+                case 1: // OR
+                    if(opcode==0x81) {INST_NAME("OR Ed, Id");} else {INST_NAME("OR Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEDO(x6, (opcode==0x81)?4:1, x5);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    emit_or32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    WBACKO(x6);
+                    break;
+                case 2: // ADC
+                    if(opcode==0x81) {INST_NAME("ADC Ed, Id");} else {INST_NAME("ADC Ed, Ib");}
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEDO(x6, (opcode==0x81)?4:1, x5);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    MOV64xw(x5, i64);
+                    SD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6);
+                    LD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    WBACKO(x6);
+                    break;
+                case 3: // SBB
+                    if(opcode==0x81) {INST_NAME("SBB Ed, Id");} else {INST_NAME("SBB Ed, Ib");}
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEDO(x6, (opcode==0x81)?4:1, x5);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    MOV64xw(x5, i64);
+                    SD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    emit_sbb32(dyn, ninst, rex, ed, x5, x3, x4, x6);
+                    LD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    WBACKO(x6);
+                    break;
+                case 4: // AND
+                    if(opcode==0x81) {INST_NAME("AND Ed, Id");} else {INST_NAME("AND Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEDO(x6, (opcode==0x81)?4:1, x5);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    emit_and32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    WBACKO(x6);
+                    break;
+                case 5: // SUB
+                    if(opcode==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEDO(x6, (opcode==0x81)?4:1, x5);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    SD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
+                    LD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    WBACKO(x6);
+                    break;
+                case 6: // XOR
+                    if(opcode==0x81) {INST_NAME("XOR Ed, Id");} else {INST_NAME("XOR Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEDO(x6, (opcode==0x81)?4:1, x5);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    emit_xor32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    WBACKO(x6);
+                    break;
+                case 7: // CMP
+                    if(opcode==0x81) {INST_NAME("CMP Ed, Id");} else {INST_NAME("CMP Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEDO(x6, (opcode==0x81)?4:1, x5);
+                    if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                    if(i64) {
+                        MOV64xw(x2, i64);
+                        emit_cmp32(dyn, ninst, rex, ed, x2, x3, x4, x5, x6);
+                    } else
+                        emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
+                    break;
+            }
+            break;
         case 0x88:
             INST_NAME("MOV Seg:Eb, Gb");
             grab_segdata(dyn, addr, ninst, x4, seg);
@@ -160,6 +254,53 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LDxw(gd, x4, fixedaddress);
             }
             break;
+        case 0xC6:
+            INST_NAME("MOV Seg:Eb, Ib");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop=F8;
+            if(MODREG) {   // reg <= u8
+                u8 = F8;
+                if(!rex.rex) {
+                    ed = (nextop&7);
+                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                } else {
+                    eb1 = xRAX+(nextop&7)+(rex.b<<3);
+                    eb2 = 0;            
+                }
+
+                if (eb2) {
+                    // load a mask to x3 (ffffffffffff00ff)
+                    LUI(x3, 0xffffffffffff0);
+                    ORI(x3, x3, 0xff);
+                    // apply mask
+                    AND(eb1, eb1, x3);
+                    if(u8) {
+                        if((u8<<8)<2048) {
+                            ADDI(x4, xZR, u8<<8);
+                        } else {
+                            ADDI(x4, xZR, u8);
+                            SLLI(x4, x4, 8);
+                        }
+                        OR(eb1, eb1, x4);
+                    }
+                } else {
+                    ANDI(eb1, eb1, 0xf00);  // mask ffffffffffffff00
+                    ORI(eb1, eb1, u8);
+                }
+            } else {                    // mem <= u8
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 1);
+                u8 = F8;
+                if(u8) {
+                    ADDI(x3, xZR, u8);
+                    ed = x3;
+                } else
+                    ed = xZR;
+                ADD(x4, wback, x4);
+                SB(ed, x4, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0xC7:
             INST_NAME("MOV Seg:Ed, Id");
             grab_segdata(dyn, addr, ninst, x4, seg);
@@ -169,11 +310,15 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 MOV64xw(ed, i64);
             } else {                    // mem <= i32
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 4);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 4);
                 i64 = F32S;
-                MOV64xw(x3, i64);
-                ADD(x4, ed, x4);
-                SDxw(x3, x4, fixedaddress);
+                if(i64) {
+                    MOV64xw(x3, i64);
+                    ed = x3;
+                } else
+                    ed = xZR;
+                ADD(x4, wback, x4);
+                SDxw(ed, x4, fixedaddress);
                 SMWRITE2();
             }
             break;

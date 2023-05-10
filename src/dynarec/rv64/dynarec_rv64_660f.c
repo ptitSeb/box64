@@ -429,29 +429,50 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     v1 = fpu_get_scratch(dyn);
                     MOV64x(x3, 1ULL << __DBL_MANT_DIG__);
                     FCVTDL(d1, x3, RD_RTZ);
-                    for (int i=0; i<2; ++i) {
-                        FLD(d0, wback, fixedaddress+8*i);
-                        FEQD(x4, d0, d0);
-                        BNEZ_MARK(x4);
-                        B_MARK3_nocond;
-                        MARK; // d0 is not nan
-                        FABSD(v1, d0);
-                        FLTD(x4, v1, d1);
-                        BNEZ_MARK2(x4);
-                        B_MARK3_nocond;
-                        MARK2;
-                        if(u8&4) {
-                            u8 = sse_setround(dyn, ninst, x4, x5);
-                            FCVTLD(x5, d0, RD_DYN);
-                            FCVTDL(d0, x5, RD_RTZ);
-                            x87_restoreround(dyn, ninst, u8);
-                        } else {
-                            FCVTLD(x5, d0, round_round[u8&3]);
-                            FCVTDL(d0, x5, RD_RTZ);
-                        }
-                        MARK3;
-                        FSD(d0, gback, 8*i);
+
+                    // i = 0
+                    FLD(d0, wback, fixedaddress);
+                    FEQD(x4, d0, d0);
+                    BNEZ(x4, 8);
+                    B_MARK_nocond;
+                    // d0 is not nan
+                    FABSD(v1, d0);
+                    FLTD(x4, v1, d1);
+                    BNEZ(x4, 8);
+                    B_MARK_nocond;
+                    if(u8&4) {
+                        u8 = sse_setround(dyn, ninst, x4, x5);
+                        FCVTLD(x5, d0, RD_DYN);
+                        FCVTDL(d0, x5, RD_RTZ);
+                        x87_restoreround(dyn, ninst, u8);
+                    } else {
+                        FCVTLD(x5, d0, round_round[u8&3]);
+                        FCVTDL(d0, x5, RD_RTZ);
                     }
+                    MARK;
+                    FSD(d0, gback, 0);
+
+                    // i = 1
+                    FLD(d0, wback, fixedaddress+8);
+                    FEQD(x4, d0, d0);
+                    BNEZ(x4, 8);
+                    B_MARK2_nocond;
+                    // d0 is not nan
+                    FABSD(v1, d0);
+                    FLTD(x4, v1, d1);
+                    BNEZ(x4, 8);
+                    B_MARK2_nocond;
+                    if(u8&4) {
+                        u8 = sse_setround(dyn, ninst, x4, x5);
+                        FCVTLD(x5, d0, RD_DYN);
+                        FCVTDL(d0, x5, RD_RTZ);
+                        x87_restoreround(dyn, ninst, u8);
+                    } else {
+                        FCVTLD(x5, d0, round_round[u8&3]);
+                        FCVTDL(d0, x5, RD_RTZ);
+                    }
+                    MARK2;
+                    FSD(d0, gback, 8);
                     break;
                 case 0x0E:
                     INST_NAME("PBLENDW Gx, Ex, Ib");

@@ -150,7 +150,45 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xEE:
         case 0xEF:
             INST_NAME("FUCOMI ST0, STx");
-            DEFAULT;
+            SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE();
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            IFX(F_ZF | F_PF | F_CF) {
+                if(ST_IS_F(0)) {
+                    FEQS(x5, v1, v1);
+                    FEQS(x4, v2, v2);
+                    AND(x5, x5, x4);
+                    BEQZ(x5, 24); // undefined/NaN
+                    FEQS(x5, v1, v2);
+                    BNEZ(x5, 24); // equal
+                    FLTS(x3, v1, v2); // x3 = (v1<v2)?1:0
+                    OR(xFlags, xFlags, x3); // CF is the least significant bit
+                    J(16); // end
+                    // NaN
+                    ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
+                    J(8); // end
+                    // equal
+                    ORI(xFlags, xFlags, 1<<F_ZF);
+                    // end
+                } else {
+                    FEQD(x5, v1, v1);
+                    FEQD(x4, v2, v2);
+                    AND(x5, x5, x4);
+                    BEQZ(x5, 24); // undefined/NaN
+                    FEQD(x5, v1, v2);
+                    BNEZ(x5, 24); // equal
+                    FLTD(x3, v1, v2); // x3 = (v1<v2)?1:0
+                    OR(xFlags, xFlags, x3); // CF is the least significant bit
+                    J(16); // end
+                    // NaN
+                    ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
+                    J(8); // end
+                    // equal
+                    ORI(xFlags, xFlags, 1<<F_ZF);
+                    // end
+                }
+            }
             break;
         case 0xF0:  
         case 0xF1:

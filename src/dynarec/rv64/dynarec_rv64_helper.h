@@ -179,6 +179,7 @@
                     LDxw(x1, S, fixedaddress);          \
                     ed = x1;                            \
                 }
+#define WBACKO(O)   if(wback) {ADD(O, wback, O); SDxw(ed, O, 0); SMWRITE2();}
 
 // FAKEED like GETED, but doesn't get anything
 #define FAKEED  if(!MODREG) {   \
