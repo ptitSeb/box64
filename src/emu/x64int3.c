@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <poll.h>
 #include <sys/wait.h>
+#include <elf.h>
 
 #include "debug.h"
 #include "box64stack.h"
@@ -25,6 +26,7 @@
 #include "wrapper.h"
 #include "box64context.h"
 #include "librarian.h"
+#include "elfload_dump.h"
 
 #include <elf.h>
 #include "elfloader.h"
@@ -120,7 +122,17 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 const char *s = NULL;
                 s = GetNativeName((void*)a);
                 if(a==(uintptr_t)PltResolver) {
-                    snprintf(buff, 256, "%s", cycle_log?"PltResolver ":" ... ");
+                    if(cycle_log) {
+                        uintptr_t addr = *((uint64_t*)(R_RSP));
+                        int slot = *((uint64_t*)(R_RSP+8));
+                        elfheader_t *h = (elfheader_t*)addr;
+                        Elf64_Rela * rel = (Elf64_Rela *)(h->jmprel + h->delta) + slot;
+                        Elf64_Sym *sym = &h->DynSym[ELF64_R_SYM(rel->r_info)];
+                        const char* symname = SymName(h, sym);
+                        snprintf(buff, 256, "PltResolver \"%s\"", symname?symname:"???");
+                    } else {
+                        snprintf(buff, 256, "%s", " ... ");
+                    }
                 } else if (!strcmp(s, "__open") || !strcmp(s, "open") || !strcmp(s, "open ") || !strcmp(s, "open64")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI), (int)(R_EDX));
