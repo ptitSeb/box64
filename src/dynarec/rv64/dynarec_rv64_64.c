@@ -160,6 +160,53 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LDxw(gd, x4, fixedaddress);
             }
             break;
+        case 0xC6:
+            INST_NAME("MOV Seg:Eb, Ib");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop=F8;
+            if(MODREG) {   // reg <= u8
+                u8 = F8;
+                if(!rex.rex) {
+                    ed = (nextop&7);
+                    eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                } else {
+                    eb1 = xRAX+(nextop&7)+(rex.b<<3);
+                    eb2 = 0;            
+                }
+
+                if (eb2) {
+                    // load a mask to x3 (ffffffffffff00ff)
+                    LUI(x3, 0xffffffffffff0);
+                    ORI(x3, x3, 0xff);
+                    // apply mask
+                    AND(eb1, eb1, x3);
+                    if(u8) {
+                        if((u8<<8)<2048) {
+                            ADDI(x4, xZR, u8<<8);
+                        } else {
+                            ADDI(x4, xZR, u8);
+                            SLLI(x4, x4, 8);
+                        }
+                        OR(eb1, eb1, x4);
+                    }
+                } else {
+                    ANDI(eb1, eb1, 0xf00);  // mask ffffffffffffff00
+                    ORI(eb1, eb1, u8);
+                }
+            } else {                    // mem <= u8
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 1);
+                u8 = F8;
+                if(u8) {
+                    ADDI(x3, xZR, u8);
+                    ed = x3;
+                } else
+                    ed = xZR;
+                ADD(x4, wback, x4);
+                SB(ed, x4, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0xC7:
             INST_NAME("MOV Seg:Ed, Id");
             grab_segdata(dyn, addr, ninst, x4, seg);
@@ -169,10 +216,14 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 MOV64xw(ed, i64);
             } else {                    // mem <= i32
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 4);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 4);
                 i64 = F32S;
-                MOV64xw(x3, i64);
-                ADD(x4, ed, x4);
+                if(i64) {
+                    MOV64xw(x3, i64);
+                    ed = x3;
+                } else
+                    ed = xZR;
+                ADD(x4, wback, x4);
                 SDxw(x3, x4, fixedaddress);
                 SMWRITE2();
             }
