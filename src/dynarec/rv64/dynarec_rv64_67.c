@@ -132,7 +132,53 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             opcode=F8;
             switch(opcode) {
-
+                case 0x2E:
+                    // no special check...
+                case 0x2F:
+                    switch (rep) {
+                        case 0:
+                            if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
+                            SETFLAGS(X_ALL, SF_SET);
+                            nextop = F8;
+                            GETGXSS(s0);
+                            if(MODREG) {
+                                v0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 1);
+                            } else {
+                                v0 = fpu_get_scratch(dyn);
+                                SMREAD();
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                                FLW(v0, ed, fixedaddress);
+                            }
+                            CLEAR_FLAGS();
+                            // if isnan(s0) || isnan(v0)
+                            IFX(X_ZF | X_PF | X_CF) {
+                                FEQS(x3, s0, s0);
+                                FEQS(x2, v0, v0);
+                                AND(x2, x2, x3);
+                                BNE_MARK(x2, xZR);
+                                ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
+                                B_NEXT_nocond;
+                            }
+                            MARK;
+                            // else if isless(d0, v0)
+                            IFX(X_CF) {
+                                FLTS(x2, s0, v0);
+                                BEQ_MARK2(x2, xZR);
+                                ORI(xFlags, xFlags, 1<<F_CF);
+                                B_NEXT_nocond;
+                            }
+                            MARK2;
+                            // else if d0 == v0
+                            IFX(X_ZF) {
+                                FEQS(x2, s0, v0);
+                                CBZ_NEXT(x2);
+                                ORI(xFlags, xFlags, 1<<F_ZF);
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
