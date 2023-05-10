@@ -318,7 +318,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 } else
                     ed = xZR;
                 ADD(x4, wback, x4);
-                SDxw(x3, x4, fixedaddress);
+                SDxw(ed, x4, fixedaddress);
                 SMWRITE2();
             }
             break;
