@@ -1668,7 +1668,7 @@ EXPORT int my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, int
     }
     // push the return value
     --rsp;
-    *rsp = (uintptr_t)GetExit();
+    *rsp = my_context->exit_bridge;
     u->uc_mcontext.gregs[X64_RSP] = (uintptr_t)rsp;
     
     return 0;

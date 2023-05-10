@@ -213,6 +213,7 @@ box64context_t *NewBox64Context(int argc)
     context->local_maplib = NewLibrarian(context, 1);
     context->versym = NewDictionnary();
     context->system = NewBridge();
+    // Cannot use Bridge name as the map is not initialized yet
     // create vsyscall
     context->vsyscall = AddBridge(context->system, vFEv, x64Syscall, 0, NULL);
     // create the vsyscalls
@@ -223,6 +224,8 @@ box64context_t *NewBox64Context(int argc)
     addAlternate((void*)0xffffffffff600000, (void*)context->vsyscalls[0]);
     addAlternate((void*)0xffffffffff600400, (void*)context->vsyscalls[1]);
     addAlternate((void*)0xffffffffff600800, (void*)context->vsyscalls[2]);
+    // create exit bridge
+    context->exit_bridge = AddBridge(context->system, NULL, NULL, 0, NULL);
     // get handle to box64 itself
     context->box64lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
     context->dlprivate = NewDLPrivate();

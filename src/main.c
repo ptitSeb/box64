@@ -1779,7 +1779,7 @@ int main(int argc, const char **argv, char **env) {
     // Stack is ready, with stacked: NULL env NULL argv argc
     SetRIP(emu, my_context->ep);
     ResetFlags(emu);
-    PushExit(emu);  // push to pop it just after
+    Push64(emu, my_context->exit_bridge);  // push to pop it just after
     SetRDX(emu, Pop64(emu));    // RDX is exit function
     Run(emu, 0);
     // Get EAX

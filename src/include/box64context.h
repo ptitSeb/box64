@@ -118,6 +118,7 @@ typedef struct box64context_s {
 
     kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
     bridge_t            *system;        // other bridges
+    uintptr_t           exit_bridge;    // exit bridge value
     uintptr_t           vsyscall;       // vsyscall bridge value
     uintptr_t           vsyscalls[3];   // the 3 x86 VSyscall pseudo bridges (mapped at 0xffffffffff600000+)
     dlprivate_t         *dlprivate;     // dlopen library map

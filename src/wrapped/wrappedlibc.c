@@ -2939,7 +2939,7 @@ EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
     buffer[0] = (void*)addr;
     while (++idx < size) {
         uintptr_t ret_addr = get_parent_registers(unwind, FindElfAddress(my_context, addr), addr, &success);
-        if (ret_addr == (uintptr_t)GetExit()) {
+        if (ret_addr == my_context->exit_bridge) {
             // TODO: do something to be able to get the function name
             buffer[idx] = (void*)ret_addr;
             success = 2;
@@ -2969,7 +2969,7 @@ EXPORT int my_backtrace_ip(x64emu_t* emu, void** buffer, int size)
     buffer[0] = (void*)addr;
     while ((++idx < size) && success) {
         uintptr_t ret_addr = get_parent_registers(unwind, FindElfAddress(my_context, addr), addr, &success);
-        if (ret_addr == (uintptr_t)GetExit()) {
+        if (ret_addr == my_context->exit_bridge) {
             // TODO: do something to be able to get the function name
             buffer[idx] = (void*)ret_addr;
             success = 2;

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "regs.h"
 #include "x64emu_private.h"
+#include "box64context.h"
 typedef struct x64emu_s x64emu_t;
 
 typedef union rex_s {
@@ -36,6 +37,12 @@ static inline void Push(x64emu_t *emu, uint64_t v)
     *((uint64_t*)R_RSP) = v;
 }
 #endif
+
+static inline void PushExit(x64emu_t* emu)
+{
+    R_RSP -= 8;
+    *((uint64_t*)R_RSP) = my_context->exit_bridge;
+}
 
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
 
