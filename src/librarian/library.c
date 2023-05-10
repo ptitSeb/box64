@@ -1104,21 +1104,21 @@ void setNeededLibs(library_t* lib, int n, ...)
 
 void IncRefCount(library_t* lib, x64emu_t* emu)
 {
-    if(lib->type==LIB_UNNKNOW)
+    if(!lib || lib->type==LIB_UNNKNOW)
         return;
     switch (lib->type) {
         case LIB_WRAPPED:
             ++lib->w.refcnt;
-            if(lib->w.needed)
+            /*if(lib->w.needed)
                 for(int i=0; i<lib->w.needed->size; ++i) {
                     IncRefCount(lib->w.needed->libs[i], emu);
-                }
+                }*/
             break;
         case LIB_EMULATED:
             ++lib->e.elf->refcnt;
-            if(lib->e.elf->needed)
-                for(int i=0; i<lib->e.elf->needed->size; ++i)
-                    IncRefCount(lib->e.elf->needed->libs[i], emu);
+            /*if(lib->e.elf->needed)
+                for(int i=0; i<lib->e.elf->needed->size; ++i)   // some libs may not be loaded yet
+                    IncRefCount(lib->e.elf->needed->libs[i], emu);*/
     }
 }
 
@@ -1155,9 +1155,9 @@ int DecRefCount(library_t** lib, x64emu_t* emu)
             }
             break;
     }
-    if(needed)
+    /*if(needed)
         for(int i=0; i<needed->size; ++i)
-            DecRefCount(&needed->libs[i], emu);
+            DecRefCount(&needed->libs[i], emu);*/
     if(freed)
         free_neededlib(needed);
     return ret;
