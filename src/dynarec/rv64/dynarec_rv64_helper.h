@@ -131,12 +131,11 @@
                     LDxw(ed, wback, fixedaddress);      \
                 }
 // GETGW extract x64 register in gd, that is i
-#define GETGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); SLLI(i, gd, 48); SRLI(i, i, 48); gd = i;
+#define GETGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); ZEXTH(i, gd); gd = i;
 //GETEWW will use i for ed, and can use w for wback.
 #define GETEWW(w, i, D) if(MODREG) {        \
                     wback = xRAX+(nextop&7)+(rex.b<<3);\
-                    SLLI(i, wback, 48);     \
-                    SRLI(i, i, 48);         \
+                    ZEXTH(i, wback);        \
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \

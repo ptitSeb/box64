@@ -128,8 +128,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;                                  \
             if(MODREG) {                            \
                 ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                SLLI(x4, ed, 48);                   \
-                SRLI(x4, x4, 48);                   \
+                ZEXTH(x4, ed);                      \
             } else {                                \
                 SMREAD();                           \
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
@@ -1451,8 +1450,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETSGW(x2);
             MULW(x2, x2, x1);
             UFLAG_RES(x2);
-            SLLI(x2, x2, 48);
-            SRLI(x2, x2, 48);
+            ZEXTH(x2, x2);
             GWBACK;
             break;
 

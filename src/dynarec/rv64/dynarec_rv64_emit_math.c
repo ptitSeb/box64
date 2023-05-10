@@ -247,8 +247,7 @@ void emit_add16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         ORI(xFlags, xFlags, 1 << F_CF);
     }
 
-    SLLI(s1, s1, 48);
-    SRLI(s1, s1, 48);
+    ZEXTH(s1, s1);
 
     IFX(X_ZF) {
         BNEZ(s1, 8);
@@ -846,7 +845,7 @@ void emit_inc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
     }
 
-    if(rv64_zbb) ZEXTH(s1, s1); else {SLLI(s1, s1, 48); SRLI(s1, s1, 48);}
+    ZEXTH(s1, s1);
 
     IFX(X_ZF) {
         BNEZ(s1, 8);
@@ -1120,7 +1119,7 @@ void emit_neg16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
     }
 
     NEG(s1, s1);
-    if(rv64_zbb) ZEXTH(s1, s1); else {SLLI(s1, s1, 48); SRLI(s1, s1, 48);}
+    ZEXTH(s1, s1);
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -1268,7 +1267,7 @@ void emit_adc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         ORI(xFlags, xFlags, 1 << F_CF);
     }
 
-    if(rv64_zbb) ZEXTH(s1, s1); else {SLLI(s1, s1, 48); SRLI(s1, s1, 48);}
+    ZEXTH(s1, s1);
 
     IFX(X_ZF) {
         BNEZ(s1, 8);

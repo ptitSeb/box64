@@ -165,7 +165,7 @@ void emit_xor16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 
     XOR(s1, s1, s2);
-    if(rv64_zbb) ZEXTH(s1, s1); else {SLLI(s1, s1, 48); SRLI(s1, s1, 48);}
+    ZEXTH(s1, s1);
 
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
@@ -196,7 +196,7 @@ void emit_or16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4) {
     }
 
     OR(s1, s1, s2);
-    if(rv64_zbb) ZEXTH(s1, s1); else {SLLI(s1, s1, 48); SRLI(s1, s1, 48);}
+    ZEXTH(s1, s1);
     IFX(X_PEND) {
         SD(s1, xEmu, offsetof(x64emu_t, res));
     }

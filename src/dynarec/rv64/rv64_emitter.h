@@ -571,7 +571,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Sign-extend half-word
 #define SEXTH(rd, rs)           EMIT(R_type(0b0110000, 0b00101, rs, 0b001, rd, 0b0010011))
 // Zero-extend half-word
-#define ZEXTH(rd, rs)           EMIT(R_type(0b0000100, 0b00000, rs, 0b100, rd, 0b0111011))
+#define ZEXTH(rd, rs)           if(rv64_zbb) EMIT(R_type(0b0000100, 0b00000, rs, 0b100, rd, 0b0111011)); else {SLLI(rd, rs, 48); SRLI(rd, rd, 48);}
 // Rotate left (register)
 #define ROL(rd, rs1, rs2)       EMIT(R_type(0b0110000, rs2, rs1, 0b001, rd, 0b0110011))
 // Rotate left word (register)
