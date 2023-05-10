@@ -702,6 +702,26 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shr16);
                     break;
+                case 4:
+                case 6:
+                    if(opcode==0xD1) {
+                        INST_NAME("SHL Ew, 1");
+                        MOV32w(x4, 1);
+                    } else {
+                        INST_NAME("SHL Ew, CL");
+                        ANDI(x4, xRCX, 0x1f);
+                    }
+                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 0);
+                    UFLAG_OP12(ed, x4)
+                    SLL(ed, ed, x4);
+                    SLLI(ed, ed, 48);
+                    SRLI(ed, ed, 48);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shl16);
+                    break;
                 case 7:
                     if(opcode==0xD1) {
                         INST_NAME("SAR Ew, 1");
@@ -713,7 +733,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETSEW(x1, 0);
-                    UFLAG_OP12(ed, x4)
+                    UFLAG_OP12(ed, x4);
                     SRA(ed, ed, x4);
                     SLLI(ed, ed, 48);
                     SRLI(ed, ed, 48);
