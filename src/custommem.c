@@ -116,14 +116,14 @@ typedef struct blockmark_s {
 #define PREV_BLOCK(b) (blockmark_t*)(((uintptr_t)(b) - (b)->prev.size) - sizeof(blockmark_t))
 #define LAST_BLOCK(b, s) (blockmark_t*)(((uintptr_t)(b)+(s))-sizeof(blockmark_t))
 
-static void printBlock(blockmark_t* b, void* start)
+void printBlock(blockmark_t* b, void* start)
 {
-    printf_log(LOG_INFO, "========== Block is:\n");
+    printf_log(LOG_NONE, "========== Block is:\n");
     do {
-        printf_log(LOG_INFO, "%c%p, fill=%d, size=0x%x (prev=%d/0x%x)\n", b==start?'*':' ', b, b->next.fill, b->next.size, b->prev.fill, b->prev.size);
+        printf_log(LOG_NONE, "%c%p, fill=%d, size=0x%x (prev=%d/0x%x)\n", b==start?'*':' ', b, b->next.fill, b->next.size, b->prev.fill, b->prev.size);
         b = NEXT_BLOCK(b);
     } while(b->next.x32);
-    printf_log(LOG_INFO, "===================\n");
+    printf_log(LOG_NONE, "===================\n");
 }
 
 // get first subblock free in block. Return NULL if no block, else first subblock free (mark included), filling size
@@ -241,7 +241,7 @@ static size_t freeBlock(void *block, void* sub, void** pstart)
         s->next.size += n->next.size + sizeof(blockmark_t);
         n2->prev.size = s->next.size;
     }
-    if(pstart && (uintptr_t)*pstart>(uintptr_t)sub) {
+    if(pstart && (uintptr_t)*pstart>(uintptr_t)s) {
         *pstart = (void*)s;
     }
     // return free size at current block (might be bigger)
@@ -289,6 +289,62 @@ static size_t sizeBlock(void* sub)
     return s->next.size;
 }
 
+// return 1 if block is coherent, 0 if not (and printf the issues)
+int printBlockCoherent(int i)
+{
+    if(i<0 || i>=n_blocks) {
+        printf_log(LOG_NONE, "Error, %d should be between 0 and %d\n", i, n_blocks);
+        return 0;
+    }
+    int ret = 1;
+    blockmark_t* m = (blockmark_t*)p_blocks[i].block;
+    // check if first is correct
+    blockmark_t* first = getNextFreeBlock(m);
+    if(p_blocks[i].first && p_blocks[i].first!=first) {printf_log(LOG_NONE, "First %p and stored first %p differs for block %d\n", first, p_blocks[i].first, i); ret = 0;}
+    // check if maxfree is correct, with no hint
+    size_t maxfree = getMaxFreeBlock(m, p_blocks[i].size, NULL);
+    if(maxfree != p_blocks[i].maxfree) {printf_log(LOG_NONE, "Maxfree without hint %zd and stored maxfree %zd differs for block %d\n", maxfree, p_blocks[i].maxfree); ret = 0;}
+    // check if maxfree from first is correct
+    maxfree = getMaxFreeBlock(m, p_blocks[i].size, p_blocks[i].first);
+    if(maxfree != p_blocks[i].maxfree) {printf_log(LOG_NONE, "Maxfree with hint %zd and stored maxfree %zd differs for block %d\n", maxfree, p_blocks[i].maxfree); ret = 0;}
+    // check chain
+    blockmark_t* last = (blockmark_t*)(((uintptr_t)m)+p_blocks[i].size-sizeof(blockmark_t));
+    while(m<last) {
+        blockmark_t* n = NEXT_BLOCK(m);
+        if(!m->next.fill && !n->next.fill && n!=last) {
+            printf_log(LOG_NONE, "Chain contains 2 subsequent free blocks %p (%d) and %p (%d) for block %d\n", m, m->next.size, n, n->next.size, i);
+            ret = 0;
+        }
+        m = n;
+    }
+    if(m!=last) {
+        printf_log(LOG_NONE, "Last block %p is behond expexted block %p for block %d\n", m, last, i);
+        ret = 0;
+    }
+
+    return ret;
+}
+
+void testAllBlocks()
+{
+    size_t total = 0;
+    size_t fragmented_free = 0;
+    size_t max_free = 0;
+    for(int i=0; i<n_blocks; ++i) {
+        printBlockCoherent(i);
+        total += p_blocks[i].size;
+        if(max_free<p_blocks[i].maxfree)
+            max_free = p_blocks[i].maxfree;
+        blockmark_t* m = (blockmark_t*)p_blocks[i].block;
+        while(m->next.x32) {
+            if(!m->next.fill)
+                fragmented_free += m->next.size;
+            m = NEXT_BLOCK(m);
+        }
+    }
+    printf_log(LOG_NONE, "Total %d blocks, for %zd allocated memory, max_free %zd, toatal fragmented free %zd\n", n_blocks, total, max_free, fragmented_free);
+}
+
 #define THRESHOLD   (128-2*sizeof(blockmark_t))
 
 static size_t roundSize(size_t size)
@@ -320,9 +376,7 @@ void* customMalloc(size_t size)
             if(sub) {
                 if(rsize-size<THRESHOLD)
                     size = rsize;
-                void* ret = allocBlock(p_blocks[i].block, sub, size, NULL);
-                if(sub==p_blocks[i].first)
-                    p_blocks[i].first = getNextFreeBlock(sub);
+                void* ret = allocBlock(p_blocks[i].block, sub, size, &p_blocks[i].first);
                 if(rsize==p_blocks[i].maxfree)
                     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
                 mutex_unlock(&mutex_blocks);
@@ -359,8 +413,8 @@ void* customMalloc(size_t size)
     n->prev.fill = 0;
     n->prev.size = m->next.size;
     // alloc 1st block
-    void* ret  = allocBlock(p_blocks[i].block, p, size, NULL);
-    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, NULL);
+    void* ret  = allocBlock(p_blocks[i].block, p, size, &p_blocks[i].first);
+    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
     mutex_unlock(&mutex_blocks);
     return ret;
 }
@@ -383,7 +437,7 @@ void* customRealloc(void* p, size_t size)
          && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
             if(expandBlock(p_blocks[i].block, sub, size)) {
-                if(sub<p_blocks[i].first && p+size<p_blocks[i].first)
+                if(sub<p_blocks[i].first && p+size>=p_blocks[i].first)
                     p_blocks[i].first = getNextFreeBlock(sub);
                 p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
                 mutex_unlock(&mutex_blocks);
@@ -411,10 +465,7 @@ void customFree(void* p)
         if ((addr>(uintptr_t)p_blocks[i].block) 
          && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
-            void* n = NEXT_BLOCK((blockmark_t*)sub);
-            size_t newfree = freeBlock(p_blocks[i].block, sub, NULL);
-            if(sub<=p_blocks[i].first)
-                p_blocks[i].first = getPrevFreeBlock(n);
+            size_t newfree = freeBlock(p_blocks[i].block, sub, &p_blocks[i].first);
             if(p_blocks[i].maxfree < newfree) p_blocks[i].maxfree = newfree;
             mutex_unlock(&mutex_blocks);
             return;
@@ -563,10 +614,7 @@ void FreeDynarecMap(uintptr_t addr)
         if ((addr>(uintptr_t)list->chunks[i].block) 
          && (addr<((uintptr_t)list->chunks[i].block+list->chunks[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
-            void* n = NEXT_BLOCK((blockmark_t*)sub);
-            size_t newfree = freeBlock(list->chunks[i].block, sub, NULL);
-            if(sub<=list->chunks[i].first)
-                list->chunks[i].first = getPrevFreeBlock(n);
+            size_t newfree = freeBlock(list->chunks[i].block, sub, &list->chunks[i].first);
             if(list->chunks[i].maxfree < newfree)
                 list->chunks[i].maxfree = newfree;
             return;
