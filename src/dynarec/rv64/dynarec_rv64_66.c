@@ -83,8 +83,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("ADD AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
-            SLLI(x1 , xRAX, 48);
-            SRLI(x1, x1, 48);
+            ZEXTH(x1 , xRAX);
             MOV32w(x2, i32);
             emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
             LUI(x3, 0xffff0);
@@ -113,8 +112,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("OR AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
-            SLLI(x1, xRAX, 48);
-            SRLI(x1, x1, 48);
+            ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_or16(dyn, ninst, x1, x2, x3, x4);
             LUI(x3, 0xffff0);
@@ -156,8 +154,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("AND AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
-            SLLI(x1, xRAX, 48);
-            SRLI(x1, x1, 48);
+            ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_and16(dyn, ninst, x1, x2, x3, x4);
             LUI(x3, 0xffff0);
@@ -186,8 +183,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SUB AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
-            SLLI(x1, xRAX, 48);
-            SRLI(x1, x1, 48);
+            ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
             LUI(x2, 0xffff0);
@@ -216,8 +212,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("XOR AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
-            SLLI(x1, xRAX, 48);
-            SRLI(x1, x1, 48);
+            ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_xor16(dyn, ninst, x1, x2, x3, x4, x5);
             LUI(x5, 0xffff0);
@@ -244,8 +239,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("CMP AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
-            SLLI(x1, xRAX, 48);
-            SRLI(x1, x1, 48);
+            ZEXTH(x1, xRAX);
             if(i32) {
                 MOV32w(x2, i32);
                 emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
@@ -276,8 +270,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(opcode==0x69) i32 = F16S; else i32 = F8S;
             MOV32w(x2, i32);
             MULW(x2, x2, x1);
-            SLLI(x2, x2, 48);
-            SRLI(x2, x2, 48);
+            ZEXTH(x2, x2);
             UFLAG_RES(x2);
             gd=x2;
             GWBACK;
@@ -403,8 +396,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     // we don't use GETGW above, so we need let gd & 0xffff.
                     LUI(x1, 0xffff0);
                     AND(ed, ed, x1);
-                    SLLI(x2, gd, 48);
-                    SRLI(x2, x2, 48);
+                    ZEXTH(x2, gd);
                     OR(ed, ed, x2);
                 }
             } else {
@@ -422,8 +414,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 if(ed!=gd) {
                     LUI(x1, 0xffff0);
                     AND(gd, gd, x1);
-                    SLLI(x2, ed, 48);
-                    SRLI(x2, x2, 48);
+                    ZEXTH(x2, ed);
                     OR(gd, gd, x2);
                 }
             } else {
@@ -452,13 +443,11 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     // x2 <- rax
                     MV(x2, xRAX);
                     // rax[15:0] <- gd[15:0]
-                    SLLI(x3, gd, 48);
-                    SRLI(x3, x3, 48);
+                    ZEXTH(x3, gd);
                     AND(xRAX, xRAX, x4);
                     OR(xRAX, xRAX, x3);
                     // gd[15:0] <- x2[15:0]
-                    SLLI(x2, x2, 48);
-                    SRLI(x2, x2, 48);
+                    ZEXTH(x2, x2);
                     AND(gd, gd, x4);
                     OR(gd, gd, x2);
                 }
@@ -652,8 +641,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_OP12(ed, x2)
                     SRAI(ed, ed, u8&0x1f);
                     if(MODREG) {
-                        SLLI(ed, ed, 48);
-                        SRLI(ed, ed, 48);
+                        ZEXTH(ed, ed);
                     }
                     EWBACK;
                     UFLAG_RES(ed);
@@ -702,6 +690,25 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shr16);
                     break;
+                case 4:
+                case 6:
+                    if(opcode==0xD1) {
+                        INST_NAME("SHL Ew, 1");
+                        MOV32w(x4, 1);
+                    } else {
+                        INST_NAME("SHL Ew, CL");
+                        ANDI(x4, xRCX, 0x1f);
+                    }
+                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 0);
+                    UFLAG_OP12(ed, x4)
+                    SLL(ed, ed, x4);
+                    ZEXTH(ed, ed);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shl16);
+                    break;
                 case 7:
                     if(opcode==0xD1) {
                         INST_NAME("SAR Ew, 1");
@@ -713,10 +720,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETSEW(x1, 0);
-                    UFLAG_OP12(ed, x4)
+                    UFLAG_OP12(ed, x4);
                     SRA(ed, ed, x4);
-                    SLLI(ed, ed, 48);
-                    SRLI(ed, ed, 48);
+                    ZEXTH(ed, ed);
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_sar16);
@@ -758,9 +764,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("DIV Ew");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEW(x1, 0);
-                    SLLI(x2, xRAX, 48);
+                    ZEXTH(x2, xRAX);
                     SLLI(x3, xRDX, 48);
-                    SRLI(x2, x2, 48);
                     SRLI(x3, x3, 32);
                     OR(x2, x2, x3);
                     DIVUW(x3, x2, ed);
@@ -779,9 +784,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     NOTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
                     GETSEW(x1, 0);
-                    SLLI(x2, xRAX, 48);
+                    ZEXTH(x2, xRAX);
                     SLLI(x3, xRDX, 48);
-                    SRLI(x2, x2, 48);
                     SRLI(x3, x3, 32);
                     OR(x2, x2, x3);
                     DIVW(x3, x2, ed);

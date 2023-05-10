@@ -69,8 +69,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         if(opcode==0x81) i32 = F16S; else i32 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         MOV32w(x5, i32);
-                        SLLI(x6, ed, 48);
-                        SRLI(x6, x6, 48);
+                        ZEXTH(x6, ed);
                         emit_add16(dyn, ninst, x6, x5, x3, x4, x2);
                         SRLI(ed, ed, 16);
                         SLLI(ed, ed, 16);

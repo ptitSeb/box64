@@ -128,8 +128,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;                                  \
             if(MODREG) {                            \
                 ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                SLLI(x4, ed, 48);                   \
-                SRLI(x4, x4, 48);                   \
+                ZEXTH(x4, ed);                      \
             } else {                                \
                 SMREAD();                           \
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
@@ -391,7 +390,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 0x0B:
                     INST_NAME("ROUNDSD Gx, Ex, Ib");
                     nextop = F8;
-                    GETEXSD(d0, 0);
+                    GETEXSD(d0, 1);
                     GETGXSD_empty(v0);
                     d1 = fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
@@ -417,6 +416,41 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         FCVTLD(x5, d0, round_round[u8&3]);
                         FCVTDL(v0, x5, RD_RTZ);
+                    }
+                    break;
+                case 0x09:
+                    INST_NAME("ROUNDPD Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 1);
+                    u8 = F8;
+                    d0 = fpu_get_scratch(dyn);
+                    d1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    MOV64x(x3, 1ULL << __DBL_MANT_DIG__);
+                    FCVTDL(d1, x3, RD_RTZ);
+                    for (int i=0; i<2; ++i) {
+                        FLD(d0, wback, fixedaddress+8*i);
+                        FEQD(x4, d0, d0);
+                        BNEZ_MARK(x4);
+                        B_MARK3_nocond;
+                        MARK; // d0 is not nan
+                        FABSD(v1, d0);
+                        FLTD(x4, v1, d1);
+                        BNEZ_MARK2(x4);
+                        B_MARK3_nocond;
+                        MARK2;
+                        if(u8&4) {
+                            u8 = sse_setround(dyn, ninst, x4, x5);
+                            FCVTLD(x5, d0, RD_DYN);
+                            FCVTDL(d0, x5, RD_RTZ);
+                            x87_restoreround(dyn, ninst, u8);
+                        } else {
+                            FCVTLD(x5, d0, round_round[u8&3]);
+                            FCVTDL(d0, x5, RD_RTZ);
+                        }
+                        MARK3;
+                        FSD(d0, gback, 8*i);
                     }
                     break;
                 case 0x0E:
@@ -1416,8 +1450,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETSGW(x2);
             MULW(x2, x2, x1);
             UFLAG_RES(x2);
-            SLLI(x2, x2, 48);
-            SRLI(x2, x2, 48);
+            ZEXTH(x2, x2);
             GWBACK;
             break;
 

@@ -742,8 +742,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     UFLAG_RES(x1);
                     LUI(x2, 0xffff0);
                     AND(xRAX, xRAX, x2);
-                    SLLI(x1, x1, 48);
-                    SRLI(x1, x1, 48);
+                    ZEXTH(x1, x1);
                     OR(xRAX, xRAX, x1);
                     break;
                 case 5:
@@ -757,8 +756,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     UFLAG_RES(x1);
                     LUI(x2, 0xffff0);
                     AND(xRAX, xRAX, x2);
-                    SLLI(x1, x1, 48);
-                    SRLI(x1, x1, 48);
+                    ZEXTH(x1, x1);
                     OR(xRAX, xRAX, x1);
                     break;
                 case 6:

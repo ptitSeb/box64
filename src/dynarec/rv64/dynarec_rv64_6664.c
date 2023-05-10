@@ -57,8 +57,7 @@ uintptr_t dynarec64_6664(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if(ed!=gd) {
                         LUI(x1, 0xffff0);
                         AND(gd, gd, x1);
-                        SLLI(x1, ed, 48);
-                        SRLI(x1, x1, 48);
+                        ZEXTH(x1, ed);
                         OR(gd, gd, x1);
                     }
                 }
