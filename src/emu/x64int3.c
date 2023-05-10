@@ -129,7 +129,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                         Elf64_Rela * rel = (Elf64_Rela *)(h->jmprel + h->delta) + slot;
                         Elf64_Sym *sym = &h->DynSym[ELF64_R_SYM(rel->r_info)];
                         const char* symname = SymName(h, sym);
-                        snprintf(buff, 256, "PltResolver \"%s\"", symname?symname:"???");
+                        snprintf(buff, 256, "%04d|PltResolver \"%s\"", tid, symname?symname:"???");
                     } else {
                         snprintf(buff, 256, "%s", " ... ");
                     }
