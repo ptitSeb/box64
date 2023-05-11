@@ -626,6 +626,14 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             if(rex.w) SD(ed, gback, 0); else SW(ed, gback, 0);
             break;
+        case 0x6F:
+            INST_NAME("MOVQ Gm, Em");
+            nextop = F8;
+            GETGM(x1);
+            GETEM(x2, 0);
+            LD(x3, wback, fixedaddress);
+            SD(x3, gback, 0);
+            break;
         case 0x75:
             INST_NAME("PCMPEQW Gm,Em");
             nextop = F8;
