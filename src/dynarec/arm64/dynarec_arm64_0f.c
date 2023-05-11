@@ -747,7 +747,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     FMOVSw(v0, ed);
                 }
             } else {
-                v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                 if(rex.w) {
                     VLD64(v0, ed, fixedaddress);
