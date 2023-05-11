@@ -399,7 +399,7 @@
 // Get EM, might use x3
 #define GETEM(a, D)                                                                             \
     if(MODREG) {                                                                                \
-        ed = (nextop&7)+(rex.b<<3);                                                             \
+        ed = (nextop&7);                                                                        \
         mmx_forget_reg(dyn, ninst, ed);                                                         \
         fixedaddress = 0;                                                                       \
         ADDI(a, xEmu, offsetof(x64emu_t, mmx[ed]));                                             \
@@ -435,6 +435,14 @@
     SSE_LOOP_DS_ITEM(GX1, EX1, F, 1) \
     SSE_LOOP_DS_ITEM(GX1, EX1, F, 2) \
     SSE_LOOP_DS_ITEM(GX1, EX1, F, 3)
+
+#define MMX_LOOP_W(GX1, EX1, F)            \
+    for (int i=0; i<4; ++i) {              \
+        LHU(GX1, gback, i*2);              \
+        LHU(EX1, wback, fixedaddress+i*2); \
+        F;                                 \
+        SH(GX1, gback, i*2);               \
+    }
 
 #define SSE_LOOP_W(GX1, EX1, F)            \
     for (int i=0; i<8; ++i) {              \
