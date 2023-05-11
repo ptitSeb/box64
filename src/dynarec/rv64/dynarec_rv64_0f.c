@@ -685,6 +685,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x71:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLW Em, Ib");
+                    GETEM(x1, 1);
+                    u8 = F8;
+                    if (u8>15) {
+                        // just zero dest
+                        SD(xZR, x1, fixedaddress);
+                    } else if(u8) {
+                        for (int i=0; i<4; ++i) {
+                            // EX->uw[i] >>= u8;
+                            LHU(x3, wback, fixedaddress+i*2);
+                            SRLI(x3, x3, u8);
+                            SH(x3, wback, fixedaddress+i*2);
+                        }
+                    }
+                    break;
                 case 6:
                     INST_NAME("PSLLW Em, Ib");
                     GETEM(x1, 1);
