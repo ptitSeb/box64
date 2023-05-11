@@ -600,6 +600,15 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LHU(x3, wback, fixedaddress+2*0);
             SH(x3, gback, 2*1);
             break;
+        case 0x62:
+            INST_NAME("PUNPCKLDQ Gm, Em");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            // GM->ud[1] = EM->ud[0];
+            LWU(x3, wback, fixedaddress);
+            SW(x3, gback, 4*1);
+            break;
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
             nextop = F8;
