@@ -1366,7 +1366,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 OR(gd, x1, x2);
             }
             break;
-
+        case 0xEF:
+            INST_NAME("PXOR Gm,Em");
+            nextop = F8;
+            GETGM(x1);
+            if(MODREG && gd==(nextop&7)+(rex.b<<3)) {
+                // just zero dest
+                SD(xZR, gback, 0);
+            } else {
+                GETEX(x2, 0);
+                LD(x3, gback, 0);
+                LD(x4, wback, fixedaddress);
+                XOR(x3, x3, x4);
+                SD(x3, gback, 0);
+            }
+            break;
         default:
             DEFAULT;
     }
