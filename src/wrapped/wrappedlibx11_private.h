@@ -583,7 +583,7 @@ DATA(_XkbGetAtomNameFunc, sizeof(void*))
 GO(XkbGetAutoResetControls, iFppp)
 //GO(_XkbGetCharset, 
 //GO(XkbGetCompatMap
-//GO(XkbGetControls
+GO(XkbGetControls, iFpLp)
 //GO(_XkbGetConverters, 
 GO(XkbGetDetectableAutoRepeat, iFpp)
 GO(XkbGetDeviceButtonActions, iFppiuu)
