@@ -1467,6 +1467,27 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SH(x3, gback, 2*i);
             }
             break;
+        case 0xED:
+            INST_NAME("PADDSW Gm,Em");
+            nextop = F8;
+            GETGM(x1);
+            GETEM(x2, 0);
+            for(int i=0; i<4; ++i) {
+                // tmp32s = (int32_t)GX->sw[i] + EX->sw[i];
+                // GX->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+                LH(x3, gback, 2*i);
+                LH(x4, wback, fixedaddress+2*i);
+                ADDW(x3, x3, x4);
+                LUI(x4, 0xFFFF8); // -32768
+                BGE(x3, x4, 12);
+                SH(x4, gback, 2*i);
+                J(20); // continue
+                LUI(x4, 8); // 32768
+                BLT(x3, x4, 8);
+                ADDIW(x3, x4, -1);
+                SH(x3, gback, 2*i);
+            }
+            break;
         case 0xEF:
             INST_NAME("PXOR Gm,Em");
             nextop = F8;
