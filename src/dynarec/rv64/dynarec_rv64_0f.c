@@ -626,6 +626,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             if(rex.w) SD(ed, gback, 0); else SW(ed, gback, 0);
             break;
+        case 0x75:
+            INST_NAME("PCMPEQW Gm,Em");
+            nextop = F8;
+            GETGM(x1);
+            GETEM(x2, 0);
+            MMX_LOOP_W(x3, x4, SUB(x3, x3, x4); SEQZ(x3, x3); NEG(x3, x3));
+            break;
         case 0x77:
             INST_NAME("EMMS");
             // empty MMX, FPU now usable
