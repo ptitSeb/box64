@@ -390,6 +390,26 @@
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D);          \
     }
 
+#define GETGM(a)                        \
+    gd = ((nextop&0x38)>>3);            \
+    mmx_forget_reg(dyn, ninst, gd);     \
+    gback = a;                          \
+    ADDI(a, xEmu, offsetof(x64emu_t, mmx[gd]))
+
+// Get EM, might use x3
+#define GETEM(a, D)                                                                             \
+    if(MODREG) {                                                                                \
+        ed = (nextop&7)+(rex.b<<3);                                                             \
+        mmx_forget_reg(dyn, ninst, ed);                                                         \
+        fixedaddress = 0;                                                                       \
+        ADDI(a, xEmu, offsetof(x64emu_t, mmx[ed]));                                             \
+        wback = a;                                                                              \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        ed=8;                                                                                   \
+        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D);  \
+    }
+
 #define SSE_LOOP_D_ITEM(GX1, EX1, F, i) \
     LWU(GX1, gback, i*4);               \
     LWU(EX1, wback, fixedaddress+i*4);  \
@@ -926,6 +946,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define sse_setround    STEPNAME(sse_setround)
 #define mmx_get_reg     STEPNAME(mmx_get_reg)
 #define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
+#define mmx_forget_reg   STEPNAME(mmx_forget_reg)
 #define sse_get_reg     STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
 #define sse_forget_reg   STEPNAME(sse_forget_reg)
@@ -1115,6 +1136,8 @@ int extcache_st_coherency(dynarec_rv64_t* dyn, int ninst, int a, int b);
 int mmx_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a);
 // get float register for a MMX reg, but don't try to synch it if it needed to be created
 int mmx_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a);
+// forget float register for a MMX reg, create the entry if needed
+void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int a);
 
 //SSE/SSE2 helpers
 // get float register for a SSE reg, create the entry if needed

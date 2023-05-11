@@ -588,8 +588,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x61:
             INST_NAME("PUNPCKLWD Gm, Em");
             nextop = F8;
-            GETGX(x1);
-            GETEX(x2, 0);
+            GETGM(x1);
+            GETEM(x2, 0);
             // GM->uw[3] = EM->uw[1];
             LHU(x3, wback, fixedaddress+2*1);
             SH(x3, gback, 2*3);
@@ -603,8 +603,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x62:
             INST_NAME("PUNPCKLDQ Gm, Em");
             nextop = F8;
-            GETGX(x1);
-            GETEX(x2, 0);
+            GETGM(x1);
+            GETEM(x2, 0);
             // GM->ud[1] = EM->ud[0];
             LWU(x3, wback, fixedaddress);
             SW(x3, gback, 4*1);
@@ -612,15 +612,19 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
+            GETGM(x1);
             if(MODREG) {
                 ed = xRAX + (nextop&7) + (rex.b<<3);
-                if(rex.w) FMVDX(v0, ed); else FMVWX(v0, ed);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
-                if(rex.w) FLD(v0, ed, fixedaddress); else FLW(v0, ed, fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, 0);
+                if(rex.w) {
+                    LD(x4, ed, fixedaddress); 
+                } else {
+                    LW(x4, ed, fixedaddress);
+                }
+                ed = x4;
             }
+            if(rex.w) SD(ed, gback, 0); else SW(ed, gback, 0);
             break;
         case 0x77:
             INST_NAME("EMMS");
