@@ -594,7 +594,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LBU(x3, gback, i);
                 SB(x3, gback, 2*i);
             }
-            if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
+            if (MODREG && gd==(nextop&7)) {
                 for(int i=0; i<4; ++i) {
                     // GX->ub[2 * i + 1] = GX->ub[2 * i];
                     LBU(x3, gback, 2*i);
@@ -608,6 +608,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SB(x3, gback, 2*i+1);
                 }
             }
+            break;
         case 0x61:
             INST_NAME("PUNPCKLWD Gm, Em");
             nextop = F8;
@@ -641,7 +642,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LBU(x3, gback, i+4);
                 SB(x3, gback, 2*i);
             }
-            if (MODREG && gd==(nextop&7)+(rex.b<<3)) {
+            if (MODREG && gd==(nextop&7)) {
                 for(int i=0; i<4; ++i) {
                     // GX->ub[2 * i + 1] = GX->ub[2 * i];
                     LBU(x3, gback, 2*i);
@@ -1454,11 +1455,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("PXOR Gm,Em");
             nextop = F8;
             GETGM(x1);
-            if(MODREG && gd==(nextop&7)+(rex.b<<3)) {
+            if(MODREG && gd==(nextop&7)) {
                 // just zero dest
                 SD(xZR, gback, 0);
             } else {
-                GETEX(x2, 0);
+                GETEM(x2, 0);
                 LD(x3, gback, 0);
                 LD(x4, wback, fixedaddress);
                 XOR(x3, x3, x4);

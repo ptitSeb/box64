@@ -399,7 +399,7 @@
 // Get EM, might use x3
 #define GETEM(a, D)                                                                             \
     if(MODREG) {                                                                                \
-        ed = (nextop&7)+(rex.b<<3);                                                             \
+        ed = (nextop&7);                                                                        \
         mmx_forget_reg(dyn, ninst, ed);                                                         \
         fixedaddress = 0;                                                                       \
         ADDI(a, xEmu, offsetof(x64emu_t, mmx[ed]));                                             \
