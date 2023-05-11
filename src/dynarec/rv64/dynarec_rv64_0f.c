@@ -1390,6 +1390,19 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 OR(gd, x1, x2);
             }
             break;
+        case 0xE5:
+            INST_NAME("PMULHW Gm,Em");
+            nextop = F8;
+            GETGM(x1);
+            GETEM(x2, 0);
+            for(int i=0; i<4; ++i) {
+                LH(x3, gback, 2*i);
+                LH(x4, wback, fixedaddress+2*i);
+                MULW(x3, x3, x4);
+                SRAIW(x3, x3, 16);
+                SH(x3, gback, 2*i);
+            }
+            break;
         case 0xEF:
             INST_NAME("PXOR Gm,Em");
             nextop = F8;
