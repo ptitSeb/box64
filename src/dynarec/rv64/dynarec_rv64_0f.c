@@ -734,6 +734,20 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                     }
                     break;
+                case 4:
+                    INST_NAME("PSRAW Em, Ib");
+                    GETEM(x1, 1);
+                    u8 = F8;
+                    if(u8>15) u8=15;
+                    if(u8) {
+                        for (int i=0; i<4; ++i) {
+                            // EX->sw[i] >>= u8;
+                            LH(x3, wback, fixedaddress+i*2);
+                            SRAI(x3, x3, u8);
+                            SH(x3, wback, fixedaddress+i*2);
+                        }
+                    }
+                    break;
                 case 6:
                     INST_NAME("PSLLW Em, Ib");
                     GETEM(x1, 1);
