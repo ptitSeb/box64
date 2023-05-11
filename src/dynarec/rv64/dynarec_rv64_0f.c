@@ -633,6 +633,39 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LWU(x3, wback, fixedaddress);
             SW(x3, gback, 4*1);
             break;
+        case 0x67:
+            INST_NAME("PACKUSWB Gm, Em");
+            nextop = F8;
+            GETGM(x2);
+            ADDI(x5, xZR, 0xFF);
+            for(int i=0; i<4; ++i) {
+                // GX->ub[i] = (GX->sw[i]<0)?0:((GX->sw[i]>0xff)?0xff:GX->sw[i]);
+                LH(x3, gback, i*2);
+                BGE(x5, x3, 8);
+                ADDI(x3, xZR, 0xFF);
+                NOT(x4, x3);
+                SRAI(x4, x4, 63);
+                AND(x3, x3, x4);
+                SB(x3, gback, i);
+            }
+            if (MODREG && gd==(nextop&7)) {
+                // GM->ud[1] = GM->ud[0];
+                LW(x3, gback, 0*4);
+                SW(x3, gback, 1*4);
+            } else {
+                GETEM(x1, 0);
+                for(int i=0; i<4; ++i) {
+                    // GX->ub[4+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
+                    LH(x3, wback, fixedaddress+i*2);
+                    BGE(x5, x3, 8);
+                    ADDI(x3, xZR, 0xFF);
+                    NOT(x4, x3);
+                    SRAI(x4, x4, 63);
+                    AND(x3, x3, x4);
+                    SB(x3, gback, 4+i);
+                }
+            }
+            break;
         case 0x68:
             INST_NAME("PUNPCKHBW Gm,Em");
             nextop = F8;
