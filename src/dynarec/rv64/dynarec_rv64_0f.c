@@ -633,7 +633,14 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             /*emu->top = 0;
             emu->fpu_stack = 0;*/ //TODO: Check if something is needed here?
             break;
-
+        case 0x7F:
+            INST_NAME("MOVQ Em, Gm");
+            nextop = F8;
+            GETGM(x1);
+            GETEM(x2, 0);
+            LD(x3, gback, 0);
+            SD(x3, wback, fixedaddress);
+            break;
         #define GO(GETFLAGS, NO, YES, F)   \
             READFLAGS(F);                                               \
             i32_ = F32S;                                                \
