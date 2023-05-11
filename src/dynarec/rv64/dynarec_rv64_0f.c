@@ -690,6 +690,30 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0x69:
+            INST_NAME("PUNPCKHWD Gm,Em");
+            nextop = F8;
+            GETGM(x2);
+            for(int i=0; i<2; ++i) {
+                // GX->uw[2 * i] = GX->uw[i + 2];
+                LHU(x3, gback, (i+2)*2);
+                SH(x3, gback, 2*i*2);
+            }
+            if (MODREG && gd==(nextop&7)) {
+                for(int i=0; i<2; ++i) {
+                    // GX->uw[2 * i + 1] = GX->uw[2 * i];
+                    LHU(x3, gback, 2*i*2);
+                    SH(x3, gback, (2*i+1)*2);
+                }
+            } else {
+                GETEM(x1, 0);
+                for(int i=0; i<2; ++i) {
+                    // GX->uw[2 * i + 1] = EX->uw[i + 2];
+                    LHU(x3, wback, fixedaddress+(i+2)*2);
+                    SH(x3, gback, (2*i+1)*2);
+                }
+            }
+            break;
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
             nextop = F8;
