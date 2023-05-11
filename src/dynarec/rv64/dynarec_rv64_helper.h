@@ -212,6 +212,28 @@
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
+//GETEBO will use i for ed, i is also Offset, and can use r3 for wback.
+#define GETEBO(i, D) if(MODREG) {               \
+                    if(rex.rex) {               \
+                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
+                        wb2 = 0;                \
+                    } else {                    \
+                        wback = (nextop&7);     \
+                        wb2 = (wback>>2)*8;     \
+                        wback = xRAX+(wback&3); \
+                    }                           \
+                    if (wb2) {MV(i, wback); SRLI(i, i, wb2); ANDI(i, i, 0xff);} else {ANDI(i, wback, 0xff);}   \
+                    wb1 = 0;                    \
+                    ed = i;                     \
+                } else {                        \
+                    SMREAD();                   \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, D); \
+                    ADD(x3, wback, i);          \
+                    if(wback!=x3) wback = x3;   \
+                    LBU(i, wback, fixedaddress);\
+                    wb1 = 1;                    \
+                    ed = i;                     \
+                }
 //GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
 #define GETSEB(i, D) if(MODREG) {                \
                     if(rex.rex) {               \
@@ -269,7 +291,6 @@
 
 // Write gb (gd) back to original register / memory, using s1 as scratch
 #define GBBACK(s1) if(gb2) {                            \
-                    assert(gb2 == 8);                   \
                     MOV64x(s1, 0xffffffffffff00ffLL);   \
                     AND(gb1, gb1, s1);                  \
                     SLLI(s1, gd, 8);                    \
@@ -284,7 +305,6 @@
                     SB(ed, wback, fixedaddress);        \
                     SMWRITE();                          \
                 } else if(wb2) {                        \
-                    assert(wb2 == 8);                   \
                     MOV64x(s1, 0xffffffffffff00ffLL);   \
                     AND(wback, wback, s1);              \
                     if (c) {ANDI(ed, ed, 0xff);}        \
@@ -368,6 +388,26 @@
         SMREAD();                                                                                       \
         ed=16;                                                                                          \
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D);          \
+    }
+
+#define GETGM(a)                        \
+    gd = ((nextop&0x38)>>3);            \
+    mmx_forget_reg(dyn, ninst, gd);     \
+    gback = a;                          \
+    ADDI(a, xEmu, offsetof(x64emu_t, mmx[gd]))
+
+// Get EM, might use x3
+#define GETEM(a, D)                                                                             \
+    if(MODREG) {                                                                                \
+        ed = (nextop&7)+(rex.b<<3);                                                             \
+        mmx_forget_reg(dyn, ninst, ed);                                                         \
+        fixedaddress = 0;                                                                       \
+        ADDI(a, xEmu, offsetof(x64emu_t, mmx[ed]));                                             \
+        wback = a;                                                                              \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        ed=8;                                                                                   \
+        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D);  \
     }
 
 #define SSE_LOOP_D_ITEM(GX1, EX1, F, i) \
@@ -906,6 +946,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define sse_setround    STEPNAME(sse_setround)
 #define mmx_get_reg     STEPNAME(mmx_get_reg)
 #define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
+#define mmx_forget_reg   STEPNAME(mmx_forget_reg)
 #define sse_get_reg     STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
 #define sse_forget_reg   STEPNAME(sse_forget_reg)
@@ -995,8 +1036,8 @@ void emit_dec16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 void emit_dec8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 //void emit_adc32c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_adc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_adc8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5);
+void emit_adc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_adc8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5, int s6);
 void emit_adc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 //void emit_adc16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_sbb32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
@@ -1090,12 +1131,20 @@ int extcache_st_coherency(dynarec_rv64_t* dyn, int ninst, int a, int b);
 #define X87_ST(A)   extcache_get_st(dyn, ninst, A)
 #endif
 
+//MMX helpers
+// get float register for a MMX reg, create the entry if needed
+int mmx_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a);
+// get float register for a MMX reg, but don't try to synch it if it needed to be created
+int mmx_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a);
+// forget float register for a MMX reg, create the entry if needed
+void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int a);
+
 //SSE/SSE2 helpers
-// get neon register for a SSE reg, create the entry if needed
+// get float register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
-// get neon register for a SSE reg, but don't try to synch it if it needed to be created
+// get float register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
-// forget neon register for a SSE reg, create the entry if needed
+// forget float register for a SSE reg, create the entry if needed
 void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int a);
 // purge the XMM0..XMM7 cache (before function call)
 void sse_purge07cache(dynarec_rv64_t* dyn, int ninst, int s1);

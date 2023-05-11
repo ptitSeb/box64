@@ -96,6 +96,91 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x66:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, seg, ok, need_epilog);
             break;
+        case 0x80:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0: // ADD
+                    INST_NAME("ADD Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEBO(x1, 1);
+                    u8 = F8;
+                    emit_add8c(dyn, ninst, x1, u8, x2, x4, x5);
+                    EBBACK(x5, 0);
+                    break;
+                case 1: // OR
+                    INST_NAME("OR Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEBO(x1, 1);
+                    u8 = F8;
+                    emit_or8c(dyn, ninst, x1, u8, x2, x4, x5);
+                    EBBACK(x5, 0);
+                    break;
+                case 2: // ADC
+                    INST_NAME("ADC Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEBO(x1, 1);
+                    u8 = F8;
+                    emit_adc8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
+                    EBBACK(x5, 0);
+                    break;
+                case 3: // SBB
+                    INST_NAME("SBB Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEBO(x1, 1);
+                    u8 = F8;
+                    emit_sbb8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
+                    EBBACK(x5, 0);
+                    break;
+                case 4: // AND
+                    INST_NAME("AND Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEBO(x1, 1);
+                    u8 = F8;
+                    emit_and8c(dyn, ninst, x1, u8, x2, x4);
+                    EBBACK(x5, 0);
+                    break;
+                case 5: // SUB
+                    INST_NAME("SUB Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEBO(x1, 1);
+                    u8 = F8;
+                    emit_sub8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
+                    EBBACK(x5, 0);
+                    break;
+                case 6: // XOR
+                    INST_NAME("XOR Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEBO(x1, 1);
+                    u8 = F8;
+                    emit_xor8c(dyn, ninst, x1, u8, x2, x4);
+                    EBBACK(x5, 0);
+                    break;
+                case 7: // CMP
+                    INST_NAME("CMP Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEBO(x1, 1);
+                    u8 = F8;
+                    if(u8) {
+                        MOV32w(x2, u8);
+                        emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    } else {
+                        emit_cmp8_0(dyn, ninst, x1, x3, x4);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;

@@ -585,6 +585,47 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0x61:
+            INST_NAME("PUNPCKLWD Gm, Em");
+            nextop = F8;
+            GETGM(x1);
+            GETEM(x2, 0);
+            // GM->uw[3] = EM->uw[1];
+            LHU(x3, wback, fixedaddress+2*1);
+            SH(x3, gback, 2*3);
+            // GM->uw[2] = GM->uw[1];
+            LHU(x3, gback, 2*1);
+            SH(x3, gback, 2*2);
+            // GM->uw[1] = EM->uw[0];
+            LHU(x3, wback, fixedaddress+2*0);
+            SH(x3, gback, 2*1);
+            break;
+        case 0x62:
+            INST_NAME("PUNPCKLDQ Gm, Em");
+            nextop = F8;
+            GETGM(x1);
+            GETEM(x2, 0);
+            // GM->ud[1] = EM->ud[0];
+            LWU(x3, wback, fixedaddress);
+            SW(x3, gback, 4*1);
+            break;
+        case 0x6E:
+            INST_NAME("MOVD Gm, Ed");
+            nextop = F8;
+            GETGM(x1);
+            if(MODREG) {
+                ed = xRAX + (nextop&7) + (rex.b<<3);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, 0);
+                if(rex.w) {
+                    LD(x4, ed, fixedaddress); 
+                } else {
+                    LW(x4, ed, fixedaddress);
+                }
+                ed = x4;
+            }
+            if(rex.w) SD(ed, gback, 0); else SW(ed, gback, 0);
+            break;
         case 0x77:
             INST_NAME("EMMS");
             // empty MMX, FPU now usable

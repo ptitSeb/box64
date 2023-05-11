@@ -1227,6 +1227,14 @@ static int isx87Empty(dynarec_rv64_t* dyn)
     return 1;
 }
 
+// forget ext register for a MMX reg, does nothing if the regs is not loaded
+void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int a)
+{
+    FSD(dyn->e.mmxcache[a], xEmu, offsetof(x64emu_t, mmx[a]));
+    fpu_free_reg(dyn, dyn->e.mmxcache[a]);
+    return;
+}
+
 // get neon register for a MMX reg, create the entry if needed
 int mmx_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
