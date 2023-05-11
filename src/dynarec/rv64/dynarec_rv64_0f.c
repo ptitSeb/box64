@@ -585,6 +585,19 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0x6E:
+            INST_NAME("MOVD Gm, Ed");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
+            if(MODREG) {
+                ed = xRAX + (nextop&7) + (rex.b<<3);
+                if(rex.w) FMVDX(v0, ed); else FMVWX(v0, ed);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                if(rex.w) FLD(v0, ed, fixedaddress); else FLW(v0, ed, fixedaddress);
+            }
+            break;
         case 0x77:
             INST_NAME("EMMS");
             // empty MMX, FPU now usable
