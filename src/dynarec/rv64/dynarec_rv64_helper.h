@@ -212,6 +212,28 @@
                     wb1 = 1;                    \
                     ed = i;                     \
                 }
+//GETEBO will use i for ed, i is also Offset, and can use r3 for wback.
+#define GETEBO(i, D) if(MODREG) {               \
+                    if(rex.rex) {               \
+                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
+                        wb2 = 0;                \
+                    } else {                    \
+                        wback = (nextop&7);     \
+                        wb2 = (wback>>2)*8;     \
+                        wback = xRAX+(wback&3); \
+                    }                           \
+                    if (wb2) {MV(i, wback); SRLI(i, i, wb2); ANDI(i, i, 0xff);} else {ANDI(i, wback, 0xff);}   \
+                    wb1 = 0;                    \
+                    ed = i;                     \
+                } else {                        \
+                    SMREAD();                   \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, D); \
+                    ADD(x3, wback, i);          \
+                    if(wback!=x3) wback = x3;   \
+                    LBU(i, wback, fixedaddress);\
+                    wb1 = 1;                    \
+                    ed = i;                     \
+                }
 //GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
 #define GETSEB(i, D) if(MODREG) {                \
                     if(rex.rex) {               \
@@ -269,7 +291,6 @@
 
 // Write gb (gd) back to original register / memory, using s1 as scratch
 #define GBBACK(s1) if(gb2) {                            \
-                    assert(gb2 == 8);                   \
                     MOV64x(s1, 0xffffffffffff00ffLL);   \
                     AND(gb1, gb1, s1);                  \
                     SLLI(s1, gd, 8);                    \
@@ -284,7 +305,6 @@
                     SB(ed, wback, fixedaddress);        \
                     SMWRITE();                          \
                 } else if(wb2) {                        \
-                    assert(wb2 == 8);                   \
                     MOV64x(s1, 0xffffffffffff00ffLL);   \
                     AND(wback, wback, s1);              \
                     if (c) {ANDI(ed, ed, 0xff);}        \
@@ -995,8 +1015,8 @@ void emit_dec16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 void emit_dec8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 //void emit_adc32c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-//void emit_adc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-//void emit_adc8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5);
+void emit_adc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_adc8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5, int s6);
 void emit_adc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 //void emit_adc16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_sbb32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
