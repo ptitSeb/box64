@@ -714,6 +714,20 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0x6A:
+            INST_NAME("PUNPCKHDQ Gm,Em");
+            nextop = F8;
+            GETEM(x1, 0);
+            GETGM(x2);
+            // GM->ud[0] = GM->ud[1];
+            LWU(x3, gback, 1*4);
+            SW(x3, gback, 0*4);
+            if (!(MODREG && (gd==ed))) {
+                // GM->ud[1] = EM->ud[1];
+                LWU(x3, wback, fixedaddress+1*4);
+                SW(x3, gback, 1*4);
+            }
+            break;
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
             nextop = F8;
