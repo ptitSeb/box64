@@ -1194,10 +1194,6 @@ void endBox64()
     box64_quit = 1;
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
     RunElfFini(my_context->elfs[0], emu);
-    #ifdef DYNAREC
-    // disable dynarec now
-    box64_dynarec = 0;
-    #endif
     FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
     FreeLibrarian(&my_context->maplib, emu);    // unload all libs
     #if 0
@@ -1241,6 +1237,10 @@ void endBox64()
     #endif
     // all done, free context
     FreeBox64Context(&my_context);
+    #ifdef DYNAREC
+    // disable dynarec now
+    box64_dynarec = 0;
+    #endif
     if(box64_libGL) {
         box_free(box64_libGL);
         box64_libGL = NULL;
