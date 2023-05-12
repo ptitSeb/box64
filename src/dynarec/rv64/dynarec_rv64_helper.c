@@ -1230,6 +1230,8 @@ static int isx87Empty(dynarec_rv64_t* dyn)
 // forget ext register for a MMX reg, does nothing if the regs is not loaded
 void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int a)
 {
+    if (dyn->e.mmxcache[a] == -1)
+        return;
     FSD(dyn->e.mmxcache[a], xEmu, offsetof(x64emu_t, mmx[a]));
     fpu_free_reg(dyn, dyn->e.mmxcache[a]);
     return;
