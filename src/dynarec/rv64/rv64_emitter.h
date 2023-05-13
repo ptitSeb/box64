@@ -74,6 +74,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define x4      14
 #define x5      15
 #define x6      6
+#define x9      9
 // used to clear the upper 32bits
 #define xMASK   5
 // 32bits version of scratch
