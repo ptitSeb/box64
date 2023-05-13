@@ -231,6 +231,15 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             ANDI(xRAX, xRAX, ~0xff);
             OR(xRAX, xRAX, x1);
             break;
+        case 0x1D:
+            INST_NAME("SBB EAX, Id");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            MOV64xw(x2, i64);
+            emit_sbb32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
+            break;
+
         case 0x20:
             INST_NAME("AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);

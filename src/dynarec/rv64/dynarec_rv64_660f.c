@@ -557,8 +557,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     for(int i=0; i<16; ++i) {
                         LB(x3, gback, i);
                         LB(x4, wback, fixedaddress+i);
-                        if(rv64_zbb) MIN(x3, x3, x4); else BLT(x3, x4, 4+4);
-                        SB(x3, gback, i);
+                        if(rv64_zbb) MIN(x4, x3, x4); else BLT(x3, x4, 4+4);
+                        SB(x4, gback, i);
                     }
                     break;
                 case 0x39:
@@ -569,8 +569,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     for(int i=0; i<4; ++i) {
                         LW(x3, gback, i*4);
                         LW(x4, wback, fixedaddress+i*4);
-                        if(rv64_zbb) MIN(x3, x3, x4); else BLT(x3, x4, 4+4);
-                        SW(x3, gback, i*4);
+                        if(rv64_zbb) MIN(x4, x3, x4); else BLT(x3, x4, 4+4);
+                        SW(x4, gback, i*4);
                     }
                     break;
                 case 0x3A:
@@ -581,8 +581,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     for(int i=0; i<8; ++i) {
                         LHU(x3, gback, i*2);
                         LHU(x4, wback, fixedaddress+i*2);
-                        if(rv64_zbb) MINU(x3, x3, x4); else BLTU(x3, x4, 4+4);
-                        SH(x3, gback, i*2);
+                        if(rv64_zbb) MINU(x4, x3, x4); else BLTU(x3, x4, 4+4);
+                        SH(x4, gback, i*2);
                     }
                     break;
                 case 0x3B:
@@ -593,8 +593,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     for(int i=0; i<4; ++i) {
                         LWU(x3, gback, i*4);
                         LWU(x4, wback, fixedaddress+i*4);
-                        if(rv64_zbb) MINU(x3, x3, x4); else BLTU(x3, x4, 4+4);
-                        SW(x3, gback, i*4);
+                        if(rv64_zbb) MINU(x4, x3, x4); else BLTU(x3, x4, 4+4);
+                        SW(x4, gback, i*4);
                     }
                     break;
                 case 0x3C:
@@ -605,8 +605,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     for(int i=0; i<16; ++i) {
                         LB(x3, gback, i);
                         LB(x4, wback, fixedaddress+i);
-                        if(rv64_zbb) MAX(x3, x3, x4); else BLT(x4, x3, 4+4);
-                        SB(x3, gback, i);
+                        if(rv64_zbb) MAX(x4, x3, x4); else BLT(x4, x3, 4+4);
+                        SB(x4, gback, i);
                     }
                     break;
                 case 0x3D:
@@ -617,8 +617,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     for(int i=0; i<4; ++i) {
                         LW(x3, gback, i*4);
                         LW(x4, wback, fixedaddress+i*4);
-                        if(rv64_zbb) MAX(x3, x3, x4); else BLT(x4, x3, 4+4);
-                        SW(x3, gback, i*4);
+                        if(rv64_zbb) MAX(x4, x3, x4); else BLT(x4, x3, 4+4);
+                        SW(x4, gback, i*4);
                     }
                     break;
                 case 0x3E:
@@ -629,8 +629,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     for(int i=0; i<8; ++i) {
                         LHU(x3, gback, i*2);
                         LHU(x4, wback, fixedaddress+i*2);
-                        if(rv64_zbb) MAXU(x3, x3, x4); else BLTU(x4, x3, 4+4);
-                        SH(x3, gback, i*2);
+                        if(rv64_zbb) MAXU(x4, x3, x4); else BLTU(x4, x3, 4+4);
+                        SH(x4, gback, i*2);
                     }
                     break;
                 case 0x3F:
@@ -641,8 +641,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     for(int i=0; i<4; ++i) {
                         LWU(x3, gback, i*4);
                         LWU(x4, wback, fixedaddress+i*4);
-                        if(rv64_zbb) MAXU(x3, x3, x4); else BLTU(x4, x3, 4+4);
-                        SW(x3, gback, i*4);
+                        if(rv64_zbb) MAXU(x4, x3, x4); else BLTU(x4, x3, 4+4);
+                        SW(x4, gback, i*4);
                     }
                     break;
                 case 0x40:
@@ -1258,10 +1258,10 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MIN(x3, x3, x5);
                     MAX(x3, x3, x6);
                 } else {
-                    BLT(x3, x6, 4+4);
-                    MV(x3, x6);
-                    BGE(x3, x5, 4+4);
+                    BLT(x3, x5, 4+4);
                     MV(x3, x5);
+                    BGE(x3, x6, 4+4);
+                    MV(x3, x6);
                 }
                 SB(x3, gback, i);
             }
@@ -1274,10 +1274,10 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MIN(x3, x3, x5);
                     MAX(x3, x3, x6);
                 } else {
-                    BLT(x3, x6, 4+4);
-                    MV(x3, x6);
-                    BGE(x3, x5, 4+4);
+                    BLT(x3, x5, 4+4);
                     MV(x3, x5);
+                    BGE(x3, x6, 4+4);
+                    MV(x3, x6);
                 }
                 SB(x3, gback, 8+i);
             }
