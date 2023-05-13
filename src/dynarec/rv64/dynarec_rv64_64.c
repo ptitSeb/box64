@@ -212,7 +212,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(opcode==0x81) i64 = F32S; else i64 = F8S;
                     MOV64xw(x5, i64);
                     SD(x6, xEmu, offsetof(x64emu_t, scratch));
-                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6);
+                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6, x9);
                     LD(x6, xEmu, offsetof(x64emu_t, scratch));
                     WBACKO(x6);
                     break;

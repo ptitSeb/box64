@@ -178,7 +178,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETED(0);
-            emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
             WBACK;
             break;
 

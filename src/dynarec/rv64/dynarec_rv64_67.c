@@ -191,7 +191,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             GETED32(0);
-            emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
             WBACK;
             break;
 
@@ -202,7 +202,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             GETED32(0);
-            emit_adc32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            emit_adc32(dyn, ninst, rex, gd, ed, x3, x4, x5, x6);
             break;
 
         case 0x15:
@@ -211,7 +211,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i64 = F32S;
             MOV64xw(x1, i64);
-            emit_adc32(dyn, ninst, rex, xRAX, x1, x3, x4, x5);
+            emit_adc32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6);
             break;
 
         case 0x19:
@@ -437,7 +437,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETED32((opcode==0x81)?4:1);
                     if(opcode==0x81) i64 = F32S; else i64 = F8S;
                     MOV64xw(x5, i64);
-                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x5);
+                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x5, x6);
                     WBACK;
                     break;
                 case 3: //SBB
