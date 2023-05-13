@@ -150,8 +150,7 @@
 //GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
 #define GETSEW(i, D) if(MODREG) {           \
                     wback = xRAX+(nextop&7)+(rex.b<<3);\
-                    SLLI(i, wback, 48);     \
-                    SRAI(i, i, 48);         \
+                    if(rv64_zbb) SEXTH(i, wback); else {SLLI(i, wback, 48); SRAI(i, i, 48);}\
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
