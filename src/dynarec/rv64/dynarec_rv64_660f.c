@@ -488,19 +488,176 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     break;
 
+                case 0x30:
+                    INST_NAME("PMOVZXBW Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=7; i>=0; --i) {
+                        LBU(x3, wback, fixedaddress+i);
+                        SH(x3, gback, i*2);
+                    }
+                    break;
+                case 0x31:
+                    INST_NAME("PMOVZXBD Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=3; i>=0; --i) {
+                        LBU(x3, wback, fixedaddress+i);
+                        SW(x3, gback, i*4);
+                    }
+                    break;
+                case 0x32:
+                    INST_NAME("PMOVZXBQ Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=1; i>=0; --i) {
+                        LBU(x3, wback, fixedaddress+i);
+                        SD(x3, gback, i*8);
+                    }
+                    break;
+                case 0x33:
+                    INST_NAME("PMOVZXWD Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=3; i>=0; --i) {
+                        LHU(x3, wback, fixedaddress+i*2);
+                        SW(x3, gback, i*4);
+                    }
+                    break;
+                case 0x34:
+                    INST_NAME("PMOVZXWQ Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=1; i>=0; --i) {
+                        LHU(x3, wback, fixedaddress+i*2);
+                        SD(x3, gback, i*8);
+                    }
+                    break;
+                case 0x35:
+                    INST_NAME("PMOVZXDQ Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=1; i>=0; --i) {
+                        LWU(x3, wback, fixedaddress+i*4);
+                        SD(x3, gback, i*8);
+                    }
+                    break;
+
+                case 0x38:
+                    INST_NAME("PMINSB Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<16; ++i) {
+                        LB(x3, gback, i);
+                        LB(x4, wback, fixedaddress+i);
+                        if(rv64_zbb) MIN(x3, x3, x4); else BLT(x3, x4, 4+4);
+                        SB(x3, gback, i);
+                    }
+                    break;
+                case 0x39:
+                    INST_NAME("PMINSD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<4; ++i) {
+                        LW(x3, gback, i*4);
+                        LW(x4, wback, fixedaddress+i*4);
+                        if(rv64_zbb) MIN(x3, x3, x4); else BLT(x3, x4, 4+4);
+                        SW(x3, gback, i*4);
+                    }
+                    break;
                 case 0x3A:
                     INST_NAME("PMINUW Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
                     GETGX(x1);
                     GETEX(x2, 0);
                     for(int i=0; i<8; ++i) {
-                        // if(GX->uw[i]>EX->uw[i]) GX->uw[i] = EX->uw[i];
                         LHU(x3, gback, i*2);
                         LHU(x4, wback, fixedaddress+i*2);
-                        BLTU(x3, x4, 8);
-                        SH(x4, gback, i*2);
+                        if(rv64_zbb) MINU(x3, x3, x4); else BLTU(x3, x4, 4+4);
+                        SH(x3, gback, i*2);
                     }
                     break;
+                case 0x3B:
+                    INST_NAME("PMINUD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<4; ++i) {
+                        LWU(x3, gback, i*4);
+                        LWU(x4, wback, fixedaddress+i*4);
+                        if(rv64_zbb) MINU(x3, x3, x4); else BLTU(x3, x4, 4+4);
+                        SW(x3, gback, i*4);
+                    }
+                    break;
+                case 0x3C:
+                    INST_NAME("PMAXSB Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<16; ++i) {
+                        LB(x3, gback, i);
+                        LB(x4, wback, fixedaddress+i);
+                        if(rv64_zbb) MAX(x3, x3, x4); else BLT(x4, x3, 4+4);
+                        SB(x3, gback, i);
+                    }
+                    break;
+                case 0x3D:
+                    INST_NAME("PMAXSD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<4; ++i) {
+                        LW(x3, gback, i*4);
+                        LW(x4, wback, fixedaddress+i*4);
+                        if(rv64_zbb) MAX(x3, x3, x4); else BLT(x4, x3, 4+4);
+                        SW(x3, gback, i*4);
+                    }
+                    break;
+                case 0x3E:
+                    INST_NAME("PMAXUW Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<8; ++i) {
+                        LHU(x3, gback, i*2);
+                        LHU(x4, wback, fixedaddress+i*2);
+                        if(rv64_zbb) MAXU(x3, x3, x4); else BLTU(x4, x3, 4+4);
+                        SH(x3, gback, i*2);
+                    }
+                    break;
+                case 0x3F:
+                    INST_NAME("PMAXUD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<4; ++i) {
+                        LWU(x3, gback, i*4);
+                        LWU(x4, wback, fixedaddress+i*4);
+                        if(rv64_zbb) MAXU(x3, x3, x4); else BLTU(x4, x3, 4+4);
+                        SW(x3, gback, i*4);
+                    }
+                    break;
+                case 0x40:
+                    INST_NAME("PMULLD Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<4; ++i) {
+                        LW(x3, gback, i*4);
+                        LW(x4, wback, fixedaddress+i*4);
+                        MUL(x3, x3, x4);
+                        SW(x3, gback, i*4);
+                    }
+                    break;
+
                 case 0xDC:
                     INST_NAME("AESENC Gx, Ex");  // AES-NI
                     nextop = F8;
