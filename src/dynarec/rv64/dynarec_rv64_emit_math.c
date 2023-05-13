@@ -1226,7 +1226,8 @@ void emit_neg16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
         }    
     }
     IFX(X_SF) {
-        ANDI(s3, s1, 1 << F_SF);    // 1<<F_SF is sign bit, so just mask
+        SRLI(s3, s1, 15-F_SF);    // put sign bit in place
+        ANDI(s3, s3, 1 << F_SF);    // 1<<F_SF is sign bit, so just mask
         OR(xFlags, xFlags, s3);
     }
     IFX(X_PF) {
