@@ -288,6 +288,96 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SW(x3, gback, 3*4);
                     }
                     break;
+
+                case 0x04:
+                    INST_NAME("PADDUBSW Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    MOV64x(x5, 32767);
+                    MOV64x(x6, -32768);
+                    for(int i=0; i<8; ++i) {
+                        LBU(x3, gback, i*2);
+                        LB(x4, wback, fixedaddress+i*2);
+                        MUL(x9, x3, x4);
+                        LBU(x3, gback, i*2+1);
+                        LB(x4, wback, fixedaddress+i*2+1);
+                        MUL(x3, x3, x4);
+                        ADD(x3, x3, x9);
+                        if(rv64_zbb) {
+                            MIN(x3, x3, x5);
+                            MAX(x3, x3, x6);
+                        } else {
+                            BLT(x3, x5, 4+4);
+                            MV(x3, x5);
+                            BLT(x6, x3, 4+4);
+                            MV(x3, x6);
+                        }
+                        SH(x3, gback, i*2);
+                    }
+                    break;
+
+                case 0x08:
+                    INST_NAME("PSIGNB Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<16; ++i) {
+                        LB(x3, gback, i);
+                        LB(x4, wback, fixedaddress+i);
+                        BGE(x4, xZR, 4+4);
+                        NEG(x3, x3);
+                        BNE(x4, xZR, 4+4);
+                        MOV_U12(x3, 0);
+                        SB(x3, gback, i);
+                    }
+                    break;
+                case 0x09:
+                    INST_NAME("PSIGNW Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<8; ++i) {
+                        LH(x3, gback, i*2);
+                        LH(x4, wback, fixedaddress+i*2);
+                        BGE(x4, xZR, 4+4);
+                        NEG(x3, x3);
+                        BNE(x4, xZR, 4+4);
+                        MOV_U12(x3, 0);
+                        SH(x3, gback, i*2);
+                    }
+                    break;
+                case 0x0A:
+                    INST_NAME("PSIGND Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<4; ++i) {
+                        LW(x3, gback, i*4);
+                        LW(x4, wback, fixedaddress+i*4);
+                        BGE(x4, xZR, 4+4);
+                        NEG(x3, x3);
+                        BNE(x4, xZR, 4+4);
+                        ADDI(x3, xZR, 0);
+                        SW(x3, gback, i*4);
+                    }
+                    break;
+                case 0x0B:
+                    INST_NAME("PMULHRSW Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<8; ++i) {
+                        LH(x3, gback, i*2);
+                        LH(x4, wback, fixedaddress+i*2);
+                        MUL(x3, x3, x4);
+                        SRAI(x3, x3, 14);
+                        ADDI(x3, x3, 1);
+                        SRAI(x3, x3, 1);
+                        SH(x3, gback, i*2);
+                    }
+                    break;
+
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
@@ -322,6 +412,82 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                     break;
+
+                case 0x1C:
+                    INST_NAME("PABSB Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<16; ++i) {
+                        LB(x4, wback, fixedaddress+i);
+                        BGE(x4, xZR, 4+4);
+                        NEG(x4, x4);
+                        SB(x4, gback, i);
+                    }
+                    break;
+                case 0x1D:
+                    INST_NAME("PABSW Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    for(int i=0; i<8; ++i) {
+                        LH(x4, wback, fixedaddress+i*2);
+                        BGE(x4, xZR, 4+4);
+                        NEG(x4, x4);
+                        SH(x4, gback, i*2);
+                    }
+                    break;
+                case 0x1E:
+                    INST_NAME("PABSD Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    MOV64x(x5, ~(1<<31));
+                    for(int i=0; i<4; ++i) {
+                        LW(x4, wback, fixedaddress+i*4);
+                        BGE(x4, xZR, 4+4);
+                        NEG(x4, x4);
+                        SW(x4, gback, i*4);
+                    }
+                    break;
+
+                case 0x2B:
+                    INST_NAME("PACKUSDW Gx, Ex");
+                    nextop = F8;
+                    GETGX(x1);
+                    GETEX(x2, 0);
+                    MOV64x(x5, 65535);
+                    for(int i=0; i<4; ++i) {
+                        LW(x3, gback, i*4);
+                        if(rv64_zbb) {
+                            MIN(x3, x3, x5);
+                            MAX(x3, x3, xZR);
+                        } else {
+                            BLT(x3, xZR, 4+4);
+                            MV(x3, xZR);
+                            BGE(x3, x5, 4+4);
+                            MV(x3, x5);
+                        }
+                        SH(x3, gback, i*2);
+                    }
+                    if(MODREG && gd==ed) {
+                        LD(x3, gback, 0);
+                        SD(x3, gback, 8);
+                    } else for(int i=0; i<4; ++i) {
+                        LW(x3, wback, fixedaddress+i*4);
+                        if(rv64_zbb) {
+                            MIN(x3, x3, x5);
+                            MAX(x3, x3, xZR);
+                        } else {
+                            BLT(x3, xZR, 4+4);
+                            MV(x3, xZR);
+                            BGE(x3, x5, 4+4);
+                            MV(x3, x5);
+                        }
+                        SH(x3, gback, 8+i*2);
+                    }
+                    break;
+
                 case 0x3A:
                     INST_NAME("PMINUW Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
