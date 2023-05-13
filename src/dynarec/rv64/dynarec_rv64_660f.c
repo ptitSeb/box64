@@ -1088,6 +1088,43 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             LWU(x3, x1, fixedaddress+0*4);
             SW(x3, x2, 1*4);
             break;
+        case 0x63:
+            INST_NAME("PACKSSWB Gx, Ex");
+            nextop = F8;
+            GETGX(x1);
+            GETEX(x2, 0);
+            MOV64x(x5, 127);
+            MOV64x(x6, -128);
+            for(int i=0; i<8; ++i) {
+                LH(x3, gback, i*2);
+                if(rv64_zbb) {
+                    MIN(x3, x3, x5);
+                    MAX(x3, x3, x6);
+                } else {
+                    BLT(x3, x6, 4+4);
+                    MV(x3, x6);
+                    BGE(x3, x5, 4+4);
+                    MV(x3, x5);
+                }
+                SB(x3, gback, i);
+            }
+            if(MODREG && gd==ed) {
+                LD(x3, gback, 0);
+                SD(x3, gback, 8);
+            } else for(int i=0; i<8; ++i) {
+                LH(x3, wback, fixedaddress+i*2);
+                if(rv64_zbb) {
+                    MIN(x3, x3, x5);
+                    MAX(x3, x3, x6);
+                } else {
+                    BLT(x3, x6, 4+4);
+                    MV(x3, x6);
+                    BGE(x3, x5, 4+4);
+                    MV(x3, x5);
+                }
+                SB(x3, gback, 8+i);
+            }
+            break;
         case 0x64:
             INST_NAME("PCMPGTB Gx,Ex");
             nextop = F8;
