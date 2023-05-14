@@ -1236,14 +1236,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x1, 0);
             GETGX(x2);
             // GX->ud[3] = EX->ud[1];
-            LWU(x3, x1, fixedaddress+1*4);
-            SW(x3, x2, 3*4);
+            LWU(x3, wback, fixedaddress+1*4);
+            SW(x3, gback, 3*4);
             // GX->ud[2] = GX->ud[1];
-            LWU(x3, x2, 1*4);
-            SW(x3, x2, 2*4);
+            LWU(x3, gback, 1*4);
+            SW(x3, gback, 2*4);
             // GX->ud[1] = EX->ud[0];
-            LWU(x3, x1, fixedaddress+0*4);
-            SW(x3, x2, 1*4);
+            LWU(x3, wback, fixedaddress+0*4);
+            SW(x3, gback, 1*4);
             break;
         case 0x63:
             INST_NAME("PACKSSWB Gx, Ex");
@@ -2385,8 +2385,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if(MODREG && gd==(nextop&7)+(rex.b<<3))
             {
                 // just zero dest
-                SD(xZR, x1, 0);
-                SD(xZR, x1, 8);
+                SD(xZR, gback, 0);
+                SD(xZR, gback, 8);
             } else {
                 GETEX(x2, 0);
                 SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));

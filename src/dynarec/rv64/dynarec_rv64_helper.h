@@ -380,9 +380,8 @@
     if(MODREG) {                                                                                        \
         ed = (nextop&7)+(rex.b<<3);                                                                     \
         sse_forget_reg(dyn, ninst, ed);                                                                 \
-        fixedaddress = 0;                                                                               \
-        ADDI(a, xEmu, offsetof(x64emu_t, xmm[ed]));                                                     \
-        wback = a;                                                                                      \
+        fixedaddress = offsetof(x64emu_t, xmm[ed]);                                                     \
+        wback = xEmu;                                                                                   \
     } else {                                                                                            \
         SMREAD();                                                                                       \
         ed=16;                                                                                          \
@@ -400,9 +399,8 @@
     if(MODREG) {                                                                                \
         ed = (nextop&7);                                                                        \
         mmx_forget_reg(dyn, ninst, ed);                                                         \
-        fixedaddress = 0;                                                                       \
-        ADDI(a, xEmu, offsetof(x64emu_t, mmx[ed]));                                             \
-        wback = a;                                                                              \
+        fixedaddress = offsetof(x64emu_t, mmx[ed]);                                             \
+        wback = xEmu;                                                                           \
     } else {                                                                                    \
         SMREAD();                                                                               \
         ed=8;                                                                                   \
