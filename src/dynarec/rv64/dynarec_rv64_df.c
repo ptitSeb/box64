@@ -51,8 +51,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LHU(x1, xEmu, offsetof(x64emu_t, sw));
             MOV32w(x3, 0b1100011111111111); // mask
             AND(x1, x1, x3);
-            NOT(x3, x3);
-            AND(x2, x2, x3);
+            SLLI(x2, x2, 11);
             OR(x1, x1, x2); // inject top
             SH(x1, xEmu, offsetof(x64emu_t, sw));
             SRLI(xRAX, xRAX, 16);
