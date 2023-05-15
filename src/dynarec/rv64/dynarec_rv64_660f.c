@@ -1647,24 +1647,24 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if(!u8) break;
                     if(u8>15) {
                         // just zero dest
-                        SD(xZR, x1, fixedaddress+0);
-                        SD(xZR, x1, fixedaddress+8);
+                        SD(xZR, wback, fixedaddress+0);
+                        SD(xZR, wback, fixedaddress+8);
                     } else {
                         u8*=8;
                         if (u8 < 64) {
-                            LD(x3, x1, fixedaddress+0);
-                            LD(x4, x1, fixedaddress+8);
+                            LD(x3, wback, fixedaddress+0);
+                            LD(x4, wback, fixedaddress+8);
                             SRLI(x3, x3, u8);
                             SLLI(x5, x4, 64-u8);
                             OR(x3, x3, x5);
-                            SD(x3, x1, fixedaddress+0);
+                            SD(x3, wback, fixedaddress+0);
                             SRLI(x4, x4, u8);
-                            SD(x4, x1, fixedaddress+8);
+                            SD(x4, wback, fixedaddress+8);
                         } else {
-                            LD(x3, x1, fixedaddress+8);
+                            LD(x3, wback, fixedaddress+8);
                             if (u8-64 > 0) { SRLI(x3, x3, u8-64); }
-                            SD(x3, x1, fixedaddress+0);
-                            SD(xZR, x1, fixedaddress+8);
+                            SD(x3, wback, fixedaddress+0);
+                            SD(xZR, wback, fixedaddress+8);
                         }
                     }
                     break;
@@ -1675,8 +1675,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if(!u8) break;
                     if(u8>63) {
                         // just zero dest
-                        SD(xZR, x1, fixedaddress+0);
-                        SD(xZR, x1, fixedaddress+8);
+                        SD(xZR, wback, fixedaddress+0);
+                        SD(xZR, wback, fixedaddress+8);
                     } else {
                         LD(x3, wback, fixedaddress+0);
                         LD(x4, wback, fixedaddress+8);
@@ -1693,24 +1693,24 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if(!u8) break;
                     if(u8>15) {
                         // just zero dest
-                        SD(xZR, x1, fixedaddress+0);
-                        SD(xZR, x1, fixedaddress+8);
+                        SD(xZR, wback, fixedaddress+0);
+                        SD(xZR, wback, fixedaddress+8);
                     } else {
                         u8*=8;
                         if (u8 < 64) {
-                            LD(x3, x1, fixedaddress+0);
-                            LD(x4, x1, fixedaddress+8);
+                            LD(x3, wback, fixedaddress+0);
+                            LD(x4, wback, fixedaddress+8);
                             SLLI(x4, x4, u8);
                             SRLI(x5, x3, 64-u8);
                             OR(x4, x4, x5);
-                            SD(x4, x1, fixedaddress+8);
+                            SD(x4, wback, fixedaddress+8);
                             SLLI(x3, x3, u8);
-                            SD(x3, x1, fixedaddress+0);
+                            SD(x3, wback, fixedaddress+0);
                         } else {
-                            LD(x3, x1, fixedaddress+0);
+                            LD(x3, wback, fixedaddress+0);
                             if (u8-64 > 0) { SLLI(x3, x3, u8-64); }
-                            SD(x3, x1, fixedaddress+8);
-                            SD(xZR, x1, fixedaddress+0);
+                            SD(x3, wback, fixedaddress+8);
+                            SD(xZR, wback, fixedaddress+0);
                         }
                     }
                     break;

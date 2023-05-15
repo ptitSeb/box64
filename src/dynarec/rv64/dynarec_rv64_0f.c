@@ -1507,6 +1507,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 if(!rex.w)
                     SRLI(gd, gd, 32);
             } else {
+                gback = gd;
+                if (!rex.w) {
+                    AND(x4, gd, xMASK);
+                    gd = x4;
+                }
                 ANDI(x1, gd, 0xff);
                 SLLI(x1, x1, (rex.w?64:32)-8);
                 SRLI(x2, gd, 8);
@@ -1520,7 +1525,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SRLI(x2, gd, 24);
                 if(rex.w) {
                     ANDI(x3, x2, 0xff);
-                    SLLI(x3, x3, (rex.w?64:32)-32);
+                    SLLI(x3, x3, 64-32);
                     OR(x1, x1, x3);
                     SRLI(x2, gd, 32);
                     ANDI(x3, x2, 0xff);
@@ -1536,7 +1541,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     OR(x1, x1, x3);
                     SRLI(x2, gd, 56);
                 }
-                OR(gd, x1, x2);
+                OR(gback, x1, x2);
             }
             break;
         case 0xE5:
