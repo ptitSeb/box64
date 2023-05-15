@@ -384,7 +384,7 @@ GO(fmtmsg, iFlpippp)
 GO(fnmatch, iFppi)
 GOM(fopen, pFEpp)
 GOWM(fopen64, pFEpp)
-//GO(fopencookie, pFpp?)
+GOM(fopencookie, pFEppV)
 //GO(__fork, 
 GOWM(fork, iFEv)
 //GO(__fortify_fail, 

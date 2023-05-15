@@ -3750,6 +3750,8 @@ wrappedlibc:
   - tdelete
   - tfind
   - tsearch
+- pFppV:
+  - fopencookie
 - vFiipV:
   - __syslog_chk
 - vFiipA:

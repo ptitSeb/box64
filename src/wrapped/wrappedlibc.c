@@ -2702,7 +2702,13 @@ EXPORT int my_getopt_long_only(int argc, char* const argv[], const char* optstri
     return ret;
 }
 
-#if 0
+typedef struct {
+   void  *read;
+   void *write;
+   void  *seek;
+   void *close;
+} my_cookie_io_functions_t;
+
 typedef struct my_cookie_s {
     uintptr_t r, w, s, c;
     void* cookie;
@@ -2732,17 +2738,19 @@ static int my_cookie_close(void *p)
     box_free(cookie);
     return ret;
 }
-EXPORT void* my_fopencookie(x64emu_t* emu, void* cookie, void* mode, void* read, void* write, void* seek, void* close)
+EXPORT void* my_fopencookie(x64emu_t* emu, void* cookie, void* mode, my_cookie_io_functions_t *s)
 {
-    cookie_io_functions_t io_funcs = {read?my_cookie_read:NULL, write?my_cookie_write:NULL, seek?my_cookie_seek:NULL, my_cookie_close};
+    cookie_io_functions_t io_funcs = {s->read?my_cookie_read:NULL, s->write?my_cookie_write:NULL, s->seek?my_cookie_seek:NULL, my_cookie_close};
     my_cookie_t *cb = (my_cookie_t*)box_calloc(1, sizeof(my_cookie_t));
-    cb->r = (uintptr_t)read;
-    cb->w = (uintptr_t)write;
-    cb->s = (uintptr_t)seek;
-    cb->c = (uintptr_t)close;
+    cb->r = (uintptr_t)s->read;
+    cb->w = (uintptr_t)s->write;
+    cb->s = (uintptr_t)s->seek;
+    cb->c = (uintptr_t)s->close;
     cb->cookie = cookie;
     return fopencookie(cb, mode, io_funcs);
 }
+
+#if 0
 
 EXPORT long my_prlimit64(void* pid, uint32_t res, void* new_rlim, void* old_rlim)
 {

@@ -53,6 +53,7 @@ typedef intptr_t (*lFppL_t)(void*, void*, uintptr_t);
 typedef uintptr_t (*LFppL_t)(void*, void*, uintptr_t);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
+typedef void* (*pFppV_t)(void*, void*, ...);
 typedef void (*vFiipV_t)(int32_t, int32_t, void*, ...);
 typedef void (*vFiipA_t)(int32_t, int32_t, void*, va_list);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
@@ -214,6 +215,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(tdelete, pFppp_t) \
 	GO(tfind, pFppp_t) \
 	GO(tsearch, pFppp_t) \
+	GO(fopencookie, pFppV_t) \
 	GO(__syslog_chk, vFiipV_t) \
 	GO(__vsyslog_chk, vFiipA_t) \
 	GO(qsort, vFpLLp_t) \
