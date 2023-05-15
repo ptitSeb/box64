@@ -160,10 +160,10 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     gb1 = xRAX+(gd&3);
                                 }
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                                MARKLOCK;
-                                ANDI(x2, wback, ~0b11); // align to 32bit
                                 ANDI(x5, wback, 0b11);
                                 SLLI(x5, x5, 3);        // shamt
+                                MARKLOCK;
+                                ANDI(x2, wback, ~0b11); // align to 32bit
                                 LWU(x1, x2, 0);
                                 LR_W(x4, x2, 1, 1);
                                 SRL(x4, x4, x5);
@@ -184,8 +184,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 SLL(x1, x1, x5);
                                 OR(x1, x1, x2);
                                 ANDI(x2, wback, ~0b11); // align to 32bit again
-                                SC_W(x5, x1, x2, 1, 1);
-                                BNEZ_MARKLOCK(x5);
+                                SC_W(x9, x1, x2, 1, 1);
+                                BNEZ_MARKLOCK(x9);
                                 // done
                                 MARK;
                                 UFLAG_IF {emit_cmp8(dyn, ninst, x6, x4, x1, x2, x3, x5);}
