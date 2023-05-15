@@ -191,9 +191,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEDO(x6, (opcode==0x81)?4:1, x5);
                     if(opcode==0x81) i64 = F32S; else i64 = F8S;
-                    SD(x6, xEmu, offsetof(x64emu_t, scratch));
-                    emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
-                    LD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x9);
                     WBACKO(x6);
                     break;
                 case 1: // OR
@@ -223,9 +221,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEDO(x6, (opcode==0x81)?4:1, x5);
                     if(opcode==0x81) i64 = F32S; else i64 = F8S;
                     MOV64xw(x5, i64);
-                    SD(x6, xEmu, offsetof(x64emu_t, scratch));
-                    emit_sbb32(dyn, ninst, rex, ed, x5, x3, x4, x6);
-                    LD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    emit_sbb32(dyn, ninst, rex, ed, x5, x3, x4, x9);
                     WBACKO(x6);
                     break;
                 case 4: // AND
@@ -241,9 +237,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEDO(x6, (opcode==0x81)?4:1, x5);
                     if(opcode==0x81) i64 = F32S; else i64 = F8S;
-                    SD(x6, xEmu, offsetof(x64emu_t, scratch));
-                    emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
-                    LD(x6, xEmu, offsetof(x64emu_t, scratch));
+                    emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x9);
                     WBACKO(x6);
                     break;
                 case 6: // XOR
