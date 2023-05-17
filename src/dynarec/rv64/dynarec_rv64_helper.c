@@ -1306,6 +1306,10 @@ int sse_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
         // forget / reload if change of size
         if(dyn->e.ssecache[a].single!=single) {
             sse_forget_reg(dyn, ninst, a);
+            // update olds after the forget...
+            dyn->e.olds[a].changed = 1;
+            dyn->e.olds[a].purged = 0;
+            dyn->e.olds[a].single = 1-single;
             return sse_get_reg(dyn, ninst, s1, a, single);
         }
         return dyn->e.ssecache[a].reg;
@@ -1329,6 +1333,10 @@ int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
             // need to wipe the half high 32bits of old Double because we now have a single
             //SW(xZR, xEmu, offsetof(x64emu_t, xmm[a])+4);
         }
+        dyn->e.olds[a].changed = 1;
+        dyn->e.olds[a].purged = 0;
+        dyn->e.olds[a].reg = EXTIDX(dyn->e.ssecache[a].reg);
+        dyn->e.olds[a].single = 1-single;
         dyn->e.ssecache[a].single = single;
         dyn->e.extcache[EXTIDX(dyn->e.ssecache[a].reg)].t = single?EXT_CACHE_SS:EXT_CACHE_SD;
         return dyn->e.ssecache[a].reg;
@@ -1347,6 +1355,10 @@ void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int a)
     else
         FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
     fpu_free_reg(dyn, dyn->e.ssecache[a].reg);
+    dyn->e.olds[a].changed = 0;
+    dyn->e.olds[a].purged = 1;
+    dyn->e.olds[a].reg = dyn->e.ssecache[a].reg;
+    dyn->e.olds[a].single = dyn->e.ssecache[a].single;
     dyn->e.ssecache[a].v = -1;
     return;
 }
@@ -1388,6 +1400,10 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
                 FSD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
             if(!next) {
                 fpu_free_reg(dyn, dyn->e.ssecache[i].reg);
+                dyn->e.olds[i].changed = 0;
+                dyn->e.olds[i].purged = 1;
+                dyn->e.olds[i].reg = dyn->e.ssecache[i].reg;
+                dyn->e.olds[i].single = dyn->e.ssecache[i].single;
                 dyn->e.ssecache[i].v = -1;
             }
         }

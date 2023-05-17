@@ -346,11 +346,20 @@ void extcacheUnwind(extcache_t* cache)
         cache->combined1 = cache->combined2 = 0;
     }
     if(cache->news) {
-        // reove the newly created extcache
+        // remove the newly created extcache
         for(int i=0; i<24; ++i)
             if(cache->news&(1<<i))
                 cache->extcache[i].v = 0;
         cache->news = 0;
+    }
+    // add/change bad regs
+    for(int i=0; i<16; ++i) {
+        if(cache->olds[i].changed) {
+            cache->extcache[i].t = cache->olds[i].single?EXT_CACHE_SS:EXT_CACHE_SD;
+        } else if(cache->olds[i].purged) {
+            cache->extcache[i].n = i;
+            cache->extcache[i].t = cache->olds[i].single?EXT_CACHE_SS:EXT_CACHE_SD;
+        }
     }
     if(cache->stack_push) {
         // unpush

@@ -29,6 +29,7 @@
         dyn->insts[ninst].x64.addr = ip;        \
         dyn->e.combined1 = dyn->e.combined2 = 0;\
         dyn->e.swapped = 0; dyn->e.barrier = 0; \
+        for(int i=0; i<16; ++i) dyn->e.olds[i].v = 0;\
         dyn->insts[ninst].f_entry = dyn->f;     \
         if(ninst) {dyn->insts[ninst-1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst-1].x64.addr;}
 
