@@ -690,32 +690,17 @@ EXPORT int my___fprintf_chk(x64emu_t *emu, void* F, int flag, void* fmt, void* b
     return vfprintf(F, fmt, VARARGS);
 }
 
-#if 0
-EXPORT int my_wprintf(x64emu_t *emu, void* fmt, void* b, va_list V) {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlignW((const char*)fmt, b, emu->scratch);
-    PREPARE_VALIST;
-    void* f = vwprintf;
-    return ((iFpp_t)f)(fmt, VARARGS);
+EXPORT int my_vwprintf(x64emu_t *emu, void* fmt, x64_va_list_t b) {
+    (void)emu;
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
     #else
-    // other platform don't need that
-    return vwprintf((const wchar_t*)fmt, V);
-    #endif
-}
-EXPORT int my___wprintf_chk(x64emu_t *emu, int flag, void* fmt, void* b, va_list V) {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlignW((const char*)fmt, b, emu->scratch);
+    myStackAlignWValist(emu, (const char*)fmt, emu->scratch, b);
     PREPARE_VALIST;
-    void* f = vwprintf;
-    return ((iFpp_t)f)(fmt, VARARGS);
-    #else
-    // other platform don't need that
-    return vwprintf((const wchar_t*)fmt, V);
     #endif
+    int r = vwprintf(fmt, VARARGS);
+    return r;
 }
-#endif
 
 EXPORT int my_fwprintf(x64emu_t *emu, void* F, void* fmt, void* b)  {
     myStackAlignW(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
@@ -749,18 +734,6 @@ EXPORT int my___vfwprintf_chk(x64emu_t *emu, void* F, int flag, void* fmt, x64_v
 }
 
 #if 0
-EXPORT int my_vwprintf(x64emu_t *emu, void* fmt, void* b) {
-    #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, b, emu->scratch);
-    PREPARE_VALIST;
-    void* f = vwprintf;
-    return ((iFpp_t)f)(fmt, VARARGS);
-    #else
-    void* f = vwprintf;
-    return ((iFpp_t)f)(fmt, b);
-    #endif
-}
-
 EXPORT void *my_div(void *result, int numerator, int denominator) {
     *(div_t *)result = div(numerator, denominator);
     return result;
