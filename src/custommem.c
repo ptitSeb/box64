@@ -73,6 +73,7 @@ typedef struct memprot_s
     uint8_t* prot;
     uint8_t* hot;
 } memprot_t;
+//#define TRACE_MEMSTAT
 #ifdef TRACE_MEMSTAT
 static uint64_t  memprot_allocated = 0, memprot_max_allocated = 0;
 #endif
@@ -656,6 +657,51 @@ static uintptr_t getDBSize(uintptr_t addr, size_t maxsize, dynablock_t** db)
     return (addr&~JMPTABLE_MASK0)+idx0+1;
 }
 
+void freeJmpTable(uintptr_t addr)
+{
+    uintptr_t idx3, idx2, idx1, idx0;
+    idx3 = (((uintptr_t)addr)>>JMPTABL_START3)&JMPTABLE_MASK3;
+    idx2 = (((uintptr_t)addr)>>JMPTABL_START2)&JMPTABLE_MASK2;
+    idx1 = (((uintptr_t)addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
+    idx0 = (((uintptr_t)addr)                )&JMPTABLE_MASK0;
+    if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
+        return;
+    }
+    if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
+        return;
+    }
+    if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
+        return;
+    }
+    uintptr_t* tbl0 = box64_jmptbl3[idx3][idx2][idx1];
+    for(int i=0; i<1<<JMPTABL_SHIFT0; ++i)
+        if(tbl0[i]!=(uintptr_t)native_next)
+            return;
+    box64_jmptbl3[idx3][idx2][idx1] = box64_jmptbldefault0;
+    box_free(tbl0);
+#ifdef TRACE_MEMSTAT
+    jmptbl_allocated -= (1<<JMPTABL_SHIFT0)*sizeof(uintptr_t);
+#endif
+    uintptr_t** tbl1 = box64_jmptbl3[idx3][idx2];
+    for(int i=0; i<1<<JMPTABL_SHIFT1; ++i)
+        if(tbl1[i]!=box64_jmptbldefault0)
+            return;
+    box64_jmptbl3[idx3][idx2] = box64_jmptbldefault1;
+    box_free(tbl1);
+#ifdef TRACE_MEMSTAT
+    jmptbl_allocated -= (1<<JMPTABL_SHIFT1)*sizeof(uintptr_t*);
+#endif
+    uintptr_t*** tbl2 = box64_jmptbl3[idx3];
+    for(int i=0; i<1<<JMPTABL_SHIFT2; ++i)
+        if(tbl2[i]!=box64_jmptbldefault1)
+            return;
+    box64_jmptbl3[idx3] = box64_jmptbldefault2;
+    box_free(tbl2);
+#ifdef TRACE_MEMSTAT
+    jmptbl_allocated -= (1<<JMPTABL_SHIFT2)*sizeof(uintptr_t**);
+#endif
+}
+
 // each dynmap is 64k of size
 
 void addDBFromAddressRange(uintptr_t addr, size_t size)
@@ -670,14 +716,18 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
     dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p/%p -> %p %s\n", (void*)addr, (void*)start_addr, (void*)(addr+size-1), destroy?"destroy":"mark");
     dynablock_t* db = NULL;
     uintptr_t end = addr+size;
+    uintptr_t old_addr = 0;
     while (start_addr<end) {
-        start_addr = getDBSize(start_addr, end-start_addr, &db);
+        old_addr = getDBSize(start_addr, end-start_addr, &db);
         if(db) {
             if(destroy)
                 FreeRangeDynablock(db, addr, size);
             else
                 MarkRangeDynablock(db, addr, size);
         }
+        if(destroy && start_addr && ((start_addr&~JMPTABLE_MASK0)!=(old_addr&~JMPTABLE_MASK0)))
+            freeJmpTable(start_addr);
+        start_addr = old_addr;
     }
 }
 
