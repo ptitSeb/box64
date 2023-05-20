@@ -3657,6 +3657,7 @@ wrappedlibc:
   - wprintf
 - iFpA:
   - vprintf
+  - vwprintf
 - iFSp:
   - _IO_file_stat
 - pFip:

@@ -2087,7 +2087,7 @@ GOM(__vsyslog_chk, vFEiipA)
 //GO(vtimes, // Deprecated
 //GO(vwarn, vFpA)
 //GO(vwarnx, vFpA)
-//GO(vwprintf, iFpA)
+GOM(vwprintf, iFEpA)
 //GO(__vwprintf_chk, 
 //GO(vwscanf, iFpA)
 GOW(__wait, iFp)
