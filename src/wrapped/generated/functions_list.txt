@@ -859,6 +859,7 @@
 #() iFEiiN
 #() iFEipp
 #() iFEipV
+#() iFEipA
 #() iFEupu
 #() iFEupp
 #() iFEpii
@@ -1381,6 +1382,7 @@
 #() vFppppp
 #() iFEiipp
 #() iFEiipV
+#() iFEiipA
 #() iFEippi
 #() iFEippL
 #() iFEippp
@@ -3700,6 +3702,9 @@ wrappedlibc:
   - sigaction
 - iFipV:
   - __printf_chk
+  - dprintf
+- iFipA:
+  - vdprintf
 - iFpLi:
   - mprotect
 - iFppi:
@@ -3763,6 +3768,10 @@ wrappedlibc:
   - epoll_ctl
 - iFiiiN:
   - semctl
+- iFiipV:
+  - __dprintf_chk
+- iFiipA:
+  - __vdprintf_chk
 - iFipii:
   - epoll_wait
 - iFippi:

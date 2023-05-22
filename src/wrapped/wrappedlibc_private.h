@@ -219,8 +219,8 @@ GOWM(dl_iterate_phdr, iFEpp)
 //GO(_dl_sym, 
 //GO(_dl_vsym, 
 GOW(dngettext, pFpppL)
-//GO(dprintf, iFipV)
-//GO(__dprintf_chk, 
+GOM(dprintf, iFEipV)
+GOM(__dprintf_chk, iFEiipV)
 GO(drand48, dFv)
 GO(drand48_r, iFpp)
 GOW(dup, iFi)
@@ -2051,8 +2051,8 @@ GO(utmpxname, iFp)
 GO(valloc, pFL)
 GOWM(vasprintf, iFEppA)
 GOM(__vasprintf_chk, iFEpipp)
-//GOW(vdprintf, iFipA)
-//GO(__vdprintf_chk, 
+GOM(vdprintf, iFEipA)
+GOM(__vdprintf_chk, iFEiipA)
 //GO(verr, vFipA)
 //GO(verrx, vFipA)
 GOW(versionsort, iFpp)
