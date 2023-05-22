@@ -733,6 +733,41 @@ EXPORT int my___vfwprintf_chk(x64emu_t *emu, void* F, int flag, void* fmt, x64_v
     return vfwprintf(F, fmt, VARARGS);
 }
 
+EXPORT int my_dprintf(x64emu_t *emu, int d, void* fmt, void* b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return vdprintf(d, fmt, VARARGS);
+}
+
+EXPORT int my___dprintf_chk(x64emu_t *emu, int d, int flag, void* fmt, void* b)  {
+    (void)flag;
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    return vdprintf(d, fmt, VARARGS);
+}
+
+
+EXPORT int my_vdprintf(x64emu_t *emu, int d, void* fmt, x64_va_list_t b) {
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return vdprintf(d, fmt, VARARGS);
+}
+
+EXPORT int my___vdprintf_chk(x64emu_t *emu, int d, int flag, void* fmt, x64_va_list_t b)  {
+    (void)flag;
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return vdprintf(d, fmt, VARARGS);
+}
+
 #if 0
 EXPORT void *my_div(void *result, int numerator, int denominator) {
     *(div_t *)result = div(numerator, denominator);
