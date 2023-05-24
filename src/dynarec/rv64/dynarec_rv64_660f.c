@@ -463,9 +463,9 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             MIN(x3, x3, x5);
                             MAX(x3, x3, xZR);
                         } else {
-                            BLT(x3, xZR, 4+4);
+                            BGE(x3, xZR, 4+4);
                             MV(x3, xZR);
-                            BGE(x3, x5, 4+4);
+                            BLT(x3, x5, 4+4);
                             MV(x3, x5);
                         }
                         SH(x3, gback, i*2);
@@ -479,9 +479,9 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             MIN(x3, x3, x5);
                             MAX(x3, x3, xZR);
                         } else {
-                            BLT(x3, xZR, 4+4);
+                            BGE(x3, xZR, 4+4);
                             MV(x3, xZR);
-                            BGE(x3, x5, 4+4);
+                            BLT(x3, x5, 4+4);
                             MV(x3, x5);
                         }
                         SH(x3, gback, 8+i*2);
