@@ -7,7 +7,6 @@
 # 
 [3dSen.x86_64]
 BOX64_DYNAREC_BLEEDING_EDGE=0   # avoid the use of STRONGMEM for much better performances
-BOX64_DYNAREC_HOTPAGE=0 # disabling hotpage seems to give better performances here
 
 [7z]
 # Those are safe to use on 7z and give a bit of a boost
@@ -25,12 +24,6 @@ BOX64_DYNAREC_CALLRET=1
 
 [chrome]
 BOX64_MALLOC_HACK=2
-
-[dav1d]
-# Speed hacks (those 3 gives ~10% speedup)
-BOX64_DYNAREC_SAFEFLAGS=0
-BOX64_DYNAREC_BIGBLOCK=2
-BOX64_DYNAREC_CALLRET=1
 
 [deadcells]
 BOX64_PREFER_EMULATED=1
@@ -96,9 +89,6 @@ BOX64_MALLOC_HACK=2
 BOX64_DYNAREC_BIGBLOCK=0
 # if steamwebhelper takes too much memory, enable next line to disable it
 #BOX64_EXIT=1
-
-[Stardew Valley]
-BOX64_DYNAREC_HOTPAGE=0
 
 [steam-runtime-check-requirements]
 BOX64_EXIT=1
