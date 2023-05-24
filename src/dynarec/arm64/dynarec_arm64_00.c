@@ -1159,6 +1159,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             ANDw_REG(xFlags, xFlags, x1);
             ORRw_mask(xFlags, xFlags, 0b011111, 0);   //mask=0x00000002
             SET_DFNONE(x1);
+            if(box64_wine) {    // should this be done all the time?
+                TBZ_NEXT(xFlags, F_TF);
+                MOV64x(x1, addr);
+                STORE_XEMU_CALL(x1);
+                CALL(native_singlestep, -1);
+                BFCw(xFlags, F_TF, 1);
+            }
             break;
         case 0x9E:
             INST_NAME("SAHF");

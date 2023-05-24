@@ -324,6 +324,8 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
     int oldquitonlongjmp = emu->quitonlongjmp;
     emu->quitonlongjmp = 2;
     
+    emu->eflags.x64 &= ~(1<<F_TF); // this one needs to cleared
+
     if(dynarec)
         DynaCall(emu, fnc);
     else
@@ -727,6 +729,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 19;
     else if(sig==SIGILL)
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 6;
+    else if(sig==SIGTRAP)
+        sigcontext->uc_mcontext.gregs[X64_TRAPNO] = info->si_code;
     //TODO: SIGABRT generate what?
     // call the signal handler
     x64_ucontext_t sigcontext_copy = *sigcontext;

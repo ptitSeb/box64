@@ -45,6 +45,7 @@ void native_clflush(x64emu_t* emu, void* p);
 
 void native_ud(x64emu_t* emu);
 void native_priv(x64emu_t* emu);
+void native_singlestep(x64emu_t* emu);
 
 // Caches transformation (for loops) // Specific, need to be written par backend
 int CacheNeedsTransform(dynarec_native_t* dyn, int i1);
