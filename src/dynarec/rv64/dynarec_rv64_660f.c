@@ -120,29 +120,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             FAKEED;
             break;
-        
-        #define GO(GETFLAGS, NO, YES, F)            \
-            READFLAGS(F);                           \
-            GETFLAGS;                               \
-            nextop=F8;                              \
-            GETGD;                                  \
-            if(MODREG) {                            \
-                ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                ZEXTH(x4, ed);                      \
-            } else {                                \
-                SMREAD();                           \
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
-                LHU(x4, ed, fixedaddress);          \
-                ed = x4;                            \
-            }                                       \
-            B##NO(x1, 4+4*4);                       \
-            ADDI(x3, xZR, -1);                      \
-            SRLI(x3, x3, 48);                       \
-            AND(gd, gd, x3);                        \
-            OR(gd, gd, ed);
-
-        GOCOND(0x40, "CMOV", "Gw, Ew");
-        #undef GO
         case 0x28:
             INST_NAME("MOVAPD Gx,Ex");
             nextop = F8;
@@ -964,6 +941,28 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        #define GO(GETFLAGS, NO, YES, F)            \
+            READFLAGS(F);                           \
+            GETFLAGS;                               \
+            nextop=F8;                              \
+            GETGD;                                  \
+            if(MODREG) {                            \
+                ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                ZEXTH(x4, ed);                      \
+                ed = x4;                            \
+            } else {                                \
+                SMREAD();                           \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
+                LHU(x4, ed, fixedaddress);          \
+                ed = x4;                            \
+            }                                       \
+            B##NO(x1, 4+3*4);                       \
+            LUI(x3, 0xffff0);                       \
+            AND(gd, gd, x3);                        \
+            OR(gd, gd, ed);
+
+        GOCOND(0x40, "CMOV", "Gw, Ew");
+        #undef GO
         case 0x50:
             INST_NAME("PMOVMSKD Gd, Ex");
             nextop = F8;
