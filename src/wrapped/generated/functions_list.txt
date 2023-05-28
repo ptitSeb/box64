@@ -3033,6 +3033,8 @@ wrappedgdk3:
   - gdk_window_remove_filter
 - iFiipp:
   - gdk_input_add
+- uFippp:
+  - gdk_threads_add_idle_full
 - iFiippp:
   - gdk_input_add_full
 wrappedgdkpixbuf2:
