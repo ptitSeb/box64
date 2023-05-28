@@ -327,7 +327,7 @@ void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
         if(c==1) {
             LSRxw(s3, s1, rex.w?62:30);
             EORxw_REG_LSR(s3, s3, s3, 1);
-            BFIw(xFlags, s4, F_OF, 1);
+            BFIw(xFlags, s3, F_OF, 1);
         }
     }
 }
