@@ -1263,7 +1263,7 @@ GO(g_test_trap_fork, iFLu)
 GO(g_test_trap_subprocess, vFpLu)
 GOM(g_thread_create, pFEppip)
 GOM(g_thread_create_full, pFEppLiiip)
-//GO(g_thread_error_quark, 
+GO(g_thread_error_quark, pFv)
 GO(g_thread_exit, vFp)
 GOM(g_thread_foreach, vFEpp)
 GO(g_thread_get_initialized, iFv)

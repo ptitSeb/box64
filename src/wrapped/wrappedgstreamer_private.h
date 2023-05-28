@@ -1545,21 +1545,21 @@ GO(gst_tag_setter_set_tag_merge_mode, vFpu)
 //GO(gst_task_cleanup_all, 
 //GO(gst_task_get_pool, 
 //GO(gst_task_get_state, 
-//GO(gst_task_get_type, 
+GO(gst_task_get_type, pFv)
 //GO(gst_task_join, 
 //GO(gst_task_new, 
 //GO(gst_task_pause, 
-//GO(gst_task_pool_cleanup, 
-//GO(gst_task_pool_get_type, 
+GO(gst_task_pool_cleanup, vFp)
+GO(gst_task_pool_get_type, pFv)
 //GO(gst_task_pool_join, 
 //GO(gst_task_pool_new, 
-//GO(gst_task_pool_prepare, 
+GO(gst_task_pool_prepare, vFp)
 //GO(gst_task_pool_push, 
 //GO(gst_task_resume, 
 //GO(gst_task_set_enter_callback, 
 //GO(gst_task_set_leave_callback, 
 //GO(gst_task_set_lock, 
-//GO(gst_task_set_pool, 
+GO(gst_task_set_pool, vFpp)
 //GO(gst_task_set_state, 
 //GO(gst_task_start, 
 //GO(gst_task_state_get_type, 
