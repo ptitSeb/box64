@@ -92,9 +92,6 @@ typedef struct x64emu_s {
     #ifdef HAVE_TRACE
     sse_regs_t  old_xmm[16];
     #endif
-    #if defined(__riscv) && defined(DYNAREC)
-    uint64_t    lock_16b; // lock for atomic 16B access
-    #endif
     // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
     uint64_t    scratch[200];
     // local stack, do be deleted when emu is freed

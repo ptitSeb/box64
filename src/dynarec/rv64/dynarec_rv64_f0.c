@@ -284,10 +284,11 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             ANDI(xFlags, xFlags, ~(1<<F_ZF));
                             if (rex.w) {
                                 // there is no atomic move on 16bytes, so implement it with mutex
-                                ADDI(x9, xEmu, offsetof(x64emu_t, lock_16b));
+                                LD(x9, xEmu, offsetof(x64emu_t, context));
+                                ADDI(x9, x9, offsetof(box64context_t, mutex_16b));
                                 ADDI(x4, xZR, 1);
                                 MARKLOCK;
-                                AMOSWAP_D(x4, x4, x9, 1, 1);
+                                AMOSWAP_W(x4, x4, x9, 1, 1);
                                 // x4 == 1 if locked
                                 BNEZ_MARKLOCK(x4);
 
@@ -307,7 +308,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 SMDMB();
 
                                 // unlock
-                                AMOSWAP_D(xZR, xZR, x9, 1, 1);
+                                AMOSWAP_W(xZR, xZR, x9, 1, 1);
                             } else {
                                 SMDMB();
                                 MARKLOCK;
