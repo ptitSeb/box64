@@ -28,11 +28,11 @@ GO(wl_display_get_fd, iFp)
 //GO(wl_display_get_protocol_error, 
 //DATA(wl_display_interface, 
 GO(wl_display_prepare_read, iFp)
-//GO(wl_display_prepare_read_queue, 
+GO(wl_display_prepare_read_queue, iFpp)
 GO(wl_display_read_events, iFp)
 GO(wl_display_roundtrip, iFp)
 //GO(wl_display_roundtrip_queue, 
-//GO(wl_event_queue_destroy, 
+GO(wl_event_queue_destroy, vFp)
 //DATA(wl_keyboard_interface, 
 //GO(wl_list_empty, 
 //GO(wl_list_init, 
@@ -44,28 +44,28 @@ GO(wl_display_roundtrip, iFp)
 //DATA(wl_output_interface, 
 //DATA(wl_pointer_interface, 
 //GO(wl_proxy_add_dispatcher, 
-//GO(wl_proxy_add_listener, 
+GO(wl_proxy_add_listener, iFppp)
 GO(wl_proxy_create, pFpp)
-//GO(wl_proxy_create_wrapper, 
+GO(wl_proxy_create_wrapper, pFp)
 GO(wl_proxy_destroy, vFp)
 //GO(wl_proxy_get_class, 
-//GO(wl_proxy_get_id, 
-//GO(wl_proxy_get_listener, 
+GO(wl_proxy_get_id, uFp)
+GO(wl_proxy_get_listener, pFp)
 //GO(wl_proxy_get_tag, 
-//GO(wl_proxy_get_user_data, 
-//GO(wl_proxy_get_version, 
+GO(wl_proxy_get_user_data, pFp)
+GO(wl_proxy_get_version, uFp)
 //GO(wl_proxy_marshal, 
 //GO(wl_proxy_marshal_array, 
-//GO(wl_proxy_marshal_array_constructor, 
-//GO(wl_proxy_marshal_array_constructor_versioned, 
+GO(wl_proxy_marshal_array_constructor, pFpupp)
+GO(wl_proxy_marshal_array_constructor_versioned, pFpuppu)
 //GO(wl_proxy_marshal_array_flags, 
 //GO(wl_proxy_marshal_constructor, 
 //GO(wl_proxy_marshal_constructor_versioned, 
 //GO(wl_proxy_marshal_flags, 
-//GO(wl_proxy_set_queue, 
+GO(wl_proxy_set_queue, vFpp)
 //GO(wl_proxy_set_tag, 
-//GO(wl_proxy_set_user_data, 
-//GO(wl_proxy_wrapper_destroy, 
+GO(wl_proxy_set_user_data, vFpp)
+GO(wl_proxy_wrapper_destroy, vFp)
 DATA(wl_region_interface, 40)
 DATA(wl_registry_interface, 40)
 DATA(wl_seat_interface, 40)

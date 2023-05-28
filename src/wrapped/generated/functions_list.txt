@@ -1616,6 +1616,7 @@
 #() pFpuuuu
 #() pFpuuup
 #() pFpupii
+#() pFpuppu
 #() pFpuppp
 #() pFpUdii
 #() pFpfffi
