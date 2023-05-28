@@ -283,9 +283,15 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                             ANDI(xFlags, xFlags, ~(1<<F_ZF));
                             if (rex.w) {
-                                // there is no atomic move on 16bytes, so faking it
+                                // there is no atomic move on 16bytes, so implement it with mutex
+                                ADDI(x9, xEmu, offsetof(x64emu_t, lock_16b));
+                                ADDI(x4, xZR, 1);
+                                MARKLOCK;
+                                AMOSWAP_D(x4, x4, x9, 1, 1);
+                                // x4 == 1 if locked
+                                BNEZ_MARKLOCK(x4);
+
                                 SMDMB();
-                                // MARKLOCK;
                                 LD(x2, wback, 0);
                                 LD(x3, wback, 8);
                                 BNE_MARK(x2, xRAX);
@@ -299,6 +305,9 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 MV(xRDX, x3);
                                 MARK3;
                                 SMDMB();
+
+                                // unlock
+                                AMOSWAP_D(xZR, xZR, x9, 1, 1);
                             } else {
                                 SMDMB();
                                 MARKLOCK;
