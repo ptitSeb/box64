@@ -86,7 +86,7 @@ x64emurun:
             rep = opcode-0xF1;
             opcode = F8;
         }
-        while((opcode==0x3E))   //Branch Taken Hint ignored
+        while((opcode==0x3E) || (opcode==0x26))   //Branch Taken Hint ignored
             opcode = F8;
         rex.rex = 0;
         while(opcode>=0x40 && opcode<=0x4f) {
@@ -194,6 +194,7 @@ x64emurun:
         #undef GO
 
 	    case 0x2E:	    /* segments are ignored */
+        case 0x26:
         case 0x36:          /* SS: (ignored) */
             break;
 
