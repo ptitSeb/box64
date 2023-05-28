@@ -32,6 +32,7 @@ typedef int     (*iFpp_t)(void*, void*);
 #define ADDED_FUNCTIONS()                   \
     GO(gst_object_get_type, LFv_t)          \
     GO(gst_allocator_get_type, LFv_t)       \
+    GO(gst_task_pool_get_type, LFv_t)       \
     GO(gst_structure_new_valist, pFppA_t)   \
     GO(gst_structure_new_empty, pFp_t)      \
     GO(gst_caps_new_empty, pFv_t)           \
@@ -397,6 +398,7 @@ EXPORT int my_gst_caps_foreach(x64emu_t* emu, void* caps, void* f, void* data)
     getMy(lib);     \
     SetGstObjectID(my->gst_object_get_type());                 \
     SetGstAllocatorID(my->gst_allocator_get_type());           \
+    SetGstTaskPoolID(my->gst_task_pool_get_type());            \
     setNeededLibs(lib, 1, "libgtk-3.so.0");
 
 #define CUSTOM_FINI \

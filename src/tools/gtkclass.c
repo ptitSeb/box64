@@ -2398,6 +2398,49 @@ static void bridgeGstAllocatorClass(my_GstAllocatorClass_t* class)
 
 #undef SUPERGO
 
+// ----- GstTaskPoolClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstTaskPool, prepare, void,  (void* pool, void* error), "pp", pool, error);
+WRAPPER(GstTaskPool, cleanup, void,  (void* pool), "p", pool);
+WRAPPER(GstTaskPool, push, void*,    (void* pool, void* func, void* user_data, void* error), "pppp", pool, AddCheckBridge(my_bridge, vFp, func, 0, NULL), user_data, error);
+WRAPPER(GstTaskPool, join, void,     (void* pool, void* id), "pp", pool, id);
+WRAPPER(GstTaskPool, dispose_handle, void, (void* pool, void* id), "pp", pool, id);
+
+#define SUPERGO()               \
+    GO(prepare, vFpp);          \
+    GO(cleanup, vFp);           \
+    GO(push, pFpppp);           \
+    GO(join, vFpp);             \
+    GO(dispose_handle, vFpp);   \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstTaskPoolClass(my_GstTaskPoolClass_t* class)
+{
+    wrapGstObjectClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstTaskPool (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstTaskPoolClass(my_GstTaskPoolClass_t* class)
+{
+    unwrapGstObjectClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstTaskPool (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstTaskPoolClass(my_GstTaskPoolClass_t* class)
+{
+    bridgeGstObjectClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstTaskPool (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND

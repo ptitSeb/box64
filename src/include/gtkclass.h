@@ -778,6 +778,15 @@ typedef struct my_GstAllocatorClass_s {
   void*    _gst_reserved[4];
 } my_GstAllocatorClass_t;
 
+typedef struct my__GstTaskPoolClass {
+  my_GstObjectClass_t parent_class;
+  void      (*prepare)  (void* pool, void* error);
+  void      (*cleanup)  (void* pool);
+  void*     (*push)     (void* pool, void* func, void* user_data, void* error);
+  void      (*join)     (void* pool, void* id);
+  void      (*dispose_handle) (void* pool, void* id);
+  void*     _gst_reserved[4-1];
+} my_GstTaskPoolClass_t;
 
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
@@ -884,6 +893,7 @@ GTKCLASS(AtkObject)                 \
 GTKCLASS(AtkUtil)                   \
 GTKCLASS(GstObject)                 \
 GTKCLASS(GstAllocator)              \
+GTKCLASS(GstTaskPool)               \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);
 GTKCLASSES()
