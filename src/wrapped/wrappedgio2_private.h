@@ -1322,7 +1322,7 @@ GO(g_settings_get_int, iFpp)
 GO(g_settings_get_string, pFpp)
 GO(g_settings_get_strv, pFpp)
 GO(g_settings_get_type, pFv)
-//GO(g_settings_get_uint, 
+GO(g_settings_get_uint, uFpp)
 GO(g_settings_get_user_value, pFpp)
 GO(g_settings_get_value, pFpp)
 GO(g_settings_is_writable, iFpp)
