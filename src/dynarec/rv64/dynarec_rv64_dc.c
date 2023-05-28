@@ -104,6 +104,14 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
                     x87_do_pop(dyn, ninst, x3);
                     break;
+                case 6:
+                    INST_NAME("FDIV ST0, double[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                    v2 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    FLD(v2, wback, fixedaddress);
+                    FDIVD(v1, v1, v2);
+                    break;
                 default:
                     DEFAULT;
             }
