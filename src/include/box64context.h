@@ -151,6 +151,9 @@ typedef struct box64context_s {
     uintptr_t           max_db_size;    // the biggest (in x86_64 instructions bytes) built dynablock
     int                 trace_dynarec;
     pthread_mutex_t     mutex_lock;     // this is for the Test interpreter
+    #ifdef __riscv
+    uint32_t            mutex_16b;
+    #endif
     #endif
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
