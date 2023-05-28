@@ -1653,6 +1653,7 @@ void pFpuuWW(x64emu_t *emu, uintptr_t fnc);
 void pFpuuuu(x64emu_t *emu, uintptr_t fnc);
 void pFpuuup(x64emu_t *emu, uintptr_t fnc);
 void pFpupii(x64emu_t *emu, uintptr_t fnc);
+void pFpuppu(x64emu_t *emu, uintptr_t fnc);
 void pFpuppp(x64emu_t *emu, uintptr_t fnc);
 void pFpUdii(x64emu_t *emu, uintptr_t fnc);
 void pFpfffi(x64emu_t *emu, uintptr_t fnc);
