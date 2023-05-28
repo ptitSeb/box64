@@ -298,6 +298,48 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SW(x3, gback, i*4);
             }
             break;
+        case 0xB8:
+            INST_NAME("POPCNT Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE();
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if(!rex.w && MODREG) {
+                AND(x4, ed, xMASK);
+                ed = x4;
+            }
+            CLEAR_FLAGS();
+            BNE_MARK(ed, xZR);
+            ORI(xFlags, xFlags, 1<<F_ZF);
+            MOV32w(gd, 0);
+            B_NEXT_nocond;
+            MARK;
+            if(rv64_zbb) {
+                CPOPxw(gd, ed);
+            } else {
+                TABLE64(x1, 0x5555555555555555uLL);
+                SRLI(x5, ed, 1);
+                AND(x5, x5, x1);
+                SUB(x5, ed, x5);
+                TABLE64(x3, 0x3333333333333333uLL);
+                SRLI(x1, x5, 2);
+                AND(x1, x1, x3);
+                AND(x5, x5, x3);
+                ADD(x5, x5, x1);
+                TABLE64(x3, 0x0F0F0F0F0F0F0F0FuLL);
+                SRLI(x1, x5, 4);
+                ADD(x5, x5, x1);
+                AND(x5, x5, x3);
+                SRLI(x1, x5, 32);
+                ADDW(x5, x5, x1);
+                SRLIW(x1, x5, 16);
+                ADDW(x5, x5, x1);
+                SRLIW(x1, x5, 8);
+                ADDW(x5, x5, x1);
+                ANDI(gd, x5, 0x7F);
+            }
+            break;
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
             SETFLAGS(X_ZF, SF_SUBSET);
