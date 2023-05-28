@@ -1100,7 +1100,13 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 
 void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
 {
-    setProtection(addr, size, prot|PROT_MMAP);
+    if(prot)
+        setProtection(addr, size, prot|PROT_MMAP);
+    else {
+        mutex_lock(&mutex_prot);
+        addMapMem(addr, addr+size-1);
+        mutex_unlock(&mutex_prot);
+    }
 }
 
 void refreshProtection(uintptr_t addr)

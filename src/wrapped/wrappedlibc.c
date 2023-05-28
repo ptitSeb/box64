@@ -2595,7 +2595,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
     uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
     if(ret==old_addr) {
         if(old_size && old_size<new_size) {
-            setProtection((uintptr_t)ret+old_size, new_size-old_size, prot);
+            setProtection_mmap((uintptr_t)ret+old_size, new_size-old_size, prot);
             #ifdef DYNAREC
             if(box64_dynarec)
                 addDBFromAddressRange((uintptr_t)ret+old_size, new_size-old_size);
@@ -2607,7 +2607,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
                 cleanDBFromAddressRange((uintptr_t)ret+new_size, old_size-new_size, 1);
             #endif
         } else if(!old_size) {
-            setProtection((uintptr_t)ret, new_size, prot);
+            setProtection_mmap((uintptr_t)ret, new_size, prot);
             #ifdef DYNAREC
             if(box64_dynarec)
                 addDBFromAddressRange((uintptr_t)ret, new_size);
@@ -2665,8 +2665,15 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
             cleanDBFromAddressRange((uintptr_t)addr, len, 1);
     }
     #endif
-    if(!ret && len)
-        updateProtection((uintptr_t)addr, len, prot);
+    if(!ret && len) {
+        if(prot)
+            updateProtection((uintptr_t)addr, len, prot);
+        else {
+            // avoid allocating detailled protection for a no prot 0
+            freeProtection((uintptr_t)addr, len);
+            setProtection_mmap((uintptr_t)addr, len, prot);
+        }
+    }
     return ret;
 }
 
