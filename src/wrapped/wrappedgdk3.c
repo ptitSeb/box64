@@ -166,7 +166,7 @@ EXPORT void my3_gdk_window_remove_filter(x64emu_t* emu, void* window, void* f, v
     my->gdk_window_remove_filter(window, findFilterFct(f), data);
 }
 
-EXPORT uint32_t my_gdk_threads_add_idle_full(x64emu_t* emu, int priority, void* f, void* data, void* d)
+EXPORT uint32_t my3_gdk_threads_add_idle_full(x64emu_t* emu, int priority, void* f, void* data, void* d)
 {
     return my->gdk_threads_add_idle_full(priority, findGSourceFunc(f), data, findGDestroyNotifyFct(d));
 }
