@@ -226,11 +226,12 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
     if(!(nextop&0xC0)) {
         if((nextop&7)==4) {
             uint8_t sib = F8;
-            int sib_reg = ((sib>>3)&7)+(rex.x<<3);
+            int sib_reg = ((sib>>3)&0x7)+(rex.x<<3);
+            int sib_reg2 = (sib&0x7)+(rex.b<<3);
             if((sib&0x7)==5) {
                 int64_t tmp = F32S;
                 if (sib_reg!=4) {
-                    if(tmp && (!((tmp>=-2048) && (tmp<=2047) && i12))) {
+                    if(tmp && ((tmp<-2048) && (tmp>maxval) || !i12)) {
                         MOV64x(scratch, tmp);
                         if((sib>>6)) {
                             if(rv64_zba) SHxADD(ret, xRAX+sib_reg, (sib>>6), scratch); else {SLLI(ret, xRAX+sib_reg, sib>>6); ADD(ret, ret, scratch);}
@@ -253,11 +254,11 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
             } else {
                 if (sib_reg!=4) {
                     if((sib>>6)) {
-                        if(rv64_zba) SHxADD(ret, xRAX+sib_reg, (sib>>6), xRAX+(sib&0x7)+(rex.b<<3)); else {SLLI(ret, xRAX+sib_reg, (sib>>6)); ADD(ret, ret, xRAX+(sib&0x7)+(rex.b<<3));}
+                        if(rv64_zba) SHxADD(ret, xRAX+sib_reg, (sib>>6), xRAX+sib_reg2); else { SLLI(ret, xRAX+sib_reg, (sib>>6)); ADD(ret, ret, xRAX+sib_reg2);}
                     } else
-                        ADD(ret, xRAX+(sib&0x7)+(rex.b<<3), xRAX+(sib&0x7)+(rex.b<<3));
+                        ADD(ret, xRAX+sib_reg2, xRAX+sib_reg);
                 } else {
-                    ret = xRAX+(sib&0x7)+(rex.b<<3);
+                    ret = xRAX+sib_reg2;
                 }
             }
         } else if((nextop&7)==5) {
@@ -283,34 +284,35 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
             sib = F8;
             sib_reg = ((sib>>3)&7)+(rex.x<<3);
         }
+        int sib_reg2 = (sib&0x07)+(rex.b<<3);
         if(nextop&0x80)
             i64 = F32S;
-        else 
+        else
             i64 = F8S;
-        if(i64==0 || !((i64>=-2048) && (i64<=2047)  && i12)) {
+        if(i64==0 || ((i64>=-2048) && (i64<=2047)  && i12)) {
             *fixaddress = i64;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
                     if(sib>>6) {
-                    if(rv64_zba) SHxADD(ret, xRAX+sib_reg, (sib>>6), xRAX+(sib&0x07)+(rex.b<<3)); else {SLLI(ret, xRAX+sib_reg, (sib>>6)); ADD(ret, ret, xRAX+(sib&0x07)+(rex.b<<3));}
+                    if(rv64_zba) SHxADD(ret, xRAX+sib_reg, (sib>>6), xRAX+sib_reg2); else {SLLI(ret, xRAX+sib_reg, (sib>>6)); ADD(ret, ret, xRAX+sib_reg2);}
                     } else
-                        ADD(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg);
+                        ADD(ret, xRAX+sib_reg2, xRAX+sib_reg);
                 } else {
-                    ret = xRAX+(sib&0x07)+(rex.b<<3);
+                    ret = xRAX+sib_reg2;
                 }
             } else {
                 ret = xRAX+(nextop&0x07)+(rex.b<<3);
             }
         } else {
-            if(i64>=-2048 && i64<=2047 && i12) {
+            if(i64>=-2048 && i64<=2047) {
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         if(sib>>6) {
-                            if(rv64_zba) SHxADD(scratch, xRAX+sib_reg, (sib>>6), xRAX+(sib&0x07)+(rex.b<<3)); else {SLLI(scratch, xRAX+sib_reg, sib>>6); ADD(scratch, scratch, xRAX+(sib&0x07)+(rex.b<<3));}
-                        } else 
-                            ADD(scratch, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg);
+                            if(rv64_zba) SHxADD(scratch, xRAX+sib_reg, (sib>>6), xRAX+sib_reg2); else {SLLI(scratch, xRAX+sib_reg, sib>>6); ADD(scratch, scratch, xRAX+sib_reg2);}
+                        } else
+                            ADD(scratch, xRAX+sib_reg2, xRAX+sib_reg);
                     } else {
-                        scratch = xRAX+(sib&0x07)+(rex.b<<3);
+                        scratch = xRAX+sib_reg2;
                     }
                 } else
                     scratch = xRAX+(nextop&0x07)+(rex.b<<3);
@@ -319,13 +321,13 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                 MOV32w(scratch, i64);
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        ADD(scratch, scratch, xRAX+(sib&0x07)+(rex.b<<3));
+                        ADD(scratch, scratch, xRAX+sib_reg2);
                         if(sib>>6) {
                             if(rv64_zba) SHxADD(ret, xRAX+sib_reg, (sib>>6), scratch); else {SLLI(ret, xRAX+sib_reg, (sib>>6)); ADD(ret, ret, scratch);}
                         } else
                             ADD(ret, scratch, xRAX+sib_reg);
                     } else {
-                        PASS3(int tmp = xRAX+(sib&0x07)+(rex.b<<3));
+                        PASS3(int tmp = xRAX+sib_reg2);
                         ADD(ret, tmp, scratch);
                     }
                 } else {
@@ -1455,8 +1457,8 @@ void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
         for(int i=17; i<24; ++i)
             if(dyn->e.extcache[i].v!=0) {
                 switch(dyn->e.extcache[i].t) {
-                    case EXT_CACHE_ST_F: 
-                    case EXT_CACHE_SS: 
+                    case EXT_CACHE_ST_F:
+                    case EXT_CACHE_SS:
                         FSW(EXTREG(i), xSP, p*8);
                         break;
                     default:
@@ -1497,8 +1499,8 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
         for(int i=17; i<24; ++i)
             if(dyn->e.extcache[i].v!=0) {
                 switch(dyn->e.extcache[i].t) {
-                    case EXT_CACHE_ST_F: 
-                    case EXT_CACHE_SS: 
+                    case EXT_CACHE_ST_F:
+                    case EXT_CACHE_SS:
                         FLW(EXTREG(i), xSP, p*8);
                         break;
                     default:
@@ -1556,7 +1558,7 @@ static void swapCache(dynarec_rv64_t* dyn, int ninst, int i, int j, extcache_t *
     int j_single = 0;
     if(cache->extcache[j].t==EXT_CACHE_SS || cache->extcache[j].t==EXT_CACHE_ST_F)
         j_single =1;
-    
+
     if(!cache->extcache[i].v) {
         // a mov is enough, no need to swap
         MESSAGE(LOG_DUMP, "\t  - Moving %d <- %d\n", i, j);
@@ -1623,12 +1625,12 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
             FLD(reg, xEmu, offsetof(x64emu_t, xmm[n]));
             break;
         case EXT_CACHE_MM:
-            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));                    
+            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
             FLD(reg, xEmu, offsetof(x64emu_t, mmx[i]));
             break;
         case EXT_CACHE_ST_D:
         case EXT_CACHE_ST_F:
-            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));                    
+            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
             if((*s3_top) == 0xffff) {
                 LW(s3, xEmu, offsetof(x64emu_t, top));
                 *s3_top = 0;
@@ -1645,12 +1647,12 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
             if(t==EXT_CACHE_ST_F) {
                 FCVTSD(reg, reg);
             }
-            break;                    
+            break;
         case EXT_CACHE_NONE:
         case EXT_CACHE_SCR:
         default:    /* nothing done */
             MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
-            break; 
+            break;
     }
     cache->extcache[i].n = n;
     cache->extcache[i].t = t;
@@ -1669,12 +1671,12 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
             FSD(reg, xEmu, offsetof(x64emu_t, xmm[n]));
             break;
         case EXT_CACHE_MM:
-            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));                    
+            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
             FSD(reg, xEmu, offsetof(x64emu_t, mmx[n]));
             break;
         case EXT_CACHE_ST_D:
         case EXT_CACHE_ST_F:
-            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));                    
+            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
             if((*s3_top)==0xffff) {
                 LW(s3, xEmu, offsetof(x64emu_t, top));
                 *s3_top = 0;
@@ -1691,12 +1693,12 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
                 FCVTDS(reg, reg);
             }
             FSD(reg, s2, offsetof(x64emu_t, x87));
-            break;                    
+            break;
         case EXT_CACHE_NONE:
         case EXT_CACHE_SCR:
         default:    /* nothing done */
             MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
-            break; 
+            break;
     }
     cache->extcache[i].v = 0;
 }
@@ -1845,18 +1847,18 @@ static void flagsCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1)
     int go = 0;
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: break;
-        case SF_SET: 
-            if(dyn->f.pending!=SF_SET && dyn->f.pending!=SF_SET_PENDING) 
-                go = 1; 
+        case SF_SET:
+            if(dyn->f.pending!=SF_SET && dyn->f.pending!=SF_SET_PENDING)
+                go = 1;
             break;
         case SF_SET_PENDING:
-            if(dyn->f.pending!=SF_SET 
+            if(dyn->f.pending!=SF_SET
             && dyn->f.pending!=SF_SET_PENDING
-            && dyn->f.pending!=SF_PENDING) 
-                go = 1; 
+            && dyn->f.pending!=SF_PENDING)
+                go = 1;
             break;
         case SF_PENDING:
-            if(dyn->f.pending!=SF_SET 
+            if(dyn->f.pending!=SF_SET
             && dyn->f.pending!=SF_SET_PENDING
             && dyn->f.pending!=SF_PENDING)
                 go = 1;
