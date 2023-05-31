@@ -61,6 +61,7 @@ int box64_dynarec_callret = 0;
 int box64_dynarec_hotpage = 0;
 int box64_dynarec_fastpage = 0;
 int box64_dynarec_bleeding_edge = 1;
+int box64_dynarec_jvm = 1;
 int box64_dynarec_wait = 1;
 int box64_dynarec_test = 0;
 int box64_dynarec_missing = 0;
@@ -574,6 +575,15 @@ void LoadLogEnv()
         }
         if(!box64_dynarec_bleeding_edge)
             printf_log(LOG_INFO, "Dynarec will not detect MonoBleedingEdge\n");
+    }
+    p = getenv("BOX64_DYNAREC_JVM");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_jvm = p[0]-'0';
+        }
+        if(!box64_dynarec_jvm)
+            printf_log(LOG_INFO, "Dynarec will not detect libjvm\n");
     }
     p = getenv("BOX64_DYNAREC_WAIT");
     if(p) {

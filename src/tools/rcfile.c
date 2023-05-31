@@ -126,6 +126,7 @@ ENTRYBOOL(BOX64_DYNAREC_FASTROUND, box64_dynarec_fastround)         \
 ENTRYINT(BOX64_DYNAREC_SAFEFLAGS, box64_dynarec_safeflags, 0, 2, 2) \
 ENTRYBOOL(BOX64_DYNAREC_CALLRET, box64_dynarec_callret)             \
 ENTRYBOOL(BOX64_DYNAREC_BLEEDING_EDGE, box64_dynarec_bleeding_edge) \
+ENTRYBOOL(BOX64_DYNAREC_JVM, box64_dynarec_jvm)                     \
 ENTRYINT(BOX64_DYNAREC_HOTPAGE, box64_dynarec_hotpage, 0, 255, 8)   \
 ENTRYBOOL(BOX64_DYNAREC_FASTPAGE, box64_dynarec_fastpage)           \
 ENTRYBOOL(BOX64_DYNAREC_WAIT, box64_dynarec_wait)                   \
@@ -147,6 +148,7 @@ IGNORE(BOX64_DYNAREC_FASTROUND)                                     \
 IGNORE(BOX64_DYNAREC_SAFEFLAGS)                                     \
 IGNORE(BOX64_DYNAREC_CALLRET)                                       \
 IGNORE(BOX64_DYNAREC_BLEEDING_EDGE)                                 \
+IGNORE(BOX64_DYNAREC_JVM)                                           \
 IGNORE(BOX64_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX64_DYNAREC_FASTPAGE)                                      \
 IGNORE(BOX64_DYNAREC_WAIT)                                          \
