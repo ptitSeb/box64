@@ -321,3 +321,7 @@ Those variables are only valid inside a rcfile:
 #### BOX64_EXIT
  * 0 : Nothing special
  * 1 : Just exit, don't try to run the program
+
+#### BOX64_RESERVE_HIGH
+* 0 : Don't try to pe-reserve high memory (beyond 47bits) (Default)
+* 1 : Try to reserve (without allocating it) memory beyond 47bits (seems unstable)

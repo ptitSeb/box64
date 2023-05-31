@@ -1425,6 +1425,9 @@ static void atfork_child_custommem(void)
 
 void reserveHighMem()
 {
+    char* p = getenv("BOX64_RESERVE_HIGH");
+    if(!p || p[0]=='0')
+        return; // don't reserve by default
     intptr_t cur = 1LL<<47;
     mapmem_t* m = mapmem;
     while(m && (m->end<cur)) {
@@ -1434,7 +1437,8 @@ void reserveHighMem()
         uintptr_t addr = 0, end = 0;
         if(m->begin>cur) {
             void* ret = mmap64((void*)cur, m->begin-cur, 0, MAP_ANONYMOUS|MAP_FIXED|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
-            printf_log(LOG_DEBUG, "Reserve %p(0x%zx) => %p (%s)\n", (void*)cur, m->begin-cur, ret, strerror(errno));
+            printf_log(LOG_DEBUG, "Reserve %p-%p => %p (%s)\n", (void*)cur, m->begin, ret, strerror(errno));
+            printf_log(LOG_DEBUG, "mmap %p-%p\n", m->begin, m->end);
             if(ret!=(void*)-1) {
                 addr = cur;
                 end = m->begin;
