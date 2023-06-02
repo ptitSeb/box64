@@ -155,6 +155,23 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FSD(v1, wback, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
                     break;
+                case 7:
+                    INST_NAME("FNSTSW m2byte");
+                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x4, x6, &fixedaddress, rex, NULL, 0, 0);
+                    LWU(x2, xEmu, offsetof(x64emu_t, top));
+                    LHU(x3, xEmu, offsetof(x64emu_t, sw));
+                    if(dyn->e.x87stack) {
+                        // update top
+                        ADDI(x2, x2, -dyn->e.x87stack);
+                        ANDI(x2, x2, 7);
+                    }
+                    MOV32w(x5, ~0x3800);
+                    AND(x3, x3, x5);    // mask out TOP
+                    SLLI(x2, x2, 11);   // shift TOP to bit 11
+                    OR(x3, x3, x2);     // inject TOP
+                    SH(x3, ed, fixedaddress);   // store whole sw flags
+                    break;
                 default:
                     DEFAULT;
             }
