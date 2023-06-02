@@ -395,6 +395,23 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_ror8);
                     break;
+                case 4:
+                case 6:
+                    if(opcode==0xD0) {
+                        INST_NAME("SHL Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SHL Eb, CL");
+                        ANDI(x2, xRCX, 7);
+                    }
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEB(x1, 0);
+                    UFLAG_OP12(ed, x2)
+                    SLL(ed, ed, x2);
+                    EBBACK(x5, 1);
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shl8);
+                    break;
                 case 5:
                     if(opcode==0xD0) {
                         INST_NAME("SHR Eb, 1");
