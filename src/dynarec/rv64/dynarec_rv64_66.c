@@ -538,6 +538,54 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADD(xRDI, xRDI, x3);
             }
             break;
+
+        case 0xAF:
+            switch (rep) {
+                case 1:
+                case 2:
+                    if(rep==1) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
+                    MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    CBZ_NEXT(xRCX);
+                    GETDIR(x3, x1, rex.w?8:2);
+                    if (rex.w) {
+                        MARK;
+                        LD(x2, xRDI, 0);
+                        ADD(xRDI, xRDI, x3);
+                        ADDI(xRCX, xRCX, -1);
+                        if (rep==1) {BEQ_MARK3(xRAX, x2);} else {BNE_MARK3(xRAX, x2);}
+                        BNE_MARK(xRCX, xZR);
+                        MARK3;
+                        emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
+                    } else {
+                        ZEXTH(x1, xRAX);
+                        MARK;
+                        LHU(x2, xRDI, 0);
+                        ADD(xRDI, xRDI, x3);
+                        ADDI(xRCX, xRCX, -1);
+                        if (rep==1) {BEQ_MARK3(x1, x2);} else {BNE_MARK3(x1, x2);}
+                        BNE_MARK(xRCX, xZR);
+                        MARK3;
+                        emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    }
+                    break;
+                default:
+                    INST_NAME("SCASW");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETDIR(x3, x1, rex.w?8:2);
+                    if (rex.w) {
+                        LD(x2, xRDI, 0);
+                        emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
+                    } else {
+                        ZEXTH(x1, xRAX);
+                        LHU(x2, xRDI, 0);
+                        emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    }
+                    ADD(xRDI, xRDI, x3);
+                    break;
+            }
+            break;
+
         case 0xB8:
         case 0xB9:
         case 0xBA:
