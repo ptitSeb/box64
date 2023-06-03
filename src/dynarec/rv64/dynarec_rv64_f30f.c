@@ -35,7 +35,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     int v0, v1;
     int q0, q1;
     int d0, d1;
-    int64_t fixedaddress;
+    int64_t fixedaddress, gdoffset;
     int unscaled;
     int64_t j64;
 
@@ -80,7 +80,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
-            
+
         case 0x1E:
             INST_NAME("NOP / ENDBR32 / ENDBR64");
             nextop = F8;
@@ -221,14 +221,14 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x6F:
             INST_NAME("MOVDQU Gx,Ex");
             nextop = F8;
-            GETGX(x1);
+            GETGX();
             GETEX(x2, 0);
             SSE_LOOP_MV_Q(x3);
             break;
         case 0x70: // TODO: Optimize this!
             INST_NAME("PSHUFHW Gx, Ex, Ib");
             nextop = F8;
-            GETGX(x1);
+            GETGX();
             GETEX(x2, 1);
             u8 = F8;
             int32_t idx;
@@ -242,14 +242,14 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             idx = 4+((u8>>(3*2))&3);
             LHU(x6, wback, fixedaddress+idx*2);
 
-            SH(x3, gback, (4+0)*2);
-            SH(x4, gback, (4+1)*2);
-            SH(x5, gback, (4+2)*2);
-            SH(x6, gback, (4+3)*2);
+            SH(x3, gback, gdoffset+(4+0)*2);
+            SH(x4, gback, gdoffset+(4+1)*2);
+            SH(x5, gback, gdoffset+(4+2)*2);
+            SH(x6, gback, gdoffset+(4+3)*2);
 
             if (!(MODREG && (gd==ed))) {
                 LD(x3, wback, fixedaddress+0);
-                SD(x3, gback, 0);
+                SD(x3, gback, gdoffset+0);
             }
             break;
         case 0x7E:
@@ -271,16 +271,16 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x7F:
             INST_NAME("MOVDQU Ex,Gx");
             nextop = F8;
-            GETGX(x1);
+            GETGX();
             GETEX(x2, 0);
             SSE_LOOP_MV_Q2(x3);
             if(!MODREG) SMWRITE2();
             break;
-        
+
         case 0x5B:
             INST_NAME("CVTTPS2DQ Gx, Ex");
             nextop = F8;
-            GETGX(x1);
+            GETGX();
             GETEX(x2, 0);
             v0 = fpu_get_scratch(dyn);
             for(int i=0; i<4; ++i) {
@@ -295,7 +295,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     BEQZ(x5, 8);
                     MOV32w(x3, 0x80000000);
                 }
-                SW(x3, gback, i*4);
+                SW(x3, gback, gdoffset+i*4);
             }
             break;
         case 0xB8:
@@ -418,7 +418,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BEQZ(x3, 4+2*4);
                 SUBI(u8, u8, 4);
                 MV(x2, x3);
-                ANDI(x2, x2, 0b1111); 
+                ANDI(x2, x2, 0b1111);
                 TABLE64(x3, (uintptr_t)&lead0tab);
                 ADD(x3, x3, x2);
                 LBU(x2, x3, 0);
@@ -465,7 +465,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
                 case 7: break;                                      // Not NaN
                 }
-                
+
                 MARK2;
                 if ((u8&7) == 5 || (u8&7) == 6) {
                     MOV32w(x2, 1);
@@ -479,7 +479,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xE6:
             INST_NAME("CVTDQ2PD Gx, Ex");
             nextop = F8;
-            GETGX(x1);
+            GETGX();
             GETEX(x2, 0);
             q0 = fpu_get_scratch(dyn);
             q1 = fpu_get_scratch(dyn);
@@ -487,8 +487,8 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             LW(x4, wback, fixedaddress+4);
             FCVTDW(q0, x3, RD_RTZ);
             FCVTDW(q1, x4, RD_RTZ);
-            FSD(q0, gback, 0);
-            FSD(q1, gback, 8);
+            FSD(q0, gback, gdoffset+0);
+            FSD(q1, gback, gdoffset+8);
             break;
 
         default:

@@ -369,11 +369,11 @@
     }
 
 // Will get pointer to GX in general register a, will purge SS or SD if loaded. can use gback as load address
-#define GETGX(a)                        \
-    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    sse_forget_reg(dyn, ninst, gd);     \
-    gback = a;                          \
-    ADDI(a, xEmu, offsetof(x64emu_t, xmm[gd]))
+#define GETGX()                             \
+    gd = ((nextop&0x38)>>3)+(rex.r<<3);     \
+    sse_forget_reg(dyn, ninst, gd);         \
+    gback = xEmu;                           \
+    gdoffset = offsetof(x64emu_t, xmm[gd])
 
 // Get Ex address in general register a, will purge SS or SD if it's reg and is loaded. May use x3. Use wback as load address!
 #define GETEX(a, D)                                                                                     \
@@ -388,11 +388,11 @@
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D);          \
     }
 
-#define GETGM(a)                        \
-    gd = ((nextop&0x38)>>3);            \
-    mmx_forget_reg(dyn, ninst, gd);     \
-    gback = a;                          \
-    ADDI(a, xEmu, offsetof(x64emu_t, mmx[gd]))
+#define GETGM()                             \
+    gd = ((nextop&0x38)>>3);                \
+    mmx_forget_reg(dyn, ninst, gd);         \
+    gback = xEmu;                           \
+    gdoffset = offsetof(x64emu_t, mmx[gd])
 
 // Get EM, might use x3
 #define GETEM(a, D)                                                                             \
@@ -408,10 +408,10 @@
     }
 
 #define SSE_LOOP_D_ITEM(GX1, EX1, F, i) \
-    LWU(GX1, gback, i*4);               \
+    LWU(GX1, gback, gdoffset+i*4);      \
     LWU(EX1, wback, fixedaddress+i*4);  \
     F;                                  \
-    SW(GX1, gback, i*4);
+    SW(GX1, gback, gdoffset+i*4);
 
 // Loop for SSE opcode that use 32bits value and write to GX.
 #define SSE_LOOP_D(GX1, EX1, F)     \
@@ -421,10 +421,10 @@
     SSE_LOOP_D_ITEM(GX1, EX1, F, 3)
 
 #define SSE_LOOP_DS_ITEM(GX1, EX1, F, i) \
-    LW(GX1, gback, i*4);                 \
+    LW(GX1, gback, gdoffset+i*4);        \
     LW(EX1, wback, fixedaddress+i*4);    \
     F;                                   \
-    SW(GX1, gback, i*4);
+    SW(GX1, gback, gdoffset+i*4);
 
 // Loop for SSE opcode that use 32bits value and write to GX.
 #define SSE_LOOP_DS(GX1, EX1, F)     \
@@ -435,26 +435,26 @@
 
 #define MMX_LOOP_W(GX1, EX1, F)            \
     for (int i=0; i<4; ++i) {              \
-        LHU(GX1, gback, i*2);              \
+        LHU(GX1, gback, gdoffset+i*2);     \
         LHU(EX1, wback, fixedaddress+i*2); \
         F;                                 \
-        SH(GX1, gback, i*2);               \
+        SH(GX1, gback, gdoffset+i*2);      \
     }
 
 #define SSE_LOOP_W(GX1, EX1, F)            \
     for (int i=0; i<8; ++i) {              \
-        LHU(GX1, gback, i*2);              \
+        LHU(GX1, gback, gdoffset+i*2);     \
         LHU(EX1, wback, fixedaddress+i*2); \
         F;                                 \
-        SH(GX1, gback, i*2);               \
+        SH(GX1, gback, gdoffset+i*2);      \
     }
 
 #define SSE_LOOP_WS(GX1, EX1, F)          \
     for (int i=0; i<8; ++i) {             \
-        LH(GX1, gback, i*2);              \
+        LH(GX1, gback, gdoffset+i*2);     \
         LH(EX1, wback, fixedaddress+i*2); \
         F;                                \
-        SH(GX1, gback, i*2);              \
+        SH(GX1, gback, gdoffset+i*2);     \
     }
 
 #define SSE_LOOP_D_S_ITEM(EX1, F, i)    \
@@ -470,10 +470,10 @@
     SSE_LOOP_D_S_ITEM(EX1, F, 3)
 
 #define SSE_LOOP_Q_ITEM(GX1, EX1, F, i) \
-    LD(GX1, gback, i*8);                \
+    LD(GX1, gback, gdoffset+i*8);       \
     LD(EX1, wback, fixedaddress+i*8);   \
     F;                                  \
-    SD(GX1, gback, i*8);
+    SD(GX1, gback, gdoffset+i*8);
 
 // Loop for SSE opcode that use 64bits value and write to GX.
 #define SSE_LOOP_Q(GX1, EX1, F)     \
@@ -482,10 +482,10 @@
 
 
 #define SSE_LOOP_FQ_ITEM(GX1, EX1, F, i)            \
-    FLD(v0, gback, i*8);                            \
+    FLD(v0, gback, gdoffset+i*8);                   \
     FLD(v1, wback, fixedaddress+i*8);               \
     F;                                              \
-    FSD(v0, gback, i*8);
+    FSD(v0, gback, gdoffset+i*8);
 
 #define SSE_LOOP_FQ(GX1, EX1, F)     \
     v0 = fpu_get_scratch(dyn);       \
@@ -496,7 +496,7 @@
 
 #define SSE_LOOP_MV_Q_ITEM(s, i)      \
     LD(s, wback, fixedaddress+i*8);   \
-    SD(s, gback, i*8);
+    SD(s, gback, gdoffset+i*8);
 
 // Loop for SSE opcode that moves 64bits value from wback to gback, use s as scratch.
 #define SSE_LOOP_MV_Q(s)     \
@@ -504,7 +504,7 @@
     SSE_LOOP_MV_Q_ITEM(s, 1)
 
 #define SSE_LOOP_MV_Q_ITEM2(s, i)     \
-    LD(s, gback, i*8);                \
+    LD(s, gback, gdoffset+i*8);       \
     SD(s, wback, fixedaddress+i*8);
 
 // Loop for SSE opcode that moves 64bits value from gback to wback, use s as scratch.
