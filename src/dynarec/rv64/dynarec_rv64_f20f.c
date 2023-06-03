@@ -35,7 +35,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     int v0, v1;
     int q0;
     int d0, d1;
-    int64_t fixedaddress;
+    int64_t fixedaddress, gdoffset;
     int unscaled;
 
     MAYUSE(d0);
@@ -82,11 +82,11 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x12:
             INST_NAME("MOVDDUP Gx, Ex");
             nextop = F8;
-            GETGX(x1);
+            GETGX();
             GETEX(x2, 0);
             LD(x3, wback, fixedaddress+0);
-            SD(x3, gback, 0);
-            SD(x3, gback, 8);
+            SD(x3, gback, gdoffset+0);
+            SD(x3, gback, gdoffset+8);
             break;
         case 0x2A:
             INST_NAME("CVTSI2SD Gx, Ed");
@@ -276,7 +276,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x70: // TODO: Optimize this!
             INST_NAME("PSHUFLW Gx, Ex, Ib");
             nextop = F8;
-            GETGX(x1);
+            GETGX();
             GETEX(x2, 1);
             u8 = F8;
             int32_t idx;
@@ -290,14 +290,14 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             idx = (u8>>(3*2))&3;
             LHU(x6, wback, fixedaddress+idx*2);
 
-            SH(x3, gback, 0*2);
-            SH(x4, gback, 1*2);
-            SH(x5, gback, 2*2);
-            SH(x6, gback, 3*2);
+            SH(x3, gback, gdoffset+0*2);
+            SH(x4, gback, gdoffset+1*2);
+            SH(x5, gback, gdoffset+2*2);
+            SH(x6, gback, gdoffset+3*2);
 
             if (!(MODREG && (gd==ed))) {
                 LD(x3, wback, fixedaddress+8);
-                SD(x3, gback, 8);
+                SD(x3, gback, gdoffset+8);
             }
             break;
         case 0xC2:
@@ -335,7 +335,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
                 case 7: break;                                      // Not NaN
                 }
-                
+
                 MARK2;
                 if ((u8&7) == 5 || (u8&7) == 6) {
                     MOV32w(x2, 1);
@@ -348,7 +348,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xE6:
             INST_NAME("CVTPD2DQ Gx, Ex");
             nextop = F8;
-            GETGX(x1);
+            GETGX();
             GETEX(x2, 0);
             d0 = fpu_get_scratch(dyn);
             u8 = sse_setround(dyn, ninst, x6, x4);
@@ -359,10 +359,10 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SUB(x5, x5, x3);
                 BEQZ(x5, 8);
                 LUI(x3, 0x80000); // INT32_MIN
-                SW(x3, gback, 4*i);
+                SW(x3, gback, gdoffset+4*i);
             }
             x87_restoreround(dyn, ninst, u8);
-            SD(xZR, gback, 8);
+            SD(xZR, gback, gdoffset+8);
             break;
         default:
             DEFAULT;
