@@ -116,14 +116,14 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 if(rex.rex) {
                                     wback = xRAX+(nextop&7)+(rex.b<<3);
                                     wb2 = 0;
-                                } else { 
+                                } else {
                                     wback = (nextop&7);
                                     wb2 = (wback>>2)*8;
                                     wback = xRAX+(wback&3);
                                 }
                                 if (wb2) {
-                                    MV(x2, wback); 
-                                    SRLI(x2, x2, wb2); 
+                                    MV(x2, wback);
+                                    SRLI(x2, x2, wb2);
                                     ANDI(x2, x2, 0xff);
                                 } else {
                                     ANDI(x2, wback, 0xff);
@@ -135,8 +135,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 }
                                 BNE_MARK2(x6, x2);
                                 if (wb2) {
-                                    MV(wback, x2); 
-                                    SRLI(wback, wback, wb2); 
+                                    MV(wback, x2);
+                                    SRLI(wback, wback, wb2);
                                     ANDI(wback, wback, 0xff);
                                 } else {
                                     ANDI(wback, x2, 0xff);
@@ -149,7 +149,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 B_NEXT_nocond;
                             } else {
                                 // this one is tricky, and did some repetitive work.
-                                // mostly because we only got 6 scratch registers, 
+                                // mostly because we only got 6 scratch registers,
                                 // and has so much to do.
                                 if(rex.rex) {
                                     gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
@@ -211,21 +211,28 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 wback = 0;
                                 UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5, x6);}
                                 MV(x1, ed); // save value
-                                SUB(x2, x1, xRAX);
-                                BNE_MARK2(x2, xZR);
+                                BNE_MARK2(x1, xRAX);
                                 MV(ed, gd);
                                 MARK2;
                                 MVxw(xRAX, x1);
                             } else {
                                 SMDMB();
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                                ANDI(x1, wback, (1<<2+rex.w)-1);
+                                BNEZ_MARK3(x1);
+                                // Aligned
                                 MARKLOCK;
                                 LRxw(x1, wback, 1, 1);
-                                SUBxw(x3, x1, xRAX);
-                                BNE_MARK(x3, xZR);
+                                BNE_MARK(x1, xRAX);
                                 // EAX == Ed
                                 SCxw(x4, gd, wback, 1, 1);
                                 BNEZ_MARKLOCK(x4);
+                                B_MARK_nocond;
+                                // Unaligned
+                                MARK3;
+                                LDxw(x1, wback, 0);
+                                BNE_MARK(x1, xRAX);
+                                SDxw(gd, wback, 0);
                                 MARK;
                                 UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6);}
                                 MVxw(xRAX, x1);
@@ -542,7 +549,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             emit_sub32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
                     }
                     break;
-                default: 
+                default:
                     DEFAULT;
             }
             SMDMB();
