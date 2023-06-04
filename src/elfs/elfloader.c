@@ -1184,9 +1184,13 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, box64c
 
     DumpDynamicNeeded(h);
     int cnt = 0;
-    for (int i=0; i<h->numDynamic; ++i)
+    // count the number of needed libs, and also grab soname
+    for (int i=0; i<h->numDynamic; ++i) {
         if(h->Dynamic[i].d_tag==DT_NEEDED)
             ++cnt;
+        if(h->Dynamic[i].d_tag==DT_SONAME)
+            h->soname = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
+    }
     h->needed = new_neededlib(cnt);
     if(h == my_context->elfs[0])
         my_context->neededlibs = h->needed;

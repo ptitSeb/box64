@@ -12,6 +12,7 @@ typedef struct kh_defaultversion_s kh_defaultversion_t;
 struct elfheader_s {
     char*       name;
     char*       path;   // Resolved path to file
+    char*       soname; // soname of the elf
     size_t      numPHEntries;
     Elf64_Phdr  *PHEntries;
     size_t      numSHEntries;
