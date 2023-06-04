@@ -52,6 +52,9 @@ BOX64_MALLOC_HACK=2
 # this is to save some memory
 BOX64_DYNAREC_BIGBLOCK=0
 
+[LotCG.x86_64]
+BOX64_DYNAREC_FASTROUND=0
+
 [nacl_helper]
 BOX64_MALLOC_HACK=1
 
