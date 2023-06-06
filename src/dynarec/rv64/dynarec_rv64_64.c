@@ -345,12 +345,12 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     eb2 = (ed&4)>>2;    // L or H
                 } else {
                     eb1 = xRAX+(nextop&7)+(rex.b<<3);
-                    eb2 = 0;            
+                    eb2 = 0;
                 }
 
                 if (eb2) {
                     // load a mask to x3 (ffffffffffff00ff)
-                    LUI(x3, 0xffffffffffff0);
+                    LUI(x3, 0xffff0);
                     ORI(x3, x3, 0xff);
                     // apply mask
                     AND(eb1, eb1, x3);
