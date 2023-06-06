@@ -583,6 +583,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         // x5..x8, x10..x17, x28..x31 those needs to be saved by caller
         STORE_REG(RAX);
         STORE_REG(RCX);
+        STORE_REG(RDX);
         STORE_REG(R12);
         STORE_REG(R13);
         STORE_REG(R14);
@@ -601,6 +602,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         #define GO(A)   if(ret!=x##A) {LOAD_REG(A);}
         GO(RAX);
         GO(RCX);
+        GO(RDX);
         GO(R12);
         GO(R13);
         GO(R14);

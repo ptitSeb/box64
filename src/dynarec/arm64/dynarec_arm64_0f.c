@@ -332,9 +332,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("RDTSC");
             NOTEST(x1);
             MESSAGE(LOG_DUMP, "Need Optimization\n");
-            CALL(ReadTSC, xRAX);   // will return the u64 in xEAX
-            LSRx(xRDX, xRAX, 32);
-            MOVw_REG(xRAX, xRAX);   // wipe upper part
+            CALL(ReadTSC, x3);    // will return the u64 in x3
+            LSRx(xRDX, x3, 32);
+            MOVw_REG(xRAX, x3);   // wipe upper part
             break;
 
         case 0x38:
@@ -416,7 +416,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEM(q1, 1);
                     u8 = F8;
                     if(u8>15) {
-                        VEOR(q0, q0, q0);    
+                        VEOR(q0, q0, q0);
                     } else if(u8>7) {
                         d0 = fpu_get_scratch(dyn);
                         VEOR(d0, d0, d0);
@@ -498,7 +498,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             // more precise
             if(q1==q0)
                 v1 = fpu_get_scratch(dyn);
-            else 
+            else
                 v1 = q1;
             VFRSQRTEQS(v0, q0);
             VFMULQS(v1, v0, q0);
@@ -1087,7 +1087,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         GOCOND(0x90, "SET", "Eb");
         #undef GO
-            
+
         case 0xA2:
             INST_NAME("CPUID");
             NOTEST(x1);
@@ -1242,7 +1242,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             CALL(rex.w?((void*)fpu_fxrstor64):((void*)fpu_fxrstor32), -1);
                         }
                         break;
-                    case 2:                 
+                    case 2:
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
                         STRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
@@ -1593,21 +1593,21 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0: VFCMEQQS(v0, v0, v1); break;   // Equal
                 case 1: VFCMGTQS(v0, v1, v0); break;   // Less than
                 case 2: VFCMGEQS(v0, v1, v0); break;   // Less or equal
-                case 3: VFCMEQQS(v0, v0, v0); 
+                case 3: VFCMEQQS(v0, v0, v0);
                         if(v0!=v1) {
-                            q0 = fpu_get_scratch(dyn); 
-                            VFCMEQQS(q0, v1, v1); 
+                            q0 = fpu_get_scratch(dyn);
+                            VFCMEQQS(q0, v1, v1);
                             VANDQ(v0, v0, q0);
                         }
-                        VMVNQ(v0, v0); 
+                        VMVNQ(v0, v0);
                         break;   // NaN (NaN is not equal to himself)
                 case 4: VFCMEQQS(v0, v0, v1); VMVNQ(v0, v0); break;   // Not Equal (or unordered on ARM, not on X86...)
                 case 5: VFCMGTQS(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or equal or unordered
                 case 6: VFCMGEQS(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or unordered
-                case 7: VFCMEQQS(v0, v0, v0); 
+                case 7: VFCMEQQS(v0, v0, v0);
                         if(v0!=v1) {
-                            q0 = fpu_get_scratch(dyn); 
-                            VFCMEQQS(q0, v1, v1); 
+                            q0 = fpu_get_scratch(dyn);
+                            VFCMEQQS(q0, v1, v1);
                             VANDQ(v0, v0, q0);
                         }
                         break;   // not NaN
@@ -1739,7 +1739,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             USHL_8(q1, q1, v0); // shift
             UADDLV_8(q1, q1);   // accumalte
             VMOVBto(gd, q1, 0);
-            break;        
+            break;
         case 0xD8:
             INST_NAME("PSUBUSB Gm, Em");
             nextop = F8;
@@ -1870,7 +1870,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(d1, 0);
             SQADD_16(d0, d0, d1);
             break;
-        
+
         case 0xEF:
             INST_NAME("PXOR Gm,Em");
             nextop = F8;

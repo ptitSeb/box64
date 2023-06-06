@@ -899,15 +899,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         AND(xRAX, x2, xMASK);
                         ZEROUP(xRDX);
                     } else {
-                        if(ninst 
-                           && dyn->insts[ninst-1].x64.addr 
-                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31 
+                        if(ninst
+                           && dyn->insts[ninst-1].x64.addr
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
                             SET_DFNONE();
                             GETED(0);
-                            DIVU(x2, xRAX, ed);
                             REMU(xRDX, xRAX, ed);
-                            MV(xRAX, x2);
+                            DIVU(xRAX, xRAX, ed);
                         } else {
                             GETEDH(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
                             BEQ_MARK(xRDX, xZR);
@@ -915,9 +914,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             CALL(div64, -1);
                             B_NEXT_nocond;
                             MARK;
-                            DIVU(x2, xRAX, ed);
                             REMU(xRDX, xRAX, ed);
-                            MV(xRAX, x2);
+                            DIVU(xRAX, xRAX, ed);
                             SET_DFNONE();
                         }
                     }
@@ -938,14 +936,13 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ZEROUP(xRDX);
                     } else {
                         if(ninst && dyn->insts
-                           &&  dyn->insts[ninst-1].x64.addr 
+                           &&  dyn->insts[ninst-1].x64.addr
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x48
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0x99) {
                             SET_DFNONE()
                             GETED(0);
-                            DIV(x2, xRAX, ed);
                             REM(xRDX, xRAX, ed);
-                            MV(xRAX, x2);
+                            DIV(xRAX, xRAX, ed);
                         } else {
                             GETEDH(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
                             //Need to see if RDX==0 and RAX not signed
@@ -961,9 +958,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             CALL((void*)idiv64, -1);
                             B_NEXT_nocond;
                             MARK;
-                            DIV(x2, xRAX, ed);
                             REM(xRDX, xRAX, ed);
-                            MV(xRAX, x2);
+                            DIV(xRAX, xRAX, ed);
                             SET_DFNONE()
                         }
                     }
@@ -1029,7 +1025,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF((box64_dynarec_safeflags>1) || 
+                    PASS2IF((box64_dynarec_safeflags>1) ||
                         ((ninst && dyn->insts[ninst-1].x64.set_flags)
                         || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
                     {
