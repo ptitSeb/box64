@@ -809,3 +809,6 @@ GO(vkCmdSetViewportWScalingEnableNV, vFpi)
 // VK_KHR_external_memory_win32
 GO(vkGetMemoryWin32HandleKHR, iFppp)
 GO(vkGetMemoryWin32HandlePropertiesKHR, iFpipp)
+
+// VK_EXT_swapchain_maintenance1
+GO(vkReleaseSwapchainImagesEXT, iFpp)
