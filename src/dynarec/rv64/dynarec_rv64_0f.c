@@ -311,6 +311,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x31:
             INST_NAME("RDTSC");
+            NOTEST(x1);
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             CALL(ReadTSC, x3);   // will return the u64 in x3
             SRLI(xRDX, x3, 32);
