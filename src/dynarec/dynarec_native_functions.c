@@ -70,9 +70,9 @@ void native_fprem(x64emu_t* emu)
     int32_t tmp32s = ST0.d / ST1.d;
     ST0.d -= ST1.d * tmp32s;
     emu->sw.f.F87_C2 = 0;
-    emu->sw.f.F87_C0 = (tmp32s&1);
+    emu->sw.f.F87_C1 = (tmp32s&1);
     emu->sw.f.F87_C3 = ((tmp32s>>1)&1);
-    emu->sw.f.F87_C1 = ((tmp32s>>2)&1);
+    emu->sw.f.F87_C0 = ((tmp32s>>2)&1);
 }
 void native_fyl2xp1(x64emu_t* emu)
 {
@@ -199,9 +199,9 @@ void native_fprem1(x64emu_t* emu)
     int32_t tmp32s = round(ST0.d / ST1.d);
     ST0.d -= ST1.d*tmp32s;
     emu->sw.f.F87_C2 = 0;
-    emu->sw.f.F87_C0 = (tmp32s&1);
+    emu->sw.f.F87_C1 = (tmp32s&1);
     emu->sw.f.F87_C3 = ((tmp32s>>1)&1);
-    emu->sw.f.F87_C1 = ((tmp32s>>2)&1);
+    emu->sw.f.F87_C0 = ((tmp32s>>2)&1);
 }
 
 static uint8_t ff_mult(uint8_t a, uint8_t b)
@@ -209,19 +209,19 @@ static uint8_t ff_mult(uint8_t a, uint8_t b)
 	int retval = 0;
 
 	for(int i = 0; i < 8; i++) {
-		if((b & 1) == 1) 
+		if((b & 1) == 1)
 			retval ^= a;
-		
+
 		if((a & 0x80)) {
 			a <<= 1;
 			a  ^= 0x1b;
 		} else {
 			a <<= 1;
 		}
-		
+
 		b >>= 1;
 	}
-	
+
 	return retval;
 }
 
@@ -371,20 +371,20 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
         if(dyn->f.pending!=SF_PENDING) {*/
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: return 0;
-        case SF_SET: 
-            if(dyn->insts[ninst].f_exit.pending!=SF_SET && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING) 
-                return 1; 
-            else 
+        case SF_SET:
+            if(dyn->insts[ninst].f_exit.pending!=SF_SET && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING)
+                return 1;
+            else
                 return 0;
         case SF_SET_PENDING:
-            if(dyn->insts[ninst].f_exit.pending!=SF_SET 
+            if(dyn->insts[ninst].f_exit.pending!=SF_SET
             && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING
-            && dyn->insts[ninst].f_exit.pending!=SF_PENDING) 
-                return 1; 
-            else 
+            && dyn->insts[ninst].f_exit.pending!=SF_PENDING)
+                return 1;
+            else
                 return 0;
         case SF_PENDING:
-            if(dyn->insts[ninst].f_exit.pending!=SF_SET 
+            if(dyn->insts[ninst].f_exit.pending!=SF_SET
             && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING
             && dyn->insts[ninst].f_exit.pending!=SF_PENDING)
                 return 1;
@@ -419,7 +419,7 @@ int getNominalPred(dynarec_native_t* dyn, int ninst) {
 
 #define F8      *(uint8_t*)(addr++)
 // Do the GETED, but don't emit anything...
-uintptr_t fakeed(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nextop) 
+uintptr_t fakeed(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nextop)
 {
     (void)dyn; (void)addr; (void)ninst;
 
