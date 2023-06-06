@@ -874,9 +874,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     eb1 = xRAX+(ed&3);                  \
                 }                                       \
                 if (eb2) {                              \
-                    LUI(x1, 0xffffffffffff0);           \
+                    LUI(x1, 0xffff0);                   \
                     ORI(x1, x1, 0xff);                  \
                     AND(eb1, eb1, x1);                  \
+                    SLLI(x3, x3, 8);                    \
                 } else {                                \
                     ANDI(eb1, eb1, 0xf00);              \
                 }                                       \

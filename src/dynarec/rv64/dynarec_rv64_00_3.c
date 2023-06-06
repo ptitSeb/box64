@@ -229,7 +229,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
                 if (eb2) {
                     // load a mask to x3 (ffffffffffff00ff)
-                    LUI(x3, 0xffffffffffff0);
+                    LUI(x3, 0xffff0);
                     ORI(x3, x3, 0xff);
                     // apply mask
                     AND(eb1, eb1, x3);
@@ -899,9 +899,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         AND(xRAX, x2, xMASK);
                         ZEROUP(xRDX);
                     } else {
-                        if(ninst 
-                           && dyn->insts[ninst-1].x64.addr 
-                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31 
+                        if(ninst
+                           && dyn->insts[ninst-1].x64.addr
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
                             SET_DFNONE();
                             GETED(0);
@@ -938,7 +938,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ZEROUP(xRDX);
                     } else {
                         if(ninst && dyn->insts
-                           &&  dyn->insts[ninst-1].x64.addr 
+                           &&  dyn->insts[ninst-1].x64.addr
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x48
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0x99) {
                             SET_DFNONE()
@@ -1029,7 +1029,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF((box64_dynarec_safeflags>1) || 
+                    PASS2IF((box64_dynarec_safeflags>1) ||
                         ((ninst && dyn->insts[ninst-1].x64.set_flags)
                         || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
                     {
