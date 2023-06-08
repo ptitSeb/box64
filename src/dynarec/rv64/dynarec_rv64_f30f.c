@@ -81,6 +81,21 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
 
+        case 0x12:
+            INST_NAME("MOVSLDUP Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0);
+
+            // GX->ud[1] = GX->ud[0] = EX->ud[0];
+            // GX->ud[3] = GX->ud[2] = EX->ud[2];
+            LD(x3, wback, fixedaddress+0);
+            SD(x3, gback, gdoffset+0);
+            SD(x3, gback, gdoffset+8);
+            LD(x3, wback, fixedaddress+16);
+            SD(x3, gback, gdoffset+16);
+            SD(x3, gback, gdoffset+24);
+            break;
         case 0x1E:
             INST_NAME("NOP / ENDBR32 / ENDBR64");
             nextop = F8;
