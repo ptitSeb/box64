@@ -591,7 +591,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 for(int i=1; i>=0; --i)
                     GX->q[i] = EX->ud[i];
                 break;
-
+            case 0x37: /* PCMPGTQ Gx, Ex */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                for(int i=1; i>=0; --i)
+                    GX->sq[i] = (GX->sq[i]>EX->sq[i])?-1LL:0LL;
+                break;
             case 0x38:  /* PMINSB Gx, Ex */
                 nextop = F8;
                 GETEX(0);
