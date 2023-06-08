@@ -648,7 +648,16 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SW(x3, gback, gdoffset+i*4);
                     }
                     break;
-
+                case 0xDB:
+                    INST_NAME("AESIMC Gx, Ex");  // AES-NI
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0);
+                    SSE_LOOP_MV_Q(x3);
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aesimc, -1);
+                    break;
                 case 0xDC:
                     INST_NAME("AESENC Gx, Ex");  // AES-NI
                     nextop = F8;
