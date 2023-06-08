@@ -173,9 +173,10 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEXSS(v0, 0);
             GETGXSS_empty(v1);
+            q0 = fpu_get_scratch(dyn);
             LUI(x3, 0x3F800); // 1.0f
-            FMVWX(v1, x3);
-            FDIVS(v1, v1, v0);
+            FMVWX(q0, x3);
+            FDIVS(v1, q0, v0);
             break;
         case 0x58:
             INST_NAME("ADDSS Gx, Ex");
