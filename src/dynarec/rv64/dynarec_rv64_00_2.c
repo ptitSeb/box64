@@ -509,6 +509,12 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ANDI(xFlags, xFlags, ~(1<<F_TF));
             }
             break;
+        case 0x9F:
+            INST_NAME("LAHF");
+            READFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF);
+            ANDI(xRAX, xFlags, 0xFF);
+            SLLI(xRAX, xRAX, 8);
+            break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
             u64 = F64;

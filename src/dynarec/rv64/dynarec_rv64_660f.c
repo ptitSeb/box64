@@ -368,7 +368,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SH(x3, gback, gdoffset+i*2);
                     }
                     break;
-
+                case 0x10:
+                    INST_NAME("PBLENDVB Gx,Ex");
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0);
+                    sse_forget_reg(dyn, ninst, 0); // forget xmm[0]
+                    for (int i=0; i<16; ++i) {
+                        LB(x3, xEmu, offsetof(x64emu_t, xmm[0])+i);
+                        BGE(x3, xZR, 12); // continue
+                        LBU(x3, wback, fixedaddress+i);
+                        SB(x3, gback, gdoffset+i);
+                        // continue
+                    }
+                    break;
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
@@ -648,7 +661,16 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SW(x3, gback, gdoffset+i*4);
                     }
                     break;
-
+                case 0xDB:
+                    INST_NAME("AESIMC Gx, Ex");  // AES-NI
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0);
+                    SSE_LOOP_MV_Q(x3);
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aesimc, -1);
+                    break;
                 case 0xDC:
                     INST_NAME("AESENC Gx, Ex");  // AES-NI
                     nextop = F8;

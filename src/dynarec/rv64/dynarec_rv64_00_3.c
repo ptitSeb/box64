@@ -742,6 +742,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xF0:
             addr = dynarec64_F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
+        case 0xF5:
+            INST_NAME("CMC");
+            READFLAGS(X_CF);
+            SETFLAGS(X_CF, SF_SUBSET);
+            XORI(xFlags, xFlags, 1<<F_CF);
+            break;
         case 0xF6:
             nextop = F8;
             switch((nextop>>3)&7) {
