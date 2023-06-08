@@ -512,7 +512,6 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x9F:
             INST_NAME("LAHF");
             READFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF);
-            MV(xRAX, xFlags);
             ANDI(xRAX, xFlags, 0xFF);
             SLLI(xRAX, xRAX, 8);
             break;
