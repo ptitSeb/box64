@@ -364,6 +364,13 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             x87_restoreround(dyn, ninst, u8);
             SD(xZR, gback, gdoffset+8);
             break;
+        case 0xF0:
+            INST_NAME("LDDQU Gx,Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0);
+            SSE_LOOP_MV_Q(x3);
+            break;
         default:
             DEFAULT;
     }
