@@ -33,12 +33,12 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t nextop;
     uint8_t u8;
     uint8_t gd, ed, eb1, eb2, gb1, gb2;
-    uint8_t wback, wb1, wb2, wb;
+    uint8_t gback, wback, wb1, wb2, wb;
     int64_t i64, j64;
     int v0, v1;
     int q0;
     int d0;
-    int64_t fixedaddress;
+    int64_t fixedaddress, gdoffset;
     int unscaled;
     MAYUSE(eb1);
     MAYUSE(eb2);
@@ -72,6 +72,72 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETEDO(x4, 0, x5);
             emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
+        case 0x0F:
+            opcode = F8;
+            switch(opcode) {
+                case 0x11:
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("MOVUPS Ex,Gx");
+                            nextop = F8;
+                            GETGX();
+                            GETEX(x2, 0);
+                            if(!MODREG) {
+                                grab_segdata(dyn, addr, ninst, x4, seg);
+                                ADD(x4, x4, wback);
+                                wback = x4;
+                            }
+                            LD(x3, gback, gdoffset+0);
+                            LD(x5, gback, gdoffset+8);
+                            SD(x3, wback, fixedaddress+0);
+                            SD(x5, wback, fixedaddress+8);
+                            if(!MODREG)
+                                SMWRITE2();
+                            break;
+                        case 1:
+                            INST_NAME("MOVSD Ex, Gx");
+                            nextop = F8;
+                            GETG;
+                            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                            if(MODREG) {
+                                ed = (nextop&7)+ (rex.b<<3);
+                                d0 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                                FMVD(d0, v0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg);
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                                ADD(x4, x4, ed);
+                                ed = x4;
+                                FSD(v0, ed, fixedaddress);
+                                SMWRITE2();
+                            }
+                            break;
+                        case 2:
+                            INST_NAME("MOVSS Ex, Gx");
+                            nextop = F8;
+                            GETG;
+                            v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                            if(MODREG) {
+                                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 1);
+                                FMVS(q0, v0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg);
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                                ADD(x4, x4, ed);
+                                ed = x4;
+                                FSW(v0, ed, fixedaddress);
+                                SMWRITE2();
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+
+                default:
+                    DEFAULT;
+            }
             break;
         case 0x2B:
             INST_NAME("SUB Gd, Seg:Ed");
