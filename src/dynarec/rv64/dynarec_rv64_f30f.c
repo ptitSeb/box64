@@ -91,10 +91,10 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             // GX->ud[3] = GX->ud[2] = EX->ud[2];
             LD(x3, wback, fixedaddress+0);
             SD(x3, gback, gdoffset+0);
+            SD(x3, gback, gdoffset+4);
+            LD(x3, wback, fixedaddress+8);
             SD(x3, gback, gdoffset+8);
-            LD(x3, wback, fixedaddress+16);
-            SD(x3, gback, gdoffset+16);
-            SD(x3, gback, gdoffset+24);
+            SD(x3, gback, gdoffset+12);
             break;
         case 0x1E:
             INST_NAME("NOP / ENDBR32 / ENDBR64");
