@@ -1919,6 +1919,7 @@ void iFpUuuLp(x64emu_t *emu, uintptr_t fnc);
 void iFpUuupp(x64emu_t *emu, uintptr_t fnc);
 void iFpUUUip(x64emu_t *emu, uintptr_t fnc);
 void iFpUUUUp(x64emu_t *emu, uintptr_t fnc);
+void iFpdpipp(x64emu_t *emu, uintptr_t fnc);
 void iFpLiiiL(x64emu_t *emu, uintptr_t fnc);
 void iFpLiiip(x64emu_t *emu, uintptr_t fnc);
 void iFpLiiuu(x64emu_t *emu, uintptr_t fnc);
