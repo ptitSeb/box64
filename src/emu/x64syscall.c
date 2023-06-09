@@ -752,7 +752,7 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
 {
     static uint32_t warned = 0;
     uint32_t s = R_EDI;
-    printf_dump(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); 
+    printf_dump(LOG_DEBUG, "%04d| %p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", GetTID(), (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     for (int i=0; i<cnt; i++) {
