@@ -2,6 +2,31 @@
 #error meh!
 #endif
 
+GO(ubrk_clone_72, pFpp)
+GO(ubrk_close_72, vFp)
+GO(ubrk_countAvailable_72, iFv)
+GO(ubrk_current_72, iFp)
+GO(ubrk_first_72, iFp)
+GO(ubrk_following_72, iFpi)
+GO(ubrk_getAvailable_72, pFi)
+GO(ubrk_getBinaryRules_72, iFppip)
+GO(ubrk_getLocaleByType_72, pFpip)
+GO(ubrk_getRuleStatus_72, iFp)
+GO(ubrk_getRuleStatusVec_72, iFppip)
+GO(ubrk_isBoundary_72, cFpi)
+GO(ubrk_last_72, iFp)
+GO(ubrk_next_72, iFp)
+GO(ubrk_open_72, pFppip)
+GO(ubrk_openBinaryRules_72, pFpipip)
+GO(ubrk_openRules_72, pFpipipp)
+GO(ubrk_preceding_72, iFpi)
+GO(ubrk_previous_72, iFp)
+GO(ubrk_refreshUText_72, vFppp)
+GO(ubrk_safeClone_72, pFpppp)
+GO(ubrk_setText_72, vFppip)
+GO(ubrk_setUText_72, vFppp)
+GO(ubrk_swap_72, iFppipp)
+
 GO(ucurr_forLocale_72, iFppip)
 GO(ucurr_getName_72, pFppippp)
 

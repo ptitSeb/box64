@@ -158,6 +158,7 @@
 #() vFpp
 #() vFpS
 #() vFSi
+#() cFpi
 #() cFpp
 #() wFpi
 #() iFEi
@@ -1989,6 +1990,7 @@
 #() pFpiiipp
 #() pFpiiCCC
 #() pFpiUUUU
+#() pFpipipp
 #() pFpippip
 #() pFpipppp
 #() pFpCuuCC
