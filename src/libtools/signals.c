@@ -296,8 +296,6 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
     if(box64_dynarec_test)
         emu->test.test = 0;
     #endif
-
-    printf_log(LOG_DEBUG, "%04d|signal function handler %p called, RSP=%p\n", GetTID(), (void*)fnc, (void*)R_RSP);
     
     /*SetFS(emu, default_fs);*/
     for (int i=0; i<6; ++i)
@@ -321,6 +319,8 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
     }
     va_end (va);
 
+    printf_log(LOG_DEBUG, "%04d|signal #%d function handler %p called, RSP=%p\n", GetTID(), R_EDI, (void*)fnc, (void*)R_RSP);
+
     int oldquitonlongjmp = emu->quitonlongjmp;
     emu->quitonlongjmp = 2;
     
@@ -331,7 +331,7 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
     else
         EmuCall(emu, fnc);
 
-    if(nargs>6)
+    if(nargs>6 && !emu->longjmp)
         R_RSP+=((nargs-6)*sizeof(void*));
 
     emu->quitonlongjmp = oldquitonlongjmp;
@@ -1384,6 +1384,7 @@ EXPORT sighandler_t my_sysv_signal(x64emu_t* emu, int signum, sighandler_t handl
 
 int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_sigaction_t *oldact)
 {
+    printf_log(LOG_DEBUG, "Sigaction(signum=%d, act=%p(f=%p, flags=0x%x), old=%p)\n", signum, act, act?act->_u._sa_handler:NULL, act?act->sa_flags:0, oldact);
     if(signum<0 || signum>=MAX_SIGNAL) {
         errno = EINVAL;
         return -1;
@@ -1396,6 +1397,7 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
         return 0;
     struct sigaction newact = {0};
     struct sigaction old = {0};
+    uintptr_t old_handler = my_context->signals[signum];
     if(act) {
         newact.sa_mask = act->sa_mask;
         newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
@@ -1428,6 +1430,8 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
             oldact->_u._sa_sigaction = old.sa_sigaction; //TODO should wrap...
         else
             oldact->_u._sa_handler = old.sa_handler;  //TODO should wrap...
+        if((uintptr_t)oldact->_u._sa_sigaction == (uintptr_t)my_sigactionhandler && old_handler)
+            oldact->_u._sa_sigaction = (void*)old_handler;
         oldact->sa_restorer = NULL; // no handling for now...
     }
     return ret;
@@ -1437,7 +1441,7 @@ __attribute__((alias("my_sigaction")));
 
 int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigaction_restorer_t *act, x64_sigaction_restorer_t *oldact, int sigsetsize)
 {
-    printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
+    printf_log(/*LOG_DEBUG*/LOG_INFO, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
     if(signum<0 || signum>=MAX_SIGNAL) {
         errno = EINVAL;
         return -1;
@@ -1495,7 +1499,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
         struct sigaction newact = {0};
         struct sigaction old = {0};
         if(act) {
-            printf_log(LOG_DEBUG, " New action flags=0x%x mask=0x%lx\n", act->sa_flags, *(uint64_t*)&act->sa_mask);
+            printf_log(/*LOG_DEBUG*/LOG_INFO, " New action for signal #%d flags=0x%x mask=0x%lx\n", signum, act->sa_flags, *(uint64_t*)&act->sa_mask);
             newact.sa_mask = act->sa_mask;
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
             if(act->sa_flags&0x04) {
