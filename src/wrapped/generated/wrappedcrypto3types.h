@@ -15,6 +15,8 @@ typedef void (*vFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef void (*vFiipV_t)(int32_t, int32_t, void*, ...);
+typedef void (*vFiipA_t)(int32_t, int32_t, void*, va_list);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpiipp_t)(void*, int32_t, int32_t, void*, void*);
 typedef int32_t (*iFpplppi_t)(void*, void*, intptr_t, void*, void*, int32_t);
@@ -26,6 +28,8 @@ typedef int32_t (*iFppppipp_t)(void*, void*, void*, void*, int32_t, void*, void*
 	GO(X509_STORE_CTX_set_verify_cb, vFpp_t) \
 	GO(OPENSSL_sk_pop_free, pFpp_t) \
 	GO(ASN1_i2d_bio, iFppp_t) \
+	GO(ERR_set_error, vFiipV_t) \
+	GO(ERR_vset_error, vFiipA_t) \
 	GO(ASN1_d2i_bio, pFpppp_t) \
 	GO(PEM_read_bio_DSAPrivateKey, pFpppp_t) \
 	GO(PEM_read_bio_DSA_PUBKEY, pFpppp_t) \

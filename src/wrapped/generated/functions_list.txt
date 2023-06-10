@@ -232,6 +232,7 @@
 #() UFEp
 #() UFuu
 #() UFpi
+#() UFpU
 #() UFpp
 #() fFEp
 #() fFif
@@ -2166,6 +2167,7 @@
 #() iFpiupppp
 #() iFpiLuupp
 #() iFpiLuppp
+#() iFpipiiip
 #() iFpipipip
 #() iFpipippp
 #() iFpippLpp
@@ -2371,6 +2373,7 @@
 #() iFiiupiupi
 #() iFipippppp
 #() iFuuuuuuuu
+#() iFpipiipip
 #() iFpippuuii
 #() iFpCCWWpWu
 #() iFpWCuWCuu
@@ -2882,6 +2885,10 @@ wrappedcrypto3:
   - OPENSSL_sk_pop_free
 - iFppp:
   - ASN1_i2d_bio
+- vFiipV:
+  - ERR_set_error
+- vFiipA:
+  - ERR_vset_error
 - pFpppp:
   - ASN1_d2i_bio
   - PEM_read_bio_DSAPrivateKey
@@ -4176,6 +4183,7 @@ wrappedlibssl3:
   - SSL_CTX_set_verify
   - SSL_set_verify
 - vFppp:
+  - SSL_CTX_set_alpn_select_cb
   - SSL_CTX_set_cert_verify_callback
   - SSL_CTX_set_next_proto_select_cb
 - lFpip:

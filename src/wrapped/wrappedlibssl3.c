@@ -259,6 +259,30 @@ static void* find_client_cert_Fct(void* fct)
     return NULL;
 }
 
+// alpn_select_cb
+#define GO(A)   \
+static uintptr_t my3_alpn_select_cb_fct_##A = 0;                                                    \
+static int my3_alpn_select_cb_##A(void* a, void* b, void* c, void* d, uint32_t e, void* f)          \
+{                                                                                                   \
+    return (int)RunFunctionFmt(my_context, my3_alpn_select_cb_fct_##A, "ppppup", a, b, c, d, e, f); \
+}
+SUPER()
+#undef GO
+static void* find_alpn_select_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_alpn_select_cb_fct_##A == (uintptr_t)fct) return my3_alpn_select_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_alpn_select_cb_fct_##A == 0) {my3_alpn_select_cb_fct_##A = (uintptr_t)fct; return my3_alpn_select_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL alpn_select_cb callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my3_SSL_CTX_set_default_passwd_cb(x64emu_t* emu, void* ctx, void* cb)
@@ -325,6 +349,11 @@ EXPORT void my3_SSL_CTX_set_client_cert_cb(x64emu_t* emu, void* ctx, void* cb)
 {
     (void)emu;
     my->SSL_CTX_set_client_cert_cb(ctx, find_client_cert_Fct(cb));
+}
+
+EXPORT void my3_SSL_CTX_set_alpn_select_cb(x64emu_t* emu, void* ctx, void* f, void* arg)
+{
+    my->SSL_CTX_set_alpn_select_cb(ctx, find_alpn_select_cb_Fct(f), arg);
 }
 
 #define CUSTOM_INIT \

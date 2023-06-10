@@ -17,6 +17,7 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 #include "callback.h"
+#include "myalign.h"
 
 const char* crypto3Name = "libcrypto.so.3";
 #define LIBNAME crypto3
@@ -436,6 +437,24 @@ EXPORT void my3_OPENSSL_sk_pop_free(x64emu_t* emu, void* s, void* cb)
     (void)emu;
     my->OPENSSL_sk_pop_free(s, find_free_fnc_Fct(cb));
 }
+
+EXPORT void my3_ERR_set_error(x64emu_t* emu, int lib, int reason, void* fmt, uintptr_t* b)
+{
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    my->ERR_vset_error(lib, reason, fmt, VARARGS);
+}
+EXPORT void my3_ERR_vset_error(x64emu_t* emu, int lib, int reason, void* fmt, x64_va_list_t b)
+{
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    my->ERR_vset_error(lib, reason, fmt, VARARGS);
+}
+
 
 #define CUSTOM_INIT \
     SETALT(my3_);   \
