@@ -269,26 +269,31 @@ int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_
 
     return ret;
 }
+int GetTID();
 void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
 {
     (void)emu;
+    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_lock(&mutex);
     dlprivate_t *dl = my_context->dlprivate;
     uintptr_t start = 0, end = 0;
     char* rsymbol = (char*)symbol;
     CLEARERR
-    printf_dlsym(LOG_DEBUG, "Call to dlsym(%p, \"%s\")%s", handle, rsymbol, dlsym_error?"":"\n");
+    printf_dlsym(LOG_DEBUG, "%04d|Call to dlsym(%p, \"%s\")%s", GetTID(), handle, rsymbol, dlsym_error?"":"\n");
     if(handle==NULL) {
         // special case, look globably
         const char* globdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 0, rsymbol);
         const char* weakdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 1, rsymbol);
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, globdefver, weakdefver)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
+            pthread_mutex_unlock(&mutex);
             return (void*)start;
         }
         if(!dl->last_error)
             dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
         printf_dlsym(LOG_NEVER, "%p\n", NULL);
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
     if(handle==(void*)~0LL) {
@@ -298,12 +303,14 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         elfheader_t *elf = FindElfAddress(my_context, *(uintptr_t*)R_RSP); // use return address to guess "self"
         if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, -1, NULL, globdefver, weakdefver)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
+            pthread_mutex_unlock(&mutex);
             return (void*)start;
         }
         if(!dl->last_error)
             dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
         printf_dlsym(LOG_NEVER, "%p\n", NULL);
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
     size_t nlib = (size_t)handle;
@@ -314,6 +321,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
             dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
         printf_dlsym(LOG_NEVER, "%p\n", NULL);
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
     if(!dl->dllibs[nlib].count || !dl->dllibs[nlib].full) {
@@ -321,6 +329,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
             dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p (already closed))\n", handle);
         printf_dlsym(LOG_NEVER, "%p\n", (void*)NULL);
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
     if(dl->dllibs[nlib].lib) {
@@ -333,6 +342,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
             if(!dl->last_error)
                 dl->last_error = box_malloc(129);
             snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p(%s)", rsymbol, handle, GetNameLib(dl->dllibs[nlib].lib));
+            pthread_mutex_unlock(&mutex);
             return NULL;
         }
     } else {
@@ -342,15 +352,18 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         const char* weakdefver = GetMaplibDefaultVersion(my_context->maplib, NULL, 1, rsymbol);
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, globdefver, weakdefver)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
+            pthread_mutex_unlock(&mutex);
             return (void*)start;
         }
         if(!dl->last_error)
             dl->last_error = box_malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
         printf_dlsym(LOG_NEVER, "%p\n", NULL);
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
     printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
+    pthread_mutex_unlock(&mutex);
     return (void*)start;
 }
 int my_dlclose(x64emu_t* emu, void *handle)
