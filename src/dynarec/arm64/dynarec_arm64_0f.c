@@ -1848,7 +1848,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(q0, 0);
             SQSUB_16(v0, v0, q0);
             break;
-
+        case 0xEA:
+            INST_NAME("PMINSW Gx,Ex");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(q0, 0);
+            SMIN_16(v0, v0, q0);
+            break;
         case 0xEB:
             INST_NAME("POR Gm, Em");
             nextop = F8;
@@ -1870,7 +1876,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(d1, 0);
             SQADD_16(d0, d0, d1);
             break;
-
+        case 0xEE:
+            INST_NAME("PMAXSW Gx,Ex");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(q0, 0);
+            SMAX_16(v0, v0, q0);
+            break;
         case 0xEF:
             INST_NAME("PXOR Gm,Em");
             nextop = F8;

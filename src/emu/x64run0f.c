@@ -1598,7 +1598,13 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 GM->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
             }
             break;
-
+        case 0xEA:                  /* PMINSW Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for (int i=0; i<4; ++i)
+                GM->sw[i] = (GM->sw[i]<EM->sw[i])?GM->sw[i]:EM->sw[i];
+            break;
         case 0xEB:                   /* POR Gm, Em */
             nextop = F8;
             GETEM(0);
@@ -1623,7 +1629,13 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 GM->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
             }
             break;
-
+        case 0xEE:                  /* PMAXSW Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for (int i=0; i<4; ++i)
+                GM->sw[i] = (GM->sw[i]>EM->sw[i])?GM->sw[i]:EM->sw[i];
+            break;
         case 0xEF:                   /* PXOR Gm, Em */
             nextop = F8;
             GETEM(0);
