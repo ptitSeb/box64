@@ -1831,6 +1831,7 @@
 #() iFEpIppp
 #() iFEpuppp
 #() iFEpUppp
+#() iFEppppi
 #() iFEppppp
 #() iFiiiiip
 #() iFiiiipp
@@ -3938,8 +3939,13 @@ wrappedlibglx:
   - glXGetProcAddress
   - glXGetProcAddressARB
 wrappedlibharfbuzz:
+- vFpppp:
+  - hb_buffer_set_message_func
+- iFppppi:
+  - hb_blob_set_user_data
 - pFpuupp:
   - hb_blob_create
+  - hb_blob_create_or_fail
 wrappedlibibus:
 - vFpippp:
   - ibus_bus_current_input_context_async

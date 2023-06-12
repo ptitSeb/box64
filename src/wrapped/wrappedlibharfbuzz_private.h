@@ -10,34 +10,34 @@ GO(hb_aat_layout_has_substitution, iFp)
 GO(hb_aat_layout_has_tracking, iFp)
 GO(hb_blob_copy_writable_or_fail, pFp)
 GOM(hb_blob_create, pFEpuupp)
-//GO(hb_blob_create_from_file, 
+GOM(hb_blob_create_or_fail, pFEpuupp)
+GO(hb_blob_create_from_file, pFp)
 GO(hb_blob_create_from_file_or_fail, pFp)
-//GO(hb_blob_create_or_fail, 
 GO(hb_blob_create_sub_blob, pFpuu)
-//GO(hb_blob_destroy, 
+GO(hb_blob_destroy, vFp)
 GO(hb_blob_get_data, pFpp)
 GO(hb_blob_get_data_writable, pFpp)
 GO(hb_blob_get_empty, pFv)
-//GO(hb_blob_get_length, 
+GO(hb_blob_get_length, uFp)
 GO(hb_blob_get_user_data, pFpp)
 GO(hb_blob_is_immutable, iFp)
 GO(hb_blob_make_immutable, vFp)
 GO(hb_blob_reference, pFp)
-//GO(hb_blob_set_user_data, 
+GOM(hb_blob_set_user_data, iFEppppi)
 GO(hb_buffer_add, vFpuu)
 GO(hb_buffer_add_codepoints, vFppiui)
 GO(hb_buffer_add_latin1, vFppiui)
 GO(hb_buffer_add_utf16, vFppiui)
 GO(hb_buffer_add_utf32, vFppiui)
 GO(hb_buffer_add_utf8, vFppiui)
-//GO(hb_buffer_allocation_successful, 
+GO(hb_buffer_allocation_successful, iFp)
 GO(hb_buffer_append, vFppuu)
-//GO(hb_buffer_clear_contents, 
-//GO(hb_buffer_create, 
+GO(hb_buffer_clear_contents, vFp)
+GO(hb_buffer_create, pFv)
 GO(hb_buffer_create_similar, pFp)
 GO(hb_buffer_deserialize_glyphs, iFppippu)
 GO(hb_buffer_deserialize_unicode, iFppipu)
-//GO(hb_buffer_destroy, 
+GO(hb_buffer_destroy, vFp)
 GO(hb_buffer_diff, uFppuu)
 GO(hb_buffer_get_cluster_level, uFp)
 GO(hb_buffer_get_content_type, uFp)
@@ -46,38 +46,38 @@ GO(hb_buffer_get_empty, pFv)
 GO(hb_buffer_get_flags, uFp)
 GO(hb_buffer_get_glyph_infos, pFpp)
 GO(hb_buffer_get_glyph_positions, pFpp)
-//GO(hb_buffer_get_invisible_glyph, 
+GO(hb_buffer_get_invisible_glyph, uFp)
 GO(hb_buffer_get_language, pFp)
 GO(hb_buffer_get_length, uFp)
 GO(hb_buffer_get_not_found_glyph, uFp)
-//GO(hb_buffer_get_replacement_codepoint, 
+GO(hb_buffer_get_replacement_codepoint, uFp)
 GO(hb_buffer_get_script, uFp)
 GO(hb_buffer_get_segment_properties, vFpp)
 GO(hb_buffer_get_unicode_funcs, pFp)
 GO(hb_buffer_get_user_data, pFpp)
-//GO(hb_buffer_guess_segment_properties, 
+GO(hb_buffer_guess_segment_properties, vFp)
 GO(hb_buffer_has_positions, iFp)
 GO(hb_buffer_normalize_glyphs, vFp)
-//GO(hb_buffer_pre_allocate, 
+GO(hb_buffer_pre_allocate, iFpu)
 GO(hb_buffer_reference, pFp)
-//GO(hb_buffer_reset, 
-//GO(hb_buffer_reverse, 
-//GO(hb_buffer_reverse_clusters, 
+GO(hb_buffer_reset, vFp)
+GO(hb_buffer_reverse, vFp)
+GO(hb_buffer_reverse_clusters, vFp)
 GO(hb_buffer_reverse_range, vFpuu)
 GO(hb_buffer_serialize, uFpuupuppuu)
 GO(hb_buffer_serialize_format_from_string, uFpi)
 GO(hb_buffer_serialize_format_to_string, pFu)
-//GO(hb_buffer_serialize_glyphs, 
-//GO(hb_buffer_serialize_list_formats, 
+GO(hb_buffer_serialize_glyphs, uFpuupuppuu)
+GO(hb_buffer_serialize_list_formats, pFv)
 GO(hb_buffer_serialize_unicode, uFpuupupuu)
 GO(hb_buffer_set_cluster_level, vFpu)
 GO(hb_buffer_set_content_type, vFpu)
 GO(hb_buffer_set_direction, vFpu)
 GO(hb_buffer_set_flags, vFpu)
-//GO(hb_buffer_set_invisible_glyph, 
+GO(hb_buffer_set_invisible_glyph, vFpu)
 GO(hb_buffer_set_language, vFpp)
 GO(hb_buffer_set_length, iFpu)
-//GO(hb_buffer_set_message_func, 
+GOM(hb_buffer_set_message_func, vFEpppp)
 GO(hb_buffer_set_not_found_glyph, vFpu)
 //GO(hb_buffer_set_replacement_codepoint, 
 GO(hb_buffer_set_script, vFpu)
