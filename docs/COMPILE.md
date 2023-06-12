@@ -7,7 +7,7 @@ You can use [@ryanfortner](https://github.com/ryanfortner)'s apt repository to i
 ```
 sudo wget https://ryanfortner.github.io/box64-debs/box64.list -O /etc/apt/sources.list.d/box64.list
 wget -qO- https://ryanfortner.github.io/box64-debs/KEY.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/box64-debs-archive-keyring.gpg
-sudo apt update && sudo apt install box64 -y
+sudo apt update && sudo apt install box64-generic-arm -y
 ```
 
 Alternatively, you can generate your own package using the [instructions below](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#debian-packaging). 
