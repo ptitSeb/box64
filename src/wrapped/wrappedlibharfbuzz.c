@@ -21,6 +21,66 @@ const char* libharfbuzzName = "libharfbuzz.so.0";
 
 #include "wrappercallback.h"
 
+struct hb_atomic_int_t
+{
+  int v;
+};
+
+struct hb_reference_count_t
+{
+  struct hb_atomic_int_t ref_count;
+};
+
+struct hb_atomic_ptr_t {
+    void* v;
+};
+
+struct hb_object_header_t
+{
+  struct hb_reference_count_t ref_count;
+  struct hb_atomic_int_t writable;
+  struct hb_atomic_ptr_t user_data;
+};
+
+/*
+ * hb_draw_funcs_t
+ */
+
+#define HB_DRAW_FUNCS_IMPLEMENT_CALLBACKS \
+  HB_DRAW_FUNC_IMPLEMENT (move_to) \
+  HB_DRAW_FUNC_IMPLEMENT (line_to) \
+  HB_DRAW_FUNC_IMPLEMENT (quadratic_to) \
+  HB_DRAW_FUNC_IMPLEMENT (cubic_to) \
+  HB_DRAW_FUNC_IMPLEMENT (close_path) \
+  /* ^--- Add new callbacks here */
+
+struct hb_draw_funcs_t__func {
+#define HB_DRAW_FUNC_IMPLEMENT(name) void* name;
+    HB_DRAW_FUNCS_IMPLEMENT_CALLBACKS
+#undef HB_DRAW_FUNC_IMPLEMENT
+};
+
+struct hb_draw_funcs_t__destroy {
+#define HB_DRAW_FUNC_IMPLEMENT(name) void* name;
+    HB_DRAW_FUNCS_IMPLEMENT_CALLBACKS
+#undef HB_DRAW_FUNC_IMPLEMENT
+};
+
+struct hb_draw_funcs_t
+{
+    struct hb_object_header_t header;
+
+    struct hb_draw_funcs_t__func func;
+
+  struct {
+#define HB_DRAW_FUNC_IMPLEMENT(name) void *name;
+    HB_DRAW_FUNCS_IMPLEMENT_CALLBACKS
+#undef HB_DRAW_FUNC_IMPLEMENT
+  } *user_data;
+
+  struct hb_draw_funcs_t__destroy* destroy;
+};
+
 #define SUPER() \
     GO(0)   \
     GO(1)   \
@@ -95,6 +155,7 @@ EXPORT int my_##A(x64emu_t* emu, void* blob, void* key, void* data, void* destro
 }
 
 FUNC(hb_blob_set_user_data)
+FUNC(hb_buffer_set_user_data)
 
 #undef FUNC
 
@@ -108,5 +169,22 @@ EXPORT void my_##A(x64emu_t* emu, void* buffer, void* func, void* user_data, voi
 FUNC(hb_buffer_set_message_func)
 
 #undef FUNC
+
+EXPORT void my_hb_draw_funcs_destroy(x64emu_t* emu, void* funcs)
+{
+    (void)emu;
+    struct hb_draw_funcs_t__destroy destroy = {0};
+    struct hb_draw_funcs_t* funcs_ = funcs;
+
+#define HB_DRAW_FUNC_IMPLEMENT(name) \
+    if (funcs_->destroy->name) destroy.name = find_destroy_Fct(funcs_->destroy->name);
+    HB_DRAW_FUNCS_IMPLEMENT_CALLBACKS
+#undef HB_DRAW_FUNC_IMPLEMENT
+
+    struct hb_draw_funcs_t__destroy* original = funcs_->destroy;
+    funcs_->destroy = &destroy;
+    my->hb_draw_funcs_destroy(funcs);
+    funcs_->destroy = original;
+}
 
 #include "wrappedlib_init.h"

@@ -79,23 +79,23 @@ GO(hb_buffer_set_language, vFpp)
 GO(hb_buffer_set_length, iFpu)
 GOM(hb_buffer_set_message_func, vFEpppp)
 GO(hb_buffer_set_not_found_glyph, vFpu)
-//GO(hb_buffer_set_replacement_codepoint, 
+GO(hb_buffer_set_replacement_codepoint, vFpu)
 GO(hb_buffer_set_script, vFpu)
 GO(hb_buffer_set_segment_properties, vFpp)
 GO(hb_buffer_set_unicode_funcs, vFpp)
-//GO(hb_buffer_set_user_data, 
-//GO(hb_color_get_alpha, 
+GOM(hb_buffer_set_user_data, iFEppppi)
+GO(hb_color_get_alpha, CFu)
 GO(hb_color_get_blue, CFu)
-//GO(hb_color_get_green, 
-//GO(hb_color_get_red, 
+GO(hb_color_get_green, CFu)
+GO(hb_color_get_red, CFu)
 GO(hb_direction_from_string, uFpi)
 GO(hb_direction_to_string, pFu)
 GO(hb_draw_close_path, vFppp)
 GO(hb_draw_cubic_to, vFpppffffff)
-GO(hb_draw_funcs_create, pFv)
-//GO(hb_draw_funcs_destroy, 
+GO(hb_draw_funcs_create, pFv) // No need to reverse.
+GOM(hb_draw_funcs_destroy, vFEp)
 GO(hb_draw_funcs_is_immutable, iFp)
-GO(hb_draw_funcs_make_immutable, vFp)
+GO(hb_draw_funcs_make_immutable, vFp) // !bookmark
 GO(hb_draw_funcs_reference, pFp)
 //GO(hb_draw_funcs_set_close_path_func, 
 //GO(hb_draw_funcs_set_cubic_to_func, 

@@ -3939,10 +3939,13 @@ wrappedlibglx:
   - glXGetProcAddress
   - glXGetProcAddressARB
 wrappedlibharfbuzz:
+- vFp:
+  - hb_draw_funcs_destroy
 - vFpppp:
   - hb_buffer_set_message_func
 - iFppppi:
   - hb_blob_set_user_data
+  - hb_buffer_set_user_data
 - pFpuupp:
   - hb_blob_create
   - hb_blob_create_or_fail
