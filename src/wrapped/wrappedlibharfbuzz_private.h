@@ -5,11 +5,11 @@
 GO(hb_aat_layout_feature_type_get_name_id, uFpu)
 GO(hb_aat_layout_feature_type_get_selector_infos, uFpuuppp)
 GO(hb_aat_layout_get_feature_types, uFpupp)
-//GO(hb_aat_layout_has_positioning, 
-//GO(hb_aat_layout_has_substitution, 
+GO(hb_aat_layout_has_positioning, iFp)
+GO(hb_aat_layout_has_substitution, iFp)
 GO(hb_aat_layout_has_tracking, iFp)
-//GO(hb_blob_copy_writable_or_fail, 
-//GO(hb_blob_create, 
+GO(hb_blob_copy_writable_or_fail, pFp)
+GOM(hb_blob_create, pFEpuupp)
 //GO(hb_blob_create_from_file, 
 GO(hb_blob_create_from_file_or_fail, pFp)
 //GO(hb_blob_create_or_fail, 

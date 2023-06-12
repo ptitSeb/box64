@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(hb_blob_create, pFpuupp_t)
 
 #endif // __wrappedlibharfbuzzTYPES_H_

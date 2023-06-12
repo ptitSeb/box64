@@ -3938,6 +3938,8 @@ wrappedlibglx:
   - glXGetProcAddress
   - glXGetProcAddressARB
 wrappedlibharfbuzz:
+- pFpuupp:
+  - hb_blob_create
 wrappedlibibus:
 - vFpippp:
   - ibus_bus_current_input_context_async
