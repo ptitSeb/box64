@@ -3944,6 +3944,8 @@ wrappedlibharfbuzz:
   - hb_font_funcs_destroy
 - pFp:
   - hb_unicode_funcs_reference
+- vFppp:
+  - hb_font_set_funcs_data
 - pFppp:
   - hb_face_create_for_tables
 - vFpppp:
@@ -3972,6 +3974,7 @@ wrappedlibharfbuzz:
   - hb_font_funcs_set_nominal_glyph_func
   - hb_font_funcs_set_nominal_glyphs_func
   - hb_font_funcs_set_variation_glyph_func
+  - hb_font_set_funcs
   - hb_unicode_funcs_set_combining_class_func
   - hb_unicode_funcs_set_compose_func
   - hb_unicode_funcs_set_decompose_compatibility_func
@@ -3985,6 +3988,7 @@ wrappedlibharfbuzz:
   - hb_buffer_set_user_data
   - hb_face_set_user_data
   - hb_font_funcs_set_user_data
+  - hb_font_set_user_data
   - hb_unicode_funcs_set_user_data
 - pFpuupp:
   - hb_blob_create

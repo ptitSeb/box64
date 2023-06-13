@@ -207,14 +207,14 @@ GO(hb_font_is_immutable, iFp)
 GO(hb_font_make_immutable, vFp)
 GO(hb_font_reference, pFp)
 GO(hb_font_set_face, vFpp)
-//GO(hb_font_set_funcs, 
-//GO(hb_font_set_funcs_data, 
+GOM(hb_font_set_funcs, vFEpppp)
+GOM(hb_font_set_funcs_data, vFEppp)
 GO(hb_font_set_parent, vFpp)
 GO(hb_font_set_ppem, vFpuu)
 GO(hb_font_set_ptem, vFpf)
 GO(hb_font_set_scale, vFpii)
 GO(hb_font_set_synthetic_slant, vFpf)
-//GO(hb_font_set_user_data, 
+GOM(hb_font_set_user_data, iFEppppi)
 GO(hb_font_set_var_coords_design, vFppu)
 GO(hb_font_set_var_coords_normalized, vFppu)
 GO(hb_font_set_variations, vFppu)

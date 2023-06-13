@@ -13,6 +13,7 @@
 
 typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
+typedef void (*vFppp_t)(void*, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFppppi_t)(void*, void*, void*, void*, int32_t);
@@ -22,6 +23,7 @@ typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
 	GO(hb_draw_funcs_destroy, vFp_t) \
 	GO(hb_font_funcs_destroy, vFp_t) \
 	GO(hb_unicode_funcs_reference, pFp_t) \
+	GO(hb_font_set_funcs_data, vFppp_t) \
 	GO(hb_face_create_for_tables, pFppp_t) \
 	GO(hb_buffer_set_message_func, vFpppp_t) \
 	GO(hb_draw_funcs_set_close_path_func, vFpppp_t) \
@@ -48,6 +50,7 @@ typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
 	GO(hb_font_funcs_set_nominal_glyph_func, vFpppp_t) \
 	GO(hb_font_funcs_set_nominal_glyphs_func, vFpppp_t) \
 	GO(hb_font_funcs_set_variation_glyph_func, vFpppp_t) \
+	GO(hb_font_set_funcs, vFpppp_t) \
 	GO(hb_unicode_funcs_set_combining_class_func, vFpppp_t) \
 	GO(hb_unicode_funcs_set_compose_func, vFpppp_t) \
 	GO(hb_unicode_funcs_set_decompose_compatibility_func, vFpppp_t) \
@@ -60,6 +63,7 @@ typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
 	GO(hb_buffer_set_user_data, iFppppi_t) \
 	GO(hb_face_set_user_data, iFppppi_t) \
 	GO(hb_font_funcs_set_user_data, iFppppi_t) \
+	GO(hb_font_set_user_data, iFppppi_t) \
 	GO(hb_unicode_funcs_set_user_data, iFppppi_t) \
 	GO(hb_blob_create, pFpuupp_t) \
 	GO(hb_blob_create_or_fail, pFpuupp_t)
