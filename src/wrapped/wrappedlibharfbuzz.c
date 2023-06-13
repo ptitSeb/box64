@@ -428,4 +428,10 @@ EXPORT void my_hb_font_funcs_destroy(x64emu_t* emu, void* funcs)
     funcs_->destroy = original;
 }
 
+#define CUSTOM_INIT \
+    getMy(lib);
+
+#define CUSTOM_FINI \
+    freeMy();
+
 #include "wrappedlib_init.h"
