@@ -95,31 +95,31 @@ GO(hb_draw_cubic_to, vFpppffffff)
 GO(hb_draw_funcs_create, pFv) // No need to reverse.
 GOM(hb_draw_funcs_destroy, vFEp)
 GO(hb_draw_funcs_is_immutable, iFp)
-GO(hb_draw_funcs_make_immutable, vFp) // !bookmark
+GO(hb_draw_funcs_make_immutable, vFp)
 GO(hb_draw_funcs_reference, pFp)
-//GO(hb_draw_funcs_set_close_path_func, 
-//GO(hb_draw_funcs_set_cubic_to_func, 
-//GO(hb_draw_funcs_set_line_to_func, 
-//GO(hb_draw_funcs_set_move_to_func, 
-//GO(hb_draw_funcs_set_quadratic_to_func, 
+GOM(hb_draw_funcs_set_close_path_func, vFEpppp)
+GOM(hb_draw_funcs_set_cubic_to_func, vFEpppp)
+GOM(hb_draw_funcs_set_line_to_func, vFEpppp)
+GOM(hb_draw_funcs_set_move_to_func, vFEpppp)
+GOM(hb_draw_funcs_set_quadratic_to_func, vFEpppp)
 GO(hb_draw_line_to, vFpppff)
-//GO(hb_draw_move_to, 
+GO(hb_draw_move_to, vFpppff)
 GO(hb_draw_quadratic_to, vFpppffff)
 GO(hb_face_builder_add_table, iFpup)
 GO(hb_face_builder_create, pFv)
 GO(hb_face_builder_sort_tables, vFpp)
-//GO(hb_face_collect_unicodes, 
+GO(hb_face_collect_unicodes, vFpp)
 GO(hb_face_collect_variation_selectors, vFpp)
 GO(hb_face_collect_variation_unicodes, vFpup)
 GO(hb_face_count, uFp)
 GO(hb_face_create, pFpu)
-//GO(hb_face_create_for_tables, 
-//GO(hb_face_destroy, 
-//GO(hb_face_get_empty, 
+GOM(hb_face_create_for_tables, pFEppp)
+GO(hb_face_destroy, vFp)
+GO(hb_face_get_empty, pFv)
 GO(hb_face_get_glyph_count, uFp)
-//GO(hb_face_get_index, 
+GO(hb_face_get_index, uFp)
 GO(hb_face_get_table_tags, uFpupp)
-//GO(hb_face_get_upem, 
+GO(hb_face_get_upem, uFp)
 GO(hb_face_get_user_data, pFpp)
 GO(hb_face_is_immutable, iFp)
 GO(hb_face_make_immutable, vFp)
@@ -127,18 +127,18 @@ GO(hb_face_reference, pFp)
 GO(hb_face_reference_blob, pFp)
 GO(hb_face_reference_table, pFpu)
 GO(hb_face_set_glyph_count, vFpu)
-//GO(hb_face_set_index, 
-//GO(hb_face_set_upem, 
-//GO(hb_face_set_user_data, 
+GO(hb_face_set_index, vFpu)
+GO(hb_face_set_upem, vFpu)
+GOM(hb_face_set_user_data, iFEppppi)
 GO(hb_feature_from_string, iFpip)
 GO(hb_feature_to_string, vFppu)
-//GO(hb_font_add_glyph_origin_for_direction, 
+GO(hb_font_add_glyph_origin_for_direction, vFpuupp)
 GO(hb_font_changed, vFp)
 GO(hb_font_create, pFp)
-//GO(hb_font_create_sub_font, 
-//GO(hb_font_destroy, 
-//GO(hb_font_funcs_create, 
-//GO(hb_font_funcs_destroy, 
+GO(hb_font_create_sub_font, pFp)
+GO(hb_font_destroy, vFp)
+GO(hb_font_funcs_create, pFv) // No need to reverse.
+GOM(hb_font_funcs_destroy, vFEp)
 GO(hb_font_funcs_get_empty, pFv)
 GO(hb_font_funcs_get_user_data, pFpp)
 GO(hb_font_funcs_is_immutable, iFp)
