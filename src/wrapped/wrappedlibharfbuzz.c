@@ -139,6 +139,57 @@ struct hb_font_funcs_t
     } get;
 };
 
+/*
+ * hb_unicode_funcs_t
+ */
+
+#define HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS \
+  HB_UNICODE_FUNC_IMPLEMENT (combining_class) \
+  HB_UNICODE_FUNC_IMPLEMENT (eastasian_width) \
+  HB_UNICODE_FUNC_IMPLEMENT (general_category) \
+  HB_UNICODE_FUNC_IMPLEMENT (mirroring) \
+  HB_UNICODE_FUNC_IMPLEMENT (script) \
+  HB_UNICODE_FUNC_IMPLEMENT (compose) \
+  HB_UNICODE_FUNC_IMPLEMENT (decompose) \
+  HB_UNICODE_FUNC_IMPLEMENT (decompose_compatibility) \
+  /* ^--- Add new callbacks here */
+
+/* Simple callbacks are those taking a hb_codepoint_t and returning a hb_codepoint_t */
+#define HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS_SIMPLE \
+  HB_UNICODE_FUNC_IMPLEMENT (hb_unicode_combining_class_t, combining_class) \
+  HB_UNICODE_FUNC_IMPLEMENT (unsigned int, eastasian_width) \
+  HB_UNICODE_FUNC_IMPLEMENT (hb_unicode_general_category_t, general_category) \
+  HB_UNICODE_FUNC_IMPLEMENT (hb_codepoint_t, mirroring) \
+  HB_UNICODE_FUNC_IMPLEMENT (hb_script_t, script) \
+  /* ^--- Add new simple callbacks here */
+
+
+struct hb_unicode_funcs_t__destroy {
+#define HB_UNICODE_FUNC_IMPLEMENT(name) void* name;
+    HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
+#undef HB_UNICODE_FUNC_IMPLEMENT
+};
+
+struct hb_unicode_funcs_t
+{
+    struct hb_object_header_t header;
+    struct hb_unicode_funcs_t *parent;
+
+    struct {
+#define HB_UNICODE_FUNC_IMPLEMENT(name) void* name;
+        HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
+#undef HB_UNICODE_FUNC_IMPLEMENT
+    } func;
+
+    struct {
+#define HB_UNICODE_FUNC_IMPLEMENT(name) void* name;
+        HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
+#undef HB_UNICODE_FUNC_IMPLEMENT
+    } user_data;
+
+  struct hb_unicode_funcs_t__destroy destroy;
+};
+
 #define SUPER() \
     GO(0)   \
     GO(1)   \
@@ -292,6 +343,190 @@ static void* find_reference_table_Fct(void* fct)
     return NULL;
 }
 
+// unicode combining class
+#define GO(A)                                                               \
+static uintptr_t my_unicode_combining_class_fct_##A = 0;                    \
+static uint32_t my_unicode_combining_class_##A(void* a, uint32_t b, void* c)\
+{                                                                           \
+    return (uint32_t)RunFunctionFmt(my_context, my_unicode_combining_class_fct_##A, "pup", a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_unicode_combining_class_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_unicode_combining_class_fct_##A == (uintptr_t)fct) return my_unicode_combining_class_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_unicode_combining_class_fct_##A == 0) {my_unicode_combining_class_fct_##A = (uintptr_t)fct; return my_unicode_combining_class_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz unicode combining class callback\n");
+    return NULL;
+}
+
+// unicode compose
+#define GO(A)                                                                       \
+static uintptr_t my_unicode_compose_fct_##A = 0;                                    \
+static int my_unicode_compose_##A(void* a, uint32_t b, uint32_t c, void* d, void* e)\
+{                                                                                   \
+    return (int)RunFunctionFmt(my_context, my_unicode_compose_fct_##A, "puupp", a, b, c, d, e); \
+}
+SUPER()
+#undef GO
+static void* find_unicode_compose_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_unicode_compose_fct_##A == (uintptr_t)fct) return my_unicode_compose_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_unicode_compose_fct_##A == 0) {my_unicode_compose_fct_##A = (uintptr_t)fct; return my_unicode_compose_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz unicode compose callback\n");
+    return NULL;
+}
+
+// unicode decompose compatibility
+#define GO(A)                                                                                   \
+static uintptr_t my_unicode_decompose_compatibility_fct_##A = 0;                                \
+static uint32_t my_unicode_decompose_compatibility_##A(void* a, uint32_t b, void* c, void* d)   \
+{                                                                                               \
+    return (uint32_t)RunFunctionFmt(my_context, my_unicode_decompose_compatibility_fct_##A, "pupp", a, b, c, d);    \
+}
+SUPER()
+#undef GO
+static void* find_unicode_decompose_compatibility_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_unicode_decompose_compatibility_fct_##A == (uintptr_t)fct) return my_unicode_decompose_compatibility_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_unicode_decompose_compatibility_fct_##A == 0) {my_unicode_decompose_compatibility_fct_##A = (uintptr_t)fct; return my_unicode_decompose_compatibility_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz unicode decompose compatibility callback\n");
+    return NULL;
+}
+
+// unicode decompose
+#define GO(A)                                                                       \
+static uintptr_t my_unicode_decompose_fct_##A = 0;                                  \
+static int my_unicode_decompose_##A(void* a, uint32_t b, void* c, void* d, void* e) \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_context, my_unicode_decompose_fct_##A, "puppp", a, b, c, d, e);   \
+}
+SUPER()
+#undef GO
+static void* find_unicode_decompose_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_unicode_decompose_fct_##A == (uintptr_t)fct) return my_unicode_decompose_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_unicode_decompose_fct_##A == 0) {my_unicode_decompose_fct_##A = (uintptr_t)fct; return my_unicode_decompose_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz unicode decompose class callback\n");
+    return NULL;
+}
+
+// unicode eastasian width
+#define GO(A)                                                                   \
+static uintptr_t my_unicode_eastasian_width_fct_##A = 0;                        \
+static uint32_t my_unicode_eastasian_width_##A(void* a, uint32_t b, void* c)    \
+{                                                                               \
+    return (uint32_t)RunFunctionFmt(my_context, my_unicode_eastasian_width_fct_##A, "pup", a, b, c); \
+}
+SUPER()
+#undef GO
+static void* find_unicode_eastasian_width_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_unicode_eastasian_width_fct_##A == (uintptr_t)fct) return my_unicode_eastasian_width_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_unicode_eastasian_width_fct_##A == 0) {my_unicode_eastasian_width_fct_##A = (uintptr_t)fct; return my_unicode_eastasian_width_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz unicode eastasian width callback\n");
+    return NULL;
+}
+
+// unicode general category
+#define GO(A)                                                                   \
+static uintptr_t my_unicode_general_category_fct_##A = 0;                       \
+static uint32_t my_unicode_general_category_##A(void* a, uint32_t b, void* c)   \
+{                                                                               \
+    return (uint32_t)RunFunctionFmt(my_context, my_unicode_general_category_fct_##A, "pup", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* find_unicode_general_category_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_unicode_general_category_fct_##A == (uintptr_t)fct) return my_unicode_general_category_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_unicode_general_category_fct_##A == 0) {my_unicode_general_category_fct_##A = (uintptr_t)fct; return my_unicode_general_category_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz unicode general category callback\n");
+    return NULL;
+}
+
+// unicode mirroring
+#define GO(A)                                                           \
+static uintptr_t my_unicode_mirroring_fct_##A = 0;                      \
+static uint32_t my_unicode_mirroring_##A(void* a, uint32_t b, void* c)  \
+{                                                                       \
+    return (uint32_t)RunFunctionFmt(my_context, my_unicode_mirroring_fct_##A, "pup", a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_unicode_mirroring_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_unicode_mirroring_fct_##A == (uintptr_t)fct) return my_unicode_mirroring_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_unicode_mirroring_fct_##A == 0) {my_unicode_mirroring_fct_##A = (uintptr_t)fct; return my_unicode_mirroring_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz unicode mirroring callback\n");
+    return NULL;
+}
+
+// unicode script
+#define GO(A)                                                       \
+static uintptr_t my_unicode_script_fct_##A = 0;                     \
+static uint32_t my_unicode_script_##A(void* a, uint32_t b, void* c) \
+{                                                                   \
+    return (uint32_t)RunFunctionFmt(my_context, my_unicode_script_fct_##A, "pup", a, b, c); \
+}
+SUPER()
+#undef GO
+static void* find_unicode_script_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_unicode_script_fct_##A == (uintptr_t)fct) return my_unicode_script_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_unicode_script_fct_##A == 0) {my_unicode_script_fct_##A = (uintptr_t)fct; return my_unicode_script_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz unicode script callback\n");
+    return NULL;
+}
+
 // destroy
 #define GO(A)                                               \
 static uintptr_t my_destroy_fct_##A = 0;                    \
@@ -426,6 +661,77 @@ EXPORT void my_hb_font_funcs_destroy(x64emu_t* emu, void* funcs)
     funcs_->destroy = &destroy;
     my->hb_font_funcs_destroy(funcs);
     funcs_->destroy = original;
+}
+
+EXPORT void my_hb_unicode_funcs_destroy(x64emu_t* emu, void* funcs)
+{
+    (void)emu;
+    struct hb_unicode_funcs_t__destroy destroy = {0};
+    struct hb_unicode_funcs_t* funcs_ = funcs;
+
+#define HB_UNICODE_FUNC_IMPLEMENT(name) \
+    if (funcs_->destroy.name) destroy.name = find_destroy_Fct(funcs_->destroy.name);
+    HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
+#undef HB_UNICODE_FUNC_IMPLEMENT
+
+    struct hb_unicode_funcs_t__destroy original = funcs_->destroy;
+    funcs_->destroy = destroy;
+    my->hb_font_funcs_destroy(funcs);
+    funcs_->destroy = original;
+}
+
+EXPORT void my_hb_unicode_funcs_set_combining_class_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_unicode_funcs_set_combining_class_func(funcs, find_unicode_combining_class_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_unicode_funcs_set_compose_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_unicode_funcs_set_compose_func(funcs, find_unicode_compose_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_unicode_funcs_set_decompose_compatibility_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_unicode_funcs_set_decompose_compatibility_func(funcs, find_unicode_decompose_compatibility_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_unicode_funcs_set_decompose_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_unicode_funcs_set_decompose_func(funcs, find_unicode_decompose_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_unicode_funcs_set_eastasian_width_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_unicode_funcs_set_eastasian_width_func(funcs, find_unicode_eastasian_width_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_unicode_funcs_set_general_category_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_unicode_funcs_set_general_category_func(funcs, find_unicode_general_category_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_unicode_funcs_set_mirroring_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_unicode_funcs_set_mirroring_func(funcs, find_unicode_mirroring_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_unicode_funcs_set_script_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_unicode_funcs_set_script_func(funcs, find_unicode_script_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT int my_hb_unicode_funcs_set_user_data(x64emu_t* emu, void* funcs, void* key, void* data, void* destroy, int replace)
+{
+    (void)emu;
+    return (int)my->hb_unicode_funcs_set_user_data(funcs, key, data, find_destroy_Fct(destroy), replace);
 }
 
 #define CUSTOM_INIT \

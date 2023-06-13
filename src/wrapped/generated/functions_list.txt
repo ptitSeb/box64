@@ -3942,6 +3942,8 @@ wrappedlibharfbuzz:
 - vFp:
   - hb_draw_funcs_destroy
   - hb_font_funcs_destroy
+- pFp:
+  - hb_unicode_funcs_reference
 - pFppp:
   - hb_face_create_for_tables
 - vFpppp:
@@ -3951,10 +3953,19 @@ wrappedlibharfbuzz:
   - hb_draw_funcs_set_line_to_func
   - hb_draw_funcs_set_move_to_func
   - hb_draw_funcs_set_quadratic_to_func
+  - hb_unicode_funcs_set_combining_class_func
+  - hb_unicode_funcs_set_compose_func
+  - hb_unicode_funcs_set_decompose_compatibility_func
+  - hb_unicode_funcs_set_decompose_func
+  - hb_unicode_funcs_set_eastasian_width_func
+  - hb_unicode_funcs_set_general_category_func
+  - hb_unicode_funcs_set_mirroring_func
+  - hb_unicode_funcs_set_script_func
 - iFppppi:
   - hb_blob_set_user_data
   - hb_buffer_set_user_data
   - hb_face_set_user_data
+  - hb_unicode_funcs_set_user_data
 - pFpuupp:
   - hb_blob_create
   - hb_blob_create_or_fail

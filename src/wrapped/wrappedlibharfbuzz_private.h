@@ -415,27 +415,27 @@ GO(hb_unicode_compose, iFpuup)
 GO(hb_unicode_decompose, iFpupp)
 GO(hb_unicode_decompose_compatibility, uFpup)
 GO(hb_unicode_eastasian_width, uFpu)
-//GO(hb_unicode_funcs_create, 
-//GO(hb_unicode_funcs_destroy, 
-//GO(hb_unicode_funcs_get_default, 
+GO(hb_unicode_funcs_create, pFp)
+GO(hb_unicode_funcs_destroy, vFp)
+GO(hb_unicode_funcs_get_default, pFv)
 GO(hb_unicode_funcs_get_empty, pFv)
-//GO(hb_unicode_funcs_get_parent, 
+GO(hb_unicode_funcs_get_parent, pFp)
 GO(hb_unicode_funcs_get_user_data, pFpp)
 GO(hb_unicode_funcs_is_immutable, iFp)
 GO(hb_unicode_funcs_make_immutable, vFp)
-GO(hb_unicode_funcs_reference, pFp)
-//GO(hb_unicode_funcs_set_combining_class_func, 
-//GO(hb_unicode_funcs_set_compose_func, 
-//GO(hb_unicode_funcs_set_decompose_compatibility_func, 
-//GO(hb_unicode_funcs_set_decompose_func, 
-//GO(hb_unicode_funcs_set_eastasian_width_func, 
-//GO(hb_unicode_funcs_set_general_category_func, 
-//GO(hb_unicode_funcs_set_mirroring_func, 
-//GO(hb_unicode_funcs_set_script_func, 
-//GO(hb_unicode_funcs_set_user_data, 
-//GO(hb_unicode_general_category, 
-//GO(hb_unicode_mirroring, 
-//GO(hb_unicode_script, 
+GOM(hb_unicode_funcs_reference, pFEp)
+GOM(hb_unicode_funcs_set_combining_class_func, vFEpppp)
+GOM(hb_unicode_funcs_set_compose_func, vFEpppp)
+GOM(hb_unicode_funcs_set_decompose_compatibility_func, vFEpppp)
+GOM(hb_unicode_funcs_set_decompose_func, vFEpppp)
+GOM(hb_unicode_funcs_set_eastasian_width_func, vFEpppp)
+GOM(hb_unicode_funcs_set_general_category_func, vFEpppp)
+GOM(hb_unicode_funcs_set_mirroring_func, vFEpppp)
+GOM(hb_unicode_funcs_set_script_func, vFEpppp)
+GOM(hb_unicode_funcs_set_user_data, iFEppppi)
+GO(hb_unicode_general_category, uFpu)
+GO(hb_unicode_mirroring, uFpu)
+GO(hb_unicode_script, uFpu)
 GO(hb_variation_from_string, iFpip)
 GO(hb_variation_to_string, vFppu)
 GO(hb_version, vFppp)
