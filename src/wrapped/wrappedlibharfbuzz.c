@@ -170,7 +170,7 @@ static void* find_buffer_message_Fct(void* fct)
     #define GO(A) if (my_buffer_message_fct_##A == (uintptr_t)fct) return my_buffer_message_##A;
     SUPER()
     #undef GO
-    #define GO(A) if (my_buffer_message_##A == 0) {my_buffer_message_fct_##A = (uintptr_t)fct; return my_buffer_message_##A;}
+    #define GO(A) if (my_buffer_message_fct_##A == 0) {my_buffer_message_fct_##A = (uintptr_t)fct; return my_buffer_message_##A;}
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz buffer message callback\n");
@@ -193,7 +193,7 @@ static void* find_draw_close_path_Fct(void* fct)
     #define GO(A) if (my_draw_close_path_fct_##A == (uintptr_t)fct) return my_draw_close_path_##A;
     SUPER()
     #undef GO
-    #define GO(A) if (my_draw_close_path_##A == 0) {my_draw_close_path_fct_##A = (uintptr_t)fct; return my_draw_close_path_##A;}
+    #define GO(A) if (my_draw_close_path_fct_##A == 0) {my_draw_close_path_fct_##A = (uintptr_t)fct; return my_draw_close_path_##A;}
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz draw close path callback\n");
@@ -216,7 +216,7 @@ static void* find_draw_cubic_to_Fct(void* fct)
     #define GO(A) if (my_draw_cubic_to_fct_##A == (uintptr_t)fct) return my_draw_cubic_to_##A;
     SUPER()
     #undef GO
-    #define GO(A) if (my_draw_cubic_to_##A == 0) {my_draw_cubic_to_fct_##A = (uintptr_t)fct; return my_draw_cubic_to_##A;}
+    #define GO(A) if (my_draw_cubic_to_fct_##A == 0) {my_draw_cubic_to_fct_##A = (uintptr_t)fct; return my_draw_cubic_to_##A;}
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz draw cubic to callback\n");
@@ -239,7 +239,7 @@ static void* find_draw_line_or_move_to_Fct(void* fct)
     #define GO(A) if (my_draw_line_or_move_to_fct_##A == (uintptr_t)fct) return my_draw_line_or_move_to_##A;
     SUPER()
     #undef GO
-    #define GO(A) if (my_draw_line_or_move_to_##A == 0) {my_draw_line_or_move_to_fct_##A = (uintptr_t)fct; return my_draw_line_or_move_to_##A;}
+    #define GO(A) if (my_draw_line_or_move_to_fct_##A == 0) {my_draw_line_or_move_to_fct_##A = (uintptr_t)fct; return my_draw_line_or_move_to_##A;}
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz draw line/move to callback\n");
@@ -262,7 +262,7 @@ static void* find_draw_quadratic_to_Fct(void* fct)
     #define GO(A) if (my_draw_quadratic_to_fct_##A == (uintptr_t)fct) return my_draw_quadratic_to_##A;
     SUPER()
     #undef GO
-    #define GO(A) if (my_draw_quadratic_to_##A == 0) {my_draw_quadratic_to_fct_##A = (uintptr_t)fct; return my_draw_quadratic_to_##A;}
+    #define GO(A) if (my_draw_quadratic_to_fct_##A == 0) {my_draw_quadratic_to_fct_##A = (uintptr_t)fct; return my_draw_quadratic_to_##A;}
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz draw quadratic to callback\n");
@@ -285,7 +285,7 @@ static void* find_reference_table_Fct(void* fct)
     #define GO(A) if (my_reference_table_fct_##A == (uintptr_t)fct) return my_reference_table_##A;
     SUPER()
     #undef GO
-    #define GO(A) if (my_reference_table_##A == 0) {my_reference_table_fct_##A = (uintptr_t)fct; return my_reference_table_##A;}
+    #define GO(A) if (my_reference_table_fct_##A == 0) {my_reference_table_fct_##A = (uintptr_t)fct; return my_reference_table_##A;}
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz reference table callback\n");
@@ -308,7 +308,7 @@ static void* find_destroy_Fct(void* fct)
     #define GO(A) if (my_destroy_fct_##A == (uintptr_t)fct) return my_destroy_##A;
     SUPER()
     #undef GO
-    #define GO(A) if (my_destroy_##A == 0) {my_destroy_fct_##A = (uintptr_t)fct; return my_destroy_##A;}
+    #define GO(A) if (my_destroy_fct_##A == 0) {my_destroy_fct_##A = (uintptr_t)fct; return my_destroy_##A;}
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz destroy callback\n");
