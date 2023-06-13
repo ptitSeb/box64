@@ -29,6 +29,25 @@ typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
 	GO(hb_draw_funcs_set_line_to_func, vFpppp_t) \
 	GO(hb_draw_funcs_set_move_to_func, vFpppp_t) \
 	GO(hb_draw_funcs_set_quadratic_to_func, vFpppp_t) \
+	GO(hb_font_funcs_set_font_h_extents_func, vFpppp_t) \
+	GO(hb_font_funcs_set_font_v_extents_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_contour_point_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_extents_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_from_name_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_h_advance_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_h_advances_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_h_kerning_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_h_origin_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_name_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_shape_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_v_advance_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_v_advances_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_v_kerning_func, vFpppp_t) \
+	GO(hb_font_funcs_set_glyph_v_origin_func, vFpppp_t) \
+	GO(hb_font_funcs_set_nominal_glyph_func, vFpppp_t) \
+	GO(hb_font_funcs_set_nominal_glyphs_func, vFpppp_t) \
+	GO(hb_font_funcs_set_variation_glyph_func, vFpppp_t) \
 	GO(hb_unicode_funcs_set_combining_class_func, vFpppp_t) \
 	GO(hb_unicode_funcs_set_compose_func, vFpppp_t) \
 	GO(hb_unicode_funcs_set_decompose_compatibility_func, vFpppp_t) \
@@ -40,6 +59,7 @@ typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
 	GO(hb_blob_set_user_data, iFppppi_t) \
 	GO(hb_buffer_set_user_data, iFppppi_t) \
 	GO(hb_face_set_user_data, iFppppi_t) \
+	GO(hb_font_funcs_set_user_data, iFppppi_t) \
 	GO(hb_unicode_funcs_set_user_data, iFppppi_t) \
 	GO(hb_blob_create, pFpuupp_t) \
 	GO(hb_blob_create_or_fail, pFpuupp_t)

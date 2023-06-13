@@ -144,26 +144,26 @@ GO(hb_font_funcs_get_user_data, pFpp)
 GO(hb_font_funcs_is_immutable, iFp)
 GO(hb_font_funcs_make_immutable, vFp)
 GO(hb_font_funcs_reference, pFp)
-//GO(hb_font_funcs_set_font_h_extents_func, 
-//GO(hb_font_funcs_set_font_v_extents_func, 
-//GO(hb_font_funcs_set_glyph_contour_point_func, 
-//GO(hb_font_funcs_set_glyph_extents_func, 
-//GO(hb_font_funcs_set_glyph_from_name_func, 
-//GO(hb_font_funcs_set_glyph_func, 
-//GO(hb_font_funcs_set_glyph_h_advance_func, 
-//GO(hb_font_funcs_set_glyph_h_advances_func, 
-//GO(hb_font_funcs_set_glyph_h_kerning_func, 
-//GO(hb_font_funcs_set_glyph_h_origin_func, 
-//GO(hb_font_funcs_set_glyph_name_func, 
-//GO(hb_font_funcs_set_glyph_shape_func, 
-//GO(hb_font_funcs_set_glyph_v_advance_func, 
-//GO(hb_font_funcs_set_glyph_v_advances_func, 
-//GO(hb_font_funcs_set_glyph_v_kerning_func, 
-//GO(hb_font_funcs_set_glyph_v_origin_func, 
-//GO(hb_font_funcs_set_nominal_glyph_func, 
-//GO(hb_font_funcs_set_nominal_glyphs_func, 
-//GO(hb_font_funcs_set_user_data, 
-//GO(hb_font_funcs_set_variation_glyph_func, 
+GOM(hb_font_funcs_set_font_h_extents_func, vFEpppp)
+GOM(hb_font_funcs_set_font_v_extents_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_h_advance_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_v_advance_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_h_advances_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_v_advances_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_h_kerning_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_v_kerning_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_h_origin_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_v_origin_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_contour_point_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_extents_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_from_name_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_name_func, vFEpppp)
+GOM(hb_font_funcs_set_glyph_shape_func, vFEpppp)
+GOM(hb_font_funcs_set_nominal_glyph_func, vFEpppp)
+GOM(hb_font_funcs_set_nominal_glyphs_func, vFEpppp)
+GOM(hb_font_funcs_set_variation_glyph_func, vFEpppp)
+GOM(hb_font_funcs_set_user_data, iFEppppi)
 GO(hb_font_get_empty, pFv)
 GO(hb_font_get_extents_for_direction, vFpup)
 GO(hb_font_get_face, pFp)
@@ -182,7 +182,7 @@ GO(hb_font_get_glyph_h_origin, iFpupp)
 GO(hb_font_get_glyph_kerning_for_direction, vFpuuupp)
 GO(hb_font_get_glyph_name, iFpupu)
 GO(hb_font_get_glyph_origin_for_direction, vFpuupp)
-//GO(hb_font_get_glyph_shape, 
+GO(hb_font_get_glyph_shape, vFpupp)
 GO(hb_font_get_glyph_v_advance, iFpu)
 GO(hb_font_get_glyph_v_advances, vFpupupu)
 GO(hb_font_get_glyph_v_kerning, iFpuu)

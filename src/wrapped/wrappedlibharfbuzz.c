@@ -527,6 +527,338 @@ static void* find_unicode_script_Fct(void* fct)
     return NULL;
 }
 
+// font extents
+#define GO(A)                                                           \
+static uintptr_t my_font_extents_fct_##A = 0;                           \
+static int my_font_extents_##A(void* a, void* b, void* c, void* d) \
+{                                                                       \
+    return (int)RunFunctionFmt(my_context, my_font_extents_fct_##A, "pppp", a, b, c, d);   \
+}
+SUPER()
+#undef GO
+static void* find_font_extents_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_font_extents_fct_##A == (uintptr_t)fct) return my_font_extents_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_font_extents_fct_##A == 0) {my_font_extents_fct_##A = (uintptr_t)fct; return my_font_extents_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz font extents callback\n");
+    return NULL;
+}
+
+// glyph advance
+#define GO(A)                                                           \
+static uintptr_t my_glyph_advance_fct_##A = 0;                          \
+static int my_glyph_advance_##A(void* a, void* b, uint32_t c, void* d)  \
+{                                                                       \
+    return (int)RunFunctionFmt(my_context, my_glyph_advance_fct_##A, "ppup", a, b, c, d);   \
+}
+SUPER()
+#undef GO
+static void* find_glyph_advance_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_glyph_advance_fct_##A == (uintptr_t)fct) return my_glyph_advance_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_glyph_advance_fct_##A == 0) {my_glyph_advance_fct_##A = (uintptr_t)fct; return my_glyph_advance_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz glyph advance callback\n");
+    return NULL;
+}
+
+// glyph advances
+#define GO(A)                                                           \
+static uintptr_t my_glyph_advances_fct_##A = 0;                         \
+static void my_glyph_advances_##A(void* a, void* b, uint32_t c, void* d, uint32_t e, void* f, uint32_t g, void* h)  \
+{                                                                       \
+    RunFunctionFmt(my_context, my_glyph_advances_fct_##A, "ppupupup", a, b, c, d, e, f, g, h);  \
+}
+SUPER()
+#undef GO
+static void* find_glyph_advances_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_glyph_advances_fct_##A == (uintptr_t)fct) return my_glyph_advances_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_glyph_advances_fct_##A == 0) {my_glyph_advances_fct_##A = (uintptr_t)fct; return my_glyph_advances_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz glyph advances callback\n");
+    return NULL;
+}
+
+// glyph kerning
+#define GO(A)                                                           \
+static uintptr_t my_glyph_kerning_fct_##A = 0;                          \
+static int my_glyph_kerning_##A(void* a, void* b, uint32_t c, uint32_t d, void* e)  \
+{                                                                       \
+    return (int)RunFunctionFmt(my_context, my_glyph_kerning_fct_##A, "ppuup", a, b, c, d, e);   \
+}
+SUPER()
+#undef GO
+static void* find_glyph_kerning_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_glyph_kerning_fct_##A == (uintptr_t)fct) return my_glyph_kerning_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_glyph_kerning_fct_##A == 0) {my_glyph_kerning_fct_##A = (uintptr_t)fct; return my_glyph_kerning_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz glyph kerning callback\n");
+    return NULL;
+}
+
+// glyph origin
+#define GO(A)                                                           \
+static uintptr_t my_glyph_origin_fct_##A = 0;                           \
+static int my_glyph_origin_##A(void* a, void* b, uint32_t c, void* d, void* e, void* f) \
+{                                                                       \
+    return (int)RunFunctionFmt(my_context, my_glyph_origin_fct_##A, "ppuppp", a, b, c, d, e, f);   \
+}
+SUPER()
+#undef GO
+static void* find_glyph_origin_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_glyph_origin_fct_##A == (uintptr_t)fct) return my_glyph_origin_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_glyph_origin_fct_##A == 0) {my_glyph_origin_fct_##A = (uintptr_t)fct; return my_glyph_origin_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz glyph origin callback\n");
+    return NULL;
+}
+
+// glyph contour point
+#define GO(A)                                                           \
+static uintptr_t my_glyph_contour_pointfct_##A = 0;                     \
+static int my_glyph_contour_point##A(void* a, void* b, uint32_t c, uint32_t d, void* e, void* f, void* g) \
+{                                                                       \
+    return (int)RunFunctionFmt(my_context, my_glyph_contour_pointfct_##A, "ppuuppp", a, b, c, d, e, f, g);   \
+}
+SUPER()
+#undef GO
+static void* find_glyph_contour_point_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_glyph_contour_pointfct_##A == (uintptr_t)fct) return my_glyph_contour_point##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_glyph_contour_pointfct_##A == 0) {my_glyph_contour_pointfct_##A = (uintptr_t)fct; return my_glyph_contour_point##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz glyph contour point callback\n");
+    return NULL;
+}
+
+// glyph extents
+#define GO(A)                                                           \
+static uintptr_t my_glyph_extents_fct_##A = 0;                           \
+static int my_glyph_extents_##A(void* a, void* b, uint32_t c, void* d, void* e) \
+{                                                                       \
+    return (int)RunFunctionFmt(my_context, my_glyph_extents_fct_##A, "ppupp", a, b, c, d, e);   \
+}
+SUPER()
+#undef GO
+static void* find_glyph_extents_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_glyph_extents_fct_##A == (uintptr_t)fct) return my_glyph_extents_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_glyph_extents_fct_##A == 0) {my_glyph_extents_fct_##A = (uintptr_t)fct; return my_glyph_extents_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz glyph extents callback\n");
+    return NULL;
+}
+
+// glyph from name
+#define GO(A)                                                           \
+static uintptr_t my_glyph_from_name_fct_##A = 0;                        \
+static int my_glyph_from_name_##A(void* a, void* b, void* c, int d, void* e, void* f)   \
+{                                                                       \
+    return (int)RunFunctionFmt(my_context, my_glyph_from_name_fct_##A, "pppipp", a, b, c, d, e, f); \
+}
+SUPER()
+#undef GO
+static void* find_glyph_from_name_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_glyph_from_name_fct_##A == (uintptr_t)fct) return my_glyph_from_name_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_glyph_from_name_fct_##A == 0) {my_glyph_from_name_fct_##A = (uintptr_t)fct; return my_glyph_from_name_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz glyph from name callback\n");
+    return NULL;
+}
+
+
+
+
+
+
+// glyph
+#define GO(A)                                                           \
+static uintptr_t my_glyph_fct_##A = 0;                           \
+static int my_glyph_##A(void* a, void* b, uint32_t c, uint32_t d, void* e, void* f) \
+{                                                                       \
+    return (int)RunFunctionFmt(my_context, my_glyph_fct_##A, "ppuupp", a, b, c, d, e, f);   \
+}
+SUPER()
+#undef GO
+static void* find_glyph_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_glyph_fct_##A == (uintptr_t)fct) return my_glyph_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_glyph_fct_##A == 0) {my_glyph_fct_##A = (uintptr_t)fct; return my_glyph_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz glyph callback\n");
+    return NULL;
+}
+
+// glyph name
+#define GO(A)                               \
+static uintptr_t my_glyph_name_fct_##A = 0; \
+static int my_glyph_name_##A(void* a, void* b, uint32_t c, void* d, uint32_t e, void* f)    \
+{                                           \
+    return (int)RunFunctionFmt(my_context, my_glyph_name_fct_##A, "ppupup", a, b, c, d, e, f);  \
+}
+SUPER()
+#undef GO
+static void* find_glyph_name_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_glyph_name_fct_##A == (uintptr_t)fct) return my_glyph_name_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_glyph_name_fct_##A == 0) {my_glyph_name_fct_##A = (uintptr_t)fct; return my_glyph_name_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz glyph origin callback\n");
+    return NULL;
+}
+
+// glyph shape
+#define GO(A)                                                           \
+static uintptr_t my_glyph_shape_fct_##A = 0;                           \
+static void my_glyph_shape_##A(void* a, void* b, uint32_t c, void* d, void* e, void* f) \
+{                                                                       \
+    RunFunctionFmt(my_context, my_glyph_shape_fct_##A, "ppuppp", a, b, c, d, e, f);   \
+}
+SUPER()
+#undef GO
+static void* find_glyph_shape_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_glyph_shape_fct_##A == (uintptr_t)fct) return my_glyph_shape_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_glyph_shape_fct_##A == 0) {my_glyph_shape_fct_##A = (uintptr_t)fct; return my_glyph_shape_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz glyph shape callback\n");
+    return NULL;
+}
+
+// nominal glyph
+#define GO(A)                                   \
+static uintptr_t my_nominal_glyph_fct_##A = 0;  \
+static int my_nominal_glyph_##A(void* a, void* b, uint32_t c, void* d, void* e) \
+{                                               \
+    return (int)RunFunctionFmt(my_context, my_nominal_glyph_fct_##A, "ppupp", a, b, c, d, e);   \
+}
+SUPER()
+#undef GO
+static void* find_nominal_glyph_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_nominal_glyph_fct_##A == (uintptr_t)fct) return my_nominal_glyph_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_nominal_glyph_fct_##A == 0) {my_nominal_glyph_fct_##A = (uintptr_t)fct; return my_nominal_glyph_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz nominal glyph callback\n");
+    return NULL;
+}
+
+
+
+
+
+
+// nominal glyphs
+#define GO(A)                                   \
+static uintptr_t my_nominal_glyphs_fct_##A = 0; \
+static uint32_t my_nominal_glyphs_##A(void* a, void* b, uint32_t c, void* d, uint32_t e, void* f, uint32_t g, void* h)  \
+{                                               \
+    return (uint32_t)RunFunctionFmt(my_context, my_nominal_glyphs_fct_##A, "ppupupup", a, b, c, d, e, f, g, h); \
+}
+SUPER()
+#undef GO
+static void* find_nominal_glyphs_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_nominal_glyphs_fct_##A == (uintptr_t)fct) return my_nominal_glyphs_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_nominal_glyphs_fct_##A == 0) {my_nominal_glyphs_fct_##A = (uintptr_t)fct; return my_nominal_glyphs_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz nominal glyphs callback\n");
+    return NULL;
+}
+
+// variation glyph
+#define GO(A)                                   \
+static uintptr_t my_variation_glyph_fct_##A = 0;\
+static int my_variation_glyph_##A(void* a, void* b, uint32_t c, uint32_t d, void* e, void* f) \
+{                                               \
+    return (int)RunFunctionFmt(my_context, my_variation_glyph_fct_##A, "ppuupp", a, b, c, d, e, f);   \
+}
+SUPER()
+#undef GO
+static void* find_variation_glyph_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_variation_glyph_fct_##A == (uintptr_t)fct) return my_variation_glyph_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_variation_glyph_fct_##A == 0) {my_variation_glyph_fct_##A = (uintptr_t)fct; return my_variation_glyph_##A;}
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libharfbuzz variation glyph callback\n");
+    return NULL;
+}
+
 // destroy
 #define GO(A)                                               \
 static uintptr_t my_destroy_fct_##A = 0;                    \
@@ -732,6 +1064,130 @@ EXPORT int my_hb_unicode_funcs_set_user_data(x64emu_t* emu, void* funcs, void* k
 {
     (void)emu;
     return (int)my->hb_unicode_funcs_set_user_data(funcs, key, data, find_destroy_Fct(destroy), replace);
+}
+
+#define FUNC(A) \
+EXPORT void my_##A(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)  \
+{               \
+    (void)emu;  \
+    my->A(funcs, find_font_extents_Fct(func), user_data, find_destroy_Fct(destroy));\
+}
+
+FUNC(hb_font_funcs_set_font_h_extents_func)
+FUNC(hb_font_funcs_set_font_v_extents_func)
+
+#undef FUNC
+
+
+#define FUNC(A) \
+EXPORT void my_##A(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)  \
+{               \
+    (void)emu;  \
+    my->A(funcs, find_glyph_advance_Fct(func), user_data, find_destroy_Fct(destroy));   \
+}
+
+FUNC(hb_font_funcs_set_glyph_h_advance_func)
+FUNC(hb_font_funcs_set_glyph_v_advance_func)
+
+#undef FUNC
+
+
+#define FUNC(A) \
+EXPORT void my_##A(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)  \
+{               \
+    (void)emu;  \
+    my->A(funcs, find_glyph_advances_Fct(func), user_data, find_destroy_Fct(destroy));  \
+}
+
+FUNC(hb_font_funcs_set_glyph_h_advances_func)
+FUNC(hb_font_funcs_set_glyph_v_advances_func)
+
+#undef FUNC
+
+
+#define FUNC(A) \
+EXPORT void my_##A(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)  \
+{               \
+    (void)emu;  \
+    my->A(funcs, find_glyph_kerning_Fct(func), user_data, find_destroy_Fct(destroy));   \
+}
+
+FUNC(hb_font_funcs_set_glyph_h_kerning_func)
+FUNC(hb_font_funcs_set_glyph_v_kerning_func)
+
+#undef FUNC
+
+
+#define FUNC(A) \
+EXPORT void my_##A(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)  \
+{               \
+    (void)emu;  \
+    my->A(funcs, find_glyph_origin_Fct(func), user_data, find_destroy_Fct(destroy));\
+}
+
+FUNC(hb_font_funcs_set_glyph_h_origin_func)
+FUNC(hb_font_funcs_set_glyph_v_origin_func)
+
+#undef FUNC
+
+EXPORT void my_hb_font_funcs_set_glyph_contour_point_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_font_funcs_set_glyph_contour_point_func(funcs, find_glyph_contour_point_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_font_funcs_set_glyph_extents_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_font_funcs_set_glyph_extents_func(funcs, find_glyph_extents_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_font_funcs_set_glyph_from_name_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_font_funcs_set_glyph_from_name_func(funcs, find_glyph_from_name_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_font_funcs_set_glyph_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_font_funcs_set_glyph_func(funcs, find_glyph_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_font_funcs_set_glyph_name_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_font_funcs_set_glyph_name_func(funcs, find_glyph_name_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_font_funcs_set_glyph_shape_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_font_funcs_set_glyph_shape_func(funcs, find_glyph_shape_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_font_funcs_set_nominal_glyph_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_font_funcs_set_nominal_glyph_func(funcs, find_nominal_glyph_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_font_funcs_set_nominal_glyphs_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_font_funcs_set_nominal_glyphs_func(funcs, find_nominal_glyphs_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT void my_hb_font_funcs_set_variation_glyph_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
+{
+    (void)emu;
+    my->hb_font_funcs_set_variation_glyph_func(funcs, find_variation_glyph_Fct(func), user_data, find_destroy_Fct(destroy));
+}
+
+EXPORT int my_hb_font_funcs_set_user_data(x64emu_t* emu, void* funcs, void* key, void* data, void* destroy, int replace)
+{
+    (void)emu;
+    return (int)my->hb_font_funcs_set_user_data(funcs, key, data, find_destroy_Fct(destroy), replace);
 }
 
 #define CUSTOM_INIT \
