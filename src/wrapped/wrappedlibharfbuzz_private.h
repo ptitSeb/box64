@@ -168,50 +168,50 @@ GO(hb_font_get_empty, pFv)
 GO(hb_font_get_extents_for_direction, vFpup)
 GO(hb_font_get_face, pFp)
 GO(hb_font_get_glyph, iFpuup)
-//GO(hb_font_get_glyph_advance_for_direction, 
+GO(hb_font_get_glyph_advance_for_direction, vFpuupp)
 GO(hb_font_get_glyph_advances_for_direction, vFpuupupu)
 GO(hb_font_get_glyph_contour_point, iFpuupp)
 GO(hb_font_get_glyph_contour_point_for_origin, iFpuuupp)
 GO(hb_font_get_glyph_extents, iFpup)
 GO(hb_font_get_glyph_extents_for_origin, iFpuup)
-//GO(hb_font_get_glyph_from_name, 
-//GO(hb_font_get_glyph_h_advance, 
-//GO(hb_font_get_glyph_h_advances, 
-//GO(hb_font_get_glyph_h_kerning, 
-//GO(hb_font_get_glyph_h_origin, 
+GO(hb_font_get_glyph_from_name, iFppip)
+GO(hb_font_get_glyph_h_advance, iFpu)
+GO(hb_font_get_glyph_h_advances, vFpupupu)
+GO(hb_font_get_glyph_h_kerning, iFpuu)
+GO(hb_font_get_glyph_h_origin, iFpupp)
 GO(hb_font_get_glyph_kerning_for_direction, vFpuuupp)
 GO(hb_font_get_glyph_name, iFpupu)
-//GO(hb_font_get_glyph_origin_for_direction, 
-GO(hb_font_get_glyph_shape, vFpupp)
+GO(hb_font_get_glyph_origin_for_direction, vFpuupp)
+//GO(hb_font_get_glyph_shape, 
 GO(hb_font_get_glyph_v_advance, iFpu)
 GO(hb_font_get_glyph_v_advances, vFpupupu)
 GO(hb_font_get_glyph_v_kerning, iFpuu)
 GO(hb_font_get_glyph_v_origin, iFpupp)
-//GO(hb_font_get_h_extents, 
+GO(hb_font_get_h_extents, iFpp)
 GO(hb_font_get_nominal_glyph, iFpup)
 GO(hb_font_get_nominal_glyphs, uFpupupu)
 GO(hb_font_get_parent, pFp)
 GO(hb_font_get_ppem, vFppp)
-//GO(hb_font_get_ptem, 
+GO(hb_font_get_ptem, fFp)
 GO(hb_font_get_scale, vFppp)
 GO(hb_font_get_serial, uFp)
 GO(hb_font_get_synthetic_slant, fFp)
 GO(hb_font_get_user_data, pFpp)
 GO(hb_font_get_var_coords_design, pFpp)
 GO(hb_font_get_var_coords_normalized, pFpp)
-//GO(hb_font_get_variation_glyph, 
+GO(hb_font_get_variation_glyph, iFpuup)
 GO(hb_font_get_v_extents, iFpp)
 GO(hb_font_glyph_from_string, iFppip)
 GO(hb_font_glyph_to_string, vFpupu)
 GO(hb_font_is_immutable, iFp)
-//GO(hb_font_make_immutable, 
-//GO(hb_font_reference, 
+GO(hb_font_make_immutable, vFp)
+GO(hb_font_reference, pFp)
 GO(hb_font_set_face, vFpp)
 //GO(hb_font_set_funcs, 
 //GO(hb_font_set_funcs_data, 
 GO(hb_font_set_parent, vFpp)
 GO(hb_font_set_ppem, vFpuu)
-//GO(hb_font_set_ptem, 
+GO(hb_font_set_ptem, vFpf)
 GO(hb_font_set_scale, vFpii)
 GO(hb_font_set_synthetic_slant, vFpf)
 //GO(hb_font_set_user_data, 
@@ -221,38 +221,38 @@ GO(hb_font_set_variations, vFppu)
 GO(hb_font_set_var_named_instance, vFpu)
 GO(hb_font_subtract_glyph_origin_for_direction, vFpuupp)
 //GO(hb_ft_face_create, 
-//GO(hb_ft_face_create_cached, 
-//GO(hb_ft_face_create_referenced, 
-//GO(hb_ft_font_changed, 
+GO(hb_ft_face_create_cached, pFp)
+GO(hb_ft_face_create_referenced, pFp)
+GO(hb_ft_font_changed, vFp)
 //GO(hb_ft_font_create, 
-//GO(hb_ft_font_create_referenced, 
-//GO(hb_ft_font_get_face, 
+GO(hb_ft_font_create_referenced, pFp)
+GO(hb_ft_font_get_face, pFp)
 GO(hb_ft_font_get_load_flags, iFp)
-//GO(hb_ft_font_lock_face, 
+GO(hb_ft_font_lock_face, pFp)
 GO(hb_ft_font_set_funcs, vFp)
 GO(hb_ft_font_set_load_flags, vFpi)
-//GO(hb_ft_font_unlock_face, 
+GO(hb_ft_font_unlock_face, vFp)
 GO(hb_ft_hb_font_changed, iFp)
-//GO(hb_glib_blob_create, 
-//GO(hb_glib_get_unicode_funcs, 
-//GO(hb_glib_script_from_script, 
-//GO(hb_glib_script_to_script, 
+GO(hb_glib_blob_create, pFp)
+GO(hb_glib_get_unicode_funcs, pFv)
+GO(hb_glib_script_from_script, uFu)
+GO(hb_glib_script_to_script, uFu)
 GO(hb_glyph_info_get_glyph_flags, uFp)
-//GO(hb_graphite2_face_get_gr_face, 
-//GO(hb_graphite2_font_get_gr_font, 
+GO(hb_graphite2_face_get_gr_face, pFp)
+GO(hb_graphite2_font_get_gr_font, pFp)
 GO(hb_language_from_string, pFpi)
 GO(hb_language_get_default, pFv)
 GO(hb_language_matches, iFpp)
 GO(hb_language_to_string, pFp)
-//GO(hb_map_allocation_successful, 
+GO(hb_map_allocation_successful, iFp)
 GO(hb_map_clear, vFp)
 GO(hb_map_copy, pFp)
-//GO(hb_map_create, 
+GO(hb_map_create, pFv)
 GO(hb_map_del, vFpu)
-//GO(hb_map_destroy, 
+GO(hb_map_destroy, vFp)
 GO(hb_map_get, uFpu)
 GO(hb_map_get_empty, pFv)
-//GO(hb_map_get_population, 
+GO(hb_map_get_population, uFp)
 GO(hb_map_get_user_data, pFpp)
 GO(hb_map_has, iFpu)
 GO(hb_map_hash, uFp)
@@ -264,17 +264,17 @@ GO(hb_map_set, vFpuu)
 GO(hb_ot_color_glyph_get_layers, uFpuupp)
 GO(hb_ot_color_glyph_reference_png, pFpu)
 GO(hb_ot_color_glyph_reference_svg, pFpu)
-//GO(hb_ot_color_has_layers, 
-//GO(hb_ot_color_has_palettes, 
-//GO(hb_ot_color_has_png, 
-//GO(hb_ot_color_has_svg, 
-//GO(hb_ot_color_palette_color_get_name_id, 
+GO(hb_ot_color_has_layers, iFp)
+GO(hb_ot_color_has_palettes, iFp)
+GO(hb_ot_color_has_png, iFp)
+GO(hb_ot_color_has_svg, iFp)
+GO(hb_ot_color_palette_color_get_name_id, uFpu)
 GO(hb_ot_color_palette_get_colors, uFpuupp)
-//GO(hb_ot_color_palette_get_count, 
+GO(hb_ot_color_palette_get_count, uFp)
 GO(hb_ot_color_palette_get_flags, uFpu)
-//GO(hb_ot_color_palette_get_name_id, 
+GO(hb_ot_color_palette_get_name_id, uFpu)
 GO(hb_ot_font_set_funcs, vFp)
-//GO(hb_ot_layout_collect_features, 
+GO(hb_ot_layout_collect_features, vFpupppp)
 GO(hb_ot_layout_collect_lookups, vFpupppp)
 GO(hb_ot_layout_feature_get_characters, uFpuuupp)
 GO(hb_ot_layout_feature_get_lookups, uFpuuupp)
@@ -288,11 +288,11 @@ GO(hb_ot_layout_get_glyphs_in_class, vFpup)
 GO(hb_ot_layout_get_horizontal_baseline_tag_for_script, uFu)
 GO(hb_ot_layout_get_ligature_carets, uFpuuupp)
 GO(hb_ot_layout_get_size_params, iFpppppp)
-//GO(hb_ot_layout_has_glyph_classes, 
-//GO(hb_ot_layout_has_positioning, 
-//GO(hb_ot_layout_has_substitution, 
+GO(hb_ot_layout_has_glyph_classes, iFp)
+GO(hb_ot_layout_has_positioning, iFp)
+GO(hb_ot_layout_has_substitution, iFp)
 GO(hb_ot_layout_language_find_feature, iFpuuuup)
-//GO(hb_ot_layout_language_get_feature_indexes, 
+GO(hb_ot_layout_language_get_feature_indexes, uFpuuuupp)
 GO(hb_ot_layout_language_get_feature_tags, uFpuuuupp)
 GO(hb_ot_layout_language_get_required_feature, iFpuuupp)
 GO(hb_ot_layout_language_get_required_feature_index, iFpuuup)
@@ -310,24 +310,24 @@ GO(hb_ot_layout_table_find_feature_variations, iFpupup)
 GO(hb_ot_layout_table_find_script, iFpuup)
 GO(hb_ot_layout_table_get_feature_tags, uFpuupp)
 GO(hb_ot_layout_table_get_lookup_count, uFpu)
-//GO(hb_ot_layout_table_get_script_tags, 
+GO(hb_ot_layout_table_get_script_tags, uFpuupp)
 GO(hb_ot_layout_table_select_script, iFpuuppp)
 GO(hb_ot_math_get_constant, iFpu)
 GO(hb_ot_math_get_glyph_assembly, uFpuuuppp)
-//GO(hb_ot_math_get_glyph_italics_correction, 
+GO(hb_ot_math_get_glyph_italics_correction, iFpu)
 GO(hb_ot_math_get_glyph_kerning, iFpuui)
 GO(hb_ot_math_get_glyph_kernings, uFpuuupp)
 GO(hb_ot_math_get_glyph_top_accent_attachment, iFpu)
 GO(hb_ot_math_get_glyph_variants, uFpuuupp)
 GO(hb_ot_math_get_min_connector_overlap, iFpu)
-//GO(hb_ot_math_has_data, 
+GO(hb_ot_math_has_data, iFp)
 GO(hb_ot_math_is_glyph_extended_shape, iFpu)
 GO(hb_ot_meta_get_entry_tags, uFpupp)
 GO(hb_ot_meta_reference_entry, pFpu)
 GO(hb_ot_metrics_get_position, iFpup)
 GO(hb_ot_metrics_get_position_with_fallback, vFpup)
 GO(hb_ot_metrics_get_variation, fFpu)
-//GO(hb_ot_metrics_get_x_variation, 
+GO(hb_ot_metrics_get_x_variation, iFpu)
 GO(hb_ot_metrics_get_y_variation, iFpu)
 GO(hb_ot_name_get_utf16, uFpuppp)
 GO(hb_ot_name_get_utf32, uFpuppp)
@@ -344,13 +344,13 @@ GO(hb_ot_tag_to_script, uFu)
 GO(hb_ot_var_find_axis, iFpupp)
 GO(hb_ot_var_find_axis_info, iFpup)
 GO(hb_ot_var_get_axes, uFpupp)
-//GO(hb_ot_var_get_axis_count, 
+GO(hb_ot_var_get_axis_count, uFp)
 GO(hb_ot_var_get_axis_infos, uFpupp)
 GO(hb_ot_var_get_named_instance_count, uFp)
-//GO(hb_ot_var_has_data, 
+GO(hb_ot_var_has_data, iFp)
 GO(hb_ot_var_named_instance_get_design_coords, uFpupp)
 GO(hb_ot_var_named_instance_get_postscript_name_id, uFpu)
-//GO(hb_ot_var_named_instance_get_subfamily_name_id, 
+GO(hb_ot_var_named_instance_get_subfamily_name_id, uFpu)
 GO(hb_ot_var_normalize_coords, vFpupp)
 GO(hb_ot_var_normalize_variations, vFppupu)
 GO(hb_script_from_iso15924_tag, uFu)
@@ -360,44 +360,44 @@ GO(hb_script_to_iso15924_tag, uFu)
 GO(hb_segment_properties_equal, iFpp)
 GO(hb_segment_properties_hash, uFp)
 GO(hb_segment_properties_overlay, vFpp)
-//GO(hb_set_add, 
-//GO(hb_set_add_range, 
+GO(hb_set_add, vFpu)
+GO(hb_set_add_range, vFpuu)
 GO(hb_set_add_sorted_array, vFppu)
-//GO(hb_set_allocation_successful, 
-//GO(hb_set_clear, 
+GO(hb_set_allocation_successful, iFp)
+GO(hb_set_clear, vFp)
 GO(hb_set_copy, pFp)
-//GO(hb_set_create, 
+GO(hb_set_create, pFv)
 GO(hb_set_del, vFpu)
 GO(hb_set_del_range, vFpuu)
-//GO(hb_set_destroy, 
+GO(hb_set_destroy, vFp)
 GO(hb_set_get_empty, pFv)
 GO(hb_set_get_max, uFp)
-//GO(hb_set_get_min, 
+GO(hb_set_get_min, uFp)
 GO(hb_set_get_population, uFp)
 GO(hb_set_get_user_data, pFpp)
 GO(hb_set_has, iFpu)
-//GO(hb_set_hash, 
-//GO(hb_set_intersect, 
+GO(hb_set_hash, uFp)
+GO(hb_set_intersect, vFpp)
 GO(hb_set_invert, vFp)
 GO(hb_set_is_empty, iFp)
-//GO(hb_set_is_equal, 
+GO(hb_set_is_equal, iFpp)
 GO(hb_set_is_subset, iFpp)
-//GO(hb_set_next, 
+GO(hb_set_next, iFpp)
 GO(hb_set_next_many, uFpupu)
-//GO(hb_set_next_range, 
+GO(hb_set_next_range, iFppp)
 GO(hb_set_previous, iFpp)
 GO(hb_set_previous_range, iFppp)
 GO(hb_set_reference, pFp)
-//GO(hb_set_set, 
+GO(hb_set_set, vFpp)
 //GO(hb_set_set_user_data, 
-//GO(hb_set_subtract, 
+GO(hb_set_subtract, vFpp)
 GO(hb_set_symmetric_difference, vFpp)
-//GO(hb_set_union, 
+GO(hb_set_union, vFpp)
 GO(hb_shape, vFpppu)
 GO(hb_shape_full, iFpppup)
 GO(hb_shape_list_shapers, pFv)
-//GO(hb_shape_plan_create, 
-//GO(hb_shape_plan_create2, 
+GO(hb_shape_plan_create, pFpppup)
+GO(hb_shape_plan_create2, pFpppupup)
 GO(hb_shape_plan_create_cached, pFpppup)
 GO(hb_shape_plan_create_cached2, pFpppupup)
 GO(hb_shape_plan_destroy, vFp)
@@ -419,11 +419,11 @@ GO(hb_unicode_eastasian_width, uFpu)
 //GO(hb_unicode_funcs_destroy, 
 //GO(hb_unicode_funcs_get_default, 
 GO(hb_unicode_funcs_get_empty, pFv)
-GO(hb_unicode_funcs_get_parent, pFp)
+//GO(hb_unicode_funcs_get_parent, 
 GO(hb_unicode_funcs_get_user_data, pFpp)
 GO(hb_unicode_funcs_is_immutable, iFp)
 GO(hb_unicode_funcs_make_immutable, vFp)
-//GO(hb_unicode_funcs_reference, 
+GO(hb_unicode_funcs_reference, pFp)
 //GO(hb_unicode_funcs_set_combining_class_func, 
 //GO(hb_unicode_funcs_set_compose_func, 
 //GO(hb_unicode_funcs_set_decompose_compatibility_func, 
@@ -433,9 +433,9 @@ GO(hb_unicode_funcs_make_immutable, vFp)
 //GO(hb_unicode_funcs_set_mirroring_func, 
 //GO(hb_unicode_funcs_set_script_func, 
 //GO(hb_unicode_funcs_set_user_data, 
-GO(hb_unicode_general_category, uFpu)
-GO(hb_unicode_mirroring, uFpu)
-GO(hb_unicode_script, uFpu)
+//GO(hb_unicode_general_category, 
+//GO(hb_unicode_mirroring, 
+//GO(hb_unicode_script, 
 GO(hb_variation_from_string, iFpip)
 GO(hb_variation_to_string, vFppu)
 GO(hb_version, vFppp)
