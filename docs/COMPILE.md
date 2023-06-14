@@ -12,6 +12,8 @@ sudo apt update && sudo apt install box64-generic-arm -y
 
 Alternatively, you can generate your own package using the [instructions below](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#debian-packaging). 
 
+----
+
 ### The general approach is:
 ```
 git clone https://github.com/ptitSeb/box64
@@ -24,7 +26,8 @@ If it's the first install, you also need:
 ```
 sudo systemctl restart systemd-binfmt
 ```
-You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on Linux Kernel mixed with Android, like on RK3588 or maybe Termux
+- You can use `make -j1`, `make -j2` to prevent running out of memory
+- You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on Linux Kernel mixed with Android, like on RK3588 or maybe Termux
 
 #### For instance, if you want to build box64 for Generic ARM64 Linux platforms, it would look like this:
 ```
@@ -35,6 +38,8 @@ make -j4
 sudo make install
 sudo systemctl restart systemd-binfmt
 ```
+----
+
 #### for RK3399
 
 Using a 64bit OS:
@@ -99,7 +104,6 @@ Using a 64bit OS:
 -D SD845=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
-----
 #### for Phytium
 
 Using a 64bit OS:
@@ -152,6 +156,8 @@ Using a 64bit OS:
 -D LD80BITS=1 -D NOALIGN=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 If you encounter some linking errors, try using `NOLOADADDR=ON` (`cmake -D NOLOADADDR=ON; make -j$(nproc)`).
+
+----
 
 ### use ccmake
 
