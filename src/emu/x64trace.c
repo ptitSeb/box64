@@ -59,6 +59,7 @@ int InitX64Trace(box64context_t *context)
     #undef GO
 
     context->dec = InitX64TraceDecoder(context);
+    context->dec32 = InitX86TraceDecoder(context);
 
     return 0;
 }
@@ -71,6 +72,24 @@ void DeleteX64Trace(box64context_t *context)
         dlclose(context->zydis->lib);
     box_free(context->zydis);
     context->zydis = NULL;
+}
+
+zydis_dec_t* InitX86TraceDecoder(box64context_t *context)
+{
+    if(!context->zydis)
+        return NULL;
+    zydis_dec_t *dec = (zydis_dec_t*)box_calloc(1, sizeof(zydis_dec_t));
+    dec->ZydisDecoderDecodeBuffer = context->zydis->ZydisDecoderDecodeBuffer;
+    dec->ZydisFormatterFormatInstruction = context->zydis->ZydisFormatterFormatInstruction;
+    context->zydis->ZydisDecoderInit(&dec->decoder, ZYDIS_MACHINE_MODE_LEGACY_32, ZYDIS_ADDRESS_WIDTH_32);
+    context->zydis->ZydisFormatterInit(&dec->formatter, ZYDIS_FORMATTER_STYLE_INTEL);
+
+    return dec;
+}
+void DeleteX86TraceDecoder(zydis_dec_t **dec)
+{
+    box_free(*dec);
+    *dec = NULL;
 }
 
 zydis_dec_t* InitX64TraceDecoder(box64context_t *context)

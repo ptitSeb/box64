@@ -1030,7 +1030,7 @@ extern uint64_t start_cnt;
 #define PK32(a)   (*(int32_t*)((uint8_t*)(ip+a)))
 #define PK64(a)   (*(int64_t*)((uint8_t*)(ip+a)))
 
-void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
+void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec, int is32bits)
 {
     if(start_cnt) --start_cnt;
     if(!start_cnt && my_context->dec && (
@@ -1051,7 +1051,7 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
             my_context->trace_tid = tid;
         }
 #endif
-        printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));
+        printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip, is32bits));
         if(R_RIP==0) {
             printf_log(LOG_NONE, "Running at NULL address\n");
             mutex_unlock(&my_context->mutex_trace);
@@ -1065,10 +1065,10 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                 printf_log(LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+11)));
             }
         } else {
-            printf_log(LOG_NONE, "%s", DecodeX64Trace(my_context->dec, ip));
+            printf_log(LOG_NONE, "%s", DecodeX64Trace(is32bits?my_context->dec32:my_context->dec, ip));
             uint8_t peek = PK(0);
             rex_t rex = {0};
-            if(peek>=0x40 && peek<=0x4f) {
+            if(!is32bits && peek>=0x40 && peek<=0x4f) {
                 rex.rex = peek;
                 ip++;
                 peek = PK(0);

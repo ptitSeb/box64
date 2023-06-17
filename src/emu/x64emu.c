@@ -395,7 +395,7 @@ void ResetFlags(x64emu_t *emu)
     emu->df = d_none;
 }
 
-const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
+const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
 {
     static char buff[1000];
     static const char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
@@ -413,7 +413,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
     }
     if(trace_xmm) {
         // do xmm reg if needed
-        for(int i=0; i<16; ++i) {
+        for(int i=0; i<(is32bits?8:16); ++i) {
             if (trace_regsdiff && (emu->old_xmm[i].q[0] != emu->xmm[i].q[0] || emu->old_xmm[i].q[1] != emu->xmm[i].q[1])) {
                 sprintf(tmp, "\e[1;35m%02d:%016lx-%016lx\e[m", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
                 emu->old_xmm[i].q[0] = emu->xmm[i].q[0];
@@ -438,21 +438,21 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
         }
         strcat(buff, "\n");
     }
-    for (int i=_AX; i<=_R15; ++i) {
+    if(is32bits)
+        for (int i=_AX; i<=_RDI; ++i) {
 #ifdef HAVE_TRACE
-        if (trace_regsdiff && (emu->regs[i].q[0] != emu->oldregs[i].q[0])) {
-            sprintf(tmp, "\e[1;35m%s=%016lx\e[m ", regname[i], emu->regs[i].q[0]);
-            emu->oldregs[i].q[0] = emu->regs[i].q[0];
-        } else {
-            sprintf(tmp, "%s=%016lx ", regname[i], emu->regs[i].q[0]);
-        }
+            if (trace_regsdiff && (emu->regs[i].dword[0] != emu->oldregs[i].q[0])) {
+                sprintf(tmp, "\e[1;35m%s=%08x\e[m ", regname[i], emu->regs[i].dword[0]);
+                emu->oldregs[i].q[0] = emu->regs[i].dword[0];
+            } else {
+                sprintf(tmp, "%s=%08x ", regname[i], emu->regs[i].dword[0]);
+            }
 #else
-        sprintf(tmp, "%s=%016lx ", regname[i], emu->regs[i].q[0]);
+            sprintf(tmp, "%s=%08x ", regname[i], emu->regs[i].dword[0]);
 #endif
-        strcat(buff, tmp);
+            strcat(buff, tmp);
 
-        if (i%5==4) {
-            if(i==4) {
+            if(i==_RDI) {
                 if(emu->df) {
 #define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "?"
                     sprintf(tmp, "flags=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
@@ -467,19 +467,50 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip)
             } else {
                 strcat(buff, "\n");
             }
-        } 
+        }
+    else
+        for (int i=_AX; i<=_R15; ++i) {
+#ifdef HAVE_TRACE
+            if (trace_regsdiff && (emu->regs[i].q[0] != emu->oldregs[i].q[0])) {
+                sprintf(tmp, "\e[1;35m%s=%016lx\e[m ", regname[i], emu->regs[i].q[0]);
+                emu->oldregs[i].q[0] = emu->regs[i].q[0];
+            } else {
+                sprintf(tmp, "%s=%016lx ", regname[i], emu->regs[i].q[0]);
+            }
+#else
+            sprintf(tmp, "%s=%016lx ", regname[i], emu->regs[i].q[0]);
+#endif
+            strcat(buff, tmp);
+
+            if (i%5==4) {
+                if(i==4) {
+                    if(emu->df) {
+#define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "?"
+                        sprintf(tmp, "flags=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
+                        strcat(buff, tmp);
+#undef FLAG_CHAR
+                    } else {
+#define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "-"
+                        sprintf(tmp, "FLAGS=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
+                        strcat(buff, tmp);
+#undef FLAG_CHAR
+                    }
+                } else {
+                    strcat(buff, "\n");
+                }
+            } 
     }
     sprintf(tmp, "RIP=%016lx ", ip);
     strcat(buff, tmp);
     return buff;
 }
 
-void StopEmu(x64emu_t* emu, const char* reason)
+void StopEmu(x64emu_t* emu, const char* reason, int is32bits)
 {
     emu->quit = 1;
     printf_log(LOG_NONE, "%s", reason);
     // dump stuff...
-    printf_log(LOG_NONE, "==== CPU Registers ====\n%s\n", DumpCPURegs(emu, R_RIP));
+    printf_log(LOG_NONE, "==== CPU Registers ====\n%s\n", DumpCPURegs(emu, R_RIP, is32bits));
     printf_log(LOG_NONE, "======== Stack ========\nStack is from %lX to %lX\n", R_RBP, R_RSP);
     if (R_RBP == R_RSP) {
         printf_log(LOG_NONE, "RBP = RSP: leaf function detected; next 128 bytes should be either data or random.\n");

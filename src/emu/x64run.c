@@ -81,7 +81,7 @@ x64emurun:
         if(my_context->dec && (
             (trace_end == 0) 
             || ((addr >= trace_start) && (addr < trace_end))) )
-                PrintTrace(emu, addr, 0);
+                PrintTrace(emu, addr, 0, is32bits);
 #endif
         emu->old_ip = addr;
 

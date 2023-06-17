@@ -41,9 +41,9 @@ uint64_t GetRSP(x64emu_t *emu);
 uint64_t GetRBP(x64emu_t *emu);
 void ResetFlags(x64emu_t *emu);
 void ResetSegmentsCache(x64emu_t *emu);
-const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip);
+const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits);
 
-void StopEmu(x64emu_t* emu, const char* reason);
+void StopEmu(x64emu_t* emu, const char* reason, int is32bits);
 void EmuCall(x64emu_t* emu, uintptr_t addr);
 void AddCleanup(x64emu_t *emu, void *p, void* dso_handle);
 void AddCleanup1Arg(x64emu_t *emu, void *p, void* a, void* dso_handle);

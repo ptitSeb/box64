@@ -293,6 +293,8 @@ void FreeBox64Context(box64context_t** context)
     // stop trace now
     if(ctx->dec)
         DeleteX64TraceDecoder(&ctx->dec);
+    if(ctx->dec32)
+        DeleteX86TraceDecoder(&ctx->dec32);
     if(ctx->zydis)
         DeleteX64Trace(ctx);
 

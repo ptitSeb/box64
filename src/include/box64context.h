@@ -185,6 +185,7 @@ typedef struct box64context_s {
     int                 clean_cap;
 
     zydis_dec_t         *dec;           // trace
+    zydis_dec_t         *dec32;         // trace
 
     int                 forked;         //  how many forks... cleanup only when < 0
 

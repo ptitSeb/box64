@@ -158,7 +158,7 @@ uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
 const char* GetNativeName(void* p);
 
 #ifdef HAVE_TRACE
-void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec);
+void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec, int is32bits);
 #endif
 
 #endif //__X86RUN_PRIVATE_H_

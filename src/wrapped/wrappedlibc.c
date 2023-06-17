@@ -437,7 +437,7 @@ void EXPORT my___stack_chk_fail(x64emu_t* emu)
     if(cycle_log) {
         print_cycle_log(LOG_INFO);
     }
-    StopEmu(emu, buff);
+    StopEmu(emu, buff, emu->segs[_CS]==0x23);
 }
 void EXPORT my___gmon_start__(x64emu_t *emu)
 {
