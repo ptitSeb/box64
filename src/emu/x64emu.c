@@ -400,6 +400,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
     static char buff[1000];
     static const char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
                                     " R8", " R9", "R10", "R11", "R12", "R13", "R14", "R15"};
+    static const char* regname32[]={"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
     char tmp[160];
     buff[0] = '\0';
 #ifdef HAVE_TRACE
@@ -442,17 +443,17 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
         for (int i=_AX; i<=_RDI; ++i) {
 #ifdef HAVE_TRACE
             if (trace_regsdiff && (emu->regs[i].dword[0] != emu->oldregs[i].q[0])) {
-                sprintf(tmp, "\e[1;35m%s=%08x\e[m ", regname[i], emu->regs[i].dword[0]);
+                sprintf(tmp, "\e[1;35m%s=%08x\e[m ", regname32[i], emu->regs[i].dword[0]);
                 emu->oldregs[i].q[0] = emu->regs[i].dword[0];
             } else {
-                sprintf(tmp, "%s=%08x ", regname[i], emu->regs[i].dword[0]);
+                sprintf(tmp, "%s=%08x ", regname32[i], emu->regs[i].dword[0]);
             }
 #else
             sprintf(tmp, "%s=%08x ", regname[i], emu->regs[i].dword[0]);
 #endif
             strcat(buff, tmp);
 
-            if(i==_RDI) {
+            if(i==_RBX) {
                 if(emu->df) {
 #define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "?"
                     sprintf(tmp, "flags=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
@@ -464,8 +465,6 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                     strcat(buff, tmp);
 #undef FLAG_CHAR
                 }
-            } else {
-                strcat(buff, "\n");
             }
         }
     else
@@ -500,7 +499,10 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                 }
             } 
     }
-    sprintf(tmp, "RIP=%016lx ", ip);
+    if(is32bits)
+        sprintf(tmp, "EIP=%08lx ", ip);
+    else
+        sprintf(tmp, "RIP=%016lx ", ip);
     strcat(buff, tmp);
     return buff;
 }
