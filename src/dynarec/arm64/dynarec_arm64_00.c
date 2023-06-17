@@ -1816,6 +1816,22 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(box64_wine && u8==0x2D) {
                 // lets do nothing
                 MESSAGE(LOG_INFO, "INT 2D Windows anti-debug hack\n");
+            } else if (u8==0x80) {
+                INST_NAME("32bits SYSCALL");
+                NOTEST(x1);
+                SMEND();
+                GETIP(addr);
+                STORE_XEMU_CALL(xRIP);
+                CALL_S(x86Syscall, -1);
+                LOAD_XEMU_CALL(xRIP);
+                TABLE64(x3, addr); // expected return address
+                CMPSx_REG(xRIP, x3);
+                B_MARK(cNE);
+                LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
+                CBZw_NEXT(w1);
+                MARK;
+                LOAD_XEMU_REM();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
             } else {
                 SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
                 GETIP(ip);

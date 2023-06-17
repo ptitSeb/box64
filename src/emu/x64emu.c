@@ -75,9 +75,9 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     R_RIP = start;
     R_RSP = (stack + stacksize) & ~7;   // align stack start, always
     // fake init of segments...
-    emu->segs[_CS] = 0x73;
-    emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x7b;
-    emu->segs[_FS] = 0x33;
+    emu->segs[_CS] = 0x33;
+    emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x2b;
+    emu->segs[_FS] = 0x43;
     emu->segs[_GS] = default_gs;
     // setup fpu regs
     reset_fpu(emu);

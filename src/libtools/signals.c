@@ -1242,6 +1242,7 @@ exit(-1);
         }
         if(log_minimum<=box64_log) {
             static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
+            static const char* seg_name[] = {"CS", "DS", "SS", "ES", "GS", "FS"};
             int shown_regs = 0;
 #ifdef DYNAREC
             uint32_t hash = 0;
@@ -1263,6 +1264,9 @@ exit(-1);
                     if(!(i%4)) printf_log(log_minimum, "\n");
                     printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.regs[10+i]);
                 }
+                for (int i=0; i<3; ++i) {
+                    printf_log(log_minimum, "%s:0x%x ", seg_name[i], emu->segs[i]);
+                }
             }
             if(rsp!=addr && getProtection((uintptr_t)rsp-4*8) && getProtection((uintptr_t)rsp+4*8))
                 for (int i=-4; i<4; ++i) {
@@ -1274,6 +1278,9 @@ exit(-1);
                 for (int i=0; i<16; ++i) {
                     if(!(i%4)) printf_log(log_minimum, "\n");
                     printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[16+i]);
+                }
+                for (int i=0; i<3; ++i) {
+                    printf_log(log_minimum, "%s:0x%x ", seg_name[i], emu->segs[i]);
                 }
             }
             if(rsp!=addr && getProtection((uintptr_t)rsp-4*8) && getProtection((uintptr_t)rsp+4*8))

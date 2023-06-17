@@ -15,7 +15,7 @@
 typedef struct thread_area_s
 {
              int  entry_number;
-        uintptr_t base_addr;
+       uintptr_t  base_addr;
     unsigned int  limit;
     unsigned int  seg_32bit:1;
     unsigned int  contents:2;
@@ -24,28 +24,22 @@ typedef struct thread_area_s
     unsigned int  seg_not_present:1;
     unsigned int  useable:1;
 } thread_area_t;
-
-static pthread_once_t thread_key_once0 = PTHREAD_ONCE_INIT;
-static pthread_once_t thread_key_once1 = PTHREAD_ONCE_INIT;
-static pthread_once_t thread_key_once2 = PTHREAD_ONCE_INIT;
-static pthread_once_t thread_key_once3 = PTHREAD_ONCE_INIT;
-
-static void thread_key_alloc0() {
-	pthread_key_create(&my_context->segtls[0].key, NULL);
-}
-static void thread_key_alloc1() {
-	pthread_key_create(&my_context->segtls[1].key, NULL);
-}
-static void thread_key_alloc2() {
-	pthread_key_create(&my_context->segtls[2].key, NULL);
-}
-static void thread_key_alloc3() {
-	pthread_key_create(&my_context->segtls[3].key, NULL);
-}
+typedef struct thread_area_32_s
+{
+             int  entry_number;
+        uint32_t  base_addr;
+    unsigned int  limit;
+    unsigned int  seg_32bit:1;
+    unsigned int  contents:2;
+    unsigned int  read_exec_only:1;
+    unsigned int  limit_in_pages:1;
+    unsigned int  seg_not_present:1;
+    unsigned int  useable:1;
+} thread_area_32_t;
 
 uint32_t my_set_thread_area(thread_area_t* td)
 {
-    printf_log(LOG_DEBUG, "set_thread_area(%p[%d/base=%p/limit=%u/32bits:%u/%u/%u...])\n", td, td->entry_number, (void*)td->base_addr, td->limit_in_pages, td->seg_32bit, td->contents, td->read_exec_only);
+    printf_log(/*LOG_DEBUG*/LOG_NONE, "set_thread_area(%p[%d/base=%p/limit=%u/32bits:%u/%u/%u...])\n", td, td->entry_number, (void*)td->base_addr, td->limit_in_pages, td->seg_32bit, td->contents, td->read_exec_only);
 
     int isempty = 0;
     // first, check if the "user_desc", here td, is "empty"
@@ -60,39 +54,93 @@ uint32_t my_set_thread_area(thread_area_t* td)
     int idx = td->entry_number;
     if(idx==-1) {
         // find a free one
-        for (int i=0; i<3 && idx==-1; ++i)
+        for (int i=9; i<15 && idx==-1; ++i)
             if(!my_context->segtls[i].present)
                 idx=i;
         if(idx==-1) {
             errno = ESRCH;
             return (uint32_t)-1;
         }
-        idx+=7;
         td->entry_number = idx;
     }
-    if(isempty && (td->entry_number<7 || td->entry_number>7+2)) {
+    if(isempty && (td->entry_number<9 || td->entry_number>15)) {
         errno = EINVAL;
         return (uint32_t)-1;
     }
     if(isempty) {
-        memset(&my_context->segtls[td->entry_number-7], 0, sizeof(base_segment_t));
+        memset(&my_context->segtls[td->entry_number], 0, sizeof(base_segment_t));
         return 0;
     }
-    if((idx<7 || idx>7+2)) {
+    if((idx<9 || idx>15)) {
         errno = EINVAL;
         return (uint32_t)-1;
     }
 
-    my_context->segtls[idx-7].base = td->base_addr;
-    my_context->segtls[idx-7].limit = td->limit;
-    my_context->segtls[idx-7].present = 1;
-    switch (idx-7) {
-        case 0:	pthread_once(&thread_key_once0, thread_key_alloc0); break;
-        case 1:	pthread_once(&thread_key_once1, thread_key_alloc1); break;
-        case 2:	pthread_once(&thread_key_once2, thread_key_alloc2); break;
+    my_context->segtls[idx].base = td->base_addr;
+    my_context->segtls[idx].limit = td->limit;
+    my_context->segtls[idx].present = 1;
+    my_context->segtls[idx].is32bits = 0;
+    if(!my_context->segtls[idx].key_init) {
+        pthread_key_create(&my_context->segtls[idx].key, NULL);
+        my_context->segtls[idx].key_init = 1;
     }
 
-    pthread_setspecific(my_context->segtls[idx-7].key, (void*)my_context->segtls[idx-7].base);
+    pthread_setspecific(my_context->segtls[idx].key, (void*)my_context->segtls[idx].base);
+
+    ResetSegmentsCache(thread_get_emu());
+
+    return 0;
+}
+
+uint32_t my_set_thread_area_32(thread_area_32_t* td)
+{
+    printf_log(LOG_DEBUG, "set_thread_area(%p[%d/base=%p/limit=%u/32bits:%u/%u/%u...])\n", td, td->entry_number, (void*)(uintptr_t)td->base_addr, td->limit_in_pages, td->seg_32bit, td->contents, td->read_exec_only);
+
+    int isempty = 0;
+    // first, check if the "user_desc", here td, is "empty"
+    if(td->read_exec_only==1 && td->seg_not_present==1)
+        if( !td->base_addr 
+         && !td->limit
+         && !td->seg_32bit 
+         && !td->contents 
+         && !td->limit_in_pages 
+         && !td->useable)
+            isempty = 1;
+    int idx = td->entry_number;
+    if(idx==-1) {
+        // find a free one
+        for (int i=9; i<15 && idx==-1; ++i)
+            if(!my_context->segtls[i].present)
+                idx=i;
+        if(idx==-1) {
+            errno = ESRCH;
+            return (uint32_t)-1;
+        }
+        td->entry_number = idx;
+    }
+    if(isempty && (td->entry_number<9 || td->entry_number>15)) {
+        errno = EINVAL;
+        return (uint32_t)-1;
+    }
+    if(isempty) {
+        memset(&my_context->segtls[td->entry_number], 0, sizeof(base_segment_t));
+        return 0;
+    }
+    if((idx<9 || idx>15)) {
+        errno = EINVAL;
+        return (uint32_t)-1;
+    }
+
+    my_context->segtls[idx].base = td->base_addr;
+    my_context->segtls[idx].limit = td->limit;
+    my_context->segtls[idx].present = 1;
+    my_context->segtls[idx].is32bits = 1;
+    if(!my_context->segtls[idx].key_init) {
+        pthread_key_create(&my_context->segtls[idx].key, NULL);
+        my_context->segtls[idx].key_init = 1;
+    }
+
+    pthread_setspecific(my_context->segtls[idx].key, (void*)my_context->segtls[idx].base);
 
     ResetSegmentsCache(thread_get_emu());
 
@@ -116,8 +164,8 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
         return (uint32_t)-1;
     }
 
-    int idx = td->entry_number - 7;
-    if(idx<0 || idx>2) {
+    int idx = td->entry_number;
+    if(idx<9 || idx>15) {
         errno = EINVAL;
         return (uint32_t)-1;
     }
@@ -133,35 +181,52 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
     return 0;
 }
 
+int GetTID();
 int my_arch_prctl(x64emu_t *emu, int code, void* addr)
 {
-    //printf_log(LOG_INFO, "%04d| arch_prctl(0x%x, %p) (RSP=%p)\n", GetTID(), code, addr,(void*)R_RSP);
+    printf_log(LOG_DEBUG, "%04d| arch_prctl(0x%x, %p) (RSP=%p, FS=0x%x, GS=0x%x)\n", GetTID(), code, addr,(void*)R_RSP, emu->segs[_FS], emu->segs[_GS]);
 
     #define ARCH_SET_GS          0x1001
     #define ARCH_SET_FS          0x1002
     #define ARCH_GET_FS          0x1003
     #define ARCH_GET_GS          0x1004
+    int seg = 0;
+    int idx = 0;
     switch(code) {
         case ARCH_GET_GS:
             *(void**)addr = GetSegmentBase(emu->segs[_GS]);
             return 0;
-        case ARCH_SET_GS:
-            pthread_once(&thread_key_once3, thread_key_alloc3);
-            if(emu->segs[_GS]!=(0xa<<3))
-                emu->segs[_GS] = 0xa<<3;    // should not move!
-            emu->segs_serial[_GS] = 0;
-            my_context->segtls[3].base = (uintptr_t)addr;
-            my_context->segtls[3].limit = 0;
-            my_context->segtls[3].present = 1;
-            pthread_setspecific(my_context->segtls[3].key, (void*)my_context->segtls[3].base);
-            ResetSegmentsCache(emu);
-            return 0;
         case ARCH_GET_FS:
             *(void**)addr = GetSegmentBase(emu->segs[_FS]);
+            return 0;
+        case ARCH_SET_FS:
+        case ARCH_SET_GS:
+            seg=(code==ARCH_SET_FS)?_FS:_GS;
+            if(emu->segs[seg]==0) {
+                errno = EINVAL;
+                return -1;
+            }
+            idx = emu->segs[seg] >> 3;
+            if(idx<0 || idx>15) {
+                errno = EINVAL;
+                return -1;
+            }
+            emu->segs_serial[seg] = 0;
+            my_context->segtls[idx].base = (uintptr_t)addr;
+            my_context->segtls[idx].limit = 0;
+            my_context->segtls[idx].present = 1;
+            if(idx>8 && !my_context->segtls[idx].key_init) {
+                pthread_key_create(&my_context->segtls[idx].key, NULL);
+                my_context->segtls[idx].key_init = 1;
+            }
+            if(my_context->segtls[idx].key_init)
+                pthread_setspecific(my_context->segtls[idx].key, addr);
+            ResetSegmentsCache(emu);
             return 0;
     }
     // other are unsupported
     printf_log(LOG_INFO, "warning, call to unsupported arch_prctl(0x%x, %p)\n", code, addr);
+    errno = ENOSYS;
     return -1;
 }
 
@@ -286,7 +351,7 @@ tlsdatasize_t* getTLSData(box64context_t *context)
     return ptr;
 }
 
-static void* GetSeg33Base()
+static void* GetSeg43Base()
 {
     tlsdatasize_t* ptr = getTLSData(my_context);
     return ptr->data;
@@ -299,16 +364,17 @@ void* GetSegmentBase(uint32_t desc)
         return NULL;
     }
     int base = desc>>3;
-    if(base==0xe || base==0xf)
-        return NULL;    // regular value...
-    if(base==0x6)
-        return GetSeg33Base();
-
-    if(base>6 && base<11 && my_context->segtls[base-7].present) {
-        void* ptr = pthread_getspecific(my_context->segtls[base-7].key);
+    if(base==0x8 && !my_context->segtls[base].key_init)
+        return GetSeg43Base();
+    if(base>15) {
+        printf_log(LOG_NONE, "Warning, accessing segment unknown 0x%x or unset\n", desc);
+        return NULL;
+    }
+    if(my_context->segtls[base].key_init) {
+        void* ptr = pthread_getspecific(my_context->segtls[base].key);
         return ptr;
     }
-
-    printf_log(LOG_NONE, "Warning, accessing segment unknown 0x%x or unset\n", desc);
-    return NULL;
+    
+    void* ptr = (void*)my_context->segtls[base].base;
+    return ptr;
 }

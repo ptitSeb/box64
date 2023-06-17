@@ -69,8 +69,10 @@ void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name);
 typedef struct base_segment_s {
     uintptr_t       base;
     uint64_t        limit;
-    int             present;
     pthread_key_t   key;
+    uint8_t         present;
+    uint8_t         is32bits;
+    uint8_t         key_init;
 } base_segment_t;
 
 typedef struct box64context_s {
@@ -174,7 +176,7 @@ typedef struct box64context_s {
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
     int64_t             tlssize;    // wanted size of tlsdata
-    base_segment_t      segtls[4];  // only handling 0/1/2 descriptors (3 is internal use)
+    base_segment_t      segtls[16];
 
     uintptr_t           *auxval_start;
 

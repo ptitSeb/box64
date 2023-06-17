@@ -243,6 +243,22 @@ box64context_t *NewBox64Context(int argc)
     context->canary[getrand(4)] = 0;
     printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at FS:0x28, value:%08X\n", *(uint32_t*)context->canary);
 
+    // init segments
+    for(int i=0; i<16; i++) {
+        context->segtls[i].limit = (uintptr_t)-1LL;
+    }
+    context->segtls[10].key_init = 0;    // 0x53 selector
+    context->segtls[10].present = 1;
+    context->segtls[8].key_init = 0;    // 0x43 selector
+    context->segtls[8].present = 1;
+    context->segtls[6].key_init = 0;    // 0x33 selector
+    context->segtls[6].present = 1;
+    context->segtls[5].key_init = 0;    // 0x2b selector
+    context->segtls[5].present = 1;
+    context->segtls[4].key_init = 0;    // 0x23 selector
+    context->segtls[4].present = 1;
+    context->segtls[4].is32bits = 1;
+
     initAllHelpers(context);
 
     return context;

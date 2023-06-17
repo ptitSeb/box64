@@ -52,6 +52,12 @@ int Run(x64emu_t *emu, int step)
     rex_t rex;
     int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int unimp = 0;
+    int is32bits = (emu->segs[_CS]==0x23);
+    if(is32bits) {
+        printf_log(LOG_INFO, "Error, 32bits execution not yet supported\n");
+        emu->quit = 1;
+        return 0;
+    }
 
     if(emu->quit)
         return 0;
@@ -62,7 +68,7 @@ int Run(x64emu_t *emu, int step)
         return 0;
     }
     //ref opcode: http://ref.x64asm.net/geek32.html#xA1
-    printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p\n", emu, (void*)addr, (void*)R_RSP);
+    printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p is32bits=%D\n", emu, (void*)addr, (void*)R_RSP, is32bits);
 
 x64emurun:
 #ifndef TEST_INTERPRETER
@@ -89,10 +95,11 @@ x64emurun:
         while((opcode==0x3E) || (opcode==0x26))   //Branch Taken Hint ignored
             opcode = F8;
         rex.rex = 0;
-        while(opcode>=0x40 && opcode<=0x4f) {
-            rex.rex = opcode;
-            opcode = F8;
-        }
+        if(!is32bits)
+            while(opcode>=0x40 && opcode<=0x4f) {
+                rex.rex = opcode;
+                opcode = F8;
+            }
 
         switch(opcode) {
 
@@ -1158,6 +1165,12 @@ x64emurun:
             if(box64_wine && tmp8u==0x2D) {
                 // lets ignore the INT 2D
                 printf_log(LOG_DEBUG, "INT 2D called\n");
+            } else if (tmp8u==0x80) {
+                // 32bits syscall
+                #ifndef TEST_INTERPRETER
+                x86Syscall(emu);
+                STEP;
+                #endif
             } else {
                 #ifndef TEST_INTERPRETER
                 emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
@@ -1681,6 +1694,7 @@ x64emurun:
 
 
 fini:
+if(emu->segs[_CS]!=0x33) printf_log(LOG_NONE, "Warning, CS is not default value: 0x%x\n", emu->segs[_CS]);
 #ifndef TEST_INTERPRETER
     printf_log(LOG_DEBUG, "End of X86 run (%p), RIP=%p, Stack=%p, unimp=%d, emu->fork=%d, emu->uc_link=%p, emu->quit=%d\n", emu, (void*)R_RIP, (void*)R_RSP, unimp, emu->fork, emu->uc_link, emu->quit);
     if(unimp) {
