@@ -1010,7 +1010,7 @@ const char* getAddrFunctionName(uintptr_t addr)
     return ret;
 }
 
-void printFunctionAddr(uintptr_t nextaddr, const char* text)
+int printFunctionAddr(uintptr_t nextaddr, const char* text)
 {
     uint64_t sz = 0;
     uintptr_t start = 0;
@@ -1021,7 +1021,9 @@ void printFunctionAddr(uintptr_t nextaddr, const char* text)
             printf_log(LOG_NONE, " (%s%s:%s)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname);
         else
             printf_log(LOG_NONE, " (%s%s:%s + %ld)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname, nextaddr - start);
+        return 1;
     }
+    return 0;
 }
 
 #ifdef HAVE_TRACE
@@ -1076,20 +1078,26 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
             }
             if(peek==0xC3 || peek==0xC2 || (peek==0xF3 && PK(1)==0xC3)) {
                 printf_log(LOG_NONE, " => %p", *(void**)(R_RSP));
-                printFunctionAddr(*(uintptr_t*)(R_RSP), "=> ");
+                if(is32bits)
+                    printFunctionAddr(*(uint32_t*)(R_RSP), "=> ");
+                else
+                    printFunctionAddr(*(uintptr_t*)(R_RSP), "=> ");
             } else if(peek==0x57 && rex.b) {
                 printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_RSP));
                 printFunctionAddr(ip, "here: ");
-            } else if(peek==0x55 || peek==0x53) {
+            } else if((peek==0x55 || peek==0x53) && !is32bits) {
                 printFunctionAddr(*(uintptr_t*)(R_RSP), " STACK_TOP: ");
-            } else if(peek==0xF3 && PK(1)==0x0F && PK(2)==0x1E && PK(3)==0xFA) {
+            } else if((peek==0x55 || peek==0x56) && is32bits) {
+                if(!printFunctionAddr(*(uint32_t*)(R_RSP), " STACK_TOP: "))
+                    printf_log(LOG_NONE, " STACK_TOP: %p ", (void*)(uintptr_t)*(uint32_t*)(R_RSP));
+            } else if(peek==0xF3 && PK(1)==0x0F && PK(2)==0x1E && PK(3)==0xFA && !is32bits) {
                 printFunctionAddr(*(uintptr_t*)(R_RSP), " STACK_TOP: ");
             } else if(peek==0xE8) { // Call
-                uintptr_t nextaddr = ip + 5 + PK64(1);
+                uintptr_t nextaddr = ip + 5 + PK32(1);
                 printFunctionAddr(nextaddr, "=> ");
             } else if(peek==0xFF) {
                 if(PK(1)==0x25) {
-                    uintptr_t nextaddr = ip + 6 + PK64(2);
+                    uintptr_t nextaddr = ip + 6 + PK32(2);
                     printFunctionAddr(nextaddr, "=> ");
                 }
             }
