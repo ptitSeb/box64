@@ -102,6 +102,13 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             }
             break;
 
+        case 0xB6:                      /* MOVZX Gd,Eb */
+            nextop = F8;
+            GETEB32(0);
+            GETGD;
+            GD->q[0] = EB->byte[0];
+            break;
+
         case 0xB9:
             switch(rep) {
                 case 0: /* UD1 Ed */
