@@ -315,17 +315,25 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         break;
 
     case 0xA1:                      /* MOV EAX,Od */
-        if(rex.w)
-            R_RAX = *(uint64_t*)F64;
-        else
-            R_AX = *(uint16_t*)F64;
+        if(rex.is32bits) {
+            R_EAX = *(uint32_t*)(uintptr_t)F32;
+        } else {
+            if(rex.w)
+                R_RAX = *(uint64_t*)F64;
+            else
+                R_AX = *(uint16_t*)F64;
+        }
         break;
 
     case 0xA3:                      /* MOV Od,EAX */
-        if(rex.w)
-            *(uint64_t*)F64 = R_RAX;
-        else
-            *(uint16_t*)F64 = R_AX;
+        if(rex.is32bits) {
+            *(uint32_t*)(uintptr_t)F32 = R_EAX;
+        } else {
+            if(rex.w)
+                *(uint64_t*)F64 = R_RAX;
+            else
+                *(uint16_t*)F64 = R_AX;
+        }
         break;
 
     case 0xA5:              /* (REP) MOVSW */
