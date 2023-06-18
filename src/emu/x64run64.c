@@ -292,13 +292,19 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             nextop = F8;
             GETED_OFFS(0, tlsdata);
             GETGD;
-            if(rex.w)
-                GD->sq[0] = ED->sdword[0];
-            else
-                if(MODREG)
-                    GD->q[0] = ED->dword[0];    // not really a sign extension
+            if(rex.is32bits) {
+                // ARPL here
+                // faking to always happy...
+                SET_FLAG(F_ZF);
+            } else {
+                if(rex.w)
+                    GD->sq[0] = ED->sdword[0];
                 else
-                    GD->sdword[0] = ED->sdword[0];  // meh?
+                    if(MODREG)
+                        GD->q[0] = ED->dword[0];    // not really a sign extension
+                    else
+                        GD->sdword[0] = ED->sdword[0];  // meh?
+            }
             break;
 
         case 0x66:
@@ -380,7 +386,6 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             if(rex.w) {
                 ED->q[0] = GD->q[0];
             } else {
-                //if ED is a reg, than the opcode works like movzx
                 if(MODREG)
                     ED->q[0] = GD->dword[0];
                 else
@@ -436,8 +441,8 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
 
         case 0xA1:                      /* MOV EAX,FS:Od */
             if(rex.is32bits) {
-                tmp64u = F32;
-                R_EAX = *(uint32_t*)(tlsdata+tmp64u);
+                tmp32s = F32S;
+                R_EAX = *(uint32_t*)(tlsdata+tmp32s);
             } else {
                 tmp64u = F64;
                 if(rex.w)
@@ -449,8 +454,8 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
 
         case 0xA3:                      /* MOV FS:Od,EAX */
             if(rex.is32bits) {
-                tmp64u = F32;
-                *(uint32_t*)(uintptr_t)(tlsdata+tmp64u) = R_EAX;
+                tmp32s = F32S;
+                *(uint32_t*)(uintptr_t)(tlsdata+tmp32s) = R_EAX;
             } else {
                 tmp64u = F64;
                 if(rex.w)
@@ -625,7 +630,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     addr = tmp64u;
                     break;
                 case 3:                 /* CALL FAR Ed */
-                    if(nextop>0xC0) {
+                    if(MODREG) {
                         printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
@@ -652,7 +657,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                         addr = (uintptr_t)getAlternate((void*)ED->q[0]);
                     break;
                 case 5:                 /* JMP FAR Ed */
-                    if(nextop>0xc0) {
+                    if(MODREG) {
                         printf_log(LOG_NONE, "Illegal Opcode %p: 0x%02X 0x%02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
@@ -669,7 +674,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     break;
                 case 6:                 /* Push Ed */
                     if(rex.is32bits) {
-                        tmp32u = ED->dword[0];  // rex.w ignored
+                        tmp32u = ED->dword[0];
                         Push32(emu, tmp32u);  // avoid potential issue with push [esp+...]
                     } else {
                         tmp64u = ED->q[0];  // rex.w ignored

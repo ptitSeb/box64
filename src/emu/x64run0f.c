@@ -108,7 +108,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETEX(0);
             GETGX;
-            if((nextop&0xC0)==0xC0)    /* MOVHLPS Gx,Ex */
+            if(MODREG)    /* MOVHLPS Gx,Ex */
                 GX->q[0] = EX->q[1];
             else
                 GX->q[0] = EX->q[0];    /* MOVLPS Gx,Ex */
@@ -350,8 +350,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GETED(0);
                     if(rex.w)
                         ED->q[0] = __builtin_bswap64(GD->q[0]);
-                    else
-                        ED->q[0] = __builtin_bswap32(GD->dword[0]);
+                    else {
+                        if(MODREG)
+                            ED->q[0] = __builtin_bswap32(GD->dword[0]);
+                        else
+                            ED->dword[0] = __builtin_bswap32(GD->dword[0]);
+                    }
                     break;
 
                 default:
@@ -1574,7 +1578,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         case 0xE7:                   /* MOVNTQ Em,Gm */
             nextop = F8;
-            if((nextop&0xC0)==0xC0)
+            if(MODREG)
                 return 0;
             GETEM(0);
             GETGM;

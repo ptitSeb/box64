@@ -1077,11 +1077,13 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                 peek = PK(0);
             }
             if(peek==0xC3 || peek==0xC2 || (peek==0xF3 && PK(1)==0xC3)) {
-                printf_log(LOG_NONE, " => %p", *(void**)(R_RSP));
-                if(is32bits)
+                if(is32bits) {
+                    printf_log(LOG_NONE, " => %p", (void*)(uintptr_t)*(uint32_t*)(R_RSP));
                     printFunctionAddr(*(uint32_t*)(R_RSP), "=> ");
-                else
+                } else {
+                    printf_log(LOG_NONE, " => %p", *(void**)(R_RSP));
                     printFunctionAddr(*(uintptr_t*)(R_RSP), "=> ");
+                }
             } else if(peek==0x57 && rex.b) {
                 printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_RSP));
                 printFunctionAddr(ip, "here: ");

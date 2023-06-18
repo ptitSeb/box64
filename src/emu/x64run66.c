@@ -92,7 +92,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         if(rex.w)                                                   \
             GW->q[0] = OP##64(emu, GW->q[0], EW->q[0]);             \
         else                                                        \
-        GW->word[0] = OP##16(emu, GW->word[0], EW->word[0]);        \
+            GW->word[0] = OP##16(emu, GW->word[0], EW->word[0]);    \
         break;                                                      \
     case B+4:                                                       \
         R_AL = OP##8(emu, R_AL, F8);                                \
@@ -317,7 +317,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     case 0xA1:                      /* MOV EAX,Od */
         if(rex.is32bits) {
-            R_EAX = *(uint32_t*)(uintptr_t)F32;
+            R_AX = *(uint16_t*)(uintptr_t)F32;
         } else {
             if(rex.w)
                 R_RAX = *(uint64_t*)F64;
@@ -328,7 +328,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     case 0xA3:                      /* MOV Od,EAX */
         if(rex.is32bits) {
-            *(uint32_t*)(uintptr_t)F32 = R_EAX;
+            *(uint16_t*)(uintptr_t)F32 = R_AX;
         } else {
             if(rex.w)
                 *(uint64_t*)F64 = R_RAX;
@@ -423,14 +423,12 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                 break;
             default:
                 if(rex.w) {
-                    tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
                     tmp64u  = *(uint64_t*)R_RDI;
                     tmp64u2 = *(uint64_t*)R_RSI;
                     R_RDI += tmp8s;
                     R_RSI += tmp8s;
                     cmp64(emu, tmp64u2, tmp64u);
                 } else {
-                    tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
                     tmp16u  = *(uint16_t*)R_RDI;
                     tmp16u2 = *(uint16_t*)R_RSI;
                     R_RDI += tmp8s;

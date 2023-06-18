@@ -337,27 +337,50 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     case 0xE0:                      /* LOOPNZ */
         CHECK_FLAGS(emu);
         tmp8s = F8S;
-        --R_ECX; // don't update flags
-        if(R_ECX && !ACCESS_FLAG(F_ZF))
-            addr += tmp8s;
+        if(rex.is32bits) {
+            --R_CX; // don't update flags
+            if(R_CX && !ACCESS_FLAG(F_ZF))
+                addr += tmp8s;
+        } else {
+            --R_ECX; // don't update flags
+            if(R_ECX && !ACCESS_FLAG(F_ZF))
+                addr += tmp8s;
+        }
         break;
     case 0xE1:                      /* LOOPZ */
         CHECK_FLAGS(emu);
         tmp8s = F8S;
-        --R_ECX; // don't update flags
-        if(R_ECX && ACCESS_FLAG(F_ZF))
-            addr += tmp8s;
+        if(rex.is32bits) {
+            --R_CX; // don't update flags
+            if(R_CX && ACCESS_FLAG(F_ZF))
+                addr += tmp8s;
+        } else {
+            --R_ECX; // don't update flags
+            if(R_ECX && ACCESS_FLAG(F_ZF))
+                addr += tmp8s;
+        }
         break;
     case 0xE2:                      /* LOOP */
         tmp8s = F8S;
-        --R_ECX; // don't update flags
-        if(R_ECX)
-            addr += tmp8s;
+        if(rex.is32bits) {
+            --R_CX; // don't update flags
+            if(R_CX)
+                addr += tmp8s;
+        } else {
+            --R_ECX; // don't update flags
+            if(R_ECX)
+                addr += tmp8s;
+        }
         break;
     case 0xE3:              /* JECXZ Ib */
         tmp8s = F8S;
-        if(!R_ECX)
-            addr += tmp8s;
+        if(rex.is32bits) {
+            if(!R_CX)
+                addr += tmp8s;
+        } else {
+            if(!R_ECX)
+                addr += tmp8s;
+        }
         break;
 
     case 0xE8:                      /* CALL Id */

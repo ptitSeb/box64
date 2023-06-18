@@ -304,13 +304,19 @@ x64emurun:
             nextop = F8;
             GETED(0);
             GETGD;
-            if(rex.w)
-                GD->sq[0] = ED->sdword[0];
-            else
-                if(MODREG)
-                    GD->q[0] = ED->dword[0];    // not really a sign extension
+            if(rex.is32bits) {
+                // ARPL here
+                // faking to always happy...
+                SET_FLAG(F_ZF);
+            } else {
+                if(rex.w)
+                    GD->sq[0] = ED->sdword[0];
                 else
-                    GD->sdword[0] = ED->sdword[0];  // meh?
+                    if(MODREG)
+                        GD->q[0] = ED->dword[0];    // not really a sign extension
+                    else
+                        GD->sdword[0] = ED->sdword[0];  // meh?
+            }
             break;
         case 0x64:                      /* FS: prefix */
             #ifdef TEST_INTERPRETER
@@ -413,7 +419,7 @@ x64emurun:
         case 0x6D:                      /* INSL DX */
         case 0x6E:                      /* OUTSB DX */
         case 0x6F:                      /* OUTSL DX */
-            // this is a privilege opcode...
+            // this is a privilege opcode in 64bits, but not in 32bits...
             #ifndef TEST_INTERPRETOR
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
@@ -633,7 +639,7 @@ x64emurun:
         case 0x8F:                      /* POP Ed */
             nextop = F8;
             if(MODREG) {
-                emu->regs[(nextop&7)+(rex.b<<3)].q[0] = Pop(emu);
+                emu->regs[(nextop&7)+(rex.b<<3)].q[0] = rex.is32bits?Pop32(emu):Pop(emu);
             } else {
                 if(rex.is32bits) {
                     tmp32u = Pop32(emu);  // this order allows handling POP [ESP] and variant
@@ -697,7 +703,7 @@ x64emurun:
                 Push(emu, emu->eflags.x64);
             break;
         case 0x9D:                      /* POPF */
-            emu->eflags.x64 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+            emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
             #ifndef TEST_INTERPRETER
             if(ACCESS_FLAG(F_TF)) {
@@ -828,7 +834,6 @@ x64emurun:
                     R_RCX = tmp64u;
                     break;
                 default:
-                    tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
                     tmp8u  = *(uint8_t*)R_RDI;
                     tmp8u2 = *(uint8_t*)R_RSI;
                     R_RDI += tmp8s;
@@ -898,14 +903,12 @@ x64emurun:
                     break;
                 default:
                     if(rex.w) {
-                        tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
                         tmp64u  = *(uint64_t*)R_RDI;
                         tmp64u2 = *(uint64_t*)R_RSI;
                         R_RDI += tmp8s;
                         R_RSI += tmp8s;
                         cmp64(emu, tmp64u2, tmp64u);
                     } else {
-                        tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
                         tmp32u  = *(uint32_t*)R_RDI;
                         tmp32u2 = *(uint32_t*)R_RSI;
                         R_RDI += tmp8s;
@@ -1485,7 +1488,7 @@ x64emurun:
         case 0xE5:                      /* IN EAX, XX */
         case 0xE6:                      /* OUT XX, AL */
         case 0xE7:                      /* OUT XX, EAX */
-            // this is a privilege opcode...
+            // this is a privilege opcode on 64bits...
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
@@ -1515,7 +1518,7 @@ x64emurun:
         case 0xED:                      /* IN EAX, DX */
         case 0xEE:                      /* OUT DX, AL */
         case 0xEF:                      /* OUT DX, EAX */
-            // this is a privilege opcode...
+            // this is a privilege opcode on 64bits...
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
@@ -1659,12 +1662,12 @@ x64emurun:
             SET_FLAG(F_CF);
             break;
         case 0xFA:                      /* CLI */
-            // this is a privilege opcode...
+            // this is a privilege opcode on 64bits...
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
         case 0xFB:                      /* STI */
-            // this is a privilege opcode...
+            // this is a privilege opcode on 64bits...
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
@@ -1766,10 +1769,10 @@ x64emurun:
                         goto fini;
                     } else {
                         if(rex.is32bits || !rex.w) {
-                            addr = (uintptr_t)getAlternate((void*)(uintptr_t)ED->dword[0]);   //check CS?
+                            addr = (uintptr_t)getAlternate((void*)(uintptr_t)ED->dword[0]);
                             R_CS = ED->word[2];
                         } else {
-                            addr = (uintptr_t)getAlternate((void*)ED->q[0]);   //check CS?
+                            addr = (uintptr_t)getAlternate((void*)ED->q[0]);
                             R_CS = (ED+1)->word[0];
                         }
                         STEP2;
@@ -1779,7 +1782,7 @@ x64emurun:
                 case 6:                 /* Push Ed */
                     _GETED(0);
                     if(rex.is32bits) {
-                        tmp32u = ED->dword[0];  // rex.w ignored
+                        tmp32u = ED->dword[0];
                         Push32(emu, tmp32u);  // avoid potential issue with push [esp+...]
                     } else {
                         tmp64u = ED->q[0];  // rex.w ignored
