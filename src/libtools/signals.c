@@ -323,6 +323,8 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
 
     int oldquitonlongjmp = emu->quitonlongjmp;
     emu->quitonlongjmp = 2;
+    int old_cs = R_CS;
+    R_CS = 0x33;
     
     emu->eflags.x64 &= ~(1<<F_TF); // this one needs to cleared
 
@@ -333,6 +335,9 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
 
     if(nargs>6 && !emu->longjmp)
         R_RSP+=((nargs-6)*sizeof(void*));
+
+    if(!emu->longjmp && R_CS==0x33)
+        R_CS = old_cs;
 
     emu->quitonlongjmp = oldquitonlongjmp;
 
@@ -1264,9 +1269,9 @@ exit(-1);
                     if(!(i%4)) printf_log(log_minimum, "\n");
                     printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.regs[10+i]);
                 }
-                for (int i=0; i<3; ++i) {
-                    printf_log(log_minimum, "%s:0x%x ", seg_name[i], emu->segs[i]);
-                }
+                printf_log(log_minimum, "\n");
+                for (int i=0; i<6; ++i)
+                    printf_log(log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
             }
             if(rsp!=addr && getProtection((uintptr_t)rsp-4*8) && getProtection((uintptr_t)rsp+4*8))
                 for (int i=-4; i<4; ++i) {
@@ -1279,9 +1284,9 @@ exit(-1);
                     if(!(i%4)) printf_log(log_minimum, "\n");
                     printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[16+i]);
                 }
-                for (int i=0; i<3; ++i) {
-                    printf_log(log_minimum, "%s:0x%x ", seg_name[i], emu->segs[i]);
-                }
+                printf_log(log_minimum, "\n");
+                for (int i=0; i<6; ++i)
+                    printf_log(log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
             }
             if(rsp!=addr && getProtection((uintptr_t)rsp-4*8) && getProtection((uintptr_t)rsp+4*8))
                 for (int i=-4; i<4; ++i) {
