@@ -413,6 +413,27 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                 GD->q[0] = tmp64u&0xffffffff;
             break;
 
+        case 0x8F:                      /* POP FS:Ed */
+            nextop = F8;
+            if(MODREG) {
+                emu->regs[(nextop&7)+(rex.b<<3)].q[0] = Pop(emu);
+            } else {
+                if(rex.is32bits) {
+                    tmp32u = Pop32(emu);  // this order allows handling POP [ESP] and variant
+                    GETED_OFFS(0, tlsdata);
+                    R_ESP -= 4; // to prevent issue with SEGFAULT
+                    ED->dword[0] = tmp32u;
+                    R_ESP += 4;
+                } else {
+                    tmp64u = Pop(emu);  // this order allows handling POP [ESP] and variant
+                    GETED_OFFS(0, tlsdata);
+                    R_RSP -= sizeof(void*); // to prevent issue with SEGFAULT
+                    ED->q[0] = tmp64u;
+                    R_RSP += sizeof(void*);
+                }
+            }
+            break;
+
         case 0xA1:                      /* MOV EAX,FS:Od */
             if(rex.is32bits) {
                 tmp64u = F32;
