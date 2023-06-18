@@ -1242,7 +1242,7 @@ exit(-1);
         }
         if(log_minimum<=box64_log) {
             static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
-            static const char* seg_name[] = {"CS", "DS", "SS", "ES", "GS", "FS"};
+            static const char* seg_name[] = {"ES", "CS", "SS", "DS", "GS", "FS"};
             int shown_regs = 0;
 #ifdef DYNAREC
             uint32_t hash = 0;
@@ -1293,11 +1293,15 @@ exit(-1);
 #else
             printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code);
 #endif
-            if(!shown_regs)
+            if(!shown_regs) {
                 for (int i=0; i<16; ++i) {
                     if(!(i%4)) printf_log(log_minimum, "\n");
                     printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], emu->regs[i].q[0]);
                 }
+                printf_log(log_minimum, "\n");
+                for (int i=0; i<6; ++i)
+                    printf_log(log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
+            }
             if(sig==SIGILL)
                 printf_log(log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X (%02X %02X %02X %02X %02X)\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7], ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
             else if(sig==SIGBUS)

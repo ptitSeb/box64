@@ -49,7 +49,7 @@ void AddCleanup(x64emu_t *emu, void *p, void* dso_handle);
 void AddCleanup1Arg(x64emu_t *emu, void *p, void* a, void* dso_handle);
 void CallCleanup(x64emu_t *emu, void* p);
 void CallAllCleanup(x64emu_t *emu);
-void UnimpOpcode(x64emu_t* emu);
+void UnimpOpcode(x64emu_t* emu, int is32bits);
 
 uint64_t ReadTSC(x64emu_t* emu);
 

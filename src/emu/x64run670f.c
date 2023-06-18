@@ -116,6 +116,13 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             }
             break;
 
+        case 0xB7:                      /* MOVZX Gd,Ew */
+            nextop = F8;
+            GETEW32(0);
+            GETGD;
+            GD->q[0] = EW->word[0];
+            break;
+
     default:
         return 0;
     }

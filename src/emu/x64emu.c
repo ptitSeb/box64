@@ -401,6 +401,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
     static const char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
                                     " R8", " R9", "R10", "R11", "R12", "R13", "R14", "R15"};
     static const char* regname32[]={"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
+    static const char* segname[] = {"ES", "CS", "SS", "DS", "FS", "GS"};
     char tmp[160];
     buff[0] = '\0';
 #ifdef HAVE_TRACE
@@ -439,6 +440,13 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
         }
         strcat(buff, "\n");
     }
+    for (int i=0; i<6; ++i) {
+            sprintf(tmp, "%s=0x%04x", segname[i], emu->segs[i]);
+            strcat(buff, tmp);
+            if(i!=_GS)
+                strcat(buff, " ");
+    }
+    strcat(buff, "\n");
     if(is32bits)
         for (int i=_AX; i<=_RDI; ++i) {
 #ifdef HAVE_TRACE
@@ -527,13 +535,13 @@ void StopEmu(x64emu_t* emu, const char* reason, int is32bits)
 #endif
 }
 
-void UnimpOpcode(x64emu_t* emu)
+void UnimpOpcode(x64emu_t* emu, int is32bits)
 {
     R_RIP = emu->old_ip;
 
     int tid = syscall(SYS_gettid);
-    printf_log(LOG_NONE, "%04d|%p: Unimplemented Opcode (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", 
-        tid, (void*)emu->old_ip,
+    printf_log(LOG_NONE, "%04d|%p: Unimplemented %sOpcode (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", 
+        tid, (void*)emu->old_ip, is32bits?"32bits ":"",
         Peek(emu, -4), Peek(emu, -3), Peek(emu, -2), Peek(emu, -1),
         Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3),
         Peek(emu, 4), Peek(emu, 5), Peek(emu, 6), Peek(emu, 7),

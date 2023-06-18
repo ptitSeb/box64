@@ -47,10 +47,11 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
     opcode = F8;
     // REX prefix before the F0 are ignored
     rex.rex = 0;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
-    }
+    if(!rex.is32bits)
+        while(opcode>=0x40 && opcode<=0x4f) {
+            rex.rex = opcode;
+            opcode = F8;
+        }
     rep = 0;
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
@@ -412,11 +413,29 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             break;
 
         case 0xA1:                      /* MOV EAX,FS:Od */
-            tmp64u = F64;
-            if(rex.w)
-                R_RAX = *(uint64_t*)(tlsdata+tmp64u);
-            else
-                R_RAX = *(uint32_t*)(tlsdata+tmp64u);
+            if(rex.is32bits) {
+                tmp64u = F32;
+                R_EAX = *(uint32_t*)(tlsdata+tmp64u);
+            } else {
+                tmp64u = F64;
+                if(rex.w)
+                    R_RAX = *(uint64_t*)(tlsdata+tmp64u);
+                else
+                    R_RAX = *(uint32_t*)(tlsdata+tmp64u);
+            }
+            break;
+
+        case 0xA3:                      /* MOV FS:Od,EAX */
+            if(rex.is32bits) {
+                tmp64u = F32;
+                *(uint32_t*)(uintptr_t)(tlsdata+tmp64u) = R_EAX;
+            } else {
+                tmp64u = F64;
+                if(rex.w)
+                    *(uint64_t*)(tlsdata+tmp64u) = R_RAX;
+                else
+                    *(uint32_t*)(tlsdata+tmp64u) = R_EAX;
+            }
             break;
 
         case 0xC6:                      /* MOV FS:Eb, Ib */
@@ -574,8 +593,13 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     }
                     break;
                 case 2:                 /* CALL NEAR Ed */
-                    tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
-                    Push(emu, addr);
+                    if(rex.is32bits) {
+                        tmp64u = (uintptr_t)getAlternate((void*)(uintptr_t)ED->dword[0]);
+                        Push32(emu, addr);
+                    } else {
+                        tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
+                        Push(emu, addr);
+                    }
                     addr = tmp64u;
                     break;
                 case 3:                 /* CALL FAR Ed */
@@ -585,15 +609,25 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                         emu->error |= ERR_ILLEGAL;
                         return 0;
                     } else {
-                        Push16(emu, R_CS);
-                        Push(emu, addr);
-                        R_RIP = addr = ED->dword[0];
-                        R_CS = (ED+1)->word[0];
+                        if(rex.is32bits || !rex.w) {
+                            Push32(emu, R_CS);
+                            Push32(emu, addr);
+                            R_RIP = addr = ED->dword[0];
+                            R_CS = ED->word[2];
+                        } else {
+                            Push(emu, R_CS);
+                            Push(emu, addr);
+                            R_RIP = addr = ED->q[0];
+                            R_CS = (ED+1)->word[0];
+                        }
                         return 0;  // exit loop to recompute new CS...
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
-                    addr = (uintptr_t)getAlternate((void*)ED->q[0]);
+                    if(rex.is32bits)
+                        addr = (uintptr_t)getAlternate((void*)(uintptr_t)ED->dword[0]);
+                    else
+                        addr = (uintptr_t)getAlternate((void*)ED->q[0]);
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
@@ -602,14 +636,23 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                         emu->error |= ERR_ILLEGAL;
                         return 0;
                     } else {
-                        R_RIP = addr = ED->q[0];
-                        R_CS = (ED+1)->word[0];
-                        return 0;  // exit loop to recompute CS...
+                        if(rex.is32bits || !rex.w) {
+                            R_RIP = addr = ED->dword[0];
+                            R_CS = ED->word[2];
+                        } else {
+                            R_RIP = addr = ED->q[0];
+                            R_CS = (ED+1)->word[0];
+                        }
                     }
                     break;
                 case 6:                 /* Push Ed */
-                    tmp64u = ED->q[0];  // rex.w ignored
-                    Push(emu, tmp64u);  // avoid potential issue with push [esp+...]
+                    if(rex.is32bits) {
+                        tmp32u = ED->dword[0];  // rex.w ignored
+                        Push32(emu, tmp32u);  // avoid potential issue with push [esp+...]
+                    } else {
+                        tmp64u = ED->q[0];  // rex.w ignored
+                        Push(emu, tmp64u);  // avoid potential issue with push [esp+...]
+                    }
                     break;
                 default:
                     printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));

@@ -1048,12 +1048,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x8C:
             INST_NAME("MOV Ed, Seg");
             nextop=F8;
+            u8 = (nextop&0x38)>>3;
+            LDRw_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
             if((nextop&0xC0)==0xC0) {   // reg <= seg
-                LDRH_U12(xRAX+(nextop&7)+(rex.b<<3), xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
+                UXTHw(xRAX+(nextop&7)+(rex.b<<3), x1);
             } else {                    // mem <= seg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
-                STH(x3, ed, fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                STH(x3, wback, fixedaddress);
                 SMWRITE2();
             }
             break;
@@ -1076,16 +1077,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x8E:
             INST_NAME("MOV Seg,Ew");
             nextop = F8;
+            u8 = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 1, rex, NULL, 0, 0);
-                LDH(x1, ed, fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                LDH(x1, wback, fixedaddress);
                 ed = x1;
             }
-            STRw_U12(ed, xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
-            STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[(nextop&0x38)>>3]));
+            STRw_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+            STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
         case 0x8F:
             INST_NAME("POP Ed");
@@ -1811,9 +1813,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0xCD:
-            INST_NAME("INT n");
             u8 = F8;
             if(box64_wine && u8==0x2D) {
+                INST_NAME("INT 2D");
                 // lets do nothing
                 MESSAGE(LOG_INFO, "INT 2D Windows anti-debug hack\n");
             } else if (u8==0x80) {
@@ -1833,6 +1835,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LOAD_XEMU_REM();
                 jump_to_epilog(dyn, 0, xRIP, ninst);
             } else {
+                INST_NAME("INT n");
                 SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
                 GETIP(ip);
                 STORE_XEMU_CALL(xRIP);

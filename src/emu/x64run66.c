@@ -647,7 +647,10 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     case 0xE8:                              /* CALL Id */
         tmp32s = F32S; // call is relative
-        Push(emu, addr);
+        if(rex.is32bits)
+            Push32(emu, addr);
+        else
+            Push(emu, addr);
         addr += tmp32s;
         break;
 
@@ -735,8 +738,13 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                 EW->word[0] = dec16(emu, EW->word[0]);
                 break;
             case 2:                 /* CALL NEAR Ed */
-                tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
-                Push(emu, addr);
+                if(rex.is32bits) {
+                    tmp64u = (uintptr_t)getAlternate((void*)(uintptr_t)ED->dword[0]);
+                    Push32(emu, addr);
+                } else {
+                    tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
+                    Push(emu, addr);
+                }
                 addr = tmp64u;
                 break;
            /*case 6:

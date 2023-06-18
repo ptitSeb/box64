@@ -541,23 +541,34 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     MESSAGE(LOG_DUMP, "IRet to epilog\n");
     // POP IP
     NOTEST(x2);
-    POP1(xRIP);
-    // POP CS
-    POP1(x2);
+    if(is64bits) {
+        POP1(xRIP);
+        POP1(x2);
+        POP1(xFlags);
+    } else {
+        LDRw_S9_postindex(xRIP, xRSP, 4);
+        LDRw_S9_postindex(x2, xRSP, 4);
+        LDRw_S9_postindex(xFlags, xRSP, 4);
+    }
+    // x2 is CS
     STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
-    STRx_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
-    STRx_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
-    // POP EFLAGS
-    POP1(xFlags);
+    STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
+    // clean EFLAGS
     MOV32w(x1, 0x3F7FD7);
     ANDx_REG(xFlags, xFlags, x1);
     ORRx_mask(xFlags, xFlags, 1, 0b111111, 0);
     SET_DFNONE(x1);
     // POP RSP
-    POP1(x3);
+    if(is64bits) {
+        POP1(x3);   //rsp
+        POP1(x2);   //ss
+    } else {
+        LDRw_S9_postindex(x3, xRSP, 4);
+        LDRw_S9_postindex(x2, xRSP, 4);
+    }
     // POP SS
-    POP1(x2);
     STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_SS]));
+    STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
     // set new RSP
     MOVx_REG(xRSP, x3);
     // Ret....

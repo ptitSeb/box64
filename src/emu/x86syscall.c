@@ -271,7 +271,7 @@ void EXPORT x86Syscall(x64emu_t *emu)
                 R_EAX = (uint32_t)-errno;
             break;*/
         case 243: // set_thread_area
-            R_EAX = my_set_thread_area_32((thread_area_32_t*)(uintptr_t)R_EBX);
+            R_EAX = my_set_thread_area_32(emu, (thread_area_32_t*)(uintptr_t)R_EBX);
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
             break;

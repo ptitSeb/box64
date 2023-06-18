@@ -1030,8 +1030,9 @@ extern uint64_t start_cnt;
 #define PK32(a)   (*(int32_t*)((uint8_t*)(ip+a)))
 #define PK64(a)   (*(int64_t*)((uint8_t*)(ip+a)))
 
-void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec, int is32bits)
+void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
 {
+    int is32bits = (emu->segs[_CS]==0x23);
     if(start_cnt) --start_cnt;
     if(!start_cnt && my_context->dec && (
             (trace_end == 0) 
@@ -1136,8 +1137,36 @@ static uint64_t F64(uintptr_t* addr) {
     return ret;
 }
 
+reg64_t* GetECommon_32(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uintptr_t base)
+{
+    if (m<=7) {
+        if(m==0x4) {
+            uint8_t sib = F8(addr);
+            base += ((sib&0x7)==5)?((uint64_t)(int64_t)F32S(addr)):(emu->regs[(sib&0x7)+(rex.b<<3)].dword[0]); // base
+            base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<3)]->sdword[0] << (sib>>6));
+            return (reg64_t*)base;
+        } else if (m==0x5) { //disp32
+            base += F32S(addr);
+            return (reg64_t*)(base);
+        }
+        return (reg64_t*)(uintptr_t)(base + emu->regs[m+(rex.b<<3)].dword[0]);
+    } else {
+        if((m&7)==4) {
+            uint8_t sib = F8(addr);
+            base += emu->regs[(sib&0x7)+(rex.b<<3)].dword[0]; // base
+            base += (emu->sbiidx[((sib>>3)&7)+(rex.x<<3)]->sdword[0] << (sib>>6));
+        } else {
+            base += emu->regs[(m&0x7)+(rex.b<<3)].dword[0];
+        }
+        base+=(m&0x80)?F32S(addr):F8S(addr);
+        return (reg64_t*)base;
+    }
+}
+
 reg64_t* GetECommon(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_t delta)
 {
+    if(rex.is32bits)
+        return GetECommon_32(emu, addr, rex, m, 0);
     if (m<=7) {
         if(m==0x4) {
             uint8_t sib = F8(addr);
@@ -1165,6 +1194,8 @@ reg64_t* GetECommon(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_
 
 reg64_t* GetECommonO(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_t delta, uintptr_t base)
 {
+    if(rex.is32bits)
+        return GetECommon_32(emu, addr, rex, m, base);
     if (m<=7) {
         if(m==0x4) {
             uint8_t sib = F8(addr);
@@ -1191,6 +1222,8 @@ reg64_t* GetECommonO(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8
 
 reg64_t* GetECommon32O(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_t delta, uintptr_t base)
 {
+    if(rex.is32bits)
+        printf_log(LOG_INFO, "Warning, calling GetECommon32O with is32bits at %p\n", *addr);
     if (m<=7) {
         if(m==0x4) {
             uint8_t sib = F8(addr);

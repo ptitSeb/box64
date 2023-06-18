@@ -7,15 +7,18 @@
 #include "box64context.h"
 typedef struct x64emu_s x64emu_t;
 
-typedef union rex_s {
-    uint8_t rex;
-    struct {
-        unsigned int b:1;
-        unsigned int x:1;
-        unsigned int r:1;
-        unsigned int w:1;
-        unsigned int s:4;
+typedef struct rex_s {
+    union {
+        uint8_t rex;
+        struct {
+            unsigned int b:1;
+            unsigned int x:1;
+            unsigned int r:1;
+            unsigned int w:1;
+            unsigned int s:4;
+        };
     };
+    int     is32bits;
 } rex_t;
 
 static inline uint8_t Peek(x64emu_t *emu, int offset){return *(uint8_t*)(R_RIP + offset);}
@@ -158,7 +161,7 @@ uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
 const char* GetNativeName(void* p);
 
 #ifdef HAVE_TRACE
-void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec, int is32bits);
+void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec);
 #endif
 
 #endif //__X86RUN_PRIVATE_H_
