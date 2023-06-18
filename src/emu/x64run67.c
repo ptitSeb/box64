@@ -152,6 +152,19 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             cmp32(emu, R_EAX, F32);
         break;
 
+    case 0x63:                      /* MOVSXD Gd,Ed */
+        nextop = F8;
+        GETED32(0);
+        GETGD;
+        if(rex.w)
+            GD->sq[0] = ED->sdword[0];
+        else
+            if(MODREG)
+                GD->q[0] = ED->dword[0];    // not really a sign extension
+            else
+                GD->sdword[0] = ED->sdword[0];  // meh?
+        break;
+
     case 0x66:
         #ifdef TEST_INTERPRETER
         return Test6766(test, rex, rep, addr);
