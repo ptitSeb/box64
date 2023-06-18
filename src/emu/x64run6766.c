@@ -57,10 +57,11 @@ uintptr_t Run6766(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     }
     // REX prefix before the 66 are ignored
     rex.rex = 0;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
-    }
+    if(!rex.is32bits)
+        while(opcode>=0x40 && opcode<=0x4f) {
+            rex.rex = opcode;
+            opcode = F8;
+        }
 
     switch(opcode) {
 
@@ -70,6 +71,16 @@ uintptr_t Run6766(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         #else
         return Run67660F(emu, rex, addr);
         #endif
+
+    case 0x89:                              /* MOV Ew,Gw */
+        nextop = F8;
+        GETEW32(0);
+        GETGW;
+        if(rex.w)
+            EW->q[0] = GW->q[0];
+        else
+            EW->word[0] = GW->word[0];
+        break;
 
     default:
         return 0;
