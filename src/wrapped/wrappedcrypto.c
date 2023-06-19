@@ -35,11 +35,179 @@ GO(2)   \
 GO(3)   \
 GO(4)
 
+// BIO_meth_set_write
+#define GO(A)   \
+static uintptr_t my_BIO_meth_set_write_fct_##A = 0;             \
+static int my_BIO_meth_set_write_##A(void* a, void* b, int c)   \
+{                                                               \
+    return (int)RunFunctionFmt(my_context, my_BIO_meth_set_write_fct_##A, "ppi", a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_BIO_meth_set_write_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_BIO_meth_set_write_fct_##A == (uintptr_t)fct) return my_BIO_meth_set_write_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_BIO_meth_set_write_fct_##A == 0) {my_BIO_meth_set_write_fct_##A = (uintptr_t)fct; return my_BIO_meth_set_write_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto BIO_meth_set_write callback\n");
+    return NULL;
+}
+
+// BIO_meth_set_read
+#define GO(A)   \
+static uintptr_t my_BIO_meth_set_read_fct_##A = 0;          \
+static int my_BIO_meth_set_read_##A(void* a, void* b, int c)\
+{                                                           \
+    return (int)RunFunctionFmt(my_context, my_BIO_meth_set_read_fct_##A, "ppi", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* find_BIO_meth_set_read_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_BIO_meth_set_read_fct_##A == (uintptr_t)fct) return my_BIO_meth_set_read_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_BIO_meth_set_read_fct_##A == 0) {my_BIO_meth_set_read_fct_##A = (uintptr_t)fct; return my_BIO_meth_set_read_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto BIO_meth_set_read callback\n");
+    return NULL;
+}
+
+// BIO_meth_set_puts
+#define GO(A)   \
+static uintptr_t my_BIO_meth_set_puts_fct_##A = 0;      \
+static int my_BIO_meth_set_puts_##A(void* a, void* b)   \
+{                                                       \
+    return (int)RunFunctionFmt(my_context, my_BIO_meth_set_puts_fct_##A, "pp", a, b);   \
+}
+SUPER()
+#undef GO
+static void* find_BIO_meth_set_puts_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_BIO_meth_set_puts_fct_##A == (uintptr_t)fct) return my_BIO_meth_set_puts_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_BIO_meth_set_puts_fct_##A == 0) {my_BIO_meth_set_puts_fct_##A = (uintptr_t)fct; return my_BIO_meth_set_puts_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto BIO_meth_set_puts callback\n");
+    return NULL;
+}
+
+// BIO_meth_set_gets
+#define GO(A)   \
+static uintptr_t my_BIO_meth_set_gets_fct_##A = 0;          \
+static int my_BIO_meth_set_gets_##A(void* a, void* b, int c)\
+{                                                           \
+    return (int)RunFunctionFmt(my_context, my_BIO_meth_set_gets_fct_##A, "ppi", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* find_BIO_meth_set_gets_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_BIO_meth_set_gets_fct_##A == (uintptr_t)fct) return my_BIO_meth_set_gets_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_BIO_meth_set_gets_fct_##A == 0) {my_BIO_meth_set_gets_fct_##A = (uintptr_t)fct; return my_BIO_meth_set_gets_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto BIO_meth_set_gets callback\n");
+    return NULL;
+}
+
+// BIO_meth_set_ctrl
+#define GO(A)   \
+static uintptr_t my_BIO_meth_set_ctrl_fct_##A = 0;                      \
+static long my_BIO_meth_set_ctrl_##A(void* a, int b, long c, void* d)   \
+{                                                                       \
+    return (long)RunFunctionFmt(my_context, my_BIO_meth_set_ctrl_fct_##A, "pilp", a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* find_BIO_meth_set_ctrl_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_BIO_meth_set_ctrl_fct_##A == (uintptr_t)fct) return my_BIO_meth_set_ctrl_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_BIO_meth_set_ctrl_fct_##A == 0) {my_BIO_meth_set_ctrl_fct_##A = (uintptr_t)fct; return my_BIO_meth_set_ctrl_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto BIO_meth_set_ctrl callback\n");
+    return NULL;
+}
+
+// BIO_meth_set_create
+#define GO(A)   \
+static uintptr_t my_BIO_meth_set_create_fct_##A = 0;\
+static int my_BIO_meth_set_create_##A(void* a)      \
+{                                                   \
+    return (int)RunFunctionFmt(my_context, my_BIO_meth_set_create_fct_##A, "p", a); \
+}
+SUPER()
+#undef GO
+static void* find_BIO_meth_set_create_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_BIO_meth_set_create_fct_##A == (uintptr_t)fct) return my_BIO_meth_set_create_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_BIO_meth_set_create_fct_##A == 0) {my_BIO_meth_set_create_fct_##A = (uintptr_t)fct; return my_BIO_meth_set_create_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto BIO_meth_set_create callback\n");
+    return NULL;
+}
+
+// BIO_meth_set_destroy
+#define GO(A)   \
+static uintptr_t my_BIO_meth_set_destroy_fct_##A = 0;   \
+static int my_BIO_meth_set_destroy_##A(void* a)         \
+{                                                       \
+    return (int)RunFunctionFmt(my_context, my_BIO_meth_set_destroy_fct_##A, "p", a);\
+}
+SUPER()
+#undef GO
+static void* find_BIO_meth_set_destroy_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_BIO_meth_set_destroy_fct_##A == (uintptr_t)fct) return my_BIO_meth_set_destroy_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_BIO_meth_set_destroy_fct_##A == 0) {my_BIO_meth_set_destroy_fct_##A = (uintptr_t)fct; return my_BIO_meth_set_destroy_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto BIO_meth_set_destroy callback\n");
+    return NULL;
+}
+
 // ENGINE_ctrl_cb
 #define GO(A)   \
-static uintptr_t my_ENGINE_ctrl_cb_fct_##A = 0;                                                      \
-static void my_ENGINE_ctrl_cb_##A()                    \
-{                                                                                                   \
+static uintptr_t my_ENGINE_ctrl_cb_fct_##A = 0; \
+static void my_ENGINE_ctrl_cb_##A()             \
+{                                               \
     RunFunctionFmt(my_context, my_ENGINE_ctrl_cb_fct_##A, "");  \
 }
 SUPER()
@@ -326,6 +494,42 @@ static void* find_verify_cb_Fct(void* fct)
 
 #undef SUPER
 
+EXPORT int32_t my_BIO_meth_set_write(x64emu_t* emu, void* biom, void* cb)
+{
+    (void)emu;
+    return my->BIO_meth_set_write(biom, find_BIO_meth_set_write_Fct(cb));
+}
+EXPORT int32_t my_BIO_meth_set_read(x64emu_t* emu, void* biom, void* cb)
+{
+    (void)emu;
+    return my->BIO_meth_set_read(biom, find_BIO_meth_set_read_Fct(cb));
+}
+EXPORT int32_t my_BIO_meth_set_puts(x64emu_t* emu, void* biom, void* cb)
+{
+    (void)emu;
+    return my->BIO_meth_set_puts(biom, find_BIO_meth_set_puts_Fct(cb));
+}
+EXPORT int32_t my_BIO_meth_set_gets(x64emu_t* emu, void* biom, void* cb)
+{
+    (void)emu;
+    return my->BIO_meth_set_gets(biom, find_BIO_meth_set_gets_Fct(cb));
+}
+EXPORT int32_t my_BIO_meth_set_ctrl(x64emu_t* emu, void* biom, void* cb)
+{
+    (void)emu;
+    return my->BIO_meth_set_ctrl(biom, find_BIO_meth_set_ctrl_Fct(cb));
+}
+EXPORT int32_t my_BIO_meth_set_create(x64emu_t* emu, void* biom, void* cb)
+{
+    (void)emu;
+    return my->BIO_meth_set_create(biom, find_BIO_meth_set_create_Fct(cb));
+}
+EXPORT int32_t my_BIO_meth_set_destroy(x64emu_t* emu, void* biom, void* cb)
+{
+    (void)emu;
+    return my->BIO_meth_set_destroy(biom, find_BIO_meth_set_destroy_Fct(cb));
+}
+
 EXPORT int32_t my_ENGINE_ctrl(x64emu_t* emu, void* e, int32_t cmd, int32_t i, void* p, void* f)
 {
     (void)emu;
@@ -398,6 +602,13 @@ EXPORT int my_PEM_write_bio_RSAPrivateKey(x64emu_t* emu, void* bp, void* x, void
     return my->PEM_write_bio_RSAPrivateKey(bp, x, e, str, len, find_passphrase_Fct(cb), u);
 }
 
+
+EXPORT int my_PEM_write_bio_PrivateKey(x64emu_t* emu, void* bp, void* x, void* e, void* str, int len, void* cb, void* u)
+{
+    (void)emu;
+    return my->PEM_write_bio_PrivateKey(bp, x, e, str, len, find_passphrase_Fct(cb), u);
+}
+
 EXPORT int my_PEM_write_bio_ECPrivateKey(x64emu_t* emu, void* bp, void* x, void* e, void* str, int len, void* cb, void* u)
 {
     (void)emu;
@@ -432,6 +643,25 @@ EXPORT void* my_PEM_read_bio_PKCS7(x64emu_t* emu, void* bp, void* x, void* cb, v
 {
     (void)emu;
     return my->PEM_read_bio_PKCS7(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void* my_PEM_read_bio_PrivateKey(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    (void)emu;
+    return my->PEM_read_bio_PrivateKey(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+
+EXPORT void* my_PEM_read_bio_PUBKEY(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    (void)emu;
+    return my->PEM_read_bio_PUBKEY(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void* my_PEM_read_bio_DHparams(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    (void)emu;
+    return my->PEM_read_bio_DHparams(bp, x, find_pem_password_cb_Fct(cb), u);
 }
 
 EXPORT void* my_PEM_read_bio_X509(x64emu_t* emu, void* bp, void* x, void* cb, void* u)

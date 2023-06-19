@@ -36,6 +36,7 @@
 #() iFp
 #() iFO
 #() iFS
+#() iFP
 #() IFv
 #() IFi
 #() IFI
@@ -1934,6 +1935,7 @@
 #() iFppppip
 #() iFppppup
 #() iFpppppi
+#() iFpppppL
 #() iFpppppp
 #() uFEiippp
 #() uFEiuppp
@@ -2271,6 +2273,7 @@
 #() pFpLppiip
 #() pFppiiipp
 #() pFppiiCCC
+#() pFppiippp
 #() pFppipipp
 #() pFppipLpp
 #() pFppuippp
@@ -2852,17 +2855,28 @@ wrappedcrypto:
   - X509_STORE_CTX_set_verify_cb
   - X509_STORE_set_verify_cb
   - sk_pop_free
+- iFpp:
+  - BIO_meth_set_create
+  - BIO_meth_set_ctrl
+  - BIO_meth_set_destroy
+  - BIO_meth_set_gets
+  - BIO_meth_set_puts
+  - BIO_meth_set_read
+  - BIO_meth_set_write
 - pFpp:
   - OPENSSL_sk_pop_free
 - iFppp:
   - ASN1_i2d_bio
 - pFpppp:
   - ASN1_d2i_bio
+  - PEM_read_bio_DHparams
   - PEM_read_bio_DSAPrivateKey
   - PEM_read_bio_DSA_PUBKEY
   - PEM_read_bio_ECPrivateKey
   - PEM_read_bio_EC_PUBKEY
   - PEM_read_bio_PKCS7
+  - PEM_read_bio_PUBKEY
+  - PEM_read_bio_PrivateKey
   - PEM_read_bio_RSAPrivateKey
   - PEM_read_bio_RSA_PUBKEY
   - PEM_read_bio_X509
@@ -2877,6 +2891,7 @@ wrappedcrypto:
 - iFppppipp:
   - PEM_write_bio_DSAPrivateKey
   - PEM_write_bio_ECPrivateKey
+  - PEM_write_bio_PrivateKey
   - PEM_write_bio_RSAPrivateKey
 wrappedcrypto3:
 - vFp:
@@ -4216,8 +4231,11 @@ wrappedlibssl:
 - vFpp:
   - SSL_CTX_sess_set_new_cb
   - SSL_CTX_set_client_cert_cb
+  - SSL_CTX_set_cookie_generate_cb
+  - SSL_CTX_set_cookie_verify_cb
   - SSL_CTX_set_default_passwd_cb
   - SSL_set_psk_client_callback
+  - SSL_set_psk_server_callback
   - SSL_set_psk_use_session_callback
 - vFpip:
   - SSL_CTX_set_verify

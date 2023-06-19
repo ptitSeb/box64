@@ -22,8 +22,11 @@ typedef int32_t (*iFlpppp_t)(intptr_t, void*, void*, void*, void*);
 	GO(SSL_get_verify_callback, pFp_t) \
 	GO(SSL_CTX_sess_set_new_cb, vFpp_t) \
 	GO(SSL_CTX_set_client_cert_cb, vFpp_t) \
+	GO(SSL_CTX_set_cookie_generate_cb, vFpp_t) \
+	GO(SSL_CTX_set_cookie_verify_cb, vFpp_t) \
 	GO(SSL_CTX_set_default_passwd_cb, vFpp_t) \
 	GO(SSL_set_psk_client_callback, vFpp_t) \
+	GO(SSL_set_psk_server_callback, vFpp_t) \
 	GO(SSL_set_psk_use_session_callback, vFpp_t) \
 	GO(SSL_CTX_set_verify, vFpip_t) \
 	GO(SSL_set_verify, vFpip_t) \

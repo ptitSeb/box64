@@ -216,6 +216,31 @@ static void* find_client_cb_Fct(void* fct)
 }
 
 
+// server_cb
+#define GO(A)   \
+static uintptr_t my_server_cb_fct_##A = 0;                                                  \
+static uint32_t my_server_cb_##A(void* ssl, void* identity, void* psk, uint32_t psk_len)    \
+{                                                                                           \
+    return RunFunctionFmt(my_context, my_server_cb_fct_##A, "pppu", ssl, identity, psk, psk_len);    \
+}
+SUPER()
+#undef GO
+static void* find_server_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_server_cb_fct_##A == (uintptr_t)fct) return my_server_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_server_cb_fct_##A == 0) {my_server_cb_fct_##A = (uintptr_t)fct; return my_server_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL server_cb callback\n");
+    return NULL;
+}
+
+
 // use_session_cb
 #define GO(A)   \
 static uintptr_t my_use_session_cb_fct_##A = 0;                                                         \
@@ -312,6 +337,55 @@ static void* find_client_cert_Fct(void* fct)
     return NULL;
 }
 
+// cookie_generate
+#define GO(A)   \
+static uintptr_t my_cookie_generate_fct_##A = 0;            \
+static int my_cookie_generate_##A(void* a, void* b, void* c)\
+{                                                           \
+    return (int)RunFunctionFmt(my_context, my_cookie_generate_fct_##A, "ppp", a, b, c); \
+}
+SUPER()
+#undef GO
+static void* find_cookie_generate_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_cookie_generate_fct_##A == (uintptr_t)fct) return my_cookie_generate_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_cookie_generate_fct_##A == 0) {my_cookie_generate_fct_##A = (uintptr_t)fct; return my_cookie_generate_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL cookie_generate callback\n");
+    return NULL;
+}
+
+
+// cookie_verify
+#define GO(A)   \
+static uintptr_t my_cookie_verify_fct_##A = 0;                  \
+static int my_cookie_verify_##A(void* a, void* b, uint32_t c)   \
+{                                                               \
+    return (int)RunFunctionFmt(my_context, my_cookie_verify_fct_##A, "ppu", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* find_cookie_verify_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_cookie_verify_fct_##A == (uintptr_t)fct) return my_cookie_verify_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_cookie_verify_fct_##A == 0) {my_cookie_verify_fct_##A = (uintptr_t)fct; return my_cookie_verify_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL cookie_verify callback\n");
+    return NULL;
+}
+
 // alpn_select
 #define GO(A)   \
 static uintptr_t my_alpn_select_fct_##A = 0;                                            \
@@ -380,6 +454,12 @@ EXPORT void my_SSL_set_psk_client_callback(x64emu_t* emu, void* ctx, void* cb)
     my->SSL_set_psk_client_callback(ctx, find_client_cb_Fct(cb));
 }
 
+EXPORT void my_SSL_set_psk_server_callback(x64emu_t* emu, void* ctx, void* cb)
+{
+    (void)emu;
+    my->SSL_set_psk_server_callback(ctx, find_client_cb_Fct(cb));
+}
+
 EXPORT void my_SSL_set_psk_use_session_callback(x64emu_t* emu, void* ctx, void* cb)
 {
     (void)emu;
@@ -414,6 +494,18 @@ EXPORT void my_SSL_CTX_set_client_cert_cb(x64emu_t* emu, void* ctx, void* cb)
 {
     (void)emu;
     my->SSL_CTX_set_client_cert_cb(ctx, find_client_cert_Fct(cb));
+}
+
+EXPORT void my_SSL_CTX_set_cookie_generate_cb(x64emu_t* emu, void* ctx, void* cb)
+{
+    (void)emu;
+    my->SSL_CTX_set_cookie_generate_cb(ctx, find_cookie_generate_Fct(cb));
+}
+
+EXPORT void my_SSL_CTX_set_cookie_verify_cb(x64emu_t* emu, void* ctx, void* cb)
+{
+    (void)emu;
+    my->SSL_CTX_set_cookie_verify_cb(ctx, find_cookie_verify_Fct(cb));
 }
 
 EXPORT void my_SSL_CTX_set_alpn_select_cb(x64emu_t* emu, void* ctx, void* f ,void* arg)
