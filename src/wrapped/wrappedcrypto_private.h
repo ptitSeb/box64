@@ -96,7 +96,7 @@ GOM(ASN1_i2d_bio, iFEppp)
 //GO(ASN1_i2d_fp, 
 //GO(ASN1_IA5STRING_free, 
 //GO(ASN1_IA5STRING_new, 
-//GO(ASN1_INTEGER_cmp, 
+GO(ASN1_INTEGER_cmp, iFpp)
 //GO(ASN1_INTEGER_dup, 
 GO(ASN1_INTEGER_free, vFp)
 GO(ASN1_INTEGER_get, lFp)
@@ -172,6 +172,7 @@ GO(ASN1_STRING_data, pFp)
 GO(ASN1_STRING_dup, pFp)
 GO(ASN1_STRING_free, vFp)
 //GO(ASN1_STRING_get_default_mask, 
+GO(ASN1_STRING_get0_data, pFp)
 GO(ASN1_STRING_length, iFp)
 //GO(ASN1_STRING_length_set, 
 //GO(ASN1_STRING_new, 
@@ -255,12 +256,14 @@ GO(BASIC_CONSTRAINTS_new, pFv)
 //GO(BF_options, 
 //GO(BF_set_key, 
 //GO(BIO_accept, 
+GO(BIO_ADDR_free, vFp)
+GO(BIO_ADDR_new, pFv)
 //GO(BIO_asn1_get_prefix, 
 //GO(BIO_asn1_get_suffix, 
 //GO(BIO_asn1_set_prefix, 
 //GO(BIO_asn1_set_suffix, 
 //GO(BIO_callback_ctrl, 
-//GO(BIO_clear_flags, 
+GO(BIO_clear_flags, vFpi)
 //GO(BIO_CONNECT_free, 
 //GO(BIO_CONNECT_new, 
 //GO(BIO_copy_next_retry, 
@@ -299,17 +302,28 @@ GO(BIO_free_all, vFp)
 //GO(BIO_get_callback, 
 //GO(BIO_get_callback_arg, 
 GO(BIO_get_close, iFp)
-//GO(BIO_get_ex_data, 
+GO(BIO_get_data, pFp)
+GO(BIO_get_ex_data, pFpi)
 //GO(BIO_get_ex_new_index, 
 //GO(BIO_gethostbyname, 
 //GO(BIO_get_host_ip, 
 //GO(BIO_get_port, 
 //GO(BIO_get_retry_BIO, 
 //GO(BIO_get_retry_reason, 
+GO(BIO_get_shutdown, iFp)
 GO(BIO_gets, iFppi)
 //GO(BIO_hex_string, 
 //GO(BIO_indent, 
 GO(BIO_int_ctrl, lFpili)
+GO(BIO_meth_free, vFp)
+GO(BIO_meth_new, pFip)
+GOM(BIO_meth_set_write, iFEpp)
+GOM(BIO_meth_set_read, iFEpp)
+GOM(BIO_meth_set_puts, iFEpp)
+GOM(BIO_meth_set_gets, iFEpp)
+GOM(BIO_meth_set_ctrl, iFEpp)
+GOM(BIO_meth_set_create, iFEpp)
+GOM(BIO_meth_set_destroy, iFEpp)
 //GO(BIO_method_name, 
 //GO(BIO_method_type, 
 GO(BIO_new, pFp)
@@ -350,8 +364,11 @@ GO(BIO_set, iFpp)
 //GO(BIO_set_callback_arg, 
 GO(BIO_set_close, iFpl)
 //GO(BIO_set_cipher, 
-//GO(BIO_set_ex_data, 
-//GO(BIO_set_flags, 
+GO(BIO_set_data, vFpp)
+GO(BIO_set_ex_data, iFpip)
+GO(BIO_set_flags, vFpi)
+GO(BIO_set_init, vFpi)
+GO(BIO_set_shutdown, vFpi)
 //GO(BIO_set_tcp_ndelay, 
 //GO(BIO_s_fd, 
 //GO(BIO_s_file, 
@@ -462,6 +479,7 @@ GO(BN_is_bit_set, iFpi)
 //GO(BN_is_prime_ex, 
 //GO(BN_is_prime_fasttest, 
 //GO(BN_is_prime_fasttest_ex, 
+GO(BN_is_word, iFpL)
 GO(BN_is_zero, iFp) 
 //GO(BN_kronecker, 
 GO(BN_lshift, iFppi)
@@ -848,7 +866,7 @@ GO(CRYPTO_free, vFppi)
 //GO(CRYPTO_get_dynlock_value, 
 //GO(CRYPTO_get_ex_data, 
 //GO(CRYPTO_get_ex_data_implementation, 
-//GO(CRYPTO_get_ex_new_index, 
+GO(CRYPTO_get_ex_new_index, iFilpppp)
 //GO(CRYPTO_get_id_callback, 
 //GO(CRYPTO_get_locked_mem_ex_functions, 
 //GO(CRYPTO_get_locked_mem_functions, 
@@ -1148,7 +1166,8 @@ GO(DES_set_odd_parity, vFp)
 GO(DES_string_to_2keys, vFppp)
 GO(DES_string_to_key, vFpp)
 GO(DES_xcbc_encrypt, vFpplppppi)
-//GO(DH_check, 
+GO(DH_bits, iFp)
+GO(DH_check, iFpp)
 //GO(DH_check_pub_key, 
 //GO(DH_compute_key, 
 //GO(DH_compute_key_padded, 
@@ -1156,6 +1175,7 @@ GO(DH_free, vFp)
 //GO(DH_generate_key, 
 //GO(DH_generate_parameters, 
 //GO(DH_generate_parameters_ex, 
+GO(DH_get0_pqg, vFpppp)
 //GO(DH_get_1024_160, 
 //GO(DH_get_2048_224, 
 //GO(DH_get_2048_256, 
@@ -1185,6 +1205,7 @@ GO(DH_new, pFv)
 //GO(DIST_POINT_set_dpname, 
 //GO(dsa_builtin_paramgen, 
 //GO(dsa_builtin_paramgen2, 
+GO(DSA_bits, iFp)
 //GO(DSA_do_sign, 
 //GO(DSA_do_verify, 
 //GO(DSA_dup_DH, 
@@ -1954,7 +1975,7 @@ GO(EVP_MD_type, iFp)
 //GO(EVP_PKEY_asn1_set_private, 
 //GO(EVP_PKEY_asn1_set_public, 
 GO(EVP_PKEY_assign, iFpip)
-//GO(EVP_PKEY_base_id, 
+GO(EVP_PKEY_base_id, iFp)
 //GO(EVP_PKEY_bits, 
 GO(EVP_PKEY_cmp, iFpp)
 GO(EVP_PKEY_cmp_parameters, iFpp)
@@ -1989,7 +2010,7 @@ GO(EVP_PKEY_derive_set_peer, iFppi)
 GO(EVP_PKEY_free, vFp)
 //GO(EVP_PKEY_get0, 
 //GO(EVP_PKEY_get0_asn1, 
-//GO(EVP_PKEY_get1_DH, 
+GO(EVP_PKEY_get1_DH, pFp)
 GO(EVP_PKEY_get1_DSA, pFp)
 GO(EVP_PKEY_get1_EC_KEY, pFp)
 GO(EVP_PKEY_get1_RSA, pFp)
@@ -2024,13 +2045,14 @@ GO(EVP_PKEY_keygen_init, iFp)
 GO(EVP_PKEY_missing_parameters, iFp)
 GO(EVP_PKEY_new, pFv)
 GO(EVP_PKEY_new_mac_key, pFippi)
+GO(EVP_PKEY_param_check, iFp)
 GO(EVP_PKEY_paramgen, iFpp)
 GO(EVP_PKEY_paramgen_init, iFp)
 //GO(EVP_PKEY_print_params, 
 //GO(EVP_PKEY_print_private, 
 //GO(EVP_PKEY_print_public, 
 //GO(EVP_PKEY_save_parameters, 
-//GO(EVP_PKEY_set1_DH, 
+GO(EVP_PKEY_set1_DH, iFpp)
 GO(EVP_PKEY_set1_DSA, iFpp)
 GO(EVP_PKEY_set1_EC_KEY, iFpp)
 GO(EVP_PKEY_set1_RSA, iFpp)
@@ -2492,7 +2514,7 @@ GO(OBJ_txt2obj, pFpi)
 //GO(OCSP_archive_cutoff_new, 
 //GO(OCSP_basic_add1_cert, 
 //GO(OCSP_basic_add1_nonce, 
-//GO(OCSP_basic_add1_status, 
+GO(OCSP_basic_add1_status, pFppiippp)
 //GO(OCSP_BASICRESP_add1_ext_i2d, 
 //GO(OCSP_BASICRESP_add_ext, 
 //GO(OCSP_BASICRESP_delete_ext, 
@@ -2503,8 +2525,8 @@ GO(OCSP_BASICRESP_free, vFp)
 //GO(OCSP_BASICRESP_get_ext_by_NID, 
 //GO(OCSP_BASICRESP_get_ext_by_OBJ, 
 //GO(OCSP_BASICRESP_get_ext_count, 
-//GO(OCSP_BASICRESP_new, 
-//GO(OCSP_basic_sign, 
+GO(OCSP_BASICRESP_new, pFv)
+GO(OCSP_basic_sign, iFpppppL)
 GO(OCSP_basic_verify, iFpppL)
 //GO(OCSP_CERTID_dup, 
 GO(OCSP_CERTID_free, vFp)
@@ -2515,14 +2537,14 @@ GO(OCSP_CERTID_free, vFp)
 //GO(OCSP_cert_status_str, 
 GO(OCSP_cert_to_id, pFppp)
 GO(OCSP_check_nonce, iFpp)
-//GO(OCSP_check_validity, 
+GO(OCSP_check_validity, iFppll)
 //GO(OCSP_copy_nonce, 
 //GO(OCSP_CRLID_free, 
 //GO(OCSP_crlID_new, 
 //GO(OCSP_CRLID_new, 
 //GO(OCSP_crl_reason_str, 
-//GO(OCSP_id_cmp, 
-//GO(OCSP_id_get0_info, 
+GO(OCSP_id_cmp, iFpp)
+GO(OCSP_id_get0_info, iFppppp)
 //GO(OCSP_id_issuer_cmp, 
 //GO(OCSP_ONEREQ_add1_ext_i2d, 
 //GO(OCSP_ONEREQ_add_ext, 
@@ -2571,21 +2593,22 @@ GO(OCSP_REQUEST_new, pFv)
 //GO(OCSP_request_verify, 
 //GO(OCSP_RESPBYTES_free, 
 //GO(OCSP_RESPBYTES_new, 
-//GO(OCSP_resp_count, 
+GO(OCSP_resp_count, iFp)
 //GO(OCSP_RESPDATA_free, 
 //GO(OCSP_RESPDATA_new, 
 //GO(OCSP_resp_find, 
 GO(OCSP_resp_find_status, iFppppppp)
-//GO(OCSP_resp_get0, 
+GO(OCSP_resp_get0, pFpi)
+GO(OCSP_resp_get0_certs, pFp)
 //GO(OCSP_RESPID_free, 
 //GO(OCSP_RESPID_new, 
-//GO(OCSP_response_create, 
+GO(OCSP_response_create, pFip)
 GO(OCSP_RESPONSE_free, vFp)
 GO(OCSP_response_get1_basic, pFp)
 GO(OCSP_RESPONSE_new, pFv)
 //GO(OCSP_RESPONSE_print, 
-//GO(OCSP_response_status, 
-//GO(OCSP_response_status_str, 
+GO(OCSP_response_status, iFp)
+GO(OCSP_response_status_str, pFl)
 //GO(OCSP_REVOKEDINFO_free, 
 //GO(OCSP_REVOKEDINFO_new, 
 //GO(OCSP_sendreq_bio, 
@@ -2596,11 +2619,12 @@ GO(OCSP_RESPONSE_new, pFv)
 //GO(OCSP_set_max_response_length, 
 //GO(OCSP_SIGNATURE_free, 
 //GO(OCSP_SIGNATURE_new, 
-//GO(OCSP_single_get0_status, 
+GO(OCSP_single_get0_status, iFppppp)
 //GO(OCSP_SINGLERESP_add1_ext_i2d, 
 //GO(OCSP_SINGLERESP_add_ext, 
 //GO(OCSP_SINGLERESP_delete_ext, 
 //GO(OCSP_SINGLERESP_free, 
+GO(OCSP_SINGLERESP_get0_id, pFp)
 //GO(OCSP_SINGLERESP_get1_ext_d2i, 
 //GO(OCSP_SINGLERESP_get_ext, 
 //GO(OCSP_SINGLERESP_get_ext_by_critical, 
@@ -2647,6 +2671,7 @@ GO(OPENSSL_sk_value, pFpi)  //1.1+
 //GO(OPENSSL_strcasecmp, 
 //GO(OPENSSL_strncasecmp, 
 //GO(OPENSSL_uni2asc, 
+GO(OpenSSL_version, pFi)
 GO(OpenSSL_version_num, LFv)
 //GO(OPENSSL_wipe_cpu, 
 //GO(_ossl_096_des_random_seed, 
@@ -2710,7 +2735,7 @@ GO(OpenSSL_version_num, LFv)
 //GO(PEM_read, 
 //GO(PEM_read_bio, 
 //GO(PEM_read_bio_CMS, 
-//GO(PEM_read_bio_DHparams, 
+GOM(PEM_read_bio_DHparams, pFEpppp)
 //GO(PEM_read_bio_DSAparams, 
 GOM(PEM_read_bio_DSAPrivateKey, pFEpppp)
 GOM(PEM_read_bio_DSA_PUBKEY, pFEpppp)
@@ -2722,8 +2747,8 @@ GOM(PEM_read_bio_EC_PUBKEY, pFEpppp)
 GOM(PEM_read_bio_PKCS7, pFEpppp)
 //GO(PEM_read_bio_PKCS8, 
 //GO(PEM_read_bio_PKCS8_PRIV_KEY_INFO, 
-//GO(PEM_read_bio_PrivateKey, 
-//GO(PEM_read_bio_PUBKEY, 
+GOM(PEM_read_bio_PrivateKey, pFEpppp)
+GOM(PEM_read_bio_PUBKEY, pFEpppp)
 GOM(PEM_read_bio_RSAPrivateKey, pFEpppp)
 GOM(PEM_read_bio_RSA_PUBKEY, pFEpppp)
 //GO(PEM_read_bio_RSAPublicKey, 
@@ -2781,8 +2806,8 @@ GO(PEM_write_bio_EC_PUBKEY, iFpp)
 //GO(PEM_write_bio_PKCS8PrivateKey, 
 //GO(PEM_write_bio_PKCS8PrivateKey_nid, 
 //GO(PEM_write_bio_PKCS8_PRIV_KEY_INFO, 
-//GO(PEM_write_bio_PrivateKey, 
-//GO(PEM_write_bio_PUBKEY, 
+GOM(PEM_write_bio_PrivateKey, iFEppppipp)
+GO(PEM_write_bio_PUBKEY, iFpp)
 GOM(PEM_write_bio_RSAPrivateKey, iFEppppipp)
 GO(PEM_write_bio_RSA_PUBKEY, iFpp)
 //GO(PEM_write_bio_RSAPublicKey, 
@@ -3031,6 +3056,7 @@ GO(RAND_write_file, iFp)
 //GO(RIPEMD160_Init, 
 //GO(RIPEMD160_Transform, 
 //GO(RIPEMD160_Update, 
+GO(RSA_bits, iFp)
 //GO(RSA_blinding_off, 
 //GO(RSA_blinding_on, 
 GO(RSA_check_key, iFp)
@@ -3555,7 +3581,9 @@ GO(X509_get_version, lFp)
 GO(X509_get0_notAfter, pFp)
 GO(X509_get0_notBefore, pFp)
 GO(X509_get0_pubkey, pFp)
-//GO(X509_gmtime_adj, 
+GO(X509_getm_notBefore, pFp)
+GO(X509_getm_notAfter, pFp)
+GO(X509_gmtime_adj, pFpl)
 //GO(X509_http_nbio, 
 //GO(X509_INFO_free, 
 //GO(X509_INFO_new, 
@@ -3745,7 +3773,7 @@ GO(X509_STORE_CTX_get_chain, pFp)
 GO(X509_STORE_CTX_get_current_cert, pFp)
 GO(X509_STORE_CTX_get_error, iFp)
 GO(X509_STORE_CTX_get_error_depth, iFp)
-//GO(X509_STORE_CTX_get_ex_data, 
+GO(X509_STORE_CTX_get_ex_data, pFpi)
 //GO(X509_STORE_CTX_get_ex_new_index, 
 //GO(X509_STORE_CTX_get_explicit_policy, 
 GO(X509_STORE_CTX_init, iFpppp)
@@ -3770,7 +3798,8 @@ GOM(X509_STORE_CTX_set_verify_cb, vFEpp)
 GO(X509_STORE_free, vFp)
 //GO(X509_STORE_get1_certs, 
 //GO(X509_STORE_get1_crls, 
-//GO(X509_STORE_get_by_subject, 
+//GO(X509_STORE_get_by_subject,
+GO(X509_STORE_get_ex_data, pFpi) 
 GO(X509_STORE_load_file, iFpp)
 GO(X509_STORE_load_path, iFpp)
 GO(X509_STORE_load_store, iFpp)
@@ -3779,11 +3808,12 @@ GO(X509_STORE_new, pFv)
 //GO(X509_STORE_set1_param, 
 //GO(X509_STORE_set_default_paths, 
 GO(X509_STORE_set_depth, iFpi)
+GO(X509_STORE_set_ex_data, iFpip)
 GO(X509_STORE_set_flags, iFpL)
 //GO(X509_STORE_set_lookup_crls_cb, 
 GO(X509_STORE_set_purpose, iFpi)
 GO(X509_STORE_set_trust, iFpi)
-//GO(X509_STORE_set_verify_cb, 
+GOM(X509_STORE_set_verify_cb, vFEpp)
 //GO(X509_subject_name_cmp, 
 GO(X509_subject_name_hash, LFp)
 GO(X509_subject_name_hash_old, LFp)

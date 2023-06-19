@@ -56,13 +56,14 @@ GO(d2i_SSL_SESSION, pFppl)
 //GO(dtls1_stop_timer, 
 //GO(dtls1_write_app_data_bytes, 
 //GO(dtls1_write_bytes, 
-//GO(DTLS_client_method, 
+GO(DTLS_client_method, pFv)
 GO(DTLS_method, pFv)
 GO(DTLS_server_method, pFv)
 GO(DTLSv1_2_client_method, pFv)
 GO(DTLSv1_2_method, pFv)
 GO(DTLSv1_2_server_method, pFv)
 GO(DTLSv1_client_method, pFv)
+GO(DTLSv1_listen, iFpp)
 GO(DTLSv1_method, pFv)
 GO(DTLSv1_server_method, pFv)
 //GO(ERR_load_SSL_strings, 
@@ -243,17 +244,17 @@ GO(SSL_clear, iFp)
 //GO(SSL_COMP_get_compression_methods, 
 //GO(SSL_COMP_get_name, 
 //GO(SSL_COMP_set0_compression_methods, 
-//GO(SSL_CONF_cmd, 
-//GO(SSL_CONF_cmd_argv, 
-//GO(SSL_CONF_cmd_value_type, 
+GO(SSL_CONF_cmd, iFppp)
+GO(SSL_CONF_cmd_argv, iFppp)
+GO(SSL_CONF_cmd_value_type, iFpp)
 //GO(SSL_CONF_CTX_clear_flags, 
-//GO(SSL_CONF_CTX_finish, 
-//GO(SSL_CONF_CTX_free, 
-//GO(SSL_CONF_CTX_new, 
+GO(SSL_CONF_CTX_finish, iFp)
+GO(SSL_CONF_CTX_free, vFp)
+GO(SSL_CONF_CTX_new, pFv)
 //GO(SSL_CONF_CTX_set1_prefix, 
-//GO(SSL_CONF_CTX_set_flags, 
+GO(SSL_CONF_CTX_set_flags, uFpu)
 //GO(SSL_CONF_CTX_set_ssl, 
-//GO(SSL_CONF_CTX_set_ssl_ctx, 
+GO(SSL_CONF_CTX_set_ssl_ctx, vFpp)
 GO(SSL_connect, iFp)
 //GO(SSL_copy_session_id, 
 //GO(ssl_create_cipher_list, 
@@ -279,6 +280,7 @@ GO(SSL_CTX_get_ex_data, pFpi)
 //GO(SSL_CTX_get_ex_new_index, 
 //GO(SSL_CTX_get_info_callback, 
 //GO(SSL_CTX_get_quiet_shutdown, 
+GO(SSL_CTX_get_security_level, iFp) 
 //GO(SSL_CTX_get_ssl_method, 
 //GO(SSL_CTX_get_timeout, 
 //GO(SSL_CTX_get_verify_callback, 
@@ -292,7 +294,7 @@ GO(SSL_CTX_new, pFp)
 //GO(SSL_CTX_sess_get_remove_cb, 
 //GO(SSL_CTX_sessions, 
 //GO(SSL_CTX_sess_set_get_cb, 
-//GO(SSL_CTX_sess_set_new_cb, 
+GOM(SSL_CTX_sess_set_new_cb, vFEpp)
 //GO(SSL_CTX_sess_set_remove_cb, 
 //GO(SSL_CTX_set1_param, 
 GO(SSL_CTX_set_alpn_protos, iFppu)
@@ -305,8 +307,8 @@ GO(SSL_CTX_set_ciphersuites, iFpp)
 GO(SSL_CTX_set_client_CA_list, vFpp)
 GOM(SSL_CTX_set_client_cert_cb, vFEpp)
 //GO(SSL_CTX_set_client_cert_engine, 
-//GO(SSL_CTX_set_cookie_generate_cb, 
-//GO(SSL_CTX_set_cookie_verify_cb, 
+GOM(SSL_CTX_set_cookie_generate_cb, vFEpp)
+GOM(SSL_CTX_set_cookie_verify_cb, vFEpp)
 GOM(SSL_CTX_set_default_passwd_cb, vFEpp)
 GO(SSL_CTX_set_default_passwd_cb_userdata, vFpp)
 GO(SSL_CTX_set_default_verify_paths, iFp)
@@ -348,7 +350,7 @@ GO(SSL_CTX_use_certificate_file, iFppi)
 GO(SSL_CTX_use_PrivateKey, iFpp)
 GO(SSL_CTX_use_PrivateKey_ASN1, iFuppi)
 GO(SSL_CTX_use_PrivateKey_file, iFppi)
-//GO(SSL_CTX_use_psk_identity_hint, 
+GO(SSL_CTX_use_psk_identity_hint, iFpp)
 GO(SSL_CTX_use_RSAPrivateKey, iFpp)
 GO(SSL_CTX_use_RSAPrivateKey_ASN1, iFppl)
 GO(SSL_CTX_use_RSAPrivateKey_file, iFppi)
@@ -375,6 +377,7 @@ GO(SSL_get_certificate, pFp)
 GO(SSL_get_ciphers, pFp)
 //GO(ssl_get_ciphers_by_id, 
 GO(SSL_get_client_CA_list, pFp)
+GO(SSL_get_client_random, LFppL)
 GO(SSL_get_current_cipher, pFp)
 //GO(SSL_get_current_compression, 
 //GO(SSL_get_current_expansion, 
@@ -396,7 +399,7 @@ GO(SSL_get_privatekey, pFp)
 //GO(SSL_get_psk_identity, 
 //GO(SSL_get_psk_identity_hint, 
 //GO(SSL_get_quiet_shutdown, 
-//GO(SSL_get_rbio, 
+GO(SSL_get_rbio, pFp)
 //GO(SSL_get_read_ahead, 
 //GO(SSL_get_rfd, 
 //GO(SSL_get_selected_srtp_profile, 
@@ -427,6 +430,7 @@ GO(SSL_get_version, pFp)
 //GO(SSL_get_wfd, 
 //GO(SSL_has_matching_session_id, 
 //GO(ssl_init_wbio_buffer, 
+GO(SSL_in_init, iFP)
 GO(SSL_is_init_finished, iFp)
 GO(SSL_is_server, iFp)
 GO(SSL_library_init, iFv)
@@ -463,8 +467,11 @@ GO(SSL_SESSION_free, vFp)
 //GO(SSL_SESSION_get_ex_data, 
 //GO(SSL_SESSION_get_ex_new_index, 
 //GO(SSL_SESSION_get_id, 
+GO(SSL_SESSION_get_master_key, LFppL)
+GO(SSL_SESSION_get_ticket_lifetime_hint, LFp)
 //GO(SSL_SESSION_get_time, 
-//GO(SSL_SESSION_get_timeout, 
+//GO(SSL_SESSION_get_timeout,
+GO(SSL_SESSION_is_resumable, iFp) 
 GO(SSL_SESSION_new, pFv)
 //GO(SSL_SESSION_print, 
 //GO(SSL_SESSION_print_fp, 
@@ -476,7 +483,7 @@ GO(SSL_session_reused, iFp)
 GO(SSL_SESSION_up_ref, iFp)
 //GO(SSL_set1_param, 
 GO(SSL_set_accept_state, vFp)
-//GO(SSL_set_alpn_protos, 
+GO(SSL_set_alpn_protos, iFppu)
 GO(SSL_set_bio, vFppp)
 //GO(SSL_set_cert_cb, 
 //GO(ssl_set_cert_masks, 
@@ -490,9 +497,11 @@ GO(SSL_set_fd, iFpi)
 //GO(SSL_set_generate_session_id, 
 //GO(SSL_set_info_callback, 
 //GO(SSL_set_msg_callback, 
+GO(SSL_set_options, LFpL)
 //GO(ssl_set_peer_cert_type, 
 GOM(SSL_set_psk_client_callback, vFEpp)
-//GO(SSL_set_psk_server_callback, 
+GOM(SSL_set_psk_server_callback, vFEpp)
+GOM(SSL_set_psk_use_session_callback, vFEpp) 
 //GO(SSL_set_purpose, 
 GO(SSL_set_quiet_shutdown, vFpi)
 //GO(SSL_set_read_ahead, 
