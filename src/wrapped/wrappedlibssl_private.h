@@ -279,6 +279,7 @@ GO(SSL_CTX_get_ex_data, pFpi)
 //GO(SSL_CTX_get_ex_new_index, 
 //GO(SSL_CTX_get_info_callback, 
 //GO(SSL_CTX_get_quiet_shutdown, 
+GO(SSL_CTX_get_security_level, iFp) 
 //GO(SSL_CTX_get_ssl_method, 
 //GO(SSL_CTX_get_timeout, 
 //GO(SSL_CTX_get_verify_callback, 
@@ -292,7 +293,7 @@ GO(SSL_CTX_new, pFp)
 //GO(SSL_CTX_sess_get_remove_cb, 
 //GO(SSL_CTX_sessions, 
 //GO(SSL_CTX_sess_set_get_cb, 
-//GO(SSL_CTX_sess_set_new_cb, 
+GOM(SSL_CTX_sess_set_new_cb, vFEpp)
 //GO(SSL_CTX_sess_set_remove_cb, 
 //GO(SSL_CTX_set1_param, 
 GO(SSL_CTX_set_alpn_protos, iFppu)
@@ -375,6 +376,7 @@ GO(SSL_get_certificate, pFp)
 GO(SSL_get_ciphers, pFp)
 //GO(ssl_get_ciphers_by_id, 
 GO(SSL_get_client_CA_list, pFp)
+GO(SSL_get_client_random, LFppL)
 GO(SSL_get_current_cipher, pFp)
 //GO(SSL_get_current_compression, 
 //GO(SSL_get_current_expansion, 
@@ -463,8 +465,10 @@ GO(SSL_SESSION_free, vFp)
 //GO(SSL_SESSION_get_ex_data, 
 //GO(SSL_SESSION_get_ex_new_index, 
 //GO(SSL_SESSION_get_id, 
+GO(SSL_SESSION_get_master_key, LFppL)
 //GO(SSL_SESSION_get_time, 
-//GO(SSL_SESSION_get_timeout, 
+//GO(SSL_SESSION_get_timeout,
+GO(SSL_SESSION_is_resumable, iFp) 
 GO(SSL_SESSION_new, pFv)
 //GO(SSL_SESSION_print, 
 //GO(SSL_SESSION_print_fp, 
@@ -490,9 +494,11 @@ GO(SSL_set_fd, iFpi)
 //GO(SSL_set_generate_session_id, 
 //GO(SSL_set_info_callback, 
 //GO(SSL_set_msg_callback, 
+GO(SSL_set_options, LFpL)
 //GO(ssl_set_peer_cert_type, 
 GOM(SSL_set_psk_client_callback, vFEpp)
-//GO(SSL_set_psk_server_callback, 
+//GO(SSL_set_psk_server_callback,
+GOM(SSL_set_psk_use_session_callback, vFEpp) 
 //GO(SSL_set_purpose, 
 GO(SSL_set_quiet_shutdown, vFpi)
 //GO(SSL_set_read_ahead, 

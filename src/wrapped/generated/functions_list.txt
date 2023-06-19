@@ -1837,6 +1837,7 @@
 #() iFiiiipp
 #() iFiiiuwp
 #() iFiWiipi
+#() iFilpppp
 #() iFiLpppi
 #() iFipiipi
 #() iFipipip
@@ -2849,6 +2850,7 @@ wrappedcrypto:
   - sk_new
 - vFpp:
   - X509_STORE_CTX_set_verify_cb
+  - X509_STORE_set_verify_cb
   - sk_pop_free
 - pFpp:
   - OPENSSL_sk_pop_free
@@ -4212,9 +4214,11 @@ wrappedlibssl:
 - pFp:
   - SSL_get_verify_callback
 - vFpp:
+  - SSL_CTX_sess_set_new_cb
   - SSL_CTX_set_client_cert_cb
   - SSL_CTX_set_default_passwd_cb
   - SSL_set_psk_client_callback
+  - SSL_set_psk_use_session_callback
 - vFpip:
   - SSL_CTX_set_verify
   - SSL_set_verify

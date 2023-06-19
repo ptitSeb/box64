@@ -215,6 +215,55 @@ static void* find_client_cb_Fct(void* fct)
     return NULL;
 }
 
+
+// use_session_cb
+#define GO(A)   \
+static uintptr_t my_use_session_cb_fct_##A = 0;                                                         \
+static uint32_t my_use_session_cb_##A(void* ssl, void* md, void* id, void* id_len, void* sess)          \
+{                                                                                                       \
+    return RunFunctionFmt(my_context, my_use_session_cb_fct_##A, "ppppp", ssl, md, id, id_len, sess);   \
+}
+SUPER()
+#undef GO
+static void* find_use_session_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_use_session_cb_fct_##A == (uintptr_t)fct) return my_use_session_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_use_session_cb_fct_##A == 0) {my_use_session_cb_fct_##A = (uintptr_t)fct; return my_use_session_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL use_session_cb callback\n");
+    return NULL;
+}
+
+// sess
+#define GO(A)   \
+static uintptr_t my_sess_fct_##A = 0;                                   \
+static uint32_t my_sess_##A(void* ssl, void* sess)                      \
+{                                                                       \
+    return RunFunctionFmt(my_context, my_sess_fct_##A, "pp", ssl, sess);\
+}
+SUPER()
+#undef GO
+static void* find_sess_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_sess_fct_##A == (uintptr_t)fct) return my_sess_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_sess_fct_##A == 0) {my_sess_fct_##A = (uintptr_t)fct; return my_sess_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL sess callback\n");
+    return NULL;
+}
+
 // proto_select
 #define GO(A)   \
 static uintptr_t my_proto_select_fct_##A = 0;                                                           \
@@ -329,6 +378,18 @@ EXPORT void my_SSL_set_psk_client_callback(x64emu_t* emu, void* ctx, void* cb)
 {
     (void)emu;
     my->SSL_set_psk_client_callback(ctx, find_client_cb_Fct(cb));
+}
+
+EXPORT void my_SSL_set_psk_use_session_callback(x64emu_t* emu, void* ctx, void* cb)
+{
+    (void)emu;
+    my->SSL_set_psk_use_session_callback(ctx, find_use_session_cb_Fct(cb));
+}
+
+EXPORT void my_SSL_CTX_sess_set_new_cb(x64emu_t* emu, void* ctx, void* cb)
+{
+    (void)emu;
+    my->SSL_CTX_sess_set_new_cb(ctx, find_sess_Fct(cb));
 }
 
 EXPORT void my_SSL_CTX_set_next_proto_select_cb(x64emu_t* emu, void* ctx, void* cb, void* arg)

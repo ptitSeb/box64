@@ -26,6 +26,7 @@ typedef int32_t (*iFppppipp_t)(void*, void*, void*, void*, int32_t, void*, void*
 	GO(CRYPTO_set_locking_callback, vFp_t) \
 	GO(sk_new, pFp_t) \
 	GO(X509_STORE_CTX_set_verify_cb, vFpp_t) \
+	GO(X509_STORE_set_verify_cb, vFpp_t) \
 	GO(sk_pop_free, vFpp_t) \
 	GO(OPENSSL_sk_pop_free, pFpp_t) \
 	GO(ASN1_i2d_bio, iFppp_t) \

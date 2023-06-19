@@ -275,6 +275,31 @@ static void* find_pem_password_cb_Fct(void* fct)
     return NULL;
 }
 
+// ctx_verify_cb
+#define GO(A)   \
+static uintptr_t my_ctx_verify_cb_fct_##A = 0;                          \
+static int my_ctx_verify_cb_##A(int a, void* b)                         \
+{                                                                       \
+    return (int)RunFunctionFmt(my_context, my_ctx_verify_cb_fct_##A, "ip", a, b);   \
+}
+SUPER()
+#undef GO
+static void* find_ctx_verify_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_ctx_verify_cb_fct_##A == (uintptr_t)fct) return my_ctx_verify_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ctx_verify_cb_fct_##A == 0) {my_ctx_verify_cb_fct_##A = (uintptr_t)fct; return my_ctx_verify_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto ctx_verify_cb callback\n");
+    return NULL;
+}
+
+
 // verify_cb
 #define GO(A)   \
 static uintptr_t my_verify_cb_fct_##A = 0;                              \
@@ -442,7 +467,14 @@ EXPORT void* my_PEM_read_bio_X509_CERT_PAIR(x64emu_t* emu, void* bp, void* x, vo
 EXPORT void my_X509_STORE_CTX_set_verify_cb(x64emu_t* emu, void* ctx, void* cb)
 {
     (void)emu;
-    my->X509_STORE_CTX_set_verify_cb(ctx, find_verify_cb_Fct(cb));
+    my->X509_STORE_CTX_set_verify_cb(ctx, find_ctx_verify_cb_Fct(cb));
+}
+
+
+EXPORT void my_X509_STORE_set_verify_cb(x64emu_t* emu, void* ctx, void* cb)
+{
+    (void)emu;
+    my->X509_STORE_set_verify_cb(ctx, find_verify_cb_Fct(cb));
 }
 
 EXPORT void my_OPENSSL_sk_pop_free(x64emu_t* emu, void* s, void* cb)
