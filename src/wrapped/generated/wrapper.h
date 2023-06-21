@@ -1714,6 +1714,7 @@ void vFEiiipp(x64emu_t *emu, uintptr_t fnc);
 void vFEpiLpp(x64emu_t *emu, uintptr_t fnc);
 void vFEpippp(x64emu_t *emu, uintptr_t fnc);
 void vFEpuipp(x64emu_t *emu, uintptr_t fnc);
+void vFEpuipV(x64emu_t *emu, uintptr_t fnc);
 void vFEpupup(x64emu_t *emu, uintptr_t fnc);
 void vFEpuppp(x64emu_t *emu, uintptr_t fnc);
 void vFEpLLpp(x64emu_t *emu, uintptr_t fnc);

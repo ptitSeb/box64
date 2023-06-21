@@ -135,7 +135,7 @@ GO(g_async_initable_new_finish, pFppp)
 GOM(g_async_initable_new_valist_async, vFEipAippp)
 GOM(g_async_initable_newv_async, vFEiupippp)
 GO(g_async_result_get_source_object, pFp)
-//GO(g_async_result_get_type, 
+GO(g_async_result_get_type, LFv)
 GO(g_async_result_get_user_data, pFp)
 GO(g_async_result_is_tagged, iFpp)
 //GO(g_async_result_legacy_propagate_error, 
@@ -341,7 +341,7 @@ GO(g_dbus_error_encode_gerror, pFp)
 //GO(g_dbus_error_get_type, 
 GO(g_dbus_error_is_remote_error, iFp)
 GO(g_dbus_error_new_for_dbus_error, pFpp)
-//GO(g_dbus_error_quark, 
+GO(g_dbus_error_quark, uFv)
 //GO(g_dbus_error_register_error, 
 GO(g_dbus_error_register_error_domain, vFpppu)
 //GO(g_dbus_error_set_dbus_error, 
@@ -1623,10 +1623,10 @@ GO(g_task_get_priority, iFp)
 //GO(g_task_get_source_object, 
 GO(g_task_get_source_tag, pFp)
 //GO(g_task_get_task_data, 
-//GO(g_task_get_type, 
+GO(g_task_get_type, LFv)
 //GO(g_task_had_error, 
 GO(g_task_is_valid, iFpp)
-//GO(g_task_new, 
+GOM(g_task_new, pFEpppp)
 GO(g_task_propagate_boolean, iFpp)
 GO(g_task_propagate_int, lFpp)
 GO(g_task_propagate_pointer, pFpp)
@@ -1636,8 +1636,8 @@ GO(g_task_return_boolean, vFpi)
 GO(g_task_return_error, vFpp)
 //GO(g_task_return_error_if_cancelled, 
 GO(g_task_return_int, vFpl)
-//GO(g_task_return_new_error, 
-//GO(g_task_return_pointer, 
+GOM(g_task_return_new_error, vFEpuipV)
+GOM(g_task_return_pointer, vFEppp)
 //GO(g_task_run_in_thread, 
 //GO(g_task_run_in_thread_sync, 
 //GO(g_task_set_check_cancellable, 

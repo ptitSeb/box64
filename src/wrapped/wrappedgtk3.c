@@ -441,6 +441,30 @@ static void* findGtkPrintJobCompleteHuncFct(void* fct)
     return NULL;
 }
 
+
+// GtkClipboardTextReceivedFunc
+#define GO(A)   \
+static uintptr_t my_GtkClipboardTextReceivedFunc_fct_##A = 0;                                           \
+static void my_GtkClipboardTextReceivedFunc_##A(void* clipboard, void* text, void* data)                \
+{                                                                                                       \
+    RunFunctionFmt(my_context, my_GtkClipboardTextReceivedFunc_fct_##A, "ppp", clipboard, text, data);  \
+}
+SUPER()
+#undef GO
+static void* findGtkClipboardTextReceivedFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkClipboardTextReceivedFunc_fct_##A == (uintptr_t)fct) return my_GtkClipboardTextReceivedFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkClipboardTextReceivedFunc_fct_##A == 0) {my_GtkClipboardTextReceivedFunc_fct_##A = (uintptr_t)fct; return my_GtkClipboardTextReceivedFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkClipboardTextReceivedFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 /*
 EXPORT void my3_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -721,6 +745,11 @@ EXPORT void my3_gtk_print_job_send(x64emu_t* emu, void *job, void* f, void* data
 EXPORT void my3_gtk_container_foreach(x64emu_t* emu, void* container, void* cb, void* data)
 {
     my->gtk_container_foreach(container, findGtkCallbackFct(cb), data);
+}
+
+EXPORT void my3_gtk_clipboard_request_text(x64emu_t* emu, void* clipboard, void* f, void* data)
+{
+    my->gtk_clipboard_request_text(clipboard, findGtkClipboardTextReceivedFuncFct(f), data);
 }
 
 #define PRE_INIT    \

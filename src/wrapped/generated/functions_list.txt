@@ -1677,6 +1677,7 @@
 #() vFEpiLpp
 #() vFEpippp
 #() vFEpuipp
+#() vFEpuipV
 #() vFEpupup
 #() vFEpuppp
 #() vFEpLLpp
@@ -3092,6 +3093,7 @@ wrappedgdkx112:
 wrappedgio2:
 - vFppp:
   - g_simple_async_result_set_op_res_gpointer
+  - g_task_return_pointer
 - vFippp:
   - g_bus_get
 - vFppip:
@@ -3109,8 +3111,11 @@ wrappedgio2:
   - g_simple_async_result_new
   - g_simple_async_result_new_from_error
   - g_simple_async_result_new_take_error
+  - g_task_new
 - vFpippp:
   - g_async_initable_init_async
+- vFpuipV:
+  - g_task_return_new_error
 - vFppipV:
   - g_simple_async_result_set_error
 - vFppipA:
@@ -3458,6 +3463,7 @@ wrappedgtk3:
   - gtk_style_context_get_valist
 - vFppp:
   - gtk_builder_connect_signals_full
+  - gtk_clipboard_request_text
   - gtk_container_forall
   - gtk_container_foreach
   - gtk_menu_attach_to_widget

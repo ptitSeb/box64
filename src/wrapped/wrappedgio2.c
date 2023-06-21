@@ -368,6 +368,16 @@ static my_GDBusInterfaceVTable_t* findFreeGDBusInterfaceVTable(my_GDBusInterface
 }
 #undef SUPER
 
+EXPORT void* my_g_task_new(x64emu_t* emu, void* source_object, void* cancellable, void* cb, void* data)
+{
+    return my->g_task_new(source_object, cancellable, findGAsyncReadyCallbackFct(cb), data);
+}
+
+EXPORT void my_g_task_return_pointer(x64emu_t* emu, void* task, void* result, void* destroy)
+{
+    my->g_task_return_pointer(task, result, findGDestroyNotifyFct(destroy));
+}
+
 EXPORT void my_g_dbus_proxy_new(x64emu_t* emu, void* connection, int flags, void* info, void* name, void* path, void* interface, void* cancellable, void* cb, void* data)
 {
     my->g_dbus_proxy_new(connection, flags, info, name, path, interface, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -582,6 +592,14 @@ EXPORT void* my_g_initable_new_valist(x64emu_t* emu, void* type, void* first, x6
     return my->g_initable_new_valist(type, first, VARARGS, cancel, err);
 }
 
+EXPORT void my_g_task_return_new_error(x64emu_t* emu, void* task, uint32_t domain, int code, void *fmt, va_list b)
+{
+    char* tmp;
+    int dummy = vasprintf(&tmp, fmt, b);
+    (void)dummy;
+    my->g_task_return_new_error(task, domain, code, tmp);
+    free(tmp);
+}
 
 #define PRE_INIT    \
     if(box64_nogtk) \
