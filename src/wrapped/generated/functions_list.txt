@@ -2428,7 +2428,7 @@
 #() uFppuuuppu
 #() uFppuppppp
 #() uFpppppupp
-#() LFELpLpLpi
+#() LFELpupupu
 #() LFEpiupppp
 #() LFpLpuuLLu
 #() pFEiplllpp
@@ -3391,7 +3391,7 @@ wrappedgobject2:
   - g_signal_handlers_block_matched
   - g_signal_handlers_disconnect_matched
   - g_signal_handlers_unblock_matched
-- LFLpLpLpi:
+- LFLpupupu:
   - g_type_register_static_simple
 - LFpiupppp:
   - g_signal_handler_find

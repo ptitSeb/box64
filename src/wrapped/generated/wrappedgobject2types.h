@@ -37,7 +37,7 @@ typedef uintptr_t (*LFLpppi_t)(uintptr_t, void*, void*, void*, int32_t);
 typedef uintptr_t (*LFppppi_t)(void*, void*, void*, void*, int32_t);
 typedef uintptr_t (*LFpppppu_t)(void*, void*, void*, void*, void*, uint32_t);
 typedef uint32_t (*uFpiupppp_t)(void*, int32_t, uint32_t, void*, void*, void*, void*);
-typedef uintptr_t (*LFLpLpLpi_t)(uintptr_t, void*, uintptr_t, void*, uintptr_t, void*, int32_t);
+typedef uintptr_t (*LFLpupupu_t)(uintptr_t, void*, uint32_t, void*, uint32_t, void*, uint32_t);
 typedef uintptr_t (*LFpiupppp_t)(void*, int32_t, uint32_t, void*, void*, void*, void*);
 typedef uint32_t (*uFpLiupppLuV_t)(void*, uintptr_t, int32_t, uint32_t, void*, void*, void*, uintptr_t, uint32_t, ...);
 typedef uint32_t (*uFpLippppLup_t)(void*, uintptr_t, int32_t, void*, void*, void*, void*, uintptr_t, uint32_t, void*);
@@ -77,7 +77,7 @@ typedef uint32_t (*uFpLippppLuA_t)(void*, uintptr_t, int32_t, void*, void*, void
 	GO(g_signal_handlers_block_matched, uFpiupppp_t) \
 	GO(g_signal_handlers_disconnect_matched, uFpiupppp_t) \
 	GO(g_signal_handlers_unblock_matched, uFpiupppp_t) \
-	GO(g_type_register_static_simple, LFLpLpLpi_t) \
+	GO(g_type_register_static_simple, LFLpupupu_t) \
 	GO(g_signal_handler_find, LFpiupppp_t) \
 	GO(g_signal_new, uFpLiupppLuV_t) \
 	GO(g_signal_newv, uFpLippppLup_t) \
