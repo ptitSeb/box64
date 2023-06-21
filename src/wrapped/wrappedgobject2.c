@@ -745,7 +745,7 @@ EXPORT unsigned long my_g_signal_add_emission_hook(x64emu_t* emu, uint32_t signa
     return my->g_signal_add_emission_hook(signal, detail, my_signal_emission_hook, sig, my_signal_delete);
 }
 
-EXPORT size_t my_g_type_register_static_simple(x64emu_t* emu, size_t parent, void* name, size_t class_size, void* class_init, size_t instance_size, void* instance_init, int flags)
+EXPORT size_t my_g_type_register_static_simple(x64emu_t* emu, size_t parent, void* name, uint32_t class_size, void* class_init, uint32_t instance_size, void* instance_init, uint32_t flags)
 {
         //gobject2_my_t *my = (gobject2_my_t*)my_lib->w.p2;
 

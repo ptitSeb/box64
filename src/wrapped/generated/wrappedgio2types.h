@@ -19,6 +19,7 @@ typedef uint32_t (*uFpppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
+typedef void (*vFpuipV_t)(void*, uint32_t, int32_t, void*, ...);
 typedef void (*vFppipV_t)(void*, void*, int32_t, void*, ...);
 typedef void (*vFppipA_t)(void*, void*, int32_t, void*, va_list);
 typedef void* (*pFppppV_t)(void*, void*, void*, void*, ...);
@@ -45,6 +46,7 @@ typedef void (*vFpppppppiippp_t)(void*, void*, void*, void*, void*, void*, void*
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(g_simple_async_result_set_op_res_gpointer, vFppp_t) \
+	GO(g_task_return_pointer, vFppp_t) \
 	GO(g_bus_get, vFippp_t) \
 	GO(g_simple_async_result_run_in_thread, vFppip_t) \
 	GO(g_dbus_connection_close, vFpppp_t) \
@@ -56,7 +58,9 @@ typedef void (*vFpppppppiippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_simple_async_result_new, pFpppp_t) \
 	GO(g_simple_async_result_new_from_error, pFpppp_t) \
 	GO(g_simple_async_result_new_take_error, pFpppp_t) \
+	GO(g_task_new, pFpppp_t) \
 	GO(g_async_initable_init_async, vFpippp_t) \
+	GO(g_task_return_new_error, vFpuipV_t) \
 	GO(g_simple_async_result_set_error, vFppipV_t) \
 	GO(g_simple_async_result_set_error_va, vFppipA_t) \
 	GO(g_initable_new, pFppppV_t) \

@@ -754,7 +754,7 @@ GO(g_nullify_pointer, vFp)
 //GO(g_once_impl, 
 GO(g_once_init_enter, iFp)
 GO(g_once_init_enter_impl, iFp)
-GO(g_once_init_leave, vFpL)
+GO(g_once_init_leave, vFpi)
 GO(g_on_error_query, vFp)
 GO(g_on_error_stack_trace, vFp)
 GO(g_open, iFpii)
