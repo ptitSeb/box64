@@ -153,7 +153,7 @@ GO(CERT_GetCertEmailAddress, pFp)
 //GO(CERT_GetCertificateDer, 
 //GO(CERT_GetCertificateNames, 
 //GO(CERT_GetCertificateRequestExtensions, 
-//GO(CERT_GetCertIsPerm, 
+GO(CERT_GetCertIsPerm, uFpp)
 //GO(CERT_GetCertIssuerAndSN, 
 //GO(CERT_GetCertIsTemp, 
 //GO(CERT_GetCertKeyType, 
@@ -329,7 +329,7 @@ GO(HASH_Update, vFppu)
 //GO(NSS_Get_SEC_UTCTimeTemplate, 
 //GO(NSS_Get_SEC_UTF8StringTemplate, 
 //GO(NSS_Get_sgn_DigestInfoTemplate, 
-//GO(NSS_GetVersion, 
+GO(NSS_GetVersion, pFv)
 //GO(NSS_Init, 
 //GO(NSS_InitContext, 
 //GO(NSS_Initialize, 
@@ -393,7 +393,7 @@ GO(PK11_DeleteTokenCertAndKey, iFpp)
 //GO(PK11_DeriveWithTemplate, 
 GO(PK11_DestroyContext, vFpi)
 //GO(PK11_DestroyGenericObject, 
-//GO(PK11_DestroyGenericObjects, 
+GO(PK11_DestroyGenericObjects, uFp)
 //GO(PK11_DestroyMergeLog, 
 GO(PK11_DestroyObject, iFpL)
 //GO(PK11_DestroyPBEParams, 
@@ -424,7 +424,7 @@ GO(PK11_FindCertInSlot, LFppp)
 //GO(PK11_FindCertsFromNickname, 
 //GO(PK11_FindCertsFromURI, 
 GO(PK11_FindFixedKey, pFpipp)
-//GO(PK11_FindGenericObjects, 
+GO(PK11_FindGenericObjects, pFpL)
 GO(PK11_FindKeyByAnyCert, pFpp)
 GO(PK11_FindKeyByDERCert, pFppp)
 GO(PK11_FindKeyByKeyID, pFppp)
@@ -478,7 +478,7 @@ GO(PK11_GetInternalKeySlot, pFv)
 GO(PK11_GetModule, pFp)
 //GO(PK11_GetModuleID, 
 //GO(PK11_GetModuleURI, 
-//GO(PK11_GetNextGenericObject, 
+GO(PK11_GetNextGenericObject, pFp)
 GO(PK11_GetNextSafe, pFppi)
 GO(PK11_GetNextSymKey, pFp)
 //GO(PK11_GetPadMechanism, 
@@ -505,7 +505,7 @@ GO(PK11_GetTokenName, pFp)
 //GO(PK11_GetTokenURI, 
 //GO(PK11_GetWindow, 
 //GO(PK11_GetWrapKey, 
-//GO(PK11_HasAttributeSet, 
+GO(PK11_HasAttributeSet, CFpLLi)
 //GO(PK11_HashBuf, 
 GO(PK11_HasRootCerts, iFp)
 GO(PK11_ImportCert, iFppLpi)
