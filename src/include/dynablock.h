@@ -15,8 +15,8 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock);
 dynablock_t* FindDynablockFromNativeAddress(void* addr);    // defined in box64context.h
 
 // Handling of Dynarec block (i.e. an exectable chunk of x64 translated code)
-dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create);   // return NULL if block is not found / cannot be created. Don't create if create==0
-dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr);
+dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits);   // return NULL if block is not found / cannot be created. Don't create if create==0
+dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr, int is32bits);
 
 // for use in signal handler
 void cancelFillBlock();

@@ -398,10 +398,10 @@ void CancelBlock64(int need_lock)
         mutex_unlock(&my_context->mutex_dyndump);
 }
 
-uintptr_t native_pass0(dynarec_native_t* dyn, uintptr_t addr);
-uintptr_t native_pass1(dynarec_native_t* dyn, uintptr_t addr);
-uintptr_t native_pass2(dynarec_native_t* dyn, uintptr_t addr);
-uintptr_t native_pass3(dynarec_native_t* dyn, uintptr_t addr);
+uintptr_t native_pass0(dynarec_native_t* dyn, uintptr_t addr, int is32bits);
+uintptr_t native_pass1(dynarec_native_t* dyn, uintptr_t addr, int is32bits);
+uintptr_t native_pass2(dynarec_native_t* dyn, uintptr_t addr, int is32bits);
+uintptr_t native_pass3(dynarec_native_t* dyn, uintptr_t addr, int is32bits);
 
 void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
     block->isize = 0;
@@ -426,7 +426,7 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
     return block;
 }
 
-void* FillBlock64(dynablock_t* block, uintptr_t addr) {
+void* FillBlock64(dynablock_t* block, uintptr_t addr, int is32bits) {
     /*
         A Block must have this layout:
 
@@ -463,7 +463,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     helper.cap = 128;
     helper.insts = (instruction_native_t*)customCalloc(helper.cap, sizeof(instruction_native_t));
     // pass 0, addresses, x64 jump addresses, overall size of the block
-    uintptr_t end = native_pass0(&helper, addr);
+    uintptr_t end = native_pass0(&helper, addr, is32bits);
     // no need for next anymore
     customFree(helper.next);
     helper.next_sz = helper.next_cap = 0;
@@ -514,10 +514,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
         pos = updateNeed(&helper, pos, 0);
 
     // pass 1, float optimisations, first pass for flags
-    native_pass1(&helper, addr);
+    native_pass1(&helper, addr, is32bits);
     
     // pass 2, instruction size
-    native_pass2(&helper, addr);
+    native_pass2(&helper, addr, is32bits);
     // keep size of instructions for signal handling
     size_t insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
@@ -555,7 +555,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr) {
     size_t oldnativesize = helper.native_size;
     helper.native_size = 0;
     helper.table64size = 0; // reset table64 (but not the cap)
-    native_pass3(&helper, addr);
+    native_pass3(&helper, addr, is32bits);
     // keep size of instructions for signal handling
     block->instsize = instsize;
     // ok, free the helper now

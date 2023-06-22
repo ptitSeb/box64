@@ -167,7 +167,7 @@ uintptr_t AddAutomaticBridge(x64emu_t* emu, bridge_t* bridge, wrapper_t w, void*
         #ifdef DYNAREC
         // now, check if dynablock at native address exist
         if(box64_dynarec)
-            DBAlternateBlock(emu, (uintptr_t)fnc, ret);
+            DBAlternateBlock(emu, (uintptr_t)fnc, ret, 0);  // function wrapping is exclusive to 64bits on box64
         #endif
     }
     return ret;

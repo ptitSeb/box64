@@ -31,6 +31,7 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr);
 
 void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 {
+    int is32bits = (R_CS == 0x23);
     #ifdef HAVE_TRACE
     if(!addr) {
         dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
@@ -38,7 +39,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     }
     #endif
     void * jblock;
-    dynablock_t* block = DBGetBlock(emu, addr, 1);
+    dynablock_t* block = DBGetBlock(emu, addr, 1, is32bits);
     if(!block) {
         // no block, let link table as is...
         if(hasAlternate((void*)addr)) {
@@ -48,7 +49,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
             R_RIP = addr;   // but also new RIP!
             *x3 = addr; // and the RIP in x27 register
             printf_log(LOG_DEBUG, " -> %p\n", (void*)addr);
-            block = DBGetBlock(emu, addr, 1);
+            block = DBGetBlock(emu, addr, 1, is32bits);
         }
         if(!block) {
             #ifdef HAVE_TRACE
@@ -122,7 +123,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
         emu->df = d_none;
         while(!emu->quit) {
             int is32bits = (emu->segs[_CS]==0x23);
-            dynablock_t* block = (skip || is32bits)?NULL:DBGetBlock(emu, R_RIP, 1);
+            dynablock_t* block = (skip)?NULL:DBGetBlock(emu, R_RIP, 1, is32bits);
             if(!block || !block->block || !block->done) {
                 skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
@@ -210,7 +211,7 @@ int DynaRun(x64emu_t* emu)
     else {
         while(!emu->quit) {
             int is32bits = (emu->segs[_CS]==0x23);
-            dynablock_t* block = (skip || is32bits)?NULL:DBGetBlock(emu, R_RIP, 1);
+            dynablock_t* block = (skip)?NULL:DBGetBlock(emu, R_RIP, 1, is32bits);
             if(!block || !block->block || !block->done) {
                 skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)

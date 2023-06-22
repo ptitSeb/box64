@@ -27,7 +27,7 @@
 #error No STEP defined
 #endif
 
-uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
+uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int is32bits)
 {
     int ok = 1;
     int ninst = 0;
@@ -49,6 +49,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr)
     int reset_n = -1;
     dyn->last_ip = (dyn->insts && dyn->insts[0].pred_sz)?0:ip;  // RIP is always set at start of block unless there is a predecessor!
     int stopblock = 2+(FindElfAddress(my_context, addr)?0:1); // if block is in elf_memory, it can be extended with bligblocks==2, else it needs 3
+    // disbling 32bits blocks for now
+    if(is32bits)
+        return addr;
     // ok, go now
     INIT;
     while(ok) {
