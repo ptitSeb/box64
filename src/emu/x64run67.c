@@ -41,16 +41,18 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     #endif
     opcode = F8;
 
+    if(rex.is32bits)
+        return Run67_32(emu, rex, rep, addr);
+
     while(opcode==0x67)
         opcode = F8;
 
     // REX prefix before the 67 are ignored
     rex.rex = 0;
-    if(!rex.is32bits)
-        while(opcode>=0x40 && opcode<=0x4f) {
-            rex.rex = opcode;
-            opcode = F8;
-        }
+    while(opcode>=0x40 && opcode<=0x4f) {
+        rex.rex = opcode;
+        opcode = F8;
+    }
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
         opcode = F8;
@@ -337,58 +339,32 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     case 0xE0:                      /* LOOPNZ */
         CHECK_FLAGS(emu);
         tmp8s = F8S;
-        if(rex.is32bits) {
-            --R_CX; // don't update flags
-            if(R_CX && !ACCESS_FLAG(F_ZF))
-                addr += tmp8s;
-        } else {
-            --R_ECX; // don't update flags
-            if(R_ECX && !ACCESS_FLAG(F_ZF))
-                addr += tmp8s;
-        }
+        --R_ECX; // don't update flags
+        if(R_ECX && !ACCESS_FLAG(F_ZF))
+            addr += tmp8s;
         break;
     case 0xE1:                      /* LOOPZ */
         CHECK_FLAGS(emu);
         tmp8s = F8S;
-        if(rex.is32bits) {
-            --R_CX; // don't update flags
-            if(R_CX && ACCESS_FLAG(F_ZF))
-                addr += tmp8s;
-        } else {
-            --R_ECX; // don't update flags
-            if(R_ECX && ACCESS_FLAG(F_ZF))
-                addr += tmp8s;
-        }
+        --R_ECX; // don't update flags
+        if(R_ECX && ACCESS_FLAG(F_ZF))
+            addr += tmp8s;
         break;
     case 0xE2:                      /* LOOP */
         tmp8s = F8S;
-        if(rex.is32bits) {
-            --R_CX; // don't update flags
-            if(R_CX)
-                addr += tmp8s;
-        } else {
-            --R_ECX; // don't update flags
-            if(R_ECX)
-                addr += tmp8s;
-        }
+        --R_ECX; // don't update flags
+        if(R_ECX)
+            addr += tmp8s;
         break;
     case 0xE3:              /* JECXZ Ib */
         tmp8s = F8S;
-        if(rex.is32bits) {
-            if(!R_CX)
-                addr += tmp8s;
-        } else {
-            if(!R_ECX)
-                addr += tmp8s;
-        }
+        if(!R_ECX)
+            addr += tmp8s;
         break;
 
     case 0xE8:                      /* CALL Id */
         tmp32s = F32S; // call is relative
-        if(rex.is32bits)
-            Push32(emu, addr);
-        else
-            Push(emu, addr);
+        Push(emu, addr);
         addr += tmp32s;
         break;
 
