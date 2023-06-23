@@ -43,7 +43,6 @@
 */
 
 #include "bridge.h"
-#include "tools/bridge_private.h"
 #include "wrapper.h"
 
 #define SUPER()                 \

@@ -14,7 +14,6 @@
 #include "box64context.h"
 #include "threads.h"
 #include "emu/x64emu_private.h"
-#include "tools/bridge_private.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"

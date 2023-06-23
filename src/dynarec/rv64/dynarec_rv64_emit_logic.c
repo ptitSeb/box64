@@ -15,7 +15,6 @@
 #include "emu/x64run_private.h"
 #include "x64trace.h"
 #include "dynarec_native.h"
-#include "../tools/bridge_private.h"
 
 #include "rv64_printer.h"
 #include "dynarec_rv64_private.h"

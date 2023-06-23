@@ -19,7 +19,6 @@
 #include "x64trace.h"
 #include "dynarec_native.h"
 #include "../dynablock_private.h"
-#include "../tools/bridge_private.h"
 #include "custommem.h"
 
 #include "rv64_printer.h"
