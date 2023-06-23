@@ -121,6 +121,12 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
 
                 case 0x10:
                     switch(rep) {
+                        case 0: /* MOVUPS Gx, FS:Ex */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            GX->u128 = EX->u128;
+                            break;
                         case 1: /* MOVSD Gx, FS:Ex */
                             nextop = F8;
                             GETEX_OFFS(0, tlsdata);
@@ -169,7 +175,18 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                             return 0;
                     }
                     break;
-
+                case 0x28:
+                    switch(rep) {
+                        case 0: /* MOVAPS Gx, FS:Ex */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            GX->u128 = EX->u128;
+                            break;
+                        default:
+                            return 0;
+                    }
+                    break;
                 case 0x29:                      /* MOVAPS FS:Ex,Gx */
                     switch(rep) {
                         case 0:
