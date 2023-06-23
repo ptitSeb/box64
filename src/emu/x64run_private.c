@@ -1147,17 +1147,17 @@ static uint64_t F64(uintptr_t* addr) {
     return ret;
 }
 
-reg64_t* GetECommon_32(x64emu_t* emu, uintptr_t* addr, uint8_t m, uintptr_t base)
+reg64_t* GetECommon_32(x64emu_t* emu, uintptr_t* addr, uint8_t m, uint32_t base)
 {
     if (m<=7) {
         if(m==0x4) {
             uint8_t sib = F8(addr);
-            base += ((sib&0x7)==5)?((uint64_t)(int64_t)F32S(addr)):(emu->regs[(sib&0x7)].dword[0]); // base
+            base += ((sib&0x7)==5)?((uint32_t)F32S(addr)):(emu->regs[(sib&0x7)].dword[0]); // base
             base += (emu->sbiidx[((sib>>3)&7)]->sdword[0] << (sib>>6));
-            return (reg64_t*)base;
+            return (reg64_t*)(uintptr_t)base;
         } else if (m==0x5) { //disp32
             base += F32S(addr);
-            return (reg64_t*)(base);
+            return (reg64_t*)(uintptr_t)base;
         }
         return (reg64_t*)(uintptr_t)(base + emu->regs[m].dword[0]);
     } else {
@@ -1169,10 +1169,10 @@ reg64_t* GetECommon_32(x64emu_t* emu, uintptr_t* addr, uint8_t m, uintptr_t base
             base += emu->regs[(m&0x7)].dword[0];
         }
         base+=(m&0x80)?F32S(addr):F8S(addr);
-        return (reg64_t*)base;
+        return (reg64_t*)(uintptr_t)base;
     }
 }
-reg64_t* GetEw16_32(x64emu_t *emu, uintptr_t* addr, uint8_t m, uintptr_t base)
+reg64_t* GetEw16_32(x64emu_t *emu, uintptr_t* addr, uint8_t m, uint32_t base)
 {
     switch(m&7) {
         case 0: base+= R_BX+R_SI; break;
@@ -1190,7 +1190,7 @@ reg64_t* GetEw16_32(x64emu_t *emu, uintptr_t* addr, uint8_t m, uintptr_t base)
         case 2: base += F16S(addr); break;
         // case 3 is C0..C7, already dealt with
     }
-    return (reg64_t*)base;
+    return (reg64_t*)(uintptr_t)base;
 }
 
 reg64_t* GetECommon(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_t delta)
