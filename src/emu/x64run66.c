@@ -144,6 +144,29 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             cmp16(emu, R_AX, F16);
         break;
 
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:                              /* INC Reg (32bits only) */
+            tmp8u = opcode&7;
+            emu->regs[tmp8u].word[0] = inc16(emu, emu->regs[tmp8u].word[0]);
+            break;
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:                              /* DEC Reg (32bits only) */
+            tmp8u = opcode&7;
+            emu->regs[tmp8u].word[0] = dec16(emu, emu->regs[tmp8u].word[0]);
+            break;
+
     case 0x64:                              /* FS: */
         #ifdef TEST_INTERPRETER
         return Test6664(test, rex, _FS, addr);
