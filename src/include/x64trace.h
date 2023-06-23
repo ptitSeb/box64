@@ -15,6 +15,4 @@ void DeleteX64TraceDecoder(zydis_dec_t **dec);
 
 const char* DecodeX64Trace(zydis_dec_t *dec, uintptr_t p);
 
-#define ZYDIS_RUNTIME_ADDRESS_NONE (uint64_t)(-1)
-
 #endif //__X64TRACE_H_
