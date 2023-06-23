@@ -46,6 +46,11 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(v1);
     MAYUSE(j64);
 
+    if(rex.is32bits) {
+        DEFAULT;
+        return addr;
+    }
+
     switch(opcode) {
 
         case 0x10:

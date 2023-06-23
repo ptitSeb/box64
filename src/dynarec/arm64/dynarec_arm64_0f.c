@@ -57,6 +57,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
     #endif
 
+    if(rex.is32bits) {
+        DEFAULT;
+        return addr;
+    }
+
     switch(opcode) {
 
         case 0x01:

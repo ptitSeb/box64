@@ -52,6 +52,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(lock);
     MAYUSE(cacheupd);
 
+    if(rex.is32bits) {
+        DEFAULT;
+        return ip;
+    }
+
     switch(opcode) {
         case 0x00:
             INST_NAME("ADD Eb, Gb");

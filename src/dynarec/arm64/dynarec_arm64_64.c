@@ -52,16 +52,22 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(v0);
     MAYUSE(v1);
 
+    if(rex.is32bits) {
+        DEFAULT;
+        return addr;
+    }
+
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
         opcode = F8;
     }
     // REX prefix before the F0 are ignored
     rex.rex = 0;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
-    }
+    if(!rex.is32bits)
+        while(opcode>=0x40 && opcode<=0x4f) {
+            rex.rex = opcode;
+            opcode = F8;
+        }
 
     switch(opcode) {
 
