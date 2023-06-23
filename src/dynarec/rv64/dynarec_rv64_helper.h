@@ -809,8 +809,8 @@
 
 #define MODREG  ((nextop&0xC0)==0xC0)
 
-void rv64_epilog();
-void rv64_epilog_fast();
+void rv64_epilog(void);
+void rv64_epilog_fast(void);
 void* rv64_next(x64emu_t* emu, uintptr_t addr);
 
 #ifndef STEPNAME

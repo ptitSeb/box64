@@ -840,7 +840,7 @@ my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, size_t parent);
 my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent);
 
 void InitGTKClass(bridge_t *bridge);
-void FiniGTKClass();
+void FiniGTKClass(void);
 
 #define GTKCLASSES()                \
 GTKCLASS(GObject)                   \

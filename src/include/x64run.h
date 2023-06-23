@@ -11,6 +11,6 @@ int DynaRun(x64emu_t *emu);
 uint32_t LibSyscall(x64emu_t *emu);
 void PltResolver(x64emu_t* emu);
 extern uintptr_t pltResolver;
-int GetTID();
+int GetTID(void);
 
 #endif //__X64RUN_H_

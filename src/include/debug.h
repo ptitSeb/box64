@@ -103,7 +103,7 @@ void printf_ftrace(const char* fmt, ...);
 #define EXPORTDYN 
 #endif
 
-void init_malloc_hook();
+void init_malloc_hook(void);
 extern size_t(*box_malloc_usable_size)(void*);
 #ifdef ANDROID
 extern void*(*__libc_malloc)(size_t);

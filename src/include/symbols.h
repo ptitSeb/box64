@@ -9,7 +9,7 @@ typedef struct versymbols_s versymbols_t;
 
 KHASH_MAP_DECLARE_STR(mapsymbols, versymbols_t)
 
-kh_mapsymbols_t* NewMapSymbols();
+kh_mapsymbols_t* NewMapSymbols(void);
 void FreeMapSymbols(kh_mapsymbols_t** map);
 
 // replace if already there
@@ -25,7 +25,7 @@ const char* GetSymbolName(kh_mapsymbols_t* mapsymbols, void* p, uintptr_t* offs,
 
 // default version handling
 KHASH_MAP_DECLARE_STR(defaultversion, const char*)
-kh_defaultversion_t* NewDefaultVersion();
+kh_defaultversion_t* NewDefaultVersion(void);
 void FreeDefaultVersion(kh_defaultversion_t** def);
 
 void AddDefaultVersion(kh_defaultversion_t* def, const char* symname, const char* vername);

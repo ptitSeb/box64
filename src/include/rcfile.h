@@ -2,7 +2,7 @@
 #define __RCFILE_H__
 
 void LoadRCFile(const char* filename);
-void DeleteParams();
+void DeleteParams(void);
 void ApplyParams(const char* name);
 
 #endif //__RCFILE_H__

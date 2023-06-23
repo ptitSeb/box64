@@ -4,7 +4,7 @@
 typedef struct SDL1_RWops_s SDL1_RWops_t;   // the actual SDL1 SDL_RWops
 typedef struct x64emu_s x64emu_t;
 
-typedef SDL1_RWops_t* (*sdl1_allocrw)();
+typedef SDL1_RWops_t* (*sdl1_allocrw)(void);
 typedef void (*sdl1_freerw)(SDL1_RWops_t*);
 
 // each function will be added to dictionary, and each native functions will be wrapped so they run in emulated world
