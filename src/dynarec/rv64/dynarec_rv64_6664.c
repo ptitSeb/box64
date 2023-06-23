@@ -21,8 +21,6 @@
 #include "dynarec_rv64_helper.h"
 #include "dynarec_rv64_functions.h"
 
-#define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
-
 uintptr_t dynarec64_6664(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog)
 {
     (void)ip; (void)need_epilog;

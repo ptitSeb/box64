@@ -21,14 +21,6 @@
 #include "dynarec_arm64_helper.h"
 #include "dynarec_arm64_functions.h"
 
-#define GETGX(a, w)                     \
-    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    a = sse_get_reg(dyn, ninst, x1, gd, w)
-
-#define GETGM(a)                        \
-    gd = ((nextop&0x38)>>3);            \
-    a = mmx_get_reg(dyn, ninst, x1, x2, x3, gd)
-
 #define GETGm   gd = ((nextop&0x38)>>3)
 
 uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
