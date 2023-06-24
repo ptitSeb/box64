@@ -41,11 +41,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(wb2);
     MAYUSE(j64);
 
-    if(rex.is32bits) {
-        DEFAULT;
-        return addr;
-    }
-
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
         opcode = F8;
