@@ -296,6 +296,37 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:
+            INST_NAME("INC Reg16 (32bits)");
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode&7);
+            UXTHw(x1, gd);
+            emit_inc16(dyn, ninst, x1, x2, x3);
+            BFIw(gd, x1, 0, 16);
+            break;
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:
+            INST_NAME("DEC Reg16 (32bits)");
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode&7);
+            UXTHw(x1, gd);
+            emit_dec16(dyn, ninst, x1, x2, x3);
+            BFIw(gd, x1, 0, 16);
+            break;
+
         case 0x64:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _FS, ok, need_epilog);
             break;
