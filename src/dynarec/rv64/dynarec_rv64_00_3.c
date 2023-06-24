@@ -378,6 +378,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 *need_epilog = 0;
                 *ok = 0;
             }
+            break;
         case 0xCF:
             INST_NAME("IRET");
             SETFLAGS(X_ALL, SF_SET);    // Not a hack, EFLAGS are restored
