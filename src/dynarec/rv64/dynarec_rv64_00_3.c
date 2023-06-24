@@ -346,6 +346,39 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 #endif
             }
             break;
+        case 0xCD:
+            u8 = F8;
+            if (box64_wine && u8 == 0x2D) {
+                INST_NAME("INT 2D");
+                // lets do nothing
+                MESSAGE(LOG_INFO, "INT 2D Windows anti-debug hack\n");
+            } else if (u8 == 0x80) {
+                INST_NAME("32bits SYSCALL");
+                NOTEST(x1);
+                SMEND();
+                GETIP(addr);
+                STORE_XEMU_CALL();
+                CALL_S(x86Syscall, -1);
+                LOAD_XEMU_CALL();
+                TABLE64(x3, addr); // expected return address
+                BNE_MARK(xRIP, x3);
+                LW(x1, xEmu, offsetof(x64emu_t, quit));
+                BEQ_NEXT(x1, xZR);
+                MARK;
+                LOAD_XEMU_REM();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+            } else {
+                INST_NAME("INT n");
+                SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
+                GETIP(ip);
+                STORE_XEMU_CALL();
+                CALL(native_priv, -1);
+                LOAD_XEMU_CALL();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+            }
+            break;
         case 0xCF:
             INST_NAME("IRET");
             SETFLAGS(X_ALL, SF_SET);    // Not a hack, EFLAGS are restored

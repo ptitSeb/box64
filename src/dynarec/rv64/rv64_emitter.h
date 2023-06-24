@@ -255,7 +255,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SW(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b010, 0b0100011))
 
 #define PUSH1(reg)                  do {SD(reg, xRSP, -8); SUBI(xRSP, xRSP, 8);} while(0)
-#define POP1(reg)                   do {LD(reg, xRSP, 0); ADDI(xRSP, xRSP, 8);}while(0)
+#define POP1(reg)                   do {LD(reg, xRSP, 0); ADDI(xRSP, xRSP, 8);} while(0)
+#define PUSH1_32(reg)               do {SW(reg, xRSP, -4); SUBI(xRSP, xRSP, 4);} while(0)
+#define POP1_32(reg)                do {LWU(reg, xRSP, 0); ADDI(xRSP, xRSP, 4);} while(0)
 
 #define FENCE_gen(pred, succ)       (((pred)<<24) | ((succ)<<20) | 0b0001111)
 #define FENCE()                     EMIT(FENCE_gen(3, 3))
