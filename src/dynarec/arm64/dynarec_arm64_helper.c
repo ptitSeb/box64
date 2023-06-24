@@ -27,10 +27,15 @@
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
 
+static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, int* l, int s);
+
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, rex_t rex, int *l, int s, int delta)
 {
     MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
+
+    if(rex.is32bits)
+        return geted_32(dyn, addr, ninst, nextop, ed, hint, fixaddress, unscaled, absmax, mask, l, s);
 
     int lock = l?((l==LOCK_LOCK)?1:2):0;
     if(unscaled)
@@ -183,6 +188,141 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
     return addr;
 }
 
+static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, int* l, int s)
+{
+    MAYUSE(dyn); MAYUSE(ninst);
+
+    int lock = l?((l==LOCK_LOCK)?1:2):0;
+    if(unscaled)
+        *unscaled = 0;
+    if(lock==2)
+        *l = 0;
+    uint8_t ret = x2;
+    uint8_t scratch = x2;
+    *fixaddress = 0;
+    if(hint>0) ret = hint;
+    if(hint>0 && hint<xRAX) scratch = hint;
+    int absmin = 0;
+    if(s) absmin=-absmax;
+    MAYUSE(scratch);
+    if(!(nextop&0xC0)) {
+        if((nextop&7)==4) {
+            uint8_t sib = F8;
+            int sib_reg = (sib>>3)&7;
+            if((sib&0x7)==5) {
+                int64_t tmp = F32S;
+                if (sib_reg!=4) {
+                    if(tmp && (!((tmp>=absmin) && (tmp<=absmax) && !(tmp&mask))) || !(unscaled && (tmp>-256) && (tmp<256))) {
+                        MOV32w(scratch, tmp);
+                        ADDw_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
+                    } else {
+                        LSLw(ret, xRAX+sib_reg, (sib>>6));
+                        *fixaddress = tmp;
+                        if(unscaled && (tmp>-256) && (tmp<256))
+                            *unscaled = 1;
+                    }
+                } else {
+                    switch(lock) {
+                        case 1: addLockAddress((int32_t)tmp); break;
+                        case 2: if(isLockAddress((int32_t)tmp)) *l=1; break;
+                    }
+                    MOV32w(ret, tmp);
+                }
+            } else {
+                if (sib_reg!=4) {
+                    ADDw_REG_LSL(ret, xRAX+(sib&0x7), xRAX+sib_reg, (sib>>6));
+                } else {
+                    ret = xRAX+(sib&0x7);
+                }
+            }
+        } else if((nextop&7)==5) {
+            uint64_t tmp = F32;
+            MOV32w(ret, tmp);
+            switch(lock) {
+                case 1: addLockAddress(tmp); break;
+                case 2: if(isLockAddress(tmp)) *l=1; break;
+            }
+        } else {
+            ret = xRAX+(nextop&7);
+            if(ret==hint) {
+                MOVw_REG(hint, ret);    //to clear upper part
+            }
+        }
+    } else {
+        int64_t i32;
+        uint8_t sib = 0;
+        int sib_reg = 0;
+        if((nextop&7)==4) {
+            sib = F8;
+            sib_reg = (sib>>3)&7;
+        }
+        if(nextop&0x80)
+            i32 = F32S;
+        else 
+            i32 = F8S;
+        if(i32==0 || ((i32>=absmin) && (i32<=absmax)  && !(i32&mask)) || (unscaled && (i32>-256) && (i32<256))) {
+            *fixaddress = i32;
+            if(unscaled && (i32>-256) && (i32<256))
+                *unscaled = 1;
+            if((nextop&7)==4) {
+                if (sib_reg!=4) {
+                    ADDw_REG_LSL(ret, xRAX+(sib&0x07), xRAX+sib_reg, (sib>>6));
+                } else {
+                    ret = xRAX+(sib&0x07);
+                }
+            } else {
+                ret = xRAX+(nextop&0x07);
+            }
+        } else {
+            int64_t sub = (i32<0)?1:0;
+            if(sub) i32 = -i32;
+            if(i32<0x1000) {
+                if((nextop&7)==4) {
+                    if (sib_reg!=4) {
+                        ADDw_REG_LSL(scratch, xRAX+(sib&0x07), xRAX+sib_reg, (sib>>6));
+                    } else {
+                        scratch = xRAX+(sib&0x07);
+                    }
+                } else
+                    scratch = xRAX+(nextop&0x07);
+                if(sub) {
+                    SUBw_U12(ret, scratch, i32);
+                } else {
+                    ADDw_U12(ret, scratch, i32);
+                }
+            } else {
+                MOV32w(scratch, i32);
+                if((nextop&7)==4) {
+                    if (sib_reg!=4) {
+                        if(sub) {
+                            SUBw_REG(scratch, xRAX+(sib&0x07), scratch);
+                        } else {
+                            ADDw_REG(scratch, scratch, xRAX+(sib&0x07));
+                        }
+                        ADDw_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
+                    } else {
+                        PASS3(int tmp = xRAX+(sib&0x07));
+                        if(sub) {
+                            SUBw_REG(ret, tmp, scratch);
+                        } else {
+                            ADDw_REG(ret, tmp, scratch);
+                        }
+                    }
+                } else {
+                    PASS3(int tmp = xRAX+(nextop&0x07));
+                    if(sub) {
+                        SUBw_REG(ret, tmp, scratch);
+                    } else {
+                        ADDw_REG(ret, tmp, scratch);
+                    }
+                }
+            }
+        }
+    }
+    *ed = ret;
+    return addr;
+}
+
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
 uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta)
 {
@@ -258,7 +398,7 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             i64 = F32S;
         else
             i64 = F8S;
-        if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask)) || (unscaled && (i64>-256) && (i64>256))) {
+        if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask)) || (unscaled && (i64>-256) && (i64<256))) {
             *fixaddress = i64;
             if(unscaled && (i64>-256) && (i64<256))
                 *unscaled = 1;
@@ -464,12 +604,12 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     BLR(x2); // save LR...
 }
 
-void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
+void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Ret to epilog\n");
-    POP1(xRIP);
-    MOVx_REG(x1, xRIP);
+    POP1z(xRIP);
+    MOVz_REG(x1, xRIP);
     SMEND();
     if(box64_dynarec_callret) {
         // pop the actual return address for ARM stack
@@ -496,18 +636,18 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     CLEARIP();
 }
 
-void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
+void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Retn to epilog\n");
-    POP1(xRIP);
+    POP1z(xRIP);
     if(n>0xfff) {
         MOV32w(w1, n);
-        ADDx_REG(xRSP, xRSP, x1);
+        ADDz_REG(xRSP, xRSP, x1);
     } else {
-        ADDx_U12(xRSP, xRSP, n);
+        ADDz_U12(xRSP, xRSP, n);
     }
-    MOVx_REG(x1, xRIP);
+    MOVz_REG(x1, xRIP);
     SMEND();
     if(box64_dynarec_callret) {
         // pop the actual return address for ARM stack
@@ -546,9 +686,9 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
         POP1(x2);
         POP1(xFlags);
     } else {
-        LDRw_S9_postindex(xRIP, xRSP, 4);
-        LDRw_S9_postindex(x2, xRSP, 4);
-        LDRw_S9_postindex(xFlags, xRSP, 4);
+        POP1_32(xRIP);
+        POP1_32(x2);
+        POP1_32(xFlags);
     }
     // x2 is CS
     STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
@@ -563,8 +703,8 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
         POP1(x3);   //rsp
         POP1(x2);   //ss
     } else {
-        LDRw_S9_postindex(x3, xRSP, 4);
-        LDRw_S9_postindex(x2, xRSP, 4);
+        POP1_32(x3);   //rsp
+        POP1_32(x2);   //ss
     }
     // POP SS
     STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_SS]));

@@ -80,6 +80,15 @@
                     LDx(x1, wback, fixedaddress);       \
                     ed = x1;                            \
                 }
+#define GETEDz(D)  if(MODREG) {                         \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    SMREAD();                           \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, D); \
+                    LDz(x1, wback, fixedaddress);       \
+                    ed = x1;                            \
+                }
 #define GETEDw(D)  if((nextop&0xC0)==0xC0) {            \
                     ed = xEAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
@@ -185,6 +194,16 @@
                     SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
                     LDRx_REG(x1, wback, O);             \
+                    ed = x1;                            \
+                }
+//GETEDOz can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETEDOz(O, D)  if(MODREG) {                     \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    SMREAD();                           \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
+                    LDRz_REG(x1, wback, O);             \
                     ed = x1;                            \
                 }
 #define GETSEDOw(O, D)  if((nextop&0xC0)==0xC0) {       \
@@ -719,7 +738,7 @@
     LDP_REGS(R12, R13);     \
     LDP_REGS(R14, R15)
 
-#define SET_DFNONE(S)    if(!dyn->f.dfnone) {MOVZw(S, d_none); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
+#define SET_DFNONE(S)    if(!dyn->f.dfnone) {STRw_U12(wZR, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
 #define SET_DF(S, N)     if((N)!=d_none) {MOVZw(S, (N)); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
 #define SET_NODF()          dyn->f.dfnone = 0
 #define SET_DFOK()          dyn->f.dfnone = 1
@@ -998,8 +1017,8 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
 // generic x64 helper
 void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
-void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
-void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
+void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex);
+void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n);
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w);

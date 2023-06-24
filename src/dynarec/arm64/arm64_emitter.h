@@ -130,6 +130,7 @@
     }
 
 #define MOV64xw(Rd, imm64)   if(rex.w) {MOV64x(Rd, imm64);} else {MOV32w(Rd, imm64);}
+#define MOV64z(Rd, imm64)    if(rex.is32bits) {MOV32w(Rd, imm64);} else {MOV64x(Rd, imm64);}
 
 
 // ADD / SUB
@@ -141,6 +142,7 @@
 #define ADDSw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(0, 0, 1, 0b00, Rm, 0, Rn, Rd))
 #define ADDw_REG_LSL(Rd, Rn, Rm, lsl)       EMIT(ADDSUB_REG_gen(0, 0, 0, 0b00, Rm, lsl, Rn, Rd))
 #define ADDxw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(rex.w, 0, 0, 0b00, Rm, 0, Rn, Rd))
+#define ADDz_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(rex.is32bits?0:1, 0, 0, 0b00, Rm, 0, Rn, Rd))
 #define ADDSxw_REG(Rd, Rn, Rm)              EMIT(ADDSUB_REG_gen(rex.w, 0, 1, 0b00, Rm, 0, Rn, Rd))
 #define ADDxw_REG_LSR(Rd, Rn, Rm, lsr)      EMIT(ADDSUB_REG_gen(rex.w, 0, 0, 0b01, Rm, lsr, Rn, Rd))
 
@@ -151,6 +153,7 @@
 #define ADDSw_U12(Rd, Rn, imm12)    EMIT(ADDSUB_IMM_gen(0, 0, 1, 0b00, (imm12)&0xfff, Rn, Rd))
 #define ADDxw_U12(Rd, Rn, imm12)    EMIT(ADDSUB_IMM_gen(rex.w, 0, 0, 0b00, (imm12)&0xfff, Rn, Rd))
 #define ADDSxw_U12(Rd, Rn, imm12)   EMIT(ADDSUB_IMM_gen(rex.w, 0, 1, 0b00, (imm12)&0xfff, Rn, Rd))
+#define ADDz_U12(Rd, Rn, imm12)     EMIT(ADDSUB_IMM_gen(rex.is32bits?0:1, 0, 0, 0b00, (imm12)&0xfff, Rn, Rd))
 
 #define SUBx_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(1, 1, 0, 0b00, Rm, 0, Rn, Rd))
 #define SUBSx_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(1, 1, 1, 0b00, Rm, 0, Rn, Rd))
@@ -160,6 +163,7 @@
 #define SUBSw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(0, 1, 1, 0b00, Rm, 0, Rn, Rd))
 #define SUBSw_REG_LSL(Rd, Rn, Rm, lsl)      EMIT(ADDSUB_REG_gen(0, 1, 1, 0b00, Rm, lsl, Rn, Rd))
 #define SUBxw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(rex.w, 1, 0, 0b00, Rm, 0, Rn, Rd))
+#define SUBz_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(rex.is32bits?0:1, 1, 0, 0b00, Rm, 0, Rn, Rd))
 #define SUBSxw_REG(Rd, Rn, Rm)              EMIT(ADDSUB_REG_gen(rex.w, 1, 1, 0b00, Rm, 0, Rn, Rd))
 #define CMPSx_REG(Rn, Rm)                   SUBSx_REG(xZR, Rn, Rm)
 #define CMPSw_REG(Rn, Rm)                   SUBSw_REG(wZR, Rn, Rm)
@@ -176,6 +180,7 @@
 #define SUBw_U12(Rd, Rn, imm12)     EMIT(ADDSUB_IMM_gen(0, 1, 0, 0b00, (imm12)&0xfff, Rn, Rd))
 #define SUBSw_U12(Rd, Rn, imm12)    EMIT(ADDSUB_IMM_gen(0, 1, 1, 0b00, (imm12)&0xfff, Rn, Rd))
 #define SUBxw_U12(Rd, Rn, imm12)    EMIT(ADDSUB_IMM_gen(rex.w, 1, 0, 0b00, (imm12)&0xfff, Rn, Rd))
+#define SUBz_U12(Rd, Rn, imm12)     EMIT(ADDSUB_IMM_gen(rex.is32bits?0:1, 1, 0, 0b00, (imm12)&0xfff, Rn, Rd))
 #define SUBSxw_U12(Rd, Rn, imm12)   EMIT(ADDSUB_IMM_gen(rex.w, 1, 1, 0b00, (imm12)&0xfff, Rn, Rd))
 #define CMPSx_U12(Rn, imm12)        SUBSx_U12(xZR, Rn, imm12)
 #define CMPSw_U12(Rn, imm12)        SUBSw_U12(wZR, Rn, imm12)
@@ -221,6 +226,7 @@
 #define LDRB_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b00, 0b01, ((uint32_t)((imm12)))&0xfff, Rn, Rt))
 #define LDRH_U12(Rt, Rn, imm12)           EMIT(LD_gen(0b01, 0b01, ((uint32_t)((imm12)>>1))&0xfff, Rn, Rt))
 #define LDRxw_U12(Rt, Rn, imm12)          EMIT(LD_gen((rex.w)?0b11:0b10, 0b01, ((uint32_t)((imm12)>>(2+rex.w)))&0xfff, Rn, Rt))
+#define LDRz_U12(Rt, Rn, imm12)           EMIT(LD_gen((rex.is32bits)?0b10:0b11, 0b01, ((uint32_t)((imm12)>>(rex.is32bits?2:3)))&0xfff, Rn, Rt))
 
 #define LDS_gen(size, op1, imm12, Rn, Rt)       ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b10<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
 #define LDRSW_U12(Rt, Rn, imm12)          EMIT(LDS_gen(0b10, 0b01, ((uint32_t)((imm12)>>2))&0xfff, Rn, Rt))
@@ -232,6 +238,7 @@
 #define LDRw_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b10, Rm, 0b011, 0, Rn, Rt))
 #define LDRw_REG_LSL2(Rt, Rn, Rm)       EMIT(LDR_REG_gen(0b10, Rm, 0b011, 1, Rn, Rt))
 #define LDRxw_REG(Rt, Rn, Rm)           EMIT(LDR_REG_gen(0b10+rex.w, Rm, 0b011, 0, Rn, Rt))
+#define LDRz_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(rex.is32bits?0b10:0b11, Rm, 0b011, 0, Rn, Rt))
 #define LDRB_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b00, Rm, 0b011, 0, Rn, Rt))
 #define LDRH_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b01, Rm, 0b011, 0, Rn, Rt))
 
@@ -253,6 +260,7 @@
 #define LDURx_I9(Rt, Rn, imm9)            EMIT(LDU_gen(0b11, 0b01, imm9, Rn, Rt))
 #define LDURw_I9(Rt, Rn, imm9)            EMIT(LDU_gen(0b10, 0b01, imm9, Rn, Rt))
 #define LDURxw_I9(Rt, Rn, imm9)           EMIT(LDU_gen((rex.w)?0b11:0b10, 0b01, imm9, Rn, Rt))
+#define LDURz_I9(Rt, Rn, imm9)            EMIT(LDU_gen((rex.is32bits)?0b10:0b11, 0b01, imm9, Rn, Rt))
 #define LDURH_I9(Rt, Rn, imm9)            EMIT(LDU_gen(0b01, 0b01, imm9, Rn, Rt))
 #define LDURB_I9(Rt, Rn, imm9)            EMIT(LDU_gen(0b00, 0b01, imm9, Rn, Rt))
 #define LDURSW_I9(Rt, Rn, imm9)           EMIT(LDU_gen(0b10, 0b10, imm9, Rn, Rt))
@@ -264,6 +272,7 @@
 #define LDURSBxw_I9(Rt, Rn, imm9)         EMIT(LDU_gen(0b00, (rex.w)?0b10:0b11, imm9, Rn, Rt))
 
 #define LDxw(A, B, C)   if(unscaled) {LDURxw_I9(A, B, C);} else {LDRxw_U12(A, B, C);}
+#define LDz(A, B, C)    if(unscaled) {LDURz_I9(A, B, C);} else {LDRz_U12(A, B, C);}
 #define LDx(A, B, C)    if(unscaled) {LDURx_I9(A, B, C);} else {LDRx_U12(A, B, C);}
 #define LDW(A, B, C)    if(unscaled) {LDURw_I9(A, B, C);} else {LDRw_U12(A, B, C);}
 #define LDH(A, B, C)    if(unscaled) {LDURH_I9(A, B, C);} else {LDRH_U12(A, B, C);}
@@ -276,6 +285,7 @@
 #define LDSBx(A, B, C)  if(unscaled) {LDURSBx_I9(A, B, C);} else {LDRSBx_U12(A, B, C);}
 #define LDSBw(A, B, C)  if(unscaled) {LDURSBw_I9(A, B, C);} else {LDRSBw_U12(A, B, C);}
 #define STxw(A, B, C)   if(unscaled) {STURxw_I9(A, B, C);} else {STRxw_U12(A, B, C);}
+#define STz(A, B, C)    if(unscaled) {STURz_I9(A, B, C);} else {STRz_U12(A, B, C);}
 #define STx(A, B, C)    if(unscaled) {STURx_I9(A, B, C);} else {STRx_U12(A, B, C);}
 #define STW(A, B, C)    if(unscaled) {STURw_I9(A, B, C);} else {STRw_U12(A, B, C);}
 #define STH(A, B, C)    if(unscaled) {STURH_I9(A, B, C);} else {STRH_U12(A, B, C);}
@@ -297,11 +307,13 @@
 #define STRB_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b00, 0b01, ((uint32_t)((imm12)))&0xfff, Rn, Rt))
 #define STRH_U12(Rt, Rn, imm12)           EMIT(ST_gen(0b01, 0b01, ((uint32_t)((imm12)>>1))&0xfff, Rn, Rt))
 #define STRxw_U12(Rt, Rn, imm12)          EMIT(ST_gen((rex.w)?0b11:0b10, 0b01, ((uint32_t)((imm12)>>(2+rex.w)))&0xfff, Rn, Rt))
+#define STRz_U12(Rt, Rn, imm12)           EMIT(ST_gen((rex.is32bits)?0b10:0b11, 0b01, ((uint32_t)((imm12)>>(rex.is32bits?2:3)))&0xfff, Rn, Rt))
 
 #define STU_gen(size, opc, imm9, Rn, Rt)  ((size)<<30 | 0b111<<27 | (opc)<<22 | ((imm9)&0x1ff)<<12 | (Rn)<<5 | (Rt))
 #define STURx_I9(Rt, Rn, imm9)            EMIT(STU_gen(0b11, 0b00, imm9, Rn, Rt))
 #define STURw_I9(Rt, Rn, imm9)            EMIT(STU_gen(0b10, 0b00, imm9, Rn, Rt))
 #define STURxw_I9(Rt, Rn, imm9)           EMIT(STU_gen((rex.w)?0b11:0b10, 0b00, imm9, Rn, Rt))
+#define STURz_I9(Rt, Rn, imm9)            EMIT(STU_gen((rex.is32bits)?0b10:0b11, 0b00, imm9, Rn, Rt))
 #define STURH_I9(Rt, Rn, imm9)            EMIT(STU_gen(0b01, 0b00, imm9, Rn, Rt))
 #define STURB_I9(Rt, Rn, imm9)            EMIT(STU_gen(0b00, 0b00, imm9, Rn, Rt))
 
@@ -343,6 +355,16 @@
 #define PUSH1(reg)      STRx_S9_preindex(reg, xRSP, -8)
 #define POP2(reg1, reg2)       LDPx_S7_postindex(reg1, reg2, xRSP, 16)
 #define PUSH2(reg1, reg2)      STPx_S7_preindex(reg2, reg1, xRSP, -16)
+
+#define POP1_32(reg)            LDRw_S9_postindex(reg, xRSP, 4)
+#define PUSH1_32(reg)           STRw_S9_preindex(reg, xRSP, -4)
+#define POP2_32(reg1, reg2)     LDPw_S7_postindex(reg1, reg2, xRSP, 8)
+#define PUSH2_32(reg1, reg2)    STPw_S7_preindex(reg2, reg1, xRSP, -8)
+
+#define POP1z(reg)              if(rex.is32bits) {POP1_32(reg);} else {POP1(reg);}
+#define PUSH1z(reg)             if(rex.is32bits) {PUSH1_32(reg);} else {PUSH1(reg);}
+#define POP2z(reg1, reg2)       if(rex.is32bits) {POP2_32(reg1, reg2);} else {POP2(reg1, reg2);}
+#define PUSH2z(reg1, reg2)      if(rex.is32bits) {PUSH2_32(reg1, reg2);} else {PUSH2(reg1, reg2);}
 
 // LOAD/STORE Acquire Exclusive
 #define MEMAX_gen(size, L, Rs, Rn, Rt)      ((size)<<30 | 0b001000<<24 | (L)<<22 | (Rs)<<16 | 1<<15 | 0b11111<<10 | (Rn)<<5 | (Rt))
@@ -414,9 +436,11 @@
 #define CBNZx(Rt, imm19)                EMIT(CB_gen(1, 1, ((imm19)>>2)&0x7FFFF, Rt))
 #define CBNZw(Rt, imm19)                EMIT(CB_gen(0, 1, ((imm19)>>2)&0x7FFFF, Rt))
 #define CBNZxw(Rt, imm19)               EMIT(CB_gen(rex.w, 1, ((imm19)>>2)&0x7FFFF, Rt))
+#define CBNZz(Rt, imm19)                EMIT(CB_gen(rex.is32bits?0:1, 1, ((imm19)>>2)&0x7FFFF, Rt))
 #define CBZx(Rt, imm19)                 EMIT(CB_gen(1, 0, ((imm19)>>2)&0x7FFFF, Rt))
 #define CBZw(Rt, imm19)                 EMIT(CB_gen(0, 0, ((imm19)>>2)&0x7FFFF, Rt))
 #define CBZxw(Rt, imm19)                EMIT(CB_gen(rex.w, 0, ((imm19)>>2)&0x7FFFF, Rt))
+#define CBZz(Rt, imm19)                 EMIT(CB_gen(rex.is32bits?0:1, 0, ((imm19)>>2)&0x7FFFF, Rt))
 
 #define TB_gen(b5, op, b40, imm14, Rt)  ((b5)<<31 | 0b011011<<25 | (op)<<24  | (b40)<<19 | (imm14)<<5 | (Rt))
 #define TBZ(Rt, bit, imm16)             EMIT(TB_gen(((bit)>>5)&1, 0, (bit)&0x1f, ((imm16)>>2)&0x3FFF, Rt))
@@ -511,6 +535,7 @@
 #define MOVx_REG(Rd, Rm)                ORRx_REG(Rd, xZR, Rm)
 #define MOVw_REG(Rd, Rm)                ORRw_REG(Rd, xZR, Rm)
 #define MOVxw_REG(Rd, Rm)               ORRxw_REG(Rd, xZR, Rm)
+#define MOVz_REG(Rd, Rm)                if(rex.is32bits) {MOVw_REG(Rd, Rm);} else {MOVx_REG(Rd, Rm);}
 #define LSLw_IMM(Rd, Rm, lsl)           ORRw_REG_LSL(Rd, xZR, Rm, lsl)
 #define LSLx_IMM(Rd, Rm, lsl)           ORRx_REG_LSL(Rd, xZR, Rm, lsl)
 #define LSLxw_IMM(Rd, Rm, lsl)          ORRxw_REG_LSL(Rd, xZR, Rm, lsl)

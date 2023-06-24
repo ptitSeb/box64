@@ -17,6 +17,6 @@
     if(ninst)                                                   \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4);
 #define INST_EPILOG     
-#define INST_NAME(name) inst_name_pass3(dyn, ninst, name)
+#define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 #define TABLE64(A, V)   {int val64offset = Table64(dyn, (V), 3); MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); LDRx_literal(A, val64offset);}
 #define FTABLE64(A, V)  {mmx87_regs_t v = {.d = V}; int val64offset = Table64(dyn, v.q, 3); MESSAGE(LOG_DUMP, "  FTable64: %g\n", v.d); VLDR64_literal(A, val64offset);}

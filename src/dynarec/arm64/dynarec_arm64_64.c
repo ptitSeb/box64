@@ -52,11 +52,6 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(v0);
     MAYUSE(v1);
 
-    if(rex.is32bits) {
-        DEFAULT;
-        return addr;
-    }
-
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
         opcode = F8;
@@ -322,26 +317,31 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0x63:
-            INST_NAME("MOVSXD Gd, Ed");
-            nextop = F8;
-            GETGD;
-            if(rex.w) {
-                if(MODREG) {   // reg <= reg
-                    SXTWx(gd, xRAX+(nextop&7)+(rex.b<<3));
-                } else {                    // mem <= reg
-                    grab_segdata(dyn, addr, ninst, x4, seg);
-                    SMREAD();
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                    LDRSW_REG(gd, ed, x4);
-                }
+            if(rex.is32bits) {
+                // ARPL here
+                DEFAULT;                
             } else {
-                if(MODREG) {   // reg <= reg
-                    MOVw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
-                } else {                    // mem <= reg
-                    grab_segdata(dyn, addr, ninst, x4, seg);
-                    SMREAD();
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                    LDRw_REG(gd, ed, x4);
+                INST_NAME("MOVSXD Gd, Ed");
+                nextop = F8;
+                GETGD;
+                if(rex.w) {
+                    if(MODREG) {   // reg <= reg
+                        SXTWx(gd, xRAX+(nextop&7)+(rex.b<<3));
+                    } else {                    // mem <= reg
+                        grab_segdata(dyn, addr, ninst, x4, seg);
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        LDRSW_REG(gd, ed, x4);
+                    }
+                } else {
+                    if(MODREG) {   // reg <= reg
+                        MOVw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
+                    } else {                    // mem <= reg
+                        grab_segdata(dyn, addr, ninst, x4, seg);
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        LDRw_REG(gd, ed, x4);
+                    }
                 }
             }
             break;
@@ -587,7 +587,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                     MOVxw_REG(gd, ed);
                 }
-                else if(!rex.w) {
+                else if(!rex.w && !rex.is32bits) {
                     MOVw_REG(gd, gd);   //truncate the higher 32bits as asked
                 }
             }
@@ -1010,7 +1010,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     }
-                    GETEDOx(x6, 0);
+                    GETEDOz(x6, 0);
                     if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
                         BARRIER(BARRIER_FULL);
                     } else {
@@ -1032,22 +1032,22 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                         STPx_S7_preindex(x4, xRIP, xSP, -16);
                     }
-                    PUSH1(xRIP);
+                    PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst);
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
                     READFLAGS(X_PEND);
                     BARRIER(BARRIER_FLOAT);
-                    GETEDOx(x6, 0);
+                    GETEDOz(x6, 0);
                     jump_to_next(dyn, 0, ed, ninst);
                     *need_epilog = 0;
                     *ok = 0;
                     break;
                 case 6: // Push Ed
                     INST_NAME("PUSH Ed");
-                    GETEDOx(x6, 0);
-                    PUSH1(ed);
+                    GETEDOz(x6, 0);
+                    PUSH1z(ed);
                     break;
 
                 default:

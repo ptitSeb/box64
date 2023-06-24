@@ -52,11 +52,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(lock);
     MAYUSE(cacheupd);
 
-    if(rex.is32bits) {
-        DEFAULT;
-        return ip;
-    }
-
     switch(opcode) {
         case 0x00:
             INST_NAME("ADD Eb, Gb");
@@ -495,6 +490,32 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
             break;
 
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:
+            INST_NAME("INC Reg (32bits)");
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode&7);
+            emit_inc32(dyn, ninst, rex, gd, x1, x2);
+            break;
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:
+            INST_NAME("DEC Reg (32bits)");
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode&7);
+            emit_dec32(dyn, ninst, rex, gd, x1, x2);
+            break;
         case 0x50:
         case 0x51:
         case 0x52:
@@ -519,15 +540,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(!box64_dynarec_test && u32>=0x50 && u32<=0x57 && (dyn->size>(ninst+1) && dyn->insts[ninst+1].pred_sz==1) && gd != xRSP) {
                     u32= xRAX+(u32&0x07)+(rex.b<<3);
                     if(u32==xRSP) {
-                        PUSH1(gd);
+                        PUSH1z(gd);
                     } else {
                         // double push!
                         MESSAGE(LOG_DUMP, "DOUBLE PUSH\n");
-                        PUSH2(gd, u32);
+                        PUSH2z(gd, u32);
                         dyn->doublepush = 1;
                     }
                 } else {
-                    PUSH1(gd);
+                    PUSH1z(gd);
                 }
             }
             break;
@@ -557,46 +578,51 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u32= xRAX+(u32&0x07)+(rex.b<<3);
                     MESSAGE(LOG_DUMP, "DOUBLE POP\n");
                     if(gd==u32) {
-                        ADDx_U12(xRSP, xRSP, 0x8);
-                        POP1(gd);
+                        ADDz_U12(xRSP, xRSP, rex.is32bits?0x4:0x8);
+                        POP1z(gd);
                     } else {
-                        POP2(gd, (u32==xRSP)?x1:u32);
+                        POP2z(gd, (u32==xRSP)?x1:u32);
                         if(u32==xRSP) {
-                            MOVx_REG(u32, x1);
+                            MOVz_REG(u32, x1);
                         }
                     }
                     dyn->doublepop = 1;
                     SKIPTEST(x1);  // disable test for this OP
                 } else {
                     if(gd == xRSP) {
-                        POP1(x1);
-                        MOVx_REG(gd, x1);
+                        POP1z(x1);
+                        MOVz_REG(gd, x1);
                     } else {
-                        POP1(gd);
+                        POP1z(gd);
                     }
                 }
             }
             break;
 
         case 0x63:
-            INST_NAME("MOVSXD Gd, Ed");
-            nextop = F8;
-            GETGD;
-            if(rex.w) {
-                if(MODREG) {   // reg <= reg
-                    SXTWx(gd, xRAX+(nextop&7)+(rex.b<<3));
-                } else {                    // mem <= reg
-                    SMREAD();
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    LDSW(gd, ed, fixedaddress);
-                }
+            if(rex.is32bits) {
+                // ARPL here
+                DEFAULT;                
             } else {
-                if(MODREG) {   // reg <= reg
-                    MOVw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
-                } else {                    // mem <= reg
-                    SMREAD();
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    LDW(gd, ed, fixedaddress);
+                INST_NAME("MOVSXD Gd, Ed");
+                nextop = F8;
+                GETGD;
+                if(rex.w) {
+                    if(MODREG) {   // reg <= reg
+                        SXTWx(gd, xRAX+(nextop&7)+(rex.b<<3));
+                    } else {                    // mem <= reg
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                        LDSW(gd, ed, fixedaddress);
+                    }
+                } else {
+                    if(MODREG) {   // reg <= reg
+                        MOVw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
+                    } else {                    // mem <= reg
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                        LDW(gd, ed, fixedaddress);
+                    }
                 }
             }
             break;
@@ -619,10 +645,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
                 TABLE64(x3, addr-4);
                 LDRSW_U12(x1, x3, 0);
-                PUSH1(x1);
+                PUSH1z(x1);
             } else {
-                MOV64x(x3, i64);
-                PUSH1(x3);
+                MOV64z(x3, i64);
+                PUSH1z(x3);
             }
             break;
         case 0x69:
@@ -661,8 +687,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6A:
             INST_NAME("PUSH Ib");
             i64 = F8S;
-            MOV64x(x3, i64);
-            PUSH1(x3);
+            MOV64z(x3, i64);
+            PUSH1z(x3);
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
@@ -1056,7 +1082,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             u8 = (nextop&0x38)>>3;
             LDRw_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
             if((nextop&0xC0)==0xC0) {   // reg <= seg
-                UXTHw(xRAX+(nextop&7)+(rex.b<<3), x1);
+                UXTHw(xRAX+(nextop&7)+(rex.b<<3), x3);
             } else {                    // mem <= seg
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                 STH(x3, wback, fixedaddress);
@@ -1074,7 +1100,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                     MOVxw_REG(gd, ed);
                 }
-                else if(!rex.w) {
+                else if(!rex.w && !rex.is32bits) {
                     MOVw_REG(gd, gd);   //truncate the higher 32bits as asked
                 }
             }
@@ -1098,17 +1124,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POP Ed");
             nextop = F8;
             if(MODREG) {
-                POP1(xRAX+(nextop&7)+(rex.b<<3));
+                POP1z(xRAX+(nextop&7)+(rex.b<<3));
             } else {
-                POP1(x2); // so this can handle POP [ESP] and maybe some variant too
+                POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                 if(ed==xRSP) {
-                    STx(x2, ed, fixedaddress);
+                    STz(x2, ed, fixedaddress);
                 } else {
                     // complicated to just allow a segfault that can be recovered correctly
-                    SUBx_U12(xRSP, xRSP, 8);
-                    STx(x2, ed, fixedaddress);
-                    ADDx_U12(xRSP, xRSP, 8);
+                    SUBz_U12(xRSP, xRSP, rex.is32bits?4:8);
+                    STz(x2, ed, fixedaddress);
+                    ADDz_U12(xRSP, xRSP, rex.is32bits?4:8);
                 }
             }
             break;
@@ -1150,13 +1176,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
-
-            PUSH1(xFlags);
+            PUSH1z(xFlags);
             break;
         case 0x9D:
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
-            POP1(xFlags);
+            POP1z(xFlags);
             MOV32w(x1, 0x3F7FD7);
             ANDw_REG(xFlags, xFlags, x1);
             ORRw_mask(xFlags, xFlags, 0b011111, 0);   //mask=0x00000002
@@ -1174,7 +1199,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF, SF_SUBSET);
             MOV32w(x2, 0b11010101);
             BICw_REG(xFlags, xFlags, x2);
-            UBFXx(x1, xRAX, 8, 8);
+            UBFXw(x1, xRAX, 8, 8);
             ANDw_REG(x1, x1, x2);
             ORRw_REG(xFlags, xFlags, x1);
             SET_DFNONE(x1);
@@ -1186,28 +1211,40 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xA0:
             INST_NAME("MOV AL,Ob");
-            u64 = F64;
-            MOV64x(x1, u64);
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
             LDRB_U12(x2, x1, 0);
             BFIx(xRAX, x2, 0, 8);
             break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
-            u64 = F64;
-            MOV64x(x1, u64);
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
             LDRxw_U12(xRAX, x1, 0);
             break;
         case 0xA2:
             INST_NAME("MOV Ob,AL");
-            u64 = F64;
-            MOV64x(x1, u64);
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
             STRB_U12(xRAX, x1, 0);
             SMWRITE();
             break;
         case 0xA3:
             INST_NAME("MOV Od,EAX");
-            u64 = F64;
-            MOV64x(x1, u64);
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
             STRxw_U12(xRAX, x1, 0);
             SMWRITE();
             break;
@@ -1688,7 +1725,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             BARRIER(BARRIER_FLOAT);
             i32 = F16;
-            retn_to_epilog(dyn, ninst, i32);
+            retn_to_epilog(dyn, ninst, rex, i32);
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -1699,7 +1736,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 READFLAGS(X_PEND);  // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
             BARRIER(BARRIER_FLOAT);
-            ret_to_epilog(dyn, ninst);
+            ret_to_epilog(dyn, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -1753,8 +1790,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xC9:
             INST_NAME("LEAVE");
-            MOVx_REG(xRSP, xRBP);
-            POP1(xRBP);
+            MOVz_REG(xRSP, xRBP);
+            POP1z(xRBP);
             break;
 
         case 0xCC:
@@ -2038,7 +2075,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOV64xw(x4, (rex.w?64:32));
                     SUBx_REG(x3, x4, x3);
                     GETED(0);
-                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     RORxw_REG(ed, ed, x3);
                     WBACK;
@@ -2062,7 +2099,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETED(0);
-                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     RORxw_REG(ed, ed, x3);
                     WBACK;
@@ -2089,7 +2126,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETEDW(x4, x1, 0);
-                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
                     WBACK;
@@ -2105,7 +2142,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETEDW(x4, x1, 0);
-                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
                     WBACK;
@@ -2120,7 +2157,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETED(0);
-                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     emit_shl32(dyn, ninst, rex, ed, x3, x5, x4);
                     WBACK;
@@ -2134,7 +2171,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETED(0);
-                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     emit_shr32(dyn, ninst, rex, ed, x3, x5, x4);
                     WBACK;
@@ -2148,7 +2185,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETED(0);
-                    if(!rex.w && MODREG) {MOVw_REG(ed, ed);}
+                    if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                     B_NEXT(cEQ);
                     UFLAG_OP12(ed, x3);
                     ASRxw_REG(ed, ed, x3);
@@ -2188,7 +2225,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CHECK_CACHE()) {                                        \
                 /* out of the block */                                  \
                 i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
-                if(Z) {CBNZx(xRCX, i32);} else {CBZx(xRCX, i32);};      \
+                if(Z) {CBNZz(xRCX, i32);} else {CBZz(xRCX, i32);};      \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
                     if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
@@ -2201,13 +2238,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {                                                    \
                 /* inside the block */                                  \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
-                if(Z) {CBZx(xRCX, i32);} else {CBNZx(xRCX, i32);};      \
+                if(Z) {CBZz(xRCX, i32);} else {CBNZz(xRCX, i32);};      \
             }
         case 0xE0:
             INST_NAME("LOOPNZ");
             READFLAGS(X_ZF);
             i8 = F8S;
-            SUBx_U12(xRCX, xRCX, 1);
+            SUBz_U12(xRCX, xRCX, 1);
             TBNZ_NEXT(xFlags, 1<<F_ZF);
             GO(0);
             break;
@@ -2215,14 +2252,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("LOOPZ");
             READFLAGS(X_ZF);
             i8 = F8S;
-            SUBx_U12(xRCX, xRCX, 1);
+            SUBz_U12(xRCX, xRCX, 1);
             TBZ_NEXT(xFlags, 1<<F_ZF);
             GO(0);
             break;
         case 0xE2:
             INST_NAME("LOOP");
             i8 = F8S;
-            SUBx_U12(xRCX, xRCX, 1);
+            SUBz_U12(xRCX, xRCX, 1);
             GO(0);
             break;
         case 0xE3:
@@ -2241,7 +2278,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 #endif
             }
             #if STEP < 2
-            if(isNativeCall(dyn, addr+i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+            if(!rex.is32bits && isNativeCall(dyn, addr+i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
                 tmp = dyn->insts[ninst].pass2choice = 3;
             else
                 tmp = dyn->insts[ninst].pass2choice = 0;
@@ -2311,8 +2348,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         *need_epilog = 0;
                         *ok = 0;
                     }
-                    TABLE64(x2, addr);
-                    PUSH1(x2);
+                    if(rex.is32bits) {
+                        MOV32w(x2, addr);
+                    } else {
+                        TABLE64(x2, addr);
+                    }
+                    PUSH1z(x2);
                     if(box64_dynarec_callret) {
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
@@ -2329,12 +2370,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         *ok = 0;
                         *need_epilog = 0;
                     }
-                    if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
-                        TABLE64(x4, addr-4);
-                        LDRx_U12(x4, x4, 0);
-                        jump_to_next(dyn, 0, x4, ninst);
-                    } else
-                        jump_to_next(dyn, addr+i32, 0, ninst);
+                    jump_to_next(dyn, addr+i32, 0, ninst);
                     break;
             }
             break;
@@ -2668,7 +2704,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     }
-                    GETEDx(0);
+                    GETEDz(0);
                     if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
                         BARRIER(BARRIER_FULL);
                     } else {
@@ -2690,22 +2726,41 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                         STPx_S7_preindex(x4, xRIP, xSP, -16);
                     }
-                    PUSH1(xRIP);
+                    PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst);
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
                     READFLAGS(X_PEND);
                     BARRIER(BARRIER_FLOAT);
-                    GETEDx(0);
+                    GETEDz(0);
                     jump_to_next(dyn, 0, ed, ninst);
                     *need_epilog = 0;
                     *ok = 0;
                     break;
+                case 5: // JMP FAR Ed
+                    if(MODREG) {
+                        DEFAULT;
+                    } else {
+                        INST_NAME("JMP FAR Ed");
+                        READFLAGS(X_PEND);
+                        BARRIER(BARRIER_FLOAT);
+                        SMREAD()
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, (0xfff<<(2+rex.w))-(rex.w?8:4), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
+                        LDxw(x1, wback, fixedaddress);
+                        ed = x1;
+                        LDH(x3, wback, fixedaddress+rex.w?8:4);
+                        STW(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+                        STW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
+                        jump_to_epilog(dyn, 0, ed, ninst);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
+                    break;
                 case 6: // Push Ed
                     INST_NAME("PUSH Ed");
-                    GETEDx(0);
-                    PUSH1(ed);
+                    GETEDz(0);
+                    PUSH1z(ed);
                     break;
 
                 default:

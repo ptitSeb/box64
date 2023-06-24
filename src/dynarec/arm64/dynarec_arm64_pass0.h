@@ -41,8 +41,9 @@
         --dyn->size;                    \
         *ok = -1;                       \
         if(box64_dynarec_log>=LOG_INFO || box64_dynarec_dump || box64_dynarec_missing) {\
-        dynarec_log(LOG_NONE, "%p: Dynarec stopped because of Opcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
-        (void*)ip, PKip(0),             \
+        dynarec_log(LOG_NONE, "%p: Dynarec stopped because of %sOpcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
+        (void*)ip, rex.is32bits?"32bits ":"",\
+        PKip(0),                        \
         PKip(1), PKip(2), PKip(3),      \
         PKip(4), PKip(5), PKip(6),      \
         PKip(7), PKip(8), PKip(9),      \

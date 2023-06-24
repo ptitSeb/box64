@@ -43,6 +43,6 @@ int getedparity(dynarec_native_t* dyn, int ninst, uintptr_t addr, uint8_t nextop
 
 const char* getCacheName(int t, int n);
 
-void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name);
+void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex);
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode);
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

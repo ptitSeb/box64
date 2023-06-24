@@ -488,10 +488,10 @@ const char* getCacheName(int t, int n)
     return buff;
 }
 
-void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name)
+void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
     if(box64_dynarec_dump) {
-        printf_x64_instruction(my_context->dec, &dyn->insts[ninst].x64, name);
+        printf_x64_instruction(rex.is32bits?my_context->dec32:my_context->dec, &dyn->insts[ninst].x64, name);
         dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d/%d",
             (box64_dynarec_dump>1)?"\e[32m":"",
             (void*)(dyn->native_start+dyn->insts[ninst].address),
