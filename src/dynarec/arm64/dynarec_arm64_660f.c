@@ -52,11 +52,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     static const int8_t round_round[] = { 0, 2, 1, 3};
     #endif
 
-    if(rex.is32bits) {
-        DEFAULT;
-        return addr;
-    }
-
     switch(opcode) {
 
         case 0x10:
