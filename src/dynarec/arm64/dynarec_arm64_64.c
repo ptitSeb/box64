@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <pthread.h>
 #include <errno.h>
 
 #include "debug.h"
@@ -22,8 +21,6 @@
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_helper.h"
 #include "dynarec_arm64_functions.h"
-
-#define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
 
 uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog)
 {

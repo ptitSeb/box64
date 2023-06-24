@@ -32,7 +32,7 @@ int setJumpTableIfRef64(void* addr, void* jmp, void* ref); // return 1 if write 
 void setJumpTableDefault64(void* addr);
 void setJumpTableDefaultRef64(void* addr, void* jmp);
 int isJumpTableDefault64(void* addr);
-uintptr_t getJumpTable64();
+uintptr_t getJumpTable64(void);
 uintptr_t getJumpTableAddress64(uintptr_t addr);
 uintptr_t getJumpAddress64(uintptr_t addr);
 
@@ -64,7 +64,7 @@ void freeProtection(uintptr_t addr, size_t size);
 void refreshProtection(uintptr_t addr);
 uint32_t getProtection(uintptr_t addr);
 int getMmapped(uintptr_t addr);
-void loadProtectionFromMap();
+void loadProtectionFromMap(void);
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, size_t size);
 void unprotectDB(uintptr_t addr, size_t size, int mark);    // if mark==0, the blocks are not marked as potentially dirty
@@ -79,7 +79,7 @@ void* find47bitBlock(size_t size);
 void* find47bitBlockNearHint(void* hint, size_t size);
 
 // unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex
-int unlockCustommemMutex();
+int unlockCustommemMutex(void);
 // relock the muxtex that were unlocked
 void relockCustommemMutex(int locks);
 

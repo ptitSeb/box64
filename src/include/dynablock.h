@@ -19,6 +19,6 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
 dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr, int is32bits);
 
 // for use in signal handler
-void cancelFillBlock();
+void cancelFillBlock(void);
 
 #endif //__DYNABLOCK_H_

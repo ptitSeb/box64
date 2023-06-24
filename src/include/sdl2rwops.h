@@ -4,7 +4,7 @@
 typedef struct SDL2_RWops_s SDL2_RWops_t;   // the actual SDL2 SDL_RWops
 typedef struct x64emu_s x64emu_t;
 
-typedef SDL2_RWops_t* (*sdl2_allocrw)();
+typedef SDL2_RWops_t* (*sdl2_allocrw)(void);
 typedef void (*sdl2_freerw)(SDL2_RWops_t*);
 
 typedef struct SDL2RWSave_s {

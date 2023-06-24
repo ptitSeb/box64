@@ -4,7 +4,7 @@
 
 typedef void dic_t;
 
-dic_t *NewDictionnary();
+dic_t *NewDictionnary(void);
 void FreeDictionnary(dic_t **dic);
 
 const char* AddDictionnary(dic_t* dic, const char* s);

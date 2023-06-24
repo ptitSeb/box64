@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <pthread.h>
 #include <errno.h>
 
 #include "debug.h"
@@ -21,14 +20,6 @@
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_helper.h"
 #include "dynarec_arm64_functions.h"
-
-#define GETGX(a, w)                     \
-    gd = ((nextop&0x38)>>3)+(rex.r<<3); \
-    a = sse_get_reg(dyn, ninst, x1, gd, w)
-
-#define GETGM(a)                        \
-    gd = ((nextop&0x38)>>3);            \
-    a = mmx_get_reg(dyn, ninst, x1, x2, x3, gd)
 
 #define GETGm   gd = ((nextop&0x38)>>3)
 

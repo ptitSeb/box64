@@ -217,7 +217,7 @@ typedef struct box64context_s {
 #define mutex_trylock(A)    pthread_mutex_trylock(A)
 #define mutex_unlock(A)     pthread_mutex_unlock(A)
 #else
-int GetTID();
+int GetTID(void);
 #define mutex_lock(A)       {uint32_t tid = (uint32_t)GetTID(); while(native_lock_storeifnull_d(A, tid)) sched_yield();}
 #define mutex_trylock(A)    native_lock_storeifnull_d(A, (uint32_t)GetTID())
 #define mutex_unlock(A)     native_lock_storeifref_d(A, 0, (uint32_t)GetTID())
@@ -243,10 +243,10 @@ int AddTLSPartition(box64context_t* context, int tlssize);
 
 // defined in fact in threads.c
 void thread_set_emu(x64emu_t* emu);
-x64emu_t* thread_get_emu();
+x64emu_t* thread_get_emu(void);
 
 // unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex
-int unlockMutex();
+int unlockMutex(void);
 // relock the muxtex that were unlocked
 void relockMutex(int locks);
 

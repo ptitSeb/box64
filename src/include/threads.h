@@ -12,9 +12,9 @@ typedef struct emu_jmpbuf_s {
 
 void CleanStackSize(box64context_t* context);
 
-emu_jmpbuf_t* GetJmpBuf();
+emu_jmpbuf_t* GetJmpBuf(void);
 
-void init_pthread_helper();
+void init_pthread_helper(void);
 void fini_pthread_helper(box64context_t* context);
 
 // prepare an "emuthread structure" in pet and return address of function pointer for a "thread creation routine"

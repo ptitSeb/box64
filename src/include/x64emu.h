@@ -14,7 +14,7 @@ void CopyEmu(x64emu_t *newemu, const x64emu_t* emu);
 void SetTraceEmu(uintptr_t trace_start, uintptr_t trace_end);
 
 box64context_t* GetEmuContext(x64emu_t* emu);
-uint32_t* GetParityTab();
+uint32_t* GetParityTab(void);
 
 uint32_t GetEAX(x64emu_t *emu);
 uint64_t GetRAX(x64emu_t *emu);

@@ -853,7 +853,7 @@
 
 #define MODREG  ((nextop&0xC0)==0xC0)
 
-void arm64_epilog();
+void arm64_epilog(void);
 void* arm64_next(x64emu_t* emu, uintptr_t addr);
 
 #ifndef STEPNAME

@@ -34,7 +34,7 @@ int my___sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_si
 int my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigaction_restorer_t *act, x64_sigaction_restorer_t *oldact, int sigsetsize);
 
 void init_signal_helper(box64context_t* context);
-void fini_signal_helper();
+void fini_signal_helper(void);
 
 void emit_signal(x64emu_t* emu, int sig, void* addr, int code);
 

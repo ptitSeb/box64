@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <pthread.h>
 #include <errno.h>
 #include <assert.h>
 #include <string.h>
@@ -19,7 +18,6 @@
 #include "x64trace.h"
 #include "dynarec_native.h"
 #include "../dynablock_private.h"
-#include "../tools/bridge_private.h"
 #include "custommem.h"
 
 #include "arm64_printer.h"

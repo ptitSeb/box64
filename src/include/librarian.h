@@ -16,7 +16,7 @@ typedef char* cstr_t;
 
 lib_t *NewLibrarian(box64context_t* context, int ownlibs);
 void FreeLibrarian(lib_t **maplib, x64emu_t* emu);
-dlprivate_t *NewDLPrivate();
+dlprivate_t *NewDLPrivate(void);
 void FreeDLPrivate(dlprivate_t **lib);
 
 box64context_t* GetLibrarianContext(lib_t* maplib);
