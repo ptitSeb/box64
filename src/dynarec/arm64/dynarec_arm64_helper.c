@@ -119,7 +119,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         }
         if(nextop&0x80)
             i64 = F32S;
-        else 
+        else
             i64 = F8S;
         if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask)) || (unscaled && (i64>-256) && (i64<256))) {
             *fixaddress = i64;
@@ -256,7 +256,7 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
         }
         if(nextop&0x80)
             i64 = F32S;
-        else 
+        else
             i64 = F8S;
         if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask)) || (unscaled && (i64>-256) && (i64>256))) {
             *fixaddress = i64;
@@ -458,7 +458,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     }
     CLEARIP();
     #ifdef HAVE_TRACE
-    //MOVx(x3, 15);    no access to PC reg 
+    //MOVx(x3, 15);    no access to PC reg
     #endif
     SMEND();
     BLR(x2); // save LR...
@@ -556,7 +556,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     // clean EFLAGS
     MOV32w(x1, 0x3F7FD7);
     ANDx_REG(xFlags, xFlags, x1);
-    ORRx_mask(xFlags, xFlags, 1, 0b111111, 0);
+    ORRx_mask(xFlags, xFlags, 1, 0b111111, 0); // xFlags | 0b10
     SET_DFNONE(x1);
     // POP RSP
     if(is64bits) {
@@ -1481,7 +1481,7 @@ static void swapCache(dynarec_arm_t* dyn, int ninst, int i, int j, neoncache_t *
         quad =1;
     if(cache->neoncache[j].t==NEON_CACHE_XMMR || cache->neoncache[j].t==NEON_CACHE_XMMW)
         quad =1;
-    
+
     if(!cache->neoncache[i].v) {
         // a mov is enough, no need to swap
         MESSAGE(LOG_DUMP, "\t  - Moving %d <- %d\n", i, j);
@@ -1541,12 +1541,12 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
             VLDR128_U12(i, xEmu, offsetof(x64emu_t, xmm[n]));
             break;
         case NEON_CACHE_MM:
-            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));                    
+            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
             VLDR64_U12(i, xEmu, offsetof(x64emu_t, mmx[i]));
             break;
         case NEON_CACHE_ST_D:
         case NEON_CACHE_ST_F:
-            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));                    
+            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
             if((*s3_top) == 0xffff) {
                 LDRw_U12(s3, xEmu, offsetof(x64emu_t, top));
                 *s3_top = 0;
@@ -1567,12 +1567,12 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
             if(t==NEON_CACHE_ST_F) {
                 FCVT_S_D(i, i);
             }
-            break;                    
+            break;
         case NEON_CACHE_NONE:
         case NEON_CACHE_SCR:
         default:    /* nothing done */
             MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
-            break; 
+            break;
     }
     cache->neoncache[i].n = n;
     cache->neoncache[i].t = t;
@@ -1589,12 +1589,12 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
             VSTR128_U12(i, xEmu, offsetof(x64emu_t, xmm[n]));
             break;
         case NEON_CACHE_MM:
-            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));                    
+            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
             VSTR64_U12(i, xEmu, offsetof(x64emu_t, mmx[n]));
             break;
         case NEON_CACHE_ST_D:
         case NEON_CACHE_ST_F:
-            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));                    
+            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
             if((*s3_top)==0xffff) {
                 LDRw_U12(s3, xEmu, offsetof(x64emu_t, top));
                 *s3_top = 0;
@@ -1615,12 +1615,12 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
                 FCVT_D_S(i, i);
             }
             VSTR64_U12(i, s2, offsetof(x64emu_t, x87));
-            break;                    
+            break;
         case NEON_CACHE_NONE:
         case NEON_CACHE_SCR:
         default:    /* nothing done */
             MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
-            break; 
+            break;
     }
     cache->neoncache[i].v = 0;
 }
@@ -1769,18 +1769,18 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
     int go = 0;
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: break;
-        case SF_SET: 
-            if(dyn->f.pending!=SF_SET && dyn->f.pending!=SF_SET_PENDING) 
-                go = 1; 
+        case SF_SET:
+            if(dyn->f.pending!=SF_SET && dyn->f.pending!=SF_SET_PENDING)
+                go = 1;
             break;
         case SF_SET_PENDING:
-            if(dyn->f.pending!=SF_SET 
+            if(dyn->f.pending!=SF_SET
             && dyn->f.pending!=SF_SET_PENDING
-            && dyn->f.pending!=SF_PENDING) 
-                go = 1; 
+            && dyn->f.pending!=SF_PENDING)
+                go = 1;
             break;
         case SF_PENDING:
-            if(dyn->f.pending!=SF_SET 
+            if(dyn->f.pending!=SF_SET
             && dyn->f.pending!=SF_SET_PENDING
             && dyn->f.pending!=SF_PENDING)
                 go = 1;
