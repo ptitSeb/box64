@@ -2773,10 +2773,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         READFLAGS(X_PEND);
                         BARRIER(BARRIER_FLOAT);
                         SMREAD()
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, (0xfff<<(2+rex.w))-(rex.w?8:4), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
-                        LDxw(x1, wback, fixedaddress);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0, 0, rex, NULL, 0, 0);
+                        LDxw(x1, wback, 0);
                         ed = x1;
-                        LDH(x3, wback, fixedaddress+rex.w?8:4);
+                        LDH(x3, wback, rex.w?8:4);
                         STW(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
                         STW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
                         jump_to_epilog(dyn, 0, ed, ninst);
