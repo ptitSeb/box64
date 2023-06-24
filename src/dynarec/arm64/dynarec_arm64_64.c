@@ -35,6 +35,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t gd, ed, eb1, eb2, gb1, gb2;
     uint8_t wback, wb1, wb2, wb;
     int64_t i64, j64;
+    uint64_t u64;
     int v0, v1;
     int q0;
     int d0;
@@ -591,6 +592,29 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOVw_REG(gd, gd);   //truncate the higher 32bits as asked
                 }
             }
+            break;
+
+        case 0xA1:
+            INST_NAME("MOV EAX,FS:Od");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
+            LDRxw_REG(xRAX, x1, x4);
+            break;
+
+        case 0xA3:
+            INST_NAME("MOV FS:Od,EAX");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
+            STRxw_REG(xRAX, x1, x4);
+            SMWRITE2();
             break;
 
         case 0xC6:
