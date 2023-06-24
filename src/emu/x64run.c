@@ -299,6 +299,37 @@ x64emurun:
             tmp8u = (opcode&7)+(rex.b<<3);
             emu->regs[tmp8u].q[0] = is32bits?Pop32(emu):Pop(emu);
             break;
+        case 0x60:                      /* PUSHAD */
+            if(rex.is32bits) {
+                tmp32u = R_ESP;
+                Push(emu, R_EAX);
+                Push(emu, R_ECX);
+                Push(emu, R_EDX);
+                Push(emu, R_EBX);
+                Push(emu, tmp32u);
+                Push(emu, R_EBP);
+                Push(emu, R_ESI);
+                Push(emu, R_EDI);
+            } else {
+                unimp = 1;
+                goto fini;
+            }
+            break;
+        case 0x61:                      /* POPAD */
+            if(rex.is32bits) {
+                R_EDI = Pop(emu);
+                R_ESI = Pop(emu);
+                R_EBP = Pop(emu);
+                R_ESP+=4;   // POP ESP
+                R_EBX = Pop(emu);
+                R_EDX = Pop(emu);
+                R_ECX = Pop(emu);
+                R_EAX = Pop(emu);
+            } else {
+                unimp = 1;
+                goto fini;
+            }
+            break;
 
         case 0x63:                      /* MOVSXD Gd,Ed */
             nextop = F8;

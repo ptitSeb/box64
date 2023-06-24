@@ -602,6 +602,29 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             }
             break;
+        case 0x60:
+            if(rex.is32bits) {
+                INST_NAME("PUSHAD");
+                MOVw_REG(x1, xRSP);
+                PUSH2_32(xRAX, xRCX);
+                PUSH2_32(xRDX, xRBX);
+                PUSH2_32(x1, xRBP);
+                PUSH2_32(xRSI, xRDI);
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0x61:
+            if(rex.is32bits) {
+                INST_NAME("POPAD");
+                POP2_32(xRDI, xRSI);
+                POP2_32(xRBP, x1);
+                POP2_32(xRBX, xRDX);
+                POP2_32(xRCX, xRAX);
+            } else {
+                DEFAULT;
+            }
+            break;
 
         case 0x63:
             if(rex.is32bits) {
