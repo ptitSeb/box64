@@ -530,13 +530,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 dyn->doublepush = 0;
             } else {
                 gd = xRAX+(opcode&0x07)+(rex.b<<3);
-                u32 = 0;
-                i32 = 0;
-                do {
-                    rex.rex = u32;
-                    u32 = PK(i32);
-                    i32++;
-                } while(u32>=0x40 && u32<=0x4f);
+                u32 = PK(0);
+                i32 = 1;
+                rex.rex = 0;
+                if(!rex.is32bits)
+                    while(u32>=0x40 && u32<=0x4f) {
+                        rex.rex = u32;
+                        u32 = PK(i32);
+                        i32++;
+                    }
                 if(!box64_dynarec_test && u32>=0x50 && u32<=0x57 && (dyn->size>(ninst+1) && dyn->insts[ninst+1].pred_sz==1) && gd != xRSP) {
                     u32= xRAX+(u32&0x07)+(rex.b<<3);
                     if(u32==xRSP) {
@@ -566,13 +568,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 dyn->doublepop = 0;
             } else {
                 gd = xRAX+(opcode&0x07)+(rex.b<<3);
-                u32 = 0;
-                i32 = 0;
-                do {
-                    rex.rex = u32;
-                    u32 = PK(i32);
-                    i32++;
-                } while(u32>=0x40 && u32<=0x4f);
+                u32 = PK(0);
+                i32 = 1;
+                rex.rex = 0;
+                if(!rex.is32bits)
+                    while(u32>=0x40 && u32<=0x4f) {
+                        rex.rex = u32;
+                        u32 = PK(i32);
+                        i32++;
+                    }
                 if(!box64_dynarec_test && (gd!=xRSP) && u32>=0x58 && u32<=0x5f && (dyn->size>(ninst+1) && dyn->insts[ninst+1].pred_sz==1)) {
                     // double pop!
                     u32= xRAX+(u32&0x07)+(rex.b<<3);
