@@ -37,11 +37,6 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     int unscaled;
     MAYUSE(j64);
 
-    if(rex.is32bits) {
-        DEFAULT;
-        return addr;
-    }
-
     // REX prefix before the 66 are ignored
     rex.rex = 0;
     if(!rex.is32bits)
