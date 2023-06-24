@@ -614,7 +614,7 @@
 #define STORE_REG(A)    SD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LOAD_REG(A)     LD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 
-// Need to also store current value of some register, as they may be used by functions like setjump
+// Need to also store current value of some register, as they may be used by functions like setjmp
 #define STORE_XEMU_CALL()   \
     STORE_REG(RBX);         \
     STORE_REG(RDX);         \
@@ -694,11 +694,11 @@
 
 // Adjust the xFlags bit 5 -> bit 11, src and dst can be the same (and can be xFlags, but not s1)
 #define FLAGS_ADJUST_TO11(dst, src, s1) \
-    MOV64x(s1, ~(1<<11));               \
-    AND(dst, src, s1);                  \
-    ANDI(s1, dst, 1<<5);                \
-    SLLI(s1, s1, 11-5);                 \
-    ANDI(dst, dst, ~(1<<5));            \
+    LUI(s1, 0xFFFFF);                   \
+    ADDIW(s1, s1, 0x7DF);               \
+    AND(s1, src, s1);                   \
+    ANDI(dst, src, 1<<5);               \
+    SLLI(dst, dst, 11-5);               \
     OR(dst, dst, s1)
 
 #ifndef MAYSETFLAGS
