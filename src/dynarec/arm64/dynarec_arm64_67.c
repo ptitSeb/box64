@@ -628,6 +628,31 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x66:
+            opcode=F8;
+            switch(opcode) {
+
+                case 0x89:
+                    INST_NAME("MOV Ew, Gw");
+                    nextop = F8;
+                    GETGD;  // don't need GETGW here
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        if(ed!=gd) {
+                            BFIx(ed, gd, 0, 16);
+                        }
+                    } else {
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 0);
+                        STH(gd, ed, fixedaddress);
+                        SMWRITELOCK(lock);
+                    }
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 0x81:
         case 0x83:
             nextop = F8;
