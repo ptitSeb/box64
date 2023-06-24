@@ -43,11 +43,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(j64);
     MAYUSE(lock);
 
-    if(rex.is32bits) {
-        DEFAULT;
-        return addr;
-    }
-
     while((opcode==0x2E) || (opcode==0x36) || (opcode==0x66))   // ignoring CS:, SS: or multiple 0x66
         opcode = F8;
 
@@ -63,7 +58,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             opcode = F8;
         }
 
-    if(rex.w && opcode!=0x0f)   // rex.w cancels "66", but not for 66 0f type of prefix
+    if(rex.w && !(opcode==0x0f || opcode==0xf0 || opcode==0x64 || opcode==0x65))   // rex.w cancels "66", but not for 66 0f type of prefix
         return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode
 
     switch(opcode) {
@@ -529,16 +524,22 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xA1:
             INST_NAME("MOV EAX,Od");
-            u64 = F64;
-            MOV64x(x1, u64);
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
             LDRH_U12(x2, x1, 0);
             BFIx(xRAX, x2, 0, 16);
             break;
 
         case 0xA3:
             INST_NAME("MOV Od,EAX");
-            u64 = F64;
-            MOV64x(x1, u64);
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
             STRH_U12(xRAX, x1, 0);
             SMWRITE();
             break;
