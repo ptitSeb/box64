@@ -4291,10 +4291,15 @@ wrappedlibusb1:
   - libusb_hotplug_register_callback
 wrappedlibuuid:
 wrappedlibva:
+- pFppp:
+  - vaSetErrorCallback
+  - vaSetInfoCallback
 wrappedlibvadrm:
 wrappedlibvawayland:
 wrappedlibvax11:
 wrappedlibvdpau:
+- iFpipp:
+  - vdp_device_create_x11
 wrappedlibvorbis:
 wrappedlibx11:
 - iFp:

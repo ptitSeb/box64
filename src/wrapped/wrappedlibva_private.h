@@ -78,9 +78,9 @@ GO(vaQueryVideoProcPipelineCaps, iFpupup)
 GO(vaRenderPicture, iFpupi)
 //GO(vaSetDisplayAttributes, 
 //GO(vaSetDriverName, 
-//GO(vaSetErrorCallback, 
+GOM(vaSetErrorCallback, pFEppp)
 //GO(vaSetImagePalette, 
-//GO(vaSetInfoCallback, 
+GOM(vaSetInfoCallback, pFEppp)
 //GO(vaSetSubpictureChromakey, 
 //GO(vaSetSubpictureGlobalAlpha, 
 //GO(vaSetSubpictureImage, 
