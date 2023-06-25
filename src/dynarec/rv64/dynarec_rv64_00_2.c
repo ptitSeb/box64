@@ -399,14 +399,13 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("LEA Gd, Ed");
             nextop=F8;
             GETGD;
-            if(MODREG) {   // reg <= reg? that's an invalid operation
+            if(MODREG) { // reg <= reg? that's an invalid operation
                 DEFAULT;
-            } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
-                if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
-                    MV(gd, ed);
-                } else if(!rex.w && !rex.is32bits) {
-                    ZEROUP(gd);   //truncate the higher 32bits as asked
+            } else {     // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                MV(gd, ed);
+                if(!rex.w || rex.is32bits) {
+                    ZEROUP(gd); // truncate the higher 32bits as asked
                 }
             }
             break;
@@ -485,6 +484,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x9C:
             INST_NAME("PUSHF");
+            NOTEST(x1);
             READFLAGS(X_ALL);
             FLAGS_ADJUST_TO11(x3, xFlags, x2);
             PUSHz(x3);
