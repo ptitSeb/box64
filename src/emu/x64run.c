@@ -145,6 +145,21 @@ x64emurun:
             break;
 
         GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
+        case 0x06:                      /* PUSH ES */
+            if(!rex.is32bits) {
+                unimp = 1;
+                goto fini;
+            }
+            Push32(emu, emu->segs[_ES]);  // even if a segment is a 16bits, a 32bits push/pop is done
+            break;
+        case 0x07:                      /* POP ES */
+            if(!rex.is32bits) {
+                unimp = 1;
+                goto fini;
+            }
+            emu->segs[_ES] = Pop32(emu);    // no check, no use....
+            emu->segs_serial[_ES] = 0;
+            break;
         GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
         case 0x0F:                      /* More instructions */
             switch(rep) {
@@ -201,14 +216,14 @@ x64emurun:
                 unimp = 1;
                 goto fini;
             }
-            Push(emu, emu->segs[_DS]);  // even if a segment is a 16bits, a 32bits push/pop is done
+            Push32(emu, emu->segs[_DS]);  // even if a segment is a 16bits, a 32bits push/pop is done
             break;
         case 0x1F:                      /* POP DS */
             if(!rex.is32bits) {
                 unimp = 1;
                 goto fini;
             }
-            emu->segs[_DS] = Pop(emu);    // no check, no use....
+            emu->segs[_DS] = Pop32(emu);    // no check, no use....
             emu->segs_serial[_DS] = 0;
             break;
 
