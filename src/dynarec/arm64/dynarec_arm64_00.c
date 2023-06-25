@@ -826,6 +826,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         #undef GO
 
+        case 0x82:
+            if(!rex.is32bits) {
+                DEFAULT;
+                return ip;
+            }
+            // fallthru
         case 0x80:
             nextop = F8;
             switch((nextop>>3)&7) {
