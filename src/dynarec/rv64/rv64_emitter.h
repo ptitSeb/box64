@@ -113,6 +113,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define MOV64x(A, B)    rv64_move64(dyn, ninst, A, B)
 #define MOV32w(A, B)    rv64_move32(dyn, ninst, A, B, 1)
 #define MOV64xw(A, B)   if(rex.w) {MOV64x(A, B);} else {MOV32w(A, B);}
+#define MOV64z(A, B)    if(rex.is32bits) {MOV32w(A, B);} else {MOV64x(A, B);}
 
 // ZERO the upper part
 #define ZEROUP(r)       AND(r, r, xMASK)
@@ -175,12 +176,16 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define ADDW(rd, rs1, rs2)          EMIT(R_type(0b0000000, rs2, rs1, 0b000, rd, 0b0111011))
 // rd = rs1 + rs2
 #define ADDxw(rd, rs1, rs2)         EMIT(R_type(0b0000000, rs2, rs1, 0b000, rd, rex.w?0b0110011:0b0111011))
+// rd = rs1 + rs2
+#define ADDz(rd, rs1, rs2)          EMIT(R_type(0b0000000, rs2, rs1, 0b000, rd, rex.is32bits?0b0111011:0b0110011))
 // rd = rs1 - rs2
 #define SUB(rd, rs1, rs2)           EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, 0b0110011))
 // rd = rs1 - rs2
 #define SUBW(rd, rs1, rs2)          EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, 0b0111011))
 // rd = rs1 - rs2
 #define SUBxw(rd, rs1, rs2)         EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, rex.w?0b0110011:0b0111011))
+// rd = rs1 - rs2
+#define SUBz(rd, rs1, rs2)          EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, rex.is32bits?0b0111011:0b0110011))
 // rd = rs1<<rs2
 #define SLL(rd, rs1, rs2)           EMIT(R_type(0b0000000, rs2, rs1, 0b001, rd, 0b0110011))
 // rd = (rs1<rs2)?1:0
@@ -203,7 +208,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 (pseudo instruction)
 #define MV(rd, rs1)                 ADDI(rd, rs1, 0)
 // rd = rs1 (pseudo instruction)
-#define MVxw(rd, rs1)               if(rex.w) {MV(rd, rs1); } else {AND(rd, rs1, xMASK);}
+#define MVxw(rd, rs1)               if(rex.w) {MV(rd, rs1);} else {AND(rd, rs1, xMASK);}
+// rd = rs1 (pseudo instruction)
+#define MVz(rd, rs1)               if(rex.is32bits) {AND(rd, rs1, xMASK);} else {MV(rd, rs1);}
 // rd = !rs1
 #define NOT(rd, rs1)                XORI(rd, rs1, -1)
 // rd = -rs1
@@ -254,10 +261,13 @@ f28–31  ft8–11  FP temporaries                  Caller
 // 4-bytes[rs1+imm12] = rs2
 #define SW(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b010, 0b0100011))
 
-#define PUSH1(reg)                  do {SD(reg, xRSP, -8); SUBI(xRSP, xRSP, 8);} while(0)
-#define POP1(reg)                   do {LD(reg, xRSP, 0); ADDI(xRSP, xRSP, 8);} while(0)
-#define PUSH1_32(reg)               do {SW(reg, xRSP, -4); SUBI(xRSP, xRSP, 4);} while(0)
-#define POP1_32(reg)                do {LWU(reg, xRSP, 0); ADDI(xRSP, xRSP, 4);} while(0)
+#define PUSH(reg)                  do {SD(reg, xRSP, -8); SUBI(xRSP, xRSP, 8);} while(0)
+#define POP(reg)                   do {LD(reg, xRSP, 0); if (reg!=xRSP) ADDI(xRSP, xRSP, 8);} while(0)
+#define PUSH_32(reg)               do {SW(reg, xRSP, -4); SUBIW(xRSP, xRSP, -4);} while(0)
+#define POP_32(reg)                do {LWU(reg, xRSP, 0); if (reg!=xRSP) ADDIW(xRSP, xRSP, 4);} while(0)
+
+#define POPz(reg)                  if(rex.is32bits) {POP_32(reg);} else {POP(reg);}
+#define PUSHz(reg)                 if(rex.is32bits) {PUSH_32(reg);} else {PUSH(reg);}
 
 #define FENCE_gen(pred, succ)       (((pred)<<24) | ((succ)<<20) | 0b0001111)
 #define FENCE()                     EMIT(FENCE_gen(3, 3))
@@ -274,10 +284,14 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define LD(rd, rs1, imm12)          EMIT(I_type(imm12, rs1, 0b011, rd, 0b0000011))
 // rd = [rs1 + imm12]
 #define LDxw(rd, rs1, imm12)        EMIT(I_type(imm12, rs1, 0b011<<(1-rex.w), rd, 0b0000011))
+// rd = [rs1 + imm12]
+#define LDz(rd, rs1, imm12)         EMIT(I_type(imm12, rs1, 0b011<<rex.is32bits, rd, 0b0000011))
 // [rs1 + imm12] = rs2
 #define SD(rs2, rs1, imm12)         EMIT(S_type(imm12, rs2, rs1, 0b011, 0b0100011))
 // [rs1 + imm12] = rs2
 #define SDxw(rs2, rs1, imm12)       EMIT(S_type(imm12, rs2, rs1, 0b010+rex.w, 0b0100011))
+// [rs1 + imm12] = rs2
+#define SDz(rs2, rs1, imm12)        EMIT(S_type(imm12, rs2, rs1, 0b010+(1-rex.is32bits), 0b0100011))
 
 // Shift Left Immediate
 #define SLLI(rd, rs1, imm6)         EMIT(I_type(imm6, rs1, 0b001, rd, 0b0010011))
@@ -288,8 +302,12 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // rd = rs1 + imm12
 #define ADDIW(rd, rs1, imm12)       EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, 0b0011011))
+// rd = rs1 - imm12
+#define SUBIW(rd, rs1, imm12)       EMIT(I_type((-imm12)&0b111111111111, rs1, 0b000, rd, 0b0011011))
 // rd = rs1 + imm12
 #define ADDIxw(rd, rs1, imm12)      EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, rex.w?0b0010011:0b0011011))
+// rd = rs1 + imm12
+#define ADDIz(rd, rs1, imm12)       EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, rex.is32bits?0b0011011:0b0010011))
 
 #define SEXT_W(rd, rs1)             ADDIW(rd, rs1, 0)
 

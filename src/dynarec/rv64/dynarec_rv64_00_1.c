@@ -52,7 +52,32 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(cacheupd);
 
     switch(opcode) {
-
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:
+            INST_NAME("INC Reg (32bits)");
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode&7);
+            emit_inc32(dyn, ninst, rex, gd, x1, x2, x3, x4);
+            break;
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:
+            INST_NAME("DEC Reg (32bits)");
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode&7);
+            emit_dec32(dyn, ninst, rex, gd, x1, x2, x3, x4);
+            break;
         case 0x50:
         case 0x51:
         case 0x52:
@@ -63,8 +88,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x57:
             INST_NAME("PUSH reg");
             gd = xRAX+(opcode&0x07)+(rex.b<<3);
-            SD(gd, xRSP, -8);
-            SUBI(xRSP, xRSP, 8);
+            PUSHz(gd);
             break;
         case 0x58:
         case 0x59:
@@ -76,31 +100,65 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5F:
             INST_NAME("POP reg");
             gd = xRAX+(opcode&0x07)+(rex.b<<3);
-            LD(gd, xRSP, 0);
-            if(gd!=xRSP) {
-                ADDI(xRSP, xRSP, 8);
+            POPz(gd);
+            break;
+
+        case 0x60:
+            if(rex.is32bits) {
+                INST_NAME("PUSHAD");
+                AND(x1, xRSP, xMASK);
+                PUSH_32(xRAX);
+                PUSH_32(xRCX);
+                PUSH_32(xRDX);
+                PUSH_32(xRBX);
+                PUSH_32(x1);
+                PUSH_32(xRBP);
+                PUSH_32(xRSI);
+                PUSH_32(xRDI);
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0x61:
+            if(rex.is32bits) {
+                INST_NAME("POPAD");
+                POP_32(xRDI);
+                POP_32(xRSI);
+                POP_32(xRBP);
+                POP_32(x1);
+                POP_32(xRBX);
+                POP_32(xRDX);
+                POP_32(xRCX);
+                POP_32(xRAX);
+            } else {
+                DEFAULT;
             }
             break;
 
         case 0x63:
-            INST_NAME("MOVSXD Gd, Ed");
-            nextop = F8;
-            GETGD;
-            if(rex.w) {
-                if(MODREG) {   // reg <= reg
-                    ADDIW(gd, xRAX+(nextop&7)+(rex.b<<3), 0);
-                } else {                    // mem <= reg
-                    SMREAD();
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                    LW(gd, ed, fixedaddress);
-                }
+            if(rex.is32bits) {
+                // this is ARPL opcode
+                DEFAULT;
             } else {
-                if(MODREG) {   // reg <= reg
-                    AND(gd, xRAX+(nextop&7)+(rex.b<<3), xMASK);
-                } else {                    // mem <= reg
-                    SMREAD();
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                    LWU(gd, ed, fixedaddress);
+                INST_NAME("MOVSXD Gd, Ed");
+                nextop = F8;
+                GETGD;
+                if(rex.w) {
+                    if(MODREG) {   // reg <= reg
+                        ADDIW(gd, xRAX+(nextop&7)+(rex.b<<3), 0);
+                    } else {                    // mem <= reg
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                        LW(gd, ed, fixedaddress);
+                    }
+                } else {
+                    if(MODREG) {   // reg <= reg
+                        AND(gd, xRAX+(nextop&7)+(rex.b<<3), xMASK);
+                    } else {                    // mem <= reg
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                        LWU(gd, ed, fixedaddress);
+                    }
                 }
             }
             break;
@@ -123,10 +181,10 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
                 TABLE64(x3, addr-4);
                 LW(x1, x3, 0);
-                PUSH1(x1);
+                PUSHz(x1);
             } else {
-                MOV64x(x3, i64);
-                PUSH1(x3);
+                MOV64z(x3, i64);
+                PUSHz(x3);
             }
             break;
         case 0x69:
@@ -165,8 +223,8 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x6A:
             INST_NAME("PUSH Ib");
             i64 = F8S;
-            MOV64x(x3, i64);
-            PUSH1(x3);
+            MOV64z(x3, i64);
+            PUSHz(x3);
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");

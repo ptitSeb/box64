@@ -784,10 +784,10 @@
     } else dyn->f.pending = SF_SET
 #endif
 #ifndef JUMP
-#define JUMP(A, C) 
+#define JUMP(A, C)
 #endif
 #ifndef BARRIER
-#define BARRIER(A) 
+#define BARRIER(A)
 #endif
 #ifndef BARRIER_NEXT
 #define BARRIER_NEXT(A)
@@ -1238,7 +1238,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 #if STEP < 3
 #define MAYUSE(A)   (void)A
 #else
-#define MAYUSE(A)   
+#define MAYUSE(A)
 #endif
 
 #define GOCOND(B, T1, T2)                                   \
@@ -1345,5 +1345,13 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         MOV32w(s2, 1);                                      \
         STRw_U12(s2, xEmu, offsetof(x64emu_t, test.test));  \
     }
+
+#define GETREX()                                \
+    rex.rex = 0;                                \
+    if(!rex.is32bits)                           \
+        while(opcode>=0x40 && opcode<=0x4f) {   \
+            rex.rex = opcode;                   \
+            opcode = F8;                        \
+        }
 
 #endif //__DYNAREC_ARM64_HELPER_H__

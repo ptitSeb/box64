@@ -44,13 +44,8 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         rep = opcode-0xF1;
         opcode = F8;
     }
-    // REX prefix before the F0/66 are ignored
-    rex.rex = 0;
-    if(!rex.is32bits)
-        while(opcode>=0x40 && opcode<=0x4f) {
-            rex.rex = opcode;
-            opcode = F8;
-        }
+
+    GETREX();
 
     switch(opcode) {
         case 0x09:
@@ -124,7 +119,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     BFIx(xRAX, x1, 0, 16);
                     SMDMB();
                     break;
-                    
+
                 case 0xC1:
                     INST_NAME("LOCK XADD Gw, Ew");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -189,7 +184,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         STLXRH(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                         B_NEXT_nocond;
-                        MARK;   // unaligned! also, not enough 
+                        MARK;   // unaligned! also, not enough
                         LDRH_U12(x1, wback, 0);
                         LDAXRB(x4, wback);
                         BFIw(x1, x4, 0, 8); // re-inject
@@ -307,7 +302,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         STLXRH(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
                         B_NEXT_nocond;
-                        MARK;   // unaligned! also, not enough 
+                        MARK;   // unaligned! also, not enough
                         LDRH_U12(x1, wback, 0);
                         LDAXRB(x4, wback);
                         BFIw(x1, x4, 0, 8); // re-inject

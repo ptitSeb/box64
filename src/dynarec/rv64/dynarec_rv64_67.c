@@ -46,12 +46,14 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(lock);
     MAYUSE(cacheupd);
 
-    // REX prefix before the 67 are ignored
-    rex.rex = 0;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
+    if(rex.is32bits) {
+        // should do a different file
+        DEFAULT;
+        return addr;
     }
+
+    GETREX();
+
     rep = 0;
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;

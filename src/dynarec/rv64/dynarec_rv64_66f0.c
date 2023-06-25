@@ -44,12 +44,8 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         rep = opcode-0xF1;
         opcode = F8;
     }
-    // REX prefix before the F0/66 are ignored
-    rex.rex = 0;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
-    }
+
+    GETREX();
 
     switch(opcode) {
         case 0x81:

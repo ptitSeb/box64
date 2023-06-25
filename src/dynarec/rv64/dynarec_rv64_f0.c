@@ -46,12 +46,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         rep = opcode-0xF1;
         opcode = F8;
     }
-    // REX prefix before the F0 are ignored
-    rex.rex = 0;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
-    }
+
+    GETREX();
 
     // TODO: Take care of unligned memory access for all the LOCK ones.
     // https://github.com/ptitSeb/box64/pull/604
@@ -115,14 +111,14 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 if(rex.rex) {
                                     wback = xRAX+(nextop&7)+(rex.b<<3);
                                     wb2 = 0;
-                                } else { 
+                                } else {
                                     wback = (nextop&7);
                                     wb2 = (wback>>2)*8;
                                     wback = xRAX+(wback&3);
                                 }
                                 if (wb2) {
-                                    MV(x2, wback); 
-                                    SRLI(x2, x2, wb2); 
+                                    MV(x2, wback);
+                                    SRLI(x2, x2, wb2);
                                     ANDI(x2, x2, 0xff);
                                 } else {
                                     ANDI(x2, wback, 0xff);
@@ -134,8 +130,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 }
                                 BNE_MARK2(x6, x2);
                                 if (wb2) {
-                                    MV(wback, x2); 
-                                    SRLI(wback, wback, wb2); 
+                                    MV(wback, x2);
+                                    SRLI(wback, wback, wb2);
                                     ANDI(wback, wback, 0xff);
                                 } else {
                                     ANDI(wback, x2, 0xff);
@@ -148,7 +144,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 B_NEXT_nocond;
                             } else {
                                 // this one is tricky, and did some repetitive work.
-                                // mostly because we only got 6 scratch registers, 
+                                // mostly because we only got 6 scratch registers,
                                 // and has so much to do.
                                 if(rex.rex) {
                                     gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
@@ -541,7 +537,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             emit_sub32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
                     }
                     break;
-                default: 
+                default:
                     DEFAULT;
             }
             SMDMB();

@@ -1,4 +1,4 @@
-#define INIT    
+#define INIT
 #define FINI        \
     if(ninst)       \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst].x64.size, dyn->insts[ninst].size/4); \
@@ -16,8 +16,8 @@
     if(box64_dynarec_dump) print_newinst(dyn, ninst);   \
     if(ninst)                                           \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4);
-#define INST_EPILOG     
-#define INST_NAME(name) inst_name_pass3(dyn, ninst, name)
+#define INST_EPILOG
+#define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 
 #define TABLE64(A, V)   {int val64offset = Table64(dyn, (V), 3); MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); AUIPC(A, SPLIT20(val64offset)); LD(A, A, SPLIT12(val64offset));}
 #define FTABLE64(A, V)  {mmx87_regs_t v = {.d = V}; int val64offset = Table64(dyn, v.q, 3); MESSAGE(LOG_DUMP, "  FTable64: %g\n", v.d); AUIPC(x1, SPLIT20(val64offset)); FLD(A, x1, SPLIT12(val64offset));}

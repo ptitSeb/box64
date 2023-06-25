@@ -46,13 +46,8 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         rep = opcode-0xF1;
         opcode = F8;
     }
-    // REX prefix before the F0 are ignored
-    rex.rex = 0;
-    if(!rex.is32bits)
-        while(opcode>=0x40 && opcode<=0x4f) {
-            rex.rex = opcode;
-            opcode = F8;
-        }
+
+    GETREX();
 
     switch(opcode) {
         case 0x00:
@@ -66,14 +61,14 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     wback = xRAX + (nextop&7) + (rex.b<<3);
                     wb2 = 0;
                 } else {
-                    wback = (nextop&7);    
-                    wb2 = (wback>>2);      
+                    wback = (nextop&7);
+                    wb2 = (wback>>2);
                     wback = xRAX+(wback&3);
                 }
-                UBFXw(x1, wback, wb2*8, 8);   
+                UBFXw(x1, wback, wb2*8, 8);
                 emit_add8(dyn, ninst, x1, x2, x4, x3);
                 BFIx(wback, x1, wb2*8, 8);
-            } else {                   
+            } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                 MARKLOCK;
                 LDAXRB(x1, wback);
@@ -114,14 +109,14 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     wback = xRAX + (nextop&7) + (rex.b<<3);
                     wb2 = 0;
                 } else {
-                    wback = (nextop&7);    
-                    wb2 = (wback>>2);      
+                    wback = (nextop&7);
+                    wb2 = (wback>>2);
                     wback = xRAX+(wback&3);
                 }
-                UBFXw(x1, wback, wb2*8, 8);   
+                UBFXw(x1, wback, wb2*8, 8);
                 emit_or8(dyn, ninst, x1, x2, x4, x3);
                 BFIx(wback, x1, wb2*8, 8);
-            } else {                   
+            } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                 MARKLOCK;
                 LDAXRB(x1, wback);
@@ -220,11 +215,11 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 if(rex.rex) {
                                     wback = xRAX+(nextop&7)+(rex.b<<3);
                                     wb2 = 0;
-                                } else { 
+                                } else {
                                     wback = (nextop&7);
                                     wb2 = (wback>>2)*8;
                                     wback = xRAX+(wback&3);
-                                } 
+                                }
                                 UBFXx(x2, wback, wb2, 8);
                                 wb1 = 0;
                                 ed = x2;
@@ -445,7 +440,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     DEFAULT;
             }
             break;
-                    
+
         case 0x21:
             INST_NAME("LOCK AND Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -465,7 +460,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             SMDMB();
             break;
-            
+
         case 0x29:
             INST_NAME("LOCK SUB Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -681,7 +676,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CBNZx_MARKLOCK(x3);
                         SMDMB();
                         B_NEXT_nocond;
-                        MARK;   // unaligned! also, not enough 
+                        MARK;   // unaligned! also, not enough
                         LDRxw_U12(x1, wback, 0);
                         LDAXRB(x4, wback);
                         BFIxw(x1, x4, 0, 8); // re-inject
@@ -789,7 +784,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CBNZx_MARKLOCK(x3);
                         SMDMB();
                         B_NEXT_nocond;
-                        MARK;   // unaligned! also, not enough 
+                        MARK;   // unaligned! also, not enough
                         LDRxw_U12(x1, wback, 0);
                         LDAXRB(x4, wback);
                         BFIxw(x1, x4, 0, 8); // re-inject
@@ -834,7 +829,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             SMDMB();
             break;
-            
+
         case 0x86:
             INST_NAME("LOCK XCHG Eb, Gb");
             // Do the swap
@@ -896,7 +891,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOVxw_REG(gd, x1);
             }
             break;
-            
+
         case 0xF6:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -931,7 +926,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     DEFAULT;
             }
             break;
-        
+
         case 0xFE:
             nextop = F8;
             switch((nextop>>3)&7)
@@ -1042,7 +1037,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     DEFAULT;
             }
             break;
-            
+
         default:
             DEFAULT;
     }

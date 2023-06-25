@@ -34,13 +34,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     int unscaled;
     MAYUSE(j64);
 
-    // REX prefix before the 66 are ignored
-    rex.rex = 0;
-    if(!rex.is32bits)
-        while(opcode>=0x40 && opcode<=0x4f) {
-            rex.rex = opcode;
-            opcode = F8;
-        }
+    GETREX();
 
     /*if(rex.w && opcode!=0x0f) {   // rex.w cancels "66", but not for 66 0f type of prefix
         MESSAGE(LOG_DUMP, "Here!\n");

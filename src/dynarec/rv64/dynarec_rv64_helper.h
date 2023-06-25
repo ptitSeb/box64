@@ -99,6 +99,15 @@
                     LD(x1, wback, fixedaddress);        \
                     ed = x1;                            \
                 }
+#define GETEDz(D) if(MODREG) {                          \
+                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
+                    wback = 0;                          \
+                } else {                                \
+                    SMREAD()                            \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+                    LDz(x1, wback, fixedaddress);       \
+                    ed = x1;                            \
+                }
 // GETED32 can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETED32(D)  if(MODREG) {                        \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
@@ -987,8 +996,8 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
 void jump_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
-void ret_to_epilog(dynarec_rv64_t* dyn, int ninst);
-void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, int n);
+void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex);
+void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n);
 void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits);
 void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w);
@@ -1327,5 +1336,13 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         MOV32w(s2, 1);                                      \
         SW(s2, xEmu, offsetof(x64emu_t, test.test));        \
     }
+
+#define GETREX()                                \
+    rex.rex = 0;                                \
+    if(!rex.is32bits)                           \
+        while(opcode>=0x40 && opcode<=0x4f) {   \
+            rex.rex = opcode;                   \
+            opcode = F8;                        \
+        }
 
 #endif //__DYNAREC_RV64_HELPER_H__

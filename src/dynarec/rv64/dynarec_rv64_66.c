@@ -49,14 +49,10 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         rep = opcode-0xF1;
         opcode = F8;
     }
-    // REX prefix before the 66 are ignored
-    rex.rex = 0;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
-    }
 
-    if(rex.w && opcode!=0x0f)   // rex.w cancels "66", but not for 66 0f type of prefix
+    GETREX();
+
+    if(rex.w && !(opcode==0x0f || opcode==0xf0 || opcode==0x64 || opcode==0x65))   // rex.w cancels "66", but not for 66 0f type of prefix
         return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode
 
     switch(opcode) {
@@ -255,6 +251,34 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);
             }
+            break;
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:
+            INST_NAME("INC Reg16 (32bits)");
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode&7);
+            ANDI(x1, gd, 0xFF);
+            emit_inc16(dyn, ninst, gd, x1, x2, x3);
+            break;
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:
+            INST_NAME("DEC Reg16 (32bits)");
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode&7);
+            ANDI(x1, gd, 0xFF);
+            emit_dec16(dyn, ninst, gd, x1, x2, x3, x4);
             break;
         case 0x64:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _FS, ok, need_epilog);
@@ -610,7 +634,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
-            
+
         case 0xC1:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -706,7 +730,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
             }
             break;
-            
+
         case 0xC7:
             INST_NAME("MOV Ew, Iw");
             nextop = F8;

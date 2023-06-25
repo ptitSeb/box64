@@ -49,13 +49,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         rep = opcode-0xF1;
         opcode = F8;
     }
-    // REX prefix before the 66 are ignored
-    rex.rex = 0;
-    if(!rex.is32bits)
-        while(opcode>=0x40 && opcode<=0x4f) {
-            rex.rex = opcode;
-            opcode = F8;
-        }
+    GETREX();
 
     if(rex.w && !(opcode==0x0f || opcode==0xf0 || opcode==0x64 || opcode==0x65))   // rex.w cancels "66", but not for 66 0f type of prefix
         return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode
@@ -88,7 +82,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_add16(dyn, ninst, x1, x2, x3, x4);
             BFIx(xRAX, x1, 0, 16);
             break;
-                
+
         case 0x09:
             INST_NAME("OR Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -456,7 +450,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
-            
+
         case 0x85:
             INST_NAME("TEST Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -494,7 +488,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIx(gd, x1, 0, 16);
             }
             break;
-            
+
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
@@ -973,7 +967,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
-            
+
         case 0xF0:
             return dynarec64_66F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
 
@@ -1049,7 +1043,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
-            
+
         case 0xFF:
             nextop = F8;
             switch((nextop>>3)&7) {

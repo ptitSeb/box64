@@ -32,6 +32,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t gd, ed, eb1, eb2, gb1, gb2;
     uint8_t gback, wback, wb1, wb2, wb;
     int64_t i64, j64;
+    uint64_t u64;
     int v0, v1;
     int q0;
     int d0;
@@ -53,12 +54,8 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         rep = opcode-0xF1;
         opcode = F8;
     }
-    // REX prefix before the F0 are ignored
-    rex.rex = 0;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
-    }
+
+    GETREX();
 
     switch(opcode) {
         case 0x03:
@@ -396,6 +393,34 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LDxw(gd, x4, fixedaddress);
             }
             break;
+
+        case 0xA1:
+            INST_NAME("MOV EAX,FS:Od");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            // TODO: could be optimized.
+            MOV64z(x1, u64);
+            ADD(x1, x1, x4);
+            LDxw(xRAX, x1, 0);
+            break;
+
+        case 0xA3:
+            INST_NAME("MOV FS:Od,EAX");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            // TODO: could be optimized.
+            MOV64z(x1, u64);
+            ADD(x1, x1, x4);
+            SDxw(xRAX, x1, 0);
+            SMWRITE2();
+            break;
+
         case 0xC6:
             INST_NAME("MOV Seg:Eb, Ib");
             grab_segdata(dyn, addr, ninst, x4, seg);
