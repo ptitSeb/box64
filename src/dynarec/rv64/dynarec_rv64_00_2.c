@@ -324,7 +324,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;
             if(MODREG) {   // reg <= reg
                 MVxw(xRAX+(nextop&7)+(rex.b<<3), gd);
-            } else {                    // mem <= reg
+            } else {       // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SDxw(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
