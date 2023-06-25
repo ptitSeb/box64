@@ -53,13 +53,8 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         return addr;
     }
 
+    GETREX();
 
-    // REX prefix before the 67 are ignored
-    rex.rex = 0;
-    while(opcode>=0x40 && opcode<=0x4f) {
-        rex.rex = opcode;
-        opcode = F8;
-    }
     rep = 0;
     while((opcode==0xF2) || (opcode==0xF3)) {
         rep = opcode-0xF1;
@@ -238,39 +233,39 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
-                    case 0xB6:
-                        INST_NAME("MOVZX Gd, Eb");
-                        nextop = F8;
-                        GETGD;
-                        if(MODREG) {
-                            if(rex.rex) {
-                                eb1 = xRAX+(nextop&7)+(rex.b<<3);
-                                eb2 = 0;                \
-                            } else {
-                                ed = (nextop&7);
-                                eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
-                                eb2 = (ed&4)>>2;    // L or H
-                            }
-                            UBFXxw(gd, eb1, eb2*8, 8);
+                case 0xB6:
+                    INST_NAME("MOVZX Gd, Eb");
+                    nextop = F8;
+                    GETGD;
+                    if(MODREG) {
+                        if(rex.rex) {
+                            eb1 = xRAX+(nextop&7)+(rex.b<<3);
+                            eb2 = 0;                \
                         } else {
-                            SMREAD();
-                            addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, 0);
-                            LDB(gd, ed, fixedaddress);
+                            ed = (nextop&7);
+                            eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
+                            eb2 = (ed&4)>>2;    // L or H
                         }
-                        break;
-                    case 0xB7:
-                        INST_NAME("MOVZX Gd, Ew");
-                        nextop = F8;
-                        GETGD;
-                        if(MODREG) {
-                            ed = xRAX+(nextop&7)+(rex.b<<3);
-                            UBFXxw(gd, ed, 0, 16);
-                        } else {
-                            SMREAD();
-                            addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                            LDH(gd, ed, fixedaddress);
-                        }
-                        break;
+                        UBFXxw(gd, eb1, eb2*8, 8);
+                    } else {
+                        SMREAD();
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, 0);
+                        LDB(gd, ed, fixedaddress);
+                    }
+                    break;
+                case 0xB7:
+                    INST_NAME("MOVZX Gd, Ew");
+                    nextop = F8;
+                    GETGD;
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        UBFXxw(gd, ed, 0, 16);
+                    } else {
+                        SMREAD();
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                        LDH(gd, ed, fixedaddress);
+                    }
+                    break;
 
                 default:
                     DEFAULT;
@@ -721,7 +716,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
-            
+
         case 0x88:
             INST_NAME("MOV Eb, Gb");
             nextop = F8;
@@ -1027,9 +1022,9 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVw_REG(xRAX, x2);
                         MOVw_REG(xRDX, x4);
                     } else {
-                        if(ninst && dyn->insts 
-                           && dyn->insts[ninst-1].x64.addr 
-                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31 
+                        if(ninst && dyn->insts
+                           && dyn->insts[ninst-1].x64.addr
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
                             SET_DFNONE(x2);
                             GETED32(0);
@@ -1065,7 +1060,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVw_REG(xRDX, x4);
                     } else {
                         if(ninst && dyn->insts
-                           &&  dyn->insts[ninst-1].x64.addr 
+                           &&  dyn->insts[ninst-1].x64.addr
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x48
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0x99) {
                             SET_DFNONE(x2)

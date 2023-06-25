@@ -54,13 +54,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         rep = opcode-0xF1;
         opcode = F8;
     }
-    // REX prefix before the F0 are ignored
-    rex.rex = 0;
-    if(!rex.is32bits)
-        while(opcode>=0x40 && opcode<=0x4f) {
-            rex.rex = opcode;
-            opcode = F8;
-        }
+    GETREX();
 
     switch(opcode) {
 
@@ -293,7 +287,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEDO(x4, 0);
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
-                    
+
         case 0x39:
             INST_NAME("CMP Seg:Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -317,7 +311,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x63:
             if(rex.is32bits) {
                 // ARPL here
-                DEFAULT;                
+                DEFAULT;
             } else {
                 INST_NAME("MOVSXD Gd, Ed");
                 nextop = F8;
@@ -646,7 +640,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     eb2 = (ed&4)>>2;    // L or H
                 } else {
                     eb1 = xRAX+(nextop&7)+(rex.b<<3);
-                    eb2 = 0;            
+                    eb2 = 0;
                 }
                 MOV32w(x3, u8);
                 BFIx(eb1, x3, eb2*8, 8);
@@ -878,7 +872,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
-            
+
         case 0xF7:
             nextop = F8;
             grab_segdata(dyn, addr, ninst, x6, seg);
@@ -959,8 +953,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVw_REG(xRDX, x4);
                     } else {
                         if(ninst
-                           && dyn->insts[ninst-1].x64.addr 
-                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31 
+                           && dyn->insts[ninst-1].x64.addr
+                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
                             SET_DFNONE(x2);
                             GETEDO(x6, 0);
@@ -996,7 +990,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVw_REG(xRDX, x4);
                     } else {
                         if(ninst && dyn->insts
-                           &&  dyn->insts[ninst-1].x64.addr 
+                           &&  dyn->insts[ninst-1].x64.addr
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x48
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0x99) {
                             SET_DFNONE(x2)
@@ -1022,7 +1016,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
-            
+
         case 0xFF:
             nextop = F8;
             grab_segdata(dyn, addr, ninst, x6, seg);

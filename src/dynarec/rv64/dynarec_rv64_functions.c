@@ -128,7 +128,7 @@ int extcache_get_st_f(dynarec_rv64_t* dyn, int ninst, int a)
          && dyn->insts[ninst].e.extcache[i].n==a)
             return i;
     return -1;
-} 
+}
 int extcache_get_st_f_noback(dynarec_rv64_t* dyn, int ninst, int a)
 {
     for(int i=0; i<24; ++i)
@@ -136,7 +136,7 @@ int extcache_get_st_f_noback(dynarec_rv64_t* dyn, int ninst, int a)
          && dyn->insts[ninst].e.extcache[i].n==a)
             return i;
     return -1;
-} 
+}
 int extcache_get_current_st_f(dynarec_rv64_t* dyn, int a)
 {
     for(int i=0; i<24; ++i)
@@ -144,7 +144,7 @@ int extcache_get_current_st_f(dynarec_rv64_t* dyn, int a)
          && dyn->e.extcache[i].n==a)
             return i;
     return -1;
-} 
+}
 
 static void extcache_promote_double_forward(dynarec_rv64_t* dyn, int ninst, int maxinst, int a);
 static void extcache_promote_double_internal(dynarec_rv64_t* dyn, int ninst, int maxinst, int a);
@@ -153,7 +153,7 @@ static void extcache_promote_double_combined(dynarec_rv64_t* dyn, int ninst, int
     if(a == dyn->insts[ninst].e.combined1 || a == dyn->insts[ninst].e.combined2) {
         if(a == dyn->insts[ninst].e.combined1) {
             a = dyn->insts[ninst].e.combined2;
-        } else 
+        } else
             a = dyn->insts[ninst].e.combined1;
         int i = extcache_get_st_f_noback(dyn, ninst, a);
         //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "extcache_promote_double_combined, ninst=%d combined%c %d i=%d (stack:%d/%d)\n", ninst, (a == dyn->insts[ninst].e.combined2)?'2':'1', a ,i, dyn->insts[ninst].e.stack_push, -dyn->insts[ninst].e.stack_pop);
@@ -326,7 +326,7 @@ void extcacheUnwind(extcache_t* cache)
 {
     if(cache->swapped) {
         // unswap
-        int a = -1; 
+        int a = -1;
         int b = -1;
         for(int j=0; j<24 && ((a==-1) || (b==-1)); ++j)
             if((cache->extcache[j].t == EXT_CACHE_ST_D || cache->extcache[j].t == EXT_CACHE_ST_F)) {
@@ -491,7 +491,7 @@ const char* getCacheName(int t, int n)
     return buff;
 }
 
-void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name)
+void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
     static const char* fnames[] = {
         "ft0"," ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7",
@@ -501,12 +501,12 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name)
         "ft8", "ft9", "ft10", "ft11"
     };
     if(box64_dynarec_dump) {
-        printf_x64_instruction(my_context->dec, &dyn->insts[ninst].x64, name);
+        printf_x64_instruction(rex.is32bits?my_context->dec32:my_context->dec, &dyn->insts[ninst].x64, name);
         dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d/%d",
             (box64_dynarec_dump>1)?"\e[32m":"",
             (void*)(dyn->native_start+dyn->insts[ninst].address),
             dyn->insts[ninst].size/4,
-            ninst,         
+            ninst,
             dyn->insts[ninst].x64.barrier,
             dyn->insts[ninst].x64.state_flags,
             dyn->f.pending,

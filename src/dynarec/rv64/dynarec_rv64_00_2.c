@@ -324,7 +324,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;
             if(MODREG) {   // reg <= reg
                 MVxw(xRAX+(nextop&7)+(rex.b<<3), gd);
-            } else {                    // mem <= reg
+            } else {       // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SDxw(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
@@ -399,15 +399,13 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("LEA Gd, Ed");
             nextop=F8;
             GETGD;
-            if(MODREG) {   // reg <= reg? that's an invalid operation
+            if(MODREG) { // reg <= reg? that's an invalid operation
                 DEFAULT;
-            } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
-                if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
-                    MV(gd, ed);
-                }
-                if(!rex.w) {
-                    ZEROUP(gd);   //truncate the higher 32bits as asked
+            } else {     // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                MV(gd, ed);
+                if(!rex.w || rex.is32bits) {
+                    ZEROUP(gd); // truncate the higher 32bits as asked
                 }
             }
             break;
@@ -429,17 +427,17 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("POP Ed");
             nextop = F8;
             if(MODREG) {
-                POP1(xRAX+(nextop&7)+(rex.b<<3));
+                POP1z(xRAX+(nextop&7)+(rex.b<<3));
             } else {
-                POP1(x2); // so this can handle POP [ESP] and maybe some variant too
+                POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, &lock, 1, 0);
                 if(ed==xRSP) {
-                    SD(x2, ed, fixedaddress);
+                    SDz(x2, ed, fixedaddress);
                 } else {
                     // complicated to just allow a segfault that can be recovered correctly
-                    SUB(xRSP, xRSP, 8);
-                    SD(x2, ed, fixedaddress);
-                    ADD(xRSP, xRSP, 8);
+                    ADDIz(xRSP, xRSP, rex.is32bits?-4:-8);
+                    SDz(x2, ed, fixedaddress);
+                    ADDIz(xRSP, xRSP, rex.is32bits?4:8);
                 }
             }
             break;
@@ -486,14 +484,15 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x9C:
             INST_NAME("PUSHF");
+            NOTEST(x1);
             READFLAGS(X_ALL);
             FLAGS_ADJUST_TO11(x3, xFlags, x2);
-            PUSH1(x3);
+            PUSH1z(x3);
             break;
         case 0x9D:
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
-            POP1(xFlags);
+            POP1z(xFlags);
             FLAGS_ADJUST_FROM11(xFlags, x2);
             MOV32w(x1, 0x3F7FD7);
             AND(xFlags, xFlags, x1);
@@ -511,26 +510,35 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x9F:
             INST_NAME("LAHF");
             READFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF);
-            ANDI(xRAX, xFlags, 0xFF);
-            SLLI(xRAX, xRAX, 8);
+            ANDI(x1, xFlags, 0xFF);
+            SLLI(x1, x1, 8);
+            MOV64x(x2, 0xffffffffffff00ffLL);
+            AND(xRAX, xRAX, x2);
+            OR(xRAX, xRAX, x1);
+            break;
+        case 0xA0:
+            INST_NAME("MOV AL,Ob");
+            if(rex.is32bits) u64 = F32; else u64 = F64;
+            MOV64z(x1, u64);
+            LBU(xRAX, x1, 0);
             break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
-            u64 = F64;
-            MOV64x(x1, u64);
+            if(rex.is32bits) u64 = F32; else u64 = F64;
+            MOV64z(x1, u64);
             LDxw(xRAX, x1, 0);
             break;
         case 0xA2:
             INST_NAME("MOV Ob,AL");
-            u64 = F64;
-            MOV64x(x1, u64);
+            if(rex.is32bits) u64 = F32; else u64 = F64;
+            MOV64z(x1, u64);
             SB(xRAX, x1, 0);
             SMWRITE();
             break;
         case 0xA3:
             INST_NAME("MOV Od,EAX");
-            u64 = F64;
-            MOV64x(x1, u64);
+            if(rex.is32bits) u64 = F32; else u64 = F64;
+            MOV64z(x1, u64);
             SDxw(xRAX, x1, 0);
             SMWRITE();
             break;
