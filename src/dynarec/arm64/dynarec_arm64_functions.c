@@ -58,7 +58,7 @@ void fpu_free_reg(dynarec_arm_t* dyn, int reg)
 {
     // TODO: check upper limit?
     dyn->n.fpuused[reg] = 0;
-    if(dyn->n.neoncache[reg].t!=NEON_CACHE_ST_F && dyn->n.neoncache[reg].t!=NEON_CACHE_ST_D)
+    if(dyn->n.neoncache[reg].t!=NEON_CACHE_ST_F && dyn->n.neoncache[reg].t!=NEON_CACHE_ST_D && dyn->n.neoncache[reg].t!=NEON_CACHE_ST_I64)
         dyn->n.neoncache[reg].v = 0;
 }
 // Get an MMX double reg
@@ -106,7 +106,8 @@ int neoncache_get_st(dynarec_arm_t* dyn, int ninst, int a)
     }
     for(int i=0; i<24; ++i)
         if((dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F
-         || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D)
+         || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D
+         || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_I64)
          && dyn->insts[ninst].n.neoncache[i].n==a)
             return dyn->insts[ninst].n.neoncache[i].t;
     // not in the cache yet, so will be fetched...
@@ -120,7 +121,8 @@ int neoncache_get_current_st(dynarec_arm_t* dyn, int ninst, int a)
         return NEON_CACHE_ST_D;
     for(int i=0; i<24; ++i)
         if((dyn->n.neoncache[i].t==NEON_CACHE_ST_F
-         || dyn->n.neoncache[i].t==NEON_CACHE_ST_D)
+         || dyn->n.neoncache[i].t==NEON_CACHE_ST_D
+         || dyn->n.neoncache[i].t==NEON_CACHE_ST_I64)
          && dyn->n.neoncache[i].n==a)
             return dyn->n.neoncache[i].t;
     // not in the cache yet, so will be fetched...
@@ -138,6 +140,17 @@ int neoncache_get_st_f(dynarec_arm_t* dyn, int ninst, int a)
             return i;
     return -1;
 } 
+int neoncache_get_st_f_i64(dynarec_arm_t* dyn, int ninst, int a)
+{
+    /*if(a+dyn->insts[ninst].n.stack_next-st<0)
+        // The STx has been pushed at the end of instructon, so stop going back
+        return -1;*/
+    for(int i=0; i<24; ++i)
+        if((dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_I64 || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F)
+         && dyn->insts[ninst].n.neoncache[i].n==a)
+            return i;
+    return -1;
+} 
 int neoncache_get_st_f_noback(dynarec_arm_t* dyn, int ninst, int a)
 {
     for(int i=0; i<24; ++i)
@@ -146,10 +159,26 @@ int neoncache_get_st_f_noback(dynarec_arm_t* dyn, int ninst, int a)
             return i;
     return -1;
 } 
+int neoncache_get_st_f_i64_noback(dynarec_arm_t* dyn, int ninst, int a)
+{
+    for(int i=0; i<24; ++i)
+        if((dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_I64 || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F)
+         && dyn->insts[ninst].n.neoncache[i].n==a)
+            return i;
+    return -1;
+} 
 int neoncache_get_current_st_f(dynarec_arm_t* dyn, int a)
 {
     for(int i=0; i<24; ++i)
         if(dyn->n.neoncache[i].t==NEON_CACHE_ST_F
+         && dyn->n.neoncache[i].n==a)
+            return i;
+    return -1;
+} 
+int neoncache_get_current_st_f_i64(dynarec_arm_t* dyn, int a)
+{
+    for(int i=0; i<24; ++i)
+        if((dyn->n.neoncache[i].t==NEON_CACHE_ST_I64 || dyn->n.neoncache[i].t==NEON_CACHE_ST_F)
          && dyn->n.neoncache[i].n==a)
             return i;
     return -1;
@@ -163,7 +192,7 @@ static void neoncache_promote_double_combined(dynarec_arm_t* dyn, int ninst, int
             a = dyn->insts[ninst].n.combined2;
         } else 
             a = dyn->insts[ninst].n.combined1;
-        int i = neoncache_get_st_f_noback(dyn, ninst, a);
+        int i = neoncache_get_st_f_i64_noback(dyn, ninst, a);
         //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_combined, ninst=%d combined%c %d i=%d (stack:%d/%d)\n", ninst, (a == dyn->insts[ninst].n.combined2)?'2':'1', a ,i, dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop);
         if(i>=0) {
             dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
@@ -182,7 +211,7 @@ static void neoncache_promote_double_internal(dynarec_arm_t* dyn, int ninst, int
         return;
     while(ninst>=0) {
         a+=dyn->insts[ninst].n.stack_pop;    // adjust Stack depth: add pop'd ST (going backward)
-        int i = neoncache_get_st_f(dyn, ninst, a);
+        int i = neoncache_get_st_f_i64(dyn, ninst, a);
         //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d, a=%d st=%d:%d, i=%d\n", ninst, a, dyn->insts[ninst].n.stack, dyn->insts[ninst].n.stack_next, i);
         if(i<0) return;
         dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
@@ -217,7 +246,7 @@ static void neoncache_promote_double_forward(dynarec_arm_t* dyn, int ninst, int 
             else if (a==dyn->insts[ninst].n.combined2)
                 a = dyn->insts[ninst].n.combined1;
         }
-        int i = neoncache_get_st_f_noback(dyn, ninst, a);
+        int i = neoncache_get_st_f_i64_noback(dyn, ninst, a);
         //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_forward, ninst=%d, a=%d st=%d:%d(%d/%d), i=%d\n", ninst, a, dyn->insts[ninst].n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop, i);
         if(i<0) return;
         dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
@@ -238,7 +267,7 @@ static void neoncache_promote_double_forward(dynarec_arm_t* dyn, int ninst, int 
 
 void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a)
 {
-    int i = neoncache_get_current_st_f(dyn, a);
+    int i = neoncache_get_current_st_f_i64(dyn, a);
     //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double, ninst=%d a=%d st=%d i=%d\n", ninst, a, dyn->n.stack, i);
     if(i<0) return;
     dyn->n.neoncache[i].t = NEON_CACHE_ST_D;
@@ -271,6 +300,9 @@ int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b)
     if( neoncache_get_current_st(dyn, ninst, a)==NEON_CACHE_ST_F
      && neoncache_get_current_st(dyn, ninst, b)==NEON_CACHE_ST_F )
         return NEON_CACHE_ST_F;
+    if( neoncache_get_current_st(dyn, ninst, a)==NEON_CACHE_ST_I64
+     && neoncache_get_current_st(dyn, ninst, b)==NEON_CACHE_ST_I64 )
+        return NEON_CACHE_ST_I64;
     return NEON_CACHE_ST_D;
 }
 
@@ -281,7 +313,9 @@ static int isCacheEmpty(dynarec_native_t* dyn, int ninst) {
     for(int i=0; i<24; ++i)
         if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
             if(!(
-            (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D)
+            (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F 
+             || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D
+             || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_I64)
             && dyn->insts[ninst].n.neoncache[i].n<dyn->insts[ninst].n.stack_pop))
                 return 0;
         }
@@ -304,7 +338,9 @@ int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
         for(int i=0; i<24 && !ret; ++i)
             if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
                 if(!(
-                (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D)
+                (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F 
+                || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D
+                || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_I64)
                 && dyn->insts[ninst].n.neoncache[i].n<dyn->insts[ninst].n.stack_pop))
                     ret = 1;
             }
@@ -343,7 +379,7 @@ void neoncacheUnwind(neoncache_t* cache)
         int a = -1; 
         int b = -1;
         for(int j=0; j<24 && ((a==-1) || (b==-1)); ++j)
-            if((cache->neoncache[j].t == NEON_CACHE_ST_D || cache->neoncache[j].t == NEON_CACHE_ST_F)) {
+            if((cache->neoncache[j].t == NEON_CACHE_ST_D || cache->neoncache[j].t == NEON_CACHE_ST_F || cache->neoncache[j].t == NEON_CACHE_ST_I64)) {
                 if(cache->neoncache[j].n == cache->combined1)
                     a = j;
                 else if(cache->neoncache[j].n == cache->combined2)
@@ -367,7 +403,7 @@ void neoncacheUnwind(neoncache_t* cache)
     if(cache->stack_push) {
         // unpush
         for(int j=0; j<24; ++j) {
-            if((cache->neoncache[j].t == NEON_CACHE_ST_D || cache->neoncache[j].t == NEON_CACHE_ST_F)) {
+            if((cache->neoncache[j].t == NEON_CACHE_ST_D || cache->neoncache[j].t == NEON_CACHE_ST_F || cache->neoncache[j].t == NEON_CACHE_ST_I64)) {
                 if(cache->neoncache[j].n<cache->stack_push)
                     cache->neoncache[j].v = 0;
                 else
@@ -412,6 +448,7 @@ void neoncacheUnwind(neoncache_t* cache)
                     break;
                 case NEON_CACHE_ST_F:
                 case NEON_CACHE_ST_D:
+                case NEON_CACHE_ST_I64:
                     cache->x87cache[x87reg] = cache->neoncache[i].n;
                     cache->x87reg[x87reg] = i;
                     ++x87reg;
@@ -477,6 +514,7 @@ const char* getCacheName(int t, int n)
     switch(t) {
         case NEON_CACHE_ST_D: sprintf(buff, "ST%d", n); break;
         case NEON_CACHE_ST_F: sprintf(buff, "st%d", n); break;
+        case NEON_CACHE_ST_I64: sprintf(buff, "STi%d", n); break;
         case NEON_CACHE_MM: sprintf(buff, "MM%d", n); break;
         case NEON_CACHE_XMMW: sprintf(buff, "XMM%d", n); break;
         case NEON_CACHE_XMMR: sprintf(buff, "xmm%d", n); break;
@@ -521,6 +559,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             switch(dyn->insts[ninst].n.neoncache[ii].t) {
                 case NEON_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
                 case NEON_CACHE_ST_F: dynarec_log(LOG_NONE, " S%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_ST_I64: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
                 case NEON_CACHE_MM: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
                 case NEON_CACHE_XMMW: dynarec_log(LOG_NONE, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
                 case NEON_CACHE_XMMR: dynarec_log(LOG_NONE, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;

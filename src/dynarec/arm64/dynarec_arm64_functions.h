@@ -21,12 +21,16 @@ void fpu_reset_reg(dynarec_arm_t* dyn);
 // ---- Neon cache functions
 // Get type for STx
 int neoncache_get_st(dynarec_arm_t* dyn, int ninst, int a);
-// Get if STx is FLOAT or DOUBLE
+// Get if STx is FLOAT
 int neoncache_get_st_f(dynarec_arm_t* dyn, int ninst, int a);
+// Get if STx is FLOAT or I64
+int neoncache_get_st_f_i64(dynarec_arm_t* dyn, int ninst, int a);
 // Get actual type for STx
 int neoncache_get_current_st(dynarec_arm_t* dyn, int ninst, int a);
-// Get actual STx is FLOAT or DOUBLE
+// Get actual STx is FLOAT
 int neoncache_get_current_st_f(dynarec_arm_t* dyn, int a);
+// Get actual STx is FLOAT or I64
+int neoncache_get_current_st_f_i64(dynarec_arm_t* dyn, int a);
 // Back-propagate a change float->double
 void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a);
 // Combine and propagate if needed (pass 1 only)

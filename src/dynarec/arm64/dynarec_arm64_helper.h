@@ -1142,16 +1142,19 @@ int neoncache_st_coherency(dynarec_arm_t* dyn, int ninst, int a, int b);
 
 #if STEP == 0
 #define ST_IS_F(A)          0
+#define ST_IS_I64(A)        0
 #define X87_COMBINE(A, B)   NEON_CACHE_ST_D
 #define X87_ST0             NEON_CACHE_ST_D
 #define X87_ST(A)           NEON_CACHE_ST_D
 #elif STEP == 1
 #define ST_IS_F(A) (neoncache_get_current_st(dyn, ninst, A)==NEON_CACHE_ST_F)
+#define ST_IS_I64(A) (neoncache_get_current_st(dyn, ninst, A)==NEON_CACHE_ST_I64)
 #define X87_COMBINE(A, B) neoncache_combine_st(dyn, ninst, A, B)
 #define X87_ST0     neoncache_get_current_st(dyn, ninst, 0)
 #define X87_ST(A)   neoncache_get_current_st(dyn, ninst, A)
 #else
 #define ST_IS_F(A) (neoncache_get_st(dyn, ninst, A)==NEON_CACHE_ST_F)
+#define ST_IS_I64(A) (neoncache_get_st(dyn, ninst, A)==NEON_CACHE_ST_I64)
 #if STEP == 3
 #define X87_COMBINE(A, B) neoncache_st_coherency(dyn, ninst, A, B)
 #else

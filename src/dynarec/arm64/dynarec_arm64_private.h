@@ -9,13 +9,14 @@ typedef struct instsize_s instsize_t;
 
 #define BARRIER_MAYBE   8
 
-#define NEON_CACHE_NONE 0
-#define NEON_CACHE_ST_D 1
-#define NEON_CACHE_ST_F 2
-#define NEON_CACHE_MM   3
-#define NEON_CACHE_XMMW 4
-#define NEON_CACHE_XMMR 5
-#define NEON_CACHE_SCR  6
+#define NEON_CACHE_NONE     0
+#define NEON_CACHE_ST_D     1
+#define NEON_CACHE_ST_F     2
+#define NEON_CACHE_ST_I64   3
+#define NEON_CACHE_MM       4
+#define NEON_CACHE_XMMW     5
+#define NEON_CACHE_XMMR     6
+#define NEON_CACHE_SCR      7
 typedef union neon_cache_s {
     int8_t           v;
     struct {

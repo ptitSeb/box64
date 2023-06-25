@@ -846,7 +846,9 @@ static void x87_reset(dynarec_arm_t* dyn)
     dyn->n.swapped = 0;
     dyn->n.barrier = 0;
     for(int i=0; i<24; ++i)
-        if(dyn->n.neoncache[i].t == NEON_CACHE_ST_F || dyn->n.neoncache[i].t == NEON_CACHE_ST_D)
+        if(dyn->n.neoncache[i].t == NEON_CACHE_ST_F
+         || dyn->n.neoncache[i].t == NEON_CACHE_ST_D
+         || dyn->n.neoncache[i].t == NEON_CACHE_ST_I64)
             dyn->n.neoncache[i].v = 0;
 }
 
@@ -907,7 +909,9 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t)
     dyn->n.stack_push+=1;
     // move all regs in cache, and find a free one
     for(int j=0; j<24; ++j)
-        if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D) || (dyn->n.neoncache[j].t == NEON_CACHE_ST_F))
+        if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D)
+         ||(dyn->n.neoncache[j].t == NEON_CACHE_ST_F)
+         ||(dyn->n.neoncache[j].t == NEON_CACHE_ST_I64))
             ++dyn->n.neoncache[j].n;
     int ret = -1;
     for(int i=0; i<8; ++i)
@@ -916,13 +920,7 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t)
         else if(ret==-1) {
             dyn->n.x87cache[i] = 0;
             ret=dyn->n.x87reg[i]=fpu_get_reg_x87(dyn, t, 0);
-            #if STEP == 1
-            // need to check if reg is compatible with float
-            if((ret>15) && (t == NEON_CACHE_ST_F))
-                dyn->n.neoncache[ret].t = NEON_CACHE_ST_D;
-            #else
             dyn->n.neoncache[ret].t = X87_ST0;
-            #endif
         }
     return ret;
 }
@@ -936,7 +934,9 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
     dyn->n.stack_push+=1;
     // move all regs in cache
     for(int j=0; j<24; ++j)
-        if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D) || (dyn->n.neoncache[j].t == NEON_CACHE_ST_F))
+        if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D)
+         ||(dyn->n.neoncache[j].t == NEON_CACHE_ST_F)
+         ||(dyn->n.neoncache[j].t == NEON_CACHE_ST_I64))
             ++dyn->n.neoncache[j].n;
     for(int i=0; i<8; ++i)
         if(dyn->n.x87cache[i]!=-1)
@@ -1133,7 +1133,7 @@ int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t)
     for (int i=0; i<8; ++i) {
         if(dyn->n.x87cache[i]==st) {
             #if STEP == 1
-            if(t==NEON_CACHE_ST_D && (dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_F))
+            if(t==NEON_CACHE_ST_D && (dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_F || dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_I64))
                 neoncache_promote_double(dyn, ninst, st);
             #endif
             return i;
@@ -1179,7 +1179,9 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, i
 int x87_get_neoncache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
     for(int ii=0; ii<24; ++ii)
-        if((dyn->n.neoncache[ii].t == NEON_CACHE_ST_F || dyn->n.neoncache[ii].t == NEON_CACHE_ST_D)
+        if((dyn->n.neoncache[ii].t == NEON_CACHE_ST_F
+         || dyn->n.neoncache[ii].t == NEON_CACHE_ST_D
+         || dyn->n.neoncache[ii].t == NEON_CACHE_ST_I64)
          && dyn->n.neoncache[ii].n==st)
             return ii;
     assert(0);
@@ -1217,6 +1219,9 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     if(dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_F) {
         FCVT_D_S(31, dyn->n.x87reg[ret]);
         VSTR64_REG_LSL3(31, s1, s2);
+    } else if(dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_I64) {
+        SCVTFDD(31, dyn->n.x87reg[ret]);
+        VSTR64_REG_LSL3(31, s1, s2);
     } else {
         VSTR64_REG_LSL3(dyn->n.x87reg[ret], s1, s2);
     }
@@ -1234,7 +1239,7 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
     #if STEP == 1
-    if(dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_F)
+    if(dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_F || dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_I64)
         neoncache_promote_double(dyn, ninst, st);
     #endif
     // prepare offset to fpu => s1
@@ -1265,7 +1270,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
             // refresh the value
             MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
             #if STEP == 1
-            if(dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_F)
+            if(dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_F || dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_I64)
                 neoncache_promote_double(dyn, ninst, st);
             #endif
             ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
@@ -1591,9 +1596,19 @@ static int findCacheSlot(dynarec_arm_t* dyn, int ninst, int t, int n, neoncache_
                 case NEON_CACHE_ST_F:
                     if (t==NEON_CACHE_ST_D)
                         return i;
+                    if (t==NEON_CACHE_ST_I64)
+                        return i;
                     break;
                 case NEON_CACHE_ST_D:
                     if (t==NEON_CACHE_ST_F)
+                        return i;
+                    if (t==NEON_CACHE_ST_I64)
+                        return i;
+                    break;
+                case NEON_CACHE_ST_I64:
+                    if (t==NEON_CACHE_ST_F)
+                        return i;
+                    if (t==NEON_CACHE_ST_D)
                         return i;
                     break;
                 case NEON_CACHE_XMMR:
@@ -1684,6 +1699,7 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
             break;
         case NEON_CACHE_ST_D:
         case NEON_CACHE_ST_F:
+        case NEON_CACHE_ST_I64:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
             if((*s3_top) == 0xffff) {
                 LDRw_U12(s3, xEmu, offsetof(x64emu_t, top));
@@ -1704,6 +1720,9 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
             VLDR64_U12(i, s2, offsetof(x64emu_t, x87));
             if(t==NEON_CACHE_ST_F) {
                 FCVT_S_D(i, i);
+            }
+            if(t==NEON_CACHE_ST_I64) {
+                VFCVTZSQD(i, i);
             }
             break;
         case NEON_CACHE_NONE:
@@ -1732,6 +1751,7 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
             break;
         case NEON_CACHE_ST_D:
         case NEON_CACHE_ST_F:
+        case NEON_CACHE_ST_I64:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
             if((*s3_top)==0xffff) {
                 LDRw_U12(s3, xEmu, offsetof(x64emu_t, top));
@@ -1751,6 +1771,8 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
             *s2_val = 0;
             if(t==NEON_CACHE_ST_F) {
                 FCVT_D_S(i, i);
+            } else if (t==NEON_CACHE_ST_I64) {
+                SCVTFDD(i, i);
             }
             VSTR64_U12(i, s2, offsetof(x64emu_t, x87));
             break;
@@ -1879,6 +1901,23 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
                 } else if(cache.neoncache[i].t == NEON_CACHE_ST_F && cache_i2.neoncache[i].t == NEON_CACHE_ST_D) {
                     MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
                     FCVT_D_S(i, i);
+                    cache.neoncache[i].t = NEON_CACHE_ST_D;
+                } else if(cache.neoncache[i].t == NEON_CACHE_ST_D && cache_i2.neoncache[i].t == NEON_CACHE_ST_I64) {
+                    MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
+                    VFCVTZSQD(i, i);
+                    cache.neoncache[i].t = NEON_CACHE_ST_I64;
+                } else if(cache.neoncache[i].t == NEON_CACHE_ST_F && cache_i2.neoncache[i].t == NEON_CACHE_ST_I64) {
+                    MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
+                    VFCVTZSQS(i, i);
+                    cache.neoncache[i].t = NEON_CACHE_ST_D;
+                } else if(cache.neoncache[i].t == NEON_CACHE_ST_I64 && cache_i2.neoncache[i].t == NEON_CACHE_ST_F) {
+                    MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
+                    SCVTFDD(i, i);
+                    FCVT_S_D(i, i);
+                    cache.neoncache[i].t = NEON_CACHE_ST_F;
+                } else if(cache.neoncache[i].t == NEON_CACHE_ST_I64 && cache_i2.neoncache[i].t == NEON_CACHE_ST_D) {
+                    MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
+                    SCVTFDD(i, i);
                     cache.neoncache[i].t = NEON_CACHE_ST_D;
                 } else if(cache.neoncache[i].t == NEON_CACHE_XMMR && cache_i2.neoncache[i].t == NEON_CACHE_XMMW)
                     { cache.neoncache[i].t = NEON_CACHE_XMMW; }
@@ -2031,7 +2070,9 @@ void fpu_propagate_stack(dynarec_arm_t* dyn, int ninst)
 {
     if(dyn->n.stack_pop) {
         for(int j=0; j<24; ++j)
-            if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D || dyn->n.neoncache[j].t == NEON_CACHE_ST_F)) {
+            if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D
+             || dyn->n.neoncache[j].t == NEON_CACHE_ST_F
+             || dyn->n.neoncache[j].t == NEON_CACHE_ST_I64)) {
                 if(dyn->n.neoncache[j].n<dyn->n.stack_pop)
                     dyn->n.neoncache[j].v = 0;
                 else
