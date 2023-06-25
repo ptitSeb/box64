@@ -633,6 +633,29 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xAD:
+            if(rep) {
+                INST_NAME("REP LODSW");
+                CBZx_NEXT(xRCX);
+                TBNZ_MARK2(xFlags, F_DF);
+                MARK;   // Part with DF==0
+                LDRH_S9_postindex(xRAX, xRSI, 2);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2;  // Part with DF==1
+                LDRH_S9_postindex(xRAX, xRSI, -2);
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("STOSW");
+                GETDIR(x3, 2);
+                LDRH_U12(xRAX, xRSI, 0);
+                ADDx_REG(xRSI, xRSI, x3);
+            }
+            break;
+
         case 0xAF:
             switch(rep) {
             case 1:
