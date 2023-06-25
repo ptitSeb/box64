@@ -526,6 +526,19 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIx(gd, x1, 0, 16);
             }
             break;
+        case 0x8C:
+            INST_NAME("MOV EW, Seg");
+            nextop=F8;
+            u8 = (nextop&0x38)>>3;
+            LDRw_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
+            if((nextop&0xC0)==0xC0) {   // reg <= seg
+                UXTHw(xRAX+(nextop&7)+(rex.b<<3), x3);
+            } else {                    // mem <= seg
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                STH(x3, wback, fixedaddress);
+                SMWRITE2();
+            }
+            break;
 
             case 0x90:
             case 0x91:
