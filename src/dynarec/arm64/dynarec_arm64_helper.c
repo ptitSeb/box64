@@ -1135,6 +1135,8 @@ int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t)
             #if STEP == 1
             if(t==NEON_CACHE_ST_D && (dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_F || dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_I64))
                 neoncache_promote_double(dyn, ninst, st);
+            else if(t==NEON_CACHE_ST_F && (dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_I64))
+                neoncache_promote_double(dyn, ninst, st);
             #endif
             return i;
         }

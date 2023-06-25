@@ -300,9 +300,10 @@ int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b)
     if( neoncache_get_current_st(dyn, ninst, a)==NEON_CACHE_ST_F
      && neoncache_get_current_st(dyn, ninst, b)==NEON_CACHE_ST_F )
         return NEON_CACHE_ST_F;
-    if( neoncache_get_current_st(dyn, ninst, a)==NEON_CACHE_ST_I64
+    // don't combine i64, it's only for load/store
+    /*if( neoncache_get_current_st(dyn, ninst, a)==NEON_CACHE_ST_I64
      && neoncache_get_current_st(dyn, ninst, b)==NEON_CACHE_ST_I64 )
-        return NEON_CACHE_ST_I64;
+        return NEON_CACHE_ST_I64;*/
     return NEON_CACHE_ST_D;
 }
 
