@@ -543,6 +543,12 @@ x64emurun:
             ,,STEP2
             )                           /* Jxx Ib */
         
+        case 0x82:
+            if(!rex.is32bits) {
+                unimp = 1;
+                goto fini;
+            }
+            // fallthru
         case 0x80:                      /* GRP Eb,Ib */
             nextop = F8;
             GETEB(1);
