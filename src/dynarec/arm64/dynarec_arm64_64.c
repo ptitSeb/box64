@@ -591,6 +591,26 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x8F:
+            INST_NAME("POP FS:Ed");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            if(MODREG) {
+                POP1z(xRAX+(nextop&7)+(rex.b<<3));
+            } else {
+                POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0, 0, rex, NULL, 0, 0);
+                if(ed==xRSP) {
+                    STRz_REG(x2, ed, x4);
+                } else {
+                    // complicated to just allow a segfault that can be recovered correctly
+                    SUBz_U12(xRSP, xRSP, rex.is32bits?4:8);
+                    STRz_REG(x2, ed, x4);
+                    ADDz_U12(xRSP, xRSP, rex.is32bits?4:8);
+                }
+            }
+            break;
+
         case 0xA1:
             INST_NAME("MOV EAX,FS:Od");
             grab_segdata(dyn, addr, ninst, x4, seg);
