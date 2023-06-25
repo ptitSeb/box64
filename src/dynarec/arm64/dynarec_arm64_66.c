@@ -633,6 +633,44 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xAF:
+            switch(rep) {
+            case 1:
+            case 2:
+                if(rep==1) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
+                MAYSETFLAGS();
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                CBZx_NEXT(xRCX);
+                UXTHw(x1, xRAX);
+                TBNZ_MARK2(xFlags, F_DF);
+                MARK;   // Part with DF==0
+                LDRH_S9_postindex(x2, xRDI, 2);
+                SUBx_U12(xRCX, xRCX, 1);
+                CMPSw_REG(x1, x2);
+                B_MARK3((rep==1)?cEQ:cNE);
+                CBNZx_MARK(xRCX);
+                B_MARK3_nocond;
+                MARK2;  // Part with DF==1
+                LDRH_S9_postindex(x2, xRDI, -2);
+                SUBx_U12(xRCX, xRCX, 1);
+                CMPSw_REG(x1, x2);
+                B_MARK3((rep==1)?cEQ:cNE);
+                CBNZx_MARK2(xRCX);
+                MARK3;  // end
+                emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5);
+                break;
+            default:
+                INST_NAME("SCASW");
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                GETDIR(x3, 2);
+                UXTHw(x1, xRAX);
+                LDRH_U12(x2, xRDI, 0);
+                ADDx_REG(xRDI, xRDI, x3);
+                emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5);
+                break;
+            }
+            break;
+
         case 0xB8:
         case 0xB9:
         case 0xBA:
