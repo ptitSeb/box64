@@ -515,7 +515,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             R_RCX = tmp64u;
         break;
 
-    case 0xAF:                      /* (REPZ/REPNE) SCASD */
+    case 0xAF:                      /* (REPZ/REPNE) SCASW */
         if(rex.w)
             tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
         else
