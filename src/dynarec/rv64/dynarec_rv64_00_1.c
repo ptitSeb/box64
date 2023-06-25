@@ -88,7 +88,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x57:
             INST_NAME("PUSH reg");
             gd = xRAX+(opcode&0x07)+(rex.b<<3);
-            PUSHz(gd);
+            PUSH1z(gd);
             break;
         case 0x58:
         case 0x59:
@@ -100,21 +100,21 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5F:
             INST_NAME("POP reg");
             gd = xRAX+(opcode&0x07)+(rex.b<<3);
-            POPz(gd);
+            POP1z(gd);
             break;
 
         case 0x60:
             if(rex.is32bits) {
                 INST_NAME("PUSHAD");
                 AND(x1, xRSP, xMASK);
-                PUSH_32(xRAX);
-                PUSH_32(xRCX);
-                PUSH_32(xRDX);
-                PUSH_32(xRBX);
-                PUSH_32(x1);
-                PUSH_32(xRBP);
-                PUSH_32(xRSI);
-                PUSH_32(xRDI);
+                PUSH1_32(xRAX);
+                PUSH1_32(xRCX);
+                PUSH1_32(xRDX);
+                PUSH1_32(xRBX);
+                PUSH1_32(x1);
+                PUSH1_32(xRBP);
+                PUSH1_32(xRSI);
+                PUSH1_32(xRDI);
             } else {
                 DEFAULT;
             }
@@ -122,14 +122,14 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x61:
             if(rex.is32bits) {
                 INST_NAME("POPAD");
-                POP_32(xRDI);
-                POP_32(xRSI);
-                POP_32(xRBP);
-                POP_32(x1);
-                POP_32(xRBX);
-                POP_32(xRDX);
-                POP_32(xRCX);
-                POP_32(xRAX);
+                POP1_32(xRDI);
+                POP1_32(xRSI);
+                POP1_32(xRBP);
+                POP1_32(x1);
+                POP1_32(xRBX);
+                POP1_32(xRDX);
+                POP1_32(xRCX);
+                POP1_32(xRAX);
             } else {
                 DEFAULT;
             }
@@ -181,10 +181,10 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
                 TABLE64(x3, addr-4);
                 LW(x1, x3, 0);
-                PUSHz(x1);
+                PUSH1z(x1);
             } else {
                 MOV64z(x3, i64);
-                PUSHz(x3);
+                PUSH1z(x3);
             }
             break;
         case 0x69:
@@ -224,7 +224,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("PUSH Ib");
             i64 = F8S;
             MOV64z(x3, i64);
-            PUSHz(x3);
+            PUSH1z(x3);
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");

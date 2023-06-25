@@ -280,7 +280,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xC9:
             INST_NAME("LEAVE");
             MVz(xRSP, xRBP);
-            POPz(xRBP);
+            POP1z(xRBP);
             break;
 
         case 0xCC:
@@ -645,7 +645,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         TABLE64(x2, addr);
                     }
-                    PUSH(x2);
+                    PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
@@ -660,7 +660,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8), tmp);
-                        POP(xRIP);       // pop the return address
+                        POP1(xRIP);       // pop the return address
                         dyn->last_ip = addr;
                     } else {
                         GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
@@ -671,7 +671,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         TABLE64(x3, dyn->insts[ninst].natcall);
                         ADDI(x3, x3, 2+8+8);
                         BNE_MARK(xRIP, x3);    // Not the expected address, exit dynarec block
-                        POP(xRIP);       // pop the return address
+                        POP1(xRIP);       // pop the return address
                         if(dyn->insts[ninst].retn) {
                             if(dyn->insts[ninst].retn<0x1000) {
                                 ADDI(xRSP, xRSP, dyn->insts[ninst].retn);
@@ -710,7 +710,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         TABLE64(x2, addr);
                     }
-                    PUSHz(x2);
+                    PUSH1z(x2);
                     // TODO: Add support for CALLRET optim
                     /*if(box64_dynarec_callret) {
                         // Push actual return address
@@ -723,8 +723,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             TABLE64(x4, j64);
                             LDR(x4, x4, 0);
                         }
-                        PUSH(x4);
-                        PUSH(x2);
+                        PUSH1(x4);
+                        PUSH1(x2);
                     } else */ //CALLRET optim disable for now.
                     {
                         *ok = 0;
@@ -1090,7 +1090,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                         STPx_S7_preindex(x4, xRIP, xSP, -16);
                     }*/
-                    PUSHz(xRIP);
+                    PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst);
                     break;
                 case 4: // JMP Ed
@@ -1124,7 +1124,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 6: // Push Ed
                     INST_NAME("PUSH Ed");
                     GETEDz(0);
-                    PUSHz(ed);
+                    PUSH1z(ed);
                     break;
 
                 default:

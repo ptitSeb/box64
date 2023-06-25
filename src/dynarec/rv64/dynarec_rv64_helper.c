@@ -567,7 +567,7 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Ret to epilog\n");
-    POPz(xRIP);
+    POP1z(xRIP);
     MVz(x1, xRIP);
     SMEND();
     /*if(box64_dynarec_callret) {
@@ -615,7 +615,7 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Retn to epilog\n");
-    POPz(xRIP);
+    POP1z(xRIP);
     if(n>0x7ff) {
         MOV64x(w1, n);
         ADDz(xRSP, xRSP, x1);
@@ -672,13 +672,13 @@ void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits)
     MESSAGE(LOG_DUMP, "IRet to epilog\n");
     NOTEST(x2);
     if(is64bits) {
-        POP(xRIP);
-        POP(x2);
-        POP(xFlags);
+        POP1(xRIP);
+        POP1(x2);
+        POP1(xFlags);
     } else {
-        POP_32(xRIP);
-        POP_32(x2);
-        POP_32(xFlags);
+        POP1_32(xRIP);
+        POP1_32(x2);
+        POP1_32(xFlags);
     }
 
     SH(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
@@ -690,11 +690,11 @@ void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits)
     SET_DFNONE();
     // POP RSP
     if (is64bits) {
-        POP(x3);   //rsp
-        POP(x2);   //ss
+        POP1(x3);   //rsp
+        POP1(x2);   //ss
     } else {
-        POP_32(x3);   //rsp
-        POP_32(x2);   //ss
+        POP1_32(x3);   //rsp
+        POP1_32(x2);   //ss
     }
     // POP SS
     SH(x2, xEmu, offsetof(x64emu_t, segs[_SS]));

@@ -427,9 +427,9 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("POP Ed");
             nextop = F8;
             if(MODREG) {
-                POPz(xRAX+(nextop&7)+(rex.b<<3));
+                POP1z(xRAX+(nextop&7)+(rex.b<<3));
             } else {
-                POPz(x2); // so this can handle POP [ESP] and maybe some variant too
+                POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, &lock, 1, 0);
                 if(ed==xRSP) {
                     SDz(x2, ed, fixedaddress);
@@ -487,12 +487,12 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             NOTEST(x1);
             READFLAGS(X_ALL);
             FLAGS_ADJUST_TO11(x3, xFlags, x2);
-            PUSHz(x3);
+            PUSH1z(x3);
             break;
         case 0x9D:
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
-            POPz(xFlags);
+            POP1z(xFlags);
             FLAGS_ADJUST_FROM11(xFlags, x2);
             MOV32w(x1, 0x3F7FD7);
             AND(xFlags, xFlags, x1);
