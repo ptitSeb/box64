@@ -101,7 +101,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i64 = F32S;
             emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5);
             break;
-
+        case 0x06:
+            if(rex.is32bits) {
+                INST_NAME("PUSH ES");
+                LDRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+                PUSH1_32(x1);
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0x07:
+            if(rex.is32bits) {
+                INST_NAME("POP ES");
+                POP1_32(x1);
+                STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0x08:
             INST_NAME("OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
