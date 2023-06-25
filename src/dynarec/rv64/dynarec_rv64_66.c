@@ -263,8 +263,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("INC Reg16 (32bits)");
             SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
             gd = xRAX + (opcode&7);
-            ANDI(x1, gd, 0xFF);
-            emit_inc16(dyn, ninst, gd, x1, x2, x3);
+            ZEXTH(x1, gd);
+            emit_inc16(dyn, ninst, x1, x2, x3, x4);
+            LUI(x3, 0xffff0);
+            AND(gd, gd, x3);
+            OR(gd, gd, x1);
+            ZEROUP(gd);
             break;
         case 0x48:
         case 0x49:
@@ -277,8 +281,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("DEC Reg16 (32bits)");
             SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
             gd = xRAX + (opcode&7);
-            ANDI(x1, gd, 0xFF);
-            emit_dec16(dyn, ninst, gd, x1, x2, x3, x4);
+            ZEXTH(x1, gd);
+            emit_dec16(dyn, ninst, x1, x2, x3, x4, x5);
+            LUI(x3, 0xffff0);
+            AND(gd, gd, x3);
+            OR(gd, gd, x1);
+            ZEROUP(gd);
             break;
         case 0x64:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _FS, ok, need_epilog);
