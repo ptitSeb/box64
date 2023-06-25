@@ -196,6 +196,22 @@ x64emurun:
         GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
         #undef GO
 
+        case 0x1E:                      /* PUSH DS */
+            if(!rex.is32bits) {
+                unimp = 1;
+                goto fini;
+            }
+            Push(emu, emu->segs[_DS]);  // even if a segment is a 16bits, a 32bits push/pop is done
+            break;
+        case 0x1F:                      /* POP DS */
+            if(!rex.is32bits) {
+                unimp = 1;
+                goto fini;
+            }
+            emu->segs[_DS] = Pop(emu);    // no check, no use....
+            emu->segs_serial[_DS] = 0;
+            break;
+
 	    case 0x2E:	    /* segments are ignored */
         case 0x26:
         case 0x36:          /* SS: (ignored) */
