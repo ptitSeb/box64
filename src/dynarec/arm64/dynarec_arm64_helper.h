@@ -525,6 +525,10 @@
 #define B_MARK2_nocond              \
     j64 = GETMARK2-(dyn->native_size); \
     B(j64)
+// Branch to MARK2 if reg is 0 (use j64)
+#define CBZx_MARK2(reg)             \
+    j64 = GETMARK2-(dyn->native_size); \
+    CBZx(reg, j64)
 // Branch to MARK2 if reg is not 0 (use j64)
 #define CBNZx_MARK2(reg)            \
     j64 = GETMARK2-(dyn->native_size); \

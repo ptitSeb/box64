@@ -291,7 +291,26 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                     VLD64(v1, wback, fixedaddress);
                     if(!ST_IS_I64(0)) {
+                        if(rex.is32bits) {
+                            // need to also feed the STll stuff...
+                            ADDx_U12(x4, xEmu, offsetof(x64emu_t, fpu_ll));
+                            LDRw_U12(x1, xEmu, offsetof(x64emu_t, top));
+                            int a = 0 - dyn->n.x87stack;
+                            if(a) {
+                                if(a<0) {
+                                    SUBw_U12(x1, x1, -a);
+                                } else {
+                                    ADDw_U12(x1, x1, a);
+                                }
+                                ANDw_mask(x1, x1, 0, 2); //mask=7
+                            }
+                            ADDx_REG_LSL(x1, x4, x1, 4);    // fpu_ll is 2 i64
+                            VSTR64_U12(v1, x1, 8);  // ll
+                        }
                         SCVTFDD(v1, v1);
+                        if(rex.is32bits) {
+                            VSTR64_U12(v1, x1, 0);  // ref
+                        }
                     }
                     break;
                 case 6:
@@ -319,6 +338,29 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         VFCVTZSd(s0, s0);
                         VSTR64_U12(s0, wback, fixedaddress);
                         #else
+                        if(rex.is32bits) {
+                            // need to check STll first...
+                            ADDx_U12(x5, xEmu, offsetof(x64emu_t, fpu_ll));
+                            LDRw_U12(x1, xEmu, offsetof(x64emu_t, top));
+                            VMOVQDto(x3, v1, 0);
+                            int a = 0 - dyn->n.x87stack;
+                            if(a) {
+                                if(a<0) {
+                                    SUBw_U12(x1, x1, -a);
+                                } else {
+                                    ADDw_U12(x1, x1, a);
+                                }
+                                ANDw_mask(x1, x1, 0, 2); //mask=7
+                            }
+                            ADDx_REG_LSL(x1, x5, x1, 4);    // fpu_ll is 2 i64
+                            LDRx_U12(x5, x1, 0);  // ref
+                            SUBx_REG(x5, x5, x3);
+                            CBNZx_MARK2(x5);
+                            LDRx_U12(x5, x1, 8);  // ll
+                            STx(x5, wback, fixedaddress);
+                            B_MARK3(c__);
+                            MARK2;
+                        }
                         MRS_fpsr(x5);
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                         MSR_fpsr(x5);
