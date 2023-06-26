@@ -520,7 +520,9 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOV AL,Ob");
             if(rex.is32bits) u64 = F32; else u64 = F64;
             MOV64z(x1, u64);
-            LBU(xRAX, x1, 0);
+            LBU(x1, x1, 0);
+            ANDI(xRAX, xRAX, ~0xff);
+            OR(xRAX, xRAX, x1);
             break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
