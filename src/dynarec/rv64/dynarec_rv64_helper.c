@@ -2047,7 +2047,7 @@ void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zerou
         LUI(reg, hi20);
         src = reg;
     }
-    if (lo12 || !hi20) ADDI(reg, src, lo12);
+    if (lo12 || !hi20) ADDIW(reg, src, lo12);
     if((zeroup && ((hi20&0x80000) || (!hi20 && (lo12&0x800)))
     || (!zeroup && !(val&0x80000000) && ((hi20&0x80000) || (!hi20 && (lo12&0x800)))))) {
         ZEROUP(reg);
