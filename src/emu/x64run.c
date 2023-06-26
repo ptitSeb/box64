@@ -1378,6 +1378,12 @@ x64emurun:
             if(box64_wine && tmp8u==0x2D) {
                 // lets ignore the INT 2D
                 printf_log(LOG_DEBUG, "INT 2D called\n");
+            } else if(box64_wine && tmp8u==0x29) {
+                // INT 29 is __fastfail
+                printf_log(LOG_DEBUG, "INT 29 called => __fastfail(0x%x)\n", R_ECX);
+                emu->quit = 1;
+                R_RIP = addr;
+                goto fini;
             } else if (tmp8u==0x80) {
                 // 32bits syscall
                 #ifndef TEST_INTERPRETER

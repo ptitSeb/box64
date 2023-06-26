@@ -1972,6 +1972,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MARK;
                 LOAD_XEMU_REM();
                 jump_to_epilog(dyn, 0, xRIP, ninst);
+            } else if(box64_wine && u8==0x29) {
+                INST_NAME("INT 0x29");
+                // __fastfail ignored!
+                MOV32w(x1, 1);
+                STRw_U12(x1, xEmu, offsetof(x64emu_t, quit));
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
             } else {
                 INST_NAME("INT n");
                 SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
