@@ -25,8 +25,8 @@
 void print_banner(x64emu_t* ref)
 {
     printf_log(LOG_NONE, "Warning, difference between Interpreter and Dynarec in %p (%02x %02x %02x %02x %02x %02x %02x %02x)\n"\
-        "=======================================\n", 
-        (void*)ref->old_ip, 
+        "=======================================\n",
+        (void*)ref->old_ip,
         ((uint8_t*)ref->old_ip)[0], ((uint8_t*)ref->old_ip)[1], ((uint8_t*)ref->old_ip)[2], ((uint8_t*)ref->old_ip)[3],
         ((uint8_t*)ref->old_ip)[4], ((uint8_t*)ref->old_ip)[5], ((uint8_t*)ref->old_ip)[6], ((uint8_t*)ref->old_ip)[7]
     );
@@ -55,7 +55,7 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
     // flags are volatile, so don't test them
 	//memcpy(&ref->eflags, &emu->eflags, sizeof(emu->eflags));
     if(memcmp(ref->segs, emu->segs, sizeof(emu->segs))) {
-        static const char* segname[] = {"CS", "DS", "ES", "SS", "FS", "GS"};
+        static const char* segname[] = {"ES", "CS", "SS", "DS", "FS", "GS"};
         BANNER;
         for(int i=0; i<6; ++i) {
             if(ref->segs[i]!=emu->segs[i]) {
