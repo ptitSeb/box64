@@ -1108,10 +1108,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ANDI(x4, x4, 1); // F_CF is 1
             ANDI(xFlags, xFlags, ~1);
             OR(xFlags, xFlags, x4);
-            ADDI(x3, xZR, 1);
-            SLL(x3, x3, x2);
-            NOT(x3, x3);
-            AND(ed, ed, x3);
+            ADDI(x5, xZR, 1);
+            SLL(x5, x5, x2);
+            NOT(x5, x5);
+            AND(ed, ed, x5);
             if(wback) {
                 SDxw(ed, wback, fixedaddress);
                 SMWRITE();
