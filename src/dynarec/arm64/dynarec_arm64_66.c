@@ -320,6 +320,39 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BFIw(gd, x1, 0, 16);
             break;
 
+        case 0x60:
+            if(rex.is32bits) {
+                INST_NAME("PUSHA 16 (32bits)");
+                MOVw_REG(x1, xRSP);
+                STRH_S9_preindex(xRAX, xRSP, -2);
+                STRH_S9_preindex(xRCX, xRSP, -2);
+                STRH_S9_preindex(xRDX, xRSP, -2);
+                STRH_S9_preindex(xRBX, xRSP, -2);
+                STRH_S9_preindex(x1, xRSP, -2);
+                STRH_S9_preindex(xRBP, xRSP, -2);
+                STRH_S9_preindex(xRSI, xRSP, -2);
+                STRH_S9_preindex(xRDI, xRSP, -2);
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0x61:
+            if(rex.is32bits) {
+                INST_NAME("POPA 16 (32bits)");
+                MOVw_REG(x1, xRSP);
+                LDRH_S9_postindex(xRDI, xRSP, 2);
+                LDRH_S9_postindex(xRSI, xRSP, 2);
+                LDRH_S9_postindex(xRBP, xRSP, 2);
+                LDRH_S9_postindex(x1, xRSP, 2);
+                LDRH_S9_postindex(xRBX, xRSP, 2);
+                LDRH_S9_postindex(xRDX, xRSP, 2);
+                LDRH_S9_postindex(xRCX, xRSP, 2);
+                LDRH_S9_postindex(xRAX, xRSP, 2);
+            } else {
+                DEFAULT;
+            }
+            break;
+
         case 0x64:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _FS, ok, need_epilog);
             break;

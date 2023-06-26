@@ -299,6 +299,7 @@
 #define STRw_S9_preindex(Rt, Rn, imm9)    EMIT(STR_gen(0b10, 0b00, (imm9)&0x1ff, 0b11, Rn, Rt))
 #define STRxw_S9_postindex(Rt, Rn, imm9)  EMIT(STR_gen(rex.w?0b11:0b10, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
 #define STRB_S9_postindex(Rt, Rn, imm9)   EMIT(STR_gen(0b00, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
+#define STRH_S9_preindex(Rt, Rn, imm9)    EMIT(STR_gen(0b01, 0b00, (imm9)&0x1ff, 0b11, Rn, Rt))
 #define STRH_S9_postindex(Rt, Rn, imm9)   EMIT(STR_gen(0b01, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
 
 #define ST_gen(size, op1, imm12, Rn, Rt)        ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b00<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
