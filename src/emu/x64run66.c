@@ -144,28 +144,58 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             cmp16(emu, R_AX, F16);
         break;
 
-        case 0x40:
-        case 0x41:
-        case 0x42:
-        case 0x43:
-        case 0x44:
-        case 0x45:
-        case 0x46:
-        case 0x47:                              /* INC Reg (32bits only) */
-            tmp8u = opcode&7;
-            emu->regs[tmp8u].word[0] = inc16(emu, emu->regs[tmp8u].word[0]);
-            break;
-        case 0x48:
-        case 0x49:
-        case 0x4A:
-        case 0x4B:
-        case 0x4C:
-        case 0x4D:
-        case 0x4E:
-        case 0x4F:                              /* DEC Reg (32bits only) */
-            tmp8u = opcode&7;
-            emu->regs[tmp8u].word[0] = dec16(emu, emu->regs[tmp8u].word[0]);
-            break;
+    case 0x40:
+    case 0x41:
+    case 0x42:
+    case 0x43:
+    case 0x44:
+    case 0x45:
+    case 0x46:
+    case 0x47:                              /* INC Reg (32bits only) */
+        tmp8u = opcode&7;
+        emu->regs[tmp8u].word[0] = inc16(emu, emu->regs[tmp8u].word[0]);
+        break;
+    case 0x48:
+    case 0x49:
+    case 0x4A:
+    case 0x4B:
+    case 0x4C:
+    case 0x4D:
+    case 0x4E:
+    case 0x4F:                              /* DEC Reg (32bits only) */
+        tmp8u = opcode&7;
+        emu->regs[tmp8u].word[0] = dec16(emu, emu->regs[tmp8u].word[0]);
+        break;
+
+    case 0x60:                              /* PUSHA */
+        if(rex.is32bits) {
+            tmp16u = R_SP;
+            Push16(emu, R_AX);
+            Push16(emu, R_CX);
+            Push16(emu, R_DX);
+            Push16(emu, R_BX);
+            Push16(emu, tmp16u);
+            Push16(emu, R_BP);
+            Push16(emu, R_SI);
+            Push16(emu, R_DI);
+        } else {
+            return 0;
+        }
+        break;
+    case 0x61:                              /* POPA */
+        if(rex.is32bits) {
+            R_DI = Pop16(emu);
+            R_SI = Pop16(emu);
+            R_BP = Pop16(emu);
+            R_ESP+=2;   // POP ESP
+            R_BX = Pop16(emu);
+            R_DX = Pop16(emu);
+            R_CX = Pop16(emu);
+            R_AX = Pop16(emu);
+        } else {
+            return 0;
+        }
+        break;
 
     case 0x64:                              /* FS: */
         #ifdef TEST_INTERPRETER
