@@ -1091,7 +1091,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 wback = 0;
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 SRAI(x1, gd, 5+rex.w);
                 SLLI(x1, x1, 2+rex.w);
                 ADD(x3, wback, x1);
@@ -1108,10 +1108,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ANDI(x4, x4, 1); // F_CF is 1
             ANDI(xFlags, xFlags, ~1);
             OR(xFlags, xFlags, x4);
-            ADDI(x3, xZR, 1);
-            SLL(x3, x3, x2);
-            NOT(x3, x3);
-            AND(ed, ed, x3);
+            ADDI(x5, xZR, 1);
+            SLL(x5, x5, x2);
+            NOT(x5, x5);
+            AND(ed, ed, x5);
             if(wback) {
                 SDxw(ed, wback, fixedaddress);
                 SMWRITE();
