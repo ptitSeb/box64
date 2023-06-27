@@ -160,12 +160,12 @@ void native_ud(x64emu_t* emu)
 void native_priv(x64emu_t* emu)
 {
     emu->test.test = 0;
-    emit_signal(emu, SIGTRAP, (void*)R_RIP, 1);
+    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
 }
 
 void native_singlestep(x64emu_t* emu)
 {
-    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+    emit_signal(emu, SIGTRAP, (void*)R_RIP, 1);
 }
 
 void native_fsave(x64emu_t* emu, uint8_t* ed)

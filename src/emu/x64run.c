@@ -1626,7 +1626,7 @@ x64emurun:
         case 0xE5:                      /* IN EAX, XX */
         case 0xE6:                      /* OUT XX, AL */
         case 0xE7:                      /* OUT XX, EAX */
-            // this is a privilege opcode on 64bits...
+            // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
@@ -1656,7 +1656,7 @@ x64emurun:
         case 0xED:                      /* IN EAX, DX */
         case 0xEE:                      /* OUT DX, AL */
         case 0xEF:                      /* OUT DX, EAX */
-            // this is a privilege opcode on 64bits...
+            // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
@@ -1800,12 +1800,12 @@ x64emurun:
             SET_FLAG(F_CF);
             break;
         case 0xFA:                      /* CLI */
-            // this is a privilege opcode on 64bits...
+            // this is a privilege opcode
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;
         case 0xFB:                      /* STI */
-            // this is a privilege opcode on 64bits...
+            // this is a privilege opcode
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
             break;

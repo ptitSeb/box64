@@ -787,31 +787,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0x6D:
-            if(rex.is32bits) {
-                if(rep) {
-                    // Faking port read
-                    INST_NAME("REP INSD");
-                    CBZx_NEXT(xRCX);
-                    TBNZ_MARK2(xFlags, F_DF);
-                    MARK;   // Part with DF==0
-                    STRH_S9_postindex(xZR, xRDI, 4);
-                    SUBx_U12(xRCX, xRCX, 1);
-                    CBNZx_MARK(xRCX);
-                    B_NEXT_nocond;
-                    MARK2;  // Part with DF==1
-                    STRH_S9_postindex(xZR, xRDI, -4);
-                    SUBx_U12(xRCX, xRCX, 1);
-                    CBNZx_MARK2(xRCX);
-                    // done
-                } else {
-                    INST_NAME("INSD");
-                    GETDIR(x3, 4);
-                    STRH_U12(xZR, xRDI, 0);
-                    ADDx_REG(xRDI, xRDI, x3);
-                }
-            } else {
-                DEFAULT;
-            }
+            INST_NAME("INSD");
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL(native_priv, -1);
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
             break;
 
         #define GO(GETFLAGS, NO, YES, F)                                \
@@ -2507,13 +2491,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             *ok = 0;
             break;
 
-        case 0xEF:
-            if(rex.is32bits) {
-                INST_NAME("OUT dx, eax");
-                //NOP
-            } else {
-                DEFAULT;
-            }
+        case 0xEC:                      /* IN AL, DX */
+        case 0xED:                      /* IN EAX, DX */
+        case 0xEE:                      /* OUT DX, AL */
+        case 0xEF:                      /* OUT DX, EAX */
+            INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX? AL":"OUT DX, EAX")));
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL(native_priv, -1);
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
             break;
 
         case 0xF0:
@@ -2759,7 +2749,18 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SET_DFNONE(x1);
             ORRx_mask(xFlags, xFlags, 1, 0, 0); // xFlags | 1
             break;
-
+        case 0xFA:                      /* STI */
+        case 0xFB:                      /* CLI */
+            INST_NAME(opcode==0xFA?"CLI":"STI");
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL(native_priv, -1);
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xFC:
             INST_NAME("CLD");
             BFCw(xFlags, F_DF, 1);
