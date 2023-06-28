@@ -585,7 +585,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         dyn->doublepush = 1;
                     }
                 } else {
-                    PUSH1z(gd);
+                    if (gd == xRSP) {
+                        MOVz_REG(x1, xRSP);
+                        PUSH1z(x1);
+                    } else {
+                        PUSH1z(gd);
+                    }
                 }
             }
             break;
