@@ -1523,6 +1523,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     // DMB ISH
     if(isMask(opcode, "11010101000000110011nnnn10111111", &a)) {
         snprintf(buff, sizeof(buff), "DMB %s", (Rn==0b1011)?"ISH":"???");
+        return buff;
     }
 
 
