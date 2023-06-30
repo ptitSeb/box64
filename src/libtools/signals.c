@@ -730,9 +730,12 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         }
         if(info->si_code == SEGV_ACCERR && old_code)
             *old_code = -1;
-    } else if(sig==SIGFPE)
-        sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 19;
-    else if(sig==SIGILL)
+    } else if(sig==SIGFPE) {
+        if (info->si_code == FPE_INTOVF)
+            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 4;
+        else
+            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 19;
+    } else if(sig==SIGILL)
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 6;
     else if(sig==SIGTRAP)
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = info->si_code;
@@ -1457,7 +1460,7 @@ __attribute__((alias("my_sigaction")));
 
 int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigaction_restorer_t *act, x64_sigaction_restorer_t *oldact, int sigsetsize)
 {
-    printf_log(/*LOG_DEBUG*/LOG_INFO, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
+    printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
     if(signum<0 || signum>=MAX_SIGNAL) {
         errno = EINVAL;
         return -1;
