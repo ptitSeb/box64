@@ -73,7 +73,7 @@ void add_next(dynarec_native_t *dyn, uintptr_t addr) {
     // add slots
     if(dyn->next_sz == dyn->next_cap) {
         dyn->next_cap += 64;
-        dyn->next = (uintptr_t*)customRealloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
+        dyn->next = (uintptr_t*)dynaRealloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
     }
     dyn->next[dyn->next_sz++] = addr;
 }
@@ -277,7 +277,7 @@ int Table64(dynarec_native_t *dyn, uint64_t val, int pass)
         if(dyn->table64size == dyn->table64cap) {
             dyn->table64cap+=16;
             if(pass<3)  // do not resize on pass3, it's not the same type of memory anymore
-                dyn->table64 = (uint64_t*)customRealloc(dyn->table64, dyn->table64cap * sizeof(uint64_t));
+                dyn->table64 = (uint64_t*)dynaRealloc(dyn->table64, dyn->table64cap * sizeof(uint64_t));
         }
         idx = dyn->table64size++;
         if(idx < dyn->table64cap)
@@ -309,7 +309,7 @@ static void fillPredecessors(dynarec_native_t* dyn)
         }
     }
     int alloc_size = pred_sz;
-    dyn->predecessor = (int*)customMalloc(pred_sz*sizeof(int));
+    dyn->predecessor = (int*)dynaMalloc(pred_sz*sizeof(int));
     // fill pred pointer
     int* p = dyn->predecessor;
     for(int i=0; i<dyn->size; ++i) {
@@ -384,11 +384,11 @@ void CancelBlock64(int need_lock)
     dynarec_native_t* helper = (dynarec_native_t*)current_helper;
     current_helper = NULL;
     if(helper) {
-        customFree(helper->next);
-        customFree(helper->insts);
-        customFree(helper->predecessor);
+        dynaFree(helper->next);
+        dynaFree(helper->insts);
+        dynaFree(helper->predecessor);
         if(helper->table64 && (helper->table64!=(uint64_t*)helper->tablestart))
-            customFree(helper->table64);
+            dynaFree(helper->table64);
         if(helper->dynablock && helper->dynablock->actual_block) {
             FreeDynarecMap((uintptr_t)helper->dynablock->actual_block);
             helper->dynablock->actual_block = NULL;
@@ -461,11 +461,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int is32bits) {
     helper.start = addr;
     uintptr_t start = addr;
     helper.cap = 128;
-    helper.insts = (instruction_native_t*)customCalloc(helper.cap, sizeof(instruction_native_t));
+    helper.insts = (instruction_native_t*)dynaCalloc(helper.cap, sizeof(instruction_native_t));
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr, is32bits);
     // no need for next anymore
-    customFree(helper.next);
+    dynaFree(helper.next);
     helper.next_sz = helper.next_cap = 0;
     helper.next = NULL;
     // basic checks
@@ -543,7 +543,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int is32bits) {
     helper.instsize = (instsize_t*)instsize;
     *(dynablock_t**)actual_p = block;
     helper.table64cap = helper.table64size;
-    customFree(helper.table64);
+    dynaFree(helper.table64);
     helper.table64 = (uint64_t*)helper.tablestart;
     // pass 3, emit (log emit native opcode)
     if(box64_dynarec_dump) {
@@ -561,11 +561,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int is32bits) {
     // keep size of instructions for signal handling
     block->instsize = instsize;
     // ok, free the helper now
-    customFree(helper.insts);
+    dynaFree(helper.insts);
     helper.insts = NULL;
     helper.table64 = NULL;
     helper.instsize = NULL;
-    customFree(helper.predecessor);
+    dynaFree(helper.predecessor);
     helper.predecessor = NULL;
     block->size = sz;
     block->isize = helper.size;
