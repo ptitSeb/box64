@@ -90,6 +90,43 @@ void FreeDynablock(dynablock_t* db, int need_lock)
     }
 }
 
+size_t AgeDynablock(dynablock_t* db, size_t age)
+{
+    if(db) {
+        dynarec_log(LOG_DEBUG, "AgeDynablock %p %p-%p, age=%zu, db:age/romove=%zu/%d\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, age, db->age, db->try_remove);
+        if(db->age>age || !db->done || db->gone)
+            return db->age;
+        dynablock_t* actual = getDB((uintptr_t)db->x64_addr);
+        if(actual != db) {
+            printf_log(LOG_INFO, "Warning, AgeDynablock with a rogue db %p instead of %p for %p\n", db, actual, db->x64_addr);
+            return age + box64_dynarec_age;
+        }
+        int need_test = getNeedTest((uintptr_t)db->x64_addr);
+        if(db->try_remove) {
+            if(need_test || *db->active_count) {
+                db = InvalidDynablock(db, 0);
+                FreeInvalidDynablock(db, 0);
+                return 0;
+            } else {
+                db->try_remove = 0;
+                db->age = age + box64_dynarec_age; // re-arm the wait
+            }
+        } else {
+            if(need_test || (getProtection((uintptr_t)db->x64_addr)&PROT_NOPROT) || db->always_test || !db->active_count || *db->active_count) {
+                // don't mess with this kind of dynablock...
+                db->age = age+box64_dynarec_age*2;
+            } else if(setJumpTableIfRef64(db->x64_addr, db->jmpnext, db->block)) {
+                dynarec_log(LOG_DEBUG, "Marking block %p at %p for later removal\n", db, db->x64_addr);
+                db->age = age+box64_dynarec_age;
+                db->try_remove = 1;
+            } else {
+                db->age = age+box64_dynarec_age*2; // failed to swap, try again later
+            }
+        }
+        return db->age;
+    }
+    return age;
+}
 
 
 void MarkDynablock(dynablock_t* db)
@@ -109,6 +146,8 @@ void MarkDynablock(dynablock_t* db)
                 else
                     db->previous = old;
             }
+        } else {
+            db->try_remove = 0;
         }
     }
 }
@@ -177,7 +216,7 @@ void cancelFillBlock()
 {
     longjmp(&dynarec_jmpbuf, 1);
 }
-
+extern size_t              box64_counter;
 /* 
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
@@ -187,8 +226,10 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     if(hasAlternate((void*)addr))
         return NULL;
     dynablock_t* block = getDB(addr);
-    if(block || !create)
+    if(block || !create) {
+        if(block) block->age = box64_counter+box64_dynarec_age;
         return block;
+    }
 
     if(need_lock) {
         if(box64_dynarec_wait) {
@@ -250,7 +291,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
     if(db && db->done && db->block && getNeedTest(addr)) {
         if(db->always_test)
             sched_yield();  // just calm down...
-        if(AreaInHotPage((uintptr_t)db->x64_addr, (uintptr_t)db->x64_addr + db->x64_size - 1)) {
+        if(!db->try_remove && AreaInHotPage((uintptr_t)db->x64_addr, (uintptr_t)db->x64_addr + db->x64_size - 1)) {
             emu->test.test = 0;
             if(box64_dynarec_fastpage) {
                 uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
@@ -289,7 +330,8 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
             // fill back jumptable
             if(isprotectedDB((uintptr_t)db->x64_addr, db->x64_size) && !db->always_test) {
                 setJumpTableIfRef64(db->x64_addr, db->block, db->jmpnext);
-            }
+            } else 
+                db->try_remove = 0;
         }
         if(!need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
@@ -327,7 +369,8 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr,
             // fill back jumptable
             if(isprotectedDB((uintptr_t)db->x64_addr, db->x64_size) && !db->always_test) {
                 setJumpTableIfRef64(db->x64_addr, db->block, db->jmpnext);
-            }
+            } else
+                db->try_remove = 0;
         }
         if(!need_lock)
             mutex_unlock(&my_context->mutex_dyndump);

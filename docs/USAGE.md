@@ -212,6 +212,11 @@ Dynarec print the missing opcodes
 * 0 : not print the missing opcode (Default, unless DYNAREC_LOG>=1 or DYNAREC_DUMP>=1 is used)
 * 1 : Will print the missing opcodes
 
+#### BOX64_DYNAREC_AGE *
+Dynarec will check if black can be freed when that atteins a certain age (in dynablock creation count)
+* 0 : do not age dynablocks (don't try to free old one)
+* XXXX: try to free block that are at least XXXX old (default 10240)
+
 #### BOX64_SSE_FLUSHTO0 *
 Handling of SSE Flush to 0 flags
 * 0 : Just track the flag (Default)

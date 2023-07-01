@@ -544,6 +544,16 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
     return addr;
 }
 
+static void exit_block(dynarec_arm_t* dyn, int ninst)
+{
+    ADR_S20(x5, (intptr_t)dyn->enter - (uintptr_t)dyn->block);
+    LDAXRw(x4, x5);
+    SUBw_U12(x4, x4, 1);
+    STLXRw(x3, x4, x5);
+    CBNZw(x3, 4-4*4);
+}
+#define EXIT_SIZE (4*5)
+
 void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MAYUSE(dyn); MAYUSE(ip); MAYUSE(ninst);
@@ -559,6 +569,8 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     NOTEST(x2);
     TABLE64(x2, (uintptr_t)arm64_epilog);
     SMEND();
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     BR(x2);
 }
 
@@ -599,6 +611,8 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     //MOVx(x3, 15);    no access to PC reg
     #endif
     SMEND();
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     BLR(x2); // save LR...
 }
 
@@ -612,10 +626,12 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
     if(box64_dynarec_callret) {
         // pop the actual return address for ARM stack
         LDPx_S7_offset(x2, x6, xSP, 0);
-        CBZx(x6, 5*4);
+        CBZx(x6, 5*4+(box64_dynarec_age?EXIT_SIZE:0));
         ADDx_U12(xSP, xSP, 16);
         SUBx_REG(x6, x6, xRIP); // is it the right address?
-        CBNZx(x6, 2*4);
+        CBNZx(x6, 2*4+(box64_dynarec_age?EXIT_SIZE:0));
+        if(box64_dynarec_age)
+            exit_block(dyn, ninst);
         BLR(x2);
         // not the correct return address, regular jump
     }
@@ -630,6 +646,8 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
     LDRx_REG_LSL3(x2, x2, x3);
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     BLR(x2); // save LR
     CLEARIP();
 }
@@ -650,10 +668,12 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
     if(box64_dynarec_callret) {
         // pop the actual return address for ARM stack
         LDPx_S7_offset(x2, x6, xSP, 0);
-        CBZx(x6, 5*4);
+        CBZx(x6, 5*4+(box64_dynarec_age?EXIT_SIZE:0));
         ADDx_U12(xSP, xSP, 16);
         SUBx_REG(x6, x6, xRIP); // is it the right address?
-        CBNZx(x6, 2*4);
+        CBNZx(x6, 2*4+(box64_dynarec_age?EXIT_SIZE:0));
+        if(box64_dynarec_age)
+            exit_block(dyn, ninst);
         BLR(x2);
         // not the correct return address, regular jump
     }
@@ -668,6 +688,8 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
     LDRx_REG_LSL3(x2, x2, x3);
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     BLR(x2); // save LR
     CLEARIP();
 }
@@ -712,6 +734,8 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     // Ret....
     MOV64x(x2, (uintptr_t)arm64_epilog);  // epilog on purpose, CS might have changed!
     SMEND();
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     BR(x2);
     CLEARIP();
 }

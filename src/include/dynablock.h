@@ -6,6 +6,7 @@ typedef struct dynablock_s dynablock_t;
 
 uint32_t X31_hash_code(void* addr, int len);
 void FreeDynablock(dynablock_t* db, int need_lock);
+size_t AgeDynablock(dynablock_t* db, size_t age);
 void MarkDynablock(dynablock_t* db);
 void MarkRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size);
 int FreeRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size);

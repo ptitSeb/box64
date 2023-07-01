@@ -88,6 +88,7 @@ typedef struct dynarec_arm_s {
     int32_t             cap;
     uintptr_t           start;      // start of the block
     uint32_t            isize;      // size in byte of x64 instructions included
+    uint32_t            block_prolog; // size in byte of block prolog (not part of 1st instruction)
     void*               block;      // memory pointer where next instruction is emitted
     uintptr_t           native_start;  // start of the arm code
     size_t              native_size;   // size of emitted arm code
@@ -115,6 +116,7 @@ typedef struct dynarec_arm_s {
     uint8_t             doublepush;
     uint8_t             doublepop;
     uint8_t             always_test;
+    int*                enter;
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);
@@ -125,6 +127,7 @@ int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n);
 int Table64(dynarec_arm_t *dyn, uint64_t val, int pass);  // add a value to etable64 (if needed) and gives back the imm19 to use in LDR_literal
 
 void CreateJmpNext(void* addr, void* next);
+int CreateEnter(void* addr, void* enter);
 
 #define GO_TRACE(A, B)      \
     GETIP(addr);            \

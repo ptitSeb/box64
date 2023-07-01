@@ -23,6 +23,8 @@
 #include "dynarec_arch.h"
 #include "dynarec_next.h"
 
+size_t              box64_counter = 0;
+
 void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
     if(ip[0]==0xcc && ip[1]=='S' && ip[2]=='C') {
@@ -407,7 +409,7 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
     block->isize = 0;
     block->done = 0;
     size_t sz = 4*sizeof(void*);
-    void* actual_p = (void*)AllocDynarecMap(sz);
+    void* actual_p = (void*)AllocDynarecMap(sz, box64_counter);
     void* p = actual_p + sizeof(void*);
     if(actual_p==NULL) {
         dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
@@ -418,6 +420,7 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
     block->actual_block = actual_p;
     block->block = p;
     block->jmpnext = p;
+    block->age = box64_counter + box64_dynarec_age;
     *(dynablock_t**)actual_p = block;
     *(void**)(p+2*sizeof(void*)) = native_epilog;
     CreateJmpNext(block->jmpnext, p+2*sizeof(void*));
@@ -461,6 +464,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.start = addr;
     uintptr_t start = addr;
     helper.cap = 128;
+    ++box64_counter;
     helper.insts = (instruction_native_t*)dynaCalloc(helper.cap, sizeof(instruction_native_t));
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr, alternate, is32bits);
@@ -521,15 +525,20 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // keep size of instructions for signal handling
     size_t insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
-    size_t native_size = (helper.native_size+7)&~7;   // round the size...
+    size_t native_size = (helper.native_size+helper.block_prolog+7)&~7;   // round the size...
     // ok, now allocate mapped memory, with executable flag on
-    size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize;
-    //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize
-    void* actual_p = (void*)AllocDynarecMap(sz);
+    size_t sz = sizeof(void*)                           // dynablock_t* 
+               + native_size                            // block (arm insts)
+               + helper.table64size*sizeof(uint64_t)    // table64
+               + 4*sizeof(void*)                        // jmpnext code
+               + (box64_dynarec_age?sizeof(void*):0)    // enter_count
+               + insts_rsize;                           // instsize
+
+    void* actual_p = (void*)AllocDynarecMap(sz, box64_counter);
     void* p = (void*)(((uintptr_t)actual_p) + sizeof(void*));
     void* tablestart = p + native_size;
     void* next = tablestart + helper.table64size*sizeof(uint64_t);
-    void* instsize = next + 4*sizeof(void*);
+    void* instsize = next + 4*sizeof(void*) + (box64_dynarec_age?sizeof(void*):0);
     if(actual_p==NULL) {
         dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
         CancelBlock64(0);
@@ -537,6 +546,8 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     }
     helper.block = p;
     block->actual_block = actual_p;
+    block->active_count = box64_dynarec_age?(next + 4*sizeof(void*)):NULL;
+    block->age = box64_counter + box64_dynarec_age;
     helper.native_start = (uintptr_t)p;
     helper.tablestart = (uintptr_t)tablestart;
     helper.jmp_next = (uintptr_t)next+sizeof(void*);
@@ -545,6 +556,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.table64cap = helper.table64size;
     dynaFree(helper.table64);
     helper.table64 = (uint64_t*)helper.tablestart;
+    helper.enter = block->active_count;
     // pass 3, emit (log emit native opcode)
     if(box64_dynarec_dump) {
         dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u %s bytes", (box64_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize, is32bits?"x86":"x64"); 
@@ -561,7 +573,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // keep size of instructions for signal handling
     block->instsize = instsize;
     // ok, free the helper now
-    dynaFree(helper.insts);
+    instruction_native_t* pass2_insts = helper.insts;
     helper.insts = NULL;
     helper.table64 = NULL;
     helper.instsize = NULL;
@@ -592,17 +604,19 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         printf_log(LOG_NONE, "BOX64: Warning, size difference in block between pass2 (%zu) & pass3 (%zu)!\n", sz, helper.native_size+helper.table64size*8);
         uint8_t *dump = (uint8_t*)helper.start;
         printf_log(LOG_NONE, "Dump of %d x64 opcodes:\n", helper.size);
-        for(int i=0; i<helper.size; ++i) {
+        for(int i=0; i<helper.size-1; ++i) {
             printf_log(LOG_NONE, "%p:", dump);
-            for(; dump<(uint8_t*)helper.insts[i+1].x64.addr; ++dump)
+            for(; dump<(uint8_t*)pass2_insts[i+1].x64.addr; ++dump)
                 printf_log(LOG_NONE, " %02X", *dump);
-            printf_log(LOG_NONE, "\t%d -> %d\n", helper.insts[i].size2, helper.insts[i].size);
+            printf_log(LOG_NONE, "\t%d -> %d\n", pass2_insts[i].size2, pass2_insts[i].size);
         }
         printf_log(LOG_NONE, "Table64 \t%d -> %d\n", oldtable64size*8, helper.table64size*8);
         printf_log(LOG_NONE, " ------------\n");
+        dynaFree(pass2_insts);
         CancelBlock64(0);
         return NULL;
     }
+    dynaFree(pass2_insts);
     if(insts_rsize/sizeof(instsize_t)<helper.insts_size) {
         printf_log(LOG_NONE, "BOX64: Warning, ists_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));
     }

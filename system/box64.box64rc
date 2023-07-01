@@ -89,8 +89,8 @@ BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
 BOX64_NOSANDBOX=1
 BOX64_LOG=0
 BOX64_MALLOC_HACK=2
-# this is to save some memory
-BOX64_DYNAREC_BIGBLOCK=0
+BOX64_DYNAREC_BIGBLOCK=2
+BOX64_DYNAREC_AGE=4096
 # if steamwebhelper takes too much memory, enable next line to disable it
 #BOX64_EXIT=1
 

@@ -482,6 +482,7 @@ void customFree(void* p)
 #define NCHUNK          64
 typedef struct mmaplist_s {
     blocklist_t         chunks[NCHUNK];
+    size_t              minage[NCHUNK];
     mmaplist_t*         next;
 } mmaplist_t;
 
@@ -523,10 +524,12 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
 #ifdef TRACE_MEMSTAT
 static uint64_t dynarec_allocated = 0;
 #endif
-uintptr_t AllocDynarecMap(size_t size)
+uintptr_t AllocDynarecMap(size_t size, size_t age)
 {
     if(!size)
         return 0;
+
+    static int current = 0;
 
     size = roundSize(size);
 
@@ -535,8 +538,30 @@ uintptr_t AllocDynarecMap(size_t size)
         list = mmaplist = (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
     // check if there is space in current open ones
     int i = 0;
+    int current_i = 0;
     uintptr_t sz = size + 2*sizeof(blockmark_t);
     while(1) {
+        size_t newage = 0;
+        if(box64_dynarec_age && current==current_i && (!list->minage[i] || list->minage[i]<=age)) {
+            //check age of blocks for cleaning
+            blockmark_t* sub = (blockmark_t*)list->chunks[i].block;
+            uintptr_t end = (uintptr_t)list->chunks[i].block+list->chunks[i].size-sizeof(blockmark_t);
+            while(sub && (uintptr_t)sub<end) {
+                blockmark_t* n = NEXT_BLOCK(sub);
+                dynablock_t* db = NULL;
+                if(sub->next.fill)
+                    db = *(dynablock_t**)((uintptr_t)sub+sizeof(blockmark_t));
+                sub = n;
+                size_t new_age = db?AgeDynablock(db, age):age;
+                if(!new_age)
+                    sub = (blockmark_t*)list->chunks[i].block;
+                else if(new_age<newage || !newage)
+                    newage = new_age;
+            }
+            list->minage[i] = newage;
+        }
+        if(current==current_i)
+            current++;
         if(list->chunks[i].maxfree>=size) {
             // looks free, try to alloc!
             size_t rsize = 0;
@@ -552,6 +577,8 @@ uintptr_t AllocDynarecMap(size_t size)
         }
         // check if new
         if(!list->chunks[i].size) {
+            if(current_i+1==current)
+                current = 0;
             // alloc a new block, aversized or not, we are at the end of the list
             size_t allocsize = (sz>MMAPSIZE)?sz:MMAPSIZE;
             // allign sz with pagesize
@@ -577,6 +604,7 @@ uintptr_t AllocDynarecMap(size_t size)
             list->chunks[i].block = p;
             list->chunks[i].first = p;
             list->chunks[i].size = allocsize;
+            list->minage[i] = age + box64_dynarec_age;
             // setup marks
             blockmark_t* m = (blockmark_t*)p;
             m->prev.x32 = 0;
@@ -595,6 +623,7 @@ uintptr_t AllocDynarecMap(size_t size)
         }
         // next chunk...
         ++i;
+        ++current_i;
         if(i==NCHUNK) {
             i = 0;
             if(!list->next)
@@ -725,8 +754,8 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
             else
                 MarkRangeDynablock(db, addr, size);
         }
-        if(destroy && start_addr && ((start_addr&~JMPTABLE_MASK0)!=(old_addr&~JMPTABLE_MASK0)))
-            freeJmpTable(start_addr);
+        /*if(destroy && start_addr && ((start_addr&~JMPTABLE_MASK0)!=(old_addr&~JMPTABLE_MASK0)))
+            freeJmpTable(start_addr);*/
         start_addr = old_addr;
     }
 }

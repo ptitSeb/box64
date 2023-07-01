@@ -66,6 +66,7 @@ int box64_dynarec_jvm = 1;
 int box64_dynarec_wait = 1;
 int box64_dynarec_test = 0;
 int box64_dynarec_missing = 0;
+size_t box64_dynarec_age = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -624,6 +625,18 @@ void LoadLogEnv()
         }
         if(box64_dynarec_missing)
             printf_log(LOG_INFO, "Dynarec will print missing opcodes\n");
+    }
+    p = getenv("BOX64_DYNAREC_AGE");
+    if(p) {
+        int val = -1;
+        if(sscanf(p, "%d", &val)==1) {
+            if(val>=0)
+                box64_dynarec_age = val;
+        }
+        if(box64_dynarec_age)
+            printf_log(LOG_INFO, "Dynarec will try to free dynablock older than %d\n", box64_dynarec_age);
+        else
+            printf_log(LOG_INFO, "Dynarec will not age dynablock\n");
     }
     p = getenv("BOX64_NODYNAREC");
     if(p) {

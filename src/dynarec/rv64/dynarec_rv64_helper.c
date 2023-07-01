@@ -474,6 +474,15 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
     return addr;
 }
 
+static void exit_block(dynarec_arm_t* dyn, int ninst)
+{
+    uintptr_t diff = (intptr_t)dyn->enter - (uintptr_t)dyn->block;
+    ADDI(x4, xZR, -1);
+    AUIPC(x5, SPLIT20(diff));
+    ADDI(x5, x5, SPLIT12(diff));
+    AMOADD_W(xZR, x4, x5, 1, 1);
+}
+
 void jump_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MAYUSE(dyn); MAYUSE(ip); MAYUSE(ninst);
@@ -488,6 +497,8 @@ void jump_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
     }
     TABLE64(x2, (uintptr_t)rv64_epilog);
     SMEND();
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     BR(x2);
 }
 
@@ -505,6 +516,8 @@ void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
     }
     TABLE64(x2, (uintptr_t)rv64_epilog_fast);
     SMEND();
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     BR(x2);
 }
 
@@ -560,6 +573,8 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
     //MOVx(x3, 15);    no access to PC reg
     #endif
     SMEND();
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     JALR(x2); // save LR...
 }
 
@@ -607,6 +622,8 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
     }
     if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
     LD(x2, x3, 0);
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     JALR(x2); // save LR
     CLEARIP();
 }
@@ -661,6 +678,8 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n)
     }
     if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
     LD(x2, x3, 0);
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     JALR(x2); // save LR
     CLEARIP();
 }
@@ -704,6 +723,8 @@ void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits)
     // Ret....
     MOV64x(x2, (uintptr_t)rv64_epilog);  // epilog on purpose, CS might have changed!
     SMEND();
+    if(box64_dynarec_age)
+        exit_block(dyn, ninst);
     BR(x2);
     CLEARIP();
 }

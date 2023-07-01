@@ -1,5 +1,6 @@
 #define INIT    
 #define FINI
+#define ENTER() 
 #define MESSAGE(A, ...)  
 #define EMIT(A)     
 #define NEW_INST                                \

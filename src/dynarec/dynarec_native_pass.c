@@ -50,6 +50,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     int stopblock = 2+(FindElfAddress(my_context, addr)?0:1); // if block is in elf_memory, it can be extended with bligblocks==2, else it needs 3
     // ok, go now
     INIT;
+    if(box64_dynarec_age) {
+        ENTER();
+    }
     while(ok) {
         ip = addr;
         if (reset_n!=-1) {

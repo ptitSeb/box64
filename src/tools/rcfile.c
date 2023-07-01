@@ -55,7 +55,8 @@ static const char default_rcfile[] =
 "BOX64_NOSANDBOX=1\n"
 "BOX64_MALLOC_HACK=2\n"
 "BOX64_LOG=0\n"
-"BOX64_DYNAREC_BIGBLOCK=0\n"
+"BOX64_DYNAREC_BIGBLOCK=2\n"
+"BOX64_DYNAREC8AGE=4096\n"
 "\n"
 "[steam-runtime-check-requirements]\n"
 "BOX64_EXIT=1\n"
@@ -133,6 +134,7 @@ ENTRYBOOL(BOX64_DYNAREC_JVM, box64_dynarec_jvm)                     \
 ENTRYINT(BOX64_DYNAREC_HOTPAGE, box64_dynarec_hotpage, 0, 255, 8)   \
 ENTRYBOOL(BOX64_DYNAREC_FASTPAGE, box64_dynarec_fastpage)           \
 ENTRYBOOL(BOX64_DYNAREC_WAIT, box64_dynarec_wait)                   \
+ENTRYULONG(BOX64_DYNAREC_AGE, box64_dynarec_age)                    \
 ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
 ENTRYBOOL(BOX64_DYNAREC_TEST, box64_dynarec_test)                   \
 ENTRYBOOL(BOX64_DYNAREC_MISSING, box64_dynarec_missing)             \
@@ -155,6 +157,7 @@ IGNORE(BOX64_DYNAREC_JVM)                                           \
 IGNORE(BOX64_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX64_DYNAREC_FASTPAGE)                                      \
 IGNORE(BOX64_DYNAREC_WAIT)                                          \
+IGNORE(BOX64_DYNAREC_AGE)                                           \
 IGNORE(BOX64_NODYNAREC)                                             \
 IGNORE(BOX64_DYNAREC_TEST)                                          \
 IGNORE(BOX64_DYNAREC_MISSING)                                       \
