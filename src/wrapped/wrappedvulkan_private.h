@@ -197,7 +197,7 @@ GO(vkGetPhysicalDeviceExternalFenceProperties, vFppp)
 GO(vkGetPhysicalDeviceExternalSemaphoreProperties, vFppp)
 GO(vkGetPhysicalDeviceFeatures2, vFpp)
 GO(vkGetPhysicalDeviceFormatProperties2, vFpip)
-GO(vkGetPhysicalDeviceImageFormatProperties2, vFppp)
+GO(vkGetPhysicalDeviceImageFormatProperties2, iFppp)
 GO(vkGetPhysicalDeviceMemoryProperties2, vFpp)
 GO(vkGetPhysicalDeviceProperties2, vFpp)
 GO(vkGetPhysicalDeviceQueueFamilyProperties2, vFppp)    //VkQueueFamilyProperties2 seems OK
