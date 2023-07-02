@@ -99,6 +99,7 @@ typedef struct dynarec_rv64_s {
     uintptr_t           start;      // start of the block
     uint32_t            isize;      // size in byte of x64 instructions included
     void*               block;      // memory pointer where next instruction is emitted
+    uint32_t            block_prolog; // size in byte of block prolog (not part of 1st instruction)
     uintptr_t           native_start;  // start of the arm code
     size_t              native_size;   // size of emitted arm code
     uintptr_t           last_ip;    // last set IP in RIP (or NULL if unclean state) TODO: move to a cache something
