@@ -19,7 +19,7 @@ GO(lzma_block_uncomp_encode, uFppLppL)
 //GO(lzma_block_unpadded_size, 
 GO(lzma_check_is_supported, CFu)
 GO(lzma_check_size, uFu)
-GO(lzma_code, iFpi)
+GOM(lzma_code, iFEpi)
 GO(lzma_cputhreads, uFv)
 GO(lzma_crc32, uFpLu)
 GO(lzma_crc64, LFpLL)
@@ -27,7 +27,7 @@ GO(lzma_crc64, LFpLL)
 GO(lzma_easy_decoder_memusage, LFu)
 GOM(lzma_easy_encoder, iFEpui)
 //GO(lzma_easy_encoder_memusage, 
-GO(lzma_end, vFp)
+GOM(lzma_end, vFEp)
 GO(lzma_filter_decoder_is_supported, CFL)
 //GO(lzma_filter_encoder_is_supported, 
 //GO(lzma_filter_flags_decode, 

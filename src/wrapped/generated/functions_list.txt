@@ -4419,8 +4419,12 @@ wrappedlibz:
 - iFpiiiiipi:
   - deflateInit2_
 wrappedlzma:
+- vFp:
+  - lzma_end
 - vFpp:
   - lzma_index_end
+- iFpi:
+  - lzma_code
 - iFpU:
   - lzma_alone_decoder
 - iFpp:

@@ -81,6 +81,16 @@ static void* find_alloc_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for zlib alloc callback\n");
     return NULL;
 }
+static void* reverse_alloc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_alloc_##A == fct) return (void*)my_alloc_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, pFpuu, fct, 0, NULL);
+}
 // free ...
 #define GO(A)   \
 static uintptr_t my_free_fct_##A = 0;                               \
@@ -103,109 +113,143 @@ static void* find_free_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for zlib free callback\n");
     return NULL;
 }
+static void* reverse_free_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_free_##A == fct) return (void*)my_free_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFpp, fct, 0, NULL);
+}
 #undef SUPER
 
-static void wrap_alloc_struct(lzma_allocator_t* dst, lzma_allocator_t* src)
+static void wrap_alloc_struct(lzma_allocator_t* a)
 {
-    if(!src)
+    if(!a)
         return;
-    dst->opaque = src->opaque;
-    dst->alloc = find_alloc_Fct(src->alloc);
-    dst->free = find_free_Fct(src->free);
+    a->alloc = find_alloc_Fct(a->alloc);
+    a->free = find_free_Fct(a->free);
+
+}
+static void unwrap_alloc_struct(lzma_allocator_t* a)
+{
+    if(!a)
+        return;
+    a->alloc = reverse_alloc_Fct(a->alloc);
+    a->free = reverse_free_Fct(a->free);
 
 }
 
 EXPORT int my_lzma_index_buffer_decode(x64emu_t* emu, void* i, void* memlimit, lzma_allocator_t* alloc, void* in_, void* in_pos, size_t in_size)
 {
-    lzma_allocator_t allocator = {0};
-    wrap_alloc_struct(&allocator, alloc);
-    return my->lzma_index_buffer_decode(i, memlimit, alloc?&allocator:NULL, in_, in_pos, in_size);
+    wrap_alloc_struct(alloc);
+    int ret = my->lzma_index_buffer_decode(i, memlimit, alloc, in_, in_pos, in_size);
+    unwrap_alloc_struct(alloc);
+    return ret;
 }
 
 EXPORT void my_lzma_index_end(x64emu_t* emu, void* i, lzma_allocator_t* alloc)
 {
-    lzma_allocator_t allocator = {0};
-    wrap_alloc_struct(&allocator, alloc);
-    return my->lzma_index_end(i,alloc?&allocator:NULL);
+    wrap_alloc_struct(alloc);
+    my->lzma_index_end(i,alloc);
+    unwrap_alloc_struct(alloc);
 }
 
 EXPORT int my_lzma_stream_buffer_decode(x64emu_t* emu, void* memlimit, uint32_t flags, lzma_allocator_t* alloc, void* in_, void* in_pos, size_t in_size, void* out_, void* out_pos, size_t out_size)
 {
-    lzma_allocator_t allocator = {0};
-    wrap_alloc_struct(&allocator, alloc);
-    return my->lzma_stream_buffer_decode(memlimit, flags, alloc?&allocator:NULL, in_, in_pos, in_size, out_, out_pos, out_size);
+    wrap_alloc_struct(alloc);
+    int ret = my->lzma_stream_buffer_decode(memlimit, flags, alloc, in_, in_pos, in_size, out_, out_pos, out_size);
+    unwrap_alloc_struct(alloc);
+    return ret;
 }
 
 EXPORT int my_lzma_stream_decoder(x64emu_t* emu, lzma_stream_t* stream, uint64_t memlimit, uint32_t flags)
 {
-    // not restoring the allocator after, so lzma_code and lzma_end can be used without "GOM" wrapping
-    if(stream->allocator)
-        wrap_alloc_struct(stream->allocator, stream->allocator);
-    return my->lzma_stream_decoder(stream, memlimit, flags);
+    wrap_alloc_struct(stream->allocator);
+    int ret = my->lzma_stream_decoder(stream, memlimit, flags);
+    unwrap_alloc_struct(stream->allocator);
+    return ret;
 }
 
 EXPORT int my_lzma_stream_encoder(x64emu_t* emu, lzma_stream_t* stream, void* filters, int check)
 {
-    // not restoring the allocator after, so lzma_code and lzma_end can be used without "GOM" wrapping
-    if(stream->allocator)
-        wrap_alloc_struct(stream->allocator, stream->allocator);
-    return my->lzma_stream_encoder(stream, filters, check);
+    wrap_alloc_struct(stream->allocator);
+    int ret = my->lzma_stream_encoder(stream, filters, check);
+    unwrap_alloc_struct(stream->allocator);
+    return ret;
 }
 
 
 EXPORT int my_lzma_easy_encoder(x64emu_t* emu, lzma_stream_t* stream, uint32_t precheck, uint32_t check)
 {
-    // not restoring the allocator after, so lzma_code and lzma_end can be used without "GOM" wrapping
-    if(stream->allocator)
-        wrap_alloc_struct(stream->allocator, stream->allocator);
-    return my->lzma_easy_encoder(stream, precheck, check);
+    wrap_alloc_struct(stream->allocator);
+    int ret = my->lzma_easy_encoder(stream, precheck, check);
+    unwrap_alloc_struct(stream->allocator);
+    return ret;
 }
 
 EXPORT int my_lzma_raw_encoder(x64emu_t* emu, lzma_stream_t* stream, void* filters)
 {
-    // not restoring the allocator after, so lzma_code and lzma_end can be used without "GOM" wrapping
-    if(stream->allocator)
-        wrap_alloc_struct(stream->allocator, stream->allocator);
-    return my->lzma_raw_encoder(stream, filters);
+    wrap_alloc_struct(stream->allocator);
+    int ret = my->lzma_raw_encoder(stream, filters);
+    unwrap_alloc_struct(stream->allocator);
+    return ret;
 }
 
 EXPORT int my_lzma_raw_decoder(x64emu_t* emu, lzma_stream_t* stream, void* filters)
 {
-    // not restoring the allocator after, so lzma_code and lzma_end can be used without "GOM" wrapping
-    if(stream->allocator)
-        wrap_alloc_struct(stream->allocator, stream->allocator);
-    return my->lzma_raw_decoder(stream, filters);
+    wrap_alloc_struct(stream->allocator);
+    int ret = my->lzma_raw_decoder(stream, filters);
+    unwrap_alloc_struct(stream->allocator);
+    return ret;
 }
 
 EXPORT int my_lzma_properties_decode(x64emu_t* emu, void* filters, lzma_allocator_t* allocator, void* props, size_t size)
 {
-    lzma_allocator_t alloc = {0};
-    wrap_alloc_struct(&alloc, allocator);
-    return my->lzma_properties_decode(filters, &alloc, props, size);
+    wrap_alloc_struct(allocator);
+    int ret = my->lzma_properties_decode(filters, allocator, props, size);
+    unwrap_alloc_struct(allocator);
+    return ret;
 }
 
 EXPORT int my_lzma_alone_decoder(x64emu_t* emu, lzma_stream_t* stream, uint64_t memlimit)
 {
-    // not restoring the allocator after, so lzma_code and lzma_end can be used without "GOM" wrapping
-    if(stream->allocator)
-        wrap_alloc_struct(stream->allocator, stream->allocator);
-    return my->lzma_alone_decoder(stream, memlimit);
+    wrap_alloc_struct(stream->allocator);
+    int ret = my->lzma_alone_decoder(stream, memlimit);
+    unwrap_alloc_struct(stream->allocator);
+    return ret;
 }
 
 EXPORT int my_lzma_alone_encoder(x64emu_t* emu, lzma_stream_t* stream, void* options)
 {
-    // not restoring the allocator after, so lzma_code and lzma_end can be used without "GOM" wrapping
-    if(stream->allocator)
-        wrap_alloc_struct(stream->allocator, stream->allocator);
-    return my->lzma_alone_encoder(stream, options);
+    wrap_alloc_struct(stream->allocator);
+    int ret = my->lzma_alone_encoder(stream, options);
+    unwrap_alloc_struct(stream->allocator);
+    return ret;
 }
 
 EXPORT int my_lzma_stream_encoder_mt(x64emu_t* emu, lzma_stream_t* stream, void* options)
 {
-    // not restoring the allocator after, so lzma_code and lzma_end can be used without "GOM" wrapping
-    if(stream->allocator)
-        wrap_alloc_struct(stream->allocator, stream->allocator);
-    return my->lzma_stream_encoder_mt(stream, options);
+    wrap_alloc_struct(stream->allocator);
+    int ret = my->lzma_stream_encoder_mt(stream, options);
+    unwrap_alloc_struct(stream->allocator);
+    return ret;
+}
+
+EXPORT int my_lzma_code(x64emu_t* emu, lzma_stream_t* stream, int a)
+{
+    wrap_alloc_struct(stream->allocator);
+    int ret = my->lzma_code(stream, a);
+    unwrap_alloc_struct(stream->allocator);
+    return ret;
+}
+
+EXPORT void my_lzma_end(x64emu_t* emu, lzma_stream_t* stream)
+{
+    wrap_alloc_struct(stream->allocator);
+    my->lzma_end(stream);
 }
 
 #define CUSTOM_INIT \
