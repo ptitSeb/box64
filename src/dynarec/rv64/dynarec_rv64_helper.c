@@ -474,7 +474,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
     return addr;
 }
 
-static void exit_block(dynarec_arm_t* dyn, int ninst)
+static void exit_block(dynarec_rv64_t* dyn, int ninst)
 {
     uintptr_t diff = (intptr_t)dyn->enter - (uintptr_t)dyn->block;
     ADDI(x4, xZR, -1);
