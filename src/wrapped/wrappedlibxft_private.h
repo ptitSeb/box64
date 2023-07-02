@@ -38,8 +38,8 @@ GO(XftDrawString32, vFpppiipi)
 //GO(XftDrawStringUtf8, 
 //GO(XftDrawVisual, 
 //GO(XftFontCheckGlyph, 
-//GO(XftFontClose, 
-//GO(XftFontCopy, 
+GO(XftFontClose, vFpp)
+GO(XftFontCopy, pFpp)
 //GO(XftFontInfoCreate, 
 //GO(XftFontInfoDestroy, 
 //GO(XftFontInfoEqual, 
