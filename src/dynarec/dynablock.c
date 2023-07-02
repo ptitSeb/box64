@@ -103,7 +103,7 @@ size_t AgeDynablock(dynablock_t* db, size_t age)
         }
         int need_test = getNeedTest((uintptr_t)db->x64_addr);
         if(db->try_remove) {
-            if(need_test || *db->active_count) {
+            if(need_test && !*db->active_count) {
                 db = InvalidDynablock(db, 0);
                 FreeInvalidDynablock(db, 0);
                 return 0;
