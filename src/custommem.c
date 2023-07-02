@@ -755,7 +755,7 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
                 MarkRangeDynablock(db, addr, size);
         }
         /*if(destroy && start_addr && ((start_addr&~JMPTABLE_MASK0)!=(old_addr&~JMPTABLE_MASK0)))
-            freeJmpTable(start_addr);*/
+            freeJmpTable(start_addr);*/ // cannot free jmpTable as some dynablock might rely on direct address (for fixed IP jmp/call)
         start_addr = old_addr;
     }
 }
