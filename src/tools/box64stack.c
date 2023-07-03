@@ -35,45 +35,6 @@ int CalcStackSize(box64context_t *context)
     return 0;
 }
 
-uint16_t Pop16(x64emu_t *emu)
-{
-    uint16_t* st = ((uint16_t*)(R_RSP));
-    R_RSP += 2;
-    return *st;
-}
-
-void Push16(x64emu_t *emu, uint16_t v)
-{
-    R_RSP -= 2;
-    *((uint16_t*)R_RSP) = v;
-}
-
-uint32_t Pop32(x64emu_t *emu)
-{
-    uint32_t* st = ((uint32_t*)(R_RSP));
-    R_RSP += 4;
-    return *st;
-}
-
-void Push32(x64emu_t *emu, uint32_t v)
-{
-    R_RSP -= 4;
-    *((uint32_t*)R_RSP) = v;
-}
-
-uint64_t Pop64(x64emu_t *emu)
-{
-    uint64_t* st = ((uint64_t*)(R_RSP));
-    R_RSP += 8;
-    return *st;
-}
-
-void Push64(x64emu_t *emu, uint64_t v)
-{
-    R_RSP -= 8;
-    *((uint64_t*)R_RSP) = v;
-}
-
 void PushString(x64emu_t *emu, const char* s)
 {
     int sz = strlen(s) + 1;
@@ -86,7 +47,7 @@ EXPORTDYN
 void SetupInitialStack(x64emu_t *emu)
 {
     // start with 0
-    Push(emu, 0);
+    Push64(emu, 0);
     // push program executed
     PushString(emu, emu->context->argv[0]);
     uintptr_t p_arg0 = R_RSP;
@@ -116,7 +77,7 @@ void SetupInitialStack(x64emu_t *emu)
     uintptr_t p_random = real_getauxval(25);
     if(!p_random) {
         for (int i=0; i<4; ++i)
-            Push(emu, random());
+            Push64(emu, random());
         p_random = R_RSP;
     }
     // align
@@ -146,21 +107,21 @@ void SetupInitialStack(x64emu_t *emu)
     31 0x7ffd5074efea
     33 0x7ffd507e6000
     */
-    Push(emu, 0); Push(emu, 0);                         //AT_NULL(0)=0
-    //Push(emu, ); Push(emu, 3);                          //AT_PHDR(3)=address of the PH of the executable
-    //Push(emu, ); Push(emu, 4);                          //AT_PHENT(4)=size of PH entry
-    //Push(emu, ); Push(emu, 5);                          //AT_PHNUM(5)=number of elf headers
-    Push(emu, box64_pagesize); Push(emu, 6);            //AT_PAGESZ(6)
-    //Push(emu, real_getauxval(7)); Push(emu, 7);         //AT_BASE(7)=ld-2.27.so start (in memory)
-    Push(emu, 0); Push(emu, 8);                         //AT_FLAGS(8)=0
-    Push(emu, R_RIP); Push(emu, 9);                     //AT_ENTRY(9)=entrypoint
-    Push(emu, real_getauxval(11)); Push(emu, 11);       //AT_UID(11)
-    Push(emu, real_getauxval(12)); Push(emu, 12);       //AT_EUID(12)
-    Push(emu, real_getauxval(13)); Push(emu, 13);       //AT_GID(13)
-    Push(emu, real_getauxval(14)); Push(emu, 14);       //AT_EGID(14)
-    Push(emu, p_x86_64); Push(emu, 15);                 //AT_PLATFORM(15)=&"x86_64"
-    // Push HWCAP: same as CPUID 1.EDX
-    Push(emu,   1<<0      // fpu 
+    Push64(emu, 0); Push64(emu, 0);                         //AT_NULL(0)=0
+    //Push64(emu, ); Push64(emu, 3);                          //AT_PHDR(3)=address of the PH of the executable
+    //Push64(emu, ); Push64(emu, 4);                          //AT_PHENT(4)=size of PH entry
+    //Push64(emu, ); Push64(emu, 5);                          //AT_PHNUM(5)=number of elf headers
+    Push64(emu, box64_pagesize); Push64(emu, 6);            //AT_PAGESZ(6)
+    //Push64(emu, real_getauxval(7)); Push64(emu, 7);         //AT_BASE(7)=ld-2.27.so start (in memory)
+    Push64(emu, 0); Push64(emu, 8);                         //AT_FLAGS(8)=0
+    Push64(emu, R_RIP); Push64(emu, 9);                     //AT_ENTRY(9)=entrypoint
+    Push64(emu, real_getauxval(11)); Push64(emu, 11);       //AT_UID(11)
+    Push64(emu, real_getauxval(12)); Push64(emu, 12);       //AT_EUID(12)
+    Push64(emu, real_getauxval(13)); Push64(emu, 13);       //AT_GID(13)
+    Push64(emu, real_getauxval(14)); Push64(emu, 14);       //AT_EGID(14)
+    Push64(emu, p_x86_64); Push64(emu, 15);                 //AT_PLATFORM(15)=&"x86_64"
+    // Push64 HWCAP: same as CPUID 1.EDX
+    Push64(emu, 1<<0      // fpu
               | 1<<4      // rdtsc
               | 1<<8      // cmpxchg8
               | 1<<11     // sep (sysenter & sysexit)
@@ -173,27 +134,27 @@ void SetupInitialStack(x64emu_t *emu)
               | 1<<28     // hyper threading
               | 1<<30     // ia64
         );
-    Push(emu, 16);                                      //AT_HWCAP(16)=...
-    //Push(emu, sysconf(_SC_CLK_TCK)); Push(emu, 17);     //AT_CLKTCK(17)=times() frequency
-    Push(emu, real_getauxval(23)); Push(emu, 23);       //AT_SECURE(23)
-    Push(emu, p_random); Push(emu, 25);                 //AT_RANDOM(25)=p_random
-    Push(emu, 0); Push(emu, 26);                        //AT_HWCAP2(26)=0
-    Push(emu, p_arg0); Push(emu, 31);                   //AT_EXECFN(31)=p_arg0
-    Push(emu, emu->context->vsyscall); Push(emu, 32);                         //AT_SYSINFO(32)=vsyscall
-    //Push(emu, 0); Push(emu, 33);                         //AT_SYSINFO_EHDR(33)=address of vDSO
+    Push64(emu, 16);                                      //AT_HWCAP(16)=...
+    //Push64(emu, sysconf(_SC_CLK_TCK)); Push64(emu, 17);     //AT_CLKTCK(17)=times() frequency
+    Push64(emu, real_getauxval(23)); Push64(emu, 23);       //AT_SECURE(23)
+    Push64(emu, p_random); Push64(emu, 25);                 //AT_RANDOM(25)=p_random
+    Push64(emu, 0); Push64(emu, 26);                        //AT_HWCAP2(26)=0
+    Push64(emu, p_arg0); Push64(emu, 31);                   //AT_EXECFN(31)=p_arg0
+    Push64(emu, emu->context->vsyscall); Push64(emu, 32);                         //AT_SYSINFO(32)=vsyscall
+    //Push64(emu, 0); Push64(emu, 33);                         //AT_SYSINFO_EHDR(33)=address of vDSO
     if(!emu->context->auxval_start)       // store auxval start if needed
         emu->context->auxval_start = (uintptr_t*)R_RSP;
 
     // push nil / envs / nil / args / argc
-    Push(emu, 0);
+    Push64(emu, 0);
     for (int i=emu->context->envc-1; i>=0; --i)
-        Push(emu, p_envv[i]);
+        Push64(emu, p_envv[i]);
     box_free(emu->context->envv);
     emu->context->envv = (char**)R_RSP;
-    Push(emu, 0);
+    Push64(emu, 0);
     for (int i=emu->context->argc-1; i>=0; --i)
-        Push(emu, p_argv[i]);
+        Push64(emu, p_argv[i]);
     box_free(emu->context->argv);
     emu->context->argv = (char**)R_RSP;
-    Push(emu, emu->context->argc);
+    Push64(emu, emu->context->argc);
 }
