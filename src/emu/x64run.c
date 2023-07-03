@@ -295,14 +295,14 @@ x64emurun:
             break;
         case 0x54:                      /* PUSH ESP */
             if(rex.b)
-                Push(emu, R_R12);
+                Push64(emu, R_R12);
             else {
                 if(rex.is32bits) {
                     tmp32u = R_ESP;
                     Push32(emu, tmp32u);
                 } else {
                     tmp64u = R_RSP;
-                    Push(emu, tmp64u);
+                    Push64(emu, tmp64u);
                 }
             }
             break;
@@ -317,7 +317,7 @@ x64emurun:
             if(rex.is32bits)
                 Push32(emu, emu->regs[tmp8u].dword[0]);
             else
-                Push(emu, emu->regs[tmp8u].q[0]);
+                Push64(emu, emu->regs[tmp8u].q[0]);
             break;
         case 0x58:
         case 0x59:
@@ -328,7 +328,7 @@ x64emurun:
         case 0x5E:
         case 0x5F:                      /* POP Reg */
             tmp8u = (opcode&7)+(rex.b<<3);
-            emu->regs[tmp8u].q[0] = is32bits?Pop32(emu):Pop(emu);
+            emu->regs[tmp8u].q[0] = is32bits?Pop32(emu):Pop64(emu);
             break;
         case 0x60:                      /* PUSHAD */
             if(rex.is32bits) {
@@ -446,7 +446,7 @@ x64emurun:
             if(rex.is32bits)
                 Push32(emu, F32);
             else
-                Push(emu, F32S64);
+                Push64(emu, F32S64);
             break;
         case 0x69:                      /* IMUL Gd,Ed,Id */
             nextop = F8;
@@ -464,7 +464,7 @@ x64emurun:
                 Push32(emu, (uint32_t)tmp32s);
             } else {
                 tmp64s = F8S;
-                Push(emu, (uint64_t)tmp64s);
+                Push64(emu, (uint64_t)tmp64s);
             }
             break;
         case 0x6B:                      /* IMUL Gd,Ed,Ib */
@@ -771,7 +771,7 @@ x64emurun:
         case 0x8F:                      /* POP Ed */
             nextop = F8;
             if(MODREG) {
-                emu->regs[(nextop&7)+(rex.b<<3)].q[0] = rex.is32bits?Pop32(emu):Pop(emu);
+                emu->regs[(nextop&7)+(rex.b<<3)].q[0] = rex.is32bits?Pop32(emu):Pop64(emu);
             } else {
                 if(rex.is32bits) {
                     tmp32u = Pop32(emu);  // this order allows handling POP [ESP] and variant
@@ -780,7 +780,7 @@ x64emurun:
                     ED->dword[0] = tmp32u;
                     R_ESP += 4;
                 } else {
-                    tmp64u = Pop(emu);  // this order allows handling POP [ESP] and variant
+                    tmp64u = Pop64(emu);  // this order allows handling POP [ESP] and variant
                     GETED(0);
                     R_RSP -= sizeof(void*); // to prevent issue with SEGFAULT
                     ED->q[0] = tmp64u;
@@ -832,10 +832,10 @@ x64emurun:
             if(rex.is32bits)
                 Push32(emu, emu->eflags.x64);
             else
-                Push(emu, emu->eflags.x64);
+                Push64(emu, emu->eflags.x64);
             break;
         case 0x9D:                      /* POPF */
-            emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+            emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
             #ifndef TEST_INTERPRETER
             if(ACCESS_FLAG(F_TF)) {
@@ -1307,12 +1307,12 @@ x64emurun:
             break;
         case 0xC2:                      /* RETN Iw */
             tmp16u = F16;
-            addr = rex.is32bits?Pop32(emu):Pop(emu);
+            addr = rex.is32bits?Pop32(emu):Pop64(emu);
             R_RSP += tmp16u;
             STEP2
             break;
         case 0xC3:                      /* RET */
-            addr = rex.is32bits?Pop32(emu):Pop(emu);
+            addr = rex.is32bits?Pop32(emu):Pop64(emu);
             STEP2
             break;
 
@@ -1348,21 +1348,21 @@ x64emurun:
                 }
             } else {
                 tmp64u = R_RBP;
-                Push(emu, R_RBP);
+                Push64(emu, R_RBP);
                 R_RBP = R_RSP;
                 if (tmp8u) {
                     for (tmp8u2 = 1; tmp8u2 < tmp8u; tmp8u2++) {
                         tmp64u -= sizeof(void*);
-                        Push(emu, *((uintptr_t*)tmp64u));
+                        Push64(emu, *((uintptr_t*)tmp64u));
                     }
-                    Push(emu, R_RBP);
+                    Push64(emu, R_RBP);
                 }
             }
             R_RSP -= tmp16u;
             break;
         case 0xC9:                      /* LEAVE */
             R_RSP = R_RBP;
-            R_RBP = rex.is32bits?Pop32(emu):Pop(emu);
+            R_RBP = rex.is32bits?Pop32(emu):Pop64(emu);
             break;
 
         case 0xCC:                      /* INT 3 */
@@ -1399,12 +1399,12 @@ x64emurun:
             break;
 
         case 0xCF:                      /* IRET */
-            addr = rex.is32bits?Pop32(emu):Pop(emu);
-            emu->segs[_CS] = (rex.is32bits?Pop32(emu):Pop(emu))&0xffff;
+            addr = rex.is32bits?Pop32(emu):Pop64(emu);
+            emu->segs[_CS] = (rex.is32bits?Pop32(emu):Pop64(emu))&0xffff;
             emu->segs_serial[_CS] = 0;
-            emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
-            tmp64u = rex.is32bits?Pop32(emu):Pop(emu);  //RSP
-            emu->segs[_SS] = (rex.is32bits?Pop32(emu):Pop(emu))&0xffff;
+            emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+            tmp64u = rex.is32bits?Pop32(emu):Pop64(emu);  //RSP
+            emu->segs[_SS] = (rex.is32bits?Pop32(emu):Pop64(emu))&0xffff;
             emu->segs_serial[_SS] = 0;
             R_RSP = tmp64u;
             RESET_FLAGS(emu);
@@ -1637,7 +1637,7 @@ x64emurun:
             if(rex.is32bits)
                 Push32(emu, addr);
             else
-                Push(emu, addr);
+                Push64(emu, addr);
             addr += tmp32s;
             STEP2
             break;
@@ -1862,7 +1862,7 @@ x64emurun:
                         Push32(emu, addr);
                     } else {
                         tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
-                        Push(emu, addr);
+                        Push64(emu, addr);
                     }
                     addr = tmp64u;
                     STEP2
@@ -1881,8 +1881,8 @@ x64emurun:
                             addr = (uintptr_t)getAlternate((void*)(uintptr_t)ED->dword[0]);
                             R_CS = ED->word[2];
                         } else {
-                            Push(emu, R_CS);
-                            Push(emu, addr);
+                            Push64(emu, R_CS);
+                            Push64(emu, addr);
                             addr = (uintptr_t)getAlternate((void*)ED->q[0]);
                             R_CS = (ED+1)->word[0];
                         }
@@ -1924,7 +1924,7 @@ x64emurun:
                         Push32(emu, tmp32u);  // avoid potential issue with push [esp+...]
                     } else {
                         tmp64u = ED->q[0];  // rex.w ignored
-                        Push(emu, tmp64u);  // avoid potential issue with push [esp+...]
+                        Push64(emu, tmp64u);  // avoid potential issue with push [esp+...]
                     }
                     break;
                 default:

@@ -364,7 +364,7 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     case 0xE8:                      /* CALL Id */
         tmp32s = F32S; // call is relative
-        Push(emu, addr);
+        Push64(emu, addr);
         addr += tmp32s;
         break;
 

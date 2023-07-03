@@ -23,22 +23,10 @@ typedef struct rex_s {
 
 static inline uint8_t Peek(x64emu_t *emu, int offset){return *(uint8_t*)(R_RIP + offset);}
 
-static inline uint64_t Pop(x64emu_t *emu)
-{
-    uint64_t* st = ((uint64_t*)(R_RSP));
-    R_RSP += 8;
-    return *st;
-}
-
 #ifdef TEST_INTERPRETER
-#define Push(E, V)  do{E->regs[_SP].q[0] -=8; test->memsize = 8; *(uint64_t*)test->mem = (V); test->memaddr = E->regs[_SP].q[0];}while(0)
 #define Push16(E, V)  do{E->regs[_SP].q[0] -=2; test->memsize = 2; *(uint16_t*)test->mem = (V); test->memaddr = E->regs[_SP].q[0];}while(0)
-#else
-static inline void Push(x64emu_t *emu, uint64_t v)
-{
-    R_RSP -= 8;
-    *((uint64_t*)R_RSP) = v;
-}
+#define Push32(E, V)  do{E->regs[_SP].q[0] -=4; test->memsize = 4; *(uint32_t*)test->mem = (V); test->memaddr = E->regs[_SP].q[0];}while(0)
+#define Push64(E, V)  do{E->regs[_SP].q[0] -=8; test->memsize = 8; *(uint64_t*)test->mem = (V); test->memaddr = E->regs[_SP].q[0];}while(0)
 #endif
 
 static inline void PushExit(x64emu_t* emu)

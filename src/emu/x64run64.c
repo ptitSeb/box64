@@ -438,7 +438,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
         case 0x8F:                      /* POP FS:Ed */
             nextop = F8;
             if(MODREG) {
-                emu->regs[(nextop&7)+(rex.b<<3)].q[0] = Pop(emu);
+                emu->regs[(nextop&7)+(rex.b<<3)].q[0] = Pop64(emu);
             } else {
                 if(rex.is32bits) {
                     tmp32u = Pop32(emu);  // this order allows handling POP [ESP] and variant
@@ -447,7 +447,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     ED->dword[0] = tmp32u;
                     R_ESP += 4;
                 } else {
-                    tmp64u = Pop(emu);  // this order allows handling POP [ESP] and variant
+                    tmp64u = Pop64(emu);  // this order allows handling POP [ESP] and variant
                     GETED_OFFS(0, tlsdata);
                     R_RSP -= sizeof(void*); // to prevent issue with SEGFAULT
                     ED->q[0] = tmp64u;
@@ -642,7 +642,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                         Push32(emu, addr);
                     } else {
                         tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
-                        Push(emu, addr);
+                        Push64(emu, addr);
                     }
                     addr = tmp64u;
                     break;
@@ -659,8 +659,8 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                             R_RIP = addr = ED->dword[0];
                             R_CS = ED->word[2];
                         } else {
-                            Push(emu, R_CS);
-                            Push(emu, addr);
+                            Push64(emu, R_CS);
+                            Push64(emu, addr);
                             R_RIP = addr = ED->q[0];
                             R_CS = (ED+1)->word[0];
                         }
@@ -695,7 +695,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                         Push32(emu, tmp32u);  // avoid potential issue with push [esp+...]
                     } else {
                         tmp64u = ED->q[0];  // rex.w ignored
-                        Push(emu, tmp64u);  // avoid potential issue with push [esp+...]
+                        Push64(emu, tmp64u);  // avoid potential issue with push [esp+...]
                     }
                     break;
                 default:
