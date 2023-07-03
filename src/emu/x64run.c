@@ -333,14 +333,14 @@ x64emurun:
         case 0x60:                      /* PUSHAD */
             if(rex.is32bits) {
                 tmp32u = R_ESP;
-                Push(emu, R_EAX);
-                Push(emu, R_ECX);
-                Push(emu, R_EDX);
-                Push(emu, R_EBX);
-                Push(emu, tmp32u);
-                Push(emu, R_EBP);
-                Push(emu, R_ESI);
-                Push(emu, R_EDI);
+                Push32(emu, R_EAX);
+                Push32(emu, R_ECX);
+                Push32(emu, R_EDX);
+                Push32(emu, R_EBX);
+                Push32(emu, tmp32u);
+                Push32(emu, R_EBP);
+                Push32(emu, R_ESI);
+                Push32(emu, R_EDI);
             } else {
                 unimp = 1;
                 goto fini;
@@ -348,14 +348,14 @@ x64emurun:
             break;
         case 0x61:                      /* POPAD */
             if(rex.is32bits) {
-                R_EDI = Pop(emu);
-                R_ESI = Pop(emu);
-                R_EBP = Pop(emu);
+                R_EDI = Pop32(emu);
+                R_ESI = Pop32(emu);
+                R_EBP = Pop32(emu);
                 R_ESP+=4;   // POP ESP
-                R_EBX = Pop(emu);
-                R_EDX = Pop(emu);
-                R_ECX = Pop(emu);
-                R_EAX = Pop(emu);
+                R_EBX = Pop32(emu);
+                R_EDX = Pop32(emu);
+                R_ECX = Pop32(emu);
+                R_EAX = Pop32(emu);
             } else {
                 unimp = 1;
                 goto fini;
