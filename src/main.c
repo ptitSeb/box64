@@ -35,6 +35,7 @@
 #include "x64run.h"
 #include "symbols.h"
 #include "rcfile.h"
+#include "emu/x64run_private.h"
 
 box64context_t *my_context = NULL;
 int box64_quit = 0;

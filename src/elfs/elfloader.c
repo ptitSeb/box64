@@ -37,6 +37,7 @@
 #include "dynablock.h"
 #endif
 #include "../emu/x64emu_private.h"
+#include "../emu/x64run_private.h"
 #include "x64tls.h"
 
 void* my__IO_2_1_stderr_ = NULL;

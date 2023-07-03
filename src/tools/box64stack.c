@@ -35,45 +35,6 @@ int CalcStackSize(box64context_t *context)
     return 0;
 }
 
-uint16_t Pop16(x64emu_t *emu)
-{
-    uint16_t* st = ((uint16_t*)(R_RSP));
-    R_RSP += 2;
-    return *st;
-}
-
-void Push16(x64emu_t *emu, uint16_t v)
-{
-    R_RSP -= 2;
-    *((uint16_t*)R_RSP) = v;
-}
-
-uint32_t Pop32(x64emu_t *emu)
-{
-    uint32_t* st = ((uint32_t*)(R_RSP));
-    R_RSP += 4;
-    return *st;
-}
-
-void Push32(x64emu_t *emu, uint32_t v)
-{
-    R_RSP -= 4;
-    *((uint32_t*)R_RSP) = v;
-}
-
-uint64_t Pop64(x64emu_t *emu)
-{
-    uint64_t* st = ((uint64_t*)(R_RSP));
-    R_RSP += 8;
-    return *st;
-}
-
-void Push64(x64emu_t *emu, uint64_t v)
-{
-    R_RSP -= 8;
-    *((uint64_t*)R_RSP) = v;
-}
-
 void PushString(x64emu_t *emu, const char* s)
 {
     int sz = strlen(s) + 1;
