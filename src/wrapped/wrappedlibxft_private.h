@@ -6,9 +6,9 @@
 //GO(XftCharFontSpecRender, 
 //GO(XftCharIndex, 
 //GO(XftCharSpecRender, 
-//GO(XftColorAllocName, 
+GO(XftColorAllocName, iFppupp)
 //GO(XftColorAllocValue, 
-//GO(XftColorFree, 
+GO(XftColorFree, vFppup)
 //GO(XftDefaultHasRender, 
 //GO(XftDefaultSet, 
 //GO(XftDefaultSubstitute, 
@@ -19,19 +19,19 @@ GO(XftDrawChange, vFpp)
 GO(XftDrawCreate, pFpppp)
 //GO(XftDrawCreateAlpha, 
 //GO(XftDrawCreateBitmap, 
-//GO(XftDrawDestroy, 
+GO(XftDrawDestroy, vFp)
 //GO(XftDrawDisplay, 
 //GO(XftDrawDrawable, 
 //GO(XftDrawGlyphFontSpec, 
 //GO(XftDrawGlyphs, 
 //GO(XftDrawGlyphSpec, 
 //GO(XftDrawPicture, 
-//GO(XftDrawRect, 
+GO(XftDrawRect, vFppiiuu)
 GO(XftDrawSetClip, iFpp)
 //GO(XftDrawSetClipRectangles, 
 //GO(XftDrawSetSubwindowMode, 
 //GO(XftDrawSrcPicture, 
-//GO(XftDrawString16, 
+GO(XftDrawString16, vFpppiipi)
 GO(XftDrawString32, vFpppiipi)
 //GO(XftDrawString8, 
 //GO(XftDrawStringUtf16, 
@@ -63,7 +63,7 @@ GO(XftFontOpenXlfd, pFpip)
 //GO(XftLockFace, 
 //GO(XftNameParse, 
 GO(XftNameUnparse, iFppi)
-//GO(XftTextExtents16, 
+GO(XftTextExtents16, vFpppip)
 GO(XftTextExtents32, vFpppip)
 //GO(XftTextExtents8, 
 //GO(XftTextExtentsUtf16, 
