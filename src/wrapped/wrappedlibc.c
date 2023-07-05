@@ -923,6 +923,14 @@ EXPORT int my___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* 
   return vsscanf(stream, fmt, VARARGS);
 }
 
+EXPORT int my___isoc99_swscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
+{
+  myStackAlignScanf(emu, (const char*)fmt, b, emu->scratch, 2);
+  PREPARE_VALIST;
+
+  return vswscanf(stream, fmt, VARARGS);
+}
+
 EXPORT int my_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b) {
     (void)emu;
     #ifdef CONVERT_VALIST
