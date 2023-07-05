@@ -3768,6 +3768,7 @@ wrappedlibc:
   - __asprintf
   - __isoc99_fscanf
   - __isoc99_sscanf
+  - __isoc99_swscanf
   - asprintf
   - fprintf
   - fscanf

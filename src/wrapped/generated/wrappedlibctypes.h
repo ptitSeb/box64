@@ -194,6 +194,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__asprintf, iFppV_t) \
 	GO(__isoc99_fscanf, iFppV_t) \
 	GO(__isoc99_sscanf, iFppV_t) \
+	GO(__isoc99_swscanf, iFppV_t) \
 	GO(asprintf, iFppV_t) \
 	GO(fprintf, iFppV_t) \
 	GO(fscanf, iFppV_t) \
