@@ -2415,12 +2415,6 @@ void ctSetup()
     my___ctype_tolower = *(__ctype_tolower_loc());
 }
 
-EXPORT void* my___libc_stack_end;
-void stSetup(box64context_t* context)
-{
-    my___libc_stack_end = context->stack;   // is this the end, or should I add stasz?
-}
-
 EXPORT void my___register_frame_info(void* a, void* b)
 {
     // nothing
@@ -3281,7 +3275,6 @@ EXPORT char my___libc_single_threaded = 0;
     box64->libclib = lib;   \
     /*InitCpuModel();*/         \
     ctSetup();              \
-    stSetup(box64);         \
     obstackSetup();         \
     my_environ = my__environ = my___environ = box64->envv;                      \
     my___progname_full = my_program_invocation_name = box64->argv[0];           \

@@ -28,6 +28,12 @@ EXPORT void* my___tls_get_addr(void* p)
     return ptr->data+GetTLSBase(my_context->elfs[t->i])+t->o;
 }
 
+EXPORT void* my___libc_stack_end;
+void stSetup(box64context_t* context)
+{
+    my___libc_stack_end = context->stack;   // is this the end, or should I add stasz?
+}
+
 // don't try to load the actual ld-linux (because name is variable), just use box64 itself, as it's linked to ld-linux
 const char* ldlinuxName = "ld-linux.so.2";
 #define LIBNAME ldlinux
@@ -36,6 +42,9 @@ const char* ldlinuxName = "ld-linux.so.2";
     if(1)                                                           \
         lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
+
+#define CUSTOM_INIT         \
+    stSetup(box64);         \
 
 // define all standard library functions
 #include "wrappedlib_init.h"

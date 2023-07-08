@@ -14,7 +14,7 @@
 // _dl_rtld_di_serinfo
 // _dl_tls_setup
 DATA(__libc_enable_secure, sizeof(void*))
-DATA(__libc_stack_end, sizeof(void*))
+DATAM(__libc_stack_end, sizeof(void*))
 DATA(__pointer_chk_guard, sizeof(void*))
 DATAB(_r_debug, 40)
 DATA(_rtld_global, sizeof(void*))
