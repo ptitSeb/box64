@@ -769,9 +769,6 @@ static void addRelocJmp(void* offs, void* where, size_t size, const char* name, 
     if(malloc_hack_2 && !*real) {
         *real = (uintptr_t)offs;
     }
-    AddSymbol(h->mapsymbols, name, (uintptr_t)where, size, 1, NULL);
-    AddSymbol(h->mapsymbols, name, (uintptr_t)offs, size, 0, NULL);
-    AddSymbol(h->localsymbols, name, (uintptr_t)offs, size, 0, NULL);
     addAlternate(offs, where);
 }
 
@@ -811,7 +808,7 @@ void checkHookedSymbols(elfheader_t* h)
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             size_t sz = h->DynSym[i].st_size;
             if(bind!=STB_LOCAL && bind!=STB_WEAK) {
-                #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, "__libc_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, &real_##A);}
+                #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, &real_##A);}
                 #define GO2(A, B)
                 SUPER()
                 #undef GO
