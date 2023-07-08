@@ -128,7 +128,7 @@ static void signal_delete(my_signal_t* sig, void* b)
 
 static void addGObject2Alternate(library_t* lib)
 {
-    #define GO(A, W) AddAutomaticBridge(thread_get_emu(), lib->w.bridge, W, dlsym(lib->w.lib, #A), 0)
+    #define GO(A, W) AddAutomaticBridge(thread_get_emu(), lib->w.bridge, W, dlsym(lib->w.lib, #A), 0, #A)
     GO(g_cclosure_marshal_VOID__VOID,               vFppuppp);
     GO(g_cclosure_marshal_VOID__BOOLEAN,            vFppuppp);
     GO(g_cclosure_marshal_VOID__UCHAR,              vFppuppp);
@@ -174,7 +174,7 @@ static void addGObject2Alternate(library_t* lib)
     GO(g_cclosure_marshal_BOOLEAN__FLAGSv,          vFpppppip);
     GO(g_cclosure_marshal_BOOLEAN__BOXED_BOXEDv,    vFpppppip);
     #undef GO
-    #define GO(A, W) AddAutomaticBridge(thread_get_emu(), lib->w.bridge, W, A, 0)
+    #define GO(A, W) AddAutomaticBridge(thread_get_emu(), lib->w.bridge, W, A, 0, #A)
     GO(signal_cb, iFpppp);
     GO(signal_cb_swapped, iFpppp);
     GO(signal_cb_5, iFppppp);
@@ -346,7 +346,7 @@ static void* findMarshalFct(void* fct)
     #define GO(A) if(my_marshal_fct_##A == (uintptr_t)fct) return my_marshal_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(my_marshal_fct_##A == 0) {AddAutomaticBridge(thread_get_emu(), my_lib->w.bridge, vFppuppp, my_marshal_##A, 0); my_marshal_fct_##A = (uintptr_t)fct; return my_marshal_##A; }
+    #define GO(A) if(my_marshal_fct_##A == 0) {AddAutomaticBridge(thread_get_emu(), my_lib->w.bridge, vFppuppp, my_marshal_##A, 0, #A); my_marshal_fct_##A = (uintptr_t)fct; return my_marshal_##A; }
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gobject Closure Marshal callback\n");

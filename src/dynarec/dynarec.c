@@ -37,29 +37,28 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     }
     #endif
     void * jblock;
-    dynablock_t* block = DBGetBlock(emu, addr, 1, is32bits);
+    dynablock_t* block = NULL;
+    if(hasAlternate((void*)addr)) {
+        printf_log(LOG_DEBUG, "Jmp address has alternate: %p", (void*)addr);
+        if(box64_log<LOG_DEBUG) dynarec_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
+        uintptr_t old_addr = addr;
+        addr = (uintptr_t)getAlternate((void*)addr);    // set new address
+        R_RIP = addr;   // but also new RIP!
+        *x3 = addr; // and the RIP in x27 register
+        printf_log(LOG_DEBUG, " -> %p\n", (void*)addr);
+        block = DBAlternateBlock(emu, old_addr, addr, is32bits);
+    } else
+        block = DBGetBlock(emu, addr, 1, is32bits);
     if(!block) {
-        // no block, let link table as is...
-        if(hasAlternate((void*)addr)) {
-            printf_log(LOG_DEBUG, "Jmp address has alternate: %p", (void*)addr);
-            if(box64_log<LOG_DEBUG) dynarec_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
-            addr = (uintptr_t)getAlternate((void*)addr);    // set new address
-            R_RIP = addr;   // but also new RIP!
-            *x3 = addr; // and the RIP in x27 register
-            printf_log(LOG_DEBUG, " -> %p\n", (void*)addr);
-            block = DBGetBlock(emu, addr, 1, is32bits);
+        #ifdef HAVE_TRACE
+        if(LOG_INFO<=box64_dynarec_log) {
+            dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
+            elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2-4);
+            dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s))\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)");
         }
-        if(!block) {
-            #ifdef HAVE_TRACE
-            if(LOG_INFO<=box64_dynarec_log) {
-                dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-                elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2-4);
-                dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s))\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)");
-            }
-            #endif
-            //tableupdate(native_epilog, addr, table);
-            return native_epilog;
-        }
+        #endif
+        //tableupdate(native_epilog, addr, table);
+        return native_epilog;
     }
     if(!block->done) {
         // not finished yet... leave linker

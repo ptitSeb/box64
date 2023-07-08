@@ -215,7 +215,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
             mutex_unlock(&my_context->mutex_dyndump);
         return NULL;
     }
-    void* ret = FillBlock64(block, filladdr, is32bits);
+    void* ret = FillBlock64(block, filladdr, (addr==filladdr)?0:1, is32bits);
     if(!ret) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
         customFree(block);

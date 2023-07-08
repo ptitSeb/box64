@@ -117,7 +117,7 @@ static void autobridge_##NAME##_##A(wrapper_t W, void* fct)         \
         return;                                                     \
     Dl_info info;                                                   \
     if(dladdr(fct, &info))                                          \
-        AddAutomaticBridge(thread_get_emu(), my_bridge, W, fct, 0); \
+        AddAutomaticBridge(thread_get_emu(), my_bridge, W, fct, 0, #NAME "_" #A); \
 }
 
 #define WRAPPER(A, NAME, RET, DEF, FMT, ...)        \

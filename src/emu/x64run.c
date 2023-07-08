@@ -1644,6 +1644,7 @@ x64emurun:
         case 0xE9:                      /* JMP Id */
             tmp32s = F32S; // jmp is relative
             addr += tmp32s;
+            addr = (uintptr_t)getAlternate((void*)addr);
             STEP2
             break;
 

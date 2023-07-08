@@ -187,6 +187,7 @@ EXPORT void* malloc(size_t l)
 }
 
 static uintptr_t real_free = 0;
+static uintptr_t real_realloc = 0;
 EXPORT void free(void* p)
 {
     if(malloc_hack_2 && p) {
@@ -210,15 +211,20 @@ EXPORT void* realloc(void* p, size_t s)
 {
     if(malloc_hack_2)
         if(getMmapped((uintptr_t)p)) {
-            // found! Will realloc using regular malloc then copy from old address as much as possible, but need to check size first
-            void* ret = box_malloc(s);
-            printf_log(LOG_DEBUG, "Malloc_Hack_2: hacking realloc(%p, %zu)", p, s);
-            while(s && !(getProtection((uintptr_t)p+s)&PROT_READ)) {if(s>box64_pagesize) s-=box64_pagesize; else s=0;}
-            memcpy(ret, p, s);
-            printf_log(LOG_DEBUG, " -> %p (copied %zu from old)\n", ret, s);
-            // Mmaped, free with original function
-            if(real_free)
-                RunFunctionFmt(my_context, real_free, "p", p);
+            void* ret = p;
+            if(real_realloc) {
+                ret = (void*)RunFunctionFmt(my_context, real_realloc, "pL", p, s);
+            } else {
+                // found! Will realloc using regular malloc then copy from old address as much as possible, but need to check size first
+                ret = box_malloc(s);
+                printf_log(LOG_DEBUG, "Malloc_Hack_2: hacking realloc(%p, %zu)", p, s);
+                while(s && !(getProtection((uintptr_t)p+s)&PROT_READ)) {if(s>box64_pagesize) s-=box64_pagesize; else s=0;}
+                memcpy(ret, p, s);
+                printf_log(LOG_DEBUG, " -> %p (copied %zu from old)\n", ret, s);
+                // Mmaped, free with original function
+                if(real_free)
+                    RunFunctionFmt(my_context, real_free, "p", p);
+            }
             return ret;
         }
     return box_realloc(p, s);
@@ -708,42 +714,15 @@ typedef struct simple_jmp_s {
 
 static void addRelocJmp(void* offs, void* where, size_t size, const char* name, elfheader_t* h)
 {
-    if(0 && malloc_hack_2 && !strcmp(name, "free")) {
-        if(!real_free /*&& !strcmp(name, "free")*/)
-            real_free = (uintptr_t)offs;
-        // a bridge jump is roughly 32 bytes
-        ForceUpdateSymbol(h->mapsymbols, name, (uintptr_t)where, 32);
-        ForceUpdateSymbol(h->weaksymbols, name, (uintptr_t)where, 32);
-        ForceUpdateSymbol(h->localsymbols, name, (uintptr_t)where, 32);
-    } else {
-        reloc_jmp_t r_jmp = {0};
-        simple_jmp_t s_jmp = {0};
-        size_t sz = 0;
-        intptr_t off64 = (intptr_t)where - ((intptr_t)offs+5);
-        void* p = NULL;
-        int32_t off32 = (int32_t)off64;
-        if(off32 == off64) {
-            s_jmp._e9 = 0xe9;
-            s_jmp.delta = (uint32_t)off32;
-            p = &s_jmp;
-            sz = sizeof(s_jmp);
-        } else {
-            r_jmp._ff = 0xff;
-            r_jmp._25 = 0x25;
-            r_jmp.addr = where;
-            p = &r_jmp;
-            sz = sizeof(r_jmp);
-        }
-        if(size>=sz)
-            memcpy(offs, p, sz);
-        else {
-            printf_log(LOG_INFO, "Warning, cannot redirect %s, too small %zu vs %zu\n", name, size, sz);
-            // use plan-B, it might be enough
-            ForceUpdateSymbol(h->mapsymbols, name, (uintptr_t)where, 32);
-            ForceUpdateSymbol(h->weaksymbols, name, (uintptr_t)where, 32);
-            ForceUpdateSymbol(h->localsymbols, name, (uintptr_t)where, 32);
-        }
+    if(malloc_hack_2 && !real_free && !strcmp(name, "free")) {
+        real_free = (uintptr_t)offs;
+    } else if(malloc_hack_2 && !real_realloc && !strcmp(name, "realloc")) {
+        real_realloc = (uintptr_t)offs;
     }
+    AddSymbol(h->mapsymbols, name, (uintptr_t)where, size, 1, NULL);
+    AddSymbol(h->mapsymbols, name, (uintptr_t)offs, size, 0, NULL);
+    AddSymbol(h->localsymbols, name, (uintptr_t)offs, size, 0, NULL);
+    addAlternate(offs, where);
 }
 
 void checkHookedSymbols(elfheader_t* h)
@@ -761,7 +740,7 @@ void checkHookedSymbols(elfheader_t* h)
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             size_t sz = h->DynSym[i].st_size;
             if(bind!=STB_LOCAL && bind!=STB_WEAK && sz>=sizeof(reloc_jmp_t)) {
-                #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; else if(!strcmp(symname, "scalable_" #A)) ++hooked; else if(!strcmp(symname, "__TBB_internal_" #A)) ++hooked;
+                #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; else if(!strcmp(symname, "__libc_" #A)) ++hooked;
                 #define GO2(A, B)
                 SUPER()
                 #undef GO
@@ -784,23 +763,13 @@ void checkHookedSymbols(elfheader_t* h)
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             size_t sz = h->DynSym[i].st_size;
             if(bind!=STB_LOCAL && bind!=STB_WEAK) {
-                #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A, h);}
-                #define GO2(A, B)
-                SUPER()
-                #undef GO
-                #undef GO2
-                #define GO(A, B) if(!strcmp(symname, "scalable_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A, h);}
-                #define GO2(A, B)
-                SUPER()
-                #undef GO
-                #undef GO2
-                #define GO(A, B) if(!strcmp(symname, "__TBB_internal_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A, h);}
+                #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, "__libc_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h);}
                 #define GO2(A, B)
                 SUPER()
                 #undef GO
                 #undef GO2
                 #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A, h);}
-                #define GO2(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A, h);}
+                #define GO2(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, "my_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "my_" #A, h);}
                 SUPER()
                 #undef GO
                 #undef GO2
