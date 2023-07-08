@@ -1860,6 +1860,7 @@ EXPORT void PltResolver(x64emu_t* emu)
             printf_dump(LOG_DEBUG, "symbol %s from %s but elf not initialized yet, run Init now (from %s)\n", symname, ElfName(sym_elf), ElfName(h));
             RunElfInitPltResolver(sym_elf, emu);
         }
+        offs = (uintptr_t)getAlternate((void*)offs);
 
         if(p) {
             printf_dump(LOG_DEBUG, "            Apply %s R_X86_64_JUMP_SLOT %p with sym=%s(ver %d: %s%s%s) (%p -> %p / %s)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, version, symname, vername?"@":"", vername?vername:"",*(void**)p, (void*)offs, ElfName(sym_elf));
