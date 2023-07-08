@@ -460,6 +460,25 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr)
     } while(db->instsize[i].x64 || db->instsize[i].nat);
     return x64addr;
 }
+x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
+{
+#if defined(ARM64)
+        if(db && p->uc_mcontext.regs[0]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.regs[0];
+        }
+#elif defined(LA464)
+        if(db && p->uc_mcontext.__gregs[4]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
+        }
+#elif defined(RV64)
+        if(db && p->uc_mcontext.__gregs[10]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.__gregs[10];
+        }
+#else
+#error Unsupported Architecture
+#endif //arch
+    return emu;
+}
 #endif
 
 void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
@@ -525,28 +544,6 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
 #error  Unsupported architecture
 #endif
 #endif
-}
-
-x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
-{
-#if defined(DYNAREC)
-#if defined(ARM64)
-        if(db && p->uc_mcontext.regs[0]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.regs[0];
-        }
-#elif defined(LA464)
-        if(db && p->uc_mcontext.__gregs[4]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
-        }
-#elif defined(RV64)
-        if(db && p->uc_mcontext.__gregs[10]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.__gregs[10];
-        }
-#else
-#error Unsupported Architecture
-#endif //arch
-#endif //DYNAREC
-    return emu;
 }
 
 void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
