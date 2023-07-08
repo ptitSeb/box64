@@ -1066,28 +1066,6 @@ EXPORT int my_pthread_barrier_init(x64emu_t* emu, pthread_barrier_t* bar, my_bar
 
 #endif
 
-static void emujmpbuf_destroy(void* p)
-{
-	emu_jmpbuf_t *ej = (emu_jmpbuf_t*)p;
-	if(ej) {
-		box_free(ej->jmpbuf);
-		box_free(ej);
-	}
-}
-
-static pthread_key_t jmpbuf_key;
-
-emu_jmpbuf_t* GetJmpBuf()
-{
-	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
-	if(!ejb) {
-		ejb = (emu_jmpbuf_t*)box_calloc(1, sizeof(emu_jmpbuf_t));
-		ejb->jmpbuf = box_calloc(1, sizeof(struct __jmp_buf_tag));
-		pthread_setspecific(jmpbuf_key, ejb);
-	}
-	return ejb;
-}
-
 void init_pthread_helper()
 {
 	real_pthread_cleanup_push_defer = (vFppp_t)dlsym(NULL, "_pthread_cleanup_push_defer");
@@ -1108,8 +1086,6 @@ void init_pthread_helper()
 	}
 
 	InitCancelThread();
-	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
-	pthread_setspecific(jmpbuf_key, NULL);
 	pthread_key_create(&thread_key, emuthread_destroy);
 	pthread_setspecific(thread_key, NULL);
 }
@@ -1118,11 +1094,6 @@ void fini_pthread_helper(box64context_t* context)
 {
 	FreeCancelThread(context);
 	CleanStackSize(context);
-	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
-	if(ejb) {
-		pthread_setspecific(jmpbuf_key, NULL);
-		emujmpbuf_destroy(ejb);
-	}
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
 	if(et) {
 		pthread_setspecific(thread_key, NULL);

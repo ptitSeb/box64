@@ -527,6 +527,28 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
 #endif
 }
 
+x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
+{
+#if defined(DYNAREC)
+#if defined(ARM64)
+        if(db && p->uc_mcontext.regs[0]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.regs[0];
+        }
+#elif defined(LA464)
+        if(db && p->uc_mcontext.__gregs[4]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
+        }
+#elif defined(RV64)
+        if(db && p->uc_mcontext.__gregs[10]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.__gregs[10];
+        }
+#else
+#error Unsupported Architecture
+#endif //arch
+#endif //DYNAREC
+    return emu;
+}
+
 void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     int Locks = unlockMutex();
@@ -784,9 +806,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     #undef GO
 
     if(memcmp(sigcontext, &sigcontext_copy, sizeof(x64_ucontext_t))) {
-        emu_jmpbuf_t* ejb = GetJmpBuf();
-        if(ejb->jmpbuf_ok) {
-            #define GO(R)   ejb->emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_R##R]
+        if(emu->jmpbuf) {
+            #define GO(R)   emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_R##R]
             GO(AX);
             GO(CX);
             GO(DX);
@@ -796,7 +817,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             GO(SP);
             GO(BX);
             #undef GO
-            #define GO(R)   ejb->emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_##R]
+            #define GO(R)   emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[X64_##R]
             GO(R8);
             GO(R9);
             GO(R10);
@@ -806,14 +827,14 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             GO(R14);
             GO(R15);
             #undef GO
-            ejb->emu->ip.q[0]=sigcontext->uc_mcontext.gregs[X64_RIP];
+            emu->ip.q[0]=sigcontext->uc_mcontext.gregs[X64_RIP];
             sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;
             // flags
-            ejb->emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
+            emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
             // get segments
             uint16_t seg;
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 0)&0xffff;
-            #define GO(S) if(ejb->emu->segs[_##S]!=seg)  {ejb->emu->segs[_##S]=seg; ejb->emu->segs_serial[_##S] = 0;}
+            #define GO(S) if(emu->segs[_##S]!=seg)  {emu->segs[_##S]=seg; emu->segs_serial[_##S] = 0;}
             GO(CS);
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 16)&0xffff;
             GO(GS);
@@ -830,7 +851,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             if(Locks & is_dyndump_locked)
                 CancelBlock64(1);
             #endif
-            siglongjmp(ejb->jmpbuf, 1);
+            siglongjmp(emu->jmpbuf, 1);
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
     }
@@ -907,6 +928,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
     void* rsp = NULL;
+    x64emu_t* emu = thread_get_emu();
 #ifdef __aarch64__
     void * pc = (void*)p->uc_mcontext.pc;
     struct fpsimd_context *fpsimd = NULL;
@@ -972,31 +994,31 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         int db_need_test = (db && !box64_dynarec_fastpage)?getNeedTest((uintptr_t)db->x64_addr):0;
         if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db_need_test)) {
+            emu = getEmuSignal(emu, p, db);
             // dynablock got auto-dirty! need to get out of it!!!
-            emu_jmpbuf_t* ejb = GetJmpBuf();
-            if(ejb->jmpbuf_ok) {
-                copyUCTXreg2Emu(ejb->emu, p, getX64Address(db, (uintptr_t)pc));
+            if(emu->jmpbuf) {
+                copyUCTXreg2Emu(emu, p, getX64Address(db, (uintptr_t)pc));
 #ifdef ARM64
                 //TODO: Need proper SIMD/x87 register traking!
                 /*if(fpsimd) {
-                    ejb->emu->xmm[0].u128 = fpsimd->vregs[0];
-                    ejb->emu->xmm[1].u128 = fpsimd->vregs[1];
-                    ejb->emu->xmm[2].u128 = fpsimd->vregs[2];
-                    ejb->emu->xmm[3].u128 = fpsimd->vregs[3];
+                    emu->xmm[0].u128 = fpsimd->vregs[0];
+                    emu->xmm[1].u128 = fpsimd->vregs[1];
+                    emu->xmm[2].u128 = fpsimd->vregs[2];
+                    emu->xmm[3].u128 = fpsimd->vregs[3];
                 }*/
 #elif defined(LA464)
                 /*if(fpsimd) {
-                    ejb->emu->xmm[0].u128 = fpsimd->vregs[0];
-                    ejb->emu->xmm[1].u128 = fpsimd->vregs[1];
-                    ejb->emu->xmm[2].u128 = fpsimd->vregs[2];
-                    ejb->emu->xmm[3].u128 = fpsimd->vregs[3];
+                    emu->xmm[0].u128 = fpsimd->vregs[0];
+                    emu->xmm[1].u128 = fpsimd->vregs[1];
+                    emu->xmm[2].u128 = fpsimd->vregs[2];
+                    emu->xmm[3].u128 = fpsimd->vregs[3];
                 }*/
 #elif defined(RV64)
                 /*if(fpsimd) {
-                    ejb->emu->xmm[0].u128 = fpsimd->vregs[0];
-                    ejb->emu->xmm[1].u128 = fpsimd->vregs[1];
-                    ejb->emu->xmm[2].u128 = fpsimd->vregs[2];
-                    ejb->emu->xmm[3].u128 = fpsimd->vregs[3];
+                    emu->xmm[0].u128 = fpsimd->vregs[0];
+                    emu->xmm[1].u128 = fpsimd->vregs[1];
+                    emu->xmm[2].u128 = fpsimd->vregs[2];
+                    emu->xmm[3].u128 = fpsimd->vregs[3];
                 }*/
 #else
 #error  Unsupported architecture
@@ -1010,8 +1032,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 unlock_signal();
                 if(Locks & is_dyndump_locked)
                     CancelBlock64(1);
-                ejb->emu->test.clean = 0;
-                siglongjmp(ejb->jmpbuf, 2);
+                emu->test.clean = 0;
+                siglongjmp(emu->jmpbuf, 2);
             }
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);
         }
@@ -1113,7 +1135,6 @@ exit(-1);
         uintptr_t x64pc = (uintptr_t)-1;
         const char* x64name = NULL;
         const char* elfname = NULL;
-        x64emu_t* emu = thread_get_emu();
         // Adjust RIP for special case of NULL function run
         if(sig==SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
             R_RIP = 0x0;
@@ -1121,9 +1142,6 @@ exit(-1);
         rsp = (void*)R_RSP;
 #if defined(DYNAREC)
 #if defined(ARM64)
-        if(db && p->uc_mcontext.regs[0]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.regs[0];
-        }
         if(db) {
             x64pc = getX64Address(db, (uintptr_t)pc);
             rsp = (void*)p->uc_mcontext.regs[10+_SP];

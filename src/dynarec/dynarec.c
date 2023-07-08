@@ -81,27 +81,21 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 void DynaCall(x64emu_t* emu, uintptr_t addr)
 {
     // prepare setjump for signal handling
-    emu_jmpbuf_t *ejb = NULL;
-    int jmpbuf_reset = 0;
+    struct __jmp_buf_tag jmpbuf[1] = {0};
     int skip = 0;
-    if(emu->type == EMUTYPE_MAIN) {
-        ejb = GetJmpBuf();
-        if(!ejb->jmpbuf_ok) {
-            ejb->emu = emu;
-            ejb->jmpbuf_ok = 1;
-            jmpbuf_reset = 1;
-            if((skip = sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))) {
-                printf_log(LOG_DEBUG, "Setjmp DynaCall, fs=0x%x\n", ejb->emu->segs[_FS]);
-                addr = R_RIP;   // not sure if it should still be inside DynaCall!
-                #ifdef DYNAREC
-                if(box64_dynarec_test) {
-                    if(emu->test.clean)
-                        x64test_check(emu, R_RIP);
-                    emu->test.clean = 0;
-                }
-                #endif
-            }
+    struct __jmp_buf_tag *old_jmpbuf = emu->jmpbuf;
+    emu->jmpbuf = jmpbuf;
+
+    if((skip = sigsetjmp(emu->jmpbuf, 1))) {
+        printf_log(LOG_DEBUG, "Setjmp DynaCall, fs=0x%x\n", emu->segs[_FS]);
+        addr = R_RIP;   // not sure if it should still be inside DynaCall!
+        #ifdef DYNAREC
+        if(box64_dynarec_test) {
+            if(emu->test.clean)
+                x64test_check(emu, R_RIP);
+            emu->test.clean = 0;
         }
+        #endif
     }
 #ifdef DYNAREC
     if(!box64_dynarec)
@@ -140,16 +134,6 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
                 emu->quit = 0;
                 emu->fork = 0;
                 emu = x64emu_fork(emu, forktype);
-                if(emu->type == EMUTYPE_MAIN) {
-                    ejb = GetJmpBuf();
-                    ejb->emu = emu;
-                    ejb->jmpbuf_ok = 1;
-                    jmpbuf_reset = 1;
-                    if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)) {
-                        printf_log(LOG_DEBUG, "Setjmp inner DynaCall, fs=0x%x\n", ejb->emu->segs[_FS]);
-                        addr = R_RIP;
-                    }
-                }
             }
         }
         emu->quit = 0;  // reset Quit flags...
@@ -168,38 +152,28 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     }
 #endif
     // clear the setjmp
-    if(ejb && jmpbuf_reset)
-        ejb->jmpbuf_ok = 0;
+    emu->jmpbuf = old_jmpbuf;
 }
 
 int DynaRun(x64emu_t* emu)
 {
     // prepare setjump for signal handling
-    emu_jmpbuf_t *ejb = NULL;
-    int skip;
-#ifdef DYNAREC
-    int jmpbuf_reset = 1;
-#endif
-    if(emu->type == EMUTYPE_MAIN) {
-        ejb = GetJmpBuf();
-        if(!ejb->jmpbuf_ok) {
-            ejb->emu = emu;
-            ejb->jmpbuf_ok = 1;
-#ifdef DYNAREC
-            jmpbuf_reset = 1;
-#endif
-            if((skip=sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))) {
-                printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
-                #ifdef DYNAREC
-                if(box64_dynarec_test) {
-                    if(emu->test.clean)
-                        x64test_check(emu, R_RIP);
-                    emu->test.clean = 0;
-                }
-                #endif
-            }
+    struct __jmp_buf_tag jmpbuf[1] = {0};
+    int skip = 0;
+    struct __jmp_buf_tag *old_jmpbuf = emu->jmpbuf;
+    emu->jmpbuf = jmpbuf;
+
+    if((skip=sigsetjmp(emu->jmpbuf, 1))) {
+        printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", emu->segs[_FS]);
+        #ifdef DYNAREC
+        if(box64_dynarec_test) {
+            if(emu->test.clean)
+                x64test_check(emu, R_RIP);
+            emu->test.clean = 0;
         }
+        #endif
     }
+
 #ifdef DYNAREC
     if(!box64_dynarec)
 #endif
@@ -227,20 +201,11 @@ int DynaRun(x64emu_t* emu)
                 emu->quit = 0;
                 emu->fork = 0;
                 emu = x64emu_fork(emu, forktype);
-                if(emu->type == EMUTYPE_MAIN) {
-                    ejb = GetJmpBuf();
-                    ejb->emu = emu;
-                    ejb->jmpbuf_ok = 1;
-                    jmpbuf_reset = 1;
-                    if((skip = sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)))
-                        printf_log(LOG_DEBUG, "Setjmp inner DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
-                }
             }
         }
     }
     // clear the setjmp
-    if(ejb && jmpbuf_reset)
-        ejb->jmpbuf_ok = 0;
+    emu->jmpbuf = old_jmpbuf;
     return 0;
 #endif
 }

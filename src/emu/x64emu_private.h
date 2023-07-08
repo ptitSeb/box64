@@ -98,6 +98,7 @@ typedef struct x64emu_s {
     void*       stack2free; // this is the stack to free (can be NULL)
     void*       init_stack; // initial stack (owned or not)
     uint32_t    size_stack; // stack size (owned or not)
+    struct __jmp_buf_tag *jmpbuf;
 
     x64_ucontext_t *uc_link; // to handle setcontext
 

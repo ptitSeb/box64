@@ -4,15 +4,7 @@
 typedef struct box64context_s box64context_t;
 typedef struct x64emu_s x64emu_t;
 
-typedef struct emu_jmpbuf_s {
-    x64emu_t*   emu;
-	void* 	    jmpbuf;
-	int 	    jmpbuf_ok;
-} emu_jmpbuf_t;
-
 void CleanStackSize(box64context_t* context);
-
-emu_jmpbuf_t* GetJmpBuf(void);
 
 void init_pthread_helper(void);
 void fini_pthread_helper(box64context_t* context);
