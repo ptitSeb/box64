@@ -549,14 +549,16 @@ uintptr_t AllocDynarecMap(size_t size, size_t age)
             while(sub && (uintptr_t)sub<end) {
                 blockmark_t* n = NEXT_BLOCK(sub);
                 dynablock_t* db = NULL;
-                if(sub->next.fill)
-                    db = *(dynablock_t**)((uintptr_t)sub+sizeof(blockmark_t));
+                if(n->next.fill)
+                    db = *(dynablock_t**)((uintptr_t)n+sizeof(blockmark_t));
+                if(db) {
+                    size_t new_age = AgeDynablock(db, age);
+                    if(!new_age)    // db has been removed
+                        n = sub;    // go back 1 step
+                    else if(new_age<newage || !newage)
+                        newage = new_age;
+                }
                 sub = n;
-                size_t new_age = db?AgeDynablock(db, age):age;
-                if(!new_age)
-                    sub = (blockmark_t*)list->chunks[i].block;
-                else if(new_age<newage || !newage)
-                    newage = new_age;
             }
             list->minage[i] = newage;
         }

@@ -125,7 +125,7 @@ size_t AgeDynablock(dynablock_t* db, size_t age)
         }
         return db->age;
     }
-    return age;
+    return 0;
 }
 
 
