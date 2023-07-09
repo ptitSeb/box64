@@ -14,10 +14,9 @@
 #include "dynarec.h"
 
 EXPORTDYN
-uint64_t RunFunction(x64emu_t *emu, uintptr_t fnc, int nargs, ...)
+uint64_t RunFunction(uintptr_t fnc, int nargs, ...)
 {
-    if(!emu)
-        emu = thread_get_emu();
+    x64emu_t *emu = thread_get_emu();
     int align = (nargs>6)?(((nargs-6)&1)):0;
     int stackn = align + ((nargs>6)?(nargs-6):0);
 
