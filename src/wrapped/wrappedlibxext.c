@@ -83,6 +83,248 @@ static void* reverse_exterrorhandleFct(void* fct)
     #undef GO
     return (void*)AddBridge(my_lib->w.bridge, iFppp, fct, 0, NULL);
 }
+// create_gc ...
+#define GO(A)   \
+static uintptr_t my_create_gc_fct_##A = 0;                          \
+static int my_create_gc_##A(void* a, uint32_t b, void* c)           \
+{                                                                   \
+    return RunFunctionFmt(my_create_gc_fct_##A, "pup", a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_create_gc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_create_gc_fct_##A == (uintptr_t)fct) return my_create_gc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_create_gc_fct_##A == 0) {my_create_gc_fct_##A = (uintptr_t)fct; return my_create_gc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext create_gc callback\n");
+    return NULL;
+}
+// copy_gc ...
+#define GO(A)   \
+static uintptr_t my_copy_gc_fct_##A = 0;                        \
+static int my_copy_gc_##A(void* a, uint32_t b, void* c)         \
+{                                                               \
+    return RunFunctionFmt(my_copy_gc_fct_##A, "pup", a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_copy_gc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_copy_gc_fct_##A == (uintptr_t)fct) return my_copy_gc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_copy_gc_fct_##A == 0) {my_copy_gc_fct_##A = (uintptr_t)fct; return my_copy_gc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext copy_gc callback\n");
+    return NULL;
+}
+// flush_gc ...
+#define GO(A)   \
+static uintptr_t my_flush_gc_fct_##A = 0;                           \
+static int my_flush_gc_##A(void* a, uint32_t b, void* c)            \
+{                                                                   \
+    return RunFunctionFmt(my_flush_gc_fct_##A, "pup", a, b, c);     \
+}
+SUPER()
+#undef GO
+static void* find_flush_gc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_flush_gc_fct_##A == (uintptr_t)fct) return my_flush_gc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_flush_gc_fct_##A == 0) {my_flush_gc_fct_##A = (uintptr_t)fct; return my_flush_gc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext flush_gc callback\n");
+    return NULL;
+}
+// free_gc ...
+#define GO(A)   \
+static uintptr_t my_free_gc_fct_##A = 0;                           \
+static int my_free_gc_##A(void* a, uint32_t b, void* c)            \
+{                                                                  \
+    return RunFunctionFmt(my_free_gc_fct_##A, "pup", a, b, c);     \
+}
+SUPER()
+#undef GO
+static void* find_free_gc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_free_gc_fct_##A == (uintptr_t)fct) return my_free_gc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_free_gc_fct_##A == 0) {my_free_gc_fct_##A = (uintptr_t)fct; return my_free_gc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext free_gc callback\n");
+    return NULL;
+}
+// create_font ...
+#define GO(A)   \
+static uintptr_t my_create_font_fct_##A = 0;                            \
+static int my_create_font_##A(void* a, void* b, void* c)                \
+{                                                                       \
+    return RunFunctionFmt(my_create_font_fct_##A, "ppp", a, b, c);      \
+}
+SUPER()
+#undef GO
+static void* find_create_font_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_create_font_fct_##A == (uintptr_t)fct) return my_create_font_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_create_font_fct_##A == 0) {my_create_font_fct_##A = (uintptr_t)fct; return my_create_font_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext create_font callback\n");
+    return NULL;
+}
+// free_font ...
+#define GO(A)   \
+static uintptr_t my_free_font_fct_##A = 0;                            \
+static int my_free_font_##A(void* a, void* b, void* c)                \
+{                                                                     \
+    return RunFunctionFmt(my_free_font_fct_##A, "ppp", a, b, c);      \
+}
+SUPER()
+#undef GO
+static void* find_free_font_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_free_font_fct_##A == (uintptr_t)fct) return my_free_font_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_free_font_fct_##A == 0) {my_free_font_fct_##A = (uintptr_t)fct; return my_free_font_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext free_font callback\n");
+    return NULL;
+}
+// close_display ...
+#define GO(A)   \
+static uintptr_t my_close_display_fct_##A = 0;                  \
+static int my_close_display_##A(void* a, void* b)               \
+{                                                               \
+    return RunFunctionFmt(my_close_display_fct_##A, "pp", a, b);\
+}
+SUPER()
+#undef GO
+static void* find_close_display_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_close_display_fct_##A == (uintptr_t)fct) return my_close_display_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_close_display_fct_##A == 0) {my_close_display_fct_##A = (uintptr_t)fct; return my_close_display_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext close_display callback\n");
+    return NULL;
+}
+// wire_to_event ...
+#define GO(A)   \
+static uintptr_t my_wire_to_event_fct_##A = 0;                          \
+static int my_wire_to_event_##A(void* a, void* b, void* c)              \
+{                                                                       \
+    return RunFunctionFmt(my_wire_to_event_fct_##A, "ppp", a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_wire_to_event_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_wire_to_event_fct_##A == (uintptr_t)fct) return my_wire_to_event_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_wire_to_event_fct_##A == 0) {my_wire_to_event_fct_##A = (uintptr_t)fct; return my_wire_to_event_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext wire_to_event callback\n");
+    return NULL;
+}
+// event_to_wire ...
+#define GO(A)   \
+static uintptr_t my_event_to_wire_fct_##A = 0;                          \
+static int my_event_to_wire_##A(void* a, void* b, void* c)              \
+{                                                                       \
+    return RunFunctionFmt(my_event_to_wire_fct_##A, "ppp", a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_event_to_wire_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_event_to_wire_fct_##A == (uintptr_t)fct) return my_event_to_wire_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_event_to_wire_fct_##A == 0) {my_event_to_wire_fct_##A = (uintptr_t)fct; return my_event_to_wire_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext event_to_wire callback\n");
+    return NULL;
+}
+// error ...
+#define GO(A)   \
+static uintptr_t my_error_fct_##A = 0;                              \
+static int my_error_##A(void* a, void* b, void* c, int* d)          \
+{                                                                   \
+    return RunFunctionFmt(my_error_fct_##A, "pppp", a, b, c, d);    \
+}
+SUPER()
+#undef GO
+static void* find_error_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_error_fct_##A == (uintptr_t)fct) return my_error_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_error_fct_##A == 0) {my_error_fct_##A = (uintptr_t)fct; return my_error_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext error callback\n");
+    return NULL;
+}
+// error_string ...
+#define GO(A)   \
+static uintptr_t my_error_string_fct_##A = 0;                               \
+static int my_error_string_##A(void* a, int b, void* c, void* d, int e)     \
+{                                                                           \
+    return RunFunctionFmt(my_error_string_fct_##A, "pippi", a, b, c, d, e); \
+}
+SUPER()
+#undef GO
+static void* find_error_string_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_error_string_fct_##A == (uintptr_t)fct) return my_error_string_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_error_string_fct_##A == 0) {my_error_string_fct_##A = (uintptr_t)fct; return my_error_string_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXext error_string callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -123,77 +365,10 @@ EXPORT void* my_XSetExtensionErrorHandler(x64emu_t* emu, void* handler)
     return reverse_exterrorhandleFct(my->XSetExtensionErrorHandler(find_exterrorhandle_Fct(handler)));
 }
 
-static uintptr_t my_hook_create_gc_fnc = 0;
-static uintptr_t my_hook_copy_gc_fnc = 0;
-static uintptr_t my_hook_flush_gc_fnc = 0;
-static uintptr_t my_hook_free_gc_fnc = 0;
-static uintptr_t my_hook_create_font_fnc = 0;
-static uintptr_t my_hook_free_font_fnc = 0;
-static uintptr_t my_hook_close_display_fnc = 0;
-static uintptr_t my_hook_wire_to_event_fnc = 0;
-static uintptr_t my_hook_event_to_wire_fnc = 0;
-static uintptr_t my_hook_error_fnc = 0;
-static uintptr_t my_hook_error_string_fnc = 0;
-static int  my_hook_create_gc(void* a, uint32_t b, void* c) {
-    if(my_hook_create_gc_fnc)
-        return (int)RunFunctionFmt(my_hook_create_gc_fnc, "pup", a, b, c);
-    return 0;
-}
-static int  my_hook_copy_gc(void* a, uint32_t b, void* c) {
-    if(my_hook_copy_gc_fnc)
-        return (int)RunFunctionFmt(my_hook_copy_gc_fnc, "pup", a, b, c);
-    return 0;
-}
-static int  my_hook_flush_gc(void* a, uint32_t b, void* c) {
-    if(my_hook_flush_gc_fnc)
-        return (int)RunFunctionFmt(my_hook_flush_gc_fnc, "pup", a, b, c);
-    return 0;
-}
-static int  my_hook_free_gc(void* a, uint32_t b, void* c) {
-    if(my_hook_free_gc_fnc)
-        return (int)RunFunctionFmt(my_hook_free_gc_fnc, "pup", a, b, c);
-    return 0;
-}
-static int  my_hook_create_font(void* a, void* b, void* c) {
-    if(my_hook_create_font_fnc)
-        return (int)RunFunctionFmt(my_hook_create_font_fnc, "ppp", a, b, c);
-    return 0;
-}
-static int  my_hook_free_font(void* a, void* b, void* c) {
-    if(my_hook_free_font_fnc)
-        return (int)RunFunctionFmt(my_hook_free_font_fnc, "ppp", a, b, c);
-    return 0;
-}
-static int  my_hook_close_display(void* a, void* b) {
-    if(my_hook_close_display_fnc)
-        return (int)RunFunctionFmt(my_hook_close_display_fnc, "pp", a, b);
-    return 0;
-}
-static int  my_hook_wire_to_event(void* a, void* b, void* c) {
-    if(my_hook_wire_to_event_fnc)
-        return (int)RunFunctionFmt(my_hook_wire_to_event_fnc, "ppp", a, b, c);
-    return 0;
-}
-static int  my_hook_event_to_wire(void* a, void* b, void* c) {
-    if(my_hook_event_to_wire_fnc)
-        return (int)RunFunctionFmt(my_hook_event_to_wire_fnc, "ppp", a, b, c);
-    return 0;
-}
-static int  my_hook_error(void* a, void* b, void* c, int* d) {
-    if(my_hook_error_fnc)
-        return (int)RunFunctionFmt(my_hook_error_fnc, "pppp", a, b, c, d);
-    return 0;
-}
-static char* my_hook_error_string(void* a, int b, void* c, void* d, int e) {
-    if(my_hook_error_string_fnc)
-        return (char*)RunFunctionFmt(my_hook_error_string_fnc, "pippi", a, b, c, d, e);
-    return 0;
-}
-
 EXPORT void* my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* extname, my_XExtensionHooks* hooks, int nevents, void* data)
 {
     my_XExtensionHooks natives = {0};
-    #define GO(A) if(hooks->A) {my_hook_##A##_fnc = (uintptr_t)hooks->A; natives.A = my_hook_##A;}
+    #define GO(A) natives.A = find_##A##_Fct(hooks->A);
     GO(create_gc)
     GO(copy_gc)
     GO(flush_gc)
