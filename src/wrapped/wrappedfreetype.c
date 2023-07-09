@@ -136,7 +136,7 @@ GO(4)
 static uintptr_t my_FT_Generic_Finalizer_fct_##A = 0;                         \
 static void my_FT_Generic_Finalizer_##A(void* object)                         \
 {                                                                             \
-    RunFunctionFmt(my_context, my_FT_Generic_Finalizer_fct_##A, "p", object); \
+    RunFunctionFmt(my_FT_Generic_Finalizer_fct_##A, "p", object);         \
 }
 SUPER()
 #undef GO
@@ -159,7 +159,7 @@ static void* find_FT_Generic_Finalizer_Fct(void* fct)
 static uintptr_t my_FTC_Face_Requester_fct_##A = 0;                                                             \
 static int my_FTC_Face_Requester_##A(void* face_id, void* lib, void* req, void* aface)                          \
 {                                                                                                               \
-    int ret = (int)RunFunctionFmt(my_context, my_FTC_Face_Requester_fct_##A, "pppp", face_id, lib, req, aface); \
+    int ret = (int)RunFunctionFmt(my_FTC_Face_Requester_fct_##A, "pppp", face_id, lib, req, aface);       \
     if(aface && *(void**)aface) {                                                                               \
         FT_FaceRec_t *f = *(FT_FaceRec_t**)aface;                                                               \
         f->generic.finalizer = find_FT_Generic_Finalizer_Fct(f->generic.finalizer);                             \
@@ -187,7 +187,7 @@ static void* find_FTC_Face_Requester_Fct(void* fct)
 static uintptr_t my_FT_Alloc_fct_##A = 0;                                              \
 static void* my_FT_Alloc_##A(void* memory, long size)                                  \
 {                                                                                      \
-    return (void*)RunFunctionFmt(my_context, my_FT_Alloc_fct_##A, "pl", memory, size); \
+    return (void*)RunFunctionFmt(my_FT_Alloc_fct_##A, "pl", memory, size);        \
 }
 SUPER()
 #undef GO
@@ -210,7 +210,7 @@ static void* find_FT_Alloc_Fct(void* fct)
 static uintptr_t my_FT_Free_fct_##A = 0;                             \
 static void my_FT_Free_##A(void* memory, void* p)                    \
 {                                                                    \
-    RunFunctionFmt(my_context, my_FT_Free_fct_##A, "pp", memory, p); \
+    RunFunctionFmt(my_FT_Free_fct_##A, "pp", memory, p);      \
 }
 SUPER()
 #undef GO
@@ -233,7 +233,7 @@ static void* find_FT_Free_Fct(void* fct)
 static uintptr_t my_FT_Realloc_fct_##A = 0;                                                        \
 static void* my_FT_Realloc_##A(void* memory, long cur, long size, void* p)                         \
 {                                                                                                  \
-    return (void*)RunFunctionFmt(my_context, my_FT_Realloc_fct_##A, "pllp", memory, cur, size, p); \
+    return (void*)RunFunctionFmt(my_FT_Realloc_fct_##A, "pllp", memory, cur, size, p);        \
 }
 SUPER()
 #undef GO
@@ -256,7 +256,7 @@ static void* find_FT_Realloc_Fct(void* fct)
 static uintptr_t my_FT_Outline_MoveToFunc_fct_##A = 0;                                        \
 static int my_FT_Outline_MoveToFunc_##A(void* to, void* user)                                 \
 {                                                                                             \
-    return (int)RunFunctionFmt(my_context, my_FT_Outline_MoveToFunc_fct_##A, "pp", to, user); \
+    return (int)RunFunctionFmt(my_FT_Outline_MoveToFunc_fct_##A, "pp", to, user);         \
 }
 SUPER()
 #undef GO
@@ -280,7 +280,7 @@ static void* find_FT_Outline_MoveToFunc_Fct(void* fct)
 static uintptr_t my_FT_Outline_LineToFunc_fct_##A = 0;                                        \
 static int my_FT_Outline_LineToFunc_##A(void* to, void* user)                                 \
 {                                                                                             \
-    return (int)RunFunctionFmt(my_context, my_FT_Outline_LineToFunc_fct_##A, "pp", to, user); \
+    return (int)RunFunctionFmt(my_FT_Outline_LineToFunc_fct_##A, "pp", to, user);         \
 }
 SUPER()
 #undef GO
@@ -304,7 +304,7 @@ static void* find_FT_Outline_LineToFunc_Fct(void* fct)
 static uintptr_t my_FT_Outline_ConicToFunc_fct_##A = 0;                                              \
 static int my_FT_Outline_ConicToFunc_##A(void* ctl, void* to, void* user)                            \
 {                                                                                                    \
-    return (int)RunFunctionFmt(my_context, my_FT_Outline_ConicToFunc_fct_##A, "ppp", ctl, to, user); \
+    return (int)RunFunctionFmt(my_FT_Outline_ConicToFunc_fct_##A, "ppp", ctl, to, user);      \
 }
 SUPER()
 #undef GO
@@ -328,7 +328,7 @@ static void* find_FT_Outline_ConicToFunc_Fct(void* fct)
 static uintptr_t my_FT_Outline_CubicToFunc_fct_##A = 0;                                                      \
 static int my_FT_Outline_CubicToFunc_##A(void* ctl1, void* ctl2, void* to, void* user)                       \
 {                                                                                                            \
-    return (int)RunFunctionFmt(my_context, my_FT_Outline_CubicToFunc_fct_##A, "pppp", ctl1, ctl2, to, user); \
+    return (int)RunFunctionFmt(my_FT_Outline_CubicToFunc_fct_##A, "pppp", ctl1, ctl2, to, user);      \
 }
 SUPER()
 #undef GO
@@ -378,13 +378,13 @@ static FT_MemoryRec_t* find_FT_MemoryRec_Struct(FT_MemoryRec_t* s)
 static uintptr_t my_iofunc = 0;
 static unsigned long my_FT_Stream_IoFunc(FT_StreamRec_t* stream, unsigned long offset, unsigned char* buffer, unsigned long count )
 {
-    return (unsigned long)RunFunctionFmt(my_context, my_iofunc, "pLpL", stream, offset, buffer, count);
+    return (unsigned long)RunFunctionFmt(my_iofunc, "pLpL", stream, offset, buffer, count)        ;
 }
 
 static uintptr_t my_closefunc = 0;
 static void my_FT_Stream_CloseFunc(FT_StreamRec_t* stream)
 {
-    RunFunctionFmt(my_context, my_closefunc, "p", stream);
+    RunFunctionFmt(my_closefunc, "p", stream)     ;
 }
 
 EXPORT int my_FT_Open_Face(x64emu_t* emu, void* library, FT_Open_Args_t* args, long face_index, void* aface)

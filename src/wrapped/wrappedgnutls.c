@@ -38,7 +38,7 @@ GO(4)
 static uintptr_t my_gnutls_log_fct_##A = 0;                            \
 static void my_gnutls_log_##A(int level, const char* p)                \
 {                                                                      \
-    RunFunctionFmt(my_context, my_gnutls_log_fct_##A, "ip", level, p); \
+    RunFunctionFmt(my_gnutls_log_fct_##A, "ip", level, p);        \
 }
 SUPER()
 #undef GO
@@ -62,7 +62,7 @@ static void* find_gnutls_log_Fct(void* fct)
 static uintptr_t my_pullpush_fct_##A = 0;                                         \
 static long my_pullpush_##A(void* p, void* d, size_t l)                           \
 {                                                                                 \
-    return (long)RunFunctionFmt(my_context, my_pullpush_fct_##A, "ppL", p, d, l); \
+    return (long)RunFunctionFmt(my_pullpush_fct_##A, "ppL", p, d, l);         \
 }
 SUPER()
 #undef GO
@@ -86,7 +86,7 @@ static void* find_pullpush_Fct(void* fct)
 static uintptr_t my_timeout_fct_##A = 0;                                    \
 static int my_timeout_##A(void* p, uint32_t t)                              \
 {                                                                           \
-    return (int)RunFunctionFmt(my_context, my_timeout_fct_##A, "pu", p, t); \
+    return (int)RunFunctionFmt(my_timeout_fct_##A, "pu", p, t);       \
 }
 SUPER()
 #undef GO

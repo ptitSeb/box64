@@ -72,20 +72,20 @@ EXPORT int32_t my_native_close(SDL1_RWops_t *context)
 }
 EXPORT int32_t my_emulated_seek(SDL1_RWops_t *context, int32_t offset, int32_t whence)
 {
-    return (int32_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->seek, "pii", context->hidden.my.orig, offset, whence);
+    return (int32_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->seek, "pii", context->hidden.my.orig, offset, whence);
 }
 EXPORT int32_t my_emulated_read(SDL1_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
 {
-    return (int32_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->read, "ppii", context->hidden.my.orig, ptr, size, maxnum);
+    return (int32_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->read, "ppii", context->hidden.my.orig, ptr, size, maxnum);
 }
 
 EXPORT int32_t my_emulated_write(SDL1_RWops_t *context, const void *ptr, int32_t size, int32_t num)
 {
-    return (int32_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->write, "ppii", context->hidden.my.orig, ptr, size, num);
+    return (int32_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->write, "ppii", context->hidden.my.orig, ptr, size, num);
 }
 EXPORT int32_t my_emulated_close(SDL1_RWops_t *context)
 {
-    return (int32_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->close, "p", context->hidden.my.orig);
+    return (int32_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->close, "p", context->hidden.my.orig);
 }
 
 SDL1_RWops_t* AddNativeRW(x64emu_t* emu, SDL1_RWops_t* ops)

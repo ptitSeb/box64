@@ -36,7 +36,7 @@ const char* dbusglib1Name = "libdbus-glib-1.so.2";
 static uintptr_t my_GDestroyNotify_fct_##A = 0;                         \
 static void my_GDestroyNotify_##A(void* data)                           \
 {                                                                       \
-    RunFunctionFmt(my_context, my_GDestroyNotify_fct_##A, "p", data);   \
+    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data);         \
 }
 SUPER()
 #undef GO
@@ -59,7 +59,7 @@ static void* findGDestroyNotifyFct(void* fct)
 static uintptr_t my_GClosureNotify_fct_##A = 0;                                 \
 static void my_GClosureNotify_##A(void* data, void* closure)                    \
 {                                                                               \
-    RunFunctionFmt(my_context, my_GClosureNotify_fct_##A, "pp", data, closure); \
+    RunFunctionFmt(my_GClosureNotify_fct_##A, "pp", data, closure);       \
 }
 SUPER()
 #undef GO
@@ -82,7 +82,7 @@ static void* findGClosureNotifyFct(void* fct)
 static uintptr_t my_DBusGProxyCallNotify_fct_##A = 0;                                           \
 static void my_DBusGProxyCallNotify_##A(void* proxy, void* call_id, void* data)                 \
 {                                                                                               \
-    RunFunctionFmt(my_context, my_DBusGProxyCallNotify_fct_##A, "ppp", proxy, call_id, data);   \
+    RunFunctionFmt(my_DBusGProxyCallNotify_fct_##A, "ppp", proxy, call_id, data);         \
 }
 SUPER()
 #undef GO
@@ -105,7 +105,7 @@ static void* findDBusGProxyCallNotifyFct(void* fct)
 static uintptr_t my_GCallback_fct_##A = 0;                                  \
 static void my_GCallback_##A(void* a, void* b, void* c, void* d)            \
 {                                                                           \
-    RunFunctionFmt(my_context, my_GCallback_fct_##A, "pppp", a, b, c, d);   \
+    RunFunctionFmt(my_GCallback_fct_##A, "pppp", a, b, c, d);         \
 }
 SUPER()
 #undef GO
@@ -128,7 +128,7 @@ static void* findGCallbackFct(void* fct)
 static uintptr_t my_DBusGTypeSpecializedCollectionIterator_fct_##A = 0;                         \
 static void my_DBusGTypeSpecializedCollectionIterator_##A(void* a, void* b)                     \
 {                                                                                               \
-    RunFunctionFmt(my_context, my_DBusGTypeSpecializedCollectionIterator_fct_##A, "pp", a, b);  \
+    RunFunctionFmt(my_DBusGTypeSpecializedCollectionIterator_fct_##A, "pp", a, b);        \
 }
 SUPER()
 #undef GO
@@ -150,7 +150,7 @@ static void* findDBusGTypeSpecializedCollectionIteratorFct(void* fct)
 static uintptr_t my_DBusGTypeSpecializedMapIterator_fct_##A = 0;                            \
 static void my_DBusGTypeSpecializedMapIterator_##A(void* a, void* b, void* c)               \
 {                                                                                           \
-    RunFunctionFmt(my_context, my_DBusGTypeSpecializedMapIterator_fct_##A, "ppp", a, b, c); \
+    RunFunctionFmt(my_DBusGTypeSpecializedMapIterator_fct_##A, "ppp", a, b, c);       \
 }
 SUPER()
 #undef GO

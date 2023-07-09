@@ -38,7 +38,7 @@ GO(4)
 static uintptr_t my_Request_fct_##A = 0;                    \
 static void my_Request_##A(int32_t a, int32_t b)            \
 {                                                           \
-    RunFunctionFmt(my_context, my_Request_fct_##A, "ii", a, b);   \
+    RunFunctionFmt(my_Request_fct_##A, "ii", a, b);   \
 }
 SUPER()
 #undef GO

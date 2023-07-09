@@ -36,7 +36,7 @@ EXPORT uintptr_t my_xmlMemStrdup = 0;
 void my_wrap_xmlFree(void* p)
 {
     if(my_xmlFree){
-        RunFunctionFmt(my_context, my_xmlFree, "p", p);
+        RunFunctionFmt(my_xmlFree, "p", p);
         return;
     }
         free(p);
@@ -44,21 +44,21 @@ void my_wrap_xmlFree(void* p)
 void* my_wrap_xmlMalloc(size_t s)
 {
     if(my_xmlMalloc)
-        return (void*)RunFunctionFmt(my_context, my_xmlMalloc, "L", s);
+        return (void*)RunFunctionFmt(my_xmlMalloc, "L", s);
     else
         return malloc(s);
 }
 void* my_wrap_xmlRealloc(void* p, size_t s)
 {
     if(my_xmlRealloc)
-        return (void*)RunFunctionFmt(my_context, my_xmlRealloc, "pL", p, s);
+        return (void*)RunFunctionFmt(my_xmlRealloc, "pL", p, s);
     else
         return realloc(p, s);
 }
 void* my_wrap_xmlMemStrdup(void* p)
 {
     if(my_xmlMemStrdup)
-        return (void*)RunFunctionFmt(my_context, my_xmlMemStrdup, "p", p);
+        return (void*)RunFunctionFmt(my_xmlMemStrdup, "p", p);
     else
         return strdup(p);
 }
@@ -101,7 +101,7 @@ GO(9)
 static uintptr_t my_xmlHashCopier_fct_##A = 0;                                      \
 static void* my_xmlHashCopier_##A(void* a, void* b)                                 \
 {                                                                                   \
-    return (void*)RunFunctionFmt(my_context, my_xmlHashCopier_fct_##A, "pp", a, b); \
+    return (void*)RunFunctionFmt(my_xmlHashCopier_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -123,7 +123,7 @@ static void* find_xmlHashCopier_Fct(void* fct)
 static uintptr_t my_xmlHashDeallocator_fct_##A = 0;                         \
 static void my_xmlHashDeallocator_##A(void* a, void* b)                     \
 {                                                                           \
-    RunFunctionFmt(my_context, my_xmlHashDeallocator_fct_##A, "pp", a, b);  \
+    RunFunctionFmt(my_xmlHashDeallocator_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -145,7 +145,7 @@ static void* find_xmlHashDeallocator_Fct(void* fct)
 static uintptr_t my_xmlHashScanner_fct_##A = 0;                             \
 static void my_xmlHashScanner_##A(void* a, void* b, void* c)                \
 {                                                                           \
-    RunFunctionFmt(my_context, my_xmlHashScanner_fct_##A, "ppp", a, b, c);  \
+    RunFunctionFmt(my_xmlHashScanner_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -167,7 +167,7 @@ static void* find_xmlHashScanner_Fct(void* fct)
 static uintptr_t my_xmlHashScannerFull_fct_##A = 0;                                     \
 static void my_xmlHashScannerFull_##A(void* a, void* b, void* c, void* c2, void* c3)    \
 {                                                                                       \
-    RunFunctionFmt(my_context, my_xmlHashScannerFull_fct_##A, "ppppp", a, b, c, c2, c3);\
+    RunFunctionFmt(my_xmlHashScannerFull_fct_##A, "ppppp", a, b, c, c2, c3);\
 }
 SUPER()
 #undef GO
@@ -189,7 +189,7 @@ static void* find_xmlHashScannerFull_Fct(void* fct)
 static uintptr_t my_xmlCharEncodingInputFunc_fct_##A = 0;                                       \
 static int my_xmlCharEncodingInputFunc_##A(void* a, void* b, void* c, void* d)                  \
 {                                                                                               \
-    return RunFunctionFmt(my_context, my_xmlCharEncodingInputFunc_fct_##A, "pppp", a, b, c, d); \
+    return RunFunctionFmt(my_xmlCharEncodingInputFunc_fct_##A, "pppp", a, b, c, d); \
 }
 SUPER()
 #undef GO
@@ -211,7 +211,7 @@ static void* find_xmlCharEncodingInputFunc_Fct(void* fct)
 static uintptr_t my_xmlCharEncodingOutputFunc_fct_##A = 0;                                      \
 static int my_xmlCharEncodingOutputFunc_##A(void* a, void* b, void* c, void* d)                 \
 {                                                                                               \
-    return RunFunctionFmt(my_context, my_xmlCharEncodingOutputFunc_fct_##A, "pppp", a, b, c, d);\
+    return RunFunctionFmt(my_xmlCharEncodingOutputFunc_fct_##A, "pppp", a, b, c, d);\
 }
 SUPER()
 #undef GO
@@ -233,7 +233,7 @@ static void* find_xmlCharEncodingOutputFunc_Fct(void* fct)
 static uintptr_t my_xmlOutputWriteCallback_fct_##A = 0;                                     \
 static int my_xmlOutputWriteCallback_##A(void* a, void* b, int c)                           \
 {                                                                                           \
-    return RunFunctionFmt(my_context, my_xmlOutputWriteCallback_fct_##A, "ppi", a, b, c);   \
+    return RunFunctionFmt(my_xmlOutputWriteCallback_fct_##A, "ppi", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -255,7 +255,7 @@ static void* find_xmlOutputWriteCallback_Fct(void* fct)
 static uintptr_t my_xmlOutputCloseCallback_fct_##A = 0;                             \
 static int my_xmlOutputCloseCallback_##A(void* a)                                   \
 {                                                                                   \
-    return RunFunctionFmt(my_context, my_xmlOutputCloseCallback_fct_##A, "p", a);   \
+    return RunFunctionFmt(my_xmlOutputCloseCallback_fct_##A, "p", a);   \
 }
 SUPER()
 #undef GO
@@ -277,7 +277,7 @@ static void* find_xmlOutputCloseCallback_Fct(void* fct)
 static uintptr_t my_xmlInputMatchCallback_fct_##A = 0;                          \
 static int my_xmlInputMatchCallback_##A(void* a)                                \
 {                                                                               \
-    return RunFunctionFmt(my_context, my_xmlInputMatchCallback_fct_##A, "p", a);\
+    return RunFunctionFmt(my_xmlInputMatchCallback_fct_##A, "p", a);\
 }
 SUPER()
 #undef GO
@@ -299,7 +299,7 @@ static void* find_xmlInputMatchCallback_Fct(void* fct)
 static uintptr_t my_xmlInputOpenCallback_fct_##A = 0;                                   \
 static void* my_xmlInputOpenCallback_##A(void* a)                                       \
 {                                                                                       \
-    return (void*)RunFunctionFmt(my_context, my_xmlInputOpenCallback_fct_##A, "p", a);  \
+    return (void*)RunFunctionFmt(my_xmlInputOpenCallback_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -321,7 +321,7 @@ static void* find_xmlInputOpenCallback_Fct(void* fct)
 static uintptr_t my_xmlInputReadCallback_fct_##A = 0;                                   \
 static int my_xmlInputReadCallback_##A(void* a, void* b, int c)                         \
 {                                                                                       \
-    return RunFunctionFmt(my_context, my_xmlInputReadCallback_fct_##A, "ppi", a, b, c); \
+    return RunFunctionFmt(my_xmlInputReadCallback_fct_##A, "ppi", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -343,7 +343,7 @@ static void* find_xmlInputReadCallback_Fct(void* fct)
 static uintptr_t my_xmlInputCloseCallback_fct_##A = 0;                              \
 static int my_xmlInputCloseCallback_##A(void* a)                                    \
 {                                                                                   \
-    return RunFunctionFmt(my_context, my_xmlInputCloseCallback_fct_##A, "p", a);    \
+    return RunFunctionFmt(my_xmlInputCloseCallback_fct_##A, "p", a);    \
 }
 SUPER()
 #undef GO
@@ -365,7 +365,7 @@ static void* find_xmlInputCloseCallback_Fct(void* fct)
 static uintptr_t my_xmlSchemaValidityErrorFunc_fct_##A = 0;                                                                     \
 static void my_xmlSchemaValidityErrorFunc_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, void* i)  \
 {                                                                                                                               \
-    RunFunctionFmt(my_context, my_xmlSchemaValidityErrorFunc_fct_##A, "ppppppppp", a, b, c, d, e, f, g, h, i);                  \
+    RunFunctionFmt(my_xmlSchemaValidityErrorFunc_fct_##A, "ppppppppp", a, b, c, d, e, f, g, h, i);                  \
 }
 SUPER()
 #undef GO
@@ -387,7 +387,7 @@ static void* find_xmlSchemaValidityErrorFunc_Fct(void* fct)
 static uintptr_t my_xmlSchemaValidityWarningFunc_fct_##A = 0;                                                                       \
 static void my_xmlSchemaValidityWarningFunc_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, void* i)    \
 {                                                                                                                                   \
-    RunFunctionFmt(my_context, my_xmlSchemaValidityWarningFunc_fct_##A, "ppppppppp", a, b, c, d, e, f, g, h, i);                    \
+    RunFunctionFmt(my_xmlSchemaValidityWarningFunc_fct_##A, "ppppppppp", a, b, c, d, e, f, g, h, i);                    \
 }
 SUPER()
 #undef GO
@@ -409,7 +409,7 @@ static void* find_xmlSchemaValidityWarningFunc_Fct(void* fct)
 static uintptr_t my_xmlXPathFunction_fct_##A = 0;                       \
 static void my_xmlXPathFunction_##A(void* a, int b)                     \
 {                                                                       \
-    RunFunctionFmt(my_context, my_xmlXPathFunction_fct_##A, "pi", a, b);\
+    RunFunctionFmt(my_xmlXPathFunction_fct_##A, "pi", a, b);\
 }
 SUPER()
 #undef GO
@@ -431,7 +431,7 @@ static void* find_xmlXPathFunction_Fct(void* fct)
 static uintptr_t my_internalSubsetSAXFunc_fct_##A = 0;                                  \
 static void my_internalSubsetSAXFunc_##A(void* a, void* b, void* c, void* d)            \
 {                                                                                       \
-    RunFunctionFmt(my_context, my_internalSubsetSAXFunc_fct_##A, "pppp", a, b, c, d);   \
+    RunFunctionFmt(my_internalSubsetSAXFunc_fct_##A, "pppp", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -453,7 +453,7 @@ static void* find_internalSubsetSAXFunc_Fct(void* fct)
 static uintptr_t my_isStandaloneSAXFunc_fct_##A = 0;                            \
 static int my_isStandaloneSAXFunc_##A(void* a)                                  \
 {                                                                               \
-    return RunFunctionFmt(my_context, my_isStandaloneSAXFunc_fct_##A, "p", a);  \
+    return RunFunctionFmt(my_isStandaloneSAXFunc_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -475,7 +475,7 @@ static void* find_isStandaloneSAXFunc_Fct(void* fct)
 static uintptr_t my_hasInternalSubsetSAXFunc_fct_##A = 0;                           \
 static int my_hasInternalSubsetSAXFunc_##A(void* a)                                 \
 {                                                                                   \
-    return RunFunctionFmt(my_context, my_hasInternalSubsetSAXFunc_fct_##A, "p", a); \
+    return RunFunctionFmt(my_hasInternalSubsetSAXFunc_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -497,7 +497,7 @@ static void* find_hasInternalSubsetSAXFunc_Fct(void* fct)
 static uintptr_t my_hasExternalSubsetSAXFunc_fct_##A = 0;                           \
 static int my_hasExternalSubsetSAXFunc_##A(void* a)                                 \
 {                                                                                   \
-    return RunFunctionFmt(my_context, my_hasExternalSubsetSAXFunc_fct_##A, "p", a); \
+    return RunFunctionFmt(my_hasExternalSubsetSAXFunc_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -519,7 +519,7 @@ static void* find_hasExternalSubsetSAXFunc_Fct(void* fct)
 static uintptr_t my_resolveEntitySAXFunc_fct_##A = 0;                                           \
 static void* my_resolveEntitySAXFunc_##A(void* a, void* b, void* c)                             \
 {                                                                                               \
-    return (void*)RunFunctionFmt(my_context, my_resolveEntitySAXFunc_fct_##A, "ppp", a, b, c);  \
+    return (void*)RunFunctionFmt(my_resolveEntitySAXFunc_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -541,7 +541,7 @@ static void* find_resolveEntitySAXFunc_Fct(void* fct)
 static uintptr_t my_getEntitySAXFunc_fct_##A = 0;                                       \
 static void* my_getEntitySAXFunc_##A(void* a, void* b)                                  \
 {                                                                                       \
-    return (void*)RunFunctionFmt(my_context, my_getEntitySAXFunc_fct_##A, "pp", a, b);  \
+    return (void*)RunFunctionFmt(my_getEntitySAXFunc_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -563,7 +563,7 @@ static void* find_getEntitySAXFunc_Fct(void* fct)
 static uintptr_t my_entityDeclSAXFunc_fct_##A = 0;                                          \
 static void my_entityDeclSAXFunc_##A(void* a, void* b, int c, void* d, void* e, void* f)    \
 {                                                                                           \
-    RunFunctionFmt(my_context, my_entityDeclSAXFunc_fct_##A, "ppippp", a, b, c, d, e, f);   \
+    RunFunctionFmt(my_entityDeclSAXFunc_fct_##A, "ppippp", a, b, c, d, e, f);   \
 }
 SUPER()
 #undef GO
@@ -585,7 +585,7 @@ static void* find_entityDeclSAXFunc_Fct(void* fct)
 static uintptr_t my_notationDeclSAXFunc_fct_##A = 0;                                \
 static void my_notationDeclSAXFunc_##A(void* a, void* b, void* c, void* d)          \
 {                                                                                   \
-    RunFunctionFmt(my_context, my_notationDeclSAXFunc_fct_##A, "pppp", a, b, c, d); \
+    RunFunctionFmt(my_notationDeclSAXFunc_fct_##A, "pppp", a, b, c, d); \
 }
 SUPER()
 #undef GO
@@ -607,7 +607,7 @@ static void* find_notationDeclSAXFunc_Fct(void* fct)
 static uintptr_t my_attributeDeclSAXFunc_fct_##A = 0;                                               \
 static void my_attributeDeclSAXFunc_##A(void* a, void* b, void* c, int d, int e, void* f, void* g)  \
 {                                                                                                   \
-    RunFunctionFmt(my_context, my_attributeDeclSAXFunc_fct_##A, "pppiipp", a, b, c, d, e, f, g);    \
+    RunFunctionFmt(my_attributeDeclSAXFunc_fct_##A, "pppiipp", a, b, c, d, e, f, g);    \
 }
 SUPER()
 #undef GO
@@ -629,7 +629,7 @@ static void* find_attributeDeclSAXFunc_Fct(void* fct)
 static uintptr_t my_elementDeclSAXFunc_fct_##A = 0;                                 \
 static void my_elementDeclSAXFunc_##A(void* a, void* b, int c, void* d)             \
 {                                                                                   \
-    RunFunctionFmt(my_context, my_elementDeclSAXFunc_fct_##A, "ppip", a, b, c, d);  \
+    RunFunctionFmt(my_elementDeclSAXFunc_fct_##A, "ppip", a, b, c, d);  \
 }
 SUPER()
 #undef GO
@@ -651,7 +651,7 @@ static void* find_elementDeclSAXFunc_Fct(void* fct)
 static uintptr_t my_unparsedEntityDeclSAXFunc_fct_##A = 0;                                      \
 static void my_unparsedEntityDeclSAXFunc_##A(void* a, void* b, void* c, void* d, void* e)       \
 {                                                                                               \
-    RunFunctionFmt(my_context, my_unparsedEntityDeclSAXFunc_fct_##A, "ppppp", a, b, c, d, e);   \
+    RunFunctionFmt(my_unparsedEntityDeclSAXFunc_fct_##A, "ppppp", a, b, c, d, e);   \
 }
 SUPER()
 #undef GO
@@ -673,7 +673,7 @@ static void* find_unparsedEntityDeclSAXFunc_Fct(void* fct)
 static uintptr_t my_setDocumentLocatorSAXFunc_fct_##A = 0;                      \
 static void my_setDocumentLocatorSAXFunc_##A(void* a, void* b)                  \
 {                                                                               \
-    RunFunctionFmt(my_context, my_setDocumentLocatorSAXFunc_fct_##A, "pp", a, b);\
+    RunFunctionFmt(my_setDocumentLocatorSAXFunc_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
@@ -695,7 +695,7 @@ static void* find_setDocumentLocatorSAXFunc_Fct(void* fct)
 static uintptr_t my_startDocumentSAXFunc_fct_##A = 0;                   \
 static void my_startDocumentSAXFunc_##A(void* a)                        \
 {                                                                       \
-    RunFunctionFmt(my_context, my_startDocumentSAXFunc_fct_##A, "p", a);\
+    RunFunctionFmt(my_startDocumentSAXFunc_fct_##A, "p", a);\
 }
 SUPER()
 #undef GO
@@ -717,7 +717,7 @@ static void* find_startDocumentSAXFunc_Fct(void* fct)
 static uintptr_t my_endDocumentSAXFunc_fct_##A = 0;                     \
 static void my_endDocumentSAXFunc_##A(void* a)                          \
 {                                                                       \
-    RunFunctionFmt(my_context, my_endDocumentSAXFunc_fct_##A, "p", a);  \
+    RunFunctionFmt(my_endDocumentSAXFunc_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -739,7 +739,7 @@ static void* find_endDocumentSAXFunc_Fct(void* fct)
 static uintptr_t my_startElementSAXFunc_fct_##A = 0;                            \
 static void my_startElementSAXFunc_##A(void* a, void* b, void* c)               \
 {                                                                               \
-    RunFunctionFmt(my_context, my_startElementSAXFunc_fct_##A, "ppp", a, b, c); \
+    RunFunctionFmt(my_startElementSAXFunc_fct_##A, "ppp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -761,7 +761,7 @@ static void* find_startElementSAXFunc_Fct(void* fct)
 static uintptr_t my_endElementSAXFunc_fct_##A = 0;                          \
 static void my_endElementSAXFunc_##A(void* a, void* b)                      \
 {                                                                           \
-    RunFunctionFmt(my_context, my_endElementSAXFunc_fct_##A, "pp", a, b);   \
+    RunFunctionFmt(my_endElementSAXFunc_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -783,7 +783,7 @@ static void* find_endElementSAXFunc_Fct(void* fct)
 static uintptr_t my_referenceSAXFunc_fct_##A = 0;                       \
 static void my_referenceSAXFunc_##A(void* a, void* b)                   \
 {                                                                       \
-    RunFunctionFmt(my_context, my_referenceSAXFunc_fct_##A, "pp", a, b);\
+    RunFunctionFmt(my_referenceSAXFunc_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
@@ -805,7 +805,7 @@ static void* find_referenceSAXFunc_Fct(void* fct)
 static uintptr_t my_charactersSAXFunc_fct_##A = 0;                              \
 static void my_charactersSAXFunc_##A(void* a, void* b, int c)                   \
 {                                                                               \
-    RunFunctionFmt(my_context, my_charactersSAXFunc_fct_##A, "ppi", a, b, c);   \
+    RunFunctionFmt(my_charactersSAXFunc_fct_##A, "ppi", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -827,7 +827,7 @@ static void* find_charactersSAXFunc_Fct(void* fct)
 static uintptr_t my_ignorableWhitespaceSAXFunc_fct_##A = 0;                             \
 static void my_ignorableWhitespaceSAXFunc_##A(void* a, void* b, int c)                  \
 {                                                                                       \
-    RunFunctionFmt(my_context, my_ignorableWhitespaceSAXFunc_fct_##A, "ppi", a, b, c);  \
+    RunFunctionFmt(my_ignorableWhitespaceSAXFunc_fct_##A, "ppi", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -849,7 +849,7 @@ static void* find_ignorableWhitespaceSAXFunc_Fct(void* fct)
 static uintptr_t my_processingInstructionSAXFunc_fct_##A = 0;                               \
 static void my_processingInstructionSAXFunc_##A(void* a, void* b, void* c)                  \
 {                                                                                           \
-    RunFunctionFmt(my_context, my_processingInstructionSAXFunc_fct_##A, "ppp", a, b, c);    \
+    RunFunctionFmt(my_processingInstructionSAXFunc_fct_##A, "ppp", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -871,7 +871,7 @@ static void* find_processingInstructionSAXFunc_Fct(void* fct)
 static uintptr_t my_commentSAXFunc_fct_##A = 0;                         \
 static void my_commentSAXFunc_##A(void* a, void* b)                     \
 {                                                                       \
-    RunFunctionFmt(my_context, my_commentSAXFunc_fct_##A, "pp", a, b);  \
+    RunFunctionFmt(my_commentSAXFunc_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -893,7 +893,7 @@ static void* find_commentSAXFunc_Fct(void* fct)
 static uintptr_t my_warningSAXFunc_fct_##A = 0; \
 static void my_warningSAXFunc_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, void* i, void* j) \
 {   \
-    RunFunctionFmt(my_context, my_warningSAXFunc_fct_##A, "pppppppppp", a, b, c, d, e, f, g, h, i, j);  \
+    RunFunctionFmt(my_warningSAXFunc_fct_##A, "pppppppppp", a, b, c, d, e, f, g, h, i, j);  \
 }
 SUPER()
 #undef GO
@@ -915,7 +915,7 @@ static void* find_warningSAXFunc_Fct(void* fct) // this one have a VAArg
 static uintptr_t my_errorSAXFunc_fct_##A = 0;   \
 static void my_errorSAXFunc_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, void* i, void* j)   \
 {   \
-    RunFunctionFmt(my_context, my_errorSAXFunc_fct_##A, "pppppppppp", a, b, c, d, e, f, g, h, i, j);    \
+    RunFunctionFmt(my_errorSAXFunc_fct_##A, "pppppppppp", a, b, c, d, e, f, g, h, i, j);    \
 }
 SUPER()
 #undef GO
@@ -937,7 +937,7 @@ static void* find_errorSAXFunc_Fct(void* fct) // this one have a VAArg
 static uintptr_t my_fatalErrorSAXFunc_fct_##A = 0;  \
 static void my_fatalErrorSAXFunc_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, void* i, void* j)  \
 {   \
-    RunFunctionFmt(my_context, my_fatalErrorSAXFunc_fct_##A, "pppppppppp", a, b, c, d, e, f, g, h, i, j);   \
+    RunFunctionFmt(my_fatalErrorSAXFunc_fct_##A, "pppppppppp", a, b, c, d, e, f, g, h, i, j);   \
 }
 SUPER()
 #undef GO
@@ -959,7 +959,7 @@ static void* find_fatalErrorSAXFunc_Fct(void* fct) // this one have a VAArg
 static uintptr_t my_getParameterEntitySAXFunc_fct_##A = 0;                                      \
 static void* my_getParameterEntitySAXFunc_##A(void* a, void* b)                                 \
 {                                                                                               \
-    return (void*)RunFunctionFmt(my_context, my_getParameterEntitySAXFunc_fct_##A, "pp", a, b); \
+    return (void*)RunFunctionFmt(my_getParameterEntitySAXFunc_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -981,7 +981,7 @@ static void* find_getParameterEntitySAXFunc_Fct(void* fct) // this one have a VA
 static uintptr_t my_cdataBlockSAXFunc_fct_##A = 0;                              \
 static void my_cdataBlockSAXFunc_##A(void* a, void* b, int c)                   \
 {                                                                               \
-    RunFunctionFmt(my_context, my_cdataBlockSAXFunc_fct_##A, "ppi", a, b, c);   \
+    RunFunctionFmt(my_cdataBlockSAXFunc_fct_##A, "ppi", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1003,7 +1003,7 @@ static void* find_cdataBlockSAXFunc_Fct(void* fct) // this one have a VAArg
 static uintptr_t my_externalSubsetSAXFunc_fct_##A = 0;                                  \
 static void my_externalSubsetSAXFunc_##A(void* a, void* b, void* c, void* d)            \
 {                                                                                       \
-    RunFunctionFmt(my_context, my_externalSubsetSAXFunc_fct_##A, "pppp", a, b, c, d);   \
+    RunFunctionFmt(my_externalSubsetSAXFunc_fct_##A, "pppp", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -1025,7 +1025,7 @@ static void* find_externalSubsetSAXFunc_Fct(void* fct) // this one have a VAArg
 static uintptr_t my_xmlSAX2StartElementNs_fct_##A = 0;                                                              \
 static void my_xmlSAX2StartElementNs_##A(void* a, void* b, void* c, void* d, int e, void* f, int g, int h, void* i) \
 {                                                                                                                   \
-    RunFunctionFmt(my_context, my_xmlSAX2StartElementNs_fct_##A, "ppppipiip", a, b, c, d, e, f, g, h, i);           \
+    RunFunctionFmt(my_xmlSAX2StartElementNs_fct_##A, "ppppipiip", a, b, c, d, e, f, g, h, i);           \
 }
 SUPER()
 #undef GO
@@ -1047,7 +1047,7 @@ static void* find_xmlSAX2StartElementNs_Fct(void* fct) // this one have a VAArg
 static uintptr_t my_xmlSAX2EndElementNs_fct_##A = 0;                                \
 static void my_xmlSAX2EndElementNs_##A(void* a, void* b, void* c, void* d)          \
 {                                                                                   \
-    RunFunctionFmt(my_context, my_xmlSAX2EndElementNs_fct_##A, "pppp", a, b, c, d); \
+    RunFunctionFmt(my_xmlSAX2EndElementNs_fct_##A, "pppp", a, b, c, d); \
 }
 SUPER()
 #undef GO
@@ -1070,7 +1070,7 @@ static void* find_xmlSAX2EndElementNs_Fct(void* fct) // this one have a VAArg
 static uintptr_t my_xmlExternalEntityLoader_fct_##A = 0;                                            \
 static void* my_xmlExternalEntityLoader_##A(void* a, void* b, void* c)                              \
 {                                                                                                   \
-    return (void*)RunFunctionFmt(my_context, my_xmlExternalEntityLoader_fct_##A, "ppp", a, b, c);   \
+    return (void*)RunFunctionFmt(my_xmlExternalEntityLoader_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1109,7 +1109,7 @@ static void my_xmlGenericErrorFunc_##A(void* a, const char* fmt, ...)           
     va_start(args, fmt);                                                        \
     vsnprintf(buf, 4096, fmt, args);                                            \
     va_end(args);                                                               \
-    RunFunctionFmt(my_context, my_xmlGenericErrorFunc_fct_##A, "pp", a, buf);   \
+    RunFunctionFmt(my_xmlGenericErrorFunc_fct_##A, "pp", a, buf);   \
 }
 SUPER()
 #undef GO
@@ -1142,7 +1142,7 @@ static void* reverse_xmlGenericErrorFunc_Fct(void* fct)
 static uintptr_t my_xmlStructuredErrorFunc_fct_##A = 0;                         \
 static void my_xmlStructuredErrorFunc_##A(void* a, const char* b)               \
 {                                                                               \
-    RunFunctionFmt(my_context, my_xmlStructuredErrorFunc_fct_##A, "pp", a, b);  \
+    RunFunctionFmt(my_xmlStructuredErrorFunc_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -1175,7 +1175,7 @@ static void* reverse_xmlStructuredErrorFunc_Fct(void* fct)
 static uintptr_t my_xmlOutputMatchCallback_fct_##A = 0;                                 \
 static int my_xmlOutputMatchCallback_##A(void* a)                                       \
 {                                                                                       \
-    return (int)RunFunctionFmt(my_context, my_xmlOutputMatchCallback_fct_##A, "p", a);  \
+    return (int)RunFunctionFmt(my_xmlOutputMatchCallback_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -1198,7 +1198,7 @@ static void* find_xmlOutputMatchCallback_Fct(void* fct) // this one have a VAArg
 static uintptr_t my_xmlOutputOpenCallback_fct_##A = 0;                                  \
 static void* my_xmlOutputOpenCallback_##A(void* a)                                      \
 {                                                                                       \
-    return (void*)RunFunctionFmt(my_context, my_xmlOutputOpenCallback_fct_##A, "p", a); \
+    return (void*)RunFunctionFmt(my_xmlOutputOpenCallback_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -1221,7 +1221,7 @@ static void* find_xmlOutputOpenCallback_Fct(void* fct) // this one have a VAArg
 static uintptr_t my_xmlTextReaderErrorFunc_fct_##A = 0;                                 \
 static void my_xmlTextReaderErrorFunc_##A(void* a, void* b, int c, void* d)             \
 {                                                                                       \
-    RunFunctionFmt(my_context, my_xmlTextReaderErrorFunc_fct_##A, "ppip", a, b, c, d);  \
+    RunFunctionFmt(my_xmlTextReaderErrorFunc_fct_##A, "ppip", a, b, c, d);  \
 }
 SUPER()
 #undef GO

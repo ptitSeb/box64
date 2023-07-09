@@ -618,7 +618,7 @@ GO(29)
 static uintptr_t my_key_destructor_fct_##A = 0;  \
 static void my_key_destructor_##A(void* a)    			\
 {                                       		\
-    RunFunction(my_context, my_key_destructor_fct_##A, 1, a);\
+    RunFunction(my_key_destructor_fct_##A, 1, a);\
 }
 SUPER()
 #undef GO
@@ -640,7 +640,7 @@ static void* findkey_destructorFct(void* fct)
 static uintptr_t my_cleanup_routine_fct_##A = 0;  \
 static void my_cleanup_routine_##A(void* a)    			\
 {                                       		\
-    RunFunction(my_context, my_cleanup_routine_fct_##A, 1, a);\
+    RunFunction(my_cleanup_routine_fct_##A, 1, a);\
 }
 SUPER()
 #undef GO

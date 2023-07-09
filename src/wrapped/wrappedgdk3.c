@@ -40,7 +40,7 @@ GO(3)
 static uintptr_t my_filter_fct_##A = 0;                                                    \
 static int my_filter_##A(void* xevent, void* event, void* data)                            \
 {                                                                                          \
-    return (int)RunFunctionFmt(my_context, my_filter_fct_##A, "ppp", xevent, event, data); \
+    return (int)RunFunctionFmt(my_filter_fct_##A, "ppp", xevent, event, data);        \
 }
 SUPER()
 #undef GO
@@ -62,7 +62,7 @@ static void* findFilterFct(void* fct)
 static uintptr_t my_GSourceFunc_fct_##A = 0;                                \
 static int my_GSourceFunc_##A(void* a)                                      \
 {                                                                           \
-    return (int)RunFunctionFmt(my_context, my_GSourceFunc_fct_##A, "p", a); \
+    return (int)RunFunctionFmt(my_GSourceFunc_fct_##A, "p", a);       \
 }
 SUPER()
 #undef GO
@@ -84,7 +84,7 @@ static void* findGSourceFunc(void* fct)
 static uintptr_t my_GDestroyNotify_fct_##A = 0;                         \
 static void my_GDestroyNotify_##A(void* data)                           \
 {                                                                       \
-    RunFunctionFmt(my_context, my_GDestroyNotify_fct_##A, "p", data);   \
+    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data);         \
 }
 SUPER()
 #undef GO
@@ -107,7 +107,7 @@ static void* findGDestroyNotifyFct(void* fct)
 
 static void my3_event_handler(void* event, my_signal_t* sig)
 {
-    RunFunctionFmt(my_context, sig->c_handler, "pp", event, sig->data);
+    RunFunctionFmt(sig->c_handler, "pp", event, sig->data)        ;
 }
 
 EXPORT void my3_gdk_event_handler_set(x64emu_t* emu, void* func, void* data, void* notify)
@@ -122,7 +122,7 @@ EXPORT void my3_gdk_event_handler_set(x64emu_t* emu, void* func, void* data, voi
 
 static void my3_input_function(my_signal_t* sig, int source, int condition)
 {
-    RunFunctionFmt(my_context, sig->c_handler, "pii", sig->data, source, condition);
+    RunFunctionFmt(sig->c_handler, "pii", sig->data, source, condition)       ;
 }
 
 EXPORT int my3_gdk_input_add(x64emu_t* emu, int source, int condition, void* f, void* data)

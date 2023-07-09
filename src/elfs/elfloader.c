@@ -1277,14 +1277,14 @@ void RunElfInitPltResolver(elfheader_t* h, x64emu_t *emu)
     }
     printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     if(h->initentry)
-        RunSafeFunction(my_context, p, 3, my_context->argc, my_context->argv, my_context->envv);
+        RunSafeFunction(p, 3, my_context->argc, my_context->argv, my_context->envv);
     printf_dump(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
     // and check init array now
     Elf64_Addr *addr = (Elf64_Addr*)(h->initarray + h->delta);
     for (size_t i=0; i<h->initarray_sz; ++i) {
         if(addr[i]) {
             printf_dump(LOG_DEBUG, "Calling Init[%zu] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
-            RunSafeFunction(my_context, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
+            RunSafeFunction((uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
         }
     }
 
@@ -1604,7 +1604,7 @@ static int my_dl_iterate_phdr_##A(struct dl_phdr_info* a, size_t b, void* c)    
         return 0;                                                                   \
     if(!a->dlpi_name[0]) /*don't send informations about box64 itself*/             \
         return 0;                                                                   \
-    return (int)RunFunction(my_context, my_dl_iterate_phdr_fct_##A, 3, a, b, c);    \
+    return (int)RunFunction(my_dl_iterate_phdr_fct_##A, 3, a, b, c);                \
 }
 SUPER()
 #undef GO

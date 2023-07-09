@@ -37,7 +37,7 @@ GO(4)
 static uintptr_t my_PK11PasswordFunc_fct_##A = 0;                                   \
 static void* my_PK11PasswordFunc_##A(void* a, int b, void* c)                       \
 {                                                                                   \
-    return (void*)RunFunctionFmt(my_context, my_PK11PasswordFunc_fct_##A, "pip", a, b, c); \
+    return (void*)RunFunctionFmt(my_PK11PasswordFunc_fct_##A, "pip", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -60,7 +60,7 @@ static void* find_PK11PasswordFunc_Fct(void* fct)
 static uintptr_t my_CERT_StringFromCertFcn_fct_##A = 0;                             \
 static void* my_CERT_StringFromCertFcn_##A(void* a)                                 \
 {                                                                                   \
-    return (void*)RunFunctionFmt(my_context, my_CERT_StringFromCertFcn_fct_##A, "p", a); \
+    return (void*)RunFunctionFmt(my_CERT_StringFromCertFcn_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -92,7 +92,7 @@ static void* reverse_CERT_StringFromCertFcn_Fct(library_t* lib, void* fct)
 static uintptr_t my_CERTChainVerifyCallbackFunc_fct_##A = 0;                                    \
 static int my_CERTChainVerifyCallbackFunc_##A(void* a, void* b, void* c)                        \
 {                                                                                               \
-    return (int)RunFunctionFmt(my_context, my_CERTChainVerifyCallbackFunc_fct_##A, "ppp", a, b, c);    \
+    return (int)RunFunctionFmt(my_CERTChainVerifyCallbackFunc_fct_##A, "ppp", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -124,7 +124,7 @@ static void* reverse_CERTChainVerifyCallbackFunc_Fct(library_t* lib, void* fct)
 static uintptr_t my_PORTCharConversionWSwapFunc_fct_##A = 0;                                                    \
 static int my_PORTCharConversionWSwapFunc_##A(int a, void* b, uint32_t c, void* d, uint32_t e, void* f, int g)  \
 {                                                                                                               \
-    return (int)RunFunctionFmt(my_context, my_PORTCharConversionWSwapFunc_fct_##A, "ipupupi", a, b, c, d, e, f, g);        \
+    return (int)RunFunctionFmt(my_PORTCharConversionWSwapFunc_fct_##A, "ipupupi", a, b, c, d, e, f, g);        \
 }
 SUPER()
 #undef GO

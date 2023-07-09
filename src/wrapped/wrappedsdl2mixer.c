@@ -42,7 +42,7 @@ GO(4)
 static uintptr_t my_EffectFunc_fct_##A = 0;                                         \
 static void my_EffectFunc_##A(int chan, void *stream, int len, void *udata)         \
 {                                                                                   \
-    RunFunctionFmt(my_context, my_EffectFunc_fct_##A, "ipip", chan, stream, len, udata);    \
+    RunFunctionFmt(my_EffectFunc_fct_##A, "ipip", chan, stream, len, udata);    \
 }
 SUPER()
 #undef GO
@@ -66,7 +66,7 @@ static void* find_EffectFunc_Fct(void* fct)
 static uintptr_t my_EffectDone_fct_##A = 0;                         \
 static void my_EffectDone_##A(int chan, void *udata)                \
 {                                                                   \
-    RunFunctionFmt(my_context, my_EffectDone_fct_##A, "ip", chan, udata); \
+    RunFunctionFmt(my_EffectDone_fct_##A, "ip", chan, udata); \
 }
 SUPER()
 #undef GO
@@ -90,7 +90,7 @@ static void* find_EffectDone_Fct(void* fct)
 static uintptr_t my_MixFunc_fct_##A = 0;                                \
 static void my_MixFunc_##A(void *udata, uint8_t *stream, int len)       \
 {                                                                       \
-    RunFunctionFmt(my_context, my_MixFunc_fct_##A, "ppi", udata, stream, len); \
+    RunFunctionFmt(my_MixFunc_fct_##A, "ppi", udata, stream, len); \
 }
 SUPER()
 #undef GO
@@ -114,7 +114,7 @@ static void* find_MixFunc_Fct(void* fct)
 static uintptr_t my_ChannelFinished_fct_##A = 0;                        \
 static void my_ChannelFinished_##A(int channel)                         \
 {                                                                       \
-    RunFunctionFmt(my_context, my_ChannelFinished_fct_##A, "i", channel);    \
+    RunFunctionFmt(my_ChannelFinished_fct_##A, "i", channel);    \
 }
 SUPER()
 #undef GO
@@ -138,7 +138,7 @@ static void* find_ChannelFinished_Fct(void* fct)
 static uintptr_t my_MusicFinished_fct_##A = 0;              \
 static void my_MusicFinished_##A()                          \
 {                                                           \
-    RunFunctionFmt(my_context, my_MusicFinished_fct_##A, "");   \
+    RunFunctionFmt(my_MusicFinished_fct_##A, "");   \
 }
 SUPER()
 #undef GO

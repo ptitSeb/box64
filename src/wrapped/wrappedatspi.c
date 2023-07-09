@@ -40,7 +40,7 @@ GO(4)
 static uintptr_t my_GDestroyNotify_fct_##A = 0;                 \
 static void my_GDestroyNotify_##A(void* a)                      \
 {                                                               \
-    RunFunctionFmt(my_context, my_GDestroyNotify_fct_##A, "p", a);   \
+    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", a);    \
 }
 SUPER()
 #undef GO
@@ -62,7 +62,7 @@ static void* find_GDestroyNotify_Fct(void* fct)
 static uintptr_t my_AtspiEventListenerCB_fct_##A = 0;                   \
 static void my_AtspiEventListenerCB_##A(void* a, void* b)               \
 {                                                                       \
-    RunFunctionFmt(my_context, my_AtspiEventListenerCB_fct_##A, "pp", a, b);  \
+    RunFunctionFmt(my_AtspiEventListenerCB_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO

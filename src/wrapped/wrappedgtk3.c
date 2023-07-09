@@ -102,7 +102,7 @@ GO(3)
 static uintptr_t my_menudetach_fct_##A = 0;                                 \
 static void my_menudetach_##A(void* widget, void* menu)                     \
 {                                                                           \
-    RunFunctionFmt(my_context, my_menudetach_fct_##A, "pp", widget, menu);  \
+    RunFunctionFmt(my_menudetach_fct_##A, "pp", widget, menu);        \
 }
 SUPER()
 #undef GO
@@ -125,7 +125,7 @@ static void* findMenuDetachFct(void* fct)
 static uintptr_t my_menuposition_fct_##A = 0;                                                   \
 static void my_menuposition_##A(void* menu, void* x, void* y, void* push_in, void* data)        \
 {                                                                                               \
-    RunFunctionFmt(my_context, my_menuposition_fct_##A, "ppppp", menu, x, y, push_in, data);    \
+    RunFunctionFmt(my_menuposition_fct_##A, "ppppp", menu, x, y, push_in, data);          \
 }
 SUPER()
 #undef GO
@@ -148,7 +148,7 @@ static void* findMenuPositionFct(void* fct)
 static uintptr_t my3_gtkfunction_fct_##A = 0;                               \
 static int my3_gtkfunction_##A(void* data)                                  \
 {                                                                           \
-    return RunFunctionFmt(my_context, my3_gtkfunction_fct_##A, "p", data);  \
+    return RunFunctionFmt(my3_gtkfunction_fct_##A, "p", data);        \
 }
 SUPER()
 #undef GO
@@ -171,7 +171,7 @@ static void* findGtkFunctionFct(void* fct)
 static uintptr_t my_clipboardget_fct_##A = 0;                                                       \
 static void my_clipboardget_##A(void* clipboard, void* selection, uint32_t info, void* data)        \
 {                                                                                                   \
-    RunFunctionFmt(my_context, my_clipboardget_fct_##A, "ppup", clipboard, selection, info, data);  \
+    RunFunctionFmt(my_clipboardget_fct_##A, "ppup", clipboard, selection, info, data);        \
 }
 SUPER()
 #undef GO
@@ -194,7 +194,7 @@ static void* findClipboadGetFct(void* fct)
 static uintptr_t my_clipboardclear_fct_##A = 0;                                     \
 static void my_clipboardclear_##A(void* clipboard, void* data)                      \
 {                                                                                   \
-    RunFunctionFmt(my_context, my_clipboardclear_fct_##A, "pp", clipboard, data);   \
+    RunFunctionFmt(my_clipboardclear_fct_##A, "pp", clipboard, data);         \
 }
 SUPER()
 #undef GO
@@ -217,7 +217,7 @@ static void* findClipboadClearFct(void* fct)
 static uintptr_t my3_gtkcallback_fct_##A = 0;                                   \
 static void my3_gtkcallback_##A(void* widget, void* data)                       \
 {                                                                               \
-    RunFunctionFmt(my_context, my3_gtkcallback_fct_##A, "pp", widget, data);    \
+    RunFunctionFmt(my3_gtkcallback_fct_##A, "pp", widget, data);          \
 }
 SUPER()
 #undef GO
@@ -240,7 +240,7 @@ static void* findGtkCallbackFct(void* fct)
 static uintptr_t my_textcharpredicate_fct_##A = 0;                                          \
 static int my_textcharpredicate_##A(uint32_t ch, void* data)                                \
 {                                                                                           \
-    return (int)RunFunctionFmt(my_context, my_textcharpredicate_fct_##A, "up", ch, data);   \
+    return (int)RunFunctionFmt(my_textcharpredicate_fct_##A, "up", ch, data);         \
 }
 SUPER()
 #undef GO
@@ -263,7 +263,7 @@ static void* findGtkTextCharPredicateFct(void* fct)
 static uintptr_t my_toolbar_fct_##A = 0;                                \
 static void my_toolbar_##A(void* widget, void* data)                    \
 {                                                                       \
-    RunFunctionFmt(my_context, my_toolbar_fct_##A, "pp", widget, data); \
+    RunFunctionFmt(my_toolbar_fct_##A, "pp", widget, data);       \
 }
 SUPER()
 #undef GO
@@ -286,7 +286,7 @@ static void* findToolbarFct(void* fct)
 static uintptr_t my_builderconnect_fct_##A = 0;                                                                                     \
 static void my_builderconnect_##A(void* builder, void* object, void* signal, void* handler, void* connect, int flags, void* data)   \
 {                                                                                                                                   \
-    RunFunctionFmt(my_context, my_builderconnect_fct_##A, "pppppip", builder, object, signal, handler, connect, flags, data);       \
+    RunFunctionFmt(my_builderconnect_fct_##A, "pppppip", builder, object, signal, handler, connect, flags, data);             \
 }
 SUPER()
 #undef GO
@@ -309,7 +309,7 @@ static void* findBuilderConnectFct(void* fct)
 static uintptr_t my_GtkTreeViewSearchEqualFunc_fct_##A = 0;                                                             \
 static int my_GtkTreeViewSearchEqualFunc_##A(void* model, int column, void* key, void* iter, void* data)                \
 {                                                                                                                       \
-    return RunFunctionFmt(my_context, my_GtkTreeViewSearchEqualFunc_fct_##A, "pippp", model, column, key, iter, data);  \
+    return RunFunctionFmt(my_GtkTreeViewSearchEqualFunc_fct_##A, "pippp", model, column, key, iter, data);        \
 }
 SUPER()
 #undef GO
@@ -331,7 +331,7 @@ static void* findGtkTreeViewSearchEqualFuncFct(void* fct)
 static uintptr_t my_GtkTreeCellDataFunc_fct_##A = 0;                                                    \
 static void my_GtkTreeCellDataFunc_##A(void* tree, void* cell, void* model, void* iter, void* data)     \
 {                                                                                                       \
-    RunFunctionFmt(my_context, my_GtkTreeCellDataFunc_fct_##A, "ppppp", tree, cell, model, iter, data); \
+    RunFunctionFmt(my_GtkTreeCellDataFunc_fct_##A, "ppppp", tree, cell, model, iter, data);       \
 }
 SUPER()
 #undef GO
@@ -354,7 +354,7 @@ static void* findGtkTreeCellDataFuncFct(void* fct)
 static uintptr_t my_GDestroyNotify_fct_##A = 0;                         \
 static void my_GDestroyNotify_##A(void* data)                           \
 {                                                                       \
-    RunFunctionFmt(my_context, my_GDestroyNotify_fct_##A, "p", data);   \
+    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data);         \
 }
 SUPER()
 #undef GO
@@ -377,7 +377,7 @@ static void* findGDestroyNotifyFct(void* fct)
 static uintptr_t my_GtkTreeIterCompareFunc_fct_##A = 0;                                                 \
 static int my_GtkTreeIterCompareFunc_##A(void* model, void* a, void* b, void* data)                     \
 {                                                                                                       \
-    return RunFunctionFmt(my_context, my_GtkTreeIterCompareFunc_fct_##A, "pppp", model, a, b, data);    \
+    return RunFunctionFmt(my_GtkTreeIterCompareFunc_fct_##A, "pppp", model, a, b, data);          \
 }
 SUPER()
 #undef GO
@@ -400,7 +400,7 @@ static void* findGtkTreeIterCompareFuncFct(void* fct)
 static uintptr_t my_GtkPrinterFunc_fct_##A = 0;                                         \
 static int my_GtkPrinterFunc_##A(void* printer, void* data)                             \
 {                                                                                       \
-    return RunFunctionFmt(my_context, my_GtkPrinterFunc_fct_##A, "pp", printer, data);  \
+    return RunFunctionFmt(my_GtkPrinterFunc_fct_##A, "pp", printer, data);        \
 }
 SUPER()
 #undef GO
@@ -423,7 +423,7 @@ static void* findGtkPrinterFuncFct(void* fct)
 static uintptr_t my_GtkPrintJobCompleteHunc_fct_##A = 0;                                        \
 static void my_GtkPrintJobCompleteHunc_##A(void* job, void* data, void* error)                  \
 {                                                                                               \
-    RunFunctionFmt(my_context, my_GtkPrintJobCompleteHunc_fct_##A, "ppp", job, data, error);    \
+    RunFunctionFmt(my_GtkPrintJobCompleteHunc_fct_##A, "ppp", job, data, error);          \
 }
 SUPER()
 #undef GO
@@ -447,7 +447,7 @@ static void* findGtkPrintJobCompleteHuncFct(void* fct)
 static uintptr_t my_GtkClipboardTextReceivedFunc_fct_##A = 0;                                           \
 static void my_GtkClipboardTextReceivedFunc_##A(void* clipboard, void* text, void* data)                \
 {                                                                                                       \
-    RunFunctionFmt(my_context, my_GtkClipboardTextReceivedFunc_fct_##A, "ppp", clipboard, text, data);  \
+    RunFunctionFmt(my_GtkClipboardTextReceivedFunc_fct_##A, "ppp", clipboard, text, data);        \
 }
 SUPER()
 #undef GO
@@ -557,7 +557,7 @@ EXPORT int my3_gtk_clipboard_set_with_owner(x64emu_t* emu, void* clipboard, void
 
 static void* my_translate_func(void* path, my_signal_t* sig)
 {
-    return (void*)RunFunctionFmt(my_context, sig->c_handler, "pp", path, sig->data);
+    return (void*)RunFunctionFmt(sig->c_handler, "pp", path, sig->data)       ;
 }
 
 EXPORT void my3_gtk_stock_set_translate_func(x64emu_t* emu, void* domain, void* f, void* data, void* notify)

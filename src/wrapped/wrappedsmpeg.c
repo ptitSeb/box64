@@ -38,7 +38,7 @@ GO(4)
 static uintptr_t my_dispcallback_fct_##A = 0;                                                   \
 static void my_dispcallback_##A(void* dst, int32_t x, int32_t y, unsigned int w, unsigned int h)\
 {                                                                                               \
-    RunFunctionFmt(my_context, my_dispcallback_fct_##A, "piiuu", dst, x, y, w, h);                       \
+    RunFunctionFmt(my_dispcallback_fct_##A, "piiuu", dst, x, y, w, h);                       \
 }
 SUPER()
 #undef GO

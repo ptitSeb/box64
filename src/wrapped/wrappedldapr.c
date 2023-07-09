@@ -44,7 +44,7 @@ GO(4)
 static uintptr_t my_LDAP_SASL_INTERACT_PROC_fct_##A = 0;                                        \
 static int my_LDAP_SASL_INTERACT_PROC_##A(void* a, unsigned b, void* c, void* d)                \
 {                                                                                               \
-    return RunFunctionFmt(my_context, my_LDAP_SASL_INTERACT_PROC_fct_##A, "pupp", a, b, c, d);  \
+    return RunFunctionFmt(my_LDAP_SASL_INTERACT_PROC_fct_##A, "pupp", a, b, c, d);        \
 }
 SUPER()
 #undef GO

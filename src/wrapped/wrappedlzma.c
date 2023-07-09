@@ -64,7 +64,7 @@ GO(4)
 static uintptr_t my_alloc_fct_##A = 0;                                              \
 static void* my_alloc_##A(void* opaque, size_t items, size_t size)                  \
 {                                                                                   \
-    return (void*)RunFunctionFmt(my_context, my_alloc_fct_##A, "pLL", opaque, items, size);\
+    return (void*)RunFunctionFmt(my_alloc_fct_##A, "pLL", opaque, items, size);\
 }
 SUPER()
 #undef GO
@@ -96,7 +96,7 @@ static void* reverse_alloc_Fct(void* fct)
 static uintptr_t my_free_fct_##A = 0;                               \
 static void my_free_##A(void* opaque, void* address)                \
 {                                                                   \
-    RunFunctionFmt(my_context, my_free_fct_##A, "pp", opaque, address);   \
+    RunFunctionFmt(my_free_fct_##A, "pp", opaque, address);   \
 }
 SUPER()
 #undef GO

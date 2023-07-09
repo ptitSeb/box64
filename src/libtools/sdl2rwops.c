@@ -85,23 +85,23 @@ EXPORT int32_t my2_native_close(SDL2_RWops_t *context)
 }
 EXPORT int64_t my2_emulated_size(SDL2_RWops_t *context)
 {
-    return (int64_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->size, "p", context->hidden.my.orig);
+    return (int64_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->size, "p", context->hidden.my.orig);
 }
 EXPORT int64_t my2_emulated_seek(SDL2_RWops_t *context, int64_t offset, int32_t whence)
 {
-    return (int64_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->seek, "pIi", context->hidden.my.orig, offset, whence);
+    return (int64_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->seek, "pIi", context->hidden.my.orig, offset, whence);
 }
 EXPORT int32_t my2_emulated_read(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
 {
-    return (int32_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->read, "ppii", context->hidden.my.orig, ptr, size, maxnum);
+    return (int32_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->read, "ppii", context->hidden.my.orig, ptr, size, maxnum);
 }
 EXPORT int32_t my2_emulated_write(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num)
 {
-    return (int32_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->write, "ppii", context->hidden.my.orig, ptr, size, num);
+    return (int32_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->write, "ppii", context->hidden.my.orig, ptr, size, num);
 }
 EXPORT int32_t my2_emulated_close(SDL2_RWops_t *context)
 {
-    int ret = (int32_t)RunFunctionFmt(my_context, (uintptr_t)context->hidden.my.orig->close, "p", context->hidden.my.orig);
+    int ret = (int32_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->close, "p", context->hidden.my.orig);
     context->hidden.my.custom_free(context);
     return ret;
 }
@@ -109,12 +109,12 @@ EXPORT int32_t my2_emulated_close(SDL2_RWops_t *context)
 static uintptr_t emulated_sdl2allocrw = 0;
 EXPORT SDL2_RWops_t* my_wrapped_sdl2allocrw()
 {
-    return (SDL2_RWops_t*)RunFunctionFmt(my_context, emulated_sdl2allocrw, "");
+    return (SDL2_RWops_t*)RunFunctionFmt(emulated_sdl2allocrw, "");
 }
 static uintptr_t emulated_sdl2freerw = 0;
 EXPORT void my_wrapped_sdl2freerw(SDL2_RWops_t* p)
 {
-    RunFunctionFmt(my_context, emulated_sdl2freerw, "p", p);
+    RunFunctionFmt(emulated_sdl2freerw, "p", p);
 }
 
 static void checkSDL2isNative()

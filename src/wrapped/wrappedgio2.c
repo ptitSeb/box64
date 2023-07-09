@@ -43,7 +43,7 @@ GO(3)
 static uintptr_t my_GAsyncReadyCallback_fct_##A = 0;                                      \
 static void my_GAsyncReadyCallback_##A(void* source, void* res, void* data)               \
 {                                                                                         \
-    RunFunctionFmt(my_context, my_GAsyncReadyCallback_fct_##A, "ppp", source, res, data); \
+    RunFunctionFmt(my_GAsyncReadyCallback_fct_##A, "ppp", source, res, data); \
 }
 SUPER()
 #undef GO
@@ -66,7 +66,7 @@ static void* findGAsyncReadyCallbackFct(void* fct)
 static uintptr_t my_GDestroyNotify_fct_##A = 0;                       \
 static void my_GDestroyNotify_##A(void* data)                         \
 {                                                                     \
-    RunFunctionFmt(my_context, my_GDestroyNotify_fct_##A, "p", data); \
+    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO
@@ -89,7 +89,7 @@ static void* findGDestroyNotifyFct(void* fct)
 static uintptr_t my_GDBusProxyTypeFunc_fct_##A = 0;                                                           \
 static int my_GDBusProxyTypeFunc_##A(void* manager, void* path, void* name, void* data)                       \
 {                                                                                                             \
-    return (int)RunFunctionFmt(my_context, my_GDBusProxyTypeFunc_fct_##A, "pppp", manager, path, name, data); \
+    return (int)RunFunctionFmt(my_GDBusProxyTypeFunc_fct_##A, "pppp", manager, path, name, data); \
 }
 SUPER()
 #undef GO
@@ -112,7 +112,7 @@ static void* findGDBusProxyTypeFuncFct(void* fct)
 static uintptr_t my_GSimpleAsyncThreadFunc_fct_##A = 0;                                             \
 static void my_GSimpleAsyncThreadFunc_##A(void* res, void* object, void* cancellable)               \
 {                                                                                                   \
-    RunFunctionFmt(my_context, my_GSimpleAsyncThreadFunc_fct_##A, "ppp", res, object, cancellable); \
+    RunFunctionFmt(my_GSimpleAsyncThreadFunc_fct_##A, "ppp", res, object, cancellable); \
 }
 SUPER()
 #undef GO
@@ -135,7 +135,7 @@ static void* findGSimpleAsyncThreadFuncFct(void* fct)
 static uintptr_t my_GCallback_fct_##A = 0;                                \
 static void my_GCallback_##A(void* a, void* b, void* c, void* d)          \
 {                                                                         \
-    RunFunctionFmt(my_context, my_GCallback_fct_##A, "pppp", a, b, c, d); \
+    RunFunctionFmt(my_GCallback_fct_##A, "pppp", a, b, c, d); \
 }
 SUPER()
 #undef GO
@@ -158,7 +158,7 @@ static void* findGCallbackFct(void* fct)
 static uintptr_t my_GDBusSignalCallback_fct_##A = 0;                                                                                         \
 static void my_GDBusSignalCallback_##A(void* connection, void* sender, void* object, void* interface, void* signal, void* param, void* data) \
 {                                                                                                                                            \
-    RunFunctionFmt(my_context, my_GDBusSignalCallback_fct_##A, "ppppppp", connection, sender, object, interface, signal, param, data);       \
+    RunFunctionFmt(my_GDBusSignalCallback_fct_##A, "ppppppp", connection, sender, object, interface, signal, param, data);       \
 }
 SUPER()
 #undef GO
@@ -181,7 +181,7 @@ static void* findGDBusSignalCallbackFct(void* fct)
 static uintptr_t my_GDBusMessageFilterFunction_fct_##A = 0;                                                         \
 static void my_GDBusMessageFilterFunction_##A(void* connection, void* message, int incoming, void* data)            \
 {                                                                                                                   \
-    RunFunctionFmt(my_context, my_GDBusMessageFilterFunction_fct_##A, "ppip", connection, message, incoming, data); \
+    RunFunctionFmt(my_GDBusMessageFilterFunction_fct_##A, "ppip", connection, message, incoming, data); \
 }
 SUPER()
 #undef GO
@@ -204,7 +204,7 @@ static void* findGDBusMessageFilterFunctionFct(void* fct)
 static uintptr_t my_GBusNameAppearedCallback_fct_##A = 0;                                                   \
 static void my_GBusNameAppearedCallback_##A(void* connection, void* name, void* owner, void* data)          \
 {                                                                                                           \
-    RunFunctionFmt(my_context, my_GBusNameAppearedCallback_fct_##A, "pppp", connection, name, owner, data); \
+    RunFunctionFmt(my_GBusNameAppearedCallback_fct_##A, "pppp", connection, name, owner, data); \
 }
 SUPER()
 #undef GO
@@ -227,7 +227,7 @@ static void* findGBusNameAppearedCallbackFct(void* fct)
 static uintptr_t my_GBusNameVanishedCallback_fct_##A = 0;                                           \
 static void my_GBusNameVanishedCallback_##A(void* connection, void* name, void* data)               \
 {                                                                                                   \
-    RunFunctionFmt(my_context, my_GBusNameVanishedCallback_fct_##A, "ppp", connection, name, data); \
+    RunFunctionFmt(my_GBusNameVanishedCallback_fct_##A, "ppp", connection, name, data); \
 }
 SUPER()
 #undef GO
@@ -250,7 +250,7 @@ static void* findGBusNameVanishedCallbackFct(void* fct)
 static uintptr_t my_GBusAcquiredCallback_fct_##A = 0;                                           \
 static void my_GBusAcquiredCallback_##A(void* connection, void* name, void* data)               \
 {                                                                                               \
-    RunFunctionFmt(my_context, my_GBusAcquiredCallback_fct_##A, "ppp", connection, name, data); \
+    RunFunctionFmt(my_GBusAcquiredCallback_fct_##A, "ppp", connection, name, data); \
 }
 SUPER()
 #undef GO
@@ -273,7 +273,7 @@ static void* findGBusAcquiredCallbackFct(void* fct)
 static uintptr_t my_GBusNameAcquiredCallback_fct_##A = 0;                                           \
 static void my_GBusNameAcquiredCallback_##A(void* connection, void* name, void* data)               \
 {                                                                                                   \
-    RunFunctionFmt(my_context, my_GBusNameAcquiredCallback_fct_##A, "ppp", connection, name, data); \
+    RunFunctionFmt(my_GBusNameAcquiredCallback_fct_##A, "ppp", connection, name, data); \
 }
 SUPER()
 #undef GO
@@ -296,7 +296,7 @@ static void* findGBusNameAcquiredCallbackFct(void* fct)
 static uintptr_t my_GBusNameLostCallback_fct_##A = 0;                                           \
 static void my_GBusNameLostCallback_##A(void* connection, void* name, void* data)               \
 {                                                                                               \
-    RunFunctionFmt(my_context, my_GBusNameLostCallback_fct_##A, "ppp", connection, name, data); \
+    RunFunctionFmt(my_GBusNameLostCallback_fct_##A, "ppp", connection, name, data); \
 }
 SUPER()
 #undef GO
@@ -331,15 +331,15 @@ SUPER()
 #define GO(A)   \
 static uintptr_t fct_funcs_method_call_##A = 0; \
 static void my_funcs_method_call_##A(void* connection, void* sender, void* object_path, void* interface_name, void* method_name, void* invocation, void* user_data) { \
-    RunFunctionFmt(my_context, fct_funcs_method_call_##A, "ppppppp", connection, sender, object_path, interface_name, method_name, invocation, user_data); \
+    RunFunctionFmt(fct_funcs_method_call_##A, "ppppppp", connection, sender, object_path, interface_name, method_name, invocation, user_data); \
 } \
 static uintptr_t fct_funcs_get_property_##A = 0; \
 static void* my_funcs_get_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* error, void* user_data) { \
-    return (void*)RunFunctionFmt(my_context, fct_funcs_get_property_##A, "pppppp", connection, sender, object_path, interface_name, error, user_data); \
+    return (void*)RunFunctionFmt(fct_funcs_get_property_##A, "pppppp", connection, sender, object_path, interface_name, error, user_data); \
 } \
 static uintptr_t fct_funcs_set_property_##A = 0; \
 static int my_funcs_set_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* value, void* error, void* user_data) { \
-    return (int)RunFunctionFmt(my_context, fct_funcs_set_property_##A, "ppppppp", connection, sender, object_path, interface_name, value, error, user_data); \
+    return (int)RunFunctionFmt(fct_funcs_set_property_##A, "ppppppp", connection, sender, object_path, interface_name, value, error, user_data); \
 }
 
 SUPER()

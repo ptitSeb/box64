@@ -37,7 +37,7 @@ GO(4)
 static uintptr_t my_krb5_prompter_fct_##A = 0;                                                  \
 static int my_krb5_prompter_##A(void* a, void* b, void* c, void* d, int e, void* f)             \
 {                                                                                               \
-    return RunFunctionFmt(my_context, my_krb5_prompter_fct_##A, "ppppip", a, b, c, d, e, f);    \
+    return RunFunctionFmt(my_krb5_prompter_fct_##A, "ppppip", a, b, c, d, e, f);          \
 }
 SUPER()
 #undef GO

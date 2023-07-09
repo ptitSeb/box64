@@ -190,7 +190,7 @@ SUPER()
 EXPORT void* malloc(size_t l)
 {
     if(malloc_hack_2 && real_malloc) {
-        return (void*)RunFunctionFmt(my_context, real_malloc, "L", l);
+        return (void*)RunFunctionFmt(real_malloc, "L", l);
     }
     return box_calloc(1, l);
 }
@@ -202,7 +202,7 @@ EXPORT void free(void* p)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "p", p);
+                RunFunctionFmt(real_free, "p", p);
             return;
         }
     }
@@ -212,7 +212,7 @@ EXPORT void free(void* p)
 EXPORT void* calloc(size_t n, size_t s)
 {
     if(malloc_hack_2 && real_calloc) {
-        return (void*)RunFunctionFmt(my_context, real_calloc, "LL", n,s);
+        return (void*)RunFunctionFmt(real_calloc, "LL", n,s);
     }
     return box_calloc(n, s);
 }
@@ -223,7 +223,7 @@ EXPORT void* realloc(void* p, size_t s)
         if(getMmapped((uintptr_t)p) || (!p && real_realloc)) {
             void* ret = p;
             if(real_realloc) {
-                ret = (void*)RunFunctionFmt(my_context, real_realloc, "pL", p, s);
+                ret = (void*)RunFunctionFmt(real_realloc, "pL", p, s);
             } else {
                 // found! Will realloc using regular malloc then copy from old address as much as possible, but need to check size first
                 ret = box_malloc(s);
@@ -233,7 +233,7 @@ EXPORT void* realloc(void* p, size_t s)
                 printf_log(LOG_DEBUG, " -> %p (copied %zu from old)\n", ret, s);
                 // Mmaped, free with original function
                 if(real_free)
-                    RunFunctionFmt(my_context, real_free, "p", p);
+                    RunFunctionFmt(real_free, "p", p);
             }
             return ret;
         }
@@ -243,7 +243,7 @@ EXPORT void* realloc(void* p, size_t s)
 EXPORT void* aligned_alloc(size_t align, size_t size)
 {
     if(malloc_hack_2 && real_aligned_alloc) {
-        return (void*)RunFunctionFmt(my_context, real_aligned_alloc, "LL", align, size);
+        return (void*)RunFunctionFmt(real_aligned_alloc, "LL", align, size);
     }
     return box_memalign(align, size);
 }
@@ -251,7 +251,7 @@ EXPORT void* aligned_alloc(size_t align, size_t size)
 EXPORT void* memalign(size_t align, size_t size)
 {
     if(malloc_hack_2 && real_aligned_alloc) {
-        return (void*)RunFunctionFmt(my_context, real_aligned_alloc, "LL", align, size);
+        return (void*)RunFunctionFmt(real_aligned_alloc, "LL", align, size);
     }
     return box_memalign(align, size);
 }
@@ -259,7 +259,7 @@ EXPORT void* memalign(size_t align, size_t size)
 EXPORT int posix_memalign(void** p, size_t align, size_t size)
 {
     if(malloc_hack_2 && real_posix_memalign) {
-        return RunFunctionFmt(my_context, real_posix_memalign, "pLL", p, align, size);
+        return RunFunctionFmt(real_posix_memalign, "pLL", p, align, size);
     }
     if(align%sizeof(void*) || pot(align)!=align)
         return EINVAL;
@@ -273,7 +273,7 @@ EXPORT int posix_memalign(void** p, size_t align, size_t size)
 EXPORT void* valloc(size_t size)
 {
     if(malloc_hack_2 && real_valloc) {
-        return (void*)RunFunctionFmt(my_context, real_valloc, "L", size);
+        return (void*)RunFunctionFmt(real_valloc, "L", size);
     }
     return box_memalign(box64_pagesize, size);
 }
@@ -281,7 +281,7 @@ EXPORT void* valloc(size_t size)
 EXPORT void* pvalloc(size_t size)
 {
     if(malloc_hack_2 && real_pvalloc) {
-        return (void*)RunFunctionFmt(my_context, real_pvalloc, "L", size);
+        return (void*)RunFunctionFmt(real_pvalloc, "L", size);
     }
     return box_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
 }
@@ -293,7 +293,7 @@ EXPORT void cfree(void* p)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "p", p);
+                RunFunctionFmt(real_free, "p", p);
             return;
         }
     }
@@ -303,7 +303,7 @@ EXPORT void cfree(void* p)
 EXPORT size_t malloc_usable_size(void* p)
 {
     if(malloc_hack_2 && real_malloc_usable_size) {
-        return RunFunctionFmt(my_context, real_malloc_usable_size, "p", p);
+        return RunFunctionFmt(real_malloc_usable_size, "p", p);
     }
     return box_malloc_usable_size(p);
 }
@@ -311,7 +311,7 @@ EXPORT size_t malloc_usable_size(void* p)
 EXPORT void* my__Znwm(size_t sz)   //operator new(size_t)
 {
     if(malloc_hack_2 && real__Znwm) {
-        return (void*)RunFunctionFmt(my_context, real__Znwm, "L", sz);
+        return (void*)RunFunctionFmt(real__Znwm, "L", sz);
     }
     return box_malloc(sz);
 }
@@ -319,7 +319,7 @@ EXPORT void* my__Znwm(size_t sz)   //operator new(size_t)
 EXPORT void* my__ZnwmRKSt9nothrow_t(size_t sz, void* p)   //operator new(size_t, std::nothrow_t const&)
 {
     if(malloc_hack_2 && real__ZnwmRKSt9nothrow_t) {
-        return (void*)RunFunctionFmt(my_context, real__ZnwmRKSt9nothrow_t, "Lp", sz, p);
+        return (void*)RunFunctionFmt(real__ZnwmRKSt9nothrow_t, "Lp", sz, p);
     }
     return box_malloc(sz);
 }
@@ -327,7 +327,7 @@ EXPORT void* my__ZnwmRKSt9nothrow_t(size_t sz, void* p)   //operator new(size_t,
 EXPORT void* my__Znam(size_t sz)   //operator new[](size_t)
 {
     if(malloc_hack_2 && real__Znam) {
-        return (void*)RunFunctionFmt(my_context, real__Znam, "L", sz);
+        return (void*)RunFunctionFmt(real__Znam, "L", sz);
     }
     return box_malloc(sz);
 }
@@ -335,7 +335,7 @@ EXPORT void* my__Znam(size_t sz)   //operator new[](size_t)
 EXPORT void* my__ZnamRKSt9nothrow_t(size_t sz, void* p)   //operator new[](size_t, std::nothrow_t const&)
 {
     if(malloc_hack_2 && real__ZnamRKSt9nothrow_t) {
-        return (void*)RunFunctionFmt(my_context, real__ZnamRKSt9nothrow_t, "Lp", sz, p);
+        return (void*)RunFunctionFmt(real__ZnamRKSt9nothrow_t, "Lp", sz, p);
     }
     return box_malloc(sz);
 }
@@ -348,7 +348,7 @@ EXPORT void my__ZdaPv(void* p)   //operator delete[](void*)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real__ZdaPv)
-                RunFunctionFmt(my_context, real__ZdaPv, "p", p);
+                RunFunctionFmt(real__ZdaPv, "p", p);
             return;
         }
     }
@@ -362,7 +362,7 @@ EXPORT void my__ZdaPvm(void* p, size_t sz)   //operator delete[](void*, size_t)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real__ZdaPvm)
-                RunFunctionFmt(my_context, real__ZdaPvm, "pL", p, sz);
+                RunFunctionFmt(real__ZdaPvm, "pL", p, sz);
             return;
         }
     }
@@ -376,7 +376,7 @@ EXPORT void my__ZdaPvmSt11align_val_t(void* p, size_t sz, size_t align)   //oper
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real__ZdaPvmSt11align_val_t)
-                RunFunctionFmt(my_context, real__ZdaPvmSt11align_val_t, "pLL", p, sz, align);
+                RunFunctionFmt(real__ZdaPvmSt11align_val_t, "pLL", p, sz, align);
             return;
         }
     }
@@ -390,7 +390,7 @@ EXPORT void my__ZdlPv(void* p)   //operator delete(void*)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real__ZdlPv)
-                RunFunctionFmt(my_context, real__ZdlPv, "p", p);
+                RunFunctionFmt(real__ZdlPv, "p", p);
             return;
         }
     }
@@ -404,7 +404,7 @@ EXPORT void my__ZdlPvm(void* p, size_t sz)   //operator delete(void*, size_t)
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real__ZdlPvm)
-                RunFunctionFmt(my_context, real__ZdlPvm, "pL", p, sz);
+                RunFunctionFmt(real__ZdlPvm, "pL", p, sz);
             return;
         }
     }
@@ -414,7 +414,7 @@ EXPORT void my__ZdlPvm(void* p, size_t sz)   //operator delete(void*, size_t)
 EXPORT void* my__ZnwmSt11align_val_t(size_t sz, size_t align)  //// operator new(unsigned long, std::align_val_t)
 {
     if(malloc_hack_2 && real__ZnwmSt11align_val_t) {
-        return (void*)RunFunctionFmt(my_context, real__ZnwmSt11align_val_t, "LL", sz, align);
+        return (void*)RunFunctionFmt(real__ZnwmSt11align_val_t, "LL", sz, align);
     }
     return box_memalign(align, sz);
 }
@@ -422,7 +422,7 @@ EXPORT void* my__ZnwmSt11align_val_t(size_t sz, size_t align)  //// operator new
 EXPORT void* my__ZnwmSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new(unsigned long, std::align_val_t, std::nothrow_t const&)
 {
     if(malloc_hack_2 && real__ZnwmSt11align_val_tRKSt9nothrow_t) {
-        return (void*)RunFunctionFmt(my_context, real__ZnwmSt11align_val_tRKSt9nothrow_t, "LLp", sz, align, p);
+        return (void*)RunFunctionFmt(real__ZnwmSt11align_val_tRKSt9nothrow_t, "LLp", sz, align, p);
     }
     return box_memalign(align, sz);
 }
@@ -430,7 +430,7 @@ EXPORT void* my__ZnwmSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void
 EXPORT void* my__ZnamSt11align_val_t(size_t sz, size_t align)  //// operator new[](unsigned long, std::align_val_t)
 {
     if(malloc_hack_2 && real__ZnamSt11align_val_t) {
-        return (void*)RunFunctionFmt(my_context, real__ZnamSt11align_val_t, "LL", sz, align);
+        return (void*)RunFunctionFmt(real__ZnamSt11align_val_t, "LL", sz, align);
     }
     return box_memalign(align, sz);
 }
@@ -438,7 +438,7 @@ EXPORT void* my__ZnamSt11align_val_t(size_t sz, size_t align)  //// operator new
 EXPORT void* my__ZnamSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new[](unsigned long, std::align_val_t, std::nothrow_t const&)
 {
     if(malloc_hack_2 && real__ZnamSt11align_val_tRKSt9nothrow_t) {
-        return (void*)RunFunctionFmt(my_context, real__ZnamSt11align_val_tRKSt9nothrow_t, "LLp", sz, align, p);
+        return (void*)RunFunctionFmt(real__ZnamSt11align_val_tRKSt9nothrow_t, "LLp", sz, align, p);
     }
     return box_memalign(align, sz);
 }
@@ -450,7 +450,7 @@ EXPORT void my__ZdlPvRKSt9nothrow_t(void* p, void* n)   //operator delete(void*,
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real__ZdlPvRKSt9nothrow_t)
-                RunFunctionFmt(my_context, real__ZdlPvRKSt9nothrow_t, "pp", p, n);
+                RunFunctionFmt(real__ZdlPvRKSt9nothrow_t, "pp", p, n);
             return;
         }
     }
@@ -464,7 +464,7 @@ EXPORT void my__ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* 
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "p", p);
+                RunFunctionFmt(real_free, "p", p);
             return;
         }
     }
@@ -478,7 +478,7 @@ EXPORT void my__ZdlPvmSt11align_val_t(void* p, size_t sz, size_t align)   //oper
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "p", p);
+                RunFunctionFmt(real_free, "p", p);
             return;
         }
     }
@@ -492,7 +492,7 @@ EXPORT void my__ZdaPvRKSt9nothrow_t(void* p, void* n)   //operator delete[](void
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "p", p);
+                RunFunctionFmt(real_free, "p", p);
             return;
         }
     }
@@ -506,7 +506,7 @@ EXPORT void my__ZdaPvSt11align_val_t(void* p, size_t align)   //operator delete[
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "p", p);
+                RunFunctionFmt(real_free, "p", p);
             return;
         }
     }
@@ -520,7 +520,7 @@ EXPORT void my__ZdlPvSt11align_val_t(void* p, size_t align)   //operator delete(
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real_free)
-                RunFunctionFmt(my_context, real_free, "p", p);
+                RunFunctionFmt(real_free, "p", p);
             return;
         }
     }
@@ -534,7 +534,7 @@ EXPORT void my__ZdlPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* 
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
             if(real__ZdlPvSt11align_val_tRKSt9nothrow_t)
-                RunFunctionFmt(my_context, real__ZdlPvSt11align_val_tRKSt9nothrow_t, "pLp", p, align, n);
+                RunFunctionFmt(real__ZdlPvSt11align_val_tRKSt9nothrow_t, "pLp", p, align, n);
             return;
         }
     }

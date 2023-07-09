@@ -41,7 +41,7 @@ static uintptr_t my_log_fn_fct_##A = 0;                                         
 static void my_log_fn_##A(void* udev, int p, void *f, int l, void* fn, void* fmt, x64_va_list_t args)   \
 {                                                                                                       \
     CONVERT_VALIST(args)                                                                                \
-    RunFunction(my_context, my_log_fn_fct_##A, 7, udev, p, f, l, fn, fmt, VARARGS);                     \
+    RunFunction(my_log_fn_fct_##A, 7, udev, p, f, l, fn, fmt, VARARGS);                                 \
 }
 #else
 #define GO(A)   \
@@ -49,7 +49,7 @@ static uintptr_t my_log_fn_fct_##A = 0;                                         
 static void my_log_fn_##A(void* udev, int p, void *f, int l, void* fn, void* fmt, x64_va_list_t args)   \
 {                                                                                                       \
     CREATE_VALIST_FROM_VALIST(args, thread_get_emu()->scratch);                                         \
-    RunFunction(my_context, my_log_fn_fct_##A, 7, udev, p, f, l, fn, fmt, VARARGS);                     \
+    RunFunction(my_log_fn_fct_##A, 7, udev, p, f, l, fn, fmt, VARARGS);                                 \
 }
 #endif
 SUPER()

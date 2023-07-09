@@ -35,7 +35,7 @@ GO(3)
 static uintptr_t my_destroy_pixbuf_fct_##A = 0;                                \
 static void my_destroy_pixbuf_##A(void* pixels, void* data)                    \
 {                                                                              \
-    RunFunctionFmt(my_context, my_destroy_pixbuf_fct_##A, "pp", pixels, data); \
+    RunFunctionFmt(my_destroy_pixbuf_fct_##A, "pp", pixels, data);        \
 }
 SUPER()
 #undef GO

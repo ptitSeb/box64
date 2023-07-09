@@ -54,7 +54,7 @@ GO(7)
 static uintptr_t my_read_write_fct_##A = 0;                                                              \
 static unsigned long my_read_write_##A(void* ptr, unsigned long size, unsigned long nmemb, void* handle) \
 {                                                                                                        \
-    return RunFunctionFmt(my_context, my_read_write_fct_##A, "pLLp", ptr, size, nmemb, handle);          \
+    return RunFunctionFmt(my_read_write_fct_##A, "pLLp", ptr, size, nmemb, handle);               \
 }
 SUPER()
 #undef GO
@@ -76,7 +76,7 @@ static void* findread_writeFct(void* fct)
 static uintptr_t my_seek_fct_##A = 0;                                                    \
 static int my_seek_##A(void* ptr, int64_t offset, int whence)                            \
 {                                                                                        \
-    return (int)RunFunctionFmt(my_context, my_seek_fct_##A, "pIi", ptr, offset, whence); \
+    return (int)RunFunctionFmt(my_seek_fct_##A, "pIi", ptr, offset, whence);      \
 }
 SUPER()
 #undef GO
@@ -98,7 +98,7 @@ static void* findseekFct(void* fct)
 static uintptr_t my_close_eof_fct_##A = 0;                                  \
 static int my_close_eof_##A(void* ptr)                                      \
 {                                                                           \
-    return (int)RunFunctionFmt(my_context, my_close_eof_fct_##A, "p", ptr); \
+    return (int)RunFunctionFmt(my_close_eof_fct_##A, "p", ptr);       \
 }
 SUPER()
 #undef GO
@@ -120,7 +120,7 @@ static void* findclose_eofFct(void* fct)
 static uintptr_t my_tell_fct_##A = 0;                                   \
 static long my_tell_##A(void* ptr)                                      \
 {                                                                       \
-    return (long)RunFunctionFmt(my_context, my_tell_fct_##A, "p", ptr); \
+    return (long)RunFunctionFmt(my_tell_fct_##A, "p", ptr);       \
 }
 SUPER()
 #undef GO
@@ -142,7 +142,7 @@ static void* findtellFct(void* fct)
 static uintptr_t my_Read_fct_##A = 0;                                                              \
 static int my_Read_##A(void* decoder, void* buffer, size_t* bytes, void* data)                     \
 {                                                                                                  \
-    return (int)RunFunctionFmt(my_context, my_Read_fct_##A, "pppp", decoder, buffer, bytes, data); \
+    return (int)RunFunctionFmt(my_Read_fct_##A, "pppp", decoder, buffer, bytes, data);        \
 }
 SUPER()
 #undef GO
@@ -164,7 +164,7 @@ static void* findReadFct(void* fct)
 static uintptr_t my_Seek_fct_##A = 0;                                                      \
 static int my_Seek_##A(void* decoder, uint64_t offset, void* data)                         \
 {                                                                                          \
-    return (int)RunFunctionFmt(my_context, my_Seek_fct_##A, "pUp", decoder, offset, data); \
+    return (int)RunFunctionFmt(my_Seek_fct_##A, "pUp", decoder, offset, data);        \
 }
 SUPER()
 #undef GO
@@ -186,7 +186,7 @@ static void* findSeekFct(void* fct)
 static uintptr_t my_Tell_fct_##A = 0;                                                      \
 static int my_Tell_##A(void* decoder, uint64_t *offset, void* data)                        \
 {                                                                                          \
-    return (int)RunFunctionFmt(my_context, my_Tell_fct_##A, "ppp", decoder, offset, data); \
+    return (int)RunFunctionFmt(my_Tell_fct_##A, "ppp", decoder, offset, data);        \
 }
 SUPER()
 #undef GO
@@ -208,7 +208,7 @@ static void* findTellFct(void* fct)
 static uintptr_t my_Length_fct_##A = 0;                                                      \
 static int my_Length_##A(void* decoder, uint64_t *length, void* data)                        \
 {                                                                                            \
-    return (int)RunFunctionFmt(my_context, my_Length_fct_##A, "ppp", decoder, length, data); \
+    return (int)RunFunctionFmt(my_Length_fct_##A, "ppp", decoder, length, data);      \
 }
 SUPER()
 #undef GO
@@ -230,7 +230,7 @@ static void* findLengthFct(void* fct)
 static uintptr_t my_Eof_fct_##A = 0;                                             \
 static int my_Eof_##A(void* decoder, void* data)                                 \
 {                                                                                \
-    return (int)RunFunctionFmt(my_context, my_Eof_fct_##A, "pp", decoder, data); \
+    return (int)RunFunctionFmt(my_Eof_fct_##A, "pp", decoder, data);      \
 }
 SUPER()
 #undef GO
@@ -252,7 +252,7 @@ static void* findEofFct(void* fct)
 static uintptr_t my_Write_fct_##A = 0;                                                              \
 static int my_Write_##A(void* decoder, void* frame, void* buffer, void* data)                       \
 {                                                                                                   \
-    return (int)RunFunctionFmt(my_context, my_Write_fct_##A, "pppp", decoder, frame, buffer, data); \
+    return (int)RunFunctionFmt(my_Write_fct_##A, "pppp", decoder, frame, buffer, data);       \
 }
 SUPER()
 #undef GO
@@ -274,7 +274,7 @@ static void* findWriteFct(void* fct)
 static uintptr_t my_Metadata_fct_##A = 0;                                                        \
 static int my_Metadata_##A(void* decoder, void* metadata, void* data)                            \
 {                                                                                                \
-    return (int)RunFunctionFmt(my_context, my_Metadata_fct_##A, "ppp", decoder, metadata, data); \
+    return (int)RunFunctionFmt(my_Metadata_fct_##A, "ppp", decoder, metadata, data);      \
 }
 SUPER()
 #undef GO
@@ -296,7 +296,7 @@ static void* findMetadataFct(void* fct)
 static uintptr_t my_Error_fct_##A = 0;                                          \
 static void my_Error_##A(void* decoder, int status, void* data)                 \
 {                                                                               \
-    RunFunctionFmt(my_context, my_Error_fct_##A, "pip", decoder, status, data); \
+    RunFunctionFmt(my_Error_fct_##A, "pip", decoder, status, data);       \
 }
 SUPER()
 #undef GO

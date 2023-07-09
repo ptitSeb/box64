@@ -36,7 +36,7 @@ GO(4)
 static uintptr_t my_XRecordInterceptProc_fct_##A = 0;                   \
 static void my_XRecordInterceptProc_##A(void* a, void* b)               \
 {                                                                       \
-    RunFunctionFmt(my_context, my_XRecordInterceptProc_fct_##A, "pp", a, b);  \
+    RunFunctionFmt(my_XRecordInterceptProc_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO

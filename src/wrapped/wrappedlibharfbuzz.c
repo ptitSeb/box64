@@ -210,7 +210,7 @@ struct hb_unicode_funcs_t
 static uintptr_t my_buffer_message_fct_##A = 0;                     \
 static int my_buffer_message_##A(void* a, void* b, void* c, void* d)\
 {                                                                   \
-    return (int)RunFunctionFmt(my_context, my_buffer_message_fct_##A, "pppp", a, b, c, d);  \
+    return (int)RunFunctionFmt(my_buffer_message_fct_##A, "pppp", a, b, c, d);  \
 }
 SUPER()
 #undef GO
@@ -233,7 +233,7 @@ static void* find_buffer_message_Fct(void* fct)
 static uintptr_t my_draw_close_path_fct_##A = 0;                        \
 static void my_draw_close_path_##A(void* a, void* b, void* c, void* d)  \
 {                                                                       \
-    RunFunctionFmt(my_context, my_draw_close_path_fct_##A, "pppp", a, b, c, d);  \
+    RunFunctionFmt(my_draw_close_path_fct_##A, "pppp", a, b, c, d);  \
 }
 SUPER()
 #undef GO
@@ -256,7 +256,7 @@ static void* find_draw_close_path_Fct(void* fct)
 static uintptr_t my_draw_cubic_to_fct_##A = 0;  \
 static void my_draw_cubic_to_##A(void* a, void* b, void* c, float d1, float d2, float d3, float d4, float d5, float d6, void* e) \
 {                                               \
-    RunFunctionFmt(my_context, my_draw_cubic_to_fct_##A, "pppffffffp", a, b, c, d1, d2, d3, d4, d5, d6, e); \
+    RunFunctionFmt(my_draw_cubic_to_fct_##A, "pppffffffp", a, b, c, d1, d2, d3, d4, d5, d6, e); \
 }
 SUPER()
 #undef GO
@@ -279,7 +279,7 @@ static void* find_draw_cubic_to_Fct(void* fct)
 static uintptr_t my_draw_line_or_move_to_fct_##A = 0;   \
 static void my_draw_line_or_move_to_##A(void* a, void* b, void* c, float d1, float d2, void* e) \
 {                                                       \
-    RunFunctionFmt(my_context, my_draw_line_or_move_to_fct_##A, "pppffp", a, b, c, d1, d2, e);  \
+    RunFunctionFmt(my_draw_line_or_move_to_fct_##A, "pppffp", a, b, c, d1, d2, e);  \
 }
 SUPER()
 #undef GO
@@ -302,7 +302,7 @@ static void* find_draw_line_or_move_to_Fct(void* fct)
 static uintptr_t my_draw_quadratic_to_fct_##A = 0;  \
 static void my_draw_quadratic_to_##A(void* a, void* b, void* c, float d1, float d2, float d3, float d4, void* e) \
 {                                                   \
-    RunFunctionFmt(my_context, my_draw_quadratic_to_fct_##A, "pppffffp", a, b, c, d1, d2, d3, d4, e); \
+    RunFunctionFmt(my_draw_quadratic_to_fct_##A, "pppffffp", a, b, c, d1, d2, d3, d4, e); \
 }
 SUPER()
 #undef GO
@@ -325,7 +325,7 @@ static void* find_draw_quadratic_to_Fct(void* fct)
 static uintptr_t my_reference_table_fct_##A = 0;                    \
 static void* my_reference_table_##A(void* a, uint32_t b, void* c)   \
 {                                                                   \
-    return (void*)RunFunctionFmt(my_context, my_reference_table_fct_##A, "pup", a, b, c);   \
+    return (void*)RunFunctionFmt(my_reference_table_fct_##A, "pup", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -348,7 +348,7 @@ static void* find_reference_table_Fct(void* fct)
 static uintptr_t my_unicode_combining_class_fct_##A = 0;                    \
 static uint32_t my_unicode_combining_class_##A(void* a, uint32_t b, void* c)\
 {                                                                           \
-    return (uint32_t)RunFunctionFmt(my_context, my_unicode_combining_class_fct_##A, "pup", a, b, c);  \
+    return (uint32_t)RunFunctionFmt(my_unicode_combining_class_fct_##A, "pup", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -371,7 +371,7 @@ static void* find_unicode_combining_class_Fct(void* fct)
 static uintptr_t my_unicode_compose_fct_##A = 0;                                    \
 static int my_unicode_compose_##A(void* a, uint32_t b, uint32_t c, void* d, void* e)\
 {                                                                                   \
-    return (int)RunFunctionFmt(my_context, my_unicode_compose_fct_##A, "puupp", a, b, c, d, e); \
+    return (int)RunFunctionFmt(my_unicode_compose_fct_##A, "puupp", a, b, c, d, e); \
 }
 SUPER()
 #undef GO
@@ -394,7 +394,7 @@ static void* find_unicode_compose_Fct(void* fct)
 static uintptr_t my_unicode_decompose_compatibility_fct_##A = 0;                                \
 static uint32_t my_unicode_decompose_compatibility_##A(void* a, uint32_t b, void* c, void* d)   \
 {                                                                                               \
-    return (uint32_t)RunFunctionFmt(my_context, my_unicode_decompose_compatibility_fct_##A, "pupp", a, b, c, d);    \
+    return (uint32_t)RunFunctionFmt(my_unicode_decompose_compatibility_fct_##A, "pupp", a, b, c, d);    \
 }
 SUPER()
 #undef GO
@@ -417,7 +417,7 @@ static void* find_unicode_decompose_compatibility_Fct(void* fct)
 static uintptr_t my_unicode_decompose_fct_##A = 0;                                  \
 static int my_unicode_decompose_##A(void* a, uint32_t b, void* c, void* d, void* e) \
 {                                                                                   \
-    return (int)RunFunctionFmt(my_context, my_unicode_decompose_fct_##A, "puppp", a, b, c, d, e);   \
+    return (int)RunFunctionFmt(my_unicode_decompose_fct_##A, "puppp", a, b, c, d, e);   \
 }
 SUPER()
 #undef GO
@@ -440,7 +440,7 @@ static void* find_unicode_decompose_Fct(void* fct)
 static uintptr_t my_unicode_eastasian_width_fct_##A = 0;                        \
 static uint32_t my_unicode_eastasian_width_##A(void* a, uint32_t b, void* c)    \
 {                                                                               \
-    return (uint32_t)RunFunctionFmt(my_context, my_unicode_eastasian_width_fct_##A, "pup", a, b, c); \
+    return (uint32_t)RunFunctionFmt(my_unicode_eastasian_width_fct_##A, "pup", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -463,7 +463,7 @@ static void* find_unicode_eastasian_width_Fct(void* fct)
 static uintptr_t my_unicode_general_category_fct_##A = 0;                       \
 static uint32_t my_unicode_general_category_##A(void* a, uint32_t b, void* c)   \
 {                                                                               \
-    return (uint32_t)RunFunctionFmt(my_context, my_unicode_general_category_fct_##A, "pup", a, b, c);   \
+    return (uint32_t)RunFunctionFmt(my_unicode_general_category_fct_##A, "pup", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -486,7 +486,7 @@ static void* find_unicode_general_category_Fct(void* fct)
 static uintptr_t my_unicode_mirroring_fct_##A = 0;                      \
 static uint32_t my_unicode_mirroring_##A(void* a, uint32_t b, void* c)  \
 {                                                                       \
-    return (uint32_t)RunFunctionFmt(my_context, my_unicode_mirroring_fct_##A, "pup", a, b, c);  \
+    return (uint32_t)RunFunctionFmt(my_unicode_mirroring_fct_##A, "pup", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -509,7 +509,7 @@ static void* find_unicode_mirroring_Fct(void* fct)
 static uintptr_t my_unicode_script_fct_##A = 0;                     \
 static uint32_t my_unicode_script_##A(void* a, uint32_t b, void* c) \
 {                                                                   \
-    return (uint32_t)RunFunctionFmt(my_context, my_unicode_script_fct_##A, "pup", a, b, c); \
+    return (uint32_t)RunFunctionFmt(my_unicode_script_fct_##A, "pup", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -532,7 +532,7 @@ static void* find_unicode_script_Fct(void* fct)
 static uintptr_t my_font_extents_fct_##A = 0;                           \
 static int my_font_extents_##A(void* a, void* b, void* c, void* d) \
 {                                                                       \
-    return (int)RunFunctionFmt(my_context, my_font_extents_fct_##A, "pppp", a, b, c, d);   \
+    return (int)RunFunctionFmt(my_font_extents_fct_##A, "pppp", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -555,7 +555,7 @@ static void* find_font_extents_Fct(void* fct)
 static uintptr_t my_glyph_advance_fct_##A = 0;                          \
 static int my_glyph_advance_##A(void* a, void* b, uint32_t c, void* d)  \
 {                                                                       \
-    return (int)RunFunctionFmt(my_context, my_glyph_advance_fct_##A, "ppup", a, b, c, d);   \
+    return (int)RunFunctionFmt(my_glyph_advance_fct_##A, "ppup", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -578,7 +578,7 @@ static void* find_glyph_advance_Fct(void* fct)
 static uintptr_t my_glyph_advances_fct_##A = 0;                         \
 static void my_glyph_advances_##A(void* a, void* b, uint32_t c, void* d, uint32_t e, void* f, uint32_t g, void* h)  \
 {                                                                       \
-    RunFunctionFmt(my_context, my_glyph_advances_fct_##A, "ppupupup", a, b, c, d, e, f, g, h);  \
+    RunFunctionFmt(my_glyph_advances_fct_##A, "ppupupup", a, b, c, d, e, f, g, h);  \
 }
 SUPER()
 #undef GO
@@ -601,7 +601,7 @@ static void* find_glyph_advances_Fct(void* fct)
 static uintptr_t my_glyph_kerning_fct_##A = 0;                          \
 static int my_glyph_kerning_##A(void* a, void* b, uint32_t c, uint32_t d, void* e)  \
 {                                                                       \
-    return (int)RunFunctionFmt(my_context, my_glyph_kerning_fct_##A, "ppuup", a, b, c, d, e);   \
+    return (int)RunFunctionFmt(my_glyph_kerning_fct_##A, "ppuup", a, b, c, d, e);   \
 }
 SUPER()
 #undef GO
@@ -624,7 +624,7 @@ static void* find_glyph_kerning_Fct(void* fct)
 static uintptr_t my_glyph_origin_fct_##A = 0;                           \
 static int my_glyph_origin_##A(void* a, void* b, uint32_t c, void* d, void* e, void* f) \
 {                                                                       \
-    return (int)RunFunctionFmt(my_context, my_glyph_origin_fct_##A, "ppuppp", a, b, c, d, e, f);   \
+    return (int)RunFunctionFmt(my_glyph_origin_fct_##A, "ppuppp", a, b, c, d, e, f);   \
 }
 SUPER()
 #undef GO
@@ -647,7 +647,7 @@ static void* find_glyph_origin_Fct(void* fct)
 static uintptr_t my_glyph_contour_pointfct_##A = 0;                     \
 static int my_glyph_contour_point##A(void* a, void* b, uint32_t c, uint32_t d, void* e, void* f, void* g) \
 {                                                                       \
-    return (int)RunFunctionFmt(my_context, my_glyph_contour_pointfct_##A, "ppuuppp", a, b, c, d, e, f, g);   \
+    return (int)RunFunctionFmt(my_glyph_contour_pointfct_##A, "ppuuppp", a, b, c, d, e, f, g);   \
 }
 SUPER()
 #undef GO
@@ -670,7 +670,7 @@ static void* find_glyph_contour_point_Fct(void* fct)
 static uintptr_t my_glyph_extents_fct_##A = 0;                           \
 static int my_glyph_extents_##A(void* a, void* b, uint32_t c, void* d, void* e) \
 {                                                                       \
-    return (int)RunFunctionFmt(my_context, my_glyph_extents_fct_##A, "ppupp", a, b, c, d, e);   \
+    return (int)RunFunctionFmt(my_glyph_extents_fct_##A, "ppupp", a, b, c, d, e);   \
 }
 SUPER()
 #undef GO
@@ -693,7 +693,7 @@ static void* find_glyph_extents_Fct(void* fct)
 static uintptr_t my_glyph_from_name_fct_##A = 0;                        \
 static int my_glyph_from_name_##A(void* a, void* b, void* c, int d, void* e, void* f)   \
 {                                                                       \
-    return (int)RunFunctionFmt(my_context, my_glyph_from_name_fct_##A, "pppipp", a, b, c, d, e, f); \
+    return (int)RunFunctionFmt(my_glyph_from_name_fct_##A, "pppipp", a, b, c, d, e, f); \
 }
 SUPER()
 #undef GO
@@ -721,7 +721,7 @@ static void* find_glyph_from_name_Fct(void* fct)
 static uintptr_t my_glyph_fct_##A = 0;                           \
 static int my_glyph_##A(void* a, void* b, uint32_t c, uint32_t d, void* e, void* f) \
 {                                                                       \
-    return (int)RunFunctionFmt(my_context, my_glyph_fct_##A, "ppuupp", a, b, c, d, e, f);   \
+    return (int)RunFunctionFmt(my_glyph_fct_##A, "ppuupp", a, b, c, d, e, f);   \
 }
 SUPER()
 #undef GO
@@ -744,7 +744,7 @@ static void* find_glyph_Fct(void* fct)
 static uintptr_t my_glyph_name_fct_##A = 0; \
 static int my_glyph_name_##A(void* a, void* b, uint32_t c, void* d, uint32_t e, void* f)    \
 {                                           \
-    return (int)RunFunctionFmt(my_context, my_glyph_name_fct_##A, "ppupup", a, b, c, d, e, f);  \
+    return (int)RunFunctionFmt(my_glyph_name_fct_##A, "ppupup", a, b, c, d, e, f);  \
 }
 SUPER()
 #undef GO
@@ -767,7 +767,7 @@ static void* find_glyph_name_Fct(void* fct)
 static uintptr_t my_glyph_shape_fct_##A = 0;                           \
 static void my_glyph_shape_##A(void* a, void* b, uint32_t c, void* d, void* e, void* f) \
 {                                                                       \
-    RunFunctionFmt(my_context, my_glyph_shape_fct_##A, "ppuppp", a, b, c, d, e, f);   \
+    RunFunctionFmt(my_glyph_shape_fct_##A, "ppuppp", a, b, c, d, e, f);   \
 }
 SUPER()
 #undef GO
@@ -790,7 +790,7 @@ static void* find_glyph_shape_Fct(void* fct)
 static uintptr_t my_nominal_glyph_fct_##A = 0;  \
 static int my_nominal_glyph_##A(void* a, void* b, uint32_t c, void* d, void* e) \
 {                                               \
-    return (int)RunFunctionFmt(my_context, my_nominal_glyph_fct_##A, "ppupp", a, b, c, d, e);   \
+    return (int)RunFunctionFmt(my_nominal_glyph_fct_##A, "ppupp", a, b, c, d, e);   \
 }
 SUPER()
 #undef GO
@@ -818,7 +818,7 @@ static void* find_nominal_glyph_Fct(void* fct)
 static uintptr_t my_nominal_glyphs_fct_##A = 0; \
 static uint32_t my_nominal_glyphs_##A(void* a, void* b, uint32_t c, void* d, uint32_t e, void* f, uint32_t g, void* h)  \
 {                                               \
-    return (uint32_t)RunFunctionFmt(my_context, my_nominal_glyphs_fct_##A, "ppupupup", a, b, c, d, e, f, g, h); \
+    return (uint32_t)RunFunctionFmt(my_nominal_glyphs_fct_##A, "ppupupup", a, b, c, d, e, f, g, h); \
 }
 SUPER()
 #undef GO
@@ -841,7 +841,7 @@ static void* find_nominal_glyphs_Fct(void* fct)
 static uintptr_t my_variation_glyph_fct_##A = 0;\
 static int my_variation_glyph_##A(void* a, void* b, uint32_t c, uint32_t d, void* e, void* f) \
 {                                               \
-    return (int)RunFunctionFmt(my_context, my_variation_glyph_fct_##A, "ppuupp", a, b, c, d, e, f);   \
+    return (int)RunFunctionFmt(my_variation_glyph_fct_##A, "ppuupp", a, b, c, d, e, f);   \
 }
 SUPER()
 #undef GO
@@ -864,7 +864,7 @@ static void* find_variation_glyph_Fct(void* fct)
 static uintptr_t my_destroy_fct_##A = 0;                    \
 static void my_destroy_##A(void* a)                         \
 {                                                           \
-    RunFunctionFmt(my_context, my_destroy_fct_##A, "p", a); \
+    RunFunctionFmt(my_destroy_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO

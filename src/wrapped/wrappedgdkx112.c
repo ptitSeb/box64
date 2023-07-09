@@ -40,7 +40,7 @@ GO(3)
 static uintptr_t my_filter_fct_##A = 0;                                                    \
 static int my_filter_##A(void* xevent, void* event, void* data)                            \
 {                                                                                          \
-    return (int)RunFunctionFmt(my_context, my_filter_fct_##A, "ppp", xevent, event, data); \
+    return (int)RunFunctionFmt(my_filter_fct_##A, "ppp", xevent, event, data); \
 }
 SUPER()
 #undef GO
@@ -61,7 +61,7 @@ static void* findFilterFct(void* fct)
 
 static void my_event_handler(void* event, my_signal_t* sig)
 {
-    RunFunctionFmt(my_context, sig->c_handler, "pp", event, sig->data);
+    RunFunctionFmt(sig->c_handler, "pp", event, sig->data);
 }
 
 EXPORT void my_gdk_event_handler_set(x64emu_t* emu, void* func, void* data, void* notify)
@@ -76,7 +76,7 @@ EXPORT void my_gdk_event_handler_set(x64emu_t* emu, void* func, void* data, void
 
 static void my_input_function(my_signal_t* sig, int source, int condition)
 {
-    RunFunctionFmt(my_context, sig->c_handler, "pii", sig->data, source, condition);
+    RunFunctionFmt(sig->c_handler, "pii", sig->data, source, condition);
 }
 
 EXPORT int my_gdk_input_add(x64emu_t* emu, int source, int condition, void* f, void* data)

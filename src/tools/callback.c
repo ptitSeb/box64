@@ -14,11 +14,10 @@
 #include "dynarec.h"
 
 EXPORTDYN
-uint64_t RunFunction(box64context_t *context, uintptr_t fnc, int nargs, ...)
+uint64_t RunFunction(x64emu_t *emu, uintptr_t fnc, int nargs, ...)
 {
-    (void)context;
-
-    x64emu_t *emu = thread_get_emu();
+    if(!emu)
+        emu = thread_get_emu();
     int align = (nargs>6)?(((nargs-6)&1)):0;
     int stackn = align + ((nargs>6)?(nargs-6):0);
 
@@ -56,10 +55,8 @@ uint64_t RunFunction(box64context_t *context, uintptr_t fnc, int nargs, ...)
 }
 
 EXPORTDYN
-uint64_t RunFunctionFmt(box64context_t *context, uintptr_t fnc, const char* fmt, ...)
+uint64_t RunFunctionFmt(uintptr_t fnc, const char* fmt, ...)
 {
-    (void)context;
-
     x64emu_t *emu = thread_get_emu();
     int nargs = 0;
     int ni = 0;
@@ -149,11 +146,10 @@ uint64_t RunFunctionFmt(box64context_t *context, uintptr_t fnc, const char* fmt,
 }
 
 EXPORTDYN
-uint64_t RunSafeFunction(box64context_t *context, uintptr_t fnc, int nargs, ...)
+uint64_t RunSafeFunction(uintptr_t fnc, int nargs, ...)
 {
-    (void)context;
+    x64emu_t * emu = thread_get_emu();
 
-    x64emu_t *emu = thread_get_emu();
     int align = (nargs>6)?(((nargs-6)&1)):0;
     int stackn = align + ((nargs>6)?(nargs-6):0);
 
@@ -258,10 +254,8 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
 }
 
 EXPORTDYN
-uint64_t RunFunctionWindows(box64context_t *context, uintptr_t fnc, int nargs, ...)
+uint64_t RunFunctionWindows(uintptr_t fnc, int nargs, ...)
 {
-    (void)context;
-
     x64emu_t *emu = thread_get_emu();
     int align = (nargs>4)?(((nargs-4)&1)):0;
     int stackn = align + ((nargs>4)?(nargs-4):0);

@@ -37,7 +37,7 @@ GO(3)
 static uintptr_t my_VAMessageCallback_fct_##A = 0;                          \
 static void my_VAMessageCallback_##A(void* a, void* b)                      \
 {                                                                           \
-    RunFunctionFmt(my_context, my_VAMessageCallback_fct_##A, "pp", a, b);   \
+    RunFunctionFmt(my_VAMessageCallback_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO

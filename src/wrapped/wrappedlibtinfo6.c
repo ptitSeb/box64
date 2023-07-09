@@ -38,7 +38,7 @@ GO(4)
 static uintptr_t my_putc_fct_##A = 0;                           \
 static int my_putc_##A(char c)                                  \
 {                                                               \
-    return (int)RunFunctionFmt(my_context, my_putc_fct_##A, "c", c); \
+    return (int)RunFunctionFmt(my_putc_fct_##A, "c", c);  \
 }
 SUPER()
 #undef GO

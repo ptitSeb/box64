@@ -50,7 +50,7 @@ GO(3)
 static uintptr_t my_async_fct_##A = 0;                                          \
 static void* my_async_##A(void* handler)                                        \
 {                                                                               \
-    return (void*)RunFunctionFmt(my_context, my_async_fct_##A, "p", handler);   \
+    return (void*)RunFunctionFmt(my_async_fct_##A, "p", handler);         \
 }
 SUPER()
 #undef GO
@@ -72,7 +72,7 @@ static void* findAsyncFct(void* fct)
 static uintptr_t my_elem_fct_##A = 0;                                           \
 static int my_elem_##A(void* elem, uint32_t mask)                               \
 {                                                                               \
-    return (int)RunFunctionFmt(my_context, my_elem_fct_##A, "pu", elem, mask);  \
+    return (int)RunFunctionFmt(my_elem_fct_##A, "pu", elem, mask);        \
 }
 SUPER()
 #undef GO
