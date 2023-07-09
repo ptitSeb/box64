@@ -917,7 +917,7 @@ int GatherEnv(char*** dest, char** env, char* prog)
         (*dest)[idx++] = box_strdup("BOX64_PATH=.:bin");
     }
     if(!ld_path) {
-        (*dest)[idx++] = box_strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64");
+        (*dest)[idx++] = box_strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64:x86_64:bin64:libs64");
     }
     // add "_=prog" at the end...
     if(prog) {
@@ -1045,6 +1045,7 @@ void LoadEnvVars(box64context_t *context)
     AddPath("libcrypto.so.1", &context->box64_emulated_libs, 0);
     AddPath("libcrypto.so.1.0.0", &context->box64_emulated_libs, 0);
     AddPath("libunwind.so.8", &context->box64_emulated_libs, 0);
+    AddPath("libpng12.so.0", &context->box64_emulated_libs, 0);
 
     if(getenv("BOX64_SSE_FLUSHTO0")) {
         if (strcmp(getenv("BOX64_SSE_FLUSHTO0"), "1")==0) {
@@ -1744,7 +1745,7 @@ int main(int argc, const char **argv, char **env) {
         for(int i=0; i<ld_preload.size; ++i) {
             needed_libs_t* tmp = new_neededlib(1);
             tmp->names[0] = ld_preload.paths[i];
-            if(AddNeededLib(my_context->maplib, 0, 0, tmp, my_context, emu)) {
+            if(AddNeededLib(my_context->maplib, 0, 0, tmp, elf_header, my_context, emu)) {
                 printf_log(LOG_INFO, "Warning, cannot pre-load of %s\n", tmp->names[0]);
                 RemoveNeededLib(my_context->maplib, 0, tmp, my_context, emu);
             } else {

@@ -15,7 +15,7 @@ typedef struct elfheader_s     elfheader_t;
 #define LIB_EMULATED    1
 #define LIB_UNNKNOW     -1
 
-library_t *NewLibrary(const char* path, box64context_t* box64);
+library_t *NewLibrary(const char* path, box64context_t* box64, elfheader_t* verneeded);
 int AddSymbolsLibrary(lib_t* maplib, library_t* lib, x64emu_t* emu);
 int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x64emu_t* emu);
 

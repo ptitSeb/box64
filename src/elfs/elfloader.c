@@ -374,6 +374,23 @@ int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
     return 0;
 }
 
+int isElfHasNeededVer(elfheader_t* head, const char* libname, elfheader_t* verneeded)
+{
+    if(!verneeded || !head)
+        return 1;
+    if(!head->VerDef || !verneeded->VerNeed)
+        return 1;
+    int cnt = GetNeededVersionCnt(verneeded, libname);
+    for (int i=0; i<cnt; ++i) {
+        const char* vername = GetNeededVersionString(verneeded, libname, i);
+        if(vername && !GetVersionIndice(head, vername)) {
+            printf_log(/*LOG_DEBUG*/LOG_INFO, "Discarding %s for missing version %s\n", head->path, vername);
+            return 0;   // missing version
+        }
+    }
+    return 1;
+}
+
 int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
 {
     (void)context;
@@ -1201,7 +1218,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, box64c
             h->needed->names[j++] = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
 
     // TODO: Add LD_LIBRARY_PATH and RPATH handling
-    if(AddNeededLib(maplib, local, bindnow, h->needed, box64, emu)) {
+    if(AddNeededLib(maplib, local, bindnow, h->needed, h, box64, emu)) {
         printf_log(LOG_INFO, "Error loading one of needed lib\n");
         if(!allow_missing_libs)
             return 1;   //error...

@@ -177,7 +177,7 @@ int isLibLocal(library_t* lib)
     return libraryInMapLib(my_context->local_maplib, lib);
 }
 
-int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, box64context_t* box64, x64emu_t* emu)
+static int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu)
 {
     const char* path = needed->names[n];
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib%s\n", path, local?" (local)":"");
@@ -213,7 +213,7 @@ int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, box
         return 0;
     }
     // load a new one
-    needed->libs[n] = lib = NewLibrary(path, box64);
+    needed->libs[n] = lib = NewLibrary(path, box64, verneeded);
     if(!lib) {
         printf_log(LOG_DEBUG, "Faillure to create lib => fail\n");
         return 1;   //Error
@@ -257,7 +257,7 @@ int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, box
     return 0;
 }
 
-int AddNeededLib_init(lib_t* maplib, int local, int bindnow, library_t* lib, box64context_t* box64, x64emu_t* emu)
+int AddNeededLib_init(lib_t* maplib, int local, int bindnow, library_t* lib, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu)
 {
     if(!lib)    // no lib, error is already detected, no need to return a new one
         return 0;
@@ -283,7 +283,7 @@ int AddNeededLib_init(lib_t* maplib, int local, int bindnow, library_t* lib, box
             tmp.size = tmp.cap = 1;
             tmp.names = names;
             tmp.libs = libs;
-            AddNeededLib(maplib, 0, 0, &tmp, box64, emu);
+            AddNeededLib(maplib, 0, 0, &tmp, verneeded, box64, emu);
         }
         if(!strcmp(GetNameLib(lib), "libmss.so.6")) {
             char* names[] = {"libSDL-1.2.so.0", "libdl.so.2"}; // TODO: they will never be uninit...
@@ -292,7 +292,7 @@ int AddNeededLib_init(lib_t* maplib, int local, int bindnow, library_t* lib, box
             tmp.size = tmp.cap = 2;
             tmp.names = names;
             tmp.libs = libs;
-            AddNeededLib(maplib, 0, 0, &tmp, box64, emu);
+            AddNeededLib(maplib, 0, 0, &tmp, verneeded, box64, emu);
         }
 
         // finalize the lib
@@ -318,7 +318,7 @@ void AddNeededLib_remove(lib_t* maplib, int local, library_t** lib, box64context
 }
 
 EXPORTDYN
-int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, box64context_t* box64, x64emu_t* emu)
+int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu)
 {
     if(!needed) // no needed libs, no problems
         return 0;
@@ -326,7 +326,7 @@ int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, b
     int ret = 0;
     // Add libs and symbol
     for(int i=0; i<needed->size; ++i) {
-        if(AddNeededLib_add(maplib, local, needed, i, box64, emu)) {
+        if(AddNeededLib_add(maplib, local, needed, i, verneeded, box64, emu)) {
             printf_log(strchr(needed->names[i],'/')?LOG_DEBUG:LOG_INFO, "Error loading needed lib %s\n", needed->names[i]);
             ret = 1;
         }
@@ -337,7 +337,7 @@ int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, b
     }
     // add dependant libs and init them
     for (int i=0; i<needed->size; ++i)
-        if(AddNeededLib_init(maplib, local, bindnow, needed->libs[i], box64, emu)) {
+        if(AddNeededLib_init(maplib, local, bindnow, needed->libs[i], verneeded, box64, emu)) {
             printf_log(LOG_INFO, "Error initializing needed lib %s\n", needed->names[i]);
             if(!allow_missing_libs) ret = 1;
         }

@@ -217,7 +217,7 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
             lib->type = LIB_WRAPPED;
             lib->w.refcnt = 1;
             // Call librarian to load all dependant elf
-            if(AddNeededLib(context->maplib, 0, 0, lib->w.needed, context, thread_get_emu())) {
+            if(AddNeededLib(context->maplib, 0, 0, lib->w.needed, NULL, context, thread_get_emu())) {
                 printf_log(LOG_NONE, "Error: loading a needed libs in elf %s\n", lib->name);
                 return;
             }
@@ -240,7 +240,7 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
     }
 }
 
-static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* context)
+static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* context, elfheader_t* verneeded)
 {
     if(FileExist(libname, IS_FILE))
     {
@@ -255,28 +255,36 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
             fclose(f);
             return 0;
         }
-        int mainelf = AddElfHeader(context, elf_header);
 
         if(CalcLoadAddr(elf_header)) {
             printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
+            FreeElfHeader(&elf_header);
             fclose(f);
             return 0;
         }
         // allocate memory
         if(AllocElfMemory(context, elf_header, 0)) {
             printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", libname);
+            FreeElfHeader(&elf_header);
             fclose(f);
             return 0;
         }
         // Load elf into memory
         if(LoadElfMemory(f, context, elf_header)) {
             printf_log(LOG_NONE, "Error: loading in memory elf %s\n", libname);
+            FreeElfHeader(&elf_header);
             fclose(f);
             return 0;
         }
         // can close the file now
         fclose(f);
+        if(verneeded && !isElfHasNeededVer(elf_header, lib->name, verneeded)) {
+            // incompatible, discard and continue the search
+            FreeElfHeader(&elf_header);
+            return 0;
+        }
 
+        int mainelf = AddElfHeader(context, elf_header);
         ElfAttachLib(elf_header, lib);
 
         lib->type = LIB_EMULATED;
@@ -316,13 +324,13 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
     return 0;
 }
 
-static void initEmulatedLib(const char* path, library_t *lib, box64context_t* context)
+static void initEmulatedLib(const char* path, library_t *lib, box64context_t* context, elfheader_t* verneeded)
 {
     char libname[MAX_PATH];
     strcpy(libname, path);
     int found = FileIsX64ELF(libname);
     if(found)
-        if(loadEmulatedLib(libname, lib, context))
+        if(loadEmulatedLib(libname, lib, context, verneeded))
             return;
     if(!strchr(path, '/'))
         for(int i=0; i<context->box64_ld_lib.size; ++i)
@@ -330,7 +338,7 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
             strcpy(libname, context->box64_ld_lib.paths[i]);
             strcat(libname, path);
             if(FileIsX64ELF(libname))
-                if(loadEmulatedLib(libname, lib, context))
+                if(loadEmulatedLib(libname, lib, context, verneeded))
                     return;
         }
 }
@@ -353,7 +361,7 @@ static int isEssentialLib(const char* name) {
     return 0;
 }
 
-library_t *NewLibrary(const char* path, box64context_t* context)
+library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* verneeded)
 {
     printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     library_t *lib = (library_t*)box_calloc(1, sizeof(library_t));
@@ -399,7 +407,7 @@ library_t *NewLibrary(const char* path, box64context_t* context)
         initWrappedLib(lib, context);
     // then look for a native one
     if(lib->type==LIB_UNNKNOW)
-        initEmulatedLib(path, lib, context);
+        initEmulatedLib(path, lib, context, verneeded);
     // still not loaded but notwrapped indicated: use wrapped...
     if(lib->type==LIB_UNNKNOW && notwrapped && !precise)
         initWrappedLib(lib, context);

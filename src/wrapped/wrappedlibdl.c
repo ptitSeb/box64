@@ -177,7 +177,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         int bindnow = (!box64_musl && (flag&0x2))?1:0;
         needed_libs_t *tmp = new_neededlib(1);
         tmp->names[0] = rfilename;
-        if(AddNeededLib(NULL, is_local, bindnow, tmp, my_context, emu)) {
+        if(AddNeededLib(NULL, is_local, bindnow, tmp, NULL, my_context, emu)) {
             printf_dlsym(strchr(rfilename,'/')?LOG_DEBUG:LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
                 dl->last_error = box_malloc(129);
