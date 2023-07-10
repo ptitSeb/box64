@@ -560,6 +560,22 @@ EXPORT int my_dbus_connection_try_register_object_path(x64emu_t* emu, void* conn
     return my->dbus_connection_try_register_object_path(connection, path, vtable?&vt:NULL, data, error);
 }
 
+EXPORT int my_dbus_connection_register_fallback(x64emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data)
+{
+    (void)emu;
+    my_DBusObjectPathVTable_t vt = {0};
+    if(vtable) {
+        vt.unregister_function = findDBusObjectPathUnregisterFunctionFct(vtable->unregister_function);
+        vt.message_function = findDBusObjectPathMessageFunctionFct(vtable->message_function);
+        vt.pad1 = finddbus_internal_padFct(vtable->pad1);
+        vt.pad2 = finddbus_internal_padFct(vtable->pad2);
+        vt.pad3 = finddbus_internal_padFct(vtable->pad3);
+        vt.pad4 = finddbus_internal_padFct(vtable->pad4);
+    }
+
+    return my->dbus_connection_register_fallback(connection, path, vtable?&vt:NULL, data);
+}
+
 EXPORT int my_dbus_connection_set_data(x64emu_t* emu, void* connection, int slot, void* data, void* free_func)
 {
     (void)emu;

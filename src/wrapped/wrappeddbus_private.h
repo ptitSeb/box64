@@ -54,7 +54,7 @@ GO(dbus_connection_preallocate_send, pFp)
 GO(dbus_connection_read_write, iFpi)
 GO(dbus_connection_read_write_dispatch, iFpi)
 GO(dbus_connection_ref, pFp)
-//GO(dbus_connection_register_fallback, 
+GOM(dbus_connection_register_fallback, iFEpppp)
 //GO(dbus_connection_register_object_path, 
 GOM(dbus_connection_remove_filter, vFEppp)
 GO(dbus_connection_return_message, vFpp)

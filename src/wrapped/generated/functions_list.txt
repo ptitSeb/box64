@@ -2965,6 +2965,7 @@ wrappeddbus:
   - dbus_message_get_args_valist
 - iFpppp:
   - dbus_connection_add_filter
+  - dbus_connection_register_fallback
   - dbus_pending_call_set_notify
 - iFppppp:
   - dbus_connection_try_register_fallback

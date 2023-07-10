@@ -38,6 +38,7 @@ typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 	GO(dbus_message_get_args, iFppip_t) \
 	GO(dbus_message_get_args_valist, iFppiA_t) \
 	GO(dbus_connection_add_filter, iFpppp_t) \
+	GO(dbus_connection_register_fallback, iFpppp_t) \
 	GO(dbus_pending_call_set_notify, iFpppp_t) \
 	GO(dbus_connection_try_register_fallback, iFppppp_t) \
 	GO(dbus_connection_try_register_object_path, iFppppp_t) \
