@@ -129,9 +129,9 @@ private:
     std::string GenCallbackWrap(clang::ASTContext* Ctx, const RecordInfo& Struct);
 
     void ParseRecordRecursive(clang::ASTContext* Ctx, const clang::Type* Type, bool& Special, std::set<const clang::Type*>& Visited);
-    std::string TypeStringify(const clang::Type* Type, clang::FieldDecl* FieldDecl, clang::ParmVarDecl* ParmDecl, std::string indent = "", std::string Name = "");
+    std::string TypeStringify(const clang::Type* Type, clang::FieldDecl* FieldDecl, clang::ParmVarDecl* ParmDecl, std::string& PreDecl, std::string indent = "", std::string Name = "");
     std::string SimpleTypeStringify(const clang::Type* Type, clang::FieldDecl* FieldDecl, clang::ParmVarDecl* ParmDecl, std::string indent = "", std::string Name = "");
-    std::string AnonRecordDecl(const clang::RecordType* Type, std::string indent);
+    std::string AnonRecordDecl(const clang::RecordType* Type, std::string& PreDecl, std::string indent);
     std::string SimpleAnonRecordDecl(const clang::RecordType* Type, std::string indent);
     FuncDefinition GetFuncDefinition(const clang::Type* Type);
     FuncDefinition GetFuncDefinition(clang::FunctionDecl* Decl);

@@ -25,11 +25,15 @@
 #include "gen.h"
 #include "utils.h"
 
-static void ParseParameter(clang::ASTContext* AST, WrapperGenerator* Gen, clang::ParmVarDecl* Decl, FuncInfo* Func) {
+static void ParseParameter(clang::ASTContext* AST, WrapperGenerator* Gen, clang::QualType ParmType, FuncInfo* Func) {
     using namespace clang;
     (void)AST; (void)Func;
-    auto ParmType = Decl->getType();
-    if (ParmType->isPointerType()) {
+    if (ParmType->isFunctionPointerType()) {
+        auto ProtoType = ParmType->getPointeeType()->getAs<FunctionProtoType>();
+        for (unsigned i = 0; i < ProtoType->getNumParams(); i++) {
+            ParseParameter(AST, Gen, ProtoType->getParamType(i), Func);
+        }
+    } else if (ParmType->isPointerType()) {
         auto PointeeType = ParmType->getPointeeType();
         if (PointeeType->isRecordType()) {
             if (Gen->records.find(StripTypedef(PointeeType)) == Gen->records.end()) {
@@ -91,7 +95,7 @@ static void ParseFunction(clang::ASTContext* AST, WrapperGenerator* Gen, clang::
         } else {
             FuncInfo->callback_args[i] = nullptr;
         }
-        ParseParameter(AST, Gen, ParmDecl, FuncInfo);
+        ParseParameter(AST, Gen, ParmDecl->getType(), FuncInfo);
     }
 }
 
