@@ -2846,6 +2846,7 @@ wrappedbz2:
   - BZ2_bzCompressInit
 wrappedcairo:
 wrappedcairogobject:
+wrappedcap:
 wrappedcrashhandler:
 wrappedcrypto:
 - vFp:
@@ -3403,6 +3404,7 @@ wrappedgobject2:
   - g_signal_newv
 - uFpLippppLuA:
   - g_signal_new_valist
+wrappedgomp:
 wrappedgssapi:
 wrappedgssapikrb5:
 wrappedgstapp:
