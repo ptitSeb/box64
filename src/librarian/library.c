@@ -340,6 +340,13 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
             if(FileIsX64ELF(libname))
                 if(loadEmulatedLib(libname, lib, context, verneeded))
                     return;
+            // also try x86_64 variant
+            strcpy(libname, context->box64_ld_lib.paths[i]);
+            strcat(libname, "x86_64/");
+            strcat(libname, path);
+            if(FileIsX64ELF(libname))
+                if(loadEmulatedLib(libname, lib, context, verneeded))
+                    return;            
         }
 }
 
