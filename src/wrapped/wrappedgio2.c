@@ -26,7 +26,8 @@ const char* gio2Name = "libgio-2.0.so.0";
 typedef size_t(*LFv_t)(void);
 
 #define ADDED_FUNCTIONS() \
- GO(g_application_get_type, LFv_t)           \
+ GO(g_application_get_type, LFv_t)          \
+ GO(g_dbus_proxy_get_type, LFv_t)           \
 
 #include "wrappedgio2types.h"
 
@@ -577,7 +578,17 @@ EXPORT void my_g_simple_async_result_set_error(x64emu_t* emu, void* simple, void
 
 EXPORT void* my_g_initable_new(x64emu_t* emu, void* type, void* cancel, void* err, void* first, uintptr_t* b)
 {
-    myStackAlign(emu, first, b, emu->scratch, R_EAX, 4);
+    // look for number of pairs
+    int n = 1;
+    emu->scratch[0] = (uint64_t)first;
+    emu->scratch[1] = getVArgs(emu, 4, b, 0);
+    while(getVArgs(emu, 4, b, n)) {
+        emu->scratch[n+1] = getVArgs(emu, 4, b, n);
+        emu->scratch[n+2] = getVArgs(emu, 4, b, n+1);
+        n+=2;
+    }
+    emu->scratch[n+1] = 0;
+    emu->scratch[n+2] = 0;
     PREPARE_VALIST;
     return my->g_initable_new_valist(type, first, VARARGS, cancel, err);
 }
@@ -606,8 +617,9 @@ EXPORT void my_g_task_return_new_error(x64emu_t* emu, void* task, uint32_t domai
         return -1;
 
 #define CUSTOM_INIT \
-    getMy(lib);                         \
-    SetGApplicationID(my->g_application_get_type());            \
+    getMy(lib);                                         \
+    SetGApplicationID(my->g_application_get_type());    \
+    SetGDBusProxyID(my->g_dbus_proxy_get_type());       \
     setNeededLibs(lib, 1, "libgmodule-2.0.so.0");
 
 #define CUSTOM_FINI \

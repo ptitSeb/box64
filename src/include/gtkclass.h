@@ -778,7 +778,7 @@ typedef struct my_GstAllocatorClass_s {
   void*    _gst_reserved[4];
 } my_GstAllocatorClass_t;
 
-typedef struct my__GstTaskPoolClass {
+typedef struct my_GstTaskPoolClass_s {
   my_GstObjectClass_t parent_class;
   void      (*prepare)  (void* pool, void* error);
   void      (*cleanup)  (void* pool);
@@ -787,6 +787,13 @@ typedef struct my__GstTaskPoolClass {
   void      (*dispose_handle) (void* pool, void* id);
   void*     _gst_reserved[4-1];
 } my_GstTaskPoolClass_t;
+
+typedef struct my_GDBusProxyClass_s {
+  my_GObjectClass_t parent_class;
+  void (*g_properties_changed) (void* proxy, void* changed_properties, const char* const* invalidated_properties);
+  void (*g_signal)             (void* proxy, const char* sender_name, const char* signal_name, void* parameters);
+  void* padding[32];
+} my_GDBusProxyClass_t;
 
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
@@ -894,6 +901,7 @@ GTKCLASS(AtkUtil)                   \
 GTKCLASS(GstObject)                 \
 GTKCLASS(GstAllocator)              \
 GTKCLASS(GstTaskPool)               \
+GTKCLASS(GDBusProxy)                \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);
 GTKCLASSES()

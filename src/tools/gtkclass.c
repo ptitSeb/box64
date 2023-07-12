@@ -2440,6 +2440,41 @@ static void bridgeGstTaskPoolClass(my_GstTaskPoolClass_t* class)
 
 #undef SUPERGO
 
+// ----- GDBusProxyClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GDBusProxy, g_properties_changed, void, (void* proxy, void* changed_properties, const char* const* invalidated_properties), "ppp", proxy, changed_properties, invalidated_properties);
+WRAPPER(GDBusProxy, g_signal, void,             (void* proxy, const char* sender_name, const char* signal_name, void* parameters), "pppp", proxy, sender_name, signal_name, parameters);
+
+#define SUPERGO()                   \
+    GO(g_properties_changed, vFppp);\
+    GO(g_signal, vFpppp);           \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGDBusProxyClass(my_GDBusProxyClass_t* class)
+{
+    wrapGObjectClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GDBusProxy (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGDBusProxyClass(my_GDBusProxyClass_t* class)
+{
+    unwrapGObjectClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GDBusProxy (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGDBusProxyClass(my_GDBusProxyClass_t* class)
+{
+    bridgeGObjectClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GDBusProxy (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
 
 // No more wrap/unwrap
 #undef WRAPPER
@@ -2457,7 +2492,8 @@ static void wrapGTKClass(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "wrapGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    {
+    if(type==8) {}  // GInterface have no structure
+    else {
         if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
             my_MetaFrames2 = type;
             wrapMetaFrames2Class((my_MetaFrames2Class_t*)cl);
@@ -2476,6 +2512,8 @@ static void unwrapGTKClass(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "unwrapGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
+    if(type==8) {}  // GInterface have no structure
+    else
     {}  // else no warning, one is enough...
     #undef GTKCLASS
 }
@@ -2489,7 +2527,8 @@ static void bridgeGTKClass(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "bridgeGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    {
+    if(type==8) {}  // GInterface have no structure
+    else {
         printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type %zd (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
@@ -2519,7 +2558,8 @@ void* unwrapCopyGTKClass(void* klass, size_t type)
     size_t sz = 0;
     #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
     GTKCLASSES()
-    {
+    if(type==8) {}  // GInterface have no structure
+    else {
         printf_log(LOG_NONE, "Warning, unwrapCopyGTKClass called with unknown class type %zu (%s)\n", type, g_type_name(type));
         return klass;
     }
@@ -2556,7 +2596,8 @@ void* wrapCopyGTKClass(void* klass, size_t type)
     int sz = 0;
     #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
     GTKCLASSES()
-    {
+    if(type==8) {}  // GInterface have no structure
+    else {
         if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
             my_MetaFrames2 = type;
             sz = sizeof(my_MetaFrames2Class_t);
