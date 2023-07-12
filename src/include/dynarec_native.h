@@ -12,10 +12,10 @@ typedef struct instsize_s instsize_t;
 #define dynaRealloc customRealloc
 #define dynaFree customFree
 #else
-#define dynaMalloc malloc
-#define dynaCalloc calloc
-#define dynaRealloc realloc
-#define dynaFree free
+#define dynaMalloc box_malloc
+#define dynaCalloc box_calloc
+#define dynaRealloc box_realloc
+#define dynaFree box_free
 #endif
 
 void addInst(instsize_t* insts, size_t* size, int x64_size, int native_size);
