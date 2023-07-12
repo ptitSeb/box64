@@ -1192,12 +1192,14 @@ void setupTrace()
     }
 #endif
 }
+void endMallocHook();
 
 void endBox64()
 {
     if(!my_context || box64_quit)
         return;
-
+    
+    endMallocHook();
     x64emu_t* emu = thread_get_emu();
     // atexit first
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");

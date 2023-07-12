@@ -87,6 +87,7 @@ struct elfheader_s {
     int         init_done;
     int         fini_done;
     int         refcnt;     // ref count for the elf
+    int         malloc_hook_2;  // this elf hook malloc, hacking it
 
     char*       memory;     // char* and not void* to allow math on memory pointer
     void**      multiblock;

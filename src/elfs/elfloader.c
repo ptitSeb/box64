@@ -1263,6 +1263,7 @@ void MarkElfInitDone(elfheader_t* h)
     if(h)
         h->init_done = 1;
 }
+void startMallocHook();
 void RunElfInitPltResolver(elfheader_t* h, x64emu_t *emu)
 {
     if(!h || h->init_done)
@@ -1287,6 +1288,9 @@ void RunElfInitPltResolver(elfheader_t* h, x64emu_t *emu)
             RunSafeFunction((uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
         }
     }
+
+    if(h->malloc_hook_2)
+        startMallocHook();
 
     h->fini_done = 0;   // can be fini'd now (in case it was re-inited)
     printf_dump(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
@@ -1331,6 +1335,9 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
             RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, context->argc, context->argv, context->envv);
         }
     }
+
+    if(h->malloc_hook_2)
+        startMallocHook();
 
     h->fini_done = 0;   // can be fini'd now (in case it was re-inited)
     printf_dump(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));

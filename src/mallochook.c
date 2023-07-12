@@ -146,6 +146,9 @@ uint32_t getProtection(uintptr_t addr);
 // mmap history
 static int malloc_hack_2 = 0;
 
+#define ALLOC 0
+#define FREE 1
+
 char* box_strdup(const char* s) {
     char* ret = box_calloc(1, strlen(s)+1);
     memcpy(ret, s, strlen(s));
@@ -189,7 +192,7 @@ SUPER()
 // redefining all libc memory allocation routines
 EXPORT void* malloc(size_t l)
 {
-    if(malloc_hack_2 && real_malloc) {
+    if(malloc_hack_2 && ALLOC && real_malloc) {
         return (void*)RunFunctionFmt(real_malloc, "L", l);
     }
     return box_calloc(1, l);
@@ -197,7 +200,7 @@ EXPORT void* malloc(size_t l)
 
 EXPORT void free(void* p)
 {
-    if(malloc_hack_2 && p) {
+    if(malloc_hack_2 && FREE && p) {
         if(getMmapped((uintptr_t)p)) {
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
@@ -211,7 +214,7 @@ EXPORT void free(void* p)
 
 EXPORT void* calloc(size_t n, size_t s)
 {
-    if(malloc_hack_2 && real_calloc) {
+    if(malloc_hack_2 && ALLOC && real_calloc) {
         return (void*)RunFunctionFmt(real_calloc, "LL", n,s);
     }
     return box_calloc(n, s);
@@ -220,7 +223,7 @@ EXPORT void* calloc(size_t n, size_t s)
 EXPORT void* realloc(void* p, size_t s)
 {
     if(malloc_hack_2)
-        if(getMmapped((uintptr_t)p) || (!p && real_realloc)) {
+        if(getMmapped((uintptr_t)p) || (!p && ALLOC && real_realloc)) {
             void* ret = p;
             if(real_realloc) {
                 ret = (void*)RunFunctionFmt(real_realloc, "pL", p, s);
@@ -242,7 +245,7 @@ EXPORT void* realloc(void* p, size_t s)
 
 EXPORT void* aligned_alloc(size_t align, size_t size)
 {
-    if(malloc_hack_2 && real_aligned_alloc) {
+    if(malloc_hack_2 && ALLOC && real_aligned_alloc) {
         return (void*)RunFunctionFmt(real_aligned_alloc, "LL", align, size);
     }
     return box_memalign(align, size);
@@ -250,7 +253,7 @@ EXPORT void* aligned_alloc(size_t align, size_t size)
 
 EXPORT void* memalign(size_t align, size_t size)
 {
-    if(malloc_hack_2 && real_aligned_alloc) {
+    if(malloc_hack_2 && ALLOC && real_aligned_alloc) {
         return (void*)RunFunctionFmt(real_aligned_alloc, "LL", align, size);
     }
     return box_memalign(align, size);
@@ -258,7 +261,7 @@ EXPORT void* memalign(size_t align, size_t size)
 
 EXPORT int posix_memalign(void** p, size_t align, size_t size)
 {
-    if(malloc_hack_2 && real_posix_memalign) {
+    if(malloc_hack_2 && ALLOC && real_posix_memalign) {
         return RunFunctionFmt(real_posix_memalign, "pLL", p, align, size);
     }
     if(align%sizeof(void*) || pot(align)!=align)
@@ -272,7 +275,7 @@ EXPORT int posix_memalign(void** p, size_t align, size_t size)
 
 EXPORT void* valloc(size_t size)
 {
-    if(malloc_hack_2 && real_valloc) {
+    if(malloc_hack_2 && ALLOC && real_valloc) {
         return (void*)RunFunctionFmt(real_valloc, "L", size);
     }
     return box_memalign(box64_pagesize, size);
@@ -280,7 +283,7 @@ EXPORT void* valloc(size_t size)
 
 EXPORT void* pvalloc(size_t size)
 {
-    if(malloc_hack_2 && real_pvalloc) {
+    if(malloc_hack_2 && ALLOC && real_pvalloc) {
         return (void*)RunFunctionFmt(real_pvalloc, "L", size);
     }
     return box_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
@@ -288,7 +291,7 @@ EXPORT void* pvalloc(size_t size)
 
 EXPORT void cfree(void* p)
 {
-    if(malloc_hack_2 && p) {
+    if(malloc_hack_2 && FREE && p) {
         if(getMmapped((uintptr_t)p)) {
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
@@ -303,7 +306,8 @@ EXPORT void cfree(void* p)
 EXPORT size_t malloc_usable_size(void* p)
 {
     if(malloc_hack_2 && real_malloc_usable_size) {
-        return RunFunctionFmt(real_malloc_usable_size, "p", p);
+        if(getMmapped((uintptr_t)p))
+            return RunFunctionFmt(real_malloc_usable_size, "p", p);
     }
     return box_malloc_usable_size(p);
 }
@@ -766,7 +770,7 @@ typedef struct simple_jmp_s {
 
 static void addRelocJmp(void* offs, void* where, size_t size, const char* name, elfheader_t* h, uintptr_t *real)
 {
-    if(malloc_hack_2 && !*real) {
+    if(real && !*real) {
         *real = (uintptr_t)offs;
     }
     addAlternate(offs, where);
@@ -808,7 +812,7 @@ void checkHookedSymbols(elfheader_t* h)
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             size_t sz = h->DynSym[i].st_size;
             if(bind!=STB_LOCAL && bind!=STB_WEAK) {
-                #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, &real_##A);}
+                #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, NULL);}
                 #define GO2(A, B)
                 SUPER()
                 #undef GO
@@ -822,7 +826,16 @@ void checkHookedSymbols(elfheader_t* h)
         }
     }
     if(box64_malloc_hack==2)
-        malloc_hack_2 = 1;
+        h->malloc_hook_2 = 1;
+}
+
+void startMallocHook()
+{
+    malloc_hack_2 = 1;
+}
+void endMallocHook()
+{
+    malloc_hack_2 = 0;
 }
 
 EXPORT int my___TBB_internal_find_original_malloc(int n, char* names[], void* ptr[])
