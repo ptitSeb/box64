@@ -59,5 +59,11 @@ int main(int argc, const char* argv[]) {
     std::string err;
     auto compile_db = clang::tooling::FixedCompilationDatabase::loadFromCommandLine(argc, argv, err);
     clang::tooling::ClangTool Tool(*compile_db, {argv[1]});
+    Tool.appendArgumentsAdjuster([&guest_triple](const clang::tooling::CommandLineArguments &args, clang::StringRef) {
+        clang::tooling::CommandLineArguments adjusted_args = args;
+        adjusted_args.push_back(std::string{"-target"});
+        adjusted_args.push_back(guest_triple);
+        return adjusted_args;
+    });
     return Tool.run(std::make_unique<MyFrontendActionFactory>(libname, host_triple, guest_triple).get());
 }
