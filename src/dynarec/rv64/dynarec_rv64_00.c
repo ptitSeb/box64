@@ -25,8 +25,6 @@
 #include "dynarec_rv64_functions.h"
 #include "dynarec_rv64_helper.h"
 
-int isSimpleWrapper(wrapper_t fun);
-
 uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t opcode;

@@ -867,6 +867,19 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			simple_wraps[k] = tmp
 	simple_idxs = sorted(simple_wraps.keys(), key=lambda x: Clauses(x).splitdef())
 	
+	retx87_wraps: Dict[ClausesStr, List[Tuple[FunctionType, int]]] = {}
+	return_x87: str = "DK"
+	def check_return_x87(v: FunctionType) -> bool:
+		if v[0] in return_x87:
+			return True
+		return False
+
+	for k in gbls:
+		tmp = [ (v, ret_val) for v, ret_val in map(lambda v: (v, check_return_x87(v)), gbls[k]) if ret_val is not False ]
+		if tmp:
+			retx87_wraps[k] = tmp
+	retx87_idxs = sorted(retx87_wraps.keys(), key=lambda x: Clauses(x).splitdef())
+
 	# Now the files rebuilding part
 	# File headers and guards
 	files_header = {
@@ -1377,6 +1390,16 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				file.write("#if " + k + "\n")
 			for vf, val in simple_wraps[k]:
 				file.write("\tif (fun == &" + vf + ") return " + str(val) + ";\n")
+			if k != str(Clauses()):
+				file.write("#endif\n")
+		file.write("\treturn 0;\n}\n")
+		# Write the isRetX87Wrapper function
+		file.write("\nint isRetX87Wrapper(wrapper_t fun) {\n")
+		for k in retx87_idxs:
+			if k != str(Clauses()):
+				file.write("#if " + k + "\n")
+			for vf, val in retx87_wraps[k]:
+				file.write("\tif (fun == &" + vf + ") return 1;\n")
 			if k != str(Clauses()):
 				file.write("#endif\n")
 		file.write("\treturn 0;\n}\n")

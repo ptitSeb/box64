@@ -26,6 +26,7 @@
 #include "dynarec_rv64_helper.h"
 
 int isSimpleWrapper(wrapper_t fun);
+int isRetX87Wrapper(wrapper_t fun);
 
 uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
@@ -307,6 +308,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     // disabling isSimpleWrapper because all signed value less than 64bits needs to be sign extended
                     // and return value needs to be cleanned up
                     tmp = 0;//isSimpleWrapper(*(wrapper_t*)(addr));
+                    if(isRetX87Wrapper(*(wrapper_t*)(addr)))
+                        x87_do_push_empty(dyn, ninst, x3);
                     if(tmp<0 || tmp>1)
                         tmp=0;  //TODO: removed when FP is in place
                     if((box64_log<2 && !cycle_log) && tmp) {
@@ -655,6 +658,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         tmp=0;//isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
                         if(tmp>1 || tmp<0)
                             tmp=0;  // float paramters not ready!
+                        if(isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))
+                            x87_do_push_empty(dyn, ninst, x3);
                     } else
                         tmp=0;
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {

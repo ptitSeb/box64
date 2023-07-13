@@ -7455,3 +7455,21 @@ int isSimpleWrapper(wrapper_t fun) {
 #endif
 	return 0;
 }
+
+int isRetX87Wrapper(wrapper_t fun) {
+	if (fun == &DFDi) return 1;
+	if (fun == &DFDD) return 1;
+	if (fun == &DFDp) return 1;
+	if (fun == &DFpp) return 1;
+	if (fun == &DFppi) return 1;
+	if (fun == &DFppp) return 1;
+#if defined(HAVE_LD80BITS)
+	if (fun == &DFD) return 1;
+#endif
+#if !defined(HAVE_LD80BITS)
+	if (fun == &KFK) return 1;
+	if (fun == &KFKK) return 1;
+	if (fun == &KFKp) return 1;
+#endif
+	return 0;
+}

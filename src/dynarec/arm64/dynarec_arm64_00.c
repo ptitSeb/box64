@@ -25,6 +25,7 @@
 #include "dynarec_arm64_helper.h"
 
 int isSimpleWrapper(wrapper_t fun);
+int isRetX87Wrapper(wrapper_t fun);
 
 uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
@@ -1901,6 +1902,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
                     tmp = isSimpleWrapper(*(wrapper_t*)(addr));
+                    if(isRetX87Wrapper(*(wrapper_t*)(addr)))
+                        x87_do_push_empty(dyn, ninst, x3);
                     if((box64_log<2 && !cycle_log) && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(addr+8), tmp);
@@ -2392,9 +2395,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SKIPTEST(x1);    // disable test as this hack dos 2 instructions for 1
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
-                    if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall)
+                    if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall) {
                         tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
-                    else
+                        if(isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))
+                            x87_do_push_empty(dyn, ninst, x3);
+                    } else
                         tmp=0;
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
