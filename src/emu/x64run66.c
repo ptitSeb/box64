@@ -368,6 +368,16 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         R_DX=((R_AX & 0x8000)?0xFFFF:0x0000);
         break;
 
+    case 0x9C:                              /* PUSHFW */
+        CHECK_FLAGS(emu);
+        Push16(emu, (uint16_t)emu->eflags.x64);
+        break;
+    case 0x9D:                              /* POPFW */
+        CHECK_FLAGS(emu);
+        emu->eflags.x64 &=0xffff0000;
+        emu->eflags.x64 |= (Pop16(emu) & 0x3F7FD7) | 0x2;
+        break;
+
     case 0xA1:                      /* MOV EAX,Od */
         if(rex.is32bits) {
             R_AX = *(uint16_t*)(uintptr_t)F32;
