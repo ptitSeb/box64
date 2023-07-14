@@ -111,6 +111,13 @@ Using a 64bit OS:
 -D PHYTIUM=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
+#### for a generic ARM64 machine
+
+Using a 64bit OS:
+```
+-D ARM64=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
+```
+
 #### for M1
 
 Only test on Asahi for now, using the default "16K page" kernel

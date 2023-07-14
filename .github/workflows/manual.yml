@@ -19,6 +19,7 @@ on:
         - RPI4ARM64
         - SD845
         - TEGRAX1
+        - ARM64
       build_type:
         description: 'Build type'
         required: true
