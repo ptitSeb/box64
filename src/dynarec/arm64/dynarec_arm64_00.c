@@ -1903,7 +1903,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     sse_purge07cache(dyn, ninst, x3);
                     tmp = isSimpleWrapper(*(wrapper_t*)(addr));
                     if(isRetX87Wrapper(*(wrapper_t*)(addr)))
-                        x87_do_push_empty(dyn, ninst, x3);
+                        // return value will be on the stack, so the stack depth needs to be updated
+                        x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if((box64_log<2 && !cycle_log) && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(addr+8), tmp);
@@ -2397,10 +2398,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     sse_purge07cache(dyn, ninst, x3);
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall) {
                         tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
-                        if(isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))
-                            x87_do_push_empty(dyn, ninst, x3);
                     } else
                         tmp=0;
+                    if(dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))
+                    // return value will be on the stack, so the stack depth needs to be updated
+                        x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8), tmp);

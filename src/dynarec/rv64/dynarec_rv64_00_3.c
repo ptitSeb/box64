@@ -309,7 +309,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     // and return value needs to be cleanned up
                     tmp = 0;//isSimpleWrapper(*(wrapper_t*)(addr));
                     if(isRetX87Wrapper(*(wrapper_t*)(addr)))
-                        x87_do_push_empty(dyn, ninst, x3);
+                        // return value will be on the stack, so the stack depth needs to be updated
+                        x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if(tmp<0 || tmp>1)
                         tmp=0;  //TODO: removed when FP is in place
                     if((box64_log<2 && !cycle_log) && tmp) {
@@ -658,10 +659,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         tmp=0;//isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
                         if(tmp>1 || tmp<0)
                             tmp=0;  // float paramters not ready!
-                        if(isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))
-                            x87_do_push_empty(dyn, ninst, x3);
                     } else
                         tmp=0;
+                    if(dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))
+                        // return value will be on the stack, so the stack depth needs to be updated
+                        x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8), tmp);
