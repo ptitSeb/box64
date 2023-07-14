@@ -331,16 +331,16 @@ SUPER()
 // then the static functions callback that may be used with the structure, but dispatch also have a callback...
 #define GO(A)   \
 static uintptr_t fct_funcs_method_call_##A = 0; \
-static void my_funcs_method_call_##A(void* connection, void* sender, void* object_path, void* interface_name, void* method_name, void* invocation, void* user_data) { \
-    RunFunctionFmt(fct_funcs_method_call_##A, "ppppppp", connection, sender, object_path, interface_name, method_name, invocation, user_data); \
+static void my_funcs_method_call_##A(void* connection, void* sender, void* object_path, void* interface_name, void* method_name, void* parameters, void* invocation, void* user_data) { \
+    RunFunctionFmt(fct_funcs_method_call_##A, "pppppppp", connection, sender, object_path, interface_name, method_name, parameters, invocation, user_data); \
 } \
 static uintptr_t fct_funcs_get_property_##A = 0; \
-static void* my_funcs_get_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* error, void* user_data) { \
-    return (void*)RunFunctionFmt(fct_funcs_get_property_##A, "pppppp", connection, sender, object_path, interface_name, error, user_data); \
+static void* my_funcs_get_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* property_name, void* error, void* user_data) { \
+    return (void*)RunFunctionFmt(fct_funcs_get_property_##A, "ppppppp", connection, sender, object_path, interface_name, property_name, error, user_data); \
 } \
 static uintptr_t fct_funcs_set_property_##A = 0; \
-static int my_funcs_set_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* value, void* error, void* user_data) { \
-    return (int)RunFunctionFmt(fct_funcs_set_property_##A, "ppppppp", connection, sender, object_path, interface_name, value, error, user_data); \
+static int my_funcs_set_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* property_name, void* value, void* error, void* user_data) { \
+    return (int)RunFunctionFmt(fct_funcs_set_property_##A, "pppppppp", connection, sender, object_path, interface_name, property_name, value, error, user_data); \
 }
 
 SUPER()
@@ -578,6 +578,7 @@ EXPORT void my_g_simple_async_result_set_error(x64emu_t* emu, void* simple, void
 
 EXPORT void* my_g_initable_new(x64emu_t* emu, void* type, void* cancel, void* err, void* first, uintptr_t* b)
 {
+    #if 0
     // look for number of pairs
     int n = 1;
     emu->scratch[0] = (uint64_t)first;
@@ -590,6 +591,9 @@ EXPORT void* my_g_initable_new(x64emu_t* emu, void* type, void* cancel, void* er
     emu->scratch[n+1] = 0;
     emu->scratch[n+2] = 0;
     PREPARE_VALIST;
+    #else
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 4);
+    #endif
     return my->g_initable_new_valist(type, first, VARARGS, cancel, err);
 }
 
