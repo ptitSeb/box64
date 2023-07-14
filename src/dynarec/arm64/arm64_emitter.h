@@ -363,6 +363,9 @@
 #define POP2_32(reg1, reg2)     LDPw_S7_postindex(reg1, reg2, xRSP, 8)
 #define PUSH2_32(reg1, reg2)    STPw_S7_preindex(reg2, reg1, xRSP, -8)
 
+#define POP1_16(reg)            LDRH_S9_postindex(reg, xRSP, 2)
+#define PUSH1_16(reg)           STRH_S9_preindex(reg, xRSP, -2)
+
 #define POP1z(reg)              if(rex.is32bits) {POP1_32(reg);} else {POP1(reg);}
 #define PUSH1z(reg)             if(rex.is32bits) {PUSH1_32(reg);} else {PUSH1(reg);}
 #define POP2z(reg1, reg2)       if(rex.is32bits) {POP2_32(reg1, reg2);} else {POP2(reg1, reg2);}

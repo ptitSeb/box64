@@ -592,6 +592,29 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BFIw(xRAX, x1, 0, 16);
             break;
 
+        case 0x9C:
+            INST_NAME("PUSHF");
+            READFLAGS(X_ALL);
+            PUSH1_16(xFlags);
+            break;
+        case 0x9D:
+            INST_NAME("POPF");
+            SETFLAGS(X_ALL, SF_SET);
+            POP1_16(x1);    // probably not usefull...
+            BFIw(xFlags, x1, 0, 16);
+            MOV32w(x1, 0x3F7FD7);
+            ANDw_REG(xFlags, xFlags, x1);
+            ORRw_mask(xFlags, xFlags, 0b011111, 0);   //mask=0x00000002
+            SET_DFNONE(x1);
+            if(box64_wine) {    // should this be done all the time?
+                TBZ_NEXT(xFlags, F_TF);
+                MOV64x(x1, addr);
+                STORE_XEMU_CALL(x1);
+                CALL(native_singlestep, -1);
+                BFCw(xFlags, F_TF, 1);
+            }
+            break;
+
         case 0xA1:
             INST_NAME("MOV EAX,Od");
             if(rex.is32bits)
