@@ -259,6 +259,8 @@ box64context_t *NewBox64Context(int argc)
     context->segtls[4].present = 1;
     context->segtls[4].is32bits = 1;
 
+    context->globdata = NewMapSymbols();
+
     initAllHelpers(context);
 
     return context;
@@ -352,6 +354,8 @@ void FreeBox64Context(box64context_t** context)
 
     if(ctx->emu_sig)
         FreeX64Emu(&ctx->emu_sig);
+
+    FreeMapSymbols(&ctx->globdata);
 
     finiAllHelpers(ctx);
 

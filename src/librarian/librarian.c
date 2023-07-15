@@ -590,6 +590,10 @@ int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* st
 {
     int weak = 0;
     size_t size = 0;
+    // check global GLOB_DAT kind of symbols
+    if(GetSymbolStartEnd(GetGlobalData(maplib), name, start, end, version, vername, 1, defver))
+        if(*start || *end)
+            return 1;
     // check with default version...
     if(GetSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, start, end, version, vername, 1, defver))
         if(*start || *end)

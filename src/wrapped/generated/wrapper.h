@@ -2870,6 +2870,5 @@ void iFEpvvppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpuvvppp(x64emu_t *emu, uintptr_t fnc);
 
 int isSimpleWrapper(wrapper_t fun);
-int isRetX87Wrapper(wrapper_t fun);
 
 #endif // __WRAPPER_H_
