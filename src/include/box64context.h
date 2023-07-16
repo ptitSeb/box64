@@ -23,6 +23,7 @@ typedef struct bridge_s bridge_t;
 typedef struct dlprivate_s dlprivate_t;
 typedef struct kh_symbolmap_s kh_symbolmap_t;
 typedef struct kh_defaultversion_s kh_defaultversion_t;
+typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 typedef struct library_s library_t;
 typedef struct linkmap_s linkmap_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
@@ -117,7 +118,7 @@ typedef struct box64context_s {
     lib_t               *maplib;        // lib and symbols handling
     lib_t               *local_maplib;  // libs and symbols openned has local (only collection of libs, no symbols)
     dic_t               *versym;        // dictionnary of versioned symbols
-    kh_symbolmap_t      *globdata;      // GLOBAL_DAT relocation for COPY mapping in main elf
+    kh_mapsymbols_t     *globdata;      // GLOBAL_DAT relocation for COPY mapping in main elf
 
     kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
     bridge_t            *system;        // other bridges
