@@ -326,6 +326,11 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
 
         case 0x66:
             return Run6664(emu, rex, seg, addr);
+        case 0x67:
+            if(rex.is32bits)
+                return Run6764_32(emu, rex, seg, seg, addr);
+            else
+                return 0;
 
         case 0x80:                      /* GRP Eb,Ib */
             nextop = F8;

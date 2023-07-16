@@ -52,6 +52,21 @@ uintptr_t Run67_32(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     switch(opcode) {
 
+    case 0x64:                      /* FS: prefix */
+        #ifdef TEST_INTERPRETER
+        return Test6764_32(test, rex, rep, _FS, addr);
+        #else
+        return Run6764_32(emu, rex, rep, _FS, addr);
+        #endif
+        break;
+    case 0x65:                      /* GS: prefix */
+        #ifdef TEST_INTERPRETER
+        return Test6764_32(test, rex, rep, _GS, addr);
+        #else
+        return Run6764_32(emu, rex, rep, _GS, addr);
+        #endif
+        break;
+
     case 0xE0:                      /* LOOPNZ */
         CHECK_FLAGS(emu);
         tmp8s = F8S;
