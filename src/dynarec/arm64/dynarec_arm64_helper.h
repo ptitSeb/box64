@@ -360,18 +360,18 @@
                         gb2 = 0;                \
                     } else {                    \
                         gd = (nextop&0x38)>>3;  \
-                        gb2 = ((gd&4)>>2);      \
+                        gb2 = ((gd&4)<<1);      \
                         gb1 = xRAX+(gd&3);      \
                     }                           \
                     gd = i;                     \
-                    UBFXx(gd, gb1, gb2*8, 8);
+                    UBFXx(gd, gb1, gb2, 8);
 //GETSGB signe extend GB, will use i for gd
 #define GETSGB(i)   if(rex.rex) {               \
                         gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);     \
                         gb2 = 0;                \
                     } else {                    \
                         gd = (nextop&0x38)>>3;  \
-                        gb2 = ((gd&4)>>2);      \
+                        gb2 = ((gd&4)<<1);      \
                         gb1 = xRAX+(gd&3);      \
                     }                           \
                     gd = i;                     \
