@@ -1185,7 +1185,7 @@ reg64_t* GetEw16_32(x64emu_t *emu, uintptr_t* addr, uint8_t m, uint32_t base)
         case 7: base+=      R_BX; break;
     }
     switch((m>>6)&3) {
-        case 0: if(m==6) base+= F16(addr); break;
+        case 0: if((m&7)==6) base= F16S(addr); break;
         case 1: base += F8S(addr); break;
         case 2: base += F16S(addr); break;
         // case 3 is C0..C7, already dealt with
@@ -1538,7 +1538,7 @@ reg64_t* GetEw16(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
             case 7: base =      R_BX; break;
         }
         switch((m>>6)&3) {
-            case 0: if(m==6) base = F16(addr); break;
+            case 0: if((m&7)==6) base = F16S(addr); break;
             case 1: base += F8S(addr); break;
             case 2: base += F16S(addr); break;
             // case 3 is C0..C7, already dealt with
@@ -1568,7 +1568,7 @@ reg64_t* TestEw16(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v)
             case 7: base =      R_BX; break;
         }
         switch((m>>6)&3) {
-            case 0: if(m==6) base = F16(addr); break;
+            case 0: if((m&7)==6) base = F16S(addr); break;
             case 1: base += F8S(addr); break;
             case 2: base += F16S(addr); break;
             // case 3 is C0..C7, already dealt with
@@ -1600,7 +1600,7 @@ reg64_t* GetEw16off(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uintpt
             case 7: base =      R_BX; break;
         }
         switch((m>>6)&3) {
-            case 0: if(m==6) base = F16(addr); break;
+            case 0: if((m&7)==6) base = F16S(addr); break;
             case 1: base += F8S(addr); break;
             case 2: base += F16S(addr); break;
             // case 3 is C0..C7, already dealt with
@@ -1630,7 +1630,7 @@ reg64_t* TestEw16off(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uin
             case 7: base =      R_BX; break;
         }
         switch((m>>6)&3) {
-            case 0: if(m==6) base = F16(addr); break;
+            case 0: if((m&7)==6) base = F16S(addr); break;
             case 1: base += F8S(addr); break;
             case 2: base += F16S(addr); break;
             // case 3 is C0..C7, already dealt with

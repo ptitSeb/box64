@@ -477,8 +477,8 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
     int64_t offset = 0;
     int absmin = 0;
     if(s) absmin = -absmax;
-    if(!n && m==6) {
-        offset = F16;
+    if(!n && (m&7)==6) {
+        offset = F16S;
         MOVZw(ret, offset);
     } else {
         switch(n) {
