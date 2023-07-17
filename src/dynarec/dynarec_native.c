@@ -375,9 +375,9 @@ static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
             else
                 updateNeed(dyn, dyn->insts[ninst].pred[i], need);
         }
-        if(!ok)
-            return ninst - 1;
         --ninst;
+        if(!ok)
+            return ninst;
     }
     return ninst;
 }
