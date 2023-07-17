@@ -1714,7 +1714,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             NEG_64(q0, d1);
             USHL_R_64(d0, d0, q0);
             break;
-
+        case 0xD4:
+            INST_NAME("PADDQ Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(q0, 0);
+            ADD_64(v0, v0, q0);
+            break;
         case 0xD5:
             INST_NAME("PMULLW Gm, Em");
             nextop = F8;

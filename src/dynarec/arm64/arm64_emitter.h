@@ -953,6 +953,10 @@
 #define VSUB_16(Vd, Vn, Vm)                 EMIT(ADDSUB_vector(0, 1, 0b01, Vm, Vn, Vd))
 #define VSUB_32(Vd, Vn, Vm)                 EMIT(ADDSUB_vector(0, 1, 0b10, Vm, Vn, Vd))
 
+#define ADDSUB_scalar(U, size, Rm, Rn, Rd)  (01<<30 | (U)<<29 | 0b11110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b10000<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define ADD_64(Vd, Vn, Vm)                  EMIT(ADDSUB_scalar(0, 0b11, Vm, Vn, Vd))
+#define SUB_64(Vd, Vn, Vm)                  EMIT(ADDSUB_scalar(1, 0b11, Vm, Vn, Vd))
+
 #define NEGABS_vector(Q, U, size, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | 0b01011<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define NEG_8(Vd, Vn)                       EMIT(NEGABS_vector(0, 1, 0b00, Vn, Vd))
 #define NEG_16(Vd, Vn)                      EMIT(NEGABS_vector(0, 1, 0b01, Vn, Vd))
