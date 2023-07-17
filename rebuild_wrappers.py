@@ -1479,6 +1479,6 @@ if __name__ == '__main__':
 		if v == "--":
 			limit.append(i)
 	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
-	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.2.0.17") != 0:
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.2.0.18") != 0:
 		exit(2)
 	exit(0)
