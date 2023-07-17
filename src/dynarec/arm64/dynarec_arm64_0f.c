@@ -1914,7 +1914,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SQXTN_32(v0, v0); // 2*q1 in 32bits now
             SSHL_32(d0, d0, v0);
             break;
-
+        case 0xF4:
+            INST_NAME("PMULUDQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            VUMULL_32(v0, v0, v1);
+            break;
         case 0xF5:
             INST_NAME("PMADDWD Gm, Em");
             nextop = F8;

@@ -1682,7 +1682,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETGM;
             GM->q = (EM->q > 63) ? 0L : (GM->q << EM->ub[0]);
             break;
-
+        case 0xF4:                   /* PMULUDQ Gm,Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            GM->q = (uint64_t)GM->ud[0] * (uint64_t)EM->ud[0];
+            break;
         case 0xF5:                   /* PMADDWD Gm, Em */
             nextop = F8;
             GETEM(0);
