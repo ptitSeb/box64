@@ -824,6 +824,10 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	allowed_regs  : str = "cCwWiuIUlLp"
 	allowed_fpr   : str = "fd"
 	
+	# Detect functions which return in an x87 register
+	retx87_wraps: Dict[ClausesStr, List[FunctionType]] = {}
+	return_x87: str = "DK"
+	
 	# Sanity checks
 	forbidden_simple: str = "EDKVOSNMHPAxX"
 	assert(len(allowed_simply) + len(allowed_regs) + len(allowed_fpr) + len(forbidden_simple) == len(allowed_conv.values))
@@ -831,6 +835,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	assert(all(c not in allowed_simply + allowed_regs for c in allowed_fpr))
 	assert(all(c not in allowed_simply + allowed_regs + allowed_fpr for c in forbidden_simple))
 	assert(all(c in allowed_simply + allowed_regs + allowed_fpr + forbidden_simple for c in allowed_conv.values))
+	assert(all(c in allowed_conv.values for c in return_x87))
 	
 	def check_simple(v: FunctionType) -> Optional[int]:
 		regs_count: int = 0
@@ -867,19 +872,15 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			simple_wraps[k] = tmp
 	simple_idxs = sorted(simple_wraps.keys(), key=lambda x: Clauses(x).splitdef())
 	
-	retx87_wraps: Dict[ClausesStr, List[Tuple[FunctionType, int]]] = {}
-	return_x87: str = "DK"
 	def check_return_x87(v: FunctionType) -> bool:
-		if v[0] in return_x87:
-			return True
-		return False
-
+		return v[0] in return_x87
+    
 	for k in gbls:
-		tmp = [ (v, ret_val) for v, ret_val in map(lambda v: (v, check_return_x87(v)), gbls[k]) if ret_val is not False ]
+		tmp = [v for v in gbls[k] if check_return_x87(v)]
 		if tmp:
 			retx87_wraps[k] = tmp
 	retx87_idxs = sorted(retx87_wraps.keys(), key=lambda x: Clauses(x).splitdef())
-
+	
 	# Now the files rebuilding part
 	# File headers and guards
 	files_header = {
@@ -1393,12 +1394,13 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			if k != str(Clauses()):
 				file.write("#endif\n")
 		file.write("\treturn 0;\n}\n")
+		
 		# Write the isRetX87Wrapper function
 		file.write("\nint isRetX87Wrapper(wrapper_t fun) {\n")
 		for k in retx87_idxs:
 			if k != str(Clauses()):
 				file.write("#if " + k + "\n")
-			for vf, val in retx87_wraps[k]:
+			for vf in retx87_wraps[k]:
 				file.write("\tif (fun == &" + vf + ") return 1;\n")
 			if k != str(Clauses()):
 				file.write("#endif\n")
@@ -1477,6 +1479,6 @@ if __name__ == '__main__':
 		if v == "--":
 			limit.append(i)
 	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
-	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.2.0.17") != 0:
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.2.0.18") != 0:
 		exit(2)
 	exit(0)
