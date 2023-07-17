@@ -294,7 +294,7 @@ GO(eventfd, iFui)
 GO(eventfd_read, iFip)
 GO(eventfd_write, iFiL)
 GOM(execl, iFEpV) // First argument is also part of the variadic
-//GOM(execle, iFEpV) // First argument is also part of the variadic
+GOM(execle, iFEpV) // First argument is also part of the variadic
 GOM(execlp, iFEpV) // First argument is also part of the variadic
 GOM(execv, iFEpp)
 GOWM(execve, iFEppp)

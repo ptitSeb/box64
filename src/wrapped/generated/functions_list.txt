@@ -3703,6 +3703,7 @@ wrappedlibc:
 - iFpV:
   - __isoc99_scanf
   - execl
+  - execle
   - execlp
   - printf
   - wprintf

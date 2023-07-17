@@ -144,6 +144,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(swapcontext, iFpp_t) \
 	GO(__isoc99_scanf, iFpV_t) \
 	GO(execl, iFpV_t) \
+	GO(execle, iFpV_t) \
 	GO(execlp, iFpV_t) \
 	GO(printf, iFpV_t) \
 	GO(wprintf, iFpV_t) \
