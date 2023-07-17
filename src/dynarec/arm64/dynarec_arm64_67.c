@@ -208,6 +208,20 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 VLD64(v0, ed, fixedaddress);
                             }
                             break;
+                        case 2:
+                            INST_NAME("MOVDQU Gx,Ex");
+                            nextop = F8;
+                            if(MODREG) {
+                                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                                GETGX_empty(v0);
+                                VMOVQ(v0, v1);
+                            } else {
+                                GETGX_empty(v0);
+                                SMREAD();
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                                VLD128(v0, ed, fixedaddress);
+                            }
+                            break;
                         default:
                             DEFAULT;
                     }
