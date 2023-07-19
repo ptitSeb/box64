@@ -138,7 +138,7 @@ void native_fistp64(x64emu_t* emu, int64_t* ed)
 
 void native_fistt64(x64emu_t* emu, int64_t* ed)
 {
-    // used of memcpy to avoid aligments issues
+    // used of memcpy to avoid alignments issues
     int64_t tmp = ST0.d;
     memcpy(ed, &tmp, sizeof(tmp));
 }

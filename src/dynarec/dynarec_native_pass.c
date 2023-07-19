@@ -47,7 +47,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     ARCH_INIT();
     int reset_n = -1;
     dyn->last_ip = (alternate || (dyn->insts && dyn->insts[0].pred_sz))?0:ip;  // RIP is always set at start of block unless there is a predecessor!
-    int stopblock = 2+(FindElfAddress(my_context, addr)?0:1); // if block is in elf_memory, it can be extended with bligblocks==2, else it needs 3
+    int stopblock = 2+(FindElfAddress(my_context, addr)?0:1); // if block is in elf_memory, it can be extended with box64_dynarec_bigblock==2, else it needs 3
     // ok, go now
     INIT;
     while(ok) {
@@ -74,7 +74,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             }
             reset_n = -1;
         } else if(ninst && (dyn->insts[ninst].pred_sz>1 || (dyn->insts[ninst].pred_sz==1 && dyn->insts[ninst].pred[0]!=ninst-1)))
-            dyn->last_ip = 0;   // reset IP if some jump are comming here
+            dyn->last_ip = 0;   // reset IP if some jump are coming here
         fpu_propagate_stack(dyn, ninst);
         NEW_INST;
         if(!ninst) {
@@ -166,7 +166,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             if((dyn->insts[ii].x64.barrier&BARRIER_FULL)==BARRIER_FULL)
                 reset_n = -2;    // hack to say Barrier!
             else {
-                reset_n = getNominalPred(dyn, ii);  // may get -1 if no predecessor are availble
+                reset_n = getNominalPred(dyn, ii);  // may get -1 if no predecessor are available
                 if(reset_n==-1) {
                     reset_n = -2;
                     MESSAGE(LOG_DEBUG, "Warning, Reset Caches mark not found\n");
@@ -296,7 +296,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     if(need_epilog) {
         NOTEST(x3);
         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-        jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknow instruction
+        jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknown instruction
     }
     FINI;
     MESSAGE(LOG_DUMP, "---- END OF BLOCK ---- (%d)\n", dyn->size);
