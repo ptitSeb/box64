@@ -51,6 +51,19 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     switch(opcode) {
 
+        case 0x11:
+            switch(rep) {
+                case 0:                      /* MOVUPS Ex,Gx */
+                    nextop = F8;
+                    GETEX32(0);
+                    GETGX;
+                    EX->u128 = GX->u128;
+                    break;
+                default:
+                    return 0;
+            }
+            break;
+
         case 0x2E:
             // same for now
         case 0x2F:                      
