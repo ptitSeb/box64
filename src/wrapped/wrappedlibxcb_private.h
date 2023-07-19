@@ -148,7 +148,7 @@ GO(xcb_create_gc_checked, pFpuuup)
 GO(xcb_create_glyph_cursor, pFpuuuWWWWWWWW)
 //GO(xcb_create_glyph_cursor_checked, 
 GO(xcb_create_pixmap, pFpCuuWW)
-//GO(xcb_create_pixmap_checked, 
+GO(xcb_create_pixmap_checked, pFpCuuWW)
 GO(xcb_create_window, pFpCuuwwWWWWuup)
 //GO(xcb_create_window_aux, 
 //GO(xcb_create_window_aux_checked, 
@@ -460,7 +460,7 @@ GO(xcb_poly_segment, pFpuuup)
 //GO(xcb_poly_text_8_sizeof, 
 GO(xcb_popcount, iFu)
 GO(xcb_prefetch_extension_data, vFpp)
-//GO(xcb_prefetch_maximum_request_length, 
+GO(xcb_prefetch_maximum_request_length, vFp)
 GO(xcb_put_image, pFpCuuWWwwCCup)
 //GO(xcb_put_image_checked, 
 //GO(xcb_put_image_data, 

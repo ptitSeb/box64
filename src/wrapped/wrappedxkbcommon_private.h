@@ -49,7 +49,7 @@ GO(xkb_keymap_mod_get_index, uFpp)
 GO(xkb_keymap_mod_get_name, pFpu)
 GO(xkb_keymap_new_from_buffer, pFppLii)
 //GO(xkb_keymap_new_from_file, 
-//GO(xkb_keymap_new_from_names, 
+GO(xkb_keymap_new_from_names, pFppi)
 GO(xkb_keymap_new_from_string, pFppii)
 GO(xkb_keymap_num_layouts, uFp)
 GO(xkb_keymap_num_layouts_for_key, uFpu)

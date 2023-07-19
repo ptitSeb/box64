@@ -376,7 +376,7 @@ GO(XFreeStringList, vFp)
 GO(XGContextFromGC, LFp)
 GO(XGeometry, iFpippuuuiipppp)
 GO(_XGetAsyncData, vFpppiiii)
-//GO(_XGetAsyncReply, 
+GO(_XGetAsyncReply, pFppppiii)
 GO(XGetAtomName, pFpL)
 GO(XGetAtomNames, iFppip)
 //GO(_XGetBitsPerPixel, 
@@ -533,7 +533,7 @@ GO(XkbAllocNames, iFpuii)
 //GO(XkbAllocServerMap
 GO(XkbApplyCompatMapToKey, iFpCp)
 GO(XkbApplyVirtualModChanges, iFpup)
-//GO(XkbBell
+GO(XkbBell, iFppip)
 GO(XkbBellEvent, iFpLiL)
 GO(XkbChangeDeviceInfo, iFppp)
 //GO(XkbChangeEnabledControls
@@ -850,7 +850,7 @@ GO(XRaiseWindow, iFpp)
 GO(_XRead, iFppi)
 GO(XReadBitmapFile, iFpLpppppp)
 GO(XReadBitmapFileData, iFpppppp)
-//GO(_XReadEvents, 
+GO(_XReadEvents, vFp)
 GO(_XReadPad, vFppi)
 GO(XRebindKeysym, iFpLpipi)
 GO(XRecolorCursor, iFpLpp)
