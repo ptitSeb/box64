@@ -129,14 +129,14 @@ static inline void fpu_fxam(x64emu_t* emu) {
         return;
     }
     if(isinf(ST0.d)) 
-    {  // TODO: Unsuported and denormal not analysed...
+    {  // TODO: Unsupported and denormal not analysed...
         emu->sw.f.F87_C3 = 0;
         emu->sw.f.F87_C2 = 1;
         emu->sw.f.F87_C0 = 1;
         return;
     }
     if(isnan(ST0.d))
-    {  // TODO: Unsuported and denormal not analysed...
+    {  // TODO: Unsupported and denormal not analysed...
         emu->sw.f.F87_C3 = 0;
         emu->sw.f.F87_C2 = 0;
         emu->sw.f.F87_C0 = 1;
@@ -159,7 +159,7 @@ static inline void fpu_fxam(x64emu_t* emu) {
 static inline void fpu_ftst(x64emu_t* emu) {
     emu->sw.f.F87_C1 = 0;
     if(isinf(ST0.d) || isnan(ST0.d)) 
-    {  // TODO: Unsuported and denormal not analysed...
+    {  // TODO: Unsupported and denormal not analysed...
         emu->sw.f.F87_C3 = 1;
         emu->sw.f.F87_C2 = 1;
         emu->sw.f.F87_C0 = 1;
