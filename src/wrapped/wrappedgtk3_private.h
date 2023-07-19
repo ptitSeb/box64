@@ -2651,6 +2651,7 @@ GO(gtk_settings_set_string_property, vFpppp)
 GO(gtk_shadow_type_get_type, pFv)
 GO(gtk_show_about_dialog, vFpppppppppppppppppppppppp)   //vaarg
 GO(gtk_show_uri, iFppup)
+GO(gtk_show_uri_on_window, iFppup)
 GO(gtk_side_type_get_type, pFv)
 //GO(gtk_signal_compat_matched, 
 GOM(gtk_signal_connect_full, LFEppppppii)
