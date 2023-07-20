@@ -77,7 +77,7 @@ GO(__atomic_load, vFppi)
 //GO(__atomic_or_fetch_4, 
 //GO(__atomic_or_fetch_8, 
 //GO(atomic_signal_fence, 
-//GO(__atomic_store, 
+GO(__atomic_store, vFppi)
 //GO(__atomic_store_1, 
 //GO(__atomic_store_16, 
 //GO(__atomic_store_2, 
