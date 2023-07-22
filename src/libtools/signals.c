@@ -584,6 +584,9 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
 #else
     (void)ucntx; (void)cur_db;
 #endif
+    // setup libc context stack frame, on caller stack
+    frame = frame&~15;
+
     // stack tracking
     x64_stack_t *new_ss = my_context->onstack[sig]?(x64_stack_t*)pthread_getspecific(sigstack_key):NULL;
     int used_stack = 0;
@@ -734,8 +737,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
         if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[X64_RIP]) {
-            sigcontext->uc_mcontext.gregs[X64_ERR] = (info->si_errno==0x1234)?0:0x0010;    // execution flag issue (probably), unless it's a #GP(0)
-            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = (info->si_code == SEGV_ACCERR || (info->si_errno==0x1234) || (uintptr_t)info->si_addr==0)?13:14;
+            sigcontext->uc_mcontext.gregs[X64_ERR] = (info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
+            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = (info->si_code == SEGV_ACCERR || (info->si_errno==0x1234) || (info->si_errno==0xdead) || (uintptr_t)info->si_addr==0)?13:14;
         } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
             sigcontext->uc_mcontext.gregs[X64_ERR] = 0x0002;    // write flag issue
             if(labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[X64_RSP])<16)
@@ -831,13 +834,15 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             // get segments
             uint16_t seg;
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 0)&0xffff;
-            #define GO(S) if(emu->segs[_##S]!=seg)  {emu->segs[_##S]=seg; emu->segs_serial[_##S] = 0;}
+            #define GO(S) if(emu->segs[_##S]!=seg)  emu->segs[_##S]=seg
             GO(CS);
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 16)&0xffff;
             GO(GS);
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 32)&0xffff;
             GO(FS);
             #undef GO
+            for(int i=0; i<6; ++i)
+                emu->segs_serial[i] = 0;
             printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p\n", (void*)R_RIP);
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
@@ -1265,7 +1270,7 @@ exit(-1);
         }
         if(log_minimum<=box64_log) {
             static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
-            static const char* seg_name[] = {"ES", "CS", "SS", "DS", "GS", "FS"};
+            static const char* seg_name[] = {"ES", "CS", "SS", "DS", "FS", "GS"};
             int shown_regs = 0;
 #ifdef DYNAREC
             uint32_t hash = 0;
@@ -1384,6 +1389,26 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
         printf_log(LOG_NONE, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=%d\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
     }
     my_sigactionhandler_oldcode(sig, 0, &info, &ctx, NULL, NULL);
+}
+
+void emit_interruption(x64emu_t* emu, int num, void* addr)
+{
+    ucontext_t ctx = {0};
+    siginfo_t info = {0};
+    info.si_signo = SIGSEGV;
+    info.si_errno = 0xdead;
+    info.si_code = num;
+    info.si_addr = addr;
+    const char* x64name = NULL;
+    const char* elfname = NULL;
+    if(box64_log>LOG_INFO) {
+        x64name = getAddrFunctionName(R_RIP);
+        elfheader_t* elf = FindElfAddress(my_context, R_RIP);
+        if(elf)
+            elfname = ElfName(elf);
+        printf_log(LOG_NONE, "Emit Interruption 0x%x at IP=%p(%s / %s) / addr=%p\n", num, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr);
+    }
+    my_sigactionhandler_oldcode(SIGSEGV, 0, &info, &ctx, NULL, NULL);
 }
 
 EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)

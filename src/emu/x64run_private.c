@@ -1094,14 +1094,25 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                     printf_log(LOG_NONE, " STACK_TOP: %p ", (void*)(uintptr_t)*(uint32_t*)(R_RSP));
             } else if(peek==0xF3 && PK(1)==0x0F && PK(2)==0x1E && PK(3)==0xFA && !is32bits) {
                 printFunctionAddr(*(uintptr_t*)(R_RSP), " STACK_TOP: ");
-            } else if(peek==0xE8) { // Call
+            } else if(peek==0xE8 || peek==0xE9) { // Call & Jmp
                 uintptr_t nextaddr = ip + 5 + PK32(1);
                 printFunctionAddr(nextaddr, "=> ");
             } else if(peek==0xFF) {
                 if(PK(1)==0x25) {
                     uintptr_t nextaddr = ip + 6 + PK32(2);
+                    if(!printFunctionAddr(nextaddr, "=> "))
+                        printf_log(LOG_NONE, " => %p", (void*)nextaddr);
+                } else if((PK(1)==0x14) && (PK(2)==0x25)) {
+                    uintptr_t nextaddr = *(uintptr_t*)(uintptr_t)PK32(3);
+                    printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                     printFunctionAddr(nextaddr, "=> ");
+                } else if((PK(1)==0x14) && (PK(2)==0xC2) && rex.rex==0x41) {
+                    uintptr_t nextaddr = *(uintptr_t*)(R_R10 + R_RAX*8);
+                    printf_log(LOG_NONE, " => %p", (void*)nextaddr);
+                    printFunctionAddr(nextaddr, "=> ");
+
                 }
+
             }
             printf_log(LOG_NONE, "\n");
         }

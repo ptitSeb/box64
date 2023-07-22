@@ -37,5 +37,6 @@ void init_signal_helper(box64context_t* context);
 void fini_signal_helper(void);
 
 void emit_signal(x64emu_t* emu, int sig, void* addr, int code);
+void emit_interruption(x64emu_t* emu, int num, void* addr);
 
 #endif //__SIGNALS_H__

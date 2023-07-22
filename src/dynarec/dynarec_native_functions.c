@@ -163,6 +163,12 @@ void native_priv(x64emu_t* emu)
     emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
 }
 
+void native_int(x64emu_t* emu, int num)
+{
+    emu->test.test = 0;
+    emit_interruption(emu, num, (void*)R_RIP);
+}
+
 void native_singlestep(x64emu_t* emu)
 {
     emit_signal(emu, SIGTRAP, (void*)R_RIP, 1);

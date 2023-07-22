@@ -130,9 +130,21 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
 }
 
 static void* GetSeg43Base();
+static const char* arch_prctl_param(int code)
+{
+    static char ret[10] = {0};
+    switch (code) {
+        case 0x1001: return "ARCH_SET_GS";
+        case 0x1002: return "ARCH_SET_FS";
+        case 0x1003: return "ARCH_GET_FS";
+        case 0x1004: return "ARCH_GET_GS";
+    }
+    sprintf(ret, "0x%x", code);
+    return ret;
+}
 int my_arch_prctl(x64emu_t *emu, int code, void* addr)
 {
-    printf_log(LOG_DEBUG, "%04d| arch_prctl(0x%x, %p) (RSP=%p, FS=0x%x, GS=0x%x)\n", GetTID(), code, addr,(void*)R_RSP, emu->segs[_FS], emu->segs[_GS]);
+    printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| arch_prctl(%s, %p) (RSP=%p, FS=0x%x, GS=0x%x)\n", GetTID(), arch_prctl_param(code), addr,(void*)R_RSP, emu->segs[_FS], emu->segs[_GS]);
 
     #define ARCH_SET_GS          0x1001
     #define ARCH_SET_FS          0x1002
@@ -152,19 +164,19 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
             seg=(code==ARCH_SET_FS)?_FS:_GS;
             int idx = -1;
             // search if it's a TLS base
+            if(GetSeg43Base()==addr)
+                idx = 0x43>>3;
             // Is this search only occurs when seg==0?
             for (int i=9; i<15 && idx==-1; ++i)
                 if(my_context->segtls[i].present && my_context->segtls[i].base==(uintptr_t)addr)
                     idx=i;
-            if(idx==-1 && GetSeg43Base()==addr)
-                idx = 0x43>>3;
             // found...
             if(idx!=-1) {
-               printf_log(LOG_DEBUG, "Changing segment selector from 0x%x to 0x%x\n", emu->segs[seg], (idx<<3) +3);
+               printf_log(/*LOG_DEBUG*/LOG_INFO, "Changing segment selector from 0x%x to 0x%x\n", emu->segs[seg], (idx<<3) +3);
                emu->segs[seg]=(idx<<3) +3;
             }
             if(emu->segs[seg]==0) {
-                printf_log(LOG_DEBUG, "Warning, set seg, but it's 0!\n");
+                printf_log(/*LOG_DEBUG*/LOG_INFO, "Warning, set seg, but it's 0!\n");
                 errno = EINVAL;
                 return -1;
             }
