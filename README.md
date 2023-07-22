@@ -86,23 +86,22 @@ GTK libraries are now wrapped on box64, both gtk2 and gtk3.
 Notes about Steam
 ----
 
-Note that Steam is a hybrid 32-bit / 64-bit. You NEED box86 to run Steam, as the client app is a 32-bit binary. It also uses a 64-bit local server binaries, but like most stuff using libcef/chromium, it's not working correctly on box64 for now.
-So, no Steam for now on box64.
+Note that Steam is a hybrid 32-bit / 64-bit. You NEED box86 to run Steam, as the client app is a 32-bit binary. It also uses a 64-bit local server binaries, and that steamwebhelper process is now mendatory, even on the "small mode". And that process will eat lots of memory. So machine with less the 6Gb of RAM will need a swapfile tp use Steam.
 
 ----
 
 Notes about Wine
 ----
 
-Wine64 is supported on box64. Proton should also work. Be aware that 64-bit Wine also includes 32-bit components, to be able to run 32-bit Windows programs. The 32-bit apps will need box86 and will not run without it. On a system where both box64 and box86 are present and working, a wine 64-bit setup can run both 32-bit and 64-bit Windows programs (just use `wine` and `wine64` respectively).
-Note that the new 32bits PE in 64bits process that the Wine time in currently implementing in Wine 7.+ is not yet supported. I tested Wine 7.5 64bits and it worked, but more recent version will probably just not work yet.
+Wine64 is supported on box64. Proton too. Be aware that 64-bit Wine also includes 32-bit components, to be able to run 32-bit Windows programs. The 32-bit apps will need box86 and will not run without it. On a system where both box64 and box86 are present and working, a wine 64-bit setup can run both 32-bit and 64-bit Windows programs (just use `wine` and `wine64` respectively).
+Note that the new 32bits PE in 64bits process that the Wine time in currently implementing in Wine 7.+ is now supported, but the support is quite young so there might be some residual issues.
 
 ----
 
 Notes about Vulkan
 ----
 
-Box64 wraps Vulkan libraries, but note that it as only been tested with a RX550 card, so some extensions may be missing depending on your graphics card.
+Box64 wraps Vulkan libraries, but note that it as mostly been tested with a AMD RX550 card and on the Freedreno driver, so some extensions may be missing depending on your graphics card.
 
 ----
 
