@@ -400,12 +400,14 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     }
     if(go<0)
         go = 0; // not found...
+    if(maplib)
     for(int i=go; i<maplib->libsz; ++i) {
         if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
             if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 0, globdefver))
                 if(*start)
                     return 1;
     }
+    if(maplib)
     for(int i=go; i<maplib->libsz; ++i)
         if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
             GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 0, weakdefver);
@@ -428,6 +430,7 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
                     if(*start)
                         return 1;
         }
+        if(maplib)
         for(int i=0; i<go; ++i) {
             if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
                 GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1, weakdefver);
@@ -460,6 +463,7 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
                 if(*start)
                     return 1;
     // search in global symbols
+    if(maplib)
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, isLocal(self, maplib->libraries[i]), globdefver))
             if(*start)
@@ -473,6 +477,7 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
         if(*start)
             ok = 1;
 
+    if(maplib)
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, isLocal(self, maplib->libraries[i]), weakdefver))
             if(*start)
