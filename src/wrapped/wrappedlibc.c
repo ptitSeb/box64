@@ -39,6 +39,7 @@
 #include <malloc.h>
 #include <getopt.h>
 #include <sys/prctl.h>
+#include <sys/ptrace.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
 
@@ -2979,6 +2980,15 @@ EXPORT int my_semctl(int semid, int semnum, int cmd, union semun b)
         }
     }
     return ret;
+}
+
+EXPORT int my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, void* data)
+{
+    if(request == PTRACE_POKEUSER) {
+        // lets just ignore this for now!
+        return 0;
+    }
+    return ptrace(request, pid, addr, data);
 }
 
 // Backtrace stuff

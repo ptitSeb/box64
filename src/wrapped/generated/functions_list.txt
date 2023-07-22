@@ -1083,7 +1083,6 @@
 #() lFipLL
 #() lFipLp
 #() lFippL
-#() lFuipp
 #() lFpili
 #() lFpilp
 #() lFpuip
@@ -1574,6 +1573,7 @@
 #() uFppppL
 #() uFppppp
 #() UFuiiii
+#() lFEuipp
 #() lFipili
 #() lFipLli
 #() lFipLlL
@@ -3930,6 +3930,8 @@ wrappedlibc:
   - __vsprintf_chk
   - scandir
   - scandir64
+- lFuipp:
+  - ptrace
 - vFpLLpp:
   - qsort_r
 - iFiippi:

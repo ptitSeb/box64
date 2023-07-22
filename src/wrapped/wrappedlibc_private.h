@@ -1420,7 +1420,7 @@ GO(psignal, vFip)
 //GO(pthread_setcancelstate, 
 //GO(pthread_setcanceltype, 
 //GO(pthread_setschedparam, 
-GO(ptrace, lFuipp)
+GOM(ptrace, lFEuipp)
 GO(ptsname, pFi)
 GOW(ptsname_r, iFipL)
 //GO(__ptsname_r_chk, 
