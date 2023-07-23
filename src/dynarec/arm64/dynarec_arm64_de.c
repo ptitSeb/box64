@@ -184,7 +184,8 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xDD:
         case 0xDE:
         case 0xDF:
-            return 0;
+            DEFAULT;
+            break;
         default:
             switch((nextop>>3)&7) {
                 case 0:
