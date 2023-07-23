@@ -166,7 +166,33 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         tmp8u = opcode&7;
         emu->regs[tmp8u].word[0] = dec16(emu, emu->regs[tmp8u].word[0]);
         break;
-
+    case 0x50:
+    case 0x51:
+    case 0x52:
+    case 0x53:
+    case 0x55:
+    case 0x56:
+    case 0x57:                      /* PUSH Reg */
+        if(rex.is32bits) {
+            tmp8u = opcode&7;
+            Push16(emu, emu->regs[tmp8u].word[0]);
+        } else
+            return 0;
+        break;
+    case 0x58:
+    case 0x59:
+    case 0x5A:
+    case 0x5B:
+    case 0x5C:                      /* POP ESP */
+    case 0x5D:
+    case 0x5E:
+    case 0x5F:                      /* POP Reg */
+        if(rex.is32bits) {
+            tmp8u = opcode&7;
+            emu->regs[tmp8u].word[0] = Pop16(emu);
+        } else
+            return 0;
+        break;
     case 0x60:                              /* PUSHA */
         if(rex.is32bits) {
             tmp16u = R_SP;
@@ -338,27 +364,26 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             GD->word[0] = (uint16_t)tmp64u;
         break;
 
-        case 0x90:                      /* NOP or XCHG R8d, AX*/
-        case 0x91:
-        case 0x92:
-        case 0x93:
-        case 0x94:
-        case 0x95:
-        case 0x96:
-        case 0x97:                      /* XCHG reg,AX */
-            tmp8u = _AX+(opcode&7)+(rex.b<<3);
-            if(tmp8u!=_AX) {
-                if(rex.w) {
-                    tmp64u = R_RAX;
-                    R_RAX = emu->regs[tmp8u].q[0];
-                    emu->regs[tmp8u].q[0] = tmp64u;
-                } else {
-                    tmp16u = R_AX;
-                    R_AX = emu->regs[tmp8u].word[0];
-                    emu->regs[tmp8u].word[0] = tmp16u;
-                }
+    case 0x90:                      /* NOP or XCHG R8d, AX*/
+    case 0x91:
+    case 0x92:
+    case 0x93:
+    case 0x94:
+    case 0x95:
+    case 0x96:
+    case 0x97:                      /* XCHG reg,AX */
+        tmp8u = _AX+(opcode&7)+(rex.b<<3);
+        if(tmp8u!=_AX) {
+            if(rex.w) {
+                tmp64u = R_RAX;
+                R_RAX = emu->regs[tmp8u].q[0];
+                emu->regs[tmp8u].q[0] = tmp64u;
+            } else {
+                tmp16u = R_AX;
+                R_AX = emu->regs[tmp8u].word[0];
+                emu->regs[tmp8u].word[0] = tmp16u;
             }
-            break;
+        }
         break;
 
     case 0x98:                               /* CBW */
