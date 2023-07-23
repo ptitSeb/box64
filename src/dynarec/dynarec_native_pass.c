@@ -183,7 +183,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 dyn->forward_size = 0;
                 dyn->forward_ninst = 0;
                 ok = 1; // in case it was 0
-            } else if ((dyn->forward_to < addr) || !ok) {
+            } else if ((dyn->forward_to < addr) || ok<=0) {
                 // something when wrong! rollback
                 if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Could not forward extend block for %d bytes %p -> %p\n", dyn->forward_to-dyn->forward, (void*)dyn->forward, (void*)dyn->forward_to);
                 ok = 0;
@@ -213,7 +213,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                         }
                     if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %p -> %p (ninst=%d, jump from %d)\n", dyn, (void*)addr, (void*)next, ninst, reset_n);
                 } else if(next && (next-addr)<box64_dynarec_forward && (getProtection(next)&PROT_READ)/*box64_dynarec_bigblock>=stopblock*/) {
-                    if(!((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)next))) {
+                    if(!((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)next)) && !dyn->forward) {
                         dyn->forward = addr;
                         dyn->forward_to = next;
                         dyn->forward_size = dyn->size;
@@ -234,6 +234,16 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 }
                 dyn->insts[ninst].x64.need_after |= X_PEND;
                 ++ninst;
+            }
+            if(dyn->forward) {
+                // stopping too soon
+                dyn->size = dyn->forward_size;
+                ninst = dyn->forward_ninst+1;
+                addr = dyn->forward;
+                dyn->forward = 0;
+                dyn->forward_to = 0;
+                dyn->forward_size = 0;
+                dyn->forward_ninst = 0;
             }
             #endif
         }

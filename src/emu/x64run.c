@@ -1472,6 +1472,15 @@ x64emurun:
             }
             break;
 
+        case 0xD6:                      /* SALC */
+            if(rex.is32bits) {
+                CHECK_FLAGS(emu);
+                R_AL = ACCESS_FLAG(F_CF)?0xff:0x00;
+            } else {
+                unimp = 1;
+                goto fini;
+            };
+            break;
         case 0xD7:                      /* XLAT */
             R_AL = *(uint8_t*)(R_RBX + R_AL);
             break;
