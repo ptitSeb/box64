@@ -1027,6 +1027,8 @@ void LoadEnvVars(box64context_t *context)
         AddPath("/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
     if(FileExist("/usr/lib/x86_64-linux-gnu", 0))
         AddPath("/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
+    if(FileExist("/usr/x86_64-linux-gnu/lib", 0))
+        AddPath("/usr/x86_64-linux-gnu/lib", &context->box64_ld_lib, 1);
     if(getenv("LD_LIBRARY_PATH"))
         PrependList(&context->box64_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
     if(getenv("BOX64_EMULATED_LIBS")) {
