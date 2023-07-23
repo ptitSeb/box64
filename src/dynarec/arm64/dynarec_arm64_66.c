@@ -359,37 +359,37 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x60:
             if(rex.is32bits) {
-                INST_NAME("PUSHA 16 (32bits)");
+                INST_NAME("PUSHA 16bits (32bits)");
                 MOVw_REG(x1, xRSP);
-                STRH_S9_preindex(xRAX, xRSP, -2);
-                STRH_S9_preindex(xRCX, xRSP, -2);
-                STRH_S9_preindex(xRDX, xRSP, -2);
-                STRH_S9_preindex(xRBX, xRSP, -2);
-                STRH_S9_preindex(x1, xRSP, -2);
-                STRH_S9_preindex(xRBP, xRSP, -2);
-                STRH_S9_preindex(xRSI, xRSP, -2);
-                STRH_S9_preindex(xRDI, xRSP, -2);
+                PUSH1_16(xRAX);
+                PUSH1_16(xRCX);
+                PUSH1_16(xRDX);
+                PUSH1_16(xRBX);
+                PUSH1_16(x1);
+                PUSH1_16(xRBP);
+                PUSH1_16(xRSI);
+                PUSH1_16(xRDI);
             } else {
                 DEFAULT;
             }
             break;
         case 0x61:
             if(rex.is32bits) {
-                INST_NAME("POPA 16 (32bits)");
-                LDRH_S9_postindex(x1, xRSP, 2);
+                INST_NAME("POPA 16bits (32bits)");
+                POP1_16(x1);
                 BFIw(xRDI, x1, 0, 16);
-                LDRH_S9_postindex(x1, xRSP, 2);
+                POP1_16(x1);
                 BFIw(xRSI, x1, 0, 16);
-                LDRH_S9_postindex(x1, xRSP, 2);
+                POP1_16(x1);
                 BFIw(xRBP, x1, 0, 16);
-                LDRH_S9_postindex(x1, xRSP, 2); // RSP ignored
-                LDRH_S9_postindex(x1, xRSP, 2);
+                POP1_16(x1); // RSP ignored
+                POP1_16(x1);
                 BFIw(xRBX, x1, 0, 16);
-                LDRH_S9_postindex(x1, xRSP, 2);
+                POP1_16(x1);
                 BFIw(xRDX, x1, 0, 16);
-                LDRH_S9_postindex(x1, xRSP, 2);
+                POP1_16(x1);
                 BFIw(xRCX, x1, 0, 16);
-                LDRH_S9_postindex(x1, xRSP, 2);
+                POP1_16(x1);
                 BFIw(xRAX, x1, 0, 16);
             } else {
                 DEFAULT;
