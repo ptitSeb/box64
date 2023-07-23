@@ -213,13 +213,20 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                         }
                     if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %p -> %p (ninst=%d, jump from %d)\n", dyn, (void*)addr, (void*)next, ninst, reset_n);
                 } else if(next && (next-addr)<box64_dynarec_forward && (getProtection(next)&PROT_READ)/*box64_dynarec_bigblock>=stopblock*/) {
-                    if(!((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)next)) && !dyn->forward) {
-                        dyn->forward = addr;
-                        dyn->forward_to = next;
-                        dyn->forward_size = dyn->size;
-                        dyn->forward_ninst = ninst;
-                        reset_n = -2;
-                        ok = 1;
+                    if(!((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)next))) {
+                        if(dyn->forward) {
+                            if(next<dyn->forward_to)
+                                dyn->forward_to = next;
+                            reset_n = -2;
+                            ok = 1;
+                        } else {
+                            dyn->forward = addr;
+                            dyn->forward_to = next;
+                            dyn->forward_size = dyn->size;
+                            dyn->forward_ninst = ninst;
+                            reset_n = -2;
+                            ok = 1;
+                        }
                     }
                 }
             }
