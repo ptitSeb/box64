@@ -1117,6 +1117,16 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     emit_dec16(dyn, ninst, x1, x2, x4);
                     EWBACK;
                     break;
+                case 6: // Push Ew
+                    if(rex.is32bits) {
+                        INST_NAME("PUSH Ew");
+                        GETEW(x1, 0);
+                        PUSH1_16(ed);
+                    } else {
+                        DEFAULT;
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }

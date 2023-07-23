@@ -799,7 +799,6 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     case 0xFF:                      /* GRP 5 Ew */
         nextop = F8;
         GETEW(0);
-        GETGW;
         switch((nextop>>3)&7) {
             case 0:                 /* INC Ed */
                 EW->word[0] = inc16(emu, EW->word[0]);
@@ -817,9 +816,12 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                 }
                 addr = tmp64u;
                 break;
-           /*case 6:
-                Push16(emu, EW->word[0]);
-                break;*/
+           case 6:                  /* Push Ew */
+                if(rex.is32bits) {
+                    Push16(emu, EW->word[0]);
+                } else 
+                    return 0;
+                break;
             default:
                     printf_log(LOG_NONE, "Illegal Opcode %p: 66 %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
                     emu->quit=1;
