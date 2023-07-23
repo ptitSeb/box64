@@ -970,6 +970,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #endif
 #ifdef DYNAREC
     if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
+        printf_log(LOG_INFO, "FillBlock triggered a segfault at %p from %p\n", addr, pc);
         CancelBlock64(0);
         cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
         relockMutex(Locks);
