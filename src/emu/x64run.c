@@ -1315,7 +1315,32 @@ x64emurun:
             addr = rex.is32bits?Pop32(emu):Pop64(emu);
             STEP2
             break;
-
+        case 0xC4:                      /* LES Gd,Ed */
+            if(rex.is32bits) {
+                nextop = F8;
+                GETED(0);
+                GETGD;
+                emu->segs[_ES] = *(__uint16_t*)(((char*)ED)+4);
+                emu->segs_serial[_ES] = 0;
+                GD->dword[0] = *(uint32_t*)ED;
+            } else {
+                // AVX not supported yet
+                emit_signal(emu, SIGILL, R_RIP, 0);
+            }
+            break;
+        case 0xC5:                      /* LDS Gd,Ed */
+            if(rex.is32bits) {
+                nextop = F8;
+                GETED(0);
+                GETGD;
+                emu->segs[_DS] = *(__uint16_t*)(((char*)ED)+4);
+                emu->segs_serial[_DS] = 0;
+                GD->dword[0] = *(uint32_t*)ED;
+            } else {
+                // AVX not supported yet
+                emit_signal(emu, SIGILL, R_RIP, 0);
+            }
+            break;
         case 0xC6:                      /* MOV Eb,Ib */
             nextop = F8;
             GETEB(1);
