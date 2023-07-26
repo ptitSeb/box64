@@ -1325,7 +1325,7 @@ x64emurun:
                 GD->dword[0] = *(uint32_t*)ED;
             } else {
                 // AVX not supported yet
-                emit_signal(emu, SIGILL, R_RIP, 0);
+                emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             }
             break;
         case 0xC5:                      /* LDS Gd,Ed */
@@ -1338,7 +1338,7 @@ x64emurun:
                 GD->dword[0] = *(uint32_t*)ED;
             } else {
                 // AVX not supported yet
-                emit_signal(emu, SIGILL, R_RIP, 0);
+                emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             }
             break;
         case 0xC6:                      /* MOV Eb,Ib */
@@ -1907,9 +1907,8 @@ x64emurun:
                 case 3:                 /* CALL FAR Ed */
                     GETET(0);
                     if(MODREG) {
-                        printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
-                        emu->quit=1;
-                        emu->error |= ERR_ILLEGAL;
+                        printf_log(LOG_NONE, "Illegal Opcode %p: (%02X %02X %02X %02X) %02X %02X %02X %02X\n", (void*)R_RIP, PK(-6), PK(-5), PK(-4), PK(-3), opcode, nextop, PK(0), PK(1));
+                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
                         goto fini;
                     } else {
                         if(rex.is32bits || !rex.w) {
@@ -1938,9 +1937,8 @@ x64emurun:
                 case 5:                 /* JMP FAR Ed */
                     GETET(0);
                     if(MODREG) {
-                        printf_log(LOG_NONE, "Illegal Opcode %p: 0x%02X 0x%02X %02X %02X\n", (void*)R_RIP, opcode, nextop, PK(2), PK(3));
-                        emu->quit=1;
-                        emu->error |= ERR_ILLEGAL;
+                        printf_log(LOG_NONE, "Illegal Opcode %p: (%02X %02X %02X %02X) %02X %02X %02X %02X\n", (void*)R_RIP, PK(-6), PK(-5), PK(-4), PK(-3), opcode, nextop, PK(0), PK(1));
+                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
                         goto fini;
                     } else {
                         if(rex.is32bits || !rex.w) {
@@ -1965,9 +1963,8 @@ x64emurun:
                     }
                     break;
                 default:
-                    printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
-                    emu->quit=1;
-                    emu->error |= ERR_ILLEGAL;
+                    printf_log(LOG_NONE, "Illegal Opcode %p: (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X\n", (void*)R_RIP, PK(-6), PK(-5), PK(-4), PK(-3), opcode, nextop, PK(0), PK(1), PK(2), PK(3));
+                    emit_signal(emu, SIGILL, (void*)R_RIP, 0);
                     goto fini;
             }
             break;
