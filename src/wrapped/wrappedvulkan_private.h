@@ -812,3 +812,7 @@ GO(vkGetMemoryWin32HandlePropertiesKHR, iFpipp)
 
 // VK_EXT_swapchain_maintenance1
 GO(vkReleaseSwapchainImagesEXT, iFpp)
+
+// VK_VALVE_descriptor_set_host_mapping
+GO(vkGetDescriptorSetHostMappingVALVE, vFppp)
+GO(vkGetDescriptorSetLayoutHostMappingInfoVALVE, vFppp)
