@@ -6,7 +6,7 @@ Linux 上用户空间的 x86_64 应用模拟器（支持运行原生库）
 ----
 ![box64 build status](https://app.travis-ci.com/ptitSeb/box64.svg?branch=main)
 
-[English](docs/README.md)
+[English](docs/README.md) | [Українська](https://github.com/ptitSeb/box64/blob/main/README_UK.md) 
 
 Box64 可以在非 x86_64 Linux 系统（比如 ARM64）上运行 x86_64 Linux 程序（比如游戏），注意主机系统需要是 64 位小端。
 
