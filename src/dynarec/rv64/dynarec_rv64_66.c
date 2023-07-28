@@ -427,6 +427,67 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGW(x2);
             emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
             break;
+        case 0x87:
+            INST_NAME("(LOCK)XCHG Ew, Gw");
+            nextop = F8;
+            if(MODREG) {
+                GETGD;
+                GETED(0);
+                ADDI(x1, gd, 0);
+                LUI(x3, 0xffff0);
+                AND(gd, gd, x3);
+                ZEXTH(x4, ed);
+                OR(gd, gd, x4);
+                AND(ed, ed, x3);
+                ZEXTH(x4, x1);
+                OR(ed, ed, x4);
+            } else {
+                GETGD;
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                SMDMB();
+
+                ANDI(x3, ed, 1);
+                BNEZ_MARK(x3);
+
+                ANDI(x3, ed, 0b10);
+                LUI(x5, 0xffff0);
+                ZEXTH(x6, gd);
+                BNEZ_MARK3(x3);
+
+                MARKLOCK;
+                LR_W(x1, ed, 1, 0);
+                AND(x3, x1, x5);
+                OR(x3, x3, x6);
+                SC_W(x3, x3, ed, 0, 1);
+                BNEZ_MARKLOCK(x3);
+                ZEXTH(x1, x1);
+                B_MARK2_nocond;
+
+                MARK3;
+                NOT(x5, x5);
+                SLLI(x5, x5, 16);
+                SLLI(x6, x6, 16);
+                NOT(x5, x5);
+                LR_W(x1, ed, 1, 0);
+                AND(x3, x1, x5);
+                OR(x3, x3, x6);
+                SC_W(x3, x3, ed, 0, 1);
+                BNEZ(x3, -4 * 4);
+                SRLI(x1, x1, 16);
+                ZEXTH(x1, x1);
+                B_MARK2_nocond;
+
+                MARK;
+                LHU(x1, ed, 0);
+                SH(gd, ed, 0);
+
+                MARK2;
+                SMDMB();
+                LUI(x5, 0xffff0);
+                AND(gd, gd, x5);
+                OR(gd, gd, x1);
+            }
+            break;
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;

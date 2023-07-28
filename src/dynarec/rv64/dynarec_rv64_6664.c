@@ -37,6 +37,35 @@ uintptr_t dynarec64_6664(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     GETREX();
 
     switch(opcode) {
+        case 0x89:
+            INST_NAME("MOV FS:Ew, Gw");
+            nextop = F8;
+            GETGD;  // don't need GETGW here
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                if(rex.w) {
+                    ADDI(ed, gd, 0);
+                } else {
+                    if(ed!=gd) {
+                        LUI(x1, 0xffff0);
+                        AND(gd, gd, x1);
+                        ZEXTH(x1, ed);
+                        OR(gd, gd, x1);
+                    }
+                }
+            } else {
+                grab_segdata(dyn, addr, ninst, x4, seg);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                ADD(x4, ed, x4);
+                if(rex.w) {
+                    SD(gd, x4, fixedaddress);
+                } else {
+                    SH(gd, x4, fixedaddress);
+                }
+                SMWRITE();
+            }
+            break;
+
         case 0x8B:
             INST_NAME("MOV Gd, FS:Ed");
             nextop=F8;
@@ -68,7 +97,6 @@ uintptr_t dynarec64_6664(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
-
 
         default:
             DEFAULT;

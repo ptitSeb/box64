@@ -411,7 +411,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             AND(x4, x4, x6);
                             OR(x3, x3, x4);
                             BNEZ(x3, 8);
-                            ORI(xFlags, xFlags, 1<<F_ZF);
+                            ORI(xFlags, xFlags, 1<<F_CF);
                         }
                     }
                     break;
