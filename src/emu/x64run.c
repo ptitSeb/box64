@@ -659,12 +659,12 @@ x64emurun:
             GETEB(0);
             GETGB;
             if(!MODREG)
-                pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
+                pthread_mutex_lock(&my_context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
             tmp8u = GB;
             GB = EB->byte[0];
             EB->byte[0] = tmp8u;
             if(!MODREG)
-                pthread_mutex_unlock(&emu->context->mutex_lock);
+                pthread_mutex_unlock(&my_context->mutex_lock);
 #endif                
             break;
         case 0x87:                      /* XCHG Ed,Gd */
@@ -693,7 +693,7 @@ x64emurun:
             GETED(0);
             GETGD;
             if(!MODREG)
-                pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
+                pthread_mutex_lock(&my_context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
             if(rex.w) {
                 tmp64u = GD->q[0];
                 GD->q[0] = ED->q[0];
@@ -707,7 +707,7 @@ x64emurun:
                     ED->dword[0] = tmp32u;
             }
             if(!MODREG)
-                pthread_mutex_unlock(&emu->context->mutex_lock);
+                pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
             break;
         case 0x88:                      /* MOV Eb,Gb */

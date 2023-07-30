@@ -79,14 +79,14 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         }
                     } while(tmp32s);
 #else
-                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    pthread_mutex_lock(&my_context->mutex_lock);
                     cmp16(emu, R_AX, EW->word[0]);
                     if(ACCESS_FLAG(F_ZF)) {
                         EW->word[0] = GW->word[0];
                     } else {
                         R_AX = EW->word[0];
                     }
-                    pthread_mutex_unlock(&emu->context->mutex_lock);
+                    pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
                     break;
 
@@ -110,11 +110,11 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     }
                     GD->word[0] = tmp16u;
 #else
-                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    pthread_mutex_lock(&my_context->mutex_lock);
                     tmp16u = add16(emu, ED->word[0], GD->word[0]);
                     GD->word[0] = ED->word[0];
                     ED->word[0] = tmp16u;
-                    pthread_mutex_unlock(&emu->context->mutex_lock);
+                    pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
                     break;
 
@@ -148,22 +148,22 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             nextop = F8;                                            \
             GETEW(0);                                               \
             GETGW;                                                  \
-            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            pthread_mutex_lock(&my_context->mutex_lock);          \
             EW->word[0] = OP##16(emu, EW->word[0], GW->word[0]);    \
-            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            pthread_mutex_unlock(&my_context->mutex_lock);        \
             break;                                                  \
         case B+3:                                                   \
             nextop = F8;                                            \
             GETEW(0);                                               \
             GETGW;                                                  \
-            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            pthread_mutex_lock(&my_context->mutex_lock);          \
             GW->word[0] = OP##16(emu, GW->word[0], EW->word[0]);    \
-            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            pthread_mutex_unlock(&my_context->mutex_lock);        \
             break;                                                  \
         case B+5:                                                   \
-            pthread_mutex_lock(&emu->context->mutex_lock);          \
+            pthread_mutex_lock(&my_context->mutex_lock);          \
             R_AX = OP##16(emu, R_AX, F16);                          \
-            pthread_mutex_unlock(&emu->context->mutex_lock);        \
+            pthread_mutex_unlock(&my_context->mutex_lock);        \
             break;
 #endif
         GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
@@ -205,7 +205,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     case 7:                                                  cmp16(emu, ED->word[0], tmp16u); break;
                 }
 #else
-            pthread_mutex_lock(&emu->context->mutex_lock);
+            pthread_mutex_lock(&my_context->mutex_lock);
             switch((nextop>>3)&7) {
                 case 0: ED->word[0] = add16(emu, ED->word[0], tmp16u); break;
                 case 1: ED->word[0] =  or16(emu, ED->word[0], tmp16u); break;
@@ -216,7 +216,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 case 6: ED->word[0] = xor16(emu, ED->word[0], tmp16u); break;
                 case 7:               cmp16(emu, ED->word[0], tmp16u); break;
             }
-            pthread_mutex_unlock(&emu->context->mutex_lock);
+            pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
             break;
 
@@ -241,9 +241,9 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         } while(native_lock_write_h(ED, inc16(emu, tmp16u)));
                     }
 #else
-                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    pthread_mutex_lock(&my_context->mutex_lock);
                     ED->word[0] = inc16(emu, ED->word[0]);
-                    pthread_mutex_unlock(&emu->context->mutex_lock);
+                    pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
                     break;
                 case 1:                 /* DEC Ed */
@@ -252,9 +252,9 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         tmp16u = native_lock_read_h(ED);
                     } while(native_lock_write_h(ED, dec16(emu, tmp16u)));
 #else
-                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    pthread_mutex_lock(&my_context->mutex_lock);
                     ED->word[0] = dec16(emu, ED->word[0]);
-                    pthread_mutex_unlock(&emu->context->mutex_lock);
+                    pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
                     break;
                 default:
