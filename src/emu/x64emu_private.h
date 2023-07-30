@@ -83,6 +83,7 @@ typedef struct x64emu_s {
     int         quit;
     int         error;
     int         fork;   // quit because need to fork
+    int         need_jmpbuf;    // need a new jmpbuff for signal handling
     forkpty_t*  forkpty_info;
     int         exit;
     int         quitonlongjmp;  // quit if longjmp is called

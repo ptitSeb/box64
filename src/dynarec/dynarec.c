@@ -73,114 +73,63 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 }
 #endif
 
-#ifdef __GNUC__
-// Disable "clobbered" warnings
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wclobbered"
-#endif
 void DynaCall(x64emu_t* emu, uintptr_t addr)
 {
-    // prepare setjump for signal handling
-    struct __jmp_buf_tag jmpbuf[1] = {0};
-    int skip = 0;
-    struct __jmp_buf_tag *old_jmpbuf = emu->jmpbuf;
-    emu->jmpbuf = jmpbuf;
-
-    if((skip = sigsetjmp(emu->jmpbuf, 1))) {
-        printf_log(LOG_DEBUG, "Setjmp DynaCall, fs=0x%x\n", emu->segs[_FS]);
-        addr = R_RIP;   // not sure if it should still be inside DynaCall!
-        #ifdef DYNAREC
-        if(box64_dynarec_test) {
-            if(emu->test.clean)
-                x64test_check(emu, R_RIP);
-            emu->test.clean = 0;
-        }
-        #endif
+    uint64_t old_rsp = R_RSP;
+    uint64_t old_rbx = R_RBX;
+    uint64_t old_rdi = R_RDI;
+    uint64_t old_rsi = R_RSI;
+    uint64_t old_rbp = R_RBP;
+    uint64_t old_rip = R_RIP;
+    PushExit(emu);
+    R_RIP = addr;
+    emu->df = d_none;
+    DynaRun(emu);
+    emu->quit = 0;  // reset Quit flags...
+    emu->df = d_none;
+    if(emu->quitonlongjmp && emu->longjmp) {
+        if(emu->quitonlongjmp==1)
+            emu->longjmp = 0;   // don't change anything because of the longjmp
+    } else {
+        R_RBX = old_rbx;
+        R_RDI = old_rdi;
+        R_RSI = old_rsi;
+        R_RBP = old_rbp;
+        R_RSP = old_rsp;
+        R_RIP = old_rip;  // and set back instruction pointer
     }
-#ifdef DYNAREC
-    if(!box64_dynarec)
-#endif
-        EmuCall(emu, addr);
-#ifdef DYNAREC
-    else {
-        uint64_t old_rsp = R_RSP;
-        uint64_t old_rbx = R_RBX;
-        uint64_t old_rdi = R_RDI;
-        uint64_t old_rsi = R_RSI;
-        uint64_t old_rbp = R_RBP;
-        uint64_t old_rip = R_RIP;
-        PushExit(emu);
-        R_RIP = addr;
-        emu->df = d_none;
-        while(!emu->quit) {
-            int is32bits = (emu->segs[_CS]==0x23);
-            dynablock_t* block = (skip)?NULL:DBGetBlock(emu, R_RIP, 1, is32bits);
-            if(!block || !block->block || !block->done) {
-                skip = 0;
-                // no block, of block doesn't have DynaRec content (yet, temp is not null)
-                // Use interpreter (should use single instruction step...)
-                dynarec_log(LOG_DEBUG, "%04d|Calling Interpreter @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
-                if(box64_dynarec_test)
-                    emu->test.clean = 0;
-                Run(emu, 1);
-            } else {
-                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x64 instructions (hash=0x%x) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize ,block->hash, emu);
-                CHECK_FLAGS(emu);
-                // block is here, let's run it!
-                native_prolog(emu, block->block);
-            }
-            if(emu->fork) {
-                int forktype = emu->fork;
-                emu->quit = 0;
-                emu->fork = 0;
-                emu = x64emu_fork(emu, forktype);
-            }
-        }
-        emu->quit = 0;  // reset Quit flags...
-        emu->df = d_none;
-        if(emu->quitonlongjmp && emu->longjmp) {
-            if(emu->quitonlongjmp==1)
-                emu->longjmp = 0;   // don't change anything because of the longjmp
-        } else {
-            R_RBX = old_rbx;
-            R_RDI = old_rdi;
-            R_RSI = old_rsi;
-            R_RBP = old_rbp;
-            R_RSP = old_rsp;
-            R_RIP = old_rip;  // and set back instruction pointer
-        }
-    }
-#endif
-    // clear the setjmp
-    emu->jmpbuf = old_jmpbuf;
 }
 
-int DynaRun(x64emu_t* emu)
+void DynaRun(x64emu_t* emu)
 {
     // prepare setjump for signal handling
     struct __jmp_buf_tag jmpbuf[1] = {0};
     int skip = 0;
     struct __jmp_buf_tag *old_jmpbuf = emu->jmpbuf;
-    emu->jmpbuf = jmpbuf;
 
-    if((skip=sigsetjmp(emu->jmpbuf, 1))) {
-        printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", emu->segs[_FS]);
-        #ifdef DYNAREC
-        if(box64_dynarec_test) {
-            if(emu->test.clean)
-                x64test_check(emu, R_RIP);
-            emu->test.clean = 0;
+    while(!(emu->quit)) {
+        if(!emu->jmpbuf || (emu->need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
+            emu->jmpbuf = jmpbuf;
+            if((skip=sigsetjmp(emu->jmpbuf, 1))) {
+                printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", emu->segs[_FS]);
+                #ifdef DYNAREC
+                if(box64_dynarec_test) {
+                    if(emu->test.clean)
+                        x64test_check(emu, R_RIP);
+                    emu->test.clean = 0;
+                }
+                #endif
+            }
         }
-        #endif
-    }
+        if(emu->need_jmpbuf)
+            emu->need_jmpbuf = 0;   
 
 #ifdef DYNAREC
-    if(!box64_dynarec)
+        if(!box64_dynarec)
 #endif
-        return Run(emu, 0);
+            Run(emu, 0);
 #ifdef DYNAREC
-    else {
-        while(!emu->quit) {
+        else {
             int is32bits = (emu->segs[_CS]==0x23);
             dynablock_t* block = (skip)?NULL:DBGetBlock(emu, R_RIP, 1, is32bits);
             if(!block || !block->block || !block->done) {
@@ -202,13 +151,11 @@ int DynaRun(x64emu_t* emu)
                 emu->fork = 0;
                 emu = x64emu_fork(emu, forktype);
             }
+            if(emu->need_jmpbuf)
+                emu->quit = 0;
         }
     }
     // clear the setjmp
     emu->jmpbuf = old_jmpbuf;
-    return 0;
 #endif
 }
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif

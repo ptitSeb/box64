@@ -2519,6 +2519,9 @@ EXPORT int32_t my___sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/vo
             ((__jmp_buf_tag_t*)p)->__mask_was_saved = 1;
     } else
         ((__jmp_buf_tag_t*)p)->__mask_was_saved = 0;
+    // quit emulation loop and create a new jumpbuf if needed
+    emu->need_jmpbuf = 1;
+    emu->quit = 1;
     return 0;
 }
 EXPORT int32_t my_sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int savesigs)
