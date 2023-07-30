@@ -124,7 +124,9 @@ void DynaRun(x64emu_t* emu)
         if(emu->need_jmpbuf)
             emu->need_jmpbuf = 0;   
 
+#ifdef DYNAREC
         if(!box64_dynarec)
+#endif
             Run(emu, 0);
 #ifdef DYNAREC
         else {
@@ -152,8 +154,8 @@ void DynaRun(x64emu_t* emu)
             if(emu->need_jmpbuf)
                 emu->quit = 0;
         }
+#endif
     }
     // clear the setjmp
     emu->jmpbuf = old_jmpbuf;
-#endif
 }
