@@ -311,8 +311,10 @@ void FreeElfMemory(elfheader_t* head)
         for(int i=0; i<head->multiblock_n; ++i) {
 #ifdef DYNAREC
             dynarec_log(LOG_INFO, "Free DynaBlocks for %s\n", head->path);
-            cleanDBFromAddressRange((uintptr_t)head->multiblock[i], head->multiblock_size[i], 1);
-            freeProtection((uintptr_t)head->multiblock[i], head->multiblock_size[i]);
+            if(box64_dynarec) {
+                cleanDBFromAddressRange((uintptr_t)head->multiblock[i], head->multiblock_size[i], 1);
+                freeProtection((uintptr_t)head->multiblock[i], head->multiblock_size[i]);
+            }
 #endif
             munmap(head->multiblock[i], head->multiblock_size[i]);
         }

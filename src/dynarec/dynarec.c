@@ -151,10 +151,10 @@ void DynaRun(x64emu_t* emu)
                 emu->fork = 0;
                 emu = x64emu_fork(emu, forktype);
             }
-            if(emu->need_jmpbuf)
-                emu->quit = 0;
         }
 #endif
+        if(emu->need_jmpbuf)
+            emu->quit = 0;
     }
     // clear the setjmp
     emu->jmpbuf = old_jmpbuf;
