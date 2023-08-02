@@ -184,6 +184,7 @@ static scwrap_t syscallwrap[] = {
     { 155, __NR_pivot_root, 2},
     { 157, __NR_prctl, 5 },     // needs wrapping?
     //{ 158, __NR_arch_prctl, 2},   //need wrapping
+    { 160, __NR_setrlimit, 2},
     { 161, __NR_chroot, 1},
     { 186, __NR_gettid, 0 },    //0xBA
     { 200, __NR_tkill, 2 },

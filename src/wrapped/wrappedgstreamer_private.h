@@ -202,8 +202,8 @@ GO(gst_caps_features_is_equal, iFpp)
 GO(gst_caps_features_new_any, pFv)
 //GO(gst_caps_features_new_empty, 
 //GO(gst_caps_features_new_id, 
-//GO(gst_caps_features_new_id_valist, 
-//GO(gst_caps_features_new_valist, 
+GO(gst_caps_features_new_id_valist, pFup)
+GO(gst_caps_features_new_valist, pFpp)
 GO(gst_caps_features_remove, vFpp)
 GO(gst_caps_features_remove_id, vFpu)
 GO(gst_caps_features_set_parent_refcount, iFpp)
