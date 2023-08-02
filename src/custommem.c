@@ -1463,7 +1463,7 @@ void init_custommem_helper(box64context_t* ctx)
         memprot[i].prot = memprot_default;
     init_mutexes();
 #ifdef DYNAREC
-    if(box64_dynarec)
+    if(box64_dynarec) {
         for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i)
             box64_jmptbl3[i] = box64_jmptbldefault2;
         for(int i=0; i<(1<<JMPTABL_SHIFT2); ++i)
@@ -1472,6 +1472,7 @@ void init_custommem_helper(box64context_t* ctx)
             box64_jmptbldefault1[i] = box64_jmptbldefault0;
         for(int i=0; i<(1<<JMPTABL_SHIFT0); ++i)
             box64_jmptbldefault0[i] = (uintptr_t)native_next;
+    }
     lockaddress = kh_init(lockaddress);
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
