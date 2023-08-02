@@ -77,8 +77,8 @@ typedef struct instruction_arm64_s {
     uintptr_t           natcall;
     int                 retn;
     int                 barrier_maybe;
-    flagcache_t         f_exit;     // flags status at end of intruction
-    neoncache_t         n;          // neoncache at end of intruction (but before poping)
+    flagcache_t         f_exit;     // flags status at end of instruction
+    neoncache_t         n;          // neoncache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
 } instruction_arm64_t;
 
@@ -87,12 +87,12 @@ typedef struct dynarec_arm_s {
     int32_t             size;
     int32_t             cap;
     uintptr_t           start;      // start of the block
-    uint32_t            isize;      // size in byte of x64 instructions included
+    uint32_t            isize;      // size in bytes of x64 instructions included
     void*               block;      // memory pointer where next instruction is emitted
     uintptr_t           native_start;  // start of the arm code
     size_t              native_size;   // size of emitted arm code
     uintptr_t           last_ip;    // last set IP in RIP (or NULL if unclean state) TODO: move to a cache something
-    uint64_t*           table64;   // table of 64bits value
+    uint64_t*           table64;    // table of 64bits values
     int                 table64size;// size of table (will be appended at end of executable code)
     int                 table64cap;
     uintptr_t           tablestart;
@@ -106,7 +106,7 @@ typedef struct dynarec_arm_s {
     dynablock_t*        dynablock;
     instsize_t*         instsize;
     size_t              insts_size; // size of the instruction size array (calculated)
-    uint8_t             smread;    // for strongmem model emulation
+    uint8_t             smread;     // for strongmem model emulation
     uint8_t             smwrite;    // for strongmem model emulation
     uintptr_t           forward;    // address of the last end of code while testing forward
     uintptr_t           forward_to; // address of the next jump to (to check if everything is ok)
@@ -122,7 +122,7 @@ uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr);
 int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n);
 
-int Table64(dynarec_arm_t *dyn, uint64_t val, int pass);  // add a value to etable64 (if needed) and gives back the imm19 to use in LDR_literal
+int Table64(dynarec_arm_t *dyn, uint64_t val, int pass);  // add a value to table64 (if needed) and gives back the imm19 to use in LDR_literal
 
 void CreateJmpNext(void* addr, void* next);
 

@@ -135,7 +135,7 @@ uintptr_t get_closest_next(dynarec_rv64_t *dyn, uintptr_t addr);
 int is_nops(dynarec_rv64_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_rv64_t *dyn, uintptr_t addr, int n);
 
-int Table64(dynarec_rv64_t *dyn, uint64_t val, int pass);  // add a value to etable64 (if needed) and gives back the imm19 to use in LDR_literal
+int Table64(dynarec_rv64_t *dyn, uint64_t val, int pass);  // add a value to table64 (if needed) and gives back the imm19 to use in LDR_literal
 
 void CreateJmpNext(void* addr, void* next);
 

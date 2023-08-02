@@ -48,7 +48,7 @@ typedef struct x64emu_s {
 	mmx87_regs_t mmx[8];
 	x87control_t cw;
 	x87flags_t  sw;
-	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
+	uint32_t    top;        // top is part of sw, but it's faster to have it separately
     int         fpu_stack;
     mmxcontrol_t mxcsr;
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
@@ -93,7 +93,7 @@ typedef struct x64emu_s {
     #ifdef HAVE_TRACE
     sse_regs_t  old_xmm[16];
     #endif
-    // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
+    // scratch stack, used for alignment of double and 64bits ints on arm. 200 elements should be enough
     uint64_t    scratch[200];
     // local stack, do be deleted when emu is freed
     void*       stack2free; // this is the stack to free (can be NULL)

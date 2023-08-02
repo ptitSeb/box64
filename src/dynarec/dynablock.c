@@ -209,7 +209,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     // fill the block
     block->x64_addr = (void*)addr;
     if(sigsetjmp(&dynarec_jmpbuf, 1)) {
-        printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, cancelling\n", (void*)addr);
+        printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, canceling\n", (void*)addr);
         FreeDynablock(block, 0);
         if(need_lock)
             mutex_unlock(&my_context->mutex_dyndump);

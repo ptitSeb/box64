@@ -34,12 +34,12 @@
 
 // Strong mem emulation helpers
 // Sequence of Read will trigger a DMB on "first" read if strongmem is 2
-// Squence of Write will trigger a DMB on "last" write if strongmem is 1
+// Sequence of Write will trigger a DMB on "last" write if strongmem is 1
 // Opcode will read
 #define SMREAD()    if(!dyn->smread && box64_dynarec_strongmem>1) {SMDMB();}
 // Opcode will read with option forced lock
 #define SMREADLOCK(lock)    if(lock || (!dyn->smread && box64_dynarec_strongmem>1)) {SMDMB();}
-// Opcode migh read (depend on nextop)
+// Opcode might read (depend on nextop)
 #define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
 // Opcode has wrote
 #define SMWRITE()   dyn->smwrite=1
@@ -47,7 +47,7 @@
 #define SMWRITE2()   if(box64_dynarec_strongmem>1) dyn->smwrite=1
 // Opcode has wrote with option forced lock
 #define SMWRITELOCK(lock)   if(lock) {SMDMB();} else dyn->smwrite=1
-// Opcode migh have wrote (depend on nextop)
+// Opcode might have wrote (depend on nextop)
 #define SMMIGHTWRITE()   if(!MODREG) {SMWRITE();}
 // Start of sequence
 #define SMSTART()   SMEND()
@@ -365,7 +365,7 @@
                     }                           \
                     gd = i;                     \
                     UBFXx(gd, gb1, gb2, 8);
-//GETSGB signe extend GB, will use i for gd
+//GETSGB sign extend GB, will use i for gd
 #define GETSGB(i)   if(rex.rex) {               \
                         gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);     \
                         gb2 = 0;                \
@@ -1100,7 +1100,7 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
 void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 
 // x87 helper
-// cache of the local stack counter, to avoid upadte at every call
+// cache of the local stack counter, to avoid update at every call
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
 // fpu push. Return the Dd value to be used
 int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t);

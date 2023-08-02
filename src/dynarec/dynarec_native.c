@@ -78,7 +78,7 @@ void add_next(dynarec_native_t *dyn, uintptr_t addr) {
     dyn->next[dyn->next_sz++] = addr;
 }
 uintptr_t get_closest_next(dynarec_native_t *dyn, uintptr_t addr) {
-    // get closest, but no addresses befores
+    // get closest, but no addresses before
     uintptr_t best = 0;
     int i = 0;
     while((i<dyn->next_sz) && (best!=addr)) {
@@ -124,8 +124,8 @@ int is_nops(dynarec_native_t *dyn, uintptr_t addr, int n)
     return 0;
 }
 
-// return size of next instuciton, -1 is unknown
-// not all instrction are setup
+// return size of next instruction, -1 is unknown
+// not all instructions are setup
 int next_instruction(dynarec_native_t *dyn, uintptr_t addr)
 {
     uint8_t opcode = PK(0);
@@ -293,7 +293,7 @@ int Table64(dynarec_native_t *dyn, uint64_t val, int pass)
 static void fillPredecessors(dynarec_native_t* dyn)
 {
     int pred_sz = 1;    // to be safe
-    // compute total size of predecessor to alocate the array
+    // compute total size of predecessor to allocate the array
     // first compute the jumps
     for(int i=0; i<dyn->size; ++i) {
         if(dyn->insts[i].x64.jmp && (dyn->insts[i].x64.jmp_insts!=-1)) {
@@ -301,7 +301,7 @@ static void fillPredecessors(dynarec_native_t* dyn)
             dyn->insts[dyn->insts[i].x64.jmp_insts].pred_sz++;
         }
     }
-    // remove "has_next" from orphean branch
+    // remove "has_next" from orphan branch
     for(int i=0; i<dyn->size-1; ++i) {
         if(!dyn->insts[i].x64.has_next) {
             if(dyn->insts[i+1].x64.has_next && !dyn->insts[i+1].pred_sz)
@@ -335,7 +335,7 @@ static void fillPredecessors(dynarec_native_t* dyn)
     }
 }
 
-// updateNeed goes backward, from last intruction to top
+// updateNeed goes backward, from last instruction to top
 static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
     while (ninst>=0) {
         // need pending but instruction is only a subset: remove pend and use an X_ALL instead
@@ -417,7 +417,7 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
     void* actual_p = (void*)AllocDynarecMap(sz);
     void* p = actual_p + sizeof(void*);
     if(actual_p==NULL) {
-        dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
+        dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, canceling block\n", block, sz);
         CancelBlock64(0);
         return NULL;
     }
@@ -444,11 +444,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         B+8 ..  B+15    : 2 Native code for jmpnext (or jmp epilog in case of empty block)
         B+16 .. B+23    : jmpnext (or jmp_epilog) address
         B+24 .. B+31    : empty (in case an architecture needs more than 2 opcodes)
-        B+32 .. B+32+sz : instsize (compressed array with each instruction lenght on x64 and native side)
+        B+32 .. B+32+sz : instsize (compressed array with each instruction length on x64 and native side)
 
     */
     if(IsInHotPage(addr)) {
-        dynarec_log(LOG_DEBUG, "Cancelling dynarec FillBlock on hotpage for %p\n", (void*)addr);
+        dynarec_log(LOG_DEBUG, "Canceling dynarec FillBlock on hotpage for %p\n", (void*)addr);
         return NULL;
     }
     if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
@@ -456,7 +456,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         return CreateEmptyBlock(block, addr);
     }
     if(current_helper) {
-        dynarec_log(LOG_DEBUG, "Cancelling dynarec FillBlock at %p as anothor one is going on\n", (void*)addr);
+        dynarec_log(LOG_DEBUG, "Canceling dynarec FillBlock at %p as another one is going on\n", (void*)addr);
         return NULL;
     }
     // protect the 1st page
@@ -520,7 +520,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     while (pos>=0)
         pos = updateNeed(&helper, pos, 0);
 
-    // pass 1, float optimisations, first pass for flags
+    // pass 1, float optimizations, first pass for flags
     native_pass1(&helper, addr, alternate, is32bits);
     
     // pass 2, instruction size
@@ -538,7 +538,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     void* next = tablestart + helper.table64size*sizeof(uint64_t);
     void* instsize = next + 4*sizeof(void*);
     if(actual_p==NULL) {
-        dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
+        dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, canceling block\n", block, sz);
         CancelBlock64(0);
         return NULL;
     }
@@ -588,7 +588,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // all done...
     __clear_cache(actual_p, actual_p+sz);   // need to clear the cache before execution...
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
-    // Check if something changed, to abbort if it as
+    // Check if something changed, to abort if it is
     if((block->hash != hash)) {
         dynarec_log(LOG_DEBUG, "Warning, a block changed while being processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
         AddHotPage(addr);
@@ -611,7 +611,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         return NULL;
     }
     if(insts_rsize/sizeof(instsize_t)<helper.insts_size) {
-        printf_log(LOG_NONE, "BOX64: Warning, ists_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));
+        printf_log(LOG_NONE, "BOX64: Warning, insts_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));
     }
     if(!isprotectedDB(addr, end-addr)) {
         dynarec_log(LOG_DEBUG, "Warning, block unprotected while being processed %p:%ld, marking as need_test\n", block->x64_addr, block->x64_size);
