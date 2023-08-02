@@ -235,6 +235,7 @@ static scwrap_t syscallwrap[] = {
     { 264, __NR_renameat, 4},
     #endif
     { 267, __NR_readlinkat, 4},
+    { 268, __NR_fchmodat, 3},
     { 270, __NR_pselect6, 6},
     { 272, __NR_unshare, 1},
     { 273, __NR_set_robust_list, 2},
