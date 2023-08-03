@@ -62,6 +62,7 @@ int32_t my_epoll_pwait(x64emu_t* emu, int32_t epfd, void* events, int32_t maxeve
 pid_t my_vfork(x64emu_t* emu);
 #endif
 int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c);
+int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 
 // cannot include <fcntl.h>, it conflict with some asm includes...
 #ifndef O_NONBLOCK
@@ -136,6 +137,7 @@ static scwrap_t syscallwrap[] = {
     { 57, __NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
     #endif
     //{58, __NR_vfork, 0},
+    //{59, __NR_execve, 3},
     { 60, __NR_exit, 1},    // Nees wrapping?
     { 61, __NR_wait4, 4},
     { 62, __NR_kill, 2 },
@@ -181,6 +183,7 @@ static scwrap_t syscallwrap[] = {
     { 127, __NR_rt_sigpending, 2},
     { 128, __NR_rt_sigtimedwait, 4},
     //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack*
+    { 140, __NR_getpriority, 2},
     { 155, __NR_pivot_root, 2},
     { 157, __NR_prctl, 5 },     // needs wrapping?
     //{ 158, __NR_arch_prctl, 2},   //need wrapping
@@ -601,6 +604,14 @@ void EXPORT x64Syscall(x64emu_t *emu)
                     R_RAX = (uint64_t)-errno;
             }
             break;
+        case 59:   // execve
+            {
+                int64_t r = my_execve(emu, (const char*)R_RDI, (char* const*)R_RSI, (char* const*)R_RDX);
+                R_RAX = r;
+                if(R_EAX==0xffffffff)
+                    R_RAX = (uint64_t)-errno;
+            }
+            break;
         case 63:    //uname
             {
                 old_utsname_t *old = (old_utsname_t*)R_RDI;
@@ -897,6 +908,8 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 58:   // vfork
             return my_vfork(emu);
+        case 59:   // execve
+            return my_execve(emu, (const char*)R_RSI, (char* const*)R_RDX, (char* const*)R_RCX);
         case 63:    //uname
             {
                 old_utsname_t *old = (old_utsname_t*)R_RSI;
