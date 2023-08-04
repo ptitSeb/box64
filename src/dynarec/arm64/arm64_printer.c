@@ -1107,7 +1107,19 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "FSQRT %c%d, %c%d", s, Rd, s, Rn);
         return buff;
     }
-
+    // FPRINTX
+    if(isMask(opcode, "0Q1011100f100001100110nnnnnddddd", &a)) {
+        char s = a.Q?'V':'D';
+        char d = sf?'D':'S';
+        int n = (a.Q && !sf)?4:2;
+        snprintf(buff, sizeof(buff), "VFRINTX %c%d.%d%c, %c%d.%d%c", s, Rd, n, d, s, Rn, n, d);
+        return buff;
+    }
+    if (isMask(opcode, "00011110ff100111010000nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FRINTX %c%d, %c%d", s, Rd, s, Rn);
+        return buff;
+    }
     // FRINTI
     if(isMask(opcode, "0Q1011101f100001100110nnnnnddddd", &a)) {
         char s = a.Q?'V':'D';
