@@ -890,6 +890,7 @@ typedef void (*vFppip_t)(void*, void*, int32_t, void*);
 typedef void (*vFppui_t)(void*, void*, uint32_t, int32_t);
 typedef void (*vFppuu_t)(void*, void*, uint32_t, uint32_t);
 typedef void (*vFppup_t)(void*, void*, uint32_t, void*);
+typedef void (*vFppUu_t)(void*, void*, uint64_t, uint32_t);
 typedef void (*vFppfi_t)(void*, void*, float, int32_t);
 typedef void (*vFppff_t)(void*, void*, float, float);
 typedef void (*vFppdu_t)(void*, void*, double, uint32_t);
