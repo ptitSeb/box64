@@ -173,8 +173,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         BFIw(xFlags, x4, F_CF, 1);
                         MOV32w(x4, 1);
                         LSLxw_REG(x4, x4, x2);
-                        EORxw_REG(x4, ed, x4);
-                        CSELxw(ed, ed, x4, cNE);
+                        ORRxw_REG(ed, ed, x4);
                     } else {
                         // Will fetch only 1 byte, to avoid alignment issue
                         if(rex.w) {
@@ -191,12 +190,11 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = x1;
                         wback = x3;
                         LSRw_REG(x4, ed, x2);
-                        ANDSw_mask(x4, x4, 0, 0);  //mask=1
+                        ANDw_mask(x4, x4, 0, 0);  //mask=1
                         BFIw(xFlags, x4, F_CF, 1);
                         MOV32w(x4, 1);
                         LSLw_REG(x4, x4, x2);
-                        EORw_REG(x4, ed, x4);
-                        CSELw(ed, ed, x4, cNE);
+                        ORRw_REG(ed, ed, x4);
                         STLXRB(x4, ed, wback);
                         CBNZw_MARKLOCK(x4);
                         SMDMB();
@@ -322,15 +320,14 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                         LSRxw_REG(x4, ed, x2);
                         if(rex.w) {
-                            ANDSx_mask(x4, x4, 1, 0, 0);  //mask=1
+                            ANDx_mask(x4, x4, 1, 0, 0);  //mask=1
                         } else {
-                            ANDSw_mask(x4, x4, 0, 0);  //mask=1
+                            ANDw_mask(x4, x4, 0, 0);  //mask=1
                         }
                         BFIw(xFlags, x4, F_CF, 1);
                         MOV32w(x4, 1);
                         LSLxw_REG(x4, x4, x2);
-                        EORxw_REG(x4, ed, x4);
-                        CSELxw(ed, ed, x4, cEQ);
+                        BICxw_REG(ed, ed, x4);
                     } else {
                         // Will fetch only 1 byte, to avoid alignment issue
                         if(rex.w) {
@@ -340,19 +337,18 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                         SMDMB();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                        ASRxw(x1, gd, 3); // r1 = (gd>>3)
+                        ASRx(x1, gd, 3); // r1 = (gd>>3)
                         ADDx_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
                         MARKLOCK;
                         LDAXRB(x1, wback);
                         ed = x1;
                         wback = x3;
                         LSRw_REG(x4, ed, x2);
-                        ANDSw_mask(x4, x4, 0, 0);  //mask=1
+                        ANDw_mask(x4, x4, 0, 0);  //mask=1
                         BFIw(xFlags, x4, F_CF, 1);
                         MOV32w(x4, 1);
                         LSLw_REG(x4, x4, x2);
-                        EORw_REG(x4, ed, x4);
-                        CSELw(ed, ed, x4, cEQ);
+                        ORRw_REG(ed, ed, x4);
                         STLXRB(x4, ed, wback);
                         CBNZw_MARKLOCK(x4);
                         SMDMB();
