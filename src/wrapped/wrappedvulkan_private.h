@@ -816,3 +816,16 @@ GO(vkReleaseSwapchainImagesEXT, iFpp)
 // VK_VALVE_descriptor_set_host_mapping
 GO(vkGetDescriptorSetHostMappingVALVE, vFppp)
 GO(vkGetDescriptorSetLayoutHostMappingInfoVALVE, vFppp)
+
+// VK_EXT_descriptor_buffer
+GO(vkCmdBindDescriptorBufferEmbeddedSamplersEXT, vFppUu)
+GO(vkCmdBindDescriptorBuffersEXT, vFpup)
+GO(vkCmdSetDescriptorBufferOffsetsEXT, vFppUuupp)
+GO(vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT, vFppp)
+GO(vkGetBufferOpaqueCaptureDescriptorDataEXT, vFppp)
+GO(vkGetDescriptorEXT, vFppLp)
+GO(vkGetDescriptorSetLayoutBindingOffsetEXT, vFpUup)
+GO(vkGetDescriptorSetLayoutSizeEXT, vFpUp)
+GO(vkGetImageOpaqueCaptureDescriptorDataEXT, vFppp)
+GO(vkGetImageViewOpaqueCaptureDescriptorDataEXT, vFppp)
+GO(vkGetSamplerOpaqueCaptureDescriptorDataEXT, vFppp)
