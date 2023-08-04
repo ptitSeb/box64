@@ -537,6 +537,15 @@
 #define EORx_REG_LSR(Rd, Rn, Rm, lsr)   EMIT(LOGIC_REG_gen(1, 0b10, 0b01, 0, Rm, lsr, Rn, Rd))
 #define EORw_REG_LSR(Rd, Rn, Rm, lsr)   EMIT(LOGIC_REG_gen(0, 0b10, 0b01, 0, Rm, lsr, Rn, Rd))
 #define EORxw_REG_LSR(Rd, Rn, Rm, lsr)  EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b01, 0, Rm, lsr, Rn, Rd))
+#define EONx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b10, 0b00, 1, Rm, 0, Rn, Rd))
+#define EONw_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(0, 0b10, 0b00, 1, Rm, 0, Rn, Rd))
+#define EONxw_REG(Rd, Rn, Rm)           EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b00, 1, Rm, 0, Rn, Rd))
+#define EONx_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(1, 0b10, 0b00, 1, Rm, lsl, Rn, Rd))
+#define EONw_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(0, 0b10, 0b00, 1, Rm, lsl, Rn, Rd))
+#define EONxw_REG_LSL(Rd, Rn, Rm, lsl)  EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b00, 1, Rm, lsl, Rn, Rd))
+#define EONx_REG_LSR(Rd, Rn, Rm, lsr)   EMIT(LOGIC_REG_gen(1, 0b10, 0b01, 1, Rm, lsr, Rn, Rd))
+#define EONw_REG_LSR(Rd, Rn, Rm, lsr)   EMIT(LOGIC_REG_gen(0, 0b10, 0b01, 1, Rm, lsr, Rn, Rd))
+#define EONxw_REG_LSR(Rd, Rn, Rm, lsr)  EMIT(LOGIC_REG_gen(rex.w, 0b10, 0b01, 1, Rm, lsr, Rn, Rd))
 #define MOVx_REG(Rd, Rm)                ORRx_REG(Rd, xZR, Rm)
 #define MOVw_REG(Rd, Rm)                ORRw_REG(Rd, xZR, Rm)
 #define MOVxw_REG(Rd, Rm)               ORRxw_REG(Rd, xZR, Rm)
@@ -563,6 +572,12 @@
 #define BICx_REG    BICx
 #define BICw_REG    BICw
 #define BICxw_REG   BICxw
+#define BICx_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(1, 0b00, 0b00, 1, Rm, lsl, Rn, Rd))
+#define BICw_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(0, 0b00, 0b00, 1, Rm, lsl, Rn, Rd))
+#define BICxw_REG_LSL(Rd, Rn, Rm, lsl)  EMIT(LOGIC_REG_gen(rex.w, 0b00, 0b00, 1, Rm, lsl, Rn, Rd))
+#define BICx_REG_LSR(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(1, 0b00, 0b01, 1, Rm, lsl, Rn, Rd))
+#define BICw_REG_LSR(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(0, 0b00, 0b01, 1, Rm, lsl, Rn, Rd))
+#define BICxw_REG_LSR(Rd, Rn, Rm, lsl)  EMIT(LOGIC_REG_gen(rex.w, 0b00, 0b01, 1, Rm, lsl, Rn, Rd))
 #define TSTx_REG(Rn, Rm)                ANDSx_REG(xZR, Rn, Rm)
 #define TSTw_REG(Rn, Rm)                ANDSw_REG(wZR, Rn, Rm)
 #define TSTxw_REG(Rn, Rm)               ANDSxw_REG(xZR, Rn, Rm)

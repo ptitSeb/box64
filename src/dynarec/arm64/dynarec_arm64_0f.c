@@ -1104,7 +1104,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
-                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                ASRx(x1, gd, 5+rex.w); // r1 = (gd>>5)
                 ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
@@ -1152,7 +1152,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
-                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                ASRx(x1, gd, 5+rex.w); // r1 = (gd>>5)
                 ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
@@ -1318,7 +1318,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
-                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                ASRx(x1, gd, 5+rex.w); // r1 = (gd>>5)
                 ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
@@ -1331,15 +1331,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             LSRxw_REG(x4, ed, x2);
             if(rex.w) {
-                ANDSx_mask(x4, x4, 1, 0, 0);  //mask=1
+                ANDx_mask(x4, x4, 1, 0, 0);  //mask=1
             } else {
-                ANDSw_mask(x4, x4, 0, 0);  //mask=1
+                ANDw_mask(x4, x4, 0, 0);  //mask=1
             }
             BFIw(xFlags, x4, F_CF, 1);
             MOV32w(x4, 1);
             LSLxw_REG(x4, x4, x2);
-            EORxw_REG(x4, ed, x4);
-            CSELxw(ed, ed, x4, cEQ);
+            BICxw_REG(ed, ed, x4);
             if(wback) {
                 STRxw_U12(ed, wback, fixedaddress);
                 SMWRITE();
@@ -1418,7 +1417,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     TBNZ_MARK3(xFlags, 0); // bit already set, jump to next instruction
                     MOV32w(x4, 1);
-                    EORxw_REG_LSL(ed, ed, x4, u8);
+                    ORRxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();
@@ -1443,7 +1442,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     TBZ_MARK3(xFlags, 0); // bit already clear, jump to next instruction
                     MOV32w(x4, 1);
-                    EORxw_REG_LSL(ed, ed, x4, u8);
+                    BICxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();
@@ -1490,7 +1489,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
-                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                ASRx(x1, gd, 5+rex.w); // r1 = (gd>>5)
                 ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;

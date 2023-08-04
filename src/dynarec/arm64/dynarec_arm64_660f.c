@@ -1756,7 +1756,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
-                SBFXw(x1, gd, 4, 12);   // r1 = (gw>>4)
+                SBFXx(x1, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x1, 1); //(&ed)+=r1*2;
                 LDH(x1, x3, fixedaddress);
                 ed = x1;
@@ -1797,9 +1797,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 wback = 0;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
-                SBFXw(x4, gd, 4, 12);   // r1 = (gw>>4)
+                SBFXx(x4, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
                 LDH(x4, x3, fixedaddress);
+                wback = x3;
                 ed = x4;
             }
             ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
@@ -1809,7 +1810,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             B_NEXT(cNE);
             MOV32w(x1, 1);
             LSLxw_REG(x1, x1, x2);
-            EORx_REG(ed, ed, x1);
+            ORRx_REG(ed, ed, x1);
             if(wback) {
                 STRH_U12(ed, wback, fixedaddress);
             }
@@ -1859,7 +1860,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
-                SBFXw(x4, gd, 4, 12);   // r1 = (gw>>4)
+                SBFXx(x4, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
                 LDH(x4, x3, fixedaddress);
                 wback = x3;
@@ -1872,7 +1873,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             B_NEXT(cEQ);
             MOV32w(x1, 1);
             LSLxw_REG(x1, x1, x2);
-            EORx_REG(ed, ed, x1);
+            BICx_REG(ed, ed, x1);
             if(wback) {
                 STH(ed, wback, fixedaddress);
                 SMWRITE();
@@ -1939,7 +1940,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     TBNZ_MARK3(xFlags, 0); // bit already set, jump to next instruction
                     MOV32w(x4, 1);
-                    EORxw_REG_LSL(ed, ed, x4, u8);
+                    ORRxw_REG_LSL(ed, ed, x4, u8);
                     EWBACK(x1);
                     MARK3;
                     break;
@@ -1953,7 +1954,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     TBZ_MARK3(xFlags, 0); // bit already clear, jump to next instruction
                     MOV32w(x4, 1);
-                    EORxw_REG_LSL(ed, ed, x4, u8);
+                    BICxw_REG_LSL(ed, ed, x4, u8);
                     EWBACK(x1);
                     MARK3;
                     break;
@@ -1985,7 +1986,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
-                SBFXw(x4, gd, 4, 12);   // r1 = (gw>>4)
+                SBFXx(x4, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
                 LDH(x4, x3, fixedaddress);
                 wback = x3;
