@@ -715,6 +715,44 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(x2, 0);
                     SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
                     break;
+                case 0xF0:
+                    INST_NAME("MOVBE Gw, Ew");
+                    nextop=F8;
+                    GETGD;
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 1);
+                    LHU(x1, ed, fixedaddress);
+                    if (rv64_zbb) {
+                        REV8(x1, x1);
+                        SRLI(x1, x1, 48);
+                    } else {
+                        ANDI(x2, x1, 0xff);
+                        SLLI(x2, x2, 8);
+                        SRLI(x1, x1, 8);
+                        OR(x1, x1, x2);
+                    }
+                    LUI(x2, 0xffff0);
+                    AND(gd, gd, x2);
+                    OR(gd, gd, x1);                    
+                    break;
+                case 0xF1:
+                    INST_NAME("MOVBE Ew, Gw");
+                    nextop=F8;
+                    GETGD;
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 0, 1);  
+                    if (rv64_zbb) {
+                        REV8(x1, gd);
+                        SRLI(x1, x1, 48);
+                    } else {
+                        ANDI(x1, gd, 0xff);
+                        SLLI(x1, x1, 8);
+                        SRLI(x2, gd, 8);
+                        ANDI(x2, x2, 0xff);
+                        OR(x1, x1, x2);
+                    }
+                    SH(x1, wback, fixedaddress);
+                    break;
                 default:
                     DEFAULT;
             }

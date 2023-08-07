@@ -316,7 +316,134 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SRLI(xRDX, x3, 32);
             AND(xRAX, x3, 32);   // wipe upper part
             break;
+        case 0x38:
+            //SSE3
+            nextop=F8;
+            switch(nextop) {
+                case 0xF0:
+                    INST_NAME("MOVBE Gd, Ed");
+                    nextop=F8;
+                    GETGD;
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LDxw(gd, ed, fixedaddress);
+                    if (rv64_zbb) {
+                        REV8(gd, gd);
+                        if (!rex.w) {
+                            SRLI(gd, gd, 32);
+                        }
+                    } else {
+                        if (rex.w) {
+                            LI(x2, 0xff);
+                            SLLI(x1, gd, 56);
+                            SRLI(x3, gd, 56);
+                            SRLI(x4, gd, 40);
+                            SLLI(x2, x2, 8);
+                            AND(x4, x4, x2);
+                            OR(x1, x1, x3);
+                            OR(x1, x1, x4);
+                            SLLI(x3, gd, 40);
+                            SLLI(x4, x2, 40);
+                            AND(x3, x3, x4);
+                            OR(x1, x1, x3);
 
+                            SRLI(x3, gd, 24);
+                            SLLI(x4, x2, 8);
+                            AND(x3, x3, x4);
+                            OR(x1, x1, x3);
+                            SLLI(x3, gd, 24);
+                            SLLI(x4, x2, 32);
+                            AND(x3, x3, x4);
+                            OR(x1, x1, x3);
+
+                            SRLI(x3, gd, 8);
+                            SLLI(x4, x2, 16);
+                            AND(x3, x3, x4);
+                            OR(x1, x1, x3);                     
+                            SLLI(x3, gd, 8);
+                            SLLI(x4, x2, 24);
+                            AND(x3, x3, x4);
+                            OR(gd, x1, x3);
+                        } else {
+                            LI(x2, 0xff);
+                            SLLIW(x2, x2, 8);
+                            SLLIW(x1, gd, 24);
+                            SRLIW(x3, gd, 24);
+                            SRLIW(x4, gd, 8);
+                            AND(x4, x4, x2);
+                            OR(x1, x1, x3);
+                            OR(x1, x1, x4);
+                            SLLIW(gd, gd, 8);
+                            LUI(x2, 0xff0);
+                            AND(gd, gd, x2);
+                            OR(gd, gd, x1);
+                        }                        
+                    }
+                    break;
+                case 0xF1:
+                    INST_NAME("MOVBE Ed, Gd");
+                    nextop=F8;
+                    GETGD;
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    if (rv64_zbb) {
+                        REV8(x1, gd);
+                        if (!rex.w) {
+                            SRLI(x1, x1, 32);
+                        }
+                    } else {
+                        if (rex.w) {
+                            LI(x2, 0xff);
+                            SLLI(x1, gd, 56);
+                            SRLI(x3, gd, 56);
+                            SRLI(x4, gd, 40);
+                            SLLI(x2, x2, 8);
+                            AND(x4, x4, x2);
+                            OR(x1, x1, x3);
+                            OR(x1, x1, x4);
+                            SLLI(x3, gd, 40);
+                            SLLI(x4, x2, 40);
+                            AND(x3, x3, x4);
+                            OR(x1, x1, x3);
+
+                            SRLI(x3, gd, 24);
+                            SLLI(x4, x2, 8);
+                            AND(x3, x3, x4);
+                            OR(x1, x1, x3);
+                            SLLI(x3, gd, 24);
+                            SLLI(x4, x2, 32);
+                            AND(x3, x3, x4);
+                            OR(x1, x1, x3);
+
+                            SRLI(x3, gd, 8);
+                            SLLI(x4, x2, 16);
+                            AND(x3, x3, x4);
+                            OR(x1, x1, x3);                     
+                            SLLI(x3, gd, 8);
+                            SLLI(x4, x2, 24);
+                            AND(x3, x3, x4);
+                            OR(x1, x1, x3);
+                        } else {
+                            LI(x2, 0xff);
+                            SLLIW(x2, x2, 8);
+                            SLLIW(x1, gd, 24);
+                            SRLIW(x3, gd, 24);
+                            SRLIW(x4, gd, 8);
+                            AND(x4, x4, x2);
+                            OR(x1, x1, x3);
+                            OR(x1, x1, x4);
+                            SLLIW(x3, gd, 8);
+                            LUI(x2, 0xff0);
+                            AND(x3, x3, x2);
+                            OR(x1, x1, x3);
+                        }
+                    }
+                    SDxw(x1, wback, fixedaddress);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
 
         #define GO(GETFLAGS, NO, YES, F)            \
             READFLAGS(F);                           \

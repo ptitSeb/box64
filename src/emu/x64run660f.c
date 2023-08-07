@@ -788,7 +788,18 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GX->q[0] ^= EX->q[0];
                 GX->q[1] ^= EX->q[1];
                 break;
-
+            case 0xF0: /* MOVBE Gw, Ew */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                GX->uw[0] = __builtin_bswap16(EX->uw[0]);
+                break;
+            case 0xF1: /* MOVBE Ew, Gw */
+                nextop = F8;
+                GETEX(0);
+                GETGX;
+                EX->uw[0] = __builtin_bswap16(GX->uw[0]);
+                break;
             default:
                 return 0;
         }

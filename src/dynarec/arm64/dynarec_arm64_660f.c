@@ -747,7 +747,37 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VEORQ(q0, q0, q1);
                     }
                     break;
-
+                case 0xF0:
+                    INST_NAME("MOVBE Gw, Ew");
+                    nextop=F8;
+                    gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        REV16x(x1, ed);
+                        BFIx(gd, x1, 0, 16);
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                        LDH(x1, ed, fixedaddress);
+                        REV16x(x1, x1);
+                        BFIx(gd, x1, 0, 16);
+                    }
+                    break;
+                case 0xF1:
+                    INST_NAME("MOVBE Ew, Gw");
+                    nextop=F8;
+                    gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
+                    if(MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        REV16x(x1, gd);
+                        BFIx(ed, x1, 0, 16);
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                        REV16x(x1, gd);
+                        STH(x1, ed, fixedaddress);
+                    }
+                    break;
                 default:
                     DEFAULT;
             }

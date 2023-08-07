@@ -128,6 +128,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 // RV32I
 // put imm20 in the [31:12] bits of rd, zero [11:0] and sign extend bits31
 #define LUI(rd, imm20)                 EMIT(U_type((imm20)<<12, rd, 0b0110111))
+
+#define LI(rd, imm12)                  if (imm12 < 0x800) { ADDI(rd, xZR, imm12);} else {LUI(rd, 1); ADDIW(rd, rd, -(0x1000 - imm12));}
 // put PC+imm20 in rd
 #define AUIPC(rd, imm20)               EMIT(U_type((imm20)<<12, rd, 0b0010111))
 
