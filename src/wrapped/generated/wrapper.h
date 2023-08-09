@@ -2212,6 +2212,7 @@ void vFppipppp(x64emu_t *emu, uintptr_t fnc);
 void vFppCuupp(x64emu_t *emu, uintptr_t fnc);
 void vFppuiiip(x64emu_t *emu, uintptr_t fnc);
 void vFppuupii(x64emu_t *emu, uintptr_t fnc);
+void vFppUuupp(x64emu_t *emu, uintptr_t fnc);
 void vFppddddu(x64emu_t *emu, uintptr_t fnc);
 void vFppddpiu(x64emu_t *emu, uintptr_t fnc);
 void vFpplpppi(x64emu_t *emu, uintptr_t fnc);
