@@ -990,7 +990,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETED32H(x1, 4);
                     i64 = F32S;
                     MOV64xw(x2, i64);
-                    emit_test32(dyn, ninst, rex, ed, x2, x3, x4);
+                    emit_test32(dyn, ninst, rex, ed, x2, x3, x4, x5);
                     break;
                 case 2:
                     INST_NAME("NOT Ed");

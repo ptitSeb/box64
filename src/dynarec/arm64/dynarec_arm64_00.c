@@ -1008,7 +1008,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop=F8;
             GETGD;
             GETED(0);
-            emit_test32(dyn, ninst, rex, ed, gd, x3, x5);
+            emit_test32(dyn, ninst, rex, ed, gd, x3, x5, x6);
             break;
         case 0x86:
             INST_NAME("(LOCK)XCHG Eb, Gb");
@@ -1477,7 +1477,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i64 = F32S;
             MOV64xw(x2, i64);
-            emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4);
+            emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
         case 0xAA:
             if(rep) {
@@ -2608,7 +2608,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEDH(x1, 4);
                     i64 = F32S;
                     MOV64xw(x2, i64);
-                    emit_test32(dyn, ninst, rex, ed, x2, x3, x4);
+                    emit_test32(dyn, ninst, rex, ed, x2, x3, x4, x5);
                     break;
                 case 2:
                     INST_NAME("NOT Ed");

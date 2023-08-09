@@ -265,8 +265,8 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
 }
 
-// emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
-void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
+// emit TEST32 instruction, from test s1, s2, using s3, s4 and s5 as scratch
+void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
     MAYUSE(s1); MAYUSE(s2); MAYUSE(s3); MAYUSE(s4);
     IFX_PENDOR0 {
@@ -292,18 +292,11 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
     IFX(X_PF) {
-        ANDw_mask(s3, s3, 0b011011, 0b000010); // 0xE0
-        LSRw(s3, s3, 5);
-        MOV64x(s4, (uintptr_t)GetParityTab());
-        LDRw_REG_LSL2(s4, s4, s3);
-        ANDw_mask(s3, s1, 0, 0b000100);   // 0x1f
-        LSRw_REG(s4, s4, s3);
-        MVNx_REG(s4, s4);
-        BFIw(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s3, s4, s5);
     }
 }
 
-// emit TEST16 instruction, from test s1, s2, using s3 and s4 as scratch
+// emit TEST16 instruction, from test s1, s2, using s3, s4 and s5 as scratch
 void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
     MAYUSE(s1); MAYUSE(s2);
@@ -334,7 +327,7 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 }
 
-// emit TEST8 instruction, from test s1, s2, using s3 and s4 as scratch
+// emit TEST8 instruction, from test s1, s2, using s3, s4 and s5 as scratch
 void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
     MAYUSE(s1); MAYUSE(s2);
