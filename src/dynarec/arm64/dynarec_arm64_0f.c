@@ -1972,6 +1972,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(v1, 0);
             VADD_8(v0, v0, v1);
             break;
+        case 0xFB:
+            INST_NAME("PSUBQ Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            SUB_64(v0, v0, v1);
+            break;
         case 0xFD:
             INST_NAME("PADDW Gm, Em");
             nextop = F8;
