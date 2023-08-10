@@ -1499,7 +1499,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
 
     // DUP
     if(isMask(opcode, "0Q001110000iiiii000001nnnnnddddd", &a)) {
-        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "2D", "??"};
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "2D"};
         const char* Z[] = {"B", "H", "S", "D"};
         int sz = 3;
         if((imm&0b0001)==0b0001) sz=0;
@@ -1511,7 +1511,18 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "DUP V%d.%s, V%d.%s[%d]", Rd, Vd, Rn, Vn, sh);
         return buff;
     }
-    
+
+    if(isMask(opcode, "0Q001110000iiiii000011nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "2D"};
+        int sz = 3;
+        if((imm&0b0001)==0b0001) sz=0;
+        else if((imm&0b0011)==0b0010) sz=1;
+        else if((imm&0b0111)==0b0100) sz=2;
+        const char* Vd = Y[(sz<<1)|a.Q];
+        snprintf(buff, sizeof(buff), "DUP V%d.%s, X%d", Rd, Vd, Rn);
+        return buff;
+    }
+
     // AES
     if(isMask(opcode, "0100111000101000010f10nnnnnddddd", &a)) {
         snprintf(buff, sizeof(buff), "AES%c V%d.16B, V%d.16B", sf?'D':'E', Rd, Rn);

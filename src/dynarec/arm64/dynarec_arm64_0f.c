@@ -1700,7 +1700,56 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             gd = xRAX+(opcode&7)+(rex.b<<3);
             REVxw(gd, gd);
             break;
-
+        case 0xD1:
+            INST_NAME("PSRLW Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            if(MODREG) {
+                q0 = fpu_get_scratch(dyn);
+            }
+            else {
+                q0 = d1;
+            }
+            q1 = fpu_get_scratch(dyn);
+            VMOVBto(x1, d1, 0);
+            MOVZw(x2, 16);
+            SUBSw_REG(x2, x2, x1);
+            B_MARK(cGT);
+            VMOVQDfrom(d0, 0, xZR);
+            B_NEXT_nocond;
+            MARK;
+            VDUPQS(q1, x2);
+            UXTL_16(q0, d0);
+            USHLQ_32(q0, q0, q1);
+            VUZP2Q_16(q0, q0, q0);
+            VMOVeD(d0, 0, q0, 0);
+            break;
+        case 0xD2:
+            INST_NAME("PSRLD Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            if(MODREG) {
+                q0 = fpu_get_scratch(dyn);
+            }
+            else {
+                q0 = d1;
+            }
+            q1 = fpu_get_scratch(dyn);
+            VMOVBto(x1, d1, 0);
+            MOVZw(x2, 32);
+            SUBSw_REG(x2, x2, x1);
+            B_MARK(cGT);
+            VMOVQDfrom(d0, 0, xZR);
+            B_NEXT_nocond;
+            MARK;
+            VDUPQD(q1, x2);
+            UXTL_32(q0, d0);
+            USHLQ_64(q0, q0, q1);
+            VUZP2Q_32(q0, q0, q0);
+            VMOVeD(d0, 0, q0, 0);
+            break;
         case 0xD3:
             INST_NAME("PSRLQ Gm,Em");
             nextop = F8;
