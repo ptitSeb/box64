@@ -1730,7 +1730,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             for(int i=0; i<2; ++i)
                 GM->ud[i] -= EM->ud[i];
             break;
-
+        case 0xFB:                   /* PSUBQ Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            GM->sq -= EM->sq;
+            break;
         case 0xFC:                   /* PADDB Gm, Em */
             nextop = F8;
             GETEM(0);
