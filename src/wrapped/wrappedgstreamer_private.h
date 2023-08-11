@@ -257,7 +257,7 @@ GO(gst_caps_subtract, pFpp)
 GO(gst_caps_take, iFpp)
 GO(gst_caps_to_string, pFp)
 GO(gst_caps_truncate, pFp)
-//DATAB(_gst_caps_type, 
+DATAB(_gst_caps_type, sizeof(void*))
 GO(gst_caps_unref, vFp)
 //DATAB(GST_CAT_BUFFER, 
 //DATAB(GST_CAT_BUFFER_LIST, 
@@ -266,7 +266,7 @@ GO(gst_caps_unref, vFp)
 //DATAB(GST_CAT_CAPS, 
 //DATAB(GST_CAT_CLOCK, 
 //DATAB(GST_CAT_CONTEXT, 
-//DATAB(GST_CAT_DEFAULT, 
+DATAB(GST_CAT_DEFAULT, sizeof(void*))
 //DATAB(GST_CAT_ELEMENT_PADS, 
 //DATAB(GST_CAT_ERROR_SYSTEM, 
 //DATAB(GST_CAT_EVENT, 
@@ -406,7 +406,7 @@ GO(gst_date_time_new_ymd, pFiii)
 GO(gst_date_time_ref, pFp)
 GO(gst_date_time_to_g_date_time, pFp)
 GO(gst_date_time_to_iso8601_string, pFp)
-//DATAB(_gst_date_time_type, 
+DATAB(_gst_date_time_type, sizeof(void*))
 //GO(gst_date_time_unref, 
 //GO(gst_debug_add_log_function, 
 GO(gst_debug_add_ring_buffer_logger, vFuu)
@@ -688,7 +688,7 @@ GO(gst_event_set_stream, vFpp)
 GO(gst_event_set_stream_flags, vFpi)
 GO(gst_event_steal, pFp)
 GO(gst_event_take, iFpp)
-//DATAB(_gst_event_type, 
+DATAB(_gst_event_type, sizeof(void*))
 GO(gst_event_type_flags_get_type, pFv)
 GO(gst_event_type_get_flags, uFu)
 GO(gst_event_type_get_name, pFu)
@@ -714,7 +714,7 @@ GO(gst_formats_contains, iFpu)
 GO(gst_format_to_quark, uFu)
 GO(gst_fraction_get_type, pFv)
 GO(gst_fraction_range_get_type, pFv)
-//DATAB(_gst_fraction_range_type, 
+DATAB(_gst_fraction_range_type, sizeof(void*))
 DATAB(_gst_fraction_type, sizeof(void*))
 GO(gst_get_main_executable_path, pFv)
 //GO(gst_ghost_pad_activate_mode_default, 
@@ -737,7 +737,7 @@ GO(gst_init_get_option_group, pFv)
 //GO(gst_int64_range_get_type, 
 //DATAB(_gst_int64_range_type, 
 //GO(gst_int_range_get_type, 
-//DATAB(_gst_int_range_type, 
+DATAB(_gst_int_range_type, sizeof(void*))
 GO(gst_is_caps_features, iFp)
 GO(gst_is_initialized, iFv)
 //GO(gst_iterator_copy, 
@@ -878,7 +878,7 @@ GO(gst_message_streams_selected_add, vFpp)
 GO(gst_message_streams_selected_get_size, uFp)
 GO(gst_message_streams_selected_get_stream, pFpu)
 GO(gst_message_take, iFpp)
-//DATAB(_gst_message_type, 
+DATAB(_gst_message_type, sizeof(void*))
 GO(gst_message_type_get_name, pFi)
 GO(gst_message_type_get_type, pFv)
 GO(gst_message_type_to_quark, uFi)
@@ -1459,7 +1459,7 @@ GO(gst_structure_set_value, vFppp)
 GO(gst_structure_take, iFpp)
 GO(gst_structure_take_value, vFppp)
 GO(gst_structure_to_string, pFp)
-//DATAB(_gst_structure_type, 
+DATAB(_gst_structure_type, sizeof(void*))
 //GO(gst_system_clock_get_type, 
 GO(gst_system_clock_obtain, pFv)
 GO(gst_system_clock_set_default, vFp)
@@ -1523,7 +1523,7 @@ GO(gst_tag_list_replace, iFpp)
 GO(gst_tag_list_set_scope, vFpi)
 GO(gst_tag_list_take, iFpp)
 GO(gst_tag_list_to_string, pFp)
-//DATAB(_gst_tag_list_type, 
+DATAB(_gst_tag_list_type, sizeof(void*))
 GO(gst_tag_list_unref, vFp)
 GO(gst_tag_merge_mode_get_type, pFv)
 //GO(gst_tag_merge_strings_with_comma, 
@@ -1600,7 +1600,7 @@ GO(gst_toc_setter_get_toc, pFp)
 //GO(gst_toc_setter_get_type, 
 GO(gst_toc_setter_reset, vFp)
 GO(gst_toc_setter_set_toc, vFpp)
-//DATAB(_gst_toc_type, 
+DATAB(_gst_toc_type, sizeof(void*))
 //GO(gst_tracer_factory_get_list, 
 GO(gst_tracer_factory_get_tracer_type, LFp)
 //GO(gst_tracer_factory_get_type, 
@@ -1722,7 +1722,7 @@ GO(gst_value_array_append_and_take_value, vFpp)
 GO(gst_value_array_get_value, pFpu)
 GO(gst_value_array_init, pFpu)
 GO(gst_value_array_prepend_value, vFpp)
-//DATAB(_gst_value_array_type, 
+DATAB(_gst_value_array_type, sizeof(void*))
 //GO(gst_value_can_compare, 
 //GO(gst_value_can_intersect, 
 GO(gst_value_can_subtract, iFpp)
@@ -1763,7 +1763,7 @@ GO(gst_value_is_fixed, iFp)
 //GO(gst_value_list_init, 
 //GO(gst_value_list_merge, 
 //GO(gst_value_list_prepend_value, 
-//DATAB(_gst_value_list_type, 
+DATAB(_gst_value_list_type, sizeof(void*))
 //GO(gst_value_register, 
 GO(gst_value_serialize, pFp)
 GO(gst_value_set_bitmask, vFpL)
