@@ -679,7 +679,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 DEFAULT;
             }
             break;
-
+        case 0x62:
+            if(rex.is32bits) {
+                // BOUND here
+                DEFAULT;                
+            } else {
+                INST_NAME("BOUND Gd, Ed");
+                nextop = F8;
+                FAKEED(0);
+            }
+            break;
         case 0x63:
             if(rex.is32bits) {
                 // ARPL here

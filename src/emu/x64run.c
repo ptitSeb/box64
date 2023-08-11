@@ -370,7 +370,14 @@ x64emurun:
                 goto fini;
             }
             break;
-
+        case 0x62:                  /* BOUND Gd, Ed */
+            if(rex.is32bits) {
+                FAKEED(0);
+            } else {
+                unimp = 1;
+                goto fini;
+            }
+            break;
         case 0x63:                      /* MOVSXD Gd,Ed */
             nextop = F8;
             GETED(0);
