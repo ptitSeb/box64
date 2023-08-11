@@ -88,12 +88,12 @@ GO(xcb_randr_get_crtc_info_unchecked, pFpppu)
 //GO(xcb_randr_get_crtc_transform_reply, 
 //GO(xcb_randr_get_crtc_transform_sizeof, 
 //GO(xcb_randr_get_crtc_transform_unchecked, 
-//GO(xcb_randr_get_monitors, 
+GO(xcb_randr_get_monitors, pFppuC)
 //GO(xcb_randr_get_monitors_monitors_iterator, 
-//GO(xcb_randr_get_monitors_monitors_length, 
-//GO(xcb_randr_get_monitors_reply, 
-//GO(xcb_randr_get_monitors_sizeof, 
-//GO(xcb_randr_get_monitors_unchecked, 
+GO(xcb_randr_get_monitors_monitors_length, iFp)
+GO(xcb_randr_get_monitors_reply, pFpup)
+GO(xcb_randr_get_monitors_sizeof, iFp)
+GO(xcb_randr_get_monitors_unchecked, pFppuC)
 GO(xcb_randr_get_output_info, pFpppu)
 //GO(xcb_randr_get_output_info_clones, 
 //GO(xcb_randr_get_output_info_clones_end, 
