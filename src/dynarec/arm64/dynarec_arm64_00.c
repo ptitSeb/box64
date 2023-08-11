@@ -526,6 +526,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
             break;
 
+        case 0x3F:
+            if(rex.is32bits) {
+                INST_NAME("AAS");
+                MESSAGE(LOG_DUMP, "Need Optimization AAS\n");
+                READFLAGS(X_AF);
+                SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+                UXTHw(x1, xRAX);
+                CALL_(aas16, x1, 0);
+                BFIx(xRAX, x1, 0, 16);
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0x40:
         case 0x41:
         case 0x42:

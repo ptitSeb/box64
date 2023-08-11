@@ -271,6 +271,15 @@ x64emurun:
             else
                 cmp32(emu, R_EAX, F32);
             break;
+
+        case 0x3F:                  /* AAS */
+            if(rex.is32bits) {
+                R_AX = aas16(emu, R_AX);
+            } else {
+                unimp = 1;
+                goto fini;
+            }
+            break;
         case 0x40:
         case 0x41:
         case 0x42:
