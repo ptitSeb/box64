@@ -813,7 +813,19 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             , EB->byte[0]=0;
             ,
         )                               /* 0x90 -> 0x9F SETxx Eb */
-
+        case 0xA0:                      /* PUSH FS */
+            if(rex.is32bits)
+                Push32(emu, emu->segs[_FS]);
+            else
+                Push64(emu, emu->segs[_FS]);
+            break;
+        case 0xA1:                      /* POP FS */
+            if(rex.is32bits)
+                emu->segs[_FS] = Pop32(emu);
+            else
+                emu->segs[_FS] = Pop64(emu);
+            emu->segs_serial[_FS] = 0;
+            break;
         case 0xA2:                      /* CPUID */
             tmp32u = R_EAX;
             my_cpuid(emu, tmp32u);
