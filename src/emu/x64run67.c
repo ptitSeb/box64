@@ -39,10 +39,14 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     #ifdef TEST_INTERPRETER
     x64emu_t* emu = test->emu;
     #endif
-    opcode = F8;
-
     if(rex.is32bits)
+    #ifdef TEST_INTERPRETER
+        return Test67_32(test, rex, rep, addr);
+    #else
         return Run67_32(emu, rex, rep, addr);
+    #endif
+
+    opcode = F8;
 
     while(opcode==0x67)
         opcode = F8;
