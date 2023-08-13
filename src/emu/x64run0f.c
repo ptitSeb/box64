@@ -881,6 +881,20 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0xA8:                      /* PUSH GS */
+            if(rex.is32bits)
+                Push32(emu, emu->segs[_GS]);
+            else
+                Push64(emu, emu->segs[_GS]);
+            break;
+        case 0xA9:                      /* POP GS */
+            if(rex.is32bits)
+                emu->segs[_GS] = Pop32(emu);
+            else
+                emu->segs[_GS] = Pop64(emu);
+            emu->segs_serial[_FS] = 0;
+            break;
+
         case 0xAB:                      /* BTS Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
