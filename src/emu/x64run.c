@@ -227,11 +227,34 @@ x64emurun:
             emu->segs_serial[_DS] = 0;
             break;
 
+        case 0x27:                  /* DAA */
+            if(rex.is32bits) {
+                R_AL = daa8(emu, R_AL);
+            } else {
+                unimp = 1;
+                goto fini;
+            }
+            break;
+        case 0x2F:                  /* DAS */
+            if(rex.is32bits) {
+                R_AL = das8(emu, R_AL);
+            } else {
+                unimp = 1;
+                goto fini;
+            }
+            break;
 	    case 0x2E:	    /* segments are ignored */
         case 0x26:
         case 0x36:          /* SS: (ignored) */
             break;
-
+        case 0x37:                  /* AAA */
+            if(rex.is32bits) {
+                R_AX = aaa16(emu, R_AX);
+            } else {
+                unimp = 1;
+                goto fini;
+            }
+            break;
         case 0x38:
             nextop = F8;
             GETEB(0);
