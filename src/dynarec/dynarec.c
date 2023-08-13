@@ -87,9 +87,9 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     DynaRun(emu);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
-    if(emu->quitonlongjmp && emu->longjmp) {
-        if(emu->quitonlongjmp==1)
-            emu->longjmp = 0;   // don't change anything because of the longjmp
+    if(emu->flags.quitonlongjmp && emu->flags.longjmp) {
+        if(emu->flags.quitonlongjmp==1)
+            emu->flags.longjmp = 0;   // don't change anything because of the longjmp
     } else {
         R_RBX = old_rbx;
         R_RDI = old_rdi;
@@ -106,10 +106,12 @@ void DynaRun(x64emu_t* emu)
     struct __jmp_buf_tag jmpbuf[1] = {0};
     int skip = 0;
     struct __jmp_buf_tag *old_jmpbuf = emu->jmpbuf;
+    emu->flags.jmpbuf_ready = 0;
 
     while(!(emu->quit)) {
-        if(!emu->jmpbuf || (emu->need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
+        if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
             emu->jmpbuf = jmpbuf;
+            emu->flags.jmpbuf_ready = 1;
             if((skip=sigsetjmp(emu->jmpbuf, 1))) {
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", emu->segs[_FS]);
                 #ifdef DYNAREC
@@ -121,8 +123,8 @@ void DynaRun(x64emu_t* emu)
                 #endif
             }
         }
-        if(emu->need_jmpbuf)
-            emu->need_jmpbuf = 0;   
+        if(emu->flags.need_jmpbuf)
+            emu->flags.need_jmpbuf = 0;
 
 #ifdef DYNAREC
         if(!box64_dynarec)
@@ -153,7 +155,7 @@ void DynaRun(x64emu_t* emu)
             }
         }
 #endif
-        if(emu->need_jmpbuf)
+        if(emu->flags.need_jmpbuf)
             emu->quit = 0;
     }
     // clear the setjmp

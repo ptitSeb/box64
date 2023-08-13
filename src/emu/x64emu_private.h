@@ -36,6 +36,14 @@ typedef struct x64test_s {
     uint8_t     mem[16];
 } x64test_t;
 
+typedef struct emu_flags_s {
+    uint32_t    need_jmpbuf:1;    // need a new jmpbuff for signal handling
+    uint32_t    quitonlongjmp:2;  // quit if longjmp is called
+    uint32_t    quitonexit:2;     // quit if exit/_exit is called
+    uint32_t    longjmp:1;        // if quit because of longjmp
+    uint32_t    jmpbuf_ready:1;   // the jmpbuf in the emu is ok and don't need refresh
+} emu_flags_t;
+
 typedef struct x64emu_s {
     // cpu
 	reg64_t     regs[16];
@@ -83,12 +91,9 @@ typedef struct x64emu_s {
     int         quit;
     int         error;
     int         fork;   // quit because need to fork
-    int         need_jmpbuf;    // need a new jmpbuff for signal handling
-    forkpty_t*  forkpty_info;
     int         exit;
-    int         quitonlongjmp;  // quit if longjmp is called
-    int         quitonexit;     // quit if exit/_exit is called
-    int         longjmp;        // if quit because of longjmp
+    forkpty_t*  forkpty_info;
+    emu_flags_t flags;
     x64test_t   test;       // used for dynarec testing
     #ifdef HAVE_TRACE
     sse_regs_t  old_xmm[16];

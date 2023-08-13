@@ -2494,8 +2494,8 @@ void EXPORT my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, 
     if(((__jmp_buf_tag_t*)p)->__mask_was_saved) {
         sigprocmask(SIG_SETMASK, &((__jmp_buf_tag_t*)p)->__saved_mask, NULL);
     }
-    if(emu->quitonlongjmp) {
-        emu->longjmp = 1;
+    if(emu->flags.quitonlongjmp) {
+        emu->flags.longjmp = 1;
         emu->quit = 1;
     }
 }
@@ -2520,8 +2520,10 @@ EXPORT int32_t my___sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/vo
     } else
         ((__jmp_buf_tag_t*)p)->__mask_was_saved = 0;
     // quit emulation loop and create a new jumpbuf if needed
-    emu->need_jmpbuf = 1;
-    emu->quit = 1;
+    if(!emu->flags.jmpbuf_ready) {
+        emu->flags.need_jmpbuf = 1;
+        emu->quit = 1;
+    }
     return 0;
 }
 EXPORT int32_t my_sigsetjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int savesigs)
@@ -3192,10 +3194,10 @@ static int clone_fn(void* p)
     updateGlibcTidCache();  // update cache tid if needed
     x64emu_t *emu = arg->emu;
     R_RSP = arg->stack;
-    emu->quitonexit = 1;
+    emu->flags.quitonexit = 1;
     thread_set_emu(emu);
     int ret = RunFunctionWithEmu(emu, 0, arg->fnc, 1, arg->args);
-    int exited = (emu->quitonexit==2);
+    int exited = (emu->flags.quitonexit==2);
     thread_set_emu(NULL);
     FreeX64Emu(&emu);
     if(arg->stack_clone_used)
@@ -3274,10 +3276,10 @@ EXPORT int my_register_printf_type(x64emu_t* emu, void* f)
 extern int box64_quit;
 EXPORT void my_exit(x64emu_t* emu, int code)
 {
-    if(emu->quitonexit) {
+    if(emu->flags.quitonexit) {
         emu->quit = 1;
         R_EAX = code;
-        emu->quitonexit = 2;
+        emu->flags.quitonexit = 2;
         return;
     }
     emu->quit = 1;

@@ -233,10 +233,10 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
 
     uintptr_t oldip = R_RIP;
     int old_quit = emu->quit;
-    int oldlong = emu->quitonlongjmp;
+    int oldlong = emu->flags.quitonlongjmp;
 
     emu->quit = 0;
-    emu->quitonlongjmp = QuitOnLongJump;
+    emu->flags.quitonlongjmp = QuitOnLongJump;
 
     DynaCall(emu, fnc);
 
@@ -246,7 +246,7 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
     }
 
     emu->quit = old_quit;
-    emu->quitonlongjmp = oldlong;
+    emu->flags.quitonlongjmp = oldlong;
 
 
     return R_RAX;

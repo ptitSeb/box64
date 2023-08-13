@@ -321,8 +321,8 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
 
     printf_log(LOG_DEBUG, "%04d|signal #%d function handler %p called, RSP=%p\n", GetTID(), R_EDI, (void*)fnc, (void*)R_RSP);
 
-    int oldquitonlongjmp = emu->quitonlongjmp;
-    emu->quitonlongjmp = 2;
+    int oldquitonlongjmp = emu->flags.quitonlongjmp;
+    emu->flags.quitonlongjmp = 2;
     int old_cs = R_CS;
     R_CS = 0x33;
     
@@ -333,13 +333,13 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
     else
         EmuCall(emu, fnc);
 
-    if(nargs>6 && !emu->longjmp)
+    if(nargs>6 && !emu->flags.longjmp)
         R_RSP+=((nargs-6)*sizeof(void*));
 
-    if(!emu->longjmp && R_CS==0x33)
+    if(!emu->flags.longjmp && R_CS==0x33)
         R_CS = old_cs;
 
-    emu->quitonlongjmp = oldquitonlongjmp;
+    emu->flags.quitonlongjmp = oldquitonlongjmp;
 
     #ifdef DYNAREC
     if(box64_dynarec_test)
@@ -347,9 +347,9 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
         emu->test.clean = 0;
     #endif
 
-    if(emu->longjmp) {
+    if(emu->flags.longjmp) {
         // longjmp inside signal handler, lets grab all relevent value and do the actual longjmp in the signal handler
-        emu->longjmp = 0;
+        emu->flags.longjmp = 0;
         if(sigcontext) {
             sigcontext->uc_mcontext.gregs[X64_R8] = R_R8;
             sigcontext->uc_mcontext.gregs[X64_R9] = R_R9;
