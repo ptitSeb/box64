@@ -567,6 +567,63 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        #define GO(Z)                                                   \
+            BARRIER(BARRIER_MAYBE);                                     \
+            JUMP(addr+i8, 1);                                           \
+            if(dyn->insts[ninst].x64.jmp_insts==-1 ||                   \
+                CHECK_CACHE()) {                                        \
+                /* out of the block */                                  \
+                i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
+                if(Z) {BNE(x1, xZR, i32);} else {BEQ(x1, xZR, i32);};   \
+                if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
+                    if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
+                    jump_to_next(dyn, addr+i8, 0, ninst);               \
+                } else {                                                \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
+                    B(i32);                                             \
+                }                                                       \
+            } else {                                                    \
+                /* inside the block */                                  \
+                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
+                if(Z) {BEQ(x1, xZR, i32);} else {BNE(x1, xZR, i32);};   \
+            }
+        case 0xE0:
+            INST_NAME("LOOPNZ (32bits)");
+            READFLAGS(X_ZF);
+            i8 = F8S;
+            SUBI(xRCX, xRCX, 1);
+            ANDI(x1, xFlags, 1 << F_ZF);
+            CBNZ_NEXT(x1);
+            AND(x1, xRCX, xMASK);
+            GO(0);
+            break;
+        case 0xE1:
+            INST_NAME("LOOPZ (32bits)");
+            READFLAGS(X_ZF);
+            i8 = F8S;
+            SUBI(xRCX, xRCX, 1);
+            ANDI(x1, xFlags, 1 << F_ZF);
+            CBZ_NEXT(x1);
+            AND(x1, xRCX, xMASK);
+            GO(0);
+            break;
+        case 0xE2:
+            INST_NAME("LOOP (32bits)");
+            i8 = F8S;
+            SUBI(xRCX, xRCX, 1);
+            AND(x1, xRCX, xMASK);
+            GO(0);
+            break;
+        case 0xE3:
+            INST_NAME("JECXZ (32bits)");
+            i8 = F8S;
+            AND(x1, xRCX, xMASK);
+            GO(1);
+            break;
+        #undef GO
+
         default:
             DEFAULT;
     }
