@@ -1324,6 +1324,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
+            SMREAD();
             LDRB_U12(x2, x1, 0);
             BFIx(xRAX, x2, 0, 8);
             break;
@@ -1334,6 +1335,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
+            SMREAD();
             LDRxw_U12(xRAX, x1, 0);
             break;
         case 0xA2:

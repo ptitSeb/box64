@@ -665,6 +665,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
+            SMREAD();
             LDRH_U12(x2, x1, 0);
             BFIx(xRAX, x2, 0, 16);
             break;
@@ -785,20 +786,23 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
                 MARK;   // Part with DF==0
-                LDRH_S9_postindex(xRAX, xRSI, 2);
+                LDRH_S9_postindex(x2, xRSI, 2);
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK(xRCX);
-                B_NEXT_nocond;
+                B_MARK3_nocond;
                 MARK2;  // Part with DF==1
-                LDRH_S9_postindex(xRAX, xRSI, -2);
+                LDRH_S9_postindex(x2, xRSI, -2);
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK2(xRCX);
+                MARK3;
+                BFIx(xRAX, x2, 0, 16);
                 // done
             } else {
-                INST_NAME("STOSW");
+                INST_NAME("LODSW");
                 GETDIR(x3, 2);
-                LDRH_U12(xRAX, xRSI, 0);
+                LDRH_U12(x2, xRSI, 0);
                 ADDx_REG(xRSI, xRSI, x3);
+                BFIx(xRAX, x2, 0, 16);
             }
             break;
 
