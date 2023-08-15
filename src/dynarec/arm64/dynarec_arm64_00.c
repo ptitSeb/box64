@@ -1545,7 +1545,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ADDx_REG(xRDI, xRDI, x3);
             }
             break;
-
+        case 0xAC:
+            if(rep) {
+                INST_NAME("REP LODSB");
+            } else {
+                INST_NAME("LODSB");
+            }
+            GETDIR(x1, 1);
+            if(rep) {
+                CBZx_NEXT(xRCX);
+                MARK;
+            }
+            LDRB_U12(x2, xRSI, 0);
+            ADDx_REG(xRSI, xRSI, x1);
+            if(rep) {
+                SUBx_U12(xRCX, xRCX, 1);
+                CBNZx_MARK(xRCX);
+            }
+            BFIx(xRAX, x2, 0, 8);
+            break;
         case 0xAD:
             if(rep) {
                 INST_NAME("REP LODSD");
@@ -1560,7 +1578,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             LDRxw_U12(xRAX, xRSI, 0);
             ADDx_REG(xRSI, xRSI, x1);
             if(rep) {
-                ADDx_U12(xRCX, xRCX, 1);
+                SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK(xRCX);
             }
             break;
