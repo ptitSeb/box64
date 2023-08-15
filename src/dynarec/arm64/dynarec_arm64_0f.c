@@ -30,8 +30,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint8_t gd, ed;
-    uint8_t wback, wb2;
-    uint8_t eb1, eb2;
+    uint8_t wback, wb1, wb2;
+    uint8_t eb1, eb2, gb1, gb2;
     int32_t i32, i32_;
     int cacheupd = 0;
     int v0, v1;
@@ -42,9 +42,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int64_t j64;
     int64_t fixedaddress;
     int unscaled;
+    MAYUSE(wb1);
     MAYUSE(wb2);
     MAYUSE(eb1);
     MAYUSE(eb2);
+    MAYUSE(gb1);
+    MAYUSE(gb2);
     MAYUSE(q0);
     MAYUSE(q1);
     MAYUSE(d0);
@@ -1579,7 +1582,29 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDSHxw(gd, ed, fixedaddress);
             }
             break;
-
+        case 0xC0:
+            INST_NAME("XADD Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGB(x1);
+            GETEB(x2, 0);
+            gd = x2; ed = x1;    // swap gd/ed
+            emit_add8(dyn, ninst, x1, x2, x4, x5);
+            GBBACK; // gb gets x2 (old ed)
+            EBBACK; // eb gets x1 (sum)
+            break;
+        case 0xC1:
+            INST_NAME("XADD Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            MOVxw_REG(x3, ed);
+            MOVxw_REG(ed, gd);
+            MOVxw_REG(gd, x3);
+            emit_add32(dyn, ninst, rex, ed, gd, x4, x5);
+            WBACK;
+            break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex, Ib");
             nextop = F8;
