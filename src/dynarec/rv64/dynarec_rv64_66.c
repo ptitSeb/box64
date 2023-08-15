@@ -117,6 +117,43 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
+        case 0x11:
+            INST_NAME("ADC Ew, Gw");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_adc16(dyn, ninst, x1, x2, x4, x3, x5);
+            EWBACK;
+            break;
+        case 0x13:
+            INST_NAME("ADC Gw, Ew");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_adc16(dyn, ninst, x1, x2, x4, x3, x5);
+            GWBACK;
+            break;
+        case 0x15:
+            INST_NAME("ADC AX, Iw");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i16 = F16;
+            SRLI(x6, xMASK, 16);
+            AND(x1, xRAX, x6);
+            MOV32w(x2, i16);
+            emit_adc16(dyn, ninst, x1, x2, x3, x4, x5);
+            if (rv64_zbb) {
+                ANDN(xRAX, xRAX, x6);
+            } else {
+                NOT(x6, x6);
+                AND(xRAX, xRAX, x6);
+            }
+            OR(xRAX, xRAX, x1);
+            break;
         case 0x19:
             INST_NAME("SBB Ew, Gw");
             READFLAGS(X_CF);

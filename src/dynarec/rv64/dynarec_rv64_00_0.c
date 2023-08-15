@@ -167,7 +167,16 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 DEFAULT;
             }
             break;
-
+        case 0x10:
+            INST_NAME("ADC Eb, Gb");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_adc8(dyn, ninst, x1, x2, x4, x5, x3);
+            EBBACK(x5, 0);
+            break;
         case 0x11:
             INST_NAME("ADC Ed, Gd");
             READFLAGS(X_CF);
@@ -178,7 +187,43 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
             WBACK;
             break;
-
+        case 0x12:
+            INST_NAME("ADC Gb, Eb");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x2, 0);
+            GETGB(x1);
+            emit_adc8(dyn, ninst, x1, x2, x4, x3, x5);
+            GBBACK(x5);
+            break;
+        case 0x13:
+            INST_NAME("ADC Gd, Ed");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_adc32(dyn, ninst, rex, gd, ed, x3, x4, x5, x6);
+            break;
+        case 0x14:
+            INST_NAME("ADC AL, Ib");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            emit_adc8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
+            ANDI(xRAX, xRAX, -256);
+            OR(xRAX, xRAX, x1);
+            break;
+        case 0x15:
+            INST_NAME("ADC EAX, Id");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            MOV64xw(x1, i64);
+            emit_adc32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6);
+            break;
         case 0x18:
             INST_NAME("SBB Eb, Gb");
             READFLAGS(X_CF);
