@@ -490,9 +490,9 @@
 #define CSNEGx(Rd, Rn, Rm, cond)            EMIT(CSNEG_gen(1, Rm, cond, Rn, Rd))
 #define CSNEGw(Rd, Rn, Rm, cond)            EMIT(CSNEG_gen(0, Rm, cond, Rn, Rd))
 #define CSNEGxw(Rd, Rn, Rm, cond)           EMIT(CSNEG_gen(rex.w, Rm, cond, Rn, Rd))
-#define CNEGx(Rd, Rn, cond)                 CSNEGx(Rn, Rn, Rn, invCond(cond))
-#define CNEGw(Rd, Rn, cond)                 CSNEGw(Rn, Rn, Rn, invCond(cond))
-#define CNEGxw(Rd, Rn, cond)                CSNEGxw(Rn, Rn, Rn, invCond(cond))
+#define CNEGx(Rd, Rn, cond)                 CSNEGx(Rn, Rn, Rd, invCond(cond))
+#define CNEGw(Rd, Rn, cond)                 CSNEGw(Rn, Rn, Rd, invCond(cond))
+#define CNEGxw(Rd, Rn, cond)                CSNEGxw(Rn, Rn, Rd, invCond(cond))
 
 // AND / ORR
 #define LOGIC_gen(sf, opc, N, immr, imms, Rn, Rd)  ((sf)<<31 | (opc)<<29 | 0b100100<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | Rd)
