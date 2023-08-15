@@ -334,7 +334,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                     } else {
                         if (rex.w) {
-                            LI(x2, 0xff);
+                            MOV_U12(x2, 0xff);
                             SLLI(x1, gd, 56);
                             SRLI(x3, gd, 56);
                             SRLI(x4, gd, 40);
@@ -365,7 +365,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             AND(x3, x3, x4);
                             OR(gd, x1, x3);
                         } else {
-                            LI(x2, 0xff);
+                            MOV_U12(x2, 0xff);
                             SLLIW(x2, x2, 8);
                             SLLIW(x1, gd, 24);
                             SRLIW(x3, gd, 24);
@@ -393,7 +393,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                     } else {
                         if (rex.w) {
-                            LI(x2, 0xff);
+                            MOV_U12(x2, 0xff);
                             SLLI(x1, gd, 56);
                             SRLI(x3, gd, 56);
                             SRLI(x4, gd, 40);
@@ -424,7 +424,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             AND(x3, x3, x4);
                             OR(x1, x1, x3);
                         } else {
-                            LI(x2, 0xff);
+                            MOV_U12(x2, 0xff);
                             SLLIW(x2, x2, 8);
                             SLLIW(x1, gd, 24);
                             SRLIW(x3, gd, 24);

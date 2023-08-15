@@ -2361,7 +2361,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             READFLAGS(X_ZF);
             i8 = F8S;
             SUBz_U12(xRCX, xRCX, 1);
-            TBNZ_NEXT(xFlags, 1<<F_ZF);
+            TBNZ_NEXT(xFlags, F_ZF);
             GO(0);
             break;
         case 0xE1:
@@ -2369,7 +2369,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             READFLAGS(X_ZF);
             i8 = F8S;
             SUBz_U12(xRCX, xRCX, 1);
-            TBZ_NEXT(xFlags, 1<<F_ZF);
+            TBZ_NEXT(xFlags, F_ZF);
             GO(0);
             break;
         case 0xE2:
