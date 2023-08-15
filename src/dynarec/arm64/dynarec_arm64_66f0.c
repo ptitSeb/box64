@@ -152,7 +152,28 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     DEFAULT;
             }
             break;
-
+        case 0x11:
+            INST_NAME("LOCK ADC Ew, Gw");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x5);
+            SMDMB();
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                UXTHw(x6, ed);
+                emit_adc16(dyn, ninst, x6, x5, x3, x4);
+                BFIx(ed, x6, 0, 16);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                MARKLOCK;
+                LDAXRH(x1, wback);
+                emit_adc16(dyn, ninst, x1, x5, x3, x4);
+                STLXRH(x3, x1, wback);
+                CBNZx_MARKLOCK(x3);
+            }
+            SMDMB();
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;

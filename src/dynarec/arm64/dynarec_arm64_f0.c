@@ -436,7 +436,55 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     DEFAULT;
             }
             break;
-
+        case 0x10:
+            INST_NAME("LOCK ADC Eb, Gb");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            SMDMB();
+            GETGB(x2);
+            if((nextop&0xC0)==0xC0) {
+                if(rex.rex) {
+                    wback = xRAX + (nextop&7) + (rex.b<<3);
+                    wb2 = 0;
+                } else {
+                    wback = (nextop&7);
+                    wb2 = (wback>>2);
+                    wback = xRAX+(wback&3);
+                }
+                UBFXw(x1, wback, wb2*8, 8);
+                emit_adc8(dyn, ninst, x1, x2, x4, x5);
+                BFIx(wback, x1, wb2*8, 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                MARKLOCK;
+                LDAXRB(x1, wback);
+                emit_adc8(dyn, ninst, x1, x2, x4, x5);
+                STLXRB(x4, x1, wback);
+                CBNZx_MARKLOCK(x4);
+            }
+            SMDMB();
+            break;
+        case 0x11:
+            INST_NAME("LOCK ADC Ed, Gd");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            SMDMB();
+                if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                emit_adc32(dyn, ninst, rex, ed, gd, x3, x4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                MARKLOCK;
+                LDAXRxw(x1, wback);
+                emit_adc32(dyn, ninst, rex, x1, gd, x4, x5);
+                STLXRxw(x4, x1, wback);
+                CBNZx_MARKLOCK(x4);
+            }
+            SMDMB();
+            break;
         case 0x21:
             INST_NAME("LOCK AND Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
