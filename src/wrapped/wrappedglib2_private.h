@@ -779,7 +779,7 @@ GO(g_option_context_set_strict_posix, vFpi) // 2.44+
 GO(g_option_context_set_summary, vFpp)
 //GOM(g_option_context_set_translate_func, vFEpBpB)
 GO(g_option_context_set_translation_domain, vFpp)
-//GO(g_option_error_quark, 
+GO(g_option_error_quark, pFv)
 GO(g_option_group_add_entries, vFpp)
 GO(g_option_group_free, vFp)
 GOM(g_option_group_new, pFEppppp)
