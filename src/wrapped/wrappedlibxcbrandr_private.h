@@ -221,10 +221,10 @@ GO(xcb_randr_mode_info_next, vFp)
 //GO(xcb_randr_mode_next, 
 //GO(xcb_randr_monitor_info_end, 
 //GO(xcb_randr_monitor_info_next, 
-//GO(xcb_randr_monitor_info_outputs, 
-//GO(xcb_randr_monitor_info_outputs_end, 
-//GO(xcb_randr_monitor_info_outputs_length, 
-//GO(xcb_randr_monitor_info_sizeof, 
+GO(xcb_randr_monitor_info_outputs, pFp)
+GO(xcb_randr_monitor_info_outputs_end, pFpp)
+GO(xcb_randr_monitor_info_outputs_length, iFp)
+GO(xcb_randr_monitor_info_sizeof, iFp)
 //GO(xcb_randr_notify_data_end, 
 //GO(xcb_randr_notify_data_next, 
 //GO(xcb_randr_output_change_end, 
