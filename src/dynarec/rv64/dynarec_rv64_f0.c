@@ -339,6 +339,101 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x10:
+            INST_NAME("LOCK ADC Eb, Gb");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGB(x2);
+            SMDMB();
+            if((nextop&0xC0)==0xC0) {
+                if(rex.rex) {
+                    wback = xRAX + (nextop&7) + (rex.b<<3);
+                    wb2 = 0;
+                } else {
+                    wback = (nextop&7);
+                    wb2 = (wback>>2);
+                    wback = xRAX+(wback&3);
+                }
+                SRLIW(x1, wback, wb2*8);
+                ANDI(x1, x1, 0xFF);
+                emit_adc8(dyn, ninst, x1, x2, x3, x4, x5);
+                SLLI(x1, x1, wb2*8);
+                MOV_U12(x3, 0xFF);
+                SLLI(x3, x3, wb2*8);
+                NOT(x3, x3);
+                AND(wback, wback, x3);
+                OR(wback, wback, x1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, x3, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                ANDI(x3, wback, 0b11);
+                BNEZ_MARK(x3);
+                MARKLOCK;
+                LR_W(x5, wback, 1, 1);
+                ANDI(x4, x5, 0xff); // x4 = Ed.b[0]
+                ANDI(x5, x5, -256); // x5 = clear Ed.b[0]
+                ADDW(x6, x4, x2);
+                ANDI(x9, xFlags, 1 << F_CF);
+                ADDW(x6, x6, x9);   // x6 = adc
+                ANDI(x6, x6, 0xff);
+                OR(x5, x5, x6);
+                SC_W(x9, x5, wback, 1, 1);
+                BNEZ_MARKLOCK(x9);
+                B_MARK3_nocond;
+                MARK;
+                SLLI(x3, x3, 3);
+                MOV_U12(x4, 0xff);
+                ANDI(wback, wback, ~3); // aligning address
+                SLLI(x4, x4, x3);       // x4 = byte mask
+                NOT(x5, x4);            // x5 = ~mask
+                SLL(x2, x2, x3);        // x2 = extented Gb
+                MARK2;
+                LR_W(x6, wback, 1, 1);  // x6 = Ed
+                AND(x9, x6, x4);        // x9 = extended Ed.b[dest]
+                AND(x6, x6, x5);        // x6 = clear Ed.b[dest]
+                ADDW(x5, x9, x2);
+                ANDI(x4, xFlags, 1 << F_CF);
+                SLL(x4, x4, x3);        // extented
+                ADDW(x5, x5, x4);       // x5 = adc
+                OR(x5, x5, x6);
+                SC_W(x4, x5, wback, 1, 1);
+                BNEZ_MARK2(x4);
+                IFX(X_ALL|X_PEND) {
+                    SRLI(x2, x2, x3);  // Gb
+                    SRLI(x4, x9, x3);  // Eb
+                }
+                MARK3;
+                IFX(X_ALL|X_PEND) {
+                    emit_adc8(dyn, ninst, x4, x2, x3, x5, x6);
+                }
+            }
+            SMDMB();
+            break;
+        case 0x11:
+            INST_NAME("LOCK ADC Ed, Gd");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            SMDMB();
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                MARKLOCK;
+                LRxw(x1, wback, 1, 1);
+                ADDxw(x3, x1, gd);
+                ANDI(x4, xFlags, 1 << F_CF);
+                ADDxw(x3, x3, x4);
+                SCxw(x4, x3, wback, 1, 1);
+                BNEZ_MARKLOCK(x4);
+                IFX(X_ALL|X_PEND) {
+                    emit_adc32(dyn, ninst, rex, x1, gd, x3, x4, x5, x6);
+                }
+            }
+            SMDMB();
+            break;
         case 0x21:
             INST_NAME("LOCK AND Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -381,6 +476,9 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             SMDMB();
             break;
+        case 0x66:
+            return dynarec64_66F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+
         case 0x80:
             nextop = F8;
             SMDMB();
