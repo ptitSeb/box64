@@ -1106,9 +1106,11 @@
 #() LFpLpp
 #() LFppii
 #() LFppip
+#() LFppLu
 #() LFppLL
 #() LFppLp
 #() LFpppi
+#() LFpppL
 #() LFpppp
 #() pFEipp
 #() pFEupp
@@ -1588,6 +1590,7 @@
 #() LFELppi
 #() LFEpppp
 #() LFuiCiu
+#() LFLpppL
 #() LFpuipp
 #() LFpuppi
 #() LFpLuuu
@@ -3403,6 +3406,9 @@ wrappedglib2:
   - g_spawn_async_with_pipes
 wrappedgmodule2:
 wrappedgmp:
+- vFppp:
+  - __gmp_get_memory_functions
+  - __gmp_set_memory_functions
 wrappedgnutls:
 - vFp:
   - gnutls_global_set_log_function

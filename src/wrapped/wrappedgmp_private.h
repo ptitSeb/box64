@@ -2,6 +2,8 @@
 #error meh!
 #endif
 
+// mp_bitcnt_t unsigned long int
+
 //DATA(__gmp_allocate_func, 
 //GO(__gmp_asprintf, 
 //GO(__gmp_asprintf_final, 
@@ -95,7 +97,7 @@
 //GO(__gmpf_ui_div, 
 //GO(__gmpf_ui_sub, 
 //GO(__gmpf_urandomb, 
-//GO(__gmp_get_memory_functions, 
+GOM(__gmp_get_memory_functions, vFEppp)
 //GO(__gmp_init_primesieve, 
 //GO(__gmp_invalid_operation, 
 //DATAB(__gmp_junk, 
@@ -107,8 +109,8 @@
 //GO(__gmpn_add_err3_n, 
 //GO(__gmpn_addlsh1_n, 
 //GO(__gmpn_addlsh2_n, 
-//GO(__gmpn_addmul_1, 
-//GO(__gmpn_add_n, 
+GO(__gmpn_addmul_1, LFppLL)
+GO(__gmpn_add_n, LFpppL)
 //GO(__gmpn_add_nc, 
 //GO(__gmpn_add_n_sub_n, 
 //GO(__gmpn_and_n, 
@@ -129,13 +131,13 @@
 //GO(__gmpn_bsqrt, 
 //GO(__gmpn_bsqrtinv, 
 //GO(__gmpn_cmp, 
-//GO(__gmpn_cnd_add_n, 
-//GO(__gmpn_cnd_sub_n, 
+GO(__gmpn_cnd_add_n, LFLpppL)
+GO(__gmpn_cnd_sub_n, LFLpppL)
 //GO(__gmpn_cnd_swap, 
 //GO(__gmpn_com, 
 //GO(__gmpn_compute_powtab, 
-//GO(__gmpn_copyd, 
-//GO(__gmpn_copyi, 
+GO(__gmpn_copyd, vFppL)
+GO(__gmpn_copyi, vFppL)
 //GO(__gmpn_dcpi1_bdiv_q, 
 //GO(__gmpn_dcpi1_bdiv_qr, 
 //GO(__gmpn_dcpi1_bdiv_qr_n, 
@@ -229,7 +231,7 @@
 //GO(__gmpn_mu_div_qr, 
 //GO(__gmpn_mu_div_qr_itch, 
 //GO(__gmpn_mul, 
-//GO(__gmpn_mul_1, 
+GO(__gmpn_mul_1, LFppLL)
 //GO(__gmpn_mul_1c, 
 //GO(__gmpn_mul_basecase, 
 //GO(__gmpn_mul_fft, 
@@ -240,14 +242,14 @@
 //GO(__gmpn_mulmid_n, 
 //GO(__gmpn_mulmod_bnm1, 
 //GO(__gmpn_mulmod_bnm1_next_size, 
-//GO(__gmpn_mul_n, 
+GO(__gmpn_mul_n, vFpppL)
 //GO(__gmpn_nand_n, 
 //GO(__gmpn_neg, 
 //GO(__gmpn_ni_invertappr, 
 //GO(__gmpn_nior_n, 
 //GO(__gmpn_nussbaumer_mul, 
 //GO(__gmpn_perfect_power_p, 
-//GO(__gmpn_perfect_square_p, 
+GO(__gmpn_perfect_square_p, iFpL)
 //GO(__gmpn_pi1_bdiv_q_1, 
 //GO(__gmpn_popcount, 
 //GO(__gmpn_pow_1, 
@@ -268,7 +270,7 @@
 //GO(__gmpn_rsblsh2_n, 
 //GO(__gmpn_rsh1add_n, 
 //GO(__gmpn_rsh1sub_n, 
-//GO(__gmpn_rshift, 
+GO(__gmpn_rshift, LFppLu)
 //GO(__gmpn_sbpi1_bdiv_q, 
 //GO(__gmpn_sbpi1_bdiv_qr, 
 //GO(__gmpn_sbpi1_bdiv_r, 
@@ -298,7 +300,7 @@
 //GO(__gmpn_sec_tabselect, 
 //GO(__gmpn_set_str, 
 //GO(__gmpn_sizeinbase, 
-//GO(__gmpn_sqr, 
+GO(__gmpn_sqr, vFppL)
 //GO(__gmpn_sqr_basecase, 
 //GO(__gmpn_sqr_diag_addlsh1, 
 //GO(__gmpn_sqrlo, 
@@ -314,8 +316,8 @@
 //GO(__gmpn_sub_err3_n, 
 //GO(__gmpn_sublsh1_n, 
 //GO(__gmpn_sublsh2_n, 
-//GO(__gmpn_submul_1, 
-//GO(__gmpn_sub_n, 
+GO(__gmpn_submul_1, LFppLL)
+GO(__gmpn_sub_n, LFpppL)
 //GO(__gmpn_sub_nc, 
 //GO(__gmpn_tdiv_qr, 
 //GO(__gmpn_toom22_mul, 
@@ -353,7 +355,7 @@
 //GO(__gmpn_trialdiv, 
 //GO(__gmpn_xnor_n, 
 //GO(__gmpn_xor_n, 
-//GO(__gmpn_zero, 
+GO(__gmpn_zero, vFpL)
 //GO(__gmpn_zero_p, 
 //GO(__gmp_obstack_printf, 
 //DATA(__gmp_obstack_printf_funs, 
@@ -412,7 +414,7 @@
 //DATAB(__gmp_rands_initialized, 
 //DATA(__gmp_reallocate_func, 
 //GO(__gmp_scanf, 
-//GO(__gmp_set_memory_functions, 
+GOM(__gmp_set_memory_functions, vFEppp)
 //GO(__gmp_snprintf, 
 //DATA(__gmp_snprintf_funs, 
 //GO(__gmp_sprintf, 
@@ -435,16 +437,16 @@
 //GO(__gmp_vsscanf, 
 //GO(__gmpz_2fac_ui, 
 //GO(__gmpz_abs, 
-//GO(__gmpz_add, 
+GO(__gmpz_add, vFppp)
 //GO(__gmpz_addmul, 
 //GO(__gmpz_addmul_ui, 
-//GO(__gmpz_add_ui, 
+GO(__gmpz_add_ui, vFppL)
 //GO(__gmpz_and, 
 //GO(__gmpz_aorsmul_1, 
 //GO(__gmpz_array_init, 
 //GO(__gmpz_bin_ui, 
 //GO(__gmpz_bin_uiui, 
-//GO(__gmpz_cdiv_q, 
+GO(__gmpz_cdiv_q, vFppp)
 //GO(__gmpz_cdiv_q_2exp, 
 //GO(__gmpz_cdiv_qr, 
 //GO(__gmpz_cdiv_qr_ui, 
@@ -463,10 +465,10 @@ GO(__gmpz_cmp, iFpp)
 //GO(__gmpz_cmp_d, 
 //GO(__gmpz_cmp_si, 
 GO(__gmpz_cmp_ui, iFpu)
-//GO(__gmpz_com, 
+GO(__gmpz_com, vFpp)
 //GO(__gmpz_combit, 
 //GO(__gmpz_congruent_2exp_p, 
-//GO(__gmpz_congruent_p, 
+GO(__gmpz_congruent_p, iFppp)
 //GO(__gmpz_congruent_ui_p, 
 //GO(__gmpz_divexact, 
 //GO(__gmpz_divexact_gcd, 
@@ -477,13 +479,13 @@ GO(__gmpz_cmp_ui, iFpu)
 //GO(__gmpz_dump, 
 GO(__gmpz_export, vFppiLiLp)
 //GO(__gmpz_fac_ui, 
-//GO(__gmpz_fdiv_q, 
-//GO(__gmpz_fdiv_q_2exp, 
+GO(__gmpz_fdiv_q, vFppp)
+GO(__gmpz_fdiv_q_2exp, vFppL)
 //GO(__gmpz_fdiv_qr, 
 //GO(__gmpz_fdiv_qr_ui, 
 //GO(__gmpz_fdiv_q_ui, 
-//GO(__gmpz_fdiv_r, 
-//GO(__gmpz_fdiv_r_2exp, 
+GO(__gmpz_fdiv_r, vFppp)
+GO(__gmpz_fdiv_r_2exp, vFppL)
 //GO(__gmpz_fdiv_r_ui, 
 //GO(__gmpz_fdiv_ui, 
 //GO(__gmpz_fib2_ui, 
@@ -494,7 +496,7 @@ GO(__gmpz_export, vFppiLiLp)
 //GO(__gmpz_fits_uint_p, 
 //GO(__gmpz_fits_ulong_p, 
 //GO(__gmpz_fits_ushort_p, 
-//GO(__gmpz_gcd, 
+GO(__gmpz_gcd, vFppp)
 //GO(__gmpz_gcdext, 
 //GO(__gmpz_gcd_ui, 
 //GO(__gmpz_get_d, 
@@ -508,15 +510,15 @@ GO(__gmpz_import, vFpLiLiLp)
 GO(__gmpz_init, vFp)
 //GO(__gmpz_init2, 
 //GO(__gmpz_inits, 
-//GO(__gmpz_init_set, 
+GO(__gmpz_init_set, vFpp)
 //GO(__gmpz_init_set_d, 
 //GO(__gmpz_init_set_si, 
 //GO(__gmpz_init_set_str, 
-//GO(__gmpz_init_set_ui, 
+GO(__gmpz_init_set_ui, vFpL)
 //GO(__gmpz_inp_raw, 
 //GO(__gmpz_inp_str, 
 //GO(__gmpz_inp_str_nowhite, 
-//GO(__gmpz_invert, 
+GO(__gmpz_invert, iFppp)
 //GO(__gmpz_ior, 
 //GO(__gmpz_jacobi, 
 //GO(__gmpz_kronecker_si, 
@@ -524,20 +526,20 @@ GO(__gmpz_init, vFp)
 //GO(__gmpz_lcm, 
 //GO(__gmpz_lcm_ui, 
 //GO(__gmpz_legendre, 
-//GO(__gmpz_limbs_finish, 
-//GO(__gmpz_limbs_modify, 
-//GO(__gmpz_limbs_read, 
-//GO(__gmpz_limbs_write, 
+GO(__gmpz_limbs_finish, vFpL)
+GO(__gmpz_limbs_modify, pFpL)
+GO(__gmpz_limbs_read, pFp)
+GO(__gmpz_limbs_write, pFpL)
 //GO(__gmpz_lucas_mod, 
 //GO(__gmpz_lucnum2_ui, 
 //GO(__gmpz_lucnum_ui, 
 //GO(__gmpz_mfac_uiui, 
 //GO(__gmpz_millerrabin, 
 GO(__gmpz_mod, vFppp)
-//GO(__gmpz_mul, 
-//GO(__gmpz_mul_2exp, 
+GO(__gmpz_mul, vFppp)
+GO(__gmpz_mul_2exp, vFppL)
 //GO(__gmpz_mul_si, 
-//GO(__gmpz_mul_ui, 
+GO(__gmpz_mul_ui, vFppL)
 //GO(__gmpz_neg, 
 //GO(__gmpz_nextprime, 
 //GO(__gmpz_n_pow_ui, 
@@ -548,52 +550,52 @@ GO(__gmpz_mod, vFppp)
 //GO(__gmpz_perfect_square_p, 
 //GO(__gmpz_popcount, 
 GO(__gmpz_powm, vFpppp)
-//GO(__gmpz_powm_sec, 
-//GO(__gmpz_powm_ui, 
+GO(__gmpz_powm_sec, vFpppp)
+GO(__gmpz_powm_ui, vFppLp)
 //GO(__gmpz_pow_ui, 
 //GO(__gmpz_primorial_ui, 
-//GO(__gmpz_probab_prime_p, 
+GO(__gmpz_probab_prime_p, iFpi)
 //GO(__gmpz_prodlimbs, 
 //GO(__gmpz_random, 
 //GO(__gmpz_random2, 
 //GO(__gmpz_realloc, 
 //GO(__gmpz_realloc2, 
 //GO(__gmpz_remove, 
-//GO(__gmpz_roinit_n, 
+GO(__gmpz_roinit_n, pFppL)
 //GO(__gmpz_root, 
 //GO(__gmpz_rootrem, 
 //GO(__gmpz_rrandomb, 
 //GO(__gmpz_scan0, 
-//GO(__gmpz_scan1, 
-//GO(__gmpz_set, 
-//GO(__gmpz_setbit, 
+GO(__gmpz_scan1, LFpL)
+GO(__gmpz_set, vFpp)
+GO(__gmpz_setbit, vFpL)
 //GO(__gmpz_set_d, 
 //GO(__gmpz_set_f, 
 //GO(__gmpz_set_q, 
 //GO(__gmpz_set_si, 
 //GO(__gmpz_set_str, 
-//GO(__gmpz_set_ui, 
+GO(__gmpz_set_ui, vFpL)
 //GO(__gmpz_si_kronecker, 
 //GO(__gmpz_size, 
 GO(__gmpz_sizeinbase, LFpi)
 //GO(__gmpz_sqrt, 
 //GO(__gmpz_sqrtrem, 
 //GO(__gmpz_stronglucas, 
-//GO(__gmpz_sub, 
+GO(__gmpz_sub, vFppp)
 //GO(__gmpz_submul, 
-//GO(__gmpz_submul_ui, 
+GO(__gmpz_submul_ui, vFppL)
 GO(__gmpz_sub_ui, vFppu)
 //GO(__gmpz_swap, 
 //GO(__gmpz_tdiv_q, 
-//GO(__gmpz_tdiv_q_2exp, 
-//GO(__gmpz_tdiv_qr, 
+GO(__gmpz_tdiv_q_2exp, vFppL)
+GO(__gmpz_tdiv_qr, vFpppp)
 //GO(__gmpz_tdiv_qr_ui, 
 //GO(__gmpz_tdiv_q_ui, 
 //GO(__gmpz_tdiv_r, 
 //GO(__gmpz_tdiv_r_2exp, 
 //GO(__gmpz_tdiv_r_ui, 
 //GO(__gmpz_tdiv_ui, 
-//GO(__gmpz_tstbit, 
+GO(__gmpz_tstbit, iFpL)
 //GO(__gmpz_ui_kronecker, 
 //GO(__gmpz_ui_pow_ui, 
 //GO(__gmpz_ui_sub, 
