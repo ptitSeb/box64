@@ -490,11 +490,20 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                 end = offs + sym->st_size;
             }*/
             // so weak symbol are the one left
-            if(!offs && !end) {
-                if(!offs && !end && local_maplib)
-                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
-                if(!offs && !end && local_maplib)
-                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+            if(bind==STB_WEAK) {
+                if(!offs && !end) {
+                    if(!offs && !end && local_maplib)
+                        GetGlobalWeakSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                    if(!offs && !end && local_maplib)
+                        GetGlobalWeakSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                }
+            } else {
+                if(!offs && !end) {
+                    if(!offs && !end && local_maplib)
+                        GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                    if(!offs && !end && local_maplib)
+                        GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                }
             }
         }
         uintptr_t globoffs, globend;
@@ -692,13 +701,24 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 end = offs + sym->st_size;
             }*/
             // so weak symbol are the one left
-            if(old_version==version && old_bind==bind && old_symname==symname) {
-                offs = old_offs;
-                end = old_end;
+            if(bind==STB_WEAK) {
+                if(old_version==version && old_bind==bind && old_symname==symname) {
+                    offs = old_offs;
+                    end = old_end;
+                } else {
+                    GetGlobalWeakSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                    if(!offs && !end && local_maplib)
+                        GetGlobalWeakSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                }
             } else {
-                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
-                if(!offs && !end && local_maplib)
-                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                if(old_version==version && old_bind==bind && old_symname==symname) {
+                    offs = old_offs;
+                    end = old_end;
+                } else {
+                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                    if(!offs && !end && local_maplib)
+                        GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                }
             }
         }
         old_bind = bind;
