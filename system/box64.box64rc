@@ -97,6 +97,9 @@ BOX64_DYNAREC_BIGBLOCK=0
 [steam-runtime-check-requirements]
 BOX64_EXIT=1
 
+[steam-runtime-launcher-service]
+BOX64_NOGTK=1
+
 [Torchlight2.bin.x86_64]
 # Those are safe to use on 7z and give a bit of a boost
 BOX64_DYNAREC_SAFEFLAGS=0
