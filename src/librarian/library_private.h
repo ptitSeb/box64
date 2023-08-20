@@ -17,13 +17,21 @@ typedef struct x64emu_s         x64emu_t;
 
 typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 
+typedef struct symbol1_s {
+    wrapper_t   w;
+    int         resolved;
+    uintptr_t   addr;
+} symbol1_t;
+
 typedef struct symbol2_s {
     wrapper_t    w;
     const char*  name;
     int          weak;
+    int          resolved;
+    uintptr_t    addr;
 } symbol2_t;
 
-KHASH_MAP_DECLARE_STR(symbolmap, wrapper_t)
+KHASH_MAP_DECLARE_STR(symbolmap, symbol1_t)
 KHASH_MAP_DECLARE_STR(symbol2map, symbol2_t)
 KHASH_MAP_DECLARE_STR(datamap, uint64_t)
 

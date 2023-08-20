@@ -154,10 +154,12 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
 	for (int i = 0; i < cnt; ++i) {                                                 \
         if (MAPNAME(mapname)[i].weak) {                                             \
             k = kh_put(symbolmap, lib->w.w##mapname, MAPNAME(mapname)[i].name, &ret); \
-            kh_value(lib->w.w##mapname, k) = MAPNAME(mapname)[i].w;                   \
+            kh_value(lib->w.w##mapname, k).w = MAPNAME(mapname)[i].w;               \
+            kh_value(lib->w.w##mapname, k).resolved = 0;                            \
         } else {                                                                    \
-            k = kh_put(symbolmap, lib->w.mapname, MAPNAME(mapname)[i].name, &ret);    \
-            kh_value(lib->w.mapname, k) = MAPNAME(mapname)[i].w;                      \
+            k = kh_put(symbolmap, lib->w.mapname, MAPNAME(mapname)[i].name, &ret);  \
+            kh_value(lib->w.mapname, k).w = MAPNAME(mapname)[i].w;                  \
+            kh_value(lib->w.mapname, k).resolved = 0;                               \
         }                                                                           \
         if (strchr(MAPNAME(mapname)[i].name, '@'))                                  \
             AddDictionnary(box64->versym, MAPNAME(mapname)[i].name);                \
@@ -168,7 +170,7 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
     cnt = sizeof(MAPNAME(stsymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->w.stsymbolmap, MAPNAME(stsymbolmap)[i].name, &ret);
-        kh_value(lib->w.stsymbolmap, k) = MAPNAME(stsymbolmap)[i].w;
+        kh_value(lib->w.stsymbolmap, k).w = MAPNAME(stsymbolmap)[i].w;
         if(strchr(MAPNAME(stsymbolmap)[i].name, '@'))
             AddDictionnary(box64->versym, MAPNAME(stsymbolmap)[i].name);
     }
@@ -178,6 +180,7 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
         kh_value(lib->w.symbol2map, k).name = MAPNAME(symbol2map)[i].name2;
         kh_value(lib->w.symbol2map, k).w = MAPNAME(symbol2map)[i].w;
         kh_value(lib->w.symbol2map, k).weak = MAPNAME(symbol2map)[i].weak;
+        kh_value(lib->w.symbol2map, k).resolved = 0;
         if(strchr(MAPNAME(symbol2map)[i].name, '@'))
             AddDictionnary(box64->versym, MAPNAME(symbol2map)[i].name);
     }

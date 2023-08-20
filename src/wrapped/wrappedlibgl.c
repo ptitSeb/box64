@@ -264,8 +264,22 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
 
 #define PRE_INIT if(box64_libGL) {lib->w.lib = dlopen(box64_libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(box64_libGL);} else
 #define CUSTOM_INIT \
-    my_lib = lib;   \
-    lib->w.priv = dlsym(lib->w.lib, "glXGetProcAddress"); \
+    my_lib = lib;                                                               \
+    lib->w.priv = dlsym(lib->w.lib, "glXGetProcAddress");                       \
+    void* symb = dlsym(lib->w.lib, "glDebugMessageCallback");                   \
+    if(symb) {                                                                  \
+        k = kh_get(symbolmap, lib->w.mysymbolmap, "glDebugMessageCallback");    \
+        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
+        s->resolved = 1;                                                        \
+        s->addr = (uintptr_t)find_glDebugMessageCallback_Fct(symb);             \
+    }                                                                           \
+    symb = dlsym(lib->w.lib, "glXSwapIntervalMESA");                            \
+    if(symb) {                                                                  \
+        k = kh_get(symbolmap, lib->w.mysymbolmap, "glXSwapIntervalMESA");       \
+        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
+        s->resolved = 1;                                                        \
+        s->addr = (uintptr_t)find_glXSwapIntervalMESA_Fct(symb);                \
+    }                                                                           \
 
 #include "wrappedlib_init.h"
 
@@ -297,20 +311,23 @@ gl_wrappers_t* getGLProcWrapper(box64context_t* context, glprocaddress_t procadd
     cnt = sizeof(libglsymbolmap)/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, wrappers->glwrappers, libglsymbolmap[i].name, &ret);
-        kh_value(wrappers->glwrappers, k) = libglsymbolmap[i].w;
+        kh_value(wrappers->glwrappers, k).w = libglsymbolmap[i].w;
+        kh_value(wrappers->glwrappers, k).resolved = 0;
     }
     // and the my_ symbols map
     cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, wrappers->glwrappers, libglmysymbolmap[i].name, &ret);
-        kh_value(wrappers->glwrappers, k) = libglmysymbolmap[i].w;
+        kh_value(wrappers->glwrappers, k).w = libglmysymbolmap[i].w;
+        kh_value(wrappers->glwrappers, k).resolved = 0;
     }
     // my_* map
     wrappers->glmymap = kh_init(symbolmap);
     cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, wrappers->glmymap, libglmysymbolmap[i].name, &ret);
-        kh_value(wrappers->glmymap, k) = libglmysymbolmap[i].w;
+        kh_value(wrappers->glmymap, k).w = libglmysymbolmap[i].w;
+        kh_value(wrappers->glmymap, k).resolved = 0;
     }
     return wrappers;
 }
@@ -392,9 +409,14 @@ void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rnam
         printf_dlsym(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
-    const char* constname = kh_key(wrappers->glwrappers, k);
-    AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    ret = AddBridge(emu->context->system, kh_value(wrappers->glwrappers, k), symbol, 0, constname);
+    symbol1_t* s = &kh_value(wrappers->glwrappers, k);
+    if(!s->resolved) {
+        const char* constname = kh_key(wrappers->glwrappers, k);
+        AddOffsetSymbol(emu->context->maplib, symbol, rname);
+        s->addr = AddBridge(emu->context->system, s->w, symbol, 0, constname);
+        s->resolved = 1;
+    }
+    ret = s->addr;
     printf_dlsym(LOG_DEBUG, "%p\n", (void*)ret);
     return (void*)ret;
 }

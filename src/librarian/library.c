@@ -51,7 +51,7 @@ typedef struct bridged_s {
 
 KHASH_MAP_INIT_STR(bridgemap, bridged_t)
 
-KHASH_MAP_IMPL_STR(symbolmap, wrapper_t)
+KHASH_MAP_IMPL_STR(symbolmap, symbol1_t)
 KHASH_MAP_IMPL_STR(symbol2map, symbol2_t)
 KHASH_MAP_IMPL_STR(datamap, uint64_t)
 
@@ -799,73 +799,8 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
     // check in mysymbolmap
     khint_t k = kh_get(symbolmap, lib->w.mysymbolmap, name);
     if (k!=kh_end(lib->w.mysymbolmap)) {
-        char buff[200];
-        if(lib->w.altmy)
-            strcpy(buff, lib->w.altmy);
-        else
-            strcpy(buff, "my_");
-        strcat(buff, name);
-        symbol = dlsym(my_context->box64lib, buff);
-        if(!symbol) {
-            printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
-        } else 
-            AddOffsetSymbol(my_context->maplib, symbol, name);
-        *addr = AddBridge(lib->w.bridge, kh_value(lib->w.mysymbolmap, k), symbol, 0, name);
-        *size = sizeof(void*);
-        *weak = 0;
-        return 1;
-    }
-    // check in stsymbolmap (return struct...)
-    k = kh_get(symbolmap, lib->w.stsymbolmap, name);
-    if (k!=kh_end(lib->w.stsymbolmap)) {
-        char buff[200];
-        if(lib->w.altmy)
-            strcpy(buff, lib->w.altmy);
-        else
-            strcpy(buff, "my_");
-        strcat(buff, name);
-        symbol = dlsym(my_context->box64lib, buff);
-        if(!symbol) {
-            printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
-        } else 
-            AddOffsetSymbol(my_context->maplib, symbol, name);
-        *addr = AddBridge(lib->w.bridge, kh_value(lib->w.stsymbolmap, k), symbol, sizeof(void*), name);
-        *size = sizeof(void*);
-        *weak = 0;
-        return 1;
-    }
-    // check in symbolmap
-    k = kh_get(symbolmap, lib->w.symbolmap, name);
-    if (k!=kh_end(lib->w.symbolmap)) {
-        symbol = dlsym(lib->w.lib, name);
-        if(!symbol && lib->w.altprefix) {
-            char newname[200];
-            strcpy(newname, lib->w.altprefix);
-            strcat(newname, name);
-            symbol = dlsym(lib->w.lib, newname);
-        }
-        if(!symbol)
-            symbol = GetNativeSymbolUnversioned(lib->w.lib, name);
-        if(!symbol && lib->w.altprefix) {
-            char newname[200];
-            strcpy(newname, lib->w.altprefix);
-            strcat(newname, name);
-            symbol = GetNativeSymbolUnversioned(lib->w.lib, newname);
-        }
-        if(!symbol) {
-            printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
-            return 0;
-        } else 
-            AddOffsetSymbol(my_context->maplib, symbol, name);
-        *addr = AddBridge(lib->w.bridge, kh_value(lib->w.symbolmap, k), symbol, 0, name);
-        *size = sizeof(void*);
-        *weak = 0;
-        return 1;
-    }
-    if(!noweak) {
-        // check in wmysymbolmap
-        khint_t k = kh_get(symbolmap, lib->w.wmysymbolmap, name);
-        if (k!=kh_end(lib->w.wmysymbolmap)) {
+        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);
+        if(!s->resolved) {
             char buff[200];
             if(lib->w.altmy)
                 strcpy(buff, lib->w.altmy);
@@ -875,15 +810,45 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             symbol = dlsym(my_context->box64lib, buff);
             if(!symbol) {
                 printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
-            } else 
-                AddOffsetSymbol(my_context->maplib, symbol, name);
-            *addr = AddBridge(lib->w.bridge, kh_value(lib->w.wmysymbolmap, k), symbol, 0, name);
-            *size = sizeof(void*);
-            *weak = 1;
-            return 1;
+                return 0;
+            }
+            s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+            s->resolved = 1;
         }
-        k = kh_get(symbolmap, lib->w.wsymbolmap, name);
-        if (k!=kh_end(lib->w.wsymbolmap)) {
+        *addr = s->addr;
+        *size = sizeof(void*);
+        *weak = 0;
+        return 1;
+    }
+    // check in stsymbolmap (return struct...)
+    k = kh_get(symbolmap, lib->w.stsymbolmap, name);
+    if (k!=kh_end(lib->w.stsymbolmap)) {
+        symbol1_t *s = &kh_value(lib->w.stsymbolmap, k);
+        if(!s->resolved) {
+            char buff[200];
+            if(lib->w.altmy)
+                strcpy(buff, lib->w.altmy);
+            else
+                strcpy(buff, "my_");
+            strcat(buff, name);
+            symbol = dlsym(my_context->box64lib, buff);
+            if(!symbol) {
+                printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
+                return 0;
+            }
+            s->addr = AddBridge(lib->w.bridge, s->w, symbol, sizeof(void*), name);
+            s->resolved = 1;
+        }
+        *addr = s->addr;
+        *size = sizeof(void*);
+        *weak = 0;
+        return 1;
+    }
+    // check in symbolmap
+    k = kh_get(symbolmap, lib->w.symbolmap, name);
+    if (k!=kh_end(lib->w.symbolmap)) {
+        symbol1_t *s = &kh_value(lib->w.symbolmap, k);
+        if(!s->resolved) {
             symbol = dlsym(lib->w.lib, name);
             if(!symbol && lib->w.altprefix) {
                 char newname[200];
@@ -902,9 +867,67 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             if(!symbol) {
                 printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
                 return 0;
-            } else 
-                AddOffsetSymbol(my_context->maplib, symbol, name);
-            *addr = AddBridge(lib->w.bridge, kh_value(lib->w.wsymbolmap, k), symbol, 0, name);
+            }
+            s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+            s->resolved = 1;
+        }
+        *addr = s->addr;
+        *size = sizeof(void*);
+        *weak = 0;
+        return 1;
+    }
+    if(!noweak) {
+        // check in wmysymbolmap
+        khint_t k = kh_get(symbolmap, lib->w.wmysymbolmap, name);
+        if (k!=kh_end(lib->w.wmysymbolmap)) {
+            symbol1_t *s = &kh_value(lib->w.wmysymbolmap, k);
+            if(!s->resolved) {
+                char buff[200];
+                if(lib->w.altmy)
+                    strcpy(buff, lib->w.altmy);
+                else
+                    strcpy(buff, "my_");
+                strcat(buff, name);
+                symbol = dlsym(my_context->box64lib, buff);
+                if(!symbol) {
+                    printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
+                    return 0;
+                }
+                s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+                s->resolved = 1;
+            }
+            *addr = s->addr;
+            *size = sizeof(void*);
+            *weak = 1;
+            return 1;
+        }
+        k = kh_get(symbolmap, lib->w.wsymbolmap, name);
+        if (k!=kh_end(lib->w.wsymbolmap)) {
+            symbol1_t *s = &kh_value(lib->w.wsymbolmap, k);
+            if(!s->resolved) {
+                symbol = dlsym(lib->w.lib, name);
+                if(!symbol && lib->w.altprefix) {
+                    char newname[200];
+                    strcpy(newname, lib->w.altprefix);
+                    strcat(newname, name);
+                    symbol = dlsym(lib->w.lib, newname);
+                }
+                if(!symbol)
+                    symbol = GetNativeSymbolUnversioned(lib->w.lib, name);
+                if(!symbol && lib->w.altprefix) {
+                    char newname[200];
+                    strcpy(newname, lib->w.altprefix);
+                    strcat(newname, name);
+                    symbol = GetNativeSymbolUnversioned(lib->w.lib, newname);
+                }
+                if(!symbol) {
+                    printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
+                    return 0;
+                }
+                s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+                s->resolved = 1;
+            }
+            *addr = s->addr;
             *size = sizeof(void*);
             *weak = 1;
             return 1;
@@ -912,25 +935,29 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
     }
     // check in symbol2map
     k = kh_get(symbol2map, lib->w.symbol2map, name);
-    if (k!=kh_end(lib->w.symbol2map)) 
-        if(!noweak || !kh_value(lib->w.symbol2map, k).weak)
+    if (k!=kh_end(lib->w.symbol2map))  {
+        symbol2_t *s = &kh_value(lib->w.symbol2map, k);
+        if(!noweak || !s->weak)
         {
-            symbol = dlsym(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
-            if(!symbol)
-                symbol = dlsym(RTLD_DEFAULT, kh_value(lib->w.symbol2map, k).name);    // search globaly maybe
-            if(!symbol)
-                symbol = GetNativeSymbolUnversioned(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
-            if(!symbol) {
-                printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->w.symbol2map, k).name, lib->name);
-                return 0;
-            } else 
-                AddOffsetSymbol(my_context->maplib, symbol, name);
-            *addr = AddBridge(lib->w.bridge, kh_value(lib->w.symbol2map, k).w, symbol, 0, name);
+            if(!s->resolved) {
+                symbol = dlsym(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
+                if(!symbol)
+                    symbol = dlsym(RTLD_DEFAULT, kh_value(lib->w.symbol2map, k).name);    // search globaly maybe
+                if(!symbol)
+                    symbol = GetNativeSymbolUnversioned(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
+                if(!symbol) {
+                    printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->w.symbol2map, k).name, lib->name);
+                    return 0;
+                }
+                s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+                s->resolved = 1;
+            }
+            *addr = s->addr;
             *size = sizeof(void*);
-            *weak = kh_value(lib->w.symbol2map, k).weak;
+            *weak = s->weak;
             return 1;
         }
-
+    }
     return 0;
 }
 
