@@ -171,6 +171,7 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->w.stsymbolmap, MAPNAME(stsymbolmap)[i].name, &ret);
         kh_value(lib->w.stsymbolmap, k).w = MAPNAME(stsymbolmap)[i].w;
+        kh_value(lib->w.stsymbolmap, k).resolved = 0;
         if(strchr(MAPNAME(stsymbolmap)[i].name, '@'))
             AddDictionnary(box64->versym, MAPNAME(stsymbolmap)[i].name);
     }
