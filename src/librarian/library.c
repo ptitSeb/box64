@@ -656,17 +656,17 @@ int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start,
     if(!name[0])
         return 0;
     khint_t k;
+    kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
+    // check first if already in the map
+    k = kh_get(bridgemap, map, VersionedName(name, version, vername));
+    if(k!=kh_end(map)) {
+        *start = kh_value(map, k).start;
+        *end = kh_value(map, k).end;
+        return 1;
+    }
     // get a new symbol
     if(lib->getweak(lib, name, start, end, size, weak, version, vername, local, defver)) {
         *end += *start;     // lib->get(...) gives size, not end
-        kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
-        // check first if already in the map
-        k = kh_get(bridgemap, map, VersionedName(name, version, vername));
-        if(k!=kh_end(map)) {
-            *start = kh_value(map, k).start;
-            *end = kh_value(map, k).end;
-            return 1;
-        }
         char* symbol = box_strdup(VersionedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, map, symbol, &ret);
@@ -683,17 +683,17 @@ int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* star
     if(!name[0] || !lib)
         return 0;
     khint_t k;
+    kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
+    // check if already in the map
+    k = kh_get(bridgemap, map, VersionedName(name, version, vername));
+    if(k!=kh_end(map)) {
+        *start = kh_value(map, k).start;
+        *end = kh_value(map, k).end;
+        return 1;
+    }
     // get a new symbol
     if(lib->getglobal(lib, name, start, end, size, weak, version, vername, local, defver)) {
         *end += *start;     // lib->get(...) gives size, not end
-        kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
-        // check if already in the map
-        k = kh_get(bridgemap, map, VersionedName(name, version, vername));
-        if(k!=kh_end(map)) {
-            *start = kh_value(map, k).start;
-            *end = kh_value(map, k).end;
-            return 1;
-        }
         char* symbol = box_strdup(VersionedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, map, symbol, &ret);
@@ -710,16 +710,16 @@ int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start
     if(!name[0])
         return 0;
     khint_t k;
+    // check first if already in the map
+    k = kh_get(bridgemap, lib->lbridgemap, VersionedName(name, version, vername));
+    if(k!=kh_end(lib->lbridgemap)) {
+        *start = kh_value(lib->lbridgemap, k).start;
+        *end = kh_value(lib->lbridgemap, k).end;
+        return 1;
+    }
     // get a new symbol
     if(lib->getlocal(lib, name, start, end, size, weak, version, vername, local, defver)) {
         *end += *start;     // lib->get(...) gives size, not end
-        // check first if already in the map
-        k = kh_get(bridgemap, lib->lbridgemap, VersionedName(name, version, vername));
-        if(k!=kh_end(lib->lbridgemap)) {
-            *start = kh_value(lib->lbridgemap, k).start;
-            *end = kh_value(lib->lbridgemap, k).end;
-            return 1;
-        }
         char* symbol = box_strdup(VersionedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, lib->lbridgemap, symbol, &ret);
