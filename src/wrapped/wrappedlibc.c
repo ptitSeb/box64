@@ -2228,6 +2228,10 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     int script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
     int ret;
     printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x64, fullpath);
+    // hack to update the environ var if needed
+    if(envp == my_context->envv && environ) {
+        envp = environ;
+    }
     if (x64 || x86 || script || self) {
         int n=1;
         while(argv[n]) ++n;
