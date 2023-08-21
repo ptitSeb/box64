@@ -1975,7 +1975,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VEOR(q0, q0, q1);
             }
             break;
-
+        case 0xF1:
+            INST_NAME("PSLLW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            v0 = fpu_get_scratch(dyn);
+            VMOVHto(x1, d1, 0);
+            VDUPH(v0, x1);
+            USHL_16(d0, d0, v0);
+            break;
         case 0xF2:
             INST_NAME("PSLLD Gm,Em");
             nextop = F8;
@@ -1986,6 +1995,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             VMOVeD(v0, 1, d1, 0);
             SQXTN_32(v0, v0); // 2*q1 in 32bits now
             SSHL_32(d0, d0, v0);
+            break;
+        case 0xF3:
+            INST_NAME("PSLLQ Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            USHL_R_64(d0, d0, d1);
             break;
         case 0xF4:
             INST_NAME("PMULUDQ Gx,Ex");
@@ -2016,7 +2032,29 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UADDLVQ_16(d1, d0);
             VMOVeD(q0, 0, d1, 0);
             break;
-
+        case 0xF7:
+            INST_NAME("MASKMOVQ Gm, Em");
+            nextop = F8;
+            GETGM(q0);
+            GETEM(q1, 0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            USHR_64(d1, q1, 7);
+            MOV32w(x1, 1);
+            VDUPB(d0, x1);
+            VAND(d1, d1, d0);
+            MOV32w(x1, 0xff);
+            VDUPB(d0, x1);
+            VMUL_8(d0, d0, d1); // d0 = byte selection bitmask
+            VAND(d1, q0, d0);   // d1 = masked Gm
+            LDx(x1, xRDI, 0);   // x1 = [rdi]
+            VMOVQDto(x2, d0, 0);
+            MVNx_REG(x2, x2);
+            ANDx_REG(x1, x1, x2); // x1 = clear selected bytes
+            VMOVQDto(x2, d1, 0);
+            ORRx_REG(x1, x1, x2);
+            STx(x1, xRDI, 0);
+            break;
         case 0xF8:
             INST_NAME("PSUBB Gm, Em");
             nextop = F8;
@@ -2038,20 +2076,19 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(v1, 0);
             VSUB_32(v0, v0, v1);
             break;
-
-        case 0xFC:
-            INST_NAME("PADDB Gm, Em");
-            nextop = F8;
-            GETGM(v0);
-            GETEM(v1, 0);
-            VADD_8(v0, v0, v1);
-            break;
         case 0xFB:
             INST_NAME("PSUBQ Gm, Em");
             nextop = F8;
             GETGM(v0);
             GETEM(v1, 0);
             SUB_64(v0, v0, v1);
+            break;
+        case 0xFC:
+            INST_NAME("PADDB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VADD_8(v0, v0, v1);
             break;
         case 0xFD:
             INST_NAME("PADDW Gm, Em");

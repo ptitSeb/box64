@@ -1734,7 +1734,16 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 tmp32u += (GM->ub[i]>EM->ub[i])?(GM->ub[i] - EM->ub[i]):(EM->ub[i] - GM->ub[i]);
             GM->q = tmp32u;
             break;
-
+        case 0xF7:                   /* MASKMOVQ Gm, Em */
+            nextop = F8;
+            GETEM(0);
+            GETGM;
+            for (int i = 0; i < 8; i++) {
+                if (EM->ub[i] & 0x80) {
+                   ((reg64_t*)(emu->regs[_DI].q[0]))->byte[i] = GM->ub[i];
+                }
+            }
+            break;
         case 0xF8:                   /* PSUBB Gm,Em */
             nextop = F8;
             GETEM(0);
