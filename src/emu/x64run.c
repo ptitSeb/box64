@@ -57,10 +57,8 @@ int Run(x64emu_t *emu, int step)
     if(emu->quit)
         return 0;
     if(addr==0) {
-        emu->quit = 1;
-        printf_log(LOG_INFO, "%04d|Ask to run at NULL, quit silently\n", GetTID());
-        print_cycle_log(LOG_INFO);
-        return 0;
+        // Some programs, like VB6 VARA.exe, need to trigger that segfault to actually run... (ticket #830 in box86)
+        printf_log(LOG_INFO, "%04d|Ask to run at NULL, will segfault\n", GetTID());
     }
     //ref opcode: http://ref.x64asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p is32bits=%d\n", emu, (void*)addr, (void*)R_RSP, is32bits);
