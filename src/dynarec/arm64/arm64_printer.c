@@ -1302,6 +1302,14 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "FCVT%sS %s, %c%d", roundings[a.c], sf?Xt[Rd]:Wt[Rd], s, Rn);
         return buff;
     }
+    if(isMask(opcode, "0QU01110of100001101o10nnnnnddddd", &a)) {
+        const char* Y[] = {"2S", "4S", "??", "2D"};
+        const char* Z[] = {"S", "S", "??", "D"};
+        const char* Vd = Y[(sf<<1) | a.Q];
+        const char* roundings[] = {"N", "M", "P", "Z"};
+        snprintf(buff, sizeof(buff), "VFCVT%s%s%s%s V%d.%s, V%d.%s", roundings[option], a.U?"U":"S", a.Q?"Q":"", Z[(sf<<1)|a.Q], Rd, Vd, Rn, Vd);
+        return buff;
+    }
 
     // FMOV
     if(isMask(opcode, "00011110pp100000010000nnnnnddddd", &a)) {

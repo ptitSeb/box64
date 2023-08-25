@@ -201,7 +201,92 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 SMWRITE2();
             }
             break;
-
+        case 0x2A:
+            INST_NAME("CVTPI2PD Gx,Em");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEM(q1, 0);
+            SXTL_32(v0, q1);
+            SCVTQFD(v0, v0);
+            break;
+        case 0x2B:
+            INST_NAME("MOVNTPD Ex,Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                ed = (nextop&7)+(rex.b<<3);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                VST128(v0, ed, fixedaddress);
+            }
+            break;
+        case 0x2C:
+            INST_NAME("CVTTPD2PI Gm,Ex");
+            nextop = F8;
+            GETGM(q0);
+            GETEX(v1, 0, 0);
+            if(box64_dynarec_fastround) {
+                VFCVTZSQD(q0, v1);
+                SQXTN_32(q0, q0);
+            } else {
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+                ORRw_mask(x2, xZR, 1, 0);    //0x80000000
+                d0 = fpu_get_scratch(dyn);
+                for (int i=0; i<2; ++i) {
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    if (i) {
+                        VMOVeD(d0, 0, v1, i);
+                        FRINTZD(d0, d0);
+                    } else {
+                        FRINTZD(d0, v1);
+                    }
+                    FCVTZSwD(x1, d0);
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ(x5, FPSR_IOC, 4+4);
+                    MOVw_REG(x1, x2);
+                    VMOVQSfrom(q0, i, x1);
+                }
+            }
+            break;
+        case 0x2D:
+            INST_NAME("CVTPD2PI Gm,Ex");
+            nextop = F8;
+            GETGM(q0);
+            GETEX(v1, 0, 0);
+            if(box64_dynarec_fastround) {
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                VFRINTIDQ(q0, v1);
+                FCVTXN(q0, q0);
+                x87_restoreround(dyn, ninst, u8);
+                VFCVTZSS(q0, q0);
+            } else {
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+                ORRw_mask(x2, xZR, 1, 0);    //0x80000000
+                d0 = fpu_get_scratch(dyn);
+                for (int i=0; i<2; ++i) {
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    if (i) {
+                        VMOVeD(d0, 0, v1, i);
+                        FRINTID(d0, d0);
+                    } else {
+                        FRINTID(d0, v1);
+                    }
+                    FCVTZSwD(x1, d0);
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ(x5, FPSR_IOC, 4+4);
+                    MOVw_REG(x1, x2);
+                    VMOVQSfrom(q0, i, x1);
+                }
+                x87_restoreround(dyn, ninst, u8);
+            }
+            break;
         case 0x2E:
             // no special check...
         case 0x2F:
