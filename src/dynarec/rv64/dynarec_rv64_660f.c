@@ -148,12 +148,70 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SSE_LOOP_MV_Q2(x3);
             if(!MODREG) SMWRITE2();
             break;
+        case 0x2A:
+            INST_NAME("CVTPI2PD Gx,Em");
+            nextop = F8;
+            GETGX();
+            GETEM(x2, 0);
+            d0 = fpu_get_scratch(dyn);
+            for (int i=0; i<2; ++i) {
+                LW(x1, wback, fixedaddress+i*4);
+                FCVTDW(d0, x1, RD_RTZ);
+                FSD(d0, gback, gdoffset+i*8);
+            }
+            break;
         case 0x2B:
             INST_NAME("MOVNTPD Ex, Gx");
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
             SSE_LOOP_MV_Q2(x3);
+            break;
+        case 0x2C:
+            INST_NAME("CVTTPD2PI Gm,Ex");
+            nextop = F8;
+            GETGM();
+            GETEX(x2, 0);
+            d0 = fpu_get_scratch(dyn);
+            for (int i=0; i<2; ++i) {
+                if(!box64_dynarec_fastround) {
+                    FSFLAGSI(0);  // // reset all bits
+                }
+                FLD(d0, wback, fixedaddress+i*8);
+                FCVTWD(x1, d0, RD_RTZ);
+                if(!box64_dynarec_fastround) {
+                    FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                    ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+                    BEQ_MARKi(x5, xZR, i);
+                    MOV32w(x1, 0x80000000);
+                    MARKi(i);
+                }
+                SW(x1, gback, gdoffset+i*4);
+            }
+            break;
+        case 0x2D:
+            INST_NAME("CVTPD2PI Gm,Ex");
+            nextop = F8;
+            GETGM();
+            GETEX(x2, 0);
+            d0 = fpu_get_scratch(dyn);
+            u8 = sse_setround(dyn, ninst, x4, x5);
+            for (int i=0; i<2; ++i) {
+                if(!box64_dynarec_fastround) {
+                    FSFLAGSI(0);  // // reset all bits
+                }
+                FLD(d0, wback, fixedaddress+i*8);
+                FCVTWD(x1, d0, RD_DYN);
+                if(!box64_dynarec_fastround) {
+                    FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                    ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+                    BEQ_MARKi(x5, xZR, i);
+                    MOV32w(x1, 0x80000000);
+                    MARKi(i);
+                }
+                SW(x1, gback, gdoffset+i*4);
+            }
+            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x2E:
             // no special check...

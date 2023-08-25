@@ -79,8 +79,8 @@ typedef struct instruction_rv64_s {
     int                 size2;      // size of the arm emitted instrucion after pass2
     int                 pred_sz;    // size of predecessor list
     int                 *pred;      // predecessor array
-    uintptr_t           mark, mark2, mark3;
-    uintptr_t           markf, markf2;
+    uintptr_t           mark[3];
+    uintptr_t           markf[2];
     uintptr_t           markseg;
     uintptr_t           marklock;
     int                 pass2choice;// value for choices that are fixed on pass2 for pass3

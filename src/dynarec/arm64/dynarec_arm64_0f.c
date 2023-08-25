@@ -302,7 +302,17 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SMWRITE2();
             }
             break;
-
+        case 0x2A:
+            INST_NAME("CVTPI2PS Gx,Em");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEM(q1, 0);
+            d0 = fpu_get_scratch(dyn);
+            u8 = sse_setround(dyn, ninst, x1, x2, x3);
+            SCVTFS(d0, q1);
+            x87_restoreround(dyn, ninst, u8);
+            VMOVeD(v0, 0, d0, 0);
+            break;
         case 0x2B:
             INST_NAME("MOVNTPS Ex,Gx");
             nextop = F8;
@@ -317,7 +327,69 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VST128(v0, ed, fixedaddress);
             }
             break;
-
+        case 0x2C:
+            INST_NAME("CVTTPS2PI Gm,Ex");
+            nextop = F8;
+            GETGM(q0);
+            GETEX(v1, 0, 0);
+            if (box64_dynarec_fastround) {
+                VFCVTZSS(q0, v1);
+            } else {
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+                ORRw_mask(x2, xZR, 1, 0);    //0x80000000
+                d0 = fpu_get_scratch(dyn);
+                for (int i=0; i<2; ++i) {
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    if (i) {
+                        VMOVeS(d0, 0, v1, i);
+                        FRINTZS(d0, d0);
+                    } else {
+                        FRINTZS(d0, v1);
+                    }
+                    FCVTZSwS(x1, d0);
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ(x5, FPSR_IOC, 4+4);
+                    MOVw_REG(x1, x2);
+                    VMOVQSfrom(q0, i, x1);
+                }
+            }
+            break;
+        case 0x2D:
+            INST_NAME("CVTPS2PI Gm, Ex");
+            nextop = F8;
+            GETGM(q0);
+            GETEX(v1, 0, 0);
+            if (box64_dynarec_fastround) {
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                VFRINTIS(q0, v1);
+                x87_restoreround(dyn, ninst, u8);
+                VFCVTZSS(q0, q0);
+            } else {
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+                ORRw_mask(x2, xZR, 1, 0);    //0x80000000
+                d0 = fpu_get_scratch(dyn);
+                for (int i=0; i<2; ++i) {
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    if (i) {
+                        VMOVeS(d0, 0, v1, i);
+                        FRINTIS(d0, d0);
+                    } else {
+                        FRINTIS(d0, v1);
+                    }
+                    FCVTZSwS(x1, d0);
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ(x5, FPSR_IOC, 4+4);
+                    MOVw_REG(x1, x2);
+                    VMOVQSfrom(q0, i, x1);
+                }
+                x87_restoreround(dyn, ninst, u8);
+            }
+            break;
         case 0x2E:
             // no special check...
         case 0x2F:
@@ -2039,21 +2111,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(q1, 0);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            USHR_64(d1, q1, 7);
-            MOV32w(x1, 1);
-            VDUPB(d0, x1);
-            VAND(d1, d1, d0);
-            MOV32w(x1, 0xff);
-            VDUPB(d0, x1);
-            VMUL_8(d0, d0, d1); // d0 = byte selection bitmask
-            VAND(d1, q0, d0);   // d1 = masked Gm
-            LDx(x1, xRDI, 0);   // x1 = [rdi]
-            VMOVQDto(x2, d0, 0);
-            MVNx_REG(x2, x2);
-            ANDx_REG(x1, x1, x2); // x1 = clear selected bytes
-            VMOVQDto(x2, d1, 0);
-            ORRx_REG(x1, x1, x2);
-            STx(x1, xRDI, 0);
+            VSSHR_8(d1, q1, 7); // d1 = byte slection mask
+            VLDR64_U12(d0, xRDI, 0);
+            VBIC(d0, d0, d1);   // d0 = clear masked byte
+            VAND(d1, q0, d1);   // d1 = masked Gm
+            VORR(d0, d0, d1);
+            VSTR64_U12(d0, xRDI, 0);
             break;
         case 0xF8:
             INST_NAME("PSUBB Gm, Em");
